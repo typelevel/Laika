@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+
+    <title>Laika</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/docs.css" rel="stylesheet">
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body data-spy="scroll" data-target=".toc" data-offset="200">
+
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span4 toc" >
+        
+        <ul class="nav nav-list affix">
+          <h1>LAIKA</h1>
+          <li class="nav-header">Introduction</li>
+          <li class="active"><a href="#getting-started">Getting Started</a></li>
+          <li><a href="#available-features">Available Features</a></li>
+          <li><a href="#planned-features">Planned Features</a></li>
+          <li><a href="#design-principles">Design Principles</a></li>
+          
+          <li class="nav-header">Transformation Basics</li>
+          <li><a href="basics.html">Transform API</a></li>
+          <li><a href="basics.html#parse">Parse API</a></li>
+          <li><a href="basics.html#render">Render API</a></li>
+          
+          <li class="nav-header">Supported Markup</li>
+          <li><a href="markup.html">Markdown</a></li>
+          
+          <li class="nav-header">Customizing Renderers</li>
+          <li><a href="customize.html">Using the Transform API</a></li>
+          <li><a href="customize.html#render">Using the Render API</a></li>
+          <li><a href="customize.html#writer">The Writer APIs</a></li>
+          
+          <li class="nav-header">Document Tree Rewriting</li>
+          <li><a href="tree-rewriting.html">Using the rewrite Method</a></li>
+          <li><a href="tree-rewriting.html#transform">Using the Transform API</a></li>
+          
+          <li class="nav-header">Implementing a Parser</li>
+          <li><a href="parser.html">Providing an API</a></li>
+          <li><a href="parser.html#markup-parsers">Trait MarkupParsers</a></li>
+          <li><a href="parser.html#inline-parsers">Trait InlineParsers</a></li>
+          <li><a href="parser.html#block-parsers">Trait BlockParsers</a></li>
+          
+          <li class="nav-header">Implementing a Renderer</li>
+          <li><a href="renderer.html">Providing an API</a></li>
+          <li><a href="renderer.html#function">The Render Function</a></li>
+        </ul>
+      </div>
+      
+      
+      
+      
+      <div class="span8">
+
+        <div>
+  <div class="page-header">
+    <h1>Laika</h1>
+  </div>
+  <p>Laika is a library for transforming lightweight markup languages to various types of output formats, written in Scala. </p>
+  <p>It is Open Source under the Apache 2.0 License.</p>
+  <p>If you wonder about the name of the project and have never heard about Laika, 
+  you can read about her <a href="http://en.wikipedia.org/wiki/Laika">here</a>.</p>
+  <h2 id="getting-started">Getting Started</h2>
+  <p>The source is available on [GitHub].</p>
+  <p>You can browse the API in the [Laika Scaladoc].</p>
+  <p>New releases will be announced on [Twitter].</p>
+  <p>Simple operations can usually be expressed in a single line like this:</p>
+  <pre>Transform from Markdown to HTML fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;</pre>
+  <p>To get started you can read more about standard usage in the chapter [Transformation Basics]. </p>
+  <p>Note: the initial code base has just been pushed to GitHub. The first release
+  (version 0.1.0) will be published to Maven Central shortly (within a few days).
+  Until then you can easily checkout the project and build it yourself. Laika does
+  not come with any dependencies, apart from the UnitTests which require ScalaTest 1.8
+  and JUnit 4.10. </p>
+  <h2 id="available-features">Available Features</h2>
+  <ul>
+    <li><p>Support for Markdown as input</p></li>
+    <li><p>Support for HTML and PrettyPrint (for debugging etc.) as output</p></li>
+    <li><p>Customization Hooks for Renderers</p></li>
+    <li><p>Document Tree Rewriting</p></li>
+    <li><p>Various options for input and output (strings, files, java.io.Reader/Writer, java.io streams)</p></li>
+  </ul>
+  <h2 id="planned-features">Planned Features</h2>
+  <ul>
+    <li><p>Support for reStructuredText and Markmore (a new &quot;Markdown Extended&quot; format) as input</p></li>
+    <li><p>Support for epub and PDF (via Apache FOP) as output</p></li>
+    <li><p>Books (multi-document processing with TOC generation)</p></li>
+    <li><p>Command-Line Interface</p></li>
+    <li><p>sbt Plugin</p></li>
+  </ul>
+  <h2 id="design-principles">Design Principles</h2>
+  <ul>
+    <li><p>Fully decouple the aspects of input/output, parsing, rendering and document tree rewriting, 
+    making each of these steps pluggable.</p></li>
+    <li><p>Provide a very convenient and simple high level API for common transformation tasks.</p></li>
+    <li><p>Build a generic document tree model that does not reflect specifics of a particular 
+    markup language like Markdown.</p></li>
+    <li><p>Allow for easy modification of the rendering for a particular node type only, without
+    the need to sub-class or modify an existing renderer.</p></li>
+    <li><p>Create the built-in parsers with the Scala parser combinators, providing efficient and
+    reusable base parsers that encapsulate requirements common to all lightweight markup languages,
+    while keeping the basic contract for plugging in a new parser function as simple and generic as 
+    <code>Input =&gt; Document</code>, so that other parser frameworks or tools can be used, too.</p></li>
+  </ul>
+</div>        
+
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- javascript
+    ================================================== -->
+    <script src="js/jquery-1.8.3.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+
+</body></html>

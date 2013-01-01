@@ -1,0 +1,55 @@
+
+body {
+  position: relative;
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+
+section {
+  padding-top: 30px;
+}
+.page-header {
+  padding-top: 30px;
+  padding-bottom: 4px;
+  border-bottom-color: #DDD;
+}
+section > .page-header,
+section > .lead {
+  color: #5a5a5a;
+}
+section > ul li {
+  margin-bottom: 5px;
+}
+
+h1 {
+  font-size: 34px;
+}
+h2 {
+  margin-top: 35px;
+  margin-bottom: 12px;
+  font-size: 28px;
+}
+
+h3 {
+  font-size: 22px;
+  margin-top: 16px;
+  margin-bottom: 4px;
+}
+
+.affix {
+    top: 60px; 
+}
+
+.nav-header {
+  font-size: 16px;
+}
+
+.nav-list li {
+  margin-left: 10px;
+}
+
+ul h1 {
+  margin-left: 10px;
+  color:#cccccc;
+}
+

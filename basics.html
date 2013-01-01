@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+
+    <title>Laika</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/docs.css" rel="stylesheet">
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body data-spy="scroll" data-target=".toc" data-offset="200">
+
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span4 toc" >
+        
+        <ul class="nav nav-list affix">
+          <h1>LAIKA</h1>
+          <li class="nav-header">Introduction</li>
+          <li><a href="index.html">Getting Started</a></li>
+          <li><a href="index.html#available-features">Available Features</a></li>
+          <li><a href="index.html#planned-features">Planned Features</a></li>
+          <li><a href="index.html#design-principles">Design Principles</a></li>
+          
+          <li class="nav-header">Transformation Basics</li>
+          <li class="active"><a href="#transform">Transform API</a></li>
+          <li><a href="#parse">Parse API</a></li>
+          <li><a href="#render">Render API</a></li>
+          
+          <li class="nav-header">Supported Markup</li>
+          <li><a href="markup.html">Markdown</a></li>
+          
+          <li class="nav-header">Customizing Renderers</li>
+          <li><a href="customize.html">Using the Transform API</a></li>
+          <li><a href="customize.html#render">Using the Render API</a></li>
+          <li><a href="customize.html#writer">The Writer APIs</a></li>
+          
+          <li class="nav-header">Document Tree Rewriting</li>
+          <li><a href="tree-rewriting.html">Using the rewrite Method</a></li>
+          <li><a href="tree-rewriting.html#transform">Using the Transform API</a></li>
+          
+          <li class="nav-header">Implementing a Parser</li>
+          <li><a href="parser.html">Providing an API</a></li>
+          <li><a href="parser.html#markup-parsers">Trait MarkupParsers</a></li>
+          <li><a href="parser.html#inline-parsers">Trait InlineParsers</a></li>
+          <li><a href="parser.html#block-parsers">Trait BlockParsers</a></li>
+          
+          <li class="nav-header">Implementing a Renderer</li>
+          <li><a href="renderer.html">Providing an API</a></li>
+          <li><a href="renderer.html#function">The Render Function</a></li>
+        </ul>
+      </div>
+      
+      
+      
+      
+      <div class="span8">
+
+        <div>
+  <div class="page-header">
+    <h1>Transformation Basics</h1>
+  </div>
+  <p>There are three types of operations you can perform with Laika:</p>
+  <ul>
+    <li><p>A full transformation from input text written in a lightweight
+    markup language like Markdown to output formats like HTML.</p></li>
+    <li><p>A parse operation from input text written in a lightweight
+    markup language like Markdown to an in-memory document tree
+    model.</p></li>
+    <li><p>A render operation from an in-memory document tree model
+    to output formats like HTML.</p></li>
+  </ul>
+  <p>If there is no need to decouple the parse and render step,
+  it is most convenient to use the transformation API.</p>
+  <p>The other operations are useful when you need to 
+  process the document tree between parse and render operations
+  or when they do not happen at the same time or even for
+  creating the tree model programmatically instead of reading
+  from text input.</p>
+  <p>The following sections describe these three operation types.</p>
+  <h2 id="transform">The Transform API</h2>
+  <p>Converting from Markdown to HTML using files as input and output:</p>
+  <pre>Transform from Markdown to HTML fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;</pre>
+  <p>Converting using Strings as input and output</p>
+  <pre>val input = &quot;some *text* example&quot;
+
+val result = Transform from Markdown to HTML fromString input toString</pre>
+  <p>Other options are using <code>java.io.Reader/Writer</code> or streams. Of course they
+  can be combined in any way, like going from file as input to String as output.</p>
+  <p>You can also keep the created transformer instance to reuse it with different
+  inputs and outputs:</p>
+  <pre>val transform = Transform from Markdown to HTML
+
+transform fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;
+
+val result = transform fromString &quot;some *text* example&quot; toString</pre>
+  <p>All objects created by the API are reusable and immutable. For example,
+  using the same input for two different types of output could be coded like this:</p>
+  <pre>val doc = Transform from Markdown to HTML fromFile &quot;hello.md&quot;
+
+doc toFile &quot;hello.html&quot;
+
+val res = doc toString</pre>
+  <p>Laika also supports a PrettyPrint renderer which can be useful for debugging.
+  It visualizes the document tree model while shortening longer text spans
+  into one line:</p>
+  <pre>val input = &quot;some *text* example&quot;
+
+Transform from Markdown to PrettyPrint fromString input toString
+
+res0: java.lang.String = Document - Blocks: 1
+. Paragraph - Spans: 3
+. . Text - &apos;some &apos;
+. . Emphasized - Spans: 1
+. . . Text - &apos;text&apos;
+. . Text - &apos; example&apos;
+
+</pre>
+  <h2 id="parse">The Parse API</h2>
+  <p>If you need to perform the parsing step separately, the API is similar to
+  the Transform API:</p>
+  <pre>val document = Parse as Markdown fromFile &quot;hello.md&quot;
+</pre>
+  <p>This gives you the full document tree model. You can read the
+  <a href="api/#laika.tree.Elements$">Scaladoc</a> for an overview of all node types.</p>
+  <p>You can then specify rewrite
+  rules to transform some nodes of the model and use the Render API to render
+  it to various output formats, both described in sections below.</p>
+  <p>Like with the Transform API, all objects are reusable and immutable:</p>
+  <pre>val parse = Parse as Markdown
+
+val doc1 = parse fromFile &quot;input1.md&quot;
+val doc2 = parse fromFile &quot;input2.md&quot;
+
+</pre>
+  <h2 id="render">The Render API</h2>
+  <p>If you need to perform the rendering step separately, the API is similar to
+  the Transform API:</p>
+  <pre>// obtained from a parse step or created programmatically
+val doc: Document = ... 
+
+Render as HTML from doc toFile &quot;hello.html&quot;
+</pre>
+  <p>Or to obtain the HTML as a string:</p>
+  <pre>val html = Render as HTML from doc toString
+</pre>
+  <p>Like with the Transform API, all objects are reusable and immutable:</p>
+  <pre>val document = ...
+
+val render = Render as HTML from document
+
+render toFile &quot;output1.html&quot;
+render toFile &quot;output2.html&quot;
+</pre>
+</div>        
+
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- javascript
+    ================================================== -->
+    <script src="js/jquery-1.8.3.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+
+</body></html>

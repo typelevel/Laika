@@ -1,0 +1,717 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+        <head>
+          <title>laika.tree.Elements</title>
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link type="text/css" media="screen" rel="stylesheet" href="../../lib/template.css" />
+      <script type="text/javascript" src="../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+    
+        </head>
+        <body onload="sh_highlightDocument('../lib/', '.min.js');" class="value">
+      <div id="definition">
+        <img src="../../lib/object_big.png" />
+        <p id="owner"><a name="laika" class="extype" href="../package.html">laika</a>.<a name="laika.tree" class="extype" href="package.html">tree</a></p>
+        <h1>Elements</h1>
+      </div>
+
+      <h4 class="signature" id="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Elements</span><span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      
+      <div class="fullcommenttop" id="comment"><div class="comment cmt"><p>Provides the elements of the document tree. The model is generic and not tied to any
+ specific markup syntax like Markdown. Parsers may only support a subset of the provided
+ element types in case the markup does not have matching syntax for some of them.</p><p> The abstract base classes are not sealed as the tree model is extensible.
+ Renderers should anticipate unknown elements and add fallback rules for those.</p><p> The base class is <code>Element</code> which extends <code>Product</code>, a constraint usually satisfied
+ through defining the concrete types as case classes. Most concrete types are not expected
+ to extend <code>Element</code> directly though, but instead extend either <code>Block</code> or <code>Span</code>, the two
+ major element types. This way they may be part of the content of <code>SpanContainer</code> or
+ <code>BlockContainer</code> types, traits that any element may mix in.
+</p></div><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent">AnyRef, <span name="scala.Any" class="extype">Any</span></div>
+        </div></div>
+    
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input accesskey="/" type="text" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol><li class="alpha in"><span>Alphabetic</span></li><li class="inherit out"><span>By inheritance</span></li></ol>
+            </div>
+        <div id="ancestors">
+              <span class="filtertype">Inherited</span>
+              <ol><li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li></ol>
+              <ol id="linearization"><li name="laika.tree.Elements" class="in"><span>Elements</span></li><li name="scala.AnyRef" class="in"><span>AnyRef</span></li><li name="scala.Any" class="in"><span>Any</span></li></ol>
+            </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div class="types members" id="types">
+              <h3>Type Members</h3>
+              <ol><li visbl="pub" name="laika.tree.Elements.Block" data-isabs="true">
+      <a id="Block:Block"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Block.html"><span class="name">Block</span></a><span class="result"> extends Element</span>
+      </span>
+      </h4>
+      <p class="comment cmt">The base type for all block level elements.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.BlockContainer" data-isabs="true">
+      <a id="BlockContainer:BlockContainer[Self]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$BlockContainer.html"><span class="name">BlockContainer</span></a><span class="tparams">[<span name="Self">Self &lt;: BlockContainer[Self]</span>]</span><span class="result"> extends Element with ElementContainer[Block, Self]</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A container of other Block elements.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.CodeBlock" data-isabs="false">
+      <a id="CodeBlock:CodeBlock"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$CodeBlock.html"><span class="name">CodeBlock</span></a><span class="params">(<span name="content">content: String</span>)</span><span class="result"> extends Element with Block with TextContainer with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A code block with simple text content.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.CodeSpan" data-isabs="false">
+      <a id="CodeSpan:CodeSpan"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$CodeSpan.html"><span class="name">CodeSpan</span></a><span class="params">(<span name="content">content: String</span>)</span><span class="result"> extends Element with Span with TextContainer with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A code span containing plain text.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Container" data-isabs="true">
+      <a id="Container:Container[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Container.html"><span class="name">Container</span></a><span class="tparams">[<span name="T">+T</span>]</span><span class="result"> extends Element</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A generic container.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Document" data-isabs="false">
+      <a id="Document:Document"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Document.html"><span class="name">Document</span></a><span class="params">(<span name="content">content: List[Block]</span>)</span><span class="result"> extends Element with BlockContainer[Document] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">The root element of a document tree.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Element" data-isabs="true">
+      <a id="Element:Element"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Element.html"><span class="name">Element</span></a><span class="result"> extends Product</span>
+      </span>
+      </h4>
+      <p class="comment cmt">The base class for all Elements forming the document tree.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.ElementContainer" data-isabs="true">
+      <a id="ElementContainer:ElementContainer[E, Self]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$ElementContainer.html"><span class="name">ElementContainer</span></a><span class="tparams">[<span name="E">+E &lt;: Element</span>, <span name="Self">Self &lt;: ElementContainer[E, Self]</span>]</span><span class="result"> extends Element with Container[List[E]] with ElementTraversal[Self]</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A generic container of other elements.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Emphasized" data-isabs="false">
+      <a id="Emphasized:Emphasized"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Emphasized.html"><span class="name">Emphasized</span></a><span class="params">(<span name="content">content: List[Span]</span>)</span><span class="result"> extends Element with Span with SpanContainer[Emphasized] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A span of emphasized inline elements that may contain nested spans.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.FlowContent" data-isabs="false">
+      <a id="FlowContent:FlowContent"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$FlowContent.html"><span class="name">FlowContent</span></a><span class="params">(<span name="content">content: List[Span]</span>)</span><span class="result"> extends Element with Block with Span with SpanContainer[FlowContent] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A generic flow content element containing a list of spans.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Header" data-isabs="false">
+      <a id="Header:Header"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Header.html"><span class="name">Header</span></a><span class="params">(<span name="level">level: Int</span>, <span name="content">content: List[Span]</span>)</span><span class="result"> extends Element with Block with SpanContainer[Header] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A header element with a level</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Image" data-isabs="false">
+      <a id="Image:Image"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Image.html"><span class="name">Image</span></a><span class="params">(<span name="text">text: String</span>, <span name="url">url: String</span>, <span name="title">title: Option[String]</span>)</span><span class="result"> extends Element with Span with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">An inline image with a text description and optional title.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.ImageReference" data-isabs="false">
+      <a id="ImageReference:ImageReference"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$ImageReference.html"><span class="name">ImageReference</span></a><span class="params">(<span name="text">text: String</span>, <span name="id">id: String</span>, <span name="inputPrefix">inputPrefix: String</span>, <span name="inputPostfix">inputPostfix: String</span>)</span><span class="result"> extends Element with Span with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">An image reference, the id pointing to the id of a <code>LinkDefinition</code>.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Link" data-isabs="false">
+      <a id="Link:Link"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Link.html"><span class="name">Link</span></a><span class="params">(<span name="content">content: List[Span]</span>, <span name="url">url: String</span>, <span name="title">title: Option[String]</span>)</span><span class="result"> extends Element with Span with SpanContainer[Link] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A link element, with the span content representing the text (description) of the link.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.LinkDefinition" data-isabs="false">
+      <a id="LinkDefinition:LinkDefinition"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$LinkDefinition.html"><span class="name">LinkDefinition</span></a><span class="params">(<span name="id">id: String</span>, <span name="url">url: String</span>, <span name="title">title: Option[String]</span>)</span><span class="result"> extends Element with Block with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A link definition, usually only part of the raw document tree and then
+ removed by the rewrite rule that resolves link and image references.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.LinkReference" data-isabs="false">
+      <a id="LinkReference:LinkReference"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$LinkReference.html"><span class="name">LinkReference</span></a><span class="params">(<span name="content">content: List[Span]</span>, <span name="id">id: String</span>, <span name="inputPrefix">inputPrefix: String</span>, <span name="inputPostfix">inputPostfix: String</span>)</span><span class="result"> extends Element with Span with SpanContainer[LinkReference] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A link reference, the id pointing to the id of a <code>LinkDefinition</code>.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.ListItem" data-isabs="false">
+      <a id="ListItem:ListItem"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$ListItem.html"><span class="name">ListItem</span></a><span class="params">(<span name="content">content: List[Block]</span>)</span><span class="result"> extends Element with Block with BlockContainer[ListItem] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A single list item consisting of one or more block elements.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.OrderedList" data-isabs="false">
+      <a id="OrderedList:OrderedList"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$OrderedList.html"><span class="name">OrderedList</span></a><span class="params">(<span name="content">content: List[ListItem]</span>)</span><span class="result"> extends Element with Block with BlockContainer[OrderedList] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">An ordered list of block level items that may contain nested lists.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Paragraph" data-isabs="false">
+      <a id="Paragraph:Paragraph"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Paragraph.html"><span class="name">Paragraph</span></a><span class="params">(<span name="content">content: List[Span]</span>)</span><span class="result"> extends Element with Block with SpanContainer[Paragraph] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A paragraph consisting of span elements.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.QuotedBlock" data-isabs="false">
+      <a id="QuotedBlock:QuotedBlock"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$QuotedBlock.html"><span class="name">QuotedBlock</span></a><span class="params">(<span name="content">content: List[Block]</span>)</span><span class="result"> extends Element with Block with BlockContainer[QuotedBlock] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A quoted block consisting of a list of blocks that may contain other
+ nested quoted blocks.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Section" data-isabs="false">
+      <a id="Section:Section"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Section.html"><span class="name">Section</span></a><span class="params">(<span name="header">header: Header</span>, <span name="content">content: List[Block]</span>)</span><span class="result"> extends Element with Block with BlockContainer[Section] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A section of the document, consisting of a header and content in the form
+ of a list of Block elements.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Span" data-isabs="true">
+      <a id="Span:Span"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Span.html"><span class="name">Span</span></a><span class="result"> extends Element</span>
+      </span>
+      </h4>
+      <p class="comment cmt">The base type for all inline elements.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.SpanContainer" data-isabs="true">
+      <a id="SpanContainer:SpanContainer[Self]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$SpanContainer.html"><span class="name">SpanContainer</span></a><span class="tparams">[<span name="Self">Self &lt;: SpanContainer[Self]</span>]</span><span class="result"> extends Element with ElementContainer[Span, Self]</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A container of other Span elements.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Strong" data-isabs="false">
+      <a id="Strong:Strong"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Strong.html"><span class="name">Strong</span></a><span class="params">(<span name="content">content: List[Span]</span>)</span><span class="result"> extends Element with Span with SpanContainer[Strong] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A span of strong inline elements that may contain nested spans.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Text" data-isabs="false">
+      <a id="Text:Text"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Text.html"><span class="name">Text</span></a><span class="params">(<span name="content">content: String</span>)</span><span class="result"> extends Element with Span with TextContainer with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A simple text element.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.TextContainer" data-isabs="true">
+      <a id="TextContainer:TextContainer"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$TextContainer.html"><span class="name">TextContainer</span></a><span class="result"> extends Element with Container[String]</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A container for plain text.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.UnorderedList" data-isabs="false">
+      <a id="UnorderedList:UnorderedList"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$UnorderedList.html"><span class="name">UnorderedList</span></a><span class="params">(<span name="content">content: List[ListItem]</span>)</span><span class="result"> extends Element with Block with BlockContainer[UnorderedList] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">An unordered list of block level items that may contain nested lists.</p>
+    </li></ol>
+            </div>
+
+        
+
+        <div class="values members" id="values">
+              <h3>Value Members</h3>
+              <ol><li visbl="pub" name="scala.AnyRef#!=" data-isabs="false">
+      <a id="!=(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name" title="gt4s: $bang$eq">!=</span><span class="params">(<span name="arg0">arg0: AnyRef</span>)</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li visbl="pub" name="scala.Any#!=" data-isabs="false">
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name" title="gt4s: $bang$eq">!=</span><span class="params">(<span name="arg0">arg0: <span name="scala.Any" class="extype">Any</span></span>)</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li visbl="pub" name="scala.AnyRef###" data-isabs="false">
+      <a id="##():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name" title="gt4s: $hash$hash">##</span><span class="params">()</span><span class="result">: <span name="scala.Int" class="extype">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li visbl="pub" name="scala.AnyRef#==" data-isabs="false">
+      <a id="==(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name" title="gt4s: $eq$eq">==</span><span class="params">(<span name="arg0">arg0: AnyRef</span>)</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li visbl="pub" name="scala.Any#==" data-isabs="false">
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name" title="gt4s: $eq$eq">==</span><span class="params">(<span name="arg0">arg0: <span name="scala.Any" class="extype">Any</span></span>)</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li visbl="pub" name="laika.tree.Elements.LineBreak" data-isabs="false">
+      <a id="LineBreak:LineBreak"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$LineBreak$.html"><span class="name">LineBreak</span></a><span class="result"> extends Element with Span with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">An explicit hard line break.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Rule" data-isabs="false">
+      <a id="Rule:Rule"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Rule$.html"><span class="name">Rule</span></a><span class="result"> extends Element with Block with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A horizontal rule.</p>
+    </li><li visbl="pub" name="scala.Any#asInstanceOf" data-isabs="false">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: T0</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li visbl="prt" name="scala.AnyRef#clone" data-isabs="false">
+      <a id="clone():AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: AnyRef</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a name="java.lang" class="extype" href="../../java/lang/package.html">lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li visbl="pub" name="scala.AnyRef#eq" data-isabs="false">
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: AnyRef</span>)</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li visbl="pub" name="scala.AnyRef#equals" data-isabs="false">
+      <a id="equals(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span name="scala.Any" class="extype">Any</span></span>)</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li visbl="prt" name="scala.AnyRef#finalize" data-isabs="false">
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <span name="scala.Unit" class="extype">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a name="java.lang" class="extype" href="../../java/lang/package.html">lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li visbl="pub" name="scala.AnyRef#getClass" data-isabs="false">
+      <a id="getClass():java.lang.Class[_]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: java.lang.Class[_]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li visbl="pub" name="scala.AnyRef#hashCode" data-isabs="false">
+      <a id="hashCode():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span name="scala.Int" class="extype">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li visbl="pub" name="scala.Any#isInstanceOf" data-isabs="false">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li visbl="pub" name="scala.AnyRef#ne" data-isabs="false">
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: AnyRef</span>)</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li visbl="pub" name="scala.AnyRef#notify" data-isabs="false">
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <span name="scala.Unit" class="extype">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li visbl="pub" name="scala.AnyRef#notifyAll" data-isabs="false">
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span name="scala.Unit" class="extype">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li visbl="pub" name="scala.AnyRef#synchronized" data-isabs="false">
+      <a id="synchronized[T0](⇒ T0):T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ T0</span>)</span><span class="result">: T0</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li visbl="pub" name="scala.AnyRef#toString" data-isabs="false">
+      <a id="toString():String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span name="java.lang.String" class="extype">String</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li visbl="pub" name="scala.AnyRef#wait" data-isabs="false">
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span name="scala.Unit" class="extype">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li visbl="pub" name="scala.AnyRef#wait" data-isabs="false">
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span name="scala.Long" class="extype">Long</span></span>, <span name="arg1">arg1: <span name="scala.Int" class="extype">Int</span></span>)</span><span class="result">: <span name="scala.Unit" class="extype">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li visbl="pub" name="scala.AnyRef#wait" data-isabs="false">
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span name="scala.Long" class="extype">Long</span></span>)</span><span class="result">: <span name="scala.Unit" class="extype">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div name="scala.AnyRef" class="parent">
+              <h3>Inherited from AnyRef</h3>
+            </div><div name="scala.Any" class="parent">
+              <h3>Inherited from <span name="scala.Any" class="extype">Any</span></h3>
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
