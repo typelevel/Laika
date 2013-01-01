@@ -88,7 +88,7 @@
   <p><code>Element =&gt; Unit</code> is the actual render function. The function that gets passed to your
   renderer is the <em>composed</em> render function. Since default renderers can be overridden by users
   of your renderer
-  as described in the chapter [Customizing Renderers], you need to use this function
+  as described in the chapter <a href="customize.html">Customizing Renderers</a>, you need to use this function
   as the delegate when your default render function needs to render the children of
   an element. The render function you return in the tuple is the <em>default</em> render function
   to use for all elements where no custom renderer has been defined. </p>
@@ -118,7 +118,8 @@
   <pre>import laika.tree.Elements._
 import laika.io.Output
 
-class HTML extends ((Output, Element =&gt; Unit) =&gt; (HTMLWriter, Element =&gt; Unit)) {
+class HTML extends 
+           ((Output, Element =&gt; Unit) =&gt; (HTMLWriter, Element =&gt; Unit)) {
  
   def apply (output: Output, render: Element =&gt; Unit) = {
     val out = new HTMLWriter(output asFunction, render)  
@@ -151,7 +152,7 @@ object HTML extends HTML</pre>
     such an element, but it should never blow up.</p></li>
   </ul>
   <p>For character output your renderer may use the <code>TextWriter</code> or <code>HTMLWriter</code> APIs, which are
-  explained [here][Writer API]. Alternatively it may create its own API, but you should keep in mind
+  explained <a href="customize.html#writer">here</a>. Alternatively it may create its own API, but you should keep in mind
   then, that this API will also get used by users customizing specific nodes, so it should be
   convenient and straightforward to use.</p>
   <p>Finally, we&apos;ll show a little excerpt of the HTML render function we omitted above, just to
@@ -170,9 +171,11 @@ object HTML extends HTML</pre>
     
     /* finally, three fallbacks: */
     
-    case sc: SpanContainer[_]  =&gt; out &lt;&lt; &quot;&lt;span&gt;&quot; &lt;&lt;  sc.content &lt;&lt; &quot;&lt;/span&gt;&quot;
-    case bc: BlockContainer[_] =&gt; out &lt;&lt; &quot;&lt;div&gt;&quot; &lt;&lt;|&gt; bc.content &lt;&lt; &quot;&lt;/div&gt;&quot;
-    case unknown               =&gt; ()  
+    case sc: SpanContainer[_]  =&gt; 
+                             out &lt;&lt; &quot;&lt;span&gt;&quot; &lt;&lt;  sc.content &lt;&lt; &quot;&lt;/span&gt;&quot;
+    case bc: BlockContainer[_] =&gt; 
+                             out &lt;&lt; &quot;&lt;div&gt;&quot; &lt;&lt;|&gt; bc.content &lt;&lt; &quot;&lt;/div&gt;&quot;
+    case unknown =&gt; ()  
   }   
 }
 </pre>
@@ -180,7 +183,7 @@ object HTML extends HTML</pre>
   types) directly. Instead it passes them to the Writer API which delegates to the composed
   render function.</p>
   <p>The various functions of the Writer API (like <code>&lt;&lt;</code> or <code>&lt;&lt;|&gt;</code>) are explained in the chapter
-  on the [Writer API]. They are far less cryptic than at first sight and should be easy
+  on the <a href="customize.html#writer">Writer API</a>. They are far less cryptic than at first sight and should be easy
   to memorize once you know what they are supposed to do. The short symbols make render
   functions easier to read. It&apos;s the only API where Laika uses symbols as method names.</p>
 </div>        
