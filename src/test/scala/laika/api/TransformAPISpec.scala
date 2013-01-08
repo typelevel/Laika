@@ -68,6 +68,7 @@ class TransformAPISpec extends FlatSpec
   it should "transform from file to file" in {
     val inFile = getClass.getResource("/testInput2.md").getFile
     val outFile = File.createTempFile("output", null)
+    implicit val codec:Codec = Codec.UTF8
     
     transform fromFile inFile toFile outFile
     
