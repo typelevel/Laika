@@ -16,7 +16,6 @@
 
 package laika.parse.markdown
 
-import org.junit.runner.RunWith
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
@@ -29,7 +28,6 @@ import laika.tree.Elements.Rule
 import laika.tree.Elements.LineBreak
 import laika.tree.helper.ModelBuilder
     
-@RunWith(classOf[JUnitRunner])
 class BlockParsersSpec extends FlatSpec 
 															 with ShouldMatchers 
 															 with BlockParsers 

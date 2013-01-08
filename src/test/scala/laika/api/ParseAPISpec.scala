@@ -22,7 +22,6 @@ import java.io.StringReader
 import scala.io.Codec
 import scala.io.Codec.charset2codec
 
-import org.junit.runner.RunWith
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
@@ -33,7 +32,6 @@ import laika.tree.Elements.LinkReference
 import laika.tree.Elements.Text
 import laika.tree.helper.ModelBuilder
 
-@RunWith(classOf[JUnitRunner])
 class ParseAPISpec extends FlatSpec 
 										with ShouldMatchers
 										with ModelBuilder {

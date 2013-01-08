@@ -16,7 +16,6 @@
 
 package laika.parse.markdown
 
-import org.junit.runner.RunWith
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
@@ -26,7 +25,6 @@ import laika.parse.helper.ParseResultHelpers
 import laika.tree.Elements.Span
 import laika.tree.helper.ModelBuilder
      
-@RunWith(classOf[JUnitRunner])
 class InlineParsersSpec extends FlatSpec 
 																with ShouldMatchers 
 																with InlineParsers 

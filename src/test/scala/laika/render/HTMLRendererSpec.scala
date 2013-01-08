@@ -16,7 +16,6 @@
 
 package laika.render
 
-import org.junit.runner.RunWith
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
@@ -27,7 +26,6 @@ import laika.tree.Elements.Rule
 import laika.tree.Elements.Section
 import laika.tree.helper.ModelBuilder
 
-@RunWith(classOf[JUnitRunner])
 class HTMLRendererSpec extends FlatSpec 
 												with ShouldMatchers
 												with ModelBuilder {

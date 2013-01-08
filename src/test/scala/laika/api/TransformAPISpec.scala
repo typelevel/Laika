@@ -26,7 +26,6 @@ import scala.io.Codec
 import scala.io.Codec.charset2codec
 import scala.io.Source
 
-import org.junit.runner.RunWith
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
@@ -36,7 +35,6 @@ import laika.render.PrettyPrint
 import laika.tree.Elements.Text
 import laika.tree.helper.ModelBuilder
  
-@RunWith(classOf[JUnitRunner])
 class TransformAPISpec extends FlatSpec 
 												with ShouldMatchers
 												with ModelBuilder {

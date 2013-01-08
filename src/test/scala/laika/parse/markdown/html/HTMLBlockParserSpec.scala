@@ -16,7 +16,6 @@
 
 package laika.parse.markdown.html
 
-import org.junit.runner.RunWith
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
@@ -27,7 +26,6 @@ import laika.parse.markdown.html.VerbatimHTMLElements.HTMLBlock
 import laika.tree.Elements.Document
 import laika.tree.helper.ModelBuilder
   
-@RunWith(classOf[JUnitRunner])
 class HTMLBlockParserSpec extends FlatSpec 
 																	with ShouldMatchers 
 																	with HTMLParsers 

@@ -18,7 +18,6 @@ package laika.parse
 
 import scala.util.parsing.input.CharSequenceReader
 
-import org.junit.runner.RunWith
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
@@ -26,7 +25,6 @@ import org.scalatest.matchers.ShouldMatchers
 import laika.parse.helper.ParseResultHelpers
 import laika.parse.helper.StringParserHelpers
    
-@RunWith(classOf[JUnitRunner])
 class MarkupParsersSpec extends FlatSpec with ShouldMatchers with MarkupParsers with ParseResultHelpers with StringParserHelpers {
  
   

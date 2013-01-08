@@ -16,7 +16,6 @@
 
 package laika.tree
 
-import org.junit.runner.RunWith
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
@@ -24,7 +23,6 @@ import org.scalatest.matchers.ShouldMatchers
 import laika.tree.Elements._
 import laika.tree.helper.ModelBuilder
  
-@RunWith(classOf[JUnitRunner])
 class RewriteSpec extends FlatSpec 
 									with ShouldMatchers
 									with ModelBuilder {
