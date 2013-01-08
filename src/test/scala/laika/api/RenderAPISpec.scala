@@ -39,11 +39,11 @@ class RenderAPISpec extends FlatSpec
 										with ModelBuilder {
 
   
-  val document = doc(p("aaö"), p("bbb"))
+  val document = doc(p("aa√∂"), p("bbb"))
   
   val expected = """Document - Blocks: 2
 			|. Paragraph - Spans: 1
-			|. . Text - 'aaö'
+			|. . Text - 'aa√∂'
 			|. Paragraph - Spans: 1
 			|. . Text - 'bbb'""".stripMargin
   
@@ -85,15 +85,15 @@ class RenderAPISpec extends FlatSpec
   
   it should "render a document to a java.io.OutputStream, specifying the encoding explicitly" in {
     val stream = new ByteArrayOutputStream
- 		(Render as PrettyPrint from document).toStream(stream)(Codec.UTF8)
- 		stream.toString("UTF-8") should be (expected)
+ 		(Render as PrettyPrint from document).toStream(stream)(Codec.ISO8859)
+ 		stream.toString("ISO-8859-1") should be (expected)
   }
   
   it should "render a document to a java.io.OutputStream, specifying the encoding implicitly" in {
-    implicit val utf8:Codec = Codec.UTF8
+    implicit val codec:Codec = Codec.ISO8859
     val stream = new ByteArrayOutputStream
  		Render as PrettyPrint from document toStream stream
- 		stream.toString("UTF-8") should be (expected)
+ 		stream.toString("ISO-8859-1") should be (expected)
   }
   
   it should "allow to override the default renderer for specific element types" in {

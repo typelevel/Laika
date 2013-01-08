@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+  
 package laika.api
 
 import java.io.ByteArrayInputStream
@@ -42,14 +42,14 @@ class TransformAPISpec extends FlatSpec
 												with ModelBuilder {
 
    
-  val input = """# Title ŠšŸ
+  val input = """# Title Ã¤Ã¶Ã¼
   	|
     |text""".stripMargin 
   
   val output = """Document - Blocks: 1
 		|. Section
     |. . Header(1) - Spans: 1
-  	|. . . Text - 'Title ŠšŸ'
+  	|. . . Text - 'Title Ã¤Ã¶Ã¼'
     |. . Content - Blocks: 1
   	|. . . Paragraph - Spans: 1
   	|. . . . Text - 'text'""".stripMargin
@@ -96,19 +96,19 @@ class TransformAPISpec extends FlatSpec
   }
   
   it should "transform from a java.io.InputStream to a java.io.OutputStream, specifying the encoding explicitly" in {
-    val inStream = new ByteArrayInputStream(input.getBytes("UTF-8"))
+    val inStream = new ByteArrayInputStream(input.getBytes("ISO-8859-1"))
     val outStream = new ByteArrayOutputStream
-    val codec = Codec.UTF8
+    val codec = Codec.ISO8859
  		transform.fromStream(inStream)(codec).toStream(outStream)(codec)
- 		outStream.toString("UTF-8") should be (output)
+ 		outStream.toString("ISO-8859-1") should be (output)
   }
   
   it should "transform from a java.io.InputStream to a java.io.OutputStream, specifying the encoding implicitly" in {
-  	val inStream = new ByteArrayInputStream(input.getBytes("UTF-8"))
+  	val inStream = new ByteArrayInputStream(input.getBytes("ISO-8859-1"))
   	val outStream = new ByteArrayOutputStream
-    implicit val utf8:Codec = Codec.UTF8
+    implicit val codec:Codec = Codec.ISO8859
  		transform fromStream inStream toStream outStream
- 		outStream.toString("UTF-8") should be (output)
+ 		outStream.toString("ISO-8859-1") should be (output)
   }
   
   it should "allow to override the default renderer for specific element types" in {
@@ -118,21 +118,21 @@ class TransformAPISpec extends FlatSpec
   }
   
   it should "allow to specify a custom rewrite rule" in {
-    val modifiedOutput = output.replaceAllLiterally("ŠšŸ", "zzz")
-    val transformCustom = transform usingRule { case Text("Title ŠšŸ") => Some(Text("Title zzz")) }
+    val modifiedOutput = output.replaceAllLiterally("Ã¤Ã¶Ã¼", "zzz")
+    val transformCustom = transform usingRule { case Text("Title Ã¤Ã¶Ã¼") => Some(Text("Title zzz")) }
     (transformCustom fromString input toString) should be (modifiedOutput)
   }
   
   it should "allow to specify multiple rewrite rules" in {
-    val modifiedOutput = output.replaceAllLiterally("ŠšŸ", "zzz").replaceAllLiterally("text", "new")
-    val transformCustom = transform usingRule { case Text("Title ŠšŸ") => Some(Text("Title zzz")) } usingRule
+    val modifiedOutput = output.replaceAllLiterally("Ã¤Ã¶Ã¼", "zzz").replaceAllLiterally("text", "new")
+    val transformCustom = transform usingRule { case Text("Title Ã¤Ã¶Ã¼") => Some(Text("Title zzz")) } usingRule
     																					{ case Text("text") => Some(Text("new")) }
     (transformCustom fromString input toString) should be (modifiedOutput)
   }
   
   it should "allow to specify a custom rewrite rule that depends on the document" in {
-    val modifiedOutput = output.replaceAllLiterally("ŠšŸ", "2")
-    val transformCustom = transform creatingRule { doc => { case Text("Title ŠšŸ") => Some(Text("Title " + doc.content.length)) }}
+    val modifiedOutput = output.replaceAllLiterally("Ã¤Ã¶Ã¼", "2")
+    val transformCustom = transform creatingRule { doc => { case Text("Title Ã¤Ã¶Ã¼") => Some(Text("Title " + doc.content.length)) }}
     (transformCustom fromString input toString) should be (modifiedOutput)
   }
   

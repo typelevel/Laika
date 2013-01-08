@@ -71,19 +71,19 @@ class ParseAPISpec extends FlatSpec
   }
   
   it should "allow parsing Markdown from a java.io.InputStream instance, specifying the encoding explicitly" in {
-    val input = """ŠŠŠ
-      |ššš
-      |ŸŸŸ""".stripMargin
-    val stream = new ByteArrayInputStream(input.getBytes("UTF-8"))
-    (Parse as Markdown).fromStream(stream)(Codec.UTF8) should be (doc(p(input)))
+    val input = """Ã¤Ã¤Ã¤
+      |Ã¶Ã¶Ã¶
+      |Ã¼Ã¼Ã¼""".stripMargin
+    val stream = new ByteArrayInputStream(input.getBytes("ISO-8859-1"))
+    (Parse as Markdown).fromStream(stream)(Codec.ISO8859) should be (doc(p(input)))
   }
   
   it should "allow parsing Markdown from a java.io.InputStream instance, specifying the encoding implicitly" in {
-    val input = """ŠŠŠ
-      |ššš
-      |ŸŸŸ""".stripMargin
-    val stream = new ByteArrayInputStream(input.getBytes("UTF-8"))
-    implicit val utf8:Codec = Codec.UTF8
+    val input = """Ã¤Ã¤Ã¤
+      |Ã¶Ã¶Ã¶
+      |Ã¼Ã¼Ã¼""".stripMargin
+    val stream = new ByteArrayInputStream(input.getBytes("ISO-8859-1"))
+    implicit val codec:Codec = Codec.ISO8859
     Parse as Markdown fromStream stream should be (doc(p(input)))
   }
   
