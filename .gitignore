@@ -1,0 +1,14 @@
+
+# sbt
+target/
+.cache
+
+# Eclipse
+bin/
+.settings/
+.classpath
+.project
+
+# Mac
+.DS_Store
+
