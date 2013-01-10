@@ -7,4 +7,11 @@ version := "0.0.1"
 
 scalaVersion := "2.9.2"
 
-libraryDependencies += "org.scalatest" % "scalatest_2.9.0" % "1.8" % "test"
+libraryDependencies <+= scalaVersion {
+  case v if v startsWith "2.10" => "org.scalatest" %% "scalatest" % "1.9.1" % "test"
+  case _                        => "org.scalatest" %% "scalatest" % "1.8" % "test"
+}
+
+crossVersion := CrossVersion.binary
+
+crossScalaVersions := Seq("2.9.2", "2.10.0")
