@@ -5,11 +5,15 @@ organization := "org.planet42"
 
 version := "0.0.1"
 
+description := "Library for transforming lightweight text markup into various types of output formats, written in Scala"
+
 scalaVersion := "2.9.2"
+
+scalacOptions ++= Opts.compile.encoding("UTF-8")
 
 libraryDependencies <+= scalaVersion {
   case v if v startsWith "2.10" => "org.scalatest" %% "scalatest" % "1.9.1" % "test"
-  case _                        => "org.scalatest" %% "scalatest" % "1.8" % "test"
+  case _                        => "org.scalatest" %% "scalatest" % "1.8"   % "test"
 }
 
 crossVersion := CrossVersion.binary
