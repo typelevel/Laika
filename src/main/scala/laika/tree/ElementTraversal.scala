@@ -29,8 +29,6 @@ import laika.tree.Elements._
 trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Element => 
   
    
-	type RewriteRule = PartialFunction[Element,Option[Element]] 
-  
   private case object Unmodified extends Element
   private val Retain = Some(Unmodified)
   
@@ -50,7 +48,7 @@ trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Ele
    *  In case multiple rewrite rules need to be applied it may be more efficient to
    *  first combine them with `orElse`.
    */
-  def rewrite (rule: RewriteRule): Self = {
+  def rewrite (rule: PartialFunction[Element,Option[Element]]): Self = {
 
     lazy val rewriteOldElement: Element => Option[Element] = rule orElse { case _ => Retain }
     lazy val rewriteNewElement: Element => Option[Element] = rule orElse { case e => Some(e) }
