@@ -75,12 +75,12 @@ trait MarkupParsers extends RegexParsers {
    *  anyOf('*','+') min 3
    *  }}}
    */
-  class TextParser private[MarkupParsers] (newParser:  			(Int, Int, Boolean, Boolean, Char => Boolean) => Parser[(String,Boolean)], 
-											  								   minChar:    			Int = 0, 
-											  								   maxChar:    			Int = 0, 
-											  								   mustFailAtEOF:  	Boolean = false,
-											  								   consumeLastChar: Boolean = false,
-											  								   isStopChar: 			Char => Boolean = c => false) extends Parser[String] {
+  class TextParser private[MarkupParsers] (newParser:        (Int, Int, Boolean, Boolean, Char => Boolean) => Parser[(String,Boolean)], 
+                                           minChar:          Int = 0, 
+                                           maxChar:          Int = 0, 
+                                           mustFailAtEOF:    Boolean = false,
+                                           consumeLastChar: Boolean = false,
+                                           isStopChar:       Char => Boolean = c => false) extends Parser[String] {
     
     private val parser = newParser(minChar, maxChar, mustFailAtEOF, consumeLastChar, isStopChar)
     
@@ -211,10 +211,10 @@ trait MarkupParsers extends RegexParsers {
       def result (offset: Int, consumeLast: Boolean = false, onStopChar: Boolean = false) = {
         if (offset - in.offset >= min) {
           val consumeTo = if (consumeLast) offset + 1 else offset
-  	      Success((source.subSequence(in.offset, offset).toString, onStopChar), in.drop(consumeTo - in.offset))
+          Success((source.subSequence(in.offset, offset).toString, onStopChar), in.drop(consumeTo - in.offset))
         }
-      	else 
-      	  Failure("expected at least "+min+" characters, got only "+(offset-in.offset), in)
+        else 
+          Failure("expected at least "+min+" characters, got only "+(offset-in.offset), in)
       }
     
       @tailrec
@@ -222,10 +222,10 @@ trait MarkupParsers extends RegexParsers {
         if (offset == end) { if (failAtEof) Failure("unecpected end of input", in) else result(offset) }
         else {
           val c = source.charAt(offset)
-	        if (!p(c)) result(offset, consumeLastChar)
-	        else if (offset == maxOffset) result(offset)
-	        else if (isStopChar(c)) result(offset, onStopChar = true)
-	        else parse(offset + 1)
+          if (!p(c)) result(offset, consumeLastChar)
+          else if (offset == maxOffset) result(offset)
+          else if (isStopChar(c)) result(offset, onStopChar = true)
+          else parse(offset + 1)
         }
       }
     
@@ -244,33 +244,33 @@ trait MarkupParsers extends RegexParsers {
   def anyUntil (until: => Parser[Any]) = {
     
     def newParser (min: Int, max: Int, failAtEof: Boolean, consumeLastChar: Boolean, isStopChar: Char => Boolean) = Parser { in =>
-	  
+    
       lazy val parser = until
       val maxOffset = if (max > 0) in.offset + max else in.source.length
-	    
-	    def result (resultOffset: Int, next: Input, onStopChar: Boolean = false) = {
+      
+      def result (resultOffset: Int, next: Input, onStopChar: Boolean = false) = {
         if (resultOffset - in.offset >= min) 
-  	      Success((in.source.subSequence(in.offset, resultOffset).toString, onStopChar), next)
-      	else 
-      	  Failure("expected at least "+min+" characters, got only "+(next.offset-in.offset), in)
+          Success((in.source.subSequence(in.offset, resultOffset).toString, onStopChar), next)
+        else 
+          Failure("expected at least "+min+" characters, got only "+(next.offset-in.offset), in)
       }
       
-		  @tailrec
-		  def parse (input: Input): ParseResult[(String,Boolean)] = {
-	      if (input.atEnd && failAtEof) Failure("unecpected end of input", in)
-	      else parser(input) match {
-		      case Success(_, next) => result(input.offset, next)
-		      case Error(msg, next) => Failure(msg, input)
-		      case Failure(_, _)    => {
-		        if (input.offset == maxOffset) result(input.offset, input)
-		      	else if (isStopChar(input.first)) result(input.offset, input, true) 
-		      	else parse(input.rest)
-		      }
-	      }
-		  } 
-	      
-	    parse(in)
-	  }
+      @tailrec
+      def parse (input: Input): ParseResult[(String,Boolean)] = {
+        if (input.atEnd && failAtEof) Failure("unecpected end of input", in)
+        else parser(input) match {
+          case Success(_, next) => result(input.offset, next)
+          case Error(msg, next) => Failure(msg, input)
+          case Failure(_, _)    => {
+            if (input.offset == maxOffset) result(input.offset, input)
+            else if (isStopChar(input.first)) result(input.offset, input, true) 
+            else parse(input.rest)
+          }
+        }
+      } 
+        
+      parse(in)
+    }
     
     new TextParser(newParser, mustFailAtEOF = true)
   }
@@ -285,9 +285,9 @@ trait MarkupParsers extends RegexParsers {
 
     @tailrec 
     def parse (input: Input): ParseResult[List[T]]  = parser(input) match {
-      case Success(x, rest)   											=> elems += x ; parse(rest)
+      case Success(x, rest)                         => elems += x ; parse(rest)
       case ns: NoSuccess if (elems.length >= num)   => Success(elems.toList, input)
-      case ns: NoSuccess														=> ns
+      case ns: NoSuccess                            => ns
     }
 
     parse(in)
@@ -313,7 +313,7 @@ trait MarkupParsers extends RegexParsers {
   def parseMarkup [T] (parser: Parser[T], source: String): T = {
     parseAll(parser, source) match {
       case Success(result,_) => result
-      case ns: NoSuccess		 => throw new MarkupParserException(ns)
+      case ns: NoSuccess     => throw new MarkupParserException(ns)
     }
   }
   
@@ -325,7 +325,7 @@ trait MarkupParsers extends RegexParsers {
   def parseMarkup [T] (parser: Parser[T], reader: Reader[Char]): T = {
     parseAll(parser, reader) match {
       case Success(result,_) => result
-      case ns: NoSuccess		 => throw new MarkupParserException(ns)
+      case ns: NoSuccess     => throw new MarkupParserException(ns)
     }
   }
   

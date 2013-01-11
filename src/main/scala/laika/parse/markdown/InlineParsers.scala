@@ -95,7 +95,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
    *  Recursively parses nested spans, too. 
    */
   def enclosedBySingleChar (char: Char) = {
-	  val start = not(elem(' ') | elem(char))
+    val start = not(elem(' ') | elem(char))
     val end = char ~ not(lookBehind(2, ' '))
     span(start, end) 
   }
@@ -175,10 +175,10 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
     val urlWithTitle = '(' ~> url ~ opt(title) <~ ws ~ ')' ^^ {  
       case url ~ title => text:String => inline(text, url, title)  
     }
-	  
+    
     val refId =    (anyOf(' ') max 1) ~ ('[' ~> escapedUntil(']')) ^^ { case ws ~ id => text:String => ref(text, id,   "]"+ws+"["+id+"]") }
-    val refEmpty = (anyOf(' ') max 1) ~ "[]"                    	 ^^ { case ws ~ _  => text:String => ref(text, text, "]"+ws+"[]") }
-	
+    val refEmpty = (anyOf(' ') max 1) ~ "[]"                       ^^ { case ws ~ _  => text:String => ref(text, text, "]"+ws+"[]") }
+  
     linktext ~ opt(urlWithTitle | refEmpty | refId) ^^ {
       case text ~ None    => ref(text, text, "]")
       case text ~ Some(f) => f(text)  

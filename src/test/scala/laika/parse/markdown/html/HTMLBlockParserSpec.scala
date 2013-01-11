@@ -27,12 +27,12 @@ import laika.tree.Elements.Document
 import laika.tree.helper.ModelBuilder
  
 class HTMLBlockParserSpec extends FlatSpec 
-																	with ShouldMatchers 
-																	with HTMLParsers 
-																	with ParseResultHelpers 
-																	with DefaultParserHelpers[Document] 
-																	with ModelBuilder 
-																	with HTMLModelBuilder {
+                          with ShouldMatchers 
+                          with HTMLParsers 
+                          with ParseResultHelpers 
+                          with DefaultParserHelpers[Document] 
+                          with ModelBuilder 
+                          with HTMLModelBuilder {
  
  
   
@@ -91,7 +91,7 @@ class HTMLBlockParserSpec extends FlatSpec
     Parsing (input) should produce (doc(p("aaa"), p(txt("xx"), outer), p("bbb")))
   }
   
-	
+  
   
   
 }

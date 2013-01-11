@@ -56,38 +56,38 @@ trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Ele
     def rewriteElement (e: Any): Option[AnyRef] = {
       
       def optimize (rewritten: Option[AnyRef], original: AnyRef) = rewritten match {
-	      case Some(result) if result eq original => Retain
-	      case e => e
-	    }
-	    
+        case Some(result) if result eq original => Retain
+        case e => e
+      }
+      
       e match {
-	      case et: ElementTraversal[_] => {
-	        val newET = et.rewrite(rule)
-	        val f = if (newET eq et) rewriteOldElement else rewriteNewElement
-	        optimize(f(newET.asInstanceOf[Element]), et)
-	      }
-	      case e:  Element					=> optimize(rewriteOldElement(e), e)
-	      case t:  Traversable[_]   => optimize(rewriteChildren(t.asInstanceOf[Traversable[AnyRef]]), t)
-	      case x										=> Retain
-	    }
+        case et: ElementTraversal[_] => {
+          val newET = et.rewrite(rule)
+          val f = if (newET eq et) rewriteOldElement else rewriteNewElement
+          optimize(f(newET.asInstanceOf[Element]), et)
+        }
+        case e: Element         => optimize(rewriteOldElement(e), e)
+        case t: Traversable[_]  => optimize(rewriteChildren(t.asInstanceOf[Traversable[AnyRef]]), t)
+        case x                  => Retain
+      }
     }
     
     def rewriteChildren (children: Traversable[AnyRef]) = {
-    	var i = 0
+      var i = 0
       var changed = false
-	 		lazy val newChildren = ListBuffer[AnyRef]() 
-	
-	    children.foreach { oldElem =>
-	      rewriteElement(oldElem) match {
-	        case Retain       						=> if (changed) newChildren += oldElem
-	        case Some(result) if changed  => newChildren += result
-	        case Some(result) 						=> changed = true; newChildren ++= children.take(i) += result 
-	        case None         if !changed => changed = true; newChildren ++= children.take(i)
-	        case _ 												=> ()
-	      }
-	      
-	      i += 1
-	    }
+      lazy val newChildren = ListBuffer[AnyRef]() 
+  
+      children.foreach { oldElem =>
+        rewriteElement(oldElem) match {
+          case Retain                   => if (changed) newChildren += oldElem
+          case Some(result) if changed  => newChildren += result
+          case Some(result)             => changed = true; newChildren ++= children.take(i) += result 
+          case None         if !changed => changed = true; newChildren ++= children.take(i)
+          case _                        => ()
+        }
+        
+        i += 1
+      }
       
       if (!changed) Retain
       else Some(newChildren.toList)
@@ -101,13 +101,13 @@ trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Ele
       val oldElem = elem.asInstanceOf[AnyRef]
       
       rewriteElement(oldElem) match {
-        case Retain       						=> if (changed) newElements(i) = oldElem
+        case Retain                   => if (changed) newElements(i) = oldElem
         case Some(result) if changed  => newElements(i) = result
-        case None 				if changed	=> newElements(i) = oldElem // removal only possible for elements of Traversables
-        case Some(result) 						=> changed = true
-        															   if (i>0) for (x <- 0 to (i-1)) newElements(x) = productElement(x) 
-        																 newElements(i) = result 
-        case None											=> ()
+        case None         if changed  => newElements(i) = oldElem // removal only possible for elements of Traversables
+        case Some(result)             => changed = true
+                                         if (i>0) for (x <- 0 to (i-1)) newElements(x) = productElement(x) 
+                                         newElements(i) = result 
+        case None                     => ()
       }
       
       i += 1
@@ -139,18 +139,18 @@ trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Ele
   def foreach (f: Element => Unit): Unit = { 
     
     def foreachInElement (element: Element, f: Element => Unit): Unit = {
-	    foreachInTraversable(element.productIterator, f) 
-	    f(element)
-	  }
-	  
-	  def foreachInTraversable (t: TraversableOnce[Any], f: Element => Unit): Unit = {
-	    t.foreach { 
-	      case e:  Element					=> foreachInElement(e, f)
-	      case t:  Traversable[_]   => foreachInTraversable(t, f) 
-	      case _										=> ()
-	    }
-	  }
-	  
+      foreachInTraversable(element.productIterator, f) 
+      f(element)
+    }
+    
+    def foreachInTraversable (t: TraversableOnce[Any], f: Element => Unit): Unit = {
+      t.foreach { 
+        case e:  Element          => foreachInElement(e, f)
+        case t:  Traversable[_]   => foreachInTraversable(t, f) 
+        case _                    => ()
+      }
+    }
+    
     foreachInElement(this, f)
   }
   
@@ -178,7 +178,7 @@ trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Ele
     
     def apply (element: Element, cause: Throwable) = {
       val message = "Unable to rewrite element '" + ElementTraversal.this +
-      		"': one of its new children does not conform to the contract of the element"
+          "': one of its new children does not conform to the contract of the element"
       new RewriteException(element, message, cause)
     }
     

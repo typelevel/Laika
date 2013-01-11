@@ -37,43 +37,43 @@ object HTMLElements {
   
   /** Base class for all verbatim HTML span elements.
    */
-	abstract class HTMLSpan extends Span
-	
-	
-	/** Represents a full HTML element with matching start and end tags. The content of this span container
-	 *  may contain further nested HTML elements and tags as well as simple text elements.
-	 */
-	case class HTMLElement (startTag: HTMLStartTag, content: List[Span]) extends HTMLSpan with SpanContainer[HTMLElement]
+  abstract class HTMLSpan extends Span
+  
+  
+  /** Represents a full HTML element with matching start and end tags. The content of this span container
+   *  may contain further nested HTML elements and tags as well as simple text elements.
+   */
+  case class HTMLElement (startTag: HTMLStartTag, content: List[Span]) extends HTMLSpan with SpanContainer[HTMLElement]
  
-	/** Represent a start tag. When this element is part of a final document tree, it represents
-	 *  an orphaned start tag without matching end tag. In HTML this may be legal (some tags like the p
-	 *  tag are defined as "auto-closing" under certain circumstances). This library however does not
-	 *  implement the full logic of a proper HTML parser to distinguish between legal and faulty
-	 *  occurrences of unmatched start tags.
-	 */
-	case class HTMLStartTag (name: String, attributes: List[HTMLAttribute]) extends HTMLSpan 
+  /** Represent a start tag. When this element is part of a final document tree, it represents
+   *  an orphaned start tag without matching end tag. In HTML this may be legal (some tags like the p
+   *  tag are defined as "auto-closing" under certain circumstances). This library however does not
+   *  implement the full logic of a proper HTML parser to distinguish between legal and faulty
+   *  occurrences of unmatched start tags.
+   */
+  case class HTMLStartTag (name: String, attributes: List[HTMLAttribute]) extends HTMLSpan 
 
-	/** Represents an empty element (like <br/> or <hr/>) in case it contains the explicit
-	 *  slash to mark it as closed. Otherwise it will be classified as a start tag.
-	 */
-	case class HTMLEmptyElement (name: String, attributes: List[HTMLAttribute]) extends HTMLSpan 
+  /** Represents an empty element (like <br/> or <hr/>) in case it contains the explicit
+   *  slash to mark it as closed. Otherwise it will be classified as a start tag.
+   */
+  case class HTMLEmptyElement (name: String, attributes: List[HTMLAttribute]) extends HTMLSpan 
 
-	/** Represents an orphaned end tag without matching start tag.
-	 */
-	case class HTMLEndTag (name: String) extends HTMLSpan
+  /** Represents an orphaned end tag without matching start tag.
+   */
+  case class HTMLEndTag (name: String) extends HTMLSpan
 
-	/** Represents a standard HTML comment.
-	 */
-	case class HTMLComment (content: String) extends HTMLSpan with TextContainer
+  /** Represents a standard HTML comment.
+   */
+  case class HTMLComment (content: String) extends HTMLSpan with TextContainer
 
-	/** Represents a numerical or named character reference.
-	 */
-	case class HTMLCharacterReference (content: String) extends HTMLSpan with TextContainer
+  /** Represents a numerical or named character reference.
+   */
+  case class HTMLCharacterReference (content: String) extends HTMLSpan with TextContainer
 
-	/** Represents a single HTML attribute. The value is provided as a list of TextContainers
-	 *  as it may contain HTML character references alongside regular Text elements.
-	 */
-	case class HTMLAttribute (name: String, value: List[Span with TextContainer], quotedWith: Option[Char])
-	
-	
+  /** Represents a single HTML attribute. The value is provided as a list of TextContainers
+   *  as it may contain HTML character references alongside regular Text elements.
+   */
+  case class HTMLAttribute (name: String, value: List[Span with TextContainer], quotedWith: Option[Char])
+  
+  
 }

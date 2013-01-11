@@ -24,8 +24,8 @@ import laika.tree.Elements._
 import laika.tree.helper.ModelBuilder
  
 class RewriteSpec extends FlatSpec 
-									with ShouldMatchers
-									with ModelBuilder {
+                  with ShouldMatchers
+                  with ModelBuilder {
 
   
   "The rewriter" should "replace the first element of the children in a container" in {

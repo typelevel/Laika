@@ -45,7 +45,7 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
  
   val htmlUnquotedAttributeValue = 
     spans(anyBut(htmlAttrEndChars:_*), Map('&' -> htmlCharReference)) ^?  
-  	  { case x :: xs => ((x::xs).asInstanceOf[List[Span with TextContainer]], None) }
+      { case x :: xs => ((x::xs).asInstanceOf[List[Span with TextContainer]], None) }
   
   /** Parses an attribute value enclosed by the specified character.
    */
@@ -56,16 +56,16 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
   /** Parses quoted and unquoted attribute values.
    */
   val htmlAttributeValue = htmlQuotedAttributeValue('"') | 
-  												 htmlQuotedAttributeValue('\'') | 
-  												 htmlUnquotedAttributeValue
+                           htmlQuotedAttributeValue('\'') | 
+                           htmlUnquotedAttributeValue
 
   /** Parses a single attribute, consisting of the name and (optional) equals sign
    *  and value.
    */
   val htmlAttribute = 
     (htmlAttributeName <~ htmlWS) ~ opt('=' ~> htmlAttributeValue <~ htmlWS) ^^ { 
-    	case name ~ Some((value, quotedWith)) => HTMLAttribute(name, value, quotedWith) 
-      case name ~ None 											=> HTMLAttribute(name, Nil, None) 
+      case name ~ Some((value, quotedWith)) => HTMLAttribute(name, value, quotedWith) 
+      case name ~ None                      => HTMLAttribute(name, Nil, None) 
     }
    
   
@@ -135,9 +135,9 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
   def htmlNumericReference = '#' ~ (htmlHexReference | htmlDecReference) ^^ { mkString(_) }
   
   def htmlHexReference = {
-  	val hexNumber = anyIn('0' to '9', 'a' to 'f', 'A' to 'F') min 1
+    val hexNumber = anyIn('0' to '9', 'a' to 'f', 'A' to 'F') min 1
 
-  	(elem('x') | elem('X')) ~ hexNumber ^^ { mkString(_) }
+    (elem('x') | elem('X')) ~ hexNumber ^^ { mkString(_) }
   }
   
   def htmlDecReference = anyIn('0' to '9') min 1
@@ -164,13 +164,13 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
    * inside p tags as it would do with a normal paragraph.   
    */
   val htmlBlockElements = Set("body", "style", "blockquote", "center", "dir", 
-			                 "dl", "dd", "dt", "fieldset", "form", "p", "pre", 
-			                 "h1", "h2", "h3", "h4", "h5", "h6", "ol", "ul", "li", 
-			                 "div", "hr", "isindex", "menu", "frameset", "noframes", 
-			                 "table", "thead", "tbody", "tfoot", "th", "tr", "td", 
-			                 "article", "aside", "section", "address", "details", 
-			                 "header", "footer", "hgroup", "figure", "figcaption", 
-			                 "menu", "nav", "summary")
+                       "dl", "dd", "dt", "fieldset", "form", "p", "pre", 
+                       "h1", "h2", "h3", "h4", "h5", "h6", "ol", "ul", "li", 
+                       "div", "hr", "isindex", "menu", "frameset", "noframes", 
+                       "table", "thead", "tbody", "tfoot", "th", "tr", "td", 
+                       "article", "aside", "section", "address", "details", 
+                       "header", "footer", "hgroup", "figure", "figcaption", 
+                       "menu", "nav", "summary")
   
   /** Parses the start tag of an HTML block, only matches when the tag name is an
    *  actual block-level HTML tag.

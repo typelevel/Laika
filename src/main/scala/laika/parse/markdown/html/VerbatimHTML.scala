@@ -46,22 +46,22 @@ class VerbatimHTML extends (HTMLWriter => PartialFunction[Element, Unit]) {
       attributes.foreach { at =>
         out << " " << at.name
         at match {
-          case HTMLAttribute(_, value, Some(char)) 	=> out << "=" << char.toString << value << char.toString 
-          case HTMLAttribute(_, Nil, None) 					=> () 
-          case HTMLAttribute(_, value, None) 			  => out << "=" << value 
+          case HTMLAttribute(_, value, Some(char))  => out << "=" << char.toString << value << char.toString 
+          case HTMLAttribute(_, Nil, None)          => () 
+          case HTMLAttribute(_, value, None)        => out << "=" << value 
         }
       }
     }
     
     val pf: PartialFunction[Element, Unit] = {
-	      
-	    case HTMLElement(startTag, content) 		=> out << startTag << content << "</" << startTag.name << ">" 
-	    case HTMLStartTag(name, attributes) 		=> tagStart(name, attributes); out << ">"
-	    case HTMLEmptyElement(name, attributes) => tagStart(name, attributes); out << "/>"
-	    case HTMLEndTag(name) 									=> out << "</" << name << ">"
-	    case HTMLComment(content) 							=> out << "<!--" << content << "-->"
-	    case HTMLCharacterReference(ref) 				=> out << ref
-	    case HTMLBlock(root) 										=> out << root 
+        
+      case HTMLElement(startTag, content)     => out << startTag << content << "</" << startTag.name << ">" 
+      case HTMLStartTag(name, attributes)     => tagStart(name, attributes); out << ">"
+      case HTMLEmptyElement(name, attributes) => tagStart(name, attributes); out << "/>"
+      case HTMLEndTag(name)                   => out << "</" << name << ">"
+      case HTMLComment(content)               => out << "<!--" << content << "-->"
+      case HTMLCharacterReference(ref)        => out << ref
+      case HTMLBlock(root)                    => out << root 
     } 
     
     pf

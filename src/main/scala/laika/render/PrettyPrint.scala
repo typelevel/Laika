@@ -57,7 +57,7 @@ class PrettyPrint extends ((Output, Element => Unit) => (TextWriter, Element => 
    */
   def apply (output: Output, render: Element => Unit) = {
     val out = new TextWriter(output asFunction, render, ". ") 
-  	(out, renderElement(out))
+    (out, renderElement(out))
   }
   
   private case class Content (content: Seq[Element], desc: String) extends Element with ElementContainer[Element,Content]
@@ -66,35 +66,35 @@ class PrettyPrint extends ((Output, Element => Unit) => (TextWriter, Element => 
     
     def attributes (attr: Iterator[Any], content: AnyRef) = {
       val it = attr.asInstanceOf[Iterator[AnyRef]]
-   		val res = it filter (_ ne content) mkString ("(", ",", ")")
+      val res = it filter (_ ne content) mkString ("(", ",", ")")
       if (res == "()") "" else res
     } 
     
-	  def elementContainerDesc (con: ElementContainer[Element,_], elementType: String) = {
-	    val (elements, rest) = con.productIterator partition (_.isInstanceOf[Element])	    
-	    out << con.productPrefix << attributes(rest, con.content)
-	    
-	    val contentDesc = " - " + elementType + ": " + con.content.length.toString
-	    if (!elements.isEmpty) out <<|> (elements.toList.asInstanceOf[Seq[Element]] ++ List(Content(con.content, "Content" + contentDesc)))
-	    else out << contentDesc <<|> con.content  
+    def elementContainerDesc (con: ElementContainer[Element,_], elementType: String) = {
+      val (elements, rest) = con.productIterator partition (_.isInstanceOf[Element])
+      out << con.productPrefix << attributes(rest, con.content)
+      
+      val contentDesc = " - " + elementType + ": " + con.content.length.toString
+      if (!elements.isEmpty) out <<|> (elements.toList.asInstanceOf[Seq[Element]] ++ List(Content(con.content, "Content" + contentDesc)))
+      else out << contentDesc <<|> con.content  
     }
     
-	  def textContainerDesc (con: TextContainer) = {
-	    out << con.productPrefix << attributes(con.productIterator, con.content) << " - '"
-	    
-	    val text = con.content.replaceAllLiterally("\n", "|")
-	    val len = text.length
-	    
-	    if (len <= maxTextWidth) out << text << "'"
-	    else out << text.substring(0, maxTextWidth / 2) << " [...] " << text.substring(len - maxTextWidth / 2) << "'"
-	  }
-	  
+    def textContainerDesc (con: TextContainer) = {
+      out << con.productPrefix << attributes(con.productIterator, con.content) << " - '"
+      
+      val text = con.content.replaceAllLiterally("\n", "|")
+      val len = text.length
+      
+      if (len <= maxTextWidth) out << text << "'"
+      else out << text.substring(0, maxTextWidth / 2) << " [...] " << text.substring(len - maxTextWidth / 2) << "'"
+    }
+    
     elem match {
-      case bc: BlockContainer[_] 	=> elementContainerDesc(bc, "Blocks")			
-      case sc: SpanContainer[_]  	=> elementContainerDesc(sc, "Spans")								
-      case tc: TextContainer  		=> textContainerDesc(tc)
+      case bc: BlockContainer[_]  => elementContainerDesc(bc, "Blocks")
+      case sc: SpanContainer[_]   => elementContainerDesc(sc, "Spans")
+      case tc: TextContainer      => textContainerDesc(tc)
       case Content(content,desc)  => out << desc <<|> content
-      case e											=> out << elem.toString
+      case e                      => out << elem.toString
     }
   }
     

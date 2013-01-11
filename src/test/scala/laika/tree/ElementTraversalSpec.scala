@@ -24,8 +24,8 @@ import laika.tree.Elements._
 import laika.tree.helper.ModelBuilder
  
 class ElementTraversalSpec extends FlatSpec 
-									with ShouldMatchers
-									with ModelBuilder {
+                           with ShouldMatchers
+                           with ModelBuilder {
 
   
   "The select method" should "select all elements that satisfy the predicate" in {

@@ -28,7 +28,7 @@ trait StringParserHelpers { self: Parsers =>
   }
   
   object Parsing {
-  	def apply (source: String) = new Source(source)
+    def apply (source: String) = new Source(source)
   }
   
 }

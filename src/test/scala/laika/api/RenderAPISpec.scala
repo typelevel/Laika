@@ -33,17 +33,17 @@ import laika.tree.Elements.Text
 import laika.tree.helper.ModelBuilder
 
 class RenderAPISpec extends FlatSpec 
-										with ShouldMatchers
-										with ModelBuilder {
+                    with ShouldMatchers
+                    with ModelBuilder {
 
   
   val document = doc(p("aaö"), p("bbb"))
   
   val expected = """Document - Blocks: 2
-			|. Paragraph - Spans: 1
-			|. . Text - 'aaö'
-			|. Paragraph - Spans: 1
-			|. . Text - 'bbb'""".stripMargin
+      |. Paragraph - Spans: 1
+      |. . Text - 'aaö'
+      |. Paragraph - Spans: 1
+      |. . Text - 'bbb'""".stripMargin
   
   
   "The Render API" should "render a document to a string" in {
@@ -62,36 +62,36 @@ class RenderAPISpec extends FlatSpec
     Render as PrettyPrint from document toFile f
     
     val source = Source.fromFile(f)
-		val fileContent = source.mkString
-		source.close()
-		f.delete()
-		
-		fileContent should be (expected)
+    val fileContent = source.mkString
+    source.close()
+    f.delete()
+    
+    fileContent should be (expected)
   }
   
   it should "render a document to a java.io.Writer" in {
     val writer = new StringWriter
- 		Render as PrettyPrint from document toWriter writer
- 		writer.toString should be (expected)
+    Render as PrettyPrint from document toWriter writer
+    writer.toString should be (expected)
   }
   
   it should "render a document to a java.io.OutputStream" in {
     val stream = new ByteArrayOutputStream
- 		Render as PrettyPrint from document toStream stream
- 		stream.toString should be (expected)
+    Render as PrettyPrint from document toStream stream
+    stream.toString should be (expected)
   }
   
   it should "render a document to a java.io.OutputStream, specifying the encoding explicitly" in {
     val stream = new ByteArrayOutputStream
- 		(Render as PrettyPrint from document).toStream(stream)(Codec.ISO8859)
- 		stream.toString("ISO-8859-1") should be (expected)
+    (Render as PrettyPrint from document).toStream(stream)(Codec.ISO8859)
+    stream.toString("ISO-8859-1") should be (expected)
   }
   
   it should "render a document to a java.io.OutputStream, specifying the encoding implicitly" in {
     implicit val codec:Codec = Codec.ISO8859
     val stream = new ByteArrayOutputStream
- 		Render as PrettyPrint from document toStream stream
- 		stream.toString("ISO-8859-1") should be (expected)
+    Render as PrettyPrint from document toStream stream
+    stream.toString("ISO-8859-1") should be (expected)
   }
   
   it should "allow to override the default renderer for specific element types" in {
@@ -103,4 +103,4 @@ class RenderAPISpec extends FlatSpec
 
 }
 
-	
+  

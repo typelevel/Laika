@@ -29,12 +29,12 @@ import laika.tree.Elements.LineBreak
 import laika.tree.helper.ModelBuilder
     
 class BlockParsersSpec extends FlatSpec 
-															 with ShouldMatchers 
-															 with BlockParsers 
-															 with InlineParsers
-															 with ParseResultHelpers 
-															 with DefaultParserHelpers[Document] 
-															 with ModelBuilder {
+                       with ShouldMatchers 
+                       with BlockParsers 
+                       with InlineParsers
+                       with ParseResultHelpers 
+                       with DefaultParserHelpers[Document] 
+                       with ModelBuilder {
 
   
   val defaultParser: Parser[Document] = document
@@ -44,7 +44,7 @@ class BlockParsersSpec extends FlatSpec
   "The paragraph parser" should "parse blocks without block-level markup as normal paragraphs" in {
     val input = """aaa
       |bbb
-    	|ccc
+      |ccc
       |
       |ddd
       |eee""".stripMargin
@@ -123,65 +123,65 @@ class BlockParsersSpec extends FlatSpec
   }
   
   it should "parse nested items indented by spaces" in {
-  	val input = """*   aaa
-  								|    *   bbb
-  								|        * ccc""".stripMargin
-  	val list3 = ul( li( fc("ccc")))
-  	val list2 = ul( li( fc("bbb"), list3))
-  	val list1 = ul( li( fc("aaa"), list2))
+    val input = """*   aaa
+                  |    *   bbb
+                  |        * ccc""".stripMargin
+    val list3 = ul( li( fc("ccc")))
+    val list2 = ul( li( fc("bbb"), list3))
+    val list1 = ul( li( fc("aaa"), list2))
     Parsing (input) should produce (doc(list1))
   }
   
   it should "parse nested items indented by tabs" in {
-  	val input = """*	aaa
-  			|	* bbb
-  			|		* ccc""".stripMargin
-  			
-  	val list3 = ul( li( fc("ccc")))
-  	val list2 = ul( li( fc("bbb"), list3))
-  	val list1 = ul( li( fc("aaa"), list2))
-  	
+    val input = """*	aaa
+      |	* bbb
+      |		* ccc""".stripMargin
+
+    val list3 = ul( li( fc("ccc")))
+    val list2 = ul( li( fc("bbb"), list3))
+    val list1 = ul( li( fc("aaa"), list2))
+    
     Parsing (input) should produce (doc(list1))
   }
   
   it should "parse an unordered list nested inside an ordered list" in {
-  	val input = """1.  111
-  		|2.  222
-  	  |    * aaa
-  		|    * bbb
-  		|    * ccc
-  	  |3. 333""".stripMargin
-  	  
-  	val nestedList = ul( li( fc("aaa")), li( fc("bbb")), li( fc("ccc")))
+    val input = """1.  111
+      |2.  222
+      |    * aaa
+      |    * bbb
+      |    * ccc
+      |3. 333""".stripMargin
+      
+    val nestedList = ul( li( fc("aaa")), li( fc("bbb")), li( fc("ccc")))
     
-  	Parsing (input) should produce (doc( ol( li( fc("111")), li( fc("222"), nestedList), li( fc("333")))))
+    Parsing (input) should produce (doc( ol( li( fc("111")), li( fc("222"), nestedList), li( fc("333")))))
   }
   
   it should "parse an unordered list nested inside an ordered list with blank lines between the items" in {
-  	val input = """1.  111
-  	  |
-  		|2.  222
-  	  |    * aaa
-  		|    * bbb
-  		|    * ccc
-  	  |
-  	  |3. 333""".stripMargin
-  	  
-  	val nestedList = ul( li( fc("aaa")), li( fc("bbb")), li( fc("ccc")))
+    val input = """1.  111
+      |
+      |2.  222
+      |    * aaa
+      |    * bbb
+      |    * ccc
+      |
+      |3. 333""".stripMargin
+      
+    val nestedList = ul( li( fc("aaa")), li( fc("bbb")), li( fc("ccc")))
     
-  	Parsing (input) should produce (doc( ol( li( p("111")), li( p("222"), nestedList), li( p("333")))))
+    Parsing (input) should produce (doc( ol( li( p("111")), li( p("222"), nestedList), li( p("333")))))
   }
   
   it should "parse a list nested between two paragraphs inside a list item" in {
-  	val input = """*	aaa
-  	  |
-  		|	*	bbb
-  	  |
-  	  |	ccc""".stripMargin
-  	  
-  	val nestedList = ul( li( fc("bbb")))
+    val input = """*	aaa
+      |
+      |	*	bbb
+      |
+      |	ccc""".stripMargin
+      
+    val nestedList = ul( li( fc("bbb")))
     
-  	Parsing (input) should produce (doc( ul( li( p("aaa"), nestedList, p("ccc")))))
+    Parsing (input) should produce (doc( ul( li( p("aaa"), nestedList, p("ccc")))))
   }
   
   
@@ -449,14 +449,14 @@ class BlockParsersSpec extends FlatSpec
   
   it should "parse a link definition with the title indented on the following line" in {
     val input = """[def]: <http://foo/> 
-    							|       (Some Title)""".stripMargin
+                  |       (Some Title)""".stripMargin
     Parsing (input) should produce (doc( LinkDefinition("def", "http://foo/", Some("Some Title"))))
   }
   
   it should "parse a link definition ignoring the title when it is following atfer a blank line" in {
     val input = """[def]: <http://foo/> 
-    							|
-    							|       (Some Title)""".stripMargin
+                  |
+                  |       (Some Title)""".stripMargin
     Parsing (input) should produce (doc( LinkDefinition("def", "http://foo/", None), codeBlock("   (Some Title)")))
   }
   

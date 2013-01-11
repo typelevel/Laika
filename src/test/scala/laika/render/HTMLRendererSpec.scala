@@ -27,8 +27,8 @@ import laika.tree.Elements.Section
 import laika.tree.helper.ModelBuilder
 
 class HTMLRendererSpec extends FlatSpec 
-												with ShouldMatchers
-												with ModelBuilder {
+                       with ShouldMatchers
+                       with ModelBuilder {
  
   
   def render (elem: Element) = Render as HTML from elem toString 
@@ -110,11 +110,11 @@ class HTMLRendererSpec extends FlatSpec
       |  
       |  <h1>Title 1</h1>
       |  <p>Line 1</p>
-	    |  <p>Line 2</p>
-	    |  
+      |  <p>Line 2</p>
+      |  
       |  <h2>Title 2</h2>
-	    |  <p>Line 1</p>
-	    |  <p>Line 2</p>
+      |  <p>Line 1</p>
+      |  <p>Line 2</p>
       |</div>""".stripMargin
     render (root) should be (html) 
   }

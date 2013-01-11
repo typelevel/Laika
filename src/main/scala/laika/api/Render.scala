@@ -46,8 +46,8 @@ import laika.tree.Elements.Element
  * 
  *  @author Jens Halm
  */
-class Render[W] private (setup: (Output, Element => Unit) => (W, Element => Unit), 															
-    										 customRenderers: List[W => PartialFunction[Element, Unit]] = Nil) {
+class Render[W] private (setup: (Output, Element => Unit) => (W, Element => Unit),
+                         customRenderers: List[W => PartialFunction[Element, Unit]] = Nil) {
 
   
   /** Represents a single render operation for a specific
@@ -58,66 +58,66 @@ class Render[W] private (setup: (Output, Element => Unit) => (W, Element => Unit
 
     /** Renders the tree model to the file with the specified name.
      * 
-	   *  @param name the name of the file to parse
-	   *  @param codec the character encoding of the file, if not specified the platform default will be used.
-	   */
-	  def toFile (name: String)(implicit codec: Codec) = IO(Output.toFile(name)(codec))(render)
-	  
-	  /** Renders the tree model to the specified file.
+     *  @param name the name of the file to parse
+     *  @param codec the character encoding of the file, if not specified the platform default will be used.
+     */
+    def toFile (name: String)(implicit codec: Codec) = IO(Output.toFile(name)(codec))(render)
+    
+    /** Renders the tree model to the specified file.
      * 
-	   *  @param file the file to write to
-	   *  @param codec the character encoding of the file, if not specified the platform default will be used.
-	   */
-	  def toFile (file: File)(implicit codec: Codec) = IO(Output.toFile(file)(codec))(render)
-	  
-	  /** Renders the tree model to the specified output stream.
+     *  @param file the file to write to
+     *  @param codec the character encoding of the file, if not specified the platform default will be used.
+     */
+    def toFile (file: File)(implicit codec: Codec) = IO(Output.toFile(file)(codec))(render)
+    
+    /** Renders the tree model to the specified output stream.
      * 
-	   *  @param stream the stream to render to
-	   *  @param codec the character encoding of the stream, if not specified the platform default will be used.
-	   */
- 		def toStream (stream: OutputStream)(implicit codec: Codec) = IO(Output.toStream(stream)(codec))(render)
+     *  @param stream the stream to render to
+     *  @param codec the character encoding of the stream, if not specified the platform default will be used.
+     */
+     def toStream (stream: OutputStream)(implicit codec: Codec) = IO(Output.toStream(stream)(codec))(render)
 
- 		/** Renders the tree model to the console.
- 		 */
- 		def toConsole = toStream(System.out)
+     /** Renders the tree model to the console.
+      */
+     def toConsole = toStream(System.out)
 
- 		/** Renders the tree model to the specified writer.
- 		 */
-	  def toWriter (writer: Writer) = IO(Output.toWriter(writer))(render)
+     /** Renders the tree model to the specified writer.
+      */
+    def toWriter (writer: Writer) = IO(Output.toWriter(writer))(render)
 
-	  /** Renders the tree model to the specified `StringBuilder`.
-	   */
-	  def toBuilder (builder: StringBuilder) = IO(Output.toBuilder(builder))(render)
+    /** Renders the tree model to the specified `StringBuilder`.
+     */
+    def toBuilder (builder: StringBuilder) = IO(Output.toBuilder(builder))(render)
 
-	  /** Renders the tree model to a String and returns it.
-	   */
-	  override def toString = {
-	    val builder = new StringBuilder
-	    toBuilder(builder)
-	    builder.toString
-	  } 
-	
-	  private object RenderFunction extends (Element => Unit) {
+    /** Renders the tree model to a String and returns it.
+     */
+    override def toString = {
+      val builder = new StringBuilder
+      toBuilder(builder)
+      builder.toString
+    } 
+  
+    private object RenderFunction extends (Element => Unit) {
       var delegate: Element => Unit = _ //throw new IllegalStateException("render function not initialized")
-	    def apply (element: Element) = delegate(element)
-	  }
-	  
-	  private def render (out: Output) = { 
-	    
-	    val (writer, render) = setup(out, RenderFunction)
-	    
-	    RenderFunction.delegate = customRenderers match {
-		    case Nil => render
-		    case xs  => {
-		      val default:PartialFunction[Element, Unit] = { case e => render(e) }
-		    	(xs map { _(writer) }).reverse reduceRight { _ orElse _ } orElse default
-		    }
-  	  }
-	    
-	    RenderFunction(elem)
-	  }
-	  
-	}
+      def apply (element: Element) = delegate(element)
+    }
+    
+    private def render (out: Output) = { 
+      
+      val (writer, render) = setup(out, RenderFunction)
+      
+      RenderFunction.delegate = customRenderers match {
+        case Nil => render
+        case xs  => {
+          val default:PartialFunction[Element, Unit] = { case e => render(e) }
+          (xs map { _(writer) }).reverse reduceRight { _ orElse _ } orElse default
+        }
+      }
+      
+      RenderFunction(elem)
+    }
+    
+  }
 
   /** Specifies a custom render function that overrides one or more of the default
    *  renderers for the output format this instance uses.

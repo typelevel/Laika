@@ -52,7 +52,7 @@ class Markdown private (verbatimHTML: Boolean) extends (Input => Document) {
   
   private lazy val parser = {
     if (verbatimHTML) new BlockParsers with InlineParsers with HTMLParsers
-    else 							new BlockParsers with InlineParsers
+    else              new BlockParsers with InlineParsers
   }
 
   /** The actual parser function, fully parsing the specified input and

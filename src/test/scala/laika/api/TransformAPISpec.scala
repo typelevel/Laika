@@ -36,21 +36,21 @@ import laika.tree.Elements.Text
 import laika.tree.helper.ModelBuilder
  
 class TransformAPISpec extends FlatSpec 
-												with ShouldMatchers
-												with ModelBuilder {
+                       with ShouldMatchers
+                       with ModelBuilder {
 
    
   val input = """# Title äöü
-  	|
+    |
     |text""".stripMargin 
   
   val output = """Document - Blocks: 1
-		|. Section
+    |. Section
     |. . Header(1) - Spans: 1
-  	|. . . Text - 'Title äöü'
+    |. . . Text - 'Title äöü'
     |. . Content - Blocks: 1
-  	|. . . Paragraph - Spans: 1
-  	|. . . . Text - 'text'""".stripMargin
+    |. . . Paragraph - Spans: 1
+    |. . . . Text - 'text'""".stripMargin
     
   val transform = Transform from Markdown to PrettyPrint
   
@@ -73,45 +73,45 @@ class TransformAPISpec extends FlatSpec
     transform fromFile inFile toFile outFile
     
     val source = Source.fromFile(outFile)
-		val fileContent = source.mkString
-		source.close()
-		outFile.delete()
-		
-		fileContent should be (output)
+    val fileContent = source.mkString
+    source.close()
+    outFile.delete()
+    
+    fileContent should be (output)
   }
   
   it should "transform from a java.io.Reader to a java.io.Writer" in {
     val reader = new StringReader(input)
     val writer = new StringWriter
- 		transform fromReader reader toWriter writer
- 		writer.toString should be (output)
+    transform fromReader reader toWriter writer
+    writer.toString should be (output)
   }
   
   it should "transform from a java.io.InputStream to a java.io.OutputStream" in {
     val inStream = new ByteArrayInputStream(input.getBytes())
     val outStream = new ByteArrayOutputStream
- 		transform fromStream inStream toStream outStream
- 		outStream.toString should be (output)
+    transform fromStream inStream toStream outStream
+    outStream.toString should be (output)
   }
   
   it should "transform from a java.io.InputStream to a java.io.OutputStream, specifying the encoding explicitly" in {
     val inStream = new ByteArrayInputStream(input.getBytes("ISO-8859-1"))
     val outStream = new ByteArrayOutputStream
     val codec = Codec.ISO8859
- 		transform.fromStream(inStream)(codec).toStream(outStream)(codec)
- 		outStream.toString("ISO-8859-1") should be (output)
+    transform.fromStream(inStream)(codec).toStream(outStream)(codec)
+    outStream.toString("ISO-8859-1") should be (output)
   }
   
   it should "transform from a java.io.InputStream to a java.io.OutputStream, specifying the encoding implicitly" in {
-  	val inStream = new ByteArrayInputStream(input.getBytes("ISO-8859-1"))
-  	val outStream = new ByteArrayOutputStream
+    val inStream = new ByteArrayInputStream(input.getBytes("ISO-8859-1"))
+    val outStream = new ByteArrayOutputStream
     implicit val codec:Codec = Codec.ISO8859
- 		transform fromStream inStream toStream outStream
- 		outStream.toString("ISO-8859-1") should be (output)
+    transform fromStream inStream toStream outStream
+    outStream.toString("ISO-8859-1") should be (output)
   }
   
   it should "allow to override the default renderer for specific element types" in {
-  	val modifiedOutput = output.replaceAllLiterally(". Text", ". String")
+    val modifiedOutput = output.replaceAllLiterally(". Text", ". String")
     val transformCustom = transform rendering { out => { case Text(content) => out << "String - '" << content << "'" } }
     (transformCustom fromString input toString) should be (modifiedOutput)
   }
@@ -125,7 +125,7 @@ class TransformAPISpec extends FlatSpec
   it should "allow to specify multiple rewrite rules" in {
     val modifiedOutput = output.replaceAllLiterally("äöü", "zzz").replaceAllLiterally("text", "new")
     val transformCustom = transform usingRule { case Text("Title äöü") => Some(Text("Title zzz")) } usingRule
-    																					{ case Text("text") => Some(Text("new")) }
+                                              { case Text("text") => Some(Text("new")) }
     (transformCustom fromString input toString) should be (modifiedOutput)
   }
   
@@ -138,4 +138,4 @@ class TransformAPISpec extends FlatSpec
 
 }
 
-	
+  

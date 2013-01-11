@@ -32,8 +32,8 @@ import laika.tree.Elements._
  *  @author Jens Halm
  */
 class HTMLWriter (out: String => Unit,  
-									render: Element => Unit, 
-									newLine: String = "\n") extends TextWriter(out, render, newLine = newLine) {
+                  render: Element => Unit, 
+                  newLine: String = "\n") extends TextWriter(out, render, newLine = newLine) {
 
   
   
@@ -68,7 +68,7 @@ class HTMLWriter (out: String => Unit,
    */
   def <<@ (name: String, value: Option[String]): this.type = value match {
     case Some(value) => <<@(name,value)
-    case None				 => this
+    case None        => this
   }
     
   /** Writes the specified name and value as an HTML attribute, including

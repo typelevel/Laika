@@ -46,7 +46,7 @@ trait InlineParsers extends MarkupParsers {
    *  deal with nested constructs.
    */
   trait ResultBuilder[Elem, +To] {
-	  def fromString (str: String): Elem
+    def fromString (str: String): Elem
     def += (item: Elem): Unit
     def result: To
   } 
@@ -88,8 +88,8 @@ trait InlineParsers extends MarkupParsers {
    *  @return the resulting parser
    */ 
   def inline [Elem,To] (text: => TextParser, 
-      									nested: => Map[Char, Parser[Elem]], 
-      									resultBuilder: => ResultBuilder[Elem,To]) = Parser { in =>
+                        nested: => Map[Char, Parser[Elem]], 
+                        resultBuilder: => ResultBuilder[Elem,To]) = Parser { in =>
 
     lazy val builder = resultBuilder // evaluate only once
     lazy val nestedMap = nested
@@ -112,11 +112,11 @@ trait InlineParsers extends MarkupParsers {
           addText(text); 
           if (onStopChar) nestedMap.get(next.first) match {
             case None         => Success(builder.result, next)
-	          case Some(parser) => {
+            case Some(parser) => {
               val newIn = nestedSpanOrNextChar(parser, next)
               if (newIn.atEnd) Success(builder.result, newIn)
               else parse(newIn)
-	          }
+            }
           }
           else Success(builder.result, next)
         }
@@ -133,7 +133,7 @@ trait InlineParsers extends MarkupParsers {
    *  @return the resulting parser
    */
   def spans (parser: => TextParser, spanParsers: => Map[Char, Parser[Span]]) 
-  		= inline(parser, spanParsers, new SpanBuilder)
+      = inline(parser, spanParsers, new SpanBuilder)
   
   /** Parses text based on the specified helper parsers.
    * 
@@ -142,7 +142,7 @@ trait InlineParsers extends MarkupParsers {
    *  @return the resulting parser
    */
   def text (parser: => TextParser, nested: => Map[Char, Parser[String]]): Parser[String] 
-  		= inline(parser, nested, new TextBuilder)
+      = inline(parser, nested, new TextBuilder)
   
   /** Fully parses the input string and produces a list of spans.
    *  
@@ -155,6 +155,6 @@ trait InlineParsers extends MarkupParsers {
    *  @return the result of the parser in form of a list of spans
    */
   def parseInline (source: String, spanParsers: Map[Char, Parser[Span]]) = 
-    parseMarkup(inline(any, spanParsers, new SpanBuilder), source) 		
-  		
+    parseMarkup(inline(any, spanParsers, new SpanBuilder), source)
+
 }

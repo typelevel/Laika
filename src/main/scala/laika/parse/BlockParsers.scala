@@ -47,7 +47,7 @@ trait BlockParsers extends MarkupParsers {
    */
   def document: Parser[Document] = {
     val block = topLevelBlock <~ opt(blankLines)
-  	opt(blankLines) ~> (block *) ^^ { Document(_) }
+    opt(blankLines) ~> (block *) ^^ { Document(_) }
   }
   
   /** Fully parses the input from the specified reader and returns the document tree. 

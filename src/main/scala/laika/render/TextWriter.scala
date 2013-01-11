@@ -28,9 +28,9 @@ import laika.tree.Elements._
  *  @author Jens Halm
  */
 class TextWriter (out: String => Unit, 
-									render: Element => Unit, 
-									indentItem: String = "  ", 
-									newLine: String = "\n") {
+                  render: Element => Unit, 
+                  indentItem: String = "  ", 
+                  newLine: String = "\n") {
 
   
   protected object Indent {
@@ -99,8 +99,8 @@ class TextWriter (out: String => Unit,
   def <<|> (elements: Seq[Element]): this.type = {
     Indent.>>>
     elements.foreach { e => 
-	    Indent.write
-	    render(e)
+      Indent.write
+      render(e)
     }
     Indent.<<<
     this

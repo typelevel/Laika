@@ -44,11 +44,11 @@ object RewriteRules {
     val definitions = document.select { case _: LinkDefinition => true; case _ => false } map { case ld @ LinkDefinition(id,_,_) => (id,ld) } toMap
     
     val pf: PartialFunction[Element, Option[Element]] = { 
-      case ref: LinkReference 	=> Some(resolveLinkReference(ref, definitions))
-	    case ref: ImageReference	=> Some(resolveImageReference(ref, definitions))
-	    case _:   LinkDefinition	=> None
-	    case doc: Document   			=> Some(buildSections(doc)) 
-	  }
+      case ref: LinkReference   => Some(resolveLinkReference(ref, definitions))
+      case ref: ImageReference  => Some(resolveImageReference(ref, definitions))
+      case _:   LinkDefinition  => None
+      case doc: Document        => Some(buildSections(doc)) 
+    }
     pf
   }
 
@@ -61,14 +61,14 @@ object RewriteRules {
   private def resolveLinkReference (ref: LinkReference, linkDefinitions: Map[String, LinkDefinition]) = {
     linkDefinitions.get(ref.id) match {
       case Some(LinkDefinition(id, url, title)) => Link(ref.content, url, title)
-      case None																	=> ref
+      case None                                 => ref
     }
   }
   
   private def resolveImageReference (ref: ImageReference, linkDefinitions: Map[String, LinkDefinition]) = {
     linkDefinitions.get(ref.id) match {
       case Some(LinkDefinition(id, url, title)) => Image(ref.text, url, title)
-      case None																	=> ref
+      case None                                 => ref
     }
   }
   
@@ -80,14 +80,14 @@ object RewriteRules {
     
     def closeSections (toLevel: Int) = {
       while (!stack.isEmpty && stack.top >= toLevel) {
-    	  val section = stack.pop.toSection
-    		stack.top += section
-    	}
+        val section = stack.pop.toSection
+        stack.top += section
+      }
     }
     
     doc.content.foreach { 
       case h @ Header(level, _) => closeSections(level); stack push new SectionBuilder(h)
-      case block								=> stack.top += block
+      case block                => stack.top += block
     }
 
     closeSections(1)

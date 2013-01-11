@@ -28,9 +28,9 @@ import laika.tree.helper.ModelBuilder
  
 
 class VerbatimHTMLRendererSpec extends FlatSpec 
-												with ShouldMatchers
-												with ModelBuilder 
-												with HTMLModelBuilder {
+                               with ShouldMatchers
+                               with ModelBuilder 
+                               with HTMLModelBuilder {
   
     
   def render (elem: Element) = Render as HTML using VerbatimHTML from elem toString 

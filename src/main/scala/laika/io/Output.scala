@@ -72,9 +72,9 @@ object Output {
     /** The output as a `java.io.OutputStream`. Should only be used
      *  by renderers that do not produce character data.
      */
-	  def asStream: OutputStream
-	  
-	}
+    def asStream: OutputStream
+    
+  }
   
   private class StringBuilderOutput (builder: StringBuilder) extends Output with Closeable {
     
@@ -96,7 +96,7 @@ object Output {
   
   private class StreamOutput (val asStream: OutputStream, codec: Codec) extends BinaryOutput with Closeable {
    
-  	val asWriter = new BufferedWriter(new OutputStreamWriter(asStream, codec.encoder))
+    val asWriter = new BufferedWriter(new OutputStreamWriter(asStream, codec.encoder))
     
     val asFunction = asWriter.write(_:String)
     
@@ -117,7 +117,7 @@ object Output {
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
   def toFile (file: File)(implicit codec: Codec) = toStream(new FileOutputStream(file))(codec)
-	 
+
   /** Creates a new Output instance for the specified OutputStream.
    *  
    *  @param stream the stream to write to
@@ -128,7 +128,7 @@ object Output {
   /** Creates a new Output instance for the specified Writer.
    */
   def toWriter (writer: Writer): Output with Closeable = new WriterOutput(writer)
-	
+
   /** Creates a new Output instance for the specified StringBuilder.
    */
   def toBuilder (builder: StringBuilder): Output with Closeable = new StringBuilderOutput(builder)
@@ -150,7 +150,7 @@ object Output {
     override def write(str: String) = builder ++= str
 
     override def write(str: String, offset: Int, len: Int) = {
-    	builder ++= str.substring(offset, offset + len)
+      builder ++= str.substring(offset, offset + len)
     }
     
     override def append(seq: CharSequence) = {

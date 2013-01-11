@@ -26,7 +26,7 @@ trait DefaultParserHelpers[T] { self: Parsers =>
   def defaultParser: Parser[T]
   
   object Parsing {
-  	def apply (source: String) = defaultParser(new CharSequenceReader(source)) 
+    def apply (source: String) = defaultParser(new CharSequenceReader(source)) 
   }
   
 }

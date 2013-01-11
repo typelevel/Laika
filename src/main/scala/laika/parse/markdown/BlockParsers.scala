@@ -80,7 +80,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    */
   lazy val atxHeader: Parser[Header] = {
     def stripDecoration (text: String) = {
-      val trimmed =	text.trim 
+      val trimmed = text.trim 
       if (trimmed.last == '#') trimmed.take(trimmed.lastIndexWhere(_ != '#') + 1).trim
       else trimmed
     } 
@@ -98,7 +98,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    */
   lazy val setextHeader: Parser[Header] = textLine ~ (anyOf('=').min(1) | anyOf('-').min(1)) <~ (ws ~ eol) ^^ {
     case text ~ decoration if decoration.head == '=' => Header(1, parseInline(text)) 
-    case text ~ _ 									 								 => Header(2, parseInline(text))
+    case text ~ _                                    => Header(2, parseInline(text))
   }
   
   /** Parses a horizontal rule, a line only decorated with three or more `'*'`, `'-'` or `'_'`
@@ -109,24 +109,24 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     (pattern('*') | pattern('-') | pattern('_')) ~ ws ~ eol ^^^ { Rule }
   }
 
-  
+
   /** Parses all of the standard Markdown blocks, except normal paragraphs and those blocks
    *  that deal with verbatim HTML. For the latter parsers are provided by a separate, optional trait.
    */
   def standardMarkdownBlock (nestLevel: Int): Parser[Block] = 
-	  atxHeader | setextHeader | (insignificantSpaces ~> 
-			(codeBlock | quotedBlock(nestLevel) | rule | unorderedList(nestLevel) | orderedList(nestLevel)))
-			
-	/** Parses Markdown blocks, except normal paragraphs, blocks that deal with verbatim HTML
-	 *  and blocks that allow nesting of blocks. Only used in rare cases when the maximum
-	 *  nest level allowed had been reached
+    atxHeader | setextHeader | (insignificantSpaces ~> 
+      (codeBlock | quotedBlock(nestLevel) | rule | unorderedList(nestLevel) | orderedList(nestLevel)))
+
+  /** Parses Markdown blocks, except normal paragraphs, blocks that deal with verbatim HTML
+   *  and blocks that allow nesting of blocks. Only used in rare cases when the maximum
+   *  nest level allowed had been reached
    */
   def nonRecursiveMarkdownBlock: Parser[Block] = 
-	  atxHeader | setextHeader | (insignificantSpaces ~> (codeBlock | rule ))
+    atxHeader | setextHeader | (insignificantSpaces ~> (codeBlock | rule ))
 
-	/** Parses Markdown blocks which are only recognized on the top document
-	 *  level, not nested inside other blocks.
-	 */
+  /** Parses Markdown blocks which are only recognized on the top document
+   *  level, not nested inside other blocks.
+   */
   def topLevelMarkdownBlock: Parser[Block] = linkDefinition
  
   
@@ -188,7 +188,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    */
   def quotedBlock (nestLevel: Int): Parser[QuotedBlock] 
     = mdBlock('>', accept('>') | not(blankLine), '>') ^^ 
-    	{ lines => QuotedBlock(parseNestedBlocks(lines, nestedBlock(nestLevel + 1))) }
+      { lines => QuotedBlock(parseNestedBlocks(lines, nestedBlock(nestLevel + 1))) }
 
   
   /** Represents one or more consecutive blank lines. For parsing Markdown lists
@@ -211,27 +211,27 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   def list [T <: Block] (itemStart: Parser[String], newList: List[ListItem] => T, nestLevel: Int) = {
     
     def flattenItems (items: List[~[Option[Block],ListItem]]) = {
-	    val hasBlankLines = items exists { 
-	      case Some(_) ~ _	=> true
-	      case None ~ _			=> false
-	    }
-	    def rewriteItemContent (item:ListItem) = {
-	      ListItem(((List[Block](), false) /: item.content) { 
-	        /* Promoting FlowContent to Paragraph if the list has any blank lines between list items or if it is adjacent
-	           to blank lines within the list item itself. This is ugly, but forced by the (in this respect odd) design of Markdown. 
-	           The second (boolean) value in the accumulator tuple signals whether the previous item represented one or more blank lines */
-	        case ((FlowContent(content) :: xs,_), BlankLines) 		=> (Paragraph(content) :: xs, true)
-	        case ((xs,true), FlowContent(content))	 							=> (Paragraph(content) :: xs, false)
-	        case ((xs,_), FlowContent(content)) if hasBlankLines	=> (Paragraph(content) :: xs, false)
-	        case ((xs,_), BlankLines)															=> (xs, true)
-	        case ((xs,_), item) 																	=> (item :: xs, false)
-	      }._1.reverse)
-	    } 
-	    items map { case _ ~ (li @ ListItem(_)) => rewriteItemContent(li) } 
-	  }
+      val hasBlankLines = items exists { 
+        case Some(_) ~ _  => true
+        case None ~ _     => false
+      }
+      def rewriteItemContent (item:ListItem) = {
+        ListItem(((List[Block](), false) /: item.content) { 
+          /* Promoting FlowContent to Paragraph if the list has any blank lines between list items or if it is adjacent
+             to blank lines within the list item itself. This is ugly, but forced by the (in this respect odd) design of Markdown. 
+             The second (boolean) value in the accumulator tuple signals whether the previous item represented one or more blank lines */
+          case ((FlowContent(content) :: xs,_), BlankLines)     => (Paragraph(content) :: xs, true)
+          case ((xs,true), FlowContent(content))                => (Paragraph(content) :: xs, false)
+          case ((xs,_), FlowContent(content)) if hasBlankLines  => (Paragraph(content) :: xs, false)
+          case ((xs,_), BlankLines)                             => (xs, true)
+          case ((xs,_), item)                                   => (item :: xs, false)
+        }._1.reverse)
+      } 
+      items map { case _ ~ (li @ ListItem(_)) => rewriteItemContent(li) } 
+    }
     
     guard(itemStart) ~> ((opt(preserveBlankLines) ~ listItem(itemStart, nestLevel)) *) ^^ 
-    	{ x => newList(flattenItems(x)) }
+      { x => newList(flattenItems(x)) }
   }
   
   /** Parses a single list item.
@@ -240,7 +240,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    */
   def listItem (itemStart: Parser[String], nestLevel: Int): Parser[ListItem]
     = mdBlock(itemStart, not(blankLine | itemStart) ~ opt(tabOrSpace), tabOrSpace) ^^
-    		{ lines => ListItem(parseMarkup(listItemBlocks(nestLevel + 1), lines mkString "\n")) }
+        { lines => ListItem(parseMarkup(listItemBlocks(nestLevel + 1), lines mkString "\n")) }
  
   
   /** Parses the start of an unordered list item.

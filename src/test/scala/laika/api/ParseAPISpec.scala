@@ -33,8 +33,8 @@ import laika.tree.Elements.Text
 import laika.tree.helper.ModelBuilder
 
 class ParseAPISpec extends FlatSpec 
-										with ShouldMatchers
-										with ModelBuilder {
+                   with ShouldMatchers
+                   with ModelBuilder {
 
   
   "The Parse API" should "allow parsing Markdown from a string" in {

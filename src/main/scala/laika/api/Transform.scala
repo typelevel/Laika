@@ -71,63 +71,63 @@ import laika.tree.RewriteRules
  * 
  *  @author Jens Halm
  */
-class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules:	Rules) {
+class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules: Rules) {
   
   
   /** Represents a single transformation operation for a specific
    *  input that has already been parsed. Various types of output can be
    *  specified to trigger the actual rendering.
    */
-	class Operation private[Transform] (rawDocument: Document) { 
+  class Operation private[Transform] (rawDocument: Document) { 
 
-	  private val document = rawDocument rewrite rules.forDocument(rawDocument)
-	  private val op = render from document
-	  
-	  /** Renders to the file with the specified name.
+    private val document = rawDocument rewrite rules.forDocument(rawDocument)
+    private val op = render from document
+    
+    /** Renders to the file with the specified name.
      * 
-	   *  @param name the name of the file to parse
-	   *  @param codec the character encoding of the file, if not specified the platform default will be used.
-	   */
-	  def toFile (name: String)(implicit codec: Codec) = op.toFile(name)(codec)
-	  
-	  /** Renders to the specified file.
+     *  @param name the name of the file to parse
+     *  @param codec the character encoding of the file, if not specified the platform default will be used.
+     */
+    def toFile (name: String)(implicit codec: Codec) = op.toFile(name)(codec)
+    
+    /** Renders to the specified file.
      * 
-	   *  @param file the file to write to
-	   *  @param codec the character encoding of the file, if not specified the platform default will be used.
-	   */
-	  def toFile (file: File)(implicit codec: Codec) = op.toFile(file)(codec)
+     *  @param file the file to write to
+     *  @param codec the character encoding of the file, if not specified the platform default will be used.
+     */
+    def toFile (file: File)(implicit codec: Codec) = op.toFile(file)(codec)
 
 
-	  /** Renders to the specified output stream.
+    /** Renders to the specified output stream.
      * 
-	   *  @param stream the stream to render to
-	   *  @param codec the character encoding of the stream, if not specified the platform default will be used.
-	   */
-	  def toStream (stream: OutputStream)(implicit codec: Codec) = op.toStream(stream)(codec)
-	  
-	  /** Renders directly to the console.
- 		 */
-	  def toConsole = op toConsole
+     *  @param stream the stream to render to
+     *  @param codec the character encoding of the stream, if not specified the platform default will be used.
+     */
+    def toStream (stream: OutputStream)(implicit codec: Codec) = op.toStream(stream)(codec)
+    
+    /** Renders directly to the console.
+      */
+    def toConsole = op toConsole
 
-	  /** Renders to the specified writer.
- 		 */
-	  def toWriter (writer: Writer) = op toWriter writer
-	  
-	  /** Renders to the specified `StringBuilder`.
-	   */
-	  def toBuilder (builder: StringBuilder) = op toBuilder builder 
+    /** Renders to the specified writer.
+      */
+    def toWriter (writer: Writer) = op toWriter writer
+    
+    /** Renders to the specified `StringBuilder`.
+     */
+    def toBuilder (builder: StringBuilder) = op toBuilder builder 
 
-	  /** Renders to a String and returns it.
-	   */
-	  override def toString = op toString
-	  
-	}
+    /** Renders to a String and returns it.
+     */
+    override def toString = op toString
+    
+  }
 
-	/** Specifies a rewrite rule to be applied to the document tree model between the
-	 *  parse and render operations. This is identical to calling `Document.rewrite`
-	 *  directly, but if there is no need to otherwise access the document instance
-	 *  and just chain parse and render operations this hook is more convenient.
-	 *  
+  /** Specifies a rewrite rule to be applied to the document tree model between the
+   *  parse and render operations. This is identical to calling `Document.rewrite`
+   *  directly, but if there is no need to otherwise access the document instance
+   *  and just chain parse and render operations this hook is more convenient.
+   *  
    *  The rule is a partial function that takes an `Element` and returns an `Option[Element]`.
    *  
    *  If the function is not defined for a specific element the old element remains
@@ -142,22 +142,22 @@ class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules:	
    *  
    *  In case multiple rewrite rules need to be applied it may be more efficient to
    *  first combine them with `orElse`.
-	 */
+   */
   def usingRule (newRule: PartialFunction[Element, Option[Element]]) = creatingRule(_ => newRule)
   
   /** Specifies a rewrite rule to be applied to the document tree model between the
-	 *  parse and render operations. This is identical to calling `Document.rewrite`
-	 *  directly, but if there is no need to otherwise access the document instance
-	 *  and just chain parse and render operations this hook is more convenient.
-	 *  
-	 *  The difference of this method to the `usingRule` method is that it expects a function
-	 *  that expects a Document instance and returns the rewrite rule. This way the full document
-	 *  can be queried before any rule is applied. This is necessary in cases where the rule
-	 *  (which gets applied node-by-node) depends on information from other nodes. An example
-	 *  from the built-in rewrite rules is the rule that resolves link references. To replace
-	 *  all link reference elements with actual link elements, the rewrite rule needs to know
-	 *  all LinkDefinitions the document tree contains.
-	 *  
+   *  parse and render operations. This is identical to calling `Document.rewrite`
+   *  directly, but if there is no need to otherwise access the document instance
+   *  and just chain parse and render operations this hook is more convenient.
+   *  
+   *  The difference of this method to the `usingRule` method is that it expects a function
+   *  that expects a Document instance and returns the rewrite rule. This way the full document
+   *  can be queried before any rule is applied. This is necessary in cases where the rule
+   *  (which gets applied node-by-node) depends on information from other nodes. An example
+   *  from the built-in rewrite rules is the rule that resolves link references. To replace
+   *  all link reference elements with actual link elements, the rewrite rule needs to know
+   *  all LinkDefinitions the document tree contains.
+   *  
    *  The rule itself is a partial function that takes an `Element` and returns an `Option[Element]`.
    *  
    *  If the function is not defined for a specific element the old element remains
@@ -172,7 +172,7 @@ class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules:	
    *  
    *  In case multiple rewrite rules need to be applied it may be more efficient to
    *  first combine them with `orElse`.
-	 */
+   */
   def creatingRule (newRule: Document => PartialFunction[Element, Option[Element]]) = new Transform(parse, render, rules + newRule) 
   
   /** Specifies a custom render function that overrides one or more of the default
@@ -243,15 +243,15 @@ object Transform {
    
   private[laika] class Rules (rules: List[Document => PartialFunction[Element, Option[Element]]]){
     
-  	def forDocument (doc: Document) = {
+    def forDocument (doc: Document) = {
 
-  	  val fallback: PartialFunction[Element, Option[Element]] = { case e => Some(e) }
-  	  
-  		(rules map { _(doc) orElse fallback }).reverse reduceRight { (ruleA,ruleB) => ruleA andThen (_ flatMap ruleB) }
-  	}
+      val fallback: PartialFunction[Element, Option[Element]] = { case e => Some(e) }
+      
+      (rules map { _(doc) orElse fallback }).reverse reduceRight { (ruleA,ruleB) => ruleA andThen (_ flatMap ruleB) }
+    }
     
-	  def + (newRule: Document => PartialFunction[Element, Option[Element]]) = new Rules(newRule :: rules)
-	  
+    def + (newRule: Document => PartialFunction[Element, Option[Element]]) = new Rules(newRule :: rules)
+    
   }
 
   /** Step in the setup for a transform operation where the

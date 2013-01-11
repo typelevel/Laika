@@ -45,37 +45,37 @@ class HTML extends ((Output, Element => Unit) => (HTMLWriter, Element => Unit)) 
    */
   def apply (output: Output, render: Element => Unit) = {
     val out = new HTMLWriter(output asFunction, render)  
-  	(out, renderElement(out))
+    (out, renderElement(out))
   }
 
   private def renderElement (out: HTMLWriter)(elem: Element): Unit = {
     
     elem match {
-      case Document(content) 					=> out << 			 "<div>" <<|> content <<| "</div>" 			
-      case QuotedBlock(content)				=> out << "<blockquote>" <<|> content <<| "</blockquote>"
-      case UnorderedList(content)			=> out << 				"<ul>" <<|> content <<| "</ul>"
-      case OrderedList(content)				=> out << 				"<ol>" <<|> content <<| "</ol>"
-      case CodeBlock(content)					=> out <<	 "<code><pre>" <<<&	content <<  "</pre></code>"
-      case Section(header, content) 	=> out << 	 	 	  header <<|  content
-      case Paragraph(content)					=> out << 				 "<p>" << 	content <<  "</p>"  
-      case ListItem(content)					=> out << 				"<li>" << 	content <<  "</li>"
-      case Emphasized(content)				=> out << 				"<em>" <<   content <<  "</em>" 
-      case Strong(content)						=> out << 		"<strong>" <<   content << 	"</strong>" 
-      case CodeSpan(content)					=> out << 			"<code>" <<<& content << 	"</code>" 
-      case Text(content)							=> out 									 <<&  content
-      case FlowContent(content)				=> out 									 <<   content
-      case Rule												=> out << "<hr>"
-      case LineBreak									=> out << "<br>"
-      case Header(level, content)			=> out <<| "<h" << level.toString << ">" << content << "</h" << level.toString << ">"
-      case Link(content, url, title)	=> out << "<a"   <<@ ("href",url) <<@ ("title",title) << ">" << content << "</a>"
-      case Image(text, url, title)		=> out << "<img" <<@ ("src", url) <<@ ("alt",text) <<@ ("title",title) << ">"
-      
-      case LinkReference(content, id, inputPrefix, inputPostfix)	=> out << inputPrefix << content << inputPostfix 
-      case ImageReference(text, id, inputPrefix, inputPostfix)		=> out << inputPrefix << text    << inputPostfix
-			
-      case sc: SpanContainer[_]				=> out << "<span>" <<  sc.content << "</span>"
-      case bc: BlockContainer[_]			=> out << "<div>" <<|> bc.content << "</div>"
-      case unknown										=> ()  
+      case Document(content)          => out <<        "<div>" <<|> content <<| "</div>"       
+      case QuotedBlock(content)       => out << "<blockquote>" <<|> content <<| "</blockquote>"
+      case UnorderedList(content)     => out <<         "<ul>" <<|> content <<| "</ul>"
+      case OrderedList(content)       => out <<         "<ol>" <<|> content <<| "</ol>"
+      case CodeBlock(content)         => out <<  "<code><pre>" <<<& content <<  "</pre></code>"
+      case Section(header, content)   => out <<         header <<|  content
+      case Paragraph(content)         => out <<          "<p>" <<   content <<  "</p>"  
+      case ListItem(content)          => out <<         "<li>" <<   content <<  "</li>"
+      case Emphasized(content)        => out <<         "<em>" <<   content <<  "</em>" 
+      case Strong(content)            => out <<     "<strong>" <<   content <<   "</strong>" 
+      case CodeSpan(content)          => out <<       "<code>" <<<& content <<   "</code>" 
+      case Text(content)              => out                   <<&  content
+      case FlowContent(content)       => out                   <<   content
+      case Rule                       => out << "<hr>"
+      case LineBreak                  => out << "<br>"
+      case Header(level, content)     => out <<| "<h" << level.toString << ">" << content << "</h" << level.toString << ">"
+      case Link(content, url, title)  => out << "<a"   <<@ ("href",url) <<@ ("title",title) << ">" << content << "</a>"
+      case Image(text, url, title)    => out << "<img" <<@ ("src", url) <<@ ("alt",text) <<@ ("title",title) << ">"
+
+      case LinkReference(content, id, inputPrefix, inputPostfix)  => out << inputPrefix << content << inputPostfix 
+      case ImageReference(text, id, inputPrefix, inputPostfix)    => out << inputPrefix << text    << inputPostfix
+
+      case sc: SpanContainer[_]       => out << "<span>" <<  sc.content << "</span>"
+      case bc: BlockContainer[_]      => out << "<div>" <<|> bc.content << "</div>"
+      case unknown                    => ()  
     }  
   } 
 }
