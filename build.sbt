@@ -9,7 +9,7 @@ description := "Library for transforming lightweight text markup into various ty
 
 scalaVersion := "2.9.2"
 
-scalacOptions ++= Opts.compile.encoding("UTF-8")
+scalacOptions ++= Opts.compile.encoding("UTF-8") :+ Opts.compile.deprecation :+ Opts.compile.unchecked
 
 libraryDependencies <+= scalaVersion {
   case v if v startsWith "2.10" => "org.scalatest" %% "scalatest" % "1.9.1" % "test"
