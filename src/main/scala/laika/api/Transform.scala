@@ -188,7 +188,7 @@ class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules:	
    *  
    *  {{{
    *  Transform from Markdown to HTML rendering { out => 
-   *    { case Emphasized(content) => out << """<em class="big">""" << content << "</em>" } 
+   *    { case Emphasized(content) => out << """&lt;em class="big">""" << content << "&lt;/em>" } 
    *  } fromFile "hello.md" toFile "hello.html"
    *  }}}
    */

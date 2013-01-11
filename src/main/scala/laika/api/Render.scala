@@ -134,7 +134,7 @@ class Render[W] private (setup: (Output, Element => Unit) => (W, Element => Unit
    *  val doc: Document = ...
    *  
    *  Render as HTML using { out => 
-   *    { case Emphasized(content) => out << """<em class="big">""" << content << "</em>" } 
+   *    { case Emphasized(content) => out << """&lt;em class="big">""" << content << "&lt;/em>" } 
    *  } from doc toString
    *  }}}
    */
