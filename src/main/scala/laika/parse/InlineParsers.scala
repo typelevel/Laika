@@ -87,12 +87,13 @@ trait InlineParsers extends MarkupParsers {
    *  @param resultBuilder responsible for building the final result of this parser based on the results of the helper parsers
    *  @return the resulting parser
    */ 
-  def inline [Elem,To] (text: TextParser, 
-      									nested: Map[Char, Parser[Elem]], 
+  def inline [Elem,To] (text: => TextParser, 
+      									nested: => Map[Char, Parser[Elem]], 
       									resultBuilder: => ResultBuilder[Elem,To]) = Parser { in =>
 
-    val builder = resultBuilder // evaluate only once
-    val textParser = text.stopChars(nested.keySet.toList:_*)
+    lazy val builder = resultBuilder // evaluate only once
+    lazy val nestedMap = nested
+    lazy val textParser = text.stopChars(nestedMap.keySet.toList:_*)
     
     def addText (text: String) = if (!text.isEmpty) builder += builder.fromString(text)
     
@@ -109,7 +110,7 @@ trait InlineParsers extends MarkupParsers {
         case NoSuccess(msg, _)     => Failure(msg, in)
         case Success((text,onStopChar), next) => {
           addText(text); 
-          if (onStopChar) nested.get(next.first) match {
+          if (onStopChar) nestedMap.get(next.first) match {
             case None         => Success(builder.result, next)
 	          case Some(parser) => {
               val newIn = nestedSpanOrNextChar(parser, next)
@@ -131,7 +132,7 @@ trait InlineParsers extends MarkupParsers {
    *  @param nested a mapping from the start character of a span to the corresponding parser for nested span elements
    *  @return the resulting parser
    */
-  def spans (parser: TextParser, spanParsers: Map[Char, Parser[Span]]) 
+  def spans (parser: => TextParser, spanParsers: => Map[Char, Parser[Span]]) 
   		= inline(parser, spanParsers, new SpanBuilder)
   
   /** Parses text based on the specified helper parsers.
@@ -140,7 +141,7 @@ trait InlineParsers extends MarkupParsers {
    *  @param nested a mapping from the start character of a span to the corresponding parser for nested span elements
    *  @return the resulting parser
    */
-  def text (parser: TextParser, nested: Map[Char, Parser[String]]): Parser[String] 
+  def text (parser: => TextParser, nested: => Map[Char, Parser[String]]): Parser[String] 
   		= inline(parser, nested, new TextBuilder)
   
   /** Fully parses the input string and produces a list of spans.

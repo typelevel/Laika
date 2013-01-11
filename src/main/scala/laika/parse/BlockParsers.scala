@@ -114,13 +114,13 @@ trait BlockParsers extends MarkupParsers {
    *  @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
    *  @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block 
    */
-  def block (firstLinePrefix: Parser[Any], linePrefix: Parser[Any], nextBlockPrefix: Parser[Any]): Parser[List[String]] = {
+  def block (firstLinePrefix: Parser[Any], linePrefix: => Parser[Any], nextBlockPrefix: => Parser[Any]): Parser[List[String]] = {
     
     val firstLine = firstLinePrefix ~> restOfLine
     
-    val line = linePrefix ~> restOfLine
+    lazy val line = linePrefix ~> restOfLine
     
-    val nextBlock = blankLines <~ guard(nextBlockPrefix) ^^ { _.mkString("\n") }
+    lazy val nextBlock = blankLines <~ guard(nextBlockPrefix) ^^ { _.mkString("\n") }
     
     firstLine ~ ( (line | nextBlock)* ) ^^ { mkList(_) }
     

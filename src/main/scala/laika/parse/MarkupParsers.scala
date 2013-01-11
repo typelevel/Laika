@@ -241,10 +241,11 @@ trait MarkupParsers extends RegexParsers {
    *  Further constraints like minimum or maximum number of required matching characters can be specified
    *  through the API of the returned `TextParser` instance.
    */
-  def anyUntil (until: Parser[Any]) = {
+  def anyUntil (until: => Parser[Any]) = {
     
     def newParser (min: Int, max: Int, failAtEof: Boolean, consumeLastChar: Boolean, isStopChar: Char => Boolean) = Parser { in =>
 	  
+      lazy val parser = until
       val maxOffset = if (max > 0) in.offset + max else in.source.length
 	    
 	    def result (resultOffset: Int, next: Input, onStopChar: Boolean = false) = {
@@ -257,7 +258,7 @@ trait MarkupParsers extends RegexParsers {
 		  @tailrec
 		  def parse (input: Input): ParseResult[(String,Boolean)] = {
 	      if (input.atEnd && failAtEof) Failure("unecpected end of input", in)
-		    else until(input) match {
+	      else parser(input) match {
 		      case Success(_, next) => result(input.offset, next)
 		      case Error(msg, next) => Failure(msg, input)
 		      case Failure(_, _)    => {
@@ -280,7 +281,7 @@ trait MarkupParsers extends RegexParsers {
    */
   def repMin[T] (num: Int, p: => Parser[T]): Parser[List[T]] = Parser { in =>
     val elems = new ListBuffer[T]
-    val parser = p
+    lazy val parser = p
 
     @tailrec 
     def parse (input: Input): ParseResult[List[T]]  = parser(input) match {
