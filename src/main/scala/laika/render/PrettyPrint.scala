@@ -60,7 +60,7 @@ class PrettyPrint extends ((Output, Element => Unit) => (TextWriter, Element => 
   	(out, renderElement(out))
   }
   
-  private case class Content (content: List[Element], desc: String) extends Element with ElementContainer[Element,Content]
+  private case class Content (content: Seq[Element], desc: String) extends Element with ElementContainer[Element,Content]
   
   private def renderElement (out: TextWriter)(elem: Element): Unit = {
     

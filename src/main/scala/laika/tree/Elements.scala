@@ -72,7 +72,7 @@ object Elements {
 	 *  Usually not mixed in directly, instead one of the sub-traits
 	 *  `SpanContainer` or `BlockContainer` should be used.
 	 */
-	trait ElementContainer[+E <: Element, Self <: ElementContainer[E,Self]] extends Container[List[E]] with ElementTraversal[Self] {
+	trait ElementContainer[+E <: Element, Self <: ElementContainer[E,Self]] extends Container[Seq[E]] with ElementTraversal[Self] {
 	  override def toString = "\n" + (Render as PrettyPrint from this toString) + "\n" 
 	}
 
@@ -89,19 +89,19 @@ object Elements {
 	
 	/** The root element of a document tree.
 	 */
-	case class Document (content: List[Block]) extends Element with BlockContainer[Document]
+	case class Document (content: Seq[Block]) extends Element with BlockContainer[Document]
 	
 	
 	/** A section of the document, consisting of a header and content in the form
 	 *  of a list of Block elements. Sections may be nested inside other sections,
 	 *  they are arranged in a hierarchy based on the level of their header element.
 	 */
-	case class Section (header: Header, content: List[Block]) extends Block with BlockContainer[Section]
+	case class Section (header: Header, content: Seq[Block]) extends Block with BlockContainer[Section]
 
 	/** A header element with a level 
 	 * 
 	 */
-	case class Header (level: Int, content: List[Span]) extends Block with SpanContainer[Header]
+	case class Header (level: Int, content: Seq[Span]) extends Block with SpanContainer[Header]
 	 
 	/** A generic flow content element containing a list of spans. Structurally similar
 	 *  to a paragraph, but semantically an element that does not necessarily represent a 
@@ -110,11 +110,11 @@ object Elements {
 	 *  and Block trait, making it a hybrid element that can be used anywhere a SpanContainer
 	 *  is needed.
 	 */
-	case class FlowContent (content: List[Span]) extends Block with Span with SpanContainer[FlowContent]
+	case class FlowContent (content: Seq[Span]) extends Block with Span with SpanContainer[FlowContent]
 	
 	/** A paragraph consisting of span elements.
 	 */
-	case class Paragraph (content: List[Span]) extends Block with SpanContainer[Paragraph]
+	case class Paragraph (content: Seq[Span]) extends Block with SpanContainer[Paragraph]
 	  
 	/** A code block with simple text content.
 	 */
@@ -123,19 +123,19 @@ object Elements {
 	/** A quoted block consisting of a list of blocks that may contain other
 	 *  nested quoted blocks.
 	 */
-	case class QuotedBlock (content: List[Block]) extends Block with BlockContainer[QuotedBlock]
+	case class QuotedBlock (content: Seq[Block]) extends Block with BlockContainer[QuotedBlock]
 
 	/** An unordered list of block level items that may contain nested lists.
 	 */
-	case class UnorderedList (content: List[ListItem]) extends Block with BlockContainer[UnorderedList]
+	case class UnorderedList (content: Seq[ListItem]) extends Block with BlockContainer[UnorderedList]
 	
 	/** An ordered list of block level items that may contain nested lists.
 	 */
-	case class OrderedList (content: List[ListItem]) extends Block with BlockContainer[OrderedList]
+	case class OrderedList (content: Seq[ListItem]) extends Block with BlockContainer[OrderedList]
 	  
 	/** A single list item consisting of one or more block elements.
 	 */
-	case class ListItem (content: List[Block]) extends Block with BlockContainer[ListItem]
+	case class ListItem (content: Seq[Block]) extends Block with BlockContainer[ListItem]
 	
 	
 	/** A link definition, usually only part of the raw document tree and then
@@ -155,11 +155,11 @@ object Elements {
 
 	/** A span of emphasized inline elements that may contain nested spans.
 	 */
-	case class Emphasized (content: List[Span]) extends Span with SpanContainer[Emphasized]
+	case class Emphasized (content: Seq[Span]) extends Span with SpanContainer[Emphasized]
 	
 	/** A span of strong inline elements that may contain nested spans.
 	 */
-	case class Strong (content: List[Span]) extends Span with SpanContainer[Strong]
+	case class Strong (content: Seq[Span]) extends Span with SpanContainer[Strong]
 	  
 	/** A code span containing plain text.
 	 */
@@ -167,7 +167,7 @@ object Elements {
 
 	/** A link element, with the span content representing the text (description) of the link.
 	 */
-	case class Link (content: List[Span], url: String, title: Option[String] = None) extends Span with SpanContainer[Link]
+	case class Link (content: Seq[Span], url: String, title: Option[String] = None) extends Span with SpanContainer[Link]
 
 	/** A link reference, the id pointing to the id of a `LinkDefinition`. Usually only part of the
 	 *  raw document tree and then removed by the rewrite rule that resolves link and image references.
@@ -175,7 +175,7 @@ object Elements {
 	 *  to the renderer which should use the `inputPrefix` and `inputPostfix` attributes to enclose
 	 *  the content in the original markup.
 	 */
-	case class LinkReference (content: List[Span], id: String, inputPrefix: String, inputPostfix: String) extends Span with SpanContainer[LinkReference]
+	case class LinkReference (content: Seq[Span], id: String, inputPrefix: String, inputPostfix: String) extends Span with SpanContainer[LinkReference]
 	
 	/** An inline image with a text description and optional title.
 	 */

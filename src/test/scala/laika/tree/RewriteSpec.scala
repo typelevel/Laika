@@ -30,32 +30,32 @@ class RewriteSpec extends FlatSpec
   
   "The rewriter" should "replace the first element of the children in a container" in {
     val document = doc(p("a"), p("b"), p("c"))
-    document rewrite { case Paragraph(List(Text("a"))) => Some(p("x")) } should be (doc(p("x"), p("b"), p("c")))
+    document rewrite { case Paragraph(Seq(Text("a"))) => Some(p("x")) } should be (doc(p("x"), p("b"), p("c")))
   }
   
   it should "replace an element in the middle of the list of children in a container" in {
     val document = doc(p("a"), p("b"), p("c"))
-    document rewrite { case Paragraph(List(Text("b"))) => Some(p("x")) } should be (doc(p("a"), p("x"), p("c")))
+    document rewrite { case Paragraph(Seq(Text("b"))) => Some(p("x")) } should be (doc(p("a"), p("x"), p("c")))
   }
   
   it should "replace the last element of the children in a container" in {
     val document = doc(p("a"), p("b"), p("c"))
-    document rewrite { case Paragraph(List(Text("c"))) => Some(p("x")) } should be (doc(p("a"), p("b"), p("x")))
+    document rewrite { case Paragraph(Seq(Text("c"))) => Some(p("x")) } should be (doc(p("a"), p("b"), p("x")))
   }
   
   it should "remove the first element of the children in a container" in {
     val document = doc(p("a"), p("b"), p("c"))
-    document rewrite { case Paragraph(List(Text("a"))) => None } should be (doc(p("b"), p("c")))
+    document rewrite { case Paragraph(Seq(Text("a"))) => None } should be (doc(p("b"), p("c")))
   }
   
   it should "remove an element in the middle of the list of children in a container" in {
     val document = doc(p("a"), p("b"), p("c"))
-    document rewrite { case Paragraph(List(Text("b"))) => None } should be (doc(p("a"), p("c")))
+    document rewrite { case Paragraph(Seq(Text("b"))) => None } should be (doc(p("a"), p("c")))
   }
   
   it should "remove the last element of the children in a container" in {
     val document = doc(p("a"), p("b"), p("c"))
-    document rewrite { case Paragraph(List(Text("c"))) => None } should be (doc(p("a"), p("b")))
+    document rewrite { case Paragraph(Seq(Text("c"))) => None } should be (doc(p("a"), p("b")))
   }
   
   it should "replace the header of a section, which is not part of the content list" in {
@@ -65,7 +65,7 @@ class RewriteSpec extends FlatSpec
   
   it should "return the same instance if no rewrite rule matches" in {
     val document = doc(p("a"), p("b"), p("c"))
-    document rewrite { case Paragraph(List(Text("f"))) => None } should be theSameInstanceAs (document)
+    document rewrite { case Paragraph(Seq(Text("f"))) => None } should be theSameInstanceAs (document)
   }
   
   it should "return the same instance if the rewrite rule always returns the same instance" in {
@@ -75,13 +75,13 @@ class RewriteSpec extends FlatSpec
   
   it should "return a new instance for a branch in the document tree that contains one or more modified children" in {
     val before = doc(quote(p("a")), quote(p("b")), quote(p("c")))
-    val after = before rewrite { case Paragraph(List(Text("a"))) => Some(p("x")) }
+    val after = before rewrite { case Paragraph(Seq(Text("a"))) => Some(p("x")) }
     before.content(0) should not be theSameInstanceAs (after.content(0))
   }
   
   it should "return the same instance for a branch in the document tree that does not contain any modified children" in {
     val before = doc(quote(p("a")), quote(p("b")), quote(p("c")))
-    val after = before rewrite { case Paragraph(List(Text("a"))) => Some(p("x")) }
+    val after = before rewrite { case Paragraph(Seq(Text("a"))) => Some(p("x")) }
     before.content(1) should be theSameInstanceAs (after.content(1))
   }
   
