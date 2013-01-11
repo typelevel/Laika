@@ -6,8 +6,10 @@ target/
 # Eclipse
 bin/
 .settings/
+.worksheet/
 .classpath
 .project
+*.sc
 
 # Mac
 .DS_Store
