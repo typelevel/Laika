@@ -21,11 +21,11 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 
 import laika.api.Render
-import laika.parse.markdown.html.VerbatimHTMLElements._
+import laika.parse.markdown.html.HTMLElements._
 import laika.render.HTML
 import laika.tree.Elements.Element
 import laika.tree.helper.ModelBuilder
-  
+ 
 
 class VerbatimHTMLRendererSpec extends FlatSpec 
 												with ShouldMatchers

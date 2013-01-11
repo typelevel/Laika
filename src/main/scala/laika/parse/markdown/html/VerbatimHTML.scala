@@ -18,8 +18,8 @@ package laika.parse.markdown.html
 
 import laika.render.HTMLWriter
 import laika.tree.Elements.Element
-import laika.parse.markdown.html.VerbatimHTMLElements._
-   
+import laika.parse.markdown.html.HTMLElements._
+
 
 /** Renderer for verbatim HTML elements. Since verbatim HTML is treated as an optional feature
  *  by this library as it aims to also support renderers for other formats than HTML,

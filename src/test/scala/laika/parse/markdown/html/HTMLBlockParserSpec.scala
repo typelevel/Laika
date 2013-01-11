@@ -22,10 +22,10 @@ import org.scalatest.matchers.ShouldMatchers
 
 import laika.parse.helper.DefaultParserHelpers
 import laika.parse.helper.ParseResultHelpers
-import laika.parse.markdown.html.VerbatimHTMLElements.HTMLBlock
+import laika.parse.markdown.html.HTMLElements.HTMLBlock
 import laika.tree.Elements.Document
 import laika.tree.helper.ModelBuilder
-  
+ 
 class HTMLBlockParserSpec extends FlatSpec 
 																	with ShouldMatchers 
 																	with HTMLParsers 

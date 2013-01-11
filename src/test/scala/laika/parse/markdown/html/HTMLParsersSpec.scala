@@ -21,10 +21,10 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import laika.parse.helper.DefaultParserHelpers
 import laika.parse.helper.ParseResultHelpers
-import laika.parse.markdown.html.VerbatimHTMLElements.HTMLAttribute
+import laika.parse.markdown.html.HTMLElements.HTMLAttribute
 import laika.tree.Elements.Span
 import laika.tree.helper.ModelBuilder
-   
+
 class HTMLParsersSpec extends FlatSpec 
 															with ShouldMatchers 
 															with HTMLParsers 

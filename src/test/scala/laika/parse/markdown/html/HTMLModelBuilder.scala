@@ -1,6 +1,6 @@
 package laika.parse.markdown.html
 
-import laika.parse.markdown.html.VerbatimHTMLElements._
+import laika.parse.markdown.html.HTMLElements._
 import laika.tree.Elements.{Span, TextContainer}
 
 trait HTMLModelBuilder {

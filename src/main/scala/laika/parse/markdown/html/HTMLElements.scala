@@ -25,7 +25,7 @@ import laika.tree.Elements._
  * 
  *  @author Jens Halm
  */
-object VerbatimHTMLElements {
+object HTMLElements {
  
   
   /** A top level HTML block as defined by the Markdown syntaxt description. It is surrounded by blank lines
