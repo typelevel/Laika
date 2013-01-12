@@ -186,7 +186,7 @@ anyBut(&apos; &apos;,&apos;\t&apos;)          // Laika alternative
   <p>The main method in the <code>InlineParsers</code> trait that block parsers use to parse their text is:</p>
   <pre>def parseInline (source: String, spanParsers: Map[Char, Parser[Span]])
 </pre>
-  <p>The second paramater is the parser map we mentioned. The return type is <code>List[Span]</code>, 
+  <p>The second parameter is the parser map we mentioned. The return type is <code>List[Span]</code>, 
   with <code>Span</code> being a sub-trait of <code>Element</code>, the base class for all node types. 
   Examples for case classes mixing in <code>Span</code> are <code>Link</code>, <code>Image</code> or <code>Emphasized</code>.</p>
   <p>For Markdown this map is created like this:</p>

@@ -102,8 +102,8 @@ Transform from Markdown to HTML rendering { out =&gt;
   will be used.</p>
   <p>Multiple custom renderers can be specified, they will be tried in the order you added
   them, falling back to the default in case none is defined for a specific node.</p>
-  <p>The <code>content</code> value above is of type <code>List[Span]</code>. <code>&lt;&lt;</code> and other methods of the
-  <code>HTMLWriter</code> API are overloaded and accept <code>String</code>, <code>Element</code> or <code>List[Element]</code> 
+  <p>The <code>content</code> value above is of type <code>Seq[Span]</code>. <code>&lt;&lt;</code> and other methods of the
+  <code>HTMLWriter</code> API are overloaded and accept <code>String</code>, <code>Element</code> or <code>Seq[Element]</code> 
   as a parameter, with <code>Element</code> being the abstract base type of all tree nodes.
   This way rendering child elements can be delegated to other renderers, either another
   custom renderer or the default. In almost all cases, a custom renderer should not render
@@ -140,7 +140,7 @@ Render as HTML using { out =&gt;
   <h3>TextWriter</h3>
   <p>This is the base API supported by both the <code>PrettyPrint</code> and <code>HTML</code> renderer,
   while the latter adds a few additional methods specific to HTML.</p>
-  <p>All methods below are overloaded and accept <code>String</code>, <code>Element</code> or <code>List[Element]</code> 
+  <p>All methods below are overloaded and accept <code>String</code>, <code>Element</code> or <code>Seq[Element]</code> 
   as a parameter, with <code>Element</code> being the abstract base type of all tree nodes.
   When passing Elements to the writer it will delegate to the renderers responsible
   for those nodes.</p>
