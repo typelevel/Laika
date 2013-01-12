@@ -53,7 +53,7 @@ object HTMLElements {
    */
   case class HTMLStartTag (name: String, attributes: List[HTMLAttribute]) extends HTMLSpan 
 
-  /** Represents an empty element (like <br/> or <hr/>) in case it contains the explicit
+  /** Represents an empty element (like `&lt;br/&gt;` or `&lt;hr/&gt;`) in case it contains the explicit
    *  slash to mark it as closed. Otherwise it will be classified as a start tag.
    */
   case class HTMLEmptyElement (name: String, attributes: List[HTMLAttribute]) extends HTMLSpan 
