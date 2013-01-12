@@ -31,7 +31,7 @@ import laika.tree.Elements.Element
  *  document tree model. 
  *  
  *  In cases where a render operation follows a parse operation 
- *  immediately, it is more convenient to use the [[transformer.Transform]] API 
+ *  immediately, it is more convenient to use the [[laika.api.Transform]] API 
  *  instead which combines a parse and a render operation directly.
  *  
  *  Example for rendering HTML to a file:

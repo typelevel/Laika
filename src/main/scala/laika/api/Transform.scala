@@ -36,7 +36,7 @@ import laika.tree.RewriteRules
  *  
  *  In cases where a parse or render operation should
  *  be performed separately, for example for manually processing the document tree model
- *  between these operations, the [[transformer.Parse]] and [[transformer.Render]] APIs 
+ *  between these operations, the [[laika.api.Parse]] and [[laika.api.Render]] APIs 
  *  should be used instead.
  *  
  *  Example for transforming from Markdown to HTML using files for both input and output:

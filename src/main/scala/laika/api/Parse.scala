@@ -30,7 +30,7 @@ import java.io.File
  *  a document tree without a subsequent render operation. 
  *  
  *  In cases where a render operation should follow immediately, it is more 
- *  convenient to use the [[transformer.Transform]] API instead which 
+ *  convenient to use the [[laika.api.Transform]] API instead which 
  *  combines a parse and a render operation directly.
  *  
  *  Example for parsing Markdown from a file:
