@@ -427,7 +427,7 @@
  elememnt it is defined at.</p><p> Simple example for customizing the HTML output for emphasized text, adding a specific
  style class:</p><pre>
  Transform from Markdown to HTML rendering { out <span class="kw">=&gt;</span>
-   { <span class="kw">case</span> Emphasized(content) <span class="kw">=&gt;</span> out &lt;&lt; <span class="lit">""</span><span class="lit">"<em class="</span>big<span class="lit">">"</span><span class="lit">""</span> &lt;&lt; content &lt;&lt; <span class="lit">"</em>"</span> }
+   { <span class="kw">case</span> Emphasized(content) <span class="kw">=&gt;</span> out &lt;&lt; <span class="lit">""</span><span class="lit">"&lt;em class="</span>big<span class="lit">">"</span><span class="lit">""</span> &lt;&lt; content &lt;&lt; <span class="lit">"&lt;/em>"</span> }
  } fromFile <span class="lit">"hello.md"</span> toFile <span class="lit">"hello.html"</span>
 </pre></div></div>
     </li><li visbl="pub" name="scala.AnyRef#synchronized" data-isabs="false">

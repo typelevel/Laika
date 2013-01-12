@@ -379,14 +379,14 @@
  Always succeeds unless a minimum number of required matches is specified.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.MarkupParsers" class="extype" href="../../MarkupParsers.html">MarkupParsers</a></dd></dl></div>
     </li><li visbl="pub" name="laika.parse.MarkupParsers#anyUntil" data-isabs="false">
-      <a id="anyUntil(Parser[Any]):TextParser"></a>
+      <a id="anyUntil(⇒ Parser[Any]):TextParser"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">anyUntil</span><span class="params">(<span name="until">until: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<span name="scala.Any" class="extype">Any</span>]</span>)</span><span class="result">: <a name="laika.parse.MarkupParsers.TextParser" class="extype" href="../../MarkupParsers$TextParser.html">TextParser</a></span>
+        <span class="name">anyUntil</span><span class="params">(<span name="until">until: ⇒ <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<span name="scala.Any" class="extype">Any</span>]</span>)</span><span class="result">: <a name="laika.parse.MarkupParsers.TextParser" class="extype" href="../../MarkupParsers$TextParser.html">TextParser</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Consumes any number of characters for which the specified parser fails on the corresponding offset.</p><div class="fullcomment"><div class="comment cmt"><p>Consumes any number of characters for which the specified parser fails on the corresponding offset.
@@ -491,14 +491,14 @@
  to the number of blank lines consumed.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.BlockParsers" class="extype" href="../../BlockParsers.html">BlockParsers</a></dd></dl></div>
     </li><li visbl="pub" name="laika.parse.BlockParsers#block" data-isabs="false">
-      <a id="block(Parser[Any],Parser[Any],Parser[Any]):Parser[List[String]]"></a>
+      <a id="block(Parser[Any],⇒ Parser[Any],⇒ Parser[Any]):Parser[List[String]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">block</span><span class="params">(<span name="firstLinePrefix">firstLinePrefix: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<span name="scala.Any" class="extype">Any</span>]</span>, <span name="linePrefix">linePrefix: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<span name="scala.Any" class="extype">Any</span>]</span>, <span name="nextBlockPrefix">nextBlockPrefix: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<span name="scala.Any" class="extype">Any</span>]</span>)</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[List[String]]</span>
+        <span class="name">block</span><span class="params">(<span name="firstLinePrefix">firstLinePrefix: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<span name="scala.Any" class="extype">Any</span>]</span>, <span name="linePrefix">linePrefix: ⇒ <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<span name="scala.Any" class="extype">Any</span>]</span>, <span name="nextBlockPrefix">nextBlockPrefix: ⇒ <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<span name="scala.Any" class="extype">Any</span>]</span>)</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[List[String]]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses a full block based on the specified helper parsers.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a full block based on the specified helper parsers.
@@ -920,7 +920,7 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">htmlAttribute</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLAttribute" class="extype" href="VerbatimHTMLElements$$HTMLAttribute.html">HTMLAttribute</a>]</span>
+        <span class="name">htmlAttribute</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.parse.markdown.html.HTMLElements.HTMLAttribute" class="extype" href="HTMLElements$$HTMLAttribute.html">HTMLAttribute</a>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses a single attribute, consisting of the name and (optional) equals sign
@@ -957,7 +957,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">htmlBlock</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLBlock" class="extype" href="VerbatimHTMLElements$$HTMLBlock.html">HTMLBlock</a>]</span>
+        <span class="name">htmlBlock</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.parse.markdown.html.HTMLElements.HTMLBlock" class="extype" href="HTMLElements$$HTMLBlock.html">HTMLBlock</a>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses a full HTML block, with the root element being a block-level HTML element
@@ -986,7 +986,7 @@ inside p tags as it would do with a normal paragraph.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">htmlBlockStart</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLStartTag" class="extype" href="VerbatimHTMLElements$$HTMLStartTag.html">HTMLStartTag</a>]</span>
+        <span class="name">htmlBlockStart</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.parse.markdown.html.HTMLElements.HTMLStartTag" class="extype" href="HTMLElements$$HTMLStartTag.html">HTMLStartTag</a>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses the start tag of an HTML block, only matches when the tag name is an
@@ -999,7 +999,7 @@ inside p tags as it would do with a normal paragraph.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">htmlCharReference</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLCharacterReference" class="extype" href="VerbatimHTMLElements$$HTMLCharacterReference.html">HTMLCharacterReference</a>]</span>
+        <span class="name">htmlCharReference</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.parse.markdown.html.HTMLElements.HTMLCharacterReference" class="extype" href="HTMLElements$$HTMLCharacterReference.html">HTMLCharacterReference</a>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses a numeric or named character reference without the leading <code>'&amp;'</code>.</p>
@@ -1011,7 +1011,7 @@ inside p tags as it would do with a normal paragraph.
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">htmlComment</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLComment" class="extype" href="VerbatimHTMLElements$$HTMLComment.html">HTMLComment</a>]</span>
+        <span class="name">htmlComment</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.parse.markdown.html.HTMLElements.HTMLComment" class="extype" href="HTMLElements$$HTMLComment.html">HTMLComment</a>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses an HTML comment without the leading <code>'&lt;'</code>.</p>
@@ -1035,7 +1035,7 @@ inside p tags as it would do with a normal paragraph.
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">htmlElement</span><span class="params">(<span name="nested">nested: Map[<span name="scala.Char" class="extype">Char</span>, <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.tree.Elements.Span" class="extype" href="../../../tree/Elements$$Span.html">Span</a>]]</span>)</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLElement" class="extype" href="VerbatimHTMLElements$$HTMLElement.html">HTMLElement</a>]</span>
+        <span class="name">htmlElement</span><span class="params">(<span name="nested">nested: Map[<span name="scala.Char" class="extype">Char</span>, <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.tree.Elements.Span" class="extype" href="../../../tree/Elements$$Span.html">Span</a>]]</span>)</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.parse.markdown.html.HTMLElements.HTMLElement" class="extype" href="HTMLElements$$HTMLElement.html">HTMLElement</a>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses an HTML element without the leading <code>'&lt;'</code>, but including
@@ -1048,7 +1048,7 @@ inside p tags as it would do with a normal paragraph.
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">htmlEmptyElement</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLEmptyElement" class="extype" href="VerbatimHTMLElements$$HTMLEmptyElement.html">HTMLEmptyElement</a>]</span>
+        <span class="name">htmlEmptyElement</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.parse.markdown.html.HTMLElements.HTMLEmptyElement" class="extype" href="HTMLElements$$HTMLEmptyElement.html">HTMLEmptyElement</a>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses an empty HTML element without the leading <code>'&lt;'</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Parses an empty HTML element without the leading <code>'&lt;'</code>.
@@ -1074,7 +1074,7 @@ inside p tags as it would do with a normal paragraph.
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">htmlEndTag</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLEndTag" class="extype" href="VerbatimHTMLElements$$HTMLEndTag.html">HTMLEndTag</a>]</span>
+        <span class="name">htmlEndTag</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.parse.markdown.html.HTMLElements.HTMLEndTag" class="extype" href="HTMLElements$$HTMLEndTag.html">HTMLEndTag</a>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses an HTML end tag without the leading <code>'&lt;'</code>.</p>
@@ -1146,7 +1146,7 @@ inside p tags as it would do with a normal paragraph.
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">htmlSpan</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLSpan" class="extype" href="VerbatimHTMLElements$$HTMLSpan.html">HTMLSpan</a>]</span>
+        <span class="name">htmlSpan</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.parse.markdown.html.HTMLElements.HTMLSpan" class="extype" href="HTMLElements$$HTMLSpan.html">HTMLSpan</a>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses any of the HTML span elements supported by this trait, but no standard markdown inside HTML elements.</p>
@@ -1158,7 +1158,7 @@ inside p tags as it would do with a normal paragraph.
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">htmlSpanWithNestedMarkdown</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLSpan" class="extype" href="VerbatimHTMLElements$$HTMLSpan.html">HTMLSpan</a>]</span>
+        <span class="name">htmlSpanWithNestedMarkdown</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.parse.markdown.html.HTMLElements.HTMLSpan" class="extype" href="HTMLElements$$HTMLSpan.html">HTMLSpan</a>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses any of the HTML span elements supported by this trait, plus standard markdown inside HTML elements.</p>
@@ -1170,7 +1170,7 @@ inside p tags as it would do with a normal paragraph.
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">htmlStartTag</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLStartTag" class="extype" href="VerbatimHTMLElements$$HTMLStartTag.html">HTMLStartTag</a>]</span>
+        <span class="name">htmlStartTag</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.parse.markdown.html.HTMLElements.HTMLStartTag" class="extype" href="HTMLElements$$HTMLStartTag.html">HTMLStartTag</a>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses an HTML start tag without the leading <code>'&lt;'</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Parses an HTML start tag without the leading <code>'&lt;'</code>.
@@ -1184,7 +1184,7 @@ inside p tags as it would do with a normal paragraph.
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">htmlTagContent</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<span name="scala.util.parsing.combinator.Parsers.~" class="extype">~</span>[<span name="java.lang.String" class="extype">String</span>, List[<a name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLAttribute" class="extype" href="VerbatimHTMLElements$$HTMLAttribute.html">HTMLAttribute</a>]]]</span>
+        <span class="name">htmlTagContent</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<span name="scala.util.parsing.combinator.Parsers.~" class="extype">~</span>[<span name="java.lang.String" class="extype">String</span>, List[<a name="laika.parse.markdown.html.HTMLElements.HTMLAttribute" class="extype" href="HTMLElements$$HTMLAttribute.html">HTMLAttribute</a>]]]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses an HTML tag without the enclosing <code>'&lt;'</code> and <code>'&gt;'</code> characters.</p>
@@ -1239,14 +1239,14 @@ inside p tags as it would do with a normal paragraph.
  Recognizes both, an inline image <code>![text](url)</code> and an image reference <code>![text][id]</code>.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.markdown.InlineParsers" class="extype" href="../InlineParsers.html">InlineParsers</a></dd></dl></div>
     </li><li visbl="pub" name="laika.parse.InlineParsers#inline" data-isabs="false">
-      <a id="inline[Elem, To](TextParser,Map[Char, Parser[Elem]],⇒ ResultBuilder[Elem, To]):Parser[To]"></a>
+      <a id="inline[Elem, To](⇒ TextParser,⇒ Map[Char, Parser[Elem]],⇒ ResultBuilder[Elem, To]):Parser[To]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">inline</span><span class="tparams">[<span name="Elem">Elem</span>, <span name="To">To</span>]</span><span class="params">(<span name="text">text: <a name="laika.parse.MarkupParsers.TextParser" class="extype" href="../../MarkupParsers$TextParser.html">TextParser</a></span>, <span name="nested">nested: Map[<span name="scala.Char" class="extype">Char</span>, <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[Elem]]</span>, <span name="resultBuilder">resultBuilder: ⇒ <a name="laika.parse.InlineParsers.ResultBuilder" class="extype" href="../../InlineParsers$ResultBuilder.html">ResultBuilder</a>[Elem, To]</span>)</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[To]</span>
+        <span class="name">inline</span><span class="tparams">[<span name="Elem">Elem</span>, <span name="To">To</span>]</span><span class="params">(<span name="text">text: ⇒ <a name="laika.parse.MarkupParsers.TextParser" class="extype" href="../../MarkupParsers$TextParser.html">TextParser</a></span>, <span name="nested">nested: ⇒ Map[<span name="scala.Char" class="extype">Char</span>, <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[Elem]]</span>, <span name="resultBuilder">resultBuilder: ⇒ <a name="laika.parse.InlineParsers.ResultBuilder" class="extype" href="../../InlineParsers$ResultBuilder.html">ResultBuilder</a>[Elem, To]</span>)</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[To]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Generic base parser that parses inline elements based on the specified
@@ -2140,14 +2140,14 @@ specified as the key for the mapping.
  delegating to the <code>newSpanParserMap</code> method.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.markdown.InlineParsers" class="extype" href="../InlineParsers.html">InlineParsers</a></dd></dl></div>
     </li><li visbl="pub" name="laika.parse.InlineParsers#spans" data-isabs="false">
-      <a id="spans(TextParser,Map[Char, Parser[Span]]):Parser[List[Span]]"></a>
+      <a id="spans(⇒ TextParser,⇒ Map[Char, Parser[Span]]):Parser[List[Span]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">spans</span><span class="params">(<span name="parser">parser: <a name="laika.parse.MarkupParsers.TextParser" class="extype" href="../../MarkupParsers$TextParser.html">TextParser</a></span>, <span name="spanParsers">spanParsers: Map[<span name="scala.Char" class="extype">Char</span>, <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.tree.Elements.Span" class="extype" href="../../../tree/Elements$$Span.html">Span</a>]]</span>)</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[List[<a name="laika.tree.Elements.Span" class="extype" href="../../../tree/Elements$$Span.html">Span</a>]]</span>
+        <span class="name">spans</span><span class="params">(<span name="parser">parser: ⇒ <a name="laika.parse.MarkupParsers.TextParser" class="extype" href="../../MarkupParsers$TextParser.html">TextParser</a></span>, <span name="spanParsers">spanParsers: ⇒ Map[<span name="scala.Char" class="extype">Char</span>, <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.tree.Elements.Span" class="extype" href="../../../tree/Elements$$Span.html">Span</a>]]</span>)</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[List[<a name="laika.tree.Elements.Span" class="extype" href="../../../tree/Elements$$Span.html">Span</a>]]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses a list of spans based on the specified helper parsers.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a list of spans based on the specified helper parsers.
@@ -2219,14 +2219,14 @@ specified as the key for the mapping.
       <p class="shortcomment cmt">Parses a single tab or space character.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a single tab or space character.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.markdown.BlockParsers" class="extype" href="../BlockParsers.html">BlockParsers</a></dd></dl></div>
     </li><li visbl="pub" name="laika.parse.InlineParsers#text" data-isabs="false">
-      <a id="text(TextParser,Map[Char, Parser[String]]):Parser[String]"></a>
+      <a id="text(⇒ TextParser,⇒ Map[Char, Parser[String]]):Parser[String]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">text</span><span class="params">(<span name="parser">parser: <a name="laika.parse.MarkupParsers.TextParser" class="extype" href="../../MarkupParsers$TextParser.html">TextParser</a></span>, <span name="nested">nested: Map[<span name="scala.Char" class="extype">Char</span>, <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[String]]</span>)</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[String]</span>
+        <span class="name">text</span><span class="params">(<span name="parser">parser: ⇒ <a name="laika.parse.MarkupParsers.TextParser" class="extype" href="../../MarkupParsers$TextParser.html">TextParser</a></span>, <span name="nested">nested: ⇒ Map[<span name="scala.Char" class="extype">Char</span>, <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[String]]</span>)</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[String]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses text based on the specified helper parsers.</p><div class="fullcomment"><div class="comment cmt"><p>Parses text based on the specified helper parsers.

@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
-          <title>laika.parse.markdown.html.VerbatimHTMLElements.HTMLBlock</title>
+          <title>laika.parse.markdown.html.HTMLElements.HTMLAttribute</title>
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link type="text/css" media="screen" rel="stylesheet" href="../../../../lib/template.css" />
@@ -15,8 +15,8 @@
         <body onload="sh_highlightDocument('../lib/', '.min.js');" class="type">
       <div id="definition">
         <img src="../../../../lib/class_big.png" />
-        <p id="owner"><a name="laika" class="extype" href="../../../package.html">laika</a>.<a name="laika.parse" class="extype" href="../../package.html">parse</a>.<a name="laika.parse.markdown" class="extype" href="../package.html">markdown</a>.<a name="laika.parse.markdown.html" class="extype" href="package.html">html</a>.<a name="laika.parse.markdown.html.VerbatimHTMLElements" class="extype" href="VerbatimHTMLElements$.html">VerbatimHTMLElements</a></p>
-        <h1>HTMLBlock</h1>
+        <p id="owner"><a name="laika" class="extype" href="../../../package.html">laika</a>.<a name="laika.parse" class="extype" href="../../package.html">parse</a>.<a name="laika.parse.markdown" class="extype" href="../package.html">markdown</a>.<a name="laika.parse.markdown.html" class="extype" href="package.html">html</a>.<a name="laika.parse.markdown.html.HTMLElements" class="extype" href="HTMLElements$.html">HTMLElements</a></p>
+        <h1>HTMLAttribute</h1>
       </div>
 
       <h4 class="signature" id="signature">
@@ -25,17 +25,15 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">HTMLBlock</span><span class="params">(<span name="root">root: <a name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLElement" class="extype" href="VerbatimHTMLElements$$HTMLElement.html">HTMLElement</a></span>)</span><span class="result"> extends <a name="laika.tree.Elements.Element" class="extype" href="../../../tree/Elements$$Element.html">Element</a> with <a name="laika.tree.Elements.Block" class="extype" href="../../../tree/Elements$$Block.html">Block</a> with <span name="scala.Product" class="extype">Product</span> with <span name="scala.Serializable" class="extype">Serializable</span></span>
+        <span class="name">HTMLAttribute</span><span class="params">(<span name="name">name: String</span>, <span name="value">value: List[<a name="laika.tree.Elements.Span" class="extype" href="../../../tree/Elements$$Span.html">Span</a> with <a name="laika.tree.Elements.TextContainer" class="extype" href="../../../tree/Elements$$TextContainer.html">TextContainer</a>]</span>, <span name="quotedWith">quotedWith: <span name="scala.Option" class="extype">Option</span>[<span name="scala.Char" class="extype">Char</span>]</span>)</span><span class="result"> extends <span name="scala.Product" class="extype">Product</span> with <span name="scala.Serializable" class="extype">Serializable</span></span>
       </span>
       </h4>
       
-      <div class="fullcommenttop" id="comment"><div class="comment cmt"><p>A top level HTML block as defined by the Markdown syntaxt description. It is surrounded by blank lines
- and has a block-level element (one that is not classified as &quot;phrasing content&quot; in the HTML specification)
- as its root element. It may contain other nested HTML elements and tags, but no spans produced by standard
- Markdown markup.
+      <div class="fullcommenttop" id="comment"><div class="comment cmt"><p>Represents a single HTML attribute. The value is provided as a list of TextContainers
+ as it may contain HTML character references alongside regular Text elements.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span name="scala.Serializable" class="extype">Serializable</span>, <span name="java.io.Serializable" class="extype">Serializable</span>, <a name="laika.tree.Elements.Block" class="extype" href="../../../tree/Elements$$Block.html">Block</a>, <a name="laika.tree.Elements.Element" class="extype" href="../../../tree/Elements$$Element.html">Element</a>, <span name="scala.Product" class="extype">Product</span>, <span name="scala.Equals" class="extype">Equals</span>, AnyRef, <span name="scala.Any" class="extype">Any</span></div>
+          <div class="superTypes hiddenContent"><span name="scala.Serializable" class="extype">Serializable</span>, <span name="java.io.Serializable" class="extype">Serializable</span>, <span name="scala.Product" class="extype">Product</span>, <span name="scala.Equals" class="extype">Equals</span>, AnyRef, <span name="scala.Any" class="extype">Any</span></div>
         </div></div>
     
 
@@ -49,7 +47,7 @@
               <span class="filtertype">Inherited</span>
               <ol><li class="hideall out"><span>Hide All</span></li>
               <li class="showall in"><span>Show all</span></li></ol>
-              <ol id="linearization"><li name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLBlock" class="in"><span>HTMLBlock</span></li><li name="scala.Serializable" class="in"><span>Serializable</span></li><li name="java.io.Serializable" class="in"><span>Serializable</span></li><li name="laika.tree.Elements.Block" class="in"><span>Block</span></li><li name="laika.tree.Elements.Element" class="in"><span>Element</span></li><li name="scala.Product" class="in"><span>Product</span></li><li name="scala.Equals" class="in"><span>Equals</span></li><li name="scala.AnyRef" class="in"><span>AnyRef</span></li><li name="scala.Any" class="in"><span>Any</span></li></ol>
+              <ol id="linearization"><li name="laika.parse.markdown.html.HTMLElements.HTMLAttribute" class="in"><span>HTMLAttribute</span></li><li name="scala.Serializable" class="in"><span>Serializable</span></li><li name="java.io.Serializable" class="in"><span>Serializable</span></li><li name="scala.Product" class="in"><span>Product</span></li><li name="scala.Equals" class="in"><span>Equals</span></li><li name="scala.AnyRef" class="in"><span>AnyRef</span></li><li name="scala.Any" class="in"><span>Any</span></li></ol>
             </div>
         <div id="visbl">
             <span class="filtertype">Visibility</span>
@@ -61,15 +59,15 @@
         <div id="allMembers">
         <div class="members" id="constructors">
               <h3>Instance Constructors</h3>
-              <ol><li visbl="pub" name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLBlock#this" data-isabs="false">
-      <a id="this:HTMLBlock"></a>
+              <ol><li visbl="pub" name="laika.parse.markdown.html.HTMLElements.HTMLAttribute#this" data-isabs="false">
+      <a id="this:HTMLAttribute"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">HTMLBlock</span><span class="params">(<span name="root">root: <a name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLElement" class="extype" href="VerbatimHTMLElements$$HTMLElement.html">HTMLElement</a></span>)</span>
+        <span class="name">HTMLAttribute</span><span class="params">(<span name="name">name: String</span>, <span name="value">value: List[<a name="laika.tree.Elements.Span" class="extype" href="../../../tree/Elements$$Span.html">Span</a> with <a name="laika.tree.Elements.TextContainer" class="extype" href="../../../tree/Elements$$TextContainer.html">TextContainer</a>]</span>, <span name="quotedWith">quotedWith: <span name="scala.Option" class="extype">Option</span>[<span name="scala.Char" class="extype">Char</span>]</span>)</span>
       </span>
       </h4>
       
@@ -154,7 +152,7 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li visbl="pub" name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLBlock#canEqual" data-isabs="false">
+    </li><li visbl="pub" name="laika.parse.markdown.html.HTMLElements.HTMLAttribute#canEqual" data-isabs="false">
       <a id="canEqual(Any):Boolean"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -165,7 +163,7 @@
         <span class="name">canEqual</span><span class="params">(<span name="arg0">arg0: <span name="scala.Any" class="extype">Any</span></span>)</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLBlock" class="extype" href="">HTMLBlock</a> → Equals</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.markdown.html.HTMLElements.HTMLAttribute" class="extype" href="">HTMLAttribute</a> → Equals</dd></dl></div>
     </li><li visbl="prt" name="scala.AnyRef#clone" data-isabs="false">
       <a id="clone():AnyRef"></a>
       <h4 class="signature">
@@ -193,7 +191,7 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li visbl="pub" name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLBlock#equals" data-isabs="false">
+    </li><li visbl="pub" name="laika.parse.markdown.html.HTMLElements.HTMLAttribute#equals" data-isabs="false">
       <a id="equals(Any):Boolean"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -204,7 +202,7 @@
         <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span name="scala.Any" class="extype">Any</span></span>)</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLBlock" class="extype" href="">HTMLBlock</a> → Equals → AnyRef → Any</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.markdown.html.HTMLElements.HTMLAttribute" class="extype" href="">HTMLAttribute</a> → Equals → AnyRef → Any</dd></dl></div>
     </li><li visbl="prt" name="scala.AnyRef#finalize" data-isabs="false">
       <a id="finalize():Unit"></a>
       <h4 class="signature">
@@ -232,7 +230,7 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li visbl="pub" name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLBlock#hashCode" data-isabs="false">
+    </li><li visbl="pub" name="laika.parse.markdown.html.HTMLElements.HTMLAttribute#hashCode" data-isabs="false">
       <a id="hashCode():Int"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -243,7 +241,7 @@
         <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span name="scala.Int" class="extype">Int</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLBlock" class="extype" href="">HTMLBlock</a> → AnyRef → Any</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.markdown.html.HTMLElements.HTMLAttribute" class="extype" href="">HTMLAttribute</a> → AnyRef → Any</dd></dl></div>
     </li><li visbl="pub" name="scala.Any#isInstanceOf" data-isabs="false">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <h4 class="signature">
@@ -256,6 +254,18 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li visbl="pub" name="laika.parse.markdown.html.HTMLElements.HTMLAttribute#name" data-isabs="false">
+      <a id="name:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">name</span><span class="result">: String</span>
+      </span>
+      </h4>
+      
     </li><li visbl="pub" name="scala.AnyRef#ne" data-isabs="false">
       <a id="ne(AnyRef):Boolean"></a>
       <h4 class="signature">
@@ -292,7 +302,7 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li visbl="pub" name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLBlock#productArity" data-isabs="false">
+    </li><li visbl="pub" name="laika.parse.markdown.html.HTMLElements.HTMLAttribute#productArity" data-isabs="false">
       <a id="productArity:Int"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -303,8 +313,8 @@
         <span class="name">productArity</span><span class="result">: <span name="scala.Int" class="extype">Int</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLBlock" class="extype" href="">HTMLBlock</a> → Product</dd></dl></div>
-    </li><li visbl="pub" name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLBlock#productElement" data-isabs="false">
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.markdown.html.HTMLElements.HTMLAttribute" class="extype" href="">HTMLAttribute</a> → Product</dd></dl></div>
+    </li><li visbl="pub" name="laika.parse.markdown.html.HTMLElements.HTMLAttribute#productElement" data-isabs="false">
       <a id="productElement(Int):Any"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -315,7 +325,7 @@
         <span class="name">productElement</span><span class="params">(<span name="arg0">arg0: <span name="scala.Int" class="extype">Int</span></span>)</span><span class="result">: <span name="scala.Any" class="extype">Any</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLBlock" class="extype" href="">HTMLBlock</a> → Product</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.markdown.html.HTMLElements.HTMLAttribute" class="extype" href="">HTMLAttribute</a> → Product</dd></dl></div>
     </li><li visbl="pub" name="scala.Product#productIterator" data-isabs="false">
       <a id="productIterator:Iterator[Any]"></a>
       <h4 class="signature">
@@ -328,7 +338,7 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Product</dd></dl></div>
-    </li><li visbl="pub" name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLBlock#productPrefix" data-isabs="false">
+    </li><li visbl="pub" name="laika.parse.markdown.html.HTMLElements.HTMLAttribute#productPrefix" data-isabs="false">
       <a id="productPrefix:String"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -339,16 +349,16 @@
         <span class="name">productPrefix</span><span class="result">: <span name="java.lang.String" class="extype">String</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLBlock" class="extype" href="">HTMLBlock</a> → Product</dd></dl></div>
-    </li><li visbl="pub" name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLBlock#root" data-isabs="false">
-      <a id="root:HTMLElement"></a>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.markdown.html.HTMLElements.HTMLAttribute" class="extype" href="">HTMLAttribute</a> → Product</dd></dl></div>
+    </li><li visbl="pub" name="laika.parse.markdown.html.HTMLElements.HTMLAttribute#quotedWith" data-isabs="false">
+      <a id="quotedWith:Option[Char]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">root</span><span class="result">: <a name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLElement" class="extype" href="VerbatimHTMLElements$$HTMLElement.html">HTMLElement</a></span>
+        <span class="name">quotedWith</span><span class="result">: <span name="scala.Option" class="extype">Option</span>[<span name="scala.Char" class="extype">Char</span>]</span>
       </span>
       </h4>
       
@@ -364,7 +374,7 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li visbl="pub" name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLBlock#toString" data-isabs="false">
+    </li><li visbl="pub" name="laika.parse.markdown.html.HTMLElements.HTMLAttribute#toString" data-isabs="false">
       <a id="toString():String"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -375,7 +385,19 @@
         <span class="name">toString</span><span class="params">()</span><span class="result">: String</span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.markdown.html.VerbatimHTMLElements.HTMLBlock" class="extype" href="">HTMLBlock</a> → AnyRef → Any</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.markdown.html.HTMLElements.HTMLAttribute" class="extype" href="">HTMLAttribute</a> → AnyRef → Any</dd></dl></div>
+    </li><li visbl="pub" name="laika.parse.markdown.html.HTMLElements.HTMLAttribute#value" data-isabs="false">
+      <a id="value:List[Span with TextContainer]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">value</span><span class="result">: List[<a name="laika.tree.Elements.Span" class="extype" href="../../../tree/Elements$$Span.html">Span</a> with <a name="laika.tree.Elements.TextContainer" class="extype" href="../../../tree/Elements$$TextContainer.html">TextContainer</a>]</span>
+      </span>
+      </h4>
+      
     </li><li visbl="pub" name="scala.AnyRef#wait" data-isabs="false">
       <a id="wait():Unit"></a>
       <h4 class="signature">
@@ -450,10 +472,6 @@
               <h3>Inherited from <span name="scala.Serializable" class="extype">Serializable</span></h3>
             </div><div name="java.io.Serializable" class="parent">
               <h3>Inherited from <span name="java.io.Serializable" class="extype">Serializable</span></h3>
-            </div><div name="laika.tree.Elements.Block" class="parent">
-              <h3>Inherited from <a name="laika.tree.Elements.Block" class="extype" href="../../../tree/Elements$$Block.html">Block</a></h3>
-            </div><div name="laika.tree.Elements.Element" class="parent">
-              <h3>Inherited from <a name="laika.tree.Elements.Element" class="extype" href="../../../tree/Elements$$Element.html">Element</a></h3>
             </div><div name="scala.Product" class="parent">
               <h3>Inherited from <span name="scala.Product" class="extype">Product</span></h3>
             </div><div name="scala.Equals" class="parent">

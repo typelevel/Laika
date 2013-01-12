@@ -348,14 +348,14 @@
  Always succeeds unless a minimum number of required matches is specified.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.MarkupParsers" class="extype" href="../MarkupParsers.html">MarkupParsers</a></dd></dl></div>
     </li><li visbl="pub" name="laika.parse.MarkupParsers#anyUntil" data-isabs="false">
-      <a id="anyUntil(Parser[Any]):TextParser"></a>
+      <a id="anyUntil(⇒ Parser[Any]):TextParser"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">anyUntil</span><span class="params">(<span name="until">until: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<span name="scala.Any" class="extype">Any</span>]</span>)</span><span class="result">: <a name="laika.parse.MarkupParsers.TextParser" class="extype" href="../MarkupParsers$TextParser.html">TextParser</a></span>
+        <span class="name">anyUntil</span><span class="params">(<span name="until">until: ⇒ <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<span name="scala.Any" class="extype">Any</span>]</span>)</span><span class="result">: <a name="laika.parse.MarkupParsers.TextParser" class="extype" href="../MarkupParsers$TextParser.html">TextParser</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Consumes any number of characters for which the specified parser fails on the corresponding offset.</p><div class="fullcomment"><div class="comment cmt"><p>Consumes any number of characters for which the specified parser fails on the corresponding offset.
@@ -460,14 +460,14 @@
  to the number of blank lines consumed.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.BlockParsers" class="extype" href="../BlockParsers.html">BlockParsers</a></dd></dl></div>
     </li><li visbl="pub" name="laika.parse.BlockParsers#block" data-isabs="false">
-      <a id="block(Parser[Any],Parser[Any],Parser[Any]):Parser[List[String]]"></a>
+      <a id="block(Parser[Any],⇒ Parser[Any],⇒ Parser[Any]):Parser[List[String]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">block</span><span class="params">(<span name="firstLinePrefix">firstLinePrefix: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<span name="scala.Any" class="extype">Any</span>]</span>, <span name="linePrefix">linePrefix: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<span name="scala.Any" class="extype">Any</span>]</span>, <span name="nextBlockPrefix">nextBlockPrefix: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<span name="scala.Any" class="extype">Any</span>]</span>)</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[List[String]]</span>
+        <span class="name">block</span><span class="params">(<span name="firstLinePrefix">firstLinePrefix: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<span name="scala.Any" class="extype">Any</span>]</span>, <span name="linePrefix">linePrefix: ⇒ <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<span name="scala.Any" class="extype">Any</span>]</span>, <span name="nextBlockPrefix">nextBlockPrefix: ⇒ <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<span name="scala.Any" class="extype">Any</span>]</span>)</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[List[String]]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses a full block based on the specified helper parsers.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a full block based on the specified helper parsers.

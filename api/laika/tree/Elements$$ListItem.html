@@ -25,14 +25,14 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">ListItem</span><span class="params">(<span name="content">content: List[<a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>]</span>)</span><span class="result"> extends <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a> with <a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a> with <a name="laika.tree.Elements.BlockContainer" class="extype" href="Elements$$BlockContainer.html">BlockContainer</a>[<a name="laika.tree.Elements.ListItem" class="extype" href="">ListItem</a>] with <span name="scala.Product" class="extype">Product</span> with <span name="scala.Serializable" class="extype">Serializable</span></span>
+        <span class="name">ListItem</span><span class="params">(<span name="content">content: Seq[<a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>]</span>)</span><span class="result"> extends <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a> with <a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a> with <a name="laika.tree.Elements.BlockContainer" class="extype" href="Elements$$BlockContainer.html">BlockContainer</a>[<a name="laika.tree.Elements.ListItem" class="extype" href="">ListItem</a>] with <span name="scala.Product" class="extype">Product</span> with <span name="scala.Serializable" class="extype">Serializable</span></span>
       </span>
       </h4>
       
       <div class="fullcommenttop" id="comment"><div class="comment cmt"><p>A single list item consisting of one or more block elements.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span name="scala.Serializable" class="extype">Serializable</span>, <span name="java.io.Serializable" class="extype">Serializable</span>, <a name="laika.tree.Elements.BlockContainer" class="extype" href="Elements$$BlockContainer.html">BlockContainer</a>[<a name="laika.tree.Elements.ListItem" class="extype" href="">ListItem</a>], <a name="laika.tree.Elements.ElementContainer" class="extype" href="Elements$$ElementContainer.html">ElementContainer</a>[<a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>, <a name="laika.tree.Elements.ListItem" class="extype" href="">ListItem</a>], <a name="laika.tree.ElementTraversal" class="extype" href="ElementTraversal.html">ElementTraversal</a>[<a name="laika.tree.Elements.ListItem" class="extype" href="">ListItem</a>], <a name="laika.tree.Elements.Container" class="extype" href="Elements$$Container.html">Container</a>[List[<a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>]], <a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>, <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a>, <span name="scala.Product" class="extype">Product</span>, <span name="scala.Equals" class="extype">Equals</span>, AnyRef, <span name="scala.Any" class="extype">Any</span></div>
+          <div class="superTypes hiddenContent"><span name="scala.Serializable" class="extype">Serializable</span>, <span name="java.io.Serializable" class="extype">Serializable</span>, <a name="laika.tree.Elements.BlockContainer" class="extype" href="Elements$$BlockContainer.html">BlockContainer</a>[<a name="laika.tree.Elements.ListItem" class="extype" href="">ListItem</a>], <a name="laika.tree.Elements.ElementContainer" class="extype" href="Elements$$ElementContainer.html">ElementContainer</a>[<a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>, <a name="laika.tree.Elements.ListItem" class="extype" href="">ListItem</a>], <a name="laika.tree.ElementTraversal" class="extype" href="ElementTraversal.html">ElementTraversal</a>[<a name="laika.tree.Elements.ListItem" class="extype" href="">ListItem</a>], <a name="laika.tree.Elements.Container" class="extype" href="Elements$$Container.html">Container</a>[Seq[<a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>]], <a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>, <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a>, <span name="scala.Product" class="extype">Product</span>, <span name="scala.Equals" class="extype">Equals</span>, AnyRef, <span name="scala.Any" class="extype">Any</span></div>
         </div></div>
     
 
@@ -66,7 +66,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">ListItem</span><span class="params">(<span name="content">content: List[<a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>]</span>)</span>
+        <span class="name">ListItem</span><span class="params">(<span name="content">content: Seq[<a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>]</span>)</span>
       </span>
       </h4>
       
@@ -88,18 +88,6 @@
       </h4>
       <p class="comment cmt">Exception thrown when a rewrite rule replaced an element with a new element
  that does not comply with the contract of its parent container.</p>
-    </li><li visbl="pub" name="laika.tree.ElementTraversal#RewriteRule" data-isabs="false">
-      <a id="RewriteRule:RewriteRule"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">type</span>
-      </span>
-      <span class="symbol">
-        <span class="name">RewriteRule</span><span class="result"> = <span name="scala.PartialFunction" class="extype">PartialFunction</span>[<a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a>, <span name="scala.Option" class="extype">Option</span>[<a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a>]]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.ElementTraversal" class="extype" href="ElementTraversal.html">ElementTraversal</a></dd></dl></div>
     </li></ol>
             </div>
 
@@ -219,14 +207,14 @@
               
         </dd></dl></div>
     </li><li visbl="pub" name="laika.tree.Elements.ListItem#content" data-isabs="false">
-      <a id="content:List[Block]"></a>
+      <a id="content:Seq[Block]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">content</span><span class="result">: List[<a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>]</span>
+        <span class="name">content</span><span class="result">: Seq[<a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.Elements.ListItem" class="extype" href="">ListItem</a> → <a name="laika.tree.Elements.Container" class="extype" href="Elements$$Container.html">Container</a></dd></dl></div>
@@ -407,14 +395,14 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.Elements.ListItem" class="extype" href="">ListItem</a> → Product</dd></dl></div>
     </li><li visbl="pub" name="laika.tree.ElementTraversal#rewrite" data-isabs="false">
-      <a id="rewrite(RewriteRule):ListItem"></a>
+      <a id="rewrite(PartialFunction[Element, Option[Element]]):ListItem"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">rewrite</span><span class="params">(<span name="rule">rule: RewriteRule</span>)</span><span class="result">: <a name="laika.tree.Elements.ListItem" class="extype" href="">ListItem</a></span>
+        <span class="name">rewrite</span><span class="params">(<span name="rule">rule: <span name="scala.PartialFunction" class="extype">PartialFunction</span>[<a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a>, <span name="scala.Option" class="extype">Option</span>[<a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a>]]</span>)</span><span class="result">: <a name="laika.tree.Elements.ListItem" class="extype" href="">ListItem</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Returns a new, rewritten tree model based on the specified rule.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new, rewritten tree model based on the specified rule.
@@ -546,7 +534,7 @@
             </div><div name="laika.tree.ElementTraversal" class="parent">
               <h3>Inherited from <a name="laika.tree.ElementTraversal" class="extype" href="ElementTraversal.html">ElementTraversal</a>[<a name="laika.tree.Elements.ListItem" class="extype" href="">ListItem</a>]</h3>
             </div><div name="laika.tree.Elements.Container" class="parent">
-              <h3>Inherited from <a name="laika.tree.Elements.Container" class="extype" href="Elements$$Container.html">Container</a>[List[<a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>]]</h3>
+              <h3>Inherited from <a name="laika.tree.Elements.Container" class="extype" href="Elements$$Container.html">Container</a>[Seq[<a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>]]</h3>
             </div><div name="laika.tree.Elements.Block" class="parent">
               <h3>Inherited from <a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a></h3>
             </div><div name="laika.tree.Elements.Element" class="parent">

@@ -135,7 +135,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$Document.html"><span class="name">Document</span></a><span class="params">(<span name="content">content: List[Block]</span>)</span><span class="result"> extends Element with BlockContainer[Document] with Product with Serializable</span>
+        <a href="Elements$$Document.html"><span class="name">Document</span></a><span class="params">(<span name="content">content: Seq[Block]</span>)</span><span class="result"> extends Element with BlockContainer[Document] with Product with Serializable</span>
       </span>
       </h4>
       <p class="comment cmt">The root element of a document tree.</p>
@@ -159,7 +159,7 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$ElementContainer.html"><span class="name">ElementContainer</span></a><span class="tparams">[<span name="E">+E &lt;: Element</span>, <span name="Self">Self &lt;: ElementContainer[E, Self]</span>]</span><span class="result"> extends Element with Container[List[E]] with ElementTraversal[Self]</span>
+        <a href="Elements$$ElementContainer.html"><span class="name">ElementContainer</span></a><span class="tparams">[<span name="E">+E &lt;: Element</span>, <span name="Self">Self &lt;: ElementContainer[E, Self]</span>]</span><span class="result"> extends Element with Container[Seq[E]] with ElementTraversal[Self]</span>
       </span>
       </h4>
       <p class="comment cmt">A generic container of other elements.</p>
@@ -171,7 +171,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$Emphasized.html"><span class="name">Emphasized</span></a><span class="params">(<span name="content">content: List[Span]</span>)</span><span class="result"> extends Element with Span with SpanContainer[Emphasized] with Product with Serializable</span>
+        <a href="Elements$$Emphasized.html"><span class="name">Emphasized</span></a><span class="params">(<span name="content">content: Seq[Span]</span>)</span><span class="result"> extends Element with Span with SpanContainer[Emphasized] with Product with Serializable</span>
       </span>
       </h4>
       <p class="comment cmt">A span of emphasized inline elements that may contain nested spans.</p>
@@ -183,7 +183,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$FlowContent.html"><span class="name">FlowContent</span></a><span class="params">(<span name="content">content: List[Span]</span>)</span><span class="result"> extends Element with Block with Span with SpanContainer[FlowContent] with Product with Serializable</span>
+        <a href="Elements$$FlowContent.html"><span class="name">FlowContent</span></a><span class="params">(<span name="content">content: Seq[Span]</span>)</span><span class="result"> extends Element with Block with Span with SpanContainer[FlowContent] with Product with Serializable</span>
       </span>
       </h4>
       <p class="comment cmt">A generic flow content element containing a list of spans.</p>
@@ -195,7 +195,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$Header.html"><span class="name">Header</span></a><span class="params">(<span name="level">level: Int</span>, <span name="content">content: List[Span]</span>)</span><span class="result"> extends Element with Block with SpanContainer[Header] with Product with Serializable</span>
+        <a href="Elements$$Header.html"><span class="name">Header</span></a><span class="params">(<span name="level">level: Int</span>, <span name="content">content: Seq[Span]</span>)</span><span class="result"> extends Element with Block with SpanContainer[Header] with Product with Serializable</span>
       </span>
       </h4>
       <p class="comment cmt">A header element with a level</p>
@@ -231,7 +231,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$Link.html"><span class="name">Link</span></a><span class="params">(<span name="content">content: List[Span]</span>, <span name="url">url: String</span>, <span name="title">title: Option[String]</span>)</span><span class="result"> extends Element with Span with SpanContainer[Link] with Product with Serializable</span>
+        <a href="Elements$$Link.html"><span class="name">Link</span></a><span class="params">(<span name="content">content: Seq[Span]</span>, <span name="url">url: String</span>, <span name="title">title: Option[String]</span>)</span><span class="result"> extends Element with Span with SpanContainer[Link] with Product with Serializable</span>
       </span>
       </h4>
       <p class="comment cmt">A link element, with the span content representing the text (description) of the link.</p>
@@ -256,7 +256,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$LinkReference.html"><span class="name">LinkReference</span></a><span class="params">(<span name="content">content: List[Span]</span>, <span name="id">id: String</span>, <span name="inputPrefix">inputPrefix: String</span>, <span name="inputPostfix">inputPostfix: String</span>)</span><span class="result"> extends Element with Span with SpanContainer[LinkReference] with Product with Serializable</span>
+        <a href="Elements$$LinkReference.html"><span class="name">LinkReference</span></a><span class="params">(<span name="content">content: Seq[Span]</span>, <span name="id">id: String</span>, <span name="inputPrefix">inputPrefix: String</span>, <span name="inputPostfix">inputPostfix: String</span>)</span><span class="result"> extends Element with Span with SpanContainer[LinkReference] with Product with Serializable</span>
       </span>
       </h4>
       <p class="comment cmt">A link reference, the id pointing to the id of a <code>LinkDefinition</code>.</p>
@@ -268,7 +268,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$ListItem.html"><span class="name">ListItem</span></a><span class="params">(<span name="content">content: List[Block]</span>)</span><span class="result"> extends Element with Block with BlockContainer[ListItem] with Product with Serializable</span>
+        <a href="Elements$$ListItem.html"><span class="name">ListItem</span></a><span class="params">(<span name="content">content: Seq[Block]</span>)</span><span class="result"> extends Element with Block with BlockContainer[ListItem] with Product with Serializable</span>
       </span>
       </h4>
       <p class="comment cmt">A single list item consisting of one or more block elements.</p>
@@ -280,7 +280,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$OrderedList.html"><span class="name">OrderedList</span></a><span class="params">(<span name="content">content: List[ListItem]</span>)</span><span class="result"> extends Element with Block with BlockContainer[OrderedList] with Product with Serializable</span>
+        <a href="Elements$$OrderedList.html"><span class="name">OrderedList</span></a><span class="params">(<span name="content">content: Seq[ListItem]</span>)</span><span class="result"> extends Element with Block with BlockContainer[OrderedList] with Product with Serializable</span>
       </span>
       </h4>
       <p class="comment cmt">An ordered list of block level items that may contain nested lists.</p>
@@ -292,7 +292,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$Paragraph.html"><span class="name">Paragraph</span></a><span class="params">(<span name="content">content: List[Span]</span>)</span><span class="result"> extends Element with Block with SpanContainer[Paragraph] with Product with Serializable</span>
+        <a href="Elements$$Paragraph.html"><span class="name">Paragraph</span></a><span class="params">(<span name="content">content: Seq[Span]</span>)</span><span class="result"> extends Element with Block with SpanContainer[Paragraph] with Product with Serializable</span>
       </span>
       </h4>
       <p class="comment cmt">A paragraph consisting of span elements.</p>
@@ -304,7 +304,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$QuotedBlock.html"><span class="name">QuotedBlock</span></a><span class="params">(<span name="content">content: List[Block]</span>)</span><span class="result"> extends Element with Block with BlockContainer[QuotedBlock] with Product with Serializable</span>
+        <a href="Elements$$QuotedBlock.html"><span class="name">QuotedBlock</span></a><span class="params">(<span name="content">content: Seq[Block]</span>)</span><span class="result"> extends Element with Block with BlockContainer[QuotedBlock] with Product with Serializable</span>
       </span>
       </h4>
       <p class="comment cmt">A quoted block consisting of a list of blocks that may contain other
@@ -317,7 +317,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$Section.html"><span class="name">Section</span></a><span class="params">(<span name="header">header: Header</span>, <span name="content">content: List[Block]</span>)</span><span class="result"> extends Element with Block with BlockContainer[Section] with Product with Serializable</span>
+        <a href="Elements$$Section.html"><span class="name">Section</span></a><span class="params">(<span name="header">header: Header</span>, <span name="content">content: Seq[Block]</span>)</span><span class="result"> extends Element with Block with BlockContainer[Section] with Product with Serializable</span>
       </span>
       </h4>
       <p class="comment cmt">A section of the document, consisting of a header and content in the form
@@ -354,7 +354,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$Strong.html"><span class="name">Strong</span></a><span class="params">(<span name="content">content: List[Span]</span>)</span><span class="result"> extends Element with Span with SpanContainer[Strong] with Product with Serializable</span>
+        <a href="Elements$$Strong.html"><span class="name">Strong</span></a><span class="params">(<span name="content">content: Seq[Span]</span>)</span><span class="result"> extends Element with Span with SpanContainer[Strong] with Product with Serializable</span>
       </span>
       </h4>
       <p class="comment cmt">A span of strong inline elements that may contain nested spans.</p>
@@ -390,7 +390,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$UnorderedList.html"><span class="name">UnorderedList</span></a><span class="params">(<span name="content">content: List[ListItem]</span>)</span><span class="result"> extends Element with Block with BlockContainer[UnorderedList] with Product with Serializable</span>
+        <a href="Elements$$UnorderedList.html"><span class="name">UnorderedList</span></a><span class="params">(<span name="content">content: Seq[ListItem]</span>)</span><span class="result"> extends Element with Block with BlockContainer[UnorderedList] with Product with Serializable</span>
       </span>
       </h4>
       <p class="comment cmt">An unordered list of block level items that may contain nested lists.</p>
