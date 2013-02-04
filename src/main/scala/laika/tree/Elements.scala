@@ -201,7 +201,7 @@ object Elements {
    *  By default messages are ignored by most renderers (apart from PrettyPrint), but
    *  they can be explicitly activated for a particular level.
    */
-  case class SystemMessage (level: Int, content: String) extends Span with Block with TextContainer
+  case class SystemMessage (level: MessageLevel, content: String) extends Span with Block with TextContainer
   
   /** Signals the severity of a system message.
    */
