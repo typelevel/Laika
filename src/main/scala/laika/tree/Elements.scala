@@ -132,7 +132,32 @@ object Elements {
   
   /** An ordered list of block level items that may contain nested lists.
    */
-  case class OrderedList (content: Seq[ListItem]) extends Block with BlockContainer[OrderedList]
+  case class OrderedList (content: Seq[ListItem], enumType: EnumType = Arabic, 
+      prefix: String = "", suffix: String = ".", start: Int = 1) extends Block with BlockContainer[OrderedList]
+  
+  /** Represents the type of an ordered list.
+   */
+  sealed abstract class EnumType
+  
+  /** Arabic enumeration style (1, 2, 3...)
+   */
+  case object Arabic extends EnumType
+  
+  /** Lowercase letter enumeration style (a, b, c...)
+   */
+  case object LowerAlpha extends EnumType
+  
+  /** Uppercase letter enumeration style (A, B, C...)
+   */
+  case object UpperAlpha extends EnumType
+  
+  /** Lowercase Roman numeral enumeration style (i, ii, iii, iv...)
+   */
+  case object LowerRoman extends EnumType
+  
+  /** Uppercase Roman numeral enumeration style (I, II, III, IV...)
+   */
+  case object UpperRoman extends EnumType
     
   /** A single list item consisting of one or more block elements.
    */

@@ -54,7 +54,7 @@ class HTML extends ((Output, Element => Unit) => (HTMLWriter, Element => Unit)) 
       case Document(content)          => out <<        "<div>" <<|> content <<| "</div>"       
       case QuotedBlock(content)       => out << "<blockquote>" <<|> content <<| "</blockquote>"
       case UnorderedList(content)     => out <<         "<ul>" <<|> content <<| "</ul>"
-      case OrderedList(content)       => out <<         "<ol>" <<|> content <<| "</ol>"
+      case OrderedList(content,_,_,_,_) => out <<         "<ol>" <<|> content <<| "</ol>"
       case CodeBlock(content)         => out <<  "<code><pre>" <<<& content <<  "</pre></code>"
       case Section(header, content)   => out <<         header <<|  content
       case Paragraph(content)         => out <<          "<p>" <<   content <<  "</p>"  

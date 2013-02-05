@@ -257,7 +257,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     
   /** Parses an ordered list.
    */
-  def orderedList (nestLevel: Int): Parser[OrderedList] = list(orderedListItemStart, OrderedList, nestLevel) 
+  def orderedList (nestLevel: Int): Parser[OrderedList] = list(orderedListItemStart, OrderedList(_), nestLevel) 
     
   
 }
