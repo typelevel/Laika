@@ -163,6 +163,15 @@ object Elements {
    */
   case class ListItem (content: Seq[Block]) extends Block with BlockContainer[ListItem]
   
+  /** A list of terms and their definitions.
+   */
+  case class DefinitionList (content: Seq[DefinitionListItem]) extends Block with BlockContainer[DefinitionList]
+
+  /** A single definition item, containing the term and definition (as the content property).
+   */
+  case class DefinitionListItem (term: Seq[Span], content: Seq[Block]) 
+    extends Block with BlockContainer[DefinitionListItem]
+  
   
   /** A link definition, usually only part of the raw document tree and then
    *  removed by the rewrite rule that resolves link and image references.
