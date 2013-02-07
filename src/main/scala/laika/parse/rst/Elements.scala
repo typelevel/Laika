@@ -34,6 +34,9 @@ object Elements {
    */
   case class Field (name: Seq[Span], content: Seq[Block]) extends Block with BlockContainer[Field]
   
+  /** A classifier for a term in a definition list.
+   */
+  case class Classifier (content: Seq[Span]) extends Span with SpanContainer[Classifier]
   
   
 }
