@@ -61,6 +61,49 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers => // T
    * - blank lines required before and after lists (including sub-list)
    * - blank lines between list items optional
    * - unindenting without blank line ends list with a warning (TODO)
+   * 
+   * ordered list:
+   * 
+   * - enumerations sequence members: 1 - A - a - II - ii
+   * - auto-numerator: # (either after an initial explicit symbol, or from the start which implies arabic numbers)
+   * - formatting: 1. - (1) - 1)
+   * - a new list starts when there is a different formatting or the numbers are not in sequence (e.g. 1, 2, 4)
+   * - lists using Roman literals must start with i or a multi-character value (otherwise will be interpreted as latin)
+   * - for an unindent on the 2nd line of a list item, the entire list item will be interpreted as a normal paragraph
+   * - for an unindent on other lines, the list item will end before the unindented line
+   * 
+   * definition list:
+   * 
+   * - the term is a one line phras (all inline markup supported)
+   * - it may be followed by one or more classifiers on the same line, separated by ' : '
+   * - the definition is indented relative to the term
+   * - no blank line allowed between term and definition
+   * - definition may be any sequence of blocks
+   * - blank lines only required before and after the list
+   * 
+   * field list:
+   * 
+   * - name can be any character between ':', literal ':' must be escaped
+   * - all inline markup supported in names
+   * - field body may contain multiple block elements
+   * - the field body is indented relative to the name
+   * 
+   * option list:
+   * 
+   * - supported option types: +v, -v, --long, /V, /Long
+   * - option arguments may follow after ' ' or '=' (short options may omit this separator)
+   * - arguments begin with a letter followed by [a-zA-Z0-9_-] or anything between angle brackets
+   * - option synonym is separated by ', '
+   * - description follows after 2 spaces or on the next line
+   * 
+   * line block:
+   * 
+   * - lines start with '|'
+   * - text left-aligned and indented by one or more spaces
+   * - increase of indentation creates a nested line block
+   * - continuation of a line starts with a space in the place of the vertical bar
+   * - continuation line does not need to be aligned with preceding line
+   * - any blank line ends the block
    */
   
   override def ws = anyOf(' ','\t', '\f', '\u000b') // 0x0b: vertical tab
