@@ -172,6 +172,17 @@ object Elements {
   case class DefinitionListItem (term: Seq[Span], content: Seq[Block]) 
     extends Block with BlockContainer[DefinitionListItem]
   
+  /** A single item inside a line block.
+   */
+  abstract class LineBlockItem extends Block
+  
+  /** A single line inside a line block.
+   */
+  case class Line (content: Seq[Span]) extends LineBlockItem with SpanContainer[Line]
+  
+  /** A block containing lines which preserve line breaks and optionally nested line blocks.
+   */
+  case class LineBlock (content: Seq[LineBlockItem]) extends LineBlockItem with BlockContainer[LineBlock]
   
   /** A link definition, usually only part of the raw document tree and then
    *  removed by the rewrite rule that resolves link and image references.
