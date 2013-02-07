@@ -38,5 +38,20 @@ object Elements {
    */
   case class Classifier (content: Seq[Span]) extends Span with SpanContainer[Classifier]
   
+  /** A list of command line options and descriptions.
+   */
+  case class OptionList (content: Seq[OptionListItem]) extends Block with BlockContainer[OptionList]
+  
+  /** A single item in an option list. The content property serves as the description of the option.
+   */
+  case class OptionListItem (options: Seq[Option], content: Seq[Block]) extends Block with BlockContainer[OptionListItem]
+  
+  /** A single option, including its name and all arguments, but not the description.
+   */
+  case class Option (name: String, arguments: Seq[OptionArgument]) extends Element
+
+  /** A single option argument.
+   */
+  case class OptionArgument (value: String, delimiter: String) extends Element
   
 }
