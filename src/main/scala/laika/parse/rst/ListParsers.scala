@@ -272,11 +272,11 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers => // T
     
     val itemStart = not(blankLine) ^^^ 0
     
-    def item (pos: BlockPosition) = (term ~ indentedBlock(itemStart, pos)) ^^ // TODO - add classifier parser to parseInline map
+    val item = (term ~ indentedBlock(itemStart, pos)) ^^ // TODO - add classifier parser to parseInline map
       { case term ~ ((lines, pos)) => 
           DefinitionListItem(parseInline(term), parseMarkup(listItemBlocks(pos), lines mkString "\n")) }
     
-    ((item(pos)) *) ^^ { DefinitionList(_) }
+    (item *) ^^ { DefinitionList(_) }
   }
   
   
@@ -292,11 +292,11 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers => // T
     
     val itemStart = success(0)
     
-    def item (pos: BlockPosition) = (name ~ firstLine ~ indentedBlock(itemStart, pos)) ^^
+    val item = (name ~ firstLine ~ indentedBlock(itemStart, pos)) ^^
       { case name ~ firstLine ~ ((lines, pos)) => 
           Field(parseInline(name), parseMarkup(listItemBlocks(pos), (firstLine :: lines) mkString "\n")) }
     
-    ((item(pos)) *) ^^ { FieldList(_) }
+    (item *) ^^ { FieldList(_) }
   }
   
   
