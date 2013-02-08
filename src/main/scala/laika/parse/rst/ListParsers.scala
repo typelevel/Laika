@@ -17,6 +17,7 @@
 package laika.parse.rst
 
 import laika.tree.Elements._
+import laika.parse.rst.Elements._
 import laika.parse.InlineParsers
 import scala.annotation.tailrec
 
@@ -58,7 +59,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers => // T
    * 
    *  @param pos the current parsing position 
    */
-  def standardRstBlock (pos: BlockPosition): Parser[Block] = unorderedList(pos) | orderedList(pos) | definitionList(pos)
+  def standardRstBlock (pos: BlockPosition): Parser[Block] = unorderedList(pos) | orderedList(pos) | definitionList(pos) | fieldList(pos)
 
   /** Parses reStructuredText blocks, except normal paragraphs
    *  and blocks that allow nesting of blocks. Only used in rare cases when the maximum
@@ -169,7 +170,9 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers => // T
     indentedBlock(firstLinePrefix, not(blankLine), not(blankLine), pos)
   }
   
-  /** Parses a full block based on the specified helper parsers.
+  /** Parses a full block based on the specified helper parsers. It expects an indentation for
+   *  all subsequent lines based on the length of the prefix of the first line plus any whitespace
+   *  immediately following it.
    * 
    *  @param firstLinePrefix parser that recognizes the start of the first line of this block
    *  @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
@@ -177,7 +180,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers => // T
    *  @param pos the current parsing position 
    */
   def indentedBlock (firstLinePrefix: Parser[Int], linePrefix: => Parser[Any], nextBlockPrefix: => Parser[Any], pos: BlockPosition): Parser[(List[String],BlockPosition)] = {
-    firstLinePrefix >> { width => indent(pos.column + width) >> { firstIndent =>
+    firstLinePrefix >> { width => minIndent(pos.column + width, 1) >> { firstIndent =>
       val indentParser = indent(pos.column, width + firstIndent)
       block(success( () ), indentParser ~> linePrefix, indentParser ~> nextBlockPrefix) ^^ { lines => 
         (lines, pos.indent(firstIndent))   
@@ -265,15 +268,37 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers => // T
    */
   def definitionList (pos: BlockPosition): Parser[Block] = {
     
-    def term: Parser[String] = not(blankLine) ~> restOfLine
+    val term: Parser[String] = not(blankLine) ~> restOfLine
     
-    val itemStart = not(blankLine) ~> minIndent(pos.column, 1)
+    val itemStart = not(blankLine) ^^^ 0
     
-    def item (pos: BlockPosition) = (term ~ indentedBlock(itemStart, pos)) ^^
-      { case term ~ ((lines, pos)) => DefinitionListItem(parseInline(term), parseMarkup(listItemBlocks(pos), lines mkString "\n")) }
+    def item (pos: BlockPosition) = (term ~ indentedBlock(itemStart, pos)) ^^ // TODO - add classifier parser to parseInline map
+      { case term ~ ((lines, pos)) => 
+          DefinitionListItem(parseInline(term), parseMarkup(listItemBlocks(pos), lines mkString "\n")) }
     
     ((item(pos)) *) ^^ { DefinitionList(_) }
   }
+  
+  
+  /** Parses a field list.
+   * 
+   *  @param pos the current parsing position 
+   */
+  def fieldList (pos: BlockPosition): Parser[Block] = {
+    
+    val name = ':' ~> anyBut(':') <~ ':' // TODO - escaped ':' in name should be supported
+    
+    val firstLine = restOfLine  
+    
+    val itemStart = success(0)
+    
+    def item (pos: BlockPosition) = (name ~ firstLine ~ indentedBlock(itemStart, pos)) ^^
+      { case name ~ firstLine ~ ((lines, pos)) => 
+          Field(parseInline(name), parseMarkup(listItemBlocks(pos), (firstLine :: lines) mkString "\n")) }
+    
+    ((item(pos)) *) ^^ { FieldList(_) }
+  }
+  
   
   def parseInline (source: String): List[Span] = parseInline(source, Map.empty) // TODO - implement
   
