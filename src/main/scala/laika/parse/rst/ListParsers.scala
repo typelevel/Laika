@@ -163,7 +163,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers => // T
    */
   def indentedBlock (firstLinePrefix: Parser[Int], linePrefix: => Parser[Any], nextBlockPrefix: => Parser[Any], pos: BlockPosition): Parser[(List[String],BlockPosition)] = {
     firstLinePrefix >> { width => indent(pos.column + width) >> { firstIndent =>
-      val indentParser = indent(pos.column, firstIndent)
+      val indentParser = indent(pos.column, width + firstIndent)
       block(success( () ), indentParser ~> linePrefix, indentParser ~> nextBlockPrefix) ^^ { lines => 
         (lines, pos.indent(firstIndent))   
       } 
@@ -171,38 +171,76 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers => // T
   }
   
   
-  /** Parses a list based on the specified helper parsers.
-   * 
-   *  @param itemStart parser that recognizes the start of a list item, result will be discarded
-   *  @param newList function that produces a block element for the document tree
-   *  @param pos the current parsing position 
-   */
-  def list [T <: Block] (itemStart: Parser[String], newList: List[ListItem] => T, pos: BlockPosition) = {
-    guard(itemStart) >> { symbol =>
-      ((listItem(symbol, pos)) *) ^^ { x => newList(x) }
-    } 
-  }
-  
   /** Parses a single list item.
    * 
    *  @param itemStart parser that recognizes the start of a list item, result will be discarded
    *  @param pos the current parsing position 
    */
   def listItem (itemStart: Parser[String], pos: BlockPosition): Parser[ListItem] = {
-    indentedBlock(itemStart ^^ { res => res.length }, not(blankLine), not(blankLine), pos) ^^
-          { case (lines,pos) => ListItem(parseMarkup(listItemBlocks(pos), lines mkString "\n")) }
+      indentedBlock(itemStart ^^ { res => res.length }, not(blankLine), not(blankLine), pos) ^^
+      { case (lines,pos) => ListItem(parseMarkup(listItemBlocks(pos), lines mkString "\n")) }
   }
- 
   
-  /** Parses the start of an unordered list item.
-   */
-  val unorderedListItemStart = anyOf('*','-','+').take(1)
   
   /** Parses an unordered list.
    * 
    *  @param pos the current parsing position 
    */
-  def unorderedList (pos: BlockPosition): Parser[UnorderedList] = list(unorderedListItemStart, UnorderedList, pos)
+  def unorderedList (pos: BlockPosition): Parser[UnorderedList] = {
+    val itemStart = anyOf('*','-','+').take(1)
+    
+    guard(itemStart) >> { symbol =>
+      ((listItem(symbol, pos)) *) ^^ { UnorderedList(_) }
+    }
+  }
+  
+  
+  /** Parses an ordered list in any of the supported combinations of enumeration style and formatting.
+   */
+  def orderedList (pos: BlockPosition): Parser[OrderedList] = {
+    
+    val firstLowerRoman = (anyOf('i','v','x','l','c','d','m').min(2) | anyOf('i').take(1)) ^^^ { LowerRoman }
+    val lowerRoman = anyOf('i','v','x','l','c','d','m').min(1)
+    
+    val firstUpperRoman = (anyOf('I','V','X','L','C','D','M').min(2) | anyOf('I').take(1)) ^^^ { UpperRoman }
+    val upperRoman = anyOf('I','V','X','L','C','D','M').min(1)
+    
+    val firstLowerAlpha = anyIn('a' to 'h', 'j' to 'z').take(1) ^^^ { LowerAlpha } // 'i' is interpreted as Roman numerical
+    val lowerAlpha = anyIn('a' to 'z').take(1)
+  
+    val firstUpperAlpha = anyIn('A' to 'H', 'J' to 'Z').take(1) ^^^ { UpperAlpha }
+    val upperAlpha = anyIn('A' to 'Z').take(1)
+    
+    val arabic = anyIn('0' to '9').min(1)
+    val firstArabic = arabic ^^^ { Arabic }
+    
+    val autoNumber = anyOf('#').take(1)
+    val firstAutoNumber = autoNumber ^^^ { Arabic }
+    
+    lazy val enumTypes = Map[EnumType,Parser[String]] (
+      Arabic -> arabic,
+      LowerAlpha -> lowerAlpha,
+      UpperAlpha -> upperAlpha,
+      LowerRoman -> lowerRoman,
+      UpperRoman -> upperRoman
+    )
+    
+    def enumType (et: EnumType) = enumTypes(et) | autoNumber
+    
+    lazy val firstEnumType: Parser[EnumType] = firstAutoNumber | firstArabic | firstLowerAlpha | firstUpperAlpha | firstLowerRoman | firstUpperRoman
+    
+    lazy val firstItemStart: Parser[(String, EnumType, String)] = 
+      ('(' ~ firstEnumType ~ ')') ^^ { case prefix ~ enumType ~ suffix => (prefix.toString, enumType, suffix.toString) } | 
+      (firstEnumType ~ ')' | firstEnumType ~ '.') ^^ { case enumType ~ suffix => ("", enumType, suffix.toString) }
+    
+    def itemStart (prefix: Parser[String], et: EnumType, suffix: Parser[String]): Parser[String] = 
+      (prefix ~ enumType(et) ~ suffix) ^^ { case prefix ~ enumType ~ suffix => prefix + enumType + suffix }
+      
+    guard(firstItemStart) >> { case (prefix, enumType, suffix) => // TODO - keep start number
+      ((listItem(itemStart(prefix, enumType, suffix), pos)) *) ^^ { OrderedList(_, enumType, prefix, suffix) }
+    }
+  }
+  
     
   
 }
