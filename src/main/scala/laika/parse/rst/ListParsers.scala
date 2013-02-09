@@ -59,7 +59,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers => // T
    * 
    *  @param pos the current parsing position 
    */
-  def standardRstBlock (pos: BlockPosition): Parser[Block] = unorderedList(pos) | orderedList(pos) | definitionList(pos) | fieldList(pos)
+  def standardRstBlock (pos: BlockPosition): Parser[Block] = unorderedList(pos) | orderedList(pos) | definitionList(pos) | fieldList(pos) | optionList(pos)
 
   /** Parses reStructuredText blocks, except normal paragraphs
    *  and blocks that allow nesting of blocks. Only used in rare cases when the maximum
@@ -288,17 +288,55 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers => // T
     
     val name = ':' ~> anyBut(':') <~ ':' // TODO - escaped ':' in name should be supported
     
-    val firstLine = restOfLine  
+    val firstLine = restOfLine // TODO - may need to check for non-empty body 
     
     val itemStart = success(0)
     
-    val item = (name ~ firstLine ~ indentedBlock(itemStart, pos)) ^^
-      { case name ~ firstLine ~ ((lines, pos)) => 
-          Field(parseInline(name), parseMarkup(listItemBlocks(pos), (firstLine :: lines) mkString "\n")) }
+    val item = (name ~ firstLine ~ opt(indentedBlock(itemStart, pos))) ^^
+      { case name ~ firstLine ~ Some((lines, pos)) => 
+          Field(parseInline(name), parseMarkup(listItemBlocks(pos), (firstLine :: lines) mkString "\n"))
+        case name ~ firstLine ~ None => 
+          Field(parseInline(name), parseMarkup(listItemBlocks(pos), firstLine)) }
     
     (item *) ^^ { FieldList(_) }
   }
   
+  
+  /** Parses an option list.
+   * 
+   *  @param pos the current parsing position 
+   */
+  def optionList (pos: BlockPosition): Parser[Block] = {
+    
+    val optionString = anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_', '-').min(1)
+    
+    val gnu =        '+' ~ anyIn('a' to 'z', 'A' to 'Z', '0' to '9').take(1) ^^ mkString
+    val shortPosix = '-' ~ anyIn('a' to 'z', 'A' to 'Z', '0' to '9').take(1) ^^ mkString
+    val longPosix = "--" ~ optionString ^^ { case a ~ b => a+b }
+    val dos = '/' ~ optionString ^^ mkString
+    
+    val arg = opt(accept('=') | ' ') ~ optionString ^^ { 
+      case Some(delim) ~ argStr => OptionArgument(argStr, delim.toString)
+      case None ~ argStr => OptionArgument(argStr, "") 
+    }
+    
+    val option = (gnu | shortPosix | longPosix | dos) ~ opt(arg) ^^ { case option ~ arg => Option(option, arg) }
+    
+    val options = (option ~ ((", " ~> option)*)) ^^ mkList
+    
+    val firstLine = ("  " ~ not(blankLine) ~> restOfLine) | (blankLine ~ guard(minIndent(pos.column, 1) ~ not(blankLine))) ^^^ "" 
+    
+    val itemStart = success(0)
+    
+    val item = (options ~ firstLine ~ indentedBlock(itemStart, pos)) ^^
+      { case name ~ firstLine ~ ((lines, pos)) => 
+          OptionListItem(name, parseMarkup(listItemBlocks(pos), (firstLine :: lines) mkString "\n")) }
+    
+    (item *) ^^ { OptionList(_) }
+  }
+  
+  
+  private def mkString (result: ~[Char,String]) = result._1.toString + result._2 // TODO - maybe promote to MarkupParsers
   
   def parseInline (source: String): List[Span] = parseInline(source, Map.empty) // TODO - implement
   
