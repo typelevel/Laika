@@ -177,7 +177,6 @@ trait MarkupParsers extends RegexParsers {
   }
   
   /** Consumes any number of consecutive characters that are not one of the specified characters.
-   *  Always succeeds unless a minimum number of required matches is specified.
    *  
    *  This parser is identical to the `anyBut` parser except for two differences: this parser fails
    *  if it reaches the end of the input without seeing any of the specified
@@ -198,7 +197,7 @@ trait MarkupParsers extends RegexParsers {
     anyWhile(p)
   }
   
-  /** Consumes any number of consecutive characters for which satisfy the specified predicate.
+  /** Consumes any number of consecutive characters which satisfy the specified predicate.
    *  Always succeeds unless a minimum number of required matches is specified.
    */
   def anyWhile (p: Char => Boolean) = {
