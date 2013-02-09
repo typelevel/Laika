@@ -48,7 +48,7 @@ object Elements {
   
   /** A single option, including its name and all arguments, but not the description.
    */
-  case class Option (name: String, argument: OptionArgument) extends Element
+  case class Option (name: String, argument: scala.Option[OptionArgument]) extends Element
 
   /** A single option argument.
    */
