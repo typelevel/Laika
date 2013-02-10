@@ -20,6 +20,8 @@ import laika.tree.Elements._
 import laika.parse.rst.Elements._
 import laika.parse.InlineParsers
 import scala.annotation.tailrec
+import scala.collection.mutable.Stack
+import scala.collection.mutable.ListBuffer
 
 trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers => // TODO - probably needs to be rst.InlineParsers {
 
@@ -276,7 +278,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers => // T
       { case term ~ ((lines, pos)) => 
           DefinitionListItem(parseInline(term), parseMarkup(listItemBlocks(pos), lines mkString "\n")) }
     
-    (item *) ^^ { DefinitionList(_) }
+    (item *) ^^ DefinitionList
   }
   
   
@@ -298,7 +300,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers => // T
         case name ~ firstLine ~ None => 
           Field(parseInline(name), parseMarkup(listItemBlocks(pos), firstLine)) }
     
-    (item *) ^^ { FieldList(_) }
+    (item *) ^^ FieldList
   }
   
   
@@ -332,8 +334,53 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers => // T
       { case name ~ firstLine ~ ((lines, pos)) => 
           OptionListItem(name, parseMarkup(listItemBlocks(pos), (firstLine :: lines) mkString "\n")) }
     
-    (item *) ^^ { OptionList(_) }
+    (item *) ^^ OptionList
   }
+  
+  /** Parses a block of lines with line breaks preserved.
+   */
+  def lineBlock (pos: BlockPosition): Parser[Block] = {
+    val itemStart = anyOf('|').take(1)
+    
+    val line: Parser[(Line,Int)] = {
+      indentedBlock(itemStart ^^^ 1, not(blankLine), failure("line blocks always end after blank lines"), pos) ^^
+      { case (lines,pos) => (Line(parseInline(lines mkString "\n")), pos.column) }
+    }
+    
+    def nest (lines: Seq[(Line,Int)]) : LineBlock = {
+      
+      val stack = new Stack[(ListBuffer[LineBlockItem],Int)]
+  
+      @tailrec
+      def addItem (item: LineBlockItem, level: Int): Unit = {
+        if (stack.isEmpty || level > stack.top._2) stack push ((ListBuffer(item), level))
+        else if (level == stack.top._2) stack.top._1 += item
+        else {
+          val newBlock = LineBlock(stack.pop._1.toList)
+          if (!stack.isEmpty && stack.top._2 >= level) {
+            stack.top._1 += newBlock
+            addItem(item, level)
+          }
+          else {
+            stack push ((ListBuffer(newBlock, item), level))
+          }
+        }
+      }
+      
+      lines.foreach { 
+        case (line, level) => addItem(line, level)
+      }
+  
+      val (topBuffer, _) = stack.reduceLeft { (top, next) =>
+        next._1 += LineBlock(top._1.toList)
+        next
+      }
+      
+      LineBlock(topBuffer.toList)
+    }
+    
+    (line *) ^^ nest
+  } 
   
   
   private def mkString (result: ~[Char,String]) = result._1.toString + result._2 // TODO - maybe promote to MarkupParsers
