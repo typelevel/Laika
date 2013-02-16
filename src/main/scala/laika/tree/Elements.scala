@@ -184,6 +184,34 @@ object Elements {
    */
   case class LineBlock (content: Seq[LineBlockItem]) extends LineBlockItem with BlockContainer[LineBlock]
   
+  /** A table consisting of a head and a body part represented by a sequence of rows.  
+   *  Both the head and body sequence may be empty.
+   */
+  case class Table (head: Seq[Row], body: Seq[Row]) extends Block
+  
+  /** A single table row. In case some of the previous rows contain
+   *  cells with a colspan greater than 1, this row may contain
+   *  fewer cells than the number of columns in this table.
+   */
+  case class Row (cells: Seq[Cell]) extends Element
+  
+  /** A single cell, potentially spanning multiple rows or columns, containing
+   *  one or more block elements.
+   */
+  case class Cell (cellType: CellType, content: Seq[Block], colspan: Int = 1, rowspan: Int = 1) extends Element with BlockContainer[Cell]
+
+  /** The cell type specifies which part of the table the cell belongs to. 
+   */
+  sealed abstract class CellType
+  
+  /** A cell in the head part of the table.
+   */
+  case object HeadCell extends CellType
+
+  /** A cell in the body part of the table.
+   */
+  case object BodyCell extends CellType
+  
   /** A link definition, usually only part of the raw document tree and then
    *  removed by the rewrite rule that resolves link and image references.
    */
