@@ -88,7 +88,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
     
     def addCell (cell: CellBuilder) = cells += cell
      
-    def toRow = Row(cells filterNot (_.removed) map (_.toCell))
+    def toRow = Row(cells filterNot (_.removed) map (_.toCell) toList)
   }
   
   class ColumnBuilder (pos: BlockPosition, left: scala.Option[ColumnBuilder]) {
