@@ -19,8 +19,8 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
     override def toString = "+"
   }
   case object RowSeparator extends TableDecoration
-  case object CellSeparator extends TableDecoration {
-    override def toString = "|"
+  case class CellSeparator (decoration: String) extends TableDecoration {
+    override def toString = decoration
   }
   case class CellElement (text: String) extends TableElement {
     override def toString = text
@@ -32,8 +32,8 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
     private val lines = new ListBuffer[StringBuilder]
     private var last: StringBuilder = new StringBuilder
     
-    private var rowSpan = 1
-    private var colSpan = 1
+    var rowSpan = 1
+    var colSpan = 1
     
     var removed: Boolean = false
     
@@ -62,12 +62,12 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
       class TextLine (i: Int, text: String) extends CellLine(i) { def padTo (minIndent: Int) = " " * (indent - minIndent) + text }
       
       val cellLine = ((not(eof) ~ blankLine) ^^^ BlankLine) | 
-        (indent(pos.column) ~ restOfLine) ^^ { case indent ~ text => new TextLine(indent, text) } 
+        (indent(pos.column) ~ restOfLine) ^^ { case indent ~ text => new TextLine(indent, text.trim) } 
       
       parseAll(cellLine*, cellContent) match {
         case Success(lines, _) => 
           val minIndent = lines map (_.indent) min;
-          (minIndent, lines map (_.padTo(minIndent)) mkString "\n") // TODO - trim trailing ws
+          (minIndent, lines map (_.padTo(minIndent)) mkString "\n")
       } 
     }
     
@@ -98,6 +98,8 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
     def currentCell = cells.top.cell
     
     def nextCell () = {
+      if (!cells.isEmpty && !rowspanMatches)
+          throw new MalformedTableException("Misplaced row separator")
       val cell = new CellBuilder(pos)
       cells push new CellBuilderRef(cell)
       cell
@@ -109,10 +111,16 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
       cell
     }
     
-    private def mergeLeft () = {
+    def mergeLeft () = {
       val leftCell = left.get.currentCell
+      if (!rowspanMatches)
+          throw new MalformedTableException("Misplaced row separator")
       leftCell.merge(removeCell)
       cells push new CellBuilderRef(leftCell, true)
+    }
+    
+    def rowspanMatches = {
+      !cells.top.mergedLeft || left.get.currentCell.rowSpan == cells.top.cell.rowSpan
     }
     
     def addLine (sep: TableElement, line: String, nextRow: Boolean) = {
@@ -120,6 +128,8 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
       if (ref.mergedLeft) ref.cell.currentLine(sep, line)
       else {
         ref.cell.nextLine(sep, line, nextRow)
+        if (nextRow && !rowspanMatches)
+          throw new MalformedTableException("Misplaced row separator")
         sep match {
           case CellElement(_) => mergeLeft()
           case _ => ()
@@ -133,7 +143,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
       var lastColumn: scala.Option[ColumnBuilder] = None
       var nextPos = new BlockPosition(pos.nestLevel, pos.column + 1)
       val columnWidthIt = columnWidths.iterator
-      def setNextPos () = nextPos = new BlockPosition(pos.nestLevel, pos.column + 1 + columnWidthIt.next)
+      def setNextPos () = nextPos = new BlockPosition(pos.nestLevel, pos.column + columnWidthIt.next)
       def next = { lastColumn = Some(new ColumnBuilder(nextPos, lastColumn)); setNextPos(); lastColumn.get } 
     }
     val columns = List.fill(columnWidths.length)(ColumnFactory.next)
@@ -158,8 +168,6 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
   def flatten (result: Any): List[TableElement] = result match {
     case x:TableElement => List(x)
     case x ~ y => flatten(x) ::: flatten(y)
-    //case None => Nil
-    //case Some(x) => flatten(x)
   }
       
   def gridTable (pos: BlockPosition): Parser[Block] = {
@@ -171,12 +179,10 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
     
     topBorder >> { cols =>
       
-      val columnCount = cols.length
-      
-      val colSep = (anyOf('|') take 1) ^^^ CellSeparator
+      val colSep = (anyOf('|') take 1) ^^^ CellSeparator("|")
       val colSepOrText = colSep | intersect | ((any take 1) ^^ CellElement)
       
-      val separators = colSep :: List.fill(columnCount - 1)(colSepOrText)
+      val separators = colSep :: List.fill(cols.length - 1)(colSepOrText)
       val colsWithSep = (separators, cols, separators.reverse).zipped.toList
       
       def rowSep (width: Int): Parser[Any] = 
@@ -189,29 +195,140 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
         rowSep(colWidth) | cell(separatorL, colWidth, separatorR)
       } reduceRight (_ ~ _)
       
-      ((row <~ (any take 1) ~ ws ~ eol)*) ^^ { rows =>
-        val tableBuilder = new TableBuilder(pos, cols)
+      def isSeparatorRow (row: Any) = {
+        flatten(row).forall {
+          case RowSeparator => true
+          case Intersection => true
+          case _ => false
+        }
+      }
+      
+      ((row <~ (any take 1) ~ ws ~ eol)*) >> { rows =>
         
-        rows.dropRight(1) foreach { result =>
-          val row = flatten(result)
-          val hasSeparator = row exists { case RowSeparator => true; case _ => false }
-          val newRowBuilder = if (hasSeparator) Some(tableBuilder.nextRow) else None
+        /* this parser does not actually parse anything, but we need to fail for certain illegal
+         * constructs in the interim model, so that the next parser can pick up the (broken) table input */
+        Parser { in =>
           
-          row.sliding(2,2).zip(tableBuilder.columns.iterator).foreach { 
-            case (_ :: RowSeparator :: Nil, column) => newRowBuilder.get.addCell(column.nextCell) // TODO - handle misplaced separators
-            case (sep :: CellElement(text) :: Nil, column) => column.addLine(sep, text, hasSeparator)
-            case _ => () // cannot happen, just to avoid the warning
+          if (!isSeparatorRow(rows.last)) Failure("Table not terminated correctly", in)
+          else {
+            val tableBuilder = new TableBuilder(pos, cols map (_ + 1)) // column width includes separator
+            
+            try {
+              rows.init foreach { result =>
+                val row = flatten(result)
+                val hasSeparator = row exists { case RowSeparator => true; case _ => false }
+                val newRowBuilder = if (hasSeparator) Some(tableBuilder.nextRow) else None
+                
+                row.sliding(2,2).zip(tableBuilder.columns.iterator).foreach { 
+                  case (_ :: RowSeparator :: Nil, column) => newRowBuilder.get.addCell(column.nextCell)
+                  case (sep :: CellElement(text) :: Nil, column) => column.addLine(sep, text, hasSeparator)
+                  case _ => () // cannot happen, just to avoid the warning
+                }
+              }
+            }
+            catch {
+              case ex: MalformedTableException => Failure(ex.getMessage, in)
+            }
+            
+            Success(tableBuilder.toTable, in)
           }
         }
-        
-        tableBuilder.toTable
       }      
       
-      // TODO - verify last line correctly closes all cells
     }
     
   }
   
+  def simpleTable (pos: BlockPosition): Parser[Block] = {
+    
+    val intersect = (anyOf(' ') min 1) ^^ { _.length }
+    val tableBorder = (anyOf('=') min 1) ^^ { _.length }
+    val columnSpec = tableBorder ~ opt(intersect) ^^ {
+      case col ~ Some(sep) => (col, sep)
+      case col ~ None      => (col, 0)
+    }
+    val topBorder = repMin(2, columnSpec) <~ ws ~ eol
+    
+    topBorder >> { cols =>
+      
+      val row = cols map { case (col, sep) =>
+        val cellText = if (sep == 0) (anyBut('\n','\r')) ^^ CellElement 
+                       else (any take col) ^^ CellElement 
+        val separator = (anyOf(' ') take sep) ^^^ CellSeparator
+        val textInSep = (any take sep) ^^ CellElement
+        val textColumn = cellText ~ (separator | textInSep)
+        
+        val rowSep = (anyOf('-') take col) ^^^ RowSeparator
+        val merged = (anyOf('-') take sep) ^^^ RowSeparator
+        val split =  (anyOf(' ') take sep) ^^^ Intersection
+        val underline = rowSep ~ (split | merged)
+        
+        (textColumn | underline).asInstanceOf[Parser[Any]]
+      } reduceRight (_ ~ _)
+      
+      val boundary = cols map { case (col, sep) =>
+        val text = (anyOf('=') take col) ^^^ RowSeparator
+        val merged = (anyOf('=') take sep) ^^^ RowSeparator
+        val split =  (anyOf(' ') take sep) ^^^ Intersection
+        (text ~ (split | merged)).asInstanceOf[Parser[Any]]
+      } reduceRight (_ ~ _)
+
+      (((blankLine | (row <~ ws ~ eol))*) ~ boundary) ^^ { case rows ~ boundary =>
+        val tableBuilder = new TableBuilder(pos, cols map { col => col._1 + col._2 })
+        
+        def addBlankLines (acc: ListBuffer[List[TableElement]]) = 
+            acc += (cols map { case (cell, sep) => List(CellElement(" " * cell), CellSeparator(" " * sep)) }).flatten
+        
+        def addRowSeparators (acc: ListBuffer[List[TableElement]]) = 
+          acc += (cols map { _ => List(RowSeparator, Intersection) }).flatten
+      
+        /* in contrast to the grid table, some rows need to be processed in context,
+         * as their exact behaviour depends on preceding or following lines. */
+        val rowBuffer = ((ListBuffer[List[TableElement]](), 0, false) /: rows) { case ((acc, blanks, rowOpen), row) =>
+          row match {
+            case result: ~[_,_] => 
+              val row = flatten(result)
+              row.head match {
+                case RowSeparator => (acc += row, 0, false)
+                case CellElement(text) => 
+                  if (text.trim.isEmpty) for (_ <- 1 to blanks) addBlankLines(acc)
+                  else if (rowOpen) addRowSeparators(acc)
+                  (acc += row, 0, true)
+                case _ => (acc, blanks, rowOpen) // cannot happen, just to avoid the warning 
+              }
+            case _ => (acc, blanks + 1, rowOpen) // blank line 
+          }
+        }._1
+        
+        addRowSeparators(rowBuffer)
+        
+        rowBuffer.toList foreach { row =>
+          row.head match {
+            case RowSeparator => 
+              val newRowBuilder = tableBuilder.nextRow
+              newRowBuilder.addCell(tableBuilder.columns.head.nextCell)
+              row.tail.dropRight(1).sliding(2,2).zip(tableBuilder.columns.tail.iterator).foreach {
+                case (Intersection :: RowSeparator :: Nil, column) => newRowBuilder.addCell(column.nextCell)
+                case (RowSeparator :: RowSeparator :: Nil, column) => column.mergeLeft; newRowBuilder.addCell(column.nextCell)
+                case _ => ()
+              }
+            case CellElement(text) =>
+              tableBuilder.columns.head.addLine(CellSeparator(""), text, false)
+              row.tail.dropRight(1).sliding(2,2).zip(tableBuilder.columns.tail.iterator).foreach {
+                case (sep :: CellElement(text) :: Nil, column) => column.addLine(sep, text, false)
+                case _ => ()
+              }
+            case _ => ()
+          }
+        }
+
+        tableBuilder.toTable
+      }
+      
+    }
+    
+  }
   
+  class MalformedTableException (msg: String) extends RuntimeException(msg)
   
 }
