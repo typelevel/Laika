@@ -74,7 +74,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
     def parsedCellContent = {
       val (minIndent, text) = trimmedCellContent
       //val parser = ((standardRstBlock(pos.indent(minIndent)) | paragraph)*) // TODO - base parser should include this standard block parser
-      val parser = ((paragraph)*)
+      val parser = ((paragraph <~ opt(blankLines))*)
       parseMarkup(parser, text)
     }
     
@@ -179,8 +179,8 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
     
     topBorder >> { cols =>
       
-      val colSep = (anyOf('|') take 1) ^^^ CellSeparator("|")
-      val colSepOrText = colSep | intersect | ((any take 1) ^^ CellElement)
+      val colSep = ((anyOf('|') take 1) ^^^ CellSeparator("|")) | intersect
+      val colSepOrText = colSep | ((any take 1) ^^ CellElement)
       
       val separators = colSep :: List.fill(cols.length - 1)(colSepOrText)
       val colsWithSep = (separators, cols, separators.reverse).zipped.toList
@@ -209,7 +209,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
          * constructs in the interim model, so that the next parser can pick up the (broken) table input */
         Parser { in =>
           
-          if (!isSeparatorRow(rows.last)) Failure("Table not terminated correctly", in)
+          if (rows.isEmpty || !isSeparatorRow(rows.last)) Failure("Table not terminated correctly", in)
           else {
             val tableBuilder = new TableBuilder(pos, cols map (_ + 1)) // column width includes separator
             
