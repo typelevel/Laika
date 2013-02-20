@@ -93,13 +93,15 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
   
   class ColumnBuilder (pos: BlockPosition, left: scala.Option[ColumnBuilder]) {
     
+    private var rowSpan = 1 // only used for sanity checks
+    
     private val cells = new Stack[CellBuilderRef]
     
     def currentCell = cells.top.cell
     
     def nextCell () = {
-      if (!cells.isEmpty && !rowspanMatches)
-          throw new MalformedTableException("Misplaced row separator")
+      if (!cells.isEmpty && cells.top.mergedLeft && rowspanDif != 0)
+          throw new MalformedTableException("Illegal merging of rows with different cellspans")
       val cell = new CellBuilder(pos)
       cells push new CellBuilderRef(cell)
       cell
@@ -112,29 +114,32 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
     }
     
     def mergeLeft () = {
+      if (rowspanDif != 0)
+          throw new MalformedTableException("Illegal merging of cells with different rowspans")
       val leftCell = left.get.currentCell
-      if (!rowspanMatches)
-          throw new MalformedTableException("Misplaced row separator")
       leftCell.merge(removeCell)
       cells push new CellBuilderRef(leftCell, true)
     }
     
-    def rowspanMatches = {
-      !cells.top.mergedLeft || left.get.currentCell.rowSpan == cells.top.cell.rowSpan
+    def rowspanDif = {
+      left.get.rowSpan - rowSpan
     }
     
     def addLine (sep: TableElement, line: String, nextRow: Boolean) = {
       val ref = cells.top
-      if (ref.mergedLeft) ref.cell.currentLine(sep, line)
+      if (ref.mergedLeft) {
+        if (nextRow && rowspanDif != 1)
+          throw new MalformedTableException("Illegal merging of rows with different cellspans")
+        ref.cell.currentLine(sep, line)
+      }
       else {
         ref.cell.nextLine(sep, line, nextRow)
-        if (nextRow && !rowspanMatches)
-          throw new MalformedTableException("Misplaced row separator")
         sep match {
           case CellElement(_) => mergeLeft()
           case _ => ()
         }
       }
+      if (nextRow) rowSpan += 1
     }
   }
   
@@ -225,12 +230,11 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
                   case _ => () // cannot happen, just to avoid the warning
                 }
               }
+              Success(tableBuilder.toTable, in)
             }
             catch {
               case ex: MalformedTableException => Failure(ex.getMessage, in)
             }
-            
-            Success(tableBuilder.toTable, in)
           }
         }
       }      
@@ -309,7 +313,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
               newRowBuilder.addCell(tableBuilder.columns.head.nextCell)
               row.tail.dropRight(1).sliding(2,2).zip(tableBuilder.columns.tail.iterator).foreach {
                 case (Intersection :: RowSeparator :: Nil, column) => newRowBuilder.addCell(column.nextCell)
-                case (RowSeparator :: RowSeparator :: Nil, column) => column.mergeLeft; newRowBuilder.addCell(column.nextCell)
+                case (RowSeparator :: RowSeparator :: Nil, column) => column.mergeLeft(); newRowBuilder.addCell(column.nextCell)
                 case _ => ()
               }
             case CellElement(text) =>
