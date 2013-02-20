@@ -19,6 +19,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
     override def toString = "+"
   }
   case object RowSeparator extends TableDecoration
+  case object TableBoundary extends TableDecoration
   case class CellSeparator (decoration: String) extends TableDecoration {
     override def toString = decoration
   }
@@ -99,6 +100,8 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
     
     def currentCell = cells.top.cell
     
+    def previousCell = cells(1).cell
+    
     def nextCell () = {
       if (!cells.isEmpty && cells.top.mergedLeft && rowspanDif != 0)
           throw new MalformedTableException("Illegal merging of rows with different cellspans")
@@ -113,10 +116,10 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
       cell
     }
     
-    def mergeLeft () = {
+    def mergeLeft (previous: Boolean = false) = {
       if (rowspanDif != 0)
           throw new MalformedTableException("Illegal merging of cells with different rowspans")
-      val leftCell = left.get.currentCell
+      val leftCell = if (previous) left.get.previousCell else left.get.currentCell
       leftCell.merge(removeCell)
       cells push new CellBuilderRef(leftCell, true)
     }
@@ -255,11 +258,11 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
     
     topBorder >> { cols =>
       
-      val row = cols map { case (col, sep) =>
+      val (rowColumns, boundaryColumns) = (cols map { case (col, sep) =>
         val cellText = if (sep == 0) (anyBut('\n','\r')) ^^ CellElement 
                        else (any take col) ^^ CellElement 
-        val separator = (anyOf(' ') take sep) ^^^ CellSeparator
-        val textInSep = (any take sep) ^^ CellElement
+        val separator = (anyOf(' ') take sep) ^^ CellSeparator
+        val textInSep = (any take sep) ^^ CellSeparator
         val textColumn = cellText ~ (separator | textInSep)
         
         val rowSep = (anyOf('-') take col) ^^^ RowSeparator
@@ -267,17 +270,20 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
         val split =  (anyOf(' ') take sep) ^^^ Intersection
         val underline = rowSep ~ (split | merged)
         
-        (textColumn | underline).asInstanceOf[Parser[Any]]
-      } reduceRight (_ ~ _)
+        val bCell = (anyOf('=') take col) ^^^ TableBoundary
+        val bMerged = (anyOf('=') take sep) ^^^ TableBoundary
+        val bSplit =  (anyOf(' ') take sep) ^^^ Intersection
+        val boundary = bCell ~ (bSplit | bMerged)
+        
+        ((underline | not(boundary) ~> textColumn).asInstanceOf[Parser[Any]], boundary.asInstanceOf[Parser[Any]]) 
+      }).unzip
       
-      val boundary = cols map { case (col, sep) =>
-        val text = (anyOf('=') take col) ^^^ RowSeparator
-        val merged = (anyOf('=') take sep) ^^^ RowSeparator
-        val split =  (anyOf(' ') take sep) ^^^ Intersection
-        (text ~ (split | merged)).asInstanceOf[Parser[Any]]
-      } reduceRight (_ ~ _)
-
-      (((blankLine | (row <~ ws ~ eol))*) ~ boundary) ^^ { case rows ~ boundary =>
+      val row = (rowColumns reduceRight (_ ~ _)) <~ ws ~ eol
+      val boundary = (boundaryColumns reduceRight (_ ~ _)) <~ ws ~ eol
+      val blank = not(eof) ~> blankLine
+      
+      (((blank | row)*) ~ boundary) ^^ { case rows ~ boundary =>
+        
         val tableBuilder = new TableBuilder(pos, cols map { col => col._1 + col._2 })
         
         def addBlankLines (acc: ListBuffer[List[TableElement]]) = 
@@ -287,13 +293,15 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
           acc += (cols map { _ => List(RowSeparator, Intersection) }).flatten
       
         /* in contrast to the grid table, some rows need to be processed in context,
-         * as their exact behaviour depends on preceding or following lines. */
-        val rowBuffer = ((ListBuffer[List[TableElement]](), 0, false) /: rows) { case ((acc, blanks, rowOpen), row) =>
+         * as their exact behaviour depends on preceding or following lines. 
+         * TODO: this preprocessing might get eliminated in a refactoring */
+        val rowBuffer = ((ListBuffer[List[TableElement]](), 0, false) /: (rows :+ boundary)) { case ((acc, blanks, rowOpen), row) =>
           row match {
             case result: ~[_,_] => 
               val row = flatten(result)
               row.head match {
                 case RowSeparator => (acc += row, 0, false)
+                case TableBoundary => (acc += row, 0, false)
                 case CellElement(text) => 
                   if (text.trim.isEmpty) for (_ <- 1 to blanks) addBlankLines(acc)
                   else if (rowOpen) addRowSeparators(acc)
@@ -304,21 +312,29 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
           }
         }._1
         
-        addRowSeparators(rowBuffer)
-        
-        rowBuffer.toList foreach { row =>
+        rowBuffer foreach { row =>
+          
+          def foreachColumn (row: List[TableElement])(f: ((List[TableElement], ColumnBuilder)) => Any) = {
+            row.tail.dropRight(1).sliding(2,2).zip(tableBuilder.columns.tail.iterator).foreach(f)
+          }
           row.head match {
             case RowSeparator => 
               val newRowBuilder = tableBuilder.nextRow
               newRowBuilder.addCell(tableBuilder.columns.head.nextCell)
-              row.tail.dropRight(1).sliding(2,2).zip(tableBuilder.columns.tail.iterator).foreach {
+              foreachColumn(row) {
                 case (Intersection :: RowSeparator :: Nil, column) => newRowBuilder.addCell(column.nextCell)
-                case (RowSeparator :: RowSeparator :: Nil, column) => column.mergeLeft(); newRowBuilder.addCell(column.nextCell)
+                case (RowSeparator :: RowSeparator :: Nil, column) => column.mergeLeft(true); newRowBuilder.addCell(column.nextCell)
+                case _ => ()
+              }
+            case TableBoundary =>
+              foreachColumn(row) {
+                case (Intersection :: TableBoundary :: Nil, column) => ()
+                case (TableBoundary :: TableBoundary :: Nil, column) => column.mergeLeft()
                 case _ => ()
               }
             case CellElement(text) =>
               tableBuilder.columns.head.addLine(CellSeparator(""), text, false)
-              row.tail.dropRight(1).sliding(2,2).zip(tableBuilder.columns.tail.iterator).foreach {
+              foreachColumn(row) {
                 case (sep :: CellElement(text) :: Nil, column) => column.addLine(sep, text, false)
                 case _ => ()
               }
