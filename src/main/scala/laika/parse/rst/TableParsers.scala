@@ -169,7 +169,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
       row
     }
     
-    def toTable = Table(Nil, rows map (_.toRow) toList) // TODO - process header cells
+    def toRowList = rows map (_.toRow) toList
   }
   
       
@@ -233,7 +233,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
                   case _ => () // cannot happen, just to avoid the warning
                 }
               }
-              Success(tableBuilder.toTable, in)
+              Success(Table(Nil, tableBuilder.toRowList), in) // TODO - process header cells
             }
             catch {
               case ex: MalformedTableException => Failure(ex.getMessage, in)
@@ -282,7 +282,10 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
       val boundary = (boundaryColumns reduceRight (_ ~ _)) <~ ws ~ eol
       val blank = not(eof) ~> blankLine
       
-      (((blank | row)*) ~ boundary) ^^ { case rows ~ boundary =>
+      val tablePart = (((blank | row)*) ~ boundary) ^^ { case rows ~ boundary => rows :+ boundary }
+      
+      
+      def buildRowList (rows: List[Any]) = {
         
         val tableBuilder = new TableBuilder(pos, cols map { col => col._1 + col._2 })
         
@@ -295,7 +298,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
         /* in contrast to the grid table, some rows need to be processed in context,
          * as their exact behaviour depends on preceding or following lines. 
          * TODO: this preprocessing might get eliminated in a refactoring */
-        val rowBuffer = ((ListBuffer[List[TableElement]](), 0, false) /: (rows :+ boundary)) { case ((acc, blanks, rowOpen), row) =>
+        val rowBuffer = ((ListBuffer[List[TableElement]](), 0, false) /: rows) { case ((acc, blanks, rowOpen), row) =>
           row match {
             case result: ~[_,_] => 
               val row = flatten(result)
@@ -341,8 +344,13 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
             case _ => ()
           }
         }
-
-        tableBuilder.toTable
+        
+        tableBuilder.toRowList
+      }
+      
+      tablePart ~ opt(tablePart) ^^ { 
+        case head ~ Some(body) => Table(buildRowList(head), buildRowList(body))
+        case body ~ None       => Table(Nil, buildRowList(body))
       }
       
     }
