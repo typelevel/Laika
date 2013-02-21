@@ -196,52 +196,66 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
       def rowSep (width: Int): Parser[Any] = 
         (intersect ~ ((anyOf('-') take width) ^^^ RowSeparator) <~ guard(intersect))
         
+      def boundaryPart (width: Int): Parser[Any] = 
+        (intersect ~ ((anyOf('=') take width) ^^^ TableBoundary) <~ guard(intersect))
+        
       def cell (sepL: Parser[Any], width: Int, sepR: Parser[Any]): Parser[Any] = 
         (sepL ~ ((any take width) ^^ CellElement) <~ guard(sepR))
       
-      val row = colsWithSep map { case (separatorL, colWidth, separatorR) => 
+      val row = (colsWithSep map { case (separatorL, colWidth, separatorR) => 
         rowSep(colWidth) | cell(separatorL, colWidth, separatorR)
-      } reduceRight (_ ~ _)
+      } reduceRight (_ ~ _)) ^^ flatten
       
-      def isSeparatorRow (row: Any) = {
-        flatten(row).forall {
+      val tableBoundary = (cols map { col => boundaryPart(col) } reduceRight (_ ~ _)) ^^^ TableBoundary
+      
+      def isSeparatorRow (row: List[TableElement]) = {
+        row.forall {
           case RowSeparator => true
           case Intersection => true
           case _ => false
         }
       }
       
-      ((row <~ (any take 1) ~ ws ~ eol)*) >> { rows =>
+      def buildRowList (rows: List[List[TableElement]]) = {
+        
+        val tableBuilder = new TableBuilder(pos, cols map (_ + 1)) // column width includes separator
+            
+        rows foreach { row =>
+          val hasSeparator = row exists { case RowSeparator => true; case _ => false }
+          val newRowBuilder = if (hasSeparator) Some(tableBuilder.nextRow) else None
+          
+          row.sliding(2,2).zip(tableBuilder.columns.iterator).foreach { 
+            case (_ :: RowSeparator :: Nil, column) => newRowBuilder.get.addCell(column.nextCell)
+            case (sep :: CellElement(text) :: Nil, column) => column.addLine(sep, text, hasSeparator)
+            case _ => () // cannot happen, just to avoid the warning
+          }
+        }
+        tableBuilder.toRowList
+      }
+      
+      def validateLastRow (rows: List[List[TableElement]]) = {
+        if (rows.isEmpty || !isSeparatorRow(rows.last)) throw new MalformedTableException("Table not terminated correctly")
+      }
+      
+      val boundaryRow = tableBoundary <~ (any take 1) ~ ws ~ eol
+      val tablePart = ((not(tableBoundary) ~> row <~ (any take 1) ~ ws ~ eol)*)
+      (tablePart ~ opt(boundaryRow ~> tablePart)) >> { result =>
         
         /* this parser does not actually parse anything, but we need to fail for certain illegal
          * constructs in the interim model, so that the next parser can pick up the (broken) table input */
         Parser { in =>
-          
-          if (rows.isEmpty || !isSeparatorRow(rows.last)) Failure("Table not terminated correctly", in)
-          else {
-            val tableBuilder = new TableBuilder(pos, cols map (_ + 1)) // column width includes separator
-            
-            try {
-              rows.init foreach { result =>
-                val row = flatten(result)
-                val hasSeparator = row exists { case RowSeparator => true; case _ => false }
-                val newRowBuilder = if (hasSeparator) Some(tableBuilder.nextRow) else None
-                
-                row.sliding(2,2).zip(tableBuilder.columns.iterator).foreach { 
-                  case (_ :: RowSeparator :: Nil, column) => newRowBuilder.get.addCell(column.nextCell)
-                  case (sep :: CellElement(text) :: Nil, column) => column.addLine(sep, text, hasSeparator)
-                  case _ => () // cannot happen, just to avoid the warning
-                }
-              }
-              Success(Table(Nil, tableBuilder.toRowList), in) // TODO - process header cells
+          try {
+            val table = result match {
+              case head ~ Some(body) => validateLastRow(body); Table(buildRowList(head), buildRowList(body.init))
+              case body ~ None       => validateLastRow(body); Table(Nil, buildRowList(body.init))
             }
-            catch {
-              case ex: MalformedTableException => Failure(ex.getMessage, in)
-            }
+            Success(table, in)
+          }
+          catch {
+            case ex: MalformedTableException => Failure(ex.getMessage, in)
           }
         }
       }      
-      
     }
     
   }
