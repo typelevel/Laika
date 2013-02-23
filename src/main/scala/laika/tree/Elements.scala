@@ -217,6 +217,30 @@ object Elements {
    */
   case class LinkDefinition (id: String, url: String, title: Option[String] = None) extends Block
   
+  /** A footnote consisting of a label and one or more block elements.
+   */
+  case class Footnote (label: FootnoteLabel, content: Seq[Block]) extends Block with BlockContainer[Footnote]
+  
+  /** Base type for all types of footnote labels.
+   */
+  abstract class FootnoteLabel
+  
+  /** Label with automatic numbering.
+   */
+  case object Autonumber extends FootnoteLabel
+
+  /** Label with automatic symbol assignment.
+   */
+  case object Autosymbol extends FootnoteLabel
+
+  /** Explicit numeric label.
+   */
+  case class NumericLabel (number: Int) extends FootnoteLabel
+
+  /** Label using automatic numbering and explicit label names together.
+   */
+  case class AutonumberLabel (label: String) extends FootnoteLabel
+  
   /** A horizontal rule.
    */
   case object Rule extends Block
