@@ -29,7 +29,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
   
   
   def explicitBlockItems (pos: BlockPosition) = explicitStart >> { len => // TODO - length not needed when tab processing gets changed
-    footnote(pos, len)
+    footnote(pos, len) | citation(pos, len)
   }
   
   
@@ -43,17 +43,28 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
     
     val prefix = '[' ~> label <~ ']'
     
-    def prefixLength (label: FootnoteLabel) = { // TODO - not needed when tab processing gets changed
-      label match {
+    def labelLength (label: FootnoteLabel) = { // TODO - not needed when tab processing gets changed
+      val len = label match {
         case Autonumber | Autosymbol => 3
         case AutonumberLabel(label) => label.length + 2
         case NumericLabel(number: Int) => number.toString.length + 2
       }
+      len + prefixLength
     }
     
     guard(prefix) >> { label => // TODO - parsing prefix twice is inefficient, indentedBlock parser should return result
-      indentedBlock(prefix ^^ prefixLength, pos) ^^ {
+      indentedBlock(prefix ^^ labelLength, pos) ^^ {
         case (lines,pos) => Footnote(label, parseMarkup(nestedBlocks(pos), lines mkString "\n"))
+      }
+    }
+  }
+  
+  def citation (pos: BlockPosition, prefixLength: Int) = {
+    val prefix = '[' ~> simpleReferenceName <~ ']'
+    
+    guard(prefix) >> { label => // TODO - parsing prefix twice is inefficient, indentedBlock parser should return result
+      indentedBlock(prefix ^^ { _.length + prefixLength }, pos) ^^ {
+        case (lines,pos) => Citation(label, parseMarkup(nestedBlocks(pos), lines mkString "\n"))
       }
     }
   }
