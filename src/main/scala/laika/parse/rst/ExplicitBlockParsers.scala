@@ -16,6 +16,12 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
     } // TODO - normalize ws - lowercase
   }
   
+  def refName = simpleReferenceName | phraseRef
+  
+  def phraseRef = {
+    '`' ~> (any min 1) <~ '`' // TODO - implement
+  }
+  
   
   /** TODO - move to base trait - duplicated from ListParsers
    *  nestedBlock parser in BlockParsers not used very often
@@ -29,7 +35,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
   
   
   def explicitBlockItems (pos: BlockPosition) = explicitStart >> { len => // TODO - length not needed when tab processing gets changed
-    footnote(pos, len) | citation(pos, len)
+    footnote(pos, len) | citation(pos, len) | linkDefinition(pos, len) // TODO - there is a linkDef alternative not requiring the .. prefix
   }
   
   
@@ -67,6 +73,25 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
         case (lines,pos) => Citation(label, parseMarkup(nestedBlocks(pos), lines mkString "\n"))
       }
     }
+  }
+  
+  def linkDefinition (pos: BlockPosition, prefixLength: Int) = {
+    val named = '_' ~> refName <~ ':' // TODO - backticks are optional here in most cases (unless ref name contains colons)
+    val anonymous = "__:"
+      
+    val internal = named ^^ InternalLinkTarget // TODO - might need special logic for cases where it points to other targets (e.g. external)
+    
+    val externalName = (named | anonymous)
+    
+    val external = guard(externalName) >> { name =>
+      indentedBlock(externalName ^^ { _.length + prefixLength }, pos) ^^ { // TODO - indentedBlock parser still requires ws after prefix
+        case (lines,pos) => LinkDefinition(name, lines map (_.trim) filter (_.isEmpty) mkString)
+      }
+    }
+    
+    external | internal
+    
+    // TODO - add indirect targets once inline parsers are completed
   }
   
   

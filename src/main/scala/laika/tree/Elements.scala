@@ -217,6 +217,10 @@ object Elements {
    */
   case class LinkDefinition (id: String, url: String, title: Option[String] = None) extends Block
   
+  /** Points to the following block element, making it a target for links.
+   */
+  case class InternalLinkTarget (id: String) extends Block
+  
   /** A citation consisting of a label and one or more block elements.
    */
   case class Citation (label: String, content: Seq[Block]) extends Block with BlockContainer[Footnote]
