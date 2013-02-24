@@ -35,7 +35,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
   
   
   def explicitBlockItems (pos: BlockPosition) = explicitStart >> { len => // TODO - length not needed when tab processing gets changed
-    footnote(pos, len) | citation(pos, len) | linkDefinition(pos, len) // TODO - there is a linkDef alternative not requiring the .. prefix
+    footnote(pos, len) | citation(pos, len) | linkDefinition(pos, len) | substitutionDefinition(pos, len) // TODO - there is a linkDef alternative not requiring the .. prefix
   }
   
   
@@ -92,6 +92,19 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
     external | internal
     
     // TODO - add indirect targets once inline parsers are completed
+  }
+  
+  def substitutionDefinition (pos: BlockPosition, prefixLength: Int) = {
+    val text = not(ws take 1) ~> (anyBut('|','\n') min 1) // TODO - cannot end with ws either  
+    val prefix = '|' ~> text <~ not(lookBehind(1, ' ')) ~'|'
+    
+    prefix ~ ws // TODO - add directive 
+  }
+  
+  def comment (pos: BlockPosition, prefixLength: Int) = {
+    indentedBlock(success(prefixLength), pos) ^^ { // TODO - indentedBlock parser still requires ws after prefix
+      case (lines,pos) => Comment(lines map (_.trim) filter (_.isEmpty) mkString)
+    }
   }
   
   
