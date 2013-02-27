@@ -54,4 +54,10 @@ object Elements {
    */
   case class OptionArgument (value: String, delimiter: String) extends Element
   
+  /** A substitution definition with its span content that will be inserted
+   *  wherever this substitution is referenced in flow content.
+   */
+  case class SubstitutionDefinition (name: String, content: Seq[Span]) extends Block with SpanContainer[SubstitutionDefinition]
+  
+  
 }
