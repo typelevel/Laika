@@ -2,12 +2,15 @@ package laika.parse.rst
 
 import laika.parse.InlineParsers
 import laika.tree.Elements._
+import laika.util.Builders._
+import laika.parse.rst.Elements.SubstitutionDefinition
+import Directives._
 
 trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // TODO - probably needs to be rst.InlineParsers 
 
   
   // TODO - might be needed in some base trait
-  def simpleReferenceName = {
+  val simpleRefName = {
     val alphanum = anyIn('0' to '9', 'a' to 'z', 'A' to 'Z') min 1 // TODO - check whether non-ascii characters are allowed
     val symbol = anyOf('-', '_', '.', ':', '+') take 1
     
@@ -16,11 +19,9 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
     } // TODO - normalize ws - lowercase
   }
   
-  def refName = simpleReferenceName | phraseRef
+  val refName = simpleRefName | phraseRef
   
-  def phraseRef = {
-    '`' ~> (any min 1) <~ '`' // TODO - implement
-  }
+  val phraseRef = '`' ~> (anyBut('`') min 1) <~ '`'
   
   
   /** TODO - move to base trait - duplicated from ListParsers
@@ -43,7 +44,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
     val decimal = (anyIn('0' to '9') min 1) ^^ { n => NumericLabel(n.toInt) }
     val autonumber = '#' ^^^ Autonumber 
     val autosymbol = '*' ^^^ Autosymbol
-    val autonumberLabel = '#' ~> simpleReferenceName ^^ AutonumberLabel 
+    val autonumberLabel = '#' ~> simpleRefName ^^ AutonumberLabel 
     
     val label = decimal | autonumberLabel | autonumber | autosymbol
     
@@ -66,7 +67,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
   }
   
   def citation (pos: BlockPosition, prefixLength: Int) = {
-    val prefix = '[' ~> simpleReferenceName <~ ']'
+    val prefix = '[' ~> simpleRefName <~ ']'
     
     guard(prefix) >> { label => // TODO - parsing prefix twice is inefficient, indentedBlock parser should return result
       indentedBlock(prefix ^^ { _.length + prefixLength }, pos) ^^ {
@@ -95,10 +96,10 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
   }
   
   def substitutionDefinition (pos: BlockPosition, prefixLength: Int) = {
-    val text = not(ws take 1) ~> (anyBut('|','\n') min 1) // TODO - cannot end with ws either  
-    val prefix = '|' ~> text <~ not(lookBehind(1, ' ')) ~'|'
+    val text = not(ws take 1) ~> (anyBut('|','\n') min 1)  
+    val prefix = '|' ~> text <~ not(lookBehind(1, ' ')) ~ '|'
     
-    prefix ~ ws // TODO - add directive 
+    ((prefix <~ ws) ~ spanDirective) ^^ { case name ~ content => SubstitutionDefinition(name, content) }
   }
   
   def comment (pos: BlockPosition, prefixLength: Int) = {
@@ -107,5 +108,95 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
     }
   }
   
+  
+  val blockDirectives: Map[String, DirectivePart[Seq[Block]]] // TODO - populate (maybe do this in reStructuredText entry point object)
+  
+  val spanDirectives: Map[String, DirectivePart[Seq[Span]]]
+    
+
+  def blockDirective = directive(blockDirectives)
+
+  def spanDirective = directive(spanDirectives)
+  
+  def directive [E](directives: Map[String, DirectivePart[Seq[E]]]) = {
+    
+    val nameParser = simpleRefName <~ "::" ~ ws
+    
+    nameParser >> { name =>
+      
+      val directive = directives(name) // TODO - handle unknown names
+      
+      val parserBuilder = new DirectiveParserBuilder
+      
+      val result = directive(parserBuilder)
+      
+      parserBuilder.parser ^^^ {
+        result.get
+      }
+    }
+    
+  }
+  
+  // TODO - deal with failures and exact behaviour for unknown directives and other types of error
+  class DirectiveParserBuilder extends DirectiveParser {
+
+    def parser: Parser[Any] = requiredArgs ~ optionalArgs // TODO - add fields and body
+    
+    val arg = (anyBut(' ') min 1) <~ ws
+    
+    def field (name: String) = ':' ~ name ~ ':' ~ ws ~> (anyBut(' ') min 1) <~ ws // TODO - refine
+    
+    var requiredArgs: Parser[Any] = success(()) // TODO - integrate lastArgWhitespace option
+    var optionalArgs: Parser[Any] = success(())
+    var contentParser: Parser[Any] = success(())
+    
+    val requiredFields: Map[String,Parser[Any]] = Map.empty
+    val optionalFields: Map[String,Parser[Any]] = Map.empty
+    
+    class LazyResult[T] {
+      var value: Option[T] = None
+      def set (v: T) = value = Some(v)
+      def get: T = value getOrElse { throw new IllegalStateException("result not set yet") }
+      def fromString (f: String => T)(s: String) = set(f(s))
+    }
+    
+    def requiredArg [T](f: String => T): Result[T] = {
+      val result = new LazyResult[T]
+      requiredArgs = requiredArgs ~ (arg ^^ result.fromString(f))
+      new Result(result.get)
+    }
+    
+    def optionalArg [T](f: String => T): Result[Option[T]] = {
+      val result = new LazyResult[T]
+      optionalArgs = optionalArgs ~ (arg ^^ result.fromString(f))
+      new Result(result.value)
+    }
+    
+    def requiredField [T](name: String, f: String => T): Result[T] = {
+      val result = new LazyResult[T]
+      requiredFields + (name -> (field(name) ^^ result.fromString(f)))
+      new Result(result.get)
+    }
+    
+    def optionalField [T](name: String, f: String => T): Result[Option[T]] = {
+      val result = new LazyResult[T]
+      optionalFields + (name -> (field(name) ^^ result.fromString(f)))
+      new Result(result.value)
+    }
+    
+    def standardContent: Result[Seq[Block]] = content { rawtext =>
+      parseMarkup(nestedBlocks(new BlockPosition(0,0)), rawtext) /* TODO - consider passing position to function 
+                                                                    (BlockPosition is currently a path dependent type, 
+                                                                    inconvenient for top level API integration */
+    }
+    
+    def content [T](f: String => T): Result[T] = {
+      val result = new LazyResult[T]
+      contentParser = (success("") ^^ result.fromString(f)) // TODO - implement
+      new Result(result.get)
+    }
+    
+  }
+    
   
 }
