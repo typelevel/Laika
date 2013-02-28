@@ -241,7 +241,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
       val tablePart = ((not(tableBoundary) ~> row <~ (any take 1) ~ ws ~ eol)*)
       (tablePart ~ opt(boundaryRow ~> tablePart)) >> { result =>
         
-        /* this parser does not actually parse anything, but we need to fail for certain illegal
+        /* TODO - use new ^^? operator. This parser does not actually parse anything, but we need to fail for certain illegal
          * constructs in the interim model, so that the next parser can pick up the (broken) table input */
         Parser { in =>
           try {

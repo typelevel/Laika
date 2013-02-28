@@ -304,6 +304,36 @@ trait MarkupParsers extends RegexParsers {
   }
   
   
+  
+  implicit def toParserOps [A] (parser: Parser[A]) = new ParserOps(parser)
+  
+  /** Provides additional combinator methods to parsers via implicit conversion.
+   */
+  class ParserOps [A] (parser: Parser[A]) {
+    
+    /** A parser combinator that applies a function to the result producing an `Either`
+     *  where `Left` is interpreted as failure. It is an alternative to `^?` for scenarios 
+     *  where the conditional check cannot be easily performed in a pattern match.
+     *
+     *  `p ^^ f` succeeds if `p` succeeds and `f` returns a `Right`; 
+     *  it returns the content of `Right` obtained from applying `f` to the result of `p`.
+     *
+     *  @param f a function that will be applied to this parser's result.
+     *  @return a parser that has the same behaviour as the current parser, but whose result is
+     *         transformed by `f`.
+     */
+    def ^^? [B] (f: A => Either[String,B]) = Parser { in =>
+      
+      parser(in) match {
+        case Success(result, next) => f(result) fold (msg => Failure(msg,in), res => Success(res,next))
+        case ns => ns
+      }
+        
+    }
+    
+  }
+  
+  
   /** Fully parses the specified input string and returns the result. 
    *  This function is expected to always succeed, errors would be considered a bug
    *  in this library, as the parsers treat all unknown or malformed markup as regular
