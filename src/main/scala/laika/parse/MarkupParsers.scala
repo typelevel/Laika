@@ -322,11 +322,11 @@ trait MarkupParsers extends RegexParsers {
      *  @return a parser that has the same behaviour as the current parser, but whose result is
      *         transformed by `f`.
      */
-    def ^^? [B] (f: A => Either[String,B]) = Parser { in =>
+    def ^^? [B] (f: A => Either[String,B]): Parser[B] = Parser { in =>
       
       parser(in) match {
         case Success(result, next) => f(result) fold (msg => Failure(msg,in), res => Success(res,next))
-        case ns => ns
+        case ns: NoSuccess => ns
       }
         
     }
