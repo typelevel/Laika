@@ -5,6 +5,7 @@ import laika.tree.Elements._
 import laika.util.Builders._
 import laika.parse.rst.Elements.SubstitutionDefinition
 import Directives._
+import scala.collection.mutable.ListBuffer
 
 trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // TODO - probably needs to be rst.InlineParsers 
 
@@ -122,17 +123,16 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
     
     val nameParser = simpleRefName <~ "::" ~ ws
     
-    nameParser >> { name =>
-      
-      val directive = directives(name) // TODO - handle unknown names
-      
+    def directiveParser [E] (directive: DirectivePart[Seq[E]]) = {
       val parserBuilder = new DirectiveParserBuilder
-      
       val result = directive(parserBuilder)
-      
       parserBuilder.parser ^^^ {
         result.get
       }
+    }
+    
+    nameParser >> { name =>
+      directives.get(name).map(directiveParser).getOrElse(failure("unknown directive: " + name))
     }
     
   }
@@ -140,18 +140,70 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
   // TODO - deal with failures and exact behaviour for unknown directives and other types of error
   class DirectiveParserBuilder extends DirectiveParser {
 
-    def parser: Parser[Any] = requiredArgs ~ optionalArgs // TODO - add fields and body
+    val pos = new BlockPosition(0,0) // TODO - use special CharSequenceReader for nested blocks (possibly carrying nestLevel, too)
+
+    val skip = success(())
+    var requiredArgs: Parser[Any] = skip
+    var optionalArgs: Parser[Any] = skip
+    var requiredArgWithWS: Parser[Any] = skip
+    var optionalArgWithWS: Parser[Any] = skip
+    var fields: Parser[Any] = skip
+    var separator: Parser[Any] = skip
+    var contentParser: Parser[Any] = skip
     
-    val arg = (anyBut(' ') min 1) <~ ws
+    def parser: Parser[Any] = requiredArgs ~ requiredArgWithWS ~ 
+                              optionalArgs ~ optionalArgWithWS ~
+                              fields ~ separator ~ contentParser
     
-    def field (name: String) = ':' ~ name ~ ':' ~ ws ~> (anyBut(' ') min 1) <~ ws // TODO - refine
+    val arg = (anyBut(' ','\n') min 1) <~ ws
     
-    var requiredArgs: Parser[Any] = success(()) // TODO - integrate lastArgWhitespace option
-    var optionalArgs: Parser[Any] = success(())
-    var contentParser: Parser[Any] = success(())
+    val argWithWS = {
+      val argLine = not(blankLine | ':')
+      val nextBlock = failure("args do not expand beyond blank lines")
+       // TODO - we don't know the pos here
+      lineAndIndentedBlock(argLine ^^^ 0, argLine, nextBlock, new BlockPosition(0,0)) ^^ { case (lines,pos) =>
+        lines mkString "\n"
+      }
+    }
     
-    val requiredFields: Map[String,Parser[Any]] = Map.empty
-    val optionalFields: Map[String,Parser[Any]] = Map.empty
+    val body = indentedBlock(success(1), pos) ^^ { case (lines, pos) => lines mkString "\n" }
+    
+    // TODO - some duplicate logic with original fieldList parser
+    lazy val directiveFieldList: Parser[Any] = {
+      
+      val name = eol ~ ':' ~> anyBut(':') <~ ':' // TODO - must be escapedUntil(':') once InlineParsers are implemented
+      
+      val firstLine = restOfLine 
+      
+      val item = minIndent(pos.column, 1) >> { firstIndent =>
+          (name ~ firstLine ~ opt(indentedBlock(success(firstIndent), pos))) ^^ 
+        { case name ~ firstLine ~ Some((lines, pos)) => 
+            (name, (firstLine :: lines) mkString "\n")
+          case name ~ firstLine ~ None => 
+            (name, firstLine) }}
+      
+      (item *) ^^? { fields =>
+        val parsed = scala.collection.mutable.Map(fields.toArray:_*)
+        val missing = scala.collection.mutable.Set.empty[String]
+        
+        for ((name, f) <- requiredFields) {
+          parsed.remove(name).map(f).getOrElse(missing += name)
+        }
+        for ((name, f) <- optionalFields) {
+          parsed.remove(name).foreach(f)
+        }
+        
+        val errors = new ListBuffer[String]
+        if (parsed.nonEmpty) errors += parsed.mkString("unknown options: ",", ","")
+        if (missing.nonEmpty) errors += parsed.mkString("missing required options: ",", ","")
+        Either.cond(errors.isEmpty, (), errors mkString "; ")
+      }
+    }
+    
+    val contentSeparator = (lookBehind(1, '\n') | eol) ~ blankLine
+    
+    val requiredFields: Map[String, String => Unit] = Map.empty
+    val optionalFields: Map[String, String => Unit] = Map.empty
     
     class LazyResult[T] {
       var value: Option[T] = None
@@ -161,38 +213,56 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
     }
     
     def requiredArg [T](f: String => T): Result[T] = {
+      separator = contentSeparator
       val result = new LazyResult[T]
       requiredArgs = requiredArgs ~ (arg ^^ result.fromString(f))
       new Result(result.get)
     }
     
+    def requiredArgWithWS [T](f: String => T): Result[T] = {
+      separator = contentSeparator
+      val result = new LazyResult[T]
+      requiredArgWithWS = (argWithWS ^^ result.fromString(f))
+      new Result(result.get)
+    }
+    
     def optionalArg [T](f: String => T): Result[Option[T]] = {
+      separator = contentSeparator
       val result = new LazyResult[T]
       optionalArgs = optionalArgs ~ (arg ^^ result.fromString(f))
       new Result(result.value)
     }
     
-    def requiredField [T](name: String, f: String => T): Result[T] = {
+    def optionalArgWithWS [T](f: String => T): Result[T] = {
+      separator = contentSeparator
       val result = new LazyResult[T]
-      requiredFields + (name -> (field(name) ^^ result.fromString(f)))
+      optionalArgWithWS = (argWithWS ^^ result.fromString(f))
+      new Result(result.get)
+    }
+    
+    def requiredField [T](name: String, f: String => T): Result[T] = {
+      separator = contentSeparator
+      fields = directiveFieldList
+      val result = new LazyResult[T]
+      requiredFields + (name -> result.fromString(f)_)
       new Result(result.get)
     }
     
     def optionalField [T](name: String, f: String => T): Result[Option[T]] = {
+      separator = contentSeparator
+      fields = directiveFieldList
       val result = new LazyResult[T]
-      optionalFields + (name -> (field(name) ^^ result.fromString(f)))
+      optionalFields + (name -> result.fromString(f)_)
       new Result(result.value)
     }
     
     def standardContent: Result[Seq[Block]] = content { rawtext =>
-      parseMarkup(nestedBlocks(new BlockPosition(0,0)), rawtext) /* TODO - consider passing position to function 
-                                                                    (BlockPosition is currently a path dependent type, 
-                                                                    inconvenient for top level API integration */
+      parseMarkup(nestedBlocks(new BlockPosition(0,0)), rawtext) /* TODO - pos not available here */
     }
     
     def content [T](f: String => T): Result[T] = {
       val result = new LazyResult[T]
-      contentParser = (success("") ^^ result.fromString(f)) // TODO - implement
+      contentParser = (body ^^ result.fromString(f))
       new Result(result.get)
     }
     
