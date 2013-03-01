@@ -95,13 +95,28 @@ trait BlockBaseParsers extends laika.parse.BlockParsers {
    *  @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block
    *  @param pos the current parsing position 
    */
-  def indentedBlock (firstLinePrefix: Parser[Int], linePrefix: => Parser[Any], nextBlockPrefix: => Parser[Any], pos: BlockPosition): Parser[(List[String],BlockPosition)] = {
+  def indentedBlock (firstLinePrefix: Parser[Int], 
+                     linePrefix: => Parser[Any], 
+                     nextBlockPrefix: => Parser[Any], 
+                     pos: BlockPosition): Parser[(List[String],BlockPosition)] = {
     firstLinePrefix >> { width => minIndent(pos.column + width, 1) >> { firstIndent =>
       val indentParser = indent(pos.column, width + firstIndent)
       block(success( () ), indentParser ~> linePrefix, indentParser ~> nextBlockPrefix) ^^ { lines => 
         (lines, pos.indent(firstIndent))   
       } 
     }}  
+  }
+  
+  def lineAndIndentedBlock (firstLinePrefix: Parser[Int], 
+                            linePrefix: => Parser[Any], 
+                            nextBlockPrefix: => Parser[Any], 
+                            pos: BlockPosition): Parser[(List[String],BlockPosition)] = {
+    restOfLine ~ minIndent(pos.column, 1) >> { case firstLine ~ leftIndent =>
+      val indentParser = indent(pos.column, leftIndent)
+      block(success( () ), indentParser ~> linePrefix, indentParser ~> nextBlockPrefix) ^^ { lines => 
+        (lines, pos.indent(leftIndent))   
+      } 
+    }
   }
   
   
