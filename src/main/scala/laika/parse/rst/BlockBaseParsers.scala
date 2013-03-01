@@ -6,9 +6,6 @@ import scala.annotation.tailrec
 trait BlockBaseParsers extends laika.parse.BlockParsers {
 
   
-  val tabStops = 8
-  
-  
   /** The maximum level of block nesting. Some block types like lists
    *  and blockquotes contain nested blocks. To protect against malicious
    *  input or accidentally broken markup, the level of nesting is restricted.
@@ -58,10 +55,8 @@ trait BlockBaseParsers extends laika.parse.BlockParsers {
       else if (indent == finalIndent) result(offset, indent)
       else {
         source.charAt(offset) match {
-          case ' ' | '\f' | '\u000b' => parse(offset + 1, indent + 1)
-          case '\t' => val newIndent = (indent / tabStops + 1) * tabStops
-                       if (newIndent > finalIndent) result(offset, indent) else parse(offset + 1, newIndent)
-          case _    => if (indent < finalIndent && expect > 0) Failure("Less than expected indentation", in) else result(offset, indent)
+          case ' ' => parse(offset + 1, indent + 1)
+          case _   => if (indent < finalIndent && expect > 0) Failure("Less than expected indentation", in) else result(offset, indent)
         }
         
       }
