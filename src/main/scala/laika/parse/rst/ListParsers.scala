@@ -23,6 +23,9 @@ import scala.annotation.tailrec
 import scala.collection.mutable.Stack
 import scala.collection.mutable.ListBuffer
 
+/**
+ * @author Jens Halm
+ */
 trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - probably needs to be rst.InlineParsers {
 
   
