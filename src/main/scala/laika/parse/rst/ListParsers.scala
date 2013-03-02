@@ -85,8 +85,8 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - pr
    * 
    *  @param pos the current parsing position 
    */
-  def listItemBlocks (pos: BlockPosition) = 
-    if (pos.nestLevel < maxNestLevel) (standardRstBlock(pos) | paragraph) *
+  def listItemBlocks = 
+    if (true) (standardRstBlock | paragraph) * // TODO - check nest level
     else (nonRecursiveRstBlock | paragraph) *
     
   
@@ -95,9 +95,9 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - pr
    *  @param itemStart parser that recognizes the start of a list item, result will be discarded
    *  @param pos the current parsing position 
    */
-  def listItem (itemStart: Parser[String], pos: BlockPosition): Parser[ListItem] = {
-      indentedBlock(itemStart ^^ { res => res.length }, pos) ^^
-      { case (lines,pos) => ListItem(parseMarkup(listItemBlocks(pos), lines mkString "\n")) }
+  def listItem (itemStart: Parser[String]): Parser[ListItem] = {
+      indentedBlock(itemStart ^^ { res => res.length }) ^^
+      { case (lines,pos) => ListItem(parseMarkup(listItemBlocks, lines mkString "\n")) }
   }
   
   
@@ -105,11 +105,11 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - pr
    * 
    *  @param pos the current parsing position 
    */
-  def unorderedList (pos: BlockPosition): Parser[UnorderedList] = {
+  def unorderedList: Parser[UnorderedList] = {
     val itemStart = anyOf('*','-','+').take(1)
     
     guard(itemStart) >> { symbol =>
-      ((listItem(symbol, pos)) *) ^^ { UnorderedList(_) }
+      ((listItem(symbol)) *) ^^ { UnorderedList(_) }
     }
   }
   
@@ -118,7 +118,7 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - pr
    * 
    *  @param pos the current parsing position 
    */
-  def orderedList (pos: BlockPosition): Parser[OrderedList] = {
+  def orderedList: Parser[OrderedList] = {
     
     val firstLowerRoman = (anyOf('i','v','x','l','c','d','m').min(2) | anyOf('i').take(1)) ^^^ { LowerRoman }
     val lowerRoman = anyOf('i','v','x','l','c','d','m').min(1)
@@ -158,7 +158,7 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - pr
       (prefix ~ enumType(et) ~ suffix) ^^ { case prefix ~ enumType ~ suffix => prefix + enumType + suffix }
       
     guard(firstItemStart) >> { case (prefix, enumType, suffix) => // TODO - keep start number
-      ((listItem(itemStart(prefix, enumType, suffix), pos)) *) ^^ { OrderedList(_, enumType, prefix, suffix) }
+      (listItem(itemStart(prefix, enumType, suffix)) *) ^^ { OrderedList(_, enumType, prefix, suffix) }
     }
   }
   
@@ -167,15 +167,15 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - pr
    * 
    *  @param pos the current parsing position 
    */
-  def definitionList (pos: BlockPosition): Parser[Block] = {
+  def definitionList: Parser[Block] = {
     
     val term: Parser[String] = not(blankLine) ~> restOfLine
     
     val itemStart = not(blankLine) ^^^ 0
     
-    val item = (term ~ indentedBlock(itemStart, pos)) ^^ // TODO - add classifier parser to parseInline map
+    val item = (term ~ indentedBlock(itemStart)) ^^ // TODO - add classifier parser to parseInline map
       { case term ~ ((lines, pos)) => 
-          DefinitionListItem(parseInline(term), parseMarkup(listItemBlocks(pos), lines mkString "\n")) }
+          DefinitionListItem(parseInline(term), parseMarkup(listItemBlocks, lines mkString "\n")) }
     
     (item *) ^^ DefinitionList
   }
@@ -185,7 +185,7 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - pr
    * 
    *  @param pos the current parsing position 
    */
-  def fieldList (pos: BlockPosition): Parser[Block] = {
+  def fieldList: Parser[Block] = {
     
     val name = ':' ~> anyBut(':') <~ ':' // TODO - escaped ':' in name should be supported
     
@@ -193,11 +193,11 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - pr
     
     val itemStart = success(0)
     
-    val item = (name ~ firstLine ~ opt(indentedBlock(itemStart, pos))) ^^
+    val item = (name ~ firstLine ~ opt(indentedBlock(itemStart))) ^^
       { case name ~ firstLine ~ Some((lines, pos)) => 
-          Field(parseInline(name), parseMarkup(listItemBlocks(pos), (firstLine :: lines) mkString "\n"))
+          Field(parseInline(name), parseMarkup(listItemBlocks, (firstLine :: lines) mkString "\n"))
         case name ~ firstLine ~ None => 
-          Field(parseInline(name), parseMarkup(listItemBlocks(pos), firstLine)) }
+          Field(parseInline(name), parseMarkup(listItemBlocks, firstLine)) }
     
     (item *) ^^ FieldList
   }
@@ -207,7 +207,7 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - pr
    * 
    *  @param pos the current parsing position 
    */
-  def optionList (pos: BlockPosition): Parser[Block] = {
+  def optionList: Parser[Block] = {
     
     val optionString = anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_', '-').min(1)
     
@@ -225,25 +225,25 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - pr
     
     val options = (option ~ ((", " ~> option)*)) ^^ mkList
     
-    val firstLine = ("  " ~ not(blankLine) ~> restOfLine) | (blankLine ~ guard(minIndent(pos.column, 1) ~ not(blankLine))) ^^^ "" 
+    val firstLine = ("  " ~ not(blankLine) ~> restOfLine) | (blankLine ~ guard((ws min 1) ~ not(blankLine))) ^^^ "" 
     
     val itemStart = success(0)
     
-    val item = (options ~ firstLine ~ indentedBlock(itemStart, pos)) ^^
+    val item = (options ~ firstLine ~ indentedBlock(itemStart)) ^^
       { case name ~ firstLine ~ ((lines, pos)) => 
-          OptionListItem(name, parseMarkup(listItemBlocks(pos), (firstLine :: lines) mkString "\n")) }
+          OptionListItem(name, parseMarkup(listItemBlocks, (firstLine :: lines) mkString "\n")) }
     
     (item *) ^^ OptionList
   }
   
   /** Parses a block of lines with line breaks preserved.
    */
-  def lineBlock (pos: BlockPosition): Parser[Block] = {
+  def lineBlock: Parser[Block] = {
     val itemStart = anyOf('|').take(1)
     
     val line: Parser[(Line,Int)] = {
-      indentedBlock(itemStart ^^^ 1, not(blankLine), failure("line blocks always end after blank lines"), pos) ^^
-      { case (lines,pos) => (Line(parseInline(lines mkString "\n")), pos.column) }
+      indentedBlock(itemStart ^^^ 1, not(blankLine), failure("line blocks always end after blank lines")) ^^
+      { case (lines,pos) => (Line(parseInline(lines mkString "\n")), pos) }
     }
     
     def nest (lines: Seq[(Line,Int)]) : LineBlock = {

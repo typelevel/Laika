@@ -28,20 +28,20 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
   /** TODO - move to base trait - duplicated from ListParsers
    *  nestedBlock parser in BlockParsers not used very often
    */
-  def nestedBlocks (pos: BlockPosition) = 
-    if (pos.nestLevel < maxNestLevel) (standardRstBlock(pos) | paragraph) *
+  def nestedBlocks = 
+    if (true) (standardRstBlock | paragraph) * // TODO - needs nest level check
     else (nonRecursiveRstBlock | paragraph) *
   
   
   def explicitStart = (".." ~ (ws min 1)) ^^ { case _ ~ ws => ws.length + 2 }
   
   
-  def explicitBlockItems (pos: BlockPosition) = explicitStart >> { len => // TODO - length not needed when tab processing gets changed
-    footnote(pos, len) | citation(pos, len) | linkDefinition(pos, len) | substitutionDefinition(pos, len) // TODO - there is a linkDef alternative not requiring the .. prefix
+  def explicitBlockItems = explicitStart >> { len => // TODO - length not needed when tab processing gets changed
+    footnote(len) | citation(len) | linkDefinition(len) | substitutionDefinition(len) // TODO - there is a linkDef alternative not requiring the .. prefix
   }
   
   
-  def footnote (pos: BlockPosition, prefixLength: Int) = {
+  def footnote (prefixLength: Int) = {
     val decimal = (anyIn('0' to '9') min 1) ^^ { n => NumericLabel(n.toInt) }
     val autonumber = '#' ^^^ Autonumber 
     val autosymbol = '*' ^^^ Autosymbol
@@ -61,23 +61,23 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
     }
     
     guard(prefix) >> { label => // TODO - parsing prefix twice is inefficient, indentedBlock parser should return result
-      indentedBlock(prefix ^^ labelLength, pos) ^^ {
-        case (lines,pos) => Footnote(label, parseMarkup(nestedBlocks(pos), lines mkString "\n"))
+      indentedBlock(prefix ^^ labelLength) ^^ {
+        case (lines,pos) => Footnote(label, parseMarkup(nestedBlocks, lines mkString "\n"))
       }
     }
   }
   
-  def citation (pos: BlockPosition, prefixLength: Int) = {
+  def citation (prefixLength: Int) = {
     val prefix = '[' ~> simpleRefName <~ ']'
     
     guard(prefix) >> { label => // TODO - parsing prefix twice is inefficient, indentedBlock parser should return result
-      indentedBlock(prefix ^^ { _.length + prefixLength }, pos) ^^ {
-        case (lines,pos) => Citation(label, parseMarkup(nestedBlocks(pos), lines mkString "\n"))
+      indentedBlock(prefix ^^ { _.length + prefixLength }) ^^ {
+        case (lines,pos) => Citation(label, parseMarkup(nestedBlocks, lines mkString "\n"))
       }
     }
   }
   
-  def linkDefinition (pos: BlockPosition, prefixLength: Int) = {
+  def linkDefinition (prefixLength: Int) = {
     val named = '_' ~> refName <~ ':' // TODO - backticks are optional here in most cases (unless ref name contains colons)
     val anonymous = "__:"
       
@@ -86,7 +86,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
     val externalName = (named | anonymous)
     
     val external = guard(externalName) >> { name =>
-      indentedBlock(externalName ^^ { _.length + prefixLength }, pos) ^^ { // TODO - indentedBlock parser still requires ws after prefix
+      indentedBlock(externalName ^^ { _.length + prefixLength }) ^^ { // TODO - indentedBlock parser still requires ws after prefix
         case (lines,pos) => LinkDefinition(name, lines map (_.trim) filter (_.isEmpty) mkString)
       }
     }
@@ -96,15 +96,15 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
     // TODO - add indirect targets once inline parsers are completed
   }
   
-  def substitutionDefinition (pos: BlockPosition, prefixLength: Int) = {
+  def substitutionDefinition (prefixLength: Int) = {
     val text = not(ws take 1) ~> (anyBut('|','\n') min 1)  
     val prefix = '|' ~> text <~ not(lookBehind(1, ' ')) ~ '|'
     
     ((prefix <~ ws) ~ spanDirective) ^^ { case name ~ content => SubstitutionDefinition(name, content) }
   }
   
-  def comment (pos: BlockPosition, prefixLength: Int) = {
-    indentedBlock(success(prefixLength), pos) ^^ { // TODO - indentedBlock parser still requires ws after prefix
+  def comment (prefixLength: Int) = {
+    indentedBlock(success(prefixLength)) ^^ { // TODO - indentedBlock parser still requires ws after prefix
       case (lines,pos) => Comment(lines map (_.trim) filter (_.isEmpty) mkString)
     }
   }
@@ -140,8 +140,6 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
   // TODO - deal with failures and exact behaviour for unknown directives and other types of error
   class DirectiveParserBuilder extends DirectiveParser {
 
-    val pos = new BlockPosition(0,0) // TODO - use special CharSequenceReader for nested blocks (possibly carrying nestLevel, too)
-
     val skip = success(())
     var requiredArgs: Parser[Any] = skip
     var optionalArgs: Parser[Any] = skip
@@ -160,13 +158,12 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
     val argWithWS = {
       val argLine = not(blankLine | ':')
       val nextBlock = failure("args do not expand beyond blank lines")
-       // TODO - we don't know the pos here
-      lineAndIndentedBlock(argLine ^^^ 0, argLine, nextBlock, new BlockPosition(0,0)) ^^ { case (lines,pos) =>
+      lineAndIndentedBlock(argLine ^^^ 0, argLine, nextBlock) ^^ { case (lines,pos) =>
         lines mkString "\n"
       }
     }
     
-    val body = indentedBlock(success(1), pos) ^^ { case (lines, pos) => lines mkString "\n" }
+    val body = indentedBlock(success(1)) ^^ { case (lines, pos) => lines mkString "\n" }
     
     // TODO - some duplicate logic with original fieldList parser
     lazy val directiveFieldList: Parser[Any] = {
@@ -175,8 +172,8 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
       
       val firstLine = restOfLine 
       
-      val item = minIndent(pos.column, 1) >> { firstIndent =>
-          (name ~ firstLine ~ opt(indentedBlock(success(firstIndent), pos))) ^^ 
+      val item = (ws min 1) >> { firstIndent =>
+          (name ~ firstLine ~ opt(indentedBlock(success(firstIndent.length)))) ^^ 
         { case name ~ firstLine ~ Some((lines, pos)) => 
             (name, (firstLine :: lines) mkString "\n")
           case name ~ firstLine ~ None => 
@@ -257,7 +254,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
     }
     
     def standardContent: Result[Seq[Block]] = content { rawtext =>
-      parseMarkup(nestedBlocks(new BlockPosition(0,0)), rawtext) /* TODO - pos not available here */
+      parseMarkup(nestedBlocks, rawtext)
     }
     
     def content [T](f: String => T): Result[T] = {

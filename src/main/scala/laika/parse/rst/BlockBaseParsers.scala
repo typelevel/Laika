@@ -13,20 +13,11 @@ trait BlockBaseParsers extends laika.parse.BlockParsers {
   val maxNestLevel: Int = 12
   
   
-  case class BlockPosition (nestLevel: Int, column: Int) {
-    
-    //def nextNestLevel = new BlockPosition(nestLevel + 1, column)
-    
-    def indent (value: Int) = new BlockPosition(nestLevel + 1, column + value)
-    
-  }
-  
-  
   /** Parses all of the standard reStructuredText blocks, except normal paragraphs. 
    * 
    *  @param pos the current parsing position 
    */
-  def standardRstBlock (pos: BlockPosition): Parser[Block]
+  def standardRstBlock: Parser[Block]
 
   /** Parses reStructuredText blocks, except normal paragraphs
    *  and blocks that allow nesting of blocks. Only used in rare cases when the maximum
@@ -37,37 +28,8 @@ trait BlockBaseParsers extends laika.parse.BlockParsers {
   def paragraph: Parser[Paragraph]
   
   
-  override def ws = anyOf(' ','\t', '\f', '\u000b') // 0x0b: vertical tab
+  override def ws = anyOf(' ') // other whitespace has been replaced with spaces by preprocessor
   
-  
-  def indent (current: Int, expect: Int = 0) = Parser { in =>
-    
-    val source = in.source
-    val eof = source.length
-
-    val finalIndent = if (expect > 0) current + expect else Int.MaxValue
-    
-    def result (offset: Int, indent: Int) = Success(indent - current, in.drop(offset - in.offset))
-    
-    @tailrec
-    def parse (offset: Int, indent: Int): ParseResult[Int] = {
-      if (offset == eof) Failure("unecpected end of input", in)
-      else if (indent == finalIndent) result(offset, indent)
-      else {
-        source.charAt(offset) match {
-          case ' ' => parse(offset + 1, indent + 1)
-          case _   => if (indent < finalIndent && expect > 0) Failure("Less than expected indentation", in) else result(offset, indent)
-        }
-        
-      }
-    }
-  
-    parse(in.offset, current)
-  }
-  
-  
-  def minIndent (current: Int, min: Int) = indent(current) ^? { case i if i >= min => i }
-    
   
   /** Parses a full block based on the specified helper parser. When the parser for
    *  the first line succeeds, this implementation assumes that for any subsequent
@@ -77,8 +39,8 @@ trait BlockBaseParsers extends laika.parse.BlockParsers {
    *  @param firstLinePrefix parser that recognizes the start of the first line of this block
    *  @param pos the current parsing position 
    */
-  def indentedBlock (firstLinePrefix: Parser[Int], pos: BlockPosition): Parser[(List[String],BlockPosition)] = {
-    indentedBlock(firstLinePrefix, not(blankLine), not(blankLine), pos)
+  def indentedBlock (firstLinePrefix: Parser[Int]): Parser[(List[String],Int)] = {
+    indentedBlock(firstLinePrefix, not(blankLine), not(blankLine))
   }
   
   /** Parses a full block based on the specified helper parsers. It expects an indentation for
@@ -92,24 +54,22 @@ trait BlockBaseParsers extends laika.parse.BlockParsers {
    */
   def indentedBlock (firstLinePrefix: Parser[Int], 
                      linePrefix: => Parser[Any], 
-                     nextBlockPrefix: => Parser[Any], 
-                     pos: BlockPosition): Parser[(List[String],BlockPosition)] = {
-    firstLinePrefix >> { width => minIndent(pos.column + width, 1) >> { firstIndent =>
-      val indentParser = indent(pos.column, width + firstIndent)
+                     nextBlockPrefix: => Parser[Any]): Parser[(List[String],Int)] = {
+    firstLinePrefix >> { width => (ws min 1) >> { firstIndent =>
+      val indentParser = ws take (width + firstIndent.length)
       block(success( () ), indentParser ~> linePrefix, indentParser ~> nextBlockPrefix) ^^ { lines => 
-        (lines, pos.indent(firstIndent))   
+        (lines, firstIndent.length)   
       } 
     }}  
   }
   
   def lineAndIndentedBlock (firstLinePrefix: Parser[Int], 
                             linePrefix: => Parser[Any], 
-                            nextBlockPrefix: => Parser[Any], 
-                            pos: BlockPosition): Parser[(List[String],BlockPosition)] = {
-    restOfLine ~ minIndent(pos.column, 1) >> { case firstLine ~ leftIndent =>
-      val indentParser = indent(pos.column, leftIndent)
+                            nextBlockPrefix: => Parser[Any]): Parser[(List[String],Int)] = {
+    restOfLine ~ (ws min 1) >> { case firstLine ~ leftIndent =>
+      val indentParser = ws min leftIndent.length
       block(success( () ), indentParser ~> linePrefix, indentParser ~> nextBlockPrefix) ^^ { lines => 
-        (lines, pos.indent(leftIndent))   
+        (lines, leftIndent.length)   
       } 
     }
   }
