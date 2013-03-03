@@ -243,8 +243,9 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - pr
     val itemStart = anyOf('|').take(1)
     
     val line: Parser[(Line,Int)] = {
-      itemStart ~> fixedIndentedBlock(1, not(blankLine), failure("line blocks always end after blank lines")) ^^
-      { block => (Line(parseInline(block.lines mkString "\n")), 0) } // TODO - what number is required here?
+      itemStart ~> (ws min 1) ~ varIndentedBlock(1, not(blankLine), failure("line blocks always end after blank lines")) ^^ { 
+        case indent ~ block => (Line(parseInline(block.lines mkString "\n")), indent.length) 
+      }
     }
     
     def nest (lines: Seq[(Line,Int)]) : LineBlock = {
