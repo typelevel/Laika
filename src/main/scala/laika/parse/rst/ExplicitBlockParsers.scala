@@ -55,12 +55,11 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
   def explicitStart = (".." ~ (ws min 1)) ^^ { case _ ~ ws => ws.length + 2 }
   
   
-  def explicitBlockItems = explicitStart >> { len => // TODO - length not needed when tab processing gets changed
-    footnote(len) | citation(len) | linkDefinition(len) | substitutionDefinition(len) // TODO - there is a linkDef alternative not requiring the .. prefix
-  }
+  def explicitBlockItems = explicitStart ~
+    (footnote | citation | linkDefinition | substitutionDefinition | blockDirective | comment) // TODO - there is a linkDef alternative not requiring the .. prefix
   
   
-  def footnote (prefixLength: Int) = {
+  def footnote = {
     val decimal = (anyIn('0' to '9') min 1) ^^ { n => NumericLabel(n.toInt) }
     val autonumber = '#' ^^^ Autonumber 
     val autosymbol = '*' ^^^ Autosymbol
@@ -70,33 +69,20 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
     
     val prefix = '[' ~> label <~ ']'
     
-    def labelLength (label: FootnoteLabel) = { // TODO - not needed when tab processing gets changed
-      val len = label match {
-        case Autonumber | Autosymbol => 3
-        case AutonumberLabel(label) => label.length + 2
-        case NumericLabel(number: Int) => number.toString.length + 2
-      }
-      len + prefixLength
-    }
-    
-    guard(prefix) >> { label => // TODO - parsing prefix twice is inefficient, indentedBlock parser should return result
-      indentedBlock(prefix ^^ labelLength) ^^ {
-        case (lines,pos) => Footnote(label, parseMarkup(nestedBlocks, lines mkString "\n"))
-      }
+    prefix ~ varIndentedBlock() ^^ {
+      case label ~ block => Footnote(label, parseMarkup(nestedBlocks, block.lines mkString "\n"))
     }
   }
   
-  def citation (prefixLength: Int) = {
+  def citation = {
     val prefix = '[' ~> simpleRefName <~ ']'
     
-    guard(prefix) >> { label => // TODO - parsing prefix twice is inefficient, indentedBlock parser should return result
-      indentedBlock(prefix ^^ { _.length + prefixLength }) ^^ {
-        case (lines,pos) => Citation(label, parseMarkup(nestedBlocks, lines mkString "\n"))
-      }
+    prefix ~ varIndentedBlock() ^^ {
+      case label ~ block => Citation(label, parseMarkup(nestedBlocks, block.lines mkString "\n"))
     }
   }
   
-  def linkDefinition (prefixLength: Int) = {
+  def linkDefinition = {
     val named = '_' ~> refName <~ ':' // TODO - backticks are optional here in most cases (unless ref name contains colons)
     val anonymous = "__:"
       
@@ -104,10 +90,8 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
     
     val externalName = (named | anonymous)
     
-    val external = guard(externalName) >> { name =>
-      indentedBlock(externalName ^^ { _.length + prefixLength }) ^^ { // TODO - indentedBlock parser still requires ws after prefix
-        case (lines,pos) => LinkDefinition(name, lines map (_.trim) filter (_.isEmpty) mkString)
-      }
+    val external = externalName ~ varIndentedBlock() ^^ {
+      case name ~ block => LinkDefinition(name, block.lines map (_.trim) filter (_.isEmpty) mkString)
     }
     
     external | internal
@@ -115,16 +99,16 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
     // TODO - add indirect targets once inline parsers are completed
   }
   
-  def substitutionDefinition (prefixLength: Int) = {
+  def substitutionDefinition = {
     val text = not(ws take 1) ~> (anyBut('|','\n') min 1)  
     val prefix = '|' ~> text <~ not(lookBehind(1, ' ')) ~ '|'
     
     ((prefix <~ ws) ~ spanDirective) ^^ { case name ~ content => SubstitutionDefinition(name, content) }
   }
   
-  def comment (prefixLength: Int) = {
-    indentedBlock(success(prefixLength)) ^^ { // TODO - indentedBlock parser still requires ws after prefix
-      case (lines,pos) => Comment(lines map (_.trim) filter (_.isEmpty) mkString)
+  def comment = {
+    varIndentedBlock() ^^ { block =>
+      Comment(block.lines map (_.trim) filter (_.isEmpty) mkString)
     }
   }
   
@@ -138,7 +122,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
 
   def spanDirective = directive(spanDirectives)
   
-  def directive [E](directives: Map[String, DirectivePart[Seq[E]]]) = {
+  protected def directive [E](directives: Map[String, DirectivePart[Seq[E]]]) = {
     
     val nameParser = simpleRefName <~ "::" ~ ws
     
@@ -157,6 +141,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
   }
   
   // TODO - deal with failures and exact behaviour for unknown directives and other types of error
+  // and body parsers have no way of knowing the nest level
   class DirectiveParserBuilder extends DirectiveParser {
 
     val skip = success(())
@@ -175,14 +160,14 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
     val arg = (anyBut(' ','\n') min 1) <~ ws
     
     val argWithWS = {
-      val argLine = not(blankLine | ':')
+      val argLineStart = not(blankLine | ':')
       val nextBlock = failure("args do not expand beyond blank lines")
-      lineAndIndentedBlock(argLine ^^^ 0, argLine, nextBlock) ^^ { case (lines,pos) =>
-        lines mkString "\n"
+      argLineStart ~> varIndentedBlock(1, argLineStart, nextBlock) ^^ { block =>
+        block.lines mkString "\n"
       }
     }
     
-    val body = indentedBlock(success(1)) ^^ { case (lines, pos) => lines mkString "\n" }
+    val body = varIndentedBlock() ^^ { block => block.lines mkString "\n" }
     
     // TODO - some duplicate logic with original fieldList parser
     lazy val directiveFieldList: Parser[Any] = {
@@ -192,9 +177,9 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
       val firstLine = restOfLine 
       
       val item = (ws min 1) >> { firstIndent =>
-          (name ~ firstLine ~ opt(indentedBlock(success(firstIndent.length)))) ^^ 
-        { case name ~ firstLine ~ Some((lines, pos)) => 
-            (name, (firstLine :: lines) mkString "\n")
+          (name ~ firstLine ~ opt(varIndentedBlock(firstIndent.length + 1))) ^^ 
+        { case name ~ firstLine ~ Some(block) => 
+            (name, (firstLine :: block.lines) mkString "\n")
           case name ~ firstLine ~ None => 
             (name, firstLine) }}
       

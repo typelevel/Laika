@@ -48,48 +48,67 @@ trait BlockBaseParsers extends laika.parse.BlockParsers {
   
   
   override def ws = anyOf(' ') // other whitespace has been replaced with spaces by preprocessor
+
   
-  
-  /** Parses a full block based on the specified helper parser. When the parser for
-   *  the first line succeeds, this implementation assumes that for any subsequent
-   *  lines or blocks the only requirement is that they are not empty and indented
-   *  like the first line.
+  /** Parses a full block based on the specified helper parsers, expecting an indentation for
+   *  all lines except the first. The indentation must be as specified by the first parameter
+   *  for all lines of these blocks.
    * 
-   *  @param firstLinePrefix parser that recognizes the start of the first line of this block
-   *  @param pos the current parsing position 
-   */
-  def indentedBlock (firstLinePrefix: Parser[Int]): Parser[(List[String],Int)] = {
-    indentedBlock(firstLinePrefix, not(blankLine), not(blankLine))
-  }
-  
-  /** Parses a full block based on the specified helper parsers. It expects an indentation for
-   *  all subsequent lines based on the length of the prefix of the first line plus any whitespace
-   *  immediately following it.
-   * 
-   *  @param firstLinePrefix parser that recognizes the start of the first line of this block
+   *  @param minIndent the minimum indentation that each line in this block must have
    *  @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
-   *  @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block
-   *  @param pos the current parsing position 
+   *  @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block 
+   *  @return a parser that produces a tuple holding the minimum amount of indentation for all parsed lines and the lines itself
+   *  with the minimum indentation already removed
    */
-  def indentedBlock (firstLinePrefix: Parser[Int], 
-                     linePrefix: => Parser[Any], 
-                     nextBlockPrefix: => Parser[Any]): Parser[(List[String],Int)] = {
-    firstLinePrefix >> { width => (ws min 1) >> { firstIndent =>
-      val indentParser = ws take (width + firstIndent.length)
-      block(success( () ), indentParser ~> linePrefix, indentParser ~> nextBlockPrefix) ^^ { lines => 
-        (lines, firstIndent.length)   
-      } 
-    }}  
+  def fixedIndentedBlock (fixedIndent: Int = 1,
+                     linePrefix: => Parser[Any] = not(blankLine), 
+                     nextBlockPrefix: => Parser[Any] = not(blankLine)): Parser[IndentedBlock] = {
+    
+    lazy val line = (ws take fixedIndent) ~ linePrefix ~> restOfLine
+    
+    lazy val nextBlock = blankLines <~ guard(nextBlockPrefix) ^^ { _.mkString("\n") }
+    
+    withNestLevel {
+      restOfLine ~ ( (line | nextBlock)* ) ^^ { res => (fixedIndent, mkList(res)) }
+    }
   }
   
-  def lineAndIndentedBlock (firstLinePrefix: Parser[Int], 
-                            linePrefix: => Parser[Any], 
-                            nextBlockPrefix: => Parser[Any]): Parser[(List[String],Int)] = {
-    restOfLine ~ (ws min 1) >> { case firstLine ~ leftIndent =>
-      val indentParser = ws min leftIndent.length
-      block(success( () ), indentParser ~> linePrefix, indentParser ~> nextBlockPrefix) ^^ { lines => 
-        (lines, leftIndent.length)   
-      } 
+  case class IndentedBlock (nestLevel: Int, minIndent: Int, lines: List[String])
+  
+  /** Parses a full block based on the specified helper parsers, expecting an indentation for
+   *  all lines except the first. The indentation may vary between the parts of the indented
+   *  block, so that this parser only cuts off the minimum indentation shared by all lines.
+   * 
+   *  @param minIndent the minimum indentation that each line in this block must have
+   *  @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
+   *  @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block 
+   *  @return a parser that produces a tuple holding the minimum amount of indentation for all parsed lines and the lines itself
+   *  with the minimum indentation already removed
+   */
+  def varIndentedBlock (minIndent: Int = 1,
+                     linePrefix: => Parser[Any] = not(blankLine), 
+                     nextBlockPrefix: => Parser[Any] = not(blankLine)): Parser[IndentedBlock] = {
+    
+    val firstLine = restOfLine ^^ { (-1, _) }
+    
+    lazy val line = (((ws min minIndent) ^^ (_.length)) ~ 
+                    (linePrefix ~> restOfLine)) ^^ { case indent ~ text => (indent, text.trim) }
+    
+    lazy val nextBlock = blankLines <~ guard(nextBlockPrefix) ^^ { res => (-1, res.mkString("\n")) }
+    
+    withNestLevel {
+      firstLine ~ ( (line | nextBlock)* ) ^^ { res => 
+        val lines = mkList(res)
+        val minIndent = lines map (_._1) filter (_ == -1) min;
+        (minIndent, lines map (line => if (line == -1) line._2 else " " * (line._1 - minIndent) + line._2))
+      }
+    }
+  }
+  
+  def withNestLevel [T] (p: => Parser[(Int,List[String])]) = Parser { in =>
+    p(in) match {
+      case Success(res, next) => Success(IndentedBlock(0, res._1, res._2), next) // TODO - determine nestLevel from next
+      case ns: NoSuccess      => ns
     }
   }
   

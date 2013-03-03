@@ -99,8 +99,10 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - pr
    *  @param pos the current parsing position 
    */
   def listItem (itemStart: Parser[String]): Parser[ListItem] = {
-      indentedBlock(itemStart ^^ { res => res.length }) ^^
-      { case (lines,pos) => ListItem(parseMarkup(listItemBlocks, lines mkString "\n")) }
+      (itemStart ^^ {_.length}) ~ ((ws min 1) ^^ {_.length}) >> { 
+        case start ~ ws => fixedIndentedBlock(start + ws) ^^
+          { block => ListItem(parseMarkup(listItemBlocks, block.lines mkString "\n")) }
+      } 
   }
   
   
@@ -172,13 +174,13 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - pr
    */
   def definitionList: Parser[Block] = {
     
-    val term: Parser[String] = not(blankLine) ~> restOfLine
+    val term: Parser[String] = not(blankLine) ~> anyBut('\n')
     
     val itemStart = not(blankLine) ^^^ 0
     
-    val item = (term ~ indentedBlock(itemStart)) ^^ // TODO - add classifier parser to parseInline map
-      { case term ~ ((lines, pos)) => 
-          DefinitionListItem(parseInline(term), parseMarkup(listItemBlocks, lines mkString "\n")) }
+    val item = (term ~ varIndentedBlock()) ^^ // TODO - add classifier parser to parseInline map
+      { case term ~ block => 
+          DefinitionListItem(parseInline(term), parseMarkup(listItemBlocks, block.lines.tail mkString "\n")) }
     
     (item *) ^^ DefinitionList
   }
@@ -194,11 +196,9 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - pr
     
     val firstLine = restOfLine // TODO - may need to check for non-empty body 
     
-    val itemStart = success(0)
-    
-    val item = (name ~ firstLine ~ opt(indentedBlock(itemStart))) ^^
-      { case name ~ firstLine ~ Some((lines, pos)) => 
-          Field(parseInline(name), parseMarkup(listItemBlocks, (firstLine :: lines) mkString "\n"))
+    val item = (name ~ firstLine ~ opt(varIndentedBlock())) ^^ // TODO - firstLine parser may be obsolete
+      { case name ~ firstLine ~ Some(block) => 
+          Field(parseInline(name), parseMarkup(listItemBlocks, (firstLine :: block.lines) mkString "\n"))
         case name ~ firstLine ~ None => 
           Field(parseInline(name), parseMarkup(listItemBlocks, firstLine)) }
     
@@ -228,13 +228,11 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - pr
     
     val options = (option ~ ((", " ~> option)*)) ^^ mkList
     
-    val firstLine = ("  " ~ not(blankLine) ~> restOfLine) | (blankLine ~ guard((ws min 1) ~ not(blankLine))) ^^^ "" 
+    val descStart = ("  " ~ not(blankLine)) | guard(blankLine ~ (ws min 1) ~ not(blankLine)) ^^^ "" 
     
-    val itemStart = success(0)
-    
-    val item = (options ~ firstLine ~ indentedBlock(itemStart)) ^^
-      { case name ~ firstLine ~ ((lines, pos)) => 
-          OptionListItem(name, parseMarkup(listItemBlocks, (firstLine :: lines) mkString "\n")) }
+    val item = (options ~ (descStart ~> varIndentedBlock())) ^^
+      { case name ~ block =>
+          OptionListItem(name, parseMarkup(listItemBlocks, block.lines mkString "\n")) }
     
     (item *) ^^ OptionList
   }
@@ -245,8 +243,8 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - pr
     val itemStart = anyOf('|').take(1)
     
     val line: Parser[(Line,Int)] = {
-      indentedBlock(itemStart ^^^ 1, not(blankLine), failure("line blocks always end after blank lines")) ^^
-      { case (lines,pos) => (Line(parseInline(lines mkString "\n")), pos) }
+      itemStart ~> fixedIndentedBlock(1, not(blankLine), failure("line blocks always end after blank lines")) ^^
+      { block => (Line(parseInline(block.lines mkString "\n")), 0) } // TODO - what number is required here?
     }
     
     def nest (lines: Seq[(Line,Int)]) : LineBlock = {
