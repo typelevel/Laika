@@ -46,7 +46,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
     override def toString = text
   }
       
-  class CellBuilder {
+  class CellBuilder (nestLevel: Int) {
     
     private val seps = new ListBuffer[TableElement]
     private val lines = new ListBuffer[StringBuilder]
@@ -87,15 +87,13 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
       parseAll(cellLine*, cellContent) match {
         case Success(lines, _) => 
           val minIndent = lines map (_.indent) min;
-          (minIndent, lines map (_.padTo(minIndent)) mkString "\n")
+          (minIndent, lines map (_.padTo(minIndent)))
       } 
     }
     
     def parsedCellContent = {
-      val (minIndent, text) = trimmedCellContent
-      //val parser = ((standardRstBlock(pos.indent(minIndent)) | paragraph)*) // TODO - base parser should include this standard block parser
-      val parser = ((paragraph <~ opt(blankLines))*)
-      parseMarkup(parser, text) 
+      val (minIndent, lines) = trimmedCellContent
+      parseNestedBlocks(lines, nestLevel) 
     }
     
     def toCell = Cell(BodyCell, parsedCellContent, colSpan, rowSpan)
@@ -111,7 +109,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
     def toRow = Row(cells filterNot (_.removed) map (_.toCell) toList)
   }
   
-  class ColumnBuilder (left: scala.Option[ColumnBuilder]) {
+  class ColumnBuilder (left: scala.Option[ColumnBuilder], nestLevel: Int) {
     
     private var rowSpan = 1 // only used for sanity checks
     
@@ -124,7 +122,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
     def nextCell () = {
       if (!cells.isEmpty && cells.top.mergedLeft && rowspanDif != 0)
           throw new MalformedTableException("Illegal merging of rows with different cellspans")
-      val cell = new CellBuilder
+      val cell = new CellBuilder(nestLevel)
       cells push new CellBuilderRef(cell)
       cell
     }
@@ -165,11 +163,11 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
     }
   }
   
-  class TableBuilder (columnWidths: List[Int]) {
+  class TableBuilder (columnWidths: List[Int], nestLevel: Int) {
     object ColumnFactory {
       var lastColumn: scala.Option[ColumnBuilder] = None
       val columnWidthIt = columnWidths.iterator
-      def next = { lastColumn = Some(new ColumnBuilder(lastColumn)); lastColumn.get } 
+      def next = { lastColumn = Some(new ColumnBuilder(lastColumn, nestLevel)); lastColumn.get } 
     }
     val columns = List.fill(columnWidths.length)(ColumnFactory.next)
     private val rows = new ListBuffer[RowBuilder]
@@ -202,7 +200,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
     val rowSep = (anyOf('-') min 1) ^^ { _.length }
     val topBorder = intersect ~> ((rowSep <~ intersect)+) <~ ws ~ eol
     
-    topBorder >> { cols =>
+    withNestLevel(topBorder) >> { case (nestLevel, cols) =>
       
       val colSep = ((anyOf('|') take 1) ^^^ CellSeparator("|")) | intersect
       val colSepOrText = colSep | ((any take 1) ^^ CellElement)
@@ -235,7 +233,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
       
       def buildRowList (rows: List[List[TableElement]]) = {
         
-        val tableBuilder = new TableBuilder(cols map (_ + 1)) // column width includes separator
+        val tableBuilder = new TableBuilder(cols map (_ + 1), nestLevel) // column width includes separator
             
         rows foreach { row =>
           val hasSeparator = row exists { case RowSeparator => true; case _ => false }
@@ -287,7 +285,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
     }
     val topBorder = repMin(2, columnSpec) <~ ws ~ eol
     
-    topBorder >> { cols =>
+    withNestLevel(topBorder) >> { case (nestLevel, cols) =>
       
       val (rowColumns, boundaryColumns) = (cols map { case (col, sep) =>
         val cellText = if (sep == 0) (anyBut('\n','\r')) ^^ CellElement 
@@ -318,7 +316,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - p
       
       def buildRowList (rows: List[Any]) = {
         
-        val tableBuilder = new TableBuilder(cols map { col => col._1 + col._2 })
+        val tableBuilder = new TableBuilder(cols map { col => col._1 + col._2 }, nestLevel)
         
         def addBlankLines (acc: ListBuffer[List[TableElement]]) = 
             acc += (cols map { case (cell, sep) => List(CellElement(" " * cell), CellSeparator(" " * sep)) }).flatten

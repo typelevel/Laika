@@ -44,19 +44,12 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
   val phraseRef = '`' ~> (anyBut('`') min 1) <~ '`'
   
   
-  /** TODO - move to base trait - duplicated from ListParsers
-   *  nestedBlock parser in BlockParsers not used very often
-   */
-  def nestedBlocks = 
-    if (true) (standardRstBlock | paragraph) * // TODO - needs nest level check
-    else (nonRecursiveRstBlock | paragraph) *
-  
-  
   def explicitStart = (".." ~ (ws min 1)) ^^ { case _ ~ ws => ws.length + 2 }
   
   
   def explicitBlockItems = explicitStart ~
-    (footnote | citation | linkDefinition | substitutionDefinition | blockDirective | comment) // TODO - there is a linkDef alternative not requiring the .. prefix
+    (footnote | citation | linkDefinition | substitutionDefinition | blockDirective | comment) 
+    // TODO - there is a linkDef alternative not requiring the .. prefix
   
   
   def footnote = {
@@ -70,7 +63,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
     val prefix = '[' ~> label <~ ']'
     
     prefix ~ varIndentedBlock() ^^ {
-      case label ~ block => Footnote(label, parseMarkup(nestedBlocks, block.lines mkString "\n"))
+      case label ~ block => Footnote(label, parseNestedBlocks(block))
     }
   }
   
@@ -78,7 +71,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
     val prefix = '[' ~> simpleRefName <~ ']'
     
     prefix ~ varIndentedBlock() ^^ {
-      case label ~ block => Citation(label, parseMarkup(nestedBlocks, block.lines mkString "\n"))
+      case label ~ block => Citation(label, parseNestedBlocks(block))
     }
   }
   
@@ -167,7 +160,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
       }
     }
     
-    val body = varIndentedBlock() ^^ { block => block.lines mkString "\n" }
+    val body = varIndentedBlock()
     
     // TODO - some duplicate logic with original fieldList parser
     lazy val directiveFieldList: Parser[Any] = {
@@ -257,13 +250,17 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
       new Result(result.value)
     }
     
-    def standardContent: Result[Seq[Block]] = content { rawtext =>
-      parseMarkup(nestedBlocks, rawtext)
+    def standardContent: Result[Seq[Block]] = parseContentWith {
+      block => parseNestedBlocks(block)
     }
     
-    def content [T](f: String => T): Result[T] = {
+    def content [T](f: String => T): Result[T] = parseContentWith {
+      block => f(block.lines mkString "\n")
+    }
+    
+    private def parseContentWith [T](f: IndentedBlock => T): Result[T] = {
       val result = new LazyResult[T]
-      contentParser = (body ^^ result.fromString(f))
+      contentParser = (body ^^ { block => result.set(f(block)) })
       new Result(result.get)
     }
     

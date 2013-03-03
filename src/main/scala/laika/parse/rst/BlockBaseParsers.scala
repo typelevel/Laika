@@ -50,6 +50,15 @@ trait BlockBaseParsers extends laika.parse.BlockParsers {
   override def ws = anyOf(' ') // other whitespace has been replaced with spaces by preprocessor
 
   
+  def parseNestedBlocks (block: IndentedBlock): List[Block] = 
+    parseNestedBlocks(block.lines, block.nestLevel)
+  
+  def parseNestedBlocks (lines: List[String], nestLevel: Int): List[Block] = {
+    val parser = if (nestLevel < maxNestLevel) nestedBlock else nonRecursiveRstBlock 
+    val block = parser <~ opt(blankLines) 
+    parseMarkup(block *, lines mkString "\n")
+  }
+  
   /** Parses a full block based on the specified helper parsers, expecting an indentation for
    *  all lines except the first. The indentation must be as specified by the first parameter
    *  for all lines of these blocks.
@@ -70,7 +79,7 @@ trait BlockBaseParsers extends laika.parse.BlockParsers {
     
     withNestLevel {
       restOfLine ~ ( (line | nextBlock)* ) ^^ { res => (fixedIndent, mkList(res)) }
-    }
+    } ^^ { case (nestLevel, (indent, lines)) => IndentedBlock(nestLevel, indent, lines) }
   }
   
   case class IndentedBlock (nestLevel: Int, minIndent: Int, lines: List[String])
@@ -102,12 +111,12 @@ trait BlockBaseParsers extends laika.parse.BlockParsers {
         val minIndent = lines map (_._1) filter (_ == -1) min;
         (minIndent, lines map (line => if (line == -1) line._2 else " " * (line._1 - minIndent) + line._2))
       }
-    }
+    } ^^ { case (nestLevel, (indent, lines)) => IndentedBlock(nestLevel, indent, lines) }
   }
   
-  def withNestLevel [T] (p: => Parser[(Int,List[String])]) = Parser { in =>
+  def withNestLevel [T] (p: => Parser[T]) = Parser { in =>
     p(in) match {
-      case Success(res, next) => Success(IndentedBlock(0, res._1, res._2), next) // TODO - determine nestLevel from next
+      case Success(res, next) => Success((0, res), next) // TODO - determine nestLevel from next
       case ns: NoSuccess      => ns
     }
   }

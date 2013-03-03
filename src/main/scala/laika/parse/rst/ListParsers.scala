@@ -84,14 +84,6 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - pr
    */
   
   
-  /** Parses blocks that may appear inside a list item.
-   * 
-   *  @param pos the current parsing position 
-   */
-  def listItemBlocks = 
-    if (true) (standardRstBlock | paragraph) * // TODO - check nest level
-    else (nonRecursiveRstBlock | paragraph) *
-    
   
   /** Parses a single list item.
    * 
@@ -101,7 +93,7 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - pr
   def listItem (itemStart: Parser[String]): Parser[ListItem] = {
       (itemStart ^^ {_.length}) ~ ((ws min 1) ^^ {_.length}) >> { 
         case start ~ ws => fixedIndentedBlock(start + ws) ^^
-          { block => ListItem(parseMarkup(listItemBlocks, block.lines mkString "\n")) }
+          { block => ListItem(parseNestedBlocks(block)) }
       } 
   }
   
@@ -180,7 +172,7 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - pr
     
     val item = (term ~ varIndentedBlock()) ^^ // TODO - add classifier parser to parseInline map
       { case term ~ block => 
-          DefinitionListItem(parseInline(term), parseMarkup(listItemBlocks, block.lines.tail mkString "\n")) }
+          DefinitionListItem(parseInline(term), parseNestedBlocks(block.lines.tail, block.nestLevel)) }
     
     (item *) ^^ DefinitionList
   }
@@ -192,15 +184,13 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - pr
    */
   def fieldList: Parser[Block] = {
     
-    val name = ':' ~> anyBut(':') <~ ':' // TODO - escaped ':' in name should be supported
+    val name = ':' ~> anyBut(':') <~ ':' ~ guard(eol | ' ') // TODO - escaped ':' in name should be supported
     
-    val firstLine = restOfLine // TODO - may need to check for non-empty body 
-    
-    val item = (name ~ firstLine ~ opt(varIndentedBlock())) ^^ // TODO - firstLine parser may be obsolete
-      { case name ~ firstLine ~ Some(block) => 
-          Field(parseInline(name), parseMarkup(listItemBlocks, (firstLine :: block.lines) mkString "\n"))
-        case name ~ firstLine ~ None => 
-          Field(parseInline(name), parseMarkup(listItemBlocks, firstLine)) }
+    val item = (name ~ opt(varIndentedBlock())) ^^
+      { case name ~ Some(block) => 
+          Field(parseInline(name), parseNestedBlocks(block))
+        case name ~ None => 
+          Field(parseInline(name), Nil) }
     
     (item *) ^^ FieldList
   }
@@ -232,7 +222,7 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - pr
     
     val item = (options ~ (descStart ~> varIndentedBlock())) ^^
       { case name ~ block =>
-          OptionListItem(name, parseMarkup(listItemBlocks, block.lines mkString "\n")) }
+          OptionListItem(name, parseNestedBlocks(block)) }
     
     (item *) ^^ OptionList
   }
