@@ -18,6 +18,7 @@ package laika.parse.rst
 
 import laika.tree.Elements._
 import scala.annotation.tailrec
+import scala.util.parsing.input.CharSequenceReader
 
 /**
  * @author Jens Halm
@@ -50,15 +51,32 @@ trait BlockBaseParsers extends laika.parse.BlockParsers {
   override def ws = anyOf(' ') // other whitespace has been replaced with spaces by preprocessor
 
   
+  class NestedCharSequenceReader (val nestLevel: Int, 
+                                  src: java.lang.CharSequence,
+                                  off: Int) extends CharSequenceReader(src, off) {
+    
+    def this (nestLevel: Int, src: java.lang.CharSequence) = this(nestLevel, src, 0)
+    
+    override def rest: CharSequenceReader =
+      if (offset < source.length) new NestedCharSequenceReader(nestLevel, source, offset + 1)
+      else this
+      
+    override def drop(n: Int): CharSequenceReader =
+      new NestedCharSequenceReader(nestLevel, source, offset + n)  
+      
+  }
+  
+  
   def parseNestedBlocks (block: IndentedBlock): List[Block] = 
     parseNestedBlocks(block.lines, block.nestLevel)
   
   def parseNestedBlocks (lines: List[String], nestLevel: Int): List[Block] = {
     val parser = if (nestLevel < maxNestLevel) nestedBlock else nonRecursiveRstBlock 
     val block = parser <~ opt(blankLines) 
-    parseMarkup(block *, lines mkString "\n")
+    parseMarkup(block *, new NestedCharSequenceReader(nestLevel + 1, lines mkString "\n"))
   }
   
+    
   /** Parses a full block based on the specified helper parsers, expecting an indentation for
    *  all lines except the first. The indentation must be as specified by the first parameter
    *  for all lines of these blocks.
@@ -116,9 +134,14 @@ trait BlockBaseParsers extends laika.parse.BlockParsers {
   
   def withNestLevel [T] (p: => Parser[T]) = Parser { in =>
     p(in) match {
-      case Success(res, next) => Success((0, res), next) // TODO - determine nestLevel from next
+      case Success(res, next) => Success((nestLevel(next), res), next)
       case ns: NoSuccess      => ns
     }
+  }
+  
+  def nestLevel (reader: Input) = reader match {
+    case nested: NestedCharSequenceReader => nested.nestLevel
+    case _ => 0
   }
   
   
