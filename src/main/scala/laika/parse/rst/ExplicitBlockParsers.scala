@@ -47,7 +47,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
   def explicitStart = (".." ~ (ws min 1)) ^^ { case _ ~ ws => ws.length + 2 }
   
   
-  def explicitBlockItems = explicitStart ~
+  def explicitBlockItem: Parser[Block] = explicitStart ~>
     (footnote | citation | linkDefinition | substitutionDefinition | blockDirective | comment) 
     // TODO - there is a linkDef alternative not requiring the .. prefix
   
@@ -111,7 +111,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
   val spanDirectives: Map[String, DirectivePart[Seq[Span]]]
     
 
-  def blockDirective = directive(blockDirectives)
+  def blockDirective: Parser[Block] = directive(blockDirectives) ^^ BlockSequence
 
   def spanDirective = directive(spanDirectives)
   
@@ -134,7 +134,6 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
   }
   
   // TODO - deal with failures and exact behaviour for unknown directives and other types of error
-  // and body parsers have no way of knowing the nest level
   class DirectiveParserBuilder extends DirectiveParser {
 
     val skip = success(())

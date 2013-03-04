@@ -33,19 +33,11 @@ trait BlockBaseParsers extends laika.parse.BlockParsers {
   val maxNestLevel: Int = 12
   
   
-  /** Parses all of the standard reStructuredText blocks, except normal paragraphs. 
-   * 
-   *  @param pos the current parsing position 
-   */
-  def standardRstBlock: Parser[Block]
-
   /** Parses reStructuredText blocks, except normal paragraphs
    *  and blocks that allow nesting of blocks. Only used in rare cases when the maximum
    *  nest level allowed had been reached
    */
-  def nonRecursiveRstBlock: Parser[Block]
-  
-  def paragraph: Parser[Paragraph]
+  def nonRecursiveBlock: Parser[Block]
   
   
   override def ws = anyOf(' ') // other whitespace has been replaced with spaces by preprocessor
@@ -71,7 +63,7 @@ trait BlockBaseParsers extends laika.parse.BlockParsers {
     parseNestedBlocks(block.lines, block.nestLevel)
   
   def parseNestedBlocks (lines: List[String], nestLevel: Int): List[Block] = {
-    val parser = if (nestLevel < maxNestLevel) nestedBlock else nonRecursiveRstBlock 
+    val parser = if (nestLevel < maxNestLevel) nestedBlock else nonRecursiveBlock 
     val block = parser <~ opt(blankLines) 
     parseMarkup(block *, new NestedCharSequenceReader(nestLevel + 1, lines mkString "\n"))
   }
