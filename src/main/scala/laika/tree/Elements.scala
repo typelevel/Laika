@@ -113,6 +113,13 @@ object Elements {
    */
   case class FlowContent (content: Seq[Span]) extends Block with Span with SpanContainer[FlowContent]
   
+  /** A generic container element containing a list of blocks. Can be used where a sequence
+   *  of blocks must be inserted in a place where a single element is required by the API for example.
+   *  Usually renderers do not treat the container as a special element and render its children
+   *  as s sub flow of the parent container.
+   */
+  case class BlockSequence (content: Seq[Block]) extends Block with BlockContainer[BlockSequence]
+  
   /** A paragraph consisting of span elements.
    */
   case class Paragraph (content: Seq[Span]) extends Block with SpanContainer[Paragraph]
