@@ -59,5 +59,10 @@ object Elements {
    */
   case class SubstitutionDefinition (name: String, content: Seq[Span]) extends Block with SpanContainer[SubstitutionDefinition]
   
+  /** Represents an interactive Python session. Somewhat unlikely to be used in
+   *  the context of this library, but included for the sake of completeness.
+   */
+  case class DoctestBlock (content: String) extends Block with TextContainer
+  
   
 }

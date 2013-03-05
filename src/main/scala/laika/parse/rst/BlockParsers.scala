@@ -18,6 +18,7 @@ package laika.parse.rst
 
 import laika.tree.Elements._
 import laika.parse.InlineParsers
+import laika.parse.rst.Elements.DoctestBlock
 
 /**
  * @author Jens Halm
@@ -33,6 +34,9 @@ trait BlockParsers extends BlockBaseParsers
    */
   def paragraph: Parser[Paragraph] = 
       ((not(blankLine) ~> restOfLine) +) ^^ { lines => Paragraph(parseInline(lines mkString "\n")) }
+  
+  def doctest: Parser[Block] = ">>> " ~> restOfLine ~ 
+      ((not(blankLine) ~> restOfLine) *) ^^ { case first ~ rest => DoctestBlock((first :: rest) mkString "\n") }
 
   
   def nonRecursiveBlock: Parser[Block] = comment | paragraph
@@ -45,6 +49,7 @@ trait BlockParsers extends BlockBaseParsers
                                      explicitBlockItem |
                                      gridTable |
                                      simpleTable |
+                                     doctest |
                                      paragraph
  
   def nestedBlock: Parser[Block] = topLevelBlock
