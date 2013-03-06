@@ -52,7 +52,7 @@ class HTML extends ((Output, Element => Unit) => (HTMLWriter, Element => Unit)) 
     
     elem match {
       case Document(content)          => out <<        "<div>" <<|> content <<| "</div>"       
-      case QuotedBlock(content)       => out << "<blockquote>" <<|> content <<| "</blockquote>"
+      case QuotedBlock(content, _)    => out << "<blockquote>" <<|> content <<| "</blockquote>"
       case UnorderedList(content)     => out <<         "<ul>" <<|> content <<| "</ul>"
       case OrderedList(content,_,_,_,_) => out <<         "<ol>" <<|> content <<| "</ol>"
       case CodeBlock(content)         => out <<  "<code><pre>" <<<& content <<  "</pre></code>"

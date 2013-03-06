@@ -129,9 +129,9 @@ object Elements {
   case class CodeBlock (content: String) extends Block with TextContainer
 
   /** A quoted block consisting of a list of blocks that may contain other
-   *  nested quoted blocks.
+   *  nested quoted blocks and an attribution which may be empty.
    */
-  case class QuotedBlock (content: Seq[Block]) extends Block with BlockContainer[QuotedBlock]
+  case class QuotedBlock (content: Seq[Block], attribution: Seq[Span]) extends Block with BlockContainer[QuotedBlock]
 
   /** An unordered list of block level items that may contain nested lists.
    */

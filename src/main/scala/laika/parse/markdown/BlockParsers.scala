@@ -188,7 +188,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    */
   def quotedBlock (nestLevel: Int): Parser[QuotedBlock] 
     = mdBlock('>', accept('>') | not(blankLine), '>') ^^ 
-      { lines => QuotedBlock(parseNestedBlocks(lines, nestedBlock(nestLevel + 1))) }
+      { lines => QuotedBlock(parseNestedBlocks(lines, nestedBlock(nestLevel + 1)), Nil) }
 
   
   /** Represents one or more consecutive blank lines. For parsing Markdown lists

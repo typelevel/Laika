@@ -35,7 +35,7 @@ class ElementTraversalSpec extends FlatSpec
   
   it should "select the elements in depth-first order" in {
     val document = doc(quote(quote(p("a"))), quote(p("b")))
-    document select { case QuotedBlock(_) => true; case _ => false } should be (List(quote(p("a")), quote(quote(p("a"))), quote(p("b"))))
+    document select { case QuotedBlock(_,_) => true; case _ => false } should be (List(quote(p("a")), quote(quote(p("a"))), quote(p("b"))))
   }
   
   it should "select elements which are not part of the content collection of a container" in {

@@ -83,9 +83,9 @@ trait ModelBuilder {
   def li (blocks: Block*) = ListItem(blocks.toList)
   
   
-  def quote (items: Block*) = QuotedBlock(items.toList)
+  def quote (items: Block*) = QuotedBlock(items.toList, Nil)
   
-  def quote (text: String) = QuotedBlock(List(p(text))) 
+  def quote (text: String) = QuotedBlock(List(p(text)), Nil) 
   
   
   def codeBlock (content: String) = CodeBlock(content)
