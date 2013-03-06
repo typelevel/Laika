@@ -106,12 +106,13 @@ trait BlockBaseParsers extends laika.parse.BlockParsers {
    */
   def varIndentedBlock (minIndent: Int = 1,
                      linePrefix: => Parser[Any] = not(blankLine), 
-                     nextBlockPrefix: => Parser[Any] = not(blankLine)): Parser[IndentedBlock] = {
-    
-    val firstLine = restOfLine ^^ { (-1, _) }
+                     nextBlockPrefix: => Parser[Any] = not(blankLine),
+                     testFirstLine: Boolean = false): Parser[IndentedBlock] = {
     
     lazy val line = (((ws min minIndent) ^^ (_.length)) ~ 
                     (linePrefix ~> restOfLine)) ^^ { case indent ~ text => (indent, text.trim) }
+
+    val firstLine = if (testFirstLine) line else restOfLine ^^ { (-1, _) }
     
     lazy val nextBlock = blankLines <~ guard(nextBlockPrefix) ^^ { res => (-1, res.mkString("\n")) }
     
@@ -119,7 +120,7 @@ trait BlockBaseParsers extends laika.parse.BlockParsers {
       firstLine ~ ( (line | nextBlock)* ) ^^ { res => 
         val lines = mkList(res)
         val minIndent = lines map (_._1) filter (_ == -1) min;
-        (minIndent, lines map (line => if (line == -1) line._2 else " " * (line._1 - minIndent) + line._2))
+        (minIndent, lines map (line => if (line._1 == -1) line._2 else " " * (line._1 - minIndent) + line._2))
       }
     } ^^ { case (nestLevel, (indent, lines)) => IndentedBlock(nestLevel, indent, lines) }
   }
