@@ -45,10 +45,7 @@ trait BlockParsers extends MarkupParsers {
   
   /** Parses a full document, delegating most of the work to the `topLevelBlock` parser.
    */
-  def document: Parser[Document] = {
-    val block = topLevelBlock <~ opt(blankLines)
-    opt(blankLines) ~> (block *) ^^ { Document(_) }
-  }
+  def document: Parser[Document] = opt(blankLines) ~> blockList(topLevelBlock) ^^ Document
   
   /** Fully parses the input from the specified reader and returns the document tree. 
    *  This function is expected to always succeed, errors would be considered a bug
@@ -76,10 +73,12 @@ trait BlockParsers extends MarkupParsers {
    *  text.
    */
   def parseNestedBlocks (lines: List[String], parser: Parser[Block]): List[Block] = {
-    val block = parser <~ opt(blankLines)
-    parseMarkup(block *, lines mkString "\n")
+    parseMarkup(blockList(parser), lines mkString "\n")
   }
   
+  /** Builds a parser for a list of blocks based on the parser for a single block.
+   */
+  def blockList (p: => Parser[Block]): Parser[List[Block]] = (p <~ opt(blankLines))*
   
   /** Parses a single text line from the current input offset (which may not be at the
    *  start of the line. Fails for blank lines. Does not include the eol character(s).
