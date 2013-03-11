@@ -38,6 +38,8 @@ trait BlockParsers extends BlockBaseParsers
   val punctuationChar = 
     anyOf('!','"','#','$','%','&','\'','(',')','[',']','{','}','*','+',',','-','.',':',';','/','<','>','=','?','@','\\','^','_','`','|','~')
   
+  val transition = (punctuationChar min 4) ~ ws ~ eol ~ guard(blankLine) ^^^ Rule  
+    
   /** Parses a single paragraph. Everything between two blank lines that is not
    *  recognized as a special reStructuredText block type will be parsed as a regular paragraph.
    */
@@ -150,6 +152,7 @@ trait BlockParsers extends BlockBaseParsers
                                      gridTable |
                                      simpleTable |
                                      doctest |
+                                     transition |
                                      paragraph
  
   def nestedBlock: Parser[Block] = topLevelBlock
