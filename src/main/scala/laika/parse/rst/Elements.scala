@@ -64,5 +64,12 @@ object Elements {
    */
   case class DoctestBlock (content: String) extends Block with TextContainer
   
+  /** Temporary element to represent a section header whose level gets determined
+   *  in a post-processing step based on the punctuation character used as underline
+   *  and overline. In the final document tree model these elements are replaced
+   *  by `Header` elements from the generic tree model.
+   */
+  case class SectionHeader (char: Char, overline: Boolean, content: Seq[Span]) extends Block with SpanContainer[SectionHeader]
+  
   
 }

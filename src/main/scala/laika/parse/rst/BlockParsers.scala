@@ -19,6 +19,7 @@ package laika.parse.rst
 import laika.tree.Elements._
 import laika.parse.InlineParsers
 import laika.parse.rst.Elements.DoctestBlock
+import laika.parse.rst.Elements.SectionHeader
 import scala.collection.mutable.ListBuffer
 import scala.annotation.tailrec
 
@@ -35,6 +36,15 @@ trait BlockParsers extends BlockBaseParsers
                       with ExplicitBlockParsers { self: InlineParsers => // TODO - probably needs to be rst.InlineParsers
 
                         
+  override def document = super.document ^^ { doc =>
+    val levelMap = scala.collection.mutable.Map.empty[(Char,Boolean),Int]
+    val levelIt = Stream.from(1).iterator
+    doc rewrite {
+      case SectionHeader(char, overline, content) => 
+        Some(Header(levelMap.getOrElseUpdate((char,overline), levelIt.next), content))
+    }
+  }                      
+                        
   val punctuationChar = 
     anyOf('!','"','#','$','%','&','\'','(',')','[',']','{','}','*','+',',','-','.',':',';','/','<','>','=','?','@','\\','^','_','`','|','~')
   
@@ -45,6 +55,31 @@ trait BlockParsers extends BlockBaseParsers
    */
   def paragraph: Parser[Paragraph] = 
       ((not(blankLine) ~> restOfLine) +) ^^ { lines => Paragraph(parseInline(lines mkString "\n")) }
+  
+  
+  def headerWithOverline: Parser[Block] = {
+    (punctuationChar take 1) >> { start =>
+      val char = start.charAt(0)
+      anyOf(char) >> { deco =>
+        val len = deco.length + 1
+        (ws ~ eol ~> (anyBut('\n') max len) <~ 
+         ws ~ eol ~ (anyOf(char) take len) ~
+         ws ~ eol) ^^ { title => SectionHeader(char, true, parseInline(title.trim)) }
+      }
+    }
+  }
+  
+  def headerWithUnderline: Parser[Block] = {
+    anyBut(' ') ~ restOfLine >> { case char ~ rest =>
+      val title = (char + rest).trim
+      (punctuationChar take 1) >> { start =>
+        val char = start.charAt(0)
+        ((anyOf(char) take title.length) ~
+         ws ~ eol) ^^ { _ => SectionHeader(char, false, parseInline(title)) }
+      }
+    }
+  }
+  
   
   def doctest: Parser[Block] = ">>> " ~> restOfLine ~ 
       ((not(blankLine) ~> restOfLine) *) ^^ { case first ~ rest => DoctestBlock((first :: rest) mkString "\n") }
@@ -152,7 +187,9 @@ trait BlockParsers extends BlockBaseParsers
                                      gridTable |
                                      simpleTable |
                                      doctest |
+                                     headerWithOverline |
                                      transition |
+                                     headerWithUnderline |
                                      paragraph
  
   def nestedBlock: Parser[Block] = topLevelBlock
