@@ -50,6 +50,11 @@ trait BlockParsers extends BlockBaseParsers
   
   def blockQuote: Parser[Block] = {
     
+    /* The implementation of this parser is complex as we cannot use the varIndentedBlock parser
+     * used in all other parsers for indented blocks because the attribution needs to be detected
+     * as flushed left which depends on the current minimum indentation. Parts of the code below
+     * are basically a dynamic re-implementation of the varIndentedBlock parser.
+     */
     def attributionStart (minIndent: Int) = (ws take (minIndent)) ~ "---" | "--" // TODO - em dash
         
     def attribution (indent: Int) = attributionStart(indent) ~> 
