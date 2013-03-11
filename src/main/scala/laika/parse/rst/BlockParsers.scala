@@ -34,6 +34,9 @@ trait BlockParsers extends BlockBaseParsers
                       with TableParsers 
                       with ExplicitBlockParsers { self: InlineParsers => // TODO - probably needs to be rst.InlineParsers
 
+                        
+  val punctuationChar = 
+    anyOf('!','"','#','$','%','&','\'','(',')','[',']','{','}','*','+',',','-','.',':',';','/','<','>','=','?','@','\\','^','_','`','|','~')
   
   /** Parses a single paragraph. Everything between two blank lines that is not
    *  recognized as a special reStructuredText block type will be parsed as a regular paragraph.
@@ -88,7 +91,48 @@ trait BlockParsers extends BlockBaseParsers
     }) 
   }
   
+  
+  /** Builds a parser for a list of blocks based on the parser for a single block. 
+   * 
+   *  Overridden to check each Paragraph for a double colon ending which has influence
+   *  on the parsing of the following block (turning it into a literal block).  
+   */
+  override def blockList (parser: => Parser[Block]): Parser[List[Block]] = Parser { in =>
+    val defaultBlock = parser <~ opt(blankLines)
+    val litBlock = literalBlock | defaultBlock 
+    val elems = new ListBuffer[Block]
 
+    def processLiteralMarker (par: Paragraph) = {
+      par.content.lastOption match {
+        case Some(Text(text)) if text.trim.endsWith("::") => 
+          val drop = if (text.length > 2 && text.charAt(text.length-3) == ' ') 2 else 1
+          val spans = par.content.init.toList ::: List(Text(text.drop(drop)))
+          (Paragraph(spans), litBlock)
+        case _ => (par, defaultBlock) 
+      }
+    }
+    
+    @tailrec 
+    def parse (p: Parser[Block], in: Input): ParseResult[List[Block]] = p(in) match {
+      case Success(Paragraph(Text(txt) :: Nil), rest) if txt.trim == "::" => parse(litBlock, rest)
+      case Success(p: Paragraph, rest) => 
+        val (paragraph, parser) = processLiteralMarker(p)
+        elems += paragraph
+        parse(parser, rest)
+      case Success(x, rest) => elems += x; parse(defaultBlock, rest)
+      case _                => Success(elems.toList, in)
+    }
+
+    parse(defaultBlock, in)
+  }
+  
+  def literalBlock: Parser[Block] = {
+    val indented = varIndentedBlock(testFirstLine = true) ^^ 
+      { block => CodeBlock(block.lines mkString "\n") }
+    val quoted = block(guard(punctuationChar), guard(punctuationChar), failure("blank line always ends quoted block")) ^^ 
+      { lines => CodeBlock(lines mkString "\n") }  
+    indented | quoted
+  }
   
   def nonRecursiveBlock: Parser[Block] = comment | paragraph
   
