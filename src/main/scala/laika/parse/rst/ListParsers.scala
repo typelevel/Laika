@@ -32,7 +32,7 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - pr
   /*
    * unordered list:
    * 
-   * - items start with '*', '+', '-' in column 1 (TODO - 3 more non-ASCII characters)
+   * - items start with '*', '+', '-', \u2022, \u2023, \u2043 in column 1
    * - text left-aligned and indented with one or more spaces
    * - sublist indented like text in top-list
    * - blank lines required before and after lists (including sub-list)
@@ -103,7 +103,7 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - pr
    *  @param pos the current parsing position 
    */
   def unorderedList: Parser[UnorderedList] = {
-    val itemStart = anyOf('*','-','+').take(1)
+    val itemStart = anyOf('*','-','+','\u2022','\u2023','\u2043').take(1)
     
     guard(itemStart) >> { symbol =>
       ((listItem(symbol)) *) ^^ { UnorderedList(_) }
