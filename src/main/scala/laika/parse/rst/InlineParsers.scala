@@ -1,5 +1,7 @@
 package laika.parse.rst
 
+import laika.tree.Elements._
+
 trait InlineParsers extends laika.parse.InlineParsers {
 
   
@@ -43,12 +45,12 @@ trait InlineParsers extends laika.parse.InlineParsers {
 
                             
   // TODO - eliminate escaped spaces before markup start
-  def markupStart = {
-    lookBehind(2, (atStart ^^^ ' ') | beforeStartChar) >> afterStartChar
+  def markupStart (start: Parser[Any], end: Parser[Any]) = {
+    (lookBehind(2, (atStart ^^^ ' ') | beforeStartMarkup) >> afterStartMarkup(start)) ~ not(end) // not(end) == rule 6
   }
   
-  def markupEnd (offset: Int = 1) = {
-    lookBehind(offset, beforeEndChar) ~ (eof | afterEndChar)
+  def markupEnd (end: Parser[String]) = {
+    end >> { markup => lookBehind(markup.length, beforeEndMarkup) ~ guard(eof | afterEndMarkup) }
   }
   
   // TODO - promote to MarkupParsers
@@ -59,21 +61,36 @@ trait InlineParsers extends laika.parse.InlineParsers {
   
   /** Inline markup recognition rules 2 and 5
    */
-  def afterStartChar (before: Char) = {
+  def afterStartMarkup (start: Parser[Any])(before: Char) = {
     val matching = pairs.getOrElse(before, ' ') 
-    guard(anyBut(' ','\n', matching) take 1)
+    start ~ guard(anyBut(' ','\n', matching) take 1)
   }
   
   /** Inline markup recognition rules 3
    */
-  val beforeEndChar = anyBut(' ','\n') take 1
+  val beforeEndMarkup = anyBut(' ','\n') take 1
   
   /** Inline markup recognition rule 1
    */
-  val beforeStartChar = startChars ^^ {_.charAt(0)} | acceptIf(char => startCategories(Character.getType(char)))("Not a start char: " + _)
+  val beforeStartMarkup = startChars ^^ {_.charAt(0)} | acceptIf(char => startCategories(Character.getType(char)))("Not a start char: " + _)
   
   /** Inline markup recognition rule 4
    */
-  val afterEndChar = endChars | acceptIf(char => endCategories(Character.getType(char)))("Not an end char: " + _)
+  val afterEndMarkup = endChars | acceptIf(char => endCategories(Character.getType(char)))("Not an end char: " + _)
+  
+  
+  val spanParsers = Map(
+    '*' -> em    
+  )
+
+  
+  val em = span("*") ^^ Emphasized
+  
+  def span (start: Parser[Any], end: Parser[String]): Parser[List[Span]]
+    = markupStart(start, end) ~> spans(anyUntil(markupEnd(end)), spanParsers)
+    
+  def span (end: Parser[String]): Parser[List[Span]] = span(success(()), end)
+    
+  
   
 }
