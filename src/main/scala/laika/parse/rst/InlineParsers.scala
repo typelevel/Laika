@@ -80,11 +80,13 @@ trait InlineParsers extends laika.parse.InlineParsers {
   
   
   val spanParsers = Map(
-    '*' -> em    
+    '*' -> (strong | em)    
   )
 
   
   val em = span("*") ^^ Emphasized
+  
+  val strong = span('*',"**") ^^ Strong
   
   def span (start: Parser[Any], end: Parser[String]): Parser[List[Span]]
     = markupStart(start, end) ~> spans(anyUntil(markupEnd(end)), spanParsers)
