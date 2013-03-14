@@ -45,7 +45,7 @@ trait InlineParsers extends laika.parse.InlineParsers {
 
                             
   // TODO - eliminate escaped spaces before markup start
-  def markupStart (start: Parser[Any], end: Parser[Any]) = {
+  def markupStart (start: Parser[Any], end: Parser[String]) = {
     (lookBehind(2, (atStart ^^^ ' ') | beforeStartMarkup) >> afterStartMarkup(start)) ~ not(end) // not(end) == rule 6
   }
   
@@ -80,7 +80,8 @@ trait InlineParsers extends laika.parse.InlineParsers {
   
   
   val spanParsers = Map(
-    '*' -> (strong | em)    
+    '*' -> (strong | em),   
+    '`' -> inlineLiteral
   )
 
   
@@ -88,11 +89,17 @@ trait InlineParsers extends laika.parse.InlineParsers {
   
   val strong = span('*',"**") ^^ Strong
   
+
   def span (start: Parser[Any], end: Parser[String]): Parser[List[Span]]
     = markupStart(start, end) ~> spans(anyUntil(markupEnd(end)), spanParsers)
     
   def span (end: Parser[String]): Parser[List[Span]] = span(success(()), end)
     
+  
+  lazy val inlineLiteral = markupStart('`', "``") ~> anyUntil(markupEnd("``")) ^^ CodeSpan
+  
+  
+  
   
   
 }
