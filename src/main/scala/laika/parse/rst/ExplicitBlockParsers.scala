@@ -16,7 +16,6 @@
 
 package laika.parse.rst
 
-import laika.parse.InlineParsers
 import laika.tree.Elements._
 import laika.util.Builders._
 import laika.parse.rst.Elements.SubstitutionDefinition
@@ -26,22 +25,8 @@ import scala.collection.mutable.ListBuffer
 /**
  * @author Jens Halm
  */
-trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // TODO - probably needs to be rst.InlineParsers 
+trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
 
-  
-  // TODO - might be needed in some base trait
-  val simpleRefName = {
-    val alphanum = anyIn('0' to '9', 'a' to 'z', 'A' to 'Z') min 1 // TODO - check whether non-ascii characters are allowed
-    val symbol = anyOf('-', '_', '.', ':', '+') take 1
-    
-    alphanum ~ ((symbol ~ alphanum)*) ^^ { 
-      case start ~ rest => start + (rest map { case a~b => a+b }).mkString
-    } // TODO - normalize ws - lowercase
-  }
-  
-  val refName = simpleRefName | phraseRef
-  
-  val phraseRef = '`' ~> (anyBut('`') min 1) <~ '`'
   
   
   def explicitStart = (".." ~ (ws min 1)) ^^ { case _ ~ ws => ws.length + 2 }
@@ -53,14 +38,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers => // 
   
   
   def footnote = {
-    val decimal = (anyIn('0' to '9') min 1) ^^ { n => NumericLabel(n.toInt) }
-    val autonumber = '#' ^^^ Autonumber 
-    val autosymbol = '*' ^^^ Autosymbol
-    val autonumberLabel = '#' ~> simpleRefName ^^ AutonumberLabel 
-    
-    val label = decimal | autonumberLabel | autonumber | autosymbol
-    
-    val prefix = '[' ~> label <~ ']'
+    val prefix = '[' ~> footnoteLabel <~ ']'
     
     prefix ~ varIndentedBlock() ^^ {
       case label ~ block => Footnote(label, parseNestedBlocks(block))

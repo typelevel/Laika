@@ -302,6 +302,14 @@ object Elements {
    */
   case class ImageReference (text: String, id: String, inputPrefix: String, inputPostfix: String) extends Span
   
+  /** A reference to a footnote with a matching label.
+   */
+  case class FootnoteReference (label: FootnoteLabel) extends Span
+
+  /** A reference to a citation with a matching label.
+   */
+  case class CitationReference (label: String) extends Span
+  
   /** An explicit hard line break.
    */
   case object LineBreak extends Span

@@ -45,9 +45,11 @@ trait InlineParsers extends laika.parse.InlineParsers {
 
                             
   // TODO - eliminate escaped spaces before markup start
-  def markupStart (start: Parser[Any], end: Parser[String]) = {
+  def markupStart (start: Parser[Any], end: Parser[String]): Parser[Any] = {
     (lookBehind(2, (atStart ^^^ ' ') | beforeStartMarkup) >> afterStartMarkup(start)) ~ not(end) // not(end) == rule 6
   }
+  
+  def markupStart (end: Parser[String]): Parser[Any] = markupStart(success(()), end)
   
   def markupEnd (end: Parser[String]) = {
     end >> { markup => lookBehind(markup.length, beforeEndMarkup) ~ guard(eof | afterEndMarkup) }
@@ -81,7 +83,8 @@ trait InlineParsers extends laika.parse.InlineParsers {
   
   val spanParsers = Map(
     '*' -> (strong | em),   
-    '`' -> inlineLiteral
+    '`' -> inlineLiteral,
+    '[' -> (footnoteRef | citationRef)
   )
 
   
@@ -98,6 +101,33 @@ trait InlineParsers extends laika.parse.InlineParsers {
   
   lazy val inlineLiteral = markupStart('`', "``") ~> anyUntil(markupEnd("``")) ^^ CodeSpan
   
+  
+  val simpleRefName = {
+    val alphanum = anyIn('0' to '9', 'a' to 'z', 'A' to 'Z') min 1 // TODO - check whether non-ascii characters are allowed
+    val symbol = anyOf('-', '_', '.', ':', '+') take 1
+    
+    alphanum ~ ((symbol ~ alphanum)*) ^^ { 
+      case start ~ rest => start + (rest map { case a~b => a+b }).mkString
+    } // TODO - normalize ws - lowercase
+  }
+  
+  val refName = simpleRefName | phraseRef
+  
+  val phraseRef = '`' ~> (anyBut('`') min 1) <~ '`'
+  
+  
+  val footnoteLabel = {
+    val decimal = (anyIn('0' to '9') min 1) ^^ { n => NumericLabel(n.toInt) }
+    val autonumber = '#' ^^^ Autonumber 
+    val autosymbol = '*' ^^^ Autosymbol
+    val autonumberLabel = '#' ~> simpleRefName ^^ AutonumberLabel 
+    
+    decimal | autonumberLabel | autonumber | autosymbol
+  }
+  
+  lazy val footnoteRef = markupStart("]_") ~> footnoteLabel <~ markupEnd("]_") ^^ FootnoteReference
+  
+  lazy val citationRef = markupStart("]_") ~> simpleRefName <~ markupEnd("]_") ^^ CitationReference
   
   
   
