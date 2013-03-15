@@ -59,6 +59,12 @@ object Elements {
    */
   case class SubstitutionDefinition (name: String, content: Seq[Span]) extends Block with SpanContainer[SubstitutionDefinition]
   
+  /** Refers to a substitution definition with the same name.
+   *  This type of element will only temporarily be part of the document tree and replaced
+   *  by the content of the substitution definition in a rewrite step.
+   */
+  case class SubstitutionReference (name: String) extends Span
+  
   /** Represents an interactive Python session. Somewhat unlikely to be used in
    *  the context of this library, but included for the sake of completeness.
    */

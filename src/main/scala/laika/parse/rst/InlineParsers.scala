@@ -1,6 +1,7 @@
 package laika.parse.rst
 
 import laika.tree.Elements._
+import Elements.SubstitutionReference
 
 trait InlineParsers extends laika.parse.InlineParsers {
 
@@ -84,7 +85,8 @@ trait InlineParsers extends laika.parse.InlineParsers {
   val spanParsers = Map(
     '*' -> (strong | em),   
     '`' -> inlineLiteral,
-    '[' -> (footnoteRef | citationRef)
+    '[' -> (footnoteRef | citationRef),
+    '|' -> substitutionRef
   )
 
   
@@ -129,7 +131,7 @@ trait InlineParsers extends laika.parse.InlineParsers {
   
   lazy val citationRef = markupStart("]_") ~> simpleRefName <~ markupEnd("]_") ^^ CitationReference
   
-  
+  lazy val substitutionRef = markupStart("|") ~> simpleRefName <~ markupEnd("|") ^^ SubstitutionReference
   
   
 }
