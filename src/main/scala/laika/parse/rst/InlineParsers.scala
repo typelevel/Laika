@@ -86,7 +86,8 @@ trait InlineParsers extends laika.parse.InlineParsers {
     '*' -> (strong | em),   
     '`' -> inlineLiteral,
     '[' -> (footnoteRef | citationRef),
-    '|' -> substitutionRef
+    '|' -> substitutionRef,
+    '_' -> internalTarget
   )
 
   
@@ -132,6 +133,9 @@ trait InlineParsers extends laika.parse.InlineParsers {
   lazy val citationRef = markupStart("]_") ~> simpleRefName <~ markupEnd("]_") ^^ CitationReference
   
   lazy val substitutionRef = markupStart("|") ~> simpleRefName <~ markupEnd("|") ^^ SubstitutionReference
+  
+  
+  val internalTarget = markupStart('`', "`") ~> (anyBut('`') min 1) <~ markupEnd("`") ^^ InlineLinkTarget // TODO - normalize id's?
   
   
 }

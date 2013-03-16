@@ -277,6 +277,10 @@ object Elements {
   /** A code span containing plain text.
    */
   case class CodeSpan (content: String) extends Span with TextContainer
+  
+  /** An internal link target, equivalent to `InternalLinkTarget`, but for spans.
+   */
+  case class InlineLinkTarget (id: String) extends Span
 
   /** A link element, with the span content representing the text (description) of the link.
    */
