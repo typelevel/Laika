@@ -77,5 +77,10 @@ object Elements {
    */
   case class SectionHeader (char: Char, overline: Boolean, content: Seq[Span]) extends Block with SpanContainer[SectionHeader]
   
+  /** Temporary element to represent interpreted text with its associated role name.
+   *  In a post-processing step this text will be replaced by the result of calling
+   *  the corresponding role function.
+   */
+  case class InterpretedText (role: String, content: String) extends Span with TextContainer
   
 }

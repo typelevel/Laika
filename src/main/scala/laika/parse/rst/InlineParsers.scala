@@ -2,6 +2,7 @@ package laika.parse.rst
 
 import laika.tree.Elements._
 import Elements.SubstitutionReference
+import Elements.InterpretedText
 
 trait InlineParsers extends laika.parse.InlineParsers {
 
@@ -84,10 +85,11 @@ trait InlineParsers extends laika.parse.InlineParsers {
   
   val spanParsers = Map(
     '*' -> (strong | em),   
-    '`' -> inlineLiteral,
+    '`' -> (inlineLiteral | interpretedTextWithRoleSuffix),
     '[' -> (footnoteRef | citationRef),
     '|' -> substitutionRef,
-    '_' -> internalTarget
+    '_' -> internalTarget,
+    ':' -> interpretedTextWithRolePrefix
   )
 
   
@@ -136,6 +138,19 @@ trait InlineParsers extends laika.parse.InlineParsers {
   
   
   val internalTarget = markupStart('`', "`") ~> (anyBut('`') min 1) <~ markupEnd("`") ^^ InlineLinkTarget // TODO - normalize id's?
+  
+  
+  val defaultTextRole = "title-reference"
+    
+  lazy val interpretedTextWithRolePrefix = {
+    (markupStart(":") ~> simpleRefName) ~ (":`" ~> (anyBut('`') min 1) <~ markupEnd("`")) ^^ 
+      { case role ~ text => InterpretedText(role,text) }
+  }
+  
+  lazy val interpretedTextWithRoleSuffix = {
+    (markupStart("`") ~> (anyBut('`') min 1) <~ markupEnd("`")) ~ opt(":" ~> simpleRefName <~ markupEnd(":")) ^^
+      { case text ~ role => InterpretedText(role.getOrElse(defaultTextRole), text) }
+  }
   
   
 }
