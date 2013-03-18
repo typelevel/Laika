@@ -34,14 +34,6 @@ import laika.util.Builders._
 object TextRoles {
 
   
-  class Result[+A] (a: => A) {
-    
-    def get = a
-    
-    def map [B](f: A => B) = new Result(f(get))
-    
-  }
-  
   trait RoleDirectiveParser {
       
     def requiredField [T](name: String, f: String => T): Result[T]
@@ -96,11 +88,14 @@ object TextRoles {
     
   }
 
-  class TextRole [T] private (val name: String, val part: RoleDirectivePart[T], val roleF: (T, String) => Seq[Span])
+  //class TextRole [T] private (val name: String, val part: RoleDirectivePart[T], val roleF: (T, String) => Seq[Span])
+  
+  class TextRole private (val name: String, val part: RoleDirectivePart[String => Seq[Span]])
 
   object TextRole {
     
-    def apply [T] (name: String, default: T)(part: RoleDirectivePart[T])(roleF: (T, String) => Seq[Span]) = new TextRole(name, part, roleF)
+    def apply [T] (name: String, default: T)(part: RoleDirectivePart[T])(roleF: (T, String) => Seq[Span]) = 
+      new TextRole(name, part map (res => (str => roleF(res, str))))
     
   }
 

@@ -24,6 +24,15 @@ package laika.util
 object Builders {
 
   
+  class Result[+A] (a: => A) {
+    
+    def get = a
+    
+    def map [B](f: A => B) = new Result(f(get))
+    
+  }
+    
+    
   trait CanBuild [M[_]]{
     
     def apply [A,B](ma: M[A], mb: M[B]): M[A ~ B]

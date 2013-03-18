@@ -40,14 +40,6 @@ import laika.util.Builders._
 object Directives {
 
   
-  class Result[+A] (a: => A) {
-    
-    def get = a
-    
-    def map [B](f: A => B) = new Result(f(get))
-    
-  }
-  
   trait DirectiveParser {
       
     def requiredArg [T](f: String => T): Result[T]

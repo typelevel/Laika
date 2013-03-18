@@ -20,6 +20,7 @@ import laika.tree.Elements._
 import laika.util.Builders._
 import laika.parse.rst.Elements.SubstitutionDefinition
 import Directives._
+import TextRoles._
 import scala.collection.mutable.ListBuffer
 
 /**
@@ -33,7 +34,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
   
   
   def explicitBlockItem: Parser[Block] = explicitStart ~>
-    (footnote | citation | linkDefinition | substitutionDefinition | blockDirective | comment) 
+    (footnote | citation | linkDefinition | substitutionDefinition | roleDirective | blockDirective | comment) 
     // TODO - there is a linkDef alternative not requiring the .. prefix
   
   
@@ -87,6 +88,8 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
   val blockDirectives: Map[String, DirectivePart[Seq[Block]]] // TODO - populate (maybe do this in reStructuredText entry point object)
   
   val spanDirectives: Map[String, DirectivePart[Seq[Span]]]
+  
+  val textRoles: Map[String, TextRole]
     
 
   def blockDirective: Parser[Block] = directive(blockDirectives) ^^ BlockSequence
@@ -107,6 +110,28 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     
     nameParser >> { name =>
       directives.get(name).map(directiveParser).getOrElse(failure("unknown directive: " + name))
+    }
+    
+  }
+
+  case class CustomizedTextRole (name: String, apply: String => Seq[Span]) extends Block
+  
+  def roleDirective = {
+    
+    val nameParser = "role::" ~ ws ~> simpleRefName ~ opt('(' ~> simpleRefName <~ ')')
+    
+    def directiveParser (name: String)(role: TextRole) = {
+      val delegate = new DirectiveParserBuilder
+      val parserBuilder = new RoleDirectiveParserBuilder(delegate)
+      val result = role.part(parserBuilder)
+      delegate.parser ^^^ {
+        CustomizedTextRole(name, result.get)
+      }
+    }
+    
+    nameParser >> { case name ~ baseName =>
+      val base = baseName.getOrElse(defaultTextRole)
+      textRoles.get(base).map(directiveParser(name)).getOrElse(failure("unknown text role: " + base))
     }
     
   }
@@ -240,6 +265,18 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
       contentParser = (body ^^ { block => result.set(f(block)) })
       new Result(result.get)
     }
+    
+  }
+  
+  class RoleDirectiveParserBuilder (delegate: DirectiveParser) extends RoleDirectiveParser {
+    
+    def requiredField [T](name: String, f: String => T): Result[T] = delegate.requiredField(name,f)
+    
+    def optionalField [T](name: String, f: String => T): Result[Option[T]] = delegate.optionalField(name,f)
+    
+    def standardContent: Result[Seq[Block]] = delegate.standardContent
+    
+    def content [T](f: String => T): Result[T] = delegate.content(f)
     
   }
     
