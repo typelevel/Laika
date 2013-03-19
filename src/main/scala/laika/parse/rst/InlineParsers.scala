@@ -3,6 +3,8 @@ package laika.parse.rst
 import laika.tree.Elements._
 import Elements.SubstitutionReference
 import Elements.InterpretedText
+import scala.util.parsing.input.CharSequenceReader
+import scala.collection.mutable.ListBuffer
 
 trait InlineParsers extends laika.parse.InlineParsers {
 
@@ -54,7 +56,7 @@ trait InlineParsers extends laika.parse.InlineParsers {
   def markupStart (end: Parser[String]): Parser[Any] = markupStart(success(()), end)
   
   def markupEnd (end: Parser[String]) = {
-    end >> { markup => lookBehind(markup.length, beforeEndMarkup) ~ guard(eof | afterEndMarkup) }
+    end >> { markup => (lookBehind(markup.length, beforeEndMarkup) ~ guard(eof | afterEndMarkup)) ^^^ markup }
   }
   
   // TODO - promote to MarkupParsers
@@ -88,7 +90,7 @@ trait InlineParsers extends laika.parse.InlineParsers {
     '`' -> (inlineLiteral | phraseLinkRef | interpretedTextWithRoleSuffix),
     '[' -> (footnoteRef | citationRef),
     '|' -> substitutionRef,
-    '_' -> internalTarget,
+    '_' -> (internalTarget | reverseLinkRef),
     ':' -> interpretedTextWithRolePrefix
   )
 
@@ -169,5 +171,43 @@ trait InlineParsers extends laika.parse.InlineParsers {
     }
   }
   
+  case class Reverse (length: Int, target: Span, fallback: Span) extends Span
+  
+  lazy val reverseLinkRef = {
+    markupEnd('_' ^^^ "__" | success("_")) >> { 
+      markup => reverse(markup.length, simpleRefName <~ reverseMarkupStart) ^^ { refName =>
+        markup match {
+          case "_"  => Reverse(refName.length, LinkReference(List(Text(refName)), refName, "", "_"), Text("_")) 
+          case "__" => Reverse(refName.length, LinkReference(List(Text(refName)), "", "", "__"), Text("__")) 
+        }
+      }
+    } 
+  }
+  
+  def reverse (offset: Int, p: => Parser[String]) = Parser { in =>
+    val source = in.source.subSequence(0, in.offset - offset).toString.reverse
+    p(new CharSequenceReader(source)) match {
+      case Success(result, _) => Success(result, in)
+      case Failure(msg, _) => Failure(msg, in)
+      case Error(msg, _) => Error(msg, in)
+    }
+  }
+  
+  lazy val reverseMarkupStart: Parser[Any] = guard(eof | beforeStartMarkup)
+  
+  
+  override def parseInline (source: String, spanParsers: Map[Char, Parser[Span]]) = {
+    val spans = super.parseInline(source, spanParsers)
+    val buffer = new ListBuffer[Span]
+    val last = (spans.head /: spans.tail) { 
+      case (t @ Text(content), Reverse(len, target, fallback)) =>
+        if (content.length < len) { buffer += t; fallback }
+        else { buffer += Text(content.dropRight(len)); target }
+      case (prev, Reverse(_, _, fallback)) => buffer += prev; fallback
+      case (prev, current)                 => buffer += prev; current
+    }
+    buffer += last
+    buffer.toList
+  }
   
 }
