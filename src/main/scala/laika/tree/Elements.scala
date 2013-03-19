@@ -222,7 +222,7 @@ object Elements {
   /** A link definition, usually only part of the raw document tree and then
    *  removed by the rewrite rule that resolves link and image references.
    */
-  case class LinkDefinition (id: String, url: String, title: Option[String] = None) extends Block
+  case class LinkDefinition (id: String, url: String, title: Option[String] = None) extends Block with Span
   
   /** Points to the following block element, making it a target for links.
    */

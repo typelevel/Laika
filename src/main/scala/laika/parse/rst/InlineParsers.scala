@@ -85,7 +85,7 @@ trait InlineParsers extends laika.parse.InlineParsers {
   
   val spanParsers = Map(
     '*' -> (strong | em),   
-    '`' -> (inlineLiteral | interpretedTextWithRoleSuffix),
+    '`' -> (inlineLiteral | phraseLinkRef | interpretedTextWithRoleSuffix),
     '[' -> (footnoteRef | citationRef),
     '|' -> substitutionRef,
     '_' -> internalTarget,
@@ -150,6 +150,19 @@ trait InlineParsers extends laika.parse.InlineParsers {
   lazy val interpretedTextWithRoleSuffix = {
     (markupStart("`") ~> (anyBut('`') min 1) <~ markupEnd("`")) ~ opt(":" ~> simpleRefName <~ markupEnd(":")) ^^
       { case text ~ role => InterpretedText(role.getOrElse(defaultTextRole), text) }
+  }
+  
+  
+  lazy val phraseLinkRef = { // TODO - escaped < is allowed
+    def ref (refName: String, url: String) = if (refName.isEmpty) url else refName
+    val url = '<' ~> anyBut('>') <~ '>'
+    markupStart("`") ~> anyBut('`','<') ~ opt(url) ~ (markupEnd("`__") ^^^ false | markupEnd("`_") ^^^ true) ^^ {
+      case refName ~ Some(url) ~ true   => 
+        FlowContent(List(Link(List(Text(ref(refName,url))), url), LinkDefinition(ref(refName,url), url)))
+      case refName ~ Some(url) ~ false  => Link(List(Text(ref(refName,url))), url)
+      case refName ~ None ~ true        => LinkReference(List(Text(refName)), refName, "`", "`_") 
+      case refName ~ None ~ false       => LinkReference(List(Text(refName)), "", "`", "`__") 
+    }
   }
   
   
