@@ -315,7 +315,7 @@ trait MarkupParsers extends RegexParsers {
      *  where `Left` is interpreted as failure. It is an alternative to `^?` for scenarios 
      *  where the conditional check cannot be easily performed in a pattern match.
      *
-     *  `p ^^ f` succeeds if `p` succeeds and `f` returns a `Right`; 
+     *  `p ^^? f` succeeds if `p` succeeds and `f` returns a `Right`; 
      *  it returns the content of `Right` obtained from applying `f` to the result of `p`.
      *
      *  @param f a function that will be applied to this parser's result.
