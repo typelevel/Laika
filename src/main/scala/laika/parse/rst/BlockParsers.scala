@@ -17,7 +17,6 @@
 package laika.parse.rst
 
 import laika.tree.Elements._
-import laika.parse.InlineParsers
 import laika.parse.rst.Elements.DoctestBlock
 import laika.parse.rst.Elements.SectionHeader
 import scala.collection.mutable.ListBuffer
@@ -33,7 +32,7 @@ import scala.annotation.tailrec
 trait BlockParsers extends BlockBaseParsers 
                       with ListParsers 
                       with TableParsers 
-                      with ExplicitBlockParsers { self: InlineParsers => // TODO - probably needs to be rst.InlineParsers
+                      with ExplicitBlockParsers { self: InlineParsers =>
 
                         
   override def document = super.document ^^ { doc =>

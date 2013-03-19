@@ -18,14 +18,13 @@ package laika.parse.rst
 
 import laika.tree.Elements._
 import laika.parse.rst.Elements._
-import laika.parse.InlineParsers
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.Stack
 
 /**
  * @author Jens Halm
  */
-trait TableParsers extends BlockBaseParsers { self: InlineParsers => // TODO - probably needs to be rst.InlineParsers 
+trait TableParsers extends BlockBaseParsers { self: InlineParsers => 
 
   
   // TODO - Option should be renamed in rst.Elements to avoid scala prefix for SDK Option

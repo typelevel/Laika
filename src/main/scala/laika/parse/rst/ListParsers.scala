@@ -18,7 +18,6 @@ package laika.parse.rst
 
 import laika.tree.Elements._
 import laika.parse.rst.Elements._
-import laika.parse.InlineParsers
 import scala.annotation.tailrec
 import scala.collection.mutable.Stack
 import scala.collection.mutable.ListBuffer
@@ -26,7 +25,7 @@ import scala.collection.mutable.ListBuffer
 /**
  * @author Jens Halm
  */
-trait ListParsers extends BlockBaseParsers { self: InlineParsers => // TODO - probably needs to be rst.InlineParsers {
+trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
 
   
   /*
