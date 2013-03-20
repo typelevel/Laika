@@ -291,6 +291,25 @@ trait MarkupParsers extends RegexParsers {
 
     parse(in)
   }
+  
+  /** Uses the parser for at most the specified number of repetitions, always succeeds. 
+   *  The result is the list of results from applying the parser repeatedly.
+   */
+  def repMax[T] (num: Int, p: => Parser[T]): Parser[List[T]] =
+    if (num == 0) success(Nil) else Parser { in =>
+      val elems = new ListBuffer[T]
+      val parser = p
+
+      @tailrec 
+      def parse (input: Input): ParseResult[List[T]] =
+        if (elems.length == num) Success(elems.toList, input)
+        else parser(input) match {
+          case Success(x, rest)   => elems += x ; parse(rest)
+          case ns: NoSuccess      => Success(elems.toList, input)
+        }
+
+      parse(in)
+    }
 
   /** Applies the specified parser at the specified offset behind the current
    *  position. Never consumes any input.
