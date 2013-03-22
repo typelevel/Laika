@@ -5,8 +5,9 @@ import Elements.SubstitutionReference
 import Elements.InterpretedText
 import scala.util.parsing.input.CharSequenceReader
 import scala.collection.mutable.ListBuffer
+import laika.parse.util.URIParsers
 
-trait InlineParsers extends laika.parse.InlineParsers {
+trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
 
   
   val pairs = Map(/* Ps/Pe pairs */
@@ -91,7 +92,8 @@ trait InlineParsers extends laika.parse.InlineParsers {
     '[' -> (footnoteRef | citationRef),
     '|' -> substitutionRef,
     '_' -> (internalTarget | reverseLinkRef),
-    ':' -> interpretedTextWithRolePrefix
+    ':' -> (interpretedTextWithRolePrefix | uri),
+    '@' -> email
   )
 
   
@@ -187,7 +189,7 @@ trait InlineParsers extends laika.parse.InlineParsers {
   def reverse (offset: Int, p: => Parser[String]) = Parser { in =>
     val source = in.source.subSequence(0, in.offset - offset).toString.reverse
     p(new CharSequenceReader(source)) match {
-      case Success(result, _) => Success(result, in)
+      case Success(result, _) => Success(result.reverse, in)
       case Failure(msg, _) => Failure(msg, in)
       case Error(msg, _) => Error(msg, in)
     }
@@ -209,5 +211,19 @@ trait InlineParsers extends laika.parse.InlineParsers {
     buffer += last
     buffer.toList
   }
+  
+  
+  lazy val uri = reverse(1, ("ptth" | "sptth") <~ reverseMarkupStart) ~ httpUriNoScheme ^^ {
+    case scheme ~ rest => 
+      val url = scheme + ":" + rest
+      Reverse(scheme.length, Link(List(Text(url)), url), Text(":"+rest))
+  }
+  
+  lazy val email: Parser[Span] = reverse(1, localPart <~ reverseMarkupStart) ~ domain ^^ {
+    case local ~ domain => 
+      val email = local + "@" + domain
+      Reverse(local.length, Link(List(Text(email)), "mailto:" + email), Text("@"+domain))
+  }
+  
   
 }
