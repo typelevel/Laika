@@ -92,8 +92,8 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
     '[' -> (footnoteRef | citationRef),
     '|' -> substitutionRef,
     '_' -> (internalTarget | reverseLinkRef),
-    ':' -> (interpretedTextWithRolePrefix | uri),
-    '@' -> email
+    ':' -> (interpretedTextWithRolePrefix | trim(uri)),
+    '@' -> trim(email)
   )
 
   
@@ -213,16 +213,26 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   }
   
   
+  protected def trim (p: Parser[(String,String,String)]) = p >> { res => Parser { in =>
+    val startChar = Set('-',':','/','\'','(','{')
+    val endChar   = Set('-',':','/','\'',')','}','.',',',';','!','?') 
+    res match {
+      case (start, sep, end) => 
+        val startTrimmed = start.dropWhile(startChar)
+        val endTrimmed = end.reverse.dropWhile(endChar).reverse
+        val uri = startTrimmed + sep + endTrimmed
+        val uriWithScheme = if (sep == "@" && !uri.startsWith("mailto:")) "mailto:"+uri else uri 
+        val nextIn = in.drop(endTrimmed.length - end.length)
+        Success(Reverse(startTrimmed.length, Link(List(Text(uri)), uriWithScheme), Text(sep+endTrimmed)), nextIn)
+    }
+  }}
+  
   lazy val uri = reverse(1, ("ptth" | "sptth") <~ reverseMarkupStart) ~ httpUriNoScheme ^^ {
-    case scheme ~ rest => 
-      val url = scheme + ":" + rest
-      Reverse(scheme.length, Link(List(Text(url)), url), Text(":"+rest))
+    case scheme ~ rest => (scheme, ":", rest)
   }
   
-  lazy val email: Parser[Span] = reverse(1, localPart <~ reverseMarkupStart) ~ domain ^^ {
-    case local ~ domain => 
-      val email = local + "@" + domain
-      Reverse(local.length, Link(List(Text(email)), "mailto:" + email), Text("@"+domain))
+  lazy val email = reverse(1, localPart <~ reverseMarkupStart) ~ domain ^^ {
+    case local ~ domain => (local, "@", domain)
   }
   
   

@@ -104,7 +104,7 @@ trait URIParsers extends MarkupParsers {
   val dotAtomText = {
     
     val atext = (alpha min 1) | (digit min 1) | 
-        (anyOf('!','#','$','%','&',''','*','+','-','/','=','?','^','_','`','{','|','}','~') min 1)
+        (anyOf('!','#','$','%','&','\'','*','+','-','/','=','?','^','_','`','{','|','}','~') min 1)
         
     ((atext*) ~ (('.' ~ (atext*))*)) ^^ flatten 
   }
