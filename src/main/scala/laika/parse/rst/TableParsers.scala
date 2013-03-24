@@ -187,9 +187,9 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers =>
   }
   
       
-  def flatten (result: Any): List[TableElement] = result match {
+  def flattenElements (result: Any): List[TableElement] = result match {
     case x:TableElement => List(x)
-    case x ~ y => flatten(x) ::: flatten(y)
+    case x ~ y => flattenElements(x) ::: flattenElements(y)
   }
       
   def gridTable: Parser[Block] = {
@@ -218,7 +218,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers =>
       
       val row = (colsWithSep map { case (separatorL, colWidth, separatorR) => 
         rowSep(colWidth) | cell(separatorL, colWidth, separatorR)
-      } reduceRight (_ ~ _)) ^^ flatten
+      } reduceRight (_ ~ _)) ^^ flattenElements
       
       val tableBoundary = (cols map { col => boundaryPart(col) } reduceRight (_ ~ _)) ^^^ TableBoundary
       
@@ -329,7 +329,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers =>
         val rowBuffer = ((ListBuffer[List[TableElement]](), 0, false) /: rows) { case ((acc, blanks, rowOpen), row) =>
           row match {
             case result: ~[_,_] => 
-              val row = flatten(result)
+              val row = flattenElements(result)
               row.head match {
                 case RowSeparator => (acc += row, 0, false)
                 case TableBoundary => (acc += row, 0, false)
