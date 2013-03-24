@@ -70,7 +70,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
                             
   // TODO - eliminate escaped spaces before markup start
   def markupStart (start: Parser[Any], end: Parser[String]): Parser[Any] = {
-    (lookBehind(2, (atStart ^^^ ' ') | beforeStartMarkup) >> afterStartMarkup(start)) ~ not(end) // not(end) == rule 6
+    ((lookBehind(2, beforeStartMarkup) | lookBehind(1, atStart ^^^ ' ')) >> afterStartMarkup(start)) ~ not(end) // not(end) == rule 6
   }
   
   def markupStart (end: Parser[String]): Parser[Any] = markupStart(success(()), end)
