@@ -63,6 +63,9 @@ trait ModelBuilder {
 
   def imgRef (text: String, id: String, postFix: String = "]") = ImageReference(text, id, "![", postFix)
   
+  def citRef (label: String) = CitationReference(label)
+  
+  def fnRef (label: FootnoteLabel) = FootnoteReference(label)
   
   
   def doc (blocks: Block*) = Document(blocks.toList)
