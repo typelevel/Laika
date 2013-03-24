@@ -112,9 +112,16 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
     '|' -> substitutionRef,
     '_' -> (internalTarget | reverseLinkRef),
     ':' -> (interpretedTextWithRolePrefix | trim(uri)),
-    '@' -> trim(email)
+    '@' -> trim(email),
+    '\\'-> escapedChar
   )
 
+  
+  lazy val escapedChar = (any take 1) ^^ Text
+  
+  // TODO - some other parsers might need to support escaping, too
+  def escaped (p: TextParser) = spans(p, Map('\\' -> escapedChar))
+  
   
   lazy val em = span("*") ^^ Emphasized
   
@@ -122,7 +129,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   
 
   def span (start: Parser[Any], end: Parser[String]): Parser[List[Span]]
-    = markupStart(start, end) ~> spans(anyUntil(markupEnd(end)), spanParsers)
+    = markupStart(start, end) ~> escaped(anyUntil(markupEnd(end)))
     
   def span (end: Parser[String]): Parser[List[Span]] = span(success(()), end)
     
