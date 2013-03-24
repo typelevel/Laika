@@ -105,7 +105,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   val afterEndMarkup = endChars | acceptIf(char => endCategories(Character.getType(char)))("Not an end char: " + _)
   
   
-  val spanParsers = Map(
+  lazy val spanParsers = Map(
     '*' -> (strong | em),   
     '`' -> (inlineLiteral | phraseLinkRef | interpretedTextWithRoleSuffix),
     '[' -> (footnoteRef | citationRef),
@@ -116,9 +116,9 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   )
 
   
-  val em = span("*") ^^ Emphasized
+  lazy val em = span("*") ^^ Emphasized
   
-  val strong = span('*',"**") ^^ Strong
+  lazy val strong = span('*',"**") ^^ Strong
   
 
   def span (start: Parser[Any], end: Parser[String]): Parser[List[Span]]
