@@ -119,7 +119,8 @@ trait BlockBaseParsers extends laika.parse.BlockParsers {
     withNestLevel {
       firstLine ~ ( (line | nextBlock)* ) ^^ { res => 
         val lines = mkList(res)
-        val minIndent = lines map (_._1) filter (_ == -1) min;
+        val indents = lines map (_._1) filter (_ != -1)
+        val minIndent = if (indents.isEmpty) 0 else indents min;
         (minIndent, lines map (line => if (line._1 == -1) line._2 else " " * (line._1 - minIndent) + line._2))
       }
     } ^^ { case (nestLevel, (indent, lines)) => IndentedBlock(nestLevel, indent, lines) }
