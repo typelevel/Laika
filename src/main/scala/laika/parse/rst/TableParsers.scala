@@ -27,9 +27,6 @@ import scala.collection.mutable.Stack
 trait TableParsers extends BlockBaseParsers { self: InlineParsers => 
 
   
-  // TODO - Option should be renamed in rst.Elements to avoid scala prefix for SDK Option
-  
-  
   sealed abstract class TableElement
   
   sealed abstract class TableDecoration extends TableElement
@@ -108,7 +105,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers =>
     def toRow = Row(cells filterNot (_.removed) map (_.toCell) toList)
   }
   
-  class ColumnBuilder (left: scala.Option[ColumnBuilder], nestLevel: Int) {
+  class ColumnBuilder (left: Option[ColumnBuilder], nestLevel: Int) {
     
     private var rowSpan = 1 // only used for sanity checks
     
@@ -164,7 +161,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers =>
   
   class TableBuilder (columnWidths: List[Int], nestLevel: Int) {
     object ColumnFactory {
-      var lastColumn: scala.Option[ColumnBuilder] = None
+      var lastColumn: Option[ColumnBuilder] = None
       val columnWidthIt = columnWidths.iterator
       def next = { lastColumn = Some(new ColumnBuilder(lastColumn, nestLevel)); lastColumn.get } 
     }

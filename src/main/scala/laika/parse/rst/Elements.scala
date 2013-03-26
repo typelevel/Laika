@@ -44,11 +44,11 @@ object Elements {
   
   /** A single item in an option list. The content property serves as the description of the option.
    */
-  case class OptionListItem (options: Seq[Option], content: Seq[Block]) extends Block with BlockContainer[OptionListItem]
+  case class OptionListItem (options: Seq[ProgramOption], content: Seq[Block]) extends Block with BlockContainer[OptionListItem]
   
   /** A single option, including its name and all arguments, but not the description.
    */
-  case class Option (name: String, argument: scala.Option[OptionArgument]) extends Element
+  case class ProgramOption (name: String, argument: scala.Option[OptionArgument]) extends Element
 
   /** A single option argument.
    */
