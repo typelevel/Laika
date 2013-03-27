@@ -82,8 +82,23 @@ trait ModelBuilder {
   def ul (items: ListItem*) = UnorderedList(items.toList)
   
   def ol (items: ListItem*) = OrderedList(items.toList)
+  
+  def ol (enumType: EnumType, prefix: String, suffix: String, items: ListItem*) = OrderedList(items.toList, enumType, prefix, suffix)
 
   def li (blocks: Block*) = ListItem(blocks.toList)
+  
+  def dl (items: DefinitionListItem*) = DefinitionList(items.toList)
+  
+  def di (term: String, blocks: Block*) = DefinitionListItem(List(Text(term)), blocks.toList)
+
+  def di (term: List[Span], blocks: Block*) = DefinitionListItem(term, blocks.toList)
+  
+  
+  def lb (items: LineBlockItem*) = LineBlock(items.toList)
+  
+  def line (text: String) = Line(List(Text(text)))
+
+  def line (spans: Span*) = Line(spans.toList)
   
   
   def quote (items: Block*) = QuotedBlock(items.toList, Nil)

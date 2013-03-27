@@ -87,7 +87,6 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
   /** Parses a single list item.
    * 
    *  @param itemStart parser that recognizes the start of a list item, result will be discarded
-   *  @param pos the current parsing position 
    */
   def listItem (itemStart: Parser[String]): Parser[ListItem] = {
       (itemStart ^^ {_.length}) ~ ((ws min 1) ^^ {_.length}) >> { 
@@ -97,22 +96,18 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
   }
   
   
-  /** Parses an unordered list.
-   * 
-   *  @param pos the current parsing position 
+  /** Parses an unordered list with any of the supported bullet characters.
    */
   def unorderedList: Parser[UnorderedList] = {
     val itemStart = anyOf('*','-','+','\u2022','\u2023','\u2043').take(1)
     
-    guard(itemStart) >> { symbol =>
-      ((listItem(symbol)) *) ^^ { UnorderedList(_) }
+    guard(itemStart <~ (ws min 1)) >> { symbol =>
+      ((listItem(symbol)) +) ^^ { UnorderedList(_) }
     }
   }
   
   
   /** Parses an ordered list in any of the supported combinations of enumeration style and formatting.
-   * 
-   *  @param pos the current parsing position 
    */
   def orderedList: Parser[OrderedList] = {
     
@@ -154,36 +149,30 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
       (prefix ~ enumType(et) ~ suffix) ^^ { case prefix ~ enumType ~ suffix => prefix + enumType + suffix }
       
     guard(firstItemStart) >> { case (prefix, enumType, suffix) => // TODO - keep start number
-      (listItem(itemStart(prefix, enumType, suffix)) *) ^^ { OrderedList(_, enumType, prefix, suffix) }
+      (listItem(itemStart(prefix, enumType, suffix)) +) ^^ { OrderedList(_, enumType, prefix, suffix) }
     }
   }
   
   
   /** Parses a definition list.
-   * 
-   *  @param pos the current parsing position 
    */
   def definitionList: Parser[Block] = {
     
-    val term: Parser[String] = not(blankLine) ~> anyBut('\n')
+    val term: Parser[String] = not(blankLine) ~> anyBut('\n') <~ guard(eol ~ (ws min 1) ~ not(blankLine))
     
-    val itemStart = not(blankLine) ^^^ 0
-    
-    val item = (term ~ varIndentedBlock()) ^^ // TODO - add classifier parser to parseInline map
-      { case term ~ block => 
+    val item = (term ~ varIndentedBlock()) ^? // TODO - add classifier parser to parseInline map
+      { case term ~ block if !block.lines.tail.isEmpty => 
           DefinitionListItem(parseInline(term), parseNestedBlocks(block.lines.tail, block.nestLevel)) }
     
-    (item *) ^^ DefinitionList
+    (item +) ^^  DefinitionList
   }
   
   
   /** Parses a field list.
-   * 
-   *  @param pos the current parsing position 
    */
   def fieldList: Parser[Block] = {
     
-    val name = ':' ~> anyBut(':') <~ ':' ~ guard(eol | ' ') // TODO - escaped ':' in name should be supported
+    val name = ':' ~> anyBut(':') <~ ':' ~ (guard(eol) | ' ') // TODO - escaped ':' in name should be supported
     
     val item = (name ~ opt(varIndentedBlock())) ^^
       { case name ~ Some(block) => 
@@ -191,15 +180,15 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
         case name ~ None => 
           Field(parseInline(name), Nil) }
     
-    (item *) ^^ FieldList
+    (item +) ^^ FieldList
   }
   
   
   /** Parses an option list.
-   * 
-   *  @param pos the current parsing position 
    */
   def optionList: Parser[Block] = {
+    
+    def mkString (result: ~[Char,String]) = result._1.toString + result._2
     
     val optionString = anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_', '-').min(1)
     
@@ -213,17 +202,18 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
       case None ~ argStr => OptionArgument(argStr, "") 
     }
     
-    val option = (gnu | shortPosix | longPosix | dos) ~ opt(arg) ^^ { case option ~ arg => Option(option, arg) }
+    val option = (gnu | shortPosix | longPosix | dos) ~ opt(arg) ^^ { case option ~ arg => ProgramOption(option, arg) }
     
     val options = (option ~ ((", " ~> option)*)) ^^ mkList
     
-    val descStart = ("  " ~ not(blankLine)) | guard(blankLine ~ (ws min 1) ~ not(blankLine)) ^^^ "" 
+    val descStart = ("  " ~ not(blankLine)) | (guard(blankLine ~ (ws min 1) ~ not(blankLine))) ^^^ "" 
     
     val item = (options ~ (descStart ~> varIndentedBlock())) ^^
       { case name ~ block =>
+        println("?: " + block.lines)
           OptionListItem(name, parseNestedBlocks(block)) }
     
-    (item *) ^^ OptionList
+    (item +) ^^ OptionList
   }
   
   /** Parses a block of lines with line breaks preserved.
@@ -269,14 +259,8 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
       LineBlock(topBuffer.toList)
     }
     
-    (line *) ^^ nest
+    (line +) ^^ nest
   } 
   
-  
-  private def mkString (result: ~[Char,String]) = result._1.toString + result._2 // TODO - maybe promote to MarkupParsers
-  
-  def parseInline (source: String): List[Span] = parseInline(source, Map.empty) // TODO - implement
-  
-    
   
 }
