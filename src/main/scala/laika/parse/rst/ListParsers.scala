@@ -210,7 +210,6 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
     
     val item = (options ~ (descStart ~> varIndentedBlock())) ^^
       { case name ~ block =>
-        println("?: " + block.lines)
           OptionListItem(name, parseNestedBlocks(block)) }
     
     (item +) ^^ OptionList
