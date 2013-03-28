@@ -179,12 +179,13 @@ trait BlockParsers extends BlockBaseParsers
   
   def topLevelBlock: Parser[Block] = unorderedList | 
                                      orderedList | 
-                                     definitionList | 
                                      fieldList | 
-                                     optionList |
+                                     lineBlock |
+                                     optionList | 
                                      explicitBlockItem |
                                      gridTable |
                                      simpleTable |
+                                     definitionList |
                                      doctest |
                                      headerWithOverline |
                                      transition |
