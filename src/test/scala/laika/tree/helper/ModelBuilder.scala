@@ -94,6 +94,19 @@ trait ModelBuilder {
   def di (term: List[Span], blocks: Block*) = DefinitionListItem(term, blocks.toList)
   
   
+  def table (rows: Row*) = Table(Nil, rows.toList)
+  
+  def row (cells: Cell*) = Row(cells.toList)
+  
+  def cell (content: String, colspan: Int, rowspan: Int) = Cell(BodyCell, List(p(txt(content))), colspan, rowspan)
+  
+  def cell (content: String): Cell = cell(p(txt(content)))
+  
+  def cell (content: Block*): Cell = Cell(BodyCell, content.toList)
+  
+  def strrow (cells: String*) = Row(cells map cell)
+  
+  
   def lb (items: LineBlockItem*) = LineBlock(items.toList)
   
   def line (text: String) = Line(List(Text(text)))
