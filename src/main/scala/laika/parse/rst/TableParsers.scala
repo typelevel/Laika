@@ -77,14 +77,14 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers =>
       object BlankLine extends CellLine(Int.MaxValue) { def padTo (indent: Int) = "" }
       class TextLine (i: Int, text: String) extends CellLine(i) { def padTo (minIndent: Int) = " " * (indent - minIndent) + text }
       
-      val cellLine = ((not(eof) ~ blankLine) ^^^ BlankLine) | 
-        (ws ~ restOfLine) ^^ { case indent ~ text => new TextLine(indent.length, text.trim) } 
+      val cellLine = not(eof) ~> (((blankLine) ^^^ BlankLine) | 
+        (ws ~ restOfLine) ^^ { case indent ~ text => new TextLine(indent.length, text.trim) }) 
       
       parseAll(cellLine*, cellContent) match {
         case Success(lines, _) => 
           val minIndent = lines map (_.indent) min;
           (minIndent, lines map (_.padTo(minIndent)))
-      } 
+      }
     }
     
     def parsedCellContent = {
