@@ -92,7 +92,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers =>
       parseNestedBlocks(lines, nestLevel) 
     }
     
-    def toCell = Cell(BodyCell, parsedCellContent, colSpan, rowSpan)
+    def toCell (ct: CellType) = Cell(ct, parsedCellContent, colSpan, rowSpan)
   }
   
   class CellBuilderRef (val cell: CellBuilder, val mergedLeft: Boolean = false)
@@ -102,7 +102,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers =>
     
     def addCell (cell: CellBuilder) = cells += cell
      
-    def toRow = Row(cells filterNot (_.removed) map (_.toCell) toList)
+    def toRow (ct: CellType) = Row(cells filterNot (_.removed) map (_.toCell(ct)) toList)
   }
   
   class ColumnBuilder (left: Option[ColumnBuilder], nestLevel: Int) {
@@ -180,7 +180,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers =>
       row
     }
     
-    def toRowList = rows map (_.toRow) toList
+    def toRowList (ct: CellType) = rows map (_.toRow(ct)) toList
   }
   
       
@@ -227,7 +227,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers =>
         }
       }
       
-      def buildRowList (rows: List[List[TableElement]]) = {
+      def buildRowList (rows: List[List[TableElement]], ct: CellType) = {
         
         val tableBuilder = new TableBuilder(cols map (_ + 1), nestLevel) // column width includes separator
             
@@ -241,7 +241,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers =>
             case _ => () // cannot happen, just to avoid the warning
           }
         }
-        tableBuilder.toRowList
+        tableBuilder.toRowList(ct)
       }
       
       def validateLastRow (rows: List[List[TableElement]]) = {
@@ -257,8 +257,8 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers =>
         Parser { in =>
           try {
             val table = result match {
-              case head ~ Some(body) => validateLastRow(body); Table(buildRowList(head), buildRowList(body.init))
-              case body ~ None       => validateLastRow(body); Table(Nil, buildRowList(body.init))
+              case head ~ Some(body) => validateLastRow(body); Table(buildRowList(head, HeadCell), buildRowList(body.init, BodyCell))
+              case body ~ None       => validateLastRow(body); Table(Nil, buildRowList(body.init, BodyCell))
             }
             Success(table, in)
           }
@@ -310,7 +310,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers =>
       val tablePart = (((blank | row)*) ~ boundary) ^^ { case rows ~ boundary => rows :+ boundary }
       
       
-      def buildRowList (rows: List[Any]) = {
+      def buildRowList (rows: List[Any], ct: CellType) = {
         
         val tableBuilder = new TableBuilder(cols map { col => col._1 + col._2 }, nestLevel)
         
@@ -370,12 +370,12 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers =>
           }
         }
         
-        tableBuilder.toRowList
+        tableBuilder.toRowList(ct)
       }
       
       tablePart ~ opt(tablePart) ^^ { 
-        case head ~ Some(body) => Table(buildRowList(head), buildRowList(body))
-        case body ~ None       => Table(Nil, buildRowList(body))
+        case head ~ Some(body) => Table(buildRowList(head, HeadCell), buildRowList(body, BodyCell))
+        case body ~ None       => Table(Nil, buildRowList(body, BodyCell))
       }
       
     }
