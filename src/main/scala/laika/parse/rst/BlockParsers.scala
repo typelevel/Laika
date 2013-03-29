@@ -91,7 +91,7 @@ trait BlockParsers extends BlockBaseParsers
      * as flushed left which depends on the current minimum indentation. Parts of the code below
      * are basically a dynamic re-implementation of the varIndentedBlock parser.
      */
-    def attributionStart (minIndent: Int) = (ws take (minIndent)) ~ "---" | "--" // TODO - em dash
+    def attributionStart (minIndent: Int) = (ws take minIndent) ~ ("---" | "--") // TODO - em dash
         
     def attribution (indent: Int) = attributionStart(indent) ~> 
       fixedIndentedBlock(indent, success(()), failure("block ends with blank line")) ^^ { block => 
