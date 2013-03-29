@@ -172,7 +172,7 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
    */
   def fieldList: Parser[Block] = {
     
-    val name = ':' ~> anyBut(':') <~ ':' ~ (guard(eol) | ' ') // TODO - escaped ':' in name should be supported
+    val name = ':' ~> (anyBut(':') min 1)  <~ ':' ~ (guard(eol) | ' ') // TODO - escaped ':' in name should be supported
     
     val item = (name ~ opt(varIndentedBlock())) ^^
       { case name ~ Some(block) => 
