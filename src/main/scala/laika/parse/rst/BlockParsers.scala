@@ -105,7 +105,7 @@ trait BlockParsers extends BlockBaseParsers
       val indent = ((ws min 1) ^^ {_.length})
       
       def line (minIndent: Int) = ((not(attributionStart(minIndent)) ~> indent ~ restOfLine) ^^ 
-        { case indent ~ text => (indent, text.trim) }) | blankLine ^^^ (Int.MaxValue, "")
+        { case indent ~ text => (indent, text.trim) }) | (not(eof) ~ blankLine ^^^ (Int.MaxValue, ""))
   
       def nextParser (oldParser: Parser[(Int,String)], oldIndent: Int, newIndent: Int) = 
         if (newIndent < oldIndent) (newIndent, line(newIndent))
@@ -187,6 +187,7 @@ trait BlockParsers extends BlockBaseParsers
                                      simpleTable |
                                      definitionList |
                                      doctest |
+                                     blockQuote |
                                      headerWithOverline |
                                      transition |
                                      headerWithUnderline |
