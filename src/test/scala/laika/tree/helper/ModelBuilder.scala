@@ -117,6 +117,8 @@ trait ModelBuilder {
   def quote (items: Block*) = QuotedBlock(items.toList, Nil)
   
   def quote (text: String) = QuotedBlock(List(p(text)), Nil) 
+
+  def quote (text: String, attribution: String) = QuotedBlock(List(p(text)), List(txt(attribution))) 
   
   
   def codeBlock (content: String) = CodeBlock(content)
