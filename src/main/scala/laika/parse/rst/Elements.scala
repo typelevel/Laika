@@ -57,7 +57,7 @@ object Elements {
   /** A substitution definition with its span content that will be inserted
    *  wherever this substitution is referenced in flow content.
    */
-  case class SubstitutionDefinition (name: String, content: Seq[Span]) extends Block with SpanContainer[SubstitutionDefinition]
+  case class SubstitutionDefinition (name: String, content: Span) extends Block
   
   /** Refers to a substitution definition with the same name.
    *  This type of element will only temporarily be part of the document tree and replaced

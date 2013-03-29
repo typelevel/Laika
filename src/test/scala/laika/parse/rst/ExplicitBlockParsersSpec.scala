@@ -40,8 +40,8 @@ class ExplicitBlockParsersSpec extends FlatSpec
   val defaultParser: Parser[Document] = document
   
   
-  val blockDirectives: Map[String, DirectivePart[Seq[Block]]] = Map.empty
-  val spanDirectives: Map[String, DirectivePart[Seq[Span]]] = Map.empty
+  val blockDirectives: Map[String, DirectivePart[Block]] = Map.empty
+  val spanDirectives: Map[String, DirectivePart[Span]] = Map.empty
   val textRoles: Map[String, TextRole] = Map.empty
   
   

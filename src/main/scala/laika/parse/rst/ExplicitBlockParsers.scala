@@ -87,22 +87,22 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
   }
   
   
-  val blockDirectives: Map[String, DirectivePart[Seq[Block]]] // TODO - populate (maybe do this in reStructuredText entry point object)
+  val blockDirectives: Map[String, DirectivePart[Block]] // TODO - populate (maybe do this in reStructuredText entry point object)
   
-  val spanDirectives: Map[String, DirectivePart[Seq[Span]]]
+  val spanDirectives: Map[String, DirectivePart[Span]]
   
   val textRoles: Map[String, TextRole]
     
 
-  def blockDirective: Parser[Block] = directive(blockDirectives) ^^ BlockSequence
+  def blockDirective: Parser[Block] = directive(blockDirectives)
 
   def spanDirective = directive(spanDirectives)
   
-  protected def directive [E](directives: Map[String, DirectivePart[Seq[E]]]) = {
+  protected def directive [E](directives: Map[String, DirectivePart[E]]) = {
     
     val nameParser = simpleRefName <~ "::" ~ ws
     
-    def directiveParser [E] (directive: DirectivePart[Seq[E]]) = {
+    def directiveParser [E] (directive: DirectivePart[E]) = {
       val parserBuilder = new DirectiveParserBuilder
       val result = directive(parserBuilder)
       parserBuilder.parser ^^^ {

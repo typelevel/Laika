@@ -106,17 +106,17 @@ object Directives {
     
   }
 
-  class Directive [E <: Element] (val name: String)(val part: DirectivePart[Seq[E]])
+  class Directive [E <: Element] (val name: String)(val part: DirectivePart[E])
 
   object SpanDirective {
     
-    def apply (name: String)(part: DirectivePart[Seq[Span]]) = new Directive(name)(part)
+    def apply (name: String)(part: DirectivePart[Span]) = new Directive(name)(part)
     
   }
   
   object BlockDirective {
     
-    def apply (name: String)(part: DirectivePart[Seq[Block]]) = new Directive(name)(part)
+    def apply (name: String)(part: DirectivePart[Block]) = new Directive(name)(part)
     
   }
 
