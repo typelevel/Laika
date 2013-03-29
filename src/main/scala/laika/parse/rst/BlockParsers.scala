@@ -146,8 +146,8 @@ trait BlockParsers extends BlockBaseParsers
     def processLiteralMarker (par: Paragraph) = {
       par.content.lastOption match {
         case Some(Text(text)) if text.trim.endsWith("::") => 
-          val drop = if (text.length > 2 && text.charAt(text.length-3) == ' ') 2 else 1
-          val spans = par.content.init.toList ::: List(Text(text.drop(drop)))
+          val drop = if (text.length > 2 && text.charAt(text.length-3) == ' ') 3 else 1
+          val spans = par.content.init.toList ::: List(Text(text.dropRight(drop)))
           (Paragraph(spans), litBlock)
         case _ => (par, defaultBlock) 
       }
@@ -170,7 +170,7 @@ trait BlockParsers extends BlockBaseParsers
   def literalBlock: Parser[Block] = {
     val indented = varIndentedBlock(testFirstLine = true) ^^ 
       { block => CodeBlock(block.lines mkString "\n") }
-    val quoted = block(guard(punctuationChar), guard(punctuationChar), failure("blank line always ends quoted block")) ^^ 
+    val quoted = block(guard(punctuationChar min 1), guard(punctuationChar min 1), failure("blank line always ends quoted block")) ^^ 
       { lines => CodeBlock(lines mkString "\n") }  
     indented | quoted
   }
