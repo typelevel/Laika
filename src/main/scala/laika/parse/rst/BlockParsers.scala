@@ -69,11 +69,11 @@ trait BlockParsers extends BlockBaseParsers
   }
   
   def headerWithUnderline: Parser[Block] = {
-    anyBut(' ') ~ restOfLine >> { case char ~ rest =>
+    (anyBut(' ') take 1) ~ restOfLine >> { case char ~ rest =>
       val title = (char + rest).trim
       (punctuationChar take 1) >> { start =>
         val char = start.charAt(0)
-        ((anyOf(char) take title.length) ~
+        ((anyOf(char) min (title.length - 1)) ~
          ws ~ eol) ^^ { _ => SectionHeader(char, false, parseInline(title)) }
       }
     }
@@ -185,12 +185,12 @@ trait BlockParsers extends BlockBaseParsers
                                      explicitBlockItem |
                                      gridTable |
                                      simpleTable |
-                                     definitionList |
                                      doctest |
                                      blockQuote |
                                      headerWithOverline |
                                      transition |
                                      headerWithUnderline |
+                                     definitionList |
                                      paragraph
  
   def nestedBlock: Parser[Block] = topLevelBlock
