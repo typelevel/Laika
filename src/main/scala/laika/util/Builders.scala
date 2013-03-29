@@ -17,7 +17,7 @@
 package laika.util
 
 /** Based on a concept outlined by Sadek Drobi in this gist: https://gist.github.com/sadache/3646092
- *  The code used here is only a subset of the demonstrated functionality.
+ *  The code used here is only a simplified subset of the demonstrated functionality.
  * 
  *  @author Sadek Drobi / Jens Halm
  */
@@ -84,9 +84,84 @@ object Builders {
     }
    
     class CanBuild5 [A1,A2,A3,A4,A5](m1: M[A1 ~ A2 ~ A3 ~ A4], m2: M[A5]) {
+      
+      def ~ [A6](m3: M[A6]) = new CanBuild6(canBuild(m1,m2), m3)
+   
+      def apply [B](f: (A1,A2,A3,A4,A5) => B): M[B] =
+        canBuild.map[A1 ~ A2 ~ A3 ~ A4 ~ A5, B](canBuild(m1, m2), { 
+          case a1 ~ a2 ~ a3 ~ a4 ~ a5 => f(a1, a2, a3, a4, a5) 
+      })
     }
     
-    // TODO - continue
+    class CanBuild6 [A1,A2,A3,A4,A5,A6](m1: M[A1 ~ A2 ~ A3 ~ A4 ~ A5], m2: M[A6]) {
+      
+      def ~ [A7](m3: M[A7]) = new CanBuild7(canBuild(m1,m2), m3)
+   
+      def apply [B](f: (A1,A2,A3,A4,A5,A6) => B): M[B] =
+        canBuild.map[A1 ~ A2 ~ A3 ~ A4 ~ A5 ~ A6, B](canBuild(m1, m2), { 
+          case a1 ~ a2 ~ a3 ~ a4 ~ a5 ~ a6 => f(a1, a2, a3, a4, a5, a6) 
+      })
+    }
+    
+    class CanBuild7 [A1,A2,A3,A4,A5,A6,A7](m1: M[A1 ~ A2 ~ A3 ~ A4 ~ A5 ~ A6], m2: M[A7]) {
+      
+      def ~ [A8](m3: M[A8]) = new CanBuild8(canBuild(m1,m2), m3)
+   
+      def apply [B](f: (A1,A2,A3,A4,A5,A6,A7) => B): M[B] =
+        canBuild.map[A1 ~ A2 ~ A3 ~ A4 ~ A5 ~ A6 ~ A7, B](canBuild(m1, m2), { 
+          case a1 ~ a2 ~ a3 ~ a4 ~ a5 ~ a6 ~ a7 => f(a1, a2, a3, a4, a5, a6, a7) 
+      })
+    }
+    
+    class CanBuild8 [A1,A2,A3,A4,A5,A6,A7,A8](m1: M[A1 ~ A2 ~ A3 ~ A4 ~ A5 ~ A6 ~ A7], m2: M[A8]) {
+      
+      def ~ [A9](m3: M[A9]) = new CanBuild9(canBuild(m1,m2), m3)
+   
+      def apply [B](f: (A1,A2,A3,A4,A5,A6,A7,A8) => B): M[B] =
+        canBuild.map[A1 ~ A2 ~ A3 ~ A4 ~ A5 ~ A6 ~ A7 ~ A8, B](canBuild(m1, m2), { 
+          case a1 ~ a2 ~ a3 ~ a4 ~ a5 ~ a6 ~ a7 ~ a8 => f(a1, a2, a3, a4, a5, a6, a7, a8) 
+      })
+    }
+    
+    class CanBuild9 [A1,A2,A3,A4,A5,A6,A7,A8,A9](m1: M[A1 ~ A2 ~ A3 ~ A4 ~ A5 ~ A6 ~ A7 ~ A8], m2: M[A9]) {
+      
+      def ~ [A10](m3: M[A10]) = new CanBuild10(canBuild(m1,m2), m3)
+   
+      def apply [B](f: (A1,A2,A3,A4,A5,A6,A7,A8,A9) => B): M[B] =
+        canBuild.map[A1 ~ A2 ~ A3 ~ A4 ~ A5 ~ A6 ~ A7 ~ A8 ~ A9, B](canBuild(m1, m2), { 
+          case a1 ~ a2 ~ a3 ~ a4 ~ a5 ~ a6 ~ a7 ~ a8 ~ a9 => f(a1, a2, a3, a4, a5, a6, a7, a8, a9) 
+      })
+    }
+    
+    class CanBuild10 [A1,A2,A3,A4,A5,A6,A7,A8,A9,A10](m1: M[A1 ~ A2 ~ A3 ~ A4 ~ A5 ~ A6 ~ A7 ~ A8 ~ A9], m2: M[A10]) {
+      
+      def ~ [A11](m3: M[A11]) = new CanBuild11(canBuild(m1,m2), m3)
+   
+      def apply [B](f: (A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) => B): M[B] =
+        canBuild.map[A1 ~ A2 ~ A3 ~ A4 ~ A5 ~ A6 ~ A7 ~ A8 ~ A9 ~ A10, B](canBuild(m1, m2), { 
+          case a1 ~ a2 ~ a3 ~ a4 ~ a5 ~ a6 ~ a7 ~ a8 ~ a9 ~ a10 => f(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10) 
+      })
+    }
+    
+    class CanBuild11 [A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11](m1: M[A1 ~ A2 ~ A3 ~ A4 ~ A5 ~ A6 ~ A7 ~ A8 ~ A9 ~ A10], m2: M[A11]) {
+      
+      def ~ [A12](m3: M[A12]) = new CanBuild12(canBuild(m1,m2), m3)
+   
+      def apply [B](f: (A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11) => B): M[B] =
+        canBuild.map[A1 ~ A2 ~ A3 ~ A4 ~ A5 ~ A6 ~ A7 ~ A8 ~ A9 ~ A10 ~ A11, B](canBuild(m1, m2), { 
+          case a1 ~ a2 ~ a3 ~ a4 ~ a5 ~ a6 ~ a7 ~ a8 ~ a9 ~ a10 ~ a11 => f(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11) 
+      })
+    }
+    
+    class CanBuild12 [A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12](m1: M[A1 ~ A2 ~ A3 ~ A4 ~ A5 ~ A6 ~ A7 ~ A8 ~ A9 ~ A10 ~ A11], m2: M[A12]) {
+      
+      def apply [B](f: (A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12) => B): M[B] =
+        canBuild.map[A1 ~ A2 ~ A3 ~ A4 ~ A5 ~ A6 ~ A7 ~ A8 ~ A9 ~ A10 ~ A11 ~ A12, B](canBuild(m1, m2), { 
+          case a1 ~ a2 ~ a3 ~ a4 ~ a5 ~ a6 ~ a7 ~ a8 ~ a9 ~ a10 ~ a11 ~ a12 => f(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12) 
+      })
+    }
+    
+    
    
   }
 
