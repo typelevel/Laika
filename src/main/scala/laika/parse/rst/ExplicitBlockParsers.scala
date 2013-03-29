@@ -30,7 +30,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
 
   
   
-  def explicitStart = (".." ~ (ws min 1)) ^^ { case _ ~ ws => ws.length + 2 }
+  val explicitStart = (".." ~ (ws min 1))
   
   
   def explicitBlockItem: Parser[Block] = explicitStart ~>
@@ -39,7 +39,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
   
   
   def footnote = {
-    val prefix = '[' ~> footnoteLabel <~ ']'
+    val prefix = '[' ~> footnoteLabel <~ ']' ~ ws
     
     prefix ~ varIndentedBlock() ^^ {
       case label ~ block => Footnote(label, parseNestedBlocks(block))
@@ -47,7 +47,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
   }
   
   def citation = {
-    val prefix = '[' ~> simpleRefName <~ ']'
+    val prefix = '[' ~> simpleRefName <~ ']' ~ ws
     
     prefix ~ varIndentedBlock() ^^ {
       case label ~ block => Citation(label, parseNestedBlocks(block))
@@ -62,8 +62,10 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     
     val externalName = (named | anonymous)
     
-    val external = externalName ~ varIndentedBlock() ^^ {
-      case name ~ block => LinkDefinition(name, block.lines map (_.trim) filter (_.isEmpty) mkString)
+    val notEmpty = not(blankLine) | guard(restOfLine ~ (ws min 1) ~ not(blankLine))
+    
+    val external = externalName ~ (notEmpty ~> varIndentedBlock()) ^^ {
+      case name ~ block => LinkDefinition(name, block.lines map (_.trim) filterNot (_.isEmpty) mkString)
     }
     
     external | internal
@@ -80,7 +82,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
   
   def comment = {
     varIndentedBlock() ^^ { block =>
-      Comment(block.lines map (_.trim) filter (_.isEmpty) mkString)
+      Comment(block.lines map (_.trim) filterNot (_.isEmpty) mkString "\n")
     }
   }
   
