@@ -171,12 +171,12 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
       
       val name = ':' ~> anyBut(':') <~ ':' // TODO - must be escapedUntil(':') once InlineParsers are implemented
       
-      val firstLine = restOfLine 
+      val firstLine = anyBut('\n') 
       
       val item = (ws min 1) >> { firstIndent =>
-          (name ~ firstLine ~ opt(varIndentedBlock(firstIndent.length + 1))) ^^ 
+          (name ~ firstLine ~ opt(varIndentedBlock(firstIndent.length + 1, not(":"), failure("blank lines terminate options")))) ^^ 
         { case name ~ firstLine ~ Some(block) => 
-            (name, ((firstLine :: block.lines) mkString "\n").trim)
+            (name, ((firstLine :: block.lines.tail) mkString "\n").trim)
           case name ~ firstLine ~ None => 
             (name, firstLine.trim) }}
       
