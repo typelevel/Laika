@@ -43,8 +43,12 @@ object Directives {
   trait DirectiveParser {
       
     def requiredArg [T](f: String => Either[String,T]): Result[T]
+ 
+    def requiredArgWithWS [T](f: String => Either[String,T]): Result[T]
     
     def optionalArg [T](f: String => Either[String,T]): Result[Option[T]]
+
+    def optionalArgWithWS [T](f: String => Either[String,T]): Result[Option[T]]
     
     def requiredField [T](name: String, f: String => Either[String,T]): Result[T]
     
@@ -85,12 +89,20 @@ object Directives {
     }
     
     def requiredStringArg: DirectivePart[String] = part(_.requiredArg(s => Right(s)))
+ 
+    def requiredStringArgWithWS: DirectivePart[String] = part(_.requiredArgWithWS(s => Right(s)))
     
     def requiredArg [T](f: String => Either[String,T]): DirectivePart[T] = part(_.requiredArg(f))
+
+    def requiredArgWithWS [T](f: String => Either[String,T]): DirectivePart[T] = part(_.requiredArgWithWS(f))
   
     def optionalStringArg: DirectivePart[Option[String]] = part(_.optionalArg(s => Right(s)))
+
+    def optionalStringArgWithWS: DirectivePart[Option[String]] = part(_.optionalArgWithWS(s => Right(s)))
     
     def optionalArg [T](f: String => Either[String,T]): DirectivePart[Option[T]] = part(_.optionalArg(f))
+
+    def optionalArgWithWS [T](f: String => Either[String,T]): DirectivePart[Option[T]] = part(_.optionalArgWithWS(f))
     
     def requiredStringField [T](name: String): DirectivePart[String] = part(_.requiredField(name, s => Right(s)))
     
