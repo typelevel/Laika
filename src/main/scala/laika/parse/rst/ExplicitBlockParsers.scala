@@ -164,7 +164,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
       }
     }
     
-    val body = varIndentedBlock()
+    val body = lookBehind(1, '\n') ~> varIndentedBlock(testFirstLine = true) | varIndentedBlock()
     
     // TODO - some duplicate logic with original fieldList parser
     lazy val directiveFieldList: Parser[Any] = {
