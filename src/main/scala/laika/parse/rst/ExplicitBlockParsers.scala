@@ -169,18 +169,19 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     // TODO - some duplicate logic with original fieldList parser
     lazy val directiveFieldList: Parser[Any] = {
       
-      val name = eol ~ ':' ~> anyBut(':') <~ ':' // TODO - must be escapedUntil(':') once InlineParsers are implemented
+      val name = ':' ~> anyBut(':') <~ ':' // TODO - must be escapedUntil(':') once InlineParsers are implemented
       
       val firstLine = restOfLine 
       
       val item = (ws min 1) >> { firstIndent =>
           (name ~ firstLine ~ opt(varIndentedBlock(firstIndent.length + 1))) ^^ 
         { case name ~ firstLine ~ Some(block) => 
-            (name, (firstLine :: block.lines) mkString "\n")
+            (name, ((firstLine :: block.lines) mkString "\n").trim)
           case name ~ firstLine ~ None => 
-            (name, firstLine) }}
+            (name, firstLine.trim) }}
       
-      (item *) ^^? { fields =>
+      opt(ws ~ eol) ~> (item *) ^^? { fields =>
+        
         val parsed = scala.collection.mutable.Map(fields.toArray:_*)
         val missing = scala.collection.mutable.Set.empty[String]
         val invalid = new ListBuffer[String]
@@ -194,16 +195,16 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
         
         val errors = new ListBuffer[String]
         if (parsed.nonEmpty) errors += parsed.mkString("unknown options: ",", ","")
-        if (missing.nonEmpty) errors += parsed.mkString("missing required options: ",", ","")
-        if (invalid.nonEmpty) errors += invalid.mkString("invalid option values: ", "; ", "") 
+        if (missing.nonEmpty) errors += missing.mkString("missing required options: ",", ","")
+        if (invalid.nonEmpty) errors += invalid.mkString("invalid option values: ", ", ", "") 
         Either.cond(errors.isEmpty, (), errors mkString "; ")
       }
     }
     
     val contentSeparator = (lookBehind(1, '\n') | eol) ~ blankLine
     
-    val requiredFields: Map[String, String => Either[String,Unit]] = Map.empty
-    val optionalFields: Map[String, String => Either[String,Unit]] = Map.empty
+    val requiredFields: scala.collection.mutable.Map[String, String => Either[String,Unit]] = scala.collection.mutable.Map()
+    val optionalFields: scala.collection.mutable.Map[String, String => Either[String,Unit]] = scala.collection.mutable.Map()
     
     class LazyResult[T] {
       var value: Option[T] = None
@@ -247,7 +248,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
       separator = contentSeparator
       fields = directiveFieldList
       val result = new LazyResult[T]
-      requiredFields + (name -> { s:String => f(s).right map result.set })
+      requiredFields += (name -> { s:String => f(s).right map result.set })
       new Result(result.get)
     }
     
@@ -255,7 +256,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
       separator = contentSeparator
       fields = directiveFieldList
       val result = new LazyResult[T]
-      optionalFields + (name -> { s:String => f(s).right map result.set })
+      optionalFields += (name -> { s:String => f(s).right map result.set })
       new Result(result.value)
     }
     
