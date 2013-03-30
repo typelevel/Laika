@@ -42,17 +42,17 @@ object Directives {
   
   trait DirectiveParser {
       
-    def requiredArg [T](f: String => T): Result[T]
+    def requiredArg [T](f: String => Either[String,T]): Result[T]
     
-    def optionalArg [T](f: String => T): Result[Option[T]]
+    def optionalArg [T](f: String => Either[String,T]): Result[Option[T]]
     
-    def requiredField [T](name: String, f: String => T): Result[T]
+    def requiredField [T](name: String, f: String => Either[String,T]): Result[T]
     
-    def optionalField [T](name: String, f: String => T): Result[Option[T]]
+    def optionalField [T](name: String, f: String => Either[String,T]): Result[Option[T]]
     
     def standardContent: Result[Seq[Block]]
     
-    def content [T](f: String => T): Result[T]
+    def content [T](f: String => Either[String,T]): Result[T]
     
   }
   
@@ -84,25 +84,25 @@ object Directives {
       def apply (p: DirectiveParser) = f(p)
     }
     
-    def requiredArg: DirectivePart[String] = part(_.requiredArg(s => s))
+    def requiredStringArg: DirectivePart[String] = part(_.requiredArg(s => Right(s)))
     
-    def requiredArg [T](f: String => T): DirectivePart[T] = part(_.requiredArg(f))
+    def requiredArg [T](f: String => Either[String,T]): DirectivePart[T] = part(_.requiredArg(f))
   
-    def optionalArg: DirectivePart[Option[String]] = part(_.optionalArg(s => s))
+    def optionalArg: DirectivePart[Option[String]] = part(_.optionalArg(s => Right(s)))
     
-    def optionalArg [T](f: String => T): DirectivePart[Option[T]] = part(_.optionalArg(f))
+    def optionalArg [T](f: String => Either[String,T]): DirectivePart[Option[T]] = part(_.optionalArg(f))
     
-    def requiredField [T](name: String): DirectivePart[String] = part(_.requiredField(name, s => s))
+    def requiredField [T](name: String): DirectivePart[String] = part(_.requiredField(name, s => Right(s)))
     
-    def requiredField [T](name: String, f: String => T): DirectivePart[T] = part(_.requiredField(name, f))
+    def requiredField [T](name: String, f: String => Either[String,T]): DirectivePart[T] = part(_.requiredField(name, f))
     
-    def optionalField (name: String): DirectivePart[Option[String]] = part(_.optionalField(name, s => s))
+    def optionalField (name: String): DirectivePart[Option[String]] = part(_.optionalField(name, s => Right(s)))
     
-    def optionalField [T](name: String, f: String => T): DirectivePart[Option[T]] = part(_.optionalField(name, f))
+    def optionalField [T](name: String, f: String => Either[String,T]): DirectivePart[Option[T]] = part(_.optionalField(name, f))
     
     def standardContent: DirectivePart[Seq[Block]] = part(_.standardContent) // TODO - maybe use blockContent/spanContent
     
-    def content [T](f: String => T): DirectivePart[T] = part(_.content(f))
+    def content [T](f: String => Either[String,T]): DirectivePart[T] = part(_.content(f))
     
   }
 

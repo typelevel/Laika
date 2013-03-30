@@ -183,25 +183,27 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
       (item *) ^^? { fields =>
         val parsed = scala.collection.mutable.Map(fields.toArray:_*)
         val missing = scala.collection.mutable.Set.empty[String]
+        val invalid = new ListBuffer[String]
         
         for ((name, f) <- requiredFields) {
-          parsed.remove(name).map(f).getOrElse(missing += name)
+          parsed.remove(name).map(res => f(res).left map {invalid += name + ": " + _}).getOrElse(missing += name)
         }
         for ((name, f) <- optionalFields) {
-          parsed.remove(name).foreach(f)
+          parsed.remove(name).map(res => f(res).left map {invalid += name + ": " + _})
         }
         
         val errors = new ListBuffer[String]
         if (parsed.nonEmpty) errors += parsed.mkString("unknown options: ",", ","")
         if (missing.nonEmpty) errors += parsed.mkString("missing required options: ",", ","")
+        if (invalid.nonEmpty) errors += invalid.mkString("invalid option values: ", "; ", "") 
         Either.cond(errors.isEmpty, (), errors mkString "; ")
       }
     }
     
     val contentSeparator = (lookBehind(1, '\n') | eol) ~ blankLine
     
-    val requiredFields: Map[String, String => Unit] = Map.empty
-    val optionalFields: Map[String, String => Unit] = Map.empty
+    val requiredFields: Map[String, String => Either[String,Unit]] = Map.empty
+    val optionalFields: Map[String, String => Either[String,Unit]] = Map.empty
     
     class LazyResult[T] {
       var value: Option[T] = None
@@ -210,61 +212,61 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
       def fromString (f: String => T)(s: String) = set(f(s))
     }
     
-    def requiredArg [T](f: String => T): Result[T] = {
+    def requiredArg [T](f: String => Either[String,T]): Result[T] = {
       separator = contentSeparator
       val result = new LazyResult[T]
-      requiredArgs = requiredArgs ~ (arg ^^ result.fromString(f))
+      requiredArgs = requiredArgs ~ (arg ^^? f ^^ result.set)
       new Result(result.get)
     }
     
-    def requiredArgWithWS [T](f: String => T): Result[T] = {
+    def requiredArgWithWS [T](f: String => Either[String,T]): Result[T] = {
       separator = contentSeparator
       val result = new LazyResult[T]
-      requiredArgWithWS = (argWithWS ^^ result.fromString(f))
+      requiredArgWithWS = (argWithWS ^^? f ^^ result.set)
       new Result(result.get)
     }
     
-    def optionalArg [T](f: String => T): Result[Option[T]] = {
+    def optionalArg [T](f: String => Either[String,T]): Result[Option[T]] = {
       separator = contentSeparator
       val result = new LazyResult[T]
-      optionalArgs = optionalArgs ~ (arg ^^ result.fromString(f))
+      optionalArgs = optionalArgs ~ (arg ^^? f ^^ result.set)
       new Result(result.value)
     }
     
-    def optionalArgWithWS [T](f: String => T): Result[T] = {
+    def optionalArgWithWS [T](f: String => Either[String,T]): Result[T] = {
       separator = contentSeparator
       val result = new LazyResult[T]
-      optionalArgWithWS = (argWithWS ^^ result.fromString(f))
+      optionalArgWithWS = (argWithWS ^^? f ^^ result.set)
       new Result(result.get)
     }
     
-    def requiredField [T](name: String, f: String => T): Result[T] = {
+    def requiredField [T](name: String, f: String => Either[String,T]): Result[T] = {
       separator = contentSeparator
       fields = directiveFieldList
       val result = new LazyResult[T]
-      requiredFields + (name -> result.fromString(f)_)
+      requiredFields + (name -> { s:String => f(s).right map result.set })
       new Result(result.get)
     }
     
-    def optionalField [T](name: String, f: String => T): Result[Option[T]] = {
+    def optionalField [T](name: String, f: String => Either[String,T]): Result[Option[T]] = {
       separator = contentSeparator
       fields = directiveFieldList
       val result = new LazyResult[T]
-      optionalFields + (name -> result.fromString(f)_)
+      optionalFields + (name -> { s:String => f(s).right map result.set })
       new Result(result.value)
     }
     
     def standardContent: Result[Seq[Block]] = parseContentWith {
-      block => parseNestedBlocks(block)
+      block => Right(parseNestedBlocks(block))
     }
     
-    def content [T](f: String => T): Result[T] = parseContentWith {
+    def content [T](f: String => Either[String,T]): Result[T] = parseContentWith {
       block => f(block.lines mkString "\n")
     }
     
-    private def parseContentWith [T](f: IndentedBlock => T): Result[T] = {
+    private def parseContentWith [T](f: IndentedBlock => Either[String,T]): Result[T] = {
       val result = new LazyResult[T]
-      contentParser = (body ^^ { block => result.set(f(block)) })
+      contentParser = (body ^^? f ^^ result.set)
       new Result(result.get)
     }
     
@@ -272,13 +274,13 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
   
   class RoleDirectiveParserBuilder (delegate: DirectiveParser) extends RoleDirectiveParser {
     
-    def requiredField [T](name: String, f: String => T): Result[T] = delegate.requiredField(name,f)
+    def requiredField [T](name: String, f: String => Either[String,T]): Result[T] = delegate.requiredField(name,f)
     
-    def optionalField [T](name: String, f: String => T): Result[Option[T]] = delegate.optionalField(name,f)
+    def optionalField [T](name: String, f: String => Either[String,T]): Result[Option[T]] = delegate.optionalField(name,f)
     
     def standardContent: Result[Seq[Block]] = delegate.standardContent
     
-    def content [T](f: String => T): Result[T] = delegate.content(f)
+    def content [T](f: String => Either[String,T]): Result[T] = delegate.content(f)
     
   }
     
