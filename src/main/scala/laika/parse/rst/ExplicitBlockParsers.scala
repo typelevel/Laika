@@ -82,7 +82,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
   
   def comment = {
     varIndentedBlock() ^^ { block =>
-      Comment(block.lines map (_.trim) filterNot (_.isEmpty) mkString "\n")
+      Comment((block.lines map (_.trim) mkString "\n").trim)
     }
   }
   
