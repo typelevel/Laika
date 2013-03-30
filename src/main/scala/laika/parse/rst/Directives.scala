@@ -88,15 +88,15 @@ object Directives {
     
     def requiredArg [T](f: String => Either[String,T]): DirectivePart[T] = part(_.requiredArg(f))
   
-    def optionalArg: DirectivePart[Option[String]] = part(_.optionalArg(s => Right(s)))
+    def optionalStringArg: DirectivePart[Option[String]] = part(_.optionalArg(s => Right(s)))
     
     def optionalArg [T](f: String => Either[String,T]): DirectivePart[Option[T]] = part(_.optionalArg(f))
     
-    def requiredField [T](name: String): DirectivePart[String] = part(_.requiredField(name, s => Right(s)))
+    def requiredStringField [T](name: String): DirectivePart[String] = part(_.requiredField(name, s => Right(s)))
     
     def requiredField [T](name: String, f: String => Either[String,T]): DirectivePart[T] = part(_.requiredField(name, f))
     
-    def optionalField (name: String): DirectivePart[Option[String]] = part(_.optionalField(name, s => Right(s)))
+    def optionalStringField (name: String): DirectivePart[Option[String]] = part(_.optionalField(name, s => Right(s)))
     
     def optionalField [T](name: String, f: String => Either[String,T]): DirectivePart[Option[T]] = part(_.optionalField(name, f))
     
