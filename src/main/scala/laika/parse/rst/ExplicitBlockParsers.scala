@@ -208,9 +208,12 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     class LazyResult[T] {
       var value: Option[T] = None
       def set (v: T) = value = Some(v)
+      def set (v: Option[T]) = value = v
       def get: T = value getOrElse { throw new IllegalStateException("result not set yet") }
-      def fromString (f: String => T)(s: String) = set(f(s))
     }
+    
+    def optionToEither [T](f: String => Either[String,T])(res: Option[String]): Either[String,Option[T]] =
+      (res map f) map (_.right map (res => Some(res))) getOrElse Right(None)
     
     def requiredArg [T](f: String => Either[String,T]): Result[T] = {
       separator = contentSeparator
@@ -229,15 +232,15 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     def optionalArg [T](f: String => Either[String,T]): Result[Option[T]] = {
       separator = contentSeparator
       val result = new LazyResult[T]
-      optionalArgs = optionalArgs ~ (arg ^^? f ^^ result.set)
+      optionalArgs = optionalArgs ~ (opt(arg) ^^? optionToEither(f) ^^ result.set)
       new Result(result.value)
     }
     
-    def optionalArgWithWS [T](f: String => Either[String,T]): Result[T] = {
+    def optionalArgWithWS [T](f: String => Either[String,T]): Result[Option[T]] = {
       separator = contentSeparator
       val result = new LazyResult[T]
-      optionalArgWithWS = (argWithWS ^^? f ^^ result.set)
-      new Result(result.get)
+      optionalArgWithWS = (opt(argWithWS) ^^? optionToEither(f) ^^ result.set)
+      new Result(result.value)
     }
     
     def requiredField [T](name: String, f: String => Either[String,T]): Result[T] = {
