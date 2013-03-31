@@ -250,21 +250,19 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers =>
       
       val boundaryRow = tableBoundary <~ (any take 1) ~ ws ~ eol
       val tablePart = ((not(tableBoundary) ~> row <~ (any take 1) ~ ws ~ eol)*)
-      (tablePart ~ opt(boundaryRow ~> tablePart)) >> { result =>
+      (tablePart ~ opt(boundaryRow ~> tablePart)) ^^? { result =>
         
-        /* TODO - use new ^^? operator. This parser does not actually parse anything, but we need to fail for certain illegal
-         * constructs in the interim model, so that the next parser can pick up the (broken) table input */
-        Parser { in =>
-          try {
-            val table = result match {
-              case head ~ Some(body) => validateLastRow(body); Table(buildRowList(head, HeadCell), buildRowList(body.init, BodyCell))
-              case body ~ None       => validateLastRow(body); Table(Nil, buildRowList(body.init, BodyCell))
-            }
-            Success(table, in)
+      /* Need to fail for certain illegal constructs in the interim model, 
+       * so that the next parser can pick up the (broken) table input */
+        try {
+          val table = result match {
+            case head ~ Some(body) => validateLastRow(body); Table(buildRowList(head, HeadCell), buildRowList(body.init, BodyCell))
+            case body ~ None       => validateLastRow(body); Table(Nil, buildRowList(body.init, BodyCell))
           }
-          catch {
-            case ex: MalformedTableException => Failure(ex.getMessage, in)
-          }
+          Right(table)
+        }
+        catch {
+          case ex: MalformedTableException => Left(ex.getMessage)
         }
       }      
     }
