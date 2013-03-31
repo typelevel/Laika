@@ -33,9 +33,9 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
   val explicitStart = (".." ~ (ws min 1))
   
   
-  def explicitBlockItem: Parser[Block] = explicitStart ~>
-    (footnote | citation | linkDefinition | substitutionDefinition | roleDirective | blockDirective | comment) 
-    // TODO - there is a linkDef alternative not requiring the .. prefix
+  def explicitBlockItem: Parser[Block] = (explicitStart ~>
+    (footnote | citation | linkDefinition | substitutionDefinition | roleDirective | blockDirective | comment)) |
+    shortAnonymousLinkDefinition
   
   
   def footnote = {
@@ -54,6 +54,18 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     }
   }
   
+  lazy val shortAnonymousLinkDefinition = {
+    "__ " ~> linkDefinitionBody ^^ { body => LinkDefinition("", body) } 
+  }
+  
+  private lazy val linkDefinitionBody = {
+    val notEmpty = not(blankLine) | guard(restOfLine ~ (ws min 1) ~ not(blankLine))
+    
+    (notEmpty ~> varIndentedBlock()) ^^ { 
+      _.lines map (_.trim) filterNot (_.isEmpty) mkString
+    }
+  }
+  
   def linkDefinition = {
     val named = '_' ~> refName <~ ':' // TODO - backticks are optional here in most cases (unless ref name contains colons)
     val anonymous = "__:" ^^^ ""
@@ -62,10 +74,8 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     
     val externalName = (named | anonymous)
     
-    val notEmpty = not(blankLine) | guard(restOfLine ~ (ws min 1) ~ not(blankLine))
-    
-    val external = externalName ~ (notEmpty ~> varIndentedBlock()) ^^ {
-      case name ~ block => LinkDefinition(name, block.lines map (_.trim) filterNot (_.isEmpty) mkString)
+    val external = externalName ~ linkDefinitionBody ^^ {
+      case name ~ body => LinkDefinition(name, body)
     }
     
     external | internal

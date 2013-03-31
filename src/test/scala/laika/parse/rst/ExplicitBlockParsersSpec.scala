@@ -96,6 +96,11 @@ class ExplicitBlockParsersSpec extends FlatSpec
     Parsing (input) should produce (doc(LinkDefinition("", "http://www.foo.bar/")))
   }
   
+  it should "parse a short anonymous external definition" in {
+    val input = """__ http://www.foo.bar/"""
+    Parsing (input) should produce (doc(LinkDefinition("", "http://www.foo.bar/")))
+  }
+  
   it should "parse an internal target" in {
     val input = """.. _some-target:"""
     Parsing (input) should produce (doc(InternalLinkTarget("some-target")))
