@@ -60,6 +60,13 @@ trait MarkupParsers extends RegexParsers {
       else Failure("Not at end of input", in)
   }  
   
+  /** Succeeds at the start of the input.
+   */
+  val atStart = Parser { in =>
+    if (in.offset == 0) Success(success(()), in) 
+    else Failure("Not at start of input", in)
+  }
+  
   /** Parses horizontal whitespace (space and tab).
    *  Always succeeds, consuming all whitespace found.
    */

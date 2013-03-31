@@ -79,12 +79,6 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
     end >> { markup => (lookBehind(markup.length, beforeEndMarkup) ~ guard(eof | afterEndMarkup)) ^^^ markup }
   }
   
-  // TODO - promote to MarkupParsers
-  val atStart = Parser { in =>
-    if (in.offset == 0) Success(success(()), in) 
-    else Failure("Not at start of input", in)
-  }
-  
   /** Inline markup recognition rules 2 and 5
    */
   def afterStartMarkup (start: Parser[Any])(before: Char) = {
