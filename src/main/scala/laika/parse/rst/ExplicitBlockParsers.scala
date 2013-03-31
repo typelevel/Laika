@@ -116,7 +116,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     
   }
 
-  case class CustomizedTextRole (name: String, apply: String => Seq[Span]) extends Block
+  case class CustomizedTextRole (name: String, apply: String => Span) extends Block
   
   def roleDirective = {
     

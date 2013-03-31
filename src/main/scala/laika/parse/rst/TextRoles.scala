@@ -89,11 +89,11 @@ object TextRoles {
   }
 
   
-  class TextRole private (val name: String, val part: RoleDirectivePart[String => Seq[Span]])
+  class TextRole private (val name: String, val part: RoleDirectivePart[String => Span])
 
   object TextRole {
     
-    def apply [T] (name: String, default: T)(part: RoleDirectivePart[T])(roleF: (T, String) => Seq[Span]) = 
+    def apply [T] (name: String, default: T)(part: RoleDirectivePart[T])(roleF: (T, String) => Span) = 
       new TextRole(name, part map (res => (str => roleF(res, str))))
     
   }
