@@ -79,6 +79,11 @@ class ExplicitBlockParsersSpec extends FlatSpec
     Parsing (input) should produce (doc(LinkDefinition("some-link", "http://www.foo.bar/")))
   }
   
+  it should "parse a named external definition with the reference name in backticks" in {
+    val input = """.. _`some:link`: http://www.foo.bar/"""
+    Parsing (input) should produce (doc(LinkDefinition("some:link", "http://www.foo.bar/")))
+  }
+  
   it should "parse a named external definition on two lines" in {
     val input = """.. _some-link: http://www.
       |     foo.bar/""".stripMargin

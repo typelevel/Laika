@@ -67,7 +67,8 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
   }
   
   def linkDefinition = {
-    val named = '_' ~> refName <~ ':' // TODO - backticks are optional here in most cases (unless ref name contains colons)
+    val nameInBackTicks = '`' ~> anyUntil('`')
+    val named = '_' ~> (refName | nameInBackTicks) <~ ':'
     val anonymous = "__:" ^^^ ""
       
     val internal = named ^^ InternalLinkTarget // TODO - might need special logic for cases where it points to other targets (e.g. external)
