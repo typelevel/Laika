@@ -88,7 +88,6 @@ object TextRoles {
     
   }
 
-  //class TextRole [T] private (val name: String, val part: RoleDirectivePart[T], val roleF: (T, String) => Seq[Span])
   
   class TextRole private (val name: String, val part: RoleDirectivePart[String => Seq[Span]])
 
