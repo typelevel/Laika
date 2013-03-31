@@ -87,11 +87,17 @@ class DirectiveSpec extends FlatSpec
       (arg,field,list) => (p((arg.getOrElse(0) +: field.getOrElse(0) +: list).sum.toString))
     }
   )
+  
   val spanDirectives: Map[String, DirectivePart[Span]] = Map(
     "spans" -> (requiredStringArg map Text) 
   )
   
-  val textRoles: Map[String, TextRole] = Map.empty
+  val textRoles: Map[String, TextRole] = Map(
+    "role" -> TextRole("role", 7)(TextRoles.Parts.requiredField("name",positiveInt)) { (res,text) =>
+       txt(text+"("+res+")")
+    }  
+  )
+  
   
   
   "The directive parser" should "parse a directive with one required argument" in {
@@ -444,6 +450,19 @@ class DirectiveSpec extends FlatSpec
   it should "ignore a definition with an invalid directive" in {
     val input = ".. |def| spans::"
     Parsing (input) should produce (doc (invalid(input)))
+  }
+  
+  
+  val docWithTextRoles: Parser[Document] = document ^^ { doc =>
+    doc.rewrite {
+      case CustomizedTextRole(name, f) => Some(p(f(name)))
+    }
+  }
+  
+  "The role directive parser" should "parse a simple definition" in {
+    val input = """.. role::custom(role)
+    	| :name: 9""".stripMargin
+    parseAll(docWithTextRoles,input) should produce (doc (p("custom(9)")))
   }
 
   
