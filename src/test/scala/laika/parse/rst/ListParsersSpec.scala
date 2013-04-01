@@ -258,6 +258,15 @@ class ListParsersSpec extends FlatSpec
     Parsing (input) should produce (doc( dl( di("term 1", p("aaa")), di("term 2", p("bbb")))))
   }
   
+  it should "parse a term with a classifier" in {
+    val input = """term 1
+      | aaa
+      |
+      |term 2 : classifier
+      | bbb""".stripMargin
+    Parsing (input) should produce (doc( dl( di("term 1", p("aaa")), di(List(txt("term 2 "), Classifier(List(txt("classifier")))), p("bbb")))))
+  }
+  
   it should "parse items containing multiple paragraphs in a single item" in {
     val input = """term 1
       |  aaa

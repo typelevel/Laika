@@ -154,7 +154,7 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
     def itemStart (prefix: Parser[String], et: EnumType, suffix: Parser[String]): Parser[String] = 
       (prefix ~ enumType(et) ~ suffix) ^^ { case prefix ~ enumType ~ suffix => prefix + enumType + suffix }
       
-    guard(firstItemStart) >> { case (prefix, start, enumType, suffix) => // TODO - keep start number
+    guard(firstItemStart) >> { case (prefix, start, enumType, suffix) =>
       (listItem(itemStart(prefix, enumType, suffix)) +) ^^ { OrderedList(_, enumType, prefix, suffix, start) }
     }
   }
@@ -166,9 +166,12 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
     
     val term: Parser[String] = not(blankLine) ~> anyBut('\n') <~ guard(eol ~ (ws min 1) ~ not(blankLine))
     
-    val item = (term ~ varIndentedBlock()) ^? // TODO - add classifier parser to parseInline map
+    val classifier = lookBehind(2,' ') ~ ' ' ~> spans(any, spanParsers) ^^ Classifier
+    val nested = spanParsers + (':' -> classifier)
+    
+    val item = (term ~ varIndentedBlock()) ^?
       { case term ~ block if !block.lines.tail.isEmpty => 
-          DefinitionListItem(parseInline(term), parseNestedBlocks(block.lines.tail, block.nestLevel)) }
+          DefinitionListItem(parseInline(term, nested), parseNestedBlocks(block.lines.tail, block.nestLevel)) }
     
     (item +) ^^  DefinitionList
   }
