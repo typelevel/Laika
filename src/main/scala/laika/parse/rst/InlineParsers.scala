@@ -188,7 +188,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   
   lazy val phraseLinkRef = { // TODO - escaped < is allowed
     def ref (refName: String, url: String) = if (refName.isEmpty) url else refName
-    val url = '<' ~> anyBut('>') <~ '>'
+    val url = '<' ~> anyBut('>') <~ '>' ^^ { _.replaceAll("[ \n]+", "") }
     val refName = anyBut('`','<') ^^ ReferenceName
     markupStart("`") ~> refName ~ opt(url) ~ (markupEnd("`__") ^^^ false | markupEnd("`_") ^^^ true) ^^ {
       case refName ~ Some(url) ~ true   => 

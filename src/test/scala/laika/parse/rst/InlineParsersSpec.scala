@@ -208,6 +208,13 @@ class InlineParsersSpec extends FlatSpec
         fc(link(txt("http://foo.com")).url("http://foo.com"), LinkDefinition("http://foo.com", "http://foo.com")), txt(" here")))
   }
   
+  it should "remove whitespace from an url" in {
+    val input = """some `<http://
+      | foo.com>`_ here""".stripMargin
+    Parsing (input) should produce (spans(txt("some "), 
+        fc(link(txt("http://foo.com")).url("http://foo.com"), LinkDefinition("http://foo.com", "http://foo.com")), txt(" here")))
+  }
+  
   it should "parse an anonymous phrase link without url" in {
     Parsing ("some `link`__ here") should produce (spans(txt("some "), anonPLinkRef("link"), txt(" here")))
   }
