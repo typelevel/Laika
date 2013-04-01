@@ -130,16 +130,20 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   lazy val inlineLiteral = markupStart('`', "``") ~> anyUntil(markupEnd("``")) ^^ CodeSpan
   
   
+  case class ReferenceName (original: String) {
+    lazy val normalized = original.replaceAll("[\n ]+", " ").toLowerCase
+  }
+  
   val simpleRefName = {
     val alphanum = anyIn('0' to '9', 'a' to 'z', 'A' to 'Z') min 1 // TODO - check whether non-ascii characters are allowed
     val symbol = anyOf('-', '_', '.', ':', '+') take 1
     
     alphanum ~ ((symbol ~ alphanum)*) ^^ { 
       case start ~ rest => start + (rest map { case a~b => a+b }).mkString
-    } // TODO - normalize ws - lowercase
+    }
   }
   
-  val refName = simpleRefName | phraseRef
+  val refName = (simpleRefName | phraseRef) ^^ ReferenceName
   
   val phraseRef = '`' ~> (anyBut('`') min 1) <~ '`'
   
@@ -164,7 +168,9 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   }
   
   
-  val internalTarget = markupStart('`', "`") ~> (anyBut('`') min 1) <~ markupEnd("`") ^^ InlineLinkTarget // TODO - normalize id's?
+  val internalTarget = markupStart('`', "`") ~> 
+    ((anyBut('`') min 1) ^^ {ReferenceName(_).normalized}) <~ 
+    markupEnd("`") ^^ InlineLinkTarget
   
   
   val defaultTextRole = "title-reference"
@@ -183,12 +189,13 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   lazy val phraseLinkRef = { // TODO - escaped < is allowed
     def ref (refName: String, url: String) = if (refName.isEmpty) url else refName
     val url = '<' ~> anyBut('>') <~ '>'
-    markupStart("`") ~> anyBut('`','<') ~ opt(url) ~ (markupEnd("`__") ^^^ false | markupEnd("`_") ^^^ true) ^^ {
+    val refName = anyBut('`','<') ^^ ReferenceName
+    markupStart("`") ~> refName ~ opt(url) ~ (markupEnd("`__") ^^^ false | markupEnd("`_") ^^^ true) ^^ {
       case refName ~ Some(url) ~ true   => 
-        FlowContent(List(Link(List(Text(ref(refName,url))), url), LinkDefinition(ref(refName,url), url)))
-      case refName ~ Some(url) ~ false  => Link(List(Text(ref(refName,url))), url)
-      case refName ~ None ~ true        => LinkReference(List(Text(refName)), refName, "`", "`_") 
-      case refName ~ None ~ false       => LinkReference(List(Text(refName)), "", "`", "`__") 
+        FlowContent(List(Link(List(Text(ref(refName.original, url))), url), LinkDefinition(ref(refName.normalized, url), url)))
+      case refName ~ Some(url) ~ false  => Link(List(Text(ref(refName.original, url))), url)
+      case refName ~ None ~ true        => LinkReference(List(Text(refName.original)), refName.normalized, "`", "`_") 
+      case refName ~ None ~ false       => LinkReference(List(Text(refName.original)), "", "`", "`__") 
     }
   }
   

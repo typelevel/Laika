@@ -230,6 +230,12 @@ class InlineParsersSpec extends FlatSpec
     Parsing ("some link__ here") should produce (spans(txt("some link"), Reverse(4, anonLinkRef("link"), txt("__")) , txt(" here")))
   }
   
+  it should "normalize the id of a phrase link" in {
+    val input = """some `strange
+      | phrase   link`_ here""".stripMargin
+    Parsing (input) should produce (spans(txt("some "), pLinkRef("strange phrase link","strange\n phrase   link"), txt(" here")))
+  }
+  
   
   "The standalone link parser" should "parse a http URI" in {
     val uri = "http://www.link.com"
