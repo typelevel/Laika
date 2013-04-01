@@ -21,6 +21,7 @@ import laika.parse.rst.Elements._
 import scala.annotation.tailrec
 import scala.collection.mutable.Stack
 import scala.collection.mutable.ListBuffer
+import laika.util.RomanNumerals
 
 /**
  * @author Jens Halm
@@ -111,23 +112,27 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
    */
   def orderedList: Parser[OrderedList] = {
     
-    val firstLowerRoman = (anyOf('i','v','x','l','c','d','m').min(2) | anyOf('i').take(1)) ^^^ { LowerRoman }
+    val firstLowerRoman = (anyOf('i','v','x','l','c','d','m').min(2) | anyOf('i').take(1)) ^^ 
+      { num => (RomanNumerals.romanToInt(num.toUpperCase), LowerRoman) }
     val lowerRoman = anyOf('i','v','x','l','c','d','m').min(1)
     
-    val firstUpperRoman = (anyOf('I','V','X','L','C','D','M').min(2) | anyOf('I').take(1)) ^^^ { UpperRoman }
+    val firstUpperRoman = (anyOf('I','V','X','L','C','D','M').min(2) | anyOf('I').take(1)) ^^ 
+      { num => (RomanNumerals.romanToInt(num), UpperRoman) }
     val upperRoman = anyOf('I','V','X','L','C','D','M').min(1)
     
-    val firstLowerAlpha = anyIn('a' to 'h', 'j' to 'z').take(1) ^^^ { LowerAlpha } // 'i' is interpreted as Roman numerical
+    val firstLowerAlpha = anyIn('a' to 'h', 'j' to 'z').take(1) ^^ 
+      { char => (char.charAt(0) + 1 - 'a', LowerAlpha) } // 'i' is interpreted as Roman numerical
     val lowerAlpha = anyIn('a' to 'z').take(1)
   
-    val firstUpperAlpha = anyIn('A' to 'H', 'J' to 'Z').take(1) ^^^ { UpperAlpha }
+    val firstUpperAlpha = anyIn('A' to 'H', 'J' to 'Z').take(1) ^^ 
+      { char => (char.charAt(0) + 1 - 'A', UpperAlpha) }
     val upperAlpha = anyIn('A' to 'Z').take(1)
     
     val arabic = anyIn('0' to '9').min(1)
-    val firstArabic = arabic ^^^ { Arabic }
+    val firstArabic = arabic ^^ { num => (num.toInt, Arabic) }
     
     val autoNumber = anyOf('#').take(1)
-    val firstAutoNumber = autoNumber ^^^ { Arabic }
+    val firstAutoNumber = autoNumber ^^^ { (1,Arabic) }
     
     lazy val enumTypes = Map[EnumType,Parser[String]] (
       Arabic -> arabic,
@@ -139,17 +144,18 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
     
     def enumType (et: EnumType) = enumTypes(et) | autoNumber
     
-    lazy val firstEnumType: Parser[EnumType] = firstAutoNumber | firstArabic | firstLowerAlpha | firstUpperAlpha | firstLowerRoman | firstUpperRoman
+    lazy val firstEnumType: Parser[(Int,EnumType)] = 
+      firstAutoNumber | firstArabic | firstLowerAlpha | firstUpperAlpha | firstLowerRoman | firstUpperRoman
     
-    lazy val firstItemStart: Parser[(String, EnumType, String)] = 
-      ('(' ~ firstEnumType ~ ')') ^^ { case prefix ~ enumType ~ suffix => (prefix.toString, enumType, suffix.toString) } | 
-      (firstEnumType ~ ')' | firstEnumType ~ '.') ^^ { case enumType ~ suffix => ("", enumType, suffix.toString) }
+    lazy val firstItemStart: Parser[(String, Int, EnumType, String)] = 
+      ('(' ~ firstEnumType ~ ')') ^^ { case prefix ~ enumType ~ suffix => (prefix.toString, enumType._1, enumType._2, suffix.toString) } | 
+      (firstEnumType ~ ')' | firstEnumType ~ '.') ^^ { case enumType ~ suffix => ("", enumType._1, enumType._2, suffix.toString) }
     
     def itemStart (prefix: Parser[String], et: EnumType, suffix: Parser[String]): Parser[String] = 
       (prefix ~ enumType(et) ~ suffix) ^^ { case prefix ~ enumType ~ suffix => prefix + enumType + suffix }
       
-    guard(firstItemStart) >> { case (prefix, enumType, suffix) => // TODO - keep start number
-      (listItem(itemStart(prefix, enumType, suffix)) +) ^^ { OrderedList(_, enumType, prefix, suffix) }
+    guard(firstItemStart) >> { case (prefix, start, enumType, suffix) => // TODO - keep start number
+      (listItem(itemStart(prefix, enumType, suffix)) +) ^^ { OrderedList(_, enumType, prefix, suffix, start) }
     }
   }
   

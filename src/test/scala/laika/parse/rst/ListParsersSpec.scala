@@ -127,42 +127,72 @@ class ListParsersSpec extends FlatSpec
     val input = """a. aaa
       |b. bbb
       |c. ccc""".stripMargin
-    Parsing (input) should produce (doc( ol(LowerAlpha,"",".", li( p("aaa")), li( p("bbb")), li( p("ccc")))))
+    Parsing (input) should produce (doc( ol(LowerAlpha,"",".", 1, li( p("aaa")), li( p("bbb")), li( p("ccc")))))
   }
   
   it should "parse items with uppercase alphabetic enumeration style" in {
     val input = """A. aaa
       |B. bbb
       |C. ccc""".stripMargin
-    Parsing (input) should produce (doc( ol(UpperAlpha,"",".", li( p("aaa")), li( p("bbb")), li( p("ccc")))))
+    Parsing (input) should produce (doc( ol(UpperAlpha,"",".", 1, li( p("aaa")), li( p("bbb")), li( p("ccc")))))
   }
   
   it should "parse items with lowercase Roman enumeration style" in {
     val input = """i. aaa
       |ii. bbb
       |iii. ccc""".stripMargin
-    Parsing (input) should produce (doc( ol(LowerRoman,"",".", li( p("aaa")), li( p("bbb")), li( p("ccc")))))
+    Parsing (input) should produce (doc( ol(LowerRoman,"",".", 1, li( p("aaa")), li( p("bbb")), li( p("ccc")))))
   }
   
   it should "parse items with uppercase Roman enumeration style" in {
     val input = """I. aaa
       |II. bbb
       |III. ccc""".stripMargin
-    Parsing (input) should produce (doc( ol(UpperRoman,"",".", li( p("aaa")), li( p("bbb")), li( p("ccc")))))
+    Parsing (input) should produce (doc( ol(UpperRoman,"",".", 1, li( p("aaa")), li( p("bbb")), li( p("ccc")))))
+  }
+  
+  it should "keep the right start value for arabic enumeration style" in {
+    val input = """4. aaa
+      |5. bbb""".stripMargin
+    Parsing (input) should produce (doc( ol(Arabic,"",".", 4, li( p("aaa")), li( p("bbb")))))
+  }
+  
+  it should "keep the right start value for lowercase alphabetic enumeration style" in {
+    val input = """d. aaa
+      |e. bbb""".stripMargin
+    Parsing (input) should produce (doc( ol(LowerAlpha,"",".", 4, li( p("aaa")), li( p("bbb")))))
+  }
+  
+  it should "keep the right start value for uppercase alphabetic enumeration style" in {
+    val input = """D. aaa
+      |E. bbb""".stripMargin
+    Parsing (input) should produce (doc( ol(UpperAlpha,"",".", 4, li( p("aaa")), li( p("bbb")))))
+  }
+  
+  it should "keep the right start value for lowercase Roman enumeration style" in {
+    val input = """iv. aaa
+      |v. bbb""".stripMargin
+    Parsing (input) should produce (doc( ol(LowerRoman,"",".", 4, li( p("aaa")), li( p("bbb")))))
+  }
+  
+  it should "keep the right start value for uppercase Roman enumeration style" in {
+    val input = """IV. aaa
+      |V. bbb""".stripMargin
+    Parsing (input) should produce (doc( ol(UpperRoman,"",".", 4, li( p("aaa")), li( p("bbb")))))
   }
   
   it should "parse items suffixed by right-parenthesis" in {
     val input = """1) aaa
       |2) bbb
       |3) ccc""".stripMargin
-    Parsing (input) should produce (doc( ol(Arabic,"",")", li( p("aaa")), li( p("bbb")), li( p("ccc")))))
+    Parsing (input) should produce (doc( ol(Arabic,"",")", 1, li( p("aaa")), li( p("bbb")), li( p("ccc")))))
   }
   
   it should "parse items surrounded by parenthesis" in {
     val input = """(1) aaa
       |(2) bbb
       |(3) ccc""".stripMargin
-    Parsing (input) should produce (doc( ol(Arabic,"(",")", li( p("aaa")), li( p("bbb")), li( p("ccc")))))
+    Parsing (input) should produce (doc( ol(Arabic,"(",")", 1, li( p("aaa")), li( p("bbb")), li( p("ccc")))))
   }
   
   it should "parse items that are separated by blank lines" in {
@@ -206,7 +236,7 @@ class ListParsersSpec extends FlatSpec
       |1) ccc
       |
       |2) ddd""".stripMargin
-    Parsing (input) should produce (doc( ol( li( p("aaa")), li( p("bbb"))), ol(Arabic,"",")", li( p("ccc")), li( p("ddd")))))
+    Parsing (input) should produce (doc( ol( li( p("aaa")), li( p("bbb"))), ol(Arabic,"",")", 1, li( p("ccc")), li( p("ddd")))))
   }
   
   

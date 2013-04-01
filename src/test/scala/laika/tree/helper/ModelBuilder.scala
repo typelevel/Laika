@@ -83,7 +83,8 @@ trait ModelBuilder {
   
   def ol (items: ListItem*) = OrderedList(items.toList)
   
-  def ol (enumType: EnumType, prefix: String, suffix: String, items: ListItem*) = OrderedList(items.toList, enumType, prefix, suffix)
+  def ol (enumType: EnumType, prefix: String, suffix: String, start: Int, items: ListItem*) = 
+    OrderedList(items.toList, enumType, prefix, suffix, start)
 
   def li (blocks: Block*) = ListItem(blocks.toList)
   
