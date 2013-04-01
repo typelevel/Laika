@@ -83,4 +83,8 @@ object Elements {
    */
   case class InterpretedText (role: String, content: String) extends Span with TextContainer
   
+  /** A link target pointing to another link reference, acting like an alias.
+   */
+  case class IndirectLinkTarget (id: String, ref: LinkReference) extends Block
+  
 }

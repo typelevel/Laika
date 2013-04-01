@@ -106,6 +106,28 @@ class ExplicitBlockParsersSpec extends FlatSpec
     Parsing (input) should produce (doc(LinkDefinition("", "http://www.foo.bar/")))
   }
   
+  it should "parse an indirect simple definition" in {
+    val input = """.. _ref: other_"""
+    Parsing (input) should produce (doc(IndirectLinkTarget("ref", LinkReference(Nil,"other","`","`_"))))
+  }
+  
+  it should "parse an indirect phrase definition on one line" in {
+    val input = """.. _ref: `other ref`_"""
+    Parsing (input) should produce (doc(IndirectLinkTarget("ref", LinkReference(Nil,"other ref","`","`_"))))
+  }
+  
+  it should "parse an indirect phrase definition on two lines" in {
+    val input = """.. _ref: `other
+      | ref`_""".stripMargin
+    Parsing (input) should produce (doc(IndirectLinkTarget("ref", LinkReference(Nil,"other ref","`","`_"))))
+  }
+  
+  it should "parse an indirect phrase definition on the following" in {
+    val input = """.. _ref: 
+      | `other ref`_""".stripMargin
+    Parsing (input) should produce (doc(IndirectLinkTarget("ref", LinkReference(Nil,"other ref","`","`_"))))
+  }
+  
   it should "parse an internal target" in {
     val input = """.. _some-target:"""
     Parsing (input) should produce (doc(InternalLinkTarget("some-target")))

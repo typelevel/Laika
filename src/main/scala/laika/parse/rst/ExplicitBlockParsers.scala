@@ -17,6 +17,7 @@
 package laika.parse.rst
 
 import laika.tree.Elements._
+import laika.parse.rst.Elements._
 import laika.util.Builders._
 import laika.parse.rst.Elements.SubstitutionDefinition
 import Directives._
@@ -67,22 +68,28 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
   }
   
   def linkDefinition = {
-    val nameInBackTicks = '`' ~> anyUntil('`')
-    val named = '_' ~> (refName | nameInBackTicks) <~ ':'
-    val anonymous = "__:" ^^^ ""
+    
+    val named = '_' ~> (refName | '`' ~> anyUntil('`')) <~ ':'
       
     val internal = named ^^ InternalLinkTarget // TODO - might need special logic for cases where it points to other targets (e.g. external)
     
-    val externalName = (named | anonymous)
+    val external = {
+      val anonymous = "__:" ^^^ ""
     
-    val external = externalName ~ linkDefinitionBody ^^ {
-      case name ~ body => LinkDefinition(name, body)
+      (named | anonymous) ~ linkDefinitionBody ^^ {
+        case name ~ body => LinkDefinition(name, body)
+      }
     }
     
-    external | internal
+    val indirect = {
+      (named <~ ws) ~ ((opt(eol ~ ws) ~ "`" ~> anyUntil('`') | simpleRefName) <~ '_' ~ ws ~ eol) ^^ {
+        case name ~ refName => IndirectLinkTarget(name, LinkReference(Nil, refName.replaceAll("\n", ""), "`", "`_")) 
+      }
+    }
     
-    // TODO - add indirect targets once inline parsers are completed
+    indirect | external | internal
   }
+  
   
   def substitutionDefinition = {
     val text = not(ws take 1) ~> (anyBut('|','\n') min 1)  
