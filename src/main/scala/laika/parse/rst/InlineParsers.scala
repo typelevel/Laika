@@ -68,7 +68,6 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
                             Character.INITIAL_QUOTE_PUNCTUATION, Character.FINAL_QUOTE_PUNCTUATION)                          
 
                             
-  // TODO - eliminate escaped spaces before markup start
   def markupStart (start: Parser[Any], end: Parser[String]): Parser[Any] = {
     ((lookBehind(2, beforeStartMarkup) | lookBehind(1, atStart ^^^ ' ')) >> afterStartMarkup(start)) ~ not(end) // not(end) == rule 6
   }
@@ -111,7 +110,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   )
 
   
-  lazy val escapedChar = (any take 1) ^^ Text
+  lazy val escapedChar = (" " ^^^ Text("") | (any take 1) ^^ Text)
   
   // TODO - some other parsers might need to support escaping, too
   def escaped (p: TextParser) = spans(p, Map('\\' -> escapedChar))

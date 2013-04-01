@@ -92,6 +92,10 @@ class InlineParsersSpec extends FlatSpec
     Parsing ("some (|)replaced| text") should produce (spans(txt("some (|)replaced| text")))
   }
   
+  it should "recognize markup when preceding and following characters are escaped" in {
+    Parsing ("""some\ |replaced|\ text""") should produce (spans(txt("some"), subst("replaced"), txt("text")))
+  }
+  
   
   
   "The em parser" should "parse content enclosed in *" in {
