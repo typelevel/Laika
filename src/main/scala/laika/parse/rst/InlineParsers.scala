@@ -112,8 +112,15 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   
   lazy val escapedChar = (" " ^^^ Text("") | (any take 1) ^^ Text)
   
-  // TODO - some other parsers might need to support escaping, too
   def escaped (p: TextParser) = spans(p, Map('\\' -> escapedChar))
+  
+  /** Parses a span of text until the specified character is seen,
+   *  while also processing escaped characters, but no other nested
+   *  spans.
+   */
+  def escapedUntil (char: Char) = text(anyUntil(char) min 1, Map('\\' -> (" " ^^^ "" | (any take 1))))
+
+  def escapedText (p: TextParser) = text(p, Map('\\' -> (" " ^^^ "" | (any take 1))))
   
   
   lazy val em = span("*") ^^ Emphasized
@@ -145,7 +152,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   
   val refName = (simpleRefName | phraseRef) ^^ ReferenceName
   
-  val phraseRef = '`' ~> (anyBut('`') min 1) <~ '`'
+  val phraseRef = '`' ~> escapedUntil('`')
   
   
   val footnoteLabel = {
@@ -169,27 +176,27 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   
   
   val internalTarget = markupStart('`', "`") ~> 
-    ((anyBut('`') min 1) ^^ {ReferenceName(_).normalized}) <~ 
+    (escapedText(anyBut('`') min 1) ^^ {ReferenceName(_).normalized}) <~ 
     markupEnd("`") ^^ InlineLinkTarget
   
   
   val defaultTextRole = "title-reference"
     
   lazy val interpretedTextWithRolePrefix = {
-    (markupStart(":") ~> simpleRefName) ~ (":`" ~> (anyBut('`') min 1) <~ markupEnd("`")) ^^ 
+    (markupStart(":") ~> simpleRefName) ~ (":`" ~> escapedText(anyBut('`') min 1) <~ markupEnd("`")) ^^ 
       { case role ~ text => InterpretedText(role,text) }
   }
   
   lazy val interpretedTextWithRoleSuffix = {
-    (markupStart("`") ~> (anyBut('`') min 1) <~ markupEnd("`")) ~ opt(":" ~> simpleRefName <~ markupEnd(":")) ^^
+    (markupStart("`") ~> escapedText(anyBut('`') min 1) <~ markupEnd("`")) ~ opt(":" ~> simpleRefName <~ markupEnd(":")) ^^
       { case text ~ role => InterpretedText(role.getOrElse(defaultTextRole), text) }
   }
   
   
-  lazy val phraseLinkRef = { // TODO - escaped < is allowed
+  lazy val phraseLinkRef = {
     def ref (refName: String, url: String) = if (refName.isEmpty) url else refName
     val url = '<' ~> anyBut('>') <~ '>' ^^ { _.replaceAll("[ \n]+", "") }
-    val refName = anyBut('`','<') ^^ ReferenceName
+    val refName = escapedText(anyBut('`','<')) ^^ ReferenceName
     markupStart("`") ~> refName ~ opt(url) ~ (markupEnd("`__") ^^^ false | markupEnd("`_") ^^^ true) ^^ {
       case refName ~ Some(url) ~ true   => 
         FlowContent(List(Link(List(Text(ref(refName.original, url))), url), LinkDefinition(ref(refName.normalized, url), url)))

@@ -82,7 +82,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     }
     
     val indirect = {
-      (named <~ ws) ~ ((opt(eol ~ ws) ~ "`" ~> anyUntil('`') | simpleRefName) <~ '_' ~ ws ~ eol) ^^ {
+      (named <~ ws) ~ ((opt(eol ~ ws) ~ "`" ~> escapedText(anyUntil('`')) | simpleRefName) <~ '_' ~ ws ~ eol) ^^ {
         case name ~ refName => IndirectLinkTarget(name, LinkReference(Nil, refName.replaceAll("\n", ""), "`", "`_")) 
       }
     }
@@ -92,7 +92,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
   
   
   def substitutionDefinition = {
-    val text = not(ws take 1) ~> (anyBut('|','\n') min 1)  
+    val text = not(ws take 1) ~> escapedText(anyBut('|','\n') min 1)  
     val prefix = '|' ~> text <~ not(lookBehind(1, ' ')) ~ '|'
     
     ((prefix <~ ws) ~ spanDirective) ^^ { case name ~ content => SubstitutionDefinition(name, content) }
@@ -187,7 +187,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     // TODO - some duplicate logic with original fieldList parser
     lazy val directiveFieldList: Parser[Any] = {
       
-      val name = ':' ~> anyBut(':') <~ ':' // TODO - must be escapedUntil(':') once InlineParsers are implemented
+      val name = ':' ~> escapedUntil(':')
       
       val firstLine = anyBut('\n') 
       
