@@ -41,7 +41,9 @@ class DirectiveSpec extends FlatSpec
   val defaultParser: Parser[Document] = document
   
   
-  def invalid (input: String) = Comment(input.drop(3).replaceAll("\n[ ]*", "\n"))
+  def invalid (input: String, error: String) = 
+    InvalidDirective(SystemMessage(laika.tree.Elements.Error, error), 
+        CodeBlock(input.replaceAll("\n ","\n").replaceAll("::$",":: ").replaceAll("::\n",":: \n")))
   
   def positiveInt (input: String) = 
     try {
@@ -105,14 +107,16 @@ class DirectiveSpec extends FlatSpec
     Parsing (input) should produce (doc (p("arg")))
   }
   
-  it should "ignore a directive with a required argument missing" in {
+  it should "detect a directive with a required argument missing as invalid" in {
+    val error = "missing required argument"
     val input = """.. oneArg::"""
-    Parsing (input) should produce (doc (invalid(input)))
+    Parsing (input) should produce (doc (invalid(input,error)))
   }
   
-  it should "ignore a directive with a required argument being invalid" in {
+  it should "detect a directive with a required argument being invalid" in {
+    val error = """unable to convert to int: java.lang.NumberFormatException: For input string: "foo""""
     val input = """.. oneIntArg:: foo"""
-    Parsing (input) should produce (doc (invalid(input)))
+    Parsing (input) should produce (doc (invalid(input,error)))
   }
   
   it should "parse a directive with a converted required argument" in {
@@ -125,9 +129,10 @@ class DirectiveSpec extends FlatSpec
     Parsing (input) should produce (doc (p("argarg")))
   }
   
-  it should "ignore a directive with one out of two required arguments missing" in {
+  it should "detect a directive with one out of two required arguments missing as invalid" in {
+    val error = "missing required argument"
     val input = """.. twoArgs:: arg"""
-    Parsing (input) should produce (doc (invalid(input)))
+    Parsing (input) should produce (doc (invalid(input,error)))
   }
   
   it should "parse a directive with one optional argument" in {
@@ -145,9 +150,10 @@ class DirectiveSpec extends FlatSpec
     Parsing (input) should produce (doc (p("*" * 7)))
   }
   
-  it should "ignore a directive with an optional argument being invalid" in {
+  it should "detect a directive with an optional argument being invalid" in {
+    val error = """unable to convert to int: java.lang.NumberFormatException: For input string: "foo""""
     val input = """.. oneOptIntArg:: foo"""
-    Parsing (input) should produce (doc (invalid(input)))
+    Parsing (input) should produce (doc (invalid(input,error)))
   }
   
   it should "parse a directive with one required and one optional argument" in {
@@ -166,9 +172,10 @@ class DirectiveSpec extends FlatSpec
     Parsing (input) should produce (doc (p("argLine1 !\nLine2")))
   }
   
-  it should "ignore a directive with a required argument with whitespace missing" in {
+  it should "detect a directive with a required argument with whitespace missing as invalid" in {
+    val error = "missing required argument"
     val input = """.. argWithWS:: arg"""
-    Parsing (input) should produce (doc (invalid(input)))
+    Parsing (input) should produce (doc (invalid(input,error)))
   }
   
   it should "parse a directive with one required field" in {
@@ -177,15 +184,17 @@ class DirectiveSpec extends FlatSpec
     Parsing (input) should produce (doc (p("arg")))
   }
   
-  it should "ignore a directive with a required field missing" in {
+  it should "detect a directive with a required field missing as invalid" in {
+    val error = """missing required options: name"""
     val input = """.. oneFd::"""
-    Parsing (input) should produce (doc (invalid(input)))
+    Parsing (input) should produce (doc (invalid(input,error)))
   }
   
-  it should "ignore a directive with a required field being invalid" in {
+  it should "detect a directive with a required field being invalid" in {
+    val error = """invalid option values: name: unable to convert to int: java.lang.NumberFormatException: For input string: "foo""""
     val input = """.. oneIntFd::
       | :name: foo""".stripMargin
-    Parsing (input) should produce (doc (invalid(input)))
+    Parsing (input) should produce (doc (invalid(input,error)))
   }
   
   it should "parse a directive with a converted required field" in {
@@ -201,10 +210,20 @@ class DirectiveSpec extends FlatSpec
     Parsing (input) should produce (doc (p("value1value2")))
   }
   
-  it should "ignore a directive with one out of two required fields missing" in {
+  it should "detect a directive with one out of two required fields missing as invalid" in {
+    val error = """missing required options: name2"""
     val input = """.. twoFd::
       | :name1: value1""".stripMargin
-    Parsing (input) should produce (doc (invalid(input)))
+    Parsing (input) should produce (doc (invalid(input,error)))
+  }
+  
+  it should "detect a directive with an unknown field name as invalid" in {
+    val error = "unknown options: name3"
+    val input = """.. twoFd::
+      | :name1: value1
+      | :name2: value2
+      | :name3: value3""".stripMargin
+    Parsing (input) should produce (doc (invalid(input,error)))
   }
   
   it should "parse a directive with one optional field" in {
@@ -231,10 +250,11 @@ class DirectiveSpec extends FlatSpec
     Parsing (input) should produce (doc (p("*" * 7)))
   }
   
-  it should "ignore a directive with an optional field being invalid" in {
+  it should "detect a directive with an optional field being invalid" in {
+    val error = """invalid option values: name: unable to convert to int: java.lang.NumberFormatException: For input string: "foo""""
     val input = """.. oneOptIntFd::
       | :name: foo""".stripMargin
-    Parsing (input) should produce (doc (invalid(input)))
+    Parsing (input) should produce (doc (invalid(input,error)))
   }
   
   it should "parse a directive with one required and one optional field" in {
@@ -256,27 +276,31 @@ class DirectiveSpec extends FlatSpec
     Parsing (input) should produce (doc (p("***#####")))
   }
   
-  it should "ignore a directive with one converted argument and one required field missing" in {
+  it should "detect a directive with one converted argument and one required field missing as invalid" in {
+    val error = """missing required options: name"""
     val input = """.. argAndFd:: 3"""
-    Parsing (input) should produce (doc (invalid(input)))
+    Parsing (input) should produce (doc (invalid(input,error)))
   }
   
-  it should "ignore a directive with one converted field and one required argument missing" in {
+  it should "detect a directive with one converted field and one required argument missing as invalid" in {
+    val error = "missing required argument"
     val input = """.. argAndFd::
       | :name: 5""".stripMargin
-    Parsing (input) should produce (doc (invalid(input)))
+    Parsing (input) should produce (doc (invalid(input,error)))
   }
   
-  it should "ignore a directive with one converted argument and one field invalid" in {
+  it should "detect a directive with one converted argument and one field invalid" in {
+    val error = """invalid option values: name: unable to convert to int: java.lang.NumberFormatException: For input string: "foo""""
     val input = """.. argAndFd:: 3
       | :name: foo""".stripMargin
-    Parsing (input) should produce (doc (invalid(input)))
+    Parsing (input) should produce (doc (invalid(input,error)))
   }
   
-  it should "ignore a directive with one converted field and one argument invalid" in {
+  it should "detect a directive with one converted field and one argument invalid" in {
+    val error = """unable to convert to int: java.lang.NumberFormatException: For input string: "foo""""
     val input = """.. argAndFd:: foo
       | :name: 5""".stripMargin
-    Parsing (input) should produce (doc (invalid(input)))
+    Parsing (input) should produce (doc (invalid(input,error)))
   }
   
   it should "parse a directive with standard block content" in {
@@ -298,11 +322,11 @@ class DirectiveSpec extends FlatSpec
     Parsing (input) should produce (doc (p("Line 1\n\nLine 2")))
   }
   
-  it should "ignore a directive with invalid custom content" in {
+  it should "detect a directive with invalid custom content" in {
     val input = """.. customBody:: 1
       | 
       | 2""".stripMargin
-    Parsing (input) should produce (doc (invalid(input)))
+    Parsing (input) should produce (doc (invalid(input, "body too short")))
   }
   
   it should "parse a directive with an argument and standard block content" in {
@@ -335,11 +359,12 @@ class DirectiveSpec extends FlatSpec
     Parsing (input) should produce (doc (BlockSequence(List(p("value!")))))
   }
   
-  it should "ignore a directive with standard block content and a missing required field" in {
+  it should "detect a directive with standard block content and a missing required field as invalid" in {
+    val error = "missing required options: name"
     val input = """.. fdAndBody:: Line 1
       | 
       | Line 2""".stripMargin
-    Parsing (input) should produce (doc (invalid(input)))
+    Parsing (input) should produce (doc (invalid(input,error)))
   }
   
   it should "parse a directive with an argument, a field and standard block content" in {
@@ -352,23 +377,25 @@ class DirectiveSpec extends FlatSpec
     Parsing (input) should produce (doc (BlockSequence(List(p("arg:value"),p("Line 1"),p("Line 2")))))
   }
   
-  it should "ignore a directive with a field and standard block content, but a missing required argument" in {
+  it should "detect a directive with a field and standard block content, but a missing required argument as invalid" in {
+    val error = "missing required argument"
     val input = """.. all::
       | :name: value
       |
       | Line 1
       | 
       | Line 2""".stripMargin
-    Parsing (input) should produce (doc (invalid(input)))
+    Parsing (input) should produce (doc (invalid(input,error)))
   }
   
-  it should "ignore a directive with an argument and standard block content, but a missing required field" in {
+  it should "detect a directive with an argument and standard block content, but a missing required field as invalid" in {
+    val error = "missing required options: name"
     val input = """.. all:: arg
       |
       | Line 1
       | 
       | Line 2""".stripMargin
-    Parsing (input) should produce (doc (invalid(input)))
+    Parsing (input) should produce (doc (invalid(input,error)))
   }
   
   it should "parse a directive with an argument, a field and empty block content" in {
@@ -415,30 +442,40 @@ class DirectiveSpec extends FlatSpec
     Parsing (input) should produce (doc (p("9")))
   }
   
-  it should "ignore a directive with a converted field and body and an invalid argument" in {
+  it should "detect a directive with a converted field and body and an invalid argument" in {
+    val error = """unable to convert to int: java.lang.NumberFormatException: For input string: "foo""""
     val input = """.. allOpt:: foo
       | :name: 3
       |
       | 4
       | 
       | 5""".stripMargin
-    Parsing (input) should produce (doc (invalid(input)))
+    Parsing (input) should produce (doc (invalid(input,error)))
   }
   
-  it should "ignore a directive with a converted argument and body and an invalid field" in {
+  it should "detect a directive with a converted argument and body and an invalid field" in {
+    val error = """invalid option values: name: unable to convert to int: java.lang.NumberFormatException: For input string: "foo""""
     val input = """.. allOpt:: 2
       | :name: foo
       |
       | 4
       | 
       | 5""".stripMargin
-    Parsing (input) should produce (doc (invalid(input)))
+    Parsing (input) should produce (doc (invalid(input,error)))
   }
   
-  it should "ignore a directive with a converted field and argument and an invalid body" in {
+  it should "detect a directive with a converted field and argument and an invalid body" in {
+    val error = "no integers provided"
     val input = """.. allOpt:: 2
       | :name: 3""".stripMargin
-    Parsing (input) should produce (doc (invalid(input)))
+    Parsing (input) should produce (doc (invalid(input,error)))
+  }
+  
+  it should "detect a directive with an unknown name as invalid" in {
+    val error = "unknown directive: foo"
+    val input = """.. foo::
+      | :name: 3""".stripMargin
+    Parsing (input) should produce (doc (invalid(input,error)))
   }
   
   
@@ -447,9 +484,10 @@ class DirectiveSpec extends FlatSpec
     Parsing (input) should produce (doc (SubstitutionDefinition("def", txt("text"))))
   }
   
-  it should "ignore a definition with an invalid directive" in {
+  it should "detect a definition with an invalid directive" in {
+    val error = "missing required argument"
     val input = ".. |def| spans::"
-    Parsing (input) should produce (doc (invalid(input)))
+    Parsing (input) should produce (doc (SubstitutionDefinition("def",invalid(input,error))))
   }
   
   
@@ -463,6 +501,12 @@ class DirectiveSpec extends FlatSpec
     val input = """.. role::custom(role)
     	| :name: 9""".stripMargin
     parseAll(docWithTextRoles,input) should produce (doc (p("custom(9)")))
+  }
+  
+  it should "detect a defintion with a missing required field as invalid" in {
+    val error = "missing required options: name"
+    val input = """.. role::custom(role)"""
+    Parsing(input) should produce (doc (InvalidTextRole("custom",invalid(input+" ",error))))
   }
 
   

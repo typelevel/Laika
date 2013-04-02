@@ -87,4 +87,11 @@ object Elements {
    */
   case class IndirectLinkTarget (id: String, ref: LinkReference) extends Block
   
+  /** Result produced when a directive could not be successfully parsed.
+   *  The default setting for renderers is to ignore system messages in
+   *  which case only the fallback will be rendered. But through the customization
+   *  hooks for renderers the message may get included, too.
+   */
+  case class InvalidDirective (message: SystemMessage, fallback: CodeBlock) extends Block with Span
+  
 }

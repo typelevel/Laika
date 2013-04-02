@@ -95,7 +95,11 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     val text = not(ws take 1) ~> escapedText(anyBut('|','\n') min 1)  
     val prefix = '|' ~> text <~ not(lookBehind(1, ' ')) ~ '|'
     
-    ((prefix <~ ws) ~ spanDirective) ^^ { case name ~ content => SubstitutionDefinition(name, content) }
+    ((prefix <~ ws) ~ spanDirective) ^^ { 
+      case name ~ InvalidDirective(msg, CodeBlock(content)) => 
+        SubstitutionDefinition(name, InvalidDirective(msg, CodeBlock(content.replaceFirst(".. ",".. |"+name+"| ")))) 
+      case name ~ content => SubstitutionDefinition(name, content) 
+    }
   }
   
   def comment = {
@@ -116,7 +120,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
 
   def spanDirective = directive(spanDirectives)
   
-  protected def directive [E](directives: Map[String, DirectivePart[E]]) = {
+  protected def directive [E](directives: Map[String, DirectivePart[E]]): Parser[E] = {
     
     val nameParser = simpleRefName <~ "::" ~ ws
     
@@ -128,19 +132,30 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
       }
     }
     
-    nameParser >> { name =>
-      directives.get(name).map(directiveParser).getOrElse(failure("unknown directive: " + name))
+    nameParser >> { name => 
+      directive(directives.get(name).map(directiveParser).getOrElse(failure("unknown directive: " + name)), name+"::")
     }
-    
+  }
+  
+  private def directive [E](p: Parser[E], name: String) = Parser { in =>
+    p(in) match {
+      case s @ Success(_,_) => s
+      case NoSuccess(msg, next) => (varIndentedBlock() ^^ { block =>
+        InvalidDirective(SystemMessage(laika.tree.Elements.Error, msg), 
+              CodeBlock(".. "+name+" "+(block.lines mkString "\n"))).asInstanceOf[E]
+      })(in)
+    }
   }
 
   case class CustomizedTextRole (name: String, apply: String => Span) extends Block
+  
+  case class InvalidTextRole (name: String, directive: InvalidDirective) extends Block
   
   def roleDirective = {
     
     val nameParser = "role::" ~ ws ~> simpleRefName ~ opt('(' ~> simpleRefName <~ ')')
     
-    def directiveParser (name: String)(role: TextRole) = {
+    def directiveParser (name: String)(role: TextRole): Parser[Block] = {
       val delegate = new DirectiveParserBuilder
       val parserBuilder = new RoleDirectiveParserBuilder(delegate)
       val result = role.part(parserBuilder)
@@ -151,10 +166,22 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     
     nameParser >> { case name ~ baseName =>
       val base = baseName.getOrElse(defaultTextRole)
-      textRoles.get(base).map(directiveParser(name)).getOrElse(failure("unknown text role: " + base))
+      val fullname = "role::" + name + (baseName map ("("+_+")") getOrElse "")
+      directive(textRoles.get(base).map(directiveParser(name)).getOrElse(failure("unknown text role: " + base)), fullname) ^^ { 
+        case inv: InvalidDirective => InvalidTextRole(name, inv)
+        case other => other
+      }
     }
     
   }
+  
+  def withFailureMessage [T](p: => Parser[T], msg: String) = Parser { in =>
+    // TODO - obsolete when moving to 2.10
+      p(in) match {
+        case Failure(_, next) => Failure(msg, next)
+        case other            => other
+      }
+    }
   
   // TODO - deal with failures and exact behaviour for unknown directives and other types of error
   class DirectiveParserBuilder extends DirectiveParser {
@@ -172,14 +199,18 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
                               optionalArgs ~ optionalArgWithWS ~
                               fields ~ separator ~ contentParser
     
-    val arg = (anyBut(' ','\n') min 1) <~ ws
+    def requiredArg (p: => Parser[String]) = withFailureMessage(p, "missing required argument")                          
+                              
+    val arg = requiredArg((anyBut(' ','\n') min 1) <~ ws)
     
     val argWithWS = {
       val argLineStart = not(blankLine | ':')
       val nextBlock = failure("args do not expand beyond blank lines")
-      argLineStart ~> varIndentedBlock(1, argLineStart, nextBlock) ^^ { block =>
-        block.lines mkString "\n"
+      val p = varIndentedBlock(1, argLineStart, nextBlock) ^^? { block =>
+        val text = (block.lines mkString "\n").trim
+        if (text.nonEmpty) Right(text) else Left("missing required argument")
       }
+      requiredArg(p)
     }
     
     val body = lookBehind(1, '\n') ~> varIndentedBlock(testFirstLine = true) | varIndentedBlock()
@@ -212,7 +243,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
         }
         
         val errors = new ListBuffer[String]
-        if (parsed.nonEmpty) errors += parsed.mkString("unknown options: ",", ","")
+        if (parsed.nonEmpty) errors += parsed.map(_._1).mkString("unknown options: ",", ","")
         if (missing.nonEmpty) errors += missing.mkString("missing required options: ",", ","")
         if (invalid.nonEmpty) errors += invalid.mkString("invalid option values: ", ", ", "") 
         Either.cond(errors.isEmpty, (), errors mkString "; ")
