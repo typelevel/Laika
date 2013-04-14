@@ -219,14 +219,21 @@ object Elements {
    */
   case object BodyCell extends CellType
   
+  /** Represents any kind of link target, mixed in by
+   *  all the concrete target types.
+   */
+  trait LinkTarget extends Block with Span {
+    def id: String
+  }
+  
   /** A link definition, usually only part of the raw document tree and then
    *  removed by the rewrite rule that resolves link and image references.
    */
-  case class LinkDefinition (id: String, url: String, title: Option[String] = None) extends Block with Span
+  case class LinkDefinition (id: String, url: String, title: Option[String] = None) extends LinkTarget
   
-  /** Points to the following block element, making it a target for links.
+  /** Points to the following block or span element, making it a target for links.
    */
-  case class InternalLinkTarget (id: String) extends Block
+  case class InternalLinkTarget (id: String) extends LinkTarget
   
   /** A citation consisting of a label and one or more block elements.
    */
@@ -256,6 +263,11 @@ object Elements {
    */
   case class AutonumberLabel (label: String) extends FootnoteLabel
   
+  /** Fully resolved label containing the id to use for referencing as well as
+   *  the label to use for display.
+   */
+  case class ResolvedFootnoteLabel (id: String, label: String) extends FootnoteLabel
+  
   /** A horizontal rule.
    */
   case object Rule extends Block
@@ -278,10 +290,6 @@ object Elements {
    */
   case class CodeSpan (content: String) extends Span with TextContainer
   
-  /** An internal link target, equivalent to `InternalLinkTarget`, but for spans.
-   */
-  case class InlineLinkTarget (id: String) extends Span
-
   /** A link element, with the span content representing the text (description) of the link.
    */
   case class Link (content: Seq[Span], url: String, title: Option[String] = None) extends Span with SpanContainer[Link]
@@ -356,6 +364,16 @@ object Elements {
   /** A critical error that must be addressed, if ignored, the output will contain severe errors.
    */
   case object Fatal extends MessageLevel(4)
+  
+  /** Groups a span that could not successfully parsed with a system message.
+   *  Renderers may then choose to just render the fallback, the message or both.
+   */
+  case class InvalidSpan (message: SystemMessage, fallback: Span) extends Span
+
+  /** Groups a block that could not successfully parsed with a system message.
+   *  Renderers may then choose to just render the fallback, the message or both.
+   */
+  case class InvalidBlock (message: SystemMessage, fallback: Block) extends Block
   
   
 }

@@ -38,7 +38,7 @@ class DirectiveSpec extends FlatSpec
                         with ModelBuilder {
 
   
-  val defaultParser: Parser[Document] = document
+  val defaultParser: Parser[Document] = blockList(topLevelBlock) ^^ Document // do not use document parser to skip rewrite rules
   
   
   def invalid (input: String, error: String) = 
@@ -491,7 +491,7 @@ class DirectiveSpec extends FlatSpec
   }
   
   
-  val docWithTextRoles: Parser[Document] = document ^^ { doc =>
+  val docWithTextRoles: Parser[Document] = defaultParser ^^ { doc =>
     doc.rewrite {
       case CustomizedTextRole(name, f) => Some(p(f(name)))
     }

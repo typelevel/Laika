@@ -147,10 +147,6 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     }
   }
 
-  case class CustomizedTextRole (name: String, apply: String => Span) extends Block
-  
-  case class InvalidTextRole (name: String, directive: InvalidDirective) extends Block
-  
   def roleDirective = {
     
     val nameParser = "role::" ~ ws ~> simpleRefName ~ opt('(' ~> simpleRefName <~ ')')

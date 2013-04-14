@@ -147,7 +147,7 @@ class InlineParsersSpec extends FlatSpec
   
   
   "The internal link target parser" should "parse content enclosed in _` and `" in {
-    Parsing ("some _`text` here") should produce (spans(txt("some "), InlineLinkTarget("text"), txt(" here")))
+    Parsing ("some _`text` here") should produce (spans(txt("some "), InternalLinkTarget("text"), txt(" here")))
   }
   
   

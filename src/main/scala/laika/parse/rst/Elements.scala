@@ -85,7 +85,7 @@ object Elements {
   
   /** A link target pointing to another link reference, acting like an alias.
    */
-  case class IndirectLinkTarget (id: String, ref: LinkReference) extends Block
+  case class IndirectLinkTarget (id: String, ref: LinkReference) extends LinkTarget
   
   /** Result produced when a directive could not be successfully parsed.
    *  The default setting for renderers is to ignore system messages in
@@ -93,5 +93,9 @@ object Elements {
    *  hooks for renderers the message may get included, too.
    */
   case class InvalidDirective (message: SystemMessage, fallback: CodeBlock) extends Block with Span
+  
+  case class CustomizedTextRole (name: String, apply: String => Span) extends Block
+  
+  case class InvalidTextRole (name: String, directive: InvalidDirective) extends Block
   
 }

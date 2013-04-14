@@ -17,8 +17,7 @@
 package laika.parse.rst
 
 import laika.tree.Elements._
-import laika.parse.rst.Elements.DoctestBlock
-import laika.parse.rst.Elements.SectionHeader
+import laika.parse.rst.Elements._
 import scala.collection.mutable.ListBuffer
 import scala.annotation.tailrec
 
@@ -35,14 +34,9 @@ trait BlockParsers extends BlockBaseParsers
                       with ExplicitBlockParsers { self: InlineParsers =>
 
                         
-  override def document = super.document ^^ { doc =>
-    val levelMap = scala.collection.mutable.Map.empty[(Char,Boolean),Int]
-    val levelIt = Stream.from(1).iterator
-    doc rewrite {
-      case SectionHeader(char, overline, content) => 
-        Some(Header(levelMap.getOrElseUpdate((char,overline), levelIt.next), content))
-    }
-  }                      
+                        
+  override def document = super.document ^^ RewriteRules.applyDefaults
+  
                         
   val punctuationChar = 
     anyOf('!','"','#','$','%','&','\'','(',')','[',']','{','}','*','+',',','-','.',':',';','/','<','>','=','?','@','\\','^','_','`','|','~')
@@ -152,6 +146,28 @@ trait BlockParsers extends BlockBaseParsers
         case _ => (par, defaultBlock) 
       }
     }
+    def toLinkId (h: SectionHeader) = {
+      def flattenText (spans: Seq[Span]): String = ("" /: spans) {
+        case (res, Text(text)) => res + text
+        case (res, sc: SpanContainer[_]) => res + flattenText(sc.content)
+        case (res, _) => res
+      }
+      flattenText(h.content).replaceAll("[^a-zA-Z0-9]+","-").replaceFirst("^-","").replaceFirst("-$","").toLowerCase
+    }
+    def result = {
+      case object FinalBlock extends Block
+      elems += FinalBlock
+      val processed = elems.toList.sliding(2).foldLeft(new ListBuffer[Block]()) {
+        case (buffer, (it: InternalLinkTarget) :: (lt: LinkTarget) :: Nil) => 
+          buffer += IndirectLinkTarget(it.id, LinkReference(Nil, lt.id, "`", "`_"))
+        case (buffer, (h @ SectionHeader(_,_,_)) :: _) => 
+          buffer += InternalLinkTarget(toLinkId(h)) += h  
+        case (buffer, other :: _) => 
+          buffer += other
+        case (buffer, _) => buffer // just to avoid the warnings
+      }
+      processed.toList
+    }
     
     @tailrec 
     def parse (p: Parser[Block], in: Input): ParseResult[List[Block]] = p(in) match {
@@ -161,7 +177,7 @@ trait BlockParsers extends BlockBaseParsers
         elems += paragraph
         parse(parser, rest)
       case Success(x, rest) => elems += x; parse(defaultBlock, rest)
-      case _                => Success(elems.toList, in)
+      case _                => Success(result, in)
     }
 
     parse(defaultBlock, in)
