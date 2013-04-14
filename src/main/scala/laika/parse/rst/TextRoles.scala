@@ -74,11 +74,11 @@ object TextRoles {
       def apply (p: RoleDirectiveParser) = f(p)
     }
     
-    def requiredField [T](name: String): RoleDirectivePart[String] = part(_.requiredField(name, s => Right(s)))
+    def requiredStringField [T](name: String): RoleDirectivePart[String] = part(_.requiredField(name, s => Right(s)))
     
     def requiredField [T](name: String, f: String => Either[String,T]): RoleDirectivePart[T] = part(_.requiredField(name, f))
     
-    def optionalField (name: String): RoleDirectivePart[Option[String]] = part(_.optionalField(name, s => Right(s)))
+    def optionalStringField (name: String): RoleDirectivePart[Option[String]] = part(_.optionalField(name, s => Right(s)))
     
     def optionalField [T](name: String, f: String => Either[String,T]): RoleDirectivePart[Option[T]] = part(_.optionalField(name, f))
     

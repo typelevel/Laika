@@ -109,11 +109,11 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
   }
   
   
-  val blockDirectives: Map[String, DirectivePart[Block]] // TODO - populate (maybe do this in reStructuredText entry point object)
+  def blockDirectives: Map[String, DirectivePart[Block]]
   
-  val spanDirectives: Map[String, DirectivePart[Span]]
+  def spanDirectives: Map[String, DirectivePart[Span]]
   
-  val textRoles: Map[String, TextRole]
+  def textRoles: Map[String, TextRole]
     
 
   def blockDirective: Parser[Block] = directive(blockDirectives)
