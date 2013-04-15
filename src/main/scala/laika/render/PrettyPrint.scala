@@ -64,9 +64,11 @@ class PrettyPrint extends ((Output, Element => Unit) => (TextWriter, Element => 
   
   private def renderElement (out: TextWriter)(elem: Element): Unit = {
     
-    def attributes (attr: Iterator[Any], content: AnyRef) = {
+    object NoRef
+    
+    def attributes (attr: Iterator[Any], exclude: AnyRef = NoRef) = {
       val it = attr.asInstanceOf[Iterator[AnyRef]]
-      val res = it filter (_ ne content) mkString ("(", ",", ")")
+      val res = it filter (_ ne exclude) mkString ("(", ",", ")")
       if (res == "()") "" else res
     } 
     
@@ -89,12 +91,24 @@ class PrettyPrint extends ((Output, Element => Unit) => (TextWriter, Element => 
       else out << text.substring(0, maxTextWidth / 2) << " [...] " << text.substring(len - maxTextWidth / 2) << "'"
     }
     
+    def element (e: Element) = {
+      val (elements, rest) = e.productIterator partition (_.isInstanceOf[Element])
+      out << e.productPrefix << attributes(rest)
+      if (!elements.isEmpty) out <<|> (elements.toList.asInstanceOf[Seq[Element]])
+    }
+    
+    def lists (desc: String, lists: (Seq[Element], String)*) = 
+        out << desc <<|> (lists map {case (elems,d) => Content(elems, d + elems.length)}) 
+      
     elem match {
-      case bc: BlockContainer[_]  => elementContainerDesc(bc, "Blocks")
-      case sc: SpanContainer[_]   => elementContainerDesc(sc, "Spans")
-      case tc: TextContainer      => textContainerDesc(tc)
-      case Content(content,desc)  => out << desc <<|> content
-      case e                      => out << elem.toString
+      case DefinitionListItem(term,defn)  => lists("Item", (term, "Term - Spans: "), (defn, "Definition - Blocks: "))
+      case Table(head,body)               => lists("Table", (head, "Head - Rows: "), (body, "Body - Rows: "))
+      case bc: BlockContainer[_]          => elementContainerDesc(bc, "Blocks")
+      case sc: SpanContainer[_]           => elementContainerDesc(sc, "Spans")
+      case tc: TextContainer              => textContainerDesc(tc)
+      case Content(content,desc)          => out << desc <<|> content
+      case ec: ElementContainer[_,_]      => elementContainerDesc(ec, "Elements")
+      case e                              => element(e)
     }
   }
     

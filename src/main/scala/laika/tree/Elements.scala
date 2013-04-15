@@ -194,13 +194,13 @@ object Elements {
   /** A table consisting of a head and a body part represented by a sequence of rows.  
    *  Both the head and body sequence may be empty.
    */
-  case class Table (head: Seq[Row], body: Seq[Row]) extends Block
+  case class Table (head: Seq[Row], content: Seq[Row]) extends Block with ElementContainer[Row,Table]
   
   /** A single table row. In case some of the previous rows contain
    *  cells with a colspan greater than 1, this row may contain
    *  fewer cells than the number of columns in this table.
    */
-  case class Row (cells: Seq[Cell]) extends Element
+  case class Row (content: Seq[Cell]) extends Element with ElementContainer[Cell,Row]
   
   /** A single cell, potentially spanning multiple rows or columns, containing
    *  one or more block elements.
