@@ -64,38 +64,38 @@ class DirectiveSpec extends FlatSpec
   def stars (num: Int) = p("*" * num)
   
   val blockDirectives: Map[String, DirectivePart[Block]] = Map(
-    "oneArg" -> (requiredStringArg map p),
-    "twoArgs" -> (requiredStringArg ~ requiredStringArg) { (arg1,arg2) => p(arg1+arg2) },
-    "oneIntArg" -> (requiredArg(positiveInt) map stars),
-    "oneOptArg" -> (optionalStringArg map { arg => p(arg.getOrElse("missing")) }),
-    "oneOptIntArg" -> (optionalArg(positiveInt) map { arg => p("*" * arg.getOrElse(1)) }),
-    "reqAndOptArg" -> (requiredStringArg ~ optionalStringArg) { (arg1,arg2) => p(arg1+arg2.getOrElse("missing")) },
-    "argWithWS" -> (requiredStringArg ~ requiredStringArgWithWS) { (arg1,arg2) => p(arg1+arg2) },
-    "oneFd" -> (requiredStringField("name") map p),
-    "oneIntFd" -> (requiredField("name",positiveInt) map stars),
-    "twoFd" -> (requiredStringField("name1") ~ requiredStringField("name2")) { (arg1,arg2) => p(arg1+arg2) },
-    "oneOptFd" -> (optionalStringField("name") map { arg => p(arg.getOrElse("missing")) }),
-    "oneOptIntFd" -> (optionalField("name",positiveInt) map { arg => p("*" * arg.getOrElse(1)) }),
-    "reqAndOptFd" -> (requiredStringField("name1") ~ optionalStringField("name2")) { (arg1,arg2) => p(arg1+arg2.getOrElse("missing")) },
-    "argAndFd" -> (requiredArg(positiveInt) ~ requiredField("name",positiveInt)) { (arg1,arg2) => p(("*" * arg1) + ("#" * arg2)) },
+    "oneArg" -> (argument() map p),
+    "twoArgs" -> (argument() ~ argument()) { (arg1,arg2) => p(arg1+arg2) },
+    "oneIntArg" -> (argument(positiveInt) map stars),
+    "oneOptArg" -> (optArgument() map { arg => p(arg.getOrElse("missing")) }),
+    "oneOptIntArg" -> (optArgument(positiveInt) map { arg => p("*" * arg.getOrElse(1)) }),
+    "reqAndOptArg" -> (argument() ~ optArgument()) { (arg1,arg2) => p(arg1+arg2.getOrElse("missing")) },
+    "argWithWS" -> (argument() ~ argument(withWS = true)) { (arg1,arg2) => p(arg1+arg2) },
+    "oneFd" -> (field("name") map p),
+    "oneIntFd" -> (field("name",positiveInt) map stars),
+    "twoFd" -> (field("name1") ~ field("name2")) { (arg1,arg2) => p(arg1+arg2) },
+    "oneOptFd" -> (optField("name") map { arg => p(arg.getOrElse("missing")) }),
+    "oneOptIntFd" -> (optField("name",positiveInt) map { arg => p("*" * arg.getOrElse(1)) }),
+    "reqAndOptFd" -> (field("name1") ~ optField("name2")) { (arg1,arg2) => p(arg1+arg2.getOrElse("missing")) },
+    "argAndFd" -> (argument(positiveInt) ~ field("name",positiveInt)) { (arg1,arg2) => p(("*" * arg1) + ("#" * arg2)) },
     "stdBody" -> (standardContent map BlockSequence),
     "customBody" -> content(body => if (body.length > 10) Right(p(body)) else Left("body too short")),
-    "argAndBody" -> (requiredStringArg ~ standardContent) { (arg,blocks) => BlockSequence(p(arg+"!") +: blocks) },
-    "fdAndBody" -> (requiredStringField("name") ~ standardContent) { (field,blocks) => BlockSequence(p(field+"!") +: blocks) },
-    "all" -> (requiredStringArg ~ requiredStringField("name") ~ standardContent) {
+    "argAndBody" -> (argument() ~ standardContent) { (arg,blocks) => BlockSequence(p(arg+"!") +: blocks) },
+    "fdAndBody" -> (field("name") ~ standardContent) { (field,blocks) => BlockSequence(p(field+"!") +: blocks) },
+    "all" -> (argument() ~ field("name") ~ standardContent) {
       (arg,field,blocks) => BlockSequence(p(arg+":"+field) +: blocks)
     },
-    "allOpt" -> (optionalArg(positiveInt) ~ optionalField("name",positiveInt) ~ content(intList)) {
+    "allOpt" -> (optArgument(positiveInt) ~ optField("name",positiveInt) ~ content(intList)) {
       (arg,field,list) => (p((arg.getOrElse(0) +: field.getOrElse(0) +: list).sum.toString))
     }
   )
   
   val spanDirectives: Map[String, DirectivePart[Span]] = Map(
-    "spans" -> (requiredStringArg map Text) 
+    "spans" -> (argument() map Text) 
   )
   
   val textRoles: Map[String, TextRole] = Map(
-    "role" -> TextRole("role", 7)(TextRoles.Parts.requiredField("name",positiveInt)) { (res,text) =>
+    "role" -> TextRole("role", 7)(TextRoles.Parts.field("name",positiveInt)) { (res,text) =>
        txt(text+"("+res+")")
     }  
   )

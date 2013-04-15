@@ -34,8 +34,8 @@ class APISpec extends FlatSpec
   
   "The API" should "support registration of block directives" in {
     val directives = List(
-      BlockDirective("oneArg")(requiredStringArg map p),
-      BlockDirective("twoArgs")((requiredStringArg ~ requiredStringArg) { (arg1,arg2) => p(arg1+arg2) })
+      BlockDirective("oneArg")(argument() map p),
+      BlockDirective("twoArgs")((argument() ~ argument()) { (arg1,arg2) => p(arg1+arg2) })
     )
     val input = """.. oneArg:: arg
       |
@@ -45,8 +45,8 @@ class APISpec extends FlatSpec
   
   it should "support registration of span directives" in {
     val directives = List(
-      SpanDirective("oneArg")(requiredStringArg map Text),
-      SpanDirective("twoArgs")((requiredStringArg ~ requiredStringArg) { (arg1,arg2) => Text(arg1+arg2) })
+      SpanDirective("oneArg")(argument() map Text),
+      SpanDirective("twoArgs")((argument() ~ argument()) { (arg1,arg2) => Text(arg1+arg2) })
     )
     val input = """foo |one| foo |two|
       |
@@ -60,11 +60,11 @@ class APISpec extends FlatSpec
   it should "support registration of text roles" in {
     import laika.parse.rst.TextRoles.{Parts=>P}
     val roles = List(
-      TextRole("oneArg", "foo1")(P.requiredStringField("name")) { (res,text) =>
+      TextRole("oneArg", "foo1")(P.field("name")) { (res,text) =>
        txt(res+text)
       },
       TextRole("twoArgs", "foo2")
-        ((P.requiredStringField("name1") ~ P.requiredStringField("name2")) { (arg1,arg2) => arg1+arg2 }) 
+        ((P.field("name1") ~ P.field("name2")) { (arg1,arg2) => arg1+arg2 }) 
         { (res,text) => txt(res+text) }
     )
     val input = """foo `one`:one: foo :two:`two`

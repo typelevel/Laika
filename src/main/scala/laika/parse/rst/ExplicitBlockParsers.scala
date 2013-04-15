@@ -261,35 +261,25 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     def optionToEither [T](f: String => Either[String,T])(res: Option[String]): Either[String,Option[T]] =
       (res map f) map (_.right map (res => Some(res))) getOrElse Right(None)
     
-    def requiredArg [T](f: String => Either[String,T]): Result[T] = {
+    def argument [T](convert: String => Either[String,T] = {s:String => Right(s)}, 
+                     withWS: Boolean = false) = {
       separator = contentSeparator
       val result = new LazyResult[T]
-      requiredArgs = requiredArgs ~ (arg ^^? f ^^ result.set)
+      if (withWS) requiredArgWithWS = (argWithWS ^^? convert ^^ result.set)
+      else requiredArgs = requiredArgs ~ (arg ^^? convert ^^ result.set)
       new Result(result.get)
     }
     
-    def requiredArgWithWS [T](f: String => Either[String,T]): Result[T] = {
+    def optArgument [T](convert: String => Either[String,T] = {s:String => Right(s)}, 
+                        withWS: Boolean = false) = {
       separator = contentSeparator
       val result = new LazyResult[T]
-      requiredArgWithWS = (argWithWS ^^? f ^^ result.set)
-      new Result(result.get)
-    }
-    
-    def optionalArg [T](f: String => Either[String,T]): Result[Option[T]] = {
-      separator = contentSeparator
-      val result = new LazyResult[T]
-      optionalArgs = optionalArgs ~ (opt(arg) ^^? optionToEither(f) ^^ result.set)
+      if (withWS) optionalArgWithWS = (opt(argWithWS) ^^? optionToEither(convert) ^^ result.set)
+      else optionalArgs = optionalArgs ~ (opt(arg) ^^? optionToEither(convert) ^^ result.set)
       new Result(result.value)
     }
     
-    def optionalArgWithWS [T](f: String => Either[String,T]): Result[Option[T]] = {
-      separator = contentSeparator
-      val result = new LazyResult[T]
-      optionalArgWithWS = (opt(argWithWS) ^^? optionToEither(f) ^^ result.set)
-      new Result(result.value)
-    }
-    
-    def requiredField [T](name: String, f: String => Either[String,T]): Result[T] = {
+    def field [T](name: String, f: String => Either[String,T]): Result[T] = {
       separator = contentSeparator
       fields = directiveFieldList
       val result = new LazyResult[T]
@@ -297,7 +287,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
       new Result(result.get)
     }
     
-    def optionalField [T](name: String, f: String => Either[String,T]): Result[Option[T]] = {
+    def optField [T](name: String, f: String => Either[String,T]): Result[Option[T]] = {
       separator = contentSeparator
       fields = directiveFieldList
       val result = new LazyResult[T]
@@ -323,9 +313,9 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
   
   class RoleDirectiveParserBuilder (delegate: DirectiveParser) extends RoleDirectiveParser {
     
-    def requiredField [T](name: String, f: String => Either[String,T]): Result[T] = delegate.requiredField(name,f)
+    def field [T](name: String, f: String => Either[String,T]): Result[T] = delegate.field(name,f)
     
-    def optionalField [T](name: String, f: String => Either[String,T]): Result[Option[T]] = delegate.optionalField(name,f)
+    def optField [T](name: String, f: String => Either[String,T]): Result[Option[T]] = delegate.optField(name,f)
     
     def standardContent: Result[Seq[Block]] = delegate.standardContent
     

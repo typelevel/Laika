@@ -36,9 +36,9 @@ object TextRoles {
   
   trait RoleDirectiveParser {
       
-    def requiredField [T](name: String, f: String => Either[String,T]): Result[T]
+    def field [T](name: String, convert: String => Either[String,T]): Result[T]
     
-    def optionalField [T](name: String, f: String => Either[String,T]): Result[Option[T]]
+    def optField [T](name: String, convert: String => Either[String,T]): Result[Option[T]]
     
     def standardContent: Result[Seq[Block]]
     
@@ -74,13 +74,13 @@ object TextRoles {
       def apply (p: RoleDirectiveParser) = f(p)
     }
     
-    def requiredStringField [T](name: String): RoleDirectivePart[String] = part(_.requiredField(name, s => Right(s)))
+    def field [T](name: String, 
+                  convert: String => Either[String,T] = { s:String => Right(s) }): RoleDirectivePart[T] = 
+                    part(_.field(name, convert))
     
-    def requiredField [T](name: String, f: String => Either[String,T]): RoleDirectivePart[T] = part(_.requiredField(name, f))
-    
-    def optionalStringField (name: String): RoleDirectivePart[Option[String]] = part(_.optionalField(name, s => Right(s)))
-    
-    def optionalField [T](name: String, f: String => Either[String,T]): RoleDirectivePart[Option[T]] = part(_.optionalField(name, f))
+    def optField [T](name: String, 
+                     convert: String => Either[String,T] = { s:String => Right(s) }): RoleDirectivePart[Option[T]] = 
+                     part(_.optField(name, convert))
     
     def standardContent: RoleDirectivePart[Seq[Block]] = part(_.standardContent) // TODO - maybe use blockContent/spanContent
     
