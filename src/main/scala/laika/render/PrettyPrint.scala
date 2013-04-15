@@ -101,6 +101,7 @@ class PrettyPrint extends ((Output, Element => Unit) => (TextWriter, Element => 
         out << desc <<|> (lists map {case (elems,d) => Content(elems, d + elems.length)}) 
       
     elem match {
+      case QuotedBlock(content,attr)      => lists("QuotedBlock", (content, "Content - Blocks: "), (attr, "Attribution - Spans: "))
       case DefinitionListItem(term,defn)  => lists("Item", (term, "Term - Spans: "), (defn, "Definition - Blocks: "))
       case Table(head,body)               => lists("Table", (head, "Head - Rows: "), (body, "Body - Rows: "))
       case bc: BlockContainer[_]          => elementContainerDesc(bc, "Blocks")
