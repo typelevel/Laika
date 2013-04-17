@@ -58,6 +58,12 @@ class HTMLRendererSpec extends FlatSpec
     render (elem) should be (html) 
   }
   
+  it should "render a blockquote with simple flow content" in {
+    val elem = quote(fc("aaa"))
+    val html = "<blockquote>aaa</blockquote>"
+    render (elem) should be (html) 
+  }
+  
   it should "render an unordered list with simple flow content" in {
     val elem = ul( li( fc("aaa")), li( fc("bbb")))
     val html = """<ul>
@@ -124,8 +130,12 @@ class HTMLRendererSpec extends FlatSpec
   it should "render an unordered list with paragraphs as list items" in {
     val elem = ul( li( p("aaa")), li( p("bbb")))
     val html = """<ul>
-      |  <li><p>aaa</p></li>
-      |  <li><p>bbb</p></li>
+      |  <li>
+      |    <p>aaa</p>
+      |  </li>
+      |  <li>
+      |    <p>bbb</p>
+      |  </li>
       |</ul>""".stripMargin
     render (elem) should be (html) 
   }
@@ -133,23 +143,40 @@ class HTMLRendererSpec extends FlatSpec
   it should "render an ordered list with paragraphs as list items" in {
     val elem = ol( li( p("aaa")), li( p("bbb")))
     val html = """<ol class="arabic">
-      |  <li><p>aaa</p></li>
-      |  <li><p>bbb</p></li>
+      |  <li>
+      |    <p>aaa</p>
+      |  </li>
+      |  <li>
+      |    <p>bbb</p>
+      |  </li>
       |</ol>""".stripMargin
     render (elem) should be (html) 
   }
   
-  it should "render a definition list" in {
-    val elem = dl(di("term 1", p("1")), di("term 2", p("2")))
+  it should "render a definition list with paragraphs" in {
+    val elem = dl(di("term 1", p("1"), p("1")), di("term 2", p("2"), p("2")))
     val html = """<dl>
       |  <dt>term 1</dt>
       |  <dd>
+      |    <p>1</p>
       |    <p>1</p>
       |  </dd>
       |  <dt>term 2</dt>
       |  <dd>
       |    <p>2</p>
+      |    <p>2</p>
       |  </dd>
+      |</dl>""".stripMargin
+    render (elem) should be (html) 
+  }
+  
+  it should "render a definition list with simple flow content" in {
+    val elem = dl(di("term 1", fc("1")), di("term 2", fc("2")))
+    val html = """<dl>
+      |  <dt>term 1</dt>
+      |  <dd>1</dd>
+      |  <dt>term 2</dt>
+      |  <dd>2</dd>
       |</dl>""".stripMargin
     render (elem) should be (html) 
   }
@@ -164,7 +191,10 @@ class HTMLRendererSpec extends FlatSpec
       |  <tbody>
       |    <tr>
       |      <td>[label]</td>
-      |      <td><p>a</p><p>b</p></td>
+      |      <td>
+      |        <p>a</p>
+      |        <p>b</p>
+      |      </td>
       |    </tr>
       |  </tbody>
       |</table>""".stripMargin
@@ -181,7 +211,10 @@ class HTMLRendererSpec extends FlatSpec
       |  <tbody>
       |    <tr>
       |      <td>[ref]</td>
-      |      <td><p>a</p><p>b</p></td>
+      |      <td>
+      |        <p>a</p>
+      |        <p>b</p>
+      |      </td>
       |    </tr>
       |  </tbody>
       |</table>""".stripMargin
@@ -232,7 +265,10 @@ class HTMLRendererSpec extends FlatSpec
   
   it should "render a cell with two paragraphs" in {
     val elem = cell(p("a"),p("b"))
-    val html = """<td><p>a</p><p>b</p></td>"""
+    val html = """<td>
+      |  <p>a</p>
+      |  <p>b</p>
+      |</td>""".stripMargin
     render(elem) should be (html)
   } 
   

@@ -108,22 +108,27 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
       out << "<table" <<@ ("class",classes) <<@ ("id",table.id) << ">" <<|> children <<| "</table>"
     }
     
+    def blocks (blocks: Seq[Block], close: String) = blocks match {
+      case fl @ FlowContent(_) :: Nil => out << fl << close
+      case other                      => out <<|> other <<| close
+    }
+    
     elem match {
-      case Document(content)          => out <<        "<div>" <<|> content <<| "</div>"       
-      case QuotedBlock(content, _)    => out << "<blockquote>" <<|> content <<| "</blockquote>"
-      case UnorderedList(content)     => out <<         "<ul>" <<|> content <<| "</ul>"
+      case Document(content)          => out <<        "<div>" <<|>  content <<| "</div>"       
+      case QuotedBlock(content, _)    => out << "<blockquote>"; blocks(content, "</blockquote>")
+      case UnorderedList(content)     => out <<         "<ul>" <<|>  content <<| "</ul>"
       case OrderedList(content,enumType,_,_,start) => 
         out << "<ol" <<@ ("class", enumType.toString.toLowerCase) <<@ ("start", noneIfDefault(start,1)) << ">" <<|> content <<| "</ol>"
-      case CodeBlock(content)         => out <<  "<code><pre>" <<<& content <<  "</pre></code>"
-      case Section(header, content)   => out <<         header <<|  content
-      case Paragraph(content)         => out <<          "<p>" <<   content <<  "</p>"  
-      case ListItem(content)          => out <<         "<li>" <<   content <<  "</li>"
-      case Emphasized(content)        => out <<         "<em>" <<   content <<  "</em>" 
-      case Strong(content)            => out <<     "<strong>" <<   content <<   "</strong>" 
-      case CodeSpan(content)          => out <<       "<code>" <<<& content <<   "</code>" 
-      case Text(content)              => out                   <<&  content
-      case FlowContent(content)       => out                   <<   content
-      case BlockSequence(content)     => out                   <<   content
+      case CodeBlock(content)         => out <<  "<code><pre>" <<<&  content <<  "</pre></code>"
+      case Section(header, content)   => out <<         header <<|   content
+      case Paragraph(content)         => out <<          "<p>" <<    content <<  "</p>"  
+      case ListItem(content)          => out <<         "<li>"; blocks(content, "</li>") 
+      case Emphasized(content)        => out <<         "<em>" <<    content <<  "</em>" 
+      case Strong(content)            => out <<     "<strong>" <<    content <<   "</strong>" 
+      case CodeSpan(content)          => out <<       "<code>" <<<&  content <<   "</code>" 
+      case Text(content)              => out                   <<&   content
+      case FlowContent(content)       => out                   <<    content
+      case BlockSequence(content)     => out                   <<    content
       case Rule                       => out << "<hr>"
       case LineBreak                  => out << "<br>"
       case Header(level, content)     => out <<| "<h" << level.toString << ">" << content << "</h" << level.toString << ">"
@@ -134,7 +139,7 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
       case Image(text, url, title)    => out << "<img" <<@ ("src", url) <<@ ("alt",text) <<@ ("title",title) << ">"
 
       case DefinitionList(items)        => out << "<dl>" <<|> items <<| "</dl>"
-      case DefinitionListItem(term,defn)=> out << "<dt>" << term << "</dt>" <<| "<dd>" <<|> defn <<| "</dd>"
+      case DefinitionListItem(term,defn)=> out << "<dt>" << term << "</dt>" <<| "<dd>"; blocks(defn, "</dd>")
       case Footnote(ResolvedFootnoteLabel(id,label),content)  => renderTable(toTable(id,label,content))
       case c: Citation                                        => renderTable(toTable(c))
       case t: Table                                           => renderTable(toTable(t))
@@ -144,9 +149,9 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
       case TableBody(rows)            => out << "<tbody>" <<|> rows <<| "</tbody>"
       case Row(cells)                 => out << "<tr>" <<|> cells <<| "</tr>"
       case Cell(HeadCell, content, colspan, rowspan) => out << 
-        "<th" <<@ ("colspan",noneIfDefault(colspan,1)) <<@ ("rowspan",noneIfDefault(rowspan,1)) << ">" << content << "</th>"
+        "<th" <<@ ("colspan",noneIfDefault(colspan,1)) <<@ ("rowspan",noneIfDefault(rowspan,1)) << ">"; blocks(content, "</th>") 
       case Cell(BodyCell, content, colspan, rowspan) => out << 
-        "<td" <<@ ("colspan",noneIfDefault(colspan,1)) <<@ ("rowspan",noneIfDefault(rowspan,1)) << ">" << content << "</td>"
+        "<td" <<@ ("colspan",noneIfDefault(colspan,1)) <<@ ("rowspan",noneIfDefault(rowspan,1)) << ">"; blocks(content, "</td>") 
       case ColumnStyles(styles)       => out << "<colgroup>" <<|> styles <<| "</colgroup>"  
       case ColumnStyle(styles)        => out << "<col" <<@ ("class", toClass(styles)) << " />"  
       

@@ -89,7 +89,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers =>
     
     def parsedCellContent = {
       val (minIndent, lines) = trimmedCellContent
-      parseNestedBlocks(lines, nestLevel) 
+      parseNestedBlocks(lines, nestLevel)
     }
     
     def toCell (ct: CellType) = Cell(ct, parsedCellContent, colSpan, rowSpan)

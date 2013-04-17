@@ -77,11 +77,15 @@ class ExtendedHTMLSpec extends FlatSpec
       |  </colgroup>
       |  <tbody>
       |    <tr>
-      |      <td><kbd><span class="option">-a <var>arg</var></span></kbd></td>
+      |      <td>
+      |        <kbd><span class="option">-a <var>arg</var></span></kbd>
+      |      </td>
       |      <td>Description 1</td>
       |    </tr>
       |    <tr>
-      |      <td><kbd><span class="option">-b</span>, <span class="option">--foo=<var>bar</var></span></kbd></td>
+      |      <td>
+      |        <kbd><span class="option">-b</span>, <span class="option">--foo=<var>bar</var></span></kbd>
+      |      </td>
       |      <td>Description 2</td>
       |    </tr>
       |  </tbody>

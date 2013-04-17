@@ -47,30 +47,30 @@ class ExplicitBlockParsersSpec extends FlatSpec
   
   "The citation parser" should "parse a citation spanning a single line" in {
     val input = """.. [label] This is a citation"""
-    Parsing (input) should produce (doc (Citation("label", List(p("This is a citation")))))
+    Parsing (input) should produce (doc (Citation("label", List(fc("This is a citation")))))
   }
   
   it should "parse a citation spanning two lines" in {
     val input = """.. [label] This is a
       |   citation""".stripMargin
-    Parsing (input) should produce (doc (Citation("label", List(p("This is a\ncitation")))))
+    Parsing (input) should produce (doc (Citation("label", List(fc("This is a\ncitation")))))
   }
   
   
   "The footnote parser" should "parse a footnote with autonumber label" in {
-    Parsing (".. [#] This is a footnote") should produce (doc(Footnote(Autonumber, List(p("This is a footnote")))))
+    Parsing (".. [#] This is a footnote") should produce (doc(Footnote(Autonumber, List(fc("This is a footnote")))))
   }
   
   it should "parse a footnote with autosymbol label" in {
-    Parsing (".. [*] This is a footnote") should produce (doc(Footnote(Autosymbol, List(p("This is a footnote")))))
+    Parsing (".. [*] This is a footnote") should produce (doc(Footnote(Autosymbol, List(fc("This is a footnote")))))
   }
   
   it should "parse a footnote with an autonumber named label" in {
-    Parsing (".. [#foo] This is a footnote") should produce (doc(Footnote(AutonumberLabel("foo"), List(p("This is a footnote")))))
+    Parsing (".. [#foo] This is a footnote") should produce (doc(Footnote(AutonumberLabel("foo"), List(fc("This is a footnote")))))
   }
   
   it should "parse a footnote with a numeric label" in {
-    Parsing (".. [17] This is a footnote") should produce (doc(Footnote(NumericLabel(17), List(p("This is a footnote")))))
+    Parsing (".. [17] This is a footnote") should produce (doc(Footnote(NumericLabel(17), List(fc("This is a footnote")))))
   }
   
   

@@ -64,8 +64,13 @@ trait BlockBaseParsers extends laika.parse.BlockParsers {
   
   def parseNestedBlocks (lines: List[String], nestLevel: Int): List[Block] = {
     val parser = if (nestLevel < maxNestLevel) nestedBlock else nonRecursiveBlock 
+    val reader = new NestedCharSequenceReader(nestLevel + 1, lines mkString "\n")
     val block = parser <~ opt(blankLines) 
-    parseMarkup(opt(blankLines) ~> (block *), new NestedCharSequenceReader(nestLevel + 1, lines mkString "\n"))
+    
+    parseMarkup(opt(blankLines) ~> (block *), reader) match {
+      case Paragraph(content) :: Nil => FlowContent(content) :: Nil
+      case other => other
+    }
   }
   
     

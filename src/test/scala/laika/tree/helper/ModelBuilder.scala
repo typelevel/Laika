@@ -86,6 +86,8 @@ trait ModelBuilder {
   def ol (enumType: EnumType, prefix: String, suffix: String, start: Int, items: ListItem*) = 
     OrderedList(items.toList, enumType, prefix, suffix, start)
 
+  def li (text: String) = ListItem(List(fc(txt(text))))
+    
   def li (blocks: Block*) = ListItem(blocks.toList)
   
   def dl (items: DefinitionListItem*) = DefinitionList(items.toList)
@@ -99,9 +101,9 @@ trait ModelBuilder {
   
   def row (cells: Cell*) = Row(cells.toList)
   
-  def cell (content: String, colspan: Int, rowspan: Int) = Cell(BodyCell, List(p(txt(content))), colspan, rowspan)
+  def cell (content: String, colspan: Int, rowspan: Int) = Cell(BodyCell, List(fc(txt(content))), colspan, rowspan)
   
-  def cell (content: String): Cell = cell(p(txt(content)))
+  def cell (content: String): Cell = cell(fc(txt(content)))
   
   def cell (content: Block*): Cell = Cell(BodyCell, content.toList)
   
@@ -119,7 +121,7 @@ trait ModelBuilder {
   
   def quote (text: String) = QuotedBlock(List(p(text)), Nil) 
 
-  def quote (text: String, attribution: String) = QuotedBlock(List(p(text)), List(txt(attribution))) 
+  def quote (text: String, attribution: String) = QuotedBlock(List(fc(text)), List(txt(attribution))) 
   
   
   def codeBlock (content: String) = CodeBlock(content)

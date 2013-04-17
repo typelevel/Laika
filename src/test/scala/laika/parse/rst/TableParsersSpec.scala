@@ -160,7 +160,7 @@ class TableParsersSpec extends FlatSpec
       |+---+---------+
       || c | d       |
       |+---+---------+""".stripMargin
-    Parsing (input) should produce (doc( table(row(cell("a"), cell(p("Text"), ul(li(p("Line1\nLine2")), li(p("Line3"))))), strrow("c","d"))))
+    Parsing (input) should produce (doc( table(row(cell("a"), cell(p("Text"), ul(li(fc("Line1\nLine2")), li(fc("Line3"))))), strrow("c","d"))))
   }
   
   it should "parse tables with header cells" in {
@@ -169,7 +169,7 @@ class TableParsersSpec extends FlatSpec
       |+===+===+
       || c | d |
       |+---+---+""".stripMargin
-    Parsing (input) should produce (doc( Table(List(row(Cell(HeadCell,List(p("a"))), Cell(HeadCell,List(p("b"))))), List(strrow("c","d")))))
+    Parsing (input) should produce (doc( Table(List(row(Cell(HeadCell,List(fc("a"))), Cell(HeadCell,List(fc("b"))))), List(strrow("c","d")))))
   }
   
   
@@ -218,7 +218,7 @@ class TableParsersSpec extends FlatSpec
       |
       | c    d
       |===  ===""".stripMargin
-    Parsing (input) should produce (doc( table(row(cell("a"), cell(p("Text"), ul(li(p("Line1\nLine2")), li(p("Line3"))))), strrow("c","d"))))
+    Parsing (input) should produce (doc( table(row(cell("a"), cell(p("Text"), ul(li(fc("Line1\nLine2")), li(fc("Line3"))))), strrow("c","d"))))
   }
   
   it should "parse tables with header cells" in {
@@ -227,7 +227,7 @@ class TableParsersSpec extends FlatSpec
       |===  ===
       | c    d
       |===  ===""".stripMargin
-    Parsing (input) should produce (doc( Table(List(row(Cell(HeadCell,List(p("a"))), Cell(HeadCell,List(p("b"))))), List(strrow("c","d")))))
+    Parsing (input) should produce (doc( Table(List(row(Cell(HeadCell,List(fc("a"))), Cell(HeadCell,List(fc("b"))))), List(strrow("c","d")))))
   }
   
  
