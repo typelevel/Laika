@@ -96,8 +96,8 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     val prefix = '|' ~> text <~ not(lookBehind(1, ' ')) ~ '|'
     
     ((prefix <~ ws) ~ spanDirective) ^^ { 
-      case name ~ InvalidDirective(msg, CodeBlock(content)) => 
-        SubstitutionDefinition(name, InvalidDirective(msg, CodeBlock(content.replaceFirst(".. ",".. |"+name+"| ")))) 
+      case name ~ InvalidDirective(msg, source) => 
+        InvalidBlock(SystemMessage(laika.tree.Elements.Error, msg), CodeBlock(source.replaceFirst(".. ",".. |"+name+"| ")))
       case name ~ content => SubstitutionDefinition(name, content) 
     }
   }
@@ -116,7 +116,12 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
   def textRoles: Map[String, TextRole]
     
 
-  def blockDirective: Parser[Block] = directive(blockDirectives)
+  private def replaceInvalidDirective (block: Block) = block match {
+    case InvalidDirective(msg, source) => InvalidBlock(SystemMessage(laika.tree.Elements.Error, msg), CodeBlock(source))
+    case other => other
+  }
+  
+  def blockDirective: Parser[Block] = directive(blockDirectives) ^^ replaceInvalidDirective
 
   def spanDirective = directive(spanDirectives)
   
@@ -137,12 +142,13 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     }
   }
   
+  case class InvalidDirective (msg: String, source: String) extends Block with Span
+  
   private def directive [E](p: Parser[E], name: String) = Parser { in =>
     p(in) match {
       case s @ Success(_,_) => s
       case NoSuccess(msg, next) => (varIndentedBlock() ^^ { block =>
-        InvalidDirective(SystemMessage(laika.tree.Elements.Error, msg), 
-              CodeBlock(".. "+name+" "+(block.lines mkString "\n"))).asInstanceOf[E]
+        InvalidDirective(msg, ".. "+name+" "+(block.lines mkString "\n")).asInstanceOf[E]
       })(in)
     }
   }
@@ -163,10 +169,8 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     nameParser >> { case name ~ baseName =>
       val base = baseName.getOrElse(defaultTextRole)
       val fullname = "role::" + name + (baseName map ("("+_+")") getOrElse "")
-      directive(textRoles.get(base).map(directiveParser(name)).getOrElse(failure("unknown text role: " + base)), fullname) ^^ { 
-        case inv: InvalidDirective => InvalidTextRole(name, inv)
-        case other => other
-      }
+      directive(textRoles.get(base).map(directiveParser(name))
+          .getOrElse(failure("unknown text role: " + base)), fullname) ^^ replaceInvalidDirective
     }
     
   }

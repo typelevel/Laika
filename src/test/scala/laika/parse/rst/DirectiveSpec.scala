@@ -42,7 +42,7 @@ class DirectiveSpec extends FlatSpec
   
   
   def invalid (input: String, error: String) = 
-    InvalidDirective(SystemMessage(laika.tree.Elements.Error, error), 
+    InvalidBlock(SystemMessage(laika.tree.Elements.Error, error), 
         CodeBlock(input.replaceAll("\n ","\n").replaceAll("::$",":: ").replaceAll("::\n",":: \n")))
   
   def positiveInt (input: String) = 
@@ -487,7 +487,7 @@ class DirectiveSpec extends FlatSpec
   it should "detect a definition with an invalid directive" in {
     val error = "missing required argument"
     val input = ".. |def| spans::"
-    Parsing (input) should produce (doc (SubstitutionDefinition("def",invalid(input,error))))
+    Parsing (input) should produce (doc (invalid(input,error)))
   }
   
   
@@ -506,7 +506,7 @@ class DirectiveSpec extends FlatSpec
   it should "detect a defintion with a missing required field as invalid" in {
     val error = "missing required options: name"
     val input = """.. role::custom(role)"""
-    Parsing(input) should produce (doc (InvalidTextRole("custom",invalid(input+" ",error))))
+    Parsing(input) should produce (doc (invalid(input+" ",error)))
   }
 
   

@@ -41,11 +41,9 @@ object RewriteRules {
     
   def selectTextRoles (document: Document) = document.select { 
       case _: CustomizedTextRole => true
-      case _: InvalidTextRole => true
       case _ => false 
     } map { 
       case CustomizedTextRole(id,f) => (id,f)                                   
-      case InvalidTextRole(id,dir) => (id, {s: String => invalidSpan(dir.message.content, "`"+s+"`")}) 
     } toMap  
     
   def selectCitations (document: Document) = document.select { 
