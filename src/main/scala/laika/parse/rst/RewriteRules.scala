@@ -24,29 +24,36 @@ import scala.annotation.tailrec
 import scala.collection.immutable.TreeSet
 
 /** 
+ *  The default rewrite rules that get applied to the raw document tree after parsing
+ *  reStructuredTextMarkup. The rules are responsible for resolving internal references
+ *  to link targets, footnotes, citations, substitution definitions and text roles.
+ * 
+ *  These rules are specific to `reStructuredText`, but some of them might get promoted
+ *  to the general rules implemented in [[laika.tree.RewriteRules]] in a later release.
+ *  
  *  @author Jens Halm
  */
 object RewriteRules {
 
   
-  def invalidSpan (message: String, fallback: String) =
+  private def invalidSpan (message: String, fallback: String) =
       InvalidSpan(SystemMessage(laika.tree.Elements.Error, message), Text(fallback))
       
-  def selectSubstitutions (document: Document) = document.select { 
+  private def selectSubstitutions (document: Document) = document.select { 
       case _: SubstitutionDefinition => true 
       case _ => false 
     } map { 
       case SubstitutionDefinition(id,content) => (id,content) 
     } toMap
     
-  def selectTextRoles (document: Document) = document.select { 
+  private def selectTextRoles (document: Document) = document.select { 
       case _: CustomizedTextRole => true
       case _ => false 
     } map { 
       case CustomizedTextRole(id,f) => (id,f)                                   
     } toMap  
     
-  def selectCitations (document: Document) = document.select { 
+  private def selectCitations (document: Document) = document.select { 
       case _: Citation => true 
       case _ => false 
     } map { 
@@ -54,7 +61,7 @@ object RewriteRules {
     } toSet 
    
     
-  class FootnoteResolver (unresolvedFootnotes: List[Element], unresolvedReferences: List[Element]) {
+  private class FootnoteResolver (unresolvedFootnotes: List[Element], unresolvedReferences: List[Element]) {
      
     case class Key(key: AnyRef) {
       val hashed = key.hashCode
@@ -152,7 +159,7 @@ object RewriteRules {
     def resolved (ref: FootnoteReference) = resolvedReferences(Key(ref))
   }
   
-  def selectFootnotes (document: Document) = {
+  private def selectFootnotes (document: Document) = {
     new FootnoteResolver(document.select { 
       case _: Footnote => true 
       case _ => false 
@@ -162,9 +169,9 @@ object RewriteRules {
     })
   }
   
-  case class InvalidLinkTarget (id: String, message: SystemMessage) extends LinkTarget
+  private case class InvalidLinkTarget (id: String, message: SystemMessage) extends LinkTarget
   
-  def selectLinkTargets (document: Document) = {
+  private def selectLinkTargets (document: Document) = {
     val linkIds = Stream.from(1).iterator
     
     def getId (id: String) = if (id.isEmpty) linkIds.next else id
