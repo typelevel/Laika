@@ -43,8 +43,10 @@ import laika.parse.rst.Elements._
 class ExtendedHTML extends (HTMLWriter => PartialFunction[Element, Unit]) {
 
   
-  case class ProgramOptions (options: Seq[Element]) extends Block
+  private case class ProgramOptions (options: Seq[Element]) extends Block
   
+  /** Converts an `OptionList` to an interim table model for rendering.
+   */
   def toTable (ol: OptionList) = {
     def intersperse [T](list: List[T], sep: T): List[T] = list match {    
       case one :: two :: rest => one :: sep :: intersperse(two :: rest, sep)    
@@ -57,6 +59,8 @@ class ExtendedHTML extends (HTMLWriter => PartialFunction[Element, Unit]) {
         ColumnStyles(List(ColumnStyle(List("option")),ColumnStyle(List("description")))), None)
   }
   
+  /** Converts a `FieldList` to an interim table model for rendering.
+   */
   def toTable (fl: FieldList) = {
     def name (value: Seq[Span]) = Cell(BodyCell, List(FlowContent(value :+ Text(":"))))
     def body (value: Seq[Block]) = Cell(BodyCell, value)
