@@ -29,8 +29,12 @@ import laika.io.Output
  * 
  *  @author Jens Halm
  */
-class HTML extends ((Output, Element => Unit) => (HTMLWriter, Element => Unit)) {
+class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Element => Unit) => (HTMLWriter, Element => Unit)) {
  
+  /** Specifies the minimum required level for a system message
+   *  to get included into the output by this renderer.
+   */
+  def withMessageLevel (level: MessageLevel) = new HTML(Some(level))
   
   /** The actual setup method for providing both the writer API for customized
    *  renderers as well as the actual default render function itself. The default render
@@ -48,13 +52,68 @@ class HTML extends ((Output, Element => Unit) => (HTMLWriter, Element => Unit)) 
     (out, renderElement(out))
   }
 
+  
+  // TODO - align default tree model with this model once support for styles and ids has been unified
+  case class StyledTable (head: TableHead, 
+                          body: TableBody, 
+                          tableStyles: Seq[String] = Nil, 
+                          columnStyles: ColumnStyles = ColumnStyles(Nil),
+                          id: Option[String] = None) extends Block 
+  
+  trait TableElement {
+    def isEmpty: Boolean
+  }                        
+                          
+  case class ColumnStyles (styles: Seq[ColumnStyle]) extends Element with TableElement {
+    val isEmpty = styles.isEmpty
+  } 
+  case class ColumnStyle (styles: Seq[String]) extends Element
+  
+  case class TableHead (rows: Seq[Row]) extends Element with TableElement {
+    val isEmpty = rows.isEmpty
+  }
+  case class TableBody (rows: Seq[Row]) extends Element with TableElement {
+    val isEmpty = rows.isEmpty
+  }
+  
+  def toTable (cit: Citation): StyledTable = toTable(cit.label,cit.label,cit.content)
+  
+  def toTable (id: String, label: String, content: Seq[Block]): StyledTable = {
+    val left = Cell(BodyCell, List(FlowContent(List(Text("["+label+"]")))))
+    val right = Cell(BodyCell, content)
+    val row = Row(List(left,right))
+    StyledTable(TableHead(Nil), TableBody(List(row)), List("footnote"), 
+        ColumnStyles(List(ColumnStyle(List("label")),ColumnStyle(Nil))), Some(id))
+  }
+  
+  def toTable (t: Table) = {
+    StyledTable(TableHead(t.head), TableBody(t.content), Nil, 
+        ColumnStyles(Nil), None)
+  }
+  
+  def toClass (styles: Seq[String]) = if (styles.isEmpty) None else Some(styles.mkString(" "))
+  
+  def noneIfDefault [T](actual: T, default: T) = if (actual == default) None else Some(actual.toString)
+  
+  def include (msg: SystemMessage) = {
+    messageLevel flatMap {lev => if (lev <= msg.level) Some(lev) else None} isDefined
+  }
+  
   private def renderElement (out: HTMLWriter)(elem: Element): Unit = {
+    
+    def renderTable (table: StyledTable) = {
+      val classes = toClass(table.tableStyles)
+      val children = List(table.columnStyles,table.head,table.body) filterNot (_.isEmpty)
+      
+      out << "<table" <<@ ("class",classes) <<@ ("id",table.id) << ">" <<|> children <<| "</table>"
+    }
     
     elem match {
       case Document(content)          => out <<        "<div>" <<|> content <<| "</div>"       
       case QuotedBlock(content, _)    => out << "<blockquote>" <<|> content <<| "</blockquote>"
       case UnorderedList(content)     => out <<         "<ul>" <<|> content <<| "</ul>"
-      case OrderedList(content,_,_,_,_) => out <<         "<ol>" <<|> content <<| "</ol>"
+      case OrderedList(content,enumType,_,_,start) => 
+        out << "<ol" <<@ ("class", enumType.toString.toLowerCase) <<@ ("start", noneIfDefault(start,1)) << ">" <<|> content <<| "</ol>"
       case CodeBlock(content)         => out <<  "<code><pre>" <<<& content <<  "</pre></code>"
       case Section(header, content)   => out <<         header <<|  content
       case Paragraph(content)         => out <<          "<p>" <<   content <<  "</p>"  
@@ -64,11 +123,45 @@ class HTML extends ((Output, Element => Unit) => (HTMLWriter, Element => Unit)) 
       case CodeSpan(content)          => out <<       "<code>" <<<& content <<   "</code>" 
       case Text(content)              => out                   <<&  content
       case FlowContent(content)       => out                   <<   content
+      case BlockSequence(content)     => out                   <<   content
       case Rule                       => out << "<hr>"
       case LineBreak                  => out << "<br>"
       case Header(level, content)     => out <<| "<h" << level.toString << ">" << content << "</h" << level.toString << ">"
       case Link(content, url, title)  => out << "<a"   <<@ ("href",url) <<@ ("title",title) << ">" << content << "</a>"
+      case CitationReference(label)   => out << "<a"   <<@ ("href", "#"+label) <<@ ("class","citation") << ">[" << label << "]</a>" 
+      case FootnoteReference(ResolvedFootnoteLabel(id,label)) => 
+        out << "<a"   <<@ ("href", "#"+id) <<@ ("class","footnote") << ">[" << label << "]</a>" 
       case Image(text, url, title)    => out << "<img" <<@ ("src", url) <<@ ("alt",text) <<@ ("title",title) << ">"
+
+      case DefinitionList(items)        => out << "<dl>" <<|> items <<| "</dl>"
+      case DefinitionListItem(term,defn)=> out << "<dt>" << term << "</dt>" <<| "<dd>" <<|> defn <<| "</dd>"
+      case Footnote(ResolvedFootnoteLabel(id,label),content)  => renderTable(toTable(id,label,content))
+      case c: Citation                                        => renderTable(toTable(c))
+      case t: Table                                           => renderTable(toTable(t))
+      case st: StyledTable                                    => renderTable(st)
+      
+      case TableHead(rows)            => out << "<thead>" <<|> rows <<| "</thead>"
+      case TableBody(rows)            => out << "<tbody>" <<|> rows <<| "</tbody>"
+      case Row(cells)                 => out << "<tr>" <<|> cells <<| "</tr>"
+      case Cell(HeadCell, content, colspan, rowspan) => out << 
+        "<th" <<@ ("colspan",noneIfDefault(colspan,1)) <<@ ("rowspan",noneIfDefault(rowspan,1)) << ">" << content << "</th>"
+      case Cell(BodyCell, content, colspan, rowspan) => out << 
+        "<td" <<@ ("colspan",noneIfDefault(colspan,1)) <<@ ("rowspan",noneIfDefault(rowspan,1)) << ">" << content << "</td>"
+      case ColumnStyles(styles)       => out << "<colgroup>" <<|> styles <<| "</colgroup>"  
+      case ColumnStyle(styles)        => out << "<col" <<@ ("class", toClass(styles)) << " />"  
+      
+      case LineBlock(lines)           => out << """<div class="line-block">""" <<|> lines <<| "</div>"
+      case Line(content)              => out << """<div class="line">"""       << content <<  "</div>"
+      
+      case InternalLinkTarget(id)     => out << "<a" <<@ ("id",id) << " />"
+      case msg @ SystemMessage(level,message) => if (include(msg)) 
+        out << "<span" <<@ ("class", "system-message "+level.toString.toLowerCase) << ">" << message << "</span>"
+      case Comment(text)              => out << "<!-- " << text << " -->"
+      
+      case InvalidBlock(msg, fallback) => if (include(msg)) out << List(Paragraph(List(msg)), fallback)
+                                          else out << fallback
+      case InvalidSpan(msg, fallback)  => if (include(msg)) out << msg << " " << fallback
+                                          else out << fallback 
 
       case LinkReference(content, id, inputPrefix, inputPostfix)  => out << inputPrefix << content << inputPostfix 
       case ImageReference(text, id, inputPrefix, inputPostfix)    => out << inputPrefix << text    << inputPostfix
@@ -82,4 +175,4 @@ class HTML extends ((Output, Element => Unit) => (HTMLWriter, Element => Unit)) 
 
 /** The default instance of the HTML renderer.
  */
-object HTML extends HTML
+object HTML extends HTML(None)
