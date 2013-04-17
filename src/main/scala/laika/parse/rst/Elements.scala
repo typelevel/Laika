@@ -83,11 +83,16 @@ object Elements {
    */
   case class InterpretedText (role: String, content: String) extends Span with TextContainer
   
+  /** Temporary element to represent a customized text role that can be applied
+   *  to spans of interpreted text. The `apply` function can then be applied
+   *  to spans of interpreted text referring to the name of this role and passing
+   *  the text as the argument to the function. 
+   */
+  case class CustomizedTextRole (name: String, apply: String => Span) extends Block
+
   /** A link target pointing to another link reference, acting like an alias.
    */
   case class IndirectLinkTarget (id: String, ref: LinkReference) extends LinkTarget
   
-  
-  case class CustomizedTextRole (name: String, apply: String => Span) extends Block
   
 }
