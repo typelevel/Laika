@@ -60,8 +60,7 @@ import laika.util.Builders._
  *  .. note:: This is the title
  *  
  *   This is the body of the note.
- * 
- *  {{{
+ *  }}}
  * 
  *  The implementation of this directive could look like this:
  * 
