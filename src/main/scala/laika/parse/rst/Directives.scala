@@ -40,7 +40,7 @@ import laika.util.Builders._
  *   :field1: value1
  *   :field2: value2
  * 
- *   The body of the directive may consist of any standard or custom
+ *   This is the body of the directive. It may consist of any standard or custom
  *   block-level and inline markup.
  *  }}}
  * 
@@ -136,7 +136,6 @@ import laika.util.Builders._
  *  are parsed from the directive markup, with the only exception being that required arguments
  *  will always be parsed before optional ones, and arguments with whitespace need to come last.
  *   
- * 
  *  @author Jens Halm
  */
 object Directives {
@@ -204,7 +203,7 @@ object Directives {
      *  @param convert the function to use for converting and validating the parsed value
      *  @param withWS whether the argument supports whitespace characters (only one of these 
      *  can exist in any single directive markup)
-     *  @return an directive part that can be combined with further parts with the `~` operator
+     *  @return a directive part that can be combined with further parts with the `~` operator
      */
     def argument [T](convert: String => Either[String,T] = { s:String => Right(s) }, 
                      withWS: Boolean = false) = part(_.argument(convert, withWS)) 
@@ -215,7 +214,7 @@ object Directives {
      *  if it is present
      *  @param withWS whether the argument supports whitespace characters (only one of these 
      *  can exist in any single directive markup)
-     *  @return an directive part that can be combined with further parts with the `~` operator
+     *  @return a directive part that can be combined with further parts with the `~` operator
      */
     def optArgument [T](convert: String => Either[String,T] = { s:String => Right(s) }, 
                         withWS: Boolean = false) = part(_.optArgument(convert, withWS)) 
@@ -224,7 +223,7 @@ object Directives {
      * 
      *  @param name the name of the field as used in the directive markup (without the colons)
      *  @param convert the function to use for converting and validating the parsed value
-     *  @return an directive part that can be combined with further parts with the `~` operator
+     *  @return a directive part that can be combined with further parts with the `~` operator
      */
     def field [T](name: String, 
                   convert: String => Either[String,T] = { s:String => Right(s) }): DirectivePart[T] = 
@@ -235,7 +234,7 @@ object Directives {
      *  @param name the name of the field as used in the directive markup (without the colons)
      *  @param convert the function to use for converting and validating the parsed value
      *  if it is present
-     *  @return an directive part that can be combined with further parts with the `~` operator
+     *  @return a directive part that can be combined with further parts with the `~` operator
      */
     def optField [T](name: String, 
                      convert: String => Either[String,T] = { s:String => Right(s) }): DirectivePart[Option[T]] = 
@@ -243,20 +242,22 @@ object Directives {
     
     /** Specifies standard block-level content as the body of the directive.
      * 
-     *  @return an directive part that can be combined with further parts with the `~` operator
+     *  @return a directive part that can be combined with further parts with the `~` operator
      */
     def standardContent: DirectivePart[Seq[Block]] = part(_.standardContent) // TODO - maybe use blockContent/spanContent
     
     /** Specifies that the body of the directive markup should get passed to the conversion function as a raw string.
      * 
      *  @param convert the function to use for converting and validating the parsed value
-     *  @return an directive part that can be combined with further parts with the `~` operator
+     *  @return a directive part that can be combined with further parts with the `~` operator
      */
     def content [T](f: String => Either[String,T]): DirectivePart[T] = part(_.content(f))
     
   }
 
-  class Directive [E <: Element] (val name: String)(val part: DirectivePart[E])
+  /** Represents a single directive implementation.
+   */
+  class Directive [E <: Element] private[Directives] (val name: String)(val part: DirectivePart[E])
 
   /** API entry point for setting up a span directive that can be used
    *  in substitution definitions.
