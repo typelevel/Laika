@@ -21,24 +21,25 @@ import laika.parse.rst.Elements._
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.Stack
 
-/**
+/** Provides parsers for the two table types supported by reStructuredText.
+ * 
  * @author Jens Halm
  */
 trait TableParsers extends BlockBaseParsers { self: InlineParsers => 
 
   
-  sealed abstract class TableElement
+  private abstract class TableElement
   
-  sealed abstract class TableDecoration extends TableElement
-  case object Intersection extends TableDecoration {
+  private abstract class TableDecoration extends TableElement
+  private case object Intersection extends TableDecoration {
     override def toString = "+"
   }
-  case object RowSeparator extends TableDecoration
-  case object TableBoundary extends TableDecoration
-  case class CellSeparator (decoration: String) extends TableDecoration {
+  private case object RowSeparator extends TableDecoration
+  private case object TableBoundary extends TableDecoration
+  private case class CellSeparator (decoration: String) extends TableDecoration {
     override def toString = decoration
   }
-  case class CellElement (text: String) extends TableElement {
+  private case class CellElement (text: String) extends TableElement {
     override def toString = text
   }
       
@@ -184,11 +185,15 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers =>
   }
   
       
-  def flattenElements (result: Any): List[TableElement] = result match {
+  private def flattenElements (result: Any): List[TableElement] = result match {
     case x:TableElement => List(x)
     case x ~ y => flattenElements(x) ::: flattenElements(y)
   }
-      
+   
+  /** Parses a grid table.
+   * 
+   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#grid-tables]].
+   */
   def gridTable: Parser[Block] = {
     
     val intersect = (anyOf('+') take 1) ^^^ Intersection
@@ -269,6 +274,10 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers =>
     
   }
   
+  /** Parses a simple table.
+   * 
+   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#simple-tables]].
+   */
   def simpleTable: Parser[Block] = {
     
     val intersect = (anyOf(' ') min 1) ^^ { _.length }

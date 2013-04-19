@@ -24,21 +24,32 @@ import Directives._
 import TextRoles._
 import scala.collection.mutable.ListBuffer
 
-/**
+/** Provides the parsers for all types of explicit block elements.
+ *  In reStructuredText an explicit block element starts with `.. `,
+ *  followed by a block where the second and subsequent lines are indented.
+ * 
  * @author Jens Halm
  */
 trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
 
   
   
-  val explicitStart = (".." ~ (ws min 1))
+  private val explicitStart = (".." ~ (ws min 1))
   
   
+  /** Parses all types of explicit block items.
+   * 
+   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#explicit-markup-blocks]].
+   */
   def explicitBlockItem: Parser[Block] = (explicitStart ~>
     (footnote | citation | linkDefinition | substitutionDefinition | roleDirective | blockDirective | comment)) |
     shortAnonymousLinkDefinition
   
-  
+
+  /** Parses a footnote.
+   *
+   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#footnotes]]. 
+   */
   def footnote = {
     val prefix = '[' ~> footnoteLabel <~ ']' ~ ws
     
@@ -47,6 +58,10 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     }
   }
   
+  /** Parses a citation.
+   *
+   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#citations]]. 
+   */
   def citation = {
     val prefix = '[' ~> simpleRefName <~ ']' ~ ws
     
@@ -55,6 +70,11 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     }
   }
   
+  /** Parses the short variant of an anonymous link definition
+   *  (that starts with `__` instead of `.. __:`)
+   * 
+   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#anonymous-hyperlinks]].
+   */
   lazy val shortAnonymousLinkDefinition = {
     "__ " ~> linkDefinitionBody ^^ { body => LinkDefinition("", body) } 
   }
@@ -67,6 +87,10 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     }
   }
   
+  /** Parses a link definition, either an internal, external or indirect link.
+   * 
+   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#hyperlink-targets]].
+   */
   def linkDefinition = {
     
     val named = '_' ~> (refName) <~ ':' ^^ { _.normalized }
@@ -90,7 +114,10 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     indirect | external | internal
   }
   
-  
+  /** Parses a substitution definition.
+   * 
+   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#substitution-definitions]].
+   */
   def substitutionDefinition = {
     val text = not(ws take 1) ~> escapedText(anyBut('|','\n') min 1)  
     val prefix = '|' ~> text <~ not(lookBehind(1, ' ')) ~ '|'
@@ -102,6 +129,10 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     }
   }
   
+  /** Parses a comment.
+   * 
+   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#comments]].
+   */
   def comment = {
     varIndentedBlock() ^^ { block =>
       Comment((block.lines map (_.trim) mkString "\n").trim)
@@ -109,10 +140,22 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
   }
   
   
+  /** Mapping from the name of all configured block directives to their implementation.
+   * 
+   *  See [[laika.parse.rst.Directives]] for details on how to implement directives.  
+   */
   def blockDirectives: Map[String, DirectivePart[Block]]
   
+  /** Mapping from the name of all configured span directives to their implementation.
+   * 
+   *  See [[laika.parse.rst.Directives]] for details on how to implement directives.  
+   */
   def spanDirectives: Map[String, DirectivePart[Span]]
   
+  /** Mapping from the name of all configured text roles to their implementation.
+   * 
+   *  See [[laika.parse.rst.TextRoles]] for details on how to implement text roles.  
+   */
   def textRoles: Map[String, TextRole]
     
 
@@ -121,11 +164,15 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     case other => other
   }
   
+  /** Parses a block-level directive.
+   * 
+   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#directives]].
+   */
   def blockDirective: Parser[Block] = directive(blockDirectives) ^^ replaceInvalidDirective
 
-  def spanDirective = directive(spanDirectives)
+  private def spanDirective = directive(spanDirectives)
   
-  protected def directive [E](directives: Map[String, DirectivePart[E]]): Parser[E] = {
+  private def directive [E](directives: Map[String, DirectivePart[E]]): Parser[E] = {
     
     val nameParser = simpleRefName <~ "::" ~ ws
     
@@ -142,7 +189,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     }
   }
   
-  case class InvalidDirective (msg: String, source: String) extends Block with Span
+  private case class InvalidDirective (msg: String, source: String) extends Block with Span
   
   private def directive [E](p: Parser[E], name: String) = Parser { in =>
     p(in) match {
@@ -153,6 +200,10 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     }
   }
 
+  /** Parses a role directive.
+   * 
+   *  See [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#custom-interpreted-text-roles]].
+   */
   def roleDirective = {
     
     val nameParser = "role::" ~ ws ~> simpleRefName ~ opt('(' ~> simpleRefName <~ ')')
@@ -175,6 +226,8 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     
   }
   
+  /** Overrides the failure message to the specified parser.
+   */
   def withFailureMessage [T](p: => Parser[T], msg: String) = Parser { in =>
     // TODO - obsolete when moving to 2.10
       p(in) match {
@@ -182,9 +235,9 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
         case other            => other
       }
     }
+
   
-  // TODO - deal with failures and exact behaviour for unknown directives and other types of error
-  class DirectiveParserBuilder extends DirectiveParser {
+  private class DirectiveParserBuilder extends DirectiveParser {
 
     val skip = success(())
     var requiredArgs: Parser[Any] = skip
@@ -213,7 +266,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
       requiredArg(p)
     }
     
-    val body = lookBehind(1, '\n') ~> varIndentedBlock(testFirstLine = true) | varIndentedBlock()
+    val body = lookBehind(1, '\n') ~> varIndentedBlock(firstLineIndented = true) | varIndentedBlock()
     
     // TODO - some duplicate logic with original fieldList parser
     lazy val directiveFieldList: Parser[Any] = {
@@ -315,7 +368,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     
   }
   
-  class RoleDirectiveParserBuilder (delegate: DirectiveParser) extends RoleDirectiveParser {
+  private class RoleDirectiveParserBuilder (delegate: DirectiveParser) extends RoleDirectiveParser {
     
     def field [T](name: String, f: String => Either[String,T]): Result[T] = delegate.field(name,f)
     

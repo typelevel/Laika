@@ -21,10 +21,14 @@ import laika.parse.rst.Elements._
 import scala.collection.mutable.ListBuffer
 import scala.annotation.tailrec
 
-/**
- * Provides all the block level parsers for reStructuredText that do not fit
- * into any of the subcategories supported by other traits, like lists or tables,
- * as well as the general high level block parsers that combine the others.
+/** Provides the parsers for all types of block-level elements of reStructuredText. 
+ *  It merges the individual traits that provide implementations for list, tables, etc. and 
+ *  adds the remaining block level parsers that do not fit into any of the subcategories 
+ *  supported by the other traits.
+ * 
+ *  Block parsers are only concerned with splitting the document into 
+ *  (potentially nested) blocks. They are used in the first phase of parsing,
+ *  while delegating to inline parsers for the 2nd phase.
  * 
  * @author Jens Halm
  */
@@ -34,13 +38,23 @@ trait BlockParsers extends BlockBaseParsers
                       with ExplicitBlockParsers { self: InlineParsers =>
 
                         
-                        
+  /** Parses a full document and applies the default rules for resolving
+   *  all kinds of references like footnotes, citations, link references,
+   *  text roles and substitutions.
+   */                      
   override def document = super.document ^^ RewriteRules.applyDefaults
   
-                        
+  
+  /** Parses punctuation characters as supported by transitions (rules) and 
+   *  overlines and underlines for header sections.
+   */
   val punctuationChar = 
     anyOf('!','"','#','$','%','&','\'','(',')','[',']','{','}','*','+',',','-','.',':',';','/','<','>','=','?','@','\\','^','_','`','|','~')
-  
+
+  /** Parses a transition (rule).
+   * 
+   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#transitions]].
+   */  
   val transition = (punctuationChar min 4) ~ ws ~ eol ~ guard(blankLine) ^^^ Rule  
     
   /** Parses a single paragraph. Everything between two blank lines that is not
@@ -49,7 +63,11 @@ trait BlockParsers extends BlockBaseParsers
   def paragraph: Parser[Paragraph] = 
       ((not(blankLine) ~> restOfLine) +) ^^ { lines => Paragraph(parseInline(lines mkString "\n")) }
   
-  
+
+  /** Parses a section header with both overline and underline.
+   * 
+   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections]].
+   */
   def headerWithOverline: Parser[Block] = {
     (punctuationChar take 1) >> { start =>
       val char = start.charAt(0)
@@ -62,6 +80,10 @@ trait BlockParsers extends BlockBaseParsers
     }
   }
   
+  /** Parses a section header with an underline, but no overline.
+   * 
+   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections]].
+   */
   def headerWithUnderline: Parser[Block] = {
     (anyBut(' ') take 1) ~ restOfLine >> { case char ~ rest =>
       val title = (char + rest).trim
@@ -73,11 +95,22 @@ trait BlockParsers extends BlockBaseParsers
     }
   }
   
-  
+  /** Parses a doctest block. This is a feature which is very specific to the
+   *  world of Python where reStructuredText originates. Therefore the resulting
+   *  `DoctestBlock` tree element is not part of the standard Laika tree model.
+   *  When this block type is used the corresponding special renderers must 
+   *  be enabled (e.g. the `ExtendedHTML` renderer for HTML).
+   *  
+   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#doctest-blocks]]
+   */
   def doctest: Parser[Block] = ">>> " ~> restOfLine ~ 
       ((not(blankLine) ~> restOfLine) *) ^^ { case first ~ rest => DoctestBlock((first :: rest) mkString "\n") }
   
   
+  /** Parses a block quote with an optional attribution. 
+   * 
+   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#block-quotes]]
+   */
   def blockQuote: Parser[Block] = {
     
     /* The implementation of this parser is complex as we cannot use the varIndentedBlock parser
@@ -129,8 +162,15 @@ trait BlockParsers extends BlockBaseParsers
   
   /** Builds a parser for a list of blocks based on the parser for a single block. 
    * 
-   *  Overridden to check each Paragraph for a double colon ending which has influence
-   *  on the parsing of the following block (turning it into a literal block).  
+   *  Overridden to add the processing required for cases where a block has influence
+   *  on the parsing or processing of the subsequent block. 
+   * 
+   *  This includes checking each Paragraph for a double colon ending which turns 
+   *  the following block into a literal block as well as processing internal
+   *  link targets and section headers.  
+   * 
+   *  @param parser the parser for a single block element
+   *  @return a parser for a list of blocks
    */
   override def blockList (parser: => Parser[Block]): Parser[List[Block]] = Parser { in =>
     val defaultBlock = parser <~ opt(blankLines)
@@ -183,8 +223,13 @@ trait BlockParsers extends BlockBaseParsers
     parse(defaultBlock, in)
   }
   
+  /** Parses a literal block, either quoted or indented.
+   *  Only used when the preceding block ends with a double colon (`::`).
+   * 
+   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#literal-blocks]]
+   */
   def literalBlock: Parser[Block] = {
-    val indented = varIndentedBlock(testFirstLine = true) ^^ 
+    val indented = varIndentedBlock(firstLineIndented = true) ^^ 
       { block => CodeBlock(block.lines mkString "\n") }
     val quoted = block(guard(punctuationChar min 1), guard(punctuationChar min 1), failure("blank line always ends quoted block")) ^^ 
       { lines => CodeBlock(lines mkString "\n") }  

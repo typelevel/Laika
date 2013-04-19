@@ -18,15 +18,34 @@ package laika.parse.rst
 
 import scala.annotation.tailrec
 
-/**
+/** Processes whitespace, removing or replacing most whitespace characters except
+ *  for newline and space.
+ * 
+ *  It modifies string input in the following ways:
+ * 
+ *  $ - Replaces all occurrences of tabs with the corresponding number of spaces,
+ *      depending on the column the tab is placed in and the configured `tabStops` value.
+ * 
+ *  $ - Removes any return character.
+ * 
+ *  $ - Replaces form feed and vertical tab with spaces.
+ * 
+ *  The processor should run on text input before it is passed to the actual
+ *  parsers as they would not be able to deal with tabs properly.
+ * 
  * @author Jens Halm
  */
 trait WhitespacePreprocessor {
 
   
+  /** The number of columns between tab stops.
+   */
   val tabStops = 4
   
-  
+
+  /** Processes whitespace, removing or replacing most whitespace characters except
+   *  for newline and space.
+   */
   def processWhitespace (input: String) = {
     
     val end = input.length
