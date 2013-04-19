@@ -239,7 +239,7 @@ object RewriteRules {
       case r @ FootnoteReference(_) => Some(footnotes.resolved(r))  
         
       case ref: LinkReference   => Some(linkTargets.get(getRefId(ref.id)) match {
-        case Some(LinkDefinition(id, url, title)) => Link(ref.content, url, title)
+        case Some(ExternalLinkTarget(id, url, title)) => Link(ref.content, url, title)
         case Some(InternalLinkTarget(id))         => Link(ref.content, "#"+id)
         case Some(InvalidLinkTarget(id, msg))     => 
           InvalidSpan(msg, FlowContent(Text(ref.inputPrefix) :: ref.content.toList ::: Text(ref.inputPostfix) :: Nil))

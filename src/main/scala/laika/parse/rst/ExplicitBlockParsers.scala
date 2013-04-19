@@ -42,8 +42,8 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#explicit-markup-blocks]].
    */
   def explicitBlockItem: Parser[Block] = (explicitStart ~>
-    (footnote | citation | linkDefinition | substitutionDefinition | roleDirective | blockDirective | comment)) |
-    shortAnonymousLinkDefinition
+    (footnote | citation | linkTarget | substitutionDefinition | roleDirective | blockDirective | comment)) |
+    shortAnonymousLinkTarget
   
 
   /** Parses a footnote.
@@ -75,8 +75,8 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#anonymous-hyperlinks]].
    */
-  lazy val shortAnonymousLinkDefinition = {
-    "__ " ~> linkDefinitionBody ^^ { body => LinkDefinition("", body) } 
+  lazy val shortAnonymousLinkTarget = {
+    "__ " ~> linkDefinitionBody ^^ { body => ExternalLinkTarget("", body) } 
   }
   
   private lazy val linkDefinitionBody = {
@@ -91,7 +91,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#hyperlink-targets]].
    */
-  def linkDefinition = {
+  def linkTarget = {
     
     val named = '_' ~> (refName) <~ ':' ^^ { _.normalized }
       
@@ -101,7 +101,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
       val anonymous = "__:" ^^^ ""
     
       (named | anonymous) ~ linkDefinitionBody ^^ {
-        case name ~ body => LinkDefinition(name, body)
+        case name ~ body => ExternalLinkTarget(name, body)
       }
     }
     

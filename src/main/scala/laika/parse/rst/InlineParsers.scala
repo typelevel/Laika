@@ -307,7 +307,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
     val refName = escapedText(anyBut('`','<')) ^^ ReferenceName
     markupStart("`") ~> refName ~ opt(url) ~ (markupEnd("`__") ^^^ false | markupEnd("`_") ^^^ true) ^^ {
       case refName ~ Some(url) ~ true   => 
-        FlowContent(List(Link(List(Text(ref(refName.original, url))), url), LinkDefinition(ref(refName.normalized, url), url)))
+        FlowContent(List(Link(List(Text(ref(refName.original, url))), url), ExternalLinkTarget(ref(refName.normalized, url), url)))
       case refName ~ Some(url) ~ false  => Link(List(Text(ref(refName.original, url))), url)
       case refName ~ None ~ true        => LinkReference(List(Text(refName.original)), refName.normalized, "`", "`_") 
       case refName ~ None ~ false       => LinkReference(List(Text(refName.original)), "", "`", "`__") 

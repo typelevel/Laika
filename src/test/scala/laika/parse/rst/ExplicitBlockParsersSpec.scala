@@ -74,55 +74,55 @@ class ExplicitBlockParsersSpec extends FlatSpec
   }
   
   
-  "The link definition parser" should "parse a named external definition on one line" in {
+  "The link target parser" should "parse a named external target on one line" in {
     val input = """.. _some-link: http://www.foo.bar/"""
-    Parsing (input) should produce (doc(LinkDefinition("some-link", "http://www.foo.bar/")))
+    Parsing (input) should produce (doc(ExternalLinkTarget("some-link", "http://www.foo.bar/")))
   }
   
-  it should "parse a named external definition with the reference name in backticks" in {
+  it should "parse a named external target with the reference name in backticks" in {
     val input = """.. _`some:link`: http://www.foo.bar/"""
-    Parsing (input) should produce (doc(LinkDefinition("some:link", "http://www.foo.bar/")))
+    Parsing (input) should produce (doc(ExternalLinkTarget("some:link", "http://www.foo.bar/")))
   }
   
-  it should "parse a named external definition on two lines" in {
+  it should "parse a named external target on two lines" in {
     val input = """.. _some-link: http://www.
       |     foo.bar/""".stripMargin
-    Parsing (input) should produce (doc(LinkDefinition("some-link", "http://www.foo.bar/")))
+    Parsing (input) should produce (doc(ExternalLinkTarget("some-link", "http://www.foo.bar/")))
   }
   
-  it should "parse a named external definition with the URL entirely on the next line" in {
+  it should "parse a named external target with the URL entirely on the next line" in {
     val input = """.. _some-link: 
       |     http://www.foo.bar/""".stripMargin
-    Parsing (input) should produce (doc(LinkDefinition("some-link", "http://www.foo.bar/")))
+    Parsing (input) should produce (doc(ExternalLinkTarget("some-link", "http://www.foo.bar/")))
   }
   
-  it should "parse an anonymous external definition" in {
+  it should "parse an anonymous external target" in {
     val input = """.. __: http://www.foo.bar/"""
-    Parsing (input) should produce (doc(LinkDefinition("", "http://www.foo.bar/")))
+    Parsing (input) should produce (doc(ExternalLinkTarget("", "http://www.foo.bar/")))
   }
   
-  it should "parse a short anonymous external definition" in {
+  it should "parse a short anonymous external target" in {
     val input = """__ http://www.foo.bar/"""
-    Parsing (input) should produce (doc(LinkDefinition("", "http://www.foo.bar/")))
+    Parsing (input) should produce (doc(ExternalLinkTarget("", "http://www.foo.bar/")))
   }
   
-  it should "parse an indirect simple definition" in {
+  it should "parse an indirect simple reference" in {
     val input = """.. _ref: other_"""
     Parsing (input) should produce (doc(IndirectLinkTarget("ref", LinkReference(Nil,"other","`","`_"))))
   }
   
-  it should "parse an indirect phrase definition on one line" in {
+  it should "parse an indirect phrase reference on one line" in {
     val input = """.. _ref: `other ref`_"""
     Parsing (input) should produce (doc(IndirectLinkTarget("ref", LinkReference(Nil,"other ref","`","`_"))))
   }
   
-  it should "parse an indirect phrase definition on two lines" in {
+  it should "parse an indirect phrase reference on two lines" in {
     val input = """.. _ref: `other
       | ref`_""".stripMargin
     Parsing (input) should produce (doc(IndirectLinkTarget("ref", LinkReference(Nil,"other ref","`","`_"))))
   }
   
-  it should "parse an indirect phrase definition on the following" in {
+  it should "parse an indirect phrase reference on the following" in {
     val input = """.. _ref: 
       | `other ref`_""".stripMargin
     Parsing (input) should produce (doc(IndirectLinkTarget("ref", LinkReference(Nil,"other ref","`","`_"))))

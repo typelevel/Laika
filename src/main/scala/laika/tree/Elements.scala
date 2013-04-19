@@ -258,10 +258,10 @@ object Elements {
     def id: String
   }
   
-  /** A link definition, usually only part of the raw document tree and then
+  /** An external link target, usually only part of the raw document tree and then
    *  removed by the rewrite rule that resolves link and image references.
    */
-  case class LinkDefinition (id: String, url: String, title: Option[String] = None) extends LinkTarget
+  case class ExternalLinkTarget (id: String, url: String, title: Option[String] = None) extends LinkTarget
   
   /** Points to the following block or span element, making it a target for links.
    */

@@ -41,12 +41,12 @@ object RewriteRules {
    */
   val defaults: Document => PartialFunction[Element, Option[Element]] = { document =>
     
-    val definitions = document.select { case _: LinkDefinition => true; case _ => false } map { case ld @ LinkDefinition(id,_,_) => (id,ld) } toMap
+    val definitions = document.select { case _: ExternalLinkTarget => true; case _ => false } map { case ld @ ExternalLinkTarget(id,_,_) => (id,ld) } toMap
     
     val pf: PartialFunction[Element, Option[Element]] = { 
       case ref: LinkReference   => Some(resolveLinkReference(ref, definitions))
       case ref: ImageReference  => Some(resolveImageReference(ref, definitions))
-      case _:   LinkDefinition  => None
+      case _:   ExternalLinkTarget  => None
       case doc: Document        => Some(buildSections(doc)) 
     }
     pf
@@ -58,16 +58,16 @@ object RewriteRules {
   def applyDefaults (document: Document) = document.rewrite(defaults(document)) 
   
    
-  private def resolveLinkReference (ref: LinkReference, linkDefinitions: Map[String, LinkDefinition]) = {
+  private def resolveLinkReference (ref: LinkReference, linkDefinitions: Map[String, ExternalLinkTarget]) = {
     linkDefinitions.get(ref.id) match {
-      case Some(LinkDefinition(id, url, title)) => Link(ref.content, url, title)
+      case Some(ExternalLinkTarget(id, url, title)) => Link(ref.content, url, title)
       case None                                 => ref
     }
   }
   
-  private def resolveImageReference (ref: ImageReference, linkDefinitions: Map[String, LinkDefinition]) = {
+  private def resolveImageReference (ref: ImageReference, linkDefinitions: Map[String, ExternalLinkTarget]) = {
     linkDefinitions.get(ref.id) match {
-      case Some(LinkDefinition(id, url, title)) => Image(ref.text, url, title)
+      case Some(ExternalLinkTarget(id, url, title)) => Image(ref.text, url, title)
       case None                                 => ref
     }
   }

@@ -204,7 +204,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   /** Parses a link definition in the form `[id]: <url> "title"`.
    *  The title is optional as well as the quotes around it and the angle brackets around the url.
    */
-  def linkDefinition = {
+  def linkTarget = {
     //val optWSorLF = ws ~ opt(eol) ~ ws
     
     val id = '[' ~> escapedUntil(']') <~ ':' <~ ws
@@ -215,7 +215,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
     
     val title = (ws ~ opt(eol) ~ ws) ~> (enclosedBy('"', '"') | enclosedBy('\'', '\'') | enclosedBy('(', ')'))
     
-    id ~ url ~ opt(title) <~ ws ~ eol ^^ { case id ~ url ~ title => LinkDefinition(id.toLowerCase, url, title) } 
+    id ~ url ~ opt(title) <~ ws ~ eol ^^ { case id ~ url ~ title => ExternalLinkTarget(id.toLowerCase, url, title) } 
   }
   
   

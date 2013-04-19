@@ -27,7 +27,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 
 import laika.parse.markdown.Markdown
-import laika.tree.Elements.LinkDefinition
+import laika.tree.Elements.ExternalLinkTarget
 import laika.tree.Elements.LinkReference
 import laika.tree.Elements.Text
 import laika.tree.helper.ModelBuilder
@@ -96,7 +96,7 @@ class ParseAPISpec extends FlatSpec
     val input = """[link][id]
       |
       |[id]: http://foo/""".stripMargin
-    (Parse as Markdown asRawDocument) fromString input should be (doc (p (LinkReference(List(Text("link")), "id", "[", "][id]")), LinkDefinition("id","http://foo/",None)))
+    (Parse as Markdown asRawDocument) fromString input should be (doc (p (LinkReference(List(Text("link")), "id", "[", "][id]")), ExternalLinkTarget("id","http://foo/",None)))
   }
   
 

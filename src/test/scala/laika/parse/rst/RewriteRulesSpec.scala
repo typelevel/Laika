@@ -150,7 +150,7 @@ class RewriteRulesSpec extends FlatSpec
 
   
   "The rewrite rules for link references" should "resolve external link references" in {
-    val document = doc(p(simpleLinkRef()), LinkDefinition("id", "http://foo/"))
+    val document = doc(p(simpleLinkRef()), ExternalLinkTarget("id", "http://foo/"))
     rewritten (document) should be (doc(p(simpleLink("http://foo/"))))
   }
   
@@ -165,7 +165,7 @@ class RewriteRulesSpec extends FlatSpec
   }
   
   it should "resolve anonymous link references" in {
-    val document = doc(p(simpleLinkRef(""), simpleLinkRef("")), LinkDefinition("", "http://foo/"), LinkDefinition("", "http://bar/"))
+    val document = doc(p(simpleLinkRef(""), simpleLinkRef("")), ExternalLinkTarget("", "http://foo/"), ExternalLinkTarget("", "http://bar/"))
     rewritten (document) should be (doc(p(simpleLink("http://foo/"), simpleLink("http://bar/"))))
   }
   

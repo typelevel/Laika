@@ -127,7 +127,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   /** Parses Markdown blocks which are only recognized on the top document
    *  level, not nested inside other blocks.
    */
-  def topLevelMarkdownBlock: Parser[Block] = linkDefinition
+  def topLevelMarkdownBlock: Parser[Block] = linkTarget
  
   
   def topLevelBlock: Parser[Block] = standardMarkdownBlock(0) | topLevelMarkdownBlock | paragraph 
