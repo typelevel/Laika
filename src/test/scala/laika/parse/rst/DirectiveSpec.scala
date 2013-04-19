@@ -43,7 +43,7 @@ class DirectiveSpec extends FlatSpec
   
   def invalid (input: String, error: String) = 
     InvalidBlock(SystemMessage(laika.tree.Elements.Error, error), 
-        CodeBlock(input.replaceAll("\n ","\n").replaceAll("::$",":: ").replaceAll("::\n",":: \n")))
+        LiteralBlock(input.replaceAll("\n ","\n").replaceAll("::$",":: ").replaceAll("::\n",":: \n")))
   
   def positiveInt (input: String) = 
     try {

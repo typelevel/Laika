@@ -33,7 +33,7 @@ trait ModelBuilder {
   
   def txt (content: String) = Text(content)
   
-  def code (content: String) = CodeSpan(content)
+  def lit (content: String) = Literal(content)
    
   def link (content: Span*) = new LinkBuilder(content.toList)
   
@@ -136,7 +136,7 @@ trait ModelBuilder {
   def quote (text: String, attribution: String) = QuotedBlock(List(fc(text)), List(txt(attribution))) 
   
   
-  def codeBlock (content: String) = CodeBlock(content)
+  def litBlock (content: String) = LiteralBlock(content)
   
   
   def h (level: Int, content: Span*) = Header(level, content.toList)

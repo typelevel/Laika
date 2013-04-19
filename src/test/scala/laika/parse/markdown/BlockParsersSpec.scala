@@ -222,7 +222,7 @@ class BlockParsersSpec extends FlatSpec
   
   
   
-  "The code block parser" should "parse paragraphs indented with 4 or more spaces as a code block" in {
+  "The literal block parser" should "parse paragraphs indented with 4 or more spaces as a code block" in {
     val input = """    code
       |
       |text
@@ -232,7 +232,7 @@ class BlockParsersSpec extends FlatSpec
       |text
       |
       |    code""".stripMargin
-    Parsing (input) should produce (doc( codeBlock("code"), p("text"), codeBlock("code"), p("text"), codeBlock("code")))
+    Parsing (input) should produce (doc( litBlock("code"), p("text"), litBlock("code"), p("text"), litBlock("code")))
   }
   
   it should "parse paragraphs indented with 1 or more tabs as a code block" in {
@@ -245,7 +245,7 @@ class BlockParsersSpec extends FlatSpec
       |text
       |
       |	code""".stripMargin
-    Parsing (input) should produce (doc( codeBlock("code"), p("text"), codeBlock("code"), p("text"), codeBlock("code")))
+    Parsing (input) should produce (doc( litBlock("code"), p("text"), litBlock("code"), p("text"), litBlock("code")))
   }
   
   it should "parse indented lines separated by blank lines into a single code block" in {
@@ -254,7 +254,7 @@ class BlockParsersSpec extends FlatSpec
       |    code 2
       |
       |    code 3""".stripMargin
-    Parsing (input) should produce (doc( codeBlock("code 1\n\ncode 2\n\ncode 3")))
+    Parsing (input) should produce (doc( litBlock("code 1\n\ncode 2\n\ncode 3")))
   }
   
   
@@ -317,7 +317,7 @@ class BlockParsersSpec extends FlatSpec
       |bbb
       |
       |##### CCC `DDD` EEE""".stripMargin
-    Parsing (input) should produce (doc( p("aaa\nbbb"), h(5, txt("CCC "), code("DDD"), txt(" EEE"))))
+    Parsing (input) should produce (doc( p("aaa\nbbb"), h(5, txt("CCC "), lit("DDD"), txt(" EEE"))))
   }
   
   it should "strip all trailing '#' from the header" in {
@@ -457,7 +457,7 @@ class BlockParsersSpec extends FlatSpec
     val input = """[def]: <http://foo/> 
                   |
                   |       (Some Title)""".stripMargin
-    Parsing (input) should produce (doc( LinkDefinition("def", "http://foo/", None), codeBlock("   (Some Title)")))
+    Parsing (input) should produce (doc( LinkDefinition("def", "http://foo/", None), litBlock("   (Some Title)")))
   }
   
   
@@ -468,7 +468,7 @@ class BlockParsersSpec extends FlatSpec
       |
       |        code
       |* ccc""".stripMargin
-    Parsing (input) should produce (doc( bl( bli( fc("aaa")), bli( p("bbb"), codeBlock("code")), bli( fc("ccc")))))
+    Parsing (input) should produce (doc( bl( bli( fc("aaa")), bli( p("bbb"), litBlock("code")), bli( fc("ccc")))))
   }
   
   it should "parse a blockquote nested inside a list" in {
@@ -495,7 +495,7 @@ class BlockParsersSpec extends FlatSpec
       |>    code
       |>
       |>ccc""".stripMargin
-    Parsing (input) should produce (doc( quote( p("aaa\nbbb"), codeBlock("code"), p("ccc"))))
+    Parsing (input) should produce (doc( quote( p("aaa\nbbb"), litBlock("code"), p("ccc"))))
   }
 
 

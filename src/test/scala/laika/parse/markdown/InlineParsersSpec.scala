@@ -103,23 +103,23 @@ class InlineParsersSpec extends FlatSpec
   
   
   "The code parser" should "parse content enclosed in ` at the beginning of a phrase" in {
-    Parsing ("`some` text") should produce (spans(code("some"),txt(" text")))
+    Parsing ("`some` text") should produce (spans(lit("some"),txt(" text")))
   }
   
   it should "parse content enclosed in ` at the end of a phrase" in {
-    Parsing ("some `text`") should produce (spans(txt("some "),code("text")))
+    Parsing ("some `text`") should produce (spans(txt("some "),lit("text")))
   }
   
   it should "parse content enclosed in ` in the middle of a phrase" in {
-    Parsing ("some `text` here") should produce (spans(txt("some "),code("text"),txt(" here")))
+    Parsing ("some `text` here") should produce (spans(txt("some "),lit("text"),txt(" here")))
   }
   
   it should "parse content enclosed in ` when it spans the entire phrase" in {
-    Parsing ("`text`") should produce (spans(code("text")))
+    Parsing ("`text`") should produce (spans(lit("text")))
   }
   
   it should "treat a ` character as markup even when it is enclosed in spaces" in {
-    Parsing ("some ` text ` here") should produce (spans(txt("some "),code(" text "),txt(" here")))
+    Parsing ("some ` text ` here") should produce (spans(txt("some "),lit(" text "),txt(" here")))
   }
   
   it should "ignore a ` character when it is not matched by a second `" in {
@@ -127,17 +127,17 @@ class InlineParsersSpec extends FlatSpec
   }
   
   it should "not treat a single ` as markup when the code span is enclosed in double ``" in {
-    Parsing ("some ``text`text`` here") should produce (spans(txt("some "),code("text`text"),txt(" here")))
+    Parsing ("some ``text`text`` here") should produce (spans(txt("some "),lit("text`text"),txt(" here")))
   }
   
   
   
   "The span parser" should "allow nesting of spans, in this case a code span inside emphasized text" in {
-    Parsing ("some *nested `code` span* here") should produce (spans(txt("some "),em(txt("nested "),code("code"),txt(" span")),txt(" here")))
+    Parsing ("some *nested `code` span* here") should produce (spans(txt("some "),em(txt("nested "),lit("code"),txt(" span")),txt(" here")))
   }
   
   it should "ignore the attempt to close an outer span inside an inner span" in {
-    Parsing ("some *nested `code* span` here") should produce (spans(txt("some *nested "),code("code* span"),txt(" here")))
+    Parsing ("some *nested `code* span` here") should produce (spans(txt("some *nested "),lit("code* span"),txt(" here")))
   }
   
   

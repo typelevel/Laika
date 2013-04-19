@@ -119,14 +119,14 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
       case BulletList(content,_)      => out <<         "<ul>" <<|>  content <<| "</ul>"
       case EnumList(content,format,start) => 
         out << "<ol" <<@ ("class", format.enumType.toString.toLowerCase) <<@ ("start", noneIfDefault(start,1)) << ">" <<|> content <<| "</ol>"
-      case CodeBlock(content)         => out <<  "<code><pre>" <<<&  content <<  "</pre></code>"
+      case LiteralBlock(content)      => out <<  "<code><pre>" <<<&  content <<  "</pre></code>"
       case Section(header, content)   => out <<         header <<|   content
       case Paragraph(content)         => out <<          "<p>" <<    content <<  "</p>"  
       case BulletListItem(content,_)  => out <<         "<li>"; blocks(content, "</li>") 
       case EnumListItem(content,_,_)  => out <<         "<li>"; blocks(content, "</li>") 
       case Emphasized(content)        => out <<         "<em>" <<    content <<  "</em>" 
       case Strong(content)            => out <<     "<strong>" <<    content <<   "</strong>" 
-      case CodeSpan(content)          => out <<       "<code>" <<<&  content <<   "</code>" 
+      case Literal(content)           => out <<       "<code>" <<<&  content <<   "</code>" 
       case Text(content)              => out                   <<&   content
       case FlowContent(content)       => out                   <<    content
       case BlockSequence(content)     => out                   <<    content

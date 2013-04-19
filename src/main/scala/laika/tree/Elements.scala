@@ -139,9 +139,9 @@ object Elements {
    */
   case class Paragraph (content: Seq[Span]) extends Block with SpanContainer[Paragraph]
     
-  /** A code block with simple text content.
+  /** A literal block with simple text content.
    */
-  case class CodeBlock (content: String) extends Block with TextContainer
+  case class LiteralBlock (content: String) extends Block with TextContainer
 
   /** A quoted block consisting of a list of blocks that may contain other
    *  nested quoted blocks and an attribution which may be empty.
@@ -318,9 +318,9 @@ object Elements {
    */
   case class Strong (content: Seq[Span]) extends Span with SpanContainer[Strong]
     
-  /** A code span containing plain text.
+  /** A span containing plain, unparsed text.
    */
-  case class CodeSpan (content: String) extends Span with TextContainer
+  case class Literal (content: String) extends Span with TextContainer
   
   /** A link element, with the span content representing the text (description) of the link.
    */

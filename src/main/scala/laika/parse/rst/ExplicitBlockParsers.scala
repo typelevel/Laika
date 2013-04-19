@@ -124,7 +124,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     
     ((prefix <~ ws) ~ spanDirective) ^^ { 
       case name ~ InvalidDirective(msg, source) => 
-        InvalidBlock(SystemMessage(laika.tree.Elements.Error, msg), CodeBlock(source.replaceFirst(".. ",".. |"+name+"| ")))
+        InvalidBlock(SystemMessage(laika.tree.Elements.Error, msg), LiteralBlock(source.replaceFirst(".. ",".. |"+name+"| ")))
       case name ~ content => SubstitutionDefinition(name, content) 
     }
   }
@@ -160,7 +160,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     
 
   private def replaceInvalidDirective (block: Block) = block match {
-    case InvalidDirective(msg, source) => InvalidBlock(SystemMessage(laika.tree.Elements.Error, msg), CodeBlock(source))
+    case InvalidDirective(msg, source) => InvalidBlock(SystemMessage(laika.tree.Elements.Error, msg), LiteralBlock(source))
     case other => other
   }
   

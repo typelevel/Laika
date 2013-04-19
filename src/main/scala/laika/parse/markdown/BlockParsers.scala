@@ -115,14 +115,14 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    */
   def standardMarkdownBlock (nestLevel: Int): Parser[Block] = 
     atxHeader | setextHeader | (insignificantSpaces ~> 
-      (codeBlock | quotedBlock(nestLevel) | rule | bulletList(nestLevel) | enumList(nestLevel)))
+      (literalBlock | quotedBlock(nestLevel) | rule | bulletList(nestLevel) | enumList(nestLevel)))
 
   /** Parses Markdown blocks, except normal paragraphs, blocks that deal with verbatim HTML
    *  and blocks that allow nesting of blocks. Only used in rare cases when the maximum
    *  nest level allowed had been reached
    */
   def nonRecursiveMarkdownBlock: Parser[Block] = 
-    atxHeader | setextHeader | (insignificantSpaces ~> (codeBlock | rule ))
+    atxHeader | setextHeader | (insignificantSpaces ~> (literalBlock | rule ))
 
   /** Parses Markdown blocks which are only recognized on the top document
    *  level, not nested inside other blocks.
@@ -176,10 +176,10 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   }
   
   
-  /** Parses a code block, text indented by a tab or 4 spaces.
+  /** Parses a literal block, text indented by a tab or 4 spaces.
    */
-  val codeBlock: Parser[CodeBlock] = {
-    mdBlock(tabOrSpace, tabOrSpace, tabOrSpace) ^^ { lines => new CodeBlock(lines.mkString("\n")) }
+  val literalBlock: Parser[LiteralBlock] = {
+    mdBlock(tabOrSpace, tabOrSpace, tabOrSpace) ^^ { lines => new LiteralBlock(lines.mkString("\n")) }
   }
   
   

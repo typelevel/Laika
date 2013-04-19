@@ -194,7 +194,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-literals]].
    */
-  lazy val inlineLiteral = markupStart('`', "``") ~> anyUntil(markupEnd("``")) ^^ CodeSpan
+  lazy val inlineLiteral = markupStart('`', "``") ~> anyUntil(markupEnd("``")) ^^ Literal
   
   
   /** Represent a reference name.

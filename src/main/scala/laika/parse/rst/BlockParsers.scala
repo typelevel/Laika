@@ -230,9 +230,9 @@ trait BlockParsers extends BlockBaseParsers
    */
   def literalBlock: Parser[Block] = {
     val indented = varIndentedBlock(firstLineIndented = true) ^^ 
-      { block => CodeBlock(block.lines mkString "\n") }
+      { block => LiteralBlock(block.lines mkString "\n") }
     val quoted = block(guard(punctuationChar min 1), guard(punctuationChar min 1), failure("blank line always ends quoted block")) ^^ 
-      { lines => CodeBlock(lines mkString "\n") }  
+      { lines => LiteralBlock(lines mkString "\n") }  
     indented | quoted
   }
   

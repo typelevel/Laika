@@ -58,21 +58,21 @@ class BlockParsersSpec extends FlatSpec
       |::
       |
       |  Literal Block""".stripMargin
-    Parsing (input) should produce (doc (p("Paragraph:"), CodeBlock("Literal Block")))  
+    Parsing (input) should produce (doc (p("Paragraph:"), LiteralBlock("Literal Block")))  
   }
   
   it should "parse an indented literal block in partially minimized form" in {
     val input = """Paragraph: ::
       |
       |  Literal Block""".stripMargin
-    Parsing (input) should produce (doc (p("Paragraph:"), CodeBlock("Literal Block")))  
+    Parsing (input) should produce (doc (p("Paragraph:"), LiteralBlock("Literal Block")))  
   }
   
   it should "parse an indented literal block in fully minimized form" in {
     val input = """Paragraph::
       |
       |  Literal Block""".stripMargin
-    Parsing (input) should produce (doc (p("Paragraph:"), CodeBlock("Literal Block")))  
+    Parsing (input) should produce (doc (p("Paragraph:"), LiteralBlock("Literal Block")))  
   }
   
   it should "parse a quoted literal block in expanded form" in {
@@ -81,21 +81,21 @@ class BlockParsersSpec extends FlatSpec
       |::
       |
       |> Literal Block""".stripMargin
-    Parsing (input) should produce (doc (p("Paragraph:"), CodeBlock("> Literal Block")))  
+    Parsing (input) should produce (doc (p("Paragraph:"), LiteralBlock("> Literal Block")))  
   }
   
   it should "parse a quoted literal block in partially minimized form" in {
     val input = """Paragraph: ::
       |
       |> Literal Block""".stripMargin
-    Parsing (input) should produce (doc (p("Paragraph:"), CodeBlock("> Literal Block")))  
+    Parsing (input) should produce (doc (p("Paragraph:"), LiteralBlock("> Literal Block")))  
   }
   
   it should "parse a quoted literal block in fully minimized form" in {
     val input = """Paragraph::
       |
       |> Literal Block""".stripMargin
-    Parsing (input) should produce (doc (p("Paragraph:"), CodeBlock("> Literal Block")))  
+    Parsing (input) should produce (doc (p("Paragraph:"), LiteralBlock("> Literal Block")))  
   }
   
   it should "parse an indented literal block with blank lines" in {
@@ -104,7 +104,7 @@ class BlockParsersSpec extends FlatSpec
       |    Line 1
       |
       |  Line 2""".stripMargin
-    Parsing (input) should produce (doc (p("Paragraph:"), CodeBlock("  Line 1\n\nLine 2")))  
+    Parsing (input) should produce (doc (p("Paragraph:"), LiteralBlock("  Line 1\n\nLine 2")))  
   }
   
   

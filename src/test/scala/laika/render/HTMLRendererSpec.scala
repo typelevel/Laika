@@ -321,7 +321,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a paragraph containing a code span" in {
-    val elem = p(txt("some "), code("code"), txt(" span"))
+    val elem = p(txt("some "), lit("code"), txt(" span"))
     render (elem) should be ("<p>some <code>code</code> span</p>") 
   }
   
@@ -424,7 +424,7 @@ class HTMLRendererSpec extends FlatSpec
       |    <line 2
       |
       |line 3""".stripMargin
-    val elem = codeBlock(code)
+    val elem = litBlock(code)
     render (elem) should be ("<code><pre>" + code.replaceAllLiterally("<", "&lt;") + "</pre></code>") 
   }
   
@@ -437,7 +437,7 @@ class HTMLRendererSpec extends FlatSpec
     val html = """<blockquote>
       |  <code><pre>%s</pre></code>
       |</blockquote>""".stripMargin.format(code)
-    val elem = quote(codeBlock(code))
+    val elem = quote(litBlock(code))
     render (elem) should be (html) 
   }
   

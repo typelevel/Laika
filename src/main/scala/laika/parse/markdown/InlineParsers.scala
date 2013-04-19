@@ -51,7 +51,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   protected def newSpanParserMap = Map(
     '*' -> (strong('*') | em('*')),    
     '_' -> (strong('_') | em('_')),
-    '`' -> (codeEnclosedByDoubleChar | codeEnclosedBySingleChar), 
+    '`' -> (literalEnclosedByDoubleChar | literalEnclosedBySingleChar), 
     '\\'-> (lineBreak | (escapedChar ^^ { Text(_) })),
     '[' -> link,
     '<' -> simpleLink,
@@ -109,22 +109,22 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
     span(start, end)
   }
   
-  /** Parses a code span enclosed by a single backtick.
+  /** Parses a literal span enclosed by a single backtick.
    *  Does neither parse nested spans nor Markdown escapes. 
    */
-  def codeEnclosedBySingleChar = { 
+  def literalEnclosedBySingleChar = { 
     val start = not('`')
     val end = '`'
-    start ~> anyUntil(end) ^^ { CodeSpan(_) }
+    start ~> anyUntil(end) ^^ { Literal(_) }
   }
   
-  /** Parses a code span enclosed by double backticks.
+  /** Parses a literal span enclosed by double backticks.
    *  Does neither parse nested spans nor Markdown escapes. 
    */
-  def codeEnclosedByDoubleChar = {
+  def literalEnclosedByDoubleChar = {
     val start = '`'
     val end = "``"
-    start ~> anyUntil(end) ^^ { CodeSpan(_) }
+    start ~> anyUntil(end) ^^ { Literal(_) }
   }
   
   
