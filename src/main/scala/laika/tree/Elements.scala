@@ -112,28 +112,22 @@ object Elements {
    */
   case class Header (level: Int, content: Seq[Span]) extends Block with SpanContainer[Header]
    
-  /** A generic flow content element containing a list of spans. Structurally similar
-   *  to a paragraph, but semantically an element that does not necessarily represent a 
-   *  full paragraph. Used inside simple list items for example, but usually not as
-   *  a top level block element. It is also special in that it mixes in both the Span
-   *  and Block trait, making it a hybrid element that can be used anywhere a SpanContainer
-   *  is needed.
-   */
-  case class FlowContent (content: Seq[Span]) extends Block with Span with SpanContainer[FlowContent]
   
   /** A generic container element containing a list of blocks. Can be used where a sequence
-   *  of blocks must be inserted in a place where a single element is required by the API for example.
+   *  of blocks must be inserted in a place where a single element is required by the API.
    *  Usually renderers do not treat the container as a special element and render its children
    *  as s sub flow of the parent container.
    */
   case class BlockSequence (content: Seq[Block]) extends Block with BlockContainer[BlockSequence]
   
   /** A generic container element containing a list of spans. Can be used where a sequence
-   *  of spans must be inserted in a place where a single element is required by the API for example.
+   *  of spans must be inserted in a place where a single element is required by the API.
    *  Usually renderers do not treat the container as a special element and render its children
-   *  as s sub flow of the parent container.
+   *  as s sub flow of the parent container. A span sequence is special in that in can be
+   *  used as both a span and a block.
    */
-  case class SpanSequence (content: Seq[Span]) extends Span with SpanContainer[SpanSequence]
+  case class SpanSequence (content: Seq[Span]) extends Block with Span with SpanContainer[SpanSequence]
+
   
   /** A paragraph consisting of span elements.
    */

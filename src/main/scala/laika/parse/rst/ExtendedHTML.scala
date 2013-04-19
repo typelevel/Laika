@@ -62,7 +62,7 @@ class ExtendedHTML extends (HTMLWriter => PartialFunction[Element, Unit]) {
   /** Converts a `FieldList` to an interim table model for rendering.
    */
   def toTable (fl: FieldList) = {
-    def name (value: Seq[Span]) = Cell(BodyCell, List(FlowContent(value :+ Text(":"))))
+    def name (value: Seq[Span]) = Cell(BodyCell, List(SpanSequence(value :+ Text(":"))))
     def body (value: Seq[Block]) = Cell(BodyCell, value)
     val rows = fl.content map (f => Row(List(name(f.name),body(f.content))))
     StyledTable(TableHead(Nil), TableBody(rows), List("field-list"), 

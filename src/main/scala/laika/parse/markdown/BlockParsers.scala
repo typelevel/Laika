@@ -141,25 +141,25 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   /** Parses blocks that may appear inside a list item.
    */
   def listItemBlocks (nestLevel: Int) = 
-    if (nestLevel < maxNestLevel) (standardMarkdownBlock(nestLevel) | flowContent | preserveBlankLines) *
-    else (nonRecursiveMarkdownBlock | flowContent | preserveBlankLines) *
+    if (nestLevel < maxNestLevel) (standardMarkdownBlock(nestLevel) | spanSequence | preserveBlankLines) *
+    else (nonRecursiveMarkdownBlock | spanSequence | preserveBlankLines) *
   
 
   /** Parses a single paragraph. Everything between two blank lines that is not
    *  recognized as a special Markdown block type will be parsed as a regular paragraph.
    */
   def paragraph: Parser[Paragraph] = 
-    (flowLine +) ^^ { lines => Paragraph(parseInline(linesToString(lines))) }
+    (plainText +) ^^ { lines => Paragraph(parseInline(linesToString(lines))) }
 
-  /** Parses flow content, a block type which may be used inside list items
+  /** Parses a span sequence, a block type which may be used inside list items
    *  to differentiate it from full paragraphs inside list items.
    */
-  def flowContent: Parser[FlowContent] = 
-    (flowLine +) ^^ { lines => FlowContent(parseInline(linesToString(lines))) }
+  def spanSequence: Parser[SpanSequence] = 
+    (plainText +) ^^ { lines => SpanSequence(parseInline(linesToString(lines))) }
   
    /** Parses a single line of regular flow content.
     */
-  def flowLine: Parser[String] = 
+  def plainText: Parser[String] = 
     not(blankLine | bulletListItemStart | enumListItemStart) ~> restOfLine
   
   
@@ -220,16 +220,18 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
         case None ~ _     => false
       }
       def rewriteItemContent (blocks: List[Block], pos: Int) = {
-        newItem(pos, ((List[Block](), false) /: blocks) { 
-          /* Promoting FlowContent to Paragraph if the list has any blank lines between list items or if it is adjacent
+        val rewritten = ((List[Block](), false) /: blocks) { 
+          /* Promoting SpanSequence to Paragraph if the list has any blank lines between list items or if it is adjacent
              to blank lines within the list item itself. This is ugly, but forced by the (in this respect odd) design of Markdown. 
              The second (boolean) value in the accumulator tuple signals whether the previous item represented one or more blank lines */
-          case ((FlowContent(content) :: xs,_), BlankLines)     => (Paragraph(content) :: xs, true)
-          case ((xs,true), FlowContent(content))                => (Paragraph(content) :: xs, false)
-          case ((xs,_), FlowContent(content)) if hasBlankLines  => (Paragraph(content) :: xs, false)
-          case ((xs,_), BlankLines)                             => (xs, true)
-          case ((xs,_), item)                                   => (item :: xs, false)
-        }._1.reverse)
+          case ((SpanSequence(content) :: xs,_), BlankLines)     => (Paragraph(content) :: xs, true)
+          case ((xs,true), SpanSequence(content))                => (Paragraph(content) :: xs, false)
+          case ((xs,_), SpanSequence(content)) if hasBlankLines  => (Paragraph(content) :: xs, false)
+          case ((xs,_), BlankLines)                              => (xs, true)
+          case ((xs,_), item)                                    => (item :: xs, false)
+        }._1.reverse
+        
+        newItem(pos,rewritten)
       } 
       val pos = Stream.from(1).iterator
       items map { item => rewriteItemContent(item._2, pos.next) } 

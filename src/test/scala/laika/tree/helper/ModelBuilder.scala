@@ -74,9 +74,9 @@ trait ModelBuilder {
   
   def p (text: String) = Paragraph(List(Text(text)))
   
-  def fc (spans: Span*) = FlowContent(spans.toList)
+  def ss (spans: Span*) = SpanSequence(spans.toList)
   
-  def fc (text: String) = FlowContent(List(Text(text)))
+  def ss (text: String) = SpanSequence(List(Text(text)))
   
 
   def bl (items: BulletListItem*) = BulletList(items.toList, StringBullet("*"))
@@ -88,13 +88,13 @@ trait ModelBuilder {
   def el (format: EnumFormat, start: Int, items: ListItem*) = 
     EnumList(items.toList, format, start)
 
-  def bli (text: String) = BulletListItem(List(fc(txt(text))), StringBullet("*"))
+  def bli (text: String) = BulletListItem(List(ss(txt(text))), StringBullet("*"))
 
-  def bli (bullet: String, text: String) = BulletListItem(List(fc(txt(text))), StringBullet(bullet))
+  def bli (bullet: String, text: String) = BulletListItem(List(ss(txt(text))), StringBullet(bullet))
 
-  def eli (pos: Int, text: String) = EnumListItem(List(fc(txt(text))), EnumFormat(), pos)
+  def eli (pos: Int, text: String) = EnumListItem(List(ss(txt(text))), EnumFormat(), pos)
 
-  def eli (format: EnumFormat, pos: Int, text: String) = EnumListItem(List(fc(txt(text))), format, pos)
+  def eli (format: EnumFormat, pos: Int, text: String) = EnumListItem(List(ss(txt(text))), format, pos)
     
   def bli (blocks: Block*) = BulletListItem(blocks.toList, StringBullet("*"))
 
@@ -113,9 +113,9 @@ trait ModelBuilder {
   
   def row (cells: Cell*) = Row(cells.toList)
   
-  def cell (content: String, colspan: Int, rowspan: Int) = Cell(BodyCell, List(fc(txt(content))), colspan, rowspan)
+  def cell (content: String, colspan: Int, rowspan: Int) = Cell(BodyCell, List(ss(txt(content))), colspan, rowspan)
   
-  def cell (content: String): Cell = cell(fc(txt(content)))
+  def cell (content: String): Cell = cell(ss(txt(content)))
   
   def cell (content: Block*): Cell = Cell(BodyCell, content.toList)
   
@@ -133,7 +133,7 @@ trait ModelBuilder {
   
   def quote (text: String) = QuotedBlock(List(p(text)), Nil) 
 
-  def quote (text: String, attribution: String) = QuotedBlock(List(fc(text)), List(txt(attribution))) 
+  def quote (text: String, attribution: String) = QuotedBlock(List(ss(text)), List(txt(attribution))) 
   
   
   def litBlock (content: String) = LiteralBlock(content)

@@ -171,17 +171,17 @@ class RewriteRulesSpec extends FlatSpec
   
   it should "replace an unresolvable reference with an invalid span" in {
     val document = doc(p(simpleLinkRef()))
-    rewritten (document) should be (doc(p(invalidSpan("unresolved link reference: id", FlowContent(List(txt(""), txt("text"), txt("")))))))
+    rewritten (document) should be (doc(p(invalidSpan("unresolved link reference: id", SpanSequence(List(txt(""), txt("text"), txt("")))))))
   }
   
   it should "replace a surplus anonymous reference with an invalid span" in {
     val document = doc(p(simpleLinkRef("")))
-    rewritten (document) should be (doc(p(invalidSpan("too many anonymous link references", FlowContent(List(txt(""), txt("text"), txt("")))))))
+    rewritten (document) should be (doc(p(invalidSpan("too many anonymous link references", SpanSequence(List(txt(""), txt("text"), txt("")))))))
   }
   
   it should "replace circular indirect references with invalid spans" in {
     val document = doc(p(simpleLinkRef()), IndirectLinkTarget("id",simpleLinkRef("ref")), IndirectLinkTarget("ref",simpleLinkRef("id")))
-    rewritten (document) should be (doc(p(invalidSpan("circular link reference: id", FlowContent(List(txt(""), txt("text"), txt("")))))))
+    rewritten (document) should be (doc(p(invalidSpan("circular link reference: id", SpanSequence(List(txt(""), txt("text"), txt("")))))))
   }
 
   

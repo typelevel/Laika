@@ -242,11 +242,11 @@ object RewriteRules {
         case Some(ExternalLinkTarget(id, url, title)) => Link(ref.content, url, title)
         case Some(InternalLinkTarget(id))         => Link(ref.content, "#"+id)
         case Some(InvalidLinkTarget(id, msg))     => 
-          InvalidSpan(msg, FlowContent(Text(ref.inputPrefix) :: ref.content.toList ::: Text(ref.inputPostfix) :: Nil))
+          InvalidSpan(msg, SpanSequence(Text(ref.inputPrefix) :: ref.content.toList ::: Text(ref.inputPostfix) :: Nil))
         case None                                 =>
           val msg = if (ref.id.isEmpty) "too many anonymous link references" else "unresolved link reference: " + ref.id
           InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), 
-              FlowContent(Text(ref.inputPrefix) :: ref.content.toList ::: Text(ref.inputPostfix) :: Nil))
+              SpanSequence(Text(ref.inputPrefix) :: ref.content.toList ::: Text(ref.inputPostfix) :: Nil))
       })
       
       case _: SubstitutionDefinition   => None

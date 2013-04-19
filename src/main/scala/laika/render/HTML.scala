@@ -79,7 +79,7 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
   def toTable (cit: Citation): StyledTable = toTable(cit.label,cit.label,cit.content)
   
   def toTable (id: String, label: String, content: Seq[Block]): StyledTable = {
-    val left = Cell(BodyCell, List(FlowContent(List(Text("["+label+"]")))))
+    val left = Cell(BodyCell, List(SpanSequence(List(Text("["+label+"]")))))
     val right = Cell(BodyCell, content)
     val row = Row(List(left,right))
     StyledTable(TableHead(Nil), TableBody(List(row)), List("footnote"), 
@@ -109,8 +109,8 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
     }
     
     def blocks (blocks: Seq[Block], close: String) = blocks match {
-      case fl @ FlowContent(_) :: Nil => out << fl << close
-      case other                      => out <<|> other <<| close
+      case ss @ SpanSequence(_) :: Nil => out << ss << close
+      case other                       => out <<|> other <<| close
     }
     
     elem match {
@@ -128,7 +128,7 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
       case Strong(content)            => out <<     "<strong>" <<    content <<   "</strong>" 
       case Literal(content)           => out <<       "<code>" <<<&  content <<   "</code>" 
       case Text(content)              => out                   <<&   content
-      case FlowContent(content)       => out                   <<    content
+      case SpanSequence(content)      => out                   <<    content
       case BlockSequence(content)     => out                   <<    content
       case Rule                       => out << "<hr>"
       case LineBreak                  => out << "<br>"
