@@ -64,8 +64,8 @@ class HTMLRendererSpec extends FlatSpec
     render (elem) should be (html) 
   }
   
-  it should "render an unordered list with simple flow content" in {
-    val elem = ul( li( fc("aaa")), li( fc("bbb")))
+  it should "render a bullet list with simple flow content" in {
+    val elem = bl( bli( fc("aaa")), bli( fc("bbb")))
     val html = """<ul>
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -73,8 +73,8 @@ class HTMLRendererSpec extends FlatSpec
     render (elem) should be (html) 
   }
   
-  it should "render an ordered list with simple flow content" in {
-    val elem = ol( li( fc("aaa")), li( fc("bbb")))
+  it should "render an enumerated list with simple flow content" in {
+    val elem = el( eli(1, fc("aaa")), eli(2, fc("bbb")))
     val html = """<ol class="arabic">
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -82,8 +82,8 @@ class HTMLRendererSpec extends FlatSpec
     render (elem) should be (html) 
   }
   
-  it should "render an ordered list with lower roman enumeration style" in {
-    val elem = ol(LowerRoman, "", ".", 1, li( fc("aaa")), li( fc("bbb")))
+  it should "render an enumerated list with lower roman enumeration style" in {
+    val elem = el(EnumFormat(LowerRoman, "", "."), 1, eli(1, fc("aaa")), eli(2, fc("bbb")))
     val html = """<ol class="lowerroman">
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -91,8 +91,8 @@ class HTMLRendererSpec extends FlatSpec
     render (elem) should be (html) 
   }
   
-  it should "render an ordered list with upper roman enumeration style" in {
-    val elem = ol(UpperRoman, "", ".", 1, li( fc("aaa")), li( fc("bbb")))
+  it should "render an enumerated list with upper roman enumeration style" in {
+    val elem = el(EnumFormat(UpperRoman, "", "."), 1, eli(1, fc("aaa")), eli(2, fc("bbb")))
     val html = """<ol class="upperroman">
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -100,8 +100,8 @@ class HTMLRendererSpec extends FlatSpec
     render (elem) should be (html) 
   }
   
-  it should "render an ordered list with lower alpha enumeration style" in {
-    val elem = ol(LowerAlpha, "", ".", 1, li( fc("aaa")), li( fc("bbb")))
+  it should "render an enumerated list with lower alpha enumeration style" in {
+    val elem = el(EnumFormat(LowerAlpha, "", "."), 1, eli(1, fc("aaa")), eli(2, fc("bbb")))
     val html = """<ol class="loweralpha">
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -109,8 +109,8 @@ class HTMLRendererSpec extends FlatSpec
     render (elem) should be (html) 
   }
   
-  it should "render an ordered list with upper alpha enumeration style" in {
-    val elem = ol(UpperAlpha, "", ".", 1, li( fc("aaa")), li( fc("bbb")))
+  it should "render an enumerated list with upper alpha enumeration style" in {
+    val elem = el(EnumFormat(UpperAlpha, "", "."), 1, eli(1, fc("aaa")), eli(2, fc("bbb")))
     val html = """<ol class="upperalpha">
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -118,8 +118,8 @@ class HTMLRendererSpec extends FlatSpec
     render (elem) should be (html) 
   }
   
-  it should "render an ordered list with the start value if it is not 1" in {
-    val elem = ol(Arabic, "", ".", 7, li( fc("aaa")), li( fc("bbb")))
+  it should "render an enumerated list with the start value if it is not 1" in {
+    val elem = el(EnumFormat(Arabic, "", "."), 7, eli(7, fc("aaa")), eli(8, fc("bbb")))
     val html = """<ol class="arabic" start="7">
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -127,8 +127,8 @@ class HTMLRendererSpec extends FlatSpec
     render (elem) should be (html) 
   }
   
-  it should "render an unordered list with paragraphs as list items" in {
-    val elem = ul( li( p("aaa")), li( p("bbb")))
+  it should "render a bullet list with paragraphs as list items" in {
+    val elem = bl( bli( p("aaa")), bli( p("bbb")))
     val html = """<ul>
       |  <li>
       |    <p>aaa</p>
@@ -140,8 +140,8 @@ class HTMLRendererSpec extends FlatSpec
     render (elem) should be (html) 
   }
   
-  it should "render an ordered list with paragraphs as list items" in {
-    val elem = ol( li( p("aaa")), li( p("bbb")))
+  it should "render an enumerated list with paragraphs as list items" in {
+    val elem = el( eli(1, p("aaa")), eli(2, p("bbb")))
     val html = """<ol class="arabic">
       |  <li>
       |    <p>aaa</p>
@@ -154,7 +154,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a definition list with paragraphs" in {
-    val elem = dl(di("term 1", p("1"), p("1")), di("term 2", p("2"), p("2")))
+    val elem = dl(dli("term 1", p("1"), p("1")), dli("term 2", p("2"), p("2")))
     val html = """<dl>
       |  <dt>term 1</dt>
       |  <dd>
@@ -171,7 +171,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a definition list with simple flow content" in {
-    val elem = dl(di("term 1", fc("1")), di("term 2", fc("2")))
+    val elem = dl(dli("term 1", fc("1")), dli("term 2", fc("2")))
     val html = """<dl>
       |  <dt>term 1</dt>
       |  <dd>1</dd>

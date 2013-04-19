@@ -153,14 +153,14 @@ class TableParsersSpec extends FlatSpec
     val input = """+---+---------+
       || a | Text    |
       ||   |         |
-      ||   | - Line1 |
+      ||   | * Line1 |
       ||   |   Line2 |
       ||   |         |
-      ||   | - Line3 |
+      ||   | * Line3 |
       |+---+---------+
       || c | d       |
       |+---+---------+""".stripMargin
-    Parsing (input) should produce (doc( table(row(cell("a"), cell(p("Text"), ul(li(fc("Line1\nLine2")), li(fc("Line3"))))), strrow("c","d"))))
+    Parsing (input) should produce (doc( table(row(cell("a"), cell(p("Text"), bl(bli(fc("Line1\nLine2")), bli(fc("Line3"))))), strrow("c","d"))))
   }
   
   it should "parse tables with header cells" in {
@@ -211,14 +211,14 @@ class TableParsersSpec extends FlatSpec
     val input = """===  ===
       | a    Text
       |
-      |      - Line1
+      |      * Line1
       |        Line2
       |
-      |      - Line3
+      |      * Line3
       |
       | c    d
       |===  ===""".stripMargin
-    Parsing (input) should produce (doc( table(row(cell("a"), cell(p("Text"), ul(li(fc("Line1\nLine2")), li(fc("Line3"))))), strrow("c","d"))))
+    Parsing (input) should produce (doc( table(row(cell("a"), cell(p("Text"), bl(bli(fc("Line1\nLine2")), bli(fc("Line3"))))), strrow("c","d"))))
   }
   
   it should "parse tables with header cells" in {

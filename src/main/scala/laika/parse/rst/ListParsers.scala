@@ -30,32 +30,33 @@ import laika.util.RomanNumerals
 trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
 
   
-  private def listItem (itemStart: Parser[String]): Parser[ListItem] = {
+  private def listItem [I <: ListItem] (itemStart: Parser[String], newListItem: List[Block] => I): Parser[I] = {
       (itemStart ^^ {_.length}) ~ ((ws min 1) ^^ {_.length}) >> { 
         case start ~ ws => fixedIndentedBlock(start + ws) ^^
-          { block => ListItem(parseNestedBlocks(block)) }
+          { block => newListItem(parseNestedBlocks(block)) }
       } 
   }
   
   
-  /** Parses an unordered list with any of the supported bullet characters.
+  /** Parses a bullet list with any of the supported bullet characters.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#bullet-lists]].
    */
-  def unorderedList: Parser[UnorderedList] = {
+  def bulletList: Parser[BulletList] = {
     val itemStart = anyOf('*','-','+','\u2022','\u2023','\u2043').take(1)
     
     guard(itemStart <~ (ws min 1)) >> { symbol =>
-      ((listItem(symbol)) +) ^^ { UnorderedList(_) }
+      val bullet = StringBullet(symbol)
+      ((listItem(symbol, BulletListItem(_,bullet))) +) ^^ { BulletList(_,bullet) }
     }
   }
   
   
-  /** Parses an ordered list in any of the supported combinations of enumeration style and formatting.
+  /** Parses an enumerated list in any of the supported combinations of enumeration style and formatting.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#enumerated-lists]].
    */
-  def orderedList: Parser[OrderedList] = {
+  def enumList: Parser[EnumList] = {
     
     val firstLowerRoman = (anyOf('i','v','x','l','c','d','m').min(2) | anyOf('i').take(1)) ^^ 
       { num => (RomanNumerals.romanToInt(num.toUpperCase), LowerRoman) }
@@ -92,15 +93,16 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
     lazy val firstEnumType: Parser[(Int,EnumType)] = 
       firstAutoNumber | firstArabic | firstLowerAlpha | firstUpperAlpha | firstLowerRoman | firstUpperRoman
     
-    lazy val firstItemStart: Parser[(String, Int, EnumType, String)] = 
-      ('(' ~ firstEnumType ~ ')') ^^ { case prefix ~ enumType ~ suffix => (prefix.toString, enumType._1, enumType._2, suffix.toString) } | 
-      (firstEnumType ~ ')' | firstEnumType ~ '.') ^^ { case enumType ~ suffix => ("", enumType._1, enumType._2, suffix.toString) }
+    lazy val firstItemStart: Parser[(EnumFormat, Int)] = 
+      ('(' ~ firstEnumType ~ ')') ^^ { case prefix ~ enumType ~ suffix => (EnumFormat(enumType._2, prefix.toString, suffix.toString), enumType._1) } | 
+      (firstEnumType ~ ')' | firstEnumType ~ '.') ^^ { case enumType ~ suffix => (EnumFormat(enumType._2, "", suffix.toString), enumType._1) }
     
-    def itemStart (prefix: Parser[String], et: EnumType, suffix: Parser[String]): Parser[String] = 
-      (prefix ~ enumType(et) ~ suffix) ^^ { case prefix ~ enumType ~ suffix => prefix + enumType + suffix }
+    def itemStart (format: EnumFormat): Parser[String] = 
+      (format.prefix ~ enumType(format.enumType) ~ format.suffix) ^^ { case prefix ~ enumType ~ suffix => prefix + enumType + suffix }
       
-    guard(firstItemStart) >> { case (prefix, start, enumType, suffix) =>
-      (listItem(itemStart(prefix, enumType, suffix)) +) ^^ { OrderedList(_, enumType, prefix, suffix, start) }
+    guard(firstItemStart) >> { case (format, start) =>
+      val pos = Stream.from(start).iterator
+      (listItem(itemStart(format), EnumListItem(_, format, pos.next)) +) ^^ { EnumList(_, format, start) }
     }
   }
   

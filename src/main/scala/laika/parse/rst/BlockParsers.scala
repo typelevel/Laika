@@ -238,8 +238,8 @@ trait BlockParsers extends BlockBaseParsers
   
   def nonRecursiveBlock: Parser[Block] = comment | paragraph
   
-  def topLevelBlock: Parser[Block] = unorderedList | 
-                                     orderedList | 
+  def topLevelBlock: Parser[Block] = bulletList | 
+                                     enumList | 
                                      fieldList | 
                                      lineBlock |
                                      optionList | 

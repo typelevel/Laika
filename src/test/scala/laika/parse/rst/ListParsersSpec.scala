@@ -61,11 +61,11 @@ class ListParsersSpec extends FlatSpec
   
   
   
-  "The unordered list parser" should "parse items that are not separated by blank lines" in {
+  "The bullet list parser" should "parse items that are not separated by blank lines" in {
     val input = """* aaa
       |* bbb
       |* ccc""".stripMargin
-    Parsing (input) should produce (doc( ul( li("aaa"), li("bbb"), li("ccc"))))
+    Parsing (input) should produce (doc( bl( bli("aaa"), bli("bbb"), bli("ccc"))))
   }
   
   it should "parse items that are separated by blank lines" in {
@@ -74,21 +74,21 @@ class ListParsersSpec extends FlatSpec
       |* bbb
       |
       |* ccc""".stripMargin
-    Parsing (input) should produce (doc( ul( li("aaa"), li("bbb"), li("ccc"))))
+    Parsing (input) should produce (doc( bl( bli("aaa"), bli("bbb"), bli("ccc"))))
   }
   
   it should "parse items starting with a '+' the same way as those starting with a '*'" in {
     val input = """+ aaa
       |+ bbb
       |+ ccc""".stripMargin
-    Parsing (input) should produce (doc( ul( li("aaa"), li("bbb"), li("ccc"))))
+    Parsing (input) should produce (doc( bl("+", bli("+","aaa"), bli("+","bbb"), bli("+","ccc"))))
   }
   
   it should "parse items starting with a '-' the same way as those starting with a '*'" in {
     val input = """- aaa
       |- bbb
       |- ccc""".stripMargin
-    Parsing (input) should produce (doc( ul( li("aaa"), li("bbb"), li("ccc"))))
+    Parsing (input) should produce (doc( bl("-", bli("-","aaa"), bli("-","bbb"), bli("-","ccc"))))
   }
   
   it should "parse items containing multiple paragraphs in a single item" in {
@@ -100,7 +100,7 @@ class ListParsersSpec extends FlatSpec
       |* ccc
       |
       |* ddd""".stripMargin
-    Parsing (input) should produce (doc( ul( li( p("aaa"), p("bbb\nbbb")), li("ccc"), li("ddd"))))
+    Parsing (input) should produce (doc( bl( bli( p("aaa"), p("bbb\nbbb")), bli("ccc"), bli("ddd"))))
   }
   
   it should "parse nested items indented by spaces" in {
@@ -109,90 +109,101 @@ class ListParsersSpec extends FlatSpec
                   |  * bbb
                   |
                   |    * ccc""".stripMargin
-    val list3 = ul( li("ccc"))
-    val list2 = ul( li( p("bbb"), list3))
-    val list1 = ul( li( p("aaa"), list2))
+    val list3 = bl( bli("ccc"))
+    val list2 = bl( bli( p("bbb"), list3))
+    val list1 = bl( bli( p("aaa"), list2))
     Parsing (input) should produce (doc(list1))
   }
   
   
-  "The ordered list parser" should "parse items with arabic enumeration style" in {
+  "The enumerated list parser" should "parse items with arabic enumeration style" in {
     val input = """1. aaa
       |2. bbb
       |3. ccc""".stripMargin
-    Parsing (input) should produce (doc( ol( li("aaa"), li("bbb"), li("ccc"))))
+    Parsing (input) should produce (doc( el( eli(1,"aaa"), eli(2,"bbb"), eli(3,"ccc"))))
   }
   
   it should "parse items with lowercase alphabetic enumeration style" in {
     val input = """a. aaa
       |b. bbb
       |c. ccc""".stripMargin
-    Parsing (input) should produce (doc( ol(LowerAlpha,"",".", 1, li("aaa"), li("bbb"), li("ccc"))))
+    val f = EnumFormat(LowerAlpha,"",".")
+    Parsing (input) should produce (doc( el(f, 1, eli(f,1,"aaa"), eli(f,2,"bbb"), eli(f,3,"ccc"))))
   }
   
   it should "parse items with uppercase alphabetic enumeration style" in {
     val input = """A. aaa
       |B. bbb
       |C. ccc""".stripMargin
-    Parsing (input) should produce (doc( ol(UpperAlpha,"",".", 1, li("aaa"), li("bbb"), li("ccc"))))
+    val f = EnumFormat(UpperAlpha,"",".")
+    Parsing (input) should produce (doc( el(f, 1, eli(f,1,"aaa"), eli(f,2,"bbb"), eli(f,3,"ccc"))))
   }
   
   it should "parse items with lowercase Roman enumeration style" in {
     val input = """i. aaa
       |ii. bbb
       |iii. ccc""".stripMargin
-    Parsing (input) should produce (doc( ol(LowerRoman,"",".", 1, li("aaa"), li("bbb"), li("ccc"))))
+    val f = EnumFormat(LowerRoman,"",".")
+    Parsing (input) should produce (doc( el(f, 1, eli(f,1,"aaa"), eli(f,2,"bbb"), eli(f,3,"ccc"))))
   }
   
   it should "parse items with uppercase Roman enumeration style" in {
     val input = """I. aaa
       |II. bbb
       |III. ccc""".stripMargin
-    Parsing (input) should produce (doc( ol(UpperRoman,"",".", 1, li("aaa"), li("bbb"), li("ccc"))))
+    val f = EnumFormat(UpperRoman,"",".")
+    Parsing (input) should produce (doc( el(f, 1, eli(f,1,"aaa"), eli(f,2,"bbb"), eli(f,3,"ccc"))))
   }
   
   it should "keep the right start value for arabic enumeration style" in {
     val input = """4. aaa
       |5. bbb""".stripMargin
-    Parsing (input) should produce (doc( ol(Arabic,"",".", 4, li("aaa"), li("bbb"))))
+    val f = EnumFormat(Arabic,"",".")
+    Parsing (input) should produce (doc( el(f, 4, eli(f,4,"aaa"), eli(f,5,"bbb"))))
   }
   
   it should "keep the right start value for lowercase alphabetic enumeration style" in {
     val input = """d. aaa
       |e. bbb""".stripMargin
-    Parsing (input) should produce (doc( ol(LowerAlpha,"",".", 4, li("aaa"), li("bbb"))))
+    val f = EnumFormat(LowerAlpha,"",".")
+    Parsing (input) should produce (doc( el(f, 4, eli(f,4,"aaa"), eli(f,5,"bbb"))))
   }
   
   it should "keep the right start value for uppercase alphabetic enumeration style" in {
     val input = """D. aaa
       |E. bbb""".stripMargin
-    Parsing (input) should produce (doc( ol(UpperAlpha,"",".", 4, li("aaa"), li("bbb"))))
+    val f = EnumFormat(UpperAlpha,"",".")
+    Parsing (input) should produce (doc( el(f, 4, eli(f,4,"aaa"), eli(f,5,"bbb"))))
   }
   
   it should "keep the right start value for lowercase Roman enumeration style" in {
     val input = """iv. aaa
       |v. bbb""".stripMargin
-    Parsing (input) should produce (doc( ol(LowerRoman,"",".", 4, li("aaa"), li("bbb"))))
+    val f = EnumFormat(LowerRoman,"",".")
+    Parsing (input) should produce (doc( el(f, 4, eli(f,4,"aaa"), eli(f,5,"bbb"))))
   }
   
   it should "keep the right start value for uppercase Roman enumeration style" in {
     val input = """IV. aaa
       |V. bbb""".stripMargin
-    Parsing (input) should produce (doc( ol(UpperRoman,"",".", 4, li("aaa"), li("bbb"))))
+    val f = EnumFormat(UpperRoman,"",".")
+    Parsing (input) should produce (doc( el(f, 4, eli(f,4,"aaa"), eli(f,5,"bbb"))))
   }
   
   it should "parse items suffixed by right-parenthesis" in {
     val input = """1) aaa
       |2) bbb
       |3) ccc""".stripMargin
-    Parsing (input) should produce (doc( ol(Arabic,"",")", 1, li("aaa"), li("bbb"), li("ccc"))))
+    val f = EnumFormat(Arabic,"",")")
+    Parsing (input) should produce (doc( el(f, 1, eli(f,1,"aaa"), eli(f,2,"bbb"), eli(f,3,"ccc"))))
   }
   
   it should "parse items surrounded by parenthesis" in {
     val input = """(1) aaa
       |(2) bbb
       |(3) ccc""".stripMargin
-    Parsing (input) should produce (doc( ol(Arabic,"(",")", 1, li("aaa"), li("bbb"), li("ccc"))))
+    val f = EnumFormat(Arabic,"(",")")
+    Parsing (input) should produce (doc( el(f, 1, eli(f,1,"aaa"), eli(f,2,"bbb"), eli(f,3,"ccc"))))
   }
   
   it should "parse items that are separated by blank lines" in {
@@ -201,7 +212,7 @@ class ListParsersSpec extends FlatSpec
       |2. bbb
       |
       |3. ccc""".stripMargin
-    Parsing (input) should produce (doc( ol( li("aaa"), li("bbb"), li("ccc"))))
+    Parsing (input) should produce (doc( el( eli(1,"aaa"), eli(2,"bbb"), eli(3,"ccc"))))
   }
   
   it should "parse items containing multiple paragraphs in a single item" in {
@@ -213,7 +224,7 @@ class ListParsersSpec extends FlatSpec
       |2. ccc
       |
       |3. ddd""".stripMargin
-    Parsing (input) should produce (doc( ol( li( p("aaa"), p("bbb\nbbb")), li("ccc"), li("ddd"))))
+    Parsing (input) should produce (doc( el( eli(1, p("aaa"), p("bbb\nbbb")), eli(2,"ccc"), eli(3,"ddd"))))
   }
   
   it should "parse nested items indented by spaces" in {
@@ -222,9 +233,9 @@ class ListParsersSpec extends FlatSpec
                   |   1. bbb
                   |
                   |      1. ccc""".stripMargin
-    val list3 = ol( li("ccc"))
-    val list2 = ol( li( p("bbb"), list3))
-    val list1 = ol( li( p("aaa"), list2))
+    val list3 = el( eli(1,"ccc"))
+    val list2 = el( eli(1, p("bbb"), list3))
+    val list1 = el( eli(1, p("aaa"), list2))
     Parsing (input) should produce (doc(list1))
   }
   
@@ -236,7 +247,8 @@ class ListParsersSpec extends FlatSpec
       |1) ccc
       |
       |2) ddd""".stripMargin
-    Parsing (input) should produce (doc( ol( li("aaa"), li("bbb")), ol(Arabic,"",")", 1, li("ccc"), li("ddd"))))
+    val f = EnumFormat(Arabic,"",")")
+    Parsing (input) should produce (doc( el( eli(1,"aaa"), eli(2,"bbb")), el(f, 1, eli(f,1,"ccc"), eli(f,2,"ddd"))))
   }
   
   
@@ -246,7 +258,7 @@ class ListParsersSpec extends FlatSpec
       | aaa
       |term 2
       | bbb""".stripMargin
-    Parsing (input) should produce (doc( dl( di("term 1", fc("aaa")), di("term 2", fc("bbb")))))
+    Parsing (input) should produce (doc( dl( dli("term 1", fc("aaa")), dli("term 2", fc("bbb")))))
   }
   
   it should "parse items that are separated by blank lines" in {
@@ -255,7 +267,7 @@ class ListParsersSpec extends FlatSpec
       |
       |term 2
       | bbb""".stripMargin
-    Parsing (input) should produce (doc( dl( di("term 1", fc("aaa")), di("term 2", fc("bbb")))))
+    Parsing (input) should produce (doc( dl( dli("term 1", fc("aaa")), dli("term 2", fc("bbb")))))
   }
   
   it should "parse a term with a classifier" in {
@@ -264,7 +276,7 @@ class ListParsersSpec extends FlatSpec
       |
       |term 2 : classifier
       | bbb""".stripMargin
-    Parsing (input) should produce (doc( dl( di("term 1", fc("aaa")), di(List(txt("term 2 "), Classifier(List(txt("classifier")))), fc("bbb")))))
+    Parsing (input) should produce (doc( dl( dli("term 1", fc("aaa")), dli(List(txt("term 2 "), Classifier(List(txt("classifier")))), fc("bbb")))))
   }
   
   it should "parse items containing multiple paragraphs in a single item" in {
@@ -276,7 +288,7 @@ class ListParsersSpec extends FlatSpec
       |
       |term 2
       |  ccc""".stripMargin
-    Parsing (input) should produce (doc( dl( di("term 1", p("aaa\naaa"), p("bbb")), di("term 2", fc("ccc")))))
+    Parsing (input) should produce (doc( dl( dli("term 1", p("aaa\naaa"), p("bbb")), dli("term 2", fc("ccc")))))
   }
   
   it should "support inline markup in the term" in {
@@ -285,7 +297,7 @@ class ListParsersSpec extends FlatSpec
       |
       |term 2
       | bbb""".stripMargin
-    Parsing (input) should produce (doc( dl( di(List(txt("term "), em(txt("em"))), fc("aaa")), di("term 2", fc("bbb")))))
+    Parsing (input) should produce (doc( dl( dli(List(txt("term "), em(txt("em"))), fc("aaa")), dli("term 2", fc("bbb")))))
   }
   
   

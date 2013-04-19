@@ -28,11 +28,11 @@ object Elements {
   
   /** A two-column table-like structure used for bibliographic fields or directive options.
    */
-  case class FieldList (content: Seq[Field]) extends Block with BlockContainer[FieldList]
+  case class FieldList (content: Seq[Field]) extends Block with ListContainer[FieldList]
 
   /** A single entry in a field list consisting of name and body.
    */
-  case class Field (name: Seq[Span], content: Seq[Block]) extends Block with BlockContainer[Field]
+  case class Field (name: Seq[Span], content: Seq[Block]) extends ListItem with BlockContainer[Field]
   
   /** A classifier for a term in a definition list.
    */
@@ -40,11 +40,11 @@ object Elements {
   
   /** A list of command line options and descriptions.
    */
-  case class OptionList (content: Seq[OptionListItem]) extends Block with BlockContainer[OptionList]
+  case class OptionList (content: Seq[OptionListItem]) extends Block with ListContainer[OptionList]
   
   /** A single item in an option list. The content property serves as the description of the option.
    */
-  case class OptionListItem (options: Seq[ProgramOption], content: Seq[Block]) extends Block with BlockContainer[OptionListItem]
+  case class OptionListItem (options: Seq[ProgramOption], content: Seq[Block]) extends ListItem with BlockContainer[OptionListItem]
   
   /** A single option, including its name and all arguments, but not the description.
    */

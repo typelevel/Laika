@@ -115,7 +115,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    */
   def standardMarkdownBlock (nestLevel: Int): Parser[Block] = 
     atxHeader | setextHeader | (insignificantSpaces ~> 
-      (codeBlock | quotedBlock(nestLevel) | rule | unorderedList(nestLevel) | orderedList(nestLevel)))
+      (codeBlock | quotedBlock(nestLevel) | rule | bulletList(nestLevel) | enumList(nestLevel)))
 
   /** Parses Markdown blocks, except normal paragraphs, blocks that deal with verbatim HTML
    *  and blocks that allow nesting of blocks. Only used in rare cases when the maximum
@@ -160,7 +160,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    /** Parses a single line of regular flow content.
     */
   def flowLine: Parser[String] = 
-    not(blankLine | unorderedListItemStart | orderedListItemStart) ~> restOfLine
+    not(blankLine | bulletListItemStart | enumListItemStart) ~> restOfLine
   
   
   /** Parses a single Markdown block. In contrast to the generic block parser of the
@@ -206,17 +206,21 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    * 
    *  @param itemStart parser that recognizes the start of a list item, result will be discarded
    *  @param newList function that produces a block element for the document tree
+   *  @param newItem function that produces a new list item element based on position and content arguments
    *  @param nestLevel the current level of nesting of blocks
    */
-  def list [T <: Block] (itemStart: Parser[String], newList: List[ListItem] => T, nestLevel: Int) = {
+  def list [T <: Block, I <: ListItem] (itemStart: Parser[String], 
+                                        newList: List[ListItem] => T, 
+                                        newItem: (Int,List[Block]) => I, 
+                                        nestLevel: Int) = {
     
-    def flattenItems (items: List[~[Option[Block],ListItem]]) = {
+    def flattenItems (items: List[~[Option[Block],List[Block]]]) = {
       val hasBlankLines = items exists { 
         case Some(_) ~ _  => true
         case None ~ _     => false
       }
-      def rewriteItemContent (item:ListItem) = {
-        ListItem(((List[Block](), false) /: item.content) { 
+      def rewriteItemContent (blocks: List[Block], pos: Int) = {
+        newItem(pos, ((List[Block](), false) /: blocks) { 
           /* Promoting FlowContent to Paragraph if the list has any blank lines between list items or if it is adjacent
              to blank lines within the list item itself. This is ugly, but forced by the (in this respect odd) design of Markdown. 
              The second (boolean) value in the accumulator tuple signals whether the previous item represented one or more blank lines */
@@ -227,7 +231,8 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
           case ((xs,_), item)                                   => (item :: xs, false)
         }._1.reverse)
       } 
-      items map { case _ ~ (li @ ListItem(_)) => rewriteItemContent(li) } 
+      val pos = Stream.from(1).iterator
+      items map { item => rewriteItemContent(item._2, pos.next) } 
     }
     
     guard(itemStart) ~> ((opt(preserveBlankLines) ~ listItem(itemStart, nestLevel)) *) ^^ 
@@ -238,26 +243,33 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    * 
    *  @param itemStart parser that recognizes the start of a list item, result will be discarded
    */
-  def listItem (itemStart: Parser[String], nestLevel: Int): Parser[ListItem]
+  def listItem [I <: ListItem] (itemStart: Parser[String], nestLevel: Int): Parser[List[Block]]
     = mdBlock(itemStart, not(blankLine | itemStart) ~ opt(tabOrSpace), tabOrSpace) ^^
-        { lines => ListItem(parseMarkup(listItemBlocks(nestLevel + 1), lines mkString "\n")) }
+        { lines => parseMarkup(listItemBlocks(nestLevel + 1), lines mkString "\n") }
  
   
-  /** Parses the start of an unordered list item.
+  /** Parses the start of a bullet list item.
    */
-  val unorderedListItemStart = anyOf('*','-','+').take(1) <~ (anyOf(' ','\t') min 1)
+  val bulletListItemStart = anyOf('*','-','+').take(1) <~ (anyOf(' ','\t') min 1)
   
-  /** Parses the start of an ordered list item.
+  /** Parses the start of an enumerated list item.
    */
-  val orderedListItemStart = anyIn('0' to '9').min(1) <~ '.' ~ (anyOf(' ','\t') min 1)
+  val enumListItemStart = anyIn('0' to '9').min(1) <~ '.' ~ (anyOf(' ','\t') min 1)
   
-  /** Parses an unordered list.
+  /** Parses a bullet list, called "unordered list" in the Markdown syntax description.
    */
-  def unorderedList (nestLevel: Int): Parser[UnorderedList] = list(unorderedListItemStart, UnorderedList, nestLevel)
+  def bulletList (nestLevel: Int): Parser[BulletList] = {
+    guard(bulletListItemStart) >> { symbol =>
+      val bullet = StringBullet(symbol)
+      list(bulletListItemStart, BulletList(_,bullet), (_,blocks)=>BulletListItem(blocks,bullet), nestLevel)
+    }
+  }
     
-  /** Parses an ordered list.
+  /** Parses an enumerated list, called "ordered list" in the Markdown syntax description.
    */
-  def orderedList (nestLevel: Int): Parser[OrderedList] = list(orderedListItemStart, OrderedList(_), nestLevel) 
+  def enumList (nestLevel: Int): Parser[EnumList] = {
+    list(enumListItemStart, EnumList(_, EnumFormat()), (pos,blocks)=>EnumListItem(blocks,EnumFormat(),pos), nestLevel) 
+  }
     
   
 }

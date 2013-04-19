@@ -79,22 +79,34 @@ trait ModelBuilder {
   def fc (text: String) = FlowContent(List(Text(text)))
   
 
-  def ul (items: ListItem*) = UnorderedList(items.toList)
-  
-  def ol (items: ListItem*) = OrderedList(items.toList)
-  
-  def ol (enumType: EnumType, prefix: String, suffix: String, start: Int, items: ListItem*) = 
-    OrderedList(items.toList, enumType, prefix, suffix, start)
+  def bl (items: BulletListItem*) = BulletList(items.toList, StringBullet("*"))
 
-  def li (text: String) = ListItem(List(fc(txt(text))))
+  def bl (bullet: String, items: BulletListItem*) = BulletList(items.toList, StringBullet(bullet))
+  
+  def el (items: EnumListItem*) = EnumList(items.toList, EnumFormat())
+  
+  def el (format: EnumFormat, start: Int, items: ListItem*) = 
+    EnumList(items.toList, format, start)
+
+  def bli (text: String) = BulletListItem(List(fc(txt(text))), StringBullet("*"))
+
+  def bli (bullet: String, text: String) = BulletListItem(List(fc(txt(text))), StringBullet(bullet))
+
+  def eli (pos: Int, text: String) = EnumListItem(List(fc(txt(text))), EnumFormat(), pos)
+
+  def eli (format: EnumFormat, pos: Int, text: String) = EnumListItem(List(fc(txt(text))), format, pos)
     
-  def li (blocks: Block*) = ListItem(blocks.toList)
+  def bli (blocks: Block*) = BulletListItem(blocks.toList, StringBullet("*"))
+
+  def bli (bullet: String, blocks: Block*) = BulletListItem(blocks.toList, StringBullet(bullet))
+
+  def eli (pos: Int, blocks: Block*) = EnumListItem(blocks.toList, EnumFormat(), pos)
   
   def dl (items: DefinitionListItem*) = DefinitionList(items.toList)
   
-  def di (term: String, blocks: Block*) = DefinitionListItem(List(Text(term)), blocks.toList)
+  def dli (term: String, blocks: Block*) = DefinitionListItem(List(Text(term)), blocks.toList)
 
-  def di (term: List[Span], blocks: Block*) = DefinitionListItem(term, blocks.toList)
+  def dli (term: List[Span], blocks: Block*) = DefinitionListItem(term, blocks.toList)
   
   
   def table (rows: Row*) = Table(Nil, rows.toList)

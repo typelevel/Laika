@@ -53,10 +53,14 @@ object Elements {
    */
   trait Span extends Element
   
+  /** The base type for all list items.
+   */
+  trait ListItem extends Element
+  
 
   /** A generic container.
    *  Usually not mixed in directly, instead one of the sub-traits
-   *  `TextContainer`, `SpanContainer` or `BlockContainer` should be used.
+   *  `TextContainer`, `ListContainer`, `SpanContainer` or `BlockContainer` should be used.
    */
   trait Container[+T] extends Element {
     def content: T
@@ -71,7 +75,7 @@ object Elements {
    *  this container.
    *  
    *  Usually not mixed in directly, instead one of the sub-traits
-   *  `SpanContainer` or `BlockContainer` should be used.
+   *  `ListContainer`, `SpanContainer` or `BlockContainer` should be used.
    */
   trait ElementContainer[+E <: Element, Self <: ElementContainer[E,Self]] extends Container[Seq[E]] with ElementTraversal[Self] {
     override def toString = "\n" + (Render as PrettyPrint from this toString) + "\n" 
@@ -86,6 +90,10 @@ object Elements {
    *  or a Span itself.
    */
   trait SpanContainer[Self <: SpanContainer[Self]] extends ElementContainer[Span,Self]
+  
+  /** A container of list items. Such a container is usually a Block itself.
+   */
+  trait ListContainer[Self <: ListContainer[Self]] extends ElementContainer[ListItem,Self]
   
   
   /** The root element of a document tree.
@@ -140,14 +148,27 @@ object Elements {
    */
   case class QuotedBlock (content: Seq[Block], attribution: Seq[Span]) extends Block with BlockContainer[QuotedBlock]
 
-  /** An unordered list of block level items that may contain nested lists.
+  /** An bullet list that may contain nested lists.
    */
-  case class UnorderedList (content: Seq[ListItem]) extends Block with BlockContainer[UnorderedList]
+  case class BulletList (content: Seq[ListItem], format: BulletFormat) extends Block with ListContainer[BulletList]
   
-  /** An ordered list of block level items that may contain nested lists.
+  /** An enumerated list that may contain nested lists.
    */
-  case class OrderedList (content: Seq[ListItem], enumType: EnumType = Arabic, 
-      prefix: String = "", suffix: String = ".", start: Int = 1) extends Block with BlockContainer[OrderedList]
+  case class EnumList (content: Seq[ListItem], format: EnumFormat, start: Int = 1) extends Block with ListContainer[EnumList]
+  
+  /** The format of a bullet list item.
+   */
+  trait BulletFormat
+
+  /** Bullet format based on a simple string.
+   */
+  case class StringBullet (bullet: String) extends BulletFormat
+  
+  /** The format of enumerated list items.
+   */
+  case class EnumFormat (enumType: EnumType = Arabic, prefix: String = "", suffix: String = ".") {
+    override def toString = "EnumFormat(" + enumType + "," + prefix + "N" + suffix + ")"
+  }
   
   /** Represents the type of an ordered list.
    */
@@ -173,18 +194,22 @@ object Elements {
    */
   case object UpperRoman extends EnumType
     
-  /** A single list item consisting of one or more block elements.
+  /** A single bullet list item consisting of one or more block elements.
    */
-  case class ListItem (content: Seq[Block]) extends Block with BlockContainer[ListItem]
+  case class BulletListItem (content: Seq[Block], format: BulletFormat) extends ListItem with BlockContainer[BulletListItem]
+  
+  /** A single enum list item consisting of one or more block elements.
+   */
+  case class EnumListItem (content: Seq[Block], format: EnumFormat, position: Int) extends ListItem with BlockContainer[EnumListItem]
   
   /** A list of terms and their definitions.
    */
-  case class DefinitionList (content: Seq[DefinitionListItem]) extends Block with BlockContainer[DefinitionList]
+  case class DefinitionList (content: Seq[DefinitionListItem]) extends Block with ListContainer[DefinitionList]
 
   /** A single definition item, containing the term and definition (as the content property).
    */
   case class DefinitionListItem (term: Seq[Span], content: Seq[Block]) 
-    extends Block with BlockContainer[DefinitionListItem]
+    extends ListItem with BlockContainer[DefinitionListItem]
   
   /** A single item inside a line block.
    */
