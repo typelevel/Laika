@@ -61,7 +61,7 @@ class BlockParsersSpec extends FlatSpec
     val input = """* aaa
       |* bbb
       |* ccc""".stripMargin
-    Parsing (input) should produce (doc( bl( bli( ss("aaa")), bli( ss("bbb")), bli( ss("ccc")))))
+    Parsing (input) should produce (doc(bulletList() + "aaa" + "bbb" + "ccc"))
   }
   
   it should "parse items that are separated by blank lines as list items with paragraph" in {
@@ -70,35 +70,35 @@ class BlockParsersSpec extends FlatSpec
       |* bbb
       |
       |* ccc""".stripMargin
-    Parsing (input) should produce (doc( bl( bli( p("aaa")), bli( p("bbb")), bli( p("ccc")))))
+    Parsing (input) should produce (doc(bulletList() + p("aaa") + p("bbb") + p("ccc")))
   }
   
   it should "parse items indented by a tab after the '*' in the same way as items indented by a space" in {
     val input = """*	aaa
       |*	bbb
       |*	ccc""".stripMargin
-    Parsing (input) should produce (doc( bl( bli( ss("aaa")), bli( ss("bbb")), bli( ss("ccc")))))
+    Parsing (input) should produce (doc(bulletList() + "aaa" + "bbb" + "ccc"))
   }
   
   it should "parse items starting with a '+' the same way as those starting with a '*'" in {
     val input = """+ aaa
       |+ bbb
       |+ ccc""".stripMargin
-    Parsing (input) should produce (doc( bl("+", bli("+", ss("aaa")), bli("+", ss("bbb")), bli("+", ss("ccc")))))
+    Parsing (input) should produce (doc(bulletList("+") + "aaa" + "bbb" + "ccc"))
   }
   
   it should "parse items starting with a '-' the same way as those starting with a '*'" in {
     val input = """- aaa
       |- bbb
       |- ccc""".stripMargin
-    Parsing (input) should produce (doc( bl("-", bli("-", ss("aaa")), bli("-", ss("bbb")), bli("-", ss("ccc")))))
+    Parsing (input) should produce (doc(bulletList("-") + "aaa" + "bbb" + "ccc"))
   }
   
   it should "parse items prefixed by numbers as items of an enumerated list" in {
     val input = """1. aaa
       |2. bbb
       |3. ccc""".stripMargin
-    Parsing (input) should produce (doc( el( eli(1, ss("aaa")), eli(2, ss("bbb")), eli(3, ss("ccc")))))
+    Parsing (input) should produce (doc(enumList() + "aaa" + "bbb" + "ccc"))
   }
   
   it should "parse items prefixed by numbers and separated by blank lines as ordered list items with paragraph" in {
@@ -107,7 +107,7 @@ class BlockParsersSpec extends FlatSpec
       |2. bbb
       |
       |3. ccc""".stripMargin
-    Parsing (input) should produce (doc( el( eli(1, p("aaa")), eli(2, p("bbb")), eli(3, p("ccc")))))
+    Parsing (input) should produce (doc(enumList() + p("aaa") + p("bbb") + p("ccc")))
   }
   
   it should "parse items prefixed by numbers containing multiple paragraphs in a single item" in {
@@ -119,16 +119,18 @@ class BlockParsersSpec extends FlatSpec
       |2. ccc
       |
       |3. ddd""".stripMargin
-    Parsing (input) should produce (doc( el( eli(1, p("aaa"), p("bbb\nbbb")), eli(2, p("ccc")), eli(3, p("ddd")))))
+    Parsing (input) should produce (doc( enumList() + (p("aaa"), p("bbb\nbbb")) + p("ccc") + p("ddd")))
   }
   
   it should "parse nested items indented by spaces" in {
     val input = """*   aaa
                   |    *   bbb
                   |        * ccc""".stripMargin
-    val list3 = bl( bli( ss("ccc")))
-    val list2 = bl( bli( ss("bbb"), list3))
-    val list1 = bl( bli( ss("aaa"), list2))
+
+    val list3 = bulletList() + "ccc"
+    val list2 = bulletList() + (ss("bbb"), list3)
+    val list1 = bulletList() + (ss("aaa"), list2)
+
     Parsing (input) should produce (doc(list1))
   }
   
@@ -137,9 +139,9 @@ class BlockParsersSpec extends FlatSpec
       |	* bbb
       |		* ccc""".stripMargin
 
-    val list3 = bl( bli( ss("ccc")))
-    val list2 = bl( bli( ss("bbb"), list3))
-    val list1 = bl( bli( ss("aaa"), list2))
+    val list3 = bulletList() + "ccc"
+    val list2 = bulletList() + (ss("bbb"), list3)
+    val list1 = bulletList() + (ss("aaa"), list2)
     
     Parsing (input) should produce (doc(list1))
   }
@@ -152,9 +154,9 @@ class BlockParsersSpec extends FlatSpec
       |    * ccc
       |3. 333""".stripMargin
       
-    val nestedList = bl( bli( ss("aaa")), bli( ss("bbb")), bli( ss("ccc")))
+    val nestedList = bulletList() + "aaa" + "bbb" + "ccc"
     
-    Parsing (input) should produce (doc( el( eli(1, ss("111")), eli(2, ss("222"), nestedList), eli(3, ss("333")))))
+    Parsing (input) should produce (doc(enumList() + "111" + (ss("222"), nestedList) + "333"))
   }
   
   it should "parse a bullet list nested inside an enumerated list with blank lines between the items" in {
@@ -167,9 +169,9 @@ class BlockParsersSpec extends FlatSpec
       |
       |3. 333""".stripMargin
       
-    val nestedList = bl( bli( ss("aaa")), bli( ss("bbb")), bli( ss("ccc")))
+    val nestedList = bulletList() + "aaa" + "bbb" + "ccc"
     
-    Parsing (input) should produce (doc( el( eli(1, p("111")), eli(2, p("222"), nestedList), eli(3, p("333")))))
+    Parsing (input) should produce (doc(enumList() + p("111") + (p("222"), nestedList) + p("333")))
   }
   
   it should "parse a list nested between two paragraphs inside a list item" in {
@@ -179,9 +181,9 @@ class BlockParsersSpec extends FlatSpec
       |
       |	ccc""".stripMargin
       
-    val nestedList = bl( bli( ss("bbb")))
+    val nestedList = bulletList() + "bbb"
     
-    Parsing (input) should produce (doc( bl( bli( p("aaa"), nestedList, p("ccc")))))
+    Parsing (input) should produce (doc( bulletList() + (p("aaa"), nestedList, p("ccc"))))
   }
   
   
@@ -468,7 +470,7 @@ class BlockParsersSpec extends FlatSpec
       |
       |        code
       |* ccc""".stripMargin
-    Parsing (input) should produce (doc( bl( bli( ss("aaa")), bli( p("bbb"), litBlock("code")), bli( ss("ccc")))))
+    Parsing (input) should produce (doc( bulletList() + "aaa" + (p("bbb"), litBlock("code")) + "ccc"))
   }
   
   it should "parse a blockquote nested inside a list" in {
@@ -477,7 +479,7 @@ class BlockParsersSpec extends FlatSpec
       |
       |  >quote
       |* ccc""".stripMargin
-    Parsing (input) should produce (doc( bl( bli( ss("aaa")), bli( p("bbb"), quote("quote")), bli( ss("ccc")))))
+    Parsing (input) should produce (doc( bulletList() + "aaa" + (p("bbb"), quote("quote")) + "ccc"))
   }
   
   it should "parse a list nested inside a blockquote" in {
@@ -485,7 +487,7 @@ class BlockParsersSpec extends FlatSpec
       |>bbb
       |>* ccc
       |>* ddd""".stripMargin
-    Parsing (input) should produce (doc( quote( p("aaa\nbbb"), bl( bli( ss("ccc")), bli( ss("ddd"))))))
+    Parsing (input) should produce (doc( quote( p("aaa\nbbb"), bulletList() + "ccc" + "ddd")))
   }
   
   it should "parse a code block nested inside a blockquote" in {
@@ -499,6 +501,4 @@ class BlockParsersSpec extends FlatSpec
   }
 
 
-  
-  
 }

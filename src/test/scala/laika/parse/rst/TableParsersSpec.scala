@@ -160,7 +160,7 @@ class TableParsersSpec extends FlatSpec
       |+---+---------+
       || c | d       |
       |+---+---------+""".stripMargin
-    Parsing (input) should produce (doc( table(row(cell("a"), cell(p("Text"), bl(bli(ss("Line1\nLine2")), bli(ss("Line3"))))), strrow("c","d"))))
+    Parsing (input) should produce (doc( table(row(cell("a"), cell(p("Text"), bulletList() + "Line1\nLine2" + "Line3")), strrow("c","d"))))
   }
   
   it should "parse tables with header cells" in {
@@ -218,7 +218,7 @@ class TableParsersSpec extends FlatSpec
       |
       | c    d
       |===  ===""".stripMargin
-    Parsing (input) should produce (doc( table(row(cell("a"), cell(p("Text"), bl(bli(ss("Line1\nLine2")), bli(ss("Line3"))))), strrow("c","d"))))
+    Parsing (input) should produce (doc( table(row(cell("a"), cell(p("Text"), bulletList() + "Line1\nLine2" + "Line3")), strrow("c","d"))))
   }
   
   it should "parse tables with header cells" in {

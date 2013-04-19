@@ -78,35 +78,49 @@ trait ModelBuilder {
   
   def ss (text: String) = SpanSequence(List(Text(text)))
   
-
-  def bl (items: BulletListItem*) = BulletList(items.toList, StringBullet("*"))
-
-  def bl (bullet: String, items: BulletListItem*) = BulletList(items.toList, StringBullet(bullet))
   
-  def el (items: EnumListItem*) = EnumList(items.toList, EnumFormat())
   
-  def el (format: EnumFormat, start: Int, items: ListItem*) = 
-    EnumList(items.toList, format, start)
-
-  def bli (text: String) = BulletListItem(List(ss(txt(text))), StringBullet("*"))
-
-  def bli (bullet: String, text: String) = BulletListItem(List(ss(txt(text))), StringBullet(bullet))
-
-  def eli (pos: Int, text: String) = EnumListItem(List(ss(txt(text))), EnumFormat(), pos)
-
-  def eli (format: EnumFormat, pos: Int, text: String) = EnumListItem(List(ss(txt(text))), format, pos)
+  def bulletList (bullet: String = "*") = new BulletListBuilder(bullet)
+  
+  class BulletListBuilder (bullet: String, items: Seq[BulletListItem] = Nil) {
     
-  def bli (blocks: Block*) = BulletListItem(blocks.toList, StringBullet("*"))
-
-  def bli (bullet: String, blocks: Block*) = BulletListItem(blocks.toList, StringBullet(bullet))
-
-  def eli (pos: Int, blocks: Block*) = EnumListItem(blocks.toList, EnumFormat(), pos)
+    def + (text: String) = new BulletListBuilder(bullet, items :+ newItem(ss(text)))
+    
+    def + (blocks: Block*) = new BulletListBuilder(bullet, items :+ newItem(blocks:_*))
+    
+    private def newItem (blocks: Block*) = BulletListItem(blocks.toList, StringBullet(bullet))
+    
+    def toList = BulletList(items, StringBullet(bullet))
+    
+  }
   
-  def dl (items: DefinitionListItem*) = DefinitionList(items.toList)
+  def enumList (format: EnumFormat = EnumFormat(), start: Int = 1) = new EnumListBuilder(format,  start)
   
-  def dli (term: String, blocks: Block*) = DefinitionListItem(List(Text(term)), blocks.toList)
-
-  def dli (term: List[Span], blocks: Block*) = DefinitionListItem(term, blocks.toList)
+  class EnumListBuilder (format: EnumFormat, start: Int, items: Seq[EnumListItem] = Nil) {
+    
+    def + (text: String) = new EnumListBuilder(format, start + 1, items :+ newItem(ss(text)))
+    
+    def + (blocks: Block*) = new EnumListBuilder(format, start + 1, items :+ newItem(blocks:_*))
+    
+    private def newItem (blocks: Block*) = EnumListItem(blocks.toList, format, start)
+    
+    def toList = EnumList(items, format, items.headOption.map(_.position).getOrElse(1))
+    
+  }
+  
+  def defList = new DefinitionListBuilder
+  
+  class DefinitionListBuilder (items: Seq[DefinitionListItem] = Nil) {
+    
+    def + (term: String, blocks: Block*) = new DefinitionListBuilder(items :+ newItem(List(Text(term)), blocks:_*))
+    
+    def + (term: List[Span], blocks: Block*) = new DefinitionListBuilder(items :+ newItem(term, blocks:_*))
+    
+    private def newItem (term: List[Span], blocks: Block*) = DefinitionListItem(term, blocks.toList)
+    
+    def toList = DefinitionList(items.toList)
+    
+  }
   
   
   def table (rows: Row*) = Table(Nil, rows.toList)
@@ -145,6 +159,12 @@ trait ModelBuilder {
   
   
   
+  implicit def builderToEnumList (builder: EnumListBuilder) = builder.toList
+
+  implicit def builderToBulletList (builder: BulletListBuilder) = builder.toList
+
+  implicit def builderToDefList (builder: DefinitionListBuilder) = builder.toList
+
   implicit def builderToLink (builder: LinkBuilder) = builder.toLink
 
   implicit def builderToLinkRef (builder: LinkRefBuilder) = builder.toLink
