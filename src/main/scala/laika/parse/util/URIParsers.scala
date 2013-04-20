@@ -36,7 +36,7 @@ trait URIParsers extends MarkupParsers {
     case None         => ""
     case c: Char      => c.toString
     case s: String    => s
-    case l: List[Any] => l.map(flatten).mkString
+    case l: List[_]   => l.map(flatten).mkString
     case x ~ y        => flatten(x) + flatten(y)
   }
   
