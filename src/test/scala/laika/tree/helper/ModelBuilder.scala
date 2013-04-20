@@ -43,30 +43,36 @@ trait ModelBuilder {
     
     def title (value: String) = new LinkBuilder(content, url0, Some(value))
     
-    def toLink = Link(content, url0, title0)
+    def toLink = ExternalLink(content, url0, title0)
     
   }
   
   def linkRef (content: Span*) = new LinkRefBuilder(content.toList)
   
-  class LinkRefBuilder private[ModelBuilder] (content: List[Span], id: String = "", postFix: String = "]") {
+  class LinkRefBuilder private[ModelBuilder] (content: List[Span], id: String = "", source: String = "") {
     
-    def id (value: String): LinkRefBuilder = new LinkRefBuilder(content, value, postFix)
+    def id (value: String): LinkRefBuilder = new LinkRefBuilder(content, value, source)
     
-    def postFix (value: String): LinkRefBuilder = new LinkRefBuilder(content, id, value)
+    def source (value: String): LinkRefBuilder = new LinkRefBuilder(content, id, value)
     
-    def toLink = LinkReference(content, id, "[", postFix)
+    def toLink = LinkReference(content, id, source)
      
   }
   
   def img (text: String, url: String, title: Option[String] = None) = Image(text, url, title)
 
-  def imgRef (text: String, id: String, postFix: String = "]") = ImageReference(text, id, "![", postFix)
+  def imgRef (text: String, id: String, source: String = "") = ImageReference(text, id, source)
   
-  def citRef (label: String) = CitationReference(label)
+  def citRef (label: String) = CitationReference(label, "["+label+"]_")
   
-  def fnRef (label: FootnoteLabel) = FootnoteReference(label)
+  def fnRef (label: FootnoteLabel) = FootnoteReference(label, toSource(label))
   
+  def toSource (label: FootnoteLabel) = label match {
+    case Autonumber => "[#]_"
+    case Autosymbol => "[*]_"
+    case AutonumberLabel(label) => "[#"+label+"]_"
+    case NumericLabel(label) => "["+label+"]_"
+  }
   
   def doc (blocks: Block*) = Document(blocks.toList)
   

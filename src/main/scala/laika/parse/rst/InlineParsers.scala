@@ -245,25 +245,34 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
     decimal | autonumberLabel | autonumber | autosymbol
   }
   
+  private def toSource (label: FootnoteLabel) = label match {
+    case Autonumber => "[#]_"
+    case Autosymbol => "[*]_"
+    case AutonumberLabel(label) => "[#"+label+"]_"
+    case NumericLabel(label) => "["+label+"]_"
+  }
+  
   /** Parses a footnote reference.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#footnote-references]].
    */
-  lazy val footnoteRef = markupStart("]_") ~> footnoteLabel <~ markupEnd("]_") ^^ FootnoteReference
+  lazy val footnoteRef = markupStart("]_") ~> footnoteLabel <~ markupEnd("]_") ^^ 
+      { label => FootnoteReference(label, toSource(label)) }
   
   /** Parses a citation reference.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#citation-references]].
    */
-  lazy val citationRef = markupStart("]_") ~> simpleRefName <~ markupEnd("]_") ^^ CitationReference
+  lazy val citationRef = markupStart("]_") ~> simpleRefName <~ markupEnd("]_") ^^
+      { label => CitationReference(label, "["+label+"]_") }
   
   /** Parses a substitution reference.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#substitution-references]].
    */
   lazy val substitutionRef = markupStart("|") ~> simpleRefName >> { ref =>
-    markupEnd("|__") ^^ { _ => LinkReference(List(SubstitutionReference(ref)), "", "|", "|__") } | 
-    markupEnd("|_")  ^^ { _ => LinkReference(List(SubstitutionReference(ref)), ref, "|", "|_") } |
+    markupEnd("|__") ^^ { _ => LinkReference(List(SubstitutionReference(ref)), "", "|" + ref + "|__") } | 
+    markupEnd("|_")  ^^ { _ => LinkReference(List(SubstitutionReference(ref)), ref, "|" + ref + "|_") } |
     markupEnd("|")   ^^ { _ => SubstitutionReference(ref) } 
   }
   
@@ -307,10 +316,10 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
     val refName = escapedText(anyBut('`','<')) ^^ ReferenceName
     markupStart("`") ~> refName ~ opt(url) ~ (markupEnd("`__") ^^^ false | markupEnd("`_") ^^^ true) ^^ {
       case refName ~ Some(url) ~ true   => 
-        SpanSequence(List(Link(List(Text(ref(refName.original, url))), url), ExternalLinkTarget(ref(refName.normalized, url), url)))
-      case refName ~ Some(url) ~ false  => Link(List(Text(ref(refName.original, url))), url)
-      case refName ~ None ~ true        => LinkReference(List(Text(refName.original)), refName.normalized, "`", "`_") 
-      case refName ~ None ~ false       => LinkReference(List(Text(refName.original)), "", "`", "`__") 
+        SpanSequence(List(ExternalLink(List(Text(ref(refName.original, url))), url), ExternalLinkTarget(ref(refName.normalized, url), url)))
+      case refName ~ Some(url) ~ false  => ExternalLink(List(Text(ref(refName.original, url))), url)
+      case refName ~ None ~ true        => LinkReference(List(Text(refName.original)), refName.normalized, "`" + refName.original + "`_") 
+      case refName ~ None ~ false       => LinkReference(List(Text(refName.original)), "", "`" + refName.original + "`__") 
     }
   }
   
@@ -324,8 +333,8 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
     markupEnd('_' ^^^ "__" | success("_")) >> { 
       markup => reverse(markup.length, simpleRefName <~ reverseMarkupStart) ^^ { refName =>
         markup match {
-          case "_"  => Reverse(refName.length, LinkReference(List(Text(refName)), refName, "", "_"), Text("_")) 
-          case "__" => Reverse(refName.length, LinkReference(List(Text(refName)), "", "", "__"), Text("__")) 
+          case "_"  => Reverse(refName.length, LinkReference(List(Text(refName)), refName, "" + refName + "_"), Text("_")) 
+          case "__" => Reverse(refName.length, LinkReference(List(Text(refName)), "", "" + refName + "__"), Text("__")) 
         }
       }
     } 
@@ -372,7 +381,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
         val uri = startTrimmed + sep + endTrimmed
         val uriWithScheme = if (sep == "@" && !uri.startsWith("mailto:")) "mailto:"+uri else uri 
         val nextIn = in.drop(endTrimmed.length - end.length)
-        Success(Reverse(startTrimmed.length, Link(List(Text(uri)), uriWithScheme), Text(sep+endTrimmed)), nextIn)
+        Success(Reverse(startTrimmed.length, ExternalLink(List(Text(uri)), uriWithScheme), Text(sep+endTrimmed)), nextIn)
     }
   }}
   

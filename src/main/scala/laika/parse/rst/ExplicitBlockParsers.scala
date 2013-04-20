@@ -107,7 +107,8 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     
     val indirect = {
       (named <~ ws) ~ ((opt(eol ~ ws) ~ "`" ~> escapedText(anyUntil('`')) | simpleRefName) <~ '_' ~ ws ~ eol) ^^ {
-        case name ~ refName => IndirectLinkTarget(name, LinkReference(Nil, refName.replaceAll("\n", ""), "`", "`_")) 
+        case name ~ refName => IndirectLinkTarget(name, LinkReference(Nil, refName.replaceAll("\n", ""), "`" + refName + "`_")) 
+        // TODO - source value might be without back ticks
       }
     }
     

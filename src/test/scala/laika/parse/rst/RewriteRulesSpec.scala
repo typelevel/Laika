@@ -36,15 +36,19 @@ class RewriteRulesSpec extends FlatSpec
   def invalidSpan (message: String, fallback: Span) =
       InvalidSpan(SystemMessage(laika.tree.Elements.Error, message), fallback)
       
-  def fnRefs (labels: FootnoteLabel*) = p((labels map FootnoteReference):_*)
+  def fnRefs (labels: FootnoteLabel*) = p((labels map { label => FootnoteReference(label,toSource(label))}):_*)
+
+  def fnLinks (labels: (String,String)*) = p((labels map { label => FootnoteLink(label._1,label._2)}):_*)
   
   def fn (label: FootnoteLabel, num: Any) = Footnote(label, List(p("footnote"+num)))
 
   def fn (label: ResolvedFootnoteLabel) = Footnote(label, List(p("footnote"+label.label)))
   
-  def simpleLinkRef (id: String = "id") = LinkReference(List(txt("text")), id, "", "")
+  def simpleLinkRef (id: String = "id") = LinkReference(List(txt("text")), id, "text")
  
-  def simpleLink (url: String) = Link(List(txt("text")), url)
+  def extLink (url: String) = ExternalLink(List(txt("text")), url)
+
+  def intLink (ref: String) = InternalLink(List(txt("text")), ref)
   
       
   "The rewrite rules for substitutions" should "replace a single reference with the target span" in {
@@ -83,18 +87,21 @@ class RewriteRulesSpec extends FlatSpec
   
   
   "The rewrite rules for citations" should "retain a single reference when it has a matching target" in {
-    val document = doc(p(CitationReference("label")), Citation("label", List(p("citation"))))
-    rewritten (document) should be (document)
+    val document = doc(p(CitationReference("label","[label]_")), Citation("label", List(p("citation"))))
+    val resolved = doc(p(CitationLink("label")), Citation("label", List(p("citation"))))
+    rewritten (document) should be (resolved)
   }
   
-  it should "retain a multiple references when they all have a matching targets" in {
-    val document = doc(p(CitationReference("label1"),CitationReference("label2"),CitationReference("label1")), 
+  it should "retain multiple references when they all have a matching targets" in {
+    val document = doc(p(CitationReference("label1","[label1]_"),CitationReference("label2","[label2]_"),CitationReference("label1","[label1]_")), 
         Citation("label1", List(p("citation1"))),Citation("label2", List(p("citation2"))))
-    rewritten (document) should be (document)
+    val resolved = doc(p(CitationLink("label1"),CitationLink("label2"),CitationLink("label1")), 
+        Citation("label1", List(p("citation1"))),Citation("label2", List(p("citation2"))))
+    rewritten (document) should be (resolved)
   }
   
   it should "replace a reference with an unknown label with an invalid span" in {
-    val document = doc(p(CitationReference("label1")), Citation("label2", List(p("citation2"))))
+    val document = doc(p(CitationReference("label1","[label1]_")), Citation("label2", List(p("citation2"))))
     rewritten (document) should be (doc(p(invalidSpan("unresolved citation reference: label1", "[label1]_")), Citation("label2", List(p("citation2")))))
   }
   
@@ -103,7 +110,7 @@ class RewriteRulesSpec extends FlatSpec
   "The rewrite rules for footnotes" should "retain a group of footnotes with a mix of explicit numeric and autonumber labels" in {
     val document = doc(fnRefs(Autonumber, NumericLabel(1), Autonumber), 
         fn(Autonumber, 2), fn(NumericLabel(1), 1), fn(Autonumber, 3))
-    val resolved = doc(fnRefs(ResolvedFootnoteLabel("2","2"), ResolvedFootnoteLabel("1","1"), ResolvedFootnoteLabel("3","3")), 
+    val resolved = doc(fnLinks(("2","2"), ("1","1"), ("3","3")), 
         fn(ResolvedFootnoteLabel("2","2")), fn(ResolvedFootnoteLabel("1","1")), fn(ResolvedFootnoteLabel("3","3")))
     rewritten (document) should be (resolved)
   }
@@ -111,7 +118,7 @@ class RewriteRulesSpec extends FlatSpec
   it should "retain a group of footnotes with a mix of explicit numeric, autonumber and autonumber-labeled footnotes" in {
     val document = doc(fnRefs(NumericLabel(2), Autonumber, AutonumberLabel("label")), 
         fn(NumericLabel(2), 2), fn(AutonumberLabel("label"), 1), fn(Autonumber, 3))
-    val resolved = doc(fnRefs(ResolvedFootnoteLabel("2","2"), ResolvedFootnoteLabel("3","3"), ResolvedFootnoteLabel("label","1")), 
+    val resolved = doc(fnLinks(("2","2"), ("3","3"), ("label","1")), 
         fn(ResolvedFootnoteLabel("2","2")), fn(ResolvedFootnoteLabel("label","1")), fn(ResolvedFootnoteLabel("3","3")))
     rewritten (document) should be (resolved)
   }
@@ -119,7 +126,7 @@ class RewriteRulesSpec extends FlatSpec
   it should "retain a group of footnotes with autosymbol labels" in {
     val document = doc(fnRefs(Autosymbol, Autosymbol, Autosymbol), 
         fn(Autosymbol, "*"), fn(Autosymbol, "\u2020"), fn(Autosymbol, "\u2021"))
-    val resolved = doc(fnRefs(ResolvedFootnoteLabel("*","*"), ResolvedFootnoteLabel("\u2020","\u2020"), ResolvedFootnoteLabel("\u2021","\u2021")), 
+    val resolved = doc(fnLinks(("*","*"), ("\u2020","\u2020"), ("\u2021","\u2021")), 
         fn(ResolvedFootnoteLabel("*","*")), fn(ResolvedFootnoteLabel("\u2020","\u2020")), fn(ResolvedFootnoteLabel("\u2021","\u2021")))
     rewritten (document) should be (resolved)
   }
@@ -135,14 +142,14 @@ class RewriteRulesSpec extends FlatSpec
   
   it should "replace surplus autonumber references with invalid spans" in {
     val document = doc(fnRefs(Autonumber, Autonumber), fn(Autonumber, 1))
-    val resolved = doc(p(FootnoteReference(ResolvedFootnoteLabel("1","1")), invalidSpan("too many autonumer references", "[#]_")), 
+    val resolved = doc(p(FootnoteLink("1","1"), invalidSpan("too many autonumer references", "[#]_")), 
         fn(ResolvedFootnoteLabel("1","1")))
     rewritten (document) should be (resolved)
   }
   
   it should "replace surplus autosymbol references with invalid spans" in {
     val document = doc(fnRefs(Autosymbol, Autosymbol), fn(Autosymbol, "*"))
-    val resolved = doc(p(FootnoteReference(ResolvedFootnoteLabel("*","*")), invalidSpan("too many autosymbol references", "[*]_")), 
+    val resolved = doc(p(FootnoteLink("*","*"), invalidSpan("too many autosymbol references", "[*]_")), 
         fn(ResolvedFootnoteLabel("*","*")))
     rewritten (document) should be (resolved)
   }
@@ -151,37 +158,37 @@ class RewriteRulesSpec extends FlatSpec
   
   "The rewrite rules for link references" should "resolve external link references" in {
     val document = doc(p(simpleLinkRef()), ExternalLinkTarget("id", "http://foo/"))
-    rewritten (document) should be (doc(p(simpleLink("http://foo/"))))
+    rewritten (document) should be (doc(p(extLink("http://foo/"))))
   }
   
   it should "resolve internal link references" in {
     val document = doc(p(simpleLinkRef()), InternalLinkTarget("id"))
-    rewritten (document) should be (doc(p(simpleLink("#id"))))
+    rewritten (document) should be (doc(p(intLink("#id"))))
   }
   
   it should "resolve indirect link references" in {
     val document = doc(p(simpleLinkRef()), IndirectLinkTarget("id",simpleLinkRef("ref")), InternalLinkTarget("ref"))
-    rewritten (document) should be (doc(p(simpleLink("#ref"))))
+    rewritten (document) should be (doc(p(intLink("#ref"))))
   }
   
   it should "resolve anonymous link references" in {
     val document = doc(p(simpleLinkRef(""), simpleLinkRef("")), ExternalLinkTarget("", "http://foo/"), ExternalLinkTarget("", "http://bar/"))
-    rewritten (document) should be (doc(p(simpleLink("http://foo/"), simpleLink("http://bar/"))))
+    rewritten (document) should be (doc(p(extLink("http://foo/"), extLink("http://bar/"))))
   }
   
   it should "replace an unresolvable reference with an invalid span" in {
     val document = doc(p(simpleLinkRef()))
-    rewritten (document) should be (doc(p(invalidSpan("unresolved link reference: id", SpanSequence(List(txt(""), txt("text"), txt("")))))))
+    rewritten (document) should be (doc(p(invalidSpan("unresolved link reference: id", txt("text")))))
   }
   
   it should "replace a surplus anonymous reference with an invalid span" in {
     val document = doc(p(simpleLinkRef("")))
-    rewritten (document) should be (doc(p(invalidSpan("too many anonymous link references", SpanSequence(List(txt(""), txt("text"), txt("")))))))
+    rewritten (document) should be (doc(p(invalidSpan("too many anonymous link references", txt("text")))))
   }
   
   it should "replace circular indirect references with invalid spans" in {
     val document = doc(p(simpleLinkRef()), IndirectLinkTarget("id",simpleLinkRef("ref")), IndirectLinkTarget("ref",simpleLinkRef("id")))
-    rewritten (document) should be (doc(p(invalidSpan("circular link reference: id", SpanSequence(List(txt(""), txt("text"), txt("")))))))
+    rewritten (document) should be (doc(p(invalidSpan("circular link reference: id", txt("text")))))
   }
 
   

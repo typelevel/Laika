@@ -171,7 +171,7 @@ class InlineParsersSpec extends FlatSpec
   
   it should "ignore an inline link with a malformed title" in {
     Parsing ("""some [link](http://foo 'a title) here""") should produce {
-      spans(txt("some "), linkRef(txt("link")).id("link"), txt("(http://foo 'a title) here"))
+      spans(txt("some "), linkRef(txt("link")).id("link").source("[link]"), txt("(http://foo 'a title) here"))
     }
   }
   
@@ -203,7 +203,7 @@ class InlineParsersSpec extends FlatSpec
   
   it should "ignore an inline image with a malformed title" in {
     Parsing ("""some ![link](http://foo.jpg 'a title) here""") should produce {
-      spans(txt("some "), imgRef("link","link"), txt("(http://foo.jpg 'a title) here"))
+      spans(txt("some "), imgRef("link","link","![link]"), txt("(http://foo.jpg 'a title) here"))
     }
   }
   
@@ -217,31 +217,31 @@ class InlineParsersSpec extends FlatSpec
   
   "The link reference parser" should "parse a link reference with an explicit id" in {
     Parsing ("some [link][id] here") should produce {
-      spans(txt("some "), linkRef(txt("link")).id("id").postFix("][id]"), txt(" here"))
+      spans(txt("some "), linkRef(txt("link")).id("id").source("[link][id]"), txt(" here"))
     }
   }
   
   it should "parse a link reference with an empty id" in {
     Parsing ("some [link][] here") should produce {
-      spans(txt("some "), linkRef(txt("link")).id("link").postFix("][]"), txt(" here"))
+      spans(txt("some "), linkRef(txt("link")).id("link").source("[link][]"), txt(" here"))
     }
   }
   
   it should "parse a link reference with an explicit id separated by a space" in {
     Parsing ("some [link] [id] here") should produce {
-      spans(txt("some "), linkRef(txt("link")).id("id").postFix("] [id]"), txt(" here"))
+      spans(txt("some "), linkRef(txt("link")).id("id").source("[link] [id]"), txt(" here"))
     }
   }
   
   it should "parse a link reference with an empty id separated by a space" in {
     Parsing ("some [link] [] here") should produce {
-      spans(txt("some "), linkRef(txt("link")).id("link").postFix("] []"), txt(" here"))
+      spans(txt("some "), linkRef(txt("link")).id("link").source("[link] []"), txt(" here"))
     }
   }
   
   it should "parse a link reference with an implicit id" in {
     Parsing ("some [link] here") should produce {
-      spans(txt("some "), linkRef(txt("link")).id("link"), txt(" here"))
+      spans(txt("some "), linkRef(txt("link")).id("link").source("[link]"), txt(" here"))
     }
   }
   
@@ -249,19 +249,19 @@ class InlineParsersSpec extends FlatSpec
   
   "The image reference parser" should "parse an image reference with an explicit id" in {
     Parsing ("some ![image][id] here") should produce {
-      spans(txt("some "), imgRef("image","id","][id]"), txt(" here"))
+      spans(txt("some "), imgRef("image","id","![image][id]"), txt(" here"))
     }
   }
   
   it should "parse an image reference with an empty id" in {
     Parsing ("some ![image][] here") should produce {
-      spans(txt("some "), imgRef("image","image","][]"), txt(" here"))
+      spans(txt("some "), imgRef("image","image","![image][]"), txt(" here"))
     }
   }
   
   it should "parse an image reference with an implicit id" in {
     Parsing ("some ![image] here") should produce {
-      spans(txt("some "), imgRef("image","image"), txt(" here"))
+      spans(txt("some "), imgRef("image","image","![image]"), txt(" here"))
     }
   }
   

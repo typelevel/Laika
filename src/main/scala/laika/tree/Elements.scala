@@ -57,6 +57,24 @@ object Elements {
    */
   trait ListItem extends Element
   
+  /** The base type for all reference elements.
+   * 
+   *  A reference points to some other node in the document tree and needs
+   *  to be resolved and replaced by a rewrite rule before rendering. 
+   *  Therefore none of the available renderers include logic for 
+   *  dealing with references.
+   */
+  trait Reference extends Span {
+    def source: String
+  }
+  
+  /** The base type for all link elements.
+   * 
+   *  In contrast to the reference type, it is only mixed in by
+   *  elements representing resolved links that can be dealt
+   *  with by renderers.
+   */
+  trait Link extends Span
 
   /** A generic container.
    *  Usually not mixed in directly, instead one of the sub-traits
@@ -316,42 +334,54 @@ object Elements {
    */
   case class Literal (content: String) extends Span with TextContainer
   
-  /** A link element, with the span content representing the text (description) of the link.
+  
+  /** An external link element, with the span content representing the text (description) of the link.
    */
-  case class Link (content: Seq[Span], url: String, title: Option[String] = None) extends Span with SpanContainer[Link]
+  case class ExternalLink (content: Seq[Span], url: String, title: Option[String] = None) extends Link with SpanContainer[ExternalLink]
 
-  /** A link reference, the id pointing to the id of a `LinkDefinition`. Usually only part of the
-   *  raw document tree and then removed by the rewrite rule that resolves link and image references.
-   *  But an unresolvable reference may be left in the tree to leave the decision how to deal with it
-   *  to the renderer which should use the `inputPrefix` and `inputPostfix` attributes to enclose
-   *  the content in the original markup.
+  /** A internal link element, with the span content representing the text (description) of the link.
    */
-  case class LinkReference (content: Seq[Span], id: String, inputPrefix: String, inputPostfix: String) extends Span with SpanContainer[LinkReference]
+  case class InternalLink (content: Seq[Span], url: String, title: Option[String] = None) extends Link with SpanContainer[InternalLink]
+  
+  /** A resolved link to a footnote.
+   */
+  case class FootnoteLink (id: String, label: String) extends Link
+
+  /** A resolved link to a citation.
+   */
+  case class CitationLink (label: String) extends Link
   
   /** An inline image with a text description and optional title.
    */
-  case class Image (text: String, url: String, title: Option[String] = None) extends Span
-  
-  /** An image reference, the id pointing to the id of a `LinkDefinition`. Usually only part of the
-   *  raw document tree and then removed by the rewrite rule that resolves link and image references.
-   *  But an unresolvable reference may be left in the tree to leave the decision how to deal with it
-   *  to the renderer which should use the `inputPrefix` and `inputPostfix` attributes to enclose
-   *  the text in the original markup.
-   */
-  case class ImageReference (text: String, id: String, inputPrefix: String, inputPostfix: String) extends Span
-  
-  /** A reference to a footnote with a matching label.
-   */
-  case class FootnoteReference (label: FootnoteLabel) extends Span
+  case class Image (text: String, url: String, title: Option[String] = None) extends Link
 
-  /** A reference to a citation with a matching label.
+ 
+  /** A link reference, the id pointing to the id of a `LinkTarget`. Only part of the
+   *  raw document tree and then removed by the rewrite rule that resolves link and image references.
    */
-  case class CitationReference (label: String) extends Span
+  case class LinkReference (content: Seq[Span], id: String, source: String) extends Reference with SpanContainer[LinkReference]
+  
+  /** An image reference, the id pointing to the id of a `LinkTarget`. Only part of the
+   *  raw document tree and then removed by the rewrite rule that resolves link and image references.
+   */
+  case class ImageReference (text: String, id: String, source: String) extends Reference
+  
+  /** A reference to a footnote with a matching label.  Only part of the
+   *  raw document tree and then removed by the rewrite rule that resolves link and image references.
+   */
+  case class FootnoteReference (label: FootnoteLabel, source: String) extends Reference
+
+  /** A reference to a citation with a matching label.  Only part of the
+   *  raw document tree and then removed by the rewrite rule that resolves link and image references.
+   */
+  case class CitationReference (label: String, source: String) extends Reference
+
+  
+
   
   /** An explicit hard line break.
    */
   case object LineBreak extends Span
-  
   
   /** A comment that may be omitted by renderers.
    */

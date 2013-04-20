@@ -199,7 +199,7 @@ trait BlockParsers extends BlockBaseParsers
       elems += FinalBlock
       val processed = elems.toList.sliding(2).foldLeft(new ListBuffer[Block]()) {
         case (buffer, (it: InternalLinkTarget) :: (lt: LinkTarget) :: Nil) => 
-          buffer += IndirectLinkTarget(it.id, LinkReference(Nil, lt.id, "`", "`_"))
+          buffer += IndirectLinkTarget(it.id, LinkReference(Nil, lt.id, "`" + it.id + "`_"))
         case (buffer, (h @ SectionHeader(_,_,_)) :: _) => 
           buffer += InternalLinkTarget(toLinkId(h)) += h  
         case (buffer, other :: _) => 

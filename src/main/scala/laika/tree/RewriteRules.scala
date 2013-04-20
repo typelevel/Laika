@@ -60,7 +60,7 @@ object RewriteRules {
    
   private def resolveLinkReference (ref: LinkReference, linkDefinitions: Map[String, ExternalLinkTarget]) = {
     linkDefinitions.get(ref.id) match {
-      case Some(ExternalLinkTarget(id, url, title)) => Link(ref.content, url, title)
+      case Some(ExternalLinkTarget(id, url, title)) => ExternalLink(ref.content, url, title)
       case None                                 => ref
     }
   }

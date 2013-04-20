@@ -140,8 +140,10 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
       case Emphasized(content)        => out <<         "<em>" <<    content <<  "</em>" 
       case Strong(content)            => out <<     "<strong>" <<    content <<   "</strong>" 
       case Line(content)              => out << """<div class="line">""" << content <<  "</div>"
-      case Link(content, url, title)  => out << "<a"   <<@ ("href",url) <<@ ("title",title) << ">" << content << "</a>"
       case Header(level, content)     => out <<| "<h" << level.toString << ">" << content << "</h" << level.toString << ">"
+
+      case ExternalLink(content, url, title)  => out << "<a"   <<@ ("href",url) <<@ ("title",title) << ">" << content << "</a>"
+      case InternalLink(content, url, title)  => out << "<a"   <<@ ("href",url) <<@ ("title",title) << ">" << content << "</a>"
       
       case SpanSequence(content)      => out << content
       case unknown                    => out << "<span>" <<|> unknown.content << "</span>"
@@ -173,19 +175,22 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
     }
     
     def renderSimpleSpan (span: Span) = span match {
-      case CitationReference(label)   => out << "<a"   <<@ ("href", "#"+label) <<@ ("class","citation") << ">[" << label << "]</a>" 
-      case FootnoteReference(ResolvedFootnoteLabel(id,label)) => 
-          out << "<a"   <<@ ("href", "#"+id) <<@ ("class","footnote") << ">[" << label << "]</a>" 
-      case Image(text, url, title)    => out << "<img" <<@ ("src", url) <<@ ("alt",text) <<@ ("title",title) << ">"
-      case LineBreak                  => out << "<br>"
+      case CitationLink(label)     => out << "<a"   <<@ ("href", "#"+label) <<@ ("class","citation") << ">[" << label << "]</a>" 
+      case FootnoteLink(id,label)  => out << "<a"   <<@ ("href", "#"+id) <<@ ("class","footnote") << ">[" << label << "]</a>" 
+      case Image(text, url, title) => out << "<img" <<@ ("src", url) <<@ ("alt",text) <<@ ("title",title) << ">"
+      case LineBreak               => out << "<br>"
       
-      case unknown                    => ()
+      case unknown                 => ()
     }
     
     def renderTableElement (elem: TableElement) = elem match {
       case TableHead(rows)            => out << "<thead>" <<|> rows <<| "</thead>"
       case TableBody(rows)            => out << "<tbody>" <<|> rows <<| "</tbody>"     
       case ColumnStyles(styles)       => out << "<colgroup>" <<|> styles <<| "</colgroup>"  
+    }
+    
+    def renderUnresolvedReference (ref: Reference) = {
+      out << InvalidSpan(SystemMessage(Error,"unresolved reference: " + ref), Text(ref.source)) 
     }
     
     
@@ -199,8 +204,7 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
       case InvalidSpan(msg, fallback)  => if (include(msg)) out << msg << " " << fallback
                                           else out << fallback 
       
-      case LinkReference(content, id, inputPrefix, inputPostfix)  => out << inputPrefix << content << inputPostfix 
-      case ImageReference(text, id, inputPrefix, inputPostfix)    => out << inputPrefix << text    << inputPostfix
+      case ref: Reference             => renderUnresolvedReference(ref)
 
       case st: StyledTable            => renderTable(st)
       case t: Table                   => renderTable(toTable(t))

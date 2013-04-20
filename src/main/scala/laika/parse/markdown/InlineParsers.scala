@@ -143,8 +143,9 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   def link: Parser[Span] = {
     lazy val linkSpanParsers = spanParsers // - '['
     
-    def linkInline (text: String, url: String, title: Option[String]) = Link(parseInline(text, linkSpanParsers), url, title)
-    def linkReference (text: String, id: String, postFix: String): Span = LinkReference(parseInline(text, linkSpanParsers), id.toLowerCase, "[", postFix)
+    def linkInline (text: String, url: String, title: Option[String]) = ExternalLink(parseInline(text, linkSpanParsers), url, title)
+    def linkReference (text: String, id: String, postFix: String): Span = 
+      LinkReference(parseInline(text, linkSpanParsers), id.toLowerCase, "[" + text + postFix)
     
     resource(linkInline, linkReference)
   }
@@ -154,7 +155,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
    */
   def image: Parser[Span] = {
     def imageInline (text: String, url: String, title: Option[String]) = Image(text, url, title)
-    def imageReference (text: String, id: String, postFix: String): Span = ImageReference(text, id.toLowerCase, "![", postFix)
+    def imageReference (text: String, id: String, postFix: String): Span = ImageReference(text, id.toLowerCase, "![" + text + postFix)
      
     '[' ~> resource(imageInline, imageReference)
   }
@@ -193,7 +194,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
     def isURI (s: String) = try { val uri = new URI(s); uri.isAbsolute && isAcceptedScheme(uri.getScheme) } catch { case _:Throwable => false }
     def isEmail (s: String) = s.contains("@") && isURI("mailto:" + s) // TODO - improve
     
-    def toLink(s: String) = Link(List(Text(s)), s) 
+    def toLink(s: String) = ExternalLink(List(Text(s)), s) 
     
     anyBut(' ','\r','\n','\t','>') <~ '>' ^? { 
       case s if isURI(s) => toLink(s)

@@ -340,13 +340,13 @@ class HTMLRendererSpec extends FlatSpec
     render (elem) should be ("""<p>some <a href="/foo">link<em>text</em></a> span</p>""") 
   }
   
-  it should "render a paragraph containing a citation reference" in {
-    val elem = p(txt("some "), CitationReference("label"), txt(" span"))
+  it should "render a paragraph containing a citation link" in {
+    val elem = p(txt("some "), CitationLink("label"), txt(" span"))
     render (elem) should be ("""<p>some <a href="#label" class="citation">[label]</a> span</p>""") 
   }
   
-  it should "render a paragraph containing a footnote reference" in {
-    val elem = p(txt("some "), FootnoteReference(ResolvedFootnoteLabel("id","label")), txt(" span"))
+  it should "render a paragraph containing a footnote link" in {
+    val elem = p(txt("some "), FootnoteLink("id","label"), txt(" span"))
     render (elem) should be ("""<p>some <a href="#id" class="footnote">[label]</a> span</p>""") 
   }
   
@@ -361,12 +361,12 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a paragraph containing an unresolved link reference" in {
-    val elem = p(txt("some "), linkRef(txt("link")).id("id").postFix("] [id]"), txt(" span"))
+    val elem = p(txt("some "), linkRef(txt("link")).id("id").source("[link] [id]"), txt(" span"))
     render (elem) should be ("""<p>some [link] [id] span</p>""") 
   }
   
   it should "render a paragraph containing an unresolved image reference" in {
-    val elem = p(txt("some "), imgRef("img","id","] [id]"), txt(" span"))
+    val elem = p(txt("some "), imgRef("img","id","![img] [id]"), txt(" span"))
     render (elem) should be ("""<p>some ![img] [id] span</p>""") 
   }
   

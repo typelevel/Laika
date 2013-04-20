@@ -108,24 +108,24 @@ class ExplicitBlockParsersSpec extends FlatSpec
   
   it should "parse an indirect simple reference" in {
     val input = """.. _ref: other_"""
-    Parsing (input) should produce (doc(IndirectLinkTarget("ref", LinkReference(Nil,"other","`","`_"))))
+    Parsing (input) should produce (doc(IndirectLinkTarget("ref", LinkReference(Nil,"other","`other`_"))))
   }
   
   it should "parse an indirect phrase reference on one line" in {
     val input = """.. _ref: `other ref`_"""
-    Parsing (input) should produce (doc(IndirectLinkTarget("ref", LinkReference(Nil,"other ref","`","`_"))))
+    Parsing (input) should produce (doc(IndirectLinkTarget("ref", LinkReference(Nil,"other ref","`other ref`_"))))
   }
   
   it should "parse an indirect phrase reference on two lines" in {
     val input = """.. _ref: `other
       | ref`_""".stripMargin
-    Parsing (input) should produce (doc(IndirectLinkTarget("ref", LinkReference(Nil,"other ref","`","`_"))))
+    Parsing (input) should produce (doc(IndirectLinkTarget("ref", LinkReference(Nil,"other ref","`other\n ref`_"))))
   }
   
   it should "parse an indirect phrase reference on the following" in {
     val input = """.. _ref: 
       | `other ref`_""".stripMargin
-    Parsing (input) should produce (doc(IndirectLinkTarget("ref", LinkReference(Nil,"other ref","`","`_"))))
+    Parsing (input) should produce (doc(IndirectLinkTarget("ref", LinkReference(Nil,"other ref","`other ref`_"))))
   }
   
   it should "parse an internal target" in {
