@@ -85,7 +85,7 @@ trait BlockBaseParsers extends laika.parse.BlockParsers {
     val block = parser <~ opt(blankLines) 
     
     parseMarkup(opt(blankLines) ~> (block *), reader) match {
-      case Paragraph(content) :: Nil => SpanSequence(content) :: Nil
+      case Paragraph(content,opt) :: Nil => SpanSequence(content,opt) :: Nil
       case other => other
     }
   }

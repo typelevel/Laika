@@ -43,7 +43,7 @@ import laika.parse.rst.Elements._
 class ExtendedHTML extends (HTMLWriter => PartialFunction[Element, Unit]) {
 
   
-  private case class ProgramOptions (options: Seq[Element]) extends Block
+  private case class ProgramOptions (opts: Seq[Element], options: Options = NoOpt) extends Block
   
   /** Converts an `OptionList` to an interim table model for rendering.
    */
@@ -54,7 +54,7 @@ class ExtendedHTML extends (HTMLWriter => PartialFunction[Element, Unit]) {
     }
     def options (value: Seq[ProgramOption]) = Cell(BodyCell, List(ProgramOptions(intersperse(value.toList,Text(", ")))))
     def body (value: Seq[Block]) = Cell(BodyCell, value)
-    val rows = ol.content map (o => Row(List(options(o.options),body(o.content))))
+    val rows = ol.content map (o => Row(List(options(o.programOptions),body(o.content))))
     StyledTable(TableHead(Nil), TableBody(rows), List("option-list"), 
         ColumnStyles(List(ColumnStyle(List("option")),ColumnStyle(List("description")))), None)
   }
@@ -72,10 +72,10 @@ class ExtendedHTML extends (HTMLWriter => PartialFunction[Element, Unit]) {
   def apply (out: HTMLWriter): PartialFunction[Element, Unit] = {
     
     val pf: PartialFunction[Element, Unit] = {
-      case DoctestBlock(content)      => out << """<pre class="doctest-block">""" <<<& (">>> "+content) <<  "</pre>"
+      case DoctestBlock(content,_)    => out << """<pre class="doctest-block">""" <<<& (">>> "+content) <<  "</pre>"
       case fl: FieldList              => out << toTable(fl)
       case ol: OptionList             => out << toTable(ol)
-      case ProgramOptions(options)    => out << "<kbd>" << options << "</kbd>"
+      case ProgramOptions(options,_)  => out << "<kbd>" << options << "</kbd>"
       case ProgramOption(name,arg)    => out << """<span class="option">""" << name << arg.getOrElse(Text("")) << "</span>"
       case OptionArgument(value,delim)=> out << delim << "<var>" << value << "</var>"
     } 

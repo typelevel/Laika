@@ -52,7 +52,7 @@ class BlockParsersSpec extends FlatSpec
   }
   
   it should "parse a double space at a line end as a hard line break" in {
-    Parsing ("some text  \nsome more") should produce (doc( p(txt("some text"), LineBreak, txt("\nsome more"))))
+    Parsing ("some text  \nsome more") should produce (doc( p(txt("some text"), LineBreak(), txt("\nsome more"))))
   }
   
   
@@ -339,7 +339,7 @@ class BlockParsersSpec extends FlatSpec
       |- - - -
       |
       |ccc""".stripMargin
-    Parsing (input) should produce (doc( p("aaa\nbbb"), Rule, p("ccc")))
+    Parsing (input) should produce (doc( p("aaa\nbbb"), Rule(), p("ccc")))
   }
   
   it should "parse a line decorated by '-' and space characters ending on several spaces as a horizontal rule" in {
@@ -349,7 +349,7 @@ class BlockParsersSpec extends FlatSpec
       |- - - -    
       |
       |ccc""".stripMargin
-    Parsing (input) should produce (doc( p("aaa\nbbb"), Rule, p("ccc")))
+    Parsing (input) should produce (doc( p("aaa\nbbb"), Rule(), p("ccc")))
   }
   
   it should "parse a line decorated by '-' and space characters even if the number of spaces varies" in {
@@ -359,7 +359,7 @@ class BlockParsersSpec extends FlatSpec
       |- -    - -    
       |
       |ccc""".stripMargin
-    Parsing (input) should produce (doc( p("aaa\nbbb"), Rule, p("ccc")))
+    Parsing (input) should produce (doc( p("aaa\nbbb"), Rule(), p("ccc")))
   }
   
   it should "treat a line decorated by '_' and space characters as normal text in case it is followed by other characters" in {
@@ -389,7 +389,7 @@ class BlockParsersSpec extends FlatSpec
       |   _ _ _ _    
       |
       |ccc""".stripMargin
-    Parsing (input) should produce (doc( p("aaa\nbbb"), Rule, p("ccc")))
+    Parsing (input) should produce (doc( p("aaa\nbbb"), Rule(), p("ccc")))
   }
   
   it should "parse a line decorated by '-' without space characters as a horizontal rule" in {
@@ -399,7 +399,7 @@ class BlockParsersSpec extends FlatSpec
       |-----    
       |
       |ccc""".stripMargin
-    Parsing (input) should produce (doc( p("aaa\nbbb"), Rule, p("ccc")))
+    Parsing (input) should produce (doc( p("aaa\nbbb"), Rule(), p("ccc")))
   }
   
   it should "parse a line decorated by '_' and space characters" in {
@@ -409,7 +409,7 @@ class BlockParsersSpec extends FlatSpec
       |_ _ _ _    
       |
       |ccc""".stripMargin
-    Parsing (input) should produce (doc( p("aaa\nbbb"), Rule, p("ccc")))
+    Parsing (input) should produce (doc( p("aaa\nbbb"), Rule(), p("ccc")))
   }
   
   it should "parse a line decorated by '*' and space characters" in {
@@ -419,7 +419,7 @@ class BlockParsersSpec extends FlatSpec
       | *  *  *    
       |
       |ccc""".stripMargin
-    Parsing (input) should produce (doc( p("aaa\nbbb"), Rule, p("ccc")))
+    Parsing (input) should produce (doc( p("aaa\nbbb"), Rule(), p("ccc")))
   }
   
   

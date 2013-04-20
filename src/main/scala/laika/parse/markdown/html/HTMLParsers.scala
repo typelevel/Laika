@@ -175,7 +175,7 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
   /** Parses the start tag of an HTML block, only matches when the tag name is an
    *  actual block-level HTML tag.
    */
-  def htmlBlockStart = '<' ~> htmlStartTag ^? { case t @ HTMLStartTag(name, _) if htmlBlockElements.contains(name) => t }
+  def htmlBlockStart = '<' ~> htmlStartTag ^? { case t @ HTMLStartTag(name, _, _) if htmlBlockElements.contains(name) => t }
 
   private lazy val htmlBlockParsers = Map(
     '<' -> htmlSpan,    

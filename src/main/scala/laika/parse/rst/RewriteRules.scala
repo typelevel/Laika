@@ -43,21 +43,21 @@ object RewriteRules {
       case _: SubstitutionDefinition => true 
       case _ => false 
     } map { 
-      case SubstitutionDefinition(id,content) => (id,content) 
+      case SubstitutionDefinition(id,content,_) => (id,content) 
     } toMap
     
   private def selectTextRoles (document: Document) = document.select { 
       case _: CustomizedTextRole => true
       case _ => false 
     } map { 
-      case CustomizedTextRole(id,f) => (id,f)                                   
+      case CustomizedTextRole(id,f,_) => (id,f)                                   
     } toMap  
     
   private def selectCitations (document: Document) = document.select { 
       case _: Citation => true 
       case _ => false 
     } map { 
-      case Citation(label,content) => label 
+      case Citation(label,content,_) => label 
     } toSet 
    
     
@@ -82,7 +82,7 @@ object RewriteRules {
     }  
     
     object NumberProvider {
-      private val explicitNumbers = unresolvedFootnotes.collect { case n @ FootnoteDefinition(NumericLabel(num),_) => num } toSet 
+      private val explicitNumbers = unresolvedFootnotes.collect { case n @ FootnoteDefinition(NumericLabel(num),_,_) => num } toSet 
       private val numberIt = Stream.from(1).iterator
       private val usedNums = new scala.collection.mutable.HashSet[Int]
       private lazy val usedIt = TreeSet(usedNums.toList:_*).iterator
@@ -98,7 +98,7 @@ object RewriteRules {
     val symbols = new SymbolProvider
     
     private val resolvedFootnotes = (unresolvedFootnotes map { 
-      case f @ FootnoteDefinition(label,content) => 
+      case f @ FootnoteDefinition(label,content,_) => 
         val (id, display) = label match {
           case Autonumber => 
             val num = NumberProvider.next.toString
@@ -118,19 +118,19 @@ object RewriteRules {
     private val resolvedByIdentity = resolvedFootnotes toMap
     
     private val resolvedByLabel = (resolvedFootnotes map {
-      case (_, fn @ Footnote(id, label, _)) => List((id -> fn),(label -> fn))
+      case (_, fn @ Footnote(id, label, _, _)) => List((id -> fn),(label -> fn))
     }).flatten.toMap 
     
     val refSymbols = new SymbolProvider
     def toLink (fn: Footnote) = FootnoteLink(fn.id, fn.label)
     def numberedLabelRef (fn: Footnote) = fn match {
-      case Footnote(id, label, _) =>
+      case Footnote(id, label, _, _) =>
         NumberProvider.remove(label.toInt)
         FootnoteLink(id,label)
     }
     
     private val (autonumberedLabels, otherRefs) = unresolvedReferences partition {
-      case FootnoteReference(AutonumberLabel(_),_) => true; case _ => false
+      case FootnoteReference(AutonumberLabel(_),_,_) => true; case _ => false
     }
     
     def resolve (id: String, f: Footnote => FootnoteLink, source: String, msg: String) = {
@@ -138,18 +138,18 @@ object RewriteRules {
     }
     
     private val resolvedReferences = (autonumberedLabels map {
-      case r @ FootnoteReference(AutonumberLabel(label), source) =>
+      case r @ FootnoteReference(AutonumberLabel(label), source, _) =>
         (Key(r), resolve(label, numberedLabelRef, source, "unresolved footnote reference: " + label))
     }).toMap ++ (otherRefs map {
-      case r @ FootnoteReference(Autonumber, source) => 
+      case r @ FootnoteReference(Autonumber, source, _) => 
         val num = NumberProvider.nextUsed
         (Key(r), (num map {n => resolve(n, toLink, source, "too many autonumer references")})
           .getOrElse(invalidSpan("too many autonumer references", source)))
         
-      case r @ FootnoteReference(NumericLabel(num), source) => 
+      case r @ FootnoteReference(NumericLabel(num), source, _) => 
         (Key(r), resolve(num.toString, toLink, source, "unresolved footnote reference: " + num))
         
-      case r @ FootnoteReference(Autosymbol, source) =>
+      case r @ FootnoteReference(Autosymbol, source, _) =>
         val sym = refSymbols.next
         (Key(r), resolve(sym, toLink, source, "too many autosymbol references"))
     }).toMap
@@ -192,7 +192,7 @@ object RewriteRules {
         InvalidLinkTarget(target.id, SystemMessage(laika.tree.Elements.Error, "circular link reference: " + target.id))
       else
         unresolvedLinkTargets.get(target.ref.id) map {
-          case it @ IndirectLinkDefinition(id, _) => resolveIndirectTarget(it, visited + target.id)
+          case it @ IndirectLinkDefinition(id, _,_) => resolveIndirectTarget(it, visited + target.id)
           case other => other
         } getOrElse InvalidLinkTarget(target.id, SystemMessage(laika.tree.Elements.Error, "unresolved link reference: " + target.ref.id))
     }            
@@ -226,26 +226,26 @@ object RewriteRules {
     val levelIt = Stream.from(1).iterator
     
     val pf: PartialFunction[Element, Option[Element]] = {
-      case SectionHeader(char, overline, content) => 
+      case SectionHeader(char, overline, content, _) => 
         Some(Header(levelMap.getOrElseUpdate((char,overline), levelIt.next), content))
         
-      case SubstitutionReference(id) =>
+      case SubstitutionReference(id,_) =>
         substitutions.get(id).orElse(Some(invalidSpan("unknown substitution id: " + id, "|"+id+"|")))
         
-      case InterpretedText(role,text,_) =>
+      case InterpretedText(role,text,_,_) =>
         textRoles.get(role).orElse(Some({s: String => invalidSpan("unknown text role: " + role, "`"+s+"`")})).map(_(text))
         
-      case c @ CitationReference(label,source) =>
+      case c @ CitationReference(label,source,_) =>
         Some(if (citations.contains(label)) CitationLink(label) else invalidSpan("unresolved citation reference: " + label, source))
         
-      case f @ Footnote(_,_,_)              => Some(f) // TODO - should not be required  
-      case f @ FootnoteDefinition(_,_) => Some(footnotes.resolved(f))  
-      case r @ FootnoteReference(_,_)       => Some(footnotes.resolved(r))  
+      case f: Footnote           => Some(f) // TODO - should not be required  
+      case f: FootnoteDefinition => Some(footnotes.resolved(f))  
+      case r: FootnoteReference  => Some(footnotes.resolved(r))  
         
       case ref: LinkReference   => Some(linkTargets.get(getRefId(ref.id)) match {
-        case Some(ExternalLinkDefinition(id, url, title)) => ExternalLink(ref.content, url, title)
-        case Some(InternalLinkTarget(id))             => InternalLink(ref.content, "#"+id)
-        case Some(InvalidLinkTarget(id, msg))         => InvalidSpan(msg, Text(ref.source))
+        case Some(ExternalLinkDefinition(id, url, title, _)) => ExternalLink(ref.content, url, title)
+        case Some(InternalLinkTarget(id,_))                  => InternalLink(ref.content, "#"+id)
+        case Some(InvalidLinkTarget(id, msg))                => InvalidSpan(msg, Text(ref.source))
         case None =>
           val msg = if (ref.id.isEmpty) "too many anonymous link references" else "unresolved link reference: " + ref.id
           InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Text(ref.source))

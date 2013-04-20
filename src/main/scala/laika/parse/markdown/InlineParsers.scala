@@ -48,7 +48,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
     * offset pointing to the character after the one
     * specified as the key for the mapping.
     */
-  protected def newSpanParserMap = Map(
+  protected def newSpanParserMap:Map[Char,Parser[Span]] = Map(
     '*' -> (strong('*') | em('*')),    
     '_' -> (strong('_') | em('_')),
     '`' -> (literalEnclosedByDoubleChar | literalEnclosedBySingleChar), 
@@ -71,7 +71,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   
   /** Parses an explicit hard line break.
    */
-  def lineBreak = (anyOf('\r') take 1) ^^^ { LineBreak }
+  def lineBreak = (anyOf('\r') take 1) ^^^ LineBreak()
   
   /** Parses a span of strong text enclosed by two consecutive occurrences of the specified character. 
    */

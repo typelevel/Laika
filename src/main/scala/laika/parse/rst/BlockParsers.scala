@@ -55,7 +55,7 @@ trait BlockParsers extends BlockBaseParsers
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#transitions]].
    */  
-  val transition = (punctuationChar min 4) ~ ws ~ eol ~ guard(blankLine) ^^^ Rule  
+  val transition = (punctuationChar min 4) ~ ws ~ eol ~ guard(blankLine) ^^^ Rule()  
     
   /** Parses a single paragraph. Everything between two blank lines that is not
    *  recognized as a special reStructuredText block type will be parsed as a regular paragraph.
@@ -179,30 +179,30 @@ trait BlockParsers extends BlockBaseParsers
 
     def processLiteralMarker (par: Paragraph) = {
       par.content.lastOption match {
-        case Some(Text(text)) if text.trim.endsWith("::") => 
+        case Some(Text(text,opt)) if text.trim.endsWith("::") => 
           val drop = if (text.length > 2 && text.charAt(text.length-3) == ' ') 3 else 1
-          val spans = par.content.init.toList ::: List(Text(text.dropRight(drop)))
-          (Paragraph(spans), litBlock)
+          val spans = par.content.init.toList ::: List(Text(text.dropRight(drop),opt))
+          (Paragraph(spans,par.options), litBlock)
         case _ => (par, defaultBlock) 
       }
     }
     def toLinkId (h: SectionHeader) = {
       def flattenText (spans: Seq[Span]): String = ("" /: spans) {
-        case (res, Text(text)) => res + text
+        case (res, Text(text,_)) => res + text
         case (res, sc: SpanContainer[_]) => res + flattenText(sc.content)
         case (res, _) => res
       }
       flattenText(h.content).replaceAll("[^a-zA-Z0-9]+","-").replaceFirst("^-","").replaceFirst("-$","").toLowerCase
     }
     def result = {
-      case object FinalBlock extends Block
-      elems += FinalBlock
+      case class FinalBlock (options: Options = NoOpt) extends Block
+      elems += FinalBlock()
       val processed = elems.toList.sliding(2).foldLeft(new ListBuffer[Block]()) {
         case (buffer, (it: InternalLinkTarget) :: (rt: InternalLinkTarget) :: Nil) => 
           buffer += IndirectLinkDefinition(it.id, LinkReference(Nil, rt.id, "`" + it.id + "`_"))
         case (buffer, (it: InternalLinkTarget) :: (et: ExternalLinkDefinition) :: Nil) => 
           buffer += IndirectLinkDefinition(it.id, LinkReference(Nil, et.id, "`" + it.id + "`_"))
-        case (buffer, (h @ SectionHeader(_,_,_)) :: _) => 
+        case (buffer, (h @ SectionHeader(_,_,_,_)) :: _) => 
           buffer += InternalLinkTarget(toLinkId(h)) += h  
         case (buffer, other :: _) => 
           buffer += other
@@ -213,7 +213,7 @@ trait BlockParsers extends BlockBaseParsers
     
     @tailrec 
     def parse (p: Parser[Block], in: Input): ParseResult[List[Block]] = p(in) match {
-      case Success(Paragraph(Text(txt) :: Nil), rest) if txt.trim == "::" => parse(litBlock, rest)
+      case Success(Paragraph(Text(txt,_) :: Nil,_), rest) if txt.trim == "::" => parse(litBlock, rest)
       case Success(p: Paragraph, rest) => 
         val (paragraph, parser) = processLiteralMarker(p)
         elems += paragraph

@@ -45,19 +45,53 @@ object Elements {
    */
   abstract class Element extends Product
   
+  /** An elements that can be customized. Represents options
+   *  that are usually only used on few selected nodes and
+   *  can control subtle differences often only relevant
+   *  for renderers.
+   */
+  trait Customizable extends Element {
+    def options: Options
+  }
+  
+  /** Options for customizable elements.
+   */
+  sealed abstract class Options {
+    /** The id of this element. Has to be unique
+     *  across all element types of a document,
+     *  including the ids of `LinkTarget` instances.
+     */
+    def id: Option[String]
+    /** Styles names that may have an influence
+     *  on rendering of this element.
+     */
+    def styles: Seq[String]
+    /** Defines a fallback for this element in 
+     *  case the renderer does not know how
+     *  to deal with it.
+     */
+    def fallback: Option[Element]
+    /** Merges these options with the specified
+     *  options. If the id or fallback have been
+     *  set in both instances, the other instance
+     *  overrides this one.
+     */
+    def + (other: Options): Options
+  }
+  
   /** The base type for all block level elements.
    */
-  trait Block extends Element
+  trait Block extends Customizable
 
   /** The base type for all inline elements.
    */
-  trait Span extends Element
+  trait Span extends Customizable
   
   /** The base type for all list items.
    */
-  trait ListItem extends Element
+  trait ListItem extends Customizable
   
-  /** Represents a temporary item only present in the
+  /** Represents a temporary element only present in the
    *  raw document tree and then removed or replaced
    *  by a rewrite rule before rendering.
    */
@@ -146,6 +180,7 @@ object Elements {
   trait ListContainer[Self <: ListContainer[Self]] extends ElementContainer[ListItem,Self]
   
   
+  
   /** The root element of a document tree.
    */
   case class Document (content: Seq[Block]) extends Element with BlockContainer[Document]
@@ -155,12 +190,12 @@ object Elements {
    *  of a list of Block elements. Sections may be nested inside other sections,
    *  they are arranged in a hierarchy based on the level of their header element.
    */
-  case class Section (header: Header, content: Seq[Block]) extends Block with BlockContainer[Section]
+  case class Section (header: Header, content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[Section]
 
   /** A header element with a level 
    * 
    */
-  case class Header (level: Int, content: Seq[Span]) extends Block with SpanContainer[Header]
+  case class Header (level: Int, content: Seq[Span], options: Options = NoOpt) extends Block with SpanContainer[Header]
    
   
   /** A generic container element containing a list of blocks. Can be used where a sequence
@@ -168,7 +203,7 @@ object Elements {
    *  Usually renderers do not treat the container as a special element and render its children
    *  as s sub flow of the parent container.
    */
-  case class BlockSequence (content: Seq[Block]) extends Block with BlockContainer[BlockSequence]
+  case class BlockSequence (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[BlockSequence]
   
   /** A generic container element containing a list of spans. Can be used where a sequence
    *  of spans must be inserted in a place where a single element is required by the API.
@@ -176,29 +211,32 @@ object Elements {
    *  as s sub flow of the parent container. A span sequence is special in that in can be
    *  used as both a span and a block.
    */
-  case class SpanSequence (content: Seq[Span]) extends Block with Span with SpanContainer[SpanSequence]
+  case class SpanSequence (content: Seq[Span], options: Options = NoOpt) extends Block with Span with SpanContainer[SpanSequence]
 
   
   /** A paragraph consisting of span elements.
    */
-  case class Paragraph (content: Seq[Span]) extends Block with SpanContainer[Paragraph]
+  case class Paragraph (content: Seq[Span], options: Options = NoOpt) extends Block with SpanContainer[Paragraph]
     
   /** A literal block with simple text content.
    */
-  case class LiteralBlock (content: String) extends Block with TextContainer
+  case class LiteralBlock (content: String, options: Options = NoOpt) extends Block with TextContainer
 
   /** A quoted block consisting of a list of blocks that may contain other
    *  nested quoted blocks and an attribution which may be empty.
    */
-  case class QuotedBlock (content: Seq[Block], attribution: Seq[Span]) extends Block with BlockContainer[QuotedBlock]
+  case class QuotedBlock (content: Seq[Block], attribution: Seq[Span], options: Options = NoOpt) extends Block 
+                                                                                                 with BlockContainer[QuotedBlock]
 
   /** An bullet list that may contain nested lists.
    */
-  case class BulletList (content: Seq[ListItem], format: BulletFormat) extends Block with ListContainer[BulletList]
+  case class BulletList (content: Seq[ListItem], format: BulletFormat, options: Options = NoOpt) extends Block 
+                                                                                                 with ListContainer[BulletList]
   
   /** An enumerated list that may contain nested lists.
    */
-  case class EnumList (content: Seq[ListItem], format: EnumFormat, start: Int = 1) extends Block with ListContainer[EnumList]
+  case class EnumList (content: Seq[ListItem], format: EnumFormat, start: Int = 1, options: Options = NoOpt) extends Block 
+                                                                                                             with ListContainer[EnumList]
   
   /** The format of a bullet list item.
    */
@@ -241,20 +279,22 @@ object Elements {
     
   /** A single bullet list item consisting of one or more block elements.
    */
-  case class BulletListItem (content: Seq[Block], format: BulletFormat) extends ListItem with BlockContainer[BulletListItem]
+  case class BulletListItem (content: Seq[Block], format: BulletFormat, options: Options = NoOpt) extends ListItem 
+                                                                                                  with BlockContainer[BulletListItem]
   
   /** A single enum list item consisting of one or more block elements.
    */
-  case class EnumListItem (content: Seq[Block], format: EnumFormat, position: Int) extends ListItem with BlockContainer[EnumListItem]
+  case class EnumListItem (content: Seq[Block], format: EnumFormat, position: Int, options: Options = NoOpt) extends ListItem 
+                                                                                                      with BlockContainer[EnumListItem]
   
   /** A list of terms and their definitions.
    */
-  case class DefinitionList (content: Seq[DefinitionListItem]) extends Block with ListContainer[DefinitionList]
+  case class DefinitionList (content: Seq[DefinitionListItem], options: Options = NoOpt) extends Block with ListContainer[DefinitionList]
 
   /** A single definition item, containing the term and definition (as the content property).
    */
-  case class DefinitionListItem (term: Seq[Span], content: Seq[Block]) 
-    extends ListItem with BlockContainer[DefinitionListItem]
+  case class DefinitionListItem (term: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends ListItem 
+                                                                                                 with BlockContainer[DefinitionListItem]
   
   /** A single item inside a line block.
    */
@@ -262,17 +302,17 @@ object Elements {
   
   /** A single line inside a line block.
    */
-  case class Line (content: Seq[Span]) extends LineBlockItem with SpanContainer[Line]
+  case class Line (content: Seq[Span], options: Options = NoOpt) extends LineBlockItem with SpanContainer[Line]
   
   /** A block containing lines which preserve line breaks and optionally nested line blocks.
    */
-  case class LineBlock (content: Seq[LineBlockItem]) extends LineBlockItem with BlockContainer[LineBlock]
+  case class LineBlock (content: Seq[LineBlockItem], options: Options = NoOpt) extends LineBlockItem with BlockContainer[LineBlock]
   
   
   /** A table consisting of a head and a body part represented by a sequence of rows.  
    *  Both the head and body sequence may be empty.
    */
-  case class Table (head: Seq[Row], content: Seq[Row]) extends Block with ElementContainer[Row,Table]
+  case class Table (head: Seq[Row], content: Seq[Row], options: Options = NoOpt) extends Block with ElementContainer[Row,Table]
   
   /** A single table row. In case some of the previous rows contain
    *  cells with a colspan greater than 1, this row may contain
@@ -301,25 +341,31 @@ object Elements {
   /** An external link target, usually only part of the raw document tree and then
    *  removed by the rewrite rule that resolves link and image references.
    */
-  case class ExternalLinkDefinition (id: String, url: String, title: Option[String] = None) extends Definition with Span
+  case class ExternalLinkDefinition (id: String, url: String, title: Option[String] = None, options: Options = NoOpt) extends Definition 
+                                                                                                                      with Span
   
   /** A footnote definition that needs to be resolved to a final footnote 
    *  by a rewrite rule based on the label type.
    */
-  case class FootnoteDefinition (label: FootnoteLabel, content: Seq[Block]) extends Definition with BlockContainer[Footnote]
+  case class FootnoteDefinition (label: FootnoteLabel, content: Seq[Block], options: Options = NoOpt) extends Definition 
+                                                                                                      with BlockContainer[Footnote]
 
   
   /** Points to the following block or span element, making it a target for links.
    */
-  case class InternalLinkTarget (id: String) extends Block with Span with LinkTarget
+  case class InternalLinkTarget (id: String, options: Options = NoOpt) extends Block with Span with LinkTarget
   
   /** A citation consisting of a label and one or more block elements.
    */
-  case class Citation (id: String, content: Seq[Block]) extends Block with LinkTarget with BlockContainer[Footnote]
+  case class Citation (id: String, content: Seq[Block], options: Options = NoOpt) extends Block 
+                                                                                  with LinkTarget 
+                                                                                  with BlockContainer[Footnote]
   
   /** A footnote that can be referred to by a `FootnoteReference` by id.
    */
-  case class Footnote (id: String, label: String, content: Seq[Block]) extends Block with LinkTarget with BlockContainer[Footnote]
+  case class Footnote (id: String, label: String, content: Seq[Block], options: Options = NoOpt) extends Block 
+                                                                                                 with LinkTarget 
+                                                                                                 with BlockContainer[Footnote]
   
   
   /** Base type for all types of footnote labels.
@@ -345,78 +391,78 @@ object Elements {
   
   /** A horizontal rule.
    */
-  case object Rule extends Block
+  case class Rule (options: Options = NoOpt) extends Block
   
   
   
   /** A simple text element.
    */
-  case class Text (content: String) extends Span with TextContainer
+  case class Text (content: String, options: Options = NoOpt) extends Span with TextContainer
 
   /** A span of emphasized inline elements that may contain nested spans.
    */
-  case class Emphasized (content: Seq[Span]) extends Span with SpanContainer[Emphasized]
+  case class Emphasized (content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer[Emphasized]
   
   /** A span of strong inline elements that may contain nested spans.
    */
-  case class Strong (content: Seq[Span]) extends Span with SpanContainer[Strong]
+  case class Strong (content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer[Strong]
     
   /** A span containing plain, unparsed text.
    */
-  case class Literal (content: String) extends Span with TextContainer
+  case class Literal (content: String, options: Options = NoOpt) extends Span with TextContainer
   
   
   /** An external link element, with the span content representing the text (description) of the link.
    */
-  case class ExternalLink (content: Seq[Span], url: String, title: Option[String] = None) extends Link with SpanContainer[ExternalLink]
+  case class ExternalLink (content: Seq[Span], url: String, title: Option[String] = None, options: Options = NoOpt) extends Link with SpanContainer[ExternalLink]
 
   /** A internal link element, with the span content representing the text (description) of the link.
    */
-  case class InternalLink (content: Seq[Span], url: String, title: Option[String] = None) extends Link with SpanContainer[InternalLink]
+  case class InternalLink (content: Seq[Span], url: String, title: Option[String] = None, options: Options = NoOpt) extends Link with SpanContainer[InternalLink]
   
   /** A resolved link to a footnote.
    */
-  case class FootnoteLink (id: String, label: String) extends Link
+  case class FootnoteLink (id: String, label: String, options: Options = NoOpt) extends Link
 
   /** A resolved link to a citation.
    */
-  case class CitationLink (label: String) extends Link
+  case class CitationLink (label: String, options: Options = NoOpt) extends Link
   
   /** An inline image with a text description and optional title.
    */
-  case class Image (text: String, url: String, title: Option[String] = None) extends Link
+  case class Image (text: String, url: String, title: Option[String] = None, options: Options = NoOpt) extends Link
 
  
   /** A link reference, the id pointing to the id of a `LinkTarget`. Only part of the
    *  raw document tree and then removed by the rewrite rule that resolves link and image references.
    */
-  case class LinkReference (content: Seq[Span], id: String, source: String) extends Reference with SpanContainer[LinkReference]
+  case class LinkReference (content: Seq[Span], id: String, source: String, options: Options = NoOpt) extends Reference with SpanContainer[LinkReference]
   
   /** An image reference, the id pointing to the id of a `LinkTarget`. Only part of the
    *  raw document tree and then removed by the rewrite rule that resolves link and image references.
    */
-  case class ImageReference (text: String, id: String, source: String) extends Reference
+  case class ImageReference (text: String, id: String, source: String, options: Options = NoOpt) extends Reference
   
   /** A reference to a footnote with a matching label.  Only part of the
    *  raw document tree and then removed by the rewrite rule that resolves link and image references.
    */
-  case class FootnoteReference (label: FootnoteLabel, source: String) extends Reference
+  case class FootnoteReference (label: FootnoteLabel, source: String, options: Options = NoOpt) extends Reference
 
   /** A reference to a citation with a matching label.  Only part of the
    *  raw document tree and then removed by the rewrite rule that resolves link and image references.
    */
-  case class CitationReference (label: String, source: String) extends Reference
+  case class CitationReference (label: String, source: String, options: Options = NoOpt) extends Reference
 
   
 
   
   /** An explicit hard line break.
    */
-  case object LineBreak extends Span
+  case class LineBreak (options: Options = NoOpt) extends Span
   
   /** A comment that may be omitted by renderers.
    */
-  case class Comment (content: String) extends Block with TextContainer
+  case class Comment (content: String, options: Options = NoOpt) extends Block with TextContainer
   
   /** Message generated by the parser, usually to signal potential parsing problems.
    *  They usually get inserted immediately after the block or span that caused the problem.
@@ -424,7 +470,7 @@ object Elements {
    *  By default messages are ignored by most renderers (apart from PrettyPrint), but
    *  they can be explicitly activated for a particular level.
    */
-  case class SystemMessage (level: MessageLevel, content: String) extends Span with Block with TextContainer
+  case class SystemMessage (level: MessageLevel, content: String, options: Options = NoOpt) extends Span with Block with TextContainer
   
   /** Signals the severity of a system message.
    */
@@ -455,12 +501,60 @@ object Elements {
   /** Groups a span that could not successfully parsed with a system message.
    *  Renderers may then choose to just render the fallback, the message or both.
    */
-  case class InvalidSpan (message: SystemMessage, fallback: Span) extends Span with Invalid[Span]
+  case class InvalidSpan (message: SystemMessage, fallback: Span, options: Options = NoOpt) extends Span with Invalid[Span]
 
   /** Groups a block that could not successfully parsed with a system message.
    *  Renderers may then choose to just render the fallback, the message or both.
    */
-  case class InvalidBlock (message: SystemMessage, fallback: Block) extends Block with Invalid[Block]
+  case class InvalidBlock (message: SystemMessage, fallback: Block, options: Options = NoOpt) extends Block with Invalid[Block]
   
+  
+  /** `Options` implementation for non-empty instances.
+   * 
+   *  For creating new instances it is usually more convenient to use the various factory objects.
+   *  Example for creating an instance with an id and two styles applied:
+   * 
+   *  {{{
+   *  val options = Id("myId") + Styles("style1","style2")
+   *  }}}
+   * 
+   *  Likewise it also often more convenient to use the corresponding extractors for pattern matching.
+   */
+  case class SomeOpt (id: Option[String] = None, styles: Seq[String] = Nil, fallback: Option[Element] = None) extends Options {
+    def + (other: Options) = SomeOpt(other.id.orElse(id), (styles ++ other.styles) distinct, other.fallback.orElse(fallback))
+  }
+  
+  /** Empty `Options` implementation.
+   */
+  case object NoOpt extends Options {
+    def id: Option[String] = None
+    def styles: Seq[String] = Nil
+    def fallback: Option[Element] = None
+    def + (other: Options) = other
+  }
+  
+  /** Factory and extractor for an `Options` instance
+   *  with an id.
+   */
+  object Id {
+    def apply (value: String) = SomeOpt(id = Some(value))
+    def unapply (value: Options) = value.id 
+  }
+  
+  /** Factory and extractor for an `Options` instance
+   *  with a fallback.
+   */
+  object Fallback {
+    def apply (value: Element) = SomeOpt(fallback = Some(value))
+    def unapply (value: Options) = value.fallback 
+  }
+  
+  /** Factory and extractor for an `Options` instance
+   *  with style names.
+   */
+  object Styles {
+    def apply (values: String*) = SomeOpt(styles = values)
+    def unapplySeq (value: Options) = Some(value.styles) 
+  }
   
 }

@@ -28,23 +28,24 @@ object Elements {
   
   /** A two-column table-like structure used for bibliographic fields or directive options.
    */
-  case class FieldList (content: Seq[Field]) extends Block with ListContainer[FieldList]
+  case class FieldList (content: Seq[Field], options: Options = NoOpt) extends Block with ListContainer[FieldList]
 
   /** A single entry in a field list consisting of name and body.
    */
-  case class Field (name: Seq[Span], content: Seq[Block]) extends ListItem with BlockContainer[Field]
+  case class Field (name: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends ListItem with BlockContainer[Field]
   
   /** A classifier for a term in a definition list.
    */
-  case class Classifier (content: Seq[Span]) extends Span with SpanContainer[Classifier]
+  case class Classifier (content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer[Classifier]
   
   /** A list of command line options and descriptions.
    */
-  case class OptionList (content: Seq[OptionListItem]) extends Block with ListContainer[OptionList]
+  case class OptionList (content: Seq[OptionListItem], options: Options = NoOpt) extends Block with ListContainer[OptionList]
   
   /** A single item in an option list. The content property serves as the description of the option.
    */
-  case class OptionListItem (options: Seq[ProgramOption], content: Seq[Block]) extends ListItem with BlockContainer[OptionListItem]
+  case class OptionListItem (programOptions: Seq[ProgramOption], content: Seq[Block], options: Options = NoOpt) extends ListItem 
+                                                                                                         with BlockContainer[OptionListItem]
   
   /** A single option, including its name and all arguments, but not the description.
    */
@@ -57,44 +58,46 @@ object Elements {
   /** A substitution definition with its span content that will be inserted
    *  wherever this substitution is referenced in flow content.
    */
-  case class SubstitutionDefinition (name: String, content: Span) extends Definition
+  case class SubstitutionDefinition (name: String, content: Span, options: Options = NoOpt) extends Definition
   
   /** Refers to a substitution definition with the same name.
    *  This type of element will only temporarily be part of the document tree and replaced
    *  by the content of the substitution definition in a rewrite step.
    */
-  case class SubstitutionReference (name: String) extends Reference {
+  case class SubstitutionReference (name: String, options: Options = NoOpt) extends Reference {
     val source = "|"+name+"|"
   }
   
   /** Represents an interactive Python session. Somewhat unlikely to be used in
    *  the context of this library, but included for the sake of completeness.
    */
-  case class DoctestBlock (content: String) extends Block with TextContainer
+  case class DoctestBlock (content: String, options: Options = NoOpt) extends Block with TextContainer
   
   /** Temporary element to represent a section header whose level gets determined
    *  in a post-processing step based on the punctuation character used as underline
    *  and overline. In the final document tree model these elements are replaced
    *  by `Header` elements from the generic tree model.
    */
-  case class SectionHeader (char: Char, overline: Boolean, content: Seq[Span]) extends Block with Temporary with SpanContainer[SectionHeader]
+  case class SectionHeader (char: Char, overline: Boolean, content: Seq[Span], options: Options = NoOpt) extends Block 
+                                                                                                         with Temporary 
+                                                                                                         with SpanContainer[SectionHeader]
   
   /** Temporary element to represent interpreted text with its associated role name.
    *  In a post-processing step this text will be replaced by the result of calling
    *  the corresponding role function.
    */
-  case class InterpretedText (role: String, content: String, source: String) extends Reference with TextContainer
+  case class InterpretedText (role: String, content: String, source: String, options: Options = NoOpt) extends Reference with TextContainer
   
   /** Temporary element to represent a customized text role that can be applied
    *  to spans of interpreted text. The `apply` function can then be applied
    *  to spans of interpreted text referring to the name of this role and passing
    *  the text as the argument to the function. 
    */
-  case class CustomizedTextRole (name: String, apply: String => Span) extends Definition
+  case class CustomizedTextRole (name: String, apply: String => Span, options: Options = NoOpt) extends Definition
 
   /** A link target pointing to another link reference, acting like an alias.
    */
-  case class IndirectLinkDefinition (id: String, ref: LinkReference) extends Definition
+  case class IndirectLinkDefinition (id: String, ref: LinkReference, options: Options = NoOpt) extends Definition
   
   
 }

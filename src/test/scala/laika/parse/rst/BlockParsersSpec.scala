@@ -127,7 +127,7 @@ class BlockParsersSpec extends FlatSpec
     val input = """Paragraph
       |
       |=======""".stripMargin
-    Parsing (input) should produce (doc (p("Paragraph"), Rule))
+    Parsing (input) should produce (doc (p("Paragraph"), Rule()))
   }
   
   it should "ignore lines shorter than 4 characters" in {

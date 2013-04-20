@@ -95,7 +95,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     
     val named = '_' ~> (refName) <~ ':' ^^ { _.normalized }
       
-    val internal = named ^^ InternalLinkTarget // TODO - might need special logic for cases where it points to other targets (e.g. external)
+    val internal = named ^^ (InternalLinkTarget(_)) // TODO - might need special logic for cases where it points to other targets (e.g. external)
     
     val external = {
       val anonymous = "__:" ^^^ ""
@@ -124,7 +124,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     val prefix = '|' ~> text <~ not(lookBehind(1, ' ')) ~ '|'
     
     ((prefix <~ ws) ~ spanDirective) ^^ { 
-      case name ~ InvalidDirective(msg, source) => 
+      case name ~ InvalidDirective(msg, source, _) => 
         InvalidBlock(SystemMessage(laika.tree.Elements.Error, msg), LiteralBlock(source.replaceFirst(".. ",".. |"+name+"| ")))
       case name ~ content => SubstitutionDefinition(name, content) 
     }
@@ -161,7 +161,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     
 
   private def replaceInvalidDirective (block: Block) = block match {
-    case InvalidDirective(msg, source) => InvalidBlock(SystemMessage(laika.tree.Elements.Error, msg), LiteralBlock(source))
+    case InvalidDirective(msg, source, _) => InvalidBlock(SystemMessage(laika.tree.Elements.Error, msg), LiteralBlock(source))
     case other => other
   }
   
@@ -190,7 +190,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     }
   }
   
-  private case class InvalidDirective (msg: String, source: String) extends Block with Span
+  private case class InvalidDirective (msg: String, source: String, options: Options = NoOpt) extends Block with Span
   
   private def directive [E](p: Parser[E], name: String) = Parser { in =>
     p(in) match {

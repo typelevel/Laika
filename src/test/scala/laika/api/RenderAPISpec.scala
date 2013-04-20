@@ -95,7 +95,7 @@ class RenderAPISpec extends FlatSpec
   }
   
   it should "allow to override the default renderer for specific element types" in {
-    val render = Render as PrettyPrint using { out => { case Text(content) => out << "String - '" << content << "'" } }
+    val render = Render as PrettyPrint using { out => { case Text(content,_) => out << "String - '" << content << "'" } }
     val modifiedResult = expected.replaceAllLiterally("Text", "String")
     (render from document toString) should be (modifiedResult)
   }

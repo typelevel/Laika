@@ -60,7 +60,7 @@ trait InlineParsers extends MarkupParsers {
     
     def mergeAdjacentTextSpans (spans: List[Span]): List[Span] = {
       (List[Span]() /: spans) {  
-        case (Text(text1) :: rest, Text(text2)) => Text(text1 ++ text2) :: rest
+        case (Text(text1,_) :: rest, Text(text2,_)) => Text(text1 ++ text2) :: rest // TODO - deal with options
         case (xs, x) => x :: xs
       }.reverse
     }

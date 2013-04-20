@@ -285,7 +285,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a document with two paragraphs separated by a horizontal rule" in {
-    val elem = doc( p("aaa"), Rule, p("bbb"))
+    val elem = doc( p("aaa"), Rule(), p("bbb"))
     val html = """<div>
       |  <p>aaa</p>
       |  <hr>

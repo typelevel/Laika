@@ -141,7 +141,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
     '_' -> (internalTarget | simpleLinkRef),
     ':' -> (interpretedTextWithRolePrefix | trim(uri)),
     '@' -> trim(email),
-    '\\'-> (escapedChar ^^ Text)
+    '\\'-> (escapedChar ^^ (Text(_)))
   )
 
   
@@ -175,13 +175,13 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#emphasis]]
    */
-  lazy val em = span("*") ^^ Emphasized
+  lazy val em = span("*") ^^ (Emphasized(_))
   
   /** Parses a span of text with strong emphasis.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#strong-emphasis]]
    */
-  lazy val strong = span('*',"**") ^^ Strong
+  lazy val strong = span('*',"**") ^^ (Strong(_))
   
 
   private def span (start: Parser[Any], end: Parser[String]): Parser[List[Span]]
@@ -194,7 +194,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-literals]].
    */
-  lazy val inlineLiteral = markupStart('`', "``") ~> anyUntil(markupEnd("``")) ^^ Literal
+  lazy val inlineLiteral = markupStart('`', "``") ~> anyUntil(markupEnd("``")) ^^ (Literal(_))
   
   
   /** Represent a reference name.
@@ -282,7 +282,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    */
   val internalTarget = markupStart('`', "`") ~> 
     (escapedText(anyBut('`') min 1) ^^ {ReferenceName(_).normalized}) <~ 
-    markupEnd("`") ^^ InternalLinkTarget
+    markupEnd("`") ^^ (InternalLinkTarget(_))
   
   /** The default text role to use when no role is specified in an interpreted text element.
    */
@@ -323,7 +323,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
     }
   }
   
-  protected case class Reverse (length: Int, target: Span, fallback: Span) extends Span
+  protected case class Reverse (length: Int, target: Span, fallback: Span, options: Options = NoOpt) extends Span
   
   /** Parses a simple link reference.
    *  
@@ -360,11 +360,11 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
     val spans = super.parseInline(source, spanParsers)
     val buffer = new ListBuffer[Span]
     val last = (spans.head /: spans.tail) { 
-      case (t @ Text(content), Reverse(len, target, fallback)) =>
+      case (t @ Text(content,_), Reverse(len, target, fallback, _)) =>
         if (content.length < len) { buffer += t; fallback }
         else { buffer += Text(content.dropRight(len)); target }
-      case (prev, Reverse(_, _, fallback)) => buffer += prev; fallback
-      case (prev, current)                 => buffer += prev; current
+      case (prev, Reverse(_, _, fallback, _)) => buffer += prev; fallback
+      case (prev, current)                    => buffer += prev; current
     }
     buffer += last
     buffer.toList

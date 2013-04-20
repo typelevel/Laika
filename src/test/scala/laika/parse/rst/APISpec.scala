@@ -45,7 +45,7 @@ class APISpec extends FlatSpec
   
   it should "support registration of span directives" in {
     val directives = List(
-      SpanDirective("oneArg")(argument() map Text),
+      SpanDirective("oneArg")(argument() map (Text(_))),
       SpanDirective("twoArgs")((argument() ~ argument()) { (arg1,arg2) => Text(arg1+arg2) })
     )
     val input = """foo |one| foo |two|

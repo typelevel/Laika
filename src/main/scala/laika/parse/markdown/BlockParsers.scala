@@ -106,7 +106,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    */
   lazy val rule: Parser[Block] = {
     def pattern (char: Char) = char ~ repMin(2, (anyOf(' ')) ~ char)
-    (pattern('*') | pattern('-') | pattern('_')) ~ ws ~ eol ^^^ { Rule }
+    (pattern('*') | pattern('-') | pattern('_')) ~ ws ~ eol ^^^ { Rule() }
   }
 
 
@@ -196,11 +196,11 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    *  blank lines between list items are significant in Markdown. They will be processed
    *  and removed from the model, before the final Document instance gets produced.
    */
-  case object BlankLines extends Block
+  case class BlankLines (options: Options = NoOpt) extends Block
   
   /** Parses blank lines and produces the corresponding element model.
    */
-  def preserveBlankLines = blankLines ^^^ {BlankLines}
+  def preserveBlankLines = blankLines ^^^ {BlankLines()}
 
   /** Parses a list based on the specified helper parsers.
    * 
@@ -224,11 +224,11 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
           /* Promoting SpanSequence to Paragraph if the list has any blank lines between list items or if it is adjacent
              to blank lines within the list item itself. This is ugly, but forced by the (in this respect odd) design of Markdown. 
              The second (boolean) value in the accumulator tuple signals whether the previous item represented one or more blank lines */
-          case ((SpanSequence(content) :: xs,_), BlankLines)     => (Paragraph(content) :: xs, true)
-          case ((xs,true), SpanSequence(content))                => (Paragraph(content) :: xs, false)
-          case ((xs,_), SpanSequence(content)) if hasBlankLines  => (Paragraph(content) :: xs, false)
-          case ((xs,_), BlankLines)                              => (xs, true)
-          case ((xs,_), item)                                    => (item :: xs, false)
+          case ((SpanSequence(content,opt) :: xs,_), BlankLines(_))     => (Paragraph(content,opt) :: xs, true)
+          case ((xs,true), SpanSequence(content,opt))                => (Paragraph(content,opt) :: xs, false)
+          case ((xs,_), SpanSequence(content,opt)) if hasBlankLines  => (Paragraph(content,opt) :: xs, false)
+          case ((xs,_), BlankLines(_))                                  => (xs, true)
+          case ((xs,_), item)                                        => (item :: xs, false)
         }._1.reverse
         
         newItem(pos,rewritten)

@@ -55,13 +55,13 @@ class VerbatimHTML extends (HTMLWriter => PartialFunction[Element, Unit]) {
     
     val pf: PartialFunction[Element, Unit] = {
         
-      case HTMLElement(startTag, content)     => out << startTag << content << "</" << startTag.name << ">" 
-      case HTMLStartTag(name, attributes)     => tagStart(name, attributes); out << ">"
-      case HTMLEmptyElement(name, attributes) => tagStart(name, attributes); out << "/>"
-      case HTMLEndTag(name)                   => out << "</" << name << ">"
-      case HTMLComment(content)               => out << "<!--" << content << "-->"
-      case HTMLCharacterReference(ref)        => out << ref
-      case HTMLBlock(root)                    => out << root 
+      case HTMLElement(startTag, content,_)     => out << startTag << content << "</" << startTag.name << ">" 
+      case HTMLStartTag(name, attributes,_)     => tagStart(name, attributes); out << ">"
+      case HTMLEmptyElement(name, attributes,_) => tagStart(name, attributes); out << "/>"
+      case HTMLEndTag(name,_)                   => out << "</" << name << ">"
+      case HTMLComment(content,_)               => out << "<!--" << content << "-->"
+      case HTMLCharacterReference(ref,_)        => out << ref
+      case HTMLBlock(root,_)                    => out << root 
     } 
     
     pf

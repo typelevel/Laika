@@ -115,14 +115,14 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
     
     val term: Parser[String] = not(blankLine) ~> anyBut('\n') <~ guard(eol ~ (ws min 1) ~ not(blankLine))
     
-    val classifier = lookBehind(2,' ') ~ ' ' ~> spans(any, spanParsers) ^^ Classifier
+    val classifier = lookBehind(2,' ') ~ ' ' ~> spans(any, spanParsers) ^^ (Classifier(_))
     val nested = spanParsers + (':' -> classifier)
     
     val item = (term ~ varIndentedBlock()) ^?
       { case term ~ block if !block.lines.tail.isEmpty => 
           DefinitionListItem(parseInline(term, nested), parseNestedBlocks(block.lines.tail, block.nestLevel)) }
     
-    (item +) ^^  DefinitionList
+    (item +) ^^ (DefinitionList(_))
   }
   
   
@@ -140,7 +140,7 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
         case name ~ None => 
           Field(parseInline(name), Nil) }
     
-    (item +) ^^ FieldList
+    (item +) ^^ (FieldList(_))
   }
   
   
@@ -174,7 +174,7 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
       { case name ~ block =>
           OptionListItem(name, parseNestedBlocks(block)) }
     
-    (item +) ^^ OptionList
+    (item +) ^^ (OptionList(_))
   }
   
   /** Parses a block of lines with line breaks preserved.

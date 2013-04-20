@@ -78,7 +78,7 @@ class DirectiveSpec extends FlatSpec
     "oneOptIntFd" -> (optField("name",positiveInt) map { arg => p("*" * arg.getOrElse(1)) }),
     "reqAndOptFd" -> (field("name1") ~ optField("name2")) { (arg1,arg2) => p(arg1+arg2.getOrElse("missing")) },
     "argAndFd" -> (argument(positiveInt) ~ field("name",positiveInt)) { (arg1,arg2) => p(("*" * arg1) + ("#" * arg2)) },
-    "stdBody" -> (standardContent map BlockSequence),
+    "stdBody" -> (standardContent map (BlockSequence(_))),
     "customBody" -> content(body => if (body.length > 10) Right(p(body)) else Left("body too short")),
     "argAndBody" -> (argument() ~ standardContent) { (arg,blocks) => BlockSequence(p(arg+"!") +: blocks) },
     "fdAndBody" -> (field("name") ~ standardContent) { (field,blocks) => BlockSequence(p(field+"!") +: blocks) },
@@ -91,7 +91,7 @@ class DirectiveSpec extends FlatSpec
   )
   
   val spanDirectives: Map[String, DirectivePart[Span]] = Map(
-    "spans" -> (argument() map Text) 
+    "spans" -> (argument() map (Text(_))) 
   )
   
   val textRoles: Map[String, TextRole] = Map(
@@ -493,7 +493,7 @@ class DirectiveSpec extends FlatSpec
   
   val docWithTextRoles: Parser[Document] = defaultParser ^^ { doc =>
     doc.rewrite {
-      case CustomizedTextRole(name, f) => Some(p(f(name)))
+      case CustomizedTextRole(name, f, _) => Some(p(f(name)))
     }
   }
   

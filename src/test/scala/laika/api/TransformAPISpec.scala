@@ -112,26 +112,26 @@ class TransformAPISpec extends FlatSpec
   
   it should "allow to override the default renderer for specific element types" in {
     val modifiedOutput = output.replaceAllLiterally(". Text", ". String")
-    val transformCustom = transform rendering { out => { case Text(content) => out << "String - '" << content << "'" } }
+    val transformCustom = transform rendering { out => { case Text(content,_) => out << "String - '" << content << "'" } }
     (transformCustom fromString input toString) should be (modifiedOutput)
   }
   
   it should "allow to specify a custom rewrite rule" in {
     val modifiedOutput = output.replaceAllLiterally("äöü", "zzz")
-    val transformCustom = transform usingRule { case Text("Title äöü") => Some(Text("Title zzz")) }
+    val transformCustom = transform usingRule { case Text("Title äöü",_) => Some(Text("Title zzz")) }
     (transformCustom fromString input toString) should be (modifiedOutput)
   }
   
   it should "allow to specify multiple rewrite rules" in {
     val modifiedOutput = output.replaceAllLiterally("äöü", "zzz").replaceAllLiterally("text", "new")
-    val transformCustom = transform usingRule { case Text("Title äöü") => Some(Text("Title zzz")) } usingRule
-                                              { case Text("text") => Some(Text("new")) }
+    val transformCustom = transform usingRule { case Text("Title äöü",_) => Some(Text("Title zzz")) } usingRule
+                                              { case Text("text",_) => Some(Text("new")) }
     (transformCustom fromString input toString) should be (modifiedOutput)
   }
   
   it should "allow to specify a custom rewrite rule that depends on the document" in {
     val modifiedOutput = output.replaceAllLiterally("äöü", "2")
-    val transformCustom = transform creatingRule { doc => { case Text("Title äöü") => Some(Text("Title " + doc.content.length)) }}
+    val transformCustom = transform creatingRule { doc => { case Text("Title äöü",_) => Some(Text("Title " + doc.content.length)) }}
     (transformCustom fromString input toString) should be (modifiedOutput)
   }
   

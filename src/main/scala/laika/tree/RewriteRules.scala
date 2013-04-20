@@ -44,7 +44,7 @@ object RewriteRules {
     val definitions = document.select { 
       case _: ExternalLinkDefinition => true; case _ => false 
     } map { 
-      case ld @ ExternalLinkDefinition(id,_,_) => (id,ld) 
+      case ld @ ExternalLinkDefinition(id,_,_,_) => (id,ld) 
     } toMap
     
     val pf: PartialFunction[Element, Option[Element]] = { 
@@ -64,15 +64,15 @@ object RewriteRules {
    
   private def resolveLinkReference (ref: LinkReference, linkDefinitions: Map[String, ExternalLinkDefinition]) = {
     linkDefinitions.get(ref.id) match {
-      case Some(ExternalLinkDefinition(id, url, title)) => ExternalLink(ref.content, url, title)
-      case None                                 => ref
+      case Some(ExternalLinkDefinition(id, url, title, _)) => ExternalLink(ref.content, url, title, ref.options)
+      case None                                            => ref
     }
   }
   
   private def resolveImageReference (ref: ImageReference, linkDefinitions: Map[String, ExternalLinkDefinition]) = {
     linkDefinitions.get(ref.id) match {
-      case Some(ExternalLinkDefinition(id, url, title)) => Image(ref.text, url, title)
-      case None                                 => ref
+      case Some(ExternalLinkDefinition(id, url, title, _)) => Image(ref.text, url, title, ref.options)
+      case None                                            => ref
     }
   }
   
@@ -90,8 +90,8 @@ object RewriteRules {
     }
     
     doc.content.foreach { 
-      case h @ Header(level, _) => closeSections(level); stack push new SectionBuilder(h)
-      case block                => stack.top += block
+      case h @ Header(level, _, _) => closeSections(level); stack push new SectionBuilder(h)
+      case block                   => stack.top += block
     }
 
     closeSections(1)

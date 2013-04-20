@@ -66,9 +66,18 @@ class PrettyPrint extends ((Output, Element => Unit) => (TextWriter, Element => 
     
     object NoRef
     
+    def options (opt: Options) = {
+      List(
+        opt.id map ("Id("+_+")"),
+        if (opt.styles.isEmpty) None else Some(opt.styles mkString ("Styles(",",",")")),
+        opt.fallback map ("Fallback("+_+")")
+      ) filter (_.isDefined) map (_.get) mkString " + "
+    }
+    
     def attributes (attr: Iterator[Any], exclude: AnyRef = NoRef) = {
+      def prep (value: Any) = value match { case opt: Options => options(opt); case other => other }
       val it = attr.asInstanceOf[Iterator[AnyRef]]
-      val res = it filter (_ ne exclude) mkString ("(", ",", ")")
+      val res = it filter (_ ne exclude) filter (_ != NoOpt) map prep mkString ("(", ",", ")")
       if (res == "()") "" else res
     } 
     
@@ -101,9 +110,9 @@ class PrettyPrint extends ((Output, Element => Unit) => (TextWriter, Element => 
         out << desc <<|> (lists map {case (elems,d) => Content(elems, d + elems.length)}) 
       
     elem match {
-      case QuotedBlock(content,attr)      => lists("QuotedBlock", (content, "Content - Blocks: "), (attr, "Attribution - Spans: "))
-      case DefinitionListItem(term,defn)  => lists("Item", (term, "Term - Spans: "), (defn, "Definition - Blocks: "))
-      case Table(head,body)               => lists("Table", (head, "Head - Rows: "), (body, "Body - Rows: "))
+      case QuotedBlock(content,attr,_)    => lists("QuotedBlock", (content, "Content - Blocks: "), (attr, "Attribution - Spans: "))
+      case DefinitionListItem(term,defn,_)=> lists("Item", (term, "Term - Spans: "), (defn, "Definition - Blocks: "))
+      case Table(head,body,_)             => lists("Table", (head, "Head - Rows: "), (body, "Body - Rows: "))
       case bc: BlockContainer[_]          => elementContainerDesc(bc, "Blocks")
       case sc: SpanContainer[_]           => elementContainerDesc(sc, "Spans")
       case tc: TextContainer              => textContainerDesc(tc)
