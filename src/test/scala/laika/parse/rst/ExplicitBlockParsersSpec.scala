@@ -58,74 +58,74 @@ class ExplicitBlockParsersSpec extends FlatSpec
   
   
   "The footnote parser" should "parse a footnote with autonumber label" in {
-    Parsing (".. [#] This is a footnote") should produce (doc(Footnote(Autonumber, List(ss("This is a footnote")))))
+    Parsing (".. [#] This is a footnote") should produce (doc(FootnoteDefinition(Autonumber, List(ss("This is a footnote")))))
   }
   
   it should "parse a footnote with autosymbol label" in {
-    Parsing (".. [*] This is a footnote") should produce (doc(Footnote(Autosymbol, List(ss("This is a footnote")))))
+    Parsing (".. [*] This is a footnote") should produce (doc(FootnoteDefinition(Autosymbol, List(ss("This is a footnote")))))
   }
   
   it should "parse a footnote with an autonumber named label" in {
-    Parsing (".. [#foo] This is a footnote") should produce (doc(Footnote(AutonumberLabel("foo"), List(ss("This is a footnote")))))
+    Parsing (".. [#foo] This is a footnote") should produce (doc(FootnoteDefinition(AutonumberLabel("foo"), List(ss("This is a footnote")))))
   }
   
   it should "parse a footnote with a numeric label" in {
-    Parsing (".. [17] This is a footnote") should produce (doc(Footnote(NumericLabel(17), List(ss("This is a footnote")))))
+    Parsing (".. [17] This is a footnote") should produce (doc(FootnoteDefinition(NumericLabel(17), List(ss("This is a footnote")))))
   }
   
   
   "The link target parser" should "parse a named external target on one line" in {
     val input = """.. _some-link: http://www.foo.bar/"""
-    Parsing (input) should produce (doc(ExternalLinkTarget("some-link", "http://www.foo.bar/")))
+    Parsing (input) should produce (doc(ExternalLinkDefinition("some-link", "http://www.foo.bar/")))
   }
   
   it should "parse a named external target with the reference name in backticks" in {
     val input = """.. _`some:link`: http://www.foo.bar/"""
-    Parsing (input) should produce (doc(ExternalLinkTarget("some:link", "http://www.foo.bar/")))
+    Parsing (input) should produce (doc(ExternalLinkDefinition("some:link", "http://www.foo.bar/")))
   }
   
   it should "parse a named external target on two lines" in {
     val input = """.. _some-link: http://www.
       |     foo.bar/""".stripMargin
-    Parsing (input) should produce (doc(ExternalLinkTarget("some-link", "http://www.foo.bar/")))
+    Parsing (input) should produce (doc(ExternalLinkDefinition("some-link", "http://www.foo.bar/")))
   }
   
   it should "parse a named external target with the URL entirely on the next line" in {
     val input = """.. _some-link: 
       |     http://www.foo.bar/""".stripMargin
-    Parsing (input) should produce (doc(ExternalLinkTarget("some-link", "http://www.foo.bar/")))
+    Parsing (input) should produce (doc(ExternalLinkDefinition("some-link", "http://www.foo.bar/")))
   }
   
   it should "parse an anonymous external target" in {
     val input = """.. __: http://www.foo.bar/"""
-    Parsing (input) should produce (doc(ExternalLinkTarget("", "http://www.foo.bar/")))
+    Parsing (input) should produce (doc(ExternalLinkDefinition("", "http://www.foo.bar/")))
   }
   
   it should "parse a short anonymous external target" in {
     val input = """__ http://www.foo.bar/"""
-    Parsing (input) should produce (doc(ExternalLinkTarget("", "http://www.foo.bar/")))
+    Parsing (input) should produce (doc(ExternalLinkDefinition("", "http://www.foo.bar/")))
   }
   
   it should "parse an indirect simple reference" in {
     val input = """.. _ref: other_"""
-    Parsing (input) should produce (doc(IndirectLinkTarget("ref", LinkReference(Nil,"other","`other`_"))))
+    Parsing (input) should produce (doc(IndirectLinkDefinition("ref", LinkReference(Nil,"other","`other`_"))))
   }
   
   it should "parse an indirect phrase reference on one line" in {
     val input = """.. _ref: `other ref`_"""
-    Parsing (input) should produce (doc(IndirectLinkTarget("ref", LinkReference(Nil,"other ref","`other ref`_"))))
+    Parsing (input) should produce (doc(IndirectLinkDefinition("ref", LinkReference(Nil,"other ref","`other ref`_"))))
   }
   
   it should "parse an indirect phrase reference on two lines" in {
     val input = """.. _ref: `other
       | ref`_""".stripMargin
-    Parsing (input) should produce (doc(IndirectLinkTarget("ref", LinkReference(Nil,"other ref","`other\n ref`_"))))
+    Parsing (input) should produce (doc(IndirectLinkDefinition("ref", LinkReference(Nil,"other ref","`other\n ref`_"))))
   }
   
   it should "parse an indirect phrase reference on the following" in {
     val input = """.. _ref: 
       | `other ref`_""".stripMargin
-    Parsing (input) should produce (doc(IndirectLinkTarget("ref", LinkReference(Nil,"other ref","`other ref`_"))))
+    Parsing (input) should produce (doc(IndirectLinkDefinition("ref", LinkReference(Nil,"other ref","`other ref`_"))))
   }
   
   it should "parse an internal target" in {

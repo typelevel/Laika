@@ -76,7 +76,7 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
     val isEmpty = rows.isEmpty
   }
   
-  def toTable (cit: Citation): StyledTable = toTable(cit.label,cit.label,cit.content)
+  def toTable (cit: Citation): StyledTable = toTable(cit.id,cit.id,cit.content)
   
   def toTable (id: String, label: String, content: Seq[Block]): StyledTable = {
     val left = Cell(BodyCell, List(SpanSequence(List(Text("["+label+"]")))))
@@ -122,8 +122,8 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
         case DefinitionListItem(term,defn)  => out << "<dt>" << term << "</dt>" <<| "<dd>"; blocks(defn, "</dd>")
         case LineBlock(content)             => out << """<div class="line-block">""" <<|> content <<| "</div>"
         
-        case Footnote(ResolvedFootnoteLabel(id,label),content)  => renderTable(toTable(id,label,content))
-        case c: Citation                                        => renderTable(toTable(c))
+        case Footnote(id,label,content)     => renderTable(toTable(id,label,content))
+        case c: Citation                    => renderTable(toTable(c))
         
         case Cell(HeadCell, content, colspan, rowspan) => out << 
             "<th" <<@ ("colspan",noneIfDefault(colspan,1)) <<@ ("rowspan",noneIfDefault(rowspan,1)) << ">"; blocks(content, "</th>") 
@@ -152,26 +152,26 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
     def renderListContainer (con: ListContainer[_]) = con match {
       case EnumList(content,format,start) => 
           out << "<ol" <<@ ("class", format.enumType.toString.toLowerCase) <<@ ("start", noneIfDefault(start,1)) << ">" <<|> content <<| "</ol>"
-      case BulletList(content,_)        => out << "<ul>" <<|> content <<| "</ul>"
-      case DefinitionList(content)      => out << "<dl>" <<|> content <<| "</dl>"
+      case BulletList(content,_)   => out << "<ul>" <<|> content <<| "</ul>"
+      case DefinitionList(content) => out << "<dl>" <<|> content <<| "</dl>"
       
-      case unknown                    => out << "<div>" <<|> unknown.content <<| "</div>"
+      case unknown                 => out << "<div>" <<|> unknown.content <<| "</div>"
     }
     
     def renderTextContainer (con: TextContainer) = con match {
-      case Text(content)              => out                   <<&   content
-      case Literal(content)           => out <<       "<code>" <<<&  content << "</code>" 
-      case LiteralBlock(content)      => out <<  "<code><pre>" <<<&  content << "</pre></code>"
-      case Comment(content)           => out << "<!-- "        <<    content << " -->"
+      case Text(content)           => out                   <<&   content
+      case Literal(content)        => out <<       "<code>" <<<&  content << "</code>" 
+      case LiteralBlock(content)   => out <<  "<code><pre>" <<<&  content << "</pre></code>"
+      case Comment(content)        => out << "<!-- "        <<    content << " -->"
       
-      case unknown                    => out <<& unknown.content
+      case unknown                 => out <<& unknown.content
     }
     
     def renderSimpleBlock (block: Block) = block match {
-      case Rule                       => out << "<hr>"
-      case InternalLinkTarget(id)     => out << "<a" <<@ ("id",id) << " />"
+      case Rule                    => out << "<hr>"
+      case InternalLinkTarget(id)  => out << "<a" <<@ ("id",id) << " />"
       
-      case unknown                    => ()
+      case unknown                 => ()
     }
     
     def renderSimpleSpan (span: Span) = span match {
@@ -184,13 +184,20 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
     }
     
     def renderTableElement (elem: TableElement) = elem match {
-      case TableHead(rows)            => out << "<thead>" <<|> rows <<| "</thead>"
-      case TableBody(rows)            => out << "<tbody>" <<|> rows <<| "</tbody>"     
-      case ColumnStyles(styles)       => out << "<colgroup>" <<|> styles <<| "</colgroup>"  
+      case TableHead(rows)         => out << "<thead>" <<|> rows <<| "</thead>"
+      case TableBody(rows)         => out << "<tbody>" <<|> rows <<| "</tbody>"     
+      case ColumnStyles(styles)    => out << "<colgroup>" <<|> styles <<| "</colgroup>"  
     }
     
     def renderUnresolvedReference (ref: Reference) = {
       out << InvalidSpan(SystemMessage(Error,"unresolved reference: " + ref), Text(ref.source)) 
+    }
+    
+    def renderInvalidElement (elem: Invalid[_ <: Element]) = elem match {
+      case InvalidBlock(msg, fallback) => if (include(msg)) out << List(Paragraph(List(msg)), fallback)
+                                          else out << fallback
+      case e                           => if (include(e.message)) out << e.message << " " << e.fallback
+                                          else out << e.fallback 
     }
     
     
@@ -199,28 +206,24 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
       case msg @ SystemMessage(level,message) => if (include(msg)) 
         out << "<span" <<@ ("class", "system-message "+level.toString.toLowerCase) << ">" << message << "</span>"
         
-      case InvalidBlock(msg, fallback) => if (include(msg)) out << List(Paragraph(List(msg)), fallback)
-                                          else out << fallback
-      case InvalidSpan(msg, fallback)  => if (include(msg)) out << msg << " " << fallback
-                                          else out << fallback 
-      
-      case ref: Reference             => renderUnresolvedReference(ref)
+      case e: Reference           => renderUnresolvedReference(e)
+      case e: Invalid[_]          => renderInvalidElement(e)
 
-      case st: StyledTable            => renderTable(st)
-      case t: Table                   => renderTable(toTable(t))
+      case st: StyledTable        => renderTable(st)
+      case t: Table               => renderTable(toTable(t))
       
-      case e: BlockContainer[_]       => renderBlockContainer(e)
-      case e: SpanContainer[_]        => renderSpanContainer(e)
-      case e: ListContainer[_]        => renderListContainer(e)
-      case e: TextContainer           => renderTextContainer(e)
-      case e: Block                   => renderSimpleBlock(e)
-      case e: Span                    => renderSimpleSpan(e)
-      case e: TableElement            => renderTableElement(e)
+      case e: BlockContainer[_]   => renderBlockContainer(e)
+      case e: SpanContainer[_]    => renderSpanContainer(e)
+      case e: ListContainer[_]    => renderListContainer(e)
+      case e: TextContainer       => renderTextContainer(e)
+      case e: Block               => renderSimpleBlock(e)
+      case e: Span                => renderSimpleSpan(e)
+      case e: TableElement        => renderTableElement(e)
       
-      case Row(cells)                 => out << "<tr>" <<|> cells <<| "</tr>"
-      case ColumnStyle(styles)        => out << "<col" <<@ ("class", toClass(styles)) << " />"  
+      case Row(cells)             => out << "<tr>" <<|> cells <<| "</tr>"
+      case ColumnStyle(styles)    => out << "<col" <<@ ("class", toClass(styles)) << " />"  
 
-      case unknown                    => ()  
+      case unknown                => ()  
     }  
   } 
 }

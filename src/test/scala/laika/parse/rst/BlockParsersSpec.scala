@@ -137,18 +137,19 @@ class BlockParsersSpec extends FlatSpec
     Parsing (input) should produce (doc (p("Paragraph"), p("===")))
   }
   
+  def ilt (id: String = "header") = InternalLinkTarget(id)
   
   "The header parser" should "parse a header with overline and underline" in {
     val input = """========
       | Header
       |========""".stripMargin
-    Parsing (input) should produce (doc (h(1,"Header")))
+    Parsing (input) should produce (doc (ilt(), h(1,"Header")))
   }
   
   it should "parse a header with underline only" in {
     val input = """Header
       |========""".stripMargin
-    Parsing (input) should produce (doc (h(1,"Header")))
+    Parsing (input) should produce (doc (ilt(), h(1,"Header")))
   }
   
   it should "parse headers with varying levels" in {
@@ -164,7 +165,8 @@ class BlockParsersSpec extends FlatSpec
       |
       |Header 2b
       |=========""".stripMargin
-    Parsing (input) should produce (doc ( h(1,"Header 1"), h(2,"Header 2"), h(3,"Header 3"), h(2,"Header 2b")))
+    Parsing (input) should produce (doc (ilt("header-1"), h(1,"Header 1"), ilt("header-2"), h(2,"Header 2"), 
+                                         ilt("header-3"), h(3,"Header 3"), ilt("header-2b"), h(2,"Header 2b")))
   }
   
   it should "ignore headers where the underline is shorter than the text" in {

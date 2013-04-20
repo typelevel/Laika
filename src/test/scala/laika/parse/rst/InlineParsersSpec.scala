@@ -154,19 +154,19 @@ class InlineParsersSpec extends FlatSpec
   
   
   "The interpreted text parser" should "parse content enclosed in ` with implicit default role" in {
-    Parsing ("some `text` here") should produce (spans(txt("some "), InterpretedText(defaultTextRole,"text"), txt(" here")))
+    Parsing ("some `text` here") should produce (spans(txt("some "), InterpretedText(defaultTextRole,"text","`text`"), txt(" here")))
   }
   
   it should "parse content enclosed in ` with role prefix" in {
-    Parsing ("some :role:`text` here") should produce (spans(txt("some "), InterpretedText("role","text"), txt(" here")))
+    Parsing ("some :role:`text` here") should produce (spans(txt("some "), InterpretedText("role","text",":role:`text`"), txt(" here")))
   }
   
   it should "parse content enclosed in ` with role suffix" in {
-    Parsing ("some `text`:role: here") should produce (spans(txt("some "), InterpretedText("role","text"), txt(" here")))
+    Parsing ("some `text`:role: here") should produce (spans(txt("some "), InterpretedText("role","text","`text`:role:"), txt(" here")))
   }
   
   it should "parse content enclosed in ` but ignore illegal role prefix" in {
-    Parsing ("some :#*#:`text` here") should produce (spans(txt("some :#*#:"), InterpretedText(defaultTextRole,"text"), txt(" here")))
+    Parsing ("some :#*#:`text` here") should produce (spans(txt("some :#*#:"), InterpretedText(defaultTextRole,"text","`text`"), txt(" here")))
   }
   
   
@@ -201,19 +201,19 @@ class InlineParsersSpec extends FlatSpec
   
   it should "parse a phrase link with text and url" in {
     Parsing ("some `link<http://foo.com>`_ here") should produce (spans(txt("some "), 
-        ss(link(txt("link")).url("http://foo.com"), ExternalLinkTarget("link", "http://foo.com")), txt(" here")))
+        ss(link(txt("link")).url("http://foo.com"), ExternalLinkDefinition("link", "http://foo.com")), txt(" here")))
   }
   
   it should "parse a phrase link with only an url" in {
     Parsing ("some `<http://foo.com>`_ here") should produce (spans(txt("some "), 
-        ss(link(txt("http://foo.com")).url("http://foo.com"), ExternalLinkTarget("http://foo.com", "http://foo.com")), txt(" here")))
+        ss(link(txt("http://foo.com")).url("http://foo.com"), ExternalLinkDefinition("http://foo.com", "http://foo.com")), txt(" here")))
   }
   
   it should "remove whitespace from an url" in {
     val input = """some `<http://
       | foo.com>`_ here""".stripMargin
     Parsing (input) should produce (spans(txt("some "), 
-        ss(link(txt("http://foo.com")).url("http://foo.com"), ExternalLinkTarget("http://foo.com", "http://foo.com")), txt(" here")))
+        ss(link(txt("http://foo.com")).url("http://foo.com"), ExternalLinkDefinition("http://foo.com", "http://foo.com")), txt(" here")))
   }
   
   it should "parse an anonymous phrase link without url" in {

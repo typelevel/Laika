@@ -54,7 +54,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     val prefix = '[' ~> footnoteLabel <~ ']' ~ ws
     
     prefix ~ varIndentedBlock() ^^ {
-      case label ~ block => Footnote(label, parseNestedBlocks(block))
+      case label ~ block => FootnoteDefinition(label, parseNestedBlocks(block))
     }
   }
   
@@ -76,7 +76,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#anonymous-hyperlinks]].
    */
   lazy val shortAnonymousLinkTarget = {
-    "__ " ~> linkDefinitionBody ^^ { body => ExternalLinkTarget("", body) } 
+    "__ " ~> linkDefinitionBody ^^ { body => ExternalLinkDefinition("", body) } 
   }
   
   private lazy val linkDefinitionBody = {
@@ -101,13 +101,13 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
       val anonymous = "__:" ^^^ ""
     
       (named | anonymous) ~ linkDefinitionBody ^^ {
-        case name ~ body => ExternalLinkTarget(name, body)
+        case name ~ body => ExternalLinkDefinition(name, body)
       }
     }
     
     val indirect = {
       (named <~ ws) ~ ((opt(eol ~ ws) ~ "`" ~> escapedText(anyUntil('`')) | simpleRefName) <~ '_' ~ ws ~ eol) ^^ {
-        case name ~ refName => IndirectLinkTarget(name, LinkReference(Nil, refName.replaceAll("\n", ""), "`" + refName + "`_")) 
+        case name ~ refName => IndirectLinkDefinition(name, LinkReference(Nil, refName.replaceAll("\n", ""), "`" + refName + "`_")) 
         // TODO - source value might be without back ticks
       }
     }

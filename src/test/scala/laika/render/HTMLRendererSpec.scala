@@ -182,7 +182,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a footnote" in {
-    val elem = Footnote(ResolvedFootnoteLabel("id","label"), List(p("a"),p("b")))
+    val elem = Footnote("id","label", List(p("a"),p("b")))
     val html = """<table class="footnote" id="id">
       |  <colgroup>
       |    <col class="label" />

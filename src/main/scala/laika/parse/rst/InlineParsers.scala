@@ -294,7 +294,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    */  
   lazy val interpretedTextWithRolePrefix = {
     (markupStart(":") ~> simpleRefName) ~ (":`" ~> escapedText(anyBut('`') min 1) <~ markupEnd("`")) ^^ 
-      { case role ~ text => InterpretedText(role,text) }
+      { case role ~ text => InterpretedText(role,text,":"+role+":`"+text+"`") }
   }
   
   /** Parses an interpreted text element with the role name as a suffix.
@@ -303,7 +303,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    */  
   lazy val interpretedTextWithRoleSuffix = {
     (markupStart("`") ~> escapedText(anyBut('`') min 1) <~ markupEnd("`")) ~ opt(":" ~> simpleRefName <~ markupEnd(":")) ^^
-      { case text ~ role => InterpretedText(role.getOrElse(defaultTextRole), text) }
+      { case text ~ role => InterpretedText(role.getOrElse(defaultTextRole), text, "`"+text+"`"+role.map(":"+_+":").getOrElse("")) }
   }
   
   /** Parses a phrase link reference (enclosed in back ticks).
@@ -316,7 +316,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
     val refName = escapedText(anyBut('`','<')) ^^ ReferenceName
     markupStart("`") ~> refName ~ opt(url) ~ (markupEnd("`__") ^^^ false | markupEnd("`_") ^^^ true) ^^ {
       case refName ~ Some(url) ~ true   => 
-        SpanSequence(List(ExternalLink(List(Text(ref(refName.original, url))), url), ExternalLinkTarget(ref(refName.normalized, url), url)))
+        SpanSequence(List(ExternalLink(List(Text(ref(refName.original, url))), url), ExternalLinkDefinition(ref(refName.normalized, url), url)))
       case refName ~ Some(url) ~ false  => ExternalLink(List(Text(ref(refName.original, url))), url)
       case refName ~ None ~ true        => LinkReference(List(Text(refName.original)), refName.normalized, "`" + refName.original + "`_") 
       case refName ~ None ~ false       => LinkReference(List(Text(refName.original)), "", "`" + refName.original + "`__") 

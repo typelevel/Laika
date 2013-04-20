@@ -216,7 +216,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
     
     val title = (ws ~ opt(eol) ~ ws) ~> (enclosedBy('"', '"') | enclosedBy('\'', '\'') | enclosedBy('(', ')'))
     
-    id ~ url ~ opt(title) <~ ws ~ eol ^^ { case id ~ url ~ title => ExternalLinkTarget(id.toLowerCase, url, title) } 
+    id ~ url ~ opt(title) <~ ws ~ eol ^^ { case id ~ url ~ title => ExternalLinkDefinition(id.toLowerCase, url, title) } 
   }
   
   

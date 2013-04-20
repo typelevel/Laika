@@ -82,7 +82,7 @@ object RewriteRules {
     }  
     
     object NumberProvider {
-      private val explicitNumbers = unresolvedFootnotes.collect { case n @ Footnote(NumericLabel(num),_) => num } toSet 
+      private val explicitNumbers = unresolvedFootnotes.collect { case n @ FootnoteDefinition(NumericLabel(num),_) => num } toSet 
       private val numberIt = Stream.from(1).iterator
       private val usedNums = new scala.collection.mutable.HashSet[Int]
       private lazy val usedIt = TreeSet(usedNums.toList:_*).iterator
@@ -98,7 +98,7 @@ object RewriteRules {
     val symbols = new SymbolProvider
     
     private val resolvedFootnotes = (unresolvedFootnotes map { 
-      case f @ Footnote(label,content) => 
+      case f @ FootnoteDefinition(label,content) => 
         val (id, display) = label match {
           case Autonumber => 
             val num = NumberProvider.next.toString
@@ -112,21 +112,19 @@ object RewriteRules {
             val sym = symbols.next
             (sym,sym)
         }
-        (Key(f), Footnote(ResolvedFootnoteLabel(id,display), content))
+        (Key(f), Footnote(id, display, content))
     })
     
     private val resolvedByIdentity = resolvedFootnotes toMap
     
     private val resolvedByLabel = (resolvedFootnotes map {
-      case (_, fn @ Footnote(ResolvedFootnoteLabel(id,label), _)) => List((id -> fn),(label -> fn))
+      case (_, fn @ Footnote(id, label, _)) => List((id -> fn),(label -> fn))
     }).flatten.toMap 
     
     val refSymbols = new SymbolProvider
-    def toLink (fn: Footnote) = fn match {
-      case Footnote(ResolvedFootnoteLabel(id,label),_) => FootnoteLink(id,label)
-    }
+    def toLink (fn: Footnote) = FootnoteLink(fn.id, fn.label)
     def numberedLabelRef (fn: Footnote) = fn match {
-      case Footnote(ResolvedFootnoteLabel(id,label), _) =>
+      case Footnote(id, label, _) =>
         NumberProvider.remove(label.toInt)
         FootnoteLink(id,label)
     }
@@ -156,14 +154,14 @@ object RewriteRules {
         (Key(r), resolve(sym, toLink, source, "too many autosymbol references"))
     }).toMap
     
-    def resolved (footnote: Footnote) = resolvedByIdentity(Key(footnote))
+    def resolved (footnote: FootnoteDefinition) = resolvedByIdentity(Key(footnote))
     
     def resolved (ref: FootnoteReference) = resolvedReferences(Key(ref))
   }
   
   private def selectFootnotes (document: Document) = {
     new FootnoteResolver(document.select { 
-      case _: Footnote => true 
+      case _: FootnoteDefinition => true 
       case _ => false 
     }, document.select { 
       case _: FootnoteReference => true 
@@ -179,24 +177,28 @@ object RewriteRules {
     def getId (id: String) = if (id.isEmpty) linkIds.next else id
     
     val unresolvedLinkTargets = document.select { 
-      case _: LinkTarget => true
+      case _: ExternalLinkDefinition => true // TODO - improve after collect method has been addded
+      case _: InternalLinkTarget => true
+      case _: IndirectLinkDefinition => true
       case _ => false 
     } map { 
-      case lt: LinkTarget => (getId(lt.id),lt) 
+      case lt: ExternalLinkDefinition => (getId(lt.id),lt) 
+      case lt: InternalLinkTarget => (getId(lt.id),lt) 
+      case lt: IndirectLinkDefinition => (getId(lt.id),lt)
     } toMap
     
-    def resolveIndirectTarget (target: IndirectLinkTarget, visited: Set[Any]): LinkTarget = {
+    def resolveIndirectTarget (target: IndirectLinkDefinition, visited: Set[Any]): Any = {
       if (visited.contains(target.id)) 
         InvalidLinkTarget(target.id, SystemMessage(laika.tree.Elements.Error, "circular link reference: " + target.id))
       else
         unresolvedLinkTargets.get(target.ref.id) map {
-          case it @ IndirectLinkTarget(id, _) => resolveIndirectTarget(it, visited + target.id)
+          case it @ IndirectLinkDefinition(id, _) => resolveIndirectTarget(it, visited + target.id)
           case other => other
         } getOrElse InvalidLinkTarget(target.id, SystemMessage(laika.tree.Elements.Error, "unresolved link reference: " + target.ref.id))
     }            
                                    
     unresolvedLinkTargets map { 
-      case (id, it: IndirectLinkTarget) => (id, resolveIndirectTarget(it, Set()))
+      case (id, it: IndirectLinkDefinition) => (id, resolveIndirectTarget(it, Set()))
       case other => other 
     }    
   }
@@ -230,18 +232,18 @@ object RewriteRules {
       case SubstitutionReference(id) =>
         substitutions.get(id).orElse(Some(invalidSpan("unknown substitution id: " + id, "|"+id+"|")))
         
-      case InterpretedText(role,text) =>
+      case InterpretedText(role,text,_) =>
         textRoles.get(role).orElse(Some({s: String => invalidSpan("unknown text role: " + role, "`"+s+"`")})).map(_(text))
         
       case c @ CitationReference(label,source) =>
         Some(if (citations.contains(label)) CitationLink(label) else invalidSpan("unresolved citation reference: " + label, source))
         
-      case f @ Footnote(ResolvedFootnoteLabel(_,_),_)   => Some(f) // TODO - should not be required  
-      case f @ Footnote(_,_)        => Some(footnotes.resolved(f))  
-      case r @ FootnoteReference(_,_) => Some(footnotes.resolved(r))  
+      case f @ Footnote(_,_,_)              => Some(f) // TODO - should not be required  
+      case f @ FootnoteDefinition(_,_) => Some(footnotes.resolved(f))  
+      case r @ FootnoteReference(_,_)       => Some(footnotes.resolved(r))  
         
       case ref: LinkReference   => Some(linkTargets.get(getRefId(ref.id)) match {
-        case Some(ExternalLinkTarget(id, url, title)) => ExternalLink(ref.content, url, title)
+        case Some(ExternalLinkDefinition(id, url, title)) => ExternalLink(ref.content, url, title)
         case Some(InternalLinkTarget(id))             => InternalLink(ref.content, "#"+id)
         case Some(InvalidLinkTarget(id, msg))         => InvalidSpan(msg, Text(ref.source))
         case None =>
@@ -249,9 +251,7 @@ object RewriteRules {
           InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Text(ref.source))
       })
       
-      case _: SubstitutionDefinition   => None
-      case _: LinkTarget               => None
-      case _: CustomizedTextRole       => None
+      case _: Temporary => None // TODO - replace Reference with InvalidBlock/Span?
     }
     pf
   }

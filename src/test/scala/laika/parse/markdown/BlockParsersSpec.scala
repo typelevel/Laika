@@ -23,7 +23,7 @@ import org.scalatest.matchers.ShouldMatchers
 import laika.parse.helper.DefaultParserHelpers
 import laika.parse.helper.ParseResultHelpers
 import laika.tree.Elements.Document
-import laika.tree.Elements.ExternalLinkTarget
+import laika.tree.Elements.ExternalLinkDefinition
 import laika.tree.Elements.Rule
 import laika.tree.Elements.LineBreak
 import laika.tree.helper.ModelBuilder
@@ -426,40 +426,40 @@ class BlockParsersSpec extends FlatSpec
   
   "The link target parser" should "parse a link target without title and url without angle brackets" in {
     val input = """[def]: http://foo/""".stripMargin
-    Parsing (input) should produce (doc( ExternalLinkTarget("def", "http://foo/", None)))
+    Parsing (input) should produce (doc( ExternalLinkDefinition("def", "http://foo/", None)))
   }
   
   it should "parse a link target without title and url in angle brackets" in {
     val input = """[def]: <http://foo/>""".stripMargin
-    Parsing (input) should produce (doc( ExternalLinkTarget("def", "http://foo/", None)))
+    Parsing (input) should produce (doc( ExternalLinkDefinition("def", "http://foo/", None)))
   }
   
   it should "parse a link target with title enclosed in double quotes" in {
     val input = """[def]: <http://foo/> "Some Title"   """.stripMargin
-    Parsing (input) should produce (doc( ExternalLinkTarget("def", "http://foo/", Some("Some Title"))))
+    Parsing (input) should produce (doc( ExternalLinkDefinition("def", "http://foo/", Some("Some Title"))))
   }
   
   it should "parse a link target with title enclosed in single quotes" in {
     val input = """[def]: <http://foo/> 'Some Title'   """.stripMargin
-    Parsing (input) should produce (doc( ExternalLinkTarget("def", "http://foo/", Some("Some Title"))))
+    Parsing (input) should produce (doc( ExternalLinkDefinition("def", "http://foo/", Some("Some Title"))))
   }
   
   it should "parse a link target with title enclosed in parentheses" in {
     val input = """[def]: <http://foo/> (Some Title)""".stripMargin
-    Parsing (input) should produce (doc( ExternalLinkTarget("def", "http://foo/", Some("Some Title"))))
+    Parsing (input) should produce (doc( ExternalLinkDefinition("def", "http://foo/", Some("Some Title"))))
   }
   
   it should "parse a link target with the title indented on the following line" in {
     val input = """[def]: <http://foo/> 
                   |       (Some Title)""".stripMargin
-    Parsing (input) should produce (doc( ExternalLinkTarget("def", "http://foo/", Some("Some Title"))))
+    Parsing (input) should produce (doc( ExternalLinkDefinition("def", "http://foo/", Some("Some Title"))))
   }
   
   it should "parse a link target ignoring the title when it is following atfer a blank line" in {
     val input = """[def]: <http://foo/> 
                   |
                   |       (Some Title)""".stripMargin
-    Parsing (input) should produce (doc( ExternalLinkTarget("def", "http://foo/", None), litBlock("   (Some Title)")))
+    Parsing (input) should produce (doc( ExternalLinkDefinition("def", "http://foo/", None), litBlock("   (Some Title)")))
   }
   
   

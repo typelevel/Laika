@@ -57,13 +57,15 @@ object Elements {
   /** A substitution definition with its span content that will be inserted
    *  wherever this substitution is referenced in flow content.
    */
-  case class SubstitutionDefinition (name: String, content: Span) extends Block
+  case class SubstitutionDefinition (name: String, content: Span) extends Definition
   
   /** Refers to a substitution definition with the same name.
    *  This type of element will only temporarily be part of the document tree and replaced
    *  by the content of the substitution definition in a rewrite step.
    */
-  case class SubstitutionReference (name: String) extends Span
+  case class SubstitutionReference (name: String) extends Reference {
+    val source = "|"+name+"|"
+  }
   
   /** Represents an interactive Python session. Somewhat unlikely to be used in
    *  the context of this library, but included for the sake of completeness.
@@ -75,24 +77,24 @@ object Elements {
    *  and overline. In the final document tree model these elements are replaced
    *  by `Header` elements from the generic tree model.
    */
-  case class SectionHeader (char: Char, overline: Boolean, content: Seq[Span]) extends Block with SpanContainer[SectionHeader]
+  case class SectionHeader (char: Char, overline: Boolean, content: Seq[Span]) extends Block with Temporary with SpanContainer[SectionHeader]
   
   /** Temporary element to represent interpreted text with its associated role name.
    *  In a post-processing step this text will be replaced by the result of calling
    *  the corresponding role function.
    */
-  case class InterpretedText (role: String, content: String) extends Span with TextContainer
+  case class InterpretedText (role: String, content: String, source: String) extends Reference with TextContainer
   
   /** Temporary element to represent a customized text role that can be applied
    *  to spans of interpreted text. The `apply` function can then be applied
    *  to spans of interpreted text referring to the name of this role and passing
    *  the text as the argument to the function. 
    */
-  case class CustomizedTextRole (name: String, apply: String => Span) extends Block
+  case class CustomizedTextRole (name: String, apply: String => Span) extends Definition
 
   /** A link target pointing to another link reference, acting like an alias.
    */
-  case class IndirectLinkTarget (id: String, ref: LinkReference) extends LinkTarget
+  case class IndirectLinkDefinition (id: String, ref: LinkReference) extends Definition
   
   
 }

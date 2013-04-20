@@ -57,6 +57,21 @@ object Elements {
    */
   trait ListItem extends Element
   
+  /** Represents a temporary item only present in the
+   *  raw document tree and then removed or replaced
+   *  by a rewrite rule before rendering.
+   */
+  trait Temporary extends Element
+  
+  /** Represents an invalid element. Renderers
+   *  can choose to either render the fallback
+   *  or the system message or both.
+   */
+  trait Invalid[+E <: Element] extends Element {
+    def message: SystemMessage
+    def fallback: E
+  }
+  
   /** The base type for all reference elements.
    * 
    *  A reference points to some other node in the document tree and needs
@@ -64,10 +79,17 @@ object Elements {
    *  Therefore none of the available renderers include logic for 
    *  dealing with references.
    */
-  trait Reference extends Span {
+  trait Reference extends Span with Temporary {
     def source: String
   }
   
+  /** Represents a definition that can be used to resolve references.
+   * 
+   *  Only part of the raw document tree and then removed or replaced
+   *  by a rewrite rule before rendering.
+   */
+  trait Definition extends Block with Temporary
+
   /** The base type for all link elements.
    * 
    *  In contrast to the reference type, it is only mixed in by
@@ -75,7 +97,17 @@ object Elements {
    *  with by renderers.
    */
   trait Link extends Span
+  
+  /** The base type for all link targets. The id has to be
+   *  unique for the whole document across all types
+   *  of `LinkTarget` implementations.
+   */
+  trait LinkTarget {
+    def id: String
+  }
+  
 
+  
   /** A generic container.
    *  Usually not mixed in directly, instead one of the sub-traits
    *  `TextContainer`, `ListContainer`, `SpanContainer` or `BlockContainer` should be used.
@@ -205,6 +237,7 @@ object Elements {
   /** Uppercase Roman numeral enumeration style (I, II, III, IV...)
    */
   case object UpperRoman extends EnumType
+  
     
   /** A single bullet list item consisting of one or more block elements.
    */
@@ -235,6 +268,7 @@ object Elements {
    */
   case class LineBlock (content: Seq[LineBlockItem]) extends LineBlockItem with BlockContainer[LineBlock]
   
+  
   /** A table consisting of a head and a body part represented by a sequence of rows.  
    *  Both the head and body sequence may be empty.
    */
@@ -263,29 +297,30 @@ object Elements {
    */
   case object BodyCell extends CellType
   
-  /** Represents any kind of link target, mixed in by
-   *  all the concrete target types.
-   */
-  trait LinkTarget extends Block with Span {
-    def id: String
-  }
   
   /** An external link target, usually only part of the raw document tree and then
    *  removed by the rewrite rule that resolves link and image references.
    */
-  case class ExternalLinkTarget (id: String, url: String, title: Option[String] = None) extends LinkTarget
+  case class ExternalLinkDefinition (id: String, url: String, title: Option[String] = None) extends Definition with Span
+  
+  /** A footnote definition that needs to be resolved to a final footnote 
+   *  by a rewrite rule based on the label type.
+   */
+  case class FootnoteDefinition (label: FootnoteLabel, content: Seq[Block]) extends Definition with BlockContainer[Footnote]
+
   
   /** Points to the following block or span element, making it a target for links.
    */
-  case class InternalLinkTarget (id: String) extends LinkTarget
+  case class InternalLinkTarget (id: String) extends Block with Span with LinkTarget
   
   /** A citation consisting of a label and one or more block elements.
    */
-  case class Citation (label: String, content: Seq[Block]) extends Block with BlockContainer[Footnote]
+  case class Citation (id: String, content: Seq[Block]) extends Block with LinkTarget with BlockContainer[Footnote]
   
-  /** A footnote consisting of a label and one or more block elements.
+  /** A footnote that can be referred to by a `FootnoteReference` by id.
    */
-  case class Footnote (label: FootnoteLabel, content: Seq[Block]) extends Block with BlockContainer[Footnote]
+  case class Footnote (id: String, label: String, content: Seq[Block]) extends Block with LinkTarget with BlockContainer[Footnote]
+  
   
   /** Base type for all types of footnote labels.
    */
@@ -306,11 +341,7 @@ object Elements {
   /** Label using automatic numbering and explicit label names together.
    */
   case class AutonumberLabel (label: String) extends FootnoteLabel
-  
-  /** Fully resolved label containing the id to use for referencing as well as
-   *  the label to use for display.
-   */
-  case class ResolvedFootnoteLabel (id: String, label: String) extends FootnoteLabel
+
   
   /** A horizontal rule.
    */
@@ -424,12 +455,12 @@ object Elements {
   /** Groups a span that could not successfully parsed with a system message.
    *  Renderers may then choose to just render the fallback, the message or both.
    */
-  case class InvalidSpan (message: SystemMessage, fallback: Span) extends Span
+  case class InvalidSpan (message: SystemMessage, fallback: Span) extends Span with Invalid[Span]
 
   /** Groups a block that could not successfully parsed with a system message.
    *  Renderers may then choose to just render the fallback, the message or both.
    */
-  case class InvalidBlock (message: SystemMessage, fallback: Block) extends Block
+  case class InvalidBlock (message: SystemMessage, fallback: Block) extends Block with Invalid[Block]
   
   
 }
