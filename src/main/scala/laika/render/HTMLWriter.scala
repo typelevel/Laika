@@ -18,6 +18,7 @@ package laika.render
 
 import scala.collection.mutable.StringBuilder
 import laika.tree.Elements._
+import scala.collection.immutable.ListMap
  
 
 /** API for renderers that produce HTML output.
@@ -70,12 +71,31 @@ class HTMLWriter (out: String => Unit,
     case Some(value) => <<@(name,value)
     case None        => this
   }
-    
+  
   /** Writes the specified name and value as an HTML attribute, including
    *  a preceding space character.
    */
   def <<@ (name: String, value: String): this.type = this << " " << name << "=\"" << value << "\""
-  
+ 
+  /** Writes an opening tag with attributes derived from both
+   *  the options parameter and the subsequent tuples. The latter
+   *  also allow for overriding of `class` and `id` attributes
+   *  derived from the `Options` instance.
+   */
+  def <<@ (tag: String, options: Options, attrs: (String,Any)*): this.type = {
+    val styles = if (options.styles.isEmpty) None else Some(options.styles.mkString(" "))
+    val atMap = ListMap("id"->options.id,"class"->styles) ++ attrs
+    this << "<" << tag
+    for ((name,value) <- atMap) {
+      value match {
+        case Some(value) => <<@ (name, value.toString)
+        case None        => ()
+        case _           => <<@ (name, value.toString)
+      }
+    }
+    this << ">"
+  }
+    
   
   private def escaped (str: String, indented: Boolean = true) = {
     var i = 0

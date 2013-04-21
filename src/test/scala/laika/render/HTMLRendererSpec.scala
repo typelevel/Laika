@@ -342,12 +342,12 @@ class HTMLRendererSpec extends FlatSpec
   
   it should "render a paragraph containing a citation link" in {
     val elem = p(txt("some "), CitationLink("label"), txt(" span"))
-    render (elem) should be ("""<p>some <a href="#label" class="citation">[label]</a> span</p>""") 
+    render (elem) should be ("""<p>some <a class="citation" href="#label">[label]</a> span</p>""") 
   }
   
   it should "render a paragraph containing a footnote link" in {
     val elem = p(txt("some "), FootnoteLink("id","label"), txt(" span"))
-    render (elem) should be ("""<p>some <a href="#id" class="footnote">[label]</a> span</p>""") 
+    render (elem) should be ("""<p>some <a class="footnote" href="#id">[label]</a> span</p>""") 
   }
   
   it should "render a paragraph containing an image without title" in {
@@ -372,7 +372,7 @@ class HTMLRendererSpec extends FlatSpec
   
   it should "render a paragraph containing an internal link target" in {
     val elem = p(txt("some "), InternalLinkTarget("target"), txt(" span"))
-    render (elem) should be ("""<p>some <a id="target" /> span</p>""") 
+    render (elem) should be ("""<p>some <a id="target"></a> span</p>""") 
   }
   
   it should "render a system message" in {

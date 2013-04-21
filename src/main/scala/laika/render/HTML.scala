@@ -117,21 +117,22 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
       con match {
         case Document(content)              => out <<        "<div>" <<|>  content <<| "</div>"       
         case Section(header, content,_)     => out <<         header <<|   content
-        case QuotedBlock(content, _,_)      => out << "<blockquote>"; blocks(content, "</blockquote>")
-        case BulletListItem(content,_,_)    => out <<         "<li>"; blocks(content, "</li>") 
-        case EnumListItem(content,_,_,_)    => out <<         "<li>"; blocks(content, "</li>") 
+        case QuotedBlock(content,_,opt)     => out <<@ ("blockquote",opt); blocks(content, "</blockquote>")
+        case BulletListItem(content,_,opt)  => out <<@ ("li",opt);         blocks(content, "</li>") 
+        case EnumListItem(content,_,_,opt)  => out <<@ ("li",opt);         blocks(content, "</li>") 
         case DefinitionListItem(term,defn,_)=> out << "<dt>" << term << "</dt>" <<| "<dd>"; blocks(defn, "</dd>")
-        case LineBlock(content,_)           => out << """<div class="line-block">""" <<|> content <<| "</div>"
+        case LineBlock(content,opt)         => out <<@ ("div",opt + Styles("line-block")) <<|> content <<| "</div>"
         
         case Footnote(id,label,content,_)   => renderTable(toTable(id,label,content))
         case c: Citation                    => renderTable(toTable(c))
         
-        case Cell(HeadCell, content, colspan, rowspan) => out << 
-            "<th" <<@ ("colspan",noneIfDefault(colspan,1)) <<@ ("rowspan",noneIfDefault(rowspan,1)) << ">"; blocks(content, "</th>") 
-        case Cell(BodyCell, content, colspan, rowspan) => out << 
-            "<td" <<@ ("colspan",noneIfDefault(colspan,1)) <<@ ("rowspan",noneIfDefault(rowspan,1)) << ">"; blocks(content, "</td>") 
+        case Cell(HeadCell, content, colspan, rowspan) => out <<@ 
+            ("th", NoOpt, "colspan"->noneIfDefault(colspan,1), "rowspan"->noneIfDefault(rowspan,1)); blocks(content, "</th>") 
+        case Cell(BodyCell, content, colspan, rowspan) => out <<@ 
+            ("td", NoOpt, "colspan"->noneIfDefault(colspan,1), "rowspan"->noneIfDefault(rowspan,1)); blocks(content, "</td>") 
         
-        case BlockSequence(content,_)       => out << content
+        case BlockSequence(content, NoOpt)  => out << content
+        case c: Customizable                => out <<@ ("div",c.options) <<|> c.content <<| "</div>"
         case unknown                        => out << "<div>" <<|> unknown.content <<| "</div>"
       }
     }
@@ -143,42 +144,45 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
       case Line(content,opt)              => out << """<div class="line">""" << content <<  "</div>"
       case Header(level, content, opt)    => out <<| "<h" << level.toString << ">" << content << "</h" << level.toString << ">"
 
-      case ExternalLink(content, url, title, opt)  => out << "<a"   <<@ ("href",url) <<@ ("title",title) << ">" << content << "</a>"
-      case InternalLink(content, url, title, opt)  => out << "<a"   <<@ ("href",url) <<@ ("title",title) << ">" << content << "</a>"
+      case ExternalLink(content, url, title, opt)  => out <<@ ("a", opt, "href"->url, "title"->title) << content << "</a>"
+      case InternalLink(content, url, title, opt)  => out <<@ ("a", opt, "href"->url, "title"->title) << content << "</a>"
       
-      case SpanSequence(content, opt)     => out << content
-      case unknown                        => out << "<span>" <<|> unknown.content << "</span>"
+      case SpanSequence(content, NoOpt)   => out << content
+      case c: Customizable                => out <<@ ("span",c.options) << c.content << "</span>"
+      case unknown                        => out << "<span>" << unknown.content << "</span>"
     }
     
     def renderListContainer (con: ListContainer[_]) = con match {
       case EnumList(content,format,start,opt) => 
-          out << "<ol" <<@ ("class", format.enumType.toString.toLowerCase) <<@ ("start", noneIfDefault(start,1)) << ">" <<|> content <<| "</ol>"
-      case BulletList(content,_,opt)   => out << "<ul>" <<|> content <<| "</ul>"
-      case DefinitionList(content,opt) => out << "<dl>" <<|> content <<| "</dl>"
+          out <<@ ("ol", opt, ("class", format.enumType.toString.toLowerCase), ("start", noneIfDefault(start,1))) <<|> content <<| "</ol>"
+      case BulletList(content,_,opt)   => out <<@ ("ul",opt) <<|> content <<| "</ul>"
+      case DefinitionList(content,opt) => out <<@ ("dl",opt) <<|> content <<| "</dl>"
       
+      case c: Customizable             => out <<@ ("div",c.options) <<|> c.content <<| "</div>"
       case unknown                     => out << "<div>" <<|> unknown.content <<| "</div>"
     }
     
     def renderTextContainer (con: TextContainer) = con match {
       case Text(content,opt)           => out                   <<&   content
-      case Literal(content,opt)        => out <<       "<code>" <<<&  content << "</code>" 
-      case LiteralBlock(content,opt)   => out <<  "<code><pre>" <<<&  content << "</pre></code>"
+      case Literal(content,opt)        => out <<@ ("code",opt)  <<<&  content << "</code>" 
+      case LiteralBlock(content,opt)   => out <<@ ("code",opt) << "<pre>" <<<&  content << "</pre></code>"
       case Comment(content,opt)        => out << "<!-- "        <<    content << " -->"
       
+      case c: Customizable             => out <<@ ("span",c.options) << c.content << "</span>"
       case unknown                     => out <<& unknown.content
     }
     
     def renderSimpleBlock (block: Block) = block match {
-      case Rule(opt)                   => out << "<hr>"
-      case InternalLinkTarget(id,opt)  => out << "<a" <<@ ("id",id) << " />"
+      case Rule(opt)                   => out <<@ ("hr",opt) 
+      case InternalLinkTarget(id,opt)  => out <<@ ("a",opt,"id"->id) << "</a>"
       
       case unknown                     => ()
     }
     
     def renderSimpleSpan (span: Span) = span match {
-      case CitationLink(label,opt)     => out << "<a"   <<@ ("href", "#"+label) <<@ ("class","citation") << ">[" << label << "]</a>" 
-      case FootnoteLink(id,label,opt)  => out << "<a"   <<@ ("href", "#"+id) <<@ ("class","footnote") << ">[" << label << "]</a>" 
-      case Image(text, url, title, opt)=> out << "<img" <<@ ("src", url) <<@ ("alt",text) <<@ ("title",title) << ">"
+      case CitationLink(label,opt)     => out <<@ ("a",opt + Styles("citation"),"href"->("#"+label)) << "[" << label << "]</a>" 
+      case FootnoteLink(id,label,opt)  => out <<@ ("a",opt + Styles("footnote"),"href"->("#"+id))    << "[" << label << "]</a>" 
+      case Image(text,url,title,opt)   => out <<@ ("img",opt,"src"->url,"alt"->text,"title"->title)
       case LineBreak(opt)              => out << "<br>"
       
       case unknown                     => ()
@@ -195,7 +199,7 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
     }
     
     def renderInvalidElement (elem: Invalid[_ <: Element]) = elem match {
-      case InvalidBlock(msg, fallback, opt) => if (include(msg)) out << List(Paragraph(List(msg)), fallback)
+      case InvalidBlock(msg, fallback, opt) => if (include(msg)) out << List(Paragraph(List(msg),opt), fallback)
                                                else out << fallback
       case e                                => if (include(e.message)) out << e.message << " " << e.fallback
                                                else out << e.fallback 
@@ -205,14 +209,14 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
     elem match {
       
       case msg @ SystemMessage(level,message,opt) => if (include(msg)) 
-        out << "<span" <<@ ("class", "system-message "+level.toString.toLowerCase) << ">" << message << "</span>"
+        out <<@ ("span", opt + Styles("system-message", level.toString.toLowerCase)) << message << "</span>"
+      case st: StyledTable        => renderTable(st)
+      case t: Table               => renderTable(toTable(t))
+      case Row(cells)             => out << "<tr>" <<|> cells <<| "</tr>"
+      case ColumnStyle(styles)    => out << "<col" <<@ ("class", toClass(styles)) << " />"  
         
       case e: Reference           => renderUnresolvedReference(e)
       case e: Invalid[_]          => renderInvalidElement(e)
-
-      case st: StyledTable        => renderTable(st)
-      case t: Table               => renderTable(toTable(t))
-      
       case e: BlockContainer[_]   => renderBlockContainer(e)
       case e: SpanContainer[_]    => renderSpanContainer(e)
       case e: ListContainer[_]    => renderListContainer(e)
@@ -220,9 +224,6 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
       case e: Block               => renderSimpleBlock(e)
       case e: Span                => renderSimpleSpan(e)
       case e: TableElement        => renderTableElement(e)
-      
-      case Row(cells)             => out << "<tr>" <<|> cells <<| "</tr>"
-      case ColumnStyle(styles)    => out << "<col" <<@ ("class", toClass(styles)) << " />"  
 
       case unknown                => ()  
     }  
