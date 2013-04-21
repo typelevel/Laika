@@ -353,7 +353,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
       new Result(result.value)
     }
     
-    def standardContent: Result[Seq[Block]] = parseContentWith {
+    def blockContent: Result[Seq[Block]] = parseContentWith {
       block => Right(parseNestedBlocks(block))
     }
     
@@ -375,7 +375,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     
     def optField [T](name: String, f: String => Either[String,T]): Result[Option[T]] = delegate.optField(name,f)
     
-    def standardContent: Result[Seq[Block]] = delegate.standardContent
+    def blockContent: Result[Seq[Block]] = delegate.blockContent
     
     def content [T](f: String => Either[String,T]): Result[T] = delegate.content(f)
     
