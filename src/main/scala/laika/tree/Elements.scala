@@ -62,7 +62,7 @@ object Elements {
      *  including the ids of `LinkTarget` instances.
      */
     def id: Option[String]
-    /** Styles names that may have an influence
+    /** Style names that may have an influence
      *  on rendering of this element.
      */
     def styles: Seq[String]
@@ -288,6 +288,7 @@ object Elements {
                                                                                                       with BlockContainer[EnumListItem]
   
   /** A list of terms and their definitions.
+   *  Not related to the `Definition` base trait.
    */
   case class DefinitionList (content: Seq[DefinitionListItem], options: Options = NoOpt) extends Block with ListContainer[DefinitionList]
 
@@ -309,8 +310,7 @@ object Elements {
   case class LineBlock (content: Seq[LineBlockItem], options: Options = NoOpt) extends LineBlockItem with BlockContainer[LineBlock]
   
   
-  /** A table consisting of a head and a body part represented by a sequence of rows.  
-   *  Both the head and body sequence may be empty.
+  /** A table consisting of a head and a body part and an optional column specification.  
    */
   case class Table (head: TableHead, body: TableBody, columns: Columns = Columns(Nil), options: Options = NoOpt) extends Block
                                                                                                                  with ElementTraversal[Table] {
@@ -390,13 +390,13 @@ object Elements {
    */
   case class InternalLinkTarget (id: String, options: Options = NoOpt) extends Block with Span with LinkTarget
   
-  /** A citation consisting of a label and one or more block elements.
+  /** A citation that can be referred to by a `CitationLink` by id.
    */
   case class Citation (id: String, content: Seq[Block], options: Options = NoOpt) extends Block 
                                                                                   with LinkTarget 
                                                                                   with BlockContainer[Footnote]
   
-  /** A footnote that can be referred to by a `FootnoteReference` by id.
+  /** A footnote with resolved id and label that can be referred to by a `FootnoteLink` by id.
    */
   case class Footnote (id: String, label: String, content: Seq[Block], options: Options = NoOpt) extends Block 
                                                                                                  with LinkTarget 
@@ -449,11 +449,13 @@ object Elements {
   
   /** An external link element, with the span content representing the text (description) of the link.
    */
-  case class ExternalLink (content: Seq[Span], url: String, title: Option[String] = None, options: Options = NoOpt) extends Link with SpanContainer[ExternalLink]
+  case class ExternalLink (content: Seq[Span], url: String, title: Option[String] = None, options: Options = NoOpt) extends Link 
+                                                                                                                    with SpanContainer[ExternalLink]
 
   /** A internal link element, with the span content representing the text (description) of the link.
    */
-  case class InternalLink (content: Seq[Span], url: String, title: Option[String] = None, options: Options = NoOpt) extends Link with SpanContainer[InternalLink]
+  case class InternalLink (content: Seq[Span], url: String, title: Option[String] = None, options: Options = NoOpt) extends Link 
+                                                                                                                    with SpanContainer[InternalLink]
   
   /** A resolved link to a footnote.
    */
@@ -471,7 +473,8 @@ object Elements {
   /** A link reference, the id pointing to the id of a `LinkTarget`. Only part of the
    *  raw document tree and then removed by the rewrite rule that resolves link and image references.
    */
-  case class LinkReference (content: Seq[Span], id: String, source: String, options: Options = NoOpt) extends Reference with SpanContainer[LinkReference]
+  case class LinkReference (content: Seq[Span], id: String, source: String, options: Options = NoOpt) extends Reference 
+                                                                                                      with SpanContainer[LinkReference]
   
   /** An image reference, the id pointing to the id of a `LinkTarget`. Only part of the
    *  raw document tree and then removed by the rewrite rule that resolves link and image references.
@@ -487,7 +490,6 @@ object Elements {
    *  raw document tree and then removed by the rewrite rule that resolves link and image references.
    */
   case class CitationReference (label: String, source: String, options: Options = NoOpt) extends Reference
-
   
 
   
