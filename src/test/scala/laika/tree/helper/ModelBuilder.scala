@@ -153,7 +153,7 @@ trait ModelBuilder {
   
   def quote (text: String) = QuotedBlock(List(p(text)), Nil) 
 
-  def quote (text: String, attribution: String) = QuotedBlock(List(ss(text)), List(txt(attribution))) 
+  def quote (text: String, attribution: String) = QuotedBlock(List(p(text)), List(txt(attribution))) 
   
   
   def litBlock (content: String) = LiteralBlock(content)

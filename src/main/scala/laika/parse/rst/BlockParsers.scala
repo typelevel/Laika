@@ -124,6 +124,16 @@ trait BlockParsers extends BlockBaseParsers
       fixedIndentedBlock(indent, success(()), failure("block ends with blank line")) ^^ { block => 
       parseInline(block.lines mkString "\n")
     }
+      
+    def blocks (blocks: Seq[Block], attr: Option[Seq[Span]]) = {
+      if (attr.isEmpty || attr.get.isEmpty) blocks
+      else {
+        blocks match {
+          case SpanSequence(content,opt) :: Nil => Paragraph(content,opt) :: Nil
+          case other => other
+        }
+      }
+    }
     
     guard(ws take 1) ~> (Parser { in =>
     
@@ -155,7 +165,7 @@ trait BlockParsers extends BlockBaseParsers
       parse(in, line(Int.MaxValue), Int.MaxValue)
       
     } >> { block =>
-      opt(attribution(block.minIndent)) ^^ { spans => QuotedBlock(parseNestedBlocks(block), spans.getOrElse(Nil)) }
+      opt(attribution(block.minIndent)) ^^ { spans => QuotedBlock(blocks(parseNestedBlocks(block),spans), spans.getOrElse(Nil)) }
     }) 
   }
   

@@ -85,14 +85,18 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
     }
     
     def renderBlockContainer (con: BlockContainer[_]) = {
+      def quotedBlockContent (content: Seq[Block], attr: Seq[Span]) = 
+        if (attr.isEmpty) content
+        else content :+ Paragraph(attr, Styles("attribution"))
+      
       con match {
-        case Document(content)              => out <<        "<div>" <<|>  content <<| "</div>"       
-        case Section(header, content,_)     => out <<         header <<|   content
-        case QuotedBlock(content,_,opt)     => out <<@ ("blockquote",opt); renderBlocks(content, "</blockquote>")
-        case BulletListItem(content,_,opt)  => out <<@ ("li",opt);         renderBlocks(content, "</li>") 
-        case EnumListItem(content,_,_,opt)  => out <<@ ("li",opt);         renderBlocks(content, "</li>") 
-        case DefinitionListItem(term,defn,_)=> out << "<dt>" << term << "</dt>" <<| "<dd>"; renderBlocks(defn, "</dd>")
-        case LineBlock(content,opt)         => out <<@ ("div",opt + Styles("line-block")) <<|> content <<| "</div>"
+        case Document(content)                => out <<        "<div>" <<|>  content <<| "</div>"       
+        case Section(header, content,_)       => out <<         header <<|   content
+        case QuotedBlock(content,attr,opt)    => out <<@ ("blockquote",opt); renderBlocks(quotedBlockContent(content,attr), "</blockquote>")
+        case BulletListItem(content,_,opt)    => out <<@ ("li",opt);         renderBlocks(content, "</li>") 
+        case EnumListItem(content,_,_,opt)    => out <<@ ("li",opt);         renderBlocks(content, "</li>") 
+        case DefinitionListItem(term,defn,_)  => out << "<dt>" << term << "</dt>" <<| "<dd>"; renderBlocks(defn, "</dd>")
+        case LineBlock(content,opt)           => out <<@ ("div",opt + Styles("line-block")) <<|> content <<| "</div>"
         
         case Footnote(id,label,content,_)   => renderTable(toTable(id,label,content))
         case c: Citation                    => renderTable(toTable(c))
@@ -104,10 +108,10 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
     }
     
     def renderSpanContainer (con: SpanContainer[_]) = con match {
-      case Paragraph(content,opt)         => out <<          "<p>" <<    content <<  "</p>"  
-      case Emphasized(content,opt)        => out <<         "<em>" <<    content <<  "</em>" 
-      case Strong(content,opt)            => out <<     "<strong>" <<    content <<   "</strong>" 
-      case Line(content,opt)              => out << """<div class="line">""" << content <<  "</div>"
+      case Paragraph(content,opt)         => out <<@ ("p",opt)      <<    content <<  "</p>"  
+      case Emphasized(content,opt)        => out <<@ ("em",opt)     <<    content <<  "</em>" 
+      case Strong(content,opt)            => out <<@ ("strong",opt) <<    content <<  "</strong>" 
+      case Line(content,opt)              => out <<@ ("div",opt + Styles("line")) << content <<  "</div>"
       case Header(level, content, opt)    => out <<| "<h" << level.toString << ">" << content << "</h" << level.toString << ">"
 
       case ExternalLink(content, url, title, opt)  => out <<@ ("a", opt, "href"->url, "title"->title) << content << "</a>"

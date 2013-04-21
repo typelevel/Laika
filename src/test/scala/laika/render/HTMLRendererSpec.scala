@@ -64,6 +64,15 @@ class HTMLRendererSpec extends FlatSpec
     render (elem) should be (html) 
   }
   
+  it should "render a blockquote with an attribution" in {
+    val elem = quote("aaa","bbb")
+    val html = """<blockquote>
+      |  <p>aaa</p>
+      |  <p class="attribution">bbb</p>
+      |</blockquote>""".stripMargin
+    render (elem) should be (html) 
+  }
+  
   it should "render a bullet list with simple flow content" in {
     val elem = bulletList() + "aaa" + "bbb" toList
     val html = """<ul>
