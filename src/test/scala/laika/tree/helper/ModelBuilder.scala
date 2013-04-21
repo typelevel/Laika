@@ -129,7 +129,7 @@ trait ModelBuilder {
   }
   
   
-  def table (rows: Row*) = Table(Nil, rows.toList)
+  def table (rows: Row*) = Table(TableHead(Nil), TableBody(rows.toList))
   
   def row (cells: Cell*) = Row(cells.toList)
   

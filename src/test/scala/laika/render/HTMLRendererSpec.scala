@@ -183,10 +183,10 @@ class HTMLRendererSpec extends FlatSpec
   
   it should "render a footnote" in {
     val elem = Footnote("id","label", List(p("a"),p("b")))
-    val html = """<table class="footnote" id="id">
+    val html = """<table id="id" class="footnote">
       |  <colgroup>
-      |    <col class="label" />
-      |    <col />
+      |    <col class="label"></col>
+      |    <col></col>
       |  </colgroup>
       |  <tbody>
       |    <tr>
@@ -203,10 +203,10 @@ class HTMLRendererSpec extends FlatSpec
   
   it should "render a citation" in {
     val elem = Citation("ref", List(p("a"),p("b")))
-    val html = """<table class="footnote" id="ref">
+    val html = """<table id="ref" class="footnote">
       |  <colgroup>
-      |    <col class="label" />
-      |    <col />
+      |    <col class="label"></col>
+      |    <col></col>
       |  </colgroup>
       |  <tbody>
       |    <tr>
@@ -239,7 +239,8 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a table with header cells" in {
-    val elem = Table(List(row(cell("a"),cell("b"))),List(row(cell("c"),cell("d"))))
+    val elem = Table(TableHead(List(row(cell("a"), cell("b")))),
+                     TableBody(List(row(cell("c"), cell("d")))))
     val html = """<table>
       |  <thead>
       |    <tr>

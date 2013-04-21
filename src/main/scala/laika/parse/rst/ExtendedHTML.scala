@@ -55,8 +55,8 @@ class ExtendedHTML extends (HTMLWriter => PartialFunction[Element, Unit]) {
     def options (value: Seq[ProgramOption]) = Cell(BodyCell, List(ProgramOptions(intersperse(value.toList,Text(", ")))))
     def body (value: Seq[Block]) = Cell(BodyCell, value)
     val rows = ol.content map (o => Row(List(options(o.programOptions),body(o.content))))
-    StyledTable(TableHead(Nil), TableBody(rows), List("option-list"), 
-        ColumnStyles(List(ColumnStyle(List("option")),ColumnStyle(List("description")))), None)
+    Table(TableHead(Nil), TableBody(rows), 
+        Columns.options(Styles("option"),Styles("description")), Styles("option-list"))
   }
   
   /** Converts a `FieldList` to an interim table model for rendering.
@@ -65,8 +65,8 @@ class ExtendedHTML extends (HTMLWriter => PartialFunction[Element, Unit]) {
     def name (value: Seq[Span]) = Cell(BodyCell, List(SpanSequence(value :+ Text(":"))))
     def body (value: Seq[Block]) = Cell(BodyCell, value)
     val rows = fl.content map (f => Row(List(name(f.name),body(f.content))))
-    StyledTable(TableHead(Nil), TableBody(rows), List("field-list"), 
-        ColumnStyles(List(ColumnStyle(List("field-name")),ColumnStyle(List("field-body")))), None)
+    Table(TableHead(Nil), TableBody(rows),
+        Columns.options(Styles("field-name"),Styles("field-body")), Styles("field-list"))
   }
   
   def apply (out: HTMLWriter): PartialFunction[Element, Unit] = {

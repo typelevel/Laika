@@ -49,8 +49,8 @@ class ExtendedHTMLSpec extends FlatSpec
     ))
     val html = """<table class="field-list">
       |  <colgroup>
-      |    <col class="field-name" />
-      |    <col class="field-body" />
+      |    <col class="field-name"></col>
+      |    <col class="field-body"></col>
       |  </colgroup>
       |  <tbody>
       |    <tr>
@@ -72,8 +72,8 @@ class ExtendedHTMLSpec extends FlatSpec
     val elem = OptionList(List(option1,option2))
     val html = """<table class="option-list">
       |  <colgroup>
-      |    <col class="option" />
-      |    <col class="description" />
+      |    <col class="option"></col>
+      |    <col class="description"></col>
       |  </colgroup>
       |  <tbody>
       |    <tr>

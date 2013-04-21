@@ -261,8 +261,8 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers =>
        * so that the next parser can pick up the (broken) table input */
         try {
           val table = result match {
-            case head ~ Some(body) => validateLastRow(body); Table(buildRowList(head, HeadCell), buildRowList(body.init, BodyCell))
-            case body ~ None       => validateLastRow(body); Table(Nil, buildRowList(body.init, BodyCell))
+            case head ~ Some(body) => validateLastRow(body); Table(TableHead(buildRowList(head, HeadCell)), TableBody(buildRowList(body.init, BodyCell)))
+            case body ~ None       => validateLastRow(body); Table(TableHead(Nil), TableBody(buildRowList(body.init, BodyCell)))
           }
           Right(table)
         }
@@ -381,8 +381,8 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers =>
       }
       
       tablePart ~ opt(tablePart) ^^ { 
-        case head ~ Some(body) => Table(buildRowList(head, HeadCell), buildRowList(body, BodyCell))
-        case body ~ None       => Table(Nil, buildRowList(body, BodyCell))
+        case head ~ Some(body) => Table(TableHead(buildRowList(head, HeadCell)), TableBody(buildRowList(body, BodyCell)))
+        case body ~ None       => Table(TableHead(Nil), TableBody(buildRowList(body, BodyCell)))
       }
       
     }

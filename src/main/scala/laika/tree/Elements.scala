@@ -312,18 +312,53 @@ object Elements {
   /** A table consisting of a head and a body part represented by a sequence of rows.  
    *  Both the head and body sequence may be empty.
    */
-  case class Table (head: Seq[Row], content: Seq[Row], options: Options = NoOpt) extends Block with ElementContainer[Row,Table]
+  case class Table (head: TableHead, body: TableBody, columns: Columns = Columns(Nil), options: Options = NoOpt) extends Block
+                                                                                                                 with ElementTraversal[Table] {
+    override def toString = "\n" + (Render as PrettyPrint from this toString) + "\n" 
+  }
+                                                                                                              
+  /** A table element, like a row, cell or column.
+   */
+  trait TableElement extends Customizable       
+  
+  /** A container of table elements..
+   */
+  trait TableContainer[Self <: TableContainer[Self]] extends TableElement with ElementContainer[TableElement,Self]
+
+  /** Contains the header rows of a table. 
+   */
+  case class TableHead (content: Seq[Row], options: Options = NoOpt) extends TableElement with TableContainer[TableHead]
+
+  /** Contains the body rows of a table. 
+   */
+  case class TableBody (content: Seq[Row], options: Options = NoOpt) extends TableElement with TableContainer[TableBody]
+  
+  /** Contains the (optional) column specification of a table.
+   */
+  case class Columns (content: Seq[Column], options: Options = NoOpt) extends TableElement with TableContainer[Columns]
+
+  /** Convenient factory for creating a `Columns` instance based on the options
+   *  for the individual columns.
+   */
+  object Columns {
+    def options (options: Options*): Columns = Columns(options map Column)
+  }
+
+  /** The options (like styles) for a column table.
+   */
+  case class Column (options: Options = NoOpt) extends TableElement
   
   /** A single table row. In case some of the previous rows contain
    *  cells with a colspan greater than 1, this row may contain
    *  fewer cells than the number of columns in this table.
    */
-  case class Row (content: Seq[Cell]) extends Element with ElementContainer[Cell,Row]
+  case class Row (content: Seq[Cell], options: Options = NoOpt) extends TableElement with TableContainer[Row]
   
   /** A single cell, potentially spanning multiple rows or columns, containing
    *  one or more block elements.
    */
-  case class Cell (cellType: CellType, content: Seq[Block], colspan: Int = 1, rowspan: Int = 1) extends Element with BlockContainer[Cell]
+  case class Cell (cellType: CellType, content: Seq[Block], colspan: Int = 1, rowspan: Int = 1, options: Options = NoOpt) extends TableElement 
+                                                                                                                          with BlockContainer[Cell]
 
   /** The cell type specifies which part of the table the cell belongs to. 
    */
