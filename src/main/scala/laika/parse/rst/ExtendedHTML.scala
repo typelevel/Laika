@@ -24,9 +24,9 @@ import laika.parse.rst.Elements._
  *  
  *  The following tree elements are specific to reStructuredText and are not included in the default model:
  * 
- *  $ - `FieldList` and corresponding child elements
- *  $ - `OptionList` and corresponding child elements
- *  $ - `DoctestBlock`
+ *  - `FieldList` and corresponding child elements
+ *  - `OptionList` and corresponding child elements
+ *  - `DoctestBlock`
  * 
  *  FieldLists being part of a directive declaration will be processed by the default parser, the `FieldList`
  *  element only appears in the final document model if field lists are used outside of directives.

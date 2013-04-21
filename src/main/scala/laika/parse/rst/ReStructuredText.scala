@@ -37,25 +37,25 @@ import scala.util.parsing.input.CharSequenceReader
  * 
  *  The following extension types are available:
  * 
- *  $ - Block Directives - an extension hook for adding new block level elements to
- *      reStructuredText markup. Use the `withBlockDirectives` method of this class to
- *      add directive implementations to the parser. Specification entry: 
- *      [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#directives]]
+ *  - Block Directives - an extension hook for adding new block level elements to
+ *    reStructuredText markup. Use the `withBlockDirectives` method of this class to
+ *    add directive implementations to the parser. Specification entry: 
+ *    [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#directives]]
  * 
- *  $ - Substitution Definitions - an extension hook for adding new span level elements to
- *      reStructuredText markup that can be used by substitution references (like `|subst|`). 
- *      Use the `withSpanDirectives` method of this class to
- *      add directive implementations to the parser that can be used as substitution definitions. 
- *      Specification entry: 
- *      [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#substitution-definitions]]
+ *  - Substitution Definitions - an extension hook for adding new span level elements to
+ *    reStructuredText markup that can be used by substitution references (like `|subst|`). 
+ *    Use the `withSpanDirectives` method of this class to
+ *    add directive implementations to the parser that can be used as substitution definitions. 
+ *    Specification entry: 
+ *    [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#substitution-definitions]]
  * 
- *  $ - Interpreted Text Roles - an extension hook for adding new dynamic span level elements to
- *      reStructuredText markup. In contrast to substitution definitions the implementation of a text
- *      role uses the text from the occurrences in the markup referring to the role as input.
- *      Use the `withTextRoles` method of this class to
- *      add custom text role implementations to the parser that can be referred to by interpreted text. 
- *      Specification entry: 
- *      [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#custom-interpreted-text-roles]]
+ *  - Interpreted Text Roles - an extension hook for adding new dynamic span level elements to
+ *    reStructuredText markup. In contrast to substitution definitions the implementation of a text
+ *    role uses the text from the occurrences in the markup referring to the role as input.
+ *    Use the `withTextRoles` method of this class to
+ *    add custom text role implementations to the parser that can be referred to by interpreted text. 
+ *    Specification entry: 
+ *    [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#custom-interpreted-text-roles]]
  * 
  *  @author Jens Halm
  */

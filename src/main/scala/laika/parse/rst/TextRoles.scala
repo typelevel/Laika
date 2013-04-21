@@ -28,22 +28,22 @@ import laika.util.Builders._
  *  Entry point for creating a new role is the `TextRole` object. It allows to specify the following
  *  aspects that define a text role:
  * 
- *  $ - The name with which it can be referred to by both, a span of interpreted text and a role
- *      directive to further customize it.
+ *  - The name with which it can be referred to by both, a span of interpreted text and a role
+ *    directive to further customize it.
  * 
- *  $ - The default value, that should get passed to the role function in case it is used
- *      directly in interpreted text without customization through a role directive.
+ *  - The default value, that should get passed to the role function in case it is used
+ *    directly in interpreted text without customization through a role directive.
  * 
- *  $ - The role directive that specifies how the role can be customized. The options
- *      for role directives are almost identical to regular directives, the only difference
- *      being that role directives do not support arguments, only fields and body elements.
+ *  - The role directive that specifies how the role can be customized. The options
+ *    for role directives are almost identical to regular directives, the only difference
+ *    being that role directives do not support arguments, only fields and body elements.
  * 
- *  $ - The actual role function. It gets invoked for each occurrence of interpreted text
- *      that refers to this role, either directly by name or to the name of a role directive
- *      that customized this role. The first argument is either the default value
- *      or the result of the role directive, the second is the actual text of the interpreted 
- *      text span. The return value of the role function is the actual `Span` instance
- *      that the original interpreted text should be replaced with.
+ *  - The actual role function. It gets invoked for each occurrence of interpreted text
+ *    that refers to this role, either directly by name or to the name of a role directive
+ *    that customized this role. The first argument is either the default value
+ *    or the result of the role directive, the second is the actual text of the interpreted 
+ *    text span. The return value of the role function is the actual `Span` instance
+ *    that the original interpreted text should be replaced with.
  * 
  *  A role directive may consist of any combination of fields and body elements:
  * 
