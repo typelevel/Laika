@@ -47,6 +47,11 @@ class ElementTraversalSpec extends FlatSpec
     val document = doc(p("a"), p("b"), p("c"), quote(p("d")))
     document select { case Header(_,_,_) => true; case _ => false } should be (Nil)
   }
+  
+  it should "collect values based on a partial function applied to all elements" in {
+    val document = doc(p("a"), p("b"), p("c"), quote(p("d")))
+    document collect { case Text(text,_) => text } should be (List("a", "b", "c", "d"))
+  }
    
   
   

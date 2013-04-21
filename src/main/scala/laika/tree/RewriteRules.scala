@@ -41,9 +41,7 @@ object RewriteRules {
    */
   val defaults: Document => PartialFunction[Element, Option[Element]] = { document =>
     
-    val definitions = document.select { 
-      case _: ExternalLinkDefinition => true; case _ => false 
-    } map { 
+    val definitions = document.collect { 
       case ld @ ExternalLinkDefinition(id,_,_,_) => (id,ld) 
     } toMap
     

@@ -39,24 +39,15 @@ object RewriteRules {
   private def invalidSpan (message: String, fallback: String) =
       InvalidSpan(SystemMessage(laika.tree.Elements.Error, message), Text(fallback))
       
-  private def selectSubstitutions (document: Document) = document.select { 
-      case _: SubstitutionDefinition => true 
-      case _ => false 
-    } map { 
+  private def selectSubstitutions (document: Document) = document.collect { 
       case SubstitutionDefinition(id,content,_) => (id,content) 
     } toMap
     
-  private def selectTextRoles (document: Document) = document.select { 
-      case _: CustomizedTextRole => true
-      case _ => false 
-    } map { 
+  private def selectTextRoles (document: Document) = document.collect { 
       case CustomizedTextRole(id,f,_) => (id,f)                                   
     } toMap  
     
-  private def selectCitations (document: Document) = document.select { 
-      case _: Citation => true 
-      case _ => false 
-    } map { 
+  private def selectCitations (document: Document) = document.collect { 
       case Citation(label,content,_) => label 
     } toSet 
    
@@ -176,12 +167,7 @@ object RewriteRules {
     
     def getId (id: String) = if (id.isEmpty) linkIds.next else id
     
-    val unresolvedLinkTargets = document.select { 
-      case _: ExternalLinkDefinition => true // TODO - improve after collect method has been addded
-      case _: InternalLinkTarget => true
-      case _: IndirectLinkDefinition => true
-      case _ => false 
-    } map { 
+    val unresolvedLinkTargets = document.collect { 
       case lt: ExternalLinkDefinition => (getId(lt.id),lt) 
       case lt: InternalLinkTarget => (getId(lt.id),lt) 
       case lt: IndirectLinkDefinition => (getId(lt.id),lt)

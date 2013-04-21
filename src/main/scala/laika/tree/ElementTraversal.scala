@@ -156,7 +156,6 @@ trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Ele
   
   /** Selects all elements satisfying the specified predicate, collecting
    *  in depth-first traversal, including this element itself. 
-   * 
    */
   def select (p: Element => Boolean): List[Element] = {
     val buffer = new ListBuffer[Element]
@@ -164,6 +163,17 @@ trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Ele
       if (p(e)) buffer += e
     }
     buffer.toList
+  }
+  
+  /** Selects all elements satisfying the specified predicate, collecting
+   *  in depth-first traversal, including this element itself. 
+   */
+  def collect [B](pf: PartialFunction[Element, B]): List[B] = {
+    val buffer = new ListBuffer[B]
+    foreach { e =>
+      if (pf.isDefinedAt(e)) buffer += pf(e)
+    } 
+    buffer.result
   }
   
   
