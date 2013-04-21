@@ -130,6 +130,8 @@ object TextRoles {
     def optField [T](name: String, convert: String => Either[String,T]): Result[Option[T]]
     
     def blockContent: Result[Seq[Block]]
+
+    def spanContent: Result[Seq[Span]]
     
     def content [T](f: String => Either[String,T]): Result[T]
     
@@ -195,7 +197,9 @@ object TextRoles {
      * 
      *  @return a directive part that can be combined with further parts with the `~` operator
      */                 
-    def blockContent: RoleDirectivePart[Seq[Block]] = part(_.blockContent) // TODO - maybe use blockContent/spanContent
+    def blockContent: RoleDirectivePart[Seq[Block]] = part(_.blockContent)
+    
+    def spanContent: RoleDirectivePart[Seq[Span]] = part(_.spanContent)
     
     /** Specifies that the body of the directive markup should get passed to the conversion function as a raw string.
      * 

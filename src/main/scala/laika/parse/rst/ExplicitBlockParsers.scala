@@ -313,7 +313,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
       var value: Option[T] = None
       def set (v: T) = value = Some(v)
       def set (v: Option[T]) = value = v
-      def get: T = value getOrElse { throw new IllegalStateException("result not set yet") }
+      def get: T = value get
     }
     
     def optionToEither [T](f: String => Either[String,T])(res: Option[String]): Either[String,Option[T]] =
@@ -357,6 +357,10 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
       block => Right(parseNestedBlocks(block))
     }
     
+    def spanContent: Result[Seq[Span]] = parseContentWith {
+      block => Right(parseInline(block.lines mkString "\n"))
+    }
+    
     def content [T](f: String => Either[String,T]): Result[T] = parseContentWith {
       block => f(block.lines mkString "\n")
     }
@@ -376,6 +380,8 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     def optField [T](name: String, f: String => Either[String,T]): Result[Option[T]] = delegate.optField(name,f)
     
     def blockContent: Result[Seq[Block]] = delegate.blockContent
+
+    def spanContent: Result[Seq[Span]] = delegate.spanContent
     
     def content [T](f: String => Either[String,T]): Result[T] = delegate.content(f)
     

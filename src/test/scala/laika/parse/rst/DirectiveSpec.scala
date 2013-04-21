@@ -80,7 +80,8 @@ class DirectiveSpec extends FlatSpec
     "argAndFd" -> (argument(positiveInt) ~ field("name",positiveInt)) { (arg1,arg2) => p(("*" * arg1) + ("#" * arg2)) },
     "stdBody" -> (blockContent map (BlockSequence(_))),
     "customBody" -> content(body => if (body.length > 10) Right(p(body)) else Left("body too short")),
-    "argAndBody" -> (argument() ~ blockContent) { (arg,blocks) => BlockSequence(p(arg+"!") +: blocks) },
+    "argAndBlocks" -> (argument() ~ blockContent) { (arg,blocks) => BlockSequence(p(arg+"!") +: blocks) },
+    "argAndSpans" -> (argument() ~ spanContent) { (arg,spans) => Paragraph(txt(arg) +: spans) },
     "fdAndBody" -> (field("name") ~ blockContent) { (field,blocks) => BlockSequence(p(field+"!") +: blocks) },
     "all" -> (argument() ~ field("name") ~ blockContent) {
       (arg,field,blocks) => BlockSequence(p(arg+":"+field) +: blocks)
@@ -330,7 +331,7 @@ class DirectiveSpec extends FlatSpec
   }
   
   it should "parse a directive with an argument and standard block content" in {
-    val input = """.. argAndBody:: arg
+    val input = """.. argAndBlocks:: arg
       |
       | Line 1
       | 
@@ -339,8 +340,21 @@ class DirectiveSpec extends FlatSpec
   }
   
   it should "parse a directive with an argument and empty block content" in {
-    val input = """.. argAndBody:: arg"""
+    val input = """.. argAndBlocks:: arg"""
     Parsing (input) should produce (doc (BlockSequence(List(p("arg!")))))
+  }
+  
+  it should "parse a directive with an argument and standard span content" in {
+    val input = """.. argAndSpans:: arg
+      |
+      | Line 1
+      | Line 2""".stripMargin
+    Parsing (input) should produce (doc (p(txt("arg"),txt("Line 1\nLine 2"))))
+  }
+  
+  it should "parse a directive with an argument and empty span content" in {
+    val input = """.. argAndSpans:: arg"""
+    Parsing (input) should produce (doc (p(txt("arg"))))
   }
   
   it should "parse a directive with a field and standard block content" in {

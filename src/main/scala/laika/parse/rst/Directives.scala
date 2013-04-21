@@ -158,6 +158,8 @@ object Directives {
     def optField [T](name: String, convert: String => Either[String,T]): Result[Option[T]]
     
     def blockContent: Result[Seq[Block]]
+
+    def spanContent: Result[Seq[Span]]
     
     def content [T](f: String => Either[String,T]): Result[T]
     
@@ -244,7 +246,9 @@ object Directives {
      * 
      *  @return a directive part that can be combined with further parts with the `~` operator
      */
-    def blockContent: DirectivePart[Seq[Block]] = part(_.blockContent) // TODO - maybe use blockContent/spanContent
+    def blockContent: DirectivePart[Seq[Block]] = part(_.blockContent)
+
+    def spanContent: DirectivePart[Seq[Span]] = part(_.spanContent)
     
     /** Specifies that the body of the directive markup should get passed to the conversion function as a raw string.
      * 

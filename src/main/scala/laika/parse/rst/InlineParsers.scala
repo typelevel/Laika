@@ -358,16 +358,19 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   
   override def parseInline (source: String, spanParsers: Map[Char, Parser[Span]]) = {
     val spans = super.parseInline(source, spanParsers)
-    val buffer = new ListBuffer[Span]
-    val last = (spans.head /: spans.tail) { 
-      case (t @ Text(content,_), Reverse(len, target, fallback, _)) =>
-        if (content.length < len) { buffer += t; fallback }
-        else { buffer += Text(content.dropRight(len)); target }
-      case (prev, Reverse(_, _, fallback, _)) => buffer += prev; fallback
-      case (prev, current)                    => buffer += prev; current
+    if (spans.isEmpty) spans
+    else {
+      val buffer = new ListBuffer[Span]
+      val last = (spans.head /: spans.tail) { 
+        case (t @ Text(content,_), Reverse(len, target, fallback, _)) =>
+          if (content.length < len) { buffer += t; fallback }
+          else { buffer += Text(content.dropRight(len)); target }
+        case (prev, Reverse(_, _, fallback, _)) => buffer += prev; fallback
+        case (prev, current)                    => buffer += prev; current
+      }
+      buffer += last
+      buffer.toList
     }
-    buffer += last
-    buffer.toList
   }
   
   
