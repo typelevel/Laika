@@ -35,7 +35,7 @@ import scala.annotation.tailrec
  * 
  * @author Jens Halm
  */
-trait WhitespacePreprocessor {
+class WhitespacePreprocessor extends (String => String) {
 
   
   /** The number of columns between tab stops.
@@ -46,7 +46,7 @@ trait WhitespacePreprocessor {
   /** Processes whitespace, removing or replacing most whitespace characters except
    *  for newline and space.
    */
-  def processWhitespace (input: String) = {
+  def apply (input: String) = {
     
     val end = input.length
     val buf = new StringBuilder

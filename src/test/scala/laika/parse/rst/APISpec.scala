@@ -79,5 +79,10 @@ class APISpec extends FlatSpec
         (p(txt("foo "), txt("valone"), txt(" foo "), txt("val1val2two"))))
   }
   
+  it should "preprocess tabs" in {
+    val input = " Line1\n\tLine2\n\tLine3"
+    Parse as ReStructuredText fromString input should be (doc( quote(defList + ("Line1", ss("Line2\nLine3")))))
+  }
+  
 
 }

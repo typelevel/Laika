@@ -20,6 +20,7 @@ import laika.io.Input
 import laika.tree.Elements._
 import laika.parse.rst.Directives._
 import laika.parse.rst.TextRoles._
+import scala.util.parsing.input.CharSequenceReader
   
 /** A parser for text written in reStructuredText markup. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:
@@ -142,7 +143,11 @@ class ReStructuredText private (
   /** The actual parser function, fully parsing the specified input and
    *  returning a document tree.
    */
-  def apply (input: Input) = parser.parseDocument(input.asParserInput)
+  def apply (input: Input) = {
+    val raw = input.asParserInput.source
+    val preprocessed = (new WhitespacePreprocessor)(raw.toString)
+    parser.parseDocument(new CharSequenceReader(preprocessed))
+  }
   
 }
 
