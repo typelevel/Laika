@@ -107,6 +107,15 @@ class BlockParsersSpec extends FlatSpec
     Parsing (input) should produce (doc (p("Paragraph:"), LiteralBlock("  Line 1\n\nLine 2")))  
   }
   
+  it should "parse a quoted literal block with blank lines" in {
+    val input = """Paragraph::
+      |
+      |>   Line 1
+      |>
+      |>  Line 2""".stripMargin
+    Parsing (input) should produce (doc (p("Paragraph:"), LiteralBlock(">   Line 1\n>\n>  Line 2")))  
+  }
+  
   
   "The blockquote parser" should "parse block quote with two paragraphs" in {
     val input = """ Paragraph 1
