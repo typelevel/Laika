@@ -211,7 +211,7 @@ trait BlockParsers extends BlockBaseParsers
         case (buffer, (it: InternalLinkTarget) :: (rt: InternalLinkTarget) :: Nil) => 
           buffer += IndirectLinkDefinition(it.id, LinkReference(Nil, rt.id, "`" + it.id + "`_"))
         case (buffer, (it: InternalLinkTarget) :: (et: ExternalLinkDefinition) :: Nil) => 
-          buffer += IndirectLinkDefinition(it.id, LinkReference(Nil, et.id, "`" + it.id + "`_"))
+          buffer += et.copy(id = it.id)
         case (buffer, (h @ SectionHeader(_,_,_,_)) :: _) => 
           buffer += InternalLinkTarget(toLinkId(h)) += h  
         case (buffer, other :: _) => 

@@ -95,7 +95,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     
     val named = '_' ~> (refName) <~ ':' ^^ { _.normalized }
       
-    val internal = named ^^ (InternalLinkTarget(_)) // TODO - might need special logic for cases where it points to other targets (e.g. external)
+    val internal = named ^^ (InternalLinkTarget(_))
     
     val external = {
       val anonymous = "__:" ^^^ ""
