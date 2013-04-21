@@ -53,25 +53,13 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
   }
 
   
-  def toTable (cit: Citation): Table = toTable(cit.id,cit.id,cit.content)
-  
-  def toTable (id: String, label: String, content: Seq[Block]): Table = {
-    val left = Cell(BodyCell, List(SpanSequence(List(Text("["+label+"]")))))
-    val right = Cell(BodyCell, content)
-    val row = Row(List(left,right))
-    Table(TableHead(Nil), TableBody(List(row)),
-        Columns.options(Styles("label"),NoOpt), Id(id) + Styles("footnote"))
-  }
-  
-  
-  def noneIfDefault [T](actual: T, default: T) = if (actual == default) None else Some(actual.toString)
-  
-  def include (msg: SystemMessage) = {
-    messageLevel flatMap {lev => if (lev <= msg.level) Some(lev) else None} isDefined
-  }
-  
-  
   private def renderElement (out: HTMLWriter)(elem: Element): Unit = {
+    
+    def include (msg: SystemMessage) = {
+      messageLevel flatMap {lev => if (lev <= msg.level) Some(lev) else None} isDefined
+    }
+    
+    def noneIfDefault [T](actual: T, default: T) = if (actual == default) None else Some(actual.toString)
     
     def renderBlocks (blocks: Seq[Block], close: String) = blocks match {
       case ss @ SpanSequence(_,_) :: Nil => out << ss << close
@@ -85,6 +73,15 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
     }
     
     def renderBlockContainer (con: BlockContainer[_]) = {
+  
+      def toTable (id: String, label: String, content: Seq[Block]): Table = {
+        val left = Cell(BodyCell, List(SpanSequence(List(Text("["+label+"]")))))
+        val right = Cell(BodyCell, content)
+        val row = Row(List(left,right))
+        Table(TableHead(Nil), TableBody(List(row)),
+            Columns.options(Styles("label"),NoOpt), Id(id) + Styles("footnote"))
+      }
+      
       def quotedBlockContent (content: Seq[Block], attr: Seq[Span]) = 
         if (attr.isEmpty) content
         else content :+ Paragraph(attr, Styles("attribution"))
@@ -99,7 +96,7 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
         case LineBlock(content,opt)           => out <<@ ("div",opt + Styles("line-block")) <<|> content <<| "</div>"
         
         case Footnote(id,label,content,_)   => renderTable(toTable(id,label,content))
-        case c: Citation                    => renderTable(toTable(c))
+        case Citation(id,content,_)         => renderTable(toTable(id,id,content))
         
         case BlockSequence(content, NoOpt)  => out << content
         case c: Customizable                => out <<@ ("div",c.options) <<|> c.content <<| "</div>"

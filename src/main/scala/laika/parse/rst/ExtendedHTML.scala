@@ -17,7 +17,6 @@
 package laika.parse.rst
 
 import laika.render.HTMLWriter
-import laika.render.HTML._
 import laika.tree.Elements._
 import laika.parse.rst.Elements._
 
