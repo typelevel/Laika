@@ -16,14 +16,24 @@
 
 package laika.util
 
-/** Based on a concept outlined by Sadek Drobi in this gist: https://gist.github.com/sadache/3646092
+/** Generic support for builders that allow to combine container types with
+ *  matching type classes into a final result.
+ * 
+ *  The concrete use case for Laika is a concise and type-safe API for
+ *  setting up directives or text roles. For these APIs and sample
+ *  code see [[laika.parse.rst.Directives]] and [[laika.parse.rst.TextRoles]].
+ * 
+ *  This implementation is based on a concept outlined by Sadek Drobi in this gist: 
+ *  https://gist.github.com/sadache/3646092.
  *  The code used here is only a simplified subset of the demonstrated functionality.
  * 
  *  @author Sadek Drobi / Jens Halm
  */
 object Builders {
 
-  
+
+  /** A wrapper for a single result value.
+   */
   class Result[+A] (a: => A) {
     
     def get = a
@@ -32,7 +42,16 @@ object Builders {
     
   }
     
-    
+  /** A wrapper for two result values.
+   */
+  case class ~[A,B](_1:A,_2:B)
+
+
+  /** Contract for type classes that adapt a container
+   *  type for use with these builders. Implementations
+   *  have to know how to merge two containers as well
+   *  as how to perform a simple map.
+   */
   trait CanBuild [M[_]]{
     
     def apply [A,B](ma: M[A], mb: M[B]): M[A ~ B]
@@ -44,6 +63,9 @@ object Builders {
     
   implicit def toBuilderOps [M[_],A](a: M[A])(implicit fcb: CanBuild[M]) = new BuilderOps[M,A](a)(fcb)
   
+  /** Allows to use the `~` combinator function on all classes
+   *  that have a matching `CanBuild` type class.
+   */
   class BuilderOps [M[_],A](ma:M[A])(implicit fcb: CanBuild[M]) {
    
     def ~ [B](mb: M[B]): Builder[M]#CanBuild2[A,B] = { 
@@ -53,10 +75,8 @@ object Builders {
    
   }
   
-  
-  case class ~[A,B](_1:A,_2:B)
-  
-  
+  /** Builders for using combinators for up to 12 result values.
+   */
   class Builder [M[_]](canBuild: CanBuild[M]) {
    
     class CanBuild2 [A1,A2](m1: M[A1], m2: M[A2]) {
