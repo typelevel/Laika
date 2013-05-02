@@ -19,10 +19,9 @@ Markdown
 
 Laika supports Markdown primarily due to its popularity.
 It has several advantages, mainly that it is very easy to learn, very lightweight, and produces
-documents which are fairly easy to read, even when you don't know anything about Markdown. 
-The popularity is probably largely based on these characteristics and is well deserved.
+documents which are fairly easy to read, even when you don't know anything about Markdown.
 
-However, Markdown also has its problems. First, there is no real specification,
+However, Markdown also has a few issues. First, there is no real specification,
 only a page with a syntax description that leaves many questions unanswered. Secondly, its feature
 set is fairly limited, lacking functionality for more advanced usage like technical 
 documentation or entire books. As a consequence
@@ -56,9 +55,8 @@ the majority of available parses have chosen has been picked for Laika, too. The
 one (known) minor exception: 
 
 * Laika does not detect a header if it is not preceded by a blank line. Supporting this would be
-  disadvantageous for three reasons: it feels to be against the Markdown design goal of promoting
-  readability, it would slow down the parser as there'd need to be a lookahead to the next line
-  for each line of a regular paragraph, and finally it'll open the doors for accidental headers.
+  disadvantageous for three reasons: it goes against Markdown's design goal of promoting
+  readability, it would slow down the parser and it would open the doors for accidental headers.
   According to Babelmark, there are at least two parsers (Pandoc, Python-Markdown) that agree.
    
 
@@ -72,24 +70,18 @@ one (known) minor exception:
 ### Verbatim HTML
 
 Finally there is one major difference to standard Markdown: the parsing of verbatim HTML elements
-is not enabled by default, but it can be configured if required. Before showing how to do that,
-this section explains this design decision.
+is not enabled by default, but it can be switched on if required. This decision is based on the 
+following problems with verbatim HTML:
 
-The problems with enabling verbatim HTML elements by default would be:
-
-* It goes against Markdown's own design goal of great readability, and of being easy for anyone
-  to pick up. Markdown syntax basics can be understood in minutes, by non-technical people, but producing well-formed
-  and valid HTML is not trivial if you do not regularly deal with HTML.
+* It goes against Markdown's own design goal of great readability and being easy for anyone
+  to pick up. Markdown syntax basics can be understood in minutes, by non-technical people, 
+  but producing well-formed and valid HTML is not trivial if you do not regularly deal with HTML.
   
-* It goes against Laika's design goal of decoupling parsers and renderers. Allowing verbatim
-  HTML elements really only makes sense if the output format is HTML, too. Once Laika adds
-  output formats like PDF, it would be unclear what these renderers should do with these elements.
+* It goes against Laika's design goal of decoupling parsers and renderers. 
   Markdown was designed with only HTML output in mind, so this mismatch is natural.
   
 * It would not be safe to use without additional filtering when used in web applications
-  that offer user input. Before rendering some processing based on whitelists would need
-  to be performed to avoid security vulnerabilities. Laika makes it easy to add such
-  whitelist functionality through document tree rewriting.
+  that offer user input. 
   
 This design decision has the following consequences for the Laika library:
 
@@ -98,7 +90,7 @@ This design decision has the following consequences for the Laika library:
   rendered text nodes in the final HTML document. How to enable HTML parsing is shown 
   further below.
   
-* The elements nodes produced by the Markdown HTML parsers are not part of the standard
+* The elements produced by the Markdown HTML parsers are not part of the standard
   Laika document tree model. Instead they are kept in a Markdown-specific trait `VerbatimHTMLElements`.
   
 * As a consequence, built-in renderers like that for HTML do not know these nodes. How to add
