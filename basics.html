@@ -28,7 +28,7 @@
       <div class="span4 toc" >
         
         <ul class="nav nav-list affix">
-          <h1>LAIKA</h1>
+          <div class="nav-top"><img src="img/laika-top.png"/></div>
           <li class="nav-header">Introduction</li>
           <li><a href="index.html">Getting Started</a></li>
           <li><a href="index.html#available-features">Available Features</a></li>
@@ -61,6 +61,7 @@
           <li class="nav-header">Implementing a Renderer</li>
           <li><a href="renderer.html">Providing an API</a></li>
           <li><a href="renderer.html#function">The Render Function</a></li>
+          <div class="nav-bottom"><img src="img/laika-bottom.png" border="1"/></div>
         </ul>
       </div>
       
@@ -126,9 +127,7 @@ res0: java.lang.String = Document - Blocks: 1
 . . Text - &apos;some &apos;
 . . Emphasized - Spans: 1
 . . . Text - &apos;text&apos;
-. . Text - &apos; example&apos;
-
-</pre>
+. . Text - &apos; example&apos;</pre>
   <h2 id="parse">The Parse API</h2>
   <p>If you need to perform the parsing step separately, the API is similar to
   the Transform API:</p>
@@ -143,9 +142,7 @@ res0: java.lang.String = Document - Blocks: 1
   <pre>val parse = Parse as Markdown
 
 val doc1 = parse fromFile &quot;input1.md&quot;
-val doc2 = parse fromFile &quot;input2.md&quot;
-
-</pre>
+val doc2 = parse fromFile &quot;input2.md&quot;</pre>
   <h2 id="render">The Render API</h2>
   <p>If you need to perform the rendering step separately, the API is similar to
   the Transform API:</p>
