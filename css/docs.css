@@ -42,6 +42,7 @@ h3 {
 
 .nav-header {
   font-size: 15px;
+  color: #931813;
 }
 
 .nav-list li {
@@ -58,9 +59,6 @@ h3 {
 }
 .nav-list .active a, .nav-list .active a:hover {
   background-color: #006180;
-}
-.nav-header {
-  color: #931813;
 }
 code, pre {
   color: #006180;
@@ -90,3 +88,43 @@ h1, h2, h3, h4, h5, h6 {
   padding: 9px 0px;
   text-align: center;
 }
+
+@media (max-width: 942px), (max-height: 856px) {
+  [class*="span"] {
+    float: none;
+    margin-left: 0px;
+    width: 100%;
+    display: block;
+    box-sizing: border-box;
+  }
+  .span8 {
+    width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .row {
+    margin-left: 0px;
+  }
+  body {
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+  .container {
+    width: auto;
+  }
+  .affix {
+    position: static;
+    width: 222px;
+    top: 0;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+@media (max-width: 620px) {
+  .span8 {
+    width: 100%;
+    margin-left: 0px;
+  }  
+}
+
