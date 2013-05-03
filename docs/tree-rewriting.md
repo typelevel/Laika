@@ -92,7 +92,7 @@ the `rewrite` method directly, as described in the previous section.
 To use the same example, this is how you can replace all `Strong` nodes with
 `Emphasized` nodes:
 
-    Transform from Markdown to HTML usingRule {
+    Transform from ReStructuredText to HTML usingRule {
       case Strong(content, options) => Some(Emphasized(content, options))
     } fromFile "hello.md" toFile "hello.html"
 

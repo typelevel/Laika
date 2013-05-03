@@ -49,7 +49,7 @@ can be combined in any way, like going from file as input to String as output.
 You can also keep the created transformer instance to reuse it with different
 inputs and outputs:
 
-    val transform = Transform from Markdown to HTML
+    val transform = Transform from ReStructuredText to HTML
     
     transform fromFile "hello.md" toFile "hello.html"
     
@@ -59,7 +59,7 @@ inputs and outputs:
 All objects created by the API are reusable and immutable. For example,
 using the same input for two different types of output could be coded like this:
 
-    val doc = Transform from Markdown to HTML fromFile "hello.md"
+    val doc = Transform from ReStructuredText to HTML fromFile "hello.md"
     
     doc toFile "hello.html"
     
@@ -80,8 +80,8 @@ into one line:
     . . Emphasized - Spans: 1
     . . . Text - 'text'
     . . Text - ' example'
-    
-    
+
+
 The Parse API
 -------------
 
@@ -100,12 +100,12 @@ it to various output formats, both described in sections below.
 
 Like with the Transform API, all objects are reusable and immutable:
 
-    val parse = Parse as Markdown
+    val parse = Parse as ReStructuredText
     
     val doc1 = parse fromFile "input1.md"
     val doc2 = parse fromFile "input2.md"
-    
-    
+
+
 [tree-scaladoc]: api/#laika.tree.Elements$
     
 

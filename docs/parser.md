@@ -17,7 +17,7 @@ with this signature:
 deal with the details of whether the text comes from a string or file or other 
 types of streams.
  
-Document is a case class representing the root node of the document tree.
+`Document` is a case class representing the root node of the document tree.
 
 The way you implement this function depends entirely on your requirements and preferences.
 You may use the parser combinators from the Scala SDK or some other parsing technology.
@@ -82,7 +82,8 @@ comments removed for brevity):
     object Markdown extends Markdown(false) 
 
 As you see, all the low-level parsing details are left in the three traits, this is
-just a wrapper for providing a convenient public API.
+just a wrapper for providing a convenient public API. Support for reStructuredText
+is implemented in a similar way.
 
 It calls `asParserInput` on the `Input` instance which is the most convenient way
 if you use parser combinators, as it directly gives you a `Reader[Char]` no matter
@@ -206,9 +207,9 @@ or `restOfLine`. See the [Scaladoc][inline-scaladoc] for details on those.
 
 If you mix in this trait you have to implement the two abstract parsers:
 
-  def topLevelBlock: Parser[Block]
+    def topLevelBlock: Parser[Block]
  
-  def nestedBlock: Parser[Block]
+    def nestedBlock: Parser[Block]
 
 This can be a parser build as a list of choices. In contrast to the inline
 parsers the performance impact is less of a concern here. The names should be
