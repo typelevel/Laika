@@ -65,7 +65,7 @@ import laika.util.Builders._
  *  The implementation of this directive could look like this:
  * 
  *  {{{
- *  case class Note (title: String, content: Seq[Block]) extends Block with BlockContainer[Note]
+ *  case class Note (title: String, content: Seq[Block], options: Options) extends Block with BlockContainer[Note]
  *
  *  val rst = ReStructuredText withBlockDirectives (
  *    BlockDirective("note") {
@@ -99,7 +99,7 @@ import laika.util.Builders._
  *      case e: NumberFormatException => Left("not a number: " + value)
  *    }
  * 
- *  case class Message (severity: Int, content: Seq[Block]) 
+ *  case class Message (severity: Int, content: Seq[Block], options: Options) 
  *                                     extends Block with BlockContainer[Message]
  * 
  *  val rst = ReStructuredText withBlockDirectives (
@@ -120,7 +120,7 @@ import laika.util.Builders._
  *  considered valid and `None` will be passed to your function:
  * 
  *  {{{
- *  case class Message (severity: Option[Int], content: Seq[Block]) 
+ *  case class Message (severity: Option[Int], content: Seq[Block], options: Options) 
  *                                extends Block with BlockContainer[Message]
  * 
  *  val rst = ReStructuredText withBlockDirectives (
