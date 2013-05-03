@@ -228,7 +228,9 @@ a body:
  
 The implementation of this directive could look like this:
  
-  case class Note (title: String, content: Seq[Block]) extends Block with BlockContainer[Note]
+  case class Note (title: String, 
+                   content: Seq[Block], 
+                   options: Options) extends Block with BlockContainer[Note]
  
   val rst = ReStructuredText withBlockDirectives (
     BlockDirective("note") {
@@ -261,8 +263,10 @@ be passed to the corresponding function:
       case e: NumberFormatException => Left("not a number: " + value)
     }
  
-  case class Message (severity: Int, content: Seq[Block]) 
-                                     extends Block with BlockContainer[Message]
+  case class Message (severity: Int, 
+                      content: Seq[Block],
+                      options: Options) extends Block 
+                                        with BlockContainer[Message]
  
   val rst = ReStructuredText withBlockDirectives (
     BlockDirective("message") {
@@ -280,8 +284,10 @@ parameter.
 Finally arguments and fields can also be optional. In case they are missing, the directive is still
 considered valid and `None` will be passed to your function:
  
-  case class Message (severity: Option[Int], content: Seq[Block]) 
-                                extends Block with BlockContainer[Message]
+  case class Message (severity: Option[Int], 
+                      content: Seq[Block],
+                      options: Options) extends Block 
+                                        with BlockContainer[Message]
   
   val rst = ReStructuredText withBlockDirectives (
     BlockDirective("message") {

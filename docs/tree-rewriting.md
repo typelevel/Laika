@@ -62,7 +62,7 @@ the text to `Emphasized` nodes:
     val doc: Document = ...
     
     val newDoc = doc rewrite {
-      case Strong(content) => Some(Emphasized(content))
+      case Strong(content, options) => Some(Emphasized(content, options))
     }
 
 For a slightly more advanced example, let's assume you only want to downgrade `Strong`
@@ -71,7 +71,7 @@ inside another one:
 
     val newDoc = doc rewrite {
       case h: Header => Some(h rewrite {
-        case Strong(content) => Some(Emphasized(content))
+        case Strong(content, options) => Some(Emphasized(content, options))
       })
     }
 
@@ -93,7 +93,7 @@ To use the same example, this is how you can replace all `Strong` nodes with
 `Emphasized` nodes:
 
     Transform from Markdown to HTML usingRule {
-      case Strong(content) => Some(Emphasized(content))
+      case Strong(content, options) => Some(Emphasized(content, options))
     } fromFile "hello.md" toFile "hello.html"
 
 

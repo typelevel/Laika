@@ -66,9 +66,11 @@ comments removed for brevity):
     import laika.tree.Elements._
     import laika.io.Output
     
-    class HTML extends 
+    class HTML private (messageLevel: Option[MessageLevel]) extends 
                ((Output, Element => Unit) => (HTMLWriter, Element => Unit)) {
      
+      def withMessageLevel (level: MessageLevel) = new HTML(Some(level))
+      
       def apply (output: Output, render: Element => Unit) = {
         val out = new HTMLWriter(output asFunction, render)  
         (out, renderElement(out))
@@ -79,7 +81,7 @@ comments removed for brevity):
       } 
     }
     
-    object HTML extends HTML
+    object HTML extends HTML(None)
 
 It calls `asFunction` on the `Output` instance which is the most convenient way
 if all you need for writing is a simple `String => Unit` function, no matter
@@ -111,28 +113,21 @@ explained [here][Writer API]. Alternatively it may create its own API, but you s
 then, that this API will also get used by users customizing specific nodes, so it should be
 convenient and straightforward to use.
 
-Finally, we'll show a little excerpt of the HTML render function we omitted above, just to
+Finally, we'll show a little (simplified) excerpt of the HTML render function we omitted above, just to
 give you an impression that it is often quite simple to implement:
 
     private def renderElement (out: HTMLWriter)(elem: Element): Unit = {
     
       elem match {
-        case OrderedList(content) => out << "<ol>" <<|> content <<| "</ol>"
-        case Paragraph(content)   => out <<  "<p>" <<   content <<  "</p>"  
-        case Emphasized(content)  => out << "<em>" <<   content <<  "</em>" 
-        case Text(content)        => out           <<&  content
-        case Rule                 => out << "<hr>"
-        case LineBreak            => out << "<br>"
+        case Paragraph(content,opt)  => 
+          out <<@ ("p",opt)  << content << "</p>"  
+        
+        case Emphasized(content,opt) => 
+          out <<@ ("em",opt) << content << "</em>" 
         
         /* [other cases ...] */
         
-        /* finally, three fallbacks: */
-        
-        case sc: SpanContainer[_]  => 
-                                 out << "<span>" <<  sc.content << "</span>"
-        case bc: BlockContainer[_] => 
-                                 out << "<div>" <<|> bc.content << "</div>"
-        case unknown => ()  
+        /* [fallbacks for unknown elements] */
       }   
     }
     
@@ -140,7 +135,7 @@ As you see, the function never deals with children (the `content` attribute of m
 types) directly. Instead it passes them to the Writer API which delegates to the composed
 render function.
 
-The various functions of the Writer API (like `<<` or `<<|>`) are explained in the chapter
+The various functions of the Writer API (like `<<` or `<<@`) are explained in the chapter
 on the [Writer API]. They are far less cryptic than at first sight and should be easy
 to memorize once you know what they are supposed to do. The short symbols make render
 functions easier to read. It's the only API where Laika uses symbols as method names.

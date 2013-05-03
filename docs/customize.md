@@ -32,7 +32,7 @@ adding a specific style class:
     val close = "</em>"
 
     Transform from Markdown to HTML rendering { out => 
-      { case Emphasized(content) => out << open << content << close } 
+      { case Emphasized(content, _) => out << open << content << close } 
     } fromFile "hello.md" toFile "hello.html"
     
 For HTML `out` is of type `HTMLWriter` and `<<` is one of the methods to append text.
@@ -66,7 +66,7 @@ with the Render API looks like this:
     val close = "</em>"
     
     Render as HTML using { out => 
-      { case Emphasized(content) => out << open << content << close } 
+      { case Emphasized(content, _) => out << open << content << close } 
     } from doc toString
     
     
