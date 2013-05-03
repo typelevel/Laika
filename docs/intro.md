@@ -4,6 +4,13 @@ Laika
 
 Laika is a library for transforming lightweight markup languages to various types of output formats, written in Scala. 
 
+It has been designed for two primary usage scenarios:
+
+* Embedded use (e.g. web applications that allow user input in one of the supported markup syntaxes)
+
+* As a standalone tool (e.g. as part of an sbt build that produces the project's documentation)
+
+
 It is Open Source under the Apache 2.0 License.
 
 If you wonder about the name of the project and have never heard about Laika, 
@@ -21,7 +28,7 @@ The current version is published to Maven Central for Scala 2.9.2 and 2.10.x.
 
 Adding Laika to your project with sbt:
 
-    libraryDependencies += "org.planet42" %% "laika" % "0.1.0"
+    libraryDependencies += "org.planet42" %% "laika" % "0.2.0"
 
 
 Example for transforming from file to file:
@@ -50,10 +57,12 @@ is included in the repository inside the `docs` folder.
 [Transformation Basics]: basics.html
 
 
-Available Features
-------------------
+Features
+--------
 
-* Support for Markdown as input
+* Support for Markdown and reStructuredText as input
+
+* Concise and type-safe API for all reStructuredText extensibility options (directives, text roles)
 
 * Support for HTML and PrettyPrint (for debugging etc.) as output
 
@@ -64,18 +73,17 @@ Available Features
 * Various options for input and output (strings, files, java.io.Reader/Writer, java.io streams)
 
 
-Planned Features
-----------------
+Road Map
+--------
 
-* Support for reStructuredText and Markmore (a new "Markdown Extended" format) as input
+* Books/Sites, multi-document processing with TOC generation (0.4)
 
-* Support for epub and PDF (via Apache FOP) as output
+* sbt Plugin and/or command line interface (0.5)
 
-* Books (multi-document processing with TOC generation)
+* New renderers for PDF (0.6) and epub (0.7)
 
-* Command-Line Interface
-
-* sbt Plugin
+* Luna, a new markup syntax that aims to combine the simplicity and readability of Markdown
+  with the power and extensibility of reStructuredText (0.8)
 
 
 Design Principles
@@ -87,7 +95,7 @@ Design Principles
 * Provide a very convenient and simple high level API for common transformation tasks.
 
 * Build a generic document tree model that does not reflect specifics of a particular 
-  markup language like Markdown.
+  supported markup language like Markdown or reStructuredText.
 
 * Allow for easy modification of the rendering for a particular node type only, without
   the need to sub-class or modify an existing renderer.
@@ -96,4 +104,27 @@ Design Principles
   reusable base parsers that encapsulate requirements common to all lightweight markup languages,
   while keeping the basic contract for plugging in a new parser function as simple and generic as 
   `Input => Document`, so that other parser frameworks or tools can be used, too.
+  
+  
+Release History
+---------------
+
+* __0.2__ (May 2013):
+
+    * Support for reStructuredText (full specification)
+    * Concise and type-safe API for all reStructuredText extensibility options (directives, text roles)
+    * New document tree nodes for tables, footnotes, citations, definition lists, internal links,
+      comments, system messages, invalid elements
+    * Render hints for document tree nodes in the form of the new Customizable trait
+
+* __0.1__ (Jan 12, 2013): 
+
+    * Support for Markdown as input
+    * Support for HTML and PrettyPrint as output
+    * Customization hooks for renderers
+    * Document tree rewriting
+    * Various options for input and output (strings, files, java.io.Reader/Writer, java.io streams)
+    * Generic base traits for markup parser implementations
+
+
   
