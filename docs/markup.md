@@ -183,15 +183,24 @@ The following types of extension points exist:
 
 The Laika APIs for all of these extension types are explained in the sections below.
 
+The design of these APIs did not aim to mimic the API of the original Python reference implementation.
+Instead the goal was to create an API that is idiomatic Scala, fully typesafe and as concise as possible.
+Yet it should be flexible enough to semantically support the options of the Python directives and text roles, 
+so that ideally most existing Python directives could theoretically get ported to Laika.
+
+The style of the API is somewhat similar to the [Play JSON API] and its combinators. 
+It is inspired by the concepts outlined by Sadek Drobi in his 
+[document about functional builders][func-builders].
+
+
+[Play JSON API]: http://www.playframework.com/documentation/2.1.1/ScalaJsonCombinators
+
+[func-builders]: https://gist.github.com/sadache/3646092
 
 
 ### Implementing a Directive
 
-The API for directive setup did not aim to mimic the API of the original Python reference implementation.
-Instead the goal was to create an API that is idiomatic Scala, fully typesafe and as concise as possible.
-Yet it should be flexible enough to semantically support the options of the Python directives, so that
-ideally most existing Python directives could theoretically get ported to Laika.
- 
+A directive can be used to introduce new syntax for custom block or span elements.
 Entry points are the `BlockDirective` and `SpanDirective` objects. The Python reference parser does
 not make this distinction on the API level, but does this internally based on the context a 
 directive is parsed in. Since Laika APIs are typesafe, the distinction is necessary since
@@ -307,10 +316,6 @@ will always be parsed before optional ones, and arguments with whitespace need t
 
 Text roles are the extension mechanism for inline elements of reStructuredText.
 For details see the [specification entry for interpreted text roles][rst text roles].
-
-Like with the API for directive setup this API did not aim to mimic the API
-of the original Python reference implementation, but instead to provide
-the same functionality with a concise, type-safe API. 
 
 Entry point for creating a new role is the `TextRole` object. It allows to specify the following
 aspects that define a text role:
