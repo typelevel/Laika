@@ -31,9 +31,10 @@
           <div class="nav-top"><img src="img/laika-top.png"/></div>
           <li class="nav-header">Introduction</li>
           <li class="active"><a href="#top">Getting Started</a></li>
-          <li><a href="#available-features">Available Features</a></li>
-          <li><a href="#planned-features">Planned Features</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#road-map">Road Map</a></li>
           <li><a href="#design-principles">Design Principles</a></li>
+          <li><a href="#release-history">Release History</a></li>
           
           <li class="nav-header">Transformation Basics</li>
           <li><a href="basics.html#top">Transform API</a></li>
@@ -42,6 +43,7 @@
           
           <li class="nav-header">Supported Markup</li>
           <li><a href="markup.html#top">Markdown</a></li>
+          <li><a href="markup.html#rst">reStructuredText</a></li>
           
           <li class="nav-header">Customizing Renderers</li>
           <li><a href="customize.html#top">Using the Transform API</a></li>
@@ -61,8 +63,8 @@
           <li class="nav-header">Implementing a Renderer</li>
           <li><a href="renderer.html#top">Providing an API</a></li>
           <li><a href="renderer.html#function">The Render Function</a></li>
-          <div class="nav-bottom"><img src="img/laika-bottom.png" border="1"/></div>	
-	</ul>
+          <div class="nav-bottom"><img src="img/laika-bottom.png" border="1"/></div>
+        </ul>
       </div>
       
       
@@ -75,53 +77,125 @@
     <h1>Laika</h1>
   </div>
   <p>Laika is a library for transforming lightweight markup languages to various types of output formats, written in Scala. </p>
+  <p>It has been designed for two primary usage scenarios:</p>
+  <ul>
+    <li>
+      <p>Embedded use (e.g. web applications that allow user input in one of the supported markup syntaxes)</p>
+    </li>
+    <li>
+      <p>As a standalone tool (e.g. as part of an sbt build that produces the project&apos;s documentation)</p>
+    </li>
+  </ul>
   <p>It is Open Source under the Apache 2.0 License.</p>
   <p>If you wonder about the name of the project and have never heard about Laika, 
   you can read about her <a href="http://en.wikipedia.org/wiki/Laika">here</a>.</p>
   <h2 id="getting-started">Getting Started</h2>
   <p>The current version is published to Maven Central for Scala 2.9.2 and 2.10.x.</p>
   <p>Adding Laika to your project with sbt:</p>
-  <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika&quot; % &quot;0.1.0&quot;</pre>
+  <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika&quot; % &quot;0.2.0&quot;</pre>
   <p>Example for transforming from file to file:</p>
   <pre>Transform from Markdown to HTML fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;</pre>
   <p>For further information:</p>
   <ul>
-    <li><p>Read more about standard usage in the chapter <a href="basics.html">Transformation Basics</a>.</p></li>
-    <li><p>Browse, clone or fork the source on <a href="https://github.com/planet42/Laika">GitHub</a>.</p></li>
-    <li><p>Browse the API in the <a href="api/">Scaladoc</a>.</p></li>
-    <li><p>Follow on <a href="https://twitter.com/_planet42">Twitter</a> for release announcements.</p></li>
+    <li>
+      <p>Read more about standard usage in the chapter <a href="basics.html">Transformation Basics</a>.</p>
+    </li>
+    <li>
+      <p>Browse, clone or fork the source on <a href="https://github.com/planet42/Laika">GitHub</a>.</p>
+    </li>
+    <li>
+      <p>Browse the API in the <a href="api/">Scaladoc</a>.</p>
+    </li>
+    <li>
+      <p>Follow on <a href="https://twitter.com/_planet42">Twitter</a> for release announcements.</p>
+    </li>
   </ul>
   <p>This manual is written in Markdown and transformed by Laika. Its source
   is included in the repository inside the <code>docs</code> folder.</p>
-  <h2 id="available-features">Available Features</h2>
+  <h2 id="features">Features</h2>
   <ul>
-    <li><p>Support for Markdown as input</p></li>
-    <li><p>Support for HTML and PrettyPrint (for debugging etc.) as output</p></li>
-    <li><p>Customization Hooks for Renderers</p></li>
-    <li><p>Document Tree Rewriting</p></li>
-    <li><p>Various options for input and output (strings, files, java.io.Reader/Writer, java.io streams)</p></li>
+    <li>
+      <p>Support for Markdown and reStructuredText as input</p>
+    </li>
+    <li>
+      <p>Concise and type-safe API for all reStructuredText extensibility options (directives, text roles)</p>
+    </li>
+    <li>
+      <p>Support for HTML and PrettyPrint (for debugging etc.) as output</p>
+    </li>
+    <li>
+      <p>Customization Hooks for Renderers</p>
+    </li>
+    <li>
+      <p>Document Tree Rewriting</p>
+    </li>
+    <li>
+      <p>Various options for input and output (strings, files, java.io.Reader/Writer, java.io streams)</p>
+    </li>
   </ul>
-  <h2 id="planned-features">Planned Features</h2>
+  <h2 id="road-map">Road Map</h2>
   <ul>
-    <li><p>Support for reStructuredText and Markmore (a new &quot;Markdown Extended&quot; format) as input</p></li>
-    <li><p>Support for epub and PDF (via Apache FOP) as output</p></li>
-    <li><p>Books (multi-document processing with TOC generation)</p></li>
-    <li><p>Command-Line Interface</p></li>
-    <li><p>sbt Plugin</p></li>
+    <li>
+      <p>Books/Sites, multi-document processing with TOC generation (0.4)</p>
+    </li>
+    <li>
+      <p>sbt Plugin and/or command line interface (0.5)</p>
+    </li>
+    <li>
+      <p>New renderers for PDF (0.6) and epub (0.7)</p>
+    </li>
+    <li>
+      <p>Luna, a new markup syntax that aims to combine the simplicity and readability of Markdown
+      with the power and extensibility of reStructuredText (0.8)</p>
+    </li>
   </ul>
   <h2 id="design-principles">Design Principles</h2>
   <ul>
-    <li><p>Fully decouple the aspects of input/output, parsing, rendering and document tree rewriting, 
-    making each of these steps pluggable.</p></li>
-    <li><p>Provide a very convenient and simple high level API for common transformation tasks.</p></li>
-    <li><p>Build a generic document tree model that does not reflect specifics of a particular 
-    markup language like Markdown.</p></li>
-    <li><p>Allow for easy modification of the rendering for a particular node type only, without
-    the need to sub-class or modify an existing renderer.</p></li>
-    <li><p>Create the built-in parsers with the Scala parser combinators, providing efficient and
-    reusable base parsers that encapsulate requirements common to all lightweight markup languages,
-    while keeping the basic contract for plugging in a new parser function as simple and generic as 
-    <code>Input =&gt; Document</code>, so that other parser frameworks or tools can be used, too.</p></li>
+    <li>
+      <p>Fully decouple the aspects of input/output, parsing, rendering and document tree rewriting, 
+      making each of these steps pluggable.</p>
+    </li>
+    <li>
+      <p>Provide a very convenient and simple high level API for common transformation tasks.</p>
+    </li>
+    <li>
+      <p>Build a generic document tree model that does not reflect specifics of a particular 
+      supported markup language like Markdown or reStructuredText.</p>
+    </li>
+    <li>
+      <p>Allow for easy modification of the rendering for a particular node type only, without
+      the need to sub-class or modify an existing renderer.</p>
+    </li>
+    <li>
+      <p>Create the built-in parsers with the Scala parser combinators, providing efficient and
+      reusable base parsers that encapsulate requirements common to all lightweight markup languages,
+      while keeping the basic contract for plugging in a new parser function as simple and generic as 
+      <code>Input =&gt; Document</code>, so that other parser frameworks or tools can be used, too.</p>
+    </li>
+  </ul>
+  <h2 id="release-history">Release History</h2>
+  <ul>
+    <li>
+      <p><strong>0.2</strong> (May 2013):</p>
+      <ul>
+        <li>Support for reStructuredText (full specification)</li>
+        <li>Concise and type-safe API for all reStructuredText extensibility options (directives, text roles)</li>
+        <li>New document tree nodes for tables, footnotes, citations, definition lists, internal links,
+        comments, system messages, invalid elements</li>
+        <li>Render hints for document tree nodes in the form of the new Customizable trait</li>
+      </ul>
+    </li>
+    <li>
+      <p><strong>0.1</strong> (Jan 12, 2013): </p>
+      <ul>
+        <li>Support for Markdown as input</li>
+        <li>Support for HTML and PrettyPrint as output</li>
+        <li>Customization hooks for renderers</li>
+        <li>Document tree rewriting</li>
+        <li>Various options for input and output (strings, files, java.io.Reader/Writer, java.io streams)</li>
+        <li>Generic base traits for markup parser implementations</li>
+      </ul>
+    </li>
   </ul>
 </div>        
 

@@ -31,9 +31,10 @@
           <div class="nav-top"><img src="img/laika-top.png"/></div>
           <li class="nav-header">Introduction</li>
           <li><a href="index.html#top">Getting Started</a></li>
-          <li><a href="index.html#available-features">Available Features</a></li>
-          <li><a href="index.html#planned-features">Planned Features</a></li>
+          <li><a href="index.html#features">Features</a></li>
+          <li><a href="index.html#road-map">Road Map</a></li>
           <li><a href="index.html#design-principles">Design Principles</a></li>
+          <li><a href="index.html#release-history">Release History</a></li>
           
           <li class="nav-header">Transformation Basics</li>
           <li><a href="basics.html#top">Transform API</a></li>
@@ -42,6 +43,7 @@
           
           <li class="nav-header">Supported Markup</li>
           <li><a href="markup.html#top">Markdown</a></li>
+          <li><a href="markup.html#rst">reStructuredText</a></li>
           
           <li class="nav-header">Customizing Renderers</li>
           <li><a href="customize.html#top">Using the Transform API</a></li>
@@ -86,7 +88,7 @@
   <p><code>Input</code> is a little IO abstraction provided by Laika so that you do not have to
   deal with the details of whether the text comes from a string or file or other 
   types of streams.</p>
-  <p>Document is a case class representing the root node of the document tree.</p>
+  <p><code>Document</code> is a case class representing the root node of the document tree.</p>
   <p>The way you implement this function depends entirely on your requirements and preferences.
   You may use the parser combinators from the Scala SDK or some other parsing technology.
   You may also use the base traits Laika provides when using combinators, or you may ignore them.</p>
@@ -97,9 +99,15 @@
   <h2 id="api">Providing an API</h2>
   <p>When you build a new parser you should provide the following features for your users:</p>
   <ul>
-    <li><p>An easy way to use your parser with the Transform API</p></li>
-    <li><p>An easy way to use it with the Parse API</p></li>
-    <li><p>A fluent API for specifying options (in case your parser is configurable)</p></li>
+    <li>
+      <p>An easy way to use your parser with the Transform API</p>
+    </li>
+    <li>
+      <p>An easy way to use it with the Parse API</p>
+    </li>
+    <li>
+      <p>A fluent API for specifying options (in case your parser is configurable)</p>
+    </li>
   </ul>
   <p>The first two come for free when you create an object that extends <code>Input =&gt; Document</code>.
   The built-in <code>Markdown</code> object is an example. Since it does extend that function,
@@ -135,7 +143,8 @@ class Markdown private (verbatimHTML: Boolean) extends (Input =&gt; Document) {
 
 object Markdown extends Markdown(false) </pre>
   <p>As you see, all the low-level parsing details are left in the three traits, this is
-  just a wrapper for providing a convenient public API.</p>
+  just a wrapper for providing a convenient public API. Support for reStructuredText
+  is implemented in a similar way.</p>
   <p>It calls <code>asParserInput</code> on the <code>Input</code> instance which is the most convenient way
   if you use parser combinators, as it directly gives you a <code>Reader[Char]</code> no matter
   where the text is actually read from. When not using combinators, you can use
@@ -223,8 +232,9 @@ anyBut(&apos; &apos;,&apos;\t&apos;)          // Laika alternative
   process. It adds a few utility parsers like <code>eol</code> (end-of-line), <code>blankLine</code>
   or <code>restOfLine</code>. See the [Scaladoc][inline-scaladoc] for details on those.</p>
   <p>If you mix in this trait you have to implement the two abstract parsers:</p>
-  <p>  def topLevelBlock: Parser[Block]</p>
-  <p>  def nestedBlock: Parser[Block]</p>
+  <pre>def topLevelBlock: Parser[Block]
+
+def nestedBlock: Parser[Block]</pre>
   <p>This can be a parser build as a list of choices. In contrast to the inline
   parsers the performance impact is less of a concern here. The names should be
   self-explanatory. Depending on the concrete markup language specification

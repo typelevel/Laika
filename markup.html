@@ -31,9 +31,10 @@
           <div class="nav-top"><img src="img/laika-top.png"/></div>
           <li class="nav-header">Introduction</li>
           <li><a href="index.html#top">Getting Started</a></li>
-          <li><a href="index.html#available-features">Available Features</a></li>
-          <li><a href="index.html#planned-features">Planned Features</a></li>
+          <li><a href="index.html#features">Features</a></li>
+          <li><a href="index.html#road-map">Road Map</a></li>
           <li><a href="index.html#design-principles">Design Principles</a></li>
+          <li><a href="index.html#release-history">Release History</a></li>
           
           <li class="nav-header">Transformation Basics</li>
           <li><a href="basics.html#top">Transform API</a></li>
@@ -42,6 +43,7 @@
           
           <li class="nav-header">Supported Markup</li>
           <li class="active"><a href="#top">Markdown</a></li>
+          <li><a href="markup.html#rst">reStructuredText</a></li>
           
           <li class="nav-header">Customizing Renderers</li>
           <li><a href="customize.html#top">Using the Transform API</a></li>
@@ -74,18 +76,20 @@
   <div class="page-header">
     <h1>Supported Markup</h1>
   </div>
-  <p>The initial release only supports Markdown. But at least two further formats are planned
-  for subsequent releases: restructuredText and &quot;Markmore&quot;, the working title of a new
-  format of extended Markdown syntax, inspired by existing extensions like those from
-  GitHub, kramdown or Pandoc, with the overall goal of trying to marry the clarity and
-  simplicity of Markdown with the power of reStructuredText.</p>
-  <p>Nevertheless this document only covers the language available today, which is Markdown.</p>
+  <p>The current release supports Markdown and reStructuredText. Both implementations stay as close
+  as possible to the original descriptions and specifications of these formats. The markup
+  gets parsed into a generic document tree model shared between all parsers. This means
+  that there are some adjustments in terminology (e.g. a bullet list in reStructuredText
+  is called an &quot;unordered list&quot; in the Markdown syntax description). It also means that
+  there are some tree element types which are not produced by the Markdown parser, like
+  table, footnotes or citations, as reStructuredText is much more feature-rich than
+  the original Markdown syntax. The unified model allows to create renderers that
+  do not have to deal with any of the specifics of an individual markup syntax.</p>
   <h2 id="markdown">Markdown</h2>
-  <p>Laika supports Markdown as the first lightweight text markup language primarily due to its popularity.
+  <p>Laika supports Markdown primarily due to its popularity.
   It has several advantages, mainly that it is very easy to learn, very lightweight, and produces
-  documents which are fairly good to read, even when you don&apos;t know anything about Markdown. 
-  The popularity is probably largely based on these characteristics and is well deserved.</p>
-  <p>However, Markdown also has its problems. First, there is no real specification,
+  documents which are fairly easy to read, even when you don&apos;t know anything about Markdown.</p>
+  <p>However, Markdown also has a few issues. First, there is no real specification,
   only a page with a syntax description that leaves many questions unanswered. Secondly, its feature
   set is fairly limited, lacking functionality for more advanced usage like technical 
   documentation or entire books. As a consequence
@@ -97,15 +101,23 @@
   
   <h3>Getting Started</h3>
   <p>Even if you do not know much about Markdown formally, it is very likely that you have already used it.
-  This document is not going to provide a syntax overview and refer to the official documentation instead.
+  This document is not going to provide a syntax overview and refers to the official documentation instead.
   It will primarily focus on anything specific to the way Laika handles Markdown.</p>
   <p>To get an overview over Markdown syntax, these documents may be used:</p>
   <ul>
-    <li><p>For a description of  <a href="http://daringfireball.net/projects/markdown/syntax">official syntax documentation</a>.</p></li>
-    <li><p>For trying out small snippets of Markdown and checking how the various existing Markdown implementations
-    handle them, the <a href="http://johnmacfarlane.net/babelmark2/">Babelmark</a> tool can be used.<br></p></li>
-    <li><p>For using Markdown in Laika, the [Transformation Basics] page should answer most of your questions.</p></li>
-    <li><p>For the special treatment of verbatim HTML in Laika, see the following section.</p></li>
+    <li>
+      <p>For a description of the syntax see the <a href="http://daringfireball.net/projects/markdown/syntax">official syntax documentation</a>.</p>
+    </li>
+    <li>
+      <p>For trying out small snippets of Markdown and checking how the various existing Markdown implementations
+      handle them, the <a href="http://johnmacfarlane.net/babelmark2/">Babelmark</a> tool can be used.<br></p>
+    </li>
+    <li>
+      <p>For using Markdown in Laika, the <a href="basics.html">Transformation Basics</a> page should answer most of your questions.</p>
+    </li>
+    <li>
+      <p>For the special treatment of verbatim HTML in Laika, see the following section.</p>
+    </li>
   </ul>
   <p>Laika tries to follow the official syntax documentation. In cases where it is silent on how
   to handle certain edge cases, the Babelmark tool has been consulted and usually the approach
@@ -113,40 +125,46 @@
   one (known) minor exception: </p>
   <ul>
     <li>Laika does not detect a header if it is not preceded by a blank line. Supporting this would be
-    disadvantageous for three reasons: it feels to be against the Markdown design goal of promoting
-    readability, it would slow down the parser as there&apos;d need to be a lookahead to the next line
-    for each line of a regular paragraph, and finally it&apos;ll open the doors for accidental headers.
+    disadvantageous for three reasons: it goes against Markdown&apos;s design goal of promoting
+    readability, it would slow down the parser and it would open the doors for accidental headers.
     According to Babelmark, there are at least two parsers (Pandoc, Python-Markdown) that agree.</li>
   </ul>
   
   <h3>Verbatim HTML</h3>
   <p>Finally there is one major difference to standard Markdown: the parsing of verbatim HTML elements
-  is not enabled by default, but it can be configured if required. Before showing how to do that,
-  this section explains this design decision.</p>
-  <p>The problems with enabling verbatim HTML elements by default would be:</p>
+  is not enabled by default, but it can be switched on if required. This decision is based on the 
+  following problems with verbatim HTML:</p>
   <ul>
-    <li><p>It goes against Markdown&apos;s own design goal of great readability, and of being easy for anyone
-    to pick up. Markdown syntax basics can be understood in minutes, by non-technical people, but producing well-formed
-    and valid HTML is not trivial if you do not regularly deal with HTML.</p></li>
-    <li><p>It goes against Laika&apos;s design goal of decoupling parsers and renderers. Allowing verbatim
-    HTML elements really only makes sense if the output format is HTML, too. Once Laika adds
-    output formats like PDF, it would be unclear what these renderers should do with these elements.
-    Markdown was designed with only HTML output in mind, so this mismatch is natural.</p></li>
-    <li><p>It would not be safe to use without additional filtering when used in web applications
-    that offer user input. Before rendering some processing based on whitelists would need
-    to be performed to avoid security vulnerabilities. Laika makes it easy to add such
-    whitelist functionality through document tree rewriting.</p></li>
+    <li>
+      <p>It goes against Markdown&apos;s own design goal of great readability and being easy for anyone
+      to pick up. Markdown syntax basics can be understood in minutes, by non-technical people, 
+      but producing well-formed and valid HTML is not trivial if you do not regularly deal with HTML.</p>
+    </li>
+    <li>
+      <p>It goes against Laika&apos;s design goal of decoupling parsers and renderers. 
+      Markdown was designed with only HTML output in mind, so this mismatch is natural.</p>
+    </li>
+    <li>
+      <p>It would not be safe to use without additional filtering when used in web applications
+      that offer user input. </p>
+    </li>
   </ul>
   <p>This design decision has the following consequences for the Laika library:</p>
   <ul>
-    <li><p>The Markdown parser, by default, treats HTML tags as normal text input and converts
-    tags to HTML entities when rendering, so that they would show up as part of the
-    rendered text nodes in the final HTML document. How to enable HTML parsing is shown 
-    further below.</p></li>
-    <li><p>The elements nodes produced by the Markdown HTML parsers are not part of the standard
-    Laika document tree model. Instead they are kept in a Markdown-specific trait <code>VerbatimHTMLElements</code>.</p></li>
-    <li><p>As a consequence, built-in renderers like that for HTML do not know these nodes. How to add
-    the required renderer extensions will be shown below, too.</p></li>
+    <li>
+      <p>The Markdown parser, by default, treats HTML tags as normal text input and converts
+      tags to HTML entities when rendering, so that they would show up as part of the
+      rendered text nodes in the final HTML document. How to enable HTML parsing is shown 
+      further below.</p>
+    </li>
+    <li>
+      <p>The elements produced by the Markdown HTML parsers are not part of the standard
+      Laika document tree model. Instead they are kept in a Markdown-specific trait <code>VerbatimHTMLElements</code>.</p>
+    </li>
+    <li>
+      <p>As a consequence, built-in renderers like that for HTML do not know these nodes. How to add
+      the required renderer extensions will be shown below, too.</p>
+    </li>
   </ul>
   <p>This all sounds more complicated than it actually is. To enable verbatim HTML elements
   you have to change this standard expression:</p>
@@ -161,6 +179,221 @@
   orphaned opening and closing tags (without matching tag) and tags like <code>&lt;script&gt;</code>.
   Whitelist functionality can be quickly added with a few lines of code using
   <a href="tree-rewriting.html">Document Tree Rewriting</a>.</p>
+  <h2 id="rst">reStructuredText</h2>
+  <p>The reStructuredText project is part of Python&apos;s Docutils project. It is considerably more feature-rich
+  than Markdown, with support for tables, citations and footnotes. It is also extensible through
+  directives and text roles, allowing the creation of custom block and span types without touching the
+  original parser. Finally it is more strictly defined than Markdown, with a detailed specification
+  and clearly defined markup recognition rules.</p>
+  <p>On the other hand, adoption is not nearly as high as for Markdown, and some of the syntax is more
+  verbose and less intuitive or legible than Markdown.</p>
+  
+  <h3>Getting Started</h3>
+  <p>This document is not going to provide a syntax overview and refers to the official documentation instead.</p>
+  <p>To get started with reStructuredText, these resources may be used:</p>
+  <ul>
+    <li>
+      <p>The <a href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html">official markup specification</a>.</p>
+    </li>
+    <li>
+      <p>An <a href="http://www.tele3.cz/jbar/rest/rest.html">online tool</a> for trying out small snippets of reStructuredText.<br></p>
+    </li>
+    <li>
+      <p><a href="basics.html">Transformation Basics</a> for using reStructuredText in Laika.</p>
+    </li>
+    <li>
+      <p>The following sections below for an overview on how to implement extensions for reStructuredText</p>
+    </li>
+  </ul>
+  
+  <h3>Extending reStructuredText</h3>
+  <p>In contrast to Markdown reStructuredText has been designed to be extensible.
+  The way these extension mechanisms are defined means that in most cases there
+  is no need to provide custom low-level parser logic, but instead use the Laika
+  API to specify the expected format based on existing building blocks the parser
+  already knows how to deal with and then provide one or more functions to convert 
+  and validate the parsed result and provide a tree element to be inserted into the document
+  as a block or span element.</p>
+  <p>The following types of extension points exist:</p>
+  <ul>
+    <li>
+      <p>Block Directives - an extension hook for adding new block level elements to
+      reStructuredText markup. 
+      For details see the <a href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#directives">specification entry for directives</a>. </p>
+    </li>
+    <li>
+      <p>Substitution Definitions - an extension hook for adding new span level elements to
+      reStructuredText markup that can be used by substitution references (like <code>|replaceMe|</code>). 
+      For details see the <a href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#substitution-definitions">specification entry for substitution definitions</a>. </p>
+    </li>
+    <li>
+      <p>Interpreted Text Roles - an extension hook for adding new dynamic span level elements to
+      reStructuredText markup. In contrast to substitution definitions the implementation of a text
+      role uses the text from the occurrences in the markup referring to the role as input.
+      For details see the <a href="http://docutils.sourceforge.net/docs/ref/rst/directives.html#custom-interpreted-text-roles">specification entry for interpreted text roles</a>. </p>
+    </li>
+  </ul>
+  <p>The Laika APIs for all of these extension types are explained in the sections below.</p>
+  <p>The design of these APIs did not aim to mimic the API of the original Python reference implementation.
+  Instead the goal was to create an API that is idiomatic Scala, fully typesafe and as concise as possible.
+  Yet it should be flexible enough to semantically support the options of the Python directives and text roles, 
+  so that ideally most existing Python directives could theoretically get ported to Laika.</p>
+  <p>The style of the API is somewhat similar to the <a href="http://www.playframework.com/documentation/2.1.1/ScalaJsonCombinators">Play JSON API</a> and its combinators. 
+  It is inspired by the concepts outlined by Sadek Drobi in his 
+  <a href="https://gist.github.com/sadache/3646092">document about functional builders</a>.</p>
+  
+  <h3>Implementing a Directive</h3>
+  <p>A directive can be used to introduce new syntax for custom block or span elements.
+  Entry points are the <code>BlockDirective</code> and <code>SpanDirective</code> objects. The Python reference parser does
+  not make this distinction on the API level, but does this internally based on the context a 
+  directive is parsed in. Since Laika APIs are typesafe, the distinction is necessary since
+  block level and span level directives create different types of document tree nodes.
+  A <code>SpanDirective</code> can only be used in a substitution definition which can then be used
+  within flow elements. A <code>BlockDirective</code> can be used directly in any location other block
+  level content like paragraphs or lists can be used.</p>
+  <p>A directive may consist of any combination of arguments, fields and body elements:</p>
+  <p>  .. myDirective:: arg1 arg2
+      :field1: value1
+      :field2: value2</p>
+  <pre>This is the body of the directive. It may consist of any standard or custom
+block-level and inline markup.</pre>
+  <p>In the example above <code>arg1</code> and <code>arg2</code> are arguments, <code>field1</code> and <code>field2</code> are fields,
+  and followed by body elements after a blank line. If there are no arguments or fields
+  the blank line may be omitted.</p>
+  <p>For each of these directive elements, the API offers a method to specify whether the
+  element is required or optional, and an optional function to convert or validate the
+  parsed value.</p>
+  <p>Consider the following simple example of a directive with just one argument and
+  a body:</p>
+  <p>  .. note:: This is the title</p>
+  <pre> This is the body of the note.</pre>
+  <p>The implementation of this directive could look like this:</p>
+  <p>  case class Note (title: String, 
+                     content: Seq[Block], 
+                     options: Options) extends Block with BlockContainer[Note]</p>
+  <p>  val rst = ReStructuredText withBlockDirectives (
+      BlockDirective(&quot;note&quot;) {
+        (argument(withWS = true) ~ blockContent)(Note)
+      }
+    )                                            <br></p>
+  <p>  Transform from rst to HTML fromFile &quot;hello.rst&quot; toFile &quot;hello.html&quot;</p>
+  <p>The <code>argument()</code> method specifies a required argument of type <code>String</code> (since no conversion
+  function was supplied). We need to set the <code>withWS</code> flag to true as an argument cannot have
+  whitespace per default. The <code>blockContent</code> method specifies standard block content (any block-level
+  elements that are supported in normal blocks, too) which results in a parsed value of type
+  <code>Seq[Block]</code>. Finally you need to provide a function that accepts the results of the specified
+  directive elements as parameters (of the corresponding type). Here we created a case class
+  with a matching signature so can pass it directly as the target function. For a block directive
+  the final result has to be of type <code>Block</code> which the <code>Note</code> class satisfies. Finally the directive 
+  gets registered with the <code>ReStructuredText</code> parser.</p>
+  <p>If any conversion or validation is required on the individual parts of the directive they can
+  be passed to the corresponding function:</p>
+  <p>  def nonNegativeInt (value: String) =
+      try {
+        val num = value.toInt
+        Either.cond(num &gt;= 0, num, &quot;not a positive int: &quot; + num)
+      }
+      catch {
+        case e: NumberFormatException =&gt; Left(&quot;not a number: &quot; + value)
+      }</p>
+  <p>  case class Message (severity: Int, 
+                        content: Seq[Block],
+                        options: Options) extends Block 
+                                          with BlockContainer[Message]</p>
+  <p>  val rst = ReStructuredText withBlockDirectives (
+      BlockDirective(&quot;message&quot;) {
+        (argument(nonNegativeInt) ~ blockContent)(Message)
+      }
+    )  <br></p>
+  <p>The function has to provide an <code>Either[String, T]</code> as a result. A <code>Left</code> result will be interpreted
+  as an error by the parser with the string being used as the message and an instance of <code>InvalidBlock</code>
+  containing the validator message and the raw source of the directive will be inserted into the document
+  tree. In this case the final function (<code>Message</code>) will never be invoked. A <code>Right</code> result will be
+  used as an argument to the final function. Note how this case class now expects an <code>Int</code> as the first
+  parameter.</p>
+  <p>Finally arguments and fields can also be optional. In case they are missing, the directive is still
+  considered valid and <code>None</code> will be passed to your function:</p>
+  <p>  case class Message (severity: Option[Int], 
+                        content: Seq[Block],
+                        options: Options) extends Block 
+                                          with BlockContainer[Message]</p>
+  <p>  val rst = ReStructuredText withBlockDirectives (
+      BlockDirective(&quot;message&quot;) {
+        (optArgument(nonNegativeInt) ~ blockContent)(Message)
+      }
+    )  <br></p>
+  <p>The argument may be missing, but if it is present it has to pass the specified validator.</p>
+  <p>In case of multiple arguments, the order you specify them is also the order in which they
+  are parsed from the directive markup, with the only exception being that required arguments
+  will always be parsed before optional ones, and arguments with whitespace need to come last.</p>
+  
+  <h3>Implementing a Text Role</h3>
+  <p>Text roles are the extension mechanism for inline elements of reStructuredText.
+  For details see the <a href="http://docutils.sourceforge.net/docs/ref/rst/directives.html#custom-interpreted-text-roles">specification entry for interpreted text roles</a>.</p>
+  <p>Entry point for creating a new role is the <code>TextRole</code> object. It allows to specify the following
+  aspects that define a text role:</p>
+  <ul>
+    <li>
+      <p>The name with which it can be referred to by both, a span of interpreted text and a role
+      directive to further customize it.</p>
+    </li>
+    <li>
+      <p>The default value, that should get passed to the role function in case it is used
+      directly in interpreted text without customization through a role directive.</p>
+    </li>
+    <li>
+      <p>The role directive that specifies how the role can be customized. The options
+      for role directives are almost identical to regular directives, the only difference
+      being that role directives do not support arguments, only fields and body elements.</p>
+    </li>
+    <li>
+      <p>The actual role function. It gets invoked for each occurrence of interpreted text
+      that refers to this role, either directly by name or to the name of a role directive
+      that customized this role. The first argument is either the default value
+      or the result of the role directive, the second is the actual text of the interpreted 
+      text span. The return value of the role function is the actual <code>Span</code> instance
+      that the original interpreted text should be replaced with.</p>
+    </li>
+  </ul>
+  <p>A role directive may consist of any combination of fields and body elements:</p>
+  <p>  .. role:: ticket(link)
+      :base-url: http://www.company.com/tickets/</p>
+  <p>In the example above <code>ticket</code> is the name of the customized role, <code>link</code> the name
+  of the base role and <code>base-url</code> the value that overrides the default defined in the
+  base role.</p>
+  <p>Before such a role directive can be used, an implementation has to be provided
+  for the base role with the name <code>link</code>. For more details on implementing directives
+  see the previous section.</p>
+  <p>The implementation of the <code>link</code> text role could look like this:</p>
+  <p>  val rst = ReStructuredText withTextRoles (
+      TextRole(&quot;link&quot;, &quot;http://www.company.com/main/&quot;)(field(&quot;base-url&quot;)) {
+        (base, text) =&gt; Link(List(Text(text)), base + text)
+      }
+    )</p>
+  <p>  Transform from rst to HTML fromFile &quot;hello.rst&quot; toFile &quot;hello.html&quot; <br></p>
+  <p>We specify the name of the role to be <code>link</code>, and the default value the URL provided as the
+  second argument. The second parameter list specifies the role directive implementation,
+  in this case only consisting of a call to <code>field(&quot;base-url&quot;)</code> which specifies a required 
+  field of type <code>String</code> (since no conversion function was supplied). The type of the result
+  of the directive has to match the type of the default value.
+  Finally the role function is defined that accepts two arguments. The first is the base
+  url, either the default in case the base role is used directly, or the value specified
+  with the <code>base-url</code> field in a customized role. The second is the actual text from the
+  interpreted text span. In this case we use these values to create an instance of <code>Link</code>,
+  a tree node from the default document tree. Finally the directive gets registered with 
+  the <code>ReStructuredText</code> parser.</p>
+  <p>If you need to define more fields or body content they can be added with the <code>~</code> combinator
+  just like with normal directives. Likewise you can specify validators and converters for 
+  fields and body values like documented above.</p>
+  <p>Our example role can then be used in the following ways:</p>
+  <p>Using the base role directly:</p>
+  <p>  For details read our :link:<code>documentation</code>.</p>
+  <p>This would result in the following HTML:</p>
+  <p>  For details read our &lt;a href=&quot;http://www.company.com/main/documentation&quot;&gt;documentation&lt;/a&gt;.</p>
+  <p>Using the customized role called <code>ticket</code>: </p>
+  <p>  For details see ticket :ticket:<code>344</code>.</p>
+  <p>This would result in the following HTML:</p>
+  <p>  For details see ticket &lt;a href=&quot;http://www.company.com/ticket/344&quot;&gt;344&lt;/a&gt;.</p>
 </div>        
 
       </div>

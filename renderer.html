@@ -31,9 +31,10 @@
           <div class="nav-top"><img src="img/laika-top.png"/></div>
           <li class="nav-header">Introduction</li>
           <li><a href="index.html#top">Getting Started</a></li>
-          <li><a href="index.html#available-features">Available Features</a></li>
-          <li><a href="index.html#planned-features">Planned Features</a></li>
+          <li><a href="index.html#features">Features</a></li>
+          <li><a href="index.html#road-map">Road Map</a></li>
           <li><a href="index.html#design-principles">Design Principles</a></li>
+          <li><a href="index.html#release-history">Release History</a></li>
           
           <li class="nav-header">Transformation Basics</li>
           <li><a href="basics.html#top">Transform API</a></li>
@@ -42,6 +43,7 @@
           
           <li class="nav-header">Supported Markup</li>
           <li><a href="markup.html#top">Markdown</a></li>
+          <li><a href="markup.html#rst">reStructuredText</a></li>
           
           <li class="nav-header">Customizing Renderers</li>
           <li><a href="customize.html#top">Using the Transform API</a></li>
@@ -99,9 +101,15 @@
   <h2 id="api">Providing an API</h2>
   <p>When you build a new renderer you should provide the following features for your users:</p>
   <ul>
-    <li><p>An easy way to use your renderer with the Transform API</p></li>
-    <li><p>An easy way to use it with the Render API</p></li>
-    <li><p>A fluent API for specifying options (in case your renderer is configurable)</p></li>
+    <li>
+      <p>An easy way to use your renderer with the Transform API</p>
+    </li>
+    <li>
+      <p>An easy way to use it with the Render API</p>
+    </li>
+    <li>
+      <p>A fluent API for specifying options (in case your renderer is configurable)</p>
+    </li>
   </ul>
   <p>The first two come for free when you create an object that extends the setup function
   explained in the previous section.
@@ -119,9 +127,11 @@
   <pre>import laika.tree.Elements._
 import laika.io.Output
 
-class HTML extends 
+class HTML private (messageLevel: Option[MessageLevel]) extends 
            ((Output, Element =&gt; Unit) =&gt; (HTMLWriter, Element =&gt; Unit)) {
  
+  def withMessageLevel (level: MessageLevel) = new HTML(Some(level))
+  
   def apply (output: Output, render: Element =&gt; Unit) = {
     val out = new HTMLWriter(output asFunction, render)  
     (out, renderElement(out))
@@ -132,7 +142,7 @@ class HTML extends
   } 
 }
 
-object HTML extends HTML</pre>
+object HTML extends HTML(None)</pre>
   <p>It calls <code>asFunction</code> on the <code>Output</code> instance which is the most convenient way
   if all you need for writing is a simple <code>String =&gt; Unit</code> function, no matter
   where the text is actually written to. Alternatively you can use
@@ -141,49 +151,46 @@ object HTML extends HTML</pre>
   <p>Finally you need to provide the actual default render function which we omitted in the example
   above. This render function should usually adhere to these rules:</p>
   <ul>
-    <li><p>When given an element that is a container type that contains child elements (like <code>Paragraph</code>), it should never
-    render the children itself, but instead delegate to the Writer API, so that user-defined
-    render functions can kick in for individual element types.</p></li>
-    <li><p>It should expect unknown element types. Since parsers can also be extended, the document tree
-    can contain nodes which are not part of the default node types provided by Laika. Usually the parser
-    should then also install renderers that know how to handle these nodes, but if it does not your
-    renderer should not blow up. Often there is a sensible default, e.g. if you see an unknown
-    element that mixes in <code>SpanContainer</code> and <code>Block</code> it is obviously similar to a regular
-    Paragraph and may be rendered as such. In the worst case the renderer may choose to ignore
-    such an element, but it should never blow up.</p></li>
+    <li>
+      <p>When given an element that is a container type that contains child elements (like <code>Paragraph</code>), it should never
+      render the children itself, but instead delegate to the Writer API, so that user-defined
+      render functions can kick in for individual element types.</p>
+    </li>
+    <li>
+      <p>It should expect unknown element types. Since parsers can also be extended, the document tree
+      can contain nodes which are not part of the default node types provided by Laika. Usually the parser
+      should then also install renderers that know how to handle these nodes, but if it does not your
+      renderer should not blow up. Often there is a sensible default, e.g. if you see an unknown
+      element that mixes in <code>SpanContainer</code> and <code>Block</code> it is obviously similar to a regular
+      Paragraph and may be rendered as such. In the worst case the renderer may choose to ignore
+      such an element, but it should never blow up.</p>
+    </li>
   </ul>
   <p>For character output your renderer may use the <code>TextWriter</code> or <code>HTMLWriter</code> APIs, which are
   explained <a href="customize.html#writer">here</a>. Alternatively it may create its own API, but you should keep in mind
   then, that this API will also get used by users customizing specific nodes, so it should be
   convenient and straightforward to use.</p>
-  <p>Finally, we&apos;ll show a little excerpt of the HTML render function we omitted above, just to
+  <p>Finally, we&apos;ll show a little (simplified) excerpt of the HTML render function we omitted above, just to
   give you an impression that it is often quite simple to implement:</p>
   <pre>private def renderElement (out: HTMLWriter)(elem: Element): Unit = {
 
   elem match {
-    case OrderedList(content) =&gt; out &lt;&lt; &quot;&lt;ol&gt;&quot; &lt;&lt;|&gt; content &lt;&lt;| &quot;&lt;/ol&gt;&quot;
-    case Paragraph(content)   =&gt; out &lt;&lt;  &quot;&lt;p&gt;&quot; &lt;&lt;   content &lt;&lt;  &quot;&lt;/p&gt;&quot;  
-    case Emphasized(content)  =&gt; out &lt;&lt; &quot;&lt;em&gt;&quot; &lt;&lt;   content &lt;&lt;  &quot;&lt;/em&gt;&quot; 
-    case Text(content)        =&gt; out           &lt;&lt;&amp;  content
-    case Rule                 =&gt; out &lt;&lt; &quot;&lt;hr&gt;&quot;
-    case LineBreak            =&gt; out &lt;&lt; &quot;&lt;br&gt;&quot;
+    case Paragraph(content,opt)  =&gt; 
+      out &lt;&lt;@ (&quot;p&quot;,opt)  &lt;&lt; content &lt;&lt; &quot;&lt;/p&gt;&quot;  
+    
+    case Emphasized(content,opt) =&gt; 
+      out &lt;&lt;@ (&quot;em&quot;,opt) &lt;&lt; content &lt;&lt; &quot;&lt;/em&gt;&quot; 
     
     /* [other cases ...] */
     
-    /* finally, three fallbacks: */
-    
-    case sc: SpanContainer[_]  =&gt; 
-                             out &lt;&lt; &quot;&lt;span&gt;&quot; &lt;&lt;  sc.content &lt;&lt; &quot;&lt;/span&gt;&quot;
-    case bc: BlockContainer[_] =&gt; 
-                             out &lt;&lt; &quot;&lt;div&gt;&quot; &lt;&lt;|&gt; bc.content &lt;&lt; &quot;&lt;/div&gt;&quot;
-    case unknown =&gt; ()  
+    /* [fallbacks for unknown elements] */
   }   
 }
 </pre>
   <p>As you see, the function never deals with children (the <code>content</code> attribute of many node
   types) directly. Instead it passes them to the Writer API which delegates to the composed
   render function.</p>
-  <p>The various functions of the Writer API (like <code>&lt;&lt;</code> or <code>&lt;&lt;|&gt;</code>) are explained in the chapter
+  <p>The various functions of the Writer API (like <code>&lt;&lt;</code> or <code>&lt;&lt;@</code>) are explained in the chapter
   on the <a href="customize.html#writer">Writer API</a>. They are far less cryptic than at first sight and should be easy
   to memorize once you know what they are supposed to do. The short symbols make render
   functions easier to read. It&apos;s the only API where Laika uses symbols as method names.</p>

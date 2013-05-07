@@ -31,9 +31,10 @@
           <div class="nav-top"><img src="img/laika-top.png"/></div>
           <li class="nav-header">Introduction</li>
           <li><a href="index.html#top">Getting Started</a></li>
-          <li><a href="index.html#available-features">Available Features</a></li>
-          <li><a href="index.html#planned-features">Planned Features</a></li>
+          <li><a href="index.html#features">Features</a></li>
+          <li><a href="index.html#road-map">Road Map</a></li>
           <li><a href="index.html#design-principles">Design Principles</a></li>
+          <li><a href="index.html#release-history">Release History</a></li>
           
           <li class="nav-header">Transformation Basics</li>
           <li><a href="basics.html#top">Transform API</a></li>
@@ -42,6 +43,7 @@
           
           <li class="nav-header">Supported Markup</li>
           <li><a href="markup.html#top">Markdown</a></li>
+          <li><a href="markup.html#rst">reStructuredText</a></li>
           
           <li class="nav-header">Customizing Renderers</li>
           <li><a href="customize.html#top">Using the Transform API</a></li>
@@ -81,9 +83,13 @@
   reusing unmodified branches for efficiency.</p>
   <p>There are two ways to perform such a rewriting:</p>
   <ul>
-    <li><p>Through the <code>ElementTraversal.rewrite</code> method directly on the tree model instance itself.
-    The <code>Document</code> root element as well as all other container types mix in this trait.</p></li>
-    <li><p>Through the Transform API</p></li>
+    <li>
+      <p>Through the <code>ElementTraversal.rewrite</code> method directly on the tree model instance itself.
+      The <code>Document</code> root element as well as all other container types mix in this trait.</p>
+    </li>
+    <li>
+      <p>Through the Transform API</p>
+    </li>
   </ul>
   <p>The latter is convenient if you otherwise have no need to separate the parse and 
   render operation and just want to add a transformation before rendering.</p>
@@ -103,28 +109,40 @@
   The rule is a partial function that expects an <code>Element</code> and returns an <code>Option[Element]</code>.
   The rules are as follows:</p>
   <ul>
-    <li><p>If the function is not defined for a particular element the old element is kept in the tree.</p></li>
-    <li><p>If the function returns <code>Some(Element)</code> this element is used in place of the old one.</p></li>
-    <li><p>If the function returns <code>None</code> the old element is removed from the tree.</p></li>
-    <li><p>Processing happens depth-first (bottom-up), so all nodes getting passed to this function
-    already had their children getting processed.</p></li>
-    <li><p>The tree is immutable, so new instances are returned when rewriting, but unmodified
-    branches are reused.</p></li>
-    <li><p>Therefore, if the rule does not affect any node, the method will simply return <code>this</code>. </p></li>
+    <li>
+      <p>If the function is not defined for a particular element the old element is kept in the tree.</p>
+    </li>
+    <li>
+      <p>If the function returns <code>Some(Element)</code> this element is used in place of the old one.</p>
+    </li>
+    <li>
+      <p>If the function returns <code>None</code> the old element is removed from the tree.</p>
+    </li>
+    <li>
+      <p>Processing happens depth-first (bottom-up), so all nodes getting passed to this function
+      already had their children getting processed.</p>
+    </li>
+    <li>
+      <p>The tree is immutable, so new instances are returned when rewriting, but unmodified
+      branches are reused.</p>
+    </li>
+    <li>
+      <p>Therefore, if the rule does not affect any node, the method will simply return <code>this</code>. </p>
+    </li>
   </ul>
   <p>For a very simple example, let&apos;s assume you want to &quot;downgrade&quot; all <code>Strong</code> nodes in 
   the text to <code>Emphasized</code> nodes:</p>
   <pre>val doc: Document = ...
 
 val newDoc = doc rewrite {
-  case Strong(content) =&gt; Some(Emphasized(content))
+  case Strong(content, options) =&gt; Some(Emphasized(content, options))
 }</pre>
   <p>For a slightly more advanced example, let&apos;s assume you only want to downgrade <code>Strong</code>
   nodes inside headers. To accomplish this you need to nest a rewrite operation
   inside another one:</p>
   <pre>val newDoc = doc rewrite {
   case h: Header =&gt; Some(h rewrite {
-    case Strong(content) =&gt; Some(Emphasized(content))
+    case Strong(content, options) =&gt; Some(Emphasized(content, options))
   })
 }</pre>
   <h2 id="transform">Using the Transform API</h2>
@@ -138,8 +156,8 @@ val newDoc = doc rewrite {
   the <code>rewrite</code> method directly, as described in the previous section.</p>
   <p>To use the same example, this is how you can replace all <code>Strong</code> nodes with
   <code>Emphasized</code> nodes:</p>
-  <pre>Transform from Markdown to HTML usingRule {
-  case Strong(content) =&gt; Some(Emphasized(content))
+  <pre>Transform from ReStructuredText to HTML usingRule {
+  case Strong(content, options) =&gt; Some(Emphasized(content, options))
 } fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;</pre>
 </div>        
 

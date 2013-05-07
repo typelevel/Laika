@@ -31,9 +31,10 @@
           <div class="nav-top"><img src="img/laika-top.png"/></div>
           <li class="nav-header">Introduction</li>
           <li><a href="index.html#top">Getting Started</a></li>
-          <li><a href="index.html#available-features">Available Features</a></li>
-          <li><a href="index.html#planned-features">Planned Features</a></li>
+          <li><a href="index.html#features">Features</a></li>
+          <li><a href="index.html#road-map">Road Map</a></li>
           <li><a href="index.html#design-principles">Design Principles</a></li>
+          <li><a href="index.html#release-history">Release History</a></li>
           
           <li class="nav-header">Transformation Basics</li>
           <li><a href="basics.html#top">Transform API</a></li>
@@ -42,6 +43,7 @@
           
           <li class="nav-header">Supported Markup</li>
           <li><a href="markup.html#top">Markdown</a></li>
+          <li><a href="markup.html#rst">reStructuredText</a></li>
           
           <li class="nav-header">Customizing Renderers</li>
           <li class="active"><a href="#top">Using the Transform API</a></li>
@@ -95,7 +97,7 @@
 val close = &quot;&lt;/em&gt;&quot;
 
 Transform from Markdown to HTML rendering { out =&gt; 
-  { case Emphasized(content) =&gt; out &lt;&lt; open &lt;&lt; content &lt;&lt; close } 
+  { case Emphasized(content, _) =&gt; out &lt;&lt; open &lt;&lt; content &lt;&lt; close } 
 } fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;
 </pre>
   <p>For HTML <code>out</code> is of type <code>HTMLWriter</code> and <code>&lt;&lt;</code> is one of the methods to append text.</p>
@@ -120,7 +122,7 @@ val open = &quot;&quot;&quot;&lt;em class=&quot;big&quot;&gt;&quot;&quot;&quot;
 val close = &quot;&lt;/em&gt;&quot;
 
 Render as HTML using { out =&gt; 
-  { case Emphasized(content) =&gt; out &lt;&lt; open &lt;&lt; content &lt;&lt; close } 
+  { case Emphasized(content, _) =&gt; out &lt;&lt; open &lt;&lt; content &lt;&lt; close } 
 } from doc toString
 
 </pre>
@@ -146,9 +148,15 @@ Render as HTML using { out =&gt;
   When passing Elements to the writer it will delegate to the renderers responsible
   for those nodes.</p>
   <ul>
-    <li><p><code>&lt;&lt;</code> appends to the output on the current line.</p></li>
-    <li><p><code>&lt;&lt;|</code> appends to the output on a new line, with the current level of indentation</p></li>
-    <li><p><code>&lt;&lt;|&gt;</code> appends to the output on a new line, increasing indentation one level to the right</p></li>
+    <li>
+      <p><code>&lt;&lt;</code> appends to the output on the current line.</p>
+    </li>
+    <li>
+      <p><code>&lt;&lt;|</code> appends to the output on a new line, with the current level of indentation</p>
+    </li>
+    <li>
+      <p><code>&lt;&lt;|&gt;</code> appends to the output on a new line, increasing indentation one level to the right</p>
+    </li>
   </ul>
   <p>When using the last method with Element instances which might themselves delegate
   rendering of their children, you get a nicely formatted output without much effort.</p>
@@ -157,19 +165,25 @@ Render as HTML using { out =&gt;
   <p>This writer supports all methods of the <code>TextWriter</code> API shown above, and adds
   the following methods:</p>
   <ul>
-    <li><p>For the three methods above, there is a variant that replaces special HTML
-    characters with HTML entities and should be used for writing text nodes. They
-    are named <code>&lt;&lt;&amp;</code>, <code>&lt;&lt;|&amp;</code> and <code>&lt;&lt;|&gt;&amp;</code> and otherwise behave the same as their
-    counterparts without the <code>&amp;</code>.</p></li>
-    <li><p>The <code>&lt;&lt;&lt;&amp;</code> method does not have a counterpart without <code>&amp;</code>. Like the others
-    it replaces special HTML characters, but it writes without any indentation,
-    no matter which level of indentation the writer currently has,
-    which is needed for writing nodes like <code>&lt;pre&gt;</code> where indentation would be
-    significant. </p></li>
-    <li><p>The <code>&lt;&lt;@</code> method is a convenient way to write an HTML attribute. It is overloaded
-    and either takes <code>(String, String)</code> or <code>(String, Option[String])</code> as parameters
-    for name and value of the attribute. If the value is None, nothing will be written,
-    but it often makes writing optional attributes more concise.</p></li>
+    <li>
+      <p>For the three methods above, there is a variant that replaces special HTML
+      characters with HTML entities and should be used for writing text nodes. They
+      are named <code>&lt;&lt;&amp;</code>, <code>&lt;&lt;|&amp;</code> and <code>&lt;&lt;|&gt;&amp;</code> and otherwise behave the same as their
+      counterparts without the <code>&amp;</code>.</p>
+    </li>
+    <li>
+      <p>The <code>&lt;&lt;&lt;&amp;</code> method does not have a counterpart without <code>&amp;</code>. Like the others
+      it replaces special HTML characters, but it writes without any indentation,
+      no matter which level of indentation the writer currently has,
+      which is needed for writing nodes like <code>&lt;pre&gt;</code> where indentation would be
+      significant. </p>
+    </li>
+    <li>
+      <p>The <code>&lt;&lt;@</code> method is a convenient way to write an HTML attribute. It is overloaded
+      and either takes <code>(String, String)</code> or <code>(String, Option[String])</code> as parameters
+      for name and value of the attribute. If the value is None, nothing will be written,
+      but it often makes writing optional attributes more concise.</p>
+    </li>
   </ul>
 </div>        
 
