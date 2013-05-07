@@ -21,6 +21,11 @@ section > ul li {
   margin-bottom: 5px;
 }
 
+li ul {
+  margin-bottom: 22px;
+  margin-top: -5px;
+}
+
 h1 {
   font-size: 34px;
 }
