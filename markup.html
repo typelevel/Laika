@@ -43,7 +43,7 @@
           
           <li class="nav-header">Supported Markup</li>
           <li class="active"><a href="#top">Markdown</a></li>
-          <li><a href="markup.html#rst">reStructuredText</a></li>
+          <li><a href="#rst">reStructuredText</a></li>
           
           <li class="nav-header">Customizing Renderers</li>
           <li><a href="customize.html#top">Using the Transform API</a></li>
@@ -252,11 +252,12 @@
   within flow elements. A <code>BlockDirective</code> can be used directly in any location other block
   level content like paragraphs or lists can be used.</p>
   <p>A directive may consist of any combination of arguments, fields and body elements:</p>
-  <p>  .. myDirective:: arg1 arg2
-      :field1: value1
-      :field2: value2</p>
-  <pre>This is the body of the directive. It may consist of any standard or custom
-block-level and inline markup.</pre>
+  <pre>.. myDirective:: arg1 arg2
+  :field1: value1
+  :field2: value2
+
+  This is the body of the directive. It may consist of any standard or 
+  custom block-level and inline markup.</pre>
   <p>In the example above <code>arg1</code> and <code>arg2</code> are arguments, <code>field1</code> and <code>field2</code> are fields,
   and followed by body elements after a blank line. If there are no arguments or fields
   the blank line may be omitted.</p>
@@ -265,46 +266,50 @@ block-level and inline markup.</pre>
   parsed value.</p>
   <p>Consider the following simple example of a directive with just one argument and
   a body:</p>
-  <p>  .. note:: This is the title</p>
-  <pre> This is the body of the note.</pre>
+  <pre>.. note:: This is the title
+
+   This is the body of the note.</pre>
   <p>The implementation of this directive could look like this:</p>
-  <p>  case class Note (title: String, 
-                     content: Seq[Block], 
-                     options: Options) extends Block with BlockContainer[Note]</p>
-  <p>  val rst = ReStructuredText withBlockDirectives (
-      BlockDirective(&quot;note&quot;) {
-        (argument(withWS = true) ~ blockContent)(Note)
-      }
-    )                                            <br></p>
-  <p>  Transform from rst to HTML fromFile &quot;hello.rst&quot; toFile &quot;hello.html&quot;</p>
+  <pre>case class Note (title: String, 
+                 content: Seq[Block], 
+                 options: Options = NoOpt) extends Block 
+                                           with BlockContainer[Note]
+
+val rst = ReStructuredText withBlockDirectives
+  BlockDirective(&quot;note&quot;) {
+    (argument(withWS = true) ~ blockContent)(Note(_,_))
+  }
+
+Transform from rst to HTML fromFile &quot;hello.rst&quot; toFile &quot;hello.html&quot;</pre>
   <p>The <code>argument()</code> method specifies a required argument of type <code>String</code> (since no conversion
   function was supplied). We need to set the <code>withWS</code> flag to true as an argument cannot have
   whitespace per default. The <code>blockContent</code> method specifies standard block content (any block-level
   elements that are supported in normal blocks, too) which results in a parsed value of type
   <code>Seq[Block]</code>. Finally you need to provide a function that accepts the results of the specified
   directive elements as parameters (of the corresponding type). Here we created a case class
-  with a matching signature so can pass it directly as the target function. For a block directive
+  with a matching signature (ignoring the optional third argument). For a block directive
   the final result has to be of type <code>Block</code> which the <code>Note</code> class satisfies. Finally the directive 
   gets registered with the <code>ReStructuredText</code> parser.</p>
   <p>If any conversion or validation is required on the individual parts of the directive they can
   be passed to the corresponding function:</p>
-  <p>  def nonNegativeInt (value: String) =
-      try {
-        val num = value.toInt
-        Either.cond(num &gt;= 0, num, &quot;not a positive int: &quot; + num)
-      }
-      catch {
-        case e: NumberFormatException =&gt; Left(&quot;not a number: &quot; + value)
-      }</p>
-  <p>  case class Message (severity: Int, 
-                        content: Seq[Block],
-                        options: Options) extends Block 
-                                          with BlockContainer[Message]</p>
-  <p>  val rst = ReStructuredText withBlockDirectives (
-      BlockDirective(&quot;message&quot;) {
-        (argument(nonNegativeInt) ~ blockContent)(Message)
-      }
-    )  <br></p>
+  <pre>def nonNegativeInt (value: String) =
+  try {
+    val num = value.toInt
+    Either.cond(num &gt;= 0, num, &quot;not a positive int: &quot; + num)
+  }
+  catch {
+    case e: NumberFormatException =&gt; Left(&quot;not a number: &quot; + value)
+  }
+
+case class Message (severity: Int, 
+                    content: Seq[Block],
+                    options: Options = NoOpt) extends Block 
+                                              with BlockContainer[Message]
+
+val rst = ReStructuredText withBlockDirectives
+  BlockDirective(&quot;message&quot;) {
+    (argument(nonNegativeInt) ~ blockContent)(Message(_,_))
+  }</pre>
   <p>The function has to provide an <code>Either[String, T]</code> as a result. A <code>Left</code> result will be interpreted
   as an error by the parser with the string being used as the message and an instance of <code>InvalidBlock</code>
   containing the validator message and the raw source of the directive will be inserted into the document
@@ -313,15 +318,16 @@ block-level and inline markup.</pre>
   parameter.</p>
   <p>Finally arguments and fields can also be optional. In case they are missing, the directive is still
   considered valid and <code>None</code> will be passed to your function:</p>
-  <p>  case class Message (severity: Option[Int], 
-                        content: Seq[Block],
-                        options: Options) extends Block 
-                                          with BlockContainer[Message]</p>
-  <p>  val rst = ReStructuredText withBlockDirectives (
-      BlockDirective(&quot;message&quot;) {
-        (optArgument(nonNegativeInt) ~ blockContent)(Message)
-      }
-    )  <br></p>
+  <pre>case class Message (severity: Option[Int], 
+                    content: Seq[Block],
+                    options: Options = NoOpt) extends Block 
+                                              with BlockContainer[Message]
+
+val rst = ReStructuredText withBlockDirectives
+  BlockDirective(&quot;message&quot;) {
+    (optArgument(nonNegativeInt) ~ blockContent)(Message(_,_))
+  }
+</pre>
   <p>The argument may be missing, but if it is present it has to pass the specified validator.</p>
   <p>In case of multiple arguments, the order you specify them is also the order in which they
   are parsed from the directive markup, with the only exception being that required arguments
@@ -356,8 +362,8 @@ block-level and inline markup.</pre>
     </li>
   </ul>
   <p>A role directive may consist of any combination of fields and body elements:</p>
-  <p>  .. role:: ticket(link)
-      :base-url: http://www.company.com/tickets/</p>
+  <pre>.. role:: ticket(link)
+  :base-url: http://www.company.com/tickets/</pre>
   <p>In the example above <code>ticket</code> is the name of the customized role, <code>link</code> the name
   of the base role and <code>base-url</code> the value that overrides the default defined in the
   base role.</p>
@@ -365,12 +371,13 @@ block-level and inline markup.</pre>
   for the base role with the name <code>link</code>. For more details on implementing directives
   see the previous section.</p>
   <p>The implementation of the <code>link</code> text role could look like this:</p>
-  <p>  val rst = ReStructuredText withTextRoles (
-      TextRole(&quot;link&quot;, &quot;http://www.company.com/main/&quot;)(field(&quot;base-url&quot;)) {
-        (base, text) =&gt; Link(List(Text(text)), base + text)
-      }
-    )</p>
-  <p>  Transform from rst to HTML fromFile &quot;hello.rst&quot; toFile &quot;hello.html&quot; <br></p>
+  <pre>val rst = ReStructuredText withTextRoles (
+  TextRole(&quot;link&quot;, &quot;http://www.company.com/main/&quot;)(field(&quot;base-url&quot;)) {
+    (base, text) =&gt; Link(List(Text(text)), base + text)
+  }
+)
+
+Transform from rst to HTML fromFile &quot;hello.rst&quot; toFile &quot;hello.html&quot;   </pre>
   <p>We specify the name of the role to be <code>link</code>, and the default value the URL provided as the
   second argument. The second parameter list specifies the role directive implementation,
   in this case only consisting of a call to <code>field(&quot;base-url&quot;)</code> which specifies a required 
@@ -387,13 +394,13 @@ block-level and inline markup.</pre>
   fields and body values like documented above.</p>
   <p>Our example role can then be used in the following ways:</p>
   <p>Using the base role directly:</p>
-  <p>  For details read our :link:<code>documentation</code>.</p>
+  <pre>For details read our :link:`documentation`.</pre>
   <p>This would result in the following HTML:</p>
-  <p>  For details read our &lt;a href=&quot;http://www.company.com/main/documentation&quot;&gt;documentation&lt;/a&gt;.</p>
+  <pre>For details read our &lt;a href=&quot;http://www.company.com/main/documentation&quot;&gt;documentation&lt;/a&gt;.</pre>
   <p>Using the customized role called <code>ticket</code>: </p>
-  <p>  For details see ticket :ticket:<code>344</code>.</p>
+  <pre>For details see ticket :ticket:`344`.</pre>
   <p>This would result in the following HTML:</p>
-  <p>  For details see ticket &lt;a href=&quot;http://www.company.com/ticket/344&quot;&gt;344&lt;/a&gt;.</p>
+  <pre>For details see ticket &lt;a href=&quot;http://www.company.com/ticket/344&quot;&gt;344&lt;/a&gt;.</pre>
 </div>        
 
       </div>
