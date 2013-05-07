@@ -72,7 +72,7 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
       out <<@ ("table", table.options) <<|> children <<| "</table>"
     }
     
-    def renderBlockContainer (con: BlockContainer[_]) = {
+    def renderBlockContainer [T <: BlockContainer[T]](con: BlockContainer[T]) = {
   
       def toTable (id: String, label: String, content: Seq[Block]): Table = {
         val left = Cell(BodyCell, List(SpanSequence(List(Text("["+label+"]")))))
@@ -104,7 +104,7 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
       }
     }
     
-    def renderSpanContainer (con: SpanContainer[_]) = con match {
+    def renderSpanContainer [T <: SpanContainer[T]](con: SpanContainer[T]) = con match {
       case Paragraph(content,opt)         => out <<@ ("p",opt)      <<    content <<  "</p>"  
       case Emphasized(content,opt)        => out <<@ ("em",opt)     <<    content <<  "</em>" 
       case Strong(content,opt)            => out <<@ ("strong",opt) <<    content <<  "</strong>" 
@@ -119,7 +119,7 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
       case unknown                        => out << "<span>" << unknown.content << "</span>"
     }
     
-    def renderListContainer (con: ListContainer[_]) = con match {
+    def renderListContainer [T <: ListContainer[T]](con: ListContainer[T]) = con match {
       case EnumList(content,format,start,opt) => 
           out <<@ ("ol", opt, ("class", format.enumType.toString.toLowerCase), ("start", noneIfDefault(start,1))) <<|> content <<| "</ol>"
       case BulletList(content,_,opt)   => out <<@ ("ul",opt) <<|> content <<| "</ul>"
