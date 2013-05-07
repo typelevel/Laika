@@ -25,15 +25,15 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">QuotedBlock</span><span class="params">(<span name="content">content: Seq[<a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>]</span>)</span><span class="result"> extends <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a> with <a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a> with <a name="laika.tree.Elements.BlockContainer" class="extype" href="Elements$$BlockContainer.html">BlockContainer</a>[<a name="laika.tree.Elements.QuotedBlock" class="extype" href="">QuotedBlock</a>] with <span name="scala.Product" class="extype">Product</span> with <span name="scala.Serializable" class="extype">Serializable</span></span>
+        <span class="name">QuotedBlock</span><span class="params">(<span name="content">content: Seq[<a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>]</span>, <span name="attribution">attribution: Seq[<a name="laika.tree.Elements.Span" class="extype" href="Elements$$Span.html">Span</a>]</span>, <span name="options">options: <a name="laika.tree.Elements.Options" class="extype" href="Elements$$Options.html">Options</a></span>)</span><span class="result"> extends <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a> with <a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a> with <a name="laika.tree.Elements.BlockContainer" class="extype" href="Elements$$BlockContainer.html">BlockContainer</a>[<a name="laika.tree.Elements.QuotedBlock" class="extype" href="">QuotedBlock</a>] with <span name="scala.Product" class="extype">Product</span> with <span name="scala.Serializable" class="extype">Serializable</span></span>
       </span>
       </h4>
       
       <div class="fullcommenttop" id="comment"><div class="comment cmt"><p>A quoted block consisting of a list of blocks that may contain other
- nested quoted blocks.
+ nested quoted blocks and an attribution which may be empty.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span name="scala.Serializable" class="extype">Serializable</span>, <span name="java.io.Serializable" class="extype">Serializable</span>, <a name="laika.tree.Elements.BlockContainer" class="extype" href="Elements$$BlockContainer.html">BlockContainer</a>[<a name="laika.tree.Elements.QuotedBlock" class="extype" href="">QuotedBlock</a>], <a name="laika.tree.Elements.ElementContainer" class="extype" href="Elements$$ElementContainer.html">ElementContainer</a>[<a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>, <a name="laika.tree.Elements.QuotedBlock" class="extype" href="">QuotedBlock</a>], <a name="laika.tree.ElementTraversal" class="extype" href="ElementTraversal.html">ElementTraversal</a>[<a name="laika.tree.Elements.QuotedBlock" class="extype" href="">QuotedBlock</a>], <a name="laika.tree.Elements.Container" class="extype" href="Elements$$Container.html">Container</a>[Seq[<a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>]], <a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>, <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a>, <span name="scala.Product" class="extype">Product</span>, <span name="scala.Equals" class="extype">Equals</span>, AnyRef, <span name="scala.Any" class="extype">Any</span></div>
+          <div class="superTypes hiddenContent"><span name="scala.Serializable" class="extype">Serializable</span>, <span name="java.io.Serializable" class="extype">Serializable</span>, <a name="laika.tree.Elements.BlockContainer" class="extype" href="Elements$$BlockContainer.html">BlockContainer</a>[<a name="laika.tree.Elements.QuotedBlock" class="extype" href="">QuotedBlock</a>], <a name="laika.tree.Elements.ElementContainer" class="extype" href="Elements$$ElementContainer.html">ElementContainer</a>[<a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>, <a name="laika.tree.Elements.QuotedBlock" class="extype" href="">QuotedBlock</a>], <a name="laika.tree.ElementTraversal" class="extype" href="ElementTraversal.html">ElementTraversal</a>[<a name="laika.tree.Elements.QuotedBlock" class="extype" href="">QuotedBlock</a>], <a name="laika.tree.Elements.Container" class="extype" href="Elements$$Container.html">Container</a>[Seq[<a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>]], <a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>, <a name="laika.tree.Elements.Customizable" class="extype" href="Elements$$Customizable.html">Customizable</a>, <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a>, <span name="scala.Product" class="extype">Product</span>, <span name="scala.Equals" class="extype">Equals</span>, AnyRef, <span name="scala.Any" class="extype">Any</span></div>
         </div></div>
     
 
@@ -47,7 +47,7 @@
               <span class="filtertype">Inherited</span>
               <ol><li class="hideall out"><span>Hide All</span></li>
               <li class="showall in"><span>Show all</span></li></ol>
-              <ol id="linearization"><li name="laika.tree.Elements.QuotedBlock" class="in"><span>QuotedBlock</span></li><li name="scala.Serializable" class="in"><span>Serializable</span></li><li name="java.io.Serializable" class="in"><span>Serializable</span></li><li name="laika.tree.Elements.BlockContainer" class="in"><span>BlockContainer</span></li><li name="laika.tree.Elements.ElementContainer" class="in"><span>ElementContainer</span></li><li name="laika.tree.ElementTraversal" class="in"><span>ElementTraversal</span></li><li name="laika.tree.Elements.Container" class="in"><span>Container</span></li><li name="laika.tree.Elements.Block" class="in"><span>Block</span></li><li name="laika.tree.Elements.Element" class="in"><span>Element</span></li><li name="scala.Product" class="in"><span>Product</span></li><li name="scala.Equals" class="in"><span>Equals</span></li><li name="scala.AnyRef" class="in"><span>AnyRef</span></li><li name="scala.Any" class="in"><span>Any</span></li></ol>
+              <ol id="linearization"><li name="laika.tree.Elements.QuotedBlock" class="in"><span>QuotedBlock</span></li><li name="scala.Serializable" class="in"><span>Serializable</span></li><li name="java.io.Serializable" class="in"><span>Serializable</span></li><li name="laika.tree.Elements.BlockContainer" class="in"><span>BlockContainer</span></li><li name="laika.tree.Elements.ElementContainer" class="in"><span>ElementContainer</span></li><li name="laika.tree.ElementTraversal" class="in"><span>ElementTraversal</span></li><li name="laika.tree.Elements.Container" class="in"><span>Container</span></li><li name="laika.tree.Elements.Block" class="in"><span>Block</span></li><li name="laika.tree.Elements.Customizable" class="in"><span>Customizable</span></li><li name="laika.tree.Elements.Element" class="in"><span>Element</span></li><li name="scala.Product" class="in"><span>Product</span></li><li name="scala.Equals" class="in"><span>Equals</span></li><li name="scala.AnyRef" class="in"><span>AnyRef</span></li><li name="scala.Any" class="in"><span>Any</span></li></ol>
             </div>
         <div id="visbl">
             <span class="filtertype">Visibility</span>
@@ -67,7 +67,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">QuotedBlock</span><span class="params">(<span name="content">content: Seq[<a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>]</span>)</span>
+        <span class="name">QuotedBlock</span><span class="params">(<span name="content">content: Seq[<a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>]</span>, <span name="attribution">attribution: Seq[<a name="laika.tree.Elements.Span" class="extype" href="Elements$$Span.html">Span</a>]</span>, <span name="options">options: <a name="laika.tree.Elements.Options" class="extype" href="Elements$$Options.html">Options</a> = <span class="symbol">Elements.this.NoOpt</span></span>)</span>
       </span>
       </h4>
       
@@ -180,6 +180,18 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li visbl="pub" name="laika.tree.Elements.QuotedBlock#attribution" data-isabs="false">
+      <a id="attribution:Seq[Span]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">attribution</span><span class="result">: Seq[<a name="laika.tree.Elements.Span" class="extype" href="Elements$$Span.html">Span</a>]</span>
+      </span>
+      </h4>
+      
     </li><li visbl="pub" name="laika.tree.Elements.QuotedBlock#canEqual" data-isabs="false">
       <a id="canEqual(Any):Boolean"></a>
       <h4 class="signature">
@@ -207,6 +219,21 @@
                 <span class="name">@throws</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li visbl="pub" name="laika.tree.ElementTraversal#collect" data-isabs="false">
+      <a id="collect[B](PartialFunction[Element, B]):List[B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">collect</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="pf">pf: <span name="scala.PartialFunction" class="extype">PartialFunction</span>[<a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a>, B]</span>)</span><span class="result">: List[B]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Selects all elements satisfying the specified predicate, collecting
+ in depth-first traversal, including this element itself.</p><div class="fullcomment"><div class="comment cmt"><p>Selects all elements satisfying the specified predicate, collecting
+ in depth-first traversal, including this element itself.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.ElementTraversal" class="extype" href="ElementTraversal.html">ElementTraversal</a></dd></dl></div>
     </li><li visbl="pub" name="laika.tree.Elements.QuotedBlock#content" data-isabs="false">
       <a id="content:Seq[Block]"></a>
       <h4 class="signature">
@@ -347,6 +374,18 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li visbl="pub" name="laika.tree.Elements.QuotedBlock#options" data-isabs="false">
+      <a id="options:Options"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">options</span><span class="result">: <a name="laika.tree.Elements.Options" class="extype" href="Elements$$Options.html">Options</a></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.Elements.QuotedBlock" class="extype" href="">QuotedBlock</a> → <a name="laika.tree.Elements.Customizable" class="extype" href="Elements$$Customizable.html">Customizable</a></dd></dl></div>
     </li><li visbl="pub" name="laika.tree.Elements.QuotedBlock#productArity" data-isabs="false">
       <a id="productArity:Int"></a>
       <h4 class="signature">
@@ -429,7 +468,8 @@
       </h4>
       <p class="shortcomment cmt">Selects all elements satisfying the specified predicate, collecting
  in depth-first traversal, including this element itself.</p><div class="fullcomment"><div class="comment cmt"><p>Selects all elements satisfying the specified predicate, collecting
- in depth-first traversal, including this element itself.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.ElementTraversal" class="extype" href="ElementTraversal.html">ElementTraversal</a></dd></dl></div>
+ in depth-first traversal, including this element itself.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.ElementTraversal" class="extype" href="ElementTraversal.html">ElementTraversal</a></dd></dl></div>
     </li><li visbl="pub" name="scala.AnyRef#synchronized" data-isabs="false">
       <a id="synchronized[T0](⇒ T0):T0"></a>
       <h4 class="signature">
@@ -538,6 +578,8 @@
               <h3>Inherited from <a name="laika.tree.Elements.Container" class="extype" href="Elements$$Container.html">Container</a>[Seq[<a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>]]</h3>
             </div><div name="laika.tree.Elements.Block" class="parent">
               <h3>Inherited from <a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a></h3>
+            </div><div name="laika.tree.Elements.Customizable" class="parent">
+              <h3>Inherited from <a name="laika.tree.Elements.Customizable" class="extype" href="Elements$$Customizable.html">Customizable</a></h3>
             </div><div name="laika.tree.Elements.Element" class="parent">
               <h3>Inherited from <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a></h3>
             </div><div name="scala.Product" class="parent">

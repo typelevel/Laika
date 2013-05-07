@@ -25,17 +25,17 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <span class="name">Span</span><span class="result"> extends <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a></span>
+        <span class="name">Span</span><span class="result"> extends <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a> with <a name="laika.tree.Elements.Customizable" class="extype" href="Elements$$Customizable.html">Customizable</a></span>
       </span>
       </h4>
       
       <div class="fullcommenttop" id="comment"><div class="comment cmt"><p>The base type for all inline elements.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a>, <span name="scala.Product" class="extype">Product</span>, <span name="scala.Equals" class="extype">Equals</span>, AnyRef, <span name="scala.Any" class="extype">Any</span></div>
+          <div class="superTypes hiddenContent"><a name="laika.tree.Elements.Customizable" class="extype" href="Elements$$Customizable.html">Customizable</a>, <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a>, <span name="scala.Product" class="extype">Product</span>, <span name="scala.Equals" class="extype">Equals</span>, AnyRef, <span name="scala.Any" class="extype">Any</span></div>
         </div><div class="toggleContainer block">
           <span class="toggle">Known Subclasses</span>
-          <div class="subClasses hiddenContent"><a name="laika.tree.Elements.CodeSpan" class="extype" href="Elements$$CodeSpan.html">CodeSpan</a>, <a name="laika.tree.Elements.Emphasized" class="extype" href="Elements$$Emphasized.html">Emphasized</a>, <a name="laika.tree.Elements.FlowContent" class="extype" href="Elements$$FlowContent.html">FlowContent</a>, <a name="laika.parse.markdown.html.HTMLElements.HTMLCharacterReference" class="extype" href="../parse/markdown/html/HTMLElements$$HTMLCharacterReference.html">HTMLCharacterReference</a>, <a name="laika.parse.markdown.html.HTMLElements.HTMLComment" class="extype" href="../parse/markdown/html/HTMLElements$$HTMLComment.html">HTMLComment</a>, <a name="laika.parse.markdown.html.HTMLElements.HTMLElement" class="extype" href="../parse/markdown/html/HTMLElements$$HTMLElement.html">HTMLElement</a>, <a name="laika.parse.markdown.html.HTMLElements.HTMLEmptyElement" class="extype" href="../parse/markdown/html/HTMLElements$$HTMLEmptyElement.html">HTMLEmptyElement</a>, <a name="laika.parse.markdown.html.HTMLElements.HTMLEndTag" class="extype" href="../parse/markdown/html/HTMLElements$$HTMLEndTag.html">HTMLEndTag</a>, <a name="laika.parse.markdown.html.HTMLElements.HTMLSpan" class="extype" href="../parse/markdown/html/HTMLElements$$HTMLSpan.html">HTMLSpan</a>, <a name="laika.parse.markdown.html.HTMLElements.HTMLStartTag" class="extype" href="../parse/markdown/html/HTMLElements$$HTMLStartTag.html">HTMLStartTag</a>, <a name="laika.tree.Elements.Image" class="extype" href="Elements$$Image.html">Image</a>, <a name="laika.tree.Elements.ImageReference" class="extype" href="Elements$$ImageReference.html">ImageReference</a>, <a name="laika.tree.Elements.LineBreak" class="extype" href="Elements$$LineBreak$.html">LineBreak</a>, <a name="laika.tree.Elements.Link" class="extype" href="Elements$$Link.html">Link</a>, <a name="laika.tree.Elements.LinkReference" class="extype" href="Elements$$LinkReference.html">LinkReference</a>, <a name="laika.tree.Elements.Strong" class="extype" href="Elements$$Strong.html">Strong</a>, <a name="laika.tree.Elements.Text" class="extype" href="Elements$$Text.html">Text</a></div>
+          <div class="subClasses hiddenContent"><a name="laika.tree.Elements.CitationLink" class="extype" href="Elements$$CitationLink.html">CitationLink</a>, <a name="laika.tree.Elements.CitationReference" class="extype" href="Elements$$CitationReference.html">CitationReference</a>, <a name="laika.parse.rst.Elements.Classifier" class="extype" href="../parse/rst/Elements$$Classifier.html">Classifier</a>, <a name="laika.tree.Elements.Emphasized" class="extype" href="Elements$$Emphasized.html">Emphasized</a>, <a name="laika.tree.Elements.ExternalLink" class="extype" href="Elements$$ExternalLink.html">ExternalLink</a>, <a name="laika.tree.Elements.ExternalLinkDefinition" class="extype" href="Elements$$ExternalLinkDefinition.html">ExternalLinkDefinition</a>, <a name="laika.tree.Elements.FootnoteLink" class="extype" href="Elements$$FootnoteLink.html">FootnoteLink</a>, <a name="laika.tree.Elements.FootnoteReference" class="extype" href="Elements$$FootnoteReference.html">FootnoteReference</a>, <a name="laika.parse.markdown.html.HTMLElements.HTMLCharacterReference" class="extype" href="../parse/markdown/html/HTMLElements$$HTMLCharacterReference.html">HTMLCharacterReference</a>, <a name="laika.parse.markdown.html.HTMLElements.HTMLComment" class="extype" href="../parse/markdown/html/HTMLElements$$HTMLComment.html">HTMLComment</a>, <a name="laika.parse.markdown.html.HTMLElements.HTMLElement" class="extype" href="../parse/markdown/html/HTMLElements$$HTMLElement.html">HTMLElement</a>, <a name="laika.parse.markdown.html.HTMLElements.HTMLEmptyElement" class="extype" href="../parse/markdown/html/HTMLElements$$HTMLEmptyElement.html">HTMLEmptyElement</a>, <a name="laika.parse.markdown.html.HTMLElements.HTMLEndTag" class="extype" href="../parse/markdown/html/HTMLElements$$HTMLEndTag.html">HTMLEndTag</a>, <a name="laika.parse.markdown.html.HTMLElements.HTMLSpan" class="extype" href="../parse/markdown/html/HTMLElements$$HTMLSpan.html">HTMLSpan</a>, <a name="laika.parse.markdown.html.HTMLElements.HTMLStartTag" class="extype" href="../parse/markdown/html/HTMLElements$$HTMLStartTag.html">HTMLStartTag</a>, <a name="laika.tree.Elements.Image" class="extype" href="Elements$$Image.html">Image</a>, <a name="laika.tree.Elements.ImageReference" class="extype" href="Elements$$ImageReference.html">ImageReference</a>, <a name="laika.tree.Elements.InternalLink" class="extype" href="Elements$$InternalLink.html">InternalLink</a>, <a name="laika.tree.Elements.InternalLinkTarget" class="extype" href="Elements$$InternalLinkTarget.html">InternalLinkTarget</a>, <a name="laika.parse.rst.Elements.InterpretedText" class="extype" href="../parse/rst/Elements$$InterpretedText.html">InterpretedText</a>, <a name="laika.tree.Elements.InvalidSpan" class="extype" href="Elements$$InvalidSpan.html">InvalidSpan</a>, <a name="laika.tree.Elements.LineBreak" class="extype" href="Elements$$LineBreak.html">LineBreak</a>, <a name="laika.tree.Elements.Link" class="extype" href="Elements$$Link.html">Link</a>, <a name="laika.tree.Elements.LinkReference" class="extype" href="Elements$$LinkReference.html">LinkReference</a>, <a name="laika.tree.Elements.Literal" class="extype" href="Elements$$Literal.html">Literal</a>, <a name="laika.tree.Elements.Reference" class="extype" href="Elements$$Reference.html">Reference</a>, <a name="laika.parse.rst.InlineParsers.Reverse" class="extype" href="../parse/rst/InlineParsers$Reverse.html">Reverse</a>, <a name="laika.tree.Elements.SpanSequence" class="extype" href="Elements$$SpanSequence.html">SpanSequence</a>, <a name="laika.tree.Elements.Strong" class="extype" href="Elements$$Strong.html">Strong</a>, <a name="laika.parse.rst.Elements.SubstitutionReference" class="extype" href="../parse/rst/Elements$$SubstitutionReference.html">SubstitutionReference</a>, <a name="laika.tree.Elements.SystemMessage" class="extype" href="Elements$$SystemMessage.html">SystemMessage</a>, <a name="laika.tree.Elements.Text" class="extype" href="Elements$$Text.html">Text</a></div>
         </div></div>
     
 
@@ -49,7 +49,7 @@
               <span class="filtertype">Inherited</span>
               <ol><li class="hideall out"><span>Hide All</span></li>
               <li class="showall in"><span>Show all</span></li></ol>
-              <ol id="linearization"><li name="laika.tree.Elements.Span" class="in"><span>Span</span></li><li name="laika.tree.Elements.Element" class="in"><span>Element</span></li><li name="scala.Product" class="in"><span>Product</span></li><li name="scala.Equals" class="in"><span>Equals</span></li><li name="scala.AnyRef" class="in"><span>AnyRef</span></li><li name="scala.Any" class="in"><span>Any</span></li></ol>
+              <ol id="linearization"><li name="laika.tree.Elements.Span" class="in"><span>Span</span></li><li name="laika.tree.Elements.Customizable" class="in"><span>Customizable</span></li><li name="laika.tree.Elements.Element" class="in"><span>Element</span></li><li name="scala.Product" class="in"><span>Product</span></li><li name="scala.Equals" class="in"><span>Equals</span></li><li name="scala.AnyRef" class="in"><span>AnyRef</span></li><li name="scala.Any" class="in"><span>Any</span></li></ol>
             </div>
         <div id="visbl">
             <span class="filtertype">Visibility</span>
@@ -77,6 +77,18 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Equals</dd></dl></div>
+    </li><li visbl="pub" name="laika.tree.Elements.Customizable#options" data-isabs="true">
+      <a id="options:Options"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">options</span><span class="result">: <a name="laika.tree.Elements.Options" class="extype" href="Elements$$Options.html">Options</a></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.Elements.Customizable" class="extype" href="Elements$$Customizable.html">Customizable</a></dd></dl></div>
     </li><li visbl="pub" name="scala.Product#productArity" data-isabs="true">
       <a id="productArity:Int"></a>
       <h4 class="signature">
@@ -422,7 +434,9 @@
         </div>
 
         <div id="inheritedMembers">
-        <div name="laika.tree.Elements.Element" class="parent">
+        <div name="laika.tree.Elements.Customizable" class="parent">
+              <h3>Inherited from <a name="laika.tree.Elements.Customizable" class="extype" href="Elements$$Customizable.html">Customizable</a></h3>
+            </div><div name="laika.tree.Elements.Element" class="parent">
               <h3>Inherited from <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a></h3>
             </div><div name="scala.Product" class="parent">
               <h3>Inherited from <span name="scala.Product" class="extype">Product</span></h3>

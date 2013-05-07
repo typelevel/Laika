@@ -41,7 +41,7 @@
           <div class="superTypes hiddenContent"><span name="scala.util.parsing.combinator.RegexParsers" class="extype">RegexParsers</span>, <span name="scala.util.parsing.combinator.Parsers" class="extype">Parsers</span>, AnyRef, <span name="scala.Any" class="extype">Any</span></div>
         </div><div class="toggleContainer block">
           <span class="toggle">Known Subclasses</span>
-          <div class="subClasses hiddenContent"><a name="laika.parse.BlockParsers" class="extype" href="BlockParsers.html">BlockParsers</a>, <a name="laika.parse.markdown.BlockParsers" class="extype" href="markdown/BlockParsers.html">BlockParsers</a>, <a name="laika.parse.markdown.html.HTMLParsers" class="extype" href="markdown/html/HTMLParsers.html">HTMLParsers</a>, <a name="laika.parse.InlineParsers" class="extype" href="InlineParsers.html">InlineParsers</a>, <a name="laika.parse.markdown.InlineParsers" class="extype" href="markdown/InlineParsers.html">InlineParsers</a></div>
+          <div class="subClasses hiddenContent"><a name="laika.parse.rst.BlockBaseParsers" class="extype" href="rst/BlockBaseParsers.html">BlockBaseParsers</a>, <a name="laika.parse.BlockParsers" class="extype" href="BlockParsers.html">BlockParsers</a>, <a name="laika.parse.rst.BlockParsers" class="extype" href="rst/BlockParsers.html">BlockParsers</a>, <a name="laika.parse.markdown.BlockParsers" class="extype" href="markdown/BlockParsers.html">BlockParsers</a>, <a name="laika.parse.rst.ExplicitBlockParsers" class="extype" href="rst/ExplicitBlockParsers.html">ExplicitBlockParsers</a>, <a name="laika.parse.markdown.html.HTMLParsers" class="extype" href="markdown/html/HTMLParsers.html">HTMLParsers</a>, <a name="laika.parse.InlineParsers" class="extype" href="InlineParsers.html">InlineParsers</a>, <a name="laika.parse.rst.InlineParsers" class="extype" href="rst/InlineParsers.html">InlineParsers</a>, <a name="laika.parse.markdown.InlineParsers" class="extype" href="markdown/InlineParsers.html">InlineParsers</a>, <a name="laika.parse.rst.ListParsers" class="extype" href="rst/ListParsers.html">ListParsers</a>, <a name="laika.parse.rst.TableParsers" class="extype" href="rst/TableParsers.html">TableParsers</a>, <a name="laika.parse.util.URIParsers" class="extype" href="util/URIParsers.html">URIParsers</a></div>
         </div></div>
     
 
@@ -105,6 +105,18 @@
       </span>
       </h4>
       <p class="comment cmt">Exception thrown when parsing a text markup document or fragment fails.</p>
+    </li><li visbl="pub" name="laika.parse.MarkupParsers.ParserOps" data-isabs="false">
+      <a id="ParserOps:ParserOps[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="MarkupParsers$ParserOps.html"><span class="name">ParserOps</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Provides additional combinator methods to parsers via implicit conversion.</p>
     </li><li visbl="pub" name="laika.parse.MarkupParsers.TextParser" data-isabs="false">
       <a id="TextParser:TextParser"></a>
       <h4 class="signature">
@@ -365,8 +377,7 @@
         <span class="name">anyUntil</span><span class="params">(<span name="chars">chars: <span name="scala.Char" class="extype">Char</span>*</span>)</span><span class="result">: <a name="laika.parse.MarkupParsers.TextParser" class="extype" href="MarkupParsers$TextParser.html">TextParser</a></span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Consumes any number of consecutive characters that are not one of the specified characters.</p><div class="fullcomment"><div class="comment cmt"><p>Consumes any number of consecutive characters that are not one of the specified characters.
- Always succeeds unless a minimum number of required matches is specified.</p><p> This parser is identical to the <code>anyBut</code> parser except for two differences: this parser fails
+      <p class="shortcomment cmt">Consumes any number of consecutive characters that are not one of the specified characters.</p><div class="fullcomment"><div class="comment cmt"><p>Consumes any number of consecutive characters that are not one of the specified characters.</p><p> This parser is identical to the <code>anyBut</code> parser except for two differences: this parser fails
  if it reaches the end of the input without seeing any of the specified
  characters and it also consumes this final character, without adding it
  to the result. This parser is usually used when a construct like a span
@@ -383,7 +394,7 @@
         <span class="name">anyWhile</span><span class="params">(<span name="p">p: (<span name="scala.Char" class="extype">Char</span>) ⇒ <span name="scala.Boolean" class="extype">Boolean</span></span>)</span><span class="result">: <a name="laika.parse.MarkupParsers.TextParser" class="extype" href="MarkupParsers$TextParser.html">TextParser</a></span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Consumes any number of consecutive characters for which satisfy the specified predicate.</p><div class="fullcomment"><div class="comment cmt"><p>Consumes any number of consecutive characters for which satisfy the specified predicate.
+      <p class="shortcomment cmt">Consumes any number of consecutive characters which satisfy the specified predicate.</p><div class="fullcomment"><div class="comment cmt"><p>Consumes any number of consecutive characters which satisfy the specified predicate.
  Always succeeds unless a minimum number of required matches is specified.
 </p></div></div>
     </li><li visbl="pub" name="scala.Any#asInstanceOf" data-isabs="false">
@@ -398,6 +409,18 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li visbl="pub" name="laika.parse.MarkupParsers#atStart" data-isabs="false">
+      <a id="atStart:Parser[Parser[Unit]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">atStart</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<span name="scala.Unit" class="extype">Unit</span>]]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Succeeds at the start of the input.</p>
     </li><li visbl="pub" name="scala.util.parsing.combinator.Parsers#chainl1" data-isabs="false">
       <a id="chainl1[T, U](⇒ Parser[T],⇒ Parser[U],⇒ Parser[(T, U) ⇒ T]):Parser[T]"></a>
       <h4 class="signature">
@@ -991,6 +1014,20 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Parsers</dd></dl></div>
+    </li><li visbl="pub" name="laika.parse.MarkupParsers#repMax" data-isabs="false">
+      <a id="repMax[T](Int,⇒ Parser[T]):Parser[List[T]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">repMax</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="num">num: <span name="scala.Int" class="extype">Int</span></span>, <span name="p">p: ⇒ <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[T]</span>)</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[List[T]]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Uses the parser for at most the specified number of repetitions, always succeeds.</p><div class="fullcomment"><div class="comment cmt"><p>Uses the parser for at most the specified number of repetitions, always succeeds.
+ The result is the list of results from applying the parser repeatedly.
+</p></div></div>
     </li><li visbl="pub" name="laika.parse.MarkupParsers#repMin" data-isabs="false">
       <a id="repMin[T](Int,⇒ Parser[T]):Parser[List[T]]"></a>
       <h4 class="signature">
@@ -1066,6 +1103,18 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li visbl="pub" name="laika.parse.MarkupParsers#toParserOps" data-isabs="false">
+      <a id="toParserOps[A](Parser[A]):ParserOps[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toParserOps</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="parser">parser: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[A]</span>)</span><span class="result">: <a name="laika.parse.MarkupParsers.ParserOps" class="extype" href="MarkupParsers$ParserOps.html">ParserOps</a>[A]</span>
+      </span>
+      </h4>
+      
     </li><li visbl="pub" name="scala.AnyRef#toString" data-isabs="false">
       <a id="toString():String"></a>
       <h4 class="signature">

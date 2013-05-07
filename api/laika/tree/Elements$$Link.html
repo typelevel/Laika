@@ -14,7 +14,7 @@
         </head>
         <body onload="sh_highlightDocument('../lib/', '.min.js');" class="type">
       <div id="definition">
-        <img src="../../lib/class_big.png" />
+        <img src="../../lib/trait_big.png" />
         <p id="owner"><a name="laika" class="extype" href="../package.html">laika</a>.<a name="laika.tree" class="extype" href="package.html">tree</a>.<a name="laika.tree.Elements" class="extype" href="Elements$.html">Elements</a></p>
         <h1>Link</h1>
       </div>
@@ -22,17 +22,22 @@
       <h4 class="signature" id="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">case class</span>
+        <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <span class="name">Link</span><span class="params">(<span name="content">content: Seq[<a name="laika.tree.Elements.Span" class="extype" href="Elements$$Span.html">Span</a>]</span>, <span name="url">url: String</span>, <span name="title">title: <span name="scala.Option" class="extype">Option</span>[String]</span>)</span><span class="result"> extends <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a> with <a name="laika.tree.Elements.Span" class="extype" href="Elements$$Span.html">Span</a> with <a name="laika.tree.Elements.SpanContainer" class="extype" href="Elements$$SpanContainer.html">SpanContainer</a>[<a name="laika.tree.Elements.Link" class="extype" href="">Link</a>] with <span name="scala.Product" class="extype">Product</span> with <span name="scala.Serializable" class="extype">Serializable</span></span>
+        <span class="name">Link</span><span class="result"> extends <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a> with <a name="laika.tree.Elements.Span" class="extype" href="Elements$$Span.html">Span</a></span>
       </span>
       </h4>
       
-      <div class="fullcommenttop" id="comment"><div class="comment cmt"><p>A link element, with the span content representing the text (description) of the link.
+      <div class="fullcommenttop" id="comment"><div class="comment cmt"><p>The base type for all link elements.</p><p> In contrast to the reference type, it is only mixed in by
+ elements representing resolved links that can be dealt
+ with by renderers.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span name="scala.Serializable" class="extype">Serializable</span>, <span name="java.io.Serializable" class="extype">Serializable</span>, <a name="laika.tree.Elements.SpanContainer" class="extype" href="Elements$$SpanContainer.html">SpanContainer</a>[<a name="laika.tree.Elements.Link" class="extype" href="">Link</a>], <a name="laika.tree.Elements.ElementContainer" class="extype" href="Elements$$ElementContainer.html">ElementContainer</a>[<a name="laika.tree.Elements.Span" class="extype" href="Elements$$Span.html">Span</a>, <a name="laika.tree.Elements.Link" class="extype" href="">Link</a>], <a name="laika.tree.ElementTraversal" class="extype" href="ElementTraversal.html">ElementTraversal</a>[<a name="laika.tree.Elements.Link" class="extype" href="">Link</a>], <a name="laika.tree.Elements.Container" class="extype" href="Elements$$Container.html">Container</a>[Seq[<a name="laika.tree.Elements.Span" class="extype" href="Elements$$Span.html">Span</a>]], <a name="laika.tree.Elements.Span" class="extype" href="Elements$$Span.html">Span</a>, <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a>, <span name="scala.Product" class="extype">Product</span>, <span name="scala.Equals" class="extype">Equals</span>, AnyRef, <span name="scala.Any" class="extype">Any</span></div>
+          <div class="superTypes hiddenContent"><a name="laika.tree.Elements.Span" class="extype" href="Elements$$Span.html">Span</a>, <a name="laika.tree.Elements.Customizable" class="extype" href="Elements$$Customizable.html">Customizable</a>, <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a>, <span name="scala.Product" class="extype">Product</span>, <span name="scala.Equals" class="extype">Equals</span>, AnyRef, <span name="scala.Any" class="extype">Any</span></div>
+        </div><div class="toggleContainer block">
+          <span class="toggle">Known Subclasses</span>
+          <div class="subClasses hiddenContent"><a name="laika.tree.Elements.CitationLink" class="extype" href="Elements$$CitationLink.html">CitationLink</a>, <a name="laika.tree.Elements.ExternalLink" class="extype" href="Elements$$ExternalLink.html">ExternalLink</a>, <a name="laika.tree.Elements.FootnoteLink" class="extype" href="Elements$$FootnoteLink.html">FootnoteLink</a>, <a name="laika.tree.Elements.Image" class="extype" href="Elements$$Image.html">Image</a>, <a name="laika.tree.Elements.InternalLink" class="extype" href="Elements$$InternalLink.html">InternalLink</a></div>
         </div></div>
     
 
@@ -46,7 +51,7 @@
               <span class="filtertype">Inherited</span>
               <ol><li class="hideall out"><span>Hide All</span></li>
               <li class="showall in"><span>Show all</span></li></ol>
-              <ol id="linearization"><li name="laika.tree.Elements.Link" class="in"><span>Link</span></li><li name="scala.Serializable" class="in"><span>Serializable</span></li><li name="java.io.Serializable" class="in"><span>Serializable</span></li><li name="laika.tree.Elements.SpanContainer" class="in"><span>SpanContainer</span></li><li name="laika.tree.Elements.ElementContainer" class="in"><span>ElementContainer</span></li><li name="laika.tree.ElementTraversal" class="in"><span>ElementTraversal</span></li><li name="laika.tree.Elements.Container" class="in"><span>Container</span></li><li name="laika.tree.Elements.Span" class="in"><span>Span</span></li><li name="laika.tree.Elements.Element" class="in"><span>Element</span></li><li name="scala.Product" class="in"><span>Product</span></li><li name="scala.Equals" class="in"><span>Equals</span></li><li name="scala.AnyRef" class="in"><span>AnyRef</span></li><li name="scala.Any" class="in"><span>Any</span></li></ol>
+              <ol id="linearization"><li name="laika.tree.Elements.Link" class="in"><span>Link</span></li><li name="laika.tree.Elements.Span" class="in"><span>Span</span></li><li name="laika.tree.Elements.Customizable" class="in"><span>Customizable</span></li><li name="laika.tree.Elements.Element" class="in"><span>Element</span></li><li name="scala.Product" class="in"><span>Product</span></li><li name="scala.Equals" class="in"><span>Equals</span></li><li name="scala.AnyRef" class="in"><span>AnyRef</span></li><li name="scala.Any" class="in"><span>Any</span></li></ol>
             </div>
         <div id="visbl">
             <span class="filtertype">Visibility</span>
@@ -56,45 +61,65 @@
 
       <div id="template">
         <div id="allMembers">
-        <div class="members" id="constructors">
-              <h3>Instance Constructors</h3>
-              <ol><li visbl="pub" name="laika.tree.Elements.Link#this" data-isabs="false">
-      <a id="this:Link"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">new</span>
-      </span>
-      <span class="symbol">
-        <span class="name">Link</span><span class="params">(<span name="content">content: Seq[<a name="laika.tree.Elements.Span" class="extype" href="Elements$$Span.html">Span</a>]</span>, <span name="url">url: String</span>, <span name="title">title: <span name="scala.Option" class="extype">Option</span>[String] = <span class="symbol">scala.None</span></span>)</span>
-      </span>
-      </h4>
-      
-    </li></ol>
-            </div>
-
-        <div class="types members" id="types">
-              <h3>Type Members</h3>
-              <ol><li visbl="pub" name="laika.tree.ElementTraversal.RewriteException" data-isabs="false">
-      <a id="RewriteException:RewriteException"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="ElementTraversal$RewriteException.html"><span class="name">RewriteException</span></a><span class="result"> extends RuntimeException</span>
-      </span>
-      </h4>
-      <p class="comment cmt">Exception thrown when a rewrite rule replaced an element with a new element
- that does not comply with the contract of its parent container.</p>
-    </li></ol>
-            </div>
+        
 
         
 
         <div class="values members" id="values">
-              <h3>Value Members</h3>
+              <h3>Abstract Value Members</h3>
+              <ol><li visbl="pub" name="scala.Equals#canEqual" data-isabs="true">
+      <a id="canEqual(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">canEqual</span><span class="params">(<span name="that">that: <span name="scala.Any" class="extype">Any</span></span>)</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Equals</dd></dl></div>
+    </li><li visbl="pub" name="laika.tree.Elements.Customizable#options" data-isabs="true">
+      <a id="options:Options"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">options</span><span class="result">: <a name="laika.tree.Elements.Options" class="extype" href="Elements$$Options.html">Options</a></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.Elements.Customizable" class="extype" href="Elements$$Customizable.html">Customizable</a></dd></dl></div>
+    </li><li visbl="pub" name="scala.Product#productArity" data-isabs="true">
+      <a id="productArity:Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">productArity</span><span class="result">: <span name="scala.Int" class="extype">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Product</dd></dl></div>
+    </li><li visbl="pub" name="scala.Product#productElement" data-isabs="true">
+      <a id="productElement(Int):Any"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">productElement</span><span class="params">(<span name="n">n: <span name="scala.Int" class="extype">Int</span></span>)</span><span class="result">: <span name="scala.Any" class="extype">Any</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Product</dd></dl></div>
+    </li></ol>
+            </div>
+
+        <div class="values members" id="values">
+              <h3>Concrete Value Members</h3>
               <ol><li visbl="pub" name="scala.AnyRef#!=" data-isabs="false">
       <a id="!=(AnyRef):Boolean"></a>
       <h4 class="signature">
@@ -155,18 +180,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li visbl="pub" name="laika.tree.ElementTraversal.RewriteException" data-isabs="false">
-      <a id="RewriteException:RewriteException"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="ElementTraversal$RewriteException$.html"><span class="name">RewriteException</span></a><span class="result"> extends Serializable</span>
-      </span>
-      </h4>
-      
     </li><li visbl="pub" name="scala.Any#asInstanceOf" data-isabs="false">
       <a id="asInstanceOf[T0]:T0"></a>
       <h4 class="signature">
@@ -179,18 +192,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li visbl="pub" name="laika.tree.Elements.Link#canEqual" data-isabs="false">
-      <a id="canEqual(Any):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">canEqual</span><span class="params">(<span name="arg0">arg0: <span name="scala.Any" class="extype">Any</span></span>)</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.Elements.Link" class="extype" href="">Link</a> → Equals</dd></dl></div>
     </li><li visbl="prt" name="scala.AnyRef#clone" data-isabs="false">
       <a id="clone():AnyRef"></a>
       <h4 class="signature">
@@ -206,18 +207,6 @@
                 <span class="name">@throws</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li visbl="pub" name="laika.tree.Elements.Link#content" data-isabs="false">
-      <a id="content:Seq[Span]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">content</span><span class="result">: Seq[<a name="laika.tree.Elements.Span" class="extype" href="Elements$$Span.html">Span</a>]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.Elements.Link" class="extype" href="">Link</a> → <a name="laika.tree.Elements.Container" class="extype" href="Elements$$Container.html">Container</a></dd></dl></div>
     </li><li visbl="pub" name="scala.AnyRef#eq" data-isabs="false">
       <a id="eq(AnyRef):Boolean"></a>
       <h4 class="signature">
@@ -230,7 +219,7 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li visbl="pub" name="laika.tree.Elements.Link#equals" data-isabs="false">
+    </li><li visbl="pub" name="scala.AnyRef#equals" data-isabs="false">
       <a id="equals(Any):Boolean"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -241,7 +230,7 @@
         <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span name="scala.Any" class="extype">Any</span></span>)</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.Elements.Link" class="extype" href="">Link</a> → Equals → AnyRef → Any</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li visbl="prt" name="scala.AnyRef#finalize" data-isabs="false">
       <a id="finalize():Unit"></a>
       <h4 class="signature">
@@ -257,23 +246,6 @@
                 <span class="name">@throws</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li visbl="pub" name="laika.tree.ElementTraversal#foreach" data-isabs="false">
-      <a id="foreach((Element) ⇒ Unit):Unit"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">foreach</span><span class="params">(<span name="f">f: (<a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a>) ⇒ <span name="scala.Unit" class="extype">Unit</span></span>)</span><span class="result">: <span name="scala.Unit" class="extype">Unit</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Invokes the specified function for each child of this element
- container, including children of children, and this element itself,
- in depth-first traversal.</p><div class="fullcomment"><div class="comment cmt"><p>Invokes the specified function for each child of this element
- container, including children of children, and this element itself,
- in depth-first traversal.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.ElementTraversal" class="extype" href="ElementTraversal.html">ElementTraversal</a></dd></dl></div>
     </li><li visbl="pub" name="scala.AnyRef#getClass" data-isabs="false">
       <a id="getClass():java.lang.Class[_]"></a>
       <h4 class="signature">
@@ -286,7 +258,7 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li visbl="pub" name="laika.tree.Elements.Link#hashCode" data-isabs="false">
+    </li><li visbl="pub" name="scala.AnyRef#hashCode" data-isabs="false">
       <a id="hashCode():Int"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -297,7 +269,7 @@
         <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span name="scala.Int" class="extype">Int</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.Elements.Link" class="extype" href="">Link</a> → AnyRef → Any</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li visbl="pub" name="scala.Any#isInstanceOf" data-isabs="false">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <h4 class="signature">
@@ -346,30 +318,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li visbl="pub" name="laika.tree.Elements.Link#productArity" data-isabs="false">
-      <a id="productArity:Int"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">productArity</span><span class="result">: <span name="scala.Int" class="extype">Int</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.Elements.Link" class="extype" href="">Link</a> → Product</dd></dl></div>
-    </li><li visbl="pub" name="laika.tree.Elements.Link#productElement" data-isabs="false">
-      <a id="productElement(Int):Any"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">productElement</span><span class="params">(<span name="arg0">arg0: <span name="scala.Int" class="extype">Int</span></span>)</span><span class="result">: <span name="scala.Any" class="extype">Any</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.Elements.Link" class="extype" href="">Link</a> → Product</dd></dl></div>
     </li><li visbl="pub" name="scala.Product#productIterator" data-isabs="false">
       <a id="productIterator:Iterator[Any]"></a>
       <h4 class="signature">
@@ -382,7 +330,7 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Product</dd></dl></div>
-    </li><li visbl="pub" name="laika.tree.Elements.Link#productPrefix" data-isabs="false">
+    </li><li visbl="pub" name="scala.Product#productPrefix" data-isabs="false">
       <a id="productPrefix:String"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -393,42 +341,7 @@
         <span class="name">productPrefix</span><span class="result">: <span name="java.lang.String" class="extype">String</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.Elements.Link" class="extype" href="">Link</a> → Product</dd></dl></div>
-    </li><li visbl="pub" name="laika.tree.ElementTraversal#rewrite" data-isabs="false">
-      <a id="rewrite(PartialFunction[Element, Option[Element]]):Link"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">rewrite</span><span class="params">(<span name="rule">rule: <span name="scala.PartialFunction" class="extype">PartialFunction</span>[<a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a>, <span name="scala.Option" class="extype">Option</span>[<a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a>]]</span>)</span><span class="result">: <a name="laika.tree.Elements.Link" class="extype" href="">Link</a></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Returns a new, rewritten tree model based on the specified rule.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new, rewritten tree model based on the specified rule.
- The rule is a partial function that takes an <code>Element</code> and returns an <code>Option[Element]</code>.</p><p> If the function is not defined for a specific element the old element remains
- in the tree unchanged. If it returns <code>None</code> then the node gets removed from the tree,
- if it returns an element it will replace the old one. Of course the function may
- also return the old element.</p><p> The rewriting is performed in a way that only branches of the tree that contain
- new or removed elements will be replaced. It is processed bottom-up, therefore
- any element container passed to the rule only contains children which have already
- been processed.</p><p> In case multiple rewrite rules need to be applied it may be more efficient to
- first combine them with <code>orElse</code>.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.ElementTraversal" class="extype" href="ElementTraversal.html">ElementTraversal</a></dd></dl></div>
-    </li><li visbl="pub" name="laika.tree.ElementTraversal#select" data-isabs="false">
-      <a id="select((Element) ⇒ Boolean):List[Element]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">select</span><span class="params">(<span name="p">p: (<a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a>) ⇒ <span name="scala.Boolean" class="extype">Boolean</span></span>)</span><span class="result">: List[<a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a>]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Selects all elements satisfying the specified predicate, collecting
- in depth-first traversal, including this element itself.</p><div class="fullcomment"><div class="comment cmt"><p>Selects all elements satisfying the specified predicate, collecting
- in depth-first traversal, including this element itself.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.ElementTraversal" class="extype" href="ElementTraversal.html">ElementTraversal</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Product</dd></dl></div>
     </li><li visbl="pub" name="scala.AnyRef#synchronized" data-isabs="false">
       <a id="synchronized[T0](⇒ T0):T0"></a>
       <h4 class="signature">
@@ -441,19 +354,7 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li visbl="pub" name="laika.tree.Elements.Link#title" data-isabs="false">
-      <a id="title:Option[String]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">title</span><span class="result">: <span name="scala.Option" class="extype">Option</span>[String]</span>
-      </span>
-      </h4>
-      
-    </li><li visbl="pub" name="laika.tree.Elements.ElementContainer#toString" data-isabs="false">
+    </li><li visbl="pub" name="scala.AnyRef#toString" data-isabs="false">
       <a id="toString():String"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -464,19 +365,7 @@
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span name="java.lang.String" class="extype">String</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.Elements.ElementContainer" class="extype" href="Elements$$ElementContainer.html">ElementContainer</a> → AnyRef → Any</dd></dl></div>
-    </li><li visbl="pub" name="laika.tree.Elements.Link#url" data-isabs="false">
-      <a id="url:String"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">url</span><span class="result">: String</span>
-      </span>
-      </h4>
-      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li visbl="pub" name="scala.AnyRef#wait" data-isabs="false">
       <a id="wait():Unit"></a>
       <h4 class="signature">
@@ -547,20 +436,10 @@
         </div>
 
         <div id="inheritedMembers">
-        <div name="scala.Serializable" class="parent">
-              <h3>Inherited from <span name="scala.Serializable" class="extype">Serializable</span></h3>
-            </div><div name="java.io.Serializable" class="parent">
-              <h3>Inherited from <span name="java.io.Serializable" class="extype">Serializable</span></h3>
-            </div><div name="laika.tree.Elements.SpanContainer" class="parent">
-              <h3>Inherited from <a name="laika.tree.Elements.SpanContainer" class="extype" href="Elements$$SpanContainer.html">SpanContainer</a>[<a name="laika.tree.Elements.Link" class="extype" href="">Link</a>]</h3>
-            </div><div name="laika.tree.Elements.ElementContainer" class="parent">
-              <h3>Inherited from <a name="laika.tree.Elements.ElementContainer" class="extype" href="Elements$$ElementContainer.html">ElementContainer</a>[<a name="laika.tree.Elements.Span" class="extype" href="Elements$$Span.html">Span</a>, <a name="laika.tree.Elements.Link" class="extype" href="">Link</a>]</h3>
-            </div><div name="laika.tree.ElementTraversal" class="parent">
-              <h3>Inherited from <a name="laika.tree.ElementTraversal" class="extype" href="ElementTraversal.html">ElementTraversal</a>[<a name="laika.tree.Elements.Link" class="extype" href="">Link</a>]</h3>
-            </div><div name="laika.tree.Elements.Container" class="parent">
-              <h3>Inherited from <a name="laika.tree.Elements.Container" class="extype" href="Elements$$Container.html">Container</a>[Seq[<a name="laika.tree.Elements.Span" class="extype" href="Elements$$Span.html">Span</a>]]</h3>
-            </div><div name="laika.tree.Elements.Span" class="parent">
+        <div name="laika.tree.Elements.Span" class="parent">
               <h3>Inherited from <a name="laika.tree.Elements.Span" class="extype" href="Elements$$Span.html">Span</a></h3>
+            </div><div name="laika.tree.Elements.Customizable" class="parent">
+              <h3>Inherited from <a name="laika.tree.Elements.Customizable" class="extype" href="Elements$$Customizable.html">Customizable</a></h3>
             </div><div name="laika.tree.Elements.Element" class="parent">
               <h3>Inherited from <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a></h3>
             </div><div name="scala.Product" class="parent">

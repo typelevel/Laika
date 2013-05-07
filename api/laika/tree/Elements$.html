@@ -67,7 +67,19 @@
 
         <div class="types members" id="types">
               <h3>Type Members</h3>
-              <ol><li visbl="pub" name="laika.tree.Elements.Block" data-isabs="true">
+              <ol><li visbl="pub" name="laika.tree.Elements.AutonumberLabel" data-isabs="false">
+      <a id="AutonumberLabel:AutonumberLabel"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$AutonumberLabel.html"><span class="name">AutonumberLabel</span></a><span class="params">(<span name="label">label: String</span>)</span><span class="result"> extends FootnoteLabel with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Label using automatic numbering and explicit label names together.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Block" data-isabs="true">
       <a id="Block:Block"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -75,7 +87,7 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$Block.html"><span class="name">Block</span></a><span class="result"> extends Element</span>
+        <a href="Elements$$Block.html"><span class="name">Block</span></a><span class="result"> extends Element with Customizable</span>
       </span>
       </h4>
       <p class="comment cmt">The base type for all block level elements.</p>
@@ -91,30 +103,151 @@
       </span>
       </h4>
       <p class="comment cmt">A container of other Block elements.</p>
-    </li><li visbl="pub" name="laika.tree.Elements.CodeBlock" data-isabs="false">
-      <a id="CodeBlock:CodeBlock"></a>
+    </li><li visbl="pub" name="laika.tree.Elements.BlockSequence" data-isabs="false">
+      <a id="BlockSequence:BlockSequence"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$CodeBlock.html"><span class="name">CodeBlock</span></a><span class="params">(<span name="content">content: String</span>)</span><span class="result"> extends Element with Block with TextContainer with Product with Serializable</span>
+        <a href="Elements$$BlockSequence.html"><span class="name">BlockSequence</span></a><span class="params">(<span name="content">content: Seq[Block]</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Block with BlockContainer[BlockSequence] with Product with Serializable</span>
       </span>
       </h4>
-      <p class="comment cmt">A code block with simple text content.</p>
-    </li><li visbl="pub" name="laika.tree.Elements.CodeSpan" data-isabs="false">
-      <a id="CodeSpan:CodeSpan"></a>
+      <p class="comment cmt">A generic container element containing a list of blocks.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.BulletFormat" data-isabs="true">
+      <a id="BulletFormat:BulletFormat"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$BulletFormat.html"><span class="name">BulletFormat</span></a><span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      <p class="comment cmt">The format of a bullet list item.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.BulletList" data-isabs="false">
+      <a id="BulletList:BulletList"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$CodeSpan.html"><span class="name">CodeSpan</span></a><span class="params">(<span name="content">content: String</span>)</span><span class="result"> extends Element with Span with TextContainer with Product with Serializable</span>
+        <a href="Elements$$BulletList.html"><span class="name">BulletList</span></a><span class="params">(<span name="content">content: Seq[ListItem]</span>, <span name="format">format: BulletFormat</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Block with ListContainer[BulletList] with Product with Serializable</span>
       </span>
       </h4>
-      <p class="comment cmt">A code span containing plain text.</p>
+      <p class="comment cmt">An bullet list that may contain nested lists.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.BulletListItem" data-isabs="false">
+      <a id="BulletListItem:BulletListItem"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$BulletListItem.html"><span class="name">BulletListItem</span></a><span class="params">(<span name="content">content: Seq[Block]</span>, <span name="format">format: BulletFormat</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with ListItem with BlockContainer[BulletListItem] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A single bullet list item consisting of one or more block elements.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Cell" data-isabs="false">
+      <a id="Cell:Cell"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Cell.html"><span class="name">Cell</span></a><span class="params">(<span name="cellType">cellType: CellType</span>, <span name="content">content: Seq[Block]</span>, <span name="colspan">colspan: Int</span>, <span name="rowspan">rowspan: Int</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with TableElement with BlockContainer[Cell] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A single cell, potentially spanning multiple rows or columns, containing
+ one or more block elements.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.CellType" data-isabs="true">
+      <a id="CellType:CellType"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$CellType.html"><span class="name">CellType</span></a><span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      <p class="comment cmt">The cell type specifies which part of the table the cell belongs to.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Citation" data-isabs="false">
+      <a id="Citation:Citation"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Citation.html"><span class="name">Citation</span></a><span class="params">(<span name="id">id: String</span>, <span name="content">content: Seq[Block]</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Block with LinkTarget with BlockContainer[Footnote] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A citation that can be referred to by a <code>CitationLink</code> by id.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.CitationLink" data-isabs="false">
+      <a id="CitationLink:CitationLink"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$CitationLink.html"><span class="name">CitationLink</span></a><span class="params">(<span name="label">label: String</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Link with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A resolved link to a citation.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.CitationReference" data-isabs="false">
+      <a id="CitationReference:CitationReference"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$CitationReference.html"><span class="name">CitationReference</span></a><span class="params">(<span name="label">label: String</span>, <span name="source">source: String</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Reference with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A reference to a citation with a matching label.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Column" data-isabs="false">
+      <a id="Column:Column"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Column.html"><span class="name">Column</span></a><span class="params">(<span name="options">options: Options</span>)</span><span class="result"> extends Element with TableElement with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">The options (like styles) for a column table.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Columns" data-isabs="false">
+      <a id="Columns:Columns"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Columns.html"><span class="name">Columns</span></a><span class="params">(<span name="content">content: Seq[Column]</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with TableElement with TableContainer[Columns] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Contains the (optional) column specification of a table.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Comment" data-isabs="false">
+      <a id="Comment:Comment"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Comment.html"><span class="name">Comment</span></a><span class="params">(<span name="content">content: String</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Block with TextContainer with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A comment that may be omitted by renderers.</p>
     </li><li visbl="pub" name="laika.tree.Elements.Container" data-isabs="true">
       <a id="Container:Container[T]"></a>
       <h4 class="signature">
@@ -127,6 +260,54 @@
       </span>
       </h4>
       <p class="comment cmt">A generic container.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Customizable" data-isabs="true">
+      <a id="Customizable:Customizable"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Customizable.html"><span class="name">Customizable</span></a><span class="result"> extends Element</span>
+      </span>
+      </h4>
+      <p class="comment cmt">An elements that can be customized.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Definition" data-isabs="true">
+      <a id="Definition:Definition"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Definition.html"><span class="name">Definition</span></a><span class="result"> extends Element with Block with Temporary</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Represents a definition that can be used to resolve references.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.DefinitionList" data-isabs="false">
+      <a id="DefinitionList:DefinitionList"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$DefinitionList.html"><span class="name">DefinitionList</span></a><span class="params">(<span name="content">content: Seq[DefinitionListItem]</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Block with ListContainer[DefinitionList] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A list of terms and their definitions.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.DefinitionListItem" data-isabs="false">
+      <a id="DefinitionListItem:DefinitionListItem"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$DefinitionListItem.html"><span class="name">DefinitionListItem</span></a><span class="params">(<span name="term">term: Seq[Span]</span>, <span name="content">content: Seq[Block]</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with ListItem with BlockContainer[DefinitionListItem] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A single definition item, containing the term and definition (as the content property).</p>
     </li><li visbl="pub" name="laika.tree.Elements.Document" data-isabs="false">
       <a id="Document:Document"></a>
       <h4 class="signature">
@@ -171,22 +352,144 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$Emphasized.html"><span class="name">Emphasized</span></a><span class="params">(<span name="content">content: Seq[Span]</span>)</span><span class="result"> extends Element with Span with SpanContainer[Emphasized] with Product with Serializable</span>
+        <a href="Elements$$Emphasized.html"><span class="name">Emphasized</span></a><span class="params">(<span name="content">content: Seq[Span]</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Span with SpanContainer[Emphasized] with Product with Serializable</span>
       </span>
       </h4>
       <p class="comment cmt">A span of emphasized inline elements that may contain nested spans.</p>
-    </li><li visbl="pub" name="laika.tree.Elements.FlowContent" data-isabs="false">
-      <a id="FlowContent:FlowContent"></a>
+    </li><li visbl="pub" name="laika.tree.Elements.EnumFormat" data-isabs="false">
+      <a id="EnumFormat:EnumFormat"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$FlowContent.html"><span class="name">FlowContent</span></a><span class="params">(<span name="content">content: Seq[Span]</span>)</span><span class="result"> extends Element with Block with Span with SpanContainer[FlowContent] with Product with Serializable</span>
+        <a href="Elements$$EnumFormat.html"><span class="name">EnumFormat</span></a><span class="params">(<span name="enumType">enumType: EnumType</span>, <span name="prefix">prefix: String</span>, <span name="suffix">suffix: String</span>)</span><span class="result"> extends Product with Serializable</span>
       </span>
       </h4>
-      <p class="comment cmt">A generic flow content element containing a list of spans.</p>
+      <p class="comment cmt">The format of enumerated list items.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.EnumList" data-isabs="false">
+      <a id="EnumList:EnumList"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$EnumList.html"><span class="name">EnumList</span></a><span class="params">(<span name="content">content: Seq[ListItem]</span>, <span name="format">format: EnumFormat</span>, <span name="start">start: Int</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Block with ListContainer[EnumList] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">An enumerated list that may contain nested lists.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.EnumListItem" data-isabs="false">
+      <a id="EnumListItem:EnumListItem"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$EnumListItem.html"><span class="name">EnumListItem</span></a><span class="params">(<span name="content">content: Seq[Block]</span>, <span name="format">format: EnumFormat</span>, <span name="position">position: Int</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with ListItem with BlockContainer[EnumListItem] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A single enum list item consisting of one or more block elements.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.EnumType" data-isabs="true">
+      <a id="EnumType:EnumType"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$EnumType.html"><span class="name">EnumType</span></a><span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Represents the type of an ordered list.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.ExternalLink" data-isabs="false">
+      <a id="ExternalLink:ExternalLink"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$ExternalLink.html"><span class="name">ExternalLink</span></a><span class="params">(<span name="content">content: Seq[Span]</span>, <span name="url">url: String</span>, <span name="title">title: Option[String]</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Link with SpanContainer[ExternalLink] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">An external link element, with the span content representing the text (description) of the link.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.ExternalLinkDefinition" data-isabs="false">
+      <a id="ExternalLinkDefinition:ExternalLinkDefinition"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$ExternalLinkDefinition.html"><span class="name">ExternalLinkDefinition</span></a><span class="params">(<span name="id">id: String</span>, <span name="url">url: String</span>, <span name="title">title: Option[String]</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Definition with Span with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">An external link target, usually only part of the raw document tree and then
+ removed by the rewrite rule that resolves link and image references.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Footnote" data-isabs="false">
+      <a id="Footnote:Footnote"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Footnote.html"><span class="name">Footnote</span></a><span class="params">(<span name="id">id: String</span>, <span name="label">label: String</span>, <span name="content">content: Seq[Block]</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Block with LinkTarget with BlockContainer[Footnote] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A footnote with resolved id and label that can be referred to by a <code>FootnoteLink</code> by id.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.FootnoteDefinition" data-isabs="false">
+      <a id="FootnoteDefinition:FootnoteDefinition"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$FootnoteDefinition.html"><span class="name">FootnoteDefinition</span></a><span class="params">(<span name="label">label: FootnoteLabel</span>, <span name="content">content: Seq[Block]</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Definition with BlockContainer[Footnote] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A footnote definition that needs to be resolved to a final footnote
+ by a rewrite rule based on the label type.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.FootnoteLabel" data-isabs="true">
+      <a id="FootnoteLabel:FootnoteLabel"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$FootnoteLabel.html"><span class="name">FootnoteLabel</span></a><span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Base type for all types of footnote labels.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.FootnoteLink" data-isabs="false">
+      <a id="FootnoteLink:FootnoteLink"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$FootnoteLink.html"><span class="name">FootnoteLink</span></a><span class="params">(<span name="id">id: String</span>, <span name="label">label: String</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Link with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A resolved link to a footnote.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.FootnoteReference" data-isabs="false">
+      <a id="FootnoteReference:FootnoteReference"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$FootnoteReference.html"><span class="name">FootnoteReference</span></a><span class="params">(<span name="label">label: FootnoteLabel</span>, <span name="source">source: String</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Reference with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A reference to a footnote with a matching label.</p>
     </li><li visbl="pub" name="laika.tree.Elements.Header" data-isabs="false">
       <a id="Header:Header"></a>
       <h4 class="signature">
@@ -195,7 +498,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$Header.html"><span class="name">Header</span></a><span class="params">(<span name="level">level: Int</span>, <span name="content">content: Seq[Span]</span>)</span><span class="result"> extends Element with Block with SpanContainer[Header] with Product with Serializable</span>
+        <a href="Elements$$Header.html"><span class="name">Header</span></a><span class="params">(<span name="level">level: Int</span>, <span name="content">content: Seq[Span]</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Block with SpanContainer[Header] with Product with Serializable</span>
       </span>
       </h4>
       <p class="comment cmt">A header element with a level</p>
@@ -207,7 +510,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$Image.html"><span class="name">Image</span></a><span class="params">(<span name="text">text: String</span>, <span name="url">url: String</span>, <span name="title">title: Option[String]</span>)</span><span class="result"> extends Element with Span with Product with Serializable</span>
+        <a href="Elements$$Image.html"><span class="name">Image</span></a><span class="params">(<span name="text">text: String</span>, <span name="url">url: String</span>, <span name="title">title: Option[String]</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Link with Product with Serializable</span>
       </span>
       </h4>
       <p class="comment cmt">An inline image with a text description and optional title.</p>
@@ -219,35 +522,130 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$ImageReference.html"><span class="name">ImageReference</span></a><span class="params">(<span name="text">text: String</span>, <span name="id">id: String</span>, <span name="inputPrefix">inputPrefix: String</span>, <span name="inputPostfix">inputPostfix: String</span>)</span><span class="result"> extends Element with Span with Product with Serializable</span>
+        <a href="Elements$$ImageReference.html"><span class="name">ImageReference</span></a><span class="params">(<span name="text">text: String</span>, <span name="id">id: String</span>, <span name="source">source: String</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Reference with Product with Serializable</span>
       </span>
       </h4>
-      <p class="comment cmt">An image reference, the id pointing to the id of a <code>LinkDefinition</code>.</p>
-    </li><li visbl="pub" name="laika.tree.Elements.Link" data-isabs="false">
+      <p class="comment cmt">An image reference, the id pointing to the id of a <code>LinkTarget</code>.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.InternalLink" data-isabs="false">
+      <a id="InternalLink:InternalLink"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$InternalLink.html"><span class="name">InternalLink</span></a><span class="params">(<span name="content">content: Seq[Span]</span>, <span name="url">url: String</span>, <span name="title">title: Option[String]</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Link with SpanContainer[InternalLink] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A internal link element, with the span content representing the text (description) of the link.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.InternalLinkTarget" data-isabs="false">
+      <a id="InternalLinkTarget:InternalLinkTarget"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$InternalLinkTarget.html"><span class="name">InternalLinkTarget</span></a><span class="params">(<span name="id">id: String</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Block with Span with LinkTarget with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Points to the following block or span element, making it a target for links.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Invalid" data-isabs="true">
+      <a id="Invalid:Invalid[E]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Invalid.html"><span class="name">Invalid</span></a><span class="tparams">[<span name="E">+E &lt;: Element</span>]</span><span class="result"> extends Element</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Represents an invalid element.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.InvalidBlock" data-isabs="false">
+      <a id="InvalidBlock:InvalidBlock"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$InvalidBlock.html"><span class="name">InvalidBlock</span></a><span class="params">(<span name="message">message: SystemMessage</span>, <span name="fallback">fallback: Block</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Block with Invalid[Block] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Groups a block that could not successfully parsed with a system message.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.InvalidSpan" data-isabs="false">
+      <a id="InvalidSpan:InvalidSpan"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$InvalidSpan.html"><span class="name">InvalidSpan</span></a><span class="params">(<span name="message">message: SystemMessage</span>, <span name="fallback">fallback: Span</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Span with Invalid[Span] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Groups a span that could not successfully parsed with a system message.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Line" data-isabs="false">
+      <a id="Line:Line"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Line.html"><span class="name">Line</span></a><span class="params">(<span name="content">content: Seq[Span]</span>, <span name="options">options: Options</span>)</span><span class="result"> extends LineBlockItem with SpanContainer[Line] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A single line inside a line block.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.LineBlock" data-isabs="false">
+      <a id="LineBlock:LineBlock"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$LineBlock.html"><span class="name">LineBlock</span></a><span class="params">(<span name="content">content: Seq[LineBlockItem]</span>, <span name="options">options: Options</span>)</span><span class="result"> extends LineBlockItem with BlockContainer[LineBlock] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A block containing lines which preserve line breaks and optionally nested line blocks.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.LineBlockItem" data-isabs="true">
+      <a id="LineBlockItem:LineBlockItem"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$LineBlockItem.html"><span class="name">LineBlockItem</span></a><span class="result"> extends Element with Block</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A single item inside a line block.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.LineBreak" data-isabs="false">
+      <a id="LineBreak:LineBreak"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$LineBreak.html"><span class="name">LineBreak</span></a><span class="params">(<span name="options">options: Options</span>)</span><span class="result"> extends Element with Span with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">An explicit hard line break.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Link" data-isabs="true">
       <a id="Link:Link"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">case class</span>
+        <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$Link.html"><span class="name">Link</span></a><span class="params">(<span name="content">content: Seq[Span]</span>, <span name="url">url: String</span>, <span name="title">title: Option[String]</span>)</span><span class="result"> extends Element with Span with SpanContainer[Link] with Product with Serializable</span>
+        <a href="Elements$$Link.html"><span class="name">Link</span></a><span class="result"> extends Element with Span</span>
       </span>
       </h4>
-      <p class="comment cmt">A link element, with the span content representing the text (description) of the link.</p>
-    </li><li visbl="pub" name="laika.tree.Elements.LinkDefinition" data-isabs="false">
-      <a id="LinkDefinition:LinkDefinition"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="Elements$$LinkDefinition.html"><span class="name">LinkDefinition</span></a><span class="params">(<span name="id">id: String</span>, <span name="url">url: String</span>, <span name="title">title: Option[String]</span>)</span><span class="result"> extends Element with Block with Product with Serializable</span>
-      </span>
-      </h4>
-      <p class="comment cmt">A link definition, usually only part of the raw document tree and then
- removed by the rewrite rule that resolves link and image references.</p>
+      <p class="comment cmt">The base type for all link elements.</p>
     </li><li visbl="pub" name="laika.tree.Elements.LinkReference" data-isabs="false">
       <a id="LinkReference:LinkReference"></a>
       <h4 class="signature">
@@ -256,34 +654,106 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$LinkReference.html"><span class="name">LinkReference</span></a><span class="params">(<span name="content">content: Seq[Span]</span>, <span name="id">id: String</span>, <span name="inputPrefix">inputPrefix: String</span>, <span name="inputPostfix">inputPostfix: String</span>)</span><span class="result"> extends Element with Span with SpanContainer[LinkReference] with Product with Serializable</span>
+        <a href="Elements$$LinkReference.html"><span class="name">LinkReference</span></a><span class="params">(<span name="content">content: Seq[Span]</span>, <span name="id">id: String</span>, <span name="source">source: String</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Reference with SpanContainer[LinkReference] with Product with Serializable</span>
       </span>
       </h4>
-      <p class="comment cmt">A link reference, the id pointing to the id of a <code>LinkDefinition</code>.</p>
-    </li><li visbl="pub" name="laika.tree.Elements.ListItem" data-isabs="false">
+      <p class="comment cmt">A link reference, the id pointing to the id of a <code>LinkTarget</code>.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.LinkTarget" data-isabs="true">
+      <a id="LinkTarget:LinkTarget"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$LinkTarget.html"><span class="name">LinkTarget</span></a><span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      <p class="comment cmt">The base type for all link targets.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.ListContainer" data-isabs="true">
+      <a id="ListContainer:ListContainer[Self]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$ListContainer.html"><span class="name">ListContainer</span></a><span class="tparams">[<span name="Self">Self &lt;: ListContainer[Self]</span>]</span><span class="result"> extends Element with ElementContainer[ListItem, Self]</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A container of list items.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.ListItem" data-isabs="true">
       <a id="ListItem:ListItem"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">case class</span>
+        <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$ListItem.html"><span class="name">ListItem</span></a><span class="params">(<span name="content">content: Seq[Block]</span>)</span><span class="result"> extends Element with Block with BlockContainer[ListItem] with Product with Serializable</span>
+        <a href="Elements$$ListItem.html"><span class="name">ListItem</span></a><span class="result"> extends Element with Customizable</span>
       </span>
       </h4>
-      <p class="comment cmt">A single list item consisting of one or more block elements.</p>
-    </li><li visbl="pub" name="laika.tree.Elements.OrderedList" data-isabs="false">
-      <a id="OrderedList:OrderedList"></a>
+      <p class="comment cmt">The base type for all list items.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Literal" data-isabs="false">
+      <a id="Literal:Literal"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$OrderedList.html"><span class="name">OrderedList</span></a><span class="params">(<span name="content">content: Seq[ListItem]</span>)</span><span class="result"> extends Element with Block with BlockContainer[OrderedList] with Product with Serializable</span>
+        <a href="Elements$$Literal.html"><span class="name">Literal</span></a><span class="params">(<span name="content">content: String</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Span with TextContainer with Product with Serializable</span>
       </span>
       </h4>
-      <p class="comment cmt">An ordered list of block level items that may contain nested lists.</p>
+      <p class="comment cmt">A span containing plain, unparsed text.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.LiteralBlock" data-isabs="false">
+      <a id="LiteralBlock:LiteralBlock"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$LiteralBlock.html"><span class="name">LiteralBlock</span></a><span class="params">(<span name="content">content: String</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Block with TextContainer with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A literal block with simple text content.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.MessageLevel" data-isabs="true">
+      <a id="MessageLevel:MessageLevel"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$MessageLevel.html"><span class="name">MessageLevel</span></a><span class="result"> extends Ordered[MessageLevel]</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Signals the severity of a system message.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.NumericLabel" data-isabs="false">
+      <a id="NumericLabel:NumericLabel"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$NumericLabel.html"><span class="name">NumericLabel</span></a><span class="params">(<span name="number">number: Int</span>)</span><span class="result"> extends FootnoteLabel with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Explicit numeric label.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Options" data-isabs="true">
+      <a id="Options:Options"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Options.html"><span class="name">Options</span></a><span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Options for customizable elements.</p>
     </li><li visbl="pub" name="laika.tree.Elements.Paragraph" data-isabs="false">
       <a id="Paragraph:Paragraph"></a>
       <h4 class="signature">
@@ -292,7 +762,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$Paragraph.html"><span class="name">Paragraph</span></a><span class="params">(<span name="content">content: Seq[Span]</span>)</span><span class="result"> extends Element with Block with SpanContainer[Paragraph] with Product with Serializable</span>
+        <a href="Elements$$Paragraph.html"><span class="name">Paragraph</span></a><span class="params">(<span name="content">content: Seq[Span]</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Block with SpanContainer[Paragraph] with Product with Serializable</span>
       </span>
       </h4>
       <p class="comment cmt">A paragraph consisting of span elements.</p>
@@ -304,11 +774,47 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$QuotedBlock.html"><span class="name">QuotedBlock</span></a><span class="params">(<span name="content">content: Seq[Block]</span>)</span><span class="result"> extends Element with Block with BlockContainer[QuotedBlock] with Product with Serializable</span>
+        <a href="Elements$$QuotedBlock.html"><span class="name">QuotedBlock</span></a><span class="params">(<span name="content">content: Seq[Block]</span>, <span name="attribution">attribution: Seq[Span]</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Block with BlockContainer[QuotedBlock] with Product with Serializable</span>
       </span>
       </h4>
       <p class="comment cmt">A quoted block consisting of a list of blocks that may contain other
- nested quoted blocks.</p>
+ nested quoted blocks and an attribution which may be empty.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Reference" data-isabs="true">
+      <a id="Reference:Reference"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Reference.html"><span class="name">Reference</span></a><span class="result"> extends Element with Span with Temporary</span>
+      </span>
+      </h4>
+      <p class="comment cmt">The base type for all reference elements.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Row" data-isabs="false">
+      <a id="Row:Row"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Row.html"><span class="name">Row</span></a><span class="params">(<span name="content">content: Seq[Cell]</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with TableElement with TableContainer[Row] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A single table row.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Rule" data-isabs="false">
+      <a id="Rule:Rule"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Rule.html"><span class="name">Rule</span></a><span class="params">(<span name="options">options: Options</span>)</span><span class="result"> extends Element with Block with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A horizontal rule.</p>
     </li><li visbl="pub" name="laika.tree.Elements.Section" data-isabs="false">
       <a id="Section:Section"></a>
       <h4 class="signature">
@@ -317,11 +823,23 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$Section.html"><span class="name">Section</span></a><span class="params">(<span name="header">header: Header</span>, <span name="content">content: Seq[Block]</span>)</span><span class="result"> extends Element with Block with BlockContainer[Section] with Product with Serializable</span>
+        <a href="Elements$$Section.html"><span class="name">Section</span></a><span class="params">(<span name="header">header: Header</span>, <span name="content">content: Seq[Block]</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Block with BlockContainer[Section] with Product with Serializable</span>
       </span>
       </h4>
       <p class="comment cmt">A section of the document, consisting of a header and content in the form
  of a list of Block elements.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.SomeOpt" data-isabs="false">
+      <a id="SomeOpt:SomeOpt"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$SomeOpt.html"><span class="name">SomeOpt</span></a><span class="params">(<span name="id">id: Option[String]</span>, <span name="styles">styles: Seq[String]</span>, <span name="fallback">fallback: Option[Element]</span>)</span><span class="result"> extends Options with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt"><code>Options</code> implementation for non-empty instances.</p>
     </li><li visbl="pub" name="laika.tree.Elements.Span" data-isabs="true">
       <a id="Span:Span"></a>
       <h4 class="signature">
@@ -330,7 +848,7 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$Span.html"><span class="name">Span</span></a><span class="result"> extends Element</span>
+        <a href="Elements$$Span.html"><span class="name">Span</span></a><span class="result"> extends Element with Customizable</span>
       </span>
       </h4>
       <p class="comment cmt">The base type for all inline elements.</p>
@@ -346,6 +864,30 @@
       </span>
       </h4>
       <p class="comment cmt">A container of other Span elements.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.SpanSequence" data-isabs="false">
+      <a id="SpanSequence:SpanSequence"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$SpanSequence.html"><span class="name">SpanSequence</span></a><span class="params">(<span name="content">content: Seq[Span]</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Block with Span with SpanContainer[SpanSequence] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A generic container element containing a list of spans.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.StringBullet" data-isabs="false">
+      <a id="StringBullet:StringBullet"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$StringBullet.html"><span class="name">StringBullet</span></a><span class="params">(<span name="bullet">bullet: String</span>)</span><span class="result"> extends BulletFormat with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Bullet format based on a simple string.</p>
     </li><li visbl="pub" name="laika.tree.Elements.Strong" data-isabs="false">
       <a id="Strong:Strong"></a>
       <h4 class="signature">
@@ -354,10 +896,96 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$Strong.html"><span class="name">Strong</span></a><span class="params">(<span name="content">content: Seq[Span]</span>)</span><span class="result"> extends Element with Span with SpanContainer[Strong] with Product with Serializable</span>
+        <a href="Elements$$Strong.html"><span class="name">Strong</span></a><span class="params">(<span name="content">content: Seq[Span]</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Span with SpanContainer[Strong] with Product with Serializable</span>
       </span>
       </h4>
       <p class="comment cmt">A span of strong inline elements that may contain nested spans.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.SystemMessage" data-isabs="false">
+      <a id="SystemMessage:SystemMessage"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$SystemMessage.html"><span class="name">SystemMessage</span></a><span class="params">(<span name="level">level: MessageLevel</span>, <span name="content">content: String</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Span with Block with TextContainer with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Message generated by the parser, usually to signal potential parsing problems.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Table" data-isabs="false">
+      <a id="Table:Table"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Table.html"><span class="name">Table</span></a><span class="params">(<span name="head">head: TableHead</span>, <span name="body">body: TableBody</span>, <span name="columns">columns: Columns</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Block with ElementTraversal[Table] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A table consisting of a head and a body part and an optional column specification.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.TableBody" data-isabs="false">
+      <a id="TableBody:TableBody"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$TableBody.html"><span class="name">TableBody</span></a><span class="params">(<span name="content">content: Seq[Row]</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with TableElement with TableContainer[TableBody] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Contains the body rows of a table.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.TableContainer" data-isabs="true">
+      <a id="TableContainer:TableContainer[Self]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$TableContainer.html"><span class="name">TableContainer</span></a><span class="tparams">[<span name="Self">Self &lt;: TableContainer[Self]</span>]</span><span class="result"> extends Element with TableElement with ElementContainer[TableElement, Self]</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A container of table elements.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.TableElement" data-isabs="true">
+      <a id="TableElement:TableElement"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$TableElement.html"><span class="name">TableElement</span></a><span class="result"> extends Element with Customizable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A table element, like a row, cell or column.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.TableHead" data-isabs="false">
+      <a id="TableHead:TableHead"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$TableHead.html"><span class="name">TableHead</span></a><span class="params">(<span name="content">content: Seq[Row]</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with TableElement with TableContainer[TableHead] with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Contains the header rows of a table.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Temporary" data-isabs="true">
+      <a id="Temporary:Temporary"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Temporary.html"><span class="name">Temporary</span></a><span class="result"> extends Element</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Represents a temporary element only present in the
+ raw document tree and then removed or replaced
+ by a rewrite rule before rendering.</p>
     </li><li visbl="pub" name="laika.tree.Elements.Text" data-isabs="false">
       <a id="Text:Text"></a>
       <h4 class="signature">
@@ -366,7 +994,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$Text.html"><span class="name">Text</span></a><span class="params">(<span name="content">content: String</span>)</span><span class="result"> extends Element with Span with TextContainer with Product with Serializable</span>
+        <a href="Elements$$Text.html"><span class="name">Text</span></a><span class="params">(<span name="content">content: String</span>, <span name="options">options: Options</span>)</span><span class="result"> extends Element with Span with TextContainer with Product with Serializable</span>
       </span>
       </h4>
       <p class="comment cmt">A simple text element.</p>
@@ -382,18 +1010,6 @@
       </span>
       </h4>
       <p class="comment cmt">A container for plain text.</p>
-    </li><li visbl="pub" name="laika.tree.Elements.UnorderedList" data-isabs="false">
-      <a id="UnorderedList:UnorderedList"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="Elements$$UnorderedList.html"><span class="name">UnorderedList</span></a><span class="params">(<span name="content">content: Seq[ListItem]</span>)</span><span class="result"> extends Element with Block with BlockContainer[UnorderedList] with Product with Serializable</span>
-      </span>
-      </h4>
-      <p class="comment cmt">An unordered list of block level items that may contain nested lists.</p>
     </li></ol>
             </div>
 
@@ -461,30 +1077,238 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li visbl="pub" name="laika.tree.Elements.LineBreak" data-isabs="false">
-      <a id="LineBreak:LineBreak"></a>
+    </li><li visbl="pub" name="laika.tree.Elements.Arabic" data-isabs="false">
+      <a id="Arabic:Arabic"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$LineBreak$.html"><span class="name">LineBreak</span></a><span class="result"> extends Element with Span with Product with Serializable</span>
+        <a href="Elements$$Arabic$.html"><span class="name">Arabic</span></a><span class="result"> extends EnumType with Product with Serializable</span>
       </span>
       </h4>
-      <p class="comment cmt">An explicit hard line break.</p>
-    </li><li visbl="pub" name="laika.tree.Elements.Rule" data-isabs="false">
-      <a id="Rule:Rule"></a>
+      <p class="comment cmt">Arabic enumeration style (1, 2, 3.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Autonumber" data-isabs="false">
+      <a id="Autonumber:Autonumber"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$Rule$.html"><span class="name">Rule</span></a><span class="result"> extends Element with Block with Product with Serializable</span>
+        <a href="Elements$$Autonumber$.html"><span class="name">Autonumber</span></a><span class="result"> extends FootnoteLabel with Product with Serializable</span>
       </span>
       </h4>
-      <p class="comment cmt">A horizontal rule.</p>
+      <p class="comment cmt">Label with automatic numbering.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Autosymbol" data-isabs="false">
+      <a id="Autosymbol:Autosymbol"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Autosymbol$.html"><span class="name">Autosymbol</span></a><span class="result"> extends FootnoteLabel with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Label with automatic symbol assignment.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.BodyCell" data-isabs="false">
+      <a id="BodyCell:BodyCell"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$BodyCell$.html"><span class="name">BodyCell</span></a><span class="result"> extends CellType with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A cell in the body part of the table.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Columns" data-isabs="false">
+      <a id="Columns:Columns"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Columns$.html"><span class="name">Columns</span></a><span class="result"> extends Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Convenient factory for creating a <code>Columns</code> instance based on the options
+ for the individual columns.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Debug" data-isabs="false">
+      <a id="Debug:Debug"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Debug$.html"><span class="name">Debug</span></a><span class="result"> extends MessageLevel with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Debugging information that does not have any effect on the parser result.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Error" data-isabs="false">
+      <a id="Error:Error"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Error$.html"><span class="name">Error</span></a><span class="result"> extends MessageLevel with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A major issue that should be addressed, if ignored, the output will contain unpredictable errors.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Fallback" data-isabs="false">
+      <a id="Fallback:Fallback"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Fallback$.html"><span class="name">Fallback</span></a><span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Factory and extractor for an <code>Options</code> instance
+ with a fallback.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Fatal" data-isabs="false">
+      <a id="Fatal:Fatal"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Fatal$.html"><span class="name">Fatal</span></a><span class="result"> extends MessageLevel with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A critical error that must be addressed, if ignored, the output will contain severe errors.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.HeadCell" data-isabs="false">
+      <a id="HeadCell:HeadCell"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$HeadCell$.html"><span class="name">HeadCell</span></a><span class="result"> extends CellType with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A cell in the head part of the table.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Id" data-isabs="false">
+      <a id="Id:Id"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Id$.html"><span class="name">Id</span></a><span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Factory and extractor for an <code>Options</code> instance
+ with an id.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Info" data-isabs="false">
+      <a id="Info:Info"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Info$.html"><span class="name">Info</span></a><span class="result"> extends MessageLevel with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A minor issue that has very little or no effect on the parser result.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.LowerAlpha" data-isabs="false">
+      <a id="LowerAlpha:LowerAlpha"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$LowerAlpha$.html"><span class="name">LowerAlpha</span></a><span class="result"> extends EnumType with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Lowercase letter enumeration style (a, b, c.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.LowerRoman" data-isabs="false">
+      <a id="LowerRoman:LowerRoman"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$LowerRoman$.html"><span class="name">LowerRoman</span></a><span class="result"> extends EnumType with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Lowercase Roman numeral enumeration style (i, ii, iii, iv.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.NoOpt" data-isabs="false">
+      <a id="NoOpt:NoOpt"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$NoOpt$.html"><span class="name">NoOpt</span></a><span class="result"> extends Options with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Empty <code>Options</code> implementation.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Styles" data-isabs="false">
+      <a id="Styles:Styles"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Styles$.html"><span class="name">Styles</span></a><span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Factory and extractor for an <code>Options</code> instance
+ with style names.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.UpperAlpha" data-isabs="false">
+      <a id="UpperAlpha:UpperAlpha"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$UpperAlpha$.html"><span class="name">UpperAlpha</span></a><span class="result"> extends EnumType with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Uppercase letter enumeration style (A, B, C.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.UpperRoman" data-isabs="false">
+      <a id="UpperRoman:UpperRoman"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$UpperRoman$.html"><span class="name">UpperRoman</span></a><span class="result"> extends EnumType with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Uppercase Roman numeral enumeration style (I, II, III, IV.</p>
+    </li><li visbl="pub" name="laika.tree.Elements.Warning" data-isabs="false">
+      <a id="Warning:Warning"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Warning$.html"><span class="name">Warning</span></a><span class="result"> extends MessageLevel with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">An issue that should be addressed, if ignored, there may be minor problems with the output.</p>
     </li><li visbl="pub" name="scala.Any#asInstanceOf" data-isabs="false">
       <a id="asInstanceOf[T0]:T0"></a>
       <h4 class="signature">

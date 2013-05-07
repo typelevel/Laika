@@ -104,6 +104,18 @@
       </span>
       </h4>
       <p class="comment cmt">Exception thrown when parsing a text markup document or fragment fails.</p>
+    </li><li visbl="pub" name="laika.parse.MarkupParsers.ParserOps" data-isabs="false">
+      <a id="ParserOps:ParserOps[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="../MarkupParsers$ParserOps.html"><span class="name">ParserOps</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Provides additional combinator methods to parsers via implicit conversion.</p>
     </li><li visbl="pub" name="laika.parse.InlineParsers.ResultBuilder" data-isabs="true">
       <a id="ResultBuilder:ResultBuilder[Elem, To]"></a>
       <h4 class="signature">
@@ -400,8 +412,7 @@
         <span class="name">anyUntil</span><span class="params">(<span name="chars">chars: <span name="scala.Char" class="extype">Char</span>*</span>)</span><span class="result">: <a name="laika.parse.MarkupParsers.TextParser" class="extype" href="../MarkupParsers$TextParser.html">TextParser</a></span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Consumes any number of consecutive characters that are not one of the specified characters.</p><div class="fullcomment"><div class="comment cmt"><p>Consumes any number of consecutive characters that are not one of the specified characters.
- Always succeeds unless a minimum number of required matches is specified.</p><p> This parser is identical to the <code>anyBut</code> parser except for two differences: this parser fails
+      <p class="shortcomment cmt">Consumes any number of consecutive characters that are not one of the specified characters.</p><div class="fullcomment"><div class="comment cmt"><p>Consumes any number of consecutive characters that are not one of the specified characters.</p><p> This parser is identical to the <code>anyBut</code> parser except for two differences: this parser fails
  if it reaches the end of the input without seeing any of the specified
  characters and it also consumes this final character, without adding it
  to the result. This parser is usually used when a construct like a span
@@ -418,7 +429,7 @@
         <span class="name">anyWhile</span><span class="params">(<span name="p">p: (<span name="scala.Char" class="extype">Char</span>) ⇒ <span name="scala.Boolean" class="extype">Boolean</span></span>)</span><span class="result">: <a name="laika.parse.MarkupParsers.TextParser" class="extype" href="../MarkupParsers$TextParser.html">TextParser</a></span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Consumes any number of consecutive characters for which satisfy the specified predicate.</p><div class="fullcomment"><div class="comment cmt"><p>Consumes any number of consecutive characters for which satisfy the specified predicate.
+      <p class="shortcomment cmt">Consumes any number of consecutive characters which satisfy the specified predicate.</p><div class="fullcomment"><div class="comment cmt"><p>Consumes any number of consecutive characters which satisfy the specified predicate.
  Always succeeds unless a minimum number of required matches is specified.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.MarkupParsers" class="extype" href="../MarkupParsers.html">MarkupParsers</a></dd></dl></div>
     </li><li visbl="pub" name="scala.Any#asInstanceOf" data-isabs="false">
@@ -433,6 +444,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li visbl="pub" name="laika.parse.MarkupParsers#atStart" data-isabs="false">
+      <a id="atStart:Parser[Parser[Unit]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">atStart</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<span name="scala.Unit" class="extype">Unit</span>]]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Succeeds at the start of the input.</p><div class="fullcomment"><div class="comment cmt"><p>Succeeds at the start of the input.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.MarkupParsers" class="extype" href="../MarkupParsers.html">MarkupParsers</a></dd></dl></div>
     </li><li visbl="pub" name="scala.util.parsing.combinator.Parsers#chainl1" data-isabs="false">
       <a id="chainl1[T, U](⇒ Parser[T],⇒ Parser[U],⇒ Parser[(T, U) ⇒ T]):Parser[T]"></a>
       <h4 class="signature">
@@ -499,34 +523,6 @@
                 <span class="name">@throws</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li visbl="pub" name="laika.parse.markdown.InlineParsers#codeEnclosedByDoubleChar" data-isabs="false">
-      <a id="codeEnclosedByDoubleChar:Parser[CodeSpan]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">codeEnclosedByDoubleChar</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.tree.Elements.CodeSpan" class="extype" href="../../tree/Elements$$CodeSpan.html">CodeSpan</a>]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Parses a code span enclosed by double backticks.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a code span enclosed by double backticks.
- Does neither parse nested spans nor Markdown escapes.
-</p></div></div>
-    </li><li visbl="pub" name="laika.parse.markdown.InlineParsers#codeEnclosedBySingleChar" data-isabs="false">
-      <a id="codeEnclosedBySingleChar:Parser[CodeSpan]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">codeEnclosedBySingleChar</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.tree.Elements.CodeSpan" class="extype" href="../../tree/Elements$$CodeSpan.html">CodeSpan</a>]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Parses a code span enclosed by a single backtick.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a code span enclosed by a single backtick.
- Does neither parse nested spans nor Markdown escapes.
-</p></div></div>
     </li><li visbl="pub" name="scala.util.parsing.combinator.Parsers#commit" data-isabs="false">
       <a id="commit[T](⇒ Parser[T]):Parser[T]"></a>
       <h4 class="signature">
@@ -836,14 +832,14 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Parsers</dd></dl></div>
     </li><li visbl="pub" name="laika.parse.markdown.InlineParsers#lineBreak" data-isabs="false">
-      <a id="lineBreak:Parser[laika.tree.Elements.LineBreak.type]"></a>
+      <a id="lineBreak:Parser[LineBreak]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">lineBreak</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[laika.tree.Elements.LineBreak.type]</span>
+        <span class="name">lineBreak</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.tree.Elements.LineBreak" class="extype" href="../../tree/Elements$$LineBreak.html">LineBreak</a>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses an explicit hard line break.</p>
@@ -861,15 +857,15 @@
       <p class="shortcomment cmt">Parses a link, including nested spans in the link text.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a link, including nested spans in the link text.
  Recognizes both, an inline link <code>[text](url)</code> and a link reference <code>[text][id]</code>.
 </p></div></div>
-    </li><li visbl="pub" name="laika.parse.markdown.InlineParsers#linkDefinition" data-isabs="false">
-      <a id="linkDefinition:Parser[LinkDefinition]"></a>
+    </li><li visbl="pub" name="laika.parse.markdown.InlineParsers#linkTarget" data-isabs="false">
+      <a id="linkTarget:Parser[ExternalLinkDefinition]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">linkDefinition</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.tree.Elements.LinkDefinition" class="extype" href="../../tree/Elements$$LinkDefinition.html">LinkDefinition</a>]</span>
+        <span class="name">linkTarget</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.tree.Elements.ExternalLinkDefinition" class="extype" href="../../tree/Elements$$ExternalLinkDefinition.html">ExternalLinkDefinition</a>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses a link definition in the form <code>[id]: &lt;url&gt; &quot;title&quot;</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a link definition in the form <code>[id]: &lt;url&gt; &quot;title&quot;</code>.
@@ -887,6 +883,34 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>RegexParsers</dd></dl></div>
+    </li><li visbl="pub" name="laika.parse.markdown.InlineParsers#literalEnclosedByDoubleChar" data-isabs="false">
+      <a id="literalEnclosedByDoubleChar:Parser[Literal]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">literalEnclosedByDoubleChar</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.tree.Elements.Literal" class="extype" href="../../tree/Elements$$Literal.html">Literal</a>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Parses a literal span enclosed by double backticks.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a literal span enclosed by double backticks.
+ Does neither parse nested spans nor Markdown escapes.
+</p></div></div>
+    </li><li visbl="pub" name="laika.parse.markdown.InlineParsers#literalEnclosedBySingleChar" data-isabs="false">
+      <a id="literalEnclosedBySingleChar:Parser[Literal]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">literalEnclosedBySingleChar</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.tree.Elements.Literal" class="extype" href="../../tree/Elements$$Literal.html">Literal</a>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Parses a literal span enclosed by a single backtick.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a literal span enclosed by a single backtick.
+ Does neither parse nested spans nor Markdown escapes.
+</p></div></div>
     </li><li visbl="pub" name="scala.util.parsing.combinator.Parsers#log" data-isabs="false">
       <a id="log[T](⇒ Parser[T])(String):Parser[T]"></a>
       <h4 class="signature">
@@ -946,7 +970,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">newSpanParserMap</span><span class="result">: <span name="scala.collection.immutable.Map" class="extype">Map</span>[<span name="scala.Char" class="extype">Char</span>, <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.tree.Elements.Span" class="extype" href="../../tree/Elements$$Span.html">Span</a>]]</span>
+        <span class="name">newSpanParserMap</span><span class="result">: Map[<span name="scala.Char" class="extype">Char</span>, <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.tree.Elements.Span" class="extype" href="../../tree/Elements$$Span.html">Span</a>]]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Creates a new mapping from the start character of an inline span
@@ -1261,6 +1285,20 @@ specified as the key for the mapping.
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Parsers</dd></dl></div>
+    </li><li visbl="pub" name="laika.parse.MarkupParsers#repMax" data-isabs="false">
+      <a id="repMax[T](Int,⇒ Parser[T]):Parser[List[T]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">repMax</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="num">num: <span name="scala.Int" class="extype">Int</span></span>, <span name="p">p: ⇒ <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[T]</span>)</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[List[T]]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Uses the parser for at most the specified number of repetitions, always succeeds.</p><div class="fullcomment"><div class="comment cmt"><p>Uses the parser for at most the specified number of repetitions, always succeeds.
+ The result is the list of results from applying the parser repeatedly.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.MarkupParsers" class="extype" href="../MarkupParsers.html">MarkupParsers</a></dd></dl></div>
     </li><li visbl="pub" name="laika.parse.MarkupParsers#repMin" data-isabs="false">
       <a id="repMin[T](Int,⇒ Parser[T]):Parser[List[T]]"></a>
       <h4 class="signature">
@@ -1315,14 +1353,14 @@ specified as the key for the mapping.
 </p></div><dl class="paramcmts block"><dt class="param">inline</dt><dd class="cmt"><p>factory function for creating a new inline link or image based on the text, url and optional title parameters</p></dd><dt class="param">ref</dt><dd class="cmt"><p>factory function for creating a new link or image reference based on the text and id parameters
 </p></dd></dl></div>
     </li><li visbl="pub" name="laika.parse.markdown.InlineParsers#simpleLink" data-isabs="false">
-      <a id="simpleLink:Parser[Link]"></a>
+      <a id="simpleLink:Parser[ExternalLink]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">simpleLink</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.tree.Elements.Link" class="extype" href="../../tree/Elements$$Link.html">Link</a>]</span>
+        <span class="name">simpleLink</span><span class="result">: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.tree.Elements.ExternalLink" class="extype" href="../../tree/Elements$$ExternalLink.html">ExternalLink</a>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses a simple inline link in the form of &lt;http://someURL/&gt;
@@ -1364,7 +1402,7 @@ specified as the key for the mapping.
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">spanParsers</span><span class="result">: <span name="scala.collection.immutable.Map" class="extype">Map</span>[<span name="scala.Char" class="extype">Char</span>, <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.tree.Elements.Span" class="extype" href="../../tree/Elements$$Span.html">Span</a>]]</span>
+        <span class="name">spanParsers</span><span class="result">: Map[<span name="scala.Char" class="extype">Char</span>, <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[<a name="laika.tree.Elements.Span" class="extype" href="../../tree/Elements$$Span.html">Span</a>]]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">The mapping of start characters to span parsers created by
@@ -1433,6 +1471,18 @@ specified as the key for the mapping.
       <p class="shortcomment cmt">Parses text based on the specified helper parsers.</p><div class="fullcomment"><div class="comment cmt"><p>Parses text based on the specified helper parsers.
 </p></div><dl class="paramcmts block"><dt class="param">parser</dt><dd class="cmt"><p>the parser for the text of the current element</p></dd><dt class="param">nested</dt><dd class="cmt"><p>a mapping from the start character of a span to the corresponding parser for nested span elements</p></dd><dt>returns</dt><dd class="cmt"><p>the resulting parser
 </p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.InlineParsers" class="extype" href="../InlineParsers.html">InlineParsers</a></dd></dl></div>
+    </li><li visbl="pub" name="laika.parse.MarkupParsers#toParserOps" data-isabs="false">
+      <a id="toParserOps[A](Parser[A]):ParserOps[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toParserOps</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="parser">parser: <span name="scala.util.parsing.combinator.Parsers.Parser" class="extype">Parser</span>[A]</span>)</span><span class="result">: <a name="laika.parse.MarkupParsers.ParserOps" class="extype" href="../MarkupParsers$ParserOps.html">ParserOps</a>[A]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.parse.MarkupParsers" class="extype" href="../MarkupParsers.html">MarkupParsers</a></dd></dl></div>
     </li><li visbl="pub" name="scala.AnyRef#toString" data-isabs="false">
       <a id="toString():String"></a>
       <h4 class="signature">

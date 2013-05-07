@@ -36,7 +36,7 @@
           <div class="superTypes hiddenContent"><a name="laika.tree.Elements.ElementContainer" class="extype" href="Elements$$ElementContainer.html">ElementContainer</a>[<a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>, Self], <a name="laika.tree.ElementTraversal" class="extype" href="ElementTraversal.html">ElementTraversal</a>[Self], <a name="laika.tree.Elements.Container" class="extype" href="Elements$$Container.html">Container</a>[Seq[<a name="laika.tree.Elements.Block" class="extype" href="Elements$$Block.html">Block</a>]], <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a>, <span name="scala.Product" class="extype">Product</span>, <span name="scala.Equals" class="extype">Equals</span>, AnyRef, <span name="scala.Any" class="extype">Any</span></div>
         </div><div class="toggleContainer block">
           <span class="toggle">Known Subclasses</span>
-          <div class="subClasses hiddenContent"><a name="laika.tree.Elements.Document" class="extype" href="Elements$$Document.html">Document</a>, <a name="laika.tree.Elements.ListItem" class="extype" href="Elements$$ListItem.html">ListItem</a>, <a name="laika.tree.Elements.OrderedList" class="extype" href="Elements$$OrderedList.html">OrderedList</a>, <a name="laika.tree.Elements.QuotedBlock" class="extype" href="Elements$$QuotedBlock.html">QuotedBlock</a>, <a name="laika.tree.Elements.Section" class="extype" href="Elements$$Section.html">Section</a>, <a name="laika.tree.Elements.UnorderedList" class="extype" href="Elements$$UnorderedList.html">UnorderedList</a></div>
+          <div class="subClasses hiddenContent"><a name="laika.tree.Elements.BlockSequence" class="extype" href="Elements$$BlockSequence.html">BlockSequence</a>, <a name="laika.tree.Elements.BulletListItem" class="extype" href="Elements$$BulletListItem.html">BulletListItem</a>, <a name="laika.tree.Elements.Cell" class="extype" href="Elements$$Cell.html">Cell</a>, <a name="laika.tree.Elements.Citation" class="extype" href="Elements$$Citation.html">Citation</a>, <a name="laika.tree.Elements.DefinitionListItem" class="extype" href="Elements$$DefinitionListItem.html">DefinitionListItem</a>, <a name="laika.tree.Elements.Document" class="extype" href="Elements$$Document.html">Document</a>, <a name="laika.tree.Elements.EnumListItem" class="extype" href="Elements$$EnumListItem.html">EnumListItem</a>, <a name="laika.parse.rst.Elements.Field" class="extype" href="../parse/rst/Elements$$Field.html">Field</a>, <a name="laika.tree.Elements.Footnote" class="extype" href="Elements$$Footnote.html">Footnote</a>, <a name="laika.tree.Elements.FootnoteDefinition" class="extype" href="Elements$$FootnoteDefinition.html">FootnoteDefinition</a>, <a name="laika.tree.Elements.LineBlock" class="extype" href="Elements$$LineBlock.html">LineBlock</a>, <a name="laika.parse.rst.Elements.OptionListItem" class="extype" href="../parse/rst/Elements$$OptionListItem.html">OptionListItem</a>, <a name="laika.tree.Elements.QuotedBlock" class="extype" href="Elements$$QuotedBlock.html">QuotedBlock</a>, <a name="laika.tree.Elements.Section" class="extype" href="Elements$$Section.html">Section</a></div>
         </div></div>
     
 
@@ -234,6 +234,21 @@
                 <span class="name">@throws</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li visbl="pub" name="laika.tree.ElementTraversal#collect" data-isabs="false">
+      <a id="collect[B](PartialFunction[Element, B]):List[B]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">collect</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="pf">pf: <span name="scala.PartialFunction" class="extype">PartialFunction</span>[<a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a>, B]</span>)</span><span class="result">: List[B]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Selects all elements satisfying the specified predicate, collecting
+ in depth-first traversal, including this element itself.</p><div class="fullcomment"><div class="comment cmt"><p>Selects all elements satisfying the specified predicate, collecting
+ in depth-first traversal, including this element itself.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.ElementTraversal" class="extype" href="ElementTraversal.html">ElementTraversal</a></dd></dl></div>
     </li><li visbl="pub" name="scala.AnyRef#eq" data-isabs="false">
       <a id="eq(AnyRef):Boolean"></a>
       <h4 class="signature">
@@ -420,7 +435,8 @@
       </h4>
       <p class="shortcomment cmt">Selects all elements satisfying the specified predicate, collecting
  in depth-first traversal, including this element itself.</p><div class="fullcomment"><div class="comment cmt"><p>Selects all elements satisfying the specified predicate, collecting
- in depth-first traversal, including this element itself.</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.ElementTraversal" class="extype" href="ElementTraversal.html">ElementTraversal</a></dd></dl></div>
+ in depth-first traversal, including this element itself.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.ElementTraversal" class="extype" href="ElementTraversal.html">ElementTraversal</a></dd></dl></div>
     </li><li visbl="pub" name="scala.AnyRef#synchronized" data-isabs="false">
       <a id="synchronized[T0](⇒ T0):T0"></a>
       <h4 class="signature">

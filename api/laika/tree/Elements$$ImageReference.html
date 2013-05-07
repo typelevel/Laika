@@ -25,18 +25,15 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">ImageReference</span><span class="params">(<span name="text">text: String</span>, <span name="id">id: String</span>, <span name="inputPrefix">inputPrefix: String</span>, <span name="inputPostfix">inputPostfix: String</span>)</span><span class="result"> extends <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a> with <a name="laika.tree.Elements.Span" class="extype" href="Elements$$Span.html">Span</a> with <span name="scala.Product" class="extype">Product</span> with <span name="scala.Serializable" class="extype">Serializable</span></span>
+        <span class="name">ImageReference</span><span class="params">(<span name="text">text: String</span>, <span name="id">id: String</span>, <span name="source">source: String</span>, <span name="options">options: <a name="laika.tree.Elements.Options" class="extype" href="Elements$$Options.html">Options</a></span>)</span><span class="result"> extends <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a> with <a name="laika.tree.Elements.Reference" class="extype" href="Elements$$Reference.html">Reference</a> with <span name="scala.Product" class="extype">Product</span> with <span name="scala.Serializable" class="extype">Serializable</span></span>
       </span>
       </h4>
       
-      <div class="fullcommenttop" id="comment"><div class="comment cmt"><p>An image reference, the id pointing to the id of a <code>LinkDefinition</code>. Usually only part of the
+      <div class="fullcommenttop" id="comment"><div class="comment cmt"><p>An image reference, the id pointing to the id of a <code>LinkTarget</code>. Only part of the
  raw document tree and then removed by the rewrite rule that resolves link and image references.
- But an unresolvable reference may be left in the tree to leave the decision how to deal with it
- to the renderer which should use the <code>inputPrefix</code> and <code>inputPostfix</code> attributes to enclose
- the text in the original markup.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span name="scala.Serializable" class="extype">Serializable</span>, <span name="java.io.Serializable" class="extype">Serializable</span>, <a name="laika.tree.Elements.Span" class="extype" href="Elements$$Span.html">Span</a>, <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a>, <span name="scala.Product" class="extype">Product</span>, <span name="scala.Equals" class="extype">Equals</span>, AnyRef, <span name="scala.Any" class="extype">Any</span></div>
+          <div class="superTypes hiddenContent"><span name="scala.Serializable" class="extype">Serializable</span>, <span name="java.io.Serializable" class="extype">Serializable</span>, <a name="laika.tree.Elements.Reference" class="extype" href="Elements$$Reference.html">Reference</a>, <a name="laika.tree.Elements.Temporary" class="extype" href="Elements$$Temporary.html">Temporary</a>, <a name="laika.tree.Elements.Span" class="extype" href="Elements$$Span.html">Span</a>, <a name="laika.tree.Elements.Customizable" class="extype" href="Elements$$Customizable.html">Customizable</a>, <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a>, <span name="scala.Product" class="extype">Product</span>, <span name="scala.Equals" class="extype">Equals</span>, AnyRef, <span name="scala.Any" class="extype">Any</span></div>
         </div></div>
     
 
@@ -50,7 +47,7 @@
               <span class="filtertype">Inherited</span>
               <ol><li class="hideall out"><span>Hide All</span></li>
               <li class="showall in"><span>Show all</span></li></ol>
-              <ol id="linearization"><li name="laika.tree.Elements.ImageReference" class="in"><span>ImageReference</span></li><li name="scala.Serializable" class="in"><span>Serializable</span></li><li name="java.io.Serializable" class="in"><span>Serializable</span></li><li name="laika.tree.Elements.Span" class="in"><span>Span</span></li><li name="laika.tree.Elements.Element" class="in"><span>Element</span></li><li name="scala.Product" class="in"><span>Product</span></li><li name="scala.Equals" class="in"><span>Equals</span></li><li name="scala.AnyRef" class="in"><span>AnyRef</span></li><li name="scala.Any" class="in"><span>Any</span></li></ol>
+              <ol id="linearization"><li name="laika.tree.Elements.ImageReference" class="in"><span>ImageReference</span></li><li name="scala.Serializable" class="in"><span>Serializable</span></li><li name="java.io.Serializable" class="in"><span>Serializable</span></li><li name="laika.tree.Elements.Reference" class="in"><span>Reference</span></li><li name="laika.tree.Elements.Temporary" class="in"><span>Temporary</span></li><li name="laika.tree.Elements.Span" class="in"><span>Span</span></li><li name="laika.tree.Elements.Customizable" class="in"><span>Customizable</span></li><li name="laika.tree.Elements.Element" class="in"><span>Element</span></li><li name="scala.Product" class="in"><span>Product</span></li><li name="scala.Equals" class="in"><span>Equals</span></li><li name="scala.AnyRef" class="in"><span>AnyRef</span></li><li name="scala.Any" class="in"><span>Any</span></li></ol>
             </div>
         <div id="visbl">
             <span class="filtertype">Visibility</span>
@@ -70,7 +67,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">ImageReference</span><span class="params">(<span name="text">text: String</span>, <span name="id">id: String</span>, <span name="inputPrefix">inputPrefix: String</span>, <span name="inputPostfix">inputPostfix: String</span>)</span>
+        <span class="name">ImageReference</span><span class="params">(<span name="text">text: String</span>, <span name="id">id: String</span>, <span name="source">source: String</span>, <span name="options">options: <a name="laika.tree.Elements.Options" class="extype" href="Elements$$Options.html">Options</a> = <span class="symbol">Elements.this.NoOpt</span></span>)</span>
       </span>
       </h4>
       
@@ -257,30 +254,6 @@
       </span>
       </h4>
       
-    </li><li visbl="pub" name="laika.tree.Elements.ImageReference#inputPostfix" data-isabs="false">
-      <a id="inputPostfix:String"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">inputPostfix</span><span class="result">: String</span>
-      </span>
-      </h4>
-      
-    </li><li visbl="pub" name="laika.tree.Elements.ImageReference#inputPrefix" data-isabs="false">
-      <a id="inputPrefix:String"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">inputPrefix</span><span class="result">: String</span>
-      </span>
-      </h4>
-      
     </li><li visbl="pub" name="scala.Any#isInstanceOf" data-isabs="false">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <h4 class="signature">
@@ -329,6 +302,18 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li visbl="pub" name="laika.tree.Elements.ImageReference#options" data-isabs="false">
+      <a id="options:Options"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">options</span><span class="result">: <a name="laika.tree.Elements.Options" class="extype" href="Elements$$Options.html">Options</a></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.Elements.ImageReference" class="extype" href="">ImageReference</a> → <a name="laika.tree.Elements.Customizable" class="extype" href="Elements$$Customizable.html">Customizable</a></dd></dl></div>
     </li><li visbl="pub" name="laika.tree.Elements.ImageReference#productArity" data-isabs="false">
       <a id="productArity:Int"></a>
       <h4 class="signature">
@@ -377,6 +362,18 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.Elements.ImageReference" class="extype" href="">ImageReference</a> → Product</dd></dl></div>
+    </li><li visbl="pub" name="laika.tree.Elements.ImageReference#source" data-isabs="false">
+      <a id="source:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">source</span><span class="result">: String</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="laika.tree.Elements.ImageReference" class="extype" href="">ImageReference</a> → <a name="laika.tree.Elements.Reference" class="extype" href="Elements$$Reference.html">Reference</a></dd></dl></div>
     </li><li visbl="pub" name="scala.AnyRef#synchronized" data-isabs="false">
       <a id="synchronized[T0](⇒ T0):T0"></a>
       <h4 class="signature">
@@ -487,8 +484,14 @@
               <h3>Inherited from <span name="scala.Serializable" class="extype">Serializable</span></h3>
             </div><div name="java.io.Serializable" class="parent">
               <h3>Inherited from <span name="java.io.Serializable" class="extype">Serializable</span></h3>
+            </div><div name="laika.tree.Elements.Reference" class="parent">
+              <h3>Inherited from <a name="laika.tree.Elements.Reference" class="extype" href="Elements$$Reference.html">Reference</a></h3>
+            </div><div name="laika.tree.Elements.Temporary" class="parent">
+              <h3>Inherited from <a name="laika.tree.Elements.Temporary" class="extype" href="Elements$$Temporary.html">Temporary</a></h3>
             </div><div name="laika.tree.Elements.Span" class="parent">
               <h3>Inherited from <a name="laika.tree.Elements.Span" class="extype" href="Elements$$Span.html">Span</a></h3>
+            </div><div name="laika.tree.Elements.Customizable" class="parent">
+              <h3>Inherited from <a name="laika.tree.Elements.Customizable" class="extype" href="Elements$$Customizable.html">Customizable</a></h3>
             </div><div name="laika.tree.Elements.Element" class="parent">
               <h3>Inherited from <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a></h3>
             </div><div name="scala.Product" class="parent">
