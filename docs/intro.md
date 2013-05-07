@@ -109,7 +109,7 @@ Design Principles
 Release History
 ---------------
 
-* __0.2__ (May 2013):
+* __0.2__ (May 7, 2013):
 
     * Support for reStructuredText (full specification)
     * Concise and type-safe API for all reStructuredText extensibility options (directives, text roles)
