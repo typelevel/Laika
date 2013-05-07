@@ -85,6 +85,7 @@ trait TableParsers extends BlockBaseParsers { self: InlineParsers =>
         case Success(lines, _) => 
           val minIndent = lines map (_.indent) min;
           (minIndent, lines map (_.padTo(minIndent)))
+        case _ => (0,Nil) // TODO - error handling for edge cases
       }
     }
     

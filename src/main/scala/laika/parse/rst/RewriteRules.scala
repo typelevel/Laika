@@ -235,6 +235,9 @@ object RewriteRules {
         case None =>
           val msg = if (ref.id.isEmpty) "too many anonymous link references" else "unresolved link reference: " + ref.id
           InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Text(ref.source))
+        case Some(_) => // TODO - improve error handling
+          val msg = "unresolved link reference: " + ref.id
+          InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Text(ref.source))
       })
       
       case _: Temporary => None // TODO - replace Reference with InvalidBlock/Span?
