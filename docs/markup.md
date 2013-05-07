@@ -143,7 +143,7 @@ To get started with reStructuredText, these resources may be used:
 
 * [Transformation Basics] for using reStructuredText in Laika.
 
-* The following sections below for an overview on how implement extensions for reStructuredText
+* The following sections below for an overview on how to implement extensions for reStructuredText
 
 
 [rst home]: http://docutils.sourceforge.net/rst.html
