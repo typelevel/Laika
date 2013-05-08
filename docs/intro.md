@@ -2,7 +2,7 @@
 Laika
 =====
 
-Laika is a library for transforming lightweight markup languages to various types of output formats, written in Scala. 
+Laika is a customizable and extensible library for transforming lightweight markup languages to various types of output formats, written in Scala. 
 
 It has been designed for two primary usage scenarios:
 
@@ -100,11 +100,51 @@ Design Principles
 * Allow for easy modification of the rendering for a particular node type only, without
   the need to sub-class or modify an existing renderer.
   
+* Allow customization of rewrite rules for transforming the document tree before rendering
+  (e.g for resolving cross-references).
+
+* Provide concise and type-safe extension APIs for extensible markup definitions (e.g.
+  for directives and text roles in reStructuredText)
+  
 * Create the built-in parsers with the Scala parser combinators, providing efficient and
   reusable base parsers that encapsulate requirements common to all lightweight markup languages,
   while keeping the basic contract for plugging in a new parser function as simple and generic as 
   `Input => Document`, so that other parser frameworks or tools can be used, too.
   
+* Designed for robustness: Laika has more than 500 tests, it is protected against malicious
+  or accidentally malformed input like endless recursion (a type of guard most other text markup 
+  parsers do not include) and parsers like the URI parser are based on the actual relevant RFCs
+  (and not just a rough approximation like in many other parsers). 
+
+
+### Internal Architecture
+
+![Internal Architecture](img/architecture.png)
+
+This diagram shows the main building blocks of the library:
+
+* `Input` and `Output` are just little IO abstractions, so that the other parts of the system
+  do not need to deal with the low-level details of where to read from and to write to. The library
+  supports files, strings and streams, writers and readers from `java.io`.
+  
+* `Parse` represents the actual parsing step, a pluggable function of type `Input => Document`.
+  Supported out of the box are Markdown and reStructuredText. Other parsers can easily be added
+  to the system and they do not need to be based on the SDK's parser combinators like the built-in
+  parsers. The extensibility options of existing parsers depend on the capabilities of the 
+  respective markup, e.g. reStructuredText has the concept of directives and text roles as
+  extension hooks, therefore the extension APIs are parser-specific. 
+  
+* `Rewrite` is a customizable step for transforming the document tree model before rendering.
+  There is always a default rewrite step involved, that looks for nodes in the model that need
+  to be resolved, like link references, footnote references, etc. But custom rules can be added
+  based on a partial function that deals with specific node types only.
+  
+* `Render` is the final render step. Currently supported out of the box are HTML and PrettyPrint,
+  the latter visualizing the document tree for debugging purposes. Planned for future releases
+  are support for PDF and epub. Like with the rewrite step, the entire renderer can be replaced
+  by a custom one, or an existing one can customized based on a partial function that deals with
+  specific node types only.
+
   
 Release History
 ---------------

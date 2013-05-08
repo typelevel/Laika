@@ -1,7 +1,7 @@
 Laika
 =====
 
-Library for transforming lightweight text markup into various types of output formats, written in Scala.
+Customizable and extensible library for transforming lightweight text markup into various types of output formats, written in Scala.
 
 Open Source under the Apache 2.0 License.
 
