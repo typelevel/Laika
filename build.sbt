@@ -15,13 +15,13 @@ scalacOptions <<= scalaVersion map { v: String =>
 }
 
 libraryDependencies <+= scalaVersion {
-  case v if v startsWith "2.10" => "org.scalatest" %% "scalatest" % "1.9.1" % "test"
-  case _                        => "org.scalatest" %% "scalatest" % "1.8"   % "test"
+  case "2.9.2" => "org.scalatest" %% "scalatest" % "1.8" % "test"
+  case _       => "org.scalatest" %% "scalatest" % "1.9.1" % "test"
 }
 
 crossVersion := CrossVersion.binary
 
-crossScalaVersions := Seq("2.9.2", "2.10.0")
+crossScalaVersions := Seq("2.9.2", "2.9.3", "2.10.0")
 
 
 // Publishing to Sonatype OSS Repository

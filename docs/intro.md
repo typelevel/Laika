@@ -23,7 +23,7 @@ you can read about her [here][laika-wikipedia].
 Getting Started
 ---------------
 
-The current version is published to Maven Central for Scala 2.9.2 and 2.10.x.
+The current version is published to Maven Central for Scala 2.10.x, 2.9.3 and 2.9.2.
 
 
 Adding Laika to your project with sbt:
