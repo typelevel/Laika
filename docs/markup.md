@@ -211,12 +211,12 @@ level content like paragraphs or lists can be used.
  
 A directive may consist of any combination of arguments, fields and body elements:
  
-  .. myDirective:: arg1 arg2
-    :field1: value1
-    :field2: value2
+    .. myDirective:: arg1 arg2
+      :field1: value1
+      :field2: value2
  
-    This is the body of the directive. It may consist of any standard or custom
-    block-level and inline markup.
+      This is the body of the directive. It may consist of any standard or 
+      custom block-level and inline markup.
  
   
 In the example above `arg1` and `arg2` are arguments, `field1` and `field2` are fields,
@@ -230,24 +230,24 @@ parsed value.
 Consider the following simple example of a directive with just one argument and
 a body:
  
-  .. note:: This is the title
+    .. note:: This is the title
    
-     This is the body of the note.
+       This is the body of the note.
  
  
 The implementation of this directive could look like this:
  
-  case class Note (title: String, 
-                   content: Seq[Block], 
-                   options: Options) extends Block with BlockContainer[Note]
+    case class Note (title: String, 
+                     content: Seq[Block], 
+                     options: Options = NoOpt) extends Block 
+                                               with BlockContainer[Note]
  
-  val rst = ReStructuredText withBlockDirectives (
-    BlockDirective("note") {
-      (argument(withWS = true) ~ blockContent)(Note)
-    }
-  )                                              
+    val rst = ReStructuredText withBlockDirectives
+      BlockDirective("note") {
+        (argument(withWS = true) ~ blockContent)(Note(_,_))
+      }
  
-  Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"
+    Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"
  
  
 The `argument()` method specifies a required argument of type `String` (since no conversion
@@ -256,33 +256,33 @@ whitespace per default. The `blockContent` method specifies standard block conte
 elements that are supported in normal blocks, too) which results in a parsed value of type
 `Seq[Block]`. Finally you need to provide a function that accepts the results of the specified
 directive elements as parameters (of the corresponding type). Here we created a case class
-with a matching signature so can pass it directly as the target function. For a block directive
+with a matching signature (ignoring the optional third argument). For a block directive
 the final result has to be of type `Block` which the `Note` class satisfies. Finally the directive 
 gets registered with the `ReStructuredText` parser.
  
 If any conversion or validation is required on the individual parts of the directive they can
 be passed to the corresponding function:
 
-  def nonNegativeInt (value: String) =
-    try {
-      val num = value.toInt
-      Either.cond(num >= 0, num, "not a positive int: " + num)
-    }
-    catch {
-      case e: NumberFormatException => Left("not a number: " + value)
-    }
+    def nonNegativeInt (value: String) =
+      try {
+        val num = value.toInt
+        Either.cond(num >= 0, num, "not a positive int: " + num)
+      }
+      catch {
+        case e: NumberFormatException => Left("not a number: " + value)
+      }
  
-  case class Message (severity: Int, 
-                      content: Seq[Block],
-                      options: Options) extends Block 
-                                        with BlockContainer[Message]
+    case class Message (severity: Int, 
+                        content: Seq[Block],
+                        options: Options = NoOpt) extends Block 
+                                                  with BlockContainer[Message]
  
-  val rst = ReStructuredText withBlockDirectives (
-    BlockDirective("message") {
-      (argument(nonNegativeInt) ~ blockContent)(Message)
-    }
-  )    
- 
+    val rst = ReStructuredText withBlockDirectives
+      BlockDirective("message") {
+        (argument(nonNegativeInt) ~ blockContent)(Message(_,_))
+      }
+
+
 The function has to provide an `Either[String, T]` as a result. A `Left` result will be interpreted
 as an error by the parser with the string being used as the message and an instance of `InvalidBlock`
 containing the validator message and the raw source of the directive will be inserted into the document
@@ -293,16 +293,16 @@ parameter.
 Finally arguments and fields can also be optional. In case they are missing, the directive is still
 considered valid and `None` will be passed to your function:
  
-  case class Message (severity: Option[Int], 
-                      content: Seq[Block],
-                      options: Options) extends Block 
-                                        with BlockContainer[Message]
+    case class Message (severity: Option[Int], 
+                        content: Seq[Block],
+                        options: Options = NoOpt) extends Block 
+                                                  with BlockContainer[Message]
   
-  val rst = ReStructuredText withBlockDirectives (
-    BlockDirective("message") {
-      (optArgument(nonNegativeInt) ~ blockContent)(Message)
-    }
-  )    
+    val rst = ReStructuredText withBlockDirectives
+      BlockDirective("message") {
+        (optArgument(nonNegativeInt) ~ blockContent)(Message(_,_))
+      }
+    
  
 The argument may be missing, but if it is present it has to pass the specified validator.
  
@@ -339,8 +339,8 @@ aspects that define a text role:
  
 A role directive may consist of any combination of fields and body elements:
  
-  .. role:: ticket(link)
-    :base-url: http://www.company.com/tickets/
+    .. role:: ticket(link)
+      :base-url: http://www.company.com/tickets/
  
   
 In the example above `ticket` is the name of the customized role, `link` the name
@@ -353,13 +353,13 @@ see the previous section.
  
 The implementation of the `link` text role could look like this:
  
-  val rst = ReStructuredText withTextRoles (
-    TextRole("link", "http://www.company.com/main/")(field("base-url")) {
-      (base, text) => Link(List(Text(text)), base + text)
-    }
-  )
+    val rst = ReStructuredText withTextRoles (
+      TextRole("link", "http://www.company.com/main/")(field("base-url")) {
+        (base, text) => Link(List(Text(text)), base + text)
+      }
+    )
    
-  Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"   
+    Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"   
 
  
 We specify the name of the role to be `link`, and the default value the URL provided as the
@@ -382,20 +382,20 @@ Our example role can then be used in the following ways:
  
 Using the base role directly:
    
-  For details read our :link:`documentation`.
+    For details read our :link:`documentation`.
   
 This would result in the following HTML:
  
-  For details read our <a href="http://www.company.com/main/documentation">documentation</a>.
+    For details read our <a href="http://www.company.com/main/documentation">documentation</a>.
 
  
 Using the customized role called `ticket`: 
  
-  For details see ticket :ticket:`344`.
+    For details see ticket :ticket:`344`.
  
 This would result in the following HTML:
  
-  For details see ticket <a href="http://www.company.com/ticket/344">344</a>.
+    For details see ticket <a href="http://www.company.com/ticket/344">344</a>.
    
 
 
