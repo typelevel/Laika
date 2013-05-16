@@ -27,6 +27,16 @@ import laika.parse.helper.StringParserHelpers
 class BaseParsersSpec extends FlatSpec with ShouldMatchers with MarkupParsers with ParseResultHelpers with StringParserHelpers {
 
   
+  "The repMax parser" should "not parse more than the specified maximum number of items" in {
+    val p = repMax(2, anyOf('a','b').min(1) ~ anyOf('c','d').min(1) ^^ {case s1~s2 => s1+s2})
+    Parsing ("abcdabcdabcdabcd") using p should produce (List("abcd","abcd"))
+  }
+  
+  it should "succeed when the number of repetitions is lower than the specified maximum number of items" in {
+    val p = repMax(2, anyOf('a','b').min(1) ~ anyOf('c','d').min(1) ^^ {case s1~s2 => s1+s2})
+    Parsing ("abcdab") using p should produce (List("abcd"))
+  }
+  
   "The repMin parser" should "fail when the specified parser does not succeed the specified minimum number of times" in {
     val p = repMin(3, anyOf('a','b').min(1) ~ anyOf('c','d').min(1) ^^ {case s1~s2 => s1+s2})
     Parsing ("abcdabcdab") using p should cause [Failure]
