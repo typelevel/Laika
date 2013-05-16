@@ -65,13 +65,15 @@ import laika.util.Builders._
  *  The implementation of this directive could look like this:
  * 
  *  {{{
- *  case class Note (title: String, content: Seq[Block], options: Options) extends Block with BlockContainer[Note]
+ *  case class Note (title: String, 
+ *                   content: Seq[Block], 
+ *                   options: Options = NoOpt) extends Block 
+ *                                             with BlockContainer[Note]
  *
- *  val rst = ReStructuredText withBlockDirectives (
+ *  val rst = ReStructuredText withBlockDirectives
  *    BlockDirective("note") {
- *      (argument(withWS = true) ~ blockContent)(Note)
- *    }
- *  )                                              
+ *      (argument(withWS = true) ~ blockContent)(Note(_,_))
+ *    }                                        
  *
  *  Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"
  *  }}}
@@ -99,12 +101,14 @@ import laika.util.Builders._
  *      case e: NumberFormatException => Left("not a number: " + value)
  *    }
  * 
- *  case class Message (severity: Int, content: Seq[Block], options: Options) 
- *                                     extends Block with BlockContainer[Message]
+ *  case class Message (severity: Int, 
+ *                      content: Seq[Block], 
+ *                      options: Options = NoOpt) extends Block 
+ *                                                with BlockContainer[Message]
  * 
  *  val rst = ReStructuredText withBlockDirectives (
  *    BlockDirective("message") {
- *      (argument(nonNegativeInt) ~ blockContent)(Message)
+ *      (argument(nonNegativeInt) ~ blockContent)(Message(_,_))
  *    }
  *  )    
  *  }}}
@@ -120,12 +124,14 @@ import laika.util.Builders._
  *  considered valid and `None` will be passed to your function:
  * 
  *  {{{
- *  case class Message (severity: Option[Int], content: Seq[Block], options: Options) 
- *                                extends Block with BlockContainer[Message]
+ *  case class Message (severity: Option[Int], 
+ *                      content: Seq[Block], 
+ *                      options: Options = NoOpt) extends Block 
+ *                                                with BlockContainer[Message]
  * 
  *  val rst = ReStructuredText withBlockDirectives (
  *    BlockDirective("message") {
- *      (optArgument(nonNegativeInt) ~ blockContent)(Message)
+ *      (optArgument(nonNegativeInt) ~ blockContent)(Message(_,_))
  *    }
  *  )    
  *  }}}
