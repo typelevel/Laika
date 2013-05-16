@@ -31,7 +31,7 @@ import scala.util.parsing.input.Reader
  * 
  *  @author Jens Halm
  */
-trait MarkupParsers extends RegexParsers {
+trait MarkupParsers extends RegexParsers with BaseParsers {
 
   
   override def skipWhitespace = false
@@ -279,84 +279,6 @@ trait MarkupParsers extends RegexParsers {
     }
     
     new TextParser(newParser, mustFailAtEOF = true)
-  }
-  
-  /** Uses the parser for at least the specified number of repetitions or otherwise fails. 
-   *  Continues to apply the parser after the minimum has been reached until if fails.
-   *  The result is the list of results from applying the parser repeatedly.
-   */
-  def repMin[T] (num: Int, p: => Parser[T]): Parser[List[T]] = Parser { in =>
-    val elems = new ListBuffer[T]
-    lazy val parser = p
-
-    @tailrec 
-    def parse (input: Input): ParseResult[List[T]]  = parser(input) match {
-      case Success(x, rest)                         => elems += x ; parse(rest)
-      case ns: NoSuccess if (elems.length >= num)   => Success(elems.toList, input)
-      case ns: NoSuccess                            => ns
-    }
-
-    parse(in)
-  }
-  
-  /** Uses the parser for at most the specified number of repetitions, always succeeds. 
-   *  The result is the list of results from applying the parser repeatedly.
-   */
-  def repMax[T] (num: Int, p: => Parser[T]): Parser[List[T]] =
-    if (num == 0) success(Nil) else Parser { in =>
-      val elems = new ListBuffer[T]
-      val parser = p
-
-      @tailrec 
-      def parse (input: Input): ParseResult[List[T]] =
-        if (elems.length == num) Success(elems.toList, input)
-        else parser(input) match {
-          case Success(x, rest)   => elems += x ; parse(rest)
-          case ns: NoSuccess      => Success(elems.toList, input)
-        }
-
-      parse(in)
-    }
-
-  /** Applies the specified parser at the specified offset behind the current
-   *  position. Never consumes any input.
-   */
-  def lookBehind [T] (offset: Int, parser: => Parser[T]) = Parser { in =>
-    if (in.offset - offset < 0) Failure("Unable to look behind with offset "+offset, in)
-    else parser(in.drop(-offset)) match {
-      case Success(result, _) => Success(result, in)
-      case NoSuccess(msg, _)  => Failure(msg, in)
-    }
-  }
-  
-  
-  
-  implicit def toParserOps [A] (parser: Parser[A]) = new ParserOps(parser)
-  
-  /** Provides additional combinator methods to parsers via implicit conversion.
-   */
-  class ParserOps [A] (parser: Parser[A]) {
-    
-    /** A parser combinator that applies a function to the result producing an `Either`
-     *  where `Left` is interpreted as failure. It is an alternative to `^?` for scenarios 
-     *  where the conditional check cannot be easily performed in a pattern match.
-     *
-     *  `p ^^? f` succeeds if `p` succeeds and `f` returns a `Right`; 
-     *  it returns the content of `Right` obtained from applying `f` to the result of `p`.
-     *
-     *  @param f a function that will be applied to this parser's result.
-     *  @return a parser that has the same behaviour as the current parser, but whose result is
-     *         transformed by `f`.
-     */
-    def ^^? [B] (f: A => Either[String,B]): Parser[B] = Parser { in =>
-      
-      parser(in) match {
-        case Success(result, next) => f(result) fold (msg => Failure(msg,in), res => Success(res,next))
-        case ns: NoSuccess => ns
-      }
-        
-    }
-    
   }
   
   

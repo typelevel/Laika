@@ -16,10 +16,7 @@
 
 package laika.parse
 
-import scala.util.parsing.input.CharSequenceReader
-
 import org.scalatest.FlatSpec
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 
 import laika.parse.helper.ParseResultHelpers
@@ -155,32 +152,6 @@ class MarkupParsersSpec extends FlatSpec with ShouldMatchers with MarkupParsers 
   it should "fail in case the end of the input is reached" in {
     Parsing ("1234567") using anyUntil("[a-z]".r) should cause [Failure]
   }
-  
-  "The repMin parser" should "fail when the specified parser does not succeed the specified minimum number of times" in {
-    val p = repMin(3, anyOf('a','b').min(1) ~ anyOf('c','d').min(1) ^^ {case s1~s2 => s1+s2})
-    Parsing ("abcdabcdab") using p should cause [Failure]
-  }
-  
-  it should "succeed when the specified parser does succeed the specified minimum number of times" in {
-    val p = repMin(2, anyOf('a','b').min(1) ~ anyOf('c','d').min(1) ^^ {case s1~s2 => s1+s2})
-    Parsing ("abcdabcdab") using p should produce (List("abcd","abcd"))
-  }
-  
-  "The lookBehind parser" should "succeed when the specified parser succeeds at the given negative offset" in {
-    val input = new CharSequenceReader("abcd").drop(2)
-    (lookBehind(2,'a')(input)) should produce ('a')
-  }
-  
-  it should "fail when the specified parser fails at the given negative offset" in {
-    val input = new CharSequenceReader("abcd").drop(2)
-    lookBehind(2,'b')(input) should cause [Failure]
-  }
-  
-  it should "fail when the specified negative offset is too big" in {
-    val input = new CharSequenceReader("abcd").drop(2)
-    lookBehind(7,'a')(input) should cause [Failure]
-  }
-  
   
   
 }
