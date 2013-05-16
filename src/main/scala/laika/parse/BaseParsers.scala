@@ -28,6 +28,28 @@ import scala.util.parsing.combinator.Parsers
 trait BaseParsers extends Parsers {
 
   
+  /** A parser generator for repetitions where all subsequent parsers
+   *  after the first depend on the result of the previous.
+   * 
+   *  @param first the parser to use for the first piece of input
+   *  @param next a function that determines the next parser based on the result of the previous
+   */
+  def rep[T] (first: => Parser[T], next: T => Parser[T]): Parser[List[T]] = Parser { in =>
+    val elems = new ListBuffer[T]
+  
+    @tailrec 
+    def parse (input: Input, p: Parser[T]): ParseResult[List[T]] =
+      p(input) match {
+        case Success(result, rest) => 
+          elems += result
+          val newParser = next(result)
+          parse(rest, newParser)
+        case ns: NoSuccess => Success(elems.toList, input)
+      }
+
+    parse(in, first)
+  }
+  
   /** Uses the parser for at least the specified number of repetitions or otherwise fails. 
    *  Continues to apply the parser after the minimum has been reached until if fails.
    *  The result is the list of results from applying the parser repeatedly.

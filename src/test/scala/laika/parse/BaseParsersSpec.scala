@@ -27,6 +27,22 @@ import laika.parse.helper.StringParserHelpers
 class BaseParsersSpec extends FlatSpec with ShouldMatchers with MarkupParsers with ParseResultHelpers with StringParserHelpers {
 
   
+  "The parser for dynamic repetitions" should "parse a sequence based on a dynamically changing parser" in {
+    val p = rep("1", {res:String => (res.toInt + 1).toString})
+    Parsing ("12345999") using p should produce (List("1","2","3","4","5"))
+  }
+  
+  it should "succeed when only the first parsing step succeeds" in {
+    val p = rep("1", {res:String => (res.toInt + 1).toString})
+    Parsing ("1999") using p should produce (List("1"))
+  }
+  
+  it should "succeed with an empty result when the first parsing step fails" in {
+    val p = rep("1", {res:String => (res.toInt + 1).toString})
+    Parsing ("999") using p should produce (List[String]())
+  }
+  
+  
   "The repMax parser" should "not parse more than the specified maximum number of items" in {
     val p = repMax(2, anyOf('a','b').min(1) ~ anyOf('c','d').min(1) ^^ {case s1~s2 => s1+s2})
     Parsing ("abcdabcdabcdabcd") using p should produce (List("abcd","abcd"))
