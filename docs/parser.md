@@ -2,7 +2,7 @@
 Implementing a Parser
 =====================
 
-This document describes the best practices for adding an entirely new parser to the library.
+This document describes the best practices for adding an entirely new parser to the toolkit.
 It is only useful if you either plan to implement a parser for a markup language not (yet)
 supported by Laika, want to replace one of the existing parsers, or are just
 curious about the inner workings of the library. None of the information here is required

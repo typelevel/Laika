@@ -2,7 +2,7 @@
 Implementing a Renderer
 =======================
 
-This document describes the best practices for adding an entirely new renderer to the library.
+This document describes the best practices for adding an entirely new renderer to the toolkit.
 It is only useful if you either plan to implement a renderer for an output format not
 supported by Laika, want to replace one of the existing renderers, or are just
 curious about the inner workings of the library. None of the information here is required

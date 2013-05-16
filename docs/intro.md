@@ -2,7 +2,7 @@
 Laika
 =====
 
-Laika is a customizable and extensible library for transforming lightweight markup languages to various types of output formats, written in Scala. 
+Laika is a customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala. 
 
 It has been designed for two primary usage scenarios:
 
@@ -121,10 +121,10 @@ Design Principles
 
 ![Internal Architecture](img/architecture.png)
 
-This diagram shows the main building blocks of the library:
+This diagram shows the main building blocks of the toolkit:
 
 * `Input` and `Output` are just little IO abstractions, so that the other parts of the system
-  do not need to deal with the low-level details of where to read from and to write to. The library
+  do not need to deal with the low-level details of where to read from and to write to. The toolkit
   supports files, strings and streams, writers and readers from `java.io`.
   
 * `Parse` represents the actual parsing step, a pluggable function of type `Input => Document`.

@@ -28,7 +28,7 @@ documentation or entire books. As a consequence
 extensions have been added to almost every Markdown implementation without much agreement between 
 them. Finally, the Markdown syntax itself tries to circumvent the reduced set of features through
 recommending the embedding of verbatim HTML elements for any formatting needs not supported by Markdown, 
-which is not the best approach for a library like Laika that aims to support other output formats
+which is not the best approach for a toolkit like Laika that aims to support other output formats
 than just HTML.
 
 
@@ -83,7 +83,7 @@ following problems with verbatim HTML:
 * It would not be safe to use without additional filtering when used in web applications
   that offer user input. 
   
-This design decision has the following consequences for the Laika library:
+This design decision has the following consequences for the Laika toolkit:
 
 * The Markdown parser, by default, treats HTML tags as normal text input and converts
   tags to HTML entities when rendering, so that they would show up as part of the
