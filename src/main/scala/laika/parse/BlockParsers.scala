@@ -29,6 +29,9 @@ import scala.util.parsing.input.Reader
  *  The only abstract members are the `topLevelBlock` and `nestedBlock` parsers
  *  that the other parsers delegate to.
  * 
+ *  A block parser in Laika can always safely assume that it is invoked at 
+ *  the start of the current line and that the line is not empty.
+ * 
  *  @author Jens Halm
  */
 trait BlockParsers extends MarkupParsers {
