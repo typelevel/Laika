@@ -258,9 +258,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     val arg = requiredArg((anyBut(' ','\n') min 1) <~ ws)
     
     val argWithWS = {
-      val argLineStart = not(blankLine | ':')
-      val nextBlock = failure("args do not expand beyond blank lines")
-      val p = varIndentedBlock(1, argLineStart, nextBlock) ^^? { block =>
+      val p = varIndentedBlock(linePredicate = not(":"), endsOnBlankLine = true) ^^? { block =>
         val text = (block.lines mkString "\n").trim
         if (text.nonEmpty) Right(text) else Left("missing required argument")
       }
@@ -272,16 +270,13 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     // TODO - some duplicate logic with original fieldList parser
     lazy val directiveFieldList: Parser[Any] = {
       
-      val name = ':' ~> escapedUntil(':')
-      
-      val firstLine = anyBut('\n') 
-      
+      val name = ':' ~> escapedUntil(':') <~ (guard(eol) | ' ')
+
       val item = (ws min 1) >> { firstIndent =>
-          (name ~ firstLine ~ opt(varIndentedBlock(firstIndent.length + 1, not(":"), failure("blank lines terminate options")))) ^^ 
-        { case name ~ firstLine ~ Some(block) => 
-            (name, ((firstLine :: block.lines.tail) mkString "\n").trim)
-          case name ~ firstLine ~ None => 
-            (name, firstLine.trim) }}
+          (name ~ varIndentedBlock(firstIndent.length + 1, endsOnBlankLine = true)) ^^ 
+        { case name ~ block => 
+            (name, (block.lines mkString "\n").trim)
+        }}
       
       opt(ws ~ eol) ~> (item *) ^^? { fields =>
         

@@ -19,6 +19,7 @@ package laika.parse.rst
 import laika.tree.Elements._
 import scala.annotation.tailrec
 import scala.util.parsing.input.CharSequenceReader
+import scala.collection.mutable.ListBuffer
 
 /** Base parsers used by all of the various block-level parser traits.
  * 
@@ -90,29 +91,6 @@ trait BlockBaseParsers extends laika.parse.BlockParsers {
     }
   }
   
-    
-  /** Parses a full block based on the specified helper parsers, expecting an indentation for
-   *  all lines except the first. The indentation must be as specified by the first parameter
-   *  for all lines of these blocks.
-   * 
-   *  @param fixedIndent the indentation that each line in this block must have
-   *  @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
-   *  @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block 
-   *  @return a parser that produces an instance of IndentedBlock
-   */
-  def fixedIndentedBlock (fixedIndent: Int = 1,
-                     linePrefix: => Parser[Any] = not(blankLine), 
-                     nextBlockPrefix: => Parser[Any] = not(blankLine)): Parser[IndentedBlock] = {
-    
-    lazy val line = (ws take fixedIndent) ~ linePrefix ~> restOfLine
-    
-    lazy val nextBlock = blankLines <~ guard(nextBlockPrefix) ^^ { _.mkString("\n") }
-    
-    withNestLevel {
-      restOfLine ~ ( (line | nextBlock)* ) ^^ { res => (fixedIndent, mkList(res)) }
-    } ^^ { case (nestLevel, (indent, lines)) => IndentedBlock(nestLevel, indent, lines) }
-  }
-  
   case class IndentedBlock (nestLevel: Int, minIndent: Int, lines: List[String])
   
   /** Parses a full block based on the specified helper parsers, expecting an indentation for
@@ -121,31 +99,58 @@ trait BlockBaseParsers extends laika.parse.BlockParsers {
    *  but each line must have at least the specified minimum indentation.
    * 
    *  @param minIndent the minimum indentation that each line in this block must have
-   *  @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
-   *  @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block 
+   *  @param linePredicate parser that recognizes the start of subsequent lines that still belong to the same block
+   *  @param endsOnBlankLine indicates whether parsing should end on the first blank line
    *  @param firstLineIndented indicates whether the first line is expected to be indented, too
    *  @return a parser that produces an instance of IndentedBlock
    */
   def varIndentedBlock (minIndent: Int = 1,
-                     linePrefix: => Parser[Any] = not(blankLine), 
-                     nextBlockPrefix: => Parser[Any] = not(blankLine),
+                     linePredicate: => Parser[Any] = success(), 
+                     endsOnBlankLine: Boolean = false,
                      firstLineIndented: Boolean = false): Parser[IndentedBlock] = {
     
-    lazy val line = (((ws min minIndent) ^^ (_.length)) ~ 
-                    (linePrefix ~> restOfLine)) ^^ { case indent ~ text => (indent, text.trim) }
+    import scala.math._
+    
+    abstract class Line extends Product { def curIndent: Int }
+    case class BlankLine(curIndent: Int) extends Line
+    case class IndentedLine(curIndent: Int, indent: Int, text: String) extends Line
+    case class FirstLine(text: String) extends Line { val curIndent = Int.MaxValue }
+    
+    val composedLinePredicate = not(blankLine) ~ linePredicate
+    
+    def lineStart (curIndent: Int) = ((ws min minIndent max curIndent) ^^ {_.length}) <~ composedLinePredicate
+    
+    def textLine (curIndent: Int) = (lineStart(curIndent) ~ (ws ^^ {_.length}) ~ restOfLine) ^^ { 
+      case indent1 ~ indent2 ~ text => List(IndentedLine(min(indent1, curIndent), indent1 + indent2, text.trim)) 
+    }
+    
+    def emptyLines (curIndent: Int) = blankLines <~ guard(lineStart(curIndent)) ^^ {
+      res => Stream.fill(res.length)(BlankLine(curIndent)).toList 
+    }
+    
+    val firstLine = 
+      if (firstLineIndented) textLine(Int.MaxValue) 
+      else restOfLine ^^ { s => List(FirstLine(s)) }
+    
+    val firstLineGuard = if (firstLineIndented) ((ws min minIndent) ^^ {_.length}) ~ composedLinePredicate else success()
+    
+    def nextLine (prevLines: List[Line]) = 
+      if (endsOnBlankLine) textLine(prevLines.head.curIndent)
+      else textLine(prevLines.head.curIndent) | emptyLines(prevLines.head.curIndent) 
+      
+    def result (lines: List[List[Line]]): (Int, List[String]) = if (lines.isEmpty) (minIndent,Nil) else {
+      val minIndent = lines.last.head.curIndent
+      (minIndent, lines.flatten map {
+        case FirstLine(text)             => text
+        case IndentedLine(_,indent,text) => " " * (indent - minIndent) + text
+        case BlankLine(_)                => ""  
+      })
+    }
 
-    val firstLine = if (firstLineIndented) line else restOfLine ^^ { (-1, _) }
-    
-    lazy val nextBlock = blankLines <~ guard(nextBlockPrefix) ^^ { res => (-1, res.mkString("\n")) }
-    
-    withNestLevel {
-      firstLine ~ ( (line | nextBlock)* ) ^^ { res => 
-        val lines = mkList(res)
-        val indents = lines map (_._1) filter (_ != -1)
-        val minIndent = if (indents.isEmpty) 0 else indents min;
-        (minIndent, lines map (line => if (line._1 == -1) line._2 else " " * (line._1 - minIndent) + line._2))
-      }
-    } ^^ { case (nestLevel, (indent, lines)) => IndentedBlock(nestLevel, indent, lines) }
+    guard(firstLineGuard) ~> withNestLevel(rep(firstLine, nextLine)) ^^ { case (nestLevel,parsed) => {
+      val (minIndent, lines) = result(parsed)
+      IndentedBlock(nestLevel, minIndent, lines)
+    }}
   }
   
   /** Creates a new parser that produces a tuple containing the current nest

@@ -32,8 +32,9 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
   
   private def listItem [I <: ListItem] (itemStart: Parser[String], newListItem: List[Block] => I): Parser[I] = {
       (itemStart ^^ {_.length}) ~ ((ws min 1) ^^ {_.length}) >> { 
-        case start ~ ws => fixedIndentedBlock(start + ws) ^^
-          { block => newListItem(parseNestedBlocks(block)) }
+        case start ~ ws => varIndentedBlock(minIndent = start + ws) <~ opt(blankLines) ^^ { 
+          block => newListItem(parseNestedBlocks(block)) 
+        }
       } 
   }
   
@@ -113,16 +114,16 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
    */
   def definitionList: Parser[Block] = {
     
-    val term: Parser[String] = not(blankLine) ~> anyBut('\n') <~ guard(eol ~ (ws min 1) ~ not(blankLine))
+    val term: Parser[String] = not(blankLine) ~> anyBut('\n') <~ eol ~ guard((ws min 1) ~ not(blankLine))
     
     val classifier = lookBehind(2,' ') ~ ' ' ~> spans(any, spanParsers) ^^ (Classifier(_))
     val nested = spanParsers + (':' -> classifier)
     
-    val item = (term ~ varIndentedBlock()) ^?
-      { case term ~ block if !block.lines.tail.isEmpty => 
-          DefinitionListItem(parseInline(term, nested), parseNestedBlocks(block.lines.tail, block.nestLevel)) }
+    val item = (term ~ varIndentedBlock(firstLineIndented = true)) ^?
+      { case term ~ block /*if !block.lines.tail.isEmpty*/ => 
+          DefinitionListItem(parseInline(term, nested), parseNestedBlocks(block.lines, block.nestLevel)) }
     
-    (item +) ^^ (DefinitionList(_))
+    ((item <~ opt(blankLines)) +) ^^ (DefinitionList(_))
   }
   
   
@@ -134,11 +135,9 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
     
     val name = ':' ~> escapedUntil(':') <~ (guard(eol) | ' ')
     
-    val item = (name ~ opt(varIndentedBlock())) ^^
-      { case name ~ Some(block) => 
-          Field(parseInline(name), parseNestedBlocks(block))
-        case name ~ None => 
-          Field(parseInline(name), Nil) }
+    val item = (name ~ varIndentedBlock()) ^^ { 
+      case name ~ block => Field(parseInline(name), parseNestedBlocks(block))
+    }
     
     (item +) ^^ (FieldList(_))
   }
@@ -170,11 +169,11 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
     
     val descStart = ("  " ~ not(blankLine)) | (guard(blankLine ~ (ws min 1) ~ not(blankLine))) ^^^ "" 
     
-    val item = (options ~ (descStart ~> varIndentedBlock())) ^^
-      { case name ~ block =>
-          OptionListItem(name, parseNestedBlocks(block)) }
+    val item = (options ~ (descStart ~> varIndentedBlock())) ^^ { 
+      case name ~ block => OptionListItem(name, parseNestedBlocks(block))
+    }
     
-    (item +) ^^ (OptionList(_))
+    ((item <~ opt(blankLines)) +) ^^ (OptionList(_))
   }
   
   /** Parses a block of lines with line breaks preserved.
@@ -185,7 +184,7 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
     val itemStart = anyOf('|').take(1)
     
     val line: Parser[(Line,Int)] = {
-      itemStart ~> (ws min 1) ~ varIndentedBlock(1, not(blankLine), failure("line blocks always end after blank lines")) ^^ { 
+      itemStart ~> (ws min 1) ~ varIndentedBlock(endsOnBlankLine = true) ^^ { 
         case indent ~ block => (Line(parseInline(block.lines mkString "\n")), indent.length) 
       }
     }
