@@ -53,7 +53,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
   def footnote = {
     val prefix = '[' ~> footnoteLabel <~ ']' ~ ws
     
-    prefix ~ varIndentedBlock() ^^ {
+    prefix ~ indentedBlock() ^^ {
       case label ~ block => FootnoteDefinition(label, parseNestedBlocks(block))
     }
   }
@@ -65,7 +65,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
   def citation = {
     val prefix = '[' ~> simpleRefName <~ ']' ~ ws
     
-    prefix ~ varIndentedBlock() ^^ {
+    prefix ~ indentedBlock() ^^ {
       case label ~ block => Citation(label, parseNestedBlocks(block))
     }
   }
@@ -82,7 +82,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
   private lazy val linkDefinitionBody = {
     val notEmpty = not(blankLine) | guard(restOfLine ~ (ws min 1) ~ not(blankLine))
     
-    (notEmpty ~> varIndentedBlock()) ^^ { 
+    (notEmpty ~> indentedBlock()) ^^ { 
       _.lines map (_.trim) filterNot (_.isEmpty) mkString
     }
   }
@@ -135,7 +135,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#comments]].
    */
   def comment = {
-    varIndentedBlock() ^^ { block =>
+    indentedBlock() ^^ { block =>
       Comment((block.lines map (_.trim) mkString "\n").trim)
     }
   }
@@ -195,7 +195,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
   private def directive [E](p: Parser[E], name: String) = Parser { in =>
     p(in) match {
       case s @ Success(_,_) => s
-      case NoSuccess(msg, next) => (varIndentedBlock() ^^ { block =>
+      case NoSuccess(msg, next) => (indentedBlock() ^^ { block =>
         InvalidDirective(msg, ".. "+name+" "+(block.lines mkString "\n")).asInstanceOf[E]
       })(in)
     }
@@ -258,14 +258,14 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
     val arg = requiredArg((anyBut(' ','\n') min 1) <~ ws)
     
     val argWithWS = {
-      val p = varIndentedBlock(linePredicate = not(":"), endsOnBlankLine = true) ^^? { block =>
+      val p = indentedBlock(linePredicate = not(":"), endsOnBlankLine = true) ^^? { block =>
         val text = (block.lines mkString "\n").trim
         if (text.nonEmpty) Right(text) else Left("missing required argument")
       }
       requiredArg(p)
     }
     
-    val body = lookBehind(1, '\n') ~> varIndentedBlock(firstLineIndented = true) | varIndentedBlock()
+    val body = lookBehind(1, '\n') ~> indentedBlock(firstLineIndented = true) | indentedBlock()
     
     // TODO - some duplicate logic with original fieldList parser
     lazy val directiveFieldList: Parser[Any] = {
@@ -273,7 +273,7 @@ trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
       val name = ':' ~> escapedUntil(':') <~ (guard(eol) | ' ')
 
       val item = (ws min 1) >> { firstIndent =>
-          (name ~ varIndentedBlock(firstIndent.length + 1, endsOnBlankLine = true)) ^^ 
+          (name ~ indentedBlock(firstIndent.length + 1, endsOnBlankLine = true)) ^^ 
         { case name ~ block => 
             (name, (block.lines mkString "\n").trim)
         }}

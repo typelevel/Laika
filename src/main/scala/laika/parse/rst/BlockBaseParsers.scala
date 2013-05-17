@@ -104,7 +104,7 @@ trait BlockBaseParsers extends laika.parse.BlockParsers {
    *  @param firstLineIndented indicates whether the first line is expected to be indented, too
    *  @return a parser that produces an instance of IndentedBlock
    */
-  def varIndentedBlock (minIndent: Int = 1,
+  def indentedBlock (minIndent: Int = 1,
                      linePredicate: => Parser[Any] = success(), 
                      endsOnBlankLine: Boolean = false,
                      firstLineIndented: Boolean = false): Parser[IndentedBlock] = {

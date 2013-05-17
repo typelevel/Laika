@@ -118,7 +118,7 @@ trait BlockParsers extends BlockBaseParsers
     val attributionStart = "---" | "--" | '\u2014' // em dash
         
     def attribution (indent: Int) = (ws take indent) ~ attributionStart ~> 
-      varIndentedBlock(minIndent = indent, endsOnBlankLine = true) ^^ { block => 
+      indentedBlock(minIndent = indent, endsOnBlankLine = true) ^^ { block => 
       parseInline(block.lines mkString "\n")
     }
       
@@ -132,7 +132,7 @@ trait BlockParsers extends BlockBaseParsers
       }
     }
 
-    guard(ws take 1) ~> withNestLevel(varIndentedBlock(firstLineIndented = true, linePredicate = not(attributionStart))) >> { 
+    guard(ws take 1) ~> withNestLevel(indentedBlock(firstLineIndented = true, linePredicate = not(attributionStart))) >> { 
       case (nestLevel,block) => {
         opt(opt(blankLines) ~> attribution(block.minIndent)) ^^ { spans => 
           QuotedBlock(blocks(parseNestedBlocks(block.lines,nestLevel),spans), spans.getOrElse(Nil)) 
@@ -213,7 +213,7 @@ trait BlockParsers extends BlockBaseParsers
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#literal-blocks]]
    */
   def literalBlock: Parser[Block] = {
-    val indented = varIndentedBlock(firstLineIndented = true) ^^ 
+    val indented = indentedBlock(firstLineIndented = true) ^^ 
       { block => LiteralBlock(block.lines mkString "\n") }
     val quoted = block(guard(punctuationChar min 1), guard(punctuationChar min 1), failure("blank line always ends quoted block")) ^^ 
       { lines => LiteralBlock(lines mkString "\n") }  

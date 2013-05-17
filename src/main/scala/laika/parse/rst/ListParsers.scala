@@ -32,7 +32,7 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
   
   private def listItem [I <: ListItem] (itemStart: Parser[String], newListItem: List[Block] => I): Parser[I] = {
       (itemStart ^^ {_.length}) ~ ((ws min 1) ^^ {_.length}) >> { 
-        case start ~ ws => varIndentedBlock(minIndent = start + ws) <~ opt(blankLines) ^^ { 
+        case start ~ ws => indentedBlock(minIndent = start + ws) <~ opt(blankLines) ^^ { 
           block => newListItem(parseNestedBlocks(block)) 
         }
       } 
@@ -119,7 +119,7 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
     val classifier = lookBehind(2,' ') ~ ' ' ~> spans(any, spanParsers) ^^ (Classifier(_))
     val nested = spanParsers + (':' -> classifier)
     
-    val item = (term ~ varIndentedBlock(firstLineIndented = true)) ^?
+    val item = (term ~ indentedBlock(firstLineIndented = true)) ^?
       { case term ~ block /*if !block.lines.tail.isEmpty*/ => 
           DefinitionListItem(parseInline(term, nested), parseNestedBlocks(block.lines, block.nestLevel)) }
     
@@ -135,7 +135,7 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
     
     val name = ':' ~> escapedUntil(':') <~ (guard(eol) | ' ')
     
-    val item = (name ~ varIndentedBlock()) ^^ { 
+    val item = (name ~ indentedBlock()) ^^ { 
       case name ~ block => Field(parseInline(name), parseNestedBlocks(block))
     }
     
@@ -169,7 +169,7 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
     
     val descStart = ("  " ~ not(blankLine)) | (guard(blankLine ~ (ws min 1) ~ not(blankLine))) ^^^ "" 
     
-    val item = (options ~ (descStart ~> varIndentedBlock())) ^^ { 
+    val item = (options ~ (descStart ~> indentedBlock())) ^^ { 
       case name ~ block => OptionListItem(name, parseNestedBlocks(block))
     }
     
@@ -184,7 +184,7 @@ trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
     val itemStart = anyOf('|').take(1)
     
     val line: Parser[(Line,Int)] = {
-      itemStart ~> (ws min 1) ~ varIndentedBlock(endsOnBlankLine = true) ^^ { 
+      itemStart ~> (ws min 1) ~ indentedBlock(endsOnBlankLine = true) ^^ { 
         case indent ~ block => (Line(parseInline(block.lines mkString "\n")), indent.length) 
       }
     }
