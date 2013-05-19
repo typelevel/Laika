@@ -137,25 +137,15 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   def nestedBlock (nestLevel: Int): Parser[Block] = 
     if (nestLevel < maxNestLevel) standardMarkdownBlock(nestLevel) | paragraph
     else nonRecursiveMarkdownBlock | paragraph
-  
-  /** Parses blocks that may appear inside a list item.
-   */
-  def listItemBlocks (nestLevel: Int) = 
-    if (nestLevel < maxNestLevel) (standardMarkdownBlock(nestLevel) | paragraph | preserveBlankLines) *
-    else (nonRecursiveMarkdownBlock | paragraph | preserveBlankLines) *
-  
 
   /** Parses a single paragraph. Everything between two blank lines that is not
    *  recognized as a special Markdown block type will be parsed as a regular paragraph.
    */
   def paragraph: Parser[Paragraph] = 
-    (plainText +) ^^ { lines => Paragraph(parseInline(linesToString(lines))) }
+    ((not(blankLine | bulletListItemStart | enumListItemStart) ~> restOfLine) +) ^^ { 
+      lines => Paragraph(parseInline(linesToString(lines))) 
+    }
 
-   /** Parses a single line of regular flow content.
-    */
-  def plainText: Parser[String] = 
-    not(blankLine | bulletListItemStart | enumListItemStart) ~> restOfLine
-  
   
   /** Parses a single Markdown block. In contrast to the generic block parser of the
    *  super-trait this method also consumes and ignores up to three optional space
@@ -202,10 +192,6 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   
   private def forcedPar (content: Seq[Span], opt: Options) = ForcedParagraph(content, opt + Fallback(Paragraph(content,opt))) 
   
-  /** Parses blank lines and produces the corresponding element model.
-   */
-  def preserveBlankLines = blankLines ^^^ {BlankLines()}
-
   /** Parses a list based on the specified helper parsers.
    * 
    *  @param itemStart parser that recognizes the start of a list item, result will be discarded
@@ -227,10 +213,8 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
         val rewritten = blocks match {
           /* Promoting Paragraph to ForcedParagraph if the list has any blank lines between list items or if it is adjacent
              to blank lines within the list item itself. This is ugly, but forced by the (in this respect odd) design of Markdown. */
-          case Paragraph(content,opt) :: BlankLines(_) :: Nil  => forcedPar(content,opt) :: Nil
-          case BlankLines(_) :: Paragraph(content,opt) :: Nil  => forcedPar(content,opt) :: Nil
           case Paragraph(content,opt) :: Nil if hasBlankLines  => forcedPar(content,opt) :: Nil
-          case other => other filter { case BlankLines(_) => false; case _ => true }
+          case other => other
         }
         
         newItem(pos,rewritten)
@@ -239,7 +223,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
       items map { item => rewriteItemContent(item._2, pos.next) } 
     }
     
-    guard(itemStart) ~> ((opt(preserveBlankLines) ~ listItem(itemStart, nestLevel)) *) ^^ 
+    guard(itemStart) ~> ((opt(blankLines ^^^ BlankLines()) ~ listItem(itemStart, nestLevel)) *) ^^ 
       { x => newList(flattenItems(x)) }
   }
   
@@ -249,7 +233,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    */
   def listItem [I <: ListItem] (itemStart: Parser[String], nestLevel: Int): Parser[List[Block]]
     = mdBlock(itemStart, not(blankLine | itemStart) ~ opt(tabOrSpace), tabOrSpace) ^^
-        { lines => parseMarkup(listItemBlocks(nestLevel + 1), lines mkString "\n") }
+        { lines => parseNestedBlocks(lines, nestedBlock(nestLevel + 1)) }
  
   
   /** Parses the start of a bullet list item.
