@@ -80,17 +80,12 @@ trait ModelBuilder {
   
   def p (text: String) = Paragraph(List(Text(text)))
   
-  def ss (spans: Span*) = SpanSequence(spans.toList)
-  
-  def ss (text: String) = SpanSequence(List(Text(text)))
-  
-  
   
   def bulletList (bullet: String = "*") = new BulletListBuilder(bullet)
   
   class BulletListBuilder (bullet: String, items: Seq[BulletListItem] = Nil) {
     
-    def + (text: String) = new BulletListBuilder(bullet, items :+ newItem(ss(text)))
+    def + (text: String) = new BulletListBuilder(bullet, items :+ newItem(p(text)))
     
     def + (blocks: Block*) = new BulletListBuilder(bullet, items :+ newItem(blocks:_*))
     
@@ -104,7 +99,7 @@ trait ModelBuilder {
   
   class EnumListBuilder (format: EnumFormat, start: Int, items: Seq[EnumListItem] = Nil) {
     
-    def + (text: String) = new EnumListBuilder(format, start + 1, items :+ newItem(ss(text)))
+    def + (text: String) = new EnumListBuilder(format, start + 1, items :+ newItem(p(text)))
     
     def + (blocks: Block*) = new EnumListBuilder(format, start + 1, items :+ newItem(blocks:_*))
     
@@ -133,9 +128,9 @@ trait ModelBuilder {
   
   def row (cells: Cell*) = Row(cells.toList)
   
-  def cell (content: String, colspan: Int, rowspan: Int) = Cell(BodyCell, List(ss(txt(content))), colspan, rowspan)
+  def cell (content: String, colspan: Int, rowspan: Int) = Cell(BodyCell, List(p(txt(content))), colspan, rowspan)
   
-  def cell (content: String): Cell = cell(ss(txt(content)))
+  def cell (content: String): Cell = cell(p(txt(content)))
   
   def cell (content: Block*): Cell = Cell(BodyCell, content.toList)
   

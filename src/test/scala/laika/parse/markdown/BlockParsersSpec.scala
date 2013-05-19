@@ -19,13 +19,9 @@ package laika.parse.markdown
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-
 import laika.parse.helper.DefaultParserHelpers
 import laika.parse.helper.ParseResultHelpers
-import laika.tree.Elements.Document
-import laika.tree.Elements.ExternalLinkDefinition
-import laika.tree.Elements.Rule
-import laika.tree.Elements.LineBreak
+import laika.tree.Elements._
 import laika.tree.helper.ModelBuilder
     
 class BlockParsersSpec extends FlatSpec 
@@ -39,6 +35,8 @@ class BlockParsersSpec extends FlatSpec
   
   val defaultParser: Parser[Document] = document
   
+  
+  def fp (content: String) = ForcedParagraph(List(Text(content)), Fallback(Paragraph(List(Text(content)))))
   
   
   "The paragraph parser" should "parse blocks without block-level markup as normal paragraphs" in {
@@ -70,7 +68,7 @@ class BlockParsersSpec extends FlatSpec
       |* bbb
       |
       |* ccc""".stripMargin
-    Parsing (input) should produce (doc(bulletList() + p("aaa") + p("bbb") + p("ccc")))
+    Parsing (input) should produce (doc(bulletList() + fp("aaa") + fp("bbb") + fp("ccc")))
   }
   
   it should "parse items indented by a tab after the '*' in the same way as items indented by a space" in {
@@ -107,7 +105,7 @@ class BlockParsersSpec extends FlatSpec
       |2. bbb
       |
       |3. ccc""".stripMargin
-    Parsing (input) should produce (doc(enumList() + p("aaa") + p("bbb") + p("ccc")))
+    Parsing (input) should produce (doc(enumList() + fp("aaa") + fp("bbb") + fp("ccc")))
   }
   
   it should "parse items prefixed by numbers containing multiple paragraphs in a single item" in {
@@ -119,7 +117,7 @@ class BlockParsersSpec extends FlatSpec
       |2. ccc
       |
       |3. ddd""".stripMargin
-    Parsing (input) should produce (doc( enumList() + (p("aaa"), p("bbb\nbbb")) + p("ccc") + p("ddd")))
+    Parsing (input) should produce (doc( enumList() + (p("aaa"), p("bbb\nbbb")) + fp("ccc") + fp("ddd")))
   }
   
   it should "parse nested items indented by spaces" in {
@@ -128,8 +126,8 @@ class BlockParsersSpec extends FlatSpec
                   |        * ccc""".stripMargin
 
     val list3 = bulletList() + "ccc"
-    val list2 = bulletList() + (ss("bbb"), list3)
-    val list1 = bulletList() + (ss("aaa"), list2)
+    val list2 = bulletList() + (p("bbb"), list3)
+    val list1 = bulletList() + (p("aaa"), list2)
 
     Parsing (input) should produce (doc(list1))
   }
@@ -140,8 +138,8 @@ class BlockParsersSpec extends FlatSpec
       |		* ccc""".stripMargin
 
     val list3 = bulletList() + "ccc"
-    val list2 = bulletList() + (ss("bbb"), list3)
-    val list1 = bulletList() + (ss("aaa"), list2)
+    val list2 = bulletList() + (p("bbb"), list3)
+    val list1 = bulletList() + (p("aaa"), list2)
     
     Parsing (input) should produce (doc(list1))
   }
@@ -156,7 +154,7 @@ class BlockParsersSpec extends FlatSpec
       
     val nestedList = bulletList() + "aaa" + "bbb" + "ccc"
     
-    Parsing (input) should produce (doc(enumList() + "111" + (ss("222"), nestedList) + "333"))
+    Parsing (input) should produce (doc(enumList() + "111" + (p("222"), nestedList) + "333"))
   }
   
   it should "parse a bullet list nested inside an enumerated list with blank lines between the items" in {
@@ -171,7 +169,7 @@ class BlockParsersSpec extends FlatSpec
       
     val nestedList = bulletList() + "aaa" + "bbb" + "ccc"
     
-    Parsing (input) should produce (doc(enumList() + p("111") + (p("222"), nestedList) + p("333")))
+    Parsing (input) should produce (doc(enumList() + fp("111") + (p("222"), nestedList) + fp("333")))
   }
   
   it should "parse a list nested between two paragraphs inside a list item" in {

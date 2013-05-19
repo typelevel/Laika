@@ -44,8 +44,8 @@ class ExtendedHTMLSpec extends FlatSpec
   
   it should "render a field list" in {
     val elem = FieldList(List(
-      Field(List(txt("name 1")), List(ss("value 1"))),
-      Field(List(txt("name 2")), List(ss("value 2")))
+      Field(List(txt("name 1")), List(p("value 1"))),
+      Field(List(txt("name 2")), List(p("value 2")))
     ))
     val html = """<table class="field-list">
       |  <colgroup>
@@ -67,8 +67,8 @@ class ExtendedHTMLSpec extends FlatSpec
   }
   
   it should "render a list of program options" in {
-    val option1 = OptionListItem(List(ProgramOption("-a", Some(OptionArgument("arg"," ")))), List(ss("Description 1")))
-    val option2 = OptionListItem(List(ProgramOption("-b", None), ProgramOption("--foo", Some(OptionArgument("bar","=")))), List(ss("Description 2")))
+    val option1 = OptionListItem(List(ProgramOption("-a", Some(OptionArgument("arg"," ")))), List(p("Description 1")))
+    val option2 = OptionListItem(List(ProgramOption("-b", None), ProgramOption("--foo", Some(OptionArgument("bar","=")))), List(p("Description 2")))
     val elem = OptionList(List(option1,option2))
     val html = """<table class="option-list">
       |  <colgroup>

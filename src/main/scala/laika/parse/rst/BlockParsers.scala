@@ -122,20 +122,10 @@ trait BlockParsers extends BlockBaseParsers
       parseInline(block.lines mkString "\n")
     }
       
-    def blocks (blocks: Seq[Block], attr: Option[Seq[Span]]) = {
-      if (attr.isEmpty || attr.get.isEmpty) blocks
-      else {
-        blocks match {
-          case SpanSequence(content,opt) :: Nil => Paragraph(content,opt) :: Nil
-          case other => other
-        }
-      }
-    }
-
     guard(ws take 1) ~> withNestLevel(indentedBlock(firstLineIndented = true, linePredicate = not(attributionStart))) >> { 
       case (nestLevel,block) => {
         opt(opt(blankLines) ~> attribution(block.minIndent)) ^^ { spans => 
-          QuotedBlock(blocks(parseNestedBlocks(block.lines,nestLevel),spans), spans.getOrElse(Nil)) 
+          QuotedBlock(parseNestedBlocks(block.lines,nestLevel), spans.getOrElse(Nil)) 
         }
       }
     }

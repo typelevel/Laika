@@ -63,6 +63,7 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
     
     def renderBlocks (blocks: Seq[Block], close: String) = blocks match {
       case ss @ SpanSequence(_,_) :: Nil => out << ss << close
+      case Paragraph(content,opt) :: Nil => out << SpanSequence(content,opt) << close
       case other                         => out <<|> other <<| close
     }
     
@@ -70,6 +71,13 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
       val children = List(table.columns,table.head,table.body) filterNot (_.content.isEmpty)
       
       out <<@ ("table", table.options) <<|> children <<| "</table>"
+    }
+    
+    object WithFallback {
+      def unapply (value: Element) = value match {
+        case c: Customizable => c.options.fallback
+        case _ => None
+      }
     }
     
     def renderBlockContainer [T <: BlockContainer[T]](con: BlockContainer[T]) = {
@@ -99,6 +107,8 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
         case Citation(id,content,_)         => renderTable(toTable(id,id,content))
         
         case BlockSequence(content, NoOpt)  => out << content
+        
+        case WithFallback(fallback)         => out << fallback
         case c: Customizable                => out <<@ ("div",c.options) <<|> c.content <<| "</div>"
         case unknown                        => out << "<div>" <<|> unknown.content <<| "</div>"
       }
@@ -115,6 +125,8 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
       case InternalLink(content, url, title, opt)  => out <<@ ("a", opt, "href"->url, "title"->title) << content << "</a>"
       
       case SpanSequence(content, NoOpt)   => out << content
+      
+      case WithFallback(fallback)         => out << fallback
       case c: Customizable                => out <<@ ("span",c.options) << c.content << "</span>"
       case unknown                        => out << "<span>" << unknown.content << "</span>"
     }
@@ -125,6 +137,7 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
       case BulletList(content,_,opt)   => out <<@ ("ul",opt) <<|> content <<| "</ul>"
       case DefinitionList(content,opt) => out <<@ ("dl",opt) <<|> content <<| "</dl>"
       
+      case WithFallback(fallback)      => out << fallback
       case c: Customizable             => out <<@ ("div",c.options) <<|> c.content <<| "</div>"
       case unknown                     => out << "<div>" <<|> unknown.content <<| "</div>"
     }
@@ -135,6 +148,7 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
       case LiteralBlock(content,opt)   => out <<@ ("code",opt) << "<pre>" <<<&  content << "</pre></code>"
       case Comment(content,opt)        => out << "<!-- "        <<    content << " -->"
       
+      case WithFallback(fallback)      => out << fallback
       case c: Customizable             => out <<@ ("span",c.options) << c.content << "</span>"
       case unknown                     => out <<& unknown.content
     }
@@ -143,6 +157,7 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
       case Rule(opt)                   => out <<@ ("hr",opt) 
       case InternalLinkTarget(id,opt)  => out <<@ ("a",opt,"id"->id) << "</a>"
       
+      case WithFallback(fallback)      => out << fallback
       case unknown                     => ()
     }
     
@@ -152,6 +167,7 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
       case Image(text,url,title,opt)   => out <<@ ("img",opt,"src"->url,"alt"->text,"title"->title)
       case LineBreak(opt)              => out << "<br>"
       
+      case WithFallback(fallback)      => out << fallback
       case unknown                     => ()
     }
     

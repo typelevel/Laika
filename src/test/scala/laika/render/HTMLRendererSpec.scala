@@ -59,7 +59,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a blockquote with simple flow content" in {
-    val elem = quote(ss("aaa"))
+    val elem = quote(p("aaa"))
     val html = "<blockquote>aaa</blockquote>"
     render (elem) should be (html) 
   }
@@ -136,8 +136,13 @@ class HTMLRendererSpec extends FlatSpec
     render (elem) should be (html) 
   }
   
-  it should "render a bullet list with paragraphs as list items" in {
-    val elem = bulletList() + p("aaa") + p("bbb") toList
+  case class ForcedParagraph (content: Seq[Span], options: Options = NoOpt) extends Block 
+                                                                            with SpanContainer[ForcedParagraph]
+  
+  private def fp (content: String) = ForcedParagraph(List(Text(content)), Fallback(Paragraph(List(Text(content)))))
+  
+  it should "render a bullet list with forced paragraphs as list items" in {
+    val elem = bulletList() + fp("aaa") + fp("bbb") toList
     val html = """<ul>
       |  <li>
       |    <p>aaa</p>
@@ -149,8 +154,8 @@ class HTMLRendererSpec extends FlatSpec
     render (elem) should be (html) 
   }
   
-  it should "render an enumerated list with paragraphs as list items" in {
-    val elem = enumList() + p("aaa") + p("bbb")
+  it should "render an enumerated list with forced paragraphs as list items" in {
+    val elem = enumList() + fp("aaa") + fp("bbb")
     val html = """<ol class="arabic">
       |  <li>
       |    <p>aaa</p>
@@ -180,7 +185,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a definition list with simple flow content" in {
-    val elem = defList + ("term 1", ss("1")) + ("term 2", ss("2"))
+    val elem = defList + ("term 1", p("1")) + ("term 2", p("2"))
     val html = """<dl>
       |  <dt>term 1</dt>
       |  <dd>1</dd>

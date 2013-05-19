@@ -141,8 +141,8 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   /** Parses blocks that may appear inside a list item.
    */
   def listItemBlocks (nestLevel: Int) = 
-    if (nestLevel < maxNestLevel) (standardMarkdownBlock(nestLevel) | spanSequence | preserveBlankLines) *
-    else (nonRecursiveMarkdownBlock | spanSequence | preserveBlankLines) *
+    if (nestLevel < maxNestLevel) (standardMarkdownBlock(nestLevel) | paragraph | preserveBlankLines) *
+    else (nonRecursiveMarkdownBlock | paragraph | preserveBlankLines) *
   
 
   /** Parses a single paragraph. Everything between two blank lines that is not
@@ -151,12 +151,6 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   def paragraph: Parser[Paragraph] = 
     (plainText +) ^^ { lines => Paragraph(parseInline(linesToString(lines))) }
 
-  /** Parses a span sequence, a block type which may be used inside list items
-   *  to differentiate it from full paragraphs inside list items.
-   */
-  def spanSequence: Parser[SpanSequence] = 
-    (plainText +) ^^ { lines => SpanSequence(parseInline(linesToString(lines))) }
-  
    /** Parses a single line of regular flow content.
     */
   def plainText: Parser[String] = 
@@ -198,6 +192,16 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    */
   case class BlankLines (options: Options = NoOpt) extends Block
   
+  /** Represents a paragraph that does not get optimized to a simple span sequence
+   *  in renderers. Needed for the Markdown-specific way of dealing with list items
+   *  separated by blank lines which force an extra paragraph tag inside the `li` tag
+   *  in HTML renderers.
+   */
+  case class ForcedParagraph (content: Seq[Span], options: Options = NoOpt) extends Block 
+                                                                            with SpanContainer[ForcedParagraph]
+  
+  private def forcedPar (content: Seq[Span], opt: Options) = ForcedParagraph(content, opt + Fallback(Paragraph(content,opt))) 
+  
   /** Parses blank lines and produces the corresponding element model.
    */
   def preserveBlankLines = blankLines ^^^ {BlankLines()}
@@ -220,16 +224,14 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
         case None ~ _     => false
       }
       def rewriteItemContent (blocks: List[Block], pos: Int) = {
-        val rewritten = ((List[Block](), false) /: blocks) { 
-          /* Promoting SpanSequence to Paragraph if the list has any blank lines between list items or if it is adjacent
-             to blank lines within the list item itself. This is ugly, but forced by the (in this respect odd) design of Markdown. 
-             The second (boolean) value in the accumulator tuple signals whether the previous item represented one or more blank lines */
-          case ((SpanSequence(content,opt) :: xs,_), BlankLines(_))     => (Paragraph(content,opt) :: xs, true)
-          case ((xs,true), SpanSequence(content,opt))                => (Paragraph(content,opt) :: xs, false)
-          case ((xs,_), SpanSequence(content,opt)) if hasBlankLines  => (Paragraph(content,opt) :: xs, false)
-          case ((xs,_), BlankLines(_))                                  => (xs, true)
-          case ((xs,_), item)                                        => (item :: xs, false)
-        }._1.reverse
+        val rewritten = blocks match {
+          /* Promoting Paragraph to ForcedParagraph if the list has any blank lines between list items or if it is adjacent
+             to blank lines within the list item itself. This is ugly, but forced by the (in this respect odd) design of Markdown. */
+          case Paragraph(content,opt) :: BlankLines(_) :: Nil  => forcedPar(content,opt) :: Nil
+          case BlankLines(_) :: Paragraph(content,opt) :: Nil  => forcedPar(content,opt) :: Nil
+          case Paragraph(content,opt) :: Nil if hasBlankLines  => forcedPar(content,opt) :: Nil
+          case other => other filter { case BlankLines(_) => false; case _ => true }
+        }
         
         newItem(pos,rewritten)
       } 

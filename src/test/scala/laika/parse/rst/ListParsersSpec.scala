@@ -52,10 +52,10 @@ class ListParsersSpec extends FlatSpec
   
   def oli (name: String, value: Block*) = OptionListItem(List(ProgramOption(name, None)), value.toList)
 
-  def oli (name: String, value: String) = OptionListItem(List(ProgramOption(name, None)), List(ss(value)))
+  def oli (name: String, value: String) = OptionListItem(List(ProgramOption(name, None)), List(p(value)))
 
   def oli (name: String, argDelim: String, arg: String, value: String) = 
-    OptionListItem(List(ProgramOption(name, Some(OptionArgument(arg,argDelim)))), List(ss(value)))
+    OptionListItem(List(ProgramOption(name, Some(OptionArgument(arg,argDelim)))), List(p(value)))
   
   def optL (items: OptionListItem*) = OptionList(items.toList)
   
@@ -247,7 +247,7 @@ class ListParsersSpec extends FlatSpec
       | aaa
       |term 2
       | bbb""".stripMargin
-    Parsing (input) should produce (doc( defList + ("term 1", ss("aaa")) + ("term 2", ss("bbb"))))
+    Parsing (input) should produce (doc( defList + ("term 1", p("aaa")) + ("term 2", p("bbb"))))
   }
   
   it should "parse items that are separated by blank lines" in {
@@ -256,7 +256,7 @@ class ListParsersSpec extends FlatSpec
       |
       |term 2
       | bbb""".stripMargin
-    Parsing (input) should produce (doc( defList + ("term 1", ss("aaa")) + ("term 2", ss("bbb"))))
+    Parsing (input) should produce (doc( defList + ("term 1", p("aaa")) + ("term 2", p("bbb"))))
   }
   
   it should "parse a term with a classifier" in {
@@ -265,7 +265,7 @@ class ListParsersSpec extends FlatSpec
       |
       |term 2 : classifier
       | bbb""".stripMargin
-    Parsing (input) should produce (doc( defList + ("term 1", ss("aaa")) + (List(txt("term 2 "), Classifier(List(txt("classifier")))), ss("bbb"))))
+    Parsing (input) should produce (doc( defList + ("term 1", p("aaa")) + (List(txt("term 2 "), Classifier(List(txt("classifier")))), p("bbb"))))
   }
   
   it should "parse items containing multiple paragraphs in a single item" in {
@@ -277,7 +277,7 @@ class ListParsersSpec extends FlatSpec
       |
       |term 2
       |  ccc""".stripMargin
-    Parsing (input) should produce (doc( defList + ("term 1", p("aaa\naaa"), p("bbb")) + ("term 2", ss("ccc"))))
+    Parsing (input) should produce (doc( defList + ("term 1", p("aaa\naaa"), p("bbb")) + ("term 2", p("ccc"))))
   }
   
   it should "support inline markup in the term" in {
@@ -286,7 +286,7 @@ class ListParsersSpec extends FlatSpec
       |
       |term 2
       | bbb""".stripMargin
-    Parsing (input) should produce (doc( defList + (List(txt("term "), em(txt("em"))), ss("aaa")) + ("term 2", ss("bbb"))))
+    Parsing (input) should produce (doc( defList + (List(txt("term "), em(txt("em"))), p("aaa")) + ("term 2", p("bbb"))))
   }
   
   
@@ -295,7 +295,7 @@ class ListParsersSpec extends FlatSpec
     val input = """:name1: value1
       |:name2: value2
       |:name3: value3""".stripMargin
-    Parsing (input) should produce (doc( fl( field("name1", ss("value1")), field("name2", ss("value2")), field("name3", ss("value3")))))
+    Parsing (input) should produce (doc( fl( field("name1", p("value1")), field("name2", p("value2")), field("name3", p("value3")))))
   }
   
   it should "parse a list with bodies spanning multiple lines" in {
@@ -303,7 +303,7 @@ class ListParsersSpec extends FlatSpec
       |  line1b
       |:name2: line2a
       |  line2b""".stripMargin
-    Parsing (input) should produce (doc( fl( field("name1", ss("line1a\nline1b")), field("name2", ss("line2a\nline2b")))))
+    Parsing (input) should produce (doc( fl( field("name1", p("line1a\nline1b")), field("name2", p("line2a\nline2b")))))
   }
   
   it should "parse a list with bodies spanning multiple blocks" in {
@@ -314,7 +314,7 @@ class ListParsersSpec extends FlatSpec
       |  line1d
       |:name2: line2a
       |  line2b""".stripMargin
-    Parsing (input) should produce (doc( fl( field("name1", p("line1a\nline1b"), p("line1c\nline1d")), field("name2", ss("line2a\nline2b")))))
+    Parsing (input) should produce (doc( fl( field("name1", p("line1a\nline1b"), p("line1c\nline1d")), field("name2", p("line2a\nline2b")))))
   }
   
   

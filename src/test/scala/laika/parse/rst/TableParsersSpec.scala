@@ -169,7 +169,7 @@ class TableParsersSpec extends FlatSpec
       |+===+===+
       || c | d |
       |+---+---+""".stripMargin
-    Parsing (input) should produce (doc( Table(TableHead(List(row(Cell(HeadCell,List(ss("a"))), Cell(HeadCell,List(ss("b")))))), 
+    Parsing (input) should produce (doc( Table(TableHead(List(row(Cell(HeadCell,List(p("a"))), Cell(HeadCell,List(p("b")))))), 
                                                TableBody(List(strrow("c","d"))))))
   }
   
@@ -228,7 +228,7 @@ class TableParsersSpec extends FlatSpec
       |===  ===
       | c    d
       |===  ===""".stripMargin
-    Parsing (input) should produce (doc( Table(TableHead(List(row(Cell(HeadCell,List(ss("a"))), Cell(HeadCell,List(ss("b")))))), 
+    Parsing (input) should produce (doc( Table(TableHead(List(row(Cell(HeadCell,List(p("a"))), Cell(HeadCell,List(p("b")))))), 
                                                TableBody(List(strrow("c","d"))))))
   }
   
