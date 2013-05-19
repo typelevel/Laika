@@ -122,11 +122,9 @@ trait BlockParsers extends BlockBaseParsers
       parseInline(block.lines mkString "\n")
     }
       
-    guard(ws take 1) ~> withNestLevel(indentedBlock(firstLineIndented = true, linePredicate = not(attributionStart))) >> { 
-      case (nestLevel,block) => {
-        opt(opt(blankLines) ~> attribution(block.minIndent)) ^^ { spans => 
-          QuotedBlock(parseNestedBlocks(block.lines,nestLevel), spans.getOrElse(Nil)) 
-        }
+    guard(ws take 1) ~> indentedBlock(firstLineIndented = true, linePredicate = not(attributionStart)) >> { 
+      block => opt(opt(blankLines) ~> attribution(block.minIndent)) ^^ { 
+        spans => QuotedBlock(parseNestedBlocks(block), spans.getOrElse(Nil)) 
       }
     }
   }
