@@ -40,6 +40,20 @@ import laika.tree.Elements.Text
 trait InlineParsers extends MarkupParsers {
   
 
+  /** The mapping of markup start characters to their corresponding
+   *  span parsers.
+   * 
+   *  A parser mapped to a start character is not required
+   *  to successfully parse the subsequent input. If it fails the 
+   *  character that triggered the parser invocation will be treated
+   *  as normal text. The mapping is merely used as a performance
+   *  optimization. The parser will be invoked with the input 
+   *  offset pointing to the character after the one
+   *  specified as the key for the mapping.
+   */
+  def spanParsers: Map[Char,Parser[Span]]
+  
+  
   /** Abstracts the internal process of building up the result of an inline parser.
    *  Since some inline parser produce a tree of nested spans whereas others may
    *  only produce a text result, they often require the same logic in how they
@@ -148,7 +162,8 @@ trait InlineParsers extends MarkupParsers {
    *  
    *  This function is expected to always succeed, errors would be considered a bug
    *  of this library, as the parsers treat all unknown or malformed markup as regular
-   *  text.
+   *  text. Some parsers might additionally insert system message elements in case
+   *  of markup errors.
    *  
    *  @param source the input to parse
    *  @param spanParsers a mapping from the start character of a span to the corresponding parser
@@ -156,5 +171,18 @@ trait InlineParsers extends MarkupParsers {
    */
   def parseInline (source: String, spanParsers: Map[Char, Parser[Span]]) = 
     parseMarkup(inline(any, spanParsers, new SpanBuilder), source)
+    
+  /** Fully parses the input string and produces a list of spans, using the
+   *  default span parsers returned by the `spanParsers` method.
+   * 
+   *  This function is expected to always succeed, errors would be considered a bug
+   *  of this library, as the parsers treat all unknown or malformed markup as regular
+   *  text. Some parsers might additionally insert system message elements in case
+   *  of markup errors.
+   *  
+   *  @param source the input to parse
+   *  @return the result of the parser in form of a list of spans
+   */
+  def parseInline (source: String): List[Span] = parseInline(source, spanParsers)
 
 }

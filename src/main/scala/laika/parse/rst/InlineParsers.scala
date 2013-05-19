@@ -352,10 +352,6 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   private lazy val reverseMarkupStart: Parser[Any] = guard(eof | beforeStartMarkup)
   
   
-  /** Parses all inline elements of the specified source string.
-   */
-  def parseInline (source: String): List[Span] = parseInline(source, spanParsers)
-  
   override def parseInline (source: String, spanParsers: Map[Char, Parser[Span]]) = {
     val spans = super.parseInline(source, spanParsers)
     if (spans.isEmpty) spans

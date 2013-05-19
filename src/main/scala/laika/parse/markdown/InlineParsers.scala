@@ -33,20 +33,8 @@ import java.net.URI
 trait InlineParsers extends laika.parse.InlineParsers { self =>
  
   
-  /** The Markdown escape character.
-   */
-  val escapeChar = '\\'
-  
-  
   /** Creates a new mapping from the start character of an inline span
     * to the corresponding parser. May be overridden by subtraits.
-    * A parser mapped to a start character is not required
-    * to successfully parse the subsequent input. If it fails the 
-    * character that triggered the parser invocation will be treated
-    * as normal text. The mapping is merely used as a performance
-    * optimization. The parser will be invoked with the input 
-    * offset pointing to the character after the one
-    * specified as the key for the mapping.
     */
   protected def newSpanParserMap:Map[Char,Parser[Span]] = Map(
     '*' -> (strong('*') | em('*')),    
@@ -58,9 +46,6 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
     '!' -> image
   )
   
-  /** The mapping of start characters to span parsers created by
-   *  delegating to the `newSpanParserMap` method.
-   */
   final lazy val spanParsers = newSpanParserMap
   
   
@@ -206,10 +191,9 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
    *  The title is optional as well as the quotes around it and the angle brackets around the url.
    */
   def linkTarget = {
-    //val optWSorLF = ws ~ opt(eol) ~ ws
     
     val id = '[' ~> escapedUntil(']') <~ ':' <~ ws
-    val url = (('<' ~> escapedUntil('>')) | text(anyBut(' ', '\n'), escapedChars)) /*<~ optWSorLF*/ ^^ { _.mkString }
+    val url = (('<' ~> escapedUntil('>')) | text(anyBut(' ', '\n'), escapedChars)) ^^ { _.mkString }
     
     def enclosedBy(start: Char, end: Char) = 
       start ~> anyBut('\r','\n',end) <~ end ^^ { _.mkString }
@@ -218,13 +202,6 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
     
     id ~ url ~ opt(title) <~ ws ~ eol ^^ { case id ~ url ~ title => ExternalLinkDefinition(id.toLowerCase, url, title) } 
   }
-  
-  
-  /** Parses the specified source string into a list of spans, using all the individual 
-   *  span parsers provided by this trait. The block parsers use this hook to parse
-   *  their content in a second parser phase.
-   */
-  def parseInline (source: String): List[Span] = parseInline(source, spanParsers)
   
   
 }
