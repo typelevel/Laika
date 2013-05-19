@@ -40,7 +40,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   
   /** Creates a new mapping from the start character of an inline span
     * to the corresponding parser. May be overridden by subtraits.
-    * The parsers mapped to the start character is not required
+    * A parser mapped to a start character is not required
     * to successfully parse the subsequent input. If it fails the 
     * character that triggered the parser invocation will be treated
     * as normal text. The mapping is merely used as a performance
