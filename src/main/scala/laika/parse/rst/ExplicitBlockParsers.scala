@@ -30,7 +30,7 @@ import scala.collection.mutable.ListBuffer
  * 
  * @author Jens Halm
  */
-trait ExplicitBlockParsers extends BlockBaseParsers { self: InlineParsers =>
+trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
 
   
   

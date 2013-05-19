@@ -27,7 +27,7 @@ import laika.util.RomanNumerals
  * 
  * @author Jens Halm
  */
-trait ListParsers extends BlockBaseParsers { self: InlineParsers =>
+trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
 
   
   private def listItem [I <: ListItem] (itemStart: Parser[String], newListItem: List[Block] => I): Parser[I] = {

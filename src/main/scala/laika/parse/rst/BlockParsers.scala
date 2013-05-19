@@ -32,11 +32,13 @@ import scala.annotation.tailrec
  * 
  * @author Jens Halm
  */
-trait BlockParsers extends BlockBaseParsers 
+trait BlockParsers extends laika.parse.BlockParsers 
                       with ListParsers 
                       with TableParsers 
                       with ExplicitBlockParsers { self: InlineParsers =>
 
+  
+  override def ws = anyOf(' ') // other whitespace has been replaced with spaces by preprocessor
                         
   /** Parses a full document and applies the default rules for resolving
    *  all kinds of references like footnotes, citations, link references,

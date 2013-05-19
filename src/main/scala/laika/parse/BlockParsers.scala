@@ -27,8 +27,8 @@ import scala.util.parsing.input.Reader
  *  lines, blank lines, etc.) as well as a convenient `block` helper parser
  *  that simplifies parsing of full blocks.
  *  
- *  The only abstract members are the `topLevelBlock` and `nestedBlock` parsers
- *  that the other parsers delegate to.
+ *  The only abstract members are the `topLevelBlock`, `nestedBlock` and
+ *  `nonRecursiveBlock` parsers that the other parsers delegate to.
  * 
  *  A block parser in Laika can always safely assume that it is invoked at 
  *  the start of the current line and that the line is not empty.
@@ -87,6 +87,11 @@ trait BlockParsers extends MarkupParsers {
     
     parseMarkup(opt(blankLines) ~> blocks, reader)
   }
+  
+  /** Parses all nested blocks inside the specified indented block.
+   */
+  def parseNestedBlocks (block: IndentedBlock): List[Block] = 
+    parseNestedBlocks(block.lines, block.nestLevel)
   
   /** Builds a parser for a list of blocks based on the parser for a single block.
    */
@@ -176,8 +181,70 @@ trait BlockParsers extends MarkupParsers {
     
     lazy val nextBlock = blankLines <~ guard(nextBlockPrefix) ^^ { _.mkString("\n") }
     
-    firstLine ~ ( (line | nextBlock)* ) ^^ { mkList(_) }
+    firstLine ~ ( (line | nextBlock)* ) ^^ mkList
     
+  }
+  
+  case class IndentedBlock (nestLevel: Int, minIndent: Int, lines: List[String])
+  
+  /** Parses a full block based on the specified helper parsers, expecting an indentation for
+   *  all lines except the first. The indentation may vary between the parts of the indented
+   *  block, so that this parser only cuts off the minimum indentation shared by all lines,
+   *  but each line must have at least the specified minimum indentation.
+   * 
+   *  @param minIndent the minimum indentation that each line in this block must have
+   *  @param linePredicate parser that recognizes the start of subsequent lines that still belong to the same block
+   *  @param endsOnBlankLine indicates whether parsing should end on the first blank line
+   *  @param firstLineIndented indicates whether the first line is expected to be indented, too
+   *  @return a parser that produces an instance of IndentedBlock
+   */
+  def indentedBlock (minIndent: Int = 1,
+                     linePredicate: => Parser[Any] = success(), 
+                     endsOnBlankLine: Boolean = false,
+                     firstLineIndented: Boolean = false): Parser[IndentedBlock] = {
+    
+    import scala.math._
+    
+    abstract class Line extends Product { def curIndent: Int }
+    case class BlankLine(curIndent: Int) extends Line
+    case class IndentedLine(curIndent: Int, indent: Int, text: String) extends Line
+    case class FirstLine(text: String) extends Line { val curIndent = Int.MaxValue }
+    
+    val composedLinePredicate = not(blankLine) ~ linePredicate
+    
+    def lineStart (curIndent: Int) = ((ws min minIndent max curIndent) ^^ {_.length}) <~ composedLinePredicate
+    
+    def textLine (curIndent: Int) = (lineStart(curIndent) ~ (ws ^^ {_.length}) ~ restOfLine) ^^ { 
+      case indent1 ~ indent2 ~ text => List(IndentedLine(min(indent1, curIndent), indent1 + indent2, text.trim)) 
+    }
+    
+    def emptyLines (curIndent: Int) = blankLines <~ guard(lineStart(curIndent)) ^^ {
+      res => Stream.fill(res.length)(BlankLine(curIndent)).toList 
+    }
+    
+    val firstLine = 
+      if (firstLineIndented) textLine(Int.MaxValue) 
+      else restOfLine ^^ { s => List(FirstLine(s)) }
+    
+    val firstLineGuard = if (firstLineIndented) ((ws min minIndent) ^^ {_.length}) ~ composedLinePredicate else success()
+    
+    def nextLine (prevLines: List[Line]) = 
+      if (endsOnBlankLine) textLine(prevLines.head.curIndent)
+      else textLine(prevLines.head.curIndent) | emptyLines(prevLines.head.curIndent) 
+      
+    def result (lines: List[List[Line]]): (Int, List[String]) = if (lines.isEmpty) (minIndent,Nil) else {
+      val minIndent = lines.last.head.curIndent
+      (minIndent, lines.flatten map {
+        case FirstLine(text)             => text
+        case IndentedLine(_,indent,text) => " " * (indent - minIndent) + text
+        case BlankLine(_)                => ""  
+      })
+    }
+
+    guard(firstLineGuard) ~> withNestLevel(rep(firstLine, nextLine)) ^^ { case (nestLevel,parsed) => {
+      val (minIndent, lines) = result(parsed)
+      IndentedBlock(nestLevel, minIndent, lines)
+    }}
   }
   
   
