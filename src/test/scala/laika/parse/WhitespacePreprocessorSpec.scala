@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package laika.parse.rst
+package laika.parse
 
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
+import laika.parse.util.WhitespacePreprocessor
 
 class WhitespacePreprocessorSpec extends FlatSpec 
                                  with ShouldMatchers {

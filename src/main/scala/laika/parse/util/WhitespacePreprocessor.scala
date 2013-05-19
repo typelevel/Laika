@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package laika.parse.rst
-
-import scala.annotation.tailrec
+package laika.parse.util
 
 /** Processes whitespace, removing or replacing most whitespace characters except
  *  for newline and space.

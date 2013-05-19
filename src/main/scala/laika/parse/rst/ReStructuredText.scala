@@ -21,6 +21,7 @@ import laika.tree.Elements._
 import laika.parse.rst.Directives._
 import laika.parse.rst.TextRoles._
 import scala.util.parsing.input.CharSequenceReader
+import laika.parse.util.WhitespacePreprocessor
   
 /** A parser for text written in reStructuredText markup. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:
