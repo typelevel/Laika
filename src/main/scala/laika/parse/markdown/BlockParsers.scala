@@ -175,13 +175,6 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
       { lines => QuotedBlock(parseNestedBlocks(lines, nestedBlock(nestLevel + 1)), Nil) }
 
   
-  /** Represents one or more consecutive blank lines. For parsing Markdown lists
-   *  these blank lines become part of the document tree temporarily. This is because
-   *  blank lines between list items are significant in Markdown. They will be processed
-   *  and removed from the model, before the final Document instance gets produced.
-   */
-  case class BlankLines (options: Options = NoOpt) extends Block
-  
   /** Represents a paragraph that does not get optimized to a simple span sequence
    *  in renderers. Needed for the Markdown-specific way of dealing with list items
    *  separated by blank lines which force an extra paragraph tag inside the `li` tag
@@ -189,8 +182,6 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    */
   case class ForcedParagraph (content: Seq[Span], options: Options = NoOpt) extends Block 
                                                                             with SpanContainer[ForcedParagraph]
-  
-  private def forcedPar (content: Seq[Span], opt: Options) = ForcedParagraph(content, opt + Fallback(Paragraph(content,opt))) 
   
   /** Parses a list based on the specified helper parsers.
    * 
@@ -204,16 +195,18 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
                                         newItem: (Int,List[Block]) => I, 
                                         nestLevel: Int) = {
     
-    def flattenItems (items: List[~[Option[Block],List[Block]]]) = {
+    def flattenItems (items: List[~[Option[Any],List[Block]]]) = {
       val hasBlankLines = items exists { 
         case Some(_) ~ _  => true
         case None ~ _     => false
       }
       def rewriteItemContent (blocks: List[Block], pos: Int) = {
         val rewritten = blocks match {
-          /* Promoting Paragraph to ForcedParagraph if the list has any blank lines between list items or if it is adjacent
-             to blank lines within the list item itself. This is ugly, but forced by the (in this respect odd) design of Markdown. */
-          case Paragraph(content,opt) :: Nil if hasBlankLines  => forcedPar(content,opt) :: Nil
+          /* Promoting Paragraph to ForcedParagraph if the list has any blank lines 
+             between list items or if it is adjacent to blank lines within the list item 
+             itself. This is ugly, but forced by the (in this respect odd) design of Markdown. */
+          case Paragraph(content,opt) :: Nil if hasBlankLines => 
+            ForcedParagraph(content, opt + Fallback(Paragraph(content,opt))) :: Nil
           case other => other
         }
         
@@ -223,7 +216,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
       items map { item => rewriteItemContent(item._2, pos.next) } 
     }
     
-    guard(itemStart) ~> ((opt(blankLines ^^^ BlankLines()) ~ listItem(itemStart, nestLevel)) *) ^^ 
+    guard(itemStart) ~> ((opt(blankLines) ~ listItem(itemStart, nestLevel)) *) ^^ 
       { x => newList(flattenItems(x)) }
   }
   
