@@ -191,9 +191,7 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
     } 
   }
   
-  override def topLevelMarkdownBlock: Parser[Block] = super.topLevelMarkdownBlock | htmlBlock
-  
-  //def parseHTMLSpans (text: String): List[Span] = parseInline(text, htmlParsers) 
+  override def topLevelBlock: Parser[Block] = htmlBlock | super.topLevelBlock
   
   
 }

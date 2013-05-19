@@ -17,8 +17,6 @@
 package laika.parse.rst
 
 import laika.tree.Elements._
-import scala.annotation.tailrec
-import scala.util.parsing.input.CharSequenceReader
 import scala.collection.mutable.ListBuffer
 
 /** Base parsers used by all of the various block-level parser traits.
@@ -28,66 +26,14 @@ import scala.collection.mutable.ListBuffer
 trait BlockBaseParsers extends laika.parse.BlockParsers {
 
   
-  /** The maximum level of block nesting. Some block types like lists
-   *  and blockquotes contain nested blocks. To protect against malicious
-   *  input or accidentally broken markup, the level of nesting is restricted.
-   */
-  val maxNestLevel: Int = 12
-  
-  
-  /** Parses reStructuredText blocks, except for blocks that allow nesting of blocks. 
-   *  Only used in rare cases when the maximum nest level allowed had been reached
-   */
-  def nonRecursiveBlock: Parser[Block]
-  
-  
   override def ws = anyOf(' ') // other whitespace has been replaced with spaces by preprocessor
-
-  
-  /** Reader implementation that keeps the current nest level in case
-   *  of recursive parsing of block-level elements.
-   * 
-   *  @param nestLevel the nest level of the parser this reader is used with, 0 being the outermost
-   *  @param src the character source to read from
-   *  @param off the offset position this reader reads from
-   */
-  class NestedCharSequenceReader (val nestLevel: Int, 
-                                  src: java.lang.CharSequence,
-                                  off: Int) extends CharSequenceReader(src, off) {
-    
-    def this (nestLevel: Int, src: java.lang.CharSequence) = this(nestLevel, src, 0)
-    
-    override def rest: CharSequenceReader =
-      if (offset < source.length) new NestedCharSequenceReader(nestLevel, source, offset + 1)
-      else this
-      
-    override def drop(n: Int): CharSequenceReader =
-      new NestedCharSequenceReader(nestLevel, source, offset + n)  
-      
-  }
   
   
   /** Parses all nested blocks inside the specified indented block.
    */
   def parseNestedBlocks (block: IndentedBlock): List[Block] = 
     parseNestedBlocks(block.lines, block.nestLevel)
-  
-  /** Parses all nested blocks for the specified input and nest level.
-   *  The nest level is primarily used as a protection against malicious
-   *  input that forces endless recursion.
-   * 
-   *  @param lines the input to parse
-   *  @param nestLevel the level of nesting with 0 being the outermost level
-   *  @return the parser result as a list of blocks
-   */
-  def parseNestedBlocks (lines: List[String], nestLevel: Int): List[Block] = {
-    val parser = if (nestLevel < maxNestLevel) nestedBlock else nonRecursiveBlock 
-    val reader = new NestedCharSequenceReader(nestLevel + 1, lines mkString "\n")
-    val block = parser <~ opt(blankLines) 
     
-    parseMarkup(opt(blankLines) ~> (block *), reader)
-  }
-  
   case class IndentedBlock (nestLevel: Int, minIndent: Int, lines: List[String])
   
   /** Parses a full block based on the specified helper parsers, expecting an indentation for
@@ -148,27 +94,6 @@ trait BlockBaseParsers extends laika.parse.BlockParsers {
       val (minIndent, lines) = result(parsed)
       IndentedBlock(nestLevel, minIndent, lines)
     }}
-  }
-  
-  /** Creates a new parser that produces a tuple containing the current nest
-   *  level as well as the result from the specified parser.
-   * 
-   *  The nest level is usually only used to prevent endless recursion of nested blocks. 
-   */
-  def withNestLevel [T] (p: => Parser[T]) = Parser { in =>
-    p(in) match {
-      case Success(res, next) => Success((nestLevel(next), res), next)
-      case ns: NoSuccess      => ns
-    }
-  }
-  
-  /** Returns the current nest level from the specified input or 0 if it cannot be determined.
-   * 
-   *  The nest level is usually only used to prevent endless recursion of nested blocks. 
-   */
-  def nestLevel (reader: Input) = reader match {
-    case nested: NestedCharSequenceReader => nested.nestLevel
-    case _ => 0
   }
   
   

@@ -176,9 +176,9 @@ trait BlockParsers extends BlockBaseParsers
           buffer += et.copy(id = it.id)
         case (buffer, (h @ SectionHeader(_,_,_,_)) :: _) => 
           buffer += InternalLinkTarget(toLinkId(h)) += h  
-        case (buffer, other :: _) => 
-          buffer += other
-        case (buffer, _) => buffer // just to avoid the warnings
+        case (buffer, _ :: Nil)   => buffer
+        case (buffer, other :: _) => buffer += other
+        case (buffer, _)          => buffer
       }
       processed.toList
     }

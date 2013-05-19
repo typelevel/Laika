@@ -32,14 +32,8 @@ import scala.collection.mutable.StringBuilder
  */
 trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers => 
   
+
   
-  /** The maximum level of block nesting. Some block types like lists
-   *  and blockquotes contain nested blocks. To protect against malicious
-   *  input or accidentally broken markup, the level of nesting is restricted.
-   */
-  val maxNestLevel: Int = 12
-  
-   
   /** Parses a single tab or space character.
    */
   val tabOrSpace: Parser[Any] = anyOf(' ','\t') take 1
@@ -113,30 +107,18 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   /** Parses all of the standard Markdown blocks, except normal paragraphs and those blocks
    *  that deal with verbatim HTML. For the latter parsers are provided by a separate, optional trait.
    */
-  def standardMarkdownBlock (nestLevel: Int): Parser[Block] = 
+  def standardMarkdownBlock: Parser[Block] = 
     atxHeader | setextHeader | (insignificantSpaces ~> 
-      (literalBlock | quotedBlock(nestLevel) | rule | bulletList(nestLevel) | enumList(nestLevel)))
+      (literalBlock | quotedBlock | rule | bulletList | enumList))
 
-  /** Parses Markdown blocks, except normal paragraphs, blocks that deal with verbatim HTML
-   *  and blocks that allow nesting of blocks. Only used in rare cases when the maximum
-   *  nest level allowed had been reached
-   */
-  def nonRecursiveMarkdownBlock: Parser[Block] = 
-    atxHeader | setextHeader | (insignificantSpaces ~> (literalBlock | rule ))
+  
+  def topLevelBlock: Parser[Block] = standardMarkdownBlock | linkTarget | paragraph 
+ 
+  def nestedBlock: Parser[Block] = standardMarkdownBlock | paragraph
+  
+  def nonRecursiveBlock: Parser[Block] = 
+    atxHeader | setextHeader | (insignificantSpaces ~> (literalBlock | rule )) | paragraph
 
-  /** Parses Markdown blocks which are only recognized on the top document
-   *  level, not nested inside other blocks.
-   */
-  def topLevelMarkdownBlock: Parser[Block] = linkTarget
- 
-  
-  def topLevelBlock: Parser[Block] = standardMarkdownBlock(0) | topLevelMarkdownBlock | paragraph 
- 
-  def nestedBlock: Parser[Block] = standardMarkdownBlock(1) | paragraph
-  
-  def nestedBlock (nestLevel: Int): Parser[Block] = 
-    if (nestLevel < maxNestLevel) standardMarkdownBlock(nestLevel) | paragraph
-    else nonRecursiveMarkdownBlock | paragraph
 
   /** Parses a single paragraph. Everything between two blank lines that is not
    *  recognized as a special Markdown block type will be parsed as a regular paragraph.
@@ -170,9 +152,9 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   /** Parses a quoted block, a paragraph starting with a `'>'` character,
    *  with subsequent lines optionally starting with a `'>'`, too.
    */
-  def quotedBlock (nestLevel: Int): Parser[QuotedBlock] 
-    = mdBlock('>', accept('>') | not(blankLine), '>') ^^ 
-      { lines => QuotedBlock(parseNestedBlocks(lines, nestedBlock(nestLevel + 1)), Nil) }
+  def quotedBlock: Parser[QuotedBlock] 
+    = withNestLevel(mdBlock('>', accept('>') | not(blankLine), '>')) ^^ 
+      { case (nestLevel,lines) => QuotedBlock(parseNestedBlocks(lines, nestLevel), Nil) }
 
   
   /** Represents a paragraph that does not get optimized to a simple span sequence
@@ -192,8 +174,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    */
   def list [T <: Block, I <: ListItem] (itemStart: Parser[String], 
                                         newList: List[ListItem] => T, 
-                                        newItem: (Int,List[Block]) => I, 
-                                        nestLevel: Int) = {
+                                        newItem: (Int,List[Block]) => I) = {
     
     def flattenItems (items: List[~[Option[Any],List[Block]]]) = {
       val hasBlankLines = items exists { 
@@ -216,7 +197,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
       items map { item => rewriteItemContent(item._2, pos.next) } 
     }
     
-    guard(itemStart) ~> ((opt(blankLines) ~ listItem(itemStart, nestLevel)) *) ^^ 
+    guard(itemStart) ~> ((opt(blankLines) ~ listItem(itemStart)) *) ^^ 
       { x => newList(flattenItems(x)) }
   }
   
@@ -224,9 +205,9 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    * 
    *  @param itemStart parser that recognizes the start of a list item, result will be discarded
    */
-  def listItem [I <: ListItem] (itemStart: Parser[String], nestLevel: Int): Parser[List[Block]]
-    = mdBlock(itemStart, not(blankLine | itemStart) ~ opt(tabOrSpace), tabOrSpace) ^^
-        { lines => parseNestedBlocks(lines, nestedBlock(nestLevel + 1)) }
+  def listItem [I <: ListItem] (itemStart: Parser[String]): Parser[List[Block]]
+    = withNestLevel(mdBlock(itemStart, not(blankLine | itemStart) ~ opt(tabOrSpace), tabOrSpace)) ^^
+        { case (nestLevel,lines) => parseNestedBlocks(lines, nestLevel) }
  
   
   /** Parses the start of a bullet list item.
@@ -239,17 +220,17 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   
   /** Parses a bullet list, called "unordered list" in the Markdown syntax description.
    */
-  def bulletList (nestLevel: Int): Parser[BulletList] = {
+  def bulletList: Parser[BulletList] = {
     guard(bulletListItemStart) >> { symbol =>
       val bullet = StringBullet(symbol)
-      list(bulletListItemStart, BulletList(_,bullet), (_,blocks)=>BulletListItem(blocks,bullet), nestLevel)
+      list(bulletListItemStart, BulletList(_,bullet), (_,blocks)=>BulletListItem(blocks,bullet))
     }
   }
     
   /** Parses an enumerated list, called "ordered list" in the Markdown syntax description.
    */
-  def enumList (nestLevel: Int): Parser[EnumList] = {
-    list(enumListItemStart, EnumList(_, EnumFormat()), (pos,blocks)=>EnumListItem(blocks,EnumFormat(),pos), nestLevel) 
+  def enumList: Parser[EnumList] = {
+    list(enumListItemStart, EnumList(_, EnumFormat()), (pos,blocks)=>EnumListItem(blocks,EnumFormat(),pos)) 
   }
     
   

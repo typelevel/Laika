@@ -17,6 +17,7 @@
 package laika.parse
   
 import laika.tree.Elements.{Block,Document}
+import scala.util.parsing.input.CharSequenceReader
 import scala.util.parsing.input.Reader
   
 /** A generic base trait for block parsers. Provides base parsers that abstract
@@ -36,6 +37,13 @@ import scala.util.parsing.input.Reader
  */
 trait BlockParsers extends MarkupParsers {
 
+  
+  /** The maximum level of block nesting. Some block types like lists
+   *  and blockquotes contain nested blocks. To protect against malicious
+   *  input or accidentally broken markup, the level of nesting is restricted.
+   */
+  val maxNestLevel: Int = 12
+  
    
   /** Parses any kind of top-level block supported by a concrete markup language.
    */
@@ -44,7 +52,12 @@ trait BlockParsers extends MarkupParsers {
   /** Parses any kind of nested block supported by a concrete markup language.
    */
   def nestedBlock: Parser[Block]
-  
+ 
+  /** Parses reStructuredText blocks, except for blocks that allow nesting of blocks. 
+   *  Only used in rare cases when the maximum nest level allowed had been reached
+   */
+  def nonRecursiveBlock: Parser[Block]
+
   
   /** Parses a full document, delegating most of the work to the `topLevelBlock` parser.
    */
@@ -57,31 +70,70 @@ trait BlockParsers extends MarkupParsers {
    */
   def parseDocument (reader: Reader[Char]): Document = parseMarkup(document, reader)
    
-  /** Fully parses the list of lines and returns a list of blocks, delegating to the
-   *  abstract `nestedBlock` parser that sub-traits need to define.
-   *  
-   *  This function is expected to always succeed, errors would be considered a bug
-   *  of this library, as the parsers treat all unknown or malformed markup as regular
-   *  text.
-   */
-  def parseNestedBlocks (lines: List[String]): List[Block] = {
-    parseNestedBlocks(lines, nestedBlock)
-  }
   
-  /** Fully parses the list of lines and returns a list of blocks, using the specified
-   *  parser for parsing individual blocks instead of the default `nestedBlock` parser.
-   *  
-   *  This function is expected to always succeed, errors would be considered a bug
-   *  of this library, as the parsers treat all unknown or malformed markup as regular
-   *  text.
+  /** Parses all nested blocks for the specified input and nest level.
+   *  Delegates to the abstract `nestedBlock` parser that sub-traits need to define.
+   *  The nest level is primarily used as a protection against malicious
+   *  input that forces endless recursion.
+   * 
+   *  @param lines the input to parse
+   *  @param nestLevel the level of nesting with 0 being the outermost level
+   *  @return the parser result as a list of blocks
    */
-  def parseNestedBlocks (lines: List[String], parser: Parser[Block]): List[Block] = {
-    parseMarkup(blockList(parser), lines mkString "\n")
+  def parseNestedBlocks (lines: List[String], nestLevel: Int): List[Block] = {
+    val parser = if (nestLevel < maxNestLevel) nestedBlock else nonRecursiveBlock 
+    val reader = new NestedCharSequenceReader(nestLevel + 1, lines mkString "\n")
+    val blocks = blockList(parser) 
+    
+    parseMarkup(opt(blankLines) ~> blocks, reader)
   }
   
   /** Builds a parser for a list of blocks based on the parser for a single block.
    */
   def blockList (p: => Parser[Block]): Parser[List[Block]] = (p <~ opt(blankLines))*
+  
+  /** Reader implementation that keeps the current nest level in case
+   *  of recursive parsing of block-level elements.
+   * 
+   *  @param nestLevel the nest level of the parser this reader is used with, 0 being the outermost
+   *  @param src the character source to read from
+   *  @param off the offset position this reader reads from
+   */
+  class NestedCharSequenceReader (val nestLevel: Int, 
+                                  src: java.lang.CharSequence,
+                                  off: Int) extends CharSequenceReader(src, off) {
+    
+    def this (nestLevel: Int, src: java.lang.CharSequence) = this(nestLevel, src, 0)
+    
+    override def rest: CharSequenceReader =
+      if (offset < source.length) new NestedCharSequenceReader(nestLevel, source, offset + 1)
+      else this
+      
+    override def drop(n: Int): CharSequenceReader =
+      new NestedCharSequenceReader(nestLevel, source, offset + n)  
+      
+  }
+
+  /** Creates a new parser that produces a tuple containing the current nest
+   *  level as well as the result from the specified parser.
+   * 
+   *  The nest level is usually only used to prevent endless recursion of nested blocks. 
+   */
+  def withNestLevel [T] (p: => Parser[T]) = Parser { in =>
+    p(in) match {
+      case Success(res, next) => Success((nestLevel(next), res), next)
+      case ns: NoSuccess      => ns
+    }
+  }
+  
+  /** Returns the current nest level from the specified input or 0 if it cannot be determined.
+   * 
+   *  The nest level is usually only used to prevent endless recursion of nested blocks. 
+   */
+  def nestLevel (reader: Input) = reader match {
+    case nested: NestedCharSequenceReader => nested.nestLevel
+    case _ => 0
+  }
   
   /** Parses a single text line from the current input offset (which may not be at the
    *  start of the line. Fails for blank lines. Does not include the eol character(s).
@@ -94,7 +146,7 @@ trait BlockParsers extends MarkupParsers {
    *  characters found in the line. 
    *  
    *  Since it also succeeds at the end of the input
-   *  it should never be used in the form of (blankLine *) or (blankLine +). Use
+   *  it should never be used in the form of `(blankLine *)` or `(blankLine +)`. Use
    *  the `blankLines` parser instead in these cases.
    */
   val blankLine: Parser[String] = ws ~ eol ^^^ ""
