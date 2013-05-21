@@ -82,8 +82,10 @@ Road Map
 
 * New renderers for PDF (0.6) and epub (0.7)
 
+* Various Markdown extensions (GitHub Flavored Markdown, Multimarkdown, etc.) (0.8)
+
 * Luna, a new markup syntax that aims to combine the simplicity and readability of Markdown
-  with the power and extensibility of reStructuredText (0.8)
+  with the power and extensibility of reStructuredText (0.9)
 
 
 Design Principles
