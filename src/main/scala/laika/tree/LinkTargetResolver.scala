@@ -31,6 +31,7 @@ class LinkTargetResolver {
   case class Anonymous (pos: Int) extends Id
   case class Named (name: String) extends Id
   case class Generated (generator: Set[String] => String) extends Id
+  case class Hybrid (id: Id, display: Id) extends Id
   
   implicit def stringToId (name: String) = Named(name)
   
@@ -85,7 +86,7 @@ class LinkTargetResolver {
       case f: FootnoteDefinition      => f.label match {
         case Autosymbol                 => Target(Autosymbol, Generated(symbols), f)
         case Autonumber                 => Target(Autonumber, Generated(numbers), f)
-        case AutonumberLabel(id)        => Target(AutonumberLabel, Generated(numbers), f) // TODO - both Named and Generated
+        case AutonumberLabel(id)        => Target(AutonumberLabel, Hybrid(id, Generated(numbers)), f)
         case NumericLabel(num)          => Target(NumericLabel, num.toString, f)
       }
       
@@ -100,11 +101,13 @@ class LinkTargetResolver {
     
     val (withExplicitId, withOtherId) = targets.partition {
       case Target(_, Named(_), _, _) => true
+      case Target(_, Hybrid(Named(_),_), _, _) => true
       case _ => false
     }
     
     val (explicitIds, explicitTargets)  = (withExplicitId.groupBy {
       case Target(_, Named(name), _, _) => name
+      case Target(_, Hybrid(Named(name),_), _, _) => name
       case _ => ""
     } map {
       case e @ (_, _ :: Nil)   => e
@@ -116,6 +119,12 @@ class LinkTargetResolver {
         case Generated(f) => 
           val id = f(used)
           (buf += t.copy(id = id), used + id)
+        case Hybrid(Generated(f), display) =>
+          val id = f(used)
+          (buf += t.copy(id = Hybrid(id, display)), used + id)
+        case Hybrid(id, Generated(f)) =>
+          val display = f(used)
+          (buf += t.copy(id = Hybrid(id, display)), used + display)
         case _ => 
           (buf += t, used)
       }
@@ -123,7 +132,9 @@ class LinkTargetResolver {
     
     (explicitTargets.flatten ++ otherTargets) map {
       case t @ Target(_, Named(name), FootnoteDefinition(_,content,opt), Unresolved) => 
-        t.copy(resolved = Footnote(name, name, content, opt)) // TODO - autonumber label
+        t.copy(resolved = Footnote(name, name, content, opt))
+      case t @ Target(_, Hybrid(Named(id),Named(display)), FootnoteDefinition(_,content,opt), Unresolved) => 
+        t.copy(resolved = Footnote(id, display, content, opt))
       case t: Target => t
     }
   }
