@@ -203,14 +203,21 @@ class LinkTargetResolver {
       case ref: LinkReference => val target = if (ref.id.isEmpty) byGroup(AnonymousLinkTarget) 
                                               else byId(NamedLinkTarget, ref.id)
         target match {
-          case Some(ExternalLinkDefinition(_, url, title, _)) => Some(ExternalLink(ref.content, url, title))
-          case Some(InternalLinkTarget(id,_))                 => Some(InternalLink(ref.content, "#"+id))
+          case Some(ExternalLinkDefinition(_, url, title, _)) => Some(ExternalLink(ref.content, url, title, ref.options))
+          case Some(InternalLinkTarget(id,_))                 => Some(InternalLink(ref.content, "#"+id, options = ref.options))
           case other =>
             val msg = if (other.isEmpty && ref.id.isEmpty) "too many anonymous link references" 
                       else "unresolved link reference: " + ref.id
             Some(InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Text(ref.source)))
         }
       
+      case ref: ImageReference => byId(NamedLinkTarget, ref.id) match {
+        case Some(ExternalLinkDefinition(_, url, title, _)) => Some(Image(ref.text, url, title, ref.options))
+        case other => 
+          val msg = "unresolved link reference: " + ref.id
+          Some(InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Text(ref.source)))
+      }
+        
       case _: Temporary => None
     }
     pf
