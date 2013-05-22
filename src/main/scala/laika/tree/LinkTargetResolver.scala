@@ -170,7 +170,8 @@ class LinkTargetResolver {
     val selectorMap = targets map (t => (t.selector, t.resolved)) toMap
     def byId (group: AnyRef, id: Id) = selectorMap.get(Selector(group, id))
     
-    val groupMap = targets groupBy (_.group) mapValues (_.map(_.resolved).iterator)
+    val groupMap = (targets groupBy (_.group) mapValues (_.map(_.resolved).iterator)).view.force
+
     def byGroup (group: AnyRef) = { val it = groupMap(group); if (it.hasNext) Some(it.next) else None }
   
     def resolveFootnote (target: Option[Element], source: String, msg: => String) = {
