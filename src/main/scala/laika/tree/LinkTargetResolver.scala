@@ -72,6 +72,15 @@ class LinkTargetResolver {
     if (!used.contains(suggested)) suggested else next(1)
   }}
   
+  def invalid (element: Element, msg: String) = {
+    val sysMsg = SystemMessage(Error, msg)
+    element match {
+      case b: Block => InvalidBlock(sysMsg, b)
+      case s: Span  => InvalidSpan(sysMsg, s)
+      case _        => sysMsg
+    }
+  }
+  
     
   private def selectTargets (document: Document) = {
     val symbols = new SymbolGenerator
@@ -111,7 +120,9 @@ class LinkTargetResolver {
       case _ => ""
     } map {
       case e @ (_, _ :: Nil)   => e
-      case (name, conflicting) => (name, conflicting map (t => t.copy(resolved = InvalidBlock(null,null)))) // TODO - spans or blocks
+      case (name, conflicting) => (name, conflicting map {
+        t => t.copy(resolved = invalid(t.source, "duplicate target id: " + name))
+      })
     }).toSeq.unzip
     
     val otherTargets = ((new ListBuffer[Target], explicitIds.toSet) /: withOtherId) { 
