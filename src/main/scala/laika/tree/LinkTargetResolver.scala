@@ -31,7 +31,7 @@ class LinkTargetResolver {
   case class Anonymous (pos: Int) extends Id
   case class Named (name: String) extends Id
   case class Generated (generator: Set[String] => String) extends Id
-  case class Hybrid (id: Id, display: Id) extends Id
+  case class Hybrid (id: String, display: Id) extends Id
   
   implicit def stringToId (name: String) = Named(name)
   
@@ -110,13 +110,13 @@ class LinkTargetResolver {
     
     val (withExplicitId, withOtherId) = targets.partition {
       case Target(_, Named(_), _, _) => true
-      case Target(_, Hybrid(Named(_),_), _, _) => true
+      case Target(_, Hybrid(_,_), _, _) => true
       case _ => false
     }
     
     val (explicitIds, explicitTargets)  = (withExplicitId.groupBy {
       case Target(_, Named(name), _, _) => name
-      case Target(_, Hybrid(Named(name),_), _, _) => name
+      case Target(_, Hybrid(name,_), _, _) => name
       case _ => ""
     } map {
       case e @ (_, _ :: Nil)   => e
@@ -130,9 +130,6 @@ class LinkTargetResolver {
         case Generated(f) => 
           val id = f(used)
           (buf += t.copy(id = id), used + id)
-        case Hybrid(Generated(f), display) =>
-          val id = f(used)
-          (buf += t.copy(id = Hybrid(id, display)), used + id)
         case Hybrid(id, Generated(f)) =>
           val display = f(used)
           (buf += t.copy(id = Hybrid(id, display)), used + display)
@@ -144,7 +141,7 @@ class LinkTargetResolver {
     (explicitTargets.flatten ++ otherTargets) map {
       case t @ Target(_, Named(name), FootnoteDefinition(_,content,opt), Unresolved) => 
         t.copy(resolved = Footnote(name, name, content, opt))
-      case t @ Target(_, Hybrid(Named(id),Named(display)), FootnoteDefinition(_,content,opt), Unresolved) => 
+      case t @ Target(_, Hybrid(id,Named(display)), FootnoteDefinition(_,content,opt), Unresolved) => 
         t.copy(resolved = Footnote(id, display, content, opt))
       case t: Target => t
     }
