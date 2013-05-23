@@ -157,6 +157,8 @@ trait ModelBuilder {
   def h (level: Int, content: Span*) = Header(level, content.toList)
 
   def h (level: Int, content: String) = Header(level, List(txt(content)))
+
+  def h (level: Int, content: String, id: String) = Header(level, List(txt(content)), Id(id))
   
   
   

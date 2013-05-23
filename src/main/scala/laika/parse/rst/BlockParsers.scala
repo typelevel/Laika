@@ -77,7 +77,7 @@ trait BlockParsers extends laika.parse.BlockParsers
         val len = deco.length + 1
         (ws ~ eol ~> (anyBut('\n') max len) <~ 
          ws ~ eol ~ (anyOf(char) take len) ~
-         ws ~ eol) ^^ { title => SectionHeader(char, true, parseInline(title.trim)) }
+         ws ~ eol) ^^ { title => DecoratedHeader(OverlineAndUnderline(char), parseInline(title.trim)) }
       }
     }
   }
@@ -92,7 +92,7 @@ trait BlockParsers extends laika.parse.BlockParsers
       (punctuationChar take 1) >> { start =>
         val char = start.charAt(0)
         ((anyOf(char) min (title.length - 1)) ~
-         ws ~ eol) ^^ { _ => SectionHeader(char, false, parseInline(title)) }
+         ws ~ eol) ^^ { _ => DecoratedHeader(Underline(char), parseInline(title)) }
       }
     }
   }
@@ -158,7 +158,7 @@ trait BlockParsers extends laika.parse.BlockParsers
         case _ => (par, defaultBlock) 
       }
     }
-    def toLinkId (h: SectionHeader) = {
+    def toLinkId (h: DecoratedHeader) = {
       def flattenText (spans: Seq[Span]): String = ("" /: spans) {
         case (res, Text(text,_)) => res + text
         case (res, sc: SpanContainer[_]) => res + flattenText(sc.content)
@@ -174,8 +174,8 @@ trait BlockParsers extends laika.parse.BlockParsers
           buffer += LinkAlias(it.id, rt.id)
         case (buffer, (it: InternalLinkTarget) :: (et: ExternalLinkDefinition) :: Nil) => 
           buffer += et.copy(id = it.id)
-        case (buffer, (h @ SectionHeader(_,_,_,_)) :: _) => 
-          buffer += InternalLinkTarget(toLinkId(h)) += h  
+        case (buffer, (h @ DecoratedHeader(_,_,oldOpt)) :: _) => 
+          buffer += h.copy(options = oldOpt + Id(toLinkId(h)))  
         case (buffer, _ :: Nil)   => buffer
         case (buffer, other :: _) => buffer += other
         case (buffer, _)          => buffer

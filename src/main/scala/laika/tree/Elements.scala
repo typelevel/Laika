@@ -192,11 +192,23 @@ object Elements {
    */
   case class Section (header: Header, content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[Section]
 
-  /** A header element with a level 
-   * 
+  /** A header element with a level, with 1 being the top level of the document. 
    */
   case class Header (level: Int, content: Seq[Span], options: Options = NoOpt) extends Block with SpanContainer[Header]
-   
+  
+  /** A decorated header where the level gets determined in the rewrite phase based
+   *  on the decoration used and the order they appear in the document. The first
+   *  decoration type encountered is used for level 1, the second for level 2, and
+   *  so on.
+   */
+  case class DecoratedHeader (decoration: HeaderDecoration, content: Seq[Span], options: Options = NoOpt) extends Block 
+                                                                                                          with Temporary 
+                                                                                                          with SpanContainer[DecoratedHeader]
+  /** Represents the decoration of a header.
+   *  Concrete implementations need to be provided by the parser.
+   */
+  trait HeaderDecoration
+  
   
   /** A generic container element containing a list of blocks. Can be used where a sequence
    *  of blocks must be inserted in a place where a single element is required by the API.
