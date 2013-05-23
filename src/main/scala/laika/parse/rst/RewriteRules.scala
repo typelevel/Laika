@@ -16,12 +16,8 @@
 
 package laika.parse.rst
 
-import scala.collection.mutable.ListBuffer
-import scala.collection.mutable.Stack
 import laika.tree.Elements._
 import laika.parse.rst.Elements._
-import scala.annotation.tailrec
-import scala.collection.immutable.TreeSet
 
 /** 
  *  The default rewrite rules that get applied to the raw document tree after parsing
@@ -36,25 +32,21 @@ import scala.collection.immutable.TreeSet
 object RewriteRules {
 
   
-  private def invalidSpan (message: String, fallback: String) =
-      InvalidSpan(SystemMessage(laika.tree.Elements.Error, message), Text(fallback))
-      
-  private def selectSubstitutions (document: Document) = document.collect { 
-      case SubstitutionDefinition(id,content,_) => (id,content) 
-    } toMap
-    
-  private def selectTextRoles (document: Document) = document.collect { 
-      case CustomizedTextRole(id,f,_) => (id,f)                                   
-    } toMap  
-  
   /** Function providing the default rewrite rules when passed a document instance.
    */
   val defaults: Document => PartialFunction[Element, Option[Element]] = { document =>
     
-    val substitutions = selectSubstitutions(document)
+    val substitutions = document.collect { 
+      case SubstitutionDefinition(id,content,_) => (id,content) 
+    } toMap
     
-    val textRoles = selectTextRoles(document)
+    val textRoles = document.collect { 
+      case CustomizedTextRole(id,f,_) => (id,f)                                   
+    } toMap  
     
+    def invalidSpan (message: String, fallback: String) =
+      InvalidSpan(SystemMessage(laika.tree.Elements.Error, message), Text(fallback))
+      
     val levelMap = scala.collection.mutable.Map.empty[(Char,Boolean),Int]
     val levelIt = Stream.from(1).iterator
     
