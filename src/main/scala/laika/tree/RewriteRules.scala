@@ -40,15 +40,12 @@ object RewriteRules {
   /** Function providing the default rewrite rules when passed a document instance.
    */
   val defaults: Document => PartialFunction[Element, Option[Element]] = { document =>
-    
-    val definitions = document.collect { 
-      case ld @ ExternalLinkDefinition(id,_,_,_) => (id,ld) 
-    } toMap
-    
+    val linkTargetResolver = (new LinkTargetResolver).rewriteRule
+    linkTargetResolver(document) orElse sectionBuilder(document)
+  }
+  
+  val sectionBuilder: Document => PartialFunction[Element, Option[Element]] = { document =>
     val pf: PartialFunction[Element, Option[Element]] = { 
-      case ref: LinkReference   => Some(resolveLinkReference(ref, definitions))
-      case ref: ImageReference  => Some(resolveImageReference(ref, definitions))
-      case _:   ExternalLinkDefinition  => None
       case doc: Document        => Some(buildSections(doc)) 
     }
     pf
@@ -57,24 +54,11 @@ object RewriteRules {
   /** Applies the default rewrite rules to the specified document tree,
    *  returning a new rewritten tree instance.
    */
-  def applyDefaults (document: Document) = document.rewrite(defaults(document)) 
+  def applyDefaults (document: Document) = {
+    document rewrite defaults(document) 
+  }
   
    
-  private def resolveLinkReference (ref: LinkReference, linkDefinitions: Map[String, ExternalLinkDefinition]) = {
-    linkDefinitions.get(ref.id) match {
-      case Some(ExternalLinkDefinition(id, url, title, _)) => ExternalLink(ref.content, url, title, ref.options)
-      case None                                            => ref
-    }
-  }
-  
-  private def resolveImageReference (ref: ImageReference, linkDefinitions: Map[String, ExternalLinkDefinition]) = {
-    linkDefinitions.get(ref.id) match {
-      case Some(ExternalLinkDefinition(id, url, title, _)) => Image(ref.text, url, title, ref.options)
-      case None                                            => ref
-    }
-  }
-  
-  
   private def buildSections (doc: Document) = {
     
     val stack = new Stack[SectionBuilder]

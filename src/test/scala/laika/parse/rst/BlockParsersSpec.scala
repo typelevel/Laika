@@ -198,23 +198,19 @@ class BlockParsersSpec extends FlatSpec
       |Text""".stripMargin
     Parsing (input) should produce (doc (ilt("target"), p("Text")))
   }
-  
+
   it should "treat an internal link target followed by another internal link target like an alias" in {
     val input = """.. _target1:
-      |.. _target2:
-      |
-      |Text target1_ target2_""".stripMargin
-    Parsing (input) should produce (doc (ilt("target2"), p(txt("Text "), InternalLink(List(txt("target1")),"#target2"), 
-                                                               txt(" "), InternalLink(List(txt("target2")),"#target2"))))
+      |.. _target2:""".stripMargin
+    Parsing (input) should produce (doc (IndirectLinkDefinition("target1", LinkReference(Nil, "target2", "`target1`_")), 
+                                         InternalLinkTarget("target2")))
   }
   
   it should "treat an internal link target followed by an external link target as an external link target" in {
     val input = """.. _target1:
-      |.. _target2: http://www.foo.com
-      |
-      |Text target1_ target2_""".stripMargin
-    Parsing (input) should produce (doc (p(txt("Text "), ExternalLink(List(txt("target1")),"http://www.foo.com"), 
-                                               txt(" "), ExternalLink(List(txt("target2")),"http://www.foo.com"))))
+      |.. _target2: http://www.foo.com""".stripMargin
+    Parsing (input) should produce (doc (ExternalLinkDefinition("target1","http://www.foo.com"), 
+                                         ExternalLinkDefinition("target2","http://www.foo.com")))
   }
   
   
