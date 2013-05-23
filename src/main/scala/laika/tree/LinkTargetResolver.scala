@@ -38,7 +38,10 @@ class LinkTargetResolver {
   case object Unresolved extends Element with Temporary
   
   case class Target (group: AnyRef, id: Id, source: Element, resolved: Element = Unresolved) {
-    val selector = Selector(group, id)  
+    val selector = id match {
+      case Hybrid(id0,_) => Selector(group, id0)
+      case other         => Selector(group, id)
+    }
   }
     
   case class Selector (group: AnyRef, id: Id)
@@ -87,7 +90,7 @@ class LinkTargetResolver {
     val numbers = new NumberGenerator
     val anonPos = Stream.from(1).iterator
     def linkId (id: String) = if (id.isEmpty) (AnonymousLinkTarget, Anonymous(anonPos.next))
-                          else (NamedLinkTarget, Named(id))
+                              else (NamedLinkTarget, Named(id))
   
     document.collect {
       case c: Citation                => Target(Citation, c.id, c, c)
@@ -108,24 +111,18 @@ class LinkTargetResolver {
     
   private def resolveTargets (targets: Seq[Target]) = {
     
-    val (withExplicitId, withOtherId) = targets.partition {
-      case Target(_, Named(_), _, _) => true
-      case Target(_, Hybrid(_,_), _, _) => true
-      case _ => false
-    }
-    
-    val (explicitIds, explicitTargets)  = (withExplicitId.groupBy {
-      case Target(_, Named(name), _, _) => name
-      case Target(_, Hybrid(name,_), _, _) => name
-      case _ => ""
-    } map {
-      case e @ (_, _ :: Nil)   => e
-      case (name, conflicting) => (name, conflicting map {
+    val (explicitIds, explicitTargets)  = (targets.groupBy {
+      case Target(_, Named(name), _, _) => Some(name)
+      case Target(_, Hybrid(name,_), _, _) => Some(name)
+      case _ => None
+    } collect {
+      case (Some(name), target :: Nil) => (name, target :: Nil)
+      case (Some(name), conflicting)   => (name, conflicting map {
         t => t.copy(resolved = invalid(t.source, "duplicate target id: " + name))
       })
     }).toSeq.unzip
     
-    val otherTargets = ((new ListBuffer[Target], explicitIds.toSet) /: withOtherId) { 
+    val otherTargets = ((new ListBuffer[Target], explicitIds.toSet) /: targets) { 
       case ((buf, used), t) => t.id match {
         case Generated(f) => 
           val id = f(used)
@@ -172,7 +169,7 @@ class LinkTargetResolver {
     
     val groupMap = (targets groupBy (_.group) mapValues (_.map(_.resolved).iterator)).view.force
 
-    def byGroup (group: AnyRef) = { val it = groupMap(group); if (it.hasNext) Some(it.next) else None }
+    def byGroup (group: AnyRef) = { val it = groupMap.get(group); if (it.isDefined && it.get.hasNext) Some(it.get.next) else None }
   
     def resolveFootnote (target: Option[Element], source: String, msg: => String) = {
        target match {
