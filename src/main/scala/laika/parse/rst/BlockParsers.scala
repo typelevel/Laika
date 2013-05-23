@@ -171,7 +171,7 @@ trait BlockParsers extends laika.parse.BlockParsers
       elems += FinalBlock()
       val processed = elems.toList.sliding(2).foldLeft(new ListBuffer[Block]()) {
         case (buffer, (it: InternalLinkTarget) :: (rt: InternalLinkTarget) :: Nil) => 
-          buffer += IndirectLinkDefinition(it.id, LinkReference(Nil, rt.id, "`" + it.id + "`_"))
+          buffer += LinkAlias(it.id, rt.id)
         case (buffer, (it: InternalLinkTarget) :: (et: ExternalLinkDefinition) :: Nil) => 
           buffer += et.copy(id = it.id)
         case (buffer, (h @ SectionHeader(_,_,_,_)) :: _) => 

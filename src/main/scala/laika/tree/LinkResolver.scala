@@ -21,11 +21,11 @@ import scala.collection.mutable.ListBuffer
 
 import laika.tree.Elements._
 
-class LinkTargetResolver {
+class LinkResolver {
 
   
-  object NamedLinkTarget
-  object AnonymousLinkTarget
+  case object NamedLinkTarget
+  case object AnonymousLinkTarget
   
   sealed abstract class Id
   case class Anonymous (pos: Int) extends Id
@@ -104,6 +104,7 @@ class LinkTargetResolver {
       
       case lt: ExternalLinkDefinition => val (group, id) = linkId(lt.id); Target(group, id, lt, lt)
       case lt: InternalLinkTarget     => Target(NamedLinkTarget, lt.id, lt, lt)
+      case lt: LinkAlias              => Target(NamedLinkTarget, lt.id, lt, lt)
       
       case c: Customizable if c.options.id.isDefined => Target(NamedLinkTarget, c.options.id.get, c, c)
     }
@@ -111,18 +112,19 @@ class LinkTargetResolver {
     
   private def resolveTargets (targets: Seq[Target]) = {
     
-    val (explicitIds, explicitTargets)  = (targets.groupBy {
+    val (ids, validatedTargets)  = (targets.groupBy {
       case Target(_, Named(name), _, _) => Some(name)
       case Target(_, Hybrid(name,_), _, _) => Some(name)
       case _ => None
     } collect {
-      case (Some(name), target :: Nil) => (name, target :: Nil)
-      case (Some(name), conflicting)   => (name, conflicting map {
+      case e @ (None,_) => e
+      case (name, target :: Nil) => (name, target :: Nil)
+      case (name, conflicting)   => (name, conflicting map {
         t => t.copy(resolved = invalid(t.source, "duplicate target id: " + name))
       })
     }).toSeq.unzip
     
-    val otherTargets = ((new ListBuffer[Target], explicitIds.toSet) /: targets) { 
+    val processedTargets = ((new ListBuffer[Target], ids.filter(_ != None).map(_.get).toSet) /: validatedTargets.flatten) { 
       case ((buf, used), t) => t.id match {
         case Generated(f) => 
           val id = f(used)
@@ -135,13 +137,34 @@ class LinkTargetResolver {
       }
     }._1
     
-    (explicitTargets.flatten ++ otherTargets) map {
+    processedTargets map {
       case t @ Target(_, Named(name), FootnoteDefinition(_,content,opt), Unresolved) => 
         t.copy(resolved = Footnote(name, name, content, opt))
       case t @ Target(_, Hybrid(id,Named(display)), FootnoteDefinition(_,content,opt), Unresolved) => 
         t.copy(resolved = Footnote(id, display, content, opt))
       case t: Target => t
     }
+    
+  }
+  
+  case class InvalidLinkTarget (id: String, message: SystemMessage) extends Element with LinkTarget // TODO - replace
+  
+  private def resolveAliases (targets: Map[Selector,Target]): Map[Selector,Target] = {
+
+    def resolveAlias (alias: LinkAlias, visited: Set[Any]): Element = {
+      if (visited.contains(alias.id)) 
+        InvalidLinkTarget(alias.id, SystemMessage(laika.tree.Elements.Error, "circular link reference: " + alias.id))
+      else
+        targets.get(Selector(NamedLinkTarget, alias.target)) map {
+          case Target(_,_, alias2: LinkAlias, _) => resolveAlias(alias2, visited + alias.id)
+          case Target(_,_, other, _) => other
+        } getOrElse InvalidLinkTarget(alias.id, SystemMessage(laika.tree.Elements.Error, "unresolved link reference: " + alias.target))
+    }            
+                                   
+    targets map { 
+      case (selector, t @ Target(_,_, alias: LinkAlias, _)) => (selector, t.copy(resolved = resolveAlias(alias, Set())))
+      case other => other 
+    } 
   }
   
   case class Identity(ref: AnyRef) {
@@ -161,13 +184,13 @@ class LinkTargetResolver {
     
     val targets = resolveTargets(selectTargets(document))
   
-    val sourceMap = targets map (t => (Identity(t.source), t.resolved)) toMap
+    val selectorMap = resolveAliases(targets map (t => (t.selector, t)) toMap)
+    def byId (group: AnyRef, id: Id) = selectorMap.get(Selector(group, id)).map(_.resolved)
+    
+    val sourceMap = selectorMap.values map (t => (Identity(t.source), t.resolved)) toMap
     def bySource (source: Element) = sourceMap.get(Identity(source)).get
   
-    val selectorMap = targets map (t => (t.selector, t.resolved)) toMap
-    def byId (group: AnyRef, id: Id) = selectorMap.get(Selector(group, id))
-    
-    val groupMap = (targets groupBy (_.group) mapValues (_.map(_.resolved).iterator)).view.force
+    val groupMap = (selectorMap.values groupBy (_.group) mapValues (_.map(_.resolved).iterator)).view.force
 
     def byGroup (group: AnyRef) = { val it = groupMap.get(group); if (it.isDefined && it.get.hasNext) Some(it.get.next) else None }
   
@@ -193,7 +216,7 @@ class LinkTargetResolver {
         case AutonumberLabel(id) => 
           resolveFootnote(byId(AutonumberLabel, id), ref.source, "unresolved footnote reference: " + id)
         case Autonumber => 
-          resolveFootnote(byGroup(Autonumber), ref.source, "too many autonumer references")
+          resolveFootnote(byGroup(Autonumber), ref.source, "too many autonumber references")
         case Autosymbol => 
           resolveFootnote(byGroup(Autosymbol), ref.source, "too many autosymbol references")
       }
@@ -203,6 +226,7 @@ class LinkTargetResolver {
         target match {
           case Some(ExternalLinkDefinition(_, url, title, _)) => Some(ExternalLink(ref.content, url, title, ref.options))
           case Some(InternalLinkTarget(id,_))                 => Some(InternalLink(ref.content, "#"+id, options = ref.options))
+          case Some(InvalidLinkTarget(id,msg))                => Some(InvalidSpan(msg, Text(ref.source)))
           case other =>
             val msg = if (other.isEmpty && ref.id.isEmpty) "too many anonymous link references" 
                       else "unresolved link reference: " + ref.id

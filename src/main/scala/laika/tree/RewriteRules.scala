@@ -40,7 +40,7 @@ object RewriteRules {
   /** Function providing the default rewrite rules when passed a document instance.
    */
   val defaults: Document => PartialFunction[Element, Option[Element]] = { document =>
-    val linkTargetResolver = (new LinkTargetResolver).rewriteRule
+    val linkTargetResolver = (new LinkResolver).rewriteRule
     linkTargetResolver(document) orElse sectionBuilder(document)
   }
   

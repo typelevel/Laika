@@ -378,6 +378,10 @@ object Elements {
    */
   case class ExternalLinkDefinition (id: String, url: String, title: Option[String] = None, options: Options = NoOpt) extends Definition 
                                                                                                                       with Span
+                                                                                                                      
+  /** A link target pointing to another link target, acting like an alias.
+   */
+  case class LinkAlias (id: String, target: String, options: Options = NoOpt) extends Definition with Span                                                                                                                    
   
   /** A footnote definition that needs to be resolved to a final footnote 
    *  by a rewrite rule based on the label type.

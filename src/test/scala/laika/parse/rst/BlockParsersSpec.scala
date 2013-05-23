@@ -202,7 +202,7 @@ class BlockParsersSpec extends FlatSpec
   it should "treat an internal link target followed by another internal link target like an alias" in {
     val input = """.. _target1:
       |.. _target2:""".stripMargin
-    Parsing (input) should produce (doc (IndirectLinkDefinition("target1", LinkReference(Nil, "target2", "`target1`_")), 
+    Parsing (input) should produce (doc (LinkAlias("target1", "target2"), 
                                          InternalLinkTarget("target2")))
   }
   

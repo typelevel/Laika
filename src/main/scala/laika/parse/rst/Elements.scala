@@ -95,9 +95,5 @@ object Elements {
    */
   case class CustomizedTextRole (name: String, apply: String => Span, options: Options = NoOpt) extends Definition
 
-  /** A link target pointing to another link reference, acting like an alias.
-   */
-  case class IndirectLinkDefinition (id: String, ref: LinkReference, options: Options = NoOpt) extends Definition
-  
   
 }

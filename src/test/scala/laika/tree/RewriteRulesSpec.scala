@@ -107,7 +107,7 @@ class RewriteRulesSpec extends FlatSpec
   
   it should "replace surplus autonumber references with invalid spans" in {
     val document = doc(fnRefs(Autonumber, Autonumber), fn(Autonumber, 1))
-    val resolved = doc(p(FootnoteLink("1","1"), invalidSpan("too many autonumer references", "[#]_")), 
+    val resolved = doc(p(FootnoteLink("1","1"), invalidSpan("too many autonumber references", "[#]_")), 
         fn("1","1"))
     rewritten (document) should be (resolved)
   }
@@ -132,7 +132,7 @@ class RewriteRulesSpec extends FlatSpec
   }
   
   it should "resolve indirect link references" in {
-    val document = doc(p(simpleLinkRef()), IndirectLinkDefinition("id",simpleLinkRef("ref")), InternalLinkTarget("ref"))
+    val document = doc(p(simpleLinkRef()), LinkAlias("id","ref"), InternalLinkTarget("ref"))
     rewritten (document) should be (doc(p(intLink("#ref")), InternalLinkTarget("ref")))
   }
   
@@ -152,7 +152,7 @@ class RewriteRulesSpec extends FlatSpec
   }
   
   it should "replace circular indirect references with invalid spans" in {
-    val document = doc(p(simpleLinkRef()), IndirectLinkDefinition("id",simpleLinkRef("ref")), IndirectLinkDefinition("ref",simpleLinkRef("id")))
+    val document = doc(p(simpleLinkRef()), LinkAlias("id","ref"), LinkAlias("ref","id"))
     rewritten (document) should be (doc(p(invalidSpan("circular link reference: id", txt("text")))))
   }
  

@@ -107,8 +107,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
     
     val indirect = {
       (named <~ ws) ~ ((opt(eol ~ ws) ~ "`" ~> escapedText(anyUntil('`')) | simpleRefName) <~ '_' ~ ws ~ eol) ^^ {
-        case name ~ refName => IndirectLinkDefinition(name, LinkReference(Nil, refName.replaceAll("\n", ""), "`" + refName + "`_")) 
-        // TODO - source value might be without back ticks
+        case name ~ refName => LinkAlias(name, refName.replaceAll("\n", "")) 
       }
     }
     
