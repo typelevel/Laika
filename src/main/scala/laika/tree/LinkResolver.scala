@@ -66,14 +66,14 @@ class LinkResolver {
     }
   }
   
-  def suggestedId (suggested: String): Set[String] => String = { used => {
+  def suggestedId (suggested: String): Id = Generated( used => {
     @tailrec def next (num: Int): String = {
       val candidate = suggested+"-"+num
       if (!used.contains(candidate)) candidate
       else next(num + 1)
     }
     if (!used.contains(suggested)) suggested else next(1)
-  }}
+  })
   
   def invalid (element: Element, msg: String) = {
     val sysMsg = SystemMessage(Error, msg)
@@ -93,18 +93,21 @@ class LinkResolver {
                               else (NamedLinkTarget, Named(id))
   
     document.collect {
-      case c: Citation                => Target(Citation, c.id, c, c)
+      case c: Citation => Target(Citation, c.id, c, c)
       
-      case f: FootnoteDefinition      => f.label match {
-        case Autosymbol                 => Target(Autosymbol, Generated(symbols), f)
-        case Autonumber                 => Target(Autonumber, Generated(numbers), f)
-        case AutonumberLabel(id)        => Target(AutonumberLabel, Hybrid(id, Generated(numbers)), f)
-        case NumericLabel(num)          => Target(NumericLabel, num.toString, f)
+      case f: FootnoteDefinition => f.label match {
+        case Autosymbol            => Target(Autosymbol, Generated(symbols), f)
+        case Autonumber            => Target(Autonumber, Generated(numbers), f)
+        case AutonumberLabel(id)   => Target(AutonumberLabel, Hybrid(id, Generated(numbers)), f)
+        case NumericLabel(num)     => Target(NumericLabel, num.toString, f)
       }
       
       case lt: ExternalLinkDefinition => val (group, id) = linkId(lt.id); Target(group, id, lt, lt)
       case lt: InternalLinkTarget     => Target(NamedLinkTarget, lt.id, lt, lt)
       case lt: LinkAlias              => Target(NamedLinkTarget, lt.id, lt, lt)
+      
+      case hd @ DecoratedHeader(_,_,Id(id)) => Target(NamedLinkTarget, suggestedId(id), hd)
+      case hd @ Header(_,_,Id(id))          => Target(NamedLinkTarget, suggestedId(id), hd)
       
       case c: Customizable if c.options.id.isDefined => Target(NamedLinkTarget, c.options.id.get, c, c)
     }
@@ -112,19 +115,21 @@ class LinkResolver {
     
   private def resolveTargets (targets: Seq[Target]) = {
     
-    val (ids, validatedTargets)  = (targets.groupBy {
-      case Target(_, Named(name), _, _) => Some(name)
-      case Target(_, Hybrid(name,_), _, _) => Some(name)
+    val (ids, validatedTargets)  = (targets.zipWithIndex.groupBy {
+      case (Target(_, Named(name), _, _),_)    => Some(name)
+      case (Target(_, Hybrid(name,_), _, _),_) => Some(name)
       case _ => None
     } collect {
       case e @ (None,_) => e
-      case (name, target :: Nil) => (name, target :: Nil)
-      case (name, conflicting)   => (name, conflicting map {
-        t => t.copy(resolved = invalid(t.source, "duplicate target id: " + name))
+      case (name, (target :: Nil)) => (name, target :: Nil)
+      case (name, conflicting)   => (name, conflicting map { case (t, index) =>
+        (t.copy(resolved = invalid(t.source, "duplicate target id: " + name)), index)
       })
     }).toSeq.unzip
     
-    val processedTargets = ((new ListBuffer[Target], ids.filter(_ != None).map(_.get).toSet) /: validatedTargets.flatten) { 
+    val usedIds = ids.filter(_ != None).map(_.get).toSet
+    val orderedTargets = validatedTargets.flatten.sortBy(_._2).map(_._1)
+    val processedTargets = ((new ListBuffer[Target], usedIds) /: orderedTargets) { 
       case ((buf, used), t) => t.id match {
         case Generated(f) => 
           val id = f(used)
@@ -137,7 +142,12 @@ class LinkResolver {
       }
     }._1
     
+    val levelMap = scala.collection.mutable.Map.empty[HeaderDecoration,Int]
+    val levelIt = Stream.from(1).iterator
+
     processedTargets map {
+      case t @ Target(_, Named(name), DecoratedHeader(deco, content, opt), Unresolved) => 
+        t.copy(resolved = Header(levelMap.getOrElseUpdate(deco, levelIt.next), content, opt))
       case t @ Target(_, Named(name), FootnoteDefinition(_,content,opt), Unresolved) => 
         t.copy(resolved = Footnote(name, name, content, opt))
       case t @ Target(_, Hybrid(id,Named(display)), FootnoteDefinition(_,content,opt), Unresolved) => 
@@ -188,7 +198,7 @@ class LinkResolver {
     def byId (group: AnyRef, id: Id) = selectorMap.get(Selector(group, id)).map(_.resolved)
     
     val sourceMap = selectorMap.values map (t => (Identity(t.source), t.resolved)) toMap
-    def bySource (source: Element) = sourceMap.get(Identity(source)).get
+    def bySource (source: Element) = sourceMap.get(Identity(source)).getOrElse(source)
   
     val groupMap = (selectorMap.values groupBy (_.group) mapValues (_.map(_.resolved).iterator)).view.force
 
@@ -203,12 +213,14 @@ class LinkResolver {
     
     val pf: PartialFunction[Element, Option[Element]] = {
       
-      case c @ CitationReference(label,source,_) =>
-        Some(if (byId(Citation, label).isDefined) CitationLink(label) 
-             else invalidSpan("unresolved citation reference: " + label, source))
-        
       case f: Footnote           => Some(f) // TODO - should not be required  
       case f: FootnoteDefinition => Some(bySource(f)) 
+      case h: DecoratedHeader    => Some(bySource(h)) 
+      case h: Header             => Some(bySource(h)) 
+      
+      case c @ CitationReference(label,source,_) =>
+        Some(if (byId(Citation, label).isDefined) CitationLink(label) 
+          else invalidSpan("unresolved citation reference: " + label, source))
       
       case ref: FootnoteReference  => ref.label match {
         case NumericLabel(num) => 

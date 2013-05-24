@@ -44,6 +44,9 @@ class BlockParsersSpec extends FlatSpec
   val spanDirectives: Map[String, DirectivePart[Span]] = Map.empty
   val textRoles: Map[String, TextRole] = Map.empty
   
+  def ul (char: Char) = Underline(char)
+  def ulol (char: Char) = OverlineAndUnderline(char)
+  
   
   "The doctest parser" should "parse a doctest block" in {
     val input = """>>> print 'this is a doctest block'
@@ -152,13 +155,13 @@ class BlockParsersSpec extends FlatSpec
     val input = """========
       | Header
       |========""".stripMargin
-    Parsing (input) should produce (doc (h(1,"Header","header")))
+    Parsing (input) should produce (doc (dh(ulol('='),"Header","header")))
   }
   
   it should "parse a header with underline only" in {
     val input = """Header
       |========""".stripMargin
-    Parsing (input) should produce (doc (h(1,"Header","header")))
+    Parsing (input) should produce (doc (dh(ul('='),"Header","header")))
   }
   
   it should "parse headers with varying levels" in {
@@ -174,8 +177,8 @@ class BlockParsersSpec extends FlatSpec
       |
       |Header 2b
       |=========""".stripMargin
-    Parsing (input) should produce (doc (h(1,"Header 1","header-1"), h(2,"Header 2","header-2"), 
-                                         h(3,"Header 3","header-3"), h(2,"Header 2b","header-2b")))
+    Parsing (input) should produce (doc (dh(ulol('='),"Header 1","header-1"), dh(ul('='),"Header 2","header-2"), 
+                                         dh(ul('-'),"Header 3","header-3"), dh(ul('='),"Header 2b","header-2b")))
   }
   
   it should "ignore headers where the underline is shorter than the text" in {

@@ -159,6 +159,8 @@ trait ModelBuilder {
   def h (level: Int, content: String) = Header(level, List(txt(content)))
 
   def h (level: Int, content: String, id: String) = Header(level, List(txt(content)), Id(id))
+
+  def dh (deco: HeaderDecoration, content: String, id: String) = DecoratedHeader(deco, List(txt(content)), Id(id))
   
   
   

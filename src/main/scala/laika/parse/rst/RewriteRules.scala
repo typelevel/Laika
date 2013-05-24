@@ -47,12 +47,7 @@ object RewriteRules {
     def invalidSpan (message: String, fallback: String) =
       InvalidSpan(SystemMessage(laika.tree.Elements.Error, message), Text(fallback))
       
-    val levelMap = scala.collection.mutable.Map.empty[HeaderDecoration,Int]
-    val levelIt = Stream.from(1).iterator
-    
     val pf: PartialFunction[Element, Option[Element]] = {
-      case DecoratedHeader(deco, content, opt) => 
-        Some(Header(levelMap.getOrElseUpdate(deco, levelIt.next), content, opt))
         
       case SubstitutionReference(id,_) =>
         substitutions.get(id).orElse(Some(invalidSpan("unknown substitution id: " + id, "|"+id+"|")))
