@@ -16,8 +16,7 @@
 
 package laika.tree
 
-import scala.collection.mutable.ListBuffer
-import scala.collection.mutable.Stack
+
 import laika.tree.Elements._ 
 
 /** The default rewrite rules that get applied to the raw document tree after parsing
@@ -40,16 +39,9 @@ object RewriteRules {
   /** Function providing the default rewrite rules when passed a document instance.
    */
   val defaults: Document => PartialFunction[Element, Option[Element]] = { document =>
-    LinkResolver(document) orElse sectionBuilder(document)
+    LinkResolver(document) orElse SectionBuilder()
   }
   
-  val sectionBuilder: Document => PartialFunction[Element, Option[Element]] = { document =>
-    val pf: PartialFunction[Element, Option[Element]] = { 
-      case doc: Document        => Some(buildSections(doc)) 
-    }
-    pf
-  }
-
   /** Applies the default rewrite rules to the specified document tree,
    *  returning a new rewritten tree instance.
    */
@@ -58,40 +50,4 @@ object RewriteRules {
   }
   
    
-  private def buildSections (doc: Document) = {
-    
-    val stack = new Stack[SectionBuilder]
-    stack push new SectionBuilder(Header(0,Nil)) 
-    
-    def closeSections (toLevel: Int) = {
-      while (!stack.isEmpty && stack.top >= toLevel) {
-        val section = stack.pop.toSection
-        stack.top += section
-      }
-    }
-    
-    doc.content.foreach { 
-      case h @ Header(level, _, _) => closeSections(level); stack push new SectionBuilder(h)
-      case block                   => stack.top += block
-    }
-
-    closeSections(1)
-    Document(stack.pop.toSection.content)
-  }
-  
-  
-  private class SectionBuilder (header:Header) {
-    
-    private val buffer = new ListBuffer[Block]
-    
-    def += (block: Block) = buffer += block
-    
-    def >= (level: Int) = header.level >= level
-    
-    def toSection = Section(header, buffer.toList)
-    
-  }
-  
-  
-  
 }
