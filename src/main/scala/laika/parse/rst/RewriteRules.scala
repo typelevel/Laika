@@ -21,12 +21,10 @@ import laika.parse.rst.Elements._
 
 /** 
  *  The default rewrite rules that get applied to the raw document tree after parsing
- *  reStructuredTextMarkup. The rules are responsible for resolving internal references
- *  to link targets, footnotes, citations, substitution definitions and text roles.
+ *  reStructuredText markup. These rules are responsible for resolving  substitution 
+ *  references and interpreted text which are specific to reStructuredText and get usually
+ *  executed alongside the generic rules. .
  * 
- *  These rules are specific to `reStructuredText`, but some of them might get promoted
- *  to the general rules implemented in [[laika.tree.RewriteRules]] in a later release.
- *  
  *  @author Jens Halm
  */
 object RewriteRules extends (Document => PartialFunction[Element,Option[Element]]) {
