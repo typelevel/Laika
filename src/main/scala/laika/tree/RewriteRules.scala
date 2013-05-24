@@ -42,5 +42,17 @@ object RewriteRules extends (Document => PartialFunction[Element,Option[Element]
     LinkResolver(document) orElse SectionBuilder()
   }
   
+  
+  /** Chains the specified rules into one PartialFunction composition.
+   *  The resulting function is always defined, but is returned
+   *  as a PartialFunction as required by the `ElementTraversal` API.
+   */
+  def chain (rules: List[PartialFunction[Element,Option[Element]]]) = {
+    
+    val fallback: PartialFunction[Element, Option[Element]] = { case e => Some(e) }
+      
+    (rules map { _ orElse fallback }) reduceRight { (ruleA,ruleB) => ruleA andThen (_ flatMap ruleB) }
+  }
+  
    
 }

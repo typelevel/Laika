@@ -22,7 +22,7 @@ import java.io.Reader
 import scala.io.Codec
 import laika.io.IO
 import laika.io.Input
-import laika.tree.Elements.Document
+import laika.tree.Elements.RawDocument
 import laika.tree.RewriteRules
 import java.io.File
   
@@ -41,14 +41,14 @@ import java.io.File
  * 
  *  @author Jens Halm
  */
-class Parse private (parse: Input => Document, rawDocument: Boolean = false) {
+class Parse[T] private (parse: Input => RawDocument, rewrite: RawDocument => T) {
 
   /** Returns a new Parse instance that produces raw document trees without applying
    *  the default rewrite rules. These rules resolve link and image references and 
    *  rearrange the tree into a hierarchy of sections based on the (flat) sequence
    *  of header instances found in the document.
    */
-  def asRawDocument = new Parse(parse, true)
+  def asRawDocument = new Parse(parse, identity)
   
   /** Returns a document tree obtained from parsing the specified string.
    *  Any kind of input is valid, including an empty string. 
@@ -85,10 +85,9 @@ class Parse private (parse: Input => Document, rawDocument: Boolean = false) {
   
   private def parseFrom (input: Input with Closeable) = {
     
-    val document = IO(input){ parse(_) }
+    val raw = IO(input){ parse(_) }
 
-    if (rawDocument) document
-    else document rewrite RewriteRules(document) 
+    rewrite(raw)
   }
   
   
@@ -100,6 +99,10 @@ class Parse private (parse: Input => Document, rawDocument: Boolean = false) {
  */
 object Parse {
   
+  def rewrite (raw: RawDocument) = {
+    raw.document rewrite (RewriteRules chain (raw.rewriteRules :+ RewriteRules(raw.document)))
+  }
+  
   /** Returns a new Parse instance for the specified parse function.
    *  This function is usually an object provided by the library
    *  or a plugin that is capable of parsing a specific markup
@@ -107,6 +110,6 @@ object Parse {
    * 
    *  @param parse the parse function to use for all subsequent operations
    */
-  def as (parse: Input => Document) = new Parse(parse) 
+  def as (parse: Input => RawDocument) = new Parse(parse, rewrite) 
   
 }

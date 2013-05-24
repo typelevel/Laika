@@ -16,7 +16,7 @@
 
 package laika.parse
   
-import laika.tree.Elements.{Block,Document}
+import laika.tree.Elements.{Block,Document,RawDocument}
 import scala.util.parsing.input.CharSequenceReader
 import scala.util.parsing.input.Reader
   
@@ -68,7 +68,7 @@ trait BlockParsers extends MarkupParsers {
    *  of this library, as the parsers treat all unknown or malformed markup as regular
    *  text.
    */
-  def parseDocument (reader: Reader[Char]): Document = parseMarkup(document, reader)
+  def parseDocument (reader: Reader[Char]): RawDocument = RawDocument(parseMarkup(document, reader))
    
   
   /** Parses all nested blocks for the specified input and nest level.

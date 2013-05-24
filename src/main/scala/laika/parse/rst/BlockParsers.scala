@@ -20,6 +20,7 @@ import laika.tree.Elements._
 import laika.parse.rst.Elements._
 import scala.collection.mutable.ListBuffer
 import scala.annotation.tailrec
+import scala.util.parsing.input.Reader
 
 /** Provides the parsers for all types of block-level elements of reStructuredText. 
  *  It merges the individual traits that provide implementations for list, tables, etc. and 
@@ -40,11 +41,11 @@ trait BlockParsers extends laika.parse.BlockParsers
   
   override def ws = anyOf(' ') // other whitespace has been replaced with spaces by preprocessor
                         
-  /** Parses a full document and applies the default rules for resolving
-   *  all kinds of references like footnotes, citations, link references,
-   *  text roles and substitutions.
-   */                      
-  override def document = super.document ^^ { doc => doc rewrite RewriteRules(doc) }
+  
+  override def parseDocument (reader: Reader[Char]) = {
+    val raw = super.parseDocument(reader)
+    raw.copy(rewriteRules = List(RewriteRules(raw.document)))
+  }
   
   
   /** Parses punctuation characters as supported by transitions (rules) and 

@@ -96,7 +96,8 @@ class ParseAPISpec extends FlatSpec
     val input = """[link][id]
       |
       |[id]: http://foo/""".stripMargin
-    (Parse as Markdown asRawDocument) fromString input should be (doc (p (LinkReference(List(Text("link")), "id", "[link][id]")), ExternalLinkDefinition("id","http://foo/",None)))
+    ((Parse as Markdown asRawDocument) fromString input).document should be (doc 
+        (p (LinkReference(List(Text("link")), "id", "[link][id]")), ExternalLinkDefinition("id","http://foo/",None)))
   }
   
 

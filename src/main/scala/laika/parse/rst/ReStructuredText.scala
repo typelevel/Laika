@@ -64,7 +64,7 @@ class ReStructuredText private (
     blockDirectives: List[Directive[Block]],
     spanDirectives: List[Directive[Span]],
     textRoles: List[TextRole]
-    ) extends (Input => Document) { self =>
+    ) extends (Input => RawDocument) { self =>
 
   
   /** Adds the specified directives and returns a new instance of the parser.

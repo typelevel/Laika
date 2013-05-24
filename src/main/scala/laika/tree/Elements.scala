@@ -180,6 +180,11 @@ object Elements {
   trait ListContainer[Self <: ListContainer[Self]] extends ElementContainer[ListItem,Self]
   
   
+  /** Holds a raw document that did not get any rewrite rules applied yet and a (potentially empty) 
+   *  list of rewrite rules that are specific to the parser that produced this document and
+   *  should be executed alongside the default rewrite rules.
+   */
+  case class RawDocument (document: Document, rewriteRules: List[PartialFunction[Element,Option[Element]]] = Nil)
   
   /** The root element of a document tree.
    */
