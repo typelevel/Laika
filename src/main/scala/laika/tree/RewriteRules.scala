@@ -33,20 +33,13 @@ import laika.tree.Elements._
  * 
  *  @author Jens Halm
  */
-object RewriteRules {
+object RewriteRules extends (Document => PartialFunction[Element,Option[Element]]) {
 
   
-  /** Function providing the default rewrite rules when passed a document instance.
+  /** Provides the default rewrite rules for the specified document.
    */
-  val defaults: Document => PartialFunction[Element, Option[Element]] = { document =>
+  def apply (document: Document) = {
     LinkResolver(document) orElse SectionBuilder()
-  }
-  
-  /** Applies the default rewrite rules to the specified document tree,
-   *  returning a new rewritten tree instance.
-   */
-  def applyDefaults (document: Document) = {
-    document rewrite defaults(document) 
   }
   
    

@@ -267,7 +267,7 @@ object Transform {
      *  @return a new Transform instance
      */
     def to [W] (render: (Output, Element => Unit) => (W, Element => Unit)): Transform[W] = 
-      new Transform(parse, Render as render, new Rules(List(RewriteRules.defaults))) 
+      new Transform(parse, Render as render, new Rules(List(RewriteRules))) 
     
   }
   

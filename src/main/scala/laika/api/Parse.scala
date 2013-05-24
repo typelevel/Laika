@@ -88,7 +88,7 @@ class Parse private (parse: Input => Document, rawDocument: Boolean = false) {
     val document = IO(input){ parse(_) }
 
     if (rawDocument) document
-    else RewriteRules.applyDefaults(document) 
+    else document rewrite RewriteRules(document) 
   }
   
   
