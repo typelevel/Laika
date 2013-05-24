@@ -29,12 +29,10 @@ import laika.parse.rst.Elements._
  *  
  *  @author Jens Halm
  */
-object RewriteRules {
+object RewriteRules extends (Document => PartialFunction[Element,Option[Element]]) {
 
   
-  /** Function providing the default rewrite rules when passed a document instance.
-   */
-  val defaults: Document => PartialFunction[Element, Option[Element]] = { document =>
+  class DefaultRules (val document: Document) { 
     
     val substitutions = document.collect { 
       case SubstitutionDefinition(id,content,_) => (id,content) 
@@ -47,8 +45,10 @@ object RewriteRules {
     def invalidSpan (message: String, fallback: String) =
       InvalidSpan(SystemMessage(laika.tree.Elements.Error, message), Text(fallback))
       
-    val pf: PartialFunction[Element, Option[Element]] = {
-        
+    /** Function providing the default rewrite rules when passed a document instance.
+     */
+    val rewrite: PartialFunction[Element, Option[Element]] = {
+          
       case SubstitutionReference(id,_) =>
         substitutions.get(id).orElse(Some(invalidSpan("unknown substitution id: " + id, "|"+id+"|")))
         
@@ -57,14 +57,15 @@ object RewriteRules {
         
       case SubstitutionDefinition(_,_,_) => None // TODO - should be covered by default rules
       case CustomizedTextRole(_,_,_) => None
+      
     }
-    pf
   }
 
-  /** Applies the default rewrite rules to the specified document tree,
-   *  returning a new rewritten tree instance.
+  /** Provides the default rewrite rules specific to reStructuredText 
+   *  for the specified document. These rules usually get executed
+   *  alongside the generic default rules.
    */
-  def applyDefaults (doc: Document) = doc.rewrite(defaults(doc)) 
-   
+  def apply (document: Document) = (new DefaultRules(document)).rewrite
+  
   
 }

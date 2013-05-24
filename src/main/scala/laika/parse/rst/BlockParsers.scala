@@ -44,7 +44,7 @@ trait BlockParsers extends laika.parse.BlockParsers
    *  all kinds of references like footnotes, citations, link references,
    *  text roles and substitutions.
    */                      
-  override def document = super.document ^^ RewriteRules.applyDefaults
+  override def document = super.document ^^ { doc => doc rewrite RewriteRules(doc) }
   
   
   /** Parses punctuation characters as supported by transitions (rules) and 
