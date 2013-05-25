@@ -103,7 +103,7 @@ you have to change this standard expression:
     
 to
 
-    Transform from (Markdown withVerbatimHTML) to (HTML using VerbatimHTML)
+    Transform from (Markdown withVerbatimHTML) to HTML rendering VerbatimHTML
     
 This installs both, the required parser and renderer extensions.
 
