@@ -233,5 +233,5 @@ line and finally whether the block continues after a blank line has been seen.
 Often a blank line marks the end of a block, but there are exceptions, like code
 blocks or list items that span multiple parapraphs.
 
-
+[inline-scaladoc]: api/#laika.parse.InlineParsers
 
