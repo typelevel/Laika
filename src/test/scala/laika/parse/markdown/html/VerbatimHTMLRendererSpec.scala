@@ -93,6 +93,11 @@ class VerbatimHTMLRendererSpec extends FlatSpec
     render (elem) should be ("<p>some <span>aaa <span>inner</span> bbb</span> &amp; text</p>") 
   }
   
+  it should "render a <pre> element without indentation" in {
+    val elem = p(txt("some "), element(startTag("pre"), txt("Line1\n  Line2")), txt(" text"))
+    render (elem) should be ("<p>some <pre>Line1\nLine2</pre> text</p>") 
+  }
+  
   it should "render an HTML attribute with the value in single quotes" in {
     val attr = HTMLAttribute("foo", List(txt("bar")), Some('\''))
     val tag = HTMLStartTag("x", List(attr))
