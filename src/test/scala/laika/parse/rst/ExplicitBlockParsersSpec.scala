@@ -130,7 +130,7 @@ class ExplicitBlockParsersSpec extends FlatSpec
   
   it should "parse an internal target" in {
     val input = """.. _some-target:"""
-    Parsing (input) should produce (doc(InternalLinkTarget("some-target")))
+    Parsing (input) should produce (doc(InternalLinkTarget(Id("some-target"))))
   }
   
   

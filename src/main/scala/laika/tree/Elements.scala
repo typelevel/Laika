@@ -136,9 +136,7 @@ object Elements {
    *  unique for the whole document across all types
    *  of `LinkTarget` implementations.
    */
-  trait LinkTarget {
-    def id: String
-  }
+  trait LinkTarget extends Customizable
   
 
   
@@ -409,17 +407,17 @@ object Elements {
   
   /** Points to the following block or span element, making it a target for links.
    */
-  case class InternalLinkTarget (id: String, options: Options = NoOpt) extends Block with Span with LinkTarget
+  case class InternalLinkTarget (options: Options = NoOpt) extends Block with Span with LinkTarget
   
   /** A citation that can be referred to by a `CitationLink` by id.
    */
-  case class Citation (id: String, content: Seq[Block], options: Options = NoOpt) extends Block 
+  case class Citation (label: String, content: Seq[Block], options: Options = NoOpt) extends Block 
                                                                                   with LinkTarget 
                                                                                   with BlockContainer[Footnote]
   
   /** A footnote with resolved id and label that can be referred to by a `FootnoteLink` by id.
    */
-  case class Footnote (id: String, label: String, content: Seq[Block], options: Options = NoOpt) extends Block 
+  case class Footnote (label: String, content: Seq[Block], options: Options = NoOpt) extends Block 
                                                                                                  with LinkTarget 
                                                                                                  with BlockContainer[Footnote]
   

@@ -149,7 +149,7 @@ class BlockParsersSpec extends FlatSpec
     Parsing (input) should produce (doc (p("Paragraph"), p("===")))
   }
   
-  def ilt (id: String = "header") = InternalLinkTarget(id)
+  def ilt (id: String = "header") = InternalLinkTarget(Id(id))
   
   "The header parser" should "parse a header with overline and underline" in {
     val input = """========
@@ -206,7 +206,7 @@ class BlockParsersSpec extends FlatSpec
     val input = """.. _target1:
       |.. _target2:""".stripMargin
     Parsing (input) should produce (doc (LinkAlias("target1", "target2"), 
-                                         InternalLinkTarget("target2")))
+                                         InternalLinkTarget(Id("target2"))))
   }
   
   it should "treat an internal link target followed by an external link target as an external link target" in {

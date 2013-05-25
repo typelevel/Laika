@@ -42,7 +42,7 @@ class RewriteRulesSpec extends FlatSpec
   
   def fn (label: FootnoteLabel, num: Any) = FootnoteDefinition(label, List(p("footnote"+num)))
 
-  def fn (id: String, label: String) = Footnote(id, label, List(p("footnote"+label)))
+  def fn (id: String, label: String) = Footnote(label, List(p("footnote"+label)), Id(id))
   
   def simpleLinkRef (id: String = "id") = LinkReference(List(txt("text")), id, "text")
  
@@ -127,13 +127,13 @@ class RewriteRulesSpec extends FlatSpec
   }
   
   it should "resolve internal link references" in {
-    val document = doc(p(simpleLinkRef()), InternalLinkTarget("id"))
-    rewritten (document) should be (doc(p(intLink("#id")), InternalLinkTarget("id")))
+    val document = doc(p(simpleLinkRef()), InternalLinkTarget(Id("id")))
+    rewritten (document) should be (doc(p(intLink("#id")), InternalLinkTarget(Id("id"))))
   }
   
   it should "resolve indirect link references" in {
-    val document = doc(p(simpleLinkRef()), LinkAlias("id","ref"), InternalLinkTarget("ref"))
-    rewritten (document) should be (doc(p(intLink("#ref")), InternalLinkTarget("ref")))
+    val document = doc(p(simpleLinkRef()), LinkAlias("id","ref"), InternalLinkTarget(Id("ref")))
+    rewritten (document) should be (doc(p(intLink("#ref")), InternalLinkTarget(Id("ref"))))
   }
   
   it should "resolve anonymous link references" in {

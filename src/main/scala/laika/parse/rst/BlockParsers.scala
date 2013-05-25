@@ -171,10 +171,10 @@ trait BlockParsers extends laika.parse.BlockParsers
       case class FinalBlock (options: Options = NoOpt) extends Block
       elems += FinalBlock()
       val processed = elems.toList.sliding(2).foldLeft(new ListBuffer[Block]()) {
-        case (buffer, (it: InternalLinkTarget) :: (rt: InternalLinkTarget) :: Nil) => 
-          buffer += LinkAlias(it.id, rt.id)
-        case (buffer, (it: InternalLinkTarget) :: (et: ExternalLinkDefinition) :: Nil) => 
-          buffer += et.copy(id = it.id)
+        case (buffer, (InternalLinkTarget(Id(id1))) :: (InternalLinkTarget(Id(id2))) :: Nil) => 
+          buffer += LinkAlias(id1, id2)
+        case (buffer, (InternalLinkTarget(Id(id))) :: (et: ExternalLinkDefinition) :: Nil) => 
+          buffer += et.copy(id = id)
         case (buffer, (h @ DecoratedHeader(_,_,oldOpt)) :: _) => 
           buffer += h.copy(options = oldOpt + Id(toLinkId(h)))  
         case (buffer, _ :: Nil)   => buffer

@@ -95,7 +95,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
     
     val named = '_' ~> (refName) <~ ':' ^^ { _.normalized }
       
-    val internal = named ^^ (InternalLinkTarget(_))
+    val internal = named ^^ (id => InternalLinkTarget(Id(id)))
     
     val external = {
       val anonymous = "__:" ^^^ ""

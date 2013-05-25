@@ -82,12 +82,12 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
     
     def renderBlockContainer [T <: BlockContainer[T]](con: BlockContainer[T]) = {
   
-      def toTable (id: String, label: String, content: Seq[Block]): Table = {
+      def toTable (label: String, content: Seq[Block], options: Options): Table = {
         val left = Cell(BodyCell, List(SpanSequence(List(Text("["+label+"]")))))
         val right = Cell(BodyCell, content)
         val row = Row(List(left,right))
         Table(TableHead(Nil), TableBody(List(row)),
-            Columns.options(Styles("label"),NoOpt), Id(id) + Styles("footnote"))
+            Columns.options(Styles("label"),NoOpt), options)
       }
       
       def quotedBlockContent (content: Seq[Block], attr: Seq[Span]) = 
@@ -103,8 +103,8 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
         case DefinitionListItem(term,defn,_)  => out << "<dt>" << term << "</dt>" <<| "<dd>"; renderBlocks(defn, "</dd>")
         case LineBlock(content,opt)           => out <<@ ("div",opt + Styles("line-block")) <<|> content <<| "</div>"
         
-        case Footnote(id,label,content,_)   => renderTable(toTable(id,label,content))
-        case Citation(id,content,_)         => renderTable(toTable(id,id,content))
+        case Footnote(label,content,opt)   => renderTable(toTable(label,content,opt + Styles("footnote")))
+        case Citation(label,content,opt)   => renderTable(toTable(label,content,opt + Styles("citation")))
         
         case BlockSequence(content, NoOpt)  => out << content
         
@@ -155,7 +155,7 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
     
     def renderSimpleBlock (block: Block) = block match {
       case Rule(opt)                   => out <<@ ("hr",opt) 
-      case InternalLinkTarget(id,opt)  => out <<@ ("a",opt,"id"->id) << "</a>"
+      case InternalLinkTarget(opt)     => out <<@ ("a",opt) << "</a>"
       
       case WithFallback(fallback)      => out << fallback
       case unknown                     => ()

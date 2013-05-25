@@ -37,6 +37,8 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
   
   case object Unresolved extends Element with Temporary
   
+  case class DuplicateId (id: String) extends Element with Temporary
+  
   case class Target (group: AnyRef, id: Id, source: Element, resolved: Element = Unresolved) {
     val selector = id match {
       case Hybrid(id0,_) => Selector(group, id0)
@@ -95,7 +97,7 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
                                 else (NamedLinkTarget, Named(id))
     
       document.collect {
-        case c: Citation => Target(Citation, c.id, c, c)
+        case c: Citation => Target(Citation, c.label, c, c)
         
         case f: FootnoteDefinition => f.label match {
           case Autosymbol            => Target(Autosymbol, Generated(symbols), f)
@@ -105,13 +107,20 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
         }
         
         case lt: ExternalLinkDefinition => val (group, id) = linkId(lt.id); Target(group, id, lt, lt)
-        case lt: InternalLinkTarget     => Target(NamedLinkTarget, lt.id, lt, lt)
         case lt: LinkAlias              => Target(NamedLinkTarget, lt.id, lt, lt)
         
         case hd @ DecoratedHeader(_,_,Id(id)) => Target(NamedLinkTarget, suggestedId(id), hd)
         case hd @ Header(_,_,Id(id))          => Target(NamedLinkTarget, suggestedId(id), hd)
         
         case c: Customizable if c.options.id.isDefined => Target(NamedLinkTarget, c.options.id.get, c, c)
+      }
+    }
+    
+    def processDuplicateIds (name: String, targets: Seq[(Target,Int)]) = {
+      targets map { 
+        case (t, index) => t.source match {
+          case _ => (t.copy(resolved = invalid(t.source, "duplicate target id: " + name)), index)
+        }
       }
     }
       
@@ -124,9 +133,7 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
       } collect {
         case e @ (None,_) => e
         case (name, (target :: Nil)) => (name, target :: Nil)
-        case (name, conflicting)   => (name, conflicting map { case (t, index) =>
-          (t.copy(resolved = invalid(t.source, "duplicate target id: " + name)), index)
-        })
+        case (name, conflicting)   => (name, processDuplicateIds(name.get, conflicting))
       }).toSeq.unzip
       
       val usedIds = ids.filter(_ != None).map(_.get).toSet
@@ -150,27 +157,29 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
       processedTargets map {
         case t @ Target(_, Named(name), DecoratedHeader(deco, content, opt), Unresolved) => 
           t.copy(resolved = Header(levelMap.getOrElseUpdate(deco, levelIt.next), content, opt))
+        case t @ Target(_, Named(name), Citation(_,content,opt), Unresolved) => 
+          t.copy(resolved = Citation(name, content, opt + Id(name)))
         case t @ Target(_, Named(name), FootnoteDefinition(_,content,opt), Unresolved) => 
-          t.copy(resolved = Footnote(name, name, content, opt))
+          t.copy(resolved = Footnote(name, content, opt + Id(name)))
         case t @ Target(_, Hybrid(id,Named(display)), FootnoteDefinition(_,content,opt), Unresolved) => 
-          t.copy(resolved = Footnote(id, display, content, opt))
+          t.copy(resolved = Footnote(display, content, opt + Id(id)))
         case t: Target => t
       }
       
     }
     
-    case class InvalidLinkTarget (id: String, message: SystemMessage) extends Element with LinkTarget // TODO - replace
+    case class InvalidLinkTarget (message: SystemMessage, options: Options) extends Element with LinkTarget // TODO - replace
     
     def resolveAliases (targets: Map[Selector,Target]): Map[Selector,Target] = {
   
       def resolveAlias (alias: LinkAlias, visited: Set[Any]): Element = {
         if (visited.contains(alias.id)) 
-          InvalidLinkTarget(alias.id, SystemMessage(laika.tree.Elements.Error, "circular link reference: " + alias.id))
+          InvalidLinkTarget(SystemMessage(laika.tree.Elements.Error, "circular link reference: " + alias.id), Id(alias.id))
         else
           targets.get(Selector(NamedLinkTarget, alias.target)) map {
             case Target(_,_, alias2: LinkAlias, _) => resolveAlias(alias2, visited + alias.id)
             case Target(_,_, other, _) => other
-          } getOrElse InvalidLinkTarget(alias.id, SystemMessage(laika.tree.Elements.Error, "unresolved link reference: " + alias.target))
+          } getOrElse InvalidLinkTarget(SystemMessage(laika.tree.Elements.Error, "unresolved link reference: " + alias.target), Id(alias.id))
       }            
                                      
       targets map { 
@@ -208,13 +217,12 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
     
       def resolveFootnote (target: Option[Element], source: String, msg: => String) = {
          target match {
-          case Some(Footnote(id, label, _, _)) => Some(FootnoteLink(id, label))
+          case Some(Footnote(label, _, Id(id))) => Some(FootnoteLink(id, label))
           case _ => Some(invalidSpan(msg, source)) 
         }
       }
       
-      val pf: PartialFunction[Element, Option[Element]] = {
-        
+      {
         case f: Footnote           => Some(f) // TODO - should not be required  
         case f: FootnoteDefinition => Some(bySource(f)) 
         case h: DecoratedHeader    => Some(bySource(h)) 
@@ -239,8 +247,8 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
                                                 else byId(NamedLinkTarget, ref.id)
           target match {
             case Some(ExternalLinkDefinition(_, url, title, _)) => Some(ExternalLink(ref.content, url, title, ref.options))
-            case Some(InternalLinkTarget(id,_))                 => Some(InternalLink(ref.content, "#"+id, options = ref.options))
-            case Some(InvalidLinkTarget(id,msg))                => Some(InvalidSpan(msg, Text(ref.source)))
+            case Some(InternalLinkTarget(Id(id)))               => Some(InternalLink(ref.content, "#"+id, options = ref.options))
+            case Some(InvalidLinkTarget(msg, _))                => Some(InvalidSpan(msg, Text(ref.source)))
             case other =>
               val msg = if (other.isEmpty && ref.id.isEmpty) "too many anonymous link references" 
                         else "unresolved link reference: " + ref.id
@@ -251,12 +259,11 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
           case Some(ExternalLinkDefinition(_, url, title, _)) => Some(Image(ref.text, url, title, ref.options))
           case other => 
             val msg = "unresolved link reference: " + ref.id
-            Some(InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Text(ref.source)))
+            Some(invalidSpan(msg, ref.source))
         }
           
         case _: Temporary => None
       }
-      pf
     }
   
   }

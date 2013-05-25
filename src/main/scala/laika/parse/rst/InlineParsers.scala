@@ -282,7 +282,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    */
   val internalTarget = markupStart('`', "`") ~> 
     (escapedText(anyBut('`') min 1) ^^ {ReferenceName(_).normalized}) <~ 
-    markupEnd("`") ^^ (InternalLinkTarget(_))
+    markupEnd("`") ^^ (id => InternalLinkTarget(Id(id)))
   
   /** The default text role to use when no role is specified in an interpreted text element.
    */

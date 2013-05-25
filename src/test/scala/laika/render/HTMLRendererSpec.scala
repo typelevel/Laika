@@ -196,7 +196,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a footnote" in {
-    val elem = Footnote("id","label", List(p("a"),p("b")))
+    val elem = Footnote("label", List(p("a"),p("b")), Id("id"))
     val html = """<table id="id" class="footnote">
       |  <colgroup>
       |    <col class="label"></col>
@@ -216,8 +216,8 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a citation" in {
-    val elem = Citation("ref", List(p("a"),p("b")))
-    val html = """<table id="ref" class="footnote">
+    val elem = Citation("ref", List(p("a"),p("b")), Id("ref"))
+    val html = """<table id="ref" class="citation">
       |  <colgroup>
       |    <col class="label"></col>
       |    <col></col>
@@ -386,7 +386,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a paragraph containing an internal link target" in {
-    val elem = p(txt("some "), InternalLinkTarget("target"), txt(" span"))
+    val elem = p(txt("some "), InternalLinkTarget(Id("target")), txt(" span"))
     render (elem) should be ("""<p>some <a id="target"></a> span</p>""") 
   }
   
