@@ -33,6 +33,9 @@ class RewriteRulesSpec extends FlatSpec
   def invalidSpan (message: String, fallback: String) =
       InvalidSpan(SystemMessage(laika.tree.Elements.Error, message), Text(fallback))
       
+  def invalidBlock (message: String, fallback: Block) =
+      InvalidBlock(SystemMessage(laika.tree.Elements.Error, message), fallback)
+      
   def invalidSpan (message: String, fallback: Span) =
       InvalidSpan(SystemMessage(laika.tree.Elements.Error, message), fallback)
       
@@ -43,6 +46,8 @@ class RewriteRulesSpec extends FlatSpec
   def fn (label: FootnoteLabel, num: Any) = FootnoteDefinition(label, List(p("footnote"+num)))
 
   def fn (id: String, label: String) = Footnote(label, List(p("footnote"+label)), Id(id))
+
+  def fn (label: String) = Footnote(label, List(p("footnote"+label)))
   
   def simpleLinkRef (id: String = "id") = LinkReference(List(txt("text")), id, "text")
  
@@ -53,7 +58,7 @@ class RewriteRulesSpec extends FlatSpec
    
   "The rewrite rules for citations" should "retain a single reference when it has a matching target" in {
     val document = doc(p(CitationReference("label","[label]_")), Citation("label", List(p("citation"))))
-    val resolved = doc(p(CitationLink("label")), Citation("label", List(p("citation"))))
+    val resolved = doc(p(CitationLink("label")), Citation("label", List(p("citation")),Id("label")))
     rewritten (document) should be (resolved)
   }
   
@@ -61,13 +66,14 @@ class RewriteRulesSpec extends FlatSpec
     val document = doc(p(CitationReference("label1","[label1]_"),CitationReference("label2","[label2]_"),CitationReference("label1","[label1]_")), 
         Citation("label1", List(p("citation1"))),Citation("label2", List(p("citation2"))))
     val resolved = doc(p(CitationLink("label1"),CitationLink("label2"),CitationLink("label1")), 
-        Citation("label1", List(p("citation1"))),Citation("label2", List(p("citation2"))))
+        Citation("label1", List(p("citation1")),Id("label1")),Citation("label2", List(p("citation2")),Id("label2")))
     rewritten (document) should be (resolved)
   }
   
   it should "replace a reference with an unknown label with an invalid span" in {
     val document = doc(p(CitationReference("label1","[label1]_")), Citation("label2", List(p("citation2"))))
-    rewritten (document) should be (doc(p(invalidSpan("unresolved citation reference: label1", "[label1]_")), Citation("label2", List(p("citation2")))))
+    rewritten (document) should be (doc(p(invalidSpan("unresolved citation reference: label1", "[label1]_")), 
+        Citation("label2", List(p("citation2")),Id("label2"))))
   }
   
   
@@ -154,6 +160,34 @@ class RewriteRulesSpec extends FlatSpec
   it should "replace circular indirect references with invalid spans" in {
     val document = doc(p(simpleLinkRef()), LinkAlias("id","ref"), LinkAlias("ref","id"))
     rewritten (document) should be (doc(p(invalidSpan("circular link reference: id", txt("text")))))
+  }
+  
+  
+  "The link resolver" should "remove the id from all elements with duplicate ids" in {
+    val target1a = Citation("id", List(p("citation")))
+    val target1b = fn(AutonumberLabel("id"), 1)
+    val msg = "duplicate target id: id"
+    val document = doc(target1a,target1b)
+    rewritten (document) should be (doc
+        (invalidBlock(msg,target1a),invalidBlock(msg,Footnote("id", List(p("footnote1"))))))
+  }
+  
+  it should "remove the id from elements with duplicate ids, but remove invalid external link definitions altogether" in {
+    val target1 = Citation("id1", List(p("citation")))
+    val target2a = fn(AutonumberLabel("id2"), 1)
+    val target2b = ExternalLinkDefinition("id2", "http://foo/")
+    val msg = "duplicate target id: id2"
+    val document = doc(target1,target2a,target2b)
+    rewritten (document) should be (doc
+        (target1.copy(options = Id("id1")),invalidBlock(msg,Footnote("id2", List(p("footnote1"))))))
+  }
+  
+  it should "replace ambiguous references to duplicate ids with invalid spans" in {
+    val target1a = ExternalLinkDefinition("id", "http://foo/1")
+    val target1b = ExternalLinkDefinition("id", "http://foo/2")
+    val msg = "ambiguous reference to duplicate id: id"
+    val document = doc(p(simpleLinkRef()),target1a,target1b)
+    rewritten (document) should be (doc(p(invalidSpan(msg, "text"))))
   }
  
   
