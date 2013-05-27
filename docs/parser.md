@@ -203,7 +203,7 @@ Trait BlockParsers
 
 This is the base trait for parsing blocks, the first phase of the two-phase parsing
 process. It adds a few utility parsers like `eol` (end-of-line), `blankLine`
-or `restOfLine`. See the [Scaladoc][inline-scaladoc] for details on those.
+or `restOfLine`. See the [Scaladoc][block-scaladoc] for details on those.
 
 If you mix in this trait you have to implement the two abstract parsers:
 
@@ -233,5 +233,5 @@ line and finally whether the block continues after a blank line has been seen.
 Often a blank line marks the end of a block, but there are exceptions, like code
 blocks or list items that span multiple parapraphs.
 
-
+[block-scaladoc]: api/#laika.parse.BlockParsers
 
