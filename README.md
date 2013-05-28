@@ -1,5 +1,4 @@
-Laika
-=====
+![Laika](http://planet42.github.io/Laika/img/laika-top.png)
 
 Customizable and extensible toolkit for transforming lightweight text markup into various types of output formats, written in Scala.
 
