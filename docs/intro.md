@@ -76,11 +76,11 @@ Features
 Road Map
 --------
 
-* Books/Sites, multi-document processing with TOC generation (0.4)
+* Template-based site generation (0.4)
 
-* sbt Plugin and/or command line interface (0.5)
+* sbt Plugin and command line interface (0.5)
 
-* New renderers for PDF (0.6) and epub (0.7)
+* New renderers for DocBook, PDF (0.6) and epub (0.7)
 
 * Various Markdown extensions (GitHub Flavored Markdown, Multimarkdown, etc.) (0.8)
 
@@ -143,7 +143,7 @@ This diagram shows the main building blocks of the toolkit:
   
 * `Render` is the final render step. Currently supported out of the box are HTML and PrettyPrint,
   the latter visualizing the document tree for debugging purposes. Planned for future releases
-  are support for PDF and epub. Like with the rewrite step, the entire renderer can be replaced
+  are support for PDF, DocBook and epub. Like with the rewrite step, the entire renderer can be replaced
   by a custom one, or an existing one can customized based on a partial function that deals with
   specific node types only.
 
