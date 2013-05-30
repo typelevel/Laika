@@ -45,7 +45,12 @@ For further information:
 * Browse the API in the [Scaladoc].
 
 * Follow on [Twitter] for release announcements.
+
+* Create [Issues] here on GitHub for bug reports or enhancement requests.
+
+* Ask questions on [Stackoverflow], tagging with Laika and Scala.
  
+There will also be a dedicated forum in case of growing interest in Laika.
 
 This manual is written in Markdown and transformed by Laika. Its source
 is included in the repository inside the `docs` folder.
@@ -55,6 +60,8 @@ is included in the repository inside the `docs` folder.
 [Scaladoc]: api/
 [Twitter]: https://twitter.com/_planet42
 [Transformation Basics]: basics.html
+[Issues]: https://github.com/planet42/Laika/issues
+[Stackoverflow]: http://stackoverflow.com/questions/ask?tags=scala%2claika
 
 
 Features

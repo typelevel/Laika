@@ -28,9 +28,15 @@ For further information:
 * Browse the API in the [Scaladoc].
 
 * Follow on [Twitter] for release announcements.
+
+* Create [Issues] here on GitHub for bug reports or enhancement requests.
+
+* Ask questions on [Stackoverflow], tagging with Laika and Scala.
  
 
 [Manual]: http://planet42.github.com/Laika/index.html
 [Scaladoc]: http://planet42.github.com/Laika/api/
 [Twitter]: https://twitter.com/_planet42
+[Issues]: https://github.com/planet42/Laika/issues
+[Stackoverflow]: http://stackoverflow.com/questions/ask?tags=scala%2claika
 
