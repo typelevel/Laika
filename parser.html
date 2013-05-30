@@ -7,6 +7,8 @@
     <title>Laika</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
+    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, open-source" />
 
     <link href="css/bootstrap.css" rel="stylesheet">
     <link href="css/docs.css" rel="stylesheet">
@@ -230,7 +232,7 @@ anyBut(&apos; &apos;,&apos;\t&apos;)          // Laika alternative
   <h2 id="block-parsers">Trait BlockParsers</h2>
   <p>This is the base trait for parsing blocks, the first phase of the two-phase parsing
   process. It adds a few utility parsers like <code>eol</code> (end-of-line), <code>blankLine</code>
-  or <code>restOfLine</code>. See the [Scaladoc][inline-scaladoc] for details on those.</p>
+  or <code>restOfLine</code>. See the <a href="api/#laika.parse.BlockParsers">Scaladoc</a> for details on those.</p>
   <p>If you mix in this trait you have to implement the two abstract parsers:</p>
   <pre>def topLevelBlock: Parser[Block]
 
