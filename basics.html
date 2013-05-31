@@ -115,12 +115,12 @@ val result = Transform from Markdown to HTML fromString input toString</pre>
   inputs and outputs:</p>
   <pre>val transform = Transform from ReStructuredText to HTML
 
-transform fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;
+transform fromFile &quot;hello.rst&quot; toFile &quot;hello.html&quot;
 
 val result = transform fromString &quot;some *text* example&quot; toString</pre>
   <p>All objects created by the API are reusable and immutable. For example,
   using the same input for two different types of output could be coded like this:</p>
-  <pre>val doc = Transform from ReStructuredText to HTML fromFile &quot;hello.md&quot;
+  <pre>val doc = Transform from ReStructuredText to HTML fromFile &quot;hello.rst&quot;
 
 doc toFile &quot;hello.html&quot;
 
@@ -151,8 +151,8 @@ res0: java.lang.String = Document - Blocks: 1
   <p>Like with the Transform API, all objects are reusable and immutable:</p>
   <pre>val parse = Parse as ReStructuredText
 
-val doc1 = parse fromFile &quot;input1.md&quot;
-val doc2 = parse fromFile &quot;input2.md&quot;</pre>
+val doc1 = parse fromFile &quot;input1.rst&quot;
+val doc2 = parse fromFile &quot;input2.rst&quot;</pre>
   <h2 id="render">The Render API</h2>
   <p>If you need to perform the rendering step separately, the API is similar to
   the Transform API:</p>
