@@ -51,7 +51,7 @@ inputs and outputs:
 
     val transform = Transform from ReStructuredText to HTML
     
-    transform fromFile "hello.md" toFile "hello.html"
+    transform fromFile "hello.rst" toFile "hello.html"
     
     val result = transform fromString "some *text* example" toString
 
@@ -59,7 +59,7 @@ inputs and outputs:
 All objects created by the API are reusable and immutable. For example,
 using the same input for two different types of output could be coded like this:
 
-    val doc = Transform from ReStructuredText to HTML fromFile "hello.md"
+    val doc = Transform from ReStructuredText to HTML fromFile "hello.rst"
     
     doc toFile "hello.html"
     
@@ -102,8 +102,8 @@ Like with the Transform API, all objects are reusable and immutable:
 
     val parse = Parse as ReStructuredText
     
-    val doc1 = parse fromFile "input1.md"
-    val doc2 = parse fromFile "input2.md"
+    val doc1 = parse fromFile "input1.rst"
+    val doc2 = parse fromFile "input2.rst"
 
 
 [tree-scaladoc]: api/#laika.tree.Elements$

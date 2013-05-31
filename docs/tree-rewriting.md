@@ -94,7 +94,7 @@ To use the same example, this is how you can replace all `Strong` nodes with
 
     Transform from ReStructuredText to HTML usingRule {
       case Strong(content, options) => Some(Emphasized(content, options))
-    } fromFile "hello.md" toFile "hello.html"
+    } fromFile "hello.rst" toFile "hello.html"
 
 
 
