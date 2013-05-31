@@ -111,7 +111,14 @@
     <li>
       <p>Follow on <a href="https://twitter.com/_planet42">Twitter</a> for release announcements.</p>
     </li>
+    <li>
+      <p>Create <a href="https://github.com/planet42/Laika/issues">Issues</a> here on GitHub for bug reports or enhancement requests.</p>
+    </li>
+    <li>
+      <p>Ask questions on <a href="http://stackoverflow.com/questions/ask?tags=scala%2claika">Stackoverflow</a>, tagging with Laika and Scala.</p>
+    </li>
   </ul>
+  <p>There will also be a dedicated forum in case of growing interest in Laika.</p>
   <p>This manual is written in Markdown and transformed by Laika. Its source
   is included in the repository inside the <code>docs</code> folder.</p>
   <h2 id="features">Features</h2>
@@ -138,13 +145,13 @@
   <h2 id="road-map">Road Map</h2>
   <ul>
     <li>
-      <p>Books/Sites, multi-document processing with TOC generation (0.4)</p>
+      <p>Template-based site generation (0.4)</p>
     </li>
     <li>
-      <p>sbt Plugin and/or command line interface (0.5)</p>
+      <p>sbt Plugin and command line interface (0.5)</p>
     </li>
     <li>
-      <p>New renderers for PDF (0.6) and epub (0.7)</p>
+      <p>New renderers for DocBook, PDF (0.6) and epub (0.7)</p>
     </li>
     <li>
       <p>Various Markdown extensions (GitHub Flavored Markdown, Multimarkdown, etc.) (0.8)</p>
@@ -219,7 +226,7 @@
     <li>
       <p><code>Render</code> is the final render step. Currently supported out of the box are HTML and PrettyPrint,
       the latter visualizing the document tree for debugging purposes. Planned for future releases
-      are support for PDF and epub. Like with the rewrite step, the entire renderer can be replaced
+      are support for PDF, DocBook and epub. Like with the rewrite step, the entire renderer can be replaced
       by a custom one, or an existing one can customized based on a partial function that deals with
       specific node types only.</p>
     </li>
