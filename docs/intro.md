@@ -40,9 +40,11 @@ For further information:
 
 * Read more about standard usage in the chapter [Transformation Basics].
 
-* Browse, clone or fork the source on [GitHub].
+* Try out Laika with the [Web Tool].
 
-* Browse the API in the [Scaladoc].
+* Browse or fork the source on [GitHub].
+
+* Browse the [API].
 
 * Follow on [Twitter] for release announcements.
 
@@ -56,8 +58,9 @@ This manual is written in Markdown and transformed by Laika. Its source
 is included in the repository inside the `docs` folder.
 
 
+[Web Tool]: http://www.planet42.org/laika/webtool
 [GitHub]: https://github.com/planet42/Laika
-[Scaladoc]: api/
+[API]: api/
 [Twitter]: https://twitter.com/_planet42
 [Transformation Basics]: basics.html
 [Issues]: https://github.com/planet42/Laika/issues

@@ -23,9 +23,11 @@ Example for transforming from file to file:
 
 For further information:
 
-* Read the extensive documentation in the [Manual].
+* Read the [Manual].
 
-* Browse the API in the [Scaladoc].
+* Try out Laika with the [Web Tool].
+
+* Browse the [API].
 
 * Follow on [Twitter] for release announcements.
 
@@ -35,8 +37,8 @@ For further information:
  
 
 [Manual]: http://planet42.github.com/Laika/index.html
-[Scaladoc]: http://planet42.github.com/Laika/api/
+[Web Tool]: http://www.planet42.org/laika/webtool
+[API]: http://planet42.github.com/Laika/api/
 [Twitter]: https://twitter.com/_planet42
 [Issues]: https://github.com/planet42/Laika/issues
 [Stackoverflow]: http://stackoverflow.com/questions/ask?tags=scala%2claika
-
