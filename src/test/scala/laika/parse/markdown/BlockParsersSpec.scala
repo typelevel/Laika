@@ -36,7 +36,7 @@ class BlockParsersSpec extends FlatSpec
   val defaultParser: Parser[Document] = document
   
   
-  def fp (content: String) = ForcedParagraph(List(Text(content)), Fallback(Paragraph(List(Text(content)))))
+  def fp (content: String) = BlockParsers.ForcedParagraph(List(Text(content)))
   
   
   "The paragraph parser" should "parse blocks without block-level markup as normal paragraphs" in {

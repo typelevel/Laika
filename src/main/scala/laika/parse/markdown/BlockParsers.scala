@@ -157,14 +157,6 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
       { case (nestLevel,lines) => QuotedBlock(parseNestedBlocks(lines, nestLevel), Nil) }
 
   
-  /** Represents a paragraph that does not get optimized to a simple span sequence
-   *  in renderers. Needed for the Markdown-specific way of dealing with list items
-   *  separated by blank lines which force an extra paragraph tag inside the `li` tag
-   *  in HTML renderers.
-   */
-  case class ForcedParagraph (content: Seq[Span], options: Options = NoOpt) extends Block 
-                                                                            with SpanContainer[ForcedParagraph]
-  
   /** Parses a list based on the specified helper parsers.
    * 
    *  @param itemStart parser that recognizes the start of a list item, result will be discarded
@@ -187,7 +179,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
              between list items or if it is adjacent to blank lines within the list item 
              itself. This is ugly, but forced by the (in this respect odd) design of Markdown. */
           case Paragraph(content,opt) :: Nil if hasBlankLines => 
-            ForcedParagraph(content, opt + Fallback(Paragraph(content,opt))) :: Nil
+            BlockParsers.ForcedParagraph(content, opt) :: Nil
           case other => other
         }
         
@@ -233,5 +225,22 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     list(enumListItemStart, EnumList(_, EnumFormat()), (pos,blocks)=>EnumListItem(blocks,EnumFormat(),pos)) 
   }
     
+  
+}
+
+/** Holds element tree nodes for blocks which are too specific for Markdown to be included
+ *  in the generic model.
+ */
+object BlockParsers {
+  
+  /** Represents a paragraph that does not get optimized to a simple span sequence
+   *  in renderers. Needed for the Markdown-specific way of dealing with list items
+   *  separated by blank lines which force an extra paragraph tag inside the `li` tag
+   *  in HTML renderers.
+   */
+  case class ForcedParagraph (content: Seq[Span], baseOptions: Options = NoOpt) extends Block 
+                                                  with SpanContainer[ForcedParagraph] {
+    def options = baseOptions + Fallback(Paragraph(content,baseOptions))
+  }
   
 }
