@@ -329,8 +329,7 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
           acc += (cols map { _ => List(RowSeparator, Intersection) }).flatten
       
         /* in contrast to the grid table, some rows need to be processed in context,
-         * as their exact behaviour depends on preceding or following lines. 
-         * TODO: this preprocessing might get eliminated in a refactoring */
+         * as their exact behaviour depends on preceding or following lines. */
         val rowBuffer = ((ListBuffer[List[TableElement]](), 0, false) /: rows) { case ((acc, blanks, rowOpen), row) =>
           row match {
             case result: ~[_,_] => 
