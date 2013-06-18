@@ -1,0 +1,17 @@
+
+This is the initial release of the [Laika](https://github.com/planet42/Laika) toolkit for transforming lightweight text markup. 
+
+It supports the following features:
+
+
+* Support for Markdown as input
+
+* Support for HTML and PrettyPrint as output
+
+* Customization hooks for renderers
+
+* Document tree rewriting
+
+* Various options for input and output (strings, files, java.io.Reader/Writer, java.io streams)
+
+* Generic base traits for markup parser implementations
