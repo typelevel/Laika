@@ -236,13 +236,34 @@ object Elements {
   /** A literal block with simple text content.
    */
   case class LiteralBlock (content: String, options: Options = NoOpt) extends Block with TextContainer
+  
+  /** A literal block with parsed text content.
+   */
+  case class ParsedLiteralBlock (content: Seq[Span], options: Options = NoOpt) extends Block with SpanContainer[ParsedLiteralBlock]
+  
+  /** A block of program code. The content is a sequence of spans to support
+   *  the later integration of syntax highlighting systems. Without this support
+   *  the sequence will only consist of a single `Text` element.
+   */
+  case class CodeBlock (language: String, content: Seq[Span], options: Options = NoOpt) extends Block with SpanContainer[CodeBlock]
 
   /** A quoted block consisting of a list of blocks that may contain other
    *  nested quoted blocks and an attribution which may be empty.
    */
   case class QuotedBlock (content: Seq[Block], attribution: Seq[Span], options: Options = NoOpt) extends Block 
                                                                                                  with BlockContainer[QuotedBlock]
+  
+  /** Generic block element with a title.
+   *  Often combined with the the `styles` attribute of the `options` parameter to provide
+   *  additional render hints.
+   */
+  case class TitledBlock (title: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends Block
+                                                                                           with BlockContainer[TitledBlock]
 
+  /** A figure consists of an image, an optional caption, and an optional legend
+   */
+  case class Figure (image: Image, caption: Seq[Span], legend: Seq[Block]) extends Block with BlockContainer[Figure]
+  
   /** An bullet list that may contain nested lists.
    */
   case class BulletList (content: Seq[ListItem], format: BulletFormat, options: Options = NoOpt) extends Block 
@@ -443,6 +464,12 @@ object Elements {
   case class AutonumberLabel (label: String) extends FootnoteLabel
 
   
+  /** Raw content that is usually specific to the specified output formats.
+   *  Can be used as both block and inline element. If supported by a
+   *  parser it usually has to be explicitly enabled due to security concerns.
+   */
+  case class RawContent (formats: Seq[String], content: String, options: Options = NoOpt) extends Block with Span with TextContainer
+  
   /** A horizontal rule.
    */
   case class Rule (options: Options = NoOpt) extends Block
@@ -487,8 +514,8 @@ object Elements {
   /** An inline image with a text description and optional title.
    */
   case class Image (text: String, url: String, title: Option[String] = None, options: Options = NoOpt) extends Link
-
- 
+  
+  
   /** A link reference, the id pointing to the id of a `LinkTarget`. Only part of the
    *  raw document tree and then removed by the rewrite rule that resolves link and image references.
    */
