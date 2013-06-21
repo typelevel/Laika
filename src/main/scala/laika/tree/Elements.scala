@@ -260,9 +260,9 @@ object Elements {
   case class TitledBlock (title: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends Block
                                                                                            with BlockContainer[TitledBlock]
 
-  /** A figure consists of an image, an optional caption, and an optional legend
+  /** A figure consists of an image, an optional caption, and an optional legend as the `content` property.
    */
-  case class Figure (image: Image, caption: Seq[Span], legend: Seq[Block]) extends Block with BlockContainer[Figure]
+  case class Figure (image: Image, caption: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[Figure]
   
   /** An bullet list that may contain nested lists.
    */
@@ -346,9 +346,9 @@ object Elements {
   case class LineBlock (content: Seq[LineBlockItem], options: Options = NoOpt) extends LineBlockItem with BlockContainer[LineBlock]
   
   
-  /** A table consisting of a head and a body part and an optional column specification.  
+  /** A table consisting of a head and a body part and optional caption and column specification.  
    */
-  case class Table (head: TableHead, body: TableBody, columns: Columns = Columns(Nil), options: Options = NoOpt) extends Block
+  case class Table (head: TableHead, body: TableBody, caption: Caption = Caption(), columns: Columns = Columns(Nil), options: Options = NoOpt) extends Block
                                                                                                                  with ElementTraversal[Table] {
     override def toString = "\n" + (Render as PrettyPrint from this toString) + "\n" 
   }
@@ -368,6 +368,10 @@ object Elements {
   /** Contains the body rows of a table. 
    */
   case class TableBody (content: Seq[Row], options: Options = NoOpt) extends TableElement with TableContainer[TableBody]
+  
+  /** The table caption.
+   */
+  case class Caption (content: Seq[Span] = Nil, options: Options = NoOpt) extends TableElement with SpanContainer[Caption]
   
   /** Contains the (optional) column specification of a table.
    */

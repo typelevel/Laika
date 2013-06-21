@@ -54,7 +54,7 @@ class ExtendedHTML extends (HTMLWriter => PartialFunction[Element, Unit]) {
     def options (value: Seq[ProgramOption]) = Cell(BodyCell, List(ProgramOptions(intersperse(value.toList,Text(", ")))))
     def body (value: Seq[Block]) = Cell(BodyCell, value)
     val rows = ol.content map (o => Row(List(options(o.programOptions),body(o.content))))
-    Table(TableHead(Nil), TableBody(rows), 
+    Table(TableHead(Nil), TableBody(rows), Caption(),
         Columns.options(Styles("option"),Styles("description")), Styles("option-list"))
   }
   
@@ -64,7 +64,7 @@ class ExtendedHTML extends (HTMLWriter => PartialFunction[Element, Unit]) {
     def name (value: Seq[Span]) = Cell(BodyCell, List(SpanSequence(value :+ Text(":"))))
     def body (value: Seq[Block]) = Cell(BodyCell, value)
     val rows = fl.content map (f => Row(List(name(f.name),body(f.content))))
-    Table(TableHead(Nil), TableBody(rows),
+    Table(TableHead(Nil), TableBody(rows), Caption(),
         Columns.options(Styles("field-name"),Styles("field-body")), Styles("field-list"))
   }
   

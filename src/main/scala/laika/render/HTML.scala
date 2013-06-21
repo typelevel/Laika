@@ -68,7 +68,7 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
     }
     
     def renderTable (table: Table) = {
-      val children = List(table.columns,table.head,table.body) filterNot (_.content.isEmpty)
+      val children = List(table.caption,table.columns,table.head,table.body) filterNot (_.content.isEmpty)
       
       out <<@ ("table", table.options) <<|> children <<| "</table>"
     }
@@ -86,7 +86,7 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
         val left = Cell(BodyCell, List(SpanSequence(List(Text("["+label+"]")))))
         val right = Cell(BodyCell, content)
         val row = Row(List(left,right))
-        Table(TableHead(Nil), TableBody(List(row)),
+        Table(TableHead(Nil), TableBody(List(row)), Caption(),
             Columns.options(Styles("label"),NoOpt), options)
       }
       
