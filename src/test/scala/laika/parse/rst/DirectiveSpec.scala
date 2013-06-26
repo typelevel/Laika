@@ -28,6 +28,7 @@ import laika.tree.Elements._
 import laika.parse.rst.TextRoles.TextRole
 import laika.parse.rst.Directives._
 import laika.parse.rst.Directives.Parts._
+import laika.parse.rst.TextRoles.RoleDirectivePart
    
 class DirectiveSpec extends FlatSpec 
                         with ShouldMatchers 
@@ -62,6 +63,7 @@ class DirectiveSpec extends FlatSpec
 
   
   def stars (num: Int) = p("*" * num)
+  
   
   val blockDirectives: Map[String, DirectivePart[Block]] = Map(
     "oneArg" -> (argument() map p),
@@ -100,6 +102,10 @@ class DirectiveSpec extends FlatSpec
        txt(text+"("+res+")")
     }  
   )
+  
+  def blockDirective (name: String): Option[DirectivePart[Block]] = blockDirectives.get(name)
+  def spanDirective (name: String): Option[DirectivePart[Span]] = spanDirectives.get(name)
+  def textRole (name: String): Option[RoleDirectivePart[String => Span]] = textRoles.get(name).map(_.part(this))
   
   
   

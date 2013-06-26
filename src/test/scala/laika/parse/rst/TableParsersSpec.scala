@@ -25,7 +25,7 @@ import laika.tree.Elements.Span
 import laika.tree.helper.ModelBuilder
 import laika.parse.rst.Elements._
 import laika.tree.Elements._
-import laika.parse.rst.TextRoles.TextRole
+import laika.parse.rst.TextRoles.RoleDirectivePart
 import laika.parse.rst.Directives.DirectivePart
      
 class TableParsersSpec extends FlatSpec 
@@ -40,9 +40,9 @@ class TableParsersSpec extends FlatSpec
   val defaultParser: Parser[Document] = document
   
   
-  val blockDirectives: Map[String, DirectivePart[Block]] = Map.empty
-  val spanDirectives: Map[String, DirectivePart[Span]] = Map.empty
-  val textRoles: Map[String, TextRole] = Map.empty
+  def blockDirective (name: String): Option[DirectivePart[Block]] = None
+  def spanDirective (name: String): Option[DirectivePart[Span]] = None
+  def textRole (name: String): Option[RoleDirectivePart[String => Span]] = None
   
   
   

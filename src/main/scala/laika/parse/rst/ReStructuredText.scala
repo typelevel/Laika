@@ -137,7 +137,11 @@ class ReStructuredText private (
     new BlockParsers with InlineParsers {
       val blockDirectives = self.blockDirectives map { d => (d.name, d.part) } toMap
       val spanDirectives = self.spanDirectives map { d => (d.name, d.part) } toMap
-      val textRoles = self.textRoles map { r => (r.name, r) } toMap
+      val textRoles = self.textRoles map { r => (r.name, r.part) } toMap
+      
+      def blockDirective (name: String): Option[DirectivePart[Block]]  = blockDirectives.get(name).map(_(this))
+      def spanDirective (name: String): Option[DirectivePart[Span]]     = spanDirectives.get(name).map(_(this))
+      def textRole (name: String): Option[RoleDirectivePart[String => Span]] = textRoles.get(name).map(_(this))
     }
   }
 

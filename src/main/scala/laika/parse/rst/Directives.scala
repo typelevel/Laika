@@ -267,7 +267,7 @@ object Directives {
 
   /** Represents a single directive implementation.
    */
-  class Directive [E <: Element] private[Directives] (val name: String)(val part: DirectivePart[E])
+  class Directive [E <: Element] private[Directives] (val name: String, val part: BlockParsers with InlineParsers => DirectivePart[E])
 
   /** API entry point for setting up a span directive that can be used
    *  in substitution definitions.
@@ -282,7 +282,20 @@ object Directives {
      *  @param part the implementation of the directive that can be created by using the combinators of the `Parts` object
      *  @return a new directive that can be registered with the reStructuredText parser
      */
-    def apply (name: String)(part: DirectivePart[Span]) = new Directive(name)(part)
+    def apply (name: String)(part: DirectivePart[Span]) = new Directive(name, _ => part)
+    
+    /** Creates a new directive with the specified name and implementation.
+     *  The `DirectivePart` can be created by using the methods of the `Parts`
+     *  object. In contrast to the `apply` function, this function allows to 
+     *  depend on the standard block and span parsers. This is necessary if
+     *  the directive does both, require a custom parser for arguments or body 
+     *  and allow for nested directives in those parsers.
+     * 
+     *  @param name the name the directive can be used with in reStructuredText markup
+     *  @param part a function returning the implementation of the directive that can be created by using the combinators of the `Parts` object
+     *  @return a new directive that can be registered with the reStructuredText parser
+     */
+    def recursive (name: String)(part: BlockParsers with InlineParsers => DirectivePart[Span]) = new Directive(name, part)
     
   }
   
@@ -298,7 +311,20 @@ object Directives {
      *  @param part the implementation of the directive that can be created by using the combinators of the `Parts` object
      *  @return a new directive that can be registered with the reStructuredText parser
      */
-    def apply (name: String)(part: DirectivePart[Block]) = new Directive(name)(part)
+    def apply (name: String)(part: DirectivePart[Block]) = new Directive(name, _ => part)
+    
+    /** Creates a new directive with the specified name and implementation.
+     *  The `DirectivePart` can be created by using the methods of the `Parts`
+     *  object. In contrast to the `apply` function, this function allows to 
+     *  depend on the standard block and span parsers. This is necessary if
+     *  the directive does both, require a custom parser for arguments or body 
+     *  and allow for nested directives in those parsers.
+     * 
+     *  @param name the name the directive can be used with in reStructuredText markup
+     *  @param part a function returning the implementation of the directive that can be created by using the combinators of the `Parts` object
+     *  @return a new directive that can be registered with the reStructuredText parser
+     */
+    def recursive (name: String)(part: BlockParsers with InlineParsers => DirectivePart[Block]) = new Directive(name, part)
     
   }
 

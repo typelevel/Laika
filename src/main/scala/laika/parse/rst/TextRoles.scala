@@ -212,7 +212,7 @@ object TextRoles {
 
   /** Represents a single text role implementation.
    */
-  class TextRole private (val name: String, val part: RoleDirectivePart[String => Span])
+  class TextRole private (val name: String, val part: BlockParsers with InlineParsers => RoleDirectivePart[String => Span])
 
   /** API entry point for setting up a text role that.
    */
@@ -228,6 +228,8 @@ object TextRoles {
      *  that the original interpreted text should be replaced with.
      * 
      *  @param name the name the text role can be used with in interpreted text
+     *  @param default the default value to pass to the role function in case the interpreted text
+     *  is not referring to a role directive
      *  @param part the implementation of the role directive for customizing the text role 
      *  that can be created by using the combinators of the `Parts` object
      *  @param roleF the final role function that gets passed the result of the directive (or default
@@ -235,7 +237,33 @@ object TextRoles {
      *  @return a new text role that can be registered with the reStructuredText parser
      */
     def apply [T] (name: String, default: T)(part: RoleDirectivePart[T])(roleF: (T, String) => Span) = 
-      new TextRole(name, part map (res => (str => roleF(res, str))))
+      new TextRole(name, _ => part map (res => ((str:String) => roleF(res, str))))
+    
+    /** Creates a new text role that can be referred to by interpreted text with the specified name.
+     *  The `DirectivePart` can be created by using the methods of the `Parts`
+     *  object and specifies the functionality for users who customize a text role with a role directive.
+     *  The `roleF` function is the final function that will be invoked with either the default value
+     *  or the result of the role directive as the first argument (depending on whether the user used
+     *  the default role or a customized one). The actual text of the interpreted text will be passed
+     *  as the second argument. The return value of the role function is the actual `Span` instance
+     *  that the original interpreted text should be replaced with.
+     * 
+     *  In contrast to the `apply` function, this function allows to 
+     *  depend on the standard block and span parsers. This is necessary if
+     *  the directive does both, require a custom parser for arguments or body 
+     *  and allow for nested directives in those parsers.
+     * 
+     *  @param name the name the text role can be used with in interpreted text
+     *  @param default the default value to pass to the role function in case the interpreted text
+     *  is not referring to a role directive
+     *  @param part a function returning the implementation of the role directive for customizing the text role 
+     *  that can be created by using the combinators of the `Parts` object
+     *  @param roleF the final role function that gets passed the result of the directive (or default
+     *  value) and the actual text of the interpreted text span
+     *  @return a new text role that can be registered with the reStructuredText parser
+     */
+    def recursive [T] (name: String, default: T)(part: BlockParsers with InlineParsers => RoleDirectivePart[T])(roleF: (T, String) => Span) = 
+      new TextRole(name, parsers => part(parsers) map (res => ((str:String) => roleF(res, str))))
     
   }
 

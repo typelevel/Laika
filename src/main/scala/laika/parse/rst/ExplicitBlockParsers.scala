@@ -122,7 +122,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
     val text = not(ws take 1) ~> escapedText(anyBut('|','\n') min 1)  
     val prefix = '|' ~> text <~ not(lookBehind(1, ' ')) ~ '|'
     
-    ((prefix <~ ws) ~ spanDirective) ^^ { 
+    ((prefix <~ ws) ~ spanDirectiveParser) ^^ { 
       case name ~ InvalidDirective(msg, source, _) => 
         InvalidBlock(SystemMessage(laika.tree.Elements.Error, msg), LiteralBlock(source.replaceFirst(".. ",".. |"+name+"| ")))
       case name ~ content => SubstitutionDefinition(name, content) 
@@ -140,23 +140,23 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
   }
   
   
-  /** Mapping from the name of all configured block directives to their implementation.
+  /** Retrieves the block directiv with the specified name.
    * 
    *  See [[laika.parse.rst.Directives]] for details on how to implement directives.  
    */
-  def blockDirectives: Map[String, DirectivePart[Block]]
+  def blockDirective (name: String): Option[DirectivePart[Block]]
   
-  /** Mapping from the name of all configured span directives to their implementation.
+  /** Retrieves the span directiv with the specified name.
    * 
    *  See [[laika.parse.rst.Directives]] for details on how to implement directives.  
    */
-  def spanDirectives: Map[String, DirectivePart[Span]]
+  def spanDirective (name: String): Option[DirectivePart[Span]]
   
-  /** Mapping from the name of all configured text roles to their implementation.
+  /** Retrieves the text role with the specified name.
    * 
    *  See [[laika.parse.rst.TextRoles]] for details on how to implement text roles.  
    */
-  def textRoles: Map[String, TextRole]
+  def textRole (name: String): Option[RoleDirectivePart[String => Span]]
     
 
   private def replaceInvalidDirective (block: Block) = block match {
@@ -164,15 +164,25 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
     case other => other
   }
   
+  /** Utility method to be used by custom parsers for directive argument or body.
+   *  It translates a `Success` into a `Right` and a `NoSuccess` into a `Left`.
+   */
+  def parseDirectivePart [T] (parser: Parser[T], source: String): Either[String,T] = {
+    parseAll(parser, source.trim) match {
+      case Success(result,_) => Right(result)
+      case NoSuccess(msg, _) => Left(msg)
+    }
+  }
+  
   /** Parses a block-level directive.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#directives]].
    */
-  def blockDirective: Parser[Block] = directive(blockDirectives) ^^ replaceInvalidDirective
+  def blockDirective: Parser[Block] = directive(blockDirective) ^^ replaceInvalidDirective
 
-  private def spanDirective = directive(spanDirectives)
+  private def spanDirectiveParser = directive(spanDirective)
   
-  private def directive [E](directives: Map[String, DirectivePart[E]]): Parser[E] = {
+  private def directive [E](provider: String => Option[DirectivePart[E]]): Parser[E] = {
     
     val nameParser = simpleRefName <~ "::" ~ ws
     
@@ -185,7 +195,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
     }
     
     nameParser >> { name => 
-      directive(directives.get(name).map(directiveParser).getOrElse(failure("unknown directive: " + name)), name+"::")
+      directive(provider(name).map(directiveParser).getOrElse(failure("unknown directive: " + name)), name+"::")
     }
   }
   
@@ -208,10 +218,10 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
     
     val nameParser = "role::" ~ ws ~> simpleRefName ~ opt('(' ~> simpleRefName <~ ')')
     
-    def directiveParser (name: String)(role: TextRole): Parser[Block] = {
+    def directiveParser (name: String)(role: RoleDirectivePart[String => Span]): Parser[Block] = {
       val delegate = new DirectiveParserBuilder
       val parserBuilder = new RoleDirectiveParserBuilder(delegate)
-      val result = role.part(parserBuilder)
+      val result = role(parserBuilder)
       delegate.parser ^^^ {
         CustomizedTextRole(name, result.get)
       }
@@ -220,7 +230,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
     nameParser >> { case name ~ baseName =>
       val base = baseName.getOrElse(defaultTextRole)
       val fullname = "role::" + name + (baseName map ("("+_+")") getOrElse "")
-      directive(textRoles.get(base).map(directiveParser(name))
+      directive(textRole(base).map(directiveParser(name))
           .getOrElse(failure("unknown text role: " + base)), fullname) ^^ replaceInvalidDirective
     }
     
