@@ -21,7 +21,6 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import laika.parse.helper.DefaultParserHelpers
 import laika.parse.helper.ParseResultHelpers
-import laika.tree.Elements.Span
 import laika.tree.helper.ModelBuilder
 import laika.parse.rst.Elements._
 import laika.tree.Elements._
@@ -80,6 +79,9 @@ class DirectiveSpec extends FlatSpec
     "oneOptIntFd" -> (optField("name",positiveInt) map { arg => p("*" * arg.getOrElse(1)) }),
     "reqAndOptFd" -> (field("name1") ~ optField("name2")) { (arg1,arg2) => p(arg1+arg2.getOrElse("missing")) },
     "argAndFd" -> (argument(positiveInt) ~ field("name",positiveInt)) { (arg1,arg2) => p(("*" * arg1) + ("#" * arg2)) },
+    "optArgAndFd" -> (optArgument() ~ optField("name")) { (arg1,arg2) => p(arg1.getOrElse("missing")+arg2.getOrElse("missing")) },
+    "optArgFdBody" -> (optArgument(withWS = true) ~ optField("name") ~ content(Right(_))) { 
+      (arg1,arg2,content) => p(arg1.getOrElse("missing")+arg2.getOrElse("missing")+content) },
     "stdBody" -> (blockContent map (BlockSequence(_))),
     "customBody" -> content(body => if (body.length > 10) Right(p(body)) else Left("body too short")),
     "argAndBlocks" -> (argument() ~ blockContent) { (arg,blocks) => BlockSequence(p(arg+"!") +: blocks) },
@@ -308,6 +310,18 @@ class DirectiveSpec extends FlatSpec
     val input = """.. argAndFd:: foo
       | :name: 5""".stripMargin
     Parsing (input) should produce (doc (invalid(input,error)))
+  }
+  
+  it should "parse a directive with one optional argument and one missing optional field" in {
+    val input = """.. optArgAndFd:: arg""".stripMargin
+    Parsing (input) should produce (doc (p("argmissing")))
+  }
+  
+  it should "parse a directive with one optional argument, one missing optional field and standard body" in {
+    val input = """.. optArgFdBody:: arg
+      |
+      | Some Text""".stripMargin
+    Parsing (input) should produce (doc (p("argmissingSome Text")))
   }
   
   it should "parse a directive with standard block content" in {
