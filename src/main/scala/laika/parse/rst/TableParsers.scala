@@ -195,7 +195,7 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#grid-tables]].
    */
-  def gridTable: Parser[Block] = {
+  def gridTable: Parser[Table] = {
     
     val intersect = (anyOf('+') take 1) ^^^ Intersection
     
@@ -279,7 +279,7 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#simple-tables]].
    */
-  def simpleTable: Parser[Block] = {
+  def simpleTable: Parser[Table] = {
     
     val intersect = (anyOf(' ') min 1) ^^ { _.length }
     val tableBorder = (anyOf('=') min 1) ^^ { _.length }
