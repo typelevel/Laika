@@ -22,6 +22,8 @@ import laika.parse.rst.Directives._
 import laika.parse.rst.TextRoles._
 import scala.util.parsing.input.CharSequenceReader
 import laika.parse.util.WhitespacePreprocessor
+import laika.parse.rst.ext.StandardBlockDirectives
+import laika.parse.rst.ext.StandardSpanDirectives
   
 /** A parser for text written in reStructuredText markup. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:
@@ -135,8 +137,10 @@ class ReStructuredText private (
   
   private lazy val parser = {
     new BlockParsers with InlineParsers {
-      val blockDirectives = self.blockDirectives map { d => (d.name, d.part) } toMap
-      val spanDirectives = self.spanDirectives map { d => (d.name, d.part) } toMap
+      val std = new StandardBlockDirectives with StandardSpanDirectives {}
+      
+      val blockDirectives = (std.blockDirectives ++ self.blockDirectives) map { d => (d.name, d.part) } toMap
+      val spanDirectives = (std.spanDirectives ++ self.spanDirectives) map { d => (d.name, d.part) } toMap
       val textRoles = self.textRoles map { r => (r.name, r.part) } toMap
       
       def blockDirective (name: String): Option[DirectivePart[Block]]  = blockDirectives.get(name).map(_(this))
