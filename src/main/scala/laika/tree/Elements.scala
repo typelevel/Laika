@@ -261,8 +261,9 @@ object Elements {
                                                                                            with BlockContainer[TitledBlock]
 
   /** A figure consists of an image, an optional caption, and an optional legend as the `content` property.
+   *  The `image` property is of type `Span` as the image might be wrapped inside a link reference.
    */
-  case class Figure (image: Image, caption: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[Figure]
+  case class Figure (image: Span, caption: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[Figure]
   
   /** An bullet list that may contain nested lists.
    */
@@ -642,6 +643,14 @@ object Elements {
   object Styles {
     def apply (values: String*) = SomeOpt(styles = values)
     def unapplySeq (value: Options) = Some(value.styles) 
+  }
+  
+  /** Companion for the Options trait.
+   */
+  object Options {
+    def apply (id: Option[String] = None, styles: Seq[String] = Nil, fallback: Option[Element] = None) =
+      if (id.isEmpty && styles.isEmpty && fallback.isEmpty) NoOpt
+      else SomeOpt(id,styles,fallback)
   }
   
 }
