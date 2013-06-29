@@ -530,7 +530,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | some more""".stripMargin
     val result = doc (RawContent(List("format"), "some input\n\nsome more"))
-    Parse as ReStructuredText fromString input should be (result)
+    Parse as ReStructuredText.withRawContent fromString input should be (result)
   }
   
   

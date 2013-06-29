@@ -65,7 +65,8 @@ import laika.parse.rst.ext.StandardSpanDirectives
 class ReStructuredText private (
     blockDirectives: List[Directive[Block]],
     spanDirectives: List[Directive[Span]],
-    textRoles: List[TextRole]
+    textRoles: List[TextRole],
+    rawContent: Boolean = false
     ) extends (Input => RawDocument) { self =>
 
   
@@ -89,7 +90,7 @@ class ReStructuredText private (
    *  For more details on implementing directives see [[laika.parse.rst.Directives]].
    */
   def withBlockDirectives (directives: Directive[Block]*) = {
-    new ReStructuredText(blockDirectives ++ directives, spanDirectives, textRoles)    
+    new ReStructuredText(blockDirectives ++ directives, spanDirectives, textRoles, rawContent)    
   }
      
   /** Adds the specified directives and returns a new instance of the parser.
@@ -110,7 +111,7 @@ class ReStructuredText private (
    *  For more details on implementing directives see [[laika.parse.rst.Directives]].
    */ 
   def withSpanDirectives (directives: Directive[Span]*) = {
-    new ReStructuredText(blockDirectives, spanDirectives ++ directives, textRoles)    
+    new ReStructuredText(blockDirectives, spanDirectives ++ directives, textRoles, rawContent)    
   }
   
   /** Adds the specified text roles and returns a new instance of the parser.
@@ -131,15 +132,25 @@ class ReStructuredText private (
    *  For more details on implementing directives see [[laika.parse.rst.TextRoles]].
    */
   def withTextRoles (roles: TextRole*) = {
-    new ReStructuredText(blockDirectives, spanDirectives, textRoles ++ roles)    
+    new ReStructuredText(blockDirectives, spanDirectives, textRoles ++ roles, rawContent)    
   }
-      
+  
+  
+  /** Adds the `raw` directive and text roles to the parser.
+   *  These are disabled by default as they present a potential security risk.
+   */
+  def withRawContent = {
+    new ReStructuredText(blockDirectives, spanDirectives, textRoles, true)
+  }
+  
   
   private lazy val parser = {
     new BlockParsers with InlineParsers {
       val std = new StandardBlockDirectives with StandardSpanDirectives {}
       
-      val blockDirectives = (std.blockDirectives ++ self.blockDirectives) map { d => (d.name, d.part) } toMap
+      val rawDirective = if (rawContent) List(BlockDirective("raw")(std.raw)) else Nil
+      
+      val blockDirectives = (rawDirective ++ std.blockDirectives ++ self.blockDirectives) map { d => (d.name, d.part) } toMap
       val spanDirectives = (std.spanDirectives ++ self.spanDirectives) map { d => (d.name, d.part) } toMap
       val textRoles = self.textRoles map { r => (r.name, r.part) } toMap
       
@@ -164,4 +175,4 @@ class ReStructuredText private (
  * 
  *  @author Jens Halm
  */
-object ReStructuredText extends ReStructuredText(Nil,Nil,Nil)
+object ReStructuredText extends ReStructuredText(Nil,Nil,Nil,false)

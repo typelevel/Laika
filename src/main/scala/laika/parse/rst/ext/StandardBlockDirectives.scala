@@ -173,7 +173,6 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
     BlockDirective.recursive("table")(table),
     BlockDirective.recursive("figure")(figure),
     BlockDirective.recursive("admonition")(genericAdmonition),
-    BlockDirective("raw")(raw),
     BlockDirective("code")(code),
     BlockDirective("image")(imageBlock),
     BlockDirective("attention")(admonition("attention")),
