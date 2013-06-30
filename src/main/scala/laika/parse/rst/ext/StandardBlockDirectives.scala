@@ -152,7 +152,7 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
     } 
   }
   
-  lazy val raw: DirectivePart[Block] = {
+  lazy val rawDirective: DirectivePart[Block] = {
     (argument(withWS = true) ~ content(Right(_))) { (formats, content) =>
       RawContent(formats.split(" "), content)
     } 

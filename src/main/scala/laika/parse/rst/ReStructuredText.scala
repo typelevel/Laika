@@ -20,10 +20,10 @@ import laika.io.Input
 import laika.tree.Elements._
 import laika.parse.rst.Directives._
 import laika.parse.rst.TextRoles._
+import laika.parse.rst.ext._
 import scala.util.parsing.input.CharSequenceReader
 import laika.parse.util.WhitespacePreprocessor
-import laika.parse.rst.ext.StandardBlockDirectives
-import laika.parse.rst.ext.StandardSpanDirectives
+import laika.parse.rst.Elements.CustomizedTextRole
   
 /** A parser for text written in reStructuredText markup. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:
@@ -146,13 +146,16 @@ class ReStructuredText private (
   
   private lazy val parser = {
     new BlockParsers with InlineParsers {
-      val std = new StandardBlockDirectives with StandardSpanDirectives {}
+      val std = new StandardBlockDirectives with StandardSpanDirectives with StandardTextRoles {}
       
-      val rawDirective = if (rawContent) List(BlockDirective("raw")(std.raw)) else Nil
+      val rawDirective = if (rawContent) List(BlockDirective("raw")(std.rawDirective)) else Nil
+      val rawTextRole = if (rawContent) List(std.rawTextRole) else Nil
       
       val blockDirectives = (rawDirective ++ std.blockDirectives ++ self.blockDirectives) map { d => (d.name, d.part) } toMap
       val spanDirectives = (std.spanDirectives ++ self.spanDirectives) map { d => (d.name, d.part) } toMap
-      val textRoles = self.textRoles map { r => (r.name, r.part) } toMap
+      val textRoles = (rawTextRole ++ std.textRoles ++ self.textRoles) map { r => (r.name, r.part) } toMap
+      
+      override val textRoleElements = (std.textRoles ++ self.textRoles) map { role => CustomizedTextRole(role.name, role.default) }
       
       def blockDirective (name: String): Option[DirectivePart[Block]]  = blockDirectives.get(name).map(_(this))
       def spanDirective (name: String): Option[DirectivePart[Span]]     = spanDirectives.get(name).map(_(this))

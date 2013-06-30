@@ -44,8 +44,13 @@ trait BlockParsers extends laika.parse.BlockParsers
   
   override def parseDocument (reader: Reader[Char]) = {
     val raw = super.parseDocument(reader)
-    raw.copy(rewriteRules = List(RewriteRules(raw.document)))
+    raw.copy(rewriteRules = List(RewriteRules(Document(raw.document.content ++ textRoleElements))))
   }
+  
+  /** All the base text roles supported by this parser not including
+   *  any custom roles specified within document markup.
+   */
+  def textRoleElements: List[CustomizedTextRole] = Nil  
   
   
   /** Parses punctuation characters as supported by transitions (rules) and 
