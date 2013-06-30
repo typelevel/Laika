@@ -497,6 +497,12 @@ object Elements {
    */
   case class Literal (content: String, options: Options = NoOpt) extends Span with TextContainer
   
+  /** A span of program code. The content is a sequence of spans to support
+   *  the later integration of syntax highlighting systems. Without this support
+   *  the sequence will only consist of a single `Text` element.
+   */
+  case class Code (language: String, content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer[Code]
+  
   
   /** An external link element, with the span content representing the text (description) of the link.
    */
