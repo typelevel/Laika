@@ -66,6 +66,7 @@ class ReStructuredText private (
     blockDirectives: List[Directive[Block]],
     spanDirectives: List[Directive[Span]],
     textRoles: List[TextRole],
+    defaultTextRole: String = "title-reference",
     rawContent: Boolean = false
     ) extends (Input => RawDocument) { self =>
 
@@ -90,7 +91,7 @@ class ReStructuredText private (
    *  For more details on implementing directives see [[laika.parse.rst.Directives]].
    */
   def withBlockDirectives (directives: Directive[Block]*) = {
-    new ReStructuredText(blockDirectives ++ directives, spanDirectives, textRoles, rawContent)    
+    new ReStructuredText(blockDirectives ++ directives, spanDirectives, textRoles, defaultTextRole, rawContent)    
   }
      
   /** Adds the specified directives and returns a new instance of the parser.
@@ -111,7 +112,7 @@ class ReStructuredText private (
    *  For more details on implementing directives see [[laika.parse.rst.Directives]].
    */ 
   def withSpanDirectives (directives: Directive[Span]*) = {
-    new ReStructuredText(blockDirectives, spanDirectives ++ directives, textRoles, rawContent)    
+    new ReStructuredText(blockDirectives, spanDirectives ++ directives, textRoles, defaultTextRole, rawContent)    
   }
   
   /** Adds the specified text roles and returns a new instance of the parser.
@@ -132,15 +133,21 @@ class ReStructuredText private (
    *  For more details on implementing directives see [[laika.parse.rst.TextRoles]].
    */
   def withTextRoles (roles: TextRole*) = {
-    new ReStructuredText(blockDirectives, spanDirectives, textRoles ++ roles, rawContent)    
+    new ReStructuredText(blockDirectives, spanDirectives, textRoles ++ roles, defaultTextRole, rawContent)    
   }
   
+  /** Specifies the name of the default text role
+   *  to apply when interpreted text 
+   *  is used in markup without an explicit role name.
+   */
+  def withDefaultTextRole (role: String) = 
+    new ReStructuredText(blockDirectives, spanDirectives, textRoles, role, rawContent)
   
   /** Adds the `raw` directive and text roles to the parser.
    *  These are disabled by default as they present a potential security risk.
    */
   def withRawContent = {
-    new ReStructuredText(blockDirectives, spanDirectives, textRoles, true)
+    new ReStructuredText(blockDirectives, spanDirectives, textRoles, defaultTextRole, true)
   }
   
   
@@ -156,6 +163,7 @@ class ReStructuredText private (
       val textRoles = (rawTextRole ++ std.textRoles ++ self.textRoles) map { r => (r.name, r.part) } toMap
       
       override val textRoleElements = (std.textRoles ++ self.textRoles) map { role => CustomizedTextRole(role.name, role.default) }
+      override val defaultTextRole = self.defaultTextRole 
       
       def blockDirective (name: String): Option[DirectivePart[Block]]  = blockDirectives.get(name).map(_(this))
       def spanDirective (name: String): Option[DirectivePart[Span]]     = spanDirectives.get(name).map(_(this))
@@ -178,4 +186,4 @@ class ReStructuredText private (
  * 
  *  @author Jens Halm
  */
-object ReStructuredText extends ReStructuredText(Nil,Nil,Nil,false)
+object ReStructuredText extends ReStructuredText(Nil,Nil,Nil,"title-reference",false)

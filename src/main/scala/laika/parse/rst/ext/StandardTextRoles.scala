@@ -43,6 +43,15 @@ import laika.tree.Elements._
  *  - `pep-reference`
  *  - `rfc-reference`
  * 
+ *  In contrast to the reference parser the `default-role` directive cannot be supported
+ *  in Laika as the parser is not stateful. Therefore it is not possible to change the
+ *  default role half-way through a parsing process. However the default role can be specified
+ *  through the API when creating a parser instance:
+ * 
+ *  {{{
+ *  Parse as ReStructuredText.withDefaultTextRole("my-role-name")
+ *  }}}
+ * 
  *  @author Jens Halm
  */
 trait StandardTextRoles {

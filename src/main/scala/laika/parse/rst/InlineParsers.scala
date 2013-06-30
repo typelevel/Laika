@@ -286,7 +286,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   
   /** The default text role to use when no role is specified in an interpreted text element.
    */
-  val defaultTextRole = "title-reference"
+  def defaultTextRole = "title-reference"
 
   /** Parses an interpreted text element with the role name as a prefix.
    * 
