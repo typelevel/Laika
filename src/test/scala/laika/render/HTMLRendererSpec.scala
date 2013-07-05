@@ -440,7 +440,7 @@ class HTMLRendererSpec extends FlatSpec
       |
       |line 3""".stripMargin
     val elem = litBlock(code)
-    render (elem) should be ("<code><pre>" + code.replaceAllLiterally("<", "&lt;") + "</pre></code>") 
+    render (elem) should be ("<pre><code>" + code.replaceAllLiterally("<", "&lt;") + "</code></pre>") 
   }
   
   it should "render a code block inside a blockquote" in {
@@ -450,7 +450,7 @@ class HTMLRendererSpec extends FlatSpec
       |
       |line 3""".stripMargin
     val html = """<blockquote>
-      |  <code><pre>%s</pre></code>
+      |  <pre><code>%s</code></pre>
       |</blockquote>""".stripMargin.format(code)
     val elem = quote(litBlock(code))
     render (elem) should be (html) 
