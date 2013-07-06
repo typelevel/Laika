@@ -153,7 +153,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    *  with subsequent lines optionally starting with a `'>'`, too.
    */
   def quotedBlock: Parser[QuotedBlock] 
-    = withNestLevel(mdBlock('>', accept('>') | not(blankLine), '>')) ^^ 
+    = withNestLevel(mdBlock('>' ~ (ws max 1), ('>' ~ (ws max 1)) | not(blankLine), '>')) ^^ 
       { case (nestLevel,lines) => QuotedBlock(parseNestedBlocks(lines, nestLevel), Nil) }
 
   

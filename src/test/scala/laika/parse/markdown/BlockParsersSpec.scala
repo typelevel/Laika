@@ -492,7 +492,7 @@ class BlockParsersSpec extends FlatSpec
     val input = """>aaa
       |>bbb
       |>
-      |>    code
+      |>     code
       |>
       |>ccc""".stripMargin
     Parsing (input) should produce (doc( quote( p("aaa\nbbb"), litBlock("code"), p("ccc"))))
