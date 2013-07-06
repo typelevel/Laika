@@ -64,7 +64,7 @@ object HTMLElements {
 
   /** Represents a standard HTML comment.
    */
-  case class HTMLComment (content: String, options: Options = NoOpt) extends HTMLSpan with TextContainer
+  case class HTMLComment (content: String, options: Options = NoOpt) extends HTMLSpan with Block with TextContainer
 
   /** Represents a numerical or named character reference.
    */
