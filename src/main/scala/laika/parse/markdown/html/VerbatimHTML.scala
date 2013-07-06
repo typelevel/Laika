@@ -20,6 +20,7 @@ import laika.render.HTMLWriter
 import laika.tree.Elements.Element
 import laika.tree.Elements.Text
 import laika.parse.markdown.html.HTMLElements._
+import laika.tree.Elements._
 
 
 /** Renderer for verbatim HTML elements. Since verbatim HTML is treated as an optional feature
@@ -42,14 +43,19 @@ class VerbatimHTML extends (HTMLWriter => PartialFunction[Element, Unit]) {
   
   def apply (out: HTMLWriter): PartialFunction[Element, Unit] = {
     
+    def prepareAttributeValue (spans: List[TextContainer]) = 
+      ("" /: spans) {
+        (acc, span) => acc + span.content
+      } 
+    
     def tagStart (name: String, attributes: List[HTMLAttribute]) = {
       out << "<" << name
       attributes.foreach { at =>
         out << " " << at.name
         at match {
-          case HTMLAttribute(_, value, Some(char))  => out << "=" << char.toString << value << char.toString 
+          case HTMLAttribute(_, value, Some(char))  => out << "=" << char.toString << prepareAttributeValue(value) << char.toString 
           case HTMLAttribute(_, Nil, None)          => () 
-          case HTMLAttribute(_, value, None)        => out << "=" << value 
+          case HTMLAttribute(_, value, None)        => out << "=" << prepareAttributeValue(value) 
         }
       }
     }
