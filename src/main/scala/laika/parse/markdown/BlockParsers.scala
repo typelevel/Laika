@@ -18,6 +18,7 @@ package laika.parse.markdown
 
 import laika.tree.Elements._
 import scala.collection.mutable.StringBuilder
+import laika.parse.util.WhitespacePreprocessor
  
 
 /** Provides all block parsers for Markdown text except for those dealing
@@ -48,6 +49,8 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    */
   val insignificantSpaces: Parser[String] = anyOf(' ') max 3
 
+  private val processWS = new WhitespacePreprocessor
+  
   
   /** Merges the specified list of lines into a single string,
    *  while looking for lines ending with double spaces which
@@ -145,7 +148,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   /** Parses a literal block, text indented by a tab or 4 spaces.
    */
   val literalBlock: Parser[LiteralBlock] = {
-    mdBlock(tabOrSpace, tabOrSpace, tabOrSpace) ^^ { lines => new LiteralBlock(lines.mkString("\n")) }
+    mdBlock(tabOrSpace, tabOrSpace, tabOrSpace) ^^ { lines => new LiteralBlock(lines.map(processWS).mkString("\n")) }
   }
   
   
