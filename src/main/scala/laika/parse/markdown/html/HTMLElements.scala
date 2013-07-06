@@ -51,12 +51,12 @@ object HTMLElements {
    *  implement the full logic of a proper HTML parser to distinguish between legal and faulty
    *  occurrences of unmatched start tags.
    */
-  case class HTMLStartTag (name: String, attributes: List[HTMLAttribute], options: Options = NoOpt) extends HTMLSpan 
+  case class HTMLStartTag (name: String, attributes: List[HTMLAttribute], options: Options = NoOpt) extends HTMLSpan with Block 
 
   /** Represents an empty element (like `&lt;br/&gt;` or `&lt;hr/&gt;`) in case it contains the explicit
    *  slash to mark it as closed. Otherwise it will be classified as a start tag.
    */
-  case class HTMLEmptyElement (name: String, attributes: List[HTMLAttribute], options: Options = NoOpt) extends HTMLSpan 
+  case class HTMLEmptyElement (name: String, attributes: List[HTMLAttribute], options: Options = NoOpt) extends HTMLSpan with Block 
 
   /** Represents an orphaned end tag without matching start tag.
    */

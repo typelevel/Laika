@@ -191,7 +191,7 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
     } 
   }
   
-  override def topLevelBlock: Parser[Block] = htmlBlock | ('<' ~> htmlComment) | super.topLevelBlock
+  override def topLevelBlock: Parser[Block] = htmlBlock | ('<' ~> (htmlComment | htmlEmptyElement | htmlStartTag) <~ ws ~ eol ~ blankLine) | super.topLevelBlock
   
   
 }
