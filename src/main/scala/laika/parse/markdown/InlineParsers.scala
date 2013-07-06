@@ -51,8 +51,10 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   
   /** Parses a single escaped character, only recognizing the characters the Markdown syntax document
    *  specifies as escapable.
+   * 
+   *  Note: escaping > is not mandated by the official syntax description, but by the official test suite.
    */
-  def escapedChar = anyOf('\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!') take 1
+  def escapedChar = anyOf('\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!', '>') take 1
   
   /** Parses an explicit hard line break.
    */
