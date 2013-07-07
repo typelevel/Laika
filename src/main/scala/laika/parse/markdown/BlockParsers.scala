@@ -115,7 +115,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
       (literalBlock | quotedBlock | rule | bulletList | enumList))
 
   
-  def topLevelBlock: Parser[Block] = standardMarkdownBlock | linkTarget | paragraph 
+  def topLevelBlock: Parser[Block] = standardMarkdownBlock | (insignificantSpaces ~> linkTarget) | paragraph 
  
   def nestedBlock: Parser[Block] = standardMarkdownBlock | paragraph
   
