@@ -166,8 +166,8 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
       case url ~ title => text:String => inline(text, url, title)  
     }
     
-    val refId =    (anyOf(' ') max 1) ~ ('[' ~> escapedUntil(']')) ^^ { case ws ~ id => text:String => ref(text, id,   "]"+ws+"["+id+"]") }
-    val refEmpty = (anyOf(' ') max 1) ~ "[]"                       ^^ { case ws ~ _  => text:String => ref(text, text, "]"+ws+"[]") }
+    val refId =    ws ~ opt(eol) ~ ('[' ~> escapedUntil(']')) ^^ { case ws ~ id => text:String => ref(text, id,   "]"+ws+"["+id+"]") }
+    val refEmpty = ws ~ opt(eol) ~ "[]"                       ^^ { case ws ~ _  => text:String => ref(text, text, "]"+ws+"[]") }
   
     linktext ~ opt(urlWithTitle | refEmpty | refId) ^^ {
       case text ~ None    => ref(text, text, "]")
