@@ -168,10 +168,10 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
     
     val linktext = text(anyUntil(']'), Map('\\' -> escapedChar, '[' -> (anyUntil(']') ^^ { "[" + _ + "]" })))
     
-    val title = ws ~> ('"' ~> anyUntil('"') | '\'' ~> anyUntil('\'')) 
+    val title = ws ~> (('"' ~> anyUntil('"')) | ('\'' ~> anyUntil('\''))) 
     
     val url = ('<' ~> self.text(anyBut('>',' '), Map('\\' -> escapedChar)) <~ '>') |
-       self.text(anyBut(')',' '), Map('\\' -> escapedChar))
+       self.text(anyBut(')',' ','\t'), Map('\\' -> escapedChar))
     
     val urlWithTitle = '(' ~> url ~ opt(title) <~ ws ~ ')' ^^ {  
       case url ~ title => text:String => inline(text, url, title)  
