@@ -168,7 +168,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
     
     val linktext = text(anyUntil(']'), Map('\\' -> escapedChar, '[' -> (anyUntil(']') ^^ { "[" + _ + "]" })))
     
-    val title = ws ~> (('"' ~> anyUntil('"')) | ('\'' ~> anyUntil('\''))) 
+    val title = ws ~> (('"' ~> anyUntil('"' ~ guard(ws ~ ')'))) | ('\'' ~> anyUntil('\'' ~ guard(ws ~ ')')))) 
     
     val url = ('<' ~> self.text(anyBut('>',' '), Map('\\' -> escapedChar)) <~ '>') |
        self.text(anyBut(')',' ','\t'), Map('\\' -> escapedChar))
@@ -213,7 +213,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
     val url = (('<' ~> escapedUntil('>')) | text(anyBut(' ', '\n'), escapedChars)) ^^ { _.mkString }
     
     def enclosedBy(start: Char, end: Char) = 
-      start ~> anyBut('\r','\n',end) <~ end ^^ { _.mkString }
+      start ~> anyUntil((guard(end ~ ws ~ eol) | '\r' | '\n')) <~ end ^^ { _.mkString }
     
     val title = (ws ~ opt(eol) ~ ws) ~> (enclosedBy('"', '"') | enclosedBy('\'', '\'') | enclosedBy('(', ')'))
     
