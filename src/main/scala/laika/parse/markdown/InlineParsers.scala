@@ -123,6 +123,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
    */
   def escapedUntil (char: Char) = text(anyUntil(char), escapedChars)
   
+  private def normalizeId (id: String) = id.toLowerCase.replaceAll("[\n ]+", " ")
   
   /** Parses a link, including nested spans in the link text.
    *  Recognizes both, an inline link `[text](url)` and a link reference `[text][id]`.
@@ -132,7 +133,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
     
     def linkInline (text: String, url: String, title: Option[String]) = ExternalLink(parseInline(text, linkSpanParsers), url, title)
     def linkReference (text: String, id: String, postFix: String): Span = 
-      LinkReference(parseInline(text, linkSpanParsers), id.toLowerCase, "[" + text + postFix)
+      LinkReference(parseInline(text, linkSpanParsers), normalizeId(id), "[" + text + postFix)
     
     resource(linkInline, linkReference)
   }
@@ -142,7 +143,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
    */
   def image: Parser[Span] = {
     def imageInline (text: String, url: String, title: Option[String]) = Image(text, url, title)
-    def imageReference (text: String, id: String, postFix: String): Span = ImageReference(text, id.toLowerCase, "![" + text + postFix)
+    def imageReference (text: String, id: String, postFix: String): Span = ImageReference(text, normalizeId(id), "![" + text + postFix)
      
     '[' ~> resource(imageInline, imageReference)
   }
