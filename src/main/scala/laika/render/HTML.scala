@@ -114,21 +114,26 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
       }
     }
     
-    def renderSpanContainer [T <: SpanContainer[T]](con: SpanContainer[T]) = con match {
-      case Paragraph(content,opt)         => out <<@ ("p",opt)      <<    content <<  "</p>"  
-      case Emphasized(content,opt)        => out <<@ ("em",opt)     <<    content <<  "</em>" 
-      case Strong(content,opt)            => out <<@ ("strong",opt) <<    content <<  "</strong>" 
-      case Line(content,opt)              => out <<@ ("div",opt + Styles("line")) << content <<  "</div>"
-      case Header(level, content, opt)    => out <<| "<h" << level.toString << ">" << content << "</h" << level.toString << ">"
-
-      case ExternalLink(content, url, title, opt)  => out <<@ ("a", opt, "href"->url, "title"->title) << content << "</a>"
-      case InternalLink(content, url, title, opt)  => out <<@ ("a", opt, "href"->url, "title"->title) << content << "</a>"
+    def renderSpanContainer [T <: SpanContainer[T]](con: SpanContainer[T]) = {
+      def escapeTitle (s: String) = s.replace("&","&amp;").replace("\"","&quot;").replace("'","$#39;")
       
-      case SpanSequence(content, NoOpt)   => out << content
-      
-      case WithFallback(fallback)         => out << fallback
-      case c: Customizable                => out <<@ ("span",c.options) << c.content << "</span>"
-      case unknown                        => out << "<span>" << unknown.content << "</span>"
+      con match {
+        
+        case Paragraph(content,opt)         => out <<@ ("p",opt)      <<    content <<  "</p>"  
+        case Emphasized(content,opt)        => out <<@ ("em",opt)     <<    content <<  "</em>" 
+        case Strong(content,opt)            => out <<@ ("strong",opt) <<    content <<  "</strong>" 
+        case Line(content,opt)              => out <<@ ("div",opt + Styles("line")) << content <<  "</div>"
+        case Header(level, content, opt)    => out <<| "<h" << level.toString << ">" << content << "</h" << level.toString << ">"
+  
+        case ExternalLink(content, url, title, opt)  => out <<@ ("a", opt, "href"->url, "title"->title.map(escapeTitle)) << content << "</a>"
+        case InternalLink(content, url, title, opt)  => out <<@ ("a", opt, "href"->url, "title"->title.map(escapeTitle)) << content << "</a>"
+        
+        case SpanSequence(content, NoOpt)   => out << content
+        
+        case WithFallback(fallback)         => out << fallback
+        case c: Customizable                => out <<@ ("span",c.options) << c.content << "</span>"
+        case unknown                        => out << "<span>" << unknown.content << "</span>"
+      }
     }
     
     def renderListContainer [T <: ListContainer[T]](con: ListContainer[T]) = con match {

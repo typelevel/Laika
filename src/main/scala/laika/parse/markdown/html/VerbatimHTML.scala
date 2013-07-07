@@ -45,7 +45,8 @@ class VerbatimHTML extends (HTMLWriter => PartialFunction[Element, Unit]) {
     
     def prepareAttributeValue (spans: List[TextContainer]) = 
       ("" /: spans) {
-        (acc, span) => acc + span.content
+        case (acc, Text(content,_)) => acc + content.replace("&","&amp;").replace("\"","&quot;").replace("'","$#39;")
+        case (acc, span) => acc + span.content
       } 
     
     def tagStart (name: String, attributes: List[HTMLAttribute]) = {
