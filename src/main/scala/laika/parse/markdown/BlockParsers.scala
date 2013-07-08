@@ -212,7 +212,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    *  @param itemStart parser that recognizes the start of a list item, result will be discarded
    */
   def listItem [I <: ListItem] (itemStart: Parser[String]): Parser[List[Block]]
-    = withNestLevel(mdBlock(itemStart, not(blankLine | itemStart) ~ opt(tabOrSpace), tabOrSpace)) ^^
+    = withNestLevel(mdBlock(not(rule) ~ itemStart, not(blankLine | itemStart) ~ opt(tabOrSpace), tabOrSpace)) ^^
         { case (nestLevel,lines) => parseNestedBlocks(lines, nestLevel) }
  
   
