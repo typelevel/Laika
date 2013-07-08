@@ -117,7 +117,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   
   def topLevelBlock: Parser[Block] = standardMarkdownBlock | (insignificantSpaces ~> linkTarget) | paragraph 
  
-  def nestedBlock: Parser[Block] = standardMarkdownBlock | paragraph
+  def nestedBlock: Parser[Block] = standardMarkdownBlock | nestedParagraph
   
   def nonRecursiveBlock: Parser[Block] = 
     atxHeader | setextHeader | (insignificantSpaces ~> (literalBlock | rule )) | paragraph
@@ -127,7 +127,18 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    *  recognized as a special Markdown block type will be parsed as a regular paragraph.
    */
   def paragraph: Parser[Paragraph] = 
-    ((not(blankLine | bulletListItemStart | enumListItemStart) ~> restOfLine) +) ^^ { 
+    not(bulletListItemStart | enumListItemStart) ~> ((not(blankLine) ~> restOfLine) +) ^^ { 
+      lines => Paragraph(parseInline(linesToString(lines))) 
+    }
+   
+  /** Parses a single paragraph nested inside another block.
+   *  Markdown allows nested lists without preceding blank lines,
+   *  therefore will detect list items in the middle of a parapraph,
+   *  whereas a top level paragraph won't do that. One of the questionable
+   *  Markdown design decisions.
+   */
+  def nestedParagraph: Parser[Paragraph] = 
+    ((not(bulletListItemStart | enumListItemStart | blankLine) ~> restOfLine) +) ^^ { 
       lines => Paragraph(parseInline(linesToString(lines))) 
     }
 

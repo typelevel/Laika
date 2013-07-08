@@ -483,6 +483,7 @@ class BlockParsersSpec extends FlatSpec
   it should "parse a list nested inside a blockquote" in {
     val input = """>aaa
       |>bbb
+      |>
       |>* ccc
       |>* ddd""".stripMargin
     Parsing (input) should produce (doc( quote( p("aaa\nbbb"), bulletList() + "ccc" + "ddd")))
