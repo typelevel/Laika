@@ -19,6 +19,8 @@ libraryDependencies <+= scalaVersion {
   case _       => "org.scalatest" %% "scalatest" % "1.9.1" % "test"
 }
 
+libraryDependencies += "net.sf.jtidy" % "jtidy" % "r938" % "test" 
+
 crossVersion := CrossVersion.binary
 
 crossScalaVersions := Seq("2.9.2", "2.9.3", "2.10.0")
