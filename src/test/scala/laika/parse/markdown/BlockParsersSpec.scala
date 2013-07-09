@@ -38,6 +38,8 @@ class BlockParsersSpec extends FlatSpec
   
   def fp (content: String) = BlockParsers.ForcedParagraph(List(Text(content)))
   
+  def ss (content: String) = SpanSequence(List(Text(content)))
+  
   
   "The paragraph parser" should "parse blocks without block-level markup as normal paragraphs" in {
     val input = """aaa
@@ -126,8 +128,8 @@ class BlockParsersSpec extends FlatSpec
                   |        * ccc""".stripMargin
 
     val list3 = bulletList() + "ccc"
-    val list2 = bulletList() + (p("bbb"), list3)
-    val list1 = bulletList() + (p("aaa"), list2)
+    val list2 = bulletList() + (ss("bbb"), list3)
+    val list1 = bulletList() + (ss("aaa"), list2)
 
     Parsing (input) should produce (doc(list1))
   }
@@ -138,8 +140,8 @@ class BlockParsersSpec extends FlatSpec
       |		* ccc""".stripMargin
 
     val list3 = bulletList() + "ccc"
-    val list2 = bulletList() + (p("bbb"), list3)
-    val list1 = bulletList() + (p("aaa"), list2)
+    val list2 = bulletList() + (ss("bbb"), list3)
+    val list1 = bulletList() + (ss("aaa"), list2)
     
     Parsing (input) should produce (doc(list1))
   }
@@ -154,7 +156,7 @@ class BlockParsersSpec extends FlatSpec
       
     val nestedList = bulletList() + "aaa" + "bbb" + "ccc"
     
-    Parsing (input) should produce (doc(enumList() + "111" + (p("222"), nestedList) + "333"))
+    Parsing (input) should produce (doc(enumList() + "111" + (ss("222"), nestedList) + "333"))
   }
   
   it should "parse a bullet list nested inside an enumerated list with blank lines between the items" in {

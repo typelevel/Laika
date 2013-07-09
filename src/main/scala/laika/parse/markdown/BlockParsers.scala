@@ -122,14 +122,13 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   def nonRecursiveBlock: Parser[Block] = 
     atxHeader | setextHeader | (insignificantSpaces ~> (literalBlock | rule )) | paragraph
 
+  def parseParagraph (lines: List[String]) = Paragraph(parseInline(linesToString(lines)))
 
   /** Parses a single paragraph. Everything between two blank lines that is not
    *  recognized as a special Markdown block type will be parsed as a regular paragraph.
    */
   def paragraph: Parser[Paragraph] = 
-    not(bulletListItemStart | enumListItemStart) ~> ((not(blankLine) ~> restOfLine) +) ^^ { 
-      lines => Paragraph(parseInline(linesToString(lines))) 
-    }
+    not(bulletListItemStart | enumListItemStart) ~> ((not(blankLine) ~> restOfLine) +) ^^ parseParagraph
    
   /** Parses a single paragraph nested inside another block.
    *  Markdown allows nested lists without preceding blank lines,
@@ -137,10 +136,14 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    *  whereas a top level paragraph won't do that. One of the questionable
    *  Markdown design decisions.
    */
-  def nestedParagraph: Parser[Paragraph] = 
-    ((not(bulletListItemStart | enumListItemStart | blankLine) ~> restOfLine) +) ^^ { 
-      lines => Paragraph(parseInline(linesToString(lines))) 
+  def nestedParagraph: Parser[Block] = {
+    val list: Parser[Block] = bulletList | enumList
+    ((((not(bulletListItemStart | enumListItemStart | blankLine) ~> restOfLine) +) ^^ (parseParagraph)) 
+        ~ opt(not(blankLine) ~> list)) ^^ {
+      case p ~ None => p
+      case p ~ Some(list) => BlockSequence(p :: list :: Nil) // another special case of a "tight" list
     }
+  }
 
   
   /** Parses a single Markdown block. In contrast to the generic block parser of the
@@ -194,6 +197,8 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
              itself. This is ugly, but forced by the (in this respect odd) design of Markdown. */
           case Paragraph(content,opt) :: Nil if hasBlankLines => 
             BlockParsers.ForcedParagraph(content, opt) :: Nil
+          case BlockSequence((p @ Paragraph(content,opt)) :: rest, _) :: xs => 
+            if (!hasBlankLines) SpanSequence(content,opt) :: rest ::: xs else p :: rest ::: xs
           case other => other
         }
         
