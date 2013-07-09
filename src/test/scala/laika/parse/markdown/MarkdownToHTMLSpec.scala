@@ -139,7 +139,6 @@ class MarkdownToHTMLSpec extends FlatSpec
     transformAndCompare("Nested blockquotes")
   }
   
-  /* 1) BUG: reads rule as list 2) annoying difference with adding p tags for nested lists */ 
   it should "pass for 'Ordered and unordered lists'" in {
     transformAndCompare("Ordered and unordered lists")
   }
