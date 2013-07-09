@@ -150,7 +150,7 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
     def renderTextContainer (con: TextContainer) = con match {
       case Text(content,opt)           => opt match {
         case NoOpt                     => out                   <<&  content
-        case _                         => out <<@ ("span",opt)  <<   content << "</span>"
+        case _                         => out <<@ ("span",opt)  <<&  content << "</span>"
       }
       case Literal(content,opt)        => out <<@ ("code",opt)  <<<& content << "</code>" 
       case LiteralBlock(content,opt)   => out <<@ ("pre",opt)  << "<code>" <<<&  content << "</code></pre>"
