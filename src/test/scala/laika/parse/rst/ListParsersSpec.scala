@@ -280,6 +280,18 @@ class ListParsersSpec extends FlatSpec
     Parsing (input) should produce (doc( defList + ("term 1", p("aaa\naaa"), p("bbb")) + ("term 2", p("ccc"))))
   }
   
+  it should "parse items containing multiple paragraphs with different identation in a single item" in {
+    val input = """term 1
+      |   aaa
+      |   aaa
+      |
+      |  bbb
+      |
+      |term 2
+      |  ccc""".stripMargin
+    Parsing (input) should produce (doc( defList + ("term 1", quote("aaa\naaa"), p("bbb")) + ("term 2", p("ccc"))))
+  }
+  
   it should "support inline markup in the term" in {
     val input = """term *em*
       | aaa
