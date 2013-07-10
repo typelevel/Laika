@@ -37,21 +37,44 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
         }
       } 
   }
+
   
+  private lazy val bulletListStart = anyOf('*','-','+','\u2022','\u2023','\u2043').take(1)
   
   /** Parses a bullet list with any of the supported bullet characters.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#bullet-lists]].
    */
   def bulletList: Parser[BulletList] = {
-    val itemStart = anyOf('*','-','+','\u2022','\u2023','\u2043').take(1)
-    
-    guard(itemStart <~ (ws min 1)) >> { symbol =>
+    guard(bulletListStart <~ (ws min 1)) >> { symbol =>
       val bullet = StringBullet(symbol)
       ((listItem(symbol, BulletListItem(_,bullet))) +) ^^ { BulletList(_,bullet) }
     }
   }
   
+  
+  private lazy val enumListStart: Parser[(EnumFormat, Int)] = {
+    val firstLowerRoman = (anyOf('i','v','x','l','c','d','m').min(2) | anyOf('i').take(1)) ^^ 
+      { num => (RomanNumerals.romanToInt(num.toUpperCase), LowerRoman) }
+    
+    val firstUpperRoman = (anyOf('I','V','X','L','C','D','M').min(2) | anyOf('I').take(1)) ^^ 
+      { num => (RomanNumerals.romanToInt(num), UpperRoman) }
+    
+    val firstLowerAlpha = anyIn('a' to 'h', 'j' to 'z').take(1) ^^ 
+      { char => (char.charAt(0) + 1 - 'a', LowerAlpha) } // 'i' is interpreted as Roman numerical
+    
+    val firstUpperAlpha = anyIn('A' to 'H', 'J' to 'Z').take(1) ^^ 
+      { char => (char.charAt(0) + 1 - 'A', UpperAlpha) }
+    
+    val firstAutoNumber = anyOf('#').take(1) ^^^ { (1,Arabic) }
+    val firstArabic = anyIn('0' to '9').min(1) ^^ { num => (num.toInt, Arabic) }
+    
+    lazy val firstEnumType: Parser[(Int,EnumType)] = 
+      firstAutoNumber | firstArabic | firstLowerAlpha | firstUpperAlpha | firstLowerRoman | firstUpperRoman
+      
+      ('(' ~ firstEnumType ~ ')') ^^ { case prefix ~ enumType ~ suffix => (EnumFormat(enumType._2, prefix.toString, suffix.toString), enumType._1) } | 
+      (firstEnumType ~ ')' | firstEnumType ~ '.') ^^ { case enumType ~ suffix => (EnumFormat(enumType._2, "", suffix.toString), enumType._1) }
+  }
   
   /** Parses an enumerated list in any of the supported combinations of enumeration style and formatting.
    * 
@@ -59,27 +82,12 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    */
   def enumList: Parser[EnumList] = {
     
-    val firstLowerRoman = (anyOf('i','v','x','l','c','d','m').min(2) | anyOf('i').take(1)) ^^ 
-      { num => (RomanNumerals.romanToInt(num.toUpperCase), LowerRoman) }
     val lowerRoman = anyOf('i','v','x','l','c','d','m').min(1)
-    
-    val firstUpperRoman = (anyOf('I','V','X','L','C','D','M').min(2) | anyOf('I').take(1)) ^^ 
-      { num => (RomanNumerals.romanToInt(num), UpperRoman) }
     val upperRoman = anyOf('I','V','X','L','C','D','M').min(1)
-    
-    val firstLowerAlpha = anyIn('a' to 'h', 'j' to 'z').take(1) ^^ 
-      { char => (char.charAt(0) + 1 - 'a', LowerAlpha) } // 'i' is interpreted as Roman numerical
     val lowerAlpha = anyIn('a' to 'z').take(1)
-  
-    val firstUpperAlpha = anyIn('A' to 'H', 'J' to 'Z').take(1) ^^ 
-      { char => (char.charAt(0) + 1 - 'A', UpperAlpha) }
     val upperAlpha = anyIn('A' to 'Z').take(1)
-    
     val arabic = anyIn('0' to '9').min(1)
-    val firstArabic = arabic ^^ { num => (num.toInt, Arabic) }
-    
     val autoNumber = anyOf('#').take(1)
-    val firstAutoNumber = autoNumber ^^^ { (1,Arabic) }
     
     lazy val enumTypes = Map[EnumType,Parser[String]] (
       Arabic -> arabic,
@@ -91,22 +99,19 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     
     def enumType (et: EnumType) = enumTypes(et) | autoNumber
     
-    lazy val firstEnumType: Parser[(Int,EnumType)] = 
-      firstAutoNumber | firstArabic | firstLowerAlpha | firstUpperAlpha | firstLowerRoman | firstUpperRoman
-    
-    lazy val firstItemStart: Parser[(EnumFormat, Int)] = 
-      ('(' ~ firstEnumType ~ ')') ^^ { case prefix ~ enumType ~ suffix => (EnumFormat(enumType._2, prefix.toString, suffix.toString), enumType._1) } | 
-      (firstEnumType ~ ')' | firstEnumType ~ '.') ^^ { case enumType ~ suffix => (EnumFormat(enumType._2, "", suffix.toString), enumType._1) }
-    
     def itemStart (format: EnumFormat): Parser[String] = 
       (format.prefix ~ enumType(format.enumType) ~ format.suffix) ^^ { case prefix ~ enumType ~ suffix => prefix + enumType + suffix }
       
-    guard(firstItemStart) >> { case (format, start) =>
+    guard(enumListStart <~ (ws min 1)) >> { case (format, start) =>
       val pos = Stream.from(start).iterator
       (listItem(itemStart(format), EnumListItem(_, format, pos.next)) +) ^^ { EnumList(_, format, start) }
     }
   }
   
+  /** Parser used to parse decorative lines like for rules or headers.
+   *  Abstract in this trait as it does not belong to list parsers-
+   */
+  def punctuationChar: TextParser
   
   /** Parses a definition list.
    * 
@@ -114,13 +119,19 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    */
   def definitionList: Parser[Block] = {
     
-    val term: Parser[String] = not(blankLine) ~> anyBut('\n') <~ eol ~ guard((ws min 1) ~ not(blankLine))
+    val tableStart = anyOf(' ','=') ~ eol
+    val explicitStart = ".. " | "__ "
+    val listStart = (bulletListStart | enumListStart) ~ (ws min 1)
+    val headerStart = (punctuationChar take 1) >> { start => (anyOf(start.charAt(0)) min 2) ~ ws ~ eol }
+    
+    val term: Parser[String] = not(blankLine | tableStart | explicitStart | listStart | headerStart) ~> 
+        anyBut('\n') <~ eol ~ guard((ws min 1) ~ not(blankLine))
     
     val classifier = lookBehind(2,' ') ~ ' ' ~> spans(any, spanParsers) ^^ (Classifier(_))
     val nested = spanParsers + (':' -> classifier)
     
     val item = (term ~ indentedBlock(firstLineIndented = true)) ^?
-      { case term ~ block /*if !block.lines.tail.isEmpty*/ => 
+      { case term ~ block => 
           DefinitionListItem(parseInline(term, nested), parseNestedBlocks(block.lines, block.nestLevel)) }
     
     ((item <~ opt(blankLines)) +) ^^ (DefinitionList(_))

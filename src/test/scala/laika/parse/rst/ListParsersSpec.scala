@@ -301,6 +301,73 @@ class ListParsersSpec extends FlatSpec
     Parsing (input) should produce (doc( defList + (List(txt("term "), em(txt("em"))), p("aaa")) + ("term 2", p("bbb"))))
   }
   
+  it should "ignore subsequent tables" in {
+    val input = """term 1
+      | aaa
+      |
+      |term 2
+      | bbb
+      |
+      |=== ===
+      | a   b 
+      |=== ===""".stripMargin
+    Parsing (input) should produce (doc( defList + ("term 1", p("aaa")) + ("term 2", p("bbb")),
+        table(strrow("a","b"))))
+  }
+  
+  it should "ignore subsequent directives" in {
+    val input = """term 1
+      | aaa
+      |
+      |term 2
+      | bbb
+      |
+      |.. foo::
+      | :name: value""".stripMargin
+    Parsing (input) should produce (doc( defList + ("term 1", p("aaa")) + ("term 2", p("bbb")), 
+        InvalidBlock(SystemMessage(laika.tree.Elements.Error, "unknown directive: foo"), LiteralBlock(".. foo:: \n:name: value"))))
+  }
+  
+  it should "ignore subsequent bullet lists" in {
+    val input = """term 1
+      | aaa
+      |
+      |term 2
+      | bbb
+      |
+      |* list
+      |  list""".stripMargin
+    Parsing (input) should produce (doc( defList + ("term 1", p("aaa")) + ("term 2", p("bbb")), 
+        bulletList() + (p("list\nlist"))))
+  }
+  
+  it should "ignore subsequent enum lists" in {
+    val input = """term 1
+      | aaa
+      |
+      |term 2
+      | bbb
+      |
+      |1. list
+      |   list""".stripMargin
+    Parsing (input) should produce (doc( defList + ("term 1", p("aaa")) + ("term 2", p("bbb")), 
+        enumList(EnumFormat(Arabic)) + (p("list\nlist"))))
+  }
+  
+  it should "ignore subsequent headers with overline" in {
+    val input = """term 1
+      | aaa
+      |
+      |term 2
+      | bbb
+      |
+      |########
+      | Header
+      |########""".stripMargin
+    Parsing (input) should produce (doc( defList + ("term 1", p("aaa")) + ("term 2", p("bbb")), 
+        DecoratedHeader(OverlineAndUnderline('#'), List(Text("Header")), Id("header"))))
+  }
+  
   
   
   "The field list parser" should "parse a list with all bodies on the same line as the name" in {
