@@ -66,17 +66,24 @@ object Elements {
      *  on rendering of this element.
      */
     def styles: Seq[String]
-    /** Defines a fallback for this element in 
-     *  case the renderer does not know how
-     *  to deal with it.
-     */
-    def fallback: Option[Element]
     /** Merges these options with the specified
      *  options. If the id or fallback have been
      *  set in both instances, the other instance
      *  overrides this one.
      */
     def + (other: Options): Options
+  }
+  
+  /** Provides a fallback for elements
+   *  the renderer does not know how
+   *  to deal with.
+   */
+  trait Fallback {
+    /** Defines a fallback for this element in 
+     *  case the renderer does not know how
+     *  to deal with it.
+     */
+    def fallback: Element
   }
   
   /** The base type for all block level elements.
@@ -614,8 +621,8 @@ object Elements {
    * 
    *  Likewise it also often more convenient to use the corresponding extractors for pattern matching.
    */
-  case class SomeOpt (id: Option[String] = None, styles: Seq[String] = Nil, fallback: Option[Element] = None) extends Options {
-    def + (other: Options) = SomeOpt(other.id.orElse(id), (styles ++ other.styles) distinct, other.fallback.orElse(fallback))
+  case class SomeOpt (id: Option[String] = None, styles: Seq[String] = Nil) extends Options {
+    def + (other: Options) = SomeOpt(other.id.orElse(id), (styles ++ other.styles) distinct)
   }
   
   /** Empty `Options` implementation.
@@ -623,7 +630,6 @@ object Elements {
   case object NoOpt extends Options {
     def id: Option[String] = None
     def styles: Seq[String] = Nil
-    def fallback: Option[Element] = None
     def + (other: Options) = other
   }
   
@@ -633,14 +639,6 @@ object Elements {
   object Id {
     def apply (value: String) = SomeOpt(id = Some(value))
     def unapply (value: Options) = value.id 
-  }
-  
-  /** Factory and extractor for an `Options` instance
-   *  with a fallback.
-   */
-  object Fallback {
-    def apply (value: Element) = SomeOpt(fallback = Some(value))
-    def unapply (value: Options) = value.fallback 
   }
   
   /** Factory and extractor for an `Options` instance
@@ -654,9 +652,9 @@ object Elements {
   /** Companion for the Options trait.
    */
   object Options {
-    def apply (id: Option[String] = None, styles: Seq[String] = Nil, fallback: Option[Element] = None) =
-      if (id.isEmpty && styles.isEmpty && fallback.isEmpty) NoOpt
-      else SomeOpt(id,styles,fallback)
+    def apply (id: Option[String] = None, styles: Seq[String] = Nil) =
+      if (id.isEmpty && styles.isEmpty) NoOpt
+      else SomeOpt(id,styles)
   }
   
 }

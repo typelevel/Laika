@@ -69,8 +69,7 @@ class PrettyPrint extends ((Output, Element => Unit) => (TextWriter, Element => 
     def options (opt: Options) = {
       List(
         opt.id map ("Id("+_+")"),
-        if (opt.styles.isEmpty) None else Some(opt.styles mkString ("Styles(",",",")")),
-        opt.fallback map ("Fallback("+_+")")
+        if (opt.styles.isEmpty) None else Some(opt.styles mkString ("Styles(",",",")"))
       ) filter (_.isDefined) map (_.get) mkString " + "
     }
     

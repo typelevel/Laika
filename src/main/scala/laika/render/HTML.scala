@@ -75,7 +75,7 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
     
     object WithFallback {
       def unapply (value: Element) = value match {
-        case c: Customizable => c.options.fallback
+        case f: Fallback => Some(f.fallback)
         case _ => None
       }
     }

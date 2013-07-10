@@ -257,9 +257,9 @@ object BlockParsers {
    *  separated by blank lines which force an extra paragraph tag inside the `li` tag
    *  in HTML renderers.
    */
-  case class ForcedParagraph (content: Seq[Span], baseOptions: Options = NoOpt) extends Block 
-                                                  with SpanContainer[ForcedParagraph] {
-    def options = baseOptions + Fallback(Paragraph(content,baseOptions))
+  case class ForcedParagraph (content: Seq[Span], options: Options = NoOpt) extends Block 
+                                                  with SpanContainer[ForcedParagraph] with Fallback {
+    def fallback = Paragraph(content, options)
   }
   
 }
