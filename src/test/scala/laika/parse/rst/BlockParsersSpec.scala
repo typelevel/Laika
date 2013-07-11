@@ -195,18 +195,20 @@ class BlockParsersSpec extends FlatSpec
   }
   
   
-  "The block list parser" should "retain an internal link target if it is followed by a regular block" in {
+  "The block list parser" should "apply an internal link target to the following regular block" in {
     val input = """.. _target:
       |
       |Text""".stripMargin
-    Parsing (input) should produce (doc (ilt("target"), p("Text")))
+    Parsing (input) should produce (doc (Paragraph(List(Text("Text")), Id("target"))))
   }
 
   it should "treat an internal link target followed by another internal link target like an alias" in {
     val input = """.. _target1:
-      |.. _target2:""".stripMargin
+      |.. _target2:
+      |
+      |Text""".stripMargin
     Parsing (input) should produce (doc (LinkAlias("target1", "target2"), 
-                                         InternalLinkTarget(Id("target2"))))
+                                         Paragraph(List(Text("Text")), Id("target2"))))
   }
   
   it should "treat an internal link target followed by an external link target as an external link target" in {

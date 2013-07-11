@@ -21,6 +21,7 @@ import laika.parse.rst.Elements._
 import scala.collection.mutable.ListBuffer
 import scala.annotation.tailrec
 import scala.util.parsing.input.Reader
+import laika.tree.TreeUtil
 
 /** Provides the parsers for all types of block-level elements of reStructuredText. 
  *  It merges the individual traits that provide implementations for list, tables, etc. and 
@@ -151,9 +152,12 @@ trait BlockParsers extends laika.parse.BlockParsers
    *  @return a parser for a list of blocks
    */
   override def blockList (parser: => Parser[Block]): Parser[List[Block]] = Parser { in =>
+    case object Mock extends Block { val options = NoOpt }
+    
     val defaultBlock = parser <~ opt(blankLines)
     val litBlock = literalBlock | defaultBlock 
     val elems = new ListBuffer[Block]
+    elems += Mock
 
     def processLiteralMarker (par: Paragraph) = {
       par.content.lastOption match {
@@ -173,17 +177,21 @@ trait BlockParsers extends laika.parse.BlockParsers
       flattenText(h.content).replaceAll("[^a-zA-Z0-9]+","-").replaceFirst("^-","").replaceFirst("-$","").toLowerCase
     }
     def result = {
-      case class FinalBlock (options: Options = NoOpt) extends Block
-      elems += FinalBlock()
-      val processed = elems.toList.sliding(2).foldLeft(new ListBuffer[Block]()) {
-        case (buffer, (InternalLinkTarget(Id(id1))) :: (InternalLinkTarget(Id(id2))) :: Nil) => 
+      elems += Mock
+      val processed = elems.toList.sliding(3).foldLeft(new ListBuffer[Block]()) {
+        case (buffer, _ :: (InternalLinkTarget(Id(id1))) :: (InternalLinkTarget(Id(id2))) :: Nil) => 
           buffer += LinkAlias(id1, id2)
-        case (buffer, (InternalLinkTarget(Id(id))) :: (et: ExternalLinkDefinition) :: Nil) => 
+        case (buffer, _ :: (InternalLinkTarget(Id(id))) :: (et: ExternalLinkDefinition) :: Nil) => 
           buffer += et.copy(id = id)
-        case (buffer, (h @ DecoratedHeader(_,_,oldOpt)) :: _) => 
+        case (buffer, _ :: (InternalLinkTarget(_)) :: _ :: Nil) => buffer
+        case (buffer, (InternalLinkTarget(Id(id))) :: (et: ExternalLinkDefinition) :: _ :: Nil) => 
+          buffer += et
+        case (buffer, (InternalLinkTarget(Id(id))) :: (c: Customizable) :: _ :: Nil) => 
+          buffer += TreeUtil.setId(c, id)
+        case (buffer, _ :: (h @ DecoratedHeader(_,_,oldOpt)) :: _) => 
           buffer += h.copy(options = oldOpt + Id(toLinkId(h)))  
-        case (buffer, _ :: Nil)   => buffer
-        case (buffer, other :: _) => buffer += other
+        case (buffer, _ :: _ :: Nil)   => buffer // only happens for empty results (with just the 2 mocks)
+        case (buffer, _ :: other :: _) => buffer += other
         case (buffer, _)          => buffer
       }
       processed.toList

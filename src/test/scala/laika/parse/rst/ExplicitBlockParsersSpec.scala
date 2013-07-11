@@ -129,8 +129,10 @@ class ExplicitBlockParsersSpec extends FlatSpec
   }
   
   it should "parse an internal target" in {
-    val input = """.. _some-target:"""
-    Parsing (input) should produce (doc(InternalLinkTarget(Id("some-target"))))
+    val input = """.. _some-target:
+      |
+      |Some text""".stripMargin
+    Parsing (input) should produce (doc(Paragraph(List(Text("Some text")), Id("some-target"))))
   }
   
   
