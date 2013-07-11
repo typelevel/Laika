@@ -234,7 +234,6 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
       }
       
       {
-        case f: Footnote           => Some(f) // TODO - should not be required  
         case f: FootnoteDefinition => Some(bySource(f)) 
         case c: Citation           => Some(bySource(c)) 
         case h: DecoratedHeader    => Some(bySource(h)) 
