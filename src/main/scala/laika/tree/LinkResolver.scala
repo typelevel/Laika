@@ -111,21 +111,11 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
     
     def processDuplicateIds (name: String, targets: Seq[(Target,Int)]) = {
       
-      def removeId [C <: Customizable] (c: C) = {
-        val newElements = (c.productIterator map { 
-          case opt:SomeOpt => opt.copy(id = None)   
-          case other => other  
-        }).toArray
-          
-        c.getClass.getConstructors()(0)
-          .newInstance(newElements.asInstanceOf[Array[AnyRef]]:_*).asInstanceOf[C]
-      }
-      
       def invalid (element: Element) = {
         val sysMsg = SystemMessage(Error, "duplicate target id: " + name)
         element match {
-          case b: Block => InvalidBlock(sysMsg, removeId(b))
-          case s: Span  => InvalidSpan(sysMsg, removeId(s))
+          case b: Block => InvalidBlock(sysMsg, TreeUtil.removeId(b))
+          case s: Span  => InvalidSpan(sysMsg, TreeUtil.removeId(s))
           case _        => sysMsg
         }
       }
