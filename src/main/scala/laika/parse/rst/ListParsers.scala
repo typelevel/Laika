@@ -32,8 +32,9 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   
   private def listItem [I <: ListItem] (itemStart: Parser[String], newListItem: List[Block] => I): Parser[I] = {
       (itemStart ^^ {_.length}) ~ ((ws min 1) ^^ {_.length}) >> { 
-        case start ~ ws => indentedBlock(minIndent = start + ws) <~ opt(blankLines) ^^ { 
-          block => newListItem(parseNestedBlocks(block)) 
+        case start ~ ws => indentedBlock(minIndent = start + ws) ~ opt(blankLines | eof | guard(itemStart)) ^^? {
+          case (block ~ None) if (block.lines.length < 2) => Left("not a list item")
+          case (block ~ _) => Right(newListItem(parseNestedBlocks(block)))
         }
       } 
   }

@@ -115,6 +115,12 @@ class ListParsersSpec extends FlatSpec
     Parsing (input) should produce (doc(list1))
   }
   
+  it should "ignore items when the second line is not indented" in {
+    val input = """* aaa
+      |bbb""".stripMargin
+    Parsing (input) should produce (doc(p("* aaa\nbbb")))
+  }
+  
   
   "The enumerated list parser" should "parse items with arabic enumeration style" in {
     val input = """1. aaa
