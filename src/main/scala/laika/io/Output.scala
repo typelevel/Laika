@@ -51,6 +51,11 @@ trait Output {
    */
   def asFunction: String => Unit
   
+  /** Flushes this output, forcing all buffered output
+   *  to be written, without closing the underlying writer or stream.
+   */
+  def flush: Unit = ()
+  
 }
 
 
@@ -92,6 +97,7 @@ object Output {
     
     def close = asWriter close
     
+    override def flush = asWriter flush
   }
   
   private class StreamOutput (val asStream: OutputStream, codec: Codec) extends BinaryOutput with Closeable {
@@ -102,6 +108,7 @@ object Output {
     
     def close = asWriter close
     
+    override def flush = asWriter flush
   }
   
   /** Creates a new Output instance for the file with the specified name.
