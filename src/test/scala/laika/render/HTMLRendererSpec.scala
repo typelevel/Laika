@@ -33,6 +33,8 @@ class HTMLRendererSpec extends FlatSpec
   
   def render (elem: Element, messageLevel: MessageLevel) = 
     Render as (HTML withMessageLevel messageLevel) from elem toString
+    
+  def renderUnformatted (elem: Element) = Render as HTML.unformatted from elem toString
   
   
   "The HTML renderer" should "render a paragraph with plain text" in {
@@ -452,6 +454,12 @@ class HTMLRendererSpec extends FlatSpec
     val elem = quote(litBlock(code))
     render (elem) should be (html) 
   }
+  
+  it should "render a table cell unformatted" in {
+    val elem = cell(p("a"),p("b"))
+    val html = """<td><p>a</p><p>b</p></td>"""
+    renderUnformatted(elem) should be (html)
+  } 
   
   
 }

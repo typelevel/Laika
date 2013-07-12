@@ -29,12 +29,18 @@ import laika.io.Output
  * 
  *  @author Jens Halm
  */
-class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Element => Unit) => (HTMLWriter, Element => Unit)) {
+class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean) 
+    extends ((Output, Element => Unit) => (HTMLWriter, Element => Unit)) {
  
   /** Specifies the minimum required level for a system message
    *  to get included into the output by this renderer.
    */
-  def withMessageLevel (level: MessageLevel) = new HTML(Some(level))
+  def withMessageLevel (level: MessageLevel) = new HTML(Some(level), renderFormatted)
+  
+  /** Renders HTML without any formatting (line breaks or indentation) around tags. 
+   *  Useful when storing the output in a database for example. 
+   */
+  def unformatted = new HTML(messageLevel, false)
   
   /** The actual setup method for providing both the writer API for customized
    *  renderers as well as the actual default render function itself. The default render
@@ -48,7 +54,7 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
    *  the renderer as well as the actual default render function itself
    */
   def apply (output: Output, render: Element => Unit) = {
-    val out = new HTMLWriter(output asFunction, render)  
+    val out = new HTMLWriter(output asFunction, render, formatted = renderFormatted)  
     (out, renderElement(out))
   }
 
@@ -228,4 +234,4 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
 
 /** The default instance of the HTML renderer.
  */
-object HTML extends HTML(None)
+object HTML extends HTML(None, true)

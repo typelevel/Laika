@@ -34,7 +34,10 @@ import scala.collection.immutable.ListMap
  */
 class HTMLWriter (out: String => Unit,  
                   render: Element => Unit, 
-                  newLine: String = "\n") extends TextWriter(out, render, newLine = newLine) {
+                  newLine: String = "\n",
+                  formatted: Boolean = true) extends TextWriter(out, render, 
+                                                                newLine = if (formatted) newLine else "", 
+                                                                indentItem = if (formatted) "  " else "") {
 
   
   
