@@ -42,10 +42,8 @@ class HTMLRendererSpec extends FlatSpec
   
   it should "render a document with two paragraphs with plain text" in {
     val elem = doc( p("aaa"), p("bbb"))
-    val html = """<div>
-      |  <p>aaa</p>
-      |  <p>bbb</p>
-      |</div>""".stripMargin
+    val html = """<p>aaa</p>
+      |<p>bbb</p>""".stripMargin
     render (elem) should be (html) 
   }
   
@@ -304,27 +302,23 @@ class HTMLRendererSpec extends FlatSpec
   
   it should "render a document with two paragraphs separated by a horizontal rule" in {
     val elem = doc( p("aaa"), Rule(), p("bbb"))
-    val html = """<div>
-      |  <p>aaa</p>
-      |  <hr>
-      |  <p>bbb</p>
-      |</div>""".stripMargin
+    val html = """<p>aaa</p>
+      |<hr>
+      |<p>bbb</p>""".stripMargin
     render (elem) should be (html) 
   } 
   
   it should "render a document with two nested sections" in {
     val nested = Section(h(2, txt("Title 2")), List(p("Line 1"), p("Line 2")))
     val root = doc(Section(h(1, txt("Title 1")), List(p("Line 1"), p("Line 2"))), nested)
-    val html = """<div>
-      |  
-      |  <h1>Title 1</h1>
-      |  <p>Line 1</p>
-      |  <p>Line 2</p>
-      |  
-      |  <h2>Title 2</h2>
-      |  <p>Line 1</p>
-      |  <p>Line 2</p>
-      |</div>""".stripMargin
+    val html = """
+      |<h1>Title 1</h1>
+      |<p>Line 1</p>
+      |<p>Line 2</p>
+      |
+      |<h2>Title 2</h2>
+      |<p>Line 1</p>
+      |<p>Line 2</p>""".stripMargin
     render (root) should be (html) 
   }
   

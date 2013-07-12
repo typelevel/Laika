@@ -95,7 +95,7 @@ class HTML private (messageLevel: Option[MessageLevel]) extends ((Output, Elemen
         else content :+ Paragraph(attr, Styles("attribution"))
       
       con match {
-        case Document(content)                => out <<        "<div>" <<|>  content <<| "</div>"       
+        case Document(content)                => if (!content.isEmpty) out << content.head <<| content.tail       
         case Section(header, content,_)       => out <<         header <<|   content
         case QuotedBlock(content,attr,opt)    => out <<@ ("blockquote",opt); renderBlocks(quotedBlockContent(content,attr), "</blockquote>")
         case BulletListItem(content,_,opt)    => out <<@ ("li",opt);         renderBlocks(content, "</li>") 

@@ -66,7 +66,6 @@ class MarkdownToHTMLSpec extends FlatSpec
   def transformAndCompare (name: String) = {
     val path = getClass.getResource("/markdownTestSuite").getFile + "/" + name
     val actual = Transform from Markdown.withVerbatimHTML to HTML rendering { out => {
-      case Document(content)        => out <<|> content // TODO - remove this line after wrapping div is removed from standard renderer
       case QuotedBlock(content,_,_) => out << "<blockquote>" <<|>  content <<| "</blockquote>" // Markdown always writes p tags inside blockquotes
       case Literal(content,_)       => out << "<code>" <<<& content.trim << "</code>" // Markdown trims code spans (TODO - might do this in the parser already)
     }} rendering VerbatimHTML fromFile (path + ".md") toString
