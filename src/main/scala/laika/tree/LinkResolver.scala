@@ -102,7 +102,7 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
         case lt: ExternalLinkDefinition => val (group, id) = linkId(lt.id); Target(group, id, lt, lt)
         case lt: LinkAlias              => Target(NamedLinkTarget, lt.id, lt, lt)
         
-        case hd @ DecoratedHeader(_,_,Id(id)) => Target(NamedLinkTarget, suggestedId(id), hd)
+        case hd @ DecoratedHeader(_,_,Id(id)) => Target(NamedLinkTarget, suggestedId(id), hd) // TODO - does not handle headers without id
         case hd @ Header(_,_,Id(id))          => Target(NamedLinkTarget, suggestedId(id), hd)
         
         case c: Customizable if c.options.id.isDefined => Target(NamedLinkTarget, c.options.id.get, c, c)
@@ -165,7 +165,7 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
   
       processedTargets map {
         case t @ Target(_, Named(name), DecoratedHeader(deco, content, opt), Unresolved) => 
-          t.copy(resolved = Header(levelMap.getOrElseUpdate(deco, levelIt.next), content, opt))
+          t.copy(resolved = Header(levelMap.getOrElseUpdate(deco, levelIt.next), content, opt + Id(name)))
         case t @ Target(_, Named(name), Header(level, content, opt), Unresolved) => 
           t.copy(resolved = Header(level, content, opt + Id(name)))
         case t @ Target(_, Named(name), Citation(_,content,opt), Unresolved) => 
