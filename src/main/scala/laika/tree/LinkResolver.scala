@@ -166,6 +166,8 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
       processedTargets map {
         case t @ Target(_, Named(name), DecoratedHeader(deco, content, opt), Unresolved) => 
           t.copy(resolved = Header(levelMap.getOrElseUpdate(deco, levelIt.next), content, opt))
+        case t @ Target(_, Named(name), Header(level, content, opt), Unresolved) => 
+          t.copy(resolved = Header(level, content, opt + Id(name)))
         case t @ Target(_, Named(name), Citation(_,content,opt), Unresolved) => 
           t.copy(resolved = Citation(name, content, opt + Id(name)))
         case t @ Target(_, Named(name), FootnoteDefinition(_,content,opt), Unresolved) => 
