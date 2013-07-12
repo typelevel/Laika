@@ -55,6 +55,8 @@ class RewriteRulesSpec extends FlatSpec
 
   def intLink (ref: String) = InternalLink(List(txt("text")), ref)
   
+  def simpleImgRef (id: String = "id") = ImageReference("text", id, "text")
+  
    
   "The rewrite rules for citations" should "retain a single reference when it has a matching target" in {
     val document = doc(p(CitationReference("label","[label]_")), Citation("label", List(p("citation"))))
@@ -160,6 +162,17 @@ class RewriteRulesSpec extends FlatSpec
   it should "replace circular indirect references with invalid spans" in {
     val document = doc(p(simpleLinkRef()), LinkAlias("id","ref"), LinkAlias("ref","id"))
     rewritten (document) should be (doc(p(invalidSpan("circular link reference: id", txt("text")))))
+  }
+  
+  
+  "The rewrite rules for image references" should "resolve external link references" in {
+    val document = doc(p(simpleImgRef()), ExternalLinkDefinition("id", "foo.jpg"))
+    rewritten (document) should be (doc(p(img("text", "foo.jpg"))))
+  }
+  
+  it should "replace an unresolvable reference with an invalid span" in {
+    val document = doc(p(simpleImgRef()))
+    rewritten (document) should be (doc(p(invalidSpan("unresolved image reference: id", txt("text")))))
   }
   
   
