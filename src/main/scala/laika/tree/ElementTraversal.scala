@@ -31,6 +31,7 @@ trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Ele
    
   private case object Unmodified extends Element
   private val Retain = Some(Unmodified)
+  private val fallbackRule: PartialFunction[Element,Option[Element]] = { case e => Some(e) }
   
   /** Returns a new, rewritten tree model based on the specified rule.
    *  The rule is a partial function that takes an `Element` and returns an `Option[Element]`.
@@ -49,9 +50,18 @@ trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Ele
    *  first combine them with `orElse`.
    */
   def rewrite (rule: PartialFunction[Element,Option[Element]]): Self = {
+    val result = rewriteProperties(rule)
+    
+    (rule orElse fallbackRule)(result) match {
+      case Some(e) => e.asInstanceOf[Self]
+      case _ => result.asInstanceOf[Self]
+    }
+  }
+  
+  private def rewriteProperties (rule: PartialFunction[Element,Option[Element]]): Self = {
 
     lazy val rewriteOldElement: Element => Option[Element] = rule orElse { case _ => Retain }
-    lazy val rewriteNewElement: Element => Option[Element] = rule orElse { case e => Some(e) }
+    lazy val rewriteNewElement: Element => Option[Element] = rule orElse fallbackRule
     
     def rewriteElement (e: Any): Option[AnyRef] = {
       
@@ -62,9 +72,10 @@ trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Ele
       
       e match {
         case et: ElementTraversal[_] => {
-          val newET = et.rewrite(rule)
+          val newET = et.rewriteProperties(rule)
           val f = if (newET eq et) rewriteOldElement else rewriteNewElement
-          optimize(f(newET.asInstanceOf[Element]), et)
+          val finalET = f(newET.asInstanceOf[Element])
+          optimize(finalET, et)
         }
         case e: Element         => optimize(rewriteOldElement(e), e)
         case t: Traversable[_]  => optimize(rewriteChildren(t.asInstanceOf[Traversable[AnyRef]]), t)
@@ -113,13 +124,7 @@ trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Ele
       i += 1
     }
     
-    val result = if (!changed) this else copyWith(newElements)
-    
-    rewriteNewElement(result) match {
-      case Some(e) => e.asInstanceOf[Self]
-      case _ => result.asInstanceOf[Self]
-    }
-    
+    if (!changed) this.asInstanceOf[Self] else copyWith(newElements)
   }
   
   private def copyWith (newElements: Array[Any]): Self = {
