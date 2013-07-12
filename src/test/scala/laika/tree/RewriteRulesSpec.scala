@@ -176,6 +176,18 @@ class RewriteRulesSpec extends FlatSpec
   }
   
   
+  "The rewrite rules for header ids" should "retain the id of a header" in {
+    val document = doc(Header(1, List(Text("text")), Id("header")))
+    rewritten (document) should be (doc(Section(Header(1, List(Text("text")), Id("header")), Nil)))
+  }
+  
+  it should "append numbers to duplicate ids" in {
+    val document = doc(Header(1, List(Text("text")), Id("header")), Header(1, List(Text("text")), Id("header")))
+    rewritten (document) should be (doc(Section(Header(1, List(Text("text")), Id("header")), Nil), 
+                                        Section(Header(1, List(Text("text")), Id("header-1")), Nil)))
+  }
+  
+  
   "The link resolver" should "remove the id from all elements with duplicate ids" in {
     val target1a = Citation("id", List(p("citation")))
     val target1b = fn(AutonumberLabel("id"), 1)
