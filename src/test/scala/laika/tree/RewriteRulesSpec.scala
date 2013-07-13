@@ -154,6 +154,11 @@ class RewriteRulesSpec extends FlatSpec
     rewritten (document) should be (doc(p(invalidSpan("unresolved link reference: id", txt("text")))))
   }
   
+  it should "replace an unresolvable reference to a link alias with an invalid span" in {
+    val document = doc(p(simpleLinkRef()), LinkAlias("id","ref"))
+    rewritten (document) should be (doc(p(invalidSpan("unresolved link reference: id", txt("text")))))
+  }
+  
   it should "replace a surplus anonymous reference with an invalid span" in {
     val document = doc(p(simpleLinkRef("")))
     rewritten (document) should be (doc(p(invalidSpan("too many anonymous link references", txt("text")))))
@@ -239,6 +244,14 @@ class RewriteRulesSpec extends FlatSpec
     val target1b = ExternalLinkDefinition("id", "http://foo/2")
     val msg = "ambiguous reference to duplicate id: id"
     val document = doc(p(simpleLinkRef()),target1a,target1b)
+    rewritten (document) should be (doc(p(invalidSpan(msg, "text"))))
+  }
+  
+  it should "replace ambiguous references a link alias pointing to duplicate ids with invalid spans" in {
+    val target1a = ExternalLinkDefinition("id2", "http://foo/1")
+    val target1b = ExternalLinkDefinition("id2", "http://foo/2")
+    val msg = "ambiguous reference to duplicate id: id2"
+    val document = doc(p(simpleLinkRef()),LinkAlias("id","id2"),target1a,target1b)
     rewritten (document) should be (doc(p(invalidSpan(msg, "text"))))
   }
  
