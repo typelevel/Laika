@@ -155,7 +155,7 @@ trait BlockParsers extends laika.parse.BlockParsers
     case object Mock extends Block { val options = NoOpt }
     
     val defaultBlock = parser <~ opt(blankLines)
-    val litBlock = literalBlock | defaultBlock 
+    val litBlock = (literalBlock | defaultBlock) <~ opt(blankLines)  
     val elems = new ListBuffer[Block]
     elems += Mock
 
