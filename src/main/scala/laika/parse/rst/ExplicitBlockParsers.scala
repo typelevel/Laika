@@ -195,7 +195,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
     }
     
     nameParser >> { name => 
-      directive(provider(name).map(directiveParser).getOrElse(failure("unknown directive: " + name)), name+"::")
+      directive(provider(name.toLowerCase).map(directiveParser).getOrElse(failure("unknown directive: " + name)), name+"::")
     }
   }
   
@@ -230,7 +230,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
     nameParser >> { case name ~ baseName =>
       val base = baseName.getOrElse(defaultTextRole)
       val fullname = "role::" + name + (baseName map ("("+_+")") getOrElse "")
-      directive(textRole(base).map(directiveParser(name))
+      directive(textRole(base.toLowerCase).map(directiveParser(name))
           .getOrElse(failure("unknown text role: " + base)), fullname) ^^ replaceInvalidDirective
     }
     

@@ -63,6 +63,7 @@ class DirectiveSpec extends FlatSpec
   
   def stars (num: Int) = p("*" * num)
   
+  def toLowerCase [T] (tuple: (String, T)) = (tuple._1.toLowerCase, tuple._2)
   
   val blockDirectives: Map[String, DirectivePart[Block]] = Map(
     "oneArg" -> (argument() map p),
@@ -93,7 +94,7 @@ class DirectiveSpec extends FlatSpec
     "allOpt" -> (optArgument(positiveInt) ~ optField("name",positiveInt) ~ content(intList)) {
       (arg,field,list) => (p((arg.getOrElse(0) +: field.getOrElse(0) +: list).sum.toString))
     }
-  )
+  ).map(toLowerCase)
   
   val spanDirectives: Map[String, DirectivePart[Span]] = Map(
     "spans" -> (argument() map (Text(_))) 

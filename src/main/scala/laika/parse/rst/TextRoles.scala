@@ -237,7 +237,7 @@ object TextRoles {
      *  @return a new text role that can be registered with the reStructuredText parser
      */
     def apply [T] (name: String, default: T)(part: RoleDirectivePart[T])(roleF: (T, String) => Span) = 
-      new TextRole(name, str => roleF(default, str), _ => part map (res => ((str:String) => roleF(res, str))))
+      new TextRole(name.toLowerCase, str => roleF(default, str), _ => part map (res => ((str:String) => roleF(res, str))))
     
     /** Creates a new text role that can be referred to by interpreted text with the specified name.
      *  The `DirectivePart` can be created by using the methods of the `Parts`
@@ -263,7 +263,7 @@ object TextRoles {
      *  @return a new text role that can be registered with the reStructuredText parser
      */
     def recursive [T] (name: String, default: T)(part: BlockParsers with InlineParsers => RoleDirectivePart[T])(roleF: (T, String) => Span) = 
-      new TextRole(name, str => roleF(default, str), parsers => part(parsers) map (res => ((str:String) => roleF(res, str))))
+      new TextRole(name.toLowerCase, str => roleF(default, str), parsers => part(parsers) map (res => ((str:String) => roleF(res, str))))
     
   }
 

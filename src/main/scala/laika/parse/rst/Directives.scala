@@ -282,7 +282,7 @@ object Directives {
      *  @param part the implementation of the directive that can be created by using the combinators of the `Parts` object
      *  @return a new directive that can be registered with the reStructuredText parser
      */
-    def apply (name: String)(part: DirectivePart[Span]) = new Directive(name, _ => part)
+    def apply (name: String)(part: DirectivePart[Span]) = new Directive(name.toLowerCase, _ => part)
     
     /** Creates a new directive with the specified name and implementation.
      *  The `DirectivePart` can be created by using the methods of the `Parts`
@@ -295,7 +295,7 @@ object Directives {
      *  @param part a function returning the implementation of the directive that can be created by using the combinators of the `Parts` object
      *  @return a new directive that can be registered with the reStructuredText parser
      */
-    def recursive (name: String)(part: BlockParsers with InlineParsers => DirectivePart[Span]) = new Directive(name, part)
+    def recursive (name: String)(part: BlockParsers with InlineParsers => DirectivePart[Span]) = new Directive(name.toLowerCase, part)
     
   }
   
@@ -311,7 +311,7 @@ object Directives {
      *  @param part the implementation of the directive that can be created by using the combinators of the `Parts` object
      *  @return a new directive that can be registered with the reStructuredText parser
      */
-    def apply (name: String)(part: DirectivePart[Block]) = new Directive(name, _ => part)
+    def apply (name: String)(part: DirectivePart[Block]) = new Directive(name.toLowerCase, _ => part)
     
     /** Creates a new directive with the specified name and implementation.
      *  The `DirectivePart` can be created by using the methods of the `Parts`
@@ -324,7 +324,7 @@ object Directives {
      *  @param part a function returning the implementation of the directive that can be created by using the combinators of the `Parts` object
      *  @return a new directive that can be registered with the reStructuredText parser
      */
-    def recursive (name: String)(part: BlockParsers with InlineParsers => DirectivePart[Block]) = new Directive(name, part)
+    def recursive (name: String)(part: BlockParsers with InlineParsers => DirectivePart[Block]) = new Directive(name.toLowerCase, part)
     
   }
 

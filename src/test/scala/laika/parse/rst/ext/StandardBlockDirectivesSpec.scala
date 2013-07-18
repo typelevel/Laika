@@ -220,6 +220,16 @@ class StandardBlockDirectivesSpec extends FlatSpec
     Parse as ReStructuredText fromString input should be (result)
   }
   
+  it should "match the name of the directive case-insensitively" in {
+    val input = """.. Warning::
+      |
+      | 1st Para
+      |
+      | 2nd Para""".stripMargin
+    val result = doc (TitledBlock(List(txt("Warning")), simplePars, Styles("warning")))
+    Parse as ReStructuredText fromString input should be (result)
+  }
+  
   
   "The topic directive" should "parse a sequence of two paragraphs" in {
     val input = """.. topic:: TITLE
