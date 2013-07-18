@@ -114,7 +114,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = doc (TitledBlock(List(txt("attention")), simplePars, Styles("attention")))
+    val result = doc (TitledBlock(List(txt("Attention")), simplePars, Styles("attention")))
     Parse as ReStructuredText fromString input should be (result)
   }
   
@@ -126,7 +126,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = doc (TitledBlock(List(txt("attention")), simplePars, Id("foo") + Styles("bar","attention")))
+    val result = doc (TitledBlock(List(txt("Attention")), simplePars, Id("foo") + Styles("bar","attention")))
     Parse as ReStructuredText fromString input should be (result)
   }
   
@@ -136,7 +136,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | 1st *Para*
       |
       |  2nd Para""".stripMargin
-    val result = doc (TitledBlock(List(txt("attention")), List(p(txt("1st "),em("Para")), quote("2nd Para")), Styles("attention")))
+    val result = doc (TitledBlock(List(txt("Attention")), List(p(txt("1st "),em("Para")), quote("2nd Para")), Styles("attention")))
     Parse as ReStructuredText fromString input should be (result)
   }
   
@@ -146,7 +146,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = doc (TitledBlock(List(txt("caution")), simplePars, Styles("caution")))
+    val result = doc (TitledBlock(List(txt("Caution")), simplePars, Styles("caution")))
     Parse as ReStructuredText fromString input should be (result)
   }
   
@@ -156,7 +156,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = doc (TitledBlock(List(txt("danger")), simplePars, Styles("danger")))
+    val result = doc (TitledBlock(List(txt("Danger")), simplePars, Styles("danger")))
     Parse as ReStructuredText fromString input should be (result)
   }
   
@@ -166,7 +166,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = doc (TitledBlock(List(txt("error")), simplePars, Styles("error")))
+    val result = doc (TitledBlock(List(txt("Error")), simplePars, Styles("error")))
     Parse as ReStructuredText fromString input should be (result)
   }
   
@@ -176,7 +176,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = doc (TitledBlock(List(txt("hint")), simplePars, Styles("hint")))
+    val result = doc (TitledBlock(List(txt("Hint")), simplePars, Styles("hint")))
     Parse as ReStructuredText fromString input should be (result)
   }
   
@@ -186,7 +186,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = doc (TitledBlock(List(txt("important")), simplePars, Styles("important")))
+    val result = doc (TitledBlock(List(txt("Important")), simplePars, Styles("important")))
     Parse as ReStructuredText fromString input should be (result)
   }
   
@@ -196,7 +196,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = doc (TitledBlock(List(txt("note")), simplePars, Styles("note")))
+    val result = doc (TitledBlock(List(txt("Note")), simplePars, Styles("note")))
     Parse as ReStructuredText fromString input should be (result)
   }
   
@@ -206,7 +206,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = doc (TitledBlock(List(txt("tip")), simplePars, Styles("tip")))
+    val result = doc (TitledBlock(List(txt("Tip")), simplePars, Styles("tip")))
     Parse as ReStructuredText fromString input should be (result)
   }
   
@@ -216,7 +216,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = doc (TitledBlock(List(txt("warning")), simplePars, Styles("warning")))
+    val result = doc (TitledBlock(List(txt("Warning")), simplePars, Styles("warning")))
     Parse as ReStructuredText fromString input should be (result)
   }
   

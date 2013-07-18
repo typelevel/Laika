@@ -100,7 +100,7 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
 
   def admonition (style: String): DirectivePart[Block] = {
     (blockContent ~ nameOpt ~ classOpt) { (content, id, styles) => 
-      TitledBlock(List(Text(style)), content, toOptions(id,styles) + Styles(style))
+      TitledBlock(List(Text(style.head.toString.toUpperCase + style.tail)), content, toOptions(id,styles) + Styles(style))
     } 
   }
   
