@@ -93,14 +93,14 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
    */
   def linkTarget = {
     
-    val named = '_' ~> (refName) <~ ':' ^^ { _.normalized }
+    val named = '_' ~> (('`' ~> escapedUntil('`') <~ ':') | escapedUntil(':')) ^^ { ReferenceName(_).normalized }
       
     val internal = named ^^ (id => InternalLinkTarget(Id(id)))
     
     val external = {
       val anonymous = "__:" ^^^ ""
     
-      (named | anonymous) ~ linkDefinitionBody ^^ {
+      (anonymous | named) ~ linkDefinitionBody ^^ {
         case name ~ body => ExternalLinkDefinition(name, body)
       }
     }
