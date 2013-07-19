@@ -21,6 +21,9 @@ import scala.collection.mutable.ListBuffer
 
 import laika.tree.Elements._
 
+/**
+ *  @author Jens Halm
+ */
 object LinkResolver extends (Document => PartialFunction[Element,Option[Element]]) {
 
   
@@ -162,12 +165,14 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
       
       val levelMap = scala.collection.mutable.Map.empty[HeaderDecoration,Int]
       val levelIt = Stream.from(1).iterator
+      
+      def targetId (id: String) = Id(id.replaceAll("[^a-zA-Z0-9]+","-").replaceFirst("^-","").replaceFirst("-$","")) // TODO - avoid duplicates
   
       processedTargets map {
         case t @ Target(_, Named(name), DecoratedHeader(deco, content, opt), Unresolved) => 
-          t.copy(resolved = Header(levelMap.getOrElseUpdate(deco, levelIt.next), content, opt + Id(name)))
+          t.copy(resolved = Header(levelMap.getOrElseUpdate(deco, levelIt.next), content, opt + targetId(name)))
         case t @ Target(_, Named(name), Header(level, content, opt), Unresolved) => 
-          t.copy(resolved = Header(level, content, opt + Id(name)))
+          t.copy(resolved = Header(level, content, opt + targetId(name)))
         case t @ Target(_, Named(name), Citation(_,content,opt), Unresolved) => 
           t.copy(resolved = Citation(name, content, opt + Id(name)))
         case t @ Target(_, Named(name), FootnoteDefinition(_,content,opt), Unresolved) => 
@@ -260,8 +265,8 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
         case ref: LinkReference => val target = if (ref.id.isEmpty) byGroup(AnonymousLinkTarget) 
                                                 else byId(NamedLinkTarget, ref.id)
           target match {
-            case Some(ExternalLinkDefinition(_, url, title, _)) => Some(ExternalLink(ref.content, url, title, ref.options))
-            case Some(InternalLinkTarget(Id(id)))               => Some(InternalLink(ref.content, "#"+id, options = ref.options))
+            case Some(ExternalLinkDefinition(_, url, title, _))  => Some(ExternalLink(ref.content, url, title, ref.options))
+            case Some(c: Customizable) if c.options.id.isDefined => Some(InternalLink(ref.content, c.options.id.get, options = ref.options))
             case other =>
               val msg = if (ref.id.isEmpty) "too many anonymous link references" 
                         else "unresolved link reference: " + ref.id

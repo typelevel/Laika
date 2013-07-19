@@ -169,12 +169,12 @@ trait BlockParsers extends laika.parse.BlockParsers
       }
     }
     def toLinkId (h: DecoratedHeader) = {
-      def flattenText (spans: Seq[Span]): String = ("" /: spans) {
+      def flattenText (spans: Seq[Span]): String = ("" /: spans) { // TODO - generic utility
         case (res, Text(text,_)) => res + text
         case (res, sc: SpanContainer[_]) => res + flattenText(sc.content)
         case (res, _) => res
       }
-      flattenText(h.content).replaceAll("[^a-zA-Z0-9]+","-").replaceFirst("^-","").replaceFirst("-$","").toLowerCase
+      ReferenceName(flattenText(h.content)).normalized
     }
     def result = {
       elems += Mock

@@ -333,7 +333,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
     markupEnd('_' ^^^ "__" | success("_")) >> { 
       markup => reverse(markup.length, simpleRefName <~ reverseMarkupStart) ^^ { refName =>
         markup match {
-          case "_"  => Reverse(refName.length, LinkReference(List(Text(refName)), refName, "" + refName + "_"), Text("_")) 
+          case "_"  => Reverse(refName.length, LinkReference(List(Text(refName)), ReferenceName(refName).normalized, "" + refName + "_"), Text("_")) 
           case "__" => Reverse(refName.length, LinkReference(List(Text(refName)), "", "" + refName + "__"), Text("__")) 
         }
       }

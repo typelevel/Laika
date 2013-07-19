@@ -136,12 +136,12 @@ class RewriteRulesSpec extends FlatSpec
   
   it should "resolve internal link references" in {
     val document = doc(p(simpleLinkRef()), InternalLinkTarget(Id("id")))
-    rewritten (document) should be (doc(p(intLink("#id")), InternalLinkTarget(Id("id"))))
+    rewritten (document) should be (doc(p(intLink("id")), InternalLinkTarget(Id("id"))))
   }
   
   it should "resolve indirect link references" in {
     val document = doc(p(simpleLinkRef()), LinkAlias("id","ref"), InternalLinkTarget(Id("ref")))
-    rewritten (document) should be (doc(p(intLink("#ref")), InternalLinkTarget(Id("ref"))))
+    rewritten (document) should be (doc(p(intLink("ref")), InternalLinkTarget(Id("ref"))))
   }
   
   it should "resolve anonymous link references" in {

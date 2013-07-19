@@ -141,8 +141,8 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
         case Line(content,opt)              => out <<@ ("div",opt + Styles("line")) << content <<  "</div>"
         case Header(level, content, opt)    => out <<| "<h" << level.toString << ">" << content << "</h" << level.toString << ">"
   
-        case ExternalLink(content, url, title, opt)  => out <<@ ("a", opt, "href"->url, "title"->title.map(escapeTitle)) << content << "</a>"
-        case InternalLink(content, url, title, opt)  => out <<@ ("a", opt, "href"->url, "title"->title.map(escapeTitle)) << content << "</a>"
+        case ExternalLink(content, url, title, opt)  => out <<@ ("a", opt, "href"->url,       "title"->title.map(escapeTitle)) << content << "</a>"
+        case InternalLink(content, url, title, opt)  => out <<@ ("a", opt, "href"->("#"+url), "title"->title.map(escapeTitle)) << content << "</a>"
         
         case WithFallback(fallback)         => out << fallback
         case c: Customizable                => c match {

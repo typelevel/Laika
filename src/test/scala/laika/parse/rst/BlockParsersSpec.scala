@@ -177,8 +177,8 @@ class BlockParsersSpec extends FlatSpec
       |
       |Header 2b
       |=========""".stripMargin
-    Parsing (input) should produce (doc (dh(ulol('='),"Header 1","header-1"), dh(ul('='),"Header 2","header-2"), 
-                                         dh(ul('-'),"Header 3","header-3"), dh(ul('='),"Header 2b","header-2b")))
+    Parsing (input) should produce (doc (dh(ulol('='),"Header 1","header 1"), dh(ul('='),"Header 2","header 2"), 
+                                         dh(ul('-'),"Header 3","header 3"), dh(ul('='),"Header 2b","header 2b")))
   }
   
   it should "ignore headers where the underline is shorter than the text" in {
