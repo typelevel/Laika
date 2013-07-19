@@ -63,7 +63,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
                   '\u201c'->'\u201e', '\u201e'->'\u201c', '\u201e'->'\u201d', '\u201d'->'\u201d', '\u203a'->'\u203a')
 
                   
-  private val startChars = anyOf(' ','-',':','/','\'','"','<','(','[','{') take 1
+  private val startChars = anyOf(' ','-',':','/','\'','"','<','(','[','{','\n') take 1
   
   private val startCategories = Set[Int](Character.DASH_PUNCTUATION, Character.OTHER_PUNCTUATION, Character.START_PUNCTUATION,
                             Character.INITIAL_QUOTE_PUNCTUATION, Character.FINAL_QUOTE_PUNCTUATION)
