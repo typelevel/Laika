@@ -201,6 +201,14 @@ class BlockParsersSpec extends FlatSpec
       |Text""".stripMargin
     Parsing (input) should produce (doc (Paragraph(List(Text("Text")), Id("target"))))
   }
+  
+  it should "not apply an internal link target to the following regular block when that already has an id" in {
+    val input = """.. _target:
+      |
+      |Header
+      |======""".stripMargin
+    Parsing (input) should produce (doc (InternalLinkTarget(Id("target")), dh(ul('='),"Header","header")))
+  }
 
   it should "treat an internal link target followed by another internal link target like an alias" in {
     val input = """.. _target1:

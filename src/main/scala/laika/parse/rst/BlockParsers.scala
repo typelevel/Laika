@@ -183,13 +183,19 @@ trait BlockParsers extends laika.parse.BlockParsers
           buffer += LinkAlias(id1, id2)
         case (buffer, _ :: (InternalLinkTarget(Id(id))) :: (et: ExternalLinkDefinition) :: Nil) => 
           buffer += et.copy(id = id)
-        case (buffer, _ :: (InternalLinkTarget(_)) :: _ :: Nil) => buffer
-        case (buffer, (InternalLinkTarget(Id(id))) :: (et: ExternalLinkDefinition) :: _ :: Nil) => 
-          buffer += et
-        case (buffer, (InternalLinkTarget(Id(id))) :: (c: Customizable) :: _ :: Nil) => 
-          buffer += TreeUtil.setId(c, id)
+        case (buffer, _ :: (it: InternalLinkTarget) :: (h: DecoratedHeader) :: Nil) => buffer += it
+        case (buffer, _ :: (it: InternalLinkTarget) :: (c: Customizable) :: Nil) =>  
+          if (c.options.id.isDefined) buffer += it else buffer
+        case (buffer, _ :: (it: InternalLinkTarget) :: _ :: Nil) => buffer += it
+        
         case (buffer, _ :: (h @ DecoratedHeader(_,_,oldOpt)) :: _) => 
           buffer += h.copy(options = oldOpt + Id(toLinkId(h)))  
+
+        case (buffer, (InternalLinkTarget(Id(id))) :: (et: ExternalLinkDefinition) :: _ :: Nil) => 
+          buffer += et
+        case (buffer, (InternalLinkTarget(Id(id))) :: (c: Customizable) :: _ :: Nil) if c.options.id.isEmpty => 
+          buffer += TreeUtil.setId(c, id)
+          
         case (buffer, _ :: _ :: Nil)   => buffer // only happens for empty results (with just the 2 mocks)
         case (buffer, _ :: other :: _) => buffer += other
         case (buffer, _)          => buffer
