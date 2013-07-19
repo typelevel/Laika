@@ -99,45 +99,56 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
       def quotedBlockContent (content: Seq[Block], attr: Seq[Span]) = 
         if (attr.isEmpty) content
         else content :+ Paragraph(attr, Styles("attribution"))
+        
+      def figureContent (img: Span, caption: Seq[Span], legend: Seq[Block]): List[Block] =
+        List(SpanSequence(List(img)), Paragraph(caption, Styles("caption")), BlockSequence(legend, Styles("legend")))
       
       con match {
         case Document(content)                => if (!content.isEmpty) out << content.head <<| content.tail       
         case Section(header, content,_)       => out <<         header <<|   content
+        case TitledBlock(title, content, opt) => out <<@ ("div",opt) <<|> (Paragraph(title,Styles("title")) +: content) <<| "</div>"
         case QuotedBlock(content,attr,opt)    => out <<@ ("blockquote",opt); renderBlocks(quotedBlockContent(content,attr), "</blockquote>")
         case BulletListItem(content,_,opt)    => out <<@ ("li",opt);         renderBlocks(content, "</li>") 
         case EnumListItem(content,_,_,opt)    => out <<@ ("li",opt);         renderBlocks(content, "</li>") 
         case DefinitionListItem(term,defn,_)  => out << "<dt>" << term << "</dt>" <<| "<dd>"; renderBlocks(defn, "</dd>")
         case LineBlock(content,opt)           => out <<@ ("div",opt + Styles("line-block")) <<|> content <<| "</div>"
+        case Figure(img,caption,legend,opt)   => out <<@ ("div",opt + Styles("figure")) <<|> figureContent(img,caption,legend) <<| "</div>"
         
         case Footnote(label,content,opt)   => renderTable(toTable(label,content,opt + Styles("footnote")))
         case Citation(label,content,opt)   => renderTable(toTable(label,content,opt + Styles("citation")))
         
-        case BlockSequence(content, NoOpt)  => out << content
-        
         case WithFallback(fallback)         => out << fallback
-        case c: Customizable                => out <<@ ("div",c.options) <<|> c.content <<| "</div>"
+        case c: Customizable                => c match {
+          case BlockSequence(content, NoOpt) => out << content // this case could be standalone above, but triggers a compiler bug then
+          case _ => out <<@ ("div",c.options) <<|> c.content <<| "</div>"
+        }
         case unknown                        => out << "<div>" <<|> unknown.content <<| "</div>"
       }
     }
     
     def renderSpanContainer [T <: SpanContainer[T]](con: SpanContainer[T]) = {
       def escapeTitle (s: String) = s.replace("&","&amp;").replace("\"","&quot;").replace("'","$#39;")
+      def codeStyles (language: String) = if (language.isEmpty) Styles("code") else Styles("code", language)
       
       con match {
         
-        case Paragraph(content,opt)         => out <<@ ("p",opt)      <<    content <<  "</p>"  
-        case Emphasized(content,opt)        => out <<@ ("em",opt)     <<    content <<  "</em>" 
-        case Strong(content,opt)            => out <<@ ("strong",opt) <<    content <<  "</strong>" 
+        case Paragraph(content,opt)         => out <<@ ("p",opt)       <<  content <<  "</p>"  
+        case Emphasized(content,opt)        => out <<@ ("em",opt)      <<  content <<  "</em>" 
+        case Strong(content,opt)            => out <<@ ("strong",opt)  <<  content <<  "</strong>" 
+        case ParsedLiteralBlock(content,opt)=> out <<@ ("pre",opt) << "<code>" <<  content << "</code></pre>"
+        case CodeBlock(lang,content,opt)    => out <<@ ("pre",opt+codeStyles(lang)) << "<code>" <<  content << "</code></pre>"
+        case Code(lang,content,opt)         => out <<@ ("code",opt+codeStyles(lang)) <<  content << "</code>"
         case Line(content,opt)              => out <<@ ("div",opt + Styles("line")) << content <<  "</div>"
         case Header(level, content, opt)    => out <<| "<h" << level.toString << ">" << content << "</h" << level.toString << ">"
   
         case ExternalLink(content, url, title, opt)  => out <<@ ("a", opt, "href"->url, "title"->title.map(escapeTitle)) << content << "</a>"
         case InternalLink(content, url, title, opt)  => out <<@ ("a", opt, "href"->url, "title"->title.map(escapeTitle)) << content << "</a>"
         
-        case SpanSequence(content, NoOpt)   => out << content
-        
         case WithFallback(fallback)         => out << fallback
-        case c: Customizable                => out <<@ ("span",c.options) << c.content << "</span>"
+        case c: Customizable                => c match {
+          case SpanSequence(content, NoOpt) => out << content // this case could be standalone above, but triggers a compiler bug then
+          case _ => out <<@ ("span",c.options) << c.content << "</span>"
+        }
         case unknown                        => out << "<span>" << unknown.content << "</span>"
       }
     }
@@ -158,6 +169,10 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
         case NoOpt                     => out                   <<&  content
         case _                         => out <<@ ("span",opt)  <<&  content << "</span>"
       }
+      case RawContent(formats, content, opt) => if (formats.contains("html")) { opt match {
+        case NoOpt                     => out                   <<   content
+        case _                         => out <<@ ("span",opt)  <<   content << "</span>"
+      }} 
       case Literal(content,opt)        => out <<@ ("code",opt)  <<<& content << "</code>" 
       case LiteralBlock(content,opt)   => out <<@ ("pre",opt)  << "<code>" <<<&  content << "</code></pre>"
       case Comment(content,opt)        => out << "<!-- "        <<   content << " -->"
@@ -187,7 +202,8 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
     
     def renderTableElement (elem: TableElement) = elem match {
       case TableHead(rows,opt)         => out <<@ ("thead",opt) <<|> rows <<| "</thead>"
-      case TableBody(rows,opt)         => out <<@ ("tbody",opt) <<|> rows <<| "</tbody>"     
+      case TableBody(rows,opt)         => out <<@ ("tbody",opt) <<|> rows <<| "</tbody>"    
+      case Caption(content, opt)       => out <<@ ("caption",opt) <<  content <<  "</caption>" 
       case Columns(columns,opt)        => out <<@ ("colgroup",opt) <<|> columns <<| "</colgroup>"  
       case Column(opt)            => out <<@ ("col",opt) << "</col>"  
       case Row(cells,opt)         => out <<@ ("tr",opt) <<|> cells <<| "</tr>"

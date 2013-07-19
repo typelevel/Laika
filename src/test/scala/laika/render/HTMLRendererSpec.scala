@@ -58,6 +58,15 @@ class HTMLRendererSpec extends FlatSpec
     render (elem) should be (html) 
   }
   
+  it should "render a block sequence with a style" in {
+    val elem = doc(BlockSequence(List(p("aaa"), p("bbb")), Styles("foo")))
+    val html = """<div class="foo">
+      |  <p>aaa</p>
+      |  <p>bbb</p>
+      |</div>""".stripMargin
+    render (elem) should be (html) 
+  }
+  
   it should "render a blockquote with simple flow content" in {
     val elem = quote(p("aaa"))
     val html = "<blockquote>aaa</blockquote>"
@@ -275,6 +284,25 @@ class HTMLRendererSpec extends FlatSpec
     render(elem) should be (html)
   }
   
+  it should "render a table with a caption" in {
+    val caption = Caption(List(Text("caption")))
+    val elem = table(row(cell("a"),cell("b")),row(cell("c"),cell("d"))).copy(caption = caption)
+    val html = """<table>
+      |  <caption>caption</caption>
+      |  <tbody>
+      |    <tr>
+      |      <td>a</td>
+      |      <td>b</td>
+      |    </tr>
+      |    <tr>
+      |      <td>c</td>
+      |      <td>d</td>
+      |    </tr>
+      |  </tbody>
+      |</table>""".stripMargin
+    render(elem) should be (html)
+  }
+  
   it should "render a cell using colspan and rowspan attributes" in {
     val elem = cell("a",3,2)
     val html = """<td colspan="3" rowspan="2">a</td>"""
@@ -289,6 +317,31 @@ class HTMLRendererSpec extends FlatSpec
       |</td>""".stripMargin
     render(elem) should be (html)
   } 
+  
+  it should "render a titled block" in {
+    val elem = TitledBlock(List(txt("some "), em("em"), txt(" text")), List(p("aaa"), Rule(), p("bbb")))
+    val html = """<div>
+      |  <p class="title">some <em>em</em> text</p>
+      |  <p>aaa</p>
+      |  <hr>
+      |  <p>bbb</p>
+      |</div>""".stripMargin
+    render(elem) should be (html)
+  }
+  
+  it should "render a figure" in {
+    val elem = Figure(Image("alt","image.jpg"), List(txt("some "), em("caption"), txt(" text")), List(p("aaa"), Rule(), p("bbb")))
+    val html = """<div class="figure">
+      |  <img src="image.jpg" alt="alt">
+      |  <p class="caption">some <em>caption</em> text</p>
+      |  <div class="legend">
+      |    <p>aaa</p>
+      |    <hr>
+      |    <p>bbb</p>
+      |  </div>
+      |</div>""".stripMargin
+    render(elem) should be (html)
+  }
   
   it should "render nested line blocks" in {
     val elem = lb(lb(line("1"),line("2")), line("3"))
@@ -334,9 +387,14 @@ class HTMLRendererSpec extends FlatSpec
     render (elem) should be ("<p>some <strong>strong</strong> text</p>") 
   }
   
-  it should "render a paragraph containing a code span" in {
+  it should "render a paragraph containing a literal span" in {
     val elem = p(txt("some "), lit("code"), txt(" span"))
     render (elem) should be ("<p>some <code>code</code> span</p>") 
+  }
+  
+  it should "render a paragraph containing a code span" in {
+    val elem = p(txt("some "), Code("banana-script", List(Text("code"))), txt(" span"))
+    render (elem) should be ("<p>some <code class=\"code banana-script\">code</code> span</p>") 
   }
   
   it should "render a paragraph containing a link without title" in {
@@ -432,7 +490,7 @@ class HTMLRendererSpec extends FlatSpec
     render (elem, Info) should be (html)
   }
   
-  it should "render a code block" in {
+  it should "render a literal block" in {
     val code = """line 1
       |
       |    <line 2
@@ -440,6 +498,27 @@ class HTMLRendererSpec extends FlatSpec
       |line 3""".stripMargin
     val elem = litBlock(code)
     render (elem) should be ("<pre><code>" + code.replaceAllLiterally("<", "&lt;") + "</code></pre>") 
+  }
+  
+  it should "render a parsed literal block" in {
+    val code = """line 1
+      |
+      |    #<line 2
+      |
+      |line 3""".stripMargin.split("#")
+    val elem = ParsedLiteralBlock(List(txt(code(0)), em("em"), txt(code(1))))
+    val html = "<pre><code>" + code(0) + "<em>em</em>" + code(1).replaceAllLiterally("<", "&lt;") + "</code></pre>"
+    render (elem) should be (html) 
+  }
+  
+  it should "render a code block" in {
+    val code = """line 1
+      |
+      |    <line 2
+      |
+      |line 3""".stripMargin
+    val elem = CodeBlock("banana-script", List(Text(code)))
+    render (elem) should be ("<pre class=\"code banana-script\"><code>" + code.replaceAllLiterally("<", "&lt;") + "</code></pre>") 
   }
   
   it should "render a code block inside a blockquote" in {
@@ -460,6 +539,18 @@ class HTMLRendererSpec extends FlatSpec
     val html = """<td><p>a</p><p>b</p></td>"""
     renderUnformatted(elem) should be (html)
   } 
+  
+  it should "render raw content unchanged if the html format is specified" in {
+    val raw = "<span>foo</span>"
+    val elem = RawContent(List("html", "spooky"), raw)
+    render (elem) should be (raw) 
+  }
+  
+  it should "ignore raw content if the html format is not specified" in {
+    val raw = "<span>foo</span>"
+    val elem = RawContent(List("dodgy", "spooky"), raw)
+    render (elem) should be ("") 
+  }
   
   
 }
