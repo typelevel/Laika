@@ -183,19 +183,21 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
       }
     }
     
-    def resolveAliases (targets: Map[Selector,Target]): Map[Selector,Target] = {
+    def resolveAliases (targets: Seq[Target]): Seq[Target] = {
   
+      val map = targets map (t => (t.selector, t)) toMap
+      
       def resolveAlias (alias: LinkAlias, visited: Set[Any]): Element = {
         if (visited.contains(alias.id)) CircularReference(alias.id)
         else
-          targets.get(Selector(NamedLinkTarget, alias.target)) map {
+          map.get(Selector(NamedLinkTarget, alias.target)) map {
             case Target(_,_, alias2: LinkAlias, _) => resolveAlias(alias2, visited + alias.id)
             case Target(_,_, other, _) => other
           } getOrElse Unresolved
       }            
                                      
       targets map { 
-        case (selector, t @ Target(_,_, alias: LinkAlias, _)) => (selector, t.copy(resolved = resolveAlias(alias, Set())))
+        case t @ Target(_,_, alias: LinkAlias, _) => t.copy(resolved = resolveAlias(alias, Set()))
         case other => other 
       } 
     }
@@ -213,14 +215,15 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
     val rewrite: PartialFunction[Element, Option[Element]] = {
       
       val targets = resolveTargets(selectTargets)
-    
-      val selectorMap = resolveAliases(targets map (t => (t.selector, t)) toMap)
+      val resolvedTargets = resolveAliases(targets)
+      
+      val selectorMap = resolvedTargets map (t => (t.selector, t)) toMap
       def byId (group: AnyRef, id: Id) = selectorMap.get(Selector(group, id)).map(_.resolved)
       
       val sourceMap = selectorMap.values map (t => (Identity(t.source), t.resolved)) toMap
       def bySource (source: Element) = sourceMap.get(Identity(source)).getOrElse(source)
     
-      val groupMap = (selectorMap.values groupBy (_.group) mapValues (_.map(_.resolved).iterator)).view.force
+      val groupMap = (resolvedTargets groupBy (_.group) mapValues (_.map(_.resolved).iterator)).view.force
   
       def byGroup (group: AnyRef) = { val it = groupMap.get(group); if (it.isDefined && it.get.hasNext) Some(it.get.next) else None }
     
