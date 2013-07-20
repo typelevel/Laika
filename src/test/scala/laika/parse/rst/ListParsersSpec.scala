@@ -121,6 +121,18 @@ class ListParsersSpec extends FlatSpec
     Parsing (input) should produce (doc(p("* aaa\nbbb")))
   }
   
+  it should "parse a literal block after the first line of a list item" in {
+    val input = """* aaa::
+      |   
+      |   bbb
+      |   bbb
+      |
+      |* ccc
+      |
+      |* ddd""".stripMargin
+    Parsing (input) should produce (doc( bulletList() + (p("aaa:"), litBlock("bbb\nbbb")) + "ccc" + "ddd"))
+  }
+  
   
   "The enumerated list parser" should "parse items with arabic enumeration style" in {
     val input = """1. aaa

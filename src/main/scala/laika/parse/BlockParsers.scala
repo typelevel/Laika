@@ -196,12 +196,14 @@ trait BlockParsers extends MarkupParsers {
    *  @param linePredicate parser that recognizes the start of subsequent lines that still belong to the same block
    *  @param endsOnBlankLine indicates whether parsing should end on the first blank line
    *  @param firstLineIndented indicates whether the first line is expected to be indented, too
+   *  @param maxIndent the maximum indentation that will get dropped from the start of each line of the result
    *  @return a parser that produces an instance of IndentedBlock
    */
   def indentedBlock (minIndent: Int = 1,
                      linePredicate: => Parser[Any] = success(), 
                      endsOnBlankLine: Boolean = false,
-                     firstLineIndented: Boolean = false): Parser[IndentedBlock] = {
+                     firstLineIndented: Boolean = false,
+                     maxIndent: Int = Int.MaxValue): Parser[IndentedBlock] = {
     
     import scala.math._
     
@@ -215,7 +217,7 @@ trait BlockParsers extends MarkupParsers {
     def lineStart (curIndent: Int) = ((ws min minIndent max curIndent) ^^ {_.length}) <~ composedLinePredicate
     
     def textLine (curIndent: Int) = (lineStart(curIndent) ~ (ws ^^ {_.length}) ~ restOfLine) ^^ { 
-      case indent1 ~ indent2 ~ text => List(IndentedLine(min(indent1, curIndent), indent1 + indent2, text.trim)) 
+      case indent1 ~ indent2 ~ text => List(IndentedLine(min(min(indent1, curIndent), maxIndent), indent1 + indent2, text.trim)) 
     }
     
     def emptyLines (curIndent: Int) = blankLines <~ guard(lineStart(curIndent)) ^^ {
