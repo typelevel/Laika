@@ -167,7 +167,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     
     val gnu =        '+' ~ anyIn('a' to 'z', 'A' to 'Z', '0' to '9').take(1) ^^ mkString
     val shortPosix = '-' ~ anyIn('a' to 'z', 'A' to 'Z', '0' to '9').take(1) ^^ mkString
-    val longPosix = "--" ~ optionString ^^ { case a ~ b => a+b }
+    val longPosix = ("--" <~ not('-')) ~ optionString ^^ { case a ~ b => a+b }
     val dos = '/' ~ optionString ^^ mkString
     
     val arg = opt(accept('=') | ' ') ~ optionString ^^ { 
