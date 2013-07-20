@@ -110,6 +110,10 @@ class InlineParsersSpec extends FlatSpec
   it should "ignore markup for nested spans" in {
     Parsing ("some *nested ``code`` span* here") should produce (spans(txt("some "),em(txt("nested ``code`` span")),txt(" here")))
   }
+  
+  it should "ignore markup for emphasis when strong failed at the same position based on the markup recognition rules" in {
+    Parsing ("a**b O(N**2)") should produce (spans(txt("a**b O(N**2)")))
+  }
     
   
   

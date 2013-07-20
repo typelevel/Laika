@@ -175,7 +175,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#emphasis]]
    */
-  lazy val em = span("*") ^^ (Emphasized(_))
+  lazy val em = span(not(lookBehind(2, '*')),"*") ^^ (Emphasized(_))
   
   /** Parses a span of text with strong emphasis.
    * 
