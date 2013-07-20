@@ -220,9 +220,16 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
       val selectorMap = resolvedTargets map (t => (t.selector, t)) toMap
       def byId (group: AnyRef, id: Id) = selectorMap.get(Selector(group, id)).map(_.resolved)
       
-      val sourceMap = selectorMap.values map (t => (Identity(t.source), t.resolved)) toMap
-      def bySource (source: Element) = sourceMap.get(Identity(source)).getOrElse(source)
-    
+      val sourceMap: Map[Class[_ <: Block], Iterator[Element]] = (resolvedTargets collect {
+        case Target(_,_, _: FootnoteDefinition, resolved) => (classOf[FootnoteDefinition]: Class[_ <: Block], resolved)
+        case Target(_,_, _: Citation, resolved)           => (classOf[Citation]: Class[_ <: Block], resolved)
+        case Target(_,_, _: DecoratedHeader, resolved)    => (classOf[DecoratedHeader]: Class[_ <: Block], resolved)
+        case Target(_,_, _: Header, resolved)             => (classOf[Header]: Class[_ <: Block], resolved)
+      } groupBy (_._1) mapValues (_.map(_._2).iterator)).view.force
+      
+      def bySource (b: Block) =
+        sourceMap.get(b.getClass).flatMap(i => if (i.hasNext) Some(i.next) else None).orElse(Some(b))
+      
       val groupMap = (resolvedTargets groupBy (_.group) mapValues (_.map(_.resolved).iterator)).view.force
   
       def byGroup (group: AnyRef) = { val it = groupMap.get(group); if (it.isDefined && it.get.hasNext) Some(it.get.next) else None }
@@ -244,10 +251,10 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
       }
       
       {
-        case f: FootnoteDefinition => Some(bySource(f)) 
-        case c: Citation           => Some(bySource(c)) 
-        case h: DecoratedHeader    => Some(bySource(h)) 
-        case h: Header             => Some(bySource(h)) 
+        case f: FootnoteDefinition => bySource(f) 
+        case c: Citation           => bySource(c)
+        case h: DecoratedHeader    => bySource(h)
+        case h: Header             => bySource(h)
         
         case c @ CitationReference(label,source,opt) => byId(Citation, label) match {
           case Some(Citation(label, _, Id(id))) => Some(CitationLink(label,opt))
