@@ -106,7 +106,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    *  @return a parser that produces the same result as the parser passed as an argument
    */
   def markupEnd (end: Parser[String]) = {
-    end >> { markup => (lookBehind(markup.length, beforeEndMarkup) ~ guard(eol | afterEndMarkup)) ^^^ markup }
+    end >> { markup => (lookBehind(markup.length + 1, beforeEndMarkup) ~ guard(eol | afterEndMarkup)) ^^^ markup }
   }
   
   /** Inline markup recognition rules 2 and 5

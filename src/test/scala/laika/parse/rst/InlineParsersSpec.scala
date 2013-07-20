@@ -81,8 +81,12 @@ class InlineParsersSpec extends FlatSpec
     Parsing ("some|replaced|text") should produce (spans(txt("some|replaced|text")))
   }
   
-  it should "ignore markup with spaces inside the markup characters (rules 2 and 3)" in {
-    Parsing ("some | replaced | text") should produce (spans(txt("some | replaced | text")))
+  it should "ignore markup with a space after the start character (rule 2)" in {
+    Parsing ("some | replaced| text") should produce (spans(txt("some | replaced| text")))
+  }
+  
+  it should "ignore markup with a space before the end character (rule 3)" in {
+    Parsing ("some |replaced | text") should produce (spans(txt("some |replaced | text")))
   }
   
   it should "ignore markup end characters immediately following the start character (rule 6)" in {
