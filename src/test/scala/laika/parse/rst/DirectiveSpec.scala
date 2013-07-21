@@ -83,6 +83,8 @@ class DirectiveSpec extends FlatSpec
     "optArgAndFd" -> (optArgument() ~ optField("name")) { (arg1,arg2) => p(arg1.getOrElse("missing")+arg2.getOrElse("missing")) },
     "optArgFdBody" -> (optArgument(withWS = true) ~ optField("name") ~ content(Right(_))) { 
       (arg1,arg2,content) => p(arg1.getOrElse("missing")+arg2.getOrElse("missing")+content) },
+    "optFdBody" -> (optField("name") ~ content(Right(_))) { 
+      (field,content) => p(field.getOrElse("missing")+content) },
     "stdBody" -> (blockContent map (BlockSequence(_))),
     "customBody" -> content(body => if (body.length > 10) Right(p(body)) else Left("body too short")),
     "argAndBlocks" -> (argument() ~ blockContent) { (arg,blocks) => BlockSequence(p(arg+"!") +: blocks) },
@@ -323,6 +325,27 @@ class DirectiveSpec extends FlatSpec
       |
       | Some Text""".stripMargin
     Parsing (input) should produce (doc (p("argmissingSome Text")))
+  }
+  
+  it should "parse a directive with one optional field and standard body" in {
+    val input = """.. optFdBody::
+      | :name: foo
+      |
+      | Some Text""".stripMargin
+    Parsing (input) should produce (doc (p("fooSome Text")))
+  }
+  
+  it should "parse a directive with one missing optional field and standard body after a blank line" in {
+    val input = """.. optFdBody::
+      |
+      | Some Text""".stripMargin
+    Parsing (input) should produce (doc (p("missingSome Text")))
+  }
+  
+  it should "parse a directive with one missing optional field and standard body on the same line" in {
+    val input = """.. optFdBody:: Some Text
+      | Some More""".stripMargin
+    Parsing (input) should produce (doc (p("missingSome Text\nSome More")))
   }
   
   it should "parse a directive with standard block content" in {

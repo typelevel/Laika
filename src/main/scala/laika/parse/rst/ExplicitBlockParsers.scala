@@ -308,7 +308,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
       }
     }
     
-    val contentSeparator = (lookBehind(1, '\n') | eol) ~ blankLine
+    val contentSeparator = ((lookBehind(1, '\n') | eol) ~ blankLine) | failure("blank line required to separate arguments and/or options from the body")
     
     val requiredFields: scala.collection.mutable.Map[String, String => Either[String,Unit]] = scala.collection.mutable.Map()
     val optionalFields: scala.collection.mutable.Map[String, String => Either[String,Unit]] = scala.collection.mutable.Map()
@@ -350,7 +350,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
     }
     
     def optField [T](name: String, f: String => Either[String,T]): Result[Option[T]] = {
-      separator = contentSeparator
+      separator = if (separator ne contentSeparator) opt(contentSeparator) else contentSeparator
       fields = directiveFieldList
       val result = new LazyResult[T]
       optionalFields += (name -> { s:String => f(s).right map result.set })
