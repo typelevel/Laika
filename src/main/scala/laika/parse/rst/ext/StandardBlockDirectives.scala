@@ -98,9 +98,9 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
     } 
   }
 
-  def admonition (style: String): DirectivePart[Block] = {
+  def admonition (style: String, title: String): DirectivePart[Block] = {
     (blockContent ~ nameOpt ~ classOpt) { (content, id, styles) => 
-      TitledBlock(List(Text(style.head.toString.toUpperCase + style.tail)), content, toOptions(id,styles) + Styles(style))
+      TitledBlock(List(Text(title)), content, toOptions(id,styles) + Styles(style))
     } 
   }
   
@@ -175,15 +175,15 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
     BlockDirective.recursive("admonition")(genericAdmonition),
     BlockDirective("code")(code),
     BlockDirective("image")(imageBlock),
-    BlockDirective("attention")(admonition("attention")),
-    BlockDirective("caution")(admonition("caution")),
-    BlockDirective("danger")(admonition("danger")),
-    BlockDirective("error")(admonition("error")),
-    BlockDirective("hint")(admonition("hint")),
-    BlockDirective("important")(admonition("important")),
-    BlockDirective("note")(admonition("note")),
-    BlockDirective("tip")(admonition("tip")),
-    BlockDirective("warning")(admonition("warning"))
+    BlockDirective("attention")(admonition("attention","Attention!")),
+    BlockDirective("caution")(admonition("caution","Caution!")),
+    BlockDirective("danger")(admonition("danger","!DANGER!")),
+    BlockDirective("error")(admonition("error","Error")),
+    BlockDirective("hint")(admonition("hint","Hint")),
+    BlockDirective("important")(admonition("important","Important")),
+    BlockDirective("note")(admonition("note","Note")),
+    BlockDirective("tip")(admonition("tip","Tip")),
+    BlockDirective("warning")(admonition("warning","Warning"))
   )
   
   

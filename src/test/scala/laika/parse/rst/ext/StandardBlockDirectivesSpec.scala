@@ -114,7 +114,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = doc (TitledBlock(List(txt("Attention")), simplePars, Styles("attention")))
+    val result = doc (TitledBlock(List(txt("Attention!")), simplePars, Styles("attention")))
     Parse as ReStructuredText fromString input should be (result)
   }
   
@@ -126,7 +126,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = doc (TitledBlock(List(txt("Attention")), simplePars, Id("foo") + Styles("bar","attention")))
+    val result = doc (TitledBlock(List(txt("Attention!")), simplePars, Id("foo") + Styles("bar","attention")))
     Parse as ReStructuredText fromString input should be (result)
   }
   
@@ -136,7 +136,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | 1st *Para*
       |
       |  2nd Para""".stripMargin
-    val result = doc (TitledBlock(List(txt("Attention")), List(p(txt("1st "),em("Para")), quote("2nd Para")), Styles("attention")))
+    val result = doc (TitledBlock(List(txt("Attention!")), List(p(txt("1st "),em("Para")), quote("2nd Para")), Styles("attention")))
     Parse as ReStructuredText fromString input should be (result)
   }
   
@@ -146,7 +146,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = doc (TitledBlock(List(txt("Caution")), simplePars, Styles("caution")))
+    val result = doc (TitledBlock(List(txt("Caution!")), simplePars, Styles("caution")))
     Parse as ReStructuredText fromString input should be (result)
   }
   
@@ -156,7 +156,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | 1st Para
       |
       | 2nd Para""".stripMargin
-    val result = doc (TitledBlock(List(txt("Danger")), simplePars, Styles("danger")))
+    val result = doc (TitledBlock(List(txt("!DANGER!")), simplePars, Styles("danger")))
     Parse as ReStructuredText fromString input should be (result)
   }
   
