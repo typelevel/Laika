@@ -131,7 +131,7 @@ class BlockParsersSpec extends FlatSpec
     val input = """ Paragraph 1
       |
       | -- attribution""".stripMargin
-    Parsing (input) should produce (doc (quote("Paragraph 1", " attribution")))  
+    Parsing (input) should produce (doc (quote("Paragraph 1", "attribution")))  
   }
   
   

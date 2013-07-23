@@ -126,7 +126,7 @@ trait BlockParsers extends laika.parse.BlockParsers
     
     val attributionStart = "---" | "--" | '\u2014' // em dash
         
-    def attribution (indent: Int) = (ws take indent) ~ attributionStart ~> 
+    def attribution (indent: Int) = (ws take indent) ~ attributionStart ~ (ws max 1) ~> 
       indentedBlock(minIndent = indent, endsOnBlankLine = true) ^^ { block => 
       parseInline(block.lines mkString "\n")
     }
