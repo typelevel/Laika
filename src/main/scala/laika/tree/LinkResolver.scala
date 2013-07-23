@@ -166,7 +166,7 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
       val levelMap = scala.collection.mutable.Map.empty[HeaderDecoration,Int]
       val levelIt = Stream.from(1).iterator
       
-      def targetId (id: String) = Id(id.replaceAll("[^a-zA-Z0-9]+","-").replaceFirst("^-","").replaceFirst("-$","")) // TODO - avoid duplicates
+      def targetId (id: String) = Id(id.replaceAll("[^a-zA-Z0-9]+","-").replaceFirst("^-","").replaceFirst("-$","").toLowerCase) // TODO - avoid duplicates
   
       processedTargets map {
         case t @ Target(_, Named(name), DecoratedHeader(deco, content, opt), Unresolved) => 
@@ -177,8 +177,10 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
           t.copy(resolved = Citation(name, content, opt + Id(name)))
         case t @ Target(_, Named(name), FootnoteDefinition(_,content,opt), Unresolved) => 
           t.copy(resolved = Footnote(name, content, opt + Id(name)))
+        case t @ Target(_, Named(name), c: Customizable, resolved) if resolved == Unresolved || resolved == c => 
+          t.copy(resolved = TreeUtil.setId(c, targetId(c.options.id.getOrElse("")).id.get))
         case t @ Target(_, Hybrid(id,Named(display)), FootnoteDefinition(_,content,opt), Unresolved) => 
-          t.copy(resolved = Footnote(display, content, opt + Id(id)))
+          t.copy(resolved = Footnote(display, content, opt + targetId(id)))
         case t: Target => t
       }
     }
@@ -220,14 +222,11 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
       val selectorMap = resolvedTargets map (t => (t.selector, t)) toMap
       def byId (group: AnyRef, id: Id) = selectorMap.get(Selector(group, id)).map(_.resolved)
       
-      val sourceMap: Map[Class[_ <: Block], Iterator[Element]] = (resolvedTargets collect {
-        case Target(_,_, _: FootnoteDefinition, resolved) => (classOf[FootnoteDefinition]: Class[_ <: Block], resolved)
-        case Target(_,_, _: Citation, resolved)           => (classOf[Citation]: Class[_ <: Block], resolved)
-        case Target(_,_, _: DecoratedHeader, resolved)    => (classOf[DecoratedHeader]: Class[_ <: Block], resolved)
-        case Target(_,_, _: Header, resolved)             => (classOf[Header]: Class[_ <: Block], resolved)
+      val sourceMap: Map[Class[_ <: Element], Iterator[Element]] = (resolvedTargets collect {
+        case Target(_,_, source, resolved) => (source.getClass, resolved)
       } groupBy (_._1) mapValues (_.map(_._2).iterator)).view.force
       
-      def bySource (b: Block) =
+      def bySource (b: Element) =
         sourceMap.get(b.getClass).flatMap(i => if (i.hasNext) Some(i.next) else None).orElse(Some(b))
       
       val groupMap = (resolvedTargets groupBy (_.group) mapValues (_.map(_.resolved).iterator)).view.force
@@ -287,8 +286,11 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
           case Some(ExternalLinkDefinition(_, url, title, _)) => Some(Image(ref.text, url, title, ref.options))
           case other => invalid(other, ref.source, "unresolved image reference: " + ref.id)
         }
-          
+         
         case _: Temporary => None
+
+        case c: Customizable if c.options.id.isDefined => bySource(c)
+        
       }
     }
   

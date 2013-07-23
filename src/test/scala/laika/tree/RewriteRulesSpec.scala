@@ -109,7 +109,7 @@ class RewriteRulesSpec extends FlatSpec
         fn(NumericLabel(3), 3), fn(AutonumberLabel("labelB"), 1))
     val resolved = doc(p(invalidSpan("unresolved footnote reference: 2", "[2]_"), 
                         invalidSpan("unresolved footnote reference: labelA", "[#labelA]_")), 
-        fn("3","3"), fn("labelB","1"))
+        fn("3","3"), fn("labelb","1"))
     rewritten (document) should be (resolved)
   }
   
