@@ -21,6 +21,7 @@ import scala.collection.mutable.ListBuffer
 
 import laika.tree.Elements.Span
 import laika.tree.Elements.Text
+import laika.tree.Elements.NoOpt
   
 /** A generic base trait for inline parsers. Provides base parsers that abstract
  *  aspects of inline parsing common to most lightweight markup languages.
@@ -74,7 +75,7 @@ trait InlineParsers extends MarkupParsers {
     
     def mergeAdjacentTextSpans (spans: List[Span]): List[Span] = {
       (List[Span]() /: spans) {  
-        case (Text(text1,_) :: rest, Text(text2,_)) => Text(text1 ++ text2) :: rest // TODO - deal with options
+        case (Text(text1,NoOpt) :: rest, Text(text2,NoOpt)) => Text(text1 ++ text2) :: rest // TODO - deal with options
         case (xs, x) => x :: xs
       }.reverse
     }

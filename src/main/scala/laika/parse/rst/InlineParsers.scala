@@ -282,8 +282,8 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-internal-targets]]
    */
   val internalTarget = markupStart('`', "`") ~> 
-    (escapedText(anyBut('`') min 1) ^^ {ReferenceName(_).normalized}) <~ 
-    markupEnd("`") ^^ (id => InternalLinkTarget(Id(id)))
+    (escapedText(anyBut('`') min 1) ^^ ReferenceName) <~ 
+    markupEnd("`") ^^ (id => Text(id.original, Id(id.normalized) + Styles("target")))
   
   /** The default text role to use when no role is specified in an interpreted text element.
    */
