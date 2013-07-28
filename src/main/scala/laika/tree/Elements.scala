@@ -523,11 +523,11 @@ object Elements {
   
   /** A resolved link to a footnote.
    */
-  case class FootnoteLink (id: String, label: String, options: Options = NoOpt) extends Link
+  case class FootnoteLink (ref: String, label: String, options: Options = NoOpt) extends Link
 
   /** A resolved link to a citation.
    */
-  case class CitationLink (label: String, options: Options = NoOpt) extends Link
+  case class CitationLink (ref: String, label: String, options: Options = NoOpt) extends Link
   
   /** An inline image with a text description and optional title.
    */

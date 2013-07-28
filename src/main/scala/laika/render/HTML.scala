@@ -191,8 +191,8 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
     }
     
     def renderSimpleSpan (span: Span) = span match {
-      case CitationLink(label,opt)     => out <<@ ("a",opt + Styles("citation"),"href"->("#"+label)) << "[" << label << "]</a>" 
-      case FootnoteLink(id,label,opt)  => out <<@ ("a",opt + Styles("footnote"),"href"->("#"+id))    << "[" << label << "]</a>" 
+      case CitationLink(ref,label,opt) => out <<@ ("a",opt + Styles("citation"),"href"->("#"+ref)) << "[" << label << "]</a>" 
+      case FootnoteLink(ref,label,opt) => out <<@ ("a",opt + Styles("footnote"),"href"->("#"+ref)) << "[" << label << "]</a>" 
       case Image(text,url,title,opt)   => out <<@ ("img",opt,"src"->url,"alt"->text,"title"->title)
       case LineBreak(opt)              => out << "<br>"
       

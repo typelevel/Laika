@@ -413,8 +413,8 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a paragraph containing a citation link" in {
-    val elem = p(txt("some "), CitationLink("label"), txt(" span"))
-    render (elem) should be ("""<p>some <a class="citation" href="#label">[label]</a> span</p>""") 
+    val elem = p(txt("some "), CitationLink("ref","label"), txt(" span"))
+    render (elem) should be ("""<p>some <a class="citation" href="#ref">[label]</a> span</p>""") 
   }
   
   it should "render a paragraph containing a footnote link" in {

@@ -49,25 +49,31 @@ class RewriteRulesSpec extends FlatSpec
 
   def fn (label: String) = Footnote(label, List(p("footnote"+label)))
   
-  def simpleLinkRef (id: String = "id") = LinkReference(List(txt("text")), id, "text")
+  def simpleLinkRef (id: String = "name") = LinkReference(List(txt("text")), id, "text")
  
   def extLink (url: String) = ExternalLink(List(txt("text")), url)
 
   def intLink (ref: String) = InternalLink(List(txt("text")), ref)
   
-  def simpleImgRef (id: String = "id") = ImageReference("text", id, "text")
+  def simpleImgRef (id: String = "name") = ImageReference("text", id, "text")
   
    
   "The rewrite rules for citations" should "retain a single reference when it has a matching target" in {
     val document = doc(p(CitationReference("label","[label]_")), Citation("label", List(p("citation"))))
-    val resolved = doc(p(CitationLink("label")), Citation("label", List(p("citation")),Id("label")))
+    val resolved = doc(p(CitationLink("label","label")), Citation("label", List(p("citation")),Id("label")))
+    rewritten (document) should be (resolved)
+  }
+  
+  it should "rewrite reference ids containing special characters" in {
+    val document = doc(p(CitationReference("§label","[§label]_")), Citation("§label", List(p("citation"))))
+    val resolved = doc(p(CitationLink("label","§label")), Citation("§label", List(p("citation")),Id("label")))
     rewritten (document) should be (resolved)
   }
   
   it should "retain multiple references when they all have a matching targets" in {
     val document = doc(p(CitationReference("label1","[label1]_"),CitationReference("label2","[label2]_"),CitationReference("label1","[label1]_")), 
         Citation("label1", List(p("citation1"))),Citation("label2", List(p("citation2"))))
-    val resolved = doc(p(CitationLink("label1"),CitationLink("label2"),CitationLink("label1")), 
+    val resolved = doc(p(CitationLink("label1","label1"),CitationLink("label2","label2"),CitationLink("label1","label1")), 
         Citation("label1", List(p("citation1")),Id("label1")),Citation("label2", List(p("citation2")),Id("label2")))
     rewritten (document) should be (resolved)
   }
@@ -99,8 +105,8 @@ class RewriteRulesSpec extends FlatSpec
   it should "retain a group of footnotes with autosymbol labels" in {
     val document = doc(fnRefs(Autosymbol, Autosymbol, Autosymbol), 
         fn(Autosymbol, "*"), fn(Autosymbol, "\u2020"), fn(Autosymbol, "\u2021"))
-    val resolved = doc(fnLinks(("*","*"), ("\u2020","\u2020"), ("\u2021","\u2021")), 
-        fn("*","*"), fn("\u2020","\u2020"), fn("\u2021","\u2021"))
+    val resolved = doc(fnLinks(("id-1","*"), ("id-2","\u2020"), ("id-3","\u2021")), 
+        fn("id-1","*"), fn("id-2","\u2020"), fn("id-3","\u2021"))
     rewritten (document) should be (resolved)
   }
   
@@ -122,25 +128,25 @@ class RewriteRulesSpec extends FlatSpec
   
   it should "replace surplus autosymbol references with invalid spans" in {
     val document = doc(fnRefs(Autosymbol, Autosymbol), fn(Autosymbol, "*"))
-    val resolved = doc(p(FootnoteLink("*","*"), invalidSpan("too many autosymbol references", "[*]_")), 
-        fn("*","*"))
+    val resolved = doc(p(FootnoteLink("id-1","*"), invalidSpan("too many autosymbol references", "[*]_")), 
+        fn("id-1","*"))
     rewritten (document) should be (resolved)
   }
   
 
   
   "The rewrite rules for link references" should "resolve external link references" in {
-    val document = doc(p(simpleLinkRef()), ExternalLinkDefinition("id", "http://foo/"))
+    val document = doc(p(simpleLinkRef()), ExternalLinkDefinition("name", "http://foo/"))
     rewritten (document) should be (doc(p(extLink("http://foo/"))))
   }
   
   it should "resolve internal link references" in {
-    val document = doc(p(simpleLinkRef()), InternalLinkTarget(Id("id")))
-    rewritten (document) should be (doc(p(intLink("id")), InternalLinkTarget(Id("id"))))
+    val document = doc(p(simpleLinkRef()), InternalLinkTarget(Id("name")))
+    rewritten (document) should be (doc(p(intLink("name")), InternalLinkTarget(Id("name"))))
   }
   
   it should "resolve indirect link references" in {
-    val document = doc(p(simpleLinkRef()), LinkAlias("id","ref"), InternalLinkTarget(Id("ref")))
+    val document = doc(p(simpleLinkRef()), LinkAlias("name","ref"), InternalLinkTarget(Id("ref")))
     rewritten (document) should be (doc(p(intLink("ref")), InternalLinkTarget(Id("ref"))))
   }
   
@@ -151,12 +157,12 @@ class RewriteRulesSpec extends FlatSpec
   
   it should "replace an unresolvable reference with an invalid span" in {
     val document = doc(p(simpleLinkRef()))
-    rewritten (document) should be (doc(p(invalidSpan("unresolved link reference: id", txt("text")))))
+    rewritten (document) should be (doc(p(invalidSpan("unresolved link reference: name", txt("text")))))
   }
   
   it should "replace an unresolvable reference to a link alias with an invalid span" in {
-    val document = doc(p(simpleLinkRef()), LinkAlias("id","ref"))
-    rewritten (document) should be (doc(p(invalidSpan("unresolved link reference: id", txt("text")))))
+    val document = doc(p(simpleLinkRef()), LinkAlias("name","ref"))
+    rewritten (document) should be (doc(p(invalidSpan("unresolved link alias: ref", txt("text")))))
   }
   
   it should "replace a surplus anonymous reference with an invalid span" in {
@@ -165,19 +171,19 @@ class RewriteRulesSpec extends FlatSpec
   }
   
   it should "replace circular indirect references with invalid spans" in {
-    val document = doc(p(simpleLinkRef()), LinkAlias("id","ref"), LinkAlias("ref","id"))
-    rewritten (document) should be (doc(p(invalidSpan("circular link reference: id", txt("text")))))
+    val document = doc(p(simpleLinkRef()), LinkAlias("name","ref"), LinkAlias("ref","name"))
+    rewritten (document) should be (doc(p(invalidSpan("circular link reference: name", txt("text")))))
   }
   
   
   "The rewrite rules for image references" should "resolve external link references" in {
-    val document = doc(p(simpleImgRef()), ExternalLinkDefinition("id", "foo.jpg"))
+    val document = doc(p(simpleImgRef()), ExternalLinkDefinition("name", "foo.jpg"))
     rewritten (document) should be (doc(p(img("text", "foo.jpg"))))
   }
   
   it should "replace an unresolvable reference with an invalid span" in {
     val document = doc(p(simpleImgRef()))
-    rewritten (document) should be (doc(p(invalidSpan("unresolved image reference: id", txt("text")))))
+    rewritten (document) should be (doc(p(invalidSpan("unresolved image reference: name", txt("text")))))
   }
   
   
@@ -187,9 +193,9 @@ class RewriteRulesSpec extends FlatSpec
   }
   
   it should "append numbers to duplicate ids" in {
-    val document = doc(Header(1, List(Text("text")), Id("header")), Header(1, List(Text("text")), Id("header")))
-    rewritten (document) should be (doc(Section(Header(1, List(Text("text")), Id("header")), Nil), 
-                                        Section(Header(1, List(Text("text")), Id("header-1")), Nil)))
+    val document = doc(Header(1, List(Text("text1")), Id("header")), Header(1, List(Text("text2")), Id("header")))
+    rewritten (document) should be (doc(Section(Header(1, List(Text("text1")), Id("header")), Nil), 
+                                        Section(Header(1, List(Text("text2")), Id("header-1")), Nil)))
   }
   
   
@@ -221,12 +227,12 @@ class RewriteRulesSpec extends FlatSpec
   
   
   "The link resolver" should "remove the id from all elements with duplicate ids" in {
-    val target1a = Citation("id", List(p("citation")))
-    val target1b = fn(AutonumberLabel("id"), 1)
-    val msg = "duplicate target id: id"
+    val target1a = Citation("name", List(p("citation")))
+    val target1b = fn(AutonumberLabel("name"), 1)
+    val msg = "duplicate target id: name"
     val document = doc(target1a,target1b)
     rewritten (document) should be (doc
-        (invalidBlock(msg,target1a),invalidBlock(msg,Footnote("id", List(p("footnote1"))))))
+        (invalidBlock(msg,target1a),invalidBlock(msg,Footnote("1", List(p("footnote1"))))))
   }
   
   it should "remove the id from elements with duplicate ids, but remove invalid external link definitions altogether" in {
@@ -236,13 +242,13 @@ class RewriteRulesSpec extends FlatSpec
     val msg = "duplicate target id: id2"
     val document = doc(target1,target2a,target2b)
     rewritten (document) should be (doc
-        (target1.copy(options = Id("id1")),invalidBlock(msg,Footnote("id2", List(p("footnote1"))))))
+        (target1.copy(options = Id("id1")),invalidBlock(msg,Footnote("1", List(p("footnote1"))))))
   }
   
   it should "replace ambiguous references to duplicate ids with invalid spans" in {
-    val target1a = ExternalLinkDefinition("id", "http://foo/1")
-    val target1b = ExternalLinkDefinition("id", "http://foo/2")
-    val msg = "ambiguous reference to duplicate id: id"
+    val target1a = ExternalLinkDefinition("name", "http://foo/1")
+    val target1b = ExternalLinkDefinition("name", "http://foo/2")
+    val msg = "duplicate target id: name"
     val document = doc(p(simpleLinkRef()),target1a,target1b)
     rewritten (document) should be (doc(p(invalidSpan(msg, "text"))))
   }
@@ -250,8 +256,8 @@ class RewriteRulesSpec extends FlatSpec
   it should "replace ambiguous references a link alias pointing to duplicate ids with invalid spans" in {
     val target1a = ExternalLinkDefinition("id2", "http://foo/1")
     val target1b = ExternalLinkDefinition("id2", "http://foo/2")
-    val msg = "ambiguous reference to duplicate id: id2"
-    val document = doc(p(simpleLinkRef()),LinkAlias("id","id2"),target1a,target1b)
+    val msg = "duplicate target id: id2"
+    val document = doc(p(simpleLinkRef()),LinkAlias("name","id2"),target1a,target1b)
     rewritten (document) should be (doc(p(invalidSpan(msg, "text"))))
   }
  
