@@ -142,7 +142,7 @@ class ExplicitBlockParsersSpec extends FlatSpec
   }
   
   it should "parse a comment on two lines" in {
-    val input = """.. This is 
+    val input = """.. This is
       |  a comment""".stripMargin
     Parsing (input) should produce (doc(Comment("This is\na comment")))
   }

@@ -135,7 +135,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
    */
   def comment = {
     indentedBlock() ^^ { block =>
-      Comment((block.lines map (_.trim) mkString "\n").trim)
+      Comment((block.lines mkString "\n").trim)
     }
   }
   
