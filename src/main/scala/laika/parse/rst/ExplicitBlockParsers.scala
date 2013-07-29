@@ -43,7 +43,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
    */
   def explicitBlockItem: Parser[Block] = (explicitStart ~>
     (footnote | citation | linkTarget | substitutionDefinition | roleDirective | blockDirective | comment)) |
-    shortAnonymousLinkTarget
+    (".." ~ guard("\n") ~> comment) | shortAnonymousLinkTarget
   
 
   /** Parses a footnote.
