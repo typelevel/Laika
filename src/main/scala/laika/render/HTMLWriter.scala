@@ -111,6 +111,7 @@ class HTMLWriter (out: String => Unit,
         case '"' => result append "&quot;"
         case '\''=> result append "&#39;"
         case '&' => result append "&amp;"
+        case '\u00A0' => result append "&nbsp;"
         case '\n' => if (indented) result append Indent.current else result append "\n"; 
         case c   => result append c
       }
