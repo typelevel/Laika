@@ -117,7 +117,7 @@ object LinkTargets {
   }
   
   class HeaderTarget (header: Block, id: Id) extends DefaultTarget(header, id) {
-    override def withResolvedIds (documentId: String, displayId: String) = new UniqueResolvedTarget(this, documentId, displayId)
+    override def withResolvedIds (documentId: String, displayId: String) = new UniqueResolvedTarget(this, displayId, documentId)
   }
   
   class DecoratedHeaderTarget (header: DecoratedHeader, id: Id, levels: DecoratedHeaderLevels) extends HeaderTarget(header, id) {
