@@ -38,6 +38,35 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
         }
       } 
   }
+  
+  private def rewriteListItems [I <: BlockContainer[_]](items: List[I], newListItem: (I,List[Block]) => I) = {
+    
+    /* The reStructuredText reference parser makes a distinction between "simple" lists
+     * and normal lists. The exact rules are not documented, but tests seam to hint at
+     * a "simple" list being a list where all items only have a single paragraph and optionally
+     * a nested list below the paragraph. The distinction has an influence on the HTML renderer
+     * for example. 
+     */
+    
+    val isSimple = items.forall { con => con.content match {
+      case Paragraph(_,_) :: Nil => true
+      case Paragraph(_,_) :: (_:ListContainer[_]) :: Nil => true
+      case _ => false
+    }}
+    
+    if (isSimple) {
+      items map { con => con.content match {
+        case Paragraph(content,opt) :: (nested:ListContainer[_]) :: Nil => newListItem(con, SpanSequence(content,opt) :: nested :: Nil)
+        case _ => con
+      }}
+    }
+    else {
+      items map { con => con.content match {
+        case Paragraph(content,opt) :: Nil => newListItem(con, ListParsers.ForcedParagraph(content,opt) :: Nil)
+        case _ => con
+      }}
+    }
+  }
 
   
   private lazy val bulletListStart = anyOf('*','-','+','\u2022','\u2023','\u2043').take(1)
@@ -49,7 +78,8 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   def bulletList: Parser[BulletList] = {
     guard(bulletListStart <~ (ws min 1)) >> { symbol =>
       val bullet = StringBullet(symbol)
-      ((listItem(symbol, BulletListItem(_,bullet))) +) ^^ { BulletList(_,bullet) }
+      ((listItem(symbol, BulletListItem(_,bullet))) +) ^^ 
+        { items => BulletList(rewriteListItems(items,(item:BulletListItem,content) => item.copy(content = content)),bullet) }
     }
   }
   
@@ -105,7 +135,8 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
       
     guard(enumListStart <~ (ws min 1)) >> { case (format, start) =>
       val pos = Stream.from(start).iterator
-      (listItem(itemStart(format), EnumListItem(_, format, pos.next)) +) ^^ { EnumList(_, format, start) }
+      (listItem(itemStart(format), EnumListItem(_, format, pos.next)) +) ^^ 
+        { items => EnumList(rewriteListItems(items,(item:EnumListItem,content) => item.copy(content = content)), format, start) }
     }
   }
   
@@ -236,5 +267,17 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     (line +) ^^ nest
   } 
   
+  
+}
+
+
+/** TODO - this is (for now) duplicated from the Markdown BlockParsers. Should get promoted to generic BlockParsers
+ */
+object ListParsers {
+  
+  case class ForcedParagraph (content: Seq[Span], options: Options = NoOpt) extends Block 
+                                                  with SpanContainer[ForcedParagraph] with Fallback {
+    def fallback = Paragraph(content, options)
+  }
   
 }
