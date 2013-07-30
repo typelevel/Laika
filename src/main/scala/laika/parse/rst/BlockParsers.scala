@@ -183,11 +183,13 @@ trait BlockParsers extends laika.parse.BlockParsers
           buffer += LinkAlias(id1, id2)
         case (buffer, _ :: (InternalLinkTarget(Id(id))) :: (et: ExternalLinkDefinition) :: Nil) => 
           buffer += et.copy(id = id)
-        case (buffer, _ :: (it: InternalLinkTarget) :: (h: DecoratedHeader) :: Nil) => buffer += it
+        case (buffer, _ :: (it: InternalLinkTarget) :: (h: DecoratedHeader) :: Nil) => buffer
         case (buffer, _ :: (it: InternalLinkTarget) :: (c: Customizable) :: Nil) =>  
           if (c.options.id.isDefined) buffer += it else buffer
         case (buffer, _ :: (it: InternalLinkTarget) :: _ :: Nil) => buffer += it
         
+        case (buffer, (it: InternalLinkTarget) :: (h @ DecoratedHeader(_,_,oldOpt)) :: _) => 
+          buffer += h.copy(options = oldOpt + Id(toLinkId(h)), content = it +: h.content)  
         case (buffer, _ :: (h @ DecoratedHeader(_,_,oldOpt)) :: _) => 
           buffer += h.copy(options = oldOpt + Id(toLinkId(h)))  
 
