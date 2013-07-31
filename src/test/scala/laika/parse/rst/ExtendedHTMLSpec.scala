@@ -54,11 +54,11 @@ class ExtendedHTMLSpec extends FlatSpec
       |  </colgroup>
       |  <tbody>
       |    <tr>
-      |      <td>name 1:</td>
+      |      <th>name 1:</th>
       |      <td>value 1</td>
       |    </tr>
       |    <tr>
-      |      <td>name 2:</td>
+      |      <th>name 2:</th>
       |      <td>value 2</td>
       |    </tr>
       |  </tbody>

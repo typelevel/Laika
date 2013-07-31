@@ -45,6 +45,11 @@ class ListParsersSpec extends FlatSpec
   def textRole (name: String): Option[RoleDirectivePart[String => Span]] = None
   
   
+  def fp (content: String) = ListParsers.ForcedParagraph(List(Text(content)))
+  
+  def ss (content: String) = SpanSequence(List(Text(content)))
+  
+  
   def fl (fields: Field*) = FieldList(fields.toList)
   
   def field (name: String, blocks: Block*) = Field(List(Text(name)), blocks.toList)
@@ -100,7 +105,7 @@ class ListParsersSpec extends FlatSpec
       |* ccc
       |
       |* ddd""".stripMargin
-    Parsing (input) should produce (doc( bulletList() + (p("aaa"), p("bbb\nbbb")) + "ccc" + "ddd"))
+    Parsing (input) should produce (doc( bulletList() + (p("aaa"), p("bbb\nbbb")) + fp("ccc") + fp("ddd")))
   }
   
   it should "parse nested items indented by spaces" in {
@@ -110,8 +115,8 @@ class ListParsersSpec extends FlatSpec
                   |
                   |    * ccc""".stripMargin
     val list3 = bulletList() + "ccc"
-    val list2 = bulletList() + (p("bbb"), list3)
-    val list1 = bulletList() + (p("aaa"), list2)
+    val list2 = bulletList() + (ss("bbb"), list3)
+    val list1 = bulletList() + (ss("aaa"), list2)
     Parsing (input) should produce (doc(list1))
   }
   
@@ -130,7 +135,7 @@ class ListParsersSpec extends FlatSpec
       |* ccc
       |
       |* ddd""".stripMargin
-    Parsing (input) should produce (doc( bulletList() + (p("aaa:"), litBlock("bbb\nbbb")) + "ccc" + "ddd"))
+    Parsing (input) should produce (doc( bulletList() + (p("aaa:"), litBlock("bbb\nbbb")) + fp("ccc") + fp("ddd")))
   }
   
   
@@ -231,7 +236,7 @@ class ListParsersSpec extends FlatSpec
       |2. ccc
       |
       |3. ddd""".stripMargin
-    Parsing (input) should produce (doc( enumList() + (p("aaa"), p("bbb\nbbb")) + "ccc" + "ddd"))
+    Parsing (input) should produce (doc( enumList() + (p("aaa"), p("bbb\nbbb")) + fp("ccc") + fp("ddd")))
   }
   
   it should "parse nested items indented by spaces" in {
@@ -241,8 +246,8 @@ class ListParsersSpec extends FlatSpec
                   |
                   |      1. ccc""".stripMargin
     val list3 = enumList() + "ccc"
-    val list2 = enumList() + (p("bbb"), list3)
-    val list1 = enumList() + (p("aaa"), list2)
+    val list2 = enumList() + (ss("bbb"), list3)
+    val list1 = enumList() + (ss("aaa"), list2)
     Parsing (input) should produce (doc(list1))
   }
   
