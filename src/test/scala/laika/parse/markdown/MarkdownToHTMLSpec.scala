@@ -16,27 +16,28 @@
 
 package laika.parse.markdown
 
-import org.w3c.tidy.Tidy
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
-import java.io.StringReader
-import java.io.StringWriter
+
 import laika.api.Transform
-import laika.render.HTML
-import laika.tree.Elements._
 import laika.parse.markdown.html.VerbatimHTML
+import laika.render.HTML
+import laika.transform.helper.FileTransformerUtil
+import laika.tree.Elements.Literal
+import laika.tree.Elements.QuotedBlock
 
 /**
  * @author Jens Halm
  */
 class MarkdownToHTMLSpec extends FlatSpec 
-                         with ShouldMatchers {
+                         with ShouldMatchers
+                         with FileTransformerUtil {
   
   /** Uses JTidy to remove cosmetic differences between Laika and Markdown output,
    *  plus a few additional, manual cleaning operations for purely cosmetic differences
    *  not covered by JTidy.
    */
-  def tidy (html: String) = {
+  def tidyAndAdjust (html: String) = {
     val cleaned = html
       .replace("\r\n", "\n")
       .replace("\r", "\n")
@@ -44,33 +45,18 @@ class MarkdownToHTMLSpec extends FlatSpec
       .replace(" class=\"arabic\"", "") // Standard Laika HTML renderer adds this class for ordered lists
       .replaceAll("\n[ ]+\n","\n\n") // Markdown removes spaces from blank lines in code blocks
     
-    val in = new StringReader(cleaned)
-    val out = new StringWriter
-    val t = new Tidy
-    t.setTabsize(4)
-    t.setPrintBodyOnly(true)
-    t.setShowWarnings(false)
-    t.setQuiet(true)
-    t.parse(in, out)
-    out.toString
-    .replace(">\n\n<",">\n<") // Markdown often adds blank lines between tags
+    tidy(cleaned).replace(">\n\n<",">\n<") // Markdown often adds blank lines between tags
   }
   
-  def readFile (name: String) = {
-    val source = scala.io.Source.fromFile(name)
-    val lines = source.mkString
-    source.close()
-    lines
-  }
-  
+
   def transformAndCompare (name: String) = {
-    val path = getClass.getResource("/markdownTestSuite").getFile + "/" + name
+    val path = classPathResource("/markdownTestSuite") + "/" + name
     val actual = Transform from Markdown.withVerbatimHTML to HTML rendering { out => {
       case QuotedBlock(content,_,_) => out << "<blockquote>" <<|>  content <<| "</blockquote>" // Markdown always writes p tags inside blockquotes
       case Literal(content,_)       => out << "<code>" <<<& content.trim << "</code>" // Markdown trims code spans (TODO - might do this in the parser already)
     }} rendering VerbatimHTML fromFile (path + ".md") toString
     val expected = readFile(path + ".html")
-    tidy(actual) should be (tidy(expected))
+    tidyAndAdjust(actual) should be (tidyAndAdjust(expected))
   }
   
   
