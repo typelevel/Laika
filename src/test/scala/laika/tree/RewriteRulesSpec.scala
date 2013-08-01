@@ -175,6 +175,11 @@ class RewriteRulesSpec extends FlatSpec
     rewritten (document) should be (doc(p(invalidSpan("circular link reference: name", txt("text")))))
   }
   
+  it should "resolve references when some parent element also gets rewritten" in {
+    val document = doc(DecoratedHeader(Underline('#'), List(txt("text1"), simpleLinkRef()), Id("header")), ExternalLinkDefinition("name", "http://foo/"))
+    rewritten (document) should be (doc(Section(Header(1, List(txt("text1"), extLink("http://foo/")), Id("header")), Nil)))
+  }
+  
   
   "The rewrite rules for image references" should "resolve external link references" in {
     val document = doc(p(simpleImgRef()), ExternalLinkDefinition("name", "foo.jpg"))
