@@ -35,7 +35,7 @@ import laika.parse.util.URIParsers
 trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
 
   
-  private val pairs = Map(/* Ps/Pe pairs */
+  private val pairs = List(/* Ps/Pe pairs */
                   '('->')', '['->']', '{'->'}', '<'->'>', '"'->'"', '\''->'\'', 
                   '\u0f3a'->'\u0f3b', '\u0f3c'->'\u0f3d', '\u169b'->'\u169c', '\u2045'->'\u2046',
                   '\u207d'->'\u207e', '\u208d'->'\u208e', '\u2329'->'\u232a', '\u2768'->'\u2769', '\u276a'->'\u276b',
@@ -62,6 +62,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
                   /* additional pairing of open/close quotes for different typographic conventions in different languages */
                   '\u00bb'->'\u00bb', '\u2018'->'\u201a', '\u2019'->'\u2019', '\u201a'->'\u2018', '\u201a'->'\u2019',
                   '\u201c'->'\u201e', '\u201e'->'\u201c', '\u201e'->'\u201d', '\u201d'->'\u201d', '\u203a'->'\u203a')
+                  .groupBy(_._1).mapValues(_.map(_._2).toSet)
 
                   
   private val startChars = anyOf(' ','-',':','/','\'','"','<','(','[','{','\n') take 1
@@ -113,8 +114,9 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   /** Inline markup recognition rules 2 and 5
    */
   private def afterStartMarkup (start: Parser[Any])(before: Char) = {
-    val matching = pairs.getOrElse(before, ' ') 
-    start ~ guard(anyBut(' ','\n', matching) take 1)
+    val matching = pairs.getOrElse(before, Set()) 
+    val excluded = (matching + ' ' + '\n').toList
+    start ~ guard(anyBut(excluded:_*) take 1)
   }
   
   /** Inline markup recognition rules 3
