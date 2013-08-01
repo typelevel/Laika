@@ -18,13 +18,13 @@ package laika.parse.markdown
 
 import org.scalatest.FlatSpec
 import org.scalatest.matchers.ShouldMatchers
-
 import laika.api.Transform
 import laika.parse.markdown.html.VerbatimHTML
 import laika.render.HTML
 import laika.transform.helper.FileTransformerUtil
 import laika.tree.Elements.Literal
 import laika.tree.Elements.QuotedBlock
+import scala.io.Codec
 
 /**
  * @author Jens Halm
@@ -32,6 +32,8 @@ import laika.tree.Elements.QuotedBlock
 class MarkdownToHTMLSpec extends FlatSpec 
                          with ShouldMatchers
                          with FileTransformerUtil {
+  
+  implicit val codec:Codec = Codec.UTF8
   
   /** Uses JTidy to remove cosmetic differences between Laika and Markdown output,
    *  plus a few additional, manual cleaning operations for purely cosmetic differences

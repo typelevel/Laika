@@ -18,8 +18,8 @@ package laika.transform.helper
 
 import java.io.StringReader
 import java.io.StringWriter
-
 import org.w3c.tidy.Tidy
+import scala.io.Codec
 
 /** Helpers for tests that read entire sample files with markup and compare
  *  them to pre-rendered reference files containing the expected HTML.
@@ -31,7 +31,7 @@ trait FileTransformerUtil {
   def classPathResource (path: String) = getClass.getResource(path).getFile
   
   def readFile (name: String) = {
-    val source = scala.io.Source.fromFile(name)
+    val source = scala.io.Source.fromFile(name)(Codec.UTF8)
     val lines = source.mkString
     source.close()
     lines
@@ -45,6 +45,8 @@ trait FileTransformerUtil {
     t.setPrintBodyOnly(true)
     t.setShowWarnings(false)
     t.setQuiet(true)
+    t.setInputEncoding("UTF-8")
+    t.setOutputEncoding("UTF-8")
     t.parse(in, out)
     out.toString
   }
