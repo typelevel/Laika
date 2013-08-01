@@ -45,7 +45,7 @@ object Elements {
    */
   abstract class Element extends Product
   
-  /** An elements that can be customized. Represents options
+  /** An element that can be customized. Represents options
    *  that are usually only used on few selected nodes and
    *  can control subtle differences often only relevant
    *  for renderers.
@@ -67,9 +67,9 @@ object Elements {
      */
     def styles: Seq[String]
     /** Merges these options with the specified
-     *  options. If the id or fallback have been
-     *  set in both instances, the other instance
-     *  overrides this one.
+     *  options. If the id has been set in both 
+     *  instances, the other instance overrides 
+     *  this one.
      */
     def + (other: Options): Options
   }
@@ -240,7 +240,7 @@ object Elements {
    */
   case class Paragraph (content: Seq[Span], options: Options = NoOpt) extends Block with SpanContainer[Paragraph]
     
-  /** A literal block with simple text content.
+  /** A literal block with unparsed text content.
    */
   case class LiteralBlock (content: String, options: Options = NoOpt) extends Block with TextContainer
   
@@ -272,7 +272,7 @@ object Elements {
    */
   case class Figure (image: Span, caption: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[Figure]
   
-  /** An bullet list that may contain nested lists.
+  /** A bullet list that may contain nested lists.
    */
   case class BulletList (content: Seq[ListItem], format: BulletFormat, options: Options = NoOpt) extends Block 
                                                                                                  with ListContainer[BulletList]
@@ -365,7 +365,7 @@ object Elements {
    */
   trait TableElement extends Customizable       
   
-  /** A container of table elements..
+  /** A container of table elements.
    */
   trait TableContainer[Self <: TableContainer[Self]] extends TableElement with ElementContainer[TableElement,Self]
 
@@ -398,7 +398,7 @@ object Elements {
   
   /** A single table row. In case some of the previous rows contain
    *  cells with a colspan greater than 1, this row may contain
-   *  fewer cells than the number of columns in this table.
+   *  fewer cells than the number of columns in the table.
    */
   case class Row (content: Seq[Cell], options: Options = NoOpt) extends TableElement with TableContainer[Row]
   
@@ -599,12 +599,12 @@ object Elements {
    */
   case object Fatal extends MessageLevel(4)
   
-  /** Groups a span that could not successfully parsed with a system message.
+  /** Groups a span that could not be successfully parsed with a system message.
    *  Renderers may then choose to just render the fallback, the message or both.
    */
   case class InvalidSpan (message: SystemMessage, fallback: Span, options: Options = NoOpt) extends Span with Invalid[Span]
 
-  /** Groups a block that could not successfully parsed with a system message.
+  /** Groups a block that could not be successfully parsed with a system message.
    *  Renderers may then choose to just render the fallback, the message or both.
    */
   case class InvalidBlock (message: SystemMessage, fallback: Block, options: Options = NoOpt) extends Block with Invalid[Block]
@@ -619,7 +619,7 @@ object Elements {
    *  val options = Id("myId") + Styles("style1","style2")
    *  }}}
    * 
-   *  Likewise it also often more convenient to use the corresponding extractors for pattern matching.
+   *  Likewise it is also often more convenient to use the corresponding extractors for pattern matching.
    */
   case class SomeOpt (id: Option[String] = None, styles: Seq[String] = Nil) extends Options {
     def + (other: Options) = SomeOpt(other.id.orElse(id), (styles ++ other.styles) distinct)
