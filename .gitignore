@@ -10,6 +10,7 @@ bin/
 .classpath
 .project
 *.sc
+src/test/scala/local/
 
 # Mac
 .DS_Store
