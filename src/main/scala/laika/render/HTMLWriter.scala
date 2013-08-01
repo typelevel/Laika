@@ -64,7 +64,34 @@ class HTMLWriter (out: String => Unit,
    *  This is needed for writing blocks like those enclosed in &lt;pre&rt;
    *  tags where whitespace is significant.
    */
-  def <<<& (str: String): this.type = { <<(escaped(str, false)); this }
+  def <<<& (str: String): this.type = { 
+    withoutIndentation { <<(escaped(str)) }
+    this 
+  }
+  
+  /** Writes the specified span elements to the output,
+   *  on the same line, while omitting indentation
+   *  for all text spans written with one of the methods
+   *  that convert special characters.  
+   */
+  def <<< (elements: Seq[Span]): this.type = {
+    withoutIndentation { <<(elements) }
+    this
+  }
+  
+  private var indented = true
+  
+  /** Invokes the specified function after switching off
+   *  the rendering of any indentation for escaped text elements.
+   *  The old flag gets restored after invocation.
+   */
+  protected def withoutIndentation (f: => Any): this.type = {
+    val oldFlag = indented
+    indented = false
+    f
+    indented = oldFlag
+    this
+  }
   
   /** Writes the specified name and value as an optional HTML attribute, including
    *  a preceding space character. In case the value is `None` nothing
@@ -100,7 +127,7 @@ class HTMLWriter (out: String => Unit,
   }
     
   
-  private def escaped (str: String, indented: Boolean = true) = {
+  private def escaped (str: String) = {
     var i = 0
     val end = str.length
     val result = new StringBuilder()

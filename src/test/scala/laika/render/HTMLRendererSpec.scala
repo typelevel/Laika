@@ -521,7 +521,7 @@ class HTMLRendererSpec extends FlatSpec
     render (elem) should be ("<pre class=\"code banana-script\"><code>" + code.replaceAllLiterally("<", "&lt;") + "</code></pre>") 
   }
   
-  it should "render a code block inside a blockquote" in {
+  it should "render a literal block inside a blockquote without indentation" in {
     val code = """line 1
       |
       |    line 2
@@ -531,6 +531,32 @@ class HTMLRendererSpec extends FlatSpec
       |  <pre><code>%s</code></pre>
       |</blockquote>""".stripMargin.format(code)
     val elem = quote(litBlock(code))
+    render (elem) should be (html) 
+  }
+  
+  it should "render a parsed literal block inside a blockquote without indentation" in {
+    val code = """line 1
+      |
+      |    line 2
+      |
+      |line 3""".stripMargin
+    val html = """<blockquote>
+      |  <pre><code>:<em>%s</em>:</code></pre>
+      |</blockquote>""".stripMargin.format(code)
+    val elem = quote(ParsedLiteralBlock(List(txt(":"),em(code),txt(":"))))
+    render (elem) should be (html) 
+  }
+  
+  it should "render a code block inside a blockquote without indentation" in {
+    val code = """line 1
+      |
+      |    line 2
+      |
+      |line 3""".stripMargin
+    val html = """<blockquote>
+      |  <pre class="code banana-script"><code>:<em>%s</em>:</code></pre>
+      |</blockquote>""".stripMargin.format(code)
+    val elem = quote(CodeBlock("banana-script", List(txt(":"),em(code),txt(":"))))
     render (elem) should be (html) 
   }
   

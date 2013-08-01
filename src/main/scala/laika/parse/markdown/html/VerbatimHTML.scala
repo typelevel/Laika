@@ -61,15 +61,9 @@ class VerbatimHTML extends (HTMLWriter => PartialFunction[Element, Unit]) {
       }
     }
     
-    def removeIndentation (element: HTMLElement) = element rewrite { 
-      case Text(content, opt) => Some(Text(content.replaceAll("\n *", "\n"), opt))
-    } content
-    
     val pf: PartialFunction[Element, Unit] = {
         
-      case el @ HTMLElement(st @ HTMLStartTag("pre",_,_), _,_) => 
-        out << st << removeIndentation(el) << "</" << st.name << ">"
-      
+      case HTMLElement(st @ HTMLStartTag("pre", _,_), content, _) => out << st <<< content << "</" << st.name << ">"
       case HTMLElement(startTag, content,_)     => out << startTag << content << "</" << startTag.name << ">" 
       case HTMLStartTag(name, attributes,_)     => tagStart(name, attributes); out << ">"
       case HTMLEmptyElement(name, attributes,_) => tagStart(name, attributes); out << "/>"

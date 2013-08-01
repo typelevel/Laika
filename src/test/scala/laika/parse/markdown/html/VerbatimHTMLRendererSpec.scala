@@ -94,8 +94,14 @@ class VerbatimHTMLRendererSpec extends FlatSpec
   }
   
   it should "render a <pre> element without indentation" in {
-    val elem = p(txt("some "), element(startTag("pre"), txt("Line1\n  Line2")), txt(" text"))
-    render (elem) should be ("<p>some <pre>Line1\nLine2</pre> text</p>") 
+    val elem = quote(p("1st paragraph"),p(txt("some "), element(startTag("pre"), txt("Line1\nLine2")), txt(" text")), p("3rd paragraph"))
+    val html = """<blockquote>
+      |  <p>1st paragraph</p>
+      |  <p>some <pre>Line1
+      |Line2</pre> text</p>
+      |  <p>3rd paragraph</p>
+      |</blockquote>""".stripMargin
+    render (elem) should be (html) 
   }
   
   it should "render an HTML attribute with the value in single quotes" in {
