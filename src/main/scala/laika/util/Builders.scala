@@ -24,7 +24,7 @@ package laika.util
  *  code see [[laika.parse.rst.Directives]] and [[laika.parse.rst.TextRoles]].
  * 
  *  This implementation is based on a concept outlined by Sadek Drobi in this gist: 
- *  https://gist.github.com/sadache/3646092.
+ *  [[https://gist.github.com/sadache/3646092]].
  *  The code used here is only a simplified subset of the demonstrated functionality.
  * 
  *  @author Sadek Drobi / Jens Halm
