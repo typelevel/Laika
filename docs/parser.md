@@ -156,15 +156,25 @@ reading. This works for nested structures, too.
 
 The main method in the `InlineParsers` trait that block parsers use to parse their text is:
 
+    def parseInline (source: String): List[Span]
+    
+It takes the source string usually obtained by a preceding block parsing phase and
+parses all inline elements, returning a list of spans (`Span` is a sub-trait of `Element`, 
+the base class for all node types, mixed in by `Link`, `Image` or `Emphasized` for example). 
+This method uses the default span parser map for parsing inline elements which is defined 
+by the abstract member:
+
+    def spanParsers: Map[Char,Parser[Span]]
+    
+Sub-traits need to implement this method. When a specific parsing operation needs
+to deviate from the standard set of inline parsers, a map can get passed to the
+``parseInline`` method explicitly:
+
     def parseInline (source: String, spanParsers: Map[Char, Parser[Span]])
     
-The second parameter is the parser map we mentioned. The return type is `List[Span]`, 
-with `Span` being a sub-trait of `Element`, the base class for all node types. 
-Examples for case classes mixing in `Span` are `Link`, `Image` or `Emphasized`.
+For Markdown the default span parser map is created like this:
 
-For Markdown this map is created like this:
-
-    protected def newSpanParserMap = Map(
+    lazy val spanParsers = Map(
       '*' -> (strong('*') | em('*')),    
       '_' -> (strong('_') | em('_')),
       '`' -> (codeEnclosedByDoubleChar | codeEnclosedBySingleChar), 
@@ -181,8 +191,6 @@ the initial character as this will be consumed by the map lookup already. And th
 are still allowed to fail, in which case the special character will be treated as
 normal text input.
 
-Sub-traits can override this method and add more parsers to the map.
-
 If any of the parsers need to parse nested structures, `InlineParsers` comes
 with an additional method that allows to specify both, a condition (in form of a parser)
 for when the span ends and a map for available nested parsers, which may or may not
@@ -196,6 +204,8 @@ by most methods in `MarkupParsers`. The rules for the map are identical
 to those for top-level spans. The text parser parses the current span, but may get
 suspended for parsing nesting structures based on the parser map. 
 
+Inli
+
 
 
 Trait BlockParsers
@@ -205,23 +215,30 @@ This is the base trait for parsing blocks, the first phase of the two-phase pars
 process. It adds a few utility parsers like `eol` (end-of-line), `blankLine`
 or `restOfLine`. See the [Scaladoc][block-scaladoc] for details on those.
 
-If you mix in this trait you have to implement the two abstract parsers:
+If you mix in this trait you have to implement the three abstract parsers:
 
     def topLevelBlock: Parser[Block]
  
     def nestedBlock: Parser[Block]
+    
+    def nonRecursiveBlock: Parser[Block]
 
 This can be a parser build as a list of choices. In contrast to the inline
 parsers the performance impact is less of a concern here. The names should be
 self-explanatory. Depending on the concrete markup language specification
-these two parsers may be identical, if each block type is allowed as a top-level
-or nested block.
+the first two parsers may be identical, if each block type is allowed as 
+a top-level or nested block. 
 
- Like `Span`, `Block` is a sub-trait of `Element`, the base class for all node types. 
+The third one is rarely ever used, it exists
+as a safeguard agains malicious input. If a certain (configurable) nest level
+has been reached, only block elements that do not potentially contain further
+nested blocks are considered for subsequent parsing.
+
+Like `Span`, `Block` is a sub-trait of `Element`, the base class for all node types. 
 Examples for case classes mixing in `Block` are `Paragraph`, `CodeBlock` or `OrderedList`.
 
-Finally this trait provides an (entirely optional) convenience method for creating
-a typical block parser. This is the signature:
+Finally this trait provides (entirely optional) convenience methods for creating
+a typical block parser. This is the signature of the first one:
 
     def block (firstLinePrefix: Parser[Any], 
                linePrefix: Parser[Any], 
@@ -232,6 +249,18 @@ the three parser parameters: detecting the first line of a block, any subsequent
 line and finally whether the block continues after a blank line has been seen.
 Often a blank line marks the end of a block, but there are exceptions, like code
 blocks or list items that span multiple parapraphs.
+
+Finally there is a second utility that can be used for indented blocks:
+
+    def indentedBlock (minIndent: Int = 1,
+              linePredicate: => Parser[Any] = success(), 
+              endsOnBlankLine: Boolean = false,
+              firstLineIndented: Boolean = false,
+              maxIndent: Int = Int.MaxValue): Parser[IndentedBlock]
+              
+Like the other utility it allows to specify a few predicates. This method
+is not used for parsing Markdown's indented blocks, though, as Markdown has
+a very special way of treating whitespace.
 
 [block-scaladoc]: api/#laika.parse.BlockParsers
 

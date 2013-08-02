@@ -170,75 +170,75 @@ For a detailed specification of these standard extensions, see:
 
 Laika fully supports the following directives:
 
- * Admonitions: ``attention``, ``caution``, ``danger``, ``error``, ``hint``, ``important``,
-   ``note``, ``tip``, ``warning`` and the generic ``admonition``
- * Quotations: ``epigraph``, ``highlights`` and ``pull-quote``
- * ``compound``
- * ``container``
- * ``topic``
- * ``sidebar``
- * ``rubric``
- * ``parsed-literal``
- * ``table``
- * ``replace``
+ * Admonitions: `attention`, `caution`, `danger`, `error`, `hint`, `important`,
+   `note`, `tip`, `warning` and the generic `admonition`
+ * Quotations: `epigraph`, `highlights` and `pull-quote`
+ * `compound`
+ * `container`
+ * `topic`
+ * `sidebar`
+ * `rubric`
+ * `parsed-literal`
+ * `table`
+ * `replace`
  
 The following directives are supported with some limitations:
 
- * ``figure`` and ``image`` do not support the various layout options (``width``, ``height``, ``scale``, ``align``), 
+ * `figure` and `image` do not support the various layout options (`width`, `height`, `scale`, `align`), 
    as no other tree nodes in Laika carry concrete layout information. It is recommended to use styles instead.
  
- * ``code`` does currently not support syntax highlighting 
+ * `code` does currently not support syntax highlighting 
    (it allows to set the language though, so client-side highlighters can be integrated if required).
   
- * ``raw`` does not support the ``file`` or ``url`` options (multi-file transformations are planned for version 0.4). 
+ * `raw` does not support the `file` or `url` options (multi-file transformations are planned for version 0.4). 
  
- * ``unicode``: does not support the various trim options, as that would require modifying adjacent elements
+ * `unicode`: does not support the various trim options, as that would require modifying adjacent elements
    (and no other directive has this requirement, therefore API/implementation changes did not seem justified)
  
- * ``date``: Uses the patterns of ``java.text.SimpleDateFormat`` instead of Python's ``time.strftime`` function.
+ * `date`: Uses the patterns of `java.text.SimpleDateFormat` instead of Python's `time.strftime` function.
  
 Support for the following directives is deferred to the 0.4 release as that will add support for template based
 site generation and the corresponding addition of features like logic for the generation of tables of content
 will make the implementation of these directives easier:
  
- * ``contents``
- * ``sectnum``
- * ``header``
- * ``footer``
- * ``title``
- * ``meta``
- * ``include``
+ * `contents`
+ * `sectnum`
+ * `header`
+ * `footer`
+ * `title`
+ * `meta`
+ * `include`
  
 The following standard text roles are fully supported:
  
- * ``emphasis``
- * ``strong``
- * ``literal``
- * ``subscript`` (and ``sub`` alias)
- * ``superscript`` (and ``sup`` alias)
- * ``title-reference`` (and ``title`` alias) - the default role
- * ``raw`` (+ format option)
+ * `emphasis`
+ * `strong`
+ * `literal`
+ * `subscript` (and `sub` alias)
+ * `superscript` (and `sup` alias)
+ * `title-reference` (and `title` alias) - the default role
+ * `raw` (+ format option)
  
 The following extensions are not supported:
  
- * ``math``, ``csv-table``, ``list-table``, ``target-notes`` and ``class`` directives 
- * ``math``, ``pep-reference`` and ``rfc-reference`` text roles
+ * `math`, `csv-table`, `list-table`, `target-notes` and `class` directives 
+ * `math`, `pep-reference` and `rfc-reference` text roles
  
 There are various reasons for excluding these extensions, some of them being rather technical.
-For example, the ``target-notes`` and ``class`` directives would require processing beyond the 
-directive itself, therefore would require new API. Others, like the ``pep-reference`` text role,
+For example, the `target-notes` and `class` directives would require processing beyond the 
+directive itself, therefore would require new API. Others, like the `pep-reference` text role,
 seamed to exotic to warrant inclusion in Laika.
 
 Finally some of the defaults for these extensions can be changed through the API:
 
     ReStructuredText.withRawElements
     
-enables both the ``raw`` directive and the ``raw`` text role. They are disabled by default as
+enables both the `raw` directive and the `raw` text role. They are disabled by default as
 they present a potential security risk.
 
     ReStructuredText.withDefaultTextRole("my-role-name")
     
-sets the text role ``my-role-name`` as the default role.
+sets the text role `my-role-name` as the default role.
     
  
  
