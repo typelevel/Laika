@@ -29,7 +29,7 @@ import java.util.Date
  *  adjustments or limitations compared to their counterparts in the reference parser:
  * 
  *  - `unicode`: does not support the various trim options, as that would require modifying adjacent elements
- *    (and no other directive has this requirment, therefore API/impl changes did not seem justified)
+ *    (and no other directive has this requirement, therefore API/impl changes did not seem justified)
  * 
  *  - `date`: Uses the patterns of `java.text.SimpleDateFormat` instead of Python's `time.strftime` function.
  * 
