@@ -19,31 +19,76 @@ package laika.tree
 import IdGenerators._
 import Elements._
 
-/**
+/** Representations for various types of link targets.
+ * 
  *  @author Jens Halm
  */
 object LinkTargets {
 
-  
+  /** Represents a selector used for matchin reference
+   *  nodes to target nodes. The selectors often differ
+   *  from both, the ids rendered in the final document
+   *  and the ids used for display.
+   */
   sealed abstract class Selector
+  
+  /** A selector based on a unique string identifier.
+   */
   case class UniqueSelector (name: String) extends Selector
+  
+  /** An anonymous selector (usually matched by position).
+   */
   case object AnonymousSelector extends Selector
+  
+  /** An auto-number selector (usually matched by position).
+   */
   case object AutonumberSelector extends Selector
+  
+  /** An auto-symbol selector (usually matched by position).
+   */
   case object AutosymbolSelector extends Selector
   
+  /** Converts the specified string to a Selector instance
+   *  that represents a unique identifier.
+   */
   implicit def stringToSelector (name: String) = UniqueSelector(name)
   
   
+  /** The definition of a link target in the document tree, holding
+   *  the element itself and its identifier. Three abstract methods
+   *  have to be implemented by the concrete implementations.
+   */
   abstract class TargetDefinition (val source: Element, val id: Id) {
-    
+
+    /** Converts this target to a final, resolved target based
+     *  on the specified identifiers.
+     * 
+     *  @param documentId the id used as an identifier in the final, rendered output,
+     *  only containing ASCII alphanumeric characters and optionally a dash to avoid
+     *  identifiers which are illegal in the final output format (e.g. HTML, PDF)
+     *  @param renderedId the id used to display to the user
+     *  @return a final, resolved target based on the specified identifiers
+     */
     def withResolvedIds (documentId: String, renderedId: String): UniqueResolvedTarget
-    
+
+    /** Converts this target to an invalid one with the 
+     *  specified error message.
+     */
     def invalid (msg: String) = new InvalidTarget(this, msg)
 
+    /** Convenience method lifting the partial function to a plain function
+     *  returning an Option result.
+     */
     protected def lift (f: PartialFunction[(Element,Id), Element]) = f lift
     
+    /** Converts the original target element to the final representation 
+     *  (with its final, resolved identifiers)
+     */
     def replace: ((Element,Id)) => Option[Element]
     
+    /** Converts an element referencing this target to the final
+     *  link element.
+     */
     def resolve: ((Element,Id)) => Option[Element]
     
   }
@@ -131,16 +176,36 @@ object LinkTargets {
     def levelFor (deco: HeaderDecoration) = levelMap.getOrElseUpdate(deco, levelIt.next)
   }
   
+  /** Represents a resolved target that has its final identifier generated
+   *  (if necessary) and can be used to resolve matching reference nodes.
+   */
   abstract sealed class ResolvedTarget {
     
+    /** The selector to use to identify reference nodes
+     *  matching this target.
+     */
     def selector: Selector
-    
+
+    /** Creates the final link element for the specified reference
+     *  pointing to this target. In case this target does not know
+     *  how to resolve the element it should return `None˚.
+     * 
+     *  @param rewrittenRef the original reference node in the raw document, potentially
+     *  already rewritten in case any of its children got rewritten
+     */
     def resolveReference (rewrittenRef: Element): Option[Element]
-    
+
+    /** Creates the final target element (with its final, resolved identifiers).
+     * 
+     *  @param rewrittenOriginal the original target node in the raw document, potentially
+     *  already rewritten in case any of its children got rewritten
+     */
     def replaceTarget (rewrittenOriginal: Element): Option[Element]
     
   }
   
+  /** Represents a target that can be selected based on a unique identifier.
+   */
   case class UniqueResolvedTarget (target: TargetDefinition, selector: Selector, render: Id) extends ResolvedTarget {
     
     def resolveReference (rewrittenRef: Element) = target.resolve(rewrittenRef, render)
@@ -152,7 +217,11 @@ object LinkTargets {
     }
     
   }
-  
+
+  /** Represents a sequence of targets where matching reference nodes
+   *  get determined by position. The `resolveReference` and `resolveTarget`
+   *  methods can be invoked as many times as this sequence contains elements.
+   */
   case class ResolvedTargetSequence (targets: Seq[ResolvedTarget], selector: Selector) extends ResolvedTarget {
     private val refIt = targets.iterator
     private val targetIt = targets.iterator

@@ -22,17 +22,36 @@ import IdGenerators._
 import LinkTargets._
 import Elements._
 
-/**
+/** The default rewrite rules responsible for resolving link references that get 
+ *  applied to the raw document tree after parsing.
+ *  
+ *  These rules resolve references to images, footnotes, citations and other 
+ *  inline targets, and generate the identifiers for targets with auto-generated
+ *  ids like auto-number footnotes. 
+ * 
+ *  The rules replace references pointing to internal or external targets 
+ *  with the corresponding resolved link elements, as well as the targets 
+ *  themselves with nodes that contain their final ids. 
+ * 
+ *  In case of duplicate target ids or unresolvable references system messages
+ *  get inserted into the final document tree.
+ * 
  *  @author Jens Halm
  */
 object LinkResolver extends (Document => PartialFunction[Element,Option[Element]]) {
 
   
+  /** The default rules for resolving link references 
+   *  to be applied to the document.
+   */
   class DefaultRules (document: Document) { 
   
-    val headerIdMap = new IdMap
-    val decHeaderIdMap = new IdMap
+    private val headerIdMap = new IdMap
+    private val decHeaderIdMap = new IdMap
     
+    /** Selects all elements from the document that can serve
+     *  as a target for a reference element.
+     */
     def selectTargets = {
       
       val levels = new DecoratedHeaderLevels
@@ -63,6 +82,10 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
       }
     }
     
+    /** Resolves the specified targets, replacing elements
+     *  with duplicate target ids with invalid block elements 
+     *  and producing the ids of elements with generated identifiers. 
+     */
     def resolveTargets (targets: Seq[TargetDefinition]) = {
       
       val docIdMap = new IdMap
@@ -105,6 +128,10 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
       }._1
     }
     
+    /** Resolves all aliases contained in the specified target sequence,
+     *  replacing them with the targets they are pointing to or with
+     *  invalid block elements in case they cannot be resolved.
+     */
     def resolveAliases (targets: Seq[UniqueResolvedTarget]): Seq[ResolvedTarget] = {
   
       val map = targets map (t => (t.selector, t)) toMap
@@ -129,6 +156,9 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
       
     }
     
+    /** The default rules for resolving link references 
+     *  to be applied to the document.
+     */
     val rewrite: PartialFunction[Element, Option[Element]] = {
       
       val resolvedTargets = resolveAliases(resolveTargets(selectTargets)).toList
@@ -183,6 +213,9 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
   
   }
   
+  /** Provides the default rewrite rules for resolving link references
+   *  for the specified document (without applying them).
+   */
   def apply (document: Document) = (new DefaultRules(document)).rewrite
   
 }

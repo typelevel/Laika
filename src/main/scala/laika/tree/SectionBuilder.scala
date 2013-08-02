@@ -20,8 +20,9 @@ import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.Stack
 import laika.tree.Elements._
 
-/**
- * 
+/** Rewrite rules responsible for building the section structure
+ *  of a document based on the header elements it contains and
+ *  their level.
  * 
  * @author Jens Halm
  */
@@ -67,6 +68,9 @@ object SectionBuilder extends (() => PartialFunction[Element,Option[Element]]) {
     }
   }
   
+  /** Provides the default rewrite rules for building the section structure
+   *  for the specified document (without applying them).
+   */
   def apply () = (new DefaultRule).rewrite
   
 }
