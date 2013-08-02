@@ -52,39 +52,62 @@ import laika.tree.Elements._
  *  Parse as ReStructuredText.withDefaultTextRole("my-role-name")
  *  }}}
  * 
+ *  See [[http://docutils.sourceforge.net/docs/ref/rst/roles.html]] for details.
+ * 
  *  @author Jens Halm
  */
 trait StandardTextRoles {
   
   private val classOption = optField("class", opt => Right(Options(None, opt.split(" ").toList))) map (_.getOrElse(NoOpt))
   
+  /** The standard emphasis text role.
+   */
   lazy val emphasis: TextRole =
     TextRole("emphasis", NoOpt:Options)(classOption)((opt, text) => Emphasized(List(Text(text)), opt))
   
+  /** The standard strong text role.
+   */
   lazy val strong: TextRole =
     TextRole("strong", NoOpt:Options)(classOption)((opt, text) => Strong(List(Text(text)), opt))
 
+  /** The standard literal text role.
+   */
   lazy val literal: TextRole =
     TextRole("literal", NoOpt:Options)(classOption)((opt, text) => Literal(text, opt))  
     
+  /** The standard subscript text role.
+   */
   lazy val subscript: TextRole =
     TextRole("subscript", NoOpt:Options)(classOption)((opt, text) => Text(text, opt + Styles("subscript")))  
     
+  /** The standard superscript text role.
+   */
   lazy val superscript: TextRole =
     TextRole("superscript", NoOpt:Options)(classOption)((opt, text) => Text(text, opt + Styles("superscript")))
     
+  /** The sub text role, an alias for the subscript role.
+   */
   lazy val sub: TextRole =
     TextRole("sub", NoOpt:Options)(classOption)((opt, text) => Text(text, opt + Styles("subscript"))) 
-    
+  
+  /** The sup text role, an alias for the superscript role.
+   */
   lazy val sup: TextRole =
     TextRole("sup", NoOpt:Options)(classOption)((opt, text) => Text(text, opt + Styles("superscript")))
     
+  /** The standard title-reference text role, the default text role in reStructuredText unless overridden
+   *  with `ReStructuredText.withDefaultTextRole`.
+   */
   lazy val titleRef: TextRole =
     TextRole("title-reference", NoOpt:Options)(classOption)((opt, text) => Emphasized(List(Text(text)), opt + Styles("title-reference")))
     
+  /** The title text role, an alias for the title-reference role.
+   */
   lazy val title: TextRole =
     TextRole("title", NoOpt:Options)(classOption)((opt, text) => Emphasized(List(Text(text)), opt + Styles("title-reference")))
     
+  /** The standard code text role. The current implementation does not support syntax highlighting.
+   */
   lazy val codeSpan: TextRole =
     TextRole("code", ("",NoOpt:Options)) {
       (optField("language") ~ classOption) { (lang,opt) => (lang.getOrElse(""), opt) }
@@ -92,6 +115,10 @@ trait StandardTextRoles {
       case ((lang, opt), text) => Code(lang, List(Text(text)), opt)
     }  
     
+  /** The raw text role, which is not enabled by default, 
+   *  see [[http://docutils.sourceforge.net/docs/ref/rst/roles.html#raw]] for details.
+   *  It can be enabled with `ReStructuredText.withRawContent`.
+   */
   lazy val rawTextRole: TextRole =
     TextRole("raw", (Nil:List[String],NoOpt:Options)) {
       (field("format") ~ classOption) { (format,opt) => (format.split(" ").toList, opt) }
@@ -99,7 +126,9 @@ trait StandardTextRoles {
       case ((formats, opt), content) => RawContent(formats, content, opt)
     }  
     
-  
+  /** All standard text roles currently supported by Laika, except for
+   *  the `raw` text role which needs to be enabled explicitly.
+   */
   lazy val textRoles = List(emphasis,strong,literal,subscript,superscript,sub,sup,titleRef,title,codeSpan)
     
 }

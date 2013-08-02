@@ -44,13 +44,23 @@ trait StandardSpanDirectives {
    */
   val parse = new StandardDirectiveParsers {}
   
+  /** The name option which is supported by almost all reStructuredText directives.
+   */
   protected val nameOpt = optField("name")
   
+  /** The class option which is supported by almost all reStructuredText directives.
+   */
   protected val classOpt = optField("class")
   
+  /** Converts an optional id and an optional style parameter containing
+   *  a space-delimited list of styles to an `Options` instance.
+   */
   def toOptions (id: Option[String], styles: Option[String]) = Options(id, styles.map(_.split(" ").toList).getOrElse(Nil)) // TODO - merge combinators
   
   
+  /** The image directive for span elements, 
+   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#image]] for details.
+   */
   lazy val image: DirectivePart[Span] = {
     def multilineURI (text: String) = Right(text.split("\n").map(_.trim).mkString("\n").trim)
     
@@ -63,17 +73,27 @@ trait StandardSpanDirectives {
     } 
   }
   
+  /** The replace directive, 
+   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#replacement-text]] for details.
+   */
   lazy val replace: DirectivePart[Span] = spanContent map (SpanSequence(_)) 
   
+  /** The unicode directive, 
+   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#unicode-character-codes]] for details.
+   */
   lazy val unicode: DirectivePart[Span] = argument(parse.unicode, withWS = true) map (Text(_)) 
   
+  /** The date directive, 
+   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#date]] for details.
+   */
   lazy val date: DirectivePart[Span] = {
     optArgument(withWS = true) map { pattern => 
       Text((new SimpleDateFormat(pattern.getOrElse("yyyy-MM-dd")).format(new Date)))
     } 
   }
   
-  /** All standard span directives currently supported by Laika.
+  /** All standard reStrucuturedText span directives,
+   *  to be used in substitution references.
    */
   lazy val spanDirectives = List(
     SpanDirective("image")(image),

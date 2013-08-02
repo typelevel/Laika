@@ -80,36 +80,55 @@ import laika.parse.rst.InlineParsers
 trait StandardBlockDirectives { this: StandardSpanDirectives =>
 
   
+  /** The compound directive, 
+   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#compound-paragraph]] for details.
+   */
   lazy val compound: DirectivePart[Block] = {
     (blockContent ~ nameOpt ~ classOpt) { (content, id, styles) => 
       BlockSequence(content, toOptions(id,styles) + Styles("compound"))
     } 
   }
   
+  /** The container directive, 
+   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#container]] for details.
+   */
   lazy val container: DirectivePart[Block] = {
     (optArgument(withWS = true) ~ blockContent ~ nameOpt) { (styles, content, id) => 
       BlockSequence(content, Options(id, styles.map(_.split(" ")).toList.flatten))
     } 
   }
   
+  /** The admonition directive, 
+   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#generic-admonition]] for details.
+   */
   def genericAdmonition (p: InlineParsers): DirectivePart[Block] = {
     (argument(parse.standardSpans(p), withWS = true) ~ blockContent ~ nameOpt ~ classOpt) { (title, content, id, styles) => 
       TitledBlock(title, content, toOptions(id,styles) + Styles("admonition"))
     } 
   }
 
+  /** The attention, caution, danger, error, hint, important, note, tip and warning directives,
+   *  which are all identical apart from their title which can be specified with the style parameter. 
+   *  See [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#specific-admonitions]] for details.
+   */
   def admonition (style: String, title: String): DirectivePart[Block] = {
     (blockContent ~ nameOpt ~ classOpt) { (content, id, styles) => 
       TitledBlock(List(Text(title)), content, toOptions(id,styles) + Styles(style))
     } 
   }
   
+  /** The topic directive, 
+   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#topic]] for details.
+   */
   def topic (p: InlineParsers): DirectivePart[Block] = {
     (argument(parse.standardSpans(p), withWS = true) ~ blockContent ~ nameOpt ~ classOpt) { (title, content, id, styles) => 
       TitledBlock(title, content, toOptions(id,styles) + Styles("topic"))
     } 
   }
   
+  /** The sidebar directive, 
+   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#sidebar]] for details.
+   */
   def sidebar (p: InlineParsers): DirectivePart[Block] = {
     (argument(parse.standardSpans(p), withWS = true) ~ optField("subtitle", parse.standardSpans(p)) ~ 
         blockContent ~ nameOpt ~ classOpt) { (title, subtitle, content, id, styles) =>
@@ -118,47 +137,77 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
     } 
   }
   
+  /** The rubric directive, 
+   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#rubric]] for details.
+   */
   def rubric (p: InlineParsers): DirectivePart[Block] = {
     (argument(parse.standardSpans(p), withWS = true) ~ nameOpt ~ classOpt) { (text, id, styles) => 
       Paragraph(text, toOptions(id,styles) + Styles("rubric"))
     } 
   }
   
+  /** The epitaph, highlights and pull-quote directives, which are all identical apart from the style
+   *  parameter, see 
+   *  [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#epigraph epigraph]],
+   *  [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#highlights highlights]] and
+   *  [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#pull-quote pull-quote]] for details.
+   */
   def quotedBlock (p:BlockParsers, style: String): DirectivePart[Block] = content(parse.quotedBlock(p,style))
   
+  /** The parsed-literal directive, see 
+   *  [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#parsed-literal-block]] for details.
+   */
   def parsedLiteral (p: InlineParsers): DirectivePart[Block] = {
     (content(parse.standardSpans(p)) ~ nameOpt ~ classOpt) { (content, id, styles) => 
       ParsedLiteralBlock(content, toOptions(id,styles))
     } 
   }
   
+  /** The table directive, adding a title to standard reStructuredText tables, 
+   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#table]] for details.
+   */
   def table (p: BlockParsers with InlineParsers): DirectivePart[Block] = {
     (optArgument(parse.standardSpans(p), withWS = true) ~ content(parse.table(p)) ~ nameOpt ~ classOpt) { (caption, table, id, styles) => 
       table.copy(caption = Caption(caption.toList.flatten), options = toOptions(id,styles))
     } 
   }
   
+  /** The code directive, 
+   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#code]] for details.
+   *  The current implementation does not support syntax highlighting.
+   */
   lazy val code: DirectivePart[Block] = {
     (argument() ~ content(Right(_)) ~ nameOpt ~ classOpt) { (language, content, id, styles) => 
       CodeBlock(language, List(Text(content)), toOptions(id,styles))
     } 
   }
   
+  /** The image directive for block elements, 
+   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#image]] for details.
+   */
   lazy val imageBlock: DirectivePart[Block] = image map (img => Paragraph(List(img)))
   
+  /** The figure directive, 
+   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#figure]] for details.
+   */
   def figure (p: BlockParsers): DirectivePart[Block] = {
     (image ~ content(parse.captionAndLegend(p)) ~ optField("figclass")) { (image, captionAndLegend, figStyles) => 
       Figure(image, captionAndLegend._1, captionAndLegend._2, toOptions(None, figStyles))
     } 
   }
   
+  /** The raw directive, which is not enabled by default, 
+   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#raw-data-pass-through]] for details.
+   *  It can be enabled with `ReStructuredText.withRawContent`.
+   */
   lazy val rawDirective: DirectivePart[Block] = {
     (argument(withWS = true) ~ content(Right(_))) { (formats, content) =>
       RawContent(formats.split(" "), content)
     } 
   }
     
-  /** All standard block directives currently supported by Laika.
+  /** All standard block directives currently supported by Laika, except for
+   *  the `raw` directive which needs to be enabled explicitly.
    */
   lazy val blockDirectives = List(
     BlockDirective("compound")(compound),
