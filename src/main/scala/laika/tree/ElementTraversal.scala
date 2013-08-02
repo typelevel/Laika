@@ -170,8 +170,9 @@ trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Ele
     buffer.toList
   }
   
-  /** Selects all elements satisfying the specified predicate, collecting
-   *  in depth-first traversal, including this element itself. 
+  /** Collects elements by applying the partial function to all elements
+   *  it is defined for, in depth-first traversal, including this element 
+   *  itself. 
    */
   def collect [B](pf: PartialFunction[Element, B]): List[B] = {
     val buffer = new ListBuffer[B]
