@@ -75,7 +75,7 @@ trait InlineParsers extends MarkupParsers {
     
     def mergeAdjacentTextSpans (spans: List[Span]): List[Span] = {
       (List[Span]() /: spans) {  
-        case (Text(text1,NoOpt) :: rest, Text(text2,NoOpt)) => Text(text1 ++ text2) :: rest // TODO - deal with options
+        case (Text(text1,NoOpt) :: rest, Text(text2,NoOpt)) => Text(text1 ++ text2) :: rest
         case (xs, x) => x :: xs
       }.reverse
     }
