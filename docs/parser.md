@@ -11,13 +11,17 @@ for standard usage of Laika.
 The contract a parser has to adhere to is quite simple, it has to be a function
 with this signature:
 
-    Input => Document
+    Input => RawDocument
     
 `Input` is a little IO abstraction provided by Laika so that you do not have to
 deal with the details of whether the text comes from a string or file or other 
 types of streams.
  
-`Document` is a case class representing the root node of the document tree.
+`RawDocument` is a case class representing the root node of the document tree. It 
+is "raw" in a sense that no rewrite rules have been applied yet, e.g. no link
+references had been resolved, no section structure had been built, etc., as all
+these things are not the business of the parser. They are later performed by
+rewrite rules which are generic and thus can be reused for different markup types.
 
 The way you implement this function depends entirely on your requirements and preferences.
 You may use the parser combinators from the Scala SDK or some other parsing technology.
@@ -42,7 +46,7 @@ When you build a new parser you should provide the following features for your u
 
 * A fluent API for specifying options (in case your parser is configurable)
 
-The first two come for free when you create an object that extends `Input => Document`.
+The first two come for free when you create an object that extends `Input => RawDocument`.
 The built-in `Markdown` object is an example. Since it does extend that function,
 you can easily use it in expressions like this:
 
@@ -66,7 +70,8 @@ comments removed for brevity):
     import laika.parse.markdown.html.HTMLParsers
     import laika.tree.Elements.Document
 
-    class Markdown private (verbatimHTML: Boolean) extends (Input => Document) {
+    class Markdown private (verbatimHTML: Boolean) 
+                                          extends (Input => RawDocument) {
 
       def withVerbatimHTML = new Markdown(true)
   
