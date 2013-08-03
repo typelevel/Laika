@@ -31,6 +31,8 @@ recommending the embedding of verbatim HTML elements for any formatting needs no
 which is not the best approach for a toolkit like Laika that aims to support other output formats
 than just HTML.
 
+Laika fully passes the official Markdown Test Suite. These tests are integrated into the Laika test suite.
+
 
 ### Getting Started
 
@@ -128,6 +130,10 @@ and clearly defined markup recognition rules.
 
 On the other hand, adoption is not nearly as high as for Markdown, and some of the syntax is more
 verbose and less intuitive or legible than Markdown.
+
+Apparently there is no official test suite for reStructuredText, therefore to add a realistic
+test to the Laika test suite a full transformation of the reStructuredText specification itself
+is integrated into Laika's test suite. 
 
   
   
