@@ -36,7 +36,7 @@ class BlockParsersSpec extends FlatSpec
   val defaultParser: Parser[Document] = document
   
   
-  def fp (content: String) = BlockParsers.ForcedParagraph(List(Text(content)))
+  def fp (content: String) = ForcedParagraph(List(Text(content)))
   
   def ss (content: String) = SpanSequence(List(Text(content)))
   

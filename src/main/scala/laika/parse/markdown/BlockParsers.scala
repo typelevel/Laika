@@ -196,7 +196,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
              between list items or if it is adjacent to blank lines within the list item 
              itself. This is ugly, but forced by the (in this respect odd) design of Markdown. */
           case Paragraph(content,opt) :: Nil if hasBlankLines => 
-            BlockParsers.ForcedParagraph(content, opt) :: Nil
+            ForcedParagraph(content, opt) :: Nil
           case BlockSequence((p @ Paragraph(content,opt)) :: rest, _) :: xs => 
             if (!hasBlankLines) SpanSequence(content,opt) :: rest ::: xs else p :: rest ::: xs
           case other => other
@@ -244,22 +244,5 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     list(enumListItemStart, EnumList(_, EnumFormat()), (pos,blocks)=>EnumListItem(blocks,EnumFormat(),pos)) 
   }
     
-  
-}
-
-/** Holds element tree nodes for blocks which are too specific for Markdown to be included
- *  in the generic model.
- */
-object BlockParsers {
-  
-  /** Represents a paragraph that does not get optimized to a simple span sequence
-   *  in renderers. Needed for the Markdown-specific way of dealing with list items
-   *  separated by blank lines which force an extra paragraph tag inside the `li` tag
-   *  in HTML renderers.
-   */
-  case class ForcedParagraph (content: Seq[Span], options: Options = NoOpt) extends Block 
-                                                  with SpanContainer[ForcedParagraph] with Fallback {
-    def fallback = Paragraph(content, options)
-  }
   
 }

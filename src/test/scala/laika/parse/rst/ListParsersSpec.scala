@@ -45,7 +45,7 @@ class ListParsersSpec extends FlatSpec
   def textRole (name: String): Option[RoleDirectivePart[String => Span]] = None
   
   
-  def fp (content: String) = ListParsers.ForcedParagraph(List(Text(content)))
+  def fp (content: String) = ForcedParagraph(List(Text(content)))
   
   def ss (content: String) = SpanSequence(List(Text(content)))
   

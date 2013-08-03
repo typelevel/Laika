@@ -609,6 +609,18 @@ object Elements {
    */
   case class InvalidBlock (message: SystemMessage, fallback: Block, options: Options = NoOpt) extends Block with Invalid[Block]
   
+  /** A special type of paragraph that serves as a render hint.
+   *  Some renderers simplify the rendering of block elements containing only a single
+   *  paragraph and render the span content inline (e.g. a `&lt;li&gt;` tag without a nested `&lt;p&gt;` tag
+   *  for the paragraph). 
+   *  Using this element as mandated by some edge cases in both the Markdown and reStructuredText 
+   *  markup definitions prevents this.
+   */
+  case class ForcedParagraph (content: Seq[Span], options: Options = NoOpt) extends Block 
+                                                  with SpanContainer[ForcedParagraph] with Fallback {
+    def fallback = Paragraph(content, options)
+  }
+  
   
   /** `Options` implementation for non-empty instances.
    * 

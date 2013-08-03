@@ -62,7 +62,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     }
     else {
       items map { con => con.content match {
-        case Paragraph(content,opt) :: Nil => newListItem(con, ListParsers.ForcedParagraph(content,opt) :: Nil)
+        case Paragraph(content,opt) :: Nil => newListItem(con, ForcedParagraph(content,opt) :: Nil)
         case _ => con
       }}
     }
@@ -267,17 +267,5 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     (line +) ^^ nest
   } 
   
-  
-}
-
-
-/** TODO - this is (for now) duplicated from the Markdown BlockParsers. Should get promoted to generic BlockParsers
- */
-object ListParsers {
-  
-  case class ForcedParagraph (content: Seq[Span], options: Options = NoOpt) extends Block 
-                                                  with SpanContainer[ForcedParagraph] with Fallback {
-    def fallback = Paragraph(content, options)
-  }
   
 }
