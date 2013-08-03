@@ -84,8 +84,8 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#compound-paragraph]] for details.
    */
   lazy val compound: DirectivePart[Block] = {
-    (blockContent ~ nameOpt ~ classOpt) { (content, id, styles) => 
-      BlockSequence(content, toOptions(id,styles) + Styles("compound"))
+    (blockContent ~ stdOpt) { (content, opt) => 
+      BlockSequence(content, opt + Styles("compound"))
     } 
   }
   
@@ -102,8 +102,8 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#generic-admonition]] for details.
    */
   def genericAdmonition (p: InlineParsers): DirectivePart[Block] = {
-    (argument(parse.standardSpans(p), withWS = true) ~ blockContent ~ nameOpt ~ classOpt) { (title, content, id, styles) => 
-      TitledBlock(title, content, toOptions(id,styles) + Styles("admonition"))
+    (argument(parse.standardSpans(p), withWS = true) ~ blockContent ~ stdOpt) { (title, content, opt) => 
+      TitledBlock(title, content, opt + Styles("admonition"))
     } 
   }
 
@@ -112,8 +112,8 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#specific-admonitions]] for details.
    */
   def admonition (style: String, title: String): DirectivePart[Block] = {
-    (blockContent ~ nameOpt ~ classOpt) { (content, id, styles) => 
-      TitledBlock(List(Text(title)), content, toOptions(id,styles) + Styles(style))
+    (blockContent ~ stdOpt) { (content, opt) => 
+      TitledBlock(List(Text(title)), content, opt + Styles(style))
     } 
   }
   
@@ -121,8 +121,8 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#topic]] for details.
    */
   def topic (p: InlineParsers): DirectivePart[Block] = {
-    (argument(parse.standardSpans(p), withWS = true) ~ blockContent ~ nameOpt ~ classOpt) { (title, content, id, styles) => 
-      TitledBlock(title, content, toOptions(id,styles) + Styles("topic"))
+    (argument(parse.standardSpans(p), withWS = true) ~ blockContent ~ stdOpt) { (title, content, opt) => 
+      TitledBlock(title, content, opt + Styles("topic"))
     } 
   }
   
@@ -131,9 +131,9 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
    */
   def sidebar (p: InlineParsers): DirectivePart[Block] = {
     (argument(parse.standardSpans(p), withWS = true) ~ optField("subtitle", parse.standardSpans(p)) ~ 
-        blockContent ~ nameOpt ~ classOpt) { (title, subtitle, content, id, styles) =>
+        blockContent ~ stdOpt) { (title, subtitle, content, opt) =>
       val titleAndContent = subtitle.map(s => Paragraph(s, Styles("subtitle"))).toList ++ content
-      TitledBlock(title, titleAndContent, toOptions(id,styles) + Styles("sidebar"))
+      TitledBlock(title, titleAndContent, opt + Styles("sidebar"))
     } 
   }
   
@@ -141,8 +141,8 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#rubric]] for details.
    */
   def rubric (p: InlineParsers): DirectivePart[Block] = {
-    (argument(parse.standardSpans(p), withWS = true) ~ nameOpt ~ classOpt) { (text, id, styles) => 
-      Paragraph(text, toOptions(id,styles) + Styles("rubric"))
+    (argument(parse.standardSpans(p), withWS = true) ~ stdOpt) { (text, opt) => 
+      Paragraph(text, opt + Styles("rubric"))
     } 
   }
   
@@ -158,8 +158,8 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
    *  [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#parsed-literal-block]] for details.
    */
   def parsedLiteral (p: InlineParsers): DirectivePart[Block] = {
-    (content(parse.standardSpans(p)) ~ nameOpt ~ classOpt) { (content, id, styles) => 
-      ParsedLiteralBlock(content, toOptions(id,styles))
+    (content(parse.standardSpans(p)) ~ stdOpt) { (content, opt) => 
+      ParsedLiteralBlock(content, opt)
     } 
   }
   
@@ -167,8 +167,8 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#table]] for details.
    */
   def table (p: BlockParsers with InlineParsers): DirectivePart[Block] = {
-    (optArgument(parse.standardSpans(p), withWS = true) ~ content(parse.table(p)) ~ nameOpt ~ classOpt) { (caption, table, id, styles) => 
-      table.copy(caption = Caption(caption.toList.flatten), options = toOptions(id,styles))
+    (optArgument(parse.standardSpans(p), withWS = true) ~ content(parse.table(p)) ~ stdOpt) { (caption, table, opt) => 
+      table.copy(caption = Caption(caption.toList.flatten), options = opt)
     } 
   }
   
@@ -177,8 +177,8 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
    *  The current implementation does not support syntax highlighting.
    */
   lazy val code: DirectivePart[Block] = {
-    (argument() ~ content(Right(_)) ~ nameOpt ~ classOpt) { (language, content, id, styles) => 
-      CodeBlock(language, List(Text(content)), toOptions(id,styles))
+    (argument() ~ content(Right(_)) ~ stdOpt) { (language, content, opt) => 
+      CodeBlock(language, List(Text(content)), opt)
     } 
   }
   

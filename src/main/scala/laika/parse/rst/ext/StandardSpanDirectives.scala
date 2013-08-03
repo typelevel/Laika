@@ -52,10 +52,16 @@ trait StandardSpanDirectives {
    */
   protected val classOpt = optField("class")
   
+  /** The standard class and name options supported by most directives,
+   *  combined in the result into an Options instance.
+   */
+  protected val stdOpt = (nameOpt ~ classOpt) { (id, styles) => toOptions(id, styles) } 
+  
   /** Converts an optional id and an optional style parameter containing
    *  a space-delimited list of styles to an `Options` instance.
    */
-  def toOptions (id: Option[String], styles: Option[String]) = Options(id, styles.map(_.split(" ").toList).getOrElse(Nil)) // TODO - merge combinators
+  protected def toOptions (id: Option[String], styles: Option[String]) = 
+    Options(id, styles.map(_.split(" ").toList).getOrElse(Nil))
   
   
   /** The image directive for span elements, 
@@ -64,8 +70,8 @@ trait StandardSpanDirectives {
   lazy val image: DirectivePart[Span] = {
     def multilineURI (text: String) = Right(text.split("\n").map(_.trim).mkString("\n").trim)
     
-    (argument(multilineURI, withWS = true) ~ optField("alt") ~ optField("target", parse.target) ~ nameOpt ~ classOpt) { (uri, alt, target, id, styles) =>
-      val image = Image(alt.getOrElse(""), uri, None, toOptions(id,styles))
+    (argument(multilineURI, withWS = true) ~ optField("alt") ~ optField("target", parse.target) ~ stdOpt) { (uri, alt, target, opt) =>
+      val image = Image(alt.getOrElse(""), uri, None, opt)
       (target map { 
         case ref: ExternalLink  => ref.copy(content = List(image))
         case ref: LinkReference => ref.copy(content = List(image))
