@@ -28,7 +28,7 @@ The current version is published to Maven Central for Scala 2.10.x, 2.9.3 and 2.
 
 Adding Laika to your project with sbt:
 
-    libraryDependencies += "org.planet42" %% "laika" % "0.2.0"
+    libraryDependencies += "org.planet42" %% "laika" % "0.3.0"
 
 
 Example for transforming from file to file:
@@ -42,7 +42,7 @@ For further information:
 
 * Try out Laika with the [Web Tool].
 
-* Browse or fork the source on [GitHub].
+* Browse the source on [GitHub].
 
 * Browse the [API].
 
@@ -88,14 +88,24 @@ Road Map
 
 * Template-based site generation (0.4)
 
-* sbt Plugin and command line interface (0.5)
+* sbt Plugin (0.5)
 
 * New renderers for DocBook, PDF (0.6) and epub (0.7)
 
-* Various Markdown extensions (GitHub Flavored Markdown, Multimarkdown, etc.) (0.8)
+
+After these four releases priorities depend on user demand, therefore
+no specific order has been set for these other ideas:
+
+* Various Markdown extensions (GitHub Flavored Markdown, Multimarkdown, etc.)
+
+* A few users asked for AsciiDoc support (although they don't have a real spec which makes it difficult)
+
+* A Java API
+
+* A command line interface
 
 * Luna, a new markup syntax that aims to combine the simplicity and readability of Markdown
-  with the power and extensibility of reStructuredText (0.9)
+  with the power and extensibility of reStructuredText
 
 
 Design Principles
@@ -123,7 +133,7 @@ Design Principles
   while keeping the basic contract for plugging in a new parser function as simple and generic as 
   `Input => Document`, so that other parser frameworks or tools can be used, too.
   
-* Designed for robustness: Laika has more than 500 tests, it is protected against malicious
+* Designed for robustness: Laika has more than 600 tests, it is protected against malicious
   or accidentally malformed input like endless recursion (a type of guard most other text markup 
   parsers do not include) and parsers like the URI parser are based on the actual relevant RFCs
   (and not just a rough approximation like in many other parsers). 
@@ -160,6 +170,19 @@ This diagram shows the main building blocks of the toolkit:
   
 Release History
 ---------------
+
+* __0.3__ (Aug 3, 2013):
+
+    * Support for most of the standard directives and text roles of the reStructuredText reference
+      parser (admonitions, `figure`, `image`, `code`, `raw` and many more)
+    * Now integrates the official Markdown test suite (any many fixes to make it pass)
+    * Now integrates a test for transforming the full reStructuredText specification (which, of
+      course, is written in reStructuredText) and many fixes to make it pass
+    * Adds the renderer option `HTML.unformatted` for terse output without indentation or whitespace
+      (often desirable when writing the rendered document to a database for example)
+    * Adds a new [Web Tool] to try out Laika online
+    * General cleanup of parser implementations and alignments between Markdown and reStructuredText
+      parsers, making both of them much more robust
 
 * __0.2__ (May 7, 2013):
 

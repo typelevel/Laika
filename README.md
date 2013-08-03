@@ -13,7 +13,7 @@ The current version is published to Maven Central for Scala 2.10.x, 2.9.3 and 2.
 
 Adding Laika to your project with sbt:
 
-    libraryDependencies += "org.planet42" %% "laika" % "0.2.0"
+    libraryDependencies += "org.planet42" %% "laika" % "0.3.0"
 
 
 Example for transforming from file to file:

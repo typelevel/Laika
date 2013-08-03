@@ -3,11 +3,11 @@ name := "laika"
 
 organization := "org.planet42"
 
-version := "0.2.0"
+version := "0.3.0"
 
 description := "Library for transforming lightweight text markup into various types of output formats, written in Scala"
 
-scalaVersion := "2.9.2"
+scalaVersion := "2.9.3"
 
 scalacOptions <<= scalaVersion map { v: String =>
   val default = Opts.compile.encoding("UTF-8") :+ Opts.compile.deprecation :+ Opts.compile.unchecked
@@ -23,7 +23,7 @@ libraryDependencies += "net.sf.jtidy" % "jtidy" % "r938" % "test"
 
 crossVersion := CrossVersion.binary
 
-crossScalaVersions := Seq("2.9.2", "2.9.3", "2.10.0")
+crossScalaVersions := Seq("2.9.2", "2.9.3", "2.10.2")
 
 
 // Publishing to Sonatype OSS Repository
