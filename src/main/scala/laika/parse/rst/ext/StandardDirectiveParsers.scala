@@ -38,8 +38,8 @@ trait StandardDirectiveParsers extends BlockParsers with InlineParsers {
   
   /** Parses all standard inline markup supported by `reStructuredText`.
    *  
-   *  @p the standard inline parsers including all registered directives for recursive use
-   *  @input the input to parse
+   *  @param p the standard inline parsers including all registered directives for recursive use
+   *  @param input the input to parse
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
   def standardSpans (p: InlineParsers)(input: String): Either[String,Seq[Span]] = 
@@ -48,8 +48,8 @@ trait StandardDirectiveParsers extends BlockParsers with InlineParsers {
   
   /** Parses a quoted block with nested blocks.
    *  
-   *  @p the standard block parsers including all registered directives for recursive use
-   *  @input the input to parse
+   *  @param p the standard block parsers including all registered directives for recursive use
+   *  @param input the input to parse
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
   def quotedBlock (p: BlockParsers, style: String)(input: String) = {
@@ -66,8 +66,8 @@ trait StandardDirectiveParsers extends BlockParsers with InlineParsers {
 
   /** Parses one of the two table types supported by `reStructuredText`.
    *  
-   *  @p the standard block parsers including all registered directives for recursive use
-   *  @input the input to parse
+   *  @param p the standard block parsers including all registered directives for recursive use
+   *  @param input the input to parse
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
   def table (p: BlockParsers)(input: String) = 
@@ -75,8 +75,8 @@ trait StandardDirectiveParsers extends BlockParsers with InlineParsers {
   
   /** Parses a caption (a single paragraph) and a legend (one or more blocks), both being optional.
    *  
-   *  @p the standard block parsers including all registered directives for recursive use
-   *  @input the input to parse
+   *  @param p the standard block parsers including all registered directives for recursive use
+   *  @param input the input to parse
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
   def captionAndLegend (p: BlockParsers)(input: String) = {
@@ -90,7 +90,7 @@ trait StandardDirectiveParsers extends BlockParsers with InlineParsers {
   
   /** Parses a target which might be a simple reference, a phrase reference or an uri.
    *  
-   *  @input the input to parse
+   *  @param input the input to parse
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
   def target (input: String): Either[String,Span] = {
@@ -113,7 +113,7 @@ trait StandardDirectiveParsers extends BlockParsers with InlineParsers {
   
   /** Parses unicode values in various notations intertwined with normal text.
    *  
-   *  @input the input to parse
+   *  @param input the input to parse
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
   def unicode (input: String): Either[String,String] = {
