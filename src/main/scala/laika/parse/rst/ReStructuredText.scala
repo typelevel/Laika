@@ -158,16 +158,16 @@ class ReStructuredText private (
       val rawDirective = if (rawContent) List(BlockDirective("raw")(std.rawDirective)) else Nil
       val rawTextRole = if (rawContent) List(std.rawTextRole) else Nil
       
-      val blockDirectives = (rawDirective ++ std.blockDirectives ++ self.blockDirectives) map { d => (d.name, d.part) } toMap
-      val spanDirectives = (std.spanDirectives ++ self.spanDirectives) map { d => (d.name, d.part) } toMap
-      val textRoles = (rawTextRole ++ std.textRoles ++ self.textRoles) map { r => (r.name, r.part) } toMap
+      lazy val blockDirectives = (rawDirective ++ std.blockDirectives ++ self.blockDirectives) map { d => (d.name, d.part(this)) } toMap
+      lazy val spanDirectives  = (std.spanDirectives ++ self.spanDirectives)                   map { d => (d.name, d.part(this)) } toMap
+      lazy val textRoles       = (rawTextRole ++ std.textRoles ++ self.textRoles)              map { r => (r.name, r.part(this)) } toMap
       
       override val textRoleElements = (std.textRoles ++ self.textRoles) map { role => CustomizedTextRole(role.name, role.default) }
       override val defaultTextRole = self.defaultTextRole 
       
-      def blockDirective (name: String): Option[DirectivePart[Block]]  = blockDirectives.get(name).map(_(this))
-      def spanDirective (name: String): Option[DirectivePart[Span]]     = spanDirectives.get(name).map(_(this))
-      def textRole (name: String): Option[RoleDirectivePart[String => Span]] = textRoles.get(name).map(_(this))
+      def blockDirective (name: String): Option[DirectivePart[Block]]  = blockDirectives.get(name)
+      def spanDirective (name: String): Option[DirectivePart[Span]]     = spanDirectives.get(name)
+      def textRole (name: String): Option[RoleDirectivePart[String => Span]] = textRoles.get(name)
     }
   }
 
