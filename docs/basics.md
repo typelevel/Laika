@@ -46,6 +46,15 @@ Converting using Strings as input and output
 Other options are using `java.io.Reader/Writer` or streams. Of course they
 can be combined in any way, like going from file as input to String as output.
 
+Laika uses the same platform-dependent defaults for file encodings as the
+IO classes in the Scala SDK. The most convenient way to specify an encoding
+is via an implicit:
+
+implicit val codec:Codec = Codec.UTF8
+
+This codec will then be used by the `fromFile` and `toFile˚ methods shown
+in the examples above.
+
 You can also keep the created transformer instance to reuse it with different
 inputs and outputs:
 
