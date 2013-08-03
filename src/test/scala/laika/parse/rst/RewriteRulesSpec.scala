@@ -28,7 +28,7 @@ class RewriteRulesSpec extends FlatSpec
                   with ModelBuilder {
 
   
-  def rewritten (doc: Document) = doc rewrite RewriteRules(doc)
+  def rewritten (doc: Document) = doc rewrite (laika.tree.RewriteRules chain (List(RewriteRules(doc), laika.tree.RewriteRules(doc))))
   
   def invalidSpan (message: String, fallback: String) =
       InvalidSpan(SystemMessage(laika.tree.Elements.Error, message), Text(fallback))

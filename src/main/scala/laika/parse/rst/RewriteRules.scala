@@ -53,9 +53,6 @@ object RewriteRules extends (Document => PartialFunction[Element,Option[Element]
       case InterpretedText(role,text,_,_) =>
         textRoles.get(role).orElse(Some({s: String => invalidSpan("unknown text role: " + role, "`"+s+"`")})).map(_(text))
         
-      case SubstitutionDefinition(_,_,_) => None // TODO - should be covered by default rules
-      case CustomizedTextRole(_,_,_) => None
-      
     }
   }
 
