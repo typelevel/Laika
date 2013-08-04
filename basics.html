@@ -111,6 +111,12 @@
 val result = Transform from Markdown to HTML fromString input toString</pre>
   <p>Other options are using <code>java.io.Reader/Writer</code> or streams. Of course they
   can be combined in any way, like going from file as input to String as output.</p>
+  <p>Laika uses the same platform-dependent defaults for file encodings as the
+  IO classes in the Scala SDK. The most convenient way to specify an encoding
+  is via an implicit:</p>
+  <p>implicit val codec:Codec = Codec.UTF8</p>
+  <p>This codec will then be used by the <code>fromFile</code> and <code>toFile</code> methods shown
+  in the examples above.</p>
   <p>You can also keep the created transformer instance to reuse it with different
   inputs and outputs:</p>
   <pre>val transform = Transform from ReStructuredText to HTML
@@ -134,10 +140,10 @@ Transform from Markdown to PrettyPrint fromString input toString
 
 res0: java.lang.String = Document - Blocks: 1
 . Paragraph - Spans: 3
-. . Text - &apos;some &apos;
+. . Text - &#39;some &#39;
 . . Emphasized - Spans: 1
-. . . Text - &apos;text&apos;
-. . Text - &apos; example&apos;</pre>
+. . . Text - &#39;text&#39;
+. . Text - &#39; example&#39;</pre>
   <h2 id="parse">The Parse API</h2>
   <p>If you need to perform the parsing step separately, the API is similar to
   the Transform API:</p>

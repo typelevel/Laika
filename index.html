@@ -85,7 +85,7 @@
       <p>Embedded use (e.g. web applications that allow user input in one of the supported markup syntaxes)</p>
     </li>
     <li>
-      <p>As a standalone tool (e.g. as part of an sbt build that produces the project&apos;s documentation)</p>
+      <p>As a standalone tool (e.g. as part of an sbt build that produces the project&#39;s documentation)</p>
     </li>
   </ul>
   <p>It is Open Source under the Apache 2.0 License.</p>
@@ -94,7 +94,7 @@
   <h2 id="getting-started">Getting Started</h2>
   <p>The current version is published to Maven Central for Scala 2.10.x, 2.9.3 and 2.9.2.</p>
   <p>Adding Laika to your project with sbt:</p>
-  <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika&quot; % &quot;0.2.0&quot;</pre>
+  <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika&quot; % &quot;0.3.0&quot;</pre>
   <p>Example for transforming from file to file:</p>
   <pre>Transform from Markdown to HTML fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;</pre>
   <p>For further information:</p>
@@ -106,7 +106,7 @@
       <p>Try out Laika with the <a href="http://www.planet42.org/laika/webtool">Web Tool</a>.</p>
     </li>
     <li>
-      <p>Browse or fork the source on <a href="https://github.com/planet42/Laika">GitHub</a>.</p>
+      <p>Browse the source on <a href="https://github.com/planet42/Laika">GitHub</a>.</p>
     </li>
     <li>
       <p>Browse the <a href="api/">API</a>.</p>
@@ -151,17 +151,30 @@
       <p>Template-based site generation (0.4)</p>
     </li>
     <li>
-      <p>sbt Plugin and command line interface (0.5)</p>
+      <p>sbt Plugin (0.5)</p>
     </li>
     <li>
       <p>New renderers for DocBook, PDF (0.6) and epub (0.7)</p>
     </li>
+  </ul>
+  <p>After these four releases priorities depend on user demand, therefore
+  no specific order has been set for these other ideas:</p>
+  <ul>
     <li>
-      <p>Various Markdown extensions (GitHub Flavored Markdown, Multimarkdown, etc.) (0.8)</p>
+      <p>Various Markdown extensions (GitHub Flavored Markdown, Multimarkdown, etc.)</p>
+    </li>
+    <li>
+      <p>A few users asked for AsciiDoc support (although they don&#39;t have a real spec which makes it difficult)</p>
+    </li>
+    <li>
+      <p>A Java API</p>
+    </li>
+    <li>
+      <p>A command line interface</p>
     </li>
     <li>
       <p>Luna, a new markup syntax that aims to combine the simplicity and readability of Markdown
-      with the power and extensibility of reStructuredText (0.9)</p>
+      with the power and extensibility of reStructuredText</p>
     </li>
   </ul>
   <h2 id="design-principles">Design Principles</h2>
@@ -196,7 +209,7 @@
       <code>Input =&gt; Document</code>, so that other parser frameworks or tools can be used, too.</p>
     </li>
     <li>
-      <p>Designed for robustness: Laika has more than 500 tests, it is protected against malicious
+      <p>Designed for robustness: Laika has more than 600 tests, it is protected against malicious
       or accidentally malformed input like endless recursion (a type of guard most other text markup 
       parsers do not include) and parsers like the URI parser are based on the actual relevant RFCs
       (and not just a rough approximation like in many other parsers). </p>
@@ -215,7 +228,7 @@
     <li>
       <p><code>Parse</code> represents the actual parsing step, a pluggable function of type <code>Input =&gt; Document</code>.
       Supported out of the box are Markdown and reStructuredText. Other parsers can easily be added
-      to the system and they do not need to be based on the SDK&apos;s parser combinators like the built-in
+      to the system and they do not need to be based on the SDK&#39;s parser combinators like the built-in
       parsers. The extensibility options of existing parsers depend on the capabilities of the 
       respective markup, e.g. reStructuredText has the concept of directives and text roles as
       extension hooks, therefore the extension APIs are parser-specific. </p>
@@ -236,6 +249,21 @@
   </ul>
   <h2 id="release-history">Release History</h2>
   <ul>
+    <li>
+      <p><strong>0.3</strong> (Aug 3, 2013):</p>
+      <ul>
+        <li>Support for most of the standard directives and text roles of the reStructuredText reference
+        parser (admonitions, <code>figure</code>, <code>image</code>, <code>code</code>, <code>raw</code> and many more)</li>
+        <li>Now integrates the official Markdown test suite (any many fixes to make it pass)</li>
+        <li>Now integrates a test for transforming the full reStructuredText specification (which, of
+        course, is written in reStructuredText) and many fixes to make it pass</li>
+        <li>Adds the renderer option <code>HTML.unformatted</code> for terse output without indentation or whitespace
+        (often desirable when writing the rendered document to a database for example)</li>
+        <li>Adds a new <a href="http://www.planet42.org/laika/webtool">Web Tool</a> to try out Laika online</li>
+        <li>General cleanup of parser implementations and alignments between Markdown and reStructuredText
+        parsers, making both of them much more robust</li>
+      </ul>
+    </li>
     <li>
       <p><strong>0.2</strong> (May 7, 2013):</p>
       <ul>

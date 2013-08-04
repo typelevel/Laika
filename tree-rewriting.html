@@ -132,14 +132,14 @@
       <p>Therefore, if the rule does not affect any node, the method will simply return <code>this</code>. </p>
     </li>
   </ul>
-  <p>For a very simple example, let&apos;s assume you want to &quot;downgrade&quot; all <code>Strong</code> nodes in 
+  <p>For a very simple example, let&#39;s assume you want to &quot;downgrade&quot; all <code>Strong</code> nodes in 
   the text to <code>Emphasized</code> nodes:</p>
   <pre>val doc: Document = ...
 
 val newDoc = doc rewrite {
   case Strong(content, options) =&gt; Some(Emphasized(content, options))
 }</pre>
-  <p>For a slightly more advanced example, let&apos;s assume you only want to downgrade <code>Strong</code>
+  <p>For a slightly more advanced example, let&#39;s assume you only want to downgrade <code>Strong</code>
   nodes inside headers. To accomplish this you need to nest a rewrite operation
   inside another one:</p>
   <pre>val newDoc = doc rewrite {
