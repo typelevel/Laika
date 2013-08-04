@@ -2,24 +2,34 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
-          <title>laika.parse.rst</title>
+          <title>rst - laika.parse.rst</title>
+          <meta name="description" content="rst - laika.parse.rst" />
+          <meta name="keywords" content="rst laika.parse.rst" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
-      <link type="text/css" media="screen" rel="stylesheet" href="../../../lib/template.css" />
-      <script type="text/javascript" src="../../../lib/jquery.js"></script>
-      <script type="text/javascript" src="../../../lib/jquery-ui.js"></script>
-      <script type="text/javascript" src="../../../lib/template.js"></script>
-      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
+      <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../index.html';
+            var hash = 'laika.parse.rst.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
     
         </head>
-        <body onload="sh_highlightDocument('../lib/', '.min.js');" class="value">
+        <body class="value">
       <div id="definition">
         <img src="../../../lib/package_big.png" />
-        <p id="owner"><a name="laika" class="extype" href="../../package.html">laika</a>.<a name="laika.parse" class="extype" href="../package.html">parse</a></p>
+        <p id="owner"><a href="../../package.html" class="extype" name="laika">laika</a>.<a href="../package.html" class="extype" name="laika.parse">parse</a></p>
         <h1>rst</h1>
       </div>
 
-      <h4 class="signature" id="signature">
+      <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">package</span>
@@ -29,11 +39,11 @@
       </span>
       </h4>
       
-      <div class="fullcommenttop" id="comment"></div>
-    
+          <div id="comment" class="fullcommenttop"></div>
+        
 
       <div id="mbrsel">
-        <div id="textfilter"><span class="pre"></span><span class="input"><input accesskey="/" type="text" /></span><span class="post"></span></div>
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
         
         
         <div id="visbl">
@@ -46,21 +56,10 @@
         <div id="allMembers">
         
 
-        <div class="types members" id="types">
+        <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li visbl="pub" name="laika.parse.rst.BlockBaseParsers" data-isabs="true">
-      <a id="BlockBaseParsers:BlockBaseParsers"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a href="BlockBaseParsers.html"><span class="name">BlockBaseParsers</span></a><span class="result"> extends BlockParsers</span>
-      </span>
-      </h4>
-      <p class="comment cmt">Base parsers used by all of the various block-level parser traits.</p>
-    </li><li visbl="pub" name="laika.parse.rst.BlockParsers" data-isabs="true">
+              <ol><li name="laika.parse.rst.BlockParsers" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="BlockParsersextendsBlockParserswithListParserswithTableParserswithExplicitBlockParsers"></a>
       <a id="BlockParsers:BlockParsers"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -68,11 +67,12 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="BlockParsers.html"><span class="name">BlockParsers</span></a><span class="result"> extends BlockBaseParsers with ListParsers with TableParsers with ExplicitBlockParsers</span>
+        <a href="BlockParsers.html"><span class="name">BlockParsers</span></a><span class="result"> extends <a href="../BlockParsers.html" class="extype" name="laika.parse.BlockParsers">parse.BlockParsers</a> with <a href="ListParsers.html" class="extype" name="laika.parse.rst.ListParsers">ListParsers</a> with <a href="TableParsers.html" class="extype" name="laika.parse.rst.TableParsers">TableParsers</a> with <a href="ExplicitBlockParsers.html" class="extype" name="laika.parse.rst.ExplicitBlockParsers">ExplicitBlockParsers</a></span>
       </span>
       </h4>
       <p class="comment cmt">Provides the parsers for all types of block-level elements of reStructuredText.</p>
-    </li><li visbl="pub" name="laika.parse.rst.ExplicitBlockParsers" data-isabs="true">
+    </li><li name="laika.parse.rst.ExplicitBlockParsers" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ExplicitBlockParsersextendsBlockParsers"></a>
       <a id="ExplicitBlockParsers:ExplicitBlockParsers"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -80,11 +80,12 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="ExplicitBlockParsers.html"><span class="name">ExplicitBlockParsers</span></a><span class="result"> extends BlockBaseParsers</span>
+        <a href="ExplicitBlockParsers.html"><span class="name">ExplicitBlockParsers</span></a><span class="result"> extends <a href="../BlockParsers.html" class="extype" name="laika.parse.BlockParsers">parse.BlockParsers</a></span>
       </span>
       </h4>
       <p class="comment cmt">Provides the parsers for all types of explicit block elements.</p>
-    </li><li visbl="pub" name="laika.parse.rst.ExtendedHTML" data-isabs="false">
+    </li><li name="laika.parse.rst.ExtendedHTML" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ExtendedHTMLextendslaika.render.HTMLWriter=&gt;PartialFunction[laika.tree.Elements.Element,Unit]"></a>
       <a id="ExtendedHTML:ExtendedHTML"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -92,11 +93,12 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="ExtendedHTML.html"><span class="name">ExtendedHTML</span></a><span class="result"> extends (HTMLWriter) ⇒ PartialFunction[Element, Unit]</span>
+        <a href="ExtendedHTML.html"><span class="name">ExtendedHTML</span></a><span class="result"> extends (<a href="../../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>) ⇒ <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
       </h4>
       <p class="comment cmt">HTML renderer for special reStructuredText tree elements not part of the default document tree model.</p>
-    </li><li visbl="pub" name="laika.parse.rst.InlineParsers" data-isabs="true">
+    </li><li name="laika.parse.rst.InlineParsers" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="InlineParsersextendsInlineParserswithURIParsers"></a>
       <a id="InlineParsers:InlineParsers"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -104,11 +106,12 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="InlineParsers.html"><span class="name">InlineParsers</span></a><span class="result"> extends InlineParsers with URIParsers</span>
+        <a href="InlineParsers.html"><span class="name">InlineParsers</span></a><span class="result"> extends <a href="../InlineParsers.html" class="extype" name="laika.parse.InlineParsers">parse.InlineParsers</a> with <a href="../util/URIParsers.html" class="extype" name="laika.parse.util.URIParsers">URIParsers</a></span>
       </span>
       </h4>
       <p class="comment cmt">Provides all inline parsers for reStructuredText.</p>
-    </li><li visbl="pub" name="laika.parse.rst.ListParsers" data-isabs="true">
+    </li><li name="laika.parse.rst.ListParsers" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ListParsersextendsBlockParsers"></a>
       <a id="ListParsers:ListParsers"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -116,11 +119,12 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="ListParsers.html"><span class="name">ListParsers</span></a><span class="result"> extends BlockBaseParsers</span>
+        <a href="ListParsers.html"><span class="name">ListParsers</span></a><span class="result"> extends <a href="../BlockParsers.html" class="extype" name="laika.parse.BlockParsers">parse.BlockParsers</a></span>
       </span>
       </h4>
       <p class="comment cmt">Provides the parsers for all reStructuredText list types.</p>
-    </li><li visbl="pub" name="laika.parse.rst.ReStructuredText" data-isabs="false">
+    </li><li name="laika.parse.rst.ReStructuredText" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ReStructuredTextextendslaika.io.Input=&gt;laika.tree.Elements.RawDocument"></a>
       <a id="ReStructuredText:ReStructuredText"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -128,11 +132,12 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="ReStructuredText.html"><span class="name">ReStructuredText</span></a><span class="result"> extends (Input) ⇒ Document</span>
+        <a href="ReStructuredText.html"><span class="name">ReStructuredText</span></a><span class="result"> extends (<a href="../../io/Input.html" class="extype" name="laika.io.Input">Input</a>) ⇒ <a href="../../tree/Elements$$RawDocument.html" class="extype" name="laika.tree.Elements.RawDocument">RawDocument</a></span>
       </span>
       </h4>
       <p class="comment cmt">A parser for text written in reStructuredText markup.</p>
-    </li><li visbl="pub" name="laika.parse.rst.TableParsers" data-isabs="true">
+    </li><li name="laika.parse.rst.TableParsers" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="TableParsersextendsBlockParsers"></a>
       <a id="TableParsers:TableParsers"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -140,31 +145,19 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="TableParsers.html"><span class="name">TableParsers</span></a><span class="result"> extends BlockBaseParsers</span>
+        <a href="TableParsers.html"><span class="name">TableParsers</span></a><span class="result"> extends <a href="../BlockParsers.html" class="extype" name="laika.parse.BlockParsers">parse.BlockParsers</a></span>
       </span>
       </h4>
       <p class="comment cmt">Provides parsers for the two table types supported by reStructuredText.</p>
-    </li><li visbl="pub" name="laika.parse.rst.WhitespacePreprocessor" data-isabs="false">
-      <a id="WhitespacePreprocessor:WhitespacePreprocessor"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="WhitespacePreprocessor.html"><span class="name">WhitespacePreprocessor</span></a><span class="result"> extends (String) ⇒ String</span>
-      </span>
-      </h4>
-      <p class="comment cmt">Processes whitespace, removing or replacing most whitespace characters except
- for newline and space.</p>
     </li></ol>
             </div>
 
         
 
-        <div class="values members" id="values">
+        <div id="values" class="values members">
               <h3>Value Members</h3>
-              <ol><li visbl="pub" name="laika.parse.rst.Directives" data-isabs="false">
+              <ol><li name="laika.parse.rst.Directives" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Directives"></a>
       <a id="Directives:Directives"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -172,11 +165,12 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Directives$.html"><span class="name">Directives</span></a><span class="result"> extends AnyRef</span>
+        <a href="Directives$.html"><span class="name">Directives</span></a>
       </span>
       </h4>
       <p class="comment cmt">API for creating directives, the extension mechanism of reStructuredText.</p>
-    </li><li visbl="pub" name="laika.parse.rst.Elements" data-isabs="false">
+    </li><li name="laika.parse.rst.Elements" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Elements"></a>
       <a id="Elements:Elements"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -184,12 +178,13 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Elements$.html"><span class="name">Elements</span></a><span class="result"> extends AnyRef</span>
+        <a href="Elements$.html"><span class="name">Elements</span></a>
       </span>
       </h4>
       <p class="comment cmt">Provides the elements of the document tree that are too specific to reStructuredText
  to be added to the generic tree model.</p>
-    </li><li visbl="pub" name="laika.parse.rst.ExtendedHTML" data-isabs="false">
+    </li><li name="laika.parse.rst.ExtendedHTML" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ExtendedHTML"></a>
       <a id="ExtendedHTML:ExtendedHTML"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -197,11 +192,12 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="ExtendedHTML$.html"><span class="name">ExtendedHTML</span></a><span class="result"> extends ExtendedHTML</span>
+        <a href="ExtendedHTML$.html"><span class="name">ExtendedHTML</span></a><span class="result"> extends <a href="ExtendedHTML.html" class="extype" name="laika.parse.rst.ExtendedHTML">ExtendedHTML</a></span>
       </span>
       </h4>
       
-    </li><li visbl="pub" name="laika.parse.rst.ReStructuredText" data-isabs="false">
+    </li><li name="laika.parse.rst.ReStructuredText" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ReStructuredText"></a>
       <a id="ReStructuredText:ReStructuredText"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -209,11 +205,12 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="ReStructuredText$.html"><span class="name">ReStructuredText</span></a><span class="result"> extends ReStructuredText</span>
+        <a href="ReStructuredText$.html"><span class="name">ReStructuredText</span></a><span class="result"> extends <a href="ReStructuredText.html" class="extype" name="laika.parse.rst.ReStructuredText">ReStructuredText</a></span>
       </span>
       </h4>
       <p class="comment cmt">The default reStructuredText parser configuration, without any directives or text roles installed.</p>
-    </li><li visbl="pub" name="laika.parse.rst.RewriteRules" data-isabs="false">
+    </li><li name="laika.parse.rst.RewriteRules" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RewriteRules"></a>
       <a id="RewriteRules:RewriteRules"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -221,12 +218,13 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="RewriteRules$.html"><span class="name">RewriteRules</span></a><span class="result"> extends AnyRef</span>
+        <a href="RewriteRules$.html"><span class="name">RewriteRules</span></a><span class="result"> extends (<a href="../../tree/Elements$$Document.html" class="extype" name="laika.tree.Elements.Document">Document</a>) ⇒ <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Option">Option</span>[<a href="../../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>]]</span>
       </span>
       </h4>
       <p class="comment cmt"> The default rewrite rules that get applied to the raw document tree after parsing
- reStructuredTextMarkup.</p>
-    </li><li visbl="pub" name="laika.parse.rst.TextRoles" data-isabs="false">
+ reStructuredText markup.</p>
+    </li><li name="laika.parse.rst.TextRoles" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TextRoles"></a>
       <a id="TextRoles:TextRoles"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -234,18 +232,41 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="TextRoles$.html"><span class="name">TextRoles</span></a><span class="result"> extends AnyRef</span>
+        <a href="TextRoles$.html"><span class="name">TextRoles</span></a>
       </span>
       </h4>
       <p class="comment cmt">API for creating interpreted text roles, the extension mechanism for inline elements of reStructuredText.</p>
+    </li><li name="laika.parse.rst.ext" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ext"></a>
+      <a id="ext:ext"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="ext/package.html"><span class="name">ext</span></a>
+      </span>
+      </h4>
+      
     </li></ol>
             </div>
+
+        
 
         
         </div>
 
         <div id="inheritedMembers">
         
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
         </div>
 
       </div>
@@ -253,7 +274,6 @@
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-
-
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../../lib/template.js"></script>
     </body>
       </html>

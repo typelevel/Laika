@@ -2,24 +2,34 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
-          <title>laika.parse</title>
+          <title>parse - laika.parse</title>
+          <meta name="description" content="parse - laika.parse" />
+          <meta name="keywords" content="parse laika.parse" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
-      <link type="text/css" media="screen" rel="stylesheet" href="../../lib/template.css" />
-      <script type="text/javascript" src="../../lib/jquery.js"></script>
-      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
-      <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'laika.parse.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
     
         </head>
-        <body onload="sh_highlightDocument('../lib/', '.min.js');" class="value">
+        <body class="value">
       <div id="definition">
         <img src="../../lib/package_big.png" />
-        <p id="owner"><a name="laika" class="extype" href="../package.html">laika</a></p>
+        <p id="owner"><a href="../package.html" class="extype" name="laika">laika</a></p>
         <h1>parse</h1>
       </div>
 
-      <h4 class="signature" id="signature">
+      <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">package</span>
@@ -29,11 +39,11 @@
       </span>
       </h4>
       
-      <div class="fullcommenttop" id="comment"></div>
-    
+          <div id="comment" class="fullcommenttop"></div>
+        
 
       <div id="mbrsel">
-        <div id="textfilter"><span class="pre"></span><span class="input"><input accesskey="/" type="text" /></span><span class="post"></span></div>
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
         
         
         <div id="visbl">
@@ -46,9 +56,23 @@
         <div id="allMembers">
         
 
-        <div class="types members" id="types">
+        <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li visbl="pub" name="laika.parse.BlockParsers" data-isabs="true">
+              <ol><li name="laika.parse.BaseParsers" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="BaseParsersextendsParsers"></a>
+      <a id="BaseParsers:BaseParsers"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="BaseParsers.html"><span class="name">BaseParsers</span></a><span class="result"> extends <span class="extype" name="scala.util.parsing.combinator.Parsers">Parsers</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Generic base parsers which are not specifically tailored for parsing of text markup.</p>
+    </li><li name="laika.parse.BlockParsers" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="BlockParsersextendsMarkupParsers"></a>
       <a id="BlockParsers:BlockParsers"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -56,11 +80,12 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="BlockParsers.html"><span class="name">BlockParsers</span></a><span class="result"> extends MarkupParsers</span>
+        <a href="BlockParsers.html"><span class="name">BlockParsers</span></a><span class="result"> extends <a href="MarkupParsers.html" class="extype" name="laika.parse.MarkupParsers">MarkupParsers</a></span>
       </span>
       </h4>
       <p class="comment cmt">A generic base trait for block parsers.</p>
-    </li><li visbl="pub" name="laika.parse.InlineParsers" data-isabs="true">
+    </li><li name="laika.parse.InlineParsers" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="InlineParsersextendsMarkupParsers"></a>
       <a id="InlineParsers:InlineParsers"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -68,11 +93,12 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="InlineParsers.html"><span class="name">InlineParsers</span></a><span class="result"> extends MarkupParsers</span>
+        <a href="InlineParsers.html"><span class="name">InlineParsers</span></a><span class="result"> extends <a href="MarkupParsers.html" class="extype" name="laika.parse.MarkupParsers">MarkupParsers</a></span>
       </span>
       </h4>
       <p class="comment cmt">A generic base trait for inline parsers.</p>
-    </li><li visbl="pub" name="laika.parse.MarkupParsers" data-isabs="true">
+    </li><li name="laika.parse.MarkupParsers" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="MarkupParsersextendsRegexParserswithBaseParsers"></a>
       <a id="MarkupParsers:MarkupParsers"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -80,7 +106,7 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="MarkupParsers.html"><span class="name">MarkupParsers</span></a><span class="result"> extends RegexParsers</span>
+        <a href="MarkupParsers.html"><span class="name">MarkupParsers</span></a><span class="result"> extends <span class="extype" name="scala.util.parsing.combinator.RegexParsers">RegexParsers</span> with <a href="BaseParsers.html" class="extype" name="laika.parse.BaseParsers">BaseParsers</a></span>
       </span>
       </h4>
       <p class="comment cmt">Base parsers that provide optimized low-level renderers for typical requirements
@@ -90,9 +116,10 @@
 
         
 
-        <div class="values members" id="values">
+        <div id="values" class="values members">
               <h3>Value Members</h3>
-              <ol><li visbl="pub" name="laika.parse.markdown" data-isabs="false">
+              <ol><li name="laika.parse.markdown" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="markdown"></a>
       <a id="markdown:markdown"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -104,7 +131,8 @@
       </span>
       </h4>
       
-    </li><li visbl="pub" name="laika.parse.rst" data-isabs="false">
+    </li><li name="laika.parse.rst" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="rst"></a>
       <a id="rst:rst"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -116,7 +144,8 @@
       </span>
       </h4>
       
-    </li><li visbl="pub" name="laika.parse.util" data-isabs="false">
+    </li><li name="laika.parse.util" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="util"></a>
       <a id="util:util"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -132,10 +161,20 @@
             </div>
 
         
+
+        
         </div>
 
         <div id="inheritedMembers">
         
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
         </div>
 
       </div>
@@ -143,7 +182,6 @@
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-
-
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
     </body>
       </html>

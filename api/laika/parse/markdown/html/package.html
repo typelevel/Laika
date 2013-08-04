@@ -2,24 +2,34 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
-          <title>laika.parse.markdown.html</title>
+          <title>html - laika.parse.markdown.html</title>
+          <meta name="description" content="html - laika.parse.markdown.html" />
+          <meta name="keywords" content="html laika.parse.markdown.html" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
-      <link type="text/css" media="screen" rel="stylesheet" href="../../../../lib/template.css" />
-      <script type="text/javascript" src="../../../../lib/jquery.js"></script>
-      <script type="text/javascript" src="../../../../lib/jquery-ui.js"></script>
-      <script type="text/javascript" src="../../../../lib/template.js"></script>
-      <script type="text/javascript" src="../../../../lib/tools.tooltip.js"></script>
+      <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../index.html';
+            var hash = 'laika.parse.markdown.html.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
     
         </head>
-        <body onload="sh_highlightDocument('../lib/', '.min.js');" class="value">
+        <body class="value">
       <div id="definition">
         <img src="../../../../lib/package_big.png" />
-        <p id="owner"><a name="laika" class="extype" href="../../../package.html">laika</a>.<a name="laika.parse" class="extype" href="../../package.html">parse</a>.<a name="laika.parse.markdown" class="extype" href="../package.html">markdown</a></p>
+        <p id="owner"><a href="../../../package.html" class="extype" name="laika">laika</a>.<a href="../../package.html" class="extype" name="laika.parse">parse</a>.<a href="../package.html" class="extype" name="laika.parse.markdown">markdown</a></p>
         <h1>html</h1>
       </div>
 
-      <h4 class="signature" id="signature">
+      <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">package</span>
@@ -29,11 +39,11 @@
       </span>
       </h4>
       
-      <div class="fullcommenttop" id="comment"></div>
-    
+          <div id="comment" class="fullcommenttop"></div>
+        
 
       <div id="mbrsel">
-        <div id="textfilter"><span class="pre"></span><span class="input"><input accesskey="/" type="text" /></span><span class="post"></span></div>
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
         
         
         <div id="visbl">
@@ -46,9 +56,10 @@
         <div id="allMembers">
         
 
-        <div class="types members" id="types">
+        <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li visbl="pub" name="laika.parse.markdown.html.HTMLParsers" data-isabs="true">
+              <ol><li name="laika.parse.markdown.html.HTMLParsers" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="HTMLParsersextendsInlineParserswithBlockParsers"></a>
       <a id="HTMLParsers:HTMLParsers"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -56,11 +67,12 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="HTMLParsers.html"><span class="name">HTMLParsers</span></a><span class="result"> extends InlineParsers with BlockParsers</span>
+        <a href="HTMLParsers.html"><span class="name">HTMLParsers</span></a><span class="result"> extends <a href="../InlineParsers.html" class="extype" name="laika.parse.markdown.InlineParsers">InlineParsers</a> with <a href="../BlockParsers.html" class="extype" name="laika.parse.markdown.BlockParsers">BlockParsers</a></span>
       </span>
       </h4>
       <p class="comment cmt">Parses verbatim HTML elements which may interleave with standard Markdown markup.</p>
-    </li><li visbl="pub" name="laika.parse.markdown.html.VerbatimHTML" data-isabs="false">
+    </li><li name="laika.parse.markdown.html.VerbatimHTML" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="VerbatimHTMLextendslaika.render.HTMLWriter=&gt;PartialFunction[laika.tree.Elements.Element,Unit]"></a>
       <a id="VerbatimHTML:VerbatimHTML"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -68,7 +80,7 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="VerbatimHTML.html"><span class="name">VerbatimHTML</span></a><span class="result"> extends (HTMLWriter) ⇒ PartialFunction[Element, Unit]</span>
+        <a href="VerbatimHTML.html"><span class="name">VerbatimHTML</span></a><span class="result"> extends (<a href="../../../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>) ⇒ <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../../../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
       </h4>
       <p class="comment cmt">Renderer for verbatim HTML elements.</p>
@@ -77,9 +89,10 @@
 
         
 
-        <div class="values members" id="values">
+        <div id="values" class="values members">
               <h3>Value Members</h3>
-              <ol><li visbl="pub" name="laika.parse.markdown.html.HTMLElements" data-isabs="false">
+              <ol><li name="laika.parse.markdown.html.HTMLElements" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="HTMLElements"></a>
       <a id="HTMLElements:HTMLElements"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -87,11 +100,12 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="HTMLElements$.html"><span class="name">HTMLElements</span></a><span class="result"> extends AnyRef</span>
+        <a href="HTMLElements$.html"><span class="name">HTMLElements</span></a>
       </span>
       </h4>
       <p class="comment cmt">The document tree model for all types of verbatim HTML elements.</p>
-    </li><li visbl="pub" name="laika.parse.markdown.html.VerbatimHTML" data-isabs="false">
+    </li><li name="laika.parse.markdown.html.VerbatimHTML" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="VerbatimHTML"></a>
       <a id="VerbatimHTML:VerbatimHTML"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -99,7 +113,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="VerbatimHTML$.html"><span class="name">VerbatimHTML</span></a><span class="result"> extends VerbatimHTML</span>
+        <a href="VerbatimHTML$.html"><span class="name">VerbatimHTML</span></a><span class="result"> extends <a href="VerbatimHTML.html" class="extype" name="laika.parse.markdown.html.VerbatimHTML">VerbatimHTML</a></span>
       </span>
       </h4>
       
@@ -107,10 +121,20 @@
             </div>
 
         
+
+        
         </div>
 
         <div id="inheritedMembers">
         
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
         </div>
 
       </div>
@@ -118,7 +142,6 @@
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-
-
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../../../lib/template.js"></script>
     </body>
       </html>

@@ -2,24 +2,34 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
-          <title>laika.io</title>
+          <title>io - laika.io</title>
+          <meta name="description" content="io - laika.io" />
+          <meta name="keywords" content="io laika.io" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
-      <link type="text/css" media="screen" rel="stylesheet" href="../../lib/template.css" />
-      <script type="text/javascript" src="../../lib/jquery.js"></script>
-      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
-      <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'laika.io.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
     
         </head>
-        <body onload="sh_highlightDocument('../lib/', '.min.js');" class="value">
+        <body class="value">
       <div id="definition">
         <img src="../../lib/package_big.png" />
-        <p id="owner"><a name="laika" class="extype" href="../package.html">laika</a></p>
+        <p id="owner"><a href="../package.html" class="extype" name="laika">laika</a></p>
         <h1>io</h1>
       </div>
 
-      <h4 class="signature" id="signature">
+      <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">package</span>
@@ -29,11 +39,11 @@
       </span>
       </h4>
       
-      <div class="fullcommenttop" id="comment"></div>
-    
+          <div id="comment" class="fullcommenttop"></div>
+        
 
       <div id="mbrsel">
-        <div id="textfilter"><span class="pre"></span><span class="input"><input accesskey="/" type="text" /></span><span class="post"></span></div>
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
         
         
         <div id="visbl">
@@ -46,9 +56,10 @@
         <div id="allMembers">
         
 
-        <div class="types members" id="types">
+        <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li visbl="pub" name="laika.io.Input" data-isabs="true">
+              <ol><li name="laika.io.Input" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="InputextendsAnyRef"></a>
       <a id="Input:Input"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -56,11 +67,12 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="Input.html"><span class="name">Input</span></a><span class="result"> extends AnyRef</span>
+        <a href="Input.html"><span class="name">Input</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
       <p class="comment cmt">Represents the input for a parser, abstracting over various types of IO resources.</p>
-    </li><li visbl="pub" name="laika.io.Output" data-isabs="true">
+    </li><li name="laika.io.Output" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="OutputextendsAnyRef"></a>
       <a id="Output:Output"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -68,7 +80,7 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="Output.html"><span class="name">Output</span></a><span class="result"> extends AnyRef</span>
+        <a href="Output.html"><span class="name">Output</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
       <p class="comment cmt">Represents the output of a renderer, abstracting over various types of IO resources.</p>
@@ -77,9 +89,10 @@
 
         
 
-        <div class="values members" id="values">
+        <div id="values" class="values members">
               <h3>Value Members</h3>
-              <ol><li visbl="pub" name="laika.io.IO" data-isabs="false">
+              <ol><li name="laika.io.IO" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="IO"></a>
       <a id="IO:IO"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -87,12 +100,13 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="IO$.html"><span class="name">IO</span></a><span class="result"> extends AnyRef</span>
+        <a href="IO$.html"><span class="name">IO</span></a>
       </span>
       </h4>
       <p class="comment cmt">A simple helper object that manages a resource, automatically closing it after
 the IO operation has been performed.</p>
-    </li><li visbl="pub" name="laika.io.Input" data-isabs="false">
+    </li><li name="laika.io.Input" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Input"></a>
       <a id="Input:Input"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -100,11 +114,12 @@ the IO operation has been performed.</p>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Input$.html"><span class="name">Input</span></a><span class="result"> extends AnyRef</span>
+        <a href="Input$.html"><span class="name">Input</span></a>
       </span>
       </h4>
       <p class="comment cmt">Factory methods for creating Input instances from different types of IO resources.</p>
-    </li><li visbl="pub" name="laika.io.Output" data-isabs="false">
+    </li><li name="laika.io.Output" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Output"></a>
       <a id="Output:Output"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -112,7 +127,7 @@ the IO operation has been performed.</p>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Output$.html"><span class="name">Output</span></a><span class="result"> extends AnyRef</span>
+        <a href="Output$.html"><span class="name">Output</span></a>
       </span>
       </h4>
       <p class="comment cmt">Factory methods for creating Output instances from different types of IO resources.</p>
@@ -120,10 +135,20 @@ the IO operation has been performed.</p>
             </div>
 
         
+
+        
         </div>
 
         <div id="inheritedMembers">
         
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
         </div>
 
       </div>
@@ -131,7 +156,6 @@ the IO operation has been performed.</p>
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-
-
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
     </body>
       </html>

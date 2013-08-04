@@ -2,24 +2,34 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
-          <title>laika.api</title>
+          <title>api - laika.api</title>
+          <meta name="description" content="api - laika.api" />
+          <meta name="keywords" content="api laika.api" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
-      <link type="text/css" media="screen" rel="stylesheet" href="../../lib/template.css" />
-      <script type="text/javascript" src="../../lib/jquery.js"></script>
-      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
-      <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'laika.api.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
     
         </head>
-        <body onload="sh_highlightDocument('../lib/', '.min.js');" class="value">
+        <body class="value">
       <div id="definition">
         <img src="../../lib/package_big.png" />
-        <p id="owner"><a name="laika" class="extype" href="../package.html">laika</a></p>
+        <p id="owner"><a href="../package.html" class="extype" name="laika">laika</a></p>
         <h1>api</h1>
       </div>
 
-      <h4 class="signature" id="signature">
+      <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">package</span>
@@ -29,11 +39,11 @@
       </span>
       </h4>
       
-      <div class="fullcommenttop" id="comment"></div>
-    
+          <div id="comment" class="fullcommenttop"></div>
+        
 
       <div id="mbrsel">
-        <div id="textfilter"><span class="pre"></span><span class="input"><input accesskey="/" type="text" /></span><span class="post"></span></div>
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
         
         
         <div id="visbl">
@@ -46,43 +56,46 @@
         <div id="allMembers">
         
 
-        <div class="types members" id="types">
+        <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li visbl="pub" name="laika.api.Parse" data-isabs="false">
-      <a id="Parse:Parse"></a>
+              <ol><li name="laika.api.Parse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Parse[T]extendsAnyRef"></a>
+      <a id="Parse[T]:Parse[T]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="Parse.html"><span class="name">Parse</span></a><span class="result"> extends AnyRef</span>
+        <a href="Parse.html"><span class="name">Parse</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
       <p class="comment cmt">API for performing a parse operation from various types of input to obtain
  a document tree without a subsequent render operation.</p>
-    </li><li visbl="pub" name="laika.api.Render" data-isabs="false">
-      <a id="Render:Render[W]"></a>
+    </li><li name="laika.api.Render" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Render[W]extendsAnyRef"></a>
+      <a id="Render[W]:Render[W]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="Render.html"><span class="name">Render</span></a><span class="tparams">[<span name="W">W</span>]</span><span class="result"> extends AnyRef</span>
+        <a href="Render.html"><span class="name">Render</span></a><span class="tparams">[<span name="W">W</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
       <p class="comment cmt">API for performing a render operation to various types of output using an existing
  document tree model.</p>
-    </li><li visbl="pub" name="laika.api.Transform" data-isabs="false">
-      <a id="Transform:Transform[W]"></a>
+    </li><li name="laika.api.Transform" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Transform[W]extendsAnyRef"></a>
+      <a id="Transform[W]:Transform[W]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="Transform.html"><span class="name">Transform</span></a><span class="tparams">[<span name="W">W</span>]</span><span class="result"> extends AnyRef</span>
+        <a href="Transform.html"><span class="name">Transform</span></a><span class="tparams">[<span name="W">W</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
       <p class="comment cmt">API for performing a transformation operation from and to various types of input and output,
@@ -92,9 +105,10 @@
 
         
 
-        <div class="values members" id="values">
+        <div id="values" class="values members">
               <h3>Value Members</h3>
-              <ol><li visbl="pub" name="laika.api.Parse" data-isabs="false">
+              <ol><li name="laika.api.Parse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Parse"></a>
       <a id="Parse:Parse"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -102,11 +116,12 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Parse$.html"><span class="name">Parse</span></a><span class="result"> extends AnyRef</span>
+        <a href="Parse$.html"><span class="name">Parse</span></a>
       </span>
       </h4>
       <p class="comment cmt">Serves as an entry point to the Parse API.</p>
-    </li><li visbl="pub" name="laika.api.Render" data-isabs="false">
+    </li><li name="laika.api.Render" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Render"></a>
       <a id="Render:Render"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -114,11 +129,12 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Render$.html"><span class="name">Render</span></a><span class="result"> extends AnyRef</span>
+        <a href="Render$.html"><span class="name">Render</span></a>
       </span>
       </h4>
       <p class="comment cmt">Serves as an entry point to the Render API.</p>
-    </li><li visbl="pub" name="laika.api.Transform" data-isabs="false">
+    </li><li name="laika.api.Transform" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Transform"></a>
       <a id="Transform:Transform"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -126,7 +142,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Transform$.html"><span class="name">Transform</span></a><span class="result"> extends AnyRef</span>
+        <a href="Transform$.html"><span class="name">Transform</span></a>
       </span>
       </h4>
       <p class="comment cmt">Serves as an entry point to the Transform API.</p>
@@ -134,10 +150,20 @@
             </div>
 
         
+
+        
         </div>
 
         <div id="inheritedMembers">
         
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
         </div>
 
       </div>
@@ -145,7 +171,6 @@
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-
-
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
     </body>
       </html>

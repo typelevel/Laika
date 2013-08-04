@@ -2,57 +2,79 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
-          <title>laika.tree.Elements.Container</title>
+          <title>Container - laika.tree.Elements.Container</title>
+          <meta name="description" content="Container - laika.tree.Elements.Container" />
+          <meta name="keywords" content="Container laika.tree.Elements.Container" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
-      <link type="text/css" media="screen" rel="stylesheet" href="../../lib/template.css" />
-      <script type="text/javascript" src="../../lib/jquery.js"></script>
-      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
-      <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'laika.tree.Elements$$Container';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
     
         </head>
-        <body onload="sh_highlightDocument('../lib/', '.min.js');" class="type">
+        <body class="type">
       <div id="definition">
         <img src="../../lib/trait_big.png" />
-        <p id="owner"><a name="laika" class="extype" href="../package.html">laika</a>.<a name="laika.tree" class="extype" href="package.html">tree</a>.<a name="laika.tree.Elements" class="extype" href="Elements$.html">Elements</a></p>
+        <p id="owner"><a href="../package.html" class="extype" name="laika">laika</a>.<a href="package.html" class="extype" name="laika.tree">tree</a>.<a href="Elements$.html" class="extype" name="laika.tree.Elements">Elements</a></p>
         <h1>Container</h1>
       </div>
 
-      <h4 class="signature" id="signature">
+      <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <span class="name">Container</span><span class="tparams">[<span name="T">+T</span>]</span><span class="result"> extends <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a></span>
+        <span class="name">Container</span><span class="tparams">[<span name="T">+T</span>]</span><span class="result"> extends <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>
       </span>
       </h4>
       
-      <div class="fullcommenttop" id="comment"><div class="comment cmt"><p>A generic container.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A generic container.
  Usually not mixed in directly, instead one of the sub-traits
  <code>TextContainer</code>, <code>ListContainer</code>, <code>SpanContainer</code> or <code>BlockContainer</code> should be used.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a>, <span name="scala.Product" class="extype">Product</span>, <span name="scala.Equals" class="extype">Equals</span>, AnyRef, <span name="scala.Any" class="extype">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div><div class="toggleContainer block">
           <span class="toggle">Known Subclasses</span>
-          <div class="subClasses hiddenContent"><a name="laika.tree.Elements.BlockContainer" class="extype" href="Elements$$BlockContainer.html">BlockContainer</a>, <a name="laika.tree.Elements.BlockSequence" class="extype" href="Elements$$BlockSequence.html">BlockSequence</a>, <a name="laika.tree.Elements.BulletList" class="extype" href="Elements$$BulletList.html">BulletList</a>, <a name="laika.tree.Elements.BulletListItem" class="extype" href="Elements$$BulletListItem.html">BulletListItem</a>, <a name="laika.tree.Elements.Cell" class="extype" href="Elements$$Cell.html">Cell</a>, <a name="laika.tree.Elements.Citation" class="extype" href="Elements$$Citation.html">Citation</a>, <a name="laika.parse.rst.Elements.Classifier" class="extype" href="../parse/rst/Elements$$Classifier.html">Classifier</a>, <a name="laika.tree.Elements.Columns" class="extype" href="Elements$$Columns.html">Columns</a>, <a name="laika.tree.Elements.Comment" class="extype" href="Elements$$Comment.html">Comment</a>, <a name="laika.tree.Elements.DefinitionList" class="extype" href="Elements$$DefinitionList.html">DefinitionList</a>, <a name="laika.tree.Elements.DefinitionListItem" class="extype" href="Elements$$DefinitionListItem.html">DefinitionListItem</a>, <a name="laika.parse.rst.Elements.DoctestBlock" class="extype" href="../parse/rst/Elements$$DoctestBlock.html">DoctestBlock</a>, <a name="laika.tree.Elements.Document" class="extype" href="Elements$$Document.html">Document</a>, <a name="laika.tree.Elements.ElementContainer" class="extype" href="Elements$$ElementContainer.html">ElementContainer</a>, <a name="laika.tree.Elements.Emphasized" class="extype" href="Elements$$Emphasized.html">Emphasized</a>, <a name="laika.tree.Elements.EnumList" class="extype" href="Elements$$EnumList.html">EnumList</a>, <a name="laika.tree.Elements.EnumListItem" class="extype" href="Elements$$EnumListItem.html">EnumListItem</a>, <a name="laika.tree.Elements.ExternalLink" class="extype" href="Elements$$ExternalLink.html">ExternalLink</a>, <a name="laika.parse.rst.Elements.Field" class="extype" href="../parse/rst/Elements$$Field.html">Field</a>, <a name="laika.parse.rst.Elements.FieldList" class="extype" href="../parse/rst/Elements$$FieldList.html">FieldList</a>, <a name="laika.tree.Elements.Footnote" class="extype" href="Elements$$Footnote.html">Footnote</a>, <a name="laika.tree.Elements.FootnoteDefinition" class="extype" href="Elements$$FootnoteDefinition.html">FootnoteDefinition</a>, <a name="laika.parse.markdown.html.HTMLElements.HTMLCharacterReference" class="extype" href="../parse/markdown/html/HTMLElements$$HTMLCharacterReference.html">HTMLCharacterReference</a>, <a name="laika.parse.markdown.html.HTMLElements.HTMLComment" class="extype" href="../parse/markdown/html/HTMLElements$$HTMLComment.html">HTMLComment</a>, <a name="laika.parse.markdown.html.HTMLElements.HTMLElement" class="extype" href="../parse/markdown/html/HTMLElements$$HTMLElement.html">HTMLElement</a>, <a name="laika.tree.Elements.Header" class="extype" href="Elements$$Header.html">Header</a>, <a name="laika.tree.Elements.InternalLink" class="extype" href="Elements$$InternalLink.html">InternalLink</a>, <a name="laika.parse.rst.Elements.InterpretedText" class="extype" href="../parse/rst/Elements$$InterpretedText.html">InterpretedText</a>, <a name="laika.tree.Elements.Line" class="extype" href="Elements$$Line.html">Line</a>, <a name="laika.tree.Elements.LineBlock" class="extype" href="Elements$$LineBlock.html">LineBlock</a>, <a name="laika.tree.Elements.LinkReference" class="extype" href="Elements$$LinkReference.html">LinkReference</a>, <a name="laika.tree.Elements.ListContainer" class="extype" href="Elements$$ListContainer.html">ListContainer</a>, <a name="laika.tree.Elements.Literal" class="extype" href="Elements$$Literal.html">Literal</a>, <a name="laika.tree.Elements.LiteralBlock" class="extype" href="Elements$$LiteralBlock.html">LiteralBlock</a>, <a name="laika.parse.rst.Elements.OptionList" class="extype" href="../parse/rst/Elements$$OptionList.html">OptionList</a>, <a name="laika.parse.rst.Elements.OptionListItem" class="extype" href="../parse/rst/Elements$$OptionListItem.html">OptionListItem</a>, <a name="laika.tree.Elements.Paragraph" class="extype" href="Elements$$Paragraph.html">Paragraph</a>, <a name="laika.tree.Elements.QuotedBlock" class="extype" href="Elements$$QuotedBlock.html">QuotedBlock</a>, <a name="laika.tree.Elements.Row" class="extype" href="Elements$$Row.html">Row</a>, <a name="laika.tree.Elements.Section" class="extype" href="Elements$$Section.html">Section</a>, <a name="laika.parse.rst.Elements.SectionHeader" class="extype" href="../parse/rst/Elements$$SectionHeader.html">SectionHeader</a>, <a name="laika.tree.Elements.SpanContainer" class="extype" href="Elements$$SpanContainer.html">SpanContainer</a>, <a name="laika.tree.Elements.SpanSequence" class="extype" href="Elements$$SpanSequence.html">SpanSequence</a>, <a name="laika.tree.Elements.Strong" class="extype" href="Elements$$Strong.html">Strong</a>, <a name="laika.tree.Elements.SystemMessage" class="extype" href="Elements$$SystemMessage.html">SystemMessage</a>, <a name="laika.tree.Elements.TableBody" class="extype" href="Elements$$TableBody.html">TableBody</a>, <a name="laika.tree.Elements.TableContainer" class="extype" href="Elements$$TableContainer.html">TableContainer</a>, <a name="laika.tree.Elements.TableHead" class="extype" href="Elements$$TableHead.html">TableHead</a>, <a name="laika.tree.Elements.Text" class="extype" href="Elements$$Text.html">Text</a>, <a name="laika.tree.Elements.TextContainer" class="extype" href="Elements$$TextContainer.html">TextContainer</a></div>
+          <div class="subClasses hiddenContent"><a href="Elements$$BlockContainer.html" class="extype" name="laika.tree.Elements.BlockContainer">BlockContainer</a>, <a href="Elements$$BlockSequence.html" class="extype" name="laika.tree.Elements.BlockSequence">BlockSequence</a>, <a href="Elements$$BulletList.html" class="extype" name="laika.tree.Elements.BulletList">BulletList</a>, <a href="Elements$$BulletListItem.html" class="extype" name="laika.tree.Elements.BulletListItem">BulletListItem</a>, <a href="Elements$$Caption.html" class="extype" name="laika.tree.Elements.Caption">Caption</a>, <a href="Elements$$Cell.html" class="extype" name="laika.tree.Elements.Cell">Cell</a>, <a href="Elements$$Citation.html" class="extype" name="laika.tree.Elements.Citation">Citation</a>, <a href="../parse/rst/Elements$$Classifier.html" class="extype" name="laika.parse.rst.Elements.Classifier">Classifier</a>, <a href="Elements$$Code.html" class="extype" name="laika.tree.Elements.Code">Code</a>, <a href="Elements$$CodeBlock.html" class="extype" name="laika.tree.Elements.CodeBlock">CodeBlock</a>, <a href="Elements$$Columns.html" class="extype" name="laika.tree.Elements.Columns">Columns</a>, <a href="Elements$$Comment.html" class="extype" name="laika.tree.Elements.Comment">Comment</a>, <a href="Elements$$DecoratedHeader.html" class="extype" name="laika.tree.Elements.DecoratedHeader">DecoratedHeader</a>, <a href="Elements$$DefinitionList.html" class="extype" name="laika.tree.Elements.DefinitionList">DefinitionList</a>, <a href="Elements$$DefinitionListItem.html" class="extype" name="laika.tree.Elements.DefinitionListItem">DefinitionListItem</a>, <a href="../parse/rst/Elements$$DoctestBlock.html" class="extype" name="laika.parse.rst.Elements.DoctestBlock">DoctestBlock</a>, <a href="Elements$$Document.html" class="extype" name="laika.tree.Elements.Document">Document</a>, <a href="Elements$$ElementContainer.html" class="extype" name="laika.tree.Elements.ElementContainer">ElementContainer</a>, <a href="Elements$$Emphasized.html" class="extype" name="laika.tree.Elements.Emphasized">Emphasized</a>, <a href="Elements$$EnumList.html" class="extype" name="laika.tree.Elements.EnumList">EnumList</a>, <a href="Elements$$EnumListItem.html" class="extype" name="laika.tree.Elements.EnumListItem">EnumListItem</a>, <a href="Elements$$ExternalLink.html" class="extype" name="laika.tree.Elements.ExternalLink">ExternalLink</a>, <a href="../parse/rst/Elements$$Field.html" class="extype" name="laika.parse.rst.Elements.Field">Field</a>, <a href="../parse/rst/Elements$$FieldList.html" class="extype" name="laika.parse.rst.Elements.FieldList">FieldList</a>, <a href="Elements$$Figure.html" class="extype" name="laika.tree.Elements.Figure">Figure</a>, <a href="Elements$$Footnote.html" class="extype" name="laika.tree.Elements.Footnote">Footnote</a>, <a href="Elements$$FootnoteDefinition.html" class="extype" name="laika.tree.Elements.FootnoteDefinition">FootnoteDefinition</a>, <a href="Elements$$ForcedParagraph.html" class="extype" name="laika.tree.Elements.ForcedParagraph">ForcedParagraph</a>, <a href="../parse/markdown/html/HTMLElements$$HTMLCharacterReference.html" class="extype" name="laika.parse.markdown.html.HTMLElements.HTMLCharacterReference">HTMLCharacterReference</a>, <a href="../parse/markdown/html/HTMLElements$$HTMLComment.html" class="extype" name="laika.parse.markdown.html.HTMLElements.HTMLComment">HTMLComment</a>, <a href="../parse/markdown/html/HTMLElements$$HTMLElement.html" class="extype" name="laika.parse.markdown.html.HTMLElements.HTMLElement">HTMLElement</a>, <a href="Elements$$Header.html" class="extype" name="laika.tree.Elements.Header">Header</a>, <a href="Elements$$InternalLink.html" class="extype" name="laika.tree.Elements.InternalLink">InternalLink</a>, <a href="../parse/rst/Elements$$InterpretedText.html" class="extype" name="laika.parse.rst.Elements.InterpretedText">InterpretedText</a>, <a href="Elements$$Line.html" class="extype" name="laika.tree.Elements.Line">Line</a>, <a href="Elements$$LineBlock.html" class="extype" name="laika.tree.Elements.LineBlock">LineBlock</a>, <a href="Elements$$LinkReference.html" class="extype" name="laika.tree.Elements.LinkReference">LinkReference</a>, <a href="Elements$$ListContainer.html" class="extype" name="laika.tree.Elements.ListContainer">ListContainer</a>, <a href="Elements$$Literal.html" class="extype" name="laika.tree.Elements.Literal">Literal</a>, <a href="Elements$$LiteralBlock.html" class="extype" name="laika.tree.Elements.LiteralBlock">LiteralBlock</a>, <a href="../parse/rst/Elements$$OptionList.html" class="extype" name="laika.parse.rst.Elements.OptionList">OptionList</a>, <a href="../parse/rst/Elements$$OptionListItem.html" class="extype" name="laika.parse.rst.Elements.OptionListItem">OptionListItem</a>, <a href="Elements$$Paragraph.html" class="extype" name="laika.tree.Elements.Paragraph">Paragraph</a>, <a href="Elements$$ParsedLiteralBlock.html" class="extype" name="laika.tree.Elements.ParsedLiteralBlock">ParsedLiteralBlock</a>, <a href="Elements$$QuotedBlock.html" class="extype" name="laika.tree.Elements.QuotedBlock">QuotedBlock</a>, <a href="Elements$$RawContent.html" class="extype" name="laika.tree.Elements.RawContent">RawContent</a>, <a href="Elements$$Row.html" class="extype" name="laika.tree.Elements.Row">Row</a>, <a href="Elements$$Section.html" class="extype" name="laika.tree.Elements.Section">Section</a>, <a href="Elements$$SpanContainer.html" class="extype" name="laika.tree.Elements.SpanContainer">SpanContainer</a>, <a href="Elements$$SpanSequence.html" class="extype" name="laika.tree.Elements.SpanSequence">SpanSequence</a>, <a href="Elements$$Strong.html" class="extype" name="laika.tree.Elements.Strong">Strong</a>, <a href="Elements$$SystemMessage.html" class="extype" name="laika.tree.Elements.SystemMessage">SystemMessage</a>, <a href="Elements$$TableBody.html" class="extype" name="laika.tree.Elements.TableBody">TableBody</a>, <a href="Elements$$TableContainer.html" class="extype" name="laika.tree.Elements.TableContainer">TableContainer</a>, <a href="Elements$$TableHead.html" class="extype" name="laika.tree.Elements.TableHead">TableHead</a>, <a href="Elements$$Text.html" class="extype" name="laika.tree.Elements.Text">Text</a>, <a href="Elements$$TextContainer.html" class="extype" name="laika.tree.Elements.TextContainer">TextContainer</a>, <a href="Elements$$TitledBlock.html" class="extype" name="laika.tree.Elements.TitledBlock">TitledBlock</a></div>
         </div></div>
-    
+        
 
       <div id="mbrsel">
-        <div id="textfilter"><span class="pre"></span><span class="input"><input accesskey="/" type="text" /></span><span class="post"></span></div>
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
         <div id="order">
               <span class="filtertype">Ordering</span>
-              <ol><li class="alpha in"><span>Alphabetic</span></li><li class="inherit out"><span>By inheritance</span></li></ol>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
             </div>
         <div id="ancestors">
-              <span class="filtertype">Inherited</span>
-              <ol><li class="hideall out"><span>Hide All</span></li>
-              <li class="showall in"><span>Show all</span></li></ol>
-              <ol id="linearization"><li name="laika.tree.Elements.Container" class="in"><span>Container</span></li><li name="laika.tree.Elements.Element" class="in"><span>Element</span></li><li name="scala.Product" class="in"><span>Product</span></li><li name="scala.Equals" class="in"><span>Equals</span></li><li name="scala.AnyRef" class="in"><span>AnyRef</span></li><li name="scala.Any" class="in"><span>Any</span></li></ol>
-            </div>
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="laika.tree.Elements.Container"><span>Container</span></li><li class="in" name="laika.tree.Elements.Element"><span>Element</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
         <div id="visbl">
             <span class="filtertype">Visibility</span>
             <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
@@ -65,9 +87,10 @@
 
         
 
-        <div class="values members" id="values">
+        <div id="values" class="values members">
               <h3>Abstract Value Members</h3>
-              <ol><li visbl="pub" name="scala.Equals#canEqual" data-isabs="true">
+              <ol><li name="scala.Equals#canEqual" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="canEqual(that:Any):Boolean"></a>
       <a id="canEqual(Any):Boolean"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -75,11 +98,12 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">canEqual</span><span class="params">(<span name="that">that: <span name="scala.Any" class="extype">Any</span></span>)</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
+        <span class="name">canEqual</span><span class="params">(<span name="that">that: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Equals</dd></dl></div>
-    </li><li visbl="pub" name="laika.tree.Elements.Container#content" data-isabs="true">
+    </li><li name="laika.tree.Elements.Container#content" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="content:T"></a>
       <a id="content:T"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -87,11 +111,12 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">content</span><span class="result">: T</span>
+        <span class="name">content</span><span class="result">: <span class="extype" name="laika.tree.Elements.Container.T">T</span></span>
       </span>
       </h4>
       
-    </li><li visbl="pub" name="scala.Product#productArity" data-isabs="true">
+    </li><li name="scala.Product#productArity" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="productArity:Int"></a>
       <a id="productArity:Int"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -99,11 +124,12 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">productArity</span><span class="result">: <span name="scala.Int" class="extype">Int</span></span>
+        <span class="name">productArity</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Product</dd></dl></div>
-    </li><li visbl="pub" name="scala.Product#productElement" data-isabs="true">
+    </li><li name="scala.Product#productElement" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="productElement(n:Int):Any"></a>
       <a id="productElement(Int):Any"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -111,16 +137,17 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">productElement</span><span class="params">(<span name="n">n: <span name="scala.Int" class="extype">Int</span></span>)</span><span class="result">: <span name="scala.Any" class="extype">Any</span></span>
+        <span class="name">productElement</span><span class="params">(<span name="n">n: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Any">Any</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Product</dd></dl></div>
     </li></ol>
             </div>
 
-        <div class="values members" id="values">
+        <div id="values" class="values members">
               <h3>Concrete Value Members</h3>
-              <ol><li visbl="pub" name="scala.AnyRef#!=" data-isabs="false">
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:AnyRef):Boolean"></a>
       <a id="!=(AnyRef):Boolean"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -128,11 +155,12 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name" title="gt4s: $bang$eq">!=</span><span class="params">(<span name="arg0">arg0: AnyRef</span>)</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li visbl="pub" name="scala.Any#!=" data-isabs="false">
+    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
       <a id="!=(Any):Boolean"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -140,11 +168,12 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name" title="gt4s: $bang$eq">!=</span><span class="params">(<span name="arg0">arg0: <span name="scala.Any" class="extype">Any</span></span>)</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li visbl="pub" name="scala.AnyRef###" data-isabs="false">
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
       <a id="##():Int"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -152,11 +181,12 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name" title="gt4s: $hash$hash">##</span><span class="params">()</span><span class="result">: <span name="scala.Int" class="extype">Int</span></span>
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li visbl="pub" name="scala.AnyRef#==" data-isabs="false">
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:AnyRef):Boolean"></a>
       <a id="==(AnyRef):Boolean"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -164,11 +194,12 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name" title="gt4s: $eq$eq">==</span><span class="params">(<span name="arg0">arg0: AnyRef</span>)</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li visbl="pub" name="scala.Any#==" data-isabs="false">
+    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
       <a id="==(Any):Boolean"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -176,11 +207,12 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name" title="gt4s: $eq$eq">==</span><span class="params">(<span name="arg0">arg0: <span name="scala.Any" class="extype">Any</span></span>)</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li visbl="pub" name="scala.Any#asInstanceOf" data-isabs="false">
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -188,11 +220,12 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: T0</span>
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li visbl="prt" name="scala.AnyRef#clone" data-isabs="false">
+    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -200,14 +233,18 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">clone</span><span class="params">()</span><span class="result">: AnyRef</span>
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a name="java.lang" class="extype" href="../../java/lang/package.html">lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@throws</span><span class="args">()</span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
+    </span>)</span>
               
         </dd></dl></div>
-    </li><li visbl="pub" name="scala.AnyRef#eq" data-isabs="false">
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -215,11 +252,12 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: AnyRef</span>)</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li visbl="pub" name="scala.AnyRef#equals" data-isabs="false">
+    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a>
       <a id="equals(Any):Boolean"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -227,11 +265,12 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span name="scala.Any" class="extype">Any</span></span>)</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li visbl="prt" name="scala.AnyRef#finalize" data-isabs="false">
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -239,26 +278,31 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">finalize</span><span class="params">()</span><span class="result">: <span name="scala.Unit" class="extype">Unit</span></span>
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a name="java.lang" class="extype" href="../../java/lang/package.html">lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@throws</span><span class="args">()</span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
               
         </dd></dl></div>
-    </li><li visbl="pub" name="scala.AnyRef#getClass" data-isabs="false">
-      <a id="getClass():java.lang.Class[_]"></a>
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">getClass</span><span class="params">()</span><span class="result">: java.lang.Class[_]</span>
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li visbl="pub" name="scala.AnyRef#hashCode" data-isabs="false">
+    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode():Int"></a>
       <a id="hashCode():Int"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -266,11 +310,12 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span name="scala.Int" class="extype">Int</span></span>
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li visbl="pub" name="scala.Any#isInstanceOf" data-isabs="false">
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
       <a id="isInstanceOf[T0]:Boolean"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -278,11 +323,12 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li visbl="pub" name="scala.AnyRef#ne" data-isabs="false">
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -290,11 +336,12 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: AnyRef</span>)</span><span class="result">: <span name="scala.Boolean" class="extype">Boolean</span></span>
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li visbl="pub" name="scala.AnyRef#notify" data-isabs="false">
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
       <a id="notify():Unit"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -302,11 +349,12 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">notify</span><span class="params">()</span><span class="result">: <span name="scala.Unit" class="extype">Unit</span></span>
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li visbl="pub" name="scala.AnyRef#notifyAll" data-isabs="false">
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
       <a id="notifyAll():Unit"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -314,11 +362,12 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span name="scala.Unit" class="extype">Unit</span></span>
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li visbl="pub" name="scala.Product#productIterator" data-isabs="false">
+    </li><li name="scala.Product#productIterator" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="productIterator:Iterator[Any]"></a>
       <a id="productIterator:Iterator[Any]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -326,11 +375,12 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">productIterator</span><span class="result">: Iterator[<span name="scala.Any" class="extype">Any</span>]</span>
+        <span class="name">productIterator</span><span class="result">: <span class="extype" name="scala.Iterator">Iterator</span>[<span class="extype" name="scala.Any">Any</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Product</dd></dl></div>
-    </li><li visbl="pub" name="scala.Product#productPrefix" data-isabs="false">
+    </li><li name="scala.Product#productPrefix" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="productPrefix:String"></a>
       <a id="productPrefix:String"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -338,23 +388,25 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">productPrefix</span><span class="result">: <span name="java.lang.String" class="extype">String</span></span>
+        <span class="name">productPrefix</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Product</dd></dl></div>
-    </li><li visbl="pub" name="scala.AnyRef#synchronized" data-isabs="false">
-      <a id="synchronized[T0](⇒ T0):T0"></a>
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ T0</span>)</span><span class="result">: T0</span>
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li visbl="pub" name="scala.AnyRef#toString" data-isabs="false">
+    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString():String"></a>
       <a id="toString():String"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -362,11 +414,12 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toString</span><span class="params">()</span><span class="result">: <span name="java.lang.String" class="extype">String</span></span>
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li visbl="pub" name="scala.AnyRef#wait" data-isabs="false">
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -374,14 +427,18 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">wait</span><span class="params">()</span><span class="result">: <span name="scala.Unit" class="extype">Unit</span></span>
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@throws</span><span class="args">()</span>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
               
         </dd></dl></div>
-    </li><li visbl="pub" name="scala.AnyRef#wait" data-isabs="false">
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
       <a id="wait(Long,Int):Unit"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -389,14 +446,18 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span name="scala.Long" class="extype">Long</span></span>, <span name="arg1">arg1: <span name="scala.Int" class="extype">Int</span></span>)</span><span class="result">: <span name="scala.Unit" class="extype">Unit</span></span>
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@throws</span><span class="args">()</span>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
               
         </dd></dl></div>
-    </li><li visbl="pub" name="scala.AnyRef#wait" data-isabs="false">
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
       <a id="wait(Long):Unit"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -404,48 +465,43 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span name="scala.Long" class="extype">Long</span></span>)</span><span class="result">: <span name="scala.Unit" class="extype">Unit</span></span>
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
-                <span class="name">@throws</span><span class="args">()</span>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
               
         </dd></dl></div>
     </li></ol>
             </div>
 
-        <div class="values members" id="values">
-              <h3>Deprecated Value Members</h3>
-              <ol><li visbl="pub" name="scala.Product#productElements" data-isabs="false">
-      <a id="productElements:Iterator[Any]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name deprecated" title="Deprecated: (Since version 2.8.0) use productIterator instead">productElements</span><span class="result">: Iterator[<span name="scala.Any" class="extype">Any</span>]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Product</dd><dt>Annotations</dt><dd>
-                <span class="name">@deprecated</span>
-              
-        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 2.8.0)</i> use productIterator instead</p></dd></dl></div>
-    </li></ol>
-            </div>
+        
+
+        
         </div>
 
         <div id="inheritedMembers">
-        <div name="laika.tree.Elements.Element" class="parent">
-              <h3>Inherited from <a name="laika.tree.Elements.Element" class="extype" href="Elements$$Element.html">Element</a></h3>
-            </div><div name="scala.Product" class="parent">
-              <h3>Inherited from <span name="scala.Product" class="extype">Product</span></h3>
-            </div><div name="scala.Equals" class="parent">
-              <h3>Inherited from <span name="scala.Equals" class="extype">Equals</span></h3>
-            </div><div name="scala.AnyRef" class="parent">
-              <h3>Inherited from AnyRef</h3>
-            </div><div name="scala.Any" class="parent">
-              <h3>Inherited from <span name="scala.Any" class="extype">Any</span></h3>
+        <div class="parent" name="laika.tree.Elements.Element">
+              <h3>Inherited from <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></h3>
+            </div><div class="parent" name="scala.Product">
+              <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
+            </div><div class="parent" name="scala.Equals">
+              <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
             </div>
         </div>
 
@@ -454,7 +510,6 @@
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-
-
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
     </body>
       </html>
