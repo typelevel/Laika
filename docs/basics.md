@@ -52,7 +52,7 @@ is via an implicit:
 
 implicit val codec:Codec = Codec.UTF8
 
-This codec will then be used by the `fromFile` and `toFile˚ methods shown
+This codec will then be used by the `fromFile` and `toFile` methods shown
 in the examples above.
 
 You can also keep the created transformer instance to reuse it with different

@@ -237,7 +237,7 @@ seamed to exotic to warrant inclusion in Laika.
 
 Finally some of the defaults for these extensions can be changed through the API:
 
-    ReStructuredText.withRawElements
+    ReStructuredText.withRawContent
     
 enables both the `raw` directive and the `raw` text role. They are disabled by default as
 they present a potential security risk.
