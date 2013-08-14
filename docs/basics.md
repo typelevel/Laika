@@ -50,7 +50,7 @@ Laika uses the same platform-dependent defaults for file encodings as the
 IO classes in the Scala SDK. The most convenient way to specify an encoding
 is via an implicit:
 
-implicit val codec:Codec = Codec.UTF8
+    implicit val codec:Codec = Codec.UTF8
 
 This codec will then be used by the `fromFile` and `toFile` methods shown
 in the examples above.
