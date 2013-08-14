@@ -114,7 +114,7 @@ val result = Transform from Markdown to HTML fromString input toString</pre>
   <p>Laika uses the same platform-dependent defaults for file encodings as the
   IO classes in the Scala SDK. The most convenient way to specify an encoding
   is via an implicit:</p>
-  <p>implicit val codec:Codec = Codec.UTF8</p>
+  <pre>implicit val codec:Codec = Codec.UTF8</pre>
   <p>This codec will then be used by the <code>fromFile</code> and <code>toFile</code> methods shown
   in the examples above.</p>
   <p>You can also keep the created transformer instance to reuse it with different
