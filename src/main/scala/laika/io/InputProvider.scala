@@ -16,6 +16,8 @@
 
 package laika.io
 
+import java.io.File
+
 /** 
  *  @author Jens Halm
  */
@@ -28,5 +30,31 @@ trait InputProvider {
   
   def children: Seq[InputProvider]
   
+  
+}
+
+
+object InputProvider {
+  
+  private class DirectoryInputProvider (dir: File) extends InputProvider {
+    
+    val name = dir.getName
+    
+    lazy val inputs = {
+      dir.listFiles filterNot (_.isDirectory) map (Input.fromFile(_)) toList // TODO - stream creation could be lazy
+    }
+    
+    lazy val children = {
+      dir.listFiles filter (_.isDirectory) map (forRootDirectory(_)) toList
+    }
+    
+  }
+  
+  def forRootDirectory (root: File): InputProvider = {
+    require(root.exists, "Directory "+root.getAbsolutePath()+" does not exist")
+    require(root.isDirectory, "File "+root.getAbsolutePath()+" is not a directoy")
+    
+    new DirectoryInputProvider(root)
+  }
   
 }

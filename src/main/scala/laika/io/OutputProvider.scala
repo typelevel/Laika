@@ -16,6 +16,8 @@
 
 package laika.io
 
+import java.io.File
+
 /** 
  *  @author Jens Halm
  */
@@ -26,7 +28,36 @@ trait OutputProvider {
   
   def newOutput (name: String): Output
   
-  def newChild (name: String): Output
+  def newChild (name: String): OutputProvider
     
     
+}
+
+
+object OutputProvider {
+  
+  private class DirectoryOutputProvider (dir: File) extends OutputProvider {
+    
+    val name = dir.getName
+    
+    def newOutput (name: String) = {
+      val f = new File(dir, name)
+      Output.toFile(f) // TODO - stream creation could be lazy
+    }
+    
+    def newChild (name: String) = {
+      val f = new File(dir, name)
+      require(!f.exists || f.isDirectory, "File "+f.getAbsolutePath+" exists and is not a directoy")
+      if (!f.exists && !f.mkdir()) throw new IllegalStateException("Unable to create directory "+f.getAbsolutePath)
+      forRootDirectory(f)
+    }
+    
+  }
+  
+  def forRootDirectory (root: File): OutputProvider = {
+    require(root.isDirectory, "File "+root.getAbsolutePath()+" is not a directoy")
+    
+    new DirectoryOutputProvider(root)
+  }
+  
 }
