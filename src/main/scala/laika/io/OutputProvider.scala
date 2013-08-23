@@ -19,7 +19,7 @@ package laika.io
 /** 
  *  @author Jens Halm
  */
-trait OuputProvider {
+trait OutputProvider {
 
   
   def name: String
