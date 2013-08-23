@@ -54,7 +54,7 @@ trait Output {
   /** Flushes this output, forcing all buffered output
    *  to be written, without closing the underlying writer or stream.
    */
-  def flush: Unit = ()
+  def flush (): Unit = ()
   
 }
 

@@ -75,7 +75,7 @@ class Render[W] private (setup: (Output, Element => Unit) => (W, Element => Unit
      *  @param stream the stream to render to
      *  @param codec the character encoding of the stream, if not specified the platform default will be used.
      */
-    def toStream (stream: OutputStream)(implicit codec: Codec) = renderAndFlush(Output.toStream(stream)(codec))
+    def toStream (stream: OutputStream)(implicit codec: Codec) = render(Output.toStream(stream)(codec))
 
     /** Renders the tree model to the console.
      */
@@ -83,7 +83,7 @@ class Render[W] private (setup: (Output, Element => Unit) => (W, Element => Unit
 
     /** Renders the tree model to the specified writer.
      */
-    def toWriter (writer: Writer) = renderAndFlush(Output.toWriter(writer))
+    def toWriter (writer: Writer) = render(Output.toWriter(writer))
 
     /** Renders the tree model to the specified `StringBuilder`.
      */
@@ -115,11 +115,8 @@ class Render[W] private (setup: (Output, Element => Unit) => (W, Element => Unit
       }
       
       RenderFunction(elem)
-    }
-    
-    private def renderAndFlush (out: Output) = {
-      render(out)
-      out.flush
+      
+      out.flush()
     }
     
   }
