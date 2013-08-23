@@ -16,17 +16,10 @@
 
 package laika.api
 
-import java.io.File
-import java.io.InputStream
-import java.io.OutputStream
-import java.io.Reader
-import java.io.Writer
-
+import java.io._
 import scala.io.Codec
-
 import laika.api.Transform.Rules
-import laika.io.Input
-import laika.io.Output
+import laika.io._
 import laika.tree.Elements.Document
 import laika.tree.Elements.RawDocument
 import laika.tree.Elements.Element
@@ -232,6 +225,31 @@ class Transform [W] private[Transform] (parse: Parse[RawDocument], render: Rende
    */
   def fromStream (stream: InputStream)(implicit codec: Codec) = new Operation(parse.fromStream(stream)(codec))
   
+  
+  def withDefaultDirectories = withRootDirectory(System.getProperty("user.dir"))
+  
+  def withRootDirectory (name: String): Unit = withRootDirectory(new File(name))
+  
+  def withRootDirectory (dir: File): Unit = withConfig(BatchConfig.defaultDirectoryLayout(dir))
+  
+  def withConfig (config: BatchConfig) = () // TODO - implement
+  
+  
+  class BatchConfig (input: InputProvider, output: OutputProvider)
+  
+  object BatchConfig {
+    
+    def defaultDirectoryLayout (root: File) = {
+      require(root.exists, "Directory "+root.getAbsolutePath()+" does not exist")
+      require(root.isDirectory, "File "+root.getAbsolutePath()+" is not a directoy")
+      
+      val sourceDir = new File(root, "source")
+      val targetDir = new File(root, "target")
+      
+      new BatchConfig(InputProvider.forRootDirectory(sourceDir), OutputProvider.forRootDirectory(targetDir))
+    }
+    
+  }
   
   
 } 
