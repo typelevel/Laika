@@ -81,34 +81,35 @@ object Output {
     
   }
   
-  private class StringBuilderOutput (builder: StringBuilder) extends Output with Closeable {
+  private class StringBuilderOutput (builder: StringBuilder) extends Output {
     
     def asWriter: Writer = new StringBuilderWriter(builder)
   
     def asFunction = builder.append(_:String)
     
-    def close = ()
-    
   }
   
-  private class WriterOutput (val asWriter: Writer) extends Output with Closeable {
+  private class WriterOutput (val asWriter: Writer) extends Output {
    
     def asFunction = asWriter.write(_:String)
-    
-    def close = asWriter close
     
     override def flush = asWriter flush
   }
   
-  private class StreamOutput (val asStream: OutputStream, codec: Codec) extends BinaryOutput with Closeable {
+  private class StreamOutput (val asStream: OutputStream, codec: Codec) extends BinaryOutput {
    
     val asWriter = new BufferedWriter(new OutputStreamWriter(asStream, codec.encoder))
     
     val asFunction = asWriter.write(_:String)
     
+    override def flush = asWriter flush
+    
+  }
+  
+  private class AutocloseStreamOutput (s: OutputStream, c: Codec) extends StreamOutput(s,c) with Closeable {
+
     def close = asWriter close
     
-    override def flush = asWriter flush
   }
   
   /** Creates a new Output instance for the file with the specified name.
@@ -116,29 +117,29 @@ object Output {
    *  @param name the name of the file
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
-  def toFile (name: String)(implicit codec: Codec) = toStream(new FileOutputStream(name))(codec)
+  def toFile (name: String)(implicit codec: Codec): BinaryOutput with Closeable = new AutocloseStreamOutput(new FileOutputStream(name), codec)
   
   /** Creates a new Output instance for the specified file.
    *  
    *  @param file the file to use as output
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
-  def toFile (file: File)(implicit codec: Codec) = toStream(new FileOutputStream(file))(codec)
+  def toFile (file: File)(implicit codec: Codec): BinaryOutput with Closeable = new AutocloseStreamOutput(new FileOutputStream(file), codec)
 
   /** Creates a new Output instance for the specified OutputStream.
    *  
    *  @param stream the stream to write to
    *  @param codec the character encoding to use for producing the bytes, if not specified the platform default will be used.
    */
-  def toStream (stream: OutputStream)(implicit codec: Codec): BinaryOutput with Closeable = new StreamOutput(stream, codec)
+  def toStream (stream: OutputStream)(implicit codec: Codec): BinaryOutput = new StreamOutput(stream, codec)
 
   /** Creates a new Output instance for the specified Writer.
    */
-  def toWriter (writer: Writer): Output with Closeable = new WriterOutput(writer)
+  def toWriter (writer: Writer): Output = new WriterOutput(writer)
 
   /** Creates a new Output instance for the specified StringBuilder.
    */
-  def toBuilder (builder: StringBuilder): Output with Closeable = new StringBuilderOutput(builder)
+  def toBuilder (builder: StringBuilder): Output = new StringBuilderOutput(builder)
   
   
   

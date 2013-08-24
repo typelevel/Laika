@@ -26,13 +26,16 @@ import java.io.Closeable
  */
 object IO {
 
-  /** Calls the specified function, closes the IO resource and
-   *  returns the result of the function call.
+  /** Calls the specified function, closes the IO resource if the resource
+   *  mixes in `java.io.Closeable` and returns the result of the function call.
    *  
    *  @param resource the IO resource to manage
    *  @param f the function to invoke, with the managed resource getting passed into it
    *  @return the result of the function call
    */
-  def apply [R <: Closeable, T] (resource: R)(f: R => T) = try f(resource) finally resource.close
+  def apply [R, T] (resource: R)(f: R => T) = resource match {
+    case c: Closeable => try f(resource) finally c.close
+    case _ => f(resource)
+  }
   
 }

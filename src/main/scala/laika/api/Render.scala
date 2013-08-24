@@ -61,14 +61,14 @@ class Render[W] private (setup: (Output, Element => Unit) => (W, Element => Unit
      *  @param name the name of the file to parse
      *  @param codec the character encoding of the file, if not specified the platform default will be used.
      */
-    def toFile (name: String)(implicit codec: Codec) = IO(Output.toFile(name)(codec))(render)
+    def toFile (name: String)(implicit codec: Codec) = render(Output.toFile(name)(codec))
     
     /** Renders the tree model to the specified file.
      * 
      *  @param file the file to write to
      *  @param codec the character encoding of the file, if not specified the platform default will be used.
      */
-    def toFile (file: File)(implicit codec: Codec) = IO(Output.toFile(file)(codec))(render)
+    def toFile (file: File)(implicit codec: Codec) = render(Output.toFile(file)(codec))
     
     /** Renders the tree model to the specified output stream.
      * 
@@ -103,20 +103,21 @@ class Render[W] private (setup: (Output, Element => Unit) => (W, Element => Unit
     }
     
     private def render (out: Output) = { 
-      
-      val (writer, render) = setup(out, RenderFunction)
-      
-      RenderFunction.delegate = customRenderers match {
-        case Nil => render
-        case xs  => {
-          val default:PartialFunction[Element, Unit] = { case e => render(e) }
-          (xs map { _(writer) }).reverse reduceRight { _ orElse _ } orElse default
+      IO(out) { out =>
+        val (writer, render) = setup(out, RenderFunction)
+        
+        RenderFunction.delegate = customRenderers match {
+          case Nil => render
+          case xs  => {
+            val default:PartialFunction[Element, Unit] = { case e => render(e) }
+            (xs map { _(writer) }).reverse reduceRight { _ orElse _ } orElse default
+          }
         }
+        
+        RenderFunction(elem)
+        
+        out.flush()
       }
-      
-      RenderFunction(elem)
-      
-      out.flush()
     }
     
   }

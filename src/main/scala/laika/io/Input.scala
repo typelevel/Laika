@@ -55,50 +55,56 @@ trait Input {
  */
 object Input {
   
-  private class StringInput (source: String) extends Input with Closeable {
+  private class StringInput (source: String) extends Input {
     
     def asReader = new StringReader(source)
   
     def asParserInput = new CharSequenceReader(source)
     
-    def close = ()
   }
   
-  private class ReaderInput (val asReader: java.io.Reader) extends Input with Closeable {
+  private class ReaderInput (val asReader: java.io.Reader) extends Input {
    
     def asParserInput = new PagedSeqReader(PagedSeq.fromReader(asReader))
 
+  }
+  
+  private class AutocloseReaderInput (r: java.io.Reader) extends ReaderInput(r) with Closeable {
+    
     def close = asReader.close
+    
   }
   
   /** Creates a new Input instance from the specified string.
    */
-  def fromString (source: String): Input with Closeable = new StringInput(source)
+  def fromString (source: String): Input = new StringInput(source)
 
   /** Creates a new Input instance for the file with the specified name.
    *  
    *  @param name the name of the file
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
-  def fromFile (name: String)(implicit codec: Codec): Input with Closeable = fromStream(new FileInputStream(name))(codec)
+  def fromFile (name: String)(implicit codec: Codec): Input with Closeable = new AutocloseReaderInput(newReader(new FileInputStream(name), codec))
   
   /** Creates a new Input instance for the specified file.
    *  
    *  @param file the file to use as input
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
-  def fromFile (file: File)(implicit codec: Codec): Input with Closeable = fromStream(new FileInputStream(file))(codec)
+  def fromFile (file: File)(implicit codec: Codec): Input with Closeable = new AutocloseReaderInput(newReader(new FileInputStream(file), codec))
   
   /** Creates a new Input instance for the specified InputStream.
    *  
    *  @param stream the stream to read character data from
    *  @param codec the character encoding used by the text input, if not specified the platform default will be used.
    */
-  def fromStream (stream: InputStream)(implicit codec: Codec): Input with Closeable = 
-    fromReader(new BufferedReader(new InputStreamReader(stream, codec.decoder)))
+  def fromStream (stream: InputStream)(implicit codec: Codec): Input = fromReader(newReader(stream, codec.decoder))
   
   /** Creates a new Input instance for the specified Reader.
    */
-  def fromReader (reader: java.io.Reader): Input with Closeable = new ReaderInput(reader)
+  def fromReader (reader: java.io.Reader): Input = new ReaderInput(reader)
+  
+  private def newReader (stream: InputStream, codec: Codec) = new BufferedReader(new InputStreamReader(stream, codec.decoder))
+  
   
 }

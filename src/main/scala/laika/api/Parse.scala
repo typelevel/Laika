@@ -65,7 +65,7 @@ class Parse[T] private (parse: Input => RawDocument, rewrite: RawDocument => T) 
    *  @param name the name of the file to parse
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
-  def fromFile (name: String)(implicit codec: Codec) = parseFrom(Input.fromFile(name)(codec), true)
+  def fromFile (name: String)(implicit codec: Codec) = parseFrom(Input.fromFile(name)(codec))
   
   /** Returns a document tree obtained from parsing the specified file.
    *  Any kind of character input is valid, including empty files.
@@ -73,7 +73,7 @@ class Parse[T] private (parse: Input => RawDocument, rewrite: RawDocument => T) 
    *  @param file the file to use as input
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
-  def fromFile (file: File)(implicit codec: Codec) = parseFrom(Input.fromFile(file)(codec), true)
+  def fromFile (file: File)(implicit codec: Codec) = parseFrom(Input.fromFile(file)(codec))
   
   /** Returns a document tree obtained from parsing the input from the specified stream.
    * 
@@ -83,9 +83,9 @@ class Parse[T] private (parse: Input => RawDocument, rewrite: RawDocument => T) 
   def fromStream (stream: InputStream)(implicit codec: Codec) = parseFrom(Input.fromStream(stream)(codec))
 
   
-  private def parseFrom (input: Input with Closeable, close: Boolean = false) = {
+  private def parseFrom (input: Input) = {
     
-    val raw = if (close) IO(input)(parse) else parse(input)
+    val raw = IO(input)(parse)
 
     rewrite(raw)
   }
