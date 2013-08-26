@@ -61,21 +61,21 @@ class Render[W] private (setup: (Output, Element => Unit) => (W, Element => Unit
      *  @param name the name of the file to parse
      *  @param codec the character encoding of the file, if not specified the platform default will be used.
      */
-    def toFile (name: String)(implicit codec: Codec) = render(Output.toFile(name)(codec))
+    def toFile (name: String)(implicit codec: Codec) = toOutput(Output.toFile(name)(codec))
     
     /** Renders the tree model to the specified file.
      * 
      *  @param file the file to write to
      *  @param codec the character encoding of the file, if not specified the platform default will be used.
      */
-    def toFile (file: File)(implicit codec: Codec) = render(Output.toFile(file)(codec))
+    def toFile (file: File)(implicit codec: Codec) = toOutput(Output.toFile(file)(codec))
     
     /** Renders the tree model to the specified output stream.
      * 
      *  @param stream the stream to render to
      *  @param codec the character encoding of the stream, if not specified the platform default will be used.
      */
-    def toStream (stream: OutputStream)(implicit codec: Codec) = render(Output.toStream(stream)(codec))
+    def toStream (stream: OutputStream)(implicit codec: Codec) = toOutput(Output.toStream(stream)(codec))
 
     /** Renders the tree model to the console.
      */
@@ -83,11 +83,12 @@ class Render[W] private (setup: (Output, Element => Unit) => (W, Element => Unit
 
     /** Renders the tree model to the specified writer.
      */
-    def toWriter (writer: Writer) = render(Output.toWriter(writer))
+    def toWriter (writer: Writer) = toOutput(Output.toWriter(writer))
 
     /** Renders the tree model to the specified `StringBuilder`.
      */
-    def toBuilder (builder: StringBuilder) = render(Output.toBuilder(builder))
+    def toBuilder (builder: StringBuilder) = toOutput(Output.toBuilder(builder))
+    
 
     /** Renders the tree model to a String and returns it.
      */
@@ -102,7 +103,7 @@ class Render[W] private (setup: (Output, Element => Unit) => (W, Element => Unit
       def apply (element: Element) = delegate(element)
     }
     
-    private def render (out: Output) = { 
+    def toOutput (out: Output) = { 
       IO(out) { out =>
         val (writer, render) = setup(out, RenderFunction)
         

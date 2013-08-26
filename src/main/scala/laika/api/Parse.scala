@@ -53,11 +53,11 @@ class Parse[T] private (parse: Input => RawDocument, rewrite: RawDocument => T) 
   /** Returns a document tree obtained from parsing the specified string.
    *  Any kind of input is valid, including an empty string. 
    */
-  def fromString (str: String) = parseFrom(Input.fromString(str))
+  def fromString (str: String) = fromInput(Input.fromString(str))
   
   /** Returns a document tree obtained from parsing the input from the specified reader.
    */
-  def fromReader (reader: Reader) = parseFrom(Input.fromReader(reader))
+  def fromReader (reader: Reader) = fromInput(Input.fromReader(reader))
 
   /** Returns a document tree obtained from parsing the file with the specified name.
    *  Any kind of character input is valid, including empty files.
@@ -65,7 +65,7 @@ class Parse[T] private (parse: Input => RawDocument, rewrite: RawDocument => T) 
    *  @param name the name of the file to parse
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
-  def fromFile (name: String)(implicit codec: Codec) = parseFrom(Input.fromFile(name)(codec))
+  def fromFile (name: String)(implicit codec: Codec) = fromInput(Input.fromFile(name)(codec))
   
   /** Returns a document tree obtained from parsing the specified file.
    *  Any kind of character input is valid, including empty files.
@@ -73,17 +73,16 @@ class Parse[T] private (parse: Input => RawDocument, rewrite: RawDocument => T) 
    *  @param file the file to use as input
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
-  def fromFile (file: File)(implicit codec: Codec) = parseFrom(Input.fromFile(file)(codec))
+  def fromFile (file: File)(implicit codec: Codec) = fromInput(Input.fromFile(file)(codec))
   
   /** Returns a document tree obtained from parsing the input from the specified stream.
    * 
    *  @param stream the stream to use as input for the parser
    *  @param codec the character encoding of the stream, if not specified the platform default will be used.
    */
-  def fromStream (stream: InputStream)(implicit codec: Codec) = parseFrom(Input.fromStream(stream)(codec))
-
+  def fromStream (stream: InputStream)(implicit codec: Codec) = fromInput(Input.fromStream(stream)(codec))
   
-  private def parseFrom (input: Input) = {
+  def fromInput (input: Input) = {
     
     val raw = IO(input)(parse)
 
