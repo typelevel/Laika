@@ -110,6 +110,8 @@ class Transform [W] private[Transform] (parse: Parse[RawDocument], render: Rende
     /** Renders to the specified `StringBuilder`.
      */
     def toBuilder (builder: StringBuilder) = op toBuilder builder 
+    
+    def toOutput (output: Output) = op toOutput output
 
     /** Renders to a String and returns it.
      */
@@ -226,16 +228,35 @@ class Transform [W] private[Transform] (parse: Parse[RawDocument], render: Rende
   def fromStream (stream: InputStream)(implicit codec: Codec) = new Operation(parse.fromStream(stream)(codec))
   
   
-  def withDefaultDirectories = withRootDirectory(System.getProperty("user.dir"))
+  def withDefaultDirectories = withRootDirectory(System.getProperty("user.dir")) // TODO - charset config
   
   def withRootDirectory (name: String): Unit = withRootDirectory(new File(name))
   
   def withRootDirectory (dir: File): Unit = withConfig(BatchConfig.defaultDirectoryLayout(dir))
   
-  def withConfig (config: BatchConfig) = () // TODO - implement
+  def withConfig (config: BatchConfig) = {
+    
+    def createChildConfigs (config: BatchConfig): Seq[BatchConfig] = {
+      config.input.children map { ip => 
+        val child = BatchConfig(ip, config.output.newChild(ip.name))
+        child +: createChildConfigs(child) 
+      } flatten
+    }
+    
+    val configs = config +: createChildConfigs(config)
+    val pairs = configs map { config =>
+      config.input.inputs map { input =>
+        (input, config.output.newOutput(input.name))
+      } 
+    } flatten
+    
+    // simplistic preliminary implementation that does not allow for parallelization yet
+    val operations = pairs map (pair => (new Operation(parse.fromInput(pair._1)), pair._2))
+    operations map (pair => pair._1 toOutput pair._2)
+  }
   
   
-  class BatchConfig (input: InputProvider, output: OutputProvider)
+  case class BatchConfig (input: InputProvider, output: OutputProvider)
   
   object BatchConfig {
     
