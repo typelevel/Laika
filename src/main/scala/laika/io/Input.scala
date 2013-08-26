@@ -47,6 +47,8 @@ trait Input {
    */
   def asParserInput: Reader[Char]
   
+  def name: String
+  
 }
 
 /** Factory methods for creating Input instances from different types of IO resources.
@@ -55,7 +57,7 @@ trait Input {
  */
 object Input {
   
-  private class StringInput (source: String) extends Input {
+  private class StringInput (source: String, val name: String) extends Input {
     
     def asReader = new StringReader(source)
   
@@ -63,46 +65,52 @@ object Input {
     
   }
   
-  private class ReaderInput (val asReader: java.io.Reader) extends Input {
+  private class ReaderInput (val asReader: java.io.Reader, val name: String) extends Input {
    
     def asParserInput = new PagedSeqReader(PagedSeq.fromReader(asReader))
 
   }
   
-  private class AutocloseReaderInput (r: java.io.Reader) extends ReaderInput(r) with Closeable {
+  private class AutocloseReaderInput (r: java.io.Reader, n: String) extends ReaderInput(r,n) with Closeable {
     
     def close = asReader.close
     
   }
   
-  /** Creates a new Input instance from the specified string.
+  /** Creates a new Input instance from the specified source string.
    */
-  def fromString (source: String): Input = new StringInput(source)
+  def fromString (source: String, name: String = ""): Input = new StringInput(source, name)
 
   /** Creates a new Input instance for the file with the specified name.
    *  
    *  @param name the name of the file
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
-  def fromFile (name: String)(implicit codec: Codec): Input with Closeable = new AutocloseReaderInput(newReader(new FileInputStream(name), codec))
+  def fromFile (name: String)(implicit codec: Codec): Input with Closeable = new AutocloseReaderInput(newReader(new FileInputStream(name), codec), stripSuffix(name))
   
   /** Creates a new Input instance for the specified file.
    *  
    *  @param file the file to use as input
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
-  def fromFile (file: File)(implicit codec: Codec): Input with Closeable = new AutocloseReaderInput(newReader(new FileInputStream(file), codec))
+  def fromFile (file: File)(implicit codec: Codec): Input with Closeable = new AutocloseReaderInput(newReader(new FileInputStream(file), codec), stripSuffix(file.getName))
+  
+  private def stripSuffix (filename: String) = filename.lastIndexOf(".") match {
+    case -1    => filename
+    case index => filename.substring(0, index)
+  }  
   
   /** Creates a new Input instance for the specified InputStream.
    *  
    *  @param stream the stream to read character data from
+   *  @param name the name of the input source
    *  @param codec the character encoding used by the text input, if not specified the platform default will be used.
    */
-  def fromStream (stream: InputStream)(implicit codec: Codec): Input = fromReader(newReader(stream, codec.decoder))
+  def fromStream (stream: InputStream, name: String = "")(implicit codec: Codec): Input = fromReader(newReader(stream, codec.decoder), name)
   
   /** Creates a new Input instance for the specified Reader.
    */
-  def fromReader (reader: java.io.Reader): Input = new ReaderInput(reader)
+  def fromReader (reader: java.io.Reader, name: String = ""): Input = new ReaderInput(reader, name)
   
   private def newReader (stream: InputStream, codec: Codec) = new BufferedReader(new InputStreamReader(stream, codec.decoder))
   
