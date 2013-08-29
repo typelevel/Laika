@@ -191,9 +191,13 @@ object Elements {
    */
   case class RawDocument (document: Document, rewriteRules: List[PartialFunction[Element,Option[Element]]] = Nil)
   
-  /** The root element of a document tree.
+  /** The root element of a document tree. TODO - replace occurrences with RootElement
    */
   case class Document (content: Seq[Block]) extends Element with BlockContainer[Document]
+  
+  /** The root element of a document tree.
+   */
+  case class RootElement (content: Seq[Block]) extends Element with BlockContainer[RootElement]
   
   
   /** A section of the document, consisting of a header and content in the form
