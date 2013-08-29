@@ -25,7 +25,7 @@ import Elements._
  */
 object LinkTargets {
 
-  /** Represents a selector used for matchin reference
+  /** Represents a selector used for matching reference
    *  nodes to target nodes. The selectors often differ
    *  from both, the ids rendered in the final document
    *  and the ids used for display.
