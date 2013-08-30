@@ -25,6 +25,9 @@ import laika.io.Input
 import laika.tree.Elements.RawDocument
 import laika.tree.RewriteRules
 import java.io.File
+import laika.io.InputProvider
+import laika.tree.Documents.Document
+import laika.tree.Documents.DocumentTree
   
 /** API for performing a parse operation from various types of input to obtain
  *  a document tree without a subsequent render operation. 
@@ -87,6 +90,29 @@ class Parse[T] private (parse: Input => RawDocument, rewrite: RawDocument => T) 
     val raw = IO(input)(parse)
 
     rewrite(raw)
+  }
+  
+  // TODO - add fromDirectory, fromDefaultDirectories, fromRootDirectory, Codec and parallelization hooks
+  
+  def fromTree (input: InputProvider) = {
+    
+    def collectInputs (provider: InputProvider): Seq[Input] =
+      provider.inputs ++ (input.subtrees map collectInputs).flatten
+    
+    val inputs = collectInputs(input)
+    
+    //val documents = inputs map fromInput TODO - needs to produce Document instances now
+    val documents = Seq[Document]()
+    
+    val docMap = documents map (doc => (doc.path, doc)) toMap
+    
+    def collectDocuments (provider: InputProvider): DocumentTree = {
+      val docs = provider.inputs map (i => docMap(i.path))
+      val trees = provider.subtrees map (collectDocuments)
+      DocumentTree(provider.path, docs, trees)
+    }
+    
+    collectDocuments(input)
   }
   
   

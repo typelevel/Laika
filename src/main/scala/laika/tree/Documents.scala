@@ -53,7 +53,9 @@ object Documents {
   
   case class DocumentContext (document: Document, parent: DocumentTree, root: DocumentTree)
   
-  case class DocumentTree (name:String, documents: Seq[Document], subtrees: Seq[DocumentTree]) {
+  case class DocumentTree (path:Path, documents: Seq[Document], subtrees: Seq[DocumentTree]) {
+    
+    val name = path.name
     
     private val documentsByName = documents map {doc => (doc.name, doc)} toMap // TODO - handle duplicates
     private val subtreesByName = subtrees map {tree => (tree.name, tree)} toMap
