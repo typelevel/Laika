@@ -32,7 +32,7 @@ trait InputProvider {
   
   def inputs: Seq[Input]
   
-  def children: Seq[InputProvider]
+  def subtrees: Seq[InputProvider]
   
   
 }
@@ -46,7 +46,7 @@ object InputProvider {
       dir.listFiles filterNot (_.isDirectory) map (Input.fromFile(_, path)) toList // TODO - stream creation could be lazy
     }
     
-    lazy val children = {
+    lazy val subtrees = {
       dir.listFiles filter (_.isDirectory) map (d => new DirectoryInputProvider(d, path / d.getName)) toList
     }
     

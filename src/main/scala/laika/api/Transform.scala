@@ -237,7 +237,7 @@ class Transform [W] private[Transform] (parse: Parse[RawDocument], render: Rende
   def withConfig (config: BatchConfig) = {
     
     def createChildConfigs (config: BatchConfig): Seq[BatchConfig] = {
-      config.input.children map { ip => 
+      config.input.subtrees map { ip => 
         val child = BatchConfig(ip, config.output.newChild(ip.name))
         child +: createChildConfigs(child) 
       } flatten
@@ -246,11 +246,11 @@ class Transform [W] private[Transform] (parse: Parse[RawDocument], render: Rende
     val configs = config +: createChildConfigs(config)
     val pairs = configs map { config =>
       config.input.inputs map { input =>
-        (input, config.output.newOutput(input.name))
+        (input, config.output.newOutput(input.name)) // TODO - lazy creation of streams
       } 
     } flatten
     
-    // simplistic preliminary implementation that does not allow for parallelization yet
+    // TODO - simplistic preliminary implementation that does not allow for parallelization yet
     val operations = pairs map (pair => (new Operation(parse.fromInput(pair._1)), pair._2))
     operations map (pair => pair._1 toOutput pair._2)
   }
