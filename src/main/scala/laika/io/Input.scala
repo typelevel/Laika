@@ -28,6 +28,8 @@ import scala.util.parsing.input.CharSequenceReader
 import scala.util.parsing.input.PagedSeqReader
 import scala.util.parsing.input.Reader
 import java.io.File
+import laika.tree.Documents.Path
+import laika.tree.Documents.Root
 
 /** Represents the input for a parser, abstracting over various types of IO resources. 
  *  
@@ -47,7 +49,9 @@ trait Input {
    */
   def asParserInput: Reader[Char]
   
-  def name: String
+  def path: Path
+  
+  lazy val name = path.name
   
 }
 
@@ -57,7 +61,7 @@ trait Input {
  */
 object Input {
   
-  private class StringInput (source: String, val name: String) extends Input {
+  private class StringInput (source: String, val path: Path) extends Input {
     
     def asReader = new StringReader(source)
   
@@ -65,13 +69,13 @@ object Input {
     
   }
   
-  private class ReaderInput (val asReader: java.io.Reader, val name: String) extends Input {
+  private class ReaderInput (val asReader: java.io.Reader, val path: Path) extends Input {
    
     def asParserInput = new PagedSeqReader(PagedSeq.fromReader(asReader))
 
   }
   
-  private class AutocloseReaderInput (r: java.io.Reader, n: String) extends ReaderInput(r,n) with Closeable {
+  private class AutocloseReaderInput (r: java.io.Reader, p: Path) extends ReaderInput(r,p) with Closeable {
     
     def close = asReader.close
     
@@ -79,21 +83,26 @@ object Input {
   
   /** Creates a new Input instance from the specified source string.
    */
-  def fromString (source: String, name: String = ""): Input = new StringInput(source, name)
+  def fromString (source: String, path: Path = Root): Input = new StringInput(source, path)
 
   /** Creates a new Input instance for the file with the specified name.
    *  
    *  @param name the name of the file
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
-  def fromFile (name: String)(implicit codec: Codec): Input with Closeable = new AutocloseReaderInput(newReader(new FileInputStream(name), codec), stripSuffix(name))
+  def fromFile (name: String)(implicit codec: Codec): Input with Closeable 
+    = new AutocloseReaderInput(newReader(new FileInputStream(name), codec), Path(stripSuffix(name)))
   
   /** Creates a new Input instance for the specified file.
    *  
    *  @param file the file to use as input
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
-  def fromFile (file: File)(implicit codec: Codec): Input with Closeable = new AutocloseReaderInput(newReader(new FileInputStream(file), codec), stripSuffix(file.getName))
+  def fromFile (file: File)(implicit codec: Codec): Input with Closeable 
+    = new AutocloseReaderInput(newReader(new FileInputStream(file), codec), Path(stripSuffix(file.getName)))
+  
+  def fromFile (file: File, virtualPath: Path)(implicit codec: Codec): Input with Closeable 
+    = new AutocloseReaderInput(newReader(new FileInputStream(file), codec), virtualPath / stripSuffix(file.getName))
   
   private def stripSuffix (filename: String) = filename.lastIndexOf(".") match {
     case -1    => filename
@@ -106,11 +115,11 @@ object Input {
    *  @param name the name of the input source
    *  @param codec the character encoding used by the text input, if not specified the platform default will be used.
    */
-  def fromStream (stream: InputStream, name: String = "")(implicit codec: Codec): Input = fromReader(newReader(stream, codec.decoder), name)
+  def fromStream (stream: InputStream, path: Path = Root)(implicit codec: Codec): Input = fromReader(newReader(stream, codec.decoder), path)
   
   /** Creates a new Input instance for the specified Reader.
    */
-  def fromReader (reader: java.io.Reader, name: String = ""): Input = new ReaderInput(reader, name)
+  def fromReader (reader: java.io.Reader, path: Path = Root): Input = new ReaderInput(reader, path)
   
   private def newReader (stream: InputStream, codec: Codec) = new BufferedReader(new InputStreamReader(stream, codec.decoder))
   

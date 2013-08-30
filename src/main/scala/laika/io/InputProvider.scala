@@ -17,6 +17,8 @@
 package laika.io
 
 import java.io.File
+import laika.tree.Documents.Path
+import laika.tree.Documents.Root
 
 /** 
  *  @author Jens Halm
@@ -24,7 +26,9 @@ import java.io.File
 trait InputProvider {
 
   
-  def name: String
+  lazy val name: String = path.name
+  
+  def path: Path
   
   def inputs: Seq[Input]
   
@@ -36,16 +40,14 @@ trait InputProvider {
 
 object InputProvider {
   
-  private class DirectoryInputProvider (dir: File) extends InputProvider {
-    
-    val name = dir.getName
+  private class DirectoryInputProvider (dir: File, val path: Path = Root) extends InputProvider {
     
     lazy val inputs = {
-      dir.listFiles filterNot (_.isDirectory) map (Input.fromFile(_)) toList // TODO - stream creation could be lazy
+      dir.listFiles filterNot (_.isDirectory) map (Input.fromFile(_, path)) toList // TODO - stream creation could be lazy
     }
     
     lazy val children = {
-      dir.listFiles filter (_.isDirectory) map (forRootDirectory(_)) toList
+      dir.listFiles filter (_.isDirectory) map (d => new DirectoryInputProvider(d, path / d.getName)) toList
     }
     
   }
