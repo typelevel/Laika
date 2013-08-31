@@ -73,8 +73,7 @@ class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules: 
    */
   class Operation private[Transform] (raw: Document) { 
 
-    private val tree = DocumentTree(Root, Seq(raw), Nil)
-    private val document = raw rewrite rules.forContext(DocumentContext(raw, tree, tree))
+    private val document = raw rewrite rules.forContext(DocumentContext(raw))
     private val op = render from document.content
     
     /** Renders to the file with the specified name.

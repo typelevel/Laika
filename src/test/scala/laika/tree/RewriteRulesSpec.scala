@@ -31,8 +31,7 @@ class RewriteRulesSpec extends FlatSpec
   
   def contextFor (root: RootElement) = {
     val doc = Document(Root, Nil, DocumentInfo(), root, Nil)
-    val tree = DocumentTree(Root, Seq(doc), Nil)
-    DocumentContext(doc, tree, tree)
+    DocumentContext(doc)
   }
   
   def rewritten (root: RootElement) = root rewrite RewriteRules(contextFor(root))

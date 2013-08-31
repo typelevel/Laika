@@ -46,9 +46,7 @@ object Documents {
     
     def rewrite (customRules: Seq[PartialFunction[Element,Option[Element]]]): Document = {
       
-      val tree = DocumentTree(Root, Seq(this), Nil)
-      
-      val defaultRules = (rewriteRules map { _(DocumentContext(this, tree, tree)) })      
+      val defaultRules = (rewriteRules map { _(DocumentContext(this)) })      
       
       val allRules = RewriteRules chain (customRules ++ defaultRules)
       
@@ -64,6 +62,13 @@ object Documents {
   case class DocumentInfo (/* TODO - define */)
   
   case class DocumentContext (document: Document, parent: DocumentTree, root: DocumentTree)
+  
+  case object DocumentContext {
+    def apply (document: Document) = {
+      val tree = DocumentTree(Root, Seq(document), Nil)
+      new DocumentContext(document, tree, tree)
+    }
+  }
   
   case class DocumentTree (path:Path, documents: Seq[Document], subtrees: Seq[DocumentTree]) {
     
@@ -115,9 +120,6 @@ object Documents {
   
     def apply(list: List[String]): Path = list.foldLeft(Root: Path)(_ / _)
   }
-  
-
-
   
   
 }
