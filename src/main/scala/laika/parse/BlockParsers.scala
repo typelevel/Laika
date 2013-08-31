@@ -24,6 +24,7 @@ import laika.tree.Documents.Root
 import scala.util.parsing.input.CharSequenceReader
 import scala.util.parsing.input.Reader
 import laika.tree.RewriteRules
+import laika.tree.Documents.Path
   
 /** A generic base trait for block parsers. Provides base parsers that abstract
  *  aspects of block parsing common to most lightweight markup languages.
@@ -73,7 +74,7 @@ trait BlockParsers extends MarkupParsers {
    *  of this library, as the parsers treat all unknown or malformed markup as regular
    *  text.
    */
-  def parseDocument (reader: Reader[Char]): Document = Document(Root, Nil, DocumentInfo(), parseMarkup(root, reader), List(RewriteRules)) // TODO - fully populate path, title, info
+  def parseDocument (reader: Reader[Char], path: Path): Document = Document(path, Nil, DocumentInfo(), parseMarkup(root, reader), List(RewriteRules)) // TODO - fully populate path, title, info
    
   
   /** Parses all nested blocks for the specified input and nest level.

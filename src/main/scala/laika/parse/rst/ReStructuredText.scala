@@ -178,7 +178,7 @@ class ReStructuredText private (
   def apply (input: Input) = {
     val raw = input.asParserInput.source
     val preprocessed = (new WhitespacePreprocessor)(raw.toString)
-    parser.parseDocument(new CharSequenceReader(preprocessed))
+    parser.parseDocument(new CharSequenceReader(preprocessed), input.path)
   }
   
 }

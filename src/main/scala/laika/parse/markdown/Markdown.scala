@@ -58,7 +58,7 @@ class Markdown private (verbatimHTML: Boolean) extends (Input => Document) {
   /** The actual parser function, fully parsing the specified input and
    *  returning a document tree.
    */
-  def apply (input: Input) = parser.parseDocument(input.asParserInput)
+  def apply (input: Input) = parser.parseDocument(input.asParserInput, input.path)
   
 }
 

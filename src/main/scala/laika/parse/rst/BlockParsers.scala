@@ -17,9 +17,7 @@
 package laika.parse.rst
 
 import laika.tree.Elements._
-import laika.tree.Documents.Document
-import laika.tree.Documents.DocumentInfo
-import laika.tree.Documents.Root
+import laika.tree.Documents._
 import laika.parse.rst.Elements._
 import scala.collection.mutable.ListBuffer
 import scala.annotation.tailrec
@@ -46,10 +44,10 @@ trait BlockParsers extends laika.parse.BlockParsers
   override def ws = anyOf(' ') // other whitespace has been replaced with spaces by preprocessor
                         
   
-  override def parseDocument (reader: Reader[Char]) = {
+  override def parseDocument (reader: Reader[Char], path: Path) = {
     val parsedRoot = parseMarkup(root, reader)
     val finalRoot = parsedRoot.copy(content = parsedRoot.content ++ textRoleElements)
-    Document(Root, Nil, DocumentInfo(), finalRoot, List(RewriteRules, laika.tree.RewriteRules)) // TODO - fully populate
+    Document(path, Nil, DocumentInfo(), finalRoot, List(RewriteRules, laika.tree.RewriteRules)) // TODO - set title and info
   }
   
   /** All the base text roles supported by this parser not including
