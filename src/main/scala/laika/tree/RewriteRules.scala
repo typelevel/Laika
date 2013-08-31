@@ -18,7 +18,7 @@ package laika.tree
 
 
 import laika.tree.Elements.Element 
-import laika.tree.Documents.Document 
+import laika.tree.Documents.DocumentContext 
 
 /** The default rewrite rules that get applied to the raw document tree after parsing
  *  unless explicitly disabled. The rules are responsible for resolving references 
@@ -34,13 +34,13 @@ import laika.tree.Documents.Document
  * 
  *  @author Jens Halm
  */
-object RewriteRules extends (Document => PartialFunction[Element,Option[Element]]) {
+object RewriteRules extends (DocumentContext => PartialFunction[Element,Option[Element]]) {
 
   
   /** Provides the default rewrite rules for the specified document.
    */
-  def apply (document: Document) = {
-    LinkResolver(document) orElse SectionBuilder()
+  def apply (context: DocumentContext) = {
+    LinkResolver(context) orElse SectionBuilder()
   }
   
   

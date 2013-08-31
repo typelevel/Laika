@@ -21,7 +21,7 @@ import scala.collection.mutable.ListBuffer
 import IdGenerators._
 import LinkTargets._
 import Elements._
-import Documents.Document
+import Documents.DocumentContext
 
 /** The default rewrite rules responsible for resolving link references that get 
  *  applied to the raw document tree after parsing.
@@ -39,13 +39,13 @@ import Documents.Document
  * 
  *  @author Jens Halm
  */
-object LinkResolver extends (Document => PartialFunction[Element,Option[Element]]) {
+object LinkResolver extends (DocumentContext => PartialFunction[Element,Option[Element]]) {
 
   
   /** The default rules for resolving link references 
    *  to be applied to the document.
    */
-  class DefaultRules (document: Document) { 
+  class DefaultRules (context: DocumentContext) { 
   
     private val headerIdMap = new IdMap
     private val decHeaderIdMap = new IdMap
@@ -60,7 +60,7 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
       val numbers = new NumberGenerator
       val anonPos = Stream.from(1).iterator
                                 
-      document.content.collect {
+      context.document.content.collect {
         case c: Citation => new CitationTarget(c) 
         
         case f: FootnoteDefinition => f.label match {
@@ -217,7 +217,7 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
   /** Provides the default rewrite rules for resolving link references
    *  for the specified document (without applying them).
    */
-  def apply (document: Document) = (new DefaultRules(document)).rewrite
+  def apply (context: DocumentContext) = (new DefaultRules(context)).rewrite
   
 }
 

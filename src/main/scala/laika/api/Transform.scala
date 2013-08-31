@@ -20,7 +20,7 @@ import java.io._
 import scala.io.Codec
 import laika.api.Transform.Rules
 import laika.io._
-import laika.tree.Documents.Document
+import laika.tree.Documents._
 import laika.tree.Elements.Element
 import laika.tree.RewriteRules
   
@@ -73,7 +73,8 @@ class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules: 
    */
   class Operation private[Transform] (raw: Document) { 
 
-    private val document = raw rewrite rules.forDocument(raw)
+    private val tree = DocumentTree(Root, Seq(raw), Nil)
+    private val document = raw rewrite rules.forContext(DocumentContext(raw, tree, tree))
     private val op = render from document.content
     
     /** Renders to the file with the specified name.
@@ -168,7 +169,7 @@ class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules: 
    *  In case multiple rewrite rules need to be applied it may be more efficient to
    *  first combine them with `orElse`.
    */
-  def creatingRule (newRule: Document => PartialFunction[Element, Option[Element]]) = new Transform(parse, render, rules + newRule) 
+  def creatingRule (newRule: DocumentContext => PartialFunction[Element, Option[Element]]) = new Transform(parse, render, rules + newRule) 
   
   /** Specifies a custom render function that overrides one or more of the default
    *  renderers for the output format this instance uses.
@@ -280,11 +281,11 @@ class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules: 
  */
 object Transform {
    
-  private[laika] class Rules (rules: List[Document => PartialFunction[Element, Option[Element]]]){
+  private[laika] class Rules (rules: List[DocumentContext => PartialFunction[Element, Option[Element]]]){
     
-    def forDocument (doc: Document) = (rules map { _(doc) }).reverse      
+    def forContext (context: DocumentContext) = (rules map { _(context) }).reverse      
     
-    def + (newRule: Document => PartialFunction[Element, Option[Element]]) = new Rules(newRule :: rules)
+    def + (newRule: DocumentContext => PartialFunction[Element, Option[Element]]) = new Rules(newRule :: rules)
     
   }
 

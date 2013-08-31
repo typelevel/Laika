@@ -29,7 +29,7 @@ object Documents {
                        title: Seq[Span], 
                        info: DocumentInfo, 
                        content: RootElement, 
-                       rewriteRules: Seq[Document => PartialFunction[Element,Option[Element]]]) {
+                       rewriteRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]]) {
     
     val name = path.name
   
@@ -46,7 +46,9 @@ object Documents {
     
     def rewrite (customRules: Seq[PartialFunction[Element,Option[Element]]]): Document = {
       
-      val defaultRules = (rewriteRules map { _(this) })      
+      val tree = DocumentTree(Root, Seq(this), Nil)
+      
+      val defaultRules = (rewriteRules map { _(DocumentContext(this, tree, tree)) })      
       
       val allRules = RewriteRules chain (customRules ++ defaultRules)
       
