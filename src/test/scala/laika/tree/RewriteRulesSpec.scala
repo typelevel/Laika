@@ -20,6 +20,7 @@ import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import laika.tree.Elements._
+import laika.tree.Documents._
 import laika.parse.rst.Elements._
 import laika.tree.helper.ModelBuilder
  
@@ -28,7 +29,7 @@ class RewriteRulesSpec extends FlatSpec
                   with ModelBuilder {
 
   
-  def rewritten (doc: Document) = doc rewrite RewriteRules(doc)
+  def rewritten (root: RootElement) = root rewrite RewriteRules(Document(Root, Nil, DocumentInfo(), root, Nil))
   
   def invalidSpan (message: String, fallback: String) =
       InvalidSpan(SystemMessage(laika.tree.Elements.Error, message), Text(fallback))

@@ -17,6 +17,9 @@
 package laika.parse.rst
 
 import laika.tree.Elements._
+import laika.tree.Documents.Document
+import laika.tree.Documents.DocumentInfo
+import laika.tree.Documents.Root
 import laika.parse.rst.Elements._
 import scala.collection.mutable.ListBuffer
 import scala.annotation.tailrec
@@ -44,8 +47,9 @@ trait BlockParsers extends laika.parse.BlockParsers
                         
   
   override def parseDocument (reader: Reader[Char]) = {
-    val raw = super.parseDocument(reader)
-    raw.copy(rewriteRules = List(RewriteRules(Document(raw.document.content ++ textRoleElements))))
+    val parsedRoot = parseMarkup(root, reader)
+    val finalRoot = parsedRoot.copy(content = parsedRoot.content ++ textRoleElements)
+    Document(Root, Nil, DocumentInfo(), finalRoot, List(RewriteRules, laika.tree.RewriteRules)) // TODO - fully populate
   }
   
   /** All the base text roles supported by this parser not including

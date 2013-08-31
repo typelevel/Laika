@@ -31,6 +31,8 @@ class StandardBlockDirectivesSpec extends FlatSpec
                                   with ModelBuilder {
 
    val simplePars = List(p("1st Para"), p("2nd Para"))
+   
+   def parse (input: String) = (Parse as ReStructuredText fromString input).content
   
   "The compound directive" should "parse a sequence of two paragraphs" in {
     val input = """.. compound::
@@ -39,7 +41,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | 2nd Para""".stripMargin
     val result = doc (BlockSequence(simplePars, Styles("compound")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "allow to set an id for the sequence" in {
@@ -50,7 +52,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | 2nd Para""".stripMargin
     val result = doc (BlockSequence(simplePars, Styles("compound") + Id("foo")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "allow to set a style for the sequence" in {
@@ -61,7 +63,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | 2nd Para""".stripMargin
     val result = doc (BlockSequence(simplePars, Styles("foo", "compound")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   
@@ -72,7 +74,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | 2nd Para""".stripMargin
     val result = doc (BlockSequence(simplePars))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "parse a sequence of two paragraphs with two custom styles" in {
@@ -82,7 +84,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | 2nd Para""".stripMargin
     val result = doc (BlockSequence(simplePars, Styles("foo", "bar")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   
@@ -93,7 +95,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | 2nd Para""".stripMargin
     val result = doc (TitledBlock(List(txt("TITLE")), simplePars, Styles("admonition")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "allow to set id and style for the admonition" in {
@@ -105,7 +107,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | 2nd Para""".stripMargin
     val result = doc (TitledBlock(List(txt("TITLE")), simplePars, Id("foo") + Styles("bar","admonition")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "parse the attention admonition" in {
@@ -115,7 +117,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | 2nd Para""".stripMargin
     val result = doc (TitledBlock(List(txt("Attention!")), simplePars, Styles("attention")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "allow to set id and style for the attention admonition" in {
@@ -127,7 +129,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | 2nd Para""".stripMargin
     val result = doc (TitledBlock(List(txt("Attention!")), simplePars, Id("foo") + Styles("bar","attention")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "correctly parse nested blocks and inline markup" in {
@@ -137,7 +139,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       |  2nd Para""".stripMargin
     val result = doc (TitledBlock(List(txt("Attention!")), List(p(txt("1st "),em("Para")), quote("2nd Para")), Styles("attention")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "parse the caution admonition" in {
@@ -147,7 +149,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | 2nd Para""".stripMargin
     val result = doc (TitledBlock(List(txt("Caution!")), simplePars, Styles("caution")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "parse the danger admonition" in {
@@ -157,7 +159,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | 2nd Para""".stripMargin
     val result = doc (TitledBlock(List(txt("!DANGER!")), simplePars, Styles("danger")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "parse the error admonition" in {
@@ -167,7 +169,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | 2nd Para""".stripMargin
     val result = doc (TitledBlock(List(txt("Error")), simplePars, Styles("error")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "parse the hint admonition" in {
@@ -177,7 +179,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | 2nd Para""".stripMargin
     val result = doc (TitledBlock(List(txt("Hint")), simplePars, Styles("hint")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "parse the important admonition" in {
@@ -187,7 +189,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | 2nd Para""".stripMargin
     val result = doc (TitledBlock(List(txt("Important")), simplePars, Styles("important")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "parse the note admonition" in {
@@ -197,7 +199,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | 2nd Para""".stripMargin
     val result = doc (TitledBlock(List(txt("Note")), simplePars, Styles("note")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "parse the tip admonition" in {
@@ -207,7 +209,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | 2nd Para""".stripMargin
     val result = doc (TitledBlock(List(txt("Tip")), simplePars, Styles("tip")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "parse the warning admonition" in {
@@ -217,7 +219,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | 2nd Para""".stripMargin
     val result = doc (TitledBlock(List(txt("Warning")), simplePars, Styles("warning")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "match the name of the directive case-insensitively" in {
@@ -227,7 +229,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | 2nd Para""".stripMargin
     val result = doc (TitledBlock(List(txt("Warning")), simplePars, Styles("warning")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   
@@ -238,7 +240,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | 2nd Para""".stripMargin
     val result = doc (TitledBlock(List(txt("TITLE")), simplePars, Styles("topic")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "allow to set id and style for the admonition" in {
@@ -250,7 +252,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | 2nd Para""".stripMargin
     val result = doc (TitledBlock(List(txt("TITLE")), simplePars, Id("foo") + Styles("bar","topic")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   
@@ -261,7 +263,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | 2nd Para""".stripMargin
     val result = doc (TitledBlock(List(txt("TITLE")), simplePars, Styles("sidebar")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "allow to set id and style for the admonition" in {
@@ -273,7 +275,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | 2nd Para""".stripMargin
     val result = doc (TitledBlock(List(txt("TITLE")), simplePars, Id("foo") + Styles("bar","sidebar")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "allow to set the id and a subtitle for the admonition" in {
@@ -286,14 +288,14 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | 2nd Para""".stripMargin
     val result = doc (TitledBlock(List(txt("TITLE")), Paragraph(List(txt("some "),em("text")), Styles("subtitle")) :: simplePars, 
         Id("foo") + Styles("sidebar")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   
   "The rubric directive" should "parse spans without other options" in {
     val input = """.. rubric:: some *text*"""
     val result = doc (Paragraph(List(txt("some "),em("text")), Styles("rubric")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "allow to set id and styles" in {
@@ -301,14 +303,14 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | :name: foo
       | :class: bar""".stripMargin
     val result = doc (Paragraph(List(txt("some "),em("text")), Id("foo") + Styles("bar","rubric")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   
   "The epigraph directive" should "parse a single line" in {
     val input = """.. epigraph:: some *text*"""
     val result = doc (QuotedBlock(List(p(txt("some "),em("text"))), Nil, Styles("epigraph")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "parse multiple lines" in {
@@ -317,7 +319,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | some *text*
       | some more""".stripMargin
     val result = doc (QuotedBlock(List(p(txt("some "),em("text"),txt("\nsome more"))), Nil, Styles("epigraph")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "support attributions" in {
@@ -328,19 +330,19 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | 
       | -- attr""".stripMargin
     val result = doc (QuotedBlock(List(p(txt("some "),em("text"),txt("\nsome more"))), List(Text("attr",Styles("attribution"))), Styles("epigraph")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   "The highlights directive" should "parse a single line" in {
     val input = """.. highlights:: some *text*"""
     val result = doc (QuotedBlock(List(p(txt("some "),em("text"))), Nil, Styles("highlights")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   "The pull-quote directive" should "parse a single line" in {
     val input = """.. pull-quote:: some *text*"""
     val result = doc (QuotedBlock(List(p(txt("some "),em("text"))), Nil, Styles("pull-quote")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   
@@ -350,7 +352,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | some *text*
       | some more""".stripMargin
     val result = doc (ParsedLiteralBlock(List(txt("some "),em("text"),txt("\nsome more"))))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "allow to set id and style" in {
@@ -361,7 +363,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | some *text*
       | some more""".stripMargin
     val result = doc (ParsedLiteralBlock(List(txt("some "),em("text"),txt("\nsome more")), Id("foo") + Styles("bar")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "parse multiple lines separated by spaces, preserving indentation" in {
@@ -372,7 +374,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       |  indented""".stripMargin
     val result = doc (ParsedLiteralBlock(List(txt("some "),em("text"),txt("\nsome more\n\n indented"))))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   
@@ -382,7 +384,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | some banana
       | some more""".stripMargin
     val result = doc (CodeBlock("banana-script", List(txt("some banana\nsome more"))))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "allow to set id and style" in {
@@ -393,7 +395,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | some banana
       | some more""".stripMargin
     val result = doc (CodeBlock("banana-script", List(txt("some banana\nsome more")), Id("foo") + Styles("bar")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "parse multiple lines separated by spaces, preserving indentation" in {
@@ -404,7 +406,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       |  indented""".stripMargin
     val result = doc (CodeBlock("banana-script", List(txt("some banana\nsome more\n\n indented"))))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   
@@ -417,7 +419,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | | c | d |
       | +---+---+""".stripMargin
     val result = doc (table(strrow("a","b"), strrow("c","d")).copy(caption = Caption(List(em("caption")))))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "parse a simple table with caption" in {
@@ -428,7 +430,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |  c    d
       | ===  ===""".stripMargin
     val result = doc (table(strrow("a","b"), strrow("c","d")).copy(caption = Caption(List(em("caption")))))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "parse a simple table without caption" in {
@@ -439,21 +441,21 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |  c    d
       | ===  ===""".stripMargin
     val result = doc (table(strrow("a","b"), strrow("c","d")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   
   "The image directive" should "parse the URI argument" in {
     val input = """.. image:: picture.jpg"""
     val result = doc (p(img("", "picture.jpg")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "support the alt option" in {
     val input = """.. image:: picture.jpg
       | :alt: alt""".stripMargin
     val result = doc (p(img("alt", "picture.jpg")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "support the target option with a simple reference" in {
@@ -462,7 +464,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       |.. _ref: http://foo.com/""".stripMargin
     val result = doc (p(ExternalLink(List(img("", "picture.jpg")), "http://foo.com/")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "support the target option with a phrase reference" in {
@@ -471,28 +473,28 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       |.. _`some ref`: http://foo.com/""".stripMargin
     val result = doc (p(ExternalLink(List(img("", "picture.jpg")), "http://foo.com/")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "support the target option with a uri" in {
     val input = """.. image:: picture.jpg
       | :target: http://foo.com/""".stripMargin
     val result = doc (p(ExternalLink(List(img("", "picture.jpg")), "http://foo.com/")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "support the class option" in {
     val input = """.. image:: picture.jpg
       | :class: foo""".stripMargin
     val result = doc (p(Image("","picture.jpg",options=Styles("foo"))))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   
   "The figure directive" should "parse the URI argument" in {
     val input = """.. figure:: picture.jpg"""
     val result = doc (Figure(img("", "picture.jpg"),Nil,Nil))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "support a caption" in {
@@ -500,7 +502,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | This is the *caption*""".stripMargin
     val result = doc (Figure(img("", "picture.jpg"), List(txt("This is the "),em("caption")), Nil))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "support a caption and a legend" in {
@@ -510,7 +512,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | And this is the legend""".stripMargin
     val result = doc (Figure(img("", "picture.jpg"), List(txt("This is the "),em("caption")), List(p("And this is the legend"))))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "support the class option for the figure and the image" in {
@@ -518,7 +520,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | :class: img
       | :figclass: fig""".stripMargin
     val result = doc (Figure(Image("", "picture.jpg", options=Styles("img")), Nil, Nil, Styles("fig")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "support the target option with a simple reference and a caption" in {
@@ -529,7 +531,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       |.. _ref: http://foo.com/""".stripMargin
     val result = doc (Figure(ExternalLink(List(img("", "picture.jpg")), "http://foo.com/"), List(txt("This is the "),em("caption")), Nil))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   
@@ -540,7 +542,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | some more""".stripMargin
     val result = doc (RawContent(List("format"), "some input\n\nsome more"))
-    Parse as ReStructuredText.withRawContent fromString input should be (result)
+    (Parse as ReStructuredText.withRawContent fromString input).content should be (result)
   }
   
   

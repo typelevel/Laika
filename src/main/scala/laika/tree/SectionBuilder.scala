@@ -19,6 +19,7 @@ package laika.tree
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.Stack
 import laika.tree.Elements._
+import laika.tree.Documents.Document
 
 /** Rewrite rules responsible for building the section structure
  *  of a document based on the header elements it contains and
@@ -43,7 +44,7 @@ object SectionBuilder extends (() => PartialFunction[Element,Option[Element]]) {
       
     }
     
-    def buildSections (document: Document) = {
+    def buildSections (document: RootElement) = {
       val stack = new Stack[Builder]
       stack push new Builder(Header(0,Nil)) 
       
@@ -60,11 +61,11 @@ object SectionBuilder extends (() => PartialFunction[Element,Option[Element]]) {
       }
   
       closeSections(1)
-      Document(stack.pop.toSection.content)
+      RootElement(stack.pop.toSection.content)
     }
 
     val rewrite: PartialFunction[Element, Option[Element]] = { 
-      case doc: Document => Some(buildSections(doc)) 
+      case root: RootElement => Some(buildSections(root)) 
     }
   }
   

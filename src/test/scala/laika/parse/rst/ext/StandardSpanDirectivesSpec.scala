@@ -32,13 +32,15 @@ class StandardSpanDirectivesSpec extends FlatSpec
                                   with ShouldMatchers 
                                   with ModelBuilder {
 
+
+  def parse (input: String) = (Parse as ReStructuredText fromString input).content
   
   "The image directive" should "parse the URI argument" in {
     val input = """.. |subst| image:: picture.jpg
       |
       |Some |subst|""".stripMargin
     val result = doc (p(txt("Some "),img("", "picture.jpg")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "support the alt option" in {
@@ -47,7 +49,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
       |
       |Some |subst|""".stripMargin
     val result = doc (p(txt("Some "),img("alt", "picture.jpg")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "support the target option with a simple reference" in {
@@ -58,7 +60,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
       |
       |Some |subst|""".stripMargin
     val result = doc (p(txt("Some "),ExternalLink(List(img("", "picture.jpg")), "http://foo.com/")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "support the target option with a phrase reference" in {
@@ -69,7 +71,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
       |
       |Some |subst|""".stripMargin
     val result = doc (p(txt("Some "),ExternalLink(List(img("", "picture.jpg")), "http://foo.com/")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "support the target option with a uri" in {
@@ -78,7 +80,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
       |
       |Some |subst|""".stripMargin
     val result = doc (p(txt("Some "),ExternalLink(List(img("", "picture.jpg")), "http://foo.com/")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "support the class option" in {
@@ -87,7 +89,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
       |
       |Some |subst|""".stripMargin
     val result = doc (p(txt("Some "),Image("","picture.jpg",options=Styles("foo"))))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   
@@ -96,7 +98,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
       |
       |Some |subst|""".stripMargin
     val result = doc (p(txt("Some "),SpanSequence(List(em("text"),txt(" here")))))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   
@@ -105,7 +107,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
       |
       |Some |subst|""".stripMargin
     val result = doc (p(txt("Some "),txt((new SimpleDateFormat("yyyy-MM-dd").format(new Date)))))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "support custom patterns" in {
@@ -113,7 +115,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
       |
       |Some |subst|""".stripMargin
     val result = doc (p(txt("Some "),txt((new SimpleDateFormat("yyyy-MMM-dd").format(new Date)))))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   
@@ -122,7 +124,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
       |
       |Copyright |subst|""".stripMargin
     val result = doc (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "support unicode hex values starting with 'x' intertwined with normal text" in {
@@ -130,7 +132,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
       |
       |Copyright |subst|""".stripMargin
     val result = doc (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "support unicode hex values starting with '\\x' intertwined with normal text" in {
@@ -138,7 +140,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
       |
       |Copyright |subst|""".stripMargin
     val result = doc (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "support unicode hex values starting with 'U+' intertwined with normal text" in {
@@ -146,7 +148,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
       |
       |Copyright |subst|""".stripMargin
     val result = doc (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "support unicode hex values starting with 'u' intertwined with normal text" in {
@@ -154,7 +156,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
       |
       |Copyright |subst|""".stripMargin
     val result = doc (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "support unicode hex values starting with '\\u' intertwined with normal text" in {
@@ -162,7 +164,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
       |
       |Copyright |subst|""".stripMargin
     val result = doc (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "support unicode hex values as XML-style entities intertwined with normal text" in {
@@ -170,7 +172,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
       |
       |Copyright |subst|""".stripMargin
     val result = doc (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   it should "support unicode decimal values intertwined with normal text" in {
@@ -178,7 +180,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
       |
       |Copyright |subst|""".stripMargin
     val result = doc (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
-    Parse as ReStructuredText fromString input should be (result)
+    parse(input) should be (result)
   }
   
   

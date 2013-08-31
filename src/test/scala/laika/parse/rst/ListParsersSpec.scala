@@ -21,7 +21,6 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import laika.parse.helper.DefaultParserHelpers
 import laika.parse.helper.ParseResultHelpers
-import laika.tree.Elements.Span
 import laika.tree.helper.ModelBuilder
 import laika.parse.rst.Elements._
 import laika.tree.Elements._
@@ -33,11 +32,11 @@ class ListParsersSpec extends FlatSpec
                         with BlockParsers 
                         with InlineParsers
                         with ParseResultHelpers 
-                        with DefaultParserHelpers[Document] 
+                        with DefaultParserHelpers[RootElement] 
                         with ModelBuilder {
 
   
-  val defaultParser: Parser[Document] = document
+  val defaultParser: Parser[RootElement] = root
   
   
   def blockDirective (name: String): Option[DirectivePart[Block]] = None

@@ -44,7 +44,7 @@ class TransformAPISpec extends FlatSpec
     |
     |text""".stripMargin 
   
-  val output = """Document - Blocks: 1
+  val output = """RootElement - Blocks: 1
     |. Section
     |. . Header(1) - Spans: 1
     |. . . Text - 'Title äöü'
@@ -131,7 +131,7 @@ class TransformAPISpec extends FlatSpec
   
   it should "allow to specify a custom rewrite rule that depends on the document" in {
     val modifiedOutput = output.replaceAllLiterally("äöü", "2")
-    val transformCustom = transform creatingRule { doc => { case Text("Title äöü",_) => Some(Text("Title " + doc.content.length)) }}
+    val transformCustom = transform creatingRule { doc => { case Text("Title äöü",_) => Some(Text("Title " + doc.content.content.length)) }}
     (transformCustom fromString input toString) should be (modifiedOutput)
   }
   

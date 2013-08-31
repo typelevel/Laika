@@ -39,7 +39,7 @@ class RenderAPISpec extends FlatSpec
   
   val document = doc(p("aaö"), p("bbb"))
   
-  val expected = """Document - Blocks: 2
+  val expected = """RootElement - Blocks: 2
       |. Paragraph - Spans: 1
       |. . Text - 'aaö'
       |. Paragraph - Spans: 1

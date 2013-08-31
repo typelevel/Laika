@@ -18,7 +18,7 @@ package laika.parse.markdown
 
 import laika.io.Input
 import laika.parse.markdown.html.HTMLParsers
-import laika.tree.Elements.RawDocument
+import laika.tree.Documents.Document
   
 /** A parser for Markdown text. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:
@@ -41,7 +41,7 @@ import laika.tree.Elements.RawDocument
  * 
  *  @author Jens Halm
  */
-class Markdown private (verbatimHTML: Boolean) extends (Input => RawDocument) {
+class Markdown private (verbatimHTML: Boolean) extends (Input => Document) {
 
   /** Returns a Markdown parser that also parses verbatim HTML elements alongside
    *  the standard Markdown markup. Usually only recommended when used together

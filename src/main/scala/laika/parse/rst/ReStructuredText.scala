@@ -18,6 +18,7 @@ package laika.parse.rst
 
 import laika.io.Input
 import laika.tree.Elements._
+import laika.tree.Documents.Document
 import laika.parse.rst.Directives._
 import laika.parse.rst.TextRoles._
 import laika.parse.rst.ext._
@@ -68,7 +69,7 @@ class ReStructuredText private (
     textRoles: List[TextRole],
     defaultTextRole: String = "title-reference",
     rawContent: Boolean = false
-    ) extends (Input => RawDocument) { self =>
+    ) extends (Input => Document) { self =>
 
   
   /** Adds the specified directives and returns a new instance of the parser.

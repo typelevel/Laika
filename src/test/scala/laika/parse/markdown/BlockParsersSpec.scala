@@ -29,11 +29,11 @@ class BlockParsersSpec extends FlatSpec
                        with BlockParsers 
                        with InlineParsers
                        with ParseResultHelpers 
-                       with DefaultParserHelpers[Document] 
+                       with DefaultParserHelpers[RootElement] 
                        with ModelBuilder {
 
   
-  val defaultParser: Parser[Document] = document
+  val defaultParser: Parser[RootElement] = root
   
   
   def fp (content: String) = ForcedParagraph(List(Text(content)))

@@ -29,7 +29,7 @@ object Documents {
                        title: Seq[Span], 
                        info: DocumentInfo, 
                        content: RootElement, 
-                       rewriteRules: Option[Element => Option[Element]]) {
+                       rewriteRules: Seq[Document => PartialFunction[Element,Option[Element]]]) {
     
     val name = path.name
   
@@ -39,13 +39,23 @@ object Documents {
   
     val isRewritten = rewriteRules.isEmpty
     
-    /* 
-    def rewrite (): Document // applies default rules only - TODO - implement
-     
-    def rewrite (customRules: Element => Option[Element]) // applies default rules plus custom rules
-    */
     
-    def removeRules = if (rewriteRules.isDefined) copy(rewriteRules = None) else this
+    def rewrite (): Document = rewrite(Nil)
+     
+    def rewrite (customRule: PartialFunction[Element,Option[Element]]): Document = rewrite(List(customRule))
+    
+    def rewrite (customRules: Seq[PartialFunction[Element,Option[Element]]]): Document = {
+      
+      val defaultRules = (rewriteRules map { _(this) })      
+      
+      val allRules = RewriteRules chain (customRules ++ defaultRules)
+      
+      val newRoot = content rewrite allRules
+      
+      copy(content = newRoot, rewriteRules = Nil)
+    }
+
+    def removeRules = if (rewriteRules.isEmpty) this else copy(rewriteRules = Nil)
     
   }
   

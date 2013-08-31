@@ -20,8 +20,7 @@ import java.io._
 import scala.io.Codec
 import laika.api.Transform.Rules
 import laika.io._
-import laika.tree.Elements.Document
-import laika.tree.Elements.RawDocument
+import laika.tree.Documents.Document
 import laika.tree.Elements.Element
 import laika.tree.RewriteRules
   
@@ -65,17 +64,17 @@ import laika.tree.RewriteRules
  * 
  *  @author Jens Halm
  */
-class Transform [W] private[Transform] (parse: Parse[RawDocument], render: Render[W], rules: Rules) {
+class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules: Rules) {
   
   
   /** Represents a single transformation operation for a specific
    *  input that has already been parsed. Various types of output can be
    *  specified to trigger the actual rendering.
    */
-  class Operation private[Transform] (raw: RawDocument) { 
+  class Operation private[Transform] (raw: Document) { 
 
-    private val document = raw.document rewrite rules.forDocument(raw)
-    private val op = render from document
+    private val document = raw rewrite rules.forDocument(raw)
+    private val op = render from document.content
     
     /** Renders to the file with the specified name.
      * 
@@ -283,10 +282,7 @@ object Transform {
    
   private[laika] class Rules (rules: List[Document => PartialFunction[Element, Option[Element]]]){
     
-    def forDocument (raw: RawDocument) = {
-      val userRules = (rules map { _(raw.document) }).reverse      
-      RewriteRules chain (userRules ::: raw.rewriteRules ::: List(RewriteRules(raw.document)))
-    }
+    def forDocument (doc: Document) = (rules map { _(doc) }).reverse      
     
     def + (newRule: Document => PartialFunction[Element, Option[Element]]) = new Rules(newRule :: rules)
     
@@ -295,7 +291,7 @@ object Transform {
   /** Step in the setup for a transform operation where the
    *  renderer must be specified.
    */
-  class Builder private[Transform] (parse: Parse[RawDocument]) {
+  class Builder private[Transform] (parse: Parse) {
 
     /** Creates and returns a new Transform instance for the specified renderer and the
      *  previously specified parser. The returned instance is stateless and reusable for
@@ -319,7 +315,7 @@ object Transform {
    *  @param parse the parse function to use
    *  @return a new Builder instance for specifying the renderer
    */
-  def from (parse: Input => RawDocument): Builder = new Builder(Parse as parse asRawDocument)
+  def from (parse: Input => Document): Builder = new Builder(Parse as parse asRawDocument)
   
   
 }

@@ -17,6 +17,7 @@
 package laika.parse.rst
 
 import laika.tree.Elements._
+import laika.tree.Documents.Document
 import laika.parse.rst.Elements._
 
 /** 
@@ -32,11 +33,11 @@ object RewriteRules extends (Document => PartialFunction[Element,Option[Element]
   
   class DefaultRules (val document: Document) { 
     
-    val substitutions = document.collect { 
+    val substitutions = document.content.collect { 
       case SubstitutionDefinition(id,content,_) => (id,content) 
     } toMap
     
-    val textRoles = document.collect { 
+    val textRoles = document.content.collect { 
       case CustomizedTextRole(id,f,_) => (id,f)                                   
     } toMap  
     

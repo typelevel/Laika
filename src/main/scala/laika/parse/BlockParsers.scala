@@ -16,9 +16,14 @@
 
 package laika.parse
   
-import laika.tree.Elements.{Block,Document,RawDocument}
+import laika.tree.Elements.Block
+import laika.tree.Elements.RootElement
+import laika.tree.Documents.Document
+import laika.tree.Documents.DocumentInfo
+import laika.tree.Documents.Root
 import scala.util.parsing.input.CharSequenceReader
 import scala.util.parsing.input.Reader
+import laika.tree.RewriteRules
   
 /** A generic base trait for block parsers. Provides base parsers that abstract
  *  aspects of block parsing common to most lightweight markup languages.
@@ -61,14 +66,14 @@ trait BlockParsers extends MarkupParsers {
   
   /** Parses a full document, delegating most of the work to the `topLevelBlock` parser.
    */
-  def document: Parser[Document] = opt(blankLines) ~> blockList(topLevelBlock) ^^ Document
+  def root: Parser[RootElement] = opt(blankLines) ~> blockList(topLevelBlock) ^^ RootElement
   
   /** Fully parses the input from the specified reader and returns the document tree. 
    *  This function is expected to always succeed, errors would be considered a bug
    *  of this library, as the parsers treat all unknown or malformed markup as regular
    *  text.
    */
-  def parseDocument (reader: Reader[Char]): RawDocument = RawDocument(parseMarkup(document, reader))
+  def parseDocument (reader: Reader[Char]): Document = Document(Root, Nil, DocumentInfo(), parseMarkup(root, reader), List(RewriteRules)) // TODO - fully populate path, title, info
    
   
   /** Parses all nested blocks for the specified input and nest level.

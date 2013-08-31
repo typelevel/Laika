@@ -22,7 +22,6 @@ import java.io.Reader
 import scala.io.Codec
 import laika.io.IO
 import laika.io.Input
-import laika.tree.Elements.RawDocument
 import laika.tree.RewriteRules
 import java.io.File
 import laika.io.InputProvider
@@ -44,14 +43,14 @@ import laika.tree.Documents.DocumentTree
  * 
  *  @author Jens Halm
  */
-class Parse[T] private (parse: Input => RawDocument, rewrite: RawDocument => T) {
+class Parse private (parse: Input => Document, rewrite: Boolean) {
 
   /** Returns a new Parse instance that produces raw document trees without applying
    *  the default rewrite rules. These rules resolve link and image references and 
    *  rearrange the tree into a hierarchy of sections based on the (flat) sequence
    *  of header instances found in the document.
    */
-  def asRawDocument = new Parse(parse, identity)
+  def asRawDocument = new Parse(parse, false)
   
   /** Returns a document tree obtained from parsing the specified string.
    *  Any kind of input is valid, including an empty string. 
@@ -87,9 +86,9 @@ class Parse[T] private (parse: Input => RawDocument, rewrite: RawDocument => T) 
   
   def fromInput (input: Input) = {
     
-    val raw = IO(input)(parse)
+    val doc = IO(input)(parse)
 
-    rewrite(raw)
+    if (rewrite) doc.rewrite() else doc
   }
   
   // TODO - add fromDirectory, fromDefaultDirectories, fromRootDirectory, Codec and parallelization hooks
@@ -124,10 +123,6 @@ class Parse[T] private (parse: Input => RawDocument, rewrite: RawDocument => T) 
  */
 object Parse {
   
-  def rewrite (raw: RawDocument) = {
-    raw.document rewrite (RewriteRules chain (raw.rewriteRules :+ RewriteRules(raw.document)))
-  }
-  
   /** Returns a new Parse instance for the specified parse function.
    *  This function is usually an object provided by the library
    *  or a plugin that is capable of parsing a specific markup
@@ -135,6 +130,6 @@ object Parse {
    * 
    *  @param parse the parse function to use for all subsequent operations
    */
-  def as (parse: Input => RawDocument) = new Parse(parse, rewrite) 
+  def as (parse: Input => Document) = new Parse(parse, true) 
   
 }

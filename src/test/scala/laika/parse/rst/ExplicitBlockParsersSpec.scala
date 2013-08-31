@@ -33,11 +33,11 @@ class ExplicitBlockParsersSpec extends FlatSpec
                         with BlockParsers 
                         with InlineParsers
                         with ParseResultHelpers 
-                        with DefaultParserHelpers[Document] 
+                        with DefaultParserHelpers[RootElement] 
                         with ModelBuilder {
 
   
-  val defaultParser: Parser[Document] = blockList(topLevelBlock) ^^ Document // do not use document parser to skip rewrite rules
+  val defaultParser: Parser[RootElement] = root
   
   
   def blockDirective (name: String): Option[DirectivePart[Block]] = None

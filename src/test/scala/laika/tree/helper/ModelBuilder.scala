@@ -74,7 +74,7 @@ trait ModelBuilder {
     case NumericLabel(label) => "["+label+"]_"
   }
   
-  def doc (blocks: Block*) = Document(blocks.toList)
+  def doc (blocks: Block*) = RootElement(blocks.toList)
   
   def p (spans: Span*) = Paragraph(spans.toList)
   

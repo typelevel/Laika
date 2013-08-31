@@ -40,7 +40,7 @@ class APISpec extends FlatSpec
     val input = """.. oneArg:: arg
       |
       |.. twoArgs:: arg arg""".stripMargin
-    Parse as (ReStructuredText withBlockDirectives (directives:_*)) fromString input should be (doc (p("arg"),p("argarg")))
+    (Parse as (ReStructuredText withBlockDirectives (directives:_*)) fromString input).content should be (doc (p("arg"),p("argarg")))
   }
   
   it should "support registration of span directives" in {
@@ -53,7 +53,7 @@ class APISpec extends FlatSpec
       |.. |one| oneArg:: arg
       |
       |.. |two| twoArgs:: arg arg""".stripMargin
-    Parse as (ReStructuredText withSpanDirectives (directives:_*)) fromString input should be (doc 
+    (Parse as (ReStructuredText withSpanDirectives (directives:_*)) fromString input).content should be (doc 
         (p(txt("foo "), txt("arg"), txt(" foo "), txt("argarg"))))
   }
   
@@ -75,13 +75,13 @@ class APISpec extends FlatSpec
       |.. role::two(twoArgs)
       | :name1: val1
       | :name2: val2""".stripMargin
-    Parse as (ReStructuredText withTextRoles (roles:_*)) fromString input should be (doc 
+    (Parse as (ReStructuredText withTextRoles (roles:_*)) fromString input).content should be (doc 
         (p(txt("foo "), txt("valone"), txt(" foo "), txt("val1val2two"))))
   }
   
   it should "preprocess tabs" in {
     val input = " Line1\n\tLine2\n\tLine3"
-    Parse as ReStructuredText fromString input should be (doc( quote(defList + ("Line1", p("Line2\nLine3")))))
+    (Parse as ReStructuredText fromString input).content should be (doc( quote(defList + ("Line1", p("Line2\nLine3")))))
   }
   
 

@@ -21,6 +21,7 @@ import scala.collection.mutable.ListBuffer
 import IdGenerators._
 import LinkTargets._
 import Elements._
+import Documents.Document
 
 /** The default rewrite rules responsible for resolving link references that get 
  *  applied to the raw document tree after parsing.
@@ -59,7 +60,7 @@ object LinkResolver extends (Document => PartialFunction[Element,Option[Element]
       val numbers = new NumberGenerator
       val anonPos = Stream.from(1).iterator
                                 
-      document.collect {
+      document.content.collect {
         case c: Citation => new CitationTarget(c) 
         
         case f: FootnoteDefinition => f.label match {

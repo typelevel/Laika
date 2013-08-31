@@ -17,7 +17,8 @@
 package laika.tree
 
 
-import laika.tree.Elements._ 
+import laika.tree.Elements.Element 
+import laika.tree.Documents.Document 
 
 /** The default rewrite rules that get applied to the raw document tree after parsing
  *  unless explicitly disabled. The rules are responsible for resolving references 
@@ -47,7 +48,7 @@ object RewriteRules extends (Document => PartialFunction[Element,Option[Element]
    *  The resulting function is always defined, but is returned
    *  as a PartialFunction as required by the `ElementTraversal` API.
    */
-  def chain (rules: List[PartialFunction[Element,Option[Element]]]) = {
+  def chain (rules: Seq[PartialFunction[Element,Option[Element]]]) = {
     
     val fallback: PartialFunction[Element, Option[Element]] = { case e => Some(e) }
       
