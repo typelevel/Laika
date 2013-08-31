@@ -98,10 +98,9 @@ class Parse private (parse: Input => Document, rewrite: Boolean) {
     def collectInputs (provider: InputProvider): Seq[Input] =
       provider.inputs ++ (input.subtrees map collectInputs).flatten
     
-    val inputs = collectInputs(input)
+    val inputs = collectInputs(input) // TODO - alternatively create Map here (do benchmarks)
     
-    //val documents = inputs map fromInput TODO - needs to produce Document instances now
-    val documents = Seq[Document]()
+    val documents = inputs map fromInput // TODO - this step can optionally run in parallel
     
     val docMap = documents map (doc => (doc.path, doc)) toMap
     

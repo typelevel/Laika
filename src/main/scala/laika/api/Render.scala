@@ -19,13 +19,13 @@ package laika.api
 import java.io.File
 import java.io.OutputStream
 import java.io.Writer
-
 import scala.annotation.implicitNotFound
 import scala.io.Codec
-
 import laika.io.IO
 import laika.io.Output
 import laika.tree.Elements.Element
+import laika.tree.Documents._
+import laika.io.OutputProvider
   
 /** API for performing a render operation to various types of output using an existing
  *  document tree model. 
@@ -122,6 +122,23 @@ class Render[W] private (setup: (Output, Element => Unit) => (W, Element => Unit
     }
     
   }
+  
+  class BatchOperation private[Render] (tree: DocumentTree) {
+    
+    // TODO - add toDirectory, toDefaultDirectories, toRootDirectory, Codec and parallelization hooks
+
+    def toTree (provider: OutputProvider) = {
+      
+      def collectOperations (tree: DocumentTree, provider: OutputProvider): Seq[(Document,Output)] =
+          (tree.documents map { doc:Document => (doc, provider.newOutput(doc.name)) }) ++ 
+            (tree.subtrees map { tree => collectOperations(tree, provider.newChild(tree.name)) }).flatten
+    
+      val operations = collectOperations(tree, provider)
+      
+      operations foreach { case (doc, output) => from(doc.content).toOutput(output) } // TODO - this step can optionally run in parallel
+    }
+    
+  }
 
   /** Specifies a custom render function that overrides one or more of the default
    *  renderers for the output format this instance uses.
@@ -155,6 +172,10 @@ class Render[W] private (setup: (Output, Element => Unit) => (W, Element => Unit
    *  @return a new Operation instance that allows to specify the output
    */
   def from (elem: Element) = new Operation(elem)
+  
+  // TODO = add from (doc: Document)
+  
+  def from (tree: DocumentTree) = new BatchOperation(tree)
   
 
 }

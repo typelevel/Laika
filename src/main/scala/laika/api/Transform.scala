@@ -227,32 +227,22 @@ class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules: 
   def fromStream (stream: InputStream)(implicit codec: Codec) = new Operation(parse.fromStream(stream)(codec))
   
   
-  def withDefaultDirectories = withRootDirectory(System.getProperty("user.dir")) // TODO - charset config
+  def withDefaultDirectories = withRootDirectory(System.getProperty("user.dir")) // TODO - charset + parallelization config
   
   def withRootDirectory (name: String): Unit = withRootDirectory(new File(name))
   
   def withRootDirectory (dir: File): Unit = withConfig(BatchConfig.defaultDirectoryLayout(dir))
   
   def withConfig (config: BatchConfig) = {
+
+    val tree = parse.fromTree(config.input)
+
+    // TODO - integrate rewriting into render step
     
-    def createChildConfigs (config: BatchConfig): Seq[BatchConfig] = {
-      config.input.subtrees map { ip => 
-        val child = BatchConfig(ip, config.output.newChild(ip.name))
-        child +: createChildConfigs(child) 
-      } flatten
-    }
-    
-    val configs = config +: createChildConfigs(config)
-    val pairs = configs map { config =>
-      config.input.inputs map { input =>
-        (input, config.output.newOutput(input.name)) // TODO - lazy creation of streams
-      } 
-    } flatten
-    
-    // TODO - simplistic preliminary implementation that does not allow for parallelization yet
-    val operations = pairs map (pair => (new Operation(parse.fromInput(pair._1)), pair._2))
-    operations map (pair => pair._1 toOutput pair._2)
+    render from tree toTree config.output
   }
+  
+  // TODO - maybe add options for specifying input and output separately (e.g. fromDirectory toDirectory)
   
   
   case class BatchConfig (input: InputProvider, output: OutputProvider)
