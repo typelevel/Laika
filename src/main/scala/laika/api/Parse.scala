@@ -88,7 +88,7 @@ class Parse private (parse: Input => Document, rewrite: Boolean) {
     
     val doc = IO(input)(parse)
 
-    if (rewrite) doc.rewrite() else doc
+    if (rewrite) doc.rewrite else doc
   }
   
   // TODO - add fromDirectory, fromDefaultDirectories, fromRootDirectory, Codec and parallelization hooks

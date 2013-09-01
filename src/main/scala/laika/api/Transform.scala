@@ -74,7 +74,7 @@ class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules: 
   class Operation private[Transform] (raw: Document) { 
 
     private val document = raw rewrite rules.forContext(DocumentContext(raw))
-    private val op = render from document.content
+    private val op = render from document
     
     /** Renders to the file with the specified name.
      * 
@@ -237,9 +237,9 @@ class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules: 
 
     val tree = parse.fromTree(config.input)
 
-    // TODO - integrate rewriting into render step
+    val rewritten = tree.rewrite(rules.all)
     
-    render from tree toTree config.output
+    render from rewritten toTree config.output
   }
   
   // TODO - maybe add options for specifying input and output separately (e.g. fromDirectory toDirectory)
@@ -271,6 +271,8 @@ class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules: 
 object Transform {
    
   private[laika] class Rules (rules: List[DocumentContext => PartialFunction[Element, Option[Element]]]){
+    
+    def all = rules.reverse
     
     def forContext (context: DocumentContext) = (rules map { _(context) }).reverse      
     

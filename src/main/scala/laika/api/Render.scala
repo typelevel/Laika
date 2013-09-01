@@ -164,7 +164,7 @@ class Render[W] private (setup: (Output, Element => Unit) => (W, Element => Unit
   }
   
   
-  /** Specifies the element to render. This may be a root `Document` instance
+  /** Specifies the element to render. This may be a `RootElement` instance
    *  as well as any other type of `Element`, thus allowing to render document
    *  fragments, too.
    * 
@@ -173,7 +173,7 @@ class Render[W] private (setup: (Output, Element => Unit) => (W, Element => Unit
    */
   def from (elem: Element) = new Operation(elem)
   
-  // TODO = add from (doc: Document)
+  def from (doc: Document) = new Operation(doc.content)
   
   def from (tree: DocumentTree) = new BatchOperation(tree)
   

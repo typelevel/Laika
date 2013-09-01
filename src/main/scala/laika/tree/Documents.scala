@@ -40,7 +40,7 @@ object Documents {
     val isRewritten = rewriteRules.isEmpty
     
     
-    def rewrite (): Document = rewrite(Nil)
+    def rewrite: Document = rewrite(Nil)
      
     def rewrite (customRule: PartialFunction[Element,Option[Element]]): Document = rewrite(List(customRule))
     
@@ -89,6 +89,18 @@ object Documents {
       case Root => None
       case Root / name => subtreesByName.get(name)
       case path / name => selectSubtree(path) flatMap (_.selectSubtree(name)) 
+    }
+    
+    def rewrite: DocumentTree = rewrite(Nil, this)
+     
+    def rewrite (customRule: DocumentContext => PartialFunction[Element,Option[Element]]): DocumentTree = rewrite(List(customRule), this)
+    
+    def rewrite (customRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]]): DocumentTree = rewrite(customRules, this)
+    
+    private def rewrite (customRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]], root: DocumentTree): DocumentTree = {
+      val docs = documents map (doc => doc.rewrite(customRules map (_(DocumentContext(doc, this, root)))))
+      val trees = subtrees map (_.rewrite(customRules, root))
+      DocumentTree(path, docs, trees)  
     }
   }
   
