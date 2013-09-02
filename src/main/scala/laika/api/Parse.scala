@@ -96,7 +96,7 @@ class Parse private (parse: Input => Document, rewrite: Boolean) {
   def fromTree (input: InputProvider) = {
     
     def collectInputs (provider: InputProvider): Seq[Input] =
-      provider.inputs ++ (input.subtrees map collectInputs).flatten
+      provider.documents ++ (input.subtrees map collectInputs).flatten
     
     val inputs = collectInputs(input) // TODO - alternatively create Map here (do benchmarks)
     
@@ -105,7 +105,7 @@ class Parse private (parse: Input => Document, rewrite: Boolean) {
     val docMap = documents map (doc => (doc.path, doc)) toMap
     
     def collectDocuments (provider: InputProvider): DocumentTree = {
-      val docs = provider.inputs map (i => docMap(i.path))
+      val docs = provider.documents map (i => docMap(i.path))
       val trees = provider.subtrees map (collectDocuments)
       DocumentTree(provider.path, docs, trees)
     }

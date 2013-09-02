@@ -30,7 +30,9 @@ trait InputProvider {
   
   def path: Path
   
-  def inputs: Seq[Input]
+  def documents: Seq[Input]
+
+  def templates: Seq[Input]
   
   def subtrees: Seq[InputProvider]
   
@@ -42,8 +44,13 @@ object InputProvider {
   
   private class DirectoryInputProvider (dir: File, val path: Path = Root) extends InputProvider {
     
-    lazy val inputs = {
-      dir.listFiles filterNot (_.isDirectory) map (Input.fromFile(_, path)) toList // TODO - stream creation could be lazy
+    // TODO - improve file suffix management
+    lazy val documents = {
+      dir.listFiles filterNot (f => f.isDirectory || f.getName.endsWith(".template")) map (Input.fromFile(_, path)) toList // TODO - stream creation could be lazy
+    }
+    
+    lazy val templates = {
+      dir.listFiles filter (f => f.isFile || f.getName.endsWith(".template")) map (Input.fromFile(_, path)) toList
     }
     
     lazy val subtrees = {
