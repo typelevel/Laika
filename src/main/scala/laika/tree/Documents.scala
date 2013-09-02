@@ -19,6 +19,7 @@ package laika.tree
 import laika.tree.Elements.RootElement
 import laika.tree.Elements.Span
 import laika.tree.Elements.Element
+import laika.tree.Templates.Template
 
 /** 
  *  @author Jens Halm
@@ -29,6 +30,7 @@ object Documents {
                        title: Seq[Span], 
                        info: DocumentInfo, 
                        content: RootElement, 
+                       template: Option[Template],
                        rewriteRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]]) {
     
     val name = path.name
@@ -65,12 +67,12 @@ object Documents {
   
   case object DocumentContext {
     def apply (document: Document) = {
-      val tree = DocumentTree(Root, Seq(document), Nil)
+      val tree = DocumentTree(Root, Seq(document))
       new DocumentContext(document, tree, tree)
     }
   }
   
-  case class DocumentTree (path:Path, documents: Seq[Document], subtrees: Seq[DocumentTree]) {
+  case class DocumentTree (path:Path, documents: Seq[Document], subtrees: Seq[DocumentTree] = Nil, defaultTemplate: Option[Template] = None) {
     
     val name = path.name
     
@@ -100,7 +102,7 @@ object Documents {
     private def rewrite (customRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]], root: DocumentTree): DocumentTree = {
       val docs = documents map (doc => doc.rewrite(customRules map (_(DocumentContext(doc, this, root)))))
       val trees = subtrees map (_.rewrite(customRules, root))
-      DocumentTree(path, docs, trees)  
+      DocumentTree(path, docs, trees, defaultTemplate)  
     }
   }
   

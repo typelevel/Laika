@@ -30,7 +30,7 @@ class RewriteRulesSpec extends FlatSpec
 
   
   def rewritten (root: RootElement) = {
-    val doc = Document(Root, Nil, DocumentInfo(), root, List(RewriteRules, laika.tree.RewriteRules))
+    val doc = Document(Root, Nil, DocumentInfo(), root, None, List(RewriteRules, laika.tree.RewriteRules))
     doc.rewrite.content
   }
   
