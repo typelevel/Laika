@@ -26,8 +26,16 @@ object Templates {
     def resolve (context: DocumentContext): Span
   }
 
-  trait PlaceholderBlock extends Block { // TODO - maybe rename
+  trait PlaceholderBlock extends Block {
     def resolve (context: DocumentContext): Block
+  }
+  
+  trait PlaceholderSpanFactory extends Span {
+    def create: PlaceholderSpan
+  }
+  
+  trait PlaceholderBlockFactory extends Block {
+    def create: PlaceholderBlock
   }
 
   
@@ -39,9 +47,18 @@ object Templates {
   
   case class TemplateRoot (content: Seq[TemplateSpan], options: Options = NoOpt) extends Block with SpanContainer[TemplateRoot]
   
-  case class Template (path: Path, content: TemplateRoot) {
+  case class TemplateDocument (path: Path, content: TemplateRoot) {
     
     val name = path.name
+    
+    def rewrite (context: DocumentContext) = {
+      val newContent = content.content map { // TODO - needs to be implemented as standard rewrite rule
+        case TemplateElement(ph: PlaceholderBlock, opt) => TemplateElement(ph resolve context, opt)
+        case TemplateElement(ph: PlaceholderSpan, opt)  => TemplateElement(ph resolve context, opt)
+        case other => other
+      }
+      context.document.copy(content = RootElement(Seq(TemplateRoot(newContent, content.options))))
+    }
     
   }
   

@@ -19,7 +19,7 @@ package laika.tree
 import laika.tree.Elements.RootElement
 import laika.tree.Elements.Span
 import laika.tree.Elements.Element
-import laika.tree.Templates.Template
+import laika.tree.Templates.TemplateDocument
 
 /** 
  *  @author Jens Halm
@@ -30,7 +30,7 @@ object Documents {
                        title: Seq[Span], 
                        info: DocumentInfo, 
                        content: RootElement, 
-                       template: Option[Template],
+                       template: Option[TemplateDocument],
                        rewriteRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]]) {
     
     val name = path.name
@@ -54,7 +54,9 @@ object Documents {
       
       val newRoot = content rewrite allRules
       
-      copy(content = newRoot, rewriteRules = Nil)
+      val newDoc = copy(content = newRoot, rewriteRules = Nil)
+      
+      template map (_.rewrite(DocumentContext(newDoc))) getOrElse newDoc
     }
 
     def removeRules = if (rewriteRules.isEmpty) this else copy(rewriteRules = Nil)
@@ -72,7 +74,7 @@ object Documents {
     }
   }
   
-  case class DocumentTree (path:Path, documents: Seq[Document], subtrees: Seq[DocumentTree] = Nil, defaultTemplate: Option[Template] = None) {
+  case class DocumentTree (path:Path, documents: Seq[Document], subtrees: Seq[DocumentTree] = Nil, defaultTemplate: Option[TemplateDocument] = None) {
     
     val name = path.name
     
@@ -100,7 +102,7 @@ object Documents {
     def rewrite (customRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]]): DocumentTree = rewrite(customRules, this)
     
     private def rewrite (customRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]], root: DocumentTree): DocumentTree = {
-      val docs = documents map (doc => doc.rewrite(customRules map (_(DocumentContext(doc, this, root)))))
+      val docs = documents map (doc => doc.rewrite(customRules map (_(DocumentContext(doc, this, root))))) // TODO - context is not getting passed down
       val trees = subtrees map (_.rewrite(customRules, root))
       DocumentTree(path, docs, trees, defaultTemplate)  
     }
