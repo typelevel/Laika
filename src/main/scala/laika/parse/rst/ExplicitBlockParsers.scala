@@ -140,13 +140,13 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
   }
   
   
-  /** Retrieves the block directiv with the specified name.
+  /** Retrieves the block directive with the specified name.
    * 
    *  See [[laika.parse.rst.Directives]] for details on how to implement directives.  
    */
   def blockDirective (name: String): Option[DirectivePart[Block]]
   
-  /** Retrieves the span directiv with the specified name.
+  /** Retrieves the span directive with the specified name.
    * 
    *  See [[laika.parse.rst.Directives]] for details on how to implement directives.  
    */
