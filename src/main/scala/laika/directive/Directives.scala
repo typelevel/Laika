@@ -116,7 +116,10 @@ object Directives {
       
       def map [B](f: A => B) = new DirectivePart[B] { 
         def apply (p: DirectiveContext) = self(p) map f 
+        def requiresContext = self.requiresContext
       }
+      
+      def requiresContext: Boolean
       
     }
     
@@ -124,6 +127,7 @@ object Directives {
       
       def apply [A,B](ma: DirectivePart[A], mb: DirectivePart[B]) = new DirectivePart[A~B] {
         def apply (p: DirectiveContext) = ma(p) ~ mb(p)
+        def requiresContext = ma.requiresContext || mb.requiresContext
       }
       
       def map [A,B](m: DirectivePart[A], f: A => B) = m map f
@@ -144,11 +148,14 @@ object Directives {
       
       class RequiredPart[+A] (key: Key, converter: Converter[A], msg: => String) extends DirectivePart[A] {
       
+        val requiresContext = false
+        
         def convert (context: DirectiveContext) = context.part(key).map(s => converter(context.parser, s))
         
         def apply (context: DirectiveContext) = convert(context).getOrElse(Failure(Seq(msg)))
         
         def optional = new DirectivePart[Option[A]] {
+          val requiresContext = false
           def apply (context: DirectiveContext) = convert(context) match {
             case Some(Success(value)) => Success(Some(value))
             case Some(Failure(msg))   => Failure(msg)
@@ -158,8 +165,9 @@ object Directives {
         
       }
       
-      private def part [T](f: DirectiveContext => Result[T]) = new DirectivePart[T] {
+      private def part [T](f: DirectiveContext => Result[T], reqContext: Boolean = false) = new DirectivePart[T] {
         def apply (p: DirectiveContext) = f(p)
+        val requiresContext = reqContext
       }
       
       def attribute [T](id: Id, converter: Converter[T] = Converters.string): RequiredPart[T] 
@@ -171,12 +179,13 @@ object Directives {
       def parser: DirectivePart[Parser] = part(c => Success(c.parser))
 
       def context: DirectivePart[DocumentContext] 
-          = part(_.context map (Success(_)) getOrElse (Failure("DocumentContext not available yet")))
+          = part(_.context map (Success(_)) getOrElse (Failure("DocumentContext not available yet")), true)
       
     }
   
     class Directive private[Directives] (val name: String, part: DirectivePart[E]) {
       def apply (context: DirectiveContext):Result[E] = part(context)
+      def requiresContext = part.requiresContext
     }
     
     def create (name: String)(part: DirectivePart[E]) = new Directive(name.toLowerCase, part)
