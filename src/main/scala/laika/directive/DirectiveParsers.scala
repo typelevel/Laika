@@ -89,7 +89,8 @@ trait DirectiveParsers extends laika.parse.BlockParsers with laika.parse.InlineP
   }
   
   lazy val spanDirective: Parser[Span] = {
-    translate { directiveParser(null) ^^ { result => // TODO - specify span parser - must keep parsed spans cached in addition to source string, must deal with ws
+    directiveParser(null) ^^ { result => // TODO - specify span parser - must keep parsed spans cached in addition to source string, must deal with ws
+      
       def createContext (parts: PartMap, docContext: Option[DocumentContext]):Spans.DirectiveContext = {
         new DirectiveContextBase(parts, docContext) with Spans.DirectiveContext {
           val parser = new Spans.Parser {
@@ -97,15 +98,18 @@ trait DirectiveParsers extends laika.parse.BlockParsers with laika.parse.InlineP
           }
         }
       }
-      applyDirective(Spans)(result, spanDirective, createContext)
-    }}
+      def invalid (msg: String) = InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Literal("")) // TODO - error handling - pass source
+      
+      applyDirective(Spans)(result, spanDirective, createContext, invalid)
+    }
   }
   
   
   def applyDirective [E <: Element](builder: BuilderContext[E])
       (parseResult: ParsedDirective, 
        directives: String => Option[builder.Directive], 
-       contextFactory: (PartMap, Option[DocumentContext]) => builder.DirectiveContext): Directives.Result[E] = {
+       contextFactory: (PartMap, Option[DocumentContext]) => builder.DirectiveContext, 
+       invalid: String => E): E = {
     
     import laika.util.Builders.{~ => ~~}
     
@@ -118,42 +122,15 @@ trait DirectiveParsers extends laika.parse.BlockParsers with laika.parse.InlineP
       else Directives.Failure(dups.map("Duplicate "+_.desc).toList)
     }
     
-    (directive ~ context) flatMap { case directive ~~ context =>
+    ((directive ~ context) flatMap { case directive ~~ context =>
       directive(context)
+    }) match {
+      case Directives.Success(result)   => result
+      case Directives.Failure(messages) => invalid("One or more errors processing directive: " + messages.mkString(", "))
     }
     
     // TODO - requirements to check whether Placeholder creation is necessary
   }
   
-  def translate [E] (parser: Parser[Directives.Result[E]]): Parser[E] = Parser { in =>
-      
-    parser(in) match {
-      case Success(result, next) => result match {
-        case Directives.Success(result) => Success(result, next)
-        case Directives.Failure(messages) => Failure("One or more errors processing directive: " + messages.mkString(", "), in)
-      } 
-      case ns: NoSuccess => ns
-    }
-      
-  }
-  
-  
-  private case class InvalidDirective (msg: String, source: String, options: Options = NoOpt) extends Block with Span
-  
-  private def directive [E](p: Parser[E], name: String) = Parser { in =>
-    p(in) match {
-      case s @ Success(_,_) => s
-      case NoSuccess(msg, next) => (indentedBlock() ^^ { block =>
-        InvalidDirective(msg, ".. "+name+" "+(block.lines mkString "\n")).asInstanceOf[E] // TODO - for these directive types we want a warning and then continue parsing with other parsers
-      })(in)
-    }
-  }
-  
-  private def replaceInvalidDirective (block: Block) = block match {
-    case InvalidDirective(msg, source, _) => InvalidBlock(SystemMessage(laika.tree.Elements.Error, msg), LiteralBlock(source))
-    case other => other
-  }
-  
-
   
 }
