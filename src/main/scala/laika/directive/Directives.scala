@@ -106,7 +106,7 @@ object Directives {
         
       def part (key: Key): Option[String]
       
-      def context: DocumentContext
+      def context: Option[DocumentContext]
       
       def parser: Parser
   
@@ -170,7 +170,8 @@ object Directives {
       
       def parser: DirectivePart[Parser] = part(c => Success(c.parser))
 
-      def context: DirectivePart[DocumentContext] = part(c => Success(c.context))
+      def context: DirectivePart[DocumentContext] 
+          = part(_.context map (Success(_)) getOrElse (Failure("DocumentContext not available yet")))
       
     }
   

@@ -84,7 +84,7 @@ trait DirectiveParsers extends laika.parse.BlockParsers with laika.parse.InlineP
     
     def part (key: Key): Option[String] = parts.get(key)
       
-    val context: DocumentContext = docContext.get // TODO - change API - needs to be Option when executed in 1st phase
+    val context = docContext
     
   }
   
