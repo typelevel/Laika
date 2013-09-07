@@ -20,7 +20,7 @@ import laika.tree.Documents.DocumentContext
 import laika.tree.Documents.Path
 import laika.tree.Elements._
 
-object Templates {
+object Templates { // TODO - maybe move to laika.template.Elements
   
   trait PlaceholderSpan extends Span { // TODO - maybe rename
     def resolve (context: DocumentContext): Span

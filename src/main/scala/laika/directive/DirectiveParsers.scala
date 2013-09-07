@@ -21,6 +21,7 @@ import laika.tree.Elements._
 import laika.util.Builders._
 import scala.collection.mutable.ListBuffer
 import laika.tree.Documents.DocumentContext
+import laika.tree.Templates.PlaceholderSpan
 
 /** 
  * @author Jens Halm
@@ -100,15 +101,19 @@ trait DirectiveParsers extends laika.parse.BlockParsers with laika.parse.InlineP
       }
       def invalid (msg: String) = InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Literal("")) // TODO - error handling - pass source
       
-      applyDirective(Spans)(result, spanDirective, createContext, invalid)
+      applyDirective(Spans)(result, spanDirective, createContext, DirectiveSpan(_), invalid)
     }
   }
   
+  case class DirectiveSpan (f: DocumentContext => Span, options: Options = NoOpt) extends PlaceholderSpan {
+    def resolve (context: DocumentContext) = f(context)
+  }
   
   def applyDirective [E <: Element](builder: BuilderContext[E])
       (parseResult: ParsedDirective, 
        directives: String => Option[builder.Directive], 
-       contextFactory: (PartMap, Option[DocumentContext]) => builder.DirectiveContext, 
+       contextFactory: (PartMap, Option[DocumentContext]) => builder.DirectiveContext,
+       placeholder: (DocumentContext => E) => E, 
        invalid: String => E): E = {
     
     import laika.util.Builders.{~ => ~~}
@@ -116,20 +121,22 @@ trait DirectiveParsers extends laika.parse.BlockParsers with laika.parse.InlineP
     val directive = directives(parseResult.name).map(Directives.Success(_))
         .getOrElse(Directives.Failure("No span directive registered with name: "+parseResult.name))
     
-    val context = {
+    val partMap = {
       val dups = parseResult.parts groupBy (_.key) filterNot (_._2.tail.isEmpty) keySet;
-      if (dups.isEmpty) Directives.Success(contextFactory(parseResult.parts map (p => (p.key, p.content)) toMap, None))
+      if (dups.isEmpty) Directives.Success(parseResult.parts map (p => (p.key, p.content)) toMap)
       else Directives.Failure(dups.map("Duplicate "+_.desc).toList)
     }
     
-    ((directive ~ context) flatMap { case directive ~~ context =>
-      directive(context)
-    }) match {
+    def processResult (result: Directives.Result[E]) = result match {
       case Directives.Success(result)   => result
       case Directives.Failure(messages) => invalid("One or more errors processing directive: " + messages.mkString(", "))
     }
     
-    // TODO - requirements to check whether Placeholder creation is necessary
+    processResult((directive ~ partMap) flatMap { case directive ~~ partMap =>
+      def directiveWithContext (context: Option[DocumentContext]) = directive(contextFactory(partMap, context))
+      if (directive.requiresContext) Directives.Success(placeholder(c => processResult(directiveWithContext(Some(c)))))
+      else directiveWithContext(None)
+    }) 
   }
   
   
