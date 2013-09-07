@@ -68,6 +68,10 @@ object Directives {
     
   }
   
+  object Failure {
+    def apply (msg: String) = new Failure(Seq(msg))
+  }
+  
   sealed abstract class Id {
     def desc (keyType: String): String
   }
@@ -170,7 +174,9 @@ object Directives {
       
     }
   
-    class Directive private[Directives] (val name: String, val part: DirectivePart[E])
+    class Directive private[Directives] (val name: String, part: DirectivePart[E]) {
+      def apply (context: DirectiveContext):Result[E] = part(context)
+    }
     
     def create (name: String)(part: DirectivePart[E]) = new Directive(name.toLowerCase, part)
     
