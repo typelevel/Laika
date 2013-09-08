@@ -41,7 +41,7 @@ object Templates { // TODO - maybe move to laika.template.Elements
   
   trait TemplateSpan extends Span
   
-  case class TemplateElement (element: Element, options: Options = NoOpt) extends TemplateSpan // TODO - does not get rewritten
+  case class TemplateElement (element: Element, options: Options = NoOpt) extends TemplateSpan with ElementTraversal[TemplateElement]
 
   case class TemplateString (content: String, options: Options = NoOpt) extends TemplateSpan with TextContainer
   
@@ -52,12 +52,16 @@ object Templates { // TODO - maybe move to laika.template.Elements
     val name = path.name
     
     def rewrite (context: DocumentContext) = {
-      val newContent = content.content map { // TODO - needs to be implemented as standard rewrite rule
-        case TemplateElement(ph: PlaceholderBlock, opt) => TemplateElement(ph resolve context, opt)
-        case TemplateElement(ph: PlaceholderSpan, opt)  => TemplateElement(ph resolve context, opt)
+      lazy val rule: PartialFunction[Element, Option[Element]] = {
+        case ph: PlaceholderBlock => Some(rewriteChild(ph resolve context))
+        case ph: PlaceholderSpan  => Some(rewriteChild(ph resolve context))
+      }
+      def rewriteChild (e: Element) = e match {
+        case et: ElementTraversal[_] => et rewrite rule
         case other => other
       }
-      context.document.copy(content = RootElement(Seq(TemplateRoot(newContent, content.options))))
+      val newContent = content rewrite rule
+      context.document.copy(content = RootElement(Seq(newContent)))
     }
     
   }
