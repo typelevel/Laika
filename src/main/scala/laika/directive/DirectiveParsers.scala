@@ -29,6 +29,14 @@ import laika.tree.Templates.PlaceholderSpan
 trait DirectiveParsers extends laika.parse.BlockParsers with laika.parse.InlineParsers { 
   
   
+  def withSource[T] (p: Parser[T]): Parser[(T, String)] = Parser { in =>
+    p(in) match {
+      case Success(result, next) => Success((result, next.source.subSequence(in.offset, next.offset).toString), next)
+      case ns: NoSuccess         => ns
+    }
+  }
+  
+  
   def escapedUntil (char: Char) = escapedText(anyUntil(char) min 1)
 
   def escapedText (p: TextParser) = text(p, Map('\\' -> (any take 1))) // TODO - should be promoted to generic inline parser
@@ -90,7 +98,8 @@ trait DirectiveParsers extends laika.parse.BlockParsers with laika.parse.InlineP
   }
   
   lazy val spanDirective: Parser[Span] = {
-    directiveParser(null) ^^ { result => // TODO - specify span parser - must keep parsed spans cached in addition to source string, must deal with ws
+    val bodyContent = withSource(wsOrNl ~ '{' ~> spans(anyUntil('}'), spanParsers) <~ wsOrNl) ^^ (_._2)
+    directiveParser(bodyContent) ^^ { result => // TODO - optimization - parsed spans might be cached for DirectiveContext
       
       def createContext (parts: PartMap, docContext: Option[DocumentContext]):Spans.DirectiveContext = {
         new DirectiveContextBase(parts, docContext) with Spans.DirectiveContext {
