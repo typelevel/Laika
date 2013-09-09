@@ -151,10 +151,12 @@ class LinkResolver (root: RootElement) {
     
   }
   
-  val targetMap = resolveAliases(resolveTargets(selectTargets)).toList groupBy (_.selector) map { 
+  val allTargets = resolveAliases(resolveTargets(selectTargets)).toList groupBy (_.selector) map { 
       case (selector: UniqueSelector, target :: Nil) => (selector,target)
       case (selector, list) => (selector, new ResolvedTargetSequence(list,selector))
   }
+  
+  val globalTargets = allTargets filter (_._2.global)
   
   /** The default rules for resolving link references 
    *  to be applied to the document.
@@ -168,10 +170,10 @@ class LinkResolver (root: RootElement) {
     def replaceHeader (h: Block, origId: String, lookup: String => Option[String]) = lookup(origId).flatMap(replace(h,_))
     
     def replace (element: Element, selector: Selector) = 
-      targetMap.get(selector).flatMap(_.replaceTarget(element))
+      allTargets.get(selector).flatMap(_.replaceTarget(element))
       
     def resolve (ref: Reference, selector: Selector, msg: => String) = 
-      Some(targetMap.get(selector).flatMap(_.resolveReference(ref)).getOrElse(InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Text(ref.source))))
+      Some(allTargets.get(selector).flatMap(_.resolveReference(ref)).getOrElse(InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Text(ref.source))))
     
     {
       case f: FootnoteDefinition => f.label match {
