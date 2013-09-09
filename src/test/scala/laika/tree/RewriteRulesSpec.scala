@@ -29,12 +29,7 @@ class RewriteRulesSpec extends FlatSpec
                   with ModelBuilder {
 
   
-  def contextFor (root: RootElement) = {
-    val doc = Document(Root, Nil, DocumentInfo(), root, None, Nil)
-    DocumentContext(doc)
-  }
-  
-  def rewritten (root: RootElement) = root rewrite RewriteRules(contextFor(root))
+  def rewritten (root: RootElement) = new Document(Root, Nil, DocumentInfo(), root, None).rewrite.content
   
   def invalidSpan (message: String, fallback: String) =
       InvalidSpan(SystemMessage(laika.tree.Elements.Error, message), Text(fallback))

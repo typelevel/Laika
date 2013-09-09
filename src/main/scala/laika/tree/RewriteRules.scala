@@ -34,15 +34,8 @@ import laika.tree.Documents.DocumentContext
  * 
  *  @author Jens Halm
  */
-object RewriteRules extends (DocumentContext => PartialFunction[Element,Option[Element]]) {
+object RewriteRules {
 
-  
-  /** Provides the default rewrite rules for the specified document.
-   */
-  def apply (context: DocumentContext) = {
-    LinkResolver(context) orElse SectionBuilder()
-  }
-  
   
   /** Chains the specified rules into one PartialFunction composition.
    *  The resulting function is always defined, but is returned

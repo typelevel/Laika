@@ -74,7 +74,7 @@ trait BlockParsers extends MarkupParsers {
    *  of this library, as the parsers treat all unknown or malformed markup as regular
    *  text.
    */
-  def parseDocument (reader: Reader[Char], path: Path): Document = Document(path, Nil, DocumentInfo(), parseMarkup(root, reader), None, List(RewriteRules)) // TODO - fully populate title, info
+  def parseDocument (reader: Reader[Char], path: Path): Document = new Document(path, Nil, DocumentInfo(), parseMarkup(root, reader), None) // TODO - fully populate title, info
    
   
   /** Parses all nested blocks for the specified input and nest level.

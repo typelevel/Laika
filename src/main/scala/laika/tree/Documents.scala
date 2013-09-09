@@ -26,12 +26,16 @@ import laika.tree.Templates.TemplateDocument
  */
 object Documents {
   
-  case class Document (path: Path, 
-                       title: Seq[Span], 
-                       info: DocumentInfo, 
-                       content: RootElement, 
-                       template: Option[TemplateDocument],
-                       rewriteRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]]) {
+  class Document (val path: Path, 
+                  val title: Seq[Span], 
+                  val info: DocumentInfo, 
+                  val content: RootElement, 
+                  val template: Option[TemplateDocument],
+                  rewriteRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]] = Nil) {
+    
+    private lazy val linkResolver = LinkResolver(content)
+    
+    lazy val defaultRules = rewriteRules :+ (linkResolver.rewriteRules(_)) :+ {(_:DocumentContext) => SectionBuilder()}
     
     val name = path.name
   
@@ -48,18 +52,23 @@ object Documents {
     
     def rewrite (customRules: Seq[PartialFunction[Element,Option[Element]]]): Document = {
       
-      val defaultRules = (rewriteRules map { _(DocumentContext(this)) })      
+      val resolvedRules = (defaultRules map { _(DocumentContext(this)) })      
       
-      val allRules = RewriteRules chain (customRules ++ defaultRules)
+      val allRules = RewriteRules chain (customRules ++ resolvedRules)
       
       val newRoot = content rewrite allRules
       
-      val newDoc = copy(content = newRoot, rewriteRules = Nil)
+      val newDoc = withRewrittenContent(newRoot)
       
-      template map (_.rewrite(DocumentContext(newDoc))) getOrElse newDoc
+      template map (_.rewrite(DocumentContext(newDoc))) getOrElse newDoc // TODO - ensure template only gets applied once
+    }
+    
+    def withRewrittenContent (newContent: RootElement) = new Document(path, title, info, newContent, template) {
+      override lazy val defaultRules = Nil
+      override val removeRules = this
     }
 
-    def removeRules = if (rewriteRules.isEmpty) this else copy(rewriteRules = Nil)
+    def removeRules: Document = withRewrittenContent(content)
     
   }
   

@@ -61,7 +61,7 @@ object Templates { // TODO - maybe move to laika.template.Elements
         case other => other
       }
       val newContent = content rewrite rule
-      context.document.copy(content = RootElement(Seq(newContent)))
+      context.document.withRewrittenContent(RootElement(Seq(newContent)))
     }
     
   }
