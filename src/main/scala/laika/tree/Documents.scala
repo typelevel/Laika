@@ -20,6 +20,7 @@ import laika.tree.Elements.RootElement
 import laika.tree.Elements.Span
 import laika.tree.Elements.Element
 import laika.tree.Templates.TemplateDocument
+import scala.annotation.tailrec
 
 /** 
  *  @author Jens Halm
@@ -117,33 +118,55 @@ object Documents {
     }
   }
   
-  abstract class Path {
-    def / (name: String) = new /(this, name)
-    def components: List[String]
+  sealed abstract class Path {
     def parent: Path
     def name: String
+    def prefix: PathPrefix
+    def components: List[String]
+    def / (name: String) = new /(this, name)
+    def / (path: Path): Path = path.prefix match {  
+      case Root => path
+      case Current => Path(prefix, components ::: path.components)
+      case Parent(1) => parent / Path(Current, path.components)
+      case Parent(i) => parent / Path(Parent(i-1), path.components)
+    }
   }
  
   case class / (parent: Path, name: String) extends Path {
     lazy val components: List[String] = parent.components ++ List(name)
+    lazy val prefix = parent.prefix
     override lazy val toString = components mkString "/"
   }
   
-  case object Root extends Path {
-    def components: List[String] = Nil
-    def parent = this
-    val name = ""
-    override val toString = ""
+  abstract class PathPrefix (val name: String) extends Path {
+    val components: List[String] = Nil
+    val parent = this
+    val prefix = this
+    override val toString = name
+  }
+  
+  case object Root extends PathPrefix ("/")
+
+  case object Current extends PathPrefix ("")
+  
+  case class Parent (levels: Int) extends PathPrefix("../" * levels) {
+    require(levels > 0)
   }
 
   object Path {
     def apply(str: String): Path = {
-      val trimmed = str.trim.stripPrefix("/").stripSuffix("/")
-      if (trimmed.isEmpty) Root
-      else apply(trimmed.split("/").toList)
+      val trimmed = str.trim.stripSuffix("/")
+      val (parent, rest) = 
+        if (trimmed.startsWith("/")) (Root, trimmed.drop(1))
+        else if (trimmed.startsWith("../")) (Parent(1), trimmed.drop(3))
+        else (Current, trimmed)
+       apply(parent, rest.split("/").toList)
     }
   
-    def apply(list: List[String]): Path = list.foldLeft(Root: Path)(_ / _)
+    @tailrec def apply (parent: Path, rest: List[String]): Path = (parent, rest) match {
+      case (Parent(level), ".." :: rest) => apply(Parent(level+1), rest)
+      case (parent, rest) => rest.foldLeft(parent)(_ / _)
+    } 
   }
   
   
