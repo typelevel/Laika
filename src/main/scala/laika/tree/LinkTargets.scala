@@ -18,6 +18,7 @@ package laika.tree
 
 import IdGenerators._
 import Elements._
+import laika.tree.Documents.Path
 
 /** Representations for various types of link targets.
  * 
@@ -35,6 +36,12 @@ object LinkTargets {
   /** A selector based on a unique string identifier.
    */
   case class UniqueSelector (name: String) extends Selector
+  
+  /** A selector based on a path and a string identifier.
+   *  The string identifier has to be unique within the 
+   *  context of the given path.
+   */
+  case class PathSelector (path: Path, name: String) extends Selector
   
   /** An anonymous selector (usually matched by position).
    */
@@ -222,6 +229,21 @@ object LinkTargets {
     def forAlias (newSelector: Selector) = new UniqueResolvedTarget(target, newSelector, render) {
       override def replaceTarget (rewrittenOriginal: Element) = None
     }
+    
+  }
+  
+  /** Represents a global target that is not unique in a particular scope (like a `DocumentTree`).
+   */
+  case class DuplicateGlobalTarget (path: Path, selector: UniqueSelector) extends ResolvedTarget {
+    
+    val global = true
+    
+    def resolveReference (rewrittenRef: Element) = rewrittenRef match { 
+      case ref: Reference => Some(InvalidSpan(SystemMessage(Error, "More than one link target with name "+selector.name+" in path "+path), Text(ref.source)))
+      case _ => None
+    }
+    
+    def replaceTarget (rewrittenOriginal: Element) = None
     
   }
 

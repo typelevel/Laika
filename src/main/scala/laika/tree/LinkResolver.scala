@@ -21,6 +21,7 @@ import scala.collection.mutable.ListBuffer
 import IdGenerators._
 import LinkTargets._
 import Elements._
+import Documents.Path
 import Documents.DocumentContext
 
 /** The default rewrite rules responsible for resolving link references that get 
@@ -171,10 +172,35 @@ class LinkResolver (root: RootElement) {
     
     def replace (element: Element, selector: Selector) = 
       allTargets.get(selector).flatMap(_.replaceTarget(element))
-      
-    def resolve (ref: Reference, selector: Selector, msg: => String) = 
-      Some(allTargets.get(selector).flatMap(_.resolveReference(ref)).getOrElse(InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Text(ref.source))))
     
+    def resolve (ref: Reference, selector: Selector, msg: => String, global: Boolean = false) = {
+      
+      def selectFromParent = {
+        @tailrec def select (path: Path): Option[ResolvedTarget] = {
+          val tree = context.root.selectSubtree(path)
+          val target = tree.flatMap(_.selectTarget(selector))
+          if (target.isDefined || path.parent == path) target
+          else select(path.parent)
+        }
+        select(context.parent.path)
+      }
+      def selectFromRoot (path: String, name: String) = context.root.selectTarget(PathSelector(Path(path), name))
+      
+      val target = {
+        val local = allTargets.get(selector)
+        if (local.isDefined) local
+        else (selector, global) match {
+          case (UniqueSelector(targetName), true) => {
+            val index = targetName.indexOf(":")
+            if (index == -1) selectFromParent
+            else selectFromRoot(targetName take index, targetName drop (index+1))
+          }
+          case _ => None
+        }
+      }
+      Some(target.flatMap(_.resolveReference(ref)).getOrElse(InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Text(ref.source))))
+    }
+      
     {
       case f: FootnoteDefinition => f.label match {
         case NumericLabel(num)   => replace(f, num.toString)
@@ -196,9 +222,9 @@ class LinkResolver (root: RootElement) {
       }
         
       case ref: LinkReference => if (ref.id.isEmpty) resolve(ref, AnonymousSelector, "too many anonymous link references")
-                                 else                resolve(ref, ref.id, "unresolved link reference: " + ref.id)
+                                 else                resolve(ref, ref.id, "unresolved link reference: " + ref.id, true)
         
-      case ref: ImageReference => resolve(ref, ref.id, "unresolved image reference: " + ref.id)
+      case ref: ImageReference => resolve(ref, ref.id, "unresolved image reference: " + ref.id, true)
        
       case _: Temporary => None
 

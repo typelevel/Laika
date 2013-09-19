@@ -20,6 +20,8 @@ import laika.tree.Elements.RootElement
 import laika.tree.Elements.Span
 import laika.tree.Elements.Element
 import laika.tree.Templates.TemplateDocument
+import laika.tree.Elements.Reference
+import laika.tree.LinkTargets._
 import scala.annotation.tailrec
 
 /** 
@@ -38,14 +40,16 @@ object Documents {
     
     lazy val defaultRules = rewriteRules :+ (linkResolver.rewriteRules(_)) :+ {(_:DocumentContext) => SectionBuilder()}
     
+    private[Documents] lazy val targets = linkResolver.globalTargets ++ (linkResolver.globalTargets collect {
+      case (UniqueSelector(name), target) => (PathSelector(path, name), target)
+    })
+
     val name = path.name
-  
-    // lazy val targets TODO - implement (alternatively only expose resolveReference method)
     
     // lazy val sections TODO - implement
-  
-    val isRewritten = rewriteRules.isEmpty
+
     
+    val isRewritten = rewriteRules.isEmpty
     
     def rewrite: Document = rewrite(Nil)
      
@@ -104,6 +108,21 @@ object Documents {
       case Root / name => subtreesByName.get(name)
       case path / name => selectSubtree(path) flatMap (_.selectSubtree(name)) 
     }
+    
+    private lazy val targets: Map[Selector, ResolvedTarget] = {
+      val sub = (List[ResolvedTarget]() /: subtrees) { 
+        case (list, tree) => tree.targets.values.toList ::: list
+      }
+      val all = (sub /: documents) { 
+        case (list, doc) => doc.targets.values.toList ::: list
+      }
+      (all.groupBy (_.selector) collect {
+        case (selector, (target :: Nil)) => (selector, target)
+        case (s @ UniqueSelector(name), conflicting) => (s, DuplicateGlobalTarget(path, name))
+      }).toMap
+    }
+    
+    def selectTarget (selector: Selector) = targets.get(selector)
     
     def rewrite: DocumentTree = rewrite(Nil, this)
      
