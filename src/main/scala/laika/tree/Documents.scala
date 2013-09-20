@@ -16,9 +16,7 @@
 
 package laika.tree
 
-import laika.tree.Elements.RootElement
-import laika.tree.Elements.Span
-import laika.tree.Elements.Element
+import laika.tree.Elements._
 import laika.tree.Templates.TemplateDocument
 import laika.tree.Elements.Reference
 import laika.tree.LinkTargets._
@@ -46,7 +44,20 @@ object Documents {
 
     val name = path.name
     
-    // lazy val sections TODO - implement
+    lazy val sections = {
+      
+      def extractSections (parentPos: List[Int], blocks: Seq[Block]): Seq[SectionInfo] = {
+        val positions = Stream.from(1).iterator
+        blocks collect {
+          case Section(header, content, _) => {
+            val pos = positions.next :: parentPos 
+            SectionInfo(pos.reverse, TitleInfo(header.content), extractSections(pos, content)) 
+          }
+        }
+      }
+      
+      extractSections(Nil, content.content)
+    } 
 
     
     val isRewritten = rewriteRules.isEmpty
@@ -75,6 +86,14 @@ object Documents {
 
     def removeRules: Document = withRewrittenContent(content)
     
+  }
+  
+  case class SectionInfo (position: List[Int], title: TitleInfo, children: Seq[SectionInfo]) {
+    val level = position.length
+  }
+  
+  case class TitleInfo (spans: Seq[Span]) {
+    lazy val text = TreeUtil.extractText(spans)
   }
   
   case class DocumentInfo (/* TODO - define */)
