@@ -18,6 +18,7 @@ package laika.tree
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
+import laika.tree.Elements.PathInfo
 
 /** Generators for various different types of automatically generated identifiers.
  * 
@@ -42,6 +43,12 @@ object IdGenerators {
    *  they get marked as invalid and their ids get removed.
    */
   case class Named (name: String) extends Id
+  
+  /** Represents an id that captures a relationship
+   *  between two paths. Useful for representing cross-references
+   *  between two documents.
+   */
+  case class Relative (path: PathInfo, name: String) extends Id
   
   /** Represents a generated id based on the provided
    *  generator function. The Set passed to the function

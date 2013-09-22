@@ -124,7 +124,7 @@ object LinkTargets {
   
   class ExternalLinkTarget (definition: ExternalLinkDefinition, id: Id, selector: Selector) extends TargetDefinition(definition, id, true) {
     def withResolvedIds (documentId: String, displayId: String) = new UniqueResolvedTarget(this, selector, Hidden)
-    val replace = lift (Map.empty) // TODO - use PartialFunction.empty when moving to 2.10
+    val replace = lift (Map.empty) // TODO - 2.10 - use PartialFunction.empty when removing support for 2.9.x
     val resolve = lift { 
       case (LinkReference (content, _, _, opt), _) => ExternalLink(content, definition.url, definition.title, opt)
       case (ImageReference (text, _, _, opt), _)   => Image(text, definition.url, definition.title, opt)
@@ -161,7 +161,10 @@ object LinkTargets {
   
   abstract class DefaultTarget (target: Customizable, id: Id) extends TargetDefinition(target, id, true) {
     val replace = lift { case (c: Customizable, Named(name))                    => TreeUtil.setId(c, name) }
-    val resolve = lift { case (LinkReference (content, _, _, opt), Named(name)) => InternalLink(content, name, options = opt) } 
+    val resolve = lift { 
+      case (LinkReference (content, _, _, opt), Named(name))          => InternalLink(content, name, options = opt) 
+      case (LinkReference (content, _, _, opt), Relative(path, name)) => CrossLink(content, name, path, options = opt) 
+    } 
   }
   
   class CustomizableTarget (target: Customizable, id: String) extends DefaultTarget(target, id) {
@@ -204,8 +207,10 @@ object LinkTargets {
      * 
      *  @param rewrittenRef the original reference node in the raw document, potentially
      *  already rewritten in case any of its children got rewritten
+     *  @param path if defined it defines the relative path between the document of the reference
+     *  and that of the link target, if empty it is a local reference 
      */
-    def resolveReference (rewrittenRef: Element): Option[Element]
+    def resolveReference (rewrittenRef: Element, path: Option[PathInfo] = None): Option[Element]
 
     /** Creates the final target element (with its final, resolved identifiers).
      * 
@@ -222,7 +227,13 @@ object LinkTargets {
     
     def global = target.global
     
-    def resolveReference (rewrittenRef: Element) = target.resolve(rewrittenRef, render)
+    def resolveReference (rewrittenRef: Element, path: Option[PathInfo] = None) = {
+      val id = (path, render) match {
+        case (Some(path), Named(name)) => Relative(path, name) 
+        case _ => render
+      }
+      target.resolve(rewrittenRef, id)
+    }
     
     def replaceTarget (rewrittenOriginal: Element) = target.replace(rewrittenOriginal, render)
     
@@ -238,7 +249,7 @@ object LinkTargets {
     
     val global = true
     
-    def resolveReference (rewrittenRef: Element) = rewrittenRef match { 
+    def resolveReference (rewrittenRef: Element, path: Option[PathInfo] = None) = rewrittenRef match { 
       case ref: Reference => Some(InvalidSpan(SystemMessage(Error, "More than one link target with name "+selector.name+" in path "+path), Text(ref.source)))
       case _ => None
     }
@@ -258,7 +269,8 @@ object LinkTargets {
     
     def nextOption (it: Iterator[ResolvedTarget]) = if (it.hasNext) Some(it.next) else None
     
-    def resolveReference (rewrittenRef: Element)   = nextOption(refIt).flatMap(_.resolveReference(rewrittenRef))
+    def resolveReference (rewrittenRef: Element, path: Option[PathInfo] = None) 
+                                                   = nextOption(refIt).flatMap(_.resolveReference(rewrittenRef))
     def replaceTarget (rewrittenOriginal: Element) = nextOption(targetIt).flatMap(_.replaceTarget(rewrittenOriginal))
   }
   
