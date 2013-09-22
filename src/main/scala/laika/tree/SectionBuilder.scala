@@ -32,7 +32,7 @@ object SectionBuilder extends (() => PartialFunction[Element,Option[Element]]) {
   
   class DefaultRule { 
     
-    class Builder (header:Header) {
+    class Builder (header:Header, id: String) {
     
       private val buffer = new ListBuffer[Block]
       
@@ -40,13 +40,13 @@ object SectionBuilder extends (() => PartialFunction[Element,Option[Element]]) {
       
       def >= (level: Int) = header.level >= level
       
-      def toSection = Section(header, buffer.toList)
+      def toSection = Section(header, buffer.toList, Id(id))
       
     }
     
     def buildSections (document: RootElement) = {
       val stack = new Stack[Builder]
-      stack push new Builder(Header(0,Nil)) 
+      stack push new Builder(Header(0,Nil), "") 
       
       def closeSections (toLevel: Int) = {
         while (!stack.isEmpty && stack.top >= toLevel) {
@@ -56,8 +56,8 @@ object SectionBuilder extends (() => PartialFunction[Element,Option[Element]]) {
       }
       
       document.content.foreach { 
-        case h @ Header(level, _, _) => closeSections(level); stack push new Builder(h)
-        case block                   => stack.top += block
+        case h @ Header(level, _, Id(id)) => closeSections(level); stack push new Builder(h, id)
+        case block                        => stack.top += block
       }
   
       closeSections(1)

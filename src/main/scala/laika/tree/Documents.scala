@@ -49,9 +49,9 @@ object Documents {
       def extractSections (parentPos: List[Int], blocks: Seq[Block]): Seq[SectionInfo] = {
         val positions = Stream.from(1).iterator
         blocks collect {
-          case Section(header, content, _) => {
+          case Section(header, content, Id(id)) => {
             val pos = positions.next :: parentPos 
-            SectionInfo(pos.reverse, TitleInfo(header.content), extractSections(pos, content)) 
+            SectionInfo(pos.reverse, id, TitleInfo(header.content), extractSections(pos, content)) 
           }
         }
       }
@@ -88,7 +88,7 @@ object Documents {
     
   }
   
-  case class SectionInfo (position: List[Int], title: TitleInfo, children: Seq[SectionInfo]) {
+  case class SectionInfo (position: List[Int], id: String, title: TitleInfo, children: Seq[SectionInfo]) {
     val level = position.length
   }
   
