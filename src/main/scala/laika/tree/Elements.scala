@@ -19,6 +19,7 @@ package laika.tree
 import laika.api.Render
 import laika.render.PrettyPrint
 import scala.math.Ordered
+import laika.tree.Documents.Path
 
 /** Provides the elements of the document tree. The model is generic and not tied to any
  *  specific markup syntax like Markdown. Parsers may only support a subset of the provided
@@ -505,6 +506,9 @@ object Elements {
    */
   case class Code (language: String, content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer[Code]
   
+  /** Represents a single path in absolute and relative form. 
+   */ 
+  case class PathInfo (absolute: Path, relative: Path)
   
   /** An external link element, with the span content representing the text (description) of the link.
    */
@@ -515,6 +519,11 @@ object Elements {
    */
   case class InternalLink (content: Seq[Span], ref: String, title: Option[String] = None, options: Options = NoOpt) extends Link 
                                                                                                                     with SpanContainer[InternalLink]
+  
+  /** A link element pointing to a location in a different document, with the span content representing the text (description) of the link.
+   */
+  case class CrossLink (content: Seq[Span], ref: String, path: PathInfo, title: Option[String] = None, options: Options = NoOpt) extends Link 
+                                                                                                                       with SpanContainer[CrossLink]
   
   /** A resolved link to a footnote.
    */
