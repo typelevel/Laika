@@ -511,9 +511,9 @@ object Elements {
   case class ExternalLink (content: Seq[Span], url: String, title: Option[String] = None, options: Options = NoOpt) extends Link 
                                                                                                                     with SpanContainer[ExternalLink]
 
-  /** A internal link element, with the span content representing the text (description) of the link.
+  /** An internal link element, with the span content representing the text (description) of the link.
    */
-  case class InternalLink (content: Seq[Span], url: String, title: Option[String] = None, options: Options = NoOpt) extends Link 
+  case class InternalLink (content: Seq[Span], ref: String, title: Option[String] = None, options: Options = NoOpt) extends Link 
                                                                                                                     with SpanContainer[InternalLink]
   
   /** A resolved link to a footnote.
