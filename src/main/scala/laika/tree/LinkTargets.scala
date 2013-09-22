@@ -76,7 +76,7 @@ object LinkTargets {
      *  @param renderedId the id used to display to the user
      *  @return a final, resolved target based on the specified identifiers
      */
-    def withResolvedIds (documentId: String, renderedId: String): UniqueResolvedTarget
+    def withResolvedIds (documentId: String, renderedId: String): SingleTargetResolver
 
     /** Converts this target to an invalid one with the 
      *  specified error message.
@@ -101,13 +101,13 @@ object LinkTargets {
   }
   
   class CitationTarget (citation: Citation) extends TargetDefinition(citation, citation.label, false) {
-    def withResolvedIds (documentId: String, displayId: String) = new UniqueResolvedTarget(this, citation.label, documentId)
+    def withResolvedIds (documentId: String, displayId: String) = new SingleTargetResolver(this, citation.label, documentId)
     val replace = lift { case (Citation(label,content,opt),    Named(id)) => Citation(label, content, opt + Id(id)) }
     val resolve = lift { case (CitationReference(label,_,opt), Named(id)) => CitationLink(id, label, opt) }
   }
   
   class FootnoteTarget (defn: FootnoteDefinition, id: Id, selector: Selector) extends TargetDefinition(defn, id, false) {
-    def withResolvedIds (documentId: String, displayId: String) = new UniqueResolvedTarget(this, selector, Hybrid(documentId, Named(displayId)))
+    def withResolvedIds (documentId: String, displayId: String) = new SingleTargetResolver(this, selector, Hybrid(documentId, Named(displayId)))
     val replace = lift { 
       case (FootnoteDefinition(_,content,opt), Hybrid(name,Named(display))) => Footnote(display, content, opt + Id(name))
     }
@@ -123,7 +123,7 @@ object LinkTargets {
   }
   
   class ExternalLinkTarget (definition: ExternalLinkDefinition, id: Id, selector: Selector) extends TargetDefinition(definition, id, true) {
-    def withResolvedIds (documentId: String, displayId: String) = new UniqueResolvedTarget(this, selector, Hidden)
+    def withResolvedIds (documentId: String, displayId: String) = new SingleTargetResolver(this, selector, Hidden)
     val replace = lift (Map.empty) // TODO - 2.10 - use PartialFunction.empty when removing support for 2.9.x
     val resolve = lift { 
       case (LinkReference (content, _, _, opt), _) => ExternalLink(content, definition.url, definition.title, opt)
@@ -132,7 +132,7 @@ object LinkTargets {
   }
   
   class LinkAliasTarget (alias: LinkAlias) extends TargetDefinition(alias, alias.id, false) {
-    def withResolvedIds (documentId: String, displayId: String) = new UniqueResolvedTarget(this, alias.id, Hidden)
+    def withResolvedIds (documentId: String, displayId: String) = new SingleTargetResolver(this, alias.id, Hidden)
     val replace = lift (Map.empty) // TODO - 2.10 - use PartialFunction.empty when removing support for 2.9.x
     val resolve = lift (Map.empty)
     val ref = alias.target
@@ -142,7 +142,7 @@ object LinkTargets {
   class InvalidTarget (delegate: TargetDefinition, msg: String) extends TargetDefinition(delegate.source, delegate.id, delegate.global) {
     def withResolvedIds (documentId: String, displayId: String) = {
       val t = delegate.withResolvedIds(documentId, displayId)
-      new UniqueResolvedTarget(this, t.selector, t.render)
+      new SingleTargetResolver(this, t.selector, t.render)
     }
     val sysMsg = SystemMessage(Error, msg)
     val replace = lift {
@@ -168,11 +168,11 @@ object LinkTargets {
   }
   
   class CustomizableTarget (target: Customizable, id: String) extends DefaultTarget(target, id) {
-    def withResolvedIds (documentId: String, displayId: String) = new UniqueResolvedTarget(this, id, documentId)
+    def withResolvedIds (documentId: String, displayId: String) = new SingleTargetResolver(this, id, documentId)
   }
   
   class HeaderTarget (header: Block, id: Id) extends DefaultTarget(header, id) {
-    override def withResolvedIds (documentId: String, displayId: String) = new UniqueResolvedTarget(this, displayId, documentId)
+    override def withResolvedIds (documentId: String, displayId: String) = new SingleTargetResolver(this, displayId, documentId)
   }
   
   class DecoratedHeaderTarget (header: DecoratedHeader, id: Id, levels: DecoratedHeaderLevels) extends HeaderTarget(header, id) {
@@ -186,10 +186,10 @@ object LinkTargets {
     def levelFor (deco: HeaderDecoration) = levelMap.getOrElseUpdate(deco, levelIt.next)
   }
   
-  /** Represents a resolved target that has its final identifier generated
+  /** Represents a resolver for a target that has its final identifier generated
    *  (if necessary) and can be used to resolve matching reference nodes.
    */
-  abstract sealed class ResolvedTarget {
+  abstract sealed class TargetResolver {
     
     /** Indicates whether this target is global, so that
      *  it can get referenced from within other documents.
@@ -223,7 +223,7 @@ object LinkTargets {
   
   /** Represents a target that can be selected based on a unique identifier.
    */
-  case class UniqueResolvedTarget (target: TargetDefinition, selector: Selector, render: Id) extends ResolvedTarget {
+  case class SingleTargetResolver (target: TargetDefinition, selector: Selector, render: Id) extends TargetResolver {
     
     def global = target.global
     
@@ -237,15 +237,15 @@ object LinkTargets {
     
     def replaceTarget (rewrittenOriginal: Element) = target.replace(rewrittenOriginal, render)
     
-    def forAlias (newSelector: Selector) = new UniqueResolvedTarget(target, newSelector, render) {
+    def forAlias (newSelector: Selector) = new SingleTargetResolver(target, newSelector, render) {
       override def replaceTarget (rewrittenOriginal: Element) = None
     }
     
   }
   
-  /** Represents a global target that is not unique in a particular scope (like a `DocumentTree`).
+  /** Resolver for a global target that is not unique in a particular scope (like a `DocumentTree`).
    */
-  case class DuplicateGlobalTarget (path: Path, selector: UniqueSelector) extends ResolvedTarget {
+  case class DuplicateTargetResolver (path: Path, selector: UniqueSelector) extends TargetResolver {
     
     val global = true
     
@@ -258,16 +258,16 @@ object LinkTargets {
     
   }
 
-  /** Represents a sequence of targets where matching reference nodes
+  /** Represents a resolver for a sequence of targets where matching reference nodes
    *  get determined by position. The `resolveReference` and `resolveTarget`
    *  methods can be invoked as many times as this sequence contains elements.
    */
-  case class ResolvedTargetSequence (targets: Seq[ResolvedTarget], selector: Selector) extends ResolvedTarget {
+  case class TargetSequenceResolver (targets: Seq[TargetResolver], selector: Selector) extends TargetResolver {
     private val refIt = targets.iterator
     private val targetIt = targets.iterator
     val global = false
     
-    def nextOption (it: Iterator[ResolvedTarget]) = if (it.hasNext) Some(it.next) else None
+    private def nextOption (it: Iterator[TargetResolver]) = if (it.hasNext) Some(it.next) else None
     
     def resolveReference (rewrittenRef: Element, path: Option[PathInfo] = None) 
                                                    = nextOption(refIt).flatMap(_.resolveReference(rewrittenRef))

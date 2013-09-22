@@ -105,7 +105,7 @@ class LinkResolver (root: RootElement) {
       gen.generator(used)
     }
     
-    ((new ListBuffer[UniqueResolvedTarget], usedIds, Set("id")) /: orderedTargets) { 
+    ((new ListBuffer[SingleTargetResolver], usedIds, Set("id")) /: orderedTargets) { 
       case ((buf, used, docIds), t) => t.id match {
         case Generated(f) => 
           val displayId = f(used)
@@ -128,16 +128,16 @@ class LinkResolver (root: RootElement) {
    *  replacing them with the targets they are pointing to or with
    *  invalid block elements in case they cannot be resolved.
    */
-  def resolveAliases (targets: Seq[UniqueResolvedTarget]): Seq[ResolvedTarget] = {
+  def resolveAliases (targets: Seq[SingleTargetResolver]): Seq[TargetResolver] = {
 
     val map = targets map (t => (t.selector, t)) toMap
     
-    def resolve (alias: LinkAliasTarget, selector: Selector): UniqueResolvedTarget = {
-      def doResolve (current: LinkAliasTarget, visited: Set[Any]): UniqueResolvedTarget = {
+    def resolve (alias: LinkAliasTarget, selector: Selector): SingleTargetResolver = {
+      def doResolve (current: LinkAliasTarget, visited: Set[Any]): SingleTargetResolver = {
         if (visited.contains(current.id)) alias.invalid("circular link reference: " + alias.from).withResolvedIds("","")
         else
           map.get(current.ref) map {
-            case UniqueResolvedTarget(alias2: LinkAliasTarget, _, _) => doResolve(alias2, visited + current.id)
+            case SingleTargetResolver(alias2: LinkAliasTarget, _, _) => doResolve(alias2, visited + current.id)
             case other => other.forAlias(selector)
           } getOrElse alias.invalid("unresolved link alias: " + alias.ref).withResolvedIds("","")
       }  
@@ -146,15 +146,15 @@ class LinkResolver (root: RootElement) {
     }
                                    
     targets map { 
-      case UniqueResolvedTarget(alias: LinkAliasTarget, selector, _) => resolve(alias, selector)
+      case SingleTargetResolver(alias: LinkAliasTarget, selector, _) => resolve(alias, selector)
       case other => other 
     } 
     
   }
   
   val allTargets = resolveAliases(resolveTargets(selectTargets)).toList groupBy (_.selector) map { 
-      case (selector: UniqueSelector, target :: Nil) => (selector,target)
-      case (selector, list) => (selector, new ResolvedTargetSequence(list,selector))
+    case (selector: UniqueSelector, target :: Nil) => (selector,target)
+    case (selector, list) => (selector, new TargetSequenceResolver(list,selector))
   }
   
   val globalTargets = allTargets filter (_._2.global)
@@ -176,7 +176,7 @@ class LinkResolver (root: RootElement) {
     def resolve (ref: Reference, selector: Selector, msg: => String, global: Boolean = false) = {
       
       def selectFromParent = {
-        @tailrec def select (path: Path): Option[ResolvedTarget] = {
+        @tailrec def select (path: Path): Option[TargetResolver] = {
           val tree = context.root.selectSubtree(path)
           val target = tree.flatMap(_.selectTarget(selector))
           if (target.isDefined || path.parent == path) target

@@ -128,8 +128,8 @@ object Documents {
       case path / name => selectSubtree(path) flatMap (_.selectSubtree(name)) 
     }
     
-    private lazy val targets: Map[Selector, ResolvedTarget] = {
-      val sub = (List[ResolvedTarget]() /: subtrees) { 
+    private lazy val targets: Map[Selector, TargetResolver] = {
+      val sub = (List[TargetResolver]() /: subtrees) { 
         case (list, tree) => tree.targets.values.toList ::: list
       }
       val all = (sub /: documents) { 
@@ -137,7 +137,7 @@ object Documents {
       }
       (all.groupBy (_.selector) collect {
         case (selector, (target :: Nil)) => (selector, target)
-        case (s @ UniqueSelector(name), conflicting) => (s, DuplicateGlobalTarget(path, name))
+        case (s @ UniqueSelector(name), conflicting) => (s, DuplicateTargetResolver(path, name))
       }).toMap
     }
     
