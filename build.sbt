@@ -19,7 +19,9 @@ libraryDependencies <+= scalaVersion {
   case _       => "org.scalatest" %% "scalatest" % "1.9.1" % "test"
 }
 
-libraryDependencies += "net.sf.jtidy" % "jtidy" % "r938" % "test" 
+libraryDependencies += "net.sf.jtidy" % "jtidy" % "r938" % "test"
+ 
+libraryDependencies += "com.typesafe" % "config" % "1.0.2"
 
 crossVersion := CrossVersion.binary
 
