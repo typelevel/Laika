@@ -79,7 +79,7 @@ object Documents {
       template map (_.rewrite(DocumentContext(newDoc))) getOrElse newDoc // TODO - ensure template only gets applied once
     }
     
-    def withRewrittenContent (newContent: RootElement) = new Document(path, title, info, newContent, template) {
+    def withRewrittenContent (newContent: RootElement): Document = new Document(path, title, info, newContent, template) {
       override lazy val defaultRules = Nil
       override val removeRules = this
     }
