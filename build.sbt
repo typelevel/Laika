@@ -11,7 +11,7 @@ scalaVersion := "2.9.3"
 
 scalacOptions <<= scalaVersion map { v: String =>
   val default = Opts.compile.encoding("UTF-8") :+ Opts.compile.deprecation :+ Opts.compile.unchecked
-  if (v.startsWith("2.9.")) default else default :+ "-feature" :+ "-language:implicitConversions" :+ "-language:postfixOps" :+ "-language:higherKinds"          
+  if (v.startsWith("2.9.")) default :+ "-Ydependent-method-types" else default :+ "-feature" :+ "-language:implicitConversions" :+ "-language:postfixOps" :+ "-language:higherKinds"          
 }
 
 libraryDependencies <+= scalaVersion {
