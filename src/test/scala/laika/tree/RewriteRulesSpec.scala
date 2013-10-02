@@ -29,7 +29,7 @@ class RewriteRulesSpec extends FlatSpec
                   with ModelBuilder {
 
   
-  def rewritten (root: RootElement) = new Document(Root, Nil, DocumentInfo(), root, None).rewrite.content
+  def rewritten (root: RootElement) = new Document(Root, Nil, DocumentInfo(), root, None, null).rewrite.content
   
   def invalidSpan (message: String, fallback: String) =
       InvalidSpan(SystemMessage(laika.tree.Elements.Error, message), Text(fallback))
@@ -178,7 +178,7 @@ class RewriteRulesSpec extends FlatSpec
   
   it should "resolve references when some parent element also gets rewritten" in {
     val document = doc(DecoratedHeader(Underline('#'), List(txt("text1"), simpleLinkRef()), Id("header")), ExternalLinkDefinition("name", "http://foo/"))
-    rewritten (document) should be (doc(Section(Header(1, List(txt("text1"), extLink("http://foo/")), Id("header")), Nil)))
+    rewritten (document) should be (doc(Section(Header(1, List(txt("text1"), extLink("http://foo/")), Id("header")), Nil, Id("header"))))
   }
   
   
@@ -195,13 +195,13 @@ class RewriteRulesSpec extends FlatSpec
   
   "The rewrite rules for header ids" should "retain the id of a header" in {
     val document = doc(Header(1, List(Text("text")), Id("header")))
-    rewritten (document) should be (doc(Section(Header(1, List(Text("text")), Id("header")), Nil)))
+    rewritten (document) should be (doc(Section(Header(1, List(Text("text")), Id("header")), Nil, Id("header"))))
   }
   
   it should "append numbers to duplicate ids" in {
     val document = doc(Header(1, List(Text("text1")), Id("header")), Header(1, List(Text("text2")), Id("header")))
-    rewritten (document) should be (doc(Section(Header(1, List(Text("text1")), Id("header")), Nil), 
-                                        Section(Header(1, List(Text("text2")), Id("header-1")), Nil)))
+    rewritten (document) should be (doc(Section(Header(1, List(Text("text1")), Id("header")), Nil, Id("header")), 
+                                        Section(Header(1, List(Text("text2")), Id("header-1")), Nil, Id("header-1"))))
   }
   
   
@@ -209,8 +209,8 @@ class RewriteRulesSpec extends FlatSpec
     val document = doc(DecoratedHeader(Underline('#'), List(Text("text1")), Id("header1")),
                        DecoratedHeader(Underline('#'), List(Text("text2")), Id("header2")))
     rewritten (document) should be (doc(
-        Section(Header(1, List(Text("text1")), Id("header1")), Nil),
-        Section(Header(1, List(Text("text2")), Id("header2")), Nil)))
+        Section(Header(1, List(Text("text1")), Id("header1")), Nil, Id("header1")),
+        Section(Header(1, List(Text("text2")), Id("header2")), Nil, Id("header2"))))
   }
   
   it should "set the level of the header in a nested list of headers" in {
@@ -219,16 +219,16 @@ class RewriteRulesSpec extends FlatSpec
                        DecoratedHeader(Underline('#'), List(Text("text")), Id("header3")))
     rewritten (document) should be (doc(
         Section(Header(1, List(Text("text")), Id("header1")), List(
-            Section(Header(2, List(Text("nested")), Id("header2")), Nil))),
-        Section(Header(1, List(Text("text")), Id("header3")), Nil)))
+            Section(Header(2, List(Text("nested")), Id("header2")), Nil, Id("header2"))), Id("header1")),
+        Section(Header(1, List(Text("text")), Id("header3")), Nil, Id("header3"))))
   }
   
   it should "append numbers to duplicate ids" in {
     val document = doc(DecoratedHeader(Underline('#'), List(Text("text1")), Id("header")),
                        DecoratedHeader(Underline('#'), List(Text("text2")), Id("header")))
     rewritten (document) should be (doc(
-        Section(Header(1, List(Text("text1")), Id("header")), Nil),
-        Section(Header(1, List(Text("text2")), Id("header-1")), Nil)))
+        Section(Header(1, List(Text("text1")), Id("header")), Nil, Id("header")),
+        Section(Header(1, List(Text("text2")), Id("header-1")), Nil, Id("header-1"))))
   }
   
   

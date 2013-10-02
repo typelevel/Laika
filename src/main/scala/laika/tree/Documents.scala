@@ -21,6 +21,8 @@ import laika.tree.Templates.TemplateDocument
 import laika.tree.Elements.Reference
 import laika.tree.LinkTargets._
 import scala.annotation.tailrec
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
 
 /** 
  *  @author Jens Halm
@@ -32,7 +34,10 @@ object Documents {
                   val info: DocumentInfo, 
                   val content: RootElement, 
                   val template: Option[TemplateDocument],
+                  docConfig: Config,
                   rewriteRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]] = Nil) {
+    
+    private[Documents] lazy val config = template map (t => docConfig.withFallback(t.config)) getOrElse docConfig
     
     private lazy val linkResolver = LinkResolver(content)
     
@@ -79,7 +84,7 @@ object Documents {
       template map (_.rewrite(DocumentContext(newDoc))) getOrElse newDoc // TODO - ensure template only gets applied once
     }
     
-    def withRewrittenContent (newContent: RootElement): Document = new Document(path, title, info, newContent, template) {
+    def withRewrittenContent (newContent: RootElement): Document = new Document(path, title, info, newContent, template, docConfig) {
       override lazy val defaultRules = Nil
       override val removeRules = this
     }
@@ -98,16 +103,31 @@ object Documents {
   
   case class DocumentInfo (/* TODO - define */)
   
-  case class DocumentContext (document: Document, parent: DocumentTree, root: DocumentTree)
+  case class DocumentContext (document: Document, parent: DocumentTree, root: DocumentTree) {
+    
+    lazy val config = {
+      @tailrec def select (path: Path, config: Config): Config = {
+        val withFallback = root.selectSubtree(path).map(t => config.withFallback(t.config)).getOrElse(config)
+        if (path.parent == path) withFallback
+        else select(path.parent, withFallback)
+      }
+      select(parent.path, document.config)
+    }
+    
+  }
   
   case object DocumentContext {
     def apply (document: Document) = {
-      val tree = DocumentTree(Root, Seq(document))
+      val tree = new DocumentTree(Root, Seq(document))
       new DocumentContext(document, tree, tree)
     }
   }
   
-  case class DocumentTree (path:Path, documents: Seq[Document], subtrees: Seq[DocumentTree] = Nil, defaultTemplate: Option[TemplateDocument] = None) {
+  class DocumentTree (val path:Path, 
+                      val documents: Seq[Document], 
+                      val subtrees: Seq[DocumentTree] = Nil, 
+                      defaultTemplate: Option[TemplateDocument] = None,
+                      private[Documents] val config: Config = ConfigFactory.empty) {
     
     val name = path.name
     
@@ -152,7 +172,7 @@ object Documents {
     private def rewrite (customRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]], root: DocumentTree): DocumentTree = {
       val docs = documents map (doc => doc.rewrite(customRules map (_(DocumentContext(doc, this, root))))) // TODO - context is not getting passed down
       val trees = subtrees map (_.rewrite(customRules, root))
-      DocumentTree(path, docs, trees, defaultTemplate)  
+      new DocumentTree(path, docs, trees, defaultTemplate, config)  
     }
   }
   

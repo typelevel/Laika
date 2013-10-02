@@ -107,7 +107,7 @@ class Parse private (parse: Input => Document, rewrite: Boolean) {
     def collectDocuments (provider: InputProvider): DocumentTree = {
       val docs = provider.documents map (i => docMap(i.path))
       val trees = provider.subtrees map (collectDocuments)
-      DocumentTree(provider.path, docs, trees)
+      new DocumentTree(provider.path, docs, trees) // TODO - add template and config
     }
     
     collectDocuments(input)

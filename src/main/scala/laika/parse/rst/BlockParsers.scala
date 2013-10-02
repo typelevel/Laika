@@ -47,7 +47,7 @@ trait BlockParsers extends laika.parse.BlockParsers
   override def parseDocument (reader: Reader[Char], path: Path) = {
     val parsedRoot = parseMarkup(root, reader)
     val finalRoot = parsedRoot.copy(content = parsedRoot.content ++ textRoleElements)
-    new Document(path, Nil, DocumentInfo(), finalRoot, None, List(RewriteRules)) // TODO - set title and info
+    new Document(path, Nil, DocumentInfo(), finalRoot, None, null, List(RewriteRules)) // TODO - set title and info and config
   }
   
   /** All the base text roles supported by this parser not including

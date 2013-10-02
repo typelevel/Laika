@@ -31,7 +31,7 @@ class DefaultParser extends (Input => TemplateDocument) {
   /** The actual parser function, fully parsing the specified input and
    *  returning a document tree.
    */
-  def apply (input: Input) = TemplateDocument(input.path, parser.parseTemplate(input.asParserInput))
+  def apply (input: Input) = TemplateDocument(input.path, parser.parseTemplate(input.asParserInput), null) // TODO - pass config
   
 }
 
