@@ -18,6 +18,7 @@ package laika.render
 
 import laika.tree.Elements._
 import laika.io.Output
+import laika.factory.RendererFactory
   
 /** A renderer for HTML output. May be directly passed to the `Render` or `Transform` APIs:
  * 
@@ -30,7 +31,9 @@ import laika.io.Output
  *  @author Jens Halm
  */
 class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean) 
-    extends ((Output, Element => Unit) => (HTMLWriter, Element => Unit)) {
+    extends RendererFactory[HTMLWriter] {
+  
+  val fileSuffix = "html"
  
   /** Specifies the minimum required level for a system message
    *  to get included into the output by this renderer.
@@ -53,7 +56,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
    *  @return a tuple consisting of the writer API for customizing
    *  the renderer as well as the actual default render function itself
    */
-  def apply (output: Output, render: Element => Unit) = {
+  def newRenderer (output: Output, render: Element => Unit) = {
     val out = new HTMLWriter(output asFunction, render, formatted = renderFormatted)  
     (out, renderElement(out))
   }

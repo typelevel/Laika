@@ -24,6 +24,7 @@ import laika.tree.Documents._
 import laika.tree.Elements.Element
 import laika.tree.RewriteRules
 import laika.factory.ParserFactory
+import laika.factory.RendererFactory
   
 /** API for performing a transformation operation from and to various types of input and output,
  *  combining a parse and render operation. 
@@ -290,11 +291,11 @@ object Transform {
      *  previously specified parser. The returned instance is stateless and reusable for
      *  multiple transformations.
      * 
-     *  @param render the renderer to use for the transformation
+     *  @param factory the renderer factory to use for the transformation
      *  @return a new Transform instance
      */
-    def to [W] (render: (Output, Element => Unit) => (W, Element => Unit)): Transform[W] = 
-      new Transform(parse, Render as render, new Rules(Nil)) 
+    def to [W] (factory: RendererFactory[W]): Transform[W] = 
+      new Transform(parse, Render as factory, new Rules(Nil)) 
     
   }
   

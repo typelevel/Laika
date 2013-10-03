@@ -26,6 +26,7 @@ import laika.io.Output
 import laika.tree.Elements.Element
 import laika.tree.Documents._
 import laika.io.OutputProvider
+import laika.factory.RendererFactory
   
 /** API for performing a render operation to various types of output using an existing
  *  document tree model. 
@@ -46,7 +47,7 @@ import laika.io.OutputProvider
  * 
  *  @author Jens Halm
  */
-class Render[W] private (setup: (Output, Element => Unit) => (W, Element => Unit),
+class Render[W] private (factory: RendererFactory[W],
                          customRenderers: List[W => PartialFunction[Element, Unit]] = Nil) {
 
   
@@ -105,7 +106,7 @@ class Render[W] private (setup: (Output, Element => Unit) => (W, Element => Unit
     
     def toOutput (out: Output) = { 
       IO(out) { out =>
-        val (writer, render) = setup(out, RenderFunction)
+        val (writer, render) = factory.newRenderer(out, RenderFunction)
         
         RenderFunction.delegate = customRenderers match {
           case Nil => render
@@ -160,7 +161,7 @@ class Render[W] private (setup: (Output, Element => Unit) => (W, Element => Unit
    *  }}}
    */
   def using (render: W => PartialFunction[Element, Unit]): Render[W] = {
-    new Render(setup, render :: customRenderers)
+    new Render(factory, render :: customRenderers)
   }
   
   
@@ -186,13 +187,13 @@ class Render[W] private (setup: (Output, Element => Unit) => (W, Element => Unit
  */
 object Render {
   
-  /** Returns a new Render instance for the specified render setup function.
-   *  This function is usually an object provided by the library
+  /** Returns a new Render instance for the specified renderer factory.
+   *  This factory is usually an object provided by the library
    *  or a plugin that is capable of rendering a specific output
    *  format like HTML or PrettyPrint for debugging. 
    * 
-   *  @param render the render setup function responsible for creating the final renderer
+   *  @param factory the renderer factory responsible for creating the final renderer
    */
-  def as [W] (render: (Output, Element => Unit) => (W, Element => Unit)): Render[W] = new Render(render) 
+  def as [W] (factory: RendererFactory[W]): Render[W] = new Render(factory) 
   
 }
