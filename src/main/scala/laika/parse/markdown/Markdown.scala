@@ -19,6 +19,7 @@ package laika.parse.markdown
 import laika.io.Input
 import laika.parse.markdown.html.HTMLParsers
 import laika.tree.Documents.Document
+import laika.factory.ParserFactory
   
 /** A parser for Markdown text. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:
@@ -41,8 +42,10 @@ import laika.tree.Documents.Document
  * 
  *  @author Jens Halm
  */
-class Markdown private (verbatimHTML: Boolean) extends (Input => Document) {
+class Markdown private (verbatimHTML: Boolean) extends ParserFactory {
 
+  val fileSuffixes = Set("md","markdown")
+  
   /** Returns a Markdown parser that also parses verbatim HTML elements alongside
    *  the standard Markdown markup. Usually only recommended when used together
    *  with an HTML renderer, as such a parser returns a document tree that contains
@@ -58,7 +61,7 @@ class Markdown private (verbatimHTML: Boolean) extends (Input => Document) {
   /** The actual parser function, fully parsing the specified input and
    *  returning a document tree.
    */
-  def apply (input: Input) = parser.parseDocument(input.asParserInput, input.path)
+  val newParser = (input: Input) => parser.parseDocument(input.asParserInput, input.path)
   
 }
 

@@ -23,6 +23,7 @@ import laika.io._
 import laika.tree.Documents._
 import laika.tree.Elements.Element
 import laika.tree.RewriteRules
+import laika.factory.ParserFactory
   
 /** API for performing a transformation operation from and to various types of input and output,
  *  combining a parse and render operation. 
@@ -297,17 +298,17 @@ object Transform {
     
   }
   
-  /** Returns a new Builder instance for the specified parse function.
-   *  This function is usually an object provided by the library
+  /** Returns a new Builder instance for the specified parser factory.
+   *  This factory is usually an object provided by the library
    *  or a plugin that is capable of parsing a specific markup
    *  format like Markdown or reStructuredText. The returned builder
    *  can then be used to specifiy the renderer to create the actual
    *  Transform instance.
    * 
-   *  @param parse the parse function to use
+   *  @param factory the parser factory to use
    *  @return a new Builder instance for specifying the renderer
    */
-  def from (parse: Input => Document): Builder = new Builder(Parse as parse asRawDocument)
+  def from (factory: ParserFactory): Builder = new Builder(Parse as factory asRawDocument)
   
   
 }

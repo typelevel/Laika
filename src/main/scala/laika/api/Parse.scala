@@ -27,6 +27,7 @@ import java.io.File
 import laika.io.InputProvider
 import laika.tree.Documents.Document
 import laika.tree.Documents.DocumentTree
+import laika.factory.ParserFactory
   
 /** API for performing a parse operation from various types of input to obtain
  *  a document tree without a subsequent render operation. 
@@ -43,14 +44,16 @@ import laika.tree.Documents.DocumentTree
  * 
  *  @author Jens Halm
  */
-class Parse private (parse: Input => Document, rewrite: Boolean) {
+class Parse private (factory: ParserFactory, rewrite: Boolean) {
+  
+  private lazy val parse = factory.newParser
 
   /** Returns a new Parse instance that produces raw document trees without applying
    *  the default rewrite rules. These rules resolve link and image references and 
    *  rearrange the tree into a hierarchy of sections based on the (flat) sequence
    *  of header instances found in the document.
    */
-  def asRawDocument = new Parse(parse, false)
+  def asRawDocument = new Parse(factory, false)
   
   /** Returns a document tree obtained from parsing the specified string.
    *  Any kind of input is valid, including an empty string. 
@@ -122,13 +125,13 @@ class Parse private (parse: Input => Document, rewrite: Boolean) {
  */
 object Parse {
   
-  /** Returns a new Parse instance for the specified parse function.
-   *  This function is usually an object provided by the library
+  /** Returns a new Parse instance for the specified parser factory.
+   *  This factory is usually an object provided by the library
    *  or a plugin that is capable of parsing a specific markup
    *  format like Markdown or reStructuredText. 
    * 
-   *  @param parse the parse function to use for all subsequent operations
+   *  @param factory the parser factory to use for all subsequent operations
    */
-  def as (parse: Input => Document) = new Parse(parse, true) 
+  def as (factory: ParserFactory) = new Parse(factory, true) 
   
 }

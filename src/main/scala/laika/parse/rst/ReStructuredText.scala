@@ -25,6 +25,7 @@ import laika.parse.rst.ext._
 import scala.util.parsing.input.CharSequenceReader
 import laika.parse.util.WhitespacePreprocessor
 import laika.parse.rst.Elements.CustomizedTextRole
+import laika.factory.ParserFactory
   
 /** A parser for text written in reStructuredText markup. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:
@@ -69,9 +70,11 @@ class ReStructuredText private (
     textRoles: List[TextRole],
     defaultTextRole: String = "title-reference",
     rawContent: Boolean = false
-    ) extends (Input => Document) { self =>
+    ) extends ParserFactory { self =>
 
   
+  val fileSuffixes = Set("rest","rst")    
+      
   /** Adds the specified directives and returns a new instance of the parser.
    *  These block directives may then be used anywhere in documents parsed by this instance.
    * 
@@ -175,7 +178,7 @@ class ReStructuredText private (
   /** The actual parser function, fully parsing the specified input and
    *  returning a document tree.
    */
-  def apply (input: Input) = {
+  val newParser = (input: Input) => {
     val raw = input.asParserInput.source
     val preprocessed = (new WhitespacePreprocessor)(raw.toString)
     parser.parseDocument(new CharSequenceReader(preprocessed), input.path)
