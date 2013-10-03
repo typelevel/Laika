@@ -131,7 +131,7 @@ class Render[W] private (factory: RendererFactory[W],
     def toTree (provider: OutputProvider) = {
       
       def collectOperations (tree: DocumentTree, provider: OutputProvider): Seq[(Document,Output)] =
-          (tree.documents map { doc:Document => (doc, provider.newOutput(doc.name)) }) ++ 
+          (tree.documents map { doc:Document => (doc, provider.newOutput(doc.name +"."+ factory.fileSuffix)) }) ++ 
             (tree.subtrees map { tree => collectOperations(tree, provider.newChild(tree.name)) }).flatten
     
       val operations = collectOperations(tree, provider)
