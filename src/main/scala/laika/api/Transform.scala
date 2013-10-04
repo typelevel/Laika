@@ -66,8 +66,9 @@ import laika.factory.RendererFactory
  * 
  *  @author Jens Halm
  */
-class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules: Rules) {
+class Transform [W] private[Transform] (parser: ParserFactory, render: Render[W], rules: Rules, targetSuffix: String) {
   
+  private val parse = Parse as parser asRawDocument
   
   /** Represents a single transformation operation for a specific
    *  input that has already been parsed. Various types of output can be
@@ -170,7 +171,8 @@ class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules: 
    *  In case multiple rewrite rules need to be applied it may be more efficient to
    *  first combine them with `orElse`.
    */
-  def creatingRule (newRule: DocumentContext => PartialFunction[Element, Option[Element]]) = new Transform(parse, render, rules + newRule) 
+  def creatingRule (newRule: DocumentContext => PartialFunction[Element, Option[Element]]) 
+      = new Transform(parser, render, rules + newRule, targetSuffix) 
   
   /** Specifies a custom render function that overrides one or more of the default
    *  renderers for the output format this instance uses.
@@ -189,7 +191,8 @@ class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules: 
    *  } fromFile "hello.md" toFile "hello.html"
    *  }}}
    */
-  def rendering (customRenderer: W => PartialFunction[Element, Unit]) = new Transform(parse, render using customRenderer, rules)
+  def rendering (customRenderer: W => PartialFunction[Element, Unit]) 
+      = new Transform(parser, render using customRenderer, rules, targetSuffix)
   
   
   /** Parses the specified string and returns a new Operation instance which allows to specify the output.
@@ -258,7 +261,9 @@ class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules: 
       val sourceDir = new File(root, "source")
       val targetDir = new File(root, "target")
       
-      new BatchConfig(InputProvider.forRootDirectory(sourceDir), OutputProvider.forRootDirectory(targetDir))
+      val docTypeMatcher = new DefaultDocumentTypeMatcher(parser.fileSuffixes, Seq("*.svn","*.git"))
+      
+      new BatchConfig(InputProvider.forRootDirectory(sourceDir, docTypeMatcher), OutputProvider.forRootDirectory(targetDir))
     }
     
   }
@@ -285,7 +290,7 @@ object Transform {
   /** Step in the setup for a transform operation where the
    *  renderer must be specified.
    */
-  class Builder private[Transform] (parse: Parse) {
+  class Builder private[Transform] (parser: ParserFactory) {
 
     /** Creates and returns a new Transform instance for the specified renderer and the
      *  previously specified parser. The returned instance is stateless and reusable for
@@ -295,7 +300,7 @@ object Transform {
      *  @return a new Transform instance
      */
     def to [W] (factory: RendererFactory[W]): Transform[W] = 
-      new Transform(parse, Render as factory, new Rules(Nil)) 
+      new Transform(parser, Render as factory, new Rules(Nil), factory.fileSuffix) 
     
   }
   
@@ -309,7 +314,7 @@ object Transform {
    *  @param factory the parser factory to use
    *  @return a new Builder instance for specifying the renderer
    */
-  def from (factory: ParserFactory): Builder = new Builder(Parse as factory asRawDocument)
+  def from (factory: ParserFactory): Builder = new Builder(factory)
   
   
 }

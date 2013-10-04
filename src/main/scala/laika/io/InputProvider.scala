@@ -17,8 +17,7 @@
 package laika.io
 
 import java.io.File
-import laika.tree.Documents.Path
-import laika.tree.Documents.Root
+import laika.tree.Documents._
 
 /** 
  *  @author Jens Halm
@@ -30,7 +29,11 @@ trait InputProvider {
   
   def path: Path
   
-  def documents: Seq[Input]
+  def markupDocuments: Seq[Input]
+
+  def dynamicDocuments: Seq[Input]
+
+  def staticDocuments: Seq[Input]
 
   def templates: Seq[Input]
   
@@ -42,28 +45,37 @@ trait InputProvider {
 
 object InputProvider {
   
-  private class DirectoryInputProvider (dir: File, val path: Path = Root) extends InputProvider {
+  private class DirectoryInputProvider (dir: File, val path: Path, docTypeMatcher: Path => DocumentType) extends InputProvider {
     
-    // TODO - improve file suffix management
-    lazy val documents = {
-      dir.listFiles filterNot (f => f.isDirectory || f.getName.endsWith(".template")) map (Input.fromFile(_, path)) toList // TODO - stream creation could be lazy
-    }
+    private def docType (f: File) = docTypeMatcher(path / f.getName)
+
+    private def toInput (pairs: Array[(DocumentType,File)]) = pairs.map(p => Input.fromFile(p._2, path)).toList
+
+    private lazy val files = dir.listFiles filter (_.isFile) map (f => (docType(f), f)) groupBy (_._1)
     
-    lazy val templates = {
-      dir.listFiles filter (f => f.isFile || f.getName.endsWith(".template")) map (Input.fromFile(_, path)) toList
-    }
+    private def documents (docType: DocumentType) = files.get(docType).map(toInput).getOrElse(Nil)
+    
+    // TODO - stream creation could be lazy
+    
+    lazy val markupDocuments = documents(Markup)
+    
+    lazy val dynamicDocuments = documents(Dynamic)
+    
+    lazy val staticDocuments = documents(Static)
+    
+    lazy val templates =  documents(Template)
     
     lazy val subtrees = {
-      dir.listFiles filter (_.isDirectory) map (d => new DirectoryInputProvider(d, path / d.getName)) toList
+      dir.listFiles filter (f => f.isDirectory && docType(f) != Ignored) map (d => new DirectoryInputProvider(d, path / d.getName, docTypeMatcher)) toList
     }
     
   }
   
-  def forRootDirectory (root: File): InputProvider = {
+  def forRootDirectory (root: File, docTypeMatcher: Path => DocumentType): InputProvider = {
     require(root.exists, "Directory "+root.getAbsolutePath()+" does not exist")
     require(root.isDirectory, "File "+root.getAbsolutePath()+" is not a directoy")
     
-    new DirectoryInputProvider(root)
+    new DirectoryInputProvider(root, Root, docTypeMatcher)
   }
   
 }

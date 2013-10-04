@@ -123,6 +123,39 @@ object Documents {
     }
   }
   
+  sealed abstract class DocumentType
+  
+  case object Config extends DocumentType
+  case object Markup extends DocumentType
+  case object Template extends DocumentType
+  case object Dynamic extends DocumentType
+  case object Static extends DocumentType
+  case object Ignored extends DocumentType
+  
+  class DefaultDocumentTypeMatcher (markupSuffixes: Set[String], ignorePatterns: Seq[String]) extends (Path => DocumentType) {
+    
+    private def suffix (name: String) = name.lastIndexOf(".") match {
+      case -1    => ""
+      case index => name.drop(index+1)
+    }  
+    
+    val IgnoredName = ignorePatterns.map(_.replaceAll(".","\\.").replaceAll("*",".*")).mkString("^","|","$").r
+    
+    val TemplateName = """.+\.template\.[^\.]+$""".r
+    val DynamicName = """.+\.dynamic\.[^\.]+$""".r
+    val ConfigName = """.+\.conf$""".r
+    
+    def apply (path: Path) = path.name match {
+      case IgnoredName()  => Ignored
+      case name if markupSuffixes(suffix(name)) => Markup
+      case ConfigName()   => Config
+      case TemplateName() => Template
+      case DynamicName()  => Dynamic
+      case _              => Static
+    }
+    
+  }
+  
   class DocumentTree (val path:Path, 
                       val documents: Seq[Document], 
                       val subtrees: Seq[DocumentTree] = Nil, 
