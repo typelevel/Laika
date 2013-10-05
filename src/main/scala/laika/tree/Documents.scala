@@ -34,11 +34,8 @@ object Documents {
                   val title: Seq[Span], 
                   val info: DocumentInfo, 
                   val content: RootElement, 
-                  val template: Option[TemplateDocument],
-                  docConfig: Config,
+                  val config: Config = ConfigFactory.empty,
                   rewriteRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]] = Nil) {
-    
-    private[Documents] lazy val config = template map (t => docConfig.withFallback(t.config)) getOrElse docConfig
     
     private lazy val linkResolver = LinkResolver(content)
     
@@ -74,7 +71,9 @@ object Documents {
     
     def rewrite (customRules: Seq[PartialFunction[Element,Option[Element]]]): Document = {
       
-      val resolvedRules = (defaultRules map { _(DocumentContext(this)) })      
+      val context = DocumentContext(this)
+      
+      val resolvedRules = (defaultRules map { _(context) })      
       
       val allRules = RewriteRules chain (customRules ++ resolvedRules)
       
@@ -82,10 +81,10 @@ object Documents {
       
       val newDoc = withRewrittenContent(newRoot)
       
-      template map (_.rewrite(DocumentContext(newDoc))) getOrElse newDoc // TODO - ensure template only gets applied once
+      context.template map (_.rewrite(DocumentContext(newDoc))) getOrElse newDoc // TODO - ensure template only gets applied once
     }
     
-    def withRewrittenContent (newContent: RootElement): Document = new Document(path, title, info, newContent, template, docConfig) {
+    def withRewrittenContent (newContent: RootElement): Document = new Document(path, title, info, newContent, config) {
       override lazy val defaultRules = Nil
       override val removeRules = this
     }
@@ -106,13 +105,39 @@ object Documents {
   
   case class DocumentContext (document: Document, parent: DocumentTree, root: DocumentTree) {
     
-    lazy val config = {
-      @tailrec def select (path: Path, config: Config): Config = {
-        val withFallback = root.selectSubtree(path).flatMap(t => t.config.map(c => config.withFallback(c))).getOrElse(config)
-        if (path.parent == path) withFallback
-        else select(path.parent, withFallback)
+    lazy val parents = {
+      @tailrec def collect (path: Path, acc: List[DocumentTree]): Seq[DocumentTree] = {
+         val newAcc = root.selectSubtree(path) match {
+           case Some(tree) => tree :: acc
+           case None => acc
+         }
+         if (path.parent == path) newAcc
+         else collect(path.parent, newAcc)
       }
-      select(parent.path, document.config)
+      collect(parent.path, Nil).reverse
+    }
+    
+    private def mergeTreeConfigs (config: Config) = ((config /: parents) { case (config, tree) =>
+      tree.config.map(c => config.withFallback(c)).getOrElse(config)
+    }).resolve
+    
+    lazy val config = mergeTreeConfigs(template map (t => document.config.withFallback(t.config)) getOrElse document.config)
+      
+    lazy val template = {
+      val tempConf = mergeTreeConfigs(document.config)
+      val input = if (tempConf.hasPath("template")) {
+        val filename = tempConf.getString("template")
+        val path = Path(filename) // TODO - build path relative to config origin
+        val tree = root.selectSubtree(path.parent)
+        tree flatMap (_.inputs.templates.find(_.path.name == path.name))
+      }
+      else {
+        val filename = "default.template.html" // TODO - could be configurable
+        parents collectFirst {
+          case tree if tree.inputs.templates.exists(_.path.name == filename) => tree.inputs.templates.find(_.path.name == filename).get
+        }
+      }
+      input map (laika.template.Template.fromInput(_)) // TODO - template parser should be configurable
     }
     
   }
@@ -160,7 +185,7 @@ object Documents {
   class DocumentTree (val path:Path, 
                       val documents: Seq[Document], 
                       val subtrees: Seq[DocumentTree] = Nil, 
-                      private[Documents] inputs: InputProvider) {
+                      private[Documents] val inputs: InputProvider) {
     
     val name = path.name
     
@@ -169,16 +194,16 @@ object Documents {
 
     def selectDocument (path: String): Option[Document] = selectDocument(Path(path))
     def selectDocument (path: Path): Option[Document] = path match {
-      case Root => None
-      case Root / name => documentsByName.get(name)
-      case path / name => selectSubtree(path) flatMap (_.selectDocument(name)) 
+      case Current / name => documentsByName.get(name)
+      case path / name => selectSubtree(path) flatMap (_.selectDocument(name))
+      case _ => None
     }
     
     def selectSubtree (path: String): Option[DocumentTree] = selectSubtree(Path(path))
     def selectSubtree (path: Path): Option[DocumentTree] = path match {
-      case Root => None
-      case Root / name => subtreesByName.get(name)
+      case Current / name => subtreesByName.get(name)
       case path / name => selectSubtree(path) flatMap (_.selectSubtree(name)) 
+      case _ => None
     }
     
     private lazy val targets: Map[Selector, TargetResolver] = {
