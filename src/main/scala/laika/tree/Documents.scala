@@ -23,6 +23,7 @@ import laika.tree.LinkTargets._
 import scala.annotation.tailrec
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
+import laika.io.InputProvider
 
 /** 
  *  @author Jens Halm
@@ -107,7 +108,7 @@ object Documents {
     
     lazy val config = {
       @tailrec def select (path: Path, config: Config): Config = {
-        val withFallback = root.selectSubtree(path).map(t => config.withFallback(t.config)).getOrElse(config)
+        val withFallback = root.selectSubtree(path).flatMap(t => t.config.map(c => config.withFallback(c))).getOrElse(config)
         if (path.parent == path) withFallback
         else select(path.parent, withFallback)
       }
@@ -118,7 +119,7 @@ object Documents {
   
   case object DocumentContext {
     def apply (document: Document) = {
-      val tree = new DocumentTree(Root, Seq(document))
+      val tree = new DocumentTree(Root, Seq(document), Nil, InputProvider.empty(Root))
       new DocumentContext(document, tree, tree)
     }
   }
@@ -159,8 +160,7 @@ object Documents {
   class DocumentTree (val path:Path, 
                       val documents: Seq[Document], 
                       val subtrees: Seq[DocumentTree] = Nil, 
-                      defaultTemplate: Option[TemplateDocument] = None,
-                      private[Documents] val config: Config = ConfigFactory.empty) {
+                      private[Documents] inputs: InputProvider) {
     
     val name = path.name
     
@@ -194,6 +194,11 @@ object Documents {
       }).toMap
     }
     
+    lazy val config = {
+      val input = inputs.configDocuments.find(_.path.name == "default.conf") // TODO - could be configurable
+      input.map(i => ConfigFactory.parseReader(i.asReader)) // TODO - check Config libs error handling
+    }
+    
     def selectTarget (selector: Selector) = targets.get(selector)
     
     def rewrite: DocumentTree = rewrite(Nil, this)
@@ -205,7 +210,7 @@ object Documents {
     private def rewrite (customRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]], root: DocumentTree): DocumentTree = {
       val docs = documents map (doc => doc.rewrite(customRules map (_(DocumentContext(doc, this, root))))) // TODO - context is not getting passed down
       val trees = subtrees map (_.rewrite(customRules, root))
-      new DocumentTree(path, docs, trees, defaultTemplate, config)  
+      new DocumentTree(path, docs, trees, inputs)  
     }
   }
   

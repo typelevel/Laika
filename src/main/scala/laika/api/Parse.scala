@@ -110,7 +110,7 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
     def collectDocuments (provider: InputProvider): DocumentTree = {
       val docs = provider.markupDocuments map (i => docMap(i.path))
       val trees = provider.subtrees map (collectDocuments)
-      new DocumentTree(provider.path, docs, trees) // TODO - add template and config
+      new DocumentTree(provider.path, docs, trees, provider) // TODO - add template and config
     }
     
     collectDocuments(input)

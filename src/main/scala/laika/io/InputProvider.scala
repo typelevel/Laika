@@ -29,6 +29,8 @@ trait InputProvider {
   
   def path: Path
   
+  def configDocuments: Seq[Input]
+
   def markupDocuments: Seq[Input]
 
   def dynamicDocuments: Seq[Input]
@@ -57,6 +59,8 @@ object InputProvider {
     
     // TODO - stream creation could be lazy
     
+    lazy val configDocuments = documents(Config)
+    
     lazy val markupDocuments = documents(Markup)
     
     lazy val dynamicDocuments = documents(Dynamic)
@@ -77,5 +81,15 @@ object InputProvider {
     
     new DirectoryInputProvider(root, Root, docTypeMatcher)
   }
+  
+  def empty (p: Path): InputProvider = new InputProvider {
+    val path = p
+    val configDocuments = Nil
+    val markupDocuments = Nil
+    val dynamicDocuments = Nil
+    val staticDocuments = Nil
+    val templates = Nil
+    val subtrees = Nil
+  } 
   
 }

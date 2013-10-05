@@ -261,7 +261,7 @@ class Transform [W] private[Transform] (parser: ParserFactory, render: Render[W]
       val sourceDir = new File(root, "source")
       val targetDir = new File(root, "target")
       
-      val docTypeMatcher = new DefaultDocumentTypeMatcher(parser.fileSuffixes, Seq("*.svn","*.git"))
+      val docTypeMatcher = new DefaultDocumentTypeMatcher(parser.fileSuffixes, Seq("*.svn","*.git")) // TODO - expose hook for custom matchers or ignore patterns
       
       new BatchConfig(InputProvider.forRootDirectory(sourceDir, docTypeMatcher), OutputProvider.forRootDirectory(targetDir))
     }
