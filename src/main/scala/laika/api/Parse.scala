@@ -129,7 +129,7 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
       val templates = provider.templates map (i => templateMap((Template,i.path)))
       val dynamic = provider.dynamicDocuments map (i => templateMap((Dynamic,i.path)))
       val trees = provider.subtrees map (collectDocuments)
-      new DocumentTree(provider.path, docs, templates, dynamic, trees, provider) // TODO - add template and config
+      new DocumentTree(provider.path, docs, templates, dynamic, Nil, trees, provider)
     }
     
     collectDocuments(input)

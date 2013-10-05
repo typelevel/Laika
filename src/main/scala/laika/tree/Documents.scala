@@ -143,10 +143,12 @@ object Documents {
   }
   
   case object DocumentContext {
-    def apply (document: Document) = {
-      val tree = new DocumentTree(Root, Seq(document), Nil, Nil, Nil, InputProvider.empty(Root))
+    def apply (document: Document): DocumentContext = {
+      val tree = new DocumentTree(Root, Seq(document), Nil, Nil, Nil, Nil, InputProvider.empty(Root))
       new DocumentContext(document, tree, tree)
     }
+    def apply (path: Path, parent: DocumentTree, root: DocumentTree): DocumentContext 
+      = DocumentContext(new Document(path, Nil, DocumentInfo(), RootElement(Nil)), parent, root)
   }
   
   sealed abstract class DocumentType
@@ -184,8 +186,9 @@ object Documents {
   
   class DocumentTree (val path:Path, 
                       val documents: Seq[Document], 
-                      val templates: Seq[TemplateDocument], 
-                      val dynamicDocuments: Seq[TemplateDocument], 
+                      private[Documents] val templates: Seq[TemplateDocument], 
+                      private[Documents] val dynamicTemplates: Seq[TemplateDocument], 
+                      val dynamicDocuments: Seq[Document], 
                       val subtrees: Seq[DocumentTree] = Nil, 
                       private[Documents] val inputs: InputProvider) {
     
@@ -236,8 +239,10 @@ object Documents {
     
     private def rewrite (customRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]], root: DocumentTree): DocumentTree = {
       val docs = documents map (doc => doc.rewrite(customRules map (_(DocumentContext(doc, this, root))))) // TODO - context is not getting passed down
+      val emptyContext = DocumentContext(path / "<empty>", this, root)
+      val dynamicDocs = dynamicTemplates map (doc => doc.rewrite(emptyContext))
       val trees = subtrees map (_.rewrite(customRules, root))
-      new DocumentTree(path, docs, Nil, Nil, trees, inputs)  
+      new DocumentTree(path, docs, Nil, Nil, dynamicDocs, trees, inputs)  
     }
   }
   
