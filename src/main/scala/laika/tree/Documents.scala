@@ -70,9 +70,9 @@ object Documents {
      
     def rewrite (customRule: PartialFunction[Element,Option[Element]]): Document = rewrite(List(customRule))
     
-    def rewrite (customRules: Seq[PartialFunction[Element,Option[Element]]]): Document = {
+    def rewrite (customRules: Seq[PartialFunction[Element,Option[Element]]]): Document = rewrite(customRules, DocumentContext(this))
       
-      val context = DocumentContext(this)
+    private[Documents] def rewrite (customRules: Seq[PartialFunction[Element,Option[Element]]], context: DocumentContext): Document = {
       
       val resolvedRules = (defaultRules map { _(context) })      
       
@@ -238,7 +238,10 @@ object Documents {
     def rewrite (customRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]]): DocumentTree = rewrite(customRules, this)
     
     private def rewrite (customRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]], root: DocumentTree): DocumentTree = {
-      val docs = documents map (doc => doc.rewrite(customRules map (_(DocumentContext(doc, this, root))))) // TODO - context is not getting passed down
+      val docs = documents map (doc => { 
+        val context = DocumentContext(doc, this, root)
+        doc.rewrite(customRules map (_(context)), context)
+      })
       val emptyContext = DocumentContext(path / "<empty>", this, root)
       val dynamicDocs = dynamicTemplates map (doc => doc.rewrite(emptyContext))
       val trees = subtrees map (_.rewrite(customRules, root))
