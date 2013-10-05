@@ -104,7 +104,7 @@ object Documents {
   
   case class DocumentInfo (/* TODO - define */)
   
-  case class DocumentContext (document: Document, parent: DocumentTree, root: DocumentTree) {
+  class DocumentContext private (val document: Document, val parent: DocumentTree, val root: DocumentTree, baseConfig: Option[Config] = None) {
     
     lazy val parents = {
       @tailrec def collect (path: Path, acc: List[DocumentTree]): Seq[DocumentTree] = {
@@ -122,7 +122,10 @@ object Documents {
       tree.config.map(c => config.withFallback(c)).getOrElse(config)
     }).resolve
     
-    lazy val config = mergeTreeConfigs(template map (t => document.config.withFallback(t.config)) getOrElse document.config)
+    lazy val config = {
+      val base = baseConfig getOrElse (template map (t => document.config.withFallback(t.config)) getOrElse document.config)
+      mergeTreeConfigs(base)
+    }
       
     lazy val template = {
       val tempConf = mergeTreeConfigs(document.config)
@@ -143,12 +146,17 @@ object Documents {
   }
   
   case object DocumentContext {
+    
     def apply (document: Document): DocumentContext = {
       val tree = new DocumentTree(Root, Seq(document), Nil, Nil, Nil, Nil, InputProvider.empty(Root))
       new DocumentContext(document, tree, tree)
     }
-    def apply (path: Path, parent: DocumentTree, root: DocumentTree): DocumentContext 
-      = DocumentContext(new Document(path, Nil, DocumentInfo(), RootElement(Nil)), parent, root)
+    
+    def apply (document: Document, parent: DocumentTree, root: DocumentTree): DocumentContext 
+      = new DocumentContext(document, parent, root)
+    
+    def apply (path: Path, parent: DocumentTree, root: DocumentTree, config: Config): DocumentContext 
+      = new DocumentContext(new Document(path, Nil, DocumentInfo(), RootElement(Nil)), parent, root, Some(config))
   }
   
   sealed abstract class DocumentType
@@ -242,8 +250,10 @@ object Documents {
         val context = DocumentContext(doc, this, root)
         doc.rewrite(customRules map (_(context)), context)
       })
-      val emptyContext = DocumentContext(path / "<empty>", this, root)
-      val dynamicDocs = dynamicTemplates map (doc => doc.rewrite(emptyContext))
+      val dynamicDocs = dynamicTemplates map (doc => {
+        val context = DocumentContext(path / "<empty>", this, root, doc.config)
+        doc.rewrite(context)
+      })
       val trees = subtrees map (_.rewrite(customRules, root))
       new DocumentTree(path, docs, Nil, Nil, dynamicDocs, trees, inputs)  
     }
