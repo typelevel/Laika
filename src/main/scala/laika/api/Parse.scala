@@ -26,6 +26,7 @@ import laika.io.Input
 import laika.io.InputProvider
 import laika.tree.Documents._
 import laika.tree.Templates.TemplateDocument
+import com.typesafe.config.ConfigFactory
   
 /** API for performing a parse operation from various types of input to obtain
  *  a document tree without a subsequent render operation. 
@@ -97,6 +98,11 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
   
   def fromTree (input: InputProvider) = {
     
+    class TreeConfig (input: Input) {
+      val config = ConfigFactory.parseReader(input.asReader) // TODO - check Config libs error handling
+      val path = input.path
+    }
+    
     type Operation[T] = () => (DocumentType, T)
 
     val templateParser = laika.template.Template // TODO - should be pluggable - maybe rename Template to ParseTemplate
@@ -105,6 +111,7 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
     
     def parseTemplate (docType: DocumentType)(input: Input): Operation[TemplateDocument] = () => (docType, IO(input)(templateParser.fromInput(_)))
     
+    def parseConfig (input: Input): Operation[TreeConfig] = () => (Config, new TreeConfig(input)) 
     
     def collectOperations[T] (provider: InputProvider, f: InputProvider => Seq[Operation[T]]): Seq[Operation[T]] =
       f(provider) ++ (input.subtrees map (collectOperations(_,f))).flatten
@@ -112,7 +119,8 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
     // TODO - alternatively create Map here (do benchmarks)
     val operations = collectOperations(input, _.markupDocuments.map(parseMarkup)) ++
                      collectOperations(input, _.templates.map(parseTemplate(Template))) ++
-                     collectOperations(input, _.dynamicDocuments.map(parseTemplate(Dynamic)))
+                     collectOperations(input, _.dynamicDocuments.map(parseTemplate(Dynamic))) ++
+                     collectOperations(input, _.configDocuments.find(_.path.name == "default.conf").toList.map(parseConfig)) // TODO - filename could be configurable
     
     val results = operations map (_()) // TODO - these steps can optionally run in parallel
     
@@ -124,12 +132,17 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
       case (docType, doc: TemplateDocument) => ((docType, doc.path), doc)
     }) toMap
     
+    val configMap = (results collect {
+      case (Config, config: TreeConfig) => (config.path, config)
+    }) toMap
+    
     def collectDocuments (provider: InputProvider): DocumentTree = {
       val docs = provider.markupDocuments map (i => docMap(i.path))
       val templates = provider.templates map (i => templateMap((Template,i.path)))
       val dynamic = provider.dynamicDocuments map (i => templateMap((Dynamic,i.path)))
+      val config = provider.configDocuments.find(_.path.name == "default.conf").map(i => configMap(i.path).config)
       val trees = provider.subtrees map (collectDocuments)
-      new DocumentTree(provider.path, docs, templates, dynamic, Nil, trees, provider)
+      new DocumentTree(provider.path, docs, templates, dynamic, Nil, trees, config)
     }
     
     collectDocuments(input)

@@ -136,7 +136,7 @@ object Documents {
         tree flatMap (_.templates.find(_.path.name == path.name))
       }
       else {
-        val filename = "default.template.html" // TODO - could be configurable
+        val filename = "default.template.html" // TODO - should be configurable and suffix dependent on renderer
         parents collectFirst {
           case tree if tree.templates.exists(_.path.name == filename) => tree.templates.find(_.path.name == filename).get
         }
@@ -148,7 +148,7 @@ object Documents {
   case object DocumentContext {
     
     def apply (document: Document): DocumentContext = {
-      val tree = new DocumentTree(Root, Seq(document), Nil, Nil, Nil, Nil, InputProvider.empty(Root))
+      val tree = new DocumentTree(Root, Seq(document))
       new DocumentContext(document, tree, tree)
     }
     
@@ -194,11 +194,11 @@ object Documents {
   
   class DocumentTree (val path:Path, 
                       val documents: Seq[Document], 
-                      private[Documents] val templates: Seq[TemplateDocument], 
-                      private[Documents] val dynamicTemplates: Seq[TemplateDocument], 
-                      val dynamicDocuments: Seq[Document], 
+                      private[Documents] val templates: Seq[TemplateDocument] = Nil, 
+                      private[Documents] val dynamicTemplates: Seq[TemplateDocument] = Nil, 
+                      val dynamicDocuments: Seq[Document] = Nil, 
                       val subtrees: Seq[DocumentTree] = Nil, 
-                      private[Documents] val inputs: InputProvider) {
+                      private[Documents] val config: Option[Config] = None) {
     
     val name = path.name
     
@@ -232,11 +232,6 @@ object Documents {
       }).toMap
     }
     
-    lazy val config = {
-      val input = inputs.configDocuments.find(_.path.name == "default.conf") // TODO - could be configurable
-      input.map(i => ConfigFactory.parseReader(i.asReader)) // TODO - check Config libs error handling
-    }
-    
     def selectTarget (selector: Selector) = targets.get(selector)
     
     def rewrite: DocumentTree = rewrite(Nil, this)
@@ -255,7 +250,7 @@ object Documents {
         doc.rewrite(context)
       })
       val trees = subtrees map (_.rewrite(customRules, root))
-      new DocumentTree(path, docs, Nil, Nil, dynamicDocs, trees, inputs)  
+      new DocumentTree(path, docs, Nil, Nil, dynamicDocs, trees)  
     }
   }
   
