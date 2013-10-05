@@ -27,6 +27,7 @@ import laika.io.InputProvider
 import laika.tree.Documents._
 import laika.tree.Templates.TemplateDocument
 import com.typesafe.config.ConfigFactory
+import com.typesafe.config.ConfigParseOptions
   
 /** API for performing a parse operation from various types of input to obtain
  *  a document tree without a subsequent render operation. 
@@ -99,7 +100,7 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
   def fromTree (input: InputProvider) = {
     
     class TreeConfig (input: Input) {
-      val config = ConfigFactory.parseReader(input.asReader) // TODO - check Config libs error handling
+      val config = ConfigFactory.parseReader(input.asReader, ConfigParseOptions.defaults().setOriginDescription("path:"+input.path)) // TODO - error handling, in particular for parallel processing
       val path = input.path
     }
     

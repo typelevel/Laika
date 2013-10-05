@@ -130,10 +130,12 @@ object Documents {
     lazy val template = {
       val tempConf = mergeTreeConfigs(document.config)
       if (tempConf.hasPath("template")) {
-        val filename = tempConf.getString("template")
-        val path = Path(filename) // TODO - build path relative to config origin
-        val tree = root.selectSubtree(path.parent)
-        tree flatMap (_.templates.find(_.path.name == path.name))
+        val value = tempConf.getValue("template")
+        val desc = value.origin().description()
+        val basePath = if (desc.startsWith("path:")) Path(desc.take(desc.lastIndexOf(":")).drop(5)) else Root
+        val templatePath = Path(value.unwrapped().toString)
+        val tree = root.selectSubtree(basePath / templatePath.parent)
+        tree flatMap (_.templates.find(_.path.name == templatePath.name)) // TODO - error handling when template not found
       }
       else {
         val filename = "default.template.html" // TODO - should be configurable and suffix dependent on renderer
