@@ -82,14 +82,5 @@ object InputProvider {
     new DirectoryInputProvider(root, Root, docTypeMatcher)
   }
   
-  def empty (p: Path): InputProvider = new InputProvider {
-    val path = p
-    val configDocuments = Nil
-    val markupDocuments = Nil
-    val dynamicDocuments = Nil
-    val staticDocuments = Nil
-    val templates = Nil
-    val subtrees = Nil
-  } 
   
 }
