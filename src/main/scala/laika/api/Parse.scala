@@ -16,18 +16,16 @@
 
 package laika.api
 
-import java.io.Closeable
+import java.io.File
 import java.io.InputStream
 import java.io.Reader
 import scala.io.Codec
+import laika.factory.ParserFactory
 import laika.io.IO
 import laika.io.Input
-import laika.tree.RewriteRules
-import java.io.File
 import laika.io.InputProvider
-import laika.tree.Documents.Document
-import laika.tree.Documents.DocumentTree
-import laika.factory.ParserFactory
+import laika.tree.Documents._
+import laika.tree.Templates.TemplateDocument
   
 /** API for performing a parse operation from various types of input to obtain
  *  a document tree without a subsequent render operation. 
@@ -96,21 +94,42 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
   
   // TODO - add fromDirectory, fromDefaultDirectories, fromRootDirectory, Codec and parallelization hooks
   
+  
   def fromTree (input: InputProvider) = {
     
-    def collectInputs (provider: InputProvider): Seq[Input] =
-      provider.markupDocuments ++ (input.subtrees map collectInputs).flatten
+    type Operation[T] = () => (DocumentType, T)
+
+    val templateParser = laika.template.Template // TODO - should be pluggable - maybe rename Template to ParseTemplate
     
-    val inputs = collectInputs(input) // TODO - alternatively create Map here (do benchmarks)
+    def parseMarkup (input: Input): Operation[Document] = () => (Markup, IO(input)(parse))
     
-    val documents = inputs map fromInput // TODO - this step can optionally run in parallel
+    def parseTemplate (docType: DocumentType)(input: Input): Operation[TemplateDocument] = () => (docType, IO(input)(templateParser.fromInput(_)))
     
-    val docMap = documents map (doc => (doc.path, doc)) toMap
+    
+    def collectOperations[T] (provider: InputProvider, f: InputProvider => Seq[Operation[T]]): Seq[Operation[T]] =
+      f(provider) ++ (input.subtrees map (collectOperations(_,f))).flatten
+    
+    // TODO - alternatively create Map here (do benchmarks)
+    val operations = collectOperations(input, _.markupDocuments.map(parseMarkup)) ++
+                     collectOperations(input, _.templates.map(parseTemplate(Template))) ++
+                     collectOperations(input, _.dynamicDocuments.map(parseTemplate(Dynamic)))
+    
+    val results = operations map (_()) // TODO - these steps can optionally run in parallel
+    
+    val docMap = (results collect {
+      case (Markup, doc: Document) => (doc.path, doc)
+    }) toMap
+    
+    val templateMap = (results collect {
+      case (docType, doc: TemplateDocument) => ((docType, doc.path), doc)
+    }) toMap
     
     def collectDocuments (provider: InputProvider): DocumentTree = {
       val docs = provider.markupDocuments map (i => docMap(i.path))
+      val templates = provider.templates map (i => templateMap((Template,i.path)))
+      val dynamic = provider.dynamicDocuments map (i => templateMap((Dynamic,i.path)))
       val trees = provider.subtrees map (collectDocuments)
-      new DocumentTree(provider.path, docs, trees, provider) // TODO - add template and config
+      new DocumentTree(provider.path, docs, templates, dynamic, trees, provider) // TODO - add template and config
     }
     
     collectDocuments(input)

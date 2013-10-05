@@ -24,6 +24,7 @@ import scala.annotation.tailrec
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import laika.io.InputProvider
+import laika.io.Input
 
 /** 
  *  @author Jens Halm
@@ -81,7 +82,7 @@ object Documents {
       
       val newDoc = withRewrittenContent(newRoot)
       
-      context.template map (_.rewrite(DocumentContext(newDoc))) getOrElse newDoc // TODO - ensure template only gets applied once
+      context.template map (_.rewrite(DocumentContext(newDoc))) getOrElse newDoc
     }
     
     def withRewrittenContent (newContent: RootElement): Document = new Document(path, title, info, newContent, config) {
@@ -125,26 +126,25 @@ object Documents {
       
     lazy val template = {
       val tempConf = mergeTreeConfigs(document.config)
-      val input = if (tempConf.hasPath("template")) {
+      if (tempConf.hasPath("template")) {
         val filename = tempConf.getString("template")
         val path = Path(filename) // TODO - build path relative to config origin
         val tree = root.selectSubtree(path.parent)
-        tree flatMap (_.inputs.templates.find(_.path.name == path.name))
+        tree flatMap (_.templates.find(_.path.name == path.name))
       }
       else {
         val filename = "default.template.html" // TODO - could be configurable
         parents collectFirst {
-          case tree if tree.inputs.templates.exists(_.path.name == filename) => tree.inputs.templates.find(_.path.name == filename).get
+          case tree if tree.templates.exists(_.path.name == filename) => tree.templates.find(_.path.name == filename).get
         }
       }
-      input map (laika.template.Template.fromInput(_)) // TODO - template parser should be configurable
     }
     
   }
   
   case object DocumentContext {
     def apply (document: Document) = {
-      val tree = new DocumentTree(Root, Seq(document), Nil, InputProvider.empty(Root))
+      val tree = new DocumentTree(Root, Seq(document), Nil, Nil, Nil, InputProvider.empty(Root))
       new DocumentContext(document, tree, tree)
     }
   }
@@ -184,6 +184,8 @@ object Documents {
   
   class DocumentTree (val path:Path, 
                       val documents: Seq[Document], 
+                      val templates: Seq[TemplateDocument], 
+                      val dynamicDocuments: Seq[TemplateDocument], 
                       val subtrees: Seq[DocumentTree] = Nil, 
                       private[Documents] val inputs: InputProvider) {
     
@@ -235,7 +237,7 @@ object Documents {
     private def rewrite (customRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]], root: DocumentTree): DocumentTree = {
       val docs = documents map (doc => doc.rewrite(customRules map (_(DocumentContext(doc, this, root))))) // TODO - context is not getting passed down
       val trees = subtrees map (_.rewrite(customRules, root))
-      new DocumentTree(path, docs, trees, inputs)  
+      new DocumentTree(path, docs, Nil, Nil, trees, inputs)  
     }
   }
   
