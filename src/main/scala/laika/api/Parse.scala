@@ -147,7 +147,8 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
       new DocumentTree(provider.path, docs, templates, dynamic, Nil, static, trees, config)
     }
     
-    collectDocuments(input)
+    val tree = collectDocuments(input)
+    if (rewrite) tree.rewrite else tree
   }
   
   
