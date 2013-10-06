@@ -262,6 +262,7 @@ object Documents {
     def name: String
     def prefix: PathPrefix
     def components: List[String]
+    def isAbsolute = prefix == Root
     def / (name: String) = new /(this, name)
     def / (path: Path): Path = path.prefix match {  
       case Root => path
@@ -269,11 +270,15 @@ object Documents {
       case Parent(1) => parent / Path(Current, path.components)
       case Parent(i) => parent / Path(Parent(i-1), path.components)
     }
+    def suffix = ""
+    def basename = name
   }
  
   case class / (parent: Path, name: String) extends Path {
     lazy val components: List[String] = parent.components ++ List(name)
     lazy val prefix = parent.prefix
+    override lazy val basename = if (name.contains('.')) name.take(name.lastIndexOf(".")) else name
+    override lazy val suffix = if (name.contains('.')) name.drop(name.lastIndexOf(".")+1) else ""
     override lazy val toString = components mkString "/"
   }
   
