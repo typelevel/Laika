@@ -122,7 +122,7 @@ object Input {
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
   def fromFile (name: String)(implicit codec: Codec): Input with Binary with Closeable 
-    = new AutocloseStreamInput(new FileInputStream(name), Path(stripSuffix(name)), codec)
+    = new AutocloseStreamInput(new FileInputStream(name), Path(name), codec)
   
   /** Creates a new Input instance for the specified file.
    *  
@@ -130,15 +130,11 @@ object Input {
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
   def fromFile (file: File)(implicit codec: Codec): Input with Binary with Closeable 
-    = new AutocloseStreamInput(new FileInputStream(file), Path(stripSuffix(file.getName)), codec)
+    = new AutocloseStreamInput(new FileInputStream(file), Path(file.getName), codec)
   
   def fromFile (file: File, virtualPath: Path)(implicit codec: Codec): Input with Binary with Closeable 
-    = new AutocloseStreamInput(new FileInputStream(file), virtualPath / stripSuffix(file.getName), codec)
+    = new AutocloseStreamInput(new FileInputStream(file), virtualPath / file.getName, codec)
   
-  private def stripSuffix (filename: String) = filename.lastIndexOf(".") match {
-    case -1    => filename
-    case index => filename.substring(0, index)
-  }  
   
   /** Creates a new Input instance for the specified InputStream.
    *  

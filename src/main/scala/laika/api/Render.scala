@@ -134,7 +134,7 @@ class Render[W] private (factory: RendererFactory[W],
       type Operation = () => Unit
       
       def render (provider: OutputProvider)(doc: Document): Operation 
-        = () => from(doc.content).toOutput(provider.newOutput(doc.name +"."+ factory.fileSuffix))
+        = () => from(doc.content).toOutput(provider.newOutput(doc.path.basename +"."+ factory.fileSuffix))
         
       def copy (provider: OutputProvider)(input: Input): Operation 
         = () => IO.copy(input, provider.newOutput(input.path.name)) // TODO - allow to skip unmodified files or the entire copy step (configurable)
