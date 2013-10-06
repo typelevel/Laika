@@ -65,6 +65,10 @@ trait Output {
  */
 object Output {
   
+  trait Binary {
+    def asBinaryOutput: BinaryOutput
+  }
+  
   /** A sub-trait for binary output which can only be created
    *  from a stream or a file, not from a `java.io.Writer` instance
    *  or from a `StringBuilder`.
@@ -72,12 +76,17 @@ object Output {
    *  Most renderers write character data, but formats like PDF
    *  would require a binary stream to write to.
    */
-  trait BinaryOutput extends Output {
+  trait BinaryOutput {
   
     /** The output as a `java.io.OutputStream`. Should only be used
      *  by renderers that do not produce character data.
      */
     def asStream: OutputStream
+    
+    /** Flushes this output, forcing all buffered output
+     *  to be written, without closing the underlying writer or stream.
+     */
+    def flush (): Unit = ()
     
   }
   
@@ -96,9 +105,14 @@ object Output {
     override def flush = asWriter flush
   }
   
-  private class StreamOutput (val asStream: OutputStream, codec: Codec) extends BinaryOutput {
+  private class StreamOutput (stream: OutputStream, codec: Codec) extends Output with Binary {
    
-    val asWriter = new BufferedWriter(new OutputStreamWriter(asStream, codec.encoder))
+    def asBinaryOutput: BinaryOutput = new BinaryOutput {
+      val asStream = stream
+      override def flush = stream flush
+    }
+    
+    lazy val asWriter = new BufferedWriter(new OutputStreamWriter(stream, codec.encoder))
     
     val asFunction = asWriter.write(_:String)
     
@@ -106,8 +120,14 @@ object Output {
     
   }
   
-  private class AutocloseStreamOutput (s: OutputStream, c: Codec) extends StreamOutput(s,c) with Closeable {
+  private class AutocloseStreamOutput (stream: OutputStream, codec: Codec) extends StreamOutput(stream,codec) with Closeable {
 
+    override def asBinaryOutput: BinaryOutput = new BinaryOutput with Closeable {
+      val asStream = stream
+      override def flush = stream flush
+      def close = stream close
+    }
+    
     def close = asWriter close
     
   }
@@ -117,21 +137,21 @@ object Output {
    *  @param name the name of the file
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
-  def toFile (name: String)(implicit codec: Codec): BinaryOutput with Closeable = new AutocloseStreamOutput(new FileOutputStream(name), codec)
+  def toFile (name: String)(implicit codec: Codec): Output with Binary with Closeable = new AutocloseStreamOutput(new FileOutputStream(name), codec)
   
   /** Creates a new Output instance for the specified file.
    *  
    *  @param file the file to use as output
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
-  def toFile (file: File)(implicit codec: Codec): BinaryOutput with Closeable = new AutocloseStreamOutput(new FileOutputStream(file), codec)
+  def toFile (file: File)(implicit codec: Codec): Output with Binary with Closeable = new AutocloseStreamOutput(new FileOutputStream(file), codec)
 
   /** Creates a new Output instance for the specified OutputStream.
    *  
    *  @param stream the stream to write to
    *  @param codec the character encoding to use for producing the bytes, if not specified the platform default will be used.
    */
-  def toStream (stream: OutputStream)(implicit codec: Codec): BinaryOutput = new StreamOutput(stream, codec)
+  def toStream (stream: OutputStream)(implicit codec: Codec): Output with Binary = new StreamOutput(stream, codec)
 
   /** Creates a new Output instance for the specified Writer.
    */

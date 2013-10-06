@@ -61,6 +61,20 @@ trait Input {
  */
 object Input {
   
+  trait Binary {
+    def asBinaryInput: BinaryInput
+  }
+  
+  /** A sub-trait for binary input which can only be created
+   *  from a stream or a file, not from a `java.io.Reader` instance
+   *  or from a `String`.
+   */
+  trait BinaryInput {
+  
+    def asStream: InputStream
+    
+  }
+  
   private class StringInput (source: String, val path: Path) extends Input {
     
     def asReader = new StringReader(source)
@@ -75,7 +89,24 @@ object Input {
 
   }
   
-  private class AutocloseReaderInput (r: java.io.Reader, p: Path) extends ReaderInput(r,p) with Closeable {
+  private class StreamInput (stream: InputStream, val path: Path, codec: Codec) extends Input with Binary {
+   
+    def asBinaryInput: BinaryInput = new BinaryInput {
+      val asStream = stream
+    }
+    
+    def asParserInput = new PagedSeqReader(PagedSeq.fromReader(asReader))
+    
+    lazy val asReader = new BufferedReader(new InputStreamReader(stream, codec.decoder))
+    
+  }
+  
+  private class AutocloseStreamInput (stream: InputStream, p: Path, codec: Codec) extends StreamInput(stream,p,codec) with Closeable {
+    
+    override def asBinaryInput: BinaryInput = new BinaryInput with Closeable {
+      val asStream = stream
+      def close = stream close
+    }
     
     def close = asReader.close
     
@@ -90,19 +121,19 @@ object Input {
    *  @param name the name of the file
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
-  def fromFile (name: String)(implicit codec: Codec): Input with Closeable 
-    = new AutocloseReaderInput(newReader(new FileInputStream(name), codec), Path(stripSuffix(name)))
+  def fromFile (name: String)(implicit codec: Codec): Input with Binary with Closeable 
+    = new AutocloseStreamInput(new FileInputStream(name), Path(stripSuffix(name)), codec)
   
   /** Creates a new Input instance for the specified file.
    *  
    *  @param file the file to use as input
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
-  def fromFile (file: File)(implicit codec: Codec): Input with Closeable 
-    = new AutocloseReaderInput(newReader(new FileInputStream(file), codec), Path(stripSuffix(file.getName)))
+  def fromFile (file: File)(implicit codec: Codec): Input with Binary with Closeable 
+    = new AutocloseStreamInput(new FileInputStream(file), Path(stripSuffix(file.getName)), codec)
   
-  def fromFile (file: File, virtualPath: Path)(implicit codec: Codec): Input with Closeable 
-    = new AutocloseReaderInput(newReader(new FileInputStream(file), codec), virtualPath / stripSuffix(file.getName))
+  def fromFile (file: File, virtualPath: Path)(implicit codec: Codec): Input with Binary with Closeable 
+    = new AutocloseStreamInput(new FileInputStream(file), virtualPath / stripSuffix(file.getName), codec)
   
   private def stripSuffix (filename: String) = filename.lastIndexOf(".") match {
     case -1    => filename
@@ -115,13 +146,11 @@ object Input {
    *  @param name the name of the input source
    *  @param codec the character encoding used by the text input, if not specified the platform default will be used.
    */
-  def fromStream (stream: InputStream, path: Path = Root)(implicit codec: Codec): Input = fromReader(newReader(stream, codec.decoder), path)
+  def fromStream (stream: InputStream, path: Path = Root)(implicit codec: Codec): Input with Binary = new StreamInput(stream, path, codec)
   
   /** Creates a new Input instance for the specified Reader.
    */
   def fromReader (reader: java.io.Reader, path: Path = Root): Input = new ReaderInput(reader, path)
-  
-  private def newReader (stream: InputStream, codec: Codec) = new BufferedReader(new InputStreamReader(stream, codec.decoder))
   
   
 }
