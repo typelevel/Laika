@@ -199,6 +199,7 @@ object Documents {
                       private[Documents] val templates: Seq[TemplateDocument] = Nil, 
                       private[Documents] val dynamicTemplates: Seq[TemplateDocument] = Nil, 
                       val dynamicDocuments: Seq[Document] = Nil, 
+                      val staticDocuments: Seq[Input] = Nil,
                       val subtrees: Seq[DocumentTree] = Nil, 
                       private[Documents] val config: Option[Config] = None) {
     
@@ -252,7 +253,7 @@ object Documents {
         doc.rewrite(context)
       })
       val trees = subtrees map (_.rewrite(customRules, root))
-      new DocumentTree(path, docs, Nil, Nil, dynamicDocs, trees)  
+      new DocumentTree(path, docs, Nil, Nil, dynamicDocs, staticDocuments, trees)  
     }
   }
   

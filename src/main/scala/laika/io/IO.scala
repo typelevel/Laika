@@ -16,7 +16,7 @@
 
 package laika.io
   
-import java.io.Closeable
+import java.io._
 
 /**
  * A simple helper object that manages a resource, automatically closing it after
@@ -37,5 +37,37 @@ object IO {
     case c: Closeable => try f(resource) finally c.close
     case _ => f(resource)
   }
+  
+  
+  def copy (input: InputStream, output: OutputStream): Unit = (input, output) match {
+    case (in: FileInputStream, out: FileOutputStream) =>
+      in.getChannel().transferTo(0, Integer.MAX_VALUE, out.getChannel());
+    case _ => {
+      val buffer = new Array[Byte](8192)
+      Iterator.continually(input.read(buffer))
+        .takeWhile(_ != -1)
+        .foreach { output.write(buffer, 0 , _) }
+    }
+  }
+
+  def copy (input: Reader, output: Writer): Unit = {
+    val buffer = new Array[Char](8192)
+    Iterator.continually(input.read(buffer))
+      .takeWhile(_ != -1)
+      .foreach { output.write(buffer, 0 , _) }
+  }
+  
+  
+  def copy (input: Input, output: Output): Unit = {
+    (input, output) match {
+      case (in: Input.Binary, out: Output.Binary) => {
+        val binaryIn = in.asBinaryInput
+        val binaryOut = out.asBinaryOutput
+        apply(binaryIn) { in => apply(binaryOut) { out => copy(in.asStream, out.asStream) } }
+      }
+      case _ => apply(input) { in => apply(output) { out => copy(in.asReader, out.asWriter) } }
+    }
+  }
+  
   
 }

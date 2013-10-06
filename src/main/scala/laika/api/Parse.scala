@@ -123,7 +123,7 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
                      collectOperations(input, _.dynamicDocuments.map(parseTemplate(Dynamic))) ++
                      collectOperations(input, _.configDocuments.find(_.path.name == "default.conf").toList.map(parseConfig)) // TODO - filename could be configurable
     
-    val results = operations map (_()) // TODO - these steps can optionally run in parallel
+    val results = operations map (_()) // TODO - this steps can optionally run in parallel
     
     val docMap = (results collect {
       case (Markup, doc: Document) => (doc.path, doc)
@@ -142,8 +142,9 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
       val templates = provider.templates map (i => templateMap((Template,i.path)))
       val dynamic = provider.dynamicDocuments map (i => templateMap((Dynamic,i.path)))
       val config = provider.configDocuments.find(_.path.name == "default.conf").map(i => configMap(i.path).config)
+      val static = provider.staticDocuments
       val trees = provider.subtrees map (collectDocuments)
-      new DocumentTree(provider.path, docs, templates, dynamic, Nil, trees, config)
+      new DocumentTree(provider.path, docs, templates, dynamic, Nil, static, trees, config)
     }
     
     collectDocuments(input)

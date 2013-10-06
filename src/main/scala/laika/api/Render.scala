@@ -27,6 +27,7 @@ import laika.tree.Elements.Element
 import laika.tree.Documents._
 import laika.io.OutputProvider
 import laika.factory.RendererFactory
+import laika.io.Input
   
 /** API for performing a render operation to various types of output using an existing
  *  document tree model. 
@@ -130,13 +131,23 @@ class Render[W] private (factory: RendererFactory[W],
 
     def toTree (provider: OutputProvider) = {
       
-      def collectOperations (tree: DocumentTree, provider: OutputProvider): Seq[(Document,Output)] =
-          (tree.documents map { doc:Document => (doc, provider.newOutput(doc.name +"."+ factory.fileSuffix)) }) ++ 
-            (tree.subtrees map { tree => collectOperations(tree, provider.newChild(tree.name)) }).flatten
+      type Operation = () => Unit
+      
+      def render (provider: OutputProvider)(doc: Document): Operation 
+        = () => from(doc.content).toOutput(provider.newOutput(doc.name +"."+ factory.fileSuffix))
+        
+      def copy (provider: OutputProvider)(input: Input): Operation 
+        = () => IO.copy(input, provider.newOutput(input.path.name)) // TODO - allow to skip unmodified files or the entire copy step (configurable)
+      
+      def collectOperations (tree: DocumentTree, provider: OutputProvider): Seq[Operation] =
+          (tree.documents map render(provider)) ++ 
+          (tree.dynamicDocuments map render(provider)) ++ 
+          (tree.staticDocuments map copy(provider)) ++
+          (tree.subtrees map { tree => collectOperations(tree, provider.newChild(tree.name)) }).flatten
     
       val operations = collectOperations(tree, provider)
       
-      operations foreach { case (doc, output) => from(doc.content).toOutput(output) } // TODO - this step can optionally run in parallel
+      operations foreach (_()) // TODO - this step can optionally run in parallel
     }
     
   }
