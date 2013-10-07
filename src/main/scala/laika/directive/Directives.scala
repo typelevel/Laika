@@ -19,6 +19,7 @@ package laika.directive
 import laika.util.Builders._
 import laika.tree.Elements._
 import laika.tree.Documents.DocumentContext
+import laika.tree.Templates.TemplateSpan
 
 /** 
  *  @author Jens Halm
@@ -209,7 +210,13 @@ object Directives {
     
   }
   
-  // TODO - add builder for template directives
+  object Templates extends BuilderContext[TemplateSpan] {
+
+    trait Parser extends (String => Seq[TemplateSpan]) {
+      def apply (source: String): Seq[TemplateSpan]
+    }
+    
+  }
   
   
 }
