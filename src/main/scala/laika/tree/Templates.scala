@@ -31,12 +31,17 @@ object Templates { // TODO - maybe move to laika.template.Elements
     def resolve (context: DocumentContext): Block
   }
   
-  trait PlaceholderSpanFactory extends Span {
+  trait PlaceholderSpanFactory extends Span { // TODO - the factories are probably not needed
     def create: PlaceholderSpan
   }
   
   trait PlaceholderBlockFactory extends Block {
     def create: PlaceholderBlock
+  }
+  
+  
+  case class ContextReference (ref: String, options: Options = NoOpt) extends TemplateSpan with PlaceholderSpan {
+    def resolve (context: DocumentContext): Span = Text(ref) // TODO - implement
   }
 
   

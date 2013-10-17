@@ -24,9 +24,10 @@ import laika.tree.Templates.TemplateDocument
  */
 class DefaultParser extends (Input => TemplateDocument) {
 
-  // TODO - directive registration
   
-  private lazy val parser = new TemplateParsers {}
+  private lazy val parser = new TemplateParsers {
+    def getTemplateDirective (name: String) = None // TODO - directive registration
+  }
 
   /** The actual parser function, fully parsing the specified input and
    *  returning a document tree.

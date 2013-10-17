@@ -20,11 +20,9 @@ import Directives._
 import laika.tree.Elements._
 import laika.util.Builders._
 import scala.collection.mutable.ListBuffer
-import laika.tree.Documents.DocumentContext
-import laika.tree.Templates.PlaceholderSpan
-import laika.tree.Templates.PlaceholderBlock
 import laika.template.TemplateParsers
-import laika.tree.Templates.TemplateElement
+import laika.tree.Documents.DocumentContext
+import laika.tree.Templates._
 
 /** 
  * @author Jens Halm
@@ -130,7 +128,7 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
 object DirectiveParsers {
   
   
-  trait TemplateDirectives extends DirectiveParsers with TemplateParsers {
+  trait TemplateDirectives extends DirectiveParsers { self: TemplateParsers =>
     
     def getTemplateDirective (name: String): Option[Templates.Directive]
     
@@ -140,9 +138,9 @@ object DirectiveParsers {
       def resolve (context: DocumentContext) = TemplateElement(f(context))
     }
     
-    lazy val spanDirective: Parser[Span] = {
+    lazy val templateDirective: Parser[TemplateSpan] = {
       val bodyContent = withSource(wsOrNl ~ '{' ~> spans(anyUntil('}'), spanParsers) <~ wsOrNl) ^^ (_._2)
-      directiveParser(bodyContent) ^^ { result => // TODO - optimization - parsed spans might be cached for DirectiveContext
+      directiveParser(bodyContent) ^^ { result => // TODO - span parsers need to omit the @ char
         
         def createContext (parts: PartMap, docContext: Option[DocumentContext]): Templates.DirectiveContext = {
           new DirectiveContextBase(parts, docContext) with Templates.DirectiveContext {
@@ -170,7 +168,7 @@ object DirectiveParsers {
     
     lazy val spanDirective: Parser[Span] = {
       val bodyContent = withSource(wsOrNl ~ '{' ~> spans(anyUntil('}'), spanParsers) <~ wsOrNl) ^^ (_._2)
-      directiveParser(bodyContent) ^^ { result => // TODO - optimization - parsed spans might be cached for DirectiveContext
+      directiveParser(bodyContent) ^^ { result => // TODO - optimization - parsed spans might be cached for DirectiveContext (applies for the other two parsers, too)
         
         def createContext (parts: PartMap, docContext: Option[DocumentContext]): Spans.DirectiveContext = {
           new DirectiveContextBase(parts, docContext) with Spans.DirectiveContext {
@@ -196,9 +194,9 @@ object DirectiveParsers {
       def resolve (context: DocumentContext) = f(context)
     }
     
-    lazy val spanDirective: Parser[Block] = {
+    lazy val blockDirective: Parser[Block] = {
       val bodyContent = withSource(wsOrNl ~ '{' ~> spans(anyUntil('}'), spanParsers) <~ wsOrNl) ^^ (_._2) // TODO - needs to be indented block
-      directiveParser(bodyContent) ^^ { result => // TODO - optimization - parsed spans might be cached for DirectiveContext
+      directiveParser(bodyContent) ^^ { result =>
         
         def createContext (parts: PartMap, docContext: Option[DocumentContext]): Blocks.DirectiveContext = {
           new DirectiveContextBase(parts, docContext) with Blocks.DirectiveContext {
