@@ -41,7 +41,12 @@ object Templates { // TODO - maybe move to laika.template.Elements
   
   
   case class ContextReference (ref: String, options: Options = NoOpt) extends TemplateSpan with PlaceholderSpan {
-    def resolve (context: DocumentContext): Span = Text(ref) // TODO - implement
+    def resolve (context: DocumentContext): Span = context.resolveReference(ref) match {
+      case Some(s: Span)    => s
+      case Some(e: Element) => TemplateElement(e)
+      case Some(other)      => Text(other.toString)
+      case None             => Text("")
+    }
   }
 
   
