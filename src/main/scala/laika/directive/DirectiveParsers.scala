@@ -38,11 +38,6 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
   }
   
   
-  def escapedUntil (char: Char) = escapedText(anyUntil(char) min 1)
-
-  def escapedText (p: TextParser) = text(p, Map('\\' -> (any take 1))) // TODO - should be promoted to generic inline parser (after which this trait only needs to extend MarkupParsers)
-  
-  
   case class Part (key: Key, content: String)
 
   case class ParsedDirective (name: String, parts: List[Part])
@@ -52,13 +47,18 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
   
   lazy val wsOrNl = anyOf(' ','\t', '\n')
   
-  lazy val refName: Parser[String] = (anyIn('a' to 'z', 'A' to 'Z') take 1) ~ 
+  lazy val nameDecl: Parser[String] = (anyIn('a' to 'z', 'A' to 'Z') take 1) ~ 
     anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '-', '_') ^^ { case first ~ rest => first + rest }
   
   
-  lazy val attrName: Parser[String] = refName <~ wsOrNl ~ '=' ~ wsOrNl
+  lazy val attrName: Parser[String] = nameDecl <~ wsOrNl ~ '=' ~ wsOrNl
       
-  lazy val attrValue: Parser[String] = anyBut(' ','\t','\n','.',':') | '"' ~> escapedUntil('"') 
+  lazy val attrValue: Parser[String] = {
+    def escapedUntil (char: Char) = escapedText(anyUntil(char) min 1)
+    def escapedText (p: TextParser) = text(p, Map('\\' -> (any take 1))) // TODO - should be promoted to generic inline parser (after which this trait only needs to extend MarkupParsers)
+    
+    anyBut(' ','\t','\n','.',':') | '"' ~> escapedUntil('"') 
+  }
 
   lazy val defaultAttribute: Parser[Part] = not(attrName) ~> attrValue ^^ { Part(Attribute(Default), _) }
 
@@ -66,11 +66,11 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
  
 
   lazy val declaration: Parser[(String, List[Part])] 
-    = ("@" ~> refName <~ wsOrNl) ~ opt(defaultAttribute <~ wsOrNl) ~ ((wsOrNl ~> attribute)*) <~ ws ^^ 
+    = ("@" ~> nameDecl <~ wsOrNl) ~ opt(defaultAttribute <~ wsOrNl) ~ ((wsOrNl ~> attribute)*) <~ ws ^^ 
       { case name ~ defAttr ~ attrs => (name, defAttr.toList ::: attrs) }
 
   
-  lazy val bodyName: Parser[String] = '~' ~> refName <~ ws ~ ':'
+  lazy val bodyName: Parser[String] = '~' ~> nameDecl <~ ws ~ ':'
   
   lazy val noBody = '.' ^^^ List[Part]()
   
@@ -138,7 +138,7 @@ object DirectiveParsers {
       def resolve (context: DocumentContext) = TemplateElement(f(context))
     }
     
-    lazy val templateDirective: Parser[TemplateSpan] = {
+    lazy val templateDirectiveParser: Parser[TemplateSpan] = {
       val bodyContent = withSource(wsOrNl ~ '{' ~> spans(anyUntil('}'), spanParsers) <~ wsOrNl) ^^ (_._2)
       directiveParser(bodyContent) ^^ { result => // TODO - span parsers need to omit the @ char
         
@@ -166,7 +166,7 @@ object DirectiveParsers {
       def resolve (context: DocumentContext) = f(context)
     }
     
-    lazy val spanDirective: Parser[Span] = {
+    lazy val spanDirectiveParser: Parser[Span] = {
       val bodyContent = withSource(wsOrNl ~ '{' ~> spans(anyUntil('}'), spanParsers) <~ wsOrNl) ^^ (_._2)
       directiveParser(bodyContent) ^^ { result => // TODO - optimization - parsed spans might be cached for DirectiveContext (applies for the other two parsers, too)
         
@@ -194,7 +194,7 @@ object DirectiveParsers {
       def resolve (context: DocumentContext) = f(context)
     }
     
-    lazy val blockDirective: Parser[Block] = {
+    lazy val blockDirectiveParser: Parser[Block] = {
       val bodyContent = withSource(wsOrNl ~ '{' ~> spans(anyUntil('}'), spanParsers) <~ wsOrNl) ^^ (_._2) // TODO - needs to be indented block
       directiveParser(bodyContent) ^^ { result =>
         

@@ -13,7 +13,7 @@ trait TemplateParsers extends InlineParsers with DirectiveParsers.TemplateDirect
   
   lazy val spanParsers = Map[Char, Parser[Span]](
     '{' -> (reference),    
-    '@' -> (templateDirective),
+    '@' -> (templateDirectiveParser),
     '\\'-> ((any take 1) ^^ { Text(_) })
   )
 
