@@ -67,7 +67,7 @@ trait BlockParsers extends MarkupParsers {
   
   /** Parses a full document, delegating most of the work to the `topLevelBlock` parser.
    */
-  def root: Parser[RootElement] = opt(blankLines) ~> blockList(topLevelBlock) ^^ RootElement
+  def root: Parser[RootElement] = opt(blankLines) ~> blockList(prepareBlockParser(topLevelBlock)) ^^ RootElement
   
   /** Fully parses the input from the specified reader and returns the document tree. 
    *  This function is expected to always succeed, errors would be considered a bug
@@ -76,6 +76,10 @@ trait BlockParsers extends MarkupParsers {
    */
   def parseDocument (reader: Reader[Char], path: Path): Document = new Document(path, Nil, DocumentInfo(), parseMarkup(root, reader)) // TODO - fully populate title, info, config
    
+  /** Extension hook for modifying the default block parser.
+   *  The default implementation returns the specified parser unchanged.
+   */
+  def prepareBlockParser (parser: Parser[Block]) = parser
   
   /** Parses all nested blocks for the specified input and nest level.
    *  Delegates to the abstract `nestedBlock` parser that sub-traits need to define.
@@ -89,7 +93,7 @@ trait BlockParsers extends MarkupParsers {
   def parseNestedBlocks (lines: List[String], nestLevel: Int): List[Block] = {
     val parser = if (nestLevel < maxNestLevel) nestedBlock else nonRecursiveBlock 
     val reader = new NestedCharSequenceReader(nestLevel + 1, lines mkString "\n")
-    val blocks = blockList(parser) 
+    val blocks = blockList(prepareBlockParser(parser)) 
     
     parseMarkup(opt(blankLines) ~> blocks, reader)
   }
