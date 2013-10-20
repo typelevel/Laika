@@ -25,6 +25,9 @@ import scala.util.parsing.input.CharSequenceReader
 import scala.util.parsing.input.Reader
 import laika.tree.RewriteRules
 import laika.tree.Documents.Path
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
+import laika.tree.Elements.InvalidBlock
   
 /** A generic base trait for block parsers. Provides base parsers that abstract
  *  aspects of block parsing common to most lightweight markup languages.
@@ -75,8 +78,23 @@ trait BlockParsers extends MarkupParsers {
    *  of this library, as the parsers treat all unknown or malformed markup as regular
    *  text.
    */
-  def parseDocument (reader: Reader[Char], path: Path): Document = 
-    new Document(path, Nil, DocumentInfo(), parseMarkup(root, reader)) // TODO - fully populate title, info, config
+  def parseDocument (reader: Reader[Char], path: Path): Document = {
+    val (config, root) = parseConfigAndRoot(reader, path)
+    new Document(path, Nil, DocumentInfo(), root, config) // TODO - set title and info
+  }
+
+  def config (path: Path): Parser[Either[InvalidBlock,Config]] = failure("configuration sections not enabled")
+  
+  /** Fully parses the input from the specified reader and returns the configuration and root element. 
+   */
+  protected def parseConfigAndRoot (reader: Reader[Char], path: Path): (Config,RootElement) = {
+    val parser = opt(config(path)) ~ root ^^ {
+      case Some(Right(config)) ~ root => (config, root)
+      case Some(Left(block)) ~ root => (ConfigFactory.empty(), root.copy(content = block +: root.content))
+      case None ~ root         => (ConfigFactory.empty(), root)
+    }
+    parseMarkup(parser, reader)
+  }
    
   /** Extension hook for assembling the block parsers for a particular markup format.
    *  

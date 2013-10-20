@@ -7,6 +7,10 @@ import laika.tree.Elements._
 import laika.directive.DirectiveParsers
 import laika.tree.Templates.TemplateSpan
 import laika.tree.Templates.ContextReference
+import laika.tree.Documents.Path
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
+import com.typesafe.config.ConfigParseOptions
 
 trait TemplateParsers extends InlineParsers {
 
@@ -55,6 +59,15 @@ object TemplateParsers {
     abstract override protected def prepareBlockParsers (nested: Boolean) = 
       blockDirectiveParser :: super.prepareBlockParsers(nested)
     
+    override def config (path: Path): Parser[Either[InvalidBlock,Config]] = "<%" ~> anyUntil("%>") <~ "%>" ~ ws ~ eol ^^ { str =>
+      try {
+        Right(ConfigFactory.parseString(str, ConfigParseOptions.defaults().setOriginDescription("path:"+path)))
+      }
+      catch {
+        case ex: Exception => Left(InvalidBlock(SystemMessage(laika.tree.Elements.Error, 
+            "Error parsing config header: "+ex.getMessage), LiteralBlock("<%"+str+"%>")))
+      }
+    } 
   }
   
   
