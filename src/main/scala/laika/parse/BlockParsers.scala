@@ -33,8 +33,9 @@ import laika.tree.Documents.Path
  *  lines, blank lines, etc.) as well as a convenient `block` helper parser
  *  that simplifies parsing of full blocks.
  *  
- *  The only abstract members are the `topLevelBlock`, `nestedBlock` and
- *  `nonRecursiveBlock` parsers that the other parsers delegate to.
+ *  Concrete sub-traits can specify the block parsers for a specific markup
+ *  format by overriding `prepareBlockParsers` and implementing 
+ *  `nonRecursiveBlock`.
  * 
  *  A block parser in Laika can always safely assume that it is invoked at 
  *  the start of the current line and that the line is not empty.
@@ -53,11 +54,11 @@ trait BlockParsers extends MarkupParsers {
    
   /** Parses any kind of top-level block supported by a concrete markup language.
    */
-  def topLevelBlock: Parser[Block]
+  final lazy val topLevelBlock: Parser[Block] = asChoice(prepareBlockParsers(Nil, false))
  
   /** Parses any kind of nested block supported by a concrete markup language.
    */
-  def nestedBlock: Parser[Block]
+  final lazy val nestedBlock: Parser[Block] = asChoice(prepareBlockParsers(Nil, true))
  
   /** Parses reStructuredText blocks, except for blocks that allow nesting of blocks. 
    *  Only used in rare cases when the maximum nest level allowed had been reached
@@ -67,19 +68,28 @@ trait BlockParsers extends MarkupParsers {
   
   /** Parses a full document, delegating most of the work to the `topLevelBlock` parser.
    */
-  def root: Parser[RootElement] = opt(blankLines) ~> blockList(prepareBlockParser(topLevelBlock)) ^^ RootElement
+  def root: Parser[RootElement] = opt(blankLines) ~> blockList(topLevelBlock) ^^ RootElement
   
   /** Fully parses the input from the specified reader and returns the document tree. 
    *  This function is expected to always succeed, errors would be considered a bug
    *  of this library, as the parsers treat all unknown or malformed markup as regular
    *  text.
    */
-  def parseDocument (reader: Reader[Char], path: Path): Document = new Document(path, Nil, DocumentInfo(), parseMarkup(root, reader)) // TODO - fully populate title, info, config
+  def parseDocument (reader: Reader[Char], path: Path): Document = 
+    new Document(path, Nil, DocumentInfo(), parseMarkup(root, reader)) // TODO - fully populate title, info, config
    
   /** Extension hook for modifying the default block parser.
    *  The default implementation returns the specified parser unchanged.
+   *  
+   *  @param parsers the list of block parsers collected so far
+   *  @param nested true if these are parsers for nested blocks, false if they are for top level blocks
+   *  @return a potentially expanded or modified list of block parsers
    */
-  def prepareBlockParser (parser: Parser[Block]) = parser
+  protected def prepareBlockParsers (parsers: List[Parser[Block]], nested: Boolean) = parsers
+  
+  private def asChoice (parsers: List[Parser[Block]]): Parser[Block] = 
+    if (parsers.isEmpty) failure("No block parsers specified")
+    else parsers.reduceLeft(_ | _)
   
   /** Parses all nested blocks for the specified input and nest level.
    *  Delegates to the abstract `nestedBlock` parser that sub-traits need to define.
@@ -93,7 +103,7 @@ trait BlockParsers extends MarkupParsers {
   def parseNestedBlocks (lines: List[String], nestLevel: Int): List[Block] = {
     val parser = if (nestLevel < maxNestLevel) nestedBlock else nonRecursiveBlock 
     val reader = new NestedCharSequenceReader(nestLevel + 1, lines mkString "\n")
-    val blocks = blockList(prepareBlockParser(parser)) 
+    val blocks = blockList(parser) 
     
     parseMarkup(opt(blankLines) ~> blocks, reader)
   }

@@ -236,23 +236,23 @@ trait BlockParsers extends laika.parse.BlockParsers
   
   def nonRecursiveBlock: Parser[Block] = comment | paragraph
   
-  def topLevelBlock: Parser[Block] = bulletList | 
-                                     enumList | 
-                                     fieldList | 
-                                     lineBlock |
-                                     optionList | 
-                                     explicitBlockItem |
-                                     gridTable |
-                                     simpleTable |
-                                     doctest |
-                                     blockQuote |
-                                     headerWithOverline |
-                                     transition |
-                                     headerWithUnderline |
-                                     definitionList |
-                                     paragraph
+  override protected def prepareBlockParsers (parsers: List[Parser[Block]], nested: Boolean) = 
+    bulletList :: 
+    enumList :: 
+    fieldList ::
+    lineBlock ::
+    optionList ::
+    explicitBlockItem ::
+    gridTable ::
+    simpleTable ::
+    doctest ::
+    blockQuote ::
+    headerWithOverline ::
+    transition ::
+    headerWithUnderline ::
+    definitionList ::
+    paragraph ::
+    parsers
  
-  def nestedBlock: Parser[Block] = topLevelBlock
-  
   
 }

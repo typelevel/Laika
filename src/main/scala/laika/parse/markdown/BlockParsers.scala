@@ -114,11 +114,11 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     atxHeader | setextHeader | (insignificantSpaces ~> 
       (literalBlock | quotedBlock | rule | bulletList | enumList))
 
-  
-  def topLevelBlock: Parser[Block] = standardMarkdownBlock | (insignificantSpaces ~> linkTarget) | paragraph 
+  override protected def prepareBlockParsers (parsers: List[Parser[Block]], nested: Boolean) = {
+    if (nested) standardMarkdownBlock :: nestedParagraph :: parsers
+    else standardMarkdownBlock :: (insignificantSpaces ~> linkTarget) :: paragraph :: parsers
+  }
  
-  def nestedBlock: Parser[Block] = standardMarkdownBlock | nestedParagraph
-  
   def nonRecursiveBlock: Parser[Block] = 
     atxHeader | setextHeader | (insignificantSpaces ~> (literalBlock | rule )) | paragraph
 
