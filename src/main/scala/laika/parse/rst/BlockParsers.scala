@@ -236,7 +236,7 @@ trait BlockParsers extends laika.parse.BlockParsers
   
   def nonRecursiveBlock: Parser[Block] = comment | paragraph
   
-  override protected def prepareBlockParsers (parsers: List[Parser[Block]], nested: Boolean) = 
+  protected def prepareBlockParsers (nested: Boolean) = 
     bulletList :: 
     enumList :: 
     fieldList ::
@@ -252,7 +252,7 @@ trait BlockParsers extends laika.parse.BlockParsers
     headerWithUnderline ::
     definitionList ::
     paragraph ::
-    parsers
+    Nil
  
   
 }

@@ -54,11 +54,11 @@ trait BlockParsers extends MarkupParsers {
    
   /** Parses any kind of top-level block supported by a concrete markup language.
    */
-  final lazy val topLevelBlock: Parser[Block] = asChoice(prepareBlockParsers(Nil, false))
+  final lazy val topLevelBlock: Parser[Block] = asChoice(prepareBlockParsers(false))
  
   /** Parses any kind of nested block supported by a concrete markup language.
    */
-  final lazy val nestedBlock: Parser[Block] = asChoice(prepareBlockParsers(Nil, true))
+  final lazy val nestedBlock: Parser[Block] = asChoice(prepareBlockParsers(true))
  
   /** Parses reStructuredText blocks, except for blocks that allow nesting of blocks. 
    *  Only used in rare cases when the maximum nest level allowed had been reached
@@ -78,14 +78,12 @@ trait BlockParsers extends MarkupParsers {
   def parseDocument (reader: Reader[Char], path: Path): Document = 
     new Document(path, Nil, DocumentInfo(), parseMarkup(root, reader)) // TODO - fully populate title, info, config
    
-  /** Extension hook for modifying the default block parser.
-   *  The default implementation returns the specified parser unchanged.
+  /** Extension hook for assembling the block parsers for a particular markup format.
    *  
-   *  @param parsers the list of block parsers collected so far
    *  @param nested true if these are parsers for nested blocks, false if they are for top level blocks
-   *  @return a potentially expanded or modified list of block parsers
+   *  @return a list of block parsers which later will be interpreted as choices in the specified order
    */
-  protected def prepareBlockParsers (parsers: List[Parser[Block]], nested: Boolean) = parsers
+  protected def prepareBlockParsers (nested: Boolean): List[Parser[Block]]
   
   private def asChoice (parsers: List[Parser[Block]]): Parser[Block] = 
     if (parsers.isEmpty) failure("No block parsers specified")

@@ -191,9 +191,9 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
     } 
   }
   
-  override protected def prepareBlockParsers (parsers: List[Parser[Block]], nested: Boolean) = {
-    if (nested) super.prepareBlockParsers(parsers, nested)
-    else htmlBlock :: ('<' ~> (htmlComment | htmlEmptyElement | htmlStartTag) <~ ws ~ eol ~ blankLine) :: super.prepareBlockParsers(parsers, nested)
+  override protected def prepareBlockParsers (nested: Boolean) = {
+    if (nested) super.prepareBlockParsers(nested)
+    else htmlBlock :: ('<' ~> (htmlComment | htmlEmptyElement | htmlStartTag) <~ ws ~ eol ~ blankLine) :: super.prepareBlockParsers(nested)
   }
   
   
