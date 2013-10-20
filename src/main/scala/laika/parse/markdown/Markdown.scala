@@ -20,6 +20,9 @@ import laika.io.Input
 import laika.parse.markdown.html.HTMLParsers
 import laika.tree.Documents.Document
 import laika.factory.ParserFactory
+import laika.directive.Directives.Blocks
+import laika.directive.Directives.Spans
+import laika.template.TemplateParsers
   
 /** A parser for Markdown text. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:
@@ -42,20 +45,42 @@ import laika.factory.ParserFactory
  * 
  *  @author Jens Halm
  */
-class Markdown private (verbatimHTML: Boolean) extends ParserFactory {
+class Markdown private (
+    blockDirectives: List[Blocks.Directive],
+    spanDirectives: List[Spans.Directive],
+    verbatimHTML: Boolean,
+    isStrict: Boolean) extends ParserFactory {
 
+  
   val fileSuffixes = Set("md","markdown")
+  
+      
+  def withBlockDirectives (directives: Blocks.Directive*) =
+    new Markdown(blockDirectives ++ directives, spanDirectives, verbatimHTML, isStrict)      
+  
+  def withSpanDirectives (directives: Spans.Directive*) = 
+    new Markdown(blockDirectives, spanDirectives ++ directives, verbatimHTML, isStrict)  
   
   /** Returns a Markdown parser that also parses verbatim HTML elements alongside
    *  the standard Markdown markup. Usually only recommended when used together
    *  with an HTML renderer, as such a parser returns a document tree that contains
    *  HTML elements which some parsers would not know how to handle.
    */
-  def withVerbatimHTML = new Markdown(true)
+  def withVerbatimHTML = new Markdown(blockDirectives, spanDirectives, true, isStrict)
+  
+  def strict = new Markdown(blockDirectives, spanDirectives, verbatimHTML, true)
   
   private lazy val parser = {
-    if (verbatimHTML) new BlockParsers with InlineParsers with HTMLParsers
-    else              new BlockParsers with InlineParsers
+    trait ExtendedParsers extends TemplateParsers.MarkupBlocks with TemplateParsers.MarkupSpans {
+      lazy val blockDirectiveMap = blockDirectives map { d => (d.name, d) } toMap
+      lazy val spanDirectiveMap = spanDirectives  map { d => (d.name, d) } toMap
+      def getBlockDirective (name: String) = blockDirectiveMap.get(name)
+      def getSpanDirective (name: String) = spanDirectiveMap.get(name)
+    }
+    if (verbatimHTML && !isStrict) new BlockParsers with InlineParsers with ExtendedParsers with HTMLParsers
+    else if (verbatimHTML)         new BlockParsers with InlineParsers with HTMLParsers
+    else if (!isStrict)            new BlockParsers with InlineParsers with ExtendedParsers
+    else                           new BlockParsers with InlineParsers
   }
 
   /** The actual parser function, fully parsing the specified input and
@@ -69,4 +94,4 @@ class Markdown private (verbatimHTML: Boolean) extends ParserFactory {
  * 
  *  @author Jens Halm
  */
-object Markdown extends Markdown(false)
+object Markdown extends Markdown(Nil,Nil,false,false)
