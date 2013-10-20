@@ -25,7 +25,7 @@ import laika.tree.Templates.TemplateDocument
 class DefaultParser extends (Input => TemplateDocument) {
 
   
-  private lazy val parser = new TemplateParsers {
+  private lazy val parser = new TemplateParsers.Templates {
     def getTemplateDirective (name: String) = None // TODO - directive registration
   }
 

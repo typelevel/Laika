@@ -8,21 +8,8 @@ import laika.directive.DirectiveParsers
 import laika.tree.Templates.TemplateSpan
 import laika.tree.Templates.ContextReference
 
-trait TemplateParsers extends InlineParsers with DirectiveParsers.TemplateDirectives {
+trait TemplateParsers extends InlineParsers {
 
-  
-  protected def prepareSpanParsers = Map(
-    '{' -> (reference),    
-    '@' -> (templateDirectiveParser),
-    '\\'-> ((any take 1) ^^ { Text(_) })
-  )
-
-  
-  def parseTemplate (reader: Reader[Char]) = {
-    val parser = spans(any, spanParsers) ^^ {_.collect{ case s:TemplateSpan => s }}
-    TemplateRoot(parseMarkup(parser, reader))
-  }
-  
   
   lazy val reference: Parser[TemplateSpan] = {
     
@@ -36,6 +23,53 @@ trait TemplateParsers extends InlineParsers with DirectiveParsers.TemplateDirect
     }
       
     '{' ~ ws ~> refName <~ ws ~ "}}" ^^ {ContextReference(_)}  
+    
+  }
+  
+  
+}
+
+
+object TemplateParsers {
+  
+  
+  trait Templates extends TemplateParsers with DirectiveParsers.TemplateDirectives {
+    
+    protected def prepareSpanParsers = Map(
+      '{' -> (reference),    
+      '@' -> (templateDirectiveParser),
+      '\\'-> ((any take 1) ^^ { Text(_) })
+    )
+  
+    
+    def parseTemplate (reader: Reader[Char]) = {
+      val parser = spans(any, spanParsers) ^^ {_.collect{ case s:TemplateSpan => s }}
+      TemplateRoot(parseMarkup(parser, reader))
+    }
+      
+  }
+  
+  
+  trait MarkupBlocks extends TemplateParsers with DirectiveParsers.BlockDirectives {
+    
+    abstract override protected def prepareBlockParsers (nested: Boolean) = 
+      blockDirectiveParser :: super.prepareBlockParsers(nested)
+    
+  }
+  
+  
+  trait MarkupSpans extends TemplateParsers with DirectiveParsers.SpanDirectives {
+    
+    abstract override protected def prepareSpanParsers = {
+      
+      def addOrMerge (base: Map[Char, Parser[Span]], char: Char, parser: Parser[Span]) = {
+        val oldParser = base.get(char)
+        base + (char -> oldParser.map(parser | _).getOrElse(parser))
+      }
+      
+      val withRef = addOrMerge(super.prepareSpanParsers, '{', reference)    
+      addOrMerge(withRef, '@', spanDirectiveParser)
+    }
     
   }
   
