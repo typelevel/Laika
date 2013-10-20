@@ -170,14 +170,8 @@ trait BlockParsers extends laika.parse.BlockParsers
         case _ => (par, defaultBlock) 
       }
     }
-    def toLinkId (h: DecoratedHeader) = {
-      def flattenText (spans: Seq[Span]): String = ("" /: spans) { // TODO - generic utility
-        case (res, Text(text,_)) => res + text
-        case (res, sc: SpanContainer[_]) => res + flattenText(sc.content)
-        case (res, _) => res
-      }
-      ReferenceName(flattenText(h.content)).normalized
-    }
+    def toLinkId (h: DecoratedHeader) = ReferenceName(TreeUtil.extractText(h.content)).normalized
+    
     def result = {
       elems += Mock
       val processed = elems.toList.sliding(3).foldLeft(new ListBuffer[Block]()) {
