@@ -23,6 +23,10 @@ import laika.factory.ParserFactory
 import laika.directive.Directives.Blocks
 import laika.directive.Directives.Spans
 import laika.template.TemplateParsers
+import laika.tree.Elements.Block
+import laika.tree.Elements.Header
+import laika.tree.Elements.Id
+import laika.tree.TreeUtil
   
 /** A parser for Markdown text. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:
@@ -76,6 +80,13 @@ class Markdown private (
       lazy val spanDirectiveMap = spanDirectives  map { d => (d.name, d) } toMap
       def getBlockDirective (name: String) = blockDirectiveMap.get(name)
       def getSpanDirective (name: String) = spanDirectiveMap.get(name)
+      
+      override def blockList (parser: => Parser[Block]): Parser[List[Block]] = super.blockList(parser) ^^ {
+        _ map { case h: Header => 
+            h.copy(options = h.options + Id(TreeUtil.extractText(h.content).replaceAll("[\n ]+", " ").toLowerCase))
+          case other => other
+        }
+      }
     }
     if (verbatimHTML && !isStrict) new BlockParsers with InlineParsers with ExtendedParsers with HTMLParsers
     else if (verbatimHTML)         new BlockParsers with InlineParsers with HTMLParsers

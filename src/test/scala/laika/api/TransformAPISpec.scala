@@ -45,8 +45,8 @@ class TransformAPISpec extends FlatSpec
     |text""".stripMargin 
   
   val output = """RootElement - Blocks: 1
-    |. Section
-    |. . Header(1) - Spans: 1
+    |. Section(Id(title))
+    |. . Header(1,Id(title)) - Spans: 1
     |. . . Text - 'Title äöü'
     |. . Content - Blocks: 1
     |. . . Paragraph - Spans: 1
