@@ -28,6 +28,7 @@ import laika.tree.Documents._
 import laika.tree.Templates.TemplateDocument
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions
+import laika.template.ParseTemplate
   
 /** API for performing a parse operation from various types of input to obtain
  *  a document tree without a subsequent render operation. 
@@ -106,7 +107,7 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
     
     type Operation[T] = () => (DocumentType, T)
 
-    val templateParser = laika.template.Template // TODO - should be pluggable - maybe rename Template to ParseTemplate
+    val templateParser = ParseTemplate // TODO - should be pluggable
     
     def parseMarkup (input: Input): Operation[Document] = () => (Markup, IO(input)(parse))
     

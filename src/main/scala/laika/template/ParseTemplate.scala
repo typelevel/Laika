@@ -29,9 +29,9 @@ import laika.tree.Templates.TemplateDocument
 /** 
  *  @author Jens Halm
  */
-class Template private (parse: Input => TemplateDocument) {
+class ParseTemplate private (parse: Input => TemplateDocument) {
 
-  def withParser (parse: Input => TemplateDocument) = new Template(parse) 
+  def withParser (parse: Input => TemplateDocument) = new ParseTemplate(parse) 
   
   /** Returns a template document tree obtained from parsing the specified string.
    *  Any kind of input is valid, including an empty string. 
@@ -69,4 +69,8 @@ class Template private (parse: Input => TemplateDocument) {
   
 }
 
-object Template extends Template(DefaultParser)
+object ParseTemplate extends ParseTemplate(DefaultParser) {
+  
+  def as (parser: Input => TemplateDocument) = new ParseTemplate(parser) 
+  
+}
