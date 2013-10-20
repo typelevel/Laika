@@ -69,7 +69,7 @@ class ParseTemplate private (parse: Input => TemplateDocument) {
   
 }
 
-object ParseTemplate extends ParseTemplate(DefaultParser) {
+object ParseTemplate extends ParseTemplate(DefaultTemplate) {
   
   def as (parser: Input => TemplateDocument) = new ParseTemplate(parser) 
   

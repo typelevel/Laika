@@ -18,17 +18,23 @@ package laika.template
 
 import laika.io.Input
 import laika.tree.Templates.TemplateDocument
+import laika.directive.Directives.Templates
 
 /** 
  *  @author Jens Halm
  */
-class DefaultParser extends (Input => TemplateDocument) {
+class DefaultTemplate private (
+    directives: List[Templates.Directive]) extends (Input => TemplateDocument) {
 
   
   private lazy val parser = new TemplateParsers.Templates {
-    def getTemplateDirective (name: String) = None // TODO - directive registration
+    lazy val directiveMap  = directives  map { d => (d.name, d) } toMap
+    def getTemplateDirective (name: String) = directiveMap.get(name)
   }
-
+  
+  def withDirectives (directives: Templates.Directive*) =
+    new DefaultTemplate(this.directives ++ directives)      
+  
   /** The actual parser function, fully parsing the specified input and
    *  returning a document tree.
    */
@@ -36,4 +42,4 @@ class DefaultParser extends (Input => TemplateDocument) {
   
 }
 
-object DefaultParser extends DefaultParser
+object DefaultTemplate extends DefaultTemplate(Nil)
