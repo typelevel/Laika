@@ -36,7 +36,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   /** Creates a new mapping from the start character of an inline span
     * to the corresponding parser. May be overridden by subtraits.
     */
-  protected def newSpanParserMap:Map[Char,Parser[Span]] = Map(
+  protected def prepareSpanParsers = Map(
     '*' -> (strong('*') | em('*')),    
     '_' -> (strong('_') | em('_')),
     '`' -> (literalEnclosedByDoubleChar | literalEnclosedBySingleChar), 
@@ -45,8 +45,6 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
     '<' -> simpleLink,
     '!' -> image
   )
-  
-  final lazy val spanParsers = newSpanParserMap
   
   
   /** Parses a single escaped character, only recognizing the characters the Markdown syntax document

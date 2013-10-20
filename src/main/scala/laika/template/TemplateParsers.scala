@@ -11,7 +11,7 @@ import laika.tree.Templates.ContextReference
 trait TemplateParsers extends InlineParsers with DirectiveParsers.TemplateDirectives {
 
   
-  lazy val spanParsers = Map[Char, Parser[Span]](
+  protected def prepareSpanParsers = Map(
     '{' -> (reference),    
     '@' -> (templateDirectiveParser),
     '\\'-> ((any take 1) ^^ { Text(_) })

@@ -145,7 +145,7 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
   def htmlNamedReference = anyIn('0' to '9', 'a' to 'z', 'A' to 'Z') min 1
   
   
-  override protected def newSpanParserMap = super.newSpanParserMap ++ htmlParsers
+  override protected def prepareSpanParsers = super.prepareSpanParsers ++ htmlParsers
 
   
   /** The mapping of start characters to their corresponding HTML span parsers.

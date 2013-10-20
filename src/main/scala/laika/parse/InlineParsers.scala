@@ -52,7 +52,12 @@ trait InlineParsers extends MarkupParsers {
    *  offset pointing to the character after the one
    *  specified as the key for the mapping.
    */
-  def spanParsers: Map[Char,Parser[Span]]
+  final lazy val spanParsers: Map[Char,Parser[Span]] = prepareSpanParsers
+  
+  /** Extension hook for modifying the default span parser map.
+   *  The default implementation returns the specified parser unchanged.
+   */
+  protected def prepareSpanParsers: Map[Char,Parser[Span]]
   
   
   /** Abstracts the internal process of building up the result of an inline parser.

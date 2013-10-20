@@ -136,7 +136,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    *  The mapping is used to provide a fast implementation of an inline parser that
    *  only stops at known special characters. 
    */
-  lazy val spanParsers = Map(
+  protected def prepareSpanParsers = Map(
     '*' -> (strong | em),   
     '`' -> (inlineLiteral | phraseLinkRef | interpretedTextWithRoleSuffix),
     '[' -> (footnoteRef | citationRef),
