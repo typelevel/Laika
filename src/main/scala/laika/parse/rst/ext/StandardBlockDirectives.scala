@@ -146,6 +146,16 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
     } 
   }
   
+  /** The header directive,
+   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#document-header-footer]] for details.
+   */
+  def header (p: BlockParsers) = blockContent map { blocks => DocumentFragment("header", BlockSequence(blocks)) }
+  
+  /** The footer directive,
+   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#document-header-footer]] for details.
+   */
+  def footer (p: BlockParsers) = blockContent map { blocks => DocumentFragment("footer", BlockSequence(blocks)) }
+  
   /** The epitaph, highlights and pull-quote directives, which are all identical apart from the style
    *  parameter, see 
    *  [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#epigraph epigraph]],
