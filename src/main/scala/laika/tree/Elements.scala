@@ -191,6 +191,9 @@ object Elements {
    */
   case class RootElement (content: Seq[Block]) extends Element with BlockContainer[RootElement]
   
+  /** A named document fragment that usually gets rendered separately from the main root element
+   */ 
+  case class DocumentFragment (name: String, root: Block, options: Options = NoOpt) extends Block with Temporary
   
   /** A section of the document, consisting of a header and content in the form
    *  of a list of Block elements. Sections may be nested inside other sections,

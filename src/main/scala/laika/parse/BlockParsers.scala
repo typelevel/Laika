@@ -28,6 +28,8 @@ import laika.tree.Documents.Path
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import laika.tree.Elements.InvalidBlock
+import laika.tree.Elements.DocumentFragment
+import laika.tree.TreeUtil
   
 /** A generic base trait for block parsers. Provides base parsers that abstract
  *  aspects of block parsing common to most lightweight markup languages.
@@ -80,7 +82,7 @@ trait BlockParsers extends MarkupParsers {
    */
   def parseDocument (reader: Reader[Char], path: Path): Document = {
     val (config, root) = parseConfigAndRoot(reader, path)
-    new Document(path, Nil, DocumentInfo(), root, config) // TODO - set title and info
+    new Document(path, Nil, DocumentInfo(), root, TreeUtil.extractFragments(root.content), config) // TODO - set title and info
   }
 
   def config (path: Path): Parser[Either[InvalidBlock,Config]] = failure("configuration sections not enabled")
@@ -95,7 +97,8 @@ trait BlockParsers extends MarkupParsers {
     }
     parseMarkup(parser, reader)
   }
-   
+  
+  
   /** Extension hook for assembling the block parsers for a particular markup format.
    *  
    *  @param nested true if these are parsers for nested blocks, false if they are for top level blocks

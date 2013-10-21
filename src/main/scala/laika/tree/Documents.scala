@@ -36,6 +36,7 @@ object Documents {
                   val title: Seq[Span], 
                   val info: DocumentInfo, 
                   val content: RootElement, 
+                  val fragments: Map[String, Block] = Map.empty,
                   val config: Config = ConfigFactory.empty,
                   rewriteRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]] = Nil) {
     
@@ -81,17 +82,19 @@ object Documents {
       
       val newRoot = content rewrite allRules
       
-      val newDoc = withRewrittenContent(newRoot)
+      val newFragments = TreeUtil.extractFragments(BlockSequence(fragments.values.toSeq).rewrite(allRules).content) 
+      
+      val newDoc = withRewrittenContent(newRoot, newFragments)
       
       context.template map (_.rewrite(DocumentContext(newDoc))) getOrElse newDoc
     }
     
-    def withRewrittenContent (newContent: RootElement): Document = new Document(path, title, info, newContent, config) {
+    def withRewrittenContent (newContent: RootElement, fragments: Map[String,Block]): Document = new Document(path, title, info, newContent, fragments, config) {
       override lazy val defaultRules = Nil
       override val removeRules = this
     }
 
-    def removeRules: Document = withRewrittenContent(content)
+    def removeRules: Document = withRewrittenContent(content,fragments)
     
   }
   
