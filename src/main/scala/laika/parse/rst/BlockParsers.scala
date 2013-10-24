@@ -20,9 +20,13 @@ import laika.tree.Elements._
 import laika.tree.Documents._
 import laika.parse.rst.Elements._
 import scala.collection.mutable.ListBuffer
+import scala.collection.JavaConversions._
 import scala.annotation.tailrec
 import scala.util.parsing.input.Reader
 import laika.tree.TreeUtil
+import com.typesafe.config.ConfigValueFactory
+import com.typesafe.config.ConfigValue
+import com.typesafe.config.Config
 
 /** Provides the parsers for all types of block-level elements of reStructuredText. 
  *  It merges the individual traits that provide implementations for list, tables, etc. and 
@@ -45,9 +49,26 @@ trait BlockParsers extends laika.parse.BlockParsers
                         
   
   override def parseDocument (reader: Reader[Char], path: Path) = {
+    def extractConfig (config: Config, root: RootElement) = {
+      val title = (root collect { case DocumentTitle(title,_) => title } headOption) map (s => ("title", ConfigValueFactory.fromAnyRef(s))) toList
+      
+      val meta = root collect { case DocumentMetadata(map,_) => map } reduceLeft (_ ++ _)
+      val titleAndMeta = if (meta.isEmpty) title else ("meta", ConfigValueFactory.fromMap(meta)) :: title
+      
+      val docStart = root.content dropWhile { case c: Comment => true; case h: DecoratedHeader => true; case _ => false } headOption 
+      val docInfo = docStart collect { case FieldList(fields,_) => fields map (field => (TreeUtil.extractText(field.name), 
+          field.content collect { case p: Paragraph => TreeUtil.extractText(p.content) } mkString)) toMap }
+      val extraConfig = (docInfo map (m => ("docInfo", ConfigValueFactory.fromMap(m))) toList) ::: titleAndMeta
+      
+      (config /: extraConfig) { case (config, (name, value)) =>
+        config.withValue(name, value)
+      }
+    }
+    
     val (config, root) = parseConfigAndRoot(reader, path)
+    val finalConfig = extractConfig(config, root)
     val finalRoot = root.copy(content = root.content ++ textRoleElements)
-    new Document(path, finalRoot, TreeUtil.extractFragments(root.content), config, List(RewriteRules))
+    new Document(path, finalRoot, TreeUtil.extractFragments(root.content), finalConfig, List(RewriteRules))
   }
   
   /** All the base text roles supported by this parser not including
