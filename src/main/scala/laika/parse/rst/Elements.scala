@@ -17,6 +17,8 @@
 package laika.parse.rst
 
 import laika.tree.Elements._
+import laika.tree.Templates.PlaceholderBlock
+import laika.tree.Documents.DocumentContext
 
 /** Provides the elements of the document tree that are too specific to reStructuredText
  *  to be added to the generic tree model. 
@@ -94,6 +96,19 @@ object Elements {
    *  the text as the argument to the function. 
    */
   case class CustomizedTextRole (name: String, apply: String => Span, options: Options = NoOpt) extends Definition
+  
+  /** Temporary element representing a file inclusion.
+   *  The path is interpreted as relative to the path of the processed
+   *  document if it is not an absolute path.
+   */
+  case class Include (path: String, options: Options = NoOpt) extends Block with PlaceholderBlock {
+    def resolve (context: DocumentContext): Block = 
+      context.parent.selectDocument(path) match {
+        case Some(target) => BlockSequence(target.content.content)
+        case None => InvalidBlock(SystemMessage(Error, "Unresolvable path reference: " + path), 
+            LiteralBlock(".. include:: " + path))
+      }
+  }
 
   
 }

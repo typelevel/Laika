@@ -21,6 +21,7 @@ import laika.parse.rst.Directives._
 import laika.parse.rst.Directives.Parts._
 import laika.parse.rst.BlockParsers
 import laika.parse.rst.InlineParsers
+import laika.parse.rst.Elements.Include
 
 /** Defines all supported standard block directives of the reStructuredText reference parser.
  * 
@@ -155,6 +156,19 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#document-header-footer]] for details.
    */
   def footer (p: BlockParsers) = blockContent map { blocks => DocumentFragment("footer", BlockSequence(blocks)) }
+  
+  /** The include directive,
+   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#including-an-external-document-fragment]] 
+   *  for details.
+   *  
+   *  Note that the only argument supported in Laika is the default argument specifying the path of the file
+   *  to include. The other options supported by reStructuredText original parser do not make sense in the
+   *  execution context of Laika. They assume that the file is parsed everytime an include directive is used,
+   *  whereas in Laika all files of the source tree get parsed in one go and then the include step simply
+   *  references the previously parsed node tree. This is both simpler and more efficient when the same
+   *  file gets included in multiple places.
+   */
+  lazy val include = argument() map (Include(_))
   
   /** The epitaph, highlights and pull-quote directives, which are all identical apart from the style
    *  parameter, see 
