@@ -48,6 +48,15 @@ object Documents {
 
     val name = path.name
     
+    def title = {
+      if (config.hasPath("title")) config.getString("title")
+      else (content.content collect {
+        case Section(Header(_,content,_),_,_) => content
+        case Header(_,content,_) => content
+        case DecoratedHeader(_,content,_) => content
+      }).headOption map (TreeUtil.extractText(_)) getOrElse ""
+    }
+    
     lazy val sections = {
       
       def extractSections (parentPos: List[Int], blocks: Seq[Block]): Seq[SectionInfo] = {
