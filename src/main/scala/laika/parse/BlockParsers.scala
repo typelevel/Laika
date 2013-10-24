@@ -29,7 +29,9 @@ import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import laika.tree.Elements.InvalidBlock
 import laika.tree.Elements.DocumentFragment
+import laika.tree.Elements.ConfigValue
 import laika.tree.TreeUtil
+import com.typesafe.config.ConfigValueFactory
   
 /** A generic base trait for block parsers. Provides base parsers that abstract
  *  aspects of block parsing common to most lightweight markup languages.
@@ -90,10 +92,21 @@ trait BlockParsers extends MarkupParsers {
   /** Fully parses the input from the specified reader and returns the configuration and root element. 
    */
   protected def parseConfigAndRoot (reader: Reader[Char], path: Path): (Config,RootElement) = {
+    def assembleConfig (config: Config, root: RootElement) = {
+      import scala.collection.JavaConversions._
+      val values = root.content collect { case ConfigValue(name, value, _) => (name, value match {
+        case m: Map[_,_]      => mapAsJavaMap(m)
+        case it: Iterable[_]  => asJavaIterable(it)
+        case other            => other
+      })}
+      ((config /: values) { case (config, (name, value)) =>
+        config.withValue(name, ConfigValueFactory.fromAnyRef(value))
+      }, root)
+    }
     val parser = opt(config(path)) ~ root ^^ {
-      case Some(Right(config)) ~ root => (config, root)
-      case Some(Left(block)) ~ root => (ConfigFactory.empty(), root.copy(content = block +: root.content))
-      case None ~ root         => (ConfigFactory.empty(), root)
+      case Some(Right(config)) ~ root => assembleConfig(config, root)
+      case Some(Left(block)) ~ root   => assembleConfig(ConfigFactory.empty(), root.copy(content = block +: root.content))
+      case None ~ root                => assembleConfig(ConfigFactory.empty(), root)
     }
     parseMarkup(parser, reader)
   }
