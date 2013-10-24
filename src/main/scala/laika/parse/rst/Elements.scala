@@ -109,6 +109,13 @@ object Elements {
             LiteralBlock(".. include:: " + path))
       }
   }
-
+  
+  /** Allows to override the title, which by default is the first headline of the document.
+   */
+  case class DocumentTitle (title: String, options: Options = NoOpt) extends Block with Temporary
+  
+  /** Allows to specify arbitrary document metadata.
+   */
+  case class DocumentMetadata (metadata: Map[String, String], options: Options = NoOpt) extends Block with Temporary
   
 }

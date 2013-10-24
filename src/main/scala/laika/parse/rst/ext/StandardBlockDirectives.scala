@@ -17,11 +17,12 @@
 package laika.parse.rst.ext
 
 import laika.tree.Elements._
+import laika.parse.rst.Elements._
 import laika.parse.rst.Directives._
 import laika.parse.rst.Directives.Parts._
 import laika.parse.rst.BlockParsers
 import laika.parse.rst.InlineParsers
-import laika.parse.rst.Elements.Include
+import laika.tree.TreeUtil
 
 /** Defines all supported standard block directives of the reStructuredText reference parser.
  * 
@@ -147,15 +148,35 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
     } 
   }
   
+  /** The title directive, 
+   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#metadata-document-title]] for details.
+   */
+  lazy val titleDirective = argument() map (DocumentTitle(_))
+  
+  /** The meta directive, 
+   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#meta]] for details.
+   *  
+   *  In Laika there is no special document tree element for metadata.
+   *  Therefore the result will be accessible through the generic
+   *  config property in the `Document` class. 
+   */
+  lazy val meta = blockContent map {
+    case FieldList(fields,_) :: Nil => 
+      DocumentMetadata(fields map (field => (TreeUtil.extractText(field.name), 
+          field.content collect { case p: Paragraph => TreeUtil.extractText(p.content) } mkString)) toMap)
+    case other => InvalidBlock(SystemMessage(Error, 
+        "The meta directive expects a FieldList as its only block content"), BlockSequence(other))
+  }
+  
   /** The header directive,
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#document-header-footer]] for details.
    */
-  def header (p: BlockParsers) = blockContent map { blocks => DocumentFragment("header", BlockSequence(blocks)) }
+  lazy val header = blockContent map { blocks => DocumentFragment("header", BlockSequence(blocks)) }
   
   /** The footer directive,
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#document-header-footer]] for details.
    */
-  def footer (p: BlockParsers) = blockContent map { blocks => DocumentFragment("footer", BlockSequence(blocks)) }
+  lazy val footer = blockContent map { blocks => DocumentFragment("footer", BlockSequence(blocks)) }
   
   /** The include directive,
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#including-an-external-document-fragment]] 
@@ -248,6 +269,11 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
     BlockDirective.recursive("admonition")(genericAdmonition),
     BlockDirective("code")(code),
     BlockDirective("image")(imageBlock),
+    BlockDirective("header")(header),
+    BlockDirective("footer")(footer),
+    BlockDirective("include")(include),
+    BlockDirective("title")(titleDirective),
+    BlockDirective("meta")(meta),
     BlockDirective("attention")(admonition("attention","Attention!")),
     BlockDirective("caution")(admonition("caution","Caution!")),
     BlockDirective("danger")(admonition("danger","!DANGER!")),
