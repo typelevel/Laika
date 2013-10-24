@@ -30,7 +30,7 @@ class RewriteRulesSpec extends FlatSpec
 
   
   def rewritten (root: RootElement) = {
-    val doc = new Document(Root, Nil, DocumentInfo(), root, rewriteRules = List(RewriteRules))
+    val doc = new Document(Root, root, rewriteRules = List(RewriteRules))
     doc.rewrite.content
   }
   

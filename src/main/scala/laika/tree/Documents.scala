@@ -33,8 +33,6 @@ import scala.util.Try
 object Documents {
   
   class Document (val path: Path, 
-                  val title: Seq[Span], 
-                  val info: DocumentInfo, 
                   val content: RootElement, 
                   val fragments: Map[String, Block] = Map.empty,
                   val config: Config = ConfigFactory.empty,
@@ -89,7 +87,7 @@ object Documents {
       context.template map (_.rewrite(DocumentContext(newDoc))) getOrElse newDoc
     }
     
-    def withRewrittenContent (newContent: RootElement, fragments: Map[String,Block]): Document = new Document(path, title, info, newContent, fragments, config) {
+    def withRewrittenContent (newContent: RootElement, fragments: Map[String,Block]): Document = new Document(path, newContent, fragments, config) {
       override lazy val defaultRules = Nil
       override val removeRules = this
     }
@@ -191,7 +189,7 @@ object Documents {
       = new DocumentContext(document, parent, root)
     
     def apply (path: Path, parent: DocumentTree, root: DocumentTree, config: Config): DocumentContext 
-      = new DocumentContext(new Document(path, Nil, DocumentInfo(), RootElement(Nil)), parent, root, Some(config))
+      = new DocumentContext(new Document(path, RootElement(Nil)), parent, root, Some(config))
   }
   
   sealed abstract class DocumentType
