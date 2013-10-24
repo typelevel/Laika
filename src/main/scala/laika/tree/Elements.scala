@@ -195,6 +195,12 @@ object Elements {
    */ 
   case class DocumentFragment (name: String, root: Block, options: Options = NoOpt) extends Block with Temporary
   
+  /** A single configuration value to be merged with the top document config.
+   *  The value can be any type allowed by the Typesafe Config library (i.e. Boolean,
+   *  Number, String, Map, Iterable).
+   */ 
+  case class ConfigValue (name: String, value: AnyRef, options: Options = NoOpt) extends Block with Span with Temporary
+  
   /** A section of the document, consisting of a header and content in the form
    *  of a list of Block elements. Sections may be nested inside other sections,
    *  they are arranged in a hierarchy based on the level of their header element.

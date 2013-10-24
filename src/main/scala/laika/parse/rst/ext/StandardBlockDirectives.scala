@@ -48,6 +48,12 @@ import laika.tree.TreeUtil
  *  - `pull-quote`
  *  - `parsed-literal`
  *  - `table`
+ *  - `contents`
+ *  - `sectnum`
+ *  - `header`
+ *  - `footer`
+ *  - `title`
+ *  - `meta`
  *  
  *  The following directives are supported with some limitations:
  * 
@@ -59,21 +65,12 @@ import laika.tree.TreeUtil
  * 
  *  - `raw` does not support the `file` or `url` options (multi-file transformations are planned for version 0.4).
  * 
- *  Support for the following directives is deferred to the 0.4 release as that will add support for template based
- *  site generation and the corresponding addition of features like logic for the generation of tables of content
- *  will make the implementation of these directives easier:
- * 
- *  - `contents`
- *  - `sectnum`
- *  - `header`
- *  - `footer`
- *  - `title`
- *  - `meta`
- *  - `include`
+ *  - `include` does not support any of the options apart from the filename. See the API entry for this directive
+ *    for details.
  * 
  *  Finally, for some directives there is currently no support planned:
  * 
- *  - `math` (would require LaTeX integration)
+ *  - `math` (would require external tools)
  *  - `csv-table`, `list-table` (would just require some work, contributions are welcome)
  *  - `target-notes`, `class` (these would require processing beyond the directive itself, therefore would require new API) 
  * 
@@ -178,6 +175,14 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
    */
   lazy val footer = blockContent map { blocks => DocumentFragment("footer", BlockSequence(blocks)) }
   
+  private def tuple (name: String) = optField(name, Right(name, _))
+  
+  lazy val sectnum = (tuple("depth") ~ tuple("start") ~ tuple("prefix") ~ tuple("suffix")) {
+    (depth, start, prefix, suffix) => 
+      val options = depth.toList ::: start.toList ::: prefix.toList ::: suffix.toList
+      ConfigValue("sectionNumbers", options)
+  }
+  
   /** The include directive,
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#including-an-external-document-fragment]] 
    *  for details.
@@ -274,6 +279,8 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
     BlockDirective("include")(include),
     BlockDirective("title")(titleDirective),
     BlockDirective("meta")(meta),
+    BlockDirective("sectnum")(sectnum),
+    BlockDirective("section-autonumbering")(sectnum),
     BlockDirective("attention")(admonition("attention","Attention!")),
     BlockDirective("caution")(admonition("caution","Caution!")),
     BlockDirective("danger")(admonition("danger","!DANGER!")),
