@@ -49,24 +49,15 @@ trait BlockParsers extends laika.parse.BlockParsers
                         
   
   override def parseDocument (reader: Reader[Char], path: Path) = {
-    def extractConfig (config: Config, root: RootElement) = {
-      val title = (root collect { case DocumentTitle(title,_) => title } headOption) map (s => ("title", ConfigValueFactory.fromAnyRef(s))) toList
-      
-      val meta = root collect { case DocumentMetadata(map,_) => map } reduceLeft (_ ++ _)
-      val titleAndMeta = if (meta.isEmpty) title else ("meta", ConfigValueFactory.fromMap(meta)) :: title
-      
+    def extractDocInfo (config: Config, root: RootElement) = {
       val docStart = root.content dropWhile { case c: Comment => true; case h: DecoratedHeader => true; case _ => false } headOption 
       val docInfo = docStart collect { case FieldList(fields,_) => fields map (field => (TreeUtil.extractText(field.name), 
           field.content collect { case p: Paragraph => TreeUtil.extractText(p.content) } mkString)) toMap }
-      val extraConfig = (docInfo map (m => ("docInfo", ConfigValueFactory.fromMap(m))) toList) ::: titleAndMeta
-      
-      (config /: extraConfig) { case (config, (name, value)) =>
-        config.withValue(name, value)
-      }
+      docInfo map (i => config.withValue("docInfo", ConfigValueFactory.fromMap(i))) getOrElse config
     }
     
     val (config, root) = parseConfigAndRoot(reader, path)
-    val finalConfig = extractConfig(config, root)
+    val finalConfig = extractDocInfo(config, root)
     val finalRoot = root.copy(content = root.content ++ textRoleElements)
     new Document(path, finalRoot, TreeUtil.extractFragments(root.content), finalConfig, List(RewriteRules))
   }

@@ -148,7 +148,7 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
   /** The title directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#metadata-document-title]] for details.
    */
-  lazy val titleDirective = argument() map (DocumentTitle(_))
+  lazy val titleDirective = argument() map (ConfigValue("title", _))
   
   /** The meta directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#meta]] for details.
@@ -159,7 +159,7 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
    */
   lazy val meta = blockContent map {
     case FieldList(fields,_) :: Nil => 
-      DocumentMetadata(fields map (field => (TreeUtil.extractText(field.name), 
+      ConfigValue("meta", fields map (field => (TreeUtil.extractText(field.name), 
           field.content collect { case p: Paragraph => TreeUtil.extractText(p.content) } mkString)) toMap)
     case other => InvalidBlock(SystemMessage(Error, 
         "The meta directive expects a FieldList as its only block content"), BlockSequence(other))
