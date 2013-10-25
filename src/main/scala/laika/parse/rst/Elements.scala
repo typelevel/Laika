@@ -19,6 +19,7 @@ package laika.parse.rst
 import laika.tree.Elements._
 import laika.tree.Templates.PlaceholderBlock
 import laika.tree.Documents.DocumentContext
+import laika.tree.Documents.SectionInfo
 
 /** Provides the elements of the document tree that are too specific to reStructuredText
  *  to be added to the generic tree model. 
@@ -108,6 +109,28 @@ object Elements {
         case None => InvalidBlock(SystemMessage(Error, "Unresolvable path reference: " + path), 
             LiteralBlock(".. include:: " + path))
       }
+  }
+  
+  /** Generates a table of contents element inside a topic.
+   */
+  case class Contents (title: String, depth: Int = Int.MaxValue, local: Boolean = false, options: Options = NoOpt) extends Block with PlaceholderBlock {
+    private val format = StringBullet("*")
+    
+    def resolve (context: DocumentContext): Block = {
+      def sectionsToList (sections: Seq[SectionInfo], level: Int): List[Block] = {
+        def toLink (section: SectionInfo) = 
+          Paragraph(List(InternalLink(List(Text(section.title.text)), section.id, options = Styles("toc","level"+level))))
+        
+        if (sections.isEmpty || level > depth) Nil else {
+          val items = for (section <- sections) yield 
+              BulletListItem(toLink(section) :: sectionsToList(section.children, level + 1), format)
+          List(BulletList(items, format))
+        }
+      }
+        
+      val list = sectionsToList(context.document.sections, 1) // TODO - find parent for local toc
+      TitledBlock(List(Text(title)), list, options + Styles("topic"))
+    } 
   }
   
   

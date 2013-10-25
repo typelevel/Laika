@@ -78,6 +78,12 @@ import laika.tree.TreeUtil
  */
 trait StandardBlockDirectives { this: StandardSpanDirectives =>
 
+  private def positiveInt (value: String) = try { 
+      val i = value.toInt
+      if (i > 0) Right(i) else Left("Not a posivitve number: " + i)
+    } catch { 
+      case e: NumberFormatException => Left("Not a number: " + value)
+    }
   
   /** The compound directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#compound-paragraph]] for details.
@@ -181,6 +187,11 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
     (depth, start, prefix, suffix) => 
       val options = depth.toList ::: start.toList ::: prefix.toList ::: suffix.toList
       ConfigValue("sectionNumbers", options)
+  }
+  
+  lazy val contents = (optArgument(withWS = true) ~ optField("depth", positiveInt) ~ optField("local") ~ optField("class")) {
+    (title, depth, local, style) => 
+      Contents(title.getOrElse("Contents"), depth.getOrElse(Int.MaxValue), local.isDefined, toOptions(None, style))
   }
   
   /** The include directive,
