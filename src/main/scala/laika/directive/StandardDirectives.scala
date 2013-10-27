@@ -20,6 +20,8 @@ import Directives._
 import laika.util.Builders._
 import laika.tree.Elements._
 import laika.tree.Templates._
+import laika.tree.Documents.DocumentContext
+import laika.tree.Templates.rewriteRules
 
 /** 
  *  @author Jens Halm
@@ -30,14 +32,24 @@ trait StandardDirectives {
   lazy val templateFor = Templates.create("for") {
     import Templates.Combinators._
 
-    (attribute(Default) ~ body(Default) ~ context) {
-      (path, content, context) => {
+    (attribute(Default) ~ body(Default) ~ body("empty").optional ~ context) {
+      (path, content, fallback, context) => {
+        
+        def rewriteContent (value: Any) =
+          TemplateSpanSequence(content) rewrite rewriteRules(context.withReferenceContext(value))
+        
+        def rewriteFallback = 
+          fallback map (TemplateSpanSequence(_) rewrite rewriteRules(context)) getOrElse (TemplateString(""))
+        
         context.resolveReference(path) match {
-          case Some(value) => {
-            val rules = laika.tree.Templates.rewriteRules(context.withReferenceContext(value))
-            TemplateSpanSequence(content) rewrite rules
+          case Some(it: Iterable[_]) if it.isEmpty => rewriteFallback
+          case Some(it: Iterable[_]) => {
+            val spans = for (value <- it) yield rewriteContent(value)
+            TemplateSpanSequence(spans.toSeq)
           }
-          case None => TemplateString("")
+          case Some("") | Some(false) => rewriteFallback
+          case Some(value)            => rewriteContent(value)
+          case None                   => TemplateString("")
         }
       }
     }
