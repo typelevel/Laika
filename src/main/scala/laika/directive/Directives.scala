@@ -122,6 +122,8 @@ object Directives {
       
       def requiresContext: Boolean
       
+      def optional: DirectivePart[Option[A]] = map (Some(_))
+      
     }
     
     implicit object CanBuildDirectivePart extends CanBuild[DirectivePart] {
@@ -147,7 +149,7 @@ object Directives {
    
     object Combinators {
       
-      class RequiredPart[+A] (key: Key, converter: Converter[A], msg: => String) extends DirectivePart[A] {
+      private def requiredPart [T] (key: Key, converter: Converter[T], msg: => String) = new DirectivePart[T] {
       
         val requiresContext = false
         
@@ -155,7 +157,7 @@ object Directives {
         
         def apply (context: DirectiveContext) = convert(context).getOrElse(Failure(Seq(msg)))
         
-        def optional = new DirectivePart[Option[A]] {
+        override def optional = new DirectivePart[Option[T]] {
           val requiresContext = false
           def apply (context: DirectiveContext) = convert(context) match {
             case Some(Success(value)) => Success(Some(value))
@@ -171,11 +173,11 @@ object Directives {
         val requiresContext = reqContext
       }
       
-      def attribute [T](id: Id, converter: Converter[T] = Converters.string): RequiredPart[T] 
-          = new RequiredPart(Attribute(id), converter, "required "+Attribute(id).desc+" is missing") 
+      def attribute [T](id: Id, converter: Converter[T] = Converters.string): DirectivePart[T] 
+          = requiredPart(Attribute(id), converter, "required "+Attribute(id).desc+" is missing") 
       
-      def body [T](id: Id, converter: Converter[T] = Converters.parsed): RequiredPart[T] 
-          = new RequiredPart(Body(id), converter, "required "+Body(id).desc+" is missing")
+      def body [T](id: Id, converter: Converter[T] = Converters.parsed): DirectivePart[T] 
+          = requiredPart(Body(id), converter, "required "+Body(id).desc+" is missing")
       
       def parser: DirectivePart[Parser] = part(c => Success(c.parser))
 
