@@ -18,15 +18,31 @@ package laika.directive
 
 import Directives._
 import laika.util.Builders._
-import Directives.Blocks._
-import laika.util.Builders._
 import laika.tree.Elements._
+import laika.tree.Templates._
 
 /** 
  *  @author Jens Halm
  */
 trait StandardDirectives {
 
+  
+  lazy val templateFor = Templates.create("for") {
+    import Templates.Combinators._
+
+    (attribute(Default) ~ body(Default) ~ context) {
+      (path, content, context) => {
+        context.resolveReference(path) match {
+          case Some(value) => {
+            val rules = laika.tree.Templates.rewriteRules(context.withReferenceContext(value))
+            TemplateSpanSequence(content) rewrite rules
+          }
+          case None => TemplateString("")
+        }
+      }
+    }
+  }
+  
   
   lazy val blockFragment = Blocks.create("fragment") {
     import Blocks.Combinators._
