@@ -115,7 +115,31 @@ object Documents {
   
   case class DocumentInfo (/* TODO - define */)
   
-  class DocumentContext private (val document: Document, val parent: DocumentTree, val root: DocumentTree, baseConfig: Option[Config] = None) {
+  class ReferenceResolver (root: Any, parent: Option[ReferenceResolver] = None) {
+    
+    /* These are all dynamic, non-typesafe lookups for values where often both,
+     * the path from the template and the actual target value (e.g. from a config
+     * file) originate from text resources, so the dynamic lookup is justifiable here
+     * TODO - think about improvements for the error handling */
+    def resolve (target: Any, path: List[String], root: Boolean = false): (Option[Any], List[String]) = {
+      val result = target match {
+        case m: Map[_, _] => (m.asInstanceOf[Map[Any,Any]].get(path.head), path.tail)
+        case c: Config    => (Try{ c.getAnyRef(path.mkString(".")) }.toOption, Nil)
+        case other        => (Try{ target.getClass.getMethod(path.head).invoke(target) }.toOption, path.tail)
+      }
+      result match {
+        case (None, _) if (root && parent.isDefined) => parent.get.resolve(target, path, root)
+        case (None, _)            => (None, Nil)
+        case (Some(value), Nil)   => (Some(value), Nil)
+        case (Some(value), path)  => resolve(value, path)
+      }
+    }
+    
+    def resolve (path: List[String]): Option[Any] = resolve(root, path, true)._1
+    
+  }
+
+  class DocumentContext private (val document: Document, val parent: DocumentTree, val root: DocumentTree, baseConfig: Option[Config] = None) { self =>
     
     lazy val parents = {
       @tailrec def collect (path: Path, acc: List[DocumentTree]): Seq[DocumentTree] = {
@@ -156,33 +180,20 @@ object Documents {
       }
     }
     
-    private lazy val contextMap = Map[String,Any](
+    protected lazy val resolver = new ReferenceResolver(Map[String,Any](
       "config" -> config,
       "document" -> document,
       "parent" -> parent,
       "root" -> root
-    )
+    ))
     
-    def resolveReference (path: String): Option[Any] = {
-      
-      /* These are all dynamic, non-typesafe lookups for values where often both,
-       * the path from the template and the actual target value (e.g. from a config
-       * file) originate from text resources, so the dynamic lookup is justifiable here
-       * TODO - think about improvements for the error handling */
-      def resolve (target: Any, path: List[String]): (Option[Any], List[String]) = {
-        val result = target match {
-          case m: Map[_, _] => (m.asInstanceOf[Map[Any,Any]].get(path.head), path.tail)
-          case c: Config    => (Try{ c.getAnyRef(path.mkString(".")) }.toOption, Nil)
-          case other        => (Try{ target.getClass.getMethod(path.head).invoke(target) }.toOption, path.tail)
-        }
-        result match {
-          case (None, _)            => (None, Nil)
-          case (Some(value), Nil)   => (Some(value), Nil)
-          case (Some(value), path)  => resolve(value, path)
-        }
-      }
-      
-      resolve(contextMap, path.split("\\.").toList)._1
+    def resolveReference (path: String): Option[Any] = resolver.resolve(path.split("\\.").toList)
+    
+    def withReferenceContext (target: Any) = new DocumentContext(document, parent, root, baseConfig) {
+      override lazy val parents = self.parents
+      override lazy val config = self.config
+      override lazy val template = self.template
+      override protected lazy val resolver = new ReferenceResolver(target, Some(self.resolver))
     }
     
   }
