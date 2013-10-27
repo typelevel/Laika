@@ -54,6 +54,8 @@ object Templates { // TODO - maybe move to laika.template.Elements
   
   case class TemplateElement (element: Element, options: Options = NoOpt) extends TemplateSpan with ElementTraversal[TemplateElement]
 
+  case class TemplateSpanSequence (content: Seq[TemplateSpan], options: Options = NoOpt) extends TemplateSpan with ElementTraversal[TemplateSpanSequence]
+
   case class TemplateString (content: String, options: Options = NoOpt) extends TemplateSpan with TextContainer
   
   case class TemplateRoot (content: Seq[TemplateSpan], options: Options = NoOpt) extends Block with SpanContainer[TemplateRoot]
@@ -63,18 +65,22 @@ object Templates { // TODO - maybe move to laika.template.Elements
     val name = path.name
     
     def rewrite (context: DocumentContext) = {
-      lazy val rule: PartialFunction[Element, Option[Element]] = {
-        case ph: PlaceholderBlock => Some(rewriteChild(ph resolve context))
-        case ph: PlaceholderSpan  => Some(rewriteChild(ph resolve context))
-      }
-      def rewriteChild (e: Element) = e match {
-        case et: ElementTraversal[_] => et rewrite rule
-        case other => other
-      }
-      val newContent = content rewrite rule
+      val newContent = content rewrite rewriteRules(context)
       context.document.withRewrittenContent(RootElement(Seq(newContent)), context.document.fragments)
     }
     
+  }
+  
+  def rewriteRules (context: DocumentContext) = {
+    lazy val rule: PartialFunction[Element, Option[Element]] = {
+      case ph: PlaceholderBlock => Some(rewriteChild(ph resolve context))
+      case ph: PlaceholderSpan  => Some(rewriteChild(ph resolve context))
+    }
+    def rewriteChild (e: Element) = e match {
+      case et: ElementTraversal[_] => et rewrite rule
+      case other => other
+    }
+    rule
   }
   
 
