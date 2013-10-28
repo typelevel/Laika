@@ -36,7 +36,7 @@ object Documents {
                   val content: RootElement, 
                   val fragments: Map[String, Block] = Map.empty,
                   val config: Config = ConfigFactory.empty,
-                  rewriteRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]] = Nil) {
+                  rewriteRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]] = Nil) extends Navigatable {
     
     private lazy val linkResolver = LinkResolver(content)
     
@@ -245,6 +245,12 @@ object Documents {
     
   }
   
+  trait Navigatable {
+    
+    def path: Path
+    
+  }
+  
   class DocumentTree (val path:Path, 
                       val documents: Seq[Document], 
                       private[Documents] val templates: Seq[TemplateDocument] = Nil, 
@@ -252,9 +258,11 @@ object Documents {
                       val dynamicDocuments: Seq[Document] = Nil, 
                       val staticDocuments: Seq[Input] = Nil,
                       val subtrees: Seq[DocumentTree] = Nil, 
-                      private[Documents] val config: Option[Config] = None) {
+                      private[Documents] val config: Option[Config] = None) extends Navigatable {
     
     val name = path.name
+    
+    lazy val navigatables = documents ++ subtrees // TODO - allow for sorting by config (default to sorting by name)
     
     private val documentsByName = documents map {doc => (doc.name, doc)} toMap // TODO - handle duplicates
     private val subtreesByName = subtrees map {tree => (tree.name, tree)} toMap
