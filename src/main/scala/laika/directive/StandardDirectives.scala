@@ -20,7 +20,7 @@ import Directives._
 import laika.util.Builders._
 import laika.tree.Elements._
 import laika.tree.Templates._
-import laika.tree.Documents.DocumentContext
+import laika.tree.Documents._
 import laika.tree.Templates.rewriteRules
 
 /** 
@@ -52,6 +52,106 @@ trait StandardDirectives {
           case None                   => TemplateString("")
         }
       }
+    }
+  }
+  
+  def toc (depth: Option[Int], rootConfig: String, title: Option[String], context: DocumentContext) = {
+    
+    val format = StringBullet("*")
+    val maxLevel = depth getOrElse Int.MaxValue
+
+    // TODO - generate PathInfo for CrossLinks
+    
+    def isCurrent (doc: Document) = doc.path == context.document.path
+    
+    def sectionToLink (section: SectionInfo, path: Path, level: Int) = {
+      val options = Styles("toc","level"+level)
+      val title = List(Text(section.title.text))
+      
+      if (path == context.document.path)
+        Paragraph(List(InternalLink(title, section.id, options = options)))
+      else
+        Paragraph(List(CrossLink(title, section.id, null, options = Styles("toc","level"+level))))
+    }
+      
+    def docToLink (document: Document, level: Int) = {
+      val options = Styles("toc","level"+level)
+      val title = List(Text(document.title))
+      
+      if (isCurrent(document))
+        Paragraph(title, options = options + Styles("active"))
+      else
+        Paragraph(List(CrossLink(title, "", null, options = options)))
+    }  
+    
+    def treeToText (tree: DocumentTree, level: Int) =
+      Paragraph(List(Text("")), options = Styles("toc","level"+level)) // TODO - tree title
+    
+    def sectionsToList (sections: Seq[SectionInfo], path: Path, level: Int): List[Block] = {
+      
+      if (sections.isEmpty || level > maxLevel) Nil else {
+        val items = for (section <- sections) yield 
+            BulletListItem(sectionToLink(section, path, level) :: sectionsToList(section.children, path, level + 1), format)
+        List(BulletList(items, format))
+      }
+    }
+    
+    def navigatablesToList (navigatables: Seq[Navigatable], level: Int): List[Block] = {
+      def toLink (section: SectionInfo) = 
+        Paragraph(List(InternalLink(List(Text(section.title.text)), section.id, options = Styles("toc","level"+level))))
+      
+      if (navigatables.isEmpty || level > maxLevel) Nil else {
+        val items = for (navigatable <- navigatables) yield navigatable match {
+          case doc: Document => BulletListItem(docToLink(doc, level) :: sectionsToList(doc.sections, doc.path, level + 1), format)
+          case tree: DocumentTree => BulletListItem(treeToText(tree, level) :: navigatablesToList(tree.navigatables, level + 1), format)
+        }
+          
+        List(BulletList(items, format))
+      }
+    }
+      
+    val root = rootConfig match {
+      case "#rootTree"        => context.root
+      case "#currentTree"     => context.parent
+      case "#currentDocument" => context.document
+      case pathString => {
+        val path = Path(pathString)
+        val tree = if (path.isAbsolute) context.root else context.parent
+        tree.selectDocument(path).getOrElse(tree.selectSubtree(path).getOrElse(context.root))
+      }
+    }
+    
+    val list = root match {
+      case doc: Document      => sectionsToList(doc.sections, doc.path, 1)
+      case tree: DocumentTree => navigatablesToList(tree.navigatables, 1)
+    }
+    val titleSeq = List(Text(title.getOrElse("Contents")))
+    TitledBlock(titleSeq, list, Styles("toc"))
+  }
+  
+  lazy val templateToc = Templates.create("toc") {
+    import Templates.Combinators._
+    import Templates.Converters._
+    
+    (attribute("depth", positiveInt).optional ~ 
+        attribute("root").optional ~ 
+        attribute("title").optional ~ 
+        context) {  
+      (depth, rootConfig, title, context) =>
+        TemplateElement(toc(depth, rootConfig.getOrElse("#rootTree"), title, context))
+    }
+  }
+  
+  lazy val blockToc = Blocks.create("toc") {
+    import Blocks.Combinators._
+    import Blocks.Converters._
+    
+    (attribute("depth", positiveInt).optional ~ 
+        attribute("root").optional ~ 
+        attribute("title").optional ~ 
+        context) {  
+      (depth, rootConfig, title, context) =>
+        toc(depth, rootConfig.getOrElse("#rootTree"), title, context)
     }
   }
   
