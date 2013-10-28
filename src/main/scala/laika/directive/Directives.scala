@@ -145,6 +145,21 @@ object Directives {
       
       val parsed = (p: Parser, s: String) => Success(p(s))
       
+      val int = (p: Parser, s: String) => toInt(s, _ => true)
+
+      val positiveInt = (p: Parser, s: String) => toInt(s, _ > 0, "Not a positive integer")
+
+      val nonNegativeInt = (p: Parser, s: String) => toInt(s, _ >= 0, "Not a non-negative integer")
+      
+      private def toInt (s: String, f: Int => Boolean, msg: String = "") = { 
+        try { 
+          val i = s.toInt
+          if (f(i)) Success(i) else Failure(msg + ": " + i)
+        } catch { 
+          case e: NumberFormatException => Failure("Not an integer: " + s)
+        }
+    }
+      
     }
    
     object Combinators {
