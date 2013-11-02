@@ -66,7 +66,7 @@ trait StandardDirectives {
     
     def sectionToLink (section: SectionInfo, path: Path, level: Int) = {
       val options = Styles("toc","level"+level)
-      val title = List(Text(section.title.text))
+      val title = section.title.spans
       
       if (path == context.document.path)
         Paragraph(List(InternalLink(title, section.id, options = options)))
@@ -76,7 +76,7 @@ trait StandardDirectives {
       
     def docToLink (document: Document, level: Int) = {
       val options = Styles("toc","level"+level)
-      val title = List(Text(document.title))
+      val title = document.title
       
       if (isCurrent(document))
         Paragraph(title, options = options + Styles("active"))

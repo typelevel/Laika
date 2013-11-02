@@ -20,6 +20,7 @@ import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.Stack
 import laika.tree.Elements._
 import laika.tree.Documents.Document
+import laika.tree.Documents.DocumentContext
 
 /** Rewrite rules responsible for building the section structure
  *  of a document based on the header elements it contains and
@@ -27,10 +28,10 @@ import laika.tree.Documents.Document
  * 
  * @author Jens Halm
  */
-object SectionBuilder extends (() => PartialFunction[Element,Option[Element]]) {
+object SectionBuilder extends (DocumentContext => PartialFunction[Element,Option[Element]]) {
 
   
-  class DefaultRule { 
+  class DefaultRule (context: DocumentContext) { 
     
     class Builder (header:Header, id: String) {
     
@@ -45,23 +46,81 @@ object SectionBuilder extends (() => PartialFunction[Element,Option[Element]]) {
     }
     
     def buildSections (document: RootElement) = {
-      val stack = new Stack[Builder]
-      stack push new Builder(Header(0,Nil), "") 
       
-      def closeSections (toLevel: Int) = {
-        while (!stack.isEmpty && stack.top >= toLevel) {
-          val section = stack.pop.toSection
-          stack.top += section
+      val sectionStructure = {
+        
+        val stack = new Stack[Builder]
+        stack push new Builder(Header(0,Nil), "") 
+        
+        def closeSections (toLevel: Int) = {
+          while (!stack.isEmpty && stack.top >= toLevel) {
+            val section = stack.pop.toSection
+            stack.top += section
+          }
         }
+        
+        document.content.foreach { 
+          case h @ Header(level, _, Id(id)) => closeSections(level); stack push new Builder(h, id)
+          case block                        => stack.top += block
+        }
+    
+        closeSections(1)
+        
+        stack.pop.toSection.content
       }
       
-      document.content.foreach { 
-        case h @ Header(level, _, Id(id)) => closeSections(level); stack push new Builder(h, id)
-        case block                        => stack.top += block
+      val numberedSections = {
+        
+        val hasSectionNumbers = context.autonumbering.config.sections
+        val hasDocumentNumbers = context.autonumbering.config.documents
+        val hasTitle = sectionStructure collect { case s:Section => s } match {
+          case _ :: Nil => true
+          case _ => false
+        }
+        val docNumber = context.autonumbering.number 
+        val maxDepth = context.autonumbering.config.maxDepth
+          
+        def transformRootBlocks (blocks: Seq[Block]) = 
+          ((ListBuffer[Block]() /: blocks) {
+            case (acc, s: Section) => acc ++= transformRootSection(s)
+            case (acc, block) => acc += block
+          }).toList
+        
+        def transformRootSection (s: Section) = {
+          val header = if (hasDocumentNumbers) numberHeader(s.header, docNumber, "titleNumber") else s.header
+          val content = if (hasSectionNumbers) numberSections(s.content, docNumber) else s.content
+          header +: content
+        }
+        
+        def numberHeader (header: Header, num: List[Int], style: String) = header.copy(
+          content = Text(num.mkString("."), Styles(style)) +: header.content, 
+          options = header.options + Styles("title")
+        )
+          
+        def numberSection (s: Section, num: List[Int]) = s.copy(
+          header = numberHeader(s.header, num, "sectionNumber"),
+          content = numberSections(s.content, num)
+        )  
+        
+        def numberSections (blocks: Seq[Block], parentNumber: List[Int], hasTitle: Boolean = false): Seq[Block] = {
+          (((ListBuffer[Block](), 1, hasTitle) /: blocks) { 
+            case ((acc, num, title), s: Section) => {
+              val elements = 
+                if (title) transformRootSection(s) 
+                else if (parentNumber.length < maxDepth) numberSection(s, parentNumber :+ num) :: Nil
+                else List(s)
+              (acc ++= elements, if (title) num else num + 1, false)
+            }
+            case ((acc, num, title), block) => (acc += block, num, title)
+          })._1.toList
+        }
+        
+        if (hasSectionNumbers) numberSections(sectionStructure, docNumber, hasTitle)
+        else if (hasTitle) transformRootBlocks(sectionStructure)
+        else sectionStructure
       }
-  
-      closeSections(1)
-      RootElement(stack.pop.toSection.content)
+      
+      RootElement(numberedSections)
     }
 
     val rewrite: PartialFunction[Element, Option[Element]] = { 
@@ -72,6 +131,6 @@ object SectionBuilder extends (() => PartialFunction[Element,Option[Element]]) {
   /** Provides the default rewrite rules for building the section structure
    *  for the specified document (without applying them).
    */
-  def apply () = (new DefaultRule).rewrite
+  def apply (context: DocumentContext) = (new DefaultRule(context)).rewrite
   
 }

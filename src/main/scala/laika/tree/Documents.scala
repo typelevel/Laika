@@ -26,6 +26,7 @@ import com.typesafe.config.ConfigFactory
 import laika.io.InputProvider
 import laika.io.Input
 import scala.util.Try
+import laika.tree.Templates.TemplateRoot
 
 /** 
  *  @author Jens Halm
@@ -36,11 +37,12 @@ object Documents {
                   val content: RootElement, 
                   val fragments: Map[String, Block] = Map.empty,
                   val config: Config = ConfigFactory.empty,
+                  docNumber: List[Int] = Nil,
                   rewriteRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]] = Nil) extends Navigatable {
     
     private lazy val linkResolver = LinkResolver(content)
     
-    lazy val defaultRules = rewriteRules :+ (linkResolver.rewriteRules(_)) :+ {(_:DocumentContext) => SectionBuilder()}
+    lazy val defaultRules = rewriteRules :+ (linkResolver.rewriteRules(_)) :+ (SectionBuilder(_))
     
     private[Documents] lazy val targets = linkResolver.globalTargets ++ (linkResolver.globalTargets collect {
       case (UniqueSelector(name), target) => (PathSelector(path, name), target)
@@ -48,13 +50,20 @@ object Documents {
 
     val name = path.name
     
+    private def findRoot = {
+      (content select {
+        case RootElement(TemplateRoot(_,_) :: Nil) => false
+        case RootElement(_) => true
+        case _ => false
+      }).headOption map { case RootElement(content) => content } getOrElse Nil
+    }
+    
     def title = {
-      if (config.hasPath("title")) config.getString("title")
-      else (content.content collect {
-        case Section(Header(_,content,_),_,_) => content
-        case Header(_,content,_) => content
-        case DecoratedHeader(_,content,_) => content
-      }).headOption map (TreeUtil.extractText(_)) getOrElse ""
+      if (config.hasPath("title")) 
+        Text(docNumber.mkString("."), Styles("titleNumber")) +: List(Text(config.getString("title")))
+      else (findRoot collect {
+        case Header(_,content,Styles("title")) => content
+      }).headOption getOrElse List(Text(""))
     }
     
     lazy val sections = {
@@ -69,7 +78,7 @@ object Documents {
         }
       }
       
-      extractSections(Nil, content.content)
+      extractSections(Nil, findRoot)
     } 
 
     
@@ -91,12 +100,12 @@ object Documents {
       
       val newFragments = TreeUtil.extractFragments(BlockSequence(fragments.values.toSeq).rewrite(allRules).content) 
       
-      val newDoc = withRewrittenContent(newRoot, newFragments)
+      val newDoc = withRewrittenContent(newRoot, newFragments, context.autonumbering.number)
       
-      context.template map (_.rewrite(DocumentContext(newDoc))) getOrElse newDoc
+      context.template map (_.rewrite(context.withDocument(newDoc))) getOrElse newDoc
     }
     
-    def withRewrittenContent (newContent: RootElement, fragments: Map[String,Block]): Document = new Document(path, newContent, fragments, config) {
+    def withRewrittenContent (newContent: RootElement, fragments: Map[String,Block], docNumber: List[Int] = Nil): Document = new Document(path, newContent, fragments, config) {
       override lazy val defaultRules = Nil
       override val removeRules = this
     }
@@ -112,8 +121,6 @@ object Documents {
   case class TitleInfo (spans: Seq[Span]) {
     lazy val text = TreeUtil.extractText(spans)
   }
-  
-  case class DocumentInfo (/* TODO - define */)
   
   class ReferenceResolver (root: Any, parent: Option[ReferenceResolver] = None) {
     
@@ -139,7 +146,11 @@ object Documents {
     
   }
 
-  class DocumentContext private (val document: Document, val parent: DocumentTree, val root: DocumentTree, baseConfig: Option[Config] = None) { self =>
+  class DocumentContext private (val document: Document, 
+                                 val parent: DocumentTree, 
+                                 val root: DocumentTree,
+                                 val autonumbering: AutonumberContext,
+                                 baseConfig: Option[Config] = None) { self =>
     
     lazy val parents = {
       @tailrec def collect (path: Path, acc: List[DocumentTree]): Seq[DocumentTree] = {
@@ -189,12 +200,14 @@ object Documents {
     
     def resolveReference (path: String): Option[Any] = resolver.resolve(path.split("\\.").toList)
     
-    def withReferenceContext (target: Any) = new DocumentContext(document, parent, root, baseConfig) {
+    def withReferenceContext (target: Any) = new DocumentContext(document, parent, root, autonumbering, baseConfig) {
       override lazy val parents = self.parents
       override lazy val config = self.config
       override lazy val template = self.template
       override protected lazy val resolver = new ReferenceResolver(target, Some(self.resolver))
     }
+    
+    def withDocument (newDoc: Document) = new DocumentContext(newDoc, parent, root, autonumbering, baseConfig)
     
   }
   
@@ -202,14 +215,14 @@ object Documents {
     
     def apply (document: Document): DocumentContext = {
       val tree = new DocumentTree(Root, Seq(document))
-      new DocumentContext(document, tree, tree)
+      new DocumentContext(document, tree, tree, AutonumberContext.defaults)
     }
     
-    def apply (document: Document, parent: DocumentTree, root: DocumentTree): DocumentContext 
-      = new DocumentContext(document, parent, root)
+    def apply (document: Document, parent: DocumentTree, root: DocumentTree, autonumbering: AutonumberContext): DocumentContext 
+      = new DocumentContext(document, parent, root, autonumbering)
     
     def apply (path: Path, parent: DocumentTree, root: DocumentTree, config: Config): DocumentContext 
-      = new DocumentContext(new Document(path, RootElement(Nil)), parent, root, Some(config))
+      = new DocumentContext(new Document(path, RootElement(Nil)), parent, root, AutonumberContext.defaults, Some(config))
   }
   
   sealed abstract class DocumentType
@@ -296,25 +309,49 @@ object Documents {
     
     def selectTarget (selector: Selector) = targets.get(selector)
     
-    def rewrite: DocumentTree = rewrite(Nil, this)
+    def rewrite: DocumentTree = rewrite(Nil, AutonumberContext.defaults)
+    
+    def rewrite (autonumbering: AutonumberContext): DocumentTree = rewrite(Nil, autonumbering)
      
-    def rewrite (customRule: DocumentContext => PartialFunction[Element,Option[Element]]): DocumentTree = rewrite(List(customRule), this)
+    def rewrite (customRule: DocumentContext => PartialFunction[Element,Option[Element]]): DocumentTree = 
+      rewrite(List(customRule), AutonumberContext.defaults)
+        
+    def rewrite (customRule: DocumentContext => PartialFunction[Element,Option[Element]], 
+        autonumbering: AutonumberContext): DocumentTree = rewrite(List(customRule), autonumbering)
     
-    def rewrite (customRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]]): DocumentTree = rewrite(customRules, this)
+    def rewrite (customRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]], 
+        autonumbering: AutonumberContext): DocumentTree = rewrite(RewriteContext(this, customRules, autonumbering))
     
-    private def rewrite (customRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]], root: DocumentTree): DocumentTree = {
-      val docs = documents map (doc => { 
-        val context = DocumentContext(doc, this, root)
-        doc.rewrite(customRules map (_(context)), context)
+    private def rewrite (rewriteContext: RewriteContext): DocumentTree = {
+      
+      val autonumberConfig = config map (AutonumberConfig.fromConfig(_)) getOrElse rewriteContext.autonumbering.config
+      
+      def autonumberContextForChild (num: Int) =
+          if (autonumberConfig.documents) AutonumberContext(autonumberConfig, rewriteContext.autonumbering.number :+ num)
+          else                            AutonumberContext(autonumberConfig, Nil)
+      
+      def rewriteContextForChild (num: Int) = rewriteContext.copy(autonumbering = autonumberContextForChild(num))
+        
+      val (num, docs) = ((documents :\ (0, List[Document]())) { case (doc, (num, acc)) =>
+        val context = DocumentContext(doc, this, rewriteContext.root, autonumberContextForChild(num))
+        (num + 1, doc.rewrite(rewriteContext.rules map (_(context)), context) :: acc) 
       })
+      
       val dynamicDocs = dynamicTemplates map (doc => {
-        val context = DocumentContext(path / "<empty>", this, root, doc.config)
+        val context = DocumentContext(path / "<empty>", this, rewriteContext.root, doc.config)
         doc.rewrite(context)
       })
-      val trees = subtrees map (_.rewrite(customRules, root))
+      
+      val (_, trees) = ((subtrees :\ (num, List[DocumentTree]())) { case (subtree, (num, acc)) =>
+        (num + 1, subtree.rewrite(rewriteContextForChild(num)) :: acc) 
+      })
+      
       new DocumentTree(path, docs, Nil, Nil, dynamicDocs, staticDocuments, trees)  
     }
   }
+  
+  case class RewriteContext (root: DocumentTree, rules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]], autonumbering: AutonumberContext)
+    
   
   sealed abstract class Path {
     def parent: Path
@@ -370,6 +407,36 @@ object Documents {
       case (Parent(level), ".." :: rest) => apply(Parent(level+1), rest)
       case (parent, rest) => rest.foldLeft(parent)(_ / _)
     } 
+  }
+  
+  
+  case class AutonumberConfig (documents: Boolean, sections: Boolean, maxDepth: Int)
+
+  case class AutonumberContext (config: AutonumberConfig, number: List[Int] = Nil)
+  
+  object AutonumberConfig {
+    
+    def fromConfig (config: Config) = {
+      if (config.hasPath("autonumbering")) {
+        val nConf = config.getObject("autonumbering").toConfig
+        val (documents, sections) = if (nConf.hasPath("scope")) nConf.getString("scope") match {
+          case "documents" => (true,  false)
+          case "sections"  => (false, true)
+          case "all"       => (true,  true)
+          case "none"      => (false, false)
+          case _           => (false, false) // TODO - error handling
+        } else                (false, false)
+        val depth = if (nConf.hasPath("depth")) nConf.getInt("depth") else Int.MaxValue 
+        AutonumberConfig(documents, sections, depth)
+      }
+      else defaults
+    }
+    
+    def defaults = AutonumberConfig(false, false, 0)
+  }
+  
+  object AutonumberContext {
+    def defaults = AutonumberContext(AutonumberConfig.defaults)
   }
   
   

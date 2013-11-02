@@ -66,7 +66,7 @@ object Templates { // TODO - maybe move to laika.template.Elements
     
     def rewrite (context: DocumentContext) = {
       val newContent = content rewrite rewriteRules(context)
-      context.document.withRewrittenContent(RootElement(Seq(newContent)), context.document.fragments)
+      context.document.withRewrittenContent(RootElement(Seq(newContent)), context.document.fragments, context.autonumbering.number)
     }
     
   }

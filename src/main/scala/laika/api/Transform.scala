@@ -242,7 +242,7 @@ class Transform [W] private[Transform] (parser: ParserFactory, render: Render[W]
 
     val tree = parse.fromTree(config.input)
 
-    val rewritten = tree.rewrite(rules.all)
+    val rewritten = tree.rewrite(rules.all, AutonumberContext(AutonumberConfig.defaults)) // TODO - extract from config
     
     render from rewritten toTree config.output
   }

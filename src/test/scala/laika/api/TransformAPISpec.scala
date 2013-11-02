@@ -44,13 +44,11 @@ class TransformAPISpec extends FlatSpec
     |
     |text""".stripMargin 
   
-  val output = """RootElement - Blocks: 1
-    |. Section(Id(title))
-    |. . Header(1,Id(title)) - Spans: 1
-    |. . . Text - 'Title äöü'
-    |. . Content - Blocks: 1
-    |. . . Paragraph - Spans: 1
-    |. . . . Text - 'text'""".stripMargin
+  val output = """RootElement - Blocks: 2
+    |. Header(1,Id(title)) - Spans: 1
+    |. . Text - 'Title äöü'
+    |. Paragraph - Spans: 1
+    |. . Text - 'text'""".stripMargin
     
   val transform = Transform from Markdown to PrettyPrint
   

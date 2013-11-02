@@ -178,7 +178,7 @@ class RewriteRulesSpec extends FlatSpec
   
   it should "resolve references when some parent element also gets rewritten" in {
     val document = doc(DecoratedHeader(Underline('#'), List(txt("text1"), simpleLinkRef()), Id("header")), ExternalLinkDefinition("name", "http://foo/"))
-    rewritten (document) should be (doc(Section(Header(1, List(txt("text1"), extLink("http://foo/")), Id("header")), Nil, Id("header"))))
+    rewritten (document) should be (doc(Header(1, List(txt("text1"), extLink("http://foo/")), Id("header"))))
   }
   
   
@@ -195,7 +195,7 @@ class RewriteRulesSpec extends FlatSpec
   
   "The rewrite rules for header ids" should "retain the id of a header" in {
     val document = doc(Header(1, List(Text("text")), Id("header")))
-    rewritten (document) should be (doc(Section(Header(1, List(Text("text")), Id("header")), Nil, Id("header"))))
+    rewritten (document) should be (doc(Header(1, List(Text("text")), Id("header"))))
   }
   
   it should "append numbers to duplicate ids" in {

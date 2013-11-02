@@ -19,7 +19,6 @@ package laika.parse
 import laika.tree.Elements.Block
 import laika.tree.Elements.RootElement
 import laika.tree.Documents.Document
-import laika.tree.Documents.DocumentInfo
 import laika.tree.Documents.Root
 import scala.util.parsing.input.CharSequenceReader
 import scala.util.parsing.input.Reader
