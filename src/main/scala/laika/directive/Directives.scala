@@ -208,6 +208,8 @@ object Directives {
     
     def create (name: String)(part: DirectivePart[E]) = new Directive(name.toLowerCase, part)
     
+    def toMap (directives: Traversable[Directive]) = directives map (dir => (dir.name, dir)) toMap
+    
   }
   
   object Spans extends BuilderContext[Span] {

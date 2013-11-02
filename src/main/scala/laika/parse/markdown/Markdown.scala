@@ -20,6 +20,7 @@ import laika.io.Input
 import laika.parse.markdown.html.HTMLParsers
 import laika.tree.Documents.Document
 import laika.factory.ParserFactory
+  import laika.directive.StandardDirectives
 import laika.directive.Directives.Blocks
 import laika.directive.Directives.Spans
 import laika.template.TemplateParsers
@@ -75,9 +76,9 @@ class Markdown private (
   def strict = new Markdown(blockDirectives, spanDirectives, verbatimHTML, true)
   
   private lazy val parser = {
-    trait ExtendedParsers extends TemplateParsers.MarkupBlocks with TemplateParsers.MarkupSpans {
-      lazy val blockDirectiveMap = blockDirectives map { d => (d.name, d) } toMap
-      lazy val spanDirectiveMap = spanDirectives  map { d => (d.name, d) } toMap
+    trait ExtendedParsers extends TemplateParsers.MarkupBlocks with TemplateParsers.MarkupSpans with StandardDirectives {
+      lazy val blockDirectiveMap = Blocks.toMap(stdBlockDirectives) ++ Blocks.toMap(blockDirectives)
+      lazy val spanDirectiveMap = Spans.toMap(spanDirectives)
       def getBlockDirective (name: String) = blockDirectiveMap.get(name)
       def getSpanDirective (name: String) = spanDirectiveMap.get(name)
       

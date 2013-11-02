@@ -19,6 +19,7 @@ package laika.template
 import laika.io.Input
 import laika.tree.Templates.TemplateDocument
 import laika.directive.Directives.Templates
+import laika.directive.StandardDirectives
 
 /** 
  *  @author Jens Halm
@@ -27,8 +28,8 @@ class DefaultTemplate private (
     directives: List[Templates.Directive]) extends (Input => TemplateDocument) {
 
   
-  private lazy val parser = new TemplateParsers.Templates {
-    lazy val directiveMap  = directives  map { d => (d.name, d) } toMap
+  private lazy val parser = new TemplateParsers.Templates with StandardDirectives {
+    lazy val directiveMap  = Templates.toMap(stdTemplateDirectives) ++ Templates.toMap(directives)
     def getTemplateDirective (name: String) = directiveMap.get(name)
   }
   

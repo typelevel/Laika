@@ -166,4 +166,14 @@ trait StandardDirectives {
   
   // TODO - add template fragments
   
+  lazy val stdBlockDirectives = List(
+    blockToc,
+    blockFragment
+  )
+  
+  lazy val stdTemplateDirectives = List(
+    templateToc,
+    templateFor
+  )
+  
 }

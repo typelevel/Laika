@@ -30,6 +30,7 @@ import laika.directive.Directives.Blocks
 import laika.directive.Directives.Spans
 import laika.directive.DirectiveParsers
 import laika.template.TemplateParsers
+import laika.directive.StandardDirectives
   
 /** A parser for text written in reStructuredText markup. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:
@@ -201,9 +202,9 @@ class ReStructuredText private (
       def textRole (name: String): Option[RoleDirectivePart[String => Span]] = textRoles.get(name)
     }
     if (strict) new StrictParsers
-    else new StrictParsers with TemplateParsers.MarkupBlocks with TemplateParsers.MarkupSpans {
-      lazy val laikaBlockDirectives = self.laikaBlockDirectives map { d => (d.name, d) } toMap
-      lazy val laikaSpanDirectives  = self.laikaSpanDirectives  map { d => (d.name, d) } toMap
+    else new StrictParsers with TemplateParsers.MarkupBlocks with TemplateParsers.MarkupSpans with StandardDirectives {
+      lazy val laikaBlockDirectives = Blocks.toMap(stdBlockDirectives) ++ Blocks.toMap(self.laikaBlockDirectives)
+      lazy val laikaSpanDirectives  = Spans.toMap(self.laikaSpanDirectives)
       def getBlockDirective (name: String) = laikaBlockDirectives.get(name)
       def getSpanDirective (name: String) = laikaSpanDirectives.get(name)
     }
