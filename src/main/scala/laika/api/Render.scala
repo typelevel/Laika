@@ -134,9 +134,6 @@ class Render[W] private (factory: RendererFactory[W],
   
     def toDefaultDirectory (implicit codec: Codec) = toTree(DefaultDirectory(codec))
   
-
-    def toTree (provider: OutputProvider): Unit = toTree(OutputConfig(provider)) // TODO - remove
-    
     def toTree (builder: OutputConfigBuilder): Unit = toTree(builder.build)
       
     def toTree (config: OutputConfig): Unit = {
@@ -147,7 +144,7 @@ class Render[W] private (factory: RendererFactory[W],
         = () => from(doc.content).toOutput(provider.newOutput(doc.path.basename +"."+ factory.fileSuffix))
         
       def copy (provider: OutputProvider)(input: Input): Operation 
-        = () => IO.copy(input, provider.newOutput(input.path.name)) // TODO - allow to skip unmodified files or the entire copy step (configurable)
+        = () => IO.copy(input, provider.newOutput(input.path.name))
       
       def collectOperations (tree: DocumentTree, provider: OutputProvider): Seq[Operation] =
           (tree.documents map render(provider)) ++ 

@@ -102,8 +102,6 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
   
   def fromDefaultDirectory (implicit codec: Codec) = fromTree(DefaultDirectory(codec))
   
-  def fromTree (input: InputProvider): DocumentTree = fromTree(InputConfig(input, Nil, ParseTemplate)) // TODO - remove
-  
   def fromTree (builder: InputConfigBuilder): DocumentTree = fromTree(builder.build(factory)) 
   
   def fromTree (config: InputConfig): DocumentTree = {
@@ -128,7 +126,6 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
     def collectOperations[T] (provider: InputProvider, f: InputProvider => Seq[Operation[T]]): Seq[Operation[T]] =
       f(provider) ++ (config.provider.subtrees map (collectOperations(_,f))).flatten
     
-    // TODO - alternatively create Map here (do benchmarks)
     val operations = collectOperations(config.provider, _.markupDocuments.map(parseMarkup)) ++
                      collectOperations(config.provider, _.templates.map(parseTemplate(Template))) ++
                      collectOperations(config.provider, _.dynamicDocuments.map(parseTemplate(Dynamic))) ++

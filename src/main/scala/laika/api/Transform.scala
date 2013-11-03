@@ -25,6 +25,10 @@ import laika.tree.Elements.Element
 import laika.tree.RewriteRules
 import laika.factory.ParserFactory
 import laika.factory.RendererFactory
+import laika.io.InputProvider._
+import laika.io.OutputProvider._
+import laika.template.ParseTemplate
+import Transform._
   
 /** API for performing a transformation operation from and to various types of input and output,
  *  combining a parse and render operation. 
@@ -232,43 +236,23 @@ class Transform [W] private[Transform] (parser: ParserFactory, render: Render[W]
   def fromStream (stream: InputStream)(implicit codec: Codec) = new Operation(parse.fromStream(stream)(codec))
   
   
-  def withDefaultDirectories (implicit codec: Codec) = withRootDirectory(System.getProperty("user.dir"))(codec)
+  def withDefaultDirectories (implicit codec: Codec) = withConfig(DefaultDirectories(codec).build(parser))
   
   def withRootDirectory (name: String)(implicit codec: Codec): Unit = withRootDirectory(new File(name))(codec)
   
-  def withRootDirectory (dir: File)(implicit codec: Codec): Unit = withConfig(BatchConfig.defaultDirectoryLayout(dir)(codec))
+  def withRootDirectory (dir: File)(implicit codec: Codec): Unit = withConfig(RootDirectory(dir)(codec).build(parser))
   
   def withConfig (config: BatchConfig) = {
 
     val tree = parse.fromTree(config.input)
 
-    val rewritten = tree.rewrite(rules.all, AutonumberContext(AutonumberConfig.defaults)) // TODO - extract from config
+    val rewritten = tree.rewrite(rules.all, AutonumberContext.defaults) // TODO - extract from config
     
     render from rewritten toTree config.output
   }
   
-  // TODO - maybe add options for specifying input and output separately (e.g. fromDirectory toDirectory) + parallelization config
-  
-  
-  case class BatchConfig (input: InputProvider, output: OutputProvider)
-  
-  object BatchConfig {
+
     
-    def defaultDirectoryLayout (root: File)(implicit codec: Codec) = {
-      require(root.exists, "Directory "+root.getAbsolutePath()+" does not exist")
-      require(root.isDirectory, "File "+root.getAbsolutePath()+" is not a directoy")
-      
-      val sourceDir = new File(root, "source")
-      val targetDir = new File(root, "target")
-      
-      val docTypeMatcher = new DefaultDocumentTypeMatcher(parser.fileSuffixes, Seq("*.svn","*.git")) // TODO - expose hook for custom matchers or ignore patterns
-      
-      new BatchConfig(InputProvider.forRootDirectory(sourceDir, docTypeMatcher)(codec), OutputProvider.forRootDirectory(targetDir)(codec))
-    }
-    
-  }
-  
-  
 } 
 
 /** Serves as an entry point to the Transform API.
@@ -315,6 +299,54 @@ object Transform {
    *  @return a new Builder instance for specifying the renderer
    */
   def from (factory: ParserFactory): Builder = new Builder(factory)
+  
+  
+  // TODO - parallelization config
+  
+  case class BatchConfig (input: InputConfig, output: OutputConfig)
+  
+  class BatchConfigBuilder private[Transform] (inputBuilder: InputConfigBuilder, outputBuilder: OutputConfigBuilder) {
+    
+    def withTemplates (parser: ParseTemplate) = 
+      new BatchConfigBuilder(inputBuilder.withTemplates(parser), outputBuilder)
+    
+    def withDocTypeMatcher (matcher: Path => DocumentType) =
+      new BatchConfigBuilder(inputBuilder.withDocTypeMatcher(matcher), outputBuilder)
+
+    def withConfigFile (file: File) = 
+      new BatchConfigBuilder(inputBuilder.withConfigFile(file), outputBuilder)
+    def withConfigFile (name: String) =
+      new BatchConfigBuilder(inputBuilder.withConfigFile(name), outputBuilder)
+    def withConfigString (source: String) =
+      new BatchConfigBuilder(inputBuilder.withConfigString(source), outputBuilder)
+    
+    
+    def build (parser: ParserFactory) = BatchConfig(inputBuilder.build(parser), outputBuilder.build)
+  }
+  
+  object BatchConfigBuilder {
+    
+    def apply (root: File, codec: Codec) = {
+      require(root.exists, "Directory "+root.getAbsolutePath()+" does not exist")
+      require(root.isDirectory, "File "+root.getAbsolutePath()+" is not a directoy")
+      
+      val sourceDir = new File(root, "source")
+      val targetDir = new File(root, "target")
+      
+      new BatchConfigBuilder(InputProvider.Directory(sourceDir)(codec), OutputProvider.Directory(targetDir)(codec))
+    }
+    
+  }
+  
+  object RootDirectory {
+    def apply (name: String)(implicit codec: Codec) = BatchConfigBuilder(new File(name), codec)
+    def apply (file: File)(implicit codec: Codec) = BatchConfigBuilder(file, codec)
+  }
+  
+  object DefaultDirectories {
+    def apply (implicit codec: Codec) = BatchConfigBuilder(new File(System.getProperty("user.dir")), codec)
+  }
+  
   
   
 }
