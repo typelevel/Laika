@@ -107,7 +107,7 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
   def fromTree (config: InputConfig): DocumentTree = {
     
     abstract class ConfigInput (input: Input) {
-      val config = ConfigFactory.parseReader(input.asReader, ConfigParseOptions.defaults().setOriginDescription("path:"+input.path)) // TODO - error handling, in particular for parallel processing
+      val config = ConfigFactory.parseReader(input.asReader, ConfigParseOptions.defaults().setOriginDescription("path:"+input.path))
       val path = input.path
     }
     
@@ -132,7 +132,7 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
                      config.config.map(parseRootConfig) ++
                      collectOperations(config.provider, _.configDocuments.find(_.path.name == "default.conf").toList.map(parseTreeConfig)) // TODO - filename could be configurable
     
-    val results = operations map (_()) // TODO - these steps can optionally run in parallel
+    val results = if (config.parallel) operations.par map (_()) seq else operations map (_())
     
     val docMap = (results collect {
       case (Markup, doc: Document) => (doc.path, doc)

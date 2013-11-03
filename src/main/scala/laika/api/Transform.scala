@@ -320,6 +320,7 @@ object Transform {
     def withConfigString (source: String) =
       new BatchConfigBuilder(inputBuilder.withConfigString(source), outputBuilder)
     
+    def parallel = new BatchConfigBuilder(inputBuilder.parallel, outputBuilder.parallel)
     
     def build (parser: ParserFactory) = BatchConfig(inputBuilder.build(parser), outputBuilder.build)
   }

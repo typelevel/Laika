@@ -61,13 +61,16 @@ object OutputProvider {
     new DirectoryOutputProvider(root, codec)
   }
   
-  case class OutputConfig (provider: OutputProvider)
+  case class OutputConfig (provider: OutputProvider, parallel: Boolean)
 
   class OutputConfigBuilder private[OutputProvider] (
       dir: File,
-      codec: Codec) {
+      codec: Codec,
+      isParallel: Boolean = false) {
     
-    def build = OutputConfig(OutputProvider.forRootDirectory(dir)(codec))
+    def parallel = new OutputConfigBuilder(dir, codec, true)
+    
+    def build = OutputConfig(OutputProvider.forRootDirectory(dir)(codec), isParallel)
   }
   
   object Directory {

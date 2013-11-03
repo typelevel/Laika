@@ -86,31 +86,34 @@ object InputProvider {
   }
   
   
-  case class InputConfig (provider: InputProvider, config: Seq[Input], templateParser: ParseTemplate)
+  case class InputConfig (provider: InputProvider, config: Seq[Input], templateParser: ParseTemplate, parallel: Boolean)
   
   class InputConfigBuilder private[InputProvider] (
       dir: File,
       codec: Codec,
       docTypeMatcher: Option[Path => DocumentType] = None,
       templateParser: Option[ParseTemplate] = None,
-      config: List[Input] = Nil) {
+      config: List[Input] = Nil,
+      isParallel: Boolean = false) {
     
     def withTemplates (parser: ParseTemplate) = 
-      new InputConfigBuilder(dir, codec, docTypeMatcher, Some(parser), config)
+      new InputConfigBuilder(dir, codec, docTypeMatcher, Some(parser), config, isParallel)
     
     def withDocTypeMatcher (matcher: Path => DocumentType) =
-      new InputConfigBuilder(dir, codec, Some(matcher), templateParser, config)
+      new InputConfigBuilder(dir, codec, Some(matcher), templateParser, config, isParallel)
 
     def withConfigFile (file: File) = withConfigInput(Input.fromFile(file)(codec))
     def withConfigFile (name: String) = withConfigInput(Input.fromFile(name)(codec))
     def withConfigString (source: String) = withConfigInput(Input.fromString(source))
     private def withConfigInput (input: Input) = 
-      new InputConfigBuilder(dir, codec, docTypeMatcher, templateParser, input :: config)
+      new InputConfigBuilder(dir, codec, docTypeMatcher, templateParser, input :: config, isParallel)
+    
+    def parallel = new InputConfigBuilder(dir, codec, docTypeMatcher, templateParser, config, true) // TODO - 2.10 - allow for custom TaskSupport when dropping 2.9 support
     
     def build (parser: ParserFactory) = {
       val matcher = docTypeMatcher getOrElse new DefaultDocumentTypeMatcher(parser.fileSuffixes, Seq("*.svn","*.git"))
       val templates = templateParser getOrElse ParseTemplate
-      InputConfig(InputProvider.forRootDirectory(dir, matcher)(codec), config, templates)
+      InputConfig(InputProvider.forRootDirectory(dir, matcher)(codec), config, templates, isParallel)
     }
   }
   

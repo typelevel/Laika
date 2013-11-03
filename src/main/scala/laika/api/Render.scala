@@ -154,7 +154,7 @@ class Render[W] private (factory: RendererFactory[W],
     
       val operations = collectOperations(tree, config.provider)
       
-      operations foreach (_()) // TODO - this step can optionally run in parallel
+      (if (config.parallel) operations.par else operations) foreach (_())
     }
     
   }
