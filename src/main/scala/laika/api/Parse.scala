@@ -24,6 +24,7 @@ import laika.factory.ParserFactory
 import laika.io.IO
 import laika.io.Input
 import laika.io.InputProvider
+import laika.io.InputProvider._
 import laika.tree.Documents._
 import laika.tree.Templates.TemplateDocument
 import com.typesafe.config.ConfigFactory
@@ -101,50 +102,11 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
   
   def fromDefaultDirectory (implicit codec: Codec) = fromTree(DefaultDirectory(codec))
   
+  def fromTree (input: InputProvider): DocumentTree = fromTree(InputConfig(input, Nil, ParseTemplate)) // TODO - remove
   
-  case class InputTreeConfig (provider: InputProvider, config: Seq[Input], templateParser: ParseTemplate)
+  def fromTree (builder: InputConfigBuilder): DocumentTree = fromTree(builder.build(factory)) 
   
-  class InputConfigBuilder private[Parse] (
-      dir: File,
-      codec: Codec,
-      docTypeMatcher: Option[Path => DocumentType] = None,
-      templateParser: Option[ParseTemplate] = None,
-      config: List[Input] = Nil) {
-    
-    def withTemplates (parser: ParseTemplate) = 
-      new InputConfigBuilder(dir, codec, docTypeMatcher, Some(parser), config)
-    
-    def withDocTypeMatcher (matcher: Path => DocumentType) =
-      new InputConfigBuilder(dir, codec, Some(matcher), templateParser, config)
-
-    def withConfigFile (file: File) = withConfigInput(Input.fromFile(file)(codec))
-    def withConfigFile (name: String) = withConfigInput(Input.fromFile(name)(codec))
-    def withConfigString (source: String) = withConfigInput(Input.fromString(source))
-    private def withConfigInput (input: Input) = 
-      new InputConfigBuilder(dir, codec, docTypeMatcher, templateParser, input :: config)
-    
-    def build = {
-      val matcher = docTypeMatcher getOrElse new DefaultDocumentTypeMatcher(factory.fileSuffixes, Seq("*.svn","*.git"))
-      val templates = templateParser getOrElse ParseTemplate
-      InputTreeConfig(InputProvider.forRootDirectory(dir, matcher)(codec), config, templates)
-    }
-  }
-  
-  implicit def builderToConfig (builder: InputConfigBuilder): InputTreeConfig = builder.build
-  
-  object Directory {
-    def apply (name: String)(implicit codec: Codec) = new InputConfigBuilder(new File(name), codec)
-    def apply (file: File)(implicit codec: Codec) = new InputConfigBuilder(file, codec)
-  }
-  
-  object DefaultDirectory {
-    def apply (implicit codec: Codec) = Directory(System.getProperty("user.dir"))(codec)
-  }
-  
-  
-  def fromTree (input: InputProvider): DocumentTree = fromTree(InputTreeConfig(input, Nil, ParseTemplate)) // TODO - remove
-  
-  def fromTree (config: InputTreeConfig): DocumentTree = {
+  def fromTree (config: InputConfig): DocumentTree = {
     
     abstract class ConfigInput (input: Input) {
       val config = ConfigFactory.parseReader(input.asReader, ConfigParseOptions.defaults().setOriginDescription("path:"+input.path)) // TODO - error handling, in particular for parallel processing

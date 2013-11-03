@@ -26,6 +26,7 @@ import laika.io.Output
 import laika.tree.Elements.Element
 import laika.tree.Documents._
 import laika.io.OutputProvider
+import laika.io.OutputProvider._
 import laika.factory.RendererFactory
 import laika.io.Input
   
@@ -133,29 +134,12 @@ class Render[W] private (factory: RendererFactory[W],
   
     def toDefaultDirectory (implicit codec: Codec) = toTree(DefaultDirectory(codec))
   
-    case class OutputTreeConfig (provider: OutputProvider)
-  
-    class OutputConfigBuilder private[Render] (
-        dir: File,
-        codec: Codec) {
-      
-      def build = OutputTreeConfig(OutputProvider.forRootDirectory(dir)(codec))
-    }
-    
-    implicit def builderToConfig (builder: OutputConfigBuilder): OutputTreeConfig = builder.build
-    
-    object Directory {
-      def apply (name: String)(implicit codec: Codec) = new OutputConfigBuilder(new File(name), codec)
-      def apply (file: File)(implicit codec: Codec) = new OutputConfigBuilder(file, codec)
-    }
-    
-    object DefaultDirectory {
-      def apply (implicit codec: Codec) = Directory(System.getProperty("user.dir"))(codec)
-    }
 
-    def toTree (provider: OutputProvider): Unit = toTree(OutputTreeConfig(provider)) // TODO - remove
+    def toTree (provider: OutputProvider): Unit = toTree(OutputConfig(provider)) // TODO - remove
     
-    def toTree (config: OutputTreeConfig): Unit = {
+    def toTree (builder: OutputConfigBuilder): Unit = toTree(builder.build)
+      
+    def toTree (config: OutputConfig): Unit = {
       
       type Operation = () => Unit
       

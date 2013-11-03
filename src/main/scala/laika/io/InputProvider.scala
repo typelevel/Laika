@@ -19,6 +19,8 @@ package laika.io
 import java.io.File
 import laika.tree.Documents._
 import scala.io.Codec
+import laika.template.ParseTemplate
+import laika.factory.ParserFactory
 
 /** 
  *  @author Jens Halm
@@ -83,5 +85,42 @@ object InputProvider {
     new DirectoryInputProvider(root, Root, docTypeMatcher, codec)
   }
   
+  
+  case class InputConfig (provider: InputProvider, config: Seq[Input], templateParser: ParseTemplate)
+  
+  class InputConfigBuilder private[InputProvider] (
+      dir: File,
+      codec: Codec,
+      docTypeMatcher: Option[Path => DocumentType] = None,
+      templateParser: Option[ParseTemplate] = None,
+      config: List[Input] = Nil) {
+    
+    def withTemplates (parser: ParseTemplate) = 
+      new InputConfigBuilder(dir, codec, docTypeMatcher, Some(parser), config)
+    
+    def withDocTypeMatcher (matcher: Path => DocumentType) =
+      new InputConfigBuilder(dir, codec, Some(matcher), templateParser, config)
+
+    def withConfigFile (file: File) = withConfigInput(Input.fromFile(file)(codec))
+    def withConfigFile (name: String) = withConfigInput(Input.fromFile(name)(codec))
+    def withConfigString (source: String) = withConfigInput(Input.fromString(source))
+    private def withConfigInput (input: Input) = 
+      new InputConfigBuilder(dir, codec, docTypeMatcher, templateParser, input :: config)
+    
+    def build (parser: ParserFactory) = {
+      val matcher = docTypeMatcher getOrElse new DefaultDocumentTypeMatcher(parser.fileSuffixes, Seq("*.svn","*.git"))
+      val templates = templateParser getOrElse ParseTemplate
+      InputConfig(InputProvider.forRootDirectory(dir, matcher)(codec), config, templates)
+    }
+  }
+  
+  object Directory {
+    def apply (name: String)(implicit codec: Codec) = new InputConfigBuilder(new File(name), codec)
+    def apply (file: File)(implicit codec: Codec) = new InputConfigBuilder(file, codec)
+  }
+  
+  object DefaultDirectory {
+    def apply (implicit codec: Codec) = Directory(System.getProperty("user.dir"))(codec)
+  }
   
 }

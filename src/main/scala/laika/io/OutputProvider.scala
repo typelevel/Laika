@@ -61,4 +61,22 @@ object OutputProvider {
     new DirectoryOutputProvider(root, codec)
   }
   
+  case class OutputConfig (provider: OutputProvider)
+
+  class OutputConfigBuilder private[OutputProvider] (
+      dir: File,
+      codec: Codec) {
+    
+    def build = OutputConfig(OutputProvider.forRootDirectory(dir)(codec))
+  }
+  
+  object Directory {
+    def apply (name: String)(implicit codec: Codec) = new OutputConfigBuilder(new File(name), codec)
+    def apply (file: File)(implicit codec: Codec) = new OutputConfigBuilder(file, codec)
+  }
+  
+  object DefaultDirectory {
+    def apply (implicit codec: Codec) = Directory(System.getProperty("user.dir"))(codec)
+  }
+  
 }
