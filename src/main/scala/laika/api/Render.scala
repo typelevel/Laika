@@ -127,9 +127,35 @@ class Render[W] private (factory: RendererFactory[W],
   
   class BatchOperation private[Render] (tree: DocumentTree) {
     
-    // TODO - add toDirectory, toDefaultDirectories, toRootDirectory, Codec and parallelization hooks
+    def toDirectory (name: String)(implicit codec: Codec) = toTree(Directory(name)(codec))
 
-    def toTree (provider: OutputProvider) = {
+    def toDirectory (dir: File)(implicit codec: Codec) = toTree(Directory(dir)(codec))
+  
+    def toDefaultDirectory (implicit codec: Codec) = toTree(DefaultDirectory(codec))
+  
+    case class OutputTreeConfig (provider: OutputProvider)
+  
+    class OutputConfigBuilder private[Render] (
+        dir: File,
+        codec: Codec) {
+      
+      def build = OutputTreeConfig(OutputProvider.forRootDirectory(dir)(codec))
+    }
+    
+    implicit def builderToConfig (builder: OutputConfigBuilder): OutputTreeConfig = builder.build
+    
+    object Directory {
+      def apply (name: String)(implicit codec: Codec) = new OutputConfigBuilder(new File(name), codec)
+      def apply (file: File)(implicit codec: Codec) = new OutputConfigBuilder(file, codec)
+    }
+    
+    object DefaultDirectory {
+      def apply (implicit codec: Codec) = Directory(System.getProperty("user.dir"))(codec)
+    }
+
+    def toTree (provider: OutputProvider): Unit = toTree(OutputTreeConfig(provider)) // TODO - remove
+    
+    def toTree (config: OutputTreeConfig): Unit = {
       
       type Operation = () => Unit
       
@@ -145,7 +171,7 @@ class Render[W] private (factory: RendererFactory[W],
           (tree.staticDocuments map copy(provider)) ++
           (tree.subtrees map { tree => collectOperations(tree, provider.newChild(tree.name)) }).flatten
     
-      val operations = collectOperations(tree, provider)
+      val operations = collectOperations(tree, config.provider)
       
       operations foreach (_()) // TODO - this step can optionally run in parallel
     }
