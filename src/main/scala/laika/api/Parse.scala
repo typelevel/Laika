@@ -95,36 +95,85 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
     if (rewrite) doc.rewrite else doc
   }
   
-  // TODO - add fromDirectory, fromDefaultDirectories, fromRootDirectory, Codec and parallelization hooks
+  def fromDirectory (name: String)(implicit codec: Codec) = fromTree(Directory(name)(codec))
+
+  def fromDirectory (dir: File)(implicit codec: Codec) = fromTree(Directory(dir)(codec))
+  
+  def fromDefaultDirectory (implicit codec: Codec) = fromTree(DefaultDirectory(codec))
   
   
-  def fromTree (input: InputProvider) = {
+  case class InputTreeConfig (provider: InputProvider, config: Seq[Input], templateParser: ParseTemplate)
+  
+  class InputConfigBuilder private[Parse] (
+      dir: File,
+      codec: Codec,
+      docTypeMatcher: Option[Path => DocumentType] = None,
+      templateParser: Option[ParseTemplate] = None,
+      config: List[Input] = Nil) {
     
-    class TreeConfig (input: Input) {
+    def withTemplates (parser: ParseTemplate) = 
+      new InputConfigBuilder(dir, codec, docTypeMatcher, Some(parser), config)
+    
+    def withDocTypeMatcher (matcher: Path => DocumentType) =
+      new InputConfigBuilder(dir, codec, Some(matcher), templateParser, config)
+
+    def withConfigFile (file: File) = withConfigInput(Input.fromFile(file)(codec))
+    def withConfigFile (name: String) = withConfigInput(Input.fromFile(name)(codec))
+    def withConfigString (source: String) = withConfigInput(Input.fromString(source))
+    private def withConfigInput (input: Input) = 
+      new InputConfigBuilder(dir, codec, docTypeMatcher, templateParser, input :: config)
+    
+    def build = {
+      val matcher = docTypeMatcher getOrElse new DefaultDocumentTypeMatcher(factory.fileSuffixes, Seq("*.svn","*.git"))
+      val templates = templateParser getOrElse ParseTemplate
+      InputTreeConfig(InputProvider.forRootDirectory(dir, matcher)(codec), config, templates)
+    }
+  }
+  
+  implicit def builderToConfig (builder: InputConfigBuilder): InputTreeConfig = builder.build
+  
+  object Directory {
+    def apply (name: String)(implicit codec: Codec) = new InputConfigBuilder(new File(name), codec)
+    def apply (file: File)(implicit codec: Codec) = new InputConfigBuilder(file, codec)
+  }
+  
+  object DefaultDirectory {
+    def apply (implicit codec: Codec) = Directory(System.getProperty("user.dir"))(codec)
+  }
+  
+  
+  def fromTree (input: InputProvider): DocumentTree = fromTree(InputTreeConfig(input, Nil, ParseTemplate)) // TODO - remove
+  
+  def fromTree (config: InputTreeConfig): DocumentTree = {
+    
+    abstract class ConfigInput (input: Input) {
       val config = ConfigFactory.parseReader(input.asReader, ConfigParseOptions.defaults().setOriginDescription("path:"+input.path)) // TODO - error handling, in particular for parallel processing
       val path = input.path
     }
     
+    class TreeConfig (input: Input) extends ConfigInput(input)
+    class RootConfig (input: Input) extends ConfigInput(input)
+    
     type Operation[T] = () => (DocumentType, T)
 
-    val templateParser = ParseTemplate // TODO - should be pluggable
-    
     def parseMarkup (input: Input): Operation[Document] = () => (Markup, IO(input)(parse))
     
-    def parseTemplate (docType: DocumentType)(input: Input): Operation[TemplateDocument] = () => (docType, IO(input)(templateParser.fromInput(_)))
+    def parseTemplate (docType: DocumentType)(input: Input): Operation[TemplateDocument] = () => (docType, IO(input)(config.templateParser.fromInput(_)))
     
-    def parseConfig (input: Input): Operation[TreeConfig] = () => (Config, new TreeConfig(input)) 
+    def parseTreeConfig (input: Input): Operation[TreeConfig] = () => (Config, new TreeConfig(input)) 
+    def parseRootConfig (input: Input): Operation[RootConfig] = () => (Config, new RootConfig(input)) 
     
     def collectOperations[T] (provider: InputProvider, f: InputProvider => Seq[Operation[T]]): Seq[Operation[T]] =
-      f(provider) ++ (input.subtrees map (collectOperations(_,f))).flatten
+      f(provider) ++ (config.provider.subtrees map (collectOperations(_,f))).flatten
     
     // TODO - alternatively create Map here (do benchmarks)
-    val operations = collectOperations(input, _.markupDocuments.map(parseMarkup)) ++
-                     collectOperations(input, _.templates.map(parseTemplate(Template))) ++
-                     collectOperations(input, _.dynamicDocuments.map(parseTemplate(Dynamic))) ++
-                     collectOperations(input, _.configDocuments.find(_.path.name == "default.conf").toList.map(parseConfig)) // TODO - filename could be configurable
+    val operations = collectOperations(config.provider, _.markupDocuments.map(parseMarkup)) ++
+                     collectOperations(config.provider, _.templates.map(parseTemplate(Template))) ++
+                     collectOperations(config.provider, _.dynamicDocuments.map(parseTemplate(Dynamic))) ++
+                     config.config.map(parseRootConfig) ++
+                     collectOperations(config.provider, _.configDocuments.find(_.path.name == "default.conf").toList.map(parseTreeConfig)) // TODO - filename could be configurable
     
-    val results = operations map (_()) // TODO - this steps can optionally run in parallel
+    val results = operations map (_()) // TODO - these steps can optionally run in parallel
     
     val docMap = (results collect {
       case (Markup, doc: Document) => (doc.path, doc)
@@ -134,21 +183,27 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
       case (docType, doc: TemplateDocument) => ((docType, doc.path), doc)
     }) toMap
     
-    val configMap = (results collect {
+    val treeConfigMap = (results collect {
       case (Config, config: TreeConfig) => (config.path, config)
     }) toMap
     
-    def collectDocuments (provider: InputProvider): DocumentTree = {
+    val rootConfigSeq = (results collect {
+      case (Config, config: RootConfig) => config.config
+    })
+    
+    def collectDocuments (provider: InputProvider, root: Boolean = false): DocumentTree = {
       val docs = provider.markupDocuments map (i => docMap(i.path))
       val templates = provider.templates map (i => templateMap((Template,i.path)))
       val dynamic = provider.dynamicDocuments map (i => templateMap((Dynamic,i.path)))
-      val config = provider.configDocuments.find(_.path.name == "default.conf").map(i => configMap(i.path).config)
+      val treeConfig = provider.configDocuments.find(_.path.name == "default.conf").map(i => treeConfigMap(i.path).config)
+      val rootConfig = if (root) rootConfigSeq else Nil
       val static = provider.staticDocuments
-      val trees = provider.subtrees map (collectDocuments)
+      val trees = provider.subtrees map (collectDocuments(_))
+      val config = (treeConfig.toList ++ rootConfig) reduceLeftOption (_ withFallback _) 
       new DocumentTree(provider.path, docs, templates, dynamic, Nil, static, trees, config)
     }
     
-    val tree = collectDocuments(input)
+    val tree = collectDocuments(config.provider, true)
     if (rewrite) tree.rewrite else tree
   }
   
