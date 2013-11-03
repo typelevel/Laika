@@ -232,11 +232,11 @@ class Transform [W] private[Transform] (parser: ParserFactory, render: Render[W]
   def fromStream (stream: InputStream)(implicit codec: Codec) = new Operation(parse.fromStream(stream)(codec))
   
   
-  def withDefaultDirectories = withRootDirectory(System.getProperty("user.dir")) // TODO - charset + parallelization config
+  def withDefaultDirectories (implicit codec: Codec) = withRootDirectory(System.getProperty("user.dir"))(codec)
   
-  def withRootDirectory (name: String): Unit = withRootDirectory(new File(name))
+  def withRootDirectory (name: String)(implicit codec: Codec): Unit = withRootDirectory(new File(name))(codec)
   
-  def withRootDirectory (dir: File): Unit = withConfig(BatchConfig.defaultDirectoryLayout(dir))
+  def withRootDirectory (dir: File)(implicit codec: Codec): Unit = withConfig(BatchConfig.defaultDirectoryLayout(dir)(codec))
   
   def withConfig (config: BatchConfig) = {
 
@@ -247,14 +247,14 @@ class Transform [W] private[Transform] (parser: ParserFactory, render: Render[W]
     render from rewritten toTree config.output
   }
   
-  // TODO - maybe add options for specifying input and output separately (e.g. fromDirectory toDirectory)
+  // TODO - maybe add options for specifying input and output separately (e.g. fromDirectory toDirectory) + parallelization config
   
   
   case class BatchConfig (input: InputProvider, output: OutputProvider)
   
   object BatchConfig {
     
-    def defaultDirectoryLayout (root: File) = {
+    def defaultDirectoryLayout (root: File)(implicit codec: Codec) = {
       require(root.exists, "Directory "+root.getAbsolutePath()+" does not exist")
       require(root.isDirectory, "File "+root.getAbsolutePath()+" is not a directoy")
       
@@ -263,7 +263,7 @@ class Transform [W] private[Transform] (parser: ParserFactory, render: Render[W]
       
       val docTypeMatcher = new DefaultDocumentTypeMatcher(parser.fileSuffixes, Seq("*.svn","*.git")) // TODO - expose hook for custom matchers or ignore patterns
       
-      new BatchConfig(InputProvider.forRootDirectory(sourceDir, docTypeMatcher), OutputProvider.forRootDirectory(targetDir))
+      new BatchConfig(InputProvider.forRootDirectory(sourceDir, docTypeMatcher)(codec), OutputProvider.forRootDirectory(targetDir)(codec))
     }
     
   }

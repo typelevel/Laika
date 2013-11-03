@@ -17,6 +17,7 @@
 package laika.io
 
 import java.io.File
+import scala.io.Codec
 
 /** 
  *  @author Jens Halm
@@ -36,7 +37,7 @@ trait OutputProvider {
 
 object OutputProvider {
   
-  private class DirectoryOutputProvider (dir: File) extends OutputProvider {
+  private class DirectoryOutputProvider (dir: File, codec: Codec) extends OutputProvider {
     
     val name = dir.getName
     
@@ -54,10 +55,10 @@ object OutputProvider {
     
   }
   
-  def forRootDirectory (root: File): OutputProvider = {
+  def forRootDirectory (root: File)(implicit codec: Codec): OutputProvider = {
     require(root.isDirectory, "File "+root.getAbsolutePath()+" is not a directoy")
     
-    new DirectoryOutputProvider(root)
+    new DirectoryOutputProvider(root, codec)
   }
   
 }

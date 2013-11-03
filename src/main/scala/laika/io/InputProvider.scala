@@ -18,6 +18,7 @@ package laika.io
 
 import java.io.File
 import laika.tree.Documents._
+import scala.io.Codec
 
 /** 
  *  @author Jens Halm
@@ -47,11 +48,11 @@ trait InputProvider {
 
 object InputProvider {
   
-  private class DirectoryInputProvider (dir: File, val path: Path, docTypeMatcher: Path => DocumentType) extends InputProvider {
+  private class DirectoryInputProvider (dir: File, val path: Path, docTypeMatcher: Path => DocumentType, codec: Codec) extends InputProvider {
     
     private def docType (f: File) = docTypeMatcher(path / f.getName)
 
-    private def toInput (pairs: Array[(DocumentType,File)]) = pairs.map(p => Input.fromFile(p._2, path)).toList
+    private def toInput (pairs: Array[(DocumentType,File)]) = pairs.map(p => Input.fromFile(p._2, path)(codec)).toList
 
     private lazy val files = dir.listFiles filter (_.isFile) map (f => (docType(f), f)) groupBy (_._1)
     
@@ -70,16 +71,16 @@ object InputProvider {
     lazy val templates =  documents(Template)
     
     lazy val subtrees = {
-      dir.listFiles filter (f => f.isDirectory && docType(f) != Ignored) map (d => new DirectoryInputProvider(d, path / d.getName, docTypeMatcher)) toList
+      dir.listFiles filter (f => f.isDirectory && docType(f) != Ignored) map (d => new DirectoryInputProvider(d, path / d.getName, docTypeMatcher, codec)) toList
     }
     
   }
   
-  def forRootDirectory (root: File, docTypeMatcher: Path => DocumentType): InputProvider = {
+  def forRootDirectory (root: File, docTypeMatcher: Path => DocumentType)(implicit codec: Codec): InputProvider = {
     require(root.exists, "Directory "+root.getAbsolutePath()+" does not exist")
     require(root.isDirectory, "File "+root.getAbsolutePath()+" is not a directoy")
     
-    new DirectoryInputProvider(root, Root, docTypeMatcher)
+    new DirectoryInputProvider(root, Root, docTypeMatcher, codec)
   }
   
   
