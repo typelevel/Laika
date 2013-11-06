@@ -375,7 +375,7 @@ object Documents {
     lazy val prefix = parent.prefix
     override lazy val basename = if (name.contains('.')) name.take(name.lastIndexOf(".")) else name
     override lazy val suffix = if (name.contains('.')) name.drop(name.lastIndexOf(".")+1) else ""
-    override lazy val toString = components mkString "/"
+    override lazy val toString = prefix + (components mkString "/")
   }
   
   abstract class PathPrefix (val name: String) extends Path {
@@ -395,12 +395,17 @@ object Documents {
 
   object Path {
     def apply(str: String): Path = {
-      val trimmed = str.trim.stripSuffix("/")
+      val trimmed = str.trim match {
+        case "/" | "../" => str.trim 
+        case other => other.stripSuffix("/")
+      }
+      println(trimmed)
       val (parent, rest) = 
         if (trimmed.startsWith("/")) (Root, trimmed.drop(1))
         else if (trimmed.startsWith("../")) (Parent(1), trimmed.drop(3))
+        else if (trimmed == "..") (Parent(1), "")
         else (Current, trimmed)
-       apply(parent, rest.split("/").toList)
+       if (rest.isEmpty) parent else apply(parent, rest.split("/").toList)
     }
   
     @tailrec def apply (parent: Path, rest: List[String]): Path = (parent, rest) match {
