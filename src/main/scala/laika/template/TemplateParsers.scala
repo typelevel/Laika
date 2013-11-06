@@ -7,6 +7,7 @@ import laika.tree.Elements._
 import laika.directive.DirectiveParsers
 import laika.tree.Templates.TemplateSpan
 import laika.tree.Templates.ContextReference
+import laika.tree.Templates.TemplateString
 import laika.tree.Documents.Path
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
@@ -47,7 +48,10 @@ object TemplateParsers {
   
     
     def parseTemplate (reader: Reader[Char]) = {
-      val parser = spans(any, spanParsers) ^^ {_.collect{ case s:TemplateSpan => s }}
+      val parser = spans(any, spanParsers) ^^ { _.collect { 
+        case s:TemplateSpan => s 
+        case Text(s,opt) => TemplateString(s,opt)
+      }}
       TemplateRoot(parseMarkup(parser, reader))
     }
       

@@ -17,6 +17,7 @@
 package laika.tree.helper
 
 import laika.tree.Elements._
+import laika.tree.Templates._
    
 trait ModelBuilder {
 
@@ -75,6 +76,8 @@ trait ModelBuilder {
   }
   
   def doc (blocks: Block*) = RootElement(blocks.toList)
+  
+  def tRoot (spans: TemplateSpan*) = TemplateRoot(spans)
   
   def p (spans: Span*) = Paragraph(spans.toList)
   
