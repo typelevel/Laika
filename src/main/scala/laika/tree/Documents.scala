@@ -241,7 +241,7 @@ object Documents {
       case index => name.drop(index+1)
     }  
     
-    val IgnoredName = ignorePatterns.map(_.replaceAll(".","\\.").replaceAll("*",".*")).mkString("^","|","$").r
+    val IgnoredName = ignorePatterns.map(_.replaceAll("\\.","\\\\.").replaceAll("\\*",".*")).mkString("^","|","$").r
     
     val TemplateName = """.+\.template\.[^\.]+$""".r
     val DynamicName = """.+\.dynamic\.[^\.]+$""".r
