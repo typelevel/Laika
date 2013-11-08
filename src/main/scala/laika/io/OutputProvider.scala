@@ -63,20 +63,29 @@ object OutputProvider {
   }
   
   case class OutputConfig (provider: OutputProvider, parallel: Boolean)
+  
+  trait ProviderBuilder {
+    def build (codec: Codec): OutputProvider
+  }
+  
+  private[OutputProvider] class DirectoryProviderBuilder (root: File) extends ProviderBuilder {
+    def build (codec: Codec) = 
+      OutputProvider.forRootDirectory(root)(codec)
+  }
 
   class OutputConfigBuilder private[OutputProvider] (
-      dir: File,
+      provider: ProviderBuilder,
       codec: Codec,
       isParallel: Boolean = false) {
     
-    def parallel = new OutputConfigBuilder(dir, codec, true)
+    def parallel = new OutputConfigBuilder(provider, codec, true)
     
-    def build = OutputConfig(OutputProvider.forRootDirectory(dir)(codec), isParallel)
+    def build = OutputConfig(provider.build(codec), isParallel)
   }
   
   object Directory {
-    def apply (name: String)(implicit codec: Codec) = new OutputConfigBuilder(new File(name), codec)
-    def apply (file: File)(implicit codec: Codec) = new OutputConfigBuilder(file, codec)
+    def apply (name: String)(implicit codec: Codec) = new OutputConfigBuilder(new DirectoryProviderBuilder(new File(name)), codec)
+    def apply (file: File)(implicit codec: Codec) = new OutputConfigBuilder(new DirectoryProviderBuilder(file), codec)
   }
   
   object DefaultDirectory {
