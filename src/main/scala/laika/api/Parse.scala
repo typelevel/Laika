@@ -124,7 +124,7 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
     def parseRootConfig (input: Input): Operation[RootConfig] = () => (Config, new RootConfig(input)) 
     
     def collectOperations[T] (provider: InputProvider, f: InputProvider => Seq[Operation[T]]): Seq[Operation[T]] =
-      f(provider) ++ (config.provider.subtrees map (collectOperations(_,f))).flatten
+      f(provider) ++ (provider.subtrees map (collectOperations(_,f))).flatten
     
     val operations = collectOperations(config.provider, _.markupDocuments.map(parseMarkup)) ++
                      collectOperations(config.provider, _.templates.map(parseTemplate(Template))) ++
