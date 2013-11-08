@@ -18,14 +18,17 @@ package laika.io
 
 import java.io.File
 import scala.io.Codec
+import laika.tree.Documents.Path
+import laika.tree.Documents.Root
 
 /** 
  *  @author Jens Halm
  */
 trait OutputProvider {
 
+  lazy val name: String = path.name
   
-  def name: String
+  def path: Path
   
   def newOutput (name: String): Output
   
@@ -37,9 +40,7 @@ trait OutputProvider {
 
 object OutputProvider {
   
-  private class DirectoryOutputProvider (dir: File, codec: Codec) extends OutputProvider {
-    
-    val name = dir.getName
+  private class DirectoryOutputProvider (dir: File, val path: Path, codec: Codec) extends OutputProvider {
     
     def newOutput (name: String) = {
       val f = new File(dir, name)
@@ -50,7 +51,7 @@ object OutputProvider {
       val f = new File(dir, name)
       require(!f.exists || f.isDirectory, "File "+f.getAbsolutePath+" exists and is not a directoy")
       if (!f.exists && !f.mkdir()) throw new IllegalStateException("Unable to create directory "+f.getAbsolutePath)
-      forRootDirectory(f)
+      new DirectoryOutputProvider(f, path / name, codec)
     }
     
   }
@@ -58,7 +59,7 @@ object OutputProvider {
   def forRootDirectory (root: File)(implicit codec: Codec): OutputProvider = {
     require(root.isDirectory, "File "+root.getAbsolutePath()+" is not a directoy")
     
-    new DirectoryOutputProvider(root, codec)
+    new DirectoryOutputProvider(root, Root, codec)
   }
   
   case class OutputConfig (provider: OutputProvider, parallel: Boolean)
