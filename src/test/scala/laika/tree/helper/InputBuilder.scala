@@ -1,3 +1,19 @@
+/*
+ * Copyright 2013 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package laika.tree.helper
 
 import laika.io.Input
@@ -40,25 +56,6 @@ trait InputBuilder {
   def parseTreeStructure (source: String): ProviderBuilder = parseTree(source.split("\n").toList)._1
   
   
-  def createProvider (dirs: List[ProviderBuilder], files: List[(String,String)], path: Path, docTypeMatcher: Path => DocumentType): InputProvider = {
-    
-    def getInput (inputName: String, contentId: String, path: Path) = {
-      val content = contents(contentId).replace("@name", inputName)
-      Input.fromString(content, path / inputName)
-    }
-    
-    def docType (name: String) = docTypeMatcher(path / name)
-
-    val fileMap = files map (f => (docType(f._1), getInput(f._1, f._2, path))) groupBy (_._1)
-    
-    def documents (docType: DocumentType) = fileMap.get(docType).map(_.map(_._2)).getOrElse(Nil)
-    
-    val subtrees = dirs map (_.build(docTypeMatcher,null)) filter (d => docType(d.path.name) != Ignored)
-    
-    TestInputProvider(path, documents(Config), documents(Markup), documents(Dynamic), documents(Static), documents(Template), subtrees)
-    
-  }
-  
   case class TestInputProvider (path: Path,
     configDocuments: Seq[Input],
     markupDocuments: Seq[Input],
@@ -69,8 +66,25 @@ trait InputBuilder {
   ) extends InputProvider
   
   private[InputBuilder] class TestProviderBuilder (dirs: List[TestProviderBuilder], files: List[(String,String)], val path: Path) extends ProviderBuilder {
-    def build (docTypeMatcher: Path => DocumentType, codec: Codec) = 
-      createProvider(dirs, files, path, docTypeMatcher)
+    
+    def build (docTypeMatcher: Path => DocumentType, codec: Codec): InputProvider = {
+    
+      def getInput (inputName: String, contentId: String, path: Path) = {
+        val content = contents(contentId).replace("@name", inputName)
+        Input.fromString(content, path / inputName)
+      }
+      
+      def docType (name: String) = docTypeMatcher(path / name)
+  
+      val fileMap = files map (f => (docType(f._1), getInput(f._1, f._2, path))) groupBy (_._1)
+      
+      def documents (docType: DocumentType) = fileMap.get(docType).map(_.map(_._2)).getOrElse(Nil)
+      
+      val subtrees = dirs map (_.build(docTypeMatcher,null)) filter (d => docType(d.path.name) != Ignored)
+      
+      TestInputProvider(path, documents(Config), documents(Markup), documents(Dynamic), documents(Static), documents(Template), subtrees)
+      
+    }
   }
   
   
