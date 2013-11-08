@@ -97,7 +97,7 @@ object InputProvider {
       InputProvider.forRootDirectory(root, docTypeMatcher)(codec)
   }
   
-  class InputConfigBuilder private[InputProvider] (
+  class InputConfigBuilder (
       provider: ProviderBuilder,
       codec: Codec,
       docTypeMatcher: Option[Path => DocumentType] = None,
