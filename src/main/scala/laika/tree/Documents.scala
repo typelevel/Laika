@@ -114,12 +114,12 @@ object Documents {
     
   }
   
-  case class SectionInfo (position: List[Int], id: String, title: TitleInfo, children: Seq[SectionInfo]) {
+  case class SectionInfo (position: List[Int], id: String, title: TitleInfo, children: Seq[SectionInfo]) extends Element {
     val level = position.length
   }
   
-  case class TitleInfo (spans: Seq[Span]) {
-    lazy val text = TreeUtil.extractText(spans)
+  case class TitleInfo (content: Seq[Span]) extends SpanContainer[TitleInfo] {
+    lazy val text = TreeUtil.extractText(content)
   }
   
   class ReferenceResolver (root: Any, parent: Option[ReferenceResolver] = None) {
@@ -266,12 +266,12 @@ object Documents {
   
   class DocumentTree (val path:Path, 
                       val documents: Seq[Document], 
-                      private[Documents] val templates: Seq[TemplateDocument] = Nil, 
-                      private[Documents] val dynamicTemplates: Seq[TemplateDocument] = Nil, 
+                      private[tree] val templates: Seq[TemplateDocument] = Nil, 
+                      private[tree] val dynamicTemplates: Seq[TemplateDocument] = Nil, 
                       val dynamicDocuments: Seq[Document] = Nil, 
                       val staticDocuments: Seq[Input] = Nil,
                       val subtrees: Seq[DocumentTree] = Nil, 
-                      private[Documents] val config: Option[Config] = None) extends Navigatable {
+                      private[tree] val config: Option[Config] = None) extends Navigatable {
     
     val name = path.name
     
@@ -338,7 +338,7 @@ object Documents {
       })
       
       val dynamicDocs = dynamicTemplates map (doc => {
-        val context = DocumentContext(path / "<empty>", this, rewriteContext.root, doc.config)
+        val context = DocumentContext(doc.path, this, rewriteContext.root, doc.config)
         doc.rewrite(context)
       })
       
@@ -399,7 +399,6 @@ object Documents {
         case "/" | "../" => str.trim 
         case other => other.stripSuffix("/")
       }
-      println(trimmed)
       val (parent, rest) = 
         if (trimmed.startsWith("/")) (Root, trimmed.drop(1))
         else if (trimmed.startsWith("../")) (Parent(1), trimmed.drop(3))
