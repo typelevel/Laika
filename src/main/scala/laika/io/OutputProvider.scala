@@ -73,7 +73,7 @@ object OutputProvider {
       OutputProvider.forRootDirectory(root)(codec)
   }
 
-  class OutputConfigBuilder private[OutputProvider] (
+  class OutputConfigBuilder (
       provider: ProviderBuilder,
       codec: Codec,
       isParallel: Boolean = false) {
