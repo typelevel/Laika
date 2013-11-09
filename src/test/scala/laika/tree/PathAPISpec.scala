@@ -113,4 +113,28 @@ class PathAPISpec extends FlatSpec
     Root / "foo" / "bar" / (Parent(2)) should be (Root)
   }
   
+  it should "create a relative path pointing to the same directory" in {
+    (Root / "a").relativeTo(Root / "a") should be (Current)
+  }
+  
+  it should "create a relative path pointing to a parent directory" in {
+    (Root / "a").relativeTo(Root / "a" / "b") should be (Parent(1))
+  }
+  
+  it should "create a relative path pointing to a child directory" in {
+    (Root / "a" / "b").relativeTo(Root / "a") should be (Current / "b")
+  }
+  
+  it should "create a relative path pointing to a sibling directory" in {
+    (Root / "a" / "b").relativeTo(Root / "a" / "c") should be (Parent(1) / "b")
+  }
+  
+  it should "return the argument unaltered when calling relativeTo on an absolute path passing a relative path" in {
+    (Root / "a" / "b").relativeTo(Current / "a" / "c") should be (Root / "a" / "b")
+  }
+  
+  it should "join two paths when relativeTo is called on a relative path passing an absolute path" in {
+    (Current / "a" / "b").relativeTo(Root / "a" / "c") should be (Root / "a" / "c" / "a" / "b")
+  }
+  
 }

@@ -366,6 +366,25 @@ object Documents {
       case Parent(1) => parent / Path(Current, path.components)
       case Parent(i) => parent / Path(Parent(i-1), path.components)
     }
+    def relativeTo (path: Path): Path = {
+      def buildRelativePath = {
+        def removeCommonParts (a: List[String], b: List[String]): (List[String],List[String]) = (a,b) match {
+            case (p1 :: rest1, p2 :: rest2) if p1 == p2 => removeCommonParts(rest1,rest2)
+            case _ => (a,b)
+          }
+          val (a,b) = removeCommonParts(path.components, components)
+          val pref = a match {
+            case Nil => Current
+            case list => Parent(list.length)
+          }
+          Path(pref, b)
+      }
+      (isAbsolute, path.isAbsolute) match {
+        case (true, true) | (false, false) => buildRelativePath
+        case (true, false) => this // there is no other sensible result for this case
+        case (false, true) => path / this
+      }
+    }
     def suffix = ""
     def basename = name
   }
