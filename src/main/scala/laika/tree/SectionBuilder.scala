@@ -87,18 +87,18 @@ object SectionBuilder extends (DocumentContext => PartialFunction[Element,Option
           }).toList
         
         def transformRootSection (s: Section) = {
-          val header = if (hasDocumentNumbers) numberHeader(s.header, docNumber, "titleNumber") else s.header
+          val header = if (hasDocumentNumbers) numberHeader(s.header, docNumber, "title") else s.header
           val content = if (hasSectionNumbers) numberSections(s.content, docNumber) else s.content
           header +: content
         }
         
         def numberHeader (header: Header, num: List[Int], style: String) = header.copy(
-          content = Text(num.mkString("."), Styles(style)) +: header.content, 
-          options = header.options + Styles("title")
+          content = Text(num.mkString("."), Styles(style+"Number")) +: header.content, 
+          options = header.options + Styles(style)
         )
           
         def numberSection (s: Section, num: List[Int]) = s.copy(
-          header = numberHeader(s.header, num, "sectionNumber"),
+          header = numberHeader(s.header, num, "section"),
           content = numberSections(s.content, num)
         )  
         
