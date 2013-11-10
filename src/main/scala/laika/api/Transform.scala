@@ -80,7 +80,7 @@ class Transform [W] private[Transform] (parser: ParserFactory, render: Render[W]
    */
   class Operation private[Transform] (raw: Document) { 
 
-    private val document = raw rewrite rules.forContext(DocumentContext(raw))
+    private val document = raw rewriteWith rules.forContext(DocumentContext(raw))
     private val op = render from document
     
     /** Renders to the file with the specified name.

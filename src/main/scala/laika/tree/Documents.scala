@@ -59,8 +59,10 @@ object Documents {
     }
     
     def title = {
-      if (config.hasPath("title")) 
-        Text(docNumber.mkString("."), Styles("titleNumber")) +: List(Text(config.getString("title")))
+      if (config.hasPath("title")) docNumber match {
+        case Nil => List(Text(config.getString("title")))
+        case _ => Text(docNumber.mkString("."), Styles("titleNumber")) +: List(Text(config.getString("title")))
+      }
       else (findRoot collect {
         case Header(_,content,Styles("title")) => content
       }).headOption getOrElse List(Text(""))
@@ -84,13 +86,13 @@ object Documents {
     
     val isRewritten = rewriteRules.isEmpty
     
-    def rewrite: Document = rewrite(Nil)
+    def rewrite: Document = rewriteWith(Nil)
      
-    def rewrite (customRule: PartialFunction[Element,Option[Element]]): Document = rewrite(List(customRule))
+    def rewrite (customRule: PartialFunction[Element,Option[Element]]): Document = rewriteWith(List(customRule))
     
-    def rewrite (customRules: Seq[PartialFunction[Element,Option[Element]]]): Document = rewrite(customRules, DocumentContext(this))
+    def rewriteWith (customRules: Seq[PartialFunction[Element,Option[Element]]]): Document = rewriteWith(customRules, DocumentContext(this))
       
-    private[Documents] def rewrite (customRules: Seq[PartialFunction[Element,Option[Element]]], context: DocumentContext): Document = {
+    private[Documents] def rewriteWith (customRules: Seq[PartialFunction[Element,Option[Element]]], context: DocumentContext): Document = {
       
       val resolvedRules = (defaultRules map { _(context) })      
       
@@ -335,7 +337,7 @@ object Documents {
         
       val (_, docs) = ((documents :\ (documents.length, List[Document]())) { case (doc, (num, acc)) =>
         val context = DocumentContext(doc, this, rewriteContext.root, autonumberContextForChild(num))
-        (num - 1, doc.rewrite(rewriteContext.rules map (_(context)), context) :: acc) 
+        (num - 1, doc.rewriteWith(rewriteContext.rules map (_(context)), context) :: acc) 
       })
       
       val dynamicDocs = dynamicTemplates map (doc => {

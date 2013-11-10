@@ -44,8 +44,9 @@ object RewriteRules {
   def chain (rules: Seq[PartialFunction[Element,Option[Element]]]) = {
     
     val fallback: PartialFunction[Element, Option[Element]] = { case e => Some(e) }
-      
-    (rules map { _ orElse fallback }) reduceRight { (ruleA,ruleB) => ruleA andThen (_ flatMap ruleB) }
+    
+    if (rules.isEmpty) fallback  
+    else (rules map { _ orElse fallback }) reduceRight { (ruleA,ruleB) => ruleA andThen (_ flatMap ruleB) }
   }
   
    
