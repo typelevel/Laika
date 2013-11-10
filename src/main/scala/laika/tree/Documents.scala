@@ -71,9 +71,9 @@ object Documents {
       def extractSections (parentPos: List[Int], blocks: Seq[Block]): Seq[SectionInfo] = {
         val positions = Stream.from(1).iterator
         blocks collect {
-          case Section(header, content, Id(id)) => {
+          case Section(Header(_,header,Id(id)), content, _) => {
             val pos = positions.next :: parentPos 
-            SectionInfo(pos.reverse, id, TitleInfo(header.content), extractSections(pos, content)) 
+            SectionInfo(pos.reverse, id, TitleInfo(header), extractSections(pos, content)) 
           }
         }
       }

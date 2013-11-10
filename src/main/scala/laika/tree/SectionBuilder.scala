@@ -41,7 +41,7 @@ object SectionBuilder extends (DocumentContext => PartialFunction[Element,Option
       
       def >= (level: Int) = header.level >= level
       
-      def toSection = Section(header, buffer.toList, Id(id))
+      def toSection = Section(header, buffer.toList)
       
     }
     

@@ -200,8 +200,8 @@ class RewriteRulesSpec extends FlatSpec
   
   it should "append numbers to duplicate ids" in {
     val document = doc(Header(1, List(Text("text1")), Id("header")), Header(1, List(Text("text2")), Id("header")))
-    rewritten (document) should be (doc(Section(Header(1, List(Text("text1")), Id("header")), Nil, Id("header")), 
-                                        Section(Header(1, List(Text("text2")), Id("header-1")), Nil, Id("header-1"))))
+    rewritten (document) should be (doc(Section(Header(1, List(Text("text1")), Id("header")), Nil), 
+                                        Section(Header(1, List(Text("text2")), Id("header-1")), Nil)))
   }
   
   
@@ -209,8 +209,8 @@ class RewriteRulesSpec extends FlatSpec
     val document = doc(DecoratedHeader(Underline('#'), List(Text("text1")), Id("header1")),
                        DecoratedHeader(Underline('#'), List(Text("text2")), Id("header2")))
     rewritten (document) should be (doc(
-        Section(Header(1, List(Text("text1")), Id("header1")), Nil, Id("header1")),
-        Section(Header(1, List(Text("text2")), Id("header2")), Nil, Id("header2"))))
+        Section(Header(1, List(Text("text1")), Id("header1")), Nil),
+        Section(Header(1, List(Text("text2")), Id("header2")), Nil)))
   }
   
   it should "set the level of the header in a nested list of headers" in {
@@ -219,16 +219,16 @@ class RewriteRulesSpec extends FlatSpec
                        DecoratedHeader(Underline('#'), List(Text("text")), Id("header3")))
     rewritten (document) should be (doc(
         Section(Header(1, List(Text("text")), Id("header1")), List(
-            Section(Header(2, List(Text("nested")), Id("header2")), Nil, Id("header2"))), Id("header1")),
-        Section(Header(1, List(Text("text")), Id("header3")), Nil, Id("header3"))))
+            Section(Header(2, List(Text("nested")), Id("header2")), Nil))),
+        Section(Header(1, List(Text("text")), Id("header3")), Nil)))
   }
   
   it should "append numbers to duplicate ids" in {
     val document = doc(DecoratedHeader(Underline('#'), List(Text("text1")), Id("header")),
                        DecoratedHeader(Underline('#'), List(Text("text2")), Id("header")))
     rewritten (document) should be (doc(
-        Section(Header(1, List(Text("text1")), Id("header")), Nil, Id("header")),
-        Section(Header(1, List(Text("text2")), Id("header-1")), Nil, Id("header-1"))))
+        Section(Header(1, List(Text("text1")), Id("header")), Nil),
+        Section(Header(1, List(Text("text2")), Id("header-1")), Nil)))
   }
   
   
