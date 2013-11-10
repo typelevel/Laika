@@ -63,7 +63,7 @@ object TemplateParsers {
     abstract override protected def prepareBlockParsers (nested: Boolean) = 
       blockDirectiveParser :: super.prepareBlockParsers(nested)
     
-    override def config (path: Path): Parser[Either[InvalidBlock,Config]] = "<%" ~> anyUntil("%>") <~ "%>" ~ ws ~ eol ^^ { str =>
+    override def config (path: Path): Parser[Either[InvalidBlock,Config]] = "<%" ~> anyUntil("%>") <~ ws ~ eol ^^ { str =>
       try {
         Right(ConfigFactory.parseString(str, ConfigParseOptions.defaults().setOriginDescription("path:"+path)))
       }
