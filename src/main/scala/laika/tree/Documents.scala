@@ -154,7 +154,7 @@ object Documents {
     
     lazy val parents = {
       @tailrec def collect (path: Path, acc: List[DocumentTree]): Seq[DocumentTree] = {
-         val newAcc = root.selectSubtree(path) match {
+         val newAcc = root.selectSubtree(path.relativeTo(root.path)) match {
            case Some(tree) => tree :: acc
            case None => acc
          }
