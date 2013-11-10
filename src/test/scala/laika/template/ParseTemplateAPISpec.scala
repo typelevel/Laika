@@ -29,7 +29,7 @@ import laika.tree.Elements.LinkReference
 import laika.tree.Elements.Text
 import laika.tree.helper.ModelBuilder
 import laika.tree.Templates.TemplateString
-import laika.tree.Templates.ContextReference
+import laika.tree.Templates.TemplateContextReference
 
 class ParseTemplateAPISpec extends FlatSpec 
                    with ShouldMatchers
@@ -44,7 +44,7 @@ class ParseTemplateAPISpec extends FlatSpec
         
     val result = tRoot(
       TemplateString("aaa\n"), 
-      ContextReference("document.content"), 
+      TemplateContextReference("document.content"), 
       TemplateString("\nbbb")
     )
         
@@ -58,7 +58,7 @@ class ParseTemplateAPISpec extends FlatSpec
         
     val result = tRoot(
       TemplateString("äää\n"), 
-      ContextReference("document.content"), 
+      TemplateContextReference("document.content"), 
       TemplateString("\nüüü")
     )
         

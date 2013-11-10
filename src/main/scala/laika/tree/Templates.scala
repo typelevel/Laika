@@ -41,12 +41,24 @@ object Templates { // TODO - maybe move to laika.template.Elements
   }
   
   
-  case class ContextReference (ref: String, options: Options = NoOpt) extends TemplateSpan with PlaceholderSpan {
+  abstract class ContextReference[T <: Span] (ref: String) extends PlaceholderSpan {
+    def result (value: Option[Any]): T
     def resolve (context: DocumentContext): Span = context.resolveReference(ref) match {
-      case Some(s: ElementTraversal[_]) => s rewrite rewriteRules(context) match {
-        case s: Span    => s
-        case e: Element => TemplateElement(e)
-      }
+      case Some(s: ElementTraversal[_]) => result(Some(s rewrite rewriteRules(context)))
+      case other => result(other)
+    }
+  }
+  
+  case class TemplateContextReference (ref: String, options: Options = NoOpt) extends ContextReference[TemplateSpan](ref) with TemplateSpan {
+    def result (value: Option[Any]): TemplateSpan = value match {
+      case Some(e: Element) => TemplateElement(e)
+      case Some(other)      => TemplateString(other.toString)
+      case None             => TemplateString("")
+    }
+  }
+  
+  case class MarkupContextReference (ref: String, options: Options = NoOpt) extends ContextReference[Span](ref) {
+    def result (value: Option[Any]): Span = value match {
       case Some(s: Span)    => s
       case Some(e: Element) => TemplateElement(e)
       case Some(other)      => Text(other.toString)

@@ -14,11 +14,13 @@ import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions
 import laika.tree.Templates.TemplateElement
 import laika.tree.Templates.TemplateDocument
+import laika.tree.Templates.TemplateContextReference
+import laika.tree.Templates.MarkupContextReference
 
 trait TemplateParsers extends InlineParsers {
 
   
-  lazy val reference: Parser[TemplateSpan] = {
+  def reference[T] (f: String => T): Parser[T] = {
     
     val refName = { // TODO - promote to inline parsers
       val alphanum = anyIn('0' to '9', 'a' to 'z', 'A' to 'Z') min 1
@@ -29,7 +31,7 @@ trait TemplateParsers extends InlineParsers {
       }
     }
       
-    '{' ~ ws ~> refName <~ ws ~ "}}" ^^ {ContextReference(_)}  
+    '{' ~ ws ~> refName <~ ws ~ "}}" ^^ f  
     
   }
   
@@ -43,7 +45,7 @@ object TemplateParsers {
   trait Templates extends TemplateParsers with DirectiveParsers.TemplateDirectives {
     
     protected def prepareSpanParsers = Map(
-      '{' -> (reference),    
+      '{' -> (reference(TemplateContextReference(_))),    
       '@' -> (templateDirectiveParser),
       '\\'-> ((any take 1) ^^ { Text(_) })
     )
@@ -100,7 +102,7 @@ object TemplateParsers {
         base + (char -> oldParser.map(parser | _).getOrElse(parser))
       }
       
-      val withRef = addOrMerge(super.prepareSpanParsers, '{', reference)    
+      val withRef = addOrMerge(super.prepareSpanParsers, '{', reference(MarkupContextReference(_)))    
       addOrMerge(withRef, '@', spanDirectiveParser)
     }
     

@@ -52,25 +52,25 @@ class TemplateParsersSpec extends FlatSpec
   
   "The context reference parser" should "parse a reference as the only template content" in {
     
-    Parsing ("{{document.content}}") should produce (spans(ContextReference("document.content")))
+    Parsing ("{{document.content}}") should produce (spans(TemplateContextReference("document.content")))
     
   }
   
   it should "parse a reference at the beginning of a template" in {
     
-    Parsing ("{{document.content}} some text") should produce (spans(ContextReference("document.content"), Text(" some text")))
+    Parsing ("{{document.content}} some text") should produce (spans(TemplateContextReference("document.content"), Text(" some text")))
     
   }
   
   it should "parse a reference at the end of a template" in {
     
-    Parsing ("some text {{document.content}}") should produce (spans(Text("some text "), ContextReference("document.content")))
+    Parsing ("some text {{document.content}}") should produce (spans(Text("some text "), TemplateContextReference("document.content")))
     
   }
   
   it should "parse a reference in the middle of a template" in {
     
-    Parsing ("some text {{document.content}} some more") should produce (spans(Text("some text "), ContextReference("document.content"), Text(" some more")))
+    Parsing ("some text {{document.content}} some more") should produce (spans(Text("some text "), TemplateContextReference("document.content"), Text(" some more")))
     
   }
   
