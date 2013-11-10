@@ -91,7 +91,7 @@ trait StandardDirectives {
       
       if (sections.isEmpty || level > maxLevel) Nil else {
         val items = for (section <- sections) yield 
-            BulletListItem(sectionToLink(section, path, level) :: sectionsToList(section.children, path, level + 1), format)
+            BulletListItem(sectionToLink(section, path, level) :: sectionsToList(section.content, path, level + 1), format)
         List(BulletList(items, format))
       }
     }

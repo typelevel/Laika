@@ -114,7 +114,7 @@ object Documents {
     
   }
   
-  case class SectionInfo (position: List[Int], id: String, title: TitleInfo, children: Seq[SectionInfo]) extends Element {
+  case class SectionInfo (position: List[Int], id: String, title: TitleInfo, content: Seq[SectionInfo]) extends Element with ElementContainer[SectionInfo,SectionInfo] {
     val level = position.length
   }
   
@@ -333,9 +333,9 @@ object Documents {
       
       def rewriteContextForChild (num: Int) = rewriteContext.copy(autonumbering = autonumberContextForChild(num))
         
-      val (num, docs) = ((documents :\ (0, List[Document]())) { case (doc, (num, acc)) =>
+      val (_, docs) = ((documents :\ (documents.length, List[Document]())) { case (doc, (num, acc)) =>
         val context = DocumentContext(doc, this, rewriteContext.root, autonumberContextForChild(num))
-        (num + 1, doc.rewrite(rewriteContext.rules map (_(context)), context) :: acc) 
+        (num - 1, doc.rewrite(rewriteContext.rules map (_(context)), context) :: acc) 
       })
       
       val dynamicDocs = dynamicTemplates map (doc => {
@@ -343,8 +343,8 @@ object Documents {
         doc.rewrite(context)
       })
       
-      val (_, trees) = ((subtrees :\ (num, List[DocumentTree]())) { case (subtree, (num, acc)) =>
-        (num + 1, subtree.rewrite(rewriteContextForChild(num)) :: acc) 
+      val (_, trees) = ((subtrees :\ (subtrees.length + documents.length, List[DocumentTree]())) { case (subtree, (num, acc)) =>
+        (num - 1, subtree.rewrite(rewriteContextForChild(num)) :: acc) 
       })
       
       new DocumentTree(path, docs, Nil, Nil, dynamicDocs, staticDocuments, trees)  

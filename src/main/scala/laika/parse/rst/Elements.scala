@@ -123,7 +123,7 @@ object Elements {
         
         if (sections.isEmpty || level > depth) Nil else {
           val items = for (section <- sections) yield 
-              BulletListItem(toLink(section) :: sectionsToList(section.children, level + 1), format)
+              BulletListItem(toLink(section) :: sectionsToList(section.content, level + 1), format)
           List(BulletList(items, format))
         }
       }
