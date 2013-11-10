@@ -39,7 +39,7 @@ class DefaultTemplate private (
   /** The actual parser function, fully parsing the specified input and
    *  returning a document tree.
    */
-  def apply (input: Input) = TemplateDocument(input.path, parser.parseTemplate(input.asParserInput), null) // TODO - pass config
+  def apply (input: Input) = parser.parseTemplate(input.asParserInput, input.path)
   
 }
 

@@ -20,6 +20,7 @@ import laika.tree.Documents.DocumentContext
 import laika.tree.Documents.Path
 import laika.tree.Elements._
 import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
 
 object Templates { // TODO - maybe move to laika.template.Elements
   
@@ -64,7 +65,7 @@ object Templates { // TODO - maybe move to laika.template.Elements
   
   case class TemplateRoot (content: Seq[TemplateSpan], options: Options = NoOpt) extends Block with SpanContainer[TemplateRoot]
   
-  case class TemplateDocument (path: Path, content: TemplateRoot, config: Config) {
+  case class TemplateDocument (path: Path, content: TemplateRoot, config: Config = ConfigFactory.empty) {
     
     val name = path.name
     

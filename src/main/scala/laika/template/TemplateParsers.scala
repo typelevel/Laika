@@ -12,6 +12,8 @@ import laika.tree.Documents.Path
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions
+import laika.tree.Templates.TemplateElement
+import laika.tree.Templates.TemplateDocument
 
 trait TemplateParsers extends InlineParsers {
 
@@ -46,13 +48,27 @@ object TemplateParsers {
       '\\'-> ((any take 1) ^^ { Text(_) })
     )
   
+    def configParser (path: Path): Parser[Either[InvalidSpan,Config]] = "<%" ~> anyUntil("%>") <~ ws ~ eol ^^ { str =>
+      try {
+        Right(ConfigFactory.parseString(str, ConfigParseOptions.defaults().setOriginDescription("path:"+path)))
+      }
+      catch {
+        case ex: Exception => Left(InvalidSpan(SystemMessage(laika.tree.Elements.Error, 
+            "Error parsing config header: "+ex.getMessage), TemplateString("<%"+str+"%>")))
+      }
+    } 
     
-    def parseTemplate (reader: Reader[Char]) = {
-      val parser = spans(any, spanParsers) ^^ { _.collect { 
+    def parseTemplate (reader: Reader[Char], path: Path) = {
+      val parser = opt(configParser(path)) ~ (spans(any, spanParsers) ^^ { _.collect { 
         case s:TemplateSpan => s 
         case Text(s,opt) => TemplateString(s,opt)
-      }}
-      TemplateRoot(parseMarkup(parser, reader))
+      }}) ^^ {
+        case Some(Right(config)) ~ root => (config, root)
+        case Some(Left(span)) ~ root    => (ConfigFactory.empty(), TemplateElement(span) :: root)
+        case None ~ root                => (ConfigFactory.empty(), root)
+      }
+      val (config, root) = parseMarkup(parser, reader)
+      TemplateDocument(path, TemplateRoot(root), config)
     }
       
   }
