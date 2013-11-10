@@ -24,7 +24,7 @@ import laika.tree.Documents._
 import laika.tree.DocumentTreeHelper.{Documents => Docs}
 import laika.tree.DocumentTreeHelper._
 
-class TreeRewriteSpec extends FlatSpec 
+class DocumentTreeAPISpec extends FlatSpec 
                       with ShouldMatchers
                       with ModelBuilder {
   
@@ -79,16 +79,6 @@ class TreeRewriteSpec extends FlatSpec
       }}) should be (treeResult)
     }
   }
-  
-  it should "give access to the parent tree when rewriting a document in a child tree" in {
-    new RewriteModel {
-      val tree = treeWithSubtree(Root, "sub", "doc", rootElement(p("a")))
-      val treeResult = treeViewWithSubtree(Root, "sub", "doc", rootElement(p("/sub")))
-      viewOf(tree rewrite { context => { 
-        case Paragraph(Seq(Text("a",_)),_) => Some(p(context.parent.path.toString)) 
-      }}) should be (treeResult)
-    }
-  }
-  
+ 
 
 }
