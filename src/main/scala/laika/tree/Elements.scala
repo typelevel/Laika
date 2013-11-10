@@ -66,7 +66,7 @@ object Elements {
     /** Style names that may have an influence
      *  on rendering of this element.
      */
-    def styles: Seq[String]
+    def styles: Set[String]
     /** Merges these options with the specified
      *  options. If the id has been set in both 
      *  instances, the other instance overrides 
@@ -646,15 +646,15 @@ object Elements {
    * 
    *  Likewise it is also often more convenient to use the corresponding extractors for pattern matching.
    */
-  case class SomeOpt (id: Option[String] = None, styles: Seq[String] = Nil) extends Options {
-    def + (other: Options) = SomeOpt(other.id.orElse(id), (styles ++ other.styles) distinct)
+  case class SomeOpt (id: Option[String] = None, styles: Set[String] = Set()) extends Options {
+    def + (other: Options) = SomeOpt(other.id.orElse(id), styles ++ other.styles)
   }
   
   /** Empty `Options` implementation.
    */
   case object NoOpt extends Options {
-    def id: Option[String] = None
-    def styles: Seq[String] = Nil
+    val id = None
+    val styles = Set[String]()
     def + (other: Options) = other
   }
   
@@ -670,14 +670,14 @@ object Elements {
    *  with style names.
    */
   object Styles {
-    def apply (values: String*) = SomeOpt(styles = values)
-    def unapplySeq (value: Options) = Some(value.styles) 
+    def apply (values: String*) = SomeOpt(styles = values.toSet)
+    def unapplySeq (value: Options) = Some(value.styles.toSeq) 
   }
   
   /** Companion for the Options trait.
    */
   object Options {
-    def apply (id: Option[String] = None, styles: Seq[String] = Nil) =
+    def apply (id: Option[String] = None, styles: Set[String] = Set()) =
       if (id.isEmpty && styles.isEmpty) NoOpt
       else SomeOpt(id,styles)
   }

@@ -58,7 +58,7 @@ import laika.tree.Elements._
  */
 trait StandardTextRoles {
   
-  private val classOption = optField("class", opt => Right(Options(None, opt.split(" ").toList))) map (_.getOrElse(NoOpt))
+  private val classOption = optField("class", opt => Right(Options(None, opt.split(" ").toSet))) map (_.getOrElse(NoOpt))
   
   /** The standard emphasis text role.
    */

@@ -35,13 +35,15 @@ object SectionBuilder extends (DocumentContext => PartialFunction[Element,Option
     
     class Builder (header:Header, id: String) {
     
+      val styledHeader = header.copy(options = header.options + Styles("section"))
+      
       private val buffer = new ListBuffer[Block]
       
       def += (block: Block) = buffer += block
       
       def >= (level: Int) = header.level >= level
       
-      def toSection = Section(header, buffer.toList)
+      def toSection = Section(styledHeader, buffer.toList)
       
     }
     
@@ -87,7 +89,8 @@ object SectionBuilder extends (DocumentContext => PartialFunction[Element,Option
           }).toList
         
         def transformRootSection (s: Section) = {
-          val header = if (hasDocumentNumbers) numberHeader(s.header, docNumber, "title") else s.header
+          val header = if (hasDocumentNumbers) numberHeader(s.header, docNumber, "title") 
+                       else s.header.copy(options = SomeOpt(s.header.options.id, s.header.options.styles - "section" + "title"))
           val content = if (hasSectionNumbers) numberSections(s.content, docNumber) else s.content
           header +: content
         }

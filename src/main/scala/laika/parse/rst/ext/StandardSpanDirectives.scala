@@ -61,7 +61,7 @@ trait StandardSpanDirectives {
    *  a space-delimited list of styles to an `Options` instance.
    */
   protected def toOptions (id: Option[String], styles: Option[String]) = 
-    Options(id, styles.map(_.split(" ").toList).getOrElse(Nil))
+    Options(id, styles.map(_.split(" ").toSet).getOrElse(Set()))
   
   
   /** The image directive for span elements, 

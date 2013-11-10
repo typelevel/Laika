@@ -99,7 +99,7 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
    */
   lazy val container: DirectivePart[Block] = {
     (optArgument(withWS = true) ~ blockContent ~ nameOpt) { (styles, content, id) => 
-      BlockSequence(content, Options(id, styles.map(_.split(" ")).toList.flatten))
+      BlockSequence(content, Options(id, styles.map(_.split(" ").toSet).getOrElse(Set())))
     } 
   }
   
