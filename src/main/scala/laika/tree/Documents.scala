@@ -40,14 +40,14 @@ object Documents {
                   docNumber: List[Int] = Nil,
                   rewriteRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]] = Nil) extends Navigatable {
     
-    private lazy val linkResolver = LinkResolver(content)
+    private lazy val linkResolver = LinkResolver(path,content)
     
     lazy val defaultRules = rewriteRules :+ (linkResolver.rewriteRules(_)) :+ (SectionBuilder(_))
     
     private[Documents] lazy val targets = linkResolver.globalTargets ++ (linkResolver.globalTargets collect {
       case (UniqueSelector(name), target) => (PathSelector(path, name), target)
     })
-
+    
     val name = path.name
     
     private def findRoot = {
@@ -289,20 +289,21 @@ object Documents {
     
     def selectSubtree (path: String): Option[DocumentTree] = selectSubtree(Path(path))
     def selectSubtree (path: Path): Option[DocumentTree] = path match {
+      case Current => Some(this)
       case Current / name => subtreesByName.get(name)
       case path / name => selectSubtree(path) flatMap (_.selectSubtree(name)) 
       case _ => None
     }
     
     private lazy val targets: Map[Selector, TargetResolver] = {
-      val sub = (List[TargetResolver]() /: subtrees) { 
-        case (list, tree) => tree.targets.values.toList ::: list
+      val sub = (List[(Selector,TargetResolver)]() /: subtrees) { 
+        case (list, tree) => tree.targets.toList ::: list
       }
       val all = (sub /: documents) { 
-        case (list, doc) => doc.targets.values.toList ::: list
+        case (list, doc) => doc.targets.toList ::: list
       }
-      (all.groupBy (_.selector) collect {
-        case (selector, (target :: Nil)) => (selector, target)
+      (all.groupBy (_._1) collect {
+        case (selector, ((_,target) :: Nil)) => (selector, target)
         case (s @ UniqueSelector(name), conflicting) => (s, DuplicateTargetResolver(path, name))
       }).toMap
     }

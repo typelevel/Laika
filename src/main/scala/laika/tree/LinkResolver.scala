@@ -22,6 +22,7 @@ import IdGenerators._
 import LinkTargets._
 import Elements._
 import Documents.Path
+import Documents.Current
 import Documents.DocumentContext
 
 /** The default rewrite rules responsible for resolving link references that get 
@@ -40,7 +41,7 @@ import Documents.DocumentContext
  * 
  *  @author Jens Halm
  */
-class LinkResolver (root: RootElement) {
+class LinkResolver (path: Path, root: RootElement) {
 
   private val headerIdMap = new IdMap
   private val decHeaderIdMap = new IdMap
@@ -70,11 +71,11 @@ class LinkResolver (root: RootElement) {
       
       case lt: LinkAlias              => new LinkAliasTarget(lt)
       
-      case hd @ DecoratedHeader(_,_,Id(id)) => new DecoratedHeaderTarget(hd, suggestedId(id, decHeaderIdMap), levels)  // TODO - does not handle headers without id
+      case hd @ DecoratedHeader(_,_,Id(id)) => new DecoratedHeaderTarget(hd, suggestedId(id, decHeaderIdMap), path, levels)  // TODO - does not handle headers without id
       
-      case hd @ Header(_,_,Id(id))          => new HeaderTarget(hd, suggestedId(id, headerIdMap))
+      case hd @ Header(_,_,Id(id))          => new HeaderTarget(hd, suggestedId(id, headerIdMap), path)
       
-      case c: Customizable if c.options.id.isDefined => new CustomizableTarget(c, c.options.id.get)
+      case c: Customizable if c.options.id.isDefined => new CustomizableTarget(c, c.options.id.get, path)
     }
   }
   
@@ -176,29 +177,32 @@ class LinkResolver (root: RootElement) {
     def resolve (ref: Reference, selector: Selector, msg: => String, global: Boolean = false) = {
       
       def selectFromParent = {
-        @tailrec def select (path: Path): Option[TargetResolver] = {
+        @tailrec def select (path: Path): (Option[TargetResolver],Option[Path]) = {
           val tree = context.root.selectSubtree(path)
           val target = tree.flatMap(_.selectTarget(selector))
-          if (target.isDefined || path.parent == path) target
+          if (target.isDefined || path.parent == path) (target,Some(context.document.path))
           else select(path.parent)
         }
-        select(context.parent.path)
+        val path = context.parent.path
+        select(Path(Current, path.components))
       }
-      def selectFromRoot (path: String, name: String) = context.root.selectTarget(PathSelector(Path(path), name))
+      def selectFromRoot (path: String, name: String) = 
+        (context.root.selectTarget(PathSelector(context.parent.path / Path(path), name)),Some(context.document.path))
       
-      val target = {
+      val (target, path) = {
         val local = allTargets.get(selector)
-        if (local.isDefined) local
+        if (local.isDefined) (local, None)
         else (selector, global) match {
           case (UniqueSelector(targetName), true) => {
             val index = targetName.indexOf(":")
             if (index == -1) selectFromParent
             else selectFromRoot(targetName take index, targetName drop (index+1))
           }
-          case _ => None
+          case _ => (None,None)
         }
       }
-      Some(target.flatMap(_.resolveReference(ref)).getOrElse(InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Text(ref.source))))
+      Some(target.flatMap(_.resolveReference(ref,path))
+          .getOrElse(InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Text(ref.source))))
     }
       
     {
@@ -239,7 +243,7 @@ object LinkResolver {
   /** Provides link resolver
    *  for the specified root element (without applying them).
    */
-  def apply (root: RootElement) = new LinkResolver(root)
+  def apply (path: Path, root: RootElement) = new LinkResolver(path,root)
   
 }
 

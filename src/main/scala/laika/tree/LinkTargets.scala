@@ -159,23 +159,23 @@ object LinkTargets {
     }
   }
   
-  abstract class DefaultTarget (target: Customizable, id: Id) extends TargetDefinition(target, id, true) {
+  abstract class DefaultTarget (target: Customizable, id: Id, path: Path) extends TargetDefinition(target, id, true) {
     val replace = lift { case (c: Customizable, Named(name))                    => TreeUtil.setId(c, name) }
     val resolve = lift { 
-      case (LinkReference (content, _, _, opt), Named(name))          => InternalLink(content, name, options = opt) 
-      case (LinkReference (content, _, _, opt), Relative(path, name)) => CrossLink(content, name, path, options = opt) 
+      case (LinkReference (content, _, _, opt), Named(name))            => InternalLink(content, name, options = opt) 
+      case (LinkReference (content, _, _, opt), Relative(source, name)) => CrossLink(content, name, PathInfo(path, path.relativeTo(source.parent)), options = opt) 
     } 
   }
   
-  class CustomizableTarget (target: Customizable, id: String) extends DefaultTarget(target, id) {
+  class CustomizableTarget (target: Customizable, id: String, path: Path) extends DefaultTarget(target, id, path) {
     def withResolvedIds (documentId: String, displayId: String) = new SingleTargetResolver(this, id, documentId)
   }
   
-  class HeaderTarget (header: Block, id: Id) extends DefaultTarget(header, id) {
+  class HeaderTarget (header: Block, id: Id, path: Path) extends DefaultTarget(header, id, path) {
     override def withResolvedIds (documentId: String, displayId: String) = new SingleTargetResolver(this, displayId, documentId)
   }
   
-  class DecoratedHeaderTarget (header: DecoratedHeader, id: Id, levels: DecoratedHeaderLevels) extends HeaderTarget(header, id) {
+  class DecoratedHeaderTarget (header: DecoratedHeader, id: Id, path: Path, levels: DecoratedHeaderLevels) extends HeaderTarget(header, id, path) {
     override val replace = lift  
       { case (DecoratedHeader(deco, content, opt), Named(name)) => Header(levels.levelFor(deco), content, opt + Id(name)) }
   }
@@ -210,7 +210,7 @@ object LinkTargets {
      *  @param path if defined it defines the relative path between the document of the reference
      *  and that of the link target, if empty it is a local reference 
      */
-    def resolveReference (rewrittenRef: Element, path: Option[PathInfo] = None): Option[Element]
+    def resolveReference (rewrittenRef: Element, path: Option[Path] = None): Option[Element]
 
     /** Creates the final target element (with its final, resolved identifiers).
      * 
@@ -227,7 +227,7 @@ object LinkTargets {
     
     def global = target.global
     
-    def resolveReference (rewrittenRef: Element, path: Option[PathInfo] = None) = {
+    def resolveReference (rewrittenRef: Element, path: Option[Path] = None) = {
       val id = (path, render) match {
         case (Some(path), Named(name)) => Relative(path, name) 
         case _ => render
@@ -249,7 +249,7 @@ object LinkTargets {
     
     val global = true
     
-    def resolveReference (rewrittenRef: Element, path: Option[PathInfo] = None) = rewrittenRef match { 
+    def resolveReference (rewrittenRef: Element, path: Option[Path] = None) = rewrittenRef match { 
       case ref: Reference => Some(InvalidSpan(SystemMessage(Error, "More than one link target with name "+selector.name+" in path "+path), Text(ref.source)))
       case _ => None
     }
@@ -269,7 +269,7 @@ object LinkTargets {
     
     private def nextOption (it: Iterator[TargetResolver]) = if (it.hasNext) Some(it.next) else None
     
-    def resolveReference (rewrittenRef: Element, path: Option[PathInfo] = None) 
+    def resolveReference (rewrittenRef: Element, path: Option[Path] = None) 
                                                    = nextOption(refIt).flatMap(_.resolveReference(rewrittenRef))
     def replaceTarget (rewrittenOriginal: Element) = nextOption(targetIt).flatMap(_.replaceTarget(rewrittenOriginal))
   }
