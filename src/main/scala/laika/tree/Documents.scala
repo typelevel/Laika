@@ -180,10 +180,9 @@ object Documents {
       if (tempConf.hasPath("template")) {
         val value = tempConf.getValue("template")
         val desc = value.origin().description()
-        val basePath = if (desc.startsWith("path:")) Path(desc.take(desc.lastIndexOf(":")).drop(5)) else Root
-        val templatePath = Path(value.unwrapped().toString)
-        val tree = root.selectSubtree(basePath / templatePath.parent)
-        tree flatMap (_.templates.find(_.path.name == templatePath.name)) // TODO - error handling when template not found
+        val basePath = if (desc.startsWith("path:")) Path(desc.take(desc.lastIndexOf(":")).drop(5)).parent else Root
+        val templatePath = (basePath / Path(value.unwrapped().toString)).relativeTo(Root)
+        root.selectTemplate(templatePath)  // TODO - error handling when template not found
       }
       else {
         val filename = "default.template.html" // TODO - should be configurable and suffix dependent on renderer
@@ -280,12 +279,20 @@ object Documents {
     lazy val navigatables = documents ++ subtrees // TODO - allow for sorting by config (default to sorting by name)
     
     private val documentsByName = documents map {doc => (doc.name, doc)} toMap // TODO - handle duplicates
+    private val templatesByName = templates map {doc => (doc.name, doc)} toMap // TODO - handle duplicates
     private val subtreesByName = subtrees map {tree => (tree.name, tree)} toMap
 
     def selectDocument (path: String): Option[Document] = selectDocument(Path(path))
     def selectDocument (path: Path): Option[Document] = path match {
       case Current / name => documentsByName.get(name)
       case path / name => selectSubtree(path) flatMap (_.selectDocument(name))
+      case _ => None
+    }
+    
+    def selectTemplate (path: String): Option[TemplateDocument] = selectTemplate(Path(path))
+    def selectTemplate (path: Path): Option[TemplateDocument] = path match {
+      case Current / name => templatesByName.get(name)
+      case path / name => selectSubtree(path) flatMap (_.selectTemplate(name))
       case _ => None
     }
     

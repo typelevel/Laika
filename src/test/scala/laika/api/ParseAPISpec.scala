@@ -108,7 +108,11 @@ class ParseAPISpec extends FlatSpec
         (p (LinkReference(List(Text("link")), "id", "[link][id]")), ExternalLinkDefinition("id","http://foo/",None)))
   }
   
-  def contents = Map("name" -> "foo")
+  def contents = Map(
+    "name" -> "foo",
+    "dynDoc" -> "{{config.value}}",
+    "conf" -> "value: abc"
+  )
   
   def builder (source: String) = new InputConfigBuilder(parseTreeStructure(source), Codec.UTF8)
   def docView (num: Int, path: Path = Root) = DocumentView(path / ("doc"+num+".md"), Content(List(p("foo"))) :: Nil)
@@ -158,11 +162,19 @@ class ParseAPISpec extends FlatSpec
     viewOf((Parse as Markdown asRawDocument) fromTree builder(dirs)) should be (treeResult)
   }
   
-  it should "allow parsing a tree with a dynamic document" in {
-    val dirs = """- main.dynamic.html:name"""
-    val dyn = TemplateView(Root / "main.dynamic.html", TemplateRoot(List(TemplateString("foo"))))
-    val treeResult = TreeView(Root, List(TemplateDocuments(Dynamic, List(dyn))))
-    viewOf((Parse as Markdown asRawDocument) fromTree builder(dirs)) should be (treeResult)
+  it should "allow parsing a tree with a dynamic document populated by a config file in the directory" in {
+    val dirs = """- main.dynamic.html:dynDoc
+      |- default.conf:conf""".stripMargin
+    val dyn = DocumentView(Root / "main.dynamic.html", List(Content(List(TemplateRoot(List(TemplateString("abc")))))))
+    val treeResult = TreeView(Root, List(Documents(Dynamic, List(dyn))))
+    viewOf(Parse as Markdown fromTree builder(dirs)) should be (treeResult)
+  }
+  
+  it should "allow parsing a tree with a dynamic document populated by a root config string" in {
+    val dirs = """- main.dynamic.html:dynDoc"""
+    val dyn = DocumentView(Root / "main.dynamic.html", List(Content(List(TemplateRoot(List(TemplateString("def")))))))
+    val treeResult = TreeView(Root, List(Documents(Dynamic, List(dyn))))
+    viewOf(Parse as Markdown fromTree builder(dirs).withConfigString("value: def")) should be (treeResult)
   }
   
   it should "allow parsing and rewriting a tree with a dynamic document" in {
