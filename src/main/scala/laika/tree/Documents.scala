@@ -64,7 +64,7 @@ object Documents {
         case _ => Text(docNumber.mkString("."), Styles("titleNumber")) +: List(Text(config.getString("title")))
       }
       else (findRoot collect {
-        case Header(_,content,Styles("title")) => content
+        case Header(_,content,opt) if opt.styles("title") => content
       }).headOption getOrElse List(Text(""))
     }
     
@@ -74,13 +74,12 @@ object Documents {
         val positions = Stream.from(1).iterator
         blocks collect {
           case Section(Header(_,header,Id(id)), content, _) => {
-            val pos = positions.next :: parentPos 
-            SectionInfo(pos.reverse, id, TitleInfo(header), extractSections(pos, content)) 
+            val pos = parentPos :+ positions.next 
+            SectionInfo(pos, id, TitleInfo(header), extractSections(pos, content)) 
           }
         }
       }
-      
-      extractSections(Nil, findRoot)
+      extractSections(docNumber, findRoot)
     } 
 
     
@@ -107,7 +106,7 @@ object Documents {
       context.template map (_.rewrite(context.withDocument(newDoc))) getOrElse newDoc
     }
     
-    def withRewrittenContent (newContent: RootElement, fragments: Map[String,Block], docNumber: List[Int] = Nil): Document = new Document(path, newContent, fragments, config) {
+    def withRewrittenContent (newContent: RootElement, fragments: Map[String,Block], docNumber: List[Int] = Nil): Document = new Document(path, newContent, fragments, config, docNumber) {
       override lazy val defaultRules = Nil
       override val removeRules = this
     }
