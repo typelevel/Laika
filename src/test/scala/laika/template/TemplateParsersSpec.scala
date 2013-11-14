@@ -38,9 +38,7 @@ class TemplateParsersSpec extends FlatSpec
   
   
   
-  def tt (text: String) = TemplateString(text) // TODO - rename to TemplateText 
-  
-  // TODO - Text might need to get wrapped in TemplateText
+  // TODO - Test should use templateSpans as default parser
 
   
   "The template parser" should "parse content without any markup as plain text" in {

@@ -78,6 +78,10 @@ trait ModelBuilder {
   def doc (blocks: Block*) = RootElement(blocks.toList)
   
   def tRoot (spans: TemplateSpan*) = TemplateRoot(spans)
+
+  def tt (text: String) = TemplateString(text)
+
+  def tElem (element: Element) = TemplateElement(element)
   
   def p (spans: Span*) = Paragraph(spans.toList)
   

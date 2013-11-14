@@ -71,7 +71,7 @@ object Templates { // TODO - maybe move to laika.template.Elements
   
   case class TemplateElement (element: Element, options: Options = NoOpt) extends TemplateSpan with ElementTraversal[TemplateElement]
 
-  case class TemplateSpanSequence (content: Seq[TemplateSpan], options: Options = NoOpt) extends TemplateSpan with ElementTraversal[TemplateSpanSequence]
+  case class TemplateSpanSequence (content: Seq[TemplateSpan], options: Options = NoOpt) extends TemplateSpan with SpanContainer[TemplateSpanSequence]
 
   case class TemplateString (content: String, options: Options = NoOpt) extends TemplateSpan with TextContainer
   

@@ -131,9 +131,21 @@ trait BlockParsers extends MarkupParsers {
    *  @param nestLevel the level of nesting with 0 being the outermost level
    *  @return the parser result as a list of blocks
    */
-  def parseNestedBlocks (lines: List[String], nestLevel: Int): List[Block] = {
+  def parseNestedBlocks (lines: List[String], nestLevel: Int): List[Block] =
+    parseNestedBlocks(lines mkString "\n", nestLevel)
+    
+  /** Parses all nested blocks for the specified input and nest level.
+   *  Delegates to the abstract `nestedBlock` parser that sub-traits need to define.
+   *  The nest level is primarily used as a protection against malicious
+   *  input that forces endless recursion.
+   * 
+   *  @param input the input to parse
+   *  @param nestLevel the level of nesting with 0 being the outermost level
+   *  @return the parser result as a list of blocks
+   */
+  def parseNestedBlocks (input: String, nestLevel: Int): List[Block] = {
     val parser = if (nestLevel < maxNestLevel) nestedBlock else nonRecursiveBlock 
-    val reader = new NestedCharSequenceReader(nestLevel + 1, lines mkString "\n")
+    val reader = new NestedCharSequenceReader(nestLevel + 1, input)
     val blocks = blockList(parser) 
     
     parseMarkup(opt(blankLines) ~> blocks, reader)

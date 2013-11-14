@@ -153,7 +153,7 @@ object Directives {
       
       private def toInt (s: String, f: Int => Boolean, msg: String = "") = { 
         try { 
-          val i = s.toInt
+          val i = s.trim.toInt
           if (f(i)) Success(i) else Failure(msg + ": " + i)
         } catch { 
           case e: NumberFormatException => Failure("Not an integer: " + s)
@@ -206,7 +206,7 @@ object Directives {
       def requiresContext = part.requiresContext
     }
     
-    def create (name: String)(part: DirectivePart[E]) = new Directive(name.toLowerCase, part)
+    def create (name: String)(part: DirectivePart[E]) = new Directive(name, part)
     
     def toMap (directives: Traversable[Directive]) = directives map (dir => (dir.name, dir)) toMap
     

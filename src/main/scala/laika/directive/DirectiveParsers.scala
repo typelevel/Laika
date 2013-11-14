@@ -57,7 +57,7 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
     def escapedUntil (char: Char) = escapedText(anyUntil(char) min 1)
     def escapedText (p: TextParser) = text(p, Map('\\' -> (any take 1))) // TODO - should be promoted to generic inline parser (after which this trait only needs to extend MarkupParsers)
     
-    anyBut(' ','\t','\n','.',':') | '"' ~> escapedUntil('"') 
+    '"' ~> escapedUntil('"') | (anyBut(' ','\t','\n','.',':') min 1)  
   }
 
   lazy val defaultAttribute: Parser[Part] = not(attrName) ~> attrValue ^^ { Part(Attribute(Default), _) }
@@ -66,7 +66,7 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
  
 
   lazy val declaration: Parser[(String, List[Part])] 
-    = ("@" ~> nameDecl <~ wsOrNl) ~ opt(defaultAttribute <~ wsOrNl) ~ ((wsOrNl ~> attribute)*) <~ ws ^^ 
+    = (":" ~> nameDecl <~ wsOrNl) ~ opt(defaultAttribute <~ wsOrNl) ~ ((wsOrNl ~> attribute)*) <~ ws ^^ 
       { case name ~ defAttr ~ attrs => (name, defAttr.toList ::: attrs) }
 
   
@@ -74,7 +74,7 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
   
   lazy val noBody = '.' ^^^ List[Part]()
   
-  def directiveParser (bodyContent: Parser[String]): Parser[ParsedDirective] = {
+  def directiveParser (bodyContent: Parser[String], includeStartChar: Boolean): Parser[ParsedDirective] = {
     
     val defaultBody: Parser[Part] = not(wsOrNl ~> bodyName) ~> bodyContent ^^ { Part(Body(Default),_) }
     
@@ -82,7 +82,8 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
     
     val bodies = ':' ~> (defaultBody | body) ~ (body*) ^^ { case first ~ rest => first :: rest }
     
-    declaration ~ (noBody | bodies) ^^ { case (name, attrs) ~ bodies => ParsedDirective(name, attrs ::: bodies) }
+    val decl = if (includeStartChar) "@" ~> declaration else declaration
+    decl ~ (noBody | bodies) ^^ { case (name, attrs) ~ bodies => ParsedDirective(name, attrs ::: bodies) }
   }
   
   abstract class DirectiveContextBase (parts: PartMap, docContext: Option[DocumentContext] = None) {
@@ -93,17 +94,19 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
     
   }
   
-  def applyDirective [E <: Element](builder: BuilderContext[E])
-      (parseResult: ParsedDirective, 
-       directives: String => Option[builder.Directive], 
-       createContext: (PartMap, Option[DocumentContext]) => builder.DirectiveContext,
-       createPlaceholder: (DocumentContext => E) => E, 
-       createInvalidElement: String => E): E = {
+  def applyDirective [E <: Element] (builder: BuilderContext[E]) (
+      parseResult: ParsedDirective, 
+      directives: String => Option[builder.Directive], 
+      createContext: (PartMap, Option[DocumentContext]) => builder.DirectiveContext,
+      createPlaceholder: (DocumentContext => E) => E, 
+      createInvalidElement: String => E,
+      directiveTypeDesc: String
+    ): E = {
     
     import laika.util.Builders.{~ => ~~}
     
     val directive = directives(parseResult.name).map(Directives.Success(_))
-        .getOrElse(Directives.Failure("No span directive registered with name: "+parseResult.name))
+        .getOrElse(Directives.Failure("No "+directiveTypeDesc+" directive registered with name: "+parseResult.name))
     
     val partMap = {
       val dups = parseResult.parts groupBy (_.key) filterNot (_._2.tail.isEmpty) keySet;
@@ -128,30 +131,28 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
 object DirectiveParsers {
   
   
-  trait TemplateDirectives extends DirectiveParsers { self: TemplateParsers =>
+  trait TemplateDirectives extends DirectiveParsers { self: TemplateParsers.Templates =>
     
     def getTemplateDirective (name: String): Option[Templates.Directive]
-    
-    // TODO - verify correctness of TemplateElement usage
     
     case class DirectiveSpan (f: DocumentContext => Span, options: Options = NoOpt) extends PlaceholderSpan {
       def resolve (context: DocumentContext) = TemplateElement(f(context))
     }
     
     lazy val templateDirectiveParser: Parser[TemplateSpan] = {
-      val bodyContent = withSource(wsOrNl ~ '{' ~> spans(anyUntil('}'), spanParsers) <~ wsOrNl) ^^ (_._2)
-      directiveParser(bodyContent) ^^ { result => // TODO - span parsers need to omit the @ char
+      val bodyContent = wsOrNl ~ '{' ~> (withSource(spans(anyUntil('}'), spanParsers)) ^^ (_._2.dropRight(1)))
+      withSource(directiveParser(bodyContent, false)) ^^ { case (result, source) =>
         
         def createContext (parts: PartMap, docContext: Option[DocumentContext]): Templates.DirectiveContext = {
           new DirectiveContextBase(parts, docContext) with Templates.DirectiveContext {
             val parser = new Templates.Parser {
-              def apply (source: String) = List(TemplateElement(SpanSequence(parseInline(source)))) // TODO - delegate to new template parser
+              def apply (source: String) = parseTemplatePart(source)
             }
           }
         }
-        def invalid (msg: String) = TemplateElement(InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Literal(""))) // TODO - error handling - pass source
+        def invalid (msg: String) = TemplateElement(InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Literal("@"+source)))
         
-        applyDirective(Templates)(result, getTemplateDirective, createContext, s => TemplateElement(DirectiveSpan(s)), invalid)
+        applyDirective(Templates)(result, getTemplateDirective, createContext, s => TemplateElement(DirectiveSpan(s)), invalid, "template")
       }
     }
     
@@ -167,8 +168,8 @@ object DirectiveParsers {
     }
     
     lazy val spanDirectiveParser: Parser[Span] = {
-      val bodyContent = withSource(wsOrNl ~ '{' ~> spans(anyUntil('}'), spanParsers) <~ wsOrNl) ^^ (_._2)
-      directiveParser(bodyContent) ^^ { result => // TODO - optimization - parsed spans might be cached for DirectiveContext (applies for the other two parsers, too)
+      val bodyContent = wsOrNl ~ '{' ~> (withSource(spans(anyUntil('}'), spanParsers)) ^^ (_._2.dropRight(1)))
+      withSource(directiveParser(bodyContent, false)) ^^ { case (result, source) => // TODO - optimization - parsed spans might be cached for DirectiveContext (applies for the other two parsers, too)
         
         def createContext (parts: PartMap, docContext: Option[DocumentContext]): Spans.DirectiveContext = {
           new DirectiveContextBase(parts, docContext) with Spans.DirectiveContext {
@@ -177,9 +178,9 @@ object DirectiveParsers {
             }
           }
         }
-        def invalid (msg: String) = InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Literal("")) // TODO - error handling - pass source
+        def invalid (msg: String) = InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Literal("@"+source))
         
-        applyDirective(Spans)(result, getSpanDirective, createContext, DirectiveSpan(_), invalid)
+        applyDirective(Spans)(result, getSpanDirective, createContext, DirectiveSpan(_), invalid, "span")
       }
     }
     
@@ -196,19 +197,19 @@ object DirectiveParsers {
     
     lazy val blockDirectiveParser: Parser[Block] = {
       val bodyContent = withSource(wsOrNl ~ '{' ~> spans(anyUntil('}'), spanParsers) <~ wsOrNl) ^^ (_._2) // TODO - needs to be indented block
-      directiveParser(bodyContent) ^^ { result =>
+      withSource(directiveParser(bodyContent, true)) ^^ { case (result, source) =>
         
         def createContext (parts: PartMap, docContext: Option[DocumentContext]): Blocks.DirectiveContext = {
           new DirectiveContextBase(parts, docContext) with Blocks.DirectiveContext {
             val parser = new Blocks.Parser {
-              def apply (source: String): Seq[Block] = parseNestedBlocks(source.split("\n").toList, 0) // TODO - avoid split
+              def apply (source: String): Seq[Block] = parseNestedBlocks(source, 0) // TODO - pass nest level
               def parseInline (source: String): Seq[Span] = parseInline(source)
             }
           }
         }
-        def invalid (msg: String) = InvalidBlock(SystemMessage(laika.tree.Elements.Error, msg), LiteralBlock("")) // TODO - error handling - pass source
+        def invalid (msg: String) = InvalidBlock(SystemMessage(laika.tree.Elements.Error, msg), LiteralBlock(source))
         
-        applyDirective(Blocks)(result, getBlockDirective, createContext, DirectiveBlock(_), invalid)
+        applyDirective(Blocks)(result, getBlockDirective, createContext, DirectiveBlock(_), invalid, "block")
       }
     }
     

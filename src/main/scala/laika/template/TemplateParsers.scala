@@ -60,18 +60,23 @@ object TemplateParsers {
       }
     } 
     
+    lazy val templateSpans = (spans(any, spanParsers) ^^ { _.collect { 
+      case s:TemplateSpan => s 
+      case Text(s,opt) => TemplateString(s,opt)
+    }})
+    
+    def templateWithConfig (path: Path) = opt(configParser(path)) ~ templateSpans ^^ {
+      case Some(Right(config)) ~ root => (config, root)
+      case Some(Left(span)) ~ root    => (ConfigFactory.empty(), TemplateElement(span) :: root)
+      case None ~ root                => (ConfigFactory.empty(), root)
+    }
+  
     def parseTemplate (reader: Reader[Char], path: Path) = {
-      val parser = opt(configParser(path)) ~ (spans(any, spanParsers) ^^ { _.collect { 
-        case s:TemplateSpan => s 
-        case Text(s,opt) => TemplateString(s,opt)
-      }}) ^^ {
-        case Some(Right(config)) ~ root => (config, root)
-        case Some(Left(span)) ~ root    => (ConfigFactory.empty(), TemplateElement(span) :: root)
-        case None ~ root                => (ConfigFactory.empty(), root)
-      }
-      val (config, root) = parseMarkup(parser, reader)
+      val (config, root) = parseMarkup(templateWithConfig(path), reader)
       TemplateDocument(path, TemplateRoot(root), config)
     }
+    
+    def parseTemplatePart (source: String) = parseMarkup(templateSpans, source)
       
   }
   
