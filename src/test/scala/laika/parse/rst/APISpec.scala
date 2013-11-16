@@ -25,6 +25,8 @@ import laika.parse.rst.Elements._
 import laika.parse.rst.Directives._
 import laika.parse.rst.TextRoles._
 import laika.parse.rst.Directives.Parts._
+import laika.directive.Directives.Blocks
+import laika.directive.Directives.Spans
 import laika.tree.helper.ModelBuilder
 
 class APISpec extends FlatSpec 
@@ -77,6 +79,62 @@ class APISpec extends FlatSpec
       | :name2: val2""".stripMargin
     (Parse as (ReStructuredText withTextRoles (roles:_*)) fromString input).content should be (doc 
         (p(txt("foo "), txt("valone"), txt(" foo "), txt("val1val2two"))))
+  }
+  
+  trait BlockDirectives {
+    import Blocks.Combinators._
+    import Blocks.Converters._
+    import laika.util.Builders._
+    import laika.directive.Directives.Default
+    
+    val directives = List(
+      Blocks.create("oneArg")(attribute(Default) map p),
+      Blocks.create("twoArgs")((attribute(Default) ~ attribute("name")) { (arg1,arg2) => p(arg1+arg2) })
+    )
+  }
+  
+  trait SpanDirectives {
+    import Spans.Combinators._
+    import Spans.Converters._
+    import laika.util.Builders._
+    import laika.directive.Directives.Default
+    
+    val directives = List(
+      Spans.create("oneArg")(attribute(Default) map txt),
+      Spans.create("twoArgs")((attribute(Default) ~ attribute("name")) { (arg1,arg2) => txt(arg1+arg2) })
+    )
+  }
+  
+  it should "support the registration of Laika block directives" in {
+    new BlockDirectives {
+      val input = """@:oneArg arg.
+        |
+        |@:twoArgs arg1 name=arg2.""".stripMargin
+      (Parse as (ReStructuredText withLaikaBlockDirectives (directives:_*)) fromString input).content should be (doc (p("arg"),p("arg1arg2")))
+    }
+  }
+  
+  it should "ignore the registration of Laika block directives when run in strict mode" in {
+    new BlockDirectives {
+      val input = """@:oneArg arg.
+        |
+        |@:twoArgs arg1 name=arg2.""".stripMargin
+      (Parse as (ReStructuredText withLaikaBlockDirectives (directives:_*) strict) fromString input).content should be (doc (p("@:oneArg arg."),p("@:twoArgs arg1 name=arg2.")))
+    }
+  }
+  
+  it should "support the registration of Laika span directives" in {
+    new SpanDirectives {
+      val input = """one @:oneArg arg. two @:twoArgs arg1 name=arg2. three"""
+      (Parse as (ReStructuredText withLaikaSpanDirectives (directives:_*)) fromString input).content should be (doc (p("one arg two arg1arg2 three")))
+    }
+  }
+  
+  it should "ignore the registration of Laika span directives when run in strict mode" in {
+    new SpanDirectives {
+      val input = """one @:oneArg arg. two @:twoArgs arg1 name=arg2. three"""
+      (Parse as (ReStructuredText withLaikaSpanDirectives (directives:_*) strict) fromString input).content should be (doc (p("one @:oneArg arg. two @:twoArgs arg1 name=arg2. three")))
+    }
   }
   
   it should "preprocess tabs" in {
