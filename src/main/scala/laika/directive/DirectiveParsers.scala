@@ -196,7 +196,10 @@ object DirectiveParsers {
     }
     
     lazy val blockDirectiveParser: Parser[Block] = {
-      val bodyContent = withSource(wsOrNl ~ '{' ~> spans(anyUntil('}'), spanParsers) <~ wsOrNl) ^^ (_._2) // TODO - needs to be indented block
+      val bodyContent = indentedBlock() ^^? { block => 
+        val trimmed = (block.lines mkString "\n").trim
+        Either.cond(trimmed.nonEmpty, trimmed, "empty body")
+      }
       withSource(directiveParser(bodyContent, true)) ^^ { case (result, source) =>
         
         def createContext (parts: PartMap, docContext: Option[DocumentContext]): Blocks.DirectiveContext = {
