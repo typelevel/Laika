@@ -135,8 +135,11 @@ object DirectiveParsers {
     
     def getTemplateDirective (name: String): Option[Templates.Directive]
     
-    case class DirectiveSpan (f: DocumentContext => Span, options: Options = NoOpt) extends PlaceholderSpan {
-      def resolve (context: DocumentContext) = TemplateElement(f(context))
+    case class DirectiveSpan (f: DocumentContext => Span, options: Options = NoOpt) extends PlaceholderSpan with TemplateSpan {
+      def resolve (context: DocumentContext) = f(context) match {
+        case s: TemplateSpan => s
+        case s: Span => TemplateElement(s)
+      }
     }
     
     lazy val templateDirectiveParser: Parser[TemplateSpan] = {
@@ -152,7 +155,7 @@ object DirectiveParsers {
         }
         def invalid (msg: String) = TemplateElement(InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Literal("@"+source)))
         
-        applyDirective(Templates)(result, getTemplateDirective, createContext, s => TemplateElement(DirectiveSpan(s)), invalid, "template")
+        applyDirective(Templates)(result, getTemplateDirective, createContext, s => DirectiveSpan(s), invalid, "template")
       }
     }
     

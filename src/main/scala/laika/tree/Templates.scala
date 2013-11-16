@@ -51,9 +51,10 @@ object Templates { // TODO - maybe move to laika.template.Elements
   
   case class TemplateContextReference (ref: String, options: Options = NoOpt) extends ContextReference[TemplateSpan](ref) with TemplateSpan {
     def result (value: Option[Any]): TemplateSpan = value match {
-      case Some(e: Element) => TemplateElement(e)
-      case Some(other)      => TemplateString(other.toString)
-      case None             => TemplateString("")
+      case Some(s: TemplateSpan) => s
+      case Some(e: Element)      => TemplateElement(e)
+      case Some(other)           => TemplateString(other.toString)
+      case None                  => TemplateString("")
     }
   }
   

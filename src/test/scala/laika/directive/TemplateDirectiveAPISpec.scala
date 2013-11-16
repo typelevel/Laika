@@ -12,7 +12,6 @@ import laika.directive.Directives.Default
 import laika.tree.Templates._
 import laika.tree.Elements._
 import laika.tree.Templates.TemplateContextReference
-import laika.util.Builders._
 
 class TemplateDirectiveAPISpec extends FlatSpec
                           with ShouldMatchers
@@ -274,7 +273,7 @@ class TemplateDirectiveAPISpec extends FlatSpec
   it should "parse a directive with a required default body and context access" in {
     new DirectiveWithContextAccess with TemplateParser {
       def translate (result: TemplateRoot) = result rewrite {
-        case d: DirectiveSpan => Some(Text("ok")) // cannot compare DirectiveSpans
+        case d: DirectiveSpan => Some(TemplateElement(Text("ok"))) // cannot compare DirectiveSpans
       }
       Parsing ("aa @:dir: { text } bb") map translate should produce (tRoot(tt("aa "), TemplateElement(txt("ok")), tt(" bb")))
     }
