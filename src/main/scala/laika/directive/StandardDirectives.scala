@@ -22,6 +22,7 @@ import laika.tree.Elements._
 import laika.tree.Templates._
 import laika.tree.Documents._
 import laika.tree.Templates.rewriteRules
+import scala.collection.JavaConversions._
 
 /** 
  *  @author Jens Halm
@@ -31,6 +32,7 @@ trait StandardDirectives {
   
   lazy val templateFor = Templates.create("for") {
     import Templates.Combinators._
+    import java.util.{Map => JMap, Collection => JCol}
 
     (attribute(Default) ~ body(Default) ~ body("empty").optional ~ context) {
       (path, content, fallback, context) => {
@@ -39,17 +41,45 @@ trait StandardDirectives {
           TemplateSpanSequence(content) rewrite rewriteRules(context.withReferenceContext(value))
         
         def rewriteFallback = 
-          fallback map (TemplateSpanSequence(_) rewrite rewriteRules(context)) getOrElse (TemplateString(""))
-        
+          fallback map (TemplateSpanSequence(_) rewrite rewriteRules(context)) getOrElse (TemplateSpanSequence(Nil))
+
         context.resolveReference(path) match {
+          case Some(m: Map[_,_])  => rewriteContent(m) 
+          case Some(m: JMap[_,_]) => rewriteContent(m) 
           case Some(it: Iterable[_]) if it.isEmpty => rewriteFallback
+          case Some(it: JCol[_])     if it.isEmpty => rewriteFallback
           case Some(it: Iterable[_]) => {
             val spans = for (value <- it) yield rewriteContent(value)
             TemplateSpanSequence(spans.toSeq)
           }
+          case Some(it: JCol[_]) => {
+            val spans = for (value <- iterableAsScalaIterable(it)) yield rewriteContent(value)
+            TemplateSpanSequence(spans.toSeq)
+          }
           case Some("") | Some(false) => rewriteFallback
           case Some(value)            => rewriteContent(value)
-          case None                   => TemplateString("")
+          case None                   => TemplateSpanSequence(Nil)
+        }
+      }
+    }
+  }
+  
+  lazy val templateIf = Templates.create("if") {
+    import Templates.Combinators._
+    import java.util.{Map => JMap, Collection => JCol}
+
+    (attribute(Default) ~ body(Default) ~ body("else").optional ~ context) {
+      (path, content, fallback, context) => {
+        
+        def rewriteContent =
+          TemplateSpanSequence(content) rewrite rewriteRules(context)
+        
+        def rewriteFallback = 
+          fallback map (TemplateSpanSequence(_) rewrite rewriteRules(context)) getOrElse (TemplateSpanSequence(Nil))
+        
+        context.resolveReference(path) match {
+          case Some(true) | Some("true") | Some("yes") | Some("on") | Some("enabled") => rewriteContent
+          case _ => rewriteFallback
         }
       }
     }
@@ -164,7 +194,13 @@ trait StandardDirectives {
     }
   }
   
-  // TODO - add template fragments
+  lazy val templateFragment = Templates.create("fragment") {
+    import Templates.Combinators._
+    
+    (attribute(Default) ~ body(Default)) {
+      (name, content) => TemplateElement(DocumentFragment(name, TemplateSpanSequence(content)))
+    }
+  }
   
   lazy val stdBlockDirectives = List(
     blockToc,
@@ -173,7 +209,8 @@ trait StandardDirectives {
   
   lazy val stdTemplateDirectives = List(
     templateToc,
-    templateFor
+    templateFor,
+    templateIf
   )
   
 }
