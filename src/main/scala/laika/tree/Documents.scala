@@ -35,7 +35,7 @@ object Documents {
   
   class Document (val path: Path, 
                   val content: RootElement, 
-                  val fragments: Map[String, Block] = Map.empty,
+                  val fragments: Map[String, Element] = Map.empty,
                   val config: Config = ConfigFactory.empty,
                   docNumber: List[Int] = Nil,
                   rewriteRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]] = Nil) extends Navigatable {
@@ -98,15 +98,18 @@ object Documents {
       val allRules = RewriteRules chain (customRules ++ resolvedRules)
       
       val newRoot = content rewrite allRules
-      
-      val newFragments = TreeUtil.extractFragments(BlockSequence(fragments.values.toSeq).rewrite(allRules).content) 
+       
+      val newFragments = fragments mapValues {
+        case et: ElementTraversal[_] => (et rewrite allRules).asInstanceOf[Block]
+        case block => block
+      }
       
       val newDoc = withRewrittenContent(newRoot, newFragments, context.autonumbering.number)
       
       context.template map (_.rewrite(context.withDocument(newDoc))) getOrElse newDoc
     }
     
-    def withRewrittenContent (newContent: RootElement, fragments: Map[String,Block], docNumber: List[Int] = Nil): Document = new Document(path, newContent, fragments, config, docNumber) {
+    def withRewrittenContent (newContent: RootElement, fragments: Map[String,Element], docNumber: List[Int] = Nil): Document = new Document(path, newContent, fragments, config, docNumber) {
       override lazy val defaultRules = Nil
       override val removeRules = this
     }
@@ -124,13 +127,15 @@ object Documents {
   }
   
   class ReferenceResolver (root: Any, parent: Option[ReferenceResolver] = None) {
-    
+    import java.util.{Map => JMap}
+    def fromJavaMap (m: JMap[Any,Any], key: Any) = if (m.containsKey(key)) Some(m.get(key)) else None
     /* These are all dynamic, non-typesafe lookups for values where often both,
      * the path from the template and the actual target value (e.g. from a config
      * file) originate from text resources, so the dynamic lookup is justifiable here
      * TODO - think about improvements for the error handling */
     def resolve (target: Any, path: List[String], root: Boolean = false): (Option[Any], List[String]) = {
       val result = target match {
+        case m: JMap[_, _]=> (fromJavaMap(m.asInstanceOf[JMap[Any,Any]], path.head), path.tail)
         case m: Map[_, _] => (m.asInstanceOf[Map[Any,Any]].get(path.head), path.tail)
         case c: Config    => (Try{ c.getAnyRef(path.mkString(".")) }.toOption, Nil)
         case other        => (Try{ target.getClass.getMethod(path.head).invoke(target) }.toOption, path.tail)

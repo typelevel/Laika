@@ -59,7 +59,7 @@ object TreeUtil {
   
   /** Extracts all document fragments from the specified sequence of blocks.
    */
-  def extractFragments (blocks: Seq[Block]): Map[String,Block] = 
+  def extractFragments (blocks: Seq[Element]): Map[String,Element] = 
     blocks.collect{case f: DocumentFragment => (f.name, f.root)}.toMap
   
   

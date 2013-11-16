@@ -64,7 +64,7 @@ object DocumentTreeHelper {
   
   case class Fragments (content: Seq[Fragment]) extends DocumentContent with ViewContainer[Fragments]
   
-  case class Fragment (name: String, content: Block) extends View
+  case class Fragment (name: String, content: Element) extends View
   
   case class Content (content: Seq[Block]) extends DocumentContent with BlockContainer[Content]
   
@@ -99,7 +99,7 @@ object DocumentTreeHelper {
     DocumentView(doc.path, content, doc.isRewritten)
   }
   
-  def viewOf (fragments: Map[String,Block]): Seq[Fragment] = 
+  def viewOf (fragments: Map[String,Element]): Seq[Fragment] = 
     (fragments map { case (name, content) => Fragment(name, content) }).toSeq
   
   def viewOf (doc: TemplateDocument): TemplateView = TemplateView(doc.path, doc.content)

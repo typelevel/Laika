@@ -193,7 +193,7 @@ object Elements {
   
   /** A named document fragment that usually gets rendered separately from the main root element
    */ 
-  case class DocumentFragment (name: String, root: Block, options: Options = NoOpt) extends Block with Temporary
+  case class DocumentFragment (name: String, root: Element, options: Options = NoOpt) extends Block with Temporary
   
   /** A single configuration value to be merged with the top document config.
    *  The value can be any type allowed by the Typesafe Config library (i.e. Boolean,
