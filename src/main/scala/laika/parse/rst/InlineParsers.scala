@@ -399,8 +399,8 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#standalone-hyperlinks]]
    */
-  lazy val email = reverse(1, localPart <~ reverseMarkupStart) ~ domain ^^ {
-    case local ~ domain => (local, "@", domain)
+  lazy val email = reverse(1, localPart <~ reverseMarkupStart) ~ domain ^? {
+    case local ~ domain if local.nonEmpty && domain.nonEmpty => (local, "@", domain)
   }
   
   
