@@ -135,7 +135,7 @@ object DirectiveParsers {
     
     def getTemplateDirective (name: String): Option[Templates.Directive]
     
-    case class DirectiveSpan (f: DocumentContext => Span, options: Options = NoOpt) extends PlaceholderSpan with TemplateSpan {
+    case class DirectiveSpan (f: DocumentContext => Span, options: Options = NoOpt) extends SpanResolver with TemplateSpan {
       def resolve (context: DocumentContext) = f(context) match {
         case s: TemplateSpan => s
         case s: Span => TemplateElement(s)
@@ -166,7 +166,7 @@ object DirectiveParsers {
     
     def getSpanDirective (name: String): Option[Spans.Directive]
     
-    case class DirectiveSpan (f: DocumentContext => Span, options: Options = NoOpt) extends PlaceholderSpan {
+    case class DirectiveSpan (f: DocumentContext => Span, options: Options = NoOpt) extends SpanResolver {
       def resolve (context: DocumentContext) = f(context)
     }
     
@@ -194,7 +194,7 @@ object DirectiveParsers {
     
     def getBlockDirective (name: String): Option[Blocks.Directive]
     
-    case class DirectiveBlock (f: DocumentContext => Block, options: Options = NoOpt) extends PlaceholderBlock {
+    case class DirectiveBlock (f: DocumentContext => Block, options: Options = NoOpt) extends BlockResolver {
       def resolve (context: DocumentContext) = f(context)
     }
     

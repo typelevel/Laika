@@ -17,7 +17,7 @@
 package laika.parse.rst
 
 import laika.tree.Elements._
-import laika.tree.Templates.PlaceholderBlock
+import laika.tree.Templates.BlockResolver
 import laika.tree.Documents.DocumentContext
 import laika.tree.Documents.SectionInfo
 
@@ -102,7 +102,7 @@ object Elements {
    *  The path is interpreted as relative to the path of the processed
    *  document if it is not an absolute path.
    */
-  case class Include (path: String, options: Options = NoOpt) extends Block with PlaceholderBlock {
+  case class Include (path: String, options: Options = NoOpt) extends Block with BlockResolver {
     def resolve (context: DocumentContext): Block = 
       context.parent.selectDocument(path) match {
         case Some(target) => BlockSequence(target.content.content)
@@ -113,7 +113,7 @@ object Elements {
   
   /** Generates a table of contents element inside a topic.
    */
-  case class Contents (title: String, depth: Int = Int.MaxValue, local: Boolean = false, options: Options = NoOpt) extends Block with PlaceholderBlock {
+  case class Contents (title: String, depth: Int = Int.MaxValue, local: Boolean = false, options: Options = NoOpt) extends Block with BlockResolver {
     private val format = StringBullet("*")
     
     def resolve (context: DocumentContext): Block = {

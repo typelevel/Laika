@@ -22,26 +22,17 @@ import laika.tree.Elements._
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 
-object Templates { // TODO - maybe move to laika.template.Elements
+object Templates {
   
-  trait PlaceholderSpan extends Span { // TODO - maybe rename
+  trait SpanResolver extends Span {
     def resolve (context: DocumentContext): Span
   }
 
-  trait PlaceholderBlock extends Block {
+  trait BlockResolver extends Block {
     def resolve (context: DocumentContext): Block
   }
   
-  trait PlaceholderSpanFactory extends Span { // TODO - the factories are probably not needed
-    def create: PlaceholderSpan
-  }
-  
-  trait PlaceholderBlockFactory extends Block {
-    def create: PlaceholderBlock
-  }
-  
-  
-  abstract class ContextReference[T <: Span] (ref: String) extends PlaceholderSpan {
+  abstract class ContextReference[T <: Span] (ref: String) extends SpanResolver {
     def result (value: Option[Any]): T
     def resolve (context: DocumentContext): Span = context.resolveReference(ref) match {
       case Some(s: ElementTraversal[_]) => result(Some(s rewrite rewriteRules(context)))
@@ -91,8 +82,8 @@ object Templates { // TODO - maybe move to laika.template.Elements
   
   def rewriteRules (context: DocumentContext) = {
     lazy val rule: PartialFunction[Element, Option[Element]] = {
-      case ph: PlaceholderBlock => Some(rewriteChild(ph resolve context))
-      case ph: PlaceholderSpan  => Some(rewriteChild(ph resolve context))
+      case ph: BlockResolver => Some(rewriteChild(ph resolve context))
+      case ph: SpanResolver  => Some(rewriteChild(ph resolve context))
     }
     def rewriteChild (e: Element) = e match {
       case et: ElementTraversal[_] => et rewrite rule
