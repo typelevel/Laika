@@ -89,9 +89,13 @@ object Documents {
      
     def rewrite (customRule: PartialFunction[Element,Option[Element]]): Document = rewriteWith(List(customRule))
     
-    def rewriteWith (customRules: Seq[PartialFunction[Element,Option[Element]]]): Document = rewriteWith(customRules, DocumentContext(this))
+    def rewriteWith (customRules: Seq[PartialFunction[Element,Option[Element]]]): Document = {
+      val context = DocumentContext(this)
+      val newDoc = rewriteDocument(customRules, context)
+      newDoc.rewriteTemplate(context.withDocument(newDoc))
+    }
       
-    private[Documents] def rewriteWith (customRules: Seq[PartialFunction[Element,Option[Element]]], context: DocumentContext): Document = {
+    private[Documents] def rewriteDocument (customRules: Seq[PartialFunction[Element,Option[Element]]], context: DocumentContext): Document = {
       
       val resolvedRules = (defaultRules map { _(context) })      
       
@@ -104,10 +108,11 @@ object Documents {
         case block => block
       }
       
-      val newDoc = withRewrittenContent(newRoot, newFragments, context.autonumbering.number)
-      
-      context.template map (_.rewrite(context.withDocument(newDoc))) getOrElse newDoc
+      withRewrittenContent(newRoot, newFragments, context.autonumbering.number)
     }
+    
+    private[Documents] def rewriteTemplate (context: DocumentContext) =
+      context.template map (_.rewrite(context)) getOrElse this
     
     def withRewrittenContent (newContent: RootElement, fragments: Map[String,Element], docNumber: List[Int] = Nil): Document = new Document(path, newContent, fragments, config, docNumber) {
       override lazy val defaultRules = Nil
@@ -223,6 +228,9 @@ object Documents {
       new DocumentContext(document, tree, tree, AutonumberContext.defaults)
     }
     
+    def apply (document: Document, parent: DocumentTree, root: DocumentTree): DocumentContext 
+      = new DocumentContext(document, parent, root, AutonumberContext.defaults)
+    
     def apply (document: Document, parent: DocumentTree, root: DocumentTree, autonumbering: AutonumberContext): DocumentContext 
       = new DocumentContext(document, parent, root, autonumbering)
     
@@ -276,9 +284,17 @@ object Documents {
                       val dynamicDocuments: Seq[Document] = Nil, 
                       val staticDocuments: Seq[Input] = Nil,
                       val subtrees: Seq[DocumentTree] = Nil, 
-                      private[tree] val config: Option[Config] = None) extends Navigatable {
+                      private[tree] val config: Option[Config] = None,
+                      docNumber: List[Int] = Nil) extends Navigatable {
     
     val name = path.name
+    
+    lazy val title: Seq[Span] = {
+      config map (c => if (c.hasPath("title")) docNumber match {
+        case Nil => List(Text(c.getString("title")))
+        case _ => Text(docNumber.mkString("."), Styles("titleNumber")) +: List(Text(c.getString("title")))
+      } else Nil) getOrElse Nil 
+    }
     
     lazy val navigatables = documents ++ subtrees // TODO - allow for sorting by config (default to sorting by name)
     
@@ -334,9 +350,12 @@ object Documents {
         autonumbering: AutonumberContext): DocumentTree = rewrite(List(customRule), autonumbering)
     
     def rewrite (customRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]], 
-        autonumbering: AutonumberContext): DocumentTree = rewrite(RewriteContext(this, customRules, autonumbering))
+        autonumbering: AutonumberContext): DocumentTree = {
+      val newTree = rewriteDocuments(RewriteContext(this, customRules, autonumbering))
+      newTree.rewriteTemplates(newTree)
+    }
     
-    private def rewrite (rewriteContext: RewriteContext): DocumentTree = {
+    private def rewriteDocuments (rewriteContext: RewriteContext): DocumentTree = {
       
       val autonumberConfig = config map (AutonumberConfig.fromConfig(_)) getOrElse rewriteContext.autonumbering.config
       
@@ -348,19 +367,25 @@ object Documents {
         
       val (_, docs) = ((documents :\ (documents.length, List[Document]())) { case (doc, (num, acc)) =>
         val context = DocumentContext(doc, this, rewriteContext.root, autonumberContextForChild(num))
-        (num - 1, doc.rewriteWith(rewriteContext.rules map (_(context)), context) :: acc) 
-      })
-      
-      val dynamicDocs = dynamicTemplates map (doc => {
-        val context = DocumentContext(doc.path, this, rewriteContext.root, doc.config)
-        doc.rewrite(context)
+        (num - 1, doc.rewriteDocument(rewriteContext.rules map (_(context)), context) :: acc) 
       })
       
       val (_, trees) = ((subtrees :\ (subtrees.length + documents.length, List[DocumentTree]())) { case (subtree, (num, acc)) =>
-        (num - 1, subtree.rewrite(rewriteContextForChild(num)) :: acc) 
+        (num - 1, subtree.rewriteDocuments(rewriteContextForChild(num)) :: acc) 
       })
       
-      new DocumentTree(path, docs, Nil, Nil, dynamicDocs, staticDocuments, trees)  
+      new DocumentTree(path, docs, templates, dynamicTemplates, dynamicDocuments, staticDocuments, trees, config, rewriteContext.autonumbering.number)  
+    }
+    
+    private def rewriteTemplates (root: DocumentTree): DocumentTree = {
+      
+      val newDocs = for (doc <- documents) yield doc.rewriteTemplate(DocumentContext(doc, this, root))
+      
+      val newDynamicDocs = for (doc <- dynamicTemplates) yield doc.rewrite(DocumentContext(doc.path, this, root, doc.config))
+      
+      val newSubtrees = for (tree <- subtrees) yield tree.rewriteTemplates(root)
+      
+      new DocumentTree(path, newDocs, Nil, Nil, dynamicDocuments ++ newDynamicDocs, staticDocuments, newSubtrees, docNumber = docNumber)  
     }
   }
   
