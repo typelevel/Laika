@@ -22,6 +22,14 @@ import laika.tree.helper.ModelBuilder
 import laika.tree.Elements._
 import laika.parse.rst.ReStructuredText
 import laika.api.Parse
+import laika.parse.rst.Elements.Include
+import laika.tree.Documents._
+import laika.tree.Templates.TemplateDocument
+import laika.tree.Templates.TemplateElement
+import laika.tree.Templates.TemplateContextReference
+import com.typesafe.config.impl.SimpleConfigObject
+import com.typesafe.config.ConfigValueFactory
+import laika.parse.rst.Elements.Contents
 
 /**
  * @author Jens Halm
@@ -32,7 +40,14 @@ class StandardBlockDirectivesSpec extends FlatSpec
 
    val simplePars = List(p("1st Para"), p("2nd Para"))
    
-   def parse (input: String) = (Parse as ReStructuredText fromString input).content
+   def parseDoc (input: String) = Parse as ReStructuredText fromString input
+
+   def parse (input: String) = parseDoc(input).content
+   
+   def parseWithFragments (input: String) = {
+    val doc = parseDoc(input)
+    (doc.fragments, doc.content)
+  }
   
   "The compound directive" should "parse a sequence of two paragraphs" in {
     val input = """.. compound::
@@ -532,6 +547,111 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |.. _ref: http://foo.com/""".stripMargin
     val result = doc (Figure(ExternalLink(List(img("", "picture.jpg")), "http://foo.com/"), List(txt("This is the "),em("caption")), Nil))
     parse(input) should be (result)
+  }
+  
+  
+  "The header directive" should "create a fragment in the document" in {
+    val input = """.. header:: 
+      | This is
+      | a header
+      |
+      |This isn't""".stripMargin
+    val fragments = Map("header" -> BlockSequence(List(p("This is\na header"))))
+    val root = doc (p("This isn't"))
+    parseWithFragments(input) should be ((fragments, root))
+  }
+  
+  "The footer directive" should "create a fragment in the document" in {
+    val input = """.. footer:: 
+      | This is
+      | a footer
+      |
+      |This isn't""".stripMargin
+    val fragments = Map("footer" -> BlockSequence(List(p("This is\na footer"))))
+    val root = doc (p("This isn't"))
+    parseWithFragments(input) should be ((fragments, root))
+  }
+  
+  "The include directive" should "create a placeholder in the document" in {
+    val input = """.. include:: other.rst"""
+    val root = doc (Include("other.rst"))
+    parse(input) should be (root)
+  }
+  
+  "The include rewriter" should "replace the node with the corresponding document" in {
+    val doc1 = new Document(Root / "doc1", doc(Include("doc2")))
+    val doc2 = new Document(Root / "doc2", doc(p("text")))
+    val template = new TemplateDocument(Root / "default.template.html", tRoot(TemplateContextReference("document.content")))
+    val tree = new DocumentTree(Root, List(doc1, doc2), templates = List(template))
+    tree.rewrite.documents(0).content should be (doc(tRoot(tElem(doc(BlockSequence(List(p("text"))))))))
+  }
+  
+  "The title directive" should "set the title in the document instance" in {
+    val input = """.. title:: Title"""
+    val root = doc ()
+    parseDoc(input).title should be (Seq(txt("Title")))
+  }
+  
+  "The meta directive" should "create config entries in the document instance" in {
+    import scala.collection.JavaConversions.mapAsJavaMap
+    val input = """.. meta::
+      | :key1: val1
+      | :key2: val2""".stripMargin
+    val map = mapAsJavaMap(Map("key1"->"val1","key2"->"val2"))
+    parseDoc(input).config.getObject("meta") should be (ConfigValueFactory.fromMap(map))
+  }
+  
+  "The sectnum directive" should "create config entries in the document instance" in {
+    import scala.collection.JavaConversions.mapAsJavaMap
+    val input = """.. sectnum::
+      | :depth: 3
+      | :start: 1
+      | :prefix: (
+      | :suffix: )""".stripMargin
+    val map = mapAsJavaMap(Map("depth"->"3", "start"->"1", "prefix"->"(", "suffix"->")"))
+    parseDoc(input).config.getObject("autonumbering") should be (ConfigValueFactory.fromMap(map))
+  }
+  
+  "The contents directive" should "create a placeholder in the document" in {
+    import scala.collection.JavaConversions.mapAsJavaMap
+    val input = """.. contents:: This is the title
+      | :depth: 3
+      | :local: true""".stripMargin
+    val elem = Contents("This is the title", 3, true)
+    parse(input) should be (doc(elem))
+  }
+  
+  "The contents rewriter" should "replace the node with the corresponding list element" in {
+    def header (level: Int, title: Int, style: String = "section") =
+      Header(level,List(Text("Title "+title)),Id("title"+title) + Styles(style))
+      
+    def link (level: Int, title: Int) =    
+      InternalLink(List(txt("Title "+title)), "title"+title, None, Styles("toc","level"+level))
+          
+    val sectionsWithTitle = RootElement(
+      header(1,1,"title") ::
+      Contents("This is the title", 3, false) ::
+      header(2,2) ::
+      header(3,3) ::
+      header(2,4) ::
+      header(3,5) ::
+      Nil
+    )
+    
+    val result = doc(tRoot(TemplateElement(doc(
+      header(1,1,"title"),
+      TitledBlock(List(txt("This is the title")), 
+        List(bulletList() + (p(link(1,2)), (bulletList() + p(link(2,3))))
+                          + (p(link(1,4)), (bulletList() + p(link(2,5))))), 
+      Styles("topic")),
+      Section(header(2,2), List(Section(header(3,3), Nil))),
+      Section(header(2,4), List(Section(header(3,5), Nil)))
+    ))))
+    
+    val document = new Document(Root / "doc", sectionsWithTitle)
+    val template = new TemplateDocument(Root / "default.template.html", tRoot(TemplateContextReference("document.content")))
+    val tree = new DocumentTree(Root, List(document), templates = List(template))
+    tree.rewrite.documents(0).content should be (result)
   }
   
   

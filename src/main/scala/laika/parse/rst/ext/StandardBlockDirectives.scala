@@ -186,7 +186,7 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
   lazy val sectnum = (tuple("depth") ~ tuple("start") ~ tuple("prefix") ~ tuple("suffix")) {
     (depth, start, prefix, suffix) => 
       val options = depth.toList ::: start.toList ::: prefix.toList ::: suffix.toList
-      ConfigValue("sectionNumbers", options)
+      ConfigValue("autonumbering", options.toMap)
   }
   
   lazy val contents = (optArgument(withWS = true) ~ optField("depth", positiveInt) ~ optField("local") ~ optField("class")) {
@@ -290,6 +290,7 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
     BlockDirective("include")(include),
     BlockDirective("title")(titleDirective),
     BlockDirective("meta")(meta),
+    BlockDirective("contents")(contents),
     BlockDirective("sectnum")(sectnum),
     BlockDirective("section-autonumbering")(sectnum),
     BlockDirective("attention")(admonition("attention","Attention!")),
