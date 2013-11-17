@@ -339,29 +339,7 @@ class StandardDirectiveSpec extends FlatSpec
       ))
     ))
   }
-    /*
-. TemplateRoot - Spans: 1
-. . TemplateElement
-. . . RootElement - Blocks: 3
-. . . . TitledBlock(List(Text(Contents,NoOpt)),Styles(toc)) - Blocks: 1
-. . . . . BulletList(StringBullet(*)) - Elements: 2
-. . . . . . BulletListItem(StringBullet(*)) - Blocks: 1
-. . . . . . . Paragraph - Spans: 1
-. . . . . . . . InternalLink(headline-1,None,Styles(toc,level1)) - Spans: 1
-. . . . . . . . . Text - 'Headline 1'
-. . . . . . BulletListItem(StringBullet(*)) - Blocks: 1
-. . . . . . . Paragraph - Spans: 1
-. . . . . . . . InternalLink(headline-2,None,Styles(toc,level1)) - Spans: 1
-. . . . . . . . . Text - 'Headline 2'
-. . . . Section
-. . . . . Header(1,Id(headline-1) + Styles(section)) - Spans: 1
-. . . . . . Text - 'Headline 1'
-. . . . . Content - Blocks: 0
-. . . . Section
-. . . . . Header(1,Id(headline-2) + Styles(section)) - Spans: 1
-. . . . . . Text - 'Headline 2'
-. . . . . Content - Blocks: 0
-   */
+
   "The template toc directive" should "produce a table of content starting from the root tree" in {
     new TreeModel with TocModel {
       
@@ -423,16 +401,6 @@ class StandardDirectiveSpec extends FlatSpec
       
       val template = """aaa @:toc root="../sub1" depth=2. bbb {{document.content}}"""
       
-      /*
-      import laika.api.Render
-      import laika.render.PrettyPrint
-      val path = "/Users/jenshalm/Projects/Planet42/Laika/target/"
-      val parsed = parseAndRewrite(template, markup)
-      val expected = result(firstTree)
-      Render as PrettyPrint from parsed toFile (path+"parsed.txt") 
-      Render as PrettyPrint from expected toFile (path+"expected.txt") 
-      parsed should be (expected)
-       */
       parseAndRewrite(template, markup) should be (result(firstTreeFirstLevel))  
     }
   } 
@@ -448,16 +416,6 @@ class StandardDirectiveSpec extends FlatSpec
       
       val template = """{{document.content}}"""
       
-      import laika.api.Render
-      import laika.render.PrettyPrint
-      val path = "/Users/jenshalm/Projects/Planet42/Laika/target/"
-      val parsed = parseAndRewrite(template, markup)
-      val expected = markupTocResult
-      Render as PrettyPrint from parsed toFile (path+"parsed.txt") 
-      Render as PrettyPrint from expected toFile (path+"expected.txt") 
-      parsed should be (expected)
-      /*
-       */
       parseAndRewrite(template, markup) should be (markupTocResult)  
     }
   } 
