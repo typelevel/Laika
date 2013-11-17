@@ -1,0 +1,242 @@
+/*
+ * Copyright 2013 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package laika.tree
+
+import org.scalatest.FlatSpec
+import org.scalatest.matchers.ShouldMatchers
+import laika.tree.helper.ModelBuilder
+import laika.tree.Elements._
+import laika.tree.Documents._
+import laika.tree.DocumentTreeHelper.{Documents => Docs}
+import laika.tree.DocumentTreeHelper._
+import com.typesafe.config.ConfigFactory
+
+class SectionNumberSpec extends FlatSpec 
+                        with ShouldMatchers
+                        with ModelBuilder {
+
+  
+  trait TreeModel {
+    
+    def header (level: Int, title: Int, style: String = "section") =
+      Header(level,List(Text("Title "+title)),Id("title"+title) + Styles(style))
+      
+    def tree (content: RootElement) = {
+      def docs (path: Path, nums: Int*) = nums map (n => new Document(path / ("doc"+n), content))
+      new DocumentTree(Root, docs(Root, 1,2), config = parseConfig(config), subtrees = List(
+          new DocumentTree(Root / "sub1", docs(Root / "sub1",3,4)),
+          new DocumentTree(Root / "sub2", docs(Root / "sub2",5,6))
+          ))
+    }
+    
+    def numberedHeader (level: Int, title: Int, num: List[Int], style: String = "section") = {
+      val numbered = isIncluded(num.length) && (style == "section" && numberSections) || (style == "title" && numberDocs)
+      val number = if (numbered) List(Text(num.mkString("","."," "),Styles(style+"Number"))) else Nil
+      Header(level, number ++ List(Text("Title "+title)),Id("title"+title)+Styles(style))
+    }
+      
+    def numberedSection (level: Int, title: Int, num: List[Int], children: Section*) =
+      Section(numberedHeader(level, title, num), children)
+    def numberedSectionInfo (level: Int, title: Int, num: List[Int], children: SectionInfo*) =
+      SectionInfo(num, "title"+title, TitleInfo(numberedHeader(level, title, num).content), children)
+
+
+    def treeView (content: List[Int] => List[DocumentContent]) = {
+      def numbers (titleNums: List[Int]) = if (numberDocs) titleNums else Nil
+      def docs (path: Path, nums: (Int, List[Int])*) = nums map { 
+        case (fileNum, titleNums) => new DocumentView(path / ("doc"+fileNum), content(numbers(titleNums)))
+      }
+      TreeView(Root, Docs(Markup, docs(Root, (1,List(1)),(2,List(2)))) :: Subtrees(List(
+        TreeView(Root / "sub1", Docs(Markup, docs(Root / "sub1",(3,List(3,1)),(4, List(3,2)))) :: Nil),
+        TreeView(Root / "sub2", Docs(Markup, docs(Root / "sub2",(5,List(4,1)),(6, List(4,2)))) :: Nil)
+      )) :: Nil)
+    }
+    
+    def parseConfig (source: String) = Some(ConfigFactory.parseString(source))
+    
+    def config: String
+    def numberSections: Boolean
+    def numberDocs: Boolean
+    
+    def depth: Option[Int] = None
+    
+    def isIncluded (level: Int) = depth map (_ >= level) getOrElse true
+  }
+  
+  trait NumberAllConfig {
+    val config = """autonumbering { 
+      |  scope: all
+      |}""".stripMargin
+    val numberSections = true
+    val numberDocs = true
+  }
+  
+  trait NumberTwoLevels {
+    val config = """autonumbering { 
+      |  scope: all
+      |  depth: 2
+      |}""".stripMargin
+    val numberSections = true
+    val numberDocs = true
+  }
+  
+  trait NumberDocumentsConfig {
+    val config = """autonumbering { 
+      |  scope: documents
+      |}""".stripMargin
+    val numberSections = false
+    val numberDocs = true
+  }
+  
+  trait NumberSectionsConfig {
+    val config = """autonumbering { 
+      |  scope: sections
+      |}""".stripMargin
+    val numberSections = true
+    val numberDocs = false
+  }
+  
+  trait NumberNothingConfig {
+    val config = """autonumbering { 
+      |  scope: none
+      |}""".stripMargin
+    val numberSections = false
+    val numberDocs = false
+  }
+  
+  object DebugHelper {
+    // TODO - move to separate helper object
+    import laika.api.Render
+    import laika.render.PrettyPrint
+
+    def writeFiles (result: Element, expected: Element) = {
+      val path = "/Users/jenshalm/Projects/Planet42/Laika/target/"
+      Render as PrettyPrint from result toFile (path+"result.txt")
+      Render as PrettyPrint from expected toFile (path+"expected.txt")
+    }
+  }
+  
+  trait SectionsWithTitle extends TreeModel {
+    val sections = RootElement(
+      header(1,1,"title") ::
+      header(2,2) ::
+      header(3,3) ::
+      header(2,4) ::
+      header(3,5) ::
+      Nil
+    )
+    
+    def resultView (docNum: List[Int]): List[DocumentContent] = List(
+      Content(List(
+        numberedHeader(1,1, docNum, "title"),
+        numberedSection(2,2, docNum:+1, numberedSection(3,3, docNum:+1:+1)),
+        numberedSection(2,4, docNum:+2, numberedSection(3,5, docNum:+2:+1))
+      )),
+      Title(numberedHeader(1,1, docNum, "title").content),
+      Sections(List(
+        numberedSectionInfo(2,2, docNum:+1, numberedSectionInfo(3,3, docNum:+1:+1)),
+        numberedSectionInfo(2,4, docNum:+2, numberedSectionInfo(3,5, docNum:+2:+1))
+      ))
+    )
+
+    lazy val expected = treeView(resultView)
+    lazy val result = viewOf(tree(sections).rewrite)
+  }
+  
+  trait SectionsWithoutTitle extends TreeModel {
+    val sections = RootElement(
+      header(1,1) ::
+      header(2,2) ::
+      header(1,3) ::
+      header(2,4) ::
+      Nil
+    )
+    
+    def resultView (docNum: List[Int]): List[DocumentContent] = List(
+      Content(List(
+        numberedSection(1,1, docNum:+1, numberedSection(2,2, docNum:+1:+1)),
+        numberedSection(1,3, docNum:+2, numberedSection(2,4, docNum:+2:+1))
+      )),
+      Sections(List(
+        numberedSectionInfo(1,1, docNum:+1, numberedSectionInfo(2,2, docNum:+1:+1)),
+        numberedSectionInfo(1,3, docNum:+2, numberedSectionInfo(2,4, docNum:+2:+1))
+      ))
+    )
+
+    lazy val expected = treeView(resultView)
+    lazy val result = viewOf(tree(sections).rewrite)
+  }
+  
+  
+  "The section numbering" should "number documents, sections and titles for a structure with title" in {
+    new SectionsWithTitle with NumberAllConfig {
+      result should be (expected)
+    }
+  } 
+  
+  it should "number documents and titles for a structure with title" in {
+    new SectionsWithTitle with NumberDocumentsConfig {
+      result should be (expected)
+    }
+  } 
+  
+  it should "number sections only for a structure with title" in {
+    new SectionsWithTitle with NumberSectionsConfig {
+      result should be (expected)
+    }
+  } 
+  
+  it should "number nothing for a structure with title" in {
+    new SectionsWithTitle with NumberNothingConfig {
+      result should be (expected)
+    }
+  } 
+  
+  it should "number documents and sections for a structure without title" in {
+    new SectionsWithoutTitle with NumberAllConfig {
+      result should be (expected)
+    }
+  } 
+  
+  it should "number documents only for a structure without title" in {
+    new SectionsWithoutTitle with NumberDocumentsConfig {
+      result should be (expected)
+    }
+  } 
+  
+  it should "number sections only for a structure without title" in {
+    new SectionsWithoutTitle with NumberSectionsConfig {
+      result should be (expected)
+    }
+  } 
+  
+  it should "number nothing for a structure without title" in {
+    new SectionsWithoutTitle with NumberNothingConfig {
+      result should be (expected)
+    }
+  } 
+  
+  it should "number documents and sections two levels deep for a structure without title" in {
+    new SectionsWithoutTitle with NumberTwoLevels {
+      override val depth = Some(2)
+      DebugHelper.writeFiles(result, expected)
+      result should be (expected)
+    }
+  } 
+  
+  
+}
