@@ -97,7 +97,7 @@ object SectionBuilder extends (DocumentContext => PartialFunction[Element,Option
         }
         
         def numberHeader (header: Header, num: List[Int], style: String) = header.copy(
-          content = Text(num.mkString("."), Styles(style+"Number")) +: header.content, 
+          content = Text(num.mkString("","."," "), Styles(style+"Number")) +: header.content, 
           options = header.options + Styles(style)
         )
           

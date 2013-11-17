@@ -61,7 +61,7 @@ object Documents {
     def title = {
       if (config.hasPath("title")) docNumber match {
         case Nil => List(Text(config.getString("title")))
-        case _ => Text(docNumber.mkString("."), Styles("titleNumber")) +: List(Text(config.getString("title")))
+        case _ => Text(docNumber.mkString("","."," "), Styles("titleNumber")) +: List(Text(config.getString("title")))
       }
       else (findRoot collect {
         case Header(_,content,opt) if opt.styles("title") => content
@@ -292,7 +292,7 @@ object Documents {
     lazy val title: Seq[Span] = {
       config map (c => if (c.hasPath("title")) docNumber match {
         case Nil => List(Text(c.getString("title")))
-        case _ => Text(docNumber.mkString("."), Styles("titleNumber")) +: List(Text(c.getString("title")))
+        case _ => Text(docNumber.mkString("","."," "), Styles("titleNumber")) +: List(Text(c.getString("title")))
       } else Nil) getOrElse Nil 
     }
     
