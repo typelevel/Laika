@@ -191,7 +191,7 @@ object Documents {
         val desc = value.origin().description()
         val basePath = if (desc.startsWith("path:")) Path(desc.take(desc.lastIndexOf(":")).drop(5)).parent else Root
         val templatePath = (basePath / Path(value.unwrapped().toString)).relativeTo(Root)
-        root.selectTemplate(templatePath)  // TODO - error handling when template not found
+        root.selectTemplate(templatePath).orElse(throw new IllegalStateException("Template not found: " + templatePath))
       }
       else {
         val filename = "default.template.html" // TODO - should be configurable and suffix dependent on renderer
