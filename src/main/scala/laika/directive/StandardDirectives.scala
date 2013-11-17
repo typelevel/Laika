@@ -90,8 +90,6 @@ trait StandardDirectives {
     val format = StringBullet("*")
     val maxLevel = depth getOrElse Int.MaxValue
 
-    // TODO - generate PathInfo for CrossLinks
-    
     def isCurrent (doc: Document) = doc.path == context.document.path
     
     def sectionToLink (section: SectionInfo, path: Path, level: Int) = {
@@ -101,7 +99,7 @@ trait StandardDirectives {
       if (path == context.document.path)
         Paragraph(List(InternalLink(title, section.id, options = options)))
       else
-        Paragraph(List(CrossLink(title, section.id, null, options = Styles("toc","level"+level))))
+        Paragraph(List(CrossLink(title, section.id, PathInfo(path, path.relativeTo(context.parent.path)), options = Styles("toc","level"+level))))
     }
       
     def docToLink (document: Document, level: Int) = {
@@ -111,19 +109,17 @@ trait StandardDirectives {
       if (isCurrent(document))
         Paragraph(title, options = options + Styles("active"))
       else
-        Paragraph(List(CrossLink(title, "", null, options = options)))
+        Paragraph(List(CrossLink(title, "", PathInfo(document.path, document.path.relativeTo(context.parent.path)), options = options)))
     }  
     
     def treeToText (tree: DocumentTree, level: Int) =
-      Paragraph(List(Text("")), options = Styles("toc","level"+level)) // TODO - tree title
+      Paragraph(tree.title, options = Styles("toc","level"+level))
     
-    def sectionsToList (sections: Seq[SectionInfo], path: Path, level: Int): List[Block] = {
-      
+    def sectionsToList (sections: Seq[SectionInfo], path: Path, level: Int): List[Block] =
       if (sections.isEmpty || level > maxLevel) Nil else {
         val items = for (section <- sections) yield 
             BulletListItem(sectionToLink(section, path, level) :: sectionsToList(section.content, path, level + 1), format)
         List(BulletList(items, format))
-      }
     }
     
     def navigatablesToList (navigatables: Seq[Navigatable], level: Int): List[Block] = {
@@ -145,9 +141,11 @@ trait StandardDirectives {
       case "#currentTree"     => context.parent
       case "#currentDocument" => context.document
       case pathString => {
-        val path = Path(pathString)
-        val tree = if (path.isAbsolute) context.root else context.parent
-        tree.selectDocument(path).getOrElse(tree.selectSubtree(path).getOrElse(context.root))
+        val configPath = Path(pathString)
+        val path = 
+          (if (configPath.isAbsolute) configPath
+          else (context.parent.path / configPath)).relativeTo(context.root.path) 
+        context.root.selectDocument(path).getOrElse(context.root.selectSubtree(path).getOrElse(context.root))
       }
     }
     
@@ -181,7 +179,7 @@ trait StandardDirectives {
         attribute("title").optional ~ 
         context) {  
       (depth, rootConfig, title, context) =>
-        toc(depth, rootConfig.getOrElse("#rootTree"), title, context)
+        toc(depth, rootConfig.getOrElse("#currentDocument"), title, context)
     }
   }
   

@@ -172,7 +172,7 @@ object DirectiveParsers {
     
     lazy val spanDirectiveParser: Parser[Span] = {
       val bodyContent = wsOrNl ~ '{' ~> (withSource(spans(anyUntil('}'), spanParsers)) ^^ (_._2.dropRight(1)))
-      withSource(directiveParser(bodyContent, false)) ^^ { case (result, source) => // TODO - optimization - parsed spans might be cached for DirectiveContext (applies for the other two parsers, too)
+      withSource(directiveParser(bodyContent, false)) ^^ { case (result, source) => // TODO - optimization - parsed spans might be cached for DirectiveContext (applies for the template parser, too)
         
         def createContext (parts: PartMap, docContext: Option[DocumentContext]): Spans.DirectiveContext = {
           new DirectiveContextBase(parts, docContext) with Spans.DirectiveContext {
