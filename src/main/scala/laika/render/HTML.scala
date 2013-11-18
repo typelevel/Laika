@@ -17,6 +17,7 @@
 package laika.render
 
 import laika.tree.Elements._
+import laika.tree.Templates._
 import laika.io.Output
 import laika.factory.RendererFactory
   
@@ -132,6 +133,13 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
     def renderSpanContainer [T <: SpanContainer[T]](con: SpanContainer[T]) = {
       def escapeTitle (s: String) = s.replace("&","&amp;").replace("\"","&quot;").replace("'","$#39;")
       def codeStyles (language: String) = if (language.isEmpty) Styles("code") else Styles("code", language)
+      def crossLinkRef (path: PathInfo, ref: String) = {
+        val target = path.relative.name.lastIndexOf(".") match {
+          case -1 => path.relative.toString
+          case i  => (path.relative.parent / (path.relative.name.take(i) + ".html")).toString
+        }
+        if (ref.isEmpty) target else target+"#"+ref
+      }
       
       con match {
         
@@ -144,12 +152,15 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
         case Line(content,opt)              => out <<@ ("div",opt + Styles("line")) << content <<  "</div>"
         case Header(level, content, opt)    => out <<| "<h" << level.toString << ">" << content << "</h" << level.toString << ">"
   
-        case ExternalLink(content, url, title, opt)  => out <<@ ("a", opt, "href"->url,       "title"->title.map(escapeTitle)) << content << "</a>"
-        case InternalLink(content, url, title, opt)  => out <<@ ("a", opt, "href"->("#"+url), "title"->title.map(escapeTitle)) << content << "</a>"
+        case ExternalLink(content, url, title, opt)     => out <<@ ("a", opt, "href"->url,       "title"->title.map(escapeTitle)) << content << "</a>"
+        case InternalLink(content, ref, title, opt)     => out <<@ ("a", opt, "href"->("#"+ref), "title"->title.map(escapeTitle)) << content << "</a>"
+        case CrossLink(content, ref, path, title, opt)  => out <<@ ("a", opt, "href"->(crossLinkRef(path,ref)), "title"->title.map(escapeTitle)) << content << "</a>"
         
         case WithFallback(fallback)         => out << fallback
         case c: Customizable                => c match {
           case SpanSequence(content, NoOpt) => out << content // this case could be standalone above, but triggers a compiler bug then
+          case TemplateRoot(content, NoOpt) => out << content
+          case TemplateSpanSequence(content, NoOpt) => out << content
           case _ => out <<@ ("span",c.options) << c.content << "</span>"
         }
         case unknown                        => out << "<span>" << unknown.content << "</span>"
@@ -169,6 +180,10 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
     
     def renderTextContainer (con: TextContainer) = con match {
       case Text(content,opt)           => opt match {
+        case NoOpt                     => out                   <<&  content
+        case _                         => out <<@ ("span",opt)  <<&  content << "</span>"
+      }
+      case TemplateString(content,opt) => opt match {
         case NoOpt                     => out                   <<&  content
         case _                         => out <<@ ("span",opt)  <<&  content << "</span>"
       }
@@ -198,6 +213,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
       case FootnoteLink(ref,label,opt) => out <<@ ("a",opt + Styles("footnote"),"href"->("#"+ref)) << "[" << label << "]</a>" 
       case Image(text,url,title,opt)   => out <<@ ("img",opt,"src"->url,"alt"->text,"title"->title)
       case LineBreak(opt)              => out << "<br>"
+      case TemplateElement(elem,_)     => out << elem
       
       case WithFallback(fallback)      => out << fallback
       case unknown                     => ()

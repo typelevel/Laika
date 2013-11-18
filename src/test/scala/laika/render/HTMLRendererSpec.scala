@@ -22,6 +22,8 @@ import org.scalatest.matchers.ShouldMatchers
 
 import laika.api.Render
 import laika.tree.Elements._
+import laika.tree.Templates._
+import laika.tree.Documents.Path
 import laika.tree.helper.ModelBuilder
 
 class HTMLRendererSpec extends FlatSpec 
@@ -412,6 +414,26 @@ class HTMLRendererSpec extends FlatSpec
     render (elem) should be ("""<p>some <a href="/foo">link<em>text</em></a> span</p>""") 
   }
   
+  it should "render a paragraph containing an internal link with emphasized text" in {
+    val elem = p(txt("some "), InternalLink(List(txt("link"),em("text")),"foo"), txt(" span"))
+    render (elem) should be ("""<p>some <a href="#foo">link<em>text</em></a> span</p>""") 
+  }
+  
+  it should "render a paragraph containing a cross link with a fragment part" in {
+    val elem = p(txt("some "), CrossLink(List(txt("link"),em("text")),"foo", PathInfo(Path("/bar"),Path("../bar.md"))), txt(" span"))
+    render (elem) should be ("""<p>some <a href="../bar.html#foo">link<em>text</em></a> span</p>""") 
+  }
+  
+  it should "render a paragraph containing a cross link without a fragment part" in {
+    val elem = p(txt("some "), CrossLink(List(txt("link"),em("text")),"", PathInfo(Path("/bar"),Path("../bar.md"))), txt(" span"))
+    render (elem) should be ("""<p>some <a href="../bar.html">link<em>text</em></a> span</p>""") 
+  }
+  
+  it should "render a paragraph containing a cross link with a filename without suffix" in {
+    val elem = p(txt("some "), CrossLink(List(txt("link"),em("text")),"", PathInfo(Path("/bar"),Path("../bar"))), txt(" span"))
+    render (elem) should be ("""<p>some <a href="../bar">link<em>text</em></a> span</p>""") 
+  }
+  
   it should "render a paragraph containing a citation link" in {
     val elem = p(txt("some "), CitationLink("ref","label"), txt(" span"))
     render (elem) should be ("""<p>some <a class="citation" href="#ref">[label]</a> span</p>""") 
@@ -445,6 +467,25 @@ class HTMLRendererSpec extends FlatSpec
   it should "render a paragraph containing an internal link target" in {
     val elem = p(txt("some "), InternalLinkTarget(Id("target")), txt(" span"))
     render (elem) should be ("""<p>some <a id="target"></a> span</p>""") 
+  }
+  
+  it should "render a template root containing string elements" in {
+    val elem = tRoot(tt("aa"),tt("bb"),tt("cc"))
+    render (elem) should be ("aabbcc")
+  }
+  
+  it should "render a template span sequence containing string elements" in {
+    val elem = TemplateSpanSequence(List(tt("aa"),tt("bb"),tt("cc")))
+    render (elem) should be ("aabbcc")
+  }
+  
+  it should "render a template root containing a TemplateElement" in {
+    val elem = tRoot(tt("aa"),tElem(BlockSequence(List(p("aaa"), p("bbb")),Styles("foo"))),tt("cc"))
+    val html = """aa<div class="foo">
+      |  <p>aaa</p>
+      |  <p>bbb</p>
+      |</div>cc""".stripMargin
+    render (elem) should be (html)
   }
   
   it should "render a system message" in {
