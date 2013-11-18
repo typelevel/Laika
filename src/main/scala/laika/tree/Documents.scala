@@ -393,7 +393,7 @@ object Documents {
       
       val newDocs = for (doc <- documents) yield doc.rewriteTemplate(DocumentContext(doc, this, root))
       
-      val newDynamicDocs = for (doc <- dynamicTemplates) yield doc.rewrite(DocumentContext(doc.path, this, root, doc.config))
+      val newDynamicDocs = for (doc <- dynamicTemplates) yield doc.rewrite(DocumentContext(doc.path.parent / doc.path.name.replace(".dynamic.", "."), this, root, doc.config))
       
       val newSubtrees = for (tree <- subtrees) yield tree.rewriteTemplates(root)
       
