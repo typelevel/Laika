@@ -44,7 +44,7 @@ object OutputProvider {
     
     def newOutput (name: String) = {
       val f = new File(dir, name)
-      Output.toFile(f) // TODO - stream creation could be lazy
+      Output.toFile(f)
     }
     
     def newChild (name: String) = {

@@ -112,6 +112,16 @@ object Input {
     
   }
   
+  private class LazyFileInput (file: File, val path: Path, codec: Codec) extends Input with Binary with Closeable {
+    
+    lazy val delegate = new AutocloseStreamInput(new FileInputStream(file), path, codec)
+    
+    def asReader = delegate.asReader
+    def asParserInput = delegate.asParserInput
+    def close = delegate.close
+    def asBinaryInput = delegate.asBinaryInput
+  }
+  
   /** Creates a new Input instance from the specified source string.
    */
   def fromString (source: String, path: Path = Root): Input = new StringInput(source, path)
@@ -122,7 +132,7 @@ object Input {
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
   def fromFile (name: String)(implicit codec: Codec): Input with Binary with Closeable 
-    = new AutocloseStreamInput(new FileInputStream(name), Path(name), codec)
+    = new LazyFileInput(new File(name), Path(name), codec)
   
   /** Creates a new Input instance for the specified file.
    *  
@@ -130,10 +140,10 @@ object Input {
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
   def fromFile (file: File)(implicit codec: Codec): Input with Binary with Closeable 
-    = new AutocloseStreamInput(new FileInputStream(file), Path(file.getName), codec)
+    = new LazyFileInput(file, Path(file.getName), codec)
   
   def fromFile (file: File, virtualPath: Path)(implicit codec: Codec): Input with Binary with Closeable 
-    = new AutocloseStreamInput(new FileInputStream(file), virtualPath / file.getName, codec)
+    = new LazyFileInput(file, virtualPath / file.getName, codec)
   
   
   /** Creates a new Input instance for the specified InputStream.

@@ -132,19 +132,30 @@ object Output {
     
   }
   
+  private class LazyFileOutput (file: File, codec: Codec) extends Output with Binary with Closeable {
+    
+    lazy val delegate = new AutocloseStreamOutput(new FileOutputStream(file), codec)
+    
+    def asWriter = delegate.asWriter
+    def asFunction = delegate.asFunction
+    override def flush () = delegate.flush()
+    def close () = delegate.close()
+    def asBinaryOutput = delegate.asBinaryOutput
+  }
+  
   /** Creates a new Output instance for the file with the specified name.
    *  
    *  @param name the name of the file
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
-  def toFile (name: String)(implicit codec: Codec): Output with Binary with Closeable = new AutocloseStreamOutput(new FileOutputStream(name), codec)
+  def toFile (name: String)(implicit codec: Codec): Output with Binary with Closeable = new LazyFileOutput(new File(name), codec)
   
   /** Creates a new Output instance for the specified file.
    *  
    *  @param file the file to use as output
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
-  def toFile (file: File)(implicit codec: Codec): Output with Binary with Closeable = new AutocloseStreamOutput(new FileOutputStream(file), codec)
+  def toFile (file: File)(implicit codec: Codec): Output with Binary with Closeable = new LazyFileOutput(file, codec)
 
   /** Creates a new Output instance for the specified OutputStream.
    *  

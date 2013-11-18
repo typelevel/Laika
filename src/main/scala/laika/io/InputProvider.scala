@@ -60,8 +60,6 @@ object InputProvider {
     
     private def documents (docType: DocumentType) = files.get(docType).map(toInput).getOrElse(Nil)
     
-    // TODO - stream creation could be lazy
-    
     lazy val configDocuments = documents(Config)
     
     lazy val markupDocuments = documents(Markup)
