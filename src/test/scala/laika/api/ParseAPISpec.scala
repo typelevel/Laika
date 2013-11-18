@@ -111,7 +111,15 @@ class ParseAPISpec extends FlatSpec
   def contents = Map(
     "name" -> "foo",
     "dynDoc" -> "{{config.value}}",
-    "conf" -> "value: abc"
+    "conf" -> "value: abc",
+    "order" -> """navigationOrder: [
+      |  lemon.md
+      |  shapes
+      |  cherry.md
+      |  colors
+      |  apple.md
+      |  orange.md
+      |]""".stripMargin
   )
   
   def builder (source: String) = new InputConfigBuilder(parseTreeStructure(source), Codec.UTF8)
@@ -261,6 +269,21 @@ class ParseAPISpec extends FlatSpec
     val treeResult = TreeView(Root, List(TemplateDocuments(Template, List(template(1),template(2)))))
     viewOf((Parse as Markdown asRawDocument) fromTree builder(dirs).withTemplates(ParseTemplate as parser)) should be (treeResult)
   }
+  
+  it should "allow to specify a custom navigation order" in {
+    val dirs = """- apple.md:name
+      |- orange.md:name
+      |+ colors
+      |  - green.md:name
+      |- lemon.md:name
+      |+ shapes
+      |  - rectangle.md:name
+      |- cherry.md:name
+      |- default.conf:order""".stripMargin
+    val tree = Parse as Markdown fromTree builder(dirs)
+    tree.navigatables map (_.path.name) should be (List("lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
+  }
+  
   
   it should "allow parallel parser execution" in {
     val dirs = """- doc1.md:name

@@ -285,7 +285,8 @@ object Documents {
                       val staticDocuments: Seq[Input] = Nil,
                       val subtrees: Seq[DocumentTree] = Nil, 
                       private[tree] val config: Option[Config] = None,
-                      docNumber: List[Int] = Nil) extends Navigatable {
+                      docNumber: List[Int] = Nil,
+                      navigationOrder: Option[Seq[Navigatable]] = None) extends Navigatable {
     
     val name = path.name
     
@@ -296,7 +297,7 @@ object Documents {
       } else Nil) getOrElse Nil 
     }
     
-    lazy val navigatables = documents ++ subtrees // TODO - allow for sorting by config (default to sorting by name)
+    lazy val navigatables = navigationOrder getOrElse (Nil)
     
     private val documentsByName = documents map {doc => (doc.name, doc)} toMap // TODO - handle duplicates
     private val templatesByName = templates map {doc => (doc.name, doc)} toMap // TODO - handle duplicates
@@ -365,16 +366,27 @@ object Documents {
       
       def rewriteContextForChild (num: Int) = rewriteContext.copy(autonumbering = autonumberContextForChild(num))
         
-      val (_, docs) = ((documents :\ (documents.length, List[Document]())) { case (doc, (num, acc)) =>
+      val sortedNavigatables = (config flatMap (NavigationOrder.fromConfig(_)) match {
+        case Some(f) => (documents ++ subtrees).sortBy(f)
+        case None    => documents.sortBy(NavigationOrder.defaults) ++ subtrees.sortBy(NavigationOrder.defaults)
+      }).zipWithIndex.map { case (nav,num) => (nav,num+1) }
+      
+      val sortedDocuments = sortedNavigatables collect { case (d: Document, num) => (d,num) }
+      val sortedSubtrees =  sortedNavigatables collect { case (t: DocumentTree, num) => (t,num) }
+      
+      val rewrittenDocuments = for ((doc,num) <- sortedDocuments) yield {
         val context = DocumentContext(doc, this, rewriteContext.root, autonumberContextForChild(num))
-        (num - 1, doc.rewriteDocument(rewriteContext.rules map (_(context)), context) :: acc) 
-      })
+        (doc.rewriteDocument(rewriteContext.rules map (_(context)), context), num) 
+      }
+
+      val rewrittenSubtrees = for ((tree,num) <- sortedSubtrees) yield {
+        (tree.rewriteDocuments(rewriteContextForChild(num)), num)
+      }
       
-      val (_, trees) = ((subtrees :\ (subtrees.length + documents.length, List[DocumentTree]())) { case (subtree, (num, acc)) =>
-        (num - 1, subtree.rewriteDocuments(rewriteContextForChild(num)) :: acc) 
-      })
+      val rewrittenNavigatables = (rewrittenDocuments ++ rewrittenSubtrees).sortBy(_._2).map(_._1)
       
-      new DocumentTree(path, docs, templates, dynamicTemplates, dynamicDocuments, staticDocuments, trees, config, rewriteContext.autonumbering.number)  
+      new DocumentTree(path, rewrittenDocuments.map(_._1), templates, dynamicTemplates, dynamicDocuments, staticDocuments, 
+          rewrittenSubtrees.map(_._1), config, rewriteContext.autonumbering.number, Some(rewrittenNavigatables))  
     }
     
     private def rewriteTemplates (root: DocumentTree): DocumentTree = {
@@ -385,7 +397,7 @@ object Documents {
       
       val newSubtrees = for (tree <- subtrees) yield tree.rewriteTemplates(root)
       
-      new DocumentTree(path, newDocs, Nil, Nil, dynamicDocuments ++ newDynamicDocs, staticDocuments, newSubtrees, docNumber = docNumber)  
+      new DocumentTree(path, newDocs, Nil, Nil, dynamicDocuments ++ newDynamicDocs, staticDocuments, newSubtrees, docNumber = docNumber, navigationOrder = navigationOrder)  
     }
   }
   
@@ -499,6 +511,21 @@ object Documents {
   
   object AutonumberContext {
     def defaults = AutonumberContext(AutonumberConfig.defaults)
+  }
+  
+  object NavigationOrder {
+    import scala.collection.JavaConversions.iterableAsScalaIterable
+    
+    def defaults: Navigatable => String = _.path.name
+    
+    def fromConfig (config: Config): Option[Navigatable => Int] = {
+      if (config.hasPath("navigationOrder")) {
+        val list = iterableAsScalaIterable(config.getList("navigationOrder").unwrapped).collect{case s:String => s}.toVector
+        Some(nav => list.indexOf(nav.path.name) match { case -1 => Int.MaxValue; case other => other })
+      }
+      else None
+    }
+    
   }
   
   
