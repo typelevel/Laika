@@ -236,17 +236,52 @@ class Transform [W] private[Transform] (parser: ParserFactory, render: Render[W]
   def fromStream (stream: InputStream)(implicit codec: Codec) = new Operation(parse.fromStream(stream)(codec))
   
   
+  class DirectoryConfigBuilder private[Transform] (inputBuilder: InputConfigBuilder, isParallel: Boolean = false) {
+    
+    def withTemplates (parse: ParseTemplate) = 
+      new DirectoryConfigBuilder(inputBuilder.withTemplates(parse), isParallel)
+    
+    def withDocTypeMatcher (matcher: Path => DocumentType) =
+      new DirectoryConfigBuilder(inputBuilder.withDocTypeMatcher(matcher), isParallel)
+
+    def withConfigFile (file: File) = 
+      new DirectoryConfigBuilder(inputBuilder.withConfigFile(file), isParallel)
+    def withConfigFile (name: String) =
+      new DirectoryConfigBuilder(inputBuilder.withConfigFile(name), isParallel)
+    def withConfigString (source: String) =
+      new DirectoryConfigBuilder(inputBuilder.withConfigString(source), isParallel)
+    
+    def parallel = new DirectoryConfigBuilder(inputBuilder.parallel, true)
+    
+    def toDirectory (name: String)(implicit codec: Codec) =
+      execute(OutputProvider.Directory(name)(codec))
+      
+    def toDirectory (dir: File)(implicit codec: Codec) =
+      execute(OutputProvider.Directory(dir)(codec))
+    
+    private def execute (outputBuilder: OutputConfigBuilder) = {
+      withConfig(BatchConfig(inputBuilder.build(parser), if (isParallel) outputBuilder.parallel.build else outputBuilder.build))
+    }
+  }
+  
+  
+  def fromDirectory (name: String)(implicit codec: Codec) = new DirectoryConfigBuilder(InputProvider.Directory(name)(codec))
+
+  def fromDirectory (dir: File)(implicit codec: Codec) = new DirectoryConfigBuilder(InputProvider.Directory(dir)(codec))
+  
   def withDefaultDirectories (implicit codec: Codec) = withConfig(DefaultDirectories(codec).build(parser))
   
   def withRootDirectory (name: String)(implicit codec: Codec): Unit = withRootDirectory(new File(name))(codec)
   
   def withRootDirectory (dir: File)(implicit codec: Codec): Unit = withConfig(RootDirectory(dir)(codec).build(parser))
   
-  def withConfig (config: BatchConfig) = {
+  def withConfig (builder: BatchConfigBuilder): Unit = withConfig(builder.build(parser)) 
+
+  def withConfig (config: BatchConfig): Unit = {
 
     val tree = parse.fromTree(config.input)
 
-    val rewritten = tree.rewrite(rules.all, AutonumberContext.defaults) // TODO - extract from config
+    val rewritten = tree.rewrite(rules.all, AutonumberContext.defaults)
     
     render from rewritten toTree config.output
   }
@@ -301,8 +336,6 @@ object Transform {
   def from (factory: ParserFactory): Builder = new Builder(factory)
   
   
-  // TODO - parallelization config
-  
   case class BatchConfig (input: InputConfig, output: OutputConfig)
   
   class BatchConfigBuilder private[Transform] (inputBuilder: InputConfigBuilder, outputBuilder: OutputConfigBuilder) {
@@ -336,6 +369,9 @@ object Transform {
       
       new BatchConfigBuilder(InputProvider.Directory(sourceDir)(codec), OutputProvider.Directory(targetDir)(codec))
     }
+    
+    def apply (inputBuilder: InputConfigBuilder, outputBuilder: OutputConfigBuilder) = 
+      new BatchConfigBuilder(inputBuilder, outputBuilder)
     
   }
   
