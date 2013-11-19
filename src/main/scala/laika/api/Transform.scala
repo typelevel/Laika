@@ -44,6 +44,12 @@ import Transform._
  *  Transform from Markdown to HTML fromFile "hello.md" toFile "hello.html"
  *  }}}
  *  
+ *  Example for transforming an entire directory and its subdirectories:
+ *  
+ *  {{{
+ *  Transform from Markdown to HTML fromDirectory "source" toDirectory "target"
+ *  }}}
+ *  
  *  Or for transforming a document fragment from a string to the PrettyPrint format
  *  for debugging purposes:
  *  
@@ -264,19 +270,62 @@ class Transform [W] private[Transform] (parser: ParserFactory, render: Render[W]
     }
   }
   
-  
+  /** Parses files from the specified directory and its subdirectories
+   *  and returns a new builder instance which allows to specify the output and 
+   *  other configuration options.
+   * 
+   *  @param name the name of the directory to traverse
+   *  @param codec the character encoding of the files, if not specified the platform default will be used.
+   *  @param return a builder which allows to specify the output and other configuration options
+   */
   def fromDirectory (name: String)(implicit codec: Codec) = new DirectoryConfigBuilder(InputProvider.Directory(name)(codec))
 
+  /** Parses files from the specified directory and its subdirectories
+   *  and returns a new builder instance which allows to specify the output and 
+   *  other configuration options.
+   * 
+   *  @param dir the directory to traverse
+   *  @param codec the character encoding of the files, if not specified the platform default will be used.
+   *  @param return a builder which allows to specify the output and other configuration options
+   */
   def fromDirectory (dir: File)(implicit codec: Codec) = new DirectoryConfigBuilder(InputProvider.Directory(dir)(codec))
   
+  
+  /** Parses files from the `source` directory inside the current working directory
+   *  and renders the result to the `target` directory inside the current working directory.
+   * 
+   *  @param codec the character encoding of the files, if not specified the platform default will be used.
+   */
   def withDefaultDirectories (implicit codec: Codec) = withConfig(DefaultDirectories(codec).build(parser))
   
+  /** Parses files from the `source` directory inside the specified root directory
+   *  and renders the result to the `target` directory inside the root directory.
+   *  Both directories must already exist inside the specified directory.
+   * 
+   *  @param name the name of the root directory that contains the source and target directory
+   *  @param codec the character encoding of the files, if not specified the platform default will be used.
+   */
   def withRootDirectory (name: String)(implicit codec: Codec): Unit = withRootDirectory(new File(name))(codec)
   
+  /** Parses files from the `source` directory inside the specified root directory
+   *  and renders the result to the `target` directory inside the root directory.
+   *  Both directories must already exist inside the specified directory.
+   * 
+   *  @param dir the root directory that contains the source and target directory
+   *  @param codec the character encoding of the files, if not specified the platform default will be used.
+   */
   def withRootDirectory (dir: File)(implicit codec: Codec): Unit = withConfig(RootDirectory(dir)(codec).build(parser))
   
+  /** Transforms documents according to the specified batch configuration.
+   *  
+   *  @param builder a builder for the configuration for the input and output trees to process
+   */
   def withConfig (builder: BatchConfigBuilder): Unit = withConfig(builder.build(parser)) 
 
+  /** Transforms documents according to the specified batch configuration.
+   *  
+   *  @param config the configuration for the input and output trees to process
+   */
   def withConfig (config: BatchConfig): Unit = {
 
     val tree = parse.fromTree(config.input)
@@ -335,31 +384,82 @@ object Transform {
    */
   def from (factory: ParserFactory): Builder = new Builder(factory)
   
-  
+  /** The configuration for a batch process, containing the configuration
+   *  for the inputs and outputs to use.
+   */
   case class BatchConfig (input: InputConfig, output: OutputConfig)
   
+  /** API for configuring a batch operation.
+   *  Gives access to all relevant aspects of traversing, parsing and rendering
+   *  a tree of inputs.
+   */
   class BatchConfigBuilder private[Transform] (inputBuilder: InputConfigBuilder, outputBuilder: OutputConfigBuilder) {
     
+    /** Specifies the template engine to use for 
+     *  parsing all template inputs found in the tree.
+     */
     def withTemplates (parser: ParseTemplate) = 
       new BatchConfigBuilder(inputBuilder.withTemplates(parser), outputBuilder)
     
+    /** Specifies the function to use for determining the document type
+     *  of the input based on its path.
+     */
     def withDocTypeMatcher (matcher: Path => DocumentType) =
       new BatchConfigBuilder(inputBuilder.withDocTypeMatcher(matcher), outputBuilder)
 
+    /** Specifies a root configuration file that gets
+     *  inherited by this tree and its subtrees.
+     *  The syntax of the input is expected to be of a format
+     *  compatible with the Typesafe Config library.
+     */
     def withConfigFile (file: File) = 
       new BatchConfigBuilder(inputBuilder.withConfigFile(file), outputBuilder)
+    
+    /** Specifies the name of a root configuration file that gets
+     *  inherited by this tree and its subtrees.
+     *  The syntax of the input is expected to be of a format
+     *  compatible with the Typesafe Config library.
+     */
     def withConfigFile (name: String) =
       new BatchConfigBuilder(inputBuilder.withConfigFile(name), outputBuilder)
+    
+    /** Specifies a root configuration source that gets
+     *  inherited by this tree and its subtrees.
+     *  The syntax of the input is expected to be of a format
+     *  compatible with the Typesafe Config library.
+     */
     def withConfigString (source: String) =
       new BatchConfigBuilder(inputBuilder.withConfigString(source), outputBuilder)
     
+    /** Instructs both the parser and renderer to process all inputs and outputs in parallel.
+     *  The recursive structure of document trees will be flattened before parsing and rendering
+     *  and then get reassembled afterwards, therefore the parallel processing
+     *  includes all subtrees of the document tree.
+     *  
+     *  The actual transformation is a three phase process, the first (parsing) and
+     *  third (rendering) can run in parallel. The second phase in the middle cannot,
+     *  as this is the document tree model rewrite step where things like cross references or
+     *  table of contents get processed that need access to more than just the current
+     *  document. 
+     */
     def parallel = new BatchConfigBuilder(inputBuilder.parallel, outputBuilder.parallel)
     
+    /** Builds the final configuration for this input tree
+     *  for the specified parser factory.
+     */
     def build (parser: ParserFactory) = BatchConfig(inputBuilder.build(parser), outputBuilder.build)
   }
   
+  /** Factory methods for creating BatchConfigBuilders.
+   */
   object BatchConfigBuilder {
-    
+
+    /** Creates a BatchConfigBuilder instance for a specific root directory in the file system.
+     *  
+     *  This factory method expects the default directory layout where the root directory
+     *  contains a `source` subdirectory containing all markup and template files to process
+     *  and a `target` directory the renderer will write to.
+     */
     def apply (root: File, codec: Codec) = {
       require(root.exists, "Directory "+root.getAbsolutePath()+" does not exist")
       require(root.isDirectory, "File "+root.getAbsolutePath()+" is not a directoy")
@@ -370,16 +470,30 @@ object Transform {
       new BatchConfigBuilder(InputProvider.Directory(sourceDir)(codec), OutputProvider.Directory(targetDir)(codec))
     }
     
+    /** Creates a BatchConfigBuilder instance containing separate builders for input and output.
+     */
     def apply (inputBuilder: InputConfigBuilder, outputBuilder: OutputConfigBuilder) = 
       new BatchConfigBuilder(inputBuilder, outputBuilder)
     
   }
   
+  /** Creates BatchConfigBuilder instances for a specific root directory in the file system.
+   *  
+   *  This entry point expects the default directory layout where the root directory
+   *  contains a `source` subdirectory containing all markup and template files to process
+   *  and a `target` directory the renderer will write to.
+   */
   object RootDirectory {
     def apply (name: String)(implicit codec: Codec) = BatchConfigBuilder(new File(name), codec)
     def apply (file: File)(implicit codec: Codec) = BatchConfigBuilder(file, codec)
   }
   
+  /** Creates BatchConfigBuilder instances using the current working directory as its root.
+   *  
+   *  This entry point expects the default directory layout where the root directory
+   *  contains a `source` subdirectory containing all markup and template files to process
+   *  and a `target` directory the renderer will write to.
+   */
   object DefaultDirectories {
     def apply (implicit codec: Codec) = BatchConfigBuilder(new File(System.getProperty("user.dir")), codec)
   }

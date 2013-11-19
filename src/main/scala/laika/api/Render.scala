@@ -45,6 +45,14 @@ import laika.io.Input
  *  Render as HTML from doc toFile "hello.html"
  *  }}}
  *  
+ *  Example for rendering HTML from an entire tree of documents to a directory:
+ *  
+ *  {{{
+ *  val tree: DocumentTree = ...
+ *  
+ *  Render as HTML from tree toDirectory "path/to/output"
+ *  }}}
+ *  
  *  @tparam W the writer API to use which varies depending on the renderer
  * 
  *  @author Jens Halm
@@ -54,46 +62,46 @@ class Render[W] private (factory: RendererFactory[W],
 
   
   /** Represents a single render operation for a specific
-   *  document tree model. Various types of output can be
+   *  document model. Various types of output can be
    *  specified to trigger the actual rendering.
    */
   class Operation private[Render] (elem: Element) {
 
-    /** Renders the tree model to the file with the specified name.
+    /** Renders the model to the file with the specified name.
      * 
      *  @param name the name of the file to parse
      *  @param codec the character encoding of the file, if not specified the platform default will be used.
      */
     def toFile (name: String)(implicit codec: Codec) = toOutput(Output.toFile(name)(codec))
     
-    /** Renders the tree model to the specified file.
+    /** Renders the model to the specified file.
      * 
      *  @param file the file to write to
      *  @param codec the character encoding of the file, if not specified the platform default will be used.
      */
     def toFile (file: File)(implicit codec: Codec) = toOutput(Output.toFile(file)(codec))
     
-    /** Renders the tree model to the specified output stream.
+    /** Renders the model to the specified output stream.
      * 
      *  @param stream the stream to render to
      *  @param codec the character encoding of the stream, if not specified the platform default will be used.
      */
     def toStream (stream: OutputStream)(implicit codec: Codec) = toOutput(Output.toStream(stream)(codec))
 
-    /** Renders the tree model to the console.
+    /** Renders the model to the console.
      */
     def toConsole = toStream(System.out)
 
-    /** Renders the tree model to the specified writer.
+    /** Renders the model to the specified writer.
      */
     def toWriter (writer: Writer) = toOutput(Output.toWriter(writer))
 
-    /** Renders the tree model to the specified `StringBuilder`.
+    /** Renders the model to the specified `StringBuilder`.
      */
     def toBuilder (builder: StringBuilder) = toOutput(Output.toBuilder(builder))
     
 
-    /** Renders the tree model to a String and returns it.
+    /** Renders the model to a String and returns it.
      */
     override def toString = {
       val builder = new StringBuilder
@@ -106,6 +114,12 @@ class Render[W] private (factory: RendererFactory[W],
       def apply (element: Element) = delegate(element)
     }
     
+    /** Renders the model to the specified output.
+     *  
+     *  This is a generic method based on Laika's IO abstraction layer that concrete
+     *  methods delegate to. Usually not used directly in application code, but
+     *  might come in handy for very special requirements.
+     */
     def toOutput (out: Output) = { 
       IO(out) { out =>
         val (writer, render) = factory.newRenderer(out, RenderFunction)
@@ -126,16 +140,50 @@ class Render[W] private (factory: RendererFactory[W],
     
   }
   
+  /** Represents a set of recursive render operations for a specific
+   *  document tree. Various types of output can be
+   *  specified to trigger the actual rendering.
+   */
   class BatchOperation private[Render] (tree: DocumentTree) {
     
+    /** Renders the document tree to the
+     *  specified directory and its subdirectories.
+     *  Required subdirectories which do not exist yet will be created.
+     * 
+     *  @param name the name of the directory to write to
+     *  @param codec the character encoding of the files, if not specified the platform default will be used.
+     */
     def toDirectory (name: String)(implicit codec: Codec) = toTree(Directory(name)(codec))
 
+    /** Renders the document tree to the
+     *  specified directory and its subdirectories.
+     *  Required subdirectories which do not exist yet will be created.
+     * 
+     *  @param dir the directory to write to
+     *  @param codec the character encoding of the files, if not specified the platform default will be used.
+     */
     def toDirectory (dir: File)(implicit codec: Codec) = toTree(Directory(dir)(codec))
   
+    /** Renders the document tree to the
+     *  current working directory and its subdirectories.
+     *  Required subdirectories which do not exist yet will be created.
+     * 
+     *  @param codec the character encoding of the files, if not specified the platform default will be used.
+     */
     def toDefaultDirectory (implicit codec: Codec) = toTree(DefaultDirectory(codec))
-  
+
+    /** Renders the document tree to the output
+     *  obtained from the specified configuation builder.
+     *  
+     *  @param builder a builder for the configuration from which the output to write to can be obtained
+     */
     def toTree (builder: OutputConfigBuilder): Unit = toTree(builder.build)
       
+    /** Renders the document tree to the output
+     *  obtained from the specified configuation.
+     *  
+     *  @param config the configuration from which the output to write to can be obtained
+     */
     def toTree (config: OutputConfig): Unit = {
       
       type Operation = () => Unit
@@ -192,8 +240,18 @@ class Render[W] private (factory: RendererFactory[W],
    */
   def from (elem: Element) = new Operation(elem)
   
+  /** Specifies the document to render. 
+   * 
+   *  @param doc the document to render
+   *  @return a new Operation instance that allows to specify the output
+   */
   def from (doc: Document) = new Operation(doc.content)
   
+  /** Specifies the document tree to render. 
+   * 
+   *  @param tree the document tree to render
+   *  @return a new BatchOperation instance that allows to specify the outputs
+   */
   def from (tree: DocumentTree) = new BatchOperation(tree)
   
 

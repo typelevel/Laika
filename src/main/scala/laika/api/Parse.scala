@@ -43,6 +43,12 @@ import laika.template.ParseTemplate
  *  {{{
  *  val doc = Parse as Markdown fromFile "hello.md"
  *  }}}
+ *  
+ *  Example for parsing from an entire directory:
+ *  
+ *  {{{
+ *  val tree = Parse as Markdown fromDirectory "path/to/source"
+ *  }}}
  * 
  *  @author Jens Halm
  */
@@ -57,16 +63,16 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
    */
   def asRawDocument = new Parse(factory, false)
   
-  /** Returns a document tree obtained from parsing the specified string.
+  /** Returns a document obtained from parsing the specified string.
    *  Any kind of input is valid, including an empty string. 
    */
   def fromString (str: String) = fromInput(Input.fromString(str))
   
-  /** Returns a document tree obtained from parsing the input from the specified reader.
+  /** Returns a document obtained from parsing the input from the specified reader.
    */
   def fromReader (reader: Reader) = fromInput(Input.fromReader(reader))
 
-  /** Returns a document tree obtained from parsing the file with the specified name.
+  /** Returns a document obtained from parsing the file with the specified name.
    *  Any kind of character input is valid, including empty files.
    * 
    *  @param name the name of the file to parse
@@ -74,7 +80,7 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
    */
   def fromFile (name: String)(implicit codec: Codec) = fromInput(Input.fromFile(name)(codec))
   
-  /** Returns a document tree obtained from parsing the specified file.
+  /** Returns a document obtained from parsing the specified file.
    *  Any kind of character input is valid, including empty files.
    * 
    *  @param file the file to use as input
@@ -82,13 +88,22 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
    */
   def fromFile (file: File)(implicit codec: Codec) = fromInput(Input.fromFile(file)(codec))
   
-  /** Returns a document tree obtained from parsing the input from the specified stream.
+  /** Returns a document obtained from parsing the input from the specified stream.
    * 
    *  @param stream the stream to use as input for the parser
    *  @param codec the character encoding of the stream, if not specified the platform default will be used.
    */
   def fromStream (stream: InputStream)(implicit codec: Codec) = fromInput(Input.fromStream(stream)(codec))
   
+  /** Returns a document obtained from parsing the specified input.
+   *  
+   *  This is a generic method based on Laika's IO abstraction layer that concrete
+   *  methods delegate to. Usually not used directly in application code, but
+   *  might come in handy for very special requirements.
+   * 
+   *  @param input the input for the parser
+   *  @param codec the character encoding of the stream, if not specified the platform default will be used.
+   */
   def fromInput (input: Input) = {
     
     val doc = IO(input)(parse)
@@ -96,14 +111,42 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
     if (rewrite) doc.rewrite else doc
   }
   
+  /** Returns a document tree obtained by parsing files from the
+   *  specified directory and its subdirectories.
+   * 
+   *  @param name the name of the directory to traverse
+   *  @param codec the character encoding of the files, if not specified the platform default will be used.
+   */
   def fromDirectory (name: String)(implicit codec: Codec) = fromTree(Directory(name)(codec))
 
+  /** Returns a document tree obtained by parsing files from the
+   *  specified directory and its subdirectories.
+   * 
+   *  @param dir the root directory to traverse
+   *  @param codec the character encoding of the files, if not specified the platform default will be used.
+   */
   def fromDirectory (dir: File)(implicit codec: Codec) = fromTree(Directory(dir)(codec))
   
+  /** Returns a document tree obtained by parsing files from the
+   *  current working directory.
+   * 
+   *  @param codec the character encoding of the files, if not specified the platform default will be used.
+   */
   def fromDefaultDirectory (implicit codec: Codec) = fromTree(DefaultDirectory(codec))
   
+  
+  /** Returns a document tree obtained by parsing files from the
+   *  specified input configuration builder.
+   *  
+   *  @param builder a builder for the configuration for the input tree to process
+   */
   def fromTree (builder: InputConfigBuilder): DocumentTree = fromTree(builder.build(factory)) 
   
+  /** Returns a document tree obtained by parsing files from the
+   *  specified input configuration.
+   *  
+   *  @param config the configuration for the input tree to process
+   */
   def fromTree (config: InputConfig): DocumentTree = {
     
     abstract class ConfigInput (input: Input) {
