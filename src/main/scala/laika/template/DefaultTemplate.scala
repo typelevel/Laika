@@ -21,7 +21,12 @@ import laika.tree.Templates.TemplateDocument
 import laika.directive.Directives.Templates
 import laika.directive.StandardDirectives
 
-/** 
+/** The default (and currently only) parser implementation for templates.
+ *  It supports the parsing of directives (starting with `@:`), of configuration
+ *  sections at the start of the document (enclosed between `{%` and `%}`) and of
+ *  context references (enclosed between `{{` and `}}`). Everything else is
+ *  treated as normal text and rendered unchanged.
+ *  
  *  @author Jens Halm
  */
 class DefaultTemplate private (
@@ -33,6 +38,31 @@ class DefaultTemplate private (
     def getTemplateDirective (name: String) = directiveMap.get(name)
   }
   
+  /** Adds the specified Laika directives and returns a new instance of the parser.
+   * 
+   *  Example:
+   * 
+   *  {{{
+   *  val templates = DefaultTemplate withDirectives (
+   *    Templates.create("ticket") {
+   *      (attribute(Default) ~ attribute("param").optional) { (ticketNo, param) =>
+   *        val base = "http://tickets.service.com/"+ticketNo
+   *        val url = base + (param map (p => "&param="+p) getOrElse "")
+   *        TemplateElement(ExternalLink(Seq(Text("Ticket "+ticketNo)), url, options = Styles("ticket")))
+   *      }
+   *    }
+   *  )    
+   * 
+   *  Transform from Markdown to HTML withConfig RootDirectory("my-home")
+   *      .withTemplates(ParseTemplate as templates)   
+   *  }}}
+   *  
+   *  The code above registers a template directive that detects markup like
+   *  `@:ticket 2356.` and turns it into an external link node for the
+   *  URL `http://tickets.service.com/2356`.
+   * 
+   *  For more details on implementing Laika directives see [[laika.directives.Directives]].
+   */ 
   def withDirectives (directives: Templates.Directive*) =
     new DefaultTemplate(this.directives ++ directives)      
   
@@ -43,4 +73,9 @@ class DefaultTemplate private (
   
 }
 
+/** The default template parser, with all standard directives but no
+ *  custom directives installed .
+ * 
+ *  @author Jens Halm
+ */
 object DefaultTemplate extends DefaultTemplate(Nil)

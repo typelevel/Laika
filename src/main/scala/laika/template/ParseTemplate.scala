@@ -26,13 +26,14 @@ import laika.io.IO
 import laika.io.Input
 import laika.tree.Templates.TemplateDocument
 
-/** 
+/** API for performing a parse operation for a template. Usually not called
+ *  directly by application code unless a custom template parser needs
+ *  to be installed. 
+ *  
  *  @author Jens Halm
  */
 class ParseTemplate private (parse: Input => TemplateDocument) {
 
-  def withParser (parse: Input => TemplateDocument) = new ParseTemplate(parse) 
-  
   /** Returns a template document tree obtained from parsing the specified string.
    *  Any kind of input is valid, including an empty string. 
    */
@@ -69,8 +70,16 @@ class ParseTemplate private (parse: Input => TemplateDocument) {
   
 }
 
+/** Serves as an entry point to the ParseTemplate API.
+ * 
+ *  @author Jens Halm
+ */
 object ParseTemplate extends ParseTemplate(DefaultTemplate) {
   
+  /** Returns a new ParseTemplate instance for the specified parser function.
+   * 
+   *  @param parser the parser function to use for all subsequent operations
+   */
   def as (parser: Input => TemplateDocument) = new ParseTemplate(parser) 
   
 }

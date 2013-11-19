@@ -1,25 +1,52 @@
+/*
+ * Copyright 2013 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package laika.template
 
-import laika.parse.InlineParsers
-import laika.tree.Templates.TemplateRoot
 import scala.util.parsing.input.Reader
-import laika.tree.Elements._
-import laika.directive.DirectiveParsers
-import laika.tree.Templates.TemplateSpan
-import laika.tree.Templates.ContextReference
-import laika.tree.Templates.TemplateString
-import laika.tree.Documents.Path
+
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions
-import laika.tree.Templates.TemplateElement
-import laika.tree.Templates.TemplateDocument
-import laika.tree.Templates.TemplateContextReference
-import laika.tree.Templates.MarkupContextReference
 
+import laika.directive.DirectiveParsers
+import laika.parse.InlineParsers
+import laika.tree.Documents.Path
+import laika.tree.Elements.InvalidBlock
+import laika.tree.Elements.InvalidSpan
+import laika.tree.Elements.LiteralBlock
+import laika.tree.Elements.Span
+import laika.tree.Elements.SystemMessage
+import laika.tree.Elements.Text
+import laika.tree.Templates.MarkupContextReference
+import laika.tree.Templates.TemplateContextReference
+import laika.tree.Templates.TemplateDocument
+import laika.tree.Templates.TemplateElement
+import laika.tree.Templates.TemplateRoot
+import laika.tree.Templates.TemplateSpan
+import laika.tree.Templates.TemplateString
+
+
+/** Provides parsers for the default template format.
+ */
 trait TemplateParsers extends InlineParsers {
 
   
+  /** Parses a reference enclosed between `{{` and `}}`.
+   */
   def reference[T] (f: String => T): Parser[T] = {
     
     val refName = { // TODO - promote to inline parsers
@@ -39,9 +66,15 @@ trait TemplateParsers extends InlineParsers {
 }
 
 
+/** Specializations for the generic template parsers for 
+ *  elements embedded in either markup blocks, markup inline
+ *  elements or templates.
+ */
 object TemplateParsers {
   
-  
+
+  /** Parsers specific to templates.
+   */
   trait Templates extends TemplateParsers with DirectiveParsers.TemplateDirectives {
     
     protected def prepareSpanParsers = Map(
@@ -81,6 +114,8 @@ object TemplateParsers {
   }
   
   
+  /** Parsers specific to block elements in text markup.
+   */
   trait MarkupBlocks extends TemplateParsers with DirectiveParsers.BlockDirectives {
     
     abstract override protected def prepareBlockParsers (nested: Boolean) = 
@@ -98,6 +133,8 @@ object TemplateParsers {
   }
   
   
+  /** Parsers specific to inline elements in text markup.
+   */
   trait MarkupSpans extends TemplateParsers with DirectiveParsers.SpanDirectives {
     
     abstract override protected def prepareSpanParsers = {
