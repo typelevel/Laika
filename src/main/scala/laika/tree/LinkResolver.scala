@@ -240,8 +240,8 @@ class LinkResolver (path: Path, root: RootElement) {
   
 object LinkResolver {
   
-  /** Provides link resolver
-   *  for the specified root element (without applying them).
+  /** Provides a link resolver
+   *  for the specified root element (without executing it).
    */
   def apply (path: Path, root: RootElement) = new LinkResolver(path,root)
   

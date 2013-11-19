@@ -20,17 +20,7 @@ package laika.tree
 import laika.tree.Elements.Element 
 import laika.tree.Documents.DocumentContext 
 
-/** The default rewrite rules that get applied to the raw document tree after parsing
- *  unless explicitly disabled. The rules are responsible for resolving references 
- *  to images, footnotes, citations and other inline targets and building a structure 
- *  of sections based on the headers in the document and their level.
- *  
- *  To disable these rules the `Parse` API needs to be used (the `Transform` API always
- *  applies them):
- *  
- *  {{{
- *  val doc = Parse as Markdown asRawDocument fromFile "hello.md"
- *  }}}
+/** Utilities for dealing with rewrite rules.
  * 
  *  @author Jens Halm
  */

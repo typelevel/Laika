@@ -47,6 +47,19 @@ import laika.tree.TreeUtil
  *  {{{
  *  val document = Parse as (Markdown withVerbatimHTML) fromFile "hello.md"
  *  }}}
+ *  
+ *  The methods `withSpanDirectives` and `withBlockDirectives` allow to 
+ *  register custom tags which will be processed by the parser in addition
+ *  to standard Markdown markup. For more details on directives see
+ *  [[laika.directives.Directives]].
+ *  
+ *  To switch this feature off alongside other custom extensions like
+ *  configuration sections at the start of the document or automatic
+ *  id generation for headers, you can run the parser in strict mode:
+ *  
+ *  {{{
+ *  Transform from Markdown.strict to HTML fromFile "hello.md" toFile "hello.html"
+ *  }}}
  * 
  *  @author Jens Halm
  */
@@ -59,10 +72,51 @@ class Markdown private (
   
   val fileSuffixes = Set("md","markdown")
   
-      
+  /** Adds the specified Laika directives and returns a new instance of the parser.
+   * 
+   *  Example:
+   * 
+   *  {{{
+   *  case class Note (title: String, content: Seq[Block], options: Options = NoOpt) 
+   *                                                       extends Block with BlockContainer[Note]
+   *  
+   *  val md = Markdown withBlockDirectives (
+   *    Blocks.create("note") {
+   *      (attribute(Default) ~ body(Default))(Note(_,_))
+   *    }
+   *  )   
+   *  Transform from md to HTML fromFile "hello.md" toFile "hello.html"   
+   *  }}}
+   * 
+   *  For more details on implementing Laika directives see [[laika.directives.Directives]].
+   */     
   def withBlockDirectives (directives: Blocks.Directive*) =
     new Markdown(blockDirectives ++ directives, spanDirectives, verbatimHTML, isStrict)      
   
+  /** Adds the specified Laika directives and returns a new instance of the parser.
+   * 
+   *  Example:
+   * 
+   *  {{{
+   *  val md = Markdown withSpanDirectives (
+   *    Spans.create("ticket") {
+   *      (attribute(Default) ~ attribute("param").optional) { (ticketNo, param) =>
+   *        val base = "http://tickets.service.com/"+ticketNo
+   *        val url = base + (param map (p => "&param="+p) getOrElse "")
+   *        ExternalLink(Seq(Text("Ticket "+ticketNo)), url, options = Styles("ticket"))
+   *      }
+   *    }
+   *  )    
+   * 
+   *  Transform from md to HTML fromFile "hello.md" toFile "hello.html"   
+   *  }}}
+   *  
+   *  The code above registers a span directive that detects markup like
+   *  `@:ticket 2356.` and turns it into an external link node for the
+   *  URL `http://tickets.service.com/2356`.
+   * 
+   *  For more details on implementing Laika directives see [[laika.directives.Directives]].
+   */ 
   def withSpanDirectives (directives: Spans.Directive*) = 
     new Markdown(blockDirectives, spanDirectives ++ directives, verbatimHTML, isStrict)  
   
@@ -73,6 +127,11 @@ class Markdown private (
    */
   def withVerbatimHTML = new Markdown(blockDirectives, spanDirectives, true, isStrict)
   
+  /** Turns strict mode on for the returned parser, switching off any
+   *  features not part of the original Markdown syntax.
+   *  This includes the registration of directives (custom tags) as well as configuration
+   *  sections at the start of the document or id generation for all headers.
+   */
   def strict = new Markdown(blockDirectives, spanDirectives, verbatimHTML, true)
   
   private lazy val parser = {

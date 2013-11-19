@@ -66,6 +66,18 @@ import laika.directive.StandardDirectives
  *    add custom text role implementations to the parser that can be referred to by interpreted text. 
  *    Specification entry: 
  *    [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#custom-interpreted-text-roles]]
+ *    
+ *  In addition to the standard reStructuredText directives, the API also supports a custom directive
+ *  type unique to Laika. They represent a library-wide extension mechanism and allow you to implement
+ *  tags which can be used in any of the supported markup formats or in templates. If you need this
+ *  level of flexibility, it is recommended to use the Laika directives, if you want to stay compatible
+ *  with the reStructuredText reference parser, you should pick the standard directives.
+ *  
+ *  Laika directives can be registered with the `withLaikaSpanDirective` and `withLaikaBlockDirective`
+ *  calls respectively. reStructuredText directives can be registered with `withSpanDirective` and
+ *  `withBlockDirective` respectively. The DSLs for creating directives are similar, but still different,
+ *  due to differences in the feature set of the two variants. The Laika directives try to avoid some
+ *  of the unnecessary complexities of reStructuredText directives.
  * 
  *  @author Jens Halm
  */
@@ -107,6 +119,24 @@ class ReStructuredText private (
         laikaBlockDirectives, laikaSpanDirectives, rawContent, strict)    
   }
   
+  /** Adds the specified Laika directives and returns a new instance of the parser.
+   * 
+   *  Example:
+   * 
+   *  {{{
+   *  case class Note (title: String, content: Seq[Block], options: Options = NoOpt) 
+   *                                                       extends Block with BlockContainer[Note]
+   *  
+   *  val rst = ReStructuredText withLaikaBlockDirectives (
+   *    Blocks.create("note") {
+   *      (attribute(Default) ~ body(Default))(Note(_,_))
+   *    }
+   *  )   
+   *  Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"   
+   *  }}}
+   * 
+   *  For more details on implementing Laika directives see [[laika.directives.Directives]].
+   */ 
   def withLaikaBlockDirectives (directives: Blocks.Directive*) = {
     new ReStructuredText(blockDirectives, spanDirectives, textRoles, defaultTextRole, 
         laikaBlockDirectives ++ directives, laikaSpanDirectives, rawContent, strict)      
@@ -134,6 +164,26 @@ class ReStructuredText private (
         laikaBlockDirectives, laikaSpanDirectives, rawContent, strict)  
   }
   
+  /** Adds the specified Laika directives and returns a new instance of the parser.
+   * 
+   *  Example:
+   * 
+   *  {{{
+   *  val rst = ReStructuredText withLaikaSpanDirectives (
+   *    Spans.create("ticket") {
+   *      (attribute(Default) ~ attribute("param").optional) { (ticketNo, param) =>
+   *        val base = "http://tickets.service.com/"+ticketNo
+   *        val url = base + (param map (p => "&param="+p) getOrElse "")
+   *        ExternalLink(Seq(Text("Ticket "+ticketNo)), url, options = Styles("ticket"))
+   *      }
+   *    }
+   *  )    
+   * 
+   *  Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"   
+   *  }}}
+   * 
+   *  For more details on implementing Laika directives see [[laika.directives.Directives]].
+   */ 
   def withLaikaSpanDirectives (directives: Spans.Directive*) = {
     new ReStructuredText(blockDirectives, spanDirectives, textRoles, defaultTextRole,
         laikaBlockDirectives, laikaSpanDirectives ++ directives, rawContent, strict)  
@@ -177,6 +227,11 @@ class ReStructuredText private (
         laikaBlockDirectives, laikaSpanDirectives, true, strict)  
   }
   
+  /** Turns strict mode on for the returned parser, switching off any
+   *  features not part of the reStructuredText specification.
+   *  This includes the Laika variant of directives as well as configuration
+   *  sections at the start of the document.
+   */
   def strict = {
     new ReStructuredText(blockDirectives, spanDirectives, textRoles, defaultTextRole,
         laikaBlockDirectives, laikaSpanDirectives, rawContent, true)  
