@@ -19,14 +19,29 @@ package laika.factory
 import laika.io.Input
 import laika.tree.Documents.Document
 
-/** 
+/** Responsible for creating parser instances for a specific markup format.
+ *  A parser is simply a function of type `Input => Document`.
+ *  
  *  @author Jens Halm
  */
 trait ParserFactory {
   
   
+  /** The file suffixes recognized by this parser.
+   *  When transforming entire directories only files with
+   *  names ending in one of the specified suffixes will
+   *  be consired. 
+   * 
+   *  It is recommended not to support `txt`
+   *  or similarly common suffixes as this might interfere
+   *  with other installed formats.
+   */
   def fileSuffixes: Set[String]
-  
+
+  /*  Creates a new parser instance.
+   *  Such an instance is expected to be stateless and thread-safe,
+   *  thus capable of repeated and parallel executions.
+   */
   def newParser: Input => Document
   
 
