@@ -18,9 +18,7 @@ package laika.io
   
 import java.io._
 
-/**
- * A simple helper object that manages a resource, automatically closing it after
- * the IO operation has been performed.
+/** Collection of I/O utilities.
  * 
  * @author Jens Halm
  */
@@ -39,6 +37,10 @@ object IO {
   }
   
   
+  /** Copies all bytes from the specified InputStream to the
+   *  OutputStream. Rethrows all Exceptions and does not
+   *  close the streams afterwards.
+   */ 
   def copy (input: InputStream, output: OutputStream): Unit = (input, output) match {
     case (in: FileInputStream, out: FileOutputStream) =>
       in.getChannel().transferTo(0, Integer.MAX_VALUE, out.getChannel());
@@ -50,6 +52,10 @@ object IO {
     }
   }
 
+  /** Copies all characters from the specified Reader to the
+   *  Writer. Rethrows all Exceptions and does not
+   *  close the Reader or Writer afterwards.
+   */ 
   def copy (input: Reader, output: Writer): Unit = {
     val buffer = new Array[Char](8192)
     Iterator.continually(input.read(buffer))
@@ -57,7 +63,11 @@ object IO {
       .foreach { output.write(buffer, 0 , _) }
   }
   
-  
+  /** Copies all bytes or characters (depending on Input type) 
+   *  from the specified Input to the
+   *  Output. Rethrows all Exceptions and does not
+   *  close the Input or Output afterwards.
+   */ 
   def copy (input: Input, output: Output): Unit = {
     (input, output) match {
       case (in: Input.Binary, out: Output.Binary) => {

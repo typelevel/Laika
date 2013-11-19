@@ -65,6 +65,8 @@ trait Output {
  */
 object Output {
   
+  /** Represents any output that can be used as binary output.
+   */
   trait Binary {
     def asBinaryOutput: BinaryOutput
   }

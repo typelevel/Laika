@@ -49,8 +49,16 @@ trait Input {
    */
   def asParserInput: Reader[Char]
   
+  /** The full path of this input.
+   *  This path is always an absolute path
+   *  from the root of the (virtual) input tree,
+   *  therefore does not represent the filesystem
+   *  path in case of file I/O.
+   */
   def path: Path
   
+  /** The local name of this input.
+   */
   lazy val name = path.name
   
 }
@@ -61,6 +69,8 @@ trait Input {
  */
 object Input {
   
+  /** Represents any input that can be used as binary input.
+   */
   trait Binary {
     def asBinaryInput: BinaryInput
   }
