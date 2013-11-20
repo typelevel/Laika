@@ -178,7 +178,12 @@ class TransformAPISpec extends FlatSpec
       
     def docs (values: (Path, String)*) = Documents(values map { case (path, content) => RenderedDocument(path, content) })
 
-    def sorted (docs: Documents) = Documents(docs.content.sortBy(_.path.name))
+    def sorted (tree: RenderedTree): RenderedTree = tree.copy(content = tree.content map (sortedContent(_)))
+        
+    def sortedContent (content: TreeContent) = content match {
+      case Documents(content) => Documents(content.sortBy(_.path.name))
+      case Subtrees(content) => Subtrees(content.sortBy(_.path.name) map (sorted(_)))
+    }
     
     def trees (values: (Path, Seq[TreeContent])*) = Subtrees(values map { case (path, content) => RenderedTree(path, content) })
   }
@@ -310,20 +315,20 @@ class TransformAPISpec extends FlatSpec
         |. . . . . Text - 'foo'
         |. . TemplateString - ')'""".stripMargin  
       transformTree should be (root(List(
-        sorted(docs(
+        docs(
           (Root / "doc1.txt", withTemplate1),
           (Root / "doc2.txt", withTemplate1)
-        )),
+        ),
         trees(
-          (Root / "dir1", List(sorted(docs(
+          (Root / "dir1", List(docs(
             (Root / "dir1" / "doc3.txt", withTemplate2),
             (Root / "dir1" / "doc4.txt", withTemplate2)  
-          )))),
-          (Root / "dir2", List(sorted(docs(
+          ))),
+          (Root / "dir2", List(docs(
             (Root / "dir2" / "doc5.txt", withTemplate1),
             (Root / "dir2" / "doc6.txt", withTemplate1),  
             (Root / "dir2" / "omg.js", "foo")  
-          ))))
+          )))
         )
       )))
     }
@@ -341,7 +346,7 @@ class TransformAPISpec extends FlatSpec
         |  - doc6.md:name
         |  - doc7.md:name
         |  - doc8.md:name""".stripMargin
-      transformInParallel should be (root(List(
+      sorted(transformInParallel) should be (root(List(
           docs(
             (Root / "doc1.txt", simpleResult),
             (Root / "doc2.txt", simpleResult)
