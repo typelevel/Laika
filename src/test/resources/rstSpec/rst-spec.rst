@@ -46,7 +46,6 @@ in the `Syntax Details`_ section.
 examples throughout this document, to illustrate the plaintext markup.
 
 
-.. contents::
 
 
 -----------------------

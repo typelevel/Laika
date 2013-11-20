@@ -331,13 +331,11 @@ class StandardDirectiveSpec extends FlatSpec
       ))
     ))
     
-    def markupTocResult = doc(tRoot(
-      tElem(doc(
-        TitledBlock(List(txt(title)), List(currentDoc), options=Styles("toc")),
-        Section(Header(1, List(txt("Headline 1")), Id("headline-1") + Styles("section")), Nil),
-        Section(Header(1, List(txt("Headline 2")), Id("headline-2") + Styles("section")), Nil)
-      ))
-    ))
+    def markupTocResult = doc(
+      TitledBlock(List(txt(title)), List(currentDoc), options=Styles("toc")),
+      Section(Header(1, List(txt("Headline 1")), Id("headline-1") + Styles("section")), Nil),
+      Section(Header(1, List(txt("Headline 2")), Id("headline-2") + Styles("section")), Nil)
+    )
   }
 
   "The template toc directive" should "produce a table of content starting from the root tree" in {

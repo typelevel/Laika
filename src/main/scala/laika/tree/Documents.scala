@@ -27,6 +27,7 @@ import laika.io.InputProvider
 import laika.io.Input
 import scala.util.Try
 import laika.tree.Templates.TemplateRoot
+import laika.tree.Templates.TemplateContextReference
 
 /** Provides the API for Documents and DocumentTrees as well as the Path API.
  *  
@@ -34,6 +35,7 @@ import laika.tree.Templates.TemplateRoot
  */
 object Documents {
   
+  val defaultTemplate = new TemplateDocument(Root / "default.template", TemplateRoot(List(TemplateContextReference("document.content"))))
   
   /** Represents a single document and provides access
    *  to the document content and structure as well
@@ -161,9 +163,9 @@ object Documents {
     }
     
     private[Documents] def rewriteTemplate (context: DocumentContext) =
-      context.template map (_.rewrite(context)) getOrElse this
+      context.template.getOrElse(defaultTemplate).rewrite(context)
     
-    private[tree] def withRewrittenContent (newContent: RootElement, fragments: Map[String,Element], docNumber: List[Int] = Nil): Document = new Document(path, newContent, fragments, config, docNumber) {
+    private[tree] def withRewrittenContent (newContent: RootElement, fragments: Map[String,Element], docNumber: List[Int] = docNumber): Document = new Document(path, newContent, fragments, config, docNumber) {
       override lazy val defaultRules = Nil
       override val removeRules = this
     }

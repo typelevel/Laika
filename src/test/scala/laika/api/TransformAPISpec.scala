@@ -301,11 +301,8 @@ class TransformAPISpec extends FlatSpec
         |  - file1:name
         |  - file2:name""".stripMargin
       val withTemplate1 = """RootElement - Blocks: 1
-        |. TemplateRoot - Spans: 1
-        |. . TemplateElement
-        |. . . RootElement - Blocks: 1
-        |. . . . Paragraph - Spans: 1
-        |. . . . . Text - 'foo'""".stripMargin  
+        |. Paragraph - Spans: 1
+        |. . Text - 'foo'""".stripMargin  
       val withTemplate2 = """RootElement - Blocks: 1
         |. TemplateRoot - Spans: 3
         |. . TemplateString - '('

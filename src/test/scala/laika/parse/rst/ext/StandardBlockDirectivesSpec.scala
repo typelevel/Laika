@@ -42,6 +42,8 @@ class StandardBlockDirectivesSpec extends FlatSpec
    
    def parseDoc (input: String) = Parse as ReStructuredText fromString input
 
+   def parseRaw (input: String) = ((Parse as ReStructuredText asRawDocument) fromString input).content.rewrite({case t:Temporary => None})
+
    def parse (input: String) = parseDoc(input).content
    
    def parseWithFragments (input: String) = {
@@ -575,7 +577,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
   "The include directive" should "create a placeholder in the document" in {
     val input = """.. include:: other.rst"""
     val root = doc (Include("other.rst"))
-    parse(input) should be (root)
+    parseRaw(input) should be (root)
   }
   
   "The include rewriter" should "replace the node with the corresponding document" in {
@@ -583,7 +585,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
     val doc2 = new Document(Root / "doc2", doc(p("text")))
     val template = new TemplateDocument(Root / "default.template.html", tRoot(TemplateContextReference("document.content")))
     val tree = new DocumentTree(Root, List(doc1, doc2), templates = List(template))
-    tree.rewrite.documents(0).content should be (doc(tRoot(tElem(doc(BlockSequence(List(p("text"))))))))
+    tree.rewrite.documents(0).content should be (doc(BlockSequence(List(p("text")))))
   }
   
   "The title directive" should "set the title in the document instance" in {
@@ -618,7 +620,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | :depth: 3
       | :local: true""".stripMargin
     val elem = Contents("This is the title", 3, true)
-    parse(input) should be (doc(elem))
+    parseRaw(input) should be (doc(elem))
   }
   
   "The contents rewriter" should "replace the node with the corresponding list element" in {
@@ -638,7 +640,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       Nil
     )
     
-    val result = doc(tRoot(TemplateElement(doc(
+    val result = doc(
       header(1,1,"title"),
       TitledBlock(List(txt("This is the title")), 
         List(bulletList() + (p(link(1,2)), (bulletList() + p(link(2,3))))
@@ -646,7 +648,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       Styles("topic")),
       Section(header(2,2), List(Section(header(3,3), Nil))),
       Section(header(2,4), List(Section(header(3,5), Nil)))
-    ))))
+    )
     
     val document = new Document(Root / "doc", sectionsWithTitle)
     val template = new TemplateDocument(Root / "default.template.html", tRoot(TemplateContextReference("document.content")))

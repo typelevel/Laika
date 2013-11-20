@@ -142,7 +142,11 @@ object Templates {
      */
     def rewrite (context: DocumentContext) = {
       val newContent = content rewrite rewriteRules(context)
-      context.document.withRewrittenContent(RootElement(Seq(newContent)), context.document.fragments, context.autonumbering.number)
+      val newRoot = newContent match {
+        case TemplateRoot(List(TemplateElement(root: RootElement, _)), _) => root
+        case other => RootElement(Seq(newContent))
+      }
+      context.document.withRewrittenContent(newRoot, context.document.fragments)
     }
     
   }
