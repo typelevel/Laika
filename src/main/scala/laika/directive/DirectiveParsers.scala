@@ -24,12 +24,17 @@ import laika.template.TemplateParsers
 import laika.tree.Documents.DocumentContext
 import laika.tree.Templates._
 
-/** 
- * @author Jens Halm
+/** Parsers for all types of custom directives that can be used
+ *  in templates or as inline or block elements in markup documents.
+ *  
+ *  @author Jens Halm
  */
 trait DirectiveParsers extends laika.parse.InlineParsers { 
   
   
+  /** Groups the result of the parser and the source string
+   *  that it successfully parsed into a tupled result. 
+   */
   def withSource[T] (p: Parser[T]): Parser[(T, String)] = Parser { in =>
     p(in) match {
       case Success(result, next) => Success((result, next.source.subSequence(in.offset, next.offset).toString), next)
@@ -37,43 +42,61 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
     }
   }
   
-  
+
+  /** Represents one part of a directive (an attribute or a body element).
+   */
   case class Part (key: Key, content: String)
 
+  /** Represents the parsed but unprocessed content of a directive.
+   */
   case class ParsedDirective (name: String, parts: List[Part])
   
   type PartMap = Map[Key, String]
   
   
+  /** Parses horizontal whitespace or newline characters.
+   */
   lazy val wsOrNl = anyOf(' ','\t', '\n')
-  
+
+  /** Parses a name declaration that start with a letter and 
+   *  continues with letters, numbers or the symbols '-' or '_'.
+   */
   lazy val nameDecl: Parser[String] = (anyIn('a' to 'z', 'A' to 'Z') take 1) ~ 
     anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '-', '_') ^^ { case first ~ rest => first + rest }
   
-  
-  lazy val attrName: Parser[String] = nameDecl <~ wsOrNl ~ '=' ~ wsOrNl
-      
-  lazy val attrValue: Parser[String] = {
-    def escapedUntil (char: Char) = escapedText(anyUntil(char) min 1)
-    def escapedText (p: TextParser) = text(p, Map('\\' -> (any take 1))) // TODO - should be promoted to generic inline parser (after which this trait only needs to extend MarkupParsers)
+  /** Parses a full directive declaration, containing all its attributes,
+   *  but not the body elements.
+   */
+  lazy val declaration: Parser[(String, List[Part])] = {
     
-    '"' ~> escapedUntil('"') | (anyBut(' ','\t','\n','.',':') min 1)  
-  }
-
-  lazy val defaultAttribute: Parser[Part] = not(attrName) ~> attrValue ^^ { Part(Attribute(Default), _) }
-
-  lazy val attribute: Parser[Part] = attrName ~ attrValue ^^ { case name ~ value => Part(Attribute(name), value) }
+    lazy val attrName: Parser[String] = nameDecl <~ wsOrNl ~ '=' ~ wsOrNl
+  
+    lazy val attrValue: Parser[String] = {
+      def escapedUntil (char: Char) = escapedText(anyUntil(char) min 1)
+      def escapedText (p: TextParser) = text(p, Map('\\' -> (any take 1))) // TODO - should be promoted to generic inline parser (after which this trait only needs to extend MarkupParsers)
+      
+      '"' ~> escapedUntil('"') | (anyBut(' ','\t','\n','.',':') min 1)  
+    }
+  
+    lazy val defaultAttribute: Parser[Part] = not(attrName) ~> attrValue ^^ { Part(Attribute(Default), _) }
+  
+    lazy val attribute: Parser[Part] = attrName ~ attrValue ^^ { case name ~ value => Part(Attribute(name), value) }
  
+    (":" ~> nameDecl <~ wsOrNl) ~ opt(defaultAttribute <~ wsOrNl) ~ ((wsOrNl ~> attribute)*) <~ ws ^^ 
+    { case name ~ defAttr ~ attrs => (name, defAttr.toList ::: attrs) }
+ }
+      
 
-  lazy val declaration: Parser[(String, List[Part])] 
-    = (":" ~> nameDecl <~ wsOrNl) ~ opt(defaultAttribute <~ wsOrNl) ~ ((wsOrNl ~> attribute)*) <~ ws ^^ 
-      { case name ~ defAttr ~ attrs => (name, defAttr.toList ::: attrs) }
-
+  private lazy val bodyName: Parser[String] = '~' ~> nameDecl <~ ws ~ ':'
   
-  lazy val bodyName: Parser[String] = '~' ~> nameDecl <~ ws ~ ':'
+  private lazy val noBody = '.' ^^^ List[Part]()
   
-  lazy val noBody = '.' ^^^ List[Part]()
-  
+  /** Parses one directive instance containing its name declaration,
+   *  all attributes and all body elements.
+   *  
+   *  @param bodyContent the parser for the body content which is different for a block directive than for a span or template directive
+   *  @param includeStartChar indicates whether the starting '@' has to be parsed by this parser
+   */
   def directiveParser (bodyContent: Parser[String], includeStartChar: Boolean): Parser[ParsedDirective] = {
     
     val defaultBody: Parser[Part] = not(wsOrNl ~> bodyName) ~> bodyContent ^^ { Part(Body(Default),_) }
@@ -94,7 +117,7 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
     
   }
   
-  def applyDirective [E <: Element] (builder: BuilderContext[E]) (
+  protected def applyDirective [E <: Element] (builder: BuilderContext[E]) (
       parseResult: ParsedDirective, 
       directives: String => Option[builder.Directive], 
       createContext: (PartMap, Option[DocumentContext]) => builder.DirectiveContext,
@@ -128,9 +151,13 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
   
 }
 
+/** Provides the concrete sub traits for the three different directive types.
+ */
 object DirectiveParsers {
   
-  
+
+  /** Provides the parsers for directives in templates.
+   */
   trait TemplateDirectives extends DirectiveParsers { self: TemplateParsers.Templates =>
     
     def getTemplateDirective (name: String): Option[Templates.Directive]
@@ -162,6 +189,8 @@ object DirectiveParsers {
   }
   
   
+  /** Provides the parsers for directives in inline elements of markup documents.
+   */
   trait SpanDirectives extends DirectiveParsers {
     
     def getSpanDirective (name: String): Option[Spans.Directive]
@@ -190,6 +219,8 @@ object DirectiveParsers {
   }
   
   
+  /** Provides the parsers for directives in block elements of markup documents.
+   */
   trait BlockDirectives extends DirectiveParsers with laika.parse.BlockParsers {
     
     def getBlockDirective (name: String): Option[Blocks.Directive]

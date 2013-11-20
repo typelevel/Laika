@@ -24,12 +24,26 @@ import laika.tree.Documents._
 import laika.tree.Templates.rewriteRules
 import scala.collection.JavaConversions._
 
-/** 
+/** Provides the implementation for the standard directives included in Laika.
+ *  
+ *  These include:
+ *  
+ *  - `toc`: Generates a table of content from a specified root node.
+ *  - `fragment`: Marks a block in a markup document as being separate from the main content, 
+ *    so that it can be placed separately in templates.
+ *  - `for`: Accesses a value from the context and sets it as the reference context for its
+ *    body elements, executing the body if the referenced value is non-empty and executing
+ *    it multiple times when it is a collection.
+ *  - `if`: Accesses a value from the context and processes the body element only when
+ *    it is a value recognized as true.
+ *  
  *  @author Jens Halm
  */
 trait StandardDirectives {
 
   
+  /** Implementation of the `for` directive for templates.
+   */
   lazy val templateFor = Templates.create("for") {
     import Templates.Combinators._
     import java.util.{Map => JMap, Collection => JCol}
@@ -64,6 +78,8 @@ trait StandardDirectives {
     }
   }
   
+  /** Implementation of the `if` directive for templates.
+   */
   lazy val templateIf = Templates.create("if") {
     import Templates.Combinators._
     import java.util.{Map => JMap, Collection => JCol}
@@ -85,6 +101,14 @@ trait StandardDirectives {
     }
   }
   
+  /** Creates the nodes for a table of content.
+   *  
+   *  @param depth the maximum depth to traverse when building the table, the depth is unlimited if the value is empty
+   *  @param rootConfig the string identifier that specifies the tree that should serve as the root for the table
+   *  @param title the title for the table
+   *  @param context the context of the document the table of content will be placed in
+   *  @return a block element containing the table and its title
+   */
   def toc (depth: Option[Int], rootConfig: String, title: Option[String], context: DocumentContext) = {
     
     val format = StringBullet("*")
@@ -157,6 +181,8 @@ trait StandardDirectives {
     TitledBlock(titleSeq, list, Styles("toc"))
   }
   
+  /** Implementation of the `toc` directive for templates.
+   */
   lazy val templateToc = Templates.create("toc") {
     import Templates.Combinators._
     import Templates.Converters._
@@ -170,6 +196,8 @@ trait StandardDirectives {
     }
   }
   
+  /** Implementation of the `toc` directive for block elements in markup documents.
+   */
   lazy val blockToc = Blocks.create("toc") {
     import Blocks.Combinators._
     import Blocks.Converters._
@@ -184,6 +212,8 @@ trait StandardDirectives {
   }
   
   
+  /** Implementation of the `fragment` directive for block elements in markup documents.
+   */
   lazy val blockFragment = Blocks.create("fragment") {
     import Blocks.Combinators._
     
@@ -192,6 +222,8 @@ trait StandardDirectives {
     }
   }
   
+  /** Implementation of the `fragment` directive for templates.
+   */
   lazy val templateFragment = Templates.create("fragment") {
     import Templates.Combinators._
     
@@ -200,11 +232,16 @@ trait StandardDirectives {
     }
   }
   
+  /** The complete list of standard directives for block
+   *  elements in markup documents.
+   */
   lazy val stdBlockDirectives = List(
     blockToc,
     blockFragment
   )
-  
+
+  /** The complete list of standard directives for templates.
+   */
   lazy val stdTemplateDirectives = List(
     templateToc,
     templateFor,
