@@ -306,10 +306,9 @@ class TransformAPISpec extends FlatSpec
       val withTemplate2 = """RootElement - Blocks: 1
         |. TemplateRoot - Spans: 3
         |. . TemplateString - '('
-        |. . TemplateElement
-        |. . . RootElement - Blocks: 1
-        |. . . . Paragraph - Spans: 1
-        |. . . . . Text - 'foo'
+        |. . EmbeddedRoot - Blocks: 1
+        |. . . Paragraph - Spans: 1
+        |. . . . Text - 'foo'
         |. . TemplateString - ')'""".stripMargin  
       transformTree should be (root(List(
         docs(

@@ -78,6 +78,8 @@ trait ModelBuilder {
   def doc (blocks: Block*) = RootElement(blocks.toList)
   
   def tRoot (spans: TemplateSpan*) = TemplateRoot(spans)
+  
+  def eRoot (blocks: Block*) = EmbeddedRoot(blocks.toList)
 
   def tt (text: String) = TemplateString(text)
 

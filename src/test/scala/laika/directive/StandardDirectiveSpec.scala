@@ -325,10 +325,10 @@ class StandardDirectiveSpec extends FlatSpec
       tt("aaa "),
       tElem(TitledBlock(List(txt(title)), List(list), options=Styles("toc"))),
       tt(" bbb "),
-      tElem(doc(
+      eRoot(
         Section(Header(1, List(txt("Headline 1")), Id("headline-1") + Styles("section")), Nil),
         Section(Header(1, List(txt("Headline 2")), Id("headline-2") + Styles("section")), Nil)
-      ))
+      )
     ))
     
     def markupTocResult = doc(

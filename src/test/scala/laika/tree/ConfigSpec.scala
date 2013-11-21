@@ -76,7 +76,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("<h1>"),
           TemplateString("bar"),
           TemplateString("</h1>\n<div>"),
-          TemplateElement(doc(p("aaa\nbbb"))),
+          eRoot(p("aaa\nbbb")),
           TemplateString("</div>\nCCC")
         ))
       )
@@ -93,7 +93,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("<h1>"),
           TemplateString("bar"),
           TemplateString("</h1>\n<div>"),
-          TemplateElement(doc(p("aaa\nbbb"))),
+          eRoot(p("aaa\nbbb")),
           TemplateString("</div>\nCCC")
         ))
       )
@@ -108,7 +108,7 @@ class ConfigSpec extends FlatSpec
       val result = doc(
         TemplateRoot(List(
           TemplateString("<div>"),
-          TemplateElement(doc(p(txt("aaa\n"),txt("bar"),txt("\nbbb")))),
+          eRoot(p(txt("aaa\n"),txt("bar"),txt("\nbbb"))),
           TemplateString("</div>\nCCC")
         ))
       )
@@ -123,7 +123,7 @@ class ConfigSpec extends FlatSpec
       val result = doc(
         TemplateRoot(List(
           TemplateString("<div>"),
-          TemplateElement(doc(p(txt("aaa\n"),txt("bar"),txt("\nbbb")))),
+          eRoot(p(txt("aaa\n"),txt("bar"),txt("\nbbb"))),
           TemplateString("</div>\nCCC")
         ))
       )

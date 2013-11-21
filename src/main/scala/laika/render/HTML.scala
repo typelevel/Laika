@@ -109,6 +109,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
       
       con match {
         case RootElement(content)             => if (!content.isEmpty) out << content.head <<| content.tail       
+        case EmbeddedRoot(content,_)          => if (!content.isEmpty) out << content.head <<| content.tail       
         case Section(header, content,_)       => out <<         header <<|   content
         case TitledBlock(title, content, opt) => out <<@ ("div",opt) <<|> (Paragraph(title,Styles("title")) +: content) <<| "</div>"
         case QuotedBlock(content,attr,opt)    => out <<@ ("blockquote",opt); renderBlocks(quotedBlockContent(content,attr), "</blockquote>")

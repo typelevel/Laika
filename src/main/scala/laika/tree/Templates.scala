@@ -82,10 +82,11 @@ object Templates {
    */
   case class TemplateContextReference (ref: String, options: Options = NoOpt) extends ContextReference[TemplateSpan](ref) with TemplateSpan {
     def result (value: Option[Any]): TemplateSpan = value match {
-      case Some(s: TemplateSpan) => s
-      case Some(e: Element)      => TemplateElement(e)
-      case Some(other)           => TemplateString(other.toString)
-      case None                  => TemplateString("")
+      case Some(s: TemplateSpan)      => s
+      case Some(RootElement(content)) => EmbeddedRoot(content)
+      case Some(e: Element)           => TemplateElement(e)
+      case Some(other)                => TemplateString(other.toString)
+      case None                       => TemplateString("")
     }
   }
   
@@ -128,6 +129,11 @@ object Templates {
    */
   case class TemplateRoot (content: Seq[TemplateSpan], options: Options = NoOpt) extends Block with SpanContainer[TemplateRoot]
   
+  /** The root element of a document tree (originating from text markup) inside a template.
+   *  Usually created by a template reference like `{{document.content}}`.
+   */
+  case class EmbeddedRoot (content: Seq[Block], options: Options = NoOpt) extends TemplateSpan with BlockContainer[EmbeddedRoot]
+  
   /** A template document containing the element tree of a parsed template and its extracted
    *  configuration section (if present).
    */
@@ -144,6 +150,7 @@ object Templates {
       val newContent = content rewrite rewriteRules(context)
       val newRoot = newContent match {
         case TemplateRoot(List(TemplateElement(root: RootElement, _)), _) => root
+        case TemplateRoot(List(EmbeddedRoot(content, _)), _) => RootElement(content)
         case other => RootElement(Seq(newContent))
       }
       context.document.withRewrittenContent(newRoot, context.document.fragments)
