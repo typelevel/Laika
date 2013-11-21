@@ -62,6 +62,8 @@ import laika.tree.TreeUtil
  * 
  *  - `code` does currently not support syntax highlighting 
  *    (it allows to set the language so client-side highlighters can be integrated if required)
+ *    
+ *  - `sectnum` does currently not support the `prefix`, `suffix` and `start` options.
  * 
  *  - `raw` does not support the `file` or `url` options (multi-file transformations are planned for version 0.4).
  * 
