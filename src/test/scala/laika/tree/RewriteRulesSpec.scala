@@ -146,6 +146,12 @@ class RewriteRulesSpec extends FlatSpec
     rewritten (document) should be (doc(p(intLink("name")), InternalLinkTarget(Id("name"))))
   }
   
+  it should "use the headers text as link text when linking to a header" in {
+    val header = Header(1, Seq(Text("Title 1")), Id("title-1"))
+    val document = doc(p(LinkReference(List(txt("title-1")), "title-1", "title-1")), header)
+    rewritten (document) should be (doc(p(InternalLink(List(txt("Title 1")), "title-1")), header.copy(options = header.options + Styles("title"))))
+  }
+  
   it should "resolve indirect link references" in {
     val document = doc(p(simpleLinkRef()), LinkAlias("name","ref"), InternalLinkTarget(Id("ref")))
     rewritten (document) should be (doc(p(intLink("ref")), InternalLinkTarget(Id("ref"))))

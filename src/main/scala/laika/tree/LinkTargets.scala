@@ -162,9 +162,14 @@ object LinkTargets {
   abstract class DefaultTarget (target: Customizable, id: Id, path: Path) extends TargetDefinition(target, id, true) {
     val replace = lift { case (c: Customizable, Named(name))                    => TreeUtil.setId(c, name) }
     val resolve = lift { 
-      case (LinkReference (content, _, _, opt), Named(name))            => InternalLink(content, name, options = opt) 
-      case (LinkReference (content, _, _, opt), Relative(source, name)) => CrossLink(content, name, PathInfo(path, path.relativeTo(source.parent)), options = opt) 
+      case (LinkReference (content, _, _, opt), Named(name))            => InternalLink(linkContent(content,name), name, options = opt) 
+      case (LinkReference (content, _, _, opt), Relative(source, name)) => CrossLink(linkContent(content,name), name, PathInfo(path, path.relativeTo(source.parent)), options = opt) 
     } 
+    def linkContent (orig: Seq[Span], id: String) = orig match {
+      case Seq(Text(text,opt)) if text == id => targetTitle.getOrElse(orig)
+      case other => other
+    }
+    def targetTitle: Option[Seq[Span]] = None
   }
   
   class CustomizableTarget (target: Customizable, id: String, path: Path) extends DefaultTarget(target, id, path) {
@@ -173,11 +178,16 @@ object LinkTargets {
   
   class HeaderTarget (header: Block, id: Id, path: Path) extends DefaultTarget(header, id, path) {
     override def withResolvedIds (documentId: String, displayId: String) = new SingleTargetResolver(this, displayId, documentId)
+    override def targetTitle = header match {
+      case Header(_, content, _) => Some(content)
+      case _ => None
+    }
   }
   
   class DecoratedHeaderTarget (header: DecoratedHeader, id: Id, path: Path, levels: DecoratedHeaderLevels) extends HeaderTarget(header, id, path) {
     override val replace = lift  
       { case (DecoratedHeader(deco, content, opt), Named(name)) => Header(levels.levelFor(deco), content, opt + Id(name)) }
+    override def targetTitle: Option[Seq[Span]] = None
   }
     
   class DecoratedHeaderLevels {
