@@ -188,12 +188,14 @@ Alternatively (or in addition to default templates) you can explicitly specify a
 in a configuration header of a text markup document:
 
     {%
-      template: my-custom-template.html
+      template: custom.template.html
     %}
     
 This will override any default template for the directory. The path is relative to the
 document, but has to be somewhere below the root directory processed by Laika, as
 templates are parsed and cached upfront, before getting applied to documents.
+
+All templates must have the suffix `.template.html`.
 
 This also means that you should not have too many unused templates inside these
 directories, as they will get parsed nevertheless.
@@ -230,7 +232,7 @@ Instead it can be referred to by `{{document.fragments.<fragmentName>}}`.
 This allows to keep some sections of your document separate, to be rendered
 in different locations of the output, like headers, footers or sidebars.
 
-This directive is explained in detail in the [Document Structure] chapter. TODO
+This directive is explained in detail in the [Document Structure][document-fragments] chapter.
 
 
 ### The `for` directive

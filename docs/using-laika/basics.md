@@ -191,18 +191,3 @@ directories:
     
     transform fromDirectory "source-1" toDirectory "target-2"
 
-
-### Advanced API Options
-
-The API presented above should cover the most common scenarios.
-If you need more low-level control on how a batch transformation
-is executed, you have several additional options:
-
-* Specify a custom template engine
-* Use a custom document type matcher (that determines whether
-  a file is treated as a markup document, a template, a configuration
-  file, a static file to be copied to the output or a file that should
-  be ignored
-* Specify configuration files or strings
- 
-For details on these options see [Customizing Batch Operations][customizing-batch-operations].

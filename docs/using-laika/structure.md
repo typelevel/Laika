@@ -232,3 +232,71 @@ do not directly produce string output). The items get the styles
 HTML these will then be rendered as class attributes.
 
 
+
+Document Ordering
+-----------------
+
+For features like tables of contents and autonumbering the order of
+documents is relevant. The default ordering is alphabetical, with
+all markup documents coming first, followed by all subdirectories
+in alphabetical order.
+
+If you want a different ordering you can define it explicitly
+for each directory in the `directory.conf` file:
+
+    navigationOrder = [
+      apples.md
+      oranges.md
+      strawberries.md
+      some-subdirectory
+      other-subdirectory
+    ]
+    
+The example above contains both markup files and subdirectory.
+They would appear in this order in tables of contents and the
+same order would be applied when autonumbering.
+    
+
+
+Document Types
+--------------
+
+Laika recognizes several different document types inside the
+directories it processes. The type of document is determined
+by its name, in the following way:
+
+* `default.conf`: the configuration for this directory
+* `*.conf`: other configuration files (currently ignored)
+* `default.template.html`: the default template to apply to documents
+  in this directory
+* `*.template.html`: other templates that markup documents can
+  explicitly refer to
+* `*.<markup-suffix>: markup files with a suffix recognized
+  by the parser in use, e.g. `.md` or `.markdown` for Markdown
+  and `.rst` for reStructuredText
+* `*.dynamic.html`: a dynamic file, which has the same syntax
+  as a template, but does not get applied to a markup document.
+  This means it should not have a `{{document.content}}` reference
+  like normal templates, but may use any of the other template
+  features. The result of processing will be copied to the
+  output directory alongside the transformed markup documents.
+* `*.git`, `*.svn`: these directories will be ignored
+* all other files: treated as static files and copied to the 
+  output directory unmodified.
+  
+If you need to customize the document type recognition,
+you can do that with a simple function:
+
+    val matcher: Path => DocumentType
+    
+    Transform from Markdown to HTML fromDirectory 
+      "source" withDocTypeMatcher matcher toDirectory "target"
+
+The valid return types correspond to the document types listed
+above:
+
+    Markup, Template, Dynamic, Static, Config, Ignored
+
+
+
+
