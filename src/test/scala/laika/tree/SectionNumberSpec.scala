@@ -118,17 +118,6 @@ class SectionNumberSpec extends FlatSpec
     val numberDocs = false
   }
   
-  object DebugHelper {
-    // TODO - move to separate helper object
-    import laika.api.Render
-    import laika.render.PrettyPrint
-
-    def writeFiles (result: Element, expected: Element) = {
-      val path = "/Users/jenshalm/Projects/Planet42/Laika/target/"
-      Render as PrettyPrint from result toFile (path+"result.txt")
-      Render as PrettyPrint from expected toFile (path+"expected.txt")
-    }
-  }
   
   trait SectionsWithTitle extends TreeModel {
     val sections = RootElement(
@@ -233,7 +222,6 @@ class SectionNumberSpec extends FlatSpec
   it should "number documents and sections two levels deep for a structure without title" in {
     new SectionsWithoutTitle with NumberTwoLevels {
       override val depth = Some(2)
-      DebugHelper.writeFiles(result, expected)
       result should be (expected)
     }
   } 
