@@ -3,7 +3,7 @@ name := "laika"
 
 organization := "org.planet42"
 
-version := "0.4.0-SNAPSHOT"
+version := "0.4.0"
 
 description := "Library for transforming lightweight text markup into various types of output formats, written in Scala"
 

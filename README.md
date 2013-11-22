@@ -13,12 +13,16 @@ The current version is published to Maven Central for Scala 2.10.x, 2.9.3 and 2.
 
 Adding Laika to your project with sbt:
 
-    libraryDependencies += "org.planet42" %% "laika" % "0.3.0"
+    libraryDependencies += "org.planet42" %% "laika" % "0.4.0"
 
 
 Example for transforming from file to file:
 
     Transform from Markdown to HTML fromFile "hello.md" toFile "hello.html"
+
+Example for transforming an entire directory of markup files:
+
+    Transform from ReStructuredText to HTML fromDirectory "source" toDirectory "target"
 
 
 For further information:

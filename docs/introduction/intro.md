@@ -28,12 +28,17 @@ The current version is published to Maven Central for Scala 2.10.x, 2.9.3 and 2.
 
 Adding Laika to your project with sbt:
 
-    libraryDependencies += "org.planet42" %% "laika" % "0.3.0"
+    libraryDependencies += "org.planet42" %% "laika" % "0.4.0"
 
 
 Example for transforming from file to file:
 
     Transform from Markdown to HTML fromFile "hello.md" toFile "hello.html"
+    
+Example for transforming an entire directory of markup files:
+
+    Transform from ReStructuredText to 
+      HTML fromDirectory "source" toDirectory "target"
 
 
 For further information:
@@ -62,7 +67,6 @@ is included in the repository inside the `docs` folder.
 [GitHub]: https://github.com/planet42/Laika
 [API]: api/
 [Twitter]: https://twitter.com/_planet42
-[Transformation Basics]: basics.html
 [Issues]: https://github.com/planet42/Laika/issues
 [Stackoverflow]: http://stackoverflow.com/questions/ask?tags=scala%2claika
 
@@ -72,105 +76,71 @@ Features
 
 * Support for Markdown and reStructuredText as input
 
-* Concise and type-safe API for all reStructuredText extensibility options (directives, text roles)
+* Support for HTML and PrettyPrint (for debugging) as output
 
-* Support for HTML and PrettyPrint (for debugging etc.) as output
+* Template-based Site Generation
 
-* Customization Hooks for Renderers
+* Support for tables of contents, autonumbering of documents and sections
+  and convenient cross-linking between documents for all supported markup
+  formats
 
-* Document Tree Rewriting
+* Custom Directives (tags) for templates and text markup, with type-safe
+  and concise DSL for their declaration
+
+* Customization hooks for renderers (based on simple partial 
+  functions that change the output for specific node types)
+
+* Document Tree Rewriting (hooks for modifying the document AST, consisting
+  of case classes, between parsing and rendering, based on simple partial 
+  functions)
+
+* Simple contracts and APIs for adding new parsers and renderers
 
 * Various options for input and output (strings, files, java.io.Reader/Writer, java.io streams)
+
+* Parallel processing of parsers and renderers
+
+* More than 900 tests
 
 
 Road Map
 --------
 
-* Template-based site generation (0.4)
-
 * sbt Plugin (0.5)
 
-* New renderers for DocBook, PDF (0.6) and epub (0.7)
+* New renderers for DocBook and PDF (0.6) 
+
+* New renderer for epub (0.7)
 
 
-After these four releases priorities depend on user demand, therefore
+After these three releases priorities depend on user demand, therefore
 no specific order has been set for these other ideas:
 
 * Various Markdown extensions (GitHub Flavored Markdown, Multimarkdown, etc.)
 
-* A few users asked for AsciiDoc support (although they don't have a real spec which makes it difficult)
+* Integrated support for syntax highlighting in source code blocks
+
+* AsciiDoc support (gets requested occasionally)
 
 * A Java API
 
 * A command line interface
 
-* Luna, a new markup syntax that aims to combine the simplicity and readability of Markdown
-  with the power and extensibility of reStructuredText
 
-
-Design Principles
------------------
-
-* Fully decouple the aspects of input/output, parsing, rendering and document tree rewriting, 
-  making each of these steps pluggable.
-  
-* Provide a very convenient and simple high level API for common transformation tasks.
-
-* Build a generic document tree model that does not reflect specifics of a particular 
-  supported markup language like Markdown or reStructuredText.
-
-* Allow for easy modification of the rendering for a particular node type only, without
-  the need to sub-class or modify an existing renderer.
-  
-* Allow customization of rewrite rules for transforming the document tree before rendering
-  (e.g for resolving cross-references).
-
-* Provide concise and type-safe extension APIs for extensible markup definitions (e.g.
-  for directives and text roles in reStructuredText)
-  
-* Create the built-in parsers with the Scala parser combinators, providing efficient and
-  reusable base parsers that encapsulate requirements common to all lightweight markup languages,
-  while keeping the basic contract for plugging in a new parser function as simple and generic as 
-  `Input => Document`, so that other parser frameworks or tools can be used, too.
-  
-* Designed for robustness: Laika has more than 600 tests, it is protected against malicious
-  or accidentally malformed input like endless recursion (a type of guard most other text markup 
-  parsers do not include) and parsers like the URI parser are based on the actual relevant RFCs
-  (and not just a rough approximation like in many other parsers). 
-
-
-### Internal Architecture
-
-![Internal Architecture](img/architecture.png)
-
-This diagram shows the main building blocks of the toolkit:
-
-* `Input` and `Output` are just little IO abstractions, so that the other parts of the system
-  do not need to deal with the low-level details of where to read from and to write to. The toolkit
-  supports files, strings and streams, writers and readers from `java.io`.
-  
-* `Parse` represents the actual parsing step, a pluggable function of type `Input => Document`.
-  Supported out of the box are Markdown and reStructuredText. Other parsers can easily be added
-  to the system and they do not need to be based on the SDK's parser combinators like the built-in
-  parsers. The extensibility options of existing parsers depend on the capabilities of the 
-  respective markup, e.g. reStructuredText has the concept of directives and text roles as
-  extension hooks, therefore the extension APIs are parser-specific. 
-  
-* `Rewrite` is a customizable step for transforming the document tree model before rendering.
-  There is always a default rewrite step involved, that looks for nodes in the model that need
-  to be resolved, like link references, footnote references, etc. But custom rules can be added
-  based on a partial function that deals with specific node types only.
-  
-* `Render` is the final render step. Currently supported out of the box are HTML and PrettyPrint,
-  the latter visualizing the document tree for debugging purposes. Planned for future releases
-  are support for PDF, DocBook and epub. Like with the rewrite step, the entire renderer can be replaced
-  by a custom one, or an existing one can customized based on a partial function that deals with
-  specific node types only.
-
-  
 Release History
 ---------------
 
+* __0.4__ (Nov 22, 2013):
+
+    * Template-based site generation
+    * Support for tables of contents, autonumbering of documents and sections
+      and convenient cross-linking between documents for all supported markup
+      formats
+    * Custom Directives for templates and text markup
+    * Document Fragments that can be rendered separately from the main document content
+    * New API for batch processing for parse, render or full transform operations
+    * Parallel processing of parsers and renderers 
+      
 * __0.3__ (Aug 3, 2013):
 
     * Support for most of the standard directives and text roles of the reStructuredText reference
