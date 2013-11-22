@@ -223,7 +223,7 @@ trait StandardDirectives {
     import Blocks.Combinators._
     
     (attribute(Default) ~ body(Default)) {
-      (name, content) => DocumentFragment(name, BlockSequence(content))
+      (name, content) => DocumentFragment(name, BlockSequence(content, Styles(name)))
     }
   }
   
