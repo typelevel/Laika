@@ -154,7 +154,7 @@ there will be edge cases where it is the other way round. To be really sure it's
 to do some benchmarks first. 
 
 
-[markup-scaladoc]: api/#laika.parse.MarkupParsers
+[markup-scaladoc]: ../api/#laika.parse.MarkupParsers
 
 
 Trait InlineParsers
@@ -281,5 +281,5 @@ Like the other utility it allows to specify a few predicates. This method
 is not used for parsing Markdown's indented blocks, though, as Markdown has
 a very special way of treating whitespace.
 
-[block-scaladoc]: api/#laika.parse.BlockParsers
+[block-scaladoc]: ../api/#laika.parse.BlockParsers
 

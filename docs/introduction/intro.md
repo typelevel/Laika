@@ -65,7 +65,7 @@ is included in the repository inside the `docs` folder.
 
 [Web Tool]: http://www.planet42.org/laika/webtool
 [GitHub]: https://github.com/planet42/Laika
-[API]: api/
+[API]: ../api/
 [Twitter]: https://twitter.com/_planet42
 [Issues]: https://github.com/planet42/Laika/issues
 [Stackoverflow]: http://stackoverflow.com/questions/ask?tags=scala%2claika

@@ -91,7 +91,7 @@ The following sections explain how to implement the tag
 and then how to add it either to the Markdown or reStructuredText
 parser or to the template parser.
 
-[directive-api]: api/#laika.directive.StandardDirectives
+[directive-api]: ../api/#laika.directive.StandardDirectives
 
 
 ### Directive Implementation

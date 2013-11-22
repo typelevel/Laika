@@ -90,8 +90,8 @@ This codec will then be used by `fromDirectory` and other methods
 shown in the examples above.
 
 
-[doc-scaladoc]: api/#laika.tree.Documents$
-[elements-scaladoc]: api/#laika.tree.Elements$
+[doc-scaladoc]: ../api/#laika.tree.Documents$
+[elements-scaladoc]: ../api/#laika.tree.Elements$
     
 
 The Render API
