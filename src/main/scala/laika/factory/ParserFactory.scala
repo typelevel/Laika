@@ -38,9 +38,9 @@ trait ParserFactory {
    */
   def fileSuffixes: Set[String]
 
-  /*  Creates a new parser instance.
-   *  Such an instance is expected to be stateless and thread-safe,
-   *  thus capable of repeated and parallel executions.
+  /**  Creates a new parser instance.
+   *   Such an instance is expected to be stateless and thread-safe,
+   *   thus capable of repeated and parallel executions.
    */
   def newParser: Input => Document
   
