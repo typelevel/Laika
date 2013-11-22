@@ -85,11 +85,11 @@
 val document = Parse as Markdown fromString input
 </pre>
   <p>The <code>document</code> instance gives you the full document model. See
-  the <a href="api/#laika.tree.Documents$">Documents Scaladoc</a> for details.</p>
+  the <a href="../api/#laika.tree.Documents$">Documents Scaladoc</a> for details.</p>
   <p>The <code>content</code> property of the <code>document</code> instance holds
   the parsed content of the document in the form a tree 
   of case classes. You can read the
-  <a href="api/#laika.tree.Elements$">Elements Scaladoc</a> for an overview of all node types.</p>
+  <a href="../api/#laika.tree.Elements$">Elements Scaladoc</a> for an overview of all node types.</p>
   <p>You can then specify rewrite
   rules to transform some nodes of the model (see <a href="tree-rewriting.html#document-tree-rewriting">Document Tree Rewriting</a> for 
   details) and use the Render API (explained below) to render

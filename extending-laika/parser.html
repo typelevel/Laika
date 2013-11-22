@@ -165,7 +165,7 @@ object Markdown extends Markdown(false) </pre>
   if you want to support new or customized markup for an existing parser without touching the parser
   implementation.</p>
   <p>For typical basic regex parsers there is usually a corresponding option in the <code>MarkupParsers</code>
-  trait. You can see the full list of provided parsers in the <a href="api/#laika.parse.MarkupParsers">Scaladoc</a>.
+  trait. You can see the full list of provided parsers in the <a href="../api/#laika.parse.MarkupParsers">Scaladoc</a>.
   We&#39;ll just show a few examples here:</p>
   <p>Parsing three or more lower-case characters:</p>
   <pre>&quot;[a-z]{3,}&quot;.r              // regex
@@ -244,7 +244,7 @@ anyBut(&#39; &#39;,&#39;\t&#39;)          // Laika alternative
   <h2 id="trait-blockparsers" class="section">Trait BlockParsers</h2>
   <p>This is the base trait for parsing blocks, the first phase of the two-phase parsing
   process. It adds a few utility parsers like <code>eol</code> (end-of-line), <code>blankLine</code>
-  or <code>restOfLine</code>. See the <a href="api/#laika.parse.BlockParsers">Scaladoc</a> for details on those.</p>
+  or <code>restOfLine</code>. See the <a href="../api/#laika.parse.BlockParsers">Scaladoc</a> for details on those.</p>
   <p>If you mix in this trait you have to implement this abstract method:</p>
   <pre>protected def prepareBlockParsers (nested: Boolean): List[Parser[Block]]</pre>
   <p>It will be invoked twice, so if you have a different set of parsers for the
