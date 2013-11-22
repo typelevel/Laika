@@ -41,8 +41,8 @@ When the document contains only one level 1 headline as the first
 headline, with all following section headlines being level 2 or lower,
 then the first headline is automatically picked as the title.
 
-This is the default behaviour of reStructuredText, while Markdown
-does not have the concept of a title.
+This is the default behaviour of reStructuredText, but the original 
+Markdown parser did not have the concept of a title.
 
 In case there are multiple level 1 headlines, they are all just
 interpreted as section headlines. In this case the document either

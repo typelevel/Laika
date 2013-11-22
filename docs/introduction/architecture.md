@@ -39,12 +39,12 @@ Design Principles
   (and not just a rough approximation like in many other parsers). 
 
 
-Architecture Overview
----------------------
+Transformation Flow
+-------------------
 
 ![Internal Architecture](../img/architecture.png)
 
-This diagram shows the main building blocks of the toolkit with extension hooks shown as little
+This diagram shows the major phases of a transformation with extension hooks shown as little
 red boxes:
 
 * `Input` and `Output` are just little IO abstractions, so that the other parts of the system

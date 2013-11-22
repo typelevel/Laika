@@ -104,10 +104,10 @@ These are the variables you can use in templates:
 * `document.sections`: the section structure of the document which you can loop
   over with the `@:for` directive described below; the section objects have the 
   following properties:
-  - `id`: the id to use when linking to that section
-  - `title.content`: the formatted title of the document (retaining all inline markup)
-  - `title.text`: the unformatted plain text of the title
-  - `content`: a sequence of further child sections
+    - `id`: the id to use when linking to that section
+    - `title.content`: the formatted title of the document (retaining all inline markup)
+    - `title.text`: the unformatted plain text of the title
+    - `content`: a sequence of further child sections
 * `parent.path` and `root.path`: the path of the immediate parent tree of this document
    and the path of the root tree
 * `parent.title` and `root.title`: the title of the parent and root trees
@@ -121,11 +121,11 @@ These are the variables you can use in templates:
   referes to the scope attribute from the template example at the beginning of this section.
   You can refer to configuration entries from any of the following sources (which the
   resolver will try in this order):
-  - a configuration header in the corresponding document  
-  - a configuration header in the template
-  - a configuration file with the name `directory.conf` inside the current directory
-  - a configuration file with the name `directory.conf` inside any parent directory
-  - a configuration file specified programmatically
+    - a configuration header in the corresponding document  
+    - a configuration header in the template
+    - a configuration file with the name `directory.conf` inside the current directory
+    - a configuration file with the name `directory.conf` inside any parent directory
+    - a configuration file specified programmatically
   
 The use of these references is meant to be quite straightforward. The template engine
 is logic-less, so if you find yourself creating complex constructs of these variable
