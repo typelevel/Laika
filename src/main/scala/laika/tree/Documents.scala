@@ -25,7 +25,6 @@ import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import laika.io.InputProvider
 import laika.io.Input
-import scala.util.Try
 import laika.tree.Templates.TemplateRoot
 import laika.tree.Templates.TemplateContextReference
 
@@ -202,8 +201,8 @@ object Documents {
       val result = target match {
         case m: JMap[_, _]=> (fromJavaMap(m.asInstanceOf[JMap[Any,Any]], path.head), path.tail)
         case m: Map[_, _] => (m.asInstanceOf[Map[Any,Any]].get(path.head), path.tail)
-        case c: Config    => (Try{ c.getAnyRef(path.mkString(".")) }.toOption, Nil)
-        case other        => (Try{ target.getClass.getMethod(path.head).invoke(target) }.toOption, path.tail)
+        case c: Config    => (try Some(c.getAnyRef(path.mkString("."))) catch { case e:Exception => None }, Nil) // TODO - use Try when dropping 2.9.x support
+        case other        => (try Some(target.getClass.getMethod(path.head).invoke(target)) catch { case e:Exception => None }, path.tail)
       }
       result match {
         case (None, _) if (root && parent.isDefined) => parent.get.resolve(target, path, root)
@@ -783,7 +782,7 @@ object Documents {
     
     def fromConfig (config: Config): Option[Navigatable => Int] = {
       if (config.hasPath("navigationOrder")) {
-        val list = iterableAsScalaIterable(config.getList("navigationOrder").unwrapped).collect{case s:String => s}.toVector
+        val list = iterableAsScalaIterable(config.getList("navigationOrder").unwrapped).collect{case s:String => s}.toIndexedSeq
         Some(nav => list.indexOf(nav.path.name) match { case -1 => Int.MaxValue; case other => other })
       }
       else None

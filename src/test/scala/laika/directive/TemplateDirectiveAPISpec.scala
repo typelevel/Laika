@@ -102,7 +102,7 @@ class TemplateDirectiveAPISpec extends FlatSpec
     def getTemplateDirective (name: String): Option[Templates.Directive] =
       if (directive.name == name) Some(directive) else None
     
-    val defaultParser = templateSpans ^^ tRoot
+    val defaultParser = templateSpans ^^ (spans => tRoot(spans:_*))
     
     def invalid (input: String, error: String) = 
         InvalidSpan(SystemMessage(laika.tree.Elements.Error, error), Literal(input))

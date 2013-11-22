@@ -80,8 +80,8 @@ object DocumentTreeHelper {
       TemplateDocuments(Dynamic, tree.dynamicTemplates map viewOf) ::
       Documents(Dynamic, tree.dynamicDocuments map viewOf) ::
       Inputs(Static, tree.staticDocuments map viewOf) ::
-      Subtrees(tree.subtrees map viewOf) ::
-      Nil) filterNot { case c: ViewContainer[_] => c.content.isEmpty }
+      Subtrees(tree.subtrees map viewOf) :: 
+      List[TreeContent]()) filterNot { case c: ViewContainer[_] => c.content.isEmpty }
     TreeView(tree.path, content)
   }
   
@@ -95,7 +95,7 @@ object DocumentTreeHelper {
       Fragments(viewOf(doc.fragments)) :: 
       Title(filterTitle(doc.title)) ::
       Sections(doc.sections) ::
-      Nil) filterNot { case c: ElementContainer[_,_] => c.content.isEmpty }
+      List[DocumentContent]()) filterNot { case c: ElementContainer[_,_] => c.content.isEmpty }
     DocumentView(doc.path, content, doc.isRewritten)
   }
   
