@@ -282,7 +282,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
       val name = ':' ~> escapedUntil(':') <~ (guard(eol) | ' ')
 
       val item = (ws min 1) >> { firstIndent =>
-          (name ~ indentedBlock(firstIndent.length + 1, endsOnBlankLine = true)) ^^ 
+          (name ~ indentedBlock(firstIndent.length + 1)) ^^
         { case name ~ block => 
             (name, (block.lines mkString "\n").trim)
         }}
