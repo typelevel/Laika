@@ -1,0 +1,164 @@
+<div>
+  <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+
+    <title>Laika</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
+    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
+
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/docs.css" rel="stylesheet">
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body data-spy="scroll" data-target=".toc" data-offset="200">
+
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span4 toc" >
+        
+        <ul class="nav nav-list affix">
+          <div class="nav-top"><img src="../img/laika-top.png"/></div>
+          
+          
+  <li class="nav-header">Introduction</li>
+  <li><a href="../introduction/intro.html">Overview</a></li>
+  <li><a href="../introduction/architecture.html">Architecture</a></li>
+  <li class="nav-header">Using Laika</li>
+  <li><a href="../using-laika/basics.html">Transformation Basics</a></li>
+  <li><a href="../using-laika/markup.html">Supported Markup</a></li>
+  <li><a href="../using-laika/structure.html">Document Structure</a></li>
+  <li><a href="../using-laika/templates.html">Templates</a></li>
+  <li class="nav-header">Customizing Laika</li>
+  <li><a href="customize-rendering.html">Customizing Renderers</a></li>
+  <li class="active"><a href="#">Document Tree Rewriting</a></li>
+  <li><a href="parsing-rendering.html">Separate Parsing and Rendering</a></li>
+  <li class="nav-header">Extending Laika</li>
+  <li><a href="../extending-laika/directive.html">Directives</a></li>
+  <li><a href="../extending-laika/parser.html">Parsers</a></li>
+  <li><a href="../extending-laika/renderer.html">Renderers</a></li>
+  <li><a href="../extending-laika/extending-rst.html">Extending reStructuredText</a></li>
+          
+          <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
+        </ul>
+        
+      </div>
+      
+      <div class="span8" id="top">
+
+        <div class="page-header">
+    <h1>Document Tree Rewriting</h1>
+  </div>
+  <p>In a similar way like the API allows to adjust the rendering for individual
+  node types, it also allows to rewrite the model itself, transforming parts
+  of the tree to create a new tree model.</p>
+  <p>A tree model is immutable, so rewriting always creates a new tree, while
+  reusing unmodified branches for efficiency.</p>
+  <p>There are two ways to perform such a rewriting:</p>
+  <ul>
+    <li>
+      <p>Through the <code>ElementTraversal.rewrite</code> method directly on the tree model instance itself.
+      The <code>Document</code> root element as well as all other container types mix in this trait.</p>
+    </li>
+    <li>
+      <p>Through the Transform API</p>
+    </li>
+  </ul>
+  <p>The latter is convenient if you otherwise have no need to separate the parse and 
+  render operation and just want to add a transformation before rendering.</p>
+  <p>The purpose of this facility is to provide a way to support basic tree rewriting
+  needs without introducing additional dependencies. If you have more sophisticated
+  requirements, you can alternatively use <a href="http://code.google.com/p/kiama/wiki/UserManual">Kiama</a>, a language processing library that
+  also supports rewriting. According to their documentation Kiama should be compatible
+  with Laika as they support tree models consisting of <code>Product</code> instances
+  (which all case classes are). </p>
+  
+  <h2 id="using-the-rewrite-method" class="section">Using the rewrite Method</h2>
+  <p>Often this method gets called on the <code>Document</code> root element, but other container
+  types support it, too, so you can also call it on elements like <code>Paragraph</code> or <code>ListItem</code>.</p>
+  <p>This is the signature of the rewrite method:</p>
+  <pre>def rewrite (rule: PartialFunction[Element,Option[Element]]): Self</pre>
+  <p>Self is a type parameter which is always the node class that mixes in the <code>ElementTraversal</code>
+  trait, meaning you always get back an instance of the same class you call the method on. 
+  The rule is a partial function that expects an <code>Element</code> and returns an <code>Option[Element]</code>.
+  The rules are as follows:</p>
+  <ul>
+    <li>
+      <p>If the function is not defined for a particular element the old element is kept in the tree.</p>
+    </li>
+    <li>
+      <p>If the function returns <code>Some(Element)</code> this element is used in place of the old one.</p>
+    </li>
+    <li>
+      <p>If the function returns <code>None</code> the old element is removed from the tree.</p>
+    </li>
+    <li>
+      <p>Processing happens depth-first (bottom-up), so all nodes getting passed to this function
+      already had their children getting processed.</p>
+    </li>
+    <li>
+      <p>The tree is immutable, so new instances are returned when rewriting, but unmodified
+      branches are reused.</p>
+    </li>
+    <li>
+      <p>Therefore, if the rule does not affect any node, the method will simply return <code>this</code>. </p>
+    </li>
+  </ul>
+  <p>For a very simple example, let&#39;s assume you want to &quot;downgrade&quot; all <code>Strong</code> nodes in 
+  the text to <code>Emphasized</code> nodes:</p>
+  <pre>val doc: Document = ...
+
+val newDoc = doc rewrite {
+  case Strong(content, options) =&gt; Some(Emphasized(content, options))
+}</pre>
+  <p>For a slightly more advanced example, let&#39;s assume you only want to downgrade <code>Strong</code>
+  nodes inside headers. To accomplish this you need to nest a rewrite operation
+  inside another one:</p>
+  <pre>val newDoc = doc rewrite {
+  case h: Header =&gt; Some(h rewrite {
+    case Strong(content, options) =&gt; Some(Emphasized(content, options))
+  })
+}</pre>
+  
+  <h2 id="using-the-transform-api" class="section">Using the Transform API</h2>
+  <p>The examples in the previous example show how to rewrite the tree if you have
+  access to a <code>Document</code> or other container element instance. When all you want
+  to do is to perform a full transformation from some input text to some output
+  format, this would require to split the parse and render operations to get hold
+  of the <code>Document</code> instance. Therefore the Transform API offers a hook to do
+  this in one go, as a step in the transformation process.</p>
+  <p>The rules and principles for defining a rewrite rule are the same as for using
+  the <code>rewrite</code> method directly, as described in the previous section.</p>
+  <p>To use the same example, this is how you can replace all <code>Strong</code> nodes with
+  <code>Emphasized</code> nodes:</p>
+  <pre>Transform from ReStructuredText to HTML usingRule {
+  case Strong(content, options) =&gt; Some(Emphasized(content, options))
+} fromFile &quot;hello.rst&quot; toFile &quot;hello.html&quot;</pre>      
+
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- javascript
+    ================================================== -->
+    <script src="../js/jquery-1.8.3.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+
+
+</body></html>
+</div>

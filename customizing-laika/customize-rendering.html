@@ -1,0 +1,191 @@
+<div>
+  <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+
+    <title>Laika</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
+    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
+
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/docs.css" rel="stylesheet">
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body data-spy="scroll" data-target=".toc" data-offset="200">
+
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span4 toc" >
+        
+        <ul class="nav nav-list affix">
+          <div class="nav-top"><img src="../img/laika-top.png"/></div>
+          
+          
+  <li class="nav-header">Introduction</li>
+  <li><a href="../introduction/intro.html">Overview</a></li>
+  <li><a href="../introduction/architecture.html">Architecture</a></li>
+  <li class="nav-header">Using Laika</li>
+  <li><a href="../using-laika/basics.html">Transformation Basics</a></li>
+  <li><a href="../using-laika/markup.html">Supported Markup</a></li>
+  <li><a href="../using-laika/structure.html">Document Structure</a></li>
+  <li><a href="../using-laika/templates.html">Templates</a></li>
+  <li class="nav-header">Customizing Laika</li>
+  <li class="active"><a href="#">Customizing Renderers</a></li>
+  <li><a href="tree-rewriting.html">Document Tree Rewriting</a></li>
+  <li><a href="parsing-rendering.html">Separate Parsing and Rendering</a></li>
+  <li class="nav-header">Extending Laika</li>
+  <li><a href="../extending-laika/directive.html">Directives</a></li>
+  <li><a href="../extending-laika/parser.html">Parsers</a></li>
+  <li><a href="../extending-laika/renderer.html">Renderers</a></li>
+  <li><a href="../extending-laika/extending-rst.html">Extending reStructuredText</a></li>
+          
+          <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
+        </ul>
+        
+      </div>
+      
+      <div class="span8" id="top">
+
+        <div class="page-header">
+    <h1>Customizing Renderers</h1>
+  </div>
+  <p>In some cases you might want to override the output of a renderer for a few types
+  of document tree nodes only, while keeping the default for the rest. Both the
+  Transform and Render APIs offer a hook to easily do that without modifying
+  or extending the existing renderer. </p>
+  <p>This is the signature of a custom renderer hook:</p>
+  <pre>W =&gt; PartialFunction[Element,Unit]
+</pre>
+  <p><code>W</code> is a generic type representing the writer API which is different for each 
+  output format. For HTML it is <code>HTMLWriter</code>, for PrettyPrint it is <code>TextWriter</code>,
+  a superclass of <code>HTMLWriter</code>. This way renderers can offer the most convenient
+  API for a specific output format.</p>
+  <p>Creating a function that expects a writer instance and returns the actual custom
+  render function in form of a partial function allows to &#39;capture&#39; the writer
+  in a concise way like the examples below will show.</p>
+  
+  <h2 id="using-the-transform-api" class="section">Using the Transform API</h2>
+  <p>In the following example only the HTML output for emphasized text will be modified,
+  adding a specific style class:</p>
+  <pre>val open = &quot;&quot;&quot;&lt;em class=&quot;big&quot;&gt;&quot;&quot;&quot;
+val close = &quot;&lt;/em&gt;&quot;
+
+Transform from Markdown to HTML rendering { out =&gt; 
+  { case Emphasized(content, _) =&gt; out &lt;&lt; open &lt;&lt; content &lt;&lt; close } 
+} fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;
+</pre>
+  <p>For HTML <code>out</code> is of type <code>HTMLWriter</code> and <code>&lt;&lt;</code> is one of the methods to append text.</p>
+  <p>For all node types where the partial function is not defined, the default renderer
+  will be used.</p>
+  <p>Multiple custom renderers can be specified, they will be tried in the order you added
+  them, falling back to the default in case none is defined for a specific node.</p>
+  <p>The <code>content</code> value above is of type <code>Seq[Span]</code>. <code>&lt;&lt;</code> and other methods of the
+  <code>HTMLWriter</code> API are overloaded and accept <code>String</code>, <code>Element</code> or <code>Seq[Element]</code> 
+  as a parameter, with <code>Element</code> being the abstract base type of all tree nodes.
+  This way rendering child elements can be delegated to other renderers, either another
+  custom renderer or the default. In almost all cases, a custom renderer should not render
+  the children of a node passed to the function itself.</p>
+  
+  <h2 id="using-the-render-api" class="section">Using the Render API</h2>
+  <p>The principles are the same as described for the Transform API above, in case you
+  skipped the previous section. </p>
+  <p>The syntax is very similar, applying the same renderer as in the example above
+  with the Render API looks like this:</p>
+  <pre>val doc: Document = ...
+
+val open = &quot;&quot;&quot;&lt;em class=&quot;big&quot;&gt;&quot;&quot;&quot;
+val close = &quot;&lt;/em&gt;&quot;
+
+Render as HTML using { out =&gt; 
+  { case Emphasized(content, _) =&gt; out &lt;&lt; open &lt;&lt; content &lt;&lt; close } 
+} from doc toString
+
+</pre>
+  
+  <h2 id="the-writer-apis" class="section">The Writer APIs</h2>
+  <p>In the examples above we only needed the basic <code>&lt;&lt;</code> method. This secion provides
+  an overview over the full API.</p>
+  <p>Btw: in case you do not fancy operators as method names, the writer APIs are the only ones
+  in Laika making use of them. It turned out to improve readability for most common
+  scenarios where you have to chain lots of elements, often including indentation
+  and newline characters for making the output prettier. There are not that many,
+  so it should be easy to memorize them.</p>
+  <p>Writers differ from all other Laika objects in that they are stateful. But the
+  only state they keep internally is the current level of indentation for prettier
+  output which greatly simplifies the use of the API for rendering elements
+  recursively. A new writer instance is created for each render operation,
+  so there is no need to share it between threads.<br></p>
+  
+  <h3 id="textwriter" class="section">TextWriter</h3>
+  <p>This is the base API supported by both the <code>PrettyPrint</code> and <code>HTML</code> renderer,
+  while the latter adds a few additional methods specific to HTML.</p>
+  <p>All methods below are overloaded and accept <code>String</code>, <code>Element</code> or <code>Seq[Element]</code> 
+  as a parameter, with <code>Element</code> being the abstract base type of all tree nodes.
+  When passing Elements to the writer it will delegate to the renderers responsible
+  for those nodes.</p>
+  <ul>
+    <li>
+      <p><code>&lt;&lt;</code> appends to the output on the current line.</p>
+    </li>
+    <li>
+      <p><code>&lt;&lt;|</code> appends to the output on a new line, with the current level of indentation</p>
+    </li>
+    <li>
+      <p><code>&lt;&lt;|&gt;</code> appends to the output on a new line, increasing indentation one level to the right</p>
+    </li>
+  </ul>
+  <p>When using the last method with Element instances which might themselves delegate
+  rendering of their children, you get a nicely formatted output without much effort.</p>
+  
+  <h3 id="htmlwriter" class="section">HTMLWriter</h3>
+  <p>This writer supports all methods of the <code>TextWriter</code> API shown above, and adds
+  the following methods:</p>
+  <ul>
+    <li>
+      <p>For the three methods above, there is a variant that replaces special HTML
+      characters with HTML entities and should be used for writing text nodes. They
+      are named <code>&lt;&lt;&amp;</code>, <code>&lt;&lt;|&amp;</code> and <code>&lt;&lt;|&gt;&amp;</code> and otherwise behave the same as their
+      counterparts without the <code>&amp;</code>.</p>
+    </li>
+    <li>
+      <p>The <code>&lt;&lt;&lt;&amp;</code> method does not have a counterpart without <code>&amp;</code>. Like the others
+      it replaces special HTML characters, but it writes without any indentation,
+      no matter which level of indentation the writer currently has,
+      which is needed for writing nodes like <code>&lt;pre&gt;</code> where indentation would be
+      significant. </p>
+    </li>
+    <li>
+      <p>The <code>&lt;&lt;@</code> method is a convenient way to write an HTML attribute. It is overloaded
+      and either takes <code>(String, String)</code> or <code>(String, Option[String])</code> as parameters
+      for name and value of the attribute. If the value is None, nothing will be written,
+      but it often makes writing optional attributes more concise.</p>
+    </li>
+  </ul>      
+
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- javascript
+    ================================================== -->
+    <script src="../js/jquery-1.8.3.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+
+
+</body></html>
+</div>

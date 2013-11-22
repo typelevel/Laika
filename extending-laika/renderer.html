@@ -1,0 +1,212 @@
+<div>
+  <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+
+    <title>Laika</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
+    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
+
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/docs.css" rel="stylesheet">
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body data-spy="scroll" data-target=".toc" data-offset="200">
+
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span4 toc" >
+        
+        <ul class="nav nav-list affix">
+          <div class="nav-top"><img src="../img/laika-top.png"/></div>
+          
+          
+  <li class="nav-header">Introduction</li>
+  <li><a href="../introduction/intro.html">Overview</a></li>
+  <li><a href="../introduction/architecture.html">Architecture</a></li>
+  <li class="nav-header">Using Laika</li>
+  <li><a href="../using-laika/basics.html">Transformation Basics</a></li>
+  <li><a href="../using-laika/markup.html">Supported Markup</a></li>
+  <li><a href="../using-laika/structure.html">Document Structure</a></li>
+  <li><a href="../using-laika/templates.html">Templates</a></li>
+  <li class="nav-header">Customizing Laika</li>
+  <li><a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a></li>
+  <li><a href="../customizing-laika/tree-rewriting.html">Document Tree Rewriting</a></li>
+  <li><a href="../customizing-laika/parsing-rendering.html">Separate Parsing and Rendering</a></li>
+  <li class="nav-header">Extending Laika</li>
+  <li><a href="directive.html">Directives</a></li>
+  <li><a href="parser.html">Parsers</a></li>
+  <li class="active"><a href="#">Renderers</a></li>
+  <li><a href="extending-rst.html">Extending reStructuredText</a></li>
+          
+          <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
+        </ul>
+        
+      </div>
+      
+      <div class="span8" id="top">
+
+        <div class="page-header">
+    <h1>Implementing a Renderer</h1>
+  </div>
+  <p>This document describes the best practices for adding an entirely new renderer to the toolkit.
+  It is only useful if you either plan to implement a renderer for an output format not
+  supported by Laika, want to replace one of the existing renderers, or are just
+  curious about the inner workings of the library. None of the information here is required
+  for standard usage of Laika.</p>
+  
+  <h2 id="factory-contract" class="section">Factory Contract</h2>
+  <p>The contract a renderer has to adhere to is not as simple as for parsers, but the implementation
+  is often quite straightforward nevertheless. A renderer has to mix in the following trait:</p>
+  <pre>trait RendererFactory[W] {
+  
+  def fileSuffix: String
+
+  def newRenderer (out: Output, delegate: Element =&gt; Unit): 
+                                                  (W, Element =&gt; Unit)
+  
+}
+</pre>
+  <p>The <code>fileSuffix</code> method returns the suffix to append when writing files in this format
+  (without the &quot;.&quot;).</p>
+  <p>The <code>newRenderer</code> method creates the actual renderer. In contrast to the parser factory
+  it creates a new function for each render operation.  <br></p>
+  <p><code>Output</code> is a little IO abstraction provided by Laika so that you do not have to
+  deal with the details of whether the renderer writes to a string builder or file or other 
+  types of streams.</p>
+  <p><code>Element =&gt; Unit</code> is the actual render function. The <code>delegate</code> function that gets passed to your
+  renderer is the <em>composed</em> render function. Since default renderers can be overridden by users
+  of your renderer
+  as described in the chapter <a href="../customizing-laika/customize-rendering.html#customizing-renderers">Customizing Renderers</a>, you need to use this function
+  as the delegate when your default render function needs to render the children of
+  an element. </p>
+  <p>The render function you return in the tuple is the <em>default</em> render function
+  to use for all elements where no custom renderer has been defined. </p>
+  <p>Finally, <code>W</code> is a parameterized type representing the Writer API that render functions
+  should use for writing the actual output. For the built-in renderers, this is <code>TextWriter</code>
+  for the <code>PrettyPrint</code> renderer and <code>HTMLWriter</code> for the <code>HTML</code> renderer.</p>
+  
+  <h2 id="providing-an-api" class="section">Providing an API</h2>
+  <p>When you build a new renderer you should provide the following features for your users:</p>
+  <ul>
+    <li>
+      <p>An easy way to use your renderer with the Transform API</p>
+    </li>
+    <li>
+      <p>An easy way to use it with the Render API</p>
+    </li>
+    <li>
+      <p>A fluent API for specifying options (in case your renderer is configurable)</p>
+    </li>
+  </ul>
+  <p>The first two come for free when you create an object that extends the setup function
+  explained in the previous section.
+  The built-in <code>PrettyPrint</code> or <code>HTML</code> object are an example. Since they do extend that function,
+  you can easily use them in expressions like this:</p>
+  <pre>val transform = Transform from Markdown to HTML
+</pre>
+  <p>When you want to specify options this should be possible inline:</p>
+  <pre>val transform = Transform from Markdown to (MyFormat withOption &quot;foo&quot;)</pre>
+  <p>You can achieve this by providing a trait that offers all the available configuration
+  hooks and returns <code>this</code> for each of these methods for easy chaining. Additionally
+  you create a companion object that represents the default configuration.</p>
+  <p>This is how skeletons for the trait and object for the HTML renderer look as an example (Scaladoc
+  comments, imports and actual render logic removed for brevity):</p>
+  <pre>class HTML private (messageLevel: Option[MessageLevel]) 
+                                  extends RendererFactory[HTMLWriter] {
+
+  val fileSuffix = &quot;html&quot;
+  
+  def withMessageLevel (level: MessageLevel) = new HTML(Some(level))
+  
+  def newRenderer (output: Output, render: Element =&gt; Unit) = {
+    val out = new HTMLWriter(output.asFunction, render)  
+    (out, renderElement(out))
+  }
+  
+  private def renderElement (out: HTMLWriter)(elem: Element): Unit = {
+    /* actual render logic omitted */
+  } 
+}
+
+object HTML extends HTML(None)</pre>
+  <p>It calls <code>asFunction</code> on the <code>Output</code> instance which is the most convenient way
+  if all you need for writing is a simple <code>String =&gt; Unit</code> function, no matter
+  where the text is actually written to. Alternatively you can use
+  <code>Output.asWriter</code> to get access to the full <code>java.io.Writer</code> API.</p>
+  
+  <h2 id="the-render-function" class="section">The Render Function</h2>
+  <p>Finally you need to provide the actual default render function which we omitted in the example
+  above. This render function should usually adhere to these rules:</p>
+  <ul>
+    <li>
+      <p>When given an element that is a container type that contains child elements (like <code>Paragraph</code>), it should never
+      render the children itself, but instead delegate to the Writer API, so that user-defined
+      render functions can kick in for individual element types.</p>
+    </li>
+    <li>
+      <p>It should expect unknown element types. Since parsers can also be extended, the document tree
+      can contain nodes which are not part of the default node types provided by Laika. Usually the parser
+      should then also install renderers that know how to handle these nodes, but if it does not your
+      renderer should not blow up. Often there is a sensible default, e.g. if you see an unknown
+      element that mixes in <code>SpanContainer</code> and <code>Block</code> it is obviously similar to a regular
+      Paragraph and may be rendered as such. In the worst case the renderer may choose to ignore
+      such an element, but it should never blow up.</p>
+    </li>
+  </ul>
+  <p>For character output your renderer may use the <code>TextWriter</code> or <code>HTMLWriter</code> APIs, which are
+  explained <a href="customize.html#writer">here</a>. Alternatively it may create its own API, but you should keep in mind
+  then, that this API will also get used by users customizing specific nodes, so it should be
+  convenient and straightforward to use.</p>
+  <p>Finally, we&#39;ll show a little (simplified) excerpt of the HTML render function we omitted above, just to
+  give you an impression that it is often quite simple to implement:</p>
+  <pre>private def renderElement (out: HTMLWriter)(elem: Element): Unit = {
+
+  elem match {
+    case Paragraph(content,opt)  =&gt; 
+      out &lt;&lt;@ (&quot;p&quot;,opt)  &lt;&lt; content &lt;&lt; &quot;&lt;/p&gt;&quot;  
+    
+    case Emphasized(content,opt) =&gt; 
+      out &lt;&lt;@ (&quot;em&quot;,opt) &lt;&lt; content &lt;&lt; &quot;&lt;/em&gt;&quot; 
+    
+    /* [other cases ...] */
+    
+    /* [fallbacks for unknown elements] */
+  }   
+}
+</pre>
+  <p>As you see, the function never deals with children (the <code>content</code> attribute of many node
+  types) directly. Instead it passes them to the Writer API which delegates to the composed
+  render function.</p>
+  <p>The various functions of the Writer API (like <code>&lt;&lt;</code> or <code>&lt;&lt;@</code>) are explained in the chapter
+  on the <a href="customize.html#writer">Writer API</a>. They are far less cryptic than at first sight and should be easy
+  to memorize once you know what they are supposed to do. The short symbols make render
+  functions easier to read. It&#39;s the only API where Laika uses symbols as method names.</p>      
+
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- javascript
+    ================================================== -->
+    <script src="../js/jquery-1.8.3.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+
+
+</body></html>
+</div>

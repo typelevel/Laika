@@ -1,0 +1,368 @@
+<div>
+  <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+
+    <title>Laika</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
+    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
+
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/docs.css" rel="stylesheet">
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body data-spy="scroll" data-target=".toc" data-offset="200">
+
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span4 toc" >
+        
+        <ul class="nav nav-list affix">
+          <div class="nav-top"><img src="../img/laika-top.png"/></div>
+          
+          
+  <li class="nav-header">Introduction</li>
+  <li><a href="../introduction/intro.html">Overview</a></li>
+  <li><a href="../introduction/architecture.html">Architecture</a></li>
+  <li class="nav-header">Using Laika</li>
+  <li><a href="basics.html">Transformation Basics</a></li>
+  <li class="active"><a href="#">Supported Markup</a></li>
+  <li><a href="structure.html">Document Structure</a></li>
+  <li><a href="templates.html">Templates</a></li>
+  <li class="nav-header">Customizing Laika</li>
+  <li><a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a></li>
+  <li><a href="../customizing-laika/tree-rewriting.html">Document Tree Rewriting</a></li>
+  <li><a href="../customizing-laika/parsing-rendering.html">Separate Parsing and Rendering</a></li>
+  <li class="nav-header">Extending Laika</li>
+  <li><a href="../extending-laika/directive.html">Directives</a></li>
+  <li><a href="../extending-laika/parser.html">Parsers</a></li>
+  <li><a href="../extending-laika/renderer.html">Renderers</a></li>
+  <li><a href="../extending-laika/extending-rst.html">Extending reStructuredText</a></li>
+          
+          <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
+        </ul>
+        
+      </div>
+      
+      <div class="span8" id="top">
+
+        <div class="page-header">
+    <h1>Supported Markup</h1>
+  </div>
+  <p>The current release supports Markdown and reStructuredText. Both implementations stay as close
+  as possible to the original descriptions and specifications of these formats. </p>
+  <p>The markup
+  gets parsed into a generic document tree model shared between all parsers. This means
+  that there are some adjustments in terminology (e.g. a bullet list in reStructuredText
+  is called an &quot;unordered list&quot; in the Markdown syntax description). </p>
+  <p>It also means that
+  there are some tree element types which are not produced by the Markdown parser, like
+  table, footnotes or citations, as reStructuredText is much more feature-rich than
+  the original Markdown syntax. </p>
+  <p>The unified model allows to create renderers that
+  do not have to deal with any of the specifics of an individual markup syntax.</p>
+  
+  <h2 id="markup-extensions" class="section">Markup Extensions</h2>
+  <p>Laika supports several convenient features for processing groups of documents.
+  These are built as extensions to both Markdown and reStructuredText parsers.
+  They can be switched off when you run these two parsers in strict mode:</p>
+  <pre>Transform from Markdown.strict to 
+  HTML fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;</pre>
+  <p>The extensions are documented in their respective section linked to from
+  the list below:</p>
+  <ul>
+    <li>A set of <a href="templates.html#standard-template-directives">Standard Template Directives</a></li>
+    <li><a href="../extending-laika/directive.html#implementing-a-directive">Custom Directives</a> for adding new constructs to the
+    parser without modifying it</li>
+    <li><a href="structure.html#document-sections">Automatic Section Ids</a> (needed for cross linking)</li>
+    <li><a href="structure.html#document-fragments">Document Fragments</a> that can be rendered separately from the main document content</li>
+    <li><a href="structure.html#cross-linking">Cross Linking</a> between different documents</li>
+    <li><a href="structure.html#table-of-contents">Table of Contents</a>, listing both, directory contents and the sections within the documents</li>
+    <li><a href="structure.html#autonumbering-documents-and-sections">Autonumbering Documents and Sections</a></li>
+  </ul>
+  
+  <h2 id="markdown" class="section">Markdown</h2>
+  <p>Markdown is very easy to learn, very lightweight, and produces
+  documents which are fairly easy to read, even when you don&#39;t know anything about Markdown.</p>
+  <p>However, Markdown also has a few issues. First, there is no real specification,
+  only a page with a syntax description that leaves many questions unanswered. Secondly, its feature
+  set is fairly limited, lacking functionality for more advanced usage like technical 
+  documentation or entire books. As a consequence extensions have been added to almost 
+  every Markdown implementation without much agreement between  them.</p>
+  <p>Laika currently largely sticks to the original syntax description, except for the
+  features listed in the previous sections which are added to all parser implementations
+  supported in Laika. Other popular Markdown extensions like kramdown or MultiMarkdown
+  may be supported in future releases.<br></p>
+  <p>Laika also fully passes the official Markdown Test Suite. 
+  These tests are integrated into the Laika test suite.</p>
+  
+  <h3 id="getting-started" class="section">Getting Started</h3>
+  <p>Even if you do not know much about Markdown formally, it is very likely that you have already used it.
+  This document is not going to provide a syntax overview and refers to the official documentation instead.
+  It will primarily focus on anything specific to the way Laika handles Markdown.</p>
+  <p>To get an overview over Markdown syntax, these documents may be used:</p>
+  <ul>
+    <li>
+      <p>For a description of the syntax see the <a href="http://daringfireball.net/projects/markdown/syntax">official syntax documentation</a>.</p>
+    </li>
+    <li>
+      <p>For trying out small snippets of Markdown and checking how the various existing Markdown implementations
+      handle them, the <a href="http://johnmacfarlane.net/babelmark2/">Babelmark</a> tool can be used.<br></p>
+    </li>
+    <li>
+      <p>For using Markdown in Laika, the <a href="basics.html#transformation-basics">Transformation Basics</a> page should answer most of your questions.</p>
+    </li>
+    <li>
+      <p>For the special treatment of verbatim HTML in Laika, see the following section.</p>
+    </li>
+  </ul>
+  <p>Laika tries to follow the official syntax documentation. In cases where it is silent on how
+  to handle certain edge cases, the <a href="http://johnmacfarlane.net/babelmark2/">Babelmark</a> tool has been consulted and usually the approach
+  the majority of available parsers have chosen has been picked for Laika, too. There is currently only
+  one (known) minor exception: </p>
+  <ul>
+    <li>Laika does not detect a header if it is not preceded by a blank line. Supporting this would be
+    disadvantageous for three reasons: it goes against Markdown&#39;s design goal of promoting
+    readability, it would slow down the parser and it would open the doors for accidental headers.
+    According to Babelmark, there are at least two parsers (Pandoc, Python-Markdown) that agree.</li>
+  </ul>
+  
+  <h3 id="verbatim-html" class="section">Verbatim HTML</h3>
+  <p>Finally there is one major difference to standard Markdown: the parsing of verbatim HTML elements
+  is not enabled by default, but it can be switched on if required. </p>
+  <p>When using this feature
+  you need to be aware of the fact that it ties your markup files to HTML output. Future
+  versions of Laika are supposed to support formats like PDF, epub and DocBook, and markup
+  files containing raw HTML could not be used for those.</p>
+  <p>When the markup originates from user input in a web application, it would not be safe 
+  to use without additional filtering. By default Laika does not filter any tags, not
+  even <code>&lt;script&gt;</code> tags, but whitelist filtering can be added fairly easily through Laika&#39;s 
+  customization hooks like <a href="../customizing-laika/tree-rewriting.html#document-tree-rewriting">Document Tree Rewriting</a> or <a href="../customizing-laika/customize-rendering.html#customizing-renderers">Customizing Renderers</a>.</p>
+  <p>To enable verbatim HTML elements you have to change this standard expression:</p>
+  <pre>Transform from Markdown to HTML
+</pre>
+  <p>to</p>
+  <pre>Transform from (Markdown withVerbatimHTML) to HTML rendering VerbatimHTML
+</pre>
+  <p>This installs both, the required parser and renderer extensions. </p>
+  
+  <h2 id="restructuredtext" class="section">reStructuredText</h2>
+  <p>The reStructuredText project is part of Python&#39;s Docutils project. It is considerably more feature-rich
+  than Markdown, with support for tables, citations and footnotes. It is also more strictly defined than 
+  Markdown, with a detailed specification and clearly defined markup recognition rules.</p>
+  <p>On the other hand, adoption is not nearly as high as for Markdown, and some of the syntax is more
+  verbose and less intuitive or legible than Markdown.</p>
+  <p>Apparently there is no official test suite for reStructuredText, therefore to add a realistic
+  test to the Laika test suite a full transformation of the reStructuredText specification itself
+  is integrated into Laika&#39;s test suite. </p>
+  
+  <h3 id="getting-started-1" class="section">Getting Started</h3>
+  <p>This document is not going to provide a syntax overview and refers to the official documentation instead.</p>
+  <p>To get started with reStructuredText, these resources may be used:</p>
+  <ul>
+    <li>
+      <p>The <a href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html">official markup specification</a>.</p>
+    </li>
+    <li>
+      <p>An <a href="http://www.tele3.cz/jbar/rest/rest.html">online tool</a> for trying out small snippets of reStructuredText.<br></p>
+    </li>
+    <li>
+      <p><a href="basics.html#transformation-basics">Transformation Basics</a> for using reStructuredText in Laika.</p>
+    </li>
+    <li>
+      <p>The following sections below for an overview on how to implement extensions for reStructuredText</p>
+    </li>
+  </ul>
+  
+  <h3 id="support-for-standard-directives-and-textroles" class="section">Support for Standard Directives and TextRoles</h3>
+  <p>The Python reference parser supports a number of directives and text roles out of the box, and Laika
+  offers implementations for most of them. They are all registered by the default <code>ReStructuredText</code>
+  parser instance so that you only have to explicitly register any further custom extensions.</p>
+  <p>For a detailed specification of these standard extensions, see:</p>
+  <ul>
+    <li>
+      <p>Specification of the <a href="http://docutils.sourceforge.net/docs/ref/rst/directives.html">standard directives</a> - including both block level directives
+      and span directives to be used in substitution references.</p>
+    </li>
+    <li>
+      <p>Specification of the <a href="http://docutils.sourceforge.net/docs/ref/rst/roles.html">standard text roles</a>.</p>
+    </li>
+  </ul>
+  
+  <h3 id="supported-directives" class="section">Supported Directives</h3>
+  <p>Laika supports the following directives:</p>
+  <ul>
+    <li>Admonitions: <code>attention</code>, <code>caution</code>, <code>danger</code>, <code>error</code>, <code>hint</code>, <code>important</code>,
+    <code>note</code>, <code>tip</code>, <code>warning</code> and the generic <code>admonition</code></li>
+  </ul>
+  <ul>
+    <li>Quotations: <code>epigraph</code>, <code>highlights</code> and <code>pull-quote</code></li>
+  </ul>
+  <ul>
+    <li><code>compound</code></li>
+  </ul>
+  <ul>
+    <li><code>container</code></li>
+  </ul>
+  <ul>
+    <li><code>topic</code></li>
+  </ul>
+  <ul>
+    <li><code>sidebar</code></li>
+  </ul>
+  <ul>
+    <li><code>rubric</code></li>
+  </ul>
+  <ul>
+    <li><code>parsed-literal</code></li>
+  </ul>
+  <ul>
+    <li><code>table</code></li>
+  </ul>
+  <ul>
+    <li><code>figure</code></li>
+  </ul>
+  <ul>
+    <li><code>image</code></li>
+  </ul>
+  <ul>
+    <li><code>code</code></li>
+  </ul>
+  <ul>
+    <li><code>replace</code></li>
+  </ul>
+  <ul>
+    <li><code>contents</code></li>
+  </ul>
+  <ul>
+    <li><code>sectnum</code></li>
+  </ul>
+  <ul>
+    <li><code>header</code></li>
+  </ul>
+  <ul>
+    <li><code>footer</code></li>
+  </ul>
+  <ul>
+    <li><code>title</code></li>
+  </ul>
+  <ul>
+    <li><code>meta</code></li>
+  </ul>
+  <ul>
+    <li><code>include</code></li>
+  </ul>
+  <ul>
+    <li><code>date</code></li>
+  </ul>
+  <ul>
+    <li><code>unicode</code></li>
+  </ul>
+  <ul>
+    <li><code>raw</code></li>
+  </ul>
+  <p>The following limitations apply to these directives:</p>
+  <ul>
+    <li><code>figure</code> and <code>image</code> do not support the various layout options (<code>width</code>, <code>height</code>, <code>scale</code>, <code>align</code>), 
+    as no other tree nodes in Laika carry concrete layout information. It is recommended to use styles instead.</li>
+  </ul>
+  <ul>
+    <li><code>code</code> does currently not support syntax highlighting 
+    (it allows to set the language though, so client-side highlighters can be integrated if required).</li>
+  </ul>
+  <ul>
+    <li><code>sectnum</code> does currently not support the <code>prefix</code>, <code>suffix</code> and <code>start</code> options.</li>
+  </ul>
+  <ul>
+    <li><code>include</code> does not support any of the options apart from the filename, due to the way document trees
+    are traversed very differently in Laika.</li>
+  </ul>
+  <ul>
+    <li><code>raw</code> does not support the <code>file</code> or <code>url</code> options (multi-file transformations are planned for version 0.4). </li>
+  </ul>
+  <ul>
+    <li><code>unicode</code>: does not support the various trim options, as that would require modifying adjacent elements
+    (and no other directive has this requirement, therefore API/implementation changes did not seem justified)</li>
+  </ul>
+  <ul>
+    <li><code>date</code>: Uses the patterns of <code>java.text.SimpleDateFormat</code> instead of Python&#39;s <code>time.strftime</code> function.</li>
+  </ul>
+  
+  <h3 id="supported-standard-text-roles" class="section">Supported Standard Text Roles</h3>
+  <p>The following standard text roles are fully supported:</p>
+  <ul>
+    <li><code>emphasis</code></li>
+  </ul>
+  <ul>
+    <li><code>strong</code></li>
+  </ul>
+  <ul>
+    <li><code>literal</code></li>
+  </ul>
+  <ul>
+    <li><code>subscript</code> (and <code>sub</code> alias)</li>
+  </ul>
+  <ul>
+    <li><code>superscript</code> (and <code>sup</code> alias)</li>
+  </ul>
+  <ul>
+    <li><code>title-reference</code> (and <code>title</code> alias) - the default role</li>
+  </ul>
+  <ul>
+    <li><code>raw</code> (+ format option)</li>
+  </ul>
+  
+  <h3 id="unsupported-extensions" class="section">Unsupported Extensions</h3>
+  <p>The following extensions are not supported:</p>
+  <ul>
+    <li><code>math</code>, <code>csv-table</code>, <code>list-table</code>, <code>target-notes</code> and <code>class</code> directives </li>
+  </ul>
+  <ul>
+    <li><code>math</code>, <code>pep-reference</code> and <code>rfc-reference</code> text roles</li>
+  </ul>
+  <p>There are various reasons for excluding these extensions, some of them being rather technical.
+  For example, the <code>target-notes</code> and <code>class</code> directives would require processing beyond the 
+  directive itself, therefore would require new API. Others, like the <code>pep-reference</code> text role,
+  seamed to exotic to warrant inclusion in Laika.</p>
+  
+  <h3 id="extension-options" class="section">Extension Options</h3>
+  <p>Finally some of the defaults for these extensions can be changed through the API:</p>
+  <pre>ReStructuredText.withRawContent
+</pre>
+  <p>enables both the <code>raw</code> directive and the <code>raw</code> text role. They are disabled by default as
+  they present a potential security risk.</p>
+  <pre>ReStructuredText.withDefaultTextRole(&quot;my-role-name&quot;)
+</pre>
+  <p>sets the text role <code>my-role-name</code> as the default role.</p>
+  
+  <h3 id="implementing-a-custom-directive" class="section">Implementing a Custom Directive</h3>
+  <p>Laika comes with a concise and typesafe DSL to declare custom directives and text roles.
+  It is fully documented in <a href="../extending-laika/extending-rst.html#extending-restructuredtext">Extending reStructuredText</a>.</p>      
+
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- javascript
+    ================================================== -->
+    <script src="../js/jquery-1.8.3.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+
+
+</body></html>
+</div>

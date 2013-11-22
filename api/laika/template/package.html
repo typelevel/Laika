@@ -1,0 +1,176 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+        <head>
+          <title>template - laika.template</title>
+          <meta name="description" content="template - laika.template" />
+          <meta name="keywords" content="template laika.template" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'laika.template.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../lib/package_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="laika">laika</a></p>
+        <h1>template</h1>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">template</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="laika.template.DefaultTemplate" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DefaultTemplateextendslaika.io.Input=&gt;laika.tree.Templates.TemplateDocument"></a>
+      <a id="DefaultTemplate:DefaultTemplate"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="DefaultTemplate.html"><span class="name">DefaultTemplate</span></a><span class="result"> extends (<a href="../io/Input.html" class="extype" name="laika.io.Input">Input</a>) ⇒ <a href="../tree/Templates$$TemplateDocument.html" class="extype" name="laika.tree.Templates.TemplateDocument">TemplateDocument</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">The default (and currently only) parser implementation for templates.</p>
+    </li><li name="laika.template.ParseTemplate" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ParseTemplateextendsAnyRef"></a>
+      <a id="ParseTemplate:ParseTemplate"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ParseTemplate.html"><span class="name">ParseTemplate</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">API for performing a parse operation for a template.</p>
+    </li><li name="laika.template.TemplateParsers" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="TemplateParsersextendsInlineParsers"></a>
+      <a id="TemplateParsers:TemplateParsers"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="TemplateParsers.html"><span class="name">TemplateParsers</span></a><span class="result"> extends <a href="../parse/InlineParsers.html" class="extype" name="laika.parse.InlineParsers">InlineParsers</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Provides parsers for the default template format.</p>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="laika.template.DefaultTemplate" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DefaultTemplate"></a>
+      <a id="DefaultTemplate:DefaultTemplate"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="DefaultTemplate$.html"><span class="name">DefaultTemplate</span></a><span class="result"> extends <a href="DefaultTemplate.html" class="extype" name="laika.template.DefaultTemplate">DefaultTemplate</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">The default template parser, with all standard directives but no
+ custom directives installed .</p>
+    </li><li name="laika.template.ParseTemplate" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ParseTemplate"></a>
+      <a id="ParseTemplate:ParseTemplate"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ParseTemplate$.html"><span class="name">ParseTemplate</span></a><span class="result"> extends <a href="ParseTemplate.html" class="extype" name="laika.template.ParseTemplate">ParseTemplate</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Serves as an entry point to the ParseTemplate API.</p>
+    </li><li name="laika.template.TemplateParsers" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TemplateParsers"></a>
+      <a id="TemplateParsers:TemplateParsers"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="TemplateParsers$.html"><span class="name">TemplateParsers</span></a>
+      </span>
+      </h4>
+      <p class="comment cmt">Specializations for the generic template parsers for
+ elements embedded in either markup blocks, markup inline
+ elements or templates.</p>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
+    </body>
+      </html>

@@ -1,0 +1,191 @@
+<div>
+  <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+
+    <title>Laika</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
+    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
+
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/docs.css" rel="stylesheet">
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body data-spy="scroll" data-target=".toc" data-offset="200">
+
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span4 toc" >
+        
+        <ul class="nav nav-list affix">
+          <div class="nav-top"><img src="../img/laika-top.png"/></div>
+          
+          
+  <li class="nav-header">Introduction</li>
+  <li><a href="../introduction/intro.html">Overview</a></li>
+  <li><a href="../introduction/architecture.html">Architecture</a></li>
+  <li class="nav-header">Using Laika</li>
+  <li><a href="../using-laika/basics.html">Transformation Basics</a></li>
+  <li><a href="../using-laika/markup.html">Supported Markup</a></li>
+  <li><a href="../using-laika/structure.html">Document Structure</a></li>
+  <li><a href="../using-laika/templates.html">Templates</a></li>
+  <li class="nav-header">Customizing Laika</li>
+  <li><a href="customize-rendering.html">Customizing Renderers</a></li>
+  <li><a href="tree-rewriting.html">Document Tree Rewriting</a></li>
+  <li class="active"><a href="#">Separate Parsing and Rendering</a></li>
+  <li class="nav-header">Extending Laika</li>
+  <li><a href="../extending-laika/directive.html">Directives</a></li>
+  <li><a href="../extending-laika/parser.html">Parsers</a></li>
+  <li><a href="../extending-laika/renderer.html">Renderers</a></li>
+  <li><a href="../extending-laika/extending-rst.html">Extending reStructuredText</a></li>
+          
+          <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
+        </ul>
+        
+      </div>
+      
+      <div class="span8" id="top">
+
+        <div class="page-header">
+    <h1>Separate Parsing and Rendering</h1>
+  </div>
+  <p>The chapter <a href="../using-laika/basics.html#transformation-basics">Transformation Basics</a> introduced the API
+  for performing a full transformation from text markup to
+  output format. In many cases this is all you need.</p>
+  <p>Alternatively the parse and render operations can be executed
+  separately, which is useful for special cases when you need to 
+  process the document tree before rendering or when parsing 
+  and rendering should not happen at the same time or even for
+  creating the tree model programmatically instead of reading
+  from text input.</p>
+  
+  <h2 id="the-parse-api" class="section">The Parse API</h2>
+  <p>The Parse API is quite similar to the Transform API, but leaves
+  out the rendering step.</p>
+  
+  <h3 id="parsing-a-single-document" class="section">Parsing a Single Document</h3>
+  <p>Reading from a file:</p>
+  <pre>val document = Parse as Markdown fromFile &quot;hello.md&quot;
+</pre>
+  <p>Reading from a String:</p>
+  <pre>val input = &quot;some *text* example&quot;    
+val document = Parse as Markdown fromString input
+</pre>
+  <p>The <code>document</code> instance gives you the full document model. See
+  the <a href="api/#laika.tree.Documents$">Documents Scaladoc</a> for details.</p>
+  <p>The <code>content</code> property of the <code>document</code> instance holds
+  the parsed content of the document in the form a tree 
+  of case classes. You can read the
+  <a href="api/#laika.tree.Elements$">Elements Scaladoc</a> for an overview of all node types.</p>
+  <p>You can then specify rewrite
+  rules to transform some nodes of the model (see <a href="tree-rewriting.html#document-tree-rewriting">Document Tree Rewriting</a> for 
+  details) and use the Render API (explained below) to render
+  it to various output formats.</p>
+  
+  <h3 id="parsing-an-entire-directory" class="section">Parsing an Entire Directory</h3>
+  <pre>val tree = Parse as Markdown fromDirectory &quot;source&quot;
+</pre>
+  <p>The tree instance is of type <code>DocumentTree</code> which gives you access
+  to all documents, templates and subdirectories contained in the
+  parsed directory.</p>
+  
+  <h3 id="parallel-execution" class="section">Parallel Execution</h3>
+  <p>Like with a full transformation, parsing can be performed in parallel:</p>
+  <pre>Parse as Markdown fromTree Directory(&quot;source&quot;).inParallel</pre>
+  <p>When specifying options like parallel execution, you cannot use
+  the <code>fromDirectory</code> shortcut like in the previous example, but
+  instead use the <code>Directory</code> entry point to the full configuration
+  API. Apart from parallel execution, it allows to specify a custom
+  template engine, a custom document type matcher, and more.</p>
+  
+  <h3 id="reusing-parsers" class="section">Reusing Parsers</h3>
+  <p>Like with the Transform API, all objects are reusable and immutable:</p>
+  <pre>val parse = Parse as ReStructuredText
+
+val doc1 = parse fromFile &quot;input1.rst&quot;
+val doc2 = parse fromFile &quot;input2.rst&quot;</pre>
+  
+  <h3 id="character-encoding" class="section">Character Encoding</h3>
+  <p>Laika uses the same platform-dependent defaults for file encodings as the
+  IO classes in the Scala SDK. The most convenient way to specify an encoding
+  is via an implicit:</p>
+  <pre>implicit val codec:Codec = Codec.UTF8</pre>
+  <p>This codec will then be used by <code>fromDirectory</code> and other methods 
+  shown in the examples above.</p>
+  
+  <h2 id="the-render-api" class="section">The Render API</h2>
+  <p>The Render API is similar to the Transform API, but expects
+  that you already have a document tree model, either obtained
+  by a previous parsing step or built programmatically, and now
+  want to render it to a specific output format.</p>
+  
+  <h3 id="rendering-a-single-document" class="section">Rendering a Single Document</h3>
+  <p>Rendering to a file:</p>
+  <pre>// obtained from a parse step or created programmatically
+val doc: Document = ... 
+
+Render as HTML from doc toFile &quot;hello.html&quot;
+</pre>
+  <p>Or to obtain the HTML as a string:</p>
+  <pre>val html = Render as HTML from doc toString
+</pre>
+  
+  <h3 id="rendering-an-entire-directory" class="section">Rendering an Entire Directory</h3>
+  <pre>// obtained from a parse step or created programmatically
+val tree: DocumentTree = ...
+
+Render as HTML from tree toDirectory &quot;path/to/target&quot;</pre>
+  <p>The <code>target</code> directory is expected to exist, while any required
+  subdirectories will be automatically created during rendering.</p>
+  
+  <h3 id="parallel-execution-1" class="section">Parallel Execution</h3>
+  <p>Like with a full transformation, rendering can be performed in parallel:</p>
+  <pre>val tree: DocumentTree = ...
+
+Render as HTML from tree toTree Directory(&quot;source&quot;).inParallel</pre>
+  
+  <h3 id="reusing-renderers" class="section">Reusing Renderers</h3>
+  <p>Like with the Transform API, all objects are reusable and immutable:</p>
+  <pre>val document = ...
+
+val render = Render as HTML from document
+
+render toFile &quot;output1.html&quot;
+render toFile &quot;output2.html&quot;
+</pre>
+  
+  <h3 id="character-encoding-1" class="section">Character Encoding</h3>
+  <p>Laika uses the same platform-dependent defaults for file encodings as the
+  IO classes in the Scala SDK. The most convenient way to specify an encoding
+  is via an implicit:</p>
+  <pre>implicit val codec:Codec = Codec.UTF8</pre>
+  <p>This codec will then be used by <code>toDirectory</code> and other methods 
+  shown in the examples above.</p>      
+
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- javascript
+    ================================================== -->
+    <script src="../js/jquery-1.8.3.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+
+
+</body></html>
+</div>

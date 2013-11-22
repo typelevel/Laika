@@ -1,0 +1,314 @@
+<div>
+  <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+
+    <title>Laika</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
+    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
+
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/docs.css" rel="stylesheet">
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body data-spy="scroll" data-target=".toc" data-offset="200">
+
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span4 toc" >
+        
+        <ul class="nav nav-list affix">
+          <div class="nav-top"><img src="../img/laika-top.png"/></div>
+          
+          
+  <li class="nav-header">Introduction</li>
+  <li><a href="../introduction/intro.html">Overview</a></li>
+  <li><a href="../introduction/architecture.html">Architecture</a></li>
+  <li class="nav-header">Using Laika</li>
+  <li><a href="basics.html">Transformation Basics</a></li>
+  <li><a href="markup.html">Supported Markup</a></li>
+  <li><a href="structure.html">Document Structure</a></li>
+  <li class="active"><a href="#">Templates</a></li>
+  <li class="nav-header">Customizing Laika</li>
+  <li><a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a></li>
+  <li><a href="../customizing-laika/tree-rewriting.html">Document Tree Rewriting</a></li>
+  <li><a href="../customizing-laika/parsing-rendering.html">Separate Parsing and Rendering</a></li>
+  <li class="nav-header">Extending Laika</li>
+  <li><a href="../extending-laika/directive.html">Directives</a></li>
+  <li><a href="../extending-laika/parser.html">Parsers</a></li>
+  <li><a href="../extending-laika/renderer.html">Renderers</a></li>
+  <li><a href="../extending-laika/extending-rst.html">Extending reStructuredText</a></li>
+          
+          <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
+        </ul>
+        
+      </div>
+      
+      <div class="span8" id="top">
+
+        <div class="page-header">
+    <h1>Templates</h1>
+  </div>
+  <p>Laika comes with a lightweight, logic-less template engine that allows you to customize the output
+  of the transformed markup documents.</p>
+  <p>It is different than common template engines as the mechanisms to implement custom
+  logic in tags differs from most other template systems. These tags do not immediately 
+  render the final string output. Instead, they insert nodes into the document tree model (a tree
+  of case classes) which are not specific to any particular output format. 
+  As a result, a custom template directive can be reused for different output formats.</p>
+  <p>The engine also differs from template engines in the Scala ecosystem in that it does not
+  get compiled. The resulting lack of type safety is a negligible issue, since in the particular
+  context of text markup transformation most of the things you refer to from a template
+  do not originate in program code anyway, but instead come from markup and configuration 
+  files. It also helps keeping the engine very lightweight. </p>
+  <p>The parsing of a template is therefore very similar
+  to the parsing of text markup in that the interim result is a tree of case classes.
+  Applying a template to a markup document then only means inserting nodes from one
+  into the other before rendering, based on the types and location of tags you 
+  used in the template. </p>
+  
+  <h2 id="template-syntax" class="section">Template Syntax</h2>
+  <p>The following example shows all three markup constructs you can use in
+  templates:</p>
+  <pre>{% 
+  autonumbering {
+    scope: sections
+    depth: 2      
+  }
+%}  
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;{{document.title}}&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    @:toc.
+    &lt;div class=&quot;content&quot;&gt;
+      {{document.content}}
+    &lt;/div&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</pre>
+  <p>It contains a configuration header (enclosed between <code>{%</code> and <code>%}</code>),
+  two variable references (enclosed between <code>{{</code> and <code>}}</code>) and
+  a standard directive (starting with <code>@:</code>), in this case the
+  <code>toc</code> directive for generating a table of contents.</p>
+  <p>These three constructs are described in the following sections.</p>
+  
+  <h3 id="configuration-headers" class="section">Configuration Headers</h3>
+  <p>A configuration header can only appear at the beginning of a
+  template document and has to be enclosed between <code>{%</code> and <code>%}</code>.
+  The supported syntax is equivalent to the one used in the
+  <a href="https://github.com/typesafehub/config">Typesafe Config</a> library (and in fact that library is used
+  under the hood for parsing these headers). The syntax
+  is a superset of JSON called <a href="https://github.com/typesafehub/config#features-of-hocon">HOCON</a>.</p>
+  <p>There are a few configuration entries that have a special meaning
+  for Laika, like the <code>autonumbering</code> entry in the example above.
+  These are all documented in their respective chapters.</p>
+  <p>But you can also add arbitrary entries and then refer to them
+  from a variable reference. The <code>scope</code> entry above for example
+  can be referred to with <code>{{config.autonumbering.scope}}</code>.</p>
+  <p>You can also have a configuration header in a markup document
+  (supported for both Markdown and reStructuredText) and then
+  refer to entries in a header in a markup document from
+  inside the corresponding template (and vice versa)</p>
+  
+  <h3 id="variable-references" class="section">Variable References</h3>
+  <p>A variable reference can appear anywhere in a template
+  and has to be enclosed between <code>{{</code> and <code>}}</code>. During
+  rewriting these references get replaced by their corresponding
+  value, which may be a standard document node which gets inserted
+  into the tree or a simple string.</p>
+  <p>These are the variables you can use in templates:</p>
+  <ul>
+    <li><code>document.content</code>: inserts the full content from the corresponding
+    markup document at the location of the reference</li>
+    <li><code>document.title</code>: inserts the title of the document, see
+    <a href="structure.html#document-title">Document Title</a> for details</li>
+    <li><code>document.fragments</code>: inserts the fragment with the corresponding
+    name into the template (e.g. <code>document.fragments.footer</code> refers to
+    the fragment with the name <code>footer</code>), see <a href="structure.html#document-fragments">Document Fragments</a>
+    for details.</li>
+    <li><code>document.path</code>: the absolute (virtual) path of the document inside the tree</li>
+    <li>
+      <code>document.sections</code>: the section structure of the document which you can loop
+      over with the <code>@:for</code> directive described below; the section objects have the 
+      following properties:
+      <ul>
+        <li><code>id</code>: the id to use when linking to that section</li>
+        <li><code>title.content</code>: the formatted title of the document (retaining all inline markup)</li>
+        <li><code>title.text</code>: the unformatted plain text of the title</li>
+        <li><code>content</code>: a sequence of further child sections</li>
+      </ul>
+    </li>
+    <li><code>parent.path</code> and <code>root.path</code>: the path of the immediate parent tree of this document
+    and the path of the root tree</li>
+    <li><code>parent.title</code> and <code>root.title</code>: the title of the parent and root trees</li>
+    <li><code>parent.documents</code> and <code>root.documents</code>: the documents of the parent and root tree 
+    respectively, these objects have the same properties like the <code>document</code> references
+    listed above</li>
+    <li><code>parent.subtrees</code> and <code>root.subtrees</code>: the subtrees of the parent and root tree
+    which in turn have the same properties like the <code>parent</code> and <code>root</code> references listed
+    here</li>
+    <li>
+      <code>config</code>: let&#39;s you access any configuration variable, e.g. 
+      referes to the scope attribute from the template example at the beginning of this section.
+      You can refer to configuration entries from any of the following sources (which the
+      resolver will try in this order):
+      <ul>
+        <li>a configuration header in the corresponding document<br></li>
+        <li>a configuration header in the template</li>
+        <li>a configuration file with the name <code>directory.conf</code> inside the current directory</li>
+        <li>a configuration file with the name <code>directory.conf</code> inside any parent directory</li>
+        <li>a configuration file specified programmatically</li>
+      </ul>
+    </li>
+  </ul>
+  <p>The use of these references is meant to be quite straightforward. The template engine
+  is logic-less, so if you find yourself creating complex constructs of these variable
+  references and directives for looping, you should probably consider creating a custom
+  directive. These are easy to implement and let you access all the variables listed
+  above (and more) in Scala code.</p>
+  <p>An example would be a highly customized generator for a table of contents (in case
+  the one built-in is not sufficient for your needs). This can probably be easier
+  achieved with a directive than with variable references.</p>
+  
+  <h3 id="directives" class="section">Directives</h3>
+  <p>Directives are Laika&#39;s extension hook for both, templates and text markup.
+  They always start with <code>@:</code>, the name of the directive, optionally followed 
+  by one or more attributes and then either ending with a <code>.</code> and no body element 
+  or a <code>:</code> followed by one or more bodies enclosed between <code>{</code> and <code>}</code>.</p>
+  <p>A very minimal example is the <code>toc</code> directive for inserting a table of contents.
+  Since all its attributes are optional, it can simply be used like this:</p>
+  <pre>@:toc.
+</pre>
+  <p>A more complete example is the use of the <code>for</code> directive:</p>
+  <pre>@:for &quot;document.sections&quot;: {
+  &lt;li&gt;&lt;a href=&quot;#{{id}}&quot;&gt;{{title.content}}&lt;/a&gt;&lt;/li&gt;
+} </pre>
+  <p>Here <code>for</code> is the name of the directive, <code>&quot;document.sections&quot;</code> is an unnamed
+  attribute (where in this case the value is interpreted as a variable reference),
+  and finally, enclosed in curly braces the body of the directive. The exact
+  semantics of this particular directive are explained in the section 
+  <a href="#standard-template-directives">Standard Template Directives</a>.</p>
+  <p>You can either use one of the built-in directives or create your own as
+  described in <a href="../extending-laika/directive.html#implementing-a-directive">Implementing a Directive</a>.</p>
+  
+  <h2 id="how-templates-are-matched-to-documents" class="section">How Templates are Matched To Documents</h2>
+  <p>There are two simple options for specifying which template to use:</p>
+  
+  <h3 id="default-template-per-directory" class="section">Default Template per Directory</h3>
+  <p>The most convenient way is to simply add a file with the name <code>default.template.html</code>
+  to the directory containing your text markup documents. This template is then used
+  for all documents in this directory and its subdirectories, unless it is overridden
+  by either a different default template in one of the subdirectories or by explicitly
+  specifying a template in one of the text markup documents.</p>
+  
+  <h3 id="explicit-template-per-document" class="section">Explicit Template per Document</h3>
+  <p>Alternatively (or in addition to default templates) you can explicitly specify a template
+  in a configuration header of a text markup document:</p>
+  <pre>{%
+  template: custom.template.html
+%}
+</pre>
+  <p>This will override any default template for the directory. The path is relative to the
+  document, but has to be somewhere below the root directory processed by Laika, as
+  templates are parsed and cached upfront, before getting applied to documents.</p>
+  <p>All templates must have the suffix <code>.template.html</code>.</p>
+  <p>This also means that you should not have too many unused templates inside these
+  directories, as they will get parsed nevertheless.</p>
+  
+  <h2 id="standard-template-directives" class="section">Standard Template Directives</h2>
+  <p>Laika comes with a small number of built-in directives intended to cover the most
+  common scenarios. Some of them can only be used in templates, whereas others can
+  also be used in text markup, as stated for each individual directive below.</p>
+  
+  <h3 id="the-directive" class="section">The <code>toc</code> directive</h3>
+  <p>Can be used in templates and as block elements in text markup.</p>
+  <p>Generates a table of contents containing the documents of the tree
+  and/or the sections inside these documents.</p>
+  <p>This directive is explained in detail in the <a href="structure.html#document-structure">Document Structure</a> chapter.</p>
+  
+  <h3 id="the-directive-1" class="section">The <code>fragment</code> directive</h3>
+  <p>Can only be used in block elements in text markup, not in templates (yet).</p>
+  <p>Produces a block element which is not part of the main body of the markup
+  document (so will not be rendered with a <code>{{document.content}}</code> reference).
+  Instead it can be referred to by <code>{{document.fragments.&lt;fragmentName&gt;}}</code>.</p>
+  <p>This allows to keep some sections of your document separate, to be rendered
+  in different locations of the output, like headers, footers or sidebars.</p>
+  <p>This directive is explained in detail in the <a href="structure.html#document-fragments">Document Structure</a> chapter.</p>
+  
+  <h3 id="the-directive-2" class="section">The <code>for</code> directive</h3>
+  <p>Can only be used inside templates.</p>
+  <p>Executes the body of the directive multiple times for each element of
+  a non-empty collection (or array-type entry in a configuration section),
+  not at all for the values <code>null</code>, <code>false</code>, <code>None</code>, empty strings and
+  empty collections, and exactly once for all other values.</p>
+  <p>In case of non-empty values their properties will be made available
+  for use inside the body part without any prefix:</p>
+  <pre>@:for &quot;document.sections&quot;: {
+  &lt;li&gt;&lt;a href=&quot;#{{id}}&quot;&gt;{{title.content}}&lt;/a&gt;&lt;/li&gt;
+} 
+</pre>
+  <p>In this example <code>id</code> and <code>title</code> are properties of the <code>SectionInfo</code>
+  objects inside the <code>document.sections</code> collection.</p>
+  <p>You can also specify a fallback, a body part that gets executed
+  for empty values:</p>
+  <pre>@:for &quot;document.sections&quot;: {
+  &lt;li&gt;&lt;a href=&quot;#{{id}}&quot;&gt;{{title.content}}&lt;/a&gt;&lt;/li&gt;
+} 
+~empty: {
+  &lt;p&gt;This document does not have any sections&lt;/p&gt;
+}</pre>
+  <p>Each directive can have one unnamed default body and any number
+  of named bodies. The <code>for</code> directive supports a body element
+  named <code>empty</code>, the name has to be enclosed in <code>~</code> and <code>:</code> and
+  the body in braces like always. This combination of characters
+  is still readable, relatively easy to memorize, while minimizing
+  the likeliness to conflict with plain template text.</p>
+  
+  <h3 id="the-directive-3" class="section">The <code>if</code> directive</h3>
+  <p>Can only be used inside templates.</p>
+  <p>Executes the body of the directive exactly once for a Boolean
+  <code>true</code> or the strings <code>true</code>, <code>on</code>, <code>yes</code> and <code>enabled</code>.</p>
+  <pre>@:if &quot;config.showSidebar&quot;: {
+  &lt;div class=&quot;sidebar&quot;&gt;...&lt;/div&gt;
+} 
+</pre>
+  <p>In this example <code>showSidebar</code> is a custom configuration entry
+  that you have set explicitly in a configuration header or file.</p>
+  <p>You can also specify a fallback, a body part that gets executed
+  for other values:</p>
+  <pre>@:if &quot;config.showSidebar&quot;: {
+  &lt;div class=&quot;sidebar&quot;&gt;...&lt;/div&gt;
+} 
+~else: {
+  &lt;p&gt;This document does not have any sections&lt;/p&gt;
+}</pre>      
+
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- javascript
+    ================================================== -->
+    <script src="../js/jquery-1.8.3.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+
+
+</body></html>
+</div>

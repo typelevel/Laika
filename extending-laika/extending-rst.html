@@ -1,0 +1,295 @@
+<div>
+  <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+
+    <title>Laika</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala" />
+    <meta name="keywords" content="scala, text, markup, markdown, restructuredtext, parser, transformer, html, template engine, site generation, open-source" />
+
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/docs.css" rel="stylesheet">
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body data-spy="scroll" data-target=".toc" data-offset="200">
+
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span4 toc" >
+        
+        <ul class="nav nav-list affix">
+          <div class="nav-top"><img src="../img/laika-top.png"/></div>
+          
+          
+  <li class="nav-header">Introduction</li>
+  <li><a href="../introduction/intro.html">Overview</a></li>
+  <li><a href="../introduction/architecture.html">Architecture</a></li>
+  <li class="nav-header">Using Laika</li>
+  <li><a href="../using-laika/basics.html">Transformation Basics</a></li>
+  <li><a href="../using-laika/markup.html">Supported Markup</a></li>
+  <li><a href="../using-laika/structure.html">Document Structure</a></li>
+  <li><a href="../using-laika/templates.html">Templates</a></li>
+  <li class="nav-header">Customizing Laika</li>
+  <li><a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a></li>
+  <li><a href="../customizing-laika/tree-rewriting.html">Document Tree Rewriting</a></li>
+  <li><a href="../customizing-laika/parsing-rendering.html">Separate Parsing and Rendering</a></li>
+  <li class="nav-header">Extending Laika</li>
+  <li><a href="directive.html">Directives</a></li>
+  <li><a href="parser.html">Parsers</a></li>
+  <li><a href="renderer.html">Renderers</a></li>
+  <li class="active"><a href="#">Extending reStructuredText</a></li>
+          
+          <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
+        </ul>
+        
+      </div>
+      
+      <div class="span8" id="top">
+
+        <div class="page-header">
+    <h1>Extending reStructuredText</h1>
+  </div>
+  <p>This chapter describes the API for defining a custom directive or text role
+  that is compatible with the reStructuredText specification.</p>
+  
+  <h2 id="comparison-with-laika-directives" class="section">Comparison with Laika Directives</h2>
+  <p>Extensions defined in the way described in this chapter could still be used 
+  when parsing the markup documents with a different reStructuredText implementation,
+  as they are fully compatible with the original specification.</p>
+  <p>If this is not a requirement you may alternatively use the Laika variant
+  of directives. This would give you the following advantages:</p>
+  <ul>
+    <li>The syntax definition is simpler, while offering the same flexibility</li>
+    <li>The directive may be used in other parsers, too, like in the Markdown parser</li>
+    <li>The directive may also be used in templates</li>
+  </ul>
+  
+  <h2 id="feature-overview" class="section">Feature Overview</h2>
+  <p>In contrast to Markdown reStructuredText has been designed to be extensible.
+  The way these extension mechanisms are defined means that in most cases there
+  is no need to provide custom low-level parser logic, but instead use the Laika
+  API to specify the expected format based on existing building blocks the parser
+  already knows how to deal with and then provide one or more functions to convert 
+  and validate the parsed result and provide a tree element to be inserted into the document
+  as a block or span element.</p>
+  <p>The following types of extension points exist:</p>
+  <ul>
+    <li>
+      <p>Block Directives - an extension hook for adding new block level elements to
+      reStructuredText markup. 
+      For details see the <a href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#directives">specification entry for directives</a>. </p>
+    </li>
+    <li>
+      <p>Substitution Definitions - an extension hook for adding new span level elements to
+      reStructuredText markup that can be used by substitution references (like <code>|replaceMe|</code>). 
+      For details see the <a href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#substitution-definitions">specification entry for substitution definitions</a>. </p>
+    </li>
+    <li>
+      <p>Interpreted Text Roles - an extension hook for adding new dynamic span level elements to
+      reStructuredText markup. In contrast to substitution definitions the implementation of a text
+      role uses the text from the occurrences in the markup referring to the role as input.
+      For details see the <a href="http://docutils.sourceforge.net/docs/ref/rst/directives.html#custom-interpreted-text-roles">specification entry for interpreted text roles</a>. </p>
+    </li>
+  </ul>
+  <p>The Laika APIs for all of these extension types are explained in the sections below.</p>
+  <p>The design of these APIs did not aim to mimic the API of the original Python reference implementation.
+  Instead the goal was to create an API that is idiomatic Scala, fully typesafe and as concise as possible.
+  Yet it should be flexible enough to semantically support the options of the Python directives and text roles, 
+  so that ideally most existing Python directives could theoretically get ported to Laika.</p>
+  <p>The style of the API is somewhat similar to the <a href="http://www.playframework.com/documentation/2.1.1/ScalaJsonCombinators">Play JSON API</a> and its combinators. 
+  It is inspired by the concepts outlined by Sadek Drobi in his 
+  <a href="https://gist.github.com/sadache/3646092">document about functional builders</a>.</p>
+  
+  <h2 id="implementing-a-directive" class="section">Implementing a Directive</h2>
+  <p>A directive can be used to introduce new syntax for custom block or span elements.
+  Entry points are the <code>BlockDirective</code> and <code>SpanDirective</code> objects. The Python reference parser does
+  not make this distinction on the API level, but does this internally based on the context a 
+  directive is parsed in. Since Laika APIs are typesafe, the distinction is necessary since
+  block level and span level directives create different types of document tree nodes.
+  A <code>SpanDirective</code> can only be used in a substitution definition which can then be used
+  within flow elements. A <code>BlockDirective</code> can be used directly in any location other block
+  level content like paragraphs or lists can be used.</p>
+  <p>A directive may consist of any combination of arguments, fields and body elements:</p>
+  <pre>.. myDirective:: arg1 arg2
+  :field1: value1
+  :field2: value2
+
+  This is the body of the directive. It may consist of any standard or 
+  custom block-level and inline markup.</pre>
+  <p>In the example above <code>arg1</code> and <code>arg2</code> are arguments, <code>field1</code> and <code>field2</code> are fields,
+  and followed by body elements after a blank line. If there are no arguments or fields
+  the blank line may be omitted.</p>
+  <p>For each of these directive elements, the API offers a method to specify whether the
+  element is required or optional, and an optional function to convert or validate the
+  parsed value.</p>
+  
+  <h3 id="basic-example" class="section">Basic Example</h3>
+  <p>Consider the following simple example of a directive with just one argument and
+  a body:</p>
+  <pre>.. note:: This is the title
+
+   This is the body of the note.</pre>
+  <p>The implementation of this directive could look like this:</p>
+  <pre>case class Note (title: String, 
+                 content: Seq[Block], 
+                 options: Options = NoOpt) extends Block 
+                                           with BlockContainer[Note]
+
+val rst = ReStructuredText withBlockDirectives
+  BlockDirective(&quot;note&quot;) {
+    (argument(withWS = true) ~ blockContent)(Note(_,_))
+  }
+
+Transform from rst to HTML fromFile &quot;hello.rst&quot; toFile &quot;hello.html&quot;</pre>
+  <p>The <code>argument()</code> method specifies a required argument of type <code>String</code> (since no conversion
+  function was supplied). We need to set the <code>withWS</code> flag to true as an argument cannot have
+  whitespace per default. The <code>blockContent</code> method specifies standard block content (any block-level
+  elements that are supported in normal blocks, too) which results in a parsed value of type
+  <code>Seq[Block]</code>. Finally you need to provide a function that accepts the results of the specified
+  directive elements as parameters (of the corresponding type). Here we created a case class
+  with a matching signature (ignoring the optional third argument). For a block directive
+  the final result has to be of type <code>Block</code> which the <code>Note</code> class satisfies. Finally the directive 
+  gets registered with the <code>ReStructuredText</code> parser.</p>
+  
+  <h3 id="adding-converters-and-validators" class="section">Adding Converters and Validators</h3>
+  <p>If any conversion or validation is required on the individual parts of the directive they can
+  be passed to the corresponding function:</p>
+  <pre>def nonNegativeInt (value: String) =
+  try {
+    val num = value.toInt
+    Either.cond(num &gt;= 0, num, &quot;not a positive int: &quot; + num)
+  }
+  catch {
+    case e: NumberFormatException =&gt; Left(&quot;not a number: &quot; + value)
+  }
+
+case class Message (severity: Int, 
+                    content: Seq[Block],
+                    options: Options = NoOpt) extends Block 
+                                              with BlockContainer[Message]
+
+val rst = ReStructuredText withBlockDirectives
+  BlockDirective(&quot;message&quot;) {
+    (argument(nonNegativeInt) ~ blockContent)(Message(_,_))
+  }</pre>
+  <p>The function has to provide an <code>Either[String, T]</code> as a result. A <code>Left</code> result will be interpreted
+  as an error by the parser with the string being used as the message and an instance of <code>InvalidBlock</code>
+  containing the validator message and the raw source of the directive will be inserted into the document
+  tree. In this case the final function (<code>Message</code>) will never be invoked. A <code>Right</code> result will be
+  used as an argument to the final function. Note how this case class now expects an <code>Int</code> as the first
+  parameter.</p>
+  
+  <h3 id="optional-elements" class="section">Optional Elements</h3>
+  <p>Finally arguments and fields can also be optional. In case they are missing, the directive is still
+  considered valid and <code>None</code> will be passed to your function:</p>
+  <pre>case class Message (severity: Option[Int], 
+                    content: Seq[Block],
+                    options: Options = NoOpt) extends Block 
+                                              with BlockContainer[Message]
+
+val rst = ReStructuredText withBlockDirectives
+  BlockDirective(&quot;message&quot;) {
+    (optArgument(nonNegativeInt) ~ blockContent)(Message(_,_))
+  }
+</pre>
+  <p>The argument may be missing, but if it is present it has to pass the specified validator.</p>
+  <p>In case of multiple arguments, the order you specify them is also the order in which they
+  are parsed from the directive markup, with the only exception being that required arguments
+  will always be parsed before optional ones, and arguments with whitespace need to come last.</p>
+  
+  <h2 id="implementing-a-text-role" class="section">Implementing a Text Role</h2>
+  <p>Text roles are the extension mechanism for inline elements of reStructuredText.
+  For details see the <a href="http://docutils.sourceforge.net/docs/ref/rst/directives.html#custom-interpreted-text-roles">specification entry for interpreted text roles</a>.</p>
+  <p>Entry point for creating a new role is the <code>TextRole</code> object. It allows to specify the following
+  aspects that define a text role:</p>
+  <ul>
+    <li>
+      <p>The name with which it can be referred to by both, a span of interpreted text and a role
+      directive to further customize it.</p>
+    </li>
+    <li>
+      <p>The default value, that should get passed to the role function in case it is used
+      directly in interpreted text without customization through a role directive.</p>
+    </li>
+    <li>
+      <p>The role directive that specifies how the role can be customized. The options
+      for role directives are almost identical to regular directives, the only difference
+      being that role directives do not support arguments, only fields and body elements.</p>
+    </li>
+    <li>
+      <p>The actual role function. It gets invoked for each occurrence of interpreted text
+      that refers to this role, either directly by name or to the name of a role directive
+      that customized this role. The first argument is either the default value
+      or the result of the role directive, the second is the actual text of the interpreted 
+      text span. The return value of the role function is the actual <code>Span</code> instance
+      that the original interpreted text should be replaced with.</p>
+    </li>
+  </ul>
+  <p>A role directive may consist of any combination of fields and body elements:</p>
+  <pre>.. role:: ticket(link)
+  :base-url: http://www.company.com/tickets/</pre>
+  <p>In the example above <code>ticket</code> is the name of the customized role, <code>link</code> the name
+  of the base role and <code>base-url</code> the value that overrides the default defined in the
+  base role.</p>
+  <p>Before such a role directive can be used, an implementation has to be provided
+  for the base role with the name <code>link</code>. For more details on implementing directives
+  see the previous section.</p>
+  <p>The implementation of the <code>link</code> text role could look like this:</p>
+  <pre>val rst = ReStructuredText withTextRoles (
+  TextRole(&quot;link&quot;, &quot;http://www.company.com/main/&quot;)(field(&quot;base-url&quot;)) {
+    (base, text) =&gt; Link(List(Text(text)), base + text)
+  }
+)
+
+Transform from rst to HTML fromFile &quot;hello.rst&quot; toFile &quot;hello.html&quot;   </pre>
+  <p>We specify the name of the role to be <code>link</code>, and the default value the URL provided as the
+  second argument. The second parameter list specifies the role directive implementation,
+  in this case only consisting of a call to <code>field(&quot;base-url&quot;)</code> which specifies a required 
+  field of type <code>String</code> (since no conversion function was supplied). The type of the result
+  of the directive has to match the type of the default value.
+  Finally the role function is defined that accepts two arguments. The first is the base
+  url, either the default in case the base role is used directly, or the value specified
+  with the <code>base-url</code> field in a customized role. The second is the actual text from the
+  interpreted text span. In this case we use these values to create an instance of <code>Link</code>,
+  a tree node from the default document tree. Finally the directive gets registered with 
+  the <code>ReStructuredText</code> parser.</p>
+  <p>If you need to define more fields or body content they can be added with the <code>~</code> combinator
+  just like with normal directives. Likewise you can specify validators and converters for 
+  fields and body values like documented above.</p>
+  <p>Our example role can then be used in the following ways:</p>
+  <p>Using the base role directly:</p>
+  <pre>For details read our :link:`documentation`.</pre>
+  <p>This would result in the following HTML:</p>
+  <pre>For details read our &lt;a href=&quot;http://www.company.com/main/documentation&quot;&gt;documentation&lt;/a&gt;.</pre>
+  <p>Using the customized role called <code>ticket</code>: </p>
+  <pre>For details see ticket :ticket:`344`.</pre>
+  <p>This would result in the following HTML:</p>
+  <pre>For details see ticket &lt;a href=&quot;http://www.company.com/ticket/344&quot;&gt;344&lt;/a&gt;.</pre>      
+
+      </div>
+    </div>
+
+  </div>
+
+
+    <!-- javascript
+    ================================================== -->
+    <script src="../js/jquery-1.8.3.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+
+
+</body></html>
+</div>
