@@ -20,7 +20,7 @@ import laika.io.Input
 import laika.parse.markdown.html.HTMLParsers
 import laika.tree.Documents.Document
 import laika.factory.ParserFactory
-  import laika.directive.StandardDirectives
+import laika.directive.StandardDirectives
 import laika.directive.Directives.Blocks
 import laika.directive.Directives.Spans
 import laika.template.TemplateParsers
@@ -102,7 +102,7 @@ class Markdown private (
    *    Spans.create("ticket") {
    *      (attribute(Default) ~ attribute("param").optional) { (ticketNo, param) =>
    *        val base = "http://tickets.service.com/"+ticketNo
-   *        val url = base + (param map (p => "&param="+p) getOrElse "")
+   *        val url = base + (param map (p => "?param="+p) getOrElse "")
    *        ExternalLink(Seq(Text("Ticket "+ticketNo)), url, options = Styles("ticket"))
    *      }
    *    }

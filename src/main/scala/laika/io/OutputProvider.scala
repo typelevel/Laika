@@ -121,7 +121,7 @@ object OutputProvider {
      *  The recursive structure of inputs will be flattened before rendering,
      *  therefore the parallel processing includes all subtrees of this input tree.
      */
-    def parallel = new OutputConfigBuilder(provider, codec, true)
+    def inParallel = new OutputConfigBuilder(provider, codec, true)
     
     /** Builds the final configuration for this output tree.
      */

@@ -239,7 +239,7 @@ class RenderAPISpec extends FlatSpec
   it should "render to a directory in parallel" in {
     new FileSystemTest {
       val f = createTempDirectory("renderParallel")
-      Render as PrettyPrint from input toTree Directory(f).parallel
+      Render as PrettyPrint from input toTree Directory(f).inParallel
       readFiles(f.getPath)
     }    
   }

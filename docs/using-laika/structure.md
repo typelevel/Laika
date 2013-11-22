@@ -39,7 +39,7 @@ The title can be specified in two ways.
 
 When the document contains only one level 1 headline as the first
 headline, with all following section headlines being level 2 or lower,
-than the first headline is automatically picked as the title.
+then the first headline is automatically picked as the title.
 
 This is the default behaviour of reStructuredText, while Markdown
 does not have the concept of a title.
@@ -143,24 +143,33 @@ If you have the following headline in one of your documents:
 
     Monkey Gone To Heaven
     ---------------------
-    
-Then Laika will automatically generate the id `monkey-gone-to-heaven` for it,
-which you can use anywhere inside other documents as long as the id is unique
-for the current subtree. It does not have to globally unique if you reference
-it from within the same subtree. So if you have a large number of chapters
-in seperate directories, they can all have a section with id `intro` for example.
 
-If the id is not unique within a subtree, you can alternatively specify the
-target document explicitly:
+Then you can use the title as an id in link references.
 
 Markdown:
 
-    For details see the [Introduction][../main.md:intro].
+    Here are the lyrics for [Monkey Gone To Heaven].
     
 reStructuredText:
 
-    For details see the `../main.md:intro`.
+    Here are the lyrics for `Monkey Gone To Heaven`_.
+    
+Like with other link ids, Markdown let's
+you specify link text and id separately:
 
+    You have to listen to this [song][Monkey Gone To Heaven].
+ 
+It does not matter whether the headline is located in the same
+markup document or in another. In the latter case the headline only has
+to unique for the current directory. It does not have to globally unique if you reference
+it from within the same directory. So if you have a large number of chapters
+in seperate directories, they can all have a section with the title `Intro` for example.
+
+If the id is not unique within a directory, you can alternatively specify the
+target document explicitly:
+
+    For details see the [Introduction][../main.md:Introduction].
+    
 The part of before the `:` is interpreted as the relative path to the target
 document, the part after the colon as the id of the section.
 
@@ -206,7 +215,7 @@ When using the default settings, you can simply use an empty tag:
     
 If you specify all available options it would look like this:
 
-   @:toc title="List of Chapters" root="../intro" depth=2.
+    @:toc title="List of Chapters" root="../intro" depth=2.
    
    
 * The `title` attribute adds a title above the table. 

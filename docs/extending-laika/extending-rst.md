@@ -168,7 +168,7 @@ used as an argument to the final function. Note how this case class now expects 
 parameter.
  
  
-### Optional Elements
+### Optional Elements
 
 Finally arguments and fields can also be optional. In case they are missing, the directive is still
 considered valid and `None` will be passed to your function:

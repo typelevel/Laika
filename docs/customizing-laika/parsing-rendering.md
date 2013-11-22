@@ -2,7 +2,7 @@
 Separate Parsing and Rendering
 ==============================
 
-The chapter [transformation-basics] introduced the API
+The chapter [Transformation Basics] introduced the API
 for performing a full transformation from text markup to
 output format. In many cases this is all you need.
 
@@ -41,12 +41,12 @@ of case classes. You can read the
 [Elements Scaladoc][elements-scaladoc] for an overview of all node types.
 
 You can then specify rewrite
-rules to transform some nodes of the model (see [document-tree-rewriting] for 
+rules to transform some nodes of the model (see [Document Tree Rewriting] for 
 details) and use the Render API (explained below) to render
 it to various output formats.
 
 
-### Parsing an Entire Directory
+### Parsing an Entire Directory
 
     val tree = Parse as Markdown fromDirectory "source"
     
@@ -68,7 +68,7 @@ API. Apart from parallel execution, it allows to specify a custom
 template engine, a custom document type matcher, and more.
 
 
-### Reusing Parsers
+### Reusing Parsers
 
 Like with the Transform API, all objects are reusable and immutable:
 
@@ -117,7 +117,7 @@ Or to obtain the HTML as a string:
     val html = Render as HTML from doc toString
     
 
-### Parsing an Entire Directory
+### Rendering an Entire Directory
 
     // obtained from a parse step or created programmatically
     val tree: DocumentTree = ...

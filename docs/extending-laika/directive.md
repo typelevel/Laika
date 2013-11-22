@@ -61,7 +61,7 @@ if it is followed by body elements.
 Example Implementation
 ----------------------
 
-You can browse the source of the built-in directives here: TODO
+You can browse the source of the built-in directives here: [directive-api]
 But the logic required for the `toc` or `for` directives is more
 complicated than what you would probably do for a little custom
 helper tag that you need to unclutter your templates.
@@ -91,6 +91,8 @@ The following sections explain how to implement the tag
 and then how to add it either to the Markdown or reStructuredText
 parser or to the template parser.
 
+[directive-api]: api/#laika.directive.StandardDirectives
+
 
 ### Directive Implementation
 
@@ -112,7 +114,7 @@ which is also the name we are going to use in markup files (`@:ticket`).
 The `Spans` object let's us create a directive for an inline element
 as that has a different node type as the final result of the directive 
 and the API is typesafe. For block level markup directives you'd use
-the `Blocks` object, for template directives the `Template` directives.
+the `Blocks` object, for template directives the `Templates` object.
 The features and APIs are identical, but there are subtle differences
 in return types.
 
@@ -141,7 +143,7 @@ which is one type of Laika's rich tree model. It mixes in the `Span`
 trait and thus satisfies the requirement of an inline directive.
 
 
-### Directive Registration
+### Directive Registration
 
 Finally all we need to do is register our directive before parsing:
 
@@ -270,7 +272,7 @@ your converter (see below) or the default type (which is different
 for body and attribute elements (again see next section).
 
 
-### Converters
+### Converters
 
 For any attribute or body element a converter can be specified.
 If it is left out the default types are as follows:
@@ -297,7 +299,7 @@ be a function of type `(Parser, String) => Result[T]` for which
 a type alias `Converter[T]` exists.
 
 
-### Access to the Parser
+### Access to the Parser
 
 For block elements the default is to pre-parse the content for you,
 so there is rarely a need to parse something yourself. But if you need to,

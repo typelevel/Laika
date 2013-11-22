@@ -173,7 +173,7 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
                      collectOperations(config.provider, _.templates.map(parseTemplate(Template))) ++
                      collectOperations(config.provider, _.dynamicDocuments.map(parseTemplate(Dynamic))) ++
                      config.config.map(parseRootConfig) ++
-                     collectOperations(config.provider, _.configDocuments.find(_.path.name == "default.conf").toList.map(parseTreeConfig)) // TODO - filename could be configurable
+                     collectOperations(config.provider, _.configDocuments.find(_.path.name == "directory.conf").toList.map(parseTreeConfig)) // TODO - filename could be configurable
     
     val results = if (config.parallel) operations.par map (_()) seq else operations map (_())
     
@@ -197,7 +197,7 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
       val docs = provider.markupDocuments map (i => docMap(i.path))
       val templates = provider.templates map (i => templateMap((Template,i.path)))
       val dynamic = provider.dynamicDocuments map (i => templateMap((Dynamic,i.path)))
-      val treeConfig = provider.configDocuments.find(_.path.name == "default.conf").map(i => treeConfigMap(i.path).config)
+      val treeConfig = provider.configDocuments.find(_.path.name == "directory.conf").map(i => treeConfigMap(i.path).config)
       val rootConfig = if (root) rootConfigSeq else Nil
       val static = provider.staticDocuments
       val trees = provider.subtrees map (collectDocuments(_))

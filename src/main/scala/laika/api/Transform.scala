@@ -29,6 +29,8 @@ import laika.io.InputProvider._
 import laika.io.OutputProvider._
 import laika.template.ParseTemplate
 import Transform._
+import laika.directive.Directives.Templates
+import laika.template.DefaultTemplate
   
 /** API for performing a transformation operation from and to various types of input and output,
  *  combining a parse and render operation. 
@@ -242,31 +244,83 @@ class Transform [W] private[Transform] (parser: ParserFactory, render: Render[W]
   def fromStream (stream: InputStream)(implicit codec: Codec) = new Operation(parse.fromStream(stream)(codec))
   
   
+  /** API for configuring a batch operation for a directory.
+   *  Gives access to all relevant aspects of traversing, parsing and rendering
+   *  a tree of inputs.
+   */
   class DirectoryConfigBuilder private[Transform] (inputBuilder: InputConfigBuilder, isParallel: Boolean = false) {
     
+    /** Specifies the template engine to use for 
+     *  parsing all template inputs found in the tree.
+     */
     def withTemplates (parse: ParseTemplate) = 
       new DirectoryConfigBuilder(inputBuilder.withTemplates(parse), isParallel)
     
+    /** Specifies custom template directives to use with
+     *  the default template engine.
+     */
+    def withTemplateDirectives (directives: Templates.Directive*) =
+      new DirectoryConfigBuilder(inputBuilder.withTemplates(ParseTemplate as DefaultTemplate.withDirectives(directives:_*)))
+    
+    /** Specifies the function to use for determining the document type
+     *  of the input based on its path.
+     */
     def withDocTypeMatcher (matcher: Path => DocumentType) =
       new DirectoryConfigBuilder(inputBuilder.withDocTypeMatcher(matcher), isParallel)
 
+    /** Specifies a root configuration file that gets
+     *  inherited by this tree and its subtrees.
+     *  The syntax of the input is expected to be of a format
+     *  compatible with the Typesafe Config library.
+     */
     def withConfigFile (file: File) = 
       new DirectoryConfigBuilder(inputBuilder.withConfigFile(file), isParallel)
+    
+    /** Specifies the name of a root configuration file that gets
+     *  inherited by this tree and its subtrees.
+     *  The syntax of the input is expected to be of a format
+     *  compatible with the Typesafe Config library.
+     */
     def withConfigFile (name: String) =
       new DirectoryConfigBuilder(inputBuilder.withConfigFile(name), isParallel)
+    
+    /** Specifies a root configuration source that gets
+     *  inherited by this tree and its subtrees.
+     *  The syntax of the input is expected to be of a format
+     *  compatible with the Typesafe Config library.
+     */
     def withConfigString (source: String) =
       new DirectoryConfigBuilder(inputBuilder.withConfigString(source), isParallel)
     
-    def parallel = new DirectoryConfigBuilder(inputBuilder.parallel, true)
+    /** Instructs both the parser and renderer to process all inputs and outputs in parallel.
+     *  The recursive structure of document trees will be flattened before parsing and rendering
+     *  and then get reassembled afterwards, therefore the parallel processing
+     *  includes all subtrees of the document tree.
+     *  
+     *  The actual transformation is a three phase process, the first (parsing) and
+     *  third (rendering) can run in parallel. The second phase in the middle cannot,
+     *  as this is the document tree model rewrite step where things like cross references or
+     *  table of contents get processed that need access to more than just the current
+     *  document. 
+     */
+    def inParallel = new DirectoryConfigBuilder(inputBuilder.inParallel, true)
     
+    /** Renders the result to files in the directory with the specified name.
+     *  The root directory must exist, but any required subdirectories
+     *  will be created on demand while rendering.
+     */
     def toDirectory (name: String)(implicit codec: Codec) =
       execute(OutputProvider.Directory(name)(codec))
       
+    /** Renders the result to files in the specified directory.
+     *  The root directory must exist, but any required subdirectories
+     *  will be created on demand while rendering.
+     */
     def toDirectory (dir: File)(implicit codec: Codec) =
       execute(OutputProvider.Directory(dir)(codec))
     
     private def execute (outputBuilder: OutputConfigBuilder) = {
-      withConfig(BatchConfig(inputBuilder.build(parser), if (isParallel) outputBuilder.parallel.build else outputBuilder.build))
+      withConfig(BatchConfig(inputBuilder.build(parser), if (isParallel) outputBuilder.inParallel.build else outputBuilder.build))
     }
   }
   
@@ -442,7 +496,7 @@ object Transform {
      *  table of contents get processed that need access to more than just the current
      *  document. 
      */
-    def parallel = new BatchConfigBuilder(inputBuilder.parallel, outputBuilder.parallel)
+    def inParallel = new BatchConfigBuilder(inputBuilder.inParallel, outputBuilder.inParallel)
     
     /** Builds the final configuration for this input tree
      *  for the specified parser factory.

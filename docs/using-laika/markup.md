@@ -29,18 +29,18 @@ They can be switched off when you run these two parsers in strict mode:
 
     Transform from Markdown.strict to 
       HTML fromFile "hello.md" toFile "hello.html"
-      
+
 The extensions are documented in their respective section linked to from
 the list below:
 
-* A set of [Standard Directives][standard-template-directives]
-* [Custom Directives][implementing-a-directive] for adding new constructs to the
+* A set of [Standard Template Directives]
+* [Custom Directives][../extending-laika/directive.md:Implementing a Directive] for adding new constructs to the
   parser without modifying it
-* [Automatic Section Ids][document-sections] (needed for cross linking)
-* [document-fragments] that can be rendered separately from the main document content
-* [cross-linking] between different documents
-* [table-of-contents], listing both, directory contents and the sections within the documents
-* [autonumber-documents-and-sections]
+* [Automatic Section Ids][Document Sections] (needed for cross linking)
+* [Document Fragments] that can be rendered separately from the main document content
+* [Cross Linking] between different documents
+* [Table of Contents], listing both, directory contents and the sections within the documents
+* [Autonumbering Documents and Sections]
 
 
 
@@ -97,8 +97,6 @@ one (known) minor exception:
 
 [Babelmark]: http://johnmacfarlane.net/babelmark2/
 
-[Transformation Basics]: basics.html
-
 
 ### Verbatim HTML
 
@@ -113,7 +111,7 @@ files containing raw HTML could not be used for those.
 When the markup originates from user input in a web application, it would not be safe 
 to use without additional filtering. By default Laika does not filter any tags, not
 even `<script>` tags, but whitelist filtering can be added fairly easily through Laika's 
-customization hooks like [document-tree-rewriting] or [customizing-renderers].
+customization hooks like [Document Tree Rewriting] or [Customizing Renderers].
  
 To enable verbatim HTML elements you have to change this standard expression:
 
@@ -244,7 +242,7 @@ The following standard text roles are fully supported:
  * `raw` (+ format option)
 
 
-### Unsupported Extensions 
+### Unsupported Extensions 
  
 The following extensions are not supported:
  
@@ -257,7 +255,7 @@ directive itself, therefore would require new API. Others, like the `pep-referen
 seamed to exotic to warrant inclusion in Laika.
 
 
-### Extension Options
+### Extension Options
 
 Finally some of the defaults for these extensions can be changed through the API:
 
@@ -271,10 +269,10 @@ they present a potential security risk.
 sets the text role `my-role-name` as the default role.
 
 
-### Implementing a Custom Directive
+### Implementing a Custom Directive
 
 Laika comes with a concise and typesafe DSL to declare custom directives and text roles.
-It is fully documented in [extending-restructuredtext].
+It is fully documented in [Extending reStructuredText].
 
 
 

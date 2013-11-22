@@ -9,7 +9,7 @@ output formats like HTML.
  
 Alternatively the parse and render operations can be executed
 separately, which is described in the chapter
-[Separate Parsing and Rendering][splitting-parsing-and-rendering].
+[Separate Parsing and Rendering].
 
 The following sections describe the options for full transformations
 from text markup to output format.
@@ -72,7 +72,7 @@ using the same input for two different types of output could be coded like this:
     
 
 
-### Pretty Print Output
+### Pretty Print Output
     
 Laika also supports a PrettyPrint renderer which can be useful for debugging.
 It visualizes the document tree model while shortening longer text spans
@@ -130,13 +130,13 @@ automatically gets applied to all documents in that directory and its subdirecto
 unless overridden in a subdirectory. There are also ways to manually declare a
 template for a specific markup document only. 
 
-For more details on the template engine, see the chapter [Templates][templates].
+For more details on the template engine, see the chapter [Templates].
 
 For features like titles, sections, autonumbering and tables of content, see
-the chapter [Document Structure][document-structure].
+the chapter [Document Structure].
 
 
-## Directory Layout Conventions
+### Directory Layout Conventions
 
 When you organize your input and output directories under a common root
 directory, with the directory containing the markup documents named
@@ -146,7 +146,7 @@ to specify input and output directories separately:
     Transform from ReStructuredText to HTML withRootDirectory "myDocs"
 
 
-## Parallel Execution
+### Parallel Execution
 
 When transforming a large number of files you may want to run the operations
 in parallel: 

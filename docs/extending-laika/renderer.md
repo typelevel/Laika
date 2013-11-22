@@ -8,29 +8,46 @@ supported by Laika, want to replace one of the existing renderers, or are just
 curious about the inner workings of the library. None of the information here is required
 for standard usage of Laika.
 
-The contract a renderer has to adhere to is not as simple as for parsers, but the implementation
-is often quite straightforward nevertheless. A renderer has to provide the following setup function:
 
-    (Output, Element => Unit) => (W, Element => Unit)
+
+Factory Contract
+----------------
+
+The contract a renderer has to adhere to is not as simple as for parsers, but the implementation
+is often quite straightforward nevertheless. A renderer has to mix in the following trait:
+
+    trait RendererFactory[W] {
+      
+      def fileSuffix: String
+  
+      def newRenderer (out: Output, delegate: Element => Unit): 
+                                                      (W, Element => Unit)
+      
+    }
+    
+The `fileSuffix` method returns the suffix to append when writing files in this format
+(without the ".").
+
+The `newRenderer` method creates the actual renderer. In contrast to the parser factory
+it creates a new function for each render operation.    
     
 `Output` is a little IO abstraction provided by Laika so that you do not have to
 deal with the details of whether the renderer writes to a string builder or file or other 
 types of streams.
 
-`Element => Unit` is the actual render function. The function that gets passed to your
+`Element => Unit` is the actual render function. The `delegate` function that gets passed to your
 renderer is the *composed* render function. Since default renderers can be overridden by users
 of your renderer
 as described in the chapter [Customizing Renderers], you need to use this function
 as the delegate when your default render function needs to render the children of
-an element. The render function you return in the tuple is the *default* render function
+an element. 
+
+The render function you return in the tuple is the *default* render function
 to use for all elements where no custom renderer has been defined. 
 
 Finally, `W` is a parameterized type representing the Writer API that render functions
 should use for writing the actual output. For the built-in renderers, this is `TextWriter`
 for the `PrettyPrint` renderer and `HTMLWriter` for the `HTML` renderer.
-
-
-[Customizing Renderers]: customize.html
 
 
 
@@ -60,22 +77,21 @@ You can achieve this by providing a trait that offers all the available configur
 hooks and returns `this` for each of these methods for easy chaining. Additionally
 you create a companion object that represents the default configuration.
 
-This is how the trait and object look for the HTML renderer as an example (Scaladoc
-comments removed for brevity):
+This is how skeletons for the trait and object for the HTML renderer look as an example (Scaladoc
+comments, imports and actual render logic removed for brevity):
 
-    import laika.tree.Elements._
-    import laika.io.Output
+    class HTML private (messageLevel: Option[MessageLevel]) 
+                                      extends RendererFactory[HTMLWriter] {
     
-    class HTML private (messageLevel: Option[MessageLevel]) extends 
-               ((Output, Element => Unit) => (HTMLWriter, Element => Unit)) {
-     
+      val fileSuffix = "html"
+      
       def withMessageLevel (level: MessageLevel) = new HTML(Some(level))
       
-      def apply (output: Output, render: Element => Unit) = {
-        val out = new HTMLWriter(output asFunction, render)  
+      def newRenderer (output: Output, render: Element => Unit) = {
+        val out = new HTMLWriter(output.asFunction, render)  
         (out, renderElement(out))
       }
-    
+      
       private def renderElement (out: HTMLWriter)(elem: Element): Unit = {
         /* actual render logic omitted */
       } 

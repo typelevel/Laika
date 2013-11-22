@@ -154,7 +154,7 @@ class TransformAPISpec extends FlatSpec
     def transformWithConfig (config: String) = transformWith(_.withConfigString(config))
     def transformWithDocTypeMatcher (matcher: Path => DocumentType) = transformWith(_.withDocTypeMatcher(matcher))
     def transformWithTemplates (templates: ParseTemplate) = transformWith(_.withTemplates(templates))
-    def transformInParallel = transformWith(_.parallel)
+    def transformInParallel = transformWith(_.inParallel)
     
     private def transformWith (f: BatchConfigBuilder => BatchConfigBuilder) = {
       val builder = new TestProviderBuilder
@@ -213,7 +213,7 @@ class TransformAPISpec extends FlatSpec
   it should "transform a tree with a dynamic document populated by a config file in the directory" in {
     new TreeTransformer {
       val dirs = """- main.dynamic.html:dynDoc
-          |- default.conf:conf""".stripMargin
+          |- directory.conf:conf""".stripMargin
       val result = """RootElement - Blocks: 1
           |. TemplateRoot - Spans: 1
           |. . TemplateString - 'abc'""".stripMargin

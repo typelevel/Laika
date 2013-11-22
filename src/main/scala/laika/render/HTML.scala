@@ -151,7 +151,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
         case CodeBlock(lang,content,opt)    => out <<@ ("pre",opt+codeStyles(lang)) << "<code>" <<<  content << "</code></pre>"
         case Code(lang,content,opt)         => out <<@ ("code",opt+codeStyles(lang)) <<  content << "</code>"
         case Line(content,opt)              => out <<@ ("div",opt + Styles("line")) << content <<  "</div>"
-        case Header(level, content, opt)    => out <<| "<h" << level.toString << ">" << content << "</h" << level.toString << ">"
+        case Header(level, content, opt)    => out <|; out <<@ ("h"+level.toString,opt) << content << "</h" << level.toString << ">"
   
         case ExternalLink(content, url, title, opt)     => out <<@ ("a", opt, "href"->url,       "title"->title.map(escapeTitle)) << content << "</a>"
         case InternalLink(content, ref, title, opt)     => out <<@ ("a", opt, "href"->("#"+ref), "title"->title.map(escapeTitle)) << content << "</a>"
@@ -185,8 +185,8 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
         case _                         => out <<@ ("span",opt)  <<&  content << "</span>"
       }
       case TemplateString(content,opt) => opt match {
-        case NoOpt                     => out                   <<&  content
-        case _                         => out <<@ ("span",opt)  <<&  content << "</span>"
+        case NoOpt                     => out                   <<  content
+        case _                         => out <<@ ("span",opt)  <<  content << "</span>"
       }
       case RawContent(formats, content, opt) => if (formats.contains("html")) { opt match {
         case NoOpt                     => out                   <<   content

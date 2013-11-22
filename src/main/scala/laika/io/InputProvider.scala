@@ -199,7 +199,7 @@ object InputProvider {
      *  and then get reassembled afterwards, therefore the parallel processing
      *  includes all subtrees of this input tree.
      */
-    def parallel = new InputConfigBuilder(provider, codec, docTypeMatcher, templateParser, config, true) // TODO - 2.10 - allow for custom TaskSupport when dropping 2.9 support
+    def inParallel = new InputConfigBuilder(provider, codec, docTypeMatcher, templateParser, config, true) // TODO - 2.10 - allow for custom TaskSupport when dropping 2.9 support
     
     /** Builds the final configuration for this input tree
      *  for the specified parser factory.

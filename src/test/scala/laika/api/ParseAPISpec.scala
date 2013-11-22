@@ -172,7 +172,7 @@ class ParseAPISpec extends FlatSpec
   
   it should "allow parsing a tree with a dynamic document populated by a config file in the directory" in {
     val dirs = """- main.dynamic.html:dynDoc
-      |- default.conf:conf""".stripMargin
+      |- directory.conf:conf""".stripMargin
     val dyn = DocumentView(Root / "main.html", List(Content(List(TemplateRoot(List(TemplateString("abc")))))))
     val treeResult = TreeView(Root, List(Documents(Dynamic, List(dyn))))
     viewOf(Parse as Markdown fromTree builder(dirs)) should be (treeResult)
@@ -279,7 +279,7 @@ class ParseAPISpec extends FlatSpec
       |+ shapes
       |  - rectangle.md:name
       |- cherry.md:name
-      |- default.conf:order""".stripMargin
+      |- directory.conf:order""".stripMargin
     val tree = Parse as Markdown fromTree builder(dirs)
     tree.navigatables map (_.path.name) should be (List("lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
   }
@@ -302,7 +302,7 @@ class ParseAPISpec extends FlatSpec
       Documents(Markup, List(docView(1),docView(2))),
       Subtrees(List(subtree1,subtree2))
     ))
-    viewOf(Parse as Markdown fromTree builder(dirs).parallel) should be (treeResult)
+    viewOf(Parse as Markdown fromTree builder(dirs).inParallel) should be (treeResult)
   }
   
   it should "read a directory from the file system using the fromDirectory method" in {

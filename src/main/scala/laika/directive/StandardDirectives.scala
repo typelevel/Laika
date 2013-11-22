@@ -70,7 +70,7 @@ trait StandardDirectives {
             val spans = for (value <- iterableAsScalaIterable(it)) yield rewriteContent(value)
             TemplateSpanSequence(spans.toSeq)
           }
-          case Some("") | Some(false) => rewriteFallback
+          case Some("") | Some(false) | Some(None) | Some(null) => rewriteFallback
           case Some(value)            => rewriteContent(value)
           case None                   => TemplateSpanSequence(Nil)
         }
@@ -146,12 +146,17 @@ trait StandardDirectives {
         List(BulletList(items, format))
     }
     
+    def include (nav: Navigatable): Boolean = nav match {
+      case _:Document => true
+      case tree: DocumentTree => tree.navigatables.exists(include(_))
+    }
+    
     def navigatablesToList (navigatables: Seq[Navigatable], level: Int): List[Block] = {
       def toLink (section: SectionInfo) = 
         Paragraph(List(InternalLink(List(Text(section.title.text)), section.id, options = Styles("toc","level"+level))))
       
-      if (navigatables.isEmpty || level > maxLevel) Nil else {
-        val items = for (navigatable <- navigatables) yield navigatable match {
+      if (level > maxLevel) Nil else {
+        val items = for (navigatable <- navigatables if include(navigatable)) yield navigatable match {
           case doc: Document => BulletListItem(docToLink(doc, level) :: sectionsToList(doc.sections, doc.path, level + 1), format)
           case tree: DocumentTree => BulletListItem(treeToText(tree, level) :: navigatablesToList(tree.navigatables, level + 1), format)
         }

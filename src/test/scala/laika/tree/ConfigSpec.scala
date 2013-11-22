@@ -147,10 +147,10 @@ class ConfigSpec extends FlatSpec
         |{{config.key3}}
         |{{config.key4}}
         |{{config.key5}}""".stripMargin
-      val dirs = """- default.conf:config4
+      val dirs = """- directory.conf:config4
           |+ dir 
           |  - default.template.html:template
-          |  - default.conf:config3
+          |  - directory.conf:config3
           |  - input.md:markup""".stripMargin
       val config3 = "key3: val3"
       val config4 = "key4: val4"

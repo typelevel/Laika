@@ -63,7 +63,7 @@ template document and has to be enclosed between `{%` and `%}`.
 The supported syntax is equivalent to the one used in the
 [Typesafe Config] library (and in fact that library is used
 under the hood for parsing these headers). The syntax
-is a superset of JSON called [HCON].
+is a superset of JSON called [HOCON].
 
 There are a few configuration entries that have a special meaning
 for Laika, like the `autonumbering` entry in the example above.
@@ -78,8 +78,8 @@ You can also have a configuration header in a markup document
 refer to entries in a header in a markup document from
 inside the corresponding template (and vice versa)
 
-[Typesafe Config]: TODO
-[HCON]: TODO
+[Typesafe Config]: https://github.com/typesafehub/config
+[HOCON]: https://github.com/typesafehub/config#features-of-hocon
 
 
 ### Variable References
@@ -95,10 +95,10 @@ These are the variables you can use in templates:
 * `document.content`: inserts the full content from the corresponding
   markup document at the location of the reference
 * `document.title`: inserts the title of the document, see
-  [Document Title][document-title] for details
+  [Document Title] for details
 * `document.fragments`: inserts the fragment with the corresponding
   name into the template (e.g. `document.fragments.footer` refers to
-  the fragment with the name `footer`), see [Document Fragments][document-fragments]
+  the fragment with the name `footer`), see [Document Fragments]
   for details.
 * `document.path`: the absolute (virtual) path of the document inside the tree
 * `document.sections`: the section structure of the document which you can loop
@@ -160,10 +160,10 @@ Here `for` is the name of the directive, `"document.sections"` is an unnamed
 attribute (where in this case the value is interpreted as a variable reference),
 and finally, enclosed in curly braces the body of the directive. The exact
 semantics of this particular directive are explained in the section 
-[standard-template-directives].
+[Standard Template Directives].
 
 You can either use one of the built-in directives or create your own as
-described in [Implementing a Directive][implementing-a-directive].
+described in [Implementing a Directive][../extending-laika/directive.md:Implementing a Directive].
 
 
 
@@ -173,7 +173,7 @@ How Templates are Matched To Documents
 There are two simple options for specifying which template to use:
 
 
-### Default Template per Directory
+### Default Template per Directory
 
 The most convenient way is to simply add a file with the name `default.template.html`
 to the directory containing your text markup documents. This template is then used
@@ -218,7 +218,7 @@ Can be used in templates and as block elements in text markup.
 Generates a table of contents containing the documents of the tree
 and/or the sections inside these documents.
 
-This directive is explained in detail in the [Document Structure] chapter. TODO
+This directive is explained in detail in the [Document Structure] chapter.
 
 
 ### The `fragment` directive
@@ -232,7 +232,7 @@ Instead it can be referred to by `{{document.fragments.<fragmentName>}}`.
 This allows to keep some sections of your document separate, to be rendered
 in different locations of the output, like headers, footers or sidebars.
 
-This directive is explained in detail in the [Document Structure][document-fragments] chapter.
+This directive is explained in detail in the [Document Structure][Document Fragments] chapter.
 
 
 ### The `for` directive
