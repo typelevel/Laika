@@ -209,70 +209,23 @@
     <code>note</code>, <code>tip</code>, <code>warning</code> and the generic <code>admonition</code></li>
   </ul>
   <ul>
+    <li>Document Structure: <code>contents</code>, <code>sectnum</code>, <code>header</code>, <code>footer</code>, <code>title</code>, <code>include</code></li>
+  </ul>
+  <ul>
+    <li>Containers: <code>compound</code>, <code>container</code>, <code>topic</code>, <code>sidebar</code>, <code>rubric</code>, <code>table</code>, 
+    <code>parsed-literal</code>, <code>code</code></li>
+  </ul>
+  <ul>
     <li>Quotations: <code>epigraph</code>, <code>highlights</code> and <code>pull-quote</code></li>
   </ul>
   <ul>
-    <li><code>compound</code></li>
+    <li>Images: <code>figure</code> and <code>image</code></li>
   </ul>
   <ul>
-    <li><code>container</code></li>
+    <li>For Substitution Definitions: <code>replace</code>, <code>date</code>, <code>unicode</code></li>
   </ul>
   <ul>
-    <li><code>topic</code></li>
-  </ul>
-  <ul>
-    <li><code>sidebar</code></li>
-  </ul>
-  <ul>
-    <li><code>rubric</code></li>
-  </ul>
-  <ul>
-    <li><code>parsed-literal</code></li>
-  </ul>
-  <ul>
-    <li><code>table</code></li>
-  </ul>
-  <ul>
-    <li><code>figure</code></li>
-  </ul>
-  <ul>
-    <li><code>image</code></li>
-  </ul>
-  <ul>
-    <li><code>code</code></li>
-  </ul>
-  <ul>
-    <li><code>replace</code></li>
-  </ul>
-  <ul>
-    <li><code>contents</code></li>
-  </ul>
-  <ul>
-    <li><code>sectnum</code></li>
-  </ul>
-  <ul>
-    <li><code>header</code></li>
-  </ul>
-  <ul>
-    <li><code>footer</code></li>
-  </ul>
-  <ul>
-    <li><code>title</code></li>
-  </ul>
-  <ul>
-    <li><code>meta</code></li>
-  </ul>
-  <ul>
-    <li><code>include</code></li>
-  </ul>
-  <ul>
-    <li><code>date</code></li>
-  </ul>
-  <ul>
-    <li><code>unicode</code></li>
-  </ul>
-  <ul>
-    <li><code>raw</code></li>
+    <li>Other: <code>meta</code>, <code>raw</code></li>
   </ul>
   <p>The following limitations apply to these directives:</p>
   <ul>
@@ -291,7 +244,7 @@
     are traversed very differently in Laika.</li>
   </ul>
   <ul>
-    <li><code>raw</code> does not support the <code>file</code> or <code>url</code> options (multi-file transformations are planned for version 0.4). </li>
+    <li><code>raw</code> does not support the <code>file</code> or <code>url</code> options. </li>
   </ul>
   <ul>
     <li><code>unicode</code>: does not support the various trim options, as that would require modifying adjacent elements
@@ -336,7 +289,7 @@
   <p>There are various reasons for excluding these extensions, some of them being rather technical.
   For example, the <code>target-notes</code> and <code>class</code> directives would require processing beyond the 
   directive itself, therefore would require new API. Others, like the <code>pep-reference</code> text role,
-  seamed to exotic to warrant inclusion in Laika.</p>
+  seamed too exotic to warrant inclusion in Laika.</p>
   
   <h3 id="extension-options" class="section">Extension Options</h3>
   <p>Finally some of the defaults for these extensions can be changed through the API:</p>

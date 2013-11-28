@@ -126,9 +126,9 @@
       <p>Template-based Site Generation</p>
     </li>
     <li>
-      <p>Support for tables of contents, autonumbering of documents and sections
-      and convenient cross-linking between documents for all supported markup
-      formats</p>
+      <p>Support for tables of contents, convenient cross-linking between 
+      documents and auto-numbering of documents and sections for all 
+      supported markup formats</p>
     </li>
     <li>
       <p>Custom Directives (tags) for templates and text markup, with type-safe
@@ -145,6 +145,11 @@
     </li>
     <li>
       <p>Simple contracts and APIs for adding new parsers and renderers</p>
+    </li>
+    <li>
+      <p>A set of generic and fast parser combinators for common tasks in
+      markup parsing that are not based on the commonly used (and often slow)
+      regex parsers </p>
     </li>
     <li>
       <p>Various options for input and output (strings, files, java.io.Reader/Writer, java.io streams)</p>
@@ -195,9 +200,8 @@
       <p><strong>0.4</strong> (Nov 22, 2013):</p>
       <ul>
         <li>Template-based site generation</li>
-        <li>Support for tables of contents, autonumbering of documents and sections
-        and convenient cross-linking between documents for all supported markup
-        formats</li>
+        <li>Support for tables of contents, convenient cross-linking between documents 
+        and autonumbering of documents and sections for all supported markup formats</li>
         <li>Custom Directives for templates and text markup</li>
         <li>Document Fragments that can be rendered separately from the main document content</li>
         <li>New API for batch processing for parse, render or full transform operations</li>
@@ -209,7 +213,7 @@
       <ul>
         <li>Support for most of the standard directives and text roles of the reStructuredText reference
         parser (admonitions, <code>figure</code>, <code>image</code>, <code>code</code>, <code>raw</code> and many more)</li>
-        <li>Now integrates the official Markdown test suite (any many fixes to make it pass)</li>
+        <li>Now integrates the official Markdown test suite (and many fixes to make it pass)</li>
         <li>Now integrates a test for transforming the full reStructuredText specification (which, of
         course, is written in reStructuredText) and many fixes to make it pass</li>
         <li>Adds the renderer option <code>HTML.unformatted</code> for terse output without indentation or whitespace

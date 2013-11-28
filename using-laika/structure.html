@@ -173,9 +173,9 @@ doc.fragments // Map[String, Element]</pre>
   <pre>You have to listen to this [song][Monkey Gone To Heaven].</pre>
   <p>It does not matter whether the headline is located in the same
   markup document or in another. In the latter case the headline only has
-  to unique for the current directory. It does not have to globally unique if you reference
+  to be unique for the current directory. It does not have to be globally unique if you reference
   it from within the same directory. So if you have a large number of chapters
-  in seperate directories, they can all have a section with the title <code>Intro</code> for example.</p>
+  in separate directories, they can all have a section with the title <code>Intro</code> for example.</p>
   <p>If the id is not unique within a directory, you can alternatively specify the
   target document explicitly:</p>
   <pre>For details see the [Introduction][../main.md:Introduction].
@@ -184,10 +184,10 @@ doc.fragments // Map[String, Element]</pre>
   document, the part after the colon as the id of the section.</p>
   
   <h2 id="autonumbering-documents-and-sections" class="section">Autonumbering Documents and Sections</h2>
-  <p>Laika supports autonumbering of documents or sections or both. If you enable both
+  <p>Laika supports auto-numbering of documents or sections or both. If you enable both
   the section numbers will be added to the document number. E.g. in the document
   with the number <code>2.1</code> the number for the first section will be <code>2.1.1</code>.</p>
-  <p>Autonumbering can be switched on per configuration. Usually this is a global
+  <p>Auto-numbering can be switched on per configuration. Usually this is a global
   switch, so you would add this section to a file named <code>directory.conf</code> inside
   the root directory of your markup files:</p>
   <pre>autonumbering {
@@ -269,15 +269,16 @@ doc.fragments // Map[String, Element]</pre>
     in this directory</li>
     <li><code>*.template.html</code>: other templates that markup documents can
     explicitly refer to</li>
-    <li><code>*.&lt;markup-suffix&gt;: markup files with a suffix recognized
-by the parser in use, e.g. </code>.md<code> or </code>.markdown<code> for Markdown
-and </code>.rst` for reStructuredText</li>
+    <li><code>*.&lt;markup-suffix&gt;</code>: markup files with a suffix recognized
+    by the parser in use, e.g. <code>.md</code> or <code>.markdown</code> for Markdown
+    and <code>.rst</code> for reStructuredText</li>
     <li><code>*.dynamic.html</code>: a dynamic file, which has the same syntax
     as a template, but does not get applied to a markup document.
     This means it should not have a <code>{{document.content}}</code> reference
     like normal templates, but may use any of the other template
     features. The result of processing will be copied to the
-    output directory alongside the transformed markup documents.</li>
+    output directory (with the <code>.dynamic</code> part stripped from 
+    its name) alongside the transformed markup documents.</li>
     <li><code>*.git</code>, <code>*.svn</code>: these directories will be ignored</li>
     <li>all other files: treated as static files and copied to the 
     output directory unmodified.</li>
