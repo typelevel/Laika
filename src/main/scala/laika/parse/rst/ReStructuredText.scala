@@ -135,7 +135,7 @@ class ReStructuredText private (
    *  Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"   
    *  }}}
    * 
-   *  For more details on implementing Laika directives see [[laika.directives.Directives]].
+   *  For more details on implementing Laika directives see [[laika.directive.Directives]].
    */ 
   def withLaikaBlockDirectives (directives: Blocks.Directive*) = {
     new ReStructuredText(blockDirectives, spanDirectives, textRoles, defaultTextRole, 
@@ -182,7 +182,7 @@ class ReStructuredText private (
    *  Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"   
    *  }}}
    * 
-   *  For more details on implementing Laika directives see [[laika.directives.Directives]].
+   *  For more details on implementing Laika directives see [[laika.directive.Directives]].
    */ 
   def withLaikaSpanDirectives (directives: Spans.Directive*) = {
     new ReStructuredText(blockDirectives, spanDirectives, textRoles, defaultTextRole,

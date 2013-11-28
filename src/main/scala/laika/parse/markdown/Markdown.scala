@@ -51,7 +51,7 @@ import laika.tree.TreeUtil
  *  The methods `withSpanDirectives` and `withBlockDirectives` allow to 
  *  register custom tags which will be processed by the parser in addition
  *  to standard Markdown markup. For more details on directives see
- *  [[laika.directives.Directives]].
+ *  [[laika.directive.Directives]].
  *  
  *  To switch this feature off alongside other custom extensions like
  *  configuration sections at the start of the document or automatic
@@ -88,7 +88,7 @@ class Markdown private (
    *  Transform from md to HTML fromFile "hello.md" toFile "hello.html"   
    *  }}}
    * 
-   *  For more details on implementing Laika directives see [[laika.directives.Directives]].
+   *  For more details on implementing Laika directives see [[laika.directive.Directives]].
    */     
   def withBlockDirectives (directives: Blocks.Directive*) =
     new Markdown(blockDirectives ++ directives, spanDirectives, verbatimHTML, isStrict)      
@@ -115,7 +115,7 @@ class Markdown private (
    *  `@:ticket 2356.` and turns it into an external link node for the
    *  URL `http://tickets.service.com/2356`.
    * 
-   *  For more details on implementing Laika directives see [[laika.directives.Directives]].
+   *  For more details on implementing Laika directives see [[laika.directive.Directives]].
    */ 
   def withSpanDirectives (directives: Spans.Directive*) = 
     new Markdown(blockDirectives, spanDirectives ++ directives, verbatimHTML, isStrict)  

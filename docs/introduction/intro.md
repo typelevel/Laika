@@ -80,9 +80,9 @@ Features
 
 * Template-based Site Generation
 
-* Support for tables of contents, autonumbering of documents and sections
-  and convenient cross-linking between documents for all supported markup
-  formats
+* Support for tables of contents, convenient cross-linking between 
+  documents and auto-numbering of documents and sections for all 
+  supported markup formats
 
 * Custom Directives (tags) for templates and text markup, with type-safe
   and concise DSL for their declaration
@@ -95,6 +95,10 @@ Features
   functions)
 
 * Simple contracts and APIs for adding new parsers and renderers
+
+* A set of generic and fast parser combinators for common tasks in
+  markup parsing that are not based on the commonly used (and often slow)
+  regex parsers 
 
 * Various options for input and output (strings, files, java.io.Reader/Writer, java.io streams)
 
@@ -133,9 +137,8 @@ Release History
 * __0.4__ (Nov 22, 2013):
 
     * Template-based site generation
-    * Support for tables of contents, autonumbering of documents and sections
-      and convenient cross-linking between documents for all supported markup
-      formats
+    * Support for tables of contents, convenient cross-linking between documents 
+      and autonumbering of documents and sections for all supported markup formats
     * Custom Directives for templates and text markup
     * Document Fragments that can be rendered separately from the main document content
     * New API for batch processing for parse, render or full transform operations
@@ -145,7 +148,7 @@ Release History
 
     * Support for most of the standard directives and text roles of the reStructuredText reference
       parser (admonitions, `figure`, `image`, `code`, `raw` and many more)
-    * Now integrates the official Markdown test suite (any many fixes to make it pass)
+    * Now integrates the official Markdown test suite (and many fixes to make it pass)
     * Now integrates a test for transforming the full reStructuredText specification (which, of
       course, is written in reStructuredText) and many fixes to make it pass
     * Adds the renderer option `HTML.unformatted` for terse output without indentation or whitespace

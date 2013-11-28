@@ -161,9 +161,9 @@ you specify link text and id separately:
  
 It does not matter whether the headline is located in the same
 markup document or in another. In the latter case the headline only has
-to unique for the current directory. It does not have to globally unique if you reference
+to be unique for the current directory. It does not have to be globally unique if you reference
 it from within the same directory. So if you have a large number of chapters
-in seperate directories, they can all have a section with the title `Intro` for example.
+in separate directories, they can all have a section with the title `Intro` for example.
 
 If the id is not unique within a directory, you can alternatively specify the
 target document explicitly:
@@ -178,11 +178,11 @@ document, the part after the colon as the id of the section.
 Autonumbering Documents and Sections
 ------------------------------------
 
-Laika supports autonumbering of documents or sections or both. If you enable both
+Laika supports auto-numbering of documents or sections or both. If you enable both
 the section numbers will be added to the document number. E.g. in the document
 with the number `2.1` the number for the first section will be `2.1.1`.
 
-Autonumbering can be switched on per configuration. Usually this is a global
+Auto-numbering can be switched on per configuration. Usually this is a global
 switch, so you would add this section to a file named `directory.conf` inside
 the root directory of your markup files:
 
@@ -280,7 +280,7 @@ by its name, in the following way:
   in this directory
 * `*.template.html`: other templates that markup documents can
   explicitly refer to
-* `*.<markup-suffix>: markup files with a suffix recognized
+* `*.<markup-suffix>`: markup files with a suffix recognized
   by the parser in use, e.g. `.md` or `.markdown` for Markdown
   and `.rst` for reStructuredText
 * `*.dynamic.html`: a dynamic file, which has the same syntax
@@ -288,7 +288,8 @@ by its name, in the following way:
   This means it should not have a `{{document.content}}` reference
   like normal templates, but may use any of the other template
   features. The result of processing will be copied to the
-  output directory alongside the transformed markup documents.
+  output directory (with the `.dynamic` part stripped from 
+  its name) alongside the transformed markup documents.
 * `*.git`, `*.svn`: these directories will be ignored
 * all other files: treated as static files and copied to the 
   output directory unmodified.

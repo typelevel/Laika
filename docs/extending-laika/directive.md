@@ -62,8 +62,8 @@ Example Implementation
 ----------------------
 
 You can browse the source of the built-in directives here: [directive-api]
-But the logic required for the `toc` or `for` directives is more
-complicated than what you would probably do for a little custom
+But the logic required for the `toc` or `for` directives is probably much 
+more complicated than what you would usually do for a little custom
 helper tag that you need to unclutter your templates.
 
 Therefore we'll show and explain a very simple example here that
@@ -91,7 +91,7 @@ The following sections explain how to implement the tag
 and then how to add it either to the Markdown or reStructuredText
 parser or to the template parser.
 
-[directive-api]: ../api/#laika.directive.StandardDirectives
+[directive-api]: https://github.com/planet42/Laika/blob/master/src/main/scala/laika/directive/StandardDirectives.scala
 
 
 ### Directive Implementation

@@ -61,7 +61,7 @@ class DefaultTemplate private (
    *  `@:ticket 2356.` and turns it into an external link node for the
    *  URL `http://tickets.service.com/2356`.
    * 
-   *  For more details on implementing Laika directives see [[laika.directives.Directives]].
+   *  For more details on implementing Laika directives see [[laika.directive.Directives]].
    */ 
   def withDirectives (directives: Templates.Directive*) =
     new DefaultTemplate(this.directives ++ directives)      

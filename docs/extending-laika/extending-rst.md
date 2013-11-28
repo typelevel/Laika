@@ -20,6 +20,9 @@ of directives. This would give you the following advantages:
 * The directive may be used in other parsers, too, like in the Markdown parser
 * The directive may also be used in templates
 
+For details on these alternative directive types see 
+[Implementing a Directive][directive.md:Implementing a Directive].
+
 
 Feature Overview
 ----------------

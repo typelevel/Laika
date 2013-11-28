@@ -185,28 +185,13 @@ Laika supports the following directives:
 
  * Admonitions: `attention`, `caution`, `danger`, `error`, `hint`, `important`,
    `note`, `tip`, `warning` and the generic `admonition`
+ * Document Structure: `contents`, `sectnum`, `header`, `footer`, `title`, `include`
+ * Containers: `compound`, `container`, `topic`, `sidebar`, `rubric`, `table`, 
+   `parsed-literal`, `code`
  * Quotations: `epigraph`, `highlights` and `pull-quote`
- * `compound`
- * `container`
- * `topic`
- * `sidebar`
- * `rubric`
- * `parsed-literal`
- * `table`
- * `figure`
- * `image`
- * `code`
- * `replace`
- * `contents`
- * `sectnum`
- * `header`
- * `footer`
- * `title`
- * `meta`
- * `include`
- * `date`
- * `unicode`
- * `raw`
+ * Images: `figure` and `image`
+ * For Substitution Definitions: `replace`, `date`, `unicode`
+ * Other: `meta`, `raw`
  
 The following limitations apply to these directives:
 
@@ -221,7 +206,7 @@ The following limitations apply to these directives:
  * `include` does not support any of the options apart from the filename, due to the way document trees
    are traversed very differently in Laika.
   
- * `raw` does not support the `file` or `url` options (multi-file transformations are planned for version 0.4). 
+ * `raw` does not support the `file` or `url` options. 
  
  * `unicode`: does not support the various trim options, as that would require modifying adjacent elements
    (and no other directive has this requirement, therefore API/implementation changes did not seem justified)
@@ -252,7 +237,7 @@ The following extensions are not supported:
 There are various reasons for excluding these extensions, some of them being rather technical.
 For example, the `target-notes` and `class` directives would require processing beyond the 
 directive itself, therefore would require new API. Others, like the `pep-reference` text role,
-seamed to exotic to warrant inclusion in Laika.
+seamed too exotic to warrant inclusion in Laika.
 
 
 ### Extension Options

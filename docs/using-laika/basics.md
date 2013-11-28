@@ -132,8 +132,8 @@ template for a specific markup document only.
 
 For more details on the template engine, see the chapter [Templates].
 
-For features like titles, sections, autonumbering and tables of content, see
-the chapter [Document Structure].
+For features like titles, sections, cross-linking, auto-numbering 
+and tables of content, see the chapter [Document Structure].
 
 
 ### Directory Layout Conventions
@@ -187,7 +187,7 @@ directories:
 
     val transform = Transform from ReStructuredText to HTML
     
-    transform fromDirectory "source-1" toDirectory "target-2"
+    transform fromDirectory "source-1" toDirectory "target-1"
     
-    transform fromDirectory "source-1" toDirectory "target-2"
+    transform fromDirectory "source-2" toDirectory "target-2"
 
