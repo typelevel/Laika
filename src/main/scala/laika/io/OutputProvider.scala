@@ -71,7 +71,7 @@ object OutputProvider {
     
     def newChild (name: String) = {
       val f = new File(dir, name)
-      require(!f.exists || f.isDirectory, "File "+f.getAbsolutePath+" exists and is not a directoy")
+      require(!f.exists || f.isDirectory, "File "+f.getAbsolutePath+" exists and is not a directory")
       if (!f.exists && !f.mkdir()) throw new IllegalStateException("Unable to create directory "+f.getAbsolutePath)
       new DirectoryOutputProvider(f, path / name, codec)
     }

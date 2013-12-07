@@ -122,7 +122,7 @@ object InputProvider {
    */
   def forRootDirectory (root: File, docTypeMatcher: Path => DocumentType)(implicit codec: Codec): InputProvider = {
     require(root.exists, "Directory "+root.getAbsolutePath()+" does not exist")
-    require(root.isDirectory, "File "+root.getAbsolutePath()+" is not a directoy")
+    require(root.isDirectory, "File "+root.getAbsolutePath()+" is not a directory")
     
     new DirectoryInputProvider(root, Root, docTypeMatcher, codec)
   }
