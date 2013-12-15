@@ -43,7 +43,7 @@ class RenderAPISpec extends FlatSpec
                     with ModelBuilder {
 
   
-  val document = doc(p("aaö"), p("bbb"))
+  val rootElem = root(p("aaö"), p("bbb"))
   
   val expected = """RootElement - Blocks: 2
       |. Paragraph - Spans: 1
@@ -52,58 +52,58 @@ class RenderAPISpec extends FlatSpec
       |. . Text - 'bbb'""".stripMargin
   
   "The Render API" should "render a document to a string" in {
-    (Render as PrettyPrint from document toString) should be (expected)
+    (Render as PrettyPrint from rootElem toString) should be (expected)
   }
   
   it should "render a document to a builder" in {
     val builder = new StringBuilder
-    Render as PrettyPrint from document toBuilder builder
+    Render as PrettyPrint from rootElem toBuilder builder
     builder.toString should be (expected)
   }
   
   it should "render a document to a file" in {
     val f = File.createTempFile("output", null)
     
-    Render as PrettyPrint from document toFile f
+    Render as PrettyPrint from rootElem toFile f
     
     readFile(f) should be (expected)
   }
   
   it should "render a document to a java.io.Writer" in {
     val writer = new StringWriter
-    Render as PrettyPrint from document toWriter writer
+    Render as PrettyPrint from rootElem toWriter writer
     writer.toString should be (expected)
   }
   
   it should "render a document to a java.io.OutputStream" in {
     val stream = new ByteArrayOutputStream
-    Render as PrettyPrint from document toStream stream
+    Render as PrettyPrint from rootElem toStream stream
     stream.toString should be (expected)
   }
   
   it should "render a document to a java.io.OutputStream, specifying the encoding explicitly" in {
     val stream = new ByteArrayOutputStream
-    (Render as PrettyPrint from document).toStream(stream)(Codec.ISO8859)
+    (Render as PrettyPrint from rootElem).toStream(stream)(Codec.ISO8859)
     stream.toString("ISO-8859-1") should be (expected)
   }
   
   it should "render a document to a java.io.OutputStream, specifying the encoding implicitly" in {
     implicit val codec:Codec = Codec.ISO8859
     val stream = new ByteArrayOutputStream
-    Render as PrettyPrint from document toStream stream
+    Render as PrettyPrint from rootElem toStream stream
     stream.toString("ISO-8859-1") should be (expected)
   }
   
   it should "allow to override the default renderer for specific element types" in {
     val render = Render as PrettyPrint using { out => { case Text(content,_) => out << "String - '" << content << "'" } }
     val modifiedResult = expected.replaceAllLiterally("Text", "String")
-    (render from document toString) should be (modifiedResult)
+    (render from rootElem toString) should be (modifiedResult)
   }
   
   def tree (builder: TestProviderBuilder) = new OutputConfigBuilder(builder, Codec.UTF8)
   
-  def markupDoc (num: Int, path: Path = Root)  = new Document(path / ("doc"+num), doc(p("Doc"+num)))
-  def dynamicDoc (num: Int, path: Path = Root) = new Document(path / ("doc"+num), doc(TemplateRoot(List(TemplateString("Doc"+num)))))
+  def markupDoc (num: Int, path: Path = Root)  = new Document(path / ("doc"+num), root(p("Doc"+num)))
+  def dynamicDoc (num: Int, path: Path = Root) = new Document(path / ("doc"+num), root(TemplateRoot(List(TemplateString("Doc"+num)))))
   
   def staticDoc (num: Int, path: Path = Root) = Input.fromString("Static"+num, path / ("static"+num+".txt"))
   
@@ -124,7 +124,7 @@ class RenderAPISpec extends FlatSpec
   }
   
   it should "render a tree with a single document" in {
-    val input = new DocumentTree(Root, List(new Document(Root / "doc", document)))
+    val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem)))
     val builder = new TestProviderBuilder
     Render as PrettyPrint from input toTree tree(builder)
     builder.result should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.txt", expected))))))

@@ -29,65 +29,65 @@ class RewriteSpec extends FlatSpec
 
   
   "The rewriter" should "replace the first element of the children in a container" in {
-    val document = doc(p("a"), p("b"), p("c"))
-    document rewrite { case Paragraph(Seq(Text("a",_)),_) => Some(p("x")) } should be (doc(p("x"), p("b"), p("c")))
+    val rootElem = root(p("a"), p("b"), p("c"))
+    rootElem rewrite { case Paragraph(Seq(Text("a",_)),_) => Some(p("x")) } should be (root(p("x"), p("b"), p("c")))
   }
   
   it should "replace an element in the middle of the list of children in a container" in {
-    val document = doc(p("a"), p("b"), p("c"))
-    document rewrite { case Paragraph(Seq(Text("b",_)),_) => Some(p("x")) } should be (doc(p("a"), p("x"), p("c")))
+    val rootElem = root(p("a"), p("b"), p("c"))
+    rootElem rewrite { case Paragraph(Seq(Text("b",_)),_) => Some(p("x")) } should be (root(p("a"), p("x"), p("c")))
   }
   
   it should "replace the last element of the children in a container" in {
-    val document = doc(p("a"), p("b"), p("c"))
-    document rewrite { case Paragraph(Seq(Text("c",_)),_) => Some(p("x")) } should be (doc(p("a"), p("b"), p("x")))
+    val rootElem = root(p("a"), p("b"), p("c"))
+    rootElem rewrite { case Paragraph(Seq(Text("c",_)),_) => Some(p("x")) } should be (root(p("a"), p("b"), p("x")))
   }
   
   it should "remove the first element of the children in a container" in {
-    val document = doc(p("a"), p("b"), p("c"))
-    document rewrite { case Paragraph(Seq(Text("a",_)),_) => None } should be (doc(p("b"), p("c")))
+    val rootElem = root(p("a"), p("b"), p("c"))
+    rootElem rewrite { case Paragraph(Seq(Text("a",_)),_) => None } should be (root(p("b"), p("c")))
   }
   
   it should "remove an element in the middle of the list of children in a container" in {
-    val document = doc(p("a"), p("b"), p("c"))
-    document rewrite { case Paragraph(Seq(Text("b",_)),_) => None } should be (doc(p("a"), p("c")))
+    val rootElem = root(p("a"), p("b"), p("c"))
+    rootElem rewrite { case Paragraph(Seq(Text("b",_)),_) => None } should be (root(p("a"), p("c")))
   }
   
   it should "remove the last element of the children in a container" in {
-    val document = doc(p("a"), p("b"), p("c"))
-    document rewrite { case Paragraph(Seq(Text("c",_)),_) => None } should be (doc(p("a"), p("b")))
+    val rootElem = root(p("a"), p("b"), p("c"))
+    rootElem rewrite { case Paragraph(Seq(Text("c",_)),_) => None } should be (root(p("a"), p("b")))
   }
   
   it should "replace the header of a section, which is not part of the content list" in {
-    val document = doc(Section(h(1, txt("Title")), List(p("Text"))))
-    document rewrite { case Header(1, content, _) => Some(Header(2, content)) } should be (doc(Section(h(2, txt("Title")), List(p("Text")))))
+    val rootElem = root(Section(h(1, txt("Title")), List(p("Text"))))
+    rootElem rewrite { case Header(1, content, _) => Some(Header(2, content)) } should be (root(Section(h(2, txt("Title")), List(p("Text")))))
   }
   
   it should "return the same instance if no rewrite rule matches" in {
-    val document = doc(p("a"), p("b"), p("c"))
-    document rewrite { case Paragraph(Seq(Text("f",_)),_) => None } should be theSameInstanceAs (document)
+    val rootElem = root(p("a"), p("b"), p("c"))
+    rootElem rewrite { case Paragraph(Seq(Text("f",_)),_) => None } should be theSameInstanceAs (rootElem)
   }
   
   it should "return the same instance if the rewrite rule always returns the same instance" in {
-    val document = doc(p("a"), p("b"), p("c"))
-    document rewrite { case element => Some(element) } should be theSameInstanceAs (document)
+    val rootElem = root(p("a"), p("b"), p("c"))
+    rootElem rewrite { case element => Some(element) } should be theSameInstanceAs (rootElem)
   }
   
   it should "return a new instance for a branch in the document tree that contains one or more modified children" in {
-    val before = doc(quote(p("a")), quote(p("b")), quote(p("c")))
+    val before = root(quote(p("a")), quote(p("b")), quote(p("c")))
     val after = before rewrite { case Paragraph(Seq(Text("a",_)),_) => Some(p("x")) }
     before.content(0) should not be theSameInstanceAs (after.content(0))
   }
   
   it should "return the same instance for a branch in the document tree that does not contain any modified children" in {
-    val before = doc(quote(p("a")), quote(p("b")), quote(p("c")))
+    val before = root(quote(p("a")), quote(p("b")), quote(p("c")))
     val after = before rewrite { case Paragraph(Seq(Text("a",_)),_) => Some(p("x")) }
     before.content(1) should be theSameInstanceAs (after.content(1))
   }
   
   it should "throw an exception when a rewrite rule produces a new element that violates the contract of its parent element" in {
-    val document = doc(Section(h(1,"Title"), Nil)) 
-    evaluating { document rewrite { case Header(_,_,_) => Some(em("x")) }} should produce [document.RewriteException]
+    val rootElem = root(Section(h(1,"Title"), Nil)) 
+    evaluating { rootElem rewrite { case Header(_,_,_) => Some(em("x")) }} should produce [rootElem.RewriteException]
   }
   
   

@@ -36,7 +36,7 @@ class HTMLBlockParserSpec extends FlatSpec
  
  
   
-  val defaultParser: Parser[RootElement] = root
+  val defaultParser: Parser[RootElement] = rootElement
   
   
   "The HTML block parser" should "parse a block level HTML element with a nested element and text content" in {
@@ -49,7 +49,7 @@ class HTMLBlockParserSpec extends FlatSpec
       |bbb""".stripMargin
     val inner = element("span", txt("foo"))
     val outer = element("div", txt("\n  "), inner, txt("\n"))
-    Parsing (input) should produce (doc(p("aaa"), HTMLBlock(outer), p("bbb")))
+    Parsing (input) should produce (root(p("aaa"), HTMLBlock(outer), p("bbb")))
   }
   
   it should "ignore Markdown markup inside a block level HTML element" in {
@@ -62,7 +62,7 @@ class HTMLBlockParserSpec extends FlatSpec
       |bbb""".stripMargin
     val inner = element("span", txt("*foo*"))
     val outer = element("div", txt("\n  "), inner, txt("\n"))
-    Parsing (input) should produce (doc(p("aaa"), HTMLBlock(outer), p("bbb")))
+    Parsing (input) should produce (root(p("aaa"), HTMLBlock(outer), p("bbb")))
   }
   
   it should "ignore elements which are not listed as block-level elements" in {
@@ -75,7 +75,7 @@ class HTMLBlockParserSpec extends FlatSpec
       |bbb""".stripMargin
     val inner = element("span", txt("foo"))
     val outer = element("span", txt("\n  "), inner, txt("\n"))
-    Parsing (input) should produce (doc(p("aaa"), p(outer), p("bbb")))
+    Parsing (input) should produce (root(p("aaa"), p(outer), p("bbb")))
   }
   
   it should "ignore elements which are not at the very start of a block" in {
@@ -88,7 +88,7 @@ class HTMLBlockParserSpec extends FlatSpec
       |bbb""".stripMargin
     val inner = element("span", txt("foo"))
     val outer = element("div", txt("\n  "), inner, txt("\n"))
-    Parsing (input) should produce (doc(p("aaa"), p(txt("xx"), outer), p("bbb")))
+    Parsing (input) should produce (root(p("aaa"), p(txt("xx"), outer), p("bbb")))
   }
   
   

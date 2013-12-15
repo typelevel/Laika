@@ -29,28 +29,28 @@ class ElementTraversalSpec extends FlatSpec
 
   
   "The select method" should "select all elements that satisfy the predicate" in {
-    val document = doc(p("a"), p("b"), p("c"), quote(p("d")))
-    document select { case Paragraph(_,_) => true; case _ => false } should be (List(p("a"), p("b"), p("c"), p("d")))
+    val rootElem = root(p("a"), p("b"), p("c"), quote(p("d")))
+    rootElem select { case Paragraph(_,_) => true; case _ => false } should be (List(p("a"), p("b"), p("c"), p("d")))
   }
   
   it should "select the elements in depth-first order" in {
-    val document = doc(quote(quote(p("a"))), quote(p("b")))
-    document select { case QuotedBlock(_,_,_) => true; case _ => false } should be (List(quote(p("a")), quote(quote(p("a"))), quote(p("b"))))
+    val rootElem = root(quote(quote(p("a"))), quote(p("b")))
+    rootElem select { case QuotedBlock(_,_,_) => true; case _ => false } should be (List(quote(p("a")), quote(quote(p("a"))), quote(p("b"))))
   }
   
   it should "select elements which are not part of the content collection of a container" in {
-    val document = doc(Section(h(1,"Title"), Nil))
-    document select { case Header(_,_,_) => true; case _ => false } should be (List(h(1,"Title")))
+    val rootElem = root(Section(h(1,"Title"), Nil))
+    rootElem select { case Header(_,_,_) => true; case _ => false } should be (List(h(1,"Title")))
   }
   
   it should "return an empty list if no element satisfies the predicate" in {
-    val document = doc(p("a"), p("b"), p("c"), quote(p("d")))
-    document select { case Header(_,_,_) => true; case _ => false } should be (Nil)
+    val rootElem = root(p("a"), p("b"), p("c"), quote(p("d")))
+    rootElem select { case Header(_,_,_) => true; case _ => false } should be (Nil)
   }
   
   it should "collect values based on a partial function applied to all elements" in {
-    val document = doc(p("a"), p("b"), p("c"), quote(p("d")))
-    document collect { case Text(text,_) => text } should be (List("a", "b", "c", "d"))
+    val rootElem = root(p("a"), p("b"), p("c"), quote(p("d")))
+    rootElem collect { case Text(text,_) => text } should be (List("a", "b", "c", "d"))
   }
    
   

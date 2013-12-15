@@ -49,7 +49,7 @@ class ParseAPISpec extends FlatSpec
     val input = """aaa
       |bbb
       |ccc""".stripMargin
-    (Parse as Markdown fromString input).content should be (doc(p(input)))
+    (Parse as Markdown fromString input).content should be (root(p(input)))
   }
   
   it should "allow parsing Markdown from a file" in {
@@ -57,7 +57,7 @@ class ParseAPISpec extends FlatSpec
       |bbb
       |ccc""".stripMargin
     val filename = getClass.getResource("/testInput.md").getFile
-    (Parse as Markdown fromFile filename).content should be (doc(p(input))) 
+    (Parse as Markdown fromFile filename).content should be (root(p(input))) 
   }
   
   it should "allow parsing Markdown from a java.io.Reader instance" in {
@@ -65,7 +65,7 @@ class ParseAPISpec extends FlatSpec
       |bbb
       |ccc""".stripMargin
     val reader = new StringReader(input)
-    (Parse as Markdown fromReader reader).content should be (doc(p(input)))
+    (Parse as Markdown fromReader reader).content should be (root(p(input)))
   }
   
   it should "allow parsing Markdown from a java.io.InputStream instance" in {
@@ -73,7 +73,7 @@ class ParseAPISpec extends FlatSpec
       |bbb
       |ccc""".stripMargin
     val stream = new ByteArrayInputStream(input.getBytes())
-    (Parse as Markdown fromStream stream).content should be (doc(p(input)))
+    (Parse as Markdown fromStream stream).content should be (root(p(input)))
   }
   
   it should "allow parsing Markdown from a java.io.InputStream instance, specifying the encoding explicitly" in {
@@ -81,7 +81,7 @@ class ParseAPISpec extends FlatSpec
       |ööö
       |üüü""".stripMargin
     val stream = new ByteArrayInputStream(input.getBytes("ISO-8859-1"))
-    (Parse as Markdown).fromStream(stream)(Codec.ISO8859).content should be (doc(p(input)))
+    (Parse as Markdown).fromStream(stream)(Codec.ISO8859).content should be (root(p(input)))
   }
   
   it should "allow parsing Markdown from a java.io.InputStream instance, specifying the encoding implicitly" in {
@@ -90,21 +90,21 @@ class ParseAPISpec extends FlatSpec
       |üüü""".stripMargin
     val stream = new ByteArrayInputStream(input.getBytes("ISO-8859-1"))
     implicit val codec:Codec = Codec.ISO8859
-    (Parse as Markdown fromStream stream).content should be (doc(p(input)))
+    (Parse as Markdown fromStream stream).content should be (root(p(input)))
   }
   
   it should "allow parsing Markdown with all link references resolved through the default rewrite rules" in {
     val input = """[link][id]
       |
       |[id]: http://foo/""".stripMargin
-    (Parse as Markdown fromString input).content should be (doc(p(link(txt("link")).url("http://foo/"))))
+    (Parse as Markdown fromString input).content should be (root(p(link(txt("link")).url("http://foo/"))))
   }
   
   it should "allow parsing Markdown into a raw document, without applying the default rewrite rules" in {
     val input = """[link][id]
       |
       |[id]: http://foo/""".stripMargin
-    ((Parse as Markdown asRawDocument) fromString input).content should be (doc 
+    ((Parse as Markdown asRawDocument) fromString input).content should be (root 
         (p (LinkReference(List(Text("link")), "id", "[link][id]")), ExternalLinkDefinition("id","http://foo/",None)))
   }
   

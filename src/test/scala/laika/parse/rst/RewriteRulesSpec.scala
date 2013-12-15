@@ -39,35 +39,35 @@ class RewriteRulesSpec extends FlatSpec
       
       
   "The rewrite rules for substitutions" should "replace a single reference with the target span" in {
-    val document = doc(p(SubstitutionReference("id")), SubstitutionDefinition("id", txt("subst")))
-    rewritten (document) should be (doc(p("subst")))
+    val rootElem = root(p(SubstitutionReference("id")), SubstitutionDefinition("id", txt("subst")))
+    rewritten (rootElem) should be (root(p("subst")))
   }
   
   it should "replace multiple occurrences of the same reference with the same target span" in {
-    val document = doc(p(SubstitutionReference("id"), txt(" foo "), SubstitutionReference("id")), SubstitutionDefinition("id", txt("subst")))
-    rewritten (document) should be (doc(p(txt("subst"),txt(" foo "),txt("subst"))))
+    val rootElem = root(p(SubstitutionReference("id"), txt(" foo "), SubstitutionReference("id")), SubstitutionDefinition("id", txt("subst")))
+    rewritten (rootElem) should be (root(p(txt("subst"),txt(" foo "),txt("subst"))))
   }
   
   it should "replace a reference with an unknown substitution id with an invalid span" in {
-    val document = doc(p(SubstitutionReference("id1")), SubstitutionDefinition("id2", txt("subst")))
-    rewritten (document) should be (doc(p(invalidSpan("unknown substitution id: id1", "|id1|"))))
+    val rootElem = root(p(SubstitutionReference("id1")), SubstitutionDefinition("id2", txt("subst")))
+    rewritten (rootElem) should be (root(p(invalidSpan("unknown substitution id: id1", "|id1|"))))
   }
   
   
   "The rewrite rules for interpreted text roles" should "replace a single reference with the result of applying the role function" in {
-    val document = doc(p(InterpretedText("id", "foo","")), CustomizedTextRole("id", s => txt(":"+s+":")))
-    rewritten (document) should be (doc(p(":foo:")))
+    val rootElem = root(p(InterpretedText("id", "foo","")), CustomizedTextRole("id", s => txt(":"+s+":")))
+    rewritten (rootElem) should be (root(p(":foo:")))
   }
   
   it should "replace multiple references with the result of applying corresponding role functions" in {
-    val document = doc(p(InterpretedText("id1", "foo",""),InterpretedText("id2", "bar",""),InterpretedText("id1", "baz","")), 
+    val rootElem = root(p(InterpretedText("id1", "foo",""),InterpretedText("id2", "bar",""),InterpretedText("id1", "baz","")), 
         CustomizedTextRole("id1", s => txt(":"+s+":")), CustomizedTextRole("id2", s => txt("."+s+".")))
-    rewritten (document) should be (doc(p(txt(":foo:"),txt(".bar."),txt(":baz:"))))
+    rewritten (rootElem) should be (root(p(txt(":foo:"),txt(".bar."),txt(":baz:"))))
   }
   
   it should "replace an unknown text role with an invalid span" in {
-    val document = doc(p(InterpretedText("id1", "foo", "")), CustomizedTextRole("id2", s => txt("."+s+".")))
-    rewritten (document) should be (doc(p(invalidSpan("unknown text role: id1", "`foo`"))))
+    val rootElem = root(p(InterpretedText("id1", "foo", "")), CustomizedTextRole("id2", s => txt("."+s+".")))
+    rewritten (rootElem) should be (root(p(invalidSpan("unknown text role: id1", "`foo`"))))
   }
   
   

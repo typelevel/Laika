@@ -37,7 +37,7 @@ class TableParsersSpec extends FlatSpec
                         with ModelBuilder {
 
   
-  val defaultParser: Parser[RootElement] = root
+  val defaultParser: Parser[RootElement] = rootElement
   
   
   def blockDirective (name: String): Option[DirectivePart[Block]] = None
@@ -54,7 +54,7 @@ class TableParsersSpec extends FlatSpec
       |+---+---+
       || c | d |
       |+---+---+""".stripMargin
-    Parsing (input) should produce (doc( table(strrow("a","b"), strrow("c","d"))))
+    Parsing (input) should produce (root( table(strrow("a","b"), strrow("c","d"))))
   }
   
   it should "parse a table with horizontally merged cells in the first row" in {
@@ -63,7 +63,7 @@ class TableParsersSpec extends FlatSpec
       |+---+---+
       || c | d |
       |+---+---+""".stripMargin
-    Parsing (input) should produce (doc( table(row(cell("a b", 2, 1)), strrow("c","d"))))
+    Parsing (input) should produce (root( table(row(cell("a b", 2, 1)), strrow("c","d"))))
   }
   
   it should "parse a table with horizontally merged cells in the second row" in {
@@ -72,7 +72,7 @@ class TableParsersSpec extends FlatSpec
       |+---+---+
       ||  c d  |
       |+---+---+""".stripMargin
-    Parsing (input) should produce (doc( table(strrow("a","b"), row(cell("c d", 2, 1)))))
+    Parsing (input) should produce (root( table(strrow("a","b"), row(cell("c d", 2, 1)))))
   }
   
   it should "parse a table with vertically merged cells in the left column" in {
@@ -81,7 +81,7 @@ class TableParsersSpec extends FlatSpec
       |+ b +---+
       || c | e |
       |+---+---+""".stripMargin
-    Parsing (input) should produce (doc( table(row(cell("a\nb\nc", 1, 2), cell("d")), strrow("e"))))
+    Parsing (input) should produce (root( table(row(cell("a\nb\nc", 1, 2), cell("d")), strrow("e"))))
   }
   
   it should "parse a table with vertically merged cells in the right column" in {
@@ -90,7 +90,7 @@ class TableParsersSpec extends FlatSpec
       |+---+ c +
       || e | d |
       |+---+---+""".stripMargin
-    Parsing (input) should produce (doc( table(row(cell("a"), cell("b\nc\nd", 1, 2)), strrow("e"))))
+    Parsing (input) should produce (root( table(row(cell("a"), cell("b\nc\nd", 1, 2)), strrow("e"))))
   }
   
   it should "parse a table with vertically and horizontally merged cells" in {
@@ -101,7 +101,7 @@ class TableParsersSpec extends FlatSpec
       ||  2-2  +---+
       ||  3-3  | e |
       |+---+---+---+""".stripMargin
-    Parsing (input) should produce (doc( table(strrow("a","b","c"), row(cell("1-1\n2-2\n3-3", 2, 2), cell("d")), strrow("e"))))
+    Parsing (input) should produce (root( table(strrow("a","b","c"), row(cell("1-1\n2-2\n3-3", 2, 2), cell("d")), strrow("e"))))
   }
   
   it should "parse tables with empty cells" in {
@@ -110,7 +110,7 @@ class TableParsersSpec extends FlatSpec
       |+---+---+
       ||   |   |
       |+---+---+""".stripMargin
-    Parsing (input) should produce (doc( table( row(cell(),cell()), row(cell(),cell()))))
+    Parsing (input) should produce (root( table( row(cell(),cell()), row(cell(),cell()))))
   }
   
   it should "fail in case of illegal merging of cells (variant 1)" in {
@@ -119,7 +119,7 @@ class TableParsersSpec extends FlatSpec
       |+   +---+
       ||  c d  |
       |+---+---+""".stripMargin
-    Parsing (input) should produce (doc( p(input)))
+    Parsing (input) should produce (root( p(input)))
   }
   
   it should "fail in case of illegal merging of cells (variant 2)" in {
@@ -128,7 +128,7 @@ class TableParsersSpec extends FlatSpec
       |+---+   +
       ||  c d  |
       |+---+---+""".stripMargin
-    Parsing (input) should produce (doc( p(input)))
+    Parsing (input) should produce (root( p(input)))
   }
   
   it should "fail in case of illegal merging of cells (variant 3)" in {
@@ -137,7 +137,7 @@ class TableParsersSpec extends FlatSpec
       |+   +---+
       || c | d |
       |+---+---+""".stripMargin
-    Parsing (input) should produce (doc( p(input)))
+    Parsing (input) should produce (root( p(input)))
   }
   
   it should "fail in case of illegal merging of cells (variant 4)" in {
@@ -146,7 +146,7 @@ class TableParsersSpec extends FlatSpec
       |+---+   +
       || c | d |
       |+---+---+""".stripMargin
-    Parsing (input) should produce (doc( p(input)))
+    Parsing (input) should produce (root( p(input)))
   }
   
   it should "parse cells containing multiple block elements" in {
@@ -160,7 +160,7 @@ class TableParsersSpec extends FlatSpec
       |+---+---------+
       || c | d       |
       |+---+---------+""".stripMargin
-    Parsing (input) should produce (doc( table(row(cell("a"), cell(p("Text"), bulletList() + "Line1\nLine2" + "Line3")), strrow("c","d"))))
+    Parsing (input) should produce (root( table(row(cell("a"), cell(p("Text"), bulletList() + "Line1\nLine2" + "Line3")), strrow("c","d"))))
   }
   
   it should "parse tables with header cells" in {
@@ -169,7 +169,7 @@ class TableParsersSpec extends FlatSpec
       |+===+===+
       || c | d |
       |+---+---+""".stripMargin
-    Parsing (input) should produce (doc( Table(TableHead(List(row(Cell(HeadCell,List(p("a"))), Cell(HeadCell,List(p("b")))))), 
+    Parsing (input) should produce (root( Table(TableHead(List(row(Cell(HeadCell,List(p("a"))), Cell(HeadCell,List(p("b")))))), 
                                                TableBody(List(strrow("c","d"))))))
   }
   
@@ -180,7 +180,7 @@ class TableParsersSpec extends FlatSpec
       | a    b
       | c    d
       |===  ===""".stripMargin
-    Parsing (input) should produce (doc( table(strrow("a","b"), strrow("c","d"))))
+    Parsing (input) should produce (root( table(strrow("a","b"), strrow("c","d"))))
   }
   
   it should "parse a table with horizontally merged cells in the first row" in {
@@ -189,7 +189,7 @@ class TableParsersSpec extends FlatSpec
       |--------
       | c    d
       |===  ===""".stripMargin
-    Parsing (input) should produce (doc( table(row(cell("a    b", 2, 1)), strrow("c","d"))))
+    Parsing (input) should produce (root( table(row(cell("a    b", 2, 1)), strrow("c","d"))))
   }
   
   it should "parse a table with horizontally merged cells in the second row" in {
@@ -197,7 +197,7 @@ class TableParsersSpec extends FlatSpec
       | a    b
       | c    d
       |========""".stripMargin
-    Parsing (input) should produce (doc( table(strrow("a","b"), row(cell("c    d", 2, 1)))))
+    Parsing (input) should produce (root( table(strrow("a","b"), row(cell("c    d", 2, 1)))))
   }
   
   it should "parse tables with empty cells" in {
@@ -205,7 +205,7 @@ class TableParsersSpec extends FlatSpec
       | a     
       | c     
       |===  ===""".stripMargin
-    Parsing (input) should produce (doc( table(row(cell("a"),cell()), row(cell("c"),cell()))))
+    Parsing (input) should produce (root( table(row(cell("a"),cell()), row(cell("c"),cell()))))
   }
   
   it should "parse cells containing multiple block elements" in {
@@ -219,7 +219,7 @@ class TableParsersSpec extends FlatSpec
       |
       | c    d
       |===  ===""".stripMargin
-    Parsing (input) should produce (doc( table(row(cell("a"), cell(p("Text"), bulletList() + "Line1\nLine2" + "Line3")), strrow("c","d"))))
+    Parsing (input) should produce (root( table(row(cell("a"), cell(p("Text"), bulletList() + "Line1\nLine2" + "Line3")), strrow("c","d"))))
   }
   
   it should "parse tables with header cells" in {
@@ -228,7 +228,7 @@ class TableParsersSpec extends FlatSpec
       |===  ===
       | c    d
       |===  ===""".stripMargin
-    Parsing (input) should produce (doc( Table(TableHead(List(row(Cell(HeadCell,List(p("a"))), Cell(HeadCell,List(p("b")))))), 
+    Parsing (input) should produce (root( Table(TableHead(List(row(Cell(HeadCell,List(p("a"))), Cell(HeadCell,List(p("b")))))), 
                                                TableBody(List(strrow("c","d"))))))
   }
   

@@ -37,7 +37,7 @@ class BlockParsersSpec extends FlatSpec
                         with ModelBuilder {
 
   
-  val defaultParser: Parser[RootElement] = root
+  val defaultParser: Parser[RootElement] = rootElement
   
   
   def blockDirective (name: String): Option[DirectivePart[Block]] = None
@@ -51,7 +51,7 @@ class BlockParsersSpec extends FlatSpec
   "The doctest parser" should "parse a doctest block" in {
     val input = """>>> print 'this is a doctest block'
       |this is a doctest block""".stripMargin
-    Parsing (input) should produce (doc (DoctestBlock(input.drop(4))))
+    Parsing (input) should produce (root (DoctestBlock(input.drop(4))))
   }
   
   
@@ -61,21 +61,21 @@ class BlockParsersSpec extends FlatSpec
       |::
       |
       |  Literal Block""".stripMargin
-    Parsing (input) should produce (doc (p("Paragraph:"), LiteralBlock("Literal Block")))  
+    Parsing (input) should produce (root (p("Paragraph:"), LiteralBlock("Literal Block")))  
   }
   
   it should "parse an indented literal block in partially minimized form" in {
     val input = """Paragraph: ::
       |
       |  Literal Block""".stripMargin
-    Parsing (input) should produce (doc (p("Paragraph:"), LiteralBlock("Literal Block")))  
+    Parsing (input) should produce (root (p("Paragraph:"), LiteralBlock("Literal Block")))  
   }
   
   it should "parse an indented literal block in fully minimized form" in {
     val input = """Paragraph::
       |
       |  Literal Block""".stripMargin
-    Parsing (input) should produce (doc (p("Paragraph:"), LiteralBlock("Literal Block")))  
+    Parsing (input) should produce (root (p("Paragraph:"), LiteralBlock("Literal Block")))  
   }
   
   it should "parse a quoted literal block in expanded form" in {
@@ -84,21 +84,21 @@ class BlockParsersSpec extends FlatSpec
       |::
       |
       |> Literal Block""".stripMargin
-    Parsing (input) should produce (doc (p("Paragraph:"), LiteralBlock("> Literal Block")))  
+    Parsing (input) should produce (root (p("Paragraph:"), LiteralBlock("> Literal Block")))  
   }
   
   it should "parse a quoted literal block in partially minimized form" in {
     val input = """Paragraph: ::
       |
       |> Literal Block""".stripMargin
-    Parsing (input) should produce (doc (p("Paragraph:"), LiteralBlock("> Literal Block")))  
+    Parsing (input) should produce (root (p("Paragraph:"), LiteralBlock("> Literal Block")))  
   }
   
   it should "parse a quoted literal block in fully minimized form" in {
     val input = """Paragraph::
       |
       |> Literal Block""".stripMargin
-    Parsing (input) should produce (doc (p("Paragraph:"), LiteralBlock("> Literal Block")))  
+    Parsing (input) should produce (root (p("Paragraph:"), LiteralBlock("> Literal Block")))  
   }
   
   it should "parse an indented literal block with blank lines" in {
@@ -107,7 +107,7 @@ class BlockParsersSpec extends FlatSpec
       |    Line 1
       |
       |  Line 2""".stripMargin
-    Parsing (input) should produce (doc (p("Paragraph:"), LiteralBlock("  Line 1\n\nLine 2")))  
+    Parsing (input) should produce (root (p("Paragraph:"), LiteralBlock("  Line 1\n\nLine 2")))  
   }
   
   it should "parse a quoted literal block with blank lines" in {
@@ -116,7 +116,7 @@ class BlockParsersSpec extends FlatSpec
       |>   Line 1
       |>
       |>  Line 2""".stripMargin
-    Parsing (input) should produce (doc (p("Paragraph:"), LiteralBlock(">   Line 1\n>\n>  Line 2")))  
+    Parsing (input) should produce (root (p("Paragraph:"), LiteralBlock(">   Line 1\n>\n>  Line 2")))  
   }
   
   
@@ -124,14 +124,14 @@ class BlockParsersSpec extends FlatSpec
     val input = """ Paragraph 1
       |
       | Paragraph 2""".stripMargin
-    Parsing (input) should produce (doc (quote(p("Paragraph 1"), p("Paragraph 2"))))  
+    Parsing (input) should produce (root (quote(p("Paragraph 1"), p("Paragraph 2"))))  
   }
   
   it should "parse block quote with an attribution" in {
     val input = """ Paragraph 1
       |
       | -- attribution""".stripMargin
-    Parsing (input) should produce (doc (quote("Paragraph 1", "attribution")))  
+    Parsing (input) should produce (root (quote("Paragraph 1", "attribution")))  
   }
   
   
@@ -139,14 +139,14 @@ class BlockParsersSpec extends FlatSpec
     val input = """Paragraph
       |
       |=======""".stripMargin
-    Parsing (input) should produce (doc (p("Paragraph"), Rule()))
+    Parsing (input) should produce (root (p("Paragraph"), Rule()))
   }
   
   it should "ignore lines shorter than 4 characters" in {
     val input = """Paragraph
       |
       |===""".stripMargin
-    Parsing (input) should produce (doc (p("Paragraph"), p("===")))
+    Parsing (input) should produce (root (p("Paragraph"), p("===")))
   }
   
   def ilt (id: String = "header") = InternalLinkTarget(Id(id))
@@ -155,13 +155,13 @@ class BlockParsersSpec extends FlatSpec
     val input = """========
       | Header
       |========""".stripMargin
-    Parsing (input) should produce (doc (dh(ulol('='),"Header","header")))
+    Parsing (input) should produce (root (dh(ulol('='),"Header","header")))
   }
   
   it should "parse a header with underline only" in {
     val input = """Header
       |========""".stripMargin
-    Parsing (input) should produce (doc (dh(ul('='),"Header","header")))
+    Parsing (input) should produce (root (dh(ul('='),"Header","header")))
   }
   
   it should "parse headers with varying levels" in {
@@ -177,21 +177,21 @@ class BlockParsersSpec extends FlatSpec
       |
       |Header 2b
       |=========""".stripMargin
-    Parsing (input) should produce (doc (dh(ulol('='),"Header 1","header 1"), dh(ul('='),"Header 2","header 2"), 
+    Parsing (input) should produce (root (dh(ulol('='),"Header 1","header 1"), dh(ul('='),"Header 2","header 2"), 
                                          dh(ul('-'),"Header 3","header 3"), dh(ul('='),"Header 2b","header 2b")))
   }
   
   it should "ignore headers where the underline is shorter than the text" in {
     val input = """Header
       |=====""".stripMargin
-    Parsing (input) should produce (doc (p("Header\n=====")))
+    Parsing (input) should produce (root (p("Header\n=====")))
   }
   
   it should "ignore headers where the underline does not have the same length as the overline" in {
     val input = """=======
       |Header
       |========""".stripMargin
-    Parsing (input) should produce (doc (p("=======\nHeader\n========")))
+    Parsing (input) should produce (root (p("=======\nHeader\n========")))
   }
   
   
@@ -199,7 +199,7 @@ class BlockParsersSpec extends FlatSpec
     val input = """.. _target:
       |
       |Text""".stripMargin
-    Parsing (input) should produce (doc (Paragraph(List(Text("Text")), Id("target"))))
+    Parsing (input) should produce (root (Paragraph(List(Text("Text")), Id("target"))))
   }
   
   it should "not apply an internal link target to the following regular block when that already has an id" in {
@@ -207,7 +207,7 @@ class BlockParsersSpec extends FlatSpec
       |
       |Header
       |======""".stripMargin
-    Parsing (input) should produce (doc(DecoratedHeader(Underline('='), List(InternalLinkTarget(Id("target")),txt("Header")), Id("header"))))  
+    Parsing (input) should produce (root(DecoratedHeader(Underline('='), List(InternalLinkTarget(Id("target")),txt("Header")), Id("header"))))  
   }
 
   it should "treat an internal link target followed by another internal link target like an alias" in {
@@ -215,14 +215,14 @@ class BlockParsersSpec extends FlatSpec
       |.. _target2:
       |
       |Text""".stripMargin
-    Parsing (input) should produce (doc (LinkAlias("target1", "target2"), 
+    Parsing (input) should produce (root (LinkAlias("target1", "target2"), 
                                          Paragraph(List(Text("Text")), Id("target2"))))
   }
   
   it should "treat an internal link target followed by an external link target as an external link target" in {
     val input = """.. _target1:
       |.. _target2: http://www.foo.com""".stripMargin
-    Parsing (input) should produce (doc (ExternalLinkDefinition("target1","http://www.foo.com"), 
+    Parsing (input) should produce (root (ExternalLinkDefinition("target1","http://www.foo.com"), 
                                          ExternalLinkDefinition("target2","http://www.foo.com")))
   }
   

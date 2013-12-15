@@ -71,7 +71,7 @@ class ConfigSpec extends FlatSpec
     new Inputs {
       val dir = """- default.template.html:templateWithRef
         |- input.md:markup""".stripMargin
-      val result = doc(
+      val result = root(
         TemplateRoot(List(
           TemplateString("<h1>"),
           TemplateString("bar"),
@@ -88,7 +88,7 @@ class ConfigSpec extends FlatSpec
     new Inputs {
       val dir = """- default.template.html:templateWithRef
         |- input.rst:markup""".stripMargin
-      val result = doc(
+      val result = root(
         TemplateRoot(List(
           TemplateString("<h1>"),
           TemplateString("bar"),
@@ -105,7 +105,7 @@ class ConfigSpec extends FlatSpec
     new Inputs {
       val dir = """- default.template.html:templateWithConfig
         |- input.md:markupWithRef""".stripMargin
-      val result = doc(
+      val result = root(
         TemplateRoot(List(
           TemplateString("<div>"),
           eRoot(p(txt("aaa\n"),txt("bar"),txt("\nbbb"))),
@@ -120,7 +120,7 @@ class ConfigSpec extends FlatSpec
     new Inputs {
       val dir = """- default.template.html:templateWithConfig
         |- input.rst:markupWithRef""".stripMargin
-      val result = doc(
+      val result = root(
         TemplateRoot(List(
           TemplateString("<div>"),
           eRoot(p(txt("aaa\n"),txt("bar"),txt("\nbbb"))),
@@ -156,7 +156,7 @@ class ConfigSpec extends FlatSpec
       val config4 = "key4: val4"
       val config5 = "key5: val5"
         
-      val result = doc(
+      val result = root(
         TemplateRoot(
           (1 to 5) map (n => List(TemplateString("val"+n))) reduce (_ ++ List(TemplateString("\n")) ++ _)
         )

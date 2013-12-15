@@ -74,7 +74,7 @@ trait BlockParsers extends MarkupParsers {
   
   /** Parses a full document, delegating most of the work to the `topLevelBlock` parser.
    */
-  def root: Parser[RootElement] = opt(blankLines) ~> blockList(topLevelBlock) ^^ RootElement
+  def rootElement: Parser[RootElement] = opt(blankLines) ~> blockList(topLevelBlock) ^^ RootElement
   
   /** Fully parses the input from the specified reader and returns the document tree. 
    *  This function is expected to always succeed, errors would be considered a bug
@@ -102,7 +102,7 @@ trait BlockParsers extends MarkupParsers {
         config.withValue(name, ConfigValueFactory.fromAnyRef(value))
       }, root)
     }
-    val parser = opt(config(path)) ~ root ^^ {
+    val parser = opt(config(path)) ~ rootElement ^^ {
       case Some(Right(config)) ~ root => assembleConfig(config, root)
       case Some(Left(block)) ~ root   => assembleConfig(ConfigFactory.empty(), root.copy(content = block +: root.content))
       case None ~ root                => assembleConfig(ConfigFactory.empty(), root)

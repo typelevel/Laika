@@ -115,7 +115,7 @@ class BlockDirectiveAPISpec extends FlatSpec
     
     def getSpanDirective (name: String) = None
     
-    val defaultParser = root
+    val defaultParser = rootElement
     
     def invalid (input: String, error: String) = 
         InvalidBlock(SystemMessage(laika.tree.Elements.Error, error), LiteralBlock(input))
@@ -133,7 +133,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:dir foo.
         |
         |bb""".stripMargin
-      Parsing (input) should produce (doc(p("aa"), p("foo"), p("bb")))
+      Parsing (input) should produce (root(p("aa"), p("foo"), p("bb")))
     }
   }
   
@@ -145,7 +145,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |bb""".stripMargin
       val msg = "One or more errors processing directive: required default attribute is missing"
-      Parsing (input) should produce (doc(p("aa"), invalid("@:dir.",msg), p("bb")))
+      Parsing (input) should produce (root(p("aa"), invalid("@:dir.",msg), p("bb")))
     }
   }
   
@@ -157,7 +157,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |bb""".stripMargin
       val msg = "One or more errors processing directive: required default attribute is missing"
-      Parsing (input) should produce (doc(p("aa"), p("5"), p("bb")))
+      Parsing (input) should produce (root(p("aa"), p("5"), p("bb")))
     }
   }
   
@@ -169,7 +169,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |bb""".stripMargin
       val msg = "One or more errors processing directive: Not an integer: foo"
-      Parsing (input) should produce (doc(p("aa"), invalid("@:dir foo.",msg), p("bb")))
+      Parsing (input) should produce (root(p("aa"), invalid("@:dir foo.",msg), p("bb")))
     }
   }
   
@@ -181,7 +181,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |bb""".stripMargin
       val msg = "One or more errors processing directive: required default attribute is missing"
-      Parsing (input) should produce (doc(p("aa"), p("<>"), p("bb")))
+      Parsing (input) should produce (root(p("aa"), p("<>"), p("bb")))
     }
   }
   
@@ -192,7 +192,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |bb""".stripMargin
     new RequiredNamedAttribute with TemplateParser {
-      Parsing (input) should produce (doc(p("aa"), p("foo"), p("bb")))
+      Parsing (input) should produce (root(p("aa"), p("foo"), p("bb")))
     }
   }
   
@@ -203,7 +203,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |bb""".stripMargin
     new RequiredNamedAttribute with TemplateParser {
-      Parsing (input) should produce (doc(p("aa"), p("foo bar"), p("bb")))
+      Parsing (input) should produce (root(p("aa"), p("foo bar"), p("bb")))
     }
   }
   
@@ -215,7 +215,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |bb""".stripMargin
       val msg = "One or more errors processing directive: required attribute with name 'name' is missing"
-      Parsing (input) should produce (doc(p("aa"), invalid("@:dir.",msg), p("bb")))
+      Parsing (input) should produce (root(p("aa"), invalid("@:dir.",msg), p("bb")))
     }
   }
   
@@ -227,7 +227,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |bb""".stripMargin
       val msg = "One or more errors processing directive: required default attribute is missing"
-      Parsing (input) should produce (doc(p("aa"), p("5"), p("bb")))
+      Parsing (input) should produce (root(p("aa"), p("5"), p("bb")))
     }
   }
   
@@ -239,7 +239,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |bb""".stripMargin
       val msg = "One or more errors processing directive: Not an integer: foo"
-      Parsing (input) should produce (doc(p("aa"), invalid("@:dir name=foo.",msg), p("bb")))
+      Parsing (input) should produce (root(p("aa"), invalid("@:dir name=foo.",msg), p("bb")))
     }
   }
   
@@ -251,7 +251,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |bb""".stripMargin
       val msg = "One or more errors processing directive: required default attribute is missing"
-      Parsing (input) should produce (doc(p("aa"), p("<>"), p("bb")))
+      Parsing (input) should produce (root(p("aa"), p("<>"), p("bb")))
     }
   }
   
@@ -263,7 +263,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |bb""".stripMargin
       val body = BlockSequence(List(p(txt("some "), MarkupContextReference("ref"), txt(" text"))))
-      Parsing (input) should produce (doc(p("aa"), body, p("bb")))
+      Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
   
@@ -278,7 +278,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |bb""".stripMargin
       val body = BlockSequence(List(p(txt("some\n"), MarkupContextReference("ref"), txt("\ntext"))))
-      Parsing (input) should produce (doc(p("aa"), body, p("bb")))
+      Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
   
@@ -290,7 +290,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |bb""".stripMargin
       val msg = "One or more errors processing directive: required default body is missing"
-      Parsing (input) should produce (doc(p("aa"), invalid("@:dir.",msg), p("bb")))
+      Parsing (input) should produce (root(p("aa"), invalid("@:dir.",msg), p("bb")))
     }
   }
   
@@ -302,7 +302,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |bb""".stripMargin
       val body = BlockSequence(List(p(txt("some "), MarkupContextReference("ref"), txt(" text"))))
-      Parsing (input) should produce (doc(p("aa"), body, p("bb")))
+      Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
   
@@ -313,7 +313,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:dir.
         |
         |bb""".stripMargin
-      Parsing (input) should produce (doc(p("aa"), BlockSequence(Nil), p("bb")))
+      Parsing (input) should produce (root(p("aa"), BlockSequence(Nil), p("bb")))
     }
   }
   
@@ -325,7 +325,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |bb""".stripMargin
       val body = BlockSequence(List(p(txt("some "), MarkupContextReference("ref"), txt(" text"))))
-      Parsing (input) should produce (doc(p("aa"), body, p("bb")))
+      Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
   
@@ -337,7 +337,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |bb""".stripMargin
       val msg = "One or more errors processing directive: required body with name 'name' is missing"
-      Parsing (input) should produce (doc(p("aa"), invalid("@:dir.",msg), p("bb")))
+      Parsing (input) should produce (root(p("aa"), invalid("@:dir.",msg), p("bb")))
     }
   }
   
@@ -349,7 +349,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |bb""".stripMargin
       val body = BlockSequence(List(p(txt("some "), MarkupContextReference("ref"), txt(" text"))))
-      Parsing (input) should produce (doc(p("aa"), body, p("bb")))
+      Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
   
@@ -360,7 +360,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:dir.
         |
         |bb""".stripMargin
-      Parsing (input) should produce (doc(p("aa"), BlockSequence(Nil), p("bb")))
+      Parsing (input) should produce (root(p("aa"), BlockSequence(Nil), p("bb")))
     }
   }
   
@@ -380,7 +380,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         p(txt("1 "), MarkupContextReference("ref1"), txt(" 2")), 
         p(txt("3 "), MarkupContextReference("ref3"), txt(" 4"))
       ))
-      Parsing (input) should produce (doc(p("aa"), body, p("bb")))
+      Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
   
@@ -402,7 +402,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         p(txt("1 "), MarkupContextReference("ref1"), txt(" 2")), 
         p(txt("3 "), MarkupContextReference("ref3"), txt(" 4"))
       ))
-      Parsing (input) should produce (doc(p("aa"), body, p("bb")))
+      Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
   
@@ -418,7 +418,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         p("foo:..:0"), 
         p(txt("1 "), MarkupContextReference("ref1"), txt(" 2"))
       ))
-      Parsing (input) should produce (doc(p("aa"), body, p("bb")))
+      Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
   
@@ -430,7 +430,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |bb""".stripMargin
       val msg = "One or more errors processing directive: required default attribute is missing, required default body is missing"
-      Parsing (input) should produce (doc(p("aa"), invalid("@:dir strAttr=str.",msg), p("bb")))
+      Parsing (input) should produce (root(p("aa"), invalid("@:dir strAttr=str.",msg), p("bb")))
     }
   }
   
@@ -442,7 +442,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |bb""".stripMargin
       val body = BlockSequence(List(p(txt("e "), MarkupContextReference("ref"), txt(" text"))))
-      Parsing (input) should produce (doc(p("aa"), body, p("bb")))
+      Parsing (input) should produce (root(p("aa"), body, p("bb")))
     }
   }
   
@@ -456,7 +456,7 @@ class BlockDirectiveAPISpec extends FlatSpec
       def translate (result: RootElement) = result rewrite {
         case d: DirectiveBlock => Some(p("ok")) // cannot compare DirectiveSpans
       }
-      Parsing (input) map translate should produce (doc(p("aa"), p("ok"), p("bb")))
+      Parsing (input) map translate should produce (root(p("aa"), p("ok"), p("bb")))
     }
   }
   
@@ -468,7 +468,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |
         |bb""".stripMargin
       val msg = "One or more errors processing directive: No block directive registered with name: foo"
-      Parsing (input) should produce (doc(p("aa"), invalid("@:foo name=foo.",msg), p("bb")))
+      Parsing (input) should produce (root(p("aa"), invalid("@:foo name=foo.",msg), p("bb")))
     }
   }
   

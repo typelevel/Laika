@@ -35,7 +35,7 @@ class DocumentTreeAPISpec extends FlatSpec
                       with ModelBuilder {
   
   trait TreeModel {
-    def rootElement (b: Block) = doc(b, p("b"), p("c"))
+    def rootElement (b: Block) = root(b, p("b"), p("c"))
     
     def createConfig (path: Path, source: Option[String]) =
       source.map(c =>ConfigFactory.parseString(c, ConfigParseOptions.defaults().setOriginDescription("path:"+path)))
@@ -94,50 +94,50 @@ class DocumentTreeAPISpec extends FlatSpec
   
   it should "allow to select a document from a subdirectory using a relative path" in {
     new TreeModel {
-      val tree = treeWithSubtree(Root, "sub", "doc", doc())
+      val tree = treeWithSubtree(Root, "sub", "doc", root())
       tree.selectDocument(Current / "sub" / "doc").map(_.path) should be (Some(Root / "sub" / "doc"))
     }
   }
   
   it should "not allow to select a document using an absolute path" in {
     new TreeModel {
-      val tree = treeWithSubtree(Root, "sub", "doc", doc())
+      val tree = treeWithSubtree(Root, "sub", "doc", root())
       tree.selectDocument(Root / "sub" / "doc").map(_.path) should be (None)
     }
   }
   
   it should "allow to select a document in the current directory using a relative path" in {
     new TreeModel {
-      val tree = treeWithDoc(Root, "doc", doc())
+      val tree = treeWithDoc(Root, "doc", root())
       tree.selectDocument(Current / "doc").map(_.path) should be (Some(Root / "doc"))
     }
   }
   
   it should "allow to select a subtree in a child directory using a relative path" in {
     new TreeModel {
-      val tree = treeWithSubtree(Root / "top", "sub", "doc", doc())
-      val root = new DocumentTree(Root, Nil, subtrees = List(tree))
-      root.selectSubtree(Current / "top" / "sub").map(_.path) should be (Some(Root / "top" / "sub"))
+      val tree = treeWithSubtree(Root / "top", "sub", "doc", root())
+      val treeRoot = new DocumentTree(Root, Nil, subtrees = List(tree))
+      treeRoot.selectSubtree(Current / "top" / "sub").map(_.path) should be (Some(Root / "top" / "sub"))
     }
   }
   
   it should "allow to select a subtree in the current directory using a relative path" in {
     new TreeModel {
-      val tree = treeWithSubtree(Root, "sub", "doc", doc())
+      val tree = treeWithSubtree(Root, "sub", "doc", root())
       tree.selectSubtree(Current / "sub").map(_.path) should be (Some(Root / "sub"))
     }
   }
   
   it should "not allow to select a subtree using an absolute path" in {
     new TreeModel {
-      val tree = treeWithSubtree(Root, "sub", "doc", doc())
+      val tree = treeWithSubtree(Root, "sub", "doc", root())
       tree.selectSubtree(Root / "sub").map(_.path) should be (None)
     }
   }
   
   it should "allow to specify a template for a document using an absolute path" in {
     new TreeModel {
-      val tree = treeWithSubtree(Root, "sub", "doc", doc(), Some("template: /main.template.html"))
+      val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("template: /main.template.html"))
       val template = new TemplateDocument(Root / "main.template.html", TemplateRoot(Nil))
       val withTemplate = new DocumentTree(tree.path, Nil, 
         templates = List(template),
@@ -151,7 +151,7 @@ class DocumentTreeAPISpec extends FlatSpec
   
   it should "allow to specify a template for a document using a relative path" in {
     new TreeModel {
-      val tree = treeWithSubtree(Root, "sub", "doc", doc(), Some("template: ../main.template.html"))
+      val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("template: ../main.template.html"))
       val template = new TemplateDocument(Root / "main.template.html", TemplateRoot(Nil))
       val withTemplate = new DocumentTree(tree.path, Nil, 
         templates = List(template),
@@ -170,7 +170,7 @@ class DocumentTreeAPISpec extends FlatSpec
         case Text("a",_) => Some(Text("x"))
       }}
       val target = rewritten.selectDocument("sub/doc")
-      target.get.content should be (doc(p("x"), p("b"), p("c")))
+      target.get.content should be (root(p("x"), p("b"), p("c")))
     }
   }
  

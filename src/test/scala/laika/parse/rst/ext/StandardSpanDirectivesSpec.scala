@@ -39,7 +39,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val input = """.. |subst| image:: picture.jpg
       |
       |Some |subst|""".stripMargin
-    val result = doc (p(txt("Some "),img("", "picture.jpg")))
+    val result = root (p(txt("Some "),img("", "picture.jpg")))
     parse(input) should be (result)
   }
   
@@ -48,7 +48,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
       | :alt: alt
       |
       |Some |subst|""".stripMargin
-    val result = doc (p(txt("Some "),img("alt", "picture.jpg")))
+    val result = root (p(txt("Some "),img("alt", "picture.jpg")))
     parse(input) should be (result)
   }
   
@@ -59,7 +59,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
       |.. _ref: http://foo.com/
       |
       |Some |subst|""".stripMargin
-    val result = doc (p(txt("Some "),ExternalLink(List(img("", "picture.jpg")), "http://foo.com/")))
+    val result = root (p(txt("Some "),ExternalLink(List(img("", "picture.jpg")), "http://foo.com/")))
     parse(input) should be (result)
   }
   
@@ -70,7 +70,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
       |.. _`some ref`: http://foo.com/
       |
       |Some |subst|""".stripMargin
-    val result = doc (p(txt("Some "),ExternalLink(List(img("", "picture.jpg")), "http://foo.com/")))
+    val result = root (p(txt("Some "),ExternalLink(List(img("", "picture.jpg")), "http://foo.com/")))
     parse(input) should be (result)
   }
   
@@ -79,7 +79,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
       | :target: http://foo.com/
       |
       |Some |subst|""".stripMargin
-    val result = doc (p(txt("Some "),ExternalLink(List(img("", "picture.jpg")), "http://foo.com/")))
+    val result = root (p(txt("Some "),ExternalLink(List(img("", "picture.jpg")), "http://foo.com/")))
     parse(input) should be (result)
   }
   
@@ -88,7 +88,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
       | :class: foo
       |
       |Some |subst|""".stripMargin
-    val result = doc (p(txt("Some "),Image("","picture.jpg",options=Styles("foo"))))
+    val result = root (p(txt("Some "),Image("","picture.jpg",options=Styles("foo"))))
     parse(input) should be (result)
   }
   
@@ -97,7 +97,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val input = """.. |subst| replace:: *text* here
       |
       |Some |subst|""".stripMargin
-    val result = doc (p(txt("Some "),SpanSequence(List(em("text"),txt(" here")))))
+    val result = root (p(txt("Some "),SpanSequence(List(em("text"),txt(" here")))))
     parse(input) should be (result)
   }
   
@@ -106,7 +106,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val input = """.. |subst| date::
       |
       |Some |subst|""".stripMargin
-    val result = doc (p(txt("Some "),txt((new SimpleDateFormat("yyyy-MM-dd").format(new Date)))))
+    val result = root (p(txt("Some "),txt((new SimpleDateFormat("yyyy-MM-dd").format(new Date)))))
     parse(input) should be (result)
   }
   
@@ -114,7 +114,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val input = """.. |subst| date:: yyyy-MMM-dd
       |
       |Some |subst|""".stripMargin
-    val result = doc (p(txt("Some "),txt((new SimpleDateFormat("yyyy-MMM-dd").format(new Date)))))
+    val result = root (p(txt("Some "),txt((new SimpleDateFormat("yyyy-MMM-dd").format(new Date)))))
     parse(input) should be (result)
   }
   
@@ -123,7 +123,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val input = """.. |subst| unicode:: 0xA9 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = doc (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
+    val result = root (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
     parse(input) should be (result)
   }
   
@@ -131,7 +131,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val input = """.. |subst| unicode:: xA9 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = doc (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
+    val result = root (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
     parse(input) should be (result)
   }
   
@@ -139,7 +139,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val input = """.. |subst| unicode:: \xA9 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = doc (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
+    val result = root (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
     parse(input) should be (result)
   }
   
@@ -147,7 +147,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val input = """.. |subst| unicode:: U+A9 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = doc (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
+    val result = root (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
     parse(input) should be (result)
   }
   
@@ -155,7 +155,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val input = """.. |subst| unicode:: uA9 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = doc (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
+    val result = root (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
     parse(input) should be (result)
   }
   
@@ -163,7 +163,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val input = """.. |subst| unicode:: \""" + """uA9 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = doc (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
+    val result = root (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
     parse(input) should be (result)
   }
   
@@ -171,7 +171,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val input = """.. |subst| unicode:: &#xA9; Company
       |
       |Copyright |subst|""".stripMargin
-    val result = doc (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
+    val result = root (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
     parse(input) should be (result)
   }
   
@@ -179,7 +179,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val input = """.. |subst| unicode:: 169 Company
       |
       |Copyright |subst|""".stripMargin
-    val result = doc (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
+    val result = root (p(txt("Copyright "),txt('\u00a9'.toString+" Company")))
     parse(input) should be (result)
   }
   
