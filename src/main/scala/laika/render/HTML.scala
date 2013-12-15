@@ -108,8 +108,8 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
         List(SpanSequence(List(img)), Paragraph(caption, Styles("caption")), BlockSequence(legend, Styles("legend")))
       
       con match {
-        case RootElement(content)             => if (!content.isEmpty) out << content.head <<| content.tail       
-        case EmbeddedRoot(content,_)          => if (!content.isEmpty) out << content.head <<| content.tail       
+        case RootElement(content)             => if (content.nonEmpty) out << content.head <<| content.tail       
+        case EmbeddedRoot(content,_)          => if (content.nonEmpty) out << content.head <<| content.tail       
         case Section(header, content,_)       => out <<         header <<|   content
         case TitledBlock(title, content, opt) => out <<@ ("div",opt) <<|> (Paragraph(title,Styles("title")) +: content) <<| "</div>"
         case QuotedBlock(content,attr,opt)    => out <<@ ("blockquote",opt); renderBlocks(quotedBlockContent(content,attr), "</blockquote>")
@@ -124,7 +124,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
         
         case WithFallback(fallback)         => out << fallback
         case c: Customizable                => c match {
-          case BlockSequence(content, NoOpt) => out << content // this case could be standalone above, but triggers a compiler bug then
+          case BlockSequence(content, NoOpt) => if (content.nonEmpty) out << content.head <<| content.tail // this case could be standalone above, but triggers a compiler bug then
           case _ => out <<@ ("div",c.options) <<|> c.content <<| "</div>"
         }
         case unknown                        => out << "<div>" <<|> unknown.content <<| "</div>"

@@ -69,6 +69,22 @@ class HTMLRendererSpec extends FlatSpec
     render (elem) should be (html) 
   }
   
+  it should "render a block sequence without a style" in {
+    val elem = root(p("aaa"), BlockSequence(List(p("bbb"), p("ccc"))))
+    val html = """<p>aaa</p>
+      |<p>bbb</p>
+      |<p>ccc</p>""".stripMargin
+    render (elem) should be (html) 
+  }
+  
+  it should "render a block sequence with a single element" in {
+    val elem = root(p("aaa"), BlockSequence(List(p("bbb"))), p("ccc"))
+    val html = """<p>aaa</p>
+      |<p>bbb</p>
+      |<p>ccc</p>""".stripMargin
+    render (elem) should be (html) 
+  }
+  
   it should "render a blockquote with simple flow content" in {
     val elem = quote(p("aaa"))
     val html = "<blockquote>aaa</blockquote>"
