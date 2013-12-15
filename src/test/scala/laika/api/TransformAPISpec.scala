@@ -143,6 +143,7 @@ class TransformAPISpec extends FlatSpec
     import laika.tree.Documents.Path
     import laika.tree.Documents.DocumentType
     import laika.template.ParseTemplate
+    import laika.directive.Directives.Templates
 
     val dirs: String
     
@@ -154,6 +155,7 @@ class TransformAPISpec extends FlatSpec
     def transformWithConfig (config: String) = transformWith(_.withConfigString(config))
     def transformWithDocTypeMatcher (matcher: Path => DocumentType) = transformWith(_.withDocTypeMatcher(matcher))
     def transformWithTemplates (templates: ParseTemplate) = transformWith(_.withTemplates(templates))
+    def transformWithDirective (directive: Templates.Directive) = transformWith(_.withTemplateDirectives(directive))
     def transformInParallel = transformWith(_.inParallel)
     
     private def transformWith (f: BatchConfigBuilder => BatchConfigBuilder) = {
@@ -166,6 +168,7 @@ class TransformAPISpec extends FlatSpec
     
     val contents = Map(
       "name" -> "foo",
+      "directive" -> "aa @:foo bar. bb",
       "dynDoc" -> "{{config.value}}",
       "template1" -> "{{document.content}}",
       "template2" -> "({{document.content}})",
@@ -277,6 +280,29 @@ class TransformAPISpec extends FlatSpec
         |. TemplateRoot - Spans: 1
         |. . TemplateString - '$$foo'""".stripMargin
       transformWithTemplates(ParseTemplate as parser) should be (root(List(docs(
+        (Root / "main1.txt", result),
+        (Root / "main2.txt", result)
+      ))))
+    }
+  }
+  
+  it should "transform a tree with a template directive" in {
+    import laika.directive.Directives._
+    import laika.directive.Directives.Templates
+    import laika.directive.Directives.Templates.Combinators._
+    
+    val directive = Templates.create("foo") {
+      attribute(Default) map { TemplateString(_) }
+    }
+    new TreeTransformer {
+      val dirs = """- main1.dynamic.txt:directive
+        |- main2.dynamic.txt:directive""".stripMargin
+      val result = """RootElement - Blocks: 1
+        |. TemplateRoot - Spans: 3
+        |. . TemplateString - 'aa '
+        |. . TemplateString - 'bar'
+        |. . TemplateString - ' bb'""".stripMargin
+      transformWithDirective(directive) should be (root(List(docs(
         (Root / "main1.txt", result),
         (Root / "main2.txt", result)
       ))))

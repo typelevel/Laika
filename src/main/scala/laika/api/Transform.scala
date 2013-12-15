@@ -260,7 +260,7 @@ class Transform [W] private[Transform] (parser: ParserFactory, render: Render[W]
      *  the default template engine.
      */
     def withTemplateDirectives (directives: Templates.Directive*) =
-      new DirectoryConfigBuilder(inputBuilder.withTemplates(ParseTemplate as DefaultTemplate.withDirectives(directives:_*)))
+      new DirectoryConfigBuilder(inputBuilder.withTemplateDirectives(directives:_*), isParallel)
     
     /** Specifies the function to use for determining the document type
      *  of the input based on its path.
@@ -454,6 +454,12 @@ object Transform {
      */
     def withTemplates (parser: ParseTemplate) = 
       new BatchConfigBuilder(inputBuilder.withTemplates(parser), outputBuilder)
+    
+    /** Specifies custom template directives to use with
+     *  the default template engine.
+     */
+    def withTemplateDirectives (directives: Templates.Directive*) =
+      new BatchConfigBuilder(inputBuilder.withTemplateDirectives(directives:_*), outputBuilder)
     
     /** Specifies the function to use for determining the document type
      *  of the input based on its path.

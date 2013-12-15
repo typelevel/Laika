@@ -110,6 +110,7 @@ class ParseAPISpec extends FlatSpec
   
   def contents = Map(
     "name" -> "foo",
+    "directive" -> "aa @:foo bar. bb",
     "dynDoc" -> "{{config.value}}",
     "conf" -> "value: abc",
     "order" -> """navigationOrder: [
@@ -268,6 +269,21 @@ class ParseAPISpec extends FlatSpec
     def template (num: Int) = TemplateView(Root / ("main"+num+".template.html"), TemplateRoot(List(TemplateString("$$foo"))))
     val treeResult = TreeView(Root, List(TemplateDocuments(Template, List(template(1),template(2)))))
     viewOf((Parse as Markdown asRawDocument) fromTree builder(dirs).withTemplates(ParseTemplate as parser)) should be (treeResult)
+  }
+  
+  it should "allow to specify a template directive" in {
+    import laika.directive.Directives._
+    import laika.directive.Directives.Templates
+    import laika.directive.Directives.Templates.Combinators._
+    
+    val directive = Templates.create("foo") {
+      attribute(Default) map { TemplateString(_) }
+    }
+    val dirs = """- main1.template.html:directive
+      |- main2.template.html:directive""".stripMargin
+    def template (num: Int) = TemplateView(Root / ("main"+num+".template.html"), tRoot(tt("aa "),tt("bar"),tt(" bb")))
+    val treeResult = TreeView(Root, List(TemplateDocuments(Template, List(template(1),template(2)))))
+    viewOf((Parse as Markdown asRawDocument) fromTree builder(dirs).withTemplateDirectives(directive)) should be (treeResult)
   }
   
   it should "allow to specify a custom navigation order" in {

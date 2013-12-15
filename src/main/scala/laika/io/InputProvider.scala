@@ -20,7 +20,9 @@ import java.io.File
 import laika.tree.Documents._
 import scala.io.Codec
 import laika.template.ParseTemplate
+import laika.directive.Directives.Templates
 import laika.factory.ParserFactory
+import laika.template.DefaultTemplate
 
 /** Represents a tree structure of Inputs, abstracting over various types of IO resources. 
  *  
@@ -163,6 +165,12 @@ object InputProvider {
      */
     def withTemplates (parser: ParseTemplate) = 
       new InputConfigBuilder(provider, codec, docTypeMatcher, Some(parser), config, isParallel)
+    
+    /** Specifies custom template directives to use with
+     *  the default template engine.
+     */
+    def withTemplateDirectives (directives: Templates.Directive*) =
+      withTemplates(ParseTemplate as DefaultTemplate.withDirectives(directives:_*))
 
     /** Specifies the function to use for determining the document type
      *  of the input based on its path.
