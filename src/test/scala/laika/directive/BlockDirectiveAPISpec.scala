@@ -144,7 +144,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:dir.
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive: required default attribute is missing"
+      val msg = "One or more errors processing directive 'dir': required default attribute is missing"
       Parsing (input) should produce (root(p("aa"), invalid("@:dir.",msg), p("bb")))
     }
   }
@@ -156,7 +156,6 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:dir 5.
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive: required default attribute is missing"
       Parsing (input) should produce (root(p("aa"), p("5"), p("bb")))
     }
   }
@@ -168,7 +167,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:dir foo.
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive: Not an integer: foo"
+      val msg = "One or more errors processing directive 'dir': error converting default attribute: not an integer: foo"
       Parsing (input) should produce (root(p("aa"), invalid("@:dir foo.",msg), p("bb")))
     }
   }
@@ -180,7 +179,6 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:dir.
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive: required default attribute is missing"
       Parsing (input) should produce (root(p("aa"), p("<>"), p("bb")))
     }
   }
@@ -214,7 +212,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:dir.
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive: required attribute with name 'name' is missing"
+      val msg = "One or more errors processing directive 'dir': required attribute with name 'name' is missing"
       Parsing (input) should produce (root(p("aa"), invalid("@:dir.",msg), p("bb")))
     }
   }
@@ -226,7 +224,6 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:dir name=5.
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive: required default attribute is missing"
       Parsing (input) should produce (root(p("aa"), p("5"), p("bb")))
     }
   }
@@ -238,7 +235,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:dir name=foo.
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive: Not an integer: foo"
+      val msg = "One or more errors processing directive 'dir': error converting attribute with name 'name': not an integer: foo"
       Parsing (input) should produce (root(p("aa"), invalid("@:dir name=foo.",msg), p("bb")))
     }
   }
@@ -250,7 +247,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:dir.
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive: required default attribute is missing"
+      val msg = "One or more errors processing directive 'dir': required default attribute is missing"
       Parsing (input) should produce (root(p("aa"), p("<>"), p("bb")))
     }
   }
@@ -289,7 +286,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:dir.
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive: required default body is missing"
+      val msg = "One or more errors processing directive 'dir': required default body is missing"
       Parsing (input) should produce (root(p("aa"), invalid("@:dir.",msg), p("bb")))
     }
   }
@@ -336,7 +333,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:dir.
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive: required body with name 'name' is missing"
+      val msg = "One or more errors processing directive 'dir': required body with name 'name' is missing"
       Parsing (input) should produce (root(p("aa"), invalid("@:dir.",msg), p("bb")))
     }
   }
@@ -429,7 +426,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:dir strAttr=str.
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive: required default attribute is missing, required default body is missing"
+      val msg = "One or more errors processing directive 'dir': required default attribute is missing, required default body is missing"
       Parsing (input) should produce (root(p("aa"), invalid("@:dir strAttr=str.",msg), p("bb")))
     }
   }
@@ -467,7 +464,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:foo name=foo.
         |
         |bb""".stripMargin
-      val msg = "One or more errors processing directive: No block directive registered with name: foo"
+      val msg = "One or more errors processing directive 'foo': No block directive registered with name: foo"
       Parsing (input) should produce (root(p("aa"), invalid("@:foo name=foo.",msg), p("bb")))
     }
   }

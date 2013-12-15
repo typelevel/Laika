@@ -308,16 +308,16 @@ object Directives {
       
       val int = (p: Parser, s: String) => toInt(s, _ => true)
 
-      val positiveInt = (p: Parser, s: String) => toInt(s, _ > 0, "Not a positive integer")
+      val positiveInt = (p: Parser, s: String) => toInt(s, _ > 0, "not a positive integer")
 
-      val nonNegativeInt = (p: Parser, s: String) => toInt(s, _ >= 0, "Not a non-negative integer")
+      val nonNegativeInt = (p: Parser, s: String) => toInt(s, _ >= 0, "not a non-negative integer")
       
       private def toInt (s: String, f: Int => Boolean, msg: String = "") = { 
         try { 
           val i = s.trim.toInt
           if (f(i)) Success(i) else Failure(msg + ": " + i)
         } catch { 
-          case e: NumberFormatException => Failure("Not an integer: " + s)
+          case e: NumberFormatException => Failure("not an integer: " + s)
         }
     }
       
@@ -341,7 +341,7 @@ object Directives {
           val requiresContext = false
           def apply (context: DirectiveContext) = convert(context) match {
             case Some(Success(value)) => Success(Some(value))
-            case Some(Failure(msg))   => Failure(msg)
+            case Some(Failure(msg))   => Failure("error converting " + key.desc + ": " + msg.mkString(", "))
             case None                 => Success(None)
           }
         }

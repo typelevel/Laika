@@ -139,7 +139,8 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
     
     def processResult (result: Directives.Result[E]) = result match {
       case Directives.Success(result)   => result
-      case Directives.Failure(messages) => createInvalidElement("One or more errors processing directive: " + messages.mkString(", "))
+      case Directives.Failure(messages) => createInvalidElement("One or more errors processing directive '"
+          + parseResult.name + "': " + messages.mkString(", "))
     }
     
     processResult((directive ~ partMap) flatMap { case directive ~~ partMap =>

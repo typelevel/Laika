@@ -121,28 +121,26 @@ class TemplateDirectiveAPISpec extends FlatSpec
   
   it should "detect a directive with a missing required default attribute" in {
     new RequiredDefaultAttribute with TemplateParser {
-      val msg = "One or more errors processing directive: required default attribute is missing"
+      val msg = "One or more errors processing directive 'dir': required default attribute is missing"
       Parsing ("aa @:dir. bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir.",msg)), tt(" bb")))
     }
   }
   
   it should "parse a directive with an optional default int attribute" in {
     new OptionalDefaultAttribute with TemplateParser {
-      val msg = "One or more errors processing directive: required default attribute is missing"
       Parsing ("aa @:dir 5. bb") should produce (tRoot(tt("aa "), tt("5"), tt(" bb")))
     }
   }
   
   it should "detect a directive with an optional invalid default int attribute" in {
     new OptionalDefaultAttribute with TemplateParser {
-      val msg = "One or more errors processing directive: Not an integer: foo"
+      val msg = "One or more errors processing directive 'dir': error converting default attribute: not an integer: foo"
       Parsing ("aa @:dir foo. bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir foo.",msg)), tt(" bb")))
     }
   }
   
   it should "parse a directive with a missing optional default int attribute" in {
     new OptionalDefaultAttribute with TemplateParser {
-      val msg = "One or more errors processing directive: required default attribute is missing"
       Parsing ("aa @:dir. bb") should produce (tRoot(tt("aa "), tt("<>"), tt(" bb")))
     }
   }
@@ -161,28 +159,27 @@ class TemplateDirectiveAPISpec extends FlatSpec
   
   it should "detect a directive with a missing required named attribute" in {
     new RequiredNamedAttribute with TemplateParser {
-      val msg = "One or more errors processing directive: required attribute with name 'name' is missing"
+      val msg = "One or more errors processing directive 'dir': required attribute with name 'name' is missing"
       Parsing ("aa @:dir. bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir.",msg)), tt(" bb")))
     }
   }
   
   it should "parse a directive with an optional named int attribute" in {
     new OptionalNamedAttribute with TemplateParser {
-      val msg = "One or more errors processing directive: required default attribute is missing"
       Parsing ("aa @:dir name=5. bb") should produce (tRoot(tt("aa "), tt("5"), tt(" bb")))
     }
   }
   
   it should "detect a directive with an optional invalid named int attribute" in {
     new OptionalNamedAttribute with TemplateParser {
-      val msg = "One or more errors processing directive: Not an integer: foo"
+      val msg = "One or more errors processing directive 'dir': error converting attribute with name 'name': not an integer: foo"
       Parsing ("aa @:dir name=foo. bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir name=foo.",msg)), tt(" bb")))
     }
   }
   
   it should "parse a directive with a missing optional named int attribute" in {
     new OptionalNamedAttribute with TemplateParser {
-      val msg = "One or more errors processing directive: required default attribute is missing"
+      val msg = "One or more errors processing directive 'dir': required default attribute is missing"
       Parsing ("aa @:dir. bb") should produce (tRoot(tt("aa "), tt("<>"), tt(" bb")))
     }
   }
@@ -196,7 +193,7 @@ class TemplateDirectiveAPISpec extends FlatSpec
   
   it should "detect a directive with a missing required default body" in {
     new RequiredDefaultBody with TemplateParser {
-      val msg = "One or more errors processing directive: required default body is missing"
+      val msg = "One or more errors processing directive 'dir': required default body is missing"
       Parsing ("aa @:dir. bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir.",msg)), tt(" bb")))
     }
   }
@@ -223,7 +220,7 @@ class TemplateDirectiveAPISpec extends FlatSpec
   
   it should "detect a directive with a missing required named body" in {
     new RequiredNamedBody with TemplateParser {
-      val msg = "One or more errors processing directive: required body with name 'name' is missing"
+      val msg = "One or more errors processing directive 'dir': required body with name 'name' is missing"
       Parsing ("aa @:dir. bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir.",msg)), tt(" bb")))
     }
   }
@@ -258,7 +255,7 @@ class TemplateDirectiveAPISpec extends FlatSpec
   
   it should "detect a full directive spec with all one required attribute and one required body missing" in {
     new FullDirectiveSpec with TemplateParser {
-      val msg = "One or more errors processing directive: required default attribute is missing, required default body is missing"
+      val msg = "One or more errors processing directive 'dir': required default attribute is missing, required default body is missing"
       Parsing ("aa @:dir strAttr=str. bb") should produce (tRoot(tt("aa "), tElem(invalid("@:dir strAttr=str.",msg)), tt(" bb")))
     }
   }
@@ -287,7 +284,7 @@ class TemplateDirectiveAPISpec extends FlatSpec
   
   it should "detect a directive with an unknown name" in {
     new OptionalNamedAttribute with TemplateParser {
-      val msg = "One or more errors processing directive: No template directive registered with name: foo"
+      val msg = "One or more errors processing directive 'foo': No template directive registered with name: foo"
       Parsing ("aa @:foo name=foo. bb") should produce (tRoot(tt("aa "), tElem(invalid("@:foo name=foo.",msg)), tt(" bb")))
     }
   }
