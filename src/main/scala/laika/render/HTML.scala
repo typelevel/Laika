@@ -109,7 +109,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
       
       con match {
         case RootElement(content)             => if (content.nonEmpty) out << content.head <<| content.tail       
-        case EmbeddedRoot(content,_)          => if (content.nonEmpty) out << content.head <<| content.tail       
+        case EmbeddedRoot(content,indent,_)   => out.indented(indent) { if (content.nonEmpty) out << content.head <<| content.tail }       
         case Section(header, content,_)       => out <<         header <<|   content
         case TitledBlock(title, content, opt) => out <<@ ("div",opt) <<|> (Paragraph(title,Styles("title")) +: content) <<| "</div>"
         case QuotedBlock(content,attr,opt)    => out <<@ ("blockquote",opt); renderBlocks(quotedBlockContent(content,attr), "</blockquote>")
@@ -214,7 +214,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
       case FootnoteLink(ref,label,opt) => out <<@ ("a",opt + Styles("footnote"),"href"->("#"+ref)) << "[" << label << "]</a>" 
       case Image(text,url,title,opt)   => out <<@ ("img",opt,"src"->url,"alt"->text,"title"->title)
       case LineBreak(opt)              => out << "<br>"
-      case TemplateElement(elem,_)     => out << elem
+      case TemplateElement(elem,indent,_) => out.indented(indent) { out << elem }
       
       case WithFallback(fallback)      => out << fallback
       case unknown                     => ()

@@ -21,6 +21,7 @@ import laika.tree.Documents.Path
 import laika.tree.Elements._
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
+import scala.collection.mutable.ListBuffer
 
 /** Provides the elements of the document tree which are specific to templates.
  *  
@@ -111,7 +112,7 @@ object Templates {
    *  a template document tree. Useful when custom tags which are placed inside
    *  a template produce non-template tree elements.
    */
-  case class TemplateElement (element: Element, options: Options = NoOpt) extends TemplateSpan with ElementTraversal[TemplateElement]
+  case class TemplateElement (element: Element, indent: Int = 0, options: Options = NoOpt) extends TemplateSpan with ElementTraversal[TemplateElement]
 
   /** A generic container element containing a list of template spans. Can be used where a sequence
    *  of spans must be inserted in a place where a single element is required by the API.
@@ -132,7 +133,7 @@ object Templates {
   /** The root element of a document tree (originating from text markup) inside a template.
    *  Usually created by a template reference like `{{document.content}}`.
    */
-  case class EmbeddedRoot (content: Seq[Block], options: Options = NoOpt) extends TemplateSpan with BlockContainer[EmbeddedRoot]
+  case class EmbeddedRoot (content: Seq[Block], indent: Int = 0, options: Options = NoOpt) extends TemplateSpan with BlockContainer[EmbeddedRoot]
   
   /** A template document containing the element tree of a parsed template and its extracted
    *  configuration section (if present).
@@ -149,8 +150,8 @@ object Templates {
     def rewrite (context: DocumentContext) = {
       val newContent = content rewrite rewriteRules(context)
       val newRoot = newContent match {
-        case TemplateRoot(List(TemplateElement(root: RootElement, _)), _) => root
-        case TemplateRoot(List(EmbeddedRoot(content, _)), _) => RootElement(content)
+        case TemplateRoot(List(TemplateElement(root: RootElement, _, _)), _) => root
+        case TemplateRoot(List(EmbeddedRoot(content, _, _)), _) => RootElement(content)
         case other => RootElement(Seq(newContent))
       }
       context.document.withRewrittenContent(newRoot, context.document.fragments)
@@ -168,10 +169,27 @@ object Templates {
     lazy val rule: PartialFunction[Element, Option[Element]] = {
       case ph: BlockResolver => Some(rewriteChild(ph resolve context))
       case ph: SpanResolver  => Some(rewriteChild(ph resolve context))
+      case TemplateRoot(spans, opt)         => Some(TemplateRoot(format(spans), opt))
+      case TemplateSpanSequence(spans, opt) => Some(TemplateSpanSequence(format(spans), opt))
     }
     def rewriteChild (e: Element) = e match {
       case et: ElementTraversal[_] => et rewrite rule
       case other => other
+    }
+    def format (spans: Seq[TemplateSpan]) = {
+      def indentFor(text: String) = text.lastIndexOf('\n') match {
+        case -1    => 0
+        case index => if (text.drop(index).trim.isEmpty) text.length - index - 1 else 0
+      }
+      if (spans.isEmpty) spans
+      else spans.sliding(2).foldLeft(new ListBuffer[TemplateSpan]() += spans.head) { 
+        case (buffer, TemplateString(text, NoOpt) :: TemplateElement(elem, 0, opt) :: Nil) => 
+          buffer += TemplateElement(elem, indentFor(text), opt)
+        case (buffer, TemplateString(text, NoOpt) :: EmbeddedRoot(elem, 0, opt) :: Nil) => 
+          buffer += EmbeddedRoot(elem, indentFor(text), opt)
+        case (buffer, _ :: elem :: Nil) => buffer += elem
+        case (buffer, _) => buffer
+      }.toList
     }
     rule
   }

@@ -110,7 +110,16 @@ class ParseAPISpec extends FlatSpec
   
   def contents = Map(
     "name" -> "foo",
+    "multiline" -> """aaa
+      |
+      |bbb""".stripMargin,
     "directive" -> "aa @:foo bar. bb",
+    "template" -> """<div>
+      |  {{document.content}}
+      |</div>""".stripMargin,
+    "template2" -> """<div>
+      |xx{{document.content}}
+      |</div>""".stripMargin,
     "dynDoc" -> "{{config.value}}",
     "conf" -> "value: abc",
     "order" -> """navigationOrder: [
@@ -284,6 +293,32 @@ class ParseAPISpec extends FlatSpec
     def template (num: Int) = TemplateView(Root / ("main"+num+".template.html"), tRoot(tt("aa "),tt("bar"),tt(" bb")))
     val treeResult = TreeView(Root, List(TemplateDocuments(Template, List(template(1),template(2)))))
     viewOf((Parse as Markdown asRawDocument) fromTree builder(dirs).withTemplateDirectives(directive)) should be (treeResult)
+  }
+  
+  it should "add indentation information if an embedded root is preceded by whitespace characters" in {
+    import laika.tree.Templates.EmbeddedRoot
+    val dirs = """- default.template.html:template
+      |- doc.md:multiline""".stripMargin
+    val docResult = DocumentView(Root / "doc.md", Content(List(tRoot(
+        tt("<div>\n  "),
+        EmbeddedRoot(List(p("aaa"),p("bbb")), 2),
+        tt("\n</div>")
+    ))) :: Nil)
+    val treeResult = TreeView(Root, List(Documents(Markup, List(docResult))))
+    viewOf(Parse as Markdown fromTree builder(dirs)) should be (treeResult)
+  }
+  
+  it should "not add indentation information if an embedded root is preceded by non-whitespace characters" in {
+    import laika.tree.Templates.EmbeddedRoot
+    val dirs = """- default.template.html:template2
+      |- doc.md:multiline""".stripMargin
+    val docResult = DocumentView(Root / "doc.md", Content(List(tRoot(
+        tt("<div>\nxx"),
+        EmbeddedRoot(List(p("aaa"),p("bbb")), 0),
+        tt("\n</div>")
+    ))) :: Nil)
+    val treeResult = TreeView(Root, List(Documents(Markup, List(docResult))))
+    viewOf(Parse as Markdown fromTree builder(dirs)) should be (treeResult)
   }
   
   it should "allow to specify a custom navigation order" in {

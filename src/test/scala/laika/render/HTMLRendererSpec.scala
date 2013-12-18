@@ -635,5 +635,31 @@ class HTMLRendererSpec extends FlatSpec
     render (elem) should be ("") 
   }
   
+  it should "render an embedded root with correct indentation" in {
+    val elem = root(tRoot(
+      tt("<div>\n  "),
+      EmbeddedRoot(List(p("aaa"),p("bbb")), 2),
+      tt("\n</div>")
+    ))
+    val html = """<div>
+      |  <p>aaa</p>
+      |  <p>bbb</p>
+      |</div>""".stripMargin
+    render (elem) should be (html) 
+  }
+  
+  it should "render an embedded root without indentation" in {
+    val elem = root(tRoot(
+      tt("<div>\n"),
+      EmbeddedRoot(List(p("aaa"),p("bbb")), 0),
+      tt("\n</div>")
+    ))
+    val html = """<div>
+      |<p>aaa</p>
+      |<p>bbb</p>
+      |</div>""".stripMargin
+    render (elem) should be (html) 
+  }
+  
   
 }

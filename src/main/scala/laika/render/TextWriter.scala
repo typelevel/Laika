@@ -43,8 +43,24 @@ class TextWriter (out: String => Unit,
     
     def write = { out(current); this }
     
+    def indented (indent: Int, block: => Unit) = {
+      if (indent > (current.length - 1) && indentItem.nonEmpty) {
+        val oldIndent = current
+        current = "\n" + (" " * indent)
+        block
+        current = oldIndent
+      }
+      else block
+    }  
+    
   }
   
+  
+  /** Executes the specified block while temporarily
+   *  shifting the indentation level (if it is greater
+   *  than the currently active one).
+   */
+  def indented (indent: Int)(block: => Unit) = Indent.indented(indent, block)
   
   /** Writes a new line character sequence.
    */

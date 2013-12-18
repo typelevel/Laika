@@ -332,7 +332,7 @@ class TransformAPISpec extends FlatSpec
       val withTemplate2 = """RootElement - Blocks: 1
         |. TemplateRoot - Spans: 3
         |. . TemplateString - '('
-        |. . EmbeddedRoot - Blocks: 1
+        |. . EmbeddedRoot(0) - Blocks: 1
         |. . . Paragraph - Spans: 1
         |. . . . Text - 'foo'
         |. . TemplateString - ')'""".stripMargin  
