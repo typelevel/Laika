@@ -437,9 +437,17 @@ object Documents {
      */
     lazy val navigatables = navigationOrder getOrElse (Nil)
     
-    private val documentsByName = documents map {doc => (doc.name, doc)} toMap // TODO - handle duplicates
-    private val templatesByName = templates map {doc => (doc.name, doc)} toMap // TODO - handle duplicates
-    private val subtreesByName = subtrees map {tree => (tree.name, tree)} toMap
+    private def toMap [T <: Navigatable] (navigatables: Seq[T]): Map[String,T] = {
+      navigatables groupBy (_.name) mapValues {
+        case Seq(nav) => nav
+        case multiple => throw new IllegalStateException("Multiple navigatables with the name "+
+            multiple.head.name+" in tree "+path)
+      }
+    }
+    
+    private val documentsByName = toMap(documents)
+    private val templatesByName = toMap(templates)
+    private val subtreesByName = toMap(subtrees)
 
     /** Selects a document from this tree or one of its subtrees by the specified path.
      *  The path needs to be relative.
