@@ -222,12 +222,6 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
     }
   }
   
-  /** Parses a reference name, either a simple or a phrase reference name.
-   * 
-   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#reference-names]].
-   */
-  val refName = (simpleRefName | phraseRef) ^^ ReferenceName
-  
   /** Parses a phrase reference name enclosed in back ticks.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#reference-names]].
