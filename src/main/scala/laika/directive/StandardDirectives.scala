@@ -109,7 +109,7 @@ trait StandardDirectives {
    *  @param context the context of the document the table of content will be placed in
    *  @return a block element containing the table and its title
    */
-  def toc (depth: Option[Int], rootConfig: String, title: Option[String], context: DocumentContext) = {
+  def toc (depth: Option[Int], rootConfig: String, title: Option[String], context: DocumentContext): Block = {
     
     val format = StringBullet("*")
     val maxLevel = depth getOrElse Int.MaxValue
@@ -182,8 +182,10 @@ trait StandardDirectives {
       case doc: Document      => sectionsToList(doc.sections, doc.path, 1)
       case tree: DocumentTree => navigatablesToList(tree.navigatables, 1)
     }
-    val titleSeq = List(Text(title.getOrElse("Contents")))
-    TitledBlock(titleSeq, list, Styles("toc"))
+    title match {
+      case Some(text) => TitledBlock(List(Text(text)), list, Styles("toc"))
+      case None       => BlockSequence(list, Styles("toc"))
+    }
   }
   
   /** Implementation of the `toc` directive for templates.

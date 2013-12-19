@@ -240,7 +240,7 @@ class StandardDirectiveSpec extends FlatSpec
     
     val treeUnderTest = Root / "sub2"
     
-    def title = "Contents"
+    def title: Option[String] = None
     
     def sectionCrossLink (path: Path, section: Int, level: Int) = 
       p(CrossLink(List(txt("Section "+section)), "title"+section, PathInfo(path, path.relativeTo(treeUnderTest)), options = Styles("toc","level"+level)))
@@ -321,18 +321,24 @@ class StandardDirectiveSpec extends FlatSpec
         internalLink(2, 1)
       ), StringBullet("*"))
       
-    def result (list: BulletList) = root(tRoot(
-      tt("aaa "),
-      tElem(TitledBlock(List(txt(title)), List(list), options=Styles("toc"))),
-      tt(" bbb "),
-      eRoot(
-        Section(Header(1, List(txt("Headline 1")), Id("headline-1") + Styles("section")), Nil),
-        Section(Header(1, List(txt("Headline 2")), Id("headline-2") + Styles("section")), Nil)
-      )
-    ))
+    def result (list: BulletList) = {
+      val toc = title match {
+        case Some(text) => TitledBlock(List(txt(text)), List(list), options=Styles("toc"))
+        case None       => BlockSequence(List(list), Styles("toc"))
+      }
+      root(tRoot(
+        tt("aaa "),
+        tElem(toc),
+        tt(" bbb "),
+        eRoot(
+          Section(Header(1, List(txt("Headline 1")), Id("headline-1") + Styles("section")), Nil),
+          Section(Header(1, List(txt("Headline 2")), Id("headline-2") + Styles("section")), Nil)
+        )
+      ))
+    }
     
     def markupTocResult = root(
-      TitledBlock(List(txt(title)), List(currentDoc), options=Styles("toc")),
+      BlockSequence(List(currentDoc), Styles("toc")),
       Section(Header(1, List(txt("Headline 1")), Id("headline-1") + Styles("section")), Nil),
       Section(Header(1, List(txt("Headline 2")), Id("headline-2") + Styles("section")), Nil)
     )
@@ -347,10 +353,10 @@ class StandardDirectiveSpec extends FlatSpec
     }
   } 
   
-  it should "produce a table of content starting from the root tree with an explicit title" in {
+  it should "produce a table of content starting from the root tree with a title" in {
     new TreeModel with TocModel {
       
-      override val title = "Some Title"
+      override val title = Some("Some Title")
       
       val template = """aaa @:toc title="Some Title". bbb {{document.content}}"""
       
