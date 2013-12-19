@@ -22,6 +22,7 @@ import laika.tree.Elements._
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import scala.collection.mutable.ListBuffer
+import laika.tree.Documents.Navigatable
 
 /** Provides the elements of the document tree which are specific to templates.
  *  
@@ -138,9 +139,7 @@ object Templates {
   /** A template document containing the element tree of a parsed template and its extracted
    *  configuration section (if present).
    */
-  case class TemplateDocument (path: Path, content: TemplateRoot, config: Config = ConfigFactory.empty) {
-    
-    val name = path.name
+  case class TemplateDocument (path: Path, content: TemplateRoot, config: Config = ConfigFactory.empty) extends Navigatable {
     
     /** Rewrites this template document, replacing all
      *  span and block resolvers with the final resolved
