@@ -164,6 +164,29 @@ trait InlineParsers extends MarkupParsers {
   def text (parser: => TextParser, nested: => Map[Char, Parser[String]]): Parser[String] 
       = inline(parser, nested, new TextBuilder)
   
+  /** Parses a single escape character.
+   *  In the default implementation any character can be escaped.
+   *  Sub-traits may override this parser to restrict the number of escapable characters.
+   */
+  lazy val escapedChar: Parser[String] = any take 1
+
+  /** Adds support for escape sequences to the specified text parser.
+   * 
+   *  @param p the parser to add support for escape sequences to
+   *  @return a parser for a text span that supports escape sequences
+   */  
+  def escapedText (p: TextParser) = text(p, Map('\\' -> escapedChar))
+
+  /** Parses a span of text until one of the specified characters is seen 
+   *  (unless it is escaped),
+   *  while also processing escaped characters, but no other nested
+   *  spans. The final character is not included in the result.
+   * 
+   *  @param char the character that signals the end of the text span
+   *  @return a parser for a text span that supports escape sequences
+   */  
+  def escapedUntil (char: Char*) = escapedText(anyUntil(char:_*) min 1)
+  
   /** Fully parses the input string and produces a list of spans.
    *  
    *  This function is expected to always succeed, errors would be considered a bug
@@ -190,5 +213,5 @@ trait InlineParsers extends MarkupParsers {
    *  @return the result of the parser in form of a list of spans
    */
   def parseInline (source: String): List[Span] = parseInline(source, spanParsers)
-
+  
 }

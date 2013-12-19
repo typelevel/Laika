@@ -52,7 +52,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
    * 
    *  Note: escaping > is not mandated by the official syntax description, but by the official test suite.
    */
-  def escapedChar = anyOf('\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!', '>') take 1
+  override lazy val escapedChar = anyOf('\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!', '>') take 1
   
   /** Parses an explicit hard line break.
    */
@@ -115,11 +115,6 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   
   private val escapedChars = Map('\\' -> escapedChar)
   
-  /** Parses a span of text until the specified character is seen,
-   *  while also processing escaped characters, but no other nested
-   *  spans.
-   */
-  def escapedUntil (char: Char) = text(anyUntil(char), escapedChars)
   
   private def normalizeId (id: String) = id.toLowerCase.replaceAll("[\n ]+", " ")
   

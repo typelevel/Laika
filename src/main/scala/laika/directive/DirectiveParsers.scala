@@ -71,12 +71,8 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
     
     lazy val attrName: Parser[String] = nameDecl <~ wsOrNl ~ '=' ~ wsOrNl
   
-    lazy val attrValue: Parser[String] = {
-      def escapedUntil (char: Char) = escapedText(anyUntil(char) min 1)
-      def escapedText (p: TextParser) = text(p, Map('\\' -> (any take 1))) // TODO - should be promoted to generic inline parser (after which this trait only needs to extend MarkupParsers)
-      
+    lazy val attrValue: Parser[String] =
       '"' ~> escapedUntil('"') | (anyBut(' ','\t','\n','.',':') min 1)  
-    }
   
     lazy val defaultAttribute: Parser[Part] = not(attrName) ~> attrValue ^^ { Part(Attribute(Default), _) }
   

@@ -154,26 +154,9 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#escaping-mechanism]].
    */
-  lazy val escapedChar = (" " ^^^ "") | (any take 1)
+  override lazy val escapedChar = (" " ^^^ "") | (any take 1)
 
-  
-  /** Parses a span of text until the specified character is seen 
-   *  (unless it is escaped),
-   *  while also processing escaped characters, but no other nested
-   *  spans. The final character is not included in the result.
-   * 
-   *  @param char the character that signals the end of the text span
-   *  @return a parser for a text span that supports escape sequences
-   */  
-  def escapedUntil (char: Char) = escapedText(anyUntil(char) min 1)
 
-  /** Adds support for escape sequences to the specified text parser.
-   * 
-   *  @param p the parser to add support for escape sequences to
-   *  @return a parser for a text span that supports escape sequences
-   */  
-  def escapedText (p: TextParser) = text(p, Map('\\' -> escapedChar))
-  
   /** Parses a span of emphasized text.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#emphasis]]
