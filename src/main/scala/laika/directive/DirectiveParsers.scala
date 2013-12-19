@@ -235,12 +235,12 @@ object DirectiveParsers {
         val trimmed = (block.lines mkString "\n").trim
         Either.cond(trimmed.nonEmpty, trimmed, "empty body")
       }
-      withSource(directiveParser(bodyContent, true)) ^^ { case (result, source) =>
+      withNestLevel(withSource(directiveParser(bodyContent, true))) ^^ { case (nestLevel, (result, source)) =>
         
         def createContext (parts: PartMap, docContext: Option[DocumentContext]): Blocks.DirectiveContext = {
           new DirectiveContextBase(parts, docContext) with Blocks.DirectiveContext {
             val parser = new Blocks.Parser {
-              def apply (source: String): Seq[Block] = parseNestedBlocks(source, 0) // TODO - pass nest level
+              def apply (source: String): Seq[Block] = parseNestedBlocks(source, nestLevel)
               def parseInline (source: String): Seq[Span] = parseInline(source)
             }
           }
