@@ -191,8 +191,7 @@ object Documents {
     def fromJavaMap (m: JMap[Any,Any], key: Any) = if (m.containsKey(key)) Some(m.get(key)) else None
     /* These are all dynamic, non-typesafe lookups for values where often both,
      * the path from the template and the actual target value (e.g. from a config
-     * file) originate from text resources, so the dynamic lookup is justifiable here
-     * TODO - think about improvements for the error handling */
+     * file) originate from text resources, so the dynamic lookup is justifiable here */
     def resolve (target: Any, path: List[String], root: Boolean = false): (Option[Any], List[String]) = {
       val result = target match {
         case m: JMap[_, _]=> (fromJavaMap(m.asInstanceOf[JMap[Any,Any]], path.head), path.tail)
@@ -738,6 +737,8 @@ object Documents {
   /** Configuration for autonumbering of documents and sections.
    */
   case class AutonumberConfig (documents: Boolean, sections: Boolean, maxDepth: Int)
+  
+  case class ConfigurationException (msg: String) extends RuntimeException(msg)
 
   object AutonumberConfig {
     
@@ -753,7 +754,7 @@ object Documents {
           case "sections"  => (false, true)
           case "all"       => (true,  true)
           case "none"      => (false, false)
-          case _           => (false, false) // TODO - error handling
+          case other       => throw new ConfigurationException("Unsupported value for key 'autonumbering.scope': "+other)
         } else                (false, false)
         val depth = if (nConf.hasPath("depth")) nConf.getInt("depth") else Int.MaxValue 
         AutonumberConfig(documents, sections, depth)
