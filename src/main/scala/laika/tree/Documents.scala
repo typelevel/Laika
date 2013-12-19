@@ -62,10 +62,6 @@ object Documents {
       case (UniqueSelector(name), target) => (PathSelector(path, name), target)
     })
     
-    /** The local name of this document.
-     */
-    val name = path.name
-    
     private def findRoot = {
       (content select {
         case RootElement(TemplateRoot(_,_) :: Nil) => false
@@ -395,6 +391,10 @@ object Documents {
     
     def path: Path
     
+    /** The local name of this navigatable.
+     */
+    lazy val name = path.name
+    
   }
 
   
@@ -421,10 +421,6 @@ object Documents {
                       private[tree] val config: Option[Config] = None,
                       docNumber: List[Int] = Nil,
                       navigationOrder: Option[Seq[Navigatable]] = None) extends Navigatable {
-    
-    /** The local name of this tree.
-     */
-    val name = path.name
     
     /** The title of this tree, obtained from configuration.
      */
