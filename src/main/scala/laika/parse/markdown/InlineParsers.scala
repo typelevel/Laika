@@ -100,7 +100,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   def literalEnclosedBySingleChar = { 
     val start = not('`')
     val end = '`'
-    start ~> anyUntil(end) ^^ { Literal(_) }
+    start ~> anyUntil(end) ^^ { s => Literal(s.trim) }
   }
   
   /** Parses a literal span enclosed by double backticks.
@@ -109,7 +109,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   def literalEnclosedByDoubleChar = {
     val start = '`'
     val end = "``"
-    start ~> anyUntil(end) ^^ { Literal(_) }
+    start ~> anyUntil(end) ^^ { s => Literal(s.trim) }
   }
   
   

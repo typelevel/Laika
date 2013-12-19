@@ -55,7 +55,6 @@ class MarkdownToHTMLSpec extends FlatSpec
     val path = classPathResource("/markdownTestSuite") + "/" + name
     val actual = Transform from Markdown.withVerbatimHTML.strict to HTML rendering { out => {
       case QuotedBlock(content,_,_) => out << "<blockquote>" <<|>  content <<| "</blockquote>" // Markdown always writes p tags inside blockquotes
-      case Literal(content,_)       => out << "<code>" <<<& content.trim << "</code>" // Markdown trims code spans (TODO - might do this in the parser already)
     }} rendering VerbatimHTML fromFile (path + ".md") toString
     val expected = readFile(path + ".html")
     tidyAndAdjust(actual) should be (tidyAndAdjust(expected))

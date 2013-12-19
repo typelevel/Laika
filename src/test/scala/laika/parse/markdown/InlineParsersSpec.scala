@@ -119,7 +119,7 @@ class InlineParsersSpec extends FlatSpec
   }
   
   it should "treat a ` character as markup even when it is enclosed in spaces" in {
-    Parsing ("some ` text ` here") should produce (spans(txt("some "),lit(" text "),txt(" here")))
+    Parsing ("some ` text ` here") should produce (spans(txt("some "),lit("text"),txt(" here")))
   }
   
   it should "ignore a ` character when it is not matched by a second `" in {
