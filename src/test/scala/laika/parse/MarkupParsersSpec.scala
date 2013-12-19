@@ -154,4 +154,37 @@ class MarkupParsersSpec extends FlatSpec with ShouldMatchers with MarkupParsers 
   }
   
   
+  "The reference name parser" should "parse a name consisting of characters" in {
+    Parsing ("name") using (refName) should produce ("name")
+  }
+  
+  it should "parse a name consisting of characters and digits" in {
+    Parsing ("7name9") using (refName) should produce ("7name9")
+  }
+  
+  it should "parse a name consisting of characters and any of the supported symbols" in {
+    Parsing ("a-a_a.a:a+a") using (refName) should produce ("a-a_a.a:a+a")
+  }
+  
+  it should "fail if the name starts with a symbol" in {
+    Parsing ("-a_a.a:a+a") using (refName) should cause [Failure]
+  }
+  
+  it should "ignore a trailing symbol" in {
+    Parsing ("a-a_a.a:a+") using (refName) should produce ("a-a_a.a:a")
+  }
+  
+  it should "stop parsing at two consecutive symbols" in {
+    Parsing ("a-a.+a") using (refName) should produce ("a-a")
+  }
+  
+  it should "stop parsing at unsupported symbols" in {
+    Parsing ("a-a(a") using (refName) should produce ("a-a")
+  }
+  
+  it should "parse a name containing non-ASCII characters" in {
+    Parsing ("näme") using (refName) should produce ("näme")
+  }
+  
+  
 }
