@@ -32,18 +32,15 @@ class TemplateParsersSpec extends FlatSpec
                           with ModelBuilder {
 
   
-  val defaultParser: Parser[List[Span]] = spans(any, spanParsers)
+  val defaultParser: Parser[List[Span]] = templateSpans
   
   def getTemplateDirective (name: String) = None
   
   
   
-  // TODO - Test should use templateSpans as default parser
-
-  
   "The template parser" should "parse content without any markup as plain text" in {
     
-    Parsing ("some text") should produce (spans(txt("some text")))
+    Parsing ("some text") should produce (spans(tt("some text")))
     
   }
   
@@ -56,19 +53,19 @@ class TemplateParsersSpec extends FlatSpec
   
   it should "parse a reference at the beginning of a template" in {
     
-    Parsing ("{{document.content}} some text") should produce (spans(TemplateContextReference("document.content"), Text(" some text")))
+    Parsing ("{{document.content}} some text") should produce (spans(TemplateContextReference("document.content"), tt(" some text")))
     
   }
   
   it should "parse a reference at the end of a template" in {
     
-    Parsing ("some text {{document.content}}") should produce (spans(Text("some text "), TemplateContextReference("document.content")))
+    Parsing ("some text {{document.content}}") should produce (spans(tt("some text "), TemplateContextReference("document.content")))
     
   }
   
   it should "parse a reference in the middle of a template" in {
     
-    Parsing ("some text {{document.content}} some more") should produce (spans(Text("some text "), TemplateContextReference("document.content"), Text(" some more")))
+    Parsing ("some text {{document.content}} some more") should produce (spans(tt("some text "), TemplateContextReference("document.content"), tt(" some more")))
     
   }
   
