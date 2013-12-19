@@ -213,14 +213,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#reference-names]].
    */
-  val simpleRefName = {
-    val alphanum = anyIn('0' to '9', 'a' to 'z', 'A' to 'Z') min 1 // TODO - check whether non-ascii characters are allowed
-    val symbol = anyOf('-', '_', '.', ':', '+') take 1
-    
-    alphanum ~ ((symbol ~ alphanum)*) ^^ { 
-      case start ~ rest => start + (rest map { case a~b => a+b }).mkString
-    }
-  }
+  val simpleRefName = refName
   
   /** Parses a phrase reference name enclosed in back ticks.
    * 

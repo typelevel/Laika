@@ -72,6 +72,18 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
    */
   def ws = anyOf(' ','\t')
   
+  /** Parses a simple reference name that only allows alphanumerical characters
+   *  and the punctuation characters `-`, `_`, `.`, `:`, `+`.
+   */
+  val refName = {
+    val alphanum = anyIn('0' to '9', 'a' to 'z', 'A' to 'Z') min 1
+    val symbol = anyOf('-', '_', '.', ':', '+') take 1
+    
+    alphanum ~ ((symbol ~ alphanum)*) ^^ { 
+      case start ~ rest => start + (rest map { case a~b => a+b }).mkString
+    }
+  }
+
   
   /** API for specifying further constraints on the parsers provided by this base trait.
    * 

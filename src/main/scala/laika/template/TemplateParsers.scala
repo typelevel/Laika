@@ -25,19 +25,8 @@ import com.typesafe.config.ConfigParseOptions
 import laika.directive.DirectiveParsers
 import laika.parse.InlineParsers
 import laika.tree.Documents.Path
-import laika.tree.Elements.InvalidBlock
-import laika.tree.Elements.InvalidSpan
-import laika.tree.Elements.LiteralBlock
-import laika.tree.Elements.Span
-import laika.tree.Elements.SystemMessage
-import laika.tree.Elements.Text
-import laika.tree.Templates.MarkupContextReference
-import laika.tree.Templates.TemplateContextReference
-import laika.tree.Templates.TemplateDocument
-import laika.tree.Templates.TemplateElement
-import laika.tree.Templates.TemplateRoot
-import laika.tree.Templates.TemplateSpan
-import laika.tree.Templates.TemplateString
+import laika.tree.Elements._
+import laika.tree.Templates._
 
 
 /** Provides parsers for the default template format.
@@ -47,21 +36,9 @@ trait TemplateParsers extends InlineParsers {
   
   /** Parses a reference enclosed between `{{` and `}}`.
    */
-  def reference[T] (f: String => T): Parser[T] = {
-    
-    val refName = { // TODO - promote to inline parsers
-      val alphanum = anyIn('0' to '9', 'a' to 'z', 'A' to 'Z') min 1
-      val symbol = anyOf('-', '_', '.', ':', '+') take 1
-      
-      alphanum ~ ((symbol ~ alphanum)*) ^^ { 
-        case start ~ rest => start + (rest map { case a~b => a+b }).mkString
-      }
-    }
-      
+  def reference[T] (f: String => T): Parser[T] = 
     '{' ~ ws ~> refName <~ ws ~ "}}" ^^ f  
     
-  }
-  
   
 }
 
