@@ -495,6 +495,11 @@ class HTMLRendererSpec extends FlatSpec
     render (elem) should be ("aabbcc")
   }
   
+  it should "render a template string without creating html entities" in {
+    val elem = tRoot(tt("aa & bb"))
+    render (elem) should be ("aa & bb")
+  }
+  
   it should "render a template root containing a TemplateElement" in {
     val elem = tRoot(tt("aa"),tElem(BlockSequence(List(p("aaa"), p("bbb")),Styles("foo"))),tt("cc"))
     val html = """aa<div class="foo">
