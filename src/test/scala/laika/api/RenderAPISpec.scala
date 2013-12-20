@@ -100,104 +100,117 @@ class RenderAPISpec extends FlatSpec
     (render from rootElem toString) should be (modifiedResult)
   }
   
-  def tree (builder: TestProviderBuilder) = new OutputConfigBuilder(builder, Codec.UTF8)
   
-  def markupDoc (num: Int, path: Path = Root)  = new Document(path / ("doc"+num), root(p("Doc"+num)))
-  def dynamicDoc (num: Int, path: Path = Root) = new Document(path / ("doc"+num), root(TemplateRoot(List(TemplateString("Doc"+num)))))
-  
-  def staticDoc (num: Int, path: Path = Root) = Input.fromString("Static"+num, path / ("static"+num+".txt"))
-  
-  
-  def renderedDynDoc (num: Int) = """RootElement - Blocks: 1
-    |. TemplateRoot - Spans: 1
-    |. . TemplateString - 'Doc""".stripMargin + num + "'"
+  trait DocBuilder {
+    def markupDoc (num: Int, path: Path = Root)  = new Document(path / ("doc"+num), root(p("Doc"+num)))
+    def dynamicDoc (num: Int, path: Path = Root) = new Document(path / ("doc"+num), root(TemplateRoot(List(TemplateString("Doc"+num)))))
     
-  def renderedDoc (num: Int) = """RootElement - Blocks: 1
-      |. Paragraph - Spans: 1
-      |. . Text - 'Doc""".stripMargin + num + "'"
+    def staticDoc (num: Int, path: Path = Root) = Input.fromString("Static"+num, path / ("static"+num+".txt"))
+    
+    
+    def renderedDynDoc (num: Int) = """RootElement - Blocks: 1
+      |. TemplateRoot - Spans: 1
+      |. . TemplateString - 'Doc""".stripMargin + num + "'"
+      
+    def renderedDoc (num: Int) = """RootElement - Blocks: 1
+        |. Paragraph - Spans: 1
+        |. . Text - 'Doc""".stripMargin + num + "'"
+  }
   
+  trait TreeRenderer {
+    val input: DocumentTree
+    
+    def tree (builder: TestProviderBuilder) = new OutputConfigBuilder(builder, Codec.UTF8)
+    
+    def renderedTree = {
+      val builder = new TestProviderBuilder
+      Render as PrettyPrint from input toTree tree(builder)
+      builder.result
+    }
+  }
+      
   it should "render an empty tree" in {
-    val input = new DocumentTree(Root, Nil)
-    val builder = new TestProviderBuilder
-    Render as PrettyPrint from input toTree tree(builder)
-    builder.result should be (RenderedTree(Root, Nil))
+    new TreeRenderer {
+      val input = new DocumentTree(Root, Nil)
+      renderedTree should be (RenderedTree(Root, Nil))
+    }
   }
   
   it should "render a tree with a single document" in {
-    val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem)))
-    val builder = new TestProviderBuilder
-    Render as PrettyPrint from input toTree tree(builder)
-    builder.result should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.txt", expected))))))
+    new TreeRenderer {
+      val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem)))
+      renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.txt", expected))))))
+    }
   }
   
   it should "render a tree with a single dynamic document" in {
-    val input = new DocumentTree(Root, Nil, dynamicDocuments = List(dynamicDoc(1)))
-    val builder = new TestProviderBuilder
-    Render as PrettyPrint from input toTree tree(builder)
-    builder.result should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc1.txt", renderedDynDoc(1)))))))
+    new TreeRenderer with DocBuilder {
+      val input = new DocumentTree(Root, Nil, dynamicDocuments = List(dynamicDoc(1)))
+      renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc1.txt", renderedDynDoc(1)))))))
+    }
   }
   
   it should "render a tree with a single static document" in {
-    val input = new DocumentTree(Root, Nil, staticDocuments = List(staticDoc(1)))
-    val builder = new TestProviderBuilder
-    Render as PrettyPrint from input toTree tree(builder)
-    builder.result should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "static1.txt", "Static1"))))))
+    new TreeRenderer with DocBuilder {
+      val input = new DocumentTree(Root, Nil, staticDocuments = List(staticDoc(1)))
+      renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "static1.txt", "Static1"))))))
+    }
   }
   
   it should "render a tree with all available file types" in {
-    val input = new DocumentTree(Root,
-      documents = List(markupDoc(1), markupDoc(2)),
-      dynamicDocuments = List(dynamicDoc(1), dynamicDoc(2)),
-      staticDocuments = List(staticDoc(1), staticDoc(2)),
-      subtrees = List(
-        new DocumentTree(Root / "dir1",
-          documents = List(markupDoc(3), markupDoc(4)),
-          dynamicDocuments = List(dynamicDoc(3), dynamicDoc(4)),
-          staticDocuments = List(staticDoc(3), staticDoc(4))
-        ),
-        new DocumentTree(Root / "dir2",
-          documents = List(markupDoc(5), markupDoc(6)),
-          dynamicDocuments = List(dynamicDoc(5), dynamicDoc(6)),
-          staticDocuments = List(staticDoc(5), staticDoc(6))
+    new TreeRenderer with DocBuilder {
+      val input = new DocumentTree(Root,
+        documents = List(markupDoc(1), markupDoc(2)),
+        dynamicDocuments = List(dynamicDoc(1), dynamicDoc(2)),
+        staticDocuments = List(staticDoc(1), staticDoc(2)),
+        subtrees = List(
+          new DocumentTree(Root / "dir1",
+            documents = List(markupDoc(3), markupDoc(4)),
+            dynamicDocuments = List(dynamicDoc(3), dynamicDoc(4)),
+            staticDocuments = List(staticDoc(3), staticDoc(4))
+          ),
+          new DocumentTree(Root / "dir2",
+            documents = List(markupDoc(5), markupDoc(6)),
+            dynamicDocuments = List(dynamicDoc(5), dynamicDoc(6)),
+            staticDocuments = List(staticDoc(5), staticDoc(6))
+          )
         )
       )
-    )
-    val builder = new TestProviderBuilder
-    Render as PrettyPrint from input toTree tree(builder)
-    builder.result should be (RenderedTree(Root, List(
-      Documents(List(
-        RenderedDocument(Root / "doc1.txt", renderedDoc(1)),
-        RenderedDocument(Root / "doc2.txt", renderedDoc(2)),
-        RenderedDocument(Root / "doc1.txt", renderedDynDoc(1)),
-        RenderedDocument(Root / "doc2.txt", renderedDynDoc(2)),
-        RenderedDocument(Root / "static1.txt", "Static1"),
-        RenderedDocument(Root / "static2.txt", "Static2")
-      )),
-      Subtrees(List(
-        RenderedTree(Root / "dir1", List(
-          Documents(List(
-            RenderedDocument(Root / "dir1" / "doc3.txt", renderedDoc(3)),
-            RenderedDocument(Root / "dir1" / "doc4.txt", renderedDoc(4)),
-            RenderedDocument(Root / "dir1" / "doc3.txt", renderedDynDoc(3)),
-            RenderedDocument(Root / "dir1" / "doc4.txt", renderedDynDoc(4)),
-            RenderedDocument(Root / "dir1" / "static3.txt", "Static3"),
-            RenderedDocument(Root / "dir1" / "static4.txt", "Static4")
-         ))
-      )),
-       RenderedTree(Root / "dir2", List(
+      renderedTree should be (RenderedTree(Root, List(
         Documents(List(
-          RenderedDocument(Root / "dir2" / "doc5.txt", renderedDoc(5)),
-          RenderedDocument(Root / "dir2" / "doc6.txt", renderedDoc(6)),
-          RenderedDocument(Root / "dir2" / "doc5.txt", renderedDynDoc(5)),
-          RenderedDocument(Root / "dir2" / "doc6.txt", renderedDynDoc(6)),
-          RenderedDocument(Root / "dir2" / "static5.txt", "Static5"),
-          RenderedDocument(Root / "dir2" / "static6.txt", "Static6")
-        ))
-      ))))
-    )))
+          RenderedDocument(Root / "doc1.txt", renderedDoc(1)),
+          RenderedDocument(Root / "doc2.txt", renderedDoc(2)),
+          RenderedDocument(Root / "doc1.txt", renderedDynDoc(1)),
+          RenderedDocument(Root / "doc2.txt", renderedDynDoc(2)),
+          RenderedDocument(Root / "static1.txt", "Static1"),
+          RenderedDocument(Root / "static2.txt", "Static2")
+        )),
+        Subtrees(List(
+          RenderedTree(Root / "dir1", List(
+            Documents(List(
+              RenderedDocument(Root / "dir1" / "doc3.txt", renderedDoc(3)),
+              RenderedDocument(Root / "dir1" / "doc4.txt", renderedDoc(4)),
+              RenderedDocument(Root / "dir1" / "doc3.txt", renderedDynDoc(3)),
+              RenderedDocument(Root / "dir1" / "doc4.txt", renderedDynDoc(4)),
+              RenderedDocument(Root / "dir1" / "static3.txt", "Static3"),
+              RenderedDocument(Root / "dir1" / "static4.txt", "Static4")
+           ))
+        )),
+         RenderedTree(Root / "dir2", List(
+          Documents(List(
+            RenderedDocument(Root / "dir2" / "doc5.txt", renderedDoc(5)),
+            RenderedDocument(Root / "dir2" / "doc6.txt", renderedDoc(6)),
+            RenderedDocument(Root / "dir2" / "doc5.txt", renderedDynDoc(5)),
+            RenderedDocument(Root / "dir2" / "doc6.txt", renderedDynDoc(6)),
+            RenderedDocument(Root / "dir2" / "static5.txt", "Static5"),
+            RenderedDocument(Root / "dir2" / "static6.txt", "Static6")
+          ))
+        ))))
+      )))
+    }
   }
   
-  trait FileSystemTest {
+  trait FileSystemTest extends DocBuilder {
     val input = new DocumentTree(Root,
       documents = List(markupDoc(1), markupDoc(2)),
       subtrees = List(
