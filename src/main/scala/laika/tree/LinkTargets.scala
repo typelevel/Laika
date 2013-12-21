@@ -124,7 +124,7 @@ object LinkTargets {
   
   class ExternalLinkTarget (definition: ExternalLinkDefinition, id: Id, selector: Selector) extends TargetDefinition(definition, id, true) {
     def withResolvedIds (documentId: String, displayId: String) = new SingleTargetResolver(this, selector, Hidden)
-    val replace = lift (Map.empty) // TODO - 2.10 - use PartialFunction.empty when removing support for 2.9.x
+    val replace = lift (PartialFunction.empty)
     val resolve = lift { 
       case (LinkReference (content, _, _, opt), _) => ExternalLink(content, definition.url, definition.title, opt)
       case (ImageReference (text, _, _, opt), _)   => Image(text, definition.url, definition.title, opt)
@@ -133,8 +133,8 @@ object LinkTargets {
   
   class LinkAliasTarget (alias: LinkAlias) extends TargetDefinition(alias, alias.id, false) {
     def withResolvedIds (documentId: String, displayId: String) = new SingleTargetResolver(this, alias.id, Hidden)
-    val replace = lift (Map.empty) // TODO - 2.10 - use PartialFunction.empty when removing support for 2.9.x
-    val resolve = lift (Map.empty)
+    val replace = lift (PartialFunction.empty)
+    val resolve = lift (PartialFunction.empty)
     val ref = alias.target
     val from = alias.id
   }

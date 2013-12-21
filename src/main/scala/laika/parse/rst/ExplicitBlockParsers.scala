@@ -236,17 +236,6 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
     
   }
   
-  /** Overrides the failure message to the specified parser.
-   */
-  def withFailureMessage [T](p: => Parser[T], msg: String) = Parser { in =>
-    // TODO - obsolete when moving to 2.10
-      p(in) match {
-        case Failure(_, next) => Failure(msg, next)
-        case other            => other
-      }
-    }
-
-  
   private class DirectiveParserBuilder extends DirectiveParser {
 
     val skip = success(())
@@ -262,7 +251,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
                               optionalArgs ~ optionalArgWithWS ~
                               fields ~ separator ~ contentParser
     
-    def requiredArg (p: => Parser[String]) = withFailureMessage(p, "missing required argument")                          
+    def requiredArg (p: => Parser[String]) = p.withFailureMessage("missing required argument")                          
                               
     val arg = requiredArg((anyBut(' ','\n') min 1) <~ ws)
     

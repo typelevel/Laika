@@ -27,6 +27,7 @@ import laika.io.InputProvider
 import laika.io.Input
 import laika.tree.Templates.TemplateRoot
 import laika.tree.Templates.TemplateContextReference
+import scala.util.Try
 
 /** Provides the API for Documents and DocumentTrees as well as the Path API.
  *  
@@ -196,8 +197,8 @@ object Documents {
       val result = target match {
         case m: JMap[_, _]=> (fromJavaMap(m.asInstanceOf[JMap[Any,Any]], path.head), path.tail)
         case m: Map[_, _] => (m.asInstanceOf[Map[Any,Any]].get(path.head), path.tail)
-        case c: Config    => (try Some(c.getAnyRef(path.mkString("."))) catch { case e:Exception => None }, Nil) // TODO - use Try when dropping 2.9.x support
-        case other        => (try Some(target.getClass.getMethod(path.head).invoke(target)) catch { case e:Exception => None }, path.tail)
+        case c: Config    => (Try { c.getAnyRef(path.mkString(".")) } toOption, Nil)
+        case other        => (Try { target.getClass.getMethod(path.head).invoke(target) } toOption, path.tail)
       }
       result match {
         case (None, _) if (root && parent.isDefined) => parent.get.resolve(target, path, root)
