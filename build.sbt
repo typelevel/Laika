@@ -3,21 +3,16 @@ name := "laika"
 
 organization := "org.planet42"
 
-version := "0.4.0"
+version := "0.5.0-SNAPSHOT"
 
 description := "Library for transforming lightweight text markup into various types of output formats, written in Scala"
 
-scalaVersion := "2.9.3"
+scalaVersion := "2.10.3"
 
-scalacOptions <<= scalaVersion map { v: String =>
-  val default = Opts.compile.encoding("UTF-8") :+ Opts.compile.deprecation :+ Opts.compile.unchecked
-  if (v.startsWith("2.9.")) default :+ "-Ydependent-method-types" else default :+ "-feature" :+ "-language:implicitConversions" :+ "-language:postfixOps" :+ "-language:higherKinds"          
-}
+scalacOptions := Opts.compile.encoding("UTF-8") :+ Opts.compile.deprecation :+ Opts.compile.unchecked :+ "-feature" :+ 
+  "-language:implicitConversions" :+ "-language:postfixOps" :+ "-language:higherKinds"          
 
-libraryDependencies <+= scalaVersion {
-  case "2.9.2" => "org.scalatest" %% "scalatest" % "1.8" % "test"
-  case _       => "org.scalatest" %% "scalatest" % "1.9.1" % "test"
-}
+libraryDependencies += "org.scalatest" %% "scalatest" % "1.9.1" % "test"
 
 libraryDependencies += "net.sf.jtidy" % "jtidy" % "r938" % "test"
  
@@ -25,7 +20,7 @@ libraryDependencies += "com.typesafe" % "config" % "1.0.2"
 
 crossVersion := CrossVersion.binary
 
-crossScalaVersions := Seq("2.9.2", "2.9.3", "2.10.2")
+crossScalaVersions := Seq("2.10.3")
 
 
 // Publishing to Sonatype OSS Repository
