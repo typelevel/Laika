@@ -187,13 +187,13 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
     
     def isAcceptedScheme (s: String) = s == "http" || s == "https" || s == "ftp" || s == "mailto"
     def isURI (s: String) = try { val uri = new URI(s); uri.isAbsolute && isAcceptedScheme(uri.getScheme) } catch { case _:Throwable => false }
-    def isEmail (s: String) = s.contains("@") && isURI("mailto:" + s) // TODO - improve
+    def isEmail (s: String) = s.contains("@") && isURI(s"mailto:$s") // TODO - improve
     
     def toLink(s: String) = ExternalLink(List(Text(s)), s) 
     
     anyBut(' ','\r','\n','\t','>') <~ '>' ^? { 
       case s if isURI(s) => toLink(s)
-      case s if isEmail(s) => toLink("mailto:" + s)
+      case s if isEmail(s) => toLink(s"mailto:$s")
     }
   }
   

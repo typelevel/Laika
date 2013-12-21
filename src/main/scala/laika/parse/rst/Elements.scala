@@ -68,7 +68,7 @@ object Elements {
    *  by the content of the substitution definition in a rewrite step.
    */
   case class SubstitutionReference (name: String, options: Options = NoOpt) extends Reference {
-    val source = "|"+name+"|"
+    val source = s"|$name|"
   }
   
   /** Represents an interactive Python session. Somewhat unlikely to be used in
@@ -106,8 +106,8 @@ object Elements {
     def resolve (context: DocumentContext): Block = 
       context.parent.selectDocument(path) match {
         case Some(target) => BlockSequence(target.content.content)
-        case None => InvalidBlock(SystemMessage(Error, "Unresolvable path reference: " + path), 
-            LiteralBlock(".. include:: " + path))
+        case None => InvalidBlock(SystemMessage(Error, s"Unresolvable path reference: $path"), 
+            LiteralBlock(s".. include:: $path"))
       }
   }
   

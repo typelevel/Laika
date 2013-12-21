@@ -261,7 +261,7 @@ object Documents {
         val desc = value.origin().description()
         val basePath = if (desc.startsWith("path:")) Path(desc.take(desc.lastIndexOf(":")).drop(5)).parent else Root
         val templatePath = (basePath / Path(value.unwrapped().toString)).relativeTo(Root)
-        root.selectTemplate(templatePath).orElse(throw new IllegalStateException("Template not found: " + templatePath))
+        root.selectTemplate(templatePath).orElse(throw new IllegalStateException(s"Template not found: $templatePath"))
       }
       else {
         val filename = "default.template.html" // TODO - should be configurable and suffix dependent on renderer
@@ -440,8 +440,8 @@ object Documents {
     private def toMap [T <: Navigatable] (navigatables: Seq[T]): Map[String,T] = {
       navigatables groupBy (_.name) mapValues {
         case Seq(nav) => nav
-        case multiple => throw new IllegalStateException("Multiple navigatables with the name "+
-            multiple.head.name+" in tree "+path)
+        case multiple => throw new IllegalStateException("Multiple navigatables with the name " +
+            s"${multiple.head.name} in tree $path")
       }
     }
     

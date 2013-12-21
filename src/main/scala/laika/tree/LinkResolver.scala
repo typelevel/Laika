@@ -94,7 +94,7 @@ class LinkResolver (path: Path, root: RootElement) {
     }} collect {
       case e @ (None,_) => e
       case (name, (target :: Nil)) => (name, target :: Nil)
-      case (name, conflicting)   => (name, conflicting map { case (t, index) => (t.invalid("duplicate target id: " + name.get), index) })
+      case (name, conflicting)   => (name, conflicting map { case (t, index) => (t.invalid(s"duplicate target id: ${name.get}"), index) })
     }).toSeq.unzip
     
     val usedIds = ids.filter(_.isDefined).map(_.get).toSet
@@ -135,12 +135,12 @@ class LinkResolver (path: Path, root: RootElement) {
     
     def resolve (alias: LinkAliasTarget, selector: Selector): SingleTargetResolver = {
       def doResolve (current: LinkAliasTarget, visited: Set[Any]): SingleTargetResolver = {
-        if (visited.contains(current.id)) alias.invalid("circular link reference: " + alias.from).withResolvedIds("","")
+        if (visited.contains(current.id)) alias.invalid(s"circular link reference: ${alias.from}").withResolvedIds("","")
         else
           map.get(current.ref) map {
             case SingleTargetResolver(alias2: LinkAliasTarget, _, _) => doResolve(alias2, visited + current.id)
             case other => other.forAlias(selector)
-          } getOrElse alias.invalid("unresolved link alias: " + alias.ref).withResolvedIds("","")
+          } getOrElse alias.invalid(s"unresolved link alias: ${alias.ref}").withResolvedIds("","")
       }  
       
       doResolve(alias, Set())
@@ -216,19 +216,19 @@ class LinkResolver (path: Path, root: RootElement) {
       case h: DecoratedHeader    => replaceHeader(h, h.options.id.get, decHeaderId)
       case h@ Header(_,_,Id(id)) => replaceHeader(h, id, headerId)
       
-      case c @ CitationReference(label,_,_) => resolve(c, label, "unresolved citation reference: " + label)
+      case c @ CitationReference(label,_,_) => resolve(c, label, s"unresolved citation reference: $label")
       
       case ref: FootnoteReference => ref.label match {
-        case NumericLabel(num)   => resolve(ref, num.toString, "unresolved footnote reference: " + num)
-        case AutonumberLabel(id) => resolve(ref, id, "unresolved footnote reference: " + id)
+        case NumericLabel(num)   => resolve(ref, num.toString, s"unresolved footnote reference: $num")
+        case AutonumberLabel(id) => resolve(ref, id, s"unresolved footnote reference: $id")
         case Autonumber          => resolve(ref, AutonumberSelector, "too many autonumber references")
         case Autosymbol          => resolve(ref, AutosymbolSelector, "too many autosymbol references")
       }
         
       case ref: LinkReference => if (ref.id.isEmpty) resolve(ref, AnonymousSelector, "too many anonymous link references")
-                                 else                resolve(ref, ref.id, "unresolved link reference: " + ref.id, true)
+                                 else                resolve(ref, ref.id, s"unresolved link reference: ${ref.id}", true)
         
-      case ref: ImageReference => resolve(ref, ref.id, "unresolved image reference: " + ref.id, true)
+      case ref: ImageReference => resolve(ref, ref.id, s"unresolved image reference: ${ref.id}", true)
        
       case _: Temporary => None
 

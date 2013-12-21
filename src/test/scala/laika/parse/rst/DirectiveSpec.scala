@@ -48,10 +48,10 @@ class DirectiveSpec extends FlatSpec
   def positiveInt (input: String) = 
     try {
       val num = input.toInt
-      if (num > 0) Right(num) else Left("not a positive number: " + num)
+      if (num > 0) Right(num) else Left(s"not a positive number: $num")
     }
     catch { 
-      case e: Exception => Left("unable to convert to int: " + e.toString) 
+      case e: Exception => Left(s"unable to convert to int: ${e.toString}") 
     }
     
   def intList (input: String) = {
@@ -91,7 +91,7 @@ class DirectiveSpec extends FlatSpec
     "argAndSpans" -> (argument() ~ spanContent) { (arg,spans) => Paragraph(txt(arg) +: spans) },
     "fdAndBody" -> (field("name") ~ blockContent) { (field,blocks) => BlockSequence(p(field+"!") +: blocks) },
     "all" -> (argument() ~ field("name") ~ blockContent) {
-      (arg,field,blocks) => BlockSequence(p(arg+":"+field) +: blocks)
+      (arg,field,blocks) => BlockSequence(p(s"$arg:$field") +: blocks)
     },
     "allOpt" -> (optArgument(positiveInt) ~ optField("name",positiveInt) ~ content(intList)) {
       (arg,field,list) => (p((arg.getOrElse(0) +: field.getOrElse(0) +: list).sum.toString))
@@ -104,7 +104,7 @@ class DirectiveSpec extends FlatSpec
   
   val textRoles: Map[String, TextRole] = Map(
     "role" -> TextRole("role", 7)(TextRoles.Parts.field("name",positiveInt)) { (res,text) =>
-       txt(text+"("+res+")")
+       txt(s"$text($res)")
     }  
   )
   

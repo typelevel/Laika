@@ -137,7 +137,7 @@ class ParseAPISpec extends FlatSpec
     )
     
     def builder (source: String) = new InputConfigBuilder(parseTreeStructure(source), Codec.UTF8)
-    def docView (num: Int, path: Path = Root) = DocumentView(path / ("doc"+num+".md"), Content(List(p("foo"))) :: Nil)
+    def docView (num: Int, path: Path = Root) = DocumentView(path / (s"doc$num.md"), Content(List(p("foo"))) :: Nil)
   
     def parsedTree = viewOf(Parse as Markdown fromTree builder(dirs))
     
@@ -284,7 +284,7 @@ class ParseAPISpec extends FlatSpec
         |+ .git
         |  - file1:name
         |  - file2:name""".stripMargin
-      def template (char: Char, path: Path) = TemplateView(path / ("main"+char+".template.html"), TemplateRoot(List(TemplateString("foo"))))
+      def template (char: Char, path: Path) = TemplateView(path / (s"main$char.template.html"), TemplateRoot(List(TemplateString("foo"))))
       val dyn = TemplateView(Root / "dir2" / "main.dynamic.html", TemplateRoot(List(TemplateString("foo"))))
       val subtree1 = TreeView(Root / "dir1", List(
         Documents(Markup, List(docView(3, Root / "dir1"),docView(4, Root / "dir1"))),
@@ -319,7 +319,7 @@ class ParseAPISpec extends FlatSpec
         input => TemplateDocument(input.path, TemplateRoot(List(TemplateString("$$" + input.asParserInput.source))), null)
       val dirs = """- main1.template.html:name
         |- main2.template.html:name""".stripMargin
-      def template (num: Int) = TemplateView(Root / ("main"+num+".template.html"), TemplateRoot(List(TemplateString("$$foo"))))
+      def template (num: Int) = TemplateView(Root / (s"main$num.template.html"), TemplateRoot(List(TemplateString("$$foo"))))
       val treeResult = TreeView(Root, List(TemplateDocuments(Template, List(template(1),template(2)))))
       parsedRawWith(_.withTemplates(ParseTemplate as parser)) should be (treeResult)
     }
@@ -336,7 +336,7 @@ class ParseAPISpec extends FlatSpec
       }
       val dirs = """- main1.template.html:directive
         |- main2.template.html:directive""".stripMargin
-      def template (num: Int) = TemplateView(Root / ("main"+num+".template.html"), tRoot(tt("aa "),tt("bar"),tt(" bb")))
+      def template (num: Int) = TemplateView(Root / (s"main$num.template.html"), tRoot(tt("aa "),tt("bar"),tt(" bb")))
       val treeResult = TreeView(Root, List(TemplateDocuments(Template, List(template(1),template(2)))))
       parsedRawWith(_.withTemplateDirectives(directive)) should be (treeResult)
     }
@@ -412,7 +412,7 @@ class ParseAPISpec extends FlatSpec
   
   it should "read a directory from the file system using the fromDirectory method" in {
     val dirname = getClass.getResource("/trees/a/").getFile
-    def docView (num: Int, path: Path = Root) = DocumentView(path / ("doc"+num+".md"), Content(List(p("Doc"+num))) :: Nil)
+    def docView (num: Int, path: Path = Root) = DocumentView(path / (s"doc$num.md"), Content(List(p("Doc"+num))) :: Nil)
     val subtree1 = TreeView(Root / "dir1", List(Documents(Markup, List(docView(3, Root / "dir1"),docView(4, Root / "dir1")))))
     val subtree2 = TreeView(Root / "dir2", List(Documents(Markup, List(docView(5, Root / "dir2"),docView(6, Root / "dir2")))))
     val treeResult = TreeView(Root, List(
@@ -424,7 +424,7 @@ class ParseAPISpec extends FlatSpec
   
   it should "read a directory from the file system using the Directory object" in {
     val dirname = getClass.getResource("/trees/a/").getFile
-    def docView (num: Int, path: Path = Root) = DocumentView(path / ("doc"+num+".md"), Content(List(p("Doc"+num))) :: Nil)
+    def docView (num: Int, path: Path = Root) = DocumentView(path / (s"doc$num.md"), Content(List(p("Doc"+num))) :: Nil)
     val subtree1 = TreeView(Root / "dir1", List(Documents(Markup, List(docView(3, Root / "dir1"),docView(4, Root / "dir1")))))
     val subtree2 = TreeView(Root / "dir2", List(Documents(Markup, List(docView(5, Root / "dir2"),docView(6, Root / "dir2")))))
     val treeResult = TreeView(Root, List(

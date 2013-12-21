@@ -95,10 +95,10 @@ import laika.util.Builders._
  *  def nonNegativeInt (value: String) =
  *    try {
  *      val num = value.toInt
- *      Either.cond(num >= 0, num, "not a positive int: " + num)
+ *      Either.cond(num >= 0, num, s"not a positive int: $num")
  *    }
  *    catch {
- *      case e: NumberFormatException => Left("not a number: " + value)
+ *      case e: NumberFormatException => Left(s"not a number: $value")
  *    }
  * 
  *  case class Message (severity: Int, 

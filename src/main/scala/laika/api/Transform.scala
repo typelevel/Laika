@@ -521,8 +521,8 @@ object Transform {
      *  and a `target` directory the renderer will write to.
      */
     def apply (root: File, codec: Codec) = {
-      require(root.exists, "Directory "+root.getAbsolutePath()+" does not exist")
-      require(root.isDirectory, "File "+root.getAbsolutePath()+" is not a directory")
+      require(root.exists, s"Directory ${root.getAbsolutePath} does not exist")
+      require(root.isDirectory, s"File ${root.getAbsolutePath} is not a directory")
       
       val sourceDir = new File(root, "source")
       val targetDir = new File(root, "target")

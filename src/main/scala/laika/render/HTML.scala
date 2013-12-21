@@ -93,7 +93,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
     def renderBlockContainer [T <: BlockContainer[T]](con: BlockContainer[T]) = {
   
       def toTable (label: String, content: Seq[Block], options: Options): Table = {
-        val left = Cell(BodyCell, List(SpanSequence(List(Text("["+label+"]")))))
+        val left = Cell(BodyCell, List(SpanSequence(List(Text(s"[$label]")))))
         val right = Cell(BodyCell, content)
         val row = Row(List(left,right))
         Table(TableHead(Nil), TableBody(List(row)), Caption(),
@@ -139,7 +139,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
           case -1 => path.relative.toString
           case i  => (path.relative.parent / (path.relative.name.take(i) + ".html")).toString
         }
-        if (ref.isEmpty) target else target+"#"+ref
+        if (ref.isEmpty) target else s"$target#$ref"
       }
       
       con match {
@@ -234,7 +234,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
     }
     
     def renderUnresolvedReference (ref: Reference) = {
-      out << InvalidSpan(SystemMessage(Error,"unresolved reference: " + ref), Text(ref.source)) 
+      out << InvalidSpan(SystemMessage(Error,s"unresolved reference: $ref"), Text(ref.source)) 
     }
     
     def renderInvalidElement (elem: Invalid[_ <: Element]) = elem match {

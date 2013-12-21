@@ -206,14 +206,14 @@ object Directives {
    *  of a directive.
    */
   case class Named (name: String) extends Id {
-    def desc (keyType: String) = keyType+" with name '"+name+"'"
+    def desc (keyType: String) = s"$keyType with name '$name'"
   }
   
   /** Represents an unnamed attribute or body part
    *  of a directive.
    */
   case object Default extends Id {
-    def desc (keyType: String) = "default "+keyType
+    def desc (keyType: String) = s"default $keyType"
   }
   
   implicit def stringToId (str: String): Id = Named(str)
@@ -315,9 +315,9 @@ object Directives {
       private def toInt (s: String, f: Int => Boolean, msg: String = "") = { 
         try { 
           val i = s.trim.toInt
-          if (f(i)) Success(i) else Failure(msg + ": " + i)
+          if (f(i)) Success(i) else Failure(s"$msg: $i")
         } catch { 
-          case e: NumberFormatException => Failure("not an integer: " + s)
+          case e: NumberFormatException => Failure(s"not an integer: $s")
         }
     }
       
@@ -341,7 +341,7 @@ object Directives {
           val requiresContext = false
           def apply (context: DirectiveContext) = convert(context) match {
             case Some(Success(value)) => Success(Some(value))
-            case Some(Failure(msg))   => Failure("error converting " + key.desc + ": " + msg.mkString(", "))
+            case Some(Failure(msg))   => Failure(s"error converting ${key.desc}: " + msg.mkString(", "))
             case None                 => Success(None)
           }
         }
@@ -360,7 +360,7 @@ object Directives {
        *  @return a directive part that can be combined with further parts with the `~` operator
        */
       def attribute [T](id: Id, converter: Converter[T] = Converters.string): DirectivePart[T] 
-          = requiredPart(Attribute(id), converter, "required "+Attribute(id).desc+" is missing") 
+          = requiredPart(Attribute(id), converter, s"required ${Attribute(id).desc} is missing") 
       
       /** Specifies a required body part. 
        * 
@@ -369,7 +369,7 @@ object Directives {
        *  @return a directive part that can be combined with further parts with the `~` operator
        */
       def body [T](id: Id, converter: Converter[T] = Converters.parsed): DirectivePart[T] 
-          = requiredPart(Body(id), converter, "required "+Body(id).desc+" is missing")
+          = requiredPart(Body(id), converter, s"required ${Body(id).desc} is missing")
       
       /** Indicates that access to the parser responsible for this directive
        *  is needed, in case the directive implementation has to manually

@@ -86,7 +86,7 @@ class PrettyPrint extends RendererFactory[TextWriter] {
       val (elements, rest) = con.productIterator partition (_.isInstanceOf[Element])
       out << con.productPrefix << attributes(rest, con.content)
       
-      val contentDesc = " - " + elementType + ": " + con.content.length.toString
+      val contentDesc = s" - $elementType: ${con.content.length.toString}"
       if (!elements.isEmpty) out <<|> (elements.toList.asInstanceOf[Seq[Element]] ++ List(Content(con.content, "Content" + contentDesc)))
       else out << contentDesc <<|> con.content  
     }

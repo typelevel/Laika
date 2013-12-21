@@ -125,7 +125,7 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
     import laika.util.Builders.{~ => ~~}
     
     val directive = directives(parseResult.name).map(Directives.Success(_))
-        .getOrElse(Directives.Failure("No "+directiveTypeDesc+" directive registered with name: "+parseResult.name))
+        .getOrElse(Directives.Failure(s"No $directiveTypeDesc directive registered with name: ${parseResult.name}"))
     
     val partMap = {
       val dups = parseResult.parts groupBy (_.key) filterNot (_._2.tail.isEmpty) keySet;

@@ -44,11 +44,11 @@ class RewriteRulesSpec extends FlatSpec
 
   def fnLinks (labels: (String,String)*) = p((labels map { label => FootnoteLink(label._1,label._2)}):_*)
   
-  def fn (label: FootnoteLabel, num: Any) = FootnoteDefinition(label, List(p("footnote"+num)))
+  def fn (label: FootnoteLabel, num: Any) = FootnoteDefinition(label, List(p(s"footnote$num")))
 
-  def fn (id: String, label: String) = Footnote(label, List(p("footnote"+label)), Id(id))
+  def fn (id: String, label: String) = Footnote(label, List(p(s"footnote$label")), Id(id))
 
-  def fn (label: String) = Footnote(label, List(p("footnote"+label)))
+  def fn (label: String) = Footnote(label, List(p(s"footnote$label")))
   
   def simpleLinkRef (id: String = "name") = LinkReference(List(txt("text")), id, "text")
  

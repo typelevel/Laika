@@ -27,10 +27,10 @@ trait ParseResultHelpers { self: Parsers =>
     def apply (left: ParseResult[_]) = {
 
       val failureMessageSuffix = left match {
-        case Success(result,_)   => "parser produced result " + result + " instead of failing with result type " + m.erasure.getSimpleName
-        case ns @ NoSuccess(_,_) => "parser result type " + ns.getClass.getSimpleName + " was not the expected type " + m.erasure.getSimpleName
+        case Success(result,_)   => s"parser produced result $result instead of failing with result type ${m.erasure.getSimpleName}"
+        case ns @ NoSuccess(_,_) => s"parser result type ${ns.getClass.getSimpleName} was not the expected type ${m.erasure.getSimpleName}"
       }
-      val negatedFailureMessageSuffix = "parser '" + left + "' did have the unexpected result type " + m.erasure.getSimpleName
+      val negatedFailureMessageSuffix = s"parser '$left' did have the unexpected result type ${m.erasure.getSimpleName}"
 
       MatchResult(
         left.isEmpty && m.erasure.isInstance(left),
@@ -49,11 +49,11 @@ trait ParseResultHelpers { self: Parsers =>
     def apply (left: ParseResult[T]) = {
 
       val failureMessageSuffix = left match {
-        case Success(unexpected,_) => "parser result '" + unexpected + "' was not equal to '" + expected + "'"
-        case NoSuccess(msg,in)     => "parser failed with message '" + msg + "' at " + in.pos + " instead of producing expected result '" + expected + "'"
+        case Success(unexpected,_) => s"parser result '$unexpected' was not equal to '$expected'"
+        case NoSuccess(msg,in)     => s"parser failed with message '$msg' at ${in.pos} instead of producing expected result '$expected'"
       }
       
-      val negatedFailureMessageSuffix = "parser '" + left + "' did produce the unexpected result " + expected
+      val negatedFailureMessageSuffix = s"parser '$left' did produce the unexpected result $expected"
 
       MatchResult(
         left.successful && left.get == expected,

@@ -64,15 +64,15 @@ trait ModelBuilder {
 
   def imgRef (text: String, id: String, source: String = "") = ImageReference(text, id, source)
   
-  def citRef (label: String) = CitationReference(label, "["+label+"]_")
+  def citRef (label: String) = CitationReference(label, s"[$label]_")
   
   def fnRef (label: FootnoteLabel) = FootnoteReference(label, toSource(label))
   
   def toSource (label: FootnoteLabel) = label match {
     case Autonumber => "[#]_"
     case Autosymbol => "[*]_"
-    case AutonumberLabel(label) => "[#"+label+"]_"
-    case NumericLabel(label) => "["+label+"]_"
+    case AutonumberLabel(label) => s"[#$label]_"
+    case NumericLabel(label) => s"[$label]_"
   }
   
   def root (blocks: Block*) = RootElement(blocks.toList)

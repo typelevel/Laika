@@ -123,8 +123,8 @@ object InputProvider {
    *  @param codec the character encoding of the files, if not specified the platform default will be used
    */
   def forRootDirectory (root: File, docTypeMatcher: Path => DocumentType)(implicit codec: Codec): InputProvider = {
-    require(root.exists, "Directory "+root.getAbsolutePath()+" does not exist")
-    require(root.isDirectory, "File "+root.getAbsolutePath()+" is not a directory")
+    require(root.exists, s"Directory ${root.getAbsolutePath} does not exist")
+    require(root.isDirectory, s"File ${root.getAbsolutePath} is not a directory")
     
     new DirectoryInputProvider(root, Root, docTypeMatcher, codec)
   }

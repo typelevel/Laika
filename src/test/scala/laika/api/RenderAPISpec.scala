@@ -105,7 +105,7 @@ class RenderAPISpec extends FlatSpec
     def markupDoc (num: Int, path: Path = Root)  = new Document(path / ("doc"+num), root(p("Doc"+num)))
     def dynamicDoc (num: Int, path: Path = Root) = new Document(path / ("doc"+num), root(TemplateRoot(List(TemplateString("Doc"+num)))))
     
-    def staticDoc (num: Int, path: Path = Root) = Input.fromString("Static"+num, path / ("static"+num+".txt"))
+    def staticDoc (num: Int, path: Path = Root) = Input.fromString("Static"+num, path / (s"static$num.txt"))
     
     
     def renderedDynDoc (num: Int) = """RootElement - Blocks: 1

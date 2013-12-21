@@ -49,10 +49,10 @@ object RewriteRules extends (DocumentContext => PartialFunction[Element,Option[E
     val rewrite: PartialFunction[Element, Option[Element]] = {
           
       case SubstitutionReference(id,_) =>
-        substitutions.get(id).orElse(Some(invalidSpan("unknown substitution id: " + id, "|"+id+"|")))
+        substitutions.get(id).orElse(Some(invalidSpan(s"unknown substitution id: $id", s"|$id|")))
         
       case InterpretedText(role,text,_,_) =>
-        textRoles.get(role).orElse(Some({s: String => invalidSpan("unknown text role: " + role, "`"+s+"`")})).map(_(text))
+        textRoles.get(role).orElse(Some({s: String => invalidSpan(s"unknown text role: $role", s"`$s`")})).map(_(text))
         
     }
   }

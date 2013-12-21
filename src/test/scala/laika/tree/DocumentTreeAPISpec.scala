@@ -38,7 +38,7 @@ class DocumentTreeAPISpec extends FlatSpec
     def rootElement (b: Block) = root(b, p("b"), p("c"))
     
     def createConfig (path: Path, source: Option[String]) =
-      source.map(c =>ConfigFactory.parseString(c, ConfigParseOptions.defaults().setOriginDescription("path:"+path)))
+      source.map(c =>ConfigFactory.parseString(c, ConfigParseOptions.defaults().setOriginDescription(s"path:$path")))
       .getOrElse(ConfigFactory.empty)
     
     def treeWithDoc (path: Path, name: String, root: RootElement, config: Option[String] = None) =

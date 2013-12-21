@@ -71,8 +71,8 @@ object OutputProvider {
     
     def newChild (name: String) = {
       val f = new File(dir, name)
-      require(!f.exists || f.isDirectory, "File "+f.getAbsolutePath+" exists and is not a directory")
-      if (!f.exists && !f.mkdir()) throw new IllegalStateException("Unable to create directory "+f.getAbsolutePath)
+      require(!f.exists || f.isDirectory, s"File ${f.getAbsolutePath} exists and is not a directory")
+      if (!f.exists && !f.mkdir()) throw new IllegalStateException(s"Unable to create directory ${f.getAbsolutePath}")
       new DirectoryOutputProvider(f, path / name, codec)
     }
     
@@ -85,7 +85,7 @@ object OutputProvider {
    *  @param codec the character encoding of the files, if not specified the platform default will be used
    */
   def forRootDirectory (root: File)(implicit codec: Codec): OutputProvider = {
-    require(root.isDirectory, "File "+root.getAbsolutePath()+" is not a directoy")
+    require(root.isDirectory, s"File ${root.getAbsolutePath} is not a directoy")
     
     new DirectoryOutputProvider(root, Root, codec)
   }

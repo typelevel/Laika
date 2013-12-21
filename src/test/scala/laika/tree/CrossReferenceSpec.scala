@@ -31,7 +31,7 @@ class CrossReferenceSpec extends FlatSpec
   
   trait TreeModel {
     def rootWithLink (id: String, text: String, path: PathInfo) = rootElement(p(CrossLink(List(Text(text)), id, path)))
-    def rootWithRef (id: String, text: String) = rootElement(p(LinkReference(List(Text(text)), id, "["+id+"]")))
+    def rootWithRef (id: String, text: String) = rootElement(p(LinkReference(List(Text(text)), id, s"[$id]")))
     def rootWithTarget (id: String) = rootElement(InternalLinkTarget(Id(id)))
     def rootElement (b: Block) = root(p("A"), b, p("B"))
 

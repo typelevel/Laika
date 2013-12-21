@@ -221,8 +221,8 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   private def toSource (label: FootnoteLabel) = label match {
     case Autonumber => "[#]_"
     case Autosymbol => "[*]_"
-    case AutonumberLabel(label) => "[#"+label+"]_"
-    case NumericLabel(label) => "["+label+"]_"
+    case AutonumberLabel(label) => s"[#$label]_"
+    case NumericLabel(label) => s"[$label]_"
   }
   
   /** Parses a footnote reference.
@@ -237,15 +237,15 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#citation-references]].
    */
   lazy val citationRef = markupStart("]_") ~> simpleRefName <~ markupEnd("]_") ^^
-      { label => CitationReference(label, "["+label+"]_") }
+      { label => CitationReference(label, s"[$label]_") }
   
   /** Parses a substitution reference.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#substitution-references]].
    */
   lazy val substitutionRef = markupStart("|") ~> simpleRefName >> { ref =>
-    markupEnd("|__") ^^ { _ => LinkReference(List(SubstitutionReference(ref)), "", "|" + ref + "|__") } | 
-    markupEnd("|_")  ^^ { _ => LinkReference(List(SubstitutionReference(ref)), ref, "|" + ref + "|_") } |
+    markupEnd("|__") ^^ { _ => LinkReference(List(SubstitutionReference(ref)), "", s"|$ref|__") } | 
+    markupEnd("|_")  ^^ { _ => LinkReference(List(SubstitutionReference(ref)), ref, s"|$ref|_") } |
     markupEnd("|")   ^^ { _ => SubstitutionReference(ref) } 
   }
   
@@ -267,7 +267,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    */  
   lazy val interpretedTextWithRolePrefix = {
     (markupStart(":") ~> simpleRefName) ~ (":`" ~> escapedText(anyBut('`') min 1) <~ markupEnd("`")) ^^ 
-      { case role ~ text => InterpretedText(role,text,":"+role+":`"+text+"`") }
+      { case role ~ text => InterpretedText(role,text,s":$role:`$text`") }
   }
   
   /** Parses an interpreted text element with the role name as a suffix.
@@ -276,7 +276,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    */  
   lazy val interpretedTextWithRoleSuffix = {
     (markupStart("`") ~> escapedText(anyBut('`') min 1) <~ markupEnd("`")) ~ opt(":" ~> simpleRefName <~ markupEnd(":")) ^^
-      { case text ~ role => InterpretedText(role.getOrElse(defaultTextRole), text, "`"+text+"`"+role.map(":"+_+":").getOrElse("")) }
+      { case text ~ role => InterpretedText(role.getOrElse(defaultTextRole), text, s"`$text`" + role.map(":"+_+":").getOrElse("")) }
   }
   
   /** Parses a phrase link reference (enclosed in back ticks).
@@ -291,8 +291,8 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
       case refName ~ Some(url) ~ true   => 
         SpanSequence(List(ExternalLink(List(Text(ref(refName.original, url))), url), ExternalLinkDefinition(ref(refName.normalized, url), url)))
       case refName ~ Some(url) ~ false  => ExternalLink(List(Text(ref(refName.original, url))), url)
-      case refName ~ None ~ true        => LinkReference(List(Text(refName.original)), refName.normalized, "`" + refName.original + "`_") 
-      case refName ~ None ~ false       => LinkReference(List(Text(refName.original)), "", "`" + refName.original + "`__") 
+      case refName ~ None ~ true        => LinkReference(List(Text(refName.original)), refName.normalized, s"`${refName.original}`_") 
+      case refName ~ None ~ false       => LinkReference(List(Text(refName.original)), "", s"`${refName.original}`__") 
     }
   }
   
@@ -306,8 +306,8 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
     markupEnd('_' ^^^ "__" | success("_")) >> { 
       markup => reverse(markup.length, simpleRefName <~ reverseMarkupStart) ^^ { refName =>
         markup match {
-          case "_"  => Reverse(refName.length, LinkReference(List(Text(refName)), ReferenceName(refName).normalized, "" + refName + "_"), Text("_")) 
-          case "__" => Reverse(refName.length, LinkReference(List(Text(refName)), "", "" + refName + "__"), Text("__")) 
+          case "_"  => Reverse(refName.length, LinkReference(List(Text(refName)), ReferenceName(refName).normalized, s"${refName}_"), Text("_")) 
+          case "__" => Reverse(refName.length, LinkReference(List(Text(refName)), "", s"${refName}__"), Text("__")) 
         }
       }
     } 

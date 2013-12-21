@@ -116,7 +116,7 @@ object IdGenerators {
       str
     }
     @tailrec def next (num: Int): String = {
-      val candidate = suggested+"-"+num
+      val candidate = s"$suggested-$num"
       if (!used.contains(candidate)) result(candidate)
       else next(num + 1)
     }

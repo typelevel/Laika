@@ -33,7 +33,7 @@ class SectionNumberSpec extends FlatSpec
   trait TreeModel {
     
     def header (level: Int, title: Int, style: String = "section") =
-      Header(level,List(Text("Title "+title)),Id("title"+title) + Styles(style))
+      Header(level,List(Text(s"Title $title")),Id(s"title$title") + Styles(style))
       
     def tree (content: RootElement) = {
       def docs (path: Path, nums: Int*) = nums map (n => new Document(path / ("doc"+n), content))
@@ -46,13 +46,13 @@ class SectionNumberSpec extends FlatSpec
     def numberedHeader (level: Int, title: Int, num: List[Int], style: String = "section") = {
       val numbered = isIncluded(num.length) && (style == "section" && numberSections) || (style == "title" && numberDocs)
       val number = if (numbered) List(Text(num.mkString("","."," "),Styles(style+"Number"))) else Nil
-      Header(level, number ++ List(Text("Title "+title)),Id("title"+title)+Styles(style))
+      Header(level, number ++ List(Text(s"Title $title")),Id(s"title$title") + Styles(style))
     }
       
     def numberedSection (level: Int, title: Int, num: List[Int], children: Section*) =
       Section(numberedHeader(level, title, num), children)
     def numberedSectionInfo (level: Int, title: Int, num: List[Int], children: SectionInfo*) =
-      SectionInfo(num, "title"+title, TitleInfo(numberedHeader(level, title, num).content), children)
+      SectionInfo(num, s"title$title", TitleInfo(numberedHeader(level, title, num).content), children)
 
 
     def treeView (content: List[Int] => List[DocumentContent]) = {

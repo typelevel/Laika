@@ -55,18 +55,18 @@ class RewriteRulesSpec extends FlatSpec
   
   
   "The rewrite rules for interpreted text roles" should "replace a single reference with the result of applying the role function" in {
-    val rootElem = root(p(InterpretedText("id", "foo","")), CustomizedTextRole("id", s => txt(":"+s+":")))
+    val rootElem = root(p(InterpretedText("id", "foo","")), CustomizedTextRole("id", s => txt(s":$s:")))
     rewritten (rootElem) should be (root(p(":foo:")))
   }
   
   it should "replace multiple references with the result of applying corresponding role functions" in {
     val rootElem = root(p(InterpretedText("id1", "foo",""),InterpretedText("id2", "bar",""),InterpretedText("id1", "baz","")), 
-        CustomizedTextRole("id1", s => txt(":"+s+":")), CustomizedTextRole("id2", s => txt("."+s+".")))
+        CustomizedTextRole("id1", s => txt(":"+s+":")), CustomizedTextRole("id2", s => txt(s".$s.")))
     rewritten (rootElem) should be (root(p(txt(":foo:"),txt(".bar."),txt(":baz:"))))
   }
   
   it should "replace an unknown text role with an invalid span" in {
-    val rootElem = root(p(InterpretedText("id1", "foo", "")), CustomizedTextRole("id2", s => txt("."+s+".")))
+    val rootElem = root(p(InterpretedText("id1", "foo", "")), CustomizedTextRole("id2", s => txt(s".$s.")))
     rewritten (rootElem) should be (root(p(invalidSpan("unknown text role: id1", "`foo`"))))
   }
   

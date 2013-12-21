@@ -298,7 +298,7 @@ object Elements {
   /** The format of enumerated list items.
    */
   case class EnumFormat (enumType: EnumType = Arabic, prefix: String = "", suffix: String = ".") {
-    override def toString = "EnumFormat(" + enumType + "," + prefix + "N" + suffix + ")"
+    override def toString = s"EnumFormat($enumType,${prefix}N$suffix)"
   }
   
   /** Represents the type of an ordered list.

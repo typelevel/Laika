@@ -68,12 +68,12 @@ object RomanNumerals {
       symbols.filter(roman startsWith _.roman).sortBy(-_.roman.length) match {
         case (s @ Symbol(romanSymbol, value, repeatable)) :: _ =>
           if (s == lastSymbol && !repeatable) 
-            throw new IllegalArgumentException("Symbol " + romanSymbol + " cannot be repeated")
+            throw new IllegalArgumentException(s"Symbol $romanSymbol cannot be repeated")
           else if (value > lastSymbol.value) 
-            throw new IllegalArgumentException("Illegal ordering of symbols: " + lastSymbol.roman + romanSymbol)
+            throw new IllegalArgumentException(s"Illegal ordering of symbols: ${lastSymbol.roman}$romanSymbol")
           value + convert(roman.substring(romanSymbol.length), s)
         case Nil if roman.isEmpty => 0
-        case Nil => throw new IllegalArgumentException("Illegal Roman Numeral: " + roman)
+        case Nil => throw new IllegalArgumentException(s"Illegal Roman Numeral: $roman")
       }
     }
     

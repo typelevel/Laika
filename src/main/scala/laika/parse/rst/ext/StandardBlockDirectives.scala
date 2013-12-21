@@ -82,9 +82,9 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
 
   private def positiveInt (value: String) = try { 
       val i = value.toInt
-      if (i > 0) Right(i) else Left("Not a posivitve number: " + i)
+      if (i > 0) Right(i) else Left(s"Not a posivitve number: $i")
     } catch { 
-      case e: NumberFormatException => Left("Not a number: " + value)
+      case e: NumberFormatException => Left(s"Not a number: $value")
     }
   
   /** The compound directive, 

@@ -66,7 +66,7 @@ object TemplateParsers {
       }
       catch {
         case ex: Exception => Left(InvalidSpan(SystemMessage(laika.tree.Elements.Error, 
-            "Error parsing config header: "+ex.getMessage), TemplateString("<%"+str+"%>")))
+            "Error parsing config header: "+ex.getMessage), TemplateString(s"<%$str%>")))
       }
     } 
     
@@ -104,7 +104,7 @@ object TemplateParsers {
       }
       catch {
         case ex: Exception => Left(InvalidBlock(SystemMessage(laika.tree.Elements.Error, 
-            "Error parsing config header: "+ex.getMessage), LiteralBlock("<%"+str+"%>")))
+            "Error parsing config header: "+ex.getMessage), LiteralBlock(s"<%$str%>")))
       }
     } 
   }

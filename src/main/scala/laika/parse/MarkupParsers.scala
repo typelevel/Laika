@@ -233,7 +233,7 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
           Success((source.subSequence(in.offset, offset).toString, onStopChar), in.drop(consumeTo - in.offset))
         }
         else 
-          Failure("expected at least "+min+" characters, got only "+(offset-in.offset), in)
+          Failure(s"expected at least $min characters, got only ${offset-in.offset}", in)
       }
     
       @tailrec
@@ -271,7 +271,7 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
         if (resultOffset - in.offset >= min) 
           Success((in.source.subSequence(in.offset, resultOffset).toString, onStopChar), next)
         else 
-          Failure("expected at least "+min+" characters, got only "+(next.offset-in.offset), in)
+          Failure(s"expected at least $min characters, got only ${next.offset-in.offset}", in)
       }
       
       @tailrec
