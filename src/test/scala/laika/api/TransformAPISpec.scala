@@ -26,7 +26,7 @@ import scala.io.Codec.charset2codec
 import scala.io.Source
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 import laika.parse.markdown.Markdown
 import laika.render.PrettyPrint
 import laika.tree.Elements.Text
@@ -38,7 +38,7 @@ import laika.tree.Templates._
 import laika.template.ParseTemplate
 
 class TransformAPISpec extends FlatSpec 
-                       with ShouldMatchers {
+                       with Matchers {
 
    
   val input = """# Title äöü

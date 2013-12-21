@@ -18,13 +18,13 @@ package laika.tree
 
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 
 import laika.tree.Elements._
 import laika.tree.helper.ModelBuilder
  
 class ElementTraversalSpec extends FlatSpec 
-                           with ShouldMatchers
+                           with Matchers
                            with ModelBuilder {
 
   

@@ -17,12 +17,12 @@
 package laika.tree
 
 import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 
 import laika.tree.Documents._
 
 class PathAPISpec extends FlatSpec 
-                  with ShouldMatchers {
+                  with Matchers {
 
   
   "The Path API" should "construct an absolute path from a string" in {

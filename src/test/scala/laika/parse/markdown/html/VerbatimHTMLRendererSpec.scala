@@ -18,7 +18,7 @@ package laika.parse.markdown.html
 
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 
 import laika.api.Render
 import laika.parse.markdown.html.HTMLElements._
@@ -28,7 +28,7 @@ import laika.tree.helper.ModelBuilder
  
 
 class VerbatimHTMLRendererSpec extends FlatSpec 
-                               with ShouldMatchers
+                               with Matchers
                                with ModelBuilder 
                                with HTMLModelBuilder {
   

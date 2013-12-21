@@ -18,7 +18,7 @@ package laika.parse.markdown
 
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 
 import laika.parse.helper.DefaultParserHelpers
 import laika.parse.helper.ParseResultHelpers
@@ -26,7 +26,7 @@ import laika.tree.Elements.Span
 import laika.tree.helper.ModelBuilder
      
 class InlineParsersSpec extends FlatSpec 
-                        with ShouldMatchers 
+                        with Matchers 
                         with InlineParsers 
                         with ParseResultHelpers 
                         with DefaultParserHelpers[List[Span]] 

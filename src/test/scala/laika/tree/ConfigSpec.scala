@@ -17,7 +17,7 @@
 package laika.tree
 
 import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 import laika.tree.helper.ModelBuilder
 import laika.tree.Elements._
 import laika.tree.Documents._
@@ -34,7 +34,7 @@ import laika.tree.Elements._
 import laika.parse.rst.ReStructuredText
 
 class ConfigSpec extends FlatSpec 
-                    with ShouldMatchers
+                    with Matchers
                     with ModelBuilder {
 
 

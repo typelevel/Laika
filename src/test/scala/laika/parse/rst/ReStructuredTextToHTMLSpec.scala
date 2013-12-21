@@ -17,7 +17,7 @@
 package laika.parse.rst
 
 import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 import laika.api.Transform
 import laika.parse.markdown.html.VerbatimHTML
 import laika.render.HTML
@@ -30,7 +30,7 @@ import laika.io.Input
  * @author Jens Halm
  */
 class ReStructuredTextToHTMLSpec extends FlatSpec 
-                                 with ShouldMatchers
+                                 with Matchers
                                  with FileTransformerUtil {
   
   implicit val codec:Codec = Codec.UTF8

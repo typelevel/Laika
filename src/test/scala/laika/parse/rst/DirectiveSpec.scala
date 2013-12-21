@@ -18,7 +18,7 @@ package laika.parse.rst
 
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 import laika.parse.helper.DefaultParserHelpers
 import laika.parse.helper.ParseResultHelpers
 import laika.tree.helper.ModelBuilder
@@ -30,7 +30,7 @@ import laika.parse.rst.Directives.Parts._
 import laika.parse.rst.TextRoles.RoleDirectivePart
    
 class DirectiveSpec extends FlatSpec 
-                        with ShouldMatchers 
+                        with Matchers 
                         with BlockParsers 
                         with InlineParsers
                         with ParseResultHelpers 

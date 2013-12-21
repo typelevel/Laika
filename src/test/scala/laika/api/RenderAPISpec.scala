@@ -24,7 +24,7 @@ import scala.io.Codec.charset2codec
 import scala.io.Source
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 import laika.render.PrettyPrint
 import laika.tree.Elements.Text
 import laika.tree.helper.ModelBuilder
@@ -39,7 +39,7 @@ import laika.io.Input
 import laika.io.OutputProvider.Directory
 
 class RenderAPISpec extends FlatSpec 
-                    with ShouldMatchers
+                    with Matchers
                     with ModelBuilder {
 
   

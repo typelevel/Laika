@@ -18,7 +18,7 @@ package laika.parse.rst
 
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 
 import laika.render.HTML
 import laika.api.Render
@@ -27,7 +27,7 @@ import laika.parse.rst.Elements._
 import laika.tree.helper.ModelBuilder
 
 class ExtendedHTMLSpec extends FlatSpec 
-                       with ShouldMatchers
+                       with Matchers
                        with ModelBuilder {
  
   

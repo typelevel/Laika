@@ -12,7 +12,7 @@ scalaVersion := "2.10.3"
 scalacOptions := Opts.compile.encoding("UTF-8") :+ Opts.compile.deprecation :+ Opts.compile.unchecked :+ "-feature" :+ 
   "-language:implicitConversions" :+ "-language:postfixOps" :+ "-language:higherKinds"          
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "1.9.1" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "2.0" % "test"
 
 libraryDependencies += "net.sf.jtidy" % "jtidy" % "r938" % "test"
  

@@ -19,12 +19,12 @@ package laika.parse
 import scala.util.parsing.input.CharSequenceReader
 
 import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 
 import laika.parse.helper.ParseResultHelpers
 import laika.parse.helper.StringParserHelpers
 
-class BaseParsersSpec extends FlatSpec with ShouldMatchers with MarkupParsers with ParseResultHelpers with StringParserHelpers {
+class BaseParsersSpec extends FlatSpec with Matchers with MarkupParsers with ParseResultHelpers with StringParserHelpers {
 
   
   "The parser for dynamic repetitions" should "parse a sequence based on a dynamically changing parser" in {

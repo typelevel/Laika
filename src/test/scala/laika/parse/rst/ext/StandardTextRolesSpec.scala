@@ -17,7 +17,7 @@
 package laika.parse.rst.ext
 
 import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 
 import laika.tree.helper.ModelBuilder
 import laika.tree.Elements._
@@ -28,7 +28,7 @@ import laika.api.Parse
  * @author Jens Halm
  */
 class StandardTextRolesSpec extends FlatSpec 
-                            with ShouldMatchers 
+                            with Matchers 
                             with ModelBuilder {
 
   

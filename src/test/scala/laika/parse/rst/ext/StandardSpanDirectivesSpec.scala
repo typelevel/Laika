@@ -17,7 +17,7 @@
 package laika.parse.rst.ext
 
 import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 import laika.tree.helper.ModelBuilder
 import laika.tree.Elements._
 import laika.parse.rst.ReStructuredText
@@ -29,7 +29,7 @@ import java.util.Date
  * @author Jens Halm
  */
 class StandardSpanDirectivesSpec extends FlatSpec 
-                                  with ShouldMatchers 
+                                  with Matchers 
                                   with ModelBuilder {
 
 

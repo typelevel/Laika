@@ -17,7 +17,7 @@
 package laika.template
 
 import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 import laika.parse.helper.DefaultParserHelpers
 import laika.parse.helper.ParseResultHelpers
 import laika.tree.helper.ModelBuilder
@@ -25,7 +25,7 @@ import laika.tree.Elements._
 import laika.tree.Templates._
 
 class TemplateParsersSpec extends FlatSpec 
-                          with ShouldMatchers 
+                          with Matchers 
                           with TemplateParsers.Templates
                           with ParseResultHelpers 
                           with DefaultParserHelpers[List[Span]] 

@@ -27,13 +27,13 @@ trait ParseResultHelpers { self: Parsers =>
     def apply (left: ParseResult[_]) = {
 
       val failureMessageSuffix = left match {
-        case Success(result,_)   => s"parser produced result $result instead of failing with result type ${m.erasure.getSimpleName}"
-        case ns @ NoSuccess(_,_) => s"parser result type ${ns.getClass.getSimpleName} was not the expected type ${m.erasure.getSimpleName}"
+        case Success(result,_)   => s"parser produced result $result instead of failing with result type ${m.runtimeClass.getSimpleName}"
+        case ns @ NoSuccess(_,_) => s"parser result type ${ns.getClass.getSimpleName} was not the expected type ${m.runtimeClass.getSimpleName}"
       }
-      val negatedFailureMessageSuffix = s"parser '$left' did have the unexpected result type ${m.erasure.getSimpleName}"
+      val negatedFailureMessageSuffix = s"parser '$left' did have the unexpected result type ${m.runtimeClass.getSimpleName}"
 
       MatchResult(
-        left.isEmpty && m.erasure.isInstance(left),
+        left.isEmpty && m.runtimeClass.isInstance(left),
         "The " + failureMessageSuffix,
         "The " + negatedFailureMessageSuffix,
         "the " + failureMessageSuffix,

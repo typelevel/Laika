@@ -17,13 +17,13 @@
 package laika.parse.markdown
 
 import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 
 import laika.api.Parse
 import laika.tree.helper.ModelBuilder
 
 class APISpec extends FlatSpec 
-                 with ShouldMatchers
+                 with Matchers
                  with ModelBuilder {
   
   

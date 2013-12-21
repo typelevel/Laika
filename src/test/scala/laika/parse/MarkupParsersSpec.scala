@@ -17,12 +17,12 @@
 package laika.parse
 
 import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 
 import laika.parse.helper.ParseResultHelpers
 import laika.parse.helper.StringParserHelpers
    
-class MarkupParsersSpec extends FlatSpec with ShouldMatchers with MarkupParsers with ParseResultHelpers with StringParserHelpers {
+class MarkupParsersSpec extends FlatSpec with Matchers with MarkupParsers with ParseResultHelpers with StringParserHelpers {
  
   
   "The eol parser" should "succeed for \\n" in {

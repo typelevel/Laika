@@ -17,7 +17,7 @@
 package laika.parse.rst
 
 import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 
 import laika.api._
 import laika.tree.Elements._
@@ -30,7 +30,7 @@ import laika.directive.Directives.Spans
 import laika.tree.helper.ModelBuilder
 
 class APISpec extends FlatSpec 
-                 with ShouldMatchers
+                 with Matchers
                  with ModelBuilder {
   
   

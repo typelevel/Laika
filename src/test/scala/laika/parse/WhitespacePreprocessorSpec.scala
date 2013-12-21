@@ -17,11 +17,11 @@
 package laika.parse
 
 import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 import laika.parse.util.WhitespacePreprocessor
 
 class WhitespacePreprocessorSpec extends FlatSpec 
-                                 with ShouldMatchers {
+                                 with Matchers {
 
   
   "The whitespace preprocessor" should "replace form feeds and vertical tabs with single spaces" in {

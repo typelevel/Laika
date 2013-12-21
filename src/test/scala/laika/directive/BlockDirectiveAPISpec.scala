@@ -1,6 +1,6 @@
 package laika.directive
 
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 import org.scalatest.FlatSpec
 import laika.parse.helper.ParseResultHelpers
 import laika.parse.helper.DefaultParserHelpers
@@ -17,7 +17,7 @@ import laika.parse.InlineParsers
 import laika.parse.BlockParsers
 
 class BlockDirectiveAPISpec extends FlatSpec
-                          with ShouldMatchers
+                          with Matchers
                           with ModelBuilder {
 
   

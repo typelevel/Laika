@@ -17,7 +17,7 @@
 package laika.tree
 
 import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 import laika.tree.helper.ModelBuilder
 import laika.tree.Elements._
 import laika.tree.Documents._
@@ -26,7 +26,7 @@ import laika.tree.DocumentTreeHelper._
 import com.typesafe.config.ConfigFactory
 
 class SectionNumberSpec extends FlatSpec 
-                        with ShouldMatchers
+                        with Matchers
                         with ModelBuilder {
 
   

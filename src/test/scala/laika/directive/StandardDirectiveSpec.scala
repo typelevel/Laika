@@ -17,7 +17,7 @@
 package laika.directive
 
 import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 import laika.tree.helper.ModelBuilder
 import laika.api.Parse
 import laika.parse.markdown.Markdown
@@ -31,7 +31,7 @@ import scala.collection.JavaConversions._
 import laika.tree.Templates.TemplateSpanSequence
 
 class StandardDirectiveSpec extends FlatSpec
-                            with ShouldMatchers
+                            with Matchers
                             with ModelBuilder {
 
   

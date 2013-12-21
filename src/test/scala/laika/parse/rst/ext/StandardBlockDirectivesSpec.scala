@@ -17,7 +17,7 @@
 package laika.parse.rst.ext
 
 import org.scalatest.FlatSpec
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 import laika.tree.helper.ModelBuilder
 import laika.tree.Elements._
 import laika.parse.rst.ReStructuredText
@@ -35,7 +35,7 @@ import laika.parse.rst.Elements.Contents
  * @author Jens Halm
  */
 class StandardBlockDirectivesSpec extends FlatSpec 
-                                  with ShouldMatchers 
+                                  with Matchers 
                                   with ModelBuilder {
 
    val simplePars = List(p("1st Para"), p("2nd Para"))

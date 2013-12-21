@@ -22,7 +22,7 @@ import scala.io.Codec
 import scala.io.Codec.charset2codec
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.Matchers
 import laika.parse.markdown.Markdown
 import laika.tree.Elements.ExternalLinkDefinition
 import laika.tree.Elements.LinkReference
@@ -32,7 +32,7 @@ import laika.tree.Templates.TemplateString
 import laika.tree.Templates.TemplateContextReference
 
 class ParseTemplateAPISpec extends FlatSpec 
-                   with ShouldMatchers
+                   with Matchers
                    with ModelBuilder {
 
   
