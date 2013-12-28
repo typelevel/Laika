@@ -92,13 +92,16 @@ object InputProvider {
   type FileFilter = File => Boolean
   
   
-  private class DirectoryInputProvider (dir: File, val path: Path, exclude: FileFilter, docTypeMatcher: Path => DocumentType, codec: Codec) extends InputProvider {
+  private class DirectoryInputProvider (dirs: Seq[File], val path: Path, exclude: FileFilter, docTypeMatcher: Path => DocumentType, codec: Codec) extends InputProvider {
     
     private def docType (f: File) = docTypeMatcher(path / f.getName)
 
-    private def toInput (pairs: Array[(DocumentType,File)]) = pairs.map(p => Input.fromFile(p._2, path)(codec)).toList
+    private def toInput (pairs: Seq[(DocumentType,File)]) = pairs.map(p => Input.fromFile(p._2, path)(codec)).toList
 
-    private lazy val files = dir.listFiles filter (f => f.isFile && !exclude(f)) map (f => (docType(f), f)) groupBy (_._1)
+    private lazy val files = {
+      def filesInDir (dir: File) = dir.listFiles filter (f => f.isFile && !exclude(f))
+      dirs flatMap (filesInDir(_)) map (f => (docType(f), f)) groupBy (_._1)
+    }
     
     private def documents (docType: DocumentType) = files.get(docType).map(toInput).getOrElse(Nil)
     
@@ -113,7 +116,9 @@ object InputProvider {
     lazy val templates =  documents(Template)
     
     lazy val subtrees = {
-      dir.listFiles filter (f => f.isDirectory && !exclude(f) && docType(f) != Ignored) map (d => new DirectoryInputProvider(d, path / d.getName, exclude, docTypeMatcher, codec)) toList
+      def subDirs (dir: File) = dir.listFiles filter (f => f.isDirectory && !exclude(f) && docType(f) != Ignored)
+      val byName = (dirs flatMap (subDirs(_)) groupBy (_.getName)).values
+      byName map (subs => new DirectoryInputProvider(subs, path / subs.head.getName, exclude, docTypeMatcher, codec)) toList
     }
     
   }
@@ -122,14 +127,31 @@ object InputProvider {
    *  all subdirectories.
    * 
    *  @param root the root directory of the input tree
+   *  @param exclude the files to exclude from processing
    *  @param docTypeMatcher a function determining the document type based on the path of the input
    *  @param codec the character encoding of the files, if not specified the platform default will be used
    */
-  def forRootDirectory (root: File, exclude: FileFilter, docTypeMatcher: Path => DocumentType)(implicit codec: Codec): InputProvider = {
-    require(root.exists, s"Directory ${root.getAbsolutePath} does not exist")
-    require(root.isDirectory, s"File ${root.getAbsolutePath} is not a directory")
-    
-    new DirectoryInputProvider(root, Root, exclude, docTypeMatcher, codec)
+  def forRootDirectory (root: File, exclude: FileFilter, docTypeMatcher: Path => DocumentType)(implicit codec: Codec): InputProvider =
+    forRootDirectories(Seq(root), exclude, docTypeMatcher)(codec)
+  
+  /** Creates an InputProvider based on the specified directories, including
+   *  all subdirectories. The directories will be merged into a tree with a single
+   *  root. If any of the specified root directories contain sub-directories with
+   *  the same name, these sub-directories will be merged, too.
+   * 
+   *  @param roots the root directories of the input tree
+   *  @param exclude the files to exclude from processing
+   *  @param docTypeMatcher a function determining the document type based on the path of the input
+   *  @param codec the character encoding of the files, if not specified the platform default will be used
+   */
+  def forRootDirectories (roots: Seq[File], exclude: FileFilter, docTypeMatcher: Path => DocumentType)(implicit codec: Codec): InputProvider = {
+    require(roots.nonEmpty, "The specified roots sequence must contain at least one directory")
+    for (root <- roots) {
+      require(root.exists, s"Directory ${root.getAbsolutePath} does not exist")
+      require(root.isDirectory, s"File ${root.getAbsolutePath} is not a directory")
+    }
+      
+    new DirectoryInputProvider(roots, Root, exclude, docTypeMatcher, codec)
   }
   
   /** The configuration for an input tree, consisting of the actual provider for
@@ -146,9 +168,9 @@ object InputProvider {
     def build (docTypeMatcher: Path => DocumentType, codec: Codec): InputProvider
   }
   
-  private[InputProvider] class DirectoryProviderBuilder (root: File, exclude: FileFilter) extends ProviderBuilder {
+  private[InputProvider] class DirectoryProviderBuilder (roots: Seq[File], exclude: FileFilter) extends ProviderBuilder {
     def build (docTypeMatcher: Path => DocumentType, codec: Codec) = 
-      InputProvider.forRootDirectory(root, exclude, docTypeMatcher)(codec)
+      InputProvider.forRootDirectories(roots, exclude, docTypeMatcher)(codec)
   }
   
   /** A filter that selects files that are hidden according to `java.io.File.isHidden`.
@@ -235,7 +257,16 @@ object InputProvider {
     
     def apply (file: File)(implicit codec: Codec): InputConfigBuilder = apply(file, hiddenFileFilter)(codec)
     
-    def apply (file: File, exclude: FileFilter)(implicit codec: Codec) = new InputConfigBuilder(new DirectoryProviderBuilder(file, exclude), codec)
+    def apply (file: File, exclude: FileFilter)(implicit codec: Codec) = new InputConfigBuilder(new DirectoryProviderBuilder(Seq(file), exclude), codec)
+  }
+
+  /** Creates InputConfigBuilder instances for several root directories in the file system
+   *  which will be merged into a tree with a single root.
+   */
+  object Directories {
+    def apply (roots: Seq[File])(implicit codec: Codec): InputConfigBuilder = apply(roots, hiddenFileFilter)(codec)
+    
+    def apply (roots: Seq[File], exclude: FileFilter)(implicit codec: Codec) = new InputConfigBuilder(new DirectoryProviderBuilder(roots, exclude), codec)
   }
   
   /** Creates InputConfigBuilder instances using the current working directory as its root.

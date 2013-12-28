@@ -396,7 +396,21 @@ class ParseAPISpec extends FlatSpec
     viewOf(Parse as Markdown fromDirectory(dirname)) should be (treeResult)
   }
   
-  it should "allow to specify custom exclude filter" in {
+  it should "read a directory from the file system using the fromDirectories method" in {
+    val dir1 = new java.io.File(getClass.getResource("/trees/a/").getFile)
+    val dir2 = new java.io.File(getClass.getResource("/trees/b/").getFile)
+    def docView (num: Int, path: Path = Root) = DocumentView(path / (s"doc$num.md"), Content(List(p("Doc"+num))) :: Nil)
+    val subtree1 = TreeView(Root / "dir1", List(Documents(Markup, List(docView(3, Root / "dir1"),docView(4, Root / "dir1"),docView(7, Root / "dir1")))))
+    val subtree2 = TreeView(Root / "dir2", List(Documents(Markup, List(docView(5, Root / "dir2"),docView(6, Root / "dir2")))))
+    val subtree3 = TreeView(Root / "dir3", List(Documents(Markup, List(docView(8, Root / "dir3")))))
+    val treeResult = TreeView(Root, List(
+      Documents(Markup, List(docView(1),docView(2),docView(9))),
+      Subtrees(List(subtree1,subtree2,subtree3))
+    ))
+    viewOf(Parse as Markdown fromDirectories(Seq(dir1,dir2))) should be (treeResult)
+  }
+  
+  it should "allow to specify a custom exclude filter" in {
     val dirname = getClass.getResource("/trees/a/").getFile
     def docView (num: Int, path: Path = Root) = DocumentView(path / (s"doc$num.md"), Content(List(p("Doc"+num))) :: Nil)
     val subtree2 = TreeView(Root / "dir2", List(Documents(Markup, List(docView(5, Root / "dir2"),docView(6, Root / "dir2")))))

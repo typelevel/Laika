@@ -370,6 +370,27 @@ class Transform [W] private[Transform] (parser: ParserFactory, render: Render[W]
    */
   def fromDirectory (dir: File, exclude: FileFilter)(implicit codec: Codec) = new DirectoryConfigBuilder(InputProvider.Directory(dir, exclude)(codec))
   
+  /** Parses files from the specified directories and its subdirectories, 
+   *  merging them into a tree with a single root
+   *  and returns a new builder instance which allows to specify the output and 
+   *  other configuration options.
+   * 
+   *  @param roots the root directories to traverse
+   *  @param codec the character encoding of the files, if not specified the platform default will be used.
+   */
+  def fromDirectories (roots: Seq[File])(implicit codec: Codec): DirectoryConfigBuilder = fromDirectories(roots, hiddenFileFilter)(codec)
+  
+  /** Parses files from the specified directories and its subdirectories, 
+   *  merging them into a tree with a single root
+   *  and returns a new builder instance which allows to specify the output and 
+   *  other configuration options.
+   * 
+   *  @param roots the root directories to traverse
+   *  @param exclude the files to exclude from processing
+   *  @param codec the character encoding of the files, if not specified the platform default will be used.
+   */
+  def fromDirectories (roots: Seq[File], exclude: FileFilter)(implicit codec: Codec) = new DirectoryConfigBuilder(InputProvider.Directories(roots, exclude)(codec))
+  
   /** Parses files from the `source` directory inside the current working directory
    *  and renders the result to the `target` directory inside the current working directory.
    * 

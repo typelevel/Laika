@@ -394,6 +394,18 @@ class TransformAPISpec extends FlatSpec
       readFile(base+"/dir2/doc5.txt") should be (renderedDoc(5))
       readFile(base+"/dir2/doc6.txt") should be (renderedDoc(6))
     }
+    
+    def readFilesMerged (base: String) = {
+      readFile(base+"/doc1.txt") should be (renderedDoc(1))
+      readFile(base+"/doc2.txt") should be (renderedDoc(2))
+      readFile(base+"/doc9.txt") should be (renderedDoc(9))
+      readFile(base+"/dir1/doc3.txt") should be (renderedDoc(3))
+      readFile(base+"/dir1/doc4.txt") should be (renderedDoc(4))
+      readFile(base+"/dir1/doc7.txt") should be (renderedDoc(7))
+      readFile(base+"/dir2/doc5.txt") should be (renderedDoc(5))
+      readFile(base+"/dir2/doc6.txt") should be (renderedDoc(6))
+      readFile(base+"/dir3/doc8.txt") should be (renderedDoc(8))
+    }
   }
       
   it should "read from and write to directories" in {
@@ -413,6 +425,17 @@ class TransformAPISpec extends FlatSpec
       val targetDir = createTempDirectory("renderToDir")
       transform fromDirectory (sourceName, {f:File => f.getName == "doc1.md" || f.getName == "dir1"}) toDirectory targetDir
       readFilesFiltered(targetDir.getPath)
+    }
+  }
+  
+  it should "read from two root directories" in {
+    import laika.tree.helper.OutputBuilder.createTempDirectory
+    new FileSystemTest {
+      val source1 = new File(getClass.getResource("/trees/a/").getFile)
+      val source2 = new File(getClass.getResource("/trees/b/").getFile)
+      val targetDir = createTempDirectory("renderToDir")
+      transform fromDirectories (Seq(source1, source2)) toDirectory targetDir
+      readFilesMerged(targetDir.getPath)
     }
   }
   

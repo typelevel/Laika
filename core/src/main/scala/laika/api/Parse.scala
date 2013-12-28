@@ -146,6 +146,25 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
   def fromDirectory (dir: File, exclude: FileFilter)(implicit codec: Codec) = fromTree(Directory(dir, exclude)(codec))
   
   /** Returns a document tree obtained by parsing files from the
+   *  specified directories and its subdirectories, merging them into
+   *  a tree with a single root.
+   * 
+   *  @param roots the root directories to traverse
+   *  @param codec the character encoding of the files, if not specified the platform default will be used.
+   */
+  def fromDirectories (roots: Seq[File])(implicit codec: Codec) = fromTree(Directories(roots, hiddenFileFilter)(codec))
+  
+  /** Returns a document tree obtained by parsing files from the
+   *  specified directories and its subdirectories, merging them into
+   *  a tree with a single root.
+   * 
+   *  @param roots the root directories to traverse
+   *  @param exclude the files to exclude from processing
+   *  @param codec the character encoding of the files, if not specified the platform default will be used.
+   */
+  def fromDirectories (roots: Seq[File], exclude: FileFilter)(implicit codec: Codec) = fromTree(Directories(roots, hiddenFileFilter)(codec))
+  
+  /** Returns a document tree obtained by parsing files from the
    *  current working directory.
    * 
    *  @param exclude the files to exclude from processing
