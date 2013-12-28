@@ -1,0 +1,109 @@
+import sbt._
+import Keys._
+
+object Build extends Build {
+
+
+  object Settings {
+    
+    lazy val basic = Seq(
+      version               := "0.5.0-SNAPSHOT",
+      homepage              := Some(new URL("http://spray.io")),
+      organization          := "org.planet42",
+      organizationHomepage  := Some(new URL("http://www.planet42.org")),
+      description           := "Library for transforming lightweight text markup into various types of output formats, written in Scala",
+      startYear             := Some(2012),
+      licenses              := Seq("Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
+      scalaVersion          := "2.10.3",
+      scalacOptions         := Opts.compile.encoding("UTF-8") :+ 
+                               Opts.compile.deprecation :+ 
+                               Opts.compile.unchecked :+ 
+                               "-feature" :+ 
+                               "-language:implicitConversions" :+ 
+                               "-language:postfixOps" :+ 
+                               "-language:higherKinds"
+    )
+    
+    lazy val module = basic ++ Seq(
+      crossVersion       := CrossVersion.binary,
+      crossScalaVersions := Seq("2.10.3")
+    )
+    
+  }
+  
+  
+  object Dependencies {
+    
+    val scalatest = "org.scalatest" %% "scalatest" % "2.0"  % "test"
+        
+    val jTidy     = "net.sf.jtidy"  % "jtidy"      % "r938" % "test"
+        
+    val config    = "com.typesafe"  % "config"     % "1.0.2"
+    
+  }
+  
+  object Publishing {
+    
+    lazy val mavenCentral = Seq(
+      
+      publishMavenStyle       := true,
+
+      publishArtifact in Test := false,
+
+      pomIncludeRepository    := { _ => false },
+
+      publishTo := {
+        val nexus = "https://oss.sonatype.org/"
+        if (version.value.trim.endsWith("SNAPSHOT"))
+          Some("snapshots" at nexus + "content/repositories/snapshots")
+        else
+          Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+      },
+
+      pomExtra := (
+        <url>https://github.com/planet42/Laika</url>
+        <licenses>
+          <license>
+            <name>Apache 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+          </license>
+        </licenses>
+        <scm>
+          <url>https://github.com/planet42/Laika.git</url>
+          <connection>scm:git:https://github.com/planet42/Laika.git</connection>
+        </scm>
+        <developers>
+          <developer>
+            <id>jenshalm</id>
+            <name>Jens Halm</name>
+            <url>http://www.planet42.org</url>
+          </developer>
+        </developers>)
+    )
+    
+    lazy val none = Seq(
+      publish := (),
+      publishLocal := (),
+      publishTo := None
+    )
+    
+  }
+  
+  
+  lazy val root = Project("root", file("."))
+    .aggregate(core)
+    .settings(Settings.basic: _*)
+    .settings(Publishing.none: _*)
+ 
+  lazy val core = Project("laika-core", file("core"))
+    .settings(Settings.module: _*)
+    .settings(Publishing.mavenCentral: _*)
+    .settings(libraryDependencies ++= Seq(
+      Dependencies.config, 
+      Dependencies.scalatest, 
+      Dependencies.jTidy
+    ))
+  
+    
+}
