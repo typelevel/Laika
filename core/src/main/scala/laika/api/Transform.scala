@@ -16,7 +16,11 @@
 
 package laika.api
 
-import java.io._
+import java.io.File
+import java.io.OutputStream
+import java.io.InputStream
+import java.io.Reader
+import java.io.Writer
 import scala.io.Codec
 import laika.api.Transform.Rules
 import laika.io._
@@ -332,7 +336,18 @@ class Transform [W] private[Transform] (parser: ParserFactory, render: Render[W]
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    *  @param return a builder which allows to specify the output and other configuration options
    */
-  def fromDirectory (name: String)(implicit codec: Codec) = new DirectoryConfigBuilder(InputProvider.Directory(name)(codec))
+  def fromDirectory (name: String)(implicit codec: Codec): DirectoryConfigBuilder = fromDirectory(name, hiddenFileFilter)(codec)
+  
+  /** Parses files from the specified directory and its subdirectories
+   *  and returns a new builder instance which allows to specify the output and 
+   *  other configuration options.
+   * 
+   *  @param name the name of the directory to traverse
+   *  @param exclude the files to exclude from processing
+   *  @param codec the character encoding of the files, if not specified the platform default will be used.
+   *  @param return a builder which allows to specify the output and other configuration options
+   */
+  def fromDirectory (name: String, exclude: FileFilter)(implicit codec: Codec) = new DirectoryConfigBuilder(InputProvider.Directory(name, exclude)(codec))
 
   /** Parses files from the specified directory and its subdirectories
    *  and returns a new builder instance which allows to specify the output and 
@@ -342,15 +357,26 @@ class Transform [W] private[Transform] (parser: ParserFactory, render: Render[W]
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    *  @param return a builder which allows to specify the output and other configuration options
    */
-  def fromDirectory (dir: File)(implicit codec: Codec) = new DirectoryConfigBuilder(InputProvider.Directory(dir)(codec))
+  def fromDirectory (dir: File)(implicit codec: Codec): DirectoryConfigBuilder = fromDirectory(dir, hiddenFileFilter)(codec)
   
+  /** Parses files from the specified directory and its subdirectories
+   *  and returns a new builder instance which allows to specify the output and 
+   *  other configuration options.
+   * 
+   *  @param dir the directory to traverse
+   *  @param exclude the files to exclude from processing
+   *  @param codec the character encoding of the files, if not specified the platform default will be used.
+   *  @param return a builder which allows to specify the output and other configuration options
+   */
+  def fromDirectory (dir: File, exclude: FileFilter)(implicit codec: Codec) = new DirectoryConfigBuilder(InputProvider.Directory(dir, exclude)(codec))
   
   /** Parses files from the `source` directory inside the current working directory
    *  and renders the result to the `target` directory inside the current working directory.
    * 
+   *  @param exclude the files to exclude from processing
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def withDefaultDirectories (implicit codec: Codec) = withConfig(DefaultDirectories(codec).build(parser))
+  def withDefaultDirectories (exclude: FileFilter = hiddenFileFilter)(implicit codec: Codec) = withConfig(DefaultDirectories(exclude)(codec).build(parser))
   
   /** Parses files from the `source` directory inside the specified root directory
    *  and renders the result to the `target` directory inside the root directory.
@@ -359,7 +385,17 @@ class Transform [W] private[Transform] (parser: ParserFactory, render: Render[W]
    *  @param name the name of the root directory that contains the source and target directory
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def withRootDirectory (name: String)(implicit codec: Codec): Unit = withRootDirectory(new File(name))(codec)
+  def withRootDirectory (name: String)(implicit codec: Codec): Unit = withRootDirectory(new File(name), hiddenFileFilter)(codec)
+  
+  /** Parses files from the `source` directory inside the specified root directory
+   *  and renders the result to the `target` directory inside the root directory.
+   *  Both directories must already exist inside the specified directory.
+   * 
+   *  @param name the name of the root directory that contains the source and target directory
+   *  @param exclude the files to exclude from processing
+   *  @param codec the character encoding of the files, if not specified the platform default will be used.
+   */
+  def withRootDirectory (name: String, exclude: FileFilter)(implicit codec: Codec): Unit = withRootDirectory(new File(name), exclude)(codec)
   
   /** Parses files from the `source` directory inside the specified root directory
    *  and renders the result to the `target` directory inside the root directory.
@@ -368,7 +404,17 @@ class Transform [W] private[Transform] (parser: ParserFactory, render: Render[W]
    *  @param dir the root directory that contains the source and target directory
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def withRootDirectory (dir: File)(implicit codec: Codec): Unit = withConfig(RootDirectory(dir)(codec).build(parser))
+  def withRootDirectory (dir: File)(implicit codec: Codec): Unit = withRootDirectory(dir, hiddenFileFilter)(codec)
+  
+  /** Parses files from the `source` directory inside the specified root directory
+   *  and renders the result to the `target` directory inside the root directory.
+   *  Both directories must already exist inside the specified directory.
+   * 
+   *  @param dir the root directory that contains the source and target directory
+   *  @param exclude the files to exclude from processing
+   *  @param codec the character encoding of the files, if not specified the platform default will be used.
+   */
+  def withRootDirectory (dir: File, exclude: FileFilter)(implicit codec: Codec): Unit = withConfig(RootDirectory(dir, exclude)(codec).build(parser))
   
   /** Transforms documents according to the specified batch configuration.
    *  
@@ -520,14 +566,14 @@ object Transform {
      *  contains a `source` subdirectory containing all markup and template files to process
      *  and a `target` directory the renderer will write to.
      */
-    def apply (root: File, codec: Codec) = {
+    def apply (root: File, exclude: FileFilter, codec: Codec) = {
       require(root.exists, s"Directory ${root.getAbsolutePath} does not exist")
       require(root.isDirectory, s"File ${root.getAbsolutePath} is not a directory")
       
       val sourceDir = new File(root, "source")
       val targetDir = new File(root, "target")
       
-      new BatchConfigBuilder(InputProvider.Directory(sourceDir)(codec), OutputProvider.Directory(targetDir)(codec))
+      new BatchConfigBuilder(InputProvider.Directory(sourceDir, exclude)(codec), OutputProvider.Directory(targetDir)(codec))
     }
     
     /** Creates a BatchConfigBuilder instance containing separate builders for input and output.
@@ -544,8 +590,10 @@ object Transform {
    *  and a `target` directory the renderer will write to.
    */
   object RootDirectory {
-    def apply (name: String)(implicit codec: Codec) = BatchConfigBuilder(new File(name), codec)
-    def apply (file: File)(implicit codec: Codec) = BatchConfigBuilder(file, codec)
+    def apply (name: String)(implicit codec: Codec): BatchConfigBuilder = apply(name, hiddenFileFilter)(codec)
+    def apply (name: String, exclude: FileFilter)(implicit codec: Codec) = BatchConfigBuilder(new File(name), exclude, codec)
+    def apply (file: File)(implicit codec: Codec): BatchConfigBuilder = apply(file, hiddenFileFilter)(codec)
+    def apply (file: File, exclude: FileFilter)(implicit codec: Codec) = BatchConfigBuilder(file, exclude, codec)
   }
   
   /** Creates BatchConfigBuilder instances using the current working directory as its root.
@@ -555,7 +603,7 @@ object Transform {
    *  and a `target` directory the renderer will write to.
    */
   object DefaultDirectories {
-    def apply (implicit codec: Codec) = BatchConfigBuilder(new File(System.getProperty("user.dir")), codec)
+    def apply (exclude: FileFilter = hiddenFileFilter)(implicit codec: Codec) = BatchConfigBuilder(new File(System.getProperty("user.dir")), exclude, codec)
   }
   
   

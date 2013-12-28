@@ -361,21 +361,18 @@ object Documents {
   /** The default implementation for determining the document type
    *  of the input based on its path.
    */
-  class DefaultDocumentTypeMatcher (markupSuffixes: Set[String], ignorePatterns: Seq[String]) extends (Path => DocumentType) {
+  class DefaultDocumentTypeMatcher (markupSuffixes: Set[String]) extends (Path => DocumentType) {
     
     private def suffix (name: String) = name.lastIndexOf(".") match {
       case -1    => ""
       case index => name.drop(index+1)
     }  
     
-    val IgnoredName = ignorePatterns.map(_.replaceAll("\\.","\\\\.").replaceAll("\\*",".*")).mkString("^","|","$").r
-    
     val TemplateName = """.+\.template\.[^\.]+$""".r
     val DynamicName = """.+\.dynamic\.[^\.]+$""".r
     val ConfigName = """.+\.conf$""".r
     
     def apply (path: Path) = path.name match {
-      case IgnoredName()  => Ignored
       case name if markupSuffixes(suffix(name)) => Markup
       case ConfigName()   => Config
       case TemplateName() => Template

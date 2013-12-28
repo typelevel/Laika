@@ -88,14 +88,17 @@ trait InputProvider {
  *  creating the actual `InputProvider`.
  */
 object InputProvider {
+
+  type FileFilter = File => Boolean
   
-  private class DirectoryInputProvider (dir: File, val path: Path, docTypeMatcher: Path => DocumentType, codec: Codec) extends InputProvider {
+  
+  private class DirectoryInputProvider (dir: File, val path: Path, exclude: FileFilter, docTypeMatcher: Path => DocumentType, codec: Codec) extends InputProvider {
     
     private def docType (f: File) = docTypeMatcher(path / f.getName)
 
     private def toInput (pairs: Array[(DocumentType,File)]) = pairs.map(p => Input.fromFile(p._2, path)(codec)).toList
 
-    private lazy val files = dir.listFiles filter (_.isFile) map (f => (docType(f), f)) groupBy (_._1)
+    private lazy val files = dir.listFiles filter (f => f.isFile && !exclude(f)) map (f => (docType(f), f)) groupBy (_._1)
     
     private def documents (docType: DocumentType) = files.get(docType).map(toInput).getOrElse(Nil)
     
@@ -110,7 +113,7 @@ object InputProvider {
     lazy val templates =  documents(Template)
     
     lazy val subtrees = {
-      dir.listFiles filter (f => f.isDirectory && docType(f) != Ignored) map (d => new DirectoryInputProvider(d, path / d.getName, docTypeMatcher, codec)) toList
+      dir.listFiles filter (f => f.isDirectory && !exclude(f) && docType(f) != Ignored) map (d => new DirectoryInputProvider(d, path / d.getName, exclude, docTypeMatcher, codec)) toList
     }
     
   }
@@ -122,11 +125,11 @@ object InputProvider {
    *  @param docTypeMatcher a function determining the document type based on the path of the input
    *  @param codec the character encoding of the files, if not specified the platform default will be used
    */
-  def forRootDirectory (root: File, docTypeMatcher: Path => DocumentType)(implicit codec: Codec): InputProvider = {
+  def forRootDirectory (root: File, exclude: FileFilter, docTypeMatcher: Path => DocumentType)(implicit codec: Codec): InputProvider = {
     require(root.exists, s"Directory ${root.getAbsolutePath} does not exist")
     require(root.isDirectory, s"File ${root.getAbsolutePath} is not a directory")
     
-    new DirectoryInputProvider(root, Root, docTypeMatcher, codec)
+    new DirectoryInputProvider(root, Root, exclude, docTypeMatcher, codec)
   }
   
   /** The configuration for an input tree, consisting of the actual provider for
@@ -143,11 +146,15 @@ object InputProvider {
     def build (docTypeMatcher: Path => DocumentType, codec: Codec): InputProvider
   }
   
-  private[InputProvider] class DirectoryProviderBuilder (root: File) extends ProviderBuilder {
+  private[InputProvider] class DirectoryProviderBuilder (root: File, exclude: FileFilter) extends ProviderBuilder {
     def build (docTypeMatcher: Path => DocumentType, codec: Codec) = 
-      InputProvider.forRootDirectory(root, docTypeMatcher)(codec)
+      InputProvider.forRootDirectory(root, exclude, docTypeMatcher)(codec)
   }
-
+  
+  /** A filter that selects files that are hidden according to `java.io.File.isHidden`.
+   */
+  val hiddenFileFilter: FileFilter = file => file.isHidden && file.getName != "."
+    
   /** API for configuring an input tree.
    *  Gives access to all relevant aspects of traversing, parsing and processing
    *  a tree of inputs.
@@ -213,7 +220,7 @@ object InputProvider {
      *  for the specified parser factory.
      */
     def build (parser: ParserFactory) = {
-      val matcher = docTypeMatcher getOrElse new DefaultDocumentTypeMatcher(parser.fileSuffixes, Seq("*.svn","*.git"))
+      val matcher = docTypeMatcher getOrElse new DefaultDocumentTypeMatcher(parser.fileSuffixes)
       val templates = templateParser getOrElse ParseTemplate
       InputConfig(provider.build(matcher, codec), config, templates, isParallel)
     }
@@ -222,14 +229,19 @@ object InputProvider {
   /** Creates InputConfigBuilder instances for a specific root directory in the file system.
    */
   object Directory {
-    def apply (name: String)(implicit codec: Codec) = new InputConfigBuilder(new DirectoryProviderBuilder(new File(name)), codec)
-    def apply (file: File)(implicit codec: Codec) = new InputConfigBuilder(new DirectoryProviderBuilder(file), codec)
+    def apply (name: String)(implicit codec: Codec): InputConfigBuilder = apply(new File(name), hiddenFileFilter)(codec)
+    
+    def apply (name: String, exclude: FileFilter)(implicit codec: Codec): InputConfigBuilder = apply(new File(name), exclude)(codec)
+    
+    def apply (file: File)(implicit codec: Codec): InputConfigBuilder = apply(file, hiddenFileFilter)(codec)
+    
+    def apply (file: File, exclude: FileFilter)(implicit codec: Codec) = new InputConfigBuilder(new DirectoryProviderBuilder(file, exclude), codec)
   }
   
   /** Creates InputConfigBuilder instances using the current working directory as its root.
    */
   object DefaultDirectory {
-    def apply (implicit codec: Codec) = Directory(System.getProperty("user.dir"))(codec)
+    def apply (exclude: FileFilter = hiddenFileFilter)(implicit codec: Codec) = Directory(System.getProperty("user.dir"), exclude)(codec)
   }
   
 }

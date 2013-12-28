@@ -241,24 +241,6 @@ class TransformAPISpec extends FlatSpec
     }
   }
   
-  it should "ignore directories that match the default exclude pattern" in {
-    new TreeTransformer {
-      val dirs = """- name.md:name
-        |+ .git
-        |  - file1:name
-        |  - file2:name""".stripMargin
-      transformTree should be (root(List(docs((Root / "name.txt", simpleResult)))))
-    }
-  }
-  
-  it should "ignore files that match the default exclude pattern" in {
-    new TreeTransformer {
-      val dirs = """- name.md:name
-        |- foo.git:name""".stripMargin
-      transformTree should be (root(List(docs((Root / "name.txt", simpleResult)))))
-    }
-  }
-  
   it should "transform a tree with a custom document type matcher" in {
     new TreeTransformer {
       val dirs = """- name.md:name
@@ -315,17 +297,13 @@ class TransformAPISpec extends FlatSpec
         |- doc2.md:name
         |- default.template.html:template1
         |+ dir1
-        |  - ignore.svn:name
         |  - default.template.html:template2
         |  - doc3.md:name
         |  - doc4.md:name
         |+ dir2
         |  - omg.js:name
         |  - doc5.md:name
-        |  - doc6.md:name
-        |+ .git
-        |  - file1:name
-        |  - file2:name""".stripMargin
+        |  - doc6.md:name""".stripMargin
       val withTemplate1 = """RootElement - Blocks: 1
         |. Paragraph - Spans: 1
         |. . Text - 'foo'""".stripMargin  
@@ -408,6 +386,14 @@ class TransformAPISpec extends FlatSpec
       readFile(base+"/dir2/doc5.txt") should be (renderedDoc(5))
       readFile(base+"/dir2/doc6.txt") should be (renderedDoc(6))
     }
+    
+    def readFilesFiltered (base: String) = {
+      new File(base+"/doc1.txt").exists should be (false)
+      new File(base+"/dir1").exists should be (false)
+      readFile(base+"/doc2.txt") should be (renderedDoc(2))
+      readFile(base+"/dir2/doc5.txt") should be (renderedDoc(5))
+      readFile(base+"/dir2/doc6.txt") should be (renderedDoc(6))
+    }
   }
       
   it should "read from and write to directories" in {
@@ -417,6 +403,16 @@ class TransformAPISpec extends FlatSpec
       val targetDir = createTempDirectory("renderToDir")
       transform fromDirectory sourceName toDirectory targetDir
       readFiles(targetDir.getPath)
+    }
+  }
+  
+  it should "allow to specify custom exclude filter" in {
+    import laika.tree.helper.OutputBuilder.createTempDirectory
+    new FileSystemTest {
+      val sourceName = getClass.getResource("/trees/a/").getFile
+      val targetDir = createTempDirectory("renderToDir")
+      transform fromDirectory (sourceName, {f:File => f.getName == "doc1.md" || f.getName == "dir1"}) toDirectory targetDir
+      readFilesFiltered(targetDir.getPath)
     }
   }
   

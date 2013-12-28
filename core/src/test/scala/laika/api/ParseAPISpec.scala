@@ -244,35 +244,12 @@ class ParseAPISpec extends FlatSpec
     }
   }
   
-  it should "ignore directories that match the default exclude pattern" in {
-    new TreeParser {
-      val dirs = """- name.md:name
-        |+ .git
-        |  - file1:name
-        |  - file2:name""".stripMargin
-      val docResult = DocumentView(Root / "name.md", Content(List(p("foo"))) :: Nil)
-      val treeResult = TreeView(Root, List(Documents(Markup, List(docResult))))
-      parsedTree should be (treeResult)
-    }
-  }
-  
-  it should "ignore files that match the default exclude pattern" in {
-    new TreeParser {
-      val dirs = """- name.md:name
-        |- foo.git:name""".stripMargin
-      val docResult = DocumentView(Root / "name.md", Content(List(p("foo"))) :: Nil)
-      val treeResult = TreeView(Root, List(Documents(Markup, List(docResult))))
-      parsedTree should be (treeResult)
-    }
-  }
-  
   it should "allow parsing a tree with all available file types" in {
     new TreeParser {
       val dirs = """- doc1.md:name
         |- doc2.md:name
         |- mainA.template.html:name
         |+ dir1
-        |  - ignore.svn:name
         |  - mainB.template.html:name
         |  - doc3.md:name
         |  - doc4.md:name
@@ -280,10 +257,7 @@ class ParseAPISpec extends FlatSpec
         |  - main.dynamic.html:name
         |  - omg.js:name
         |  - doc5.md:name
-        |  - doc6.md:name
-        |+ .git
-        |  - file1:name
-        |  - file2:name""".stripMargin
+        |  - doc6.md:name""".stripMargin
       def template (char: Char, path: Path) = TemplateView(path / (s"main$char.template.html"), TemplateRoot(List(TemplateString("foo"))))
       val dyn = TemplateView(Root / "dir2" / "main.dynamic.html", TemplateRoot(List(TemplateString("foo"))))
       val subtree1 = TreeView(Root / "dir1", List(
@@ -420,6 +394,17 @@ class ParseAPISpec extends FlatSpec
       Subtrees(List(subtree1,subtree2))
     ))
     viewOf(Parse as Markdown fromDirectory(dirname)) should be (treeResult)
+  }
+  
+  it should "allow to specify custom exclude filter" in {
+    val dirname = getClass.getResource("/trees/a/").getFile
+    def docView (num: Int, path: Path = Root) = DocumentView(path / (s"doc$num.md"), Content(List(p("Doc"+num))) :: Nil)
+    val subtree2 = TreeView(Root / "dir2", List(Documents(Markup, List(docView(5, Root / "dir2"),docView(6, Root / "dir2")))))
+    val treeResult = TreeView(Root, List(
+      Documents(Markup, List(docView(2))),
+      Subtrees(List(subtree2))
+    ))
+    viewOf(Parse as Markdown fromDirectory(dirname, {f:java.io.File => f.getName == "doc1.md" || f.getName == "dir1"})) should be (treeResult)
   }
   
   it should "read a directory from the file system using the Directory object" in {

@@ -117,7 +117,16 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
    *  @param name the name of the directory to traverse
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def fromDirectory (name: String)(implicit codec: Codec) = fromTree(Directory(name)(codec))
+  def fromDirectory (name: String)(implicit codec: Codec) = fromTree(Directory(name, hiddenFileFilter)(codec))
+  
+  /** Returns a document tree obtained by parsing files from the
+   *  specified directory and its subdirectories.
+   * 
+   *  @param name the name of the directory to traverse
+   *  @param exclude the files to exclude from processing
+   *  @param codec the character encoding of the files, if not specified the platform default will be used.
+   */
+  def fromDirectory (name: String, exclude: FileFilter)(implicit codec: Codec) = fromTree(Directory(name, exclude)(codec))
 
   /** Returns a document tree obtained by parsing files from the
    *  specified directory and its subdirectories.
@@ -125,14 +134,24 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
    *  @param dir the root directory to traverse
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def fromDirectory (dir: File)(implicit codec: Codec) = fromTree(Directory(dir)(codec))
+  def fromDirectory (dir: File)(implicit codec: Codec) = fromTree(Directory(dir, hiddenFileFilter)(codec))
+
+  /** Returns a document tree obtained by parsing files from the
+   *  specified directory and its subdirectories.
+   * 
+   *  @param dir the root directory to traverse
+   *  @param exclude the files to exclude from processing
+   *  @param codec the character encoding of the files, if not specified the platform default will be used.
+   */
+  def fromDirectory (dir: File, exclude: FileFilter)(implicit codec: Codec) = fromTree(Directory(dir, exclude)(codec))
   
   /** Returns a document tree obtained by parsing files from the
    *  current working directory.
    * 
+   *  @param exclude the files to exclude from processing
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def fromDefaultDirectory (implicit codec: Codec) = fromTree(DefaultDirectory(codec))
+  def fromDefaultDirectory (exclude: FileFilter = hiddenFileFilter)(implicit codec: Codec) = fromTree(DefaultDirectory(exclude)(codec))
   
   
   /** Returns a document tree obtained by parsing files from the
