@@ -104,7 +104,7 @@ object Documents {
     /** Indicates whether all rewrite rules have already been applied
      *  to this document.
      */
-    val isRewritten = rewriteRules.isEmpty
+    val isRewritten = defaultRules.isEmpty
 
     /** Returns a new, rewritten document model based on the default rewrite rules.
      */
