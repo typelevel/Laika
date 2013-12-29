@@ -108,7 +108,7 @@ class ParseAPISpec extends FlatSpec
     val input = """[link][id]
       |
       |[id]: http://foo/""".stripMargin
-    ((Parse as Markdown asRawDocument) fromString input).content should be (root 
+    ((Parse as Markdown withoutRewrite) fromString input).content should be (root 
         (p (LinkReference(List(Text("link")), "id", "[link][id]")), ExternalLinkDefinition("id","http://foo/",None)))
   }
   
@@ -150,15 +150,15 @@ class ParseAPISpec extends FlatSpec
   
     def parsedTree = viewOf(Parse as Markdown fromTree builder(dirs))
     
-    def rawParsedTree = viewOf((Parse as Markdown asRawDocument) fromTree builder(dirs))
+    def rawParsedTree = viewOf((Parse as Markdown withoutRewrite) fromTree builder(dirs))
 
-    def rawMixedParsedTree = viewOf((Parse as Markdown or ReStructuredText asRawDocument) fromTree builder(dirs))
+    def rawMixedParsedTree = viewOf((Parse as Markdown or ReStructuredText withoutRewrite) fromTree builder(dirs))
     
     def parsedWith (f: InputConfigBuilder => InputConfigBuilder) =
       viewOf(Parse as Markdown fromTree f(builder(dirs)))
       
     def parsedRawWith (f: InputConfigBuilder => InputConfigBuilder) =
-      viewOf((Parse as Markdown asRawDocument) fromTree f(builder(dirs)))
+      viewOf((Parse as Markdown withoutRewrite) fromTree f(builder(dirs)))
   }
   
 

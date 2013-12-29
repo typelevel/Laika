@@ -42,7 +42,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
    
    def parseDoc (input: String) = Parse as ReStructuredText fromString input
 
-   def parseRaw (input: String) = ((Parse as ReStructuredText asRawDocument) fromString input).content.rewrite({case t:Temporary => None})
+   def parseRaw (input: String) = ((Parse as ReStructuredText withoutRewrite) fromString input).content.rewrite({case t:Temporary => None})
 
    def parse (input: String) = parseDoc(input).content
    

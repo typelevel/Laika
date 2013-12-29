@@ -89,7 +89,7 @@ class DocumentAPISpec extends FlatSpec
       |
       |Some more text""".stripMargin
     
-    val doc = (Parse as Markdown asRawDocument) fromString markup
+    val doc = (Parse as Markdown withoutRewrite) fromString markup
     val rewritten = doc.removeRules.rewrite
     rewritten.content should be (doc.content)
   }
@@ -103,7 +103,7 @@ class DocumentAPISpec extends FlatSpec
       |
       |Some more text""".stripMargin
     
-    val raw = (Parse as Markdown asRawDocument) fromString markup
+    val raw = (Parse as Markdown withoutRewrite) fromString markup
     val rewritten = raw rewrite {
       case Text("Some text",_) => Some(Text("Swapped"))
     }

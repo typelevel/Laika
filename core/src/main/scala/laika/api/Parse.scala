@@ -78,6 +78,9 @@ class Parse private (private[api] val parsers: Parsers, rewrite: Boolean) {
    *  rearrange the tree into a hierarchy of sections based on the (flat) sequence
    *  of header instances found in the document.
    */
+  def withoutRewrite = new Parse(parsers, false)
+  
+  @deprecated("Use withoutRewrite instead","0.5.0")
   def asRawDocument = new Parse(parsers, false)
   
   /** Returns a document obtained from parsing the specified string.

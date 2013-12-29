@@ -502,7 +502,7 @@ object Transform {
      *  @return a new Transform instance
      */
     def to [W] (factory: RendererFactory[W]): Transform[W] = 
-      new Transform(parse.asRawDocument, Render as factory, new Rules(Nil), factory.fileSuffix) 
+      new Transform(parse.withoutRewrite, Render as factory, new Rules(Nil), factory.fileSuffix) 
     
   }
   
