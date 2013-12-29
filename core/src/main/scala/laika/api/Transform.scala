@@ -25,7 +25,7 @@ import scala.io.Codec
 import laika.api.Transform.Rules
 import laika.io._
 import laika.tree.Documents._
-import laika.tree.Elements.Element
+import laika.tree.Elements._
 import laika.tree.RewriteRules
 import laika.factory.ParserFactory
 import laika.factory.RendererFactory
@@ -157,7 +157,7 @@ class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules: 
    *  In case multiple rewrite rules need to be applied it may be more efficient to
    *  first combine them with `orElse`.
    */
-  def usingRule (newRule: PartialFunction[Element, Option[Element]]) = creatingRule(_ => newRule)
+  def usingRule (newRule: RewriteRule) = creatingRule(_ => newRule)
   
   /** Specifies a rewrite rule to be applied to the document tree model between the
    *  parse and render operations. This is identical to calling `Document.rewrite`
@@ -187,7 +187,7 @@ class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules: 
    *  In case multiple rewrite rules need to be applied it may be more efficient to
    *  first combine them with `orElse`.
    */
-  def creatingRule (newRule: DocumentContext => PartialFunction[Element, Option[Element]]) 
+  def creatingRule (newRule: DocumentContext => RewriteRule) 
       = new Transform(parse, render, rules + newRule, targetSuffix) 
   
   /** Specifies a custom render function that overrides one or more of the default
@@ -207,7 +207,7 @@ class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules: 
    *  } fromFile "hello.md" toFile "hello.html"
    *  }}}
    */
-  def rendering (customRenderer: W => PartialFunction[Element, Unit]) 
+  def rendering (customRenderer: W => RenderFunction) 
       = new Transform(parse, render using customRenderer, rules, targetSuffix)
   
   
@@ -466,13 +466,13 @@ class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules: 
  */
 object Transform {
    
-  private[laika] class Rules (rules: List[DocumentContext => PartialFunction[Element, Option[Element]]]){
+  private[laika] class Rules (rules: List[DocumentContext => RewriteRule]){
     
     def all = rules.reverse
     
     def forContext (context: DocumentContext) = (rules map { _(context) }).reverse      
     
-    def + (newRule: DocumentContext => PartialFunction[Element, Option[Element]]) = new Rules(newRule :: rules)
+    def + (newRule: DocumentContext => RewriteRule) = new Rules(newRule :: rules)
     
   }
 

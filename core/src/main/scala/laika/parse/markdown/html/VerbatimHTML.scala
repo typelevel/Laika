@@ -17,8 +17,6 @@
 package laika.parse.markdown.html
 
 import laika.render.HTMLWriter
-import laika.tree.Elements.Element
-import laika.tree.Elements.Text
 import laika.parse.markdown.html.HTMLElements._
 import laika.tree.Elements._
 
@@ -38,10 +36,10 @@ import laika.tree.Elements._
  * 
  *  @author Jens Halm
  */
-class VerbatimHTML extends (HTMLWriter => PartialFunction[Element, Unit]) {
+class VerbatimHTML extends (HTMLWriter => RenderFunction) {
 
   
-  def apply (out: HTMLWriter): PartialFunction[Element, Unit] = {
+  def apply (out: HTMLWriter): RenderFunction = {
     
     def prepareAttributeValue (spans: List[TextContainer]) = 
       ("" /: spans) {
@@ -61,7 +59,7 @@ class VerbatimHTML extends (HTMLWriter => PartialFunction[Element, Unit]) {
       }
     }
     
-    val pf: PartialFunction[Element, Unit] = {
+    val pf: RenderFunction = {
         
       case HTMLElement(st @ HTMLStartTag("pre", _,_), content, _) => out << st <<< content << "</" << st.name << ">"
       case HTMLElement(startTag, content,_)     => out << startTag << content << "</" << startTag.name << ">" 

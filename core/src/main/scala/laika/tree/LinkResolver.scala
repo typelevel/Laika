@@ -163,7 +163,7 @@ class LinkResolver (path: Path, root: RootElement) {
   /** The default rules for resolving link references 
    *  to be applied to the document.
    */
-  def rewriteRules (context: DocumentContext): PartialFunction[Element, Option[Element]] = {
+  def rewriteRules (context: DocumentContext): RewriteRule = {
     
     val headerId = headerIdMap.lookupFunction
     val decHeaderId = decHeaderIdMap.lookupFunction

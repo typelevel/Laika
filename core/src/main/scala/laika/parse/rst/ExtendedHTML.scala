@@ -39,7 +39,7 @@ import laika.parse.rst.Elements._
  * 
  *  @author Jens Halm
  */
-class ExtendedHTML extends (HTMLWriter => PartialFunction[Element, Unit]) {
+class ExtendedHTML extends (HTMLWriter => RenderFunction) {
 
   
   private case class ProgramOptions (opts: Seq[Element], options: Options = NoOpt) extends Block
@@ -68,9 +68,9 @@ class ExtendedHTML extends (HTMLWriter => PartialFunction[Element, Unit]) {
         Columns.options(Styles("field-name"),Styles("field-body")), Styles("field-list"))
   }
   
-  def apply (out: HTMLWriter): PartialFunction[Element, Unit] = {
+  def apply (out: HTMLWriter): RenderFunction = {
     
-    val pf: PartialFunction[Element, Unit] = {
+    val pf: RenderFunction = {
       case DoctestBlock(content,_)    => out << """<pre class="doctest-block">""" <<<& (">>> "+content) <<  "</pre>"
       case fl: FieldList              => out << toTable(fl)
       case ol: OptionList             => out << toTable(ol)

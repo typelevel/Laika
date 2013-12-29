@@ -165,7 +165,7 @@ object Templates {
    *  document context.
    */
   def rewriteRules (context: DocumentContext) = {
-    lazy val rule: PartialFunction[Element, Option[Element]] = {
+    lazy val rule: RewriteRule = {
       case ph: BlockResolver => Some(rewriteChild(ph resolve context))
       case ph: SpanResolver  => Some(rewriteChild(ph resolve context))
       case TemplateRoot(spans, opt)         => Some(TemplateRoot(format(spans), opt))

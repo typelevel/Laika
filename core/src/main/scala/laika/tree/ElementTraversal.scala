@@ -31,7 +31,7 @@ trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Ele
    
   private case object Unmodified extends Element
   private val Retain = Some(Unmodified)
-  private val fallbackRule: PartialFunction[Element,Option[Element]] = { case e => Some(e) }
+  private val fallbackRule: RewriteRule = { case e => Some(e) }
   
   /** Returns a new, rewritten tree model based on the specified rule.
    *  The rule is a partial function that takes an `Element` and returns an `Option[Element]`.
@@ -49,7 +49,7 @@ trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Ele
    *  In case multiple rewrite rules need to be applied it may be more efficient to
    *  first combine them with `orElse`.
    */
-  def rewrite (rule: PartialFunction[Element,Option[Element]]): Self = {
+  def rewrite (rule: RewriteRule): Self = {
     val result = rewriteProperties(rule)
     
     (rule orElse fallbackRule)(result) match {
@@ -58,7 +58,7 @@ trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Ele
     }
   }
   
-  private def rewriteProperties (rule: PartialFunction[Element,Option[Element]]): Self = {
+  private def rewriteProperties (rule: RewriteRule): Self = {
 
     lazy val rewriteOldElement: Element => Option[Element] = rule orElse { case _ => Retain }
     lazy val rewriteNewElement: Element => Option[Element] = rule orElse fallbackRule

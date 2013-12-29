@@ -28,7 +28,7 @@ import laika.tree.Documents.DocumentContext
  * 
  * @author Jens Halm
  */
-object SectionBuilder extends (DocumentContext => PartialFunction[Element,Option[Element]]) {
+object SectionBuilder extends (DocumentContext => RewriteRule) {
 
   
   class DefaultRule (context: DocumentContext) { 
@@ -127,7 +127,7 @@ object SectionBuilder extends (DocumentContext => PartialFunction[Element,Option
       RootElement(numberedSections)
     }
 
-    val rewrite: PartialFunction[Element, Option[Element]] = { 
+    val rewrite: RewriteRule = { 
       case root: RootElement => Some(buildSections(root)) 
     }
   }

@@ -28,7 +28,7 @@ import laika.parse.rst.Elements._
  * 
  *  @author Jens Halm
  */
-object RewriteRules extends (DocumentContext => PartialFunction[Element,Option[Element]]) {
+object RewriteRules extends (DocumentContext => RewriteRule) {
 
   
   class DefaultRules (context: DocumentContext) { 
@@ -46,7 +46,7 @@ object RewriteRules extends (DocumentContext => PartialFunction[Element,Option[E
       
     /** Function providing the default rewrite rules when passed a document instance.
      */
-    val rewrite: PartialFunction[Element, Option[Element]] = {
+    val rewrite: RewriteRule = {
           
       case SubstitutionReference(id,_) =>
         substitutions.get(id).orElse(Some(invalidSpan(s"unknown substitution id: $id", s"|$id|")))

@@ -682,4 +682,21 @@ object Elements {
       else SomeOpt(id,styles)
   }
   
+  /** Specifies how a particular element, document or document
+   *  tree should be rewritten.
+   *  
+   *  If the rule is not defined for a specific element the old element remains
+   *  in the tree unchanged. If it returns `None` then the node gets removed from the tree, 
+   *  if it returns an element it will replace the old one. Of course the function may
+   *  also return the old element.
+   */
+  type RewriteRule = PartialFunction[Element,Option[Element]]
+
+  /** Specifies a custom render function that may override the rendered
+   *  output for one or more node types. For elements this function
+   *  is not defined the renderer will fall back to the default
+   *  renderer (or the next custom renderer, in case there are multiple).
+   */
+  type RenderFunction = PartialFunction[Element,Unit]
+  
 }

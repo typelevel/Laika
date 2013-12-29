@@ -24,6 +24,7 @@ import scala.io.Codec
 import laika.io.IO
 import laika.io.Output
 import laika.tree.Elements.Element
+import laika.tree.Elements.RenderFunction
 import laika.tree.Documents._
 import laika.io.OutputProvider
 import laika.io.OutputProvider._
@@ -58,7 +59,7 @@ import laika.io.Input
  *  @author Jens Halm
  */
 class Render[W] private (factory: RendererFactory[W],
-                         customRenderers: List[W => PartialFunction[Element, Unit]] = Nil) {
+                         customRenderers: List[W => RenderFunction] = Nil) {
 
   
   /** Represents a single render operation for a specific
@@ -127,7 +128,7 @@ class Render[W] private (factory: RendererFactory[W],
         RenderFunction.delegate = customRenderers match {
           case Nil => render
           case xs  => {
-            val default:PartialFunction[Element, Unit] = { case e => render(e) }
+            val default:RenderFunction = { case e => render(e) }
             (xs map { _(writer) }).reverse reduceRight { _ orElse _ } orElse default
           }
         }
@@ -226,7 +227,7 @@ class Render[W] private (factory: RendererFactory[W],
    *  } from doc toString
    *  }}}
    */
-  def using (render: W => PartialFunction[Element, Unit]): Render[W] = {
+  def using (render: W => RenderFunction): Render[W] = {
     new Render(factory, render :: customRenderers)
   }
   

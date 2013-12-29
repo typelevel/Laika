@@ -18,6 +18,7 @@ package laika.tree
 
 
 import laika.tree.Elements.Element 
+import laika.tree.Elements.RewriteRule 
 import laika.tree.Documents.DocumentContext 
 
 /** Utilities for dealing with rewrite rules.
@@ -31,9 +32,9 @@ object RewriteRules {
    *  The resulting function is always defined, but is returned
    *  as a PartialFunction as required by the `ElementTraversal` API.
    */
-  def chain (rules: Seq[PartialFunction[Element,Option[Element]]]) = {
+  def chain (rules: Seq[RewriteRule]) = {
     
-    val fallback: PartialFunction[Element, Option[Element]] = { case e => Some(e) }
+    val fallback: RewriteRule = { case e => Some(e) }
     
     if (rules.isEmpty) fallback  
     else (rules map { _ orElse fallback }) reduceRight { (ruleA,ruleB) => ruleA andThen (_ flatMap ruleB) }

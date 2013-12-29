@@ -53,7 +53,7 @@ object Documents {
                   val fragments: Map[String, Element] = Map.empty,
                   val config: Config = ConfigFactory.empty,
                   docNumber: List[Int] = Nil,
-                  rewriteRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]] = Nil) extends Navigatable {
+                  rewriteRules: Seq[DocumentContext => RewriteRule] = Nil) extends Navigatable {
     
     private lazy val linkResolver = LinkResolver(path,content)
     
@@ -122,7 +122,7 @@ object Documents {
      *  any element container passed to the rule only contains children which have already
      *  been processed. 
      */
-    def rewrite (customRule: PartialFunction[Element,Option[Element]]): Document = rewriteWith(List(customRule))
+    def rewrite (customRule: RewriteRule): Document = rewriteWith(List(customRule))
 
     /** Returns a new, rewritten document model based on the specified rewrite rules.
      *  
@@ -136,13 +136,13 @@ object Documents {
      *  any element container passed to the rule only contains children which have already
      *  been processed. 
      */
-    def rewriteWith (customRules: Seq[PartialFunction[Element,Option[Element]]]): Document = {
+    def rewriteWith (customRules: Seq[RewriteRule]): Document = {
       val context = DocumentContext(this)
       val newDoc = rewriteDocument(customRules, context)
       newDoc.rewriteTemplate(context.withDocument(newDoc))
     }
       
-    private[Documents] def rewriteDocument (customRules: Seq[PartialFunction[Element,Option[Element]]], context: DocumentContext): Document = {
+    private[Documents] def rewriteDocument (customRules: Seq[RewriteRule], context: DocumentContext): Document = {
       
       val resolvedRules = (defaultRules map { _(context) })      
       
@@ -536,19 +536,19 @@ object Documents {
      *  tree and must return a partial function that represents the rewrite rules for that
      *  particular document.
      */
-    def rewrite (customRule: DocumentContext => PartialFunction[Element,Option[Element]]): DocumentTree = 
+    def rewrite (customRule: DocumentContext => RewriteRule): DocumentTree = 
       rewrite(List(customRule), AutonumberContext.defaults)
         
     /** Returns a new tree, with all the document models contained in it 
      *  rewritten based on the specified rewrite rule and autonumbering context.
      */
-    def rewrite (customRule: DocumentContext => PartialFunction[Element,Option[Element]], 
+    def rewrite (customRule: DocumentContext => RewriteRule, 
         autonumbering: AutonumberContext): DocumentTree = rewrite(List(customRule), autonumbering)
     
     /** Returns a new tree, with all the document models contained in it 
      *  rewritten based on the specified rewrite rules and autonumbering context.
      */
-    def rewrite (customRules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]], 
+    def rewrite (customRules: Seq[DocumentContext => RewriteRule], 
         autonumbering: AutonumberContext): DocumentTree = {
       val newTree = rewriteDocuments(RewriteContext(this, customRules, autonumbering))
       newTree.rewriteTemplates(newTree)
@@ -600,7 +600,7 @@ object Documents {
   }
   
   
-  private[Documents] case class RewriteContext (root: DocumentTree, rules: Seq[DocumentContext => PartialFunction[Element,Option[Element]]], autonumbering: AutonumberContext)
+  private[Documents] case class RewriteContext (root: DocumentTree, rules: Seq[DocumentContext => RewriteRule], autonumbering: AutonumberContext)
     
   
   /** Represents a path inside a virtual tree of 
