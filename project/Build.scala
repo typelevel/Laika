@@ -82,6 +82,18 @@ object Build extends Build {
         </developers>)
     )
     
+    lazy val sbtPlugins = Seq(
+      
+      publishMavenStyle := false,
+
+      publishTo := {
+        val repo = if (version.value.endsWith("-SNAPSHOT")) "snapshots" else "releases"
+        val baseUrl = "http://repo.scala-sbt.org/scalasbt/sbt-plugin-"
+        Some(Resolver.url("scalasbt " + repo, url(baseUrl + repo))(Resolver.ivyStylePatterns))
+      }
+      
+    )
+    
     lazy val none = Seq(
       publish := (),
       publishLocal := (),
@@ -92,7 +104,7 @@ object Build extends Build {
   
   
   lazy val root = Project("root", file("."))
-    .aggregate(core)
+    .aggregate(core, plugin)
     .settings(Settings.basic: _*)
     .settings(Publishing.none: _*)
  
@@ -104,6 +116,12 @@ object Build extends Build {
       Dependencies.scalatest, 
       Dependencies.jTidy
     ))
+    
+  lazy val plugin = Project("laika-sbt", file("sbt"))
+    .dependsOn(core)
+    .settings(sbtPlugin := true)
+    .settings(Settings.basic: _*)
+    .settings(Publishing.sbtPlugins: _*)
   
     
 }
