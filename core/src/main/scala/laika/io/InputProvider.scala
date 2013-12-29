@@ -23,6 +23,7 @@ import laika.template.ParseTemplate
 import laika.directive.Directives.Templates
 import laika.factory.ParserFactory
 import laika.template.DefaultTemplate
+import laika.api.Parse.Parsers
 
 /** Represents a tree structure of Inputs, abstracting over various types of IO resources. 
  *  
@@ -241,8 +242,8 @@ object InputProvider {
     /** Builds the final configuration for this input tree
      *  for the specified parser factory.
      */
-    def build (parser: ParserFactory) = {
-      val matcher = docTypeMatcher getOrElse new DefaultDocumentTypeMatcher(parser.fileSuffixes)
+    def build (parsers: Parsers) = {
+      val matcher = docTypeMatcher getOrElse new DefaultDocumentTypeMatcher(parsers.suffixes)
       val templates = templateParser getOrElse ParseTemplate
       InputConfig(provider.build(matcher, codec), config, templates, isParallel)
     }

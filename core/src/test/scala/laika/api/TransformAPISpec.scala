@@ -36,6 +36,8 @@ import laika.tree.Documents.Static
 import laika.io.Input
 import laika.tree.Templates._
 import laika.template.ParseTemplate
+import laika.parse.rst.ReStructuredText
+import laika.render.TextWriter
 
 class TransformAPISpec extends FlatSpec 
                        with Matchers {
@@ -151,6 +153,7 @@ class TransformAPISpec extends FlatSpec
     def output (builder: TestProviderBuilder) = new OutputConfigBuilder(builder, Codec.UTF8)
 
     def transformTree = transformWith(identity)
+    def transformMultiMarkup = transformWith(identity, Transform from Markdown or ReStructuredText to PrettyPrint)
     
     def transformWithConfig (config: String) = transformWith(_.withConfigString(config))
     def transformWithDocTypeMatcher (matcher: Path => DocumentType) = transformWith(_.withDocTypeMatcher(matcher))
@@ -158,9 +161,9 @@ class TransformAPISpec extends FlatSpec
     def transformWithDirective (directive: Templates.Directive) = transformWith(_.withTemplateDirectives(directive))
     def transformInParallel = transformWith(_.inParallel)
     
-    private def transformWith (f: BatchConfigBuilder => BatchConfigBuilder) = {
+    private def transformWith (f: BatchConfigBuilder => BatchConfigBuilder, transformer: Transform[TextWriter] = transform) = {
       val builder = new TestProviderBuilder
-      transform withConfig f(BatchConfigBuilder(input(dirs), output(builder)))
+      transformer withConfig f(BatchConfigBuilder(input(dirs), output(builder)))
       builder.result
     }
     
@@ -168,6 +171,7 @@ class TransformAPISpec extends FlatSpec
     
     val contents = Map(
       "name" -> "foo",
+      "link" -> "[link](foo)",
       "directive" -> "aa @:foo bar. bb",
       "dynDoc" -> "{{config.value}}",
       "template1" -> "{{document.content}}",
@@ -293,8 +297,8 @@ class TransformAPISpec extends FlatSpec
   
   it should "transform a tree with all available file types" in {
     new TreeTransformer {
-      val dirs = """- doc1.md:name
-        |- doc2.md:name
+      val dirs = """- doc1.md:link
+        |- doc2.rst:link
         |- default.template.html:template1
         |+ dir1
         |  - default.template.html:template2
@@ -314,10 +318,17 @@ class TransformAPISpec extends FlatSpec
         |. . . Paragraph - Spans: 1
         |. . . . Text - 'foo'
         |. . TemplateString - ')'""".stripMargin  
-      transformTree should be (root(List(
+      val markdown = """RootElement - Blocks: 1
+        |. Paragraph - Spans: 1
+        |. . ExternalLink(foo,None) - Spans: 1
+        |. . . Text - 'link'""".stripMargin
+      val rst = """RootElement - Blocks: 1
+        |. Paragraph - Spans: 1
+        |. . Text - '[link](foo)'""".stripMargin
+      transformMultiMarkup should be (root(List(
         docs(
-          (Root / "doc1.txt", withTemplate1),
-          (Root / "doc2.txt", withTemplate1)
+          (Root / "doc1.txt", markdown),
+          (Root / "doc2.txt", rst)
         ),
         trees(
           (Root / "dir1", List(docs(

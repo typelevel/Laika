@@ -35,6 +35,8 @@ import laika.template.ParseTemplate
 import Transform._
 import laika.directive.Directives.Templates
 import laika.template.DefaultTemplate
+import laika.api.Parse.Parsers
+import laika.api.Parse.Parser
   
 /** API for performing a transformation operation from and to various types of input and output,
  *  combining a parse and render operation. 
@@ -82,9 +84,7 @@ import laika.template.DefaultTemplate
  * 
  *  @author Jens Halm
  */
-class Transform [W] private[Transform] (parser: ParserFactory, render: Render[W], rules: Rules, targetSuffix: String) {
-  
-  private val parse = Parse as parser asRawDocument
+class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules: Rules, targetSuffix: String) {
   
   /** Represents a single transformation operation for a specific
    *  input that has already been parsed. Various types of output can be
@@ -188,7 +188,7 @@ class Transform [W] private[Transform] (parser: ParserFactory, render: Render[W]
    *  first combine them with `orElse`.
    */
   def creatingRule (newRule: DocumentContext => PartialFunction[Element, Option[Element]]) 
-      = new Transform(parser, render, rules + newRule, targetSuffix) 
+      = new Transform(parse, render, rules + newRule, targetSuffix) 
   
   /** Specifies a custom render function that overrides one or more of the default
    *  renderers for the output format this instance uses.
@@ -208,7 +208,7 @@ class Transform [W] private[Transform] (parser: ParserFactory, render: Render[W]
    *  }}}
    */
   def rendering (customRenderer: W => PartialFunction[Element, Unit]) 
-      = new Transform(parser, render using customRenderer, rules, targetSuffix)
+      = new Transform(parse, render using customRenderer, rules, targetSuffix)
   
   
   /** Parses the specified string and returns a new Operation instance which allows to specify the output.
@@ -324,7 +324,7 @@ class Transform [W] private[Transform] (parser: ParserFactory, render: Render[W]
       execute(OutputProvider.Directory(dir)(codec))
     
     private def execute (outputBuilder: OutputConfigBuilder) = {
-      withConfig(BatchConfig(inputBuilder.build(parser), if (isParallel) outputBuilder.inParallel.build else outputBuilder.build))
+      withConfig(BatchConfig(inputBuilder.build(parse.parsers), if (isParallel) outputBuilder.inParallel.build else outputBuilder.build))
     }
   }
   
@@ -397,7 +397,7 @@ class Transform [W] private[Transform] (parser: ParserFactory, render: Render[W]
    *  @param exclude the files to exclude from processing
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def withDefaultDirectories (exclude: FileFilter = hiddenFileFilter)(implicit codec: Codec) = withConfig(DefaultDirectories(exclude)(codec).build(parser))
+  def withDefaultDirectories (exclude: FileFilter = hiddenFileFilter)(implicit codec: Codec) = withConfig(DefaultDirectories(exclude)(codec).build(parse.parsers))
   
   /** Parses files from the `source` directory inside the specified root directory
    *  and renders the result to the `target` directory inside the root directory.
@@ -435,13 +435,13 @@ class Transform [W] private[Transform] (parser: ParserFactory, render: Render[W]
    *  @param exclude the files to exclude from processing
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def withRootDirectory (dir: File, exclude: FileFilter)(implicit codec: Codec): Unit = withConfig(RootDirectory(dir, exclude)(codec).build(parser))
+  def withRootDirectory (dir: File, exclude: FileFilter)(implicit codec: Codec): Unit = withConfig(RootDirectory(dir, exclude)(codec).build(parse.parsers))
   
   /** Transforms documents according to the specified batch configuration.
    *  
    *  @param builder a builder for the configuration for the input and output trees to process
    */
-  def withConfig (builder: BatchConfigBuilder): Unit = withConfig(builder.build(parser)) 
+  def withConfig (builder: BatchConfigBuilder): Unit = withConfig(builder.build(parse.parsers)) 
 
   /** Transforms documents according to the specified batch configuration.
    *  
@@ -479,8 +479,21 @@ object Transform {
   /** Step in the setup for a transform operation where the
    *  renderer must be specified.
    */
-  class Builder private[Transform] (parser: ParserFactory) {
+  class Builder private[Transform] (parse: Parse) {
 
+    /** Returns a new Builder instance adding the specified parser factory.
+     *  This factory is usually an object provided by the library
+     *  or a plugin that is capable of parsing a specific markup
+     *  format like Markdown or reStructuredText.
+     *  
+     *  This method is useful if you want to combine different markup
+     *  formats within a single document tree. 
+     * 
+     *  @param factory the parser factory to add to the previously specified parsers
+     *  @return a new Builder instance
+     */
+    def or (factory: ParserFactory) = new Builder(parse or factory)
+    
     /** Creates and returns a new Transform instance for the specified renderer and the
      *  previously specified parser. The returned instance is stateless and reusable for
      *  multiple transformations.
@@ -489,7 +502,7 @@ object Transform {
      *  @return a new Transform instance
      */
     def to [W] (factory: RendererFactory[W]): Transform[W] = 
-      new Transform(parser, Render as factory, new Rules(Nil), factory.fileSuffix) 
+      new Transform(parse.asRawDocument, Render as factory, new Rules(Nil), factory.fileSuffix) 
     
   }
   
@@ -503,7 +516,7 @@ object Transform {
    *  @param factory the parser factory to use
    *  @return a new Builder instance for specifying the renderer
    */
-  def from (factory: ParserFactory): Builder = new Builder(factory)
+  def from (factory: ParserFactory): Builder = new Builder(Parse as factory)
   
   /** The configuration for a batch process, containing the configuration
    *  for the inputs and outputs to use.
@@ -574,7 +587,7 @@ object Transform {
     /** Builds the final configuration for this input tree
      *  for the specified parser factory.
      */
-    def build (parser: ParserFactory) = BatchConfig(inputBuilder.build(parser), outputBuilder.build)
+    def build (parsers: Parsers) = BatchConfig(inputBuilder.build(parsers), outputBuilder.build)
   }
   
   /** Factory methods for creating BatchConfigBuilders.

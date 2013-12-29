@@ -25,8 +25,10 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
 import laika.parse.markdown.Markdown
 import laika.tree.Elements.ExternalLinkDefinition
+import laika.tree.Elements.ExternalLink
 import laika.tree.Elements.LinkReference
 import laika.tree.Elements.Text
+import laika.tree.Elements.Block
 import laika.tree.helper.ModelBuilder
 import laika.tree.helper.InputBuilder
 import laika.io.InputProvider.InputConfigBuilder
@@ -38,6 +40,8 @@ import laika.tree.Templates.TemplateDocument
 import laika.template.ParseTemplate
 import laika.io.Input
 import laika.io.InputProvider.Directory
+import laika.parse.rst.ReStructuredText
+import laika.parse.rst.Elements.CustomizedTextRole
 
 
 class ParseAPISpec extends FlatSpec 
@@ -110,9 +114,12 @@ class ParseAPISpec extends FlatSpec
   
   trait TreeParser extends InputBuilder {
     
+    val rewritten = true
+    
     def dirs: String 
     
     def contents = Map(
+      "link" -> "[link](foo)",
       "name" -> "foo",
       "multiline" -> """aaa
         |
@@ -137,11 +144,15 @@ class ParseAPISpec extends FlatSpec
     )
     
     def builder (source: String) = new InputConfigBuilder(parseTreeStructure(source), Codec.UTF8)
-    def docView (num: Int, path: Path = Root) = DocumentView(path / (s"doc$num.md"), Content(List(p("foo"))) :: Nil)
+    def docView (num: Int, path: Path = Root) = DocumentView(path / (s"doc$num.md"), Content(List(p("foo"))) :: Nil, rewritten)
+    
+    def customDocView (name: String, content: Seq[Block], path: Path = Root) = DocumentView(path / name, Content(content) :: Nil, rewritten)
   
     def parsedTree = viewOf(Parse as Markdown fromTree builder(dirs))
     
     def rawParsedTree = viewOf((Parse as Markdown asRawDocument) fromTree builder(dirs))
+
+    def rawMixedParsedTree = viewOf((Parse as Markdown or ReStructuredText asRawDocument) fromTree builder(dirs))
     
     def parsedWith (f: InputConfigBuilder => InputConfigBuilder) =
       viewOf(Parse as Markdown fromTree f(builder(dirs)))
@@ -246,8 +257,9 @@ class ParseAPISpec extends FlatSpec
   
   it should "allow parsing a tree with all available file types" in {
     new TreeParser {
-      val dirs = """- doc1.md:name
-        |- doc2.md:name
+      override val rewritten = false
+      val dirs = """- doc1.md:link
+        |- doc2.rst:link
         |- mainA.template.html:name
         |+ dir1
         |  - mainB.template.html:name
@@ -270,11 +282,11 @@ class ParseAPISpec extends FlatSpec
         Inputs(Static, List(InputView("omg.js")))
       ))
       val treeResult = TreeView(Root, List(
-        Documents(Markup, List(docView(1),docView(2))),
+        Documents(Markup, List(customDocView("doc1.md", Seq(p(ExternalLink(Seq(txt("link")), "foo")))),customDocView("doc2.rst", Seq(p("[link](foo)"))))),
         TemplateDocuments(Template, List(template('A', Root))),
         Subtrees(List(subtree1,subtree2))
       ))
-      rawParsedTree should be (treeResult)
+      rawMixedParsedTree.rewrite{case CustomizedTextRole(_,_,_) => None} should be (treeResult)
     }
   }
   

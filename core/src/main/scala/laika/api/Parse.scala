@@ -30,6 +30,7 @@ import laika.tree.Templates.TemplateDocument
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions
 import laika.template.ParseTemplate
+import Parse.Parsers
   
 /** API for performing a parse operation from various types of input to obtain
  *  a document tree without a subsequent render operation. 
@@ -49,19 +50,35 @@ import laika.template.ParseTemplate
  *  {{{
  *  val tree = Parse as Markdown fromDirectory "path/to/source"
  *  }}}
+ *  
+ *  Example for parsing a directory that contains markup documents in different formats:
+ *  
+ *  {{{
+ *  val tree = Parse as Markdown or ReStructuredText fromDirectory "path/to/source"
+ *  }}}
  * 
  *  @author Jens Halm
  */
-class Parse private (factory: ParserFactory, rewrite: Boolean) {
+class Parse private (private[api] val parsers: Parsers, rewrite: Boolean) {
   
-  private lazy val parse = factory.newParser
+  /** Returns a new Parse instance adding the specified parser factory.
+   *  This factory is usually an object provided by the library
+   *  or a plugin that is capable of parsing a specific markup
+   *  format like Markdown or reStructuredText.
+   *  
+   *  This method is useful if you want to combine different markup
+   *  formats within a single document tree. 
+   * 
+   *  @param factory the parser factory to add to the previously specified parsers
+   */
+  def or (factory: ParserFactory) = new Parse(parsers.withFactory(factory), rewrite) 
 
   /** Returns a new Parse instance that produces raw document trees without applying
    *  the default rewrite rules. These rules resolve link and image references and 
    *  rearrange the tree into a hierarchy of sections based on the (flat) sequence
    *  of header instances found in the document.
    */
-  def asRawDocument = new Parse(factory, false)
+  def asRawDocument = new Parse(parsers, false)
   
   /** Returns a document obtained from parsing the specified string.
    *  Any kind of input is valid, including an empty string. 
@@ -106,7 +123,7 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
    */
   def fromInput (input: Input) = {
     
-    val doc = IO(input)(parse)
+    val doc = IO(input)(parsers.forInput(input))
 
     if (rewrite) doc.rewrite else doc
   }
@@ -178,7 +195,7 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
    *  
    *  @param builder a builder for the configuration for the input tree to process
    */
-  def fromTree (builder: InputConfigBuilder): DocumentTree = fromTree(builder.build(factory)) 
+  def fromTree (builder: InputConfigBuilder): DocumentTree = fromTree(builder.build(parsers)) 
   
   /** Returns a document tree obtained by parsing files from the
    *  specified input configuration.
@@ -197,7 +214,7 @@ class Parse private (factory: ParserFactory, rewrite: Boolean) {
     
     type Operation[T] = () => (DocumentType, T)
 
-    def parseMarkup (input: Input): Operation[Document] = () => (Markup, IO(input)(parse))
+    def parseMarkup (input: Input): Operation[Document] = () => (Markup, IO(input)(parsers.forInput(input)))
     
     def parseTemplate (docType: DocumentType)(input: Input): Operation[TemplateDocument] = () => (docType, IO(input)(config.templateParser.fromInput(_)))
     
@@ -263,6 +280,38 @@ object Parse {
    * 
    *  @param factory the parser factory to use for all subsequent operations
    */
-  def as (factory: ParserFactory) = new Parse(factory, true) 
+  def as (factory: ParserFactory) = new Parse(new Parsers(factory), true) 
+
+  
+  private[laika] class Parser (factory: ParserFactory) {
+    lazy val get = factory.newParser
+    val suffixes = factory.fileSuffixes
+  }
+  
+  private[laika] class Parsers (parsers: Seq[Parser]) {
+    
+    def this (factory: ParserFactory) = this(Seq(new Parser(factory)))
+    
+    def withFactory (factory: ParserFactory) = new Parsers(parsers :+ new Parser(factory))
+        
+    private def suffix (name: String) = name.lastIndexOf(".") match {
+      case -1    => ""
+      case index => name.drop(index+1)
+    }  
+    
+    lazy val map: Map[String,Parser] =
+      parsers flatMap (p => p.suffixes map ((_, p))) toMap
+    
+    lazy val suffixes = parsers flatMap (_.suffixes) toSet
+    
+    def forInput (input: Input): Input => Document = {
+      if (parsers.size == 1) parsers.head.get
+      else map.get(suffix(input.name)).map(_.get).getOrElse(
+          throw new IllegalArgumentException("Unable to determine parser based on input name: ${input.name}")
+      )
+    }
+    
+  }
+  
   
 }
