@@ -171,8 +171,6 @@ object LaikaSbtPlugin extends Plugin {
     import LaikaKeys._
     import Def._
     
-    // TODO - add logging
-
     val inputTreeTask = task {
       val builder = Directories(sourceDirectories.value, excludeFilter.value.accept)(encoding.value)
         .withTemplates(templateParser.value)
@@ -191,15 +189,24 @@ object LaikaSbtPlugin extends Plugin {
       val cacheDir = streams.value.cacheDirectory / "laika" / "site"
       
       val inputs = inputTree.value.build(markupParser.value.fileSuffixes)
+      
       val cached = FileFunction.cached(cacheDir, FilesInfo.lastModified) { in =>
         
         IO.delete(((targetDir ***) --- targetDir --- (apiDir ***)).get)
         if (!targetDir.exists) targetDir.mkdirs()
         
+        streams.value.log.info("Reading files from " + sourceDirectories.value.mkString(", "))
+        streams.value.log.info(Log.inputs(inputs.provider))
+        
         val rawTree = markupParser.value fromTree inputs
         val tree = rawTree rewrite (rewriteRules.value, AutonumberContext.defaults)
+
+        streams.value.log.info(Log.outputs(tree))
+        
         val render = ((Render as HTML) /: siteRenderers.value) { case (render, renderer) => render using renderer }
         render from tree toTree outputTree.value
+        
+        streams.value.log.info("Generated site in " + targetDir)
         
         (targetDir ***).get.toSet
       }
@@ -211,10 +218,14 @@ object LaikaSbtPlugin extends Plugin {
     val copyAPITask = taskDyn {
       val targetDir = (target in copyAPI).value
       if (includeAPI.value) task { 
+        
         val cacheDir = streams.value.cacheDirectory / "laika" / "api"
         val apiMappings = (mappings in packageDoc in Compile).value
         val targetMappings = apiMappings map { case (file, target) => (file, targetDir / target) }
+        
         Sync(cacheDir)(targetMappings)
+        
+        streams.value.log.info("Copied API documentation to " + targetDir)
         targetDir 
       }
       else task { 
@@ -225,8 +236,11 @@ object LaikaSbtPlugin extends Plugin {
     
     val packageSiteTask = task { 
       val zipFile = (artifactPath in packageSite).value
+      streams.value.log.info(s"Packaging $zipFile ...")
+      
       IO.zip((mappings in site).value, zipFile)
-      streams.value.log.info("Packaged site into: " + zipFile)
+
+      streams.value.log.info("Done packaging.")
       zipFile
     }
     
@@ -248,5 +262,44 @@ object LaikaSbtPlugin extends Plugin {
     }
     
   }
+  
+  object Log {
+    
+    def s (num: Int) = if (num == 1) "" else "s"
+      
+    def inputs (provider: InputProvider): String = {
+      
+      def count (provider: InputProvider): (Int, Int, Int) = {
+        val docs = provider.markupDocuments.length
+        val tmpl = provider.dynamicDocuments.length + provider.templates.length
+        val conf = provider.configDocuments.length
+        val all = (provider.subtrees map count) :+ (docs, tmpl, conf)
+        (((0,0,0) /: (all)) { 
+          case ((d1, t1, c1), (d2, t2, c2)) => (d1+d2, t1+t2, c1+c2)
+        })
+      }
+      
+      val (docs, tmpl, conf) = count(provider)
+      
+      s"Parsing $docs markup document${s(docs)}, $tmpl template${s(tmpl)}, $conf configuration${s(conf)} ..."
+    }
+    
+    def outputs (tree: DocumentTree): String = {
+      
+      def count (tree: DocumentTree): (Int, Int) = {
+        val render = tree.documents.length + tree.dynamicDocuments.length
+        val copy = tree.staticDocuments.length
+        val all = (tree.subtrees map count) :+ (render, copy)
+        (((0,0) /: (all)) { 
+          case ((r1, c1), (r2, c2)) => (r1+r2, c1+c2)
+        })
+      }
+      
+      val (render, copy) = count(tree)
+      
+      s"Rendering $render HTML document${s(render)}, copying $copy static file${s(copy)} ..."
+    }
+    
+  } 
   
 }
