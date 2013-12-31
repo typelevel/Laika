@@ -18,21 +18,25 @@ package laika.sbt
 
 import sbt._
 import Keys._
-
 import laika.api._
 import laika.io.InputProvider.Directories
+import laika.io.InputProvider.InputConfigBuilder
 import laika.io.OutputProvider.Directory
+import laika.io.OutputProvider.OutputConfigBuilder
 import laika.template.ParseTemplate
 import laika.template.DefaultTemplate
 import laika.tree.Documents._
 import laika.tree.Elements._
 import laika.directive.Directives._
 import laika.parse.rst.ReStructuredText
-import laika.parse.rst.Directives.Directive
+import laika.parse.rst.{Directives=>rst}
 import laika.parse.rst.TextRoles.TextRole
 import laika.parse.markdown.Markdown
 import laika.render.HTML
 import laika.render.HTMLWriter
+import laika.io.InputProvider
+import laika.io.Input.LazyFileInput
+import laika.io.Input
 
 object LaikaSbtPlugin extends Plugin {
 
@@ -49,19 +53,19 @@ object LaikaSbtPlugin extends Plugin {
     
     val markdown = SettingKey[Markdown]("markdown", "The parser for Markdown files")
     
-    val rawContent = SettingKey[Boolean]("raw-content", "Indicates whether embedding of raw content (like verbatim HTML) is supported in markup")
-
     val reStructuredText = SettingKey[ReStructuredText]("reStructuredText", "The parser for reStructuredText files")
 
     val markupParser = SettingKey[Parse]("markup-parser", "The parser for all text markup files")
     
     val templateParser = SettingKey[ParseTemplate]("template-parser", "The parser for template files")
     
-    val parse = TaskKey[DocumentTree]("parse", "Parses all text markup and template files")
+    val rawContent = SettingKey[Boolean]("raw-content", "Indicates whether embedding of raw content (like verbatim HTML) is supported in markup")
+    
+    val inputTree = TaskKey[InputConfigBuilder]("input-tree", "The configured input tree for the parser")
+
+    val outputTree = TaskKey[OutputConfigBuilder]("output-tree", "The configured output tree for the renderer")
     
     val rewriteRules = SettingKey[Seq[DocumentContext => RewriteRule]]("rewrite-rules", "Custom rewrite rules to add to the standard rules")
-    
-    val rewrite = TaskKey[DocumentTree]("rewrite", "Applies all rewrite rules to the document tree")
     
     val siteRenderers = SettingKey[Seq[HTMLWriter => RenderFunction]]("renderers", "Custom renderers overriding the defaults per node type")
     
@@ -73,9 +77,9 @@ object LaikaSbtPlugin extends Plugin {
 
     val templateDirectives = SettingKey[Seq[Templates.Directive]]("template-directives", "Directives for templates")
     
-    val rstSpanDirectives = SettingKey[Seq[Directive[Span]]]("rst-span-directives", "Inline directives for reStructuredText")
+    val rstSpanDirectives = SettingKey[Seq[rst.Directive[Span]]]("rst-span-directives", "Inline directives for reStructuredText")
     
-    val rstBlockDirectives = SettingKey[Seq[Directive[Block]]]("rst-block-directives", "Block directives for reStructuredText")
+    val rstBlockDirectives = SettingKey[Seq[rst.Directive[Block]]]("rst-block-directives", "Block directives for reStructuredText")
     
     val rstTextRoles = SettingKey[Seq[TextRole]]("rst-text-roles", "Custom text roles for reStructuredText")
 
@@ -142,8 +146,8 @@ object LaikaSbtPlugin extends Plugin {
       
       includeAPI          := false,
       
-      parse               := parseTask.value,
-      rewrite             := rewriteTask.value,
+      inputTree           := inputTreeTask.value,
+      outputTree          := outputTreeTask.value,
       site                := siteTask.value,
       copyAPI             := copyAPITask.value,
       packageSite         := packageSiteTask.value,
@@ -169,44 +173,53 @@ object LaikaSbtPlugin extends Plugin {
     
     // TODO - add logging
 
-    val parseTask = task {
+    val inputTreeTask = task {
       val builder = Directories(sourceDirectories.value, excludeFilter.value.accept)(encoding.value)
         .withTemplates(templateParser.value)
       val builder2 = if (parallel.value) builder.inParallel else builder
-      val inputTree = docTypeMatcher.value map (builder2 withDocTypeMatcher _) getOrElse builder2
-      markupParser.value fromTree inputTree
+      docTypeMatcher.value map (builder2 withDocTypeMatcher _) getOrElse builder2
     }
     
-    val rewriteTask = task {
-      parse.value rewrite (rewriteRules.value, AutonumberContext.defaults)
+    val outputTreeTask = task {
+      val builder = Directory((target in site).value)(encoding.value)
+      if (parallel.value) builder.inParallel else builder
     }
     
     val siteTask = task {
       val apiDir = copyAPI.value
       val targetDir = (target in site).value
+      val cacheDir = streams.value.cacheDirectory / "laika" / "site"
       
-      if (!includeAPI.value) IO.delete(apiDir)
-      IO.delete(((targetDir ***) --- targetDir --- (apiDir ***)).get)
-      if (!targetDir.exists) targetDir.mkdirs()
-      
-      val builder = Directory(targetDir)(encoding.value)
-      val outputTree = if (parallel.value) builder.inParallel else builder
-      val render = ((Render as HTML) /: siteRenderers.value) { case (render, renderer) => render using renderer }
-      render from rewrite.value toTree outputTree
+      val inputs = inputTree.value.build(markupParser.value.fileSuffixes)
+      val cached = FileFunction.cached(cacheDir, FilesInfo.lastModified) { in =>
+        
+        IO.delete(((targetDir ***) --- targetDir --- (apiDir ***)).get)
+        if (!targetDir.exists) targetDir.mkdirs()
+        
+        val rawTree = markupParser.value fromTree inputs
+        val tree = rawTree rewrite (rewriteRules.value, AutonumberContext.defaults)
+        val render = ((Render as HTML) /: siteRenderers.value) { case (render, renderer) => render using renderer }
+        render from tree toTree outputTree.value
+        
+        (targetDir ***).get.toSet
+      }
+      cached(collectInputFiles(inputs.provider))
       
       targetDir
     }
     
     val copyAPITask = taskDyn {
+      val targetDir = (target in copyAPI).value
       if (includeAPI.value) task { 
+        val cacheDir = streams.value.cacheDirectory / "laika" / "api"
         val apiMappings = (mappings in packageDoc in Compile).value
-        val targetDir = (target in copyAPI).value
         val targetMappings = apiMappings map { case (file, target) => (file, targetDir / target) }
-        Sync(streams.value.cacheDirectory / "laika")(targetMappings)
+        Sync(cacheDir)(targetMappings)
         targetDir 
       }
       else task { 
-        (target in copyAPI).value 
+        IO.delete(targetDir)
+        targetDir 
       }
     }
     
@@ -221,6 +234,18 @@ object LaikaSbtPlugin extends Plugin {
       IO.delete((target in site).value)
     }
 
+    def collectInputFiles (provider: InputProvider): Set[File] = {
+      def allFiles (inputs: Seq[Input]) = (inputs collect {
+        case f: LazyFileInput => f.file
+      }).toSet
+      
+      allFiles(provider.markupDocuments) ++
+      allFiles(provider.dynamicDocuments) ++
+      allFiles(provider.templates) ++
+      allFiles(provider.configDocuments) ++
+      allFiles(provider.staticDocuments) ++
+      (provider.subtrees flatMap collectInputFiles)
+    }
     
   }
   
