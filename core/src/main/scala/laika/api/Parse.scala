@@ -59,7 +59,14 @@ import Parse.Parsers
  * 
  *  @author Jens Halm
  */
-class Parse private (private[api] val parsers: Parsers, rewrite: Boolean) {
+class Parse private (parsers: Parsers, rewrite: Boolean) {
+  
+  /** The file suffixes recognized by this parser.
+   *  When transforming entire directories only files with
+   *  names ending in one of the specified suffixes will
+   *  be consired. 
+   */
+  val fileSuffixes = parsers.suffixes
   
   /** Returns a new Parse instance adding the specified parser factory.
    *  This factory is usually an object provided by the library
@@ -198,7 +205,7 @@ class Parse private (private[api] val parsers: Parsers, rewrite: Boolean) {
    *  
    *  @param builder a builder for the configuration for the input tree to process
    */
-  def fromTree (builder: InputConfigBuilder): DocumentTree = fromTree(builder.build(parsers)) 
+  def fromTree (builder: InputConfigBuilder): DocumentTree = fromTree(builder.build(parsers.suffixes)) 
   
   /** Returns a document tree obtained by parsing files from the
    *  specified input configuration.

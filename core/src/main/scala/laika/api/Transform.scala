@@ -324,7 +324,7 @@ class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules: 
       execute(OutputProvider.Directory(dir)(codec))
     
     private def execute (outputBuilder: OutputConfigBuilder) = {
-      withConfig(BatchConfig(inputBuilder.build(parse.parsers), if (isParallel) outputBuilder.inParallel.build else outputBuilder.build))
+      withConfig(BatchConfig(inputBuilder.build(parse.fileSuffixes), if (isParallel) outputBuilder.inParallel.build else outputBuilder.build))
     }
   }
   
@@ -397,7 +397,7 @@ class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules: 
    *  @param exclude the files to exclude from processing
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def withDefaultDirectories (exclude: FileFilter = hiddenFileFilter)(implicit codec: Codec) = withConfig(DefaultDirectories(exclude)(codec).build(parse.parsers))
+  def withDefaultDirectories (exclude: FileFilter = hiddenFileFilter)(implicit codec: Codec) = withConfig(DefaultDirectories(exclude)(codec))
   
   /** Parses files from the `source` directory inside the specified root directory
    *  and renders the result to the `target` directory inside the root directory.
@@ -435,13 +435,13 @@ class Transform [W] private[Transform] (parse: Parse, render: Render[W], rules: 
    *  @param exclude the files to exclude from processing
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def withRootDirectory (dir: File, exclude: FileFilter)(implicit codec: Codec): Unit = withConfig(RootDirectory(dir, exclude)(codec).build(parse.parsers))
+  def withRootDirectory (dir: File, exclude: FileFilter)(implicit codec: Codec): Unit = withConfig(RootDirectory(dir, exclude)(codec))
   
   /** Transforms documents according to the specified batch configuration.
    *  
    *  @param builder a builder for the configuration for the input and output trees to process
    */
-  def withConfig (builder: BatchConfigBuilder): Unit = withConfig(builder.build(parse.parsers)) 
+  def withConfig (builder: BatchConfigBuilder): Unit = withConfig(builder.build(parse.fileSuffixes)) 
 
   /** Transforms documents according to the specified batch configuration.
    *  
@@ -587,7 +587,7 @@ object Transform {
     /** Builds the final configuration for this input tree
      *  for the specified parser factory.
      */
-    def build (parsers: Parsers) = BatchConfig(inputBuilder.build(parsers), outputBuilder.build)
+    def build (markupSuffixes: Set[String]) = BatchConfig(inputBuilder.build(markupSuffixes), outputBuilder.build)
   }
   
   /** Factory methods for creating BatchConfigBuilders.

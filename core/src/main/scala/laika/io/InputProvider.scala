@@ -17,13 +17,11 @@
 package laika.io
 
 import java.io.File
-import laika.tree.Documents._
 import scala.io.Codec
+import laika.tree.Documents._
 import laika.template.ParseTemplate
-import laika.directive.Directives.Templates
-import laika.factory.ParserFactory
 import laika.template.DefaultTemplate
-import laika.api.Parse.Parsers
+import laika.directive.Directives.Templates
 
 /** Represents a tree structure of Inputs, abstracting over various types of IO resources. 
  *  
@@ -241,9 +239,11 @@ object InputProvider {
     
     /** Builds the final configuration for this input tree
      *  for the specified parser factory.
+     *  
+     *  @param markupSuffixes all suffixes recognized by the parsers configured to consume this input
      */
-    def build (parsers: Parsers) = {
-      val matcher = docTypeMatcher getOrElse new DefaultDocumentTypeMatcher(parsers.suffixes)
+    def build (markupSuffixes: Set[String]) = {
+      val matcher = docTypeMatcher getOrElse new DefaultDocumentTypeMatcher(markupSuffixes)
       val templates = templateParser getOrElse ParseTemplate
       InputConfig(provider.build(matcher, codec), config, templates, isParallel)
     }
