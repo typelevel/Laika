@@ -172,7 +172,8 @@ object LaikaSbtPlugin extends Plugin {
     val parseTask = task {
       val builder = Directories(sourceDirectories.value, excludeFilter.value.accept)(encoding.value)
         .withTemplates(templateParser.value)
-      val inputTree = if (parallel.value) builder.inParallel else builder
+      val builder2 = if (parallel.value) builder.inParallel else builder
+      val inputTree = docTypeMatcher.value map (builder2 withDocTypeMatcher _) getOrElse builder2
       markupParser.value fromTree inputTree
     }
     
