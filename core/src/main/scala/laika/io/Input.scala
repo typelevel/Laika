@@ -122,9 +122,9 @@ object Input {
     
   }
   
-  private class LazyFileInput (file: File, val path: Path, codec: Codec) extends Input with Binary with Closeable {
+  class LazyFileInput (val file: File, val path: Path, codec: Codec) extends Input with Binary with Closeable {
     
-    lazy val delegate = new AutocloseStreamInput(new FileInputStream(file), path, codec)
+    private lazy val delegate = new AutocloseStreamInput(new FileInputStream(file), path, codec)
     
     def asReader = delegate.asReader
     def asParserInput = delegate.asParserInput
