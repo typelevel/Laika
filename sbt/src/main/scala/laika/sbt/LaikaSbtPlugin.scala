@@ -82,6 +82,8 @@ object LaikaSbtPlugin extends Plugin {
     val includeAPI = SettingKey[Boolean]("include-api", "Indicates whether API documentation should be copied to the site")
     
     val copyAPI = TaskKey[File]("copy-api", "Copies the API documentation to the site")
+
+    val packageSite = TaskKey[File]("package-site", "Create a zip file of the site")
     
   }
   
@@ -143,9 +145,21 @@ object LaikaSbtPlugin extends Plugin {
       parse               := parseTask.value,
       rewrite             := rewriteTask.value,
       site                := siteTask.value,
-      copyAPI             := copyAPITask.value
+      copyAPI             := copyAPITask.value,
+      packageSite         := packageSiteTask.value,
+      clean               := cleanTask.value,
+      
+      mappings in site    := sbt.Path.allSubpaths(site.value).toSeq,
+      
+      artifact in packageSite     := Artifact(moduleName.value, Artifact.DocType, "zip", "site"),
+      artifactPath in packageSite := {
+                                    val art = (artifact in packageSite).value
+                                    val classifier = art.classifier map ("-"+_) getOrElse ""
+                                    target.value / (art.name + "-" + projectID.value.revision + classifier + "." + art.extension)
+                                  }
       
     ))
+    
   }
   
   
@@ -169,10 +183,16 @@ object LaikaSbtPlugin extends Plugin {
     val siteTask = task {
       val apiDir = copyAPI.value
       val targetDir = (target in site).value
+      
+      if (!includeAPI.value) IO.delete(apiDir)
+      IO.delete(((targetDir ***) --- targetDir --- (apiDir ***)).get)
+      if (!targetDir.exists) targetDir.mkdirs()
+      
       val builder = Directory(targetDir)(encoding.value)
       val outputTree = if (parallel.value) builder.inParallel else builder
       val render = ((Render as HTML) /: siteRenderers.value) { case (render, renderer) => render using renderer }
       render from rewrite.value toTree outputTree
+      
       targetDir
     }
     
@@ -189,7 +209,18 @@ object LaikaSbtPlugin extends Plugin {
       }
     }
     
+    val packageSiteTask = task { 
+      val zipFile = (artifactPath in packageSite).value
+      IO.zip((mappings in site).value, zipFile)
+      streams.value.log.info("Packaged site into: " + zipFile)
+      zipFile
+    }
+    
+    val cleanTask = task { 
+      IO.delete((target in site).value)
+    }
+
+    
   }
-  
   
 }
