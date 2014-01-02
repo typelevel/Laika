@@ -43,51 +43,51 @@ object LaikaSbtPlugin extends Plugin {
   
   object LaikaKeys {
     
-    val Laika = config("laika")
+    val Laika               = config("laika")
     
-    val site = TaskKey[File]("site", "Generates a static website")
+    val site                = taskKey[File]("Generates a static website")
     
-    val docTypeMatcher = SettingKey[Option[Path => DocumentType]]("doctype-matcher", "Matches a path to a Laika document type")
+    val docTypeMatcher      = settingKey[Option[Path => DocumentType]]("Matches a path to a Laika document type")
     
-    val encoding = SettingKey[String]("encoding", "The character encoding")
+    val encoding            = settingKey[String]("The character encoding")
     
-    val markdown = SettingKey[Markdown]("markdown", "The parser for Markdown files")
+    val markdown            = settingKey[Markdown]("The parser for Markdown files")
     
-    val reStructuredText = SettingKey[ReStructuredText]("reStructuredText", "The parser for reStructuredText files")
+    val reStructuredText    = settingKey[ReStructuredText]("The parser for reStructuredText files")
 
-    val markupParser = SettingKey[Parse]("markup-parser", "The parser for all text markup files")
+    val markupParser        = settingKey[Parse]("The parser for all text markup files")
     
-    val templateParser = SettingKey[ParseTemplate]("template-parser", "The parser for template files")
+    val templateParser      = settingKey[ParseTemplate]("The parser for template files")
     
-    val rawContent = SettingKey[Boolean]("raw-content", "Indicates whether embedding of raw content (like verbatim HTML) is supported in markup")
+    val rawContent          = settingKey[Boolean]("Indicates whether embedding of raw content (like verbatim HTML) is supported in markup")
     
-    val inputTree = TaskKey[InputConfigBuilder]("input-tree", "The configured input tree for the parser")
+    val inputTree           = taskKey[InputConfigBuilder]("The configured input tree for the parser")
 
-    val outputTree = TaskKey[OutputConfigBuilder]("output-tree", "The configured output tree for the renderer")
+    val outputTree          = taskKey[OutputConfigBuilder]("The configured output tree for the renderer")
     
-    val rewriteRules = SettingKey[Seq[DocumentContext => RewriteRule]]("rewrite-rules", "Custom rewrite rules to add to the standard rules")
+    val rewriteRules        = settingKey[Seq[DocumentContext => RewriteRule]]("Custom rewrite rules to add to the standard rules")
     
-    val siteRenderers = SettingKey[Seq[HTMLWriter => RenderFunction]]("renderers", "Custom renderers overriding the defaults per node type")
+    val siteRenderers       = settingKey[Seq[HTMLWriter => RenderFunction]]("Custom renderers overriding the defaults per node type")
     
-    val parallel = SettingKey[Boolean]("parallel", "Indicates whether parsers and renderers should run in parallel")
+    val parallel            = settingKey[Boolean]("Indicates whether parsers and renderers should run in parallel")
     
-    val spanDirectives = SettingKey[Seq[Spans.Directive]]("span-directives", "Directives for inline markup")
+    val spanDirectives      = settingKey[Seq[Spans.Directive]]("Directives for inline markup")
 
-    val blockDirectives = SettingKey[Seq[Blocks.Directive]]("block-directives", "Directives for block-level markup")
+    val blockDirectives     = settingKey[Seq[Blocks.Directive]]("Directives for block-level markup")
 
-    val templateDirectives = SettingKey[Seq[Templates.Directive]]("template-directives", "Directives for templates")
+    val templateDirectives  = settingKey[Seq[Templates.Directive]]("Directives for templates")
     
-    val rstSpanDirectives = SettingKey[Seq[rst.Directive[Span]]]("rst-span-directives", "Inline directives for reStructuredText")
+    val rstSpanDirectives   = settingKey[Seq[rst.Directive[Span]]]("Inline directives for reStructuredText")
     
-    val rstBlockDirectives = SettingKey[Seq[rst.Directive[Block]]]("rst-block-directives", "Block directives for reStructuredText")
+    val rstBlockDirectives  = settingKey[Seq[rst.Directive[Block]]]("Block directives for reStructuredText")
     
-    val rstTextRoles = SettingKey[Seq[TextRole]]("rst-text-roles", "Custom text roles for reStructuredText")
+    val rstTextRoles        = settingKey[Seq[TextRole]]("Custom text roles for reStructuredText")
 
-    val includeAPI = SettingKey[Boolean]("include-api", "Indicates whether API documentation should be copied to the site")
+    val includeAPI          = settingKey[Boolean]("Indicates whether API documentation should be copied to the site")
     
-    val copyAPI = TaskKey[File]("copy-api", "Copies the API documentation to the site")
+    val copyAPI             = taskKey[File]("Copies the API documentation to the site")
 
-    val packageSite = TaskKey[File]("package-site", "Create a zip file of the site")
+    val packageSite         = taskKey[File]("Create a zip file of the site")
     
   }
   
