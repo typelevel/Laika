@@ -50,6 +50,8 @@ object LaikaSbtPlugin extends Plugin {
     val docTypeMatcher      = settingKey[Option[Path => DocumentType]]("Matches a path to a Laika document type")
     
     val encoding            = settingKey[String]("The character encoding")
+
+    val strict              = settingKey[Boolean]("Indicates whether all features not part of the original Markdown or reStructuredText syntax should be switched off")
     
     val markdown            = settingKey[Markdown]("The parser for Markdown files")
     
@@ -116,14 +118,16 @@ object LaikaSbtPlugin extends Plugin {
       
       markdown            := {
                             val md = (Markdown withBlockDirectives (blockDirectives.value: _*) withSpanDirectives (spanDirectives.value: _*))
-                            if (rawContent.value) md.withVerbatimHTML else md
+                            val md2 = if (rawContent.value) md.withVerbatimHTML else md
+                            if (strict.value) md2.strict else md2
                           },
 
       reStructuredText    := { 
                             val rst = (ReStructuredText withLaikaBlockDirectives (blockDirectives.value: _*) withLaikaSpanDirectives 
                             (spanDirectives.value: _*) withBlockDirectives (rstBlockDirectives.value: _*) withSpanDirectives 
                             (rstSpanDirectives.value: _*) withTextRoles (rstTextRoles.value: _*))
-                            if (rawContent.value) rst.withRawContent else rst
+                            val rst2 = if (rawContent.value) rst.withRawContent else rst
+                            if (strict.value) rst2.strict else rst2
                           },
       
       markupParser        := (Parse as markdown.value or reStructuredText.value withoutRewrite),
