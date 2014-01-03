@@ -29,7 +29,7 @@ class DocumentAPISpec extends FlatSpec
 
   
   "The Document API" should "allow to specify a title in a config section" in {
-    val markup = """<% title: Foo and Bar %>
+    val markup = """{% title: Foo and Bar %}
       |
       |# Ignored Title
       |

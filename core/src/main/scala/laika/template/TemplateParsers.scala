@@ -60,13 +60,13 @@ object TemplateParsers {
       '\\'-> ((any take 1) ^^ { Text(_) })
     )
   
-    def configParser (path: Path): Parser[Either[InvalidSpan,Config]] = "<%" ~> anyUntil("%>") <~ ws ~ eol ^^ { str =>
+    def configParser (path: Path): Parser[Either[InvalidSpan,Config]] = "{%" ~> anyUntil("%}") <~ ws ~ eol ^^ { str =>
       try {
         Right(ConfigFactory.parseString(str, ConfigParseOptions.defaults().setOriginDescription("path:"+path)))
       }
       catch {
         case ex: Exception => Left(InvalidSpan(SystemMessage(laika.tree.Elements.Error, 
-            "Error parsing config header: "+ex.getMessage), TemplateString(s"<%$str%>")))
+            "Error parsing config header: "+ex.getMessage), TemplateString(s"{%$str%}")))
       }
     } 
     
@@ -98,13 +98,13 @@ object TemplateParsers {
     abstract override protected def prepareBlockParsers (nested: Boolean) = 
       blockDirectiveParser :: super.prepareBlockParsers(nested)
     
-    override def config (path: Path): Parser[Either[InvalidBlock,Config]] = "<%" ~> anyUntil("%>") <~ ws ~ eol ^^ { str =>
+    override def config (path: Path): Parser[Either[InvalidBlock,Config]] = "{%" ~> anyUntil("%}") <~ ws ~ eol ^^ { str =>
       try {
         Right(ConfigFactory.parseString(str, ConfigParseOptions.defaults().setOriginDescription("path:"+path)))
       }
       catch {
         case ex: Exception => Left(InvalidBlock(SystemMessage(laika.tree.Elements.Error, 
-            "Error parsing config header: "+ex.getMessage), LiteralBlock(s"<%$str%>")))
+            "Error parsing config header: "+ex.getMessage), LiteralBlock(s"{%$str%}")))
       }
     } 
   }

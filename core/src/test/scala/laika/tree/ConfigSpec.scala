@@ -39,7 +39,7 @@ class ConfigSpec extends FlatSpec
 
 
   trait Inputs extends InputBuilder  {
-    val markup = """<% foo: bar %>
+    val markup = """{% foo: bar %}
       |aaa
       |bbb""".stripMargin
       
@@ -51,7 +51,7 @@ class ConfigSpec extends FlatSpec
       |<div>{{document.content}}</div>
       |CCC""".stripMargin
       
-    val templateWithConfig= """<% foo: bar %>
+    val templateWithConfig= """{% foo: bar %}
       |<div>{{document.content}}</div>
       |CCC""".stripMargin
       
@@ -139,9 +139,9 @@ class ConfigSpec extends FlatSpec
         "config3" -> config3,
         "config4" -> config4
       )
-      val md = """<% key1: val1 %>
+      val md = """{% key1: val1 %}
         |aaa""".stripMargin
-      val template = """<% key2: val2 %>
+      val template = """{% key2: val2 %}
         |{{config.key1}}
         |{{config.key2}}
         |{{config.key3}}
