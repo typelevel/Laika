@@ -37,6 +37,7 @@ import laika.render.HTMLWriter
 import laika.io.InputProvider
 import laika.io.Input.LazyFileInput
 import laika.io.Input
+import laika.tree.ElementTraversal
 
 object LaikaSbtPlugin extends Plugin {
 
@@ -52,6 +53,10 @@ object LaikaSbtPlugin extends Plugin {
     val encoding            = settingKey[String]("The character encoding")
 
     val strict              = settingKey[Boolean]("Indicates whether all features not part of the original Markdown or reStructuredText syntax should be switched off")
+    
+    val renderMessageLevel  = settingKey[Option[MessageLevel]]("The minimum level for system messages to be rendered to HTML")
+
+    val logMessageLevel     = settingKey[Option[MessageLevel]]("The minimum level for system messages to be logged")
     
     val markdown            = settingKey[Markdown]("The parser for Markdown files")
     
@@ -111,6 +116,12 @@ object LaikaSbtPlugin extends Plugin {
       excludeFilter       := HiddenFileFilter,
       
       encoding            := "UTF-8",
+      
+      strict              := false,
+      
+      renderMessageLevel  := None,
+      
+      logMessageLevel     := Some(Warning),
 
       docTypeMatcher      := None,
       
@@ -205,9 +216,12 @@ object LaikaSbtPlugin extends Plugin {
         val rawTree = markupParser.value fromTree inputs
         val tree = rawTree rewrite (rewriteRules.value, AutonumberContext.defaults)
 
+        logMessageLevel.value foreach { Log.systemMessages(streams.value.log, tree, _) }
         streams.value.log.info(Log.outputs(tree))
         
-        val render = ((Render as HTML) /: siteRenderers.value) { case (render, renderer) => render using renderer }
+        
+        val html = renderMessageLevel.value map (HTML withMessageLevel _) getOrElse HTML
+        val render = ((Render as html) /: siteRenderers.value) { case (render, renderer) => render using renderer }
         render from tree toTree outputTree.value
         
         streams.value.log.info("Generated site in " + targetDir)
@@ -302,6 +316,46 @@ object LaikaSbtPlugin extends Plugin {
       val (render, copy) = count(tree)
       
       s"Rendering $render HTML document${s(render)}, copying $copy static file${s(copy)} ..."
+    }
+    
+    def systemMessages (logger: Logger, tree: DocumentTree, level: MessageLevel) = {
+      
+      import laika.tree.Elements.{Info=>InfoLevel}
+      
+      def logMessage (inv: Invalid[_], path: Path) = {
+        val source = inv.fallback match {
+          case Text(text,_) => text
+          case Literal(text,_) => text
+          case LiteralBlock(text,_) => text
+          case other => other.toString
+        }
+        val text = s"$path: ${inv.message.content}\nsource: $source"
+        inv.message.level match {
+          // we do not log above warn level as the build will still succeed with invalid nodes
+          case Debug => logger.debug(text)
+          case InfoLevel => logger.info(text)
+          case Warning => logger.warn(text)
+          case Error  => logger.warn(text)
+          case Fatal => logger.warn(text) 
+        }
+      }
+      
+      def log (tree: DocumentTree): Unit = {
+        
+        def logRoot (e: ElementTraversal[_], path: Path) = {
+          val nodes = e collect { 
+            case i: Invalid[_] if i.message.level >= level => i 
+          }
+          nodes foreach { logMessage(_, path) }
+        }
+        
+        tree.documents foreach { doc => logRoot(doc.content, doc.path) }
+        tree.dynamicDocuments foreach { doc => logRoot(doc.content, doc.path) }
+        tree.subtrees foreach log
+      }
+      
+      log(tree)
+      
     }
     
   } 
