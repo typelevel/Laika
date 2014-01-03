@@ -42,6 +42,21 @@ object Build extends Build {
     
   }
   
+  object Plugins {
+    
+    import sbt.ScriptedPlugin._
+    
+    val scripted = scriptedSettings ++ Seq(
+
+      scriptedLaunchOpts ++=
+        Seq("-Xmx1024M", "-XX:MaxPermSize=256M", "-Dplugin.version=" + version.value),
+
+      scriptedBufferLog := false
+    
+    )
+    
+  }
+  
   object Publishing {
     
     lazy val mavenCentral = Seq(
@@ -122,6 +137,7 @@ object Build extends Build {
     .settings(sbtPlugin := true)
     .settings(Settings.basic: _*)
     .settings(Publishing.sbtPlugins: _*)
+    .settings(Plugins.scripted: _*)
   
     
 }
