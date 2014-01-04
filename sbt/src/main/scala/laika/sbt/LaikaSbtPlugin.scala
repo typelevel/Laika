@@ -96,12 +96,21 @@ object LaikaSbtPlugin extends Plugin {
 
     val packageSite         = taskKey[File]("Create a zip file of the site")
     
+    
+    // helping the type inferrer:
+    
+    def siteRenderer (f: HTMLWriter => RenderFunction) = f
+    def rewriteRule (rule: RewriteRule): DocumentContext => RewriteRule = _ => rule
+    def rewriteRuleFactory (factory: DocumentContext => RewriteRule) = factory
+    
   }
   
   
   object LaikaPlugin {
     import LaikaKeys._
     import Tasks._
+    import laika.directive.Directives._
+    import laika.tree.Templates.TemplateString
     
     val defaults: Seq[Setting[_]] = inConfig(Laika)(Seq(
         
@@ -207,7 +216,7 @@ object LaikaSbtPlugin extends Plugin {
       
       val cached = FileFunction.cached(cacheDir, FilesInfo.lastModified) { in =>
         
-        IO.delete(((targetDir ***) --- targetDir --- (apiDir ***)).get)
+        IO.delete(((targetDir ***) --- targetDir --- (apiDir ***) --- collectParents(apiDir)).get)
         if (!targetDir.exists) targetDir.mkdirs()
         
         streams.value.log.info("Reading files from " + sourceDirectories.value.mkString(", "))
@@ -277,6 +286,16 @@ object LaikaSbtPlugin extends Plugin {
       allFiles(provider.configDocuments) ++
       allFiles(provider.staticDocuments) ++
       (provider.subtrees flatMap collectInputFiles)
+    }
+    
+    def collectParents (file: File) = {
+      def collect (file: File, acc: Set[File]): Set[File] = {
+        file.getParentFile match {
+          case null => acc
+          case p => collect(p, acc + p)
+        }
+      }
+      collect(file, Set())
     }
     
   }
