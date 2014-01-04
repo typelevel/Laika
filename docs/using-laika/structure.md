@@ -274,7 +274,7 @@ Laika recognizes several different document types inside the
 directories it processes. The type of document is determined
 by its name, in the following way:
 
-* `default.conf`: the configuration for this directory
+* `directory.conf`: the configuration for this directory
 * `*.conf`: other configuration files (currently ignored)
 * `default.template.html`: the default template to apply to documents
   in this directory
