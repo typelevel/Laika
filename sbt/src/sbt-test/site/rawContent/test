@@ -1,0 +1,3 @@
+# test site creation with raw content enabled
+> laika:site
+$ must-mirror target/docs/site/hello.html expected.html
