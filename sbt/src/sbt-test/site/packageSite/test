@@ -1,0 +1,4 @@
+# test site creation and packaging
+> laika:packageSite
+$ must-mirror target/docs/site/hello.html expected.html
+$ exists target/docs/site-package-0.1-site.zip

@@ -1,0 +1,3 @@
+# test site creation with overridden target directory
+> laika:site
+$ must-mirror docs/site/hello.html expected.html

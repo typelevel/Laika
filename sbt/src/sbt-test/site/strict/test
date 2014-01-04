@@ -1,0 +1,3 @@
+# test site creation with strict option, disabling all custom Laika features
+> laika:site
+$ must-mirror target/docs/site/hello.html expected.html

@@ -1,0 +1,3 @@
+# test site creation with custom directives
+> laika:site
+$ must-mirror target/docs/site/hello.html expected.html

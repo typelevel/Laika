@@ -1,0 +1,3 @@
+# test site creation with default settings
+> laika:site
+$ must-mirror target/docs/site/hello.html expected.html
