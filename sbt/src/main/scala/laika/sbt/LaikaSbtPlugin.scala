@@ -38,6 +38,8 @@ import laika.io.InputProvider
 import laika.io.Input.LazyFileInput
 import laika.io.Input
 import laika.tree.ElementTraversal
+import laika.parse.markdown.html.VerbatimHTML
+import laika.parse.rst.ExtendedHTML
 
 object LaikaSbtPlugin extends Plugin {
 
@@ -109,8 +111,6 @@ object LaikaSbtPlugin extends Plugin {
   object LaikaPlugin {
     import LaikaKeys._
     import Tasks._
-    import laika.directive.Directives._
-    import laika.tree.Templates.TemplateString
     
     val defaults: Seq[Setting[_]] = inConfig(Laika)(Seq(
         
@@ -228,9 +228,9 @@ object LaikaSbtPlugin extends Plugin {
         logMessageLevel.value foreach { Log.systemMessages(streams.value.log, tree, _) }
         streams.value.log.info(Log.outputs(tree))
         
-        
         val html = renderMessageLevel.value map (HTML withMessageLevel _) getOrElse HTML
-        val render = ((Render as html) /: siteRenderers.value) { case (render, renderer) => render using renderer }
+        val renderers = siteRenderers.value :+ VerbatimHTML :+ ExtendedHTML // always install Markdown and rst extensions
+        val render = ((Render as html) /: renderers) { case (render, renderer) => render using renderer }
         render from tree toTree outputTree.value
         
         streams.value.log.info("Generated site in " + targetDir)
