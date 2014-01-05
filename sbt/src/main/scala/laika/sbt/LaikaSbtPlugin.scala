@@ -353,9 +353,7 @@ object LaikaSbtPlugin extends Plugin {
           // we do not log above warn level as the build will still succeed with invalid nodes
           case Debug => logger.debug(text)
           case InfoLevel => logger.info(text)
-          case Warning => logger.warn(text)
-          case Error  => logger.warn(text)
-          case Fatal => logger.warn(text) 
+          case Warning | Error | Fatal => logger.warn(text)
         }
       }
       
