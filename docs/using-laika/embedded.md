@@ -2,8 +2,12 @@
 Using Laika Embdedded
 =====================
 
+Apart from using Laika within sbt, you can alternatively embed it into 
+Scala applications. Laika is very lightweight. Not only does it not
+require the installation of any external tools, the core artifact
+does not even have any library dependencies.
 
-The main and most commonly used operation of Laika is a full transformation
+The main and most commonly used operation is a full transformation
 from input text written in a lightweight markup language like Markdown to 
 output formats like HTML.
  
@@ -146,6 +150,38 @@ to specify input and output directories separately:
     Transform from ReStructuredText to HTML withRootDirectory "myDocs"
 
 
+### Merging Multiple Input Directories
+
+Laika allows to merge multiple directories into a tree structure with 
+a single root. This allows to keep reusable styles and templates separately,
+a feature often called "themes" by other tools, but the support in Laika
+is fully generic and the purpose of the merge can be very different from
+classic themes.
+
+When the merged directories contain subfolders with the same name, those
+will be merged recursively. Only files with the same name in the same folder
+are treated as errors.
+
+Use the `fromDirectories` method to specify the directories to merge:
+
+    Transform from Markdown to 
+      HTML fromDirectories ("source","styles") toDirectory "target"
+
+
+### Mixing Markdown and reStructuredText
+
+Both text markup formats can be used within the same directory structure,
+including cross-linking between the two formats. The parser to be used
+is then determined by the file extension of each of the input files.
+`.md` and `.markdown` files get parsed by the Markdown parser, `.rst`
+files by the reStructuredText parser.
+
+All you have to do is pass both parsers to the API:
+
+    Transform from Markdown or ReStructuredText to 
+      HTML fromDirectory "source" toDirectory "target"
+  
+
 ### Parallel Execution
 
 When transforming a large number of files you may want to run the operations
@@ -190,4 +226,30 @@ directories:
     transform fromDirectory "source-1" toDirectory "target-1"
     
     transform fromDirectory "source-2" toDirectory "target-2"
+
+
+### Error Reporting
+
+Text markup parsers are usually very resilient. For any input they cannot
+make sense of they fall back to rendering it back as raw text. Therefore
+transformations rarely fail, but the output may not be exactly what you 
+expected.
+
+For some errors like unresolved link references or illegal directive
+attributes, Laika inserts system message nodes into the tree. By default
+these are ignored by all renderers, but you can explicitly enable
+the rendering of message nodes for a specific message level.
+
+In the HTML renderer messages are rendered as a span with the class
+`system-message` and a second class for the level (`warning`, `error`, etc.),
+so you can add CSS to easily identify these nodes in the page. This can be
+useful for your own debugging purposes, but also for applications that allow
+users to edit text with markup, giving them visual feedback for their mistakes.
+
+The following example renders all message with the level `Warning` or higher:
+
+    Transform from Markdown to 
+      HTML.withMessageLevel(Warning) fromDirectory 
+      "source" toDirectory "target"
+
 
