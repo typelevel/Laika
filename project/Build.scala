@@ -11,7 +11,7 @@ object Build extends Build {
       homepage              := Some(new URL("http://planet42.github.io/Laika/")),
       organization          := "org.planet42",
       organizationHomepage  := Some(new URL("http://www.planet42.org")),
-      description           := "Library for transforming lightweight text markup into various types of output formats, written in Scala",
+      description           := "Text Markup Transformer for sbt and Scala applications",
       startYear             := Some(2012),
       licenses              := Seq("Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
       scalaVersion          := "2.10.3",
