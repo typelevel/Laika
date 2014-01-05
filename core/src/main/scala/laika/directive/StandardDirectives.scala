@@ -48,6 +48,8 @@ trait StandardDirectives {
     import Templates.Combinators._
     import java.util.{Map => JMap, Collection => JCol}
 
+    val emptyValues = Set("",false,null,None)
+    
     (attribute(Default) ~ body(Default) ~ body("empty").optional ~ context) {
       (path, content, fallback, context) => {
         
@@ -70,7 +72,7 @@ trait StandardDirectives {
             val spans = for (value <- iterableAsScalaIterable(it)) yield rewriteContent(value)
             TemplateSpanSequence(spans.toSeq)
           }
-          case Some("") | Some(false) | Some(None) | Some(null) => rewriteFallback
+          case Some(value) if emptyValues(value) => rewriteFallback
           case Some(value)            => rewriteContent(value)
           case None                   => TemplateSpanSequence(Nil)
         }
@@ -83,6 +85,8 @@ trait StandardDirectives {
   lazy val templateIf = Templates.create("if") {
     import Templates.Combinators._
     import java.util.{Map => JMap, Collection => JCol}
+    
+    val trueStrings = Set("true","yes","on","enabled")
 
     (attribute(Default) ~ body(Default) ~ body("else").optional ~ context) {
       (path, content, fallback, context) => {
@@ -94,7 +98,8 @@ trait StandardDirectives {
           fallback map (TemplateSpanSequence(_) rewrite rewriteRules(context)) getOrElse (TemplateSpanSequence(Nil))
         
         context.resolveReference(path) match {
-          case Some(true) | Some("true") | Some("yes") | Some("on") | Some("enabled") => rewriteContent
+          case Some(true) => rewriteContent
+          case Some(s: String) if trueStrings(s) => rewriteContent
           case _ => rewriteFallback
         }
       }
