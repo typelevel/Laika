@@ -145,7 +145,29 @@ trait and thus satisfies the requirement of an inline directive.
 
 ### Directive Registration
 
-Finally all we need to do is register our directive before parsing:
+Finally all we need to do is register our directive before parsing.
+All the examples below refer to the `directive` variable we declared
+in the example in the previous section.
+
+
+sbt Plugin:
+
+    import LaikaKeys._
+    
+    // ... your standard build stuff
+    
+    LaikaPlugin.defaults
+    
+    spanDirectives in Laika += directive
+    
+This registers the directive for both Markdown and reStructuredText
+parsers. 
+
+The directive implementation itself usually requires some
+amount of logic, so is usually best kept separately in a `.scala`
+file in the `project` directory and then referenced from your
+`build.sbt`. Reusable directives are best packaged as a library
+and then added as a dependency of your build.
 
 
 Markdown:
@@ -334,8 +356,102 @@ particular directive node.
     }
 
 
+### Differences between Directive Types
+
+[Directive Types] already gave a quick overview over the available types.
+The sections [Directive Implementation] and [Directive Registration] showed
+a simple example for a span directive. Since there are three different directive
+types and different ways to register them depending on whether you use the 
+sbt plugin or Laika embedded, this section gives a final overview over the
+API differences.
+
+**Span Directives**
+
+Use: in inline elements in text markup files
+
+Implementation:
+
+    import laika.directive.Directives.Spans
+    import laika.util.Builders._
+    import laika.tree.Elements._
+    import Spans.Combinators._
+    import Spans.Converters._
+    
+    val directive = Spans.create("name") {
+      // implementation producing a `Span` element
+    }    
+    
+Registration:
+
+    // for Markdown and reStructuredText with sbt plugin:
+    spanDirectives in Laika += directive // in build.sbt
+
+    // for Markdown with Transform API or Parse API:
+    Transform from Markdown.withSpanDirectives(directive) to ...
+    Parse as Markdown.withSpanDirectives(directive) from ...
+    
+    // for reStructuredText with Transform API or Parse API:
+    Transform from ReStructuredText.withLaikaSpanDirectives(directive) to ...
+    Parse as ReStructuredText.withLaikaSpanDirectives(directive) from ...
 
 
+**Block Directives**
+
+Use: in block elements in text markup files
+
+Implementation:
+
+    import laika.directive.Directives.Blocks
+    import laika.util.Builders._
+    import laika.tree.Elements._
+    import Blocks.Combinators._
+    import Blocks.Converters._
+    
+    val directive = Blocks.create("name") {
+      // implementation producing a `Block` element
+    }    
+    
+Registration:
+
+    // for Markdown and reStructuredText with sbt plugin:
+    blockDirectives in Laika += directive // in build.sbt
+
+    // for Markdown with Transform API or Parse API:
+    Transform from Markdown.withBlockDirectives(directive) to ...
+    Parse as Markdown.withBlockDirectives(directive) from ...
+    
+    // for reStructuredText with Transform API or Parse API:
+    Transform from ReStructuredText.withLaikaBlockDirectives(directive) to ...
+    Parse as ReStructuredText.withLaikaBlockDirectives(directive) from ...
 
 
+**Template Directives**
+
+Use: in template files
+
+Implementation:
+
+    import laika.directive.Directives.Templates
+    import laika.util.Builders._
+    import laika.tree.Templates._
+    import Templates.Combinators._
+    import Templates.Converters._
+    
+    val directive = Templates.create("name") {
+      // implementation producing a `TemplateSpan` element
+    }    
+    
+Registration:
+
+    // for templates with sbt plugin:
+    templateDirectives in Laika += directive // in build.sbt
+
+    // for Markdown in Transform API:
+    Transform from Markdown to HTML fromDirectory 
+      "source" withTemplateDirectives directive toDirectory "target" 
+
+    // for reStructuredText in Transform API:
+    Transform from ReStructuredText to HTML fromDirectory 
+      "source" withTemplateDirectives directive toDirectory "target" 
+        
 

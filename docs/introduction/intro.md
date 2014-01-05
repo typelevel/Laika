@@ -2,7 +2,8 @@
 Laika
 =====
 
-Laika is a customizable and extensible toolkit for transforming lightweight markup languages to various types of output formats, written in Scala. 
+Laika is a customizable and extensible toolkit for transforming lightweight text markup and template based site generation, supporting
+Markdown and reStructuredText. For use with sbt or embedded in Scala applications, without the need for external tools.
 
 It has been designed for two primary usage scenarios:
 
@@ -23,18 +24,36 @@ you can read about her [here][laika-wikipedia].
 Getting Started
 ---------------
 
-The current version is published to Maven Central for Scala 2.10.x, 2.9.3 and 2.9.2.
+The current version is published to Maven Central for Scala 2.10.x.
+
+The sbt plugin is published to the sbt plugin repository for sbt 0.13.x.
 
 
-Adding Laika to your project with sbt:
+**Using the sbt Plugin:**
 
-    libraryDependencies += "org.planet42" %% "laika" % "0.4.0"
+Add the plugin to `project/plugins.sbt`:
 
+    addSbtPlugin("org.planet42" % "laika-sbt" % "0.5.0")
+
+Import its default settings in your project's `build.sbt`:
+
+    LaikaPlugin.defaults
+    
+Add Markdown, reStructuredText or HTML template files to `src/docs` in your
+project and run the `laika:site` task from within sbt to generate the site
+in `target/docs/site`.    
+    
+
+**Using Laika Embedded:**
+
+Adding the Laika dependency to your sbt build:
+
+    libraryDependencies += "org.planet42" %% "laika-core" % "0.5.0"
 
 Example for transforming from file to file:
 
     Transform from Markdown to HTML fromFile "hello.md" toFile "hello.html"
-    
+
 Example for transforming an entire directory of markup files:
 
     Transform from ReStructuredText to 
@@ -43,7 +62,8 @@ Example for transforming an entire directory of markup files:
 
 For further information:
 
-* Read more about standard usage in the chapter [Transformation Basics].
+* Read more about standard usage in the chapters 
+  [Using the sbt Plugin] and [Using Laika Embedded].
 
 * Try out Laika with the [Web Tool].
 
@@ -83,6 +103,9 @@ Features
 * Support for tables of contents, convenient cross-linking between 
   documents and auto-numbering of documents and sections for all 
   supported markup formats
+  
+* sbt plugin, exposing all Laika features and customization hooks
+  as sbt settings and tasks
 
 * Custom Directives (tags) for templates and text markup, with type-safe
   and concise DSL for their declaration
@@ -110,29 +133,38 @@ Features
 Road Map
 --------
 
-* sbt Plugin (0.5)
-
-* New renderers for DocBook and PDF (0.6) 
+* New renderer for PDF (0.6) 
 
 * New renderer for epub (0.7)
 
+* Integrated support for syntax highlighting in source code (0.8)
 
-After these three releases priorities depend on user demand, therefore
-no specific order has been set for these other ideas:
+* Various Markdown extensions: GitHub Markdown, MultiMarkdown, YAML headers, etc. (0.9)
 
-* Various Markdown extensions (GitHub Flavored Markdown, Multimarkdown, etc.)
 
-* Integrated support for syntax highlighting in source code blocks
+After these four releases priorities depend on user demand, therefore
+no decision has been made yet for these other ideas:
 
-* AsciiDoc support (gets requested occasionally)
+* AsciiDoc support
 
-* A Java API
+* Java API / Gradle plugin
 
 * A command line interface
 
 
 Release History
 ---------------
+
+* __0.5__ (Jan ?, 2014):
+
+    * New sbt plugin, exposing all Laika features and customization hooks as sbt tasks and settings
+    * New option to merge multiple input directories into a tree structure with a single root,
+      allowing to keep reusable styles or templates ("themes") separately
+    * New option to use Markdown and reStructuredText markup in the same input tree, including
+      cross-linking between the two formats
+    * Move to a multi-project build and rename the main artifact from `laika` to `laika-core`
+    * Upgrade to ScalaTest 2.0 and sbt 0.13
+    * Drop support for Scala 2.9.x
 
 * __0.4__ (Nov 22, 2013):
 

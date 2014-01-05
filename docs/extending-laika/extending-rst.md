@@ -282,3 +282,36 @@ This would result in the following HTML:
     For details see ticket <a href="http://www.company.com/ticket/344">344</a>.
    
 
+
+Registering Extensions with the sbt Plugin
+------------------------------------------
+
+All previous examples showed how to register directives or text roles with the Laika API.
+This section shows how to register the same elements with the sbt plugin.
+
+Block Directives:
+
+    val directive = BlockDirective("name") {
+      // implementation producing a `Block` element
+    }
+    
+    rstBlockDirectives in Laika += directive
+    
+    
+Span Directives:
+
+    val directive = SpanDirective("name") {
+      // implementation producing a `Span` element
+    }
+    
+    rstSpanDirectives in Laika += directive
+
+
+Text Roles:
+
+    val role = TextRole("name", "default") {
+      // implementation producing a `Span` element
+    }
+    
+    rstTextRoles in Laika += role
+    

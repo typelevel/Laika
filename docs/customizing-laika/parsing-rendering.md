@@ -2,7 +2,7 @@
 Separate Parsing and Rendering
 ==============================
 
-The chapter [Transformation Basics] introduced the API
+The chapter [Using Laika Embedded] introduced the API
 for performing a full transformation from text markup to
 output format. In many cases this is all you need.
 

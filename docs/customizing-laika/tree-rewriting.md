@@ -1,15 +1,21 @@
 
 Document Tree Rewriting
 =======================     
-  
-In a similar way like the API allows to adjust the rendering for individual
-node types, it also allows to rewrite the model itself, transforming parts
-of the tree to create a new tree model.
 
+The document tree in a Laika transformation is a generic representation
+of the document that does not contain any specific semantic or technical coupling to a concrete
+input or output format. This allows to add custom processing logic only
+operating on the tree itself, so it can be used with all supported input and output
+formats unchanged.
+  
+Rewriting a tree means traversing it and replacing or removing some of its nodes.
 A tree model is immutable, so rewriting always creates a new tree, while
 reusing unmodified branches for efficiency.
 
-There are two ways to perform such a rewriting:
+Using the sbt plugin you can use the `rewriteRules` setting to add custom
+rewrite rules to the transformation.
+
+Using Laika embedded there are two ways to perform such a rewrite:
 
 * Through the `ElementTraversal.rewrite` method directly on the tree model instance itself.
   The `Document` root element as well as all other container types mix in this trait.
@@ -27,19 +33,14 @@ with Laika as they support tree models consisting of `Product` instances
 (which all case classes are). 
 
 
-Using the rewrite Method
-------------------------
 
-Often this method gets called on the `Document` root element, but other container
-types support it, too, so you can also call it on elements like `Paragraph` or `ListItem`.
+How Rewrite Rules Work
+----------------------
 
-This is the signature of the rewrite method:
+A rewrite rule has the type `PartialFunction[Element,Option[Element]]`. Laika offers
+a type alias `RewriteRule` for convenience.
 
-    def rewrite (rule: PartialFunction[Element,Option[Element]]): Self
-
-Self is a type parameter which is always the node class that mixes in the `ElementTraversal`
-trait, meaning you always get back an instance of the same class you call the method on. 
-The rule is a partial function that expects an `Element` and returns an `Option[Element]`.
+The partial function expects an `Element` and returns an `Option[Element]`.
 The rules are as follows:
 
 * If the function is not defined for a particular element the old element is kept in the tree.
@@ -54,48 +55,78 @@ The rules are as follows:
 * The tree is immutable, so new instances are returned when rewriting, but unmodified
   branches are reused.
   
-* Therefore, if the rule does not affect any node, the method will simply return `this`. 
+* Therefore, if the rule does not affect any child node, the rule will simply return
+  the old root node. 
 
-For a very simple example, let's assume you want to "downgrade" all `Strong` nodes in 
-the text to `Emphasized` nodes:
+The following sections show the three ways to apply such a rule.
 
-    val doc: Document = ...
+
+
+Applying a Rewrite Rule
+-----------------------
+
+The mechanism is slightly different, depending on whether you are using the sbt
+plugin or Laika embedded in an application. In the latter case you have two
+choices, one for hooking into a full transformation, the other for operating
+on nodes obtained by a separate parse operation. All three options are described below.
+
+
+### Using the sbt Plugin
+
+The following example of an sbt build file shows how to turn each `Emphasized` node
+into a `Strong` node while processing everything else with default rules:
+
+    import LaikaKeys._
+    import laika.tree.Elements._
     
-    val newDoc = doc rewrite {
-      case Strong(content, options) => Some(Emphasized(content, options))
+    // ... your standard build stuff
+    
+    LaikaPlugin.defaults
+    
+    rewriteRules in Laika += rewriteRule { 
+      case Emphasized(content, opts) => Some(Strong(content, opts))
     }
 
-For a slightly more advanced example, let's assume you only want to downgrade `Strong`
+
+### Using the Transform API
+
+When using Laika embedded and all you want to do is to perform a full transformation 
+from some input text to some output format, the Transform API offers a hook to do this 
+in one go, as a step in the transformation process.
+
+Again we replace all `Emphasized` nodes with `Strong` nodes:
+
+    Transform from ReStructuredText to HTML usingRule {
+      case Emphasized(content, opts) => Some(Strong(content, opts))
+    } fromFile "hello.rst" toFile "hello.html"
+
+
+### Working with the Tree Model
+
+The final option is for splitting the parse and render operations
+and working with the tree model directly between these operations.
+For obtaining a document tree see [Separate Parsing and Rendering].
+
+Often a rule gets applied to the whole `Document` instance, but other container
+types support rewriting, too, so you can also apply it to elements like `Paragraph` or `ListItem`.
+
+Once again we are turning all `Emphasized` nodes in the text to `Strong` nodes:
+
+    val doc: Document = ... // obtained through the Parse API
+    
+    val newDoc = doc rewrite {
+      case Emphasized(content, opts) => Some(Strong(content, opts))
+    }
+
+For a slightly more advanced example, let's assume you only want to replace `Emphasized`
 nodes inside headers. To accomplish this you need to nest a rewrite operation
 inside another one:
 
     val newDoc = doc rewrite {
       case h: Header => Some(h rewrite {
-        case Strong(content, options) => Some(Emphasized(content, options))
+        case Emphasized(content, opts) => Some(Strong(content, opts))
       })
     }
-
-
-Using the Transform API
------------------------
-
-The examples in the previous example show how to rewrite the tree if you have
-access to a `Document` or other container element instance. When all you want
-to do is to perform a full transformation from some input text to some output
-format, this would require to split the parse and render operations to get hold
-of the `Document` instance. Therefore the Transform API offers a hook to do
-this in one go, as a step in the transformation process.
-
-The rules and principles for defining a rewrite rule are the same as for using
-the `rewrite` method directly, as described in the previous section.
-
-To use the same example, this is how you can replace all `Strong` nodes with
-`Emphasized` nodes:
-
-    Transform from ReStructuredText to HTML usingRule {
-      case Strong(content, options) => Some(Emphasized(content, options))
-    } fromFile "hello.rst" toFile "hello.html"
-
 
 
 [Kiama]: http://code.google.com/p/kiama/wiki/UserManual

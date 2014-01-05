@@ -78,7 +78,7 @@ To get an overview over Markdown syntax, these documents may be used:
 * For trying out small snippets of Markdown and checking how the various existing Markdown implementations
   handle them, the [Babelmark] tool can be used.  
 
-* For using Markdown in Laika, the [Transformation Basics] page should answer most of your questions.
+* For using Markdown in Laika, the [Using Laika Embedded] page should answer most of your questions.
 
 * For the special treatment of verbatim HTML in Laika, see the following section.
 
@@ -151,7 +151,7 @@ To get started with reStructuredText, these resources may be used:
 
 * An [online tool][rst tool] for trying out small snippets of reStructuredText.  
 
-* [Transformation Basics] for using reStructuredText in Laika.
+* [Using Laika Embedded] for using reStructuredText in Laika.
 
 * The following sections below for an overview on how to implement extensions for reStructuredText
 

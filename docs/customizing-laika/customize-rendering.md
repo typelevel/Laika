@@ -19,14 +19,70 @@ API for a specific output format.
 Creating a function that expects a writer instance and returns the actual custom
 render function in form of a partial function allows to 'capture' the writer
 in a concise way like the examples below will show.
-    
+  
+  
+  
+Defining a Render Function
+--------------------------
 
-
-Using the Transform API
------------------------
+This section explains how a render function is implemented and the subsequent sections
+show the three different ways to register such a function.
 
 In the following example only the HTML output for emphasized text will be modified,
 adding a specific style class:
+
+    val open = """<em class="big">"""
+    val close = "</em>"
+
+    val renderer: HTMLWriter => RenderFunction = { out => 
+      { case Emphasized(content, _) => out << open << content << close } 
+    }
+
+For all node types where the partial function is not defined, the default renderer
+will be used.
+
+Multiple custom renderers can be specified for the same transformation, they will be 
+tried in the order you added them, falling back to the default in case none is defined 
+for a specific node.
+
+The `content` value above is of type `Seq[Span]`. `<<` and other methods of the
+`HTMLWriter` API are overloaded and accept `String`, `Element` or `Seq[Element]` 
+as a parameter, with `Element` being the abstract base type of all tree nodes.
+This way rendering child elements can be delegated to other renderers, either another
+custom renderer or the default. 
+
+In almost all cases, a custom renderer should not render
+the children of a node passed to the function itself.
+
+
+
+Registering a Render Function
+-----------------------------
+
+The mechanism is slightly different, depending on whether you are using the sbt
+plugin or Laika embedded in an application. In the latter case you have two
+choices, one for performing a full transformation, the other for a separate
+render operation. All three options are described below.
+
+
+### Using the sbt Plugin
+
+In `build.sbt`:
+
+    import LaikaKeys._
+    import laika.tree.Elements._
+    
+    // ... your standard build stuff
+    
+    LaikaPlugin.defaults
+    
+    siteRenderers in Laika += siteRenderer { out => {
+      case Emphasized(content, _) => 
+          out << """<em class="big">""" << content << "</em>" 
+    }}
+    
+    
+### Using the Transform API
 
     val open = """<em class="big">"""
     val close = "</em>"
@@ -35,30 +91,8 @@ adding a specific style class:
       { case Emphasized(content, _) => out << open << content << close } 
     } fromFile "hello.md" toFile "hello.html"
     
-For HTML `out` is of type `HTMLWriter` and `<<` is one of the methods to append text.
 
-For all node types where the partial function is not defined, the default renderer
-will be used.
-
-Multiple custom renderers can be specified, they will be tried in the order you added
-them, falling back to the default in case none is defined for a specific node.
-
-The `content` value above is of type `Seq[Span]`. `<<` and other methods of the
-`HTMLWriter` API are overloaded and accept `String`, `Element` or `Seq[Element]` 
-as a parameter, with `Element` being the abstract base type of all tree nodes.
-This way rendering child elements can be delegated to other renderers, either another
-custom renderer or the default. In almost all cases, a custom renderer should not render
-the children of a node passed to the function itself.
-
-
-Using the Render API
---------------------
-
-The principles are the same as described for the Transform API above, in case you
-skipped the previous section. 
-
-The syntax is very similar, applying the same renderer as in the example above
-with the Render API looks like this:
+### Using the Render API
 
     val doc: Document = ...
     
@@ -69,7 +103,8 @@ with the Render API looks like this:
       { case Emphasized(content, _) => out << open << content << close } 
     } from doc toString
     
-    
+
+
 The Writer APIs
 ---------------
 

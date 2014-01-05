@@ -1,5 +1,5 @@
 
-Using Laika with sbt
+Using the sbt Plugin
 ====================
 
 The core of the Laika toolkit does not depend on sbt in any way, and therefore comes with a plugin
@@ -209,8 +209,12 @@ it is most comfortable to add the following imports to the build:
 
 ### Custom Renderers
 
+A custom renderer allows to override the generated output for one or more specific node
+types, while falling back to the default renderers for all other node types.
+
 The `siteRenderers` setting is of type `Seq[HTMLWriter => RenderFunction]` where `RenderFunction`
-is a type alias for `PartialFunction[Element,Unit]`. By default this setting is empty, meaning
+is a type alias for `PartialFunction[Element,Unit]`. `Element` is the base trait for all nodes
+in a document tree. By default the `siteRenderers` setting is empty, meaning
 Laika will use the default renderers for all node types. 
 
 The following simple example shows how you can add a style to the renderer for
@@ -218,7 +222,7 @@ the `<em>` tag:
 
     siteRenderers in Laika += siteRenderer { out => {
       case Emphasized(content, _) => 
-          out << """<em class="foo">""" << content << "</em>" 
+          out << """<em class="big">""" << content << "</em>" 
     }}
     
 For more details see the chapter [Customizing Renderers].
