@@ -186,7 +186,7 @@ object LaikaSbtPlugin extends Plugin {
                                     target.value / (art.name + "-" + projectID.value.revision + classifier + "." + art.extension)
                                   }
       
-    ))
+    )) :+ (cleanFiles += (target in Laika).value)
     
   }
   
