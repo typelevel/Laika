@@ -237,7 +237,7 @@ object DirectiveParsers {
           new DirectiveContextBase(parts, docContext) with Blocks.DirectiveContext {
             val parser = new Blocks.Parser {
               def apply (source: String): Seq[Block] = parseNestedBlocks(source, nestLevel)
-              def parseInline (source: String): Seq[Span] = parseInline(source)
+              def parseInline (source: String): Seq[Span] = BlockDirectives.this.parseInline(source)
             }
           }
         }
