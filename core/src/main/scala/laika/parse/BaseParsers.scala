@@ -100,11 +100,9 @@ trait BaseParsers extends Parsers {
   
   
   
-  implicit def toParserOps [A] (parser: Parser[A]) = new ParserOps(parser)
-  
   /** Provides additional combinator methods to parsers via implicit conversion.
    */
-  class ParserOps [A] (parser: Parser[A]) {
+  implicit class ParserOps [A] (parser: Parser[A]) {
     
     /** A parser combinator that applies a function to the result producing an `Either`
      *  where `Left` is interpreted as failure. It is an alternative to `^?` for scenarios 
@@ -130,3 +128,6 @@ trait BaseParsers extends Parsers {
   
   
 }
+
+
+

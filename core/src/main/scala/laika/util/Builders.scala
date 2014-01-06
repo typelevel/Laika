@@ -61,12 +61,10 @@ object Builders {
   }
     
     
-  implicit def toBuilderOps [M[_],A](a: M[A])(implicit fcb: CanBuild[M]) = new BuilderOps[M,A](a)(fcb)
-  
   /** Allows to use the `~` combinator function on all classes
    *  that have a matching `CanBuild` type class.
    */
-  class BuilderOps [M[_],A](ma:M[A])(implicit fcb: CanBuild[M]) {
+  implicit class BuilderOps [M[_],A](ma:M[A])(implicit fcb: CanBuild[M]) {
    
     def ~ [B](mb: M[B]): Builder[M]#CanBuild2[A,B] = { 
       val b = new Builder(fcb)
