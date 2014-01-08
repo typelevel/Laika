@@ -1,0 +1,14 @@
+
+Main focus for this release is a new sbt plugin for site generation.
+
+New features and changes:
+
+* [New sbt plugin](http://planet42.github.io/Laika/using-laika/sbt.html), exposing all Laika 
+  features and customization hooks as sbt tasks and settings
+* New option to merge multiple input directories into a tree structure with a single root,
+  allowing to keep reusable styles or templates ("themes") separately
+* New option to use Markdown and reStructuredText markup in the same input tree, including
+  cross-linking between the two formats
+* Move to a multi-project build and rename the main artifact from `laika` to `laika-core`
+* Upgrade to ScalaTest 2.0 and sbt 0.13
+* Drop support for Scala 2.9.x
