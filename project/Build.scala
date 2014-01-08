@@ -76,14 +76,6 @@ object Build extends Build {
       },
 
       pomExtra := (
-        <url>https://github.com/planet42/Laika</url>
-        <licenses>
-          <license>
-            <name>Apache 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
-            <distribution>repo</distribution>
-          </license>
-        </licenses>
         <scm>
           <url>https://github.com/planet42/Laika.git</url>
           <connection>scm:git:https://github.com/planet42/Laika.git</connection>
