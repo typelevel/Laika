@@ -1,6 +1,6 @@
 
-Implementing a Directive
-========================
+Directives
+==========
 
 Directives are Laika's extension hook for both, templates and text markup.
 They allow to add new tag-like constructs without touching the existing parsers.
@@ -150,7 +150,7 @@ All the examples below refer to the `directive` variable we declared
 in the example in the previous section.
 
 
-sbt Plugin:
+**sbt Plugin**:
 
     import LaikaKeys._
     
@@ -170,7 +170,7 @@ file in the `project` directory and then referenced from your
 and then added as a dependency of your build.
 
 
-Markdown:
+**Markdown**:
 
     Transform from Markdown.withSpanDirectives(directive) to 
       HTML fromFile "hello.md" toFile "hello.html"   
@@ -179,7 +179,7 @@ The `directive` variable refers to the instance we created above.
 We can now use our `ticket` directive in Markdown files!
 
 
-reStructuredText:
+**reStructuredText**:
 
     Transform from ReStructuredText.withLaikaSpanDirectives(directive) to 
       HTML fromFile "hello.md" toFile "hello.html"  
@@ -189,7 +189,7 @@ as reStructuredText comes with its own concept of directives which is only
 supported in the reStructuredText parser.
 
 
-Templates:
+**Templates**:
 
     Transform from Markdown to HTML fromDirectory 
       "source" withTemplateDirectives directive toDirectory "target" 
@@ -365,7 +365,8 @@ types and different ways to register them depending on whether you use the
 sbt plugin or Laika embedded, this section gives a final overview over the
 API differences.
 
-**Span Directives**
+
+### Span Directives
 
 Use: in inline elements in text markup files
 
@@ -395,7 +396,7 @@ Registration:
     Parse as ReStructuredText.withLaikaSpanDirectives(directive) from ...
 
 
-**Block Directives**
+### Block Directives
 
 Use: in block elements in text markup files
 
@@ -425,7 +426,7 @@ Registration:
     Parse as ReStructuredText.withLaikaBlockDirectives(directive) from ...
 
 
-**Template Directives**
+### Template Directives
 
 Use: in template files
 

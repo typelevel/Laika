@@ -2,15 +2,15 @@
 Laika
 =====
 
-Laika is a customizable and extensible toolkit for transforming lightweight text markup and template based site generation, supporting
-Markdown and reStructuredText. For use with sbt or embedded in Scala applications, without the need for external tools.
+Laika is a customizable and extensible toolkit for transforming lightweight text markup and template based site generation.
 
 It has been designed for two primary usage scenarios:
 
 * Embedded use (e.g. web applications that allow user input in one of the supported markup syntaxes)
 
-* As a standalone tool (e.g. as part of an sbt build that produces the project's documentation)
+* As a standalone tool (e.g. using Laika's sbt plugin to produce the project's documentation)
 
+Laika does not require the installation of any external tools.
 
 It is Open Source under the Apache 2.0 License.
 
@@ -29,7 +29,7 @@ The current version is published to Maven Central for Scala 2.10.x.
 The sbt plugin is published to the sbt plugin repository for sbt 0.13.x.
 
 
-**Using the sbt Plugin:**
+### Using the sbt Plugin
 
 Add the plugin to `project/plugins.sbt`:
 
@@ -44,7 +44,7 @@ project and run the `laika:site` task from within sbt to generate the site
 in `target/docs/site`.    
     
 
-**Using Laika Embedded:**
+### Using Laika Embedded
 
 Adding the Laika dependency to your sbt build:
 
@@ -60,10 +60,11 @@ Example for transforming an entire directory of markup files:
       HTML fromDirectory "source" toDirectory "target"
 
 
-For further information:
+### Other Resources
 
 * Read more about standard usage in the chapters 
-  [Using the sbt Plugin] and [Using Laika Embedded].
+  [Using the sbt Plugin][../using-laika/sbt.md:Using the sbt Plugin]
+  or [Using Laika Embedded][../using-laika/embedded.md:Using Laika Embedded].
 
 * Try out Laika with the [Web Tool].
 
@@ -155,7 +156,7 @@ no decision has been made yet for these other ideas:
 Release History
 ---------------
 
-* __0.5__ (Jan ?, 2014):
+* __0.5__ (Jan 9, 2014):
 
     * New sbt plugin, exposing all Laika features and customization hooks as sbt tasks and settings
     * New option to merge multiple input directories into a tree structure with a single root,

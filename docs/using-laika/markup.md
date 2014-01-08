@@ -34,7 +34,7 @@ The extensions are documented in their respective section linked to from
 the list below:
 
 * A set of [Standard Template Directives]
-* [Custom Directives][../extending-laika/directive.md:Implementing a Directive] for adding new constructs to the
+* [Custom Directives][../extending-laika/directive.md:Directives] for adding new constructs to the
   parser without modifying it
 * [Automatic Section Ids][Document Sections] (needed for cross linking)
 * [Document Fragments] that can be rendered separately from the main document content

@@ -7,23 +7,10 @@ of the document that does not contain any specific semantic or technical couplin
 input or output format. This allows to add custom processing logic only
 operating on the tree itself, so it can be used with all supported input and output
 formats unchanged.
-  
+
 Rewriting a tree means traversing it and replacing or removing some of its nodes.
 A tree model is immutable, so rewriting always creates a new tree, while
 reusing unmodified branches for efficiency.
-
-Using the sbt plugin you can use the `rewriteRules` setting to add custom
-rewrite rules to the transformation.
-
-Using Laika embedded there are two ways to perform such a rewrite:
-
-* Through the `ElementTraversal.rewrite` method directly on the tree model instance itself.
-  The `Document` root element as well as all other container types mix in this trait.
-
-* Through the Transform API
-
-The latter is convenient if you otherwise have no need to separate the parse and 
-render operation and just want to add a transformation before rendering.
 
 The purpose of this facility is to provide a way to support basic tree rewriting
 needs without introducing additional dependencies. If you have more sophisticated

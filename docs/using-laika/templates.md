@@ -163,7 +163,7 @@ semantics of this particular directive are explained in the section
 [Standard Template Directives].
 
 You can either use one of the built-in directives or create your own as
-described in [Implementing a Directive][../extending-laika/directive.md:Implementing a Directive].
+described in [Directives][../extending-laika/directive.md:Directives].
 
 
 

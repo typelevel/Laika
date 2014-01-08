@@ -1,11 +1,11 @@
 
-Using Laika Embdedded
-=====================
+Using Laika Embedded
+====================
 
 Apart from using Laika within sbt, you can alternatively embed it into 
-Scala applications. Laika is very lightweight. Not only does it not
-require the installation of any external tools, the core artifact
-does not even have any library dependencies.
+Scala applications. Laika is very lightweight, it does not
+require the installation of any external tools and the core artifact
+has only very few library dependencies.
 
 The main and most commonly used operation is a full transformation
 from input text written in a lightweight markup language like Markdown to 
@@ -150,7 +150,7 @@ to specify input and output directories separately:
     Transform from ReStructuredText to HTML withRootDirectory "myDocs"
 
 
-### Merging Multiple Input Directories
+### Merging Multiple Input Directories
 
 Laika allows to merge multiple directories into a tree structure with 
 a single root. This allows to keep reusable styles and templates separately,
@@ -180,7 +180,7 @@ All you have to do is pass both parsers to the API:
 
     Transform from Markdown or ReStructuredText to 
       HTML fromDirectory "source" toDirectory "target"
-  
+
 
 ### Parallel Execution
 

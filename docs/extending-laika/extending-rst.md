@@ -21,7 +21,7 @@ of directives. This would give you the following advantages:
 * The directive may also be used in templates
 
 For details on these alternative directive types see 
-[Implementing a Directive][directive.md:Implementing a Directive].
+[Directives][directive.md:Directives].
 
 
 Feature Overview
