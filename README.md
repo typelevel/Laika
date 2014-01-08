@@ -1,6 +1,9 @@
 ![Laika](http://planet42.github.io/Laika/img/laika-top.png)
 
-Customizable and extensible toolkit for transforming lightweight text markup into various types of output formats, written in Scala.
+Customizable and extensible toolkit for transforming lightweight text markup and template based site generation.
+
+Supporting Markdown and reStructuredText as input and HTML as output, through its integrated
+sbt plugin or embedded in Scala applications, without the need to install external tools.
 
 Open Source under the Apache 2.0 License.
 
@@ -8,13 +11,31 @@ Open Source under the Apache 2.0 License.
 Getting Started
 ---------------
 
-The current version is published to Maven Central for Scala 2.10.x, 2.9.3 and 2.9.2.
+The main artifact is published to Maven Central for Scala 2.10.x.
+
+The sbt plugin is published to the sbt plugin repository for sbt 0.13.x.
 
 
-Adding Laika to your project with sbt:
+**Using the sbt Plugin:**
 
-    libraryDependencies += "org.planet42" %% "laika" % "0.4.0"
+Add the plugin to `project/plugins.sbt`:
 
+    addSbtPlugin("org.planet42" % "laika-sbt" % "0.5.0")
+
+Import its default settings in your project's `build.sbt`:
+
+    LaikaPlugin.defaults
+    
+Add Markdown, reStructuredText or HTML template files to `src/docs` in your
+project and run the `laika:site` task from within sbt to generate the site
+in `target/docs/site`.    
+    
+
+**Using Laika Embedded:**
+
+Adding the Laika dependency to your sbt build:
+
+    libraryDependencies += "org.planet42" %% "laika-core" % "0.5.0"
 
 Example for transforming from file to file:
 
