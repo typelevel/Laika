@@ -123,7 +123,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Templates$$EmbeddedRoot.html"><span class="name">EmbeddedRoot</span></a><span class="params">(<span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a>]</span>, <span name="options">options: <a href="Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol">laika.tree.Elements.NoOpt</span></span>)</span><span class="result"> extends <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="Templates$$TemplateSpan.html" class="extype" name="laika.tree.Templates.TemplateSpan">TemplateSpan</a> with <a href="Elements$$BlockContainer.html" class="extype" name="laika.tree.Elements.BlockContainer">BlockContainer</a>[<a href="Templates$$EmbeddedRoot.html" class="extype" name="laika.tree.Templates.EmbeddedRoot">EmbeddedRoot</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="Templates$$EmbeddedRoot.html"><span class="name">EmbeddedRoot</span></a><span class="params">(<span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a>]</span>, <span name="indent">indent: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">0</span></span>, <span name="options">options: <a href="Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol">laika.tree.Elements.NoOpt</span></span>)</span><span class="result"> extends <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="Templates$$TemplateSpan.html" class="extype" name="laika.tree.Templates.TemplateSpan">TemplateSpan</a> with <a href="Elements$$BlockContainer.html" class="extype" name="laika.tree.Elements.BlockContainer">BlockContainer</a>[<a href="Templates$$EmbeddedRoot.html" class="extype" name="laika.tree.Templates.EmbeddedRoot">EmbeddedRoot</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       <p class="comment cmt">The root element of a document tree (originating from text markup) inside a template.</p>
@@ -168,7 +168,7 @@
       </h4>
       <p class="comment cmt">A context reference specifically for use in template documents.</p>
     </li><li name="laika.tree.Templates.TemplateDocument" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="TemplateDocumentextendsProductwithSerializable"></a>
+      <a id="TemplateDocumentextendsDocuments.NavigatablewithProductwithSerializable"></a>
       <a id="TemplateDocument:TemplateDocument"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -176,7 +176,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Templates$$TemplateDocument.html"><span class="name">TemplateDocument</span></a><span class="params">(<span name="path">path: <a href="Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>, <span name="content">content: <a href="Templates$$TemplateRoot.html" class="extype" name="laika.tree.Templates.TemplateRoot">TemplateRoot</a></span>, <span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span> = <span class="defval" name="com.typesafe.config.ConfigFactory.empty()">...</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="Templates$$TemplateDocument.html"><span class="name">TemplateDocument</span></a><span class="params">(<span name="path">path: <a href="Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>, <span name="content">content: <a href="Templates$$TemplateRoot.html" class="extype" name="laika.tree.Templates.TemplateRoot">TemplateRoot</a></span>, <span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span> = <span class="defval" name="com.typesafe.config.ConfigFactory.empty()">...</span></span>)</span><span class="result"> extends <a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       <p class="comment cmt">A template document containing the element tree of a parsed template and its extracted
@@ -190,7 +190,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Templates$$TemplateElement.html"><span class="name">TemplateElement</span></a><span class="params">(<span name="element">element: <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="options">options: <a href="Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol">laika.tree.Elements.NoOpt</span></span>)</span><span class="result"> extends <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="Templates$$TemplateSpan.html" class="extype" name="laika.tree.Templates.TemplateSpan">TemplateSpan</a> with <a href="ElementTraversal.html" class="extype" name="laika.tree.ElementTraversal">ElementTraversal</a>[<a href="Templates$$TemplateElement.html" class="extype" name="laika.tree.Templates.TemplateElement">TemplateElement</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="Templates$$TemplateElement.html"><span class="name">TemplateElement</span></a><span class="params">(<span name="element">element: <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="indent">indent: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">0</span></span>, <span name="options">options: <a href="Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol">laika.tree.Elements.NoOpt</span></span>)</span><span class="result"> extends <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="Templates$$TemplateSpan.html" class="extype" name="laika.tree.Templates.TemplateSpan">TemplateSpan</a> with <a href="ElementTraversal.html" class="extype" name="laika.tree.ElementTraversal">ElementTraversal</a>[<a href="Templates$$TemplateElement.html" class="extype" name="laika.tree.Templates.TemplateElement">TemplateElement</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       <p class="comment cmt">Wraps a generic element that otherwise could not be placed directly into
@@ -477,15 +477,15 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="laika.tree.Templates#rewriteRules" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="rewriteRules(context:laika.tree.Documents.DocumentContext):PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]"></a>
-      <a id="rewriteRules(DocumentContext):PartialFunction[Element,Option[Element]]"></a>
+      <a id="rewriteRules(context:laika.tree.Documents.DocumentContext):laika.tree.Elements.RewriteRule"></a>
+      <a id="rewriteRules(DocumentContext):RewriteRule"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">rewriteRules</span><span class="params">(<span name="context">context: <a href="Documents$$DocumentContext.html" class="extype" name="laika.tree.Documents.DocumentContext">DocumentContext</a></span>)</span><span class="result">: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Option">Option</span>[<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>]]</span>
+        <span class="name">rewriteRules</span><span class="params">(<span name="context">context: <a href="Documents$$DocumentContext.html" class="extype" name="laika.tree.Documents.DocumentContext">DocumentContext</a></span>)</span><span class="result">: <a href="Elements$.html#RewriteRule=PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]" class="extmbr" name="laika.tree.Elements.RewriteRule">RewriteRule</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">The default rewrite rules for template documents,

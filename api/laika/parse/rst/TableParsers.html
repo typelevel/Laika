@@ -286,7 +286,7 @@
       <a id="ParserOps[A]:ParserOps[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">implicit </span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
@@ -1524,6 +1524,22 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>RegexParsers → Parsers</dd></dl></div>
+    </li><li name="laika.parse.MarkupParsers#refName" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="refName:MarkupParsers.this.Parser[String]"></a>
+      <a id="refName:(TableParsers.this)#Parser[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">refName</span><span class="result">: (<a href="" class="extype" name="laika.parse.rst.TableParsers">TableParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[<span class="extype" name="java.lang.String">String</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Parses a simple reference name that only allows alphanumerical characters
+ and the punctuation characters <code>-</code>, <code>_</code>, <code>.</code>, <code>:</code>, <code>+</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a simple reference name that only allows alphanumerical characters
+ and the punctuation characters <code>-</code>, <code>_</code>, <code>.</code>, <code>:</code>, <code>+</code>.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../MarkupParsers.html" class="extype" name="laika.parse.MarkupParsers">MarkupParsers</a></dd></dl></div>
     </li><li name="scala.util.parsing.combinator.RegexParsers#regex" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="regex(r:scala.util.matching.Regex):RegexParsers.this.Parser[String]"></a>
       <a id="regex(Regex):(TableParsers.this)#Parser[String]"></a>
@@ -1682,16 +1698,16 @@
  it consist of whitespace only or some text.</p><div class="fullcomment"><div class="comment cmt"><p>Parses the rest of the line from the current input offset no matter whether
  it consist of whitespace only or some text. Does not include the eol character(s).
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../BlockParsers.html" class="extype" name="laika.parse.BlockParsers">BlockParsers</a></dd></dl></div>
-    </li><li name="laika.parse.BlockParsers#root" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="root:BlockParsers.this.Parser[laika.tree.Elements.RootElement]"></a>
-      <a id="root:(TableParsers.this)#Parser[RootElement]"></a>
+    </li><li name="laika.parse.BlockParsers#rootElement" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rootElement:BlockParsers.this.Parser[laika.tree.Elements.RootElement]"></a>
+      <a id="rootElement:(TableParsers.this)#Parser[RootElement]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">root</span><span class="result">: (<a href="" class="extype" name="laika.parse.rst.TableParsers">TableParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[<a href="../../tree/Elements$$RootElement.html" class="extype" name="laika.tree.Elements.RootElement">RootElement</a>]</span>
+        <span class="name">rootElement</span><span class="result">: (<a href="" class="extype" name="laika.parse.rst.TableParsers">TableParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[<a href="../../tree/Elements$$RootElement.html" class="extype" name="laika.tree.Elements.RootElement">RootElement</a>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses a full document, delegating most of the work to the <code>topLevelBlock</code> parser.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a full document, delegating most of the work to the <code>topLevelBlock</code> parser.
@@ -1765,19 +1781,6 @@
  start of the line.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a single text line from the current input offset (which may not be at the
  start of the line. Fails for blank lines. Does not include the eol character(s).
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../BlockParsers.html" class="extype" name="laika.parse.BlockParsers">BlockParsers</a></dd></dl></div>
-    </li><li name="laika.parse.BaseParsers#toParserOps" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toParserOps[A](parser:BaseParsers.this.Parser[A]):BaseParsers.this.ParserOps[A]"></a>
-      <a id="toParserOps[A]((TableParsers.this)#Parser[A]):(TableParsers.this)#ParserOps[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toParserOps</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="parser">parser: (<a href="" class="extype" name="laika.parse.rst.TableParsers">TableParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[<span class="extype" name="laika.parse.BaseParsers.toParserOps.A">A</span>]</span>)</span><span class="result">: (<a href="" class="extype" name="laika.parse.rst.TableParsers">TableParsers</a>.this)#<span class="extype" name="laika.parse.BaseParsers.ParserOps">ParserOps</span>[<span class="extype" name="laika.parse.BaseParsers.toParserOps.A">A</span>]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../BaseParsers.html" class="extype" name="laika.parse.BaseParsers">BaseParsers</a></dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>

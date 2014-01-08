@@ -84,10 +84,10 @@ Transform from rst to HTML fromFile <span class="lit">"hello.rst"</span> toFile 
  be passed to the corresponding function:</p><pre><span class="kw">def</span> nonNegativeInt (value: <span class="std">String</span>) =
   <span class="kw">try</span> {
     <span class="kw">val</span> num = value.toInt
-    Either.cond(num &gt;= <span class="num">0</span>, num, <span class="lit">"not a positive int: "</span> + num)
+    Either.cond(num &gt;= <span class="num">0</span>, num, s<span class="lit">"not a positive int: $num"</span>)
   }
   <span class="kw">catch</span> {
-    <span class="kw">case</span> e: NumberFormatException <span class="kw">=&gt;</span> Left(<span class="lit">"not a number: "</span> + value)
+    <span class="kw">case</span> e: NumberFormatException <span class="kw">=&gt;</span> Left(s<span class="lit">"not a number: $value"</span>)
   }
 
 <span class="kw">case</span> <span class="kw">class</span> Message (severity: <span class="std">Int</span>,

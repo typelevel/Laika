@@ -311,19 +311,20 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="laika.tree.Documents.DocumentTree#name" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="laika.tree.Documents.Navigatable#name" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="name:String"></a>
       <a id="name:String"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
         <span class="name">name</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       </h4>
-      <p class="shortcomment cmt">The local name of this tree.</p>
+      <p class="shortcomment cmt">The local name of this navigatable.</p><div class="fullcomment"><div class="comment cmt"><p>The local name of this navigatable.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a></dd></dl></div>
     </li><li name="laika.tree.Documents.DocumentTree#navigatables" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="navigatables:Seq[laika.tree.Documents.Navigatable]"></a>
       <a id="navigatables:Seq[Navigatable]"></a>
@@ -394,43 +395,43 @@
       </h4>
       <p class="shortcomment cmt">the full, absolute path of this (virtual) document tree</p><div class="fullcomment"><div class="comment cmt"><p>the full, absolute path of this (virtual) document tree</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a> → <a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a></dd></dl></div>
     </li><li name="laika.tree.Documents.DocumentTree#rewrite" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="rewrite(customRules:Seq[laika.tree.Documents.DocumentContext=&gt;PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]],autonumbering:laika.tree.Documents.AutonumberContext):laika.tree.Documents.DocumentTree"></a>
-      <a id="rewrite(Seq[(DocumentContext)⇒PartialFunction[Element,Option[Element]]],AutonumberContext):DocumentTree"></a>
+      <a id="rewrite(customRules:Seq[laika.tree.Documents.DocumentContext=&gt;laika.tree.Elements.RewriteRule],autonumbering:laika.tree.Documents.AutonumberContext):laika.tree.Documents.DocumentTree"></a>
+      <a id="rewrite(Seq[(DocumentContext)⇒RewriteRule],AutonumberContext):DocumentTree"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">rewrite</span><span class="params">(<span name="customRules">customRules: <span class="extype" name="scala.Seq">Seq</span>[(<a href="Documents$$DocumentContext.html" class="extype" name="laika.tree.Documents.DocumentContext">DocumentContext</a>) ⇒ <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Option">Option</span>[<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>]]]</span>, <span name="autonumbering">autonumbering: <a href="Documents$$AutonumberContext.html" class="extype" name="laika.tree.Documents.AutonumberContext">AutonumberContext</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
+        <span class="name">rewrite</span><span class="params">(<span name="customRules">customRules: <span class="extype" name="scala.Seq">Seq</span>[(<a href="Documents$$DocumentContext.html" class="extype" name="laika.tree.Documents.DocumentContext">DocumentContext</a>) ⇒ <a href="Elements$.html#RewriteRule=PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]" class="extmbr" name="laika.tree.Elements.RewriteRule">RewriteRule</a>]</span>, <span name="autonumbering">autonumbering: <a href="Documents$$AutonumberContext.html" class="extype" name="laika.tree.Documents.AutonumberContext">AutonumberContext</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Returns a new tree, with all the document models contained in it
  rewritten based on the specified rewrite rules and autonumbering context.</p>
     </li><li name="laika.tree.Documents.DocumentTree#rewrite" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="rewrite(customRule:laika.tree.Documents.DocumentContext=&gt;PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]],autonumbering:laika.tree.Documents.AutonumberContext):laika.tree.Documents.DocumentTree"></a>
-      <a id="rewrite((DocumentContext)⇒PartialFunction[Element,Option[Element]],AutonumberContext):DocumentTree"></a>
+      <a id="rewrite(customRule:laika.tree.Documents.DocumentContext=&gt;laika.tree.Elements.RewriteRule,autonumbering:laika.tree.Documents.AutonumberContext):laika.tree.Documents.DocumentTree"></a>
+      <a id="rewrite((DocumentContext)⇒RewriteRule,AutonumberContext):DocumentTree"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">rewrite</span><span class="params">(<span name="customRule">customRule: (<a href="Documents$$DocumentContext.html" class="extype" name="laika.tree.Documents.DocumentContext">DocumentContext</a>) ⇒ <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Option">Option</span>[<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>]]</span>, <span name="autonumbering">autonumbering: <a href="Documents$$AutonumberContext.html" class="extype" name="laika.tree.Documents.AutonumberContext">AutonumberContext</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
+        <span class="name">rewrite</span><span class="params">(<span name="customRule">customRule: (<a href="Documents$$DocumentContext.html" class="extype" name="laika.tree.Documents.DocumentContext">DocumentContext</a>) ⇒ <a href="Elements$.html#RewriteRule=PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]" class="extmbr" name="laika.tree.Elements.RewriteRule">RewriteRule</a></span>, <span name="autonumbering">autonumbering: <a href="Documents$$AutonumberContext.html" class="extype" name="laika.tree.Documents.AutonumberContext">AutonumberContext</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Returns a new tree, with all the document models contained in it
  rewritten based on the specified rewrite rule and autonumbering context.</p>
     </li><li name="laika.tree.Documents.DocumentTree#rewrite" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="rewrite(customRule:laika.tree.Documents.DocumentContext=&gt;PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]):laika.tree.Documents.DocumentTree"></a>
-      <a id="rewrite((DocumentContext)⇒PartialFunction[Element,Option[Element]]):DocumentTree"></a>
+      <a id="rewrite(customRule:laika.tree.Documents.DocumentContext=&gt;laika.tree.Elements.RewriteRule):laika.tree.Documents.DocumentTree"></a>
+      <a id="rewrite((DocumentContext)⇒RewriteRule):DocumentTree"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">rewrite</span><span class="params">(<span name="customRule">customRule: (<a href="Documents$$DocumentContext.html" class="extype" name="laika.tree.Documents.DocumentContext">DocumentContext</a>) ⇒ <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Option">Option</span>[<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>]]</span>)</span><span class="result">: <a href="" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
+        <span class="name">rewrite</span><span class="params">(<span name="customRule">customRule: (<a href="Documents$$DocumentContext.html" class="extype" name="laika.tree.Documents.DocumentContext">DocumentContext</a>) ⇒ <a href="Elements$.html#RewriteRule=PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]" class="extmbr" name="laika.tree.Elements.RewriteRule">RewriteRule</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Returns a new tree, with all the document models contained in it

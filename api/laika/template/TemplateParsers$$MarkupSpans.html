@@ -243,7 +243,7 @@
       <a id="ParserOps[A]:ParserOps[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">implicit </span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
@@ -926,6 +926,58 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Parsers</dd></dl></div>
+    </li><li name="laika.parse.InlineParsers#escapedChar" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="escapedChar:InlineParsers.this.Parser[String]"></a>
+      <a id="escapedChar:Parser[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">escapedChar</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.template.TemplateParsers.MarkupSpans.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Parses a single escape character.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a single escape character.
+ In the default implementation any character can be escaped.
+ Sub-traits may override this parser to restrict the number of escapable characters.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../parse/InlineParsers.html" class="extype" name="laika.parse.InlineParsers">InlineParsers</a></dd></dl></div>
+    </li><li name="laika.parse.InlineParsers#escapedText" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="escapedText(p:InlineParsers.this.TextParser):InlineParsers.this.Parser[String]"></a>
+      <a id="escapedText(TextParser):Parser[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">escapedText</span><span class="params">(<span name="p">p: <a href="#TextParserextendsMarkupParsers.this.Parser[String]" class="extmbr" name="laika.parse.MarkupParsers.TextParser">TextParser</a></span>)</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.template.TemplateParsers.MarkupSpans.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Adds support for escape sequences to the specified text parser.</p><div class="fullcomment"><div class="comment cmt"><p>Adds support for escape sequences to the specified text parser.
+</p></div><dl class="paramcmts block"><dt class="param">p</dt><dd class="cmt"><p>the parser to add support for escape sequences to</p></dd><dt>returns</dt><dd class="cmt"><p>a parser for a text span that supports escape sequences
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../parse/InlineParsers.html" class="extype" name="laika.parse.InlineParsers">InlineParsers</a></dd></dl></div>
+    </li><li name="laika.parse.InlineParsers#escapedUntil" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="escapedUntil(char:Char*):InlineParsers.this.Parser[String]"></a>
+      <a id="escapedUntil(Char*):Parser[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">escapedUntil</span><span class="params">(<span name="char">char: <span class="extype" name="scala.Char">Char</span>*</span>)</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.template.TemplateParsers.MarkupSpans.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Parses a span of text until one of the specified characters is seen
+ (unless it is escaped),
+ while also processing escaped characters, but no other nested
+ spans.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a span of text until one of the specified characters is seen
+ (unless it is escaped),
+ while also processing escaped characters, but no other nested
+ spans. The final character is not included in the result.
+</p></div><dl class="paramcmts block"><dt class="param">char</dt><dd class="cmt"><p>the character that signals the end of the text span</p></dd><dt>returns</dt><dd class="cmt"><p>a parser for a text span that supports escape sequences
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../parse/InlineParsers.html" class="extype" name="laika.parse.InlineParsers">InlineParsers</a></dd></dl></div>
     </li><li name="scala.util.parsing.combinator.Parsers#failure" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="failure(msg:String):Parsers.this.Parser[Nothing]"></a>
       <a id="failure(String):Parser[Nothing]"></a>
@@ -1400,6 +1452,22 @@
       <p class="shortcomment cmt">Extension hook for modifying the default span parser map.</p><div class="fullcomment"><div class="comment cmt"><p>Extension hook for modifying the default span parser map.
  The default implementation returns the specified parser unchanged.
 </p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.template.TemplateParsers.MarkupSpans">MarkupSpans</a> → <a href="../parse/InlineParsers.html" class="extype" name="laika.parse.InlineParsers">InlineParsers</a></dd></dl></div>
+    </li><li name="laika.parse.MarkupParsers#refName" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="refName:MarkupParsers.this.Parser[String]"></a>
+      <a id="refName:Parser[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">refName</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.template.TemplateParsers.MarkupSpans.Parser">Parser</a>[<span class="extype" name="java.lang.String">String</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Parses a simple reference name that only allows alphanumerical characters
+ and the punctuation characters <code>-</code>, <code>_</code>, <code>.</code>, <code>:</code>, <code>+</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a simple reference name that only allows alphanumerical characters
+ and the punctuation characters <code>-</code>, <code>_</code>, <code>.</code>, <code>:</code>, <code>+</code>.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../parse/MarkupParsers.html" class="extype" name="laika.parse.MarkupParsers">MarkupParsers</a></dd></dl></div>
     </li><li name="laika.template.TemplateParsers#reference" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="reference[T](f:String=&gt;T):TemplateParsers.this.Parser[T]"></a>
       <a id="reference[T]((String)⇒T):Parser[T]"></a>
@@ -1660,19 +1728,6 @@
       <p class="shortcomment cmt">Parses text based on the specified helper parsers.</p><div class="fullcomment"><div class="comment cmt"><p>Parses text based on the specified helper parsers.
 </p></div><dl class="paramcmts block"><dt class="param">parser</dt><dd class="cmt"><p>the parser for the text of the current element</p></dd><dt class="param">nested</dt><dd class="cmt"><p>a mapping from the start character of a span to the corresponding parser for nested span elements</p></dd><dt>returns</dt><dd class="cmt"><p>the resulting parser
 </p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../parse/InlineParsers.html" class="extype" name="laika.parse.InlineParsers">InlineParsers</a></dd></dl></div>
-    </li><li name="laika.parse.BaseParsers#toParserOps" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toParserOps[A](parser:BaseParsers.this.Parser[A]):BaseParsers.this.ParserOps[A]"></a>
-      <a id="toParserOps[A](Parser[A]):ParserOps[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toParserOps</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="parser">parser: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.template.TemplateParsers.MarkupSpans.Parser">Parser</a>[<span class="extype" name="laika.parse.BaseParsers.toParserOps.A">A</span>]</span>)</span><span class="result">: <a href="#ParserOps[A]extendsAnyRef" class="extmbr" name="laika.parse.BaseParsers.ParserOps">ParserOps</a>[<span class="extype" name="laika.parse.BaseParsers.toParserOps.A">A</span>]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../parse/BaseParsers.html" class="extype" name="laika.parse.BaseParsers">BaseParsers</a></dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>

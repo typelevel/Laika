@@ -35,7 +35,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">TemplateDocument</span><span class="params">(<span name="path">path: <a href="Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>, <span name="content">content: <a href="Templates$$TemplateRoot.html" class="extype" name="laika.tree.Templates.TemplateRoot">TemplateRoot</a></span>, <span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span> = <span class="defval" name="com.typesafe.config.ConfigFactory.empty()">...</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">TemplateDocument</span><span class="params">(<span name="path">path: <a href="Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>, <span name="content">content: <a href="Templates$$TemplateRoot.html" class="extype" name="laika.tree.Templates.TemplateRoot">TemplateRoot</a></span>, <span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span> = <span class="defval" name="com.typesafe.config.ConfigFactory.empty()">...</span></span>)</span><span class="result"> extends <a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
@@ -43,7 +43,7 @@
  configuration section (if present).
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -61,7 +61,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="laika.tree.Templates.TemplateDocument"><span>TemplateDocument</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="laika.tree.Templates.TemplateDocument"><span>TemplateDocument</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="laika.tree.Documents.Navigatable"><span>Navigatable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -284,19 +284,20 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="laika.tree.Templates.TemplateDocument#name" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="laika.tree.Documents.Navigatable#name" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="name:String"></a>
       <a id="name:String"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
         <span class="name">name</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       </h4>
-      
+      <p class="shortcomment cmt">The local name of this navigatable.</p><div class="fullcomment"><div class="comment cmt"><p>The local name of this navigatable.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -336,7 +337,7 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="laika.tree.Templates.TemplateDocument#path" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="laika.tree.Templates.TemplateDocument#path" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="path:laika.tree.Documents.Path"></a>
       <a id="path:Path"></a>
       <h4 class="signature">
@@ -348,7 +349,7 @@
         <span class="name">path</span><span class="result">: <a href="Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>
       </span>
       </h4>
-      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.tree.Templates.TemplateDocument">TemplateDocument</a> → <a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a></dd></dl></div>
     </li><li name="laika.tree.Templates.TemplateDocument#rewrite" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="rewrite(context:laika.tree.Documents.DocumentContext):laika.tree.Documents.Document"></a>
       <a id="rewrite(DocumentContext):Document"></a>
@@ -452,6 +453,8 @@
               <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
             </div><div class="parent" name="scala.Equals">
               <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
+            </div><div class="parent" name="laika.tree.Documents.Navigatable">
+              <h3>Inherited from <a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a></h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">

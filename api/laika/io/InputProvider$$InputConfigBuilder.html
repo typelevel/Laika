@@ -182,20 +182,23 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="laika.io.InputProvider.InputConfigBuilder#build" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="build(parser:laika.factory.ParserFactory):laika.io.InputProvider.InputConfig"></a>
-      <a id="build(ParserFactory):InputConfig"></a>
+    </li><li name="laika.io.InputProvider.InputConfigBuilder#build" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="build(markupSuffixes:Set[String]):laika.io.InputProvider.InputConfig"></a>
+      <a id="build(Set[String]):InputConfig"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">build</span><span class="params">(<span name="parser">parser: <a href="../factory/ParserFactory.html" class="extype" name="laika.factory.ParserFactory">ParserFactory</a></span>)</span><span class="result">: <a href="InputProvider$$InputConfig.html" class="extype" name="laika.io.InputProvider.InputConfig">InputConfig</a></span>
+        <span class="name">build</span><span class="params">(<span name="markupSuffixes">markupSuffixes: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="InputProvider$$InputConfig.html" class="extype" name="laika.io.InputProvider.InputConfig">InputConfig</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Builds the final configuration for this input tree
- for the specified parser factory.</p>
+ for the specified parser factory.</p><div class="fullcomment"><div class="comment cmt"><p>Builds the final configuration for this input tree
+ for the specified parser factory.
+</p></div><dl class="paramcmts block"><dt class="param">markupSuffixes</dt><dd class="cmt"><p>all suffixes recognized by the parsers configured to consume this input
+</p></dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
@@ -506,6 +509,20 @@
       </h4>
       <p class="shortcomment cmt">Specifies the function to use for determining the document type
  of the input based on its path.</p>
+    </li><li name="laika.io.InputProvider.InputConfigBuilder#withTemplateDirectives" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="withTemplateDirectives(directives:laika.directive.Directives.Templates.Directive*):laika.io.InputProvider.InputConfigBuilder"></a>
+      <a id="withTemplateDirectives(directive.Directives.Templates.Directive*):InputConfigBuilder"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withTemplateDirectives</span><span class="params">(<span name="directives">directives: <a href="../directive/Directives$$Templates$.html#DirectiveextendsAnyRef" class="extmbr" name="laika.directive.Directives.BuilderContext.Directive">directive.Directives.Templates.Directive</a>*</span>)</span><span class="result">: <a href="" class="extype" name="laika.io.InputProvider.InputConfigBuilder">InputConfigBuilder</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Specifies custom template directives to use with
+ the default template engine.</p>
     </li><li name="laika.io.InputProvider.InputConfigBuilder#withTemplates" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="withTemplates(parser:laika.template.ParseTemplate):laika.io.InputProvider.InputConfigBuilder"></a>
       <a id="withTemplates(ParseTemplate):InputConfigBuilder"></a>

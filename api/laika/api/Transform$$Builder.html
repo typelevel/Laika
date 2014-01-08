@@ -307,6 +307,25 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="laika.api.Transform.Builder#or" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="or(factory:laika.factory.ParserFactory):laika.api.Transform.Builder"></a>
+      <a id="or(ParserFactory):Builder"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">or</span><span class="params">(<span name="factory">factory: <a href="../factory/ParserFactory.html" class="extype" name="laika.factory.ParserFactory">ParserFactory</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.api.Transform.Builder">Builder</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Returns a new Builder instance adding the specified parser factory.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new Builder instance adding the specified parser factory.
+ This factory is usually an object provided by the library
+ or a plugin that is capable of parsing a specific markup
+ format like Markdown or reStructuredText.</p><p> This method is useful if you want to combine different markup
+ formats within a single document tree.
+</p></div><dl class="paramcmts block"><dt class="param">factory</dt><dd class="cmt"><p>the parser factory to add to the previously specified parsers</p></dd><dt>returns</dt><dd class="cmt"><p>a new Builder instance
+</p></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>

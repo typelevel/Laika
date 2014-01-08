@@ -165,15 +165,15 @@
       </h4>
       <p class="shortcomment cmt">Creates a BatchConfigBuilder instance containing separate builders for input and output.</p>
     </li><li name="laika.api.Transform.BatchConfigBuilder#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply(root:java.io.File,codec:scala.io.Codec):laika.api.Transform.BatchConfigBuilder"></a>
-      <a id="apply(File,Codec):BatchConfigBuilder"></a>
+      <a id="apply(root:java.io.File,exclude:java.io.File=&gt;Boolean,codec:scala.io.Codec):laika.api.Transform.BatchConfigBuilder"></a>
+      <a id="apply(File,(File)⇒Boolean,Codec):BatchConfigBuilder"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="root">root: <span class="extype" name="java.io.File">File</span></span>, <span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="Transform$$BatchConfigBuilder.html" class="extype" name="laika.api.Transform.BatchConfigBuilder">BatchConfigBuilder</a></span>
+        <span class="name">apply</span><span class="params">(<span name="root">root: <span class="extype" name="java.io.File">File</span></span>, <span name="exclude">exclude: (<span class="extype" name="java.io.File">File</span>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="Transform$$BatchConfigBuilder.html" class="extype" name="laika.api.Transform.BatchConfigBuilder">BatchConfigBuilder</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Creates a BatchConfigBuilder instance for a specific root directory in the file system.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a BatchConfigBuilder instance for a specific root directory in the file system.</p><p> This factory method expects the default directory layout where the root directory

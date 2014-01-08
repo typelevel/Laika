@@ -35,14 +35,14 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">ExtendedHTML</span><span class="result"> extends (<a href="../../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>) ⇒ <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Unit">Unit</span>]</span>
+        <span class="name">ExtendedHTML</span><span class="result"> extends (<a href="../../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>) ⇒ <a href="../../tree/Elements$.html#RenderFunction=PartialFunction[laika.tree.Elements.Element,Unit]" class="extmbr" name="laika.tree.Elements.RenderFunction">RenderFunction</a></span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>HTML renderer for special reStructuredText tree elements not part of the default document tree model.</p><p> The following tree elements are specific to reStructuredText and are not included in the default model:</p><ul><li><code>FieldList</code> and corresponding child elements</li><li><code>OptionList</code> and corresponding child elements</li><li><code>DoctestBlock</code></li></ul><p> FieldLists being part of a directive declaration will be processed by the default parser, the <code>FieldList</code>
  element only appears in the final document model if field lists are used outside of directives.</p><p> The renderer must be applied explicitly when any of these constructs are used in the markup:</p><pre><span class="kw">val</span> transform = Transform from ReStructuredText to HTML rendering ExtendedHTML</pre></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent">(<a href="../../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>) ⇒ <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Unit">Unit</span>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent">(<a href="../../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>) ⇒ <a href="../../tree/Elements$.html#RenderFunction=PartialFunction[laika.tree.Elements.Element,Unit]" class="extmbr" name="laika.tree.Elements.RenderFunction">RenderFunction</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div><div class="toggleContainer block">
           <span class="toggle">Known Subclasses</span>
           <div class="subClasses hiddenContent"><a href="ExtendedHTML$.html" class="extype" name="laika.parse.rst.ExtendedHTML">ExtendedHTML</a></div>
@@ -172,14 +172,14 @@
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="scala.Function1#andThen" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="andThen[A](g:R=&gt;A):T1=&gt;A"></a>
-      <a id="andThen[A]((PartialFunction[Element,Unit])⇒A):(HTMLWriter)⇒A"></a>
+      <a id="andThen[A]((RenderFunction)⇒A):(HTMLWriter)⇒A"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">andThen</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="g">g: (<span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Unit">Unit</span>]) ⇒ <span class="extype" name="scala.Function1.andThen.A">A</span></span>)</span><span class="result">: (<a href="../../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>) ⇒ <span class="extype" name="scala.Function1.andThen.A">A</span></span>
+        <span class="name">andThen</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="g">g: (<a href="../../tree/Elements$.html#RenderFunction=PartialFunction[laika.tree.Elements.Element,Unit]" class="extmbr" name="laika.tree.Elements.RenderFunction">RenderFunction</a>) ⇒ <span class="extype" name="scala.Function1.andThen.A">A</span></span>)</span><span class="result">: (<a href="../../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>) ⇒ <span class="extype" name="scala.Function1.andThen.A">A</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function1</dd><dt>Annotations</dt><dd>
@@ -187,15 +187,15 @@
               
         </dd></dl></div>
     </li><li name="laika.parse.rst.ExtendedHTML#apply" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="apply(out:laika.render.HTMLWriter):PartialFunction[laika.tree.Elements.Element,Unit]"></a>
-      <a id="apply(HTMLWriter):PartialFunction[Element,Unit]"></a>
+      <a id="apply(out:laika.render.HTMLWriter):laika.tree.Elements.RenderFunction"></a>
+      <a id="apply(HTMLWriter):RenderFunction"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="out">out: <a href="../../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a></span>)</span><span class="result">: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Unit">Unit</span>]</span>
+        <span class="name">apply</span><span class="params">(<span name="out">out: <a href="../../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a></span>)</span><span class="result">: <a href="../../tree/Elements$.html#RenderFunction=PartialFunction[laika.tree.Elements.Element,Unit]" class="extmbr" name="laika.tree.Elements.RenderFunction">RenderFunction</a></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.rst.ExtendedHTML">ExtendedHTML</a> → Function1</dd></dl></div>
@@ -233,14 +233,14 @@
         </dd></dl></div>
     </li><li name="scala.Function1#compose" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="compose[A](g:A=&gt;T1):A=&gt;R"></a>
-      <a id="compose[A]((A)⇒HTMLWriter):(A)⇒PartialFunction[Element,Unit]"></a>
+      <a id="compose[A]((A)⇒HTMLWriter):(A)⇒RenderFunction"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">compose</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="g">g: (<span class="extype" name="scala.Function1.compose.A">A</span>) ⇒ <a href="../../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a></span>)</span><span class="result">: (<span class="extype" name="scala.Function1.compose.A">A</span>) ⇒ <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Unit">Unit</span>]</span>
+        <span class="name">compose</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="g">g: (<span class="extype" name="scala.Function1.compose.A">A</span>) ⇒ <a href="../../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a></span>)</span><span class="result">: (<span class="extype" name="scala.Function1.compose.A">A</span>) ⇒ <a href="../../tree/Elements$.html#RenderFunction=PartialFunction[laika.tree.Elements.Element,Unit]" class="extmbr" name="laika.tree.Elements.RenderFunction">RenderFunction</a></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Function1</dd><dt>Annotations</dt><dd>
@@ -489,7 +489,7 @@
 
         <div id="inheritedMembers">
         <div class="parent" name="scala.Function1">
-              <h3>Inherited from (<a href="../../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>) ⇒ <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Unit">Unit</span>]</h3>
+              <h3>Inherited from (<a href="../../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>) ⇒ <a href="../../tree/Elements$.html#RenderFunction=PartialFunction[laika.tree.Elements.Element,Unit]" class="extmbr" name="laika.tree.Elements.RenderFunction">RenderFunction</a></h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">

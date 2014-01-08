@@ -34,23 +34,24 @@
           <div class="nav-top"><img src="../img/laika-top.png"/></div>
           
           
-  <li class="nav-header">Introduction</li>
-  <li><a href="../introduction/intro.html">Overview</a></li>
-  <li><a href="../introduction/architecture.html">Architecture</a></li>
-  <li class="nav-header">Using Laika</li>
-  <li><a href="basics.html">Transformation Basics</a></li>
-  <li><a href="markup.html">Supported Markup</a></li>
-  <li class="active"><a href="#">Document Structure</a></li>
-  <li><a href="templates.html">Templates</a></li>
-  <li class="nav-header">Customizing Laika</li>
-  <li><a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a></li>
-  <li><a href="../customizing-laika/tree-rewriting.html">Document Tree Rewriting</a></li>
-  <li><a href="../customizing-laika/parsing-rendering.html">Separate Parsing and Rendering</a></li>
-  <li class="nav-header">Extending Laika</li>
-  <li><a href="../extending-laika/directive.html">Directives</a></li>
-  <li><a href="../extending-laika/parser.html">Parsers</a></li>
-  <li><a href="../extending-laika/renderer.html">Renderers</a></li>
-  <li><a href="../extending-laika/extending-rst.html">Extending reStructuredText</a></li>
+          <li class="nav-header">Introduction</li>
+          <li><a href="../introduction/intro.html">Overview</a></li>
+          <li><a href="../introduction/architecture.html">Architecture</a></li>
+          <li class="nav-header">Using Laika</li>
+          <li><a href="sbt.html">Using the sbt Plugin</a></li>
+          <li><a href="embedded.html">Using Laika Embedded</a></li>
+          <li><a href="markup.html">Supported Markup</a></li>
+          <li class="active"><a href="#">Document Structure</a></li>
+          <li><a href="templates.html">Templates</a></li>
+          <li class="nav-header">Customizing Laika</li>
+          <li><a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a></li>
+          <li><a href="../customizing-laika/tree-rewriting.html">Document Tree Rewriting</a></li>
+          <li><a href="../customizing-laika/parsing-rendering.html">Separate Parsing and Rendering</a></li>
+          <li class="nav-header">Extending Laika</li>
+          <li><a href="../extending-laika/directive.html">Directives</a></li>
+          <li><a href="../extending-laika/parser.html">Parsers</a></li>
+          <li><a href="../extending-laika/renderer.html">Renderers</a></li>
+          <li><a href="../extending-laika/extending-rst.html">Extending reStructuredText</a></li>
           
           <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
         </ul>
@@ -60,88 +61,88 @@
       <div class="span8" id="top">
 
         <div class="page-header">
-    <h1>Document Structure</h1>
-  </div>
-  <p>Laika adds several features on top of the supported markup languages
-  that make it easier to deal with structured content.</p>
-  <p>These features are enabled by default, but can be switched off
-  explicitly.</p>
-  <p>This is how you can switch them off for Markdown:</p>
-  <pre>Transform from Markdown.strict to 
+          <h1>Document Structure</h1>
+        </div>
+        <p>Laika adds several features on top of the supported markup languages
+        that make it easier to deal with structured content.</p>
+        <p>These features are enabled by default, but can be switched off
+        explicitly.</p>
+        <p>This is how you can switch them off for Markdown:</p>
+        <pre>Transform from Markdown.strict to 
   HTML fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;</pre>
-  <p>And likewise, the same <code>strict</code> property is available for reStructuredText:</p>
-  <pre>Transform from ReStructuredText.strict to 
+        <p>And likewise, the same <code>strict</code> property is available for reStructuredText:</p>
+        <pre>Transform from ReStructuredText.strict to 
   HTML fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;</pre>
-  
-  <h2 id="document-title" class="section">Document Title</h2>
-  <p>The document title can then be accessed in a template through
-  a variable reference:</p>
-  <pre>&lt;title&gt;{{document.title}}&lt;/title&gt;
+        
+        <h2 id="document-title" class="section">Document Title</h2>
+        <p>The document title can then be accessed in a template through
+        a variable reference:</p>
+        <pre>&lt;title&gt;{{document.title}}&lt;/title&gt;
 </pre>
-  <p>Or in code through a <code>Document</code> instance:</p>
-  <pre>val doc: Document = ...
+        <p>Or in code through a <code>Document</code> instance:</p>
+        <pre>val doc: Document = ...
 doc.title // Seq[Span]
 </pre>
-  <p>The title can be specified in two ways.</p>
-  
-  <h3 id="first-headline-in-the-document" class="section">First Headline in the Document</h3>
-  <p>When the document contains only one level 1 headline as the first
-  headline, with all following section headlines being level 2 or lower,
-  then the first headline is automatically picked as the title.</p>
-  <p>This is the default behaviour of reStructuredText, but the original 
-  Markdown parser did not have the concept of a title.</p>
-  <p>In case there are multiple level 1 headlines, they are all just
-  interpreted as section headlines. In this case the document either
-  has no title or you must specify it explicitly with the second 
-  option below.</p>
-  
-  <h3 id="explicit-title-in-configuration-headers" class="section">Explicit Title in Configuration Headers</h3>
-  <p>Like templates, markup documents can contain configuration headers,
-  enclosed between <code>{%</code> and <code>%}</code> at the start of the document:</p>
-  <pre>{%
+        <p>The title can be specified in two ways.</p>
+        
+        <h3 id="first-headline-in-the-document" class="section">First Headline in the Document</h3>
+        <p>When the document contains only one level 1 headline as the first
+        headline, with all following section headlines being level 2 or lower,
+        then the first headline is automatically picked as the title.</p>
+        <p>This is the default behaviour of reStructuredText, but the original 
+        Markdown parser did not have the concept of a title.</p>
+        <p>In case there are multiple level 1 headlines, they are all just
+        interpreted as section headlines. In this case the document either
+        has no title or you must specify it explicitly with the second 
+        option below.</p>
+        
+        <h3 id="explicit-title-in-configuration-headers" class="section">Explicit Title in Configuration Headers</h3>
+        <p>Like templates, markup documents can contain configuration headers,
+        enclosed between <code>{%</code> and <code>%}</code> at the start of the document:</p>
+        <pre>{%
   title: So long and thanks for all the fish
 %}
 </pre>
-  <p>This would override a level 1 header, if present. Configuration
-  entries currently do not support inline markup, so it is interpreted
-  as plain text.</p>
-  
-  <h2 id="document-sections" class="section">Document Sections</h2>
-  <p>All headlines except for the one that serves as the document title
-  (if present) will be used to build the section structure based
-  on the levels of the headlines.</p>
-  <p>These sections can then be referenced in templates:</p>
-  <pre>@:for &quot;document.sections&quot;: {
+        <p>This would override a level 1 header, if present. Configuration
+        entries currently do not support inline markup, so it is interpreted
+        as plain text.</p>
+        
+        <h2 id="document-sections" class="section">Document Sections</h2>
+        <p>All headlines except for the one that serves as the document title
+        (if present) will be used to build the section structure based
+        on the levels of the headlines.</p>
+        <p>These sections can then be referenced in templates:</p>
+        <pre>@:for &quot;document.sections&quot;: {
   &lt;li&gt;&lt;a href=&quot;#{{id}}&quot;&gt;{{title.content}}&lt;/a&gt;&lt;/li&gt;
 } 
 </pre>
-  <p>Or they can be accessed through a <code>Document</code> instance:</p>
-  <pre>val doc: Document = ...
+        <p>Or they can be accessed through a <code>Document</code> instance:</p>
+        <pre>val doc: Document = ...
 doc.sections // Seq[SectionInfo]
 
 </pre>
-  
-  <h3 id="automatic-section-ids" class="section">Automatic Section Ids</h3>
-  <p>Laika will automatically generate an id for each headline, so that
-  you can link to them. The id is derived from the title of the section
-  by removing all non-alphanumeric characters and connecting them
-  with dashes. So the title <code>Code of Conduct</code> would get the id
-  <code>code-of-conduct</code>.</p>
-  <p>This is the default behaviour of reStructuredText, so will happen
-  even when run in strict mode. Markdown does not add ids automatically,
-  so using strict mode will switch them off.</p>
-  <p>The ids are required in case you use the <code>toc</code> directive to generate
-  a table of contents, so you should not run Markdown in strict mode
-  when you intend to use the <code>toc</code> directive.</p>
-  
-  <h2 id="document-fragments" class="section">Document Fragments</h2>
-  <p>Fragments allow to keep some sections of your document separate, to be rendered
-  in different locations of the output, like headers, footers or sidebars.</p>
-  <p>They produce a block element which is not part of the main body of the markup
-  document (so will not be rendered with a <code>{{document.content}}</code> reference).
-  Instead it can be referred to by <code>{{document.fragments.&lt;fragmentName&gt;}}</code>.</p>
-  <p>Example:</p>
-  <pre>@:fragment sidebar: This content will be *parsed* like all other
+        
+        <h3 id="automatic-section-ids" class="section">Automatic Section Ids</h3>
+        <p>Laika will automatically generate an id for each headline, so that
+        you can link to them. The id is derived from the title of the section
+        by removing all non-alphanumeric characters and connecting them
+        with dashes. So the title <code>Code of Conduct</code> would get the id
+        <code>code-of-conduct</code>.</p>
+        <p>This is the default behaviour of reStructuredText, so will happen
+        even when run in strict mode. Markdown does not add ids automatically,
+        so using strict mode will switch them off.</p>
+        <p>The ids are required in case you use the <code>toc</code> directive to generate
+        a table of contents, so you should not run Markdown in strict mode
+        when you intend to use the <code>toc</code> directive.</p>
+        
+        <h2 id="document-fragments" class="section">Document Fragments</h2>
+        <p>Fragments allow to keep some sections of your document separate, to be rendered
+        in different locations of the output, like headers, footers or sidebars.</p>
+        <p>They produce a block element which is not part of the main body of the markup
+        document (so will not be rendered with a <code>{{document.content}}</code> reference).
+        Instead it can be referred to by <code>{{document.fragments.&lt;fragmentName&gt;}}</code>.</p>
+        <p>Example:</p>
+        <pre>@:fragment sidebar: This content will be *parsed* like all other
   content, but will be available separately from the document content.
   The block elements have to be indented.
 
@@ -151,102 +152,102 @@ doc.sections // Seq[SectionInfo]
   * this list
 
 This line doesn&#39;t and will be part of the main document content.</pre>
-  <p>Fragments are also available in code through a <code>Document</code> instance:</p>
-  <pre>val doc: Document = ...
+        <p>Fragments are also available in code through a <code>Document</code> instance:</p>
+        <pre>val doc: Document = ...
 doc.fragments // Map[String, Element]</pre>
-  
-  <h2 id="cross-linking" class="section">Cross Linking</h2>
-  <p>Laika piggy-backs on the built-in linking syntax of both Markdown and reStructuredText
-  to add convenient cross linking between documents.</p>
-  <p>If you have the following headline in one of your documents:</p>
-  <pre>Monkey Gone To Heaven
+        
+        <h2 id="cross-linking" class="section">Cross Linking</h2>
+        <p>Laika piggy-backs on the built-in linking syntax of both Markdown and reStructuredText
+        to add convenient cross linking between documents.</p>
+        <p>If you have the following headline in one of your documents:</p>
+        <pre>Monkey Gone To Heaven
 ---------------------</pre>
-  <p>Then you can use the title as an id in link references.</p>
-  <p>Markdown:</p>
-  <pre>Here are the lyrics for [Monkey Gone To Heaven].
+        <p>Then you can use the title as an id in link references.</p>
+        <p>Markdown:</p>
+        <pre>Here are the lyrics for [Monkey Gone To Heaven].
 </pre>
-  <p>reStructuredText:</p>
-  <pre>Here are the lyrics for `Monkey Gone To Heaven`_.
+        <p>reStructuredText:</p>
+        <pre>Here are the lyrics for `Monkey Gone To Heaven`_.
 </pre>
-  <p>Like with other link ids, Markdown let&#39;s
-  you specify link text and id separately:</p>
-  <pre>You have to listen to this [song][Monkey Gone To Heaven].</pre>
-  <p>It does not matter whether the headline is located in the same
-  markup document or in another. In the latter case the headline only has
-  to be unique for the current directory. It does not have to be globally unique if you reference
-  it from within the same directory. So if you have a large number of chapters
-  in separate directories, they can all have a section with the title <code>Intro</code> for example.</p>
-  <p>If the id is not unique within a directory, you can alternatively specify the
-  target document explicitly:</p>
-  <pre>For details see the [Introduction][../main.md:Introduction].
+        <p>Like with other link ids, Markdown let&#39;s
+        you specify link text and id separately:</p>
+        <pre>You have to listen to this [song][Monkey Gone To Heaven].</pre>
+        <p>It does not matter whether the headline is located in the same
+        markup document or in another. In the latter case the headline only has
+        to be unique for the current directory. It does not have to be globally unique if you reference
+        it from within the same directory. So if you have a large number of chapters
+        in separate directories, they can all have a section with the title <code>Intro</code> for example.</p>
+        <p>If the id is not unique within a directory, you can alternatively specify the
+        target document explicitly:</p>
+        <pre>For details see the [Introduction][../main.md:Introduction].
 </pre>
-  <p>The part of before the <code>:</code> is interpreted as the relative path to the target
-  document, the part after the colon as the id of the section.</p>
-  
-  <h2 id="autonumbering-documents-and-sections" class="section">Autonumbering Documents and Sections</h2>
-  <p>Laika supports auto-numbering of documents or sections or both. If you enable both
-  the section numbers will be added to the document number. E.g. in the document
-  with the number <code>2.1</code> the number for the first section will be <code>2.1.1</code>.</p>
-  <p>Auto-numbering can be switched on per configuration. Usually this is a global
-  switch, so you would add this section to a file named <code>directory.conf</code> inside
-  the root directory of your markup files:</p>
-  <pre>autonumbering {
+        <p>The part of before the <code>:</code> is interpreted as the relative path to the target
+        document, the part after the colon as the id of the section.</p>
+        
+        <h2 id="autonumbering-documents-and-sections" class="section">Autonumbering Documents and Sections</h2>
+        <p>Laika supports auto-numbering of documents or sections or both. If you enable both
+        the section numbers will be added to the document number. E.g. in the document
+        with the number <code>2.1</code> the number for the first section will be <code>2.1.1</code>.</p>
+        <p>Auto-numbering can be switched on per configuration. Usually this is a global
+        switch, so you would add this section to a file named <code>directory.conf</code> inside
+        the root directory of your markup files:</p>
+        <pre>autonumbering {
   scope: all
   depth: 3
 }</pre>
-  <p>The configuration above will number both documents and sections of documents,
-  but stop after the third level. Other possible values for the <code>scope</code> attribute
-  are <code>documents</code> (numbers documents, but not sections), <code>sections</code> (numbers
-  sections, but not documents) and <code>none</code> (the default, no autonumbering).</p>
-  <p>The numbers will be added to the headers of the sections and also appear
-  in tables of contents.</p>
-  
-  <h2 id="table-of-contents" class="section">Table of Contents</h2>
-  <p>The standard <code>toc</code> directive allows to add a table of contents to templates
-  or text markup documents. Depending on the root of the tree to build a table
-  for and the depth you specify, such a table can span both, a list of documents
-  and then nested inside the sections of these documents.</p>
-  <p>When using the default settings, you can simply use an empty tag:</p>
-  <pre>@:toc.
+        <p>The configuration above will number both documents and sections of documents,
+        but stop after the third level. Other possible values for the <code>scope</code> attribute
+        are <code>documents</code> (numbers documents, but not sections), <code>sections</code> (numbers
+        sections, but not documents) and <code>none</code> (the default, no autonumbering).</p>
+        <p>The numbers will be added to the headers of the sections and also appear
+        in tables of contents.</p>
+        
+        <h2 id="table-of-contents" class="section">Table of Contents</h2>
+        <p>The standard <code>toc</code> directive allows to add a table of contents to templates
+        or text markup documents. Depending on the root of the tree to build a table
+        for and the depth you specify, such a table can span both, a list of documents
+        and then nested inside the sections of these documents.</p>
+        <p>When using the default settings, you can simply use an empty tag:</p>
+        <pre>@:toc.
 </pre>
-  <p>If you specify all available options it would look like this:</p>
-  <pre>@:toc title=&quot;List of Chapters&quot; root=&quot;../intro&quot; depth=2.</pre>
-  <ul>
-    <li>
-      <p>The <code>title</code> attribute adds a title above the table. </p>
-    </li>
-    <li>
-      <p>The <code>depth</code> attribute
-      specifies how deeply the table should be nested, the default is unlimited.</p>
-    </li>
-    <li>
-      <p>The <code>root</code> attribute
-      is a relative or absolute path (within the virtual tree of processed
-      documents, not an absolute file system path), pointing to the
-      root node of the table. Instead of specifying a path you can also
-      use three convenient special attributes:</p>
-      <ul>
-        <li><code>#rootTree</code>: Starts from the root of the document tree</li>
-        <li><code>#currentTree</code>: Starts from the current tree (seen from the current
-        document), so will include all sibling documents and their sections</li>
-        <li><code>#currentDocument</code>: Builds a local table of contents, only from the
-        sections of the current document.</li>
-      </ul>
-    </li>
-  </ul>
-  <p>The directive inserts <code>BulletList</code> objects into the tree (remember that directives
-  do not directly produce string output). The items get the styles
-  <code>toc</code> and <code>levelN</code> applied, with N being the level number. For
-  HTML these will then be rendered as class attributes.</p>
-  
-  <h2 id="document-ordering" class="section">Document Ordering</h2>
-  <p>For features like tables of contents and autonumbering the order of
-  documents is relevant. The default ordering is alphabetical, with
-  all markup documents coming first, followed by all subdirectories
-  in alphabetical order.</p>
-  <p>If you want a different ordering you can define it explicitly
-  for each directory in the <code>directory.conf</code> file:</p>
-  <pre>navigationOrder = [
+        <p>If you specify all available options it would look like this:</p>
+        <pre>@:toc title=&quot;List of Chapters&quot; root=&quot;../intro&quot; depth=2.</pre>
+        <ul>
+          <li>
+            <p>The <code>title</code> attribute adds a title above the table. </p>
+          </li>
+          <li>
+            <p>The <code>depth</code> attribute
+            specifies how deeply the table should be nested, the default is unlimited.</p>
+          </li>
+          <li>
+            <p>The <code>root</code> attribute
+            is a relative or absolute path (within the virtual tree of processed
+            documents, not an absolute file system path), pointing to the
+            root node of the table. Instead of specifying a path you can also
+            use three convenient special attributes:</p>
+            <ul>
+              <li><code>#rootTree</code>: Starts from the root of the document tree</li>
+              <li><code>#currentTree</code>: Starts from the current tree (seen from the current
+              document), so will include all sibling documents and their sections</li>
+              <li><code>#currentDocument</code>: Builds a local table of contents, only from the
+              sections of the current document.</li>
+            </ul>
+          </li>
+        </ul>
+        <p>The directive inserts <code>BulletList</code> objects into the tree (remember that directives
+        do not directly produce string output). The items get the styles
+        <code>toc</code> and <code>levelN</code> applied, with N being the level number. For
+        HTML these will then be rendered as class attributes.</p>
+        
+        <h2 id="document-ordering" class="section">Document Ordering</h2>
+        <p>For features like tables of contents and autonumbering the order of
+        documents is relevant. The default ordering is alphabetical, with
+        all markup documents coming first, followed by all subdirectories
+        in alphabetical order.</p>
+        <p>If you want a different ordering you can define it explicitly
+        for each directory in the <code>directory.conf</code> file:</p>
+        <pre>navigationOrder = [
   apples.md
   oranges.md
   strawberries.md
@@ -254,44 +255,44 @@ doc.fragments // Map[String, Element]</pre>
   other-subdirectory
 ]
 </pre>
-  <p>The example above contains both markup files and subdirectory.
-  They would appear in this order in tables of contents and the
-  same order would be applied when autonumbering.</p>
-  
-  <h2 id="document-types" class="section">Document Types</h2>
-  <p>Laika recognizes several different document types inside the
-  directories it processes. The type of document is determined
-  by its name, in the following way:</p>
-  <ul>
-    <li><code>default.conf</code>: the configuration for this directory</li>
-    <li><code>*.conf</code>: other configuration files (currently ignored)</li>
-    <li><code>default.template.html</code>: the default template to apply to documents
-    in this directory</li>
-    <li><code>*.template.html</code>: other templates that markup documents can
-    explicitly refer to</li>
-    <li><code>*.&lt;markup-suffix&gt;</code>: markup files with a suffix recognized
-    by the parser in use, e.g. <code>.md</code> or <code>.markdown</code> for Markdown
-    and <code>.rst</code> for reStructuredText</li>
-    <li><code>*.dynamic.html</code>: a dynamic file, which has the same syntax
-    as a template, but does not get applied to a markup document.
-    This means it should not have a <code>{{document.content}}</code> reference
-    like normal templates, but may use any of the other template
-    features. The result of processing will be copied to the
-    output directory (with the <code>.dynamic</code> part stripped from 
-    its name) alongside the transformed markup documents.</li>
-    <li><code>*.git</code>, <code>*.svn</code>: these directories will be ignored</li>
-    <li>all other files: treated as static files and copied to the 
-    output directory unmodified.</li>
-  </ul>
-  <p>If you need to customize the document type recognition,
-  you can do that with a simple function:</p>
-  <pre>val matcher: Path =&gt; DocumentType
+        <p>The example above contains both markup files and subdirectory.
+        They would appear in this order in tables of contents and the
+        same order would be applied when autonumbering.</p>
+        
+        <h2 id="document-types" class="section">Document Types</h2>
+        <p>Laika recognizes several different document types inside the
+        directories it processes. The type of document is determined
+        by its name, in the following way:</p>
+        <ul>
+          <li><code>directory.conf</code>: the configuration for this directory</li>
+          <li><code>*.conf</code>: other configuration files (currently ignored)</li>
+          <li><code>default.template.html</code>: the default template to apply to documents
+          in this directory</li>
+          <li><code>*.template.html</code>: other templates that markup documents can
+          explicitly refer to</li>
+          <li><code>*.&lt;markup-suffix&gt;</code>: markup files with a suffix recognized
+          by the parser in use, e.g. <code>.md</code> or <code>.markdown</code> for Markdown
+          and <code>.rst</code> for reStructuredText</li>
+          <li><code>*.dynamic.html</code>: a dynamic file, which has the same syntax
+          as a template, but does not get applied to a markup document.
+          This means it should not have a <code>{{document.content}}</code> reference
+          like normal templates, but may use any of the other template
+          features. The result of processing will be copied to the
+          output directory (with the <code>.dynamic</code> part stripped from 
+          its name) alongside the transformed markup documents.</li>
+          <li><code>*.git</code>, <code>*.svn</code>: these directories will be ignored</li>
+          <li>all other files: treated as static files and copied to the 
+          output directory unmodified.</li>
+        </ul>
+        <p>If you need to customize the document type recognition,
+        you can do that with a simple function:</p>
+        <pre>val matcher: Path =&gt; DocumentType
 
 Transform from Markdown to HTML fromDirectory 
   &quot;source&quot; withDocTypeMatcher matcher toDirectory &quot;target&quot;</pre>
-  <p>The valid return types correspond to the document types listed
-  above:</p>
-  <pre>Markup, Template, Dynamic, Static, Config, Ignored</pre>      
+        <p>The valid return types correspond to the document types listed
+        above:</p>
+        <pre>Markup, Template, Dynamic, Static, Config, Ignored</pre>      
 
       </div>
     </div>

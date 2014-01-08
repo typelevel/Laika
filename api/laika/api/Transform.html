@@ -233,15 +233,15 @@ Document - Blocks: <span class="num">1</span>
               
         </dd></dl></div>
     </li><li name="laika.api.Transform#creatingRule" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="creatingRule(newRule:laika.tree.Documents.DocumentContext=&gt;PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]):laika.api.Transform[W]"></a>
-      <a id="creatingRule((DocumentContext)⇒PartialFunction[Element,Option[Element]]):Transform[W]"></a>
+      <a id="creatingRule(newRule:laika.tree.Documents.DocumentContext=&gt;laika.tree.Elements.RewriteRule):laika.api.Transform[W]"></a>
+      <a id="creatingRule((DocumentContext)⇒RewriteRule):Transform[W]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">creatingRule</span><span class="params">(<span name="newRule">newRule: (<a href="../tree/Documents$$DocumentContext.html" class="extype" name="laika.tree.Documents.DocumentContext">DocumentContext</a>) ⇒ <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Option">Option</span>[<a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>]]</span>)</span><span class="result">: <a href="" class="extype" name="laika.api.Transform">Transform</a>[<span class="extype" name="laika.api.Transform.W">W</span>]</span>
+        <span class="name">creatingRule</span><span class="params">(<span name="newRule">newRule: (<a href="../tree/Documents$$DocumentContext.html" class="extype" name="laika.tree.Documents.DocumentContext">DocumentContext</a>) ⇒ <a href="../tree/Elements$.html#RewriteRule=PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]" class="extmbr" name="laika.tree.Elements.RewriteRule">RewriteRule</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.api.Transform">Transform</a>[<span class="extype" name="laika.api.Transform.W">W</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Specifies a rewrite rule to be applied to the document tree model between the
@@ -308,6 +308,66 @@ Document - Blocks: <span class="num">1</span>
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="laika.api.Transform#fromDirectories" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromDirectories(roots:Seq[java.io.File],exclude:java.io.File=&gt;Boolean)(implicitcodec:scala.io.Codec):Transform.this.DirectoryConfigBuilder"></a>
+      <a id="fromDirectories(Seq[File],(File)⇒Boolean)(Codec):DirectoryConfigBuilder"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fromDirectories</span><span class="params">(<span name="roots">roots: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="java.io.File">File</span>]</span>, <span name="exclude">exclude: (<span class="extype" name="java.io.File">File</span>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="Transform$DirectoryConfigBuilder.html" class="extype" name="laika.api.Transform.DirectoryConfigBuilder">DirectoryConfigBuilder</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Parses files from the specified directories and its subdirectories,
+ merging them into a tree with a single root
+ and returns a new builder instance which allows to specify the output and
+ other configuration options.</p><div class="fullcomment"><div class="comment cmt"><p>Parses files from the specified directories and its subdirectories,
+ merging them into a tree with a single root
+ and returns a new builder instance which allows to specify the output and
+ other configuration options.
+</p></div><dl class="paramcmts block"><dt class="param">roots</dt><dd class="cmt"><p>the root directories to traverse</p></dd><dt class="param">exclude</dt><dd class="cmt"><p>the files to exclude from processing</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.
+</p></dd></dl></div>
+    </li><li name="laika.api.Transform#fromDirectories" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromDirectories(roots:Seq[java.io.File])(implicitcodec:scala.io.Codec):Transform.this.DirectoryConfigBuilder"></a>
+      <a id="fromDirectories(Seq[File])(Codec):DirectoryConfigBuilder"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fromDirectories</span><span class="params">(<span name="roots">roots: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="java.io.File">File</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="Transform$DirectoryConfigBuilder.html" class="extype" name="laika.api.Transform.DirectoryConfigBuilder">DirectoryConfigBuilder</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Parses files from the specified directories and its subdirectories,
+ merging them into a tree with a single root
+ and returns a new builder instance which allows to specify the output and
+ other configuration options.</p><div class="fullcomment"><div class="comment cmt"><p>Parses files from the specified directories and its subdirectories,
+ merging them into a tree with a single root
+ and returns a new builder instance which allows to specify the output and
+ other configuration options.
+</p></div><dl class="paramcmts block"><dt class="param">roots</dt><dd class="cmt"><p>the root directories to traverse</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.
+</p></dd></dl></div>
+    </li><li name="laika.api.Transform#fromDirectory" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromDirectory(dir:java.io.File,exclude:java.io.File=&gt;Boolean)(implicitcodec:scala.io.Codec):Transform.this.DirectoryConfigBuilder"></a>
+      <a id="fromDirectory(File,(File)⇒Boolean)(Codec):DirectoryConfigBuilder"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fromDirectory</span><span class="params">(<span name="dir">dir: <span class="extype" name="java.io.File">File</span></span>, <span name="exclude">exclude: (<span class="extype" name="java.io.File">File</span>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="Transform$DirectoryConfigBuilder.html" class="extype" name="laika.api.Transform.DirectoryConfigBuilder">DirectoryConfigBuilder</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Parses files from the specified directory and its subdirectories
+ and returns a new builder instance which allows to specify the output and
+ other configuration options.</p><div class="fullcomment"><div class="comment cmt"><p>Parses files from the specified directory and its subdirectories
+ and returns a new builder instance which allows to specify the output and
+ other configuration options.
+</p></div><dl class="paramcmts block"><dt class="param">dir</dt><dd class="cmt"><p>the directory to traverse</p></dd><dt class="param">exclude</dt><dd class="cmt"><p>the files to exclude from processing</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.</p></dd></dl></div>
     </li><li name="laika.api.Transform#fromDirectory" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="fromDirectory(dir:java.io.File)(implicitcodec:scala.io.Codec):Transform.this.DirectoryConfigBuilder"></a>
       <a id="fromDirectory(File)(Codec):DirectoryConfigBuilder"></a>
@@ -326,6 +386,24 @@ Document - Blocks: <span class="num">1</span>
  and returns a new builder instance which allows to specify the output and
  other configuration options.
 </p></div><dl class="paramcmts block"><dt class="param">dir</dt><dd class="cmt"><p>the directory to traverse</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.</p></dd></dl></div>
+    </li><li name="laika.api.Transform#fromDirectory" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromDirectory(name:String,exclude:java.io.File=&gt;Boolean)(implicitcodec:scala.io.Codec):Transform.this.DirectoryConfigBuilder"></a>
+      <a id="fromDirectory(String,(File)⇒Boolean)(Codec):DirectoryConfigBuilder"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fromDirectory</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="exclude">exclude: (<span class="extype" name="java.io.File">File</span>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="Transform$DirectoryConfigBuilder.html" class="extype" name="laika.api.Transform.DirectoryConfigBuilder">DirectoryConfigBuilder</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Parses files from the specified directory and its subdirectories
+ and returns a new builder instance which allows to specify the output and
+ other configuration options.</p><div class="fullcomment"><div class="comment cmt"><p>Parses files from the specified directory and its subdirectories
+ and returns a new builder instance which allows to specify the output and
+ other configuration options.
+</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the directory to traverse</p></dd><dt class="param">exclude</dt><dd class="cmt"><p>the files to exclude from processing</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.</p></dd></dl></div>
     </li><li name="laika.api.Transform#fromDirectory" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="fromDirectory(name:String)(implicitcodec:scala.io.Codec):Transform.this.DirectoryConfigBuilder"></a>
       <a id="fromDirectory(String)(Codec):DirectoryConfigBuilder"></a>
@@ -505,15 +583,15 @@ Document - Blocks: <span class="num">1</span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="laika.api.Transform#rendering" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="rendering(customRenderer:W=&gt;PartialFunction[laika.tree.Elements.Element,Unit]):laika.api.Transform[W]"></a>
-      <a id="rendering((W)⇒PartialFunction[Element,Unit]):Transform[W]"></a>
+      <a id="rendering(customRenderer:W=&gt;laika.tree.Elements.RenderFunction):laika.api.Transform[W]"></a>
+      <a id="rendering((W)⇒RenderFunction):Transform[W]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">rendering</span><span class="params">(<span name="customRenderer">customRenderer: (<span class="extype" name="laika.api.Transform.W">W</span>) ⇒ <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Unit">Unit</span>]</span>)</span><span class="result">: <a href="" class="extype" name="laika.api.Transform">Transform</a>[<span class="extype" name="laika.api.Transform.W">W</span>]</span>
+        <span class="name">rendering</span><span class="params">(<span name="customRenderer">customRenderer: (<span class="extype" name="laika.api.Transform.W">W</span>) ⇒ <a href="../tree/Elements$.html#RenderFunction=PartialFunction[laika.tree.Elements.Element,Unit]" class="extmbr" name="laika.tree.Elements.RenderFunction">RenderFunction</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.api.Transform">Transform</a>[<span class="extype" name="laika.api.Transform.W">W</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Specifies a custom render function that overrides one or more of the default
@@ -552,15 +630,15 @@ Document - Blocks: <span class="num">1</span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="laika.api.Transform#usingRule" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="usingRule(newRule:PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]):laika.api.Transform[W]"></a>
-      <a id="usingRule(PartialFunction[Element,Option[Element]]):Transform[W]"></a>
+      <a id="usingRule(newRule:laika.tree.Elements.RewriteRule):laika.api.Transform[W]"></a>
+      <a id="usingRule(RewriteRule):Transform[W]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">usingRule</span><span class="params">(<span name="newRule">newRule: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Option">Option</span>[<a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>]]</span>)</span><span class="result">: <a href="" class="extype" name="laika.api.Transform">Transform</a>[<span class="extype" name="laika.api.Transform.W">W</span>]</span>
+        <span class="name">usingRule</span><span class="params">(<span name="newRule">newRule: <a href="../tree/Elements$.html#RewriteRule=PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]" class="extmbr" name="laika.tree.Elements.RewriteRule">RewriteRule</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.api.Transform">Transform</a>[<span class="extype" name="laika.api.Transform.W">W</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Specifies a rewrite rule to be applied to the document tree model between the
@@ -664,21 +742,39 @@ Document - Blocks: <span class="num">1</span>
 </p></div><dl class="paramcmts block"><dt class="param">builder</dt><dd class="cmt"><p>a builder for the configuration for the input and output trees to process
 </p></dd></dl></div>
     </li><li name="laika.api.Transform#withDefaultDirectories" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withDefaultDirectories(implicitcodec:scala.io.Codec):Unit"></a>
-      <a id="withDefaultDirectories(Codec):Unit"></a>
+      <a id="withDefaultDirectories(exclude:java.io.File=&gt;Boolean)(implicitcodec:scala.io.Codec):Unit"></a>
+      <a id="withDefaultDirectories((File)⇒Boolean)(Codec):Unit"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">withDefaultDirectories</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">withDefaultDirectories</span><span class="params">(<span name="exclude">exclude: (<span class="extype" name="java.io.File">File</span>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol"><span class="name"><a href="../package.html">hiddenFileFilter</a></span></span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses files from the <code>source</code> directory inside the current working directory
  and renders the result to the <code>target</code> directory inside the current working directory.</p><div class="fullcomment"><div class="comment cmt"><p>Parses files from the <code>source</code> directory inside the current working directory
  and renders the result to the <code>target</code> directory inside the current working directory.
-</p></div><dl class="paramcmts block"><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.
+</p></div><dl class="paramcmts block"><dt class="param">exclude</dt><dd class="cmt"><p>the files to exclude from processing</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.
+</p></dd></dl></div>
+    </li><li name="laika.api.Transform#withRootDirectory" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withRootDirectory(dir:java.io.File,exclude:java.io.File=&gt;Boolean)(implicitcodec:scala.io.Codec):Unit"></a>
+      <a id="withRootDirectory(File,(File)⇒Boolean)(Codec):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withRootDirectory</span><span class="params">(<span name="dir">dir: <span class="extype" name="java.io.File">File</span></span>, <span name="exclude">exclude: (<span class="extype" name="java.io.File">File</span>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Parses files from the <code>source</code> directory inside the specified root directory
+ and renders the result to the <code>target</code> directory inside the root directory.</p><div class="fullcomment"><div class="comment cmt"><p>Parses files from the <code>source</code> directory inside the specified root directory
+ and renders the result to the <code>target</code> directory inside the root directory.
+ Both directories must already exist inside the specified directory.
+</p></div><dl class="paramcmts block"><dt class="param">dir</dt><dd class="cmt"><p>the root directory that contains the source and target directory</p></dd><dt class="param">exclude</dt><dd class="cmt"><p>the files to exclude from processing</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.
 </p></dd></dl></div>
     </li><li name="laika.api.Transform#withRootDirectory" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="withRootDirectory(dir:java.io.File)(implicitcodec:scala.io.Codec):Unit"></a>
@@ -697,6 +793,24 @@ Document - Blocks: <span class="num">1</span>
  and renders the result to the <code>target</code> directory inside the root directory.
  Both directories must already exist inside the specified directory.
 </p></div><dl class="paramcmts block"><dt class="param">dir</dt><dd class="cmt"><p>the root directory that contains the source and target directory</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.
+</p></dd></dl></div>
+    </li><li name="laika.api.Transform#withRootDirectory" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withRootDirectory(name:String,exclude:java.io.File=&gt;Boolean)(implicitcodec:scala.io.Codec):Unit"></a>
+      <a id="withRootDirectory(String,(File)⇒Boolean)(Codec):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withRootDirectory</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="exclude">exclude: (<span class="extype" name="java.io.File">File</span>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Parses files from the <code>source</code> directory inside the specified root directory
+ and renders the result to the <code>target</code> directory inside the root directory.</p><div class="fullcomment"><div class="comment cmt"><p>Parses files from the <code>source</code> directory inside the specified root directory
+ and renders the result to the <code>target</code> directory inside the root directory.
+ Both directories must already exist inside the specified directory.
+</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the root directory that contains the source and target directory</p></dd><dt class="param">exclude</dt><dd class="cmt"><p>the files to exclude from processing</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.
 </p></dd></dl></div>
     </li><li name="laika.api.Transform#withRootDirectory" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="withRootDirectory(name:String)(implicitcodec:scala.io.Codec):Unit"></a>

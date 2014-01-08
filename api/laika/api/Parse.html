@@ -42,7 +42,7 @@
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>API for performing a parse operation from various types of input to obtain
  a document tree without a subsequent render operation.</p><p> In cases where a render operation should follow immediately, it is more
  convenient to use the <a href="Transform.html" class="extype" name="laika.api.Transform">laika.api.Transform</a> API instead which
- combines a parse and a render operation directly.</p><p> Example for parsing Markdown from a file:</p><pre><span class="kw">val</span> doc = Parse as Markdown fromFile <span class="lit">"hello.md"</span></pre><p> Example for parsing from an entire directory:</p><pre><span class="kw">val</span> tree = Parse as Markdown fromDirectory <span class="lit">"path/to/source"</span></pre></div><div class="toggleContainer block">
+ combines a parse and a render operation directly.</p><p> Example for parsing Markdown from a file:</p><pre><span class="kw">val</span> doc = Parse as Markdown fromFile <span class="lit">"hello.md"</span></pre><p> Example for parsing from an entire directory:</p><pre><span class="kw">val</span> tree = Parse as Markdown fromDirectory <span class="lit">"path/to/source"</span></pre><p> Example for parsing a directory that contains markup documents in different formats:</p><pre><span class="kw">val</span> tree = Parse as Markdown or ReStructuredText fromDirectory <span class="lit">"path/to/source"</span></pre></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -166,24 +166,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="laika.api.Parse#asRawDocument" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="asRawDocument:laika.api.Parse"></a>
-      <a id="asRawDocument:Parse"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">asRawDocument</span><span class="result">: <a href="" class="extype" name="laika.api.Parse">Parse</a></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Returns a new Parse instance that produces raw document trees without applying
- the default rewrite rules.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new Parse instance that produces raw document trees without applying
- the default rewrite rules. These rules resolve link and image references and
- rearrange the tree into a hierarchy of sections based on the (flat) sequence
- of header instances found in the document.
-</p></div></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
@@ -229,6 +211,23 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="laika.api.Parse#fileSuffixes" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fileSuffixes:scala.collection.immutable.Set[String]"></a>
+      <a id="fileSuffixes:Set[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fileSuffixes</span><span class="result">: <span class="extype" name="scala.collection.immutable.Set">Set</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">The file suffixes recognized by this parser.</p><div class="fullcomment"><div class="comment cmt"><p>The file suffixes recognized by this parser.
+ When transforming entire directories only files with
+ names ending in one of the specified suffixes will
+ be consired.
+</p></div></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -249,21 +248,76 @@
               
         </dd></dl></div>
     </li><li name="laika.api.Parse#fromDefaultDirectory" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="fromDefaultDirectory(implicitcodec:scala.io.Codec):laika.tree.Documents.DocumentTree"></a>
-      <a id="fromDefaultDirectory(Codec):DocumentTree"></a>
+      <a id="fromDefaultDirectory(exclude:java.io.File=&gt;Boolean)(implicitcodec:scala.io.Codec):laika.tree.Documents.DocumentTree"></a>
+      <a id="fromDefaultDirectory((File)⇒Boolean)(Codec):DocumentTree"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">fromDefaultDirectory</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
+        <span class="name">fromDefaultDirectory</span><span class="params">(<span name="exclude">exclude: (<span class="extype" name="java.io.File">File</span>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol"><span class="name"><a href="../package.html">hiddenFileFilter</a></span></span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Returns a document tree obtained by parsing files from the
  current working directory.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a document tree obtained by parsing files from the
  current working directory.
-</p></div><dl class="paramcmts block"><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.
+</p></div><dl class="paramcmts block"><dt class="param">exclude</dt><dd class="cmt"><p>the files to exclude from processing</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.
+</p></dd></dl></div>
+    </li><li name="laika.api.Parse#fromDirectories" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromDirectories(roots:Seq[java.io.File],exclude:java.io.File=&gt;Boolean)(implicitcodec:scala.io.Codec):laika.tree.Documents.DocumentTree"></a>
+      <a id="fromDirectories(Seq[File],(File)⇒Boolean)(Codec):DocumentTree"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fromDirectories</span><span class="params">(<span name="roots">roots: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="java.io.File">File</span>]</span>, <span name="exclude">exclude: (<span class="extype" name="java.io.File">File</span>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Returns a document tree obtained by parsing files from the
+ specified directories and its subdirectories, merging them into
+ a tree with a single root.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a document tree obtained by parsing files from the
+ specified directories and its subdirectories, merging them into
+ a tree with a single root.
+</p></div><dl class="paramcmts block"><dt class="param">roots</dt><dd class="cmt"><p>the root directories to traverse</p></dd><dt class="param">exclude</dt><dd class="cmt"><p>the files to exclude from processing</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.
+</p></dd></dl></div>
+    </li><li name="laika.api.Parse#fromDirectories" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromDirectories(roots:Seq[java.io.File])(implicitcodec:scala.io.Codec):laika.tree.Documents.DocumentTree"></a>
+      <a id="fromDirectories(Seq[File])(Codec):DocumentTree"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fromDirectories</span><span class="params">(<span name="roots">roots: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="java.io.File">File</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Returns a document tree obtained by parsing files from the
+ specified directories and its subdirectories, merging them into
+ a tree with a single root.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a document tree obtained by parsing files from the
+ specified directories and its subdirectories, merging them into
+ a tree with a single root.
+</p></div><dl class="paramcmts block"><dt class="param">roots</dt><dd class="cmt"><p>the root directories to traverse</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.
+</p></dd></dl></div>
+    </li><li name="laika.api.Parse#fromDirectory" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromDirectory(dir:java.io.File,exclude:java.io.File=&gt;Boolean)(implicitcodec:scala.io.Codec):laika.tree.Documents.DocumentTree"></a>
+      <a id="fromDirectory(File,(File)⇒Boolean)(Codec):DocumentTree"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fromDirectory</span><span class="params">(<span name="dir">dir: <span class="extype" name="java.io.File">File</span></span>, <span name="exclude">exclude: (<span class="extype" name="java.io.File">File</span>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Returns a document tree obtained by parsing files from the
+ specified directory and its subdirectories.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a document tree obtained by parsing files from the
+ specified directory and its subdirectories.
+</p></div><dl class="paramcmts block"><dt class="param">dir</dt><dd class="cmt"><p>the root directory to traverse</p></dd><dt class="param">exclude</dt><dd class="cmt"><p>the files to exclude from processing</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.
 </p></dd></dl></div>
     </li><li name="laika.api.Parse#fromDirectory" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="fromDirectory(dir:java.io.File)(implicitcodec:scala.io.Codec):laika.tree.Documents.DocumentTree"></a>
@@ -281,6 +335,23 @@
  specified directory and its subdirectories.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a document tree obtained by parsing files from the
  specified directory and its subdirectories.
 </p></div><dl class="paramcmts block"><dt class="param">dir</dt><dd class="cmt"><p>the root directory to traverse</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.
+</p></dd></dl></div>
+    </li><li name="laika.api.Parse#fromDirectory" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromDirectory(name:String,exclude:java.io.File=&gt;Boolean)(implicitcodec:scala.io.Codec):laika.tree.Documents.DocumentTree"></a>
+      <a id="fromDirectory(String,(File)⇒Boolean)(Codec):DocumentTree"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fromDirectory</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="exclude">exclude: (<span class="extype" name="java.io.File">File</span>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Returns a document tree obtained by parsing files from the
+ specified directory and its subdirectories.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a document tree obtained by parsing files from the
+ specified directory and its subdirectories.
+</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the directory to traverse</p></dd><dt class="param">exclude</dt><dd class="cmt"><p>the files to exclude from processing</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.
 </p></dd></dl></div>
     </li><li name="laika.api.Parse#fromDirectory" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="fromDirectory(name:String)(implicitcodec:scala.io.Codec):laika.tree.Documents.DocumentTree"></a>
@@ -502,6 +573,25 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="laika.api.Parse#or" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="or(factory:laika.factory.ParserFactory):laika.api.Parse"></a>
+      <a id="or(ParserFactory):Parse"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">or</span><span class="params">(<span name="factory">factory: <a href="../factory/ParserFactory.html" class="extype" name="laika.factory.ParserFactory">ParserFactory</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.api.Parse">Parse</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Returns a new Parse instance adding the specified parser factory.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new Parse instance adding the specified parser factory.
+ This factory is usually an object provided by the library
+ or a plugin that is capable of parsing a specific markup
+ format like Markdown or reStructuredText.</p><p> This method is useful if you want to combine different markup
+ formats within a single document tree.
+</p></div><dl class="paramcmts block"><dt class="param">factory</dt><dd class="cmt"><p>the parser factory to add to the previously specified parsers
+</p></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -585,12 +675,49 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="laika.api.Parse#withoutRewrite" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withoutRewrite:laika.api.Parse"></a>
+      <a id="withoutRewrite:Parse"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withoutRewrite</span><span class="result">: <a href="" class="extype" name="laika.api.Parse">Parse</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Returns a new Parse instance that produces raw document trees without applying
+ the default rewrite rules.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new Parse instance that produces raw document trees without applying
+ the default rewrite rules. These rules resolve link and image references and
+ rearrange the tree into a hierarchy of sections based on the (flat) sequence
+ of header instances found in the document.
+</p></div></div>
     </li></ol>
             </div>
 
         
 
-        
+        <div id="values" class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="laika.api.Parse#asRawDocument" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asRawDocument:laika.api.Parse"></a>
+      <a id="asRawDocument:Parse"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.5.0) Use withoutRewrite instead">asRawDocument</span><span class="result">: <a href="" class="extype" name="laika.api.Parse">Parse</a></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.5.0)</i> Use withoutRewrite instead</p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">

@@ -34,23 +34,24 @@
           <div class="nav-top"><img src="../img/laika-top.png"/></div>
           
           
-  <li class="nav-header">Introduction</li>
-  <li><a href="../introduction/intro.html">Overview</a></li>
-  <li><a href="../introduction/architecture.html">Architecture</a></li>
-  <li class="nav-header">Using Laika</li>
-  <li><a href="../using-laika/basics.html">Transformation Basics</a></li>
-  <li><a href="../using-laika/markup.html">Supported Markup</a></li>
-  <li><a href="../using-laika/structure.html">Document Structure</a></li>
-  <li><a href="../using-laika/templates.html">Templates</a></li>
-  <li class="nav-header">Customizing Laika</li>
-  <li><a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a></li>
-  <li><a href="../customizing-laika/tree-rewriting.html">Document Tree Rewriting</a></li>
-  <li><a href="../customizing-laika/parsing-rendering.html">Separate Parsing and Rendering</a></li>
-  <li class="nav-header">Extending Laika</li>
-  <li class="active"><a href="#">Directives</a></li>
-  <li><a href="parser.html">Parsers</a></li>
-  <li><a href="renderer.html">Renderers</a></li>
-  <li><a href="extending-rst.html">Extending reStructuredText</a></li>
+          <li class="nav-header">Introduction</li>
+          <li><a href="../introduction/intro.html">Overview</a></li>
+          <li><a href="../introduction/architecture.html">Architecture</a></li>
+          <li class="nav-header">Using Laika</li>
+          <li><a href="../using-laika/sbt.html">Using the sbt Plugin</a></li>
+          <li><a href="../using-laika/embedded.html">Using Laika Embedded</a></li>
+          <li><a href="../using-laika/markup.html">Supported Markup</a></li>
+          <li><a href="../using-laika/structure.html">Document Structure</a></li>
+          <li><a href="../using-laika/templates.html">Templates</a></li>
+          <li class="nav-header">Customizing Laika</li>
+          <li><a href="../customizing-laika/customize-rendering.html">Customizing Renderers</a></li>
+          <li><a href="../customizing-laika/tree-rewriting.html">Document Tree Rewriting</a></li>
+          <li><a href="../customizing-laika/parsing-rendering.html">Separate Parsing and Rendering</a></li>
+          <li class="nav-header">Extending Laika</li>
+          <li class="active"><a href="#">Directives</a></li>
+          <li><a href="parser.html">Parsers</a></li>
+          <li><a href="renderer.html">Renderers</a></li>
+          <li><a href="extending-rst.html">Extending reStructuredText</a></li>
           
           <div class="nav-bottom"><img src="../img/laika-bottom.png" border="1"/></div>
         </ul>
@@ -60,74 +61,74 @@
       <div class="span8" id="top">
 
         <div class="page-header">
-    <h1>Implementing a Directive</h1>
-  </div>
-  <p>Directives are Laika&#39;s extension hook for both, templates and text markup.
-  They allow to add new tag-like constructs without touching the existing parsers.</p>
-  <p>Each directive expects a configurable combination of attributes or body elements,
-  where some of them may be required, while others may be optional. Laika takes care
-  of parsing and validating these directive parts based on your declarations
-  and then passes these values to your directive function (in a type-safe way)
-  that produces a node element to add to the document tree result.</p>
-  
-  <h2 id="directive-types" class="section">Directive Types</h2>
-  <p>Due to subtle differences in the node types they produce, there is a
-  distinction between three directive types:</p>
-  <ul>
-    <li>Template directives, which produce <code>TemplateSpan</code> elements (or alternatively simple strings
-    if you do not mind that your directive can only be used with one output format)</li>
-    <li>Directives for block elements in markup, which produce <code>Block</code> elements</li>
-    <li>Directives for inline elements in markup, which produce <code>Span</code> elements</li>
-  </ul>
-  <p>If you want to create a directive that can be used in all three locations
-  you can usually easily reuse parts of your logic. If your directive version
-  for inline elements generates a simple <code>ExternalLink</code> node for example,
-  you can simply wrap that same node in a <code>Paragraph</code> node for a block-level 
-  directive.</p>
-  
-  <h2 id="directive-syntax" class="section">Directive Syntax</h2>
-  <p>A very minimal example is the <code>toc</code> directive for inserting a table of contents.
-  Since all its attributes are optional, it can simply be used like this:</p>
-  <pre>@:toc.</pre>
-  <p>A directive always starts with <code>@:</code> followed by the name of the 
-  directive. When there are no further attributes or body elements
-  you can close it with a <code>.</code></p>
-  <p>A more complete example is the use of the <code>for</code> directive:</p>
-  <pre>@:for &quot;document.sections&quot;: {
+          <h1>Directives</h1>
+        </div>
+        <p>Directives are Laika&#39;s extension hook for both, templates and text markup.
+        They allow to add new tag-like constructs without touching the existing parsers.</p>
+        <p>Each directive expects a configurable combination of attributes or body elements,
+        where some of them may be required, while others may be optional. Laika takes care
+        of parsing and validating these directive parts based on your declarations
+        and then passes these values to your directive function (in a type-safe way)
+        that produces a node element to add to the document tree result.</p>
+        
+        <h2 id="directive-types" class="section">Directive Types</h2>
+        <p>Due to subtle differences in the node types they produce, there is a
+        distinction between three directive types:</p>
+        <ul>
+          <li>Template directives, which produce <code>TemplateSpan</code> elements (or alternatively simple strings
+          if you do not mind that your directive can only be used with one output format)</li>
+          <li>Directives for block elements in markup, which produce <code>Block</code> elements</li>
+          <li>Directives for inline elements in markup, which produce <code>Span</code> elements</li>
+        </ul>
+        <p>If you want to create a directive that can be used in all three locations
+        you can usually easily reuse parts of your logic. If your directive version
+        for inline elements generates a simple <code>ExternalLink</code> node for example,
+        you can simply wrap that same node in a <code>Paragraph</code> node for a block-level 
+        directive.</p>
+        
+        <h2 id="directive-syntax" class="section">Directive Syntax</h2>
+        <p>A very minimal example is the <code>toc</code> directive for inserting a table of contents.
+        Since all its attributes are optional, it can simply be used like this:</p>
+        <pre>@:toc.</pre>
+        <p>A directive always starts with <code>@:</code> followed by the name of the 
+        directive. When there are no further attributes or body elements
+        you can close it with a <code>.</code></p>
+        <p>A more complete example is the use of the <code>for</code> directive:</p>
+        <pre>@:for &quot;document.sections&quot;: {
   &lt;li&gt;&lt;a href=&quot;#{{id}}&quot;&gt;{{title.content}}&lt;/a&gt;&lt;/li&gt;
 } </pre>
-  <p>Here <code>for</code> is the name of the directive, <code>&quot;document.sections&quot;</code> is an unnamed
-  attribute (where in this case the value is interpreted as a variable reference),
-  and finally, enclosed in curly braces the body of the directive. The opening
-  declaration with directive name and attributes ends with a <code>:</code> and not with <code>.</code> 
-  if it is followed by body elements.</p>
-  
-  <h2 id="example-implementation" class="section">Example Implementation</h2>
-  <p>You can browse the source of the built-in directives here: <a href="https://github.com/planet42/Laika/blob/master/src/main/scala/laika/directive/StandardDirectives.scala">directive-api</a>
-  But the logic required for the <code>toc</code> or <code>for</code> directives is probably much 
-  more complicated than what you would usually do for a little custom
-  helper tag that you need to unclutter your templates.</p>
-  <p>Therefore we&#39;ll show and explain a very simple example here that
-  should be sufficient to get you started.</p>
-  <p>Our <code>ticket</code> directive constructs an external link to our
-  bugtracker. Since the base URL is always the same, we want to
-  only write:</p>
-  <pre>@:ticket 456.
+        <p>Here <code>for</code> is the name of the directive, <code>&quot;document.sections&quot;</code> is an unnamed
+        attribute (where in this case the value is interpreted as a variable reference),
+        and finally, enclosed in curly braces the body of the directive. The opening
+        declaration with directive name and attributes ends with a <code>:</code> and not with <code>.</code> 
+        if it is followed by body elements.</p>
+        
+        <h2 id="example-implementation" class="section">Example Implementation</h2>
+        <p>You can browse the source of the built-in directives here: <a href="https://github.com/planet42/Laika/blob/master/src/main/scala/laika/directive/StandardDirectives.scala">directive-api</a>
+        But the logic required for the <code>toc</code> or <code>for</code> directives is probably much 
+        more complicated than what you would usually do for a little custom
+        helper tag that you need to unclutter your templates.</p>
+        <p>Therefore we&#39;ll show and explain a very simple example here that
+        should be sufficient to get you started.</p>
+        <p>Our <code>ticket</code> directive constructs an external link to our
+        bugtracker. Since the base URL is always the same, we want to
+        only write:</p>
+        <pre>@:ticket 456.
 </pre>
-  <p>to get the output:</p>
-  <pre>&lt;a href=&quot;http://tickets.cloud42.com/main-project/456&quot;&gt;#456&lt;/a&gt;
+        <p>to get the output:</p>
+        <pre>&lt;a href=&quot;http://tickets.cloud42.com/main-project/456&quot;&gt;#456&lt;/a&gt;
 </pre>
-  <p>Or optionally specify a different project than the main one:</p>
-  <pre>@:ticket 456 project=pineapple.
+        <p>Or optionally specify a different project than the main one:</p>
+        <pre>@:ticket 456 project=pineapple.
 </pre>
-  <p>to get the output:</p>
-  <pre>&lt;a href=&quot;http://tickets.cloud42.com/pineapple/456&quot;&gt;#456&lt;/a&gt;</pre>
-  <p>The following sections explain how to implement the tag
-  and then how to add it either to the Markdown or reStructuredText
-  parser or to the template parser.</p>
-  
-  <h3 id="directive-implementation" class="section">Directive Implementation</h3>
-  <pre>val directive = Spans.create(&quot;ticket&quot;) {
+        <p>to get the output:</p>
+        <pre>&lt;a href=&quot;http://tickets.cloud42.com/pineapple/456&quot;&gt;#456&lt;/a&gt;</pre>
+        <p>The following sections explain how to implement the tag
+        and then how to add it either to the Markdown or reStructuredText
+        parser or to the template parser.</p>
+        
+        <h3 id="directive-implementation" class="section">Directive Implementation</h3>
+        <pre>val directive = Spans.create(&quot;ticket&quot;) {
   (attribute(Default) ~ attribute(&quot;project&quot;).optional) { 
     (ticketNo, project) =&gt; 
       val base = &quot;http://tickets.cloud42.com/&quot;
@@ -137,170 +138,272 @@
   }
 }
 </pre>
-  <p>Let&#39;s examine the code:</p>
-  <p>With <code>Spans.create(&quot;ticket&quot;)</code> we specify the name of the directive (<code>ticket</code>)
-  which is also the name we are going to use in markup files (<code>@:ticket</code>).</p>
-  <p>The <code>Spans</code> object let&#39;s us create a directive for an inline element
-  as that has a different node type as the final result of the directive 
-  and the API is typesafe. For block level markup directives you&#39;d use
-  the <code>Blocks</code> object, for template directives the <code>Templates</code> object.
-  The features and APIs are identical, but there are subtle differences
-  in return types.</p>
-  <p>With <code>attribute(Default)</code> we specify that we expect a default (unnamed)
-  attribute which is required. When a required attribute is missing
-  our directive function will never be invoked. Instead Laika inserts
-  a node of type <code>InvalidSpan</code> into the document tree (which we may
-  then choose to render or not).</p>
-  <p>With <code>attribute(&quot;project&quot;).optional</code> we specify that we expect an
-  attribute with the name <code>project</code> which is optional. In case it is 
-  missing our directive function will still be invoked.</p>
-  <p>The <code>~</code> method chains our declarations together. This operator is fairly
-  common in Scala lands, you&#39;ve very likely seen it in other APIs already.</p>
-  <p><code>(ticketNo, project)</code> are the parameters that the parser will pass
-  to our function after parsing and validating the directive. They
-  have a type corresponding to our configuration. <code>ticketNo</code> is of
-  type <code>String</code> (you can also specify converters to other types, but
-  that is not needed here). <code>project</code> is of type <code>Option[String]</code> since
-  we declared it as optional.</p>
-  <p>The rest is just plain Scala code. The result is of type <code>ExternalLink</code>
-  which is one type of Laika&#39;s rich tree model. It mixes in the <code>Span</code>
-  trait and thus satisfies the requirement of an inline directive.</p>
-  
-  <h3 id="directive-registration" class="section">Directive Registration</h3>
-  <p>Finally all we need to do is register our directive before parsing:</p>
-  <p>Markdown:</p>
-  <pre>Transform from Markdown.withSpanDirectives(directive) to 
+        <p>Let&#39;s examine the code:</p>
+        <p>With <code>Spans.create(&quot;ticket&quot;)</code> we specify the name of the directive (<code>ticket</code>)
+        which is also the name we are going to use in markup files (<code>@:ticket</code>).</p>
+        <p>The <code>Spans</code> object let&#39;s us create a directive for an inline element
+        as that has a different node type as the final result of the directive 
+        and the API is typesafe. For block level markup directives you&#39;d use
+        the <code>Blocks</code> object, for template directives the <code>Templates</code> object.
+        The features and APIs are identical, but there are subtle differences
+        in return types.</p>
+        <p>With <code>attribute(Default)</code> we specify that we expect a default (unnamed)
+        attribute which is required. When a required attribute is missing
+        our directive function will never be invoked. Instead Laika inserts
+        a node of type <code>InvalidSpan</code> into the document tree (which we may
+        then choose to render or not).</p>
+        <p>With <code>attribute(&quot;project&quot;).optional</code> we specify that we expect an
+        attribute with the name <code>project</code> which is optional. In case it is 
+        missing our directive function will still be invoked.</p>
+        <p>The <code>~</code> method chains our declarations together. This operator is fairly
+        common in Scala lands, you&#39;ve very likely seen it in other APIs already.</p>
+        <p><code>(ticketNo, project)</code> are the parameters that the parser will pass
+        to our function after parsing and validating the directive. They
+        have a type corresponding to our configuration. <code>ticketNo</code> is of
+        type <code>String</code> (you can also specify converters to other types, but
+        that is not needed here). <code>project</code> is of type <code>Option[String]</code> since
+        we declared it as optional.</p>
+        <p>The rest is just plain Scala code. The result is of type <code>ExternalLink</code>
+        which is one type of Laika&#39;s rich tree model. It mixes in the <code>Span</code>
+        trait and thus satisfies the requirement of an inline directive.</p>
+        
+        <h3 id="directive-registration" class="section">Directive Registration</h3>
+        <p>Finally all we need to do is register our directive before parsing.
+        All the examples below refer to the <code>directive</code> variable we declared
+        in the example in the previous section.</p>
+        <p><strong>sbt Plugin</strong>:</p>
+        <pre>import LaikaKeys._
+
+// ... your standard build stuff
+
+LaikaPlugin.defaults
+
+spanDirectives in Laika += directive
+</pre>
+        <p>This registers the directive for both Markdown and reStructuredText
+        parsers. </p>
+        <p>The directive implementation itself usually requires some
+        amount of logic, so is usually best kept separately in a <code>.scala</code>
+        file in the <code>project</code> directory and then referenced from your
+        <code>build.sbt</code>. Reusable directives are best packaged as a library
+        and then added as a dependency of your build.</p>
+        <p><strong>Markdown</strong>:</p>
+        <pre>Transform from Markdown.withSpanDirectives(directive) to 
   HTML fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;   </pre>
-  <p>The <code>directive</code> variable refers to the instance we created above.
-  We can now use our <code>ticket</code> directive in Markdown files!</p>
-  <p>reStructuredText:</p>
-  <pre>Transform from ReStructuredText.withLaikaSpanDirectives(directive) to 
+        <p>The <code>directive</code> variable refers to the instance we created above.
+        We can now use our <code>ticket</code> directive in Markdown files!</p>
+        <p><strong>reStructuredText</strong>:</p>
+        <pre>Transform from ReStructuredText.withLaikaSpanDirectives(directive) to 
   HTML fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;  </pre>
-  <p>The only difference here is that the method name is <code>withLaikaSpanDirectives</code>
-  as reStructuredText comes with its own concept of directives which is only
-  supported in the reStructuredText parser.</p>
-  <p>Templates:</p>
-  <pre>Transform from Markdown to HTML fromDirectory 
+        <p>The only difference here is that the method name is <code>withLaikaSpanDirectives</code>
+        as reStructuredText comes with its own concept of directives which is only
+        supported in the reStructuredText parser.</p>
+        <p><strong>Templates</strong>:</p>
+        <pre>Transform from Markdown to HTML fromDirectory 
   &quot;source&quot; withTemplateDirectives directive toDirectory &quot;target&quot; </pre>
-  <p>When you also want to use the directive in templates you need to create
-  a very similar declaration like the one above, just starting with <code>Templates.create</code>
-  instead and wrapping the <code>ExternalLink</code> node in a <code>TemplateElement</code>. You can extract
-  the rest of the logic into a shared function.</p>
-  <p>Therefore the type of the variable <code>directive</code> is <code>Templates.Directive</code>, and not
-  <code>Spans.Directive</code> like in the previous examples.</p>
-  
-  <h2 id="api-reference" class="section">API Reference</h2>
-  <p>The example implementation only showed a few options for declaring the
-  expected parts of your directive. Even though there is full scaladoc
-  for the API, the combinators and converters are a bit scattered over
-  different objects, so we assemble them here for easier reference.</p>
-  
-  <h3 id="default-attributes" class="section">Default Attributes</h3>
-  <p>A default attribute is an attribute without a name. 
-  It has to be the first attribute before any named attributes.
-  It allows for more concise syntax in all the cases where usually only one
-  attribute is used and its meaning is obvious.</p>
-  <p>Markup example:</p>
-  <pre>@:name arg.</pre>
-  <p>Combinator:</p>
-  <pre>attribute(Default)
+        <p>When you also want to use the directive in templates you need to create
+        a very similar declaration like the one above, just starting with <code>Templates.create</code>
+        instead and wrapping the <code>ExternalLink</code> node in a <code>TemplateElement</code>. You can extract
+        the rest of the logic into a shared function.</p>
+        <p>Therefore the type of the variable <code>directive</code> is <code>Templates.Directive</code>, and not
+        <code>Spans.Directive</code> like in the previous examples.</p>
+        
+        <h2 id="api-reference" class="section">API Reference</h2>
+        <p>The example implementation only showed a few options for declaring the
+        expected parts of your directive. Even though there is full scaladoc
+        for the API, the combinators and converters are a bit scattered over
+        different objects, so we assemble them here for easier reference.</p>
+        
+        <h3 id="default-attributes" class="section">Default Attributes</h3>
+        <p>A default attribute is an attribute without a name. 
+        It has to be the first attribute before any named attributes.
+        It allows for more concise syntax in all the cases where usually only one
+        attribute is used and its meaning is obvious.</p>
+        <p>Markup example:</p>
+        <pre>@:name arg.</pre>
+        <p>Combinator:</p>
+        <pre>attribute(Default)
 
 </pre>
-  
-  <h3 id="named-attributes" class="section">Named Attributes</h3>
-  <p>A named attribute can appear after the default attribute or right
-  after the directory name in case there is no default attribute.
-  The order of attributes does not matter, it does not need to match
-  the order you declared them in (that&#39;s why they have names after all).</p>
-  <p>Markup example:</p>
-  <pre>@:name myAttr=value.</pre>
-  <p>Combinator:</p>
-  <pre>attribute(&quot;myAttr&quot;)</pre>
-  
-  <h3 id="default-bodies" class="section">Default Bodies</h3>
-  <p>A default body is a body element without a name. 
-  It has to be the first body before any named body elements.</p>
-  <p>Markup example:</p>
-  <pre>@:name: { 
+        
+        <h3 id="named-attributes" class="section">Named Attributes</h3>
+        <p>A named attribute can appear after the default attribute or right
+        after the directory name in case there is no default attribute.
+        The order of attributes does not matter, it does not need to match
+        the order you declared them in (that&#39;s why they have names after all).</p>
+        <p>Markup example:</p>
+        <pre>@:name myAttr=value.</pre>
+        <p>Combinator:</p>
+        <pre>attribute(&quot;myAttr&quot;)</pre>
+        
+        <h3 id="default-bodies" class="section">Default Bodies</h3>
+        <p>A default body is a body element without a name. 
+        It has to be the first body before any named body elements.</p>
+        <p>Markup example:</p>
+        <pre>@:name: { 
   this is the content of the default body 
 }</pre>
-  <p>Combinator:</p>
-  <pre>body(Default)
+        <p>Combinator:</p>
+        <pre>body(Default)
 
 </pre>
-  
-  <h3 id="named-bodies" class="section">Named Bodies</h3>
-  <p>A named body element usually appears after a default body (but it does not have
-  to). In the example below the second body has the name <code>empty</code>.</p>
-  <p>Markup example:</p>
-  <pre>@:for &quot;documents.sections&quot;: { 
+        
+        <h3 id="named-bodies" class="section">Named Bodies</h3>
+        <p>A named body element usually appears after a default body (but it does not have
+        to). In the example below the second body has the name <code>empty</code>.</p>
+        <p>Markup example:</p>
+        <pre>@:for &quot;documents.sections&quot;: { 
   &lt;li&gt;{{title.content}}&lt;/li&gt;
 } ~empty: {
   &lt;p&gt;no sections&lt;/p&gt;
 }</pre>
-  <p>Combinator:</p>
-  <pre>body(&quot;empty&quot;)
+        <p>Combinator:</p>
+        <pre>body(&quot;empty&quot;)
 </pre>
-  
-  <h3 id="optional-elements" class="section">Optional Elements</h3>
-  <p>All the element types shown above, default and named attributes as well
-  as default and named bodies can be marked as optional.</p>
-  <p>Combinator:</p>
-  <pre>body(&quot;empty&quot;).optional
+        
+        <h3 id="optional-elements" class="section">Optional Elements</h3>
+        <p>All the element types shown above, default and named attributes as well
+        as default and named bodies can be marked as optional.</p>
+        <p>Combinator:</p>
+        <pre>body(&quot;empty&quot;).optional
 </pre>
-  <p>The parameter type of your directive function changes accordingly,
-  from <code>T</code> to <code>Option[T]</code> where <code>T</code> is either the type returned by
-  your converter (see below) or the default type (which is different
-  for body and attribute elements (again see next section).</p>
-  
-  <h3 id="converters" class="section">Converters</h3>
-  <p>For any attribute or body element a converter can be specified.
-  If it is left out the default types are as follows:</p>
-  <ul>
-    <li><code>String</code> for attributes in all directive types</li>
-    <li><code>Seq[Block]</code> for body elements in block directives</li>
-    <li><code>Seq[Span]</code> for body elements in inline directives</li>
-    <li><code>Seq[TemplateSpan]</code> for body elements in template directives</li>
-  </ul>
-  <p>This means that for body elements they are already parsed by default,
-  as this is the most likely requirement for a directive.</p>
-  <p>The object <code>Converters</code> in the <code>Directives</code> object contains several
-  pre-built converters, like <code>positiveInt</code>:</p>
-  <pre>attribute(&quot;depth&quot;, Converters.positiveInt).optional</pre>
-  <p>It will validate the attribute value and only invoke your directive
-  function if it succeeds. The parameter type in your function changes
-  to <code>Option[Int]</code> accordingly.</p>
-  <p>If you want to implement your own converter, it simply has to
-  be a function of type <code>(Parser, String) =&gt; Result[T]</code> for which
-  a type alias <code>Converter[T]</code> exists.</p>
-  
-  <h3 id="access-to-the-parser" class="section">Access to the Parser</h3>
-  <p>For block elements the default is to pre-parse the content for you,
-  so there is rarely a need to parse something yourself. But if you need to,
-  it wouldn&#39;t be a good idea to instantiate your own parser. Because it
-  would not have access to any of the directives or other configuration
-  options active for this operation (unless you manually duplicate it which
-  is brittle). Therefore you can request a parser for your function in 
-  addition to the other values:</p>
-  <pre>attribute(Default) ~ parser { (attrValue, parser) =&gt;
+        <p>The parameter type of your directive function changes accordingly,
+        from <code>T</code> to <code>Option[T]</code> where <code>T</code> is either the type returned by
+        your converter (see below) or the default type (which is different
+        for body and attribute elements (again see next section).</p>
+        
+        <h3 id="converters" class="section">Converters</h3>
+        <p>For any attribute or body element a converter can be specified.
+        If it is left out the default types are as follows:</p>
+        <ul>
+          <li><code>String</code> for attributes in all directive types</li>
+          <li><code>Seq[Block]</code> for body elements in block directives</li>
+          <li><code>Seq[Span]</code> for body elements in inline directives</li>
+          <li><code>Seq[TemplateSpan]</code> for body elements in template directives</li>
+        </ul>
+        <p>This means that for body elements they are already parsed by default,
+        as this is the most likely requirement for a directive.</p>
+        <p>The object <code>Converters</code> in the <code>Directives</code> object contains several
+        pre-built converters, like <code>positiveInt</code>:</p>
+        <pre>attribute(&quot;depth&quot;, Converters.positiveInt).optional</pre>
+        <p>It will validate the attribute value and only invoke your directive
+        function if it succeeds. The parameter type in your function changes
+        to <code>Option[Int]</code> accordingly.</p>
+        <p>If you want to implement your own converter, it simply has to
+        be a function of type <code>(Parser, String) =&gt; Result[T]</code> for which
+        a type alias <code>Converter[T]</code> exists.</p>
+        
+        <h3 id="access-to-the-parser" class="section">Access to the Parser</h3>
+        <p>For block elements the default is to pre-parse the content for you,
+        so there is rarely a need to parse something yourself. But if you need to,
+        it wouldn&#39;t be a good idea to instantiate your own parser. Because it
+        would not have access to any of the directives or other configuration
+        options active for this operation (unless you manually duplicate it which
+        is brittle). Therefore you can request a parser for your function in 
+        addition to the other values:</p>
+        <pre>attribute(Default) ~ parser { (attrValue, parser) =&gt;
   val parsedSpans = parser(&quot;[&quot;+attrValue+&quot;]&quot;)
   SpanSequence(parsedSpans)
 }
 </pre>
-  <p>In this contrived example the attribute value is modified before being passed
-  to the parser and then wrapped inside a sequence.</p>
-  
-  <h3 id="access-to-the-document-context" class="section">Access to the Document Context</h3>
-  <p>Finally you can also request access to the document context. This gives
-  you access to the structure, the title, sections and parent and root
-  trees, in short, the full API for the AST built by the parser.</p>
-  <p>It is, for example, required for a directive like the <code>toc</code> directive,
-  because for building a table of contents you have to look beyond your
-  particular directive node.</p>
-  <pre>attribute(Default) ~ context { (attrValue, context) =&gt;
+        <p>In this contrived example the attribute value is modified before being passed
+        to the parser and then wrapped inside a sequence.</p>
+        
+        <h3 id="access-to-the-document-context" class="section">Access to the Document Context</h3>
+        <p>Finally you can also request access to the document context. This gives
+        you access to the structure, the title, sections and parent and root
+        trees, in short, the full API for the AST built by the parser.</p>
+        <p>It is, for example, required for a directive like the <code>toc</code> directive,
+        because for building a table of contents you have to look beyond your
+        particular directive node.</p>
+        <pre>attribute(Default) ~ context { (attrValue, context) =&gt;
   val spans = Text(&quot;The title is: &quot;) +: context.document.title
   SpanSequence(spans)
-}</pre>      
+}</pre>
+        
+        <h3 id="differences-between-directive-types" class="section">Differences between Directive Types</h3>
+        <p><a href="#directive-types">Directive Types</a> already gave a quick overview over the available types.
+        The sections <a href="#directive-implementation">Directive Implementation</a> and <a href="#directive-registration">Directive Registration</a> showed
+        a simple example for a span directive. Since there are three different directive
+        types and different ways to register them depending on whether you use the 
+        sbt plugin or Laika embedded, this section gives a final overview over the
+        API differences.</p>
+        
+        <h3 id="span-directives" class="section">Span Directives</h3>
+        <p>Use: in inline elements in text markup files</p>
+        <p>Implementation:</p>
+        <pre>import laika.directive.Directives.Spans
+import laika.util.Builders._
+import laika.tree.Elements._
+import Spans.Combinators._
+import Spans.Converters._
+
+val directive = Spans.create(&quot;name&quot;) {
+  // implementation producing a `Span` element
+}    
+</pre>
+        <p>Registration:</p>
+        <pre>// for Markdown and reStructuredText with sbt plugin:
+spanDirectives in Laika += directive // in build.sbt
+
+// for Markdown with Transform API or Parse API:
+Transform from Markdown.withSpanDirectives(directive) to ...
+Parse as Markdown.withSpanDirectives(directive) from ...
+
+// for reStructuredText with Transform API or Parse API:
+Transform from ReStructuredText.withLaikaSpanDirectives(directive) to ...
+Parse as ReStructuredText.withLaikaSpanDirectives(directive) from ...</pre>
+        
+        <h3 id="block-directives" class="section">Block Directives</h3>
+        <p>Use: in block elements in text markup files</p>
+        <p>Implementation:</p>
+        <pre>import laika.directive.Directives.Blocks
+import laika.util.Builders._
+import laika.tree.Elements._
+import Blocks.Combinators._
+import Blocks.Converters._
+
+val directive = Blocks.create(&quot;name&quot;) {
+  // implementation producing a `Block` element
+}    
+</pre>
+        <p>Registration:</p>
+        <pre>// for Markdown and reStructuredText with sbt plugin:
+blockDirectives in Laika += directive // in build.sbt
+
+// for Markdown with Transform API or Parse API:
+Transform from Markdown.withBlockDirectives(directive) to ...
+Parse as Markdown.withBlockDirectives(directive) from ...
+
+// for reStructuredText with Transform API or Parse API:
+Transform from ReStructuredText.withLaikaBlockDirectives(directive) to ...
+Parse as ReStructuredText.withLaikaBlockDirectives(directive) from ...</pre>
+        
+        <h3 id="template-directives" class="section">Template Directives</h3>
+        <p>Use: in template files</p>
+        <p>Implementation:</p>
+        <pre>import laika.directive.Directives.Templates
+import laika.util.Builders._
+import laika.tree.Templates._
+import Templates.Combinators._
+import Templates.Converters._
+
+val directive = Templates.create(&quot;name&quot;) {
+  // implementation producing a `TemplateSpan` element
+}    
+</pre>
+        <p>Registration:</p>
+        <pre>// for templates with sbt plugin:
+templateDirectives in Laika += directive // in build.sbt
+
+// for Markdown in Transform API:
+Transform from Markdown to HTML fromDirectory 
+  &quot;source&quot; withTemplateDirectives directive toDirectory &quot;target&quot; 
+
+// for reStructuredText in Transform API:
+Transform from ReStructuredText to HTML fromDirectory 
+  &quot;source&quot; withTemplateDirectives directive toDirectory &quot;target&quot; 
+    </pre>      
 
       </div>
     </div>

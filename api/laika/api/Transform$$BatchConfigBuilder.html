@@ -167,15 +167,15 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="laika.api.Transform.BatchConfigBuilder#build" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="build(parser:laika.factory.ParserFactory):laika.api.Transform.BatchConfig"></a>
-      <a id="build(ParserFactory):BatchConfig"></a>
+      <a id="build(markupSuffixes:Set[String]):laika.api.Transform.BatchConfig"></a>
+      <a id="build(Set[String]):BatchConfig"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">build</span><span class="params">(<span name="parser">parser: <a href="../factory/ParserFactory.html" class="extype" name="laika.factory.ParserFactory">ParserFactory</a></span>)</span><span class="result">: <a href="Transform$$BatchConfig.html" class="extype" name="laika.api.Transform.BatchConfig">BatchConfig</a></span>
+        <span class="name">build</span><span class="params">(<span name="markupSuffixes">markupSuffixes: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="Transform$$BatchConfig.html" class="extype" name="laika.api.Transform.BatchConfig">BatchConfig</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Builds the final configuration for this input tree
@@ -494,6 +494,20 @@
       </h4>
       <p class="shortcomment cmt">Specifies the function to use for determining the document type
  of the input based on its path.</p>
+    </li><li name="laika.api.Transform.BatchConfigBuilder#withTemplateDirectives" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="withTemplateDirectives(directives:laika.directive.Directives.Templates.Directive*):laika.api.Transform.BatchConfigBuilder"></a>
+      <a id="withTemplateDirectives(directive.Directives.Templates.Directive*):BatchConfigBuilder"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withTemplateDirectives</span><span class="params">(<span name="directives">directives: <a href="../directive/Directives$$Templates$.html#DirectiveextendsAnyRef" class="extmbr" name="laika.directive.Directives.BuilderContext.Directive">directive.Directives.Templates.Directive</a>*</span>)</span><span class="result">: <a href="" class="extype" name="laika.api.Transform.BatchConfigBuilder">BatchConfigBuilder</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Specifies custom template directives to use with
+ the default template engine.</p>
     </li><li name="laika.api.Transform.BatchConfigBuilder#withTemplates" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="withTemplates(parser:laika.template.ParseTemplate):laika.api.Transform.BatchConfigBuilder"></a>
       <a id="withTemplates(ParseTemplate):BatchConfigBuilder"></a>

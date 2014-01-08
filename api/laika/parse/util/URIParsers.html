@@ -208,7 +208,7 @@ RFC 6068, 5322 and 3986 with base types defined in RFC 2234.
       <a id="ParserOps[A]:ParserOps[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">implicit </span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
@@ -1566,6 +1566,22 @@ segment       = *pchar</pre></div></div>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses the query part of a URI as defined in RFC 3986.</p><div class="fullcomment"><div class="comment cmt"><p>Parses the query part of a URI as defined in RFC 3986.</p><pre>query = *( pchar / <span class="lit">"/"</span> / <span class="lit">"?"</span> )</pre></div></div>
+    </li><li name="laika.parse.MarkupParsers#refName" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="refName:MarkupParsers.this.Parser[String]"></a>
+      <a id="refName:Parser[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">refName</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.parse.util.URIParsers.Parser">Parser</a>[<span class="extype" name="java.lang.String">String</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Parses a simple reference name that only allows alphanumerical characters
+ and the punctuation characters <code>-</code>, <code>_</code>, <code>.</code>, <code>:</code>, <code>+</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a simple reference name that only allows alphanumerical characters
+ and the punctuation characters <code>-</code>, <code>_</code>, <code>.</code>, <code>:</code>, <code>+</code>.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../MarkupParsers.html" class="extype" name="laika.parse.MarkupParsers">MarkupParsers</a></dd></dl></div>
     </li><li name="laika.parse.util.URIParsers#regName" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="regName:URIParsers.this.Parser[String]"></a>
       <a id="regName:Parser[String]"></a>
@@ -1787,19 +1803,6 @@ segment       = *pchar</pre></div></div>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses a sequence of email addresses as defined in RFC 6068.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a sequence of email addresses as defined in RFC 6068.</p><pre>to = addr-spec *(<span class="lit">","</span> addr-spec )</pre></div></div>
-    </li><li name="laika.parse.BaseParsers#toParserOps" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toParserOps[A](parser:BaseParsers.this.Parser[A]):BaseParsers.this.ParserOps[A]"></a>
-      <a id="toParserOps[A](Parser[A]):ParserOps[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toParserOps</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="parser">parser: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.parse.util.URIParsers.Parser">Parser</a>[<span class="extype" name="laika.parse.BaseParsers.toParserOps.A">A</span>]</span>)</span><span class="result">: <a href="#ParserOps[A]extendsAnyRef" class="extmbr" name="laika.parse.BaseParsers.ParserOps">ParserOps</a>[<span class="extype" name="laika.parse.BaseParsers.toParserOps.A">A</span>]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../BaseParsers.html" class="extype" name="laika.parse.BaseParsers">BaseParsers</a></dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>

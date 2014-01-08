@@ -1059,6 +1059,43 @@
       </span>
       </h4>
       <p class="comment cmt">The base type for all reference elements.</p>
+    </li><li name="laika.tree.Elements.RenderFunction" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RenderFunction=PartialFunction[laika.tree.Elements.Element,Unit]"></a>
+      <a id="RenderFunction:RenderFunction"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">RenderFunction</span><span class="result"> = <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Unit">Unit</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Specifies a custom render function that may override the rendered
+ output for one or more node types.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies a custom render function that may override the rendered
+ output for one or more node types. For elements this function
+ is not defined the renderer will fall back to the default
+ renderer (or the next custom renderer, in case there are multiple).
+</p></div></div>
+    </li><li name="laika.tree.Elements.RewriteRule" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RewriteRule=PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]"></a>
+      <a id="RewriteRule:RewriteRule"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">RewriteRule</span><span class="result"> = <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Option">Option</span>[<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>]]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Specifies how a particular element, document or document
+ tree should be rewritten.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies how a particular element, document or document
+ tree should be rewritten.</p><p> If the rule is not defined for a specific element the old element remains
+ in the tree unchanged. If it returns <code>None</code> then the node gets removed from the tree,
+ if it returns an element it will replace the old one. Of course the function may
+ also return the old element.
+</p></div></div>
     </li><li name="laika.tree.Elements.RootElement" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="RootElementextendsElements.ElementwithElements.BlockContainer[laika.tree.Elements.RootElement]withProductwithSerializable"></a>
       <a id="RootElement:RootElement"></a>

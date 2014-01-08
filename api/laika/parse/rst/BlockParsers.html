@@ -291,7 +291,7 @@
       <a id="ParserOps[A]:ParserOps[A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">implicit </span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
@@ -1864,6 +1864,22 @@
  overlines and underlines for header sections.</p><div class="fullcomment"><div class="comment cmt"><p>Parses punctuation characters as supported by transitions (rules) and
  overlines and underlines for header sections.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a> → <a href="ListParsers.html" class="extype" name="laika.parse.rst.ListParsers">ListParsers</a></dd></dl></div>
+    </li><li name="laika.parse.MarkupParsers#refName" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="refName:MarkupParsers.this.Parser[String]"></a>
+      <a id="refName:(BlockParsers.this)#Parser[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">refName</span><span class="result">: (<a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[<span class="extype" name="java.lang.String">String</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Parses a simple reference name that only allows alphanumerical characters
+ and the punctuation characters <code>-</code>, <code>_</code>, <code>.</code>, <code>:</code>, <code>+</code>.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a simple reference name that only allows alphanumerical characters
+ and the punctuation characters <code>-</code>, <code>_</code>, <code>.</code>, <code>:</code>, <code>+</code>.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../MarkupParsers.html" class="extype" name="laika.parse.MarkupParsers">MarkupParsers</a></dd></dl></div>
     </li><li name="scala.util.parsing.combinator.RegexParsers#regex" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="regex(r:scala.util.matching.Regex):RegexParsers.this.Parser[String]"></a>
       <a id="regex(Regex):(BlockParsers.this)#Parser[String]"></a>
@@ -2036,16 +2052,16 @@
       </h4>
       <p class="shortcomment cmt">Parses a role directive.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a role directive.</p><p> See <a href="http://docutils.sourceforge.net/docs/ref/rst/directives.html#custom-interpreted-text-roles" target="_blank">http://docutils.sourceforge.net/docs/ref/rst/directives.html#custom-interpreted-text-roles</a>.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ExplicitBlockParsers.html" class="extype" name="laika.parse.rst.ExplicitBlockParsers">ExplicitBlockParsers</a></dd></dl></div>
-    </li><li name="laika.parse.BlockParsers#root" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="root:BlockParsers.this.Parser[laika.tree.Elements.RootElement]"></a>
-      <a id="root:(BlockParsers.this)#Parser[RootElement]"></a>
+    </li><li name="laika.parse.BlockParsers#rootElement" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rootElement:BlockParsers.this.Parser[laika.tree.Elements.RootElement]"></a>
+      <a id="rootElement:(BlockParsers.this)#Parser[RootElement]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">root</span><span class="result">: (<a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[<a href="../../tree/Elements$$RootElement.html" class="extype" name="laika.tree.Elements.RootElement">RootElement</a>]</span>
+        <span class="name">rootElement</span><span class="result">: (<a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[<a href="../../tree/Elements$$RootElement.html" class="extype" name="laika.tree.Elements.RootElement">RootElement</a>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses a full document, delegating most of the work to the <code>topLevelBlock</code> parser.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a full document, delegating most of the work to the <code>topLevelBlock</code> parser.
@@ -2163,19 +2179,6 @@
       </h4>
       <p class="shortcomment cmt">All the base text roles supported by this parser not including
  any custom roles specified within document markup.</p>
-    </li><li name="laika.parse.BaseParsers#toParserOps" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toParserOps[A](parser:BaseParsers.this.Parser[A]):BaseParsers.this.ParserOps[A]"></a>
-      <a id="toParserOps[A]((BlockParsers.this)#Parser[A]):(BlockParsers.this)#ParserOps[A]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toParserOps</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="parser">parser: (<a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[<span class="extype" name="laika.parse.BaseParsers.toParserOps.A">A</span>]</span>)</span><span class="result">: (<a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a>.this)#<span class="extype" name="laika.parse.BaseParsers.ParserOps">ParserOps</span>[<span class="extype" name="laika.parse.BaseParsers.toParserOps.A">A</span>]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../BaseParsers.html" class="extype" name="laika.parse.BaseParsers">BaseParsers</a></dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>
@@ -2287,20 +2290,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd>RegexParsers</dd></dl></div>
-    </li><li name="laika.parse.rst.ExplicitBlockParsers#withFailureMessage" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withFailureMessage[T](p:=&gt;ExplicitBlockParsers.this.Parser[T],msg:String):ExplicitBlockParsers.this.Parser[T]"></a>
-      <a id="withFailureMessage[T](⇒(BlockParsers.this)#Parser[T],String):(BlockParsers.this)#Parser[T]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">withFailureMessage</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="p">p: ⇒ (<a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[<span class="extype" name="laika.parse.rst.ExplicitBlockParsers.withFailureMessage.T">T</span>]</span>, <span name="msg">msg: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: (<a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[<span class="extype" name="laika.parse.rst.ExplicitBlockParsers.withFailureMessage.T">T</span>]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Overrides the failure message to the specified parser.</p><div class="fullcomment"><div class="comment cmt"><p>Overrides the failure message to the specified parser.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ExplicitBlockParsers.html" class="extype" name="laika.parse.rst.ExplicitBlockParsers">ExplicitBlockParsers</a></dd></dl></div>
     </li><li name="laika.parse.BlockParsers#withNestLevel" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="withNestLevel[T](p:=&gt;BlockParsers.this.Parser[T]):BlockParsers.this.Parser[(Int,T)]"></a>
       <a id="withNestLevel[T](⇒(BlockParsers.this)#Parser[T]):(BlockParsers.this)#Parser[(Int,T)]"></a>

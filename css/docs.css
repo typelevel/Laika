@@ -73,6 +73,10 @@ code, pre {
   -moz-border-radius: 5px;
   border-radius: 5px;
 }
+code {
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
 a {
   color: #931813; 
   font-weight: bold;

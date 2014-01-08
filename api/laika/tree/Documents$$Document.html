@@ -83,7 +83,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.tree.Documents.Document#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(path:laika.tree.Documents.Path,content:laika.tree.Elements.RootElement,fragments:Map[String,laika.tree.Elements.Element],config:com.typesafe.config.Config,docNumber:List[Int],rewriteRules:Seq[laika.tree.Documents.DocumentContext=&gt;PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]]):laika.tree.Documents.Document"></a>
+      <a id="&lt;init&gt;(path:laika.tree.Documents.Path,content:laika.tree.Elements.RootElement,fragments:Map[String,laika.tree.Elements.Element],config:com.typesafe.config.Config,docNumber:List[Int],rewriteRules:Seq[laika.tree.Documents.DocumentContext=&gt;laika.tree.Elements.RewriteRule]):laika.tree.Documents.Document"></a>
       <a id="&lt;init&gt;:Document"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -91,7 +91,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">Document</span><span class="params">(<span name="path">path: <a href="Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>, <span name="content">content: <a href="Elements$$RootElement.html" class="extype" name="laika.tree.Elements.RootElement">RootElement</a></span>, <span name="fragments">fragments: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>] = <span class="defval" name="scala.this.Predef.Map.empty[String, Nothing]">...</span></span>, <span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span> = <span class="defval" name="com.typesafe.config.ConfigFactory.empty()">...</span></span>, <span name="docNumber">docNumber: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">immutable.this.Nil</span></span>, <span name="rewriteRules">rewriteRules: <span class="extype" name="scala.Seq">Seq</span>[(<a href="Documents$$DocumentContext.html" class="extype" name="laika.tree.Documents.DocumentContext">DocumentContext</a>) ⇒ <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Option">Option</span>[<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>]]] = <span class="symbol">immutable.this.Nil</span></span>)</span>
+        <span class="name">Document</span><span class="params">(<span name="path">path: <a href="Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>, <span name="content">content: <a href="Elements$$RootElement.html" class="extype" name="laika.tree.Elements.RootElement">RootElement</a></span>, <span name="fragments">fragments: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>] = <span class="defval" name="scala.this.Predef.Map.empty[String, Nothing]">...</span></span>, <span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span> = <span class="defval" name="com.typesafe.config.ConfigFactory.empty()">...</span></span>, <span name="docNumber">docNumber: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">immutable.this.Nil</span></span>, <span name="rewriteRules">rewriteRules: <span class="extype" name="scala.Seq">Seq</span>[(<a href="Documents$$DocumentContext.html" class="extype" name="laika.tree.Documents.DocumentContext">DocumentContext</a>) ⇒ <a href="Elements$.html#RewriteRule=PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]" class="extmbr" name="laika.tree.Elements.RewriteRule">RewriteRule</a>] = <span class="symbol">immutable.this.Nil</span></span>)</span>
       </span>
       </h4>
       <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">path</dt><dd class="cmt"><p>the full, absolute path of this document in the (virtual) document tree</p></dd><dt class="param">content</dt><dd class="cmt"><p>the tree model obtained from parsing the markup document</p></dd><dt class="param">fragments</dt><dd class="cmt"><p>separate named fragments that had been extracted from the content</p></dd><dt class="param">config</dt><dd class="cmt"><p>the configuration for this document</p></dd><dt class="param">docNumber</dt><dd class="cmt"><p>the number of this document inside a document tree hierarchy, expressed as a list of Ints</p></dd><dt class="param">rewriteRules</dt><dd class="cmt"><p>a list of rewrite rules that have not yet been applied to the document
@@ -229,15 +229,15 @@
       </h4>
       <p class="shortcomment cmt">the tree model obtained from parsing the markup document</p>
     </li><li name="laika.tree.Documents.Document#defaultRules" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="defaultRules:Seq[laika.tree.Documents.DocumentContext=&gt;PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]]"></a>
-      <a id="defaultRules:Seq[(DocumentContext)⇒PartialFunction[Element,Option[Element]]]"></a>
+      <a id="defaultRules:Seq[laika.tree.Documents.DocumentContext=&gt;laika.tree.Elements.RewriteRule]"></a>
+      <a id="defaultRules:Seq[(DocumentContext)⇒RewriteRule]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">defaultRules</span><span class="result">: <span class="extype" name="scala.collection.Seq">Seq</span>[(<a href="Documents$$DocumentContext.html" class="extype" name="laika.tree.Documents.DocumentContext">DocumentContext</a>) ⇒ <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Option">Option</span>[<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>]]]</span>
+        <span class="name">defaultRules</span><span class="result">: <span class="extype" name="scala.collection.Seq">Seq</span>[(<a href="Documents$$DocumentContext.html" class="extype" name="laika.tree.Documents.DocumentContext">DocumentContext</a>) ⇒ <a href="Elements$.html#RewriteRule=PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]" class="extmbr" name="laika.tree.Elements.RewriteRule">RewriteRule</a>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
@@ -352,19 +352,20 @@
       </h4>
       <p class="shortcomment cmt">Indicates whether all rewrite rules have already been applied
  to this document.</p>
-    </li><li name="laika.tree.Documents.Document#name" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="laika.tree.Documents.Navigatable#name" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="name:String"></a>
       <a id="name:String"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">val</span>
+        <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
         <span class="name">name</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       </h4>
-      <p class="shortcomment cmt">The local name of this document.</p>
+      <p class="shortcomment cmt">The local name of this navigatable.</p><div class="fullcomment"><div class="comment cmt"><p>The local name of this navigatable.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a></dd></dl></div>
     </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ne(x$1:AnyRef):Boolean"></a>
       <a id="ne(AnyRef):Boolean"></a>
@@ -432,15 +433,15 @@
       <p class="shortcomment cmt">Removes all rewrite rules that have not yet been applied
  from this document.</p>
     </li><li name="laika.tree.Documents.Document#rewrite" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="rewrite(customRule:PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]):laika.tree.Documents.Document"></a>
-      <a id="rewrite(PartialFunction[Element,Option[Element]]):Document"></a>
+      <a id="rewrite(customRule:laika.tree.Elements.RewriteRule):laika.tree.Documents.Document"></a>
+      <a id="rewrite(RewriteRule):Document"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">rewrite</span><span class="params">(<span name="customRule">customRule: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Option">Option</span>[<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>]]</span>)</span><span class="result">: <a href="" class="extype" name="laika.tree.Documents.Document">Document</a></span>
+        <span class="name">rewrite</span><span class="params">(<span name="customRule">customRule: <a href="Elements$.html#RewriteRule=PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]" class="extmbr" name="laika.tree.Elements.RewriteRule">RewriteRule</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.tree.Documents.Document">Document</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Returns a new, rewritten document model based on the specified rewrite rules.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new, rewritten document model based on the specified rewrite rules.</p><p> If the specified partial function is not defined for a specific element the old element remains
@@ -465,15 +466,15 @@
       </h4>
       <p class="shortcomment cmt">Returns a new, rewritten document model based on the default rewrite rules.</p>
     </li><li name="laika.tree.Documents.Document#rewriteWith" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="rewriteWith(customRules:Seq[PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]]):laika.tree.Documents.Document"></a>
-      <a id="rewriteWith(Seq[PartialFunction[Element,Option[Element]]]):Document"></a>
+      <a id="rewriteWith(customRules:Seq[laika.tree.Elements.RewriteRule]):laika.tree.Documents.Document"></a>
+      <a id="rewriteWith(Seq[RewriteRule]):Document"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">rewriteWith</span><span class="params">(<span name="customRules">customRules: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Option">Option</span>[<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>]]]</span>)</span><span class="result">: <a href="" class="extype" name="laika.tree.Documents.Document">Document</a></span>
+        <span class="name">rewriteWith</span><span class="params">(<span name="customRules">customRules: <span class="extype" name="scala.Seq">Seq</span>[<a href="Elements$.html#RewriteRule=PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]" class="extmbr" name="laika.tree.Elements.RewriteRule">RewriteRule</a>]</span>)</span><span class="result">: <a href="" class="extype" name="laika.tree.Documents.Document">Document</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Returns a new, rewritten document model based on the specified rewrite rules.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new, rewritten document model based on the specified rewrite rules.</p><p> If none of the specified partial functions is defined for a specific element the old element remains
