@@ -209,6 +209,10 @@ or text markup documents. Depending on the root of the tree to build a table
 for and the depth you specify, such a table can span both, a list of documents
 and then nested inside the sections of these documents.
 
+In contrast to several similar tools content in Laika is hierarchical.
+Subdirectories can contain markup files, too, and the hierarchy can get
+visualized in a table of contents.
+
 When using the default settings, you can simply use an empty tag:
 
     @:toc.

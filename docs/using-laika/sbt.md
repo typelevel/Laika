@@ -35,12 +35,12 @@ and run `laika:site` from within sbt to generate the site in
 Editing Content
 ---------------
 
-Laika expects the site content to be organized in a directory, including all its
-subdirectories. By default this directory is `src/docs`, but it can be overridden
-with the `sourceDirectories` setting (see [Basic Settings] for details). Alternatively
-you can also specify additional directories to be merged into the main directory, which
-allows to keep reusable templates and styles (other tools would call it "themes") 
-in a separate place.
+Laika expects the site content to be organized in a directory. By default this is
+`src/docs`. In contrast to several similar tools content in Laika is hierarchical.
+Subdirectories can contain markup files, too, and the hierarchy can get
+visualized in a table of contents. Furthermore you can also specify additional
+directories to be merged into the main directory, which allows to keep reusable
+templates and styles (other tools would call it "themes") in a separate place.
 
 The directories can contain different types of files:
 

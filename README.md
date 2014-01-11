@@ -16,7 +16,7 @@ The main artifact is published to Maven Central for Scala 2.10.x.
 The sbt plugin is published to the sbt plugin repository for sbt 0.13.x.
 
 
-**Using the sbt Plugin:**
+### Using the sbt Plugin
 
 Add the plugin to `project/plugins.sbt`:
 
@@ -25,13 +25,13 @@ Add the plugin to `project/plugins.sbt`:
 Import its default settings in your project's `build.sbt`:
 
     LaikaPlugin.defaults
-    
+
 Add Markdown, reStructuredText or HTML template files to `src/docs` in your
 project and run the `laika:site` task from within sbt to generate the site
 in `target/docs/site`.    
-    
 
-**Using Laika Embedded:**
+
+### Using Laika Embedded
 
 Adding the Laika dependency to your sbt build:
 
@@ -45,6 +45,8 @@ Example for transforming an entire directory of markup files:
 
     Transform from ReStructuredText to HTML fromDirectory "source" toDirectory "target"
 
+
+### Other Resources
 
 For further information:
 

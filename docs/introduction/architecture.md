@@ -33,7 +33,7 @@ Design Principles
   while keeping the basic contract for plugging in a new parser function as simple and generic as 
   `Input => Document`, so that other parser frameworks or tools can be used, too.
   
-* Designed for robustness: Laika has more than 600 tests, it is protected against malicious
+* Designed for robustness: Laika has more than 900 tests, it is protected against malicious
   or accidentally malformed input like endless recursion (a type of guard most other text markup 
   parsers do not include) and parsers like the URI parser are based on the actual relevant RFCs
   (and not just a rough approximation like in many other parsers). 
@@ -52,7 +52,7 @@ red boxes:
   supports files, strings and streams, writers and readers from `java.io`.
   
 * `Parse` represents the actual parsing step, a pluggable function of type `Input => Document` 
-  (or `Input => TemplateDocument for templates).
+  (or `Input => TemplateDocument` for templates).
   Supported out of the box are Markdown and reStructuredText. Other parsers can easily be added
   to the system and they do not need to be based on the SDK's parser combinators like the built-in
   parsers. Parsers can be extended with custom tags called Directives that allow to add new

@@ -62,7 +62,7 @@ Example for transforming an entire directory of markup files:
 
 ### Other Resources
 
-* Read more about standard usage in the chapters 
+* Read more about standard usage in the chapters  
   [Using the sbt Plugin][../using-laika/sbt.md:Using the sbt Plugin]
   or [Using Laika Embedded][../using-laika/embedded.md:Using Laika Embedded].
 
