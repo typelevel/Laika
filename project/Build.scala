@@ -7,7 +7,7 @@ object Build extends Build {
   object Settings {
     
     lazy val basic = Seq(
-      version               := "0.5.0",
+      version               := "0.6.0-SNAPSHOT",
       homepage              := Some(new URL("http://planet42.github.io/Laika/")),
       organization          := "org.planet42",
       organizationHomepage  := Some(new URL("http://www.planet42.org")),
