@@ -62,6 +62,9 @@ h3 {
   color: #007c99;
   font-weight: normal;
 }
+.follow {
+  margin-top: 4px;
+}
 .nav-list .active a, .nav-list .active a:hover {
   background-color: #006180;
 }
