@@ -330,6 +330,14 @@ class BlockParsersSpec extends FlatSpec
     Parsing (input) should produce (root( p("aaa\nbbb"), h(4, txt("CCC DDD EEE"))))
   }
   
+  it should "ignore title lines without title text" in {
+    val input = """aaa
+      |bbb
+      |
+      |###""".stripMargin
+    Parsing (input) should produce (root( p("aaa\nbbb"), p("###")))
+  }
+  
   
   
   "The rule parser" should "parse a line decorated by '-' and space characters ending on a '-' as a horizontal rule" in {

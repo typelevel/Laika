@@ -82,7 +82,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
       else trimmed
     } 
     
-    ((anyOf('#') min 1 max 6) ^^ { _.length }) ~ restOfLine ^^ 
+    ((anyOf('#') min 1 max 6) ^^ { _.length }) ~ (not(blankLine) ~> restOfLine) ^^ 
       { case level ~ text => Header(level, parseInline(stripDecoration(text))) }
   }
   
