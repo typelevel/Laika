@@ -88,6 +88,12 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     def externalLink (opt: Options, url: String, content: Seq[Span], attr: (String,String)*) = 
       out <<@ ("fo:basic-link", NoOpt, (attr :+ ("external-destination"->url)): _*) << content << "</fo:basic-link>"
       
+    def externalGraphic (opt: Options, src: String) =
+      out <<@ ("fo:external-graphic", NoOpt, "src"->src,
+          "inline-progression-dimension.maximum"->"100%", 
+          "content-width"->"scale-down-to-fit")
+           
+      
     def text (opt: Options, content: String, attr: (String,String)*) = 
       out <<@ ("fo:inline", NoOpt, attr: _*) <<& content << "</fo:inline>"
       
@@ -241,7 +247,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     def renderSimpleSpan (span: Span) = span match {
       case CitationLink(ref,label,opt) => out <<@ ("???",opt + Styles("citation"),"href"->("#"+ref)) << "[" << label << "]</???>" 
       case FootnoteLink(ref,label,opt) => out <<@ ("???",opt + Styles("footnote"),"href"->("#"+ref)) << "[" << label << "]</???>" 
-      case Image(text,url,title,opt)   => out <<@ ("???",opt,"src"->url,"alt"->text,"title"->title)
+      case Image(_,url,_,opt)          => externalGraphic(opt, url) // TODO - ignoring title and alt for now
       case LineBreak(opt)              => out << "&#x2028;"
       case TemplateElement(elem,indent,_) => out.indented(indent) { out << elem }
       
