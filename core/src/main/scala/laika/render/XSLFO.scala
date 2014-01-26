@@ -232,7 +232,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     }
     
     def renderSimpleBlock (block: Block) = block match {
-      case Rule(opt)                   => out <<@ ("???",opt) 
+      case Rule(opt)                   => out <<@ ("fo:leader",opt,"leader-pattern"->"rule") << "</fo:leader>" 
       case InternalLinkTarget(opt)     => out <<@ ("???",opt) << "</???>"
       
       case WithFallback(fallback)      => out << fallback
