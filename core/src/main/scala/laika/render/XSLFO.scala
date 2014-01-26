@@ -137,19 +137,19 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
         else content :+ Paragraph(attr, Styles("attribution"))
         
       def figureContent (img: Span, caption: Seq[Span], legend: Seq[Block]): List[Block] =
-        List(SpanSequence(List(img)), Paragraph(caption, Styles("caption")), BlockSequence(legend, Styles("legend")))
+        List(Paragraph(List(img)), Paragraph(caption, Styles("caption")), BlockSequence(legend, Styles("legend")))
       
       con match {
         case RootElement(content)             => if (content.nonEmpty) out << content.head <<| content.tail       
         case EmbeddedRoot(content,indent,_)   => out.indented(indent) { if (content.nonEmpty) out << content.head <<| content.tail }       
         case Section(header, content,_)       => out <<| header <<| content
         case TitledBlock(title, content, opt) => blockContainer(opt, Paragraph(title,Styles("title")) +: content)
-        case QuotedBlock(content,attr,opt)    => out <<@ ("???",opt); renderBlocks(quotedBlockContent(content,attr), "</???>")
+        case QuotedBlock(content,attr,opt)    => blockContainer(opt, quotedBlockContent(content,attr))
         case BulletListItem(content,_,opt)    => out <<@ ("???",opt);         renderBlocks(content, "</???>") 
         case EnumListItem(content,_,_,opt)    => out <<@ ("???",opt);         renderBlocks(content, "</???>") 
         case DefinitionListItem(term,defn,_)  => out << "<???>" << term << "</???>" <<| "<???>"; renderBlocks(defn, "</???>")
         case LineBlock(content,opt)           => out <<@ ("???",opt + Styles("line-block")) <<|> content <<| "</???>"
-        case Figure(img,caption,legend,opt)   => out <<@ ("???",opt + Styles("figure")) <<|> figureContent(img,caption,legend) <<| "</???>"
+        case Figure(img,caption,legend,opt)   => blockContainer(opt, figureContent(img,caption,legend))
         
         case Footnote(label,content,opt)   => renderTable(toTable(label,content,opt + Styles("footnote")))
         case Citation(label,content,opt)   => renderTable(toTable(label,content,opt + Styles("citation")))
@@ -275,7 +275,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     
     def renderSystemMessage (message: SystemMessage) = {
       if (include(message)) 
-        out <<@ ("???", message.options + Styles("system-message", message.level.toString.toLowerCase)) << message.content << "</???>"
+        text(message.options + Styles("system-message", message.level.toString.toLowerCase), message.content)
     }
     
     
