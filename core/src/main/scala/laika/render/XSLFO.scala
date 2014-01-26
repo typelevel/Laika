@@ -67,6 +67,30 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
   
   private def renderElement (out: HTMLWriter)(elem: Element): Unit = {
     
+    def listContainer (opt: Options, content: Seq[ListItem], attr: (String,String)*) = 
+      out <<@ ("fo:block", NoOpt, attr: _*) <<|> content <<| "</fo:block>"
+      
+    def blockContainer (opt: Options, content: Seq[Block], attr: (String,String)*) = 
+      out <<@ ("fo:block", NoOpt, attr: _*) <<|> content <<| "</fo:block>"
+      
+    def block (opt: Options, content: Seq[Span], attr: (String,String)*) = 
+      out <<@ ("fo:block", NoOpt, attr: _*) << content << "</fo:block>"
+
+    def blockWithWS (opt: Options, content: Seq[Span], attr: (String,String)*) = 
+      out <<@ ("fo:block", NoOpt, attr: _*) <<< content << "</fo:block>"
+    
+    def inline (opt: Options, content: Seq[Span], attr: (String,String)*) = 
+      out <<@ ("fo:inline", NoOpt, attr: _*) << content << "</fo:inline>"
+    
+    def text (opt: Options, content: String, attr: (String,String)*) = 
+      out <<@ ("fo:inline", NoOpt, attr: _*) <<& content << "</fo:inline>"
+      
+    def textWithWS (opt: Options, content: String, attr: (String,String)*) = 
+      out <<@ ("fo:inline", NoOpt, attr: _*) <<<& content << "</fo:inline>"
+      
+    def rawText (opt: Options, content: String, attr: (String,String)*) = 
+      out <<@ ("fo:inline", NoOpt, attr: _*) << content << "</fo:inline>"
+      
     def include (msg: SystemMessage) = {
       messageLevel flatMap {lev => if (lev <= msg.level) Some(lev) else None} isDefined
     }
@@ -112,8 +136,8 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
       con match {
         case RootElement(content)             => if (content.nonEmpty) out << content.head <<| content.tail       
         case EmbeddedRoot(content,indent,_)   => out.indented(indent) { if (content.nonEmpty) out << content.head <<| content.tail }       
-        case Section(header, content,_)       => out <<         header <<|   content
-        case TitledBlock(title, content, opt) => out <<@ ("???",opt) <<|> (Paragraph(title,Styles("title")) +: content) <<| "</???>"
+        case Section(header, content,_)       => out <<| header <<| content
+        case TitledBlock(title, content, opt) => blockContainer(opt, Paragraph(title,Styles("title")) +: content)
         case QuotedBlock(content,attr,opt)    => out <<@ ("???",opt); renderBlocks(quotedBlockContent(content,attr), "</???>")
         case BulletListItem(content,_,opt)    => out <<@ ("???",opt);         renderBlocks(content, "</???>") 
         case EnumListItem(content,_,_,opt)    => out <<@ ("???",opt);         renderBlocks(content, "</???>") 
@@ -127,9 +151,9 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
         case WithFallback(fallback)         => out << fallback
         case c: Customizable                => c match {
           case BlockSequence(content, NoOpt) => if (content.nonEmpty) out << content.head <<| content.tail // this case could be standalone above, but triggers a compiler bug then
-          case _ => out <<@ ("???",c.options) <<|> c.content <<| "</???>"
+          case unknown                      => blockContainer(unknown.options, unknown.content)
         }
-        case unknown                        => out << "<???>" <<|> unknown.content <<| "</???>"
+        case unknown                        => blockContainer(NoOpt, unknown.content)
       }
     }
     
@@ -146,14 +170,15 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
       
       con match {
         
-        case Paragraph(content,opt)         => out <<@ ("???",opt)       <<  content <<  "</???>"  
-        case Emphasized(content,opt)        => out <<@ ("???",opt)      <<  content <<  "</???>" 
-        case Strong(content,opt)            => out <<@ ("???",opt)  <<  content <<  "</???>" 
-        case ParsedLiteralBlock(content,opt)=> out <<@ ("???",opt)  <<< content << "</???>"
-        case CodeBlock(lang,content,opt)    => out <<@ ("???",opt+codeStyles(lang)) <<<  content << "</???>"
-        case Code(lang,content,opt)         => out <<@ ("???",opt+codeStyles(lang)) <<  content << "</???>"
+        case Paragraph(content,opt)         => block(opt,content)
+        case ParsedLiteralBlock(content,opt)=> blockWithWS(opt,content)
+        case CodeBlock(lang,content,opt)    => blockWithWS(opt+codeStyles(lang),content)
+        case Header(level, content, opt)    => block(opt+Styles("level"+level.toString),content)
+
+        case Emphasized(content,opt)        => inline(opt,content,"font-style"->"italic")
+        case Strong(content,opt)            => inline(opt,content,"font-weight"->"bold")
+        case Code(lang,content,opt)         => inline(opt+codeStyles(lang),content,"font-family"->"monospace")
         case Line(content,opt)              => out <<@ ("???",opt + Styles("line")) << content <<  "</???>"
-        case Header(level, content, opt)    => out <|; out <<@ ("???"+level.toString,opt) << content << "</???" << level.toString << ">"
   
         case ExternalLink(content, url, title, opt)     => out <<@ ("???", opt, "href"->url,       "title"->title.map(escapeTitle)) << content << "</???>"
         case InternalLink(content, ref, title, opt)     => out <<@ ("???", opt, "href"->("#"+ref), "title"->title.map(escapeTitle)) << content << "</???>"
@@ -164,9 +189,11 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
           case SpanSequence(content, NoOpt) => out << content // this case could be standalone above, but triggers a compiler bug then
           case TemplateRoot(content, NoOpt) => out << content
           case TemplateSpanSequence(content, NoOpt) => out << content
-          case _ => out <<@ ("???",c.options) << c.content << "</???>"
+          case unknown: Block               => block(unknown.options, unknown.content)
+          case unknown                      => inline(unknown.options, unknown.content)
         }
-        case unknown                        => out << "<???>" << unknown.content << "</???>"
+        case unknown: Block                 => block(NoOpt, unknown.content)
+        case unknown                        => inline(NoOpt, unknown.content)
       }
     }
     
@@ -177,29 +204,30 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
       case DefinitionList(content,opt) => out <<@ ("???",opt) <<|> content <<| "</???>"
       
       case WithFallback(fallback)      => out << fallback
-      case c: Customizable             => out <<@ ("???",c.options) <<|> c.content <<| "</???>"
-      case unknown                     => out << "<???>" <<|> unknown.content <<| "</???>"
+      case c: Customizable             => listContainer(c.options, c.content)
+      case unknown                     => listContainer(NoOpt, unknown.content)
     }
     
     def renderTextContainer (con: TextContainer) = con match {
       case Text(content,opt)           => opt match {
-        case NoOpt                     => out                   <<&  content
-        case _                         => out <<@ ("???",opt)  <<&  content << "</???>"
+        case NoOpt                     => out <<& content
+        case _                         => text(opt, content)
       }
       case TemplateString(content,opt) => opt match {
-        case NoOpt                     => out                   <<  content
-        case _                         => out <<@ ("???",opt)  <<  content << "</???>"
+        case NoOpt                     => out << content
+        case _                         => rawText(opt, content)
       }
-      case RawContent(formats, content, opt) => if (formats.contains("html")) { opt match {
-        case NoOpt                     => out                   <<   content
-        case _                         => out <<@ ("???",opt)  <<   content << "</???>"
+      case RawContent(formats, content, opt) => if (formats.contains("fo")) { opt match {
+        case NoOpt                     => out <<   content
+        case _                         => rawText(opt, content)
       }} 
-      case Literal(content,opt)        => out <<@ ("???",opt)  <<<& content << "</???>" 
-      case LiteralBlock(content,opt)   => out <<@ ("???",opt)  <<<& content << "</???>"
-      case Comment(content,opt)        => out << "<!-- "        <<   content << " -->"
+      case Literal(content,opt)        => textWithWS(opt, content)
+      case LiteralBlock(content,opt)   => textWithWS(opt, content)
+      case Comment(content,opt)        => out << "<!-- "       <<   content << " -->"
       
       case WithFallback(fallback)      => out << fallback
-      case c: Customizable             => out <<@ ("???",c.options) << c.content << "</???>"
+      case c: Customizable if c.options == NoOpt => out <<& c.content
+      case c: Customizable             => text(c.options, c.content)
       case unknown                     => out <<& unknown.content
     }
     
