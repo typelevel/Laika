@@ -81,7 +81,13 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     
     def inline (opt: Options, content: Seq[Span], attr: (String,String)*) = 
       out <<@ ("fo:inline", NoOpt, attr: _*) << content << "</fo:inline>"
+      
+    def internalLink (opt: Options, target: String, content: Seq[Span], attr: (String,String)*) = 
+      out <<@ ("fo:basic-link", NoOpt, (attr :+ ("internal-destination"->target)): _*) << content << "</fo:basic-link>"
     
+    def externalLink (opt: Options, url: String, content: Seq[Span], attr: (String,String)*) = 
+      out <<@ ("fo:basic-link", NoOpt, (attr :+ ("external-destination"->url)): _*) << content << "</fo:basic-link>"
+      
     def text (opt: Options, content: String, attr: (String,String)*) = 
       out <<@ ("fo:inline", NoOpt, attr: _*) <<& content << "</fo:inline>"
       
@@ -158,15 +164,8 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     }
     
     def renderSpanContainer [T <: SpanContainer[T]](con: SpanContainer[T]) = {
-      def escapeTitle (s: String) = s.replace("&","&amp;").replace("\"","&quot;").replace("'","$#39;")
       def codeStyles (language: String) = if (language.isEmpty) Styles("code") else Styles("code", language)
-      def crossLinkRef (path: PathInfo, ref: String) = {
-        val target = path.relative.name.lastIndexOf(".") match {
-          case -1 => path.relative.toString
-          case i  => (path.relative.parent / (path.relative.name.take(i) + ".html")).toString
-        }
-        if (ref.isEmpty) target else s"$target#$ref"
-      }
+      def crossLinkRef (path: PathInfo, ref: String) = path.toString + "-" + ref
       
       con match {
         
@@ -180,9 +179,9 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
         case Code(lang,content,opt)         => inline(opt+codeStyles(lang),content,"font-family"->"monospace")
         case Line(content,opt)              => out <<@ ("???",opt + Styles("line")) << content <<  "</???>"
   
-        case ExternalLink(content, url, title, opt)     => out <<@ ("???", opt, "href"->url,       "title"->title.map(escapeTitle)) << content << "</???>"
-        case InternalLink(content, ref, title, opt)     => out <<@ ("???", opt, "href"->("#"+ref), "title"->title.map(escapeTitle)) << content << "</???>"
-        case CrossLink(content, ref, path, title, opt)  => out <<@ ("???", opt, "href"->(crossLinkRef(path,ref)), "title"->title.map(escapeTitle)) << content << "</???>"
+        case ExternalLink(content, url, _, opt)     => externalLink(opt, url, content)
+        case InternalLink(content, ref, _, opt)     => internalLink(opt, ref, content) // TODO - need to integrate doc path
+        case CrossLink(content, ref, path, _, opt)  => internalLink(opt, crossLinkRef(path,ref), content)
         
         case WithFallback(fallback)         => out << fallback
         case c: Customizable                => c match {
@@ -233,7 +232,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     
     def renderSimpleBlock (block: Block) = block match {
       case Rule(opt)                   => out <<@ ("fo:leader",opt,"leader-pattern"->"rule") << "</fo:leader>" 
-      case InternalLinkTarget(opt)     => out <<@ ("???",opt) << "</???>"
+      case InternalLinkTarget(opt)     => inline(opt, Nil)
       
       case WithFallback(fallback)      => out << fallback
       case unknown                     => ()
@@ -243,7 +242,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
       case CitationLink(ref,label,opt) => out <<@ ("???",opt + Styles("citation"),"href"->("#"+ref)) << "[" << label << "]</???>" 
       case FootnoteLink(ref,label,opt) => out <<@ ("???",opt + Styles("footnote"),"href"->("#"+ref)) << "[" << label << "]</???>" 
       case Image(text,url,title,opt)   => out <<@ ("???",opt,"src"->url,"alt"->text,"title"->title)
-      case LineBreak(opt)              => out << "<???>"
+      case LineBreak(opt)              => out << "&#x2028;"
       case TemplateElement(elem,indent,_) => out.indented(indent) { out << elem }
       
       case WithFallback(fallback)      => out << fallback
