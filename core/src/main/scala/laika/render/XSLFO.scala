@@ -20,6 +20,7 @@ import laika.tree.Elements._
 import laika.tree.Templates._
 import laika.io.Output
 import laika.factory.RendererFactory
+import laika.util.RomanNumerals
   
 /** A renderer for XSL-FO output. May be directly passed to the `Render` or `Transform` APIs:
  * 
@@ -35,6 +36,10 @@ import laika.factory.RendererFactory
  */
 class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolean) 
     extends RendererFactory[HTMLWriter] {
+  
+  case class ListItemLabel (content: Block, options: Options = NoOpt) extends Block
+  
+  case class ListItemBody (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[ListItemBody]
   
   val fileSuffix = "html"
  
@@ -67,11 +72,11 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
   
   private def renderElement (out: HTMLWriter)(elem: Element): Unit = {
     
-    def listContainer (opt: Options, content: Seq[ListItem], attr: (String,String)*) = 
-      out <<@ ("fo:block", NoOpt, attr: _*) <<|> content <<| "</fo:block>"
-      
     def blockContainer (opt: Options, content: Seq[Block], attr: (String,String)*) = 
       out <<@ ("fo:block", NoOpt, attr: _*) <<|> content <<| "</fo:block>"
+    
+    def listBlock (opt: Options, content: Seq[ListItem], attr: (String,String)*) = 
+      out <<@ ("fo:list-block", NoOpt, attr: _*) <<|> content <<| "</fo:list-block>"
       
     def block (opt: Options, content: Seq[Span], attr: (String,String)*) = 
       out <<@ ("fo:block", NoOpt, attr: _*) << content << "</fo:block>"
@@ -92,8 +97,20 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
       out <<@ ("fo:external-graphic", NoOpt, "src"->src,
           "inline-progression-dimension.maximum"->"100%", 
           "content-width"->"scale-down-to-fit")
-           
-      
+          
+    def listItem (opt: Options, label: Seq[Span], body: Seq[Block], attr: (String,String)*) = {
+      val content = List(ListItemLabel(Paragraph(label)), ListItemBody(body))
+      out <<@ ("fo:list-item", NoOpt, attr: _*) <<|> content <<| "</fo:list-item>"
+    }
+     
+    def listItemLabel (opt: Options, content: Block, attr: (String,String)*) = {
+      out <<@ ("fo:list-item-label", NoOpt, attr :+ ("end-indent"->"label-end()"): _*) <<|> content <<| "</fo:list-item-label>"
+    }
+    
+    def listItemBody (opt: Options, content: Seq[Block], attr: (String,String)*) = {
+      out <<@ ("fo:list-item-body", NoOpt, attr :+ ("start-indent"->"body-start()"): _*) <<|> content <<| "</fo:list-item-body>"
+    }
+    
     def text (opt: Options, content: String, attr: (String,String)*) = 
       out <<@ ("fo:inline", NoOpt, attr: _*) <<& content << "</fo:inline>"
       
@@ -145,15 +162,34 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
       def figureContent (img: Span, caption: Seq[Span], legend: Seq[Block]): List[Block] =
         List(Paragraph(List(img)), Paragraph(caption, Styles("caption")), BlockSequence(legend, Styles("legend")))
       
+      def enumLabel (format: EnumFormat, num: Int) = {
+        val pos = format.enumType match {
+          case Arabic => num.toString
+          case LowerAlpha => ('a' + num - 1).toString
+          case UpperAlpha => ('A' + num - 1).toString
+          case LowerRoman => RomanNumerals.intToRoman(num).toLowerCase
+          case UpperRoman => RomanNumerals.intToRoman(num).toUpperCase
+        } 
+        format.prefix + pos + format.suffix
+      } 
+      
+      def bulletLabel (format: BulletFormat) = format match {
+        case StringBullet(_) => "&#x2022;"
+        case other           => other.toString
+      }
+        
       con match {
         case RootElement(content)             => if (content.nonEmpty) out << content.head <<| content.tail       
         case EmbeddedRoot(content,indent,_)   => out.indented(indent) { if (content.nonEmpty) out << content.head <<| content.tail }       
         case Section(header, content,_)       => out <<| header <<| content
         case TitledBlock(title, content, opt) => blockContainer(opt, Paragraph(title,Styles("title")) +: content)
         case QuotedBlock(content,attr,opt)    => blockContainer(opt, quotedBlockContent(content,attr))
-        case BulletListItem(content,_,opt)    => out <<@ ("???",opt);         renderBlocks(content, "</???>") 
-        case EnumListItem(content,_,_,opt)    => out <<@ ("???",opt);         renderBlocks(content, "</???>") 
-        case DefinitionListItem(term,defn,_)  => out << "<???>" << term << "</???>" <<| "<???>"; renderBlocks(defn, "</???>")
+        
+        case BulletListItem(content,format,opt)   => listItem(opt, List(Text(bulletLabel(format))), content) 
+        case EnumListItem(content,format,num,opt) => listItem(opt, List(Text(enumLabel(format,num))), content)
+        case DefinitionListItem(term,defn,opt)    => listItem(opt, term, defn)
+        case ListItemBody(content,opt)            => listItemBody(opt, content)
+        
         case LineBlock(content,opt)           => out <<@ ("???",opt + Styles("line-block")) <<|> content <<| "</???>"
         case Figure(img,caption,legend,opt)   => blockContainer(opt, figureContent(img,caption,legend))
         
@@ -203,14 +239,13 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     }
     
     def renderListContainer [T <: ListContainer[T]](con: ListContainer[T]) = con match {
-      case EnumList(content,format,start,opt) => 
-          out <<@ ("???", opt, ("class", format.enumType.toString.toLowerCase), ("start", noneIfDefault(start,1))) <<|> content <<| "</???>"
-      case BulletList(content,_,opt)   => out <<@ ("???",opt) <<|> content <<| "</???>"
-      case DefinitionList(content,opt) => out <<@ ("???",opt) <<|> content <<| "</???>"
+      case EnumList(content,_,_,opt)   => listBlock(opt, content)
+      case BulletList(content,_,opt)   => listBlock(opt, content)
+      case DefinitionList(content,opt) => listBlock(opt, content)
       
       case WithFallback(fallback)      => out << fallback
-      case c: Customizable             => listContainer(c.options, c.content)
-      case unknown                     => listContainer(NoOpt, unknown.content)
+      case c: Customizable             => listBlock(c.options, c.content)
+      case unknown                     => listBlock(NoOpt, unknown.content)
     }
     
     def renderTextContainer (con: TextContainer) = con match {
@@ -237,6 +272,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     }
     
     def renderSimpleBlock (block: Block) = block match {
+      case ListItemLabel(content,opt)  => listItemLabel(opt, content)
       case Rule(opt)                   => out <<@ ("fo:leader",opt,"leader-pattern"->"rule") << "</fo:leader>" 
       case InternalLinkTarget(opt)     => inline(opt, Nil)
       
