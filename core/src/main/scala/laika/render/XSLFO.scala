@@ -126,16 +126,15 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     
     def noneIfDefault [T](actual: T, default: T) = if (actual == default) None else Some(actual.toString)
     
-    def renderBlocks (blocks: Seq[Block], close: String) = blocks match {
-      case ss @ SpanSequence(_,_) :: Nil => out << ss << close
-      case Paragraph(content,opt) :: Nil => out << SpanSequence(content,opt) << close
-      case other                         => out <<|> other <<| close
-    }
-    
     def renderTable (table: Table) = {
-      val children = List(table.caption,table.columns,table.head,table.body) filterNot (_.content.isEmpty)
-      
-      out <<@ ("???", table.options) <<|> children <<| "</???>"
+      if (table.caption.content.nonEmpty) {
+        // FOP does not support fo:table-caption
+        out << TitledBlock(table.caption.content, List(table.copy(caption = Caption())))
+      }
+      else {
+        val children = table.columns.content ++ (List(table.head, table.body) filterNot (_.content.isEmpty))
+        out <<@ ("fo:table", table.options) <<|> children <<| "</fo:table>"
+      }
     }
     
     object WithFallback {
@@ -292,16 +291,16 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     }
     
     def renderTableElement (elem: TableElement) = elem match {
-      case TableHead(rows,opt)         => out <<@ ("???",opt) <<|> rows <<| "</???>"
-      case TableBody(rows,opt)         => out <<@ ("???",opt) <<|> rows <<| "</???>"    
-      case Caption(content, opt)       => out <<@ ("???",opt) <<  content <<  "</???>" 
-      case Columns(columns,opt)        => out <<@ ("???",opt) <<|> columns <<| "</???>"  
-      case Column(opt)            => out <<@ ("???",opt) << "</???>"  
-      case Row(cells,opt)         => out <<@ ("???",opt) <<|> cells <<| "</???>"
-      case Cell(HeadCell, content, colspan, rowspan, opt) => out <<@ 
-            ("???", opt, "colspan"->noneIfDefault(colspan,1), "rowspan"->noneIfDefault(rowspan,1)); renderBlocks(content, "</???>") 
-      case Cell(BodyCell, content, colspan, rowspan, opt) => out <<@ 
-            ("???", opt, "colspan"->noneIfDefault(colspan,1), "rowspan"->noneIfDefault(rowspan,1)); renderBlocks(content, "</???>") 
+      case TableHead(rows,opt)   => out <<@ ("fo:table-header", NoOpt) <<|> rows <<| "</fo:table-header>"
+      case TableBody(rows,opt)   => out <<@ ("fo:table-body", NoOpt) <<|> rows <<| "</fo:table-body>"
+      case Caption(content, opt) => () // replaced by Table renderer
+      case Columns(columns,opt)  => () // replaced by Table renderer
+      case Column(opt)           => out <<@ ("fo:table-column",NoOpt)
+      case Row(cells,opt)        => out <<@ ("fo-table-row",NoOpt) <<|> cells <<| "</fo-table-row>"
+      case Cell(_, content, colspan, rowspan, opt) => out <<@ 
+            ("fo-table-cell", opt, 
+                "number-columns-spanned"->noneIfDefault(colspan,1), 
+                "number-rows-spanned"->noneIfDefault(rowspan,1)) <<|> content <<| "</fo-table-cell>"
     }
     
     def renderUnresolvedReference (ref: Reference) = {
