@@ -66,7 +66,7 @@ object OutputProvider {
     
     def newOutput (name: String) = {
       val f = new File(dir, name)
-      Output.toFile(f)
+      Output.toFile(f, path)
     }
     
     def newChild (name: String) = {

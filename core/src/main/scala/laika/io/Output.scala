@@ -26,6 +26,8 @@ import java.io.Writer
 
 import scala.collection.mutable.StringBuilder
 import scala.io.Codec
+import laika.tree.Documents.Path
+import laika.tree.Documents.Root
 
 /** Represents the output of a renderer, abstracting over various types of IO resources. 
  *  
@@ -55,6 +57,18 @@ trait Output {
    *  to be written, without closing the underlying writer or stream.
    */
   def flush (): Unit = ()
+  
+  /** The full path of this output.
+   *  This path is always an absolute path
+   *  from the root of the (virtual) output tree,
+   *  therefore does not represent the filesystem
+   *  path in case of file I/O.
+   */
+  def path: Path
+  
+  /** The local name of this output.
+   */
+  lazy val name = path.name
   
 }
 
@@ -92,7 +106,7 @@ object Output {
     
   }
   
-  private class StringBuilderOutput (builder: StringBuilder) extends Output {
+  private class StringBuilderOutput (builder: StringBuilder, val path: Path) extends Output {
     
     def asWriter: Writer = new StringBuilderWriter(builder)
   
@@ -100,14 +114,14 @@ object Output {
     
   }
   
-  private class WriterOutput (val asWriter: Writer) extends Output {
+  private class WriterOutput (val asWriter: Writer, val path: Path) extends Output {
    
     def asFunction = asWriter.write(_:String)
     
     override def flush = asWriter flush
   }
   
-  private class StreamOutput (stream: OutputStream, codec: Codec) extends Output with Binary {
+  private class StreamOutput (stream: OutputStream, val path: Path, codec: Codec) extends Output with Binary {
    
     def asBinaryOutput: BinaryOutput = new BinaryOutput {
       val asStream = stream
@@ -122,7 +136,7 @@ object Output {
     
   }
   
-  private class AutocloseStreamOutput (stream: OutputStream, codec: Codec) extends StreamOutput(stream,codec) with Closeable {
+  private class AutocloseStreamOutput (stream: OutputStream, p: Path, codec: Codec) extends StreamOutput(stream,p,codec) with Closeable {
 
     override def asBinaryOutput: BinaryOutput = new BinaryOutput with Closeable {
       val asStream = stream
@@ -134,9 +148,9 @@ object Output {
     
   }
   
-  private class LazyFileOutput (file: File, codec: Codec) extends Output with Binary with Closeable {
+  private class LazyFileOutput (file: File, val path: Path, codec: Codec) extends Output with Binary with Closeable {
     
-    lazy val delegate = new AutocloseStreamOutput(new FileOutputStream(file), codec)
+    lazy val delegate = new AutocloseStreamOutput(new FileOutputStream(file), path, codec)
     
     def asWriter = delegate.asWriter
     def asFunction = delegate.asFunction
@@ -150,29 +164,33 @@ object Output {
    *  @param name the name of the file
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
-  def toFile (name: String)(implicit codec: Codec): Output with Binary with Closeable = new LazyFileOutput(new File(name), codec)
+  def toFile (name: String)(implicit codec: Codec): Output with Binary with Closeable = new LazyFileOutput(new File(name), Path(name), codec)
   
   /** Creates a new Output instance for the specified file.
    *  
    *  @param file the file to use as output
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
-  def toFile (file: File)(implicit codec: Codec): Output with Binary with Closeable = new LazyFileOutput(file, codec)
+  def toFile (file: File)(implicit codec: Codec): Output with Binary with Closeable = new LazyFileOutput(file, Path(file.getName), codec)
+  
+  def toFile (file: File, virtualPath: Path)(implicit codec: Codec): Output with Binary with Closeable = 
+    new LazyFileOutput(file, virtualPath / file.getName, codec)
 
   /** Creates a new Output instance for the specified OutputStream.
    *  
    *  @param stream the stream to write to
+   *  @param path the (potentially virtual) path of the output target
    *  @param codec the character encoding to use for producing the bytes, if not specified the platform default will be used.
    */
-  def toStream (stream: OutputStream)(implicit codec: Codec): Output with Binary = new StreamOutput(stream, codec)
+  def toStream (stream: OutputStream, path: Path = Root)(implicit codec: Codec): Output with Binary = new StreamOutput(stream, path, codec)
 
   /** Creates a new Output instance for the specified Writer.
    */
-  def toWriter (writer: Writer): Output = new WriterOutput(writer)
+  def toWriter (writer: Writer, path: Path = Root): Output = new WriterOutput(writer, path)
 
   /** Creates a new Output instance for the specified StringBuilder.
    */
-  def toBuilder (builder: StringBuilder): Output = new StringBuilderOutput(builder)
+  def toBuilder (builder: StringBuilder, path: Path = Root): Output = new StringBuilderOutput(builder, path)
   
   
   

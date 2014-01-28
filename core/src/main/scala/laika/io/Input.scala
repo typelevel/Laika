@@ -159,7 +159,7 @@ object Input {
   /** Creates a new Input instance for the specified InputStream.
    *  
    *  @param stream the stream to read character data from
-   *  @param name the name of the input source
+   *  @param path the (potentially virtual) path of the input source
    *  @param codec the character encoding used by the text input, if not specified the platform default will be used.
    */
   def fromStream (stream: InputStream, path: Path = Root)(implicit codec: Codec): Input with Binary = new StreamInput(stream, path, codec)
