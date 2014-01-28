@@ -17,10 +17,12 @@
 package laika.render
 
 import laika.tree.Elements._
+import laika.tree.ElementTraversal
 import laika.tree.Templates._
 import laika.io.Output
 import laika.factory.RendererFactory
 import laika.util.RomanNumerals
+import scala.language.existentials
   
 /** A renderer for XSL-FO output. May be directly passed to the `Render` or `Transform` APIs:
  * 
@@ -66,12 +68,20 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
    *  the renderer as well as the actual default render function itself
    */
   def newRenderer (output: Output, root: Element, render: Element => Unit) = {
-    val out = new HTMLWriter(output asFunction, render, formatted = renderFormatted)  
-    (out, renderElement(out))
+    val out = new HTMLWriter(output asFunction, render, formatted = renderFormatted)
+    val (footnotes, citations) = collectTargets(root)
+    (out, renderElement(out,footnotes,citations))
+  }
+  
+  private def collectTargets (root: Element): (Map[String,Footnote], Map[String,Citation]) = root match {
+    case et: ElementTraversal[_] => (
+        et collect { case f:Footnote if f.options.id.isDefined => (f.options.id.get, f) } toMap,
+        et collect { case c:Citation if c.options.id.isDefined => (c.options.id.get, c) } toMap)
+    case _ => (Map.empty, Map.empty)
   }
 
-  
-  private def renderElement (out: HTMLWriter)(elem: Element): Unit = {
+  private def renderElement (out: HTMLWriter, footnotes: Map[String,Footnote], 
+      citations: Map[String,Citation])(elem: Element): Unit = {
     
     def blockContainer (opt: Options, content: Seq[Block], attr: (String,String)*) = 
       out <<@ ("fo:block", NoOpt, attr: _*) <<|> content <<| "</fo:block>"
@@ -112,6 +122,10 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
       out <<@ ("fo:list-item-body", NoOpt, attr :+ ("start-indent"->"body-start()"): _*) <<|> content <<| "</fo:list-item-body>"
     }
     
+    def footnote (opt: Options, label: String, body: Element) = {
+      out <<@ ("fo:footnote",opt) <<|> List(Text(label,Styles("footnote-link")),body) <<| "</fo:footnote>"
+    }
+    
     def text (opt: Options, content: String, attr: (String,String)*) = 
       out <<@ ("fo:inline", NoOpt, attr: _*) <<& content << "</fo:inline>"
       
@@ -147,12 +161,11 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     
     def renderBlockContainer [T <: BlockContainer[T]](con: BlockContainer[T]) = {
   
-      def toTable (label: String, content: Seq[Block], options: Options): Table = {
-        val left = Cell(BodyCell, List(SpanSequence(List(Text(s"[$label]")))))
-        val right = Cell(BodyCell, content)
-        val row = Row(List(left,right))
-        Table(TableHead(Nil), TableBody(List(row)), Caption(),
-            Columns.options(Styles("label"),NoOpt), options)
+      def toList (label: String, content: Seq[Block]): Block = {
+        val labelElement = List(Text(label, Styles("footnote-label")))
+        val bodyElement = List(BlockSequence(content, Styles("footnote-body")))
+        val item = DefinitionListItem(labelElement, bodyElement)
+        DefinitionList(List(item), Styles("footnote"))
       }
       
       def quotedBlockContent (content: Seq[Block], attr: Seq[Span]) = 
@@ -177,7 +190,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
         case StringBullet(_) => "&#x2022;"
         case other           => other.toString
       }
-        
+      
       con match {
         case RootElement(content)             => if (content.nonEmpty) out << content.head <<| content.tail       
         case EmbeddedRoot(content,indent,_)   => out.indented(indent) { if (content.nonEmpty) out << content.head <<| content.tail }       
@@ -193,8 +206,8 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
         case LineBlock(content,opt)           => out <<@ ("???",opt + Styles("line-block")) <<|> content <<| "</???>"
         case Figure(img,caption,legend,opt)   => blockContainer(opt, figureContent(img,caption,legend))
         
-        case Footnote(label,content,opt)   => renderTable(toTable(label,content,opt + Styles("footnote")))
-        case Citation(label,content,opt)   => renderTable(toTable(label,content,opt + Styles("citation")))
+        case Footnote(label,content,opt)   => out <<@ ("fo:footnote-body",opt) <<|> toList(label,content) <<| "</fo:footnote-body>" 
+        case Citation(label,content,opt)   => out <<@ ("fo:footnote-body",opt) <<|> toList(label,content) <<| "</fo:footnote-body>"  
         
         case WithFallback(fallback)         => out << fallback
         case c: Customizable                => c match {
@@ -280,8 +293,8 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     }
     
     def renderSimpleSpan (span: Span) = span match {
-      case CitationLink(ref,label,opt) => out <<@ ("???",opt + Styles("citation"),"href"->("#"+ref)) << "[" << label << "]</???>" 
-      case FootnoteLink(ref,label,opt) => out <<@ ("???",opt + Styles("footnote"),"href"->("#"+ref)) << "[" << label << "]</???>" 
+      case CitationLink(ref,label,opt) => citations.get(ref).foreach(footnote(opt,label,_))
+      case FootnoteLink(ref,label,opt) => footnotes.get(ref).foreach(footnote(opt,label,_))
       case Image(_,url,_,opt)          => externalGraphic(opt, url) // TODO - ignoring title and alt for now
       case LineBreak(opt)              => out << "&#x2028;"
       case TemplateElement(elem,indent,_) => out.indented(indent) { out << elem }
