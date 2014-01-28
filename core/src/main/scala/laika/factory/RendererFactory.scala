@@ -51,10 +51,11 @@ trait RendererFactory[W] {
    *  for custom renderer functions and which is specific to the output format.
    *  
    *  @param out the output to write to
+   *  @param root the root element the new renderer will be used for
    *  @param delegate a render function to use for rendering the children of an element
    *  @return a new writer API of type `W` and a new render function
    */
-  def newRenderer (out: Output, delegate: Element => Unit): (W, Element => Unit)
+  def newRenderer (out: Output, root: Element, delegate: Element => Unit): (W, Element => Unit)
   
   
 }

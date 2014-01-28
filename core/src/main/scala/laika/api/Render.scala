@@ -123,7 +123,7 @@ class Render[W] private (factory: RendererFactory[W],
      */
     def toOutput (out: Output) = { 
       IO(out) { out =>
-        val (writer, render) = factory.newRenderer(out, RenderFunction)
+        val (writer, render) = factory.newRenderer(out, elem, RenderFunction)
         
         RenderFunction.delegate = customRenderers match {
           case Nil => render

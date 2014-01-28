@@ -60,11 +60,12 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
    *  user customizations are possible on a per-element basis.
    *  
    *  @param output the output to write to
+   *  @param root the root element the new renderer will be used for
    *  @param render the composite render function to delegate to when elements need to render their children
    *  @return a tuple consisting of the writer API for customizing
    *  the renderer as well as the actual default render function itself
    */
-  def newRenderer (output: Output, render: Element => Unit) = {
+  def newRenderer (output: Output, root: Element, render: Element => Unit) = {
     val out = new HTMLWriter(output asFunction, render, formatted = renderFormatted)  
     (out, renderElement(out))
   }
