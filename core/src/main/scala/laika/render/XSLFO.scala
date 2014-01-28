@@ -233,7 +233,6 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
           case unknown: Block               => block(unknown.options, unknown.content)
           case unknown                      => inline(unknown.options, unknown.content)
         }
-        case unknown: Block                 => block(NoOpt, unknown.content)
         case unknown                        => inline(NoOpt, unknown.content)
       }
     }
