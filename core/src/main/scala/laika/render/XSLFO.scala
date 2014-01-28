@@ -203,7 +203,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
         case DefinitionListItem(term,defn,opt)    => listItem(opt, term, defn)
         case ListItemBody(content,opt)            => listItemBody(opt, content)
         
-        case LineBlock(content,opt)           => out <<@ ("???",opt + Styles("line-block")) <<|> content <<| "</???>"
+        case LineBlock(content,opt)           => blockContainer(opt + Styles("line-block"), content)
         case Figure(img,caption,legend,opt)   => blockContainer(opt, figureContent(img,caption,legend))
         
         case Footnote(label,content,opt)   => out <<@ ("fo:footnote-body",opt) <<|> toList(label,content) <<| "</fo:footnote-body>" 
@@ -232,7 +232,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
         case Emphasized(content,opt)        => inline(opt,content,"font-style"->"italic")
         case Strong(content,opt)            => inline(opt,content,"font-weight"->"bold")
         case Code(lang,content,opt)         => inline(opt+codeStyles(lang),content,"font-family"->"monospace")
-        case Line(content,opt)              => out <<@ ("???",opt + Styles("line")) << content <<  "</???>"
+        case Line(content,opt)              => block(opt + Styles("line"), content)
   
         case ExternalLink(content, url, _, opt)     => externalLink(opt, url, content)
         case InternalLink(content, ref, _, opt)     => internalLink(opt, ref, content) // TODO - need to integrate doc path
