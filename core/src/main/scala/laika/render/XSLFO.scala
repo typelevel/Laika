@@ -16,6 +16,7 @@
 
 package laika.render
 
+import laika.tree.Documents.Path
 import laika.tree.Elements._
 import laika.tree.ElementTraversal
 import laika.tree.Templates._
@@ -32,7 +33,9 @@ import scala.language.existentials
  *  Transform from Markdown to XSLFO fromFile "hello.md" toFile "hello.fo"
  *  }}}
  *  
- *  TODO - this is a new renderer and currently work in progress - do not use yet
+ *  This renderer is usually used as an interim format for producing a PDF, 
+ *  where you do not deal with this format directly. But it can alternatively
+ *  also be used as the final output and then get processed by external tools.
  * 
  *  @author Jens Halm
  */
@@ -43,7 +46,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
   
   case class ListItemBody (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[ListItemBody]
   
-  val fileSuffix = "html"
+  val fileSuffix = "fo"
  
   /** Specifies the minimum required level for a system message
    *  to get included into the output by this renderer.
@@ -70,7 +73,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
   def newRenderer (output: Output, root: Element, render: Element => Unit) = {
     val out = new HTMLWriter(output asFunction, render, formatted = renderFormatted)
     val (footnotes, citations) = collectTargets(root)
-    (out, renderElement(out,footnotes,citations))
+    (out, renderElement(out,footnotes,citations,output.path))
   }
   
   private def collectTargets (root: Element): (Map[String,Footnote], Map[String,Citation]) = root match {
@@ -81,7 +84,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
   }
 
   private def renderElement (out: HTMLWriter, footnotes: Map[String,Footnote], 
-      citations: Map[String,Citation])(elem: Element): Unit = {
+      citations: Map[String,Citation], path: Path)(elem: Element): Unit = {
     
     def blockContainer (opt: Options, content: Seq[Block], attr: (String,String)*) = 
       out <<@ ("fo:block", NoOpt, attr: _*) <<|> content <<| "</fo:block>"
@@ -220,7 +223,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     
     def renderSpanContainer [T <: SpanContainer[T]](con: SpanContainer[T]) = {
       def codeStyles (language: String) = if (language.isEmpty) Styles("code") else Styles("code", language)
-      def crossLinkRef (path: PathInfo, ref: String) = path.toString + "-" + ref
+      def crossLinkRef (path: Path, ref: String) = path.toString + "-" + ref
       
       con match {
         
@@ -235,8 +238,8 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
         case Line(content,opt)              => block(opt + Styles("line"), content)
   
         case ExternalLink(content, url, _, opt)     => externalLink(opt, url, content)
-        case InternalLink(content, ref, _, opt)     => internalLink(opt, ref, content) // TODO - need to integrate doc path
-        case CrossLink(content, ref, path, _, opt)  => internalLink(opt, crossLinkRef(path,ref), content)
+        case InternalLink(content, ref, _, opt)     => internalLink(opt, crossLinkRef(path, ref), content)
+        case CrossLink(content, ref, path, _, opt)  => internalLink(opt, crossLinkRef(path.absolute, ref), content)
         
         case WithFallback(fallback)         => out << fallback
         case c: Customizable                => c match {
