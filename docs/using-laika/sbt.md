@@ -312,3 +312,38 @@ The examples in the two chapters linked above show how to implement a directive
 and register it either for use in sbt or in embedded mode.
 
 
+
+Using Laika for GitHub Pages
+----------------------------
+
+If you want to generate the site and push it up to the gh-pages branch of your GitHub repository
+in one go, you can combine Laika and the sbt-ghpages plugin.
+
+Add the sbt-ghpages plugin to `project/plugins.sbt`:
+
+    resolvers += "jgit-repo" at "http://download.eclipse.org/jgit/maven"
+
+    addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.5.2")
+
+Configure the plugins in `build.sbt`:
+
+    import LaikaKeys._
+    import GhPagesKeys._
+
+    LaikaPlugin.defaults
+    
+    ghpages.settings
+
+    git.remoteRepo := "git@github.com:{your username}/{your project}.git"
+
+    git.gitCurrentBranch := "master"
+
+    mappings in synchLocal := (mappings in LaikaKeys.site in Laika).value
+    
+It is the last line that connects the two plugins, but there is no need
+to understand how that line works.
+
+Finally run the task `ghpages-push-site`. This will also trigger the 
+Laika transformation if the site output is not up-to-date.
+
+
