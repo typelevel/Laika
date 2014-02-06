@@ -332,7 +332,33 @@ import laika.tree.Elements._</pre>
         <code>blockDirectives</code> or <code>templateDirectives</code> for adding custom implementations.
         For more details on this directive type see <a href="../extending-laika/directive.html#directives">Directives</a>.</p>
         <p>The examples in the two chapters linked above show how to implement a directive
-        and register it either for use in sbt or in embedded mode.</p>      
+        and register it either for use in sbt or in embedded mode.</p>
+        
+        <h2 id="using-laika-for-github-pages" class="section">Using Laika for GitHub Pages</h2>
+        <p>If you want to generate the site and push it up to the gh-pages branch of your GitHub repository
+        in one go, you can combine Laika and the sbt-ghpages plugin.</p>
+        <p>Add the sbt-ghpages plugin to <code>project/plugins.sbt</code>:</p>
+        <pre>resolvers += &quot;jgit-repo&quot; at &quot;http://download.eclipse.org/jgit/maven&quot;
+
+addSbtPlugin(&quot;com.typesafe.sbt&quot; % &quot;sbt-ghpages&quot; % &quot;0.5.2&quot;)</pre>
+        <p>Configure the plugins in <code>build.sbt</code>:</p>
+        <pre>import LaikaKeys._
+import GhPagesKeys._
+
+LaikaPlugin.defaults
+
+ghpages.settings
+
+git.remoteRepo := &quot;git@github.com:{your username}/{your project}.git&quot;
+
+git.gitCurrentBranch := &quot;master&quot;
+
+mappings in synchLocal := (mappings in LaikaKeys.site in Laika).value
+</pre>
+        <p>It is the last line that connects the two plugins, but there is no need
+        to understand how that line works.</p>
+        <p>Finally run the task <code>ghpages-push-site</code>. This will also trigger the 
+        Laika transformation if the site output is not up-to-date.</p>      
 
       </div>
     </div>
