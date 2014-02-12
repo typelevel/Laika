@@ -343,9 +343,7 @@ object LaikaSbtPlugin extends Plugin {
       
       def logMessage (inv: Invalid[_], path: Path) = {
         val source = inv.fallback match {
-          case Text(text,_) => text
-          case Literal(text,_) => text
-          case LiteralBlock(text,_) => text
+          case tc: TextContainer => tc.content
           case other => other.toString
         }
         val text = s"$path: ${inv.message.content}\nsource: $source"
