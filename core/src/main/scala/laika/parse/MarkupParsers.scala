@@ -76,7 +76,6 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
    *  and the punctuation characters `-`, `_`, `.`, `:`, `+`.
    */
   val refName = {
-    //val alphanum = anyIn('0' to '9', 'a' to 'z', 'A' to 'Z') min 1
     val alphanum = anyWhile(c => Character.isDigit(c) || Character.isLetter(c)) min 1
     val symbol = anyOf('-', '_', '.', ':', '+') take 1
     
