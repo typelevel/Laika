@@ -19,12 +19,39 @@ package laika.parse.css
 import laika.tree.Elements.Element
 import laika.tree.Elements.Customizable
 import laika.tree.Elements.Id
+import scala.language.existentials
 
 /**
  * @author Jens Halm
  */
 object Styles {
 
+  
+  sealed abstract class Predicate {
+    def specificity: Specificity
+    def evaluate (element: Element): Boolean
+  }
+  
+  case class ElementType (name: String) extends Predicate {
+    val specificity = Specificity(0,0,1,0)
+    def evaluate (element: Element) = element.getClass.getSimpleName == name
+  }
+  
+  case class Id (id: String) extends Predicate {
+    val specificity = Specificity(1,0,0,0)
+    def evaluate (element: Element) = element match {
+      case c: Customizable if c.options.id == Some(id) => true
+      case _ => false
+    }
+  }  
+  
+  case class StyleName (name: String) extends Predicate {
+    val specificity = Specificity(0,1,0,0)
+    def evaluate (element: Element) = element match {
+      case c: Customizable if c.options.styles.contains(name) => true
+      case _ => false
+    }
+  }  
   
   case class ParentSelector (selector: Selector, immediate: Boolean)
   
@@ -39,16 +66,12 @@ object Styles {
   
   
   case class Selector (
-      elementType: Option[Class[_ <: Element]] = None, 
-      id: Option[String] = None, 
-      classes: Set[String] = Set(), 
+      predicates: Set[Predicate] = Set(), 
       parent: Option[ParentSelector] = None,
-      order: Int) {
-    
-    private def satisfies [T](opt: Option[T])(pred: T => Boolean) = opt.fold(true)(pred)
+      order: Int = Int.MinValue) {
     
     def specificity: Specificity = {
-      val thisSpec = Specificity(id.fold(0)(_=>1), classes.size, elementType.fold(0)(_=>1), order)
+      val thisSpec = predicates.map(_.specificity).reduceLeftOption(_+_).getOrElse(Specificity(0,0,0,0)).copy(order = order)
       parent.fold(thisSpec)(thisSpec + _.selector.specificity)
     }
     
@@ -58,16 +81,8 @@ object Styles {
         case seq => selector.matches(seq.head, seq.tail) || matchesParent(seq.tail, selector)
       }
       
-      satisfies(elementType)(_ == target.getClass) &&
-      satisfies(id){ id => target match {
-        case c: Customizable if c.options.id == Some(id) => true
-        case _ => false
-      }} &&
-      (target match {
-        case c: Customizable if classes.subsetOf(c.options.styles) => true
-        case _ => false
-      }) &&
-      satisfies(parent){ parent =>
+      predicates.forall(_.evaluate(target)) &&
+      parent.fold(true) { parent =>
         if (parent.immediate) parents.headOption.fold(false)(parent.selector.matches(_, parents.tail))
         else matchesParent(parents, parent.selector)
       }
@@ -76,7 +91,7 @@ object Styles {
   }
   
   
-  case class Style (name: String, value: String, inherited: Boolean)
+  case class Style (name: String, value: String)
   
   case class StyleDeclaration (selector: Selector, styles: Map[String, Style]) {
     
@@ -86,13 +101,8 @@ object Styles {
   
   class StyleDeclarationSet (decl: Set[StyleDeclaration]) {
     
-    def collectStyles (element: Element, parents: Seq[Element], parentStyles: Map[String, Style]) = {
-      val styles = decl.filter(_.appliesTo(element, parents)).toSeq.sortBy(_.selector.specificity)
-      (parentStyles /: styles) { 
-        (acc, decl) => acc ++ decl.styles
-      } 
-    }
-      
+    def collectStyles (element: Element, parents: Seq[Element]) = 
+      decl.filter(_.appliesTo(element, parents)).toSeq.sortBy(_.selector.specificity)
     
   }
   
