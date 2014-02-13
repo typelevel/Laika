@@ -141,29 +141,29 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
       }
       
       con match {
-        case RootElement(content)             => if (content.nonEmpty) out << content.head <<| content.tail       
-        case EmbeddedRoot(content,indent,_)   => out.indented(indent) { if (content.nonEmpty) out << content.head <<| content.tail }       
-        case Section(header, content,_)       => out <<| header <<| content
-        case TitledBlock(title, content, opt) => out.blockContainer(opt, Paragraph(title,Styles("title")) +: content)
-        case QuotedBlock(content,attr,opt)    => out.blockContainer(opt, quotedBlockContent(content,attr))
+        case RootElement(content)               => if (content.nonEmpty) out << content.head <<| content.tail       
+        case EmbeddedRoot(content,indent,_)     => out.indented(indent) { if (content.nonEmpty) out << content.head <<| content.tail }       
+        case Section(header, content,_)         => out <<| header <<| content
+        case e @ TitledBlock(title, content, _) => out.blockContainer(e, Paragraph(title,Styles("title")) +: content)
+        case e @ QuotedBlock(content,attr,_)    => out.blockContainer(e, quotedBlockContent(content,attr))
         
-        case BulletListItem(content,format,opt)   => out.listItem(opt, List(Text(bulletLabel(format))), content) 
-        case EnumListItem(content,format,num,opt) => out.listItem(opt, List(Text(enumLabel(format,num))), content)
-        case DefinitionListItem(term,defn,opt)    => out.listItem(opt, term, defn)
-        case ListItemBody(content,opt)            => out.listItemBody(opt, content)
+        case e @ BulletListItem(content,format,_)   => out.listItem(e, List(Text(bulletLabel(format))), content) 
+        case e @ EnumListItem(content,format,num,_) => out.listItem(e, List(Text(enumLabel(format,num))), content)
+        case e @ DefinitionListItem(term,defn,_)    => out.listItem(e, term, defn)
+        case e @ ListItemBody(content,_)            => out.listItemBody(e, content)
         
-        case LineBlock(content,opt)           => out.blockContainer(opt + Styles("line-block"), content)
-        case Figure(img,caption,legend,opt)   => out.blockContainer(opt, figureContent(img,caption,legend))
+        case e @ LineBlock(content,_)           => out.blockContainer(e.copy(options=e.options + Styles("line-block")), content)
+        case e @ Figure(img,caption,legend,_)   => out.blockContainer(e, figureContent(img,caption,legend))
         
-        case Footnote(label,content,opt)   => out <<@ ("fo:footnote-body",opt) <<|> toList(label,content) <<| "</fo:footnote-body>" 
-        case Citation(label,content,opt)   => out <<@ ("fo:footnote-body",opt) <<|> toList(label,content) <<| "</fo:footnote-body>"  
+        case Footnote(label,content,opt)    => out <<@ ("fo:footnote-body",opt) <<|> toList(label,content) <<| "</fo:footnote-body>" 
+        case Citation(label,content,opt)    => out <<@ ("fo:footnote-body",opt) <<|> toList(label,content) <<| "</fo:footnote-body>"  
         
         case WithFallback(fallback)         => out << fallback
         case c: Customizable                => c match {
           case BlockSequence(content, NoOpt) => if (content.nonEmpty) out << content.head <<| content.tail // this case could be standalone above, but triggers a compiler bug then
-          case unknown                      => out.blockContainer(unknown.options, unknown.content)
+          case unknown                      => out.blockContainer(unknown, unknown.content)
         }
-        case unknown                        => out.blockContainer(NoOpt, unknown.content)
+        case unknown                        => out.blockContainer(unknown, unknown.content)
       }
     }
     
@@ -173,78 +173,69 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
       
       con match {
         
-        case Paragraph(content,opt)         => out.block(opt,content)
-        case ParsedLiteralBlock(content,opt)=> out.blockWithWS(opt,content)
-        case CodeBlock(lang,content,opt)    => out.blockWithWS(opt+codeStyles(lang),content)
-        case Header(level, content, opt)    => out.block(opt+Styles("level"+level.toString),content)
+        case e @ Paragraph(content,_)         => out.block(e,content)
+        case e @ ParsedLiteralBlock(content,_)=> out.blockWithWS(e,content)
+        case e @ CodeBlock(lang,content,_)    => out.blockWithWS(e.copy(options=e.options + codeStyles(lang)),content)
+        case e @ Header(level, content,_)     => out.block(e.copy(options=e.options + Styles("level"+level.toString)),content)
 
-        case Emphasized(content,opt)        => out.inline(opt,content,"font-style"->"italic")
-        case Strong(content,opt)            => out.inline(opt,content,"font-weight"->"bold")
-        case Code(lang,content,opt)         => out.inline(opt+codeStyles(lang),content,"font-family"->"monospace")
-        case Line(content,opt)              => out.block(opt + Styles("line"), content)
+        case e @ Emphasized(content,_)        => out.inline(e,content,"font-style"->"italic")
+        case e @ Strong(content,_)            => out.inline(e,content,"font-weight"->"bold")
+        case e @ Code(lang,content,_)         => out.inline(e.copy(options=e.options + codeStyles(lang)),content,"font-family"->"monospace")
+        case e @ Line(content,_)              => out.block(e.copy(options=e.options + Styles("line")), content)
   
-        case ExternalLink(content, url, _, opt)     => out.externalLink(opt, url, content)
-        case InternalLink(content, ref, _, opt)     => out.internalLink(opt, crossLinkRef(path, ref), content)
-        case CrossLink(content, ref, path, _, opt)  => out.internalLink(opt, crossLinkRef(path.absolute, ref), content)
+        case e @ ExternalLink(content, url, _, _)     => out.externalLink(e, url, content)
+        case e @ InternalLink(content, ref, _, _)     => out.internalLink(e, crossLinkRef(path, ref), content)
+        case e @ CrossLink(content, ref, path, _, _)  => out.internalLink(e, crossLinkRef(path.absolute, ref), content)
         
         case WithFallback(fallback)         => out << fallback
         case c: Customizable                => c match {
           case SpanSequence(content, NoOpt) => out << content // this case could be standalone above, but triggers a compiler bug then
           case TemplateRoot(content, NoOpt) => out << content
           case TemplateSpanSequence(content, NoOpt) => out << content
-          case unknown: Block               => out.block(unknown.options, unknown.content)
-          case unknown                      => out.inline(unknown.options, unknown.content)
+          case unknown: Block               => out.block(unknown, unknown.content)
+          case unknown                      => out.inline(unknown, unknown.content)
         }
-        case unknown                        => out.inline(NoOpt, unknown.content)
+        case unknown                        => out.inline(unknown, unknown.content)
       }
     }
     
     def renderListContainer [T <: ListContainer[T]](con: ListContainer[T]) = con match {
-      case EnumList(content,_,_,opt)   => out.listBlock(opt, content)
-      case BulletList(content,_,opt)   => out.listBlock(opt, content)
-      case DefinitionList(content,opt) => out.listBlock(opt, content)
+      case e @ EnumList(content,_,_,_)   => out.listBlock(e, content)
+      case e @ BulletList(content,_,_)   => out.listBlock(e, content)
+      case e @ DefinitionList(content,_) => out.listBlock(e, content)
       
       case WithFallback(fallback)      => out << fallback
-      case c: Customizable             => out.listBlock(c.options, c.content)
-      case unknown                     => out.listBlock(NoOpt, unknown.content)
+      case c: Customizable             => out.listBlock(c, c.content)
+      case unknown                     => out.listBlock(unknown, unknown.content)
     }
     
     def renderTextContainer (con: TextContainer) = con match {
-      case Text(content,opt)           => opt match {
-        case NoOpt                     => out <<& content
-        case _                         => out.text(opt, content)
-      }
-      case TemplateString(content,opt) => opt match {
-        case NoOpt                     => out << content
-        case _                         => out.rawText(opt, content)
-      }
-      case RawContent(formats, content, opt) => if (formats.contains("fo")) { opt match {
-        case NoOpt                     => out <<   content
-        case _                         => out.rawText(opt, content)
-      }} 
-      case Literal(content,opt)        => out.textWithWS(opt, content)
-      case LiteralBlock(content,opt)   => out.textWithWS(opt, content)
+      case e @ Text(content,_)           => out.text(e, content)
+      case e @ TemplateString(content,_) => out.rawText(e, content)
+      case e @ RawContent(formats, content, _) => if (formats.contains("fo")) out.rawText(e, content)
+      case e @ Literal(content,_)        => out.textWithWS(e, content)
+      case e @ LiteralBlock(content,_)   => out.textWithWS(e, content)
       case Comment(content,opt)        => out << "<!-- "       <<   content << " -->"
       
       case WithFallback(fallback)      => out << fallback
       case c: Customizable if c.options == NoOpt => out <<& c.content
-      case c: Customizable             => out.text(c.options, c.content)
+      case c: Customizable             => out.text(c, c.content)
       case unknown                     => out <<& unknown.content
     }
     
     def renderSimpleBlock (block: Block) = block match {
-      case ListItemLabel(content,opt)  => out.listItemLabel(opt, content)
+      case e @ ListItemLabel(content,_)  => out.listItemLabel(e, content)
       case Rule(opt)                   => out <<@ ("fo:leader",opt,"leader-pattern"->"rule") << "</fo:leader>" 
-      case InternalLinkTarget(opt)     => out.inline(opt, Nil)
+      case e: InternalLinkTarget     => out.inline(e, Nil)
       
       case WithFallback(fallback)      => out << fallback
       case unknown                     => ()
     }
     
     def renderSimpleSpan (span: Span) = span match {
-      case CitationLink(ref,label,opt) => citations.get(ref).foreach(out.footnote(opt,label,_))
-      case FootnoteLink(ref,label,opt) => footnotes.get(ref).foreach(out.footnote(opt,label,_))
-      case Image(_,url,_,opt)          => out.externalGraphic(opt, url) // TODO - ignoring title and alt for now
+      case e @ CitationLink(ref,label,_) => citations.get(ref).foreach(out.footnote(e,label,_))
+      case e @ FootnoteLink(ref,label,_) => footnotes.get(ref).foreach(out.footnote(e,label,_))
+      case e @ Image(_,url,_,_)          => out.externalGraphic(e, url) // TODO - ignoring title and alt for now
       case LineBreak(opt)              => out << "&#x2028;"
       case TemplateElement(elem,indent,_) => out.indented(indent) { out << elem }
       
@@ -278,7 +269,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     
     def renderSystemMessage (message: SystemMessage) = {
       if (include(message)) 
-        out.text(message.options + Styles("system-message", message.level.toString.toLowerCase), message.content)
+        out.text(message.copy(options=message.options + Styles("system-message", message.level.toString.toLowerCase)), message.content)
     }
     
     
