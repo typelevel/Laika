@@ -91,9 +91,7 @@ object Styles {
   }
   
   
-  case class Style (name: String, value: String)
-  
-  case class StyleDeclaration (selector: Selector, styles: Map[String, Style]) {
+  case class StyleDeclaration (selector: Selector, styles: Map[String, String]) {
     
     def appliesTo (element: Element, parents: Seq[Element]) = selector.matches(element, parents)
     
@@ -101,8 +99,10 @@ object Styles {
   
   class StyleDeclarationSet (decl: Set[StyleDeclaration]) {
     
-    def collectStyles (element: Element, parents: Seq[Element]) = 
-      decl.filter(_.appliesTo(element, parents)).toSeq.sortBy(_.selector.specificity)
+    def collectStyles (element: Element, parents: Seq[Element]) = {
+      val decls = decl.filter(_.appliesTo(element, parents)).toSeq.sortBy(_.selector.specificity)
+      (Map[String,String]() /: decls) { case (acc, decl) => acc ++ decl.styles }
+    }
     
   }
   

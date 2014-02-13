@@ -32,6 +32,8 @@ trait CSSParsers extends laika.parse.InlineParsers {
   case object Descendant extends Combinator
   case object Child extends Combinator
   
+  case class Style (name: String, value: String)
+  
   
   val wsOrNl = anyOf(' ','\t', '\n', '\r')
   
@@ -68,7 +70,7 @@ trait CSSParsers extends laika.parse.InlineParsers {
   lazy val styleDeclarations: Parser[Seq[StyleDeclaration]] = 
     ((selectorGroup <~ wsOrNl ~ '{' ~ wsOrNl) ~ ((comment | style)*) <~ (wsOrNl ~ '}')) ^^ {
       case selectors ~ stylesAndComments => 
-        val styles = stylesAndComments collect { case st: Style => (st.name, st) } toMap;
+        val styles = stylesAndComments collect { case st: Style => (st.name, st.value) } toMap;
         selectors map (StyleDeclaration(_, styles))
     }
   
