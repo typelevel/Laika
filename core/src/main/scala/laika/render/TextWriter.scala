@@ -55,6 +55,15 @@ class TextWriter (out: String => Unit,
     
   }
   
+  private var parentStack: List[Element] = Nil
+  
+  protected def parents = parentStack
+  
+  private def renderElement (element: Element) = {
+    parentStack = element :: parentStack
+    render(element)
+    parentStack = parentStack.tail
+  }
   
   /** Executes the specified block while temporarily
    *  shifting the indentation level (if it is greater
@@ -74,12 +83,12 @@ class TextWriter (out: String => Unit,
   /** Writes the specified elements to the output, 
    *  all on the same line.
    */
-  def << (elements: Seq[Element]): this.type = { elements.foreach(render); this }
+  def << (elements: Seq[Element]): this.type = { elements.foreach(renderElement); this }
 
   /** Writes the specified element to the output, 
    *  on the same line.
    */
-  def << (element: Element): this.type = { render(element); this }
+  def << (element: Element): this.type = { renderElement(element); this }
   
   
 
@@ -91,12 +100,12 @@ class TextWriter (out: String => Unit,
   /** Writes the specified elements to the output, 
    *  each of them on a new line using the current level of indentation.
    */
-  def <<| (elements: Seq[Element]): this.type = { elements.foreach(e => { Indent.write; render(e) }); this }
+  def <<| (elements: Seq[Element]): this.type = { elements.foreach(e => { Indent.write; renderElement(e) }); this }
   
   /** Writes the specified element to the output, 
    *  on a new line using the current level of indentation.
    */
-  def <<| (element: Element): this.type = { Indent.write; render(element); this }
+  def <<| (element: Element): this.type = { Indent.write; renderElement(element); this }
   
    
   /** Writes the specified string to the output, 
@@ -116,7 +125,7 @@ class TextWriter (out: String => Unit,
     Indent.>>>
     elements.foreach { e => 
       Indent.write
-      render(e)
+      renderElement(e)
     }
     Indent.<<<
     this
@@ -127,7 +136,7 @@ class TextWriter (out: String => Unit,
    */
   def <<|> (element: Element): this.type = {
     Indent.>>>.write
-    render(element)
+    renderElement(element)
     Indent.<<<.write
     this
   }
