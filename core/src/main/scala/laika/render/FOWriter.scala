@@ -18,7 +18,7 @@ package laika.render
 
 import laika.tree.Elements._
 import laika.parse.css.Styles.StyleDeclarationSet
- 
+import FOWriter._ 
 
 /** API for renderers that produce XSL-FO output.
  * 
@@ -49,5 +49,66 @@ class FOWriter (out: String => Unit,
     ("id"->options.id) +: fromCSS ++: attrs
   }
   
+  
+  def blockContainer (opt: Options, content: Seq[Block], attr: (String,String)*) = 
+    this <<@ ("fo:block", NoOpt, attr: _*) <<|> content <<| "</fo:block>"
+  
+  def listBlock (opt: Options, content: Seq[ListItem], attr: (String,String)*) = 
+    this <<@ ("fo:list-block", NoOpt, attr: _*) <<|> content <<| "</fo:list-block>"
+    
+  def block (opt: Options, content: Seq[Span], attr: (String,String)*) = 
+    this <<@ ("fo:block", NoOpt, attr: _*) << content << "</fo:block>"
+
+  def blockWithWS (opt: Options, content: Seq[Span], attr: (String,String)*) = 
+    this <<@ ("fo:block", NoOpt, attr: _*) <<< content << "</fo:block>"
+  
+  def inline (opt: Options, content: Seq[Span], attr: (String,String)*) = 
+    this <<@ ("fo:inline", NoOpt, attr: _*) << content << "</fo:inline>"
+    
+  def internalLink (opt: Options, target: String, content: Seq[Span], attr: (String,String)*) = 
+    this <<@ ("fo:basic-link", NoOpt, (attr :+ ("internal-destination"->target)): _*) << content << "</fo:basic-link>"
+  
+  def externalLink (opt: Options, url: String, content: Seq[Span], attr: (String,String)*) = 
+    this <<@ ("fo:basic-link", NoOpt, (attr :+ ("external-destination"->url)): _*) << content << "</fo:basic-link>"
+    
+  def externalGraphic (opt: Options, src: String) =
+    this <<@ ("fo:external-graphic", NoOpt, "src"->src,
+        "inline-progression-dimension.maximum"->"100%", 
+        "content-width"->"scale-down-to-fit")
+        
+  def listItem (opt: Options, label: Seq[Span], body: Seq[Block], attr: (String,String)*) = {
+    val content = List(ListItemLabel(Paragraph(label)), ListItemBody(body))
+    this <<@ ("fo:list-item", NoOpt, attr: _*) <<|> content <<| "</fo:list-item>"
+  }
+   
+  def listItemLabel (opt: Options, content: Block, attr: (String,String)*) = {
+    this <<@ ("fo:list-item-label", NoOpt, attr :+ ("end-indent"->"label-end()"): _*) <<|> content <<| "</fo:list-item-label>"
+  }
+  
+  def listItemBody (opt: Options, content: Seq[Block], attr: (String,String)*) = {
+    this <<@ ("fo:list-item-body", NoOpt, attr :+ ("start-indent"->"body-start()"): _*) <<|> content <<| "</fo:list-item-body>"
+  }
+  
+  def footnote (opt: Options, label: String, body: Element) = {
+    this <<@ ("fo:footnote",opt,Nil:_*) <<|> List(Text(label,Styles("footnote-link")),body) <<| "</fo:footnote>"
+  }
+  
+  def text (opt: Options, content: String, attr: (String,String)*) = 
+    this <<@ ("fo:inline", NoOpt, attr: _*) <<& content << "</fo:inline>"
+    
+  def textWithWS (opt: Options, content: String, attr: (String,String)*) = 
+    this <<@ ("fo:inline", NoOpt, attr: _*) <<<& content << "</fo:inline>"
+    
+  def rawText (opt: Options, content: String, attr: (String,String)*) = 
+    this <<@ ("fo:inline", NoOpt, attr: _*) << content << "</fo:inline>"
+  
  
+}
+
+object FOWriter {
+  
+  case class ListItemLabel (content: Block, options: Options = NoOpt) extends Block
+  
+  case class ListItemBody (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[ListItemBody]
+  
 }

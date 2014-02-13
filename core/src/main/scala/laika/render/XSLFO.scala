@@ -24,6 +24,7 @@ import laika.io.Output
 import laika.factory.RendererFactory
 import laika.util.RomanNumerals
 import scala.language.existentials
+import FOWriter._ 
   
 /** A renderer for XSL-FO output. May be directly passed to the `Render` or `Transform` APIs:
  * 
@@ -40,11 +41,8 @@ import scala.language.existentials
  *  @author Jens Halm
  */
 class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolean) 
-    extends RendererFactory[HTMLWriter] {
+    extends RendererFactory[FOWriter] {
   
-  case class ListItemLabel (content: Block, options: Options = NoOpt) extends Block
-  
-  case class ListItemBody (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[ListItemBody]
   
   val fileSuffix = "fo"
  
@@ -71,7 +69,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
    *  the renderer as well as the actual default render function itself
    */
   def newRenderer (output: Output, root: Element, render: Element => Unit) = {
-    val out = new HTMLWriter(output asFunction, render, formatted = renderFormatted)
+    val out = new FOWriter(output asFunction, render, null, formatted = renderFormatted) // TODO - must pass StyleDeclarationSet
     val (footnotes, citations) = collectTargets(root)
     (out, renderElement(out,footnotes,citations,output.path))
   }
@@ -83,61 +81,9 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     case _ => (Map.empty, Map.empty)
   }
 
-  private def renderElement (out: HTMLWriter, footnotes: Map[String,Footnote], 
+  private def renderElement (out: FOWriter, footnotes: Map[String,Footnote], 
       citations: Map[String,Citation], path: Path)(elem: Element): Unit = {
     
-    def blockContainer (opt: Options, content: Seq[Block], attr: (String,String)*) = 
-      out <<@ ("fo:block", NoOpt, attr: _*) <<|> content <<| "</fo:block>"
-    
-    def listBlock (opt: Options, content: Seq[ListItem], attr: (String,String)*) = 
-      out <<@ ("fo:list-block", NoOpt, attr: _*) <<|> content <<| "</fo:list-block>"
-      
-    def block (opt: Options, content: Seq[Span], attr: (String,String)*) = 
-      out <<@ ("fo:block", NoOpt, attr: _*) << content << "</fo:block>"
-
-    def blockWithWS (opt: Options, content: Seq[Span], attr: (String,String)*) = 
-      out <<@ ("fo:block", NoOpt, attr: _*) <<< content << "</fo:block>"
-    
-    def inline (opt: Options, content: Seq[Span], attr: (String,String)*) = 
-      out <<@ ("fo:inline", NoOpt, attr: _*) << content << "</fo:inline>"
-      
-    def internalLink (opt: Options, target: String, content: Seq[Span], attr: (String,String)*) = 
-      out <<@ ("fo:basic-link", NoOpt, (attr :+ ("internal-destination"->target)): _*) << content << "</fo:basic-link>"
-    
-    def externalLink (opt: Options, url: String, content: Seq[Span], attr: (String,String)*) = 
-      out <<@ ("fo:basic-link", NoOpt, (attr :+ ("external-destination"->url)): _*) << content << "</fo:basic-link>"
-      
-    def externalGraphic (opt: Options, src: String) =
-      out <<@ ("fo:external-graphic", NoOpt, "src"->src,
-          "inline-progression-dimension.maximum"->"100%", 
-          "content-width"->"scale-down-to-fit")
-          
-    def listItem (opt: Options, label: Seq[Span], body: Seq[Block], attr: (String,String)*) = {
-      val content = List(ListItemLabel(Paragraph(label)), ListItemBody(body))
-      out <<@ ("fo:list-item", NoOpt, attr: _*) <<|> content <<| "</fo:list-item>"
-    }
-     
-    def listItemLabel (opt: Options, content: Block, attr: (String,String)*) = {
-      out <<@ ("fo:list-item-label", NoOpt, attr :+ ("end-indent"->"label-end()"): _*) <<|> content <<| "</fo:list-item-label>"
-    }
-    
-    def listItemBody (opt: Options, content: Seq[Block], attr: (String,String)*) = {
-      out <<@ ("fo:list-item-body", NoOpt, attr :+ ("start-indent"->"body-start()"): _*) <<|> content <<| "</fo:list-item-body>"
-    }
-    
-    def footnote (opt: Options, label: String, body: Element) = {
-      out <<@ ("fo:footnote",opt) <<|> List(Text(label,Styles("footnote-link")),body) <<| "</fo:footnote>"
-    }
-    
-    def text (opt: Options, content: String, attr: (String,String)*) = 
-      out <<@ ("fo:inline", NoOpt, attr: _*) <<& content << "</fo:inline>"
-      
-    def textWithWS (opt: Options, content: String, attr: (String,String)*) = 
-      out <<@ ("fo:inline", NoOpt, attr: _*) <<<& content << "</fo:inline>"
-      
-    def rawText (opt: Options, content: String, attr: (String,String)*) = 
-      out <<@ ("fo:inline", NoOpt, attr: _*) << content << "</fo:inline>"
-      
     def include (msg: SystemMessage) = {
       messageLevel flatMap {lev => if (lev <= msg.level) Some(lev) else None} isDefined
     }
@@ -198,16 +144,16 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
         case RootElement(content)             => if (content.nonEmpty) out << content.head <<| content.tail       
         case EmbeddedRoot(content,indent,_)   => out.indented(indent) { if (content.nonEmpty) out << content.head <<| content.tail }       
         case Section(header, content,_)       => out <<| header <<| content
-        case TitledBlock(title, content, opt) => blockContainer(opt, Paragraph(title,Styles("title")) +: content)
-        case QuotedBlock(content,attr,opt)    => blockContainer(opt, quotedBlockContent(content,attr))
+        case TitledBlock(title, content, opt) => out.blockContainer(opt, Paragraph(title,Styles("title")) +: content)
+        case QuotedBlock(content,attr,opt)    => out.blockContainer(opt, quotedBlockContent(content,attr))
         
-        case BulletListItem(content,format,opt)   => listItem(opt, List(Text(bulletLabel(format))), content) 
-        case EnumListItem(content,format,num,opt) => listItem(opt, List(Text(enumLabel(format,num))), content)
-        case DefinitionListItem(term,defn,opt)    => listItem(opt, term, defn)
-        case ListItemBody(content,opt)            => listItemBody(opt, content)
+        case BulletListItem(content,format,opt)   => out.listItem(opt, List(Text(bulletLabel(format))), content) 
+        case EnumListItem(content,format,num,opt) => out.listItem(opt, List(Text(enumLabel(format,num))), content)
+        case DefinitionListItem(term,defn,opt)    => out.listItem(opt, term, defn)
+        case ListItemBody(content,opt)            => out.listItemBody(opt, content)
         
-        case LineBlock(content,opt)           => blockContainer(opt + Styles("line-block"), content)
-        case Figure(img,caption,legend,opt)   => blockContainer(opt, figureContent(img,caption,legend))
+        case LineBlock(content,opt)           => out.blockContainer(opt + Styles("line-block"), content)
+        case Figure(img,caption,legend,opt)   => out.blockContainer(opt, figureContent(img,caption,legend))
         
         case Footnote(label,content,opt)   => out <<@ ("fo:footnote-body",opt) <<|> toList(label,content) <<| "</fo:footnote-body>" 
         case Citation(label,content,opt)   => out <<@ ("fo:footnote-body",opt) <<|> toList(label,content) <<| "</fo:footnote-body>"  
@@ -215,9 +161,9 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
         case WithFallback(fallback)         => out << fallback
         case c: Customizable                => c match {
           case BlockSequence(content, NoOpt) => if (content.nonEmpty) out << content.head <<| content.tail // this case could be standalone above, but triggers a compiler bug then
-          case unknown                      => blockContainer(unknown.options, unknown.content)
+          case unknown                      => out.blockContainer(unknown.options, unknown.content)
         }
-        case unknown                        => blockContainer(NoOpt, unknown.content)
+        case unknown                        => out.blockContainer(NoOpt, unknown.content)
       }
     }
     
@@ -227,78 +173,78 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
       
       con match {
         
-        case Paragraph(content,opt)         => block(opt,content)
-        case ParsedLiteralBlock(content,opt)=> blockWithWS(opt,content)
-        case CodeBlock(lang,content,opt)    => blockWithWS(opt+codeStyles(lang),content)
-        case Header(level, content, opt)    => block(opt+Styles("level"+level.toString),content)
+        case Paragraph(content,opt)         => out.block(opt,content)
+        case ParsedLiteralBlock(content,opt)=> out.blockWithWS(opt,content)
+        case CodeBlock(lang,content,opt)    => out.blockWithWS(opt+codeStyles(lang),content)
+        case Header(level, content, opt)    => out.block(opt+Styles("level"+level.toString),content)
 
-        case Emphasized(content,opt)        => inline(opt,content,"font-style"->"italic")
-        case Strong(content,opt)            => inline(opt,content,"font-weight"->"bold")
-        case Code(lang,content,opt)         => inline(opt+codeStyles(lang),content,"font-family"->"monospace")
-        case Line(content,opt)              => block(opt + Styles("line"), content)
+        case Emphasized(content,opt)        => out.inline(opt,content,"font-style"->"italic")
+        case Strong(content,opt)            => out.inline(opt,content,"font-weight"->"bold")
+        case Code(lang,content,opt)         => out.inline(opt+codeStyles(lang),content,"font-family"->"monospace")
+        case Line(content,opt)              => out.block(opt + Styles("line"), content)
   
-        case ExternalLink(content, url, _, opt)     => externalLink(opt, url, content)
-        case InternalLink(content, ref, _, opt)     => internalLink(opt, crossLinkRef(path, ref), content)
-        case CrossLink(content, ref, path, _, opt)  => internalLink(opt, crossLinkRef(path.absolute, ref), content)
+        case ExternalLink(content, url, _, opt)     => out.externalLink(opt, url, content)
+        case InternalLink(content, ref, _, opt)     => out.internalLink(opt, crossLinkRef(path, ref), content)
+        case CrossLink(content, ref, path, _, opt)  => out.internalLink(opt, crossLinkRef(path.absolute, ref), content)
         
         case WithFallback(fallback)         => out << fallback
         case c: Customizable                => c match {
           case SpanSequence(content, NoOpt) => out << content // this case could be standalone above, but triggers a compiler bug then
           case TemplateRoot(content, NoOpt) => out << content
           case TemplateSpanSequence(content, NoOpt) => out << content
-          case unknown: Block               => block(unknown.options, unknown.content)
-          case unknown                      => inline(unknown.options, unknown.content)
+          case unknown: Block               => out.block(unknown.options, unknown.content)
+          case unknown                      => out.inline(unknown.options, unknown.content)
         }
-        case unknown                        => inline(NoOpt, unknown.content)
+        case unknown                        => out.inline(NoOpt, unknown.content)
       }
     }
     
     def renderListContainer [T <: ListContainer[T]](con: ListContainer[T]) = con match {
-      case EnumList(content,_,_,opt)   => listBlock(opt, content)
-      case BulletList(content,_,opt)   => listBlock(opt, content)
-      case DefinitionList(content,opt) => listBlock(opt, content)
+      case EnumList(content,_,_,opt)   => out.listBlock(opt, content)
+      case BulletList(content,_,opt)   => out.listBlock(opt, content)
+      case DefinitionList(content,opt) => out.listBlock(opt, content)
       
       case WithFallback(fallback)      => out << fallback
-      case c: Customizable             => listBlock(c.options, c.content)
-      case unknown                     => listBlock(NoOpt, unknown.content)
+      case c: Customizable             => out.listBlock(c.options, c.content)
+      case unknown                     => out.listBlock(NoOpt, unknown.content)
     }
     
     def renderTextContainer (con: TextContainer) = con match {
       case Text(content,opt)           => opt match {
         case NoOpt                     => out <<& content
-        case _                         => text(opt, content)
+        case _                         => out.text(opt, content)
       }
       case TemplateString(content,opt) => opt match {
         case NoOpt                     => out << content
-        case _                         => rawText(opt, content)
+        case _                         => out.rawText(opt, content)
       }
       case RawContent(formats, content, opt) => if (formats.contains("fo")) { opt match {
         case NoOpt                     => out <<   content
-        case _                         => rawText(opt, content)
+        case _                         => out.rawText(opt, content)
       }} 
-      case Literal(content,opt)        => textWithWS(opt, content)
-      case LiteralBlock(content,opt)   => textWithWS(opt, content)
+      case Literal(content,opt)        => out.textWithWS(opt, content)
+      case LiteralBlock(content,opt)   => out.textWithWS(opt, content)
       case Comment(content,opt)        => out << "<!-- "       <<   content << " -->"
       
       case WithFallback(fallback)      => out << fallback
       case c: Customizable if c.options == NoOpt => out <<& c.content
-      case c: Customizable             => text(c.options, c.content)
+      case c: Customizable             => out.text(c.options, c.content)
       case unknown                     => out <<& unknown.content
     }
     
     def renderSimpleBlock (block: Block) = block match {
-      case ListItemLabel(content,opt)  => listItemLabel(opt, content)
+      case ListItemLabel(content,opt)  => out.listItemLabel(opt, content)
       case Rule(opt)                   => out <<@ ("fo:leader",opt,"leader-pattern"->"rule") << "</fo:leader>" 
-      case InternalLinkTarget(opt)     => inline(opt, Nil)
+      case InternalLinkTarget(opt)     => out.inline(opt, Nil)
       
       case WithFallback(fallback)      => out << fallback
       case unknown                     => ()
     }
     
     def renderSimpleSpan (span: Span) = span match {
-      case CitationLink(ref,label,opt) => citations.get(ref).foreach(footnote(opt,label,_))
-      case FootnoteLink(ref,label,opt) => footnotes.get(ref).foreach(footnote(opt,label,_))
-      case Image(_,url,_,opt)          => externalGraphic(opt, url) // TODO - ignoring title and alt for now
+      case CitationLink(ref,label,opt) => citations.get(ref).foreach(out.footnote(opt,label,_))
+      case FootnoteLink(ref,label,opt) => footnotes.get(ref).foreach(out.footnote(opt,label,_))
+      case Image(_,url,_,opt)          => out.externalGraphic(opt, url) // TODO - ignoring title and alt for now
       case LineBreak(opt)              => out << "&#x2028;"
       case TemplateElement(elem,indent,_) => out.indented(indent) { out << elem }
       
@@ -332,7 +278,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     
     def renderSystemMessage (message: SystemMessage) = {
       if (include(message)) 
-        text(message.options + Styles("system-message", message.level.toString.toLowerCase), message.content)
+        out.text(message.options + Styles("system-message", message.level.toString.toLowerCase), message.content)
     }
     
     
