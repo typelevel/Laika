@@ -93,14 +93,23 @@ class FOWriter (out: String => Unit,
     this <<@ ("fo:footnote",element,Nil:_*) <<|> List(Text(label,Styles("footnote-link")),body) <<| "</fo:footnote>"
   }
   
-  def text (element: Element, content: String, attr: (String,String)*) = 
-    this <<@ ("fo:inline", element, attr: _*) <<& content << "</fo:inline>"
+  def text (element: Element, content: String, attr: (String,String)*) = {
+    val attrs = attributes("",element,attr)
+    if (attrs.nonEmpty) this <<@ ("fo:inline", NoOpt, attrs: _*) <<& content << "</fo:inline>"
+    else this <<& content
+  }
     
-  def textWithWS (element: Element, content: String, attr: (String,String)*) = 
-    this <<@ ("fo:inline", element, attr: _*) <<<& content << "</fo:inline>"
+  def textWithWS (element: Element, content: String, attr: (String,String)*) = {
+    val attrs = attributes("",element,attr)
+    if (attrs.nonEmpty) this <<@ ("fo:inline", NoOpt, attrs: _*) <<<& content << "</fo:inline>"
+    else this <<<& content
+  }
     
-  def rawText (element: Element, content: String, attr: (String,String)*) = 
-    this <<@ ("fo:inline", element, attr: _*) << content << "</fo:inline>"
+  def rawText (element: Element, content: String, attr: (String,String)*) = {
+    val attrs = attributes("",element,attr)
+    if (attrs.nonEmpty) this <<@ ("fo:inline", NoOpt, attrs: _*) << content << "</fo:inline>"
+    else this << content
+  }
   
  
 }
