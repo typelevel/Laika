@@ -81,34 +81,43 @@ class FOWriter (out: String => Unit,
     this <<@ ("fo:list-item", element, attr: _*) <<|> content <<| "</fo:list-item>"
   }
    
-  def listItemLabel (element: Element, content: Block, attr: (String,String)*) = {
+  def listItemLabel (element: Element, content: Block, attr: (String,String)*) =
     this <<@ ("fo:list-item-label", element, attr :+ ("end-indent"->"label-end()"): _*) <<|> content <<| "</fo:list-item-label>"
-  }
   
-  def listItemBody (element: Element, content: Seq[Block], attr: (String,String)*) = {
+  def listItemBody (element: Element, content: Seq[Block], attr: (String,String)*) =
     this <<@ ("fo:list-item-body", element, attr :+ ("start-indent"->"body-start()"): _*) <<|> content <<| "</fo:list-item-body>"
-  }
   
-  def footnote (element: Element, label: String, body: Element) = {
+  def footnote (element: Element, label: String, body: Element) =
     this <<@ ("fo:footnote",element,Nil:_*) <<|> List(Text(label,Styles("footnote-link")),body) <<| "</fo:footnote>"
-  }
   
   def text (element: Element, content: String, attr: (String,String)*) = {
-    val attrs = attributes("",element,attr)
+    val attrs = attributes("fo:inline",element,attr)
     if (attrs.nonEmpty) this <<@ ("fo:inline", NoOpt, attrs: _*) <<& content << "</fo:inline>"
     else this <<& content
   }
     
   def textWithWS (element: Element, content: String, attr: (String,String)*) = {
-    val attrs = attributes("",element,attr)
+    val attrs = attributes("fo:inline",element,attr)
     if (attrs.nonEmpty) this <<@ ("fo:inline", NoOpt, attrs: _*) <<<& content << "</fo:inline>"
     else this <<<& content
   }
     
   def rawText (element: Element, content: String, attr: (String,String)*) = {
-    val attrs = attributes("",element,attr)
+    val attrs = attributes("fo:inline",element,attr)
     if (attrs.nonEmpty) this <<@ ("fo:inline", NoOpt, attrs: _*) << content << "</fo:inline>"
     else this << content
+  }
+  
+  def bookmarkTree (tree: BookmarkTree) =
+    this <<@ ("fo:bookmark-tree", tree, Nil:_*) <<|> tree.bookmarks << "</fo:bookmark-tree>"
+  
+  def bookmark (bookmark: Bookmark) = {
+    val content = BookmarkTitle(bookmark.title) +: bookmark.children
+    this <<@ ("fo:bookmark", bookmark, ("internal-destination"->bookmark.ref)) <<|> content << "</fo:bookmark>"
+  }
+  
+  def bookmarkTitle (title: BookmarkTitle) = {
+    this <<@ ("fo:bookmark-title", title, Nil:_*) <<|> title.content << "</fo:bookmark-title>"
   }
   
  
@@ -119,5 +128,11 @@ object FOWriter {
   case class ListItemLabel (content: Block, options: Options = NoOpt) extends Block
   
   case class ListItemBody (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[ListItemBody]
+  
+  case class BookmarkTree (bookmarks: Seq[Bookmark], options: Options = NoOpt) extends Block
+
+  case class Bookmark (ref: String, title: String, children: Seq[Bookmark], options: Options = NoOpt) extends Block
+  
+  case class BookmarkTitle (content: String, options: Options = NoOpt) extends Block with TextContainer
   
 }

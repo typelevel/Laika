@@ -215,7 +215,8 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
       case e @ RawContent(formats, content, _) => if (formats.contains("fo")) out.rawText(e, content)
       case e @ Literal(content,_)        => out.textWithWS(e, content)
       case e @ LiteralBlock(content,_)   => out.textWithWS(e, content)
-      case Comment(content,opt)        => out << "<!-- "       <<   content << " -->"
+      case e: BookmarkTitle              => out.bookmarkTitle(e)
+      case Comment(content,opt)          => out << "<!-- "       <<   content << " -->"
       
       case WithFallback(fallback)      => out << fallback
       case c: Customizable if c.options == NoOpt => out <<& c.content
@@ -225,8 +226,10 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     
     def renderSimpleBlock (block: Block) = block match {
       case e @ ListItemLabel(content,_)  => out.listItemLabel(e, content)
-      case Rule(opt)                   => out <<@ ("fo:leader",opt,"leader-pattern"->"rule") << "</fo:leader>" 
-      case e: InternalLinkTarget     => out.inline(e, Nil)
+      case Rule(opt)                     => out <<@ ("fo:leader",opt,"leader-pattern"->"rule") << "</fo:leader>" 
+      case e: InternalLinkTarget         => out.inline(e, Nil)
+      case e: BookmarkTree               => out.bookmarkTree(e)
+      case e: Bookmark                   => out.bookmark(e)
       
       case WithFallback(fallback)      => out << fallback
       case unknown                     => ()
