@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,136 +16,36 @@
 
 package laika.render
 
-import scala.collection.mutable.StringBuilder
 import laika.tree.Elements._
-import scala.collection.immutable.ListMap
  
 
 /** API for renderers that produce HTML output.
- *  Extends the base `TextWriter` and adds methods for writing text
- *  with special HTML characters escaped and for conveniently writing
- *  attributes.
  * 
- *  @param out
- *  @param render
- *  @param newLine
+ *  @param out the render function to write string values to
+ *  @param render the render function for writing elements
+ *  @param newLine the newline character to use
+ *  @param formatted whether the output is formatted (adding indentation and newlines)
  * 
  *  @author Jens Halm
  */
 class HTMLWriter (out: String => Unit,  
                   render: Element => Unit, 
                   newLine: String = "\n",
-                  formatted: Boolean = true) extends TextWriter(out, render, 
-                                                                newLine = if (formatted) newLine else "", 
-                                                                indentItem = if (formatted) "  " else "") {
+                  formatted: Boolean = true) extends TagWriter(out, render, newLine, formatted) {
 
   
-  
-  /** Writes the specified string to the output, on the same line, 
-   *  with all special HTML characters converted to HTML entities.
-   */
-  def <<& (str: String): this.type = { <<(escaped(str)); this }
-  
-  /** Writes the specified string to the output, 
-   *  on a new line using the current level of indentation,
-   *  with all special HTML characters converted to HTML entities.
-   */
-  def <<|& (str: String): this.type = { <<|(escaped(str)); this }
-
-  /** Writes the specified string to the output, 
-   *  on a new line and increasing indentation one level to the right,  
-   *  with all special HTML characters converted to HTML entities.
-   */
-  def <<|>& (str: String): this.type = { <<|>(escaped(str)); this }
-  
-  /** Writes the specified string to the output, 
-   *  without any indentation,  
-   *  with all special HTML characters converted to HTML entities.
-   *  This is needed for writing blocks like those enclosed in &lt;pre&rt;
-   *  tags where whitespace is significant.
-   */
-  def <<<& (str: String): this.type = { 
-    withoutIndentation { <<(escaped(str)) }
-    this 
-  }
-  
-  /** Writes the specified span elements to the output,
-   *  on the same line, while omitting indentation
-   *  for all text spans written with one of the methods
-   *  that convert special characters.  
-   */
-  def <<< (elements: Seq[Span]): this.type = {
-    withoutIndentation { <<(elements) }
-    this
-  }
-  
-  private var indented = true
-  
-  /** Invokes the specified function after switching off
-   *  the rendering of any indentation for escaped text elements.
-   *  The old flag gets restored after invocation.
-   */
-  protected def withoutIndentation (f: => Any): this.type = {
-    val oldFlag = indented
-    indented = false
-    f
-    indented = oldFlag
-    this
-  }
-  
-  /** Writes the specified name and value as an optional HTML attribute, including
-   *  a preceding space character. In case the value is `None` nothing
-   *  will be written to the output.
-   */
-  def <<@ (name: String, value: Option[String]): this.type = value match {
-    case Some(value) => <<@(name,value)
-    case None        => this
-  }
-  
-  /** Writes the specified name and value as an HTML attribute, including
-   *  a preceding space character.
-   */
-  def <<@ (name: String, value: String): this.type = this << " " << name << "=\"" << value << "\""
- 
-  /** Writes an opening tag with attributes derived from both
-   *  the options parameter and the subsequent tuples. The latter
-   *  also allow for overriding of `class` and `id` attributes
-   *  derived from the `Options` instance.
-   */
-  def <<@ (tag: String, options: Options, attrs: (String,Any)*): this.type = {
+  protected def attributes (tag: String, options: Options, attrs: Seq[(String,Any)]): Seq[(String,Any)] = {
     val styles = if (options.styles.isEmpty) None else Some(options.styles.mkString(" "))
-    val atMap = ListMap("id"->options.id,"class"->styles) ++ attrs
-    this << "<" << tag
-    for ((name,value) <- atMap) {
-      value match {
-        case Some(value) => <<@ (name, value.toString)
-        case None        => ()
-        case _           => <<@ (name, value.toString)
-      }
-    }
-    this << ">"
+    ("id"->options.id) +: ("class"->styles) +: attrs
   }
-    
   
-  private def escaped (str: String) = {
-    var i = 0
-    val end = str.length
-    val result = new StringBuilder()
-    while (i < end) {
-      str.charAt(i) match {
-        case '<' => result append "&lt;"
-        case '>' => result append "&gt;"
-        case '"' => result append "&quot;"
-        case '\''=> result append "&#39;"
-        case '&' => result append "&amp;"
-        case '\u00A0' => result append "&nbsp;"
-        case '\n' => if (indented) result append Indent.current else result append "\n"; 
-        case c   => result append c
-      }
-      i += 1
+  protected def attributes (tag: String, element: Element, attrs: Seq[(String,Any)]): Seq[(String,Any)] = {
+    val options = element match {
+      case c: Customizable => c.options
+      case _ => NoOpt
     }
-    result.toString
+    attributes(tag, options, attrs)
   }
-
   
+ 
 }
