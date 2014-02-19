@@ -152,7 +152,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
         case e @ DefinitionListItem(term,defn,_)    => out.listItem(e, term, defn)
         case e @ ListItemBody(content,_)            => out.listItemBody(e, content)
         
-        case e @ LineBlock(content,_)           => out.blockContainer(e.copy(options=e.options + Styles("line-block")), content)
+        case e @ LineBlock(content,_)           => out.blockContainer(e, content)
         case e @ Figure(img,caption,legend,_)   => out.blockContainer(e, figureContent(img,caption,legend))
         
         case e @ Footnote(label,content,_)      => out <<@ ("fo:footnote-body",e) <<|> toList(label,content) <<| "</fo:footnote-body>" 
@@ -168,7 +168,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     }
     
     def renderSpanContainer [T <: SpanContainer[T]](con: SpanContainer[T]) = {
-      def codeStyles (language: String) = if (language.isEmpty) Styles("code") else Styles("code", language)
+      def codeStyles (language: String) = if (language.isEmpty) NoOpt else Styles(language)
       def crossLinkRef (path: Path, ref: String) = path.toString + "-" + ref
       
       con match {
@@ -181,7 +181,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
         case e @ Emphasized(content,_)        => out.inline(e,content,"font-style"->"italic")
         case e @ Strong(content,_)            => out.inline(e,content,"font-weight"->"bold")
         case e @ Code(lang,content,_)         => out.inline(e.copy(options=e.options + codeStyles(lang)),content,"font-family"->"monospace")
-        case e @ Line(content,_)              => out.block(e.copy(options=e.options + Styles("line")), content)
+        case e @ Line(content,_)              => out.block(e, content)
   
         case e @ ExternalLink(content, url, _, _)     => out.externalLink(e, url, content)
         case e @ InternalLink(content, ref, _, _)     => out.internalLink(e, crossLinkRef(path, ref), content)
@@ -272,7 +272,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     
     def renderSystemMessage (message: SystemMessage) = {
       if (include(message)) 
-        out.text(message.copy(options=message.options + Styles("system-message", message.level.toString.toLowerCase)), message.content)
+        out.text(message.copy(options=message.options + Styles(message.level.toString.toLowerCase)), message.content)
     }
     
     
