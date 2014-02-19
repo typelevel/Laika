@@ -97,7 +97,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
       }
       else {
         val children = table.columns.content ++ (List(table.head, table.body) filterNot (_.content.isEmpty))
-        out <<@ ("fo:table", table.options) <<|> children <<| "</fo:table>"
+        out <<@ ("fo:table", table) <<|> children <<| "</fo:table>"
       }
     }
     
@@ -155,8 +155,8 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
         case e @ LineBlock(content,_)           => out.blockContainer(e.copy(options=e.options + Styles("line-block")), content)
         case e @ Figure(img,caption,legend,_)   => out.blockContainer(e, figureContent(img,caption,legend))
         
-        case Footnote(label,content,opt)    => out <<@ ("fo:footnote-body",opt) <<|> toList(label,content) <<| "</fo:footnote-body>" 
-        case Citation(label,content,opt)    => out <<@ ("fo:footnote-body",opt) <<|> toList(label,content) <<| "</fo:footnote-body>"  
+        case e @ Footnote(label,content,_)      => out <<@ ("fo:footnote-body",e) <<|> toList(label,content) <<| "</fo:footnote-body>" 
+        case e @ Citation(label,content,_)      => out <<@ ("fo:footnote-body",e) <<|> toList(label,content) <<| "</fo:footnote-body>"  
         
         case WithFallback(fallback)         => out << fallback
         case c: Customizable                => c match {
@@ -216,7 +216,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
       case e @ Literal(content,_)        => out.textWithWS(e, content)
       case e @ LiteralBlock(content,_)   => out.textWithWS(e, content)
       case e: BookmarkTitle              => out.bookmarkTitle(e)
-      case Comment(content,opt)          => out << "<!-- "       <<   content << " -->"
+      case Comment(content,_)            => out << "<!-- " << content << " -->"
       
       case WithFallback(fallback)      => out << fallback
       case c: Customizable if c.options == NoOpt => out <<& c.content
@@ -225,36 +225,36 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     }
     
     def renderSimpleBlock (block: Block) = block match {
-      case e @ ListItemLabel(content,_)  => out.listItemLabel(e, content)
-      case Rule(opt)                     => out <<@ ("fo:leader",opt,"leader-pattern"->"rule") << "</fo:leader>" 
-      case e: InternalLinkTarget         => out.inline(e, Nil)
-      case e: BookmarkTree               => out.bookmarkTree(e)
-      case e: Bookmark                   => out.bookmark(e)
+      case e @ ListItemLabel(content,_) => out.listItemLabel(e, content)
+      case e: Rule                      => out <<@ ("fo:leader",e,"leader-pattern"->"rule") << "</fo:leader>" 
+      case e: InternalLinkTarget        => out.inline(e, Nil)
+      case e: BookmarkTree              => out.bookmarkTree(e)
+      case e: Bookmark                  => out.bookmark(e)
       
-      case WithFallback(fallback)      => out << fallback
-      case unknown                     => ()
+      case WithFallback(fallback)       => out << fallback
+      case unknown                      => ()
     }
     
     def renderSimpleSpan (span: Span) = span match {
-      case e @ CitationLink(ref,label,_) => citations.get(ref).foreach(out.footnote(e,label,_))
-      case e @ FootnoteLink(ref,label,_) => footnotes.get(ref).foreach(out.footnote(e,label,_))
-      case e @ Image(_,url,_,_)          => out.externalGraphic(e, url) // TODO - ignoring title and alt for now
-      case LineBreak(opt)              => out << "&#x2028;"
+      case e @ CitationLink(ref,label,_)  => citations.get(ref).foreach(out.footnote(e,label,_))
+      case e @ FootnoteLink(ref,label,_)  => footnotes.get(ref).foreach(out.footnote(e,label,_))
+      case e @ Image(_,url,_,_)           => out.externalGraphic(e, url) // TODO - ignoring title and alt for now
+      case LineBreak(_)                   => out << "&#x2028;"
       case TemplateElement(elem,indent,_) => out.indented(indent) { out << elem }
       
-      case WithFallback(fallback)      => out << fallback
-      case unknown                     => ()
+      case WithFallback(fallback)         => out << fallback
+      case unknown                        => ()
     }
     
     def renderTableElement (elem: TableElement) = elem match {
-      case TableHead(rows,opt)   => out <<@ ("fo:table-header", NoOpt) <<|> rows <<| "</fo:table-header>"
-      case TableBody(rows,opt)   => out <<@ ("fo:table-body", NoOpt) <<|> rows <<| "</fo:table-body>"
-      case Caption(content, opt) => () // replaced by Table renderer
-      case Columns(columns,opt)  => () // replaced by Table renderer
-      case Column(opt)           => out <<@ ("fo:table-column",NoOpt)
-      case Row(cells,opt)        => out <<@ ("fo-table-row",NoOpt) <<|> cells <<| "</fo-table-row>"
-      case Cell(_, content, colspan, rowspan, opt) => out <<@ 
-            ("fo-table-cell", opt, 
+      case e @ TableHead(rows,_)   => out <<@ ("fo:table-header", e) <<|> rows <<| "</fo:table-header>"
+      case e @ TableBody(rows,_)   => out <<@ ("fo:table-body", e) <<|> rows <<| "</fo:table-body>"
+      case Caption(_,_)            => () // replaced by Table renderer
+      case Columns(_,_)            => () // replaced by Table renderer
+      case e: Column               => out <<@ ("fo:table-column",e)
+      case e @ Row(cells,_)        => out <<@ ("fo-table-row",e) <<|> cells <<| "</fo-table-row>"
+      case e @ Cell(_, content, colspan, rowspan, _) => out <<@ 
+            ("fo-table-cell", e, 
                 "number-columns-spanned"->noneIfDefault(colspan,1), 
                 "number-rows-spanned"->noneIfDefault(rowspan,1)) <<|> content <<| "</fo-table-cell>"
     }
