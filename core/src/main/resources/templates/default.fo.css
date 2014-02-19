@@ -1,0 +1,208 @@
+/*
+
+3 styles for footnote + footnote-link from writer ???
+
+*/
+
+* {
+	font-family: serif;
+	font-size: 10pt;
+}
+
+Paragraph {
+	
+}
+
+TitledBlock {
+	background-color: #cccccc;
+	padding-left: 2cm;
+	padding-right: 2cm;
+}
+
+TitledBlock .title {
+	font-family: sans-serif;
+	font-weight: bold;
+	font-size: 12pt;
+}
+
+QuotedBlock {
+	margin-left: 2cm;
+	margin-right: 2cm;
+}
+
+QuotedBlock .attribution {
+	text-align: right;
+}
+
+LiteralBlock, ParsedLiteralBlock, CodeBlock {
+	font-family: monospace;
+	margin-left: 2cm;
+  margin-right: 2cm;
+}
+
+Image {
+	
+}
+
+Figure {
+	
+}
+
+Figure .caption {
+	font-size: 9pt;
+	font-style: italic;
+}
+
+Figure .legend {
+	font-size: 9pt;
+  font-style: italic;
+}
+
+Header {
+	font-family: sans-serif;
+	font-weight: bold;
+	font-size: 12pt;
+}
+
+Header.level1 {
+	font-size: 18pt;
+}
+
+Header.level2 {
+  font-size: 16pt;
+}
+
+Header.level3 {
+  font-size: 14pt;
+}
+
+BulletList {
+  
+}
+
+EnumList {
+  
+}
+
+DefinitionList {
+  
+}
+
+BulletListItem {
+	
+}
+
+EnumListItem {
+	
+}
+
+DefinitionListItem {
+	
+}
+
+ListItemBody {
+	
+}
+
+ListItemLabel {
+  
+}
+
+Table {
+	
+}
+
+TableHead {
+	
+}
+
+TableBody {
+	
+}
+
+Column {
+	
+}
+
+Row {
+	
+}
+
+Cell {
+	
+}
+
+Footnote, Citation {
+	font-size: 8pt;
+}
+
+FootnoteLink, CitationLink {
+	color: #3399FF;
+}
+
+Emphasized {
+	font-style: italic;
+}
+
+Strong {
+	font-weight: bold;
+}
+
+Literal, Code {
+	font-family: monospace;
+}
+
+.subscript {
+  vertical-align: sub; 
+  font-size: 8pt;	
+}
+
+.superscript {
+	vertical-align: super; 
+	font-size: 8pt;
+}
+
+ExternalLink, InternalLink, CrossLink {
+	font-weight: bold;
+	color: #3399FF;
+}
+
+SystemMessage {
+	color: white;
+}
+
+SystemMessage.debug, SystemMessage.info {
+  background-color: #888888;
+}
+
+SystemMessage.warning {
+  background-color: #ffff33;
+}
+
+SystemMessage.error, SystemMessage.fatal {
+  background-color: #ff0000;
+}
+
+Rule {
+	
+}
+
+LineBlock {
+	margin-left: 2cm;
+}
+
+Line {
+	
+}
+
+BookmarkTree {
+	
+}
+
+Bookmark {
+	
+}
+
+BookmarkTitle {
+	
+}
