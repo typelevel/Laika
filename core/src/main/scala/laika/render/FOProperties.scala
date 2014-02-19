@@ -431,7 +431,12 @@ trait FOProperties {
     "wrapper" -> Set("id"),
     "declarations" -> Set.empty,
     "color-profile" -> Set("src")
-  )
+  ).withDefaultValue(Set())
   
   
+  def filterAttributes (tagName: String, attributes: Seq[(String, Any)]) = {
+    val supportedProps = map(tagName)
+    attributes.filter(pair => supportedProps(pair._1))
+  }
+    
 }

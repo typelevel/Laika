@@ -33,11 +33,12 @@ class FOWriter (out: String => Unit,
                 render: Element => Unit, 
                 styles: StyleDeclarationSet,
                 newLine: String = "\n",
-                formatted: Boolean = true) extends TagWriter(out, render, newLine, formatted) {
+                formatted: Boolean = true) extends TagWriter(out, render, newLine, formatted) 
+                                           with FOProperties {
 
   
   protected def attributes (tag: String, options: Options, attrs: Seq[(String,Any)]) = {
-    ("id"->options.id) +: attrs
+    filterAttributes(tag, ("id"->options.id) +: attrs)
   }
   
   protected def attributes (tag: String, element: Element, attrs: Seq[(String,Any)]) = {
@@ -46,7 +47,7 @@ class FOWriter (out: String => Unit,
       case c: Customizable => c.options
       case _ => NoOpt
     }
-    ("id"->options.id) +: fromCSS ++: attrs
+    filterAttributes(tag, ("id"->options.id) +: fromCSS ++: attrs)
   }
   
   
