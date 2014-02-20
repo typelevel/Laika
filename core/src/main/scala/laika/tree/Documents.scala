@@ -361,7 +361,7 @@ object Documents {
   /** A style sheet that needs to get passed
    *  to a renderer.
    */
-  case object StyleSheet extends DocumentType
+  case class StyleSheet (format: String) extends DocumentType
   
   /** A static file that needs to get copied
    *  over to the output target.
@@ -394,7 +394,7 @@ object Documents {
       case ConfigName()     => Config
       case TemplateName()   => Template
       case DynamicName()    => Dynamic
-      case StylesheetName() => StyleSheet
+      case StylesheetName() => StyleSheet("fo")
       case _                => Static
     }
     
@@ -431,7 +431,7 @@ object Documents {
                       private[tree] val templates: Seq[TemplateDocument] = Nil, 
                       private[tree] val dynamicTemplates: Seq[TemplateDocument] = Nil, 
                       val dynamicDocuments: Seq[Document] = Nil, 
-                      val styles: StyleDeclarationSet = StyleDeclarationSet.empty,
+                      val styles: Map[String,Seq[StyleDeclarationSet]] = Map.empty.withDefaultValue(Nil),
                       val staticDocuments: Seq[Input] = Nil,
                       val subtrees: Seq[DocumentTree] = Nil, 
                       private[tree] val config: Option[Config] = None,

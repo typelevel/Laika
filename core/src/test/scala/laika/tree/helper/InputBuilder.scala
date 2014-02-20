@@ -60,7 +60,7 @@ trait InputBuilder {
     configDocuments: Seq[Input],
     markupDocuments: Seq[Input],
     dynamicDocuments: Seq[Input],
-    styleSheets: Seq[Input],
+    styleSheets: Map[String,Seq[Input]],
     staticDocuments: Seq[Input],
     templates: Seq[Input],
     subtrees: Seq[InputProvider]
@@ -70,20 +70,20 @@ trait InputBuilder {
     
     def build (docTypeMatcher: Path => DocumentType, codec: Codec): InputProvider = {
     
-      def getInput (inputName: String, contentId: String, path: Path) = {
+      def input (inputName: String, contentId: String, path: Path) = {
         val content = contents(contentId).replace("@name", inputName)
         Input.fromString(content, path / inputName)
       }
       
       def docType (name: String) = docTypeMatcher(path / name)
   
-      val fileMap = files map (f => (docType(f._1), getInput(f._1, f._2, path))) groupBy (_._1)
+      val documents = files map (f => (docType(f._1), input(f._1, f._2, path))) groupBy (_._1) mapValues (_.map(_._2)) withDefaultValue Nil
       
-      def documents (docType: DocumentType) = fileMap.get(docType).map(_.map(_._2)).getOrElse(Nil)
+      val styleSheets = (documents collect { case p @ (StyleSheet(format), inputs) => (format, inputs) }) 
       
       val subtrees = dirs map (_.build(docTypeMatcher,null)) filter (d => docType(d.path.name) != Ignored)
       
-      TestInputProvider(path, documents(Config), documents(Markup), documents(Dynamic), documents(StyleSheet), documents(Static), documents(Template), subtrees)
+      TestInputProvider(path, documents(Config), documents(Markup), documents(Dynamic), styleSheets, documents(Static), documents(Template), subtrees)
       
     }
   }

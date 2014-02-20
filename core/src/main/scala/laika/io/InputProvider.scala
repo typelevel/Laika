@@ -65,9 +65,10 @@ trait InputProvider {
   
   /** All inputs for style sheets
    *  that need to be processed
-   *  on this level of the input hierarchy.
+   *  on this level of the input hierarchy,
+   *  mapped to their format.
    */
-  def styleSheets: Seq[Input]
+  def styleSheets: Map[String,Seq[Input]]
 
   /** All inputs for static files
    *  that need to be copied
@@ -102,14 +103,14 @@ object InputProvider {
     
     private def docType (f: File) = docTypeMatcher(path / f.getName)
 
-    private def toInput (pairs: Seq[(DocumentType,File)]) = pairs.map(p => Input.fromFile(p._2, path)(codec)).toList
+    private def toInput (pair: (DocumentType,File)) = Input.fromFile(pair._2, path)(codec)
 
     private lazy val files = {
       def filesInDir (dir: File) = dir.listFiles filter (f => f.isFile && !exclude(f))
-      dirs flatMap (filesInDir(_)) map (f => (docType(f), f)) groupBy (_._1)
+      dirs flatMap (filesInDir(_)) map (f => (docType(f), f)) groupBy (_._1) withDefaultValue Nil
     }
     
-    private def documents (docType: DocumentType) = files.get(docType).map(toInput).getOrElse(Nil)
+    private def documents (docType: DocumentType) = files(docType).map(toInput)
     
     lazy val configDocuments = documents(Config)
     
@@ -117,7 +118,7 @@ object InputProvider {
     
     lazy val dynamicDocuments = documents(Dynamic)
 
-    lazy val styleSheets = documents(StyleSheet)
+    lazy val styleSheets = (files collect { case p @ (StyleSheet(format), pairs) => (format, pairs map toInput) }) 
     
     lazy val staticDocuments = documents(Static)
     
