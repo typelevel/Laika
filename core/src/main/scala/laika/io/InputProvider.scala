@@ -198,6 +198,12 @@ object InputProvider {
       config: List[Input] = Nil,
       isParallel: Boolean = false) {
     
+    /** Specifies the style sheet engine to use for 
+     *  parsing all CSS inputs found in the tree.
+     */
+    def withStyleSheets (parser: ParseStyleSheet) = 
+      new InputConfigBuilder(provider, codec, docTypeMatcher, templateParser, Some(parser), config, isParallel)
+    
     /** Specifies the template engine to use for 
      *  parsing all template inputs found in the tree.
      */
