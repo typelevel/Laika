@@ -70,7 +70,7 @@ object Styles {
   case class Selector (
       predicates: Set[Predicate] = Set(), 
       parent: Option[ParentSelector] = None,
-      order: Int = Int.MinValue) {
+      order: Int = 0) {
     
     def specificity: Specificity = {
       val thisSpec = predicates.map(_.specificity).reduceLeftOption(_+_).getOrElse(Specificity(0,0,0,0)).copy(order = order)
@@ -97,6 +97,10 @@ object Styles {
     
     def appliesTo (element: Element, parents: Seq[Element]) = selector.matches(element, parents)
     
+    def increaseOrderBy (amount: Int) = 
+      if (amount == 0) this
+      else StyleDeclaration(selector.copy(order = selector.order + amount), styles)
+    
   }
   
   class StyleDeclarationSet (val path: Path, private val decl: Set[StyleDeclaration]) {
@@ -106,7 +110,10 @@ object Styles {
       (Map[String,String]() /: decls) { case (acc, decl) => acc ++ decl.styles }
     }
     
-    def ++ (set: StyleDeclarationSet) = new StyleDeclarationSet(Root, decl ++ set.decl)
+    def ++ (set: StyleDeclarationSet) = {
+      val maxOrder = if (decl.isEmpty) 0 else decl.maxBy(_.selector.order).selector.order
+      new StyleDeclarationSet(Root, decl ++ (set.decl map (_.increaseOrderBy(maxOrder))))
+    }
     
   }
   

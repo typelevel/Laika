@@ -88,8 +88,11 @@ trait CSSParsers extends laika.parse.InlineParsers {
     text(anyUntil(';'), Map('/' -> (('*' ~ anyUntil("*/") ~ wsOrNl) ^^^ "")))
     
   lazy val styleDeclarationSet: Parser[Set[StyleDeclaration]] = 
-    (wsOrNl ~ (comment*) ~> ((styleDeclarations <~ wsOrNl ~ (comment*))*)) ^^ { _.flatten.toSet }
-  
+    (wsOrNl ~ (comment*) ~> ((styleDeclarations <~ wsOrNl ~ (comment*))*)) ^^ { 
+      _.flatten.zipWithIndex.map({
+        case (decl,pos) => decl.increaseOrderBy(pos)
+      }).toSet 
+    }
   
   def parseStyleSheet (reader: Reader[Char], path: Path) = {
     val set = parseMarkup(styleDeclarationSet, reader)
