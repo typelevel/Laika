@@ -20,6 +20,7 @@ import laika.tree.Elements._
 import laika.tree.Templates._
 import laika.io.Output
 import laika.factory.RendererFactory
+import laika.parse.css.Styles.StyleDeclarationSet
   
 /** A renderer for HTML output. May be directly passed to the `Render` or `Transform` APIs:
  * 
@@ -58,7 +59,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
    *  @return a tuple consisting of the writer API for customizing
    *  the renderer as well as the actual default render function itself
    */
-  def newRenderer (output: Output, root: Element, render: Element => Unit) = {
+  def newRenderer (output: Output, root: Element, render: Element => Unit, styles: StyleDeclarationSet) = {
     val out = new HTMLWriter(output asFunction, render, formatted = renderFormatted)  
     (out, renderElement(out))
   }

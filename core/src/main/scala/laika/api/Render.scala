@@ -30,6 +30,7 @@ import laika.io.OutputProvider
 import laika.io.OutputProvider._
 import laika.factory.RendererFactory
 import laika.io.Input
+import laika.parse.css.Styles.StyleDeclarationSet
   
 /** API for performing a render operation to various types of output using an existing
  *  document tree model. 
@@ -121,9 +122,11 @@ class Render[W] private (factory: RendererFactory[W],
      *  methods delegate to. Usually not used directly in application code, but
      *  might come in handy for very special requirements.
      */
-    def toOutput (out: Output) = { 
+    def toOutput (out: Output): Unit = toOutput(out, StyleDeclarationSet.empty)
+    
+    private[Render] def toOutput (out: Output, styles: StyleDeclarationSet): Unit = { 
       IO(out) { out =>
-        val (writer, render) = factory.newRenderer(out, elem, RenderFunction)
+        val (writer, render) = factory.newRenderer(out, elem, RenderFunction, styles)
         
         RenderFunction.delegate = customRenderers match {
           case Nil => render
@@ -189,8 +192,10 @@ class Render[W] private (factory: RendererFactory[W],
       
       type Operation = () => Unit
       
+      val styles = tree.styles(factory.fileSuffix)
+      
       def render (provider: OutputProvider)(doc: Document): Operation 
-        = () => from(doc.content).toOutput(provider.newOutput(doc.path.basename +"."+ factory.fileSuffix))
+        = () => from(doc.content).toOutput(provider.newOutput(doc.path.basename +"."+ factory.fileSuffix), styles)
         
       def copy (provider: OutputProvider)(input: Input): Operation 
         = () => IO.copy(input, provider.newOutput(input.path.name))

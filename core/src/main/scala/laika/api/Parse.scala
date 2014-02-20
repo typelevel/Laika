@@ -270,7 +270,7 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
       val docs = provider.markupDocuments map (i => docMap(i.path))
       val templates = provider.templates map (i => templateMap((Template,i.path)))
       val dynamic = provider.dynamicDocuments map (i => templateMap((Dynamic,i.path)))
-      val styles = (provider.styleSheets mapValues (_.map(i => styleMap(i.path)))) withDefaultValue Nil
+      val styles = (provider.styleSheets mapValues (_.map(i => styleMap(i.path)).reduce(_++_))) withDefaultValue StyleDeclarationSet.empty
       val treeConfig = provider.configDocuments.find(_.path.name == "directory.conf").map(i => treeConfigMap(i.path).config)
       val rootConfig = if (root) rootConfigSeq else Nil
       val static = provider.staticDocuments

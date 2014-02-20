@@ -20,6 +20,7 @@ import laika.tree.Elements._
 import laika.tree._
 import laika.io.Output
 import laika.factory.RendererFactory
+import laika.parse.css.Styles.StyleDeclarationSet
  
 /** A renderer for PrettyPrint output, primarily useful for debugging purposes. 
  *  May be directly passed to the `Render` or `Transform` APIs:
@@ -58,7 +59,7 @@ class PrettyPrint extends RendererFactory[TextWriter] {
    *  @return a tuple consisting of the writer API for customizing
    *  the renderer as well as the actual default render function itself
    */
-  def newRenderer (output: Output, root: Element, render: Element => Unit) = {
+  def newRenderer (output: Output, root: Element, render: Element => Unit, styles: StyleDeclarationSet) = {
     val out = new TextWriter(output asFunction, render, ". ") 
     (out, renderElement(out))
   }

@@ -18,6 +18,7 @@ package laika.factory
 
 import laika.io.Output
 import laika.tree.Elements.Element
+import laika.parse.css.Styles.StyleDeclarationSet
 
 /** Responsible for creating renderer instances for a specific output format.
  *  A renderer is simply a function of type `Element => Unit`. In addition
@@ -55,7 +56,7 @@ trait RendererFactory[W] {
    *  @param delegate a render function to use for rendering the children of an element
    *  @return a new writer API of type `W` and a new render function
    */
-  def newRenderer (out: Output, root: Element, delegate: Element => Unit): (W, Element => Unit)
+  def newRenderer (out: Output, root: Element, delegate: Element => Unit, styles: StyleDeclarationSet): (W, Element => Unit)
   
   
 }

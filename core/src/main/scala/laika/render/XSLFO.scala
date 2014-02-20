@@ -23,6 +23,7 @@ import laika.tree.Templates._
 import laika.io.Output
 import laika.factory.RendererFactory
 import laika.util.RomanNumerals
+import laika.parse.css.Styles.StyleDeclarationSet
 import scala.language.existentials
 import FOWriter._ 
   
@@ -68,8 +69,8 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
    *  @return a tuple consisting of the writer API for customizing
    *  the renderer as well as the actual default render function itself
    */
-  def newRenderer (output: Output, root: Element, render: Element => Unit) = {
-    val out = new FOWriter(output asFunction, render, null, formatted = renderFormatted) // TODO - must pass StyleDeclarationSet
+  def newRenderer (output: Output, root: Element, render: Element => Unit, styles: StyleDeclarationSet) = {
+    val out = new FOWriter(output asFunction, render, styles, formatted = renderFormatted)
     val (footnotes, citations) = collectTargets(root)
     (out, renderElement(out,footnotes,citations,output.path))
   }

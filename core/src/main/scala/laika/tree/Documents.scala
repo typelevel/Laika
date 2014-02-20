@@ -431,7 +431,7 @@ object Documents {
                       private[tree] val templates: Seq[TemplateDocument] = Nil, 
                       private[tree] val dynamicTemplates: Seq[TemplateDocument] = Nil, 
                       val dynamicDocuments: Seq[Document] = Nil, 
-                      val styles: Map[String,Seq[StyleDeclarationSet]] = Map.empty.withDefaultValue(Nil),
+                      val styles: Map[String,StyleDeclarationSet] = Map.empty.withDefaultValue(StyleDeclarationSet.empty),
                       val staticDocuments: Seq[Input] = Nil,
                       val subtrees: Seq[DocumentTree] = Nil, 
                       private[tree] val config: Option[Config] = None,
