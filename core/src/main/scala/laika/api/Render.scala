@@ -22,14 +22,15 @@ import java.io.Writer
 import scala.annotation.implicitNotFound
 import scala.io.Codec
 import laika.io.IO
+import laika.io.Input
 import laika.io.Output
+import laika.io.OutputProvider
+import laika.io.OutputProvider._
 import laika.tree.Elements.Element
 import laika.tree.Elements.RenderFunction
 import laika.tree.Documents._
-import laika.io.OutputProvider
-import laika.io.OutputProvider._
+import laika.tree.Templates.TemplateDocument
 import laika.factory.RendererFactory
-import laika.io.Input
 import laika.parse.css.Styles.StyleDeclarationSet
   
 /** API for performing a render operation to various types of output using an existing
@@ -122,7 +123,7 @@ class Render[W] private (factory: RendererFactory[W],
      *  methods delegate to. Usually not used directly in application code, but
      *  might come in handy for very special requirements.
      */
-    def toOutput (out: Output): Unit = toOutput(out, StyleDeclarationSet.empty)
+    def toOutput (out: Output): Unit = toOutput(out, factory.defaultStyles)
     
     private[Render] def toOutput (out: Output, styles: StyleDeclarationSet): Unit = { 
       IO(out) { out =>
@@ -192,7 +193,7 @@ class Render[W] private (factory: RendererFactory[W],
       
       type Operation = () => Unit
       
-      val styles = tree.styles(factory.fileSuffix)
+      val styles = factory.defaultStyles ++ tree.styles(factory.fileSuffix)
       
       def render (provider: OutputProvider)(doc: Document): Operation 
         = () => from(doc.content).toOutput(provider.newOutput(doc.path.basename +"."+ factory.fileSuffix), styles)
@@ -206,7 +207,10 @@ class Render[W] private (factory: RendererFactory[W],
           (tree.staticDocuments map copy(provider)) ++
           (tree.subtrees map { tree => collectOperations(tree, provider.newChild(tree.name)) }).flatten
     
-      val finalTree = tree.applyTemplates(factory.fileSuffix)
+      val templateName = "default.template." + factory.fileSuffix
+      val treeWithTpl = if (tree.selectTemplate(Current / templateName).isDefined) tree 
+                        else tree.withTemplate(new TemplateDocument(Root / templateName, factory.defaultTemplate)) 
+      val finalTree = treeWithTpl.applyTemplates(factory.fileSuffix)
       val operations = collectOperations(finalTree, config.provider)
       
       (if (config.parallel) operations.par else operations) foreach (_())

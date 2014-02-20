@@ -19,6 +19,8 @@ package laika.factory
 import laika.io.Output
 import laika.tree.Elements.Element
 import laika.parse.css.Styles.StyleDeclarationSet
+import laika.tree.Templates.TemplateRoot
+import laika.tree.Templates.TemplateContextReference
 
 /** Responsible for creating renderer instances for a specific output format.
  *  A renderer is simply a function of type `Element => Unit`. In addition
@@ -57,6 +59,14 @@ trait RendererFactory[W] {
    *  @return a new writer API of type `W` and a new render function
    */
   def newRenderer (out: Output, root: Element, delegate: Element => Unit, styles: StyleDeclarationSet): (W, Element => Unit)
+  
+  /** The default template to use for this renderer if no template is explicitly specified.
+   */
+  def defaultTemplate = TemplateRoot(List(TemplateContextReference("document.content")))
+
+  /** The default styles to add as a fallback to the explicitly specified styles.
+   */
+  def defaultStyles = StyleDeclarationSet.empty
   
   
 }

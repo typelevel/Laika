@@ -528,6 +528,12 @@ object Documents {
      */
     def selectTarget (selector: Selector) = targets.get(selector)
     
+    /** Creates a new tree with the specified template added to its existing templates.
+     */
+    def withTemplate (template: TemplateDocument) = 
+      new DocumentTree(path, documents, template +: templates, dynamicTemplates, dynamicDocuments, styles, 
+          staticDocuments, subtrees, config, docNumber, navigationOrder)  
+    
     /** Returns a new tree, with all the document models contained in it 
      *  rewritten based on the default rewrite rules.
      */
