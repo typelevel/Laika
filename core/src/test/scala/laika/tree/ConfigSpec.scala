@@ -80,7 +80,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(Parse as Markdown fromTree builder(dir)) should be (result)
+      resultOf(Parse as Markdown fromTree builder(dir) applyTemplates "html") should be (result)
     }
   }
   
@@ -97,7 +97,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(Parse as ReStructuredText fromTree builder(dir)) should be (result)
+      resultOf(Parse as ReStructuredText fromTree builder(dir) applyTemplates "html") should be (result)
     }
   }
   
@@ -112,7 +112,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(Parse as Markdown fromTree builder(dir)) should be (result)
+      resultOf(Parse as Markdown fromTree builder(dir) applyTemplates "html") should be (result)
     }
   }
   
@@ -127,7 +127,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(Parse as ReStructuredText fromTree builder(dir)) should be (result)
+      resultOf(Parse as ReStructuredText fromTree builder(dir) applyTemplates "html") should be (result)
     }
   }
   
@@ -162,7 +162,7 @@ class ConfigSpec extends FlatSpec
         )
       )
       
-      resultOf((Parse as Markdown fromTree builder(dirs).withConfigString(config5)).subtrees(0)) should be (result)
+      resultOf((Parse as Markdown fromTree builder(dirs).withConfigString(config5) applyTemplates "html").subtrees(0)) should be (result)
     }
   }
   

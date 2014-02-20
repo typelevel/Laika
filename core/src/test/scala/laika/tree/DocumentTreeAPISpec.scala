@@ -144,7 +144,21 @@ class DocumentTreeAPISpec extends FlatSpec
         subtrees = tree.subtrees
       )
       val targetDoc = withTemplate.selectDocument("sub/doc").get
-      val context = DocumentContext(targetDoc, withTemplate.selectSubtree("sub").get, withTemplate, AutonumberContext.defaults)
+      val context = DocumentContext(targetDoc, withTemplate.selectSubtree("sub").get, withTemplate, "html")
+      context.template should be (Some(template))
+    }
+  }
+  
+  it should "allow to specify a template for a document for a specific output format" in {
+    new TreeModel {
+      val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("html.template: /main.template.html"))
+      val template = new TemplateDocument(Root / "main.template.html", TemplateRoot(Nil))
+      val withTemplate = new DocumentTree(tree.path, Nil, 
+        templates = List(template),
+        subtrees = tree.subtrees
+      )
+      val targetDoc = withTemplate.selectDocument("sub/doc").get
+      val context = DocumentContext(targetDoc, withTemplate.selectSubtree("sub").get, withTemplate, "html")
       context.template should be (Some(template))
     }
   }
@@ -158,7 +172,7 @@ class DocumentTreeAPISpec extends FlatSpec
         subtrees = tree.subtrees
       )
       val targetDoc = withTemplate.selectDocument("sub/doc").get
-      val context = DocumentContext(targetDoc, withTemplate.selectSubtree("sub").get, withTemplate, AutonumberContext.defaults)
+      val context = DocumentContext(targetDoc, withTemplate.selectSubtree("sub").get, withTemplate, "html")
       context.template should be (Some(template))
     }
   }

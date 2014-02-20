@@ -201,7 +201,8 @@ class Render[W] private (factory: RendererFactory[W],
           (tree.staticDocuments map copy(provider)) ++
           (tree.subtrees map { tree => collectOperations(tree, provider.newChild(tree.name)) }).flatten
     
-      val operations = collectOperations(tree, config.provider)
+      val finalTree = tree.applyTemplates(factory.fileSuffix)
+      val operations = collectOperations(finalTree, config.provider)
       
       (if (config.parallel) operations.par else operations) foreach (_())
     }

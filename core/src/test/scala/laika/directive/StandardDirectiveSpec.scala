@@ -227,7 +227,7 @@ class StandardDirectiveSpec extends FlatSpec
       val templateDoc = new TemplateDocument(Root / "test.html", parseTemplate(template))
       val doc = new Document(pathUnderTest, parse(markup).content, config = ConfigFactory.parseString("title: Doc 7, template: /test.html"))
       val tree = buildTree(templateDoc, doc)
-      tree.rewrite.selectDocument(Current / "sub2" / "doc7").get.content
+      tree.rewrite.applyTemplates("html").selectDocument(Current / "sub2" / "doc7").get.content
     }
     
     def markup = """# Headline 1

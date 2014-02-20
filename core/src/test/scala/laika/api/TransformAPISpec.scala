@@ -299,9 +299,9 @@ class TransformAPISpec extends FlatSpec
     new TreeTransformer {
       val dirs = """- doc1.md:link
         |- doc2.rst:link
-        |- default.template.html:template1
+        |- default.template.txt:template1
         |+ dir1
-        |  - default.template.html:template2
+        |  - default.template.txt:template2
         |  - doc3.md:name
         |  - doc4.md:name
         |+ dir2

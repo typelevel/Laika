@@ -148,14 +148,14 @@ class ParseAPISpec extends FlatSpec
     
     def customDocView (name: String, content: Seq[Block], path: Path = Root) = DocumentView(path / name, Content(content) :: Nil, rewritten)
   
-    def parsedTree = viewOf(Parse as Markdown fromTree builder(dirs))
+    def parsedTree = viewOf(Parse as Markdown fromTree builder(dirs) applyTemplates "html")
     
     def rawParsedTree = viewOf((Parse as Markdown withoutRewrite) fromTree builder(dirs))
 
     def rawMixedParsedTree = viewOf((Parse as Markdown or ReStructuredText withoutRewrite) fromTree builder(dirs))
     
     def parsedWith (f: InputConfigBuilder => InputConfigBuilder) =
-      viewOf(Parse as Markdown fromTree f(builder(dirs)))
+      viewOf(Parse as Markdown fromTree f(builder(dirs)) applyTemplates "html")
       
     def parsedRawWith (f: InputConfigBuilder => InputConfigBuilder) =
       viewOf((Parse as Markdown withoutRewrite) fromTree f(builder(dirs)))

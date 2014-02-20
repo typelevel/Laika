@@ -138,8 +138,7 @@ object Documents {
      */
     def rewriteWith (customRules: Seq[RewriteRule]): Document = {
       val context = DocumentContext(this)
-      val newDoc = rewriteDocument(customRules, context)
-      newDoc.rewriteTemplate(context.withDocument(newDoc))
+      rewriteDocument(customRules, context)
     }
       
     private[Documents] def rewriteDocument (customRules: Seq[RewriteRule], context: DocumentContext): Document = {
@@ -157,8 +156,10 @@ object Documents {
       
       withRewrittenContent(newRoot, newFragments, context.autonumbering.number)
     }
-    
-    private[Documents] def rewriteTemplate (context: DocumentContext) =
+
+    /** Applies the template for the specified context to this document.
+     */
+    def applyTemplate (context: DocumentContext): Document =
       context.template.getOrElse(defaultTemplate).rewrite(context)
     
     private[tree] def withRewrittenContent (newContent: RootElement, fragments: Map[String,Element], docNumber: List[Int] = docNumber): Document = new Document(path, newContent, fragments, config, docNumber) {
@@ -226,7 +227,8 @@ object Documents {
                                  val parent: DocumentTree, 
                                  val root: DocumentTree,
                                  val autonumbering: AutonumberContext,
-                                 baseConfig: Option[Config] = None) { self =>
+                                 baseConfig: Option[Config] = None,
+                                 format: Option[String] = None) { self =>
     
     protected lazy val parents = {
       @tailrec def collect (path: Path, acc: List[DocumentTree]): Seq[DocumentTree] = {
@@ -254,17 +256,20 @@ object Documents {
 
     /** The (optional) template to use when rendering this document.
      */
-    lazy val template = {
+    lazy val template = format flatMap (templateForFormat(_))
+    
+    private def templateForFormat (format: String) = {
       val tempConf = mergeTreeConfigs(document.config)
-      if (tempConf.hasPath("template")) {
-        val value = tempConf.getValue("template")
+      if (tempConf.hasPath("template") || tempConf.hasPath(format + ".template")) {
+        val key = if (tempConf.hasPath(format + ".template")) format+".template" else "template" 
+        val value = tempConf.getValue(key)
         val desc = value.origin().description()
         val basePath = if (desc.startsWith("path:")) Path(desc.take(desc.lastIndexOf(":")).drop(5)).parent else Root
         val templatePath = (basePath / Path(value.unwrapped().toString)).relativeTo(Root)
         root.selectTemplate(templatePath).orElse(throw new IllegalStateException(s"Template not found: $templatePath"))
       }
       else {
-        val filename = "default.template.html" // TODO - should be configurable and suffix dependent on renderer
+        val filename = "default.template." + format // TODO - should be configurable
         parents collectFirst {
           case tree if tree.templates.exists(_.path.name == filename) => tree.templates.find(_.path.name == filename).get
         }
@@ -292,7 +297,7 @@ object Documents {
      *  template directives which need to provide a new scope
      *  for a nested part inside the directive tags.
      */
-    def withReferenceContext (target: Any) = new DocumentContext(document, parent, root, autonumbering, baseConfig) {
+    def withReferenceContext (target: Any) = new DocumentContext(document, parent, root, autonumbering, baseConfig, format) {
       override lazy val parents = self.parents
       override lazy val config = self.config
       override lazy val template = self.template
@@ -302,7 +307,7 @@ object Documents {
     /** Creates a copy of this context for the specified document
      *  while keeping all the other information.
      */
-    def withDocument (newDoc: Document) = new DocumentContext(newDoc, parent, root, autonumbering, baseConfig)
+    def withDocument (newDoc: Document) = new DocumentContext(newDoc, parent, root, autonumbering, baseConfig, format)
     
   }
 
@@ -316,11 +321,16 @@ object Documents {
     def apply (document: Document, parent: DocumentTree, root: DocumentTree): DocumentContext 
       = new DocumentContext(document, parent, root, AutonumberContext.defaults)
     
+    def apply (document: Document, parent: DocumentTree, root: DocumentTree, format: String): DocumentContext 
+      = new DocumentContext(document, parent, root, AutonumberContext.defaults, format = Some(format))
+    
     def apply (document: Document, parent: DocumentTree, root: DocumentTree, autonumbering: AutonumberContext): DocumentContext 
       = new DocumentContext(document, parent, root, autonumbering)
     
-    def apply (path: Path, parent: DocumentTree, root: DocumentTree, config: Config): DocumentContext 
-      = new DocumentContext(new Document(path, RootElement(Nil)), parent, root, AutonumberContext.defaults, Some(config))
+    /** Creates a context with an empty document for rewriting a dynamic document.
+     */
+    def apply (path: Path, parent: DocumentTree, root: DocumentTree, config: Config, format: String): DocumentContext 
+      = new DocumentContext(new Document(path, RootElement(Nil)), parent, root, AutonumberContext.defaults, Some(config), Some(format))
   }
 
   /** Base type for all document type descriptors.
@@ -550,8 +560,7 @@ object Documents {
      */
     def rewrite (customRules: Seq[DocumentContext => RewriteRule], 
         autonumbering: AutonumberContext): DocumentTree = {
-      val newTree = rewriteDocuments(RewriteContext(this, customRules, autonumbering))
-      newTree.rewriteTemplates(newTree)
+      rewriteDocuments(RewriteContext(this, customRules, autonumbering))
     }
     
     private def rewriteDocuments (rewriteContext: RewriteContext): DocumentTree = {
@@ -587,15 +596,21 @@ object Documents {
           rewrittenSubtrees.map(_._1), config, rewriteContext.autonumbering.number, Some(rewrittenNavigatables))  
     }
     
-    private def rewriteTemplates (root: DocumentTree): DocumentTree = {
+    /** Applies the templates for the specified output format to all documents within this tree.
+     */
+    def applyTemplates (format: String): DocumentTree = applyTemplates(format, this)
+    
+    private def applyTemplates (format: String, root: DocumentTree): DocumentTree = {
       
-      val newDocs = for (doc <- documents) yield doc.rewriteTemplate(DocumentContext(doc, this, root))
+      val newDocs = for (doc <- documents) yield doc.applyTemplate(DocumentContext(doc, this, root, format))
       
-      val newDynamicDocs = for (doc <- dynamicTemplates) yield doc.rewrite(DocumentContext(doc.path.parent / doc.path.name.replace(".dynamic.", "."), this, root, doc.config))
+      val newDynamicDocs = for (doc <- dynamicTemplates) yield 
+          doc.rewrite(DocumentContext(doc.path.parent / doc.path.name.replace(".dynamic.", "."), this, root, doc.config, format))
       
-      val newSubtrees = for (tree <- subtrees) yield tree.rewriteTemplates(root)
+      val newSubtrees = for (tree <- subtrees) yield tree.applyTemplates(format, root)
       
-      new DocumentTree(path, newDocs, Nil, Nil, dynamicDocuments ++ newDynamicDocs, staticDocuments, newSubtrees, docNumber = docNumber, navigationOrder = navigationOrder)  
+      new DocumentTree(path, newDocs, Nil, Nil, dynamicDocuments ++ newDynamicDocs, staticDocuments, newSubtrees, 
+          docNumber = docNumber, navigationOrder = navigationOrder)  
     }
   }
   
