@@ -17,6 +17,10 @@
 package laika.parse.css
 
 import laika.parse.css.Styles._
+import laika.tree.Documents.Path
+import laika.tree.Elements.Span
+import laika.io.Input
+import scala.util.parsing.input.Reader
 
 /**
  * Parsers for the subset of CSS supported by Laika.
@@ -83,10 +87,24 @@ trait CSSParsers extends laika.parse.InlineParsers {
   lazy val styleValue: Parser[String] = 
     text(anyUntil(';'), Map('/' -> (('*' ~ anyUntil("*/") ~ wsOrNl) ^^^ "")))
     
-  lazy val styleDeclarationSet: Parser[StyleDeclarationSet] = 
-    (wsOrNl ~ (comment*) ~> ((styleDeclarations <~ wsOrNl ~ (comment*))*)) ^^ { 
-      decls => new StyleDeclarationSet(decls.flatten.toSet) 
-    }
+  lazy val styleDeclarationSet: Parser[Set[StyleDeclaration]] = 
+    (wsOrNl ~ (comment*) ~> ((styleDeclarations <~ wsOrNl ~ (comment*))*)) ^^ { _.flatten.toSet }
+  
+  
+  def parseStyleSheet (reader: Reader[Char], path: Path) = {
+    val set = parseMarkup(styleDeclarationSet, reader)
+    new StyleDeclarationSet(path, set)
+  }
     
+}
+
+object CSSParsers {
+  
+  lazy val default: Input => StyleDeclarationSet = {
+    val parser = new CSSParsers {
+      val prepareSpanParsers: Map[Char,Parser[Span]] = Map.empty
+    }
+    input => parser.parseStyleSheet(input.asParserInput, input.path)
+  }
   
 }

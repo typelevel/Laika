@@ -31,6 +31,7 @@ import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions
 import laika.template.ParseTemplate
 import Parse.Parsers
+import laika.parse.css.Styles.StyleDeclarationSet
   
 /** API for performing a parse operation from various types of input to obtain
  *  a document tree without a subsequent render operation. 
@@ -227,6 +228,8 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
     def parseMarkup (input: Input): Operation[Document] = () => (Markup, IO(input)(parsers.forInput(input)))
     
     def parseTemplate (docType: DocumentType)(input: Input): Operation[TemplateDocument] = () => (docType, IO(input)(config.templateParser.fromInput(_)))
+
+    def parseStyleSheet (input: Input): Operation[StyleDeclarationSet] = () => (StyleSheet, IO(input)(config.styleSheetParser.fromInput(_)))
     
     def parseTreeConfig (input: Input): Operation[TreeConfig] = () => (Config, new TreeConfig(input)) 
     def parseRootConfig (input: Input): Operation[RootConfig] = () => (Config, new RootConfig(input)) 
@@ -237,6 +240,7 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
     val operations = collectOperations(config.provider, _.markupDocuments.map(parseMarkup)) ++
                      collectOperations(config.provider, _.templates.map(parseTemplate(Template))) ++
                      collectOperations(config.provider, _.dynamicDocuments.map(parseTemplate(Dynamic))) ++
+                     collectOperations(config.provider, _.styleSheets.map(parseStyleSheet)) ++
                      config.config.map(parseRootConfig) ++
                      collectOperations(config.provider, _.configDocuments.find(_.path.name == "directory.conf").toList.map(parseTreeConfig)) // TODO - filename could be configurable
     
@@ -248,6 +252,10 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
     
     val templateMap = (results collect {
       case (docType, doc: TemplateDocument) => ((docType, doc.path), doc)
+    }) toMap
+    
+    val styleMap = (results collect {
+      case (StyleSheet, style: StyleDeclarationSet) => (style.path, style)
     }) toMap
     
     val treeConfigMap = (results collect {
@@ -262,12 +270,13 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
       val docs = provider.markupDocuments map (i => docMap(i.path))
       val templates = provider.templates map (i => templateMap((Template,i.path)))
       val dynamic = provider.dynamicDocuments map (i => templateMap((Dynamic,i.path)))
+      val styles = provider.styleSheets map (i => styleMap(i.path)) reduceOption (_++_) getOrElse StyleDeclarationSet.empty
       val treeConfig = provider.configDocuments.find(_.path.name == "directory.conf").map(i => treeConfigMap(i.path).config)
       val rootConfig = if (root) rootConfigSeq else Nil
       val static = provider.staticDocuments
       val trees = provider.subtrees map (collectDocuments(_))
       val config = (treeConfig.toList ++ rootConfig) reduceLeftOption (_ withFallback _) 
-      new DocumentTree(provider.path, docs, templates, dynamic, Nil, static, trees, config)
+      new DocumentTree(provider.path, docs, templates, dynamic, Nil, styles, static, trees, config)
     }
     
     val tree = collectDocuments(config.provider, true)

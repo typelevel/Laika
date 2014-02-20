@@ -60,6 +60,7 @@ trait InputBuilder {
     configDocuments: Seq[Input],
     markupDocuments: Seq[Input],
     dynamicDocuments: Seq[Input],
+    styleSheets: Seq[Input],
     staticDocuments: Seq[Input],
     templates: Seq[Input],
     subtrees: Seq[InputProvider]
@@ -82,7 +83,7 @@ trait InputBuilder {
       
       val subtrees = dirs map (_.build(docTypeMatcher,null)) filter (d => docType(d.path.name) != Ignored)
       
-      TestInputProvider(path, documents(Config), documents(Markup), documents(Dynamic), documents(Static), documents(Template), subtrees)
+      TestInputProvider(path, documents(Config), documents(Markup), documents(Dynamic), documents(StyleSheet), documents(Static), documents(Template), subtrees)
       
     }
   }

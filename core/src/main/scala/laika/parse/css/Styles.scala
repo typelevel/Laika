@@ -20,6 +20,8 @@ import laika.tree.Elements.Element
 import laika.tree.Elements.Customizable
 import laika.tree.Elements.Id
 import scala.language.existentials
+import laika.tree.Documents.Path
+import laika.tree.Documents.Root
 
 /**
  * @author Jens Halm
@@ -97,12 +99,20 @@ object Styles {
     
   }
   
-  class StyleDeclarationSet (decl: Set[StyleDeclaration]) {
+  class StyleDeclarationSet (val path: Path, private val decl: Set[StyleDeclaration]) {
     
     def collectStyles (element: Element, parents: Seq[Element]) = {
       val decls = decl.filter(_.appliesTo(element, parents)).toSeq.sortBy(_.selector.specificity)
       (Map[String,String]() /: decls) { case (acc, decl) => acc ++ decl.styles }
     }
+    
+    def ++ (set: StyleDeclarationSet) = new StyleDeclarationSet(Root, decl ++ set.decl)
+    
+  }
+  
+  object StyleDeclarationSet {
+    
+    val empty = new StyleDeclarationSet(Root, Set.empty) 
     
   }
   

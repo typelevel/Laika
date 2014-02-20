@@ -28,6 +28,7 @@ import laika.io.Input
 import laika.tree.Templates.TemplateRoot
 import laika.tree.Templates.TemplateContextReference
 import scala.util.Try
+import laika.parse.css.Styles.StyleDeclarationSet
 
 /** Provides the API for Documents and DocumentTrees as well as the Path API.
  *  
@@ -357,6 +358,11 @@ object Documents {
    */
   case object Dynamic extends DocumentType
 
+  /** A style sheet that needs to get passed
+   *  to a renderer.
+   */
+  case object StyleSheet extends DocumentType
+  
   /** A static file that needs to get copied
    *  over to the output target.
    */
@@ -380,14 +386,16 @@ object Documents {
     
     val TemplateName = """.+\.template\.[^\.]+$""".r
     val DynamicName = """.+\.dynamic\.[^\.]+$""".r
+    val StylesheetName = """.+\.fo.css$""".r // stylesheets for HTML are treated as static documents
     val ConfigName = """.+\.conf$""".r
     
     def apply (path: Path) = path.name match {
       case name if markupSuffixes(suffix(name)) => Markup
-      case ConfigName()   => Config
-      case TemplateName() => Template
-      case DynamicName()  => Dynamic
-      case _              => Static
+      case ConfigName()     => Config
+      case TemplateName()   => Template
+      case DynamicName()    => Dynamic
+      case StylesheetName() => StyleSheet
+      case _                => Static
     }
     
   }
@@ -423,6 +431,7 @@ object Documents {
                       private[tree] val templates: Seq[TemplateDocument] = Nil, 
                       private[tree] val dynamicTemplates: Seq[TemplateDocument] = Nil, 
                       val dynamicDocuments: Seq[Document] = Nil, 
+                      val styles: StyleDeclarationSet = StyleDeclarationSet.empty,
                       val staticDocuments: Seq[Input] = Nil,
                       val subtrees: Seq[DocumentTree] = Nil, 
                       private[tree] val config: Option[Config] = None,
@@ -592,7 +601,7 @@ object Documents {
       
       val rewrittenNavigatables = (rewrittenDocuments ++ rewrittenSubtrees).sortBy(_._2).map(_._1)
       
-      new DocumentTree(path, rewrittenDocuments.map(_._1), templates, dynamicTemplates, dynamicDocuments, staticDocuments, 
+      new DocumentTree(path, rewrittenDocuments.map(_._1), templates, dynamicTemplates, dynamicDocuments, styles, staticDocuments,
           rewrittenSubtrees.map(_._1), config, rewriteContext.autonumbering.number, Some(rewrittenNavigatables))  
     }
     
@@ -609,7 +618,7 @@ object Documents {
       
       val newSubtrees = for (tree <- subtrees) yield tree.applyTemplates(format, root)
       
-      new DocumentTree(path, newDocs, Nil, Nil, dynamicDocuments ++ newDynamicDocs, staticDocuments, newSubtrees, 
+      new DocumentTree(path, newDocs, Nil, Nil, dynamicDocuments ++ newDynamicDocs, styles, staticDocuments, newSubtrees, 
           docNumber = docNumber, navigationOrder = navigationOrder)  
     }
   }
