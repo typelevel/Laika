@@ -17,13 +17,17 @@
 package laika.render
 
 import laika.tree.Documents.Path
+import laika.tree.Documents.Root
 import laika.tree.Elements._
 import laika.tree.ElementTraversal
 import laika.tree.Templates._
+import laika.io.Input
 import laika.io.Output
 import laika.factory.RendererFactory
 import laika.util.RomanNumerals
+import laika.template.ParseTemplate
 import laika.parse.css.Styles.StyleDeclarationSet
+import laika.parse.css.ParseStyleSheet
 import scala.language.existentials
 import FOWriter._ 
   
@@ -293,8 +297,18 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
       case unknown                => ()  
     }  
   } 
+  
+  override lazy val defaultStyles = XSLFO.styleResource
+  override lazy val defaultTemplate = XSLFO.templateResource.content
+  
 }
 
 /** The default instance of the XSL-FO renderer.
  */
-object XSLFO extends XSLFO(None, true)
+object XSLFO extends XSLFO(None, true) {
+  
+  lazy val styleResource = ParseStyleSheet.fromInput(Input.fromClasspath("/styles/default.fo.css", Root / "default.fo.css"))
+  
+  lazy val templateResource = ParseTemplate.fromInput(Input.fromClasspath("/templates/default.template.fo", Root / "default.template.fo"))
+  
+}

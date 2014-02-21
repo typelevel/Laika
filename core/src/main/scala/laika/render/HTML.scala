@@ -18,9 +18,12 @@ package laika.render
 
 import laika.tree.Elements._
 import laika.tree.Templates._
+import laika.tree.Documents.Root
+import laika.io.Input
 import laika.io.Output
 import laika.factory.RendererFactory
 import laika.parse.css.Styles.StyleDeclarationSet
+import laika.template.ParseTemplate
   
 /** A renderer for HTML output. May be directly passed to the `Render` or `Transform` APIs:
  * 
@@ -268,8 +271,15 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
       case unknown                => ()  
     }  
   } 
+  
+  override lazy val defaultTemplate = HTML.templateResource.content
+  
 }
 
 /** The default instance of the HTML renderer.
  */
-object HTML extends HTML(None, true)
+object HTML extends HTML(None, true) {
+  
+  lazy val templateResource = ParseTemplate.fromInput(Input.fromClasspath("/templates/default.template.html", Root / "default.template.html"))
+  
+}
