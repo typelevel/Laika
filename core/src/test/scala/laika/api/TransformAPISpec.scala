@@ -141,7 +141,6 @@ class TransformAPISpec extends FlatSpec
     import laika.io.InputProvider.InputConfigBuilder
     import laika.io.OutputProvider.OutputConfigBuilder
     import laika.tree.helper.OutputBuilder._
-    import laika.api.Transform.BatchConfigBuilder
     import laika.tree.Documents.Path
     import laika.tree.Documents.DocumentType
     import laika.template.ParseTemplate
@@ -159,11 +158,16 @@ class TransformAPISpec extends FlatSpec
     def transformWithDocTypeMatcher (matcher: Path => DocumentType) = transformWith(_.withDocTypeMatcher(matcher))
     def transformWithTemplates (templates: ParseTemplate) = transformWith(_.withTemplates(templates))
     def transformWithDirective (directive: Templates.Directive) = transformWith(_.withTemplateDirectives(directive))
-    def transformInParallel = transformWith(_.inParallel)
     
-    private def transformWith (f: BatchConfigBuilder => BatchConfigBuilder, transformer: Transform[TextWriter] = transform) = {
+    def transformInParallel = {
       val builder = new TestProviderBuilder
-      transformer withConfig f(BatchConfigBuilder(input(dirs), output(builder)))
+      transform fromTree input(dirs).inParallel toTree output(builder).inParallel
+      builder.result
+    }
+    
+    private def transformWith (f: InputConfigBuilder => InputConfigBuilder, transformer: Transform[TextWriter, Render.SingleTarget, Transform.TreeTarget] = transform) = {
+      val builder = new TestProviderBuilder
+      transformer fromTree f(input(dirs)) toTree output(builder)
       builder.result
     }
     
