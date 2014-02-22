@@ -27,12 +27,14 @@ import laika.io.Output.Binary
 import laika.io.OutputProvider
 import laika.io.OutputProvider._
 import laika.tree.Elements.Element
+import laika.tree.Elements.RootElement
 import laika.tree.Elements.RenderFunction
 import laika.tree.Documents._
-import laika.tree.Templates.TemplateDocument
+import laika.tree.Templates._
 import laika.factory.RendererFactory
 import laika.parse.css.Styles.StyleDeclarationSet
 import Render._
+import laika.factory.RenderResultProcessor
   
 /** API for performing a render operation to various types of output using an existing
  *  document tree model. 
@@ -191,21 +193,21 @@ object Render {
      *  @param name the name of the file to parse
      *  @param codec the character encoding of the file, if not specified the platform default will be used.
      */
-    def toFile (name: String)(implicit codec: Codec) = renderTo(Output.toFile(name)(codec))
+    def toFile (name: String)(implicit codec: Codec) = renderBinary(Output.toFile(name)(codec))
     
     /** Renders the model to the specified file.
      * 
      *  @param file the file to write to
      *  @param codec the character encoding of the file, if not specified the platform default will be used.
      */
-    def toFile (file: File)(implicit codec: Codec) = renderTo(Output.toFile(file)(codec))
+    def toFile (file: File)(implicit codec: Codec) = renderBinary(Output.toFile(file)(codec))
     
     /** Renders the model to the specified output stream.
      * 
      *  @param stream the stream to render to
      *  @param codec the character encoding of the stream, if not specified the platform default will be used.
      */
-    def toStream (stream: OutputStream)(implicit codec: Codec) = renderTo(Output.toStream(stream)(codec))
+    def toStream (stream: OutputStream)(implicit codec: Codec) = renderBinary(Output.toStream(stream)(codec))
     
     /** Renders the model to the specified output.
      *  
@@ -213,11 +215,11 @@ object Render {
      *  methods delegate to. Usually not used directly in application code, but
      *  might come in handy for very special requirements.
      */
-    def toBinaryOutput (out: Output with Binary): Unit = renderTo(out)
+    def toBinaryOutput (out: Output with Binary): Unit = renderBinary(out)
     
-    /** Renders the model to the specified output.
+    /** Renders the model to the specified binary output.
      */
-    protected def renderTo (out: Output): Unit
+    protected def renderBinary (out: Output with Binary): Unit
       
   }
   
@@ -254,7 +256,13 @@ object Render {
      *  might come in handy for very special requirements.
      */
     def toOutput (out: Output): Unit = renderTo(out)
+    
+    /** Renders the model to the specified binary output.
+     */
+    protected def renderTo (out: Output): Unit
       
+    protected def renderBinary (out: Output with Binary) = renderTo(out)
+    
   }
   
   /** Represents a tree of output destinations for recursive render operations. 
@@ -328,6 +336,20 @@ object Render {
     
   }
   
+  class GatherOperation[Writer] (processor: RenderResultProcessor[Writer]) extends Operation[BinaryTarget,BinaryTarget] {
+    
+    def fromElement (element: Element, executor: Executor): BinaryTarget = 
+      fromDocument(new Document(Root / "target", RootElement(Seq(TemplateRoot(Seq(TemplateElement(element)))))), executor)
+    
+    def fromDocument (doc: Document, executor: Executor): BinaryTarget = 
+      fromTree(new DocumentTree(Root, Seq(doc)), executor)
+    
+    def fromTree (tree: DocumentTree, executor: Executor): BinaryTarget = new BinaryTarget {
+      protected def renderBinary (out: Output with Binary) = processor.process(tree, executor.render(tree, _), out)
+    }
+    
+  }
+  
   trait Executor {
     
     def render (element: Element, output: Output): Unit
@@ -339,11 +361,18 @@ object Render {
 
   /** Returns a new Render instance for the specified renderer factory.
    *  This factory is usually an object provided by the library
-   *  or a plugin that is capable of rendering a specific output
-   *  format like HTML or PrettyPrint for debugging. 
+   *  or a plugin that is capable of rendering a specific output. 
    * 
    *  @param factory the renderer factory responsible for creating the final renderer
    */
   def as [Writer] (factory: RendererFactory[Writer]): Render[Writer,SingleTarget,TreeTarget] = new Render(factory, new MapOperation) 
+  
+  /** Returns a new Render instance for the specified processor.
+   *  This instance is usually an object provided by the library
+   *  or a plugin that is capable of rendering a specific output. 
+   * 
+   *  @param factory the renderer factory responsible for creating the final renderer
+   */
+  def as [Writer] (processor: RenderResultProcessor[Writer]): Render[Writer,BinaryTarget,BinaryTarget] = new Render(processor.factory, new GatherOperation(processor)) 
   
 }

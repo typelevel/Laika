@@ -29,12 +29,14 @@ import laika.factory.ParserFactory
 import laika.factory.RendererFactory
 import laika.io.InputProvider._
 import laika.io.OutputProvider._
+import laika.io.Output.Binary
 import laika.template.ParseTemplate
 import laika.directive.Directives.Templates
 import laika.template.DefaultTemplate
 import laika.api.Parse.Parsers
 import laika.api.Parse.Parser
 import Transform._
+import laika.factory.RenderResultProcessor
   
 /** API for performing a transformation operation from and to various types of input and output,
  *  combining a parse and render operation. 
@@ -283,27 +285,45 @@ object Transform {
     
     def withRenderer (customRenderer: Writer => RenderFunction): Operation[Writer, DocTarget, TreeTarget] 
     
+    protected def rewrite (doc: Document, rules: Rules) = doc rewriteWith rules.forContext(DocumentContext(doc))
+
+    protected def rewrite (tree: DocumentTree, rules: Rules) = tree.rewrite(rules.all, AutonumberContext.defaults)
+    
   }
   
   class MapOperation[Writer] (render: Render[Writer, Render.SingleTarget, Render.TreeTarget]) 
       extends Operation[Writer, Render.SingleTarget, TreeTarget] {
     
     def fromDocument (doc: Document, rules: Rules): Render.SingleTarget = new Render.SingleTarget {
-      protected def renderTo (out: Output) = {
-        val rewritten = doc rewriteWith rules.forContext(DocumentContext(doc))
-        render from rewritten toOutput out
-      }
+      protected def renderTo (out: Output) = render from rewrite(doc,rules) toOutput out
     }
     
     def fromTree (input: InputConfigBuilder, parse: Parse, rules: Rules) = new TreeTarget(transform(parse,rules), input)
     
     protected def transform (parse: Parse, rules: Rules)(input: InputConfigBuilder, output: OutputConfigBuilder) = {
       val tree = parse.fromTree(input)
-      val rewritten = tree.rewrite(rules.all, AutonumberContext.defaults)
-      render from rewritten toTree output
+      render from rewrite(tree,rules) toTree output
     }
     
     def withRenderer (customRenderer: Writer => RenderFunction) = new MapOperation(render using customRenderer)
+    
+  }
+  
+  class GatherOperation[Writer] (render: Render[Writer, Render.BinaryTarget, Render.BinaryTarget]) 
+      extends Operation[Writer, Render.BinaryTarget, GatherTarget] {
+    
+    def fromDocument (doc: Document, rules: Rules): Render.BinaryTarget = new Render.BinaryTarget {
+      protected def renderBinary (out: Output with Binary) = render from rewrite(doc,rules) toBinaryOutput out
+    }
+    
+    def fromTree (input: InputConfigBuilder, parse: Parse, rules: Rules) = new GatherTarget(transform(parse,rules), input)
+    
+    protected def transform (parse: Parse, rules: Rules)(input: InputConfigBuilder, output: Output with Binary) = {
+      val tree = parse.fromTree(input)
+      render from rewrite(tree,rules) toBinaryOutput output
+    }
+    
+    def withRenderer (customRenderer: Writer => RenderFunction) = new GatherOperation(render using customRenderer)
     
   }
   
@@ -386,10 +406,25 @@ object Transform {
     protected def withInputBuilder (f: InputConfigBuilder => InputConfigBuilder) 
       = new TreeTarget(transform, f(inputBuilder), isParallel)
     
-    protected def withParallelExecution = new TreeTarget(transform, inputBuilder, true)
+    protected def withParallelExecution = new TreeTarget(transform, inputBuilder.inParallel, true)
     
     protected def renderTo (out: OutputConfigBuilder) =
       transform(inputBuilder, if (isParallel) out.inParallel else out)
+    
+  }
+  
+  class GatherTarget (transform: (InputConfigBuilder, Output with Binary) => Unit,
+                     inputBuilder: InputConfigBuilder, 
+                     isParallel:Boolean = false) extends TreeConfigBuilder[GatherTarget] 
+                                                    with Render.BinaryTarget { 
+    
+    protected def withInputBuilder (f: InputConfigBuilder => InputConfigBuilder) 
+      = new GatherTarget(transform, f(inputBuilder), isParallel)
+    
+    protected def withParallelExecution = new GatherTarget(transform, inputBuilder.inParallel, true)
+    
+    protected def renderBinary (out: Output with Binary) =
+      transform(inputBuilder, out) // TODO - parallel output?
     
   }
 
@@ -420,6 +455,16 @@ object Transform {
      */
     def to [W] (factory: RendererFactory[W]): Transform[W, Render.SingleTarget, TreeTarget] = 
       new Transform(parse.withoutRewrite, new MapOperation(Render as factory), new Rules(Nil)) 
+    
+    /** Creates and returns a new Transform instance for the specified renderer and the
+     *  previously specified parser. The returned instance is stateless and reusable for
+     *  multiple transformations.
+     * 
+     *  @param factory the renderer factory to use for the transformation
+     *  @return a new Transform instance
+     */
+    def to [Writer] (processor: RenderResultProcessor[Writer]): Transform[Writer, Render.BinaryTarget, GatherTarget] = 
+      new Transform(parse.withoutRewrite, new GatherOperation(Render as processor), new Rules(Nil)) 
     
   }
   
