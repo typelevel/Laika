@@ -295,15 +295,16 @@ object Transform {
       }
     }
     
-    def fromTree (input: InputConfigBuilder, parse: Parse, rules: Rules) = new TreeTarget(input, parse, renderTree(rules))
+    def fromTree (input: InputConfigBuilder, parse: Parse, rules: Rules) = new TreeTarget(transform(parse,rules), input)
+    
+    protected def transform (parse: Parse, rules: Rules)(input: InputConfigBuilder, output: OutputConfigBuilder) = {
+      val tree = parse.fromTree(input)
+      val rewritten = tree.rewrite(rules.all, AutonumberContext.defaults)
+      render from rewritten toTree output
+    }
     
     def withRenderer (customRenderer: Writer => RenderFunction) = new MapOperation(render using customRenderer)
     
-    def renderTree (rules:Rules)(tree: DocumentTree, config: OutputConfigBuilder): Unit = {
-      val rewritten = tree.rewrite(rules.all, AutonumberContext.defaults)
-      render from rewritten toTree config
-    }
-      
   }
   
   private[laika] class Rules (rules: List[DocumentContext => RewriteRule]){
@@ -377,24 +378,18 @@ object Transform {
     
   }
   
-  class TreeTarget (inputBuilder: InputConfigBuilder, 
-                    parse: Parse, 
-                    render: (DocumentTree, OutputConfigBuilder) => Unit, 
+  class TreeTarget (transform: (InputConfigBuilder, OutputConfigBuilder) => Unit,
+                    inputBuilder: InputConfigBuilder, 
                     isParallel:Boolean = false) extends TreeConfigBuilder[TreeTarget] 
                                                    with Render.TreeTarget { 
     
     protected def withInputBuilder (f: InputConfigBuilder => InputConfigBuilder) 
-      = new TreeTarget(f(inputBuilder), parse, render, isParallel)
+      = new TreeTarget(transform, f(inputBuilder), isParallel)
     
-    protected def withParallelExecution = new TreeTarget(inputBuilder, parse, render, true)
+    protected def withParallelExecution = new TreeTarget(transform, inputBuilder, true)
     
-    protected def renderTo (builder: OutputConfigBuilder) = {
-      val input = inputBuilder.build(parse.fileSuffixes)
-      val tree = parse.fromTree(input)
-
-      val output = if (isParallel) builder.inParallel else builder
-      render(tree,output)
-    }
+    protected def renderTo (out: OutputConfigBuilder) =
+      transform(inputBuilder, if (isParallel) out.inParallel else out)
     
   }
 
