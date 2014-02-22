@@ -40,6 +40,14 @@ object Build extends Build {
         
     val config    = "com.typesafe"  % "config"     % "1.0.2"
     
+    val fop       = Seq(
+                      "avalon-framework" % "avalon-framework-api" % "4.2.0",
+                      "avalon-framework" % "avalon-framework-impl" % "4.2.0",
+                      "org.apache.xmlgraphics" % "fop" % "1.1" 
+                        exclude("org.apache.avalon.framework", "avalon-framework-api") 
+                        exclude("org.apache.avalon.framework", "avalon-framework-impl")
+                    )
+    
   }
   
   object Plugins {
@@ -111,7 +119,7 @@ object Build extends Build {
   
   
   lazy val root = Project("root", file("."))
-    .aggregate(core, plugin)
+    .aggregate(core, pdf, plugin)
     .settings(Settings.basic: _*)
     .settings(Publishing.none: _*)
  
@@ -124,8 +132,15 @@ object Build extends Build {
       Dependencies.jTidy
     ))
     
+  lazy val pdf = Project("laika-pdf", file("pdf"))
+    .dependsOn(core)
+    .settings(Settings.module: _*)
+    .settings(Publishing.mavenCentral: _*)
+    .settings(libraryDependencies ++= Dependencies.fop)
+    
   lazy val plugin = Project("laika-sbt", file("sbt"))
     .dependsOn(core)
+    .dependsOn(pdf)
     .settings(sbtPlugin := true)
     .settings(Settings.basic: _*)
     .settings(Publishing.sbtPlugins: _*)
