@@ -23,6 +23,7 @@ import laika.tree.Templates._
 import laika.tree.Documents._
 import laika.tree.Templates.rewriteRules
 import scala.collection.JavaConversions._
+import laika.tree.TocGenerator
 
 /** Provides the implementation for the standard directives included in Laika.
  *  
@@ -116,60 +117,8 @@ trait StandardDirectives {
    */
   def toc (depth: Option[Int], rootConfig: String, title: Option[String], context: DocumentContext): Block = {
     
-    val format = StringBullet("*")
     val maxLevel = depth getOrElse Int.MaxValue
-
-    def isCurrent (doc: Document) = doc.path == context.document.path
     
-    def sectionToLink (section: SectionInfo, path: Path, level: Int) = {
-      val options = Styles("toc","level"+level)
-      val title = section.title.content
-      
-      if (path == context.document.path)
-        Paragraph(List(InternalLink(title, section.id, options = options)))
-      else
-        Paragraph(List(CrossLink(title, section.id, PathInfo(path, path.relativeTo(context.parent.path)), options = Styles("toc","level"+level))))
-    }
-      
-    def docToLink (document: Document, level: Int) = {
-      val options = Styles("toc","level"+level)
-      val title = document.title
-      
-      if (isCurrent(document))
-        Paragraph(title, options = options + Styles("active"))
-      else
-        Paragraph(List(CrossLink(title, "", PathInfo(document.path, document.path.relativeTo(context.parent.path)), options = options)))
-    }  
-    
-    def treeToText (tree: DocumentTree, level: Int) =
-      Paragraph(tree.title, options = Styles("toc","level"+level))
-    
-    def sectionsToList (sections: Seq[SectionInfo], path: Path, level: Int): List[Block] =
-      if (sections.isEmpty || level > maxLevel) Nil else {
-        val items = for (section <- sections) yield 
-            BulletListItem(sectionToLink(section, path, level) :: sectionsToList(section.content, path, level + 1), format)
-        List(BulletList(items, format))
-    }
-    
-    def include (nav: Navigatable): Boolean = nav match {
-      case _:Document => true
-      case tree: DocumentTree => tree.navigatables.exists(include(_))
-    }
-    
-    def navigatablesToList (navigatables: Seq[Navigatable], level: Int): List[Block] = {
-      def toLink (section: SectionInfo) = 
-        Paragraph(List(InternalLink(List(Text(section.title.text)), section.id, options = Styles("toc","level"+level))))
-      
-      if (level > maxLevel) Nil else {
-        val items = for (navigatable <- navigatables if include(navigatable)) yield navigatable match {
-          case doc: Document => BulletListItem(docToLink(doc, level) :: sectionsToList(doc.sections, doc.path, level + 1), format)
-          case tree: DocumentTree => BulletListItem(treeToText(tree, level) :: navigatablesToList(tree.navigatables, level + 1), format)
-        }
-          
-        List(BulletList(items, format))
-      }
-    }
-      
     val root = rootConfig match {
       case "#rootTree"        => context.root
       case "#currentTree"     => context.parent
@@ -184,8 +133,8 @@ trait StandardDirectives {
     }
     
     val list = root match {
-      case doc: Document      => sectionsToList(doc.sections, doc.path, 1)
-      case tree: DocumentTree => navigatablesToList(tree.navigatables, 1)
+      case doc: Document      => TocGenerator.fromDocument(doc, maxLevel, context.document.path)
+      case tree: DocumentTree => TocGenerator.fromTree(tree, maxLevel, context.document.path)
     }
     title match {
       case Some(text) => TitledBlock(List(Text(text)), list, Styles("toc"))
