@@ -20,6 +20,7 @@ import laika.tree.Elements._
 import laika.tree.Templates.BlockResolver
 import laika.tree.Documents.DocumentContext
 import laika.tree.Documents.SectionInfo
+import laika.tree.TocGenerator
 
 /** Provides the elements of the document tree that are too specific to reStructuredText
  *  to be added to the generic tree model. 
@@ -114,23 +115,10 @@ object Elements {
   /** Generates a table of contents element inside a topic.
    */
   case class Contents (title: String, depth: Int = Int.MaxValue, local: Boolean = false, options: Options = NoOpt) extends Block with BlockResolver {
-    private val format = StringBullet("*")
-    
     def resolve (context: DocumentContext): Block = {
-      def sectionsToList (sections: Seq[SectionInfo], level: Int): List[Block] = {
-        def toLink (section: SectionInfo) = 
-          Paragraph(List(InternalLink(List(Text(section.title.text)), section.id, options = Styles("toc","level"+level))))
-        
-        if (sections.isEmpty || level > depth) Nil else {
-          val items = for (section <- sections) yield 
-              BulletListItem(toLink(section) :: sectionsToList(section.content, level + 1), format)
-          List(BulletList(items, format))
-        }
-      }
-        
-      val list = sectionsToList(context.document.sections, 1) // TODO - find parent for local toc
-      TitledBlock(List(Text(title)), list, options + Styles("topic"))
-    } 
+      val toc = TocGenerator.fromDocument(context.document, depth, context.document.path) // TODO - find parent for local toc
+      TitledBlock(List(Text(title)), toc, options + Styles("toc"))
+    }
   }
   
   

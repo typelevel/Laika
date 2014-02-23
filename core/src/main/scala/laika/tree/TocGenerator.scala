@@ -32,6 +32,7 @@ object TocGenerator {
   
   private def pathInfo (targetPath: Path, refPath: Path) = PathInfo(targetPath, targetPath.relativeTo(refPath))
   
+  
   /** Generates the tree model (consisting of BulletList elements) for
    *  the table of contents for the specified document.
    *  
@@ -65,6 +66,7 @@ object TocGenerator {
     
     sectionsToList(doc.sections, doc.path, curLevel)
   }
+
   
   /** Generates the tree model (consisting of BulletList elements) for
    *  the table of contents for the specified document tree.
