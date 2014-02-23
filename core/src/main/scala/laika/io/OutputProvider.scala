@@ -20,6 +20,7 @@ import java.io.File
 import scala.io.Codec
 import laika.tree.Documents.Path
 import laika.tree.Documents.Root
+import scala.collection.mutable.ListBuffer
 
 /** Represents a tree structure of Outputs, abstracting over various types of IO resources. 
  *  
@@ -62,7 +63,9 @@ trait OutputProvider {
  */
 object OutputProvider {
   
-  private class DirectoryOutputProvider (dir: File, val path: Path, codec: Codec) extends OutputProvider {
+  /** An output provider that writes to a directory in the file system.
+   */
+  class DirectoryOutputProvider (dir: File, val path: Path, codec: Codec) extends OutputProvider {
     
     def newOutput (name: String) = {
       val f = new File(dir, name)
@@ -88,6 +91,55 @@ object OutputProvider {
     require(root.isDirectory, s"File ${root.getAbsolutePath} is not a directoy")
     
     new DirectoryOutputProvider(root, Root, codec)
+  }
+  
+  /** Represent an in-memory result of a rendering operation.
+   */
+  trait RenderResult {
+    def path: Path
+  }
+
+  /** The result of rendering a single document.
+   */
+  case class StringResult (path: Path, result: String) extends RenderResult
+  
+  /** The result of rendering a document tree.
+   */
+  case class ResultTree (path: Path, results: Seq[StringResult], subtrees: Seq[ResultTree]) extends RenderResult {
+    
+    private lazy val resultMap = results map (r => (r.path.name, r.result)) toMap
+    private lazy val subtreeMap = subtrees map (t => (t.path.name, t)) toMap
+    
+    def result (name: String) = resultMap.get(name)
+    def subtree (name: String) = subtreeMap.get(name)
+  }
+  
+
+  /** An output provider that produces a tree of String results.
+   */
+  class StringOutputProvider (val path: Path) extends OutputProvider {
+    
+    class ResultBuilder (path: Path, sb: StringBuilder) {
+      def result = new StringResult(path, sb.toString)
+    }
+    
+    private val results = ListBuffer[ResultBuilder]()
+    private val subtrees = ListBuffer[StringOutputProvider]()
+    
+    def newOutput (name: String) = {
+      val builder = new StringBuilder
+      results += new ResultBuilder(path / name, builder)
+      Output.toBuilder(builder, path / name)
+    }
+    
+    def newChild (name: String) = {
+      val prov = new StringOutputProvider(path / name)
+      subtrees += prov
+      prov
+    }
+    
+    def result: ResultTree = ResultTree(path, results map (_.result), subtrees map (_.result))
+    
   }
   
   /** The configuration for an output tree, consisting of the actual provider for
