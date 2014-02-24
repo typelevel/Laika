@@ -19,7 +19,7 @@ package laika.factory
 import laika.io.OutputProvider.OutputConfigBuilder
 import laika.tree.Documents.DocumentTree
 import laika.io.Output
-import laika.io.Output.Binary
+import laika.io.Output.BinaryOutput
 import laika.io.OutputProvider.OutputConfig
 
 /** Post processor for the result output of a renderer.
@@ -43,7 +43,7 @@ trait RenderResultProcessor[Writer] {
    *  @param render the render function for producing the interim result
    *  @param output the output to write the final result to
    */
-  def process (tree: DocumentTree, render: OutputConfig => Unit, output: Output with Binary): Unit
+  def process (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit, output: BinaryOutput): Unit
   
   
 }

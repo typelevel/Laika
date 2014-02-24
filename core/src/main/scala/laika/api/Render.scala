@@ -345,7 +345,7 @@ object Render {
       fromTree(new DocumentTree(Root, Seq(doc)), executor)
     
     def fromTree (tree: DocumentTree, executor: Executor): BinaryTarget = new BinaryTarget {
-      protected def renderBinary (out: Output with Binary) = processor.process(tree, executor.render(tree, _), out)
+      protected def renderBinary (out: Output with Binary) = processor.process(tree, executor.render, out.asBinaryOutput)
     }
     
   }
