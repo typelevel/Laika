@@ -627,7 +627,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       Header(level,List(Text("Title "+title)),Id("title"+title) + Styles(style))
       
     def link (level: Int, title: Int) =    
-      InternalLink(List(txt("Title "+title)), "title"+title, None, Styles("toc","level"+level))
+      Paragraph(Seq(InternalLink(List(txt("Title "+title)), "title"+title)), Styles("toc","level"+level))
           
     val sectionsWithTitle = RootElement(
       header(1,1,"title") ::
@@ -642,8 +642,8 @@ class StandardBlockDirectivesSpec extends FlatSpec
     val result = root(
       header(1,1,"title"),
       TitledBlock(List(txt("This is the title")), 
-        List(bulletList() + (p(link(1,2)), (bulletList() + p(link(2,3))))
-                          + (p(link(1,4)), (bulletList() + p(link(2,5))))), 
+        List(bulletList() + (link(1,2), (bulletList() + link(2,3)))
+                          + (link(1,4), (bulletList() + link(2,5)))), 
       Styles("toc")),
       Section(header(2,2), List(Section(header(3,3), Nil))),
       Section(header(2,4), List(Section(header(3,5), Nil)))

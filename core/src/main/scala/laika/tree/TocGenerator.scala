@@ -49,9 +49,9 @@ object TocGenerator {
       val title = section.title.content
       
       if (path == refPath)
-        Paragraph(List(InternalLink(title, section.id, options = styles(level))))
+        Paragraph(List(InternalLink(title, section.id)), options = styles(level))
       else
-        Paragraph(List(CrossLink(title, section.id, pathInfo(path, refPath.parent), options = styles(level))))
+        Paragraph(List(CrossLink(title, section.id, pathInfo(path, refPath.parent))), options = styles(level))
     }
     
     def sectionsToList (sections: Seq[SectionInfo], path: Path, curLevel: Int): List[Block] =
@@ -82,7 +82,7 @@ object TocGenerator {
     
     def hasContent (nav: Navigatable): Boolean = nav match {
       case _:Document => true
-      case tree: DocumentTree => tree.navigatables.exists(hasContent(_))
+      case tree: DocumentTree => tree.navigatables.exists(hasContent)
     }
     
     def treeTitle (tree: DocumentTree, level: Int) = Paragraph(tree.title, options = styles(level))
@@ -91,7 +91,7 @@ object TocGenerator {
       if (document.path == refPath)
         Paragraph(document.title, options = styles(level) + Styles("active"))
       else
-        Paragraph(List(CrossLink(document.title, "", pathInfo(document.path, refPath.parent), options = styles(level))))
+        Paragraph(List(CrossLink(document.title, "", pathInfo(document.path, refPath.parent))), options = styles(level))
     
     def navigatablesToList (navigatables: Seq[Navigatable], curLevel: Int): List[Block] = {
       if (curLevel > maxLevel) Nil else {
