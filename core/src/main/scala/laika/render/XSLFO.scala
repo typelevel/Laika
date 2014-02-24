@@ -74,7 +74,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
    *  the renderer as well as the actual default render function itself
    */
   def newRenderer (output: Output, root: Element, render: Element => Unit, styles: StyleDeclarationSet) = {
-    val out = new FOWriter(output asFunction, render, styles, formatted = renderFormatted)
+    val out = new FOWriter(output asFunction, render, output.path, styles, formatted = renderFormatted)
     val (footnotes, citations) = collectTargets(root)
     (out, renderElement(out,footnotes,citations,output.path))
   }

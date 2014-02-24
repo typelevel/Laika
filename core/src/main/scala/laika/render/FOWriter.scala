@@ -18,6 +18,7 @@ package laika.render
 
 import laika.tree.Elements._
 import laika.parse.css.Styles.StyleDeclarationSet
+import laika.tree.Documents.Path
 import FOWriter._ 
 
 /** API for renderers that produce XSL-FO output.
@@ -31,6 +32,7 @@ import FOWriter._
  */
 class FOWriter (out: String => Unit,  
                 render: Element => Unit, 
+                path: Path,
                 styles: StyleDeclarationSet,
                 newLine: String = "\n",
                 formatted: Boolean = true) extends TagWriter(out, render, newLine, formatted) 
@@ -47,7 +49,7 @@ class FOWriter (out: String => Unit,
       case c: Customizable => c.options
       case _ => NoOpt
     }
-    filterAttributes(tag, ("id"->options.id) +: fromCSS ++: attrs)
+    filterAttributes(tag, ("id"->options.id.map(path.toString + "-" + _)) +: fromCSS ++: attrs)
   }
   
   
