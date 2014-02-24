@@ -434,7 +434,7 @@ object Documents {
                       val styles: Map[String,StyleDeclarationSet] = Map.empty.withDefaultValue(StyleDeclarationSet.empty),
                       val staticDocuments: Seq[Input] = Nil,
                       val subtrees: Seq[DocumentTree] = Nil, 
-                      private[tree] val config: Option[Config] = None,
+                      private[laika] val config: Option[Config] = None,
                       docNumber: List[Int] = Nil,
                       navigationOrder: Option[Seq[Navigatable]] = None) extends Navigatable {
     
@@ -533,6 +533,12 @@ object Documents {
     def withTemplate (template: TemplateDocument) = 
       new DocumentTree(path, documents, template +: templates, dynamicTemplates, dynamicDocuments, styles, 
           staticDocuments, subtrees, config, docNumber, navigationOrder)  
+    
+    /** Creates a new tree with the specified document prepended to its existing documents.
+     */
+    def prependDocument (doc: Document) = 
+      new DocumentTree(path, doc +: documents, templates, dynamicTemplates, dynamicDocuments, styles, 
+          staticDocuments, subtrees, config, docNumber, navigationOrder map (doc +: _))  
     
     /** Returns a new tree, with all the document models contained in it 
      *  rewritten based on the default rewrite rules.

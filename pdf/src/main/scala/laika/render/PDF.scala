@@ -18,21 +18,14 @@ package laika.render
 
 import java.io.OutputStream
 import java.io.StringReader
-
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.stream.StreamSource
 import javax.xml.transform.sax.SAXResult
-
 import laika.factory.RenderResultProcessor
 import laika.tree.Documents.DocumentTree
 import laika.io.Output
-import laika.io.Output.Binary
+import laika.io.Output.BinaryOutput
 import laika.io.OutputProvider.OutputConfig
-import laika.io.OutputProvider.ResultTree
-import laika.io.OutputProvider.StringOutputProvider
-import laika.tree.Documents.Document
-import laika.tree.Documents.DocumentTree
-
 import org.apache.fop.apps.FopFactory
 import org.apache.xmlgraphics.util.MimeConstants
 
@@ -57,22 +50,11 @@ class PDF extends RenderResultProcessor[FOWriter] {
   private val fopFactory = FopFactory.newInstance
   
   
-  def process (tree: DocumentTree, render: OutputConfig => Unit, output: Output with Binary) = {
+  protected def renderFO (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit): String =
+    FOforPDF.renderFO(tree, render)
+  
     
-    def append (sb: StringBuilder, result: ResultTree, src: DocumentTree): Unit = {
-      src.navigatables.foreach {
-        case d: Document => result.result(d.name).foreach(sb.append)
-        case t: DocumentTree => result.subtree(t.name).foreach(append(sb, _, t))
-      }
-    }
-    
-    def renderTree = {
-      val foOutput = new StringOutputProvider(tree.path)
-      render(OutputConfig(foOutput, false))
-      val sb = new StringBuilder
-      append(sb, foOutput.result, tree)
-      sb.toString
-    }
+  def process (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit, output: BinaryOutput) = {
     
     def createSAXResult (out: OutputStream) = {
       val foUserAgent = fopFactory.newFOUserAgent
@@ -86,8 +68,8 @@ class PDF extends RenderResultProcessor[FOWriter] {
       factory.newTransformer // identity transformer
     }
     
-    val fo = renderTree
-    val out = output.asBinaryOutput.asStream
+    val fo = renderFO(tree, render)
+    val out = output.asStream
     
     try {
       val source = new StreamSource(new StringReader(fo))
