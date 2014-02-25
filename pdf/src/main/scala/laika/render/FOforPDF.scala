@@ -133,7 +133,7 @@ class FOforPDF {
     }
     
     val foOutput = new StringOutputProvider(tree.path)
-    render(prepareTree(tree), OutputConfig(foOutput, false)) // TODO - prevent copying of static files
+    render(prepareTree(tree), OutputConfig(foOutput, parallel = false, copyStaticFiles = false))
     val sb = new StringBuilder
     append(sb, foOutput.result, tree)
     sb.toString
