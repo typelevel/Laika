@@ -28,6 +28,8 @@ import laika.io.Output.BinaryOutput
 import laika.io.OutputProvider.OutputConfig
 import org.apache.fop.apps.FopFactory
 import org.apache.xmlgraphics.util.MimeConstants
+import javax.xml.transform.URIResolver
+import java.io.File
 
 /** A post processor for PDF output, based on an interim XSL-FO renderer. 
  *  May be directly passed to the `Render` or `Transform` APIs:
@@ -58,7 +60,11 @@ class PDF extends RenderResultProcessor[FOWriter] {
     
     def createSAXResult (out: OutputStream) = {
       val foUserAgent = fopFactory.newFOUserAgent
-      foUserAgent.setBaseURL("") // TODO - need to introduce DocumentTree.sourcePath (Option[String])
+      foUserAgent.setURIResolver(new URIResolver {
+        def resolve (uri: String, base: String) = (tree.sourcePaths.collectFirst {
+          case source if (new File(source+uri)).isFile => new StreamSource(new File(source+uri))
+        }).getOrElse(null)
+      })
       val fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, out)
       new SAXResult(fop.getDefaultHandler())
     }
