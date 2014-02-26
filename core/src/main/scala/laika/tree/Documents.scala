@@ -424,6 +424,7 @@ object Documents {
    *  @param config the configuration associated with this tree
    *  @param docNumber the number of this tree inside a document tree hierarchy, expressed as a list of Ints
    *  @param navigationOrder the markup documents and subtrees merged into a specific order, used for generating tables of contexts
+   *  @param sourcePaths the paths this document tree has been built from or an empty list if this tree does not originate from the file system
    *  and autonumbering
    */
   class DocumentTree (val path:Path, 
@@ -436,7 +437,8 @@ object Documents {
                       val subtrees: Seq[DocumentTree] = Nil, 
                       private[laika] val config: Option[Config] = None,
                       docNumber: List[Int] = Nil,
-                      navigationOrder: Option[Seq[Navigatable]] = None) extends Navigatable {
+                      navigationOrder: Option[Seq[Navigatable]] = None,
+                      val sourcePaths: Seq[String] = Nil) extends Navigatable {
     
     /** The title of this tree, obtained from configuration.
      */
@@ -532,13 +534,13 @@ object Documents {
      */
     def withTemplate (template: TemplateDocument) = 
       new DocumentTree(path, documents, template +: templates, dynamicTemplates, dynamicDocuments, styles, 
-          staticDocuments, subtrees, config, docNumber, navigationOrder)  
+          staticDocuments, subtrees, config, docNumber, navigationOrder, sourcePaths)  
     
     /** Creates a new tree with the specified document prepended to its existing documents.
      */
     def prependDocument (doc: Document) = 
       new DocumentTree(path, doc +: documents, templates, dynamicTemplates, dynamicDocuments, styles, 
-          staticDocuments, subtrees, config, docNumber, navigationOrder map (doc +: _))  
+          staticDocuments, subtrees, config, docNumber, navigationOrder map (doc +: _), sourcePaths)  
     
     /** Returns a new tree, with all the document models contained in it 
      *  rewritten based on the default rewrite rules.
@@ -614,7 +616,7 @@ object Documents {
       val rewrittenNavigatables = (rewrittenDocuments ++ rewrittenSubtrees).sortBy(_._2).map(_._1)
       
       new DocumentTree(path, rewrittenDocuments.map(_._1), templates, dynamicTemplates, dynamicDocuments, styles, staticDocuments,
-          rewrittenSubtrees.map(_._1), config, rewriteContext.autonumbering.number, Some(rewrittenNavigatables))  
+          rewrittenSubtrees.map(_._1), config, rewriteContext.autonumbering.number, Some(rewrittenNavigatables), sourcePaths)  
     }
     
     /** Applies the templates for the specified output format to all documents within this tree.
@@ -631,7 +633,7 @@ object Documents {
       val newSubtrees = for (tree <- subtrees) yield tree.applyTemplates(format, root)
       
       new DocumentTree(path, newDocs, Nil, Nil, dynamicDocuments ++ newDynamicDocs, styles, staticDocuments, newSubtrees, 
-          docNumber = docNumber, navigationOrder = navigationOrder)  
+          docNumber = docNumber, navigationOrder = navigationOrder, sourcePaths = sourcePaths)  
     }
   }
   

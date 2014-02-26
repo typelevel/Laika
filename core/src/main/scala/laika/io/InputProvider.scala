@@ -85,6 +85,11 @@ trait InputProvider {
    */
   def subtrees: Seq[InputProvider]
   
+  /** The paths this provider has been created from 
+   *  or an empty list if this input provider does 
+   *  not originate from the file system.
+   */
+  def sourcePaths: Seq[String]
   
 }
 
@@ -123,6 +128,8 @@ object InputProvider {
     lazy val staticDocuments = documents(Static)
     
     lazy val templates =  documents(Template)
+    
+    lazy val sourcePaths = dirs map (_.getAbsolutePath)
     
     lazy val subtrees = {
       def subDirs (dir: File) = dir.listFiles filter (f => f.isDirectory && !exclude(f) && docType(f) != Ignored)

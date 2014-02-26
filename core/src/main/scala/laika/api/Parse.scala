@@ -276,7 +276,7 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
       val static = provider.staticDocuments
       val trees = provider.subtrees map (collectDocuments(_))
       val config = (treeConfig.toList ++ rootConfig) reduceLeftOption (_ withFallback _) 
-      new DocumentTree(provider.path, docs, templates, dynamic, Nil, styles, static, trees, config)
+      new DocumentTree(provider.path, docs, templates, dynamic, Nil, styles, static, trees, config, sourcePaths = provider.sourcePaths)
     }
     
     val tree = collectDocuments(config.provider, true)
