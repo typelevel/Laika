@@ -60,7 +60,7 @@ trait ModelBuilder {
      
   }
   
-  def img (text: String, url: String, title: Option[String] = None) = Image(text, url, title)
+  def img (text: String, uri: String, title: Option[String] = None) = Image(text, URI(uri), title)
 
   def imgRef (text: String, id: String, source: String = "") = ImageReference(text, id, source)
   

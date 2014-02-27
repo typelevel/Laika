@@ -88,7 +88,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
       | :class: foo
       |
       |Some |subst|""".stripMargin
-    val result = root (p(txt("Some "),Image("","picture.jpg",options=Styles("foo"))))
+    val result = root (p(txt("Some "),Image("",URI("picture.jpg"),options=Styles("foo"))))
     parse(input) should be (result)
   }
   

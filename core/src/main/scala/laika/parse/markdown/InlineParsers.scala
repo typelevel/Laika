@@ -17,7 +17,6 @@
 package laika.parse.markdown
 
 import laika.tree.Elements._
-import java.net.URI
  
 /** Provides all inline parsers for Markdown text except for those dealing
  *  with verbatim HTML markup which this library treats as an optional 
@@ -146,7 +145,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
    *  Recognizes both, an inline image `![text](url)` and an image reference `![text][id]`.
    */
   def image: Parser[Span] = {
-    def imageInline (text: String, url: String, title: Option[String]) = Image(text, url, title)
+    def imageInline (text: String, uri: String, title: Option[String]) = Image(text, URI(uri), title)
     def imageReference (text: String, id: String, postFix: String): Span = ImageReference(text, normalizeId(id), "![" + text + postFix)
      
     '[' ~> resource(imageInline, imageReference)
@@ -186,7 +185,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   def simpleLink = {
     
     def isAcceptedScheme (s: String) = s == "http" || s == "https" || s == "ftp" || s == "mailto"
-    def isURI (s: String) = try { val uri = new URI(s); uri.isAbsolute && isAcceptedScheme(uri.getScheme) } catch { case _:Throwable => false }
+    def isURI (s: String) = try { val uri = new java.net.URI(s); uri.isAbsolute && isAcceptedScheme(uri.getScheme) } catch { case _:Throwable => false }
     def isEmail (s: String) = s.contains("@") && isURI(s"mailto:$s") // TODO - improve
     
     def toLink(s: String) = ExternalLink(List(Text(s)), s) 

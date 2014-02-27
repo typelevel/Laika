@@ -348,7 +348,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a figure" in {
-    val elem = Figure(Image("alt","image.jpg"), List(txt("some "), em("caption"), txt(" text")), List(p("aaa"), Rule(), p("bbb")))
+    val elem = Figure(Image("alt",URI("image.jpg")), List(txt("some "), em("caption"), txt(" text")), List(p("aaa"), Rule(), p("bbb")))
     val html = """<div class="figure">
       |  <img src="image.jpg" alt="alt">
       |  <p class="caption">some <em>caption</em> text</p>

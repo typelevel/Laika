@@ -503,7 +503,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
   it should "support the class option" in {
     val input = """.. image:: picture.jpg
       | :class: foo""".stripMargin
-    val result = root (p(Image("","picture.jpg",options=Styles("foo"))))
+    val result = root (p(Image("",URI("picture.jpg"),options=Styles("foo"))))
     parse(input) should be (result)
   }
   
@@ -536,7 +536,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
     val input = """.. figure:: picture.jpg
       | :class: img
       | :figclass: fig""".stripMargin
-    val result = root (Figure(Image("", "picture.jpg", options=Styles("img")), Nil, Nil, Styles("fig")))
+    val result = root (Figure(Image("", URI("picture.jpg"), options=Styles("img")), Nil, Nil, Styles("fig")))
     parse(input) should be (result)
   }
   

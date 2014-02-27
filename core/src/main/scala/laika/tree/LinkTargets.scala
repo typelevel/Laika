@@ -127,7 +127,7 @@ object LinkTargets {
     val replace = lift (PartialFunction.empty)
     val resolve = lift { 
       case (LinkReference (content, _, _, opt), _) => ExternalLink(content, definition.url, definition.title, opt)
-      case (ImageReference (text, _, _, opt), _)   => Image(text, definition.url, definition.title, opt)
+      case (ImageReference (text, _, _, opt), _)   => Image(text, URI(definition.url), definition.title, opt)
     }
   }
   

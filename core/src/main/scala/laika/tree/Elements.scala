@@ -515,6 +515,10 @@ object Elements {
    */
   case class Code (language: String, content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer[Code]
   
+  /** Represents a URI which might also optionally be expressed as a local reference within the processed tree. 
+   */ 
+  case class URI (uri: String, localRef: Option[PathInfo] = None)
+  
   /** Represents a single path in absolute and relative form. 
    */ 
   case class PathInfo (absolute: Path, relative: Path)
@@ -544,7 +548,7 @@ object Elements {
   
   /** An inline image with a text description and optional title.
    */
-  case class Image (text: String, url: String, title: Option[String] = None, options: Options = NoOpt) extends Link
+  case class Image (text: String, uri: URI, title: Option[String] = None, options: Options = NoOpt) extends Link
   
   
   /** A link reference, the id pointing to the id of a `LinkTarget`. Only part of the

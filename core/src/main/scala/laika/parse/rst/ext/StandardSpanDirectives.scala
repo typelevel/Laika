@@ -71,7 +71,7 @@ trait StandardSpanDirectives {
     def multilineURI (text: String) = Right(text.split("\n").map(_.trim).mkString("\n").trim)
     
     (argument(multilineURI, withWS = true) ~ optField("alt") ~ optField("target", parse.target) ~ stdOpt) { (uri, alt, target, opt) =>
-      val image = Image(alt.getOrElse(""), uri, None, opt)
+      val image = Image(alt.getOrElse(""), URI(uri), None, opt)
       (target map { 
         case ref: ExternalLink  => ref.copy(content = List(image))
         case ref: LinkReference => ref.copy(content = List(image))

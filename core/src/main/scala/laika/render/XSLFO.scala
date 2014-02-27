@@ -243,7 +243,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     def renderSimpleSpan (span: Span) = span match {
       case e @ CitationLink(ref,label,_)  => citations.get(ref).foreach(out.footnote(e,label,_))
       case e @ FootnoteLink(ref,label,_)  => footnotes.get(ref).foreach(out.footnote(e,label,_))
-      case e @ Image(_,url,_,_)           => out.externalGraphic(e, url) // TODO - ignoring title and alt for now
+      case e @ Image(_,uri,_,_)           => out.externalGraphic(e, uri.localRef.map(_.absolute.toString).getOrElse(uri.uri)) // TODO - ignoring title and alt for now
       case LineBreak(_)                   => out << "&#x2028;"
       case TemplateElement(elem,indent,_) => out.indented(indent) { out << elem }
       
