@@ -64,8 +64,8 @@ class LinkResolver (path: Path, root: RootElement) {
         case NumericLabel(num)     => new FootnoteTarget(f, Named(num.toString), num.toString)
       }
       
-      case lt: ExternalLinkDefinition => if (lt.id.isEmpty) new ExternalLinkTarget(lt, Anonymous(anonPos.next), AnonymousSelector) 
-                                         else               new ExternalLinkTarget(lt, Named(lt.id), lt.id)
+      case lt: ExternalLinkDefinition => if (lt.id.isEmpty) new ExternalLinkTarget(lt, Anonymous(anonPos.next), AnonymousSelector, path) 
+                                         else               new ExternalLinkTarget(lt, Named(lt.id), lt.id, path)
       
       case lt: LinkAlias              => new LinkAliasTarget(lt)
       

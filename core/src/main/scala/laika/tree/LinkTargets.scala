@@ -122,12 +122,12 @@ object LinkTargets {
     }
   }
   
-  class ExternalLinkTarget (definition: ExternalLinkDefinition, id: Id, selector: Selector) extends TargetDefinition(definition, id, true) {
+  class ExternalLinkTarget (definition: ExternalLinkDefinition, id: Id, selector: Selector, path: Path) extends TargetDefinition(definition, id, true) {
     def withResolvedIds (documentId: String, displayId: String) = new SingleTargetResolver(this, selector, Hidden)
     val replace = lift (PartialFunction.empty)
     val resolve = lift { 
       case (LinkReference (content, _, _, opt), _) => ExternalLink(content, definition.url, definition.title, opt)
-      case (ImageReference (text, _, _, opt), _)   => Image(text, URI(definition.url), definition.title, opt)
+      case (ImageReference (text, _, _, opt), _)   => Image(text, URI(definition.url, PathInfo.fromURI(definition.url, path)), definition.title, opt)
     }
   }
   
