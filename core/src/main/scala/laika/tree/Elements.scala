@@ -20,6 +20,7 @@ import laika.api.Render
 import laika.render.PrettyPrint
 import scala.math.Ordered
 import laika.tree.Documents.Path
+import laika.tree.Documents.Root
 
 /** Provides the elements of the document tree. The model is generic and not tied to any
  *  specific markup syntax like Markdown. Parsers may only support a subset of the provided
@@ -522,6 +523,27 @@ object Elements {
   /** Represents a single path in absolute and relative form. 
    */ 
   case class PathInfo (absolute: Path, relative: Path)
+  
+  object PathInfo {
+    
+    /** Creates an instance for the specified path relative to 
+     *  the provided reference path.
+     */ 
+    def fromPath (path: Path, refPath: Path): PathInfo =
+      if (path.isAbsolute) PathInfo(path, path.relativeTo(Root))
+      else PathInfo(Root / path.relativeTo(refPath), path)
+    
+    /** Creates an instance for the specified URI relative to 
+     *  the provided reference path. Returns `None` if the specified
+     *  URI is not a file or relative URI.
+     */
+    def fromURI (uri: String, refPath: Path): Option[PathInfo] = {
+      val jURI = new java.net.URI(uri)
+      if (jURI.getScheme != null && jURI.getScheme != "file") None
+      else Some(fromPath(Path(jURI.getPath), refPath))
+    }
+    
+  }
   
   /** An external link element, with the span content representing the text (description) of the link.
    */
