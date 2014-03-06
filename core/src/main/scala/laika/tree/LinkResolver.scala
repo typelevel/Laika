@@ -21,9 +21,7 @@ import scala.collection.mutable.ListBuffer
 import IdGenerators._
 import LinkTargets._
 import Elements._
-import Documents.Path
-import Documents.Current
-import Documents.DocumentContext
+import Documents._
 
 /** The default rewrite rules responsible for resolving link references that get 
  *  applied to the raw document tree after parsing.
@@ -168,6 +166,18 @@ class LinkResolver (path: Path, root: RootElement) {
     val headerId = headerIdMap.lookupFunction
     val decHeaderId = decHeaderIdMap.lookupFunction
     
+    def buildURI (uri: String) = {
+      val jURI = new java.net.URI(uri)
+      if (jURI.getScheme != null && jURI.getScheme != "file") URI(uri)
+      else {
+        val pathInfo = {
+          val path = Path(jURI.getPath)
+          if (path.isAbsolute) PathInfo(path, path.relativeTo(context.root.path))
+          else PathInfo(Root / path.relativeTo(context.parent.path), path)
+        }
+        URI(uri, Some(pathInfo))
+      }
+    }
     
     def replaceHeader (h: Block, origId: String, lookup: String => Option[String]) = lookup(origId).flatMap(replace(h,_))
     
@@ -229,7 +239,8 @@ class LinkResolver (path: Path, root: RootElement) {
                                  else                resolve(ref, ref.id, s"unresolved link reference: ${ref.id}", true)
         
       case ref: ImageReference => resolve(ref, ref.id, s"unresolved image reference: ${ref.id}", true)
-       
+      case img @ Image(_,URI(uri, None),_,_) => Some(img.copy(uri = buildURI(uri))) 
+      
       case _: Temporary => None
 
       case c: Customizable if c.options.id.isDefined => replace(c, c.options.id.get)
