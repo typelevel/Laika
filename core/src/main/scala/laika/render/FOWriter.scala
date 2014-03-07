@@ -49,7 +49,7 @@ class FOWriter (out: String => Unit,
       case c: Customizable => c.options
       case _ => NoOpt
     }
-    filterAttributes(tag, ("id"->options.id.map(path.toString + "-" + _)) +: fromCSS ++: attrs)
+    filterAttributes(tag, ("id"->options.id.map(path.toString + "." + _)) +: fromCSS ++: attrs)
   }
   
   
