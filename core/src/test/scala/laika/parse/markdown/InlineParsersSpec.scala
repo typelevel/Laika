@@ -191,13 +191,13 @@ class InlineParsersSpec extends FlatSpec
   
   it should "parse an inline image with an optional title enclosed in double quotes" in {
     Parsing ("""some ![link](http://foo.jpg "a title") here""") should produce {
-      spans(txt("some "), img("link","http://foo.jpg",Some("a title")), txt(" here"))
+      spans(txt("some "), img("link","http://foo.jpg",title = Some("a title")), txt(" here"))
     }
   }
   
   it should "parse an inline image with an optional title enclosed in single quotes" in {
     Parsing ("""some ![link](http://foo.jpg 'a title') here""") should produce {
-      spans(txt("some "), img("link","http://foo.jpg",Some("a title")), txt(" here"))
+      spans(txt("some "), img("link","http://foo.jpg",title = Some("a title")), txt(" here"))
     }
   }
   

@@ -466,7 +466,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render a paragraph containing an image with title" in {
-    val elem = p(txt("some "), img("img", "foo.jpg", Some("title")), txt(" span"))
+    val elem = p(txt("some "), img("img", "foo.jpg", title = Some("title")), txt(" span"))
     render (elem) should be ("""<p>some <img src="foo.jpg" alt="img" title="title"> span</p>""") 
   }
   

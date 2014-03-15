@@ -462,16 +462,18 @@ class StandardBlockDirectivesSpec extends FlatSpec
   }
   
   
+  val imgPath = Some(PathInfo(Root / "picture.jpg", Current / "picture.jpg"))
+  
   "The image directive" should "parse the URI argument" in {
     val input = """.. image:: picture.jpg"""
-    val result = root (p(img("", "picture.jpg")))
+    val result = root (p(img("", "picture.jpg", imgPath)))
     parse(input) should be (result)
   }
   
   it should "support the alt option" in {
     val input = """.. image:: picture.jpg
       | :alt: alt""".stripMargin
-    val result = root (p(img("alt", "picture.jpg")))
+    val result = root (p(img("alt", "picture.jpg", imgPath)))
     parse(input) should be (result)
   }
   
@@ -480,7 +482,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | :target: ref_
       |
       |.. _ref: http://foo.com/""".stripMargin
-    val result = root (p(ExternalLink(List(img("", "picture.jpg")), "http://foo.com/")))
+    val result = root (p(ExternalLink(List(img("", "picture.jpg", imgPath)), "http://foo.com/")))
     parse(input) should be (result)
   }
   
@@ -489,28 +491,28 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | :target: `some ref`_
       |
       |.. _`some ref`: http://foo.com/""".stripMargin
-    val result = root (p(ExternalLink(List(img("", "picture.jpg")), "http://foo.com/")))
+    val result = root (p(ExternalLink(List(img("", "picture.jpg", imgPath)), "http://foo.com/")))
     parse(input) should be (result)
   }
   
   it should "support the target option with a uri" in {
     val input = """.. image:: picture.jpg
       | :target: http://foo.com/""".stripMargin
-    val result = root (p(ExternalLink(List(img("", "picture.jpg")), "http://foo.com/")))
+    val result = root (p(ExternalLink(List(img("", "picture.jpg", imgPath)), "http://foo.com/")))
     parse(input) should be (result)
   }
   
   it should "support the class option" in {
     val input = """.. image:: picture.jpg
       | :class: foo""".stripMargin
-    val result = root (p(Image("",URI("picture.jpg"),options=Styles("foo"))))
+    val result = root (p(Image("",URI("picture.jpg", imgPath),options=Styles("foo"))))
     parse(input) should be (result)
   }
   
   
   "The figure directive" should "parse the URI argument" in {
     val input = """.. figure:: picture.jpg"""
-    val result = root (Figure(img("", "picture.jpg"),Nil,Nil))
+    val result = root (Figure(img("", "picture.jpg", imgPath),Nil,Nil))
     parse(input) should be (result)
   }
   
@@ -518,7 +520,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
     val input = """.. figure:: picture.jpg
       |
       | This is the *caption*""".stripMargin
-    val result = root (Figure(img("", "picture.jpg"), List(txt("This is the "),em("caption")), Nil))
+    val result = root (Figure(img("", "picture.jpg", imgPath), List(txt("This is the "),em("caption")), Nil))
     parse(input) should be (result)
   }
   
@@ -528,7 +530,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | This is the *caption*
       |
       | And this is the legend""".stripMargin
-    val result = root (Figure(img("", "picture.jpg"), List(txt("This is the "),em("caption")), List(p("And this is the legend"))))
+    val result = root (Figure(img("", "picture.jpg", imgPath), List(txt("This is the "),em("caption")), List(p("And this is the legend"))))
     parse(input) should be (result)
   }
   
@@ -536,7 +538,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
     val input = """.. figure:: picture.jpg
       | :class: img
       | :figclass: fig""".stripMargin
-    val result = root (Figure(Image("", URI("picture.jpg"), options=Styles("img")), Nil, Nil, Styles("fig")))
+    val result = root (Figure(Image("", URI("picture.jpg", imgPath), options=Styles("img")), Nil, Nil, Styles("fig")))
     parse(input) should be (result)
   }
   
@@ -547,7 +549,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       | This is the *caption*
       |
       |.. _ref: http://foo.com/""".stripMargin
-    val result = root (Figure(ExternalLink(List(img("", "picture.jpg")), "http://foo.com/"), List(txt("This is the "),em("caption")), Nil))
+    val result = root (Figure(ExternalLink(List(img("", "picture.jpg", imgPath)), "http://foo.com/"), List(txt("This is the "),em("caption")), Nil))
     parse(input) should be (result)
   }
   

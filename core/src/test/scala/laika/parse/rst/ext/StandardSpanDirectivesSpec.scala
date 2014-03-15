@@ -20,6 +20,7 @@ import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 import laika.tree.helper.ModelBuilder
 import laika.tree.Elements._
+import laika.tree.Documents._
 import laika.parse.rst.ReStructuredText
 import laika.api.Parse
 import java.text.SimpleDateFormat
@@ -35,11 +36,13 @@ class StandardSpanDirectivesSpec extends FlatSpec
 
   def parse (input: String) = (Parse as ReStructuredText fromString input).content
   
+  val imgPath = Some(PathInfo(Root / "picture.jpg", Current / "picture.jpg"))
+  
   "The image directive" should "parse the URI argument" in {
     val input = """.. |subst| image:: picture.jpg
       |
       |Some |subst|""".stripMargin
-    val result = root (p(txt("Some "),img("", "picture.jpg")))
+    val result = root (p(txt("Some "),img("", "picture.jpg", imgPath)))
     parse(input) should be (result)
   }
   
@@ -48,7 +51,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
       | :alt: alt
       |
       |Some |subst|""".stripMargin
-    val result = root (p(txt("Some "),img("alt", "picture.jpg")))
+    val result = root (p(txt("Some "),img("alt", "picture.jpg", imgPath)))
     parse(input) should be (result)
   }
   
@@ -88,7 +91,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
       | :class: foo
       |
       |Some |subst|""".stripMargin
-    val result = root (p(txt("Some "),Image("",URI("picture.jpg"),options=Styles("foo"))))
+    val result = root (p(txt("Some "),Image("",URI("picture.jpg", imgPath),options=Styles("foo"))))
     parse(input) should be (result)
   }
   
