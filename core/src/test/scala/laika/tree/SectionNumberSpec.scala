@@ -131,11 +131,11 @@ class SectionNumberSpec extends FlatSpec
     
     def resultView (docNum: List[Int]): List[DocumentContent] = List(
       Content(List(
-        numberedHeader(1,1, docNum, "title"),
+        laika.tree.Elements.Title(numberedHeader(1,1, docNum, "title").content,Id("title1") + Styles("title")),
         numberedSection(2,2, docNum:+1, numberedSection(3,3, docNum:+1:+1)),
         numberedSection(2,4, docNum:+2, numberedSection(3,5, docNum:+2:+1))
       )),
-      Title(numberedHeader(1,1, docNum, "title").content),
+      laika.tree.DocumentTreeHelper.Title(numberedHeader(1,1, docNum, "title").content),
       Sections(List(
         numberedSectionInfo(2,2, docNum:+1, numberedSectionInfo(3,3, docNum:+1:+1)),
         numberedSectionInfo(2,4, docNum:+2, numberedSectionInfo(3,5, docNum:+2:+1))

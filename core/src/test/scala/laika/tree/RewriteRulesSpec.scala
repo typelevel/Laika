@@ -149,7 +149,7 @@ class RewriteRulesSpec extends FlatSpec
   it should "use the headers text as link text when linking to a header" in {
     val header = Header(1, Seq(Text("Title 1")), Id("title-1"))
     val rootElem = root(p(LinkReference(List(txt("title-1")), "title-1", "title-1")), header)
-    rewritten (rootElem) should be (root(p(InternalLink(List(txt("Title 1")), "title-1")), header.copy(options = header.options + Styles("title"))))
+    rewritten (rootElem) should be (root(p(InternalLink(List(txt("Title 1")), "title-1")), Title(header.content, header.options + Styles("title"))))
   }
   
   it should "resolve indirect link references" in {
@@ -184,7 +184,7 @@ class RewriteRulesSpec extends FlatSpec
   
   it should "resolve references when some parent element also gets rewritten" in {
     val rootElem = root(DecoratedHeader(Underline('#'), List(txt("text1"), simpleLinkRef()), Id("header")), ExternalLinkDefinition("name", "http://foo/"))
-    rewritten (rootElem) should be (root(Header(1, List(txt("text1"), extLink("http://foo/")), Id("header") + Styles("title"))))
+    rewritten (rootElem) should be (root(Title(List(txt("text1"), extLink("http://foo/")), Id("header") + Styles("title"))))
   }
   
   
@@ -201,7 +201,7 @@ class RewriteRulesSpec extends FlatSpec
   
   "The rewrite rules for header ids" should "retain the id of a header" in {
     val rootElem = root(Header(1, List(Text("text")), Id("header")))
-    rewritten (rootElem) should be (root(Header(1, List(Text("text")), Id("header") + Styles("title"))))
+    rewritten (rootElem) should be (root(Title(List(Text("text")), Id("header") + Styles("title"))))
   }
   
   it should "append numbers to duplicate ids" in {

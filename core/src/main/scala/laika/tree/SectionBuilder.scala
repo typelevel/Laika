@@ -89,20 +89,21 @@ object SectionBuilder extends (DocumentContext => RewriteRule) {
           }).toList
         
         def transformRootSection (s: Section) = {
-          val headerNoStyles = s.header.copy(options = SomeOpt(s.header.options.id, s.header.options.styles - "section"))
-          val header = if (hasDocumentNumbers) numberHeader(headerNoStyles, docNumber, "title") 
-                       else headerNoStyles.copy(options = headerNoStyles.options + Styles("title"))
+          val options = SomeOpt(s.header.options.id, s.header.options.styles - "section" + "title")
+          val title = if (hasDocumentNumbers) Title(addNumber(s.header.content, docNumber, "title"), options) 
+                      else Title(s.header.content, options)
           val content = if (hasSectionNumbers) numberSections(s.content, docNumber) else s.content
-          header +: content
+          title +: content
         }
         
-        def numberHeader (header: Header, num: List[Int], style: String) = header.copy(
-          content = Text(num.mkString("","."," "), Styles(style+"Number")) +: header.content, 
-          options = header.options + Styles(style)
-        )
+        def addNumber (spans: Seq[Span], num: List[Int], style: String) = 
+          Text(num.mkString("","."," "), Styles(style+"Number")) +: spans 
           
         def numberSection (s: Section, num: List[Int]) = s.copy(
-          header = numberHeader(s.header, num, "section"),
+          header = s.header.copy(
+              content = addNumber(s.header.content, num, "section"), 
+              options = s.header.options + Styles("section")
+          ),
           content = numberSections(s.content, num)
         )  
         

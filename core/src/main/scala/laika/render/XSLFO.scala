@@ -182,6 +182,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
         case e @ ParsedLiteralBlock(content,_)=> out.blockWithWS(e,content)
         case e @ CodeBlock(lang,content,_)    => out.blockWithWS(e.copy(options=e.options + codeStyles(lang)),content)
         case e @ Header(level, content,_)     => out.block(e.copy(options=e.options + Styles("level"+level.toString)),content,"keep-with-next"->"always")
+        case e @ Title(content,_)             => out.block(e.copy(options=e.options),content,"keep-with-next"->"always")
 
         case e @ Emphasized(content,_)        => out.inline(e,content,"font-style"->"italic")
         case e @ Strong(content,_)            => out.inline(e,content,"font-weight"->"bold")

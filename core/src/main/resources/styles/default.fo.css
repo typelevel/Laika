@@ -64,7 +64,7 @@ Header {
 	font-size: 12pt;
 }
 
-Header.level1 {
+Title, Header.level1 {
 	font-size: 18pt;
 }
 

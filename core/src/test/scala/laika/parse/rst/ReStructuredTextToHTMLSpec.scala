@@ -76,14 +76,15 @@ class ReStructuredTextToHTMLSpec extends FlatSpec
       case InternalLink(content, url, title, opt)  => out <<@ ("a", opt + Styles("reference","internal"), "href"->("#"+url), "title"->title) << content << "</a>"
       case LiteralBlock(content,opt)     => out <<@ ("pre",opt + Styles("literal-block"))  <<<&  content << "</pre>"
       case Literal(content,opt)          => out <<@ ("tt",opt+Styles("docutils","literal"))  <<<& content << "</tt>" 
-      case FootnoteLink(id,label,opt)  => out <<@ ("a",opt + Styles("footnote-reference"),"href"->("#"+id))    << "[" << label << "]</a>" 
+      case FootnoteLink(id,label,opt)    => out <<@ ("a",opt + Styles("footnote-reference"),"href"->("#"+id))    << "[" << label << "]</a>" 
       case Section(header, content, opt) => out <<@ ("div", opt+Id(header.options.id.getOrElse(""))+(if(header.level == 1) Styles("document") else Styles("section"))) <<|> (header +: content) <<| "</div>"
       case Header(level, (it: InternalLinkTarget) :: rest, opt) => out <<| it <<| Header(level, rest, opt) // move target out of the header content
-      case Header(level, content, opt)    => out <<| "<h" << (if (level == 1) "1 class=\"title\"" else (level-1).toString) << ">" << content << "</h" << ((if (level == 1) 1 else level-1).toString) << ">" // rst special treatment of first header
+      case Header(level, content, opt)   => out <<| "<h" << (level-1).toString << ">" << content << "</h" << (level-1).toString << ">" // rst special treatment of first header
+      case Title(content, opt)           => out <<| "<h1 class=\"title\">" << content << "</h1>"
       case TitledBlock(title, content, opt) => out <<@ ("div",opt) <<|> (Paragraph(title,Styles("admonition-title")) +: content) <<| "</div>"
-      case QuotedBlock(content,attr,opt)    => out <<@ ("blockquote",opt); renderBlocks(quotedBlockContent(content,attr), "</blockquote>")
-      case InternalLinkTarget(opt)     => out <<@ ("span",opt) << "</span>"
-      case i: InvalidBlock => ()
+      case QuotedBlock(content,attr,opt) => out <<@ ("blockquote",opt); renderBlocks(quotedBlockContent(content,attr), "</blockquote>")
+      case InternalLinkTarget(opt)       => out <<@ ("span",opt) << "</span>"
+      case i: InvalidBlock               => ()
     }} rendering ExtendedHTML fromFile (path + ".rst") toString
     
     val expected = readFile(path + "-tidy.html")

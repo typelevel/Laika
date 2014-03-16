@@ -156,6 +156,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
         case CodeBlock(lang,content,opt)    => out <<@ ("pre",opt+codeStyles(lang)) << "<code>" <<<  content << "</code></pre>"
         case Code(lang,content,opt)         => out <<@ ("code",opt+codeStyles(lang)) <<  content << "</code>"
         case Line(content,opt)              => out <<@ ("div",opt + Styles("line")) << content <<  "</div>"
+        case Title(content, opt)            => out <<@ ("h1",opt) << content << "</h1>"
         case Header(level, content, opt)    => out <|; out <<@ ("h"+level.toString,opt) << content << "</h" << level.toString << ">"
   
         case ExternalLink(content, url, title, opt)     => out <<@ ("a", opt, "href"->url,       "title"->title.map(escapeTitle)) << content << "</a>"

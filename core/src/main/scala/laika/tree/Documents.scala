@@ -81,7 +81,7 @@ object Documents {
         case _ => Text(docNumber.mkString("","."," "), Styles("titleNumber")) +: List(Text(config.getString("title")))
       }
       else (findRoot collect {
-        case Header(_,content,opt) if opt.styles("title") => content
+        case Title(content,_) => content
       }).headOption getOrElse List(Text(""))
     }
 

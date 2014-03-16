@@ -395,6 +395,11 @@ class HTMLRendererSpec extends FlatSpec
     render (rootElem) should be (html) 
   }
   
+  it should "render a title containing emphasized text" in {
+    val elem = Title(Seq(txt("some "), em("em"), txt(" text")))
+    render (elem) should be ("<h1>some <em>em</em> text</h1>") 
+  }
+  
   it should "render a paragraph containing emphasized text" in {
     val elem = p(txt("some "), em("em"), txt(" text"))
     render (elem) should be ("<p>some <em>em</em> text</p>") 

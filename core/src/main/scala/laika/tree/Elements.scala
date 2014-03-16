@@ -212,6 +212,10 @@ object Elements {
    */
   case class Header (level: Int, content: Seq[Span], options: Options = NoOpt) extends Block with SpanContainer[Header]
   
+  /** The (optional) title of the document. 
+   */
+  case class Title (content: Seq[Span], options: Options = NoOpt) extends Block with SpanContainer[Title]
+  
   /** A decorated header where the level gets determined in the rewrite phase based
    *  on the decoration used and the order they appear in the document. The first
    *  decoration type encountered is used for level 1, the second for level 2, and

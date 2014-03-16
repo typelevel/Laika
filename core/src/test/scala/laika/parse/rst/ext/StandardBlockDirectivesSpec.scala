@@ -628,6 +628,9 @@ class StandardBlockDirectivesSpec extends FlatSpec
     def header (level: Int, title: Int, style: String = "section") =
       Header(level,List(Text("Title "+title)),Id("title"+title) + Styles(style))
       
+    def title (title: Int) =
+      Title(List(Text("Title "+title)),Id("title"+title) + Styles("title"))
+      
     def link (level: Int, title: Int) =    
       Paragraph(Seq(InternalLink(List(txt("Title "+title)), "title"+title)), Styles("toc","level"+level))
           
@@ -642,7 +645,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
     )
     
     val result = root(
-      header(1,1,"title"),
+      title(1),
       TitledBlock(List(txt("This is the title")), 
         List(bulletList() + (link(1,2), (bulletList() + link(2,3)))
                           + (link(1,4), (bulletList() + link(2,5)))), 
