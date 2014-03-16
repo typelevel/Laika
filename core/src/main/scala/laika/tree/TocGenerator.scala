@@ -30,8 +30,6 @@ object TocGenerator {
   
   private def styles (level: Int) = Styles("toc","level"+level)
   
-  private def pathInfo (targetPath: Path, refPath: Path) = PathInfo(targetPath, targetPath.relativeTo(refPath))
-  
   
   /** Generates the tree model (consisting of BulletList elements) for
    *  the table of contents for the specified document.
@@ -51,7 +49,7 @@ object TocGenerator {
       if (path == refPath)
         Paragraph(List(InternalLink(title, section.id)), options = styles(level))
       else
-        Paragraph(List(CrossLink(title, section.id, pathInfo(path, refPath.parent))), options = styles(level))
+        Paragraph(List(CrossLink(title, section.id, PathInfo.fromPath(path, refPath.parent))), options = styles(level))
     }
     
     def sectionsToList (sections: Seq[SectionInfo], path: Path, curLevel: Int): List[Block] =
@@ -74,24 +72,31 @@ object TocGenerator {
    *  @param tree the document tree to create a table of contents for
    *  @param depth the maximum depth to traverse when building the table, the depth is unlimited if the value is empty
    *  @param refPath the path from which the targets in the table will be linked
+   *  @param treeTitleDoc the name for documents inserted for tree titles
    *  @return a block element containing the table of contents as a BulltetList and its title
    */
-  def fromTree (tree: DocumentTree, depth: Int, refPath: Path): List[Block] = fromTree(tree, 1, depth, refPath)
+  def fromTree (tree: DocumentTree, depth: Int, refPath: Path, treeTitleDoc: Option[String] = None): List[Block] = 
+    fromTree(tree, 1, depth, refPath, treeTitleDoc)
   
-  private def fromTree (tree: DocumentTree, curLevel: Int, maxLevel: Int, refPath: Path): List[Block] = {
+  private def fromTree (tree: DocumentTree, curLevel: Int, maxLevel: Int, refPath: Path, treeTitleDoc: Option[String]): List[Block] = {
     
     def hasContent (nav: Navigatable): Boolean = nav match {
       case _:Document => true
       case tree: DocumentTree => tree.navigatables.exists(hasContent)
     }
     
-    def treeTitle (tree: DocumentTree, level: Int) = Paragraph(tree.title, options = styles(level))
+    def treeTitle (tree: DocumentTree, level: Int) = 
+      treeTitleDoc.fold(
+        Paragraph(tree.title, options = styles(level))
+      )( doc => 
+        Paragraph(List(CrossLink(tree.title, "", PathInfo.fromPath(tree.path / doc, refPath.parent))), options = styles(level))
+      )
     
     def docTitle (document: Document, level: Int) =
       if (document.path == refPath)
         Paragraph(document.title, options = styles(level) + Styles("active"))
       else
-        Paragraph(List(CrossLink(document.title, "", pathInfo(document.path, refPath.parent))), options = styles(level))
+        Paragraph(List(CrossLink(document.title, "", PathInfo.fromPath(document.path, refPath.parent))), options = styles(level))
     
     def navigatablesToList (navigatables: Seq[Navigatable], curLevel: Int): List[Block] = {
       if (curLevel > maxLevel) Nil else {

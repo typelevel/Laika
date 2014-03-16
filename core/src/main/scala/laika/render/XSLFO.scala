@@ -174,7 +174,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     
     def renderSpanContainer [T <: SpanContainer[T]](con: SpanContainer[T]) = {
       def codeStyles (language: String) = if (language.isEmpty) NoOpt else Styles(language)
-      def crossLinkRef (path: Path, ref: String) = path.toString + "-" + ref
+      def crossLinkRef (path: Path, ref: String) = path.toString + "." + ref
       
       con match {
         

@@ -37,6 +37,11 @@ import laika.tree.TocGenerator
  */
 class FOforPDF {
 
+  object DocNames {
+    val treeTitle = "__title__"
+    val toc = "__toc__"
+    val bookmarks = "__bookmarks__"
+  }
   
   protected def hasDocuments (tree: DocumentTree): Boolean = tree.documents.nonEmpty || tree.subtrees.exists(hasDocuments)
   
@@ -51,17 +56,27 @@ class FOforPDF {
   
   protected def id (path: Path, ref: String) = 
     if (ref.isEmpty) path.toString
-    else path.toString + "-" + ref
+    else path.toString + "." + ref
   
   def addTreeTitles (tree: DocumentTree): DocumentTree =
     if (!hasDocuments(tree) || tree.title.isEmpty) tree
     else {
-      val title = Header(1, tree.title, Styles("treeTitle") + Id(id(tree.path,"")))
+      val title = Header(1, tree.title, Styles("treeTitle") + Id(""))
       val root = RootElement(Seq(title))
-      val doc = new Document(tree.path / "$$title$$", root)
+      val doc = new Document(tree.path / DocNames.treeTitle, root)
       tree.prependDocument(doc)
     }
   
+  def insertDocTitles (tree: DocumentTree): DocumentTree =
+    tree rewrite { context => {
+      case title: Title => Some(BlockSequence(Seq(title), Id("")))
+      case root: RootElement => 
+        if ((root select { case _: Title => true }).isEmpty)
+          Some(RootElement(Title(context.document.title, Id("")) +: root.content))
+        else 
+          Some(root)
+    }}
+    
   def insertBookmarks (tree: DocumentTree): DocumentTree = {
 
     def sectionBookmarks (path: Path, sections: Seq[SectionInfo], levels: Int): Seq[Bookmark] = 
@@ -82,7 +97,7 @@ class FOforPDF {
           val children = sectionBookmarks(doc.path, doc.sections, levels - 1)
           Bookmark(ref, title, children)
         case subtree: DocumentTree => 
-          val ref = id(subtree.path,"")
+          val ref = id(subtree.path / DocNames.treeTitle,"")
           val title = TreeUtil.extractText(subtree.title)
           val children = treeBookmarks(subtree, levels - 1)
           Bookmark(ref, title, children) 
@@ -94,7 +109,7 @@ class FOforPDF {
     else {
       val bookmarks = BookmarkTree(treeBookmarks(tree, depth)) 
       val root = RootElement(Seq(bookmarks))
-      val doc = new Document(tree.path / "$$bookmarks$$", root)
+      val doc = new Document(tree.path / DocNames.bookmarks, root)
       tree.prependDocument(doc)
     }
   }
@@ -104,22 +119,23 @@ class FOforPDF {
     def toBlockSequence (blocks: Seq[Element]): Seq[Block] = ((blocks map {
       case BulletList(items,_,_)      => toBlockSequence(items)
       case BulletListItem(blocks,_,_) => toBlockSequence(blocks)
-      case p: Paragraph               => Seq(p)
+      case Paragraph(Seq(link:CrossLink),opt) => Seq(Paragraph(Seq(link.copy(options = link.options + Styles("toc"))),opt))
     }).flatten)
     
     val depth = getDepth(tree, "pdf.toc.depth")
     if (depth == 0) tree
     else {
-      val toc = toBlockSequence(TocGenerator.fromTree(tree, depth, tree.path / "$$toc$$"))
+      val toc = toBlockSequence(TocGenerator.fromTree(tree, depth, tree.path / DocNames.toc, treeTitleDoc = Some(DocNames.treeTitle)))
       val root = RootElement(toc)
-      val doc = new Document(tree.path / "$$toc$$", root)
+      val doc = new Document(tree.path / DocNames.toc, root)
       tree.prependDocument(doc)
     }
   }
       
-  def prepareTree (tree: DocumentTree, bookmarks: Boolean = true, toc: Boolean = true, treeTitles: Boolean = true): DocumentTree = {
-    val withBookmarks = if (bookmarks) insertBookmarks(tree) else tree
-    val withToc = if (toc) insertToc(tree) else withBookmarks
+  def prepareTree (tree: DocumentTree, bookmarks: Boolean = true, toc: Boolean = true, docTitles: Boolean = true, treeTitles: Boolean = true): DocumentTree = {
+    val withDocTitles = if (docTitles) insertDocTitles(tree) else tree
+    val withBookmarks = if (bookmarks) insertBookmarks(withDocTitles) else withDocTitles
+    val withToc = if (toc) insertToc(withBookmarks) else withBookmarks
     if (treeTitles) addTreeTitles(withToc) else withToc
   }
   
