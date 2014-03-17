@@ -206,3 +206,7 @@ Bookmark {
 BookmarkTitle {
 	
 }
+
+Paragraph.toc {
+	text-align-last: justify;
+}

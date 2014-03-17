@@ -119,7 +119,9 @@ class FOforPDF {
     def toBlockSequence (blocks: Seq[Element]): Seq[Block] = ((blocks map {
       case BulletList(items,_,_)      => toBlockSequence(items)
       case BulletListItem(blocks,_,_) => toBlockSequence(blocks)
-      case Paragraph(Seq(link:CrossLink),opt) => Seq(Paragraph(Seq(link.copy(options = link.options + Styles("toc"))),opt))
+      case Paragraph(Seq(link:CrossLink),opt) => Seq(Paragraph(Seq(link.copy(
+          content = link.content :+ Leader() :+ PageNumberCitation(link.path.toString + "." + link.ref)
+      )), opt))
     }).flatten)
     
     val depth = getDepth(tree, "pdf.toc.depth")

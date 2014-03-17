@@ -128,6 +128,10 @@ class FOWriter (out: String => Unit,
 
 object FOWriter {
   
+  case class Leader (options: Options = NoOpt) extends Span 
+  
+  case class PageNumberCitation (ref: String, options: Options = NoOpt) extends Span
+  
   case class ListItemLabel (content: Block, options: Options = NoOpt) extends Block
   
   case class ListItemBody (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[ListItemBody]
