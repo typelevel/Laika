@@ -21,6 +21,7 @@ import sbt.Difference
 import sbt.Path
 import sbt.ChangeReport
 import sbt.FilesInfo
+import LaikaSbtPlugin.OutputFormats.OutputFormat
 
 /** Modified version of sbt's `FileFunction` object that allows for a more fine grained change detection.
  *  In the original sbt implementation one set of input files was always mapped to one set of output files
@@ -55,7 +56,7 @@ class Cached (cacheBaseDirectory: File) {
   /** Performs the specified action when either the input report that is passed to this
    *  function or the output report for the specified format contains modified files.
    */
-  def outputs (inReport: ChangeReport[File], format: String)(action: => Set[File]): Set[File] = {
+  def outputs (inReport: ChangeReport[File], format: OutputFormat)(action: => Set[File]): Set[File] = {
     import Path._
     lazy val outCache = Difference.outputs(cacheBaseDirectory / s"$format-cache", outStyle)
     outCache { outReport =>

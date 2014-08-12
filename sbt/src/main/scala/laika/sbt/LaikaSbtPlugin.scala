@@ -40,6 +40,7 @@ import laika.io.Input
 import laika.tree.ElementTraversal
 import laika.parse.markdown.html.VerbatimHTML
 import laika.parse.rst.ExtendedHTML
+import LaikaSbtPlugin.OutputFormats
 
 object LaikaSbtPlugin extends Plugin {
 
@@ -49,6 +50,8 @@ object LaikaSbtPlugin extends Plugin {
     val Laika               = config("laika")
     
     val site                = taskKey[File]("Generates a static website")
+    
+    val generate            = inputKey[Set[File]]("Generates the specified output formats")
     
     val docTypeMatcher      = settingKey[Option[Path => DocumentType]]("Matches a path to a Laika document type")
     
@@ -173,6 +176,7 @@ object LaikaSbtPlugin extends Plugin {
       inputTree           := inputTreeTask.value,
       outputTree          := outputTreeTask.value,
       site                := siteTask.value,
+      generate            := generateTask.evaluated,
       copyAPI             := copyAPITask.value,
       packageSite         := packageSiteTask.value,
       clean               := cleanTask.value,
@@ -207,6 +211,83 @@ object LaikaSbtPlugin extends Plugin {
       if (parallel.value) builder.inParallel else builder
     }
     
+    val generateTask = inputTask {
+    
+      /*
+       * TODO
+       * 
+       * - move to sbt 0.13.2
+       * 
+       * - prettyPrint renderer
+       * - xsl-fo renderer (ExtendedFO for rst?)
+       * - pdf renderer
+       * - produce set of targets as result
+       * 
+       * - create individual tasks for html, prettyPrint, xslfo, pdf
+       * - set defaults for targets for all formats
+       * - update site task to use generate task
+       * - add includePDF setting
+       */
+      
+      
+      val formats = spaceDelimited("<format>").parsed.map(OutputFormats.OutputFormat.fromString)
+      if (formats.isEmpty) throw new IllegalArgumentException("At least one format must be specified")
+      
+      val inputs = inputTree.value.build(markupParser.value.fileSuffixes)
+      
+      val cacheDir = streams.value.cacheDirectory / "laika"
+      val targetDir = (target in site).value // TODO - more than one target now
+      
+      val cached = new Cached(cacheDir)
+      
+      val func = cached.inputs { inReport =>
+        
+        val tree = { // TODO - should be lazy, but requires bug fix in sbt 0.13.2
+          
+          streams.value.log.info("Reading files from " + sourceDirectories.value.mkString(", "))
+          streams.value.log.info(Log.inputs(inputs.provider))
+          
+          val rawTree = markupParser.value fromTree inputs
+          val tree = rawTree rewrite (rewriteRules.value, AutonumberContext.defaults)
+
+          logMessageLevel.value foreach { Log.systemMessages(streams.value.log, tree, _) }
+          streams.value.log.info(Log.outputs(tree))
+          
+          tree
+        }
+        
+        val results = formats map { format =>
+          
+          cached.outputs(inReport, format) { format match {
+            
+            case OutputFormats.HTML =>
+              
+              IO.delete(((targetDir ***) --- targetDir).get) // TODO - extract two lines as method
+              if (!targetDir.exists) targetDir.mkdirs()
+          
+              val html = renderMessageLevel.value map (HTML withMessageLevel _) getOrElse HTML
+              val renderers = siteRenderers.value :+ VerbatimHTML :+ ExtendedHTML // always install Markdown and rst extensions
+              val render = ((Render as html) /: renderers) { case (render, renderer) => render using renderer } // TODO - extract this line as method
+              render from tree toTree outputTree.value
+              
+              streams.value.log.info("Generated html in " + targetDir)
+              
+              (targetDir ***).get.toSet
+          }}
+          
+        }
+        
+        results reduce (_ ++ _)
+        
+      }
+      
+      func(collectInputFiles(inputs.provider))
+      
+      formats map (f => targetDir / f.toString) toSet // TODO - must be actual set of target dirs
+      
+      Set[File]() // TODO - remove
+    }
+      
     val siteTask = task {
       val apiDir = copyAPI.value
       val targetDir = (target in site).value
@@ -299,6 +380,24 @@ object LaikaSbtPlugin extends Plugin {
     }
     
   }
+  
+  object OutputFormats {
+          
+    object OutputFormat {
+      
+      def fromString (name: String): OutputFormat = name.toLowerCase match {
+        case "html" => HTML
+        case _ => throw new IllegalArgumentException(s"Unsupported format: $name")
+      } 
+      
+    }
+    
+    sealed abstract class OutputFormat
+    
+    case object HTML extends OutputFormat
+    
+  }
+  
   
   object Log {
     
