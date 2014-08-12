@@ -53,6 +53,8 @@ object LaikaSbtPlugin extends Plugin {
     
     val generate            = inputKey[Set[File]]("Generates the specified output formats")
     
+    val html                = inputKey[Set[File]]("Generates HTML output")
+    
     val docTypeMatcher      = settingKey[Option[Path => DocumentType]]("Matches a path to a Laika document type")
     
     val encoding            = settingKey[String]("The character encoding")
@@ -177,6 +179,7 @@ object LaikaSbtPlugin extends Plugin {
       outputTree          := outputTreeTask.value,
       site                := siteTask.value,
       generate            := generateTask.evaluated,
+      html                := generateTask.fullInput(" html").evaluated,
       copyAPI             := copyAPITask.value,
       packageSite         := packageSiteTask.value,
       clean               := cleanTask.value,
@@ -223,7 +226,7 @@ object LaikaSbtPlugin extends Plugin {
        * - pdf renderer
        * - produce set of targets as result
        * 
-       * - create individual tasks for html, prettyPrint, xslfo, pdf
+       * - create individual tasks for prettyPrint, xslfo, pdf
        * - set defaults for targets for all formats
        * - update site task to use generate task
        * - add includePDF setting
