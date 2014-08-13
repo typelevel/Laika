@@ -255,6 +255,10 @@ object LaikaSbtPlugin extends Plugin {
       (render /: custom) { case (render, renderer) => render using renderer }
     }
     
+    private val allTargets = setting { 
+      Set((target in site).value, (target in pdf).value, (target in xslfo).value, (target in prettyPrint).value)
+    }
+    
     val generateTask = inputTask {
     
       /*
@@ -263,11 +267,9 @@ object LaikaSbtPlugin extends Plugin {
        * - move to sbt 0.13.2
        * - ExtendedFO for rst?
        * 
-       * - produce set of targets as result
        * - update site task to use generate task
        * - add includePDF setting
        */
-      
       
       val formats = spaceDelimited("<format>").parsed.map(OutputFormats.OutputFormat.fromString)
       if (formats.isEmpty) throw new IllegalArgumentException("At least one format must be specified")
@@ -354,11 +356,11 @@ object LaikaSbtPlugin extends Plugin {
         
       }
       
-      func(collectInputFiles(inputs.provider))
+      val outputFiles = func(collectInputFiles(inputs.provider))
       
-      Set[File]() // TODO - must be actual set of target dirs
+      outputFiles intersect allTargets.value
     }
-      
+    
     val siteTask = task {
       val apiDir = copyAPI.value
       val targetDir = (target in site).value
