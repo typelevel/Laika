@@ -30,6 +30,7 @@ import org.apache.fop.apps.FopFactory
 import org.apache.xmlgraphics.util.MimeConstants
 import javax.xml.transform.URIResolver
 import java.io.File
+import laika.tree.Elements.MessageLevel
 
 /** A post processor for PDF output, based on an interim XSL-FO renderer. 
  *  May be directly passed to the `Render` or `Transform` APIs:
@@ -43,13 +44,17 @@ import java.io.File
  * 
  *  @author Jens Halm
  */
-class PDF extends RenderResultProcessor[FOWriter] {
+class PDF private (val factory: XSLFO) extends RenderResultProcessor[FOWriter] {
 
   
-  val factory = XSLFO.unformatted
+  private lazy val fopFactory = FopFactory.newInstance
   
   
-  private val fopFactory = FopFactory.newInstance
+  /** Specifies the minimum required level for a system message
+   *  to get included into the output by this renderer.
+   */
+  def withMessageLevel (level: MessageLevel) = new PDF(XSLFO.withMessageLevel(level))
+  
   
   
   protected def renderFO (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit): String =
@@ -91,3 +96,8 @@ class PDF extends RenderResultProcessor[FOWriter] {
   
   
 }
+
+/** The default instance of the PDF renderer.
+ */
+object PDF extends PDF(XSLFO.unformatted)
+
