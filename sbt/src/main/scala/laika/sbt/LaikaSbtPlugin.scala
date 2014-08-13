@@ -222,6 +222,21 @@ object LaikaSbtPlugin extends Plugin {
       if (parallel.value) builder.inParallel else builder
     }
     
+    def prepareTargetDirectory (key: Scoped) = task {
+      val targetDir = (target in key).value
+              
+      IO.delete(((targetDir ***) --- targetDir).get)
+      if (!targetDir.exists) targetDir.mkdirs()
+      
+      targetDir
+    }
+    
+    def prepareRenderer [Writer, DocTarget, TreeTarget] (
+        render: Render[Writer,DocTarget,TreeTarget], 
+        custom: Seq[Writer => RenderFunction]): Render[Writer,DocTarget,TreeTarget] = {
+      (render /: custom) { case (render, renderer) => render using renderer }
+    }
+    
     val generateTask = inputTask {
     
       /*
@@ -271,14 +286,11 @@ object LaikaSbtPlugin extends Plugin {
             
             case OutputFormats.HTML =>
               
-              val targetDir = (target in site).value
-              
-              IO.delete(((targetDir ***) --- targetDir).get) // TODO - extract two lines as method
-              if (!targetDir.exists) targetDir.mkdirs()
+              val targetDir = prepareTargetDirectory(site).value
           
               val html = renderMessageLevel.value map (HTML withMessageLevel _) getOrElse HTML
               val renderers = siteRenderers.value :+ VerbatimHTML :+ ExtendedHTML // always install Markdown and rst extensions
-              val render = ((Render as html) /: renderers) { case (render, renderer) => render using renderer } // TODO - extract this line as method
+              val render = prepareRenderer(Render as html, renderers)
               render from tree toTree (outputTree in site).value
               
               streams.value.log.info("Generated html in " + targetDir)
@@ -287,12 +299,9 @@ object LaikaSbtPlugin extends Plugin {
               
             case OutputFormats.PrettyPrint =>
               
-              val targetDir = (target in prettyPrint).value
-              
-              IO.delete(((targetDir ***) --- targetDir).get) // TODO - extract two lines as method
-              if (!targetDir.exists) targetDir.mkdirs()
+              val targetDir = prepareTargetDirectory(prettyPrint).value
           
-              val render = ((Render as PrettyPrint) /: prettyPrintRenderers.value) { case (render, renderer) => render using renderer }
+              val render = prepareRenderer(Render as PrettyPrint, prettyPrintRenderers.value)
               render from tree toTree (outputTree in prettyPrint).value
               
               streams.value.log.info("Generated Pretty Print in " + targetDir)
