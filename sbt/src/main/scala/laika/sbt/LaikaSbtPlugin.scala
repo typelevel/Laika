@@ -58,6 +58,8 @@ object LaikaSbtPlugin extends Plugin {
     
     val xslfo               = inputKey[Set[File]]("Generates XSL-FO output")
     
+    val pdf                 = inputKey[File]("Generates PDF output")
+    
     val docTypeMatcher      = settingKey[Option[Path => DocumentType]]("Matches a path to a Laika document type")
     
     val encoding            = settingKey[String]("The character encoding")
@@ -198,6 +200,7 @@ object LaikaSbtPlugin extends Plugin {
       generate            := generateTask.evaluated,
       html                := generateTask.fullInput(" html").evaluated,
       xslfo               := generateTask.fullInput(" xslfo").evaluated,
+      pdf                 := generateTask.fullInput(" pdf").evaluated.head,
       prettyPrint         := generateTask.fullInput(" prettyPrint").evaluated,
       copyAPI             := copyAPITask.value,
       packageSite         := packageSiteTask.value,
@@ -206,11 +209,9 @@ object LaikaSbtPlugin extends Plugin {
       mappings in site    := sbt.Path.allSubpaths(site.value).toSeq,
       
       artifact in packageSite     := Artifact(moduleName.value, Artifact.DocType, "zip", "site"),
-      artifactPath in packageSite := {
-                                    val art = (artifact in packageSite).value
-                                    val classifier = art.classifier map ("-"+_) getOrElse ""
-                                    target.value / (art.name + "-" + projectID.value.revision + classifier + "." + art.extension)
-                                  }
+      artifact in pdf             := Artifact(moduleName.value, Artifact.DocType, "pdf"),
+      artifactPath in packageSite := artifactPathSetting(packageSite).value,
+      artifactPath in pdf         := artifactPathSetting(pdf).value
       
     )) :+ (cleanFiles += (target in Laika).value)
     
@@ -220,6 +221,12 @@ object LaikaSbtPlugin extends Plugin {
   object Tasks {
     import LaikaKeys._
     import Def._
+    
+    def artifactPathSetting (key: Scoped) = setting {
+      val art = (artifact in key).value
+      val classifier = art.classifier map ("-"+_) getOrElse ""
+      target.value / (art.name + "-" + projectID.value.revision + classifier + "." + art.extension)
+    }
     
     val inputTreeTask = task {
       val builder = Directories(sourceDirectories.value, excludeFilter.value.accept)(encoding.value)
@@ -255,8 +262,6 @@ object LaikaSbtPlugin extends Plugin {
        * 
        * - move to sbt 0.13.2
        * - ExtendedFO for rst?
-       * 
-       * - pdf renderer + task + default target
        * 
        * - produce set of targets as result
        * - update site task to use generate task
@@ -328,6 +333,18 @@ object LaikaSbtPlugin extends Plugin {
               streams.value.log.info("Generated XSL-FO in " + targetDir)
               
               (targetDir ***).get.toSet
+              
+            case OutputFormats.PDF =>
+              
+              val targetFile = (artifactPath in pdf).value
+          
+              val pdfRenderer = renderMessageLevel.value map (PDF withMessageLevel _) getOrElse PDF
+              val render = prepareRenderer(Render as pdfRenderer, foRenderers.value)
+              render from tree toFile targetFile
+              
+              streams.value.log.info("Generated PDF in " + targetFile)
+              
+              Set(targetFile)
               
           }}
           
@@ -441,6 +458,7 @@ object LaikaSbtPlugin extends Plugin {
       
       def fromString (name: String): OutputFormat = name.toLowerCase match {
         case "html" => HTML
+        case "pdf" => PDF
         case "fo" | "xslfo" | "xsl-fo" => XSLFO
         case "prettyprint" | "pretty-print" => PrettyPrint
         case _ => throw new IllegalArgumentException(s"Unsupported format: $name")
@@ -451,6 +469,8 @@ object LaikaSbtPlugin extends Plugin {
     sealed abstract class OutputFormat
     
     case object HTML extends OutputFormat
+    
+    case object PDF extends OutputFormat
     
     case object XSLFO extends OutputFormat
     
