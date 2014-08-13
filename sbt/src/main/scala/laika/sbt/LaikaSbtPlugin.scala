@@ -32,8 +32,7 @@ import laika.parse.rst.ReStructuredText
 import laika.parse.rst.{Directives=>rst}
 import laika.parse.rst.TextRoles.TextRole
 import laika.parse.markdown.Markdown
-import laika.render.HTML
-import laika.render.HTMLWriter
+import laika.render._
 import laika.io.InputProvider
 import laika.io.Input.LazyFileInput
 import laika.io.Input
@@ -54,6 +53,8 @@ object LaikaSbtPlugin extends Plugin {
     val generate            = inputKey[Set[File]]("Generates the specified output formats")
     
     val html                = inputKey[Set[File]]("Generates HTML output")
+    
+    val prettyPrint         = inputKey[Set[File]]("Generates Pretty Print output (document tree visualization)")
     
     val docTypeMatcher      = settingKey[Option[Path => DocumentType]]("Matches a path to a Laika document type")
     
@@ -81,7 +82,9 @@ object LaikaSbtPlugin extends Plugin {
     
     val rewriteRules        = settingKey[Seq[DocumentContext => RewriteRule]]("Custom rewrite rules to add to the standard rules")
     
-    val siteRenderers       = settingKey[Seq[HTMLWriter => RenderFunction]]("Custom renderers overriding the defaults per node type")
+    val siteRenderers       = settingKey[Seq[HTMLWriter => RenderFunction]]("Custom HTML renderers overriding the defaults per node type")
+    
+    val prettyPrintRenderers= settingKey[Seq[TextWriter => RenderFunction]]("Custom PrettyPrint renderers overriding the defaults per node type") // TODO - maybe use renderers in prettyPrint instead
     
     val parallel            = settingKey[Boolean]("Indicates whether parsers and renderers should run in parallel")
     
@@ -124,6 +127,8 @@ object LaikaSbtPlugin extends Plugin {
       target              := target.value / "docs",
       
       target in site      := target.value / "site",
+      
+      target in prettyPrint := target.value / "prettyPrint",
 
       target in copyAPI   := (target in site).value / "api",
       
@@ -162,6 +167,7 @@ object LaikaSbtPlugin extends Plugin {
       rewriteRules        := Nil,
       
       siteRenderers       := Nil,
+      prettyPrintRenderers:= Nil,
       
       parallel            := true,
       
@@ -176,10 +182,12 @@ object LaikaSbtPlugin extends Plugin {
       includeAPI          := false,
       
       inputTree           := inputTreeTask.value,
-      outputTree          := outputTreeTask.value,
+      outputTree in site  := outputTreeTask(site).value,
+      outputTree in prettyPrint  := outputTreeTask(prettyPrint).value,
       site                := siteTask.value,
       generate            := generateTask.evaluated,
       html                := generateTask.fullInput(" html").evaluated,
+      prettyPrint         := generateTask.fullInput(" prettyPrint").evaluated,
       copyAPI             := copyAPITask.value,
       packageSite         := packageSiteTask.value,
       clean               := cleanTask.value,
@@ -209,8 +217,8 @@ object LaikaSbtPlugin extends Plugin {
       docTypeMatcher.value map (builder2 withDocTypeMatcher _) getOrElse builder2
     }
     
-    val outputTreeTask = task {
-      val builder = Directory((target in site).value)(encoding.value)
+    def outputTreeTask (key: Scoped) = task {
+      val builder = Directory((target in key).value)(encoding.value)
       if (parallel.value) builder.inParallel else builder
     }
     
@@ -221,12 +229,11 @@ object LaikaSbtPlugin extends Plugin {
        * 
        * - move to sbt 0.13.2
        * 
-       * - prettyPrint renderer
        * - xsl-fo renderer (ExtendedFO for rst?)
        * - pdf renderer
        * - produce set of targets as result
        * 
-       * - create individual tasks for prettyPrint, xslfo, pdf
+       * - create individual tasks for xslfo, pdf
        * - set defaults for targets for all formats
        * - update site task to use generate task
        * - add includePDF setting
@@ -239,7 +246,6 @@ object LaikaSbtPlugin extends Plugin {
       val inputs = inputTree.value.build(markupParser.value.fileSuffixes)
       
       val cacheDir = streams.value.cacheDirectory / "laika"
-      val targetDir = (target in site).value // TODO - more than one target now
       
       val cached = new Cached(cacheDir)
       
@@ -265,17 +271,34 @@ object LaikaSbtPlugin extends Plugin {
             
             case OutputFormats.HTML =>
               
+              val targetDir = (target in site).value
+              
               IO.delete(((targetDir ***) --- targetDir).get) // TODO - extract two lines as method
               if (!targetDir.exists) targetDir.mkdirs()
           
               val html = renderMessageLevel.value map (HTML withMessageLevel _) getOrElse HTML
               val renderers = siteRenderers.value :+ VerbatimHTML :+ ExtendedHTML // always install Markdown and rst extensions
               val render = ((Render as html) /: renderers) { case (render, renderer) => render using renderer } // TODO - extract this line as method
-              render from tree toTree outputTree.value
+              render from tree toTree (outputTree in site).value
               
               streams.value.log.info("Generated html in " + targetDir)
               
               (targetDir ***).get.toSet
+              
+            case OutputFormats.PrettyPrint =>
+              
+              val targetDir = (target in prettyPrint).value
+              
+              IO.delete(((targetDir ***) --- targetDir).get) // TODO - extract two lines as method
+              if (!targetDir.exists) targetDir.mkdirs()
+          
+              val render = ((Render as PrettyPrint) /: prettyPrintRenderers.value) { case (render, renderer) => render using renderer }
+              render from tree toTree (outputTree in prettyPrint).value
+              
+              streams.value.log.info("Generated Pretty Print in " + targetDir)
+              
+              (targetDir ***).get.toSet
+              
           }}
           
         }
@@ -286,9 +309,7 @@ object LaikaSbtPlugin extends Plugin {
       
       func(collectInputFiles(inputs.provider))
       
-      formats map (f => targetDir / f.toString) toSet // TODO - must be actual set of target dirs
-      
-      Set[File]() // TODO - remove
+      Set[File]() // TODO - must be actual set of target dirs
     }
       
     val siteTask = task {
@@ -390,6 +411,7 @@ object LaikaSbtPlugin extends Plugin {
       
       def fromString (name: String): OutputFormat = name.toLowerCase match {
         case "html" => HTML
+        case "prettyprint" | "pretty-print" => PrettyPrint
         case _ => throw new IllegalArgumentException(s"Unsupported format: $name")
       } 
       
@@ -398,6 +420,8 @@ object LaikaSbtPlugin extends Plugin {
     sealed abstract class OutputFormat
     
     case object HTML extends OutputFormat
+    
+    case object PrettyPrint extends OutputFormat
     
   }
   
