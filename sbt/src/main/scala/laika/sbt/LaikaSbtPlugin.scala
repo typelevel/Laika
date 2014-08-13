@@ -56,6 +56,8 @@ object LaikaSbtPlugin extends Plugin {
     
     val prettyPrint         = inputKey[Set[File]]("Generates Pretty Print output (document tree visualization)")
     
+    val xslfo               = inputKey[Set[File]]("Generates XSL-FO output")
+    
     val docTypeMatcher      = settingKey[Option[Path => DocumentType]]("Matches a path to a Laika document type")
     
     val encoding            = settingKey[String]("The character encoding")
@@ -84,6 +86,8 @@ object LaikaSbtPlugin extends Plugin {
     
     val siteRenderers       = settingKey[Seq[HTMLWriter => RenderFunction]]("Custom HTML renderers overriding the defaults per node type")
     
+    val foRenderers         = settingKey[Seq[FOWriter => RenderFunction]]("Custom XSL-FO renderers overriding the defaults per node type")
+    
     val prettyPrintRenderers= settingKey[Seq[TextWriter => RenderFunction]]("Custom PrettyPrint renderers overriding the defaults per node type") // TODO - maybe use renderers in prettyPrint instead
     
     val parallel            = settingKey[Boolean]("Indicates whether parsers and renderers should run in parallel")
@@ -110,6 +114,8 @@ object LaikaSbtPlugin extends Plugin {
     // helping the type inferrer:
     
     def siteRenderer (f: HTMLWriter => RenderFunction) = f
+    def foRenderer (f: FOWriter => RenderFunction) = f
+    def textRenderer (f: TextWriter => RenderFunction) = f
     def rewriteRule (rule: RewriteRule): DocumentContext => RewriteRule = _ => rule
     def rewriteRuleFactory (factory: DocumentContext => RewriteRule) = factory
     
@@ -127,6 +133,8 @@ object LaikaSbtPlugin extends Plugin {
       target              := target.value / "docs",
       
       target in site      := target.value / "site",
+      
+      target in xslfo     := target.value / "fo",
       
       target in prettyPrint := target.value / "prettyPrint",
 
@@ -168,6 +176,7 @@ object LaikaSbtPlugin extends Plugin {
       
       siteRenderers       := Nil,
       prettyPrintRenderers:= Nil,
+      foRenderers         := Nil,
       
       parallel            := true,
       
@@ -183,10 +192,12 @@ object LaikaSbtPlugin extends Plugin {
       
       inputTree           := inputTreeTask.value,
       outputTree in site  := outputTreeTask(site).value,
+      outputTree in xslfo := outputTreeTask(xslfo).value,
       outputTree in prettyPrint  := outputTreeTask(prettyPrint).value,
       site                := siteTask.value,
       generate            := generateTask.evaluated,
       html                := generateTask.fullInput(" html").evaluated,
+      xslfo               := generateTask.fullInput(" xslfo").evaluated,
       prettyPrint         := generateTask.fullInput(" prettyPrint").evaluated,
       copyAPI             := copyAPITask.value,
       packageSite         := packageSiteTask.value,
@@ -243,13 +254,11 @@ object LaikaSbtPlugin extends Plugin {
        * TODO
        * 
        * - move to sbt 0.13.2
+       * - ExtendedFO for rst?
        * 
-       * - xsl-fo renderer (ExtendedFO for rst?)
-       * - pdf renderer
+       * - pdf renderer + task + default target
+       * 
        * - produce set of targets as result
-       * 
-       * - create individual tasks for xslfo, pdf
-       * - set defaults for targets for all formats
        * - update site task to use generate task
        * - add includePDF setting
        */
@@ -305,6 +314,18 @@ object LaikaSbtPlugin extends Plugin {
               render from tree toTree (outputTree in prettyPrint).value
               
               streams.value.log.info("Generated Pretty Print in " + targetDir)
+              
+              (targetDir ***).get.toSet
+              
+            case OutputFormats.XSLFO =>
+              
+              val targetDir = prepareTargetDirectory(xslfo).value
+          
+              val fo = renderMessageLevel.value map (XSLFO withMessageLevel _) getOrElse XSLFO
+              val render = prepareRenderer(Render as fo, foRenderers.value)
+              render from tree toTree (outputTree in xslfo).value
+              
+              streams.value.log.info("Generated XSL-FO in " + targetDir)
               
               (targetDir ***).get.toSet
               
@@ -420,6 +441,7 @@ object LaikaSbtPlugin extends Plugin {
       
       def fromString (name: String): OutputFormat = name.toLowerCase match {
         case "html" => HTML
+        case "fo" | "xslfo" | "xsl-fo" => XSLFO
         case "prettyprint" | "pretty-print" => PrettyPrint
         case _ => throw new IllegalArgumentException(s"Unsupported format: $name")
       } 
@@ -429,6 +451,8 @@ object LaikaSbtPlugin extends Plugin {
     sealed abstract class OutputFormat
     
     case object HTML extends OutputFormat
+    
+    case object XSLFO extends OutputFormat
     
     case object PrettyPrint extends OutputFormat
     
