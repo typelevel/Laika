@@ -200,6 +200,7 @@ object Documents {
         case m: JMap[_, _]=> (fromJavaMap(m.asInstanceOf[JMap[Any,Any]], path.head), path.tail)
         case m: Map[_, _] => (m.asInstanceOf[Map[Any,Any]].get(path.head), path.tail)
         case c: Config    => (Try { c.getAnyRef(path.mkString(".")) } toOption, Nil)
+        case d: Document if path.head == "title" => (Some(SpanSequence(d.title)), path.tail)  
         case other        => (Try { target.getClass.getMethod(path.head).invoke(target) } toOption, path.tail)
       }
       result match {
