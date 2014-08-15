@@ -281,7 +281,7 @@ object LaikaSbtPlugin extends Plugin {
       
       val func = cached.inputs { inReport =>
         
-        val tree = { // TODO - should be lazy, but requires bug fix in sbt 0.13.2
+        lazy val tree = {
           
           streams.value.log.info("Reading files from " + sourceDirectories.value.mkString(", "))
           streams.value.log.info(Log.inputs(inputs.provider))
