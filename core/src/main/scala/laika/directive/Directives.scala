@@ -370,6 +370,14 @@ object Directives {
        */
       def body [T](id: Id, converter: Converter[T] = Converters.parsed): DirectivePart[T] 
           = requiredPart(Body(id), converter, s"required ${Body(id).desc} is missing")
+          
+      /** Specifies an empty directive that does not accept any attributes or 
+       *  body elements.
+       *     
+       *  @param result the fixed result each empty directive will produce   
+       *  @return a directive part that usually won't be combined with other parts
+       */    
+      def empty [T] (result: T): DirectivePart[T] = part(_ => Success(result))
       
       /** Indicates that access to the parser responsible for this directive
        *  is needed, in case the directive implementation has to manually
