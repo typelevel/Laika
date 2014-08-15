@@ -193,12 +193,21 @@ trait StandardDirectives {
     }
   }
   
+  /** Implementation of the `pageBreak` directive.
+   */
+  lazy val pageBreak = Blocks.create("pageBreak") {
+    import Blocks.Combinators._
+    
+    empty(PageBreak())
+  }
+  
   /** The complete list of standard directives for block
    *  elements in markup documents.
    */
   lazy val stdBlockDirectives = List(
     blockToc,
-    blockFragment
+    blockFragment,
+    pageBreak
   )
 
   /** The complete list of standard directives for templates.
