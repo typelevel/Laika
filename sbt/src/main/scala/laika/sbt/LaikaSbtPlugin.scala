@@ -52,13 +52,13 @@ object LaikaSbtPlugin extends Plugin {
     
     val generate            = inputKey[Set[File]]("Generates the specified output formats")
     
-    val html                = inputKey[Set[File]]("Generates HTML output")
+    val html                = taskKey[Set[File]]("Generates HTML output")
     
-    val prettyPrint         = inputKey[Set[File]]("Generates Pretty Print output (document tree visualization)")
+    val prettyPrint         = taskKey[Set[File]]("Generates Pretty Print output (document tree visualization)")
     
-    val xslfo               = inputKey[Set[File]]("Generates XSL-FO output")
+    val xslfo               = taskKey[Set[File]]("Generates XSL-FO output")
     
-    val pdf                 = inputKey[File]("Generates PDF output")
+    val pdf                 = taskKey[File]("Generates PDF output")
     
     val docTypeMatcher      = settingKey[Option[Path => DocumentType]]("Matches a path to a Laika document type")
     
@@ -90,7 +90,7 @@ object LaikaSbtPlugin extends Plugin {
     
     val foRenderers         = settingKey[Seq[FOWriter => RenderFunction]]("Custom XSL-FO renderers overriding the defaults per node type")
     
-    val prettyPrintRenderers= settingKey[Seq[TextWriter => RenderFunction]]("Custom PrettyPrint renderers overriding the defaults per node type") // TODO - maybe use renderers in prettyPrint instead
+    val prettyPrintRenderers= settingKey[Seq[TextWriter => RenderFunction]]("Custom PrettyPrint renderers overriding the defaults per node type")
     
     val parallel            = settingKey[Boolean]("Indicates whether parsers and renderers should run in parallel")
     
@@ -203,10 +203,10 @@ object LaikaSbtPlugin extends Plugin {
       outputTree in prettyPrint  := outputTreeTask(prettyPrint).value,
       site                := siteTask.value,
       generate            := generateTask.evaluated,
-      html                := generateTask.fullInput(" html").evaluated,
-      xslfo               := generateTask.fullInput(" xslfo").evaluated,
-      pdf                 := generateTask.fullInput(" pdf").evaluated.head,
-      prettyPrint         := generateTask.fullInput(" prettyPrint").evaluated,
+      html                := generateTask.toTask(" html").value,
+      xslfo               := generateTask.toTask(" xslfo").value,
+      pdf                 := generateTask.toTask(" pdf").value.head,
+      prettyPrint         := generateTask.toTask(" prettyPrint").value,
       copyAPI             := copyAPITask.value,
       copyPDF             := copyPDFTask.value,
       packageSite         := packageSiteTask.value,
