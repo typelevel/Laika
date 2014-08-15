@@ -108,7 +108,11 @@ object LaikaSbtPlugin extends Plugin {
 
     val includeAPI          = settingKey[Boolean]("Indicates whether API documentation should be copied to the site")
     
+    val includePDF          = settingKey[Boolean]("Indicates whether PDF output should be copied to the site")
+    
     val copyAPI             = taskKey[File]("Copies the API documentation to the site")
+    
+    val copyPDF             = taskKey[File]("Copies the PDF output to the site")
 
     val packageSite         = taskKey[File]("Create a zip file of the site")
     
@@ -191,6 +195,7 @@ object LaikaSbtPlugin extends Plugin {
       rstTextRoles        := Nil,
       
       includeAPI          := false,
+      includePDF          := false,
       
       inputTree           := inputTreeTask.value,
       outputTree in site  := outputTreeTask(site).value,
@@ -203,6 +208,7 @@ object LaikaSbtPlugin extends Plugin {
       pdf                 := generateTask.fullInput(" pdf").evaluated.head,
       prettyPrint         := generateTask.fullInput(" prettyPrint").evaluated,
       copyAPI             := copyAPITask.value,
+      copyPDF             := copyPDFTask.value,
       packageSite         := packageSiteTask.value,
       clean               := cleanTask.value,
       
@@ -242,8 +248,11 @@ object LaikaSbtPlugin extends Plugin {
     
     def prepareTargetDirectory (key: Scoped) = task {
       val targetDir = (target in key).value
+      val apiInSite = (target in copyAPI).value
+      val pdfInSite = (artifactPath in pdf).value
               
-      IO.delete(((targetDir ***) --- targetDir).get)
+      IO.delete(((targetDir ***) --- targetDir --- pdfInSite --- (apiInSite ***) --- collectParents(apiInSite)).get)
+      
       if (!targetDir.exists) targetDir.mkdirs()
       
       targetDir
@@ -261,16 +270,6 @@ object LaikaSbtPlugin extends Plugin {
     
     val generateTask = inputTask {
     
-      /*
-       * TODO
-       * 
-       * - move to sbt 0.13.2
-       * - ExtendedFO for rst?
-       * 
-       * - update site task to use generate task
-       * - add includePDF setting
-       */
-      
       val formats = spaceDelimited("<format>").parsed.map(OutputFormats.OutputFormat.fromString)
       if (formats.isEmpty) throw new IllegalArgumentException("At least one format must be specified")
       
@@ -328,7 +327,7 @@ object LaikaSbtPlugin extends Plugin {
               
               val targetDir = prepareTargetDirectory(xslfo).value
           
-              val fo = renderMessageLevel.value map (XSLFO withMessageLevel _) getOrElse XSLFO
+              val fo = renderMessageLevel.value map (XSLFO withMessageLevel _) getOrElse XSLFO // TODO - ExtendedFO for rst
               val render = prepareRenderer(Render as fo, foRenderers.value)
               render from tree toTree (outputTree in xslfo).value
               
@@ -361,39 +360,17 @@ object LaikaSbtPlugin extends Plugin {
       outputFiles intersect allTargets.value
     }
     
+    private val siteGenTask = taskDyn {
+      if (includePDF.value) generateTask.toTask(" html pdf") 
+      else generateTask.toTask(" html")
+    }
+    
     val siteTask = task {
-      val apiDir = copyAPI.value
-      val targetDir = (target in site).value
-      val cacheDir = streams.value.cacheDirectory / "laika" / "site"
+      val gen = siteGenTask.value
+      val api = copyAPI.value
+      val pdf = copyPDF.value
       
-      val inputs = inputTree.value.build(markupParser.value.fileSuffixes)
-      
-      val cached = FileFunction.cached(cacheDir, FilesInfo.lastModified) { in =>
-        
-        IO.delete(((targetDir ***) --- targetDir --- (apiDir ***) --- collectParents(apiDir)).get)
-        if (!targetDir.exists) targetDir.mkdirs()
-        
-        streams.value.log.info("Reading files from " + sourceDirectories.value.mkString(", "))
-        streams.value.log.info(Log.inputs(inputs.provider))
-        
-        val rawTree = markupParser.value fromTree inputs
-        val tree = rawTree rewrite (rewriteRules.value, AutonumberContext.defaults)
-
-        logMessageLevel.value foreach { Log.systemMessages(streams.value.log, tree, _) }
-        streams.value.log.info(Log.outputs(tree))
-        
-        val html = renderMessageLevel.value map (HTML withMessageLevel _) getOrElse HTML
-        val renderers = siteRenderers.value :+ VerbatimHTML :+ ExtendedHTML // always install Markdown and rst extensions
-        val render = ((Render as html) /: renderers) { case (render, renderer) => render using renderer }
-        render from tree toTree outputTree.value
-        
-        streams.value.log.info("Generated site in " + targetDir)
-        
-        (targetDir ***).get.toSet
-      }
-      cached(collectInputFiles(inputs.provider))
-      
-      targetDir
+      (target in site).value
     }
     
     val copyAPITask = taskDyn {
@@ -411,6 +388,24 @@ object LaikaSbtPlugin extends Plugin {
       }
       else task { 
         IO.delete(targetDir)
+        targetDir 
+      }
+    }
+    
+    val copyPDFTask = taskDyn {
+      val targetDir = (target in site).value
+      val pdfSource = (artifactPath in pdf).value
+      val pdfTarget = targetDir / pdfSource.getName
+      
+      if (includePDF.value) task { 
+        val cacheDir = streams.value.cacheDirectory / "laika" / "pdf"
+        Sync(cacheDir)(Seq((pdfSource, pdfTarget)))
+        
+        streams.value.log.info("Copied PDF output to " + targetDir)
+        targetDir 
+      }
+      else task { 
+        IO.delete(pdfTarget)
         targetDir 
       }
     }
