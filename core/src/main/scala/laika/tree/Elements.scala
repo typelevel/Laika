@@ -604,6 +604,10 @@ object Elements {
    */
   case class LineBreak (options: Options = NoOpt) extends Span
   
+  /** An explicit hard page break.
+   */
+  case class PageBreak (options: Options = NoOpt) extends Block
+  
   /** A comment that may be omitted by renderers.
    */
   case class Comment (content: String, options: Options = NoOpt) extends Block with TextContainer

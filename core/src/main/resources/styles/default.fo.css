@@ -132,6 +132,10 @@ Cell {
 	
 }
 
+PageBreak {
+	page-break-before: always;
+}
+
 Footnote, Citation {
 	font-size: 8pt;
 }

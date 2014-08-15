@@ -61,6 +61,9 @@ class FOWriter (out: String => Unit,
     
   def block (element: Element, content: Seq[Span], attr: (String,String)*) = 
     this <<@ ("fo:block", element, attr: _*) << content << "</fo:block>"
+    
+  def block (element: Element, attr: (String,String)*) = 
+    this <<@/ ("fo:block", element, attr: _*)
 
   def blockWithWS (element: Element, content: Seq[Span], attr: (String,String)*) = 
     this <<@ ("fo:block", element, attr: _*) <<< content << "</fo:block>"

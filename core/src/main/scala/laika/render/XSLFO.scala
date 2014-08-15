@@ -236,6 +236,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
       case e: InternalLinkTarget        => out.inline(e, Nil)
       case e: BookmarkTree              => out.bookmarkTree(e)
       case e: Bookmark                  => out.bookmark(e)
+      case e: PageBreak                 => out.block(e)
       
       case WithFallback(fallback)       => out << fallback
       case unknown                      => ()
