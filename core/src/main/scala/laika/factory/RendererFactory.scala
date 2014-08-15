@@ -56,6 +56,7 @@ trait RendererFactory[W] {
    *  @param out the output to write to
    *  @param root the root element the new renderer will be used for
    *  @param delegate a render function to use for rendering the children of an element
+   *  @param styles the styles the new renderer should apply to the rendered elements
    *  @return a new writer API of type `W` and a new render function
    */
   def newRenderer (out: Output, root: Element, delegate: Element => Unit, styles: StyleDeclarationSet): (W, Element => Unit)
