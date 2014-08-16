@@ -259,7 +259,7 @@ class ReStructuredText private (
     if (strict) new StrictParsers
     else new StrictParsers with TemplateParsers.MarkupBlocks with TemplateParsers.MarkupSpans with StandardDirectives {
       lazy val laikaBlockDirectives = Blocks.toMap(stdBlockDirectives) ++ Blocks.toMap(self.laikaBlockDirectives)
-      lazy val laikaSpanDirectives  = Spans.toMap(self.laikaSpanDirectives)
+      lazy val laikaSpanDirectives  = Spans.toMap(stdSpanDirectives) ++ Spans.toMap(self.laikaSpanDirectives)
       def getBlockDirective (name: String) = laikaBlockDirectives.get(name)
       def getSpanDirective (name: String) = laikaSpanDirectives.get(name)
     }

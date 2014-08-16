@@ -137,7 +137,7 @@ class Markdown private (
   private lazy val parser = {
     trait ExtendedParsers extends TemplateParsers.MarkupBlocks with TemplateParsers.MarkupSpans with StandardDirectives {
       lazy val blockDirectiveMap = Blocks.toMap(stdBlockDirectives) ++ Blocks.toMap(blockDirectives)
-      lazy val spanDirectiveMap = Spans.toMap(spanDirectives)
+      lazy val spanDirectiveMap = Spans.toMap(stdSpanDirectives) ++ Spans.toMap(spanDirectives)
       def getBlockDirective (name: String) = blockDirectiveMap.get(name)
       def getSpanDirective (name: String) = spanDirectiveMap.get(name)
       

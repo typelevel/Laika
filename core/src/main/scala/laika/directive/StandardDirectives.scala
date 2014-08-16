@@ -179,6 +179,11 @@ trait StandardDirectives {
     case blocks => BlockSequence(blocks, options)
   }
   
+  private def asSpan (spans: Seq[Span], options: Options = NoOpt) = spans match {
+    case span :: Nil => TreeUtil.modifyOptions(span, _ + options)
+    case spans => SpanSequence(spans, options)
+  }
+  
   
   lazy val format = Blocks.create("format") {
     import Blocks.Combinators._
@@ -186,6 +191,26 @@ trait StandardDirectives {
     (attribute(Default) ~ body(Default)) {
       (name, content) => 
         TargetFormat(name, asBlock(content))
+    }
+  }
+  
+  /** Implementation of the `style` directive for block elements in markup documents.
+   */
+  lazy val blockStyle = Blocks.create("style") {
+    import Blocks.Combinators._
+    
+    (attribute(Default) ~ body(Default)) {
+      (style, content) => asBlock(content, Styles(style))
+    }
+  }
+  
+  /** Implementation of the `style` directive for span elements in markup documents.
+   */
+  lazy val spanStyle = Spans.create("style") {
+    import Spans.Combinators._
+    
+    (attribute(Default) ~ body(Default)) {
+      (style, content) => asSpan(content, Styles(style))
     }
   }
   
@@ -223,8 +248,16 @@ trait StandardDirectives {
   lazy val stdBlockDirectives = List(
     blockToc,
     blockFragment,
+    blockStyle,
     format,
     pageBreak
+  )
+  
+  /** The complete list of standard directives for span
+   *  elements in markup documents.
+   */
+  lazy val stdSpanDirectives = List(
+    spanStyle
   )
 
   /** The complete list of standard directives for templates.
