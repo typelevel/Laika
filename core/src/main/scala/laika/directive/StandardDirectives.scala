@@ -24,6 +24,7 @@ import laika.tree.Documents._
 import laika.tree.Templates.rewriteRules
 import scala.collection.JavaConversions._
 import laika.tree.TocGenerator
+import laika.tree.TreeUtil
 
 /** Provides the implementation for the standard directives included in Laika.
  *  
@@ -173,13 +174,28 @@ trait StandardDirectives {
   }
   
   
+  private def asBlock (blocks: Seq[Block], options: Options = NoOpt) = blocks match {
+    case block :: Nil => TreeUtil.modifyOptions(block, _ + options)
+    case blocks => BlockSequence(blocks, options)
+  }
+  
+  
+  lazy val format = Blocks.create("format") {
+    import Blocks.Combinators._
+    
+    (attribute(Default) ~ body(Default)) {
+      (name, content) => 
+        TargetFormat(name, asBlock(content))
+    }
+  }
+  
   /** Implementation of the `fragment` directive for block elements in markup documents.
    */
   lazy val blockFragment = Blocks.create("fragment") {
     import Blocks.Combinators._
     
     (attribute(Default) ~ body(Default)) {
-      (name, content) => DocumentFragment(name, BlockSequence(content, Styles(name)))
+      (name, content) => DocumentFragment(name, asBlock(content, Styles(name)))
     }
   }
   
@@ -207,6 +223,7 @@ trait StandardDirectives {
   lazy val stdBlockDirectives = List(
     blockToc,
     blockFragment,
+    format,
     pageBreak
   )
 
