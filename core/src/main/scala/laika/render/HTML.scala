@@ -211,6 +211,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
     def renderSimpleBlock (block: Block) = block match {
       case Rule(opt)                   => out <<@ ("hr",opt) 
       case InternalLinkTarget(opt)     => out <<@ ("a",opt) << "</a>"
+      case TargetFormat("html",e,_)    => out << e
       
       case WithFallback(fallback)      => out << fallback
       case unknown                     => ()

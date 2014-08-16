@@ -196,6 +196,10 @@ object Elements {
    */ 
   case class DocumentFragment (name: String, root: Element, options: Options = NoOpt) extends Block with Temporary
   
+  /** An element that only gets rendered for a specific output format.
+   */ 
+  case class TargetFormat (format: String, element: Element, options: Options = NoOpt) extends Block
+  
   /** A single configuration value to be merged with the top document config.
    *  The value can be any type allowed by the Typesafe Config library (i.e. Boolean,
    *  Number, String, Map, Iterable).
