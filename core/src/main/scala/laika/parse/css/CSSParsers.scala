@@ -32,6 +32,9 @@ import scala.util.parsing.input.Reader
 trait CSSParsers extends laika.parse.InlineParsers { 
 
   
+  protected val prepareSpanParsers: Map[Char,Parser[Span]] = Map.empty
+  
+  
   sealed abstract class Combinator
   case object Descendant extends Combinator
   case object Child extends Combinator
@@ -64,11 +67,13 @@ trait CSSParsers extends laika.parse.InlineParsers {
   lazy val typeSelector: Parser[List[Predicate]] =
     (refName ^^ { name => List(ElementType(name)) }) | ('*' ^^^ Nil) 
     
-  lazy val predicate: Parser[Predicate] = id | styleName
-  
-  lazy val id: Parser[Predicate] = ('#' ~> refName) ^^ Id
-  
-  lazy val styleName: Parser[Predicate] = ('.' ~> refName) ^^ StyleName
+  lazy val predicate: Parser[Predicate] = {
+    
+    val id: Parser[Predicate] = ('#' ~> refName) ^^ Id
+    val styleName: Parser[Predicate] = ('.' ~> refName) ^^ StyleName
+    
+    id | styleName
+  }
   
   
   lazy val styleDeclarations: Parser[Seq[StyleDeclaration]] = 
@@ -104,9 +109,7 @@ trait CSSParsers extends laika.parse.InlineParsers {
 object CSSParsers {
   
   lazy val default: Input => StyleDeclarationSet = {
-    val parser = new CSSParsers {
-      val prepareSpanParsers: Map[Char,Parser[Span]] = Map.empty
-    }
+    val parser = new CSSParsers {}
     input => parser.parseStyleSheet(input.asParserInput, input.path)
   }
   
