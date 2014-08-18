@@ -61,6 +61,24 @@ class CSSParsersSpec extends FlatSpec
     Parsing (css) should produce (Set(styleDecl(Id("id"))))
   }
   
+  it should "parse a style with a type and class selector" in {
+    
+    val css = """Type.class {
+      | foo: bar;
+      |}""".stripMargin
+    
+    Parsing (css) should produce (Set(styleDecl(ElementType("Type"), StyleName("class"))))
+  }
+  
+  it should "parse a style with a type and id selector" in {
+    
+    val css = """Type#id {
+      | foo: bar;
+      |}""".stripMargin
+    
+    Parsing (css) should produce (Set(styleDecl(ElementType("Type"), Id("id"))))
+  }
+  
   it should "parse a style with a child selector" in {
     
     val css = """Type .class {
