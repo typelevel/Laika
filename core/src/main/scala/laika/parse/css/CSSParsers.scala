@@ -44,6 +44,16 @@ trait CSSParsers extends laika.parse.InlineParsers {
   
   val wsOrNl = anyOf(' ','\t', '\n', '\r')
   
+  val styleRefName = {
+    val alpha = anyWhile(c => Character.isLetter(c)) min 1
+    val alphanum = anyWhile(c => Character.isDigit(c) || Character.isLetter(c)) min 1
+    val symbol = anyOf('-', '_') take 1
+    
+    alpha ~ ((symbol ~ alphanum)*) ^^ { 
+      case start ~ rest => start + (rest map { case a~b => a+b }).mkString
+    }
+  }
+  
   
   lazy val selectorGroup: Parser[Seq[Selector]] = 
     selector ~ ((ws ~ ',' ~ ws ~> selector)*) ^^ { case sel ~ sels => sel :: sels }
@@ -65,12 +75,12 @@ trait CSSParsers extends laika.parse.InlineParsers {
     ((ws ~ '>' ~ ws) ^^^ Child) | (ws min 1) ^^^ Descendant
   
   lazy val typeSelector: Parser[List[Predicate]] =
-    (refName ^^ { name => List(ElementType(name)) }) | ('*' ^^^ Nil) 
+    (styleRefName ^^ { name => List(ElementType(name)) }) | ('*' ^^^ Nil) 
     
   lazy val predicate: Parser[Predicate] = {
     
-    val id: Parser[Predicate] = ('#' ~> refName) ^^ Id
-    val styleName: Parser[Predicate] = ('.' ~> refName) ^^ StyleName
+    val id: Parser[Predicate] = ('#' ~> styleRefName) ^^ Id
+    val styleName: Parser[Predicate] = ('.' ~> styleRefName) ^^ StyleName
     
     id | styleName
   }
@@ -85,7 +95,7 @@ trait CSSParsers extends laika.parse.InlineParsers {
   
   lazy val comment: Parser[Unit] = ("/*" ~ anyUntil("*/") ~ wsOrNl) ^^^ ()
     
-  lazy val style: Parser[Style] = ((refName <~ ws ~ ':' ~ ws) ~ (styleValue <~ wsOrNl)) ^^ {
+  lazy val style: Parser[Style] = ((styleRefName <~ ws ~ ':' ~ ws) ~ (styleValue <~ wsOrNl)) ^^ {
     case name ~ value => Style(name, value)
   }
   
