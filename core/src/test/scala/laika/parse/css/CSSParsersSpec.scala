@@ -27,26 +27,11 @@ class CSSParsersSpec extends FlatSpec
                         with Matchers 
                         with CSSParsers
                         with ParseResultHelpers 
-                        with DefaultParserHelpers[Set[StyleDeclaration]] {
+                        with DefaultParserHelpers[Set[StyleDeclaration]] 
+                        with StyleBuilders {
 
   
   val defaultParser: Parser[Set[StyleDeclaration]] = styleDeclarationSet
-  
-  
-  val defaultStyleMap = Map("foo"->"bar")
-  
-  def selector (predicates: Predicate*) = Selector(predicates.toSet)
-  
-  def selector (selector: Selector, parent: Selector, immediate: Boolean) =
-    selector.copy(parent = Some(ParentSelector(parent, immediate)))
-  
-  def styleDecl (selector: Selector) = 
-    StyleDeclaration(selector, defaultStyleMap)
-
-  def styleDecl (predicates: Predicate*) = StyleDeclaration(Selector(predicates.toSet), defaultStyleMap)
-
-  def styleDecl (styles: Map[String,String], predicates: Predicate*) = StyleDeclaration(Selector(predicates.toSet), styles)
-  
   
   
   "The CSS parser" should "parse a style with a type selector" in {
