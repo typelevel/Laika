@@ -47,7 +47,7 @@ trait CSSParsers extends laika.parse.InlineParsers {
   val styleRefName = {
     val alpha = anyWhile(c => Character.isLetter(c)) min 1
     val alphanum = anyWhile(c => Character.isDigit(c) || Character.isLetter(c)) min 1
-    val symbol = anyOf('-', '_') take 1
+    val symbol = anyOf('-', '_') max 1
     
     alpha ~ ((symbol ~ alphanum)*) ^^ { 
       case start ~ rest => start + (rest map { case a~b => a+b }).mkString
