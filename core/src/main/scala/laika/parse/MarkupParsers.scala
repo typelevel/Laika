@@ -324,7 +324,7 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
    *  is to treat all unknown or malformed markup as regular text and always succeed.
    *  The result property holds the `NoSuccess` instance that caused the failure.
    */
-  class MarkupParserException (val result: NoSuccess) extends RuntimeException(result.msg)
+  class MarkupParserException (val result: NoSuccess) extends RuntimeException(result.toString)
   
   
 }
