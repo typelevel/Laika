@@ -74,6 +74,16 @@ class StandardDirectiveSpec extends FlatSpec
   }
   
   
+  "The pageBreak directive" should "parse an empty directive" in {
+    val input = """aa
+      |
+      |@:pageBreak.
+      |
+      |bb""".stripMargin
+    parse(input).content should be (root(p("aa"),PageBreak(),p("bb")))
+  }
+  
+  
   "The for directive" should "process the default body once if the referenced object is a map" in {
     val input = """aaa @:for "config.person": { {{name}} {{age}} } bbb"""
     val config = "person: { name: Mary, age: 35 }" 
