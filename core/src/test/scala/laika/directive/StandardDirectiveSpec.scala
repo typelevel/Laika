@@ -58,7 +58,7 @@ class StandardDirectiveSpec extends FlatSpec
       |  Fragment Text
       |
       |bb""".stripMargin
-    parseWithFragments(input) should be ((Map("foo" -> BlockSequence(List(p("Fragment Text")),Styles("foo"))),root(p("aa"),p("bb"))))
+    parseWithFragments(input) should be ((Map("foo" -> Paragraph(List(Text("Fragment Text")),Styles("foo"))),root(p("aa"),p("bb"))))
   }
   
   it should "parse a fragment with a two paragraphs" in {
