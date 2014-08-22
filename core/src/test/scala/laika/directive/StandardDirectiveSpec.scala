@@ -84,6 +84,39 @@ class StandardDirectiveSpec extends FlatSpec
   }
   
   
+  "The style directive" should "parse a single nested block" in {
+    val input = """aa
+      |
+      |@:style foo: 11
+      | 22
+      |
+      |bb""".stripMargin
+    parse(input).content should be (root(p("aa"), Paragraph(List(Text("11\n22")),Styles("foo")), p("bb")))
+  }
+  
+  it should "parse two nested blocks" in {
+    val input = """aa
+      |
+      |@:style foo: 11
+      | 22
+      |
+      | 33
+      |
+      |bb""".stripMargin
+    parse(input).content should be (root(p("aa"), BlockSequence(List(p("11\n22"),p("33")),Styles("foo")), p("bb")))
+  }
+  
+  it should "parse a single nested span" in {
+    val input = """aa @:style foo: { 11 } bb"""
+    parse(input).content should be (root(p(txt("aa "), Text(" 11 ", Styles("foo")), txt(" bb"))))
+  }
+  
+  it should "parse two nested spans" in {
+    val input = """aa @:style foo: { 11 *22* 33 } bb"""
+    parse(input).content should be (root(p(txt("aa "), SpanSequence(List(txt(" 11 "),em("22"),txt(" 33 ")),Styles("foo")), txt(" bb"))))
+  }
+  
+  
   "The for directive" should "process the default body once if the referenced object is a map" in {
     val input = """aaa @:for "config.person": { {{name}} {{age}} } bbb"""
     val config = "person: { name: Mary, age: 35 }" 
