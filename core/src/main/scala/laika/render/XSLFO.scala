@@ -116,13 +116,6 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     
     def renderBlockContainer [T <: BlockContainer[T]](con: BlockContainer[T]) = {
   
-      def toList (label: String, content: Seq[Block]): Block = {
-        val labelElement = List(Text(label, Styles("footnote-label")))
-        val bodyElement = List(BlockSequence(content, Styles("footnote-body")))
-        val item = DefinitionListItem(labelElement, bodyElement)
-        DefinitionList(List(item), Styles("footnote"))
-      }
-      
       def quotedBlockContent (content: Seq[Block], attr: Seq[Span]) = 
         if (attr.isEmpty) content
         else content :+ Paragraph(attr, Styles("attribution"))
@@ -161,8 +154,9 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
         case e @ LineBlock(content,_)           => out.blockContainer(e, content)
         case e @ Figure(img,caption,legend,_)   => out.blockContainer(e, figureContent(img,caption,legend))
         
-        case e @ Footnote(label,content,_)      => out <<@ ("fo:footnote-body",e) <<|> toList(label,content) <<| "</fo:footnote-body>" 
-        case e @ Citation(label,content,_)      => out <<@ ("fo:footnote-body",e) <<|> toList(label,content) <<| "</fo:footnote-body>"  
+        case e @ FootnoteBody(content,_)        => out <<@ ("fo:footnote-body",e) <<|> content <<| "</fo:footnote-body>" 
+        case e @ Footnote(label,content,_)      => () // rendered in link position
+        case e @ Citation(label,content,_)      => () // rendered in link position
         
         case WithFallback(fallback)         => out << fallback
         case c: Customizable                => c match {
@@ -245,8 +239,8 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     }
     
     def renderSimpleSpan (span: Span) = span match {
-      case e @ CitationLink(ref,label,_)  => citations.get(ref).foreach(out.footnote(e,label,_))
-      case e @ FootnoteLink(ref,label,_)  => footnotes.get(ref).foreach(out.footnote(e,label,_))
+      case e @ CitationLink(ref,label,_)  => citations.get(ref).foreach(c => out.footnote(e,label,c.content,c.options))
+      case e @ FootnoteLink(ref,label,_)  => footnotes.get(ref).foreach(f => out.footnote(e,label,f.content,f.options))
       case e @ Image(_,uri,_,_)           => out.externalGraphic(e, uri.localRef.fold(uri.uri)(_.absolute.toString)) // TODO - ignoring title and alt for now
       case e: Leader                      => out <<@ ("fo:leader",e,"leader-pattern"->"dots") << "</fo:leader>" 
       case e @ PageNumberCitation(ref,_)  => out << s"""<fo:page-number-citation ref-id="$ref" />"""

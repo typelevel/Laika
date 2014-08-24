@@ -93,8 +93,14 @@ class FOWriter (out: String => Unit,
   def listItemBody (element: Element, content: Seq[Block], attr: (String,String)*) =
     this <<@ ("fo:list-item-body", element, attr :+ ("start-indent"->"body-start()"): _*) <<|> content <<| "</fo:list-item-body>"
   
-  def footnote (element: Element, label: String, body: Element) =
-    this <<@ ("fo:footnote",element,Nil:_*) <<|> List(Text(label,Styles("footnote-link")),body) <<| "</fo:footnote>"
+  def footnote (element: Element, label: String, body: Seq[Block], options: Options) = {
+    val labelElement = Text(s"[$label]", Styles("footnote-label"))
+    val bodyElements = body match {
+      case Paragraph(content, opts) +: rest => Paragraph(labelElement +: Text(" ") +: content, opts) +: rest
+      case _ => Paragraph(List(labelElement)) +: body
+    }
+    this <<@ ("fo:footnote",element,Nil:_*) <<|> List(labelElement, FootnoteBody(bodyElements, options)) <<| "</fo:footnote>"
+  }
   
   def text (element: Element, content: String, attr: (String,String)*) = {
     val attrs = attributes("fo:inline",element,attr)
@@ -140,6 +146,8 @@ object FOWriter {
   case class ListItemLabel (content: Block, options: Options = NoOpt) extends Block
   
   case class ListItemBody (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[ListItemBody]
+  
+  case class FootnoteBody (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[FootnoteBody]
   
   case class BookmarkTree (bookmarks: Seq[Bookmark], options: Options = NoOpt) extends Block
 

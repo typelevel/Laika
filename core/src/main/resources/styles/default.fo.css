@@ -158,7 +158,7 @@ Literal, Code {
   font-size: 8pt;	
 }
 
-.superscript {
+.superscript, .footnote-label {
 	vertical-align: super; 
 	font-size: 8pt;
 }
