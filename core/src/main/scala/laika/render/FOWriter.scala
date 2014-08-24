@@ -88,7 +88,7 @@ class FOWriter (out: String => Unit,
   }
    
   def listItemLabel (element: Element, content: Block, attr: (String,String)*) =
-    this <<@ ("fo:list-item-label", element, attr :+ ("end-indent"->"label-end()"): _*) <<|> content <<| "</fo:list-item-label>"
+    this <<@ ("fo:list-item-label", element, attr :+ ("end-indent"->"label-end()"): _*) <<|> List(content) <<| "</fo:list-item-label>"
   
   def listItemBody (element: Element, content: Seq[Block], attr: (String,String)*) =
     this <<@ ("fo:list-item-body", element, attr :+ ("start-indent"->"body-start()"): _*) <<|> content <<| "</fo:list-item-body>"
@@ -98,21 +98,23 @@ class FOWriter (out: String => Unit,
   
   def text (element: Element, content: String, attr: (String,String)*) = {
     val attrs = attributes("fo:inline",element,attr)
-    if (attrs.nonEmpty) this <<@ ("fo:inline", NoOpt, attrs: _*) <<& content << "</fo:inline>"
+    if (hasAttributes(attrs)) this <<@ ("fo:inline", NoOpt, attrs: _*) <<& content << "</fo:inline>"
     else this <<& content
   }
     
   def textWithWS (element: Element, content: String, attr: (String,String)*) = {
     val attrs = attributes("fo:inline",element,attr)
-    if (attrs.nonEmpty) this <<@ ("fo:inline", NoOpt, attrs: _*) <<<& content << "</fo:inline>"
+    if (hasAttributes(attrs)) this <<@ ("fo:inline", NoOpt, attrs: _*) <<<& content << "</fo:inline>"
     else this <<<& content
   }
     
   def rawText (element: Element, content: String, attr: (String,String)*) = {
     val attrs = attributes("fo:inline",element,attr)
-    if (attrs.nonEmpty) this <<@ ("fo:inline", NoOpt, attrs: _*) << content << "</fo:inline>"
+    if (hasAttributes(attrs)) this <<@ ("fo:inline", NoOpt, attrs: _*) << content << "</fo:inline>"
     else this << content
   }
+  
+  def hasAttributes (attrs: Seq[(String,Any)]) = attrs.exists(_._2 != None)
   
   def bookmarkTree (tree: BookmarkTree) =
     this <<@ ("fo:bookmark-tree", tree, Nil:_*) <<|> tree.bookmarks << "</fo:bookmark-tree>"
