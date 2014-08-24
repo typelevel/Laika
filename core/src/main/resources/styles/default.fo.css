@@ -4,13 +4,10 @@
 
 */
 
-* {
-	font-family: serif;
-	font-size: 10pt;
-}
 
 Paragraph {
-	
+  font-family: serif;
+  font-size: 10pt;
 }
 
 TitledBlock {
