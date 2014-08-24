@@ -115,6 +115,8 @@ object Styles {
       new StyleDeclarationSet(Root, decl ++ (set.decl map (_.increaseOrderBy(maxOrder))))
     }
     
+    override def toString = decl.mkString("StyleDeclarationSet(", ",", ")")
+    
   }
   
   object StyleDeclarationSet {
