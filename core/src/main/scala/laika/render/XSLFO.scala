@@ -133,8 +133,8 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
       def enumLabel (format: EnumFormat, num: Int) = {
         val pos = format.enumType match {
           case Arabic => num.toString
-          case LowerAlpha => ('a' + num - 1).toString
-          case UpperAlpha => ('A' + num - 1).toString
+          case LowerAlpha => ('a' + num - 1).toChar.toString
+          case UpperAlpha => ('A' + num - 1).toChar.toString
           case LowerRoman => RomanNumerals.intToRoman(num).toLowerCase
           case UpperRoman => RomanNumerals.intToRoman(num).toUpperCase
         } 
@@ -185,8 +185,8 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
         case e @ Header(level, content,_)     => out.block(e.copy(options=e.options + Styles("level"+level.toString)),content,"keep-with-next"->"always")
         case e @ Title(content,_)             => out.block(e.copy(options=e.options),content,"keep-with-next"->"always")
 
-        case e @ Emphasized(content,_)        => out.inline(e,content,"font-style"->"italic")
-        case e @ Strong(content,_)            => out.inline(e,content,"font-weight"->"bold")
+        case e @ Emphasized(content,_)        => out.inline(e,content)
+        case e @ Strong(content,_)            => out.inline(e,content)
         case e @ Code(lang,content,_)         => out.inline(e.copy(options=e.options + codeStyles(lang)),content,"font-family"->"monospace")
         case e @ Line(content,_)              => out.block(e, content)
   
