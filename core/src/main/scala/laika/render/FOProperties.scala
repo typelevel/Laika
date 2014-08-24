@@ -410,8 +410,8 @@ trait FOProperties {
         break ++ 
         keepPlus ++ Set(
         "id")), 
-    "list-item-label" -> Set("id","keep-together"),
-    "list-item-body" -> Set("id","keep-together"),
+    "list-item-label" -> Set("id","keep-together","end-indent"),
+    "list-item-body" -> Set("id","keep-together","start-indent"),
     "footnote" -> Set("id"),
     "footnote-body" -> Set("id"),
     "marker" -> Set("marker-class-name"),
@@ -435,7 +435,7 @@ trait FOProperties {
   
   
   def filterAttributes (tagName: String, attributes: Seq[(String, Any)]) = {
-    val supportedProps = map(tagName)
+    val supportedProps = map(tagName.drop(3))
     attributes.filter(pair => supportedProps(pair._1))
   }
     
