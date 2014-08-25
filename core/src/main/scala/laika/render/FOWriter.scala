@@ -78,7 +78,7 @@ class FOWriter (out: String => Unit,
     this <<@ ("fo:basic-link", element, (attr :+ ("external-destination"->url)): _*) << content << "</fo:basic-link>"
     
   def externalGraphic (element: Element, src: String) =
-    this <<@ ("fo:external-graphic", element, "src"->src,
+    this <<@/ ("fo:external-graphic", element, "src"->src,
         "inline-progression-dimension.maximum"->"100%", 
         "content-width"->"scale-down-to-fit")
         
