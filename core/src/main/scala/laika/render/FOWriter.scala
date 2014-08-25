@@ -113,6 +113,12 @@ class FOWriter (out: String => Unit,
     if (hasAttributes(attrs)) this <<@ ("fo:inline", NoOpt, attrs: _*) <<<& content << "</fo:inline>"
     else this <<<& content
   }
+  
+  def textBlockWithWS (element: Element, content: String, attr: (String,String)*) = {
+    val attrs = attributes("fo:block",element,attr)
+    if (hasAttributes(attrs)) this <<@ ("fo:block", NoOpt, attrs: _*) <<<& content << "</fo:block>"
+    else this <<<& content
+  }
     
   def rawText (element: Element, content: String, attr: (String,String)*) = {
     val attrs = attributes("fo:inline",element,attr)

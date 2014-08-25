@@ -215,7 +215,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
       case e @ TemplateString(content,_) => out.rawText(e, content)
       case e @ RawContent(formats, content, _) => if (formats.contains("fo")) out.rawText(e, content)
       case e @ Literal(content,_)        => out.textWithWS(e, content)
-      case e @ LiteralBlock(content,_)   => out.textWithWS(e, content)
+      case e @ LiteralBlock(content,_)   => out.textBlockWithWS(e, content)
       case e: BookmarkTitle              => out.bookmarkTitle(e)
       case Comment(content,_)            => out << "<!-- " << content << " -->"
       
