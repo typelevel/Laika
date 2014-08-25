@@ -181,7 +181,7 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
 
         case e @ Emphasized(content,_)        => out.inline(e,content)
         case e @ Strong(content,_)            => out.inline(e,content)
-        case e @ Code(lang,content,_)         => out.inline(e.copy(options=e.options + codeStyles(lang)),content,"font-family"->"monospace")
+        case e @ Code(lang,content,_)         => out.inline(e.copy(options=e.options + codeStyles(lang)),content)
         case e @ Line(content,_)              => out.block(e, content)
   
         case e @ ExternalLink(content, url, _, _)     => out.externalLink(e, url, content)
