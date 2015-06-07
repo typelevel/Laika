@@ -19,6 +19,9 @@ package laika.parse
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 import scala.util.parsing.combinator.Parsers
+import scala.util.Try
+import scala.util.{Success => TSuccess}
+import scala.util.{Failure => TFailure}
 
 /**
  * Generic base parsers which are not specifically tailored for parsing of text markup.
@@ -122,6 +125,23 @@ trait BaseParsers extends Parsers {
         case ns: NoSuccess => ns
       }
         
+    }
+  }
+    
+  /** Provides additional methods to `Try` via implicit conversion.
+   */
+  implicit class TryOps [A] (t: Try[A]) {
+    
+    /** Converts this instance to an `Either[String, A]`, using the message of the `Throwable`
+     *  ss the value for the `Left` instance.
+     *
+     *  @param f a function that will be applied to this parser's result.
+     *  @return a parser that has the same behaviour as the current parser, but whose result is
+     *         transformed by `f`.
+     */
+    def toEither: Either[String,A] = t match {
+      case TSuccess(res) => Right(res)
+      case TFailure(e)   => Left(e.getMessage)
     }
     
   }

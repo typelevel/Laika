@@ -203,6 +203,11 @@ class ListParsersSpec extends FlatSpec
     Parsing (input) should produce (root(enumList(EnumFormat(UpperRoman, "", "."), 4) + "aaa" + "bbb"))
   }
   
+  it should "not try to parse a Roman Numeral in a normal paragraph (issue #19)" in {
+    val input = "imp"
+    Parsing (input) should produce (root(p("imp")))
+  }
+  
   it should "parse items suffixed by right-parenthesis" in {
     val input = """1) aaa
       |2) bbb
