@@ -93,7 +93,7 @@ trait CSSParsers extends laika.parse.InlineParsers {
         selectors map (StyleDeclaration(_, styles))
     }
   
-  lazy val comment: Parser[Unit] = ("/*" ~ anyUntil("*/") ~ wsOrNl) ^^^ ()
+  lazy val comment: Parser[Unit] = ("/*" ~ anyUntil("*/") ~ wsOrNl) ^^^ (())
     
   lazy val style: Parser[Style] = ((styleRefName <~ ws ~ ':' ~ ws) ~ (styleValue <~ wsOrNl)) ^^ {
     case name ~ value => Style(name, value)

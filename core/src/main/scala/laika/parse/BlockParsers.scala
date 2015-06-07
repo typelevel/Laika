@@ -263,7 +263,7 @@ trait BlockParsers extends MarkupParsers {
    *  @return a parser that produces an instance of IndentedBlock
    */
   def indentedBlock (minIndent: Int = 1,
-                     linePredicate: => Parser[Any] = success(), 
+                     linePredicate: => Parser[Any] = success(()), 
                      endsOnBlankLine: Boolean = false,
                      firstLineIndented: Boolean = false,
                      maxIndent: Int = Int.MaxValue): Parser[IndentedBlock] = {
@@ -291,7 +291,7 @@ trait BlockParsers extends MarkupParsers {
       if (firstLineIndented) textLine(Int.MaxValue) 
       else restOfLine ^^ { s => List(FirstLine(s)) }
     
-    val firstLineGuard = if (firstLineIndented) ((ws min minIndent) ^^ {_.length}) ~ composedLinePredicate else success()
+    val firstLineGuard = if (firstLineIndented) ((ws min minIndent) ^^ {_.length}) ~ composedLinePredicate else success(())
     
     def nextLine (prevLines: List[Line]) = 
       if (endsOnBlankLine) textLine(prevLines.head.curIndent)

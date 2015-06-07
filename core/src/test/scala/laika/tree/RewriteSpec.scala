@@ -87,7 +87,7 @@ class RewriteSpec extends FlatSpec
   
   it should "throw an exception when a rewrite rule produces a new element that violates the contract of its parent element" in {
     val rootElem = root(Section(h(1,"Title"), Nil)) 
-    evaluating { rootElem rewrite { case Header(_,_,_) => Some(em("x")) }} should produce [rootElem.RewriteException]
+    an [rootElem.RewriteException] should be thrownBy { rootElem rewrite { case Header(_,_,_) => Some(em("x")) }} 
   }
   
   
