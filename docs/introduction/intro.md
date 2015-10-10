@@ -24,7 +24,7 @@ you can read about her [here][laika-wikipedia].
 Getting Started
 ---------------
 
-The current version is published to Maven Central for Scala 2.10.x.
+The current version is published to Maven Central for Scala 2.10 and 2.11.
 
 The sbt plugin is published to the sbt plugin repository for sbt 0.13.x.
 
@@ -48,7 +48,7 @@ in `target/docs/site`.
 
 Adding the Laika dependency to your sbt build:
 
-    libraryDependencies += "org.planet42" %% "laika-core" % "0.5.0"
+    libraryDependencies += "org.planet42" %% "laika-core" % "0.5.1"
 
 Example for transforming from file to file:
 
@@ -156,6 +156,10 @@ no decision has been made yet for these other ideas:
 Release History
 ---------------
 
+* __0.5.1__ (Oct 10, 2015):
+
+    * Cross-compiled for Scala 2.11 and 2.10
+    
 * __0.5__ (Jan 9, 2014):
 
     * New sbt plugin, exposing all Laika features and customization hooks as sbt tasks and settings

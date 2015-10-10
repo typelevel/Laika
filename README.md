@@ -11,7 +11,7 @@ Open Source under the Apache 2.0 License.
 Getting Started
 ---------------
 
-The main artifact is published to Maven Central for Scala 2.10.x.
+The main artifact is published to Maven Central for Scala 2.10 and 2.11.
 
 The sbt plugin is published to the sbt plugin repository for sbt 0.13.x.
 
@@ -35,7 +35,7 @@ in `target/docs/site`.
 
 Adding the Laika dependency to your sbt build:
 
-    libraryDependencies += "org.planet42" %% "laika-core" % "0.5.0"
+    libraryDependencies += "org.planet42" %% "laika-core" % "0.5.1"
 
 Example for transforming from file to file:
 
