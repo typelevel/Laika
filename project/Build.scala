@@ -26,7 +26,7 @@ object Build extends Build {
     
     lazy val module = basic ++ Seq(
       crossVersion       := CrossVersion.binary,
-      crossScalaVersions := Seq("2.10.5", "2.11.6")
+      crossScalaVersions := Seq("2.10.5", "2.11.7")
     )
     
   }
