@@ -86,7 +86,7 @@
         you can read about her <a href="http://en.wikipedia.org/wiki/Laika">here</a>.</p>
         
         <h2 id="getting-started" class="section">Getting Started</h2>
-        <p>The current version is published to Maven Central for Scala 2.10.x.</p>
+        <p>The current version is published to Maven Central for Scala 2.10 and 2.11</p>
         <p>The sbt plugin is published to the sbt plugin repository for sbt 0.13.x.</p>
         
         <h3 id="using-the-sbt-plugin" class="section">Using the sbt Plugin</h3>
@@ -101,7 +101,7 @@
         
         <h3 id="using-laika-embedded" class="section">Using Laika Embedded</h3>
         <p>Adding the Laika dependency to your sbt build:</p>
-        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-core&quot; % &quot;0.5.0&quot;</pre>
+        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-core&quot; % &quot;0.5.1&quot;</pre>
         <p>Example for transforming from file to file:</p>
         <pre>Transform from Markdown to HTML fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;</pre>
         <p>Example for transforming an entire directory of markup files:</p>
@@ -221,6 +221,12 @@
         
         <h2 id="release-history" class="section">Release History</h2>
         <ul>
+          <li>
+            <p><strong>0.5.1</strong> (Oct 10, 2015):</p>
+            <ul>
+              <li>Cross-compiled for Scala 2.11 and 2.10</li>
+            </ul>
+          </li>
           <li>
             <p><strong>0.5</strong> (Jan 9, 2014):</p>
             <ul>
