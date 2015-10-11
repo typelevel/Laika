@@ -1,5 +1,7 @@
 import sbt._
 import Keys._
+import bintray.Plugin.bintrayPublishSettings
+import bintray.Keys._
 
 object Build extends Build {
 
@@ -91,15 +93,11 @@ object Build extends Build {
         </developers>)
     )
     
-    lazy val sbtPlugins = Seq(
+    lazy val sbtPlugins = bintrayPublishSettings ++ Seq(
       
       publishMavenStyle := false,
-
-      publishTo := {
-        val repo = if (version.value.endsWith("-SNAPSHOT")) "snapshots" else "releases"
-        val baseUrl = "http://repo.scala-sbt.org/scalasbt/sbt-plugin-"
-        Some(Resolver.url("scalasbt " + repo, url(baseUrl + repo))(Resolver.ivyStylePatterns))
-      }
+      repository in bintray := "sbt-plugins",
+      bintrayOrganization in bintray := None
       
     )
     
