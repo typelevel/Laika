@@ -33,7 +33,7 @@ The sbt plugin is published to the sbt plugin repository for sbt 0.13.x.
 
 Add the plugin to `project/plugins.sbt`:
 
-    addSbtPlugin("org.planet42" % "laika-sbt" % "0.5.0")
+    addSbtPlugin("org.planet42" % "laika-sbt" % "0.5.1")
 
 Import its default settings in your project's `build.sbt`:
 
@@ -140,7 +140,7 @@ Road Map
 
 * Integrated support for syntax highlighting in source code (0.8)
 
-* Various Markdown extensions: GitHub Markdown, MultiMarkdown, YAML headers, etc. (0.9)
+* Various Markdown extensions: GitHub Markdown, MultiMarkdown, CommonMark, YAML headers, etc. (0.9)
 
 
 After these four releases priorities depend on user demand, therefore
@@ -158,7 +158,9 @@ Release History
 
 * __0.5.1__ (Oct 10, 2015):
 
-    * Cross-compiled for Scala 2.11 and 2.10
+    * Cross-compile for Scala 2.11 and 2.10
+    * Publish the sbt plugin to the new plugin repository on Bintray
+    * Upgrade to ScalaTest 2.2.4
     
 * __0.5__ (Jan 9, 2014):
 

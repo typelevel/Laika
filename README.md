@@ -20,7 +20,7 @@ The sbt plugin is published to the sbt plugin repository for sbt 0.13.x.
 
 Add the plugin to `project/plugins.sbt`:
 
-    addSbtPlugin("org.planet42" % "laika-sbt" % "0.5.0")
+    addSbtPlugin("org.planet42" % "laika-sbt" % "0.5.1")
 
 Import its default settings in your project's `build.sbt`:
 
