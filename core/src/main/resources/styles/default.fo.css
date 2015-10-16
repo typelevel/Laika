@@ -11,29 +11,29 @@ Paragraph {
 }
 
 TitledBlock {
-	background-color: #cccccc;
-	padding-left: 2cm;
-	padding-right: 2cm;
+  background-color: #cccccc;
+  padding-left: 2cm;
+  padding-right: 2cm;
 }
 
 TitledBlock .title {
-	font-family: sans-serif;
-	font-weight: bold;
-	font-size: 12pt;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 12pt;
 }
 
 QuotedBlock {
-	margin-left: 2cm;
-	margin-right: 2cm;
+  margin-left: 2cm;
+  margin-right: 2cm;
 }
 
 QuotedBlock .attribution {
-	text-align: right;
+  text-align: right;
 }
 
 LiteralBlock, ParsedLiteralBlock, CodeBlock {
-	font-family: monospace;
-	margin-left: 2cm;
+  font-family: monospace;
+  margin-left: 2cm;
   margin-right: 2cm;
 }
 
@@ -46,24 +46,24 @@ Figure {
 }
 
 Figure .caption {
-	font-size: 9pt;
-	font-style: italic;
+  font-size: 9pt;
+  font-style: italic;
 }
 
 Figure .legend {
-	font-size: 9pt;
+  font-size: 9pt;
   font-style: italic;
 }
 
 Header {
-	font-family: sans-serif;
-	font-weight: bold;
-	font-size: 12pt;
+  font-family: sans-serif;
+  font-weight: bold;
+  font-size: 12pt;
 }
 
 Title, Header.level1 {
-	font-family: sans-serif;
-	font-size: 18pt;
+  font-family: sans-serif;
+  font-size: 18pt;
 }
 
 Header.level2 {
@@ -131,27 +131,27 @@ Cell {
 }
 
 PageBreak {
-	page-break-before: always;
+  page-break-before: always;
 }
 
 Footnote, Citation {
-	font-size: 8pt;
+  font-size: 8pt;
 }
 
 FootnoteLink, CitationLink {
-	color: #3399FF;
+  color: #3399FF;
 }
 
 Emphasized {
-	font-style: italic;
+  font-style: italic;
 }
 
 Strong, .title {
-	font-weight: bold;
+  font-weight: bold;
 }
 
 Literal, Code {
-	font-family: monospace;
+  font-family: monospace;
 }
 
 .subscript {
@@ -160,17 +160,17 @@ Literal, Code {
 }
 
 .superscript, .footnote-label {
-	vertical-align: super; 
-	font-size: 8pt;
+  vertical-align: super; 
+  font-size: 8pt;
 }
 
 ExternalLink, InternalLink, CrossLink {
-	font-weight: bold;
-	color: #3399FF;
+  font-weight: bold;
+  color: #3399FF;
 }
 
 SystemMessage {
-	color: white;
+  color: white;
 }
 
 SystemMessage.debug, SystemMessage.info {
@@ -190,7 +190,7 @@ Rule {
 }
 
 LineBlock {
-	margin-left: 2cm;
+  margin-left: 2cm;
 }
 
 Line {
@@ -210,5 +210,5 @@ BookmarkTitle {
 }
 
 Paragraph.toc {
-	text-align-last: justify;
+  text-align-last: justify;
 }
