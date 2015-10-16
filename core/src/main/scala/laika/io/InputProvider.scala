@@ -172,7 +172,7 @@ object InputProvider {
   
   /** The configuration for an input tree, consisting of the actual provider for
    *  all inputs, a separate input for (optional) root configuration sources,
-   *  the template engine to use and a flag whether parsing should be performed
+   *  the template and style sheet engines to use and a flag whether parsing should be performed
    *  in parallel.
    */
   case class InputConfig (provider: InputProvider, config: Seq[Input], templateParser: ParseTemplate, styleSheetParser: ParseStyleSheet, parallel: Boolean)
