@@ -19,14 +19,9 @@ package laika.template
 import java.io.ByteArrayInputStream
 import java.io.StringReader
 import scala.io.Codec
-import scala.io.Codec.charset2codec
 import org.scalatest.FlatSpec
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
 import laika.parse.markdown.Markdown
-import laika.tree.Elements.ExternalLinkDefinition
-import laika.tree.Elements.LinkReference
-import laika.tree.Elements.Text
 import laika.tree.helper.ModelBuilder
 import laika.tree.Templates.TemplateString
 import laika.tree.Templates.TemplateContextReference

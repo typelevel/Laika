@@ -20,7 +20,6 @@ import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 import laika.parse.helper.DefaultParserHelpers
 import laika.parse.helper.ParseResultHelpers
-import laika.tree.Templates._
 import laika.parse.css.Styles._
 
 class CSSParsersSpec extends FlatSpec 
