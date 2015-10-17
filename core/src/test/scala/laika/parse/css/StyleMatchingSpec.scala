@@ -28,7 +28,7 @@ class StyleMatchingSpec extends FlatSpec
                         with StyleBuilders {
 
   
-  val styles = new StyleDeclarationSet(Root, Set(
+  val styles = new StyleDeclarationSet(Set(Root), Set(
       styleDecl(Map("selector"->"type", "foo"->"bar"), ElementType("Paragraph")),
       styleDecl(Map("selector"->"class"), StyleName("class")).increaseOrderBy(1),
       styleDecl(Map("selector"->"id"), Id("id")).increaseOrderBy(2),

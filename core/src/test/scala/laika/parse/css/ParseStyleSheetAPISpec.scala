@@ -39,7 +39,7 @@ class ParseStyleSheetAPISpec extends FlatSpec
     
     def assert(actual: StyleDeclarationSet): Unit = {
       actual.styles should be (expected)
-      actual.path should be (path)
+      actual.paths should be (Set(path))
     }
   }
   

@@ -255,7 +255,7 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
     }) toMap
     
     val styleMap = (results collect {
-      case (StyleSheet(format), style: StyleDeclarationSet) => (style.path, style)
+      case (StyleSheet(format), style: StyleDeclarationSet) => (style.paths.head, style)
     }) toMap
     
     val treeConfigMap = (results collect {

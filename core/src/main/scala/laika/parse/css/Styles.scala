@@ -29,7 +29,7 @@ import laika.tree.Documents.Root
 object Styles {
 
   
-  sealed abstract class Predicate {
+  sealed trait Predicate {
     def specificity: Specificity
     def evaluate (element: Element): Boolean
   }
@@ -103,25 +103,23 @@ object Styles {
     
   }
   
-  class StyleDeclarationSet (val path: Path, private val decl: Set[StyleDeclaration]) {
+  case class StyleDeclarationSet (paths: Set[Path], styles: Set[StyleDeclaration]) {
     
     def collectStyles (element: Element, parents: Seq[Element]) = {
-      val decls = decl.filter(_.appliesTo(element, parents)).toSeq.sortBy(_.selector.specificity)
+      val decls = styles.filter(_.appliesTo(element, parents)).toSeq.sortBy(_.selector.specificity)
       (Map[String,String]() /: decls) { case (acc, decl) => acc ++ decl.styles }
     }
     
     def ++ (set: StyleDeclarationSet) = {
-      val maxOrder = if (decl.isEmpty) 0 else decl.maxBy(_.selector.order).selector.order
-      new StyleDeclarationSet(Root, decl ++ (set.decl map (_.increaseOrderBy(maxOrder))))
+      val maxOrder = if (styles.isEmpty) 0 else styles.maxBy(_.selector.order).selector.order + 1
+      new StyleDeclarationSet(paths ++ set.paths, styles ++ (set.styles map (_.increaseOrderBy(maxOrder))))
     }
-    
-    override def toString = decl.mkString("StyleDeclarationSet(", ",", ")")
     
   }
   
   object StyleDeclarationSet {
     
-    val empty = new StyleDeclarationSet(Root, Set.empty) 
+    val empty = new StyleDeclarationSet(Set(Root), Set.empty) 
     
   }
   
