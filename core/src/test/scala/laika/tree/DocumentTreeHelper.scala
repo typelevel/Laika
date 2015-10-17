@@ -21,6 +21,7 @@ import Templates._
 import laika.io.Input
 import com.typesafe.config.Config
 import laika.tree.Elements._
+import laika.parse.css.Styles.StyleDeclarationSet
 
 /* Provides a view of DocumentTree structures that allows for 
  * PrettyPrint rendering (for debugging purposes) and case
@@ -49,6 +50,8 @@ object DocumentTreeHelper {
   case class Documents (docType: DocumentType, content: Seq[DocumentView]) extends TreeContent with ViewContainer[Documents]
 
   case class TemplateDocuments (docType: DocumentType, content: Seq[TemplateView]) extends TreeContent with ViewContainer[TemplateDocuments]
+  
+  case class StyleSheets (content: Map[String, StyleDeclarationSet]) extends TreeContent
                           
   case class Inputs (docType: DocumentType, content: Seq[InputView]) extends TreeContent with ViewContainer[Inputs]
   
@@ -76,12 +79,13 @@ object DocumentTreeHelper {
   def viewOf (tree: DocumentTree): TreeView = {
     val content = (
       Documents(Markup, tree.documents map viewOf) ::
+      StyleSheets(tree.styles) ::
       TemplateDocuments(Template, tree.templates map viewOf) ::
       TemplateDocuments(Dynamic, tree.dynamicTemplates map viewOf) ::
       Documents(Dynamic, tree.dynamicDocuments map viewOf) ::
       Inputs(Static, tree.staticDocuments map viewOf) ::
       Subtrees(tree.subtrees map viewOf) :: 
-      List[TreeContent]()) filterNot { case c: ViewContainer[_] => c.content.isEmpty }
+      List[TreeContent]()) filterNot { case c: ViewContainer[_] => c.content.isEmpty; case StyleSheets(styles) => styles.isEmpty }
     TreeView(tree.path, content)
   }
   
@@ -99,7 +103,7 @@ object DocumentTreeHelper {
     DocumentView(doc.path, content, doc.isRewritten)
   }
   
-  def viewOf (fragments: Map[String,Element]): Seq[Fragment] = 
+  def viewOf (fragments: Map[String, Element]): Seq[Fragment] = 
     (fragments map { case (name, content) => Fragment(name, content) }).toSeq
   
   def viewOf (doc: TemplateDocument): TemplateView = TemplateView(doc.path, doc.content)

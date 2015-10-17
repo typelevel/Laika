@@ -24,6 +24,13 @@ import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
 import laika.parse.markdown.Markdown
+import laika.parse.css.ParseStyleSheet
+import laika.parse.css.Styles.StyleDeclarationSet
+import laika.parse.css.Styles.StyleDeclaration
+import laika.parse.css.Styles.ElementType
+import laika.parse.css.Styles.Selector
+import laika.parse.rst.ReStructuredText
+import laika.parse.rst.Elements.CustomizedTextRole
 import laika.tree.Elements.ExternalLinkDefinition
 import laika.tree.Elements.ExternalLink
 import laika.tree.Elements.LinkReference
@@ -40,8 +47,6 @@ import laika.tree.Templates.TemplateDocument
 import laika.template.ParseTemplate
 import laika.io.Input
 import laika.io.InputProvider.Directory
-import laika.parse.rst.ReStructuredText
-import laika.parse.rst.Elements.CustomizedTextRole
 
 
 class ParseAPISpec extends FlatSpec 
@@ -308,6 +313,29 @@ class ParseAPISpec extends FlatSpec
       def template (num: Int) = TemplateView(Root / (s"main$num.template.html"), TemplateRoot(List(TemplateString("$$foo"))))
       val treeResult = TreeView(Root, List(TemplateDocuments(Template, List(template(1),template(2)))))
       parsedRawWith(_.withTemplates(ParseTemplate as parser)) should be (treeResult)
+    }
+  }
+  
+  it should "allow to specify a custom style sheet engine" in {
+    new TreeParser {
+      def docTypeMatcher (path: Path): DocumentType = {
+        val Stylesheet = """.+\.([a,b]+).css$""".r
+        path.name match {
+          case Stylesheet(kind) => StyleSheet(kind)
+        }
+      }
+      def styleDecl(styleName: String, order: Int = 0) =
+        StyleDeclaration(Selector(Set(ElementType("Type")), order = order), Map(styleName -> "foo"))
+      val parser: Input => StyleDeclarationSet = input =>
+        new StyleDeclarationSet(Set(input.path), Set(styleDecl(input.name.takeWhile(_ != '.'))))
+      val dirs = """- main1.aaa.css:name
+        |- main2.bbb.css:name
+        |- main3.aaa.css:name""".stripMargin
+      val treeResult = TreeView(Root, List(StyleSheets(Map(
+          "aaa" -> StyleDeclarationSet(Set(Path("/main1.aaa.css"), Path("/main3.aaa.css")), Set(styleDecl("main1"), styleDecl("main3", 1))),
+          "bbb" -> StyleDeclarationSet(Set(Path("/main2.bbb.css")), Set(styleDecl("main2")))
+      ))))
+      parsedRawWith(_.withStyleSheets(ParseStyleSheet as parser).withDocTypeMatcher(docTypeMatcher)) should be (treeResult)
     }
   }
   
