@@ -148,9 +148,7 @@ class Render[Writer, DocTarget, TreeTarget] private (private[Render] val factory
       
       type Operation = () => Unit
       
-      val styles = factory.defaultStyles ++ tree.styles(factory.fileSuffix)
-      
-      def renderTree (provider: OutputProvider)(doc: Document): Operation = {
+      def renderTree (provider: OutputProvider, styles: StyleDeclarationSet)(doc: Document): Operation = {
         val output = provider.newOutput(doc.path.basename +"."+ factory.fileSuffix)
         () => render(doc.content, output, styles)
       } 
@@ -160,17 +158,20 @@ class Render[Writer, DocTarget, TreeTarget] private (private[Render] val factory
         () => IO.copy(input, output)
       }
       
-      def collectOperations (tree: DocumentTree, provider: OutputProvider): Seq[Operation] =
-          (tree.documents map renderTree(provider)) ++ 
-          (tree.dynamicDocuments map renderTree(provider)) ++ 
-          (tree.staticDocuments map copy(provider)) ++
-          (tree.subtrees map { tree => collectOperations(tree, provider.newChild(tree.name)) }).flatten
+      def collectOperations (provider: OutputProvider, parentStyles: StyleDeclarationSet, tree: DocumentTree): Seq[Operation] = {
+        val styles = parentStyles ++ tree.styles(factory.fileSuffix)
+        
+        (tree.documents map renderTree(provider, styles)) ++ 
+        (tree.dynamicDocuments map renderTree(provider, styles)) ++ 
+        (tree.staticDocuments map copy(provider)) ++
+        (tree.subtrees map { subtree => collectOperations(provider.newChild(subtree.name), styles, subtree)}).flatten
+      }
     
       val templateName = "default.template." + factory.fileSuffix
       val treeWithTpl = if (tree.selectTemplate(Current / templateName).isDefined) tree 
                         else tree.withTemplate(new TemplateDocument(Root / templateName, factory.defaultTemplate)) 
       val finalTree = treeWithTpl.applyTemplates(factory.fileSuffix)
-      val operations = collectOperations(finalTree, config.provider)
+      val operations = collectOperations(config.provider, factory.defaultStyles, finalTree)
       
       (if (config.parallel) operations.par else operations) foreach (_())
     }

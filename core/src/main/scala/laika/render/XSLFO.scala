@@ -45,7 +45,7 @@ import FOWriter._
  * 
  *  @author Jens Halm
  */
-class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolean) 
+class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[MessageLevel], renderFormatted: Boolean) 
     extends RendererFactory[FOWriter] {
   
   
@@ -54,12 +54,16 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
   /** Specifies the minimum required level for a system message
    *  to get included into the output by this renderer.
    */
-  def withMessageLevel (level: MessageLevel) = new XSLFO(Some(level), renderFormatted)
+  def withMessageLevel (level: MessageLevel) = new XSLFO(styles, Some(level), renderFormatted)
   
   /** Renders XSL-FO without any formatting (line breaks or indentation) around tags. 
    *  Useful when storing the output in a database for example. 
    */
-  def unformatted = new XSLFO(messageLevel, false)
+  def unformatted = new XSLFO(styles, messageLevel, false)
+  
+  /** Adds the specified styles to the default styles this renderer applies.
+   */
+  def withStyles(additionalStyles: StyleDeclarationSet) = new XSLFO(Some(defaultStyles ++ additionalStyles), messageLevel, renderFormatted)
   
   /** The actual setup method for providing both the writer API for customized
    *  renderers as well as the actual default render function itself. The default render
@@ -298,14 +302,14 @@ class XSLFO private (messageLevel: Option[MessageLevel], renderFormatted: Boolea
     }  
   } 
   
-  override lazy val defaultStyles = XSLFO.styleResource
+  override lazy val defaultStyles = styles.getOrElse(XSLFO.styleResource)
   override lazy val defaultTemplate = XSLFO.templateResource.content
   
 }
 
 /** The default instance of the XSL-FO renderer.
  */
-object XSLFO extends XSLFO(None, true) {
+object XSLFO extends XSLFO(None, None, true) {
   
   lazy val styleResource = ParseStyleSheet.fromInput(Input.fromClasspath("/styles/default.fo.css", Root / "default.fo.css"))
   

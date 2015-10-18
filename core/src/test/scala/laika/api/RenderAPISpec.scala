@@ -26,6 +26,9 @@ import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
 
+import laika.parse.css.Styles.StyleDeclarationSet
+import laika.parse.css.Styles.StyleDeclaration
+import laika.parse.css.Styles.ElementType
 import laika.render.PrettyPrint
 import laika.render._
 import laika.render.helper.RenderResult
@@ -144,8 +147,10 @@ class RenderAPISpec extends FlatSpec
   }
   
   trait FORenderer extends TreeRenderer[FOWriter] {
+    val foStyles = Map("fo" -> StyleDeclarationSet(Root / "styles.fo.css", StyleDeclaration(ElementType("Paragraph"), "font-size" -> "11pt")))
     val rootElem = root(h(1, "Title", "title"), p("bbb"))
-    val render = Render as XSLFO
+    val subElem = root(h(1, "Sub Title", "sub-title"), p("ccc"))
+    def render: Render[FOWriter, Render.SingleTarget, Render.TreeTarget] = Render as XSLFO
   }
   
   it should "render an empty tree" in {
@@ -198,6 +203,58 @@ class RenderAPISpec extends FlatSpec
       val expected = """[<fo:block id="/.title" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title</fo:block>
         |<fo:block font-family="serif" font-size="10pt">bbb</fo:block>]""".stripMargin
       renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.fo", expected))))))
+    }
+  }
+  
+  it should "render a tree with a single document to XSL-FO using a custom style sheet in the root directory" in {
+    new FORenderer {
+      val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite), styles = foStyles, subtrees = 
+        Seq(new DocumentTree(Root / "tree", List(new Document(Root / "tree" / "sub", subElem).rewrite))))
+      val expectedRoot = RenderResult.fo.withDefaultTemplate("""<fo:block id="/.title" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title</fo:block>
+        |      <fo:block font-family="serif" font-size="11pt">bbb</fo:block>""".stripMargin)
+      val expectedSub = RenderResult.fo.withDefaultTemplate("""<fo:block id="/.sub-title" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Sub Title</fo:block>
+        |      <fo:block font-family="serif" font-size="11pt">ccc</fo:block>""".stripMargin)
+      renderedTree should be (RenderedTree(Root, List(
+          Documents(List(RenderedDocument(Root / "doc.fo", expectedRoot))), 
+          Subtrees(List(RenderedTree(Root / "tree", List(
+              Documents(List(RenderedDocument(Root / "tree" / "sub.fo", expectedSub))) 
+          ))))
+      )))
+    }
+  }
+  
+  it should "render a tree with a single document to XSL-FO using a custom style sheet in the sub directory" in {
+    new FORenderer {
+      val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite), subtrees = 
+        Seq(new DocumentTree(Root / "tree", List(new Document(Root / "tree" / "sub", subElem).rewrite), styles = foStyles)))
+      val expectedRoot = RenderResult.fo.withDefaultTemplate("""<fo:block id="/.title" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title</fo:block>
+        |      <fo:block font-family="serif" font-size="10pt">bbb</fo:block>""".stripMargin)
+      val expectedSub = RenderResult.fo.withDefaultTemplate("""<fo:block id="/.sub-title" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Sub Title</fo:block>
+        |      <fo:block font-family="serif" font-size="11pt">ccc</fo:block>""".stripMargin)
+      renderedTree should be (RenderedTree(Root, List(
+          Documents(List(RenderedDocument(Root / "doc.fo", expectedRoot))), 
+          Subtrees(List(RenderedTree(Root / "tree", List(
+              Documents(List(RenderedDocument(Root / "tree" / "sub.fo", expectedSub))) 
+          ))))
+      )))
+    }
+  }
+  
+  it should "render a tree with a single document to XSL-FO using a custom style sheet programmatically" in {
+    new FORenderer {
+      override val render = Render as XSLFO.withStyles(foStyles("fo"))
+      val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite), subtrees = 
+        Seq(new DocumentTree(Root / "tree", List(new Document(Root / "tree" / "sub", subElem).rewrite))))
+      val expectedRoot = RenderResult.fo.withDefaultTemplate("""<fo:block id="/.title" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title</fo:block>
+        |      <fo:block font-family="serif" font-size="11pt">bbb</fo:block>""".stripMargin)
+      val expectedSub = RenderResult.fo.withDefaultTemplate("""<fo:block id="/.sub-title" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Sub Title</fo:block>
+        |      <fo:block font-family="serif" font-size="11pt">ccc</fo:block>""".stripMargin)
+      renderedTree should be (RenderedTree(Root, List(
+          Documents(List(RenderedDocument(Root / "doc.fo", expectedRoot))), 
+          Subtrees(List(RenderedTree(Root / "tree", List(
+              Documents(List(RenderedDocument(Root / "tree" / "sub.fo", expectedSub))) 
+          ))))
+      )))
     }
   }
   
