@@ -37,6 +37,7 @@ import laika.api.Parse.Parsers
 import laika.api.Parse.Parser
 import Transform._
 import laika.factory.RenderResultProcessor
+import laika.parse.css.ParseStyleSheet
   
 /** API for performing a transformation operation from and to various types of input and output,
  *  combining a parse and render operation. 
@@ -346,6 +347,11 @@ object Transform {
     protected def withInputBuilder (f: InputConfigBuilder => InputConfigBuilder): ThisType
     
     protected def withParallelExecution: ThisType
+    
+    /** Specifies the style sheet engine to use for 
+     *  parsing all CSS inputs found in the tree.
+     */
+    def withStyleSheets (parser: ParseStyleSheet) = withInputBuilder(_.withStyleSheets(parser))
     
     /** Specifies the template engine to use for 
      *  parsing all template inputs found in the tree.

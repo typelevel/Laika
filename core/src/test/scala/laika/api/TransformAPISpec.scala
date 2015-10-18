@@ -38,6 +38,12 @@ import laika.tree.Templates._
 import laika.template.ParseTemplate
 import laika.parse.rst.ReStructuredText
 import laika.render.TextWriter
+import laika.parse.css.Styles.StyleDeclarationSet
+import laika.parse.css.Styles.StyleDeclaration
+import laika.parse.css.Styles.Selector
+import laika.parse.css.Styles.ElementType
+import laika.render.XSLFO
+import laika.parse.css.ParseStyleSheet
 
 class TransformAPISpec extends FlatSpec 
                        with Matchers {
@@ -175,6 +181,7 @@ class TransformAPISpec extends FlatSpec
     
     val contents = Map(
       "name" -> "foo",
+      "style" -> "13",
       "link" -> "[link](foo)",
       "directive" -> "aa @:foo bar. bb",
       "dynDoc" -> "{{config.value}}",
@@ -272,6 +279,28 @@ class TransformAPISpec extends FlatSpec
       transformWithTemplates(ParseTemplate as parser) should be (root(List(docs(
         (Root / "main1.txt", result),
         (Root / "main2.txt", result)
+      ))))
+    }
+  }
+  
+  it should "transform a tree with a custom style sheet engine" in {
+    new TreeTransformer {
+      import laika.tree.helper.OutputBuilder._
+      // the PrettyPrint renderer does not use stylesheets, so we must use XSL-FO here
+      def styleDecl(fontSize: String) =
+        StyleDeclaration(Selector(Set(ElementType("Paragraph"))), Map("font-size" -> s"${fontSize}pt"))
+      val parser: Input => StyleDeclarationSet = input =>
+        new StyleDeclarationSet(Set(input.path), Set(styleDecl(input.asParserInput.source.toString)))
+      val dirs = """- doc1.md:name
+        |- styles.fo.css:style""".stripMargin
+      val template = Input.fromClasspath("/templates/default.template.fo", Root / "default.template.fo").asParserInput.source.toString
+      val body = """<fo:block font-family="serif" font-size="13pt">foo</fo:block>"""
+      val result = template.replace("{{document.content}}", body)
+      val providerBuilder = new TestProviderBuilder
+      val styles = ParseStyleSheet as parser
+      Transform from Markdown to XSLFO fromTree input(dirs).inParallel withStyleSheets styles toTree output(providerBuilder).inParallel
+      providerBuilder.result should be (root(List(docs(
+        (Root / "doc1.fo", result)
       ))))
     }
   }
