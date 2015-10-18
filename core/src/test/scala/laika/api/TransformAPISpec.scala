@@ -288,9 +288,9 @@ class TransformAPISpec extends FlatSpec
       import laika.tree.helper.OutputBuilder._
       // the PrettyPrint renderer does not use stylesheets, so we must use XSL-FO here
       def styleDecl(fontSize: String) =
-        StyleDeclaration(Selector(Set(ElementType("Paragraph"))), Map("font-size" -> s"${fontSize}pt"))
+        StyleDeclaration(ElementType("Paragraph"), "font-size" -> s"${fontSize}pt")
       val parser: Input => StyleDeclarationSet = input =>
-        new StyleDeclarationSet(Set(input.path), Set(styleDecl(input.asParserInput.source.toString)))
+        StyleDeclarationSet(input.path, styleDecl(input.asParserInput.source.toString))
       val dirs = """- doc1.md:name
         |- styles.fo.css:style""".stripMargin
       val template = Input.fromClasspath("/templates/default.template.fo", Root / "default.template.fo").asParserInput.source.toString

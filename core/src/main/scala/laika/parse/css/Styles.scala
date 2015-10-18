@@ -103,6 +103,10 @@ object Styles {
     
   }
   
+  object StyleDeclaration extends ((Selector, Map[String, String]) => StyleDeclaration) {
+    def apply(predicate: Predicate, styles: (String, String)*): StyleDeclaration = apply(Selector(Set(predicate)), styles.toMap)
+  }
+  
   case class StyleDeclarationSet (paths: Set[Path], styles: Set[StyleDeclaration]) {
     
     def collectStyles (element: Element, parents: Seq[Element]) = {
@@ -117,9 +121,11 @@ object Styles {
     
   }
   
-  object StyleDeclarationSet {
+  object StyleDeclarationSet extends ((Set[Path], Set[StyleDeclaration]) => StyleDeclarationSet) {
     
     val empty = new StyleDeclarationSet(Set(Root), Set.empty) 
+    
+    def apply(path: Path, styles: StyleDeclaration*): StyleDeclarationSet = apply(Set(path), styles.toSet)
     
   }
   

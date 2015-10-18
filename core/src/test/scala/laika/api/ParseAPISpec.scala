@@ -325,9 +325,9 @@ class ParseAPISpec extends FlatSpec
         }
       }
       def styleDecl(styleName: String, order: Int = 0) =
-        StyleDeclaration(Selector(Set(ElementType("Type")), order = order), Map(styleName -> "foo"))
+        StyleDeclaration(ElementType("Type"), styleName -> "foo").increaseOrderBy(order)
       val parser: Input => StyleDeclarationSet = input =>
-        new StyleDeclarationSet(Set(input.path), Set(styleDecl(input.name.takeWhile(_ != '.'))))
+        StyleDeclarationSet(input.path, styleDecl(input.name.takeWhile(_ != '.')))
       val dirs = """- main1.aaa.css:name
         |- main2.bbb.css:name
         |- main3.aaa.css:name""".stripMargin
