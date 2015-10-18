@@ -25,7 +25,10 @@ import scala.io.Source
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
+
 import laika.render.PrettyPrint
+import laika.render._
+import laika.render.helper.RenderResult
 import laika.tree.Elements.Text
 import laika.tree.helper.ModelBuilder
 import laika.tree.Documents.DocumentTree
@@ -117,48 +120,103 @@ class RenderAPISpec extends FlatSpec
         |. . Text - 'Doc""".stripMargin + num + "'"
   }
   
-  trait TreeRenderer {
-    val input: DocumentTree
+  trait TreeRenderer[W] {
+    def input: DocumentTree
+    
+    def render: Render[W, Render.SingleTarget, Render.TreeTarget]
     
     def tree (builder: TestProviderBuilder) = new OutputConfigBuilder(builder, Codec.UTF8)
     
     def renderedTree = {
       val builder = new TestProviderBuilder
-      Render as PrettyPrint from input toTree tree(builder)
+      render from input toTree tree(builder)
       builder.result
     }
   }
-      
+  
+  trait PrettyPrintRenderer extends TreeRenderer[TextWriter] {
+    val render = Render as PrettyPrint
+  }
+  
+  trait HTMLRenderer extends TreeRenderer[HTMLWriter] {
+    val rootElem = root(h(1, "Title", "title"), p("bbb"))
+    val render = Render as HTML
+  }
+  
+  trait FORenderer extends TreeRenderer[FOWriter] {
+    val rootElem = root(h(1, "Title", "title"), p("bbb"))
+    val render = Render as XSLFO
+  }
+  
   it should "render an empty tree" in {
-    new TreeRenderer {
+    new PrettyPrintRenderer {
       val input = new DocumentTree(Root, Nil)
       renderedTree should be (RenderedTree(Root, Nil))
     }
   }
   
   it should "render a tree with a single document" in {
-    new TreeRenderer {
+    new PrettyPrintRenderer {
       val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem)))
       renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.txt", expected))))))
     }
   }
   
+  it should "render a tree with a single document to HTML using the default template" in {
+    new HTMLRenderer {
+      val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite))
+      val expected = RenderResult.html.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
+        |      <p>bbb</p>""".stripMargin)
+      renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.html", expected))))))
+    }
+  }
+  
+  it should "render a tree with a single document to HTML using a custom template" in {
+    new HTMLRenderer {
+      val template = new TemplateDocument(Root / "default.template.html", tRoot(tt("["), TemplateContextReference("document.content"), tt("]")))
+      val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite), templates = Seq(template))
+      val expected = """[<h1 id="title" class="title">Title</h1>
+        |<p>bbb</p>]""".stripMargin
+      renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.html", expected))))))
+    }
+  }
+  
+  it should "render a tree with a single document to XSL-FO using the default template and default CSS" in {
+    new FORenderer {
+      val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite))
+      // TODO - check id generation
+      val expected = RenderResult.fo.withDefaultTemplate("""<fo:block id="/.title" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title</fo:block>
+        |      <fo:block font-family="serif" font-size="10pt">bbb</fo:block>""".stripMargin)
+      renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.fo", expected))))))
+    }
+  }
+  
+  it should "render a tree with a single document to XSL-FO using a custom template" in {
+    new FORenderer {
+      val template = new TemplateDocument(Root / "default.template.fo", tRoot(tt("["), TemplateContextReference("document.content"), tt("]")))
+      val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite), templates = Seq(template))
+      val expected = """[<fo:block id="/.title" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title</fo:block>
+        |<fo:block font-family="serif" font-size="10pt">bbb</fo:block>]""".stripMargin
+      renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.fo", expected))))))
+    }
+  }
+  
   it should "render a tree with a single dynamic document" in {
-    new TreeRenderer with DocBuilder {
+    new PrettyPrintRenderer with DocBuilder {
       val input = new DocumentTree(Root, Nil, dynamicDocuments = List(dynamicDoc(1)))
       renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc1.txt", renderedDynDoc(1)))))))
     }
   }
   
   it should "render a tree with a single static document" in {
-    new TreeRenderer with DocBuilder {
+    new PrettyPrintRenderer with DocBuilder {
       val input = new DocumentTree(Root, Nil, staticDocuments = List(staticDoc(1)))
       renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "static1.txt", "Static1"))))))
     }
   }
   
   it should "render a tree with all available file types" in {
-    new TreeRenderer with DocBuilder {
+    new PrettyPrintRenderer with DocBuilder {
       val input = new DocumentTree(Root,
         documents = List(markupDoc(1), markupDoc(2)),
         dynamicDocuments = List(dynamicDoc(1), dynamicDoc(2)),
