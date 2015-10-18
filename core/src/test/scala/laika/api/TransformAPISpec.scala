@@ -27,23 +27,24 @@ import scala.io.Source
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
-import laika.parse.markdown.Markdown
-import laika.render.PrettyPrint
-import laika.tree.Elements.Text
-import laika.tree.helper.InputBuilder
-import laika.tree.Documents.Root
-import laika.tree.Documents.Static
 import laika.io.Input
-import laika.tree.Templates._
-import laika.template.ParseTemplate
 import laika.parse.rst.ReStructuredText
-import laika.render.TextWriter
 import laika.parse.css.Styles.StyleDeclarationSet
 import laika.parse.css.Styles.StyleDeclaration
 import laika.parse.css.Styles.Selector
 import laika.parse.css.Styles.ElementType
-import laika.render.XSLFO
 import laika.parse.css.ParseStyleSheet
+import laika.parse.markdown.Markdown
+import laika.render.PrettyPrint
+import laika.render.XSLFO
+import laika.render.TextWriter
+import laika.render.helper.RenderResult
+import laika.tree.Elements.Text
+import laika.tree.Documents.Root
+import laika.tree.Documents.Static
+import laika.tree.Templates._
+import laika.tree.helper.InputBuilder
+import laika.template.ParseTemplate
 
 class TransformAPISpec extends FlatSpec 
                        with Matchers {
@@ -293,9 +294,7 @@ class TransformAPISpec extends FlatSpec
         StyleDeclarationSet(input.path, styleDecl(input.asParserInput.source.toString))
       val dirs = """- doc1.md:name
         |- styles.fo.css:style""".stripMargin
-      val template = Input.fromClasspath("/templates/default.template.fo", Root / "default.template.fo").asParserInput.source.toString
-      val body = """<fo:block font-family="serif" font-size="13pt">foo</fo:block>"""
-      val result = template.replace("{{document.content}}", body)
+      val result = RenderResult.fo.withDefaultTemplate("""<fo:block font-family="serif" font-size="13pt">foo</fo:block>""")
       val providerBuilder = new TestProviderBuilder
       val styles = ParseStyleSheet as parser
       Transform from Markdown to XSLFO fromTree input(dirs).inParallel withStyleSheets styles toTree output(providerBuilder).inParallel
