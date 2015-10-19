@@ -312,7 +312,7 @@ class ParseAPISpec extends FlatSpec
         |- main2.template.html:name""".stripMargin
       def template (num: Int) = TemplateView(Root / (s"main$num.template.html"), TemplateRoot(List(TemplateString("$$foo"))))
       val treeResult = TreeView(Root, List(TemplateDocuments(Template, List(template(1),template(2)))))
-      parsedRawWith(_.withTemplates(ParseTemplate as parser)) should be (treeResult)
+      parsedRawWith(_.withTemplateParser(ParseTemplate as parser)) should be (treeResult)
     }
   }
   

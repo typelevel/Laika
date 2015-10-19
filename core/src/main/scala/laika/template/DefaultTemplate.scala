@@ -54,7 +54,7 @@ class DefaultTemplate private (
    *  )    
    * 
    *  Transform from Markdown to HTML withConfig RootDirectory("my-home")
-   *      .withTemplates(ParseTemplate as templates)   
+   *      .withTemplateParser(ParseTemplate as templates)   
    *  }}}
    *  
    *  The code above registers a template directive that detects markup like

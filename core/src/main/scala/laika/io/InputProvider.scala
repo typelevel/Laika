@@ -215,14 +215,14 @@ object InputProvider {
     /** Specifies the template engine to use for 
      *  parsing all template inputs found in the tree.
      */
-    def withTemplates (parser: ParseTemplate) = 
+    def withTemplateParser (parser: ParseTemplate) = 
       new InputConfigBuilder(provider, codec, docTypeMatcher, Some(parser), styleSheetParser, config, isParallel)
     
     /** Specifies custom template directives to use with
      *  the default template engine.
      */
     def withTemplateDirectives (directives: Templates.Directive*) =
-      withTemplates(ParseTemplate as DefaultTemplate.withDirectives(directives:_*))
+      withTemplateParser(ParseTemplate as DefaultTemplate.withDirectives(directives:_*))
 
     /** Specifies the function to use for determining the document type
      *  of the input based on its path.

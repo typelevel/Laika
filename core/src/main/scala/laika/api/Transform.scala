@@ -356,7 +356,7 @@ object Transform {
     /** Specifies the template engine to use for 
      *  parsing all template inputs found in the tree.
      */
-    def withTemplates (parse: ParseTemplate) = withInputBuilder(_.withTemplates(parse))
+    def withTemplateParser (parse: ParseTemplate) = withInputBuilder(_.withTemplateParser(parse))
     
     /** Specifies custom template directives to use with
      *  the default template engine.

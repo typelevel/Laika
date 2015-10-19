@@ -163,7 +163,7 @@ class TransformAPISpec extends FlatSpec
     
     def transformWithConfig (config: String) = transformWith(_.withConfigString(config))
     def transformWithDocTypeMatcher (matcher: Path => DocumentType) = transformWith(_.withDocTypeMatcher(matcher))
-    def transformWithTemplates (templates: ParseTemplate) = transformWith(_.withTemplates(templates))
+    def transformWithTemplates (templates: ParseTemplate) = transformWith(_.withTemplateParser(templates))
     def transformWithDirective (directive: Templates.Directive) = transformWith(_.withTemplateDirectives(directive))
     
     def transformInParallel = {
