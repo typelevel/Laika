@@ -297,7 +297,7 @@ class TransformAPISpec extends FlatSpec
       val result = RenderResult.fo.withDefaultTemplate("""<fo:block font-family="serif" font-size="13pt">foo</fo:block>""")
       val providerBuilder = new TestProviderBuilder
       val styles = ParseStyleSheet as parser
-      Transform from Markdown to XSLFO fromTree input(dirs).inParallel withStyleSheets styles toTree output(providerBuilder).inParallel
+      Transform from Markdown to XSLFO fromTree input(dirs).inParallel withStyleSheetParser styles toTree output(providerBuilder).inParallel
       providerBuilder.result should be (root(List(docs(
         (Root / "doc1.fo", result)
       ))))

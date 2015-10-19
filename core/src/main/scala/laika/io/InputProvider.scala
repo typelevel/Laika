@@ -209,7 +209,7 @@ object InputProvider {
     /** Specifies the style sheet engine to use for 
      *  parsing all CSS inputs found in the tree.
      */
-    def withStyleSheets (parser: ParseStyleSheet) = 
+    def withStyleSheetParser (parser: ParseStyleSheet) = 
       new InputConfigBuilder(provider, codec, docTypeMatcher, templateParser, Some(parser), config, isParallel)
     
     /** Specifies the template engine to use for 

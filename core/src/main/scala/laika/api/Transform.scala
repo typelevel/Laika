@@ -351,7 +351,7 @@ object Transform {
     /** Specifies the style sheet engine to use for 
      *  parsing all CSS inputs found in the tree.
      */
-    def withStyleSheets (parser: ParseStyleSheet) = withInputBuilder(_.withStyleSheets(parser))
+    def withStyleSheetParser (parser: ParseStyleSheet) = withInputBuilder(_.withStyleSheetParser(parser))
     
     /** Specifies the template engine to use for 
      *  parsing all template inputs found in the tree.

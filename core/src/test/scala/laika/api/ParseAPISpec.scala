@@ -335,7 +335,7 @@ class ParseAPISpec extends FlatSpec
           "aaa" -> StyleDeclarationSet(Set(Path("/main1.aaa.css"), Path("/main3.aaa.css")), Set(styleDecl("main1"), styleDecl("main3", 1))),
           "bbb" -> StyleDeclarationSet(Set(Path("/main2.bbb.css")), Set(styleDecl("main2")))
       ))))
-      parsedRawWith(_.withStyleSheets(ParseStyleSheet as parser).withDocTypeMatcher(docTypeMatcher)) should be (treeResult)
+      parsedRawWith(_.withStyleSheetParser(ParseStyleSheet as parser).withDocTypeMatcher(docTypeMatcher)) should be (treeResult)
     }
   }
   
