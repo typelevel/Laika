@@ -45,6 +45,7 @@ import laika.tree.Documents.Static
 import laika.tree.Templates._
 import laika.tree.helper.InputBuilder
 import laika.template.ParseTemplate
+import laika.api.Transform.TransformMappedOutput
 
 class TransformAPISpec extends FlatSpec 
                        with Matchers {
@@ -172,7 +173,7 @@ class TransformAPISpec extends FlatSpec
       builder.result
     }
     
-    private def transformWith (f: InputConfigBuilder => InputConfigBuilder, transformer: Transform[TextWriter, Render.SingleTarget, Transform.TreeTarget] = transform) = {
+    private def transformWith (f: InputConfigBuilder => InputConfigBuilder, transformer: TransformMappedOutput[TextWriter] = transform) = {
       val builder = new TestProviderBuilder
       transformer fromTree f(input(dirs)) toTree output(builder)
       builder.result
