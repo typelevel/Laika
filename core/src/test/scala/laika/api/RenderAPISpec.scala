@@ -26,6 +26,7 @@ import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
 
+import laika.api.Render.RenderMappedOutput
 import laika.parse.css.Styles.StyleDeclarationSet
 import laika.parse.css.Styles.StyleDeclaration
 import laika.parse.css.Styles.ElementType
@@ -126,7 +127,7 @@ class RenderAPISpec extends FlatSpec
   trait TreeRenderer[W] {
     def input: DocumentTree
     
-    def render: Render[W, Render.SingleTarget, Render.TreeTarget]
+    def render: RenderMappedOutput[W]
     
     def tree (builder: TestProviderBuilder) = new OutputConfigBuilder(builder, Codec.UTF8)
     
@@ -150,7 +151,7 @@ class RenderAPISpec extends FlatSpec
     val foStyles = Map("fo" -> StyleDeclarationSet(Root / "styles.fo.css", StyleDeclaration(ElementType("Paragraph"), "font-size" -> "11pt")))
     val rootElem = root(h(1, "Title", "title"), p("bbb"))
     val subElem = root(h(1, "Sub Title", "sub-title"), p("ccc"))
-    def render: Render[FOWriter, Render.SingleTarget, Render.TreeTarget] = Render as XSLFO
+    def render: RenderMappedOutput[FOWriter] = Render as XSLFO
   }
   
   it should "render an empty tree" in {

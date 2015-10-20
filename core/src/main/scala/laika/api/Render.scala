@@ -63,10 +63,16 @@ import laika.factory.RenderResultProcessor
  * 
  *  @author Jens Halm
  */
-class Render[Writer, DocTarget, TreeTarget] private (private[Render] val factory: RendererFactory[Writer],
-                                                     operation: Operation[DocTarget, TreeTarget],
-                                                     private[Render] val customRenderers: List[Writer => RenderFunction] = Nil) {
+abstract class Render[Writer] private (private[Render] val factory: RendererFactory[Writer],
+                              private[Render] val customRenderers: List[Writer => RenderFunction] = Nil) {
 
+  
+  type DocTarget
+  
+  type TreeTarget
+  
+  type ThisType
+  
 
   /** Specifies a custom render function that overrides one or more of the default
    *  renderers for the output format this instance uses.
@@ -87,9 +93,7 @@ class Render[Writer, DocTarget, TreeTarget] private (private[Render] val factory
    *  } from doc toString
    *  }}}
    */
-  def using (render: Writer => RenderFunction): Render[Writer, DocTarget, TreeTarget] = {
-    new Render(factory, operation, render :: customRenderers)
-  }
+  def using (render: Writer => RenderFunction): ThisType
   
   
   /** Specifies the element to render. This may be a `RootElement` instance
@@ -99,84 +103,80 @@ class Render[Writer, DocTarget, TreeTarget] private (private[Render] val factory
    *  @param elem the element to render
    *  @return a new Operation instance that allows to specify the output
    */
-  def from (elem: Element): DocTarget = operation.fromElement(elem, executor)
+  def from (elem: Element): DocTarget
   
   /** Specifies the document to render. 
    * 
    *  @param doc the document to render
    *  @return a new Operation instance that allows to specify the output
    */
-  def from (doc: Document): DocTarget = operation.fromDocument(doc, executor)
+  def from (doc: Document): DocTarget
   
   /** Specifies the document tree to render. 
    * 
    *  @param tree the document tree to render
    *  @return a new BatchOperation instance that allows to specify the outputs
    */
-  def from (tree: DocumentTree): TreeTarget = operation.fromTree(tree, executor)
+  def from (tree: DocumentTree): TreeTarget
   
   
-  private object executor extends Render.Executor {
     
-    def render (element: Element, output: Output): Unit = render(element, output, factory.defaultStyles)
+  protected[this] def render (element: Element, output: Output, styles: StyleDeclarationSet): Unit = { 
+    
+    object RenderFunction extends (Element => Unit) {
+      var delegate: Element => Unit = _
+      def apply (element: Element) = delegate(element)
+    }
+    
+    IO(output) { out =>
+      val (writer, renderF) = factory.newRenderer(out, element, RenderFunction, styles)
       
-    def render (element: Element, output: Output, styles: StyleDeclarationSet) = { 
-      
-      object RenderFunction extends (Element => Unit) {
-        var delegate: Element => Unit = _
-        def apply (element: Element) = delegate(element)
-      }
-      
-      IO(output) { out =>
-        val (writer, renderF) = factory.newRenderer(out, element, RenderFunction, styles)
-        
-        RenderFunction.delegate = customRenderers match {
-          case Nil => renderF
-          case xs  => {
-            val default:RenderFunction = { case e => renderF(e) }
-            (xs map { _(writer) }).reverse reduceRight { _ orElse _ } orElse default
-          }
+      RenderFunction.delegate = customRenderers match {
+        case Nil => renderF
+        case xs  => {
+          val default:RenderFunction = { case e => renderF(e) }
+          (xs map { _(writer) }).reverse reduceRight { _ orElse _ } orElse default
         }
-        
-        RenderFunction(element)
-        
-        out.flush()
       }
+      
+      RenderFunction(element)
+      
+      out.flush()
     }
-    
-    def render (tree: DocumentTree, config: OutputConfig) = {
-      
-      type Operation = () => Unit
-      
-      def renderTree (provider: OutputProvider, styles: StyleDeclarationSet)(doc: Document): Operation = {
-        val output = provider.newOutput(doc.path.basename +"."+ factory.fileSuffix)
-        () => render(doc.content, output, styles)
-      } 
-        
-      def copy (provider: OutputProvider)(input: Input): Operation = {
-        val output = provider.newOutput(input.path.name)
-        () => IO.copy(input, output)
-      }
-      
-      def collectOperations (provider: OutputProvider, parentStyles: StyleDeclarationSet, tree: DocumentTree): Seq[Operation] = {
-        val styles = parentStyles ++ tree.styles(factory.fileSuffix)
-        
-        (tree.documents map renderTree(provider, styles)) ++ 
-        (tree.dynamicDocuments map renderTree(provider, styles)) ++ 
-        (tree.staticDocuments map copy(provider)) ++
-        (tree.subtrees map { subtree => collectOperations(provider.newChild(subtree.name), styles, subtree)}).flatten
-      }
-    
-      val templateName = "default.template." + factory.fileSuffix
-      val treeWithTpl = if (tree.selectTemplate(Current / templateName).isDefined) tree 
-                        else tree.withTemplate(new TemplateDocument(Root / templateName, factory.defaultTemplate)) 
-      val finalTree = treeWithTpl.applyTemplates(factory.fileSuffix)
-      val operations = collectOperations(config.provider, factory.defaultStyles, finalTree)
-      
-      (if (config.parallel) operations.par else operations) foreach (_())
-    }
-    
   }
+  
+  protected[this] def render (tree: DocumentTree, config: OutputConfig): Unit = {
+    
+    type Operation = () => Unit
+    
+    def renderTree (provider: OutputProvider, styles: StyleDeclarationSet)(doc: Document): Operation = {
+      val output = provider.newOutput(doc.path.basename +"."+ factory.fileSuffix)
+      () => render(doc.content, output, styles)
+    } 
+      
+    def copy (provider: OutputProvider)(input: Input): Operation = {
+      val output = provider.newOutput(input.path.name)
+      () => IO.copy(input, output)
+    }
+    
+    def collectOperations (provider: OutputProvider, parentStyles: StyleDeclarationSet, tree: DocumentTree): Seq[Operation] = {
+      val styles = parentStyles ++ tree.styles(factory.fileSuffix)
+      
+      (tree.documents map renderTree(provider, styles)) ++ 
+      (tree.dynamicDocuments map renderTree(provider, styles)) ++ 
+      (tree.staticDocuments map copy(provider)) ++
+      (tree.subtrees map { subtree => collectOperations(provider.newChild(subtree.name), styles, subtree)}).flatten
+    }
+  
+    val templateName = "default.template." + factory.fileSuffix
+    val treeWithTpl = if (tree.selectTemplate(Current / templateName).isDefined) tree 
+                      else tree.withTemplate(new TemplateDocument(Root / templateName, factory.defaultTemplate)) 
+    val finalTree = treeWithTpl.applyTemplates(factory.fileSuffix)
+    val operations = collectOperations(config.provider, factory.defaultStyles, finalTree)
+    
+    (if (config.parallel) operations.par else operations) foreach (_())
+  }
+    
 
 }
 
@@ -270,7 +270,7 @@ object Render {
    *  Various types of output can be
    *  specified to trigger the actual rendering.
    */
-  trait TreeTarget {
+  trait MappedTreeTarget {
     
     /** Renders the document tree to the
      *  specified directory and its subdirectories.
@@ -311,51 +311,49 @@ object Render {
     
   }
   
-  trait Operation[DocTarget,TreeTarget] {
+
     
-    def fromElement (element: Element, executor: Executor): DocTarget
+  class RenderMappedOutput[Writer] (factory: RendererFactory[Writer], 
+                                    customRenderers: List[Writer => RenderFunction] = Nil) extends Render[Writer](factory, customRenderers) {
     
-    def fromDocument (doc: Document, executor: Executor): DocTarget
+    type DocTarget = SingleTarget
+    type TreeTarget = MappedTreeTarget
+    type ThisType = RenderMappedOutput[Writer]
     
-    def fromTree (tree: DocumentTree, executor: Executor): TreeTarget
-    
-  }
-    
-  class MapOperation extends Operation[SingleTarget,TreeTarget] {
-    
-    def fromElement (element: Element, executor: Executor): SingleTarget = new SingleTarget {
-      protected def renderTo (out: Output) = executor.render(element, out)
+    def using (render: Writer => RenderFunction): ThisType =
+      new RenderMappedOutput(factory, render :: customRenderers)
+
+    def from (element: Element): SingleTarget = new SingleTarget {
+      protected def renderTo (out: Output) = render(element, out, factory.defaultStyles)
     }
     
-    def fromDocument (doc: Document, executor: Executor): SingleTarget = new SingleTarget {
-      protected def renderTo (out: Output) = executor.render(doc.content, out)
-    }
+    def from (doc: Document): SingleTarget = from(doc.content)
     
-    def fromTree (tree: DocumentTree, executor: Executor): TreeTarget = new TreeTarget {
-      protected def renderTo (out: OutputConfigBuilder) = executor.render(tree, out.build)
-    }
-    
-  }
-  
-  class GatherOperation[Writer] (processor: RenderResultProcessor[Writer]) extends Operation[BinaryTarget,BinaryTarget] {
-    
-    def fromElement (element: Element, executor: Executor): BinaryTarget = 
-      fromDocument(new Document(Root / "target", RootElement(Seq(TemplateRoot(Seq(TemplateElement(element)))))), executor)
-    
-    def fromDocument (doc: Document, executor: Executor): BinaryTarget = 
-      fromTree(new DocumentTree(Root, Seq(doc)), executor)
-    
-    def fromTree (tree: DocumentTree, executor: Executor): BinaryTarget = new BinaryTarget {
-      protected def renderBinary (out: Output with Binary) = processor.process(tree, executor.render, out.asBinaryOutput)
+    def from (tree: DocumentTree): TreeTarget = new MappedTreeTarget {
+      protected def renderTo (out: OutputConfigBuilder) = render(tree, out.build)
     }
     
   }
   
-  trait Executor {
+  class RenderGatheredOutput[Writer] (processor: RenderResultProcessor[Writer], 
+                                      customRenderers: List[Writer => RenderFunction] = Nil) extends Render[Writer](processor.factory, customRenderers) {
     
-    def render (element: Element, output: Output): Unit
+    type DocTarget = BinaryTarget
+    type TreeTarget = BinaryTarget
+    type ThisType = RenderGatheredOutput[Writer]
     
-    def render (tree: DocumentTree, output: OutputConfig): Unit
+    def using (render: Writer => RenderFunction): ThisType =
+      new RenderGatheredOutput(processor, render :: customRenderers)
+
+    def from (element: Element): BinaryTarget = 
+      from(new Document(Root / "target", RootElement(Seq(TemplateRoot(Seq(TemplateElement(element)))))))
+    
+    def from (doc: Document): BinaryTarget = 
+      from(new DocumentTree(Root, Seq(doc)))
+    
+    def from (tree: DocumentTree): BinaryTarget = new BinaryTarget {
+      protected def renderBinary (out: Output with Binary) = processor.process(tree, render, out.asBinaryOutput)
+    }
     
   }
   
@@ -366,7 +364,7 @@ object Render {
    * 
    *  @param factory the renderer factory responsible for creating the final renderer
    */
-  def as [Writer] (factory: RendererFactory[Writer]): Render[Writer,SingleTarget,TreeTarget] = new Render(factory, new MapOperation) 
+  def as [Writer] (factory: RendererFactory[Writer]): RenderMappedOutput[Writer] = new RenderMappedOutput(factory) 
   
   /** Returns a new Render instance for the specified processor.
    *  This instance is usually an object provided by the library
@@ -374,6 +372,6 @@ object Render {
    * 
    *  @param factory the renderer factory responsible for creating the final renderer
    */
-  def as [Writer] (processor: RenderResultProcessor[Writer]): Render[Writer,BinaryTarget,BinaryTarget] = new Render(processor.factory, new GatherOperation(processor)) 
+  def as [Writer] (processor: RenderResultProcessor[Writer]): RenderGatheredOutput[Writer] = new RenderGatheredOutput(processor) 
   
 }

@@ -38,6 +38,8 @@ import laika.api.Parse.Parser
 import Transform._
 import laika.factory.RenderResultProcessor
 import laika.parse.css.ParseStyleSheet
+import laika.api.Render.RenderMappedOutput
+import laika.api.Render.RenderGatheredOutput
   
 /** API for performing a transformation operation from and to various types of input and output,
  *  combining a parse and render operation. 
@@ -292,7 +294,7 @@ object Transform {
     
   }
   
-  class MapOperation[Writer] (render: Render[Writer, Render.SingleTarget, Render.TreeTarget]) 
+  class MapOperation[Writer] (render: RenderMappedOutput[Writer]) 
       extends Operation[Writer, Render.SingleTarget, TreeTarget] {
     
     def fromDocument (doc: Document, rules: Rules): Render.SingleTarget = new Render.SingleTarget {
@@ -310,7 +312,7 @@ object Transform {
     
   }
   
-  class GatherOperation[Writer] (render: Render[Writer, Render.BinaryTarget, Render.BinaryTarget]) 
+  class GatherOperation[Writer] (render: RenderGatheredOutput[Writer]) 
       extends Operation[Writer, Render.BinaryTarget, GatherTarget] {
     
     def fromDocument (doc: Document, rules: Rules): Render.BinaryTarget = new Render.BinaryTarget {
@@ -407,7 +409,7 @@ object Transform {
   class TreeTarget (transform: (InputConfigBuilder, OutputConfigBuilder) => Unit,
                     inputBuilder: InputConfigBuilder, 
                     isParallel:Boolean = false) extends TreeConfigBuilder[TreeTarget] 
-                                                   with Render.TreeTarget { 
+                                                   with Render.MappedTreeTarget { 
     
     protected def withInputBuilder (f: InputConfigBuilder => InputConfigBuilder) 
       = new TreeTarget(transform, f(inputBuilder), isParallel)
