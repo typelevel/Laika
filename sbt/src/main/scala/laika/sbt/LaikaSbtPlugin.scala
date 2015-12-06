@@ -236,7 +236,7 @@ object LaikaSbtPlugin extends Plugin {
     
     val inputTreeTask = task {
       val builder = Directories(sourceDirectories.value, excludeFilter.value.accept)(encoding.value)
-        .withTemplates(templateParser.value)
+        .withTemplateParser(templateParser.value)
       val builder2 = if (parallel.value) builder.inParallel else builder
       docTypeMatcher.value map (builder2 withDocTypeMatcher _) getOrElse builder2
     }
@@ -258,9 +258,9 @@ object LaikaSbtPlugin extends Plugin {
       targetDir
     }
     
-    def prepareRenderer [Writer, DocTarget, TreeTarget] (
-        render: Render[Writer,DocTarget,TreeTarget], 
-        custom: Seq[Writer => RenderFunction]): Render[Writer,DocTarget,TreeTarget] = {
+    def prepareRenderer [Writer, R <: Render[Writer] { type ThisType = R }] (
+        render: R, 
+        custom: Seq[Writer => RenderFunction]): R = {
       (render /: custom) { case (render, renderer) => render using renderer }
     }
     
