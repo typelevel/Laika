@@ -207,7 +207,7 @@ class RenderAPISpec extends FlatSpec
     }
   }
   
-  it should "render a tree with a single document to XSL-FO using a custom style sheet in the root directory" in {
+  it should "render a tree with two documents to XSL-FO using a custom style sheet in the root directory" in {
     new FORenderer {
       val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite), styles = foStyles, subtrees = 
         Seq(new DocumentTree(Root / "tree", List(new Document(Root / "tree" / "sub", subElem).rewrite))))
@@ -224,7 +224,7 @@ class RenderAPISpec extends FlatSpec
     }
   }
   
-  it should "render a tree with a single document to XSL-FO using a custom style sheet in the sub directory" in {
+  it should "render a tree with two documents to XSL-FO using a custom style sheet in the sub directory" in {
     new FORenderer {
       val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite), subtrees = 
         Seq(new DocumentTree(Root / "tree", List(new Document(Root / "tree" / "sub", subElem).rewrite), styles = foStyles)))
@@ -241,7 +241,7 @@ class RenderAPISpec extends FlatSpec
     }
   }
   
-  it should "render a tree with a single document to XSL-FO using a custom style sheet programmatically" in {
+  it should "render a tree with two documents to XSL-FO using a custom style sheet programmatically" in {
     new FORenderer {
       override val render = Render as XSLFO.withStyles(foStyles("fo"))
       val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite), subtrees = 
