@@ -71,7 +71,7 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
   
   type TreeTarget
   
-  type ThisType
+  type ThisType <: Render[Writer]
   
 
   /** Specifies a custom render function that overrides one or more of the default

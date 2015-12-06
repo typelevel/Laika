@@ -93,7 +93,7 @@ abstract class Transform [Writer] private[Transform] (parse: Parse, rules: Rules
   
   type TreeTarget
   
-  type ThisType
+  type ThisType <: Transform[Writer]
   
   /** Specifies a rewrite rule to be applied to the document tree model between the
    *  parse and render operations. This is identical to calling `Document.rewrite`
@@ -436,7 +436,6 @@ object Transform {
     
   }
   
-
   /** Step in the setup for a transform operation where the
    *  renderer must be specified.
    */
