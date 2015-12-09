@@ -313,7 +313,7 @@ object Documents {
     
   }
 
-  case object DocumentContext {
+  object DocumentContext {
     
     def apply (document: Document): DocumentContext = {
       val tree = new DocumentTree(Root, Seq(document))
