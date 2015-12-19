@@ -43,6 +43,7 @@ import laika.tree.Elements.Text
 import laika.tree.Documents.Root
 import laika.tree.Documents.Static
 import laika.tree.Templates._
+import laika.tree.helper.OutputBuilder.readFile
 import laika.tree.helper.InputBuilder
 import laika.template.ParseTemplate
 import laika.api.Transform.TransformMappedOutput
@@ -409,6 +410,94 @@ class TransformAPISpec extends FlatSpec
           )
         )))
     }
+  }
+  
+  trait GatheringTransformer extends InputBuilder {
+    import laika.io.InputProvider.InputConfigBuilder
+    import laika.tree.helper.OutputBuilder._
+    
+    val srcRoot = """Title
+      |=====
+      |
+      |bbb""".stripMargin
+    
+    val srcSub = """Sub Title
+      |=========
+      |
+      |ccc""".stripMargin
+      
+    val contents = Map(
+      "docRoot" -> srcRoot,
+      "docSub" -> srcSub
+    )
+    
+    val dirs = """- docRoot.rst:docRoot
+        |+ dir
+        |  - docSub.rst:docSub""".stripMargin
+        
+    val expectedResult = """RootElement - Blocks: 2
+      |. Title(Id(title) + Styles(title)) - Spans: 1
+      |. . Text - 'Title'
+      |. Paragraph - Spans: 1
+      |. . Text - 'bbb'
+      |RootElement - Blocks: 2
+      |. Title(Id(sub-title) + Styles(title)) - Spans: 1
+      |. . Text - 'Sub Title'
+      |. Paragraph - Spans: 1
+      |. . Text - 'ccc'
+      |""".stripMargin
+    
+    def input (source: String) = new InputConfigBuilder(parseTreeStructure(source), Codec.UTF8)
+  }
+  
+  it should "render a tree with a RenderResultProcessor writing to an output stream" in new GatheringTransformer {
+    val out = new ByteArrayOutputStream
+    Transform from ReStructuredText to TestRenderResultProcessor fromTree input(dirs) toStream out
+    out.toString should be (expectedResult)
+  }
+  
+  it should "render a tree with a RenderResultProcessor writing to a file" in new GatheringTransformer {
+    val f = File.createTempFile("output", null)
+    Transform from ReStructuredText to TestRenderResultProcessor fromTree input(dirs) toFile f
+    readFile(f) should be (expectedResult)
+  }
+  
+  it should "render a tree with a RenderResultProcessor overriding the default renderer for specific element types" in new GatheringTransformer {
+    val modifiedResult = expectedResult.replaceAllLiterally(". Text", ". String")
+    val out = new ByteArrayOutputStream
+    Transform from ReStructuredText to TestRenderResultProcessor rendering { 
+      out => { case Text(content,_) => out << "String - '" << content << "'" } 
+    } fromTree input(dirs) toStream out
+    out.toString should be (modifiedResult)
+  }
+  
+  it should "render a tree with a RenderResultProcessor with a custom rewrite rule" in new GatheringTransformer {
+    val modifiedResult = expectedResult.replaceAllLiterally("Title'", "zzz'")
+    val out = new ByteArrayOutputStream
+    Transform from ReStructuredText to TestRenderResultProcessor usingRule { 
+      case Text(txt,_) => Some(Text(txt.replaceAllLiterally("Title", "zzz"))) 
+    } fromTree input(dirs) toStream out
+    out.toString should be (modifiedResult)
+  }
+  
+  it should "render a tree with a RenderResultProcessor with multiple custom rewrite rules" in new GatheringTransformer {
+    val modifiedResult = expectedResult.replaceAllLiterally("Title'", "zzz'").replaceAllLiterally("bbb", "xxx")
+    val out = new ByteArrayOutputStream
+    Transform from ReStructuredText to TestRenderResultProcessor usingRule { 
+      case Text(txt,_) => Some(Text(txt.replaceAllLiterally("Title", "zzz"))) 
+    } usingRule { 
+      case Text("bbb",_) => Some(Text("xxx")) 
+    } fromTree input(dirs) toStream out
+    out.toString should be (modifiedResult)
+  }
+  
+  it should "render a tree with a RenderResultProcessor with a custom rewrite rule that depends on the document context" in new GatheringTransformer {
+    val modifiedResult = expectedResult.replaceAllLiterally("Sub Title", "Sub docSub.rst")
+    val out = new ByteArrayOutputStream
+    Transform from ReStructuredText to TestRenderResultProcessor creatingRule { context => { 
+      case Text("Sub Title",_) => Some(Text("Sub " + context.document.path.name))
+    }} fromTree input(dirs) toStream out
+    out.toString should be (modifiedResult)
   }
   
   trait FileSystemTest {

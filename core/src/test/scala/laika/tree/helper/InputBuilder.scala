@@ -71,12 +71,9 @@ trait InputBuilder {
     
     def build (docTypeMatcher: Path => DocumentType, codec: Codec): InputProvider = {
     
-      def input (inputName: String, contentId: String, path: Path) = {
-        val content = contents(contentId).replace("@name", inputName)
-        Input.fromString(content, path / inputName)
-      }
+      def input (inputName: String, contentId: String, path: Path) = Input.fromString(contents(contentId), path / inputName)
       
-      def docType (name: String) = docTypeMatcher(path / name)
+      def docType (inputName: String) = docTypeMatcher(path / inputName)
   
       val documents = files map (f => (docType(f._1), input(f._1, f._2, path))) groupBy (_._1) mapValues (_.map(_._2)) withDefaultValue Nil
       

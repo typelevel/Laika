@@ -115,7 +115,7 @@ abstract class Transform [Writer] private[Transform] (parse: Parse, rules: Rules
    *  In case multiple rewrite rules need to be applied it may be more efficient to
    *  first combine them with `orElse`.
    */
-  def usingRule (newRule: RewriteRule) = creatingRule(_ => newRule): ThisType
+  def usingRule (newRule: RewriteRule): ThisType = creatingRule(_ => newRule)
   
   /** Specifies a rewrite rule to be applied to the document tree model between the
    *  parse and render operations. This is identical to calling `Document.rewrite`
