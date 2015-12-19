@@ -312,7 +312,7 @@ class RenderAPISpec extends FlatSpec
               RenderedDocument(Root / "dir1" / "static4.txt", "Static4")
            ))
         )),
-         RenderedTree(Root / "dir2", List(
+        RenderedTree(Root / "dir2", List(
           Documents(List(
             RenderedDocument(Root / "dir2" / "doc5.txt", renderedDoc(5)),
             RenderedDocument(Root / "dir2" / "doc6.txt", renderedDoc(6)),
@@ -323,6 +323,42 @@ class RenderAPISpec extends FlatSpec
           ))
         ))))
       )))
+    }
+  }
+  
+  trait GatherRenderer {
+    val rootElem = root(h(1, "Title", "title"), p("bbb"))
+    val subElem = root(h(1, "Sub Title", "sub-title"), p("ccc"))
+    
+    val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite), subtrees = 
+      Seq(new DocumentTree(Root / "tree", List(new Document(Root / "tree" / "sub", subElem).rewrite))))
+    
+    val expectedResult = """RootElement - Blocks: 2
+      |. Title(Id(title) + Styles(title)) - Spans: 1
+      |. . Text - 'Title'
+      |. Paragraph - Spans: 1
+      |. . Text - 'bbb'
+      |RootElement - Blocks: 2
+      |. Title(Id(sub-title) + Styles(title)) - Spans: 1
+      |. . Text - 'Sub Title'
+      |. Paragraph - Spans: 1
+      |. . Text - 'ccc'
+      |""".stripMargin
+  }
+    
+  it should "render a tree with two documents using a RenderResultProcessor writing to an output stream" in {
+    new GatherRenderer {
+      val out = new ByteArrayOutputStream
+      Render as TestRenderResultProcessor from input toStream out
+      out.toString should be (expectedResult)
+    }
+  }
+  
+  it should "render a tree with two documents using a RenderResultProcessor writing to a file" in {
+    new GatherRenderer {
+      val f = File.createTempFile("output", null)
+      Render as TestRenderResultProcessor from input toFile f
+      readFile(f) should be (expectedResult)
     }
   }
   
