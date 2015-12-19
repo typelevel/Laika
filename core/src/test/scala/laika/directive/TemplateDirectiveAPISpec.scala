@@ -191,6 +191,13 @@ class TemplateDirectiveAPISpec extends FlatSpec
     }
   }
   
+  it should "support a directive with a nested pair of braces" in {
+    new RequiredDefaultBody with TemplateParser {
+      val body = tss(tt(" some {ref} text "))
+      Parsing ("aa @:dir: { some {ref} text } bb") should produce (tRoot(tt("aa "), body, tt(" bb")))
+    }
+  }
+  
   it should "detect a directive with a missing required default body" in {
     new RequiredDefaultBody with TemplateParser {
       val msg = "One or more errors processing directive 'dir': required default body is missing"

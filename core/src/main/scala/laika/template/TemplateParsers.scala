@@ -93,7 +93,7 @@ object TemplateParsers {
   
   /** Parsers specific to block elements in text markup.
    */
-  trait MarkupBlocks extends TemplateParsers with DirectiveParsers.BlockDirectives {
+  trait MarkupBlocks extends DirectiveParsers.BlockDirectives {
     
     abstract override protected def prepareBlockParsers (nested: Boolean) = 
       blockDirectiveParser :: super.prepareBlockParsers(nested)

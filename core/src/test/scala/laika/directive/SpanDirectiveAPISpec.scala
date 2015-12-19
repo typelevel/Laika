@@ -196,6 +196,13 @@ class SpanDirectiveAPISpec extends FlatSpec
     }
   }
   
+  it should "support a directive with a nested pair of braces" in {
+    new RequiredDefaultBody with SpanParser {
+      val body = ss(txt(" some {ref} text "))
+      Parsing ("aa @:dir: { some {ref} text } bb") should produce (ss(txt("aa "), body, txt(" bb")))
+    }
+  }
+  
   it should "detect a directive with a missing required default body" in {
     new RequiredDefaultBody with SpanParser {
       val msg = "One or more errors processing directive 'dir': required default body is missing"

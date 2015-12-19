@@ -29,7 +29,7 @@ import laika.tree.Templates._
  *  
  *  @author Jens Halm
  */
-trait DirectiveParsers extends laika.parse.InlineParsers { 
+trait DirectiveParsers extends laika.parse.InlineParsers {
   
   
   /** Groups the result of the parser and the source string
@@ -146,6 +146,8 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
     }) 
   }
   
+  protected val nestedBraces = anyUntil('}') ^^ (str => Text(s"{$str}"))
+  
 }
 
 /** Provides the concrete sub traits for the three different directive types.
@@ -167,7 +169,8 @@ object DirectiveParsers {
     }
     
     lazy val templateDirectiveParser: Parser[TemplateSpan] = {
-      val bodyContent = wsOrNl ~ '{' ~> (withSource(spans(anyUntil('}'), spanParsers)) ^^ (_._2.dropRight(1)))
+      val contextRefOrNestedBraces = '{' -> (reference(TemplateContextReference(_)) | nestedBraces)
+      val bodyContent = wsOrNl ~ '{' ~> (withSource(spans(anyUntil('}'), spanParsers + contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
       withSource(directiveParser(bodyContent, false)) ^^ { case (result, source) =>
         
         def createContext (parts: PartMap, docContext: Option[DocumentContext]): Templates.DirectiveContext = {
@@ -188,7 +191,7 @@ object DirectiveParsers {
   
   /** Provides the parsers for directives in inline elements of markup documents.
    */
-  trait SpanDirectives extends DirectiveParsers {
+  trait SpanDirectives extends DirectiveParsers { self: TemplateParsers =>
     
     def getSpanDirective (name: String): Option[Spans.Directive]
     
@@ -197,7 +200,8 @@ object DirectiveParsers {
     }
     
     lazy val spanDirectiveParser: Parser[Span] = {
-      val bodyContent = wsOrNl ~ '{' ~> (withSource(spans(anyUntil('}'), spanParsers)) ^^ (_._2.dropRight(1)))
+      val contextRefOrNestedBraces = '{' -> (reference(MarkupContextReference(_)) | nestedBraces)
+      val bodyContent = wsOrNl ~ '{' ~> (withSource(spans(anyUntil('}'), spanParsers + contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
       withSource(directiveParser(bodyContent, false)) ^^ { case (result, source) => // TODO - optimization - parsed spans might be cached for DirectiveContext (applies for the template parser, too)
         
         def createContext (parts: PartMap, docContext: Option[DocumentContext]): Spans.DirectiveContext = {
