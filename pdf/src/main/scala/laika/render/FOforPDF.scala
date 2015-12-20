@@ -35,7 +35,7 @@ import laika.tree.TocGenerator
  * 
  *  @author Jens Halm
  */
-class FOforPDF {
+class FOforPDF (config: PDFConfig) {
 
   object DocNames {
     val treeTitle = "__title__"
@@ -134,11 +134,11 @@ class FOforPDF {
     }
   }
       
-  def prepareTree (tree: DocumentTree, bookmarks: Boolean = true, toc: Boolean = true, docTitles: Boolean = true, treeTitles: Boolean = true): DocumentTree = {
-    val withDocTitles = if (docTitles) insertDocTitles(tree) else tree
-    val withBookmarks = if (bookmarks) insertBookmarks(withDocTitles) else withDocTitles
-    val withToc = if (toc) insertToc(withBookmarks) else withBookmarks
-    if (treeTitles) addTreeTitles(withToc) else withToc
+  def prepareTree (tree: DocumentTree): DocumentTree = {
+    val withDocTitles = if (config.docTitles) insertDocTitles(tree) else tree
+    val withBookmarks = if (config.bookmarks) insertBookmarks(withDocTitles) else withDocTitles
+    val withToc = if (config.toc) insertToc(withBookmarks) else withBookmarks
+    if (config.treeTitles) addTreeTitles(withToc) else withToc
   }
   
   def renderFO (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit) = {
@@ -159,4 +159,4 @@ class FOforPDF {
     
 }
 
-object FOforPDF extends FOforPDF
+object FOforPDF extends FOforPDF(PDFConfig.default)

@@ -44,7 +44,7 @@ import laika.tree.Elements.MessageLevel
  * 
  *  @author Jens Halm
  */
-class PDF private (val factory: XSLFO) extends RenderResultProcessor[FOWriter] {
+class PDF private (val factory: XSLFO, config: PDFConfig) extends RenderResultProcessor[FOWriter] {
 
   
   private lazy val fopFactory = FopFactory.newInstance
@@ -53,12 +53,15 @@ class PDF private (val factory: XSLFO) extends RenderResultProcessor[FOWriter] {
   /** Specifies the minimum required level for a system message
    *  to get included into the output by this renderer.
    */
-  def withMessageLevel (level: MessageLevel) = new PDF(XSLFO.withMessageLevel(level))
+  def withMessageLevel (level: MessageLevel) = new PDF(factory.withMessageLevel(level), config)
   
+  def withConfig (config: PDFConfig) = new PDF(factory, config)
+  
+  private lazy val foForPDF = new FOforPDF(config)
   
   
   protected def renderFO (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit): String =
-    FOforPDF.renderFO(tree, render)
+    foForPDF.renderFO(tree, render)
   
     
   def process (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit, output: BinaryOutput) = {
@@ -99,5 +102,11 @@ class PDF private (val factory: XSLFO) extends RenderResultProcessor[FOWriter] {
 
 /** The default instance of the PDF renderer.
  */
-object PDF extends PDF(XSLFO.unformatted)
+object PDF extends PDF(XSLFO.unformatted, PDFConfig.default)
+
+case class PDFConfig(treeTitles: Boolean = true, docTitles: Boolean = true, bookmarks: Boolean = true, toc: Boolean = true)
+
+object PDFConfig {
+  val default = apply()
+}
 
