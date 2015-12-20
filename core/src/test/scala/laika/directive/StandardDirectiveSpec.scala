@@ -309,7 +309,7 @@ class StandardDirectiveSpec extends FlatSpec
     def title: Option[String] = None
     
     def sectionCrossLink (path: Path, section: Int, level: Int) = 
-      Paragraph(Seq(CrossLink(List(txt("Section "+section)), "title"+section, PathInfo(path, path.relativeTo(treeUnderTest)))), Styles("toc","level"+level))
+      Paragraph(Seq(CrossLink(List(txt("Section "+section)), "title"+section, PathInfo.fromPath(path, treeUnderTest))), Styles("toc","level"+level))
       
     def leafLink (path: Path, section: Int, level: Int) = 
       BulletListItem(List(sectionCrossLink(path, section, level)), StringBullet("*"))
@@ -318,7 +318,7 @@ class StandardDirectiveSpec extends FlatSpec
       BulletListItem(List(sectionCrossLink(path, section, level), BulletList(List(leafLink(path, section+1, level+1)), StringBullet("*"))), StringBullet("*"))
       
     def docCrossLink (path: Path, doc: Int, level: Int) =
-      Paragraph(Seq(CrossLink(List(txt("Doc "+doc)), "", PathInfo(path, path.relativeTo(treeUnderTest)))), Styles("toc","level"+level))
+      Paragraph(Seq(CrossLink(List(txt("Doc "+doc)), "", PathInfo.fromPath(path, treeUnderTest))), Styles("toc","level"+level))
       
     def docList (path: Path, doc: Int, level: Int) = 
       BulletListItem(List(docCrossLink(path, doc, level), BulletList(List(

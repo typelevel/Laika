@@ -163,7 +163,7 @@ object LinkTargets {
     val replace = lift { case (c: Customizable, Named(name))                    => TreeUtil.setId(c, name) }
     val resolve = lift { 
       case (LinkReference (content, _, _, opt), Named(name))            => InternalLink(linkContent(content,name), name, options = opt) 
-      case (LinkReference (content, _, _, opt), Relative(source, name)) => CrossLink(linkContent(content,name), name, PathInfo(path, path.relativeTo(source.parent)), options = opt) 
+      case (LinkReference (content, _, _, opt), Relative(source, name)) => CrossLink(linkContent(content,name), name, PathInfo.fromPath(path, source.parent), options = opt) 
     } 
     def linkContent (orig: Seq[Span], id: String) = orig match {
       case Seq(Text(text,opt)) if text == id => targetTitle.getOrElse(orig)
