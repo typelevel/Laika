@@ -25,6 +25,8 @@ import FOWriter._
  * 
  *  @param out the render function to write string values to
  *  @param render the render function for writing elements
+ *  @param path the path of the document getting rendered, used for generating unique ids
+ *  @param styles the styles to apply when writing the attributes of an element
  *  @param newLine the newline character to use
  *  @param formatted whether the output is formatted (adding indentation and newlines)
  * 
