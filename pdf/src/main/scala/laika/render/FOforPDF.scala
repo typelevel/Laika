@@ -16,15 +16,16 @@
 
 package laika.render
 
-import laika.tree.Documents.DocumentTree
+import laika.api.Render
 import laika.io.OutputProvider.OutputConfig
 import laika.io.OutputProvider.ResultTree
 import laika.io.OutputProvider.StringOutputProvider
+import laika.render.FOWriter._
 import laika.tree.Documents._
 import laika.tree.Elements._
-import laika.render.FOWriter._
 import laika.tree.TreeUtil
 import laika.tree.TocGenerator
+import laika.tree.Templates.TemplateDocument
 
 /** Responsible for rendering the XSL-FO for an entire document tree
  *  as an interim result to be consumed by the PDF post processor.
@@ -135,7 +136,8 @@ class FOforPDF (config: PDFConfig) {
   }
       
   def prepareTree (tree: DocumentTree): DocumentTree = {
-    val withDocTitles = if (config.docTitles) insertDocTitles(tree) else tree
+    val withoutTemplates = tree.withoutTemplates
+    val withDocTitles = if (config.docTitles) insertDocTitles(withoutTemplates) else withoutTemplates
     val withBookmarks = if (config.bookmarks) insertBookmarks(withDocTitles) else withDocTitles
     val withToc = if (config.toc) insertToc(withBookmarks) else withBookmarks
     if (config.treeTitles) addTreeTitles(withToc) else withToc
@@ -143,18 +145,38 @@ class FOforPDF (config: PDFConfig) {
   
   def renderFO (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit) = {
       
+    def getDefaultTemplate = {
+      val templateName = "default.template.fo"
+      tree.selectTemplate(Current / templateName)
+        .getOrElse(new TemplateDocument(Root / templateName, XSLFO.defaultTemplate))
+    }
+    
     def append (sb: StringBuilder, result: ResultTree, src: DocumentTree): Unit = {
       src.navigatables.foreach {
         case d: Document => result.result(d.name).foreach(sb.append)
         case t: DocumentTree => result.subtree(t.name).foreach(append(sb, _, t))
       }
     }
+
+    def renderDocuments: String = {
+      val foOutput = new StringOutputProvider(tree.path)
+      render(prepareTree(tree), OutputConfig(foOutput, parallel = false, copyStaticFiles = false))
+      
+      val sb = new StringBuilder
+      append(sb, foOutput.result, tree)
+      sb.toString
+    }
     
-    val foOutput = new StringOutputProvider(tree.path)
-    render(prepareTree(tree), OutputConfig(foOutput, parallel = false, copyStaticFiles = false))
-    val sb = new StringBuilder
-    append(sb, foOutput.result, tree)
-    sb.toString
+    def applyTemplate(foString: String, template: TemplateDocument): String = {
+      val result = RawContent(Seq("fo"), foString)
+      val finalDoc = new Document(Root / "merged.fo", RootElement(Seq(result)))
+      val templateApplied = template.rewrite(DocumentContext(finalDoc))
+      Render as XSLFO from templateApplied toString
+    }
+    
+    val defaultTemplate = getDefaultTemplate
+    val foString = renderDocuments
+    applyTemplate(foString, defaultTemplate)
   }
     
 }
