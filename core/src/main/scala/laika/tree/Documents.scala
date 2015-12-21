@@ -537,6 +537,20 @@ object Documents {
       new DocumentTree(path, documents, template +: templates, dynamicTemplates, dynamicDocuments, styles, 
           staticDocuments, subtrees, config, docNumber, navigationOrder, sourcePaths)  
     
+    /** Creates a new tree with all templates removed from the hierarchy.
+     */
+    def withoutTemplates: DocumentTree = {
+      // TODO - this method becomes obsolete after the redesign for 0.7
+      val newSubtrees = subtrees map (_.withoutTemplates)
+      val newSubtreesByName = toMap(newSubtrees)
+      val newNavigatables = navigationOrder map { _ map {
+        case t: DocumentTree => newSubtreesByName(t.name)
+        case d: Document => d
+      }}
+      new DocumentTree(path, documents, Seq(), dynamicTemplates, dynamicDocuments, styles, 
+          staticDocuments, newSubtrees, config, docNumber, newNavigatables, sourcePaths)  
+    }
+    
     /** Creates a new tree with the specified document prepended to its existing documents.
      */
     def prependDocument (doc: Document) = 
