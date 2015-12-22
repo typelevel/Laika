@@ -26,6 +26,8 @@ import laika.tree.Elements._
 import laika.tree.TreeUtil
 import laika.tree.TocGenerator
 import laika.tree.Templates.TemplateDocument
+import laika.tree.Templates.TemplateRoot
+import laika.tree.Templates.TemplateContextReference
 
 /** Responsible for rendering the XSL-FO for an entire document tree
  *  as an interim result to be consumed by the PDF post processor.
@@ -136,7 +138,8 @@ class FOforPDF (config: PDFConfig) {
   }
       
   def prepareTree (tree: DocumentTree): DocumentTree = {
-    val withoutTemplates = tree.withoutTemplates
+    val withoutTemplates = tree.withoutTemplates.withTemplate(new TemplateDocument(Root / "default.template.fo", 
+        TemplateRoot(List(TemplateContextReference("document.content")))))
     val withDocTitles = if (config.docTitles) insertDocTitles(withoutTemplates) else withoutTemplates
     val withBookmarks = if (config.bookmarks) insertBookmarks(withDocTitles) else withDocTitles
     val withToc = if (config.toc) insertToc(withBookmarks) else withBookmarks
