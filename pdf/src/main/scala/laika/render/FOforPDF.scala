@@ -155,8 +155,12 @@ class FOforPDF (config: PDFConfig) {
     }
     
     def append (sb: StringBuilder, result: ResultTree, src: DocumentTree): Unit = {
-      src.navigatables.foreach {
-        case d: Document => result.result(d.name).foreach(sb.append)
+      
+      def baseName(docName: String) = docName.takeWhile(_ != '.')
+          
+      val children = if (src.navigatables.nonEmpty) src.navigatables else src.documents ++ src.subtrees
+      children foreach {
+        case d: Document => result.result(baseName(d.name) + ".fo").foreach(sb.append)
         case t: DocumentTree => result.subtree(t.name).foreach(append(sb, _, t))
       }
     }
