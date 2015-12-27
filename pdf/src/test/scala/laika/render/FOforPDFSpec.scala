@@ -16,14 +16,24 @@
 
 package laika.render
 
-import laika.tree.Documents.DocumentTree
-import laika.factory.RenderResultProcessor
-import laika.io.OutputProvider.OutputConfig
-import laika.io.Output.BinaryOutput
 import laika.api.Render
-import java.io.ByteArrayOutputStream
+import laika.factory.RenderResultProcessor
+import laika.io.Input
+import laika.io.Output.BinaryOutput
+import laika.io.OutputProvider.OutputConfig
+import laika.tree.Documents.Document
+import laika.tree.Documents.DocumentTree
+import laika.tree.Documents.Root
+import laika.tree.Elements.Paragraph
+import laika.tree.Elements.RootElement
+import laika.tree.Elements.Text
+import laika.tree.Elements.Title
 
-class FOforPDFSpec {
+import java.io.ByteArrayOutputStream
+import org.scalatest.FlatSpec
+import org.scalatest.Matchers
+
+class FOforPDFSpec extends FlatSpec with Matchers {
   
   
   case class FOTest (config: PDFConfig) extends RenderResultProcessor[FOWriter] {
@@ -43,18 +53,57 @@ class FOforPDFSpec {
   }
   
   
-  trait Setup {
+  trait TreeModel {
+    
+    def doc(num: Int) = 
+      new Document(Root / s"doc$num.md", RootElement(Seq(
+          Title(Seq(Text(s"Title $num"))), 
+          Paragraph(Seq(Text(s"Text $num")))
+      )))
+  }
+  
+  trait ResultModel {
+    
+    private lazy val defaultTemplate = Input.fromClasspath("/templates/default.template.fo", Root / "default.template.fo").asParserInput.source.toString
+    
+    def result(num: Int) = 
+      s"""<fo:block font-family="sans-serif" font-size="18pt" keep-with-next="always">Title $num</fo:block>
+        |<fo:block font-family="serif" font-size="10pt">Text $num</fo:block>""".stripMargin
+        
+    def withDefaultTemplate(results: String*): String =
+      defaultTemplate.replace("{{document.content}}", results.reduce(_ + _))    
+        
+  }
+  
+  
+  trait Setup extends TreeModel with ResultModel {
     
     def config: PDFConfig
     
     def tree: DocumentTree
     
-    def render = {
+    def result = {
       val stream = new ByteArrayOutputStream
       Render as FOTest(config) from tree toStream stream      
       stream.toString
     }
     
+  }
+  
+  
+  "The FOforPDF utility" should "render a tree with all structure elements disabled" in new Setup {
+    
+    val config = PDFConfig(treeTitles = false, docTitles = false, bookmarks = false, toc = false)
+    
+    val tree = new DocumentTree(Root,
+      documents = Seq(doc(1), doc(2)),
+      subtrees = Seq(
+        new DocumentTree(Root / "tree1", documents = Seq(doc(3), doc(4))),
+        new DocumentTree(Root / "tree2", documents = Seq(doc(5), doc(6)))
+      )
+    )
+    
+    result should be (withDefaultTemplate(result(1), result(2), result(3), result(4), result(5), result(6)))
   }
   
   
