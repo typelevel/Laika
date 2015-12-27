@@ -138,7 +138,9 @@ object Build extends Build {
     .dependsOn(core)
     .settings(Settings.module: _*)
     .settings(Publishing.mavenCentral: _*)
-    .settings(libraryDependencies ++= Dependencies.fop)
+    .settings(libraryDependencies ++= Dependencies.fop ++ Seq(
+      Dependencies.scalatest  
+    ))
     
   lazy val plugin = Project("laika-sbt", file("sbt"))
     .dependsOn(core)
