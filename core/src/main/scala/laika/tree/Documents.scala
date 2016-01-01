@@ -553,10 +553,23 @@ object Documents {
     
     /** Creates a new tree with the specified document prepended to its existing documents.
      */
-    def prependDocument (doc: Document) = 
+    def prependDocument (doc: Document) = // TODO - remove this method in the 0.7 redesign
       new DocumentTree(path, doc +: documents, templates, dynamicTemplates, dynamicDocuments, styles, 
           staticDocuments, subtrees, config, docNumber, navigationOrder map (doc +: _), sourcePaths)  
     
+    /** Creates a new tree mapping all subtrees with the specified function.
+     */
+    def mapSubtrees (f: DocumentTree => DocumentTree) = {// TODO - remove this method in the 0.7 redesign
+      val newSubtrees = subtrees map f
+      val newSubtreesByName = toMap(newSubtrees)
+      val newNavigatables = navigationOrder map { _ map {
+        case t: DocumentTree => newSubtreesByName(t.name)
+        case d: Document => d
+      }}
+      new DocumentTree(path, documents, templates, dynamicTemplates, dynamicDocuments, styles, 
+          staticDocuments, newSubtrees, config, docNumber, newNavigatables, sourcePaths)  
+    }
+      
     /** Returns a new tree, with all the document models contained in it 
      *  rewritten based on the default rewrite rules.
      */
