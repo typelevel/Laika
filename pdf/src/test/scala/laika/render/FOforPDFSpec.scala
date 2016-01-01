@@ -30,10 +30,11 @@ import laika.tree.Elements.RootElement
 import laika.tree.Elements.Styles
 import laika.tree.Elements.Text
 import laika.tree.Elements.Title
-
 import java.io.ByteArrayOutputStream
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
+import com.typesafe.config.ConfigFactory
+import com.typesafe.config.ConfigValueFactory
 
 class FOforPDFSpec extends FlatSpec with Matchers {
   
@@ -85,6 +86,11 @@ class FOforPDFSpec extends FlatSpec with Matchers {
         |</fo:block>
         |<fo:block font-family="serif" font-size="10pt">Text $num</fo:block>""".stripMargin
     }
+    
+    def treeTitleResult(num: Int) = {
+      val idPrefix = if (num == 3) "/tree2" else if (num == 2) "/tree1" else ""
+      s"""<fo:block id="$idPrefix/__title__.fo." font-family="sans-serif" font-weight="bold" font-size="18pt" keep-with-next="always">Tree $num</fo:block>"""
+    }
         
     def withDefaultTemplate(result: String): String =
       defaultTemplate.replace("{{document.content}}", result)    
@@ -135,6 +141,26 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     )
     
     result should be (withDefaultTemplate(resultsWithDocTitle(6)))
+  }
+  
+  it should "render a tree with tree titles" in new Setup {
+    
+    val config = PDFConfig(treeTitles = true, docTitles = false, bookmarks = false, toc = false)
+    
+    def configWithTreeTitle(num: Int) = Some(ConfigFactory.empty.withValue("title", ConfigValueFactory.fromAnyRef(s"Tree $num")))
+    
+    val tree = new DocumentTree(Root,
+      documents = Seq(doc(1), doc(2)),
+      subtrees = Seq(
+        new DocumentTree(Root / "tree1", documents = Seq(doc(3), doc(4)), config = configWithTreeTitle(2)),
+        new DocumentTree(Root / "tree2", documents = Seq(doc(5), doc(6)), config = configWithTreeTitle(3))
+      ),
+      config = configWithTreeTitle(1)
+    )
+    
+    result should be (withDefaultTemplate(treeTitleResult(1) + result(1) + result(2)
+        + treeTitleResult(2) + result(3) + result(4)
+        + treeTitleResult(3) + result(5) + result(6)))
   }
   
   
