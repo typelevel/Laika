@@ -61,14 +61,16 @@ class FOforPDF (config: PDFConfig) {
     if (ref.isEmpty) path.toString
     else path.toString + "." + ref
   
-  def addTreeTitles (tree: DocumentTree): DocumentTree =
-    if (!hasDocuments(tree) || tree.title.isEmpty) tree
+  def addTreeTitles (tree: DocumentTree): DocumentTree = {
+    val treeWithTitle = if (!hasDocuments(tree) || tree.title.isEmpty) tree
     else {
       val title = Header(1, tree.title, Styles("treeTitle") + Id(""))
       val root = RootElement(Seq(title))
       val doc = new Document(tree.path / DocNames.treeTitle, root)
       tree.prependDocument(doc)
     }
+    treeWithTitle.mapSubtrees(addTreeTitles)
+  }
   
   def insertDocTitles (tree: DocumentTree): DocumentTree =
     tree rewrite { context => {
@@ -166,10 +168,11 @@ class FOforPDF (config: PDFConfig) {
 
     def renderDocuments: String = {
       val foOutput = new StringOutputProvider(tree.path)
-      render(prepareTree(tree), OutputConfig(foOutput, parallel = false, copyStaticFiles = false))
+      val preparedTree = prepareTree(tree)
+      render(preparedTree, OutputConfig(foOutput, parallel = false, copyStaticFiles = false))
       
       val sb = new StringBuilder
-      append(sb, foOutput.result, tree) // TODO - improve formatting
+      append(sb, foOutput.result, preparedTree) // TODO - improve formatting
       sb.toString
     }
     
