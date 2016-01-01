@@ -72,12 +72,11 @@ class FOforPDF (config: PDFConfig) {
   
   def insertDocTitles (tree: DocumentTree): DocumentTree =
     tree rewrite { context => {
-      case title: Title => Some(BlockSequence(Seq(title), Id("")))
-      case root: RootElement => 
-        if ((root select { case _: Title => true }).isEmpty)
-          Some(RootElement(Title(context.document.title, Id("")) +: root.content))
-        else 
-          Some(root)
+      case title: Title =>
+        // toc directives will link to an empty id, not the id of the title element
+        Some(BlockSequence(Seq(title), Id("")))
+      case root: RootElement if ((root select { _.isInstanceOf[Title] }).isEmpty) => 
+        Some(RootElement(Title(context.document.title, Id("")) +: root.content))
     }}
     
   def insertBookmarks (tree: DocumentTree): DocumentTree = {
@@ -170,7 +169,7 @@ class FOforPDF (config: PDFConfig) {
       render(prepareTree(tree), OutputConfig(foOutput, parallel = false, copyStaticFiles = false))
       
       val sb = new StringBuilder
-      append(sb, foOutput.result, tree)
+      append(sb, foOutput.result, tree) // TODO - improve formatting
       sb.toString
     }
     

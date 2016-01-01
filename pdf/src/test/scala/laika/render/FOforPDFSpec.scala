@@ -24,8 +24,10 @@ import laika.io.OutputProvider.OutputConfig
 import laika.tree.Documents.Document
 import laika.tree.Documents.DocumentTree
 import laika.tree.Documents.Root
+import laika.tree.Elements.Id
 import laika.tree.Elements.Paragraph
 import laika.tree.Elements.RootElement
+import laika.tree.Elements.Styles
 import laika.tree.Elements.Text
 import laika.tree.Elements.Title
 
@@ -57,21 +59,35 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     
     def doc(num: Int) = 
       new Document(Root / s"doc$num.md", RootElement(Seq(
-          Title(Seq(Text(s"Title $num"))), 
+          Title(Seq(Text(s"Title $num")), Id(s"title-$num") + Styles("title")), 
           Paragraph(Seq(Text(s"Text $num")))
-      )))
+      ))).removeRules
   }
   
   trait ResultModel {
     
     private lazy val defaultTemplate = Input.fromClasspath("/templates/default.template.fo", Root / "default.template.fo").asParserInput.source.toString
     
-    def result(num: Int) = 
-      s"""<fo:block font-family="sans-serif" font-size="18pt" keep-with-next="always">Title $num</fo:block>
+    def results(num: Int) = (1 to num) map (result) reduce (_ + _)
+    
+    def result(num: Int) = {
+      val idPrefix = if (num > 4) "/tree2" else if (num > 2) "/tree1" else ""
+      s"""<fo:block id="$idPrefix/doc$num.fo.title-$num" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title $num</fo:block>
         |<fo:block font-family="serif" font-size="10pt">Text $num</fo:block>""".stripMargin
+    }
+    
+    def resultsWithDocTitle(num: Int) = (1 to num) map (resultWithDocTitle) reduce (_ + _)
+    
+    def resultWithDocTitle(num: Int) = {
+      val idPrefix = if (num > 4) "/tree2" else if (num > 2) "/tree1" else ""
+      s"""<fo:block id="$idPrefix/doc$num.fo.">
+        |  <fo:block id="$idPrefix/doc$num.fo.title-$num" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title $num</fo:block>
+        |</fo:block>
+        |<fo:block font-family="serif" font-size="10pt">Text $num</fo:block>""".stripMargin
+    }
         
-    def withDefaultTemplate(results: String*): String =
-      defaultTemplate.replace("{{document.content}}", results.reduce(_ + _))    
+    def withDefaultTemplate(result: String): String =
+      defaultTemplate.replace("{{document.content}}", result)    
         
   }
   
@@ -103,7 +119,22 @@ class FOforPDFSpec extends FlatSpec with Matchers {
       )
     )
     
-    result should be (withDefaultTemplate(result(1), result(2), result(3), result(4), result(5), result(6)))
+    result should be (withDefaultTemplate(results(6)))
+  }
+  
+  it should "render a tree with document titles" in new Setup {
+    
+    val config = PDFConfig(treeTitles = false, docTitles = true, bookmarks = false, toc = false)
+    
+    val tree = new DocumentTree(Root,
+      documents = Seq(doc(1), doc(2)),
+      subtrees = Seq(
+        new DocumentTree(Root / "tree1", documents = Seq(doc(3), doc(4))),
+        new DocumentTree(Root / "tree2", documents = Seq(doc(5), doc(6)))
+      )
+    )
+    
+    result should be (withDefaultTemplate(resultsWithDocTitle(6)))
   }
   
   
