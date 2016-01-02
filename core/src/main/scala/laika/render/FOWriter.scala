@@ -142,7 +142,7 @@ class FOWriter (out: String => Unit,
   
   def bookmark (bookmark: Bookmark) = {
     val content = BookmarkTitle(bookmark.title) +: bookmark.children
-    this <<@ ("fo:bookmark", bookmark, ("internal-destination"->bookmark.ref)) <<|> content << "</fo:bookmark>"
+    this <<@ ("fo:bookmark", bookmark, ("internal-destination" -> buildId(bookmark.path.absolute, bookmark.ref))) <<|> content << "</fo:bookmark>"
   }
   
   def bookmarkTitle (title: BookmarkTitle) = {
@@ -166,7 +166,7 @@ object FOWriter {
   
   case class BookmarkTree (bookmarks: Seq[Bookmark], options: Options = NoOpt) extends Block
 
-  case class Bookmark (ref: String, title: String, children: Seq[Bookmark], options: Options = NoOpt) extends Block
+  case class Bookmark (ref: String, path: PathInfo, title: String, children: Seq[Bookmark], options: Options = NoOpt) extends Block
   
   case class BookmarkTitle (content: String, options: Options = NoOpt) extends Block with TextContainer
   

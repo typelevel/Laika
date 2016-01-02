@@ -57,10 +57,6 @@ class FOforPDF (config: PDFConfig) {
     case c if c.hasPath(key) => c.getInt(key)
   }).getOrElse(Int.MaxValue)
   
-  protected def id (path: Path, ref: String) = 
-    if (ref.isEmpty) path.toString
-    else path.toString + "." + ref
-  
   def addTreeTitles (tree: DocumentTree): DocumentTree = {
     val treeWithTitle = if (!hasDocuments(tree) || tree.title.isEmpty) tree
     else {
@@ -81,40 +77,38 @@ class FOforPDF (config: PDFConfig) {
         Some(RootElement(Title(context.document.title, Id("")) +: root.content))
     }}
     
-  def insertBookmarks (tree: DocumentTree): DocumentTree = {
+  def insertBookmarks (root: DocumentTree): DocumentTree = {
 
     def sectionBookmarks (path: Path, sections: Seq[SectionInfo], levels: Int): Seq[Bookmark] = 
       if (levels == 0) Nil
       else for (section <- sections) yield {
-        val ref = id(path,section.id)
         val title = section.title.text
         val children = sectionBookmarks(path, section.content, levels - 1)
-        Bookmark(ref, title, children)
+        Bookmark(section.id, PathInfo.fromPath(path, root.path), title, children)
       }
     
     def treeBookmarks (tree: DocumentTree, levels: Int): Seq[Bookmark] = {
+      def navigatables(tree: DocumentTree) = if (tree.navigatables.nonEmpty) tree.navigatables else tree.documents ++ tree.subtrees
       if (levels == 0) Nil
-      else (for (nav <- tree.navigatables if hasContent(nav)) yield nav match {
+      else (for (nav <- navigatables(tree) if hasContent(nav)) yield nav match {
         case doc: Document =>
-          val ref = id(doc.path,"")
           val title = TreeUtil.extractText(doc.title)
           val children = sectionBookmarks(doc.path, doc.sections, levels - 1)
-          Bookmark(ref, title, children)
+          Bookmark("", PathInfo.fromPath(doc.path, root.path), title, children)
         case subtree: DocumentTree => 
-          val ref = id(subtree.path / DocNames.treeTitle,"")
           val title = TreeUtil.extractText(subtree.title)
           val children = treeBookmarks(subtree, levels - 1)
-          Bookmark(ref, title, children) 
+          Bookmark("", PathInfo.fromPath(subtree.path / DocNames.treeTitle, root.path), title, children) 
       })
     }
 
-    val depth = getDepth(tree, "pdf.bookmarks.depth")
-    if (depth == 0) tree
+    val depth = getDepth(root, "pdf.bookmarks.depth")
+    if (depth == 0) root
     else {
-      val bookmarks = BookmarkTree(treeBookmarks(tree, depth)) 
-      val root = RootElement(Seq(bookmarks))
-      val doc = new Document(tree.path / DocNames.bookmarks, root)
-      tree.prependDocument(doc)
+      val bookmarks = BookmarkTree(treeBookmarks(root, depth)) 
+      val rootElement = RootElement(Seq(bookmarks))
+      val doc = new Document(root.path / DocNames.bookmarks, rootElement)
+      root.prependDocument(doc)
     }
   }
   
