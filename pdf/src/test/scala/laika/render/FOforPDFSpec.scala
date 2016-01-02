@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 the original author or authors.
+ * Copyright 2015-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,7 +104,33 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     
     def withDefaultTemplate(result: String): String =
       defaultTemplate.replace("{{document.content}}", result)    
-        
+      
+    def bookmarkTreeResult(treeNum: Int, docNum: Int) = s"""  <fo:bookmark internal-destination="_tree${treeNum}__title__">
+      |    <fo:bookmark-title>
+      |      Tree ${treeNum + 1}
+      |    </fo:bookmark-title>
+      |    <fo:bookmark internal-destination="_tree${treeNum}_doc${docNum}_">
+      |      <fo:bookmark-title>
+      |        Title $docNum
+      |      </fo:bookmark-title></fo:bookmark>
+      |    <fo:bookmark internal-destination="_tree${treeNum}_doc${docNum + 1}_">
+      |      <fo:bookmark-title>
+      |        Title ${docNum + 1}
+      |      </fo:bookmark-title></fo:bookmark></fo:bookmark>
+      |""".stripMargin  
+      
+    val bookmarkRootResult = """<fo:bookmark-tree>
+      |  <fo:bookmark internal-destination="_doc1_">
+      |    <fo:bookmark-title>
+      |      Title 1
+      |    </fo:bookmark-title></fo:bookmark>
+      |  <fo:bookmark internal-destination="_doc2_">
+      |    <fo:bookmark-title>
+      |      Title 2
+      |    </fo:bookmark-title></fo:bookmark>
+      |""".stripMargin  
+      
+    val closeBookmarks = "</fo:bookmark-tree>"
   }
   
   
@@ -187,6 +213,22 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     result should be (withDefaultTemplate(tocDocResult(1) + tocDocResult(2)
         + tocTreeResult(1) + tocDocResult(3) + tocDocResult(4)
         + tocTreeResult(2) + tocDocResult(5) + tocDocResult(6).dropRight(1) + results(6)))
+  }
+  
+  it should "render a tree with bookmarks" in new Setup {
+    
+    val config = PDFConfig(treeTitles = false, docTitles = false, bookmarks = true, toc = false)
+    
+    val tree = new DocumentTree(Root,
+      documents = Seq(doc(1), doc(2)),
+      subtrees = Seq(
+        new DocumentTree(Root / "tree1", documents = Seq(doc(3), doc(4)), config = configWithTreeTitle(2)),
+        new DocumentTree(Root / "tree2", documents = Seq(doc(5), doc(6)), config = configWithTreeTitle(3))
+      ),
+      config = configWithTreeTitle(1)
+    )
+    
+    result should be (withDefaultTemplate(bookmarkRootResult + bookmarkTreeResult(1,3) + bookmarkTreeResult(2,5).dropRight(1) + closeBookmarks + results(6)))
   }
   
   
