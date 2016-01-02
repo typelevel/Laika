@@ -80,9 +80,11 @@ object TocGenerator {
   
   private def fromTree (tree: DocumentTree, curLevel: Int, maxLevel: Int, refPath: Path, treeTitleDoc: Option[String]): List[Block] = {
     
+    def navigatablesForTree(tree: DocumentTree): Seq[Navigatable] = if (tree.navigatables.nonEmpty) tree.navigatables else tree.documents ++ tree.subtrees
+    
     def hasContent (nav: Navigatable): Boolean = nav match {
       case _:Document => true
-      case tree: DocumentTree => tree.navigatables.exists(hasContent)
+      case tree: DocumentTree => navigatablesForTree(tree).exists(hasContent)
     }
     
     def treeTitle (tree: DocumentTree, level: Int) = 
@@ -107,7 +109,7 @@ object TocGenerator {
             BulletListItem(title :: sections, bullet)
           case tree: DocumentTree => 
             val title = treeTitle(tree, curLevel)
-            val subtrees = navigatablesToList(tree.navigatables, curLevel + 1)
+            val subtrees = navigatablesToList(navigatablesForTree(tree), curLevel + 1)
             BulletListItem(title :: subtrees, bullet)
         }
           
@@ -115,7 +117,7 @@ object TocGenerator {
       }
     }
     
-    navigatablesToList(tree.navigatables, curLevel)
+    navigatablesToList(navigatablesForTree(tree), curLevel)
   }
     
   
