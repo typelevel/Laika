@@ -58,11 +58,13 @@ class FOforPDFSpec extends FlatSpec with Matchers {
   
   trait TreeModel {
     
-    def doc(num: Int) = 
-      new Document(Root / s"doc$num.md", RootElement(Seq(
+    def doc(num: Int) = {
+      val parent = if (num > 4) Root / "tree2" else if (num > 2) Root / "tree1" else Root
+      new Document(parent / s"doc$num.md", RootElement(Seq(
           Title(Seq(Text(s"Title $num")), Id(s"title-$num") + Styles("title")), 
           Paragraph(Seq(Text(s"Text $num")))
       ))).removeRules
+    }
       
     def configWithTreeTitle(num: Int) = Some(ConfigFactory.empty.withValue("title", ConfigValueFactory.fromAnyRef(s"Tree $num")))
   }
@@ -73,18 +75,18 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     
     def results(num: Int) = (1 to num) map (result) reduce (_ + _)
     
+    def idPrefix(num: Int) = if (num > 4) "_tree2" else if (num > 2) "_tree1" else ""
+    
     def result(num: Int) = {
-      val idPrefix = if (num > 4) "_tree2" else if (num > 2) "_tree1" else ""
-      s"""<fo:block id="${idPrefix}_doc${num}_title-$num" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title $num</fo:block>
+      s"""<fo:block id="${idPrefix(num)}_doc${num}_title-$num" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title $num</fo:block>
         |<fo:block font-family="serif" font-size="10pt">Text $num</fo:block>""".stripMargin
     }
     
     def resultsWithDocTitle(num: Int) = (1 to num) map (resultWithDocTitle) reduce (_ + _)
     
     def resultWithDocTitle(num: Int) = {
-      val idPrefix = if (num > 4) "_tree2" else if (num > 2) "_tree1" else ""
-      s"""<fo:block id="${idPrefix}_doc${num}_">
-        |  <fo:block id="${idPrefix}_doc${num}_title-$num" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title $num</fo:block>
+      s"""<fo:block id="${idPrefix(num)}_doc${num}_">
+        |  <fo:block id="${idPrefix(num)}_doc${num}_title-$num" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title $num</fo:block>
         |</fo:block>
         |<fo:block font-family="serif" font-size="10pt">Text $num</fo:block>""".stripMargin
     }
@@ -93,7 +95,13 @@ class FOforPDFSpec extends FlatSpec with Matchers {
       val idPrefix = if (num == 3) "_tree2" else if (num == 2) "_tree1" else ""
       s"""<fo:block id="${idPrefix}__title__" font-family="sans-serif" font-weight="bold" font-size="18pt" keep-with-next="always">Tree $num</fo:block>"""
     }
-        
+    
+    def tocDocResult (num: Int) = 
+      s"""<fo:block font-family="serif" font-size="10pt" text-align-last="justify"><fo:basic-link color="#3399FF" internal-destination="${idPrefix(num)}_doc${num}_">Title $num<fo:leader leader-pattern="dots"></fo:leader><fo:page-number-citation ref-id="${idPrefix(num)}_doc${num}_" /></fo:basic-link></fo:block>""" + "\n"
+    
+    def tocTreeResult (num: Int) = 
+      s"""<fo:block font-family="serif" font-size="10pt" text-align-last="justify"><fo:basic-link color="#3399FF" internal-destination="_tree${num}__title__">Tree ${num+1}<fo:leader leader-pattern="dots"></fo:leader><fo:page-number-citation ref-id="_tree${num}__title__" /></fo:basic-link></fo:block>""" + "\n"  
+    
     def withDefaultTemplate(result: String): String =
       defaultTemplate.replace("{{document.content}}", result)    
         
@@ -161,6 +169,24 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     result should be (withDefaultTemplate(treeTitleResult(1) + result(1) + result(2)
         + treeTitleResult(2) + result(3) + result(4)
         + treeTitleResult(3) + result(5) + result(6)))
+  }
+  
+  it should "render a tree with a table of content" in new Setup {
+    
+    val config = PDFConfig(treeTitles = false, docTitles = false, bookmarks = false, toc = true)
+    
+    val tree = new DocumentTree(Root,
+      documents = Seq(doc(1), doc(2)),
+      subtrees = Seq(
+        new DocumentTree(Root / "tree1", documents = Seq(doc(3), doc(4)), config = configWithTreeTitle(2)),
+        new DocumentTree(Root / "tree2", documents = Seq(doc(5), doc(6)), config = configWithTreeTitle(3))
+      ),
+      config = configWithTreeTitle(1)
+    )
+    
+    result should be (withDefaultTemplate(tocDocResult(1) + tocDocResult(2)
+        + tocTreeResult(1) + tocDocResult(3) + tocDocResult(4)
+        + tocTreeResult(2) + tocDocResult(5) + tocDocResult(6).dropRight(1) + results(6)))
   }
   
   
