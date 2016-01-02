@@ -247,7 +247,7 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
       case e @ FootnoteLink(ref,label,_)  => footnotes.get(ref).foreach(f => out.footnote(e,label,f.content,f.options))
       case e @ Image(_,uri,_,_)           => out.externalGraphic(e, uri.localRef.fold(uri.uri)(_.absolute.toString)) // TODO - ignoring title and alt for now
       case e: Leader                      => out <<@ ("fo:leader",e,"leader-pattern"->"dots") << "</fo:leader>" 
-      case e @ PageNumberCitation(ref,_)  => out << s"""<fo:page-number-citation ref-id="$ref" />"""
+      case e @ PageNumberCitation(ref,path,_)  => out << s"""<fo:page-number-citation ref-id="${out.buildId(path.absolute, ref)}" />"""
       case LineBreak(_)                   => out << "&#x2028;"
       case TemplateElement(elem,indent,_) => out.indented(indent) { out << elem }
       

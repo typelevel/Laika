@@ -124,7 +124,7 @@ class FOforPDF (config: PDFConfig) {
       case BulletList(items,_,_)      => toBlockSequence(items)
       case BulletListItem(blocks,_,_) => toBlockSequence(blocks)
       case Paragraph(Seq(link:CrossLink),opt) => Seq(Paragraph(Seq(link.copy(
-          content = link.content :+ Leader() :+ PageNumberCitation(link.path.toString + "." + link.ref)
+          content = link.content :+ Leader() :+ PageNumberCitation(link.ref, link.path)
       )), opt))
     }).flatten)
     
