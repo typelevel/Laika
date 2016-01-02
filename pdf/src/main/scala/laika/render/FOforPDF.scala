@@ -41,9 +41,9 @@ import laika.tree.Templates.TemplateContextReference
 class FOforPDF (config: PDFConfig) {
 
   object DocNames {
-    val treeTitle = "__title__"
-    val toc = "__toc__"
-    val bookmarks = "__bookmarks__"
+    val treeTitle = "_title_"
+    val toc = "_toc_"
+    val bookmarks = "_bookmarks_"
   }
   
   protected def hasDocuments (tree: DocumentTree): Boolean = tree.documents.nonEmpty || tree.subtrees.exists(hasDocuments)

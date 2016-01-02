@@ -19,6 +19,7 @@ package laika.render
 import laika.tree.Elements._
 import laika.parse.css.Styles.StyleDeclarationSet
 import laika.tree.Documents.Path
+import laika.tree.Documents.Root
 import FOWriter._ 
 
 /** API for renderers that produce XSL-FO output.
@@ -51,9 +52,15 @@ class FOWriter (out: String => Unit,
       case c: Customizable => c.options
       case _ => NoOpt
     }
-    filterAttributes(tag, ("id"->options.id.map(path.toString + "." + _)) +: fromCSS ++: attrs)
+    filterAttributes(tag, ("id"->options.id.map(buildId(path, _))) +: fromCSS ++: attrs)
   }
   
+  
+  def buildId (path: Path, ref: String): String = {
+    val treePath = if (path.parent == Root) "" else path.parent.toString.replaceAllLiterally("/", "_")
+    val docPath = if (path == Root) "" else treePath + "_" + path.basename
+    docPath + "_" + ref
+  }
   
   def blockContainer (element: Element, content: Seq[Block], attr: (String,String)*) = 
     this <<@ ("fo:block", element, attr: _*) <<|> content <<| "</fo:block>"

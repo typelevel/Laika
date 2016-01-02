@@ -373,7 +373,7 @@ class XSLFORendererSpec extends FlatSpec
     val elem = BlockSequence(List(p(txt("some "), CitationLink("ref","label"), txt(" span")), Citation("ref", List(p("a"),p("b")), Id("ref"))))
     val html = """<fo:block font-family="serif" font-size="10pt">some <fo:footnote>
       |  <fo:inline vertical-align="super" font-size="8pt">[label]</fo:inline>
-      |  <fo:footnote-body id="/.ref">
+      |  <fo:footnote-body id="_ref">
       |    <fo:block font-family="serif" font-size="10pt"><fo:inline vertical-align="super" font-size="8pt">[label]</fo:inline> a</fo:block>
       |    <fo:block font-family="serif" font-size="10pt">b</fo:block>
       |  </fo:footnote-body>
@@ -386,7 +386,7 @@ class XSLFORendererSpec extends FlatSpec
     val elem = BlockSequence(List(p(txt("some "), FootnoteLink("id","label"), txt(" span")), Footnote("label", List(p("a"),p("b")), Id("id"))))
     val html = """<fo:block font-family="serif" font-size="10pt">some <fo:footnote>
       |  <fo:inline vertical-align="super" font-size="8pt">[label]</fo:inline>
-      |  <fo:footnote-body id="/.id">
+      |  <fo:footnote-body id="_id">
       |    <fo:block font-family="serif" font-size="10pt"><fo:inline vertical-align="super" font-size="8pt">[label]</fo:inline> a</fo:block>
       |    <fo:block font-family="serif" font-size="10pt">b</fo:block>
       |  </fo:footnote-body>
@@ -602,28 +602,28 @@ class XSLFORendererSpec extends FlatSpec
   it should "render a paragraph containing an internal link with emphasized text" in {
     val elem = p(txt("some "), InternalLink(List(txt("link"),em("text")),"foo"), txt(" span"))
     val html = """<fo:block font-family="serif" font-size="10pt">some """ +
-        """<fo:basic-link color="#3399FF" internal-destination="/.foo">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
+        """<fo:basic-link color="#3399FF" internal-destination="_foo">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (html) 
   }
   
   it should "render a paragraph containing a cross link with a fragment part" in {
     val elem = p(txt("some "), CrossLink(List(txt("link"),em("text")),"foo", PathInfo(Path("/bar"),Path("../bar.md"))), txt(" span"))
     val html = """<fo:block font-family="serif" font-size="10pt">some """ +
-        """<fo:basic-link color="#3399FF" internal-destination="/bar.foo">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
+        """<fo:basic-link color="#3399FF" internal-destination="_bar_foo">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (html) 
   }
   
   it should "render a paragraph containing a cross link without a fragment part" in {
     val elem = p(txt("some "), CrossLink(List(txt("link"),em("text")),"", PathInfo(Path("/bar"),Path("../bar.md"))), txt(" span"))
     val html = """<fo:block font-family="serif" font-size="10pt">some """ +
-        """<fo:basic-link color="#3399FF" internal-destination="/bar.">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
+        """<fo:basic-link color="#3399FF" internal-destination="_bar_">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (html) 
   }
   
   it should "render a paragraph containing a cross link with a filename without suffix" in {
     val elem = p(txt("some "), CrossLink(List(txt("link"),em("text")),"", PathInfo(Path("/bar"),Path("../bar"))), txt(" span"))
     val html = """<fo:block font-family="serif" font-size="10pt">some """ +
-        """<fo:basic-link color="#3399FF" internal-destination="/bar.">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
+        """<fo:basic-link color="#3399FF" internal-destination="_bar_">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (html) 
   }
   
@@ -651,7 +651,7 @@ class XSLFORendererSpec extends FlatSpec
   
   it should "render a paragraph containing an internal link target" in {
     val elem = p(txt("some "), InternalLinkTarget(Id("target")), txt(" span"))
-    val html = """<fo:block font-family="serif" font-size="10pt">some <fo:inline id="/.target"></fo:inline> span</fo:block>"""
+    val html = """<fo:block font-family="serif" font-size="10pt">some <fo:inline id="_target"></fo:inline> span</fo:block>"""
     render (elem) should be (html) 
   }
   

@@ -63,6 +63,8 @@ class FOforPDFSpec extends FlatSpec with Matchers {
           Title(Seq(Text(s"Title $num")), Id(s"title-$num") + Styles("title")), 
           Paragraph(Seq(Text(s"Text $num")))
       ))).removeRules
+      
+    def configWithTreeTitle(num: Int) = Some(ConfigFactory.empty.withValue("title", ConfigValueFactory.fromAnyRef(s"Tree $num")))
   }
   
   trait ResultModel {
@@ -72,24 +74,24 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     def results(num: Int) = (1 to num) map (result) reduce (_ + _)
     
     def result(num: Int) = {
-      val idPrefix = if (num > 4) "/tree2" else if (num > 2) "/tree1" else ""
-      s"""<fo:block id="$idPrefix/doc$num.fo.title-$num" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title $num</fo:block>
+      val idPrefix = if (num > 4) "_tree2" else if (num > 2) "_tree1" else ""
+      s"""<fo:block id="${idPrefix}_doc${num}_title-$num" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title $num</fo:block>
         |<fo:block font-family="serif" font-size="10pt">Text $num</fo:block>""".stripMargin
     }
     
     def resultsWithDocTitle(num: Int) = (1 to num) map (resultWithDocTitle) reduce (_ + _)
     
     def resultWithDocTitle(num: Int) = {
-      val idPrefix = if (num > 4) "/tree2" else if (num > 2) "/tree1" else ""
-      s"""<fo:block id="$idPrefix/doc$num.fo.">
-        |  <fo:block id="$idPrefix/doc$num.fo.title-$num" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title $num</fo:block>
+      val idPrefix = if (num > 4) "_tree2" else if (num > 2) "_tree1" else ""
+      s"""<fo:block id="${idPrefix}_doc${num}_">
+        |  <fo:block id="${idPrefix}_doc${num}_title-$num" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title $num</fo:block>
         |</fo:block>
         |<fo:block font-family="serif" font-size="10pt">Text $num</fo:block>""".stripMargin
     }
     
     def treeTitleResult(num: Int) = {
-      val idPrefix = if (num == 3) "/tree2" else if (num == 2) "/tree1" else ""
-      s"""<fo:block id="$idPrefix/__title__.fo." font-family="sans-serif" font-weight="bold" font-size="18pt" keep-with-next="always">Tree $num</fo:block>"""
+      val idPrefix = if (num == 3) "_tree2" else if (num == 2) "_tree1" else ""
+      s"""<fo:block id="${idPrefix}__title__" font-family="sans-serif" font-weight="bold" font-size="18pt" keep-with-next="always">Tree $num</fo:block>"""
     }
         
     def withDefaultTemplate(result: String): String =
@@ -146,8 +148,6 @@ class FOforPDFSpec extends FlatSpec with Matchers {
   it should "render a tree with tree titles" in new Setup {
     
     val config = PDFConfig(treeTitles = true, docTitles = false, bookmarks = false, toc = false)
-    
-    def configWithTreeTitle(num: Int) = Some(ConfigFactory.empty.withValue("title", ConfigValueFactory.fromAnyRef(s"Tree $num")))
     
     val tree = new DocumentTree(Root,
       documents = Seq(doc(1), doc(2)),
