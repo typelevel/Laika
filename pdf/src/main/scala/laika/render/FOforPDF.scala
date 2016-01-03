@@ -43,7 +43,6 @@ class FOforPDF (config: PDFConfig) {
   object DocNames {
     val treeTitle = "_title_"
     val toc = "_toc_"
-    val bookmarks = "_bookmarks_"
   }
   
   protected def hasDocuments (tree: DocumentTree): Boolean = tree.documents.nonEmpty || tree.subtrees.exists(hasDocuments)
@@ -77,7 +76,7 @@ class FOforPDF (config: PDFConfig) {
         Some(RootElement(Title(context.document.title, Id("")) +: root.content))
     }}
     
-  def insertBookmarks (root: DocumentTree): DocumentTree = {
+  def generateBookmarks (root: DocumentTree): Map[String, Element] = {
 
     def sectionBookmarks (path: Path, sections: Seq[SectionInfo], levels: Int): Seq[Bookmark] = 
       if (levels == 0) Nil
@@ -91,25 +90,21 @@ class FOforPDF (config: PDFConfig) {
       def navigatables(tree: DocumentTree) = if (tree.navigatables.nonEmpty) tree.navigatables else tree.documents ++ tree.subtrees
       if (levels == 0) Nil
       else (for (nav <- navigatables(tree) if hasContent(nav)) yield nav match {
+        case doc: Document if doc.name == DocNames.treeTitle || doc.name == DocNames.toc => Seq()
         case doc: Document =>
           val title = TreeUtil.extractText(doc.title)
           val children = sectionBookmarks(doc.path, doc.sections, levels - 1)
-          Bookmark("", PathInfo.fromPath(doc.path, root.path), title, children)
+          Seq(Bookmark("", PathInfo.fromPath(doc.path, root.path), title, children))
         case subtree: DocumentTree => 
           val title = TreeUtil.extractText(subtree.title)
           val children = treeBookmarks(subtree, levels - 1)
-          Bookmark("", PathInfo.fromPath(subtree.path / DocNames.treeTitle, root.path), title, children) 
-      })
+          Seq(Bookmark("", PathInfo.fromPath(subtree.path / DocNames.treeTitle, root.path), title, children)) 
+      }).flatten
     }
 
     val depth = getDepth(root, "pdf.bookmarks.depth")
-    if (depth == 0) root
-    else {
-      val bookmarks = BookmarkTree(treeBookmarks(root, depth)) 
-      val rootElement = RootElement(Seq(bookmarks))
-      val doc = new Document(root.path / DocNames.bookmarks, rootElement)
-      root.prependDocument(doc)
-    }
+    if (depth == 0 || !config.bookmarks) Map()
+    else Map("bookmarks" -> BookmarkTree(treeBookmarks(root, depth))) 
   }
   
   def insertToc (tree: DocumentTree): DocumentTree = {
@@ -117,9 +112,7 @@ class FOforPDF (config: PDFConfig) {
     def toBlockSequence (blocks: Seq[Element]): Seq[Block] = ((blocks map {
       case BulletList(items,_,_)      => toBlockSequence(items)
       case BulletListItem(blocks,_,_) => toBlockSequence(blocks)
-      case Paragraph(Seq(link:CrossLink),opt) => 
-        if (link.path.absolute.basename == DocNames.bookmarks) Seq() 
-        else Seq(Paragraph(Seq(link.copy(
+      case Paragraph(Seq(link:CrossLink),opt) => Seq(Paragraph(Seq(link.copy(
           content = link.content :+ Leader() :+ PageNumberCitation(link.ref, link.path)
       )), opt))
     }).flatten)
@@ -138,8 +131,7 @@ class FOforPDF (config: PDFConfig) {
     val withoutTemplates = tree.withoutTemplates.withTemplate(new TemplateDocument(Root / "default.template.fo", 
         TemplateRoot(List(TemplateContextReference("document.content")))))
     val withDocTitles = if (config.docTitles) insertDocTitles(withoutTemplates) else withoutTemplates
-    val withBookmarks = if (config.bookmarks) insertBookmarks(withDocTitles) else withDocTitles
-    val withToc = if (config.toc) insertToc(withBookmarks) else withBookmarks
+    val withToc = if (config.toc) insertToc(withDocTitles) else withDocTitles
     if (config.treeTitles) addTreeTitles(withToc) else withToc
   }
   
@@ -162,9 +154,8 @@ class FOforPDF (config: PDFConfig) {
       }
     }
 
-    def renderDocuments: String = {
-      val foOutput = new StringOutputProvider(tree.path)
-      val preparedTree = prepareTree(tree)
+    def renderDocuments(preparedTree: DocumentTree): String = {
+      val foOutput = new StringOutputProvider(preparedTree.path)
       render(preparedTree, OutputConfig(foOutput, parallel = false, copyStaticFiles = false))
       
       val sb = new StringBuilder
@@ -172,16 +163,17 @@ class FOforPDF (config: PDFConfig) {
       sb.toString
     }
     
-    def applyTemplate(foString: String, template: TemplateDocument): String = {
+    def applyTemplate(foString: String, template: TemplateDocument, tree: DocumentTree): String = {
       val result = RawContent(Seq("fo"), foString)
-      val finalDoc = new Document(Root / "merged.fo", RootElement(Seq(result)))
+      val finalDoc = new Document(Root / "merged.fo", RootElement(Seq(result)), fragments = generateBookmarks(tree))
       val templateApplied = template.rewrite(DocumentContext(finalDoc))
       Render as XSLFO from templateApplied toString
     }
     
     val defaultTemplate = getDefaultTemplate
-    val foString = renderDocuments
-    applyTemplate(foString, defaultTemplate)
+    val preparedTree = prepareTree(tree)
+    val foString = renderDocuments(preparedTree)
+    applyTemplate(foString, defaultTemplate, preparedTree)
   }
     
 }

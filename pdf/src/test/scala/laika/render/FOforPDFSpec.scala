@@ -98,32 +98,32 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     def tocTreeResult (num: Int) = 
       s"""<fo:block font-family="serif" font-size="10pt" text-align-last="justify"><fo:basic-link color="#3399FF" internal-destination="_tree${num}__title__">Tree ${num+1}<fo:leader leader-pattern="dots"></fo:leader><fo:page-number-citation ref-id="_tree${num}__title__" /></fo:basic-link></fo:block>""" + "\n"  
     
-    def withDefaultTemplate(result: String): String =
-      defaultTemplate.replace("{{document.content}}", result)    
+    def withDefaultTemplate(result: String, bookmarks: String = ""): String =
+      defaultTemplate.replace("{{document.content}}", result).replace("{{document.fragments.bookmarks}}", bookmarks)    
       
-    def bookmarkTreeResult(treeNum: Int, docNum: Int) = s"""  <fo:bookmark internal-destination="_tree${treeNum}__title__">
-      |    <fo:bookmark-title>
-      |      Tree ${treeNum + 1}
-      |    </fo:bookmark-title>
-      |    <fo:bookmark internal-destination="_tree${treeNum}_doc${docNum}_">
+    def bookmarkTreeResult(treeNum: Int, docNum: Int) = s"""    <fo:bookmark internal-destination="_tree${treeNum}__title__">
       |      <fo:bookmark-title>
-      |        Title $docNum
-      |      </fo:bookmark-title></fo:bookmark>
-      |    <fo:bookmark internal-destination="_tree${treeNum}_doc${docNum + 1}_">
-      |      <fo:bookmark-title>
-      |        Title ${docNum + 1}
-      |      </fo:bookmark-title></fo:bookmark></fo:bookmark>
+      |        Tree ${treeNum + 1}
+      |      </fo:bookmark-title>
+      |      <fo:bookmark internal-destination="_tree${treeNum}_doc${docNum}_">
+      |        <fo:bookmark-title>
+      |          Title $docNum
+      |        </fo:bookmark-title></fo:bookmark>
+      |      <fo:bookmark internal-destination="_tree${treeNum}_doc${docNum + 1}_">
+      |        <fo:bookmark-title>
+      |          Title ${docNum + 1}
+      |        </fo:bookmark-title></fo:bookmark></fo:bookmark>
       |""".stripMargin  
       
     val bookmarkRootResult = """<fo:bookmark-tree>
-      |  <fo:bookmark internal-destination="_doc1_">
-      |    <fo:bookmark-title>
-      |      Title 1
-      |    </fo:bookmark-title></fo:bookmark>
-      |  <fo:bookmark internal-destination="_doc2_">
-      |    <fo:bookmark-title>
-      |      Title 2
-      |    </fo:bookmark-title></fo:bookmark>
+      |    <fo:bookmark internal-destination="_doc1_">
+      |      <fo:bookmark-title>
+      |        Title 1
+      |      </fo:bookmark-title></fo:bookmark>
+      |    <fo:bookmark internal-destination="_doc2_">
+      |      <fo:bookmark-title>
+      |        Title 2
+      |      </fo:bookmark-title></fo:bookmark>
       |""".stripMargin  
       
     val closeBookmarks = "</fo:bookmark-tree>"
@@ -224,7 +224,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
       config = configWithTreeTitle(1)
     )
     
-    result should be (withDefaultTemplate(bookmarkRootResult + bookmarkTreeResult(1,3) + bookmarkTreeResult(2,5).dropRight(1) + closeBookmarks + results(6)))
+    result should be (withDefaultTemplate(results(6), bookmarkRootResult + bookmarkTreeResult(1,3) + bookmarkTreeResult(2,5).dropRight(1) + closeBookmarks))
   }
   
   it should "render a tree with all structure elements enabled" in new Setup {
@@ -243,10 +243,10 @@ class FOforPDFSpec extends FlatSpec with Matchers {
         treeTitleResult(1) + tocDocResult(1) + tocDocResult(2)
         + tocTreeResult(1) + tocDocResult(3) + tocDocResult(4)
         + tocTreeResult(2) + tocDocResult(5) + tocDocResult(6).dropRight(1) 
-        + bookmarkRootResult + bookmarkTreeResult(1,3) + bookmarkTreeResult(2,5).dropRight(1) + closeBookmarks 
         + resultWithDocTitle(1) + resultWithDocTitle(2)
         + treeTitleResult(2) + resultWithDocTitle(3) + resultWithDocTitle(4)
-        + treeTitleResult(3) + resultWithDocTitle(5) + resultWithDocTitle(6)
+        + treeTitleResult(3) + resultWithDocTitle(5) + resultWithDocTitle(6),
+        bookmarkRootResult + bookmarkTreeResult(1,3) + bookmarkTreeResult(2,5).dropRight(1) + closeBookmarks
     ))
   }
   

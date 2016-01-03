@@ -19,6 +19,7 @@
     
   </fo:layout-master-set>
 
+  {{document.fragments.bookmarks}}
 
   <fo:page-sequence master-reference="default">
 
