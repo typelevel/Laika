@@ -46,29 +46,6 @@ import laika.tree.Documents.DocumentTree
 class PDFRendererSpec extends FlatSpec with Matchers {
   
   
-  // TODO - extract this into separate file
-  trait TreeModel {
-    
-    def doc(num: Int) = {
-      val parent = if (num > 4) Root / "tree2" else if (num > 2) Root / "tree1" else Root
-      new Document(parent / s"doc$num.md", RootElement(Seq(
-          Title(Seq(Text(s"Title $num")), Id(s"title-$num") + Styles("title")), 
-          Paragraph(Seq(Text(s"Text $num")))
-      ))).removeRules
-    }
-      
-    def configWithTreeTitle(num: Int) = Some(ConfigFactory.empty.withValue("title", ConfigValueFactory.fromAnyRef(s"Tree $num")))
-    
-    val tree = new DocumentTree(Root,
-      documents = Seq(doc(1), doc(2)),
-      subtrees = Seq(
-        new DocumentTree(Root / "tree1", documents = Seq(doc(3), doc(4)), config = configWithTreeTitle(2)),
-        new DocumentTree(Root / "tree2", documents = Seq(doc(5), doc(6)), config = configWithTreeTitle(3))
-      ),
-      config = configWithTreeTitle(1)
-    )
-  }
-  
   trait FileSetup {
     
     val file = File.createTempFile("output", null)
