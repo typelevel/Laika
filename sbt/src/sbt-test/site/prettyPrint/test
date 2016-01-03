@@ -1,0 +1,3 @@
+# test prettyPrint output generation with the prettyPrint task
+> laika:prettyPrint
+$ must-mirror target/docs/prettyPrint/hello.txt expected.txt
