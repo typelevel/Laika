@@ -24,12 +24,8 @@ import laika.io.OutputProvider.OutputConfig
 import laika.tree.Documents.Document
 import laika.tree.Documents.DocumentTree
 import laika.tree.Documents.Root
-import laika.tree.Elements.Id
-import laika.tree.Elements.Paragraph
-import laika.tree.Elements.RootElement
-import laika.tree.Elements.Styles
-import laika.tree.Elements.Text
-import laika.tree.Elements.Title
+import laika.tree.Elements._
+
 import java.io.ByteArrayOutputStream
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
@@ -229,6 +225,29 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     )
     
     result should be (withDefaultTemplate(bookmarkRootResult + bookmarkTreeResult(1,3) + bookmarkTreeResult(2,5).dropRight(1) + closeBookmarks + results(6)))
+  }
+  
+  it should "render a tree with all structure elements enabled" in new Setup {
+    
+    val config = PDFConfig(treeTitles = true, docTitles = true, bookmarks = true, toc = true)
+    
+    val tree = new DocumentTree(Root,
+      documents = Seq(doc(1), doc(2)),
+      subtrees = Seq(
+        new DocumentTree(Root / "tree1", documents = Seq(doc(3), doc(4)), config = configWithTreeTitle(2)),
+        new DocumentTree(Root / "tree2", documents = Seq(doc(5), doc(6)), config = configWithTreeTitle(3))
+      ),
+      config = configWithTreeTitle(1)
+    )
+    result should be (withDefaultTemplate(
+        treeTitleResult(1) + tocDocResult(1) + tocDocResult(2)
+        + tocTreeResult(1) + tocDocResult(3) + tocDocResult(4)
+        + tocTreeResult(2) + tocDocResult(5) + tocDocResult(6).dropRight(1) 
+        + bookmarkRootResult + bookmarkTreeResult(1,3) + bookmarkTreeResult(2,5).dropRight(1) + closeBookmarks 
+        + resultWithDocTitle(1) + resultWithDocTitle(2)
+        + treeTitleResult(2) + resultWithDocTitle(3) + resultWithDocTitle(4)
+        + treeTitleResult(3) + resultWithDocTitle(5) + resultWithDocTitle(6)
+    ))
   }
   
   

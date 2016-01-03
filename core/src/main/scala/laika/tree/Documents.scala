@@ -80,7 +80,7 @@ object Documents {
         case Nil => List(Text(config.getString("title")))
         case _ => Text(docNumber.mkString("","."," "), Styles("titleNumber")) +: List(Text(config.getString("title")))
       }
-      else (findRoot collect {
+      else (RootElement(findRoot) collect {
         case Title(content,_) => content
       }).headOption getOrElse List(Text(""))
     }

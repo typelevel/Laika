@@ -117,7 +117,9 @@ class FOforPDF (config: PDFConfig) {
     def toBlockSequence (blocks: Seq[Element]): Seq[Block] = ((blocks map {
       case BulletList(items,_,_)      => toBlockSequence(items)
       case BulletListItem(blocks,_,_) => toBlockSequence(blocks)
-      case Paragraph(Seq(link:CrossLink),opt) => Seq(Paragraph(Seq(link.copy(
+      case Paragraph(Seq(link:CrossLink),opt) => 
+        if (link.path.absolute.basename == DocNames.bookmarks) Seq() 
+        else Seq(Paragraph(Seq(link.copy(
           content = link.content :+ Leader() :+ PageNumberCitation(link.ref, link.path)
       )), opt))
     }).flatten)
