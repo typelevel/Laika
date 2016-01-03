@@ -1,0 +1,3 @@
+# test html creation with the html task
+> laika:html
+$ must-mirror target/docs/site/hello.html expected.html
