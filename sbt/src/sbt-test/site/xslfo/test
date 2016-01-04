@@ -1,0 +1,3 @@
+# test XSL-FO output generation with the xslfo task
+> laika:xslfo
+$ must-mirror target/docs/fo/hello.fo expected.fo
