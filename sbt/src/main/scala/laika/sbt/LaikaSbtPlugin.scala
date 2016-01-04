@@ -265,7 +265,7 @@ object LaikaSbtPlugin extends Plugin {
     }
     
     private val allTargets = setting { 
-      Set((target in site).value, (target in pdf).value, (target in xslfo).value, (target in prettyPrint).value)
+      Set((target in site).value, (artifactPath in pdf).value, (target in xslfo).value, (target in prettyPrint).value)
     }
     
     val generateTask = inputTask {
