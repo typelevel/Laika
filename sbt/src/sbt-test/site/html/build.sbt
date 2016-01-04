@@ -1,5 +1,5 @@
 
-name := "site-defaults"
+name := "site-html"
 
 version := "0.1"
 

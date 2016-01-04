@@ -1,5 +1,5 @@
 
-name := "site-defaults"
+name := "site-prettyPrint"
 
 version := "0.1"
 
