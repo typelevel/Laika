@@ -1,0 +1,8 @@
+RootElement - Blocks: 2
+. Title(Id(title) + Styles(title)) - Spans: 1
+. . Text - 'Title'
+. Paragraph - Spans: 3
+. . Text - 'Hello '
+. . Emphasized - Spans: 1
+. . . Text - 'World'
+. . Text - '.'
