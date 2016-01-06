@@ -393,6 +393,7 @@ object LaikaSbtPlugin extends Plugin {
     }
     
     val copyPDFTask = taskDyn {
+      val gen = siteGenTask.value
       val targetDir = (target in site).value
       val pdfSource = (artifactPath in pdf).value
       val pdfTarget = targetDir / pdfSource.getName
