@@ -1,0 +1,4 @@
+# test site creation with inclusion of PDF output
+> laika:site
+$ must-mirror target/docs/site/hello.html expected.html
+$ exists target/docs/site/site-includepdf-0.1.pdf
