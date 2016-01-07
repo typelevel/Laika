@@ -38,6 +38,13 @@ import laika.tree.TreeUtil
  *    it multiple times when it is a collection.
  *  - `if`: Accesses a value from the context and processes the body element only when
  *    it is a value recognized as true.
+ *  - `format`: Process the body element only when the output format matches the format
+ *    specified in the directive (e.g. `pdf` or `html`).
+ *  - `style`: Adds a style property to the body element.
+ *  - `fragment`: Adds the body as a fragment to the target document, separate from the main
+ *    content, to be rendered in different locations of the output, like headers, footers or sidebars.
+ *  - `pageBreak`: Inserts a page break element into the tree (will only be rendered by page-based
+ *    output, like XSL-FO or PDF.
  *  
  *  @author Jens Halm
  */
@@ -185,6 +192,10 @@ trait StandardDirectives {
   }
   
   
+  /** Implementation of the `for` directive for block elements in markup documents.
+   *  The content of such a block will only be rendered for the corresponding
+   *  output format (e.g. `pdf` or `html`).
+   */
   lazy val format = Blocks.create("format") {
     import Blocks.Combinators._
     
