@@ -143,6 +143,9 @@ object Input {
   }
   
   /** Creates a new Input instance from the specified source string.
+   *  
+   *  @param source the string to parse
+   *  @param path the path of the document in the virtual tree 
    */
   def fromString (source: String, path: Path = Root): Input = new StringInput(source, path)
 
@@ -162,12 +165,19 @@ object Input {
   def fromFile (file: File)(implicit codec: Codec): Input with Binary with Closeable 
     = new LazyFileInput(file, Path(file.getName), codec)
   
+  /** Creates a new Input instance for the specified file.
+   *  
+   *  @param file the file to use as input
+   *  @param virtualPath the path of the document in the virtual tree
+   *  @param codec the character encoding of the file, if not specified the platform default will be used.
+   */
   def fromFile (file: File, virtualPath: Path)(implicit codec: Codec): Input with Binary with Closeable 
     = new LazyFileInput(file, virtualPath / file.getName, codec)
   
   /** Creates a new Input instance for the specified classpath resource.
    *  
    *  @param resource the name of the resource on the classpath
+   *  @param virtualPath the path of the document in the virtual tree 
    *  @param codec the character encoding of the input, if not specified the platform default will be used.
    */
   def fromClasspath (resource: String, virtualPath: Path)(implicit codec: Codec): Input with Binary with Closeable
@@ -182,6 +192,9 @@ object Input {
   def fromStream (stream: InputStream, path: Path = Root)(implicit codec: Codec): Input with Binary = new StreamInput(stream, path, codec)
   
   /** Creates a new Input instance for the specified Reader.
+   *  
+   *  @param reader the reader to read character data from
+   *  @param path the (potentially virtual) path of the input source
    */
   def fromReader (reader: java.io.Reader, path: Path = Root): Input = new ReaderInput(reader, path)
   
