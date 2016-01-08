@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,12 +34,16 @@ class ParseStyleSheet private (parse: Input => StyleDeclarationSet) {
 
   /** Returns a style set obtained from parsing the specified string.
    *  Any kind of input is valid, including an empty string. 
+   *  
+   *  @param str the string to parse as CSS
    */
-  def fromString (str: String) = fromInput(Input.fromString(str))
+  def fromString (str: String): StyleDeclarationSet = fromInput(Input.fromString(str))
   
   /** Returns a style set obtained from parsing the input from the specified reader.
+   *  
+   *  @param reader the reader to read character data from
    */
-  def fromReader (reader: Reader) = fromInput(Input.fromReader(reader))
+  def fromReader (reader: Reader): StyleDeclarationSet = fromInput(Input.fromReader(reader))
 
   /** Returns a style set obtained from parsing the file with the specified name.
    *  Any kind of character input is valid, including empty files.
@@ -47,7 +51,8 @@ class ParseStyleSheet private (parse: Input => StyleDeclarationSet) {
    *  @param name the name of the file to parse
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
-  def fromFile (name: String)(implicit codec: Codec) = fromInput(Input.fromFile(name)(codec))
+  def fromFile (name: String)(implicit codec: Codec): StyleDeclarationSet = 
+    fromInput(Input.fromFile(name)(codec))
   
   /** Returns a style set obtained from parsing the specified file.
    *  Any kind of character input is valid, including empty files.
@@ -55,16 +60,22 @@ class ParseStyleSheet private (parse: Input => StyleDeclarationSet) {
    *  @param file the file to use as input
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
-  def fromFile (file: File)(implicit codec: Codec) = fromInput(Input.fromFile(file)(codec))
+  def fromFile (file: File)(implicit codec: Codec): StyleDeclarationSet = 
+    fromInput(Input.fromFile(file)(codec))
   
   /** Returns a style set obtained from parsing the input from the specified stream.
    * 
    *  @param stream the stream to use as input for the parser
    *  @param codec the character encoding of the stream, if not specified the platform default will be used.
    */
-  def fromStream (stream: InputStream)(implicit codec: Codec) = fromInput(Input.fromStream(stream)(codec))
+  def fromStream (stream: InputStream)(implicit codec: Codec): StyleDeclarationSet = 
+    fromInput(Input.fromStream(stream)(codec))
   
-  def fromInput (input: Input) = IO(input)(parse)
+  /** Returns a style set obtained from parsing character data from the specified input.
+   *  
+   *  @param input the input to read character data from
+   */
+  def fromInput (input: Input): StyleDeclarationSet = IO(input)(parse)
   
 }
 
@@ -78,6 +89,6 @@ object ParseStyleSheet extends ParseStyleSheet(CSSParsers.default) {
    * 
    *  @param parser the parser function to use for all subsequent operations
    */
-  def as (parser: Input => StyleDeclarationSet) = new ParseStyleSheet(parser) 
+  def as (parser: Input => StyleDeclarationSet): ParseStyleSheet = new ParseStyleSheet(parser) 
   
 }
