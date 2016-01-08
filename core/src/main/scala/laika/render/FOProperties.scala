@@ -433,8 +433,14 @@ trait FOProperties {
     "color-profile" -> Set("src")
   ).withDefaultValue(Set())
   
-  
-  def filterAttributes (tagName: String, attributes: Seq[(String, Any)]) = {
+  /** Filters out all unsupported attributes for the specified tagName
+   *  and return a new sequence containing only attributes valid for that tag.
+   *  
+   *  @param tagName the name of tag to filter the attributes for
+   *  @param attributes the attributes to filter as a sequence of key-name tuples
+   *  @return a new sequence containing only attributes valid for that tag
+   */
+  def filterAttributes (tagName: String, attributes: Seq[(String, Any)]): Seq[(String, Any)] = {
     val supportedProps = map(tagName.drop(3))
     attributes.filter(pair => supportedProps(pair._1))
   }
