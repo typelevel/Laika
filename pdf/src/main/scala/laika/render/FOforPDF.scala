@@ -40,22 +40,38 @@ import laika.tree.Templates.TemplateContextReference
  */
 class FOforPDF (config: PDFConfig) {
 
-  object DocNames {
+  private object DocNames {
     val treeTitle = "_title_"
     val toc = "_toc_"
   }
   
+  /** Indicates whether the specified tree contains at least one document.
+   */
   protected def hasDocuments (tree: DocumentTree): Boolean = tree.documents.nonEmpty || tree.subtrees.exists(hasDocuments)
   
+  /** Indicates whether the specified navigatable contains at least one document.
+   */
   protected def hasContent (nav: Navigatable): Boolean = nav match {
-    case _:Document => true
+    case _: Document => true
     case tree: DocumentTree => hasDocuments(tree)
   }
   
-  protected def getDepth (tree: DocumentTree, key: String) = (tree.config collect {
+  /** Returns the depth configuration for the specified key from
+   *  the given tree instance as an Int. For bookmarks and tables
+   *  of content the recursion depth can be specified in the tree
+   *  configuration.
+   * 
+   *  @param tree the tree to obtain the configuration value from
+   *  @param key the configuration key
+   */
+  protected def getDepth (tree: DocumentTree, key: String): Int = (tree.config collect {
     case c if c.hasPath(key) => c.getInt(key)
   }).getOrElse(Int.MaxValue)
   
+  /** Adds title elements for each tree and subtree in the specified
+   *  root tree. Tree titles can be specified in the configuration file
+   *  for each tree.
+   */
   def addTreeTitles (tree: DocumentTree): DocumentTree = {
     val treeWithTitle = if (!hasDocuments(tree) || tree.title.isEmpty) tree
     else {
@@ -67,6 +83,10 @@ class FOforPDF (config: PDFConfig) {
     treeWithTitle.mapSubtrees(addTreeTitles)
   }
   
+  /** Adds title elements for each document in the specified
+   *  tree, including documents in subtrees. Document titles will be obtained either
+   *  from a `Title` element in the document's content or from its configuration header.
+   */
   def insertDocTitles (tree: DocumentTree): DocumentTree =
     tree rewrite { context => {
       case title: Title =>
@@ -76,6 +96,14 @@ class FOforPDF (config: PDFConfig) {
         Some(RootElement(Title(context.document.title, Id("")) +: root.content))
     }}
     
+  /** Generates bookmarks for the structure of the DocumentTree. Individual
+   *  bookmarks can stem from tree or subtree titles, document titles or
+   *  document sections, depending on which recursion depth is configured.
+   *  The configuration key for setting the recursion depth is `pdf.bookmarks.depth`.
+   *  
+   *  @param root the document tree to generate bookmarks for
+   *  @return a fragment map containing the generated bookmarks
+   */
   def generateBookmarks (root: DocumentTree): Map[String, Element] = {
 
     def sectionBookmarks (path: Path, sections: Seq[SectionInfo], levels: Int): Seq[Bookmark] = 
@@ -107,6 +135,10 @@ class FOforPDF (config: PDFConfig) {
     else Map("bookmarks" -> BookmarkTree(treeBookmarks(root, depth))) 
   }
   
+  /** Inserts a table of content into the specified document tree.
+   *  The recursion depth can be set with the configuration key
+   *  `pdf.toc.depth`.
+   */
   def insertToc (tree: DocumentTree): DocumentTree = {
 
     def toBlockSequence (blocks: Seq[Element]): Seq[Block] = ((blocks map {
@@ -127,6 +159,10 @@ class FOforPDF (config: PDFConfig) {
     }
   }
       
+  /** Prepares the document tree before rendering the interim XSL-FO
+   *  output. Preparation may include insertion of tree or document titles
+   *  and a table of content, depending on configuration.
+   */
   def prepareTree (tree: DocumentTree): DocumentTree = {
     val withoutTemplates = tree.withoutTemplates.withTemplate(new TemplateDocument(Root / "default.template.fo", 
         TemplateRoot(List(TemplateContextReference("document.content")))))
@@ -135,7 +171,18 @@ class FOforPDF (config: PDFConfig) {
     if (config.treeTitles) addTreeTitles(withToc) else withToc
   }
   
-  def renderFO (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit) = {
+  /** Renders the XSL-FO that serves as a basis for producing the final PDF output.
+   *  The result should include the output from rendering the documents in the 
+   *  specified tree as well as any additional insertions like bookmarks or
+   *  table of content. For this the specified `DocumentTree` instance may get
+   *  modified before passing it to the given render function, depending on
+   *  configuration settings.
+   *  
+   *  @param tree the document tree serving as input for the renderer
+   *  @param render the actual render function for producing the XSL-FO output
+   *  @return the rendered XSL-FO as a String 
+   */
+  def renderFO (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit): String = {
       
     def getDefaultTemplate = {
       val templateName = "default.template.fo"
@@ -178,4 +225,8 @@ class FOforPDF (config: PDFConfig) {
     
 }
 
+/** The default FOforPDF instance using a PDFConfig with all 
+ *  optional features like document titles, bookmarks and table
+ *  of content enabled.
+ */
 object FOforPDF extends FOforPDF(PDFConfig.default)
