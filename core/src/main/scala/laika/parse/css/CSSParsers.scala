@@ -35,16 +35,34 @@ trait CSSParsers extends laika.parse.InlineParsers {
   protected val prepareSpanParsers: Map[Char,Parser[Span]] = Map.empty
   
   
+  /** Represents a combinator between two predicates.
+   */
   sealed abstract class Combinator
-  case object Descendant extends Combinator
-  case object Child extends Combinator
   
+  /** A combinator for a descendant on any nesting
+   *  level.
+   */
+  case object Descendant extends Combinator
+  
+  /** A combinator for an immediate child.
+   */
+  case object Child extends Combinator
+
+  /** Represents a single style within a style
+   *  declaration.
+   */
   case class Style (name: String, value: String)
   
-  
-  val wsOrNl = anyOf(' ','\t', '\n', '\r')
-  
-  val styleRefName = {
+  /** Parses horizontal whitespace or newline characters.
+   */
+  val wsOrNl: Parser[String] = anyOf(' ', '\t', '\n', '\r')
+
+
+  /** Parses the name of a style. The name must start
+   *  with a letter, while subsequent characters can be 
+   *  letters, digits or one of the symbols `'-'` or `'_'`.
+   */
+  val styleRefName: Parser[String] = {
     val alpha = anyWhile(c => Character.isLetter(c)) min 1
     val alphanum = anyWhile(c => Character.isDigit(c) || Character.isLetter(c)) min 1
     val symbol = anyOf('-', '_') max 1
@@ -54,10 +72,13 @@ trait CSSParsers extends laika.parse.InlineParsers {
     }
   }
   
-  
+  /** Parses a sequence of selectors, separated by a comma.
+   */
   lazy val selectorGroup: Parser[Seq[Selector]] = 
     selector ~ ((ws ~ ',' ~ ws ~> selector)*) ^^ { case sel ~ sels => sel :: sels }
   
+  /** Parses a single selector.
+   */
   lazy val selector: Parser[Selector] = 
     simpleSelectorSequence ~ ((combinator ~ simpleSelectorSequence)*) ^^ { 
       case sel ~ sels => (sel /: sels) {
@@ -66,17 +87,25 @@ trait CSSParsers extends laika.parse.InlineParsers {
       } 
     }
   
+  /** Parses the subpart of a selector without any combinators, e.g. `Paragraph#title`.
+   */
   lazy val simpleSelectorSequence: Parser[Selector] =
     (((typeSelector ~ (predicate*)) ^^ { case preds1 ~ preds2 => preds1 ::: preds2 }) | (predicate+)) ^^ {
       preds => Selector(preds.toSet)
   }
   
+  /** Parses a combinator between two predicates.
+   */
   lazy val combinator: Parser[Combinator] = 
     ((ws ~ '>' ~ ws) ^^^ Child) | (ws min 1) ^^^ Descendant
-  
+
+  /** Parses a single type selector.
+   */
   lazy val typeSelector: Parser[List[Predicate]] =
     (styleRefName ^^ { name => List(ElementType(name)) }) | ('*' ^^^ Nil) 
     
+  /** Parses a single predicate.
+   */
   lazy val predicate: Parser[Predicate] = {
     
     val id: Parser[Predicate] = ('#' ~> styleRefName) ^^ Id
@@ -85,7 +114,9 @@ trait CSSParsers extends laika.parse.InlineParsers {
     id | styleName
   }
   
-  
+  /** Parses a sequence of style declarations, ignoring
+   *  any comments.
+   */
   lazy val styleDeclarations: Parser[Seq[StyleDeclaration]] = 
     ((selectorGroup <~ wsOrNl ~ '{' ~ wsOrNl) ~ ((comment | style)*) <~ (wsOrNl ~ '}')) ^^ {
       case selectors ~ stylesAndComments => 
@@ -93,15 +124,25 @@ trait CSSParsers extends laika.parse.InlineParsers {
         selectors map (StyleDeclaration(_, styles))
     }
   
+  /** Parses a single CSS comment.
+   */
   lazy val comment: Parser[Unit] = ("/*" ~ anyUntil("*/") ~ wsOrNl) ^^^ (())
-    
+
+  /** Parses a single style within a declaration.
+   */
   lazy val style: Parser[Style] = ((styleRefName <~ ws ~ ':' ~ ws) ~ (styleValue <~ wsOrNl)) ^^ {
     case name ~ value => Style(name, value)
   }
-  
+
+  /** Parses the value of a single style, ignoring
+   *  any comments..
+   */
   lazy val styleValue: Parser[String] = 
     text(anyUntil(';'), Map('/' -> (('*' ~ anyUntil("*/") ~ wsOrNl) ^^^ "")))
     
+  /** Parses an entire set of style declarations.
+   *  This is the top level parser of this trait.
+   */
   lazy val styleDeclarationSet: Parser[Set[StyleDeclaration]] = 
     (wsOrNl ~ (comment*) ~> ((styleDeclarations <~ wsOrNl ~ (comment*))*)) ^^ { 
       _.flatten.zipWithIndex.map({
@@ -109,15 +150,26 @@ trait CSSParsers extends laika.parse.InlineParsers {
       }).toSet 
     }
   
-  def parseStyleSheet (reader: Reader[Char], path: Path) = {
+  /** Fully parses the input from the specified reader and returns the resulting
+   *  style declaration set.
+   *  
+   *  @param reader the character input to process
+   *  @param path the path the input has been obtained from
+   *  @return the resulting set of style declarations
+   */
+  def parseStyleSheet (reader: Reader[Char], path: Path): StyleDeclarationSet = {
     val set = parseMarkup(styleDeclarationSet, reader)
     new StyleDeclarationSet(Set(path), set)
   }
     
 }
 
+/** Companion for accessing the default implementation.
+ */
 object CSSParsers {
   
+  /** The default parser function for Laika's CSS support.
+   */
   lazy val default: Input => StyleDeclarationSet = {
     val parser = new CSSParsers {}
     input => parser.parseStyleSheet(input.asParserInput, input.path)
