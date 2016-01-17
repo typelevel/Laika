@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,6 +59,14 @@ import laika.factory.RenderResultProcessor
  *  Render as HTML from tree toDirectory "path/to/output"
  *  }}}
  *  
+ *  Example for rendering PDF from an entire tree of documents to a single target file:
+ *  
+ *  {{{
+ *  val tree: DocumentTree = ...
+ *  
+ *  Render as PDF from tree toFile "hello.pdf"
+ *  }}}
+ *  
  *  @tparam W the writer API to use which varies depending on the renderer
  * 
  *  @author Jens Halm
@@ -67,10 +75,16 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
                               private[Render] val customRenderers: List[Writer => RenderFunction] = Nil) {
 
   
+  /** The type of the rendering target for a single input document.
+   */
   type DocTarget
-  
+
+  /** The type of the rendering target for an entire tree of input documents. 
+   */
   type TreeTarget
-  
+
+  /** The concrete implementation of the abstract Render type.
+   */
   type ThisType <: Render[Writer]
   
 
@@ -120,7 +134,12 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
   def from (tree: DocumentTree): TreeTarget
   
   
-    
+  /** Renders the specified element to the given output.
+   * 
+   *  @param element the element to render
+   *  @param output the output to render to
+   *  @param styles the styles to apply to the elements during the render process
+   */
   protected[this] def render (element: Element, output: Output, styles: StyleDeclarationSet): Unit = { 
     
     object RenderFunction extends (Element => Unit) {
@@ -145,6 +164,11 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
     }
   }
   
+  /** Renders the specified document tree to the given output.
+   * 
+   *  @param element the element to render
+   *  @param config the configuration for the output to render to
+   */
   protected[this] def render (tree: DocumentTree, config: OutputConfig): Unit = {
     
     type Operation = () => Unit
@@ -187,6 +211,8 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
 object Render {
   
   
+  /** A target for a render operation that accepts only binary output.
+   */
   trait BinaryTarget {
     
     /** Renders the model to the file with the specified name.
@@ -194,21 +220,21 @@ object Render {
      *  @param name the name of the file to parse
      *  @param codec the character encoding of the file, if not specified the platform default will be used.
      */
-    def toFile (name: String)(implicit codec: Codec) = renderBinary(Output.toFile(name)(codec))
+    def toFile (name: String)(implicit codec: Codec): Unit = renderBinary(Output.toFile(name)(codec))
     
     /** Renders the model to the specified file.
      * 
      *  @param file the file to write to
      *  @param codec the character encoding of the file, if not specified the platform default will be used.
      */
-    def toFile (file: File)(implicit codec: Codec) = renderBinary(Output.toFile(file)(codec))
+    def toFile (file: File)(implicit codec: Codec): Unit = renderBinary(Output.toFile(file)(codec))
     
     /** Renders the model to the specified output stream.
      * 
      *  @param stream the stream to render to
      *  @param codec the character encoding of the stream, if not specified the platform default will be used.
      */
-    def toStream (stream: OutputStream)(implicit codec: Codec) = renderBinary(Output.toStream(stream)(codec))
+    def toStream (stream: OutputStream)(implicit codec: Codec): Unit = renderBinary(Output.toStream(stream)(codec))
     
     /** Renders the model to the specified output.
      *  
@@ -232,15 +258,15 @@ object Render {
     
     /** Renders the model to the console.
      */
-    def toConsole = toStream(System.out)
+    def toConsole: Unit = toStream(System.out)
 
     /** Renders the model to the specified writer.
      */
-    def toWriter (writer: java.io.Writer) = renderTo(Output.toWriter(writer))
+    def toWriter (writer: java.io.Writer): Unit = renderTo(Output.toWriter(writer))
 
     /** Renders the model to the specified `StringBuilder`.
      */
-    def toBuilder (builder: StringBuilder) = renderTo(Output.toBuilder(builder))
+    def toBuilder (builder: StringBuilder): Unit = renderTo(Output.toBuilder(builder))
     
     /** Renders the model to a String and returns it.
      */
@@ -261,14 +287,15 @@ object Render {
     /** Renders the model to the specified binary output.
      */
     protected def renderTo (out: Output): Unit
-      
-    protected def renderBinary (out: Output with Binary) = renderTo(out)
+     
+    /** Renders the model to the specified binary output.
+     */
+    protected def renderBinary (out: Output with Binary): Unit = renderTo(out)
     
   }
   
   /** Represents a tree of output destinations for recursive render operations. 
-   *  Various types of output can be
-   *  specified to trigger the actual rendering.
+   *  Various types of output can be specified to trigger the actual rendering.
    */
   trait MappedTreeTarget {
     
@@ -279,7 +306,7 @@ object Render {
      *  @param name the name of the directory to write to
      *  @param codec the character encoding of the files, if not specified the platform default will be used.
      */
-    def toDirectory (name: String)(implicit codec: Codec) = toTree(Directory(name)(codec))
+    def toDirectory (name: String)(implicit codec: Codec): Unit = toTree(Directory(name)(codec))
 
     /** Renders the document tree to the
      *  specified directory and its subdirectories.
@@ -288,7 +315,7 @@ object Render {
      *  @param dir the directory to write to
      *  @param codec the character encoding of the files, if not specified the platform default will be used.
      */
-    def toDirectory (dir: File)(implicit codec: Codec) = toTree(Directory(dir)(codec))
+    def toDirectory (dir: File)(implicit codec: Codec): Unit = toTree(Directory(dir)(codec))
   
     /** Renders the document tree to the
      *  current working directory and its subdirectories.
@@ -296,7 +323,7 @@ object Render {
      * 
      *  @param codec the character encoding of the files, if not specified the platform default will be used.
      */
-    def toDefaultDirectory (implicit codec: Codec) = toTree(DefaultDirectory(codec))
+    def toDefaultDirectory (implicit codec: Codec): Unit = toTree(DefaultDirectory(codec))
 
     /** Renders the document tree to the output
      *  obtained from the specified configuation builder.
@@ -312,7 +339,13 @@ object Render {
   }
   
 
-    
+  /** A render operation that maps each input document of a
+   *  given input tree to a corresponding output document
+   *  in the destination tree.
+   *  
+   *  @param factory the factory for the rendere to use
+   *  @param customRenderers custom renderers to be applied in addition to the default renderers
+   */
   class RenderMappedOutput[Writer] (factory: RendererFactory[Writer], 
                                     customRenderers: List[Writer => RenderFunction] = Nil) extends Render[Writer](factory, customRenderers) {
     
@@ -335,6 +368,17 @@ object Render {
     
   }
   
+  /** A render operation that gathers input from one or more
+   *  input documents in an input tree structure to be rendered 
+   *  to a single output destination.
+   *  
+   *  This is necessary for formats like PDF, where the output
+   *  will be contained in a single file, but the input can still
+   *  be conveniently organized in a full directory structure.
+   *  
+   *  @param processor the processor that merges the results from the individual render operations into a single output
+   *  @param customRenderers custom renderers to be applied in addition to the default renderers
+   */
   class RenderGatheredOutput[Writer] (processor: RenderResultProcessor[Writer], 
                                       customRenderers: List[Writer => RenderFunction] = Nil) extends Render[Writer](processor.factory, customRenderers) {
     
