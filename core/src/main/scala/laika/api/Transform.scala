@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,10 +55,16 @@ import laika.api.Render.RenderGatheredOutput
  *  Transform from Markdown to HTML fromFile "hello.md" toFile "hello.html"
  *  }}}
  *  
- *  Example for transforming an entire directory and its subdirectories:
+ *  Example for transforming an entire directory and its subdirectories to HTML in a target directory:
  *  
  *  {{{
  *  Transform from Markdown to HTML fromDirectory "source" toDirectory "target"
+ *  }}}
+ *  
+ *  Example for transforming an entire directory and its subdirectories to a single PDF file:
+ *  
+ *  {{{
+ *  Transform from Markdown to PDF fromDirectory "source" toFile "hello.pdf"
  *  }}}
  *  
  *  Or for transforming a document fragment from a string to the PrettyPrint format
@@ -89,10 +95,16 @@ import laika.api.Render.RenderGatheredOutput
  */
 abstract class Transform [Writer] private[Transform] (parse: Parse, rules: Rules) {
   
+  /** The type of the transformation target for a single input document.
+   */
   type DocTarget
   
+  /** The type of the transformation target for an entire tree of input documents. 
+   */
   type TreeTarget
   
+  /** The concrete implementation of the abstract Transform type.
+   */
   type ThisType <: Transform[Writer]
   
   /** Specifies a rewrite rule to be applied to the document tree model between the
@@ -204,7 +216,7 @@ abstract class Transform [Writer] private[Transform] (parse: Parse, rules: Rules
   def fromStream (stream: InputStream)(implicit codec: Codec): DocTarget = fromDocument(parse.fromStream(stream)(codec))
   
   /** Parses files from the specified directory and its subdirectories
-   *  and returns a new builder instance which allows to specify the output and 
+   *  and returns a new target instance which allows to specify the output and 
    *  other configuration options.
    * 
    *  @param name the name of the directory to traverse
@@ -214,7 +226,7 @@ abstract class Transform [Writer] private[Transform] (parse: Parse, rules: Rules
   def fromDirectory (name: String)(implicit codec: Codec): TreeTarget = fromDirectory(name, hiddenFileFilter)(codec)
   
   /** Parses files from the specified directory and its subdirectories
-   *  and returns a new builder instance which allows to specify the output and 
+   *  and returns a new target instance which allows to specify the output and 
    *  other configuration options.
    * 
    *  @param name the name of the directory to traverse
@@ -225,7 +237,7 @@ abstract class Transform [Writer] private[Transform] (parse: Parse, rules: Rules
   def fromDirectory (name: String, exclude: FileFilter)(implicit codec: Codec): TreeTarget = fromTree(InputProvider.Directory(name, exclude)(codec))
 
   /** Parses files from the specified directory and its subdirectories
-   *  and returns a new builder instance which allows to specify the output and 
+   *  and returns a new target instance which allows to specify the output and 
    *  other configuration options.
    * 
    *  @param dir the directory to traverse
@@ -235,7 +247,7 @@ abstract class Transform [Writer] private[Transform] (parse: Parse, rules: Rules
   def fromDirectory (dir: File)(implicit codec: Codec): TreeTarget = fromDirectory(dir, hiddenFileFilter)(codec)
   
   /** Parses files from the specified directory and its subdirectories
-   *  and returns a new builder instance which allows to specify the output and 
+   *  and returns a new target instance which allows to specify the output and 
    *  other configuration options.
    * 
    *  @param dir the directory to traverse
@@ -247,7 +259,7 @@ abstract class Transform [Writer] private[Transform] (parse: Parse, rules: Rules
   
   /** Parses files from the specified directories and its subdirectories, 
    *  merging them into a tree with a single root
-   *  and returns a new builder instance which allows to specify the output and 
+   *  and returns a new target instance which allows to specify the output and 
    *  other configuration options.
    * 
    *  @param roots the root directories to traverse
@@ -257,7 +269,7 @@ abstract class Transform [Writer] private[Transform] (parse: Parse, rules: Rules
   
   /** Parses files from the specified directories and its subdirectories, 
    *  merging them into a tree with a single root
-   *  and returns a new builder instance which allows to specify the output and 
+   *  and returns a new target instance which allows to specify the output and 
    *  other configuration options.
    * 
    *  @param roots the root directories to traverse
@@ -266,20 +278,27 @@ abstract class Transform [Writer] private[Transform] (parse: Parse, rules: Rules
    */
   def fromDirectories (roots: Seq[File], exclude: FileFilter)(implicit codec: Codec): TreeTarget = fromTree(InputProvider.Directories(roots, exclude)(codec))
   
-  /** Parses from the specified input
-   *  and returns a new builder instance which allows to specify the output and 
-   *  other configuration options.
+  /** Parses from the specified input and returns a new target instance 
+   *  which allows to specify the output and other configuration options.
    * 
    *  @param inputBuilder the input to transform
    */
   def fromTree (inputBuilder: InputConfigBuilder): TreeTarget
   
-
+  /** Renders the specified document and returns a new target instance 
+   *  which allows to specify the output and other configuration options.
+   * 
+   *  @param inputBuilder the input to transform
+   */
   protected[this] def fromDocument (doc: Document): DocTarget
   
-  protected[this] def rewrite (doc: Document, rules: Rules) = doc rewriteWith rules.forContext(DocumentContext(doc))
+  /** Rewrites the specified document, using the given rules.
+   */
+  protected[this] def rewrite (doc: Document, rules: Rules): Document = doc rewriteWith rules.forContext(DocumentContext(doc))
 
-  protected[this] def rewrite (tree: DocumentTree, rules: Rules) = tree.rewrite(rules.all, AutonumberContext.defaults)
+  /** Rewrites the specified document tree, using the given rules.
+   */
+  protected[this] def rewrite (tree: DocumentTree, rules: Rules): DocumentTree = tree.rewrite(rules.all, AutonumberContext.defaults)
   
   
 } 
@@ -291,6 +310,14 @@ abstract class Transform [Writer] private[Transform] (parse: Parse, rules: Rules
 object Transform {
    
   
+  /** A transform operation that maps each input document of a
+   *  given input tree to a corresponding output document
+   *  in the destination tree.
+   *  
+   *  @param parse the parser to use for parsing the input
+   *  @param render the renderer to use for producing the output
+   *  @param rules the rewrite rules to apply between parsing and rendering
+   */
   class TransformMappedOutput[Writer] (parse: Parse, render: RenderMappedOutput[Writer], rules: Rules) extends Transform[Writer](parse, rules) {
     
     type DocTarget = Render.SingleTarget
@@ -307,17 +334,24 @@ object Transform {
       protected def renderTo (out: Output) = render from rewrite(doc,rules) toOutput out
     }
     
-    def fromTree (input: InputConfigBuilder) = new MappedTreeTarget(input)
+    def fromTree (input: InputConfigBuilder): MappedTreeTarget = new MappedTreeTarget(input)
     
+    /** Represents a tree of output destinations for recursive render operations,
+     *  where each input document will be mapped to a corresponding output document. 
+     *  Various types of output can be specified to trigger the actual rendering.
+     *  
+     *  @param inputBuilder the builder used to configure the input tree
+     *  @param isParallel indicates whether the transform operations for the individual targets should run in parallel
+     */
     class MappedTreeTarget (inputBuilder: InputConfigBuilder, 
                             isParallel:Boolean = false) extends TreeConfigBuilder[MappedTreeTarget] 
                                                         with Render.MappedTreeTarget { 
       
-      protected def withInputBuilder (f: InputConfigBuilder => InputConfigBuilder) = new MappedTreeTarget(f(inputBuilder), isParallel)
+      protected def withInputBuilder (f: InputConfigBuilder => InputConfigBuilder): MappedTreeTarget = new MappedTreeTarget(f(inputBuilder), isParallel)
       
-      protected def withParallelExecution = new MappedTreeTarget(inputBuilder.inParallel, true)
+      protected def withParallelExecution: MappedTreeTarget = new MappedTreeTarget(inputBuilder.inParallel, true)
       
-      protected def renderTo (out: OutputConfigBuilder) = {
+      protected def renderTo (out: OutputConfigBuilder): Unit = {
         val tree = parse.fromTree(inputBuilder)
         render from rewrite(tree,rules) toTree (if (isParallel) out.inParallel else out)
       }
@@ -325,6 +359,14 @@ object Transform {
     
   }
   
+  /** A transform operation that gathers input from one or more
+   *  input documents in an input tree structure to be rendered 
+   *  to a single output destination.
+   *  
+   *  @param parse the parser to use for parsing the input
+   *  @param render the renderer to use for producing the output
+   *  @param rules the rewrite rules to apply between parsing and rendering
+   */
   class TransformGatheredOutput[Writer] (parse: Parse, render: RenderGatheredOutput[Writer], rules: Rules) extends Transform[Writer](parse, rules) {
     
     type DocTarget = Render.BinaryTarget
@@ -341,17 +383,24 @@ object Transform {
       protected def renderBinary (out: Output with Binary) = render from rewrite(doc,rules) toBinaryOutput out
     }
     
-    def fromTree (input: InputConfigBuilder) = new GatherTarget(input)
+    def fromTree (input: InputConfigBuilder): GatherTarget = new GatherTarget(input)
     
+    /** A target for a render operation that accepts only binary output, the final
+     *  result of the gathering operation that merges the individual render results
+     *  obtained from transforming the input tree.
+     *  
+     *  @param inputBuilder the builder used to configure the input tree
+     *  @param isParallel indicates whether the transform operations for the individual targets should run in parallel
+   	 */
     class GatherTarget (inputBuilder: InputConfigBuilder, 
                         isParallel:Boolean = false) extends TreeConfigBuilder[GatherTarget] 
                                                     with Render.BinaryTarget { 
       
-      protected def withInputBuilder (f: InputConfigBuilder => InputConfigBuilder) = new GatherTarget(f(inputBuilder), isParallel)
+      protected def withInputBuilder (f: InputConfigBuilder => InputConfigBuilder): GatherTarget = new GatherTarget(f(inputBuilder), isParallel)
       
-      protected def withParallelExecution = new GatherTarget(inputBuilder.inParallel, true)
+      protected def withParallelExecution: GatherTarget = new GatherTarget(inputBuilder.inParallel, true)
       
-      protected def renderBinary (out: Output with Binary) = {
+      protected def renderBinary (out: Output with Binary): Unit = {
         val tree = parse.fromTree(inputBuilder)
         render from rewrite(tree,rules) toBinaryOutput out // TODO - parallel output?
       }
@@ -383,43 +432,43 @@ object Transform {
     /** Specifies the style sheet engine to use for 
      *  parsing all CSS inputs found in the tree.
      */
-    def withStyleSheetParser (parser: ParseStyleSheet) = withInputBuilder(_.withStyleSheetParser(parser))
+    def withStyleSheetParser (parser: ParseStyleSheet): ThisType = withInputBuilder(_.withStyleSheetParser(parser))
     
     /** Specifies the template engine to use for 
      *  parsing all template inputs found in the tree.
      */
-    def withTemplateParser (parse: ParseTemplate) = withInputBuilder(_.withTemplateParser(parse))
+    def withTemplateParser (parse: ParseTemplate): ThisType = withInputBuilder(_.withTemplateParser(parse))
     
     /** Specifies custom template directives to use with
      *  the default template engine.
      */
-    def withTemplateDirectives (directives: Templates.Directive*) = withInputBuilder(_.withTemplateDirectives(directives:_*))
+    def withTemplateDirectives (directives: Templates.Directive*): ThisType = withInputBuilder(_.withTemplateDirectives(directives:_*))
     
     /** Specifies the function to use for determining the document type
      *  of the input based on its path.
      */
-    def withDocTypeMatcher (matcher: Path => DocumentType) = withInputBuilder(_.withDocTypeMatcher(matcher))
+    def withDocTypeMatcher (matcher: Path => DocumentType): ThisType = withInputBuilder(_.withDocTypeMatcher(matcher))
 
     /** Specifies a root configuration file that gets
      *  inherited by this tree and its subtrees.
      *  The syntax of the input is expected to be of a format
      *  compatible with the Typesafe Config library.
      */
-    def withConfigFile (file: File) = withInputBuilder(_.withConfigFile(file))
+    def withConfigFile (file: File): ThisType = withInputBuilder(_.withConfigFile(file))
     
     /** Specifies the name of a root configuration file that gets
      *  inherited by this tree and its subtrees.
      *  The syntax of the input is expected to be of a format
      *  compatible with the Typesafe Config library.
      */
-    def withConfigFile (name: String) = withInputBuilder(_.withConfigFile(name))
+    def withConfigFile (name: String): ThisType = withInputBuilder(_.withConfigFile(name))
     
     /** Specifies a root configuration source that gets
      *  inherited by this tree and its subtrees.
      *  The syntax of the input is expected to be of a format
      *  compatible with the Typesafe Config library.
      */
-    def withConfigString (source: String) = withInputBuilder(_.withConfigString(source))
+    def withConfigString (source: String): ThisType = withInputBuilder(_.withConfigString(source))
     
     /** Instructs both the parser and renderer to process all inputs and outputs in parallel.
      *  The recursive structure of document trees will be flattened before parsing and rendering
@@ -432,7 +481,7 @@ object Transform {
      *  table of contents get processed that need access to more than just the current
      *  document. 
      */
-    def inParallel = withParallelExecution
+    def inParallel: ThisType = withParallelExecution
     
   }
   
@@ -452,7 +501,7 @@ object Transform {
      *  @param factory the parser factory to add to the previously specified parsers
      *  @return a new Builder instance
      */
-    def or (factory: ParserFactory) = new Builder(parse or factory)
+    def or (factory: ParserFactory): Builder = new Builder(parse or factory)
     
     /** Creates and returns a new Transform instance for the specified renderer and the
      *  previously specified parser. The returned instance is stateless and reusable for
