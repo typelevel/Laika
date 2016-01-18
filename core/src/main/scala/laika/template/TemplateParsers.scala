@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ object TemplateParsers {
    */
   trait Templates extends TemplateParsers with DirectiveParsers.TemplateDirectives {
     
-    protected def prepareSpanParsers = Map(
+    protected def prepareSpanParsers: Map[Char, Parser[Span]] = Map(
       '{' -> (reference(TemplateContextReference(_))),    
       '@' -> (templateDirectiveParser),
       '\\'-> ((any take 1) ^^ { Text(_) })
@@ -70,23 +70,23 @@ object TemplateParsers {
       }
     } 
     
-    lazy val templateSpans = (spans(any, spanParsers) ^^ { _.collect { 
+    lazy val templateSpans: Parser[List[TemplateSpan]] = (spans(any, spanParsers) ^^ { _.collect { 
       case s:TemplateSpan => s 
       case Text(s,opt) => TemplateString(s,opt)
     }})
     
-    def templateWithConfig (path: Path) = opt(configParser(path)) ~ templateSpans ^^ {
+    def templateWithConfig (path: Path): Parser[(Config, List[TemplateSpan])] = opt(configParser(path)) ~ templateSpans ^^ {
       case Some(Right(config)) ~ root => (config, root)
       case Some(Left(span)) ~ root    => (ConfigFactory.empty(), TemplateElement(span) :: root)
       case None ~ root                => (ConfigFactory.empty(), root)
     }
   
-    def parseTemplate (reader: Reader[Char], path: Path) = {
+    def parseTemplate (reader: Reader[Char], path: Path): TemplateDocument = {
       val (config, root) = parseMarkup(templateWithConfig(path), reader)
       TemplateDocument(path, TemplateRoot(root), config)
     }
     
-    def parseTemplatePart (source: String) = parseMarkup(templateSpans, source)
+    def parseTemplatePart (source: String): List[TemplateSpan] = parseMarkup(templateSpans, source)
       
   }
   
@@ -95,7 +95,7 @@ object TemplateParsers {
    */
   trait MarkupBlocks extends DirectiveParsers.BlockDirectives {
     
-    abstract override protected def prepareBlockParsers (nested: Boolean) = 
+    abstract override protected def prepareBlockParsers (nested: Boolean): List[Parser[Block]] = 
       blockDirectiveParser :: super.prepareBlockParsers(nested)
     
     override def config (path: Path): Parser[Either[InvalidBlock,Config]] = "{%" ~> anyUntil("%}") <~ ws ~ eol ^^ { str =>
@@ -114,7 +114,7 @@ object TemplateParsers {
    */
   trait MarkupSpans extends TemplateParsers with DirectiveParsers.SpanDirectives {
     
-    abstract override protected def prepareSpanParsers = {
+    abstract override protected def prepareSpanParsers: Map[Char, Parser[Span]] = {
       
       def addOrMerge (base: Map[Char, Parser[Span]], char: Char, parser: Parser[Span]) = {
         val oldParser = base.get(char)

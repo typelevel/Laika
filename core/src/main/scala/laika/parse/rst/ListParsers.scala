@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
       } 
   }
   
-  private def rewriteListItems [I <: BlockContainer[_]](items: List[I], newListItem: (I,List[Block]) => I) = {
+  private def rewriteListItems [I <: BlockContainer[_]](items: List[I], newListItem: (I,List[Block]) => I): List[I] = {
     
     /* The reStructuredText reference parser makes a distinction between "simple" lists
      * and normal lists. The exact rules are not documented, but tests seam to hint at

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -141,7 +141,7 @@ object TextRoles {
    */
   abstract class RoleDirectivePart[+A] extends (RoleDirectiveParser => Result[A]) { self =>
     
-    def map [B](f: A => B) = new RoleDirectivePart[B] { 
+    def map [B](f: A => B): RoleDirectivePart[B] = new RoleDirectivePart[B] { 
       def apply (p: RoleDirectiveParser) = self(p) map f 
     }
     
@@ -151,7 +151,7 @@ object TextRoles {
    */
   implicit object CanBuildRoleDirectivePart extends CanBuild[RoleDirectivePart] {
     
-    def apply [A,B](ma: RoleDirectivePart[A], mb: RoleDirectivePart[B]) = new RoleDirectivePart[A~B] {
+    def apply [A,B](ma: RoleDirectivePart[A], mb: RoleDirectivePart[B]): RoleDirectivePart[A~B] = new RoleDirectivePart[A~B] {
       def apply (p: RoleDirectiveParser) = {
         val a = ma(p)
         val b = mb(p)
@@ -159,7 +159,7 @@ object TextRoles {
       }
     }
   
-    def map [A,B](m: RoleDirectivePart[A], f: A => B) = m map f
+    def map [A,B](m: RoleDirectivePart[A], f: A => B): RoleDirectivePart[B] = m map f
     
   }
  
@@ -168,7 +168,7 @@ object TextRoles {
    */
   object Parts {
     
-    private def part [T](f: RoleDirectiveParser => Result[T]) = new RoleDirectivePart[T] {
+    private def part [T](f: RoleDirectiveParser => Result[T]): RoleDirectivePart[T] = new RoleDirectivePart[T] {
       def apply (p: RoleDirectiveParser) = f(p)
     }
     
@@ -236,7 +236,7 @@ object TextRoles {
      *  value) and the actual text of the interpreted text span
      *  @return a new text role that can be registered with the reStructuredText parser
      */
-    def apply [T] (name: String, default: T)(part: RoleDirectivePart[T])(roleF: (T, String) => Span) = 
+    def apply [T] (name: String, default: T)(part: RoleDirectivePart[T])(roleF: (T, String) => Span): TextRole = 
       new TextRole(name.toLowerCase, str => roleF(default, str), _ => part map (res => ((str:String) => roleF(res, str))))
     
     /** Creates a new text role that can be referred to by interpreted text with the specified name.
@@ -262,17 +262,10 @@ object TextRoles {
      *  value) and the actual text of the interpreted text span
      *  @return a new text role that can be registered with the reStructuredText parser
      */
-    def recursive [T] (name: String, default: T)(part: BlockParsers with InlineParsers => RoleDirectivePart[T])(roleF: (T, String) => Span) = 
+    def recursive [T] (name: String, default: T)(part: BlockParsers with InlineParsers => RoleDirectivePart[T])(roleF: (T, String) => Span): TextRole = 
       new TextRole(name.toLowerCase, str => roleF(default, str), parsers => part(parsers) map (res => ((str:String) => roleF(res, str))))
     
   }
 
   
 }
-
-
-
-
-
-
-

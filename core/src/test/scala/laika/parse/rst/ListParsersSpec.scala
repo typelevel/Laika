@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -518,7 +518,6 @@ class ListParsersSpec extends FlatSpec
       ||     Line5""".stripMargin
     Parsing (input) should produce (root( lb( lb( lb(line("Line1")), line("Line2")), line("Line3"), lb(line("Line4"), lb(line("Line5"))))))
   }
-  
   
   
 }

@@ -40,8 +40,8 @@ import LaikaSbtPlugin.OutputFormats.OutputFormat
  */
 class Cached (cacheBaseDirectory: File) {
   
-  val inStyle = FilesInfo.lastModified
-  val outStyle = FilesInfo.exists
+  val inStyle: FilesInfo.Style = FilesInfo.lastModified
+  val outStyle: FilesInfo.Style = FilesInfo.exists
   
   /** Always performs the specified action, independent of the content of
    *  the change report. The latter will instead be used to pass it to 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ class ParseStyleSheetAPISpec extends FlatSpec
       | foo: bar;
       |}""".stripMargin
       
-    val expected = Set(styleDecl(ElementType("Type")))
+    val expected: Set[StyleDeclaration] = Set(styleDecl(ElementType("Type")))
         
   }
 
@@ -59,7 +59,7 @@ class ParseStyleSheetAPISpec extends FlatSpec
       | foo: bär;
       |}""".stripMargin
         
-    val expected = Set(styleDecl(Map("foo" -> "bär"), ElementType("Type")))
+    val expected: Set[StyleDeclaration] = Set(styleDecl(Map("foo" -> "bär"), ElementType("Type")))
         
   }
       

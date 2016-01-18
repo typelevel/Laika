@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ trait Input {
   
   /** The local name of this input.
    */
-  lazy val name = path.name
+  lazy val name: String = path.name
   
 }
 
@@ -87,15 +87,15 @@ object Input {
   
   private class StringInput (source: String, val path: Path) extends Input {
     
-    def asReader = new StringReader(source)
+    def asReader: java.io.Reader = new StringReader(source)
   
-    def asParserInput = new CharSequenceReader(source)
+    def asParserInput: Reader[Char] = new CharSequenceReader(source)
     
   }
   
   private class ReaderInput (val asReader: java.io.Reader, val path: Path) extends Input {
    
-    def asParserInput = new PagedSeqReader(PagedSeq.fromReader(asReader))
+    def asParserInput: Reader[Char] = new PagedSeqReader(PagedSeq.fromReader(asReader))
 
   }
   
@@ -105,9 +105,9 @@ object Input {
       val asStream = stream
     }
     
-    def asParserInput = new PagedSeqReader(PagedSeq.fromReader(asReader))
+    def asParserInput: Reader[Char] = new PagedSeqReader(PagedSeq.fromReader(asReader))
     
-    lazy val asReader = new BufferedReader(new InputStreamReader(stream, codec.decoder))
+    lazy val asReader: java.io.Reader = new BufferedReader(new InputStreamReader(stream, codec.decoder))
     
   }
   
@@ -118,7 +118,7 @@ object Input {
       def close = stream close
     }
     
-    def close = asReader.close
+    def close: Unit = asReader.close
     
   }
   
@@ -126,20 +126,20 @@ object Input {
     
     private lazy val delegate = new AutocloseStreamInput(new FileInputStream(file), path, codec)
     
-    def asReader = delegate.asReader
-    def asParserInput = delegate.asParserInput
-    def close = delegate.close
-    def asBinaryInput = delegate.asBinaryInput
+    def asReader: java.io.Reader = delegate.asReader
+    def asParserInput: Reader[Char] = delegate.asParserInput
+    def close: Unit = delegate.close
+    def asBinaryInput: BinaryInput = delegate.asBinaryInput
   }
   
   class LazyClasspathInput (val resource: String, val path: Path, codec: Codec) extends Input with Binary with Closeable {
     
     private lazy val delegate = new AutocloseStreamInput(getClass.getResourceAsStream(resource), path, codec)
     
-    def asReader = delegate.asReader
-    def asParserInput = delegate.asParserInput
-    def close = delegate.close
-    def asBinaryInput = delegate.asBinaryInput
+    def asReader: java.io.Reader = delegate.asReader
+    def asParserInput: Reader[Char] = delegate.asParserInput
+    def close: Unit = delegate.close
+    def asBinaryInput: BinaryInput = delegate.asBinaryInput
   }
   
   /** Creates a new Input instance from the specified source string.

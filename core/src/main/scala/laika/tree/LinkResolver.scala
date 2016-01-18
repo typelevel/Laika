@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ class LinkResolver (path: Path, root: RootElement) {
   /** Selects all elements from the document that can serve
    *  as a target for a reference element.
    */
-  def selectTargets = {
+  def selectTargets: List[TargetDefinition] = {
     
     val levels = new DecoratedHeaderLevels
     val symbols = new SymbolGenerator
@@ -81,7 +81,7 @@ class LinkResolver (path: Path, root: RootElement) {
    *  with duplicate target ids with invalid block elements 
    *  and producing the ids of elements with generated identifiers. 
    */
-  def resolveTargets (targets: Seq[TargetDefinition]) = {
+  def resolveTargets (targets: Seq[TargetDefinition]): Seq[SingleTargetResolver] = {
     
     val docIdMap = new IdMap
     
@@ -151,12 +151,12 @@ class LinkResolver (path: Path, root: RootElement) {
     
   }
   
-  val allTargets = resolveAliases(resolveTargets(selectTargets)).toList groupBy (_.selector) map { 
+  val allTargets: Map[Selector, TargetResolver] = resolveAliases(resolveTargets(selectTargets)).toList groupBy (_.selector) map { 
     case (selector: UniqueSelector, target :: Nil) => (selector,target)
     case (selector, list) => (selector, new TargetSequenceResolver(list,selector))
   }
   
-  val globalTargets = allTargets filter (_._2.global)
+  val globalTargets: Map[Selector, TargetResolver] = allTargets filter (_._2.global)
   
   /** The default rules for resolving link references 
    *  to be applied to the document.
@@ -166,12 +166,12 @@ class LinkResolver (path: Path, root: RootElement) {
     val headerId = headerIdMap.lookupFunction
     val decHeaderId = decHeaderIdMap.lookupFunction
     
-    def replaceHeader (h: Block, origId: String, lookup: String => Option[String]) = lookup(origId).flatMap(replace(h,_))
+    def replaceHeader (h: Block, origId: String, lookup: String => Option[String]): Option[Element] = lookup(origId).flatMap(replace(h,_))
     
-    def replace (element: Element, selector: Selector) = 
+    def replace (element: Element, selector: Selector): Option[Element] = 
       allTargets.get(selector).flatMap(_.replaceTarget(element))
     
-    def resolve (ref: Reference, selector: Selector, msg: => String, global: Boolean = false) = {
+    def resolve (ref: Reference, selector: Selector, msg: => String, global: Boolean = false): Option[Element] = {
       
       def selectFromParent = {
         @tailrec def select (path: Path): (Option[TargetResolver],Option[Path]) = {
@@ -241,7 +241,7 @@ object LinkResolver {
   /** Provides a link resolver
    *  for the specified root element (without executing it).
    */
-  def apply (path: Path, root: RootElement) = new LinkResolver(path,root)
+  def apply (path: Path, root: RootElement): LinkResolver = new LinkResolver(path,root)
   
 }
 

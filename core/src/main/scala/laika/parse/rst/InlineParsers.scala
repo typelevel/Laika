@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import Elements.InterpretedText
 import scala.util.parsing.input.CharSequenceReader
 import scala.collection.mutable.ListBuffer
 import laika.parse.util.URIParsers
+import laika.parse.rst.Elements.InterpretedText
 
 /** Provides all inline parsers for reStructuredText.
  *  
@@ -35,7 +36,7 @@ import laika.parse.util.URIParsers
 trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
 
   
-  private val pairs = List(/* Ps/Pe pairs */
+  private val pairs: Map[Char, Set[Char]] = List(/* Ps/Pe pairs */
                   '('->')', '['->']', '{'->'}', '<'->'>', '"'->'"', '\''->'\'', 
                   '\u0f3a'->'\u0f3b', '\u0f3c'->'\u0f3d', '\u169b'->'\u169c', '\u2045'->'\u2046',
                   '\u207d'->'\u207e', '\u208d'->'\u208e', '\u2329'->'\u232a', '\u2768'->'\u2769', '\u276a'->'\u276b',
@@ -107,13 +108,13 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    *  @param end the parser that recognizes the markup at the end of an inline element
    *  @return a parser that produces the same result as the parser passed as an argument
    */
-  def markupEnd (end: Parser[String]) = {
+  def markupEnd (end: Parser[String]): Parser[String] = {
     end >> { markup => (lookBehind(markup.length + 1, beforeEndMarkup) ~ guard(eol | afterEndMarkup)) ^^^ markup }
   }
   
   /** Inline markup recognition rules 2 and 5
    */
-  private def afterStartMarkup (start: Parser[Any])(before: Char) = {
+  private def afterStartMarkup (start: Parser[Any])(before: Char): Parser[Any ~ String] = {
     val matching = pairs.getOrElse(before, Set()) 
     val excluded = (matching + ' ' + '\n').toList
     start ~ guard(anyBut(excluded:_*) take 1)
@@ -121,22 +122,22 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   
   /** Inline markup recognition rules 3
    */
-  private val beforeEndMarkup = anyBut(' ','\n') take 1
+  private val beforeEndMarkup: Parser[String] = anyBut(' ','\n') take 1
   
   /** Inline markup recognition rule 1
    */
-  private val beforeStartMarkup = startChars ^^ {_.charAt(0)} | acceptIf(char => startCategories(Character.getType(char)))("Not a start char: " + _)
+  private val beforeStartMarkup: Parser[Char] = startChars ^^ {_.charAt(0)} | acceptIf(char => startCategories(Character.getType(char)))("Not a start char: " + _)
   
   /** Inline markup recognition rule 4
    */
-  private val afterEndMarkup = endChars | acceptIf(char => endCategories(Character.getType(char)))("Not an end char: " + _)
+  private val afterEndMarkup: Parser[Any] = endChars | acceptIf(char => endCategories(Character.getType(char)))("Not an end char: " + _)
   
   
   /** A mapping of the start character of an inline element to the corresponding parser.
    *  The mapping is used to provide a fast implementation of an inline parser that
    *  only stops at known special characters. 
    */
-  protected def prepareSpanParsers = Map(
+  protected def prepareSpanParsers: Map[Char, Parser[Span]] = Map(
     '*' -> (strong | em),   
     '`' -> (inlineLiteral | phraseLinkRef | interpretedTextWithRoleSuffix),
     '[' -> (footnoteRef | citationRef),
@@ -154,20 +155,20 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#escaping-mechanism]].
    */
-  override lazy val escapedChar = (" " ^^^ "") | (any take 1)
+  override lazy val escapedChar: Parser[String] = (" " ^^^ "") | (any take 1)
 
 
   /** Parses a span of emphasized text.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#emphasis]]
    */
-  lazy val em = span(not(lookBehind(2, '*')),"*" <~ not('*')) ^^ (Emphasized(_))
+  lazy val em: Parser[Emphasized] = span(not(lookBehind(2, '*')),"*" <~ not('*')) ^^ (Emphasized(_))
   
   /** Parses a span of text with strong emphasis.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#strong-emphasis]]
    */
-  lazy val strong = span('*',"**") ^^ (Strong(_))
+  lazy val strong: Parser[Strong] = span('*',"**") ^^ (Strong(_))
   
 
   private def span (start: Parser[Any], end: Parser[String]): Parser[List[Span]]
@@ -180,7 +181,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-literals]].
    */
-  lazy val inlineLiteral = markupStart('`', "``") ~> anyUntil(markupEnd("``")) ^^ (Literal(_))
+  lazy val inlineLiteral: Parser[Literal] = markupStart('`', "``") ~> anyUntil(markupEnd("``")) ^^ (Literal(_))
   
   
   /** Represent a reference name.
@@ -188,7 +189,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    *  and the name converted to lower case.
    */
   case class ReferenceName (original: String) {
-    lazy val normalized = original.replaceAll("[\n ]+", " ").toLowerCase
+    lazy val normalized: String = original.replaceAll("[\n ]+", " ").toLowerCase
   }
   
   /** Parses a simple reference name that only allows alphanumerical characters
@@ -196,20 +197,20 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#reference-names]].
    */
-  val simpleRefName = refName
+  val simpleRefName: Parser[String] = refName
   
   /** Parses a phrase reference name enclosed in back ticks.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#reference-names]].
    */
-  val phraseRef = '`' ~> escapedUntil('`')
+  val phraseRef: Parser[String] = '`' ~> escapedUntil('`')
   
   
   /** Parses any of the four supported types of footnote labels.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#footnote-references]].
    */
-  val footnoteLabel = {
+  val footnoteLabel: Parser[FootnoteLabel] = {
     val decimal = (anyIn('0' to '9') min 1) ^^ { n => NumericLabel(n.toInt) }
     val autonumber = '#' ^^^ Autonumber 
     val autosymbol = '*' ^^^ Autosymbol
@@ -218,7 +219,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
     decimal | autonumberLabel | autonumber | autosymbol
   }
   
-  private def toSource (label: FootnoteLabel) = label match {
+  private def toSource (label: FootnoteLabel): String = label match {
     case Autonumber => "[#]_"
     case Autosymbol => "[*]_"
     case AutonumberLabel(label) => s"[#$label]_"
@@ -229,21 +230,21 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#footnote-references]].
    */
-  lazy val footnoteRef = markupStart("]_") ~> footnoteLabel <~ markupEnd("]_") ^^ 
+  lazy val footnoteRef: Parser[FootnoteReference] = markupStart("]_") ~> footnoteLabel <~ markupEnd("]_") ^^ 
       { label => FootnoteReference(label, toSource(label)) }
   
   /** Parses a citation reference.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#citation-references]].
    */
-  lazy val citationRef = markupStart("]_") ~> simpleRefName <~ markupEnd("]_") ^^
+  lazy val citationRef: Parser[CitationReference] = markupStart("]_") ~> simpleRefName <~ markupEnd("]_") ^^
       { label => CitationReference(label, s"[$label]_") }
   
   /** Parses a substitution reference.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#substitution-references]].
    */
-  lazy val substitutionRef = markupStart("|") ~> simpleRefName >> { ref =>
+  lazy val substitutionRef: Parser[Reference] = markupStart("|") ~> simpleRefName >> { ref =>
     markupEnd("|__") ^^ { _ => LinkReference(List(SubstitutionReference(ref)), "", s"|$ref|__") } | 
     markupEnd("|_")  ^^ { _ => LinkReference(List(SubstitutionReference(ref)), ref, s"|$ref|_") } |
     markupEnd("|")   ^^ { _ => SubstitutionReference(ref) } 
@@ -253,19 +254,19 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-internal-targets]]
    */
-  val internalTarget = markupStart('`', "`") ~> 
+  val internalTarget: Parser[Text] = markupStart('`', "`") ~> 
     (escapedText(anyBut('`') min 1) ^^ ReferenceName) <~ 
     markupEnd("`") ^^ (id => Text(id.original, Id(id.normalized) + Styles("target")))
   
   /** The default text role to use when no role is specified in an interpreted text element.
    */
-  def defaultTextRole = "title-reference"
+  def defaultTextRole: String = "title-reference"
 
   /** Parses an interpreted text element with the role name as a prefix.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#interpreted-text]]
    */  
-  lazy val interpretedTextWithRolePrefix = {
+  lazy val interpretedTextWithRolePrefix: Parser[InterpretedText] = {
     (markupStart(":") ~> simpleRefName) ~ (":`" ~> escapedText(anyBut('`') min 1) <~ markupEnd("`")) ^^ 
       { case role ~ text => InterpretedText(role,text,s":$role:`$text`") }
   }
@@ -274,7 +275,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#interpreted-text]]
    */  
-  lazy val interpretedTextWithRoleSuffix = {
+  lazy val interpretedTextWithRoleSuffix: Parser[InterpretedText] = {
     (markupStart("`") ~> escapedText(anyBut('`') min 1) <~ markupEnd("`")) ~ opt(":" ~> simpleRefName <~ markupEnd(":")) ^^
       { case text ~ role => InterpretedText(role.getOrElse(defaultTextRole), text, s"`$text`" + role.map(":"+_+":").getOrElse("")) }
   }
@@ -283,7 +284,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    *  
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#hyperlink-references]]
    */
-  lazy val phraseLinkRef = {
+  lazy val phraseLinkRef: Parser[Span] = {
     def ref (refName: String, url: String) = if (refName.isEmpty) url else refName
     val url = '<' ~> anyBut('>') <~ '>' ^^ { _.replaceAll("[ \n]+", "") }
     val refName = escapedText(anyBut('`','<')) ^^ ReferenceName
@@ -313,7 +314,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
     } 
   }
   
-  private def reverse (offset: Int, p: => Parser[String]) = Parser { in =>
+  private def reverse (offset: Int, p: => Parser[String]): Parser[String] = Parser { in =>
     val source = in.source.subSequence(0, in.offset - offset).toString.reverse
     p(new CharSequenceReader(source)) match {
       case Success(result, _) => Success(result.reverse, in)
@@ -325,7 +326,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   private lazy val reverseMarkupStart: Parser[Any] = guard(eof | beforeStartMarkup)
   
   
-  override def parseInline (source: String, spanParsers: Map[Char, Parser[Span]]) = {
+  override def parseInline (source: String, spanParsers: Map[Char, Parser[Span]]): List[Span] = {
     val spans = super.parseInline(source, spanParsers)
     if (spans.isEmpty) spans
     else {
@@ -361,7 +362,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#standalone-hyperlinks]]
    */
-  lazy val uri = reverse(1, ("ptth" | "sptth") <~ reverseMarkupStart) ~ httpUriNoScheme ^^ {
+  lazy val uri: Parser[(String,String,String)] = reverse(1, ("ptth" | "sptth") <~ reverseMarkupStart) ~ httpUriNoScheme ^^ {
     case scheme ~ rest => (scheme, ":", rest)
   }
   
@@ -369,7 +370,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#standalone-hyperlinks]]
    */
-  lazy val email = reverse(1, localPart <~ reverseMarkupStart) ~ domain ^? {
+  lazy val email: Parser[(String,String,String)] = reverse(1, localPart <~ reverseMarkupStart) ~ domain ^? {
     case local ~ domain if local.nonEmpty && domain.nonEmpty => (local, "@", domain)
   }
   

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ class VerbatimHTMLRendererSpec extends FlatSpec
                                with HTMLModelBuilder {
   
     
-  def render (elem: Element) = Render as HTML using VerbatimHTML from elem toString 
+  def render (elem: Element): String = Render as HTML using VerbatimHTML from elem toString 
    
   
   "The Verbatim HTML renderer" should "render an HTML character reference unescaped" in {

@@ -27,10 +27,11 @@ import laika.tree.Elements.Styles
 import laika.tree.Elements.Paragraph
 import com.typesafe.config.ConfigValueFactory
 import com.typesafe.config.ConfigFactory
+import com.typesafe.config.Config
 
 trait TreeModel {
   
-  def doc(num: Int) = {
+  def doc (num: Int): Document = {
     val parent = if (num > 4) Root / "tree2" else if (num > 2) Root / "tree1" else Root
     new Document(parent / s"doc$num.md", RootElement(Seq(
         Title(Seq(Text(s"Title $num")), Id(s"title-$num") + Styles("title")), 
@@ -38,7 +39,7 @@ trait TreeModel {
     ))).removeRules
   }
     
-  def configWithTreeTitle(num: Int) = Some(ConfigFactory.empty.withValue("title", ConfigValueFactory.fromAnyRef(s"Tree $num")))
+  def configWithTreeTitle (num: Int): Option[Config] = Some(ConfigFactory.empty.withValue("title", ConfigValueFactory.fromAnyRef(s"Tree $num")))
   
   val tree = new DocumentTree(Root,
     documents = Seq(doc(1), doc(2)),

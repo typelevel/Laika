@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,17 +28,17 @@ object TreeUtil {
   /** Returns a new instance of the customizable element
    *  without its id.
    */
-  def removeId [C <: Customizable] (c: C) = modifyOptions(c, opt => Options(None,opt.styles))
+  def removeId [C <: Customizable] (c: C): C = modifyOptions(c, opt => Options(None,opt.styles))
 
   /** Returns a new instance of the customizable element
    *  with its id set to the specified value, overriding any existing value.
    */
-  def setId [C <: Customizable] (c: C, id: String) = modifyOptions(c, opt => Options(Some(id), opt.styles))
+  def setId [C <: Customizable] (c: C, id: String): C = modifyOptions(c, opt => Options(Some(id), opt.styles))
 
   /** Returns a new instance of the customizable element
    *  with its options modified according to the specified function.
    */
-  def modifyOptions [C <: Customizable] (c: C, f: Options => Options) = {
+  def modifyOptions [C <: Customizable] (c: C, f: Options => Options): C = {
     val newElements = (c.productIterator map { 
       case opt:Options => f(opt)   
       case other => other  

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import scala.io.Codec
 import laika.tree.Documents.Path
 import laika.tree.Documents.Root
 import scala.collection.mutable.ListBuffer
+import laika.io.Output.Binary
+import java.io.Closeable
 
 /** Represents a tree structure of Outputs, abstracting over various types of IO resources. 
  *  
@@ -67,12 +69,12 @@ object OutputProvider {
    */
   class DirectoryOutputProvider (dir: File, val path: Path, codec: Codec) extends OutputProvider {
     
-    def newOutput (name: String) = {
+    def newOutput (name: String): Output with Binary with Closeable = {
       val f = new File(dir, name)
       Output.toFile(f, path)
     }
     
-    def newChild (name: String) = {
+    def newChild (name: String): OutputProvider = {
       val f = new File(dir, name)
       require(!f.exists || f.isDirectory, s"File ${f.getAbsolutePath} exists and is not a directory")
       if (!f.exists && !f.mkdir()) throw new IllegalStateException(s"Unable to create directory ${f.getAbsolutePath}")
@@ -110,8 +112,8 @@ object OutputProvider {
     private lazy val resultMap = results map (r => (r.path.name, r.result)) toMap
     private lazy val subtreeMap = subtrees map (t => (t.path.name, t)) toMap
     
-    def result (name: String) = resultMap.get(name)
-    def subtree (name: String) = subtreeMap.get(name)
+    def result (name: String): Option[String] = resultMap.get(name)
+    def subtree (name: String): Option[ResultTree] = subtreeMap.get(name)
   }
   
 
@@ -126,13 +128,13 @@ object OutputProvider {
     private val results = ListBuffer[ResultBuilder]()
     private val subtrees = ListBuffer[StringOutputProvider]()
     
-    def newOutput (name: String) = {
+    def newOutput (name: String): Output = {
       val builder = new StringBuilder
       results += new ResultBuilder(path / name, builder)
       Output.toBuilder(builder, path / name)
     }
     
-    def newChild (name: String) = {
+    def newChild (name: String): OutputProvider = {
       val prov = new StringOutputProvider(path / name)
       subtrees += prov
       prov
@@ -155,7 +157,7 @@ object OutputProvider {
   }
   
   private[OutputProvider] class DirectoryProviderBuilder (root: File) extends ProviderBuilder {
-    def build (codec: Codec) = 
+    def build (codec: Codec): OutputProvider = 
       OutputProvider.forRootDirectory(root)(codec)
   }
 
@@ -173,28 +175,28 @@ object OutputProvider {
      *  The recursive structure of inputs will be flattened before rendering,
      *  therefore the parallel processing includes all subtrees of this input tree.
      */
-    def inParallel = new OutputConfigBuilder(provider, codec, true, copyStaticFiles)
+    def inParallel: OutputConfigBuilder = new OutputConfigBuilder(provider, codec, true, copyStaticFiles)
     
     /** Instructs the renderer not to copy all static files to the output destination.
      */
-    def ignoreStaticFiles = new OutputConfigBuilder(provider, codec, isParallel, false)
+    def ignoreStaticFiles: OutputConfigBuilder = new OutputConfigBuilder(provider, codec, isParallel, false)
     
     /** Builds the final configuration for this output tree.
      */
-    def build = OutputConfig(provider.build(codec), isParallel, copyStaticFiles)
+    def build: OutputConfig = OutputConfig(provider.build(codec), isParallel, copyStaticFiles)
   }
   
   /** Creates OutputConfigBuilder instances for a specific root directory in the file system.
    */
   object Directory {
-    def apply (name: String)(implicit codec: Codec) = new OutputConfigBuilder(new DirectoryProviderBuilder(new File(name)), codec)
-    def apply (file: File)(implicit codec: Codec) = new OutputConfigBuilder(new DirectoryProviderBuilder(file), codec)
+    def apply (name: String)(implicit codec: Codec): OutputConfigBuilder = new OutputConfigBuilder(new DirectoryProviderBuilder(new File(name)), codec)
+    def apply (file: File)(implicit codec: Codec): OutputConfigBuilder = new OutputConfigBuilder(new DirectoryProviderBuilder(file), codec)
   }
   
   /** Creates OutputConfigBuilder instances using the current working directory as its root.
    */
   object DefaultDirectory {
-    def apply (implicit codec: Codec) = Directory(System.getProperty("user.dir"))(codec)
+    def apply (implicit codec: Codec): OutputConfigBuilder = Directory(System.getProperty("user.dir"))(codec)
   }
   
 }

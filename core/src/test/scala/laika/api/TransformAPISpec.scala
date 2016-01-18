@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -160,21 +160,21 @@ class TransformAPISpec extends FlatSpec
     def input (source: String) = new InputConfigBuilder(parseTreeStructure(source), Codec.UTF8)
     def output (builder: TestProviderBuilder) = new OutputConfigBuilder(builder, Codec.UTF8)
 
-    def transformTree = transformWith(identity)
-    def transformMultiMarkup = transformWith(identity, Transform from Markdown or ReStructuredText to PrettyPrint)
+    def transformTree: RenderedTree = transformWith(identity)
+    def transformMultiMarkup: RenderedTree = transformWith(identity, Transform from Markdown or ReStructuredText to PrettyPrint)
     
-    def transformWithConfig (config: String) = transformWith(_.withConfigString(config))
-    def transformWithDocTypeMatcher (matcher: Path => DocumentType) = transformWith(_.withDocTypeMatcher(matcher))
-    def transformWithTemplates (templates: ParseTemplate) = transformWith(_.withTemplateParser(templates))
-    def transformWithDirective (directive: Templates.Directive) = transformWith(_.withTemplateDirectives(directive))
+    def transformWithConfig (config: String): RenderedTree = transformWith(_.withConfigString(config))
+    def transformWithDocTypeMatcher (matcher: Path => DocumentType): RenderedTree = transformWith(_.withDocTypeMatcher(matcher))
+    def transformWithTemplates (templates: ParseTemplate): RenderedTree = transformWith(_.withTemplateParser(templates))
+    def transformWithDirective (directive: Templates.Directive): RenderedTree = transformWith(_.withTemplateDirectives(directive))
     
-    def transformInParallel = {
+    def transformInParallel: RenderedTree = {
       val builder = new TestProviderBuilder
       transform fromTree input(dirs).inParallel toTree output(builder).inParallel
       builder.result
     }
     
-    private def transformWith (f: InputConfigBuilder => InputConfigBuilder, transformer: TransformMappedOutput[TextWriter] = transform) = {
+    private def transformWith (f: InputConfigBuilder => InputConfigBuilder, transformer: TransformMappedOutput[TextWriter] = transform): RenderedTree = {
       val builder = new TestProviderBuilder
       transformer fromTree f(input(dirs)) toTree output(builder)
       builder.result
@@ -201,7 +201,7 @@ class TransformAPISpec extends FlatSpec
 
     def sorted (tree: RenderedTree): RenderedTree = tree.copy(content = tree.content map (sortedContent(_)))
         
-    def sortedContent (content: TreeContent) = content match {
+    def sortedContent (content: TreeContent): TreeContent = content match {
       case Documents(content) => Documents(content.sortBy(_.path.name))
       case Subtrees(content) => Subtrees(content.sortBy(_.path.name) map (sorted(_)))
     }
@@ -574,5 +574,4 @@ class TransformAPISpec extends FlatSpec
   
 
 }
-
   

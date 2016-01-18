@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,26 +35,26 @@ object SectionBuilder extends (DocumentContext => RewriteRule) {
     
     class Builder (header:Header, id: String) {
     
-      val styledHeader = header.copy(options = header.options + Styles("section"))
+      val styledHeader: Header = header.copy(options = header.options + Styles("section"))
       
       private val buffer = new ListBuffer[Block]
       
-      def += (block: Block) = buffer += block
+      def += (block: Block): Unit = buffer += block
       
-      def >= (level: Int) = header.level >= level
+      def >= (level: Int): Boolean = header.level >= level
       
-      def toSection = Section(styledHeader, buffer.toList)
+      def toSection: Section = Section(styledHeader, buffer.toList)
       
     }
     
-    def buildSections (document: RootElement) = {
+    def buildSections (document: RootElement): RootElement = {
       
-      val sectionStructure = {
+      val sectionStructure: Seq[Block] = {
         
         val stack = new Stack[Builder]
         stack push new Builder(Header(0,Nil), "") 
         
-        def closeSections (toLevel: Int) = {
+        def closeSections (toLevel: Int): Unit = {
           while (!stack.isEmpty && stack.top >= toLevel) {
             val section = stack.pop.toSection
             stack.top += section
@@ -71,7 +71,7 @@ object SectionBuilder extends (DocumentContext => RewriteRule) {
         stack.pop.toSection.content
       }
       
-      val numberedSections = {
+      val numberedSections: Seq[Block] = {
         
         val hasSectionNumbers = context.autonumbering.config.sections
         val hasDocumentNumbers = context.autonumbering.config.documents
@@ -82,13 +82,13 @@ object SectionBuilder extends (DocumentContext => RewriteRule) {
         val docNumber = context.autonumbering.number 
         val maxDepth = context.autonumbering.config.maxDepth
           
-        def transformRootBlocks (blocks: Seq[Block]) = 
+        def transformRootBlocks (blocks: Seq[Block]): Seq[Block] = 
           ((ListBuffer[Block]() /: blocks) {
             case (acc, s: Section) => acc ++= transformRootSection(s)
             case (acc, block) => acc += block
           }).toList
         
-        def transformRootSection (s: Section) = {
+        def transformRootSection (s: Section): Seq[Block] = {
           val options = SomeOpt(s.header.options.id, s.header.options.styles - "section" + "title")
           val title = if (hasDocumentNumbers) Title(addNumber(s.header.content, docNumber, "title"), options) 
                       else Title(s.header.content, options)
@@ -96,10 +96,10 @@ object SectionBuilder extends (DocumentContext => RewriteRule) {
           title +: content
         }
         
-        def addNumber (spans: Seq[Span], num: List[Int], style: String) = 
+        def addNumber (spans: Seq[Span], num: List[Int], style: String): Seq[Span] = 
           Text(num.mkString("","."," "), Styles(style+"Number")) +: spans 
           
-        def numberSection (s: Section, num: List[Int]) = s.copy(
+        def numberSection (s: Section, num: List[Int]): Section = s.copy(
           header = s.header.copy(
               content = addNumber(s.header.content, num, "section"), 
               options = s.header.options + Styles("section")
@@ -136,6 +136,6 @@ object SectionBuilder extends (DocumentContext => RewriteRule) {
   /** Provides the default rewrite rules for building the section structure
    *  for the specified document (without applying them).
    */
-  def apply (context: DocumentContext) = (new DefaultRule(context)).rewrite
+  def apply (context: DocumentContext): RewriteRule = (new DefaultRule(context)).rewrite
   
 }

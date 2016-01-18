@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -161,7 +161,7 @@ abstract class TagWriter (out: String => Unit,
   /** Replaces all special XML/HTML characters
    *  with entities.
    */
-  protected def escaped (str: String) = {
+  protected def escaped (str: String): String = {
     var i = 0
     val end = str.length
     val result = new StringBuilder()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Ele
       }
     }
     
-    def rewriteChildren (children: Traversable[AnyRef]) = {
+    def rewriteChildren (children: Traversable[AnyRef]): Option[AnyRef] = {
       var i = 0
       var changed = false
       lazy val newChildren = ListBuffer[AnyRef]() 
@@ -192,7 +192,7 @@ trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Ele
   
   object RewriteException {
     
-    def apply (element: Element, cause: Throwable) = {
+    def apply (element: Element, cause: Throwable): RewriteException = {
       val message = "Unable to rewrite element '" + ElementTraversal.this +
           "': one of its new children does not conform to the contract of the element"
       new RewriteException(element, message, cause)
@@ -201,4 +201,3 @@ trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Ele
   }
   
 }
-

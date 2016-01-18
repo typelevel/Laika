@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ trait URIParsers extends MarkupParsers {
    *  ALPHA =  %x41-5A / %x61-7A ; A-Z / a-z
    *  }}}
    */
-  val alpha = anyIn('a' to 'z', 'A' to 'Z')
+  val alpha: TextParser = anyIn('a' to 'z', 'A' to 'Z')
 
   /** Parses digits according to RFC 2234.
    * 
@@ -55,7 +55,7 @@ trait URIParsers extends MarkupParsers {
    *  DIGIT =  %x30-39; 0-9
    *  }}}
    */
-  val digit = anyIn('0' to '9')
+  val digit: TextParser = anyIn('0' to '9')
 
   /** Parses a hexadecimal value according to RFC 2234.
    * 
@@ -63,7 +63,7 @@ trait URIParsers extends MarkupParsers {
    *  HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
    *  }}}
    */
-  val hexdig = anyIn('0' to '9', 'A' to 'F')
+  val hexdig: TextParser = anyIn('0' to '9', 'A' to 'F')
   
   /** Parses a single sub-delimiter as defined in RFC 3986.
    * 
@@ -72,7 +72,7 @@ trait URIParsers extends MarkupParsers {
    *                   / "*" / "+" / "," / ";" / "="
    *  }}}
    */
-  val subDelims = anyOf('!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '=') take 1
+  val subDelims: TextParser = anyOf('!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '=') take 1
   
   /** Parses a single unreserved character as defined in RFC 3986.
    * 
@@ -81,7 +81,7 @@ trait URIParsers extends MarkupParsers {
    *                   / "*" / "+" / "," / ";" / "="
    *  }}}
    */
-  val unreserved = (alpha take 1) | (digit take 1) | (anyOf('-', '.', '_', '~') take 1)
+  val unreserved: Parser[String] = (alpha take 1) | (digit take 1) | (anyOf('-', '.', '_', '~') take 1)
   
   /** Parses a percent-encoded character as defined in RFC 3986.
    * 
@@ -89,7 +89,7 @@ trait URIParsers extends MarkupParsers {
    *  pct-encoded = "%" HEXDIG HEXDIG
    *  }}}
    */
-  val pctEncoded = '%' ~ (hexdig take 2)
+  val pctEncoded: Parser[Char ~ String] = '%' ~ (hexdig take 2)
   
   
   /* authority */  
@@ -100,7 +100,7 @@ trait URIParsers extends MarkupParsers {
    *  IPvFuture = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
    *  }}}
    */
-  val ipvFuture = 'v' ~ (hexdig min 1) ~ '.' ~ ((unreserved | subDelims | ':')+)
+  val ipvFuture: Parser[Char ~ String ~ Char ~ List[Any]] = 'v' ~ (hexdig min 1) ~ '.' ~ ((unreserved | subDelims | ':')+)
   
   /** Parses an IPv4 address as defined in RFC 3986.
    * 
@@ -116,7 +116,7 @@ trait URIParsers extends MarkupParsers {
    *  The implementation has been simplified to parse a 3-digit number and
    *  check its value.
    */
-  val ipv4address = {
+  val ipv4address: Parser[String] = {
     val decOctet = (digit min 1 max 3) ^^? { res => 
       val num = res.toInt
       if (num > 0 && num < 256) Right(num) else Left("Number must be between 1 and 255")
@@ -143,7 +143,7 @@ trait URIParsers extends MarkupParsers {
    *  ls32         = ( h16 ":" h16 ) / IPv4address
    *  }}}
    */
-  val ipv6address = {
+  val ipv6address: Parser[Any ~ Any] = {
     
     val h16 = hexdig min 1 max 4
   
@@ -168,7 +168,7 @@ trait URIParsers extends MarkupParsers {
    *  IP-literal = "[" ( IPv6address / IPvFuture  ) "]"
    *  }}}
    */
-  val ipLiteral = '[' ~ (ipv6address | ipvFuture) ~ ']' ^^ flatten
+  val ipLiteral: Parser[String] = '[' ~ (ipv6address | ipvFuture) ~ ']' ^^ flatten
   
   /** Parses a server name as defined in RFC 3986.
    * 
@@ -176,7 +176,7 @@ trait URIParsers extends MarkupParsers {
    *  reg-name = *( unreserved / pct-encoded / sub-delims )
    *  }}}
    */
-  val regName = ((unreserved | pctEncoded | subDelims)*) ^^ flatten
+  val regName: Parser[String] = ((unreserved | pctEncoded | subDelims)*) ^^ flatten
   
   /** Parses a host as defined in RFC 3986.
    * 
@@ -184,7 +184,7 @@ trait URIParsers extends MarkupParsers {
    *  host = IP-literal / IPv4address / reg-name
    *  }}}
    */
-  val host = ipLiteral | ipv4address | regName
+  val host: Parser[String] = ipLiteral | ipv4address | regName
   
   /** Parses a port as defined in RFC 3986, except for requiring at least one digit;
    *  instead the port is defined as optional in a higher level combinator.
@@ -193,7 +193,7 @@ trait URIParsers extends MarkupParsers {
    *  port = *DIGIT
    *  }}}
    */
-  val port = digit min 1
+  val port: Parser[String] = digit min 1
   
   /** Parses the user info portion of a URI as defined in RFC 3986.
    * 
@@ -201,7 +201,7 @@ trait URIParsers extends MarkupParsers {
    *  userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
    *  }}}
    */
-  val userInfo = ((unreserved | pctEncoded | subDelims | ':')*) ^^ flatten
+  val userInfo: Parser[String] = ((unreserved | pctEncoded | subDelims | ':')*) ^^ flatten
   
   /** Parses the authority part of a URI as defined in RFC 3986.
    * 
@@ -209,7 +209,7 @@ trait URIParsers extends MarkupParsers {
    *  authority = [ userinfo "@" ] host [ ":" port ]
    *  }}}
    */
-  val authority = opt(userInfo ~ '@') ~ host ~ opt(':' ~ port) ^^ flatten
+  val authority: Parser[String] = opt(userInfo ~ '@') ~ host ~ opt(':' ~ port) ^^ flatten
   
 
   /* path */                  
@@ -220,7 +220,7 @@ trait URIParsers extends MarkupParsers {
    *  pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
    *  }}}
    */
-  val pChar = (unreserved | pctEncoded | subDelims | (anyOf(':','@') take 1))                  
+  val pChar: Parser[Any] = (unreserved | pctEncoded | subDelims | (anyOf(':','@') take 1))                  
     
   /** Parses the path of a URI as defined in RFC 3986, but only the path
    *  variant following an authority component.
@@ -231,7 +231,7 @@ trait URIParsers extends MarkupParsers {
    *  segment       = *pchar
    *  }}}
    */
-  val path = {
+  val path: Parser[String] = {
     val segment = '/' ~ (pChar*)
     (segment*) ^^ flatten  
   }
@@ -242,7 +242,7 @@ trait URIParsers extends MarkupParsers {
    *  query = *( pchar / "/" / "?" )
    *  }}}
    */
-  val query = ((pChar | (anyOf('/','?') take 1))*) ^^ flatten
+  val query: Parser[String] = ((pChar | (anyOf('/','?') take 1))*) ^^ flatten
   
   /** Parses the fragment part of a URI as defined in RFC 3986.
    * 
@@ -250,7 +250,7 @@ trait URIParsers extends MarkupParsers {
    *  fragment = *( pchar / "/" / "?" )
    *  }}}
    */  
-  val fragment = query
+  val fragment: Parser[String] = query
 
   
   /* uri */
@@ -265,7 +265,7 @@ trait URIParsers extends MarkupParsers {
    *                / path-empty    ; excluded
    *  }}}
    */  
-  val hierPart = ("//" ~ authority ~ path) ^^ flatten
+  val hierPart: Parser[String] = ("//" ~ authority ~ path) ^^ flatten
   
   /** Parses an HTTP or HTTPS URI with an authority component, but without the scheme part 
    *  (therefore starting with "//") as defined in RFC 3986.
@@ -274,17 +274,17 @@ trait URIParsers extends MarkupParsers {
    *  URI = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
    *  }}}
    */
-  val httpUriNoScheme = hierPart ~ opt('?' ~ query) ~ opt('#' ~ fragment) ^^ flatten
+  val httpUriNoScheme: Parser[String] = hierPart ~ opt('?' ~ query) ~ opt('#' ~ fragment) ^^ flatten
 
   /** Parses a full HTTP URI including the scheme part and an authority component 
    *  as defined in RFC 3986.
    */
-  val httpUri = "http:" ~ httpUriNoScheme ^^ flatten
+  val httpUri: Parser[String] = "http:" ~ httpUriNoScheme ^^ flatten
 
   /** Parses a full HTTPS URI including the scheme part and an authority component 
    *  as defined in RFC 3986.
    */
-  val httpsUri = "https:" ~ httpUriNoScheme ^^ flatten
+  val httpsUri: Parser[String] = "https:" ~ httpUriNoScheme ^^ flatten
   
   
   /* email */
@@ -307,7 +307,7 @@ trait URIParsers extends MarkupParsers {
    *                    "~"
    *  }}}
    */
-  val dotAtomText = {
+  val dotAtomText: Parser[String] = {
     
     val atext = (alpha min 1) | (digit min 1) | 
         (anyOf('!','#','$','%','&','\'','*','+','-','/','=','?','^','_','`','{','|','}','~') min 1)
@@ -325,7 +325,7 @@ trait URIParsers extends MarkupParsers {
    *  local-part = dot-atom-text / quoted-string ; quoted-string omitted
    *  }}}
    */
-  val localPart = dotAtomText 
+  val localPart: Parser[String] = dotAtomText 
   
   /** Parses the domain portion of an email address as defined in RFC 6068.
    * 
@@ -336,7 +336,7 @@ trait URIParsers extends MarkupParsers {
    *                           ; "[", "]", or "\"
    *  }}} 
    */
-  val domain = {
+  val domain: Parser[String] = {
     val dtextNoObs = anyIn('!' to 'Z', '^' to '~') // all printable ASCII except "[", "]", "\"
     
     (dotAtomText | ('[' ~ dtextNoObs ~ ']')) ^^ flatten
@@ -348,7 +348,7 @@ trait URIParsers extends MarkupParsers {
    *  addr-spec = local-part "@" domain
    *  }}}
    */
-  val addrSpec = (localPart ~ '@' ~ domain) ^^ flatten
+  val addrSpec: Parser[String] = (localPart ~ '@' ~ domain) ^^ flatten
   
   /** Parses a sequence of email addresses as defined in RFC 6068.
    * 
@@ -356,7 +356,7 @@ trait URIParsers extends MarkupParsers {
    *  to = addr-spec *("," addr-spec )
    *  }}}
    */
-  val to = (addrSpec ~ ((',' ~ addrSpec)*)) ^^ flatten
+  val to: Parser[String] = (addrSpec ~ ((',' ~ addrSpec)*)) ^^ flatten
   
   /** Parses header fields of an email address as defined in RFC 6068.
    * 
@@ -371,7 +371,7 @@ trait URIParsers extends MarkupParsers {
    *               / "+" / "," / ";" / ":" / "@"
    *  }}}
    */
-  val hfields = {
+  val hfields: Parser[String] = {
         
     val someDelims = anyOf('!', '$', '\'', '(', ')', '*', '+', ',', ';', ':', '@') min 1
     val qChar = unreserved | pctEncoded | someDelims
@@ -386,7 +386,7 @@ trait URIParsers extends MarkupParsers {
   
   /** Parses a mailto URI without the scheme part as defined in RFC 6068.
    */
-  val emailAddress = to ~ opt(hfields) ^^ flatten
+  val emailAddress: Parser[String] = to ~ opt(hfields) ^^ flatten
   
   /** Parses a full mailto URI as defined in RFC 6068.
    * 
@@ -394,6 +394,6 @@ trait URIParsers extends MarkupParsers {
    *  mailtoURI = "mailto:" [ to ] [ hfields ]
    *  }}}
    */
-  val emailURI = "mailto:" ~ opt(emailAddress) ^^ flatten
+  val emailURI: Parser[String] = "mailto:" ~ opt(emailAddress) ^^ flatten
   
 }

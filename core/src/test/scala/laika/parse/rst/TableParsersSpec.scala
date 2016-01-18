@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,8 +43,6 @@ class TableParsersSpec extends FlatSpec
   def blockDirective (name: String): Option[DirectivePart[Block]] = None
   def spanDirective (name: String): Option[DirectivePart[Span]] = None
   def textRole (name: String): Option[RoleDirectivePart[String => Span]] = None
-  
-  
   
   
   
@@ -231,8 +229,6 @@ class TableParsersSpec extends FlatSpec
     Parsing (input) should produce (root( Table(TableHead(List(row(Cell(HeadCell,List(p("a"))), Cell(HeadCell,List(p("b")))))), 
                                                TableBody(List(strrow("c","d"))))))
   }
-  
- 
   
   
 }

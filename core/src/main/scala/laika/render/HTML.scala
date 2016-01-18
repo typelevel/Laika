@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,12 +43,12 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
   /** Specifies the minimum required level for a system message
    *  to get included into the output by this renderer.
    */
-  def withMessageLevel (level: MessageLevel) = new HTML(Some(level), renderFormatted)
+  def withMessageLevel (level: MessageLevel): HTML = new HTML(Some(level), renderFormatted)
   
   /** Renders HTML without any formatting (line breaks or indentation) around tags. 
    *  Useful when storing the output in a database for example. 
    */
-  def unformatted = new HTML(messageLevel, false)
+  def unformatted: HTML = new HTML(messageLevel, false)
   
   /** The actual setup method for providing both the writer API for customized
    *  renderers as well as the actual default render function itself. The default render
@@ -63,7 +63,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
    *  @return a tuple consisting of the writer API for customizing
    *  the renderer as well as the actual default render function itself
    */
-  def newRenderer (output: Output, root: Element, render: Element => Unit, styles: StyleDeclarationSet) = {
+  def newRenderer (output: Output, root: Element, render: Element => Unit, styles: StyleDeclarationSet): (HTMLWriter, Element => Unit) = {
     val out = new HTMLWriter(output asFunction, render, formatted = renderFormatted)  
     (out, renderElement(out))
   }
@@ -71,32 +71,32 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
   
   private def renderElement (out: HTMLWriter)(elem: Element): Unit = {
     
-    def include (msg: SystemMessage) = {
+    def include (msg: SystemMessage): Boolean = {
       messageLevel flatMap {lev => if (lev <= msg.level) Some(lev) else None} isDefined
     }
     
-    def noneIfDefault [T](actual: T, default: T) = if (actual == default) None else Some(actual.toString)
+    def noneIfDefault [T](actual: T, default: T): Option[String] = if (actual == default) None else Some(actual.toString)
     
-    def renderBlocks (blocks: Seq[Block], close: String) = blocks match {
+    def renderBlocks (blocks: Seq[Block], close: String): HTMLWriter = blocks match {
       case ss @ SpanSequence(_,_) :: Nil => out << ss << close
       case Paragraph(content,opt) :: Nil => out << SpanSequence(content,opt) << close
       case other                         => out <<|> other <<| close
     }
     
-    def renderTable (table: Table) = {
+    def renderTable (table: Table): HTMLWriter = {
       val children = List(table.caption,table.columns,table.head,table.body) filterNot (_.content.isEmpty)
       
       out <<@ ("table", table.options) <<|> children <<| "</table>"
     }
     
     object WithFallback {
-      def unapply (value: Element) = value match {
+      def unapply (value: Element): Option[Element] = value match {
         case f: Fallback => Some(f.fallback)
         case _ => None
       }
     }
     
-    def renderBlockContainer [T <: BlockContainer[T]](con: BlockContainer[T]) = {
+    def renderBlockContainer [T <: BlockContainer[T]](con: BlockContainer[T]): Unit = {
   
       def toTable (label: String, content: Seq[Block], options: Options): Table = {
         val left = Cell(BodyCell, List(SpanSequence(List(Text(s"[$label]")))))
@@ -106,7 +106,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
             Columns.options(Styles("label"),NoOpt), options)
       }
       
-      def quotedBlockContent (content: Seq[Block], attr: Seq[Span]) = 
+      def quotedBlockContent (content: Seq[Block], attr: Seq[Span]): Seq[Block] = 
         if (attr.isEmpty) content
         else content :+ Paragraph(attr, Styles("attribution"))
         
@@ -137,7 +137,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
       }
     }
     
-    def renderSpanContainer [T <: SpanContainer[T]](con: SpanContainer[T]) = {
+    def renderSpanContainer [T <: SpanContainer[T]](con: SpanContainer[T]): Unit = {
       def escapeTitle (s: String) = s.replace("&","&amp;").replace("\"","&quot;").replace("'","$#39;")
       def codeStyles (language: String) = if (language.isEmpty) Styles("code") else Styles("code", language)
       def crossLinkRef (path: PathInfo, ref: String) = {
@@ -175,7 +175,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
       }
     }
     
-    def renderListContainer [T <: ListContainer[T]](con: ListContainer[T]) = con match {
+    def renderListContainer [T <: ListContainer[T]](con: ListContainer[T]): Unit = con match {
       case EnumList(content,format,start,opt) => 
           out <<@ ("ol", opt, ("class", format.enumType.toString.toLowerCase), ("start", noneIfDefault(start,1))) <<|> content <<| "</ol>"
       case BulletList(content,_,opt)   => out <<@ ("ul",opt) <<|> content <<| "</ul>"
@@ -186,7 +186,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
       case unknown                     => out << "<div>" <<|> unknown.content <<| "</div>"
     }
     
-    def renderTextContainer (con: TextContainer) = con match {
+    def renderTextContainer (con: TextContainer): Unit = con match {
       case Text(content,opt)           => opt match {
         case NoOpt                     => out                   <<&  content
         case _                         => out <<@ ("span",opt)  <<&  content << "</span>"
@@ -208,7 +208,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
       case unknown                     => out <<& unknown.content
     }
     
-    def renderSimpleBlock (block: Block) = block match {
+    def renderSimpleBlock (block: Block): Unit = block match {
       case Rule(opt)                   => out <<@ ("hr",opt) 
       case InternalLinkTarget(opt)     => out <<@ ("a",opt) << "</a>"
       case TargetFormat("html",e,_)    => out << e
@@ -217,7 +217,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
       case unknown                     => ()
     }
     
-    def renderSimpleSpan (span: Span) = span match {
+    def renderSimpleSpan (span: Span): Unit = span match {
       case CitationLink(ref,label,opt) => out <<@ ("a",opt + Styles("citation"),"href"->("#"+ref)) << "[" << label << "]</a>" 
       case FootnoteLink(ref,label,opt) => out <<@ ("a",opt + Styles("footnote"),"href"->("#"+ref)) << "[" << label << "]</a>" 
       case Image(text,uri,title,opt)   => out <<@ ("img",opt,"src"->uri.uri,"alt"->text,"title"->title)
@@ -228,7 +228,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
       case unknown                     => ()
     }
     
-    def renderTableElement (elem: TableElement) = elem match {
+    def renderTableElement (elem: TableElement): Unit = elem match {
       case TableHead(rows,opt)         => out <<@ ("thead",opt) <<|> rows <<| "</thead>"
       case TableBody(rows,opt)         => out <<@ ("tbody",opt) <<|> rows <<| "</tbody>"    
       case Caption(content, opt)       => out <<@ ("caption",opt) <<  content <<  "</caption>" 
@@ -241,18 +241,18 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
             ("td", opt, "colspan"->noneIfDefault(colspan,1), "rowspan"->noneIfDefault(rowspan,1)); renderBlocks(content, "</td>") 
     }
     
-    def renderUnresolvedReference (ref: Reference) = {
+    def renderUnresolvedReference (ref: Reference): Unit = {
       out << InvalidSpan(SystemMessage(Error,s"unresolved reference: $ref"), Text(ref.source)) 
     }
     
-    def renderInvalidElement (elem: Invalid[_ <: Element]) = elem match {
+    def renderInvalidElement (elem: Invalid[_ <: Element]): Unit = elem match {
       case InvalidBlock(msg, fallback, opt) => if (include(msg)) out << List(Paragraph(List(msg),opt), fallback)
                                                else out << fallback
       case e                                => if (include(e.message)) out << e.message << " " << e.fallback
                                                else out << e.fallback 
     }
     
-    def renderSystemMessage (message: SystemMessage) = {
+    def renderSystemMessage (message: SystemMessage): Unit = {
       if (include(message)) 
         out <<@ ("span", message.options + Styles("system-message", message.level.toString.toLowerCase)) << message.content << "</span>"
     }
@@ -275,7 +275,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
     }  
   } 
   
-  override lazy val defaultTemplate = HTML.templateResource.content
+  override lazy val defaultTemplate: TemplateRoot = HTML.templateResource.content
   
 }
 
@@ -283,6 +283,6 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
  */
 object HTML extends HTML(None, true) {
   
-  lazy val templateResource = ParseTemplate.fromInput(Input.fromClasspath("/templates/default.template.html", Root / "default.template.html"))
+  lazy val templateResource: TemplateDocument = ParseTemplate.fromInput(Input.fromClasspath("/templates/default.template.html", Root / "default.template.html"))
   
 }

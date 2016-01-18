@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -175,7 +175,7 @@ object Directives {
    */
   abstract class DirectivePart[+A] extends (DirectiveParser => Result[A]) { self =>
     
-    def map [B](f: A => B) = new DirectivePart[B] { 
+    def map [B](f: A => B): DirectivePart[B] = new DirectivePart[B] { 
       def apply (p: DirectiveParser) = self(p) map f 
     }
     
@@ -185,7 +185,7 @@ object Directives {
    */
   implicit object CanBuildDirectivePart extends CanBuild[DirectivePart] {
     
-    def apply [A,B](ma: DirectivePart[A], mb: DirectivePart[B]) = new DirectivePart[A~B] {
+    def apply [A,B](ma: DirectivePart[A], mb: DirectivePart[B]): DirectivePart[A~B] = new DirectivePart[A~B] {
       def apply (p: DirectiveParser) = {
         val a = ma(p)
         val b = mb(p)
@@ -193,7 +193,7 @@ object Directives {
       }
     }
   
-    def map [A,B](m: DirectivePart[A], f: A => B) = m map f
+    def map [A,B](m: DirectivePart[A], f: A => B): DirectivePart[B] = m map f
     
   }
  
@@ -202,7 +202,7 @@ object Directives {
    */
   object Parts {
     
-    private def part [T](f: DirectiveParser => Result[T]) = new DirectivePart[T] {
+    private def part [T](f: DirectiveParser => Result[T]): DirectivePart[T] = new DirectivePart[T] {
       def apply (p: DirectiveParser) = f(p)
     }
     
@@ -214,7 +214,7 @@ object Directives {
      *  @return a directive part that can be combined with further parts with the `~` operator
      */
     def argument [T](convert: String => Either[String,T] = { s:String => Right(s) }, 
-                     withWS: Boolean = false) = part(_.argument(convert, withWS)) 
+                     withWS: Boolean = false): DirectivePart[T] = part(_.argument(convert, withWS)) 
       
     /** Specifies an optional argument. 
      * 
@@ -225,7 +225,7 @@ object Directives {
      *  @return a directive part that can be combined with further parts with the `~` operator
      */
     def optArgument [T](convert: String => Either[String,T] = { s:String => Right(s) }, 
-                        withWS: Boolean = false) = part(_.optArgument(convert, withWS)) 
+                        withWS: Boolean = false): DirectivePart[Option[T]] = part(_.optArgument(convert, withWS)) 
 
     /** Specifies a required named field. 
      * 
@@ -282,7 +282,7 @@ object Directives {
      *  @param part the implementation of the directive that can be created by using the combinators of the `Parts` object
      *  @return a new directive that can be registered with the reStructuredText parser
      */
-    def apply (name: String)(part: DirectivePart[Span]) = new Directive(name.toLowerCase, _ => part)
+    def apply (name: String)(part: DirectivePart[Span]): Directive[Span] = new Directive(name.toLowerCase, _ => part)
     
     /** Creates a new directive with the specified name and implementation.
      *  The `DirectivePart` can be created by using the methods of the `Parts`
@@ -295,7 +295,7 @@ object Directives {
      *  @param part a function returning the implementation of the directive that can be created by using the combinators of the `Parts` object
      *  @return a new directive that can be registered with the reStructuredText parser
      */
-    def recursive (name: String)(part: BlockParsers with InlineParsers => DirectivePart[Span]) = new Directive(name.toLowerCase, part)
+    def recursive (name: String)(part: BlockParsers with InlineParsers => DirectivePart[Span]): Directive[Span] = new Directive(name.toLowerCase, part)
     
   }
   
@@ -311,7 +311,7 @@ object Directives {
      *  @param part the implementation of the directive that can be created by using the combinators of the `Parts` object
      *  @return a new directive that can be registered with the reStructuredText parser
      */
-    def apply (name: String)(part: DirectivePart[Block]) = new Directive(name.toLowerCase, _ => part)
+    def apply (name: String)(part: DirectivePart[Block]): Directive[Block] = new Directive(name.toLowerCase, _ => part)
     
     /** Creates a new directive with the specified name and implementation.
      *  The `DirectivePart` can be created by using the methods of the `Parts`
@@ -324,7 +324,7 @@ object Directives {
      *  @param part a function returning the implementation of the directive that can be created by using the combinators of the `Parts` object
      *  @return a new directive that can be registered with the reStructuredText parser
      */
-    def recursive (name: String)(part: BlockParsers with InlineParsers => DirectivePart[Block]) = new Directive(name.toLowerCase, part)
+    def recursive (name: String)(part: BlockParsers with InlineParsers => DirectivePart[Block]): Directive[Block] = new Directive(name.toLowerCase, part)
     
   }
 

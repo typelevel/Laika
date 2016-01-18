@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,7 +114,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     atxHeader | setextHeader | (insignificantSpaces ~> 
       (literalBlock | quotedBlock | rule | bulletList | enumList))
 
-  protected def prepareBlockParsers (nested: Boolean) = {
+  protected def prepareBlockParsers (nested: Boolean): List[Parser[Block]] = {
     if (nested) standardMarkdownBlock :: nestedParagraph :: Nil
     else standardMarkdownBlock :: (insignificantSpaces ~> linkTarget) :: paragraph :: Nil
   }
@@ -122,7 +122,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   def nonRecursiveBlock: Parser[Block] = 
     atxHeader | setextHeader | (insignificantSpaces ~> (literalBlock | rule )) | paragraph
 
-  def parseParagraph (lines: List[String]) = Paragraph(parseInline(linesToString(lines)))
+  def parseParagraph (lines: List[String]): Paragraph = Paragraph(parseInline(linesToString(lines)))
 
   /** Parses a single paragraph. Everything between two blank lines that is not
    *  recognized as a special Markdown block type will be parsed as a regular paragraph.
@@ -183,7 +183,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    */
   def list [T <: Block, I <: ListItem] (itemStart: Parser[String], 
                                         newList: List[ListItem] => T, 
-                                        newItem: (Int,List[Block]) => I) = {
+                                        newItem: (Int,List[Block]) => I): Parser[T] = {
     
     def flattenItems (items: List[~[Option[Any],List[Block]]]) = {
       val hasBlankLines = items exists { 
@@ -223,11 +223,11 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   
   /** Parses the start of a bullet list item.
    */
-  val bulletListItemStart = anyOf('*','-','+').take(1) <~ (anyOf(' ','\t') min 1)
+  val bulletListItemStart: Parser[String] = anyOf('*','-','+').take(1) <~ (anyOf(' ','\t') min 1)
   
   /** Parses the start of an enumerated list item.
    */
-  val enumListItemStart = anyIn('0' to '9').min(1) <~ '.' ~ (anyOf(' ','\t') min 1)
+  val enumListItemStart: Parser[String] = anyIn('0' to '9').min(1) <~ '.' ~ (anyOf(' ','\t') min 1)
   
   /** Parses a bullet list, called "unordered list" in the Markdown syntax description.
    */

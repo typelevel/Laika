@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,13 +41,13 @@ class VerbatimHTML extends (HTMLWriter => RenderFunction) {
   
   def apply (out: HTMLWriter): RenderFunction = {
     
-    def prepareAttributeValue (spans: List[TextContainer]) = 
+    def prepareAttributeValue (spans: List[TextContainer]): String = 
       ("" /: spans) {
         case (acc, Text(content,_)) => acc + content.replace("&","&amp;").replace("\"","&quot;").replace("'","$#39;")
         case (acc, span) => acc + span.content
       } 
     
-    def tagStart (name: String, attributes: List[HTMLAttribute]) = {
+    def tagStart (name: String, attributes: List[HTMLAttribute]): Unit = {
       out << "<" << name
       attributes.foreach { at =>
         out << " " << at.name
@@ -74,7 +74,6 @@ class VerbatimHTML extends (HTMLWriter => RenderFunction) {
     pf
       
   }
-  
   
   
 }

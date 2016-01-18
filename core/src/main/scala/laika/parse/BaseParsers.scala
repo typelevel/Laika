@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ trait BaseParsers extends Parsers {
   /** Applies the specified parser at the specified offset behind the current
    *  position. Never consumes any input.
    */
-  def lookBehind [T] (offset: Int, parser: => Parser[T]) = Parser { in =>
+  def lookBehind [T] (offset: Int, parser: => Parser[T]): Parser[T] = Parser { in =>
     if (in.offset - offset < 0) Failure("Unable to look behind with offset "+offset, in)
     else parser(in.drop(-offset)) match {
       case Success(result, _) => Success(result, in)

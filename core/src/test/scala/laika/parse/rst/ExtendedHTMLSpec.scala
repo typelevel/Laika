@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,9 @@ class ExtendedHTMLSpec extends FlatSpec
                        with ModelBuilder {
  
   
-  def render (elem: Element) = Render as HTML using ExtendedHTML from elem toString 
+  def render (elem: Element): String = Render as HTML using ExtendedHTML from elem toString 
   
-  def render (elem: Element, messageLevel: MessageLevel) = 
+  def render (elem: Element, messageLevel: MessageLevel): String = 
     Render as (HTML withMessageLevel messageLevel) using ExtendedHTML from elem toString
   
   
@@ -92,7 +92,6 @@ class ExtendedHTMLSpec extends FlatSpec
       |</table>""".stripMargin
     render (elem) should be (html)
   }
-  
   
   
 }

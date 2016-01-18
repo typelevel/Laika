@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ class StandardTextRolesSpec extends FlatSpec
                             with ModelBuilder {
 
   
-  def parse (input: String) = (Parse as ReStructuredText fromString input).content
+  def parse (input: String): RootElement = (Parse as ReStructuredText fromString input).content
   
   
   "The emphasis text role" should "produce an Emphasized node without styles" in {
@@ -198,7 +198,6 @@ class StandardTextRolesSpec extends FlatSpec
     val result = root(p(txt("some "), Emphasized(List(Text("text")))))
     (Parse as ReStructuredText.withDefaultTextRole("emphasis") fromString input).content should be (result)
   } 
-  
   
   
 }

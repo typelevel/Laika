@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,11 +41,11 @@ class DirectiveSpec extends FlatSpec
   val defaultParser: Parser[RootElement] = rootElement
   
   
-  def invalid (input: String, error: String) = 
+  def invalid (input: String, error: String): InvalidBlock = 
     InvalidBlock(SystemMessage(laika.tree.Elements.Error, error), 
         LiteralBlock(input.replaceAll("\n ","\n").replaceAll("::$",":: ").replaceAll("::\n",":: \n")))
   
-  def positiveInt (input: String) = 
+  def positiveInt (input: String): Either[String, Int] = 
     try {
       val num = input.toInt
       if (num > 0) Right(num) else Left(s"not a positive number: $num")
@@ -54,16 +54,16 @@ class DirectiveSpec extends FlatSpec
       case e: Exception => Left(s"unable to convert to int: ${e.toString}") 
     }
     
-  def intList (input: String) = {
+  def intList (input: String): Either[String, Array[Int]] = {
     val list = input split "\n" filter (_.trim.nonEmpty) map (_.trim.toInt)
     if (list.nonEmpty) Right(list) else Left("no integers provided")
   }
   
 
   
-  def stars (num: Int) = p("*" * num)
+  def stars (num: Int): Paragraph = p("*" * num)
   
-  def toLowerCase [T] (tuple: (String, T)) = (tuple._1.toLowerCase, tuple._2)
+  def toLowerCase [T] (tuple: (String, T)): (String, T) = (tuple._1.toLowerCase, tuple._2)
   
   val blockDirectives: Map[String, DirectivePart[Block]] = Map(
     "oneArg" -> (argument() map p),

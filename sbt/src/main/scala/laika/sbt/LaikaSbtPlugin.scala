@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -228,25 +228,25 @@ object LaikaSbtPlugin extends Plugin {
     import LaikaKeys._
     import Def._
     
-    def artifactPathSetting (key: Scoped) = setting {
+    def artifactPathSetting (key: Scoped): Initialize[File] = setting {
       val art = (artifact in key).value
       val classifier = art.classifier map ("-"+_) getOrElse ""
       target.value / (art.name + "-" + projectID.value.revision + classifier + "." + art.extension)
     }
     
-    val inputTreeTask = task {
+    val inputTreeTask: Initialize[Task[InputConfigBuilder]] = task {
       val builder = Directories(sourceDirectories.value, excludeFilter.value.accept)(encoding.value)
         .withTemplateParser(templateParser.value)
       val builder2 = if (parallel.value) builder.inParallel else builder
       docTypeMatcher.value map (builder2 withDocTypeMatcher _) getOrElse builder2
     }
     
-    def outputTreeTask (key: Scoped) = task {
+    def outputTreeTask (key: Scoped): Initialize[Task[OutputConfigBuilder]] = task {
       val builder = Directory((target in key).value)(encoding.value)
       if (parallel.value) builder.inParallel else builder
     }
     
-    def prepareTargetDirectory (key: Scoped) = task {
+    def prepareTargetDirectory (key: Scoped): Initialize[Task[File]] = task {
       val targetDir = (target in key).value
       val apiInSite = (target in copyAPI).value
       val pdfInSite = (artifactPath in pdf).value
@@ -268,7 +268,7 @@ object LaikaSbtPlugin extends Plugin {
       Set((target in site).value, (artifactPath in pdf).value, (target in xslfo).value, (target in prettyPrint).value)
     }
     
-    val generateTask = inputTask {
+    val generateTask: Initialize[InputTask[Set[File]]] = inputTask {
     
       val formats = spaceDelimited("<format>").parsed.map(OutputFormats.OutputFormat.fromString)
       if (formats.isEmpty) throw new IllegalArgumentException("At least one format must be specified")
@@ -360,12 +360,12 @@ object LaikaSbtPlugin extends Plugin {
       outputFiles intersect allTargets.value
     }
     
-    private val siteGenTask = taskDyn {
+    private val siteGenTask: Initialize[Task[Set[File]]] = taskDyn {
       if (includePDF.value) generateTask.toTask(" html pdf") 
       else generateTask.toTask(" html")
     }
     
-    val siteTask = task {
+    val siteTask: Initialize[Task[File]] = task {
       val gen = siteGenTask.value
       val api = copyAPI.value
       val pdf = copyPDF.value
@@ -373,7 +373,7 @@ object LaikaSbtPlugin extends Plugin {
       (target in site).value
     }
     
-    val copyAPITask = taskDyn {
+    val copyAPITask: Initialize[Task[File]] = taskDyn {
       val targetDir = (target in copyAPI).value
       if (includeAPI.value) task { 
         
@@ -392,7 +392,7 @@ object LaikaSbtPlugin extends Plugin {
       }
     }
     
-    val copyPDFTask = taskDyn {
+    val copyPDFTask: Initialize[Task[File]] = taskDyn {
       val gen = siteGenTask.value
       val targetDir = (target in site).value
       val pdfSource = (artifactPath in pdf).value
@@ -411,7 +411,7 @@ object LaikaSbtPlugin extends Plugin {
       }
     }
     
-    val packageSiteTask = task { 
+    val packageSiteTask: Initialize[Task[File]] = task { 
       val zipFile = (artifactPath in packageSite).value
       streams.value.log.info(s"Packaging $zipFile ...")
       
@@ -421,7 +421,7 @@ object LaikaSbtPlugin extends Plugin {
       zipFile
     }
     
-    val cleanTask = task { 
+    val cleanTask: Initialize[Task[Unit]] = task { 
       IO.delete((target in site).value)
     }
 
@@ -438,7 +438,7 @@ object LaikaSbtPlugin extends Plugin {
       (provider.subtrees flatMap collectInputFiles)
     }
     
-    def collectParents (file: File) = {
+    def collectParents (file: File): Set[File] = {
       def collect (file: File, acc: Set[File]): Set[File] = {
         file.getParentFile match {
           case null => acc
@@ -479,7 +479,7 @@ object LaikaSbtPlugin extends Plugin {
   
   object Log {
     
-    def s (num: Int) = if (num == 1) "" else "s"
+    def s (num: Int): String = if (num == 1) "" else "s"
       
     def inputs (provider: InputProvider): String = {
       
@@ -514,11 +514,11 @@ object LaikaSbtPlugin extends Plugin {
       s"Rendering $render HTML document${s(render)}, copying $copy static file${s(copy)} ..."
     }
     
-    def systemMessages (logger: Logger, tree: DocumentTree, level: MessageLevel) = {
+    def systemMessages (logger: Logger, tree: DocumentTree, level: MessageLevel): Unit = {
       
       import laika.tree.Elements.{Info=>InfoLevel}
       
-      def logMessage (inv: Invalid[_], path: Path) = {
+      def logMessage (inv: Invalid[_], path: Path): Unit = {
         val source = inv.fallback match {
           case tc: TextContainer => tc.content
           case other => other.toString

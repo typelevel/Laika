@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ class TextWriter (out: String => Unit,
     
     def write = { out(current); this }
     
-    def indented (indent: Int, block: => Unit) = {
+    def indented (indent: Int, block: => Unit): Unit = {
       if (indent > (current.length - 1) && indentItem.nonEmpty) {
         val oldIndent = current
         current = "\n" + (" " * indent)
@@ -57,9 +57,9 @@ class TextWriter (out: String => Unit,
   
   private var parentStack: List[Element] = Nil
   
-  protected def parents = parentStack
+  protected def parents: List[Element] = parentStack
   
-  private def renderElement (element: Element) = {
+  private def renderElement (element: Element): Unit = {
     parentStack = element :: parentStack
     render(element)
     parentStack = parentStack.tail
@@ -69,7 +69,7 @@ class TextWriter (out: String => Unit,
    *  shifting the indentation level (if it is greater
    *  than the currently active one).
    */
-  def indented (indent: Int)(block: => Unit) = Indent.indented(indent, block)
+  def indented (indent: Int)(block: => Unit): Unit = Indent.indented(indent, block)
   
   /** Writes a new line character sequence.
    */
@@ -143,4 +143,3 @@ class TextWriter (out: String => Unit,
   
   
 }
-

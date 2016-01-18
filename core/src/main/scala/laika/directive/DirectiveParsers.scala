@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
   
   /** Parses horizontal whitespace or newline characters.
    */
-  lazy val wsOrNl = anyOf(' ','\t', '\n')
+  lazy val wsOrNl: TextParser = anyOf(' ','\t', '\n')
 
   /** Parses a name declaration that start with a letter and 
    *  continues with letters, numbers or the symbols '-' or '_'.
@@ -85,7 +85,7 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
 
   private lazy val bodyName: Parser[String] = '~' ~> nameDecl <~ ws ~ ':'
   
-  private lazy val noBody = '.' ^^^ List[Part]()
+  private lazy val noBody: Parser[List[Part]] = '.' ^^^ List[Part]()
   
   /** Parses one directive instance containing its name declaration,
    *  all attributes and all body elements.
@@ -109,7 +109,7 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
     
     def part (key: Key): Option[String] = parts.get(key)
       
-    val context = docContext
+    val context: Option[DocumentContext] = docContext
     
   }
   

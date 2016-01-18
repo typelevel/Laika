@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ object TocGenerator {
   
   private def fromDocument (doc: Document, curLevel: Int, maxLevel: Int, refPath: Path): List[Block] = {
     
-    def sectionTitle (section: SectionInfo, path: Path, level: Int) = {
+    def sectionTitle (section: SectionInfo, path: Path, level: Int): Paragraph = {
       val title = section.title.content
       
       if (path == refPath)
@@ -87,14 +87,14 @@ object TocGenerator {
       case tree: DocumentTree => navigatablesForTree(tree).exists(hasContent)
     }
     
-    def treeTitle (tree: DocumentTree, level: Int) = 
+    def treeTitle (tree: DocumentTree, level: Int): Paragraph = 
       treeTitleDoc.fold(
         Paragraph(tree.title, options = styles(level))
       )( doc => 
         Paragraph(List(CrossLink(tree.title, "", PathInfo.fromPath(tree.path / doc, refPath.parent))), options = styles(level))
       )
     
-    def docTitle (document: Document, level: Int) =
+    def docTitle (document: Document, level: Int): Paragraph =
       if (document.path == refPath)
         Paragraph(document.title, options = styles(level) + Styles("active"))
       else

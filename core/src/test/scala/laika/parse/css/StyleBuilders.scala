@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,19 +22,21 @@ trait StyleBuilders {
 
   val defaultStyleMap = Map("foo"->"bar")
   
-  def selector (predicates: Predicate*) = Selector(predicates.toSet)
+  def selector (predicates: Predicate*): Selector = Selector(predicates.toSet)
   
-  def selector (selector: Selector, parent: Selector, immediate: Boolean) =
+  def selector (selector: Selector, parent: Selector, immediate: Boolean): Selector =
     selector.copy(parent = Some(ParentSelector(parent, immediate)))
   
-  def styleDecl (styles: Map[String,String], selector: Selector) = 
+  def styleDecl (styles: Map[String,String], selector: Selector): StyleDeclaration = 
     StyleDeclaration(selector, styles)
     
-  def styleDecl (selector: Selector) = 
+  def styleDecl (selector: Selector): StyleDeclaration = 
     StyleDeclaration(selector, defaultStyleMap)
 
-  def styleDecl (predicates: Predicate*) = StyleDeclaration(Selector(predicates.toSet), defaultStyleMap)
+  def styleDecl (predicates: Predicate*): StyleDeclaration = 
+    StyleDeclaration(Selector(predicates.toSet), defaultStyleMap)
 
-  def styleDecl (styles: Map[String,String], predicates: Predicate*) = StyleDeclaration(Selector(predicates.toSet), styles)
+  def styleDecl (styles: Map[String,String], predicates: Predicate*): StyleDeclaration = 
+    StyleDeclaration(Selector(predicates.toSet), styles)
   
 }

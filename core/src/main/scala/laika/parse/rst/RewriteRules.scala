@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,15 +33,15 @@ object RewriteRules extends (DocumentContext => RewriteRule) {
   
   class DefaultRules (context: DocumentContext) { 
     
-    val substitutions = context.document.content.collect { 
+    val substitutions: Map[String, Span] = context.document.content.collect { 
       case SubstitutionDefinition(id,content,_) => (id,content) 
     } toMap
     
-    val textRoles = context.document.content.collect { 
+    val textRoles: Map[String, String => Span] = context.document.content.collect { 
       case CustomizedTextRole(id,f,_) => (id,f)                                   
     } toMap  
     
-    def invalidSpan (message: String, fallback: String) =
+    def invalidSpan (message: String, fallback: String): InvalidSpan =
       InvalidSpan(SystemMessage(laika.tree.Elements.Error, message), Text(fallback))
       
     /** Function providing the default rewrite rules when passed a document instance.
@@ -61,7 +61,7 @@ object RewriteRules extends (DocumentContext => RewriteRule) {
    *  for the specified document. These rules usually get executed
    *  alongside the generic default rules.
    */
-  def apply (context: DocumentContext) = (new DefaultRules(context)).rewrite
+  def apply (context: DocumentContext): RewriteRule = (new DefaultRules(context)).rewrite
   
   
 }

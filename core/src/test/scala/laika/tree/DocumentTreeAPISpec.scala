@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,20 +35,20 @@ class DocumentTreeAPISpec extends FlatSpec
                       with ModelBuilder {
   
   trait TreeModel {
-    def rootElement (b: Block) = root(b, p("b"), p("c"))
+    def rootElement (b: Block): RootElement = root(b, p("b"), p("c"))
     
-    def createConfig (path: Path, source: Option[String]) =
+    def createConfig (path: Path, source: Option[String]): Config =
       source.map(c =>ConfigFactory.parseString(c, ConfigParseOptions.defaults().setOriginDescription(s"path:$path")))
       .getOrElse(ConfigFactory.empty)
     
-    def treeWithDoc (path: Path, name: String, root: RootElement, config: Option[String] = None) =
+    def treeWithDoc (path: Path, name: String, root: RootElement, config: Option[String] = None): DocumentTree =
       new DocumentTree(path, List(new Document(path / name, root, config = createConfig(path / name, config))))
-    def treeWithSubtree (path: Path, treeName: String, docName: String, root: RootElement, config: Option[String] = None) =
+    def treeWithSubtree (path: Path, treeName: String, docName: String, root: RootElement, config: Option[String] = None): DocumentTree =
       new DocumentTree(path, Nil, subtrees = List(treeWithDoc(path / treeName, docName, root, config)))
     
-    def treeViewWithDoc (path: Path, name: String, root: RootElement) =
+    def treeViewWithDoc (path: Path, name: String, root: RootElement): TreeView =
       TreeView(path, List(Docs(Markup, List(DocumentView(path / name, List(Content(root.content)))))))
-    def treeViewWithSubtree (path: Path, treeName: String, docName: String, root: RootElement) =
+    def treeViewWithSubtree (path: Path, treeName: String, docName: String, root: RootElement): TreeView =
       TreeView(path, List(Subtrees(List(treeViewWithDoc(path / treeName, docName, root)))))
   }
   

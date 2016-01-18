@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ object IO {
    *  @param f the function to invoke, with the managed resource getting passed into it
    *  @return the result of the function call
    */
-  def apply [R, T] (resource: R)(f: R => T) = resource match {
+  def apply [R, T] (resource: R)(f: R => T): T = resource match {
     case c: Closeable => try f(resource) finally c.close
     case _ => f(resource)
   }

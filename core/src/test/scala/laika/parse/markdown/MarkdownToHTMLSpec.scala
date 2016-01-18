@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,13 +33,13 @@ class MarkdownToHTMLSpec extends FlatSpec
                          with Matchers
                          with FileTransformerUtil {
   
-  implicit val codec:Codec = Codec.UTF8
+  implicit val codec: Codec = Codec.UTF8
   
   /** Uses JTidy to remove cosmetic differences between Laika and Markdown output,
    *  plus a few additional, manual cleaning operations for purely cosmetic differences
    *  not covered by JTidy.
    */
-  def tidyAndAdjust (html: String) = {
+  def tidyAndAdjust (html: String): String = {
     val cleaned = html
       .replace("\r\n", "\n")
       .replace("\r", "\n")
@@ -51,7 +51,7 @@ class MarkdownToHTMLSpec extends FlatSpec
   }
   
 
-  def transformAndCompare (name: String) = {
+  def transformAndCompare (name: String): Unit = {
     val path = classPathResource("/markdownTestSuite") + "/" + name
     val actual = Transform from Markdown.withVerbatimHTML.strict to HTML rendering { out => {
       case QuotedBlock(content,_,_) => out << "<blockquote>" <<|>  content <<| "</blockquote>" // Markdown always writes p tags inside blockquotes

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -169,7 +169,7 @@ object Elements {
    *  `ListContainer`, `SpanContainer` or `BlockContainer` should be used.
    */
   trait ElementContainer[+E <: Element, Self <: ElementContainer[E,Self]] extends Container[Seq[E]] with ElementTraversal[Self] {
-    override def toString = "\n" + (Render as PrettyPrint from this toString) + "\n" 
+    override def toString: String = "\n" + (Render as PrettyPrint from this toString) + "\n" 
   }
 
   /** A container of other Block elements. Such a container is usually
@@ -669,7 +669,7 @@ object Elements {
    */
   case class ForcedParagraph (content: Seq[Span], options: Options = NoOpt) extends Block 
                                                   with SpanContainer[ForcedParagraph] with Fallback {
-    def fallback = Paragraph(content, options)
+    def fallback: Element = Paragraph(content, options)
   }
   
   
@@ -685,37 +685,37 @@ object Elements {
    *  Likewise it is also often more convenient to use the corresponding extractors for pattern matching.
    */
   case class SomeOpt (id: Option[String] = None, styles: Set[String] = Set()) extends Options {
-    def + (other: Options) = SomeOpt(other.id.orElse(id), styles ++ other.styles)
+    def + (other: Options): Options = SomeOpt(other.id.orElse(id), styles ++ other.styles)
   }
   
   /** Empty `Options` implementation.
    */
   case object NoOpt extends Options {
-    val id = None
-    val styles = Set[String]()
-    def + (other: Options) = other
+    val id: Option[String] = None
+    val styles: Set[String] = Set()
+    def + (other: Options): Options = other
   }
   
   /** Factory and extractor for an `Options` instance
    *  with an id.
    */
   object Id {
-    def apply (value: String) = SomeOpt(id = Some(value))
-    def unapply (value: Options) = value.id 
+    def apply (value: String): Options = SomeOpt(id = Some(value))
+    def unapply (value: Options): Option[String] = value.id 
   }
   
   /** Factory and extractor for an `Options` instance
    *  with style names.
    */
   object Styles {
-    def apply (values: String*) = SomeOpt(styles = values.toSet)
-    def unapplySeq (value: Options) = Some(value.styles.toSeq) 
+    def apply (values: String*): Options = SomeOpt(styles = values.toSet)
+    def unapplySeq (value: Options): Option[Seq[String]] = Some(value.styles.toSeq) 
   }
   
   /** Companion for the Options trait.
    */
   object Options {
-    def apply (id: Option[String] = None, styles: Set[String] = Set()) =
+    def apply (id: Option[String] = None, styles: Set[String] = Set()): Options =
       if (id.isEmpty && styles.isEmpty) NoOpt
       else SomeOpt(id,styles)
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,20 +29,20 @@ class RewriteRulesSpec extends FlatSpec
                   with ModelBuilder {
 
   
-  def rewritten (root: RootElement) = new Document(Root, root).rewrite.content
+  def rewritten (root: RootElement): RootElement = new Document(Root, root).rewrite.content
   
-  def invalidSpan (message: String, fallback: String) =
+  def invalidSpan (message: String, fallback: String): InvalidSpan =
       InvalidSpan(SystemMessage(laika.tree.Elements.Error, message), Text(fallback))
       
-  def invalidBlock (message: String, fallback: Block) =
+  def invalidBlock (message: String, fallback: Block): InvalidBlock =
       InvalidBlock(SystemMessage(laika.tree.Elements.Error, message), fallback)
       
-  def invalidSpan (message: String, fallback: Span) =
+  def invalidSpan (message: String, fallback: Span): InvalidSpan =
       InvalidSpan(SystemMessage(laika.tree.Elements.Error, message), fallback)
       
-  def fnRefs (labels: FootnoteLabel*) = p((labels map { label => FootnoteReference(label,toSource(label))}):_*)
+  def fnRefs (labels: FootnoteLabel*): Paragraph = p((labels map { label => FootnoteReference(label,toSource(label))}):_*)
 
-  def fnLinks (labels: (String,String)*) = p((labels map { label => FootnoteLink(label._1,label._2)}):_*)
+  def fnLinks (labels: (String,String)*): Paragraph = p((labels map { label => FootnoteLink(label._1,label._2)}):_*)
   
   def fn (label: FootnoteLabel, num: Any) = FootnoteDefinition(label, List(p(s"footnote$num")))
 

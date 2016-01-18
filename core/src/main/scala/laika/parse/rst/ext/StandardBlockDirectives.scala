@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -165,7 +165,7 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
    *  Therefore the result will be accessible through the generic
    *  config property in the `Document` class. 
    */
-  lazy val meta = blockContent map {
+  lazy val meta: DirectivePart[Block] = blockContent map {
     case FieldList(fields,_) :: Nil => 
       ConfigValue("meta", fields map (field => (TreeUtil.extractText(field.name), 
           field.content collect { case p: Paragraph => TreeUtil.extractText(p.content) } mkString)) toMap)
@@ -176,22 +176,22 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
   /** The header directive,
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#document-header-footer]] for details.
    */
-  lazy val header = blockContent map { blocks => DocumentFragment("header", BlockSequence(blocks)) }
+  lazy val header: DirectivePart[Block] = blockContent map { blocks => DocumentFragment("header", BlockSequence(blocks)) }
   
   /** The footer directive,
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#document-header-footer]] for details.
    */
-  lazy val footer = blockContent map { blocks => DocumentFragment("footer", BlockSequence(blocks)) }
+  lazy val footer: DirectivePart[Block] = blockContent map { blocks => DocumentFragment("footer", BlockSequence(blocks)) }
   
   private def tuple (name: String) = optField(name, Right(name, _))
   
-  lazy val sectnum = (tuple("depth") ~ tuple("start") ~ tuple("prefix") ~ tuple("suffix")) {
+  lazy val sectnum: DirectivePart[Block] = (tuple("depth") ~ tuple("start") ~ tuple("prefix") ~ tuple("suffix")) {
     (depth, start, prefix, suffix) => 
       val options = depth.toList ::: start.toList ::: prefix.toList ::: suffix.toList
       ConfigValue("autonumbering", options.toMap)
   }
   
-  lazy val contents = (optArgument(withWS = true) ~ optField("depth", positiveInt) ~ optField("local") ~ optField("class")) {
+  lazy val contents: DirectivePart[Block] = (optArgument(withWS = true) ~ optField("depth", positiveInt) ~ optField("local") ~ optField("class")) {
     (title, depth, local, style) => 
       Contents(title.getOrElse("Contents"), depth.getOrElse(Int.MaxValue), local.isDefined, toOptions(None, style))
   }
@@ -207,7 +207,7 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
    *  references the previously parsed node tree. This is both simpler and more efficient when the same
    *  file gets included in multiple places.
    */
-  lazy val include = argument() map (Include(_))
+  lazy val include: DirectivePart[Block] = argument() map (Include(_))
   
   /** The epitaph, highlights and pull-quote directives, which are all identical apart from the style
    *  parameter, see 
@@ -272,7 +272,7 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
   /** All standard block directives currently supported by Laika, except for
    *  the `raw` directive which needs to be enabled explicitly.
    */
-  lazy val blockDirectives = List(
+  lazy val blockDirectives: List[Directive[Block]] = List(
     BlockDirective("compound")(compound),
     BlockDirective("container")(container),
     BlockDirective.recursive("topic")(topic),

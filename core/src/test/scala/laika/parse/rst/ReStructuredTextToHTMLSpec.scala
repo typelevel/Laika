@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,13 +33,13 @@ class ReStructuredTextToHTMLSpec extends FlatSpec
                                  with Matchers
                                  with FileTransformerUtil {
   
-  implicit val codec:Codec = Codec.UTF8
+  implicit val codec: Codec = Codec.UTF8
     
   /** Uses JTidy to remove cosmetic differences between Laika and reStructuredText output,
    *  plus a few additional, manual cleaning operations for purely cosmetic differences
    *  not covered by JTidy.
    */
-  def tidyAndAdjust (html: String) = {
+  def tidyAndAdjust (html: String): String = {
     val prepared = html
       .replace("\r\n", "\n")
       .replace("\r", "\n")
@@ -55,7 +55,7 @@ class ReStructuredTextToHTMLSpec extends FlatSpec
   }
   
 
-  def transformAndCompare (name: String) = {
+  def transformAndCompare (name: String): Unit = {
     val path = classPathResource("/rstSpec") + "/" + name
     val actual = Transform from ReStructuredText to HTML rendering { out => 
       

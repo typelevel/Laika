@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,27 +30,28 @@ class CrossReferenceSpec extends FlatSpec
 
   
   trait TreeModel {
-    def rootWithLink (id: String, text: String, path: PathInfo) = rootElement(p(CrossLink(List(Text(text)), id, path)))
-    def rootWithRef (id: String, text: String) = rootElement(p(LinkReference(List(Text(text)), id, s"[$id]")))
-    def rootWithTarget (id: String) = rootElement(InternalLinkTarget(Id(id)))
-    def rootElement (b: Block) = root(p("A"), b, p("B"))
+    def rootWithLink (id: String, text: String, path: PathInfo): RootElement = rootElement(p(CrossLink(List(Text(text)), id, path)))
+    def rootWithRef (id: String, text: String): RootElement = rootElement(p(LinkReference(List(Text(text)), id, s"[$id]")))
+    def rootWithTarget (id: String): RootElement = rootElement(InternalLinkTarget(Id(id)))
+    def rootElement (b: Block): RootElement = root(p("A"), b, p("B"))
 
-    def treeWithDocs (path: Path, name: String, root1: RootElement, root2: RootElement) =
+    def treeWithDocs (path: Path, name: String, root1: RootElement, root2: RootElement): DocumentTree =
       new DocumentTree(path, List(new Document(path / (name+"1"), root1), new Document(path / (name+"2"), root2)))
-    def treeWithDoc (path: Path, name: String, root: RootElement, subtrees: List[DocumentTree] = Nil) =
+    def treeWithDoc (path: Path, name: String, root: RootElement, subtrees: List[DocumentTree] = Nil): DocumentTree =
       new DocumentTree(path, List(new Document(path / name, root)), subtrees = subtrees)
+    def treeWithSubtrees (path: Path, trees: DocumentTree*): DocumentTree =
+      new DocumentTree(path, Nil, subtrees = trees)
     
-    def treeViewWithDocs (path: Path, name: String, root1: RootElement, root2: RootElement) =
+    def treeViewWithDocs (path: Path, name: String, root1: RootElement, root2: RootElement): TreeView =
       TreeView(path, List(Docs(Markup, List(
         DocumentView(path / (name+"1"), List(Content(root1.content))), 
         DocumentView(path / (name+"2"), List(Content(root2.content)))
       ))))
-    def treeViewWithDoc (path: Path, name: String, root: RootElement, subtree: Option[TreeView] = None) =
+    
+    def treeViewWithDoc (path: Path, name: String, root: RootElement, subtree: Option[TreeView] = None): TreeView =
       TreeView(path, List(Docs(Markup, List(DocumentView(path / name, List(Content(root.content)))))) ::: (subtree map (t => Subtrees(List(t)))).toList)
     
-    def treeWithSubtrees (path: Path, trees: DocumentTree*) =
-      new DocumentTree(path, Nil, subtrees = trees)
-    def treeViewWithSubtrees (path: Path, trees: TreeView*) =
+    def treeViewWithSubtrees (path: Path, trees: TreeView*): TreeView =
       TreeView(path, List(Subtrees(trees)))
   }
   

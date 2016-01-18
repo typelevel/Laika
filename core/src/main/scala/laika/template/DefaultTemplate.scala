@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,13 +63,13 @@ class DefaultTemplate private (
    * 
    *  For more details on implementing Laika directives see [[laika.directive.Directives]].
    */ 
-  def withDirectives (directives: Templates.Directive*) =
+  def withDirectives (directives: Templates.Directive*): DefaultTemplate =
     new DefaultTemplate(this.directives ++ directives)      
   
   /** The actual parser function, fully parsing the specified input and
    *  returning a document tree.
    */
-  def apply (input: Input) = parser.parseTemplate(input.asParserInput, input.path)
+  def apply (input: Input): TemplateDocument = parser.parseTemplate(input.asParserInput, input.path)
   
 }
 

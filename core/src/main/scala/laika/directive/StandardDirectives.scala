@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ trait StandardDirectives {
   
   /** Implementation of the `for` directive for templates.
    */
-  lazy val templateFor = Templates.create("for") {
+  lazy val templateFor: Templates.Directive = Templates.create("for") {
     import Templates.Combinators._
     import java.util.{Map => JMap, Collection => JCol}
 
@@ -91,7 +91,7 @@ trait StandardDirectives {
   
   /** Implementation of the `if` directive for templates.
    */
-  lazy val templateIf = Templates.create("if") {
+  lazy val templateIf: Templates.Directive = Templates.create("if") {
     import Templates.Combinators._
     import java.util.{Map => JMap, Collection => JCol}
     
@@ -152,7 +152,7 @@ trait StandardDirectives {
   
   /** Implementation of the `toc` directive for templates.
    */
-  lazy val templateToc = Templates.create("toc") {
+  lazy val templateToc: Templates.Directive  = Templates.create("toc") {
     import Templates.Combinators._
     import Templates.Converters._
     
@@ -167,7 +167,7 @@ trait StandardDirectives {
   
   /** Implementation of the `toc` directive for block elements in markup documents.
    */
-  lazy val blockToc = Blocks.create("toc") {
+  lazy val blockToc: Blocks.Directive  = Blocks.create("toc") {
     import Blocks.Combinators._
     import Blocks.Converters._
     
@@ -181,12 +181,12 @@ trait StandardDirectives {
   }
   
   
-  private def asBlock (blocks: Seq[Block], options: Options = NoOpt) = blocks match {
+  private def asBlock (blocks: Seq[Block], options: Options = NoOpt): Block = blocks match {
     case block :: Nil => TreeUtil.modifyOptions(block, _ + options)
     case blocks => BlockSequence(blocks, options)
   }
   
-  private def asSpan (spans: Seq[Span], options: Options = NoOpt) = spans match {
+  private def asSpan (spans: Seq[Span], options: Options = NoOpt): Span = spans match {
     case span :: Nil => TreeUtil.modifyOptions(span, _ + options)
     case spans => SpanSequence(spans, options)
   }
@@ -196,7 +196,7 @@ trait StandardDirectives {
    *  The content of such a block will only be rendered for the corresponding
    *  output format (e.g. `pdf` or `html`).
    */
-  lazy val format = Blocks.create("format") {
+  lazy val format: Blocks.Directive  = Blocks.create("format") {
     import Blocks.Combinators._
     
     (attribute(Default) ~ body(Default)) {
@@ -207,7 +207,7 @@ trait StandardDirectives {
   
   /** Implementation of the `style` directive for block elements in markup documents.
    */
-  lazy val blockStyle = Blocks.create("style") {
+  lazy val blockStyle: Blocks.Directive  = Blocks.create("style") {
     import Blocks.Combinators._
     
     (attribute(Default) ~ body(Default)) {
@@ -217,7 +217,7 @@ trait StandardDirectives {
   
   /** Implementation of the `style` directive for span elements in markup documents.
    */
-  lazy val spanStyle = Spans.create("style") {
+  lazy val spanStyle: Spans.Directive  = Spans.create("style") {
     import Spans.Combinators._
     
     (attribute(Default) ~ body(Default)) {
@@ -227,7 +227,7 @@ trait StandardDirectives {
   
   /** Implementation of the `fragment` directive for block elements in markup documents.
    */
-  lazy val blockFragment = Blocks.create("fragment") {
+  lazy val blockFragment: Blocks.Directive  = Blocks.create("fragment") {
     import Blocks.Combinators._
     
     (attribute(Default) ~ body(Default)) {
@@ -237,7 +237,7 @@ trait StandardDirectives {
   
   /** Implementation of the `fragment` directive for templates.
    */
-  lazy val templateFragment = Templates.create("fragment") {
+  lazy val templateFragment: Templates.Directive  = Templates.create("fragment") {
     import Templates.Combinators._
     
     (attribute(Default) ~ body(Default)) {
@@ -247,7 +247,7 @@ trait StandardDirectives {
   
   /** Implementation of the `pageBreak` directive.
    */
-  lazy val pageBreak = Blocks.create("pageBreak") {
+  lazy val pageBreak: Blocks.Directive  = Blocks.create("pageBreak") {
     import Blocks.Combinators._
     
     empty(PageBreak())
@@ -256,7 +256,7 @@ trait StandardDirectives {
   /** The complete list of standard directives for block
    *  elements in markup documents.
    */
-  lazy val stdBlockDirectives = List(
+  lazy val stdBlockDirectives: Seq[Blocks.Directive] = List(
     blockToc,
     blockFragment,
     blockStyle,
@@ -267,13 +267,13 @@ trait StandardDirectives {
   /** The complete list of standard directives for span
    *  elements in markup documents.
    */
-  lazy val stdSpanDirectives = List(
+  lazy val stdSpanDirectives: Seq[Spans.Directive] = List(
     spanStyle
   )
 
   /** The complete list of standard directives for templates.
    */
-  lazy val stdTemplateDirectives = List(
+  lazy val stdTemplateDirectives: Seq[Templates.Directive] = List(
     templateToc,
     templateFor,
     templateIf

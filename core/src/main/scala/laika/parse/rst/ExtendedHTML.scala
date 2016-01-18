@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ class ExtendedHTML extends (HTMLWriter => RenderFunction) {
   
   /** Converts an `OptionList` to an interim table model for rendering.
    */
-  def toTable (ol: OptionList) = {
+  def toTable (ol: OptionList): Table = {
     def intersperse [T](list: List[T], sep: T): List[T] = list match {    
       case one :: two :: rest => one :: sep :: intersperse(two :: rest, sep)    
       case short              => short   
@@ -60,7 +60,7 @@ class ExtendedHTML extends (HTMLWriter => RenderFunction) {
   
   /** Converts a `FieldList` to an interim table model for rendering.
    */
-  def toTable (fl: FieldList) = {
+  def toTable (fl: FieldList): Table = {
     def name (value: Seq[Span]) = Cell(HeadCell, List(SpanSequence(value :+ Text(":"))))
     def body (value: Seq[Block]) = Cell(BodyCell, value)
     val rows = fl.content map (f => Row(List(name(f.name),body(f.content))))
@@ -82,7 +82,6 @@ class ExtendedHTML extends (HTMLWriter => RenderFunction) {
     pf
       
   }
-  
   
   
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ class PrettyPrint extends RendererFactory[TextWriter] {
    *  @return a tuple consisting of the writer API for customizing
    *  the renderer as well as the actual default render function itself
    */
-  def newRenderer (output: Output, root: Element, render: Element => Unit, styles: StyleDeclarationSet) = {
+  def newRenderer (output: Output, root: Element, render: Element => Unit, styles: StyleDeclarationSet): (TextWriter, Element => Unit) = {
     val out = new TextWriter(output asFunction, render, ". ") 
     (out, renderElement(out))
   }
@@ -71,21 +71,21 @@ class PrettyPrint extends RendererFactory[TextWriter] {
     
     object NoRef
     
-    def options (opt: Options) = {
+    def options (opt: Options): String = {
       List(
         opt.id map ("Id("+_+")"),
         if (opt.styles.isEmpty) None else Some(opt.styles mkString ("Styles(",",",")"))
       ) filter (_.isDefined) map (_.get) mkString " + "
     }
     
-    def attributes (attr: Iterator[Any], exclude: AnyRef = NoRef) = {
+    def attributes (attr: Iterator[Any], exclude: AnyRef = NoRef): String = {
       def prep (value: Any) = value match { case opt: Options => options(opt); case other => other }
       val it = attr.asInstanceOf[Iterator[AnyRef]]
       val res = it filter (_ ne exclude) filter (_ != NoOpt) map prep mkString ("(", ",", ")")
       if (res == "()") "" else res
     } 
     
-    def elementContainerDesc (con: ElementContainer[Element,_], elementType: String) = {
+    def elementContainerDesc (con: ElementContainer[Element,_], elementType: String): Unit = {
       val (elements, rest) = con.productIterator partition (_.isInstanceOf[Element])
       out << con.productPrefix << attributes(rest, con.content)
       
@@ -94,7 +94,7 @@ class PrettyPrint extends RendererFactory[TextWriter] {
       else out << contentDesc <<|> con.content  
     }
     
-    def textContainerDesc (con: TextContainer) = {
+    def textContainerDesc (con: TextContainer): Unit = {
       out << con.productPrefix << attributes(con.productIterator, con.content) << " - '"
       
       val text = con.content.replaceAllLiterally("\n", "|")
@@ -104,13 +104,13 @@ class PrettyPrint extends RendererFactory[TextWriter] {
       else out << text.substring(0, maxTextWidth / 2) << " [...] " << text.substring(len - maxTextWidth / 2) << "'"
     }
     
-    def element (e: Element) = {
+    def element (e: Element): Unit = {
       val (elements, rest) = e.productIterator partition (_.isInstanceOf[Element])
       out << e.productPrefix << attributes(rest)
       if (!elements.isEmpty) out <<|> (elements.toList.asInstanceOf[Seq[Element]])
     }
     
-    def lists (desc: String, lists: (Seq[Element], String)*) = 
+    def lists (desc: String, lists: (Seq[Element], String)*): Unit = 
         out << desc <<|> (lists map {case (elems,d) => Content(elems, d + elems.length)}) 
       
     elem match {

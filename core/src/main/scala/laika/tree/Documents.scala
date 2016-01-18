@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import laika.parse.css.Styles.StyleDeclarationSet
  */
 object Documents {
   
-  val defaultTemplate = new TemplateDocument(Root / "default.template", TemplateRoot(List(TemplateContextReference("document.content"))))
+  val defaultTemplate: TemplateDocument = new TemplateDocument(Root / "default.template", TemplateRoot(List(TemplateContextReference("document.content"))))
   
   /** Represents a single document and provides access
    *  to the document content and structure as well
@@ -58,13 +58,14 @@ object Documents {
     
     private lazy val linkResolver = LinkResolver(path,content)
     
-    protected lazy val defaultRules = rewriteRules :+ (linkResolver.rewriteRules(_)) :+ (SectionBuilder(_))
+    protected lazy val defaultRules: Seq[DocumentContext => RewriteRule] = 
+      rewriteRules :+ (linkResolver.rewriteRules(_)) :+ (SectionBuilder(_))
     
     private[Documents] lazy val targets = linkResolver.globalTargets ++ (linkResolver.globalTargets collect {
       case (UniqueSelector(name), target) => (PathSelector(path, name), target)
     })
     
-    private def findRoot = {
+    private def findRoot: Seq[Block] = {
       (content select {
         case RootElement(TemplateRoot(_,_) :: Nil) => false
         case RootElement(_) => true
@@ -75,7 +76,7 @@ object Documents {
     /** The title of this document, obtained from the document
      *  structure or from the configuration.
      */
-    def title = {
+    def title: Seq[Span] = {
       if (config.hasPath("title")) docNumber match {
         case Nil => List(Text(config.getString("title")))
         case _ => Text(docNumber.mkString("","."," "), Styles("titleNumber")) +: List(Text(config.getString("title")))
@@ -88,7 +89,7 @@ object Documents {
     /** The section structure of this document based on the hierarchy
      *  of headers found in the original text markup.
      */
-    lazy val sections = {
+    lazy val sections: Seq[SectionInfo] = {
       
       def extractSections (parentPos: List[Int], blocks: Seq[Block]): Seq[SectionInfo] = {
         val positions = Stream.from(1).iterator
@@ -105,7 +106,7 @@ object Documents {
     /** Indicates whether all rewrite rules have already been applied
      *  to this document.
      */
-    val isRewritten = defaultRules.isEmpty
+    val isRewritten: Boolean = defaultRules.isEmpty
 
     /** Returns a new, rewritten document model based on the default rewrite rules.
      */
@@ -178,20 +179,20 @@ object Documents {
   /** Captures information about a document section, without its content.
    */
   case class SectionInfo (position: List[Int], id: String, title: TitleInfo, content: Seq[SectionInfo]) extends Element with ElementContainer[SectionInfo,SectionInfo] {
-    val level = position.length
+    val level: Int = position.length
   }
 
   /** Represents a section title.
    */
   case class TitleInfo (content: Seq[Span]) extends SpanContainer[TitleInfo] {
-    lazy val text = TreeUtil.extractText(content)
+    lazy val text: String = TreeUtil.extractText(content)
   }
 
   /** A resolver for context references in templates or markup documents.
    */
   class ReferenceResolver (root: Any, parent: Option[ReferenceResolver] = None) {
     import java.util.{Map => JMap}
-    def fromJavaMap (m: JMap[Any,Any], key: Any) = if (m.containsKey(key)) Some(m.get(key)) else None
+    def fromJavaMap (m: JMap[Any,Any], key: Any): Option[Any] = if (m.containsKey(key)) Some(m.get(key)) else None
     /* These are all dynamic, non-typesafe lookups for values where often both,
      * the path from the template and the actual target value (e.g. from a config
      * file) originate from text resources, so the dynamic lookup is justifiable here */
@@ -232,7 +233,7 @@ object Documents {
                                  baseConfig: Option[Config] = None,
                                  format: Option[String] = None) { self =>
     
-    protected lazy val parents = {
+    protected lazy val parents: Seq[DocumentTree] = {
       @tailrec def collect (path: Path, acc: List[DocumentTree]): Seq[DocumentTree] = {
          val newAcc = root.selectSubtree(path.relativeTo(root.path)) match {
            case Some(tree) => tree :: acc
@@ -244,23 +245,23 @@ object Documents {
       collect(parent.path, Nil).reverse
     }
     
-    private def mergeTreeConfigs (config: Config) = ((config /: parents) { case (config, tree) =>
+    private def mergeTreeConfigs (config: Config): Config = ((config /: parents) { case (config, tree) =>
       tree.config.map(c => config.withFallback(c)).getOrElse(config)
     }).resolve
     
     /** The configuration for this document merged with
      *  the configurations for its parent trees.
      */
-    lazy val config = {
+    lazy val config: Config = {
       val base = baseConfig getOrElse (template map (t => document.config.withFallback(t.config)) getOrElse document.config)
       mergeTreeConfigs(base)
     }
 
     /** The (optional) template to use when rendering this document.
      */
-    lazy val template = format flatMap (templateForFormat(_))
+    lazy val template: Option[TemplateDocument] = format flatMap (templateForFormat(_))
     
-    private def templateForFormat (format: String) = {
+    private def templateForFormat (format: String): Option[TemplateDocument] = {
       val tempConf = mergeTreeConfigs(document.config)
       if (tempConf.hasPath("template") || tempConf.hasPath(format + ".template")) {
         val key = if (tempConf.hasPath(format + ".template")) format+".template" else "template" 
@@ -278,7 +279,7 @@ object Documents {
       }
     }
     
-    protected lazy val resolver = new ReferenceResolver(Map[String,Any](
+    protected lazy val resolver: ReferenceResolver = new ReferenceResolver(Map[String,Any](
       "config" -> config,
       "document" -> document,
       "parent" -> parent,
@@ -299,7 +300,7 @@ object Documents {
      *  template directives which need to provide a new scope
      *  for a nested part inside the directive tags.
      */
-    def withReferenceContext (target: Any) = new DocumentContext(document, parent, root, autonumbering, baseConfig, format) {
+    def withReferenceContext (target: Any): DocumentContext = new DocumentContext(document, parent, root, autonumbering, baseConfig, format) {
       override lazy val parents = self.parents
       override lazy val config = self.config
       override lazy val template = self.template
@@ -309,7 +310,7 @@ object Documents {
     /** Creates a copy of this context for the specified document
      *  while keeping all the other information.
      */
-    def withDocument (newDoc: Document) = new DocumentContext(newDoc, parent, root, autonumbering, baseConfig, format)
+    def withDocument (newDoc: Document): DocumentContext = new DocumentContext(newDoc, parent, root, autonumbering, baseConfig, format)
     
   }
 
@@ -385,12 +386,12 @@ object Documents {
       case index => name.drop(index+1)
     }  
     
-    val TemplateName = """.+\.template\.[^\.]+$""".r
-    val DynamicName = """.+\.dynamic\.[^\.]+$""".r
-    val StylesheetName = """.+\.fo.css$""".r // stylesheets for HTML are treated as static documents
-    val ConfigName = """.+\.conf$""".r
+    private val TemplateName = """.+\.template\.[^\.]+$""".r
+    private val DynamicName = """.+\.dynamic\.[^\.]+$""".r
+    private val StylesheetName = """.+\.fo.css$""".r // stylesheets for HTML are treated as static documents
+    private val ConfigName = """.+\.conf$""".r
     
-    def apply (path: Path) = path.name match {
+    def apply (path: Path): DocumentType = path.name match {
       case name if markupSuffixes(suffix(name)) => Markup
       case ConfigName()     => Config
       case TemplateName()   => Template
@@ -409,7 +410,7 @@ object Documents {
     
     /** The local name of this navigatable.
      */
-    lazy val name = path.name
+    lazy val name: String = path.name
     
   }
 
@@ -454,7 +455,7 @@ object Documents {
      *  configuration for this tree. Before rewriting the configuration
      *  is not fully accessible yet and this list will be empty.
      */
-    lazy val navigatables = navigationOrder getOrElse (Nil)
+    lazy val navigatables: Seq[Navigatable] = navigationOrder getOrElse (Nil)
     
     private def toMap [T <: Navigatable] (navigatables: Seq[T]): Map[String,T] = {
       navigatables groupBy (_.name) mapValues {
@@ -529,11 +530,11 @@ object Documents {
     /** Selects a link target by the specified selector
      *  if it is defined somewhere in a document inside this document tree.
      */
-    def selectTarget (selector: Selector) = targets.get(selector)
+    def selectTarget (selector: Selector): Option[TargetResolver] = targets.get(selector)
     
     /** Creates a new tree with the specified template added to its existing templates.
      */
-    def withTemplate (template: TemplateDocument) = 
+    def withTemplate (template: TemplateDocument): DocumentTree = 
       new DocumentTree(path, documents, template +: templates, dynamicTemplates, dynamicDocuments, styles, 
           staticDocuments, subtrees, config, docNumber, navigationOrder, sourcePaths)  
     
@@ -553,13 +554,13 @@ object Documents {
     
     /** Creates a new tree with the specified document prepended to its existing documents.
      */
-    def prependDocument (doc: Document) = // TODO - remove this method in the 0.7 redesign
+    def prependDocument (doc: Document): DocumentTree = // TODO - remove this method in the 0.7 redesign
       new DocumentTree(path, doc +: documents, templates, dynamicTemplates, dynamicDocuments, styles, 
           staticDocuments, subtrees, config, docNumber, navigationOrder map (doc +: _), sourcePaths)  
     
     /** Creates a new tree mapping all subtrees with the specified function.
      */
-    def mapSubtrees (f: DocumentTree => DocumentTree) = {// TODO - remove this method in the 0.7 redesign
+    def mapSubtrees (f: DocumentTree => DocumentTree): DocumentTree = {// TODO - remove this method in the 0.7 redesign
       val newSubtrees = subtrees map f
       val newSubtreesByName = toMap(newSubtrees)
       val newNavigatables = navigationOrder map { _ map {
@@ -691,12 +692,12 @@ object Documents {
      */
     def components: List[String]
     
-    def isAbsolute = prefix == Root
+    def isAbsolute: Boolean = prefix == Root
     
     /** Creates a new path with the specified name
      *  as an immediate child of this path.
      */
-    def / (name: String) = new /(this, name)
+    def / (name: String): / = new /(this, name)
     
     /** Combines this path with the specified path.
      *  If the specified path is a relative path it
@@ -731,23 +732,23 @@ object Documents {
         case (false, true) => path / this
       }
     }
-    def suffix = ""
-    def basename = name
+    def suffix: String = ""
+    def basename: String = name
   }
  
   case class / (parent: Path, name: String) extends Path {
     lazy val components: List[String] = parent.components ++ List(name)
-    lazy val prefix = parent.prefix
-    override lazy val basename = if (name.contains('.')) name.take(name.lastIndexOf(".")) else name
-    override lazy val suffix = if (name.contains('.')) name.drop(name.lastIndexOf(".")+1) else ""
-    override lazy val toString = prefix + (components mkString "/")
+    lazy val prefix: PathPrefix = parent.prefix
+    override lazy val basename: String = if (name.contains('.')) name.take(name.lastIndexOf(".")) else name
+    override lazy val suffix: String = if (name.contains('.')) name.drop(name.lastIndexOf(".")+1) else ""
+    override lazy val toString: String = prefix + (components mkString "/")
   }
   
   abstract class PathPrefix (val name: String) extends Path {
     val components: List[String] = Nil
-    val parent = this
-    val prefix = this
-    override val toString = name
+    val parent: Path = this
+    val prefix: PathPrefix = this
+    override val toString: String = name
   }
   
   /** The root of an absolute path.
@@ -810,7 +811,7 @@ object Documents {
      *  from the specified configuration instance or returns
      *  the default configuration if not found.
      */
-    def fromConfig (config: Config) = {
+    def fromConfig (config: Config): AutonumberConfig = {
       if (config.hasPath("autonumbering")) {
         val nConf = config.getObject("autonumbering").toConfig
         val (documents, sections) = if (nConf.hasPath("scope")) nConf.getString("scope") match {
@@ -829,7 +830,7 @@ object Documents {
     /** The defaults for autonumbering with section
      *  and document numbering both switched off. 
      */
-    def defaults = AutonumberConfig(false, false, 0)
+    def defaults: AutonumberConfig = AutonumberConfig(false, false, 0)
   }
   
   /** Context for autonumbering of documents and sections, containing the current
@@ -838,7 +839,7 @@ object Documents {
   case class AutonumberContext (config: AutonumberConfig, number: List[Int] = Nil)
   
   object AutonumberContext {
-    def defaults = AutonumberContext(AutonumberConfig.defaults)
+    def defaults: AutonumberContext = AutonumberContext(AutonumberConfig.defaults)
   }
   
   /** Factory for creating the navigation order for the markup

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,25 +26,26 @@ import laika.template.ParseTemplate
 import laika.template.DefaultTemplate
 import com.typesafe.config.ConfigFactory
 import laika.tree.Templates.TemplateDocument
+import laika.tree.Templates.TemplateRoot
+import laika.tree.Templates.TemplateSpanSequence
 import laika.tree.Documents._
 import scala.collection.JavaConversions._
-import laika.tree.Templates.TemplateSpanSequence
 
 class StandardDirectiveSpec extends FlatSpec
                             with Matchers
                             with ModelBuilder {
 
   
-  def parse (input: String) = (Parse as Markdown fromString input)
+  def parse (input: String): Document = (Parse as Markdown fromString input)
 
-  def parseWithFragments (input: String) = {
+  def parseWithFragments (input: String): (Map[String,Element], RootElement) = {
     val doc = parse(input)
     (doc.fragments, doc.content)
   }
   
-  def parseTemplate (input: String) = (ParseTemplate as DefaultTemplate fromString input).content
+  def parseTemplate (input: String): TemplateRoot = (ParseTemplate as DefaultTemplate fromString input).content
   
-  def parseTemplateWithConfig (input: String, config: String) = {
+  def parseTemplateWithConfig (input: String, config: String): RootElement = {
     val tRoot = parseTemplate(input)
     val template = new TemplateDocument(Root, tRoot)
     (template rewrite DocumentContext(new Document(Root, root(), config = ConfigFactory.parseString(config)))).content

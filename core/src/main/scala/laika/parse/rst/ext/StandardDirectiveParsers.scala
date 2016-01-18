@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ trait StandardDirectiveParsers extends BlockParsers with InlineParsers {
    *  @param input the input to parse
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
-  def quotedBlock (p: BlockParsers, style: String)(input: String) = {
+  def quotedBlock (p: BlockParsers, style: String)(input: String): Either[String,Block] = {
     p.parseDirectivePart(p.blockList(p.nestedBlock), input).right.map { blocks =>
       blocks.lastOption match {
         case Some(p @ Paragraph(Text(text, opt) :: _, _)) if text startsWith "-- " => 
@@ -70,7 +70,7 @@ trait StandardDirectiveParsers extends BlockParsers with InlineParsers {
    *  @param input the input to parse
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
-  def table (p: BlockParsers)(input: String) = 
+  def table (p: BlockParsers)(input: String): Either[String, Table] = 
     p.parseDirectivePart(p.gridTable | p.simpleTable, input)
   
   /** Parses a caption (a single paragraph) and a legend (one or more blocks), both being optional.
@@ -79,7 +79,7 @@ trait StandardDirectiveParsers extends BlockParsers with InlineParsers {
    *  @param input the input to parse
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
-  def captionAndLegend (p: BlockParsers)(input: String) = {
+  def captionAndLegend (p: BlockParsers)(input: String): Either[String,(Seq[Span],Seq[Block])] = {
     val parser = p.opt(p.paragraph) ~ p.opt(p.blankLines ~> p.blockList(p.nestedBlock)) ^^ {
       case p.~(Some(caption), Some(legend)) => (caption.content, legend)
       case p.~(Some(caption), None)         => (caption.content, Nil)

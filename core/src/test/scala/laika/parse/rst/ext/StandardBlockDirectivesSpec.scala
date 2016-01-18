@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,15 +38,15 @@ class StandardBlockDirectivesSpec extends FlatSpec
                                   with Matchers 
                                   with ModelBuilder {
 
-   val simplePars = List(p("1st Para"), p("2nd Para"))
+   val simplePars: List[Paragraph] = List(p("1st Para"), p("2nd Para"))
    
-   def parseDoc (input: String) = Parse as ReStructuredText fromString input
+   def parseDoc (input: String): Document = Parse as ReStructuredText fromString input
 
-   def parseRaw (input: String) = ((Parse as ReStructuredText withoutRewrite) fromString input).content.rewrite({case t:Temporary => None})
+   def parseRaw (input: String): RootElement = ((Parse as ReStructuredText withoutRewrite) fromString input).content.rewrite({case t:Temporary => None})
 
-   def parse (input: String) = parseDoc(input).content
+   def parse (input: String): RootElement = parseDoc(input).content
    
-   def parseWithFragments (input: String) = {
+   def parseWithFragments (input: String): (Map[String, Element], RootElement) = {
     val doc = parseDoc(input)
     (doc.fragments, doc.content)
   }

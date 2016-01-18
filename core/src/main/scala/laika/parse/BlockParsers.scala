@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -187,7 +187,7 @@ trait BlockParsers extends MarkupParsers {
    * 
    *  The nest level is usually only used to prevent endless recursion of nested blocks. 
    */
-  def withNestLevel [T] (p: => Parser[T]) = Parser { in =>
+  def withNestLevel [T] (p: => Parser[T]): Parser[(Int, T)] = Parser { in =>
     p(in) match {
       case Success(res, next) => Success((nestLevel(next), res), next)
       case ns: NoSuccess      => ns
@@ -198,7 +198,7 @@ trait BlockParsers extends MarkupParsers {
    * 
    *  The nest level is usually only used to prevent endless recursion of nested blocks. 
    */
-  def nestLevel (reader: Input) = reader match {
+  def nestLevel (reader: Input): Int = reader match {
     case nested: NestedCharSequenceReader => nested.nestLevel
     case _ => 0
   }
@@ -222,7 +222,7 @@ trait BlockParsers extends MarkupParsers {
   /** Parses one or more blanklines, producing a list of empty strings corresponding
    *  to the number of blank lines consumed.
    */
-  val blankLines = (not(eof) ~> blankLine)+
+  val blankLines: Parser[List[String]] = (not(eof) ~> blankLine)+
 
   /** Parses the rest of the line from the current input offset no matter whether
    *  it consist of whitespace only or some text. Does not include the eol character(s).

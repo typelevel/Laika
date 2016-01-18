@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ class Markdown private (
     isStrict: Boolean) extends ParserFactory {
 
   
-  val fileSuffixes = Set("md","markdown")
+  val fileSuffixes: Set[String] = Set("md","markdown")
   
   /** Adds the specified Laika directives and returns a new instance of the parser.
    * 
@@ -90,7 +90,7 @@ class Markdown private (
    * 
    *  For more details on implementing Laika directives see [[laika.directive.Directives]].
    */     
-  def withBlockDirectives (directives: Blocks.Directive*) =
+  def withBlockDirectives (directives: Blocks.Directive*): Markdown =
     new Markdown(blockDirectives ++ directives, spanDirectives, verbatimHTML, isStrict)      
   
   /** Adds the specified Laika directives and returns a new instance of the parser.
@@ -117,7 +117,7 @@ class Markdown private (
    * 
    *  For more details on implementing Laika directives see [[laika.directive.Directives]].
    */ 
-  def withSpanDirectives (directives: Spans.Directive*) = 
+  def withSpanDirectives (directives: Spans.Directive*): Markdown = 
     new Markdown(blockDirectives, spanDirectives ++ directives, verbatimHTML, isStrict)  
   
   /** Returns a Markdown parser that also parses verbatim HTML elements alongside
@@ -125,16 +125,16 @@ class Markdown private (
    *  with an HTML renderer, as such a parser returns a document tree that contains
    *  HTML elements which some parsers would not know how to handle.
    */
-  def withVerbatimHTML = new Markdown(blockDirectives, spanDirectives, true, isStrict)
+  def withVerbatimHTML: Markdown = new Markdown(blockDirectives, spanDirectives, true, isStrict)
   
   /** Turns strict mode on for the returned parser, switching off any
    *  features not part of the original Markdown syntax.
    *  This includes the registration of directives (custom tags) as well as configuration
    *  sections at the start of the document or id generation for all headers.
    */
-  def strict = new Markdown(blockDirectives, spanDirectives, verbatimHTML, true)
+  def strict: Markdown = new Markdown(blockDirectives, spanDirectives, verbatimHTML, true)
   
-  private lazy val parser = {
+  private lazy val parser: BlockParsers with InlineParsers = {
     trait ExtendedParsers extends TemplateParsers.MarkupBlocks with TemplateParsers.MarkupSpans with StandardDirectives {
       lazy val blockDirectiveMap = Blocks.toMap(stdBlockDirectives) ++ Blocks.toMap(blockDirectives)
       lazy val spanDirectiveMap = Spans.toMap(stdSpanDirectives) ++ Spans.toMap(spanDirectives)
@@ -157,7 +157,7 @@ class Markdown private (
   /** The actual parser function, fully parsing the specified input and
    *  returning a document tree.
    */
-  val newParser = (input: Input) => parser.parseDocument(input.asParserInput, input.path)
+  val newParser: Input => Document = (input: Input) => parser.parseDocument(input.asParserInput, input.path)
   
 }
 

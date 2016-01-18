@@ -41,7 +41,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     
     private val foForPDF = new FOforPDF(config)
     
-    def process (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit, output: BinaryOutput) = {
+    def process (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit, output: BinaryOutput): Unit = {
     
       val fo = foForPDF.renderFO(tree, render)
       val out = output.asStream
@@ -56,39 +56,39 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     
     private lazy val defaultTemplate = Input.fromClasspath("/templates/default.template.fo", Root / "default.template.fo").asParserInput.source.toString
     
-    def results(num: Int) = (1 to num) map (result) reduce (_ + _)
+    def results (num: Int): String = (1 to num) map (result) reduce (_ + _)
     
-    def idPrefix(num: Int) = if (num > 4) "_tree2" else if (num > 2) "_tree1" else ""
+    def idPrefix (num: Int): String = if (num > 4) "_tree2" else if (num > 2) "_tree1" else ""
     
-    def result(num: Int) = {
+    def result (num: Int): String = {
       s"""<fo:block id="${idPrefix(num)}_doc${num}_title-$num" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title $num</fo:block>
         |<fo:block font-family="serif" font-size="10pt">Text $num</fo:block>""".stripMargin
     }
     
-    def resultsWithDocTitle(num: Int) = (1 to num) map (resultWithDocTitle) reduce (_ + _)
+    def resultsWithDocTitle (num: Int): String = (1 to num) map (resultWithDocTitle) reduce (_ + _)
     
-    def resultWithDocTitle(num: Int) = {
+    def resultWithDocTitle (num: Int): String = {
       s"""<fo:block id="${idPrefix(num)}_doc${num}_">
         |  <fo:block id="${idPrefix(num)}_doc${num}_title-$num" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title $num</fo:block>
         |</fo:block>
         |<fo:block font-family="serif" font-size="10pt">Text $num</fo:block>""".stripMargin
     }
     
-    def treeTitleResult(num: Int) = {
+    def treeTitleResult (num: Int): String = {
       val idPrefix = if (num == 3) "_tree2" else if (num == 2) "_tree1" else ""
       s"""<fo:block id="${idPrefix}__title__" font-family="sans-serif" font-weight="bold" font-size="18pt" keep-with-next="always">Tree $num</fo:block>"""
     }
     
-    def tocDocResult (num: Int) = 
+    def tocDocResult (num: Int): String = 
       s"""<fo:block font-family="serif" font-size="10pt" text-align-last="justify"><fo:basic-link color="#3399FF" internal-destination="${idPrefix(num)}_doc${num}_">Title $num<fo:leader leader-pattern="dots"></fo:leader><fo:page-number-citation ref-id="${idPrefix(num)}_doc${num}_" /></fo:basic-link></fo:block>""" + "\n"
     
-    def tocTreeResult (num: Int) = 
+    def tocTreeResult (num: Int): String = 
       s"""<fo:block font-family="serif" font-size="10pt" text-align-last="justify"><fo:basic-link color="#3399FF" internal-destination="_tree${num}__title__">Tree ${num+1}<fo:leader leader-pattern="dots"></fo:leader><fo:page-number-citation ref-id="_tree${num}__title__" /></fo:basic-link></fo:block>""" + "\n"  
     
     def withDefaultTemplate(result: String, bookmarks: String = ""): String =
       defaultTemplate.replace("{{document.content}}", result).replace("{{document.fragments.bookmarks}}", bookmarks)    
       
-    def bookmarkTreeResult(treeNum: Int, docNum: Int) = s"""    <fo:bookmark internal-destination="_tree${treeNum}__title__">
+    def bookmarkTreeResult(treeNum: Int, docNum: Int): String = s"""    <fo:bookmark internal-destination="_tree${treeNum}__title__">
       |      <fo:bookmark-title>
       |        Tree ${treeNum + 1}
       |      </fo:bookmark-title>
@@ -121,7 +121,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     
     def config: PDFConfig
     
-    def result = {
+    def result: String = {
       val stream = new ByteArrayOutputStream
       Render as FOTest(config) from tree toStream stream      
       stream.toString

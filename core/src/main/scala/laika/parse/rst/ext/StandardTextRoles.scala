@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -129,6 +129,6 @@ trait StandardTextRoles {
   /** All standard text roles currently supported by Laika, except for
    *  the `raw` text role which needs to be enabled explicitly.
    */
-  lazy val textRoles = List(emphasis,strong,literal,subscript,superscript,sub,sup,titleRef,title,codeSpan)
+  lazy val textRoles: List[TextRole] = List(emphasis,strong,literal,subscript,superscript,sub,sup,titleRef,title,codeSpan)
     
 }

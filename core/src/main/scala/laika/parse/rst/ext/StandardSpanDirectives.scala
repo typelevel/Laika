@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,25 +42,25 @@ trait StandardSpanDirectives {
 
   /** All custom parsers needed by the directive implementations.
    */
-  val parse = new StandardDirectiveParsers {}
+  val parse: StandardDirectiveParsers = new StandardDirectiveParsers {}
   
   /** The name option which is supported by almost all reStructuredText directives.
    */
-  protected val nameOpt = optField("name")
+  protected val nameOpt: DirectivePart[Option[String]] = optField("name")
   
   /** The class option which is supported by almost all reStructuredText directives.
    */
-  protected val classOpt = optField("class")
+  protected val classOpt: DirectivePart[Option[String]] = optField("class")
   
   /** The standard class and name options supported by most directives,
    *  combined in the result into an Options instance.
    */
-  protected val stdOpt = (nameOpt ~ classOpt) { (id, styles) => toOptions(id, styles) } 
+  protected val stdOpt: DirectivePart[Options] = (nameOpt ~ classOpt) { (id, styles) => toOptions(id, styles) } 
   
   /** Converts an optional id and an optional style parameter containing
    *  a space-delimited list of styles to an `Options` instance.
    */
-  protected def toOptions (id: Option[String], styles: Option[String]) = 
+  protected def toOptions (id: Option[String], styles: Option[String]): Options = 
     Options(id, styles.map(_.split(" ").toSet).getOrElse(Set()))
   
   
@@ -101,13 +101,12 @@ trait StandardSpanDirectives {
   /** All standard reStrucuturedText span directives,
    *  to be used in substitution references.
    */
-  lazy val spanDirectives = List(
+  lazy val spanDirectives: List[Directive[Span]] = List(
     SpanDirective("image")(image),
     SpanDirective("replace")(replace),
     SpanDirective("unicode")(unicode),
     SpanDirective("date")(date)
   )
-  
   
   
 }

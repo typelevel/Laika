@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ class WhitespacePreprocessor extends (String => String) {
   /** Processes whitespace, removing or replacing most whitespace characters except
    *  for newline and space.
    */
-  def apply (input: String) = {
+  def apply (input: String): String = {
     
     val end = input.length
     val buf = new StringBuilder

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ object IdGenerators {
   class SymbolGenerator extends (Set[String] => String) {
     private val symbols = List('*','\u2020','\u2021','\u00a7','\u00b6','#','\u2660','\u2665','\u2666','\u2663')
     private val stream = Stream.iterate((symbols,1)){ case (sym,num) => if (sym.isEmpty) (symbols,num+1) else (sym.tail,num) }.iterator
-    @tailrec final def apply (used: Set[String]) = {
+    @tailrec final def apply (used: Set[String]): String = {
       val (sym,num) = stream.next
       val candidate = sym.head.toString * num
       if (!used.contains(candidate)) candidate
@@ -97,7 +97,7 @@ object IdGenerators {
    */
   class NumberGenerator extends (Set[String] => String) {
     private val numbers = Stream.from(1).iterator
-    @tailrec final def apply (used: Set[String]) = {
+    @tailrec final def apply (used: Set[String]): String = {
       val candidate = numbers.next.toString
       if (!used.contains(candidate)) candidate 
       else apply(used)
@@ -111,7 +111,7 @@ object IdGenerators {
    *  (-1, -2, and so on) until it finds an unused id.
    */
   def suggestedId (suggested: String, map: IdMap) = Generated( used => {
-    def result (str: String) = {
+    def result (str: String): String = {
       map += (suggested, str)
       str
     }
@@ -130,7 +130,7 @@ object IdGenerators {
    */
   class IdMap {
     private val map = scala.collection.mutable.Map[String,ListBuffer[String]]()
-    def += (origId: String, docId: String)= {
+    def += (origId: String, docId: String): Unit = {
       val list = map.getOrElseUpdate(origId, ListBuffer())
       list += docId
     }

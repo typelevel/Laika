@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,12 +31,12 @@ class XSLFORendererSpec extends FlatSpec
                         with ModelBuilder {
  
   
-  def render (elem: Element) = Render as XSLFO from elem toString 
+  def render (elem: Element): String = Render as XSLFO from elem toString 
   
-  def render (elem: Element, messageLevel: MessageLevel) = 
+  def render (elem: Element, messageLevel: MessageLevel): String = 
     Render as (XSLFO withMessageLevel messageLevel) from elem toString
     
-  def renderUnformatted (elem: Element) = Render as XSLFO.unformatted from elem toString
+  def renderUnformatted (elem: Element): String = Render as XSLFO.unformatted from elem toString
   
   
   "The XSLFO renderer" should "render a paragraph with plain text" in {

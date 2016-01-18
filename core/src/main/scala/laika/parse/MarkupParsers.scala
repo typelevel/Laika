@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import scala.util.parsing.input.Reader
 trait MarkupParsers extends RegexParsers with BaseParsers {
 
   
-  override def skipWhitespace = false
+  override def skipWhitespace: Boolean = false
   
 
   /** Implicit conversion that allows to pass a single
@@ -62,7 +62,7 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
   
   /** Succeeds at the start of the input.
    */
-  val atStart = Parser { in =>
+  val atStart: Parser[Unit] = Parser { in =>
     if (in.offset == 0) Success(success(()), in) 
     else Failure("Not at start of input", in)
   }
@@ -70,12 +70,12 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
   /** Parses horizontal whitespace (space and tab).
    *  Always succeeds, consuming all whitespace found.
    */
-  def ws = anyOf(' ','\t')
+  def ws: TextParser = anyOf(' ','\t')
   
   /** Parses a simple reference name that only allows alphanumerical characters
    *  and the punctuation characters `-`, `_`, `.`, `:`, `+`.
    */
-  val refName = {
+  val refName: Parser[String] = {
     val alphanum = anyWhile(c => Character.isDigit(c) || Character.isLetter(c)) min 1
     val symbol = anyOf('-', '_', '.', ':', '+') take 1
     
@@ -106,18 +106,18 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
     /** Creates and returns a new parser that fails if it does not consume the specified minimum number
      *  of characters. It may still consume more characters in case of further matches. 
      */
-    def min (count: Int) = new TextParser(newParser, count, maxChar, mustFailAtEOF, consumeLastChar, isStopChar)
+    def min (count: Int): TextParser = new TextParser(newParser, count, maxChar, mustFailAtEOF, consumeLastChar, isStopChar)
     
     /** Creates and returns a new parser that consumes at most the specified maximum number of characters. 
      *  Always succeeds, unless a minimum number of matches is also specified.
      */
-    def max (count: Int) = new TextParser(newParser, minChar, count, mustFailAtEOF, consumeLastChar, isStopChar)
+    def max (count: Int): TextParser = new TextParser(newParser, minChar, count, mustFailAtEOF, consumeLastChar, isStopChar)
     
     /** Creates and returns a new parser that consumes exactly the specified numer of characters.
      *  Fails if there are less matches, but succeeds in case there are more matches, simply ignoring them.
      *  Calling `take 3` for example is equivalent to calling `min 3 max 3`.
      */
-    def take (count: Int) = new TextParser(newParser, count, count, mustFailAtEOF, consumeLastChar, isStopChar)
+    def take (count: Int): TextParser = new TextParser(newParser, count, count, mustFailAtEOF, consumeLastChar, isStopChar)
     
     private[parse] def failAtEOF = new TextParser(newParser, minChar, maxChar, true, consumeLastChar, isStopChar)
   
@@ -127,7 +127,7 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
     
     private[parse] def applyInternal (in: Input) = parser(in)
     
-    def apply (in: Input) = parser(in) match {
+    def apply (in: Input): ParseResult[String] = parser(in) match {
       case Success((result,_), next) => Success(result, next)
       case ns: NoSuccess => ns
     }
@@ -137,7 +137,7 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
   /** Returns an optimized, Array-based lookup function 
    *  for the specified characters.
    */
-  protected def optimizedCharLookup (chars: Char*) = {
+  protected def optimizedCharLookup (chars: Char*): Char => Boolean = {
     val max = chars.max
     val lookup = new Array[Int](max + 1)
     
@@ -149,7 +149,7 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
   /** Returns an optimized, Array-based lookup function 
    *  for the specified ranges of characters.
    */
-  protected def optimizedRangeLookup (ranges: Traversable[Char]*) = {
+  protected def optimizedRangeLookup (ranges: Traversable[Char]*): Char => Boolean = {
     val max = ranges map (_.max) max
     val lookup = new Array[Int](max + 1)
     
@@ -171,21 +171,17 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
    *  This parser would consume the entire input unless a `max` constraint
    *  is specified.
    */
-  val any = {
-    anyWhile(c=>true)
-  }
+  val any: TextParser = anyWhile(c => true)
   
   /** Consumes any number of consecutive occurrences of the specified characters.
    *  Always succeeds unless a minimum number of required matches is specified.
    */
-  def anyOf (chars: Char*) = {
-    anyWhile(charLookupFor(chars:_*))
-  }
+  def anyOf (chars: Char*): TextParser = anyWhile(charLookupFor(chars:_*))
   
   /** Consumes any number of consecutive characters that are not one of the specified characters.
    *  Always succeeds unless a minimum number of required matches is specified.
    */
-  def anyBut (chars: Char*) = {
+  def anyBut (chars: Char*): TextParser = {
     val p: Char => Boolean = chars.length match {
       case 0 => c => true
       case 1 => val c = chars(0); _ != c
@@ -203,12 +199,12 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
    *  to the result. This parser is usually used when a construct like a span
    *  enclosed between two characters needs to be parsed.
    */
-  def anyUntil (chars: Char*) = anyBut(chars:_*).failAtEOF.consumeLastChar
+  def anyUntil (chars: Char*): TextParser = anyBut(chars:_*).failAtEOF.consumeLastChar
   
   /** Consumes any number of consecutive characters that are in one of the specified character ranges.
    *  Always succeeds unless a minimum number of required matches is specified.
    */
-  def anyIn (ranges: Traversable[Char]*) = {
+  def anyIn (ranges: Traversable[Char]*): TextParser = {
     val p: Char => Boolean = {
       if (ranges.isEmpty) c => false
       else optimizedRangeLookup(ranges:_*)
@@ -219,7 +215,7 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
   /** Consumes any number of consecutive characters which satisfy the specified predicate.
    *  Always succeeds unless a minimum number of required matches is specified.
    */
-  def anyWhile (p: Char => Boolean) = {
+  def anyWhile (p: Char => Boolean): TextParser = {
     
     def newParser (min: Int, max: Int, failAtEof: Boolean, consumeLastChar: Boolean, isStopChar: Char => Boolean) = Parser { in =>
       val source = in.source
@@ -259,7 +255,7 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
    *  Further constraints like minimum or maximum number of required matching characters can be specified
    *  through the API of the returned `TextParser` instance.
    */
-  def anyUntil (until: => Parser[Any]) = {
+  def anyUntil (until: => Parser[Any]): TextParser = {
     
     def newParser (min: Int, max: Int, failAtEof: Boolean, consumeLastChar: Boolean, isStopChar: Char => Boolean) = Parser { in =>
     

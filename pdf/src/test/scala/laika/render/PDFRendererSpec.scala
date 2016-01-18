@@ -33,6 +33,7 @@ import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigValueFactory
 import laika.io.Input
 import laika.tree.Documents.DocumentTree
+import java.io.InputStream
 
 /** Since there is no straightforward way to validate a rendered PDF document
  *  on the JVM, this Spec merely asserts that a file or OutputStream is non-empty
@@ -48,9 +49,9 @@ class PDFRendererSpec extends FlatSpec with Matchers {
   
   trait FileSetup {
     
-    val file = File.createTempFile("output", null)
+    val file: File = File.createTempFile("output", null)
     
-    def readFile = Input.fromFile(file).asBinaryInput.asStream
+    def readFile: InputStream = Input.fromFile(file).asBinaryInput.asStream
     
   }
   

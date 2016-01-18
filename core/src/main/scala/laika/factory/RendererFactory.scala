@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,11 +63,11 @@ trait RendererFactory[W] {
   
   /** The default template to use for this renderer if no template is explicitly specified.
    */
-  def defaultTemplate = TemplateRoot(List(TemplateContextReference("document.content")))
+  def defaultTemplate: TemplateRoot = TemplateRoot(List(TemplateContextReference("document.content")))
 
   /** The default styles to add as a fallback to the explicitly specified styles.
    */
-  def defaultStyles = StyleDeclarationSet.empty
+  def defaultStyles: StyleDeclarationSet = StyleDeclarationSet.empty
   
   
 }

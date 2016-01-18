@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,26 +54,26 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     
     var removed: Boolean = false
     
-    def nextLine (sep: TableElement, line: String, nextRow: Boolean) = { 
+    def nextLine (sep: TableElement, line: String, nextRow: Boolean): Unit = { 
       seps += sep
       last = new StringBuilder(line)
       lines += last
       if (nextRow) rowSpan += 1
     }
-    def currentLine (sep: TableElement, line: String) = {
+    def currentLine (sep: TableElement, line: String): Unit = {
       last ++= sep.toString
       last ++= line
     }
-    def merge (right: CellBuilder) = {
+    def merge (right: CellBuilder): Unit = {
       (lines, right.seps, right.lines).zipped.foreach {
         case (left, sep, right) => left ++= sep.toString ++= right
       }
       colSpan += 1
     }
     
-    def cellContent = lines map (_.toString) mkString "\n"
+    def cellContent: String = lines map (_.toString) mkString "\n"
     
-    def trimmedCellContent = {
+    def trimmedCellContent: (Int, List[String]) = {
       abstract class CellLine (val indent: Int) { def padTo (indent: Int): String }
       object BlankLine extends CellLine(Int.MaxValue) { def padTo (indent: Int) = "" }
       class TextLine (i: Int, text: String) extends CellLine(i) { def padTo (minIndent: Int) = " " * (indent - minIndent) + text }
@@ -89,12 +89,12 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
       }
     }
     
-    def parsedCellContent = {
+    def parsedCellContent: List[Block] = {
       val (minIndent, lines) = trimmedCellContent
       parseNestedBlocks(lines, nestLevel)
     }
     
-    def toCell (ct: CellType) = Cell(ct, parsedCellContent, colSpan, rowSpan)
+    def toCell (ct: CellType): Cell = Cell(ct, parsedCellContent, colSpan, rowSpan)
   }
   
   class CellBuilderRef (val cell: CellBuilder, val mergedLeft: Boolean = false)
@@ -102,9 +102,9 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   class RowBuilder {
     private val cells = new ListBuffer[CellBuilder]
     
-    def addCell (cell: CellBuilder) = cells += cell
+    def addCell (cell: CellBuilder): Unit = cells += cell
      
-    def toRow (ct: CellType) = Row(cells filterNot (_.removed) map (_.toCell(ct)) toList)
+    def toRow (ct: CellType): Row = Row(cells filterNot (_.removed) map (_.toCell(ct)) toList)
   }
   
   class ColumnBuilder (left: Option[ColumnBuilder], nestLevel: Int) {
@@ -113,11 +113,11 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     
     private val cells = new Stack[CellBuilderRef]
     
-    def currentCell = cells.top.cell
+    def currentCell: CellBuilder = cells.top.cell
     
-    def previousCell = cells(1).cell
+    def previousCell: CellBuilder = cells(1).cell
     
-    def nextCell () = {
+    def nextCell (): CellBuilder = {
       if (!cells.isEmpty && cells.top.mergedLeft && rowspanDif != 0)
           throw new MalformedTableException("Illegal merging of rows with different cellspans")
       val cell = new CellBuilder(nestLevel)
@@ -125,13 +125,13 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
       cell
     }
     
-    private def removeCell () = {
+    private def removeCell (): CellBuilder = {
       val cell = cells.pop.cell
       cell.removed = true
       cell
     }
     
-    def mergeLeft (previous: Boolean = false) = {
+    def mergeLeft (previous: Boolean = false): Unit = {
       if (rowspanDif != 0)
           throw new MalformedTableException("Illegal merging of cells with different rowspans")
       val leftCell = if (previous) left.get.previousCell else left.get.currentCell
@@ -139,11 +139,10 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
       cells push new CellBuilderRef(leftCell, true)
     }
     
-    def rowspanDif = {
+    def rowspanDif: Int =
       left.get.rowSpan - rowSpan
-    }
     
-    def addLine (sep: TableElement, line: String, nextRow: Boolean) = {
+    def addLine (sep: TableElement, line: String, nextRow: Boolean): Unit = {
       val ref = cells.top
       if (ref.mergedLeft) {
         if (nextRow && rowspanDif != 1)
@@ -176,13 +175,13 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     }
     init()
     
-    def nextRow = {
+    def nextRow: RowBuilder = {
       val row = new RowBuilder
       rows += row
       row
     }
     
-    def toRowList (ct: CellType) = rows map (_.toRow(ct)) toList
+    def toRowList (ct: CellType): List[Row] = rows map (_.toRow(ct)) toList
   }
   
       
@@ -223,9 +222,9 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
         rowSep(colWidth) | cell(separatorL, colWidth, separatorR)
       } reduceRight (_ ~ _)) ^^ flattenElements
       
-      val tableBoundary = (cols map { col => boundaryPart(col) } reduceRight (_ ~ _)) ^^^ TableBoundary
+      val tableBoundary: Parser[TableDecoration] = (cols map { col => boundaryPart(col) } reduceRight (_ ~ _)) ^^^ TableBoundary
       
-      def isSeparatorRow (row: List[TableElement]) = {
+      def isSeparatorRow (row: List[TableElement]): Boolean = {
         row.forall {
           case RowSeparator => true
           case Intersection => true
@@ -233,7 +232,7 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
         }
       }
       
-      def buildRowList (rows: List[List[TableElement]], ct: CellType) = {
+      def buildRowList (rows: List[List[TableElement]], ct: CellType): List[Row] = {
         
         val tableBuilder = new TableBuilder(cols map (_ + 1), nestLevel) // column width includes separator
             
@@ -250,7 +249,7 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
         tableBuilder.toRowList(ct)
       }
       
-      def validateLastRow (rows: List[List[TableElement]]) = {
+      def validateLastRow (rows: List[List[TableElement]]): Unit = {
         if (rows.isEmpty || !isSeparatorRow(rows.last)) throw new MalformedTableException("Table not terminated correctly")
       }
       
@@ -311,14 +310,14 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
         ((underline | not(boundary) ~> textColumn).asInstanceOf[Parser[Any]], boundary.asInstanceOf[Parser[Any]]) 
       }).unzip
       
-      val row = (rowColumns reduceRight (_ ~ _)) <~ ws ~ eol
-      val boundary = (boundaryColumns reduceRight (_ ~ _)) <~ ws ~ eol
-      val blank = not(eof) ~> blankLine
+      val row: Parser[Any] = (rowColumns reduceRight (_ ~ _)) <~ ws ~ eol
+      val boundary: Parser[Any] = (boundaryColumns reduceRight (_ ~ _)) <~ ws ~ eol
+      val blank: Parser[Any] = not(eof) ~> blankLine
       
-      val tablePart = (((blank | row)*) ~ boundary) ^^ { case rows ~ boundary => rows :+ boundary }
+      val tablePart: Parser[List[Any]] = (((blank | row)*) ~ boundary) ^^ { case rows ~ boundary => rows :+ boundary }
       
       
-      def buildRowList (rows: List[Any], ct: CellType) = {
+      def buildRowList (rows: List[Any], ct: CellType): List[Row] = {
         
         val tableBuilder = new TableBuilder(cols map { col => col._1 + col._2 }, nestLevel)
         

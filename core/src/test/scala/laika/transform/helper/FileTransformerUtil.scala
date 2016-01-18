@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,14 +30,14 @@ trait FileTransformerUtil {
 
   def classPathResource (path: String) = getClass.getResource(path).getFile
   
-  def readFile (name: String) = {
+  def readFile (name: String): String = {
     val source = scala.io.Source.fromFile(name)(Codec.UTF8)
     val lines = source.mkString
     source.close()
     lines
   }
   
-  def tidy (html: String) = {
+  def tidy (html: String): String = {
     val in = new StringReader(html)
     val out = new StringWriter
     val t = new Tidy

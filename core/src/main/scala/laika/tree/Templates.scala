@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package laika.tree
 
+import laika.tree.Documents.Document
 import laika.tree.Documents.DocumentContext
 import laika.tree.Documents.Path
 import laika.tree.Elements._
@@ -73,7 +74,9 @@ object Templates {
    *    including those inherited from parent trees
    */
   abstract class ContextReference[T <: Span] (ref: String) extends SpanResolver {
+    
     def result (value: Option[Any]): T
+    
     def resolve (context: DocumentContext): Span = context.resolveReference(ref) match {
       case Some(s: ElementTraversal[_]) => result(Some(s rewrite rewriteRules(context)))
       case other => result(other)
@@ -83,6 +86,7 @@ object Templates {
   /** A context reference specifically for use in template documents.
    */
   case class TemplateContextReference (ref: String, options: Options = NoOpt) extends ContextReference[TemplateSpan](ref) with TemplateSpan {
+    
     def result (value: Option[Any]): TemplateSpan = value match {
       case Some(s: TemplateSpan)      => s
       case Some(RootElement(content)) => EmbeddedRoot(content)
@@ -95,6 +99,7 @@ object Templates {
   /** A context reference specifically for use in markup documents.
    */
   case class MarkupContextReference (ref: String, options: Options = NoOpt) extends ContextReference[Span](ref) {
+    
     def result (value: Option[Any]): Span = value match {
       case Some(s: Span)    => s
       case Some(e: Element) => TemplateElement(e)
@@ -146,7 +151,7 @@ object Templates {
      *  element they produce based on the specified
      *  document context.
      */
-    def rewrite (context: DocumentContext) = {
+    def rewrite (context: DocumentContext): Document = {
       val newContent = content rewrite rewriteRules(context)
       val newRoot = newContent match {
         case TemplateRoot(List(TemplateElement(root: RootElement, _, _)), _) => root
@@ -165,18 +170,21 @@ object Templates {
    *  document context.
    */
   def rewriteRules (context: DocumentContext) = {
+    
     lazy val rule: RewriteRule = {
       case ph: BlockResolver => Some(rewriteChild(ph resolve context))
       case ph: SpanResolver  => Some(rewriteChild(ph resolve context))
       case TemplateRoot(spans, opt)         => Some(TemplateRoot(format(spans), opt))
       case TemplateSpanSequence(spans, opt) => Some(TemplateSpanSequence(format(spans), opt))
     }
-    def rewriteChild (e: Element) = e match {
+    
+    def rewriteChild (e: Element): Element = e match {
       case et: ElementTraversal[_] => et rewrite rule
       case other => other
     }
-    def format (spans: Seq[TemplateSpan]) = {
-      def indentFor(text: String) = text.lastIndexOf('\n') match {
+    
+    def format (spans: Seq[TemplateSpan]): Seq[TemplateSpan] = {
+      def indentFor(text: String): Int = text.lastIndexOf('\n') match {
         case -1    => 0
         case index => if (text.drop(index).trim.isEmpty) text.length - index - 1 else 0
       }

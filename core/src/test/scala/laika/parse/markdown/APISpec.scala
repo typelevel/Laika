@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package laika.parse.markdown
 
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
-
 import laika.api.Parse
 import laika.tree.helper.ModelBuilder
 
@@ -34,7 +33,7 @@ class APISpec extends FlatSpec
     import laika.util.Builders._
     import laika.directive.Directives.Default
     
-    val directives = List(
+    val directives: List[Blocks.Directive] = List(
       Blocks.create("oneArg")(attribute(Default) map p),
       Blocks.create("twoArgs")((attribute(Default) ~ attribute("name")) { (arg1,arg2) => p(arg1+arg2) })
     )
@@ -47,7 +46,7 @@ class APISpec extends FlatSpec
     import laika.util.Builders._
     import laika.directive.Directives.Default
     
-    val directives = List(
+    val directives: List[Spans.Directive] = List(
       Spans.create("oneArg")(attribute(Default) map txt),
       Spans.create("twoArgs")((attribute(Default) ~ attribute("name")) { (arg1,arg2) => txt(arg1+arg2) })
     )

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
    *  names ending in one of the specified suffixes will
    *  be consired. 
    */
-  val fileSuffixes = parsers.suffixes
+  val fileSuffixes: Set[String] = parsers.suffixes
   
   /** Returns a new Parse instance adding the specified parser factory.
    *  This factory is usually an object provided by the library
@@ -79,26 +79,26 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
    * 
    *  @param factory the parser factory to add to the previously specified parsers
    */
-  def or (factory: ParserFactory) = new Parse(parsers.withFactory(factory), rewrite) 
+  def or (factory: ParserFactory): Parse = new Parse(parsers.withFactory(factory), rewrite) 
 
   /** Returns a new Parse instance that produces raw document trees without applying
    *  the default rewrite rules. These rules resolve link and image references and 
    *  rearrange the tree into a hierarchy of sections based on the (flat) sequence
    *  of header instances found in the document.
    */
-  def withoutRewrite = new Parse(parsers, false)
+  def withoutRewrite: Parse = new Parse(parsers, false)
   
   @deprecated("Use withoutRewrite instead","0.5.0")
-  def asRawDocument = new Parse(parsers, false)
+  def asRawDocument: Parse = new Parse(parsers, false)
   
   /** Returns a document obtained from parsing the specified string.
    *  Any kind of input is valid, including an empty string. 
    */
-  def fromString (str: String) = fromInput(Input.fromString(str))
+  def fromString (str: String): Document = fromInput(Input.fromString(str))
   
   /** Returns a document obtained from parsing the input from the specified reader.
    */
-  def fromReader (reader: Reader) = fromInput(Input.fromReader(reader))
+  def fromReader (reader: Reader): Document = fromInput(Input.fromReader(reader))
 
   /** Returns a document obtained from parsing the file with the specified name.
    *  Any kind of character input is valid, including empty files.
@@ -106,7 +106,7 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
    *  @param name the name of the file to parse
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
-  def fromFile (name: String)(implicit codec: Codec) = fromInput(Input.fromFile(name)(codec))
+  def fromFile (name: String)(implicit codec: Codec): Document = fromInput(Input.fromFile(name)(codec))
   
   /** Returns a document obtained from parsing the specified file.
    *  Any kind of character input is valid, including empty files.
@@ -114,14 +114,14 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
    *  @param file the file to use as input
    *  @param codec the character encoding of the file, if not specified the platform default will be used.
    */
-  def fromFile (file: File)(implicit codec: Codec) = fromInput(Input.fromFile(file)(codec))
+  def fromFile (file: File)(implicit codec: Codec): Document = fromInput(Input.fromFile(file)(codec))
   
   /** Returns a document obtained from parsing the input from the specified stream.
    * 
    *  @param stream the stream to use as input for the parser
    *  @param codec the character encoding of the stream, if not specified the platform default will be used.
    */
-  def fromStream (stream: InputStream)(implicit codec: Codec) = fromInput(Input.fromStream(stream)(codec))
+  def fromStream (stream: InputStream)(implicit codec: Codec): Document = fromInput(Input.fromStream(stream)(codec))
   
   /** Returns a document obtained from parsing the specified input.
    *  
@@ -132,7 +132,7 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
    *  @param input the input for the parser
    *  @param codec the character encoding of the stream, if not specified the platform default will be used.
    */
-  def fromInput (input: Input) = {
+  def fromInput (input: Input): Document = {
     
     val doc = IO(input)(parsers.forInput(input))
 
@@ -145,7 +145,7 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
    *  @param name the name of the directory to traverse
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def fromDirectory (name: String)(implicit codec: Codec) = fromTree(Directory(name, hiddenFileFilter)(codec))
+  def fromDirectory (name: String)(implicit codec: Codec): DocumentTree = fromTree(Directory(name, hiddenFileFilter)(codec))
   
   /** Returns a document tree obtained by parsing files from the
    *  specified directory and its subdirectories.
@@ -154,7 +154,7 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
    *  @param exclude the files to exclude from processing
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def fromDirectory (name: String, exclude: FileFilter)(implicit codec: Codec) = fromTree(Directory(name, exclude)(codec))
+  def fromDirectory (name: String, exclude: FileFilter)(implicit codec: Codec): DocumentTree = fromTree(Directory(name, exclude)(codec))
 
   /** Returns a document tree obtained by parsing files from the
    *  specified directory and its subdirectories.
@@ -162,7 +162,7 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
    *  @param dir the root directory to traverse
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def fromDirectory (dir: File)(implicit codec: Codec) = fromTree(Directory(dir, hiddenFileFilter)(codec))
+  def fromDirectory (dir: File)(implicit codec: Codec): DocumentTree = fromTree(Directory(dir, hiddenFileFilter)(codec))
 
   /** Returns a document tree obtained by parsing files from the
    *  specified directory and its subdirectories.
@@ -171,7 +171,7 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
    *  @param exclude the files to exclude from processing
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def fromDirectory (dir: File, exclude: FileFilter)(implicit codec: Codec) = fromTree(Directory(dir, exclude)(codec))
+  def fromDirectory (dir: File, exclude: FileFilter)(implicit codec: Codec): DocumentTree = fromTree(Directory(dir, exclude)(codec))
   
   /** Returns a document tree obtained by parsing files from the
    *  specified directories and its subdirectories, merging them into
@@ -180,7 +180,7 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
    *  @param roots the root directories to traverse
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def fromDirectories (roots: Seq[File])(implicit codec: Codec) = fromTree(Directories(roots, hiddenFileFilter)(codec))
+  def fromDirectories (roots: Seq[File])(implicit codec: Codec): DocumentTree = fromTree(Directories(roots, hiddenFileFilter)(codec))
   
   /** Returns a document tree obtained by parsing files from the
    *  specified directories and its subdirectories, merging them into
@@ -190,7 +190,8 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
    *  @param exclude the files to exclude from processing
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def fromDirectories (roots: Seq[File], exclude: FileFilter)(implicit codec: Codec) = fromTree(Directories(roots, hiddenFileFilter)(codec))
+  def fromDirectories (roots: Seq[File], exclude: FileFilter)(implicit codec: Codec): DocumentTree = 
+    fromTree(Directories(roots, hiddenFileFilter)(codec))
   
   /** Returns a document tree obtained by parsing files from the
    *  current working directory.
@@ -198,8 +199,8 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
    *  @param exclude the files to exclude from processing
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def fromDefaultDirectory (exclude: FileFilter = hiddenFileFilter)(implicit codec: Codec) = fromTree(DefaultDirectory(exclude)(codec))
-  
+  def fromDefaultDirectory (exclude: FileFilter = hiddenFileFilter)(implicit codec: Codec): DocumentTree = 
+    fromTree(DefaultDirectory(exclude)(codec))
   
   /** Returns a document tree obtained by parsing files from the
    *  specified input configuration builder.
@@ -299,7 +300,7 @@ object Parse {
    * 
    *  @param factory the parser factory to use for all subsequent operations
    */
-  def as (factory: ParserFactory) = new Parse(new Parsers(factory), true) 
+  def as (factory: ParserFactory): Parse = new Parse(new Parsers(factory), true) 
 
   
   private[laika] class Parser (factory: ParserFactory) {
@@ -311,9 +312,9 @@ object Parse {
     
     def this (factory: ParserFactory) = this(Seq(new Parser(factory)))
     
-    def withFactory (factory: ParserFactory) = new Parsers(parsers :+ new Parser(factory))
+    def withFactory (factory: ParserFactory): Parsers = new Parsers(parsers :+ new Parser(factory))
         
-    private def suffix (name: String) = name.lastIndexOf(".") match {
+    private def suffix (name: String): String = name.lastIndexOf(".") match {
       case -1    => ""
       case index => name.drop(index+1)
     }  
@@ -321,7 +322,7 @@ object Parse {
     lazy val map: Map[String,Parser] =
       parsers flatMap (p => p.suffixes map ((_, p))) toMap
     
-    lazy val suffixes = parsers flatMap (_.suffixes) toSet
+    lazy val suffixes: Set[String] = parsers flatMap (_.suffixes) toSet
     
     def forInput (input: Input): Input => Document = {
       if (parsers.size == 1) parsers.head.get

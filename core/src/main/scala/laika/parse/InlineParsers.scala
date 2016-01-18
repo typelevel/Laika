@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,9 +74,12 @@ trait InlineParsers extends MarkupParsers {
   /** ResultBuilder that produces a list of spans.
    */
   class SpanBuilder extends ResultBuilder[Span, List[Span]] {
-    val buffer = new ListBuffer[Span]
-    def fromString (str: String) = Text(str)
-    def += (item: Span) = buffer += item
+    
+    private val buffer = new ListBuffer[Span]
+    
+    def fromString (str: String): Span = Text(str)
+    
+    def += (item: Span): Unit = buffer += item
     
     def mergeAdjacentTextSpans (spans: List[Span]): List[Span] = {
       (List[Span]() /: spans) {  
@@ -84,16 +87,18 @@ trait InlineParsers extends MarkupParsers {
         case (xs, x) => x :: xs
       }.reverse
     }
-    def result = mergeAdjacentTextSpans(buffer.toList)
+    def result: List[Span] = mergeAdjacentTextSpans(buffer.toList)
   }
 
   /** ResultBuilder that produces a String.
    */
   class TextBuilder extends ResultBuilder[String, String] {
-    val builder = new scala.collection.mutable.StringBuilder
-    def fromString (str: String) = str
-    def += (item: String) = builder ++= item
-    def result = builder.toString
+    
+    private val builder = new scala.collection.mutable.StringBuilder
+    
+    def fromString (str: String): String = str
+    def += (item: String): Unit = builder ++= item
+    def result: String = builder.toString
   }
 
   /** Generic base parser that parses inline elements based on the specified
@@ -109,7 +114,7 @@ trait InlineParsers extends MarkupParsers {
    */ 
   def inline [Elem,To] (text: => TextParser, 
                         nested: => Map[Char, Parser[Elem]], 
-                        resultBuilder: => ResultBuilder[Elem,To]) = Parser { in =>
+                        resultBuilder: => ResultBuilder[Elem,To]): Parser[To] = Parser { in =>
 
     lazy val builder = resultBuilder // evaluate only once
     lazy val nestedMap = nested
@@ -152,7 +157,7 @@ trait InlineParsers extends MarkupParsers {
    *  @param nested a mapping from the start character of a span to the corresponding parser for nested span elements
    *  @return the resulting parser
    */
-  def spans (parser: => TextParser, spanParsers: => Map[Char, Parser[Span]]) 
+  def spans (parser: => TextParser, spanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]] 
       = inline(parser, spanParsers, new SpanBuilder)
   
   /** Parses text based on the specified helper parsers.
@@ -175,7 +180,7 @@ trait InlineParsers extends MarkupParsers {
    *  @param p the parser to add support for escape sequences to
    *  @return a parser for a text span that supports escape sequences
    */  
-  def escapedText (p: TextParser) = text(p, Map('\\' -> escapedChar))
+  def escapedText (p: TextParser): Parser[String] = text(p, Map('\\' -> escapedChar))
 
   /** Parses a span of text until one of the specified characters is seen 
    *  (unless it is escaped),
@@ -185,7 +190,7 @@ trait InlineParsers extends MarkupParsers {
    *  @param char the character that signals the end of the text span
    *  @return a parser for a text span that supports escape sequences
    */  
-  def escapedUntil (char: Char*) = escapedText(anyUntil(char:_*) min 1)
+  def escapedUntil (char: Char*): Parser[String] = escapedText(anyUntil(char:_*) min 1)
   
   /** Fully parses the input string and produces a list of spans.
    *  
@@ -198,7 +203,7 @@ trait InlineParsers extends MarkupParsers {
    *  @param spanParsers a mapping from the start character of a span to the corresponding parser
    *  @return the result of the parser in form of a list of spans
    */
-  def parseInline (source: String, spanParsers: Map[Char, Parser[Span]]) = 
+  def parseInline (source: String, spanParsers: Map[Char, Parser[Span]]): List[Span] = 
     parseMarkup(inline(any, spanParsers, new SpanBuilder), source)
     
   /** Fully parses the input string and produces a list of spans, using the

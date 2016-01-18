@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import laika.tree.Templates._
 trait ModelBuilder {
 
   
-  def spans (elements: Span*) = elements.toList
+  def spans (elements: Span*): List[Span] = elements.toList
   
   def em (elements: Span*) = Emphasized(elements.toList)
 
@@ -36,19 +36,19 @@ trait ModelBuilder {
   
   def lit (content: String) = Literal(content)
    
-  def link (content: Span*) = new LinkBuilder(content.toList)
+  def link (content: Span*): LinkBuilder = new LinkBuilder(content.toList)
   
   class LinkBuilder private[ModelBuilder] (content: List[Span], url0: String = "", title0: Option[String] = None) {
     
-    def url (value: String) = new LinkBuilder(content, value, title0)
+    def url (value: String): LinkBuilder = new LinkBuilder(content, value, title0)
     
-    def title (value: String) = new LinkBuilder(content, url0, Some(value))
+    def title (value: String): LinkBuilder = new LinkBuilder(content, url0, Some(value))
     
     def toLink = ExternalLink(content, url0, title0)
     
   }
   
-  def linkRef (content: Span*) = new LinkRefBuilder(content.toList)
+  def linkRef (content: Span*): LinkRefBuilder = new LinkRefBuilder(content.toList)
   
   class LinkRefBuilder private[ModelBuilder] (content: List[Span], id: String = "", source: String = "") {
     
@@ -68,7 +68,7 @@ trait ModelBuilder {
   
   def fnRef (label: FootnoteLabel) = FootnoteReference(label, toSource(label))
   
-  def toSource (label: FootnoteLabel) = label match {
+  def toSource (label: FootnoteLabel): String = label match {
     case Autonumber => "[#]_"
     case Autosymbol => "[*]_"
     case AutonumberLabel(label) => s"[#$label]_"
@@ -173,15 +173,15 @@ trait ModelBuilder {
   
   
   
-  implicit def builderToEnumList (builder: EnumListBuilder) = builder.toList
+  implicit def builderToEnumList (builder: EnumListBuilder): EnumList = builder.toList
 
-  implicit def builderToBulletList (builder: BulletListBuilder) = builder.toList
+  implicit def builderToBulletList (builder: BulletListBuilder): BulletList = builder.toList
 
-  implicit def builderToDefList (builder: DefinitionListBuilder) = builder.toList
+  implicit def builderToDefList (builder: DefinitionListBuilder): DefinitionList = builder.toList
 
-  implicit def builderToLink (builder: LinkBuilder) = builder.toLink
+  implicit def builderToLink (builder: LinkBuilder): Link = builder.toLink
 
-  implicit def builderToLinkRef (builder: LinkRefBuilder) = builder.toLink
+  implicit def builderToLinkRef (builder: LinkRefBuilder): LinkReference = builder.toLink
   
   
 }

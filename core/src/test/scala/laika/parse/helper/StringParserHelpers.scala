@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,11 @@ trait StringParserHelpers { self: Parsers =>
   override type Elem = Char
 
   class Source (value: String) {
-    def using [T] (parser: Parser[T]) = parser(new CharSequenceReader(value)) 
+    def using [T] (parser: Parser[T]): ParseResult[T] = parser(new CharSequenceReader(value)) 
   }
   
   object Parsing {
-    def apply (source: String) = new Source(source)
+    def apply (source: String): Source = new Source(source)
   }
   
 }

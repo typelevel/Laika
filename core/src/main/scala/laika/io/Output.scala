@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ trait Output {
   
   /** The local name of this output.
    */
-  lazy val name = path.name
+  lazy val name: String = path.name
   
 }
 
@@ -110,15 +110,15 @@ object Output {
     
     def asWriter: Writer = new StringBuilderWriter(builder)
   
-    def asFunction = builder.append(_:String)
+    def asFunction: String => Unit = builder.append(_:String)
     
   }
   
   private class WriterOutput (val asWriter: Writer, val path: Path) extends Output {
    
-    def asFunction = asWriter.write(_:String)
+    def asFunction: String => Unit = asWriter.write(_:String)
     
-    override def flush = asWriter flush
+    override def flush (): Unit = asWriter flush
   }
   
   private class StreamOutput (stream: OutputStream, val path: Path, codec: Codec) extends Output with Binary {
@@ -128,11 +128,11 @@ object Output {
       override def flush = stream flush
     }
     
-    lazy val asWriter = new BufferedWriter(new OutputStreamWriter(stream, codec.encoder))
+    lazy val asWriter: Writer = new BufferedWriter(new OutputStreamWriter(stream, codec.encoder))
     
-    val asFunction = asWriter.write(_:String)
+    val asFunction: String => Unit = asWriter.write(_:String)
     
-    override def flush = asWriter flush
+    override def flush (): Unit = asWriter flush
     
   }
   
@@ -144,7 +144,7 @@ object Output {
       def close = stream close
     }
     
-    def close = asWriter close
+    def close (): Unit = asWriter close
     
   }
   
@@ -152,11 +152,11 @@ object Output {
     
     lazy val delegate = new AutocloseStreamOutput(new BufferedOutputStream(new FileOutputStream(file)), path, codec)
     
-    def asWriter = delegate.asWriter
-    def asFunction = delegate.asFunction
-    override def flush () = delegate.flush()
-    def close () = delegate.close()
-    def asBinaryOutput = delegate.asBinaryOutput
+    def asWriter: Writer = delegate.asWriter
+    def asFunction: String => Unit = delegate.asFunction
+    override def flush (): Unit = delegate.flush()
+    def close (): Unit = delegate.close()
+    def asBinaryOutput: BinaryOutput = delegate.asBinaryOutput
   }
   
   /** Creates a new Output instance for the file with the specified name.
@@ -196,40 +196,40 @@ object Output {
   
   private class StringBuilderWriter (builder: StringBuilder) extends Writer {
 
-    def write(c: Char) = builder += c
+    def write(c: Char): StringBuilder = builder += c
 
-    def write (buf: Array[Char], offset: Int, len: Int) {
-        if ((offset < 0) || (offset > buf.length) || (len < 0) ||
-            ((offset + len) > buf.length) || ((offset + len) < 0)) {
-            throw new IndexOutOfBoundsException();
-        } 
-        if (len > 0) builder.appendAll(buf, offset, len);
+    def write (buf: Array[Char], offset: Int, len: Int): Unit = {
+      if ((offset < 0) || (offset > buf.length) || (len < 0) ||
+          ((offset + len) > buf.length) || ((offset + len) < 0)) {
+          throw new IndexOutOfBoundsException();
+      } 
+      if (len > 0) builder.appendAll(buf, offset, len);
     }
 
-    override def write(str: String) = builder ++= str
+    override def write(str: String): Unit = builder ++= str
 
-    override def write(str: String, offset: Int, len: Int) = {
+    override def write(str: String, offset: Int, len: Int): Unit = {
       builder ++= str.substring(offset, offset + len)
     }
     
-    override def append(seq: CharSequence) = {
+    override def append(seq: CharSequence): StringBuilderWriter = {
       write(if (seq == null) "null" else seq.toString)
       this
     }
 
-    override def append(seq: CharSequence, start: Int, end: Int) = {
+    override def append(seq: CharSequence, start: Int, end: Int): StringBuilderWriter = {
       val res = if (seq == null) "null" else seq
       write(res.subSequence(start, end).toString)
       this
     }
 
-    override def append(c: Char) = { write(c); this }
+    override def append(c: Char): StringBuilderWriter = { write(c); this }
 
     override def toString = builder.toString
 
-    def flush = ()
+    def flush (): Unit = ()
      
-    def close = ()
+    def close (): Unit = ()
     
   }
   

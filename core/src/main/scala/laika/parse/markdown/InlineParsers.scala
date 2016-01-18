@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   /** Creates a new mapping from the start character of an inline span
     * to the corresponding parser. May be overridden by subtraits.
     */
-  protected def prepareSpanParsers = Map(
+  protected def prepareSpanParsers: Map[Char, Parser[Span]] = Map(
     '*' -> (strong('*') | em('*')),    
     '_' -> (strong('_') | em('_')),
     '`' -> (literalEnclosedByDoubleChar | literalEnclosedBySingleChar), 
@@ -51,19 +51,19 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
    * 
    *  Note: escaping > is not mandated by the official syntax description, but by the official test suite.
    */
-  override lazy val escapedChar = anyOf('\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!', '>') take 1
+  override lazy val escapedChar: TextParser = anyOf('\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!', '>') take 1
   
   /** Parses an explicit hard line break.
    */
-  def lineBreak = (anyOf('\r') take 1) ^^^ LineBreak()
+  def lineBreak: Parser[LineBreak] = (anyOf('\r') take 1) ^^^ LineBreak()
   
   /** Parses a span of strong text enclosed by two consecutive occurrences of the specified character. 
    */
-  def strong (char: Char) = enclosedByDoubleChar(char) ^^ { Strong(_) }
+  def strong (char: Char): Parser[Strong] = enclosedByDoubleChar(char) ^^ { Strong(_) }
   
   /** Parses a span of emphasized text enclosed by one occurrence of the specified character.
    */
-  def em (char: Char) = enclosedBySingleChar(char) ^^ { Emphasized(_) }
+  def em (char: Char): Parser[Emphasized] = enclosedBySingleChar(char) ^^ { Emphasized(_) }
 
   
   /** Creates a parser for an inline span based on the specified parsers that
@@ -78,7 +78,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   /** Parses a span enclosed by a single occurrence of the specified character.
    *  Recursively parses nested spans, too. 
    */
-  def enclosedBySingleChar (char: Char) = {
+  def enclosedBySingleChar (char: Char): Parser[List[Span]] = {
     val start = not(elem(' ') | elem(char))
     val end = char ~ not(lookBehind(2, ' '))
     span(start, end) 
@@ -87,7 +87,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   /** Parses a span enclosed by two consecutive occurrences of the specified character.
    *  Recursively parses nested spans, too. 
    */
-  def enclosedByDoubleChar (char: Char) = {
+  def enclosedByDoubleChar (char: Char): Parser[List[Span]] = {
     val start = char ~ not(' ')
     val end = char ~ char ~ not(lookBehind(3, ' '))
     span(start, end)
@@ -96,7 +96,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   /** Parses a literal span enclosed by a single backtick.
    *  Does neither parse nested spans nor Markdown escapes. 
    */
-  def literalEnclosedBySingleChar = { 
+  def literalEnclosedBySingleChar: Parser[Literal] = { 
     val start = not('`')
     val end = '`'
     start ~> anyUntil(end) ^^ { s => Literal(s.trim) }
@@ -105,17 +105,17 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   /** Parses a literal span enclosed by double backticks.
    *  Does neither parse nested spans nor Markdown escapes. 
    */
-  def literalEnclosedByDoubleChar = {
+  def literalEnclosedByDoubleChar: Parser[Literal] = {
     val start = '`'
     val end = "``"
     start ~> anyUntil(end) ^^ { s => Literal(s.trim) }
   }
   
   
-  private val escapedChars = Map('\\' -> escapedChar)
+  private val escapedChars: Map[Char, TextParser] = Map('\\' -> escapedChar)
   
   
-  private def normalizeId (id: String) = id.toLowerCase.replaceAll("[\n ]+", " ")
+  private def normalizeId (id: String): String = id.toLowerCase.replaceAll("[\n ]+", " ")
   
   /** Parses a link, including nested spans in the link text.
    *  Recognizes both, an inline link `[text](url)` and a link reference `[text][id]`.
@@ -182,7 +182,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   
   /** Parses a simple inline link in the form of &lt;http://someURL/&gt;
    */
-  def simpleLink = {
+  def simpleLink: Parser[ExternalLink] = {
     
     def isAcceptedScheme (s: String) = s == "http" || s == "https" || s == "ftp" || s == "mailto"
     def isURI (s: String) = try { val uri = new java.net.URI(s); uri.isAbsolute && isAcceptedScheme(uri.getScheme) } catch { case _:Throwable => false }
@@ -199,7 +199,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   /** Parses a link definition in the form `[id]: <url> "title"`.
    *  The title is optional as well as the quotes around it and the angle brackets around the url.
    */
-  def linkTarget = {
+  def linkTarget: Parser[ExternalLinkDefinition] = {
     
     val id = '[' ~> escapedUntil(']') <~ ':' <~ ws
     val url = (('<' ~> escapedUntil('>')) | text(anyBut(' ', '\n'), escapedChars)) ^^ { _.mkString }

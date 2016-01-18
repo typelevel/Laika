@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ trait ParseResultHelpers { self: Parsers =>
 
   class ParserNoSuccessMatcher[T <: NoSuccess] (m: Manifest[T]) extends Matcher[ParseResult[_]] {
 
-    def apply (left: ParseResult[_]) = {
+    def apply (left: ParseResult[_]): MatchResult = {
 
       val failureMessageSuffix = left match {
         case Success(result,_)   => s"parser produced result $result instead of failing with result type ${m.runtimeClass.getSimpleName}"
@@ -42,11 +42,11 @@ trait ParseResultHelpers { self: Parsers =>
     }
   }
   
-  def cause [T <: NoSuccess] (implicit m: Manifest[T]) = new ParserNoSuccessMatcher[T](m)
+  def cause [T <: NoSuccess] (implicit m: Manifest[T]): ParserNoSuccessMatcher[T] = new ParserNoSuccessMatcher[T](m)
   
   class ParserSuccessMatcher[T] (expected: T) extends Matcher[ParseResult[T]] {
 
-    def apply (left: ParseResult[T]) = {
+    def apply (left: ParseResult[T]): MatchResult = {
 
       val failureMessageSuffix = left match {
         case Success(unexpected,_) => s"parser result '$unexpected' was not equal to '$expected'"
@@ -65,7 +65,7 @@ trait ParseResultHelpers { self: Parsers =>
     }
   }
   
-  def produce [T] (result: T) = new ParserSuccessMatcher(result)
+  def produce [T] (result: T): ParserSuccessMatcher[T] = new ParserSuccessMatcher(result)
   
   
 }

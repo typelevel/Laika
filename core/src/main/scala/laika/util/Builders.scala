@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,9 +36,9 @@ object Builders {
    */
   class Result[+A] (a: => A) {
     
-    def get = a
+    def get: A = a
     
-    def map [B](f: A => B) = new Result(f(get))
+    def map [B](f: A => B): Result[B] = new Result(f(get))
     
   }
     

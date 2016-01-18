@@ -9,6 +9,7 @@ import laika.template.TemplateParsers
 import laika.directive.Directives.Blocks
 import laika.directive.Directives.Blocks.Directive
 import laika.directive.Directives.Default
+import laika.directive.Directives.Spans
 import laika.tree.Templates._
 import laika.tree.Elements._
 import laika.tree.Templates.MarkupContextReference
@@ -113,14 +114,14 @@ class BlockDirectiveAPISpec extends FlatSpec
     def getBlockDirective (name: String): Option[Blocks.Directive] =
       if (directive.name == name) Some(directive) else None
     
-    def getSpanDirective (name: String) = None
+    def getSpanDirective (name: String): Option[Spans.Directive] = None
     
-    val defaultParser = rootElement
+    val defaultParser: Parser[RootElement] = rootElement
     
-    def invalid (input: String, error: String) = 
+    def invalid (input: String, error: String): InvalidBlock = 
         InvalidBlock(SystemMessage(laika.tree.Elements.Error, error), LiteralBlock(input))
         
-    def nonRecursiveBlock = success(Paragraph(Nil)) // not used in these tests
+    def nonRecursiveBlock: Parser[Block] = success(Paragraph(Nil)) // not used in these tests
   }
   
 

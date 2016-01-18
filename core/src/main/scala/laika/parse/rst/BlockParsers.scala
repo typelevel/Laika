@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,10 +45,10 @@ trait BlockParsers extends laika.parse.BlockParsers
                       with ExplicitBlockParsers { self: InlineParsers =>
 
   
-  override def ws = anyOf(' ') // other whitespace has been replaced with spaces by preprocessor
+  override def ws: TextParser = anyOf(' ') // other whitespace has been replaced with spaces by preprocessor
                         
   
-  override def parseDocument (reader: Reader[Char], path: Path) = {
+  override def parseDocument (reader: Reader[Char], path: Path): Document = {
     def extractDocInfo (config: Config, root: RootElement) = {
       val docStart = root.content dropWhile { case c: Comment => true; case h: DecoratedHeader => true; case _ => false } headOption 
       val docInfo = docStart collect { case FieldList(fields,_) => fields map (field => (TreeUtil.extractText(field.name), 
@@ -71,14 +71,14 @@ trait BlockParsers extends laika.parse.BlockParsers
   /** Parses punctuation characters as supported by transitions (rules) and 
    *  overlines and underlines for header sections.
    */
-  val punctuationChar = 
+  val punctuationChar: TextParser = 
     anyOf('!','"','#','$','%','&','\'','(',')','[',']','{','}','*','+',',','-','.',':',';','/','<','>','=','?','@','\\','^','_','`','|','~')
 
   /** Parses a transition (rule).
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#transitions]].
    */  
-  val transition = (punctuationChar min 4) ~ ws ~ eol ~ guard(blankLine) ^^^ Rule()  
+  val transition: Parser[Rule] = (punctuationChar min 4) ~ ws ~ eol ~ guard(blankLine) ^^^ Rule()  
     
   /** Parses a single paragraph. Everything between two blank lines that is not
    *  recognized as a special reStructuredText block type will be parsed as a regular paragraph.
@@ -242,7 +242,7 @@ trait BlockParsers extends laika.parse.BlockParsers
   
   def nonRecursiveBlock: Parser[Block] = comment | paragraph
   
-  protected def prepareBlockParsers (nested: Boolean) = 
+  protected def prepareBlockParsers (nested: Boolean): List[Parser[Block]] = 
     bulletList :: 
     enumList :: 
     fieldList ::

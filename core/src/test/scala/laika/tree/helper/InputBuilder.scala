@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,9 +71,9 @@ trait InputBuilder {
     
     def build (docTypeMatcher: Path => DocumentType, codec: Codec): InputProvider = {
     
-      def input (inputName: String, contentId: String, path: Path) = Input.fromString(contents(contentId), path / inputName)
+      def input (inputName: String, contentId: String, path: Path): Input = Input.fromString(contents(contentId), path / inputName)
       
-      def docType (inputName: String) = docTypeMatcher(path / inputName)
+      def docType (inputName: String): DocumentType = docTypeMatcher(path / inputName)
   
       val documents = files map (f => (docType(f._1), input(f._1, f._2, path))) groupBy (_._1) mapValues (_.map(_._2)) withDefaultValue Nil
       

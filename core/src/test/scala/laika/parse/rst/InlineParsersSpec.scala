@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,11 +44,11 @@ class InlineParsersSpec extends FlatSpec
 
   def pLinkRef (id: String): LinkReference = pLinkRef(id,id)
   
-  def anonPLinkRef (text: String) = linkRef(txt(text)).source(s"`$text`__")
+  def anonPLinkRef (text: String): LinkReference = linkRef(txt(text)).source(s"`$text`__")
   
   def linkRef (id: String): LinkReference = linkRef(txt(id)).id(id).source(id+"_")
   
-  def anonLinkRef (text: String) = linkRef(txt(text)).source(text+"__")
+  def anonLinkRef (text: String): LinkReference = linkRef(txt(text)).source(text+"__")
   
   
   
@@ -288,7 +288,6 @@ class InlineParsersSpec extends FlatSpec
   "A backslash " should "cause a following character not to be treated as markup" in {
     Parsing ("""some \*text* here""") should produce (spans(txt("some *text* here")))
   }
-  
   
   
 }

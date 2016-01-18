@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,16 +54,16 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
   /** Specifies the minimum required level for a system message
    *  to get included into the output by this renderer.
    */
-  def withMessageLevel (level: MessageLevel) = new XSLFO(styles, Some(level), renderFormatted)
+  def withMessageLevel (level: MessageLevel): XSLFO = new XSLFO(styles, Some(level), renderFormatted)
   
   /** Renders XSL-FO without any formatting (line breaks or indentation) around tags. 
    *  Useful when storing the output in a database for example. 
    */
-  def unformatted = new XSLFO(styles, messageLevel, false)
+  def unformatted: XSLFO = new XSLFO(styles, messageLevel, false)
   
   /** Adds the specified styles to the default styles this renderer applies.
    */
-  def withStyles(additionalStyles: StyleDeclarationSet) = new XSLFO(Some(defaultStyles ++ additionalStyles), messageLevel, renderFormatted)
+  def withStyles(additionalStyles: StyleDeclarationSet): XSLFO = new XSLFO(Some(defaultStyles ++ additionalStyles), messageLevel, renderFormatted)
   
   /** The actual setup method for providing both the writer API for customized
    *  renderers as well as the actual default render function itself. The default render
@@ -78,7 +78,7 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
    *  @return a tuple consisting of the writer API for customizing
    *  the renderer as well as the actual default render function itself
    */
-  def newRenderer (output: Output, root: Element, render: Element => Unit, styles: StyleDeclarationSet) = {
+  def newRenderer (output: Output, root: Element, render: Element => Unit, styles: StyleDeclarationSet): (FOWriter, Element => Unit) = {
     val out = new FOWriter(output asFunction, render, output.path, styles, formatted = renderFormatted)
     val (footnotes, citations) = collectTargets(root)
     (out, renderElement(out,footnotes,citations,output.path))
@@ -94,13 +94,13 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
   private def renderElement (out: FOWriter, footnotes: Map[String,Footnote], 
       citations: Map[String,Citation], path: Path)(elem: Element): Unit = {
     
-    def include (msg: SystemMessage) = {
+    def include (msg: SystemMessage): Boolean = {
       messageLevel flatMap {lev => if (lev <= msg.level) Some(lev) else None} isDefined
     }
     
-    def noneIfDefault [T](actual: T, default: T) = if (actual == default) None else Some(actual.toString)
+    def noneIfDefault [T](actual: T, default: T): Option[String] = if (actual == default) None else Some(actual.toString)
     
-    def renderTable (table: Table) = {
+    def renderTable (table: Table): Unit = {
       if (table.caption.content.nonEmpty) {
         // FOP does not support fo:table-caption
         out << TitledBlock(table.caption.content, List(table.copy(caption = Caption())))
@@ -112,22 +112,22 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
     }
     
     object WithFallback {
-      def unapply (value: Element) = value match {
+      def unapply (value: Element): Option[Element] = value match {
         case f: Fallback => Some(f.fallback)
         case _ => None
       }
     }
     
-    def renderBlockContainer [T <: BlockContainer[T]](con: BlockContainer[T]) = {
+    def renderBlockContainer [T <: BlockContainer[T]](con: BlockContainer[T]): Unit = {
   
-      def quotedBlockContent (content: Seq[Block], attr: Seq[Span]) = 
+      def quotedBlockContent (content: Seq[Block], attr: Seq[Span]): Seq[Block] = 
         if (attr.isEmpty) content
         else content :+ Paragraph(attr, Styles("attribution"))
         
       def figureContent (img: Span, caption: Seq[Span], legend: Seq[Block]): List[Block] =
         List(Paragraph(List(img)), Paragraph(caption, Styles("caption")), BlockSequence(legend, Styles("legend")))
       
-      def enumLabel (format: EnumFormat, num: Int) = {
+      def enumLabel (format: EnumFormat, num: Int): String = {
         val pos = format.enumType match {
           case Arabic => num.toString
           case LowerAlpha => ('a' + num - 1).toChar.toString
@@ -138,7 +138,7 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
         format.prefix + pos + format.suffix
       } 
       
-      def bulletLabel (format: BulletFormat) = format match {
+      def bulletLabel (format: BulletFormat): String = format match {
         case StringBullet(_) => "&#x2022;"
         case other           => other.toString
       }
@@ -171,7 +171,7 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
       }
     }
     
-    def renderSpanContainer [T <: SpanContainer[T]](con: SpanContainer[T]) = {
+    def renderSpanContainer [T <: SpanContainer[T]](con: SpanContainer[T]): Unit = {
       def codeStyles (language: String) = if (language.isEmpty) NoOpt else Styles(language)
       def crossLinkRef (path: Path, ref: String) = out.buildId(path, ref)
       
@@ -204,7 +204,7 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
       }
     }
     
-    def renderListContainer [T <: ListContainer[T]](con: ListContainer[T]) = con match {
+    def renderListContainer [T <: ListContainer[T]](con: ListContainer[T]): Unit = con match {
       case e @ EnumList(content,_,_,_)   => out.listBlock(e, content)
       case e @ BulletList(content,_,_)   => out.listBlock(e, content)
       case e @ DefinitionList(content,_) => out.listBlock(e, content)
@@ -214,7 +214,7 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
       case unknown                     => out.listBlock(unknown, unknown.content)
     }
     
-    def renderTextContainer (con: TextContainer) = con match {
+    def renderTextContainer (con: TextContainer): Unit = con match {
       case e @ Text(content,_)           => out.text(e, content)
       case e @ TemplateString(content,_) => out.rawText(e, content)
       case e @ RawContent(formats, content, _) => if (formats.contains("fo")) out.rawText(e, content)
@@ -229,7 +229,7 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
       case unknown                     => out <<& unknown.content
     }
     
-    def renderSimpleBlock (block: Block) = block match {
+    def renderSimpleBlock (block: Block): Unit = block match {
       case e @ ListItemLabel(content,_) => out.listItemLabel(e, content)
       case e: Rule                      => out <<@ ("fo:leader",e,"leader-pattern"->"rule") << "</fo:leader>" 
       case e: InternalLinkTarget        => out.inline(e, Nil)
@@ -242,7 +242,7 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
       case unknown                      => ()
     }
     
-    def renderSimpleSpan (span: Span) = span match {
+    def renderSimpleSpan (span: Span): Unit = span match {
       case e @ CitationLink(ref,label,_)  => citations.get(ref).foreach(c => out.footnote(e,label,c.content,c.options))
       case e @ FootnoteLink(ref,label,_)  => footnotes.get(ref).foreach(f => out.footnote(e,label,f.content,f.options))
       case e @ Image(_,uri,_,_)           => out.externalGraphic(e, uri.localRef.fold(uri.uri)(_.absolute.toString)) // TODO - ignoring title and alt for now
@@ -255,7 +255,7 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
       case unknown                        => ()
     }
     
-    def renderTableElement (elem: TableElement) = elem match {
+    def renderTableElement (elem: TableElement): Unit = elem match {
       case e @ TableHead(rows,_)   => out <<@ ("fo:table-header", e) <<|> rows <<| "</fo:table-header>"
       case e @ TableBody(rows,_)   => out <<@ ("fo:table-body", e) <<|> rows <<| "</fo:table-body>"
       case Caption(_,_)            => () // replaced by Table renderer
@@ -268,18 +268,18 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
                 "number-rows-spanned"->noneIfDefault(rowspan,1)) <<|> content <<| "</fo-table-cell>"
     }
     
-    def renderUnresolvedReference (ref: Reference) = {
+    def renderUnresolvedReference (ref: Reference): Unit = {
       out << InvalidSpan(SystemMessage(Error,s"unresolved reference: $ref"), Text(ref.source)) 
     }
     
-    def renderInvalidElement (elem: Invalid[_ <: Element]) = elem match {
+    def renderInvalidElement (elem: Invalid[_ <: Element]): Unit = elem match {
       case InvalidBlock(msg, fallback, opt) => if (include(msg)) out << List(Paragraph(List(msg),opt), fallback)
                                                else out << fallback
       case e                                => if (include(e.message)) out << e.message << " " << e.fallback
                                                else out << e.fallback 
     }
     
-    def renderSystemMessage (message: SystemMessage) = {
+    def renderSystemMessage (message: SystemMessage): Unit = {
       if (include(message)) 
         out.text(message.copy(options=message.options + Styles(message.level.toString.toLowerCase)), message.content)
     }
@@ -302,8 +302,8 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
     }  
   } 
   
-  override lazy val defaultStyles = styles.getOrElse(XSLFO.styleResource)
-  override lazy val defaultTemplate = XSLFO.templateResource.content
+  override lazy val defaultStyles: StyleDeclarationSet = styles.getOrElse(XSLFO.styleResource)
+  override lazy val defaultTemplate: TemplateRoot = XSLFO.templateResource.content
   
 }
 
@@ -311,8 +311,8 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
  */
 object XSLFO extends XSLFO(None, None, true) {
   
-  lazy val styleResource = ParseStyleSheet.fromInput(Input.fromClasspath("/styles/default.fo.css", Root / "default.fo.css"))
+  lazy val styleResource: StyleDeclarationSet = ParseStyleSheet.fromInput(Input.fromClasspath("/styles/default.fo.css", Root / "default.fo.css"))
   
-  lazy val templateResource = ParseTemplate.fromInput(Input.fromClasspath("/templates/default.template.fo", Root / "default.template.fo"))
+  lazy val templateResource: TemplateDocument = ParseTemplate.fromInput(Input.fromClasspath("/templates/default.template.fo", Root / "default.template.fo"))
   
 }

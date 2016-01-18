@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,21 +117,21 @@ object InputProvider {
     
     private def documents (docType: DocumentType) = files(docType).map(toInput)
     
-    lazy val configDocuments = documents(Config)
+    lazy val configDocuments: Seq[Input] = documents(Config)
     
-    lazy val markupDocuments = documents(Markup)
+    lazy val markupDocuments: Seq[Input] = documents(Markup)
     
-    lazy val dynamicDocuments = documents(Dynamic)
+    lazy val dynamicDocuments: Seq[Input] = documents(Dynamic)
 
-    lazy val styleSheets = (files collect { case p @ (StyleSheet(format), pairs) => (format, pairs map toInput) }) 
+    lazy val styleSheets: Map[String, Seq[Input]] = (files collect { case p @ (StyleSheet(format), pairs) => (format, pairs map toInput) }) 
     
-    lazy val staticDocuments = documents(Static)
+    lazy val staticDocuments: Seq[Input] = documents(Static)
     
-    lazy val templates =  documents(Template)
+    lazy val templates: Seq[Input] =  documents(Template)
     
-    lazy val sourcePaths = dirs map (_.getAbsolutePath)
+    lazy val sourcePaths: Seq[String] = dirs map (_.getAbsolutePath)
     
-    lazy val subtrees = {
+    lazy val subtrees: Seq[InputProvider] = {
       def subDirs (dir: File) = dir.listFiles filter (f => f.isDirectory && !exclude(f) && docType(f) != Ignored)
       val byName = (dirs flatMap (subDirs(_)) groupBy (_.getName)).values
       byName map (subs => new DirectoryInputProvider(subs, path / subs.head.getName, exclude, docTypeMatcher, codec)) toList
@@ -185,7 +185,7 @@ object InputProvider {
   }
   
   private[InputProvider] class DirectoryProviderBuilder (roots: Seq[File], exclude: FileFilter) extends ProviderBuilder {
-    def build (docTypeMatcher: Path => DocumentType, codec: Codec) = 
+    def build (docTypeMatcher: Path => DocumentType, codec: Codec): InputProvider = 
       InputProvider.forRootDirectories(roots, exclude, docTypeMatcher)(codec)
   }
   
@@ -209,25 +209,25 @@ object InputProvider {
     /** Specifies the style sheet engine to use for 
      *  parsing all CSS inputs found in the tree.
      */
-    def withStyleSheetParser (parser: ParseStyleSheet) = 
+    def withStyleSheetParser (parser: ParseStyleSheet): InputConfigBuilder = 
       new InputConfigBuilder(provider, codec, docTypeMatcher, templateParser, Some(parser), config, isParallel)
     
     /** Specifies the template engine to use for 
      *  parsing all template inputs found in the tree.
      */
-    def withTemplateParser (parser: ParseTemplate) = 
+    def withTemplateParser (parser: ParseTemplate): InputConfigBuilder = 
       new InputConfigBuilder(provider, codec, docTypeMatcher, Some(parser), styleSheetParser, config, isParallel)
     
     /** Specifies custom template directives to use with
      *  the default template engine.
      */
-    def withTemplateDirectives (directives: Templates.Directive*) =
+    def withTemplateDirectives (directives: Templates.Directive*): InputConfigBuilder =
       withTemplateParser(ParseTemplate as DefaultTemplate.withDirectives(directives:_*))
 
     /** Specifies the function to use for determining the document type
      *  of the input based on its path.
      */
-    def withDocTypeMatcher (matcher: Path => DocumentType) =
+    def withDocTypeMatcher (matcher: Path => DocumentType): InputConfigBuilder =
       new InputConfigBuilder(provider, codec, Some(matcher), templateParser, styleSheetParser, config, isParallel)
 
     /** Specifies a root configuration file that gets
@@ -235,23 +235,23 @@ object InputProvider {
      *  The syntax of the input is expected to be of a format
      *  compatible with the Typesafe Config library.
      */
-    def withConfigFile (file: File) = withConfigInput(Input.fromFile(file)(codec))
+    def withConfigFile (file: File): InputConfigBuilder = withConfigInput(Input.fromFile(file)(codec))
     
     /** Specifies the name of a root configuration file that gets
      *  inherited by this tree and its subtrees.
      *  The syntax of the input is expected to be of a format
      *  compatible with the Typesafe Config library.
      */
-    def withConfigFile (name: String) = withConfigInput(Input.fromFile(name)(codec))
+    def withConfigFile (name: String): InputConfigBuilder = withConfigInput(Input.fromFile(name)(codec))
     
     /** Specifies a root configuration source that gets
      *  inherited by this tree and its subtrees.
      *  The syntax of the input is expected to be of a format
      *  compatible with the Typesafe Config library.
      */
-    def withConfigString (source: String) = withConfigInput(Input.fromString(source))
+    def withConfigString (source: String): InputConfigBuilder = withConfigInput(Input.fromString(source))
     
-    private def withConfigInput (input: Input) = 
+    private def withConfigInput (input: Input): InputConfigBuilder = 
       new InputConfigBuilder(provider, codec, docTypeMatcher, templateParser, styleSheetParser, input :: config, isParallel)
     
     /** Instructs the parser to process all inputs in parallel.
@@ -259,14 +259,14 @@ object InputProvider {
      *  and then get reassembled afterwards, therefore the parallel processing
      *  includes all subtrees of this input tree.
      */
-    def inParallel = new InputConfigBuilder(provider, codec, docTypeMatcher, templateParser, styleSheetParser, config, true) // TODO - custom TaskSupport
+    def inParallel: InputConfigBuilder = new InputConfigBuilder(provider, codec, docTypeMatcher, templateParser, styleSheetParser, config, true) // TODO - custom TaskSupport
     
     /** Builds the final configuration for this input tree
      *  for the specified parser factory.
      *  
      *  @param markupSuffixes all suffixes recognized by the parsers configured to consume this input
      */
-    def build (markupSuffixes: Set[String]) = {
+    def build (markupSuffixes: Set[String]): InputConfig = {
       val matcher = docTypeMatcher getOrElse new DefaultDocumentTypeMatcher(markupSuffixes)
       val templates = templateParser getOrElse ParseTemplate
       val styleSheets = styleSheetParser getOrElse ParseStyleSheet
@@ -283,7 +283,7 @@ object InputProvider {
     
     def apply (file: File)(implicit codec: Codec): InputConfigBuilder = apply(file, hiddenFileFilter)(codec)
     
-    def apply (file: File, exclude: FileFilter)(implicit codec: Codec) = new InputConfigBuilder(new DirectoryProviderBuilder(Seq(file), exclude), codec)
+    def apply (file: File, exclude: FileFilter)(implicit codec: Codec): InputConfigBuilder = new InputConfigBuilder(new DirectoryProviderBuilder(Seq(file), exclude), codec)
   }
 
   /** Creates InputConfigBuilder instances for several root directories in the file system
@@ -292,13 +292,13 @@ object InputProvider {
   object Directories {
     def apply (roots: Seq[File])(implicit codec: Codec): InputConfigBuilder = apply(roots, hiddenFileFilter)(codec)
     
-    def apply (roots: Seq[File], exclude: FileFilter)(implicit codec: Codec) = new InputConfigBuilder(new DirectoryProviderBuilder(roots, exclude), codec)
+    def apply (roots: Seq[File], exclude: FileFilter)(implicit codec: Codec): InputConfigBuilder = new InputConfigBuilder(new DirectoryProviderBuilder(roots, exclude), codec)
   }
   
   /** Creates InputConfigBuilder instances using the current working directory as its root.
    */
   object DefaultDirectory {
-    def apply (exclude: FileFilter = hiddenFileFilter)(implicit codec: Codec) = Directory(System.getProperty("user.dir"), exclude)(codec)
+    def apply (exclude: FileFilter = hiddenFileFilter)(implicit codec: Codec): InputConfigBuilder = Directory(System.getProperty("user.dir"), exclude)(codec)
   }
   
 }

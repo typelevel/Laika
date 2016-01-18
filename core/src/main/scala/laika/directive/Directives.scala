@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -158,13 +158,13 @@ object Directives {
    */
   case class Success[+A] (a: A) extends Result[A] {
     
-    def get = a
+    def get: A = a
     
-    def map [B](f: A => B) = Success(f(get))
+    def map [B](f: A => B): Result[B] = Success(f(get))
     
-    def flatMap [B](f: A => Result[B]) = f(a)
+    def flatMap [B](f: A => Result[B]): Result[B] = f(a)
     
-    def ~ [B](result: Result[B]) = result match {
+    def ~ [B](result: Result[B]): Result[A ~ B] = result match {
       case Success(value) => Success(new ~(a, value))
       case Failure(msg)   => Failure(msg)
     }
@@ -181,13 +181,13 @@ object Directives {
    */
   case class Failure (messages: Seq[String]) extends Result[Nothing] {
     
-    def get = throw new RuntimeException("no result as processing failed")
+    def get: Nothing = throw new RuntimeException("no result as processing failed")
     
-    def map [B](f: Nothing => B) = this
+    def map [B](f: Nothing => B): Result[B] = this
     
-    def flatMap [B](f: Nothing => Result[B]) = this
+    def flatMap [B](f: Nothing => Result[B]): Result[B] = this
     
-    def ~ [B](result: Result[B]) = result match {
+    def ~ [B](result: Result[B]): Result[Nothing ~ B] = result match {
       case Success(value)     => this
       case Failure(otherMsg)  => Failure(messages ++ otherMsg)
     }
@@ -206,14 +206,14 @@ object Directives {
    *  of a directive.
    */
   case class Named (name: String) extends Id {
-    def desc (keyType: String) = s"$keyType with name '$name'"
+    def desc (keyType: String): String = s"$keyType with name '$name'"
   }
   
   /** Represents an unnamed attribute or body part
    *  of a directive.
    */
   case object Default extends Id {
-    def desc (keyType: String) = s"default $keyType"
+    def desc (keyType: String): String = s"default $keyType"
   }
   
   implicit def stringToId (str: String): Id = Named(str)
@@ -221,7 +221,7 @@ object Directives {
 
   sealed abstract class Key (keyType: String) {
     def id: Id
-    def desc = id.desc(keyType)
+    def desc: String = id.desc(keyType)
   }
   
   case class Attribute (id: Id) extends Key("attribute")
@@ -263,7 +263,7 @@ object Directives {
      */
     abstract class DirectivePart[+A] extends (DirectiveContext => Result[A]) { self =>
       
-      def map [B](f: A => B) = new DirectivePart[B] { 
+      def map [B](f: A => B): DirectivePart[B] = new DirectivePart[B] { 
         def apply (p: DirectiveContext) = self(p) map f 
         def requiresContext = self.requiresContext
       }
@@ -283,7 +283,7 @@ object Directives {
      */
     implicit object CanBuildDirectivePart extends CanBuild[DirectivePart] {
       
-      def apply [A,B](ma: DirectivePart[A], mb: DirectivePart[B]) = new DirectivePart[A~B] {
+      def apply [A,B](ma: DirectivePart[A], mb: DirectivePart[B]): DirectivePart[A~B] = new DirectivePart[A~B] {
         def apply (p: DirectiveContext) = ma(p) ~ mb(p)
         def requiresContext = ma.requiresContext || mb.requiresContext
       }
@@ -302,22 +302,22 @@ object Directives {
      */
     object Converters {
       
-      val string = (p: Parser, s: String) => Success(s)
+      val string: Converter[String] = (_, input) => Success(input)
       
-      val parsed = (p: Parser, s: String) => Success(p(s))
+      val parsed: Converter[Seq[E]] = (parser, input) => Success(parser(input))
       
-      val int = (p: Parser, s: String) => toInt(s, _ => true)
+      val int: Converter[Int] = (_, input) => toInt(input, _ => true)
 
-      val positiveInt = (p: Parser, s: String) => toInt(s, _ > 0, "not a positive integer")
+      val positiveInt: Converter[Int] = (_, input) => toInt(input, _ > 0, "not a positive integer")
 
-      val nonNegativeInt = (p: Parser, s: String) => toInt(s, _ >= 0, "not a non-negative integer")
+      val nonNegativeInt: Converter[Int] = (_, input) => toInt(input, _ >= 0, "not a non-negative integer")
       
-      private def toInt (s: String, f: Int => Boolean, msg: String = "") = { 
+      private def toInt (input: String, predicate: Int => Boolean, msg: String = ""): Result[Int] = { 
         try { 
-          val i = s.trim.toInt
-          if (f(i)) Success(i) else Failure(s"$msg: $i")
+          val i = input.trim.toInt
+          if (predicate(i)) Success(i) else Failure(s"$msg: $i")
         } catch { 
-          case e: NumberFormatException => Failure(s"not an integer: $s")
+          case e: NumberFormatException => Failure(s"not an integer: $input")
         }
     }
       
@@ -408,19 +408,19 @@ object Directives {
     /** Represents a directive, its name and its (combined) parts.
      */
     class Directive private[Directives] (val name: String, part: DirectivePart[E]) {
-      def apply (context: DirectiveContext):Result[E] = part(context)
-      def requiresContext = part.requiresContext
+      def apply (context: DirectiveContext): Result[E] = part(context)
+      def requiresContext: Boolean = part.requiresContext
     }
 
     /** Creates a new directive with the specified name
      *  and part specification.
      */
-    def create (name: String)(part: DirectivePart[E]) = new Directive(name, part)
+    def create (name: String)(part: DirectivePart[E]): Directive = new Directive(name, part)
 
     /** Turns a collection of directives into a map,
      *  using the name of the directive as the key.
      */
-    def toMap (directives: Traversable[Directive]) = directives map (dir => (dir.name, dir)) toMap
+    def toMap (directives: Traversable[Directive]): Map[String, Directive] = directives map (dir => (dir.name, dir)) toMap
     
   }
   

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,14 +76,14 @@ object OutputBuilder {
     
     val provider = new TestOutputProvider(Root)
     
-    def result = provider.toTree
+    def result: RenderedTree = provider.toTree
     
     def build (codec: Codec): OutputProvider = provider
     
   }
   
   
-  def createTempDirectory (baseName: String) = {
+  def createTempDirectory (baseName: String): File = {
     val maxAttempts = 100
     val baseDir = new File(System.getProperty("java.io.tmpdir"))
     val name = System.currentTimeMillis() + "-";

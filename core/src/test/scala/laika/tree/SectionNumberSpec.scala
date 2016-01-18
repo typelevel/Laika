@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import laika.tree.Elements._
 import laika.tree.Documents._
 import laika.tree.DocumentTreeHelper.{Documents => Docs}
 import laika.tree.DocumentTreeHelper._
+import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 
 class SectionNumberSpec extends FlatSpec 
@@ -35,7 +36,7 @@ class SectionNumberSpec extends FlatSpec
     def header (level: Int, title: Int, style: String = "section") =
       Header(level,List(Text(s"Title $title")),Id(s"title$title") + Styles(style))
       
-    def tree (content: RootElement) = {
+    def tree (content: RootElement): DocumentTree = {
       def docs (path: Path, nums: Int*) = nums map (n => new Document(path / ("doc"+n), content))
       new DocumentTree(Root, docs(Root, 1,2), config = parseConfig(config), subtrees = List(
           new DocumentTree(Root / "sub1", docs(Root / "sub1",3,4)),
@@ -43,19 +44,20 @@ class SectionNumberSpec extends FlatSpec
           ))
     }
     
-    def numberedHeader (level: Int, title: Int, num: List[Int], style: String = "section") = {
+    def numberedHeader (level: Int, title: Int, num: List[Int], style: String = "section"): Header = {
       val numbered = isIncluded(num.length) && (style == "section" && numberSections) || (style == "title" && numberDocs)
       val number = if (numbered) List(Text(num.mkString("","."," "),Styles(style+"Number"))) else Nil
       Header(level, number ++ List(Text(s"Title $title")),Id(s"title$title") + Styles(style))
     }
       
-    def numberedSection (level: Int, title: Int, num: List[Int], children: Section*) =
+    def numberedSection (level: Int, title: Int, num: List[Int], children: Section*): Section =
       Section(numberedHeader(level, title, num), children)
-    def numberedSectionInfo (level: Int, title: Int, num: List[Int], children: SectionInfo*) =
+      
+    def numberedSectionInfo (level: Int, title: Int, num: List[Int], children: SectionInfo*): SectionInfo =
       SectionInfo(num, s"title$title", TitleInfo(numberedHeader(level, title, num).content), children)
 
 
-    def treeView (content: List[Int] => List[DocumentContent]) = {
+    def treeView (content: List[Int] => List[DocumentContent]): TreeView = {
       def numbers (titleNums: List[Int]) = if (numberDocs) titleNums else Nil
       def docs (path: Path, nums: (Int, List[Int])*) = nums map { 
         case (fileNum, titleNums) => new DocumentView(path / ("doc"+fileNum), content(numbers(titleNums)))
@@ -66,7 +68,7 @@ class SectionNumberSpec extends FlatSpec
       )) :: Nil)
     }
     
-    def parseConfig (source: String) = Some(ConfigFactory.parseString(source))
+    def parseConfig (source: String): Option[Config] = Some(ConfigFactory.parseString(source))
     
     def config: String
     def numberSections: Boolean
@@ -74,7 +76,7 @@ class SectionNumberSpec extends FlatSpec
     
     def depth: Option[Int] = None
     
-    def isIncluded (level: Int) = depth map (_ >= level) getOrElse true
+    def isIncluded (level: Int): Boolean = depth map (_ >= level) getOrElse true
   }
   
   trait NumberAllConfig {
@@ -142,8 +144,8 @@ class SectionNumberSpec extends FlatSpec
       ))
     )
 
-    lazy val expected = treeView(resultView)
-    lazy val result = viewOf(tree(sections).rewrite)
+    lazy val expected: TreeView = treeView(resultView)
+    lazy val result: TreeView = viewOf(tree(sections).rewrite)
   }
   
   trait SectionsWithoutTitle extends TreeModel {
@@ -166,8 +168,8 @@ class SectionNumberSpec extends FlatSpec
       ))
     )
 
-    lazy val expected = treeView(resultView)
-    lazy val result = viewOf(tree(sections).rewrite)
+    lazy val expected: TreeView = treeView(resultView)
+    lazy val result: TreeView = viewOf(tree(sections).rewrite)
   }
   
   

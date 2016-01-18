@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
    *
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#footnotes]]. 
    */
-  def footnote = {
+  def footnote: Parser[FootnoteDefinition] = {
     val prefix = '[' ~> footnoteLabel <~ ']' ~ ws
     
     prefix ~ indentedBlock() ^^ {
@@ -62,7 +62,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
    *
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#citations]]. 
    */
-  def citation = {
+  def citation: Parser[Citation] = {
     val prefix = '[' ~> simpleRefName <~ ']' ~ ws
     
     prefix ~ indentedBlock() ^^ {
@@ -75,11 +75,11 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#anonymous-hyperlinks]].
    */
-  lazy val shortAnonymousLinkTarget = {
+  lazy val shortAnonymousLinkTarget: Parser[ExternalLinkDefinition] = {
     "__ " ~> linkDefinitionBody ^^ { body => ExternalLinkDefinition("", body) } 
   }
   
-  private lazy val linkDefinitionBody = {
+  private lazy val linkDefinitionBody: Parser[String] = {
     val notEmpty = not(blankLine) | guard(restOfLine ~ (ws min 1) ~ not(blankLine))
     
     (notEmpty ~> indentedBlock()) ^^ { 
@@ -91,7 +91,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#hyperlink-targets]].
    */
-  def linkTarget = {
+  def linkTarget: Parser[Block with Span] = {
     
     val named = '_' ~> (('`' ~> escapedUntil('`') <~ ':') | escapedUntil(':')) ^^ { ReferenceName(_).normalized }
       
@@ -118,7 +118,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#substitution-definitions]].
    */
-  def substitutionDefinition = {
+  def substitutionDefinition: Parser[Block] = {
     val text = not(ws take 1) ~> escapedText(anyBut('|','\n') min 1)  
     val prefix = '|' ~> text <~ not(lookBehind(1, ' ')) ~ '|'
     
@@ -133,7 +133,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#comments]].
    */
-  def comment = {
+  def comment: Parser[Comment] = {
     indentedBlock() ^^ { block =>
       Comment((block.lines mkString "\n").trim)
     }
@@ -159,7 +159,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
   def textRole (name: String): Option[RoleDirectivePart[String => Span]]
     
 
-  private def replaceInvalidDirective (block: Block) = block match {
+  private def replaceInvalidDirective (block: Block): Block = block match {
     case InvalidDirective(msg, source, _) => InvalidBlock(SystemMessage(laika.tree.Elements.Error, msg), LiteralBlock(source))
     case other => other
   }
@@ -180,13 +180,13 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
    */
   def blockDirective: Parser[Block] = directive(blockDirective) ^^ replaceInvalidDirective
 
-  private def spanDirectiveParser = directive(spanDirective)
+  private def spanDirectiveParser: Parser[Span] = directive(spanDirective)
   
   private def directive [E](provider: String => Option[DirectivePart[E]]): Parser[E] = {
     
     val nameParser = simpleRefName <~ "::" ~ ws
     
-    def directiveParser [E] (directive: DirectivePart[E]) = {
+    def directiveParser [E] (directive: DirectivePart[E]): Parser[E] = {
       val parserBuilder = new DirectiveParserBuilder
       val result = directive(parserBuilder)
       parserBuilder.parser ^^^ {
@@ -201,7 +201,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
   
   private case class InvalidDirective (msg: String, source: String, options: Options = NoOpt) extends Block with Span
   
-  private def directive [E](p: Parser[E], name: String) = Parser { in =>
+  private def directive [E](p: Parser[E], name: String): Parser[E] = Parser { in =>
     p(in) match {
       case s @ Success(_,_) => s
       case NoSuccess(msg, next) => (indentedBlock() ^^ { block =>
@@ -214,7 +214,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#custom-interpreted-text-roles]].
    */
-  def roleDirective = {
+  def roleDirective: Parser[Block] = {
     
     val nameParser = "role::" ~ ws ~> simpleRefName ~ opt('(' ~> simpleRefName <~ ')')
     
@@ -238,7 +238,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
   
   private class DirectiveParserBuilder extends DirectiveParser {
 
-    val skip = success(())
+    val skip: Parser[Any] = success(())
     var requiredArgs: Parser[Any] = skip
     var optionalArgs: Parser[Any] = skip
     var requiredArgWithWS: Parser[Any] = skip
@@ -251,11 +251,11 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
                               optionalArgs ~ optionalArgWithWS ~
                               fields ~ separator ~ contentParser
     
-    def requiredArg (p: => Parser[String]) = p.withFailureMessage("missing required argument")                          
+    def requiredArg (p: => Parser[String]): Parser[String] = p.withFailureMessage("missing required argument")                          
                               
-    val arg = requiredArg((anyBut(' ','\n') min 1) <~ ws)
+    val arg: Parser[String] = requiredArg((anyBut(' ','\n') min 1) <~ ws)
     
-    val argWithWS = {
+    val argWithWS: Parser[String] = {
       val p = indentedBlock(linePredicate = not(":"), endsOnBlankLine = true) ^^? { block =>
         val text = (block.lines mkString "\n").trim
         if (text.nonEmpty) Right(text) else Left("missing required argument")
@@ -263,7 +263,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
       requiredArg(p)
     }
     
-    val body = lookBehind(1, '\n') ~> indentedBlock(firstLineIndented = true) | indentedBlock()
+    val body: Parser[IndentedBlock] = lookBehind(1, '\n') ~> indentedBlock(firstLineIndented = true) | indentedBlock()
     
     // TODO - some duplicate logic with original fieldList parser
     lazy val directiveFieldList: Parser[Any] = {
@@ -297,15 +297,16 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
       }
     }
     
-    val contentSeparator = ((lookBehind(1, '\n') | eol) ~ blankLine) | failure("blank line required to separate arguments and/or options from the body")
+    val contentSeparator: Parser[Any ~ String] = 
+      ((lookBehind(1, '\n') | eol) ~ blankLine) | failure("blank line required to separate arguments and/or options from the body")
     
     val requiredFields: scala.collection.mutable.Map[String, String => Either[String,Unit]] = scala.collection.mutable.Map()
     val optionalFields: scala.collection.mutable.Map[String, String => Either[String,Unit]] = scala.collection.mutable.Map()
     
     class LazyResult[T] {
       var value: Option[T] = None
-      def set (v: T) = value = Some(v)
-      def set (v: Option[T]) = value = v
+      def set (v: T): Unit = value = Some(v)
+      def set (v: Option[T]): Unit = value = v
       def get: T = value get
     }
     
@@ -313,7 +314,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
       (res map f) map (_.right map (res => Some(res))) getOrElse Right(None)
     
     def argument [T](convert: String => Either[String,T] = {s:String => Right(s)}, 
-                     withWS: Boolean = false) = {
+                     withWS: Boolean = false): Result[T] = {
       separator = contentSeparator
       val result = new LazyResult[T]
       if (withWS) requiredArgWithWS = (argWithWS ^^? convert ^^ result.set)
@@ -322,7 +323,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
     }
     
     def optArgument [T](convert: String => Either[String,T] = {s:String => Right(s)}, 
-                        withWS: Boolean = false) = {
+                        withWS: Boolean = false): Result[Option[T]] = {
       separator = contentSeparator
       val result = new LazyResult[T]
       if (withWS) optionalArgWithWS = (opt(argWithWS) ^^? optionToEither(convert) ^^ result.set)

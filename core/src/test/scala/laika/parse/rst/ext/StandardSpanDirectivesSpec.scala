@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2013-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
                                   with ModelBuilder {
 
 
-  def parse (input: String) = (Parse as ReStructuredText fromString input).content
+  def parse (input: String): RootElement = (Parse as ReStructuredText fromString input).content
   
   val imgPath = Some(PathInfo(Root / "picture.jpg", Current / "picture.jpg"))
   
