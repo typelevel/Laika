@@ -235,6 +235,40 @@ in different locations of the output, like headers, footers or sidebars.
 This directive is explained in detail in the [Document Structure][Document Fragments] chapter.
 
 
+### The `format` directive
+
+Can only be used in block elements in text markup.
+
+The body of such a directive will only be included into the
+output by renderers for the specified type:
+
+    @:format html: This text only appears in the HTML output,
+      not in PDF or other formats.
+      
+Note that the body of a block directive needs to be indented,
+and does not appear between curly braces.
+
+
+### The `style` directive
+
+Can be used in block and span elements in text markup.
+
+Adds a style to the root element of the body of the directive,
+that can be used by renderers to change the appearance of the
+rendered element.
+
+Block directive: 
+
+    @:style subtitle: This paragraph gets the 
+      subtitle style applied.
+      
+    While this paragraph does not.
+      
+Span directive:
+
+    Burrito - @:style price: { £3.50 }.
+
+
 ### The `for` directive
 
 Can only be used inside templates.
@@ -296,4 +330,15 @@ for other values:
       <p>This document does not have any sections</p>
     }
 
+
+### The `pageBreak` directive
+
+Can only be used in block elements in text markup.
+
+Only page-oriented output formats like PDF or XSL-FO
+know how to render page break elements.
+
+This directive does not support any attributes:
+
+    @pageBreak
 
