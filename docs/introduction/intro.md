@@ -140,19 +140,19 @@ Features
 Road Map
 --------
 
-* New renderer for PDF (0.6) 
-
 * New renderer for epub (0.7)
 
 * Integrated support for syntax highlighting in source code (0.8)
 
 * Various Markdown extensions: GitHub Markdown, MultiMarkdown, CommonMark, YAML headers, etc. (0.9)
 
+* API polishing (1.0)
+
 
 After these four releases priorities depend on user demand, therefore
 no decision has been made yet for these other ideas:
 
-* AsciiDoc support
+* Markup syntax as output format
 
 * Java API / Gradle plugin
 
