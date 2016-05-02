@@ -58,7 +58,11 @@ Example for transforming an entire directory of markup files:
 
     Transform from ReStructuredText to 
       HTML fromDirectory "source" toDirectory "target"
+      
+Example for transforming an entire directory of markup files to a single PDF file:
 
+    Transform from Markdown to HTML fromDirectory "src" toFile "hello.pdf"
+    
 
 ### Other Resources
 
@@ -97,13 +101,15 @@ Features
 
 * Support for Markdown and reStructuredText as input
 
-* Support for HTML and PrettyPrint (for debugging) as output
+* Support for HTML, PDF, XSL-FO and PrettyPrint (for debugging) as output
 
 * Template-based Site Generation
 
 * Support for tables of contents, convenient cross-linking between 
   documents and auto-numbering of documents and sections for all 
   supported markup formats
+  
+* Support for styling PDF documents with CSS
   
 * sbt plugin, exposing all Laika features and customization hooks
   as sbt settings and tasks

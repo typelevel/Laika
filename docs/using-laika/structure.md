@@ -11,7 +11,7 @@ explicitly.
 This is how you can switch them off for Markdown:
 
     Transform from Markdown.strict to 
-      HTML fromFile "hello.md" toFile "hello.html"
+      PDF fromFile "hello.md" toFile "hello.pdf"
 
 And likewise, the same `strict` property is available for reStructuredText:
 

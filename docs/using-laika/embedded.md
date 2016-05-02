@@ -26,6 +26,11 @@ Transforming a Single Document
 Converting from Markdown to HTML using files as input and output:
 
     Transform from Markdown to HTML fromFile "hello.md" toFile "hello.html"
+    
+Converting from ReStructuredText to PDF using files as input and output:
+
+    Transform from ReStructuredText to 
+      PDF fromFile "hello.md" toFile "hello.pdf"
 
 
 Converting using Strings as input and output
@@ -107,6 +112,12 @@ directories separately:
 The parser will pick up any document with a recognized suffix (`.md` or `.markdown`
 for Markdown, `.rst` for reStructuredText).
 
+When transforming to PDF, a directory of input files will get merged 
+into a single PDF document:
+
+    Transform from Markdown to 
+      PDF fromDirectory "source" toFile "target.pdf"
+
 
 ### HTML Templates
 
@@ -140,16 +151,6 @@ For features like titles, sections, cross-linking, auto-numbering
 and tables of content, see the chapter [Document Structure].
 
 
-### Directory Layout Conventions
-
-When you organize your input and output directories under a common root
-directory, with the directory containing the markup documents named
-`source` and the output directory named `target`, you do not have
-to specify input and output directories separately:
-
-    Transform from ReStructuredText to HTML withRootDirectory "myDocs"
-
-
 ### Merging Multiple Input Directories
 
 Laika allows to merge multiple directories into a tree structure with 
@@ -179,7 +180,7 @@ files by the reStructuredText parser.
 All you have to do is pass both parsers to the API:
 
     Transform from Markdown or ReStructuredText to 
-      HTML fromDirectory "source" toDirectory "target"
+      PDF fromDirectory "source" toFile "target.pdf"
 
 
 ### Parallel Execution

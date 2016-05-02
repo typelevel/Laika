@@ -452,7 +452,7 @@ Registration:
       "source" withTemplateDirectives directive toDirectory "target" 
 
     // for reStructuredText in Transform API:
-    Transform from ReStructuredText to HTML fromDirectory 
-      "source" withTemplateDirectives directive toDirectory "target" 
+    Transform from ReStructuredText to PDF fromDirectory 
+      "source" withTemplateDirectives directive toFile "out.pdf" 
         
 

@@ -117,7 +117,7 @@ Or to obtain the HTML as a string:
     val html = Render as HTML from doc toString
     
 
-### Rendering an Entire Directory
+### Rendering an Entire Directory as HTML
 
     // obtained from a parse step or created programmatically
     val tree: DocumentTree = ...
@@ -125,7 +125,20 @@ Or to obtain the HTML as a string:
     Render as HTML from tree toDirectory "path/to/target"
  
 The `target` directory is expected to exist, while any required
-subdirectories will be automatically created during rendering.
+subdirectories will be automatically created during rendering. There
+will be one HTML file for each input file in the same directory layout.
+
+
+### Rendering an Entire Directory as PDF
+
+    // obtained from a parse step or created programmatically
+    val tree: DocumentTree = ...
+    
+    Render as PDF from tree toFile "out.pdf"
+    
+Here the input files get rendered into a single PDF document, with
+the directory structure getting translated into the document structure
+(optionally including bookmarks and table of contents).
 
 
 ### Parallel Execution
