@@ -95,16 +95,14 @@ class XSLFORendererSpec extends FlatSpec
     render (elem) should be (html) 
   }
   
-  /* TODO 
   it should "render a blockquote with an attribution" in {
     val elem = quote("aaa","bbb")
-    val html = """<blockquote>
-      |  <p>aaa</p>
-      |  <p class="attribution">bbb</p>
-      |</blockquote>""".stripMargin
+    val html = """<fo:block margin-left="2cm" margin-right="2cm">
+      |  <fo:block font-family="serif" font-size="10pt">aaa</fo:block>
+      |  <fo:block font-family="serif" font-size="10pt" text-align="right">bbb</fo:block>
+      |</fo:block>""".stripMargin
     render (elem) should be (html) 
   }
-  */
   
   it should "render a bullet list with simple flow content" in {
     val elem = bulletList() + "aaa" + "bbb" toList

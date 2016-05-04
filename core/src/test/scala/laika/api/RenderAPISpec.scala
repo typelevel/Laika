@@ -190,7 +190,6 @@ class RenderAPISpec extends FlatSpec
   it should "render a tree with a single document to XSL-FO using the default template and default CSS" in {
     new FORenderer {
       val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite))
-      // TODO - check id generation
       val expected = RenderResult.fo.withDefaultTemplate("""<fo:block id="_title" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title</fo:block>
         |      <fo:block font-family="serif" font-size="10pt">bbb</fo:block>""".stripMargin)
       renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.fo", expected))))))
