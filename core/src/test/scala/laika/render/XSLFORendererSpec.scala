@@ -21,6 +21,8 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
 
 import laika.api.Render
+import laika.parse.css.Styles.{StyleDeclarationSet, StyleDeclaration, Selector, StyleName}
+import laika.tree.Documents.Root
 import laika.tree.Elements._
 import laika.tree.Templates._
 import laika.tree.Documents.Path
@@ -35,6 +37,9 @@ class XSLFORendererSpec extends FlatSpec
   
   def render (elem: Element, messageLevel: MessageLevel): String = 
     Render as (XSLFO withMessageLevel messageLevel) from elem toString
+    
+  def render (elem: Element, style: StyleDeclaration): String = 
+    Render as (XSLFO withStyles StyleDeclarationSet(Root, style)) from elem toString
     
   def renderUnformatted (elem: Element): String = Render as XSLFO.unformatted from elem toString
   
@@ -51,16 +56,15 @@ class XSLFORendererSpec extends FlatSpec
     render (elem) should be (html) 
   }
   
-  /* TODO
-  it should "render a block sequence with a style" in {
+  it should "render a block sequence with a custom style" in {
     val elem = root(BlockSequence(List(p("aaa"), p("bbb")), Styles("foo")))
-    val html = """<div class="foo">
-      |  <p>aaa</p>
-      |  <p>bbb</p>
-      |</div>""".stripMargin
-    render (elem) should be (html) 
+    val html = """<fo:block font-weight="bold">
+      |  <fo:block font-family="serif" font-size="10pt">aaa</fo:block>
+      |  <fo:block font-family="serif" font-size="10pt">bbb</fo:block>
+      |</fo:block>""".stripMargin
+    val style = StyleDeclaration(Selector(Set(StyleName("foo"))), Map("font-weight" -> "bold"))
+    render (elem, style) should be (html) 
   }
-  */
   
   it should "render a block sequence without a style" in {
     val elem = root(p("aaa"), BlockSequence(List(p("bbb"), p("ccc"))))
@@ -495,7 +499,7 @@ class XSLFORendererSpec extends FlatSpec
   it should "render a titled block" in {
     val elem = TitledBlock(List(txt("some "), em("em"), txt(" text")), List(p("aaa"), Rule(), p("bbb")))
     val html = """<fo:block background-color="#cccccc" padding-left="2cm" padding-right="2cm">
-      |  <fo:block font-family="serif" font-size="10pt" font-weight="bold">some <fo:inline font-style="italic">em</fo:inline> text</fo:block>
+      |  <fo:block font-family="serif" font-size="12pt" font-weight="bold">some <fo:inline font-style="italic">em</fo:inline> text</fo:block>
       |  <fo:block font-family="serif" font-size="10pt">aaa</fo:block>
       |  <fo:leader leader-pattern="rule"></fo:leader>
       |  <fo:block font-family="serif" font-size="10pt">bbb</fo:block>
