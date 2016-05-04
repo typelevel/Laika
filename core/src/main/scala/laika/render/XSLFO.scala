@@ -79,7 +79,7 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
    *  the renderer as well as the actual default render function itself
    */
   def newRenderer (output: Output, root: Element, render: Element => Unit, styles: StyleDeclarationSet): (FOWriter, Element => Unit) = {
-    val out = new FOWriter(output asFunction, render, output.path, styles, formatted = renderFormatted)
+    val out = new FOWriter(output asFunction, render, root, output.path, styles, formatted = renderFormatted)
     val (footnotes, citations) = collectTargets(root)
     (out, renderElement(out,footnotes,citations,output.path))
   }

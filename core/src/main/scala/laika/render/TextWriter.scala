@@ -21,14 +21,16 @@ import laika.tree.Elements._
 /** API for renderers that produce character output.
  *  
  *  @param out the function to use for writing character data 
- *  @param render the function to use for rendering child elements 
+ *  @param render the function to use for rendering child elements
+ *  @param root the root element to render 
  *  @param indentItem the string to write for a single level of indentation
  *  @param newLine the new line character sequence 
  * 
  *  @author Jens Halm
  */
 class TextWriter (out: String => Unit, 
-                  render: Element => Unit, 
+                  render: Element => Unit,
+                  root: Element,
                   indentItem: String = "  ", 
                   newLine: String = "\n") {
 
@@ -55,14 +57,14 @@ class TextWriter (out: String => Unit,
     
   }
   
-  private var parentStack: List[Element] = Nil
+  private var elementStack: List[Element] = List(root)
   
-  protected def parents: List[Element] = parentStack
+  protected def parents: List[Element] = elementStack.tail
   
   private def renderElement (element: Element): Unit = {
-    parentStack = element :: parentStack
+    elementStack = element :: elementStack
     render(element)
-    parentStack = parentStack.tail
+    elementStack = elementStack.tail
   }
   
   /** Executes the specified block while temporarily

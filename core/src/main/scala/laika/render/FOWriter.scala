@@ -26,6 +26,7 @@ import FOWriter._
  * 
  *  @param out the render function to write string values to
  *  @param render the render function for writing elements
+ *  @param root the root element to render
  *  @param path the path of the document getting rendered, used for generating unique ids
  *  @param styles the styles to apply when writing the attributes of an element
  *  @param newLine the newline character to use
@@ -35,13 +36,13 @@ import FOWriter._
  */
 class FOWriter (out: String => Unit,  
                 render: Element => Unit, 
+                root: Element,
                 path: Path,
                 styles: StyleDeclarationSet,
                 newLine: String = "\n",
-                formatted: Boolean = true) extends TagWriter(out, render, newLine, formatted) 
+                formatted: Boolean = true) extends TagWriter(out, render, root, newLine, formatted) 
                                            with FOProperties {
 
-  
   protected def attributes (tag: String, options: Options, attrs: Seq[(String,Any)]): Seq[(String, Any)] = {
     filterAttributes(tag, ("id"->options.id) +: attrs)
   }

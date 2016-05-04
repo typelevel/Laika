@@ -27,6 +27,7 @@ import laika.tree.Elements._
  * 
  *  @param out the render function to write string values to
  *  @param render the render function for writing elements
+ *  @param root the root element to render
  *  @param newLine the newline character to use
  *  @param formatted whether the output is formatted (adding indentation and newlines)
  * 
@@ -34,9 +35,10 @@ import laika.tree.Elements._
  */
 abstract class TagWriter (out: String => Unit,  
                           render: Element => Unit, 
+                          root: Element,
                           newLine: String = "\n",
                           formatted: Boolean = true) extends 
-                              TextWriter(out, render, 
+                              TextWriter(out, render, root,
                                          newLine = if (formatted) newLine else "", 
                                          indentItem = if (formatted) "  " else "") {
   

@@ -61,7 +61,7 @@ class PrettyPrint extends RendererFactory[TextWriter] {
    *  the renderer as well as the actual default render function itself
    */
   def newRenderer (output: Output, root: Element, render: Element => Unit, styles: StyleDeclarationSet): (TextWriter, Element => Unit) = {
-    val out = new TextWriter(output asFunction, render, ". ") 
+    val out = new TextWriter(output asFunction, render, root, ". ") 
     (out, renderElement(out))
   }
   

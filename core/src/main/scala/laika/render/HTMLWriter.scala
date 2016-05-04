@@ -23,6 +23,7 @@ import laika.tree.Elements._
  * 
  *  @param out the render function to write string values to
  *  @param render the render function for writing elements
+ *  @param root the root element to render
  *  @param newLine the newline character to use
  *  @param formatted whether the output is formatted (adding indentation and newlines)
  * 
@@ -30,8 +31,9 @@ import laika.tree.Elements._
  */
 class HTMLWriter (out: String => Unit,  
                   render: Element => Unit, 
+                  root: Element,
                   newLine: String = "\n",
-                  formatted: Boolean = true) extends TagWriter(out, render, newLine, formatted) {
+                  formatted: Boolean = true) extends TagWriter(out, render, root, newLine, formatted) {
 
   
   protected def attributes (tag: String, options: Options, attrs: Seq[(String,Any)]): Seq[(String,Any)] = {

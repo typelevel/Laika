@@ -64,7 +64,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
    *  the renderer as well as the actual default render function itself
    */
   def newRenderer (output: Output, root: Element, render: Element => Unit, styles: StyleDeclarationSet): (HTMLWriter, Element => Unit) = {
-    val out = new HTMLWriter(output asFunction, render, formatted = renderFormatted)  
+    val out = new HTMLWriter(output asFunction, render, root, formatted = renderFormatted)  
     (out, renderElement(out))
   }
 
