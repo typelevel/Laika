@@ -499,7 +499,7 @@ class XSLFORendererSpec extends FlatSpec
   it should "render a titled block" in {
     val elem = TitledBlock(List(txt("some "), em("em"), txt(" text")), List(p("aaa"), Rule(), p("bbb")))
     val html = """<fo:block background-color="#cccccc" padding-left="2cm" padding-right="2cm">
-      |  <fo:block font-family="serif" font-size="12pt" font-weight="bold">some <fo:inline font-style="italic">em</fo:inline> text</fo:block>
+      |  <fo:block font-family="sans-serif" font-size="12pt" font-weight="bold">some <fo:inline font-style="italic">em</fo:inline> text</fo:block>
       |  <fo:block font-family="serif" font-size="10pt">aaa</fo:block>
       |  <fo:leader leader-pattern="rule"></fo:leader>
       |  <fo:block font-family="serif" font-size="10pt">bbb</fo:block>
@@ -511,8 +511,8 @@ class XSLFORendererSpec extends FlatSpec
     val elem = Figure(Image("alt",URI("image.jpg")), List(txt("some "), em("caption"), txt(" text")), List(p("aaa"), Rule(), p("bbb")))
     val html = """<fo:block>
       |  <fo:block font-family="serif" font-size="10pt"><fo:external-graphic src="image.jpg" content-width="scale-down-to-fit"/></fo:block>
-      |  <fo:block font-family="serif" font-size="10pt">some <fo:inline font-style="italic">caption</fo:inline> text</fo:block>
-      |  <fo:block>
+      |  <fo:block font-family="serif" font-size="9pt" font-style="italic">some <fo:inline font-style="italic">caption</fo:inline> text</fo:block>
+      |  <fo:block font-size="9pt" font-style="italic">
       |    <fo:block font-family="serif" font-size="10pt">aaa</fo:block>
       |    <fo:leader leader-pattern="rule"></fo:leader>
       |    <fo:block font-family="serif" font-size="10pt">bbb</fo:block>
