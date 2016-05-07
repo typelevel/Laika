@@ -251,33 +251,53 @@ in the context of a Laika document tree:
 * `Element1+Element2` or `Element1~Element2` for selecting based on sibling elements
 
 
-### PDF Renderer Properties
+### Configuration
 
-Using `withConfig` you can control a few features of the PDF output:
+There are several configuration options for PDF rendering that can be set
+either in the file `directory.conf` in the root directory of your input sources
+or programmatically on the `PDF` renderer.
+
+In `directory.conf` you can set the following options:
+
+    pdf {
+      insertTitles = false
+      bookmarks.depth = 3
+      toc.depth = 3
+      toc.title = "Contents"
+    }  
+
+The same options are available programmatically through the `withConfig` method on the `PDF` renderer:
 
     val config = PDFConfig(
-      treeTitles = true, 
-      docTitles = true,
-      bookmarks = true,
-      toc = true
+      insertTitles = false, 
+      bookmarkDepth = 3,
+      tocDepth = 3,
+      tocTitle = Some("Contents")
     )
     
     Transform from Markdown to PDF.withConfig(config) fromDirectory 
       "source" toFile "out.pdf"
       
-The default for all these properties is `true`. They control the following aspects
-of the rendering:
-
-* `treeTitles` inserts a title per directory into the document. Tree titles can
-  be set per directory with the `title` attribute in the file `directory.conf`.
-* `docTitles` inserts document titles for each rendered file into the document.
-* `bookmarks` inserts PDF bookmarks, using `docTitles` and `treeTitles`
-* `toc` inserts a table of contents at the beginning of the file, also using 
-  `docTitles` and `treeTitles`
+These properties control the following aspects of the rendering:
+ 
+* `insertTitles` inserts a title per directory and markup file into the document to give it more
+  structure, since all documents get merged into a single target PDF. Tree titles can
+  be set per directory with the `title` attribute in the file `directory.conf`, document titles
+  in the configuration header of the markup document, unless there is already a title element
+  in the content of the document. The default value is `true`.
+* `bookmarkDepth` the number of levels bookmarks should be generated for, 
+  you can use 0 to switch off bookmark generation entirely. Every level of the tree hierarchy will
+  be considered for a bookmark entry: directories, files and sections within files.
+  The default value is `Int.MaxValue`.
+* `tocDepth` the number of levels to generate a table of contents for, 
+  you can use 0 to switch off toc generation entirely. Every level of the tree hierarchy will
+  be considered for an entry in the table of contents: directories, files and sections within files.
+  The default value is `Int.MaxValue`.
+* `tocTitle` specifies the title for the table of contents. The default value is `None`.
   
 For more details on these features see [Document Structure].
 
-The `withMessageLevel` property instructs the renderer to include system messages in the
+Finally, the `withMessageLevel` property instructs the renderer to include system messages in the
 generated PDF. Messages may get inserted into the document tree for problems during
 parsing or reference resolution, e.g. an internal link to a destination that does not
 exist. By default these messages are not included in the output. They are mostly useful
