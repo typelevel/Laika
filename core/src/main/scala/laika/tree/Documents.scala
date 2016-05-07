@@ -54,7 +54,7 @@ object Documents {
                   val fragments: Map[String, Element] = Map.empty,
                   val config: Config = ConfigFactory.empty,
                   docNumber: List[Int] = Nil,
-                  rewriteRules: Seq[DocumentContext => RewriteRule] = Nil) extends Navigatable {
+                  rewriteRules: Seq[DocumentContext => RewriteRule] = Nil) extends Titled {
     
     private lazy val linkResolver = LinkResolver(path,content)
     
@@ -413,7 +413,24 @@ object Documents {
     lazy val name: String = path.name
     
   }
+  
+  /** A navigatable object that has a title.
+   */
+  trait Titled extends Navigatable {
 
+    /** The title of this navigatable.
+     *  The sequence might be empty.
+     */
+    def title: Seq[Span]
+
+    /** The title of this navigatable if non-empty
+     *  or otherwise the name as Text Span.
+     */
+    def titleOrName: Seq[Span] =
+      if (title.nonEmpty) title
+      else Seq(Text(name))
+  }
+  
   
   /** Represents a tree with all its documents and subtrees.
    *  
@@ -439,8 +456,8 @@ object Documents {
                       val subtrees: Seq[DocumentTree] = Nil, 
                       private[laika] val config: Option[Config] = None,
                       docNumber: List[Int] = Nil,
-                      navigationOrder: Option[Seq[Navigatable]] = None,
-                      val sourcePaths: Seq[String] = Nil) extends Navigatable {
+                      navigationOrder: Option[Seq[Titled]] = None,
+                      val sourcePaths: Seq[String] = Nil) extends Titled {
     
     /** The title of this tree, obtained from configuration.
      */
