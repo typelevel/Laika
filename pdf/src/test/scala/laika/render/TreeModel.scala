@@ -31,6 +31,16 @@ import com.typesafe.config.Config
 
 trait TreeModel {
   
+  def usePDFFileConfig: Boolean = false
+  
+  private def pdfFileConfig = if (usePDFFileConfig) ConfigFactory.parseString("""
+    |pdf {
+    |  insertTitles = false
+    |  bookmarks.depth = 0
+    |  toc.depth = 0
+    |}  
+    """.stripMargin) else ConfigFactory.empty
+  
   def doc (num: Int): Document = {
     val parent = if (num > 4) Root / "tree2" else if (num > 2) Root / "tree1" else Root
     new Document(parent / s"doc$num.md", RootElement(Seq(
@@ -39,9 +49,11 @@ trait TreeModel {
     ))).removeRules
   }
     
-  def configWithTreeTitle (num: Int): Option[Config] = Some(ConfigFactory.empty.withValue("title", ConfigValueFactory.fromAnyRef(s"Tree $num")))
+  def configWithTreeTitle (num: Int): Option[Config] = Some(ConfigFactory.empty
+      .withValue("title", ConfigValueFactory.fromAnyRef(s"Tree $num"))
+      .withFallback(pdfFileConfig))
   
-  val tree = new DocumentTree(Root,
+  lazy val tree = new DocumentTree(Root,
     documents = Seq(doc(1), doc(2)),
     subtrees = Seq(
       new DocumentTree(Root / "tree1", documents = Seq(doc(3), doc(4)), config = configWithTreeTitle(2)),

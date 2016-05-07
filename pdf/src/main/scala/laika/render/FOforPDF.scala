@@ -28,6 +28,7 @@ import laika.tree.TocGenerator
 import laika.tree.Templates.TemplateDocument
 import laika.tree.Templates.TemplateRoot
 import laika.tree.Templates.TemplateContextReference
+import com.typesafe.config.Config
 
 /** Responsible for rendering the XSL-FO for an entire document tree
  *  as an interim result to be consumed by the PDF post processor.
@@ -38,7 +39,7 @@ import laika.tree.Templates.TemplateContextReference
  * 
  *  @author Jens Halm
  */
-class FOforPDF (config: PDFConfig) {
+class FOforPDF (config: Option[PDFConfig]) {
 
   private object DocNames {
     val treeTitle = "_title_"
@@ -55,18 +56,6 @@ class FOforPDF (config: PDFConfig) {
     case _: Document => true
     case tree: DocumentTree => hasDocuments(tree)
   }
-  
-  /** Returns the depth configuration for the specified key from
-   *  the given tree instance as an Int. For bookmarks and tables
-   *  of content the recursion depth can be specified in the tree
-   *  configuration.
-   * 
-   *  @param tree the tree to obtain the configuration value from
-   *  @param key the configuration key
-   */
-  protected def getDepth (tree: DocumentTree, key: String): Int = (tree.config collect {
-    case c if c.hasPath(key) => c.getInt(key)
-  }).getOrElse(Int.MaxValue)
   
   /** Adds title elements for each tree and subtree in the specified
    *  root tree. Tree titles can be specified in the configuration file
@@ -104,7 +93,7 @@ class FOforPDF (config: PDFConfig) {
    *  @param root the document tree to generate bookmarks for
    *  @return a fragment map containing the generated bookmarks
    */
-  def generateBookmarks (root: DocumentTree): Map[String, Element] = {
+  def generateBookmarks (root: DocumentTree, depth: Int): Map[String, Element] = {
 
     def sectionBookmarks (path: Path, sections: Seq[SectionInfo], levels: Int): Seq[Bookmark] = 
       if (levels == 0) Nil
@@ -130,8 +119,7 @@ class FOforPDF (config: PDFConfig) {
       }).flatten
     }
 
-    val depth = getDepth(root, "pdf.bookmarks.depth")
-    if (depth == 0 || !config.bookmarks) Map()
+    if (depth == 0) Map()
     else Map("bookmarks" -> BookmarkTree(treeBookmarks(root, depth))) 
   }
   
@@ -139,7 +127,7 @@ class FOforPDF (config: PDFConfig) {
    *  The recursion depth can be set with the configuration key
    *  `pdf.toc.depth`.
    */
-  def insertToc (tree: DocumentTree): DocumentTree = {
+  def insertToc (tree: DocumentTree, depth: Int, title: Option[String]): DocumentTree = {
 
     def toBlockSequence (blocks: Seq[Element]): Seq[Block] = ((blocks map {
       case BulletList(items,_,_)      => toBlockSequence(items)
@@ -149,26 +137,22 @@ class FOforPDF (config: PDFConfig) {
       )), opt))
     }).flatten)
     
-    val depth = getDepth(tree, "pdf.toc.depth")
-    if (depth == 0) tree
-    else {
-      val toc = toBlockSequence(TocGenerator.fromTree(tree, depth, tree.path / DocNames.toc, treeTitleDoc = Some(DocNames.treeTitle)))
-      val root = RootElement(toc)
-      val doc = new Document(tree.path / DocNames.toc, root)
-      tree.prependDocument(doc)
-    }
+    val toc = toBlockSequence(TocGenerator.fromTree(tree, depth, tree.path / DocNames.toc, treeTitleDoc = Some(DocNames.treeTitle)))
+    val root = title.fold(RootElement(toc)){ title => RootElement(Title(Seq(Text(title))) +: toc) }
+    val doc = new Document(tree.path / DocNames.toc, root)
+    tree.prependDocument(doc)
   }
       
   /** Prepares the document tree before rendering the interim XSL-FO
    *  output. Preparation may include insertion of tree or document titles
    *  and a table of content, depending on configuration.
    */
-  def prepareTree (tree: DocumentTree): DocumentTree = {
+  def prepareTree (tree: DocumentTree, config: PDFConfig): DocumentTree = {
     val withoutTemplates = tree.withoutTemplates.withTemplate(new TemplateDocument(Root / "default.template.fo", 
         TemplateRoot(List(TemplateContextReference("document.content")))))
-    val withDocTitles = if (config.docTitles) insertDocTitles(withoutTemplates) else withoutTemplates
-    val withToc = if (config.toc) insertToc(withDocTitles) else withDocTitles
-    if (config.treeTitles) addTreeTitles(withToc) else withToc
+    val withDocTitles = if (config.insertTitles) insertDocTitles(withoutTemplates) else withoutTemplates
+    val withToc = if (config.tocDepth > 0) insertToc(withDocTitles, config.tocDepth, config.tocTitle) else withDocTitles
+    if (config.insertTitles) addTreeTitles(withToc) else withToc
   }
   
   /** Renders the XSL-FO that serves as a basis for producing the final PDF output.
@@ -183,7 +167,24 @@ class FOforPDF (config: PDFConfig) {
    *  @return the rendered XSL-FO as a String 
    */
   def renderFO (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit): String = {
+    
+    val pdfConfig = config getOrElse {
+      val defaults = PDFConfig.default
       
+      tree.config.fold(defaults) { treeConfig =>
+        
+        def getOpt [T](key: String, read: String => T): Option[T] = 
+          if (treeConfig.hasPath(key)) Some(read(key)) else None
+        
+        val insertTitles = getOpt("pdf.insertTitles", treeConfig.getBoolean).getOrElse(defaults.insertTitles)
+        val bookmarkDepth = getOpt("pdf.bookmarks.depth", treeConfig.getInt).getOrElse(defaults.bookmarkDepth)
+        val tocDepth = getOpt("pdf.toc.depth", treeConfig.getInt).getOrElse(defaults.tocDepth)
+        val tocTitle = getOpt("pdf.toc.title", treeConfig.getString).orElse(defaults.tocTitle)
+ 
+        PDFConfig(insertTitles, bookmarkDepth, tocDepth, tocTitle)
+      }
+    }
+    
     def getDefaultTemplate: TemplateDocument = {
       val templateName = "default.template.fo"
       tree.selectTemplate(Current / templateName)
@@ -212,13 +213,13 @@ class FOforPDF (config: PDFConfig) {
     
     def applyTemplate(foString: String, template: TemplateDocument, tree: DocumentTree): String = {
       val result = RawContent(Seq("fo"), foString)
-      val finalDoc = new Document(Root / "merged.fo", RootElement(Seq(result)), fragments = generateBookmarks(tree))
+      val finalDoc = new Document(Root / "merged.fo", RootElement(Seq(result)), fragments = generateBookmarks(tree, pdfConfig.bookmarkDepth))
       val templateApplied = template.rewrite(DocumentContext(finalDoc))
       Render as XSLFO from templateApplied toString
     }
     
     val defaultTemplate = getDefaultTemplate
-    val preparedTree = prepareTree(tree)
+    val preparedTree = prepareTree(tree, pdfConfig)
     val foString = renderDocuments(preparedTree)
     applyTemplate(foString, defaultTemplate, preparedTree)
   }
@@ -229,4 +230,4 @@ class FOforPDF (config: PDFConfig) {
  *  optional features like document titles, bookmarks and table
  *  of content enabled.
  */
-object FOforPDF extends FOforPDF(PDFConfig.default)
+object FOforPDF extends FOforPDF(None)

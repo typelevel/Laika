@@ -35,7 +35,7 @@ import com.typesafe.config.ConfigValueFactory
 class FOforPDFSpec extends FlatSpec with Matchers {
   
   
-  case class FOTest (config: PDFConfig) extends RenderResultProcessor[FOWriter] {
+  case class FOTest (config: Option[PDFConfig]) extends RenderResultProcessor[FOWriter] {
     
     val factory = XSLFO
     
@@ -79,6 +79,8 @@ class FOforPDFSpec extends FlatSpec with Matchers {
       s"""<fo:block id="${idPrefix}__title__" font-family="sans-serif" font-weight="bold" font-size="18pt" keep-with-next="always">Tree $num</fo:block>"""
     }
     
+    def tocTitle: String = """<fo:block font-family="sans-serif" font-size="18pt" keep-with-next="always">Contents</fo:block>""" + "\n"
+    
     def tocDocResult (num: Int): String = 
       s"""<fo:block font-family="serif" font-size="10pt" text-align-last="justify"><fo:basic-link color="#3399FF" internal-destination="${idPrefix(num)}_doc${num}_">Title $num<fo:leader leader-pattern="dots"></fo:leader><fo:page-number-citation ref-id="${idPrefix(num)}_doc${num}_" /></fo:basic-link></fo:block>""" + "\n"
     
@@ -119,7 +121,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
   
   trait Setup extends TreeModel with ResultModel {
     
-    def config: PDFConfig
+    def config: Option[PDFConfig]
     
     def result: String = {
       val stream = new ByteArrayOutputStream
@@ -132,46 +134,39 @@ class FOforPDFSpec extends FlatSpec with Matchers {
   
   "The FOforPDF utility" should "render a tree with all structure elements disabled" in new Setup {
     
-    val config = PDFConfig(treeTitles = false, docTitles = false, bookmarks = false, toc = false)
+    val config = Some(PDFConfig(insertTitles = false, bookmarkDepth = 0, tocDepth = 0))
     
     result should be (withDefaultTemplate(results(6)))
   }
   
-  it should "render a tree with document titles" in new Setup {
+  it should "render a tree with inserted titles for documents and trees" in new Setup {
     
-    val config = PDFConfig(treeTitles = false, docTitles = true, bookmarks = false, toc = false)
+    val config = Some(PDFConfig(insertTitles = true, bookmarkDepth = 0, tocDepth = 0))
     
-    result should be (withDefaultTemplate(resultsWithDocTitle(6)))
-  }
-  
-  it should "render a tree with tree titles" in new Setup {
-    
-    val config = PDFConfig(treeTitles = true, docTitles = false, bookmarks = false, toc = false)
-    
-    result should be (withDefaultTemplate(treeTitleResult(1) + result(1) + result(2)
-        + treeTitleResult(2) + result(3) + result(4)
-        + treeTitleResult(3) + result(5) + result(6)))
+    result should be (withDefaultTemplate(treeTitleResult(1) + resultWithDocTitle(1) + resultWithDocTitle(2)
+        + treeTitleResult(2) + resultWithDocTitle(3) + resultWithDocTitle(4)
+        + treeTitleResult(3) + resultWithDocTitle(5) + resultWithDocTitle(6)))
   }
   
   it should "render a tree with a table of content" in new Setup {
     
-    val config = PDFConfig(treeTitles = false, docTitles = false, bookmarks = false, toc = true)
+    val config = Some(PDFConfig(insertTitles = false, bookmarkDepth = 0, tocDepth = Int.MaxValue, tocTitle = Some("Contents")))
     
-    result should be (withDefaultTemplate(tocDocResult(1) + tocDocResult(2)
+    result should be (withDefaultTemplate(tocTitle + tocDocResult(1) + tocDocResult(2)
         + tocTreeResult(1) + tocDocResult(3) + tocDocResult(4)
         + tocTreeResult(2) + tocDocResult(5) + tocDocResult(6).dropRight(1) + results(6)))
   }
   
   it should "render a tree with bookmarks" in new Setup {
     
-    val config = PDFConfig(treeTitles = false, docTitles = false, bookmarks = true, toc = false)
+    val config = Some(PDFConfig(insertTitles = false, bookmarkDepth = Int.MaxValue, tocDepth = 0))
     
     result should be (withDefaultTemplate(results(6), bookmarkRootResult + bookmarkTreeResult(1,3) + bookmarkTreeResult(2,5).dropRight(1) + closeBookmarks))
   }
   
   it should "render a tree with all structure elements enabled" in new Setup {
     
-    val config = PDFConfig(treeTitles = true, docTitles = true, bookmarks = true, toc = true)
+    val config = Some(PDFConfig.default)
     
     result should be (withDefaultTemplate(
         treeTitleResult(1) + tocDocResult(1) + tocDocResult(2)
@@ -182,6 +177,15 @@ class FOforPDFSpec extends FlatSpec with Matchers {
         + treeTitleResult(3) + resultWithDocTitle(5) + resultWithDocTitle(6),
         bookmarkRootResult + bookmarkTreeResult(1,3) + bookmarkTreeResult(2,5).dropRight(1) + closeBookmarks
     ))
+  }
+  
+  it should "render a tree with all structure elements disabled by a tree configuration file" in new Setup {
+    
+    val config = None
+    
+    override val usePDFFileConfig = true
+    
+    result should be (withDefaultTemplate(results(6)))
   }
   
   

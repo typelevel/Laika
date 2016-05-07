@@ -48,7 +48,7 @@ import org.apache.xmlgraphics.util.MimeConstants
  * 
  *  @author Jens Halm
  */
-class PDF private (val factory: XSLFO, config: PDFConfig) extends RenderResultProcessor[FOWriter] {
+class PDF private (val factory: XSLFO, config: Option[PDFConfig]) extends RenderResultProcessor[FOWriter] {
 
   
   private lazy val fopFactory = FopFactory.newInstance
@@ -62,7 +62,7 @@ class PDF private (val factory: XSLFO, config: PDFConfig) extends RenderResultPr
   /** Allows to specify configuration options like insertion
    *  of bookmarks or table of content.
    */
-  def withConfig (config: PDFConfig): PDF = new PDF(factory, config)
+  def withConfig (config: PDFConfig): PDF = new PDF(factory, Some(config))
   
   private lazy val foForPDF = new FOforPDF(config)
   
@@ -131,20 +131,20 @@ class PDF private (val factory: XSLFO, config: PDFConfig) extends RenderResultPr
 
 /** The default instance of the PDF renderer.
  */
-object PDF extends PDF(XSLFO.unformatted, PDFConfig.default)
+object PDF extends PDF(XSLFO.unformatted, None)
 
 /** Configuration options for the generated PDF output.
  * 
- *  @param treeTitles indicates whether a title will be inserted for each tree and subtree, 
- *  relying on titles specified in the tree configuration file
- *  @param docTitles indicates whether a title will be inserted for each document, 
- *  relying on `Title` elements in the document or titles specified in the document configuration header
- *  @param bookmarks indicates whether PDF bookmarks should be inserted into the PDF document
- *  @param toc indicates whether a table of content should be inserted at the beginning of the PDF document
+ *  @param insertTitles indicates whether a title will be inserted for each tree, subtree,
+ *  and document, relying on titles specified in the configuration file for the tree
+ *  or document, but only if there is no `Title` element in the document already
+ *  @param bookmarkDepth the number of levels bookmarks should be generated for, use 0 to switch off bookmark generation
+ *  @param tocDepth the number of levels to generate a table of contents for, use 0 to switch off toc generation
+ *  @param tocTitle the title for the table of contents
  */
-case class PDFConfig(treeTitles: Boolean = true, docTitles: Boolean = true, bookmarks: Boolean = true, toc: Boolean = true)
+case class PDFConfig(insertTitles: Boolean = true, bookmarkDepth: Int = Int.MaxValue, tocDepth: Int = Int.MaxValue, tocTitle: Option[String] = None)
 
-/** Companion for creation `PDFConfig` instances.
+/** Companion for the creation of `PDFConfig` instances.
  */
 object PDFConfig {
   
