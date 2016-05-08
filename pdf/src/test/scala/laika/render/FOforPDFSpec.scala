@@ -79,6 +79,11 @@ class FOforPDFSpec extends FlatSpec with Matchers {
       s"""<fo:block id="${idPrefix}__title__" font-family="sans-serif" font-weight="bold" font-size="18pt" keep-with-next="always">Tree $num</fo:block>"""
     }
     
+    def treeLinkResult (num: Int): String = {
+      val idPrefix = if (num == 3) "_tree2" else if (num == 2) "_tree1" else ""
+      s"""<fo:block id="${idPrefix}__title__"/>"""
+    }
+    
     def tocTitle: String = """<fo:block font-family="sans-serif" font-size="18pt" keep-with-next="always">Contents</fo:block>""" + "\n"
     
     def tocDocResult (num: Int): String = 
@@ -152,16 +157,21 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     
     val config = Some(PDFConfig(insertTitles = false, bookmarkDepth = 0, tocDepth = Int.MaxValue, tocTitle = Some("Contents")))
     
-    result should be (withDefaultTemplate(tocTitle + tocDocResult(1) + tocDocResult(2)
+    result should be (withDefaultTemplate(treeLinkResult(1) + tocTitle + tocDocResult(1) + tocDocResult(2)
         + tocTreeResult(1) + tocDocResult(3) + tocDocResult(4)
-        + tocTreeResult(2) + tocDocResult(5) + tocDocResult(6).dropRight(1) + results(6)))
+        + tocTreeResult(2) + tocDocResult(5) + tocDocResult(6).dropRight(1) + resultWithDocTitle(1) + resultWithDocTitle(2)
+        + treeLinkResult(2) + resultWithDocTitle(3) + resultWithDocTitle(4)
+        + treeLinkResult(3) + resultWithDocTitle(5) + resultWithDocTitle(6)))
   }
   
   it should "render a tree with bookmarks" in new Setup {
     
     val config = Some(PDFConfig(insertTitles = false, bookmarkDepth = Int.MaxValue, tocDepth = 0))
     
-    result should be (withDefaultTemplate(results(6), bookmarkRootResult + bookmarkTreeResult(1,3) + bookmarkTreeResult(2,5).dropRight(1) + closeBookmarks))
+    result should be (withDefaultTemplate(treeLinkResult(1) + resultWithDocTitle(1) + resultWithDocTitle(2)
+        + treeLinkResult(2) + resultWithDocTitle(3) + resultWithDocTitle(4)
+        + treeLinkResult(3) + resultWithDocTitle(5) + resultWithDocTitle(6), 
+        bookmarkRootResult + bookmarkTreeResult(1,3) + bookmarkTreeResult(2,5).dropRight(1) + closeBookmarks))
   }
   
   it should "render a tree with all structure elements enabled" in new Setup {

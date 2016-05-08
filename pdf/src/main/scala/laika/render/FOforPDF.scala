@@ -61,28 +61,31 @@ class FOforPDF (config: Option[PDFConfig]) {
    *  root tree. Tree titles can be specified in the configuration file
    *  for each tree.
    */
-  def addTreeTitles (tree: DocumentTree): DocumentTree = {
+  def addTreeTitles (linksOnly: Boolean)(tree: DocumentTree): DocumentTree = {
     val treeWithTitle = if (!hasDocuments(tree) || tree.title.isEmpty) tree
     else {
-      val title = Header(1, tree.title, Styles("treeTitle") + Id(""))
+      val title = if (linksOnly || tree.title.isEmpty) InternalLinkTarget(Id(""))
+                  else Header(1, tree.title, Styles("treeTitle") + Id(""))
       val root = RootElement(Seq(title))
       val doc = new Document(tree.path / DocNames.treeTitle, root)
       tree.prependDocument(doc)
     }
-    treeWithTitle.mapSubtrees(addTreeTitles)
+    treeWithTitle.mapSubtrees(addTreeTitles(linksOnly))
   }
   
   /** Adds title elements for each document in the specified
    *  tree, including documents in subtrees. Document titles will be obtained either
    *  from a `Title` element in the document's content or from its configuration header.
    */
-  def insertDocTitles (tree: DocumentTree): DocumentTree =
+  def insertDocTitles (linksOnly: Boolean)(tree: DocumentTree): DocumentTree =
     tree rewrite { context => {
       case title: Title =>
         // toc directives will link to an empty id, not the id of the title element
         Some(BlockSequence(Seq(title), Id("")))
       case root: RootElement if ((root select { _.isInstanceOf[Title] }).isEmpty) => 
-        Some(RootElement(Title(context.document.title, Id("")) +: root.content))
+        val insert = if (linksOnly || context.document.title.isEmpty) InternalLinkTarget(Id(""))
+                     else Title(context.document.title, Id(""))
+        Some(RootElement(insert +: root.content))
     }}
     
   /** Generates bookmarks for the structure of the DocumentTree. Individual
@@ -109,11 +112,11 @@ class FOforPDF (config: Option[PDFConfig]) {
       else (for (nav <- navigatables(tree) if hasContent(nav)) yield nav match {
         case doc: Document if doc.name == DocNames.treeTitle || doc.name == DocNames.toc => Seq()
         case doc: Document =>
-          val title = TreeUtil.extractText(doc.title)
+          val title = if (doc.title.nonEmpty) TreeUtil.extractText(doc.title) else doc.name
           val children = sectionBookmarks(doc.path, doc.sections, levels - 1)
           Seq(Bookmark("", PathInfo.fromPath(doc.path, root.path), title, children))
         case subtree: DocumentTree => 
-          val title = TreeUtil.extractText(subtree.title)
+          val title = if (subtree.title.nonEmpty) TreeUtil.extractText(subtree.title) else subtree.name
           val children = treeBookmarks(subtree, levels - 1)
           Seq(Bookmark("", PathInfo.fromPath(subtree.path / DocNames.treeTitle, root.path), title, children)) 
       }).flatten
@@ -148,11 +151,12 @@ class FOforPDF (config: Option[PDFConfig]) {
    *  and a table of content, depending on configuration.
    */
   def prepareTree (tree: DocumentTree, config: PDFConfig): DocumentTree = {
+    val insertLinks = config.bookmarkDepth > 0 || config.tocDepth > 0
     val withoutTemplates = tree.withoutTemplates.withTemplate(new TemplateDocument(Root / "default.template.fo", 
         TemplateRoot(List(TemplateContextReference("document.content")))))
-    val withDocTitles = if (config.insertTitles) insertDocTitles(withoutTemplates) else withoutTemplates
+    val withDocTitles = if (config.insertTitles || insertLinks) insertDocTitles(!config.insertTitles)(withoutTemplates) else withoutTemplates
     val withToc = if (config.tocDepth > 0) insertToc(withDocTitles, config.tocDepth, config.tocTitle) else withDocTitles
-    if (config.insertTitles) addTreeTitles(withToc) else withToc
+    if (config.insertTitles || insertLinks) addTreeTitles(!config.insertTitles)(withToc) else withToc
   }
   
   /** Renders the XSL-FO that serves as a basis for producing the final PDF output.
