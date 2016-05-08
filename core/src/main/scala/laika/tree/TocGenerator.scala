@@ -89,16 +89,16 @@ object TocGenerator {
     
     def treeTitle (tree: DocumentTree, level: Int): Paragraph = 
       treeTitleDoc.fold(
-        Paragraph(tree.title, options = styles(level))
+        Paragraph(tree.titleOrName, options = styles(level))
       )( doc => 
-        Paragraph(List(CrossLink(tree.title, "", PathInfo.fromPath(tree.path / doc, refPath.parent))), options = styles(level))
+        Paragraph(List(CrossLink(tree.titleOrName, "", PathInfo.fromPath(tree.path / doc, refPath.parent))), options = styles(level))
       )
     
     def docTitle (document: Document, level: Int): Paragraph =
       if (document.path == refPath)
-        Paragraph(document.title, options = styles(level) + Styles("active"))
+        Paragraph(document.titleOrName, options = styles(level) + Styles("active"))
       else
-        Paragraph(List(CrossLink(document.title, "", PathInfo.fromPath(document.path, refPath.parent))), options = styles(level))
+        Paragraph(List(CrossLink(document.titleOrName, "", PathInfo.fromPath(document.path, refPath.parent))), options = styles(level))
     
     def navigatablesToList (navigatables: Seq[Navigatable], curLevel: Int): List[Block] = {
       if (curLevel > maxLevel) Nil else {
