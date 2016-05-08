@@ -102,6 +102,17 @@ class FOWriter (out: String => Unit,
   def internalLink (element: Element, target: String, content: Seq[Span], attr: (String,String)*): FOWriter = 
     this <<@ ("fo:basic-link", element, (attr :+ ("internal-destination"->target)): _*) << content << "</fo:basic-link>"
   
+  /** Renders an FO `block` or `inline` for this internal link
+   *  target, depending on whether it is inside a `BlockContainer`
+   *  or `SpanContainer`.
+   */
+  def internalLinkTarget (element: Element): FOWriter = {
+    parents.head match {
+      case bc: BlockContainer[_] => block(element)
+      case _ => inline(element, Nil)
+    }
+  }
+  
   /** Renders an FO `basic-link` element for an external target.
    */
   def externalLink (element: Element, url: String, content: Seq[Span], attr: (String,String)*): FOWriter = 

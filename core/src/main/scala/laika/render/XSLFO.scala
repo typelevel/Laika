@@ -232,7 +232,7 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
     def renderSimpleBlock (block: Block): Unit = block match {
       case e @ ListItemLabel(content,_) => out.listItemLabel(e, content)
       case e: Rule                      => out <<@ ("fo:leader",e,"leader-pattern"->"rule") << "</fo:leader>" 
-      case e: InternalLinkTarget        => out.inline(e, Nil)
+      case e: InternalLinkTarget        => out.internalLinkTarget(e)
       case e: BookmarkTree              => out.bookmarkTree(e)
       case e: Bookmark                  => out.bookmark(e)
       case e: PageBreak                 => out.block(e)
