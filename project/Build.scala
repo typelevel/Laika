@@ -2,6 +2,9 @@ import sbt._
 import Keys._
 import bintray.Plugin.bintrayPublishSettings
 import bintray.Keys._
+import sbtunidoc.Plugin.ScalaUnidoc
+import sbtunidoc.Plugin.UnidocKeys._
+import sbtunidoc.Plugin.unidocSettings
 
 object Build extends Build {
 
@@ -121,6 +124,8 @@ object Build extends Build {
     .aggregate(core, pdf, plugin)
     .settings(Settings.basic: _*)
     .settings(Publishing.none: _*)
+    .settings(unidocSettings: _*)
+    .settings(unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(plugin))
  
   lazy val core = Project("laika-core", file("core"))
     .settings(Settings.module: _*)
