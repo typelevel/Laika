@@ -2,12 +2,14 @@
 Paragraph {
   font-family: serif;
   font-size: 10pt;
+  space-after: 3mm;
 }
 
 TitledBlock {
   background-color: #cccccc;
   padding-left: 2cm;
   padding-right: 2cm;
+  space-after: 6mm;
 }
 
 TitledBlock .title {
@@ -17,8 +19,10 @@ TitledBlock .title {
 }
 
 QuotedBlock {
-  margin-left: 2cm;
-  margin-right: 2cm;
+  font-style: italic;
+  margin-left: 8mm;
+  margin-right: 8mm;
+  space-after: 3mm;
 }
 
 QuotedBlock .attribution {
@@ -27,16 +31,20 @@ QuotedBlock .attribution {
 
 LiteralBlock, ParsedLiteralBlock, CodeBlock {
   font-family: monospace;
-  margin-left: 2cm;
-  margin-right: 2cm;
+  font-size: 10pt;
+  margin-left: 6mm;
+  margin-right: 6mm;
+  space-after: 6mm;
+  linefeed-treatment: preserve;
 }
 
 Image {
-	
+  width: 100%;
+  space-after: 6mm;
 }
 
 Figure {
-	
+  space-after: 6mm;
 }
 
 Figure .caption {
@@ -52,44 +60,51 @@ Figure .legend {
 Header {
   font-family: sans-serif;
   font-weight: bold;
-  font-size: 12pt;
+  font-size: 11pt;
+  space-after: 5mm;
+  space-before: 9mm;
 }
 
 Title, Header.level1 {
   font-family: sans-serif;
-  font-size: 18pt;
+  font-size: 16pt;
+  space-after: 7mm;
+  space-before: 12mm;
 }
 
 Header.level2 {
-  font-size: 16pt;
-}
-
-Header.level3 {
   font-size: 14pt;
 }
 
+Header.level3 {
+  font-size: 12pt;
+}
+
 BulletList {
-  
+  space-after: 6mm;
+  provisional-distance-between-starts: 5mm;
 }
 
 EnumList {
-  
+  space-after: 6mm;
+  provisional-distance-between-starts: 5mm;
 }
 
 DefinitionList {
-  
+  space-after: 6mm;
+  provisional-distance-between-starts: 20mm;
 }
 
 BulletListItem {
-	
+  space-after: 3mm;
 }
 
 EnumListItem {
-	
+  space-after: 3mm;
 }
 
 DefinitionListItem {
-	
+  space-after: 3mm;
 }
 
 ListItemBody {
@@ -101,7 +116,7 @@ ListItemLabel {
 }
 
 Table {
-	
+  space-after: 6mm;
 }
 
 TableHead {
@@ -150,7 +165,7 @@ Literal, Code {
 
 .subscript {
   vertical-align: sub; 
-  font-size: 8pt;	
+  font-size: 8pt;
 }
 
 .superscript, .footnote-label {
