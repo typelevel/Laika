@@ -38,8 +38,7 @@ abstract class TagWriter (out: String => Unit,
                           root: Element,
                           newLine: String = "\n",
                           formatted: Boolean = true) extends 
-                              TextWriter(out, render, root,
-                                         newLine = if (formatted) newLine else "", 
+                              TextWriter(out, render, root, newLine = newLine, 
                                          indentItem = if (formatted) "  " else "") {
   
   

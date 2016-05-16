@@ -629,7 +629,10 @@ class HTMLRendererSpec extends FlatSpec
   
   it should "render a table cell unformatted" in {
     val elem = cell(p("a"),p("b"))
-    val html = """<td><p>a</p><p>b</p></td>"""
+    val html = """<td>
+      |<p>a</p>
+      |<p>b</p>
+      |</td>""".stripMargin
     renderUnformatted(elem) should be (html)
   } 
   
