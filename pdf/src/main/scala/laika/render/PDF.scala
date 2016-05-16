@@ -17,6 +17,7 @@
 package laika.render
 
 import laika.factory.RenderResultProcessor
+import laika.io.Input
 import laika.io.Output
 import laika.io.Output.BinaryOutput
 import laika.io.OutputProvider.OutputConfig
@@ -95,10 +96,28 @@ class PDF private (val factory: XSLFO, config: Option[PDFConfig]) extends Render
    */  
   def process (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit, output: BinaryOutput): Unit = {
     
+    val fo = renderFO(tree, render)
+    
+    renderPDF(Input.fromString(fo), output, tree.sourcePaths)
+    
+  }
+  
+  /** Render the given XSL-FO input as a PDF to the specified
+   *  binary output. The optional `sourcePaths` argument
+   *  may be used to allow resolving relative paths for
+   *  loading external files like images.
+   * 
+   *  @param foInput the input in XSL-FO format
+   *  @param output the output to write the final result to
+   *  @param sourcePaths the paths that may contain files like images
+   *  which will be used to resolve relative paths
+   */
+  def renderPDF (foInput: Input, output: BinaryOutput, sourcePaths: Seq[String] = Nil): Unit = {
+    
     def createSAXResult (out: OutputStream) = {
       val foUserAgent = fopFactory.newFOUserAgent
       foUserAgent.setURIResolver(new URIResolver {
-        def resolve (uri: String, base: String) = (tree.sourcePaths.collectFirst {
+        def resolve (uri: String, base: String) = (sourcePaths.collectFirst {
           case source if (new File(source+uri)).isFile => new StreamSource(new File(source+uri))
         }).getOrElse(null)
       })
@@ -111,11 +130,10 @@ class PDF private (val factory: XSLFO, config: Option[PDFConfig]) extends Render
       factory.newTransformer // identity transformer
     }
     
-    val fo = renderFO(tree, render)
     val out = output.asStream
     
     try {
-      val source = new StreamSource(new StringReader(fo))
+      val source = new StreamSource(foInput.asReader)
       val result = createSAXResult(out)
 
       createTransformer.transform(source, result)
