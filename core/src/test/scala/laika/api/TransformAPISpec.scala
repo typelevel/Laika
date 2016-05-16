@@ -296,7 +296,7 @@ class TransformAPISpec extends FlatSpec
         StyleDeclarationSet(input.path, styleDecl(input.asParserInput.source.toString))
       val dirs = """- doc1.md:name
         |- styles.fo.css:style""".stripMargin
-      val result = RenderResult.fo.withDefaultTemplate("""<fo:block font-family="serif" font-size="13pt">foo</fo:block>""")
+      val result = RenderResult.fo.withDefaultTemplate("""<fo:block font-family="serif" font-size="13pt" space-after="3mm">foo</fo:block>""")
       val providerBuilder = new TestProviderBuilder
       val styles = ParseStyleSheet as parser
       Transform from Markdown to XSLFO fromTree input(dirs).inParallel withStyleSheetParser styles toTree output(providerBuilder).inParallel
