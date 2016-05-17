@@ -12,7 +12,7 @@
         margin-bottom="1cm"
         margin-left="2.5cm"
         margin-right="2.5cm">
-      <fo:region-body margin-top="3cm"/>
+      <fo:region-body margin-top="2cm" margin-bottom="2cm"/>
       <fo:region-before extent="3cm"/>
       <fo:region-after extent="1cm"/>
     </fo:simple-page-master>
