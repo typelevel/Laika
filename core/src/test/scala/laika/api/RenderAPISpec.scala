@@ -190,8 +190,8 @@ class RenderAPISpec extends FlatSpec
   it should "render a tree with a single document to XSL-FO using the default template and default CSS" in {
     new FORenderer {
       val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite))
-      val expected = RenderResult.fo.withDefaultTemplate("""<fo:block id="_title" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title</fo:block>
-        |      <fo:block font-family="serif" font-size="10pt">bbb</fo:block>""".stripMargin)
+      val expected = RenderResult.fo.withDefaultTemplate("""<fo:block id="_title" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">Title</fo:block>
+        |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">bbb</fo:block>""".stripMargin)
       renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.fo", expected))))))
     }
   }
@@ -200,8 +200,8 @@ class RenderAPISpec extends FlatSpec
     new FORenderer {
       val template = new TemplateDocument(Root / "default.template.fo", tRoot(tt("["), TemplateContextReference("document.content"), tt("]")))
       val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite), templates = Seq(template))
-      val expected = """[<fo:block id="_title" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title</fo:block>
-        |<fo:block font-family="serif" font-size="10pt">bbb</fo:block>]""".stripMargin
+      val expected = """[<fo:block id="_title" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">Title</fo:block>
+        |<fo:block font-family="serif" font-size="10pt" space-after="3mm">bbb</fo:block>]""".stripMargin
       renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.fo", expected))))))
     }
   }
@@ -210,10 +210,10 @@ class RenderAPISpec extends FlatSpec
     new FORenderer {
       val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite), styles = foStyles, subtrees = 
         Seq(new DocumentTree(Root / "tree", List(new Document(Root / "tree" / "sub", subElem).rewrite))))
-      val expectedRoot = RenderResult.fo.withDefaultTemplate("""<fo:block id="_title" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title</fo:block>
-        |      <fo:block font-family="serif" font-size="11pt">bbb</fo:block>""".stripMargin)
-      val expectedSub = RenderResult.fo.withDefaultTemplate("""<fo:block id="_sub-title" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Sub Title</fo:block>
-        |      <fo:block font-family="serif" font-size="11pt">ccc</fo:block>""".stripMargin)
+      val expectedRoot = RenderResult.fo.withDefaultTemplate("""<fo:block id="_title" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">Title</fo:block>
+        |      <fo:block font-family="serif" font-size="11pt" space-after="3mm">bbb</fo:block>""".stripMargin)
+      val expectedSub = RenderResult.fo.withDefaultTemplate("""<fo:block id="_sub-title" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">Sub Title</fo:block>
+        |      <fo:block font-family="serif" font-size="11pt" space-after="3mm">ccc</fo:block>""".stripMargin)
       renderedTree should be (RenderedTree(Root, List(
           Documents(List(RenderedDocument(Root / "doc.fo", expectedRoot))), 
           Subtrees(List(RenderedTree(Root / "tree", List(
@@ -227,10 +227,10 @@ class RenderAPISpec extends FlatSpec
     new FORenderer {
       val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite), subtrees = 
         Seq(new DocumentTree(Root / "tree", List(new Document(Root / "tree" / "sub", subElem).rewrite), styles = foStyles)))
-      val expectedRoot = RenderResult.fo.withDefaultTemplate("""<fo:block id="_title" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title</fo:block>
-        |      <fo:block font-family="serif" font-size="10pt">bbb</fo:block>""".stripMargin)
-      val expectedSub = RenderResult.fo.withDefaultTemplate("""<fo:block id="_sub-title" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Sub Title</fo:block>
-        |      <fo:block font-family="serif" font-size="11pt">ccc</fo:block>""".stripMargin)
+      val expectedRoot = RenderResult.fo.withDefaultTemplate("""<fo:block id="_title" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">Title</fo:block>
+        |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">bbb</fo:block>""".stripMargin)
+      val expectedSub = RenderResult.fo.withDefaultTemplate("""<fo:block id="_sub-title" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">Sub Title</fo:block>
+        |      <fo:block font-family="serif" font-size="11pt" space-after="3mm">ccc</fo:block>""".stripMargin)
       renderedTree should be (RenderedTree(Root, List(
           Documents(List(RenderedDocument(Root / "doc.fo", expectedRoot))), 
           Subtrees(List(RenderedTree(Root / "tree", List(
@@ -245,10 +245,10 @@ class RenderAPISpec extends FlatSpec
       override val render = Render as XSLFO.withStyles(foStyles("fo"))
       val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite), subtrees = 
         Seq(new DocumentTree(Root / "tree", List(new Document(Root / "tree" / "sub", subElem).rewrite))))
-      val expectedRoot = RenderResult.fo.withDefaultTemplate("""<fo:block id="_title" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title</fo:block>
-        |      <fo:block font-family="serif" font-size="11pt">bbb</fo:block>""".stripMargin)
-      val expectedSub = RenderResult.fo.withDefaultTemplate("""<fo:block id="_sub-title" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Sub Title</fo:block>
-        |      <fo:block font-family="serif" font-size="11pt">ccc</fo:block>""".stripMargin)
+      val expectedRoot = RenderResult.fo.withDefaultTemplate("""<fo:block id="_title" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">Title</fo:block>
+        |      <fo:block font-family="serif" font-size="11pt" space-after="3mm">bbb</fo:block>""".stripMargin)
+      val expectedSub = RenderResult.fo.withDefaultTemplate("""<fo:block id="_sub-title" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">Sub Title</fo:block>
+        |      <fo:block font-family="serif" font-size="11pt" space-after="3mm">ccc</fo:block>""".stripMargin)
       renderedTree should be (RenderedTree(Root, List(
           Documents(List(RenderedDocument(Root / "doc.fo", expectedRoot))), 
           Subtrees(List(RenderedTree(Root / "tree", List(

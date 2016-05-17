@@ -44,7 +44,7 @@ class FOWriter (out: String => Unit,
                                            with FOProperties {
 
   protected def attributes (tag: String, options: Options, attrs: Seq[(String,Any)]): Seq[(String, Any)] = {
-    filterAttributes(tag, ("id"->options.id) +: attrs)
+    filterAttributes(tag, ("id"->options.id) +: attrs.sortBy(_._1))
   }
   
   protected def attributes (tag: String, element: Element, attrs: Seq[(String,Any)]): Seq[(String, Any)] = {
@@ -53,7 +53,7 @@ class FOWriter (out: String => Unit,
       case c: Customizable => c.options
       case _ => NoOpt
     }
-    filterAttributes(tag, ("id"->options.id.map(buildId(path, _))) +: fromCSS ++: attrs)
+    filterAttributes(tag, ("id"->options.id.map(buildId(path, _))) +: (fromCSS ++: attrs).sortBy(_._1))
   }
   
   

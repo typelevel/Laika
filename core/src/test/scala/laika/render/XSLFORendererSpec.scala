@@ -110,7 +110,7 @@ class XSLFORendererSpec extends FlatSpec
   
   it should "render a bullet list with simple flow content" in {
     val elem = bulletList() + "aaa" + "bbb" toList
-    val html = """<fo:list-block space-after="6mm" provisional-distance-between-starts="5mm">
+    val html = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">
       |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">&amp;#x2022;</fo:block>
@@ -133,7 +133,7 @@ class XSLFORendererSpec extends FlatSpec
   
   it should "render an enumerated list with simple flow content" in {
     val elem = enumList() + "aaa" + "bbb"
-    val html = """<fo:list-block space-after="6mm" provisional-distance-between-starts="5mm">
+    val html = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">
       |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">1.</fo:block>
@@ -156,7 +156,7 @@ class XSLFORendererSpec extends FlatSpec
   
   it should "render an enumerated list with lower roman enumeration style" in {
     val elem = enumList(EnumFormat(LowerRoman, "", ".")) + "aaa" + "bbb"
-    val html = """<fo:list-block space-after="6mm" provisional-distance-between-starts="5mm">
+    val html = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">
       |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">i.</fo:block>
@@ -179,7 +179,7 @@ class XSLFORendererSpec extends FlatSpec
   
   it should "render an enumerated list with upper roman enumeration style" in {
     val elem = enumList(EnumFormat(UpperRoman, "", ".")) + "aaa" + "bbb"
-    val html = """<fo:list-block space-after="6mm" provisional-distance-between-starts="5mm">
+    val html = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">
       |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">I.</fo:block>
@@ -202,7 +202,7 @@ class XSLFORendererSpec extends FlatSpec
   
   it should "render an enumerated list with lower alpha enumeration style" in {
     val elem = enumList(EnumFormat(LowerAlpha, "", ".")) + "aaa" + "bbb"
-    val html = """<fo:list-block space-after="6mm" provisional-distance-between-starts="5mm">
+    val html = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">
       |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">a.</fo:block>
@@ -225,7 +225,7 @@ class XSLFORendererSpec extends FlatSpec
   
   it should "render an enumerated list with upper alpha enumeration style" in {
     val elem = enumList(EnumFormat(UpperAlpha, "", ".")) + "aaa" + "bbb"
-    val html = """<fo:list-block space-after="6mm" provisional-distance-between-starts="5mm">
+    val html = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">
       |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">A.</fo:block>
@@ -248,7 +248,7 @@ class XSLFORendererSpec extends FlatSpec
   
   it should "render an enumerated list with the start value other than 1" in {
     val elem = enumList(EnumFormat(Arabic, "", "."), 7) + "aaa" + "bbb"
-    val html = """<fo:list-block space-after="6mm" provisional-distance-between-starts="5mm">
+    val html = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">
       |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">7.</fo:block>
@@ -279,7 +279,7 @@ class XSLFORendererSpec extends FlatSpec
   
   it should "render a bullet list with forced paragraphs as list items the same way as normal paragraphs" in {
     val elem = bulletList() + fp("aaa") + fp("bbb") toList
-    val html = """<fo:list-block space-after="6mm" provisional-distance-between-starts="5mm">
+    val html = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">
       |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">&amp;#x2022;</fo:block>
@@ -302,7 +302,7 @@ class XSLFORendererSpec extends FlatSpec
   
   it should "render an enumerated list with forced paragraphs as list items the same way as normal paragraphs" in {
     val elem = enumList() + fp("aaa") + fp("bbb")
-    val html = """<fo:list-block space-after="6mm" provisional-distance-between-starts="5mm">
+    val html = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">
       |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">1.</fo:block>
@@ -325,7 +325,7 @@ class XSLFORendererSpec extends FlatSpec
   
   it should "render a definition list with paragraphs" in {
     val elem = defList + ("term 1", p("1"), p("1")) + ("term 2", p("2"), p("2"))
-    val html = """<fo:list-block space-after="6mm" provisional-distance-between-starts="20mm">
+    val html = """<fo:list-block provisional-distance-between-starts="20mm" space-after="6mm">
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">
       |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">term 1</fo:block>
@@ -350,7 +350,7 @@ class XSLFORendererSpec extends FlatSpec
   
   it should "render a definition list with simple flow content" in {
     val elem = defList + ("term 1", p("1")) + ("term 2", p("2"))
-    val html = """<fo:list-block space-after="6mm" provisional-distance-between-starts="20mm">
+    val html = """<fo:list-block provisional-distance-between-starts="20mm" space-after="6mm">
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">
       |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">term 1</fo:block>
@@ -374,9 +374,9 @@ class XSLFORendererSpec extends FlatSpec
   it should "render a paragraph containing a citation link" in {
     val elem = BlockSequence(List(p(txt("some "), CitationLink("ref","label"), txt(" span")), Citation("ref", List(p("a"),p("b")), Id("ref"))))
     val html = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:footnote>
-      |  <fo:inline vertical-align="super" font-size="8pt">[label]</fo:inline>
+      |  <fo:inline font-size="8pt" vertical-align="super">[label]</fo:inline>
       |  <fo:footnote-body id="_ref">
-      |    <fo:block font-family="serif" font-size="10pt" space-after="3mm"><fo:inline vertical-align="super" font-size="8pt">[label]</fo:inline> a</fo:block>
+      |    <fo:block font-family="serif" font-size="10pt" space-after="3mm"><fo:inline font-size="8pt" vertical-align="super">[label]</fo:inline> a</fo:block>
       |    <fo:block font-family="serif" font-size="10pt" space-after="3mm">b</fo:block>
       |  </fo:footnote-body>
       |</fo:footnote> span</fo:block>
@@ -387,9 +387,9 @@ class XSLFORendererSpec extends FlatSpec
   it should "render a paragraph containing a footnote link" in {
     val elem = BlockSequence(List(p(txt("some "), FootnoteLink("id","label"), txt(" span")), Footnote("label", List(p("a"),p("b")), Id("id"))))
     val html = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:footnote>
-      |  <fo:inline vertical-align="super" font-size="8pt">[label]</fo:inline>
+      |  <fo:inline font-size="8pt" vertical-align="super">[label]</fo:inline>
       |  <fo:footnote-body id="_id">
-      |    <fo:block font-family="serif" font-size="10pt" space-after="3mm"><fo:inline vertical-align="super" font-size="8pt">[label]</fo:inline> a</fo:block>
+      |    <fo:block font-family="serif" font-size="10pt" space-after="3mm"><fo:inline font-size="8pt" vertical-align="super">[label]</fo:inline> a</fo:block>
       |    <fo:block font-family="serif" font-size="10pt" space-after="3mm">b</fo:block>
       |  </fo:footnote-body>
       |</fo:footnote> span</fo:block>
@@ -454,7 +454,7 @@ class XSLFORendererSpec extends FlatSpec
     val caption = Caption(List(Text("caption")))
     val elem = table(row(cell("a"),cell("b")),row(cell("c"),cell("d"))).copy(caption = caption)
     val html = """<fo:block background-color="#cccccc" padding-left="2cm" padding-right="2cm" space-after="6mm">
-      |  <fo:block font-family="sans-serif" font-size="12pt" space-after="3mm" font-weight="bold">caption</fo:block>
+      |  <fo:block font-family="sans-serif" font-size="12pt" font-weight="bold" space-after="3mm">caption</fo:block>
       |  <fo:table space-after="6mm">
       |    <fo:table-body>
       |      <fo-table-row>
@@ -499,7 +499,7 @@ class XSLFORendererSpec extends FlatSpec
   it should "render a titled block" in {
     val elem = TitledBlock(List(txt("some "), em("em"), txt(" text")), List(p("aaa"), Rule(), p("bbb")))
     val html = """<fo:block background-color="#cccccc" padding-left="2cm" padding-right="2cm" space-after="6mm">
-      |  <fo:block font-family="sans-serif" font-size="12pt" space-after="3mm" font-weight="bold">some <fo:inline font-style="italic">em</fo:inline> text</fo:block>
+      |  <fo:block font-family="sans-serif" font-size="12pt" font-weight="bold" space-after="3mm">some <fo:inline font-style="italic">em</fo:inline> text</fo:block>
       |  <fo:block font-family="serif" font-size="10pt" space-after="3mm">aaa</fo:block>
       |  <fo:leader leader-pattern="rule"></fo:leader>
       |  <fo:block font-family="serif" font-size="10pt" space-after="3mm">bbb</fo:block>
@@ -510,8 +510,8 @@ class XSLFORendererSpec extends FlatSpec
   it should "render a figure" in {
     val elem = Figure(Image("alt",URI("image.jpg")), List(txt("some "), em("caption"), txt(" text")), List(p("aaa"), Rule(), p("bbb")))
     val html = """<fo:block space-after="6mm">
-      |  <fo:block font-family="serif" font-size="10pt" space-after="3mm"><fo:external-graphic width="100%" src="image.jpg" content-width="scale-down-to-fit"/></fo:block>
-      |  <fo:block font-family="serif" font-size="9pt" space-after="3mm" font-style="italic">some <fo:inline font-style="italic">caption</fo:inline> text</fo:block>
+      |  <fo:block font-family="serif" font-size="10pt" space-after="3mm"><fo:external-graphic content-width="scale-down-to-fit" src="image.jpg" width="100%"/></fo:block>
+      |  <fo:block font-family="serif" font-size="9pt" font-style="italic" space-after="3mm">some <fo:inline font-style="italic">caption</fo:inline> text</fo:block>
       |  <fo:block font-size="9pt" font-style="italic">
       |    <fo:block font-family="serif" font-size="10pt" space-after="3mm">aaa</fo:block>
       |    <fo:leader leader-pattern="rule"></fo:leader>
@@ -545,11 +545,11 @@ class XSLFORendererSpec extends FlatSpec
     val nested = Section(h(2, txt("Title 2")), List(p("Line 1"), p("Line 2")))
     val rootElem = root(Section(h(1, txt("Title 1")), List(p("Line 1"), p("Line 2"))), nested)
     val html = """
-      |<fo:block space-after="7mm" font-family="sans-serif" space-before="12mm" font-weight="bold" font-size="16pt" keep-with-next="always">Title 1</fo:block>
+      |<fo:block font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">Title 1</fo:block>
       |<fo:block font-family="serif" font-size="10pt" space-after="3mm">Line 1</fo:block>
       |<fo:block font-family="serif" font-size="10pt" space-after="3mm">Line 2</fo:block>
       |
-      |<fo:block space-after="5mm" font-family="sans-serif" space-before="9mm" font-weight="bold" font-size="14pt" keep-with-next="always">Title 2</fo:block>
+      |<fo:block font-family="sans-serif" font-size="14pt" font-weight="bold" keep-with-next="always" space-after="5mm" space-before="9mm">Title 2</fo:block>
       |<fo:block font-family="serif" font-size="10pt" space-after="3mm">Line 1</fo:block>
       |<fo:block font-family="serif" font-size="10pt" space-after="3mm">Line 2</fo:block>""".stripMargin
     render (rootElem) should be (html) 
@@ -557,7 +557,7 @@ class XSLFORendererSpec extends FlatSpec
   
   it should "render a title containing emphasized text" in {
     val elem = Title(Seq(txt("some "), em("em"), txt(" text")))
-    render (elem) should be ("""<fo:block font-family="sans-serif" font-size="16pt" space-after="7mm" space-before="12mm" keep-with-next="always">some <fo:inline font-style="italic">em</fo:inline> text</fo:block>""") 
+    render (elem) should be ("""<fo:block font-family="sans-serif" font-size="16pt" keep-with-next="always" space-after="7mm" space-before="12mm">some <fo:inline font-style="italic">em</fo:inline> text</fo:block>""") 
   }
   
   it should "render a paragraph containing emphasized text" in {
@@ -631,13 +631,13 @@ class XSLFORendererSpec extends FlatSpec
   
   it should "render a paragraph containing an image without title" in {
     val elem = p(txt("some "), img("img", "foo.jpg"), txt(" span"))
-    val html = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:external-graphic width="100%" src="foo.jpg" content-width="scale-down-to-fit"/> span</fo:block>"""
+    val html = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:external-graphic content-width="scale-down-to-fit" src="foo.jpg" width="100%"/> span</fo:block>"""
     render (elem) should be (html) 
   }
   
   it should "render a paragraph containing an image with title" in {
     val elem = p(txt("some "), img("img", "foo.jpg", title = Some("title")), txt(" span"))
-    val html = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:external-graphic width="100%" src="foo.jpg" content-width="scale-down-to-fit"/> span</fo:block>"""
+    val html = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:external-graphic content-width="scale-down-to-fit" src="foo.jpg" width="100%"/> span</fo:block>"""
     render (elem) should be (html) 
   }
   
@@ -682,7 +682,7 @@ class XSLFORendererSpec extends FlatSpec
   }
   
   it should "render a system message" in {
-    val html = """<fo:inline color="white" background-color="#ffff33">some message</fo:inline>"""
+    val html = """<fo:inline background-color="#ffff33" color="white">some message</fo:inline>"""
     render (SystemMessage(Warning, "some message"), Warning) should be (html)
   }
   
@@ -705,7 +705,7 @@ class XSLFORendererSpec extends FlatSpec
   it should "render an invalid block with the system message if the configured message level is lower or equal" in {
     val elem = InvalidBlock(SystemMessage(Warning, "some message"), p("fallback"))
     val html = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">""" + 
-        """<fo:inline color="white" background-color="#ffff33">some message</fo:inline>""" +
+        """<fo:inline background-color="#ffff33" color="white">some message</fo:inline>""" +
         """</fo:block><fo:block font-family="serif" font-size="10pt" space-after="3mm">fallback</fo:block>"""
     render (elem, Info) should be (html)
   }
@@ -722,11 +722,11 @@ class XSLFORendererSpec extends FlatSpec
   
   it should "render an invalid span with the system message if the configured message level is lower or equal" in {
     val elem = InvalidSpan(SystemMessage(Warning, "some message"), txt("fallback"))
-    val html = """<fo:inline color="white" background-color="#ffff33">some message</fo:inline> fallback"""
+    val html = """<fo:inline background-color="#ffff33" color="white">some message</fo:inline> fallback"""
     render (elem, Info) should be (html)
   }
   
-  val monoBlock = """<fo:block space-after="6mm" margin-left="6mm" margin-right="6mm" font-family="monospace" linefeed-treatment="preserve" font-size="10pt">"""
+  val monoBlock = """<fo:block font-family="monospace" font-size="10pt" linefeed-treatment="preserve" margin-left="6mm" margin-right="6mm" space-after="6mm">"""
   
   it should "render a literal block" in {
     val code = """line 1
