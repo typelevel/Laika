@@ -131,6 +131,31 @@ class XSLFORendererSpec extends FlatSpec
     render (elem) should be (html) 
   }
   
+  it should "render a bullet list with a nested list" in {
+    val elem = bulletList() + (SpanSequence(Seq(Text("aaa"))), bulletList() + "bbb") toList
+    val html = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
+      |  <fo:list-item space-after="3mm">
+      |    <fo:list-item-label end-indent="label-end()">
+      |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">&#x2022;</fo:block>
+      |    </fo:list-item-label>
+      |    <fo:list-item-body start-indent="body-start()">
+      |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">aaa</fo:block>
+      |      <fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
+      |        <fo:list-item space-after="3mm">
+      |          <fo:list-item-label end-indent="label-end()">
+      |            <fo:block font-family="serif" font-size="10pt" space-after="3mm">&#x2022;</fo:block>
+      |          </fo:list-item-label>
+      |          <fo:list-item-body start-indent="body-start()">
+      |            <fo:block font-family="serif" font-size="10pt" space-after="3mm">bbb</fo:block>
+      |          </fo:list-item-body>
+      |        </fo:list-item>
+      |      </fo:list-block>
+      |    </fo:list-item-body>
+      |  </fo:list-item>
+      |</fo:list-block>""".stripMargin
+    render (elem) should be (html) 
+  }
+  
   it should "render an enumerated list with simple flow content" in {
     val elem = enumList() + "aaa" + "bbb"
     val html = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">

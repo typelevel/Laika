@@ -144,6 +144,11 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
         case other           => Text(other.toString)
       }
       
+      def replaceSpanContainers (content: Seq[Block]): Seq[Block] = content map {
+        case sc: SpanContainer[_] => Paragraph(sc.content, sc.options)
+        case other => other
+      }
+      
       con match {
         case RootElement(content)               => if (content.nonEmpty) out << content.head <<| content.tail       
         case EmbeddedRoot(content,indent,_)     => out.indented(indent) { if (content.nonEmpty) out << content.head <<| content.tail }       
@@ -154,7 +159,7 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
         case e @ BulletListItem(content,format,_)   => out.listItem(e, List(bulletLabel(format)), content) 
         case e @ EnumListItem(content,format,num,_) => out.listItem(e, List(Text(enumLabel(format,num))), content)
         case e @ DefinitionListItem(term,defn,_)    => out.listItem(e, term, defn)
-        case e @ ListItemBody(content,_)            => out.listItemBody(e, content)
+        case e @ ListItemBody(content,_)            => out.listItemBody(e, replaceSpanContainers(content))
         
         case e @ LineBlock(content,_)           => out.blockContainer(e, content)
         case e @ Figure(img,caption,legend,_)   => out.blockContainer(e, figureContent(img,caption,legend))
