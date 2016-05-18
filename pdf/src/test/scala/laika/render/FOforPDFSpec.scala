@@ -61,22 +61,24 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     def idPrefix (num: Int): String = if (num > 4) "_tree2" else if (num > 2) "_tree1" else ""
     
     def result (num: Int): String = {
-      s"""<fo:block id="${idPrefix(num)}_doc${num}_title-$num" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title $num</fo:block>
-        |<fo:block font-family="serif" font-size="10pt">Text $num</fo:block>""".stripMargin
+      s"""<fo:marker marker-class-name="chapter"><fo:block>Title $num</fo:block></fo:marker>
+        |<fo:block id="${idPrefix(num)}_doc${num}_title-$num" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">Title $num</fo:block>
+        |<fo:block font-family="serif" font-size="10pt" space-after="3mm">Text $num</fo:block>""".stripMargin
     }
     
     def resultsWithDocTitle (num: Int): String = (1 to num) map (resultWithDocTitle) reduce (_ + _)
     
     def resultWithDocTitle (num: Int): String = {
       s"""<fo:block id="${idPrefix(num)}_doc${num}_">
-        |  <fo:block id="${idPrefix(num)}_doc${num}_title-$num" font-family="sans-serif" font-size="18pt" font-weight="bold" keep-with-next="always">Title $num</fo:block>
+        |  <fo:marker marker-class-name="chapter"><fo:block>Title $num</fo:block></fo:marker>
+        |  <fo:block id="${idPrefix(num)}_doc${num}_title-$num" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">Title $num</fo:block>
         |</fo:block>
-        |<fo:block font-family="serif" font-size="10pt">Text $num</fo:block>""".stripMargin
+        |<fo:block font-family="serif" font-size="10pt" space-after="3mm">Text $num</fo:block>""".stripMargin
     }
     
     def treeTitleResult (num: Int): String = {
       val idPrefix = if (num == 3) "_tree2" else if (num == 2) "_tree1" else ""
-      s"""<fo:block id="${idPrefix}__title__" font-family="sans-serif" font-weight="bold" font-size="18pt" keep-with-next="always">Tree $num</fo:block>"""
+      s"""<fo:block id="${idPrefix}__title__" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">Tree $num</fo:block>"""
     }
     
     def treeLinkResult (num: Int): String = {
@@ -84,13 +86,15 @@ class FOforPDFSpec extends FlatSpec with Matchers {
       s"""<fo:block id="${idPrefix}__title__"/>"""
     }
     
-    def tocTitle: String = """<fo:block font-family="sans-serif" font-size="18pt" keep-with-next="always">Contents</fo:block>""" + "\n"
+    def tocTitle: String = """<fo:marker marker-class-name="chapter"><fo:block>Contents</fo:block></fo:marker>
+      |<fo:block font-family="sans-serif" font-size="16pt" keep-with-next="always" space-after="7mm" space-before="12mm">Contents</fo:block>
+      |"""stripMargin
     
     def tocDocResult (num: Int): String = 
-      s"""<fo:block font-family="serif" font-size="10pt" text-align-last="justify"><fo:basic-link color="#3399FF" internal-destination="${idPrefix(num)}_doc${num}_">Title $num<fo:leader leader-pattern="dots"></fo:leader><fo:page-number-citation ref-id="${idPrefix(num)}_doc${num}_" /></fo:basic-link></fo:block>""" + "\n"
+      s"""<fo:block font-family="serif" font-size="10pt" space-after="3mm" text-align-last="justify"><fo:basic-link color="#3399FF" internal-destination="${idPrefix(num)}_doc${num}_">Title $num<fo:leader leader-pattern="dots"></fo:leader><fo:page-number-citation ref-id="${idPrefix(num)}_doc${num}_" /></fo:basic-link></fo:block>""" + "\n"
     
     def tocTreeResult (num: Int): String = 
-      s"""<fo:block font-family="serif" font-size="10pt" text-align-last="justify"><fo:basic-link color="#3399FF" internal-destination="_tree${num}__title__">Tree ${num+1}<fo:leader leader-pattern="dots"></fo:leader><fo:page-number-citation ref-id="_tree${num}__title__" /></fo:basic-link></fo:block>""" + "\n"  
+      s"""<fo:block font-family="serif" font-size="10pt" space-after="3mm" text-align-last="justify"><fo:basic-link color="#3399FF" internal-destination="_tree${num}__title__">Tree ${num+1}<fo:leader leader-pattern="dots"></fo:leader><fo:page-number-citation ref-id="_tree${num}__title__" /></fo:basic-link></fo:block>""" + "\n"  
     
     def withDefaultTemplate(result: String, bookmarks: String = ""): String =
       defaultTemplate.replace("{{document.content}}", result).replace("{{document.fragments.bookmarks}}", bookmarks)    
