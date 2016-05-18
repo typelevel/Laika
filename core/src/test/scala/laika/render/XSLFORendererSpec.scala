@@ -113,7 +113,7 @@ class XSLFORendererSpec extends FlatSpec
     val html = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">
-      |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">&amp;#x2022;</fo:block>
+      |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">&#x2022;</fo:block>
       |    </fo:list-item-label>
       |    <fo:list-item-body start-indent="body-start()">
       |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">aaa</fo:block>
@@ -121,7 +121,7 @@ class XSLFORendererSpec extends FlatSpec
       |  </fo:list-item>
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">
-      |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">&amp;#x2022;</fo:block>
+      |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">&#x2022;</fo:block>
       |    </fo:list-item-label>
       |    <fo:list-item-body start-indent="body-start()">
       |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">bbb</fo:block>
@@ -282,7 +282,7 @@ class XSLFORendererSpec extends FlatSpec
     val html = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">
-      |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">&amp;#x2022;</fo:block>
+      |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">&#x2022;</fo:block>
       |    </fo:list-item-label>
       |    <fo:list-item-body start-indent="body-start()">
       |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">aaa</fo:block>
@@ -290,7 +290,7 @@ class XSLFORendererSpec extends FlatSpec
       |  </fo:list-item>
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">
-      |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">&amp;#x2022;</fo:block>
+      |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">&#x2022;</fo:block>
       |    </fo:list-item-label>
       |    <fo:list-item-body start-indent="body-start()">
       |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">bbb</fo:block>
@@ -557,7 +557,8 @@ class XSLFORendererSpec extends FlatSpec
   
   it should "render a title containing emphasized text" in {
     val elem = Title(Seq(txt("some "), em("em"), txt(" text")))
-    render (elem) should be ("""<fo:block font-family="sans-serif" font-size="16pt" keep-with-next="always" space-after="7mm" space-before="12mm">some <fo:inline font-style="italic">em</fo:inline> text</fo:block>""") 
+    render (elem) should be ("""<fo:marker marker-class-name="chapter"><fo:block>some em text</fo:block></fo:marker>
+      |<fo:block font-family="sans-serif" font-size="16pt" keep-with-next="always" space-after="7mm" space-before="12mm">some <fo:inline font-style="italic">em</fo:inline> text</fo:block>""".stripMargin) 
   }
   
   it should "render a paragraph containing emphasized text" in {
