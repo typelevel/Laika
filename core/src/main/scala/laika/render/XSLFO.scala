@@ -138,9 +138,9 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
         format.prefix + pos + format.suffix
       } 
       
-      def bulletLabel (format: BulletFormat): String = format match {
-        case StringBullet(_) => "&#x2022;"
-        case other           => other.toString
+      def bulletLabel (format: BulletFormat): Span = format match {
+        case StringBullet(_) => RawContent(Seq("fo"), "&#x2022;")
+        case other           => Text(other.toString)
       }
       
       con match {
@@ -150,7 +150,7 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
         case e @ TitledBlock(title, content, _) => out.blockContainer(e, Paragraph(title,Styles("title")) +: content)
         case e @ QuotedBlock(content,attr,_)    => out.blockContainer(e, quotedBlockContent(content,attr))
         
-        case e @ BulletListItem(content,format,_)   => out.listItem(e, List(Text(bulletLabel(format))), content) 
+        case e @ BulletListItem(content,format,_)   => out.listItem(e, List(bulletLabel(format)), content) 
         case e @ EnumListItem(content,format,num,_) => out.listItem(e, List(Text(enumLabel(format,num))), content)
         case e @ DefinitionListItem(term,defn,_)    => out.listItem(e, term, defn)
         case e @ ListItemBody(content,_)            => out.listItemBody(e, content)
