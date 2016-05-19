@@ -24,8 +24,8 @@
   <fo:page-sequence master-reference="default">
 
     <fo:static-content flow-name="xsl-region-before">
-      <fo:block border-bottom-width="thin" border-bottom-style="solid" 
-          font-weight="bold" font-size="10pt" text-align="center">
+      <fo:block border-bottom-width="1pt" border-bottom-style="solid" 
+          font-weight="bold" font-size="9pt" text-align="center">
         <fo:retrieve-marker 
             retrieve-class-name="chapter"
             retrieve-position="first-including-carryover"
