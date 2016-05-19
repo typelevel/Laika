@@ -269,11 +269,11 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
       case Caption(_,_)            => () // replaced by Table renderer
       case Columns(_,_)            => () // replaced by Table renderer
       case e: Column               => out <<@ ("fo:table-column",e)
-      case e @ Row(cells,_)        => out <<@ ("fo-table-row",e) <<|> cells <<| "</fo-table-row>"
+      case e @ Row(cells,_)        => out <<@ ("fo:table-row",e) <<|> cells <<| "</fo:table-row>"
       case e @ Cell(_, content, colspan, rowspan, _) => out <<@ 
-            ("fo-table-cell", e, 
+            ("fo:table-cell", e, 
                 "number-columns-spanned"->noneIfDefault(colspan,1), 
-                "number-rows-spanned"->noneIfDefault(rowspan,1)) <<|> content <<| "</fo-table-cell>"
+                "number-rows-spanned"->noneIfDefault(rowspan,1)) <<|> content <<| "</fo:table-cell>"
     }
     
     def renderUnresolvedReference (ref: Reference): Unit = {
