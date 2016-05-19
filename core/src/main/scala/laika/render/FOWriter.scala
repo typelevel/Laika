@@ -121,9 +121,7 @@ class FOWriter (out: String => Unit,
   /** Renders an FO `external-graphic` element.
    */
   def externalGraphic (element: Element, src: String): FOWriter =
-    this <<@/ ("fo:external-graphic", element, "src"->src,
-        "inline-progression-dimension.maximum"->"100%", 
-        "content-width"->"scale-down-to-fit")
+    this <<@/ ("fo:external-graphic", element, "src"->src)
    
   /** Renders an FO `list-item` element with the specified label and body.
    */

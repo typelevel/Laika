@@ -535,7 +535,7 @@ class XSLFORendererSpec extends FlatSpec
   it should "render a figure" in {
     val elem = Figure(Image("alt",URI("image.jpg")), List(txt("some "), em("caption"), txt(" text")), List(p("aaa"), Rule(), p("bbb")))
     val html = """<fo:block space-after="6mm">
-      |  <fo:block font-family="serif" font-size="10pt" space-after="3mm"><fo:external-graphic content-width="scale-down-to-fit" src="image.jpg" width="100%"/></fo:block>
+      |  <fo:block font-family="serif" font-size="10pt" space-after="3mm"><fo:external-graphic content-width="scale-down-to-fit" height="100%" scaling="uniform" src="image.jpg" width="100%"/></fo:block>
       |  <fo:block font-family="serif" font-size="9pt" font-style="italic" space-after="3mm">some <fo:inline font-style="italic">caption</fo:inline> text</fo:block>
       |  <fo:block font-size="9pt" font-style="italic">
       |    <fo:block font-family="serif" font-size="10pt" space-after="3mm">aaa</fo:block>
@@ -657,13 +657,13 @@ class XSLFORendererSpec extends FlatSpec
   
   it should "render a paragraph containing an image without title" in {
     val elem = p(txt("some "), img("img", "foo.jpg"), txt(" span"))
-    val html = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:external-graphic content-width="scale-down-to-fit" src="foo.jpg" width="100%"/> span</fo:block>"""
+    val html = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:external-graphic content-width="scale-down-to-fit" height="100%" scaling="uniform" src="foo.jpg" width="100%"/> span</fo:block>"""
     render (elem) should be (html) 
   }
   
   it should "render a paragraph containing an image with title" in {
     val elem = p(txt("some "), img("img", "foo.jpg", title = Some("title")), txt(" span"))
-    val html = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:external-graphic content-width="scale-down-to-fit" src="foo.jpg" width="100%"/> span</fo:block>"""
+    val html = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:external-graphic content-width="scale-down-to-fit" height="100%" scaling="uniform" src="foo.jpg" width="100%"/> span</fo:block>"""
     render (elem) should be (html) 
   }
   

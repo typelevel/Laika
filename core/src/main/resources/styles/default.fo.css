@@ -40,6 +40,9 @@ LiteralBlock, ParsedLiteralBlock, CodeBlock {
 
 Image {
   width: 100%;
+  height: 100%;
+  content-width: scale-down-to-fit; 
+  scaling: uniform;
   space-after: 6mm;
 }
 
