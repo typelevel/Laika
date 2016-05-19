@@ -427,18 +427,18 @@ class XSLFORendererSpec extends FlatSpec
     val html = """<fo:table space-after="6mm">
       |  <fo:table-body>
       |    <fo:table-row>
-      |      <fo:table-cell>
+      |      <fo:table-cell padding-top="2mm">
       |        <fo:block font-family="serif" font-size="10pt" space-after="3mm">a</fo:block>
       |      </fo:table-cell>
-      |      <fo:table-cell>
+      |      <fo:table-cell padding-top="2mm">
       |        <fo:block font-family="serif" font-size="10pt" space-after="3mm">b</fo:block>
       |      </fo:table-cell>
       |    </fo:table-row>
       |    <fo:table-row>
-      |      <fo:table-cell>
+      |      <fo:table-cell padding-top="2mm">
       |        <fo:block font-family="serif" font-size="10pt" space-after="3mm">c</fo:block>
       |      </fo:table-cell>
-      |      <fo:table-cell>
+      |      <fo:table-cell padding-top="2mm">
       |        <fo:block font-family="serif" font-size="10pt" space-after="3mm">d</fo:block>
       |      </fo:table-cell>
       |    </fo:table-row>
@@ -451,22 +451,22 @@ class XSLFORendererSpec extends FlatSpec
     val elem = Table(TableHead(List(row(cell("a"), cell("b")))),
                      TableBody(List(row(cell("c"), cell("d")))))
     val html = """<fo:table space-after="6mm">
-      |  <fo:table-header>
+      |  <fo:table-header border-bottom-style="solid" border-bottom-width="1pt" padding-bottom="2mm">
       |    <fo:table-row>
-      |      <fo:table-cell>
+      |      <fo:table-cell padding-top="2mm">
       |        <fo:block font-family="serif" font-size="10pt" space-after="3mm">a</fo:block>
       |      </fo:table-cell>
-      |      <fo:table-cell>
+      |      <fo:table-cell padding-top="2mm">
       |        <fo:block font-family="serif" font-size="10pt" space-after="3mm">b</fo:block>
       |      </fo:table-cell>
       |    </fo:table-row>
       |  </fo:table-header>
       |  <fo:table-body>
       |    <fo:table-row>
-      |      <fo:table-cell>
+      |      <fo:table-cell padding-top="2mm">
       |        <fo:block font-family="serif" font-size="10pt" space-after="3mm">c</fo:block>
       |      </fo:table-cell>
-      |      <fo:table-cell>
+      |      <fo:table-cell padding-top="2mm">
       |        <fo:block font-family="serif" font-size="10pt" space-after="3mm">d</fo:block>
       |      </fo:table-cell>
       |    </fo:table-row>
@@ -483,18 +483,18 @@ class XSLFORendererSpec extends FlatSpec
       |  <fo:table space-after="6mm">
       |    <fo:table-body>
       |      <fo:table-row>
-      |        <fo:table-cell>
+      |        <fo:table-cell padding-top="2mm">
       |          <fo:block font-family="serif" font-size="10pt" space-after="3mm">a</fo:block>
       |        </fo:table-cell>
-      |        <fo:table-cell>
+      |        <fo:table-cell padding-top="2mm">
       |          <fo:block font-family="serif" font-size="10pt" space-after="3mm">b</fo:block>
       |        </fo:table-cell>
       |      </fo:table-row>
       |      <fo:table-row>
-      |        <fo:table-cell>
+      |        <fo:table-cell padding-top="2mm">
       |          <fo:block font-family="serif" font-size="10pt" space-after="3mm">c</fo:block>
       |        </fo:table-cell>
-      |        <fo:table-cell>
+      |        <fo:table-cell padding-top="2mm">
       |          <fo:block font-family="serif" font-size="10pt" space-after="3mm">d</fo:block>
       |        </fo:table-cell>
       |      </fo:table-row>
@@ -506,7 +506,7 @@ class XSLFORendererSpec extends FlatSpec
   
   it should "render a cell using colspan and rowspan attributes" in {
     val elem = cell("a",3,2)
-    val html = """<fo:table-cell number-columns-spanned="3" number-rows-spanned="2">
+    val html = """<fo:table-cell number-columns-spanned="3" number-rows-spanned="2" padding-top="2mm">
       |  <fo:block font-family="serif" font-size="10pt" space-after="3mm">a</fo:block>
       |</fo:table-cell>""".stripMargin
     render(elem) should be (html)
@@ -514,7 +514,7 @@ class XSLFORendererSpec extends FlatSpec
   
   it should "render a cell with two paragraphs" in {
     val elem = cell(p("a"),p("b"))
-    val html = """<fo:table-cell>
+    val html = """<fo:table-cell padding-top="2mm">
       |  <fo:block font-family="serif" font-size="10pt" space-after="3mm">a</fo:block>
       |  <fo:block font-family="serif" font-size="10pt" space-after="3mm">b</fo:block>
       |</fo:table-cell>""".stripMargin
@@ -826,7 +826,7 @@ class XSLFORendererSpec extends FlatSpec
   
   it should "render a table cell unformatted" in {
     val elem = cell(p("a"),p("b"))
-    val html = """<fo:table-cell>
+    val html = """<fo:table-cell padding-top="2mm">
       |<fo:block font-family="serif" font-size="10pt" space-after="3mm">a</fo:block>
       |<fo:block font-family="serif" font-size="10pt" space-after="3mm">b</fo:block>
       |</fo:table-cell>""".stripMargin
