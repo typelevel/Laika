@@ -202,13 +202,13 @@ class FOWriter (out: String => Unit,
    */
   def bookmark (bookmark: Bookmark): FOWriter = {
     val content = BookmarkTitle(bookmark.title) +: bookmark.children
-    this <<@ ("fo:bookmark", bookmark, ("internal-destination" -> buildId(bookmark.path.absolute, bookmark.ref))) <<|> content << "</fo:bookmark>"
+    this <<@ ("fo:bookmark", bookmark, ("internal-destination" -> buildId(bookmark.path.absolute, bookmark.ref))) <<|> content <<| "</fo:bookmark>"
   }
   
   /** Renders an FO `bookmark-title` element.
    */
   def bookmarkTitle (title: BookmarkTitle): FOWriter = {
-    this <<@ ("fo:bookmark-title", title, Nil:_*) <<|> title.content << "</fo:bookmark-title>"
+    this <<@ ("fo:bookmark-title", title, Nil:_*) << title.content << "</fo:bookmark-title>"
   }
   
  

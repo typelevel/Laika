@@ -100,28 +100,23 @@ class FOforPDFSpec extends FlatSpec with Matchers {
       defaultTemplate.replace("{{document.content}}", result).replace("{{document.fragments.bookmarks}}", bookmarks)    
       
     def bookmarkTreeResult(treeNum: Int, docNum: Int): String = s"""    <fo:bookmark internal-destination="_tree${treeNum}__title__">
-      |      <fo:bookmark-title>
-      |        Tree ${treeNum + 1}
-      |      </fo:bookmark-title>
+      |      <fo:bookmark-title>Tree ${treeNum + 1}</fo:bookmark-title>
       |      <fo:bookmark internal-destination="_tree${treeNum}_doc${docNum}_">
-      |        <fo:bookmark-title>
-      |          Title $docNum
-      |        </fo:bookmark-title></fo:bookmark>
+      |        <fo:bookmark-title>Title $docNum</fo:bookmark-title>
+      |      </fo:bookmark>
       |      <fo:bookmark internal-destination="_tree${treeNum}_doc${docNum + 1}_">
-      |        <fo:bookmark-title>
-      |          Title ${docNum + 1}
-      |        </fo:bookmark-title></fo:bookmark></fo:bookmark>
+      |        <fo:bookmark-title>Title ${docNum + 1}</fo:bookmark-title>
+      |      </fo:bookmark>
+      |    </fo:bookmark>
       |""".stripMargin  
       
     val bookmarkRootResult = """<fo:bookmark-tree>
       |    <fo:bookmark internal-destination="_doc1_">
-      |      <fo:bookmark-title>
-      |        Title 1
-      |      </fo:bookmark-title></fo:bookmark>
+      |      <fo:bookmark-title>Title 1</fo:bookmark-title>
+      |    </fo:bookmark>
       |    <fo:bookmark internal-destination="_doc2_">
-      |      <fo:bookmark-title>
-      |        Title 2
-      |      </fo:bookmark-title></fo:bookmark>
+      |      <fo:bookmark-title>Title 2</fo:bookmark-title>
+      |    </fo:bookmark>
       |""".stripMargin  
       
     val closeBookmarks = "</fo:bookmark-tree>"
