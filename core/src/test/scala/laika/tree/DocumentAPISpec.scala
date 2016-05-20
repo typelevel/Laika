@@ -54,7 +54,7 @@ class DocumentAPISpec extends FlatSpec
     (Parse as Markdown fromString markup).title should be (List(txt("Title")))
   }
   
-  it should "return an empty title if there is neither a structure with a title nor a title in a config section" in {
+  it should "return an empty list if there is neither a structure with a title nor a title in a config section" in {
     val markup = """# Section 1
       |
       |Some text
@@ -63,7 +63,7 @@ class DocumentAPISpec extends FlatSpec
       |
       |Some more text""".stripMargin
     
-    (Parse as Markdown fromString markup).title should be (List(txt("")))
+    (Parse as Markdown fromString markup).title should be (Nil)
   }
   
   it should "produce the same result when rewriting a document once or twice" in {

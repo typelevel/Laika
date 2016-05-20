@@ -83,7 +83,7 @@ object Documents {
       }
       else (RootElement(findRoot) collect {
         case Title(content,_) => content
-      }).headOption getOrElse List(Text(""))
+      }).headOption getOrElse Nil
     }
 
     /** The section structure of this document based on the hierarchy
