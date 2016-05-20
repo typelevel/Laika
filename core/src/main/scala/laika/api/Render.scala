@@ -188,7 +188,7 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
       
       (tree.documents map renderTree(provider, styles)) ++ 
       (tree.dynamicDocuments map renderTree(provider, styles)) ++ 
-      (tree.staticDocuments map copy(provider)) ++
+      (if (config.copyStaticFiles) tree.staticDocuments map copy(provider) else Seq()) ++
       (tree.subtrees map { subtree => collectOperations(provider.newChild(subtree.name), styles, subtree)}).flatten
     }
   
