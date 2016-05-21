@@ -62,7 +62,7 @@ class FOforPDF (config: Option[PDFConfig]) {
    *  for each tree.
    */
   def addTreeTitles (linksOnly: Boolean)(tree: DocumentTree): DocumentTree = {
-    val treeWithTitle = if (!hasDocuments(tree) || tree.title.isEmpty) tree
+    val treeWithTitle = if (!hasDocuments(tree)) tree
     else {
       val title = if (linksOnly || tree.title.isEmpty) InternalLinkTarget(Id(""))
                   else Header(1, tree.title, Styles("treeTitle") + Id(""))
