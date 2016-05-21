@@ -90,11 +90,15 @@ class FOforPDFSpec extends FlatSpec with Matchers {
       |<fo:block font-family="sans-serif" font-size="16pt" keep-with-next="always" space-after="7mm" space-before="12mm">Contents</fo:block>
       |"""stripMargin
     
-    def tocDocResult (num: Int): String = 
-      s"""<fo:block font-family="serif" font-size="10pt" space-after="3mm" text-align-last="justify"><fo:basic-link color="#3399FF" internal-destination="${idPrefix(num)}_doc${num}_">Title $num<fo:leader leader-pattern="dots"></fo:leader><fo:page-number-citation ref-id="${idPrefix(num)}_doc${num}_" /></fo:basic-link></fo:block>""" + "\n"
+    def tocDocResult (num: Int): String = {
+      val margin = if (num > 2) """ margin-left="4mm"""" else ""
+      val fontsize = if (num > 2) "11pt" else "12pt"
+      val spaceBefore = if (num > 2) "2mm" else "5mm"
+      s"""<fo:block font-family="serif" font-size="$fontsize"$margin space-after="0mm" space-before="$spaceBefore" text-align-last="justify"><fo:basic-link color="#3956ac" internal-destination="${idPrefix(num)}_doc${num}_">Title $num<fo:leader leader-pattern="dots"></fo:leader><fo:page-number-citation ref-id="${idPrefix(num)}_doc${num}_" /></fo:basic-link></fo:block>""" + "\n"
+    }
     
     def tocTreeResult (num: Int): String = 
-      s"""<fo:block font-family="serif" font-size="10pt" space-after="3mm" text-align-last="justify"><fo:basic-link color="#3399FF" internal-destination="_tree${num}__title__">Tree ${num+1}<fo:leader leader-pattern="dots"></fo:leader><fo:page-number-citation ref-id="_tree${num}__title__" /></fo:basic-link></fo:block>""" + "\n"  
+      s"""<fo:block font-family="serif" font-size="12pt" space-after="0mm" space-before="5mm" text-align-last="justify"><fo:basic-link color="#3956ac" internal-destination="_tree${num}__title__">Tree ${num+1}<fo:leader leader-pattern="dots"></fo:leader><fo:page-number-citation ref-id="_tree${num}__title__" /></fo:basic-link></fo:block>""" + "\n"  
     
     def withDefaultTemplate(result: String, bookmarks: String = ""): String =
       defaultTemplate.replace("{{document.content}}", result).replace("{{document.fragments.bookmarks}}", bookmarks)    

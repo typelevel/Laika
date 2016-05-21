@@ -181,7 +181,7 @@ Literal, Code {
 
 ExternalLink, InternalLink, CrossLink {
   font-weight: bold;
-  color: #3399FF;
+  color: #3956ac;
 }
 
 SystemMessage {
@@ -226,4 +226,21 @@ BookmarkTitle {
 
 Paragraph.toc {
   text-align-last: justify;
+  font-size: 11pt;
+  space-after: 0mm;
+  space-before: 2mm;
+}
+
+Paragraph.toc.level1 {
+  font-size: 12pt;
+  space-before: 5mm;
+}
+
+Paragraph.toc.level2 {
+  margin-left: 4mm;
+}
+
+Paragraph.toc.level3 {
+  font-size: 10pt;
+  margin-left: 6mm;
 }

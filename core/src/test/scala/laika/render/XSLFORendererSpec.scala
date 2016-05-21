@@ -610,48 +610,48 @@ class XSLFORendererSpec extends FlatSpec
   
   it should "render a paragraph containing a link without title" in {
     val elem = p(txt("some "), link(txt("link")).url("/foo"), txt(" span"))
-    val html = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:basic-link color="#3399FF" external-destination="/foo">link</fo:basic-link> span</fo:block>"""
+    val html = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:basic-link color="#3956ac" external-destination="/foo">link</fo:basic-link> span</fo:block>"""
     render (elem) should be (html) 
   }
   
   it should "render a paragraph containing a link with title" in {
     val elem = p(txt("some "), link(txt("link")).url("/foo").title("title"), txt(" span"))
-    val html = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:basic-link color="#3399FF" external-destination="/foo">link</fo:basic-link> span</fo:block>"""
+    val html = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:basic-link color="#3956ac" external-destination="/foo">link</fo:basic-link> span</fo:block>"""
     render (elem) should be (html) 
   }
   
   it should "render a paragraph containing a link with emphasized text" in {
     val elem = p(txt("some "), link(txt("link"),em("text")).url("/foo"), txt(" span"))
     val html = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some """ + 
-        """<fo:basic-link color="#3399FF" external-destination="/foo">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
+        """<fo:basic-link color="#3956ac" external-destination="/foo">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (html) 
   }
   
   it should "render a paragraph containing an internal link with emphasized text" in {
     val elem = p(txt("some "), InternalLink(List(txt("link"),em("text")),"foo"), txt(" span"))
     val html = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some """ +
-        """<fo:basic-link color="#3399FF" internal-destination="_foo">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
+        """<fo:basic-link color="#3956ac" internal-destination="_foo">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (html) 
   }
   
   it should "render a paragraph containing a cross link with a fragment part" in {
     val elem = p(txt("some "), CrossLink(List(txt("link"),em("text")),"foo", PathInfo(Path("/bar"),Path("../bar.md"))), txt(" span"))
     val html = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some """ +
-        """<fo:basic-link color="#3399FF" internal-destination="_bar_foo">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
+        """<fo:basic-link color="#3956ac" internal-destination="_bar_foo">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (html) 
   }
   
   it should "render a paragraph containing a cross link without a fragment part" in {
     val elem = p(txt("some "), CrossLink(List(txt("link"),em("text")),"", PathInfo(Path("/bar"),Path("../bar.md"))), txt(" span"))
     val html = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some """ +
-        """<fo:basic-link color="#3399FF" internal-destination="_bar_">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
+        """<fo:basic-link color="#3956ac" internal-destination="_bar_">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (html) 
   }
   
   it should "render a paragraph containing a cross link with a filename without suffix" in {
     val elem = p(txt("some "), CrossLink(List(txt("link"),em("text")),"", PathInfo(Path("/bar"),Path("../bar"))), txt(" span"))
     val html = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some """ +
-        """<fo:basic-link color="#3399FF" internal-destination="_bar_">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
+        """<fo:basic-link color="#3956ac" internal-destination="_bar_">link<fo:inline font-style="italic">text</fo:inline></fo:basic-link> span</fo:block>"""
     render (elem) should be (html) 
   }
   
