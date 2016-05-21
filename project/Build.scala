@@ -46,13 +46,7 @@ object Build extends Build {
         
     val config    = "com.typesafe"  % "config"     % "1.0.2"
     
-    val fop       = Seq(
-                      "avalon-framework" % "avalon-framework-api" % "4.2.0",
-                      "avalon-framework" % "avalon-framework-impl" % "4.2.0",
-                      "org.apache.xmlgraphics" % "fop" % "1.1" 
-                        exclude("org.apache.avalon.framework", "avalon-framework-api") 
-                        exclude("org.apache.avalon.framework", "avalon-framework-impl")
-                    )
+    val fop       = "org.apache.xmlgraphics" % "fop" % "2.1" 
     
   }
   
@@ -143,7 +137,8 @@ object Build extends Build {
     .dependsOn(core)
     .settings(Settings.module: _*)
     .settings(Publishing.mavenCentral: _*)
-    .settings(libraryDependencies ++= Dependencies.fop ++ Seq(
+    .settings(libraryDependencies ++= Seq(
+      Dependencies.fop,
       Dependencies.scalatest  
     ))
     

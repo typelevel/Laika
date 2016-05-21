@@ -25,13 +25,19 @@ import laika.tree.Documents.DocumentTree
 import laika.tree.Elements.Element
 import laika.tree.Elements.MessageLevel
 import java.io.File
+import java.io.FileOutputStream
 import java.io.OutputStream
 import java.io.StringReader
+import java.net.URI
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.URIResolver
 import javax.xml.transform.sax.SAXResult
 import javax.xml.transform.stream.StreamSource
 import org.apache.fop.apps.FopFactory
+import org.apache.fop.apps.FopFactoryBuilder
+import org.apache.fop.apps.FOUserAgentFactory
+import org.apache.xmlgraphics.io.Resource
+import org.apache.xmlgraphics.io.ResourceResolver
 import org.apache.xmlgraphics.util.MimeConstants
 
 /** A post processor for PDF output, based on an interim XSL-FO renderer. 
@@ -52,7 +58,8 @@ import org.apache.xmlgraphics.util.MimeConstants
 class PDF private (val factory: XSLFO, config: Option[PDFConfig]) extends RenderResultProcessor[FOWriter] {
 
   
-  private lazy val fopFactory = FopFactory.newInstance
+  private lazy val fopFactory =
+    new FopFactoryBuilder(new File(".").toURI()).build()
   
   
   /** Specifies the minimum required level for a system message
@@ -115,12 +122,19 @@ class PDF private (val factory: XSLFO, config: Option[PDFConfig]) extends Render
   def renderPDF (foInput: Input, output: BinaryOutput, sourcePaths: Seq[String] = Nil): Unit = {
     
     def createSAXResult (out: OutputStream) = {
-      val foUserAgent = fopFactory.newFOUserAgent
-      foUserAgent.setURIResolver(new URIResolver {
-        def resolve (uri: String, base: String) = (sourcePaths.collectFirst {
-          case source if (new File(source+uri)).isFile => new StreamSource(new File(source+uri))
-        }).getOrElse(null)
-      })
+      val resolver = new ResourceResolver {
+        
+        def getResource (uri: URI): Resource =
+          new Resource(resolve(uri).toURL().openStream())
+        
+        def getOutputStream (uri: URI): OutputStream =
+          new FileOutputStream(new File(resolve(uri)))
+        
+        def resolve (uri: URI): URI = (sourcePaths.collectFirst {
+          case source if (new File(source+uri.getPath)).isFile => new File(source+uri).toURI
+        }).getOrElse(if (uri.isAbsolute) uri else new File(uri.getPath).toURI)
+      }
+      val foUserAgent = FOUserAgentFactory.createFOUserAgent(fopFactory, resolver)
       val fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, out)
       new SAXResult(fop.getDefaultHandler())
     }
