@@ -451,7 +451,7 @@ class XSLFORendererSpec extends FlatSpec
     val elem = Table(TableHead(List(row(cell("a"), cell("b")))),
                      TableBody(List(row(cell("c"), cell("d")))))
     val html = """<fo:table space-after="6mm">
-      |  <fo:table-header border-bottom-style="solid" border-bottom-width="1pt" padding-bottom="2mm">
+      |  <fo:table-header border-bottom-style="solid" border-bottom-width="1pt">
       |    <fo:table-row>
       |      <fo:table-cell padding-top="2mm">
       |        <fo:block font-family="serif" font-size="10pt" space-after="3mm">a</fo:block>
