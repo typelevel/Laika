@@ -45,7 +45,7 @@
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div><div class="toggleContainer block">
           <span class="toggle">Known Subclasses</span>
-          <div class="subClasses hiddenContent"><a href="HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a></div>
+          <div class="subClasses hiddenContent"><a href="FOWriter.html" class="extype" name="laika.render.FOWriter">FOWriter</a>, <a href="HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>, <a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></div>
         </div></div>
         
 
@@ -84,7 +84,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.render.TextWriter#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(out:String=&gt;Unit,render:laika.tree.Elements.Element=&gt;Unit,indentItem:String,newLine:String):laika.render.TextWriter"></a>
+      <a id="&lt;init&gt;(out:String=&gt;Unit,render:laika.tree.Elements.Element=&gt;Unit,root:laika.tree.Elements.Element,indentItem:String,newLine:String):laika.render.TextWriter"></a>
       <a id="&lt;init&gt;:TextWriter"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -92,10 +92,10 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">TextWriter</span><span class="params">(<span name="out">out: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>, <span name="render">render: (<a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>, <span name="indentItem">indentItem: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol">&quot;  &quot;</span></span>, <span name="newLine">newLine: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol">&quot;\n&quot;</span></span>)</span>
+        <span class="name">TextWriter</span><span class="params">(<span name="out">out: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>, <span name="render">render: (<a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>, <span name="root">root: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="indentItem">indentItem: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol">&quot;  &quot;</span></span>, <span name="newLine">newLine: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol">&quot;\n&quot;</span></span>)</span>
       </span>
       </h4>
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">out</dt><dd class="cmt"><p>the function to use for writing character data</p></dd><dt class="param">render</dt><dd class="cmt"><p>the function to use for rendering child elements</p></dd><dt class="param">indentItem</dt><dd class="cmt"><p>the string to write for a single level of indentation</p></dd><dt class="param">newLine</dt><dd class="cmt"><p>the new line character sequence
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">out</dt><dd class="cmt"><p>the function to use for writing character data</p></dd><dt class="param">render</dt><dd class="cmt"><p>the function to use for rendering child elements</p></dd><dt class="param">root</dt><dd class="cmt"><p>the root element to render</p></dd><dt class="param">indentItem</dt><dd class="cmt"><p>the string to write for a single level of indentation</p></dd><dt class="param">newLine</dt><dd class="cmt"><p>the new line character sequence
 </p></dd></dl></div>
     </li></ol>
             </div>
@@ -492,6 +492,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="laika.render.TextWriter#parents" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="parents:List[laika.tree.Elements.Element]"></a>
+      <a id="parents:List[Element]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">parents</span><span class="result">: <span class="extype" name="scala.List">List</span>[<a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>

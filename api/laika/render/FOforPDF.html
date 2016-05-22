@@ -2,9 +2,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
-          <title>Operation - laika.api.Render.Operation</title>
-          <meta name="description" content="Operation - laika.api.Render.Operation" />
-          <meta name="keywords" content="Operation laika.api.Render.Operation" />
+          <title>FOforPDF - laika.render.FOforPDF</title>
+          <meta name="description" content="FOforPDF - laika.render.FOforPDF" />
+          <meta name="keywords" content="FOforPDF laika.render.FOforPDF" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -12,7 +12,7 @@
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
-            var hash = 'laika.api.Render$Operation';
+            var hash = 'laika.render.FOforPDF';
             var anchor = window.location.hash;
             var anchor_opt = '';
             if (anchor.length >= 1)
@@ -24,9 +24,9 @@
         </head>
         <body class="type">
       <div id="definition">
-        <img src="../../lib/class_big.png" />
-        <p id="owner"><a href="../package.html" class="extype" name="laika">laika</a>.<a href="package.html" class="extype" name="laika.api">api</a>.<a href="Render.html" class="extype" name="laika.api.Render">Render</a></p>
-        <h1>Operation</h1>
+        <a href="FOforPDF$.html" title="Go to companion"><img src="../../lib/class_to_object_big.png" /></a>
+        <p id="owner"><a href="../package.html" class="extype" name="laika">laika</a>.<a href="package.html" class="extype" name="laika.render">render</a></p>
+        <h1><a href="FOforPDF$.html" title="Go to companion">FOforPDF</a></h1>
       </div>
 
       <h4 id="signature" class="signature">
@@ -35,16 +35,20 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">Operation</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <span class="name">FOforPDF</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Represents a single render operation for a specific
- document model. Various types of output can be
- specified to trigger the actual rendering.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Responsible for rendering the XSL-FO for an entire document tree
+ as an interim result to be consumed by the PDF post processor.</p><p> On top of the regular XSL-FO renderer in laika-core this renderer
+ inserts tree titles, bookmarks and a table of contents into
+ the document tree before rendering.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div><div class="toggleContainer block">
+          <span class="toggle">Known Subclasses</span>
+          <div class="subClasses hiddenContent"><a href="FOforPDF$.html" class="extype" name="laika.render.FOforPDF">FOforPDF</a></div>
         </div></div>
         
 
@@ -62,7 +66,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="laika.api.Render.Operation"><span>Operation</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="laika.render.FOforPDF"><span>FOforPDF</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -80,7 +84,23 @@
 
       <div id="template">
         <div id="allMembers">
-        
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="laika.render.FOforPDF#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(config:Option[laika.render.PDFConfig]):laika.render.FOforPDF"></a>
+      <a id="&lt;init&gt;:FOforPDF"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">FOforPDF</span><span class="params">(<span name="config">config: <span class="extype" name="scala.Option">Option</span>[<a href="PDFConfig.html" class="extype" name="laika.render.PDFConfig">PDFConfig</a>]</span>)</span>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
 
         
 
@@ -153,6 +173,23 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="laika.render.FOforPDF#addTreeTitles" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="addTreeTitles(linksOnly:Boolean)(tree:laika.tree.Documents.DocumentTree):laika.tree.Documents.DocumentTree"></a>
+      <a id="addTreeTitles(Boolean)(DocumentTree):DocumentTree"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">addTreeTitles</span><span class="params">(<span name="linksOnly">linksOnly: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Adds title elements for each tree and subtree in the specified
+ root tree.</p><div class="fullcomment"><div class="comment cmt"><p>Adds title elements for each tree and subtree in the specified
+ root tree. Tree titles can be specified in the configuration file
+ for each tree.
+</p></div></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -230,6 +267,24 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="laika.render.FOforPDF#generateBookmarks" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="generateBookmarks(root:laika.tree.Documents.DocumentTree,depth:Int):Map[String,laika.tree.Elements.Element]"></a>
+      <a id="generateBookmarks(DocumentTree,Int):Map[String,Element]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">generateBookmarks</span><span class="params">(<span name="root">root: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>, <span name="depth">depth: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Generates bookmarks for the structure of the DocumentTree.</p><div class="fullcomment"><div class="comment cmt"><p>Generates bookmarks for the structure of the DocumentTree. Individual
+ bookmarks can stem from tree or subtree titles, document titles or
+ document sections, depending on which recursion depth is configured.
+ The configuration key for setting the recursion depth is <code>pdf.bookmarks.depth</code>.
+</p></div><dl class="paramcmts block"><dt class="param">root</dt><dd class="cmt"><p>the document tree to generate bookmarks for</p></dd><dt>returns</dt><dd class="cmt"><p>a fragment map containing the generated bookmarks
+</p></dd></dl></div>
     </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <a id="getClass():Class[_]"></a>
@@ -243,6 +298,34 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="laika.render.FOforPDF#hasContent" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hasContent(nav:laika.tree.Documents.Navigatable):Boolean"></a>
+      <a id="hasContent(Navigatable):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hasContent</span><span class="params">(<span name="nav">nav: <a href="../tree/Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Indicates whether the specified navigatable contains at least one document.</p><div class="fullcomment"><div class="comment cmt"><p>Indicates whether the specified navigatable contains at least one document.
+</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+    </li><li name="laika.render.FOforPDF#hasDocuments" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hasDocuments(tree:laika.tree.Documents.DocumentTree):Boolean"></a>
+      <a id="hasDocuments(DocumentTree):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hasDocuments</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Indicates whether the specified tree contains at least one document.</p><div class="fullcomment"><div class="comment cmt"><p>Indicates whether the specified tree contains at least one document.
+</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
     </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
       <a id="hashCode():Int"></a>
@@ -256,6 +339,39 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="laika.render.FOforPDF#insertDocTitles" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="insertDocTitles(linksOnly:Boolean)(tree:laika.tree.Documents.DocumentTree):laika.tree.Documents.DocumentTree"></a>
+      <a id="insertDocTitles(Boolean)(DocumentTree):DocumentTree"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">insertDocTitles</span><span class="params">(<span name="linksOnly">linksOnly: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Adds title elements for each document in the specified
+ tree, including documents in subtrees.</p><div class="fullcomment"><div class="comment cmt"><p>Adds title elements for each document in the specified
+ tree, including documents in subtrees. Document titles will be obtained either
+ from a <code>Title</code> element in the document's content or from its configuration header.
+</p></div></div>
+    </li><li name="laika.render.FOforPDF#insertToc" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="insertToc(tree:laika.tree.Documents.DocumentTree,depth:Int,title:Option[String]):laika.tree.Documents.DocumentTree"></a>
+      <a id="insertToc(DocumentTree,Int,Option[String]):DocumentTree"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">insertToc</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>, <span name="depth">depth: <span class="extype" name="scala.Int">Int</span></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Inserts a table of content into the specified document tree.</p><div class="fullcomment"><div class="comment cmt"><p>Inserts a table of content into the specified document tree.
+ The recursion depth can be set with the configuration key
+ <code>pdf.toc.depth</code>.
+</p></div></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -308,6 +424,43 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="laika.render.FOforPDF#prepareTree" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="prepareTree(tree:laika.tree.Documents.DocumentTree,config:laika.render.PDFConfig):laika.tree.Documents.DocumentTree"></a>
+      <a id="prepareTree(DocumentTree,PDFConfig):DocumentTree"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">prepareTree</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>, <span name="config">config: <a href="PDFConfig.html" class="extype" name="laika.render.PDFConfig">PDFConfig</a></span>)</span><span class="result">: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Prepares the document tree before rendering the interim XSL-FO
+ output.</p><div class="fullcomment"><div class="comment cmt"><p>Prepares the document tree before rendering the interim XSL-FO
+ output. Preparation may include insertion of tree or document titles
+ and a table of content, depending on configuration.
+</p></div></div>
+    </li><li name="laika.render.FOforPDF#renderFO" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="renderFO(tree:laika.tree.Documents.DocumentTree,render:(laika.tree.Documents.DocumentTree,laika.io.OutputProvider.OutputConfig)=&gt;Unit):String"></a>
+      <a id="renderFO(DocumentTree,(DocumentTree,OutputConfig)⇒Unit):String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">renderFO</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>, <span name="render">render: (<a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a>, <a href="../io/OutputProvider$$OutputConfig.html" class="extype" name="laika.io.OutputProvider.OutputConfig">OutputConfig</a>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Renders the XSL-FO that serves as a basis for producing the final PDF output.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the XSL-FO that serves as a basis for producing the final PDF output.
+ The result should include the output from rendering the documents in the
+ specified tree as well as any additional insertions like bookmarks or
+ table of content. For this the specified <code>DocumentTree</code> instance may get
+ modified before passing it to the given render function, depending on
+ configuration settings.
+</p></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the document tree serving as input for the renderer</p></dd><dt class="param">render</dt><dd class="cmt"><p>the actual render function for producing the XSL-FO output</p></dd><dt>returns</dt><dd class="cmt"><p>the rendered XSL-FO as a String
+</p></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -321,94 +474,7 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="laika.api.Render.Operation#toBuilder" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="toBuilder(builder:StringBuilder):Unit"></a>
-      <a id="toBuilder(StringBuilder):Unit"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toBuilder</span><span class="params">(<span name="builder">builder: <span class="extype" name="scala.StringBuilder">StringBuilder</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Renders the model to the specified <code>StringBuilder</code>.</p>
-    </li><li name="laika.api.Render.Operation#toConsole" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="toConsole:Unit"></a>
-      <a id="toConsole:Unit"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toConsole</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Renders the model to the console.</p>
-    </li><li name="laika.api.Render.Operation#toFile" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toFile(file:java.io.File)(implicitcodec:scala.io.Codec):Unit"></a>
-      <a id="toFile(File)(Codec):Unit"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toFile</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Renders the model to the specified file.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the model to the specified file.
-</p></div><dl class="paramcmts block"><dt class="param">file</dt><dd class="cmt"><p>the file to write to</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the file, if not specified the platform default will be used.
-</p></dd></dl></div>
-    </li><li name="laika.api.Render.Operation#toFile" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toFile(name:String)(implicitcodec:scala.io.Codec):Unit"></a>
-      <a id="toFile(String)(Codec):Unit"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toFile</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Renders the model to the file with the specified name.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the model to the file with the specified name.
-</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the file to parse</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the file, if not specified the platform default will be used.
-</p></dd></dl></div>
-    </li><li name="laika.api.Render.Operation#toOutput" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toOutput(out:laika.io.Output):Unit"></a>
-      <a id="toOutput(Output):Unit"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toOutput</span><span class="params">(<span name="out">out: <a href="../io/Output.html" class="extype" name="laika.io.Output">Output</a></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Renders the model to the specified output.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the model to the specified output.</p><p> This is a generic method based on Laika's IO abstraction layer that concrete
- methods delegate to. Usually not used directly in application code, but
- might come in handy for very special requirements.
-</p></div></div>
-    </li><li name="laika.api.Render.Operation#toStream" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toStream(stream:java.io.OutputStream)(implicitcodec:scala.io.Codec):Unit"></a>
-      <a id="toStream(OutputStream)(Codec):Unit"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toStream</span><span class="params">(<span name="stream">stream: <span class="extype" name="java.io.OutputStream">OutputStream</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Renders the model to the specified output stream.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the model to the specified output stream.
-</p></div><dl class="paramcmts block"><dt class="param">stream</dt><dd class="cmt"><p>the stream to render to</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the stream, if not specified the platform default will be used.
-</p></dd></dl></div>
-    </li><li name="laika.api.Render.Operation#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>
       <h4 class="signature">
@@ -420,21 +486,7 @@
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Renders the model to a String and returns it.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the model to a String and returns it.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Render.Operation">Operation</a> → AnyRef → Any</dd></dl></div>
-    </li><li name="laika.api.Render.Operation#toWriter" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="toWriter(writer:java.io.Writer):Unit"></a>
-      <a id="toWriter(Writer):Unit"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toWriter</span><span class="params">(<span name="writer">writer: <span class="extype" name="java.io.Writer">Writer</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Renders the model to the specified writer.</p>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>

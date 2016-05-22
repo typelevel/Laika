@@ -40,6 +40,7 @@
           <li><a href="../using-laika/sbt.html">Using the sbt Plugin</a></li>
           <li><a href="../using-laika/embedded.html">Using Laika Embedded</a></li>
           <li><a href="../using-laika/markup.html">Supported Markup</a></li>
+          <li><a href="../using-laika/output.html">Supported Output Formats</a></li>
           <li><a href="../using-laika/structure.html">Document Structure</a></li>
           <li><a href="../using-laika/templates.html">Templates</a></li>
           <li class="nav-header">Customizing Laika</li>
@@ -86,12 +87,12 @@
         you can read about her <a href="http://en.wikipedia.org/wiki/Laika">here</a>.</p>
         
         <h2 id="getting-started" class="section">Getting Started</h2>
-        <p>The current version is published to Maven Central for Scala 2.10 and 2.11</p>
+        <p>The current version is published to Maven Central for Scala 2.10 and 2.11.</p>
         <p>The sbt plugin is published to the sbt plugin repository for sbt 0.13.x.</p>
         
         <h3 id="using-the-sbt-plugin" class="section">Using the sbt Plugin</h3>
         <p>Add the plugin to <code>project/plugins.sbt</code>:</p>
-        <pre>addSbtPlugin(&quot;org.planet42&quot; % &quot;laika-sbt&quot; % &quot;0.5.1&quot;)</pre>
+        <pre>addSbtPlugin(&quot;org.planet42&quot; % &quot;laika-sbt&quot; % &quot;0.6.0&quot;)</pre>
         <p>Import its default settings in your project&#39;s <code>build.sbt</code>:</p>
         <pre>LaikaPlugin.defaults
 </pre>
@@ -101,12 +102,18 @@
         
         <h3 id="using-laika-embedded" class="section">Using Laika Embedded</h3>
         <p>Adding the Laika dependency to your sbt build:</p>
-        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-core&quot; % &quot;0.5.1&quot;</pre>
+        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-core&quot; % &quot;0.6.0&quot;</pre>
         <p>Example for transforming from file to file:</p>
         <pre>Transform from Markdown to HTML fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;</pre>
         <p>Example for transforming an entire directory of markup files:</p>
         <pre>Transform from ReStructuredText to 
   HTML fromDirectory &quot;source&quot; toDirectory &quot;target&quot;</pre>
+        <p>Example for transforming an entire directory of markup files to a single PDF file:</p>
+        <pre>Transform from Markdown to PDF fromDirectory &quot;src&quot; toFile &quot;hello.pdf&quot;
+</pre>
+        <p>When using Laika&#39;s PDF support you need to add another dependency to your build:</p>
+        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-pdf&quot; % &quot;0.6.0&quot;
+</pre>
         
         <h3 id="other-resources" class="section">Other Resources</h3>
         <ul>
@@ -144,7 +151,7 @@
             <p>Support for Markdown and reStructuredText as input</p>
           </li>
           <li>
-            <p>Support for HTML and PrettyPrint (for debugging) as output</p>
+            <p>Support for HTML, PDF, XSL-FO and PrettyPrint (for debugging) as output</p>
           </li>
           <li>
             <p>Template-based Site Generation</p>
@@ -153,6 +160,9 @@
             <p>Support for tables of contents, convenient cross-linking between 
             documents and auto-numbering of documents and sections for all 
             supported markup formats</p>
+          </li>
+          <li>
+            <p>Support for styling of PDF documents with CSS</p>
           </li>
           <li>
             <p>sbt plugin, exposing all Laika features and customization hooks
@@ -186,15 +196,12 @@
             <p>Parallel processing of parsers and renderers</p>
           </li>
           <li>
-            <p>More than 900 tests</p>
+            <p>More than 1,000 tests</p>
           </li>
         </ul>
         
         <h2 id="road-map" class="section">Road Map</h2>
         <ul>
-          <li>
-            <p>New renderer for PDF (0.6) </p>
-          </li>
           <li>
             <p>New renderer for epub (0.7)</p>
           </li>
@@ -202,14 +209,17 @@
             <p>Integrated support for syntax highlighting in source code (0.8)</p>
           </li>
           <li>
-            <p>Various Markdown extensions: GitHub Markdown, MultiMarkdown, YAML headers, etc. (0.9)</p>
+            <p>Various Markdown extensions: GitHub Markdown, MultiMarkdown, CommonMark, YAML headers, etc. (0.9)</p>
+          </li>
+          <li>
+            <p>API polishing (1.0)</p>
           </li>
         </ul>
         <p>After these four releases priorities depend on user demand, therefore
         no decision has been made yet for these other ideas:</p>
         <ul>
           <li>
-            <p>AsciiDoc support</p>
+            <p>Markup syntax as output format</p>
           </li>
           <li>
             <p>Java API / Gradle plugin</p>
@@ -222,6 +232,26 @@
         <h2 id="release-history" class="section">Release History</h2>
         <ul>
           <li>
+            <p><strong>0.6.0</strong> (May 23, 2016):</p>
+            <ul>
+              <li>Support for rendering PDF documents</li>
+              <li>Support for rendering XSL-FO output</li>
+              <li>New CSS parser supporting a large subset of standard CSS</li>
+              <li>Support styling of PDF documents with CSS</li>
+              <li>Support for different templates per output format</li>
+              <li>New sbt tasks: <code>html</code>, <code>pdf</code>, <code>xslfo</code>, <code>prettyPrint</code> for rendering
+              a single output format</li>
+              <li>New sbt task <code>generate</code> for rendering one or more output formats
+              (e.g. <code>laika:generate html pdf</code>)</li>
+              <li>Integrate PDF output into existing sbt task <code>laika:site</code> via
+              new setting <code>includePDF</code></li>
+              <li>New directives <code>pageBreak</code>, <code>style</code> and <code>format</code></li>
+              <li>Changes to the <code>Render</code> and <code>Transform</code> API to allow for the
+              merging of an entire directory of input files into a single output
+              file (as required by PDF rendering)</li>
+            </ul>
+          </li>
+          <li>
             <p><strong>0.5.1</strong> (Oct 10, 2015):</p>
             <ul>
               <li>Cross-compile for Scala 2.11 and 2.10</li>
@@ -230,7 +260,7 @@
             </ul>
           </li>
           <li>
-            <p><strong>0.5</strong> (Jan 9, 2014):</p>
+            <p><strong>0.5.0</strong> (Jan 9, 2014):</p>
             <ul>
               <li>New sbt plugin, exposing all Laika features and customization hooks as sbt tasks and settings</li>
               <li>New option to merge multiple input directories into a tree structure with a single root,
@@ -243,7 +273,7 @@
             </ul>
           </li>
           <li>
-            <p><strong>0.4</strong> (Nov 22, 2013):</p>
+            <p><strong>0.4.0</strong> (Nov 22, 2013):</p>
             <ul>
               <li>Template-based site generation</li>
               <li>Support for tables of contents, convenient cross-linking between documents 
@@ -255,7 +285,7 @@
             </ul>
           </li>
           <li>
-            <p><strong>0.3</strong> (Aug 3, 2013):</p>
+            <p><strong>0.3.0</strong> (Aug 3, 2013):</p>
             <ul>
               <li>Support for most of the standard directives and text roles of the reStructuredText reference
               parser (admonitions, <code>figure</code>, <code>image</code>, <code>code</code>, <code>raw</code> and many more)</li>
@@ -270,7 +300,7 @@
             </ul>
           </li>
           <li>
-            <p><strong>0.2</strong> (May 7, 2013):</p>
+            <p><strong>0.2.0</strong> (May 7, 2013):</p>
             <ul>
               <li>Support for reStructuredText (full specification)</li>
               <li>Concise and type-safe API for all reStructuredText extensibility options (directives, text roles)</li>
@@ -280,7 +310,7 @@
             </ul>
           </li>
           <li>
-            <p><strong>0.1</strong> (Jan 12, 2013): </p>
+            <p><strong>0.1.0</strong> (Jan 12, 2013): </p>
             <ul>
               <li>Support for Markdown as input</li>
               <li>Support for HTML and PrettyPrint as output</li>

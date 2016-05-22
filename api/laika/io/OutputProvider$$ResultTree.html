@@ -2,9 +2,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
-          <title>Operation - laika.api.Transform.Operation</title>
-          <meta name="description" content="Operation - laika.api.Transform.Operation" />
-          <meta name="keywords" content="Operation laika.api.Transform.Operation" />
+          <title>ResultTree - laika.io.OutputProvider.ResultTree</title>
+          <meta name="description" content="ResultTree - laika.io.OutputProvider.ResultTree" />
+          <meta name="keywords" content="ResultTree laika.io.OutputProvider.ResultTree" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -12,7 +12,7 @@
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
-            var hash = 'laika.api.Transform$Operation';
+            var hash = 'laika.io.OutputProvider$$ResultTree';
             var anchor = window.location.hash;
             var anchor_opt = '';
             if (anchor.length >= 1)
@@ -25,26 +25,24 @@
         <body class="type">
       <div id="definition">
         <img src="../../lib/class_big.png" />
-        <p id="owner"><a href="../package.html" class="extype" name="laika">laika</a>.<a href="package.html" class="extype" name="laika.api">api</a>.<a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></p>
-        <h1>Operation</h1>
+        <p id="owner"><a href="../package.html" class="extype" name="laika">laika</a>.<a href="package.html" class="extype" name="laika.io">io</a>.<a href="OutputProvider$.html" class="extype" name="laika.io.OutputProvider">OutputProvider</a></p>
+        <h1>ResultTree</h1>
       </div>
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">class</span>
+        <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">Operation</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <span class="name">ResultTree</span><span class="params">(<span name="path">path: <a href="../tree/Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>, <span name="results">results: <span class="extype" name="scala.Seq">Seq</span>[<a href="OutputProvider$$StringResult.html" class="extype" name="laika.io.OutputProvider.StringResult">StringResult</a>]</span>, <span name="subtrees">subtrees: <span class="extype" name="scala.Seq">Seq</span>[<a href="" class="extype" name="laika.io.OutputProvider.ResultTree">ResultTree</a>]</span>)</span><span class="result"> extends <a href="OutputProvider$$RenderResult.html" class="extype" name="laika.io.OutputProvider.RenderResult">RenderResult</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Represents a single transformation operation for a specific
- input that has already been parsed. Various types of output can be
- specified to trigger the actual rendering.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>The result of rendering a document tree.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="OutputProvider$$RenderResult.html" class="extype" name="laika.io.OutputProvider.RenderResult">RenderResult</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -62,7 +60,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="laika.api.Transform.Operation"><span>Operation</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="laika.io.OutputProvider.ResultTree"><span>ResultTree</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="laika.io.OutputProvider.RenderResult"><span>RenderResult</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -80,7 +78,23 @@
 
       <div id="template">
         <div id="allMembers">
-        
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="laika.io.OutputProvider.ResultTree#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(path:laika.tree.Documents.Path,results:Seq[laika.io.OutputProvider.StringResult],subtrees:Seq[laika.io.OutputProvider.ResultTree]):laika.io.OutputProvider.ResultTree"></a>
+      <a id="&lt;init&gt;:ResultTree"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ResultTree</span><span class="params">(<span name="path">path: <a href="../tree/Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>, <span name="results">results: <span class="extype" name="scala.Seq">Seq</span>[<a href="OutputProvider$$StringResult.html" class="extype" name="laika.io.OutputProvider.StringResult">StringResult</a>]</span>, <span name="subtrees">subtrees: <span class="extype" name="scala.Seq">Seq</span>[<a href="" class="extype" name="laika.io.OutputProvider.ResultTree">ResultTree</a>]</span>)</span>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
 
         
 
@@ -198,19 +212,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="equals(x$1:Any):Boolean"></a>
-      <a id="equals(Any):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -240,19 +241,6 @@
       </span>
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hashCode():Int"></a>
-      <a id="hashCode():Int"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
@@ -308,6 +296,71 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="laika.io.OutputProvider.ResultTree#path" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="path:laika.tree.Documents.Path"></a>
+      <a id="path:Path"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">path</span><span class="result">: <a href="../tree/Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.io.OutputProvider.ResultTree">ResultTree</a> → <a href="OutputProvider$$RenderResult.html" class="extype" name="laika.io.OutputProvider.RenderResult">RenderResult</a></dd></dl></div>
+    </li><li name="laika.io.OutputProvider.ResultTree#result" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="result(name:String):Option[String]"></a>
+      <a id="result(String):Option[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">result</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="laika.io.OutputProvider.ResultTree#results" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="results:Seq[laika.io.OutputProvider.StringResult]"></a>
+      <a id="results:Seq[StringResult]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">results</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="OutputProvider$$StringResult.html" class="extype" name="laika.io.OutputProvider.StringResult">StringResult</a>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="laika.io.OutputProvider.ResultTree#subtree" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="subtree(name:String):Option[laika.io.OutputProvider.ResultTree]"></a>
+      <a id="subtree(String):Option[ResultTree]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">subtree</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="" class="extype" name="laika.io.OutputProvider.ResultTree">ResultTree</a>]</span>
+      </span>
+      </h4>
+      
+    </li><li name="laika.io.OutputProvider.ResultTree#subtrees" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="subtrees:Seq[laika.io.OutputProvider.ResultTree]"></a>
+      <a id="subtrees:Seq[ResultTree]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">subtrees</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="" class="extype" name="laika.io.OutputProvider.ResultTree">ResultTree</a>]</span>
+      </span>
+      </h4>
+      
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -321,117 +374,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="laika.api.Transform.Operation#toBuilder" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="toBuilder(builder:StringBuilder):Unit"></a>
-      <a id="toBuilder(StringBuilder):Unit"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toBuilder</span><span class="params">(<span name="builder">builder: <span class="extype" name="scala.StringBuilder">StringBuilder</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Renders to the specified <code>StringBuilder</code>.</p>
-    </li><li name="laika.api.Transform.Operation#toConsole" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="toConsole:Unit"></a>
-      <a id="toConsole:Unit"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toConsole</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Renders directly to the console.</p>
-    </li><li name="laika.api.Transform.Operation#toFile" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toFile(file:java.io.File)(implicitcodec:scala.io.Codec):Unit"></a>
-      <a id="toFile(File)(Codec):Unit"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toFile</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Renders to the specified file.</p><div class="fullcomment"><div class="comment cmt"><p>Renders to the specified file.
-</p></div><dl class="paramcmts block"><dt class="param">file</dt><dd class="cmt"><p>the file to write to</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the file, if not specified the platform default will be used.
-</p></dd></dl></div>
-    </li><li name="laika.api.Transform.Operation#toFile" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toFile(name:String)(implicitcodec:scala.io.Codec):Unit"></a>
-      <a id="toFile(String)(Codec):Unit"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toFile</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Renders to the file with the specified name.</p><div class="fullcomment"><div class="comment cmt"><p>Renders to the file with the specified name.
-</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the file to parse</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the file, if not specified the platform default will be used.
-</p></dd></dl></div>
-    </li><li name="laika.api.Transform.Operation#toOutput" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="toOutput(output:laika.io.Output):Unit"></a>
-      <a id="toOutput(Output):Unit"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toOutput</span><span class="params">(<span name="output">output: <a href="../io/Output.html" class="extype" name="laika.io.Output">Output</a></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="laika.api.Transform.Operation#toStream" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toStream(stream:java.io.OutputStream)(implicitcodec:scala.io.Codec):Unit"></a>
-      <a id="toStream(OutputStream)(Codec):Unit"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toStream</span><span class="params">(<span name="stream">stream: <span class="extype" name="java.io.OutputStream">OutputStream</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Renders to the specified output stream.</p><div class="fullcomment"><div class="comment cmt"><p>Renders to the specified output stream.
-</p></div><dl class="paramcmts block"><dt class="param">stream</dt><dd class="cmt"><p>the stream to render to</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the stream, if not specified the platform default will be used.
-</p></dd></dl></div>
-    </li><li name="laika.api.Transform.Operation#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toString():String"></a>
-      <a id="toString():String"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Renders to a String and returns it.</p><div class="fullcomment"><div class="comment cmt"><p>Renders to a String and returns it.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Transform.Operation">Operation</a> → AnyRef → Any</dd></dl></div>
-    </li><li name="laika.api.Transform.Operation#toWriter" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="toWriter(writer:java.io.Writer):Unit"></a>
-      <a id="toWriter(Writer):Unit"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toWriter</span><span class="params">(<span name="writer">writer: <span class="extype" name="java.io.Writer">Writer</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Renders to the specified writer.</p>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>
@@ -498,7 +440,17 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.AnyRef">
+        <div class="parent" name="scala.Serializable">
+              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.Product">
+              <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
+            </div><div class="parent" name="scala.Equals">
+              <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
+            </div><div class="parent" name="laika.io.OutputProvider.RenderResult">
+              <h3>Inherited from <a href="OutputProvider$$RenderResult.html" class="extype" name="laika.io.OutputProvider.RenderResult">RenderResult</a></h3>
+            </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>

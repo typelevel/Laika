@@ -35,13 +35,12 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">OutputConfig</span><span class="params">(<span name="provider">provider: <a href="OutputProvider.html" class="extype" name="laika.io.OutputProvider">OutputProvider</a></span>, <span name="parallel">parallel: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">OutputConfig</span><span class="params">(<span name="provider">provider: <a href="OutputProvider.html" class="extype" name="laika.io.OutputProvider">OutputProvider</a></span>, <span name="parallel">parallel: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="copyStaticFiles">copyStaticFiles: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>The configuration for an output tree, consisting of the actual provider for
- all outputs and a flag whether rendering and writing results should be performed
- in parallel.
+ all outputs and some flags that control the behaviour of the renderer.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
@@ -83,7 +82,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.io.OutputProvider.OutputConfig#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(provider:laika.io.OutputProvider,parallel:Boolean):laika.io.OutputProvider.OutputConfig"></a>
+      <a id="&lt;init&gt;(provider:laika.io.OutputProvider,parallel:Boolean,copyStaticFiles:Boolean):laika.io.OutputProvider.OutputConfig"></a>
       <a id="&lt;init&gt;:OutputConfig"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -91,7 +90,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">OutputConfig</span><span class="params">(<span name="provider">provider: <a href="OutputProvider.html" class="extype" name="laika.io.OutputProvider">OutputProvider</a></span>, <span name="parallel">parallel: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span>
+        <span class="name">OutputConfig</span><span class="params">(<span name="provider">provider: <a href="OutputProvider.html" class="extype" name="laika.io.OutputProvider">OutputProvider</a></span>, <span name="parallel">parallel: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="copyStaticFiles">copyStaticFiles: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span>
       </span>
       </h4>
       
@@ -201,6 +200,19 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="laika.io.OutputProvider.OutputConfig#copyStaticFiles" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="copyStaticFiles:Boolean"></a>
+      <a id="copyStaticFiles:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">copyStaticFiles</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>

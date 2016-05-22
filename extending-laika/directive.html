@@ -40,6 +40,7 @@
           <li><a href="../using-laika/sbt.html">Using the sbt Plugin</a></li>
           <li><a href="../using-laika/embedded.html">Using Laika Embedded</a></li>
           <li><a href="../using-laika/markup.html">Supported Markup</a></li>
+          <li><a href="../using-laika/output.html">Supported Output Formats</a></li>
           <li><a href="../using-laika/structure.html">Document Structure</a></li>
           <li><a href="../using-laika/templates.html">Templates</a></li>
           <li class="nav-header">Customizing Laika</li>
@@ -408,8 +409,8 @@ Transform from Markdown to HTML fromDirectory
   &quot;source&quot; withTemplateDirectives directive toDirectory &quot;target&quot; 
 
 // for reStructuredText in Transform API:
-Transform from ReStructuredText to HTML fromDirectory 
-  &quot;source&quot; withTemplateDirectives directive toDirectory &quot;target&quot; 
+Transform from ReStructuredText to PDF fromDirectory 
+  &quot;source&quot; withTemplateDirectives directive toFile &quot;out.pdf&quot; 
     </pre>      
 
       </div>

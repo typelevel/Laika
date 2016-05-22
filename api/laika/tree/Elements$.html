@@ -703,7 +703,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$Image.html"><span class="name">Image</span></a><span class="params">(<span name="text">text: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="url">url: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">scala.None</span></span>, <span name="options">options: <a href="Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol">Elements.this.NoOpt</span></span>)</span><span class="result"> extends <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="Elements$$Link.html" class="extype" name="laika.tree.Elements.Link">Link</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="Elements$$Image.html"><span class="name">Image</span></a><span class="params">(<span name="text">text: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="uri">uri: <a href="Elements$$URI.html" class="extype" name="laika.tree.Elements.URI">URI</a></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">scala.None</span></span>, <span name="options">options: <a href="Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol">Elements.this.NoOpt</span></span>)</span><span class="result"> extends <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="Elements$$Link.html" class="extype" name="laika.tree.Elements.Link">Link</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       <p class="comment cmt">An inline image with a text description and optional title.</p>
@@ -980,6 +980,19 @@
       </span>
       </h4>
       <p class="comment cmt">Options for customizable elements.</p>
+    </li><li name="laika.tree.Elements.PageBreak" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PageBreakextendsElements.ElementwithElements.BlockwithProductwithSerializable"></a>
+      <a id="PageBreak:PageBreak"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$PageBreak.html"><span class="name">PageBreak</span></a><span class="params">(<span name="options">options: <a href="Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol">Elements.this.NoOpt</span></span>)</span><span class="result"> extends <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">An explicit hard page break.</p>
     </li><li name="laika.tree.Elements.Paragraph" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ParagraphextendsElements.ElementwithElements.BlockwithElements.SpanContainer[laika.tree.Elements.Paragraph]withProductwithSerializable"></a>
       <a id="Paragraph:Paragraph"></a>
@@ -1305,6 +1318,19 @@
       </span>
       </h4>
       <p class="comment cmt">Contains the header rows of a table.</p>
+    </li><li name="laika.tree.Elements.TargetFormat" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TargetFormatextendsElements.ElementwithElements.BlockwithProductwithSerializable"></a>
+      <a id="TargetFormat:TargetFormat"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$TargetFormat.html"><span class="name">TargetFormat</span></a><span class="params">(<span name="format">format: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="element">element: <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="options">options: <a href="Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol">Elements.this.NoOpt</span></span>)</span><span class="result"> extends <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">An element that only gets rendered for a specific output format.</p>
     </li><li name="laika.tree.Elements.Temporary" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="TemporaryextendsElements.Element"></a>
       <a id="Temporary:Temporary"></a>
@@ -1346,6 +1372,19 @@
       </span>
       </h4>
       <p class="comment cmt">A container for plain text.</p>
+    </li><li name="laika.tree.Elements.Title" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TitleextendsElements.ElementwithElements.BlockwithElements.SpanContainer[laika.tree.Elements.Title]withProductwithSerializable"></a>
+      <a id="Title:Title"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$Title.html"><span class="name">Title</span></a><span class="params">(<span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>]</span>, <span name="options">options: <a href="Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol">Elements.this.NoOpt</span></span>)</span><span class="result"> extends <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a> with <a href="Elements$$SpanContainer.html" class="extype" name="laika.tree.Elements.SpanContainer">SpanContainer</a>[<a href="Elements$$Title.html" class="extype" name="laika.tree.Elements.Title">Title</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">The (optional) title of the document.</p>
     </li><li name="laika.tree.Elements.TitledBlock" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="TitledBlockextendsElements.ElementwithElements.BlockwithElements.BlockContainer[laika.tree.Elements.TitledBlock]withProductwithSerializable"></a>
       <a id="TitledBlock:TitledBlock"></a>
@@ -1359,6 +1398,19 @@
       </span>
       </h4>
       <p class="comment cmt">Generic block element with a title.</p>
+    </li><li name="laika.tree.Elements.URI" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="URIextendsProductwithSerializable"></a>
+      <a id="URI:URI"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$URI.html"><span class="name">URI</span></a><span class="params">(<span name="uri">uri: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="localRef">localRef: <span class="extype" name="scala.Option">Option</span>[<a href="Elements$$PathInfo.html" class="extype" name="laika.tree.Elements.PathInfo">PathInfo</a>] = <span class="symbol">scala.None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Represents a URI which might also optionally be expressed as a local reference within the processed tree.</p>
     </li></ol>
             </div>
 
@@ -1628,6 +1680,19 @@
       </span>
       </h4>
       <p class="comment cmt">Companion for the Options trait.</p>
+    </li><li name="laika.tree.Elements.PathInfo" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="PathInfo"></a>
+      <a id="PathInfo:PathInfo"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$PathInfo$.html"><span class="name">PathInfo</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
     </li><li name="laika.tree.Elements.Styles" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Styles"></a>
       <a id="Styles:Styles"></a>

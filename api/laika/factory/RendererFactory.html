@@ -49,7 +49,7 @@
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div><div class="toggleContainer block">
           <span class="toggle">Known Subclasses</span>
-          <div class="subClasses hiddenContent"><a href="../render/HTML$.html" class="extype" name="laika.render.HTML">HTML</a>, <a href="../render/HTML.html" class="extype" name="laika.render.HTML">HTML</a>, <a href="../render/PrettyPrint$.html" class="extype" name="laika.render.PrettyPrint">PrettyPrint</a>, <a href="../render/PrettyPrint.html" class="extype" name="laika.render.PrettyPrint">PrettyPrint</a></div>
+          <div class="subClasses hiddenContent"><a href="../render/HTML$.html" class="extype" name="laika.render.HTML">HTML</a>, <a href="../render/HTML.html" class="extype" name="laika.render.HTML">HTML</a>, <a href="../render/PrettyPrint$.html" class="extype" name="laika.render.PrettyPrint">PrettyPrint</a>, <a href="../render/PrettyPrint.html" class="extype" name="laika.render.PrettyPrint">PrettyPrint</a>, <a href="../render/XSLFO$.html" class="extype" name="laika.render.XSLFO">XSLFO</a>, <a href="../render/XSLFO.html" class="extype" name="laika.render.XSLFO">XSLFO</a></div>
         </div></div>
         
 
@@ -110,15 +110,15 @@
  replaced by the suffix for the output format.
 </p></div></div>
     </li><li name="laika.factory.RendererFactory#newRenderer" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="newRenderer(out:laika.io.Output,delegate:laika.tree.Elements.Element=&gt;Unit):(W,laika.tree.Elements.Element=&gt;Unit)"></a>
-      <a id="newRenderer(Output,(Element)⇒Unit):(W,(Element)⇒Unit)"></a>
+      <a id="newRenderer(out:laika.io.Output,root:laika.tree.Elements.Element,delegate:laika.tree.Elements.Element=&gt;Unit,styles:laika.parse.css.Styles.StyleDeclarationSet):(W,laika.tree.Elements.Element=&gt;Unit)"></a>
+      <a id="newRenderer(Output,Element,(Element)⇒Unit,StyleDeclarationSet):(W,(Element)⇒Unit)"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">newRenderer</span><span class="params">(<span name="out">out: <a href="../io/Output.html" class="extype" name="laika.io.Output">Output</a></span>, <span name="delegate">delegate: (<a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span><span class="result">: (<span class="extype" name="laika.factory.RendererFactory.W">W</span>, (<a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>) ⇒ <span class="extype" name="scala.Unit">Unit</span>)</span>
+        <span class="name">newRenderer</span><span class="params">(<span name="out">out: <a href="../io/Output.html" class="extype" name="laika.io.Output">Output</a></span>, <span name="root">root: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="delegate">delegate: (<a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>, <span name="styles">styles: <a href="../parse/css/Styles$$StyleDeclarationSet.html" class="extype" name="laika.parse.css.Styles.StyleDeclarationSet">StyleDeclarationSet</a></span>)</span><span class="result">: (<span class="extype" name="laika.factory.RendererFactory.W">W</span>, (<a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>) ⇒ <span class="extype" name="scala.Unit">Unit</span>)</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Creates a new renderer and a new writer instance for the specified
@@ -132,7 +132,7 @@
  to the actual renderer function, this method also produces
  an instance of the generic <code>W</code> type which is the writer API to use
  for custom renderer functions and which is specific to the output format.
-</p></div><dl class="paramcmts block"><dt class="param">out</dt><dd class="cmt"><p>the output to write to</p></dd><dt class="param">delegate</dt><dd class="cmt"><p>a render function to use for rendering the children of an element</p></dd><dt>returns</dt><dd class="cmt"><p>a new writer API of type <code>W</code> and a new render function
+</p></div><dl class="paramcmts block"><dt class="param">out</dt><dd class="cmt"><p>the output to write to</p></dd><dt class="param">root</dt><dd class="cmt"><p>the root element the new renderer will be used for</p></dd><dt class="param">delegate</dt><dd class="cmt"><p>a render function to use for rendering the children of an element</p></dd><dt class="param">styles</dt><dd class="cmt"><p>the styles the new renderer should apply to the rendered elements</p></dd><dt>returns</dt><dd class="cmt"><p>a new writer API of type <code>W</code> and a new render function
 </p></dd></dl></div>
     </li></ol>
             </div>
@@ -236,6 +236,32 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="laika.factory.RendererFactory#defaultStyles" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="defaultStyles:laika.parse.css.Styles.StyleDeclarationSet"></a>
+      <a id="defaultStyles:StyleDeclarationSet"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">defaultStyles</span><span class="result">: <a href="../parse/css/Styles$$StyleDeclarationSet.html" class="extype" name="laika.parse.css.Styles.StyleDeclarationSet">StyleDeclarationSet</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">The default styles to add as a fallback to the explicitly specified styles.</p>
+    </li><li name="laika.factory.RendererFactory#defaultTemplate" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="defaultTemplate:laika.tree.Templates.TemplateRoot"></a>
+      <a id="defaultTemplate:TemplateRoot"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">defaultTemplate</span><span class="result">: <a href="../tree/Templates$$TemplateRoot.html" class="extype" name="laika.tree.Templates.TemplateRoot">TemplateRoot</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">The default template to use for this renderer if no template is explicitly specified.</p>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>

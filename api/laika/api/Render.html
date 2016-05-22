@@ -31,11 +31,11 @@
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">abstract </span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">Render</span><span class="tparams">[<span name="W">W</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <span class="name">Render</span><span class="tparams">[<span name="Writer">Writer</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
       
@@ -46,10 +46,14 @@
 
 Render as HTML from doc toFile <span class="lit">"hello.html"</span></pre><p> Example for rendering HTML from an entire tree of documents to a directory:</p><pre><span class="kw">val</span> tree: DocumentTree = ...
 
-Render as HTML from tree toDirectory <span class="lit">"path/to/output"</span></pre></div><dl class="paramcmts block"><dt class="tparam">W</dt><dd class="cmt"><p>the writer API to use which varies depending on the renderer
-</p></dd></dl><div class="toggleContainer block">
+Render as HTML from tree toDirectory <span class="lit">"path/to/output"</span></pre><p> Example for rendering PDF from an entire tree of documents to a single target file:</p><pre><span class="kw">val</span> tree: DocumentTree = ...
+
+Render as PDF from tree toFile <span class="lit">"hello.pdf"</span></pre></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div><div class="toggleContainer block">
+          <span class="toggle">Known Subclasses</span>
+          <div class="subClasses hiddenContent"><a href="Render$$RenderGatheredOutput.html" class="extype" name="laika.api.Render.RenderGatheredOutput">RenderGatheredOutput</a>, <a href="Render$$RenderMappedOutput.html" class="extype" name="laika.api.Render.RenderMappedOutput">RenderMappedOutput</a></div>
         </div></div>
         
 
@@ -89,41 +93,125 @@ Render as HTML from tree toDirectory <span class="lit">"path/to/output"</span></
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="laika.api.Render.BatchOperation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="BatchOperationextendsAnyRef"></a>
-      <a id="BatchOperation:BatchOperation"></a>
+              <ol><li name="laika.api.Render.DocTarget" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="DocTarget"></a>
+      <a id="DocTarget:DocTarget"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">class</span>
+        <span class="modifier">abstract </span>
+        <span class="kind">type</span>
       </span>
       <span class="symbol">
-        <a href="Render$BatchOperation.html"><span class="name">BatchOperation</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <span class="name">DocTarget</span>
       </span>
       </h4>
-      <p class="comment cmt">Represents a set of recursive render operations for a specific
- document tree.</p>
-    </li><li name="laika.api.Render.Operation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="OperationextendsAnyRef"></a>
-      <a id="Operation:Operation"></a>
+      <p class="shortcomment cmt">The type of the rendering target for a single input document.</p>
+    </li><li name="laika.api.Render.ThisType" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ThisType&lt;:laika.api.Render[Writer]"></a>
+      <a id="ThisType:ThisType"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">class</span>
+        <span class="modifier">abstract </span>
+        <span class="kind">type</span>
       </span>
       <span class="symbol">
-        <a href="Render$Operation.html"><span class="name">Operation</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <span class="name">ThisType</span><span class="result"> &lt;: <a href="" class="extype" name="laika.api.Render">Render</a>[<span class="extype" name="laika.api.Render.Writer">Writer</span>]</span>
       </span>
       </h4>
-      <p class="comment cmt">Represents a single render operation for a specific
- document model.</p>
+      <p class="shortcomment cmt">The concrete implementation of the abstract Render type.</p>
+    </li><li name="laika.api.Render.TreeTarget" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="TreeTarget"></a>
+      <a id="TreeTarget:TreeTarget"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">type</span>
+      </span>
+      <span class="symbol">
+        <span class="name">TreeTarget</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">The type of the rendering target for an entire tree of input documents.</p>
     </li></ol>
             </div>
 
-        
+        <div id="values" class="values members">
+              <h3>Abstract Value Members</h3>
+              <ol><li name="laika.api.Render#from" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="from(tree:laika.tree.Documents.DocumentTree):Render.this.TreeTarget"></a>
+      <a id="from(DocumentTree):TreeTarget"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">from</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <a href="#TreeTarget" class="extmbr" name="laika.api.Render.TreeTarget">TreeTarget</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Specifies the document tree to render.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies the document tree to render.
+</p></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the document tree to render</p></dd><dt>returns</dt><dd class="cmt"><p>a new BatchOperation instance that allows to specify the outputs
+</p></dd></dl></div>
+    </li><li name="laika.api.Render#from" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="from(doc:laika.tree.Documents.Document):Render.this.DocTarget"></a>
+      <a id="from(Document):DocTarget"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">from</span><span class="params">(<span name="doc">doc: <a href="../tree/Documents$$Document.html" class="extype" name="laika.tree.Documents.Document">Document</a></span>)</span><span class="result">: <a href="#DocTarget" class="extmbr" name="laika.api.Render.DocTarget">DocTarget</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Specifies the document to render.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies the document to render.
+</p></div><dl class="paramcmts block"><dt class="param">doc</dt><dd class="cmt"><p>the document to render</p></dd><dt>returns</dt><dd class="cmt"><p>a new Operation instance that allows to specify the output
+</p></dd></dl></div>
+    </li><li name="laika.api.Render#from" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="from(elem:laika.tree.Elements.Element):Render.this.DocTarget"></a>
+      <a id="from(Element):DocTarget"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">from</span><span class="params">(<span name="elem">elem: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>)</span><span class="result">: <a href="#DocTarget" class="extmbr" name="laika.api.Render.DocTarget">DocTarget</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Specifies the element to render.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies the element to render. This may be a <code>RootElement</code> instance
+ as well as any other type of <code>Element</code>, thus allowing to render document
+ fragments, too.
+</p></div><dl class="paramcmts block"><dt class="param">elem</dt><dd class="cmt"><p>the element to render</p></dd><dt>returns</dt><dd class="cmt"><p>a new Operation instance that allows to specify the output
+</p></dd></dl></div>
+    </li><li name="laika.api.Render#using" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="using(render:Writer=&gt;laika.tree.Elements.RenderFunction):Render.this.ThisType"></a>
+      <a id="using((Writer)⇒RenderFunction):ThisType"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">using</span><span class="params">(<span name="render">render: (<span class="extype" name="laika.api.Render.Writer">Writer</span>) ⇒ <a href="../tree/Elements$.html#RenderFunction=PartialFunction[laika.tree.Elements.Element,Unit]" class="extmbr" name="laika.tree.Elements.RenderFunction">RenderFunction</a></span>)</span><span class="result">: <a href="#ThisType&lt;:laika.api.Render[Writer]" class="extmbr" name="laika.api.Render.ThisType">ThisType</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Specifies a custom render function that overrides one or more of the default
+ renderers for the output format this instance uses.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies a custom render function that overrides one or more of the default
+ renderers for the output format this instance uses.</p><p> To be precise this method expects a function that returns a partial function.
+ The outer function allows to capture the writer instance to write to and will
+ only be invoked once. The partial function will then be invoked for each
+ elememnt it is defined at.</p><p> Simple example for customizing the HTML output for emphasized text, adding a specific
+ style class:</p><pre><span class="kw">val</span> doc: Document = ...
+
+Render as HTML using { out <span class="kw">=&gt;</span>
+  { <span class="kw">case</span> Emphasized(content) <span class="kw">=&gt;</span> out &lt;&lt; <span class="lit">""</span><span class="lit">"&lt;em class="</span>big<span class="lit">">"</span><span class="lit">""</span> &lt;&lt; content &lt;&lt; <span class="lit">"&lt;/em>"</span> }
+} from doc toString</pre></div></div>
+    </li></ol>
+            </div>
 
         <div id="values" class="values members">
-              <h3>Value Members</h3>
+              <h3>Concrete Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:AnyRef):Boolean"></a>
       <a id="!=(AnyRef):Boolean"></a>
@@ -266,53 +354,6 @@ Render as HTML from tree toDirectory <span class="lit">"path/to/output"</span></
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.api.Render#from" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="from(tree:laika.tree.Documents.DocumentTree):Render.this.BatchOperation"></a>
-      <a id="from(DocumentTree):BatchOperation"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">from</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <a href="Render$BatchOperation.html" class="extype" name="laika.api.Render.BatchOperation">BatchOperation</a></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Specifies the document tree to render.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies the document tree to render.
-</p></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the document tree to render</p></dd><dt>returns</dt><dd class="cmt"><p>a new BatchOperation instance that allows to specify the outputs
-</p></dd></dl></div>
-    </li><li name="laika.api.Render#from" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="from(doc:laika.tree.Documents.Document):Render.this.Operation"></a>
-      <a id="from(Document):Operation"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">from</span><span class="params">(<span name="doc">doc: <a href="../tree/Documents$$Document.html" class="extype" name="laika.tree.Documents.Document">Document</a></span>)</span><span class="result">: <a href="Render$Operation.html" class="extype" name="laika.api.Render.Operation">Operation</a></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Specifies the document to render.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies the document to render.
-</p></div><dl class="paramcmts block"><dt class="param">doc</dt><dd class="cmt"><p>the document to render</p></dd><dt>returns</dt><dd class="cmt"><p>a new Operation instance that allows to specify the output
-</p></dd></dl></div>
-    </li><li name="laika.api.Render#from" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="from(elem:laika.tree.Elements.Element):Render.this.Operation"></a>
-      <a id="from(Element):Operation"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">from</span><span class="params">(<span name="elem">elem: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>)</span><span class="result">: <a href="Render$Operation.html" class="extype" name="laika.api.Render.Operation">Operation</a></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Specifies the element to render.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies the element to render. This may be a <code>RootElement</code> instance
- as well as any other type of <code>Element</code>, thus allowing to render document
- fragments, too.
-</p></div><dl class="paramcmts block"><dt class="param">elem</dt><dd class="cmt"><p>the element to render</p></dd><dt>returns</dt><dd class="cmt"><p>a new Operation instance that allows to specify the output
-</p></dd></dl></div>
     </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <a id="getClass():Class[_]"></a>
@@ -391,6 +432,36 @@ Render as HTML from tree toDirectory <span class="lit">"path/to/output"</span></
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="laika.api.Render#render" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="render(tree:laika.tree.Documents.DocumentTree,config:laika.io.OutputProvider.OutputConfig):Unit"></a>
+      <a id="render(DocumentTree,OutputConfig):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">render</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>, <span name="config">config: <a href="../io/OutputProvider$$OutputConfig.html" class="extype" name="laika.io.OutputProvider.OutputConfig">OutputConfig</a></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Renders the specified document tree to the given output.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the specified document tree to the given output.
+</p></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p>the configuration for the output to render to
+</p></dd></dl><dl class="attributes block"> <dt>Attributes</dt><dd>protected[this] </dd></dl></div>
+    </li><li name="laika.api.Render#render" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="render(element:laika.tree.Elements.Element,output:laika.io.Output,styles:laika.parse.css.Styles.StyleDeclarationSet):Unit"></a>
+      <a id="render(Element,Output,StyleDeclarationSet):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">render</span><span class="params">(<span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="output">output: <a href="../io/Output.html" class="extype" name="laika.io.Output">Output</a></span>, <span name="styles">styles: <a href="../parse/css/Styles$$StyleDeclarationSet.html" class="extype" name="laika.parse.css.Styles.StyleDeclarationSet">StyleDeclarationSet</a></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Renders the specified element to the given output.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the specified element to the given output.
+</p></div><dl class="paramcmts block"><dt class="param">element</dt><dd class="cmt"><p>the element to render</p></dd><dt class="param">output</dt><dd class="cmt"><p>the output to render to</p></dd><dt class="param">styles</dt><dd class="cmt"><p>the styles to apply to the elements during the render process
+</p></dd></dl><dl class="attributes block"> <dt>Attributes</dt><dd>protected[this] </dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -417,29 +488,6 @@ Render as HTML from tree toDirectory <span class="lit">"path/to/output"</span></
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="laika.api.Render#using" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="using(render:W=&gt;laika.tree.Elements.RenderFunction):laika.api.Render[W]"></a>
-      <a id="using((W)⇒RenderFunction):Render[W]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">using</span><span class="params">(<span name="render">render: (<span class="extype" name="laika.api.Render.W">W</span>) ⇒ <a href="../tree/Elements$.html#RenderFunction=PartialFunction[laika.tree.Elements.Element,Unit]" class="extmbr" name="laika.tree.Elements.RenderFunction">RenderFunction</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.api.Render">Render</a>[<span class="extype" name="laika.api.Render.W">W</span>]</span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Specifies a custom render function that overrides one or more of the default
- renderers for the output format this instance uses.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies a custom render function that overrides one or more of the default
- renderers for the output format this instance uses.</p><p> To be precise this method expects a function that returns a partial function.
- The outer function allows to capture the writer instance to write to and will
- only be invoked once. The partial function will then be invoked for each
- elememnt it is defined at.</p><p> Simple example for customizing the HTML output for emphasized text, adding a specific
- style class:</p><pre><span class="kw">val</span> doc: Document = ...
-
-Render as HTML using { out <span class="kw">=&gt;</span>
-  { <span class="kw">case</span> Emphasized(content) <span class="kw">=&gt;</span> out &lt;&lt; <span class="lit">""</span><span class="lit">"&lt;em class="</span>big<span class="lit">">"</span><span class="lit">""</span> &lt;&lt; content &lt;&lt; <span class="lit">"&lt;/em>"</span> }
-} from doc toString</pre></div></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>

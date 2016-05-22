@@ -83,7 +83,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.io.OutputProvider.OutputConfigBuilder#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(provider:laika.io.OutputProvider.ProviderBuilder,codec:scala.io.Codec,isParallel:Boolean):laika.io.OutputProvider.OutputConfigBuilder"></a>
+      <a id="&lt;init&gt;(provider:laika.io.OutputProvider.ProviderBuilder,codec:scala.io.Codec,isParallel:Boolean,copyStaticFiles:Boolean):laika.io.OutputProvider.OutputConfigBuilder"></a>
       <a id="&lt;init&gt;:OutputConfigBuilder"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -91,7 +91,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">OutputConfigBuilder</span><span class="params">(<span name="provider">provider: <a href="OutputProvider$$ProviderBuilder.html" class="extype" name="laika.io.OutputProvider.ProviderBuilder">ProviderBuilder</a></span>, <span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>, <span name="isParallel">isParallel: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span>
+        <span class="name">OutputConfigBuilder</span><span class="params">(<span name="provider">provider: <a href="OutputProvider$$ProviderBuilder.html" class="extype" name="laika.io.OutputProvider.ProviderBuilder">ProviderBuilder</a></span>, <span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>, <span name="isParallel">isParallel: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="copyStaticFiles">copyStaticFiles: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>)</span>
       </span>
       </h4>
       
@@ -285,6 +285,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="laika.io.OutputProvider.OutputConfigBuilder#ignoreStaticFiles" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ignoreStaticFiles:laika.io.OutputProvider.OutputConfigBuilder"></a>
+      <a id="ignoreStaticFiles:OutputConfigBuilder"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ignoreStaticFiles</span><span class="result">: <a href="" class="extype" name="laika.io.OutputProvider.OutputConfigBuilder">OutputConfigBuilder</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Instructs the renderer not to copy all static files to the output destination.</p>
     </li><li name="laika.io.OutputProvider.OutputConfigBuilder#inParallel" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="inParallel:laika.io.OutputProvider.OutputConfigBuilder"></a>
       <a id="inParallel:OutputConfigBuilder"></a>

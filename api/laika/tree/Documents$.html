@@ -150,7 +150,7 @@
       <p class="comment cmt">The default implementation for determining the document type
  of the input based on its path.</p>
     </li><li name="laika.tree.Documents.Document" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DocumentextendsDocuments.Navigatable"></a>
+      <a id="DocumentextendsDocuments.Titled"></a>
       <a id="Document:Document"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -158,7 +158,7 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="Documents$$Document.html"><span class="name">Document</span></a><span class="result"> extends <a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a></span>
+        <a href="Documents$$Document.html"><span class="name">Document</span></a><span class="result"> extends <a href="Documents$$Titled.html" class="extype" name="laika.tree.Documents.Titled">Titled</a></span>
       </span>
       </h4>
       <p class="comment cmt">Represents a single document and provides access
@@ -180,7 +180,7 @@
  its asssociated template and other context information that
  can not be obtained from the Document instance itself.</p>
     </li><li name="laika.tree.Documents.DocumentTree" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DocumentTreeextendsDocuments.Navigatable"></a>
+      <a id="DocumentTreeextendsDocuments.Titled"></a>
       <a id="DocumentTree:DocumentTree"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -188,7 +188,7 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="Documents$$DocumentTree.html"><span class="name">DocumentTree</span></a><span class="result"> extends <a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a></span>
+        <a href="Documents$$DocumentTree.html"><span class="name">DocumentTree</span></a><span class="result"> extends <a href="Documents$$Titled.html" class="extype" name="laika.tree.Documents.Titled">Titled</a></span>
       </span>
       </h4>
       <p class="comment cmt">Represents a tree with all its documents and subtrees.</p>
@@ -286,6 +286,20 @@
       </span>
       </h4>
       <p class="comment cmt">Captures information about a document section, without its content.</p>
+    </li><li name="laika.tree.Documents.StyleSheet" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="StyleSheetextendsDocuments.DocumentTypewithProductwithSerializable"></a>
+      <a id="StyleSheet:StyleSheet"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Documents$$StyleSheet.html"><span class="name">StyleSheet</span></a><span class="params">(<span name="format">format: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="Documents$$DocumentType.html" class="extype" name="laika.tree.Documents.DocumentType">DocumentType</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">A style sheet that needs to get passed
+ to a renderer.</p>
     </li><li name="laika.tree.Documents.TitleInfo" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="TitleInfoextendsElements.ElementwithElements.SpanContainer[laika.tree.Documents.TitleInfo]withProductwithSerializable"></a>
       <a id="TitleInfo:TitleInfo"></a>
@@ -299,6 +313,19 @@
       </span>
       </h4>
       <p class="comment cmt">Represents a section title.</p>
+    </li><li name="laika.tree.Documents.Titled" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="TitledextendsDocuments.Navigatable"></a>
+      <a id="Titled:Titled"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Documents$$Titled.html"><span class="name">Titled</span></a><span class="result"> extends <a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">A navigatable object that has a title.</p>
     </li></ol>
             </div>
 
@@ -433,7 +460,7 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Documents$$DocumentContext$.html"><span class="name">DocumentContext</span></a><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="Documents$$DocumentContext$.html"><span class="name">DocumentContext</span></a>
       </span>
       </h4>
       

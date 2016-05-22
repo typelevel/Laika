@@ -351,6 +351,19 @@
       </span>
       </h4>
       <p class="comment cmt">API for specifying further constraints on the parsers provided by this base trait.</p>
+    </li><li name="laika.parse.BaseParsers.TryOps" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TryOps[A]extendsAnyRef"></a>
+      <a id="TryOps[A]:TryOps[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="../BaseParsers$TryOps.html"><span class="name">TryOps</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Provides additional methods to <code>Try</code> via implicit conversion.</p>
     </li><li name="scala.util.parsing.combinator.Parsers.~" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="~[+a,+b]extendsProductwithSerializable"></a>
       <a id="~[+a,+b]:~[a,b]"></a>
@@ -724,15 +737,15 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="laika.parse.MarkupParsers#atStart" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="atStart:MarkupParsers.this.Parser[MarkupParsers.this.Parser[Unit]]"></a>
-      <a id="atStart:(BlockParsers.this)#Parser[(BlockParsers.this)#Parser[Unit]]"></a>
+      <a id="atStart:MarkupParsers.this.Parser[Unit]"></a>
+      <a id="atStart:(BlockParsers.this)#Parser[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">atStart</span><span class="result">: (<a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[(<a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[<span class="extype" name="scala.Unit">Unit</span>]]</span>
+        <span class="name">atStart</span><span class="result">: (<a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Succeeds at the start of the input.</p><div class="fullcomment"><div class="comment cmt"><p>Succeeds at the start of the input.
@@ -1293,7 +1306,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">indentedBlock</span><span class="params">(<span name="minIndent">minIndent: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">1</span></span>, <span name="linePredicate">linePredicate: ⇒ (<a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[<span class="extype" name="scala.Any">Any</span>] = <span class="symbol">success()</span></span>, <span name="endsOnBlankLine">endsOnBlankLine: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="firstLineIndented">firstLineIndented: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="maxIndent">maxIndent: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>)</span><span class="result">: (<a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[(<a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a>.this)#<span class="extype" name="laika.parse.BlockParsers.IndentedBlock">IndentedBlock</span>]</span>
+        <span class="name">indentedBlock</span><span class="params">(<span name="minIndent">minIndent: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">1</span></span>, <span name="linePredicate">linePredicate: ⇒ (<a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[<span class="extype" name="scala.Any">Any</span>] = <span class="symbol">success(())</span></span>, <span name="endsOnBlankLine">endsOnBlankLine: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="firstLineIndented">firstLineIndented: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="maxIndent">maxIndent: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>)</span><span class="result">: (<a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[(<a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a>.this)#<span class="extype" name="laika.parse.BlockParsers.IndentedBlock">IndentedBlock</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses a full block based on the specified helper parsers, expecting an indentation for
@@ -1331,15 +1344,15 @@
       <p class="shortcomment cmt">Parses a block of lines with line breaks preserved.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a block of lines with line breaks preserved.</p><p> See <a href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#line-blocks" target="_blank">http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#line-blocks</a>.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ListParsers.html" class="extype" name="laika.parse.rst.ListParsers">ListParsers</a></dd></dl></div>
     </li><li name="laika.parse.rst.ExplicitBlockParsers#linkTarget" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="linkTarget:ExplicitBlockParsers.this.Parser[laika.tree.Elements.Blockwithlaika.tree.Elements.SpanwithSerializable]"></a>
-      <a id="linkTarget:(BlockParsers.this)#Parser[BlockwithSpanwithSerializable]"></a>
+      <a id="linkTarget:ExplicitBlockParsers.this.Parser[laika.tree.Elements.Blockwithlaika.tree.Elements.Span]"></a>
+      <a id="linkTarget:(BlockParsers.this)#Parser[BlockwithSpan]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">linkTarget</span><span class="result">: (<a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[<a href="../../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a> with <a href="../../tree/Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a> with <span class="extype" name="scala.Serializable">Serializable</span>]</span>
+        <span class="name">linkTarget</span><span class="result">: (<a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[<a href="../../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a> with <a href="../../tree/Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses a link definition, either an internal, external or indirect link.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a link definition, either an internal, external or indirect link.</p><p> See <a href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#hyperlink-targets" target="_blank">http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#hyperlink-targets</a>.
@@ -1842,7 +1855,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">prepareBlockParsers</span><span class="params">(<span name="nested">nested: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <span class="extype" name="scala.collection.immutable.List">List</span>[(<a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[<a href="../../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a>]]</span>
+        <span class="name">prepareBlockParsers</span><span class="params">(<span name="nested">nested: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <span class="extype" name="scala.List">List</span>[(<a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[<a href="../../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a>]]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Extension hook for assembling the block parsers for a particular markup format.</p><div class="fullcomment"><div class="comment cmt"><p>Extension hook for assembling the block parsers for a particular markup format.
@@ -1873,7 +1886,7 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">refName</span><span class="result">: (<a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[<span class="extype" name="java.lang.String">String</span>]</span>
+        <span class="name">refName</span><span class="result">: (<a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses a simple reference name that only allows alphanumerical characters
@@ -2110,15 +2123,15 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../MarkupParsers.html" class="extype" name="laika.parse.MarkupParsers">MarkupParsers</a> → RegexParsers</dd></dl></div>
     </li><li name="laika.parse.rst.ExplicitBlockParsers#substitutionDefinition" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="substitutionDefinition:ExplicitBlockParsers.this.Parser[laika.tree.Elements.BlockwithSerializable]"></a>
-      <a id="substitutionDefinition:(BlockParsers.this)#Parser[BlockwithSerializable]"></a>
+      <a id="substitutionDefinition:ExplicitBlockParsers.this.Parser[laika.tree.Elements.Block]"></a>
+      <a id="substitutionDefinition:(BlockParsers.this)#Parser[Block]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">substitutionDefinition</span><span class="result">: (<a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[<a href="../../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a> with <span class="extype" name="scala.Serializable">Serializable</span>]</span>
+        <span class="name">substitutionDefinition</span><span class="result">: (<a href="" class="extype" name="laika.parse.rst.BlockParsers">BlockParsers</a>.this)#<span class="extype" name="scala.util.parsing.combinator.Parsers.Parser">Parser</span>[<a href="../../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses a substitution definition.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a substitution definition.</p><p> See <a href="http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#substitution-definitions" target="_blank">http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#substitution-definitions</a>.

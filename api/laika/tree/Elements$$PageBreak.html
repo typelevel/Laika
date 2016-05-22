@@ -2,9 +2,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
-          <title>BatchOperation - laika.api.Render.BatchOperation</title>
-          <meta name="description" content="BatchOperation - laika.api.Render.BatchOperation" />
-          <meta name="keywords" content="BatchOperation laika.api.Render.BatchOperation" />
+          <title>PageBreak - laika.tree.Elements.PageBreak</title>
+          <meta name="description" content="PageBreak - laika.tree.Elements.PageBreak" />
+          <meta name="keywords" content="PageBreak laika.tree.Elements.PageBreak" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -12,7 +12,7 @@
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
-            var hash = 'laika.api.Render$BatchOperation';
+            var hash = 'laika.tree.Elements$$PageBreak';
             var anchor = window.location.hash;
             var anchor_opt = '';
             if (anchor.length >= 1)
@@ -25,26 +25,24 @@
         <body class="type">
       <div id="definition">
         <img src="../../lib/class_big.png" />
-        <p id="owner"><a href="../package.html" class="extype" name="laika">laika</a>.<a href="package.html" class="extype" name="laika.api">api</a>.<a href="Render.html" class="extype" name="laika.api.Render">Render</a></p>
-        <h1>BatchOperation</h1>
+        <p id="owner"><a href="../package.html" class="extype" name="laika">laika</a>.<a href="package.html" class="extype" name="laika.tree">tree</a>.<a href="Elements$.html" class="extype" name="laika.tree.Elements">Elements</a></p>
+        <h1>PageBreak</h1>
       </div>
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">class</span>
+        <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">BatchOperation</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <span class="name">PageBreak</span><span class="params">(<span name="options">options: <a href="Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol">Elements.this.NoOpt</span></span>)</span><span class="result"> extends <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Represents a set of recursive render operations for a specific
- document tree. Various types of output can be
- specified to trigger the actual rendering.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>An explicit hard page break.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a>, <a href="Elements$$Customizable.html" class="extype" name="laika.tree.Elements.Customizable">Customizable</a>, <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -62,7 +60,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="laika.api.Render.BatchOperation"><span>BatchOperation</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="laika.tree.Elements.PageBreak"><span>PageBreak</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="laika.tree.Elements.Block"><span>Block</span></li><li class="in" name="laika.tree.Elements.Customizable"><span>Customizable</span></li><li class="in" name="laika.tree.Elements.Element"><span>Element</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -80,7 +78,23 @@
 
       <div id="template">
         <div id="allMembers">
-        
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="laika.tree.Elements.PageBreak#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(options:laika.tree.Elements.Options):laika.tree.Elements.PageBreak"></a>
+      <a id="&lt;init&gt;:PageBreak"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">PageBreak</span><span class="params">(<span name="options">options: <a href="Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol">Elements.this.NoOpt</span></span>)</span>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
 
         
 
@@ -198,19 +212,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="equals(x$1:Any):Boolean"></a>
-      <a id="equals(Any):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -240,19 +241,6 @@
       </span>
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hashCode():Int"></a>
-      <a id="hashCode():Int"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
@@ -308,6 +296,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="laika.tree.Elements.PageBreak#options" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="options:laika.tree.Elements.Options"></a>
+      <a id="options:Options"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">options</span><span class="result">: <a href="Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.tree.Elements.PageBreak">PageBreak</a> → <a href="Elements$$Customizable.html" class="extype" name="laika.tree.Elements.Customizable">Customizable</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -321,107 +322,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="laika.api.Render.BatchOperation#toDefaultDirectory" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toDefaultDirectory(implicitcodec:scala.io.Codec):Unit"></a>
-      <a id="toDefaultDirectory(Codec):Unit"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toDefaultDirectory</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Renders the document tree to the
- current working directory and its subdirectories.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the document tree to the
- current working directory and its subdirectories.
- Required subdirectories which do not exist yet will be created.
-</p></div><dl class="paramcmts block"><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.
-</p></dd></dl></div>
-    </li><li name="laika.api.Render.BatchOperation#toDirectory" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toDirectory(dir:java.io.File)(implicitcodec:scala.io.Codec):Unit"></a>
-      <a id="toDirectory(File)(Codec):Unit"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toDirectory</span><span class="params">(<span name="dir">dir: <span class="extype" name="java.io.File">File</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Renders the document tree to the
- specified directory and its subdirectories.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the document tree to the
- specified directory and its subdirectories.
- Required subdirectories which do not exist yet will be created.
-</p></div><dl class="paramcmts block"><dt class="param">dir</dt><dd class="cmt"><p>the directory to write to</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.
-</p></dd></dl></div>
-    </li><li name="laika.api.Render.BatchOperation#toDirectory" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toDirectory(name:String)(implicitcodec:scala.io.Codec):Unit"></a>
-      <a id="toDirectory(String)(Codec):Unit"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toDirectory</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Renders the document tree to the
- specified directory and its subdirectories.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the document tree to the
- specified directory and its subdirectories.
- Required subdirectories which do not exist yet will be created.
-</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the directory to write to</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.
-</p></dd></dl></div>
-    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toString():String"></a>
-      <a id="toString():String"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="laika.api.Render.BatchOperation#toTree" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toTree(config:laika.io.OutputProvider.OutputConfig):Unit"></a>
-      <a id="toTree(OutputConfig):Unit"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toTree</span><span class="params">(<span name="config">config: <a href="../io/OutputProvider$$OutputConfig.html" class="extype" name="laika.io.OutputProvider.OutputConfig">OutputConfig</a></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Renders the document tree to the output
- obtained from the specified configuation.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the document tree to the output
- obtained from the specified configuation.
-</p></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p>the configuration from which the output to write to can be obtained
-</p></dd></dl></div>
-    </li><li name="laika.api.Render.BatchOperation#toTree" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toTree(builder:laika.io.OutputProvider.OutputConfigBuilder):Unit"></a>
-      <a id="toTree(OutputConfigBuilder):Unit"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toTree</span><span class="params">(<span name="builder">builder: <a href="../io/OutputProvider$$OutputConfigBuilder.html" class="extype" name="laika.io.OutputProvider.OutputConfigBuilder">OutputConfigBuilder</a></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Renders the document tree to the output
- obtained from the specified configuation builder.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the document tree to the output
- obtained from the specified configuation builder.
-</p></div><dl class="paramcmts block"><dt class="param">builder</dt><dd class="cmt"><p>a builder for the configuration from which the output to write to can be obtained
-</p></dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>
@@ -488,7 +388,21 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.AnyRef">
+        <div class="parent" name="scala.Serializable">
+              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="laika.tree.Elements.Block">
+              <h3>Inherited from <a href="Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a></h3>
+            </div><div class="parent" name="laika.tree.Elements.Customizable">
+              <h3>Inherited from <a href="Elements$$Customizable.html" class="extype" name="laika.tree.Elements.Customizable">Customizable</a></h3>
+            </div><div class="parent" name="laika.tree.Elements.Element">
+              <h3>Inherited from <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></h3>
+            </div><div class="parent" name="scala.Product">
+              <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
+            </div><div class="parent" name="scala.Equals">
+              <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>

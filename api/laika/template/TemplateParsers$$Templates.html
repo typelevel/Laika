@@ -342,6 +342,19 @@
       </span>
       </h4>
       <p class="comment cmt">API for specifying further constraints on the parsers provided by this base trait.</p>
+    </li><li name="laika.parse.BaseParsers.TryOps" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TryOps[A]extendsAnyRef"></a>
+      <a id="TryOps[A]:TryOps[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="../parse/BaseParsers$TryOps.html"><span class="name">TryOps</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Provides additional methods to <code>Try</code> via implicit conversion.</p>
     </li><li name="scala.util.parsing.combinator.Parsers.~" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="~[+a,+b]extendsProductwithSerializable"></a>
       <a id="~[+a,+b]:~[a,b]"></a>
@@ -699,15 +712,15 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="laika.parse.MarkupParsers#atStart" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="atStart:MarkupParsers.this.Parser[MarkupParsers.this.Parser[Unit]]"></a>
-      <a id="atStart:Parser[Parser[Unit]]"></a>
+      <a id="atStart:MarkupParsers.this.Parser[Unit]"></a>
+      <a id="atStart:Parser[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">atStart</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.template.TemplateParsers.Templates.Parser">Parser</a>[<a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.template.TemplateParsers.Templates.Parser">Parser</a>[<span class="extype" name="scala.Unit">Unit</span>]]</span>
+        <span class="name">atStart</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.template.TemplateParsers.Templates.Parser">Parser</a>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Succeeds at the start of the input.</p><div class="fullcomment"><div class="comment cmt"><p>Succeeds at the start of the input.
@@ -1190,6 +1203,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="laika.directive.DirectiveParsers#nestedBraces" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="nestedBraces:DirectiveParsers.this.Parser[laika.tree.Elements.Text]"></a>
+      <a id="nestedBraces:Parser[Text]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">nestedBraces</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.template.TemplateParsers.Templates.Parser">Parser</a>[<a href="../tree/Elements$$Text.html" class="extype" name="laika.tree.Elements.Text">Text</a>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="../directive/DirectiveParsers.html" class="extype" name="laika.directive.DirectiveParsers">DirectiveParsers</a></dd></dl></div>
     </li><li name="scala.util.parsing.combinator.Parsers#not" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="not[T](p:=&gt;Parsers.this.Parser[T]):Parsers.this.Parser[Unit]"></a>
       <a id="not[T](⇒Parser[T]):Parser[Unit]"></a>
@@ -1446,7 +1472,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">parseTemplatePart</span><span class="params">(<span name="source">source: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.collection.immutable.List">List</span>[<a href="../tree/Templates$$TemplateSpan.html" class="extype" name="laika.tree.Templates.TemplateSpan">TemplateSpan</a>]</span>
+        <span class="name">parseTemplatePart</span><span class="params">(<span name="source">source: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.List">List</span>[<a href="../tree/Templates$$TemplateSpan.html" class="extype" name="laika.tree.Templates.TemplateSpan">TemplateSpan</a>]</span>
       </span>
       </h4>
       
@@ -1477,7 +1503,7 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>RegexParsers → Parsers</dd></dl></div>
     </li><li name="laika.template.TemplateParsers.Templates#prepareSpanParsers" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="prepareSpanParsers:scala.collection.immutable.Map[Char,Templates.this.Parser[laika.tree.Elements.Span]]"></a>
+      <a id="prepareSpanParsers:Map[Char,Templates.this.Parser[laika.tree.Elements.Span]]"></a>
       <a id="prepareSpanParsers:Map[Char,Parser[Span]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -1485,7 +1511,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">prepareSpanParsers</span><span class="result">: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="scala.Char">Char</span>, <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.template.TemplateParsers.Templates.Parser">Parser</a>[<a href="../tree/Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>]]</span>
+        <span class="name">prepareSpanParsers</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Char">Char</span>, <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.template.TemplateParsers.Templates.Parser">Parser</a>[<a href="../tree/Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>]]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Extension hook for modifying the default span parser map.</p><div class="fullcomment"><div class="comment cmt"><p>Extension hook for modifying the default span parser map.
@@ -1500,7 +1526,7 @@
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">refName</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.template.TemplateParsers.Templates.Parser">Parser</a>[<span class="extype" name="java.lang.String">String</span>]</span>
+        <span class="name">refName</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.template.TemplateParsers.Templates.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses a simple reference name that only allows alphanumerical characters
@@ -1761,7 +1787,7 @@
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">templateSpans</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.template.TemplateParsers.Templates.Parser">Parser</a>[<span class="extype" name="scala.collection.immutable.List">List</span>[<a href="../tree/Templates$$TemplateSpan.html" class="extype" name="laika.tree.Templates.TemplateSpan">TemplateSpan</a>]]</span>
+        <span class="name">templateSpans</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.template.TemplateParsers.Templates.Parser">Parser</a>[<span class="extype" name="scala.List">List</span>[<a href="../tree/Templates$$TemplateSpan.html" class="extype" name="laika.tree.Templates.TemplateSpan">TemplateSpan</a>]]</span>
       </span>
       </h4>
       
@@ -1774,7 +1800,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">templateWithConfig</span><span class="params">(<span name="path">path: <a href="../tree/Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>)</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.template.TemplateParsers.Templates.Parser">Parser</a>[(<span class="extype" name="com.typesafe.config.Config">Config</span>, <span class="extype" name="scala.collection.immutable.List">List</span>[<a href="../tree/Templates$$TemplateSpan.html" class="extype" name="laika.tree.Templates.TemplateSpan">TemplateSpan</a>])]</span>
+        <span class="name">templateWithConfig</span><span class="params">(<span name="path">path: <a href="../tree/Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>)</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.template.TemplateParsers.Templates.Parser">Parser</a>[(<span class="extype" name="com.typesafe.config.Config">Config</span>, <span class="extype" name="scala.List">List</span>[<a href="../tree/Templates$$TemplateSpan.html" class="extype" name="laika.tree.Templates.TemplateSpan">TemplateSpan</a>])]</span>
       </span>
       </h4>
       

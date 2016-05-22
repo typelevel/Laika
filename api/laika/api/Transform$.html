@@ -82,34 +82,7 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="laika.api.Transform.BatchConfig" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="BatchConfigextendsProductwithSerializable"></a>
-      <a id="BatchConfig:BatchConfig"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="Transform$$BatchConfig.html"><span class="name">BatchConfig</span></a><span class="params">(<span name="input">input: <a href="../io/InputProvider$$InputConfig.html" class="extype" name="laika.io.InputProvider.InputConfig">InputConfig</a></span>, <span name="output">output: <a href="../io/OutputProvider$$OutputConfig.html" class="extype" name="laika.io.OutputProvider.OutputConfig">OutputConfig</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      <p class="comment cmt">The configuration for a batch process, containing the configuration
- for the inputs and outputs to use.</p>
-    </li><li name="laika.api.Transform.BatchConfigBuilder" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="BatchConfigBuilderextendsAnyRef"></a>
-      <a id="BatchConfigBuilder:BatchConfigBuilder"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="Transform$$BatchConfigBuilder.html"><span class="name">BatchConfigBuilder</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      </h4>
-      <p class="comment cmt">API for configuring a batch operation.</p>
-    </li><li name="laika.api.Transform.Builder" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+              <ol><li name="laika.api.Transform.Builder" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="BuilderextendsAnyRef"></a>
       <a id="Builder:Builder"></a>
       <h4 class="signature">
@@ -123,6 +96,49 @@
       </h4>
       <p class="comment cmt">Step in the setup for a transform operation where the
  renderer must be specified.</p>
+    </li><li name="laika.api.Transform.TransformGatheredOutput" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TransformGatheredOutput[Writer]extendsTransform[Writer]"></a>
+      <a id="TransformGatheredOutput[Writer]:TransformGatheredOutput[Writer]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Transform$$TransformGatheredOutput.html"><span class="name">TransformGatheredOutput</span></a><span class="tparams">[<span name="Writer">Writer</span>]</span><span class="result"> extends <a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a>[<span class="extype" name="laika.api.Transform.TransformGatheredOutput.Writer">Writer</span>]</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A transform operation that gathers input from one or more
+ input documents in an input tree structure to be rendered
+ to a single output destination.</p>
+    </li><li name="laika.api.Transform.TransformMappedOutput" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TransformMappedOutput[Writer]extendsTransform[Writer]"></a>
+      <a id="TransformMappedOutput[Writer]:TransformMappedOutput[Writer]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Transform$$TransformMappedOutput.html"><span class="name">TransformMappedOutput</span></a><span class="tparams">[<span name="Writer">Writer</span>]</span><span class="result"> extends <a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a>[<span class="extype" name="laika.api.Transform.TransformMappedOutput.Writer">Writer</span>]</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A transform operation that maps each input document of a
+ given input tree to a corresponding output document
+ in the destination tree.</p>
+    </li><li name="laika.api.Transform.TreeConfigBuilder" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="TreeConfigBuilder[ThisType]extendsAnyRef"></a>
+      <a id="TreeConfigBuilder[ThisType]:TreeConfigBuilder[ThisType]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Transform$$TreeConfigBuilder.html"><span class="name">TreeConfigBuilder</span></a><span class="tparams">[<span name="ThisType">ThisType</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">API for configuring a batch operation for an input tree.</p>
     </li></ol>
             </div>
 
@@ -195,45 +211,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="laika.api.Transform.BatchConfigBuilder" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="BatchConfigBuilder"></a>
-      <a id="BatchConfigBuilder:BatchConfigBuilder"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Transform$$BatchConfigBuilder$.html"><span class="name">BatchConfigBuilder</span></a>
-      </span>
-      </h4>
-      <p class="comment cmt">Factory methods for creating BatchConfigBuilders.</p>
-    </li><li name="laika.api.Transform.DefaultDirectories" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DefaultDirectories"></a>
-      <a id="DefaultDirectories:DefaultDirectories"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Transform$$DefaultDirectories$.html"><span class="name">DefaultDirectories</span></a>
-      </span>
-      </h4>
-      <p class="comment cmt">Creates BatchConfigBuilder instances using the current working directory as its root.</p>
-    </li><li name="laika.api.Transform.RootDirectory" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="RootDirectory"></a>
-      <a id="RootDirectory:RootDirectory"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Transform$$RootDirectory$.html"><span class="name">RootDirectory</span></a>
-      </span>
-      </h4>
-      <p class="comment cmt">Creates BatchConfigBuilder instances for a specific root directory in the file system.</p>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>

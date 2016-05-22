@@ -35,14 +35,14 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">DocumentTree</span><span class="result"> extends <a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a></span>
+        <span class="name">DocumentTree</span><span class="result"> extends <a href="Documents$$Titled.html" class="extype" name="laika.tree.Documents.Titled">Titled</a></span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Represents a tree with all its documents and subtrees.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="Documents$$Titled.html" class="extype" name="laika.tree.Documents.Titled">Titled</a>, <a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -60,7 +60,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="laika.tree.Documents.DocumentTree"><span>DocumentTree</span></li><li class="in" name="laika.tree.Documents.Navigatable"><span>Navigatable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="laika.tree.Documents.DocumentTree"><span>DocumentTree</span></li><li class="in" name="laika.tree.Documents.Titled"><span>Titled</span></li><li class="in" name="laika.tree.Documents.Navigatable"><span>Navigatable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -81,7 +81,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.tree.Documents.DocumentTree#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(path:laika.tree.Documents.Path,documents:Seq[laika.tree.Documents.Document],templates:Seq[laika.tree.Templates.TemplateDocument],dynamicTemplates:Seq[laika.tree.Templates.TemplateDocument],dynamicDocuments:Seq[laika.tree.Documents.Document],staticDocuments:Seq[laika.io.Input],subtrees:Seq[laika.tree.Documents.DocumentTree],config:Option[com.typesafe.config.Config],docNumber:List[Int],navigationOrder:Option[Seq[laika.tree.Documents.Navigatable]]):laika.tree.Documents.DocumentTree"></a>
+      <a id="&lt;init&gt;(path:laika.tree.Documents.Path,documents:Seq[laika.tree.Documents.Document],templates:Seq[laika.tree.Templates.TemplateDocument],dynamicTemplates:Seq[laika.tree.Templates.TemplateDocument],dynamicDocuments:Seq[laika.tree.Documents.Document],styles:Map[String,laika.parse.css.Styles.StyleDeclarationSet],staticDocuments:Seq[laika.io.Input],subtrees:Seq[laika.tree.Documents.DocumentTree],config:Option[com.typesafe.config.Config],docNumber:List[Int],navigationOrder:Option[Seq[laika.tree.Documents.Titled]],sourcePaths:Seq[String]):laika.tree.Documents.DocumentTree"></a>
       <a id="&lt;init&gt;:DocumentTree"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -89,10 +89,10 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">DocumentTree</span><span class="params">(<span name="path">path: <a href="Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>, <span name="documents">documents: <span class="extype" name="scala.Seq">Seq</span>[<a href="Documents$$Document.html" class="extype" name="laika.tree.Documents.Document">Document</a>]</span>, <span name="templates">templates: <span class="extype" name="scala.Seq">Seq</span>[<a href="Templates$$TemplateDocument.html" class="extype" name="laika.tree.Templates.TemplateDocument">TemplateDocument</a>] = <span class="symbol">immutable.this.Nil</span></span>, <span name="dynamicTemplates">dynamicTemplates: <span class="extype" name="scala.Seq">Seq</span>[<a href="Templates$$TemplateDocument.html" class="extype" name="laika.tree.Templates.TemplateDocument">TemplateDocument</a>] = <span class="symbol">immutable.this.Nil</span></span>, <span name="dynamicDocuments">dynamicDocuments: <span class="extype" name="scala.Seq">Seq</span>[<a href="Documents$$Document.html" class="extype" name="laika.tree.Documents.Document">Document</a>] = <span class="symbol">immutable.this.Nil</span></span>, <span name="staticDocuments">staticDocuments: <span class="extype" name="scala.Seq">Seq</span>[<a href="../io/Input.html" class="extype" name="laika.io.Input">Input</a>] = <span class="symbol">immutable.this.Nil</span></span>, <span name="subtrees">subtrees: <span class="extype" name="scala.Seq">Seq</span>[<a href="" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a>] = <span class="symbol">immutable.this.Nil</span></span>, <span name="config">config: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="com.typesafe.config.Config">Config</span>] = <span class="symbol">scala.None</span></span>, <span name="docNumber">docNumber: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">immutable.this.Nil</span></span>, <span name="navigationOrder">navigationOrder: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Seq">Seq</span>[<a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a>]] = <span class="symbol">scala.None</span></span>)</span>
+        <span class="name">DocumentTree</span><span class="params">(<span name="path">path: <a href="Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>, <span name="documents">documents: <span class="extype" name="scala.Seq">Seq</span>[<a href="Documents$$Document.html" class="extype" name="laika.tree.Documents.Document">Document</a>]</span>, <span name="templates">templates: <span class="extype" name="scala.Seq">Seq</span>[<a href="Templates$$TemplateDocument.html" class="extype" name="laika.tree.Templates.TemplateDocument">TemplateDocument</a>] = <span class="symbol">immutable.this.Nil</span></span>, <span name="dynamicTemplates">dynamicTemplates: <span class="extype" name="scala.Seq">Seq</span>[<a href="Templates$$TemplateDocument.html" class="extype" name="laika.tree.Templates.TemplateDocument">TemplateDocument</a>] = <span class="symbol">immutable.this.Nil</span></span>, <span name="dynamicDocuments">dynamicDocuments: <span class="extype" name="scala.Seq">Seq</span>[<a href="Documents$$Document.html" class="extype" name="laika.tree.Documents.Document">Document</a>] = <span class="symbol">immutable.this.Nil</span></span>, <span name="styles">styles: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="../parse/css/Styles$$StyleDeclarationSet.html" class="extype" name="laika.parse.css.Styles.StyleDeclarationSet">StyleDeclarationSet</a>] = <span class="defval" name="scala.this.Predef.Map.empty[String, Nothing].withDefaultValue[laika.parse.css.Styles.StyleDeclarationSet](laika.parse.css.Styles.StyleDeclarationSet.empty)">...</span></span>, <span name="staticDocuments">staticDocuments: <span class="extype" name="scala.Seq">Seq</span>[<a href="../io/Input.html" class="extype" name="laika.io.Input">Input</a>] = <span class="symbol">immutable.this.Nil</span></span>, <span name="subtrees">subtrees: <span class="extype" name="scala.Seq">Seq</span>[<a href="" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a>] = <span class="symbol">immutable.this.Nil</span></span>, <span name="config">config: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="com.typesafe.config.Config">Config</span>] = <span class="symbol">scala.None</span></span>, <span name="docNumber">docNumber: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">immutable.this.Nil</span></span>, <span name="navigationOrder">navigationOrder: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Seq">Seq</span>[<a href="Documents$$Titled.html" class="extype" name="laika.tree.Documents.Titled">Titled</a>]] = <span class="symbol">scala.None</span></span>, <span name="sourcePaths">sourcePaths: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">immutable.this.Nil</span></span>)</span>
       </span>
       </h4>
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">path</dt><dd class="cmt"><p>the full, absolute path of this (virtual) document tree</p></dd><dt class="param">documents</dt><dd class="cmt"><p>all markup documents on this level of the tree hierarchy</p></dd><dt class="param">templates</dt><dd class="cmt"><p>all templates on this level of the tree hierarchy that might get applied to a document when it gets rendered</p></dd><dt class="param">dynamicTemplates</dt><dd class="cmt"><p>all dynamic documents that need to get processed before rendering on this level of the tree hierarchy</p></dd><dt class="param">dynamicDocuments</dt><dd class="cmt"><p>all documents that were created by processing a dynamic template</p></dd><dt class="param">staticDocuments</dt><dd class="cmt"><p>all static documents that need to be copied to the output</p></dd><dt class="param">config</dt><dd class="cmt"><p>the configuration associated with this tree</p></dd><dt class="param">docNumber</dt><dd class="cmt"><p>the number of this tree inside a document tree hierarchy, expressed as a list of Ints</p></dd><dt class="param">navigationOrder</dt><dd class="cmt"><p>the markup documents and subtrees merged into a specific order, used for generating tables of contexts
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">path</dt><dd class="cmt"><p>the full, absolute path of this (virtual) document tree</p></dd><dt class="param">documents</dt><dd class="cmt"><p>all markup documents on this level of the tree hierarchy</p></dd><dt class="param">templates</dt><dd class="cmt"><p>all templates on this level of the tree hierarchy that might get applied to a document when it gets rendered</p></dd><dt class="param">dynamicTemplates</dt><dd class="cmt"><p>all dynamic documents that need to get processed before rendering on this level of the tree hierarchy</p></dd><dt class="param">dynamicDocuments</dt><dd class="cmt"><p>all documents that were created by processing a dynamic template</p></dd><dt class="param">staticDocuments</dt><dd class="cmt"><p>all static documents that need to be copied to the output</p></dd><dt class="param">config</dt><dd class="cmt"><p>the configuration associated with this tree</p></dd><dt class="param">docNumber</dt><dd class="cmt"><p>the number of this tree inside a document tree hierarchy, expressed as a list of Ints</p></dd><dt class="param">navigationOrder</dt><dd class="cmt"><p>the markup documents and subtrees merged into a specific order, used for generating tables of contexts</p></dd><dt class="param">sourcePaths</dt><dd class="cmt"><p>the paths this document tree has been built from or an empty list if this tree does not originate from the file system
  and autonumbering
 </p></dd></dl></div>
     </li></ol>
@@ -169,6 +169,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="laika.tree.Documents.DocumentTree#applyTemplates" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="applyTemplates(format:String):laika.tree.Documents.DocumentTree"></a>
+      <a id="applyTemplates(String):DocumentTree"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">applyTemplates</span><span class="params">(<span name="format">format: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Applies the templates for the specified output format to all documents within this tree.</p>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -311,6 +324,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="laika.tree.Documents.DocumentTree#mapSubtrees" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="mapSubtrees(f:laika.tree.Documents.DocumentTree=&gt;laika.tree.Documents.DocumentTree):laika.tree.Documents.DocumentTree"></a>
+      <a id="mapSubtrees((DocumentTree)⇒DocumentTree):DocumentTree"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">mapSubtrees</span><span class="params">(<span name="f">f: (<a href="" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a>) ⇒ <a href="" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Creates a new tree mapping all subtrees with the specified function.</p>
     </li><li name="laika.tree.Documents.Navigatable#name" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="name:String"></a>
       <a id="name:String"></a>
@@ -394,6 +420,19 @@
       </span>
       </h4>
       <p class="shortcomment cmt">the full, absolute path of this (virtual) document tree</p><div class="fullcomment"><div class="comment cmt"><p>the full, absolute path of this (virtual) document tree</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a> → <a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a></dd></dl></div>
+    </li><li name="laika.tree.Documents.DocumentTree#prependDocument" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="prependDocument(doc:laika.tree.Documents.Document):laika.tree.Documents.DocumentTree"></a>
+      <a id="prependDocument(Document):DocumentTree"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">prependDocument</span><span class="params">(<span name="doc">doc: <a href="Documents$$Document.html" class="extype" name="laika.tree.Documents.Document">Document</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Creates a new tree with the specified document prepended to its existing documents.</p>
     </li><li name="laika.tree.Documents.DocumentTree#rewrite" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="rewrite(customRules:Seq[laika.tree.Documents.DocumentContext=&gt;laika.tree.Elements.RewriteRule],autonumbering:laika.tree.Documents.AutonumberContext):laika.tree.Documents.DocumentTree"></a>
       <a id="rewrite(Seq[(DocumentContext)⇒RewriteRule],AutonumberContext):DocumentTree"></a>
@@ -580,6 +619,21 @@
       <p class="shortcomment cmt">Selects a template from this tree or one of its subtrees by the specified path.</p><div class="fullcomment"><div class="comment cmt"><p>Selects a template from this tree or one of its subtrees by the specified path.
  The path needs to be relative.
 </p></div></div>
+    </li><li name="laika.tree.Documents.DocumentTree#sourcePaths" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="sourcePaths:Seq[String]"></a>
+      <a id="sourcePaths:Seq[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sourcePaths</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">the paths this document tree has been built from or an empty list if this tree does not originate from the file system
+ and autonumbering
+</p>
     </li><li name="laika.tree.Documents.DocumentTree#staticDocuments" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="staticDocuments:Seq[laika.io.Input]"></a>
       <a id="staticDocuments:Seq[Input]"></a>
@@ -593,6 +647,19 @@
       </span>
       </h4>
       <p class="shortcomment cmt">all static documents that need to be copied to the output</p>
+    </li><li name="laika.tree.Documents.DocumentTree#styles" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="styles:Map[String,laika.parse.css.Styles.StyleDeclarationSet]"></a>
+      <a id="styles:Map[String,StyleDeclarationSet]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">styles</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="../parse/css/Styles$$StyleDeclarationSet.html" class="extype" name="laika.parse.css.Styles.StyleDeclarationSet">StyleDeclarationSet</a>]</span>
+      </span>
+      </h4>
+      
     </li><li name="laika.tree.Documents.DocumentTree#subtrees" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="subtrees:Seq[laika.tree.Documents.DocumentTree]"></a>
       <a id="subtrees:Seq[DocumentTree]"></a>
@@ -619,7 +686,7 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="laika.tree.Documents.DocumentTree#title" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="laika.tree.Documents.DocumentTree#title" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="title:Seq[laika.tree.Elements.Span]"></a>
       <a id="title:Seq[Span]"></a>
       <h4 class="signature">
@@ -631,7 +698,24 @@
         <span class="name">title</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>]</span>
       </span>
       </h4>
-      <p class="shortcomment cmt">The title of this tree, obtained from configuration.</p>
+      <p class="shortcomment cmt">The title of this tree, obtained from configuration.</p><div class="fullcomment"><div class="comment cmt"><p>The title of this tree, obtained from configuration.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a> → <a href="Documents$$Titled.html" class="extype" name="laika.tree.Documents.Titled">Titled</a></dd></dl></div>
+    </li><li name="laika.tree.Documents.Titled#titleOrName" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="titleOrName:Seq[laika.tree.Elements.Span]"></a>
+      <a id="titleOrName:Seq[Span]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">titleOrName</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">The title of this navigatable if non-empty
+ or otherwise the name as Text Span.</p><div class="fullcomment"><div class="comment cmt"><p>The title of this navigatable if non-empty
+ or otherwise the name as Text Span.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Documents$$Titled.html" class="extype" name="laika.tree.Documents.Titled">Titled</a></dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>
@@ -702,6 +786,32 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="laika.tree.Documents.DocumentTree#withTemplate" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="withTemplate(template:laika.tree.Templates.TemplateDocument):laika.tree.Documents.DocumentTree"></a>
+      <a id="withTemplate(TemplateDocument):DocumentTree"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withTemplate</span><span class="params">(<span name="template">template: <a href="Templates$$TemplateDocument.html" class="extype" name="laika.tree.Templates.TemplateDocument">TemplateDocument</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Creates a new tree with the specified template added to its existing templates.</p>
+    </li><li name="laika.tree.Documents.DocumentTree#withoutTemplates" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="withoutTemplates:laika.tree.Documents.DocumentTree"></a>
+      <a id="withoutTemplates:DocumentTree"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withoutTemplates</span><span class="result">: <a href="" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Creates a new tree with all templates removed from the hierarchy.</p>
     </li></ol>
             </div>
 
@@ -711,7 +821,9 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="laika.tree.Documents.Navigatable">
+        <div class="parent" name="laika.tree.Documents.Titled">
+              <h3>Inherited from <a href="Documents$$Titled.html" class="extype" name="laika.tree.Documents.Titled">Titled</a></h3>
+            </div><div class="parent" name="laika.tree.Documents.Navigatable">
               <h3>Inherited from <a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a></h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>

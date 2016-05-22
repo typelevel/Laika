@@ -147,6 +147,21 @@
  therefore does not represent the filesystem
  path in case of file I/O.
 </p></div></div>
+    </li><li name="laika.io.InputProvider#sourcePaths" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="sourcePaths:Seq[String]"></a>
+      <a id="sourcePaths:Seq[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">sourcePaths</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">The paths this provider has been created from
+ or an empty list if this input provider does
+ not originate from the file system.</p>
     </li><li name="laika.io.InputProvider#staticDocuments" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="staticDocuments:Seq[laika.io.Input]"></a>
       <a id="staticDocuments:Seq[Input]"></a>
@@ -162,6 +177,22 @@
       <p class="shortcomment cmt">All inputs for static files
  that need to be copied
  from this level of the input hierarchy.</p>
+    </li><li name="laika.io.InputProvider#styleSheets" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="styleSheets:Map[String,Seq[laika.io.Input]]"></a>
+      <a id="styleSheets:Map[String,Seq[Input]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">styleSheets</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Seq">Seq</span>[<a href="Input.html" class="extype" name="laika.io.Input">Input</a>]]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">All inputs for style sheets
+ that need to be processed
+ on this level of the input hierarchy,
+ mapped to their format.</p>
     </li><li name="laika.io.InputProvider#subtrees" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="subtrees:Seq[laika.io.InputProvider]"></a>
       <a id="subtrees:Seq[InputProvider]"></a>

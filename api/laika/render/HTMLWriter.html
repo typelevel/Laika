@@ -35,17 +35,14 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">HTMLWriter</span><span class="result"> extends <a href="TextWriter.html" class="extype" name="laika.render.TextWriter">TextWriter</a></span>
+        <span class="name">HTMLWriter</span><span class="result"> extends <a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>API for renderers that produce HTML output.
- Extends the base <code>TextWriter</code> and adds methods for writing text
- with special HTML characters escaped and for conveniently writing
- attributes.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="TextWriter.html" class="extype" name="laika.render.TextWriter">TextWriter</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a>, <a href="TextWriter.html" class="extype" name="laika.render.TextWriter">TextWriter</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -63,7 +60,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="laika.render.HTMLWriter"><span>HTMLWriter</span></li><li class="in" name="laika.render.TextWriter"><span>TextWriter</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="laika.render.HTMLWriter"><span>HTMLWriter</span></li><li class="in" name="laika.render.TagWriter"><span>TagWriter</span></li><li class="in" name="laika.render.TextWriter"><span>TextWriter</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -84,7 +81,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.render.HTMLWriter#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(out:String=&gt;Unit,render:laika.tree.Elements.Element=&gt;Unit,newLine:String,formatted:Boolean):laika.render.HTMLWriter"></a>
+      <a id="&lt;init&gt;(out:String=&gt;Unit,render:laika.tree.Elements.Element=&gt;Unit,root:laika.tree.Elements.Element,newLine:String,formatted:Boolean):laika.render.HTMLWriter"></a>
       <a id="&lt;init&gt;:HTMLWriter"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -92,10 +89,10 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">HTMLWriter</span><span class="params">(<span name="out">out: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>, <span name="render">render: (<a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>, <span name="newLine">newLine: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol">&quot;\n&quot;</span></span>, <span name="formatted">formatted: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>)</span>
+        <span class="name">HTMLWriter</span><span class="params">(<span name="out">out: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>, <span name="render">render: (<a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>, <span name="root">root: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="newLine">newLine: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol">&quot;\n&quot;</span></span>, <span name="formatted">formatted: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>)</span>
       </span>
       </h4>
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">out</dt><dd class="cmt"></dd><dt class="param">render</dt><dd class="cmt"></dd><dt class="param">newLine</dt><dd class="cmt"><p>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">out</dt><dd class="cmt"><p>the render function to write string values to</p></dd><dt class="param">render</dt><dd class="cmt"><p>the render function for writing elements</p></dd><dt class="param">root</dt><dd class="cmt"><p>the root element to render</p></dd><dt class="param">newLine</dt><dd class="cmt"><p>the newline character to use</p></dd><dt class="param">formatted</dt><dd class="cmt"><p>whether the output is formatted (adding indentation and newlines)
 </p></dd></dl></div>
     </li></ol>
             </div>
@@ -191,8 +188,8 @@
       </h4>
       <p class="shortcomment cmt">Writes the specified string to the output, on the same line.</p><div class="fullcomment"><div class="comment cmt"><p>Writes the specified string to the output, on the same line.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TextWriter.html" class="extype" name="laika.render.TextWriter">TextWriter</a></dd></dl></div>
-    </li><li name="laika.render.HTMLWriter#&lt;&lt;&amp;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;&lt;&amp;(str:String):HTMLWriter.this.type"></a>
+    </li><li name="laika.render.TagWriter#&lt;&lt;&amp;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="&lt;&lt;&amp;(str:String):TagWriter.this.type"></a>
       <a id="&lt;&lt;&amp;(String):HTMLWriter.this.type"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -204,9 +201,11 @@
       </span>
       </h4>
       <p class="shortcomment cmt">Writes the specified string to the output, on the same line,
- with all special HTML characters converted to HTML entities.</p>
-    </li><li name="laika.render.HTMLWriter#&lt;&lt;&lt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;&lt;&lt;(elements:Seq[laika.tree.Elements.Span]):HTMLWriter.this.type"></a>
+ with all special XML/HTML characters converted to entities.</p><div class="fullcomment"><div class="comment cmt"><p>Writes the specified string to the output, on the same line,
+ with all special XML/HTML characters converted to entities.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
+    </li><li name="laika.render.TagWriter#&lt;&lt;&lt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="&lt;&lt;&lt;(elements:Seq[laika.tree.Elements.Span]):TagWriter.this.type"></a>
       <a id="&lt;&lt;&lt;(Seq[Span]):HTMLWriter.this.type"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -220,9 +219,13 @@
       <p class="shortcomment cmt">Writes the specified span elements to the output,
  on the same line, while omitting indentation
  for all text spans written with one of the methods
- that convert special characters.</p>
-    </li><li name="laika.render.HTMLWriter#&lt;&lt;&lt;&amp;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;&lt;&lt;&amp;(str:String):HTMLWriter.this.type"></a>
+ that convert special characters.</p><div class="fullcomment"><div class="comment cmt"><p>Writes the specified span elements to the output,
+ on the same line, while omitting indentation
+ for all text spans written with one of the methods
+ that convert special characters.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
+    </li><li name="laika.render.TagWriter#&lt;&lt;&lt;&amp;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="&lt;&lt;&lt;&amp;(str:String):TagWriter.this.type"></a>
       <a id="&lt;&lt;&lt;&amp;(String):HTMLWriter.this.type"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -235,14 +238,30 @@
       </h4>
       <p class="shortcomment cmt">Writes the specified string to the output,
  without any indentation,
- with all special HTML characters converted to HTML entities.</p><div class="fullcomment"><div class="comment cmt"><p>Writes the specified string to the output,
+ with all special XML/HTML characters converted to entities.</p><div class="fullcomment"><div class="comment cmt"><p>Writes the specified string to the output,
  without any indentation,
- with all special HTML characters converted to HTML entities.
+ with all special XML/HTML characters converted to entities.
  This is needed for writing blocks like those enclosed in &lt;pre&rt;
  tags where whitespace is significant.
-</p></div></div>
-    </li><li name="laika.render.HTMLWriter#&lt;&lt;@" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;&lt;@(tag:String,options:laika.tree.Elements.Options,attrs:(String,Any)*):HTMLWriter.this.type"></a>
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
+    </li><li name="laika.render.TagWriter#&lt;&lt;@" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="&lt;&lt;@(tag:String,element:laika.tree.Elements.Element,attrs:(String,Any)*):TagWriter.this.type"></a>
+      <a id="&lt;&lt;@(String,Element,(String,Any)*):HTMLWriter.this.type"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $less$less$at" class="name">&lt;&lt;@</span><span class="params">(<span name="tag">tag: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="attrs">attrs: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>.this.type</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Writes an opening tag with attributes derived from both
+ the element parameter and the subsequent tuples.</p><div class="fullcomment"><div class="comment cmt"><p>Writes an opening tag with attributes derived from both
+ the element parameter and the subsequent tuples.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
+    </li><li name="laika.render.TagWriter#&lt;&lt;@" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="&lt;&lt;@(tag:String,options:laika.tree.Elements.Options,attrs:(String,Any)*):TagWriter.this.type"></a>
       <a id="&lt;&lt;@(String,Options,(String,Any)*):HTMLWriter.this.type"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -255,12 +274,44 @@
       </h4>
       <p class="shortcomment cmt">Writes an opening tag with attributes derived from both
  the options parameter and the subsequent tuples.</p><div class="fullcomment"><div class="comment cmt"><p>Writes an opening tag with attributes derived from both
- the options parameter and the subsequent tuples. The latter
- also allow for overriding of <code>class</code> and <code>id</code> attributes
- derived from the <code>Options</code> instance.
-</p></div></div>
-    </li><li name="laika.render.HTMLWriter#&lt;&lt;@" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;&lt;@(name:String,value:String):HTMLWriter.this.type"></a>
+ the options parameter and the subsequent tuples.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
+    </li><li name="laika.render.TagWriter#&lt;&lt;@" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="&lt;&lt;@(attrs:(String,Any)*):TagWriter.this.type"></a>
+      <a id="&lt;&lt;@((String,Any)*):HTMLWriter.this.type"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $less$less$at" class="name">&lt;&lt;@</span><span class="params">(<span name="attrs">attrs: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>.this.type</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Writes the specified attributes (passed as name-value tuples),
+ including a preceding space character.</p><div class="fullcomment"><div class="comment cmt"><p>Writes the specified attributes (passed as name-value tuples),
+ including a preceding space character. In cases where the value
+ is <code>None</code> nothing will be written to the output.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
+    </li><li name="laika.render.TagWriter#&lt;&lt;@" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="&lt;&lt;@(name:String,value:Any):TagWriter.this.type"></a>
+      <a id="&lt;&lt;@(String,Any):HTMLWriter.this.type"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $less$less$at" class="name">&lt;&lt;@</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="value">value: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <a href="" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>.this.type</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Writes the specified name and value as an optional attribute, including
+ a preceding space character.</p><div class="fullcomment"><div class="comment cmt"><p>Writes the specified name and value as an optional attribute, including
+ a preceding space character. In case the value is <code>None</code> nothing
+ will be written to the output.
+</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
+    </li><li name="laika.render.TagWriter#&lt;&lt;@" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="&lt;&lt;@(name:String,value:String):TagWriter.this.type"></a>
       <a id="&lt;&lt;@(String,String):HTMLWriter.this.type"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -271,10 +322,12 @@
         <span title="gt4s: $less$less$at" class="name">&lt;&lt;@</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="value">value: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>.this.type</span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Writes the specified name and value as an HTML attribute, including
- a preceding space character.</p>
-    </li><li name="laika.render.HTMLWriter#&lt;&lt;@" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;&lt;@(name:String,value:Option[String]):HTMLWriter.this.type"></a>
+      <p class="shortcomment cmt">Writes the specified name and value as an attribute, including
+ a preceding space character.</p><div class="fullcomment"><div class="comment cmt"><p>Writes the specified name and value as an attribute, including
+ a preceding space character.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
+    </li><li name="laika.render.TagWriter#&lt;&lt;@" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="&lt;&lt;@(name:String,value:Option[String]):TagWriter.this.type"></a>
       <a id="&lt;&lt;@(String,Option[String]):HTMLWriter.this.type"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -285,11 +338,43 @@
         <span title="gt4s: $less$less$at" class="name">&lt;&lt;@</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="value">value: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>.this.type</span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Writes the specified name and value as an optional HTML attribute, including
- a preceding space character.</p><div class="fullcomment"><div class="comment cmt"><p>Writes the specified name and value as an optional HTML attribute, including
+      <p class="shortcomment cmt">Writes the specified name and value as an optional attribute, including
+ a preceding space character.</p><div class="fullcomment"><div class="comment cmt"><p>Writes the specified name and value as an optional attribute, including
  a preceding space character. In case the value is <code>None</code> nothing
  will be written to the output.
-</p></div></div>
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
+    </li><li name="laika.render.TagWriter#&lt;&lt;@/" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="&lt;&lt;@/(tag:String,element:laika.tree.Elements.Element,attrs:(String,Any)*):TagWriter.this.type"></a>
+      <a id="&lt;&lt;@/(String,Element,(String,Any)*):HTMLWriter.this.type"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $less$less$at$div" class="name">&lt;&lt;@/</span><span class="params">(<span name="tag">tag: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="attrs">attrs: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>.this.type</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Writes an empty tag with attributes derived from both
+ the element parameter and the subsequent tuples.</p><div class="fullcomment"><div class="comment cmt"><p>Writes an empty tag with attributes derived from both
+ the element parameter and the subsequent tuples.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
+    </li><li name="laika.render.TagWriter#&lt;&lt;@/" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="&lt;&lt;@/(tag:String,options:laika.tree.Elements.Options,attrs:(String,Any)*):TagWriter.this.type"></a>
+      <a id="&lt;&lt;@/(String,Options,(String,Any)*):HTMLWriter.this.type"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $less$less$at$div" class="name">&lt;&lt;@/</span><span class="params">(<span name="tag">tag: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="options">options: <a href="../tree/Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a></span>, <span name="attrs">attrs: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>.this.type</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Writes an empty tag with attributes derived from both
+ the options parameter and the subsequent tuples.</p><div class="fullcomment"><div class="comment cmt"><p>Writes an empty tag with attributes derived from both
+ the options parameter and the subsequent tuples.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
     </li><li name="laika.render.TextWriter#&lt;&lt;|" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="&lt;&lt;|(element:laika.tree.Elements.Element):TextWriter.this.type"></a>
       <a id="&lt;&lt;|(Element):HTMLWriter.this.type"></a>
@@ -338,8 +423,8 @@
  on a new line using the current level of indentation.</p><div class="fullcomment"><div class="comment cmt"><p>Writes the specified string to the output,
  on a new line using the current level of indentation.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TextWriter.html" class="extype" name="laika.render.TextWriter">TextWriter</a></dd></dl></div>
-    </li><li name="laika.render.HTMLWriter#&lt;&lt;|&amp;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;&lt;|&amp;(str:String):HTMLWriter.this.type"></a>
+    </li><li name="laika.render.TagWriter#&lt;&lt;|&amp;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="&lt;&lt;|&amp;(str:String):TagWriter.this.type"></a>
       <a id="&lt;&lt;|&amp;(String):HTMLWriter.this.type"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -352,7 +437,10 @@
       </h4>
       <p class="shortcomment cmt">Writes the specified string to the output,
  on a new line using the current level of indentation,
- with all special HTML characters converted to HTML entities.</p>
+ with all special XML/HTML characters converted to entities.</p><div class="fullcomment"><div class="comment cmt"><p>Writes the specified string to the output,
+ on a new line using the current level of indentation,
+ with all special XML/HTML characters converted to entities.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
     </li><li name="laika.render.TextWriter#&lt;&lt;|&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="&lt;&lt;|&gt;(element:laika.tree.Elements.Element):TextWriter.this.type"></a>
       <a id="&lt;&lt;|&gt;(Element):HTMLWriter.this.type"></a>
@@ -401,8 +489,8 @@
  on a new line and increasing indentation one level to the right.</p><div class="fullcomment"><div class="comment cmt"><p>Writes the specified string to the output,
  on a new line and increasing indentation one level to the right.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TextWriter.html" class="extype" name="laika.render.TextWriter">TextWriter</a></dd></dl></div>
-    </li><li name="laika.render.HTMLWriter#&lt;&lt;|&gt;&amp;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;&lt;|&gt;&amp;(str:String):HTMLWriter.this.type"></a>
+    </li><li name="laika.render.TagWriter#&lt;&lt;|&gt;&amp;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="&lt;&lt;|&gt;&amp;(str:String):TagWriter.this.type"></a>
       <a id="&lt;&lt;|&gt;&amp;(String):HTMLWriter.this.type"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -415,7 +503,10 @@
       </h4>
       <p class="shortcomment cmt">Writes the specified string to the output,
  on a new line and increasing indentation one level to the right,
- with all special HTML characters converted to HTML entities.</p>
+ with all special XML/HTML characters converted to entities.</p><div class="fullcomment"><div class="comment cmt"><p>Writes the specified string to the output,
+ on a new line and increasing indentation one level to the right,
+ with all special XML/HTML characters converted to entities.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
     </li><li name="laika.render.TextWriter#&lt;|" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="&lt;|:TextWriter.this.type"></a>
       <a id="&lt;|:HTMLWriter.this.type"></a>
@@ -482,6 +573,34 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="laika.render.HTMLWriter#attributes" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="attributes(tag:String,element:laika.tree.Elements.Element,attrs:Seq[(String,Any)]):Seq[(String,Any)]"></a>
+      <a id="attributes(String,Element,Seq[(String,Any)]):Seq[(String,Any)]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">attributes</span><span class="params">(<span name="tag">tag: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="attrs">attrs: <span class="extype" name="scala.Seq">Seq</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>)]</span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>)]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Produces the complete sequence of attributes to write for the specified tag.</p><div class="fullcomment"><div class="comment cmt"><p>Produces the complete sequence of attributes to write for the specified tag.
+</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a> → <a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
+    </li><li name="laika.render.HTMLWriter#attributes" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="attributes(tag:String,options:laika.tree.Elements.Options,attrs:Seq[(String,Any)]):Seq[(String,Any)]"></a>
+      <a id="attributes(String,Options,Seq[(String,Any)]):Seq[(String,Any)]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">attributes</span><span class="params">(<span name="tag">tag: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="options">options: <a href="../tree/Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a></span>, <span name="attrs">attrs: <span class="extype" name="scala.Seq">Seq</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>)]</span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>)]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Produces the complete sequence of attributes to write for the specified tag.</p><div class="fullcomment"><div class="comment cmt"><p>Produces the complete sequence of attributes to write for the specified tag.
+</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a> → <a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
@@ -527,6 +646,22 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="laika.render.TagWriter#escaped" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="escaped(str:String):String"></a>
+      <a id="escaped(String):String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">escaped</span><span class="params">(<span name="str">str: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Replaces all special XML/HTML characters
+ with entities.</p><div class="fullcomment"><div class="comment cmt"><p>Replaces all special XML/HTML characters
+ with entities.
+</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -642,6 +777,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="laika.render.TextWriter#parents" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="parents:List[laika.tree.Elements.Element]"></a>
+      <a id="parents:List[Element]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">parents</span><span class="result">: <span class="extype" name="scala.List">List</span>[<a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="TextWriter.html" class="extype" name="laika.render.TextWriter">TextWriter</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -725,8 +873,8 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.render.HTMLWriter#withoutIndentation" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withoutIndentation(f:=&gt;Any):HTMLWriter.this.type"></a>
+    </li><li name="laika.render.TagWriter#withoutIndentation" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withoutIndentation(f:=&gt;Any):TagWriter.this.type"></a>
       <a id="withoutIndentation(⇒Any):HTMLWriter.this.type"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -741,7 +889,7 @@
  the rendering of any indentation for escaped text elements.</p><div class="fullcomment"><div class="comment cmt"><p>Invokes the specified function after switching off
  the rendering of any indentation for escaped text elements.
  The old flag gets restored after invocation.
-</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
     </li></ol>
             </div>
 
@@ -751,7 +899,9 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="laika.render.TextWriter">
+        <div class="parent" name="laika.render.TagWriter">
+              <h3>Inherited from <a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></h3>
+            </div><div class="parent" name="laika.render.TextWriter">
               <h3>Inherited from <a href="TextWriter.html" class="extype" name="laika.render.TextWriter">TextWriter</a></h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>

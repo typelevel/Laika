@@ -242,6 +242,19 @@ RFC 6068, 5322 and 3986 with base types defined in RFC 2234.
       </span>
       </h4>
       <p class="comment cmt">API for specifying further constraints on the parsers provided by this base trait.</p>
+    </li><li name="laika.parse.BaseParsers.TryOps" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TryOps[A]extendsAnyRef"></a>
+      <a id="TryOps[A]:TryOps[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="../BaseParsers$TryOps.html"><span class="name">TryOps</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Provides additional methods to <code>Try</code> via implicit conversion.</p>
     </li><li name="scala.util.parsing.combinator.Parsers.~" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="~[+a,+b]extendsProductwithSerializable"></a>
       <a id="~[+a,+b]:~[a,b]"></a>
@@ -596,15 +609,15 @@ RFC 6068, 5322 and 3986 with base types defined in RFC 2234.
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="laika.parse.MarkupParsers#atStart" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="atStart:MarkupParsers.this.Parser[MarkupParsers.this.Parser[Unit]]"></a>
-      <a id="atStart:Parser[Parser[Unit]]"></a>
+      <a id="atStart:MarkupParsers.this.Parser[Unit]"></a>
+      <a id="atStart:Parser[Unit]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">atStart</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.parse.util.URIParsers.Parser">Parser</a>[<a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.parse.util.URIParsers.Parser">Parser</a>[<span class="extype" name="scala.Unit">Unit</span>]]</span>
+        <span class="name">atStart</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.parse.util.URIParsers.Parser">Parser</a>[<span class="extype" name="scala.Unit">Unit</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Succeeds at the start of the input.</p><div class="fullcomment"><div class="comment cmt"><p>Succeeds at the start of the input.
@@ -1137,15 +1150,15 @@ dec-octet     = DIGIT                 ; <span class="num">0</span>-<span class="
  check its value.
 </p></div></div>
     </li><li name="laika.parse.util.URIParsers#ipv6address" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="ipv6address:URIParsers.this.Parser[URIParsers.this.~[Product,java.io.Serializable]]"></a>
-      <a id="ipv6address:Parser[~[Product,Serializable]]"></a>
+      <a id="ipv6address:URIParsers.this.Parser[URIParsers.this.~[Any,Any]]"></a>
+      <a id="ipv6address:Parser[~[Any,Any]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">ipv6address</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.parse.util.URIParsers.Parser">Parser</a>[<a href="#~[+a,+b]extendsProductwithSerializable" class="extmbr" name="laika.parse.util.URIParsers.~">~</a>[<span class="extype" name="scala.Product">Product</span>, <span class="extype" name="java.io.Serializable">Serializable</span>]]</span>
+        <span class="name">ipv6address</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.parse.util.URIParsers.Parser">Parser</a>[<a href="#~[+a,+b]extendsProductwithSerializable" class="extmbr" name="laika.parse.util.URIParsers.~">~</a>[<span class="extype" name="scala.Any">Any</span>, <span class="extype" name="scala.Any">Any</span>]]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses an IPv6 address as defined in RFC 3986.</p><div class="fullcomment"><div class="comment cmt"><p>Parses an IPv6 address as defined in RFC 3986.</p><pre>IPv6address  =                            <span class="num">6</span>( h16 <span class="lit">":"</span> ) ls32
@@ -1162,15 +1175,15 @@ h16          = <span class="num">1</span>*<span class="num">4</span>HEXDIG
 
 ls32         = ( h16 <span class="lit">":"</span> h16 ) / IPv4address</pre></div></div>
     </li><li name="laika.parse.util.URIParsers#ipvFuture" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="ipvFuture:URIParsers.this.Parser[URIParsers.this.~[URIParsers.this.~[URIParsers.this.~[URIParsers.this.Elem,String],URIParsers.this.Elem],List[Any]]]"></a>
-      <a id="ipvFuture:Parser[~[~[~[Elem,String],Elem],List[Any]]]"></a>
+      <a id="ipvFuture:URIParsers.this.Parser[URIParsers.this.~[URIParsers.this.~[URIParsers.this.~[Char,String],Char],List[Any]]]"></a>
+      <a id="ipvFuture:Parser[~[~[~[Char,String],Char],List[Any]]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">ipvFuture</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.parse.util.URIParsers.Parser">Parser</a>[<a href="#~[+a,+b]extendsProductwithSerializable" class="extmbr" name="laika.parse.util.URIParsers.~">~</a>[<a href="#~[+a,+b]extendsProductwithSerializable" class="extmbr" name="laika.parse.util.URIParsers.~">~</a>[<a href="#~[+a,+b]extendsProductwithSerializable" class="extmbr" name="laika.parse.util.URIParsers.~">~</a>[<a href="#Elem=Char" class="extmbr" name="laika.parse.util.URIParsers.Elem">Elem</a>, <span class="extype" name="scala.Predef.String">String</span>], <a href="#Elem=Char" class="extmbr" name="laika.parse.util.URIParsers.Elem">Elem</a>], <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Any">Any</span>]]]</span>
+        <span class="name">ipvFuture</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.parse.util.URIParsers.Parser">Parser</a>[<a href="#~[+a,+b]extendsProductwithSerializable" class="extmbr" name="laika.parse.util.URIParsers.~">~</a>[<a href="#~[+a,+b]extendsProductwithSerializable" class="extmbr" name="laika.parse.util.URIParsers.~">~</a>[<a href="#~[+a,+b]extendsProductwithSerializable" class="extmbr" name="laika.parse.util.URIParsers.~">~</a>[<span class="extype" name="scala.Char">Char</span>, <span class="extype" name="scala.Predef.String">String</span>], <span class="extype" name="scala.Char">Char</span>], <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Any">Any</span>]]]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses a future IP address as defined in RFC 3986.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a future IP address as defined in RFC 3986.</p><pre>IPvFuture = <span class="lit">"v"</span> <span class="num">1</span>*HEXDIG <span class="lit">"."</span> <span class="num">1</span>*( unreserved / sub-delims / <span class="lit">":"</span> )</pre></div></div>
@@ -1358,15 +1371,15 @@ ls32         = ( h16 <span class="lit">":"</span> h16 ) / IPv4address</pre></div
  for the specified ranges of characters.
 </p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="../MarkupParsers.html" class="extype" name="laika.parse.MarkupParsers">MarkupParsers</a></dd></dl></div>
     </li><li name="laika.parse.util.URIParsers#pChar" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="pChar:URIParsers.this.Parser[java.io.Serializable]"></a>
-      <a id="pChar:Parser[Serializable]"></a>
+      <a id="pChar:URIParsers.this.Parser[Any]"></a>
+      <a id="pChar:Parser[Any]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">pChar</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.parse.util.URIParsers.Parser">Parser</a>[<span class="extype" name="java.io.Serializable">Serializable</span>]</span>
+        <span class="name">pChar</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.parse.util.URIParsers.Parser">Parser</a>[<span class="extype" name="scala.Any">Any</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses one path character as defined in RFC 3986.</p><div class="fullcomment"><div class="comment cmt"><p>Parses one path character as defined in RFC 3986.</p><pre>pchar = unreserved / pct-encoded / sub-delims / <span class="lit">":"</span> / <span class="lit">"@"</span></pre></div></div>
@@ -1500,15 +1513,15 @@ ls32         = ( h16 <span class="lit">":"</span> h16 ) / IPv4address</pre></div
 
 segment       = *pchar</pre></div></div>
     </li><li name="laika.parse.util.URIParsers#pctEncoded" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="pctEncoded:URIParsers.this.Parser[URIParsers.this.~[URIParsers.this.Elem,String]]"></a>
-      <a id="pctEncoded:Parser[~[Elem,String]]"></a>
+      <a id="pctEncoded:URIParsers.this.Parser[URIParsers.this.~[Char,String]]"></a>
+      <a id="pctEncoded:Parser[~[Char,String]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">pctEncoded</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.parse.util.URIParsers.Parser">Parser</a>[<a href="#~[+a,+b]extendsProductwithSerializable" class="extmbr" name="laika.parse.util.URIParsers.~">~</a>[<a href="#Elem=Char" class="extmbr" name="laika.parse.util.URIParsers.Elem">Elem</a>, <span class="extype" name="scala.Predef.String">String</span>]]</span>
+        <span class="name">pctEncoded</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.parse.util.URIParsers.Parser">Parser</a>[<a href="#~[+a,+b]extendsProductwithSerializable" class="extmbr" name="laika.parse.util.URIParsers.~">~</a>[<span class="extype" name="scala.Char">Char</span>, <span class="extype" name="scala.Predef.String">String</span>]]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses a percent-encoded character as defined in RFC 3986.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a percent-encoded character as defined in RFC 3986.</p><pre>pct-encoded = <span class="lit">"%"</span> HEXDIG HEXDIG</pre></div></div>
@@ -1526,15 +1539,15 @@ segment       = *pchar</pre></div></div>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>RegexParsers → Parsers</dd></dl></div>
     </li><li name="laika.parse.util.URIParsers#port" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="port:URIParsers.this.TextParser"></a>
-      <a id="port:TextParser"></a>
+      <a id="port:URIParsers.this.Parser[String]"></a>
+      <a id="port:Parser[String]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">port</span><span class="result">: <a href="#TextParserextendsMarkupParsers.this.Parser[String]" class="extmbr" name="laika.parse.MarkupParsers.TextParser">TextParser</a></span>
+        <span class="name">port</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.parse.util.URIParsers.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses a port as defined in RFC 3986, except for requiring at least one digit;
@@ -1575,7 +1588,7 @@ segment       = *pchar</pre></div></div>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">refName</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.parse.util.URIParsers.Parser">Parser</a>[<span class="extype" name="java.lang.String">String</span>]</span>
+        <span class="name">refName</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.parse.util.URIParsers.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Parses a simple reference name that only allows alphanumerical characters

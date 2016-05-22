@@ -110,6 +110,19 @@
       <p class="comment cmt">A sub-trait for binary input which can only be created
  from a stream or a file, not from a <code>java.io.Reader</code> instance
  or from a <code>String</code>.</p>
+    </li><li name="laika.io.Input.LazyClasspathInput" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="LazyClasspathInputextendsInputwithInput.BinarywithCloseable"></a>
+      <a id="LazyClasspathInput:LazyClasspathInput"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Input$$LazyClasspathInput.html"><span class="name">LazyClasspathInput</span></a><span class="result"> extends <a href="Input.html" class="extype" name="laika.io.Input">Input</a> with <a href="Input$$Binary.html" class="extype" name="laika.io.Input.Binary">Binary</a> with <span class="extype" name="java.io.Closeable">Closeable</span></span>
+      </span>
+      </h4>
+      
     </li><li name="laika.io.Input.LazyFileInput" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="LazyFileInputextendsInputwithInput.BinarywithCloseable"></a>
       <a id="LazyFileInput:LazyFileInput"></a>
@@ -272,7 +285,22 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.io.Input#fromFile" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="laika.io.Input#fromClasspath" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromClasspath(resource:String,virtualPath:laika.tree.Documents.Path)(implicitcodec:scala.io.Codec):laika.io.Inputwithlaika.io.Input.Binarywithjava.io.Closeable"></a>
+      <a id="fromClasspath(String,Path)(Codec):InputwithBinarywithCloseable"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fromClasspath</span><span class="params">(<span name="resource">resource: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="virtualPath">virtualPath: <a href="../tree/Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="Input.html" class="extype" name="laika.io.Input">Input</a> with <a href="Input$$Binary.html" class="extype" name="laika.io.Input.Binary">Binary</a> with <span class="extype" name="java.io.Closeable">Closeable</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Creates a new Input instance for the specified classpath resource.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new Input instance for the specified classpath resource.
+</p></div><dl class="paramcmts block"><dt class="param">resource</dt><dd class="cmt"><p>the name of the resource on the classpath</p></dd><dt class="param">virtualPath</dt><dd class="cmt"><p>the path of the document in the virtual tree</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the input, if not specified the platform default will be used.
+</p></dd></dl></div>
+    </li><li name="laika.io.Input#fromFile" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="fromFile(file:java.io.File,virtualPath:laika.tree.Documents.Path)(implicitcodec:scala.io.Codec):laika.io.Inputwithlaika.io.Input.Binarywithjava.io.Closeable"></a>
       <a id="fromFile(File,Path)(Codec):InputwithBinarywithCloseable"></a>
       <h4 class="signature">
@@ -284,7 +312,9 @@
         <span class="name">fromFile</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>, <span name="virtualPath">virtualPath: <a href="../tree/Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="Input.html" class="extype" name="laika.io.Input">Input</a> with <a href="Input$$Binary.html" class="extype" name="laika.io.Input.Binary">Binary</a> with <span class="extype" name="java.io.Closeable">Closeable</span></span>
       </span>
       </h4>
-      
+      <p class="shortcomment cmt">Creates a new Input instance for the specified file.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new Input instance for the specified file.
+</p></div><dl class="paramcmts block"><dt class="param">file</dt><dd class="cmt"><p>the file to use as input</p></dd><dt class="param">virtualPath</dt><dd class="cmt"><p>the path of the document in the virtual tree</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the file, if not specified the platform default will be used.
+</p></dd></dl></div>
     </li><li name="laika.io.Input#fromFile" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="fromFile(file:java.io.File)(implicitcodec:scala.io.Codec):laika.io.Inputwithlaika.io.Input.Binarywithjava.io.Closeable"></a>
       <a id="fromFile(File)(Codec):InputwithBinarywithCloseable"></a>
@@ -315,7 +345,7 @@
       <p class="shortcomment cmt">Creates a new Input instance for the file with the specified name.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new Input instance for the file with the specified name.
 </p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the file</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the file, if not specified the platform default will be used.
 </p></dd></dl></div>
-    </li><li name="laika.io.Input#fromReader" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="laika.io.Input#fromReader" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="fromReader(reader:java.io.Reader,path:laika.tree.Documents.Path):laika.io.Input"></a>
       <a id="fromReader(Reader,Path):Input"></a>
       <h4 class="signature">
@@ -327,7 +357,9 @@
         <span class="name">fromReader</span><span class="params">(<span name="reader">reader: <span class="extype" name="java.io.Reader">Reader</span></span>, <span name="path">path: <a href="../tree/Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a> = <span class="symbol"><span class="name"><a href="../package.html">Root</a></span></span></span>)</span><span class="result">: <a href="Input.html" class="extype" name="laika.io.Input">Input</a></span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Creates a new Input instance for the specified Reader.</p>
+      <p class="shortcomment cmt">Creates a new Input instance for the specified Reader.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new Input instance for the specified Reader.
+</p></div><dl class="paramcmts block"><dt class="param">reader</dt><dd class="cmt"><p>the reader to read character data from</p></dd><dt class="param">path</dt><dd class="cmt"><p>the (potentially virtual) path of the input source
+</p></dd></dl></div>
     </li><li name="laika.io.Input#fromStream" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="fromStream(stream:java.io.InputStream,path:laika.tree.Documents.Path)(implicitcodec:scala.io.Codec):laika.io.Inputwithlaika.io.Input.Binary"></a>
       <a id="fromStream(InputStream,Path)(Codec):InputwithBinary"></a>
@@ -341,9 +373,9 @@
       </span>
       </h4>
       <p class="shortcomment cmt">Creates a new Input instance for the specified InputStream.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new Input instance for the specified InputStream.
-</p></div><dl class="paramcmts block"><dt class="param">stream</dt><dd class="cmt"><p>the stream to read character data from</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding used by the text input, if not specified the platform default will be used.
+</p></div><dl class="paramcmts block"><dt class="param">stream</dt><dd class="cmt"><p>the stream to read character data from</p></dd><dt class="param">path</dt><dd class="cmt"><p>the (potentially virtual) path of the input source</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding used by the text input, if not specified the platform default will be used.
 </p></dd></dl></div>
-    </li><li name="laika.io.Input#fromString" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="laika.io.Input#fromString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="fromString(source:String,path:laika.tree.Documents.Path):laika.io.Input"></a>
       <a id="fromString(String,Path):Input"></a>
       <h4 class="signature">
@@ -355,7 +387,9 @@
         <span class="name">fromString</span><span class="params">(<span name="source">source: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="path">path: <a href="../tree/Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a> = <span class="symbol"><span class="name"><a href="../package.html">Root</a></span></span></span>)</span><span class="result">: <a href="Input.html" class="extype" name="laika.io.Input">Input</a></span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Creates a new Input instance from the specified source string.</p>
+      <p class="shortcomment cmt">Creates a new Input instance from the specified source string.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new Input instance from the specified source string.
+</p></div><dl class="paramcmts block"><dt class="param">source</dt><dd class="cmt"><p>the string to parse</p></dd><dt class="param">path</dt><dd class="cmt"><p>the path of the document in the virtual tree
+</p></dd></dl></div>
     </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <a id="getClass():Class[_]"></a>

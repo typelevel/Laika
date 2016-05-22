@@ -40,6 +40,7 @@
           <li><a href="sbt.html">Using the sbt Plugin</a></li>
           <li class="active"><a href="#">Using Laika Embedded</a></li>
           <li><a href="markup.html">Supported Markup</a></li>
+          <li><a href="output.html">Supported Output Formats</a></li>
           <li><a href="structure.html">Document Structure</a></li>
           <li><a href="templates.html">Templates</a></li>
           <li class="nav-header">Customizing Laika</li>
@@ -85,7 +86,11 @@
         
         <h2 id="transforming-a-single-document" class="section">Transforming a Single Document</h2>
         <p>Converting from Markdown to HTML using files as input and output:</p>
-        <pre>Transform from Markdown to HTML fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;</pre>
+        <pre>Transform from Markdown to HTML fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;
+</pre>
+        <p>Converting from ReStructuredText to PDF using files as input and output:</p>
+        <pre>Transform from ReStructuredText to 
+  PDF fromFile &quot;hello.md&quot; toFile &quot;hello.pdf&quot;</pre>
         <p>Converting using Strings as input and output</p>
         <pre>val input = &quot;some *text* example&quot;
 
@@ -142,6 +147,10 @@ res0: java.lang.String = Document - Blocks: 1
   HTML fromDirectory &quot;source&quot; toDirectory &quot;target&quot;</pre>
         <p>The parser will pick up any document with a recognized suffix (<code>.md</code> or <code>.markdown</code>
         for Markdown, <code>.rst</code> for reStructuredText).</p>
+        <p>When transforming to PDF, a directory of input files will get merged 
+        into a single PDF document:</p>
+        <pre>Transform from Markdown to 
+  PDF fromDirectory &quot;source&quot; toFile &quot;target.pdf&quot;</pre>
         
         <h3 id="html-templates" class="section">HTML Templates</h3>
         <p>The directories that contain the markup documents can optionally contain
@@ -169,13 +178,6 @@ res0: java.lang.String = Document - Blocks: 1
         <p>For features like titles, sections, cross-linking, auto-numbering 
         and tables of content, see the chapter <a href="structure.html#document-structure">Document Structure</a>.</p>
         
-        <h3 id="directory-layout-conventions" class="section">Directory Layout Conventions</h3>
-        <p>When you organize your input and output directories under a common root
-        directory, with the directory containing the markup documents named
-        <code>source</code> and the output directory named <code>target</code>, you do not have
-        to specify input and output directories separately:</p>
-        <pre>Transform from ReStructuredText to HTML withRootDirectory &quot;myDocs&quot;</pre>
-        
         <h3 id="merging-multiple-input-directories" class="section">Merging Multiple Input Directories</h3>
         <p>Laika allows to merge multiple directories into a tree structure with 
         a single root. This allows to keep reusable styles and templates separately,
@@ -197,7 +199,7 @@ res0: java.lang.String = Document - Blocks: 1
         files by the reStructuredText parser.</p>
         <p>All you have to do is pass both parsers to the API:</p>
         <pre>Transform from Markdown or ReStructuredText to 
-  HTML fromDirectory &quot;source&quot; toDirectory &quot;target&quot;</pre>
+  PDF fromDirectory &quot;source&quot; toFile &quot;target.pdf&quot;</pre>
         
         <h3 id="parallel-execution" class="section">Parallel Execution</h3>
         <p>When transforming a large number of files you may want to run the operations

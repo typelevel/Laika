@@ -2,9 +2,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
-          <title>DefaultDirectories - laika.api.Transform.DefaultDirectories</title>
-          <meta name="description" content="DefaultDirectories - laika.api.Transform.DefaultDirectories" />
-          <meta name="keywords" content="DefaultDirectories laika.api.Transform.DefaultDirectories" />
+          <title>SingleTarget - laika.api.Render.SingleTarget</title>
+          <meta name="description" content="SingleTarget - laika.api.Render.SingleTarget" />
+          <meta name="keywords" content="SingleTarget laika.api.Render.SingleTarget" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -12,7 +12,7 @@
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
-            var hash = 'laika.api.Transform$$DefaultDirectories$';
+            var hash = 'laika.api.Render$$SingleTarget';
             var anchor = window.location.hash;
             var anchor_opt = '';
             if (anchor.length >= 1)
@@ -22,29 +22,29 @@
    	  </script>
     
         </head>
-        <body class="value">
+        <body class="type">
       <div id="definition">
-        <img src="../../lib/object_big.png" />
-        <p id="owner"><a href="../package.html" class="extype" name="laika">laika</a>.<a href="package.html" class="extype" name="laika.api">api</a>.<a href="Transform$.html" class="extype" name="laika.api.Transform">Transform</a></p>
-        <h1>DefaultDirectories</h1>
+        <img src="../../lib/trait_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="laika">laika</a>.<a href="package.html" class="extype" name="laika.api">api</a>.<a href="Render$.html" class="extype" name="laika.api.Render">Render</a></p>
+        <h1>SingleTarget</h1>
       </div>
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">object</span>
+        <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <span class="name">DefaultDirectories</span>
+        <span class="name">SingleTarget</span><span class="result"> extends <a href="Render$$BinaryTarget.html" class="extype" name="laika.api.Render.BinaryTarget">BinaryTarget</a></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Creates BatchConfigBuilder instances using the current working directory as its root.</p><p> This entry point expects the default directory layout where the root directory
- contains a <code>source</code> subdirectory containing all markup and template files to process
- and a <code>target</code> directory the renderer will write to.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Represents a single destination for a render operation.
+ Various types of output can be
+ specified to trigger the actual rendering.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="Render$$BinaryTarget.html" class="extype" name="laika.api.Render.BinaryTarget">BinaryTarget</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -62,7 +62,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="laika.api.Transform.DefaultDirectories"><span>DefaultDirectories</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="laika.api.Render.SingleTarget"><span>SingleTarget</span></li><li class="in" name="laika.api.Render.BinaryTarget"><span>BinaryTarget</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -84,10 +84,27 @@
 
         
 
-        
+        <div id="values" class="values members">
+              <h3>Abstract Value Members</h3>
+              <ol><li name="laika.api.Render.SingleTarget#renderTo" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="renderTo(out:laika.io.Output):Unit"></a>
+      <a id="renderTo(Output):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">renderTo</span><span class="params">(<span name="out">out: <a href="../io/Output.html" class="extype" name="laika.io.Output">Output</a></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Renders the model to the specified binary output.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the model to the specified binary output.
+</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+    </li></ol>
+            </div>
 
         <div id="values" class="values members">
-              <h3>Value Members</h3>
+              <h3>Concrete Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:AnyRef):Boolean"></a>
       <a id="!=(AnyRef):Boolean"></a>
@@ -153,19 +170,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="laika.api.Transform.DefaultDirectories#apply" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="apply(exclude:java.io.File=&gt;Boolean)(implicitcodec:scala.io.Codec):laika.api.Transform.BatchConfigBuilder"></a>
-      <a id="apply((File)⇒Boolean)(Codec):BatchConfigBuilder"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">apply</span><span class="params">(<span name="exclude">exclude: (<span class="extype" name="java.io.File">File</span>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol"><span class="name"><a href="../package.html">hiddenFileFilter</a></span></span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="Transform$$BatchConfigBuilder.html" class="extype" name="laika.api.Transform.BatchConfigBuilder">BatchConfigBuilder</a></span>
-      </span>
-      </h4>
-      
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -321,6 +325,20 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="laika.api.Render.SingleTarget#renderBinary" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="renderBinary(out:laika.io.Outputwithlaika.io.Output.Binary):Unit"></a>
+      <a id="renderBinary(OutputwithBinary):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">renderBinary</span><span class="params">(<span name="out">out: <a href="../io/Output.html" class="extype" name="laika.io.Output">Output</a> with <a href="../io/Output$$Binary.html" class="extype" name="laika.io.Output.Binary">Binary</a></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Renders the model to the specified binary output.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the model to the specified binary output.
+</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Render.SingleTarget">SingleTarget</a> → <a href="Render$$BinaryTarget.html" class="extype" name="laika.api.Render.BinaryTarget">BinaryTarget</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -334,7 +352,110 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="laika.api.Render.BinaryTarget#toBinaryOutput" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toBinaryOutput(out:laika.io.Outputwithlaika.io.Output.Binary):Unit"></a>
+      <a id="toBinaryOutput(OutputwithBinary):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toBinaryOutput</span><span class="params">(<span name="out">out: <a href="../io/Output.html" class="extype" name="laika.io.Output">Output</a> with <a href="../io/Output$$Binary.html" class="extype" name="laika.io.Output.Binary">Binary</a></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Renders the model to the specified output.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the model to the specified output.</p><p> This is a generic method based on Laika's IO abstraction layer that concrete
+ methods delegate to. Usually not used directly in application code, but
+ might come in handy for very special requirements.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Render$$BinaryTarget.html" class="extype" name="laika.api.Render.BinaryTarget">BinaryTarget</a></dd></dl></div>
+    </li><li name="laika.api.Render.SingleTarget#toBuilder" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="toBuilder(builder:StringBuilder):Unit"></a>
+      <a id="toBuilder(StringBuilder):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toBuilder</span><span class="params">(<span name="builder">builder: <span class="extype" name="scala.StringBuilder">StringBuilder</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Renders the model to the specified <code>StringBuilder</code>.</p>
+    </li><li name="laika.api.Render.SingleTarget#toConsole" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="toConsole:Unit"></a>
+      <a id="toConsole:Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toConsole</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Renders the model to the console.</p>
+    </li><li name="laika.api.Render.BinaryTarget#toFile" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toFile(file:java.io.File)(implicitcodec:scala.io.Codec):Unit"></a>
+      <a id="toFile(File)(Codec):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toFile</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Renders the model to the specified file.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the model to the specified file.
+</p></div><dl class="paramcmts block"><dt class="param">file</dt><dd class="cmt"><p>the file to write to</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the file, if not specified the platform default will be used.
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Render$$BinaryTarget.html" class="extype" name="laika.api.Render.BinaryTarget">BinaryTarget</a></dd></dl></div>
+    </li><li name="laika.api.Render.BinaryTarget#toFile" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toFile(name:String)(implicitcodec:scala.io.Codec):Unit"></a>
+      <a id="toFile(String)(Codec):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toFile</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Renders the model to the file with the specified name.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the model to the file with the specified name.
+</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the file to parse</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the file, if not specified the platform default will be used.
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Render$$BinaryTarget.html" class="extype" name="laika.api.Render.BinaryTarget">BinaryTarget</a></dd></dl></div>
+    </li><li name="laika.api.Render.SingleTarget#toOutput" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toOutput(out:laika.io.Output):Unit"></a>
+      <a id="toOutput(Output):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toOutput</span><span class="params">(<span name="out">out: <a href="../io/Output.html" class="extype" name="laika.io.Output">Output</a></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Renders the model to the specified output.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the model to the specified output.</p><p> This is a generic method based on Laika's IO abstraction layer that concrete
+ methods delegate to. Usually not used directly in application code, but
+ might come in handy for very special requirements.
+</p></div></div>
+    </li><li name="laika.api.Render.BinaryTarget#toStream" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toStream(stream:java.io.OutputStream)(implicitcodec:scala.io.Codec):Unit"></a>
+      <a id="toStream(OutputStream)(Codec):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toStream</span><span class="params">(<span name="stream">stream: <span class="extype" name="java.io.OutputStream">OutputStream</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Renders the model to the specified output stream.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the model to the specified output stream.
+</p></div><dl class="paramcmts block"><dt class="param">stream</dt><dd class="cmt"><p>the stream to render to</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the stream, if not specified the platform default will be used.
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Render$$BinaryTarget.html" class="extype" name="laika.api.Render.BinaryTarget">BinaryTarget</a></dd></dl></div>
+    </li><li name="laika.api.Render.SingleTarget#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>
       <h4 class="signature">
@@ -346,7 +467,21 @@
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+      <p class="shortcomment cmt">Renders the model to a String and returns it.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the model to a String and returns it.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Render.SingleTarget">SingleTarget</a> → AnyRef → Any</dd></dl></div>
+    </li><li name="laika.api.Render.SingleTarget#toWriter" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="toWriter(writer:java.io.Writer):Unit"></a>
+      <a id="toWriter(Writer):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toWriter</span><span class="params">(<span name="writer">writer: <span class="extype" name="java.io.Writer">Writer</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Renders the model to the specified writer.</p>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>
@@ -413,7 +548,9 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.AnyRef">
+        <div class="parent" name="laika.api.Render.BinaryTarget">
+              <h3>Inherited from <a href="Render$$BinaryTarget.html" class="extype" name="laika.api.Render.BinaryTarget">BinaryTarget</a></h3>
+            </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>

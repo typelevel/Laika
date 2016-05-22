@@ -41,7 +41,7 @@
       
           <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="java.io.Closeable">Closeable</span>, <a href="Input$$Binary.html" class="extype" name="laika.io.Input.Binary">Binary</a>, <a href="Input.html" class="extype" name="laika.io.Input">Input</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="java.io.Closeable">Closeable</span>, <span class="extype" name="java.lang.AutoCloseable">AutoCloseable</span>, <a href="Input$$Binary.html" class="extype" name="laika.io.Input.Binary">Binary</a>, <a href="Input.html" class="extype" name="laika.io.Input">Input</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -59,7 +59,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="laika.io.Input.LazyFileInput"><span>LazyFileInput</span></li><li class="in" name="java.io.Closeable"><span>Closeable</span></li><li class="in" name="laika.io.Input.Binary"><span>Binary</span></li><li class="in" name="laika.io.Input"><span>Input</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="laika.io.Input.LazyFileInput"><span>LazyFileInput</span></li><li class="in" name="java.io.Closeable"><span>Closeable</span></li><li class="in" name="java.lang.AutoCloseable"><span>AutoCloseable</span></li><li class="in" name="laika.io.Input.Binary"><span>Binary</span></li><li class="in" name="laika.io.Input"><span>Input</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -193,29 +193,29 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="laika.io.Input.LazyFileInput#asParserInput" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="asParserInput:scala.util.parsing.input.PagedSeqReader"></a>
-      <a id="asParserInput:PagedSeqReader"></a>
+      <a id="asParserInput:scala.util.parsing.input.Reader[Char]"></a>
+      <a id="asParserInput:Reader[Char]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">asParserInput</span><span class="result">: <span class="extype" name="scala.util.parsing.input.PagedSeqReader">PagedSeqReader</span></span>
+        <span class="name">asParserInput</span><span class="result">: <span class="extype" name="scala.util.parsing.input.Reader">Reader</span>[<span class="extype" name="scala.Char">Char</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">The input as a Reader instance for the parser combinators of the Scala SDK.</p><div class="fullcomment"><div class="comment cmt"><p>The input as a Reader instance for the parser combinators of the Scala SDK.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.io.Input.LazyFileInput">LazyFileInput</a> → <a href="Input.html" class="extype" name="laika.io.Input">Input</a></dd></dl></div>
     </li><li name="laika.io.Input.LazyFileInput#asReader" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="asReader:java.io.BufferedReader"></a>
-      <a id="asReader:BufferedReader"></a>
+      <a id="asReader:java.io.Reader"></a>
+      <a id="asReader:Reader"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">asReader</span><span class="result">: <span class="extype" name="java.io.BufferedReader">BufferedReader</span></span>
+        <span class="name">asReader</span><span class="result">: <span class="extype" name="java.io.Reader">Reader</span></span>
       </span>
       </h4>
       <p class="shortcomment cmt">The input as a <code>java.io.Reader</code>.</p><div class="fullcomment"><div class="comment cmt"><p>The input as a <code>java.io.Reader</code>.
@@ -251,7 +251,7 @@
         <span class="name">close</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.io.Input.LazyFileInput">LazyFileInput</a> → Closeable</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.io.Input.LazyFileInput">LazyFileInput</a> → Closeable → AutoCloseable</dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -514,6 +514,8 @@
         <div id="inheritedMembers">
         <div class="parent" name="java.io.Closeable">
               <h3>Inherited from <span class="extype" name="java.io.Closeable">Closeable</span></h3>
+            </div><div class="parent" name="java.lang.AutoCloseable">
+              <h3>Inherited from <span class="extype" name="java.lang.AutoCloseable">AutoCloseable</span></h3>
             </div><div class="parent" name="laika.io.Input.Binary">
               <h3>Inherited from <a href="Input$$Binary.html" class="extype" name="laika.io.Input.Binary">Binary</a></h3>
             </div><div class="parent" name="laika.io.Input">

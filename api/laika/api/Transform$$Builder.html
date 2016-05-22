@@ -340,15 +340,33 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="laika.api.Transform.Builder#to" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="to[W](factory:laika.factory.RendererFactory[W]):laika.api.Transform[W]"></a>
-      <a id="to[W](RendererFactory[W]):Transform[W]"></a>
+      <a id="to[Writer](processor:laika.factory.RenderResultProcessor[Writer]):laika.api.Transform.TransformGatheredOutput[Writer]"></a>
+      <a id="to[Writer](RenderResultProcessor[Writer]):TransformGatheredOutput[Writer]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">to</span><span class="tparams">[<span name="W">W</span>]</span><span class="params">(<span name="factory">factory: <a href="../factory/RendererFactory.html" class="extype" name="laika.factory.RendererFactory">RendererFactory</a>[<span class="extype" name="laika.api.Transform.Builder.to.W">W</span>]</span>)</span><span class="result">: <a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a>[<span class="extype" name="laika.api.Transform.Builder.to.W">W</span>]</span>
+        <span class="name">to</span><span class="tparams">[<span name="Writer">Writer</span>]</span><span class="params">(<span name="processor">processor: <a href="../factory/RenderResultProcessor.html" class="extype" name="laika.factory.RenderResultProcessor">RenderResultProcessor</a>[<span class="extype" name="laika.api.Transform.Builder.to.Writer">Writer</span>]</span>)</span><span class="result">: <a href="Transform$$TransformGatheredOutput.html" class="extype" name="laika.api.Transform.TransformGatheredOutput">TransformGatheredOutput</a>[<span class="extype" name="laika.api.Transform.Builder.to.Writer">Writer</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Creates and returns a new Transform instance for the specified renderer and the
+ previously specified parser.</p><div class="fullcomment"><div class="comment cmt"><p>Creates and returns a new Transform instance for the specified renderer and the
+ previously specified parser. The returned instance is stateless and reusable for
+ multiple transformations.
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>a new Transform instance
+</p></dd></dl></div>
+    </li><li name="laika.api.Transform.Builder#to" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="to[Writer](factory:laika.factory.RendererFactory[Writer]):laika.api.Transform.TransformMappedOutput[Writer]"></a>
+      <a id="to[Writer](RendererFactory[Writer]):TransformMappedOutput[Writer]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">to</span><span class="tparams">[<span name="Writer">Writer</span>]</span><span class="params">(<span name="factory">factory: <a href="../factory/RendererFactory.html" class="extype" name="laika.factory.RendererFactory">RendererFactory</a>[<span class="extype" name="laika.api.Transform.Builder.to.Writer">Writer</span>]</span>)</span><span class="result">: <a href="Transform$$TransformMappedOutput.html" class="extype" name="laika.api.Transform.TransformMappedOutput">TransformMappedOutput</a>[<span class="extype" name="laika.api.Transform.Builder.to.Writer">Writer</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Creates and returns a new Transform instance for the specified renderer and the

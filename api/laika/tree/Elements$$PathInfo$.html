@@ -2,9 +2,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
-          <title>BatchConfigBuilder - laika.api.Transform.BatchConfigBuilder</title>
-          <meta name="description" content="BatchConfigBuilder - laika.api.Transform.BatchConfigBuilder" />
-          <meta name="keywords" content="BatchConfigBuilder laika.api.Transform.BatchConfigBuilder" />
+          <title>PathInfo - laika.tree.Elements.PathInfo</title>
+          <meta name="description" content="PathInfo - laika.tree.Elements.PathInfo" />
+          <meta name="keywords" content="PathInfo laika.tree.Elements.PathInfo" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
@@ -12,7 +12,7 @@
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
-            var hash = 'laika.api.Transform$$BatchConfigBuilder';
+            var hash = 'laika.tree.Elements$$PathInfo$';
             var anchor = window.location.hash;
             var anchor_opt = '';
             if (anchor.length >= 1)
@@ -22,29 +22,26 @@
    	  </script>
     
         </head>
-        <body class="type">
+        <body class="value">
       <div id="definition">
-        <a href="Transform$$BatchConfigBuilder$.html" title="Go to companion"><img src="../../lib/class_to_object_big.png" /></a>
-        <p id="owner"><a href="../package.html" class="extype" name="laika">laika</a>.<a href="package.html" class="extype" name="laika.api">api</a>.<a href="Transform$.html" class="extype" name="laika.api.Transform">Transform</a></p>
-        <h1><a href="Transform$$BatchConfigBuilder$.html" title="Go to companion">BatchConfigBuilder</a></h1>
+        <a href="Elements$$PathInfo.html" title="Go to companion"><img src="../../lib/object_to_class_big.png" /></a>
+        <p id="owner"><a href="../package.html" class="extype" name="laika">laika</a>.<a href="package.html" class="extype" name="laika.tree">tree</a>.<a href="Elements$.html" class="extype" name="laika.tree.Elements">Elements</a></p>
+        <h1><a href="Elements$$PathInfo.html" title="Go to companion">PathInfo</a></h1>
       </div>
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">class</span>
+        <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">BatchConfigBuilder</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <span class="name">PathInfo</span><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>API for configuring a batch operation.
- Gives access to all relevant aspects of traversing, parsing and rendering
- a tree of inputs.
-</p></div><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -62,7 +59,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="laika.api.Transform.BatchConfigBuilder"><span>BatchConfigBuilder</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="laika.tree.Elements.PathInfo"><span>PathInfo</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -166,20 +163,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="laika.api.Transform.BatchConfigBuilder#build" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="build(markupSuffixes:Set[String]):laika.api.Transform.BatchConfig"></a>
-      <a id="build(Set[String]):BatchConfig"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">build</span><span class="params">(<span name="markupSuffixes">markupSuffixes: <span class="extype" name="scala.Predef.Set">Set</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="Transform$$BatchConfig.html" class="extype" name="laika.api.Transform.BatchConfig">BatchConfig</a></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Builds the final configuration for this input tree
- for the specified parser factory.</p>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
       <a id="clone():AnyRef"></a>
@@ -244,6 +227,37 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="laika.tree.Elements.PathInfo#fromPath" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="fromPath(path:laika.tree.Documents.Path,refPath:laika.tree.Documents.Path):laika.tree.Elements.PathInfo"></a>
+      <a id="fromPath(Path,Path):PathInfo"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fromPath</span><span class="params">(<span name="path">path: <a href="Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>, <span name="refPath">refPath: <a href="Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>)</span><span class="result">: <a href="Elements$$PathInfo.html" class="extype" name="laika.tree.Elements.PathInfo">PathInfo</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Creates an instance for the specified path relative to
+ the provided reference path.</p>
+    </li><li name="laika.tree.Elements.PathInfo#fromURI" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromURI(uri:String,refPath:laika.tree.Documents.Path):Option[laika.tree.Elements.PathInfo]"></a>
+      <a id="fromURI(String,Path):Option[PathInfo]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fromURI</span><span class="params">(<span name="uri">uri: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="refPath">refPath: <a href="Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="Elements$$PathInfo.html" class="extype" name="laika.tree.Elements.PathInfo">PathInfo</a>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Creates an instance for the specified URI relative to
+ the provided reference path.</p><div class="fullcomment"><div class="comment cmt"><p>Creates an instance for the specified URI relative to
+ the provided reference path. Returns <code>None</code> if the specified
+ URI is not a file or relative URI.
+</p></div></div>
     </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <a id="getClass():Class[_]"></a>
@@ -270,27 +284,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="laika.api.Transform.BatchConfigBuilder#inParallel" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="inParallel:laika.api.Transform.BatchConfigBuilder"></a>
-      <a id="inParallel:BatchConfigBuilder"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">inParallel</span><span class="result">: <a href="" class="extype" name="laika.api.Transform.BatchConfigBuilder">BatchConfigBuilder</a></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Instructs both the parser and renderer to process all inputs and outputs in parallel.</p><div class="fullcomment"><div class="comment cmt"><p>Instructs both the parser and renderer to process all inputs and outputs in parallel.
- The recursive structure of document trees will be flattened before parsing and rendering
- and then get reassembled afterwards, therefore the parallel processing
- includes all subtrees of the document tree.</p><p> The actual transformation is a three phase process, the first (parsing) and
- third (rendering) can run in parallel. The second phase in the middle cannot,
- as this is the document tree model rewrite step where things like cross references or
- table of contents get processed that need access to more than just the current
- document.
-</p></div></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -426,102 +419,6 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.api.Transform.BatchConfigBuilder#withConfigFile" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withConfigFile(name:String):laika.api.Transform.BatchConfigBuilder"></a>
-      <a id="withConfigFile(String):BatchConfigBuilder"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">withConfigFile</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="" class="extype" name="laika.api.Transform.BatchConfigBuilder">BatchConfigBuilder</a></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Specifies the name of a root configuration file that gets
- inherited by this tree and its subtrees.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies the name of a root configuration file that gets
- inherited by this tree and its subtrees.
- The syntax of the input is expected to be of a format
- compatible with the Typesafe Config library.
-</p></div></div>
-    </li><li name="laika.api.Transform.BatchConfigBuilder#withConfigFile" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withConfigFile(file:java.io.File):laika.api.Transform.BatchConfigBuilder"></a>
-      <a id="withConfigFile(File):BatchConfigBuilder"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">withConfigFile</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="result">: <a href="" class="extype" name="laika.api.Transform.BatchConfigBuilder">BatchConfigBuilder</a></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Specifies a root configuration file that gets
- inherited by this tree and its subtrees.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies a root configuration file that gets
- inherited by this tree and its subtrees.
- The syntax of the input is expected to be of a format
- compatible with the Typesafe Config library.
-</p></div></div>
-    </li><li name="laika.api.Transform.BatchConfigBuilder#withConfigString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="withConfigString(source:String):laika.api.Transform.BatchConfigBuilder"></a>
-      <a id="withConfigString(String):BatchConfigBuilder"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">withConfigString</span><span class="params">(<span name="source">source: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="" class="extype" name="laika.api.Transform.BatchConfigBuilder">BatchConfigBuilder</a></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Specifies a root configuration source that gets
- inherited by this tree and its subtrees.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies a root configuration source that gets
- inherited by this tree and its subtrees.
- The syntax of the input is expected to be of a format
- compatible with the Typesafe Config library.
-</p></div></div>
-    </li><li name="laika.api.Transform.BatchConfigBuilder#withDocTypeMatcher" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="withDocTypeMatcher(matcher:laika.tree.Documents.Path=&gt;laika.tree.Documents.DocumentType):laika.api.Transform.BatchConfigBuilder"></a>
-      <a id="withDocTypeMatcher((Path)⇒DocumentType):BatchConfigBuilder"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">withDocTypeMatcher</span><span class="params">(<span name="matcher">matcher: (<a href="../tree/Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a>) ⇒ <a href="../tree/Documents$$DocumentType.html" class="extype" name="laika.tree.Documents.DocumentType">DocumentType</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.api.Transform.BatchConfigBuilder">BatchConfigBuilder</a></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Specifies the function to use for determining the document type
- of the input based on its path.</p>
-    </li><li name="laika.api.Transform.BatchConfigBuilder#withTemplateDirectives" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="withTemplateDirectives(directives:laika.directive.Directives.Templates.Directive*):laika.api.Transform.BatchConfigBuilder"></a>
-      <a id="withTemplateDirectives(directive.Directives.Templates.Directive*):BatchConfigBuilder"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">withTemplateDirectives</span><span class="params">(<span name="directives">directives: <a href="../directive/Directives$$Templates$.html#DirectiveextendsAnyRef" class="extmbr" name="laika.directive.Directives.BuilderContext.Directive">directive.Directives.Templates.Directive</a>*</span>)</span><span class="result">: <a href="" class="extype" name="laika.api.Transform.BatchConfigBuilder">BatchConfigBuilder</a></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Specifies custom template directives to use with
- the default template engine.</p>
-    </li><li name="laika.api.Transform.BatchConfigBuilder#withTemplates" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="withTemplates(parser:laika.template.ParseTemplate):laika.api.Transform.BatchConfigBuilder"></a>
-      <a id="withTemplates(ParseTemplate):BatchConfigBuilder"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">withTemplates</span><span class="params">(<span name="parser">parser: <a href="../template/ParseTemplate.html" class="extype" name="laika.template.ParseTemplate">ParseTemplate</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.api.Transform.BatchConfigBuilder">BatchConfigBuilder</a></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">Specifies the template engine to use for
- parsing all template inputs found in the tree.</p>
     </li></ol>
             </div>
 
@@ -531,7 +428,11 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.AnyRef">
+        <div class="parent" name="scala.Serializable">
+              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>

@@ -84,7 +84,20 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="laika.io.OutputProvider.OutputConfig" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+              <ol><li name="laika.io.OutputProvider.DirectoryOutputProvider" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DirectoryOutputProviderextendsOutputProvider"></a>
+      <a id="DirectoryOutputProvider:DirectoryOutputProvider"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="OutputProvider$$DirectoryOutputProvider.html"><span class="name">DirectoryOutputProvider</span></a><span class="result"> extends <a href="OutputProvider.html" class="extype" name="laika.io.OutputProvider">OutputProvider</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">An output provider that writes to a directory in the file system.</p>
+    </li><li name="laika.io.OutputProvider.OutputConfig" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="OutputConfigextendsProductwithSerializable"></a>
       <a id="OutputConfig:OutputConfig"></a>
       <h4 class="signature">
@@ -93,12 +106,11 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="OutputProvider$$OutputConfig.html"><span class="name">OutputConfig</span></a><span class="params">(<span name="provider">provider: <a href="OutputProvider.html" class="extype" name="laika.io.OutputProvider">OutputProvider</a></span>, <span name="parallel">parallel: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="OutputProvider$$OutputConfig.html"><span class="name">OutputConfig</span></a><span class="params">(<span name="provider">provider: <a href="OutputProvider.html" class="extype" name="laika.io.OutputProvider">OutputProvider</a></span>, <span name="parallel">parallel: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="copyStaticFiles">copyStaticFiles: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       <p class="comment cmt">The configuration for an output tree, consisting of the actual provider for
- all outputs and a flag whether rendering and writing results should be performed
- in parallel.</p>
+ all outputs and some flags that control the behaviour of the renderer.</p>
     </li><li name="laika.io.OutputProvider.OutputConfigBuilder" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="OutputConfigBuilderextendsAnyRef"></a>
       <a id="OutputConfigBuilder:OutputConfigBuilder"></a>
@@ -126,6 +138,58 @@
       </h4>
       <p class="comment cmt">Responsible for building new OutputProviders based
  on the specified codec.</p>
+    </li><li name="laika.io.OutputProvider.RenderResult" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="RenderResultextendsAnyRef"></a>
+      <a id="RenderResult:RenderResult"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="OutputProvider$$RenderResult.html"><span class="name">RenderResult</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Represent an in-memory result of a rendering operation.</p>
+    </li><li name="laika.io.OutputProvider.ResultTree" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ResultTreeextendsOutputProvider.RenderResultwithProductwithSerializable"></a>
+      <a id="ResultTree:ResultTree"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="OutputProvider$$ResultTree.html"><span class="name">ResultTree</span></a><span class="params">(<span name="path">path: <a href="../tree/Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>, <span name="results">results: <span class="extype" name="scala.Seq">Seq</span>[<a href="OutputProvider$$StringResult.html" class="extype" name="laika.io.OutputProvider.StringResult">StringResult</a>]</span>, <span name="subtrees">subtrees: <span class="extype" name="scala.Seq">Seq</span>[<a href="OutputProvider$$ResultTree.html" class="extype" name="laika.io.OutputProvider.ResultTree">ResultTree</a>]</span>)</span><span class="result"> extends <a href="OutputProvider$$RenderResult.html" class="extype" name="laika.io.OutputProvider.RenderResult">RenderResult</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">The result of rendering a document tree.</p>
+    </li><li name="laika.io.OutputProvider.StringOutputProvider" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="StringOutputProviderextendsOutputProvider"></a>
+      <a id="StringOutputProvider:StringOutputProvider"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="OutputProvider$$StringOutputProvider.html"><span class="name">StringOutputProvider</span></a><span class="result"> extends <a href="OutputProvider.html" class="extype" name="laika.io.OutputProvider">OutputProvider</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">An output provider that produces a tree of String results.</p>
+    </li><li name="laika.io.OutputProvider.StringResult" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="StringResultextendsOutputProvider.RenderResultwithProductwithSerializable"></a>
+      <a id="StringResult:StringResult"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="OutputProvider$$StringResult.html"><span class="name">StringResult</span></a><span class="params">(<span name="path">path: <a href="../tree/Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>, <span name="result">result: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="OutputProvider$$RenderResult.html" class="extype" name="laika.io.OutputProvider.RenderResult">RenderResult</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">The result of rendering a single document.</p>
     </li></ol>
             </div>
 

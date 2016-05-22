@@ -35,7 +35,7 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">Document</span><span class="result"> extends <a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a></span>
+        <span class="name">Document</span><span class="result"> extends <a href="Documents$$Titled.html" class="extype" name="laika.tree.Documents.Titled">Titled</a></span>
       </span>
       </h4>
       
@@ -44,7 +44,7 @@
  as hooks for triggering rewrite operations.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="Documents$$Titled.html" class="extype" name="laika.tree.Documents.Titled">Titled</a>, <a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -62,7 +62,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="laika.tree.Documents.Document"><span>Document</span></li><li class="in" name="laika.tree.Documents.Navigatable"><span>Navigatable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="laika.tree.Documents.Document"><span>Document</span></li><li class="in" name="laika.tree.Documents.Titled"><span>Titled</span></li><li class="in" name="laika.tree.Documents.Navigatable"><span>Navigatable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -170,6 +170,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="laika.tree.Documents.Document#applyTemplate" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="applyTemplate(context:laika.tree.Documents.DocumentContext):laika.tree.Documents.Document"></a>
+      <a id="applyTemplate(DocumentContext):Document"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">applyTemplate</span><span class="params">(<span name="context">context: <a href="Documents$$DocumentContext.html" class="extype" name="laika.tree.Documents.DocumentContext">DocumentContext</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.tree.Documents.Document">Document</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Applies the template for the specified context to this document.</p>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -237,7 +250,7 @@
         <span class="kind">lazy val</span>
       </span>
       <span class="symbol">
-        <span class="name">defaultRules</span><span class="result">: <span class="extype" name="scala.collection.Seq">Seq</span>[(<a href="Documents$$DocumentContext.html" class="extype" name="laika.tree.Documents.DocumentContext">DocumentContext</a>) ⇒ <a href="Elements$.html#RewriteRule=PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]" class="extmbr" name="laika.tree.Elements.RewriteRule">RewriteRule</a>]</span>
+        <span class="name">defaultRules</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[(<a href="Documents$$DocumentContext.html" class="extype" name="laika.tree.Documents.DocumentContext">DocumentContext</a>) ⇒ <a href="Elements$.html#RewriteRule=PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]" class="extmbr" name="laika.tree.Elements.RewriteRule">RewriteRule</a>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
@@ -512,7 +525,7 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="laika.tree.Documents.Document#title" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="laika.tree.Documents.Document#title" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="title:Seq[laika.tree.Elements.Span]"></a>
       <a id="title:Seq[Span]"></a>
       <h4 class="signature">
@@ -525,7 +538,25 @@
       </span>
       </h4>
       <p class="shortcomment cmt">The title of this document, obtained from the document
- structure or from the configuration.</p>
+ structure or from the configuration.</p><div class="fullcomment"><div class="comment cmt"><p>The title of this document, obtained from the document
+ structure or from the configuration.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.tree.Documents.Document">Document</a> → <a href="Documents$$Titled.html" class="extype" name="laika.tree.Documents.Titled">Titled</a></dd></dl></div>
+    </li><li name="laika.tree.Documents.Titled#titleOrName" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="titleOrName:Seq[laika.tree.Elements.Span]"></a>
+      <a id="titleOrName:Seq[Span]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">titleOrName</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">The title of this navigatable if non-empty
+ or otherwise the name as Text Span.</p><div class="fullcomment"><div class="comment cmt"><p>The title of this navigatable if non-empty
+ or otherwise the name as Text Span.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Documents$$Titled.html" class="extype" name="laika.tree.Documents.Titled">Titled</a></dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>
@@ -605,7 +636,9 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="laika.tree.Documents.Navigatable">
+        <div class="parent" name="laika.tree.Documents.Titled">
+              <h3>Inherited from <a href="Documents$$Titled.html" class="extype" name="laika.tree.Documents.Titled">Titled</a></h3>
+            </div><div class="parent" name="laika.tree.Documents.Navigatable">
               <h3>Inherited from <a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a></h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>

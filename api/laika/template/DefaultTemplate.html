@@ -467,7 +467,7 @@
 )
 
 Transform from Markdown to HTML withConfig RootDirectory(<span class="lit">"my-home"</span>)
-    .withTemplates(ParseTemplate as templates)</pre><p> The code above registers a template directive that detects markup like
+    .withTemplateParser(ParseTemplate as templates)</pre><p> The code above registers a template directive that detects markup like
  <code>@:ticket 2356.</code> and turns it into an external link node for the
  URL <code>http://tickets.service.com/2356</code>.</p><p> For more details on implementing Laika directives see <a href="../directive/Directives$.html" class="extype" name="laika.directive.Directives">laika.directive.Directives</a>.
 </p></div></div>

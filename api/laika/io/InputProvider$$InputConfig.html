@@ -35,13 +35,13 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">InputConfig</span><span class="params">(<span name="provider">provider: <a href="InputProvider.html" class="extype" name="laika.io.InputProvider">InputProvider</a></span>, <span name="config">config: <span class="extype" name="scala.Seq">Seq</span>[<a href="Input.html" class="extype" name="laika.io.Input">Input</a>]</span>, <span name="templateParser">templateParser: <a href="../template/ParseTemplate.html" class="extype" name="laika.template.ParseTemplate">ParseTemplate</a></span>, <span name="parallel">parallel: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">InputConfig</span><span class="params">(<span name="provider">provider: <a href="InputProvider.html" class="extype" name="laika.io.InputProvider">InputProvider</a></span>, <span name="config">config: <span class="extype" name="scala.Seq">Seq</span>[<a href="Input.html" class="extype" name="laika.io.Input">Input</a>]</span>, <span name="templateParser">templateParser: <a href="../template/ParseTemplate.html" class="extype" name="laika.template.ParseTemplate">ParseTemplate</a></span>, <span name="styleSheetParser">styleSheetParser: <a href="../parse/css/ParseStyleSheet.html" class="extype" name="laika.parse.css.ParseStyleSheet">ParseStyleSheet</a></span>, <span name="parallel">parallel: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>The configuration for an input tree, consisting of the actual provider for
  all inputs, a separate input for (optional) root configuration sources,
- the template engine to use and a flag whether parsing should be performed
+ the template and style sheet engines to use and a flag whether parsing should be performed
  in parallel.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
@@ -84,7 +84,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.io.InputProvider.InputConfig#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(provider:laika.io.InputProvider,config:Seq[laika.io.Input],templateParser:laika.template.ParseTemplate,parallel:Boolean):laika.io.InputProvider.InputConfig"></a>
+      <a id="&lt;init&gt;(provider:laika.io.InputProvider,config:Seq[laika.io.Input],templateParser:laika.template.ParseTemplate,styleSheetParser:laika.parse.css.ParseStyleSheet,parallel:Boolean):laika.io.InputProvider.InputConfig"></a>
       <a id="&lt;init&gt;:InputConfig"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -92,7 +92,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">InputConfig</span><span class="params">(<span name="provider">provider: <a href="InputProvider.html" class="extype" name="laika.io.InputProvider">InputProvider</a></span>, <span name="config">config: <span class="extype" name="scala.Seq">Seq</span>[<a href="Input.html" class="extype" name="laika.io.Input">Input</a>]</span>, <span name="templateParser">templateParser: <a href="../template/ParseTemplate.html" class="extype" name="laika.template.ParseTemplate">ParseTemplate</a></span>, <span name="parallel">parallel: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span>
+        <span class="name">InputConfig</span><span class="params">(<span name="provider">provider: <a href="InputProvider.html" class="extype" name="laika.io.InputProvider">InputProvider</a></span>, <span name="config">config: <span class="extype" name="scala.Seq">Seq</span>[<a href="Input.html" class="extype" name="laika.io.Input">Input</a>]</span>, <span name="templateParser">templateParser: <a href="../template/ParseTemplate.html" class="extype" name="laika.template.ParseTemplate">ParseTemplate</a></span>, <span name="styleSheetParser">styleSheetParser: <a href="../parse/css/ParseStyleSheet.html" class="extype" name="laika.parse.css.ParseStyleSheet">ParseStyleSheet</a></span>, <span name="parallel">parallel: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span>
       </span>
       </h4>
       
@@ -335,6 +335,19 @@
       </span>
       <span class="symbol">
         <span class="name">provider</span><span class="result">: <a href="InputProvider.html" class="extype" name="laika.io.InputProvider">InputProvider</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="laika.io.InputProvider.InputConfig#styleSheetParser" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="styleSheetParser:laika.parse.css.ParseStyleSheet"></a>
+      <a id="styleSheetParser:ParseStyleSheet"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">styleSheetParser</span><span class="result">: <a href="../parse/css/ParseStyleSheet.html" class="extype" name="laika.parse.css.ParseStyleSheet">ParseStyleSheet</a></span>
       </span>
       </h4>
       
