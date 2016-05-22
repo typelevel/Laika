@@ -246,16 +246,14 @@ object LaikaSbtPlugin extends Plugin {
       if (parallel.value) builder.inParallel else builder
     }
     
-    def prepareTargetDirectory (key: Scoped): Initialize[Task[File]] = task {
+    def prepareTargetDirectory (key: Scoped): Initialize[TargetDirectory] = setting {
       val targetDir = (target in key).value
       val apiInSite = (target in copyAPI).value
       val pdfInSite = (artifactPath in pdf).value
+      
+      val filesToDelete = ((targetDir ***) --- targetDir --- pdfInSite --- (apiInSite ***) --- collectParents(apiInSite)).get
               
-      IO.delete(((targetDir ***) --- targetDir --- pdfInSite --- (apiInSite ***) --- collectParents(apiInSite)).get)
-      
-      if (!targetDir.exists) targetDir.mkdirs()
-      
-      targetDir
+      new TargetDirectory(targetDir, filesToDelete)
     }
     
     def prepareRenderer [Writer, R <: Render[Writer] { type ThisType = R }] (
@@ -277,55 +275,55 @@ object LaikaSbtPlugin extends Plugin {
       
       val cacheDir = streams.value.cacheDirectory / "laika"
       
-      val cached = new Cached(cacheDir)
-      
-      val func = cached.inputs { inReport =>
+      lazy val tree = {
         
-        lazy val tree = {
-          
-          streams.value.log.info("Reading files from " + sourceDirectories.value.mkString(", "))
-          streams.value.log.info(Log.inputs(inputs.provider))
-          
-          val rawTree = markupParser.value fromTree inputs
-          val tree = rawTree rewrite (rewriteRules.value, AutonumberContext.defaults)
+        streams.value.log.info("Reading files from " + sourceDirectories.value.mkString(", "))
+        streams.value.log.info(Log.inputs(inputs.provider))
+        
+        val rawTree = markupParser.value fromTree inputs
+        val tree = rawTree rewrite (rewriteRules.value, AutonumberContext.defaults)
 
-          logMessageLevel.value foreach { Log.systemMessages(streams.value.log, tree, _) }
-          streams.value.log.info(Log.outputs(tree))
-          
-          tree
-        }
+        logMessageLevel.value foreach { Log.systemMessages(streams.value.log, tree, _) }
         
-        val results = formats map { format =>
+        tree
+      }
+    
+      val inputFiles = collectInputFiles(inputs.provider)
+      
+      val results = formats map { format =>
+        
+        val fun = FileFunction.cached(cacheDir / format.toString.toLowerCase, FilesInfo.lastModified, FilesInfo.exists) { _ =>
+        
+          format match {
           
-          cached.outputs(inReport, format) { format match {
-            
             case OutputFormats.HTML =>
               
-              val targetDir = prepareTargetDirectory(site).value
+              val targetDir = prepareTargetDirectory(site).value.prepare
           
               val html = renderMessageLevel.value map (HTML withMessageLevel _) getOrElse HTML
               val renderers = siteRenderers.value :+ VerbatimHTML :+ ExtendedHTML // always install Markdown and rst extensions
               val render = prepareRenderer(Render as html, renderers)
               render from tree toTree (outputTree in site).value
               
+              streams.value.log.info(Log.outputs(tree))
               streams.value.log.info("Generated html in " + targetDir)
               
-              (targetDir ***).get.toSet
+              (targetDir ***).get.toSet.filter(_.isFile)
               
             case OutputFormats.PrettyPrint =>
               
-              val targetDir = prepareTargetDirectory(prettyPrint).value
+              val targetDir = prepareTargetDirectory(prettyPrint).value.prepare
           
               val render = prepareRenderer(Render as PrettyPrint, prettyPrintRenderers.value)
               render from tree toTree (outputTree in prettyPrint).value
               
               streams.value.log.info("Generated Pretty Print in " + targetDir)
               
-              (targetDir ***).get.toSet
+              (targetDir ***).get.toSet.filter(_.isFile)
               
             case OutputFormats.XSLFO =>
               
-              val targetDir = prepareTargetDirectory(xslfo).value
+              val targetDir = prepareTargetDirectory(xslfo).value.prepare
           
               val fo = renderMessageLevel.value map (XSLFO withMessageLevel _) getOrElse XSLFO // TODO - ExtendedFO for rst
               val render = prepareRenderer(Render as fo, foRenderers.value)
@@ -333,11 +331,12 @@ object LaikaSbtPlugin extends Plugin {
               
               streams.value.log.info("Generated XSL-FO in " + targetDir)
               
-              (targetDir ***).get.toSet
+              (targetDir ***).get.toSet.filter(_.isFile)
               
             case OutputFormats.PDF =>
               
               val targetFile = (artifactPath in pdf).value
+              targetFile.getParentFile.mkdirs()
           
               val pdfRenderer = renderMessageLevel.value map (PDF withMessageLevel _) getOrElse PDF
               val render = prepareRenderer(Render as pdfRenderer, foRenderers.value)
@@ -347,15 +346,15 @@ object LaikaSbtPlugin extends Plugin {
               
               Set(targetFile)
               
-          }}
+          }
           
         }
         
-        results reduce (_ ++ _)
+        fun(inputFiles)
         
       }
-      
-      val outputFiles = func(collectInputFiles(inputs.provider))
+        
+      val outputFiles = results reduce (_ ++ _)
       
       outputFiles intersect allTargets.value
     }
@@ -399,7 +398,7 @@ object LaikaSbtPlugin extends Plugin {
       val pdfTarget = targetDir / pdfSource.getName
       
       if (includePDF.value) task { 
-        val cacheDir = streams.value.cacheDirectory / "laika" / "pdf"
+        val cacheDir = streams.value.cacheDirectory / "laika" / "site-pdf"
         Sync(cacheDir)(Seq((pdfSource, pdfTarget)))
         
         streams.value.log.info("Copied PDF output to " + targetDir)
@@ -446,6 +445,18 @@ object LaikaSbtPlugin extends Plugin {
         }
       }
       collect(file, Set())
+    }
+    
+  }
+  
+  class TargetDirectory(dir: File, toBeDeleted: Seq[File]) {
+    
+    def prepare: File = {
+      IO.delete(toBeDeleted)
+      
+      if (!dir.exists) dir.mkdirs()
+      
+      dir
     }
     
   }
