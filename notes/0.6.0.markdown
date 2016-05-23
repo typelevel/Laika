@@ -1,0 +1,20 @@
+
+Main focus of this release is support for PDF output.
+
+New features and changes:
+
+* Support for rendering PDF documents
+* Support for rendering XSL-FO output
+* New CSS parser supporting a large subset of standard CSS
+* Support styling of PDF documents with CSS
+* Support for different templates per output format
+* New sbt tasks: `html`, `pdf`, `xslfo`, `prettyPrint` for rendering
+  a single output format
+* New sbt task `generate` for rendering one or more output formats
+  (e.g. `laika:generate html pdf`)
+* Integrate PDF output into existing sbt task `laika:site` via
+  new setting `includePDF`
+* New directives `pageBreak`, `style` and `format`
+* Changes to the `Render` and `Transform` API to allow for the
+  merging of an entire directory of input files into a single output
+  file (as required by PDF rendering)

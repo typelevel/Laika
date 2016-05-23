@@ -2,8 +2,9 @@
 
 Customizable and extensible toolkit for transforming lightweight text markup and template based site generation.
 
-Supporting Markdown and reStructuredText as input and HTML as output, through its integrated
-sbt plugin or embedded in Scala applications, without the need to install external tools.
+Supporting Markdown and reStructuredText as input and HTML, PDF and XSL-FO as output, 
+either through its integrated sbt plugin or embedded in Scala applications, 
+without the need to install external tools.
 
 Open Source under the Apache 2.0 License.
 
@@ -20,7 +21,7 @@ The sbt plugin is published to the sbt plugin repository for sbt 0.13.x.
 
 Add the plugin to `project/plugins.sbt`:
 
-    addSbtPlugin("org.planet42" % "laika-sbt" % "0.5.1")
+    addSbtPlugin("org.planet42" % "laika-sbt" % "0.6.0")
 
 Import its default settings in your project's `build.sbt`:
 
@@ -35,7 +36,7 @@ in `target/docs/site`.
 
 Adding the Laika dependency to your sbt build:
 
-    libraryDependencies += "org.planet42" %% "laika-core" % "0.5.1"
+    libraryDependencies += "org.planet42" %% "laika-core" % "0.6.0"
 
 Example for transforming from file to file:
 
@@ -45,6 +46,14 @@ Example for transforming an entire directory of markup files:
 
     Transform from ReStructuredText to HTML fromDirectory "source" toDirectory "target"
 
+Example for transforming an entire directory of markup files to a single PDF file:
+
+    Transform from Markdown to PDF fromDirectory "source" toFile "hello.pdf"
+
+When using Laika's PDF support you need to add one more dependency to your build:
+
+    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.6.0"
+        
 
 ### Other Resources
 

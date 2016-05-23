@@ -17,7 +17,7 @@ Laika's sbt plugin requires sbt 0.13.x.
 
 First add the plugin to `project/plugins.sbt`:
 
-    addSbtPlugin("org.planet42" % "laika-sbt" % "0.5.0")
+    addSbtPlugin("org.planet42" % "laika-sbt" % "0.6.0")
 
 If you want to install it globally, add the line above to
 `~/.sbt/0.13/plugins/build.sbt` instead.

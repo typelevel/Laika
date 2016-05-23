@@ -33,7 +33,7 @@ The sbt plugin is published to the sbt plugin repository for sbt 0.13.x.
 
 Add the plugin to `project/plugins.sbt`:
 
-    addSbtPlugin("org.planet42" % "laika-sbt" % "0.5.1")
+    addSbtPlugin("org.planet42" % "laika-sbt" % "0.6.0")
 
 Import its default settings in your project's `build.sbt`:
 
@@ -48,7 +48,7 @@ in `target/docs/site`.
 
 Adding the Laika dependency to your sbt build:
 
-    libraryDependencies += "org.planet42" %% "laika-core" % "0.5.1"
+    libraryDependencies += "org.planet42" %% "laika-core" % "0.6.0"
 
 Example for transforming from file to file:
 
@@ -61,7 +61,11 @@ Example for transforming an entire directory of markup files:
       
 Example for transforming an entire directory of markup files to a single PDF file:
 
-    Transform from Markdown to HTML fromDirectory "src" toFile "hello.pdf"
+    Transform from Markdown to PDF fromDirectory "src" toFile "hello.pdf"
+    
+When using Laika's PDF support you need to add one more dependency to your build:
+
+    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.6.0"
     
 
 ### Other Resources
@@ -109,7 +113,7 @@ Features
   documents and auto-numbering of documents and sections for all 
   supported markup formats
   
-* Support for styling PDF documents with CSS
+* Support for styling of PDF documents with CSS
   
 * sbt plugin, exposing all Laika features and customization hooks
   as sbt settings and tasks
@@ -134,7 +138,7 @@ Features
 
 * Parallel processing of parsers and renderers
 
-* More than 900 tests
+* More than 1,000 tests
 
 
 Road Map
@@ -162,13 +166,31 @@ no decision has been made yet for these other ideas:
 Release History
 ---------------
 
+* __0.6.0__ (May 23, 2016):
+
+    * Support for rendering PDF documents
+    * Support for rendering XSL-FO output
+    * New CSS parser supporting a large subset of standard CSS
+    * Support styling of PDF documents with CSS
+    * Support for different templates per output format
+    * New sbt tasks: `html`, `pdf`, `xslfo`, `prettyPrint` for rendering
+      a single output format
+    * New sbt task `generate` for rendering one or more output formats
+      (e.g. `laika:generate html pdf`)
+    * Integrate PDF output into existing sbt task `laika:site` via
+      new setting `includePDF`
+    * New directives `pageBreak`, `style` and `format`
+    * Changes to the `Render` and `Transform` API to allow for the
+      merging of an entire directory of input files into a single output
+      file (as required by PDF rendering)
+
 * __0.5.1__ (Oct 10, 2015):
 
     * Cross-compile for Scala 2.11 and 2.10
     * Publish the sbt plugin to the new plugin repository on Bintray
     * Upgrade to ScalaTest 2.2.4
     
-* __0.5__ (Jan 9, 2014):
+* __0.5.0__ (Jan 9, 2014):
 
     * New sbt plugin, exposing all Laika features and customization hooks as sbt tasks and settings
     * New option to merge multiple input directories into a tree structure with a single root,
@@ -179,7 +201,7 @@ Release History
     * Upgrade to ScalaTest 2.0 and sbt 0.13
     * Drop support for Scala 2.9.x
 
-* __0.4__ (Nov 22, 2013):
+* __0.4.0__ (Nov 22, 2013):
 
     * Template-based site generation
     * Support for tables of contents, convenient cross-linking between documents 
@@ -189,7 +211,7 @@ Release History
     * New API for batch processing for parse, render or full transform operations
     * Parallel processing of parsers and renderers 
       
-* __0.3__ (Aug 3, 2013):
+* __0.3.0__ (Aug 3, 2013):
 
     * Support for most of the standard directives and text roles of the reStructuredText reference
       parser (admonitions, `figure`, `image`, `code`, `raw` and many more)
@@ -202,7 +224,7 @@ Release History
     * General cleanup of parser implementations and alignments between Markdown and reStructuredText
       parsers, making both of them much more robust
 
-* __0.2__ (May 7, 2013):
+* __0.2.0__ (May 7, 2013):
 
     * Support for reStructuredText (full specification)
     * Concise and type-safe API for all reStructuredText extensibility options (directives, text roles)
@@ -210,7 +232,7 @@ Release History
       comments, system messages, invalid elements
     * Render hints for document tree nodes in the form of the new Customizable trait
 
-* __0.1__ (Jan 12, 2013): 
+* __0.1.0__ (Jan 12, 2013): 
 
     * Support for Markdown as input
     * Support for HTML and PrettyPrint as output
