@@ -28,8 +28,8 @@ import scala.util.parsing.input.CharSequenceReader
 import scala.util.parsing.input.PagedSeqReader
 import scala.util.parsing.input.Reader
 import java.io.File
-import laika.tree.Documents.Path
-import laika.tree.Documents.Root
+import laika.tree.Paths.Path
+import laika.tree.Paths.Root
 
 /** Represents the input for a parser, abstracting over various types of IO resources. 
  *  

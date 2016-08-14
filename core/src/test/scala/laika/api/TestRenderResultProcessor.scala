@@ -21,7 +21,7 @@ import laika.io.Output.BinaryOutput
 import laika.io.OutputProvider._
 import laika.tree.Documents.Document
 import laika.tree.Documents.DocumentTree
-import laika.tree.Documents.Root
+import laika.tree.Paths.Root
 import laika.tree.Elements.Block
 import laika.tree.Elements.RootElement
 import laika.render.PrettyPrint

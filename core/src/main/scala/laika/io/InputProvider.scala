@@ -19,6 +19,8 @@ package laika.io
 import java.io.File
 import scala.io.Codec
 import laika.tree.Documents._
+import laika.tree.Paths.Path
+import laika.tree.Paths.Root
 import laika.template.ParseTemplate
 import laika.template.DefaultTemplate
 import laika.directive.Directives.Templates

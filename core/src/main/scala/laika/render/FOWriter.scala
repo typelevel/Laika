@@ -18,8 +18,8 @@ package laika.render
 
 import laika.tree.Elements._
 import laika.parse.css.Styles.StyleDeclarationSet
-import laika.tree.Documents.Path
-import laika.tree.Documents.Root
+import laika.tree.Paths.Path
+import laika.tree.Paths.Root
 import FOWriter._ 
 
 /** API for renderers that produce XSL-FO output.

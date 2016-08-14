@@ -20,8 +20,8 @@ import laika.tree.Elements.Element
 import laika.tree.Elements.Customizable
 import laika.tree.Elements.Id
 import scala.language.existentials
-import laika.tree.Documents.Path
-import laika.tree.Documents.Root
+import laika.tree.Paths.Path
+import laika.tree.Paths.Root
 
 /** Provides the domain model for the CSS engine.
  *  

@@ -17,14 +17,14 @@
 package laika.rewrite
 
 import laika.tree.Documents2._
-import laika.tree.Documents.Root
 import laika.tree.Documents.ReferenceResolver
 import laika.tree.Documents.AutonumberConfig
-import com.typesafe.config.Config
+import laika.tree.Paths.Root
 import laika.tree.Elements.RewriteRule
-import com.typesafe.config.ConfigFactory
 import laika.tree.Elements.Block
 import laika.tree.ElementTraversal
+import com.typesafe.config.ConfigFactory
+import com.typesafe.config.Config
 
 trait Cursor {
 

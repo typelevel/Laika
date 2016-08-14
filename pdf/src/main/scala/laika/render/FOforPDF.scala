@@ -24,6 +24,9 @@ import laika.render.FOWriter._
 import laika.rewrite.TreeUtil
 import laika.tree.Documents._
 import laika.tree.Elements._
+import laika.tree.Paths.Path
+import laika.tree.Paths.Current
+import laika.tree.Paths.Root
 import laika.tree.TocGenerator
 import laika.tree.Templates.TemplateDocument
 import laika.tree.Templates.TemplateRoot

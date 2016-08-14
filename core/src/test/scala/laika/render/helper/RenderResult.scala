@@ -17,7 +17,7 @@
 package laika.render.helper
 
 import laika.io.Input
-import laika.tree.Documents.Root
+import laika.tree.Paths.Root
 
 object RenderResult {
 

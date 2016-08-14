@@ -21,6 +21,7 @@ import laika.util.Builders._
 import laika.tree.Elements._
 import laika.tree.Templates._
 import laika.tree.Documents._
+import laika.tree.Paths.Path
 import laika.tree.Templates.rewriteRules
 import scala.collection.JavaConversions._
 import laika.tree.TocGenerator

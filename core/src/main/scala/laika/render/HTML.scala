@@ -18,7 +18,7 @@ package laika.render
 
 import laika.tree.Elements._
 import laika.tree.Templates._
-import laika.tree.Documents.Root
+import laika.tree.Paths.Root
 import laika.io.Input
 import laika.io.Output
 import laika.factory.RendererFactory

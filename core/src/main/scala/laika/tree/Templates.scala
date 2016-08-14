@@ -18,7 +18,7 @@ package laika.tree
 
 import laika.tree.Documents.Document
 import laika.tree.Documents.DocumentContext
-import laika.tree.Documents.Path
+import laika.tree.Paths.Path
 import laika.tree.Elements._
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory

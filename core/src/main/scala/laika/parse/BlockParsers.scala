@@ -19,11 +19,11 @@ package laika.parse
 import laika.tree.Elements.Block
 import laika.tree.Elements.RootElement
 import laika.tree.Documents.Document
-import laika.tree.Documents.Root
+import laika.tree.Paths.Root
 import scala.util.parsing.input.CharSequenceReader
 import scala.util.parsing.input.Reader
 import laika.rewrite.RewriteRules
-import laika.tree.Documents.Path
+import laika.tree.Paths.Path
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import laika.tree.Elements.InvalidBlock

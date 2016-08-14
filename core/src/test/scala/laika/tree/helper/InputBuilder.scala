@@ -22,6 +22,8 @@ import laika.tree.Documents._
 import scala.io.Codec
 import laika.io.InputProvider
 import laika.io.InputProvider.ProviderBuilder
+import laika.tree.Paths.Path
+import laika.tree.Paths.Root
 
 trait InputBuilder {
 

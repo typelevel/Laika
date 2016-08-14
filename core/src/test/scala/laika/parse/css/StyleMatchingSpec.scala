@@ -19,7 +19,7 @@ package laika.parse.css
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 import laika.parse.css.Styles._
-import laika.tree.Documents.Root
+import laika.tree.Paths.Root
 import laika.tree.Elements
 import laika.tree.Elements.{Paragraph, Text, Emphasized, Header}
 

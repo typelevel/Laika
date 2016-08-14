@@ -23,6 +23,8 @@ import laika.tree.Documents._
 import laika.parse.rst.Elements._
 import laika.tree.helper.ModelBuilder
 import laika.tree.Elements._
+import laika.tree.Paths.Root
+import laika.tree.Paths.Current
  
 class RewriteRulesSpec extends FlatSpec 
                   with Matchers

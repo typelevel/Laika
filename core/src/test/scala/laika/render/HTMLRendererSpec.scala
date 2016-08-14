@@ -23,7 +23,7 @@ import org.scalatest.Matchers
 import laika.api.Render
 import laika.tree.Elements._
 import laika.tree.Templates._
-import laika.tree.Documents.Path
+import laika.tree.Paths.Path
 import laika.tree.helper.ModelBuilder
 
 class HTMLRendererSpec extends FlatSpec 

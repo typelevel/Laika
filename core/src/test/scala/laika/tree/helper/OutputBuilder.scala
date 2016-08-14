@@ -18,9 +18,9 @@ package laika.tree.helper
 
 import scala.io.Codec
 import laika.io.OutputProvider
-import laika.tree.Documents.Path
-import laika.tree.Documents.Root
-import laika.tree.Documents.Current
+import laika.tree.Paths.Path
+import laika.tree.Paths.Root
+import laika.tree.Paths.Current
 import laika.io.OutputProvider.ProviderBuilder
 import laika.io.Output
 import laika.tree.Elements.TextContainer

@@ -17,6 +17,7 @@
 package laika.tree
 
 import laika.tree.Documents._
+import laika.tree.Paths._
 import laika.tree.Elements._
 
 

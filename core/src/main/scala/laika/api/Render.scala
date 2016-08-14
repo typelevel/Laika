@@ -31,6 +31,8 @@ import laika.tree.Elements.RootElement
 import laika.tree.Elements.RenderFunction
 import laika.tree.Documents._
 import laika.tree.Templates._
+import laika.tree.Paths.Current
+import laika.tree.Paths.Root
 import laika.factory.RendererFactory
 import laika.parse.css.Styles.StyleDeclarationSet
 import Render._

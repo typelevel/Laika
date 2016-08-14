@@ -25,6 +25,9 @@ import laika.tree.Elements._
 import laika.tree.Documents._
 import laika.tree.DocumentTreeHelper.{Documents => Docs}
 import laika.tree.DocumentTreeHelper._
+import laika.tree.Paths.Path
+import laika.tree.Paths.Current
+import laika.tree.Paths.Root
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions

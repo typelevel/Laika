@@ -21,6 +21,8 @@ import org.scalatest.Matchers
 import laika.tree.helper.ModelBuilder
 import laika.tree.Elements._
 import laika.tree.Documents._
+import laika.tree.Paths.Current
+import laika.tree.Paths.Root
 import laika.parse.rst.ReStructuredText
 import laika.api.Parse
 import java.text.SimpleDateFormat

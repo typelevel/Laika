@@ -19,11 +19,11 @@ package laika.tree
 import laika.io.InputProvider
 import laika.io.Input
 import laika.parse.css.Styles.StyleDeclarationSet
-import laika.tree.Documents.Path
-import laika.tree.Documents.Root
-import laika.tree.Documents.Current
+import laika.tree.Paths.Path
+import laika.tree.Paths.Root
+import laika.tree.Paths.Current
+import laika.tree.Paths./
 import laika.tree.Documents.AutonumberConfig
-import laika.tree.Documents./
 import laika.tree.Elements._
 import laika.tree.Templates.TemplateDocument
 import laika.tree.Templates.TemplateRoot

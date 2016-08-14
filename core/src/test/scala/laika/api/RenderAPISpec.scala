@@ -37,8 +37,8 @@ import laika.tree.Elements.Text
 import laika.tree.helper.ModelBuilder
 import laika.tree.Documents.DocumentTree
 import laika.tree.Documents.Document
-import laika.tree.Documents.Path
-import laika.tree.Documents.Root
+import laika.tree.Paths.Path
+import laika.tree.Paths.Root
 import laika.tree.Templates._
 import laika.tree.helper.OutputBuilder._
 import laika.io.OutputProvider.OutputConfigBuilder

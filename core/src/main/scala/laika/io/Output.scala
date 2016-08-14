@@ -25,8 +25,8 @@ import java.io.OutputStreamWriter
 import java.io.Writer
 import scala.collection.mutable.StringBuilder
 import scala.io.Codec
-import laika.tree.Documents.Path
-import laika.tree.Documents.Root
+import laika.tree.Paths.Path
+import laika.tree.Paths.Root
 import java.io.BufferedOutputStream
 
 /** Represents the output of a renderer, abstracting over various types of IO resources. 

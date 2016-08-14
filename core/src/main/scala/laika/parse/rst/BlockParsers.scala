@@ -18,6 +18,7 @@ package laika.parse.rst
 
 import laika.tree.Elements._
 import laika.tree.Documents._
+import laika.tree.Paths.Path
 import laika.parse.rst.Elements._
 import scala.collection.mutable.ListBuffer
 import scala.collection.JavaConversions._

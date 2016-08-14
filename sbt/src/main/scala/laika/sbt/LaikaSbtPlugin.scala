@@ -27,6 +27,7 @@ import laika.template.ParseTemplate
 import laika.template.DefaultTemplate
 import laika.tree.Documents._
 import laika.tree.Elements._
+import laika.tree.Paths.Path
 import laika.directive.Directives._
 import laika.parse.rst.ReStructuredText
 import laika.parse.rst.{Directives=>rst}

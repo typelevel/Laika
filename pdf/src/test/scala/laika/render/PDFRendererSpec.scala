@@ -24,7 +24,7 @@ import java.io.File
 import laika.tree.Documents.Document
 import laika.tree.Elements.RootElement
 import laika.tree.Elements.Styles
-import laika.tree.Documents.Root
+import laika.tree.Paths.Root
 import laika.tree.Elements.Title
 import laika.tree.Elements.Text
 import laika.tree.Elements.Paragraph

@@ -21,6 +21,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
 import laika.tree.Elements._
 import laika.tree.Documents._
+import laika.tree.Paths.Root
 import laika.parse.rst.Elements._
 import laika.tree.helper.ModelBuilder
  

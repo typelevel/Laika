@@ -25,6 +25,9 @@ import laika.tree.Elements._
 import laika.template.ParseTemplate
 import laika.template.DefaultTemplate
 import com.typesafe.config.ConfigFactory
+import laika.tree.Paths.Path
+import laika.tree.Paths.Root
+import laika.tree.Paths.Current
 import laika.tree.Templates.TemplateDocument
 import laika.tree.Templates.TemplateRoot
 import laika.tree.Templates.TemplateSpanSequence

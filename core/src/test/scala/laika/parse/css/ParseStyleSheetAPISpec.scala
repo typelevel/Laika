@@ -24,8 +24,8 @@ import org.scalatest.Matchers
 import laika.parse.css.Styles._
 import laika.tree.Templates.TemplateString
 import laika.tree.Templates.TemplateContextReference
-import laika.tree.Documents.Root
-import laika.tree.Documents.Path
+import laika.tree.Paths.Root
+import laika.tree.Paths.Path
 
 class ParseStyleSheetAPISpec extends FlatSpec 
                              with Matchers

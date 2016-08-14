@@ -19,7 +19,7 @@ package laika.rewrite
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 import laika.tree.Elements.PathInfo
-import laika.tree.Documents.Path
+import laika.tree.Paths.Path
 
 /** Generators for various different types of automatically generated identifiers.
  * 

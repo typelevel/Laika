@@ -40,7 +40,7 @@ import laika.render.XSLFO
 import laika.render.TextWriter
 import laika.render.helper.RenderResult
 import laika.tree.Elements.Text
-import laika.tree.Documents.Root
+import laika.tree.Paths.Root
 import laika.tree.Documents.Static
 import laika.tree.Templates._
 import laika.tree.helper.OutputBuilder.readFile
@@ -150,7 +150,7 @@ class TransformAPISpec extends FlatSpec
     import laika.io.InputProvider.InputConfigBuilder
     import laika.io.OutputProvider.OutputConfigBuilder
     import laika.tree.helper.OutputBuilder._
-    import laika.tree.Documents.Path
+    import laika.tree.Paths.Path
     import laika.tree.Documents.DocumentType
     import laika.template.ParseTemplate
     import laika.directive.Directives.Templates

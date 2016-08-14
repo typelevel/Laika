@@ -18,8 +18,8 @@ package laika.io
 
 import java.io.File
 import scala.io.Codec
-import laika.tree.Documents.Path
-import laika.tree.Documents.Root
+import laika.tree.Paths.Path
+import laika.tree.Paths.Root
 import scala.collection.mutable.ListBuffer
 import laika.io.Output.Binary
 import java.io.Closeable

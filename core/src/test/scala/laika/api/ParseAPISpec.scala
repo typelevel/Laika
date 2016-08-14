@@ -40,6 +40,8 @@ import laika.tree.helper.ModelBuilder
 import laika.tree.helper.InputBuilder
 import laika.io.InputProvider.InputConfigBuilder
 import laika.tree.Documents._
+import laika.tree.Paths.Path
+import laika.tree.Paths.Root
 import laika.tree.DocumentTreeHelper._
 import laika.tree.Templates.TemplateRoot
 import laika.tree.Templates.TemplateString

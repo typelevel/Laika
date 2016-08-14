@@ -18,7 +18,7 @@ package laika.rewrite
 
 import IdGenerators._
 import laika.tree.Elements._
-import laika.tree.Documents.Path
+import laika.tree.Paths.Path
 
 /** Representations for various types of link targets.
  * 

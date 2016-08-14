@@ -22,10 +22,10 @@ import org.scalatest.Matchers
 
 import laika.api.Render
 import laika.parse.css.Styles.{StyleDeclarationSet, StyleDeclaration, Selector, StyleName}
-import laika.tree.Documents.Root
+import laika.tree.Paths.Root
 import laika.tree.Elements._
 import laika.tree.Templates._
-import laika.tree.Documents.Path
+import laika.tree.Paths.Path
 import laika.tree.helper.ModelBuilder
 
 class XSLFORendererSpec extends FlatSpec 

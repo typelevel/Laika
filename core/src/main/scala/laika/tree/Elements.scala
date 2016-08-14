@@ -19,8 +19,8 @@ package laika.tree
 import laika.api.Render
 import laika.render.PrettyPrint
 import scala.math.Ordered
-import laika.tree.Documents.Path
-import laika.tree.Documents.Root
+import laika.tree.Paths.Path
+import laika.tree.Paths.Root
 
 /** Provides the elements of the document tree. The model is generic and not tied to any
  *  specific markup syntax like Markdown. Parsers may only support a subset of the provided

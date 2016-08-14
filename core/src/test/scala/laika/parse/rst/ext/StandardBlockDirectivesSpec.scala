@@ -24,6 +24,8 @@ import laika.parse.rst.ReStructuredText
 import laika.api.Parse
 import laika.parse.rst.Elements.Include
 import laika.tree.Documents._
+import laika.tree.Paths.Current
+import laika.tree.Paths.Root
 import laika.tree.Templates.TemplateDocument
 import laika.tree.Templates.TemplateElement
 import laika.tree.Templates.TemplateContextReference

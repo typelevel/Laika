@@ -19,7 +19,7 @@ package laika.tree
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 
-import laika.tree.Documents._
+import laika.tree.Paths._
 
 class PathAPISpec extends FlatSpec 
                   with Matchers {

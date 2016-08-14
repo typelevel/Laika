@@ -23,6 +23,7 @@ import laika.tree.Elements._
 import laika.tree.Documents._
 import laika.tree.DocumentTreeHelper.{Documents => Docs}
 import laika.tree.DocumentTreeHelper._
+import laika.tree.Paths._
 
 class CrossReferenceSpec extends FlatSpec 
                       with Matchers

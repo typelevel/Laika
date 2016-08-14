@@ -24,6 +24,7 @@ import scala.io.Codec
 import laika.io._
 import laika.tree.Documents._
 import laika.tree.Elements._
+import laika.tree.Paths.Path
 import laika.rewrite.RewriteRules
 import laika.factory.ParserFactory
 import laika.factory.RendererFactory
