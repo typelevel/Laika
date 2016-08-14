@@ -17,7 +17,6 @@
 package laika.rewrite
 
 import laika.tree.Documents2._
-import laika.tree.Documents.ReferenceResolver
 import laika.tree.Documents.AutonumberConfig
 import laika.tree.Paths.Root
 import laika.tree.Elements.RewriteRule
@@ -107,7 +106,8 @@ case class TreeCursor(target: DocumentTree,
  *  @param config the configuration of the referred document
  */
 case class DocumentCursor (target: Document, 
-                           parent: TreeCursor, 
+                           parent: TreeCursor,
+                           resolver: ReferenceResolver,
                            config: Config = ConfigFactory.empty,
                            autonumbering: AutonumberCursor = AutonumberCursor.defaults) extends Cursor { self =>
                                  
@@ -127,14 +127,6 @@ case class DocumentCursor (target: Document,
     target.copy(content = newRoot, fragments = newFragments, docNumber = autonumbering.currentPosition)
   }
   
-  // TODO - when this becomes a case class it can no longer be protected, might become a case class property
-  protected lazy val resolver = new ReferenceResolver(Map[String,Any](
-    "config" -> config,
-    "document" -> target,
-    "parent" -> parent,
-    "root" -> root
-  ))
-  
   /** Resolves the context reference with the specified path relative to 
    *  this document. A reference `config.value` for example will first
    *  look up the value in the configuration of this document and then,
@@ -149,9 +141,8 @@ case class DocumentCursor (target: Document,
    *  template directives which need to provide a new scope
    *  for a nested part inside the directive tags.
    */
-  def withReferenceContext (refValue: Any): DocumentCursor = new DocumentCursor(target, parent, config, autonumbering) {
-    override protected lazy val resolver = new ReferenceResolver(refValue, Some(self.resolver))
-  }
+  def withReferenceContext (refValue: Any): DocumentCursor =
+    copy(resolver = new ReferenceResolver(refValue, Some(self.resolver)))
   
 }
 
@@ -159,7 +150,13 @@ object DocumentCursor {
   
   def apply (document: Document): DocumentCursor =
     apply(document, TreeCursor(DocumentTree(Root, Seq(document))))
-  
+    
+  def apply (document: Document, parent: TreeCursor): DocumentCursor =
+    apply(document, parent, ConfigFactory.empty, AutonumberCursor.defaults)
+    
+  def apply (document: Document, parent: TreeCursor, config: Config, autonumbering: AutonumberCursor): DocumentCursor =
+    apply(document, parent, ReferenceResolver.forDocument(document, parent, config), config, autonumbering)
+    
 }
 
 /** Context for autonumbering of documents and sections, containing the current

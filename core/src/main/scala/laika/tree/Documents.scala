@@ -22,6 +22,7 @@ import laika.tree.Templates.TemplateDocument
 import laika.tree.Elements.Reference
 import laika.rewrite.LinkTargets._
 import laika.rewrite.LinkResolver
+import laika.rewrite.ReferenceResolver
 import laika.rewrite.RewriteRules
 import laika.rewrite.SectionBuilder
 import laika.rewrite.TreeUtil
@@ -191,34 +192,6 @@ object Documents {
    */
   case class TitleInfo (content: Seq[Span]) extends SpanContainer[TitleInfo] {
     lazy val text: String = TreeUtil.extractText(content)
-  }
-
-  /** A resolver for context references in templates or markup documents.
-   */
-  class ReferenceResolver (root: Any, parent: Option[ReferenceResolver] = None) {
-    import java.util.{Map => JMap}
-    def fromJavaMap (m: JMap[Any,Any], key: Any): Option[Any] = if (m.containsKey(key)) Some(m.get(key)) else None
-    /* These are all dynamic, non-typesafe lookups for values where often both,
-     * the path from the template and the actual target value (e.g. from a config
-     * file) originate from text resources, so the dynamic lookup is justifiable here */
-    def resolve (target: Any, path: List[String], root: Boolean = false): (Option[Any], List[String]) = {
-      val result = target match {
-        case m: JMap[_, _]=> (fromJavaMap(m.asInstanceOf[JMap[Any,Any]], path.head), path.tail)
-        case m: Map[_, _] => (m.asInstanceOf[Map[Any,Any]].get(path.head), path.tail)
-        case c: Config    => (Try { c.getAnyRef(path.mkString(".")) } toOption, Nil)
-        case d: Document if path.head == "title" => (Some(SpanSequence(d.title)), path.tail)  
-        case other        => (Try { target.getClass.getMethod(path.head).invoke(target) } toOption, path.tail)
-      }
-      result match {
-        case (None, _) if (root && parent.isDefined) => parent.get.resolve(target, path, root)
-        case (None, _)            => (None, Nil)
-        case (Some(value), Nil)   => (Some(value), Nil)
-        case (Some(value), path)  => resolve(value, path)
-      }
-    }
-    
-    def resolve (path: List[String]): Option[Any] = resolve(root, path, true)._1
-    
   }
 
   /** Represents a single document,its parent and root directories,
