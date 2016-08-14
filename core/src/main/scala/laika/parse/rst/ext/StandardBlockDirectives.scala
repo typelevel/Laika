@@ -22,7 +22,7 @@ import laika.parse.rst.Directives._
 import laika.parse.rst.Directives.Parts._
 import laika.parse.rst.BlockParsers
 import laika.parse.rst.InlineParsers
-import laika.tree.TreeUtil
+import laika.rewrite.TreeUtil
 
 /** Defines all supported standard block directives of the reStructuredText reference parser.
  * 

@@ -22,14 +22,14 @@ import laika.tree.Documents.Document
 import laika.tree.Documents.Root
 import scala.util.parsing.input.CharSequenceReader
 import scala.util.parsing.input.Reader
-import laika.tree.RewriteRules
+import laika.rewrite.RewriteRules
 import laika.tree.Documents.Path
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import laika.tree.Elements.InvalidBlock
 import laika.tree.Elements.DocumentFragment
 import laika.tree.Elements.ConfigValue
-import laika.tree.TreeUtil
+import laika.rewrite.TreeUtil
 import com.typesafe.config.ConfigValueFactory
   
 /** A generic base trait for block parsers. Provides base parsers that abstract

@@ -21,7 +21,7 @@ import laika.tree.Documents.Root
 import laika.tree.Elements._
 import laika.tree.ElementTraversal
 import laika.tree.Templates._
-import laika.tree.TreeUtil
+import laika.rewrite.TreeUtil
 import laika.io.Input
 import laika.io.Output
 import laika.factory.RendererFactory

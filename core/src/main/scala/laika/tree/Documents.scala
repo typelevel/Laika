@@ -19,7 +19,11 @@ package laika.tree
 import laika.tree.Elements._
 import laika.tree.Templates.TemplateDocument
 import laika.tree.Elements.Reference
-import laika.tree.LinkTargets._
+import laika.rewrite.LinkTargets._
+import laika.rewrite.LinkResolver
+import laika.rewrite.RewriteRules
+import laika.rewrite.SectionBuilder
+import laika.rewrite.TreeUtil
 import scala.annotation.tailrec
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory

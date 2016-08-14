@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package laika.tree
+package laika.rewrite
 
 import org.scalatest.FlatSpec
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
-
 import laika.tree.Elements._
 import laika.tree.helper.ModelBuilder
  

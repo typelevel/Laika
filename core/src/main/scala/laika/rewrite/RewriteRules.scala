@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-package laika.tree
+package laika.rewrite
 
-
-import laika.tree.Elements.Element 
-import laika.tree.Elements.RewriteRule 
-import laika.tree.Documents.DocumentContext 
+import laika.tree.Elements.RewriteRule
 
 /** Utilities for dealing with rewrite rules.
  * 

@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package laika.tree
+package laika.rewrite
 
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.Stack
 import laika.tree.Elements._
-import laika.tree.Documents.Document
 import laika.tree.Documents.DocumentContext
 
 /** Rewrite rules responsible for building the section structure

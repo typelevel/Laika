@@ -16,6 +16,9 @@
 
 package laika.tree
 
+import laika.io.InputProvider
+import laika.io.Input
+import laika.parse.css.Styles.StyleDeclarationSet
 import laika.tree.Documents.Path
 import laika.tree.Documents.Root
 import laika.tree.Documents.Current
@@ -23,17 +26,17 @@ import laika.tree.Documents.AutonumberConfig
 import laika.tree.Documents./
 import laika.tree.Elements._
 import laika.tree.Templates.TemplateDocument
-import laika.tree.Elements.Reference
-import laika.tree.LinkTargets._
-import scala.annotation.tailrec
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
-import laika.io.InputProvider
-import laika.io.Input
-import laika.parse.css.Styles.StyleDeclarationSet
 import laika.tree.Templates.TemplateRoot
 import laika.tree.Templates.TemplateContextReference
+import laika.rewrite.LinkTargets._
+import laika.rewrite.LinkResolver
+import laika.rewrite.DocumentCursor
+import laika.rewrite.TreeCursor
+import laika.rewrite.TreeUtil
+import scala.annotation.tailrec
 import scala.util.Try
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
 
 /*
  * TODO - after merge:

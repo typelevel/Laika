@@ -24,7 +24,7 @@ import laika.tree.Documents._
 import laika.tree.Templates.rewriteRules
 import scala.collection.JavaConversions._
 import laika.tree.TocGenerator
-import laika.tree.TreeUtil
+import laika.rewrite.TreeUtil
 
 /** Provides the implementation for the standard directives included in Laika.
  *  

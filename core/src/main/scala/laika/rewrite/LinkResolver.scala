@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package laika.tree
+package laika.rewrite
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 import IdGenerators._
 import LinkTargets._
-import Elements._
-import Documents._
+import laika.tree.Elements._
+import laika.tree.Documents._
 
 /** The default rewrite rules responsible for resolving link references that get 
  *  applied to the raw document tree after parsing.

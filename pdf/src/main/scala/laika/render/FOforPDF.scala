@@ -21,9 +21,9 @@ import laika.io.OutputProvider.OutputConfig
 import laika.io.OutputProvider.ResultTree
 import laika.io.OutputProvider.StringOutputProvider
 import laika.render.FOWriter._
+import laika.rewrite.TreeUtil
 import laika.tree.Documents._
 import laika.tree.Elements._
-import laika.tree.TreeUtil
 import laika.tree.TocGenerator
 import laika.tree.Templates.TemplateDocument
 import laika.tree.Templates.TemplateRoot

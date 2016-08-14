@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package laika.tree
+package laika.rewrite
 
 import org.scalatest.FlatSpec
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
 import laika.tree.Elements._
 import laika.tree.Documents._
 import laika.parse.rst.Elements._
 import laika.tree.helper.ModelBuilder
+import laika.tree.Elements._
  
 class RewriteRulesSpec extends FlatSpec 
                   with Matchers

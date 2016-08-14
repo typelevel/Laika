@@ -23,7 +23,7 @@ import scala.collection.mutable.ListBuffer
 import scala.collection.JavaConversions._
 import scala.annotation.tailrec
 import scala.util.parsing.input.Reader
-import laika.tree.TreeUtil
+import laika.rewrite.TreeUtil
 import com.typesafe.config.ConfigValueFactory
 import com.typesafe.config.ConfigValue
 import com.typesafe.config.Config

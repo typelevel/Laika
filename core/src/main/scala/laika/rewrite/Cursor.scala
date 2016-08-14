@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package laika.tree
+package laika.rewrite
 
 import laika.tree.Documents2._
-import laika.tree.Documents.Path
 import laika.tree.Documents.Root
 import laika.tree.Documents.ReferenceResolver
 import laika.tree.Documents.AutonumberConfig
-import scala.annotation.tailrec
 import com.typesafe.config.Config
-import laika.tree.Elements.RootElement
 import laika.tree.Elements.RewriteRule
 import com.typesafe.config.ConfigFactory
 import laika.tree.Elements.Block
+import laika.tree.ElementTraversal
 
 trait Cursor {
 

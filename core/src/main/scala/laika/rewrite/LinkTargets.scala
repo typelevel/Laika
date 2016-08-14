@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package laika.tree
+package laika.rewrite
 
 import IdGenerators._
-import Elements._
+import laika.tree.Elements._
 import laika.tree.Documents.Path
 
 /** Representations for various types of link targets.

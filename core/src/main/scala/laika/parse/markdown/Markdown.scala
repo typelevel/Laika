@@ -27,7 +27,7 @@ import laika.template.TemplateParsers
 import laika.tree.Elements.Block
 import laika.tree.Elements.Header
 import laika.tree.Elements.Id
-import laika.tree.TreeUtil
+import laika.rewrite.TreeUtil
   
 /** A parser for Markdown text. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:

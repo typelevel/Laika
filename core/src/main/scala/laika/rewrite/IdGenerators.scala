@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.tree
+package laika.rewrite
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
