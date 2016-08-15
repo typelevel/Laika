@@ -35,6 +35,7 @@ import laika.tree.Templates.TemplateRoot
 import laika.tree.Templates.TemplateContextReference
 import scala.util.Try
 import laika.parse.css.Styles.StyleDeclarationSet
+import laika.rewrite.AutonumberConfig
 
 /** Provides the API for Documents and DocumentTrees as well as the Path API.
  *  
@@ -598,40 +599,6 @@ object Documents {
   
   private[Documents] case class RewriteContext (root: DocumentTree, rules: Seq[DocumentContext => RewriteRule], autonumbering: AutonumberContext)
     
-  
-  /** Configuration for autonumbering of documents and sections.
-   */
-  case class AutonumberConfig (documents: Boolean, sections: Boolean, maxDepth: Int)
-  
-  case class ConfigurationException (msg: String) extends RuntimeException(msg)
-
-  object AutonumberConfig {
-    
-    /** Tries to obtain the autonumbering configuration
-     *  from the specified configuration instance or returns
-     *  the default configuration if not found.
-     */
-    def fromConfig (config: Config): AutonumberConfig = {
-      if (config.hasPath("autonumbering")) {
-        val nConf = config.getObject("autonumbering").toConfig
-        val (documents, sections) = if (nConf.hasPath("scope")) nConf.getString("scope") match {
-          case "documents" => (true,  false)
-          case "sections"  => (false, true)
-          case "all"       => (true,  true)
-          case "none"      => (false, false)
-          case other       => throw new ConfigurationException("Unsupported value for key 'autonumbering.scope': "+other)
-        } else                (false, false)
-        val depth = if (nConf.hasPath("depth")) nConf.getInt("depth") else Int.MaxValue 
-        AutonumberConfig(documents, sections, depth)
-      }
-      else defaults
-    }
-    
-    /** The defaults for autonumbering with section
-     *  and document numbering both switched off. 
-     */
-    def defaults: AutonumberConfig = AutonumberConfig(false, false, 0)
-  }
   
   /** Context for autonumbering of documents and sections, containing the current
    *  number and the general configuration for autonumbering.

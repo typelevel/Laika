@@ -17,7 +17,6 @@
 package laika.rewrite
 
 import laika.tree.Documents2._
-import laika.tree.Documents.AutonumberConfig
 import laika.tree.Paths.Root
 import laika.tree.Elements.RewriteRule
 import laika.tree.Elements.Block
