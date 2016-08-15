@@ -21,6 +21,8 @@ import java.io.InputStream
 import java.io.Reader
 import scala.io.Codec
 import laika.factory.ParserFactory
+import laika.io.DocumentType
+import laika.io.DocumentType._
 import laika.io.IO
 import laika.io.Input
 import laika.io.InputProvider

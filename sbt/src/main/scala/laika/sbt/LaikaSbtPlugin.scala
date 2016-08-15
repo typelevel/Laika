@@ -37,6 +37,7 @@ import laika.render._
 import laika.io.InputProvider
 import laika.io.Input.LazyFileInput
 import laika.io.Input
+import laika.io.DocumentType
 import laika.tree.ElementTraversal
 import laika.parse.markdown.html.VerbatimHTML
 import laika.parse.rst.ExtendedHTML

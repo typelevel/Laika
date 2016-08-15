@@ -108,6 +108,8 @@ object InputProvider {
   
   private class DirectoryInputProvider (dirs: Seq[File], val path: Path, exclude: FileFilter, docTypeMatcher: Path => DocumentType, codec: Codec) extends InputProvider {
     
+    import DocumentType._
+    
     private def docType (f: File) = docTypeMatcher(path / f.getName)
 
     private def toInput (pair: (DocumentType,File)) = Input.fromFile(pair._2, path)(codec)
