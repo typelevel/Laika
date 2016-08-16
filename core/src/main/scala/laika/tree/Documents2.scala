@@ -325,23 +325,5 @@ object Documents2 {
         
   }
   
-  /** Factory for creating the navigation order for the markup
-   *  documents and subtrees of a tree based on its configuration.
-   */
-  object NavigationOrder {
-    import scala.collection.JavaConversions.iterableAsScalaIterable
-    
-    def defaults: Navigatable => String = _.path.name
-    
-    def fromConfig (config: Config): Option[Navigatable => Int] = {
-      if (config.hasPath("navigationOrder")) {
-        val list = iterableAsScalaIterable(config.getList("navigationOrder").unwrapped).collect{case s:String => s}.toIndexedSeq
-        Some(nav => list.indexOf(nav.path.name) match { case -1 => Int.MaxValue; case other => other })
-      }
-      else None
-    }
-    
-  }
-  
   
 }

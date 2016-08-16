@@ -74,26 +74,17 @@ case class TreeCursor(target: DocumentTree,
   
   def rewriteTarget (rule: DocumentCursor => RewriteRule): DocumentTree = {
       
-    /* TODO - move sorting to companion
-    val sortedNavigatables = (config flatMap (NavigationOrder.fromConfig(_)) match {
-      case Some(f) => (documents ++ subtrees).sortBy(f)
-      case None    => documents.sortBy(NavigationOrder.defaults) ++ subtrees.sortBy(NavigationOrder.defaults)
-    }).zipWithIndex.map { case (nav,num) => (nav,num+1) }
-    
-    val sortedDocuments = sortedNavigatables collect { case (d: Document, num) => (d,num) }
-    val sortedSubtrees =  sortedNavigatables collect { case (t: DocumentTree, num) => (t,num) }
-    */
-    
     val rewrittenContent = children map {
       case doc: DocumentCursor => doc.rewriteTarget(rule(doc))
       case tree: TreeCursor => tree.rewriteTarget(rule)   
     }
     
-    target.copy(content = rewrittenContent, docNumber = autonumbering.currentPosition)  
+    val sortedContent = NavigationOrder.applyTo(rewrittenContent, config)
+    
+    target.copy(content = sortedContent, docNumber = autonumbering.currentPosition)  
   }
 
 }
-
 
 /** Represents a single document,its parent and root directories,
  *  its associated template and other context information that
