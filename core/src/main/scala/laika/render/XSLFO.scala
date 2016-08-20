@@ -253,6 +253,7 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
     def renderSimpleSpan (span: Span): Unit = span match {
       case e @ CitationLink(ref,label,_)  => citations.get(ref).foreach(c => out.footnote(e,label,c.content,c.options))
       case e @ FootnoteLink(ref,label,_)  => footnotes.get(ref).foreach(f => out.footnote(e,label,f.content,f.options))
+      case SectionNumber(pos, opt)        => out << Text(pos.mkString(".") + " ", opt + Styles("sectionNumber"))
       case e @ Image(_,uri,_,_)           => out.externalGraphic(e, uri.localRef.fold(uri.uri)(_.absolute.toString)) // TODO - ignoring title and alt for now
       case e: Leader                      => out <<@ ("fo:leader",e,"leader-pattern"->"dots") << "</fo:leader>" 
       case e @ PageNumberCitation(ref,path,_)  => out << s"""<fo:page-number-citation ref-id="${out.buildId(path.absolute, ref)}" />"""

@@ -586,6 +586,12 @@ class XSLFORendererSpec extends FlatSpec
       |<fo:block font-family="sans-serif" font-size="16pt" keep-with-next="always" space-after="7mm" space-before="12mm">some <fo:inline font-style="italic">em</fo:inline> text</fo:block>""".stripMargin) 
   }
   
+  it should "render a title containing a section number" in {
+    val elem = Title(Seq(SectionNumber(Seq(1,2,3)), txt("Title")))
+    render (elem) should be ("""<fo:marker marker-class-name="chapter"><fo:block>1.2.3 Title</fo:block></fo:marker>
+      |<fo:block font-family="sans-serif" font-size="16pt" keep-with-next="always" space-after="7mm" space-before="12mm">1.2.3 Title</fo:block>""".stripMargin) 
+  }
+  
   it should "render a paragraph containing emphasized text" in {
     val elem = p(txt("some "), em("em"), txt(" text"))
     render (elem) should be ("""<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:inline font-style="italic">em</fo:inline> text</fo:block>""") 

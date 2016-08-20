@@ -116,6 +116,7 @@ class PrettyPrint extends RendererFactory[TextWriter] {
     elem match {
       case QuotedBlock(content,attr,_)    => lists("QuotedBlock", (content, "Content - Blocks: "), (attr, "Attribution - Spans: "))
       case DefinitionListItem(term,defn,_)=> lists("Item", (term, "Term - Spans: "), (defn, "Definition - Blocks: "))
+      case SectionNumber(pos, opt)        => out << "SectionNumber" << attributes(Seq(pos.mkString("."), opt).toIterator)
       case bc: BlockContainer[_]          => elementContainerDesc(bc, "Blocks")
       case sc: SpanContainer[_]           => elementContainerDesc(sc, "Spans")
       case tc: TextContainer              => textContainerDesc(tc)

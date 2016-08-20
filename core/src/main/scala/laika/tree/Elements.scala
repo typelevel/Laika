@@ -233,6 +233,17 @@ object Elements {
    */
   trait HeaderDecoration
   
+  /** Represents a section number, usually used in header elements
+   *  when autonumbering is applied.
+   */
+  case class SectionNumber(position: Seq[Int], options: Options = NoOpt) extends Span {
+  
+    /** Creates a new instance for a child section
+     *  of this section at the specified position.
+     */
+    def child(childPosition: Int) = SectionNumber(position :+ childPosition)
+  }
+  
   
   /** A generic container element containing a list of blocks. Can be used where a sequence
    *  of blocks must be inserted in a place where a single element is required by the API.

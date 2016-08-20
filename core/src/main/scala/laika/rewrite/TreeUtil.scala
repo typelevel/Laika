@@ -52,6 +52,7 @@ object TreeUtil {
    *  any formatting or links.
    */
   def extractText (spans: Seq[Span]): String = ("" /: spans) { (acc, span) => span match {
+    case SectionNumber(pos, _)=> pos.mkString(".") + " "
     case Text(content, _)     => acc + content
     case sc: SpanContainer[_] => acc + extractText(sc.content)
     case _ => acc
