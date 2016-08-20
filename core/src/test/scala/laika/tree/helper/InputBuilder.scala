@@ -24,6 +24,8 @@ import laika.io.InputProvider
 import laika.io.InputProvider.ProviderBuilder
 import laika.tree.Paths.Path
 import laika.tree.Paths.Root
+import laika.io.DocumentType
+import laika.io.DocumentType._
 
 trait InputBuilder {
 

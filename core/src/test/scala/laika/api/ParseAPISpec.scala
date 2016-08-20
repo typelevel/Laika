@@ -23,6 +23,8 @@ import scala.io.Codec.charset2codec
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
+import laika.io.DocumentType
+import laika.io.DocumentType._
 import laika.parse.markdown.Markdown
 import laika.parse.css.ParseStyleSheet
 import laika.parse.css.Styles.StyleDeclarationSet

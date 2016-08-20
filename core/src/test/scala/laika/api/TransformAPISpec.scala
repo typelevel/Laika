@@ -23,6 +23,7 @@ import java.io.StringReader
 import java.io.StringWriter
 import scala.io.Codec
 import scala.io.Codec.charset2codec
+import laika.io.DocumentType.Static
 import scala.io.Source
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
@@ -41,7 +42,6 @@ import laika.render.TextWriter
 import laika.render.helper.RenderResult
 import laika.tree.Elements.Text
 import laika.tree.Paths.Root
-import laika.tree.Documents.Static
 import laika.tree.Templates._
 import laika.tree.helper.OutputBuilder.readFile
 import laika.tree.helper.InputBuilder
@@ -147,11 +147,11 @@ class TransformAPISpec extends FlatSpec
 
   
   trait TreeTransformer extends InputBuilder {
+    import laika.io.DocumentType
     import laika.io.InputProvider.InputConfigBuilder
     import laika.io.OutputProvider.OutputConfigBuilder
     import laika.tree.helper.OutputBuilder._
     import laika.tree.Paths.Path
-    import laika.tree.Documents.DocumentType
     import laika.template.ParseTemplate
     import laika.directive.Directives.Templates
 

@@ -23,6 +23,8 @@ import com.typesafe.config.Config
 import laika.tree.Elements._
 import laika.parse.css.Styles.StyleDeclarationSet
 import laika.tree.Paths.Path
+import laika.io.DocumentType
+import laika.io.DocumentType._
 
 /* Provides a view of DocumentTree structures that allows for 
  * PrettyPrint rendering (for debugging purposes) and case

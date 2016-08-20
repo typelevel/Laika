@@ -18,6 +18,7 @@ package laika.rewrite
 
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
+import laika.io.DocumentType.Markup
 import laika.tree.helper.ModelBuilder
 import laika.tree.Elements._
 import laika.tree.Documents._
