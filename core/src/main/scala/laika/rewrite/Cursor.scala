@@ -34,7 +34,7 @@ trait Cursor {
 
   def config: Config
   
-  def autonumbering: AutonumberCursor
+  def position: TreePosition
   
   /* TODO - these are probably not needed in the base trait
   * def nextSibling: Option[Cursor] // nothing uses it
@@ -52,7 +52,7 @@ trait Cursor {
 case class TreeCursor(target: DocumentTree, 
                       parent: Option[TreeCursor] = None, 
                       config: Config = ConfigFactory.empty,
-                      autonumbering: AutonumberCursor = AutonumberCursor.defaults) extends Cursor {
+                      position: TreePosition = TreePosition.root) extends Cursor {
 
   type Target = DocumentTree
   
@@ -65,10 +65,10 @@ case class TreeCursor(target: DocumentTree,
     target.content.zipWithIndex map {
       case (doc: Document, index) => 
         val config = configForChild(doc.config)
-        DocumentCursor(doc, this, config, autonumbering.forChild(index + 1, config))
+        DocumentCursor(doc, this, config, position.forChild(index + 1))
       case (tree: DocumentTree, index) => 
         val config = configForChild(tree.config)
-        TreeCursor(tree, Some(this), config, autonumbering.forChild(index + 1, config))
+        TreeCursor(tree, Some(this), config, position.forChild(index + 1))
     }
   }
   
@@ -81,7 +81,7 @@ case class TreeCursor(target: DocumentTree,
     
     val sortedContent = NavigationOrder.applyTo(rewrittenContent, config)
     
-    target.copy(content = sortedContent, docNumber = autonumbering.currentPosition)  
+    target.copy(content = sortedContent, position = position)  
   }
 
 }
@@ -99,7 +99,7 @@ case class DocumentCursor (target: Document,
                            parent: TreeCursor,
                            resolver: ReferenceResolver,
                            config: Config = ConfigFactory.empty,
-                           autonumbering: AutonumberCursor = AutonumberCursor.defaults) extends Cursor { self =>
+                           position: TreePosition = TreePosition.root) extends Cursor { self =>
                                  
   type Target = Document   
   
@@ -114,7 +114,7 @@ case class DocumentCursor (target: Document,
       case block => block
     }
     
-    target.copy(content = newRoot, fragments = newFragments, docNumber = autonumbering.currentPosition)
+    target.copy(content = newRoot, fragments = newFragments, position = position)
   }
   
   /** Resolves the context reference with the specified path relative to 
@@ -132,7 +132,7 @@ case class DocumentCursor (target: Document,
    *  for a nested part inside the directive tags.
    */
   def withReferenceContext (refValue: Any): DocumentCursor =
-    copy(resolver = new ReferenceResolver(refValue, Some(self.resolver)))
+    copy(resolver = ReferenceResolver(refValue, Some(self.resolver)))
   
 }
 
@@ -142,29 +142,9 @@ object DocumentCursor {
     apply(document, TreeCursor(DocumentTree(Root, Seq(document))))
     
   def apply (document: Document, parent: TreeCursor): DocumentCursor =
-    apply(document, parent, ConfigFactory.empty, AutonumberCursor.defaults)
+    apply(document, parent, ConfigFactory.empty, TreePosition.root)
     
-  def apply (document: Document, parent: TreeCursor, config: Config, autonumbering: AutonumberCursor): DocumentCursor =
-    apply(document, parent, ReferenceResolver.forDocument(document, parent, config), config, autonumbering)
+  def apply (document: Document, parent: TreeCursor, config: Config, position: TreePosition): DocumentCursor =
+    apply(document, parent, ReferenceResolver.forDocument(document, parent, config), config, position)
     
-}
-
-/** Context for autonumbering of documents and sections, containing the current
- *  number and the general configuration for autonumbering.
- */
-case class AutonumberCursor (config: AutonumberConfig, currentPosition: List[Int] = Nil) {
-  
-  val currentNumber: String = currentPosition.mkString(".")
-  
-  def forChild (childNum: Int, childConfig: Config): AutonumberCursor = {
-    val autonumberConfig = AutonumberConfig.fromConfig(childConfig) // TODO - add back this fallback: getOrElse config
-    
-    if (autonumberConfig.documents) AutonumberCursor(autonumberConfig, currentPosition :+ childNum)
-    else                            AutonumberCursor(autonumberConfig, Nil)
-  }
-  
-}
-
-object AutonumberCursor {
-  def defaults: AutonumberCursor = AutonumberCursor(AutonumberConfig.defaults)
 }

@@ -26,6 +26,7 @@ import laika.tree.Elements._
 import laika.tree.Templates.TemplateDocument
 import laika.tree.Templates.TemplateRoot
 import laika.tree.Templates.TemplateContextReference
+import laika.rewrite.AutonumberConfig
 import laika.rewrite.LinkTargets._
 import laika.rewrite.LinkResolver
 import laika.rewrite.DocumentCursor
@@ -73,7 +74,7 @@ object Documents2 {
     
     def config: Config
     
-    def docNumber: List[Int]
+    def position: TreePosition
     
     def linkTargets: Map[Selector, TargetResolver]
     
@@ -81,6 +82,17 @@ object Documents2 {
      *  if it is defined somewhere in a document inside this document tree.
      */
     def selectTarget (selector: Selector): Option[TargetResolver] = linkTargets.get(selector)
+    
+    protected def titleFromConfig: Option[Seq[Span]] = {
+      if (config.hasPath("title")) {
+        val title = List(Text(config.getString("title")))
+        val autonumberConfig = AutonumberConfig.fromConfig(config)
+        val autonumberEnabled = autonumberConfig.documents && position.toSeq.size < autonumberConfig.maxDepth
+        if (autonumberEnabled) Some(position.toSpan +: title)
+        else Some(title)
+      }
+      else None
+    }
     
   }
   
@@ -101,14 +113,25 @@ object Documents2 {
   
   /** Captures information about a document section, without its content.
    */
-  case class SectionInfo (position: List[Int], id: String, title: TitleInfo, content: Seq[SectionInfo]) extends Element with ElementContainer[SectionInfo,SectionInfo] {
-    val level: Int = position.length
-  }
+  case class SectionInfo (id: String, title: TitleInfo, content: Seq[SectionInfo]) extends Element with ElementContainer[SectionInfo, SectionInfo]
 
   /** Represents a section title.
    */
   case class TitleInfo (content: Seq[Span]) extends SpanContainer[TitleInfo] {
     lazy val text: String = TreeUtil.extractText(content)
+  }
+  
+  case class TreePosition(toSeq: Seq[Int]) {
+
+    override def toString: String = toSeq.mkString(".")
+    
+    def toSpan: Span = SectionNumber(toSeq)
+    
+    def forChild(childPos: Int) = TreePosition(toSeq :+ childPos)
+  }
+  
+  object TreePosition {
+    def root = TreePosition(Seq())
   }
 
   trait DocumentStructure { this: TreeContent =>
@@ -127,14 +150,12 @@ object Documents2 {
      *  structure or from the configuration.
      */
     def title: Seq[Span] = {
-      // TODO - after merge: put docNumber into config, making the docNumber property obsolete in this object
-      if (config.hasPath("title")) docNumber match { // TODO - this is duplicated with DocumentTree, move to TreeContent
-        case Nil => List(Text(config.getString("title")))
-        case _ => Text(docNumber.mkString("","."," "), Styles("titleNumber")) +: List(Text(config.getString("title")))
-      }
-      else (findRoot collect {
+      
+      def titleFromTree = (findRoot collect {
         case Title(content,_) => content
-      }).headOption getOrElse List(Text("")) // TODO - after merge: could this be Nil?
+      }).headOption
+      
+      titleFromConfig.orElse(titleFromTree).getOrElse(List(Text(""))) // TODO - after merge: could this be Nil?
     }
   
     /** The section structure of this document based on the hierarchy
@@ -142,17 +163,14 @@ object Documents2 {
      */
     lazy val sections: Seq[SectionInfo] = {
       
-      def extractSections (parentPos: List[Int], blocks: Seq[Block]): Seq[SectionInfo] = {
-        val positions = Stream.from(1).iterator
+      def extractSections (blocks: Seq[Block]): Seq[SectionInfo] = {
         blocks collect {
           case Section(Header(_,header,Id(id)), content, _) => {
-            val pos = parentPos :+ positions.next 
-            SectionInfo(pos, id, TitleInfo(header), extractSections(pos, content)) 
+            SectionInfo(id, TitleInfo(header), extractSections(content)) 
           }
         }
       }
-      // TODO - after merge: new class SectionNumber should be embedded right in the tree, making the docNumber property obsolete in this object
-      extractSections(docNumber, findRoot)
+      extractSections(findRoot)
     } 
     
     private lazy val linkResolver: LinkResolver = LinkResolver(path, content)
@@ -173,12 +191,7 @@ object Documents2 {
     
     /** The title of this tree, obtained from configuration.
      */
-    lazy val title: Seq[Span] = {
-      if (config.hasPath("title")) docNumber match {
-        case Nil => List(Text(config.getString("title")))
-        case _ => Text(docNumber.mkString("","."," "), Styles("titleNumber")) +: List(Text(config.getString("title")))
-      } else Nil 
-    }
+    lazy val title: Seq[Span] = titleFromConfig.getOrElse(Nil)
     
     private def toMap [T <: Navigatable] (navigatables: Seq[T]): Map[String,T] = {
       navigatables groupBy (_.name) mapValues {
@@ -264,7 +277,7 @@ object Documents2 {
                        content: RootElement, 
                        fragments: Map[String, Element] = Map.empty,
                        config: Config = ConfigFactory.empty,
-                       docNumber: List[Int] = Nil) extends DocumentStructure with TreeContent {
+                       position: TreePosition = TreePosition(Seq())) extends DocumentStructure with TreeContent {
     
     /** Returns a new, rewritten document model based on the specified rewrite rule.
      *  
@@ -299,7 +312,7 @@ object Documents2 {
                            styles: Map[String,StyleDeclarationSet] = Map.empty.withDefaultValue(StyleDeclarationSet.empty),
                            additionalContent: Seq[AdditionalContent] = Nil,
                            config: Config = ConfigFactory.empty,
-                           docNumber: List[Int] = Nil,
+                           position: TreePosition = TreePosition(Seq()),
                            sourcePaths: Seq[String] = Nil) extends TreeStructure with TreeContent {
     
     val targetTree = this
