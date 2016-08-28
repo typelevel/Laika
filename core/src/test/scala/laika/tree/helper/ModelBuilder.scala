@@ -38,13 +38,13 @@ trait ModelBuilder {
    
   def link (content: Span*): LinkBuilder = new LinkBuilder(content.toList)
   
-  class LinkBuilder private[ModelBuilder] (content: List[Span], url0: String = "", title0: Option[String] = None) {
+  class LinkBuilder private[ModelBuilder] (content: List[Span], url: String = "", title: Option[String] = None) {
     
-    def url (value: String): LinkBuilder = new LinkBuilder(content, value, title0)
+    def url (value: String): LinkBuilder = new LinkBuilder(content, value, title)
     
-    def title (value: String): LinkBuilder = new LinkBuilder(content, url0, Some(value))
+    def title (value: String): LinkBuilder = new LinkBuilder(content, url, Some(value))
     
-    def toLink = ExternalLink(content, url0, title0)
+    def toLink = ExternalLink(content, url, title)
     
   }
   
@@ -168,6 +168,8 @@ trait ModelBuilder {
   def h (level: Int, content: String) = Header(level, List(txt(content)))
 
   def h (level: Int, content: String, id: String) = Header(level, List(txt(content)), Id(id))
+  
+  def title (text: String) = Title(Seq(Text(text)), Id(text.replaceAll("[^a-zA-Z0-9-]+","-").replaceFirst("^-","").replaceFirst("-$","").toLowerCase) + Styles("title"))
 
   def dh (deco: HeaderDecoration, content: String, id: String) = DecoratedHeader(deco, List(txt(content)), Id(id))
   
