@@ -44,7 +44,6 @@ import laika.tree.Paths.Path
 class LinkResolver (path: Path, root: RootElement) {
 
   private val headerIdMap = new IdMap
-  private val decHeaderIdMap = new IdMap
   
   /** Selects all elements from the document that can serve
    *  as a target for a reference element.
@@ -71,7 +70,7 @@ class LinkResolver (path: Path, root: RootElement) {
       
       case lt: LinkAlias              => new LinkAliasTarget(lt)
       
-      case hd @ DecoratedHeader(_,_,Id(id)) => new DecoratedHeaderTarget(hd, suggestedId(id, decHeaderIdMap), path, levels)  // TODO - does not handle headers without id
+      case hd @ DecoratedHeader(_,_,Id(id)) => new DecoratedHeaderTarget(hd, suggestedId(id, headerIdMap), path, levels)  // TODO - does not handle headers without id
       
       case hd @ Header(_,_,Id(id))          => new HeaderTarget(hd, suggestedId(id, headerIdMap), path)
       
@@ -166,7 +165,6 @@ class LinkResolver (path: Path, root: RootElement) {
   def rewriteRules (context: DocumentContext): RewriteRule = {
     
     val headerId = headerIdMap.lookupFunction
-    val decHeaderId = decHeaderIdMap.lookupFunction
     
     def replaceHeader (h: Block, origId: String, lookup: String => Option[String]): Option[Element] = lookup(origId).flatMap(replace(h,_))
     
@@ -212,7 +210,7 @@ class LinkResolver (path: Path, root: RootElement) {
         case Autosymbol          => replace(f, AutosymbolSelector)
       }
       case c: Citation           => replace(c, c.label)
-      case h: DecoratedHeader    => replaceHeader(h, h.options.id.get, decHeaderId)
+      case h: DecoratedHeader    => replaceHeader(h, h.options.id.get, headerId)
       case h@ Header(_,_,Id(id)) => replaceHeader(h, id, headerId)
       
       case c @ CitationReference(label,_,_) => resolve(c, label, s"unresolved citation reference: $label")
