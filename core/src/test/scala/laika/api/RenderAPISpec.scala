@@ -25,7 +25,6 @@ import scala.io.Source
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
-
 import laika.api.Render.RenderMappedOutput
 import laika.parse.css.Styles.StyleDeclarationSet
 import laika.parse.css.Styles.StyleDeclaration
@@ -44,6 +43,10 @@ import laika.tree.helper.OutputBuilder._
 import laika.io.OutputProvider.OutputConfigBuilder
 import laika.io.Input
 import laika.io.OutputProvider.Directory
+import laika.rewrite.RewriteRules
+import laika.tree.Documents.DocumentContext
+import laika.rewrite.LinkResolver
+import laika.rewrite.SectionBuilder
 
 class RenderAPISpec extends FlatSpec 
                     with Matchers
@@ -124,7 +127,14 @@ class RenderAPISpec extends FlatSpec
         |. . Text - 'Doc""".stripMargin + num + "'"
   }
   
-  trait TreeRenderer[W] {
+  trait DocRewriter {
+    def rewrite(doc: Document): Document = {
+      val rules = Seq(LinkResolver, SectionBuilder).map(_(DocumentContext(doc)))
+      doc.rewrite(RewriteRules.chain(rules))
+    }
+  }
+  
+  trait TreeRenderer[W] extends DocRewriter {
     def input: DocumentTree
     
     def render: RenderMappedOutput[W]
@@ -176,7 +186,7 @@ class RenderAPISpec extends FlatSpec
   
   it should "render a tree with a single document to HTML using the default template" in {
     new HTMLRenderer {
-      val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite))
+      val input = new DocumentTree(Root, List(rewrite(new Document(Root / "doc", rootElem))))
       val expected = RenderResult.html.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
         |      <p>bbb</p>""".stripMargin)
       renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.html", expected))))))
@@ -186,7 +196,7 @@ class RenderAPISpec extends FlatSpec
   it should "render a tree with a single document to HTML using a custom template" in {
     new HTMLRenderer {
       val template = new TemplateDocument(Root / "default.template.html", tRoot(tt("["), TemplateContextReference("document.content"), tt("]")))
-      val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite), templates = Seq(template))
+      val input = new DocumentTree(Root, List(rewrite(new Document(Root / "doc", rootElem))), templates = Seq(template))
       val expected = """[<h1 id="title" class="title">Title</h1>
         |<p>bbb</p>]""".stripMargin
       renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.html", expected))))))
@@ -195,7 +205,7 @@ class RenderAPISpec extends FlatSpec
   
   it should "render a tree with a single document to XSL-FO using the default template and default CSS" in {
     new FORenderer {
-      val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite))
+      val input = new DocumentTree(Root, List(rewrite(new Document(Root / "doc", rootElem))))
       val expected = RenderResult.fo.withDefaultTemplate(s"""${marker("Title")}
         |      ${title("_title", "Title")}
         |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">bbb</fo:block>""".stripMargin)
@@ -206,7 +216,7 @@ class RenderAPISpec extends FlatSpec
   it should "render a tree with a single document to XSL-FO using a custom template" in {
     new FORenderer {
       val template = new TemplateDocument(Root / "default.template.fo", tRoot(tt("["), TemplateContextReference("document.content"), tt("]")))
-      val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite), templates = Seq(template))
+      val input = new DocumentTree(Root, List(rewrite(new Document(Root / "doc", rootElem))), templates = Seq(template))
       val expected = s"""[${marker("Title")}
         |${title("_title", "Title")}
         |<fo:block font-family="serif" font-size="10pt" space-after="3mm">bbb</fo:block>]""".stripMargin
@@ -216,8 +226,8 @@ class RenderAPISpec extends FlatSpec
   
   it should "render a tree with two documents to XSL-FO using a custom style sheet in the root directory" in {
     new FORenderer {
-      val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite), styles = foStyles, subtrees = 
-        Seq(new DocumentTree(Root / "tree", List(new Document(Root / "tree" / "sub", subElem).rewrite))))
+      val input = new DocumentTree(Root, List(rewrite(new Document(Root / "doc", rootElem))), styles = foStyles, subtrees = 
+        Seq(new DocumentTree(Root / "tree", List(rewrite(new Document(Root / "tree" / "sub", subElem))))))
       val expectedRoot = RenderResult.fo.withDefaultTemplate(s"""${marker("Title")}
         |      ${title("_title", "Title")}
         |      <fo:block font-family="serif" font-size="11pt" space-after="3mm">bbb</fo:block>""".stripMargin)
@@ -235,8 +245,8 @@ class RenderAPISpec extends FlatSpec
   
   it should "render a tree with two documents to XSL-FO using a custom style sheet in the sub directory" in {
     new FORenderer {
-      val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite), subtrees = 
-        Seq(new DocumentTree(Root / "tree", List(new Document(Root / "tree" / "sub", subElem).rewrite), styles = foStyles)))
+      val input = new DocumentTree(Root, List(rewrite(new Document(Root / "doc", rootElem))), subtrees = 
+        Seq(new DocumentTree(Root / "tree", List(rewrite(new Document(Root / "tree" / "sub", subElem))), styles = foStyles)))
       val expectedRoot = RenderResult.fo.withDefaultTemplate(s"""${marker("Title")}
         |      ${title("_title", "Title")}
         |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">bbb</fo:block>""".stripMargin)
@@ -255,8 +265,8 @@ class RenderAPISpec extends FlatSpec
   it should "render a tree with two documents to XSL-FO using a custom style sheet programmatically" in {
     new FORenderer {
       override val render = Render as XSLFO.withStyles(foStyles("fo"))
-      val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite), subtrees = 
-        Seq(new DocumentTree(Root / "tree", List(new Document(Root / "tree" / "sub", subElem).rewrite))))
+      val input = new DocumentTree(Root, List(rewrite(new Document(Root / "doc", rootElem))), subtrees = 
+        Seq(new DocumentTree(Root / "tree", List(rewrite(new Document(Root / "tree" / "sub", subElem))))))
       val expectedRoot = RenderResult.fo.withDefaultTemplate(s"""${marker("Title")}
         |      ${title("_title", "Title")}
         |      <fo:block font-family="serif" font-size="11pt" space-after="3mm">bbb</fo:block>""".stripMargin)
@@ -339,12 +349,12 @@ class RenderAPISpec extends FlatSpec
     }
   }
   
-  trait GatherRenderer {
+  trait GatherRenderer extends DocRewriter {
     val rootElem = root(h(1, "Title", "title"), p("bbb"))
     val subElem = root(h(1, "Sub Title", "sub-title"), p("ccc"))
     
-    val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem).rewrite), subtrees = 
-      Seq(new DocumentTree(Root / "tree", List(new Document(Root / "tree" / "sub", subElem).rewrite))))
+    val input = new DocumentTree(Root, List(rewrite(new Document(Root / "doc", rootElem))), subtrees = 
+      Seq(new DocumentTree(Root / "tree", List(rewrite(new Document(Root / "tree" / "sub", subElem))))))
     
     val expectedResult = """RootElement - Blocks: 2
       |. Title(Id(title) + Styles(title)) - Spans: 1

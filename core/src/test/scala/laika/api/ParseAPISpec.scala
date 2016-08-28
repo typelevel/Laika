@@ -123,8 +123,6 @@ class ParseAPISpec extends FlatSpec
   
   trait TreeParser extends InputBuilder {
     
-    val rewritten = true
-    
     def dirs: String 
     
     def contents = Map(
@@ -153,9 +151,9 @@ class ParseAPISpec extends FlatSpec
     )
     
     def builder (source: String) = new InputConfigBuilder(parseTreeStructure(source), Codec.UTF8)
-    def docView (num: Int, path: Path = Root) = DocumentView(path / (s"doc$num.md"), Content(List(p("foo"))) :: Nil, rewritten)
+    def docView (num: Int, path: Path = Root) = DocumentView(path / (s"doc$num.md"), Content(List(p("foo"))) :: Nil)
     
-    def customDocView (name: String, content: Seq[Block], path: Path = Root) = DocumentView(path / name, Content(content) :: Nil, rewritten)
+    def customDocView (name: String, content: Seq[Block], path: Path = Root) = DocumentView(path / name, Content(content) :: Nil)
   
     def parsedTree = viewOf(Parse as Markdown fromTree builder(dirs) applyTemplates "html")
     
@@ -266,7 +264,6 @@ class ParseAPISpec extends FlatSpec
   
   it should "allow parsing a tree with all available file types" in {
     new TreeParser {
-      override val rewritten = false
       val dirs = """- doc1.md:link
         |- doc2.rst:link
         |- mainA.template.html:name

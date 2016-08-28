@@ -32,6 +32,9 @@ import laika.tree.Templates.TemplateContextReference
 import com.typesafe.config.impl.SimpleConfigObject
 import com.typesafe.config.ConfigValueFactory
 import laika.parse.rst.Elements.Contents
+import laika.rewrite.LinkResolver
+import laika.rewrite.SectionBuilder
+import laika.parse.rst.RewriteRules
 
 /**
  * @author Jens Halm
@@ -589,7 +592,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
     val doc2 = new Document(Root / "doc2", root(p("text")))
     val template = new TemplateDocument(Root / "default.template.html", tRoot(TemplateContextReference("document.content")))
     val tree = new DocumentTree(Root, List(doc1, doc2), templates = List(template))
-    tree.rewrite.applyTemplates("html").documents(0).content should be (root(BlockSequence(List(p("text")))))
+    tree.rewrite(RewriteRules +: Seq(LinkResolver, SectionBuilder)).applyTemplates("html").documents(0).content should be (root(BlockSequence(List(p("text")))))
   }
   
   "The title directive" should "set the title in the document instance" in {
@@ -659,7 +662,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
     val document = new Document(Root / "doc", sectionsWithTitle)
     val template = new TemplateDocument(Root / "default.template.html", tRoot(TemplateContextReference("document.content")))
     val tree = new DocumentTree(Root, List(document), templates = List(template))
-    tree.rewrite.applyTemplates("html").documents(0).content should be (result)
+    tree.rewrite(Seq(RewriteRules, LinkResolver, SectionBuilder)).applyTemplates("html").documents(0).content should be (result)
   }
   
   

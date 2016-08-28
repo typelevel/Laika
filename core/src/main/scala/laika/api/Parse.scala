@@ -28,12 +28,16 @@ import laika.io.Input
 import laika.io.InputProvider
 import laika.io.InputProvider._
 import laika.tree.Documents._
+import laika.tree.Elements.RewriteRule
 import laika.tree.Templates.TemplateDocument
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions
 import laika.template.ParseTemplate
 import Parse.Parsers
 import laika.parse.css.Styles.StyleDeclarationSet
+import laika.rewrite.SectionBuilder
+import laika.rewrite.LinkResolver
+import laika.rewrite.RewriteRules
   
 /** API for performing a parse operation from various types of input to obtain
  *  a document tree without a subsequent render operation. 
@@ -138,7 +142,12 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
     
     val doc = IO(input)(parsers.forInput(input))
 
-    if (rewrite) doc.rewrite else doc
+    if (rewrite) {
+      val rules = parsers.rewriteRules(input) map (_(DocumentContext(doc)))
+      val chainedRules = RewriteRules.chain(rules)
+      doc.rewrite(chainedRules)
+    }
+    else doc
   }
   
   /** Returns a document tree obtained by parsing files from the
@@ -283,7 +292,12 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
     }
     
     val tree = collectDocuments(config.provider, true)
-    if (rewrite) tree.rewrite else tree
+    
+    if (rewrite) {
+      val rules = parsers.rewriteRules
+      tree.rewrite(rules)
+    } 
+    else tree
   }
   
   
@@ -308,6 +322,7 @@ object Parse {
   private[laika] class Parser (factory: ParserFactory) {
     lazy val get = factory.newParser
     val suffixes = factory.fileSuffixes
+    val rewriteRules = factory.rewriteRules
   }
   
   private[laika] class Parsers (parsers: Seq[Parser]) {
@@ -326,12 +341,20 @@ object Parse {
     
     lazy val suffixes: Set[String] = parsers flatMap (_.suffixes) toSet
     
-    def forInput (input: Input): Input => Document = {
-      if (parsers.size == 1) parsers.head.get
-      else map.get(suffix(input.name)).map(_.get).getOrElse(
-          throw new IllegalArgumentException("Unable to determine parser based on input name: ${input.name}")
+    private def parserForInput (input: Input): Parser = {
+      if (parsers.size == 1) parsers.head
+      else map.get(suffix(input.name)).getOrElse(
+        throw new IllegalArgumentException("Unable to determine parser based on input name: ${input.name}")
       )
     }
+    
+    def rewriteRules: Seq[DocumentContext => RewriteRule] =
+      parsers.map(_.rewriteRules).flatten :+ LinkResolver :+ SectionBuilder
+    
+    def rewriteRules (input: Input): Seq[DocumentContext => RewriteRule] =
+      parserForInput(input).rewriteRules :+ LinkResolver :+ SectionBuilder
+    
+    def forInput (input: Input): Input => Document = parserForInput(input).get
     
   }
   

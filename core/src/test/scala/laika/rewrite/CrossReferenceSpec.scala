@@ -55,13 +55,15 @@ class CrossReferenceSpec extends FlatSpec
     
     def treeViewWithSubtrees (path: Path, trees: TreeView*): TreeView =
       TreeView(path, List(Subtrees(trees)))
+      
+    def rewrite (tree: DocumentTree): DocumentTree = tree.rewrite(Seq(LinkResolver, SectionBuilder))
   }
   
   "The reference resolver" should "resolve a cross reference to a target in another document in the same directory" in {
      new TreeModel {
       val tree = treeWithDocs(Root, "doc", rootWithRef("ref", "text"), rootWithTarget("ref"))
       val treeResult = treeViewWithDocs(Root, "doc", rootWithLink("ref", "text", PathInfo(Root / "doc2",Current / "doc2")), rootWithTarget("ref"))
-      viewOf(tree.rewrite) should be (treeResult)
+      viewOf(rewrite(tree)) should be (treeResult)
     } 
   }
   
@@ -72,7 +74,7 @@ class CrossReferenceSpec extends FlatSpec
       
       val subtreeResult = treeViewWithDoc(Root / "sub", "doc1", rootWithLink("ref", "text", PathInfo(Root / "doc2", Parent(1) / "doc2")))
       val treeResult = treeViewWithDoc(Root, "doc2", rootWithTarget("ref"), Some(subtreeResult))
-      viewOf(rootTree.rewrite) should be (treeResult)
+      viewOf(rewrite(rootTree)) should be (treeResult)
     } 
   }
   
@@ -83,7 +85,7 @@ class CrossReferenceSpec extends FlatSpec
       
       val subtreeResult = treeViewWithDoc(Root / "sub", "doc2", rootWithTarget("ref"))
       val treeResult = treeViewWithDoc(Root, "doc1", rootWithLink("ref", "text", PathInfo(Root / "sub" / "doc2", Current / "sub" / "doc2")), Some(subtreeResult))
-      viewOf(rootTree.rewrite) should be (treeResult)
+      viewOf(rewrite(rootTree)) should be (treeResult)
     } 
   }
   
@@ -96,7 +98,7 @@ class CrossReferenceSpec extends FlatSpec
       val subtreeResult1 = treeViewWithDoc(Root / "sub1", "doc1", rootWithLink("ref", "text", PathInfo(Root / "sub2" / "doc2", Parent(1) / "sub2" / "doc2")))
       val subtreeResult2 = treeViewWithDoc(Root / "sub2", "doc2", rootWithTarget("ref"))
       val treeResult = treeViewWithSubtrees(Root, subtreeResult1, subtreeResult2)
-      viewOf(rootTree.rewrite) should be (treeResult)
+      viewOf(rewrite(rootTree)) should be (treeResult)
     } 
   }
   
@@ -104,7 +106,7 @@ class CrossReferenceSpec extends FlatSpec
      new TreeModel {
       val tree = treeWithDocs(Root, "doc", rootWithRef("doc2:ref", "text"), rootWithTarget("ref"))
       val treeResult = treeViewWithDocs(Root, "doc", rootWithLink("ref", "text", PathInfo(Root / "doc2",Current / "doc2")), rootWithTarget("ref"))
-      viewOf(tree.rewrite) should be (treeResult)
+      viewOf(rewrite(tree)) should be (treeResult)
     } 
   }
   
@@ -115,7 +117,7 @@ class CrossReferenceSpec extends FlatSpec
       
       val subtreeResult = treeViewWithDoc(Root / "sub", "doc1", rootWithLink("ref", "text", PathInfo(Root / "doc2", Parent(1) / "doc2")))
       val treeResult = treeViewWithDoc(Root, "doc2", rootWithTarget("ref"), Some(subtreeResult))
-      viewOf(rootTree.rewrite) should be (treeResult)
+      viewOf(rewrite(rootTree)) should be (treeResult)
     } 
   }
   
@@ -126,7 +128,7 @@ class CrossReferenceSpec extends FlatSpec
       
       val subtreeResult = treeViewWithDoc(Root / "sub", "doc2", rootWithTarget("ref"))
       val treeResult = treeViewWithDoc(Root, "doc1", rootWithLink("ref", "text", PathInfo(Root / "sub" / "doc2", Current / "sub" / "doc2")), Some(subtreeResult))
-      viewOf(rootTree.rewrite) should be (treeResult)
+      viewOf(rewrite(rootTree)) should be (treeResult)
     } 
   }
   
@@ -139,7 +141,7 @@ class CrossReferenceSpec extends FlatSpec
       val subtreeResult1 = treeViewWithDoc(Root / "sub1", "doc1", rootWithLink("ref", "text", PathInfo(Root / "sub2" / "doc2", Parent(1) / "sub2" / "doc2")))
       val subtreeResult2 = treeViewWithDoc(Root / "sub2", "doc2", rootWithTarget("ref"))
       val treeResult = treeViewWithSubtrees(Root, subtreeResult1, subtreeResult2)
-      viewOf(rootTree.rewrite) should be (treeResult)
+      viewOf(rewrite(rootTree)) should be (treeResult)
     } 
   }
   

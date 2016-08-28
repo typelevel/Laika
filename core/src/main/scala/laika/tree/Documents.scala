@@ -61,13 +61,9 @@ object Documents {
                   val content: RootElement, 
                   val fragments: Map[String, Element] = Map.empty,
                   val config: Config = ConfigFactory.empty,
-                  docNumber: List[Int] = Nil,
-                  rewriteRules: Seq[DocumentContext => RewriteRule] = Nil) extends Titled {
+                  docNumber: List[Int] = Nil) extends Titled {
     
     lazy val linkTargets = new LinkTargetProvider(path,content)
-    
-    protected lazy val defaultRules: Seq[DocumentContext => RewriteRule] = 
-      rewriteRules :+ LinkResolver :+ SectionBuilder
     
     private def findRoot: Seq[Block] = {
       (content select {
@@ -107,15 +103,6 @@ object Documents {
       extractSections(docNumber, findRoot)
     } 
 
-    /** Indicates whether all rewrite rules have already been applied
-     *  to this document.
-     */
-    val isRewritten: Boolean = defaultRules.isEmpty
-
-    /** Returns a new, rewritten document model based on the default rewrite rules.
-     */
-    def rewrite: Document = rewriteWith(Nil)
-     
     /** Returns a new, rewritten document model based on the specified rewrite rules.
      *  
      *  If the specified partial function is not defined for a specific element the old element remains
@@ -128,35 +115,14 @@ object Documents {
      *  any element container passed to the rule only contains children which have already
      *  been processed. 
      */
-    def rewrite (customRule: RewriteRule): Document = rewriteWith(List(customRule))
+    def rewrite (customRule: RewriteRule): Document = rewriteDocument(customRule, DocumentContext(this))
 
-    /** Returns a new, rewritten document model based on the specified rewrite rules.
-     *  
-     *  If none of the specified partial functions is defined for a specific element the old element remains
-     *  in the tree unchanged. If one of them returns `None` then the node gets removed from the tree, 
-     *  if one of them returns an element it will replace the old one. Of course the function may
-     *  also return the old element.
-     *  
-     *  The rewriting is performed in a way that only branches of the tree that contain
-     *  new or removed elements will be replaced. It is processed bottom-up, therefore
-     *  any element container passed to the rule only contains children which have already
-     *  been processed. 
-     */
-    def rewriteWith (customRules: Seq[RewriteRule]): Document = {
-      val context = DocumentContext(this)
-      rewriteDocument(customRules, context)
-    }
+    private[Documents] def rewriteDocument (customRule: RewriteRule, context: DocumentContext): Document = {
       
-    private[Documents] def rewriteDocument (customRules: Seq[RewriteRule], context: DocumentContext): Document = {
-      
-      val resolvedRules = (defaultRules map { _(context) })      
-      
-      val allRules = RewriteRules chain (customRules ++ resolvedRules)
-      
-      val newRoot = content rewrite allRules
+      val newRoot = content rewrite customRule
        
       val newFragments = fragments mapValues {
-        case et: ElementTraversal[_] => (et rewrite allRules).asInstanceOf[Block]
+        case et: ElementTraversal[_] => (et rewrite customRule).asInstanceOf[Block]
         case block => block
       }
       
@@ -169,7 +135,6 @@ object Documents {
       context.template.getOrElse(defaultTemplate).rewrite(context)
     
     private[tree] def withRewrittenContent (newContent: RootElement, fragments: Map[String,Element], docNumber: List[Int] = docNumber): Document = new Document(path, newContent, fragments, config, docNumber) {
-      override lazy val defaultRules = Nil
       override val removeRules = this
     }
 
@@ -499,16 +464,6 @@ object Documents {
     }
       
     /** Returns a new tree, with all the document models contained in it 
-     *  rewritten based on the default rewrite rules.
-     */
-    def rewrite: DocumentTree = rewrite(Nil, AutonumberContext.defaults)
-    
-    /** Returns a new tree, with all the document models contained in it 
-     *  rewritten based on the default rewrite rules and the specified context for autonumbering.
-     */
-    def rewrite (autonumbering: AutonumberContext): DocumentTree = rewrite(Nil, autonumbering)
-     
-    /** Returns a new tree, with all the document models contained in it 
      *  rewritten based on the specified rewrite rule.
      *  
      *  If the specified partial function is not defined for a specific element the old element remains
@@ -534,6 +489,11 @@ object Documents {
     def rewrite (customRule: DocumentContext => RewriteRule, 
         autonumbering: AutonumberContext): DocumentTree = rewrite(List(customRule), autonumbering)
     
+    /** Returns a new tree, with all the document models contained in it 
+     *  rewritten based on the specified rewrite rules.
+     */
+    def rewrite (customRules: Seq[DocumentContext => RewriteRule]): DocumentTree = rewrite(customRules, AutonumberContext.defaults) 
+        
     /** Returns a new tree, with all the document models contained in it 
      *  rewritten based on the specified rewrite rules and autonumbering context.
      */
@@ -562,7 +522,8 @@ object Documents {
       
       val rewrittenDocuments = for ((doc,num) <- sortedDocuments) yield {
         val context = DocumentContext(doc, this, rewriteContext.root, autonumberContextForChild(num))
-        (doc.rewriteDocument(rewriteContext.rules map (_(context)), context), num) 
+        val rules = RewriteRules.chain(rewriteContext.rules map (_(context)))
+        (doc.rewriteDocument(rules, context), num) 
       }
 
       val rewrittenSubtrees = for ((tree,num) <- sortedSubtrees) yield {

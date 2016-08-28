@@ -62,7 +62,7 @@ object DocumentTreeHelper {
   
   case class InputView (name: String) extends View
 
-  case class DocumentView (path: Path, content: Seq[DocumentContent], rewritten: Boolean = true) extends ViewContainer[DocumentView]
+  case class DocumentView (path: Path, content: Seq[DocumentContent]) extends ViewContainer[DocumentView]
 
   case class TemplateView (path: Path, content: TemplateRoot) extends View
   
@@ -103,7 +103,7 @@ object DocumentTreeHelper {
       Title(filterTitle(doc.title)) ::
       Sections(doc.sections) ::
       List[DocumentContent]()) filterNot { case c: ElementContainer[_,_] => c.content.isEmpty }
-    DocumentView(doc.path, content, doc.isRewritten)
+    DocumentView(doc.path, content)
   }
   
   def viewOf (fragments: Map[String, Element]): Seq[Fragment] = 

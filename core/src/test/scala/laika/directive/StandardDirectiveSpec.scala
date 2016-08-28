@@ -18,6 +18,8 @@ package laika.directive
 
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
+import laika.rewrite.LinkResolver
+import laika.rewrite.SectionBuilder
 import laika.tree.helper.ModelBuilder
 import laika.api.Parse
 import laika.parse.markdown.Markdown
@@ -297,7 +299,7 @@ class StandardDirectiveSpec extends FlatSpec
       val templateDoc = new TemplateDocument(Root / "test.html", parseTemplate(template))
       val doc = new Document(pathUnderTest, parse(markup).content, config = ConfigFactory.parseString("title: Doc 7, template: /test.html"))
       val tree = buildTree(templateDoc, doc)
-      tree.rewrite.applyTemplates("html").selectDocument(Current / "sub2" / "doc7").get.content
+      tree.rewrite(Seq(LinkResolver, SectionBuilder)).applyTemplates("html").selectDocument(Current / "sub2" / "doc7").get.content
     }
     
     def markup = """# Headline 1
