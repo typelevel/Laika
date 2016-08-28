@@ -36,6 +36,7 @@ import scala.annotation.tailrec
 import scala.util.Try
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
+import laika.rewrite.LinkTargetProvider
 
 /*
  * TODO - after merge:
@@ -76,12 +77,12 @@ object Documents2 {
     
     def position: TreePosition
     
-    def linkTargets: Map[Selector, TargetResolver]
+    def globalLinkTargets: Map[Selector, TargetResolver]
     
     /** Selects a link target by the specified selector
      *  if it is defined somewhere in a document inside this document tree.
      */
-    def selectTarget (selector: Selector): Option[TargetResolver] = linkTargets.get(selector)
+    def selectTarget (selector: Selector): Option[TargetResolver] = globalLinkTargets.get(selector)
     
     protected def titleFromConfig: Option[Seq[Span]] = {
       if (config.hasPath("title")) {
@@ -173,11 +174,9 @@ object Documents2 {
       extractSections(findRoot)
     } 
     
-    private lazy val linkResolver: LinkResolver = LinkResolver(path, content)
+    lazy val linkTargets: LinkTargetProvider = new LinkTargetProvider(path,content)
     
-    lazy val linkTargets: Map[Selector, TargetResolver] = linkResolver.globalTargets ++ (linkResolver.globalTargets collect {
-      case (UniqueSelector(name), target) => (PathSelector(path, name), target)
-    })
+    lazy val globalLinkTargets = linkTargets.global
     
   }
   
@@ -250,10 +249,9 @@ object Documents2 {
       case _ => None
     }
     
-    lazy val linkTargets: Map[Selector, TargetResolver] = {
+    lazy val globalLinkTargets: Map[Selector, TargetResolver] = {
       val all = (List[(Selector,TargetResolver)]() /: content) { 
-        case (list, tree: DocumentTree) => tree.linkTargets.toList ::: list
-        case (list, doc: Document)      => doc.linkTargets.toList ::: list
+        case (list, content) => content.globalLinkTargets.toList ::: list
       }
       (all.groupBy (_._1) collect {
         case (selector, ((_,target) :: Nil)) => (selector, target)

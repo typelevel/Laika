@@ -41,135 +41,20 @@ import laika.tree.Paths.Path
  * 
  *  @author Jens Halm
  */
-class LinkResolver (path: Path, root: RootElement) {
+object LinkResolver extends (DocumentContext => RewriteRule) {
 
-  private val headerIdMap = new IdMap
-  
-  /** Selects all elements from the document that can serve
-   *  as a target for a reference element.
-   */
-  def selectTargets: List[TargetDefinition] = {
-    
-    val levels = new DecoratedHeaderLevels
-    val symbols = new SymbolGenerator
-    val numbers = new NumberGenerator
-    val anonPos = Stream.from(1).iterator
-                              
-    root.collect {
-      case c: Citation => new CitationTarget(c) 
-      
-      case f: FootnoteDefinition => f.label match {
-        case Autosymbol            => new FootnoteTarget(f, Generated(symbols), AutosymbolSelector)
-        case Autonumber            => new FootnoteTarget(f, Generated(numbers), AutonumberSelector)
-        case AutonumberLabel(id)   => new FootnoteTarget(f, Hybrid(id, Generated(numbers)), id)
-        case NumericLabel(num)     => new FootnoteTarget(f, Named(num.toString), num.toString)
-      }
-      
-      case lt: ExternalLinkDefinition => if (lt.id.isEmpty) new ExternalLinkTarget(lt, Anonymous(anonPos.next), AnonymousSelector, path) 
-                                         else               new ExternalLinkTarget(lt, Named(lt.id), lt.id, path)
-      
-      case lt: LinkAlias              => new LinkAliasTarget(lt)
-      
-      case hd @ DecoratedHeader(_,_,Id(id)) => new DecoratedHeaderTarget(hd, suggestedId(id, headerIdMap), path, levels)  // TODO - does not handle headers without id
-      
-      case hd @ Header(_,_,Id(id))          => new HeaderTarget(hd, suggestedId(id, headerIdMap), path)
-      
-      case c: Customizable if c.options.id.isDefined => new CustomizableTarget(c, c.options.id.get, path)
-    }
-  }
-  
-  /** Resolves the specified targets, replacing elements
-   *  with duplicate target ids with invalid block elements 
-   *  and producing the ids of elements with generated identifiers. 
-   */
-  def resolveTargets (targets: Seq[TargetDefinition]): Seq[SingleTargetResolver] = {
-    
-    val docIdMap = new IdMap
-    
-    val (ids, validatedTargets)  = (targets.zipWithIndex.groupBy { t => t._1.id match {
-      case Named(name)    => Some(name)
-      case Hybrid(name,_) => Some(name)
-      case _              => None
-    }} collect {
-      case e @ (None,_) => e
-      case (name, (target :: Nil)) => (name, target :: Nil)
-      case (name, conflicting)   => (name, conflicting map { case (t, index) => (t.invalid(s"duplicate target id: ${name.get}"), index) })
-    }).toSeq.unzip
-    
-    val usedIds = ids.filter(_.isDefined).map(_.get).toSet
-    val orderedTargets = validatedTargets.flatten.sortBy(_._2).map(_._1)
-    
-    def documentId (id: String, used: Set[String]) = {
-      val suggest = id.replaceAll("[^a-zA-Z0-9-]+","-").replaceFirst("^-","").replaceFirst("-$","").toLowerCase
-      val gen = suggestedId(if (suggest.isEmpty) "id" else suggest, docIdMap)
-      gen.generator(used)
-    }
-    
-    ((new ListBuffer[SingleTargetResolver], usedIds, Set("id")) /: orderedTargets) { 
-      case ((buf, used, docIds), t) => t.id match {
-        case Generated(f) => 
-          val displayId = f(used)
-          val docId = documentId(displayId, docIds)
-          (buf += t.withResolvedIds(docId, displayId), used + displayId, docIds + docId)
-        case Hybrid(id, Generated(f)) =>
-          val display = f(used)
-          val docId = documentId(id, docIds)
-          (buf += t.withResolvedIds(docId, display), used + display, docIds + docId)
-        case Named(name) =>
-          val docId = documentId(name, docIds)
-          (buf += t.withResolvedIds(docId, name), used, docIds + docId)
-        case _ =>
-          (buf += t.withResolvedIds("", ""), used, docIds)
-      }
-    }._1
-  }
-  
-  /** Resolves all aliases contained in the specified target sequence,
-   *  replacing them with the targets they are pointing to or with
-   *  invalid block elements in case they cannot be resolved.
-   */
-  def resolveAliases (targets: Seq[SingleTargetResolver]): Seq[TargetResolver] = {
-
-    val map = targets map (t => (t.selector, t)) toMap
-    
-    def resolve (alias: LinkAliasTarget, selector: Selector): SingleTargetResolver = {
-      def doResolve (current: LinkAliasTarget, visited: Set[Any]): SingleTargetResolver = {
-        if (visited.contains(current.id)) alias.invalid(s"circular link reference: ${alias.from}").withResolvedIds("","")
-        else
-          map.get(current.ref) map {
-            case SingleTargetResolver(alias2: LinkAliasTarget, _, _) => doResolve(alias2, visited + current.id)
-            case other => other.forAlias(selector)
-          } getOrElse alias.invalid(s"unresolved link alias: ${alias.ref}").withResolvedIds("","")
-      }  
-      
-      doResolve(alias, Set())
-    }
-                                   
-    targets map { 
-      case SingleTargetResolver(alias: LinkAliasTarget, selector, _) => resolve(alias, selector)
-      case other => other 
-    } 
-    
-  }
-  
-  val allTargets: Map[Selector, TargetResolver] = resolveAliases(resolveTargets(selectTargets)).toList groupBy (_.selector) map { 
-    case (selector: UniqueSelector, target :: Nil) => (selector,target)
-    case (selector, list) => (selector, new TargetSequenceResolver(list,selector))
-  }
-  
-  val globalTargets: Map[Selector, TargetResolver] = allTargets filter (_._2.global)
-  
   /** The default rules for resolving link references 
    *  to be applied to the document.
    */
-  def rewriteRules (context: DocumentContext): RewriteRule = {
+  def apply (context: DocumentContext): RewriteRule = {
     
-    val headerId = headerIdMap.lookupFunction
+    val targets = context.document.linkTargets
+    val headerId = targets.headerIds
     
     def replaceHeader (h: Block, origId: String, lookup: String => Option[String]): Option[Element] = lookup(origId).flatMap(replace(h,_))
     
     def replace (element: Element, selector: Selector): Option[Element] = 
-      allTargets.get(selector).flatMap(_.replaceTarget(element))
+      targets.local.get(selector).flatMap(_.replaceTarget(element))
     
     def resolve (ref: Reference, selector: Selector, msg: => String, global: Boolean = false): Option[Element] = {
       
@@ -187,7 +72,7 @@ class LinkResolver (path: Path, root: RootElement) {
         (context.root.selectTarget(PathSelector(context.parent.path / Path(path), name)),Some(context.document.path))
       
       val (target, path) = {
-        val local = allTargets.get(selector)
+        val local = targets.local.get(selector)
         if (local.isDefined) (local, None)
         else (selector, global) match {
           case (UniqueSelector(targetName), true) => {
@@ -234,14 +119,5 @@ class LinkResolver (path: Path, root: RootElement) {
       
     }
   }
-}
-  
-object LinkResolver {
-  
-  /** Provides a link resolver
-   *  for the specified root element (without executing it).
-   */
-  def apply (path: Path, root: RootElement): LinkResolver = new LinkResolver(path,root)
   
 }
-

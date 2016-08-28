@@ -36,6 +36,7 @@ import laika.tree.Templates.TemplateContextReference
 import scala.util.Try
 import laika.parse.css.Styles.StyleDeclarationSet
 import laika.rewrite.AutonumberConfig
+import laika.rewrite.LinkTargetProvider
 
 /** Provides the API for Documents and DocumentTrees as well as the Path API.
  *  
@@ -63,14 +64,10 @@ object Documents {
                   docNumber: List[Int] = Nil,
                   rewriteRules: Seq[DocumentContext => RewriteRule] = Nil) extends Titled {
     
-    private lazy val linkResolver = LinkResolver(path,content)
+    lazy val linkTargets = new LinkTargetProvider(path,content)
     
     protected lazy val defaultRules: Seq[DocumentContext => RewriteRule] = 
-      rewriteRules :+ (linkResolver.rewriteRules(_)) :+ (SectionBuilder(_))
-    
-    private[Documents] lazy val targets = linkResolver.globalTargets ++ (linkResolver.globalTargets collect {
-      case (UniqueSelector(name), target) => (PathSelector(path, name), target)
-    })
+      rewriteRules :+ LinkResolver :+ SectionBuilder
     
     private def findRoot: Seq[Block] = {
       (content select {
@@ -449,7 +446,7 @@ object Documents {
         case (list, tree) => tree.targets.toList ::: list
       }
       val all = (sub /: documents) { 
-        case (list, doc) => doc.targets.toList ::: list
+        case (list, doc) => doc.linkTargets.global.toList ::: list
       }
       (all.groupBy (_._1) collect {
         case (selector, ((_,target) :: Nil)) => (selector, target)
