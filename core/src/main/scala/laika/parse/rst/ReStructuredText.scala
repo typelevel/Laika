@@ -93,7 +93,9 @@ class ReStructuredText private (
     ) extends ParserFactory { self =>
 
   
-  val fileSuffixes: Set[String] = Set("rest","rst")    
+  val fileSuffixes: Set[String] = Set("rest","rst")  
+  
+  val rewriteRules = Seq(RewriteRules)
       
   /** Adds the specified directives and returns a new instance of the parser.
    *  These block directives may then be used anywhere in documents parsed by this instance.
