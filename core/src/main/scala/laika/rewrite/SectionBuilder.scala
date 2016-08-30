@@ -18,6 +18,7 @@ package laika.rewrite
 
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.Stack
+import laika.tree.Documents.TreePosition
 import laika.tree.Elements._
 
 /** Rewrite rules responsible for building the section structure
@@ -77,9 +78,9 @@ object SectionBuilder extends (DocumentCursor => RewriteRule) {
           case _ :: Nil => true
           case _ => false
         }
-        val docNumber = 
-          if (autonumberConfig.documents) cursor.position.toSeq.toList // TODO - use SectionNumber Span
-          else Nil
+        val docPosition = 
+          if (autonumberConfig.documents) cursor.position
+          else TreePosition.root
           
         def transformRootBlocks (blocks: Seq[Block]): Seq[Block] = 
           ((ListBuffer[Block]() /: blocks) {
@@ -89,29 +90,28 @@ object SectionBuilder extends (DocumentCursor => RewriteRule) {
         
         def transformRootSection (s: Section): Seq[Block] = {
           val options = SomeOpt(s.header.options.id, s.header.options.styles - "section" + "title")
-          val title = if (autonumberConfig.documents) Title(addNumber(s.header.content, docNumber, "title"), options) 
+          val title = if (autonumberConfig.documents) Title(addNumber(s.header.content, docPosition), options) 
                       else Title(s.header.content, options)
-          val content = if (autonumberConfig.sections) numberSections(s.content, docNumber) else s.content
+          val content = if (autonumberConfig.sections) numberSections(s.content, docPosition) else s.content
           title +: content
         }
         
-        def addNumber (spans: Seq[Span], num: List[Int], style: String): Seq[Span] = 
-          Text(num.mkString("","."," "), Styles(style+"Number")) +: spans 
+        def addNumber (spans: Seq[Span], position: TreePosition): Seq[Span] = position.toSpan +: spans 
           
-        def numberSection (s: Section, num: List[Int]): Section = s.copy(
+        def numberSection (s: Section, position: TreePosition): Section = s.copy(
           header = s.header.copy(
-              content = addNumber(s.header.content, num, "section"), 
+              content = addNumber(s.header.content, position), 
               options = s.header.options + Styles("section")
           ),
-          content = numberSections(s.content, num)
+          content = numberSections(s.content, position)
         )  
         
-        def numberSections (blocks: Seq[Block], parentNumber: List[Int], hasTitle: Boolean = false): Seq[Block] = {
+        def numberSections (blocks: Seq[Block], parentPosition: TreePosition, hasTitle: Boolean = false): Seq[Block] = {
           (((ListBuffer[Block](), 1, hasTitle) /: blocks) { 
             case ((acc, num, title), s: Section) => {
               val elements = 
                 if (title) transformRootSection(s) 
-                else if (parentNumber.length < autonumberConfig.maxDepth) numberSection(s, parentNumber :+ num) :: Nil
+                else if (parentPosition.depth < autonumberConfig.maxDepth) numberSection(s, parentPosition.forChild(num)) :: Nil
                 else List(s)
               (acc ++= elements, if (title) num else num + 1, false)
             }
@@ -119,7 +119,7 @@ object SectionBuilder extends (DocumentCursor => RewriteRule) {
           })._1.toList
         }
         
-        if (autonumberConfig.sections) numberSections(sectionStructure, docNumber, hasTitle)
+        if (autonumberConfig.sections) numberSections(sectionStructure, docPosition, hasTitle)
         else if (hasTitle) transformRootBlocks(sectionStructure)
         else sectionStructure
       }

@@ -49,7 +49,7 @@ class SectionNumberSpec extends FlatSpec
     
     def numberedHeader (level: Int, title: Int, num: List[Int], style: String = "section"): Header = {
       val numbered = isIncluded(num.length) && (style == "section" && numberSections) || (style == "title" && numberDocs)
-      val number = if (numbered) List(Text(num.mkString("","."," "),Styles(style+"Number"))) else Nil
+      val number = if (numbered) List(SectionNumber(num)) else Nil
       Header(level, number ++ List(Text(s"Title $title")),Id(s"title$title") + Styles(style))
     }
       

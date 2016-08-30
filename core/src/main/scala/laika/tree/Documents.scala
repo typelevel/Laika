@@ -123,6 +123,8 @@ object Documents {
     
     def toSpan: Span = SectionNumber(toSeq)
     
+    def depth = toSeq.size
+    
     def forChild(childPos: Int) = TreePosition(toSeq :+ childPos)
   }
   
