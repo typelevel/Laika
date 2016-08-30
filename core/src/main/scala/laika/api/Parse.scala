@@ -27,17 +27,15 @@ import laika.io.IO
 import laika.io.Input
 import laika.io.InputProvider
 import laika.io.InputProvider._
+import laika.parse.css.Styles.StyleDeclarationSet
+import laika.rewrite.DocumentCursor
+import laika.rewrite.RewriteRules
+import laika.template.ParseTemplate
 import laika.tree.Documents._
 import laika.tree.Elements.RewriteRule
-import laika.tree.Templates.TemplateDocument
+import Parse.Parsers
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions
-import laika.template.ParseTemplate
-import Parse.Parsers
-import laika.parse.css.Styles.StyleDeclarationSet
-import laika.rewrite.SectionBuilder
-import laika.rewrite.LinkResolver
-import laika.rewrite.RewriteRules
   
 /** API for performing a parse operation from various types of input to obtain
  *  a document tree without a subsequent render operation. 
@@ -142,11 +140,7 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
     
     val doc = IO(input)(parsers.forInput(input))
 
-    if (rewrite) {
-      val rules = parsers.rewriteRules(input) map (_(DocumentContext(doc)))
-      val chainedRules = RewriteRules.chain(rules)
-      doc.rewrite(chainedRules)
-    }
+    if (rewrite) doc.rewrite(parsers.rewriteRulesFor(input, doc))
     else doc
   }
   
@@ -280,15 +274,16 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
     
     def collectDocuments (provider: InputProvider, root: Boolean = false): DocumentTree = {
       val docs = provider.markupDocuments map (i => docMap(i.path))
+      val trees = provider.subtrees map (collectDocuments(_))
       val templates = provider.templates map (i => templateMap((Template,i.path)))
-      val dynamic = provider.dynamicDocuments map (i => templateMap((Dynamic,i.path)))
       val styles = (provider.styleSheets mapValues (_.map(i => styleMap(i.path)).reduce(_++_))) withDefaultValue StyleDeclarationSet.empty
+      val dynamic = provider.dynamicDocuments map (i => templateMap((Dynamic,i.path)))
+      val static = provider.staticDocuments map (StaticDocument(_))
       val treeConfig = provider.configDocuments.find(_.path.name == "directory.conf").map(i => treeConfigMap(i.path).config)
       val rootConfig = if (root) rootConfigSeq else Nil
-      val static = provider.staticDocuments
-      val trees = provider.subtrees map (collectDocuments(_))
-      val config = (treeConfig.toList ++ rootConfig) reduceLeftOption (_ withFallback _) 
-      new DocumentTree(provider.path, docs, templates, dynamic, Nil, styles, static, trees, config, sourcePaths = provider.sourcePaths)
+      val config = (treeConfig.toList ++ rootConfig) reduceLeftOption (_ withFallback _) getOrElse ConfigFactory.empty
+      val additionalContent: Seq[AdditionalContent] = dynamic ++ static
+      DocumentTree(provider.path, docs ++ trees, templates, styles, additionalContent, config, sourcePaths = provider.sourcePaths)
     }
     
     val tree = collectDocuments(config.provider, true)
@@ -318,43 +313,34 @@ object Parse {
    */
   def as (factory: ParserFactory): Parse = new Parse(new Parsers(factory), true) 
 
-  
-  private[laika] class Parser (factory: ParserFactory) {
-    lazy val get = factory.newParser
-    val suffixes = factory.fileSuffixes
-    val rewriteRules = factory.rewriteRules
-  }
-  
-  private[laika] class Parsers (parsers: Seq[Parser]) {
+  private[laika] class Parsers (parsers: Seq[ParserFactory]) {
     
-    def this (factory: ParserFactory) = this(Seq(new Parser(factory)))
+    def this (factory: ParserFactory) = this(Seq(factory))
     
-    def withFactory (factory: ParserFactory): Parsers = new Parsers(parsers :+ new Parser(factory))
+    def withFactory (factory: ParserFactory): Parsers = new Parsers(parsers :+ factory)
         
     private def suffix (name: String): String = name.lastIndexOf(".") match {
       case -1    => ""
       case index => name.drop(index+1)
     }  
     
-    lazy val map: Map[String,Parser] =
-      parsers flatMap (p => p.suffixes map ((_, p))) toMap
+    lazy val map: Map[String, ParserFactory] =
+      parsers flatMap (p => p.fileSuffixes map ((_, p))) toMap
     
-    lazy val suffixes: Set[String] = parsers flatMap (_.suffixes) toSet
+    lazy val suffixes: Set[String] = parsers flatMap (_.fileSuffixes) toSet
     
-    private def parserForInput (input: Input): Parser = {
+    private def parserForInput (input: Input): ParserFactory = {
       if (parsers.size == 1) parsers.head
       else map.get(suffix(input.name)).getOrElse(
         throw new IllegalArgumentException("Unable to determine parser based on input name: ${input.name}")
       )
     }
     
-    def rewriteRules: Seq[DocumentContext => RewriteRule] =
-      parsers.map(_.rewriteRules).flatten :+ LinkResolver :+ SectionBuilder
+    def rewriteRules: DocumentCursor => RewriteRule = RewriteRules.defaultsFor(parsers: _*)
     
-    def rewriteRules (input: Input): Seq[DocumentContext => RewriteRule] =
-      parserForInput(input).rewriteRules :+ LinkResolver :+ SectionBuilder
+    def rewriteRulesFor (input: Input, doc: Document): RewriteRule = RewriteRules.defaultsFor(parserForInput(input))(DocumentCursor(doc))
     
-    def forInput (input: Input): Input => Document = parserForInput(input).get
+    def forInput (input: Input): Input => Document = parserForInput(input).newParser
     
   }
   

@@ -19,7 +19,6 @@ package laika.rewrite
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.Stack
 import laika.tree.Elements._
-import laika.tree.Documents.DocumentContext
 
 /** Rewrite rules responsible for building the section structure
  *  of a document based on the header elements it contains and
@@ -27,10 +26,10 @@ import laika.tree.Documents.DocumentContext
  * 
  * @author Jens Halm
  */
-object SectionBuilder extends (DocumentContext => RewriteRule) {
+object SectionBuilder extends (DocumentCursor => RewriteRule) {
 
   
-  class DefaultRule (context: DocumentContext) { 
+  class DefaultRule (cursor: DocumentCursor) { 
     
     class Builder (header:Header, id: String) {
     
@@ -72,14 +71,15 @@ object SectionBuilder extends (DocumentContext => RewriteRule) {
       
       val numberedSections: Seq[Block] = {
         
-        val hasSectionNumbers = context.autonumbering.config.sections
-        val hasDocumentNumbers = context.autonumbering.config.documents
+        val autonumberConfig = AutonumberConfig.fromConfig(cursor.config)
+
         val hasTitle = sectionStructure collect { case s:Section => s } match {
           case _ :: Nil => true
           case _ => false
         }
-        val docNumber = context.autonumbering.number 
-        val maxDepth = context.autonumbering.config.maxDepth
+        val docNumber = 
+          if (autonumberConfig.documents) cursor.position.toSeq.toList // TODO - use SectionNumber Span
+          else Nil
           
         def transformRootBlocks (blocks: Seq[Block]): Seq[Block] = 
           ((ListBuffer[Block]() /: blocks) {
@@ -89,9 +89,9 @@ object SectionBuilder extends (DocumentContext => RewriteRule) {
         
         def transformRootSection (s: Section): Seq[Block] = {
           val options = SomeOpt(s.header.options.id, s.header.options.styles - "section" + "title")
-          val title = if (hasDocumentNumbers) Title(addNumber(s.header.content, docNumber, "title"), options) 
+          val title = if (autonumberConfig.documents) Title(addNumber(s.header.content, docNumber, "title"), options) 
                       else Title(s.header.content, options)
-          val content = if (hasSectionNumbers) numberSections(s.content, docNumber) else s.content
+          val content = if (autonumberConfig.sections) numberSections(s.content, docNumber) else s.content
           title +: content
         }
         
@@ -111,7 +111,7 @@ object SectionBuilder extends (DocumentContext => RewriteRule) {
             case ((acc, num, title), s: Section) => {
               val elements = 
                 if (title) transformRootSection(s) 
-                else if (parentNumber.length < maxDepth) numberSection(s, parentNumber :+ num) :: Nil
+                else if (parentNumber.length < autonumberConfig.maxDepth) numberSection(s, parentNumber :+ num) :: Nil
                 else List(s)
               (acc ++= elements, if (title) num else num + 1, false)
             }
@@ -119,7 +119,7 @@ object SectionBuilder extends (DocumentContext => RewriteRule) {
           })._1.toList
         }
         
-        if (hasSectionNumbers) numberSections(sectionStructure, docNumber, hasTitle)
+        if (autonumberConfig.sections) numberSections(sectionStructure, docNumber, hasTitle)
         else if (hasTitle) transformRootBlocks(sectionStructure)
         else sectionStructure
       }
@@ -135,6 +135,6 @@ object SectionBuilder extends (DocumentContext => RewriteRule) {
   /** Provides the default rewrite rules for building the section structure
    *  for the specified document (without applying them).
    */
-  def apply (context: DocumentContext): RewriteRule = (new DefaultRule(context)).rewrite
+  def apply (cursor: DocumentCursor): RewriteRule = (new DefaultRule(cursor)).rewrite
   
 }

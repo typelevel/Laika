@@ -16,14 +16,9 @@
 
 package laika.tree
 
-import laika.tree.Documents.Document
-import laika.tree.Documents.DocumentContext
-import laika.tree.Paths.Path
+import laika.rewrite.DocumentCursor
+import laika.rewrite.TemplateRewriter
 import laika.tree.Elements._
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
-import scala.collection.mutable.ListBuffer
-import laika.tree.Documents.Navigatable
 
 /** Provides the elements of the document tree which are specific to templates.
  *  
@@ -46,7 +41,7 @@ object Templates {
    *  being fully resolved.
    */
   trait SpanResolver extends Span {
-    def resolve (context: DocumentContext): Span
+    def resolve (cursor: DocumentCursor): Span
   }
 
   /** Represents a placeholder block element that needs
@@ -56,7 +51,7 @@ object Templates {
    *  being fully resolved.
    */
   trait BlockResolver extends Block {
-    def resolve (context: DocumentContext): Block
+    def resolve (cursor: DocumentCursor): Block
   }
   
   /** Represents a reference to a value from the context
@@ -77,8 +72,8 @@ object Templates {
     
     def result (value: Option[Any]): T
     
-    def resolve (context: DocumentContext): Span = context.resolveReference(ref) match {
-      case Some(s: ElementTraversal[_]) => result(Some(s rewrite rewriteRules(context)))
+    def resolve (cursor: DocumentCursor): Span = cursor.resolveReference(ref) match {
+      case Some(s: ElementTraversal[_]) => result(Some(s rewrite TemplateRewriter.rewriteRules(cursor)))
       case other => result(other)
     }
   }
@@ -141,65 +136,4 @@ object Templates {
    */
   case class EmbeddedRoot (content: Seq[Block], indent: Int = 0, options: Options = NoOpt) extends TemplateSpan with BlockContainer[EmbeddedRoot]
   
-  /** A template document containing the element tree of a parsed template and its extracted
-   *  configuration section (if present).
-   */
-  case class TemplateDocument (path: Path, content: TemplateRoot, config: Config = ConfigFactory.empty) extends Navigatable {
-    
-    /** Rewrites this template document, replacing all
-     *  span and block resolvers with the final resolved
-     *  element they produce based on the specified
-     *  document context.
-     */
-    def rewrite (context: DocumentContext): Document = {
-      val newContent = content rewrite rewriteRules(context)
-      val newRoot = newContent match {
-        case TemplateRoot(List(TemplateElement(root: RootElement, _, _)), _) => root
-        case TemplateRoot(List(EmbeddedRoot(content, _, _)), _) => RootElement(content)
-        case other => RootElement(Seq(newContent))
-      }
-      context.document.withRewrittenContent(newRoot, context.document.fragments)
-    }
-    
-  }
-  
-  /** The default rewrite rules for template documents,
-   *  responsible for replacing all
-   *  span and block resolvers with the final resolved
-   *  element they produce based on the specified
-   *  document context.
-   */
-  def rewriteRules (context: DocumentContext) = {
-    
-    lazy val rule: RewriteRule = {
-      case ph: BlockResolver => Some(rewriteChild(ph resolve context))
-      case ph: SpanResolver  => Some(rewriteChild(ph resolve context))
-      case TemplateRoot(spans, opt)         => Some(TemplateRoot(format(spans), opt))
-      case TemplateSpanSequence(spans, opt) => Some(TemplateSpanSequence(format(spans), opt))
-    }
-    
-    def rewriteChild (e: Element): Element = e match {
-      case et: ElementTraversal[_] => et rewrite rule
-      case other => other
-    }
-    
-    def format (spans: Seq[TemplateSpan]): Seq[TemplateSpan] = {
-      def indentFor(text: String): Int = text.lastIndexOf('\n') match {
-        case -1    => 0
-        case index => if (text.drop(index).trim.isEmpty) text.length - index - 1 else 0
-      }
-      if (spans.isEmpty) spans
-      else spans.sliding(2).foldLeft(new ListBuffer[TemplateSpan]() += spans.head) { 
-        case (buffer, TemplateString(text, NoOpt) :: TemplateElement(elem, 0, opt) :: Nil) => 
-          buffer += TemplateElement(elem, indentFor(text), opt)
-        case (buffer, TemplateString(text, NoOpt) :: EmbeddedRoot(elem, 0, opt) :: Nil) => 
-          buffer += EmbeddedRoot(elem, indentFor(text), opt)
-        case (buffer, _ :: elem :: Nil) => buffer += elem
-        case (buffer, _) => buffer
-      }.toList
-    }
-    rule
-  }
-  
-
 }

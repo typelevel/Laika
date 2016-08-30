@@ -23,6 +23,8 @@ import laika.io.InputProvider.Directories
 import laika.io.InputProvider.InputConfigBuilder
 import laika.io.OutputProvider.Directory
 import laika.io.OutputProvider.OutputConfigBuilder
+import laika.rewrite.DocumentCursor
+import laika.rewrite.RewriteRules
 import laika.template.ParseTemplate
 import laika.template.DefaultTemplate
 import laika.tree.Documents._
@@ -86,7 +88,7 @@ object LaikaSbtPlugin extends Plugin {
 
     val outputTree          = taskKey[OutputConfigBuilder]("The configured output tree for the renderer")
     
-    val rewriteRules        = settingKey[Seq[DocumentContext => RewriteRule]]("Custom rewrite rules to add to the standard rules")
+    val rewriteRules        = settingKey[Seq[DocumentCursor => RewriteRule]]("Custom rewrite rules to add to the standard rules")
     
     val siteRenderers       = settingKey[Seq[HTMLWriter => RenderFunction]]("Custom HTML renderers overriding the defaults per node type")
     
@@ -124,8 +126,8 @@ object LaikaSbtPlugin extends Plugin {
     def siteRenderer (f: HTMLWriter => RenderFunction) = f
     def foRenderer (f: FOWriter => RenderFunction) = f
     def textRenderer (f: TextWriter => RenderFunction) = f
-    def rewriteRule (rule: RewriteRule): DocumentContext => RewriteRule = _ => rule
-    def rewriteRuleFactory (factory: DocumentContext => RewriteRule) = factory
+    def rewriteRule (rule: RewriteRule): DocumentCursor => RewriteRule = _ => rule
+    def rewriteRuleFactory (factory: DocumentCursor => RewriteRule) = factory
     
   }
   
@@ -283,7 +285,7 @@ object LaikaSbtPlugin extends Plugin {
         streams.value.log.info(Log.inputs(inputs.provider))
         
         val rawTree = markupParser.value fromTree inputs
-        val tree = rawTree rewrite (rewriteRules.value, AutonumberContext.defaults)
+        val tree = rawTree rewrite (RewriteRules.chainFactories(rewriteRules.value))
 
         logMessageLevel.value foreach { Log.systemMessages(streams.value.log, tree, _) }
         
@@ -514,12 +516,20 @@ object LaikaSbtPlugin extends Plugin {
     def outputs (tree: DocumentTree): String = {
       
       def count (tree: DocumentTree): (Int, Int) = {
-        val render = tree.documents.length + tree.dynamicDocuments.length
-        val copy = tree.staticDocuments.length
-        val all = (tree.subtrees map count) :+ (render, copy)
-        (((0,0) /: (all)) { 
-          case ((r1, c1), (r2, c2)) => (r1+r2, c1+c2)
-        })
+        
+        val (render, copy) = tree.content.foldLeft((0,0)) {
+          case ((render, copy), _: Document) => (render + 1, copy) 
+          case ((render, copy), tree: DocumentTree) => 
+            val (childRender, childCopy) = count(tree)
+            (render + childRender, copy + childCopy) 
+        }
+        
+        tree.additionalContent.foldLeft((render, copy)) {
+          case ((render, copy), _: DynamicDocument) => (render + 1, copy)
+          case ((render, copy), _: StaticDocument) => (render, copy + 1)
+          case _ => (render, copy)
+        }
+        
       }
       
       val (render, copy) = count(tree)
@@ -554,9 +564,14 @@ object LaikaSbtPlugin extends Plugin {
           nodes foreach { logMessage(_, path) }
         }
         
-        tree.documents foreach { doc => logRoot(doc.content, doc.path) }
-        tree.dynamicDocuments foreach { doc => logRoot(doc.content, doc.path) }
-        tree.subtrees foreach log
+        tree.content foreach {
+          case doc: Document => logRoot(doc.content, doc.path)
+          case tree: DocumentTree => log(tree)
+        }
+        tree.additionalContent foreach { 
+          case doc: DynamicDocument => logRoot(doc.content, doc.path)
+          case _ => ()
+        }
       }
       
       log(tree)

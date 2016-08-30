@@ -18,22 +18,20 @@ package laika.directive
 
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
-import laika.rewrite.LinkResolver
-import laika.rewrite.SectionBuilder
-import laika.tree.helper.ModelBuilder
 import laika.api.Parse
+import laika.rewrite.DocumentCursor
+import laika.rewrite.TemplateRewriter
+import laika.rewrite.RewriteRules
 import laika.parse.markdown.Markdown
-import laika.tree.Elements._
+import laika.tree.helper.ModelBuilder
 import laika.template.ParseTemplate
 import laika.template.DefaultTemplate
-import com.typesafe.config.ConfigFactory
-import laika.tree.Paths.Path
-import laika.tree.Paths.Root
-import laika.tree.Paths.Current
-import laika.tree.Templates.TemplateDocument
+import laika.tree.Elements._
+import laika.tree.Paths._
+import laika.tree.Documents._
 import laika.tree.Templates.TemplateRoot
 import laika.tree.Templates.TemplateSpanSequence
-import laika.tree.Documents._
+import com.typesafe.config.ConfigFactory
 import scala.collection.JavaConversions._
 
 class StandardDirectiveSpec extends FlatSpec
@@ -52,8 +50,9 @@ class StandardDirectiveSpec extends FlatSpec
   
   def parseTemplateWithConfig (input: String, config: String): RootElement = {
     val tRoot = parseTemplate(input)
-    val template = new TemplateDocument(Root, tRoot)
-    (template rewrite DocumentContext(new Document(Root, root(), config = ConfigFactory.parseString(config)))).content
+    val template = TemplateDocument(Root, tRoot)
+    val cursor = DocumentCursor(Document(Root, root(), config = ConfigFactory.parseString(config)))
+    TemplateRewriter.applyTemplate(cursor, template).content
   }
   
 
@@ -285,21 +284,21 @@ class StandardDirectiveSpec extends FlatSpec
     )
     
     def docs (path: Path, nums: Int*) = nums map { 
-      n => new Document(path / ("doc"+n), sectionsWithoutTitle, config = ConfigFactory.parseString("title: Doc "+n))
+      n => Document(path / ("doc"+n), sectionsWithoutTitle, config = ConfigFactory.parseString("title: Doc "+n))
     }
 
     def buildTree (template: TemplateDocument, markup: Document) = {
-      new DocumentTree(Root, docs(Root, 1,2), templates = List(template), subtrees = List(
-        new DocumentTree(Root / "sub1", docs(Root / "sub1",3,4), config = Some(ConfigFactory.parseString("title: Tree 1"))),
-        new DocumentTree(Root / "sub2", docs(Root / "sub2",5,6) ++ List(markup), config = Some(ConfigFactory.parseString("title: Tree 2")))
-      ))
+      DocumentTree(Root, docs(Root, 1,2) ++ List(
+        DocumentTree(Root / "sub1", docs(Root / "sub1",3,4), config = ConfigFactory.parseString("title: Tree 1")),
+        DocumentTree(Root / "sub2", docs(Root / "sub2",5,6) ++ List(markup), config = ConfigFactory.parseString("title: Tree 2"))
+      ), templates = List(template))
     }
     
     def parseAndRewrite (template: String, markup: String) = {
-      val templateDoc = new TemplateDocument(Root / "test.html", parseTemplate(template))
-      val doc = new Document(pathUnderTest, parse(markup).content, config = ConfigFactory.parseString("title: Doc 7, template: /test.html"))
-      val tree = buildTree(templateDoc, doc)
-      tree.rewrite(Seq(LinkResolver, SectionBuilder)).applyTemplates("html").selectDocument(Current / "sub2" / "doc7").get.content
+      val templateDoc = TemplateDocument(Root / "test.html", parseTemplate(template))
+      val doc = Document(pathUnderTest, parse(markup).content, config = ConfigFactory.parseString("title: Doc 7, template: /test.html"))
+      val tree = buildTree(templateDoc, doc).rewrite(RewriteRules.defaults)
+      TemplateRewriter.applyTemplates(tree, "html").selectDocument(Current / "sub2" / "doc7").get.content
     }
     
     def markup = """# Headline 1

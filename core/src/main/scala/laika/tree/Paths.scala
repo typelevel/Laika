@@ -16,23 +16,7 @@
 
 package laika.tree
 
-import laika.tree.Elements._
-import laika.tree.Templates.TemplateDocument
-import laika.tree.Elements.Reference
-import laika.rewrite.LinkTargets._
-import laika.rewrite.LinkResolver
-import laika.rewrite.RewriteRules
-import laika.rewrite.SectionBuilder
-import laika.rewrite.TreeUtil
 import scala.annotation.tailrec
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
-import laika.io.InputProvider
-import laika.io.Input
-import laika.tree.Templates.TemplateRoot
-import laika.tree.Templates.TemplateContextReference
-import scala.util.Try
-import laika.parse.css.Styles.StyleDeclarationSet
 
 /** Provides the Path API for documents and trees.
  *  

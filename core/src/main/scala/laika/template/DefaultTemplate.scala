@@ -17,7 +17,7 @@
 package laika.template
 
 import laika.io.Input
-import laika.tree.Templates.TemplateDocument
+import laika.tree.Documents.TemplateDocument
 import laika.directive.Directives.Templates
 import laika.directive.StandardDirectives
 

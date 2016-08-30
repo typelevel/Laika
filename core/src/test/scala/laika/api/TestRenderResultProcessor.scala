@@ -36,8 +36,7 @@ object TestRenderResultProcessor extends RenderResultProcessor[TextWriter] {
     def baseName(docName: String) = docName.takeWhile(_ != '.')
     
     def append (sb: StringBuilder, result: ResultTree, src: DocumentTree): Unit = {
-      val nav = src.documents ++ src.subtrees 
-      nav.foreach {
+      src.content.foreach {
         case d: Document => result.result(baseName(d.name) + ".txt").foreach(s => sb.append(s + "\n"))
         case t: DocumentTree => result.subtree(t.name).foreach(append(sb, _, t))
       }

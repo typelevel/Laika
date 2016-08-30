@@ -18,6 +18,7 @@ package laika.render
 
 import laika.tree.Paths.Path
 import laika.tree.Paths.Root
+import laika.tree.Documents.TemplateDocument
 import laika.tree.Elements._
 import laika.tree.ElementTraversal
 import laika.tree.Templates._

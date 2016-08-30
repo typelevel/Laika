@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package laika.tree
+package laika.tree.helper
 
-import Documents._
-import Templates._
 import laika.io.Input
-import com.typesafe.config.Config
-import laika.tree.Elements._
-import laika.parse.css.Styles.StyleDeclarationSet
-import laika.tree.Paths.Path
 import laika.io.DocumentType
 import laika.io.DocumentType._
+import laika.parse.css.Styles.StyleDeclarationSet
+import laika.tree.Elements._
+import laika.tree.Documents._
+import laika.tree.Templates._
+import laika.tree.Paths.Path
 
 /* Provides a view of DocumentTree structures that allows for 
  * PrettyPrint rendering (for debugging purposes) and case
@@ -39,7 +38,7 @@ import laika.io.DocumentType._
  * structure do not matter any more) or where any possible future effects
  * of rewriting can be safely ignored for testing purposes.
  */
-object DocumentTreeHelper {
+object DocumentViewBuilder {
 
   
   trait View extends Element
@@ -81,15 +80,22 @@ object DocumentTreeHelper {
   
   def viewOf (tree: DocumentTree): TreeView = {
     val content = (
-      Documents(Markup, tree.documents map viewOf) ::
+      Documents(Markup, tree.content.collect{case doc: Document => doc} map viewOf) ::
       StyleSheets(tree.styles) ::
       TemplateDocuments(Template, tree.templates map viewOf) ::
-      TemplateDocuments(Dynamic, tree.dynamicTemplates map viewOf) ::
-      Documents(Dynamic, tree.dynamicDocuments map viewOf) ::
-      Inputs(Static, tree.staticDocuments map viewOf) ::
-      Subtrees(tree.subtrees map viewOf) :: 
+      TemplateDocuments(Dynamic, tree.additionalContent.collect{case doc: TemplateDocument => doc} map viewOf) ::
+      Documents(Dynamic, tree.additionalContent.collect{case doc: DynamicDocument => doc} map viewOf) ::
+      Inputs(Static, tree.additionalContent.collect{case doc: StaticDocument => doc.input} map viewOf) ::
+      Subtrees(tree.content.collect{case tree: DocumentTree => tree} map viewOf) :: 
       List[TreeContent]()) filterNot { case c: ViewContainer[_] => c.content.isEmpty; case StyleSheets(styles) => styles.isEmpty }
     TreeView(tree.path, content)
+  }
+  
+  def viewOf (doc: DynamicDocument): DocumentView = {
+    val content = (
+      Content(doc.content.content) :: 
+      List[DocumentContent]()) filterNot { case c: ElementContainer[_,_] => c.content.isEmpty }
+    DocumentView(doc.path, content)
   }
   
   def viewOf (doc: Document): DocumentView = {

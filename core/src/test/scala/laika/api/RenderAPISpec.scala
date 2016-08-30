@@ -37,6 +37,9 @@ import laika.tree.Elements.Title
 import laika.tree.helper.ModelBuilder
 import laika.tree.Documents.DocumentTree
 import laika.tree.Documents.Document
+import laika.tree.Documents.DynamicDocument
+import laika.tree.Documents.StaticDocument
+import laika.tree.Documents.TemplateDocument
 import laika.tree.Paths.Path
 import laika.tree.Paths.Root
 import laika.tree.Templates._
@@ -109,10 +112,10 @@ class RenderAPISpec extends FlatSpec
   
   
   trait DocBuilder {
-    def markupDoc (num: Int, path: Path = Root)  = new Document(path / ("doc"+num), root(p("Doc"+num)))
-    def dynamicDoc (num: Int, path: Path = Root) = new Document(path / ("doc"+num), root(TemplateRoot(List(TemplateString("Doc"+num)))))
+    def markupDoc (num: Int, path: Path = Root)  = Document(path / ("doc"+num), root(p("Doc"+num)))
+    def dynamicDoc (num: Int, path: Path = Root) = DynamicDocument(path / ("doc"+num), root(TemplateRoot(List(TemplateString("Doc"+num)))))
     
-    def staticDoc (num: Int, path: Path = Root) = Input.fromString("Static"+num, path / (s"static$num.txt"))
+    def staticDoc (num: Int, path: Path = Root) = StaticDocument(Input.fromString("Static"+num, path / (s"static$num.txt")))
     
     
     def renderedDynDoc (num: Int) = """RootElement - Blocks: 1
@@ -162,21 +165,21 @@ class RenderAPISpec extends FlatSpec
   
   it should "render an empty tree" in {
     new PrettyPrintRenderer {
-      val input = new DocumentTree(Root, Nil)
+      val input = DocumentTree(Root, Nil)
       renderedTree should be (RenderedTree(Root, Nil))
     }
   }
   
   it should "render a tree with a single document" in {
     new PrettyPrintRenderer {
-      val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem)))
+      val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
       renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.txt", expected))))))
     }
   }
   
   it should "render a tree with a single document to HTML using the default template" in {
     new HTMLRenderer {
-      val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem)))
+      val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
       val expected = RenderResult.html.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
         |      <p>bbb</p>""".stripMargin)
       renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.html", expected))))))
@@ -185,8 +188,8 @@ class RenderAPISpec extends FlatSpec
   
   it should "render a tree with a single document to HTML using a custom template" in {
     new HTMLRenderer {
-      val template = new TemplateDocument(Root / "default.template.html", tRoot(tt("["), TemplateContextReference("document.content"), tt("]")))
-      val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem)), templates = Seq(template))
+      val template = TemplateDocument(Root / "default.template.html", tRoot(tt("["), TemplateContextReference("document.content"), tt("]")))
+      val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
       val expected = """[<h1 id="title" class="title">Title</h1>
         |<p>bbb</p>]""".stripMargin
       renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.html", expected))))))
@@ -195,7 +198,7 @@ class RenderAPISpec extends FlatSpec
   
   it should "render a tree with a single document to XSL-FO using the default template and default CSS" in {
     new FORenderer {
-      val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem)))
+      val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
       val expected = RenderResult.fo.withDefaultTemplate(s"""${marker("Title")}
         |      ${title("_title", "Title")}
         |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">bbb</fo:block>""".stripMargin)
@@ -205,8 +208,8 @@ class RenderAPISpec extends FlatSpec
   
   it should "render a tree with a single document to XSL-FO using a custom template" in {
     new FORenderer {
-      val template = new TemplateDocument(Root / "default.template.fo", tRoot(tt("["), TemplateContextReference("document.content"), tt("]")))
-      val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem)), templates = Seq(template))
+      val template = TemplateDocument(Root / "default.template.fo", tRoot(tt("["), TemplateContextReference("document.content"), tt("]")))
+      val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
       val expected = s"""[${marker("Title")}
         |${title("_title", "Title")}
         |<fo:block font-family="serif" font-size="10pt" space-after="3mm">bbb</fo:block>]""".stripMargin
@@ -216,8 +219,10 @@ class RenderAPISpec extends FlatSpec
   
   it should "render a tree with two documents to XSL-FO using a custom style sheet in the root directory" in {
     new FORenderer {
-      val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem)), styles = foStyles, subtrees = 
-        Seq(new DocumentTree(Root / "tree", List(new Document(Root / "tree" / "sub", subElem)))))
+      val input = DocumentTree(Root, List(
+        Document(Root / "doc", rootElem), 
+        DocumentTree(Root / "tree", List(Document(Root / "tree" / "sub", subElem)))
+      ), styles = foStyles)
       val expectedRoot = RenderResult.fo.withDefaultTemplate(s"""${marker("Title")}
         |      ${title("_title", "Title")}
         |      <fo:block font-family="serif" font-size="11pt" space-after="3mm">bbb</fo:block>""".stripMargin)
@@ -235,8 +240,10 @@ class RenderAPISpec extends FlatSpec
   
   it should "render a tree with two documents to XSL-FO using a custom style sheet in the sub directory" in {
     new FORenderer {
-      val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem)), subtrees = 
-        Seq(new DocumentTree(Root / "tree", List(new Document(Root / "tree" / "sub", subElem)), styles = foStyles)))
+      val input = DocumentTree(Root, List(
+        Document(Root / "doc", rootElem), 
+        DocumentTree(Root / "tree", List(Document(Root / "tree" / "sub", subElem)), styles = foStyles)
+      ))
       val expectedRoot = RenderResult.fo.withDefaultTemplate(s"""${marker("Title")}
         |      ${title("_title", "Title")}
         |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">bbb</fo:block>""".stripMargin)
@@ -255,8 +262,10 @@ class RenderAPISpec extends FlatSpec
   it should "render a tree with two documents to XSL-FO using a custom style sheet programmatically" in {
     new FORenderer {
       override val render = Render as XSLFO.withStyles(foStyles("fo"))
-      val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem)), subtrees = 
-        Seq(new DocumentTree(Root / "tree", List(new Document(Root / "tree" / "sub", subElem)))))
+      val input = DocumentTree(Root, List(
+        Document(Root / "doc", rootElem),
+        DocumentTree(Root / "tree", List(Document(Root / "tree" / "sub", subElem)))
+      ))
       val expectedRoot = RenderResult.fo.withDefaultTemplate(s"""${marker("Title")}
         |      ${title("_title", "Title")}
         |      <fo:block font-family="serif" font-size="11pt" space-after="3mm">bbb</fo:block>""".stripMargin)
@@ -274,36 +283,34 @@ class RenderAPISpec extends FlatSpec
   
   it should "render a tree with a single dynamic document" in {
     new PrettyPrintRenderer with DocBuilder {
-      val input = new DocumentTree(Root, Nil, dynamicDocuments = List(dynamicDoc(1)))
+      val input = DocumentTree(Root, Nil, additionalContent = List(dynamicDoc(1)))
       renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc1.txt", renderedDynDoc(1)))))))
     }
   }
   
   it should "render a tree with a single static document" in {
     new PrettyPrintRenderer with DocBuilder {
-      val input = new DocumentTree(Root, Nil, staticDocuments = List(staticDoc(1)))
+      val input = DocumentTree(Root, Nil, additionalContent = List(staticDoc(1)))
       renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "static1.txt", "Static1"))))))
     }
   }
   
   it should "render a tree with all available file types" in {
     new PrettyPrintRenderer with DocBuilder {
-      val input = new DocumentTree(Root,
-        documents = List(markupDoc(1), markupDoc(2)),
-        dynamicDocuments = List(dynamicDoc(1), dynamicDoc(2)),
-        staticDocuments = List(staticDoc(1), staticDoc(2)),
-        subtrees = List(
-          new DocumentTree(Root / "dir1",
-            documents = List(markupDoc(3), markupDoc(4)),
-            dynamicDocuments = List(dynamicDoc(3), dynamicDoc(4)),
-            staticDocuments = List(staticDoc(3), staticDoc(4))
+      val input = DocumentTree(Root,
+        content = List(
+          markupDoc(1), 
+          markupDoc(2),
+          DocumentTree(Root / "dir1",
+            content = List(markupDoc(3), markupDoc(4)),
+            additionalContent = List(dynamicDoc(3), dynamicDoc(4), staticDoc(3), staticDoc(4))
           ),
-          new DocumentTree(Root / "dir2",
-            documents = List(markupDoc(5), markupDoc(6)),
-            dynamicDocuments = List(dynamicDoc(5), dynamicDoc(6)),
-            staticDocuments = List(staticDoc(5), staticDoc(6))
+          DocumentTree(Root / "dir2",
+            content = List(markupDoc(5), markupDoc(6)),
+            additionalContent = List(dynamicDoc(5), dynamicDoc(6), staticDoc(5), staticDoc(6))
           )
-        )
+        ),
+        additionalContent = List(dynamicDoc(1), dynamicDoc(2), staticDoc(1), staticDoc(2))
       )
       renderedTree should be (RenderedTree(Root, List(
         Documents(List(
@@ -343,8 +350,12 @@ class RenderAPISpec extends FlatSpec
     val rootElem = root(self.title("Title"), p("bbb"))
     val subElem = root(self.title("Sub Title"), p("ccc"))
     
-    val input = new DocumentTree(Root, List(new Document(Root / "doc", rootElem)), subtrees = 
-      Seq(new DocumentTree(Root / "tree", List(new Document(Root / "tree" / "sub", subElem)))))
+    val input = DocumentTree(Root, List(
+      Document(Root / "doc", rootElem),
+      DocumentTree(Root / "tree", List(
+        Document(Root / "tree" / "sub", subElem)
+      ))
+    ))
     
     val expectedResult = """RootElement - Blocks: 2
       |. Title(Id(title) + Styles(title)) - Spans: 1
@@ -376,17 +387,18 @@ class RenderAPISpec extends FlatSpec
   }
   
   trait FileSystemTest extends DocBuilder {
-    val input = new DocumentTree(Root,
-      documents = List(markupDoc(1), markupDoc(2)),
-      subtrees = List(
-        new DocumentTree(Root / "dir1",
-          documents = List(markupDoc(3), markupDoc(4))
-        ),
-        new DocumentTree(Root / "dir2",
-          documents = List(markupDoc(5), markupDoc(6))
-        )
-      )
-    )
+    val input = DocumentTree(Root, List(
+      markupDoc(1), 
+      markupDoc(2),
+      DocumentTree(Root / "dir1", List(
+        markupDoc(3), 
+        markupDoc(4)
+      )),
+      DocumentTree(Root / "dir2", List(
+        markupDoc(5),
+        markupDoc(6)
+      ))
+    ))
     
     def readFiles (base: String) = {
       readFile(base+"/doc1.txt") should be (renderedDoc(1))

@@ -19,13 +19,12 @@ package laika.parse.rst
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
-import laika.tree.Elements._
-import laika.tree.Documents._
-import laika.tree.Paths.Root
 import laika.parse.rst.Elements._
+import laika.rewrite.DocumentCursor
+import laika.tree.Documents._
+import laika.tree.Elements._
+import laika.tree.Paths.Root
 import laika.tree.helper.ModelBuilder
-import laika.rewrite.LinkResolver
-import laika.rewrite.SectionBuilder
  
 class RewriteRulesSpec extends FlatSpec 
                   with Matchers
@@ -33,9 +32,9 @@ class RewriteRulesSpec extends FlatSpec
 
   
   def rewritten (root: RootElement): RootElement = {
-    val doc = new Document(Root, root)
-    val rules = Seq(RewriteRules, LinkResolver, SectionBuilder).map(_(DocumentContext(doc)))
-    doc.rewrite(laika.rewrite.RewriteRules.chain(rules)).content
+    val doc = Document(Root, root)
+    val rules = laika.rewrite.RewriteRules.defaultsFor(ReStructuredText)(DocumentCursor(doc))
+    doc.rewrite(rules).content
   }
   
   def invalidSpan (message: String, fallback: String): InvalidSpan =

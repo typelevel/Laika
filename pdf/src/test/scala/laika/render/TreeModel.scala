@@ -16,15 +16,15 @@
 
 package laika.render
 
-import laika.tree.Documents.DocumentTree
-import laika.tree.Paths.Root
 import laika.tree.Documents.Document
+import laika.tree.Documents.DocumentTree
 import laika.tree.Elements.RootElement
 import laika.tree.Elements.Text
 import laika.tree.Elements.Title
 import laika.tree.Elements.Id
 import laika.tree.Elements.Styles
 import laika.tree.Elements.Paragraph
+import laika.tree.Paths.Root
 import com.typesafe.config.ConfigValueFactory
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.Config
@@ -43,21 +43,21 @@ trait TreeModel {
   
   def doc (num: Int): Document = {
     val parent = if (num > 4) Root / "tree2" else if (num > 2) Root / "tree1" else Root
-    new Document(parent / s"doc$num.md", RootElement(Seq(
-        Title(Seq(Text(s"Title $num")), Id(s"title-$num") + Styles("title")), 
-        Paragraph(Seq(Text(s"Text $num")))
-    ))).removeRules
+    Document(parent / s"doc$num.md", RootElement(Seq(
+      Title(Seq(Text(s"Title $num")), Id(s"title-$num") + Styles("title")), 
+      Paragraph(Seq(Text(s"Text $num")))
+    )))
   }
     
-  def configWithTreeTitle (num: Int): Option[Config] = Some(ConfigFactory.empty
+  def configWithTreeTitle (num: Int): Config = ConfigFactory.empty
       .withValue("title", ConfigValueFactory.fromAnyRef(s"Tree $num"))
-      .withFallback(pdfFileConfig))
+      .withFallback(pdfFileConfig)
   
-  lazy val tree = new DocumentTree(Root,
-    documents = Seq(doc(1), doc(2)),
-    subtrees = Seq(
-      new DocumentTree(Root / "tree1", documents = Seq(doc(3), doc(4)), config = configWithTreeTitle(2)),
-      new DocumentTree(Root / "tree2", documents = Seq(doc(5), doc(6)), config = configWithTreeTitle(3))
+  lazy val tree = DocumentTree(Root, Seq(
+      doc(1), 
+      doc(2),
+      DocumentTree(Root / "tree1", Seq(doc(3), doc(4)), config = configWithTreeTitle(2)),
+      DocumentTree(Root / "tree2", Seq(doc(5), doc(6)), config = configWithTreeTitle(3))
     ),
     config = configWithTreeTitle(1)
   )

@@ -16,21 +16,30 @@
 
 package laika.rewrite
 
-import laika.tree.Documents2.Document
-import laika.tree.Documents2.DocumentTree
-import laika.tree.Documents2.DynamicTemplate
+import laika.tree.Documents.Document
+import laika.tree.Documents.DocumentTree
+import laika.tree.Documents.DynamicDocument
+import laika.tree.Documents.TemplateDocument
 import laika.tree.Elements.RootElement
-import laika.tree.Templates
-import laika.tree.Templates.EmbeddedRoot
-import laika.tree.Templates.TemplateDocument
-import laika.tree.Templates.TemplateElement
-import laika.tree.Templates.TemplateRoot
+import laika.tree.Elements.Element
+import laika.tree.Elements.RewriteRule
+import laika.tree.ElementTraversal
+import laika.tree.Elements.NoOpt
 import laika.tree.Paths.Path
 import laika.tree.Paths.Root
+import laika.tree.Templates
+import laika.tree.Templates._
 import com.typesafe.config.Config
 import scala.annotation.tailrec
+import scala.collection.mutable.ListBuffer
 
 trait TemplateRewriter {
+  
+  val defaultTemplate: TemplateDocument = TemplateDocument(Root / "default.template", TemplateRoot(List(TemplateContextReference("document.content"))))
+  
+  /** Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.
+   */
+  def applyTemplates (tree: DocumentTree, format: String): DocumentTree = applyTemplates(TreeCursor(tree), format)
   
   /** Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.
    */
@@ -42,11 +51,10 @@ trait TemplateRewriter {
     }
       
     val newAdditionalContent = cursor.target.additionalContent map {
-      case doc: DynamicTemplate if doc.name.endsWith("."+format) => 
-        val emptyDoc = Document(doc.path.parent / doc.path.name.replace(".dynamic.", "."), RootElement(Nil))
-        val dynCursor = DocumentCursor(emptyDoc, cursor)
-        /* applyTemplate(dynCursor, doc) */ // TODO - after merge: use TemplateDocument instead of DynamicTemplate 
-        doc
+      case doc: TemplateDocument if doc.name.endsWith("."+format) => 
+        val dynCursor = DocumentCursor.forEmptyDocument(doc.path.name.replace(".dynamic.", "."), cursor)
+        val rewrittenDoc = applyTemplate(dynCursor, doc)
+        DynamicDocument(rewrittenDoc.path, rewrittenDoc.content)
       case other => other
     }
     
@@ -61,15 +69,17 @@ trait TemplateRewriter {
   /** Selects and applies the template for the specified output format to the target of the specified document cursor.
     */ 
   def applyTemplate (cursor: DocumentCursor, format: String): Document = {
-    val template = selectTemplate(cursor, format).getOrElse(null) // TODO - after merge: get defaultTemplate
+    val template = selectTemplate(cursor, format).getOrElse(defaultTemplate)
     applyTemplate(cursor, template)
   }
   
   def applyTemplate (cursor: DocumentCursor, template: TemplateDocument): Document = {
+    val mergedConfig = cursor.config.withFallback(template.config).resolve
     val cursorWithMergedConfig = cursor.copy(
-      config = cursor.config.withFallback(template.config)  
+      config = mergedConfig,  
+      resolver = ReferenceResolver.forDocument(cursor.target, cursor.parent, mergedConfig)
     )
-    val newContent = template.content rewrite Templates.rewriteRules(null) // TODO - after merge: pass cursor
+    val newContent = template.content rewrite rewriteRules(cursorWithMergedConfig)
     val newRoot = newContent match {
       case TemplateRoot(List(TemplateElement(root: RootElement, _, _)), _) => root
       case TemplateRoot(List(EmbeddedRoot(content, _, _)), _) => RootElement(content)
@@ -77,8 +87,6 @@ trait TemplateRewriter {
     }
     cursorWithMergedConfig.target.copy(content = newRoot)
   }
-  
-  // TODO - after merge: move rewriteRules method here, use TemplateDocument instead of DynamicTemplate and move it to Documents
   
   /** The (optional) template to use when rendering the target of the specified document cursor.
    */  
@@ -104,6 +112,44 @@ trait TemplateRewriter {
       
       templateForTree(cursor.parent)
     }
+  }
+  
+  /** The default rewrite rules for template documents,
+   *  responsible for replacing all
+   *  span and block resolvers with the final resolved
+   *  element they produce based on the specified
+   *  document cursor.
+   */
+  def rewriteRules (cursor: DocumentCursor) = {
+    
+    lazy val rule: RewriteRule = {
+      case ph: BlockResolver => Some(rewriteChild(ph resolve cursor))
+      case ph: SpanResolver  => Some(rewriteChild(ph resolve cursor))
+      case TemplateRoot(spans, opt)         => Some(TemplateRoot(format(spans), opt))
+      case TemplateSpanSequence(spans, opt) => Some(TemplateSpanSequence(format(spans), opt))
+    }
+    
+    def rewriteChild (e: Element): Element = e match {
+      case et: ElementTraversal[_] => et rewrite rule
+      case other => other
+    }
+    
+    def format (spans: Seq[TemplateSpan]): Seq[TemplateSpan] = {
+      def indentFor(text: String): Int = text.lastIndexOf('\n') match {
+        case -1    => 0
+        case index => if (text.drop(index).trim.isEmpty) text.length - index - 1 else 0
+      }
+      if (spans.isEmpty) spans
+      else spans.sliding(2).foldLeft(new ListBuffer[TemplateSpan]() += spans.head) { 
+        case (buffer, TemplateString(text, NoOpt) :: TemplateElement(elem, 0, opt) :: Nil) => 
+          buffer += TemplateElement(elem, indentFor(text), opt)
+        case (buffer, TemplateString(text, NoOpt) :: EmbeddedRoot(elem, 0, opt) :: Nil) => 
+          buffer += EmbeddedRoot(elem, indentFor(text), opt)
+        case (buffer, _ :: elem :: Nil) => buffer += elem
+        case (buffer, _) => buffer
+      }.toList
+    }
+    rule
   }
   
 }

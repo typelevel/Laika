@@ -18,9 +18,9 @@ package laika.parse.rst
 
 import laika.tree.Elements._
 import laika.tree.Templates.BlockResolver
-import laika.tree.Documents.DocumentContext
+import laika.rewrite.DocumentCursor
 import laika.tree.Documents.SectionInfo
-import laika.tree.TocGenerator
+import laika.rewrite.TocGenerator
 
 /** Provides the elements of the document tree that are too specific to reStructuredText
  *  to be added to the generic tree model. 
@@ -104,8 +104,8 @@ object Elements {
    *  document if it is not an absolute path.
    */
   case class Include (path: String, options: Options = NoOpt) extends Block with BlockResolver {
-    def resolve (context: DocumentContext): Block = 
-      context.parent.selectDocument(path) match {
+    def resolve (cursor: DocumentCursor): Block = 
+      cursor.parent.target.selectDocument(path) match {
         case Some(target) => BlockSequence(target.content.content)
         case None => InvalidBlock(SystemMessage(Error, s"Unresolvable path reference: $path"), 
             LiteralBlock(s".. include:: $path"))
@@ -115,8 +115,8 @@ object Elements {
   /** Generates a table of contents element inside a topic.
    */
   case class Contents (title: String, depth: Int = Int.MaxValue, local: Boolean = false, options: Options = NoOpt) extends Block with BlockResolver {
-    def resolve (context: DocumentContext): Block = {
-      val toc = TocGenerator.fromDocument(context.document, depth, context.document.path) // TODO - find parent for local toc
+    def resolve (cursor: DocumentCursor): Block = {
+      val toc = TocGenerator.fromDocument(cursor.target, depth, cursor.target.path) // TODO - find parent for local toc
       TitledBlock(List(Text(title)), toc, options + Styles("toc"))
     }
   }

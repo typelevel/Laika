@@ -17,7 +17,7 @@
 package laika.parse.rst
 
 import laika.tree.Elements._
-import laika.tree.Documents.DocumentContext
+import laika.rewrite.DocumentCursor
 import laika.parse.rst.Elements._
 
 /** 
@@ -28,16 +28,16 @@ import laika.parse.rst.Elements._
  * 
  *  @author Jens Halm
  */
-object RewriteRules extends (DocumentContext => RewriteRule) {
+object RewriteRules extends (DocumentCursor => RewriteRule) {
 
   
-  class DefaultRules (context: DocumentContext) { 
+  class DefaultRules (cursor: DocumentCursor) { 
     
-    val substitutions: Map[String, Span] = context.document.content.collect { 
+    val substitutions: Map[String, Span] = cursor.target.content.collect { 
       case SubstitutionDefinition(id,content,_) => (id,content) 
     } toMap
     
-    val textRoles: Map[String, String => Span] = context.document.content.collect { 
+    val textRoles: Map[String, String => Span] = cursor.target.content.collect { 
       case CustomizedTextRole(id,f,_) => (id,f)                                   
     } toMap  
     
@@ -61,7 +61,7 @@ object RewriteRules extends (DocumentContext => RewriteRule) {
    *  for the specified document. These rules usually get executed
    *  alongside the generic default rules.
    */
-  def apply (context: DocumentContext): RewriteRule = (new DefaultRules(context)).rewrite
+  def apply (cursor: DocumentCursor): RewriteRule = (new DefaultRules(cursor)).rewrite
   
   
 }

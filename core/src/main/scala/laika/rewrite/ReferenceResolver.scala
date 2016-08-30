@@ -18,7 +18,6 @@ package laika.rewrite
 
 import com.typesafe.config.Config
 import laika.tree.Documents.Document
-import laika.tree.Documents2.{Document => NewDocument}
 import laika.tree.Elements.SpanSequence
 import scala.util.Try
 
@@ -60,12 +59,12 @@ object ReferenceResolver {
   /** Creates a new ReferenceResolver for the specified
    *  document and its parent and configuration.
    */
-  def forDocument(document: NewDocument, parent: TreeCursor, config: Config): ReferenceResolver =
+  def forDocument(document: Document, parent: TreeCursor, config: Config): ReferenceResolver =
     apply(Map[String,Any](
       "config" -> config,
       "document" -> document,
-      "parent" -> parent,
-      "root" -> parent.root
+      "parent" -> parent.target,
+      "root" -> parent.root.target
     ))
   
 }

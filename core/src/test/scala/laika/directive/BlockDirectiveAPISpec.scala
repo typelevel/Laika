@@ -105,8 +105,8 @@ class BlockDirectiveAPISpec extends FlatSpec
     
     trait DirectiveWithContextAccess {
       val directive = Blocks.create("dir") { 
-        (body(Default, string) ~ context) {
-          (body, context) => p(body + context.document.path)
+        (body(Default, string) ~ cursor) {
+          (body, cursor) => p(body + cursor.target.path)
         }
       }
     }
@@ -460,7 +460,7 @@ class BlockDirectiveAPISpec extends FlatSpec
     }
   }
   
-  it should "parse a directive with a required default body and context access" in {
+  it should "parse a directive with a required default body and cursor access" in {
     new DirectiveWithContextAccess with TemplateParser {
       val input = """aa
         |

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.tree
+package laika.rewrite
 
 import laika.tree.Documents._
 import laika.tree.Paths._
@@ -81,25 +81,27 @@ object TocGenerator {
   
   private def fromTree (tree: DocumentTree, curLevel: Int, maxLevel: Int, refPath: Path, treeTitleDoc: Option[String]): List[Block] = {
     
-    def navigatablesForTree(tree: DocumentTree): Seq[Navigatable] = if (tree.navigatables.nonEmpty) tree.navigatables else tree.documents ++ tree.subtrees
+    def titleOrName (content: TreeContent) = 
+      if (content.title.nonEmpty) content.title
+      else Seq(Text(content.name))
     
     def hasContent (nav: Navigatable): Boolean = nav match {
       case _:Document => true
-      case tree: DocumentTree => navigatablesForTree(tree).exists(hasContent)
+      case tree: DocumentTree => tree.content.exists(hasContent)
     }
     
     def treeTitle (tree: DocumentTree, level: Int): Paragraph = 
       treeTitleDoc.fold(
-        Paragraph(tree.titleOrName, options = styles(level))
+        Paragraph(titleOrName(tree), options = styles(level))
       )( doc => 
-        Paragraph(List(CrossLink(tree.titleOrName, "", PathInfo.fromPath(tree.path / doc, refPath.parent))), options = styles(level))
+        Paragraph(List(CrossLink(titleOrName(tree), "", PathInfo.fromPath(tree.path / doc, refPath.parent))), options = styles(level))
       )
     
     def docTitle (document: Document, level: Int): Paragraph =
       if (document.path == refPath)
-        Paragraph(document.titleOrName, options = styles(level) + Styles("active"))
+        Paragraph(titleOrName(document), options = styles(level) + Styles("active"))
       else
-        Paragraph(List(CrossLink(document.titleOrName, "", PathInfo.fromPath(document.path, refPath.parent))), options = styles(level))
+        Paragraph(List(CrossLink(titleOrName(document), "", PathInfo.fromPath(document.path, refPath.parent))), options = styles(level))
     
     def navigatablesToList (navigatables: Seq[Navigatable], curLevel: Int): List[Block] = {
       if (curLevel > maxLevel) Nil else {
@@ -110,7 +112,7 @@ object TocGenerator {
             BulletListItem(title :: sections, bullet)
           case tree: DocumentTree => 
             val title = treeTitle(tree, curLevel)
-            val subtrees = navigatablesToList(navigatablesForTree(tree), curLevel + 1)
+            val subtrees = navigatablesToList(tree.content, curLevel + 1)
             BulletListItem(title :: subtrees, bullet)
         }
           
@@ -118,7 +120,7 @@ object TocGenerator {
       }
     }
     
-    navigatablesToList(navigatablesForTree(tree), curLevel)
+    navigatablesToList(tree.content, curLevel)
   }
     
   

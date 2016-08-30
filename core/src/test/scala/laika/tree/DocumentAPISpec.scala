@@ -18,14 +18,12 @@ package laika.tree
 
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
-import laika.tree.helper.ModelBuilder
 import laika.api.Parse
 import laika.parse.markdown.Markdown
-import laika.tree.Elements._
+import laika.rewrite.DocumentCursor
 import laika.rewrite.RewriteRules
-import laika.rewrite.LinkResolver
-import laika.rewrite.SectionBuilder
-import laika.tree.Documents.DocumentContext
+import laika.tree.Elements._
+import laika.tree.helper.ModelBuilder
 
 class DocumentAPISpec extends FlatSpec 
                       with Matchers
@@ -70,34 +68,21 @@ class DocumentAPISpec extends FlatSpec
     (Parse as Markdown fromString markup).title should be (Nil)
   }
   
-//  TODO - ressurrect with new Document API
-//  it should "produce the same result when rewriting a document once or twice" in {
-//    val markup = """# Section 1
-//      |
-//      |Some text
-//      |
-//      |# Section 2
-//      |
-//      |Some more text""".stripMargin
-//    
-//    val doc = Parse as Markdown fromString markup
-//    val rewritten = doc.rewrite
-//    rewritten.content should be (doc.content)
-//  }
-//  
-//  it should "allow to remove the default rewrite rules from a raw document" in {
-//    val markup = """# Section 1
-//      |
-//      |Some text
-//      |
-//      |# Section 2
-//      |
-//      |Some more text""".stripMargin
-//    
-//    val doc = (Parse as Markdown withoutRewrite) fromString markup
-//    val rewritten = doc.removeRules.rewrite
-//    rewritten.content should be (doc.content)
-//  }
+  it should "produce the same result when rewriting a document once or twice" in {
+    val markup = """# Section 1
+      |
+      |Some text
+      |
+      |# Section 2
+      |
+      |Some more text""".stripMargin
+    
+    val doc = (Parse as Markdown withoutRewrite) fromString markup
+    
+    val rewritten1 = doc.rewrite(RewriteRules.defaults(DocumentCursor(doc)))
+    val rewritten2 = rewritten1.rewrite(RewriteRules.defaults(DocumentCursor(rewritten1)))
+    rewritten1.content should be (rewritten2.content)
+  }
   
   it should "allow to rewrite the document using a custom rule" in {
     val markup = """# Section 1
@@ -109,11 +94,11 @@ class DocumentAPISpec extends FlatSpec
       |Some more text""".stripMargin
     
     val raw = (Parse as Markdown withoutRewrite) fromString markup
-    val context = DocumentContext(raw)
+    val cursor = DocumentCursor(raw)
     val testRule: RewriteRule = {
       case Text("Some text",_) => Some(Text("Swapped"))
     }
-    val rules = RewriteRules.chain(testRule +: (Seq(LinkResolver, SectionBuilder).map(_(context))))
+    val rules = RewriteRules.chain(Seq(testRule, RewriteRules.defaults(cursor)))
     val rewritten = raw rewrite rules
     rewritten.content should be (root(
       Section(Header(1, List(Text("Section 1")), Id("section-1") + Styles("section")), List(p("Swapped"))),

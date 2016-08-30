@@ -44,10 +44,10 @@ import laika.io.InputProvider.InputConfigBuilder
 import laika.tree.Documents._
 import laika.tree.Paths.Path
 import laika.tree.Paths.Root
-import laika.tree.DocumentTreeHelper._
+import laika.tree.helper.DocumentViewBuilder._
 import laika.tree.Templates.TemplateRoot
 import laika.tree.Templates.TemplateString
-import laika.tree.Templates.TemplateDocument
+import laika.rewrite.TemplateRewriter
 import laika.template.ParseTemplate
 import laika.io.Input
 import laika.io.InputProvider.Directory
@@ -155,14 +155,16 @@ class ParseAPISpec extends FlatSpec
     
     def customDocView (name: String, content: Seq[Block], path: Path = Root) = DocumentView(path / name, Content(content) :: Nil)
   
-    def parsedTree = viewOf(Parse as Markdown fromTree builder(dirs) applyTemplates "html")
+    def withTemplatesApplied (tree: DocumentTree): DocumentTree = TemplateRewriter.applyTemplates(tree, "html")
+    
+    def parsedTree = viewOf(withTemplatesApplied(Parse as Markdown fromTree builder(dirs)))
     
     def rawParsedTree = viewOf((Parse as Markdown withoutRewrite) fromTree builder(dirs))
 
     def rawMixedParsedTree = viewOf((Parse as Markdown or ReStructuredText withoutRewrite) fromTree builder(dirs))
     
     def parsedWith (f: InputConfigBuilder => InputConfigBuilder) =
-      viewOf(Parse as Markdown fromTree f(builder(dirs)) applyTemplates "html")
+      viewOf(withTemplatesApplied(Parse as Markdown fromTree f(builder(dirs))))
       
     def parsedRawWith (f: InputConfigBuilder => InputConfigBuilder) =
       viewOf((Parse as Markdown withoutRewrite) fromTree f(builder(dirs)))
@@ -308,7 +310,7 @@ class ParseAPISpec extends FlatSpec
   it should "allow to specify a custom template engine" in {
     new TreeParser {
       val parser: Input => TemplateDocument = 
-        input => TemplateDocument(input.path, TemplateRoot(List(TemplateString("$$" + input.asParserInput.source))), null)
+        input => TemplateDocument(input.path, TemplateRoot(List(TemplateString("$$" + input.asParserInput.source))))
       val dirs = """- main1.template.html:name
         |- main2.template.html:name""".stripMargin
       def template (num: Int) = TemplateView(Root / (s"main$num.template.html"), TemplateRoot(List(TemplateString("$$foo"))))
@@ -399,7 +401,7 @@ class ParseAPISpec extends FlatSpec
         |- cherry.md:name
         |- directory.conf:order""".stripMargin
       val tree = Parse as Markdown fromTree builder(dirs)
-      tree.navigatables map (_.path.name) should be (List("lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
+      tree.content map (_.path.name) should be (List("lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
     }
   }
   

@@ -101,8 +101,8 @@ class TemplateDirectiveAPISpec extends FlatSpec
     
     trait DirectiveWithContextAccess {
       val directive = Templates.create("dir") { 
-        (body(Default, string) ~ context) {
-          (body, context) => TemplateString(body + context.document.path)
+        (body(Default, string) ~ cursor) {
+          (body, cursor) => TemplateString(body + cursor.target.path)
         }
       }
     }
@@ -290,7 +290,7 @@ class TemplateDirectiveAPISpec extends FlatSpec
     }
   }
   
-  it should "parse a directive with a required default body and context access" in {
+  it should "parse a directive with a required default body and cursor access" in {
     new DirectiveWithContextAccess with TemplateParser {
       def translate (result: TemplateRoot) = result rewrite {
         case d: DirectiveSpan => Some(TemplateElement(Text("ok"))) // cannot compare DirectiveSpans

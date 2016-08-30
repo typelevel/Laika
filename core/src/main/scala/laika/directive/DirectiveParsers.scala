@@ -21,7 +21,7 @@ import laika.tree.Elements._
 import laika.util.Builders._
 import scala.collection.mutable.ListBuffer
 import laika.template.TemplateParsers
-import laika.tree.Documents.DocumentContext
+import laika.rewrite.DocumentCursor
 import laika.tree.Templates._
 
 /** Parsers for all types of custom directives that can be used
@@ -105,19 +105,19 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
     decl ~ (noBody | bodies) ^^ { case (name, attrs) ~ bodies => ParsedDirective(name, attrs ::: bodies) }
   }
   
-  abstract class DirectiveContextBase (parts: PartMap, docContext: Option[DocumentContext] = None) {
+  abstract class DirectiveContextBase (parts: PartMap, docCursor: Option[DocumentCursor] = None) {
     
     def part (key: Key): Option[String] = parts.get(key)
       
-    val context: Option[DocumentContext] = docContext
+    val cursor: Option[DocumentCursor] = docCursor
     
   }
   
   protected def applyDirective [E <: Element] (builder: BuilderContext[E]) (
       parseResult: ParsedDirective, 
       directives: String => Option[builder.Directive], 
-      createContext: (PartMap, Option[DocumentContext]) => builder.DirectiveContext,
-      createPlaceholder: (DocumentContext => E) => E, 
+      createContext: (PartMap, Option[DocumentCursor]) => builder.DirectiveContext,
+      createPlaceholder: (DocumentCursor => E) => E, 
       createInvalidElement: String => E,
       directiveTypeDesc: String
     ): E = {
@@ -140,7 +140,7 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
     }
     
     processResult((directive ~ partMap) flatMap { case directive ~~ partMap =>
-      def directiveWithContext (context: Option[DocumentContext]) = directive(createContext(partMap, context))
+      def directiveWithContext (cursor: Option[DocumentCursor]) = directive(createContext(partMap, cursor))
       if (directive.requiresContext) Directives.Success(createPlaceholder(c => processResult(directiveWithContext(Some(c)))))
       else directiveWithContext(None)
     }) 
@@ -161,8 +161,8 @@ object DirectiveParsers {
     
     def getTemplateDirective (name: String): Option[Templates.Directive]
     
-    case class DirectiveSpan (f: DocumentContext => Span, options: Options = NoOpt) extends SpanResolver with TemplateSpan {
-      def resolve (context: DocumentContext) = f(context) match {
+    case class DirectiveSpan (f: DocumentCursor => Span, options: Options = NoOpt) extends SpanResolver with TemplateSpan {
+      def resolve (cursor: DocumentCursor) = f(cursor) match {
         case s: TemplateSpan => s
         case s: Span => TemplateElement(s)
       }
@@ -173,8 +173,8 @@ object DirectiveParsers {
       val bodyContent = wsOrNl ~ '{' ~> (withSource(spans(anyUntil('}'), spanParsers + contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
       withSource(directiveParser(bodyContent, false)) ^^ { case (result, source) =>
         
-        def createContext (parts: PartMap, docContext: Option[DocumentContext]): Templates.DirectiveContext = {
-          new DirectiveContextBase(parts, docContext) with Templates.DirectiveContext {
+        def createContext (parts: PartMap, docCursor: Option[DocumentCursor]): Templates.DirectiveContext = {
+          new DirectiveContextBase(parts, docCursor) with Templates.DirectiveContext {
             val parser = new Templates.Parser {
               def apply (source: String) = parseTemplatePart(source)
             }
@@ -195,8 +195,8 @@ object DirectiveParsers {
     
     def getSpanDirective (name: String): Option[Spans.Directive]
     
-    case class DirectiveSpan (f: DocumentContext => Span, options: Options = NoOpt) extends SpanResolver {
-      def resolve (context: DocumentContext) = f(context)
+    case class DirectiveSpan (f: DocumentCursor => Span, options: Options = NoOpt) extends SpanResolver {
+      def resolve (cursor: DocumentCursor) = f(cursor)
     }
     
     lazy val spanDirectiveParser: Parser[Span] = {
@@ -204,8 +204,8 @@ object DirectiveParsers {
       val bodyContent = wsOrNl ~ '{' ~> (withSource(spans(anyUntil('}'), spanParsers + contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
       withSource(directiveParser(bodyContent, false)) ^^ { case (result, source) => // TODO - optimization - parsed spans might be cached for DirectiveContext (applies for the template parser, too)
         
-        def createContext (parts: PartMap, docContext: Option[DocumentContext]): Spans.DirectiveContext = {
-          new DirectiveContextBase(parts, docContext) with Spans.DirectiveContext {
+        def createContext (parts: PartMap, docCursor: Option[DocumentCursor]): Spans.DirectiveContext = {
+          new DirectiveContextBase(parts, docCursor) with Spans.DirectiveContext {
             val parser = new Spans.Parser {
               def apply (source: String) = parseInline(source)
             }
@@ -226,8 +226,8 @@ object DirectiveParsers {
     
     def getBlockDirective (name: String): Option[Blocks.Directive]
     
-    case class DirectiveBlock (f: DocumentContext => Block, options: Options = NoOpt) extends BlockResolver {
-      def resolve (context: DocumentContext) = f(context)
+    case class DirectiveBlock (f: DocumentCursor => Block, options: Options = NoOpt) extends BlockResolver {
+      def resolve (cursor: DocumentCursor) = f(cursor)
     }
     
     lazy val blockDirectiveParser: Parser[Block] = {
@@ -237,8 +237,8 @@ object DirectiveParsers {
       }
       withNestLevel(withSource(directiveParser(bodyContent, true))) ^^ { case (nestLevel, (result, source)) =>
         
-        def createContext (parts: PartMap, docContext: Option[DocumentContext]): Blocks.DirectiveContext = {
-          new DirectiveContextBase(parts, docContext) with Blocks.DirectiveContext {
+        def createContext (parts: PartMap, docCursor: Option[DocumentCursor]): Blocks.DirectiveContext = {
+          new DirectiveContextBase(parts, docCursor) with Blocks.DirectiveContext {
             val parser = new Blocks.Parser {
               def apply (source: String): Seq[Block] = parseNestedBlocks(source, nestLevel)
               def parseInline (source: String): Seq[Span] = BlockDirectives.this.parseInline(source)

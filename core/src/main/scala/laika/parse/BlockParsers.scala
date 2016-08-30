@@ -83,7 +83,7 @@ trait BlockParsers extends MarkupParsers {
    */
   def parseDocument (reader: Reader[Char], path: Path): Document = {
     val (config, root) = parseConfigAndRoot(reader, path)
-    new Document(path, root, TreeUtil.extractFragments(root.content), config)
+    Document(path, root, TreeUtil.extractFragments(root.content), config)
   }
 
   def config (path: Path): Parser[Either[InvalidBlock,Config]] = failure("configuration sections not enabled")

@@ -25,6 +25,7 @@ import com.typesafe.config.ConfigParseOptions
 import laika.directive.DirectiveParsers
 import laika.parse.InlineParsers
 import laika.tree.Paths.Path
+import laika.tree.Documents.TemplateDocument
 import laika.tree.Elements._
 import laika.tree.Templates._
 

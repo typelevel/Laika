@@ -17,8 +17,8 @@
 package laika.factory
 
 import laika.io.Input
+import laika.rewrite.DocumentCursor
 import laika.tree.Documents.Document
-import laika.tree.Documents.DocumentContext
 import laika.tree.Elements.RewriteRule
 
 /** Responsible for creating parser instances for a specific markup format.
@@ -48,7 +48,7 @@ trait ParserFactory {
    *  if the parser produces tree elements that require
    *  rewriting and are unknown to the default rewrite rules.
    */
-  def rewriteRules: Seq[DocumentContext => RewriteRule]
+  def rewriteRules: Seq[DocumentCursor => RewriteRule]
 
   /**  Creates a new parser instance.
    *   Such an instance is expected to be stateless and thread-safe,

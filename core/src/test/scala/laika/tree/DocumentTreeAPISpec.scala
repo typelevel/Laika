@@ -20,19 +20,20 @@ import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 import laika.io.DocumentType.Markup
 import laika.tree.helper.ModelBuilder
-import laika.tree.Templates.TemplateDocument
 import laika.tree.Templates.TemplateRoot
 import laika.tree.Elements._
 import laika.tree.Documents._
-import laika.tree.DocumentTreeHelper.{Documents => Docs}
-import laika.tree.DocumentTreeHelper._
+import laika.tree.helper.DocumentViewBuilder.{Documents => Docs}
+import laika.tree.helper.DocumentViewBuilder._
 import laika.tree.Paths.Path
 import laika.tree.Paths.Current
 import laika.tree.Paths.Root
+import laika.rewrite.DocumentCursor
+import laika.rewrite.TemplateRewriter
+import laika.rewrite.TreeCursor
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions
-import laika.tree.Elements.Text
 
 class DocumentTreeAPISpec extends FlatSpec 
                       with Matchers
@@ -46,9 +47,9 @@ class DocumentTreeAPISpec extends FlatSpec
       .getOrElse(ConfigFactory.empty)
     
     def treeWithDoc (path: Path, name: String, root: RootElement, config: Option[String] = None): DocumentTree =
-      new DocumentTree(path, List(new Document(path / name, root, config = createConfig(path / name, config))))
+      DocumentTree(path, List(Document(path / name, root, config = createConfig(path / name, config))))
     def treeWithSubtree (path: Path, treeName: String, docName: String, root: RootElement, config: Option[String] = None): DocumentTree =
-      new DocumentTree(path, Nil, subtrees = List(treeWithDoc(path / treeName, docName, root, config)))
+      DocumentTree(path, List(treeWithDoc(path / treeName, docName, root, config)))
     
     def treeViewWithDoc (path: Path, name: String, root: RootElement): TreeView =
       TreeView(path, List(Docs(Markup, List(DocumentView(path / name, List(Content(root.content)))))))
@@ -60,8 +61,8 @@ class DocumentTreeAPISpec extends FlatSpec
     new TreeModel {
       val tree = treeWithDoc(Root, "doc", rootElement(p("a")))
       val treeResult = treeViewWithDoc(Root, "doc", rootElement(p("/")))
-      viewOf(tree rewrite { context => { 
-        case Paragraph(Seq(Text("a",_)),_) => Some(p(context.root.path.toString)) 
+      viewOf(tree rewrite { cursor => { 
+        case Paragraph(Seq(Text("a",_)),_) => Some(p(cursor.root.target.path.toString)) 
       }}) should be (treeResult)
     }
   }
@@ -70,8 +71,8 @@ class DocumentTreeAPISpec extends FlatSpec
     new TreeModel {
       val tree = treeWithDoc(Root, "doc", rootElement(p("a")))
       val treeResult = treeViewWithDoc(Root, "doc", rootElement(p("/")))
-      viewOf(tree rewrite { context => { 
-        case Paragraph(Seq(Text("a",_)),_) => Some(p(context.parent.path.toString)) 
+      viewOf(tree rewrite { cursor => { 
+        case Paragraph(Seq(Text("a",_)),_) => Some(p(cursor.parent.target.path.toString)) 
       }}) should be (treeResult)
     }
   }
@@ -80,8 +81,8 @@ class DocumentTreeAPISpec extends FlatSpec
     new TreeModel {
       val tree = treeWithSubtree(Root, "sub", "doc", rootElement(p("a")))
       val treeResult = treeViewWithSubtree(Root, "sub", "doc", rootElement(p("/")))
-      viewOf(tree rewrite { context => { 
-        case Paragraph(Seq(Text("a",_)),_) => Some(p(context.root.path.toString)) 
+      viewOf(tree rewrite { cursor => { 
+        case Paragraph(Seq(Text("a",_)),_) => Some(p(cursor.root.target.path.toString)) 
       }}) should be (treeResult)
     }
   }
@@ -90,8 +91,8 @@ class DocumentTreeAPISpec extends FlatSpec
     new TreeModel {
       val tree = treeWithSubtree(Root, "sub", "doc", rootElement(p("a")))
       val treeResult = treeViewWithSubtree(Root, "sub", "doc", rootElement(p("/sub")))
-      viewOf(tree rewrite { context => { 
-        case Paragraph(Seq(Text("a",_)),_) => Some(p(context.parent.path.toString)) 
+      viewOf(tree rewrite { cursor => { 
+        case Paragraph(Seq(Text("a",_)),_) => Some(p(cursor.parent.target.path.toString)) 
       }}) should be (treeResult)
     }
   }
@@ -120,7 +121,7 @@ class DocumentTreeAPISpec extends FlatSpec
   it should "allow to select a subtree in a child directory using a relative path" in {
     new TreeModel {
       val tree = treeWithSubtree(Root / "top", "sub", "doc", root())
-      val treeRoot = new DocumentTree(Root, Nil, subtrees = List(tree))
+      val treeRoot = DocumentTree(Root, List(tree))
       treeRoot.selectSubtree(Current / "top" / "sub").map(_.path) should be (Some(Root / "top" / "sub"))
     }
   }
@@ -141,43 +142,31 @@ class DocumentTreeAPISpec extends FlatSpec
   
   it should "allow to specify a template for a document using an absolute path" in {
     new TreeModel {
-      val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("template: /main.template.html"))
-      val template = new TemplateDocument(Root / "main.template.html", TemplateRoot(Nil))
-      val withTemplate = new DocumentTree(tree.path, Nil, 
-        templates = List(template),
-        subtrees = tree.subtrees
-      )
-      val targetDoc = withTemplate.selectDocument("sub/doc").get
-      val context = DocumentContext(targetDoc, withTemplate.selectSubtree("sub").get, withTemplate, "html")
-      context.template should be (Some(template))
+      val template = TemplateDocument(Root / "main.template.html", TemplateRoot(Nil))
+      val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("template: /main.template.html")).copy(templates = List(template))
+      val targetDoc = tree.selectDocument("sub/doc").get
+      val cursor = TreeCursor(tree).children.head.asInstanceOf[TreeCursor].children.head.asInstanceOf[DocumentCursor]
+      TemplateRewriter.selectTemplate(cursor,  "html") should be (Some(template))
     }
   }
   
   it should "allow to specify a template for a document for a specific output format" in {
     new TreeModel {
-      val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("html.template: /main.template.html"))
-      val template = new TemplateDocument(Root / "main.template.html", TemplateRoot(Nil))
-      val withTemplate = new DocumentTree(tree.path, Nil, 
-        templates = List(template),
-        subtrees = tree.subtrees
-      )
-      val targetDoc = withTemplate.selectDocument("sub/doc").get
-      val context = DocumentContext(targetDoc, withTemplate.selectSubtree("sub").get, withTemplate, "html")
-      context.template should be (Some(template))
+      val template = TemplateDocument(Root / "main.template.html", TemplateRoot(Nil))
+      val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("html.template: /main.template.html")).copy(templates = List(template))
+      val targetDoc = tree.selectDocument("sub/doc").get
+      val cursor = TreeCursor(tree).children.head.asInstanceOf[TreeCursor].children.head.asInstanceOf[DocumentCursor]
+      TemplateRewriter.selectTemplate(cursor,  "html") should be (Some(template))
     }
   }
   
   it should "allow to specify a template for a document using a relative path" in {
     new TreeModel {
-      val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("template: ../main.template.html"))
-      val template = new TemplateDocument(Root / "main.template.html", TemplateRoot(Nil))
-      val withTemplate = new DocumentTree(tree.path, Nil, 
-        templates = List(template),
-        subtrees = tree.subtrees
-      )
-      val targetDoc = withTemplate.selectDocument("sub/doc").get
-      val context = DocumentContext(targetDoc, withTemplate.selectSubtree("sub").get, withTemplate, "html")
-      context.template should be (Some(template))
+      val template = TemplateDocument(Root / "main.template.html", TemplateRoot(Nil))
+      val tree = treeWithSubtree(Root, "sub", "doc", root(), Some("template: ../main.template.html")).copy(templates = List(template))
+      val targetDoc = tree.selectDocument("sub/doc").get
+      val cursor = TreeCursor(tree).children.head.asInstanceOf[TreeCursor].children.head.asInstanceOf[DocumentCursor]
+      TemplateRewriter.selectTemplate(cursor,  "html") should be (Some(template))
     }
   }
   

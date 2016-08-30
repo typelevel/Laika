@@ -103,8 +103,8 @@ class SpanDirectiveAPISpec extends FlatSpec
     
     trait DirectiveWithContextAccess {
       val directive = Spans.create("dir") { 
-        (body(Default, string) ~ context) {
-          (body, context) => Text(body + context.document.path)
+        (body(Default, string) ~ cursor) {
+          (body, cursor) => Text(body + cursor.target.path)
         }
       }
     }
@@ -301,7 +301,7 @@ class SpanDirectiveAPISpec extends FlatSpec
     }
   }
   
-  it should "parse a directive with a required default body and context access" in {
+  it should "parse a directive with a required default body and cursor access" in {
     new DirectiveWithContextAccess with SpanParser {
       def translate (result: SpanSequence) = result rewrite {
         case d: DirectiveSpan => Some(Text("ok")) // cannot compare DirectiveSpans

@@ -22,10 +22,11 @@ import laika.tree.Elements._
 import laika.tree.Templates._
 import laika.tree.Documents._
 import laika.tree.Paths.Path
-import laika.tree.Templates.rewriteRules
-import scala.collection.JavaConversions._
-import laika.tree.TocGenerator
+import laika.rewrite.DocumentCursor
+import laika.rewrite.TemplateRewriter.rewriteRules
+import laika.rewrite.TocGenerator
 import laika.rewrite.TreeUtil
+import scala.collection.JavaConversions._
 
 /** Provides the implementation for the standard directives included in Laika.
  *  
@@ -60,16 +61,16 @@ trait StandardDirectives {
 
     val emptyValues = Set("",false,null,None)
     
-    (attribute(Default) ~ body(Default) ~ body("empty").optional ~ context) {
-      (path, content, fallback, context) => {
+    (attribute(Default) ~ body(Default) ~ body("empty").optional ~ cursor) {
+      (path, content, fallback, cursor) => {
         
         def rewriteContent (value: Any) =
-          TemplateSpanSequence(content) rewrite rewriteRules(context.withReferenceContext(value))
+          TemplateSpanSequence(content) rewrite rewriteRules(cursor.withReferenceContext(value))
         
         def rewriteFallback = 
-          fallback map (TemplateSpanSequence(_) rewrite rewriteRules(context)) getOrElse (TemplateSpanSequence(Nil))
+          fallback map (TemplateSpanSequence(_) rewrite rewriteRules(cursor)) getOrElse (TemplateSpanSequence(Nil))
 
-        context.resolveReference(path) match {
+        cursor.resolveReference(path) match {
           case Some(m: Map[_,_])  => rewriteContent(m) 
           case Some(m: JMap[_,_]) => rewriteContent(m) 
           case Some(it: Iterable[_]) if it.isEmpty => rewriteFallback
@@ -98,16 +99,16 @@ trait StandardDirectives {
     
     val trueStrings = Set("true","yes","on","enabled")
 
-    (attribute(Default) ~ body(Default) ~ body("else").optional ~ context) {
-      (path, content, fallback, context) => {
+    (attribute(Default) ~ body(Default) ~ body("else").optional ~ cursor) {
+      (path, content, fallback, cursor) => {
         
         def rewriteContent =
-          TemplateSpanSequence(content) rewrite rewriteRules(context)
+          TemplateSpanSequence(content) rewrite rewriteRules(cursor)
         
         def rewriteFallback = 
-          fallback map (TemplateSpanSequence(_) rewrite rewriteRules(context)) getOrElse (TemplateSpanSequence(Nil))
+          fallback map (TemplateSpanSequence(_) rewrite rewriteRules(cursor)) getOrElse (TemplateSpanSequence(Nil))
         
-        context.resolveReference(path) match {
+        cursor.resolveReference(path) match {
           case Some(true) => rewriteContent
           case Some(s: String) if trueStrings(s) => rewriteContent
           case _ => rewriteFallback
@@ -121,29 +122,30 @@ trait StandardDirectives {
    *  @param depth the maximum depth to traverse when building the table, the depth is unlimited if the value is empty
    *  @param rootConfig the string identifier that specifies the tree that should serve as the root for the table
    *  @param title the title for the table
-   *  @param context the context of the document the table of content will be placed in
+   *  @param cursor the cursor of the document the table of content will be placed in
    *  @return a block element containing the table and its title
    */
-  def toc (depth: Option[Int], rootConfig: String, title: Option[String], context: DocumentContext): Block = {
+  def toc (depth: Option[Int], rootConfig: String, title: Option[String], cursor: DocumentCursor): Block = {
     
     val maxLevel = depth getOrElse Int.MaxValue
     
-    val root = rootConfig match {
-      case "#rootTree"        => context.root
-      case "#currentTree"     => context.parent
-      case "#currentDocument" => context.document
+    val root: TreeContent = rootConfig match {
+      case "#rootTree"        => cursor.root.target
+      case "#currentTree"     => cursor.parent.target
+      case "#currentDocument" => cursor.target
       case pathString => {
         val configPath = Path(pathString)
+        val root = cursor.root.target
         val path = 
           (if (configPath.isAbsolute) configPath
-          else (context.parent.path / configPath)).relativeTo(context.root.path) 
-        context.root.selectDocument(path).getOrElse(context.root.selectSubtree(path).getOrElse(context.root))
+          else (cursor.parent.target.path / configPath)).relativeTo(root.path) 
+        root.selectDocument(path).getOrElse(root.selectSubtree(path).getOrElse(cursor.root.target))
       }
     }
     
     val list = root match {
-      case doc: Document      => TocGenerator.fromDocument(doc, maxLevel, context.document.path)
-      case tree: DocumentTree => TocGenerator.fromTree(tree, maxLevel, context.document.path)
+      case doc: Document      => TocGenerator.fromDocument(doc, maxLevel, cursor.target.path)
+      case tree: DocumentTree => TocGenerator.fromTree(tree, maxLevel, cursor.target.path)
     }
     title match {
       case Some(text) => TitledBlock(List(Text(text)), list, Styles("toc"))
@@ -160,9 +162,9 @@ trait StandardDirectives {
     (attribute("depth", positiveInt).optional ~ 
         attribute("root").optional ~ 
         attribute("title").optional ~ 
-        context) {  
-      (depth, rootConfig, title, context) =>
-        TemplateElement(toc(depth, rootConfig.getOrElse("#rootTree"), title, context))
+        cursor) {  
+      (depth, rootConfig, title, cursor) =>
+        TemplateElement(toc(depth, rootConfig.getOrElse("#rootTree"), title, cursor))
     }
   }
   
@@ -175,9 +177,9 @@ trait StandardDirectives {
     (attribute("depth", positiveInt).optional ~ 
         attribute("root").optional ~ 
         attribute("title").optional ~ 
-        context) {  
-      (depth, rootConfig, title, context) =>
-        toc(depth, rootConfig.getOrElse("#currentDocument"), title, context)
+        cursor) {  
+      (depth, rootConfig, title, cursor) =>
+        toc(depth, rootConfig.getOrElse("#currentDocument"), title, cursor)
     }
   }
   

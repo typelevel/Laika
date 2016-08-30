@@ -32,9 +32,9 @@ class RewriteRulesSpec extends FlatSpec
 
   
   def rewritten (root: RootElement): RootElement = {
-    val doc = new Document(Root, root)
-    val rules = Seq(LinkResolver, SectionBuilder).map(_(DocumentContext(doc)))
-    doc.rewrite(RewriteRules.chain(rules)).content
+    val doc = Document(Root, root)
+    val rules = RewriteRules.defaults(DocumentCursor(doc))
+    doc.rewrite(rules).content
   }
   
   def invalidSpan (message: String, fallback: String): InvalidSpan =

@@ -22,8 +22,8 @@ import laika.io.DocumentType.Markup
 import laika.tree.helper.ModelBuilder
 import laika.tree.Elements._
 import laika.tree.Documents._
-import laika.tree.DocumentTreeHelper.{Documents => Docs}
-import laika.tree.DocumentTreeHelper._
+import laika.tree.helper.DocumentViewBuilder.{Documents => Docs}
+import laika.tree.helper.DocumentViewBuilder._
 import laika.tree.Paths.Path
 import laika.tree.Paths.Root
 import com.typesafe.config.Config
@@ -40,11 +40,11 @@ class SectionNumberSpec extends FlatSpec
       Header(level,List(Text(s"Title $title")),Id(s"title$title") + Styles(style))
       
     def tree (content: RootElement): DocumentTree = {
-      def docs (path: Path, nums: Int*) = nums map (n => new Document(path / ("doc"+n), content))
-      new DocumentTree(Root, docs(Root, 1,2), config = parseConfig(config), subtrees = List(
-          new DocumentTree(Root / "sub1", docs(Root / "sub1",3,4)),
-          new DocumentTree(Root / "sub2", docs(Root / "sub2",5,6))
-          ))
+      def docs (path: Path, nums: Int*) = nums map (n => Document(path / ("doc"+n), content))
+      DocumentTree(Root, docs(Root, 1,2) ++ List(
+        DocumentTree(Root / "sub1", docs(Root / "sub1",3,4)),
+        DocumentTree(Root / "sub2", docs(Root / "sub2",5,6))
+      ), config = parseConfig(config))
     }
     
     def numberedHeader (level: Int, title: Int, num: List[Int], style: String = "section"): Header = {
@@ -57,7 +57,7 @@ class SectionNumberSpec extends FlatSpec
       Section(numberedHeader(level, title, num), children)
       
     def numberedSectionInfo (level: Int, title: Int, num: List[Int], children: SectionInfo*): SectionInfo =
-      SectionInfo(num, s"title$title", TitleInfo(numberedHeader(level, title, num).content), children)
+      SectionInfo(s"title$title", TitleInfo(numberedHeader(level, title, num).content), children)
 
 
     def treeView (content: List[Int] => List[DocumentContent]): TreeView = {
@@ -71,7 +71,7 @@ class SectionNumberSpec extends FlatSpec
       )) :: Nil)
     }
     
-    def parseConfig (source: String): Option[Config] = Some(ConfigFactory.parseString(source))
+    def parseConfig (source: String): Config = ConfigFactory.parseString(source)
     
     def config: String
     def numberSections: Boolean
@@ -140,7 +140,7 @@ class SectionNumberSpec extends FlatSpec
         numberedSection(2,2, docNum:+1, numberedSection(3,3, docNum:+1:+1)),
         numberedSection(2,4, docNum:+2, numberedSection(3,5, docNum:+2:+1))
       )),
-      laika.tree.DocumentTreeHelper.Title(numberedHeader(1,1, docNum, "title").content),
+      laika.tree.helper.DocumentViewBuilder.Title(numberedHeader(1,1, docNum, "title").content),
       Sections(List(
         numberedSectionInfo(2,2, docNum:+1, numberedSectionInfo(3,3, docNum:+1:+1)),
         numberedSectionInfo(2,4, docNum:+2, numberedSectionInfo(3,5, docNum:+2:+1))
@@ -148,7 +148,7 @@ class SectionNumberSpec extends FlatSpec
     )
 
     lazy val expected: TreeView = treeView(resultView)
-    lazy val result: TreeView = viewOf(tree(sections).rewrite(Seq(LinkResolver, SectionBuilder)))
+    lazy val result: TreeView = viewOf(tree(sections).rewrite(RewriteRules.defaults))
   }
   
   trait SectionsWithoutTitle extends TreeModel {
@@ -172,7 +172,7 @@ class SectionNumberSpec extends FlatSpec
     )
 
     lazy val expected: TreeView = treeView(resultView)
-    lazy val result: TreeView = viewOf(tree(sections).rewrite(Seq(LinkResolver, SectionBuilder)))
+    lazy val result: TreeView = viewOf(tree(sections).rewrite(RewriteRules.defaults))
   }
   
   

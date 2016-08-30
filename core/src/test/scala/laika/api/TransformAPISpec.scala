@@ -40,6 +40,7 @@ import laika.render.PrettyPrint
 import laika.render.XSLFO
 import laika.render.TextWriter
 import laika.render.helper.RenderResult
+import laika.tree.Documents.TemplateDocument
 import laika.tree.Elements.Text
 import laika.tree.Paths.Root
 import laika.tree.Templates._
@@ -141,7 +142,7 @@ class TransformAPISpec extends FlatSpec
   
   it should "allow to specify a custom rewrite rule that depends on the document" in {
     val modifiedOutput = output.replaceAllLiterally("äöü", "2")
-    val transformCustom = transform creatingRule { context => { case Text("Title äöü",_) => Some(Text("Title " + context.document.content.content.length)) }}
+    val transformCustom = transform creatingRule { cursor => { case Text("Title äöü",_) => Some(Text("Title " + cursor.target.content.content.length)) }}
     (transformCustom fromString input toString) should be (modifiedOutput)
   }
 
@@ -233,7 +234,7 @@ class TransformAPISpec extends FlatSpec
   
   it should "transform a tree with a dynamic document populated by a config file in the directory" in {
     new TreeTransformer {
-      val dirs = """- main.dynamic.html:dynDoc
+      val dirs = """- main.dynamic.txt:dynDoc
           |- directory.conf:conf""".stripMargin
       val result = """RootElement - Blocks: 1
           |. TemplateRoot - Spans: 1
@@ -244,7 +245,7 @@ class TransformAPISpec extends FlatSpec
   
   it should "transform a tree with a dynamic document populated by a root config string" in {
     new TreeTransformer {
-      val dirs = """- main.dynamic.html:dynDoc"""
+      val dirs = """- main.dynamic.txt:dynDoc"""
       val result = """RootElement - Blocks: 1
           |. TemplateRoot - Spans: 1
           |. . TemplateString - 'def'""".stripMargin
@@ -275,7 +276,7 @@ class TransformAPISpec extends FlatSpec
       val dirs = """- main1.dynamic.txt:name
         |- main2.dynamic.txt:name""".stripMargin
       val parser: Input => TemplateDocument = 
-        input => TemplateDocument(input.path, TemplateRoot(List(TemplateString("$$" + input.asParserInput.source))), null)
+        input => TemplateDocument(input.path, TemplateRoot(List(TemplateString("$$" + input.asParserInput.source))))
       val result = """RootElement - Blocks: 1
         |. TemplateRoot - Spans: 1
         |. . TemplateString - '$$foo'""".stripMargin
@@ -491,11 +492,11 @@ class TransformAPISpec extends FlatSpec
     out.toString should be (modifiedResult)
   }
   
-  it should "render a tree with a RenderResultProcessor with a custom rewrite rule that depends on the document context" in new GatheringTransformer {
+  it should "render a tree with a RenderResultProcessor with a custom rewrite rule that depends on the document cursor" in new GatheringTransformer {
     val modifiedResult = expectedResult.replaceAllLiterally("Sub Title", "Sub docSub.rst")
     val out = new ByteArrayOutputStream
-    Transform from ReStructuredText to TestRenderResultProcessor creatingRule { context => { 
-      case Text("Sub Title",_) => Some(Text("Sub " + context.document.path.name))
+    Transform from ReStructuredText to TestRenderResultProcessor creatingRule { cursor => { 
+      case Text("Sub Title",_) => Some(Text("Sub " + cursor.target.path.name))
     }} fromTree input(dirs) toStream out
     out.toString should be (modifiedResult)
   }

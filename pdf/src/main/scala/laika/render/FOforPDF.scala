@@ -21,14 +21,13 @@ import laika.io.OutputProvider.OutputConfig
 import laika.io.OutputProvider.ResultTree
 import laika.io.OutputProvider.StringOutputProvider
 import laika.render.FOWriter._
+import laika.rewrite.TocGenerator
 import laika.rewrite.TreeUtil
 import laika.tree.Documents._
 import laika.tree.Elements._
 import laika.tree.Paths.Path
 import laika.tree.Paths.Current
 import laika.tree.Paths.Root
-import laika.tree.TocGenerator
-import laika.tree.Templates.TemplateDocument
 import laika.tree.Templates.TemplateRoot
 import laika.tree.Templates.TemplateContextReference
 import com.typesafe.config.Config
@@ -51,7 +50,8 @@ class FOforPDF (config: Option[PDFConfig]) {
   
   /** Indicates whether the specified tree contains at least one document.
    */
-  protected def hasDocuments (tree: DocumentTree): Boolean = tree.documents.nonEmpty || tree.subtrees.exists(hasDocuments)
+  protected def hasDocuments (tree: DocumentTree): Boolean = 
+    tree.content.exists(hasContent)
   
   /** Indicates whether the specified navigatable contains at least one document.
    */
@@ -65,15 +65,20 @@ class FOforPDF (config: Option[PDFConfig]) {
    *  for each tree.
    */
   def addTreeTitles (linksOnly: Boolean)(tree: DocumentTree): DocumentTree = {
-    val treeWithTitle = if (!hasDocuments(tree)) tree
-    else {
-      val title = if (linksOnly || tree.title.isEmpty) InternalLinkTarget(Id(""))
-                  else Header(1, tree.title, Styles("treeTitle") + Id(""))
-      val root = RootElement(Seq(title))
-      val doc = new Document(tree.path / DocNames.treeTitle, root)
-      tree.prependDocument(doc)
+    val newContent = tree.content map {
+      case t: DocumentTree => addTreeTitles(linksOnly)(t)
+      case d: Document => d
     }
-    treeWithTitle.mapSubtrees(addTreeTitles(linksOnly))
+    val contentWithTitle = 
+      if (!hasDocuments(tree)) newContent
+      else {
+        val title = if (linksOnly || tree.title.isEmpty) InternalLinkTarget(Id(""))
+                    else Header(1, tree.title, Styles("treeTitle") + Id(""))
+        val root = RootElement(Seq(title))
+        val doc = new Document(tree.path / DocNames.treeTitle, root)
+        doc +: newContent
+      }
+    tree.copy(content = contentWithTitle)
   }
   
   /** Adds title elements for each document in the specified
@@ -81,13 +86,13 @@ class FOforPDF (config: Option[PDFConfig]) {
    *  from a `Title` element in the document's content or from its configuration header.
    */
   def insertDocTitles (linksOnly: Boolean)(tree: DocumentTree): DocumentTree =
-    tree rewrite { context => {
+    tree rewrite { cursor => {
       case title: Title =>
         // toc directives will link to an empty id, not the id of the title element
         Some(BlockSequence(Seq(title), Id("")))
       case root: RootElement if ((root select { _.isInstanceOf[Title] }).isEmpty) => 
-        val insert = if (linksOnly || context.document.title.isEmpty) InternalLinkTarget(Id(""))
-                     else Title(context.document.title, Id(""))
+        val insert = if (linksOnly || cursor.target.title.isEmpty) InternalLinkTarget(Id(""))
+                     else Title(cursor.target.title, Id(""))
         Some(RootElement(insert +: root.content))
     }}
     
@@ -110,9 +115,8 @@ class FOforPDF (config: Option[PDFConfig]) {
       }
     
     def treeBookmarks (tree: DocumentTree, levels: Int): Seq[Bookmark] = {
-      def navigatables(tree: DocumentTree) = if (tree.navigatables.nonEmpty) tree.navigatables else tree.documents ++ tree.subtrees
       if (levels == 0) Nil
-      else (for (nav <- navigatables(tree) if hasContent(nav)) yield nav match {
+      else (for (nav <- tree.content if hasContent(nav)) yield nav match {
         case doc: Document if doc.name == DocNames.treeTitle || doc.name == DocNames.toc => Seq()
         case doc: Document =>
           val title = if (doc.title.nonEmpty) TreeUtil.extractText(doc.title) else doc.name
@@ -146,7 +150,7 @@ class FOforPDF (config: Option[PDFConfig]) {
     val toc = toBlockSequence(TocGenerator.fromTree(tree, depth, tree.path / DocNames.toc, treeTitleDoc = Some(DocNames.treeTitle)))
     val root = title.fold(RootElement(toc)){ title => RootElement(Title(Seq(Text(title))) +: toc) }
     val doc = new Document(tree.path / DocNames.toc, root)
-    tree.prependDocument(doc)
+    tree.copy(content = doc +: tree.content)
   }
       
   /** Prepares the document tree before rendering the interim XSL-FO
@@ -155,8 +159,8 @@ class FOforPDF (config: Option[PDFConfig]) {
    */
   def prepareTree (tree: DocumentTree, config: PDFConfig): DocumentTree = {
     val insertLinks = config.bookmarkDepth > 0 || config.tocDepth > 0
-    val withoutTemplates = tree.withoutTemplates.withTemplate(new TemplateDocument(Root / "default.template.fo", 
-        TemplateRoot(List(TemplateContextReference("document.content")))))
+    val withoutTemplates = tree.copy(templates = Seq(TemplateDocument(Root / "default.template.fo", 
+        TemplateRoot(List(TemplateContextReference("document.content"))))))
     val withDocTitles = if (config.insertTitles || insertLinks) insertDocTitles(!config.insertTitles)(withoutTemplates) else withoutTemplates
     val withToc = if (config.tocDepth > 0) insertToc(withDocTitles, config.tocDepth, config.tocTitle) else withDocTitles
     if (config.insertTitles || insertLinks) addTreeTitles(!config.insertTitles)(withToc) else withToc
@@ -176,20 +180,18 @@ class FOforPDF (config: Option[PDFConfig]) {
   def renderFO (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit): String = {
     
     val pdfConfig = config getOrElse {
+        
       val defaults = PDFConfig.default
       
-      tree.config.fold(defaults) { treeConfig =>
-        
-        def getOpt [T](key: String, read: String => T): Option[T] = 
-          if (treeConfig.hasPath(key)) Some(read(key)) else None
-        
-        val insertTitles = getOpt("pdf.insertTitles", treeConfig.getBoolean).getOrElse(defaults.insertTitles)
-        val bookmarkDepth = getOpt("pdf.bookmarks.depth", treeConfig.getInt).getOrElse(defaults.bookmarkDepth)
-        val tocDepth = getOpt("pdf.toc.depth", treeConfig.getInt).getOrElse(defaults.tocDepth)
-        val tocTitle = getOpt("pdf.toc.title", treeConfig.getString).orElse(defaults.tocTitle)
+      def getOpt [T](key: String, read: String => T): Option[T] = 
+        if (tree.config.hasPath(key)) Some(read(key)) else None
+      
+      val insertTitles = getOpt("pdf.insertTitles", tree.config.getBoolean).getOrElse(defaults.insertTitles)
+      val bookmarkDepth = getOpt("pdf.bookmarks.depth", tree.config.getInt).getOrElse(defaults.bookmarkDepth)
+      val tocDepth = getOpt("pdf.toc.depth", tree.config.getInt).getOrElse(defaults.tocDepth)
+      val tocTitle = getOpt("pdf.toc.title", tree.config.getString).orElse(defaults.tocTitle)
  
-        PDFConfig(insertTitles, bookmarkDepth, tocDepth, tocTitle)
-      }
+      PDFConfig(insertTitles, bookmarkDepth, tocDepth, tocTitle)
     }
     
     def getDefaultTemplate: TemplateDocument = {
@@ -202,8 +204,7 @@ class FOforPDF (config: Option[PDFConfig]) {
       
       def baseName(docName: String): String = docName.takeWhile(_ != '.')
           
-      val children = if (src.navigatables.nonEmpty) src.navigatables else src.documents ++ src.subtrees
-      children foreach {
+      src.content foreach {
         case d: Document => result.result(baseName(d.name) + ".fo").foreach(sb.append)
         case t: DocumentTree => result.subtree(t.name).foreach(append(sb, _, t))
       }
@@ -221,7 +222,7 @@ class FOforPDF (config: Option[PDFConfig]) {
     def applyTemplate(foString: String, template: TemplateDocument, tree: DocumentTree): String = {
       val result = RawContent(Seq("fo"), foString)
       val finalDoc = new Document(Root / "merged.fo", RootElement(Seq(result)), fragments = generateBookmarks(tree, pdfConfig.bookmarkDepth))
-      val templateApplied = template.rewrite(DocumentContext(finalDoc))
+      val templateApplied = template.applyTo(finalDoc)
       Render as XSLFO from templateApplied toString
     }
     

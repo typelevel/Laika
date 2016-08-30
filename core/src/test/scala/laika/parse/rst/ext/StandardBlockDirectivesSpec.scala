@@ -18,23 +18,20 @@ package laika.parse.rst.ext
 
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
-import laika.tree.helper.ModelBuilder
-import laika.tree.Elements._
-import laika.parse.rst.ReStructuredText
 import laika.api.Parse
+import laika.parse.rst.ReStructuredText
+import laika.parse.rst.Elements.Contents
 import laika.parse.rst.Elements.Include
+import laika.rewrite.TemplateRewriter
 import laika.tree.Documents._
+import laika.tree.Elements._
 import laika.tree.Paths.Current
 import laika.tree.Paths.Root
-import laika.tree.Templates.TemplateDocument
 import laika.tree.Templates.TemplateElement
 import laika.tree.Templates.TemplateContextReference
+import laika.tree.helper.ModelBuilder
 import com.typesafe.config.impl.SimpleConfigObject
 import com.typesafe.config.ConfigValueFactory
-import laika.parse.rst.Elements.Contents
-import laika.rewrite.LinkResolver
-import laika.rewrite.SectionBuilder
-import laika.parse.rst.RewriteRules
 
 /**
  * @author Jens Halm
@@ -588,11 +585,13 @@ class StandardBlockDirectivesSpec extends FlatSpec
   }
   
   "The include rewriter" should "replace the node with the corresponding document" in {
-    val doc1 = new Document(Root / "doc1", root(Include("doc2")))
-    val doc2 = new Document(Root / "doc2", root(p("text")))
-    val template = new TemplateDocument(Root / "default.template.html", tRoot(TemplateContextReference("document.content")))
-    val tree = new DocumentTree(Root, List(doc1, doc2), templates = List(template))
-    tree.rewrite(RewriteRules +: Seq(LinkResolver, SectionBuilder)).applyTemplates("html").documents(0).content should be (root(BlockSequence(List(p("text")))))
+    val doc1 = Document(Root / "doc1", root(Include("doc2")))
+    val doc2 = Document(Root / "doc2", root(p("text")))
+    val template = TemplateDocument(Root / "default.template.html", tRoot(TemplateContextReference("document.content")))
+    val tree = DocumentTree(Root, List(doc1, doc2), templates = List(template))
+    val rewrittenTree = tree.rewrite(laika.rewrite.RewriteRules.defaultsFor(ReStructuredText))
+    val templatesApplied = TemplateRewriter.applyTemplates(rewrittenTree, "html")
+    templatesApplied.content.collect{case doc: Document => doc}.head.content should be (root(BlockSequence(List(p("text")))))
   }
   
   "The title directive" should "set the title in the document instance" in {
@@ -659,10 +658,12 @@ class StandardBlockDirectivesSpec extends FlatSpec
       Section(header(2,4), List(Section(header(3,5), Nil)))
     )
     
-    val document = new Document(Root / "doc", sectionsWithTitle)
-    val template = new TemplateDocument(Root / "default.template.html", tRoot(TemplateContextReference("document.content")))
-    val tree = new DocumentTree(Root, List(document), templates = List(template))
-    tree.rewrite(Seq(RewriteRules, LinkResolver, SectionBuilder)).applyTemplates("html").documents(0).content should be (result)
+    val document = Document(Root / "doc", sectionsWithTitle)
+    val template = TemplateDocument(Root / "default.template.html", tRoot(TemplateContextReference("document.content")))
+    val tree = DocumentTree(Root, content = List(document), templates = List(template))
+    val rewrittenTree = tree.rewrite(laika.rewrite.RewriteRules.defaultsFor(ReStructuredText))
+    val templatesApplied = TemplateRewriter.applyTemplates(rewrittenTree, "html")
+    templatesApplied.content.collect{case doc: Document => doc}.head.content should be (result)
   }
   
   

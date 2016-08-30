@@ -16,9 +16,10 @@
 
 package laika.rewrite
 
-import laika.tree.Documents2._
+import laika.tree.Documents._
 import laika.tree.Paths.Root
 import laika.tree.Elements.RewriteRule
+import laika.tree.Elements.RootElement
 import laika.tree.Elements.Block
 import laika.tree.ElementTraversal
 import com.typesafe.config.ConfigFactory
@@ -36,23 +37,13 @@ trait Cursor {
   
   def position: TreePosition
   
-  /* TODO - these are probably not needed in the base trait
-  * def nextSibling: Option[Cursor] // nothing uses it
-  * 
-  * def parent // must be optional for trees but mandatory for docs
-  * 
-  * def children // only needed in trees
-  * 
-  * def position: Int // not needed when we have autonumbering
-  */
-
 }
 
 
 case class TreeCursor(target: DocumentTree, 
-                      parent: Option[TreeCursor] = None, 
-                      config: Config = ConfigFactory.empty,
-                      position: TreePosition = TreePosition.root) extends Cursor {
+                      parent: Option[TreeCursor], 
+                      config: Config,
+                      position: TreePosition) extends Cursor {
 
   type Target = DocumentTree
   
@@ -86,20 +77,28 @@ case class TreeCursor(target: DocumentTree,
 
 }
 
+object TreeCursor {
+  
+  def apply (tree: DocumentTree): TreeCursor =
+    apply(tree, None, tree.config, TreePosition.root)
+    
+}
+
 /** Represents a single document,its parent and root directories,
  *  its associated template and other context information that
  *  can not be obtained from the Document instance itself.
  *  
- *  @param document the document this context refers to
+ *  @param target the document this cursor refers to
  *  @param parent the parent document tree of the referred document
- *  @param autonumbering the context for autonumbering of document and sections
+ *  @param resolver the resolver for references in templates
  *  @param config the configuration of the referred document
+ *  @param position the position of the target document inside a tree hierarchy
  */
 case class DocumentCursor (target: Document, 
                            parent: TreeCursor,
                            resolver: ReferenceResolver,
-                           config: Config = ConfigFactory.empty,
-                           position: TreePosition = TreePosition.root) extends Cursor { self =>
+                           config: Config,
+                           position: TreePosition) extends Cursor { self =>
                                  
   type Target = Document   
   
@@ -124,9 +123,10 @@ case class DocumentCursor (target: Document,
    *  root tree is reached. If the value is not found `None` will
    *  be returned.
    */
-  def resolveReference (path: String): Option[Any] = resolver.resolve(path.split("\\.").toList)
+  def resolveReference (path: String): Option[Any] = 
+    resolver.resolve(path.split("\\.").toList)
   
-  /** Creates a copy of this context with a new root object
+  /** Creates a copy of this cursor with a new root object
    *  for resolving references. This is useful for custom
    *  template directives which need to provide a new scope
    *  for a nested part inside the directive tags.
@@ -138,11 +138,13 @@ case class DocumentCursor (target: Document,
 
 object DocumentCursor {
   
-  def apply (document: Document): DocumentCursor =
-    apply(document, TreeCursor(DocumentTree(Root, Seq(document))))
+  def apply (document: Document): DocumentCursor = 
+    apply(document, TreeCursor(DocumentTree(Root, Seq(document))), document.config, TreePosition.root)
     
-  def apply (document: Document, parent: TreeCursor): DocumentCursor =
-    apply(document, parent, ConfigFactory.empty, TreePosition.root)
+  def forEmptyDocument (name: String, parent: TreeCursor): DocumentCursor = {
+    val emptyDoc = Document(parent.target.path / name, RootElement(Nil))
+    apply(emptyDoc, parent, parent.config, TreePosition.root)
+  }
     
   def apply (document: Document, parent: TreeCursor, config: Config, position: TreePosition): DocumentCursor =
     apply(document, parent, ReferenceResolver.forDocument(document, parent, config), config, position)

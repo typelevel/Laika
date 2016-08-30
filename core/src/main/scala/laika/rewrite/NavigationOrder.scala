@@ -16,7 +16,9 @@
 
 package laika.rewrite
 
-import laika.tree.Documents2.TreeContent
+import laika.tree.Documents.Document
+import laika.tree.Documents.DocumentTree
+import laika.tree.Documents.TreeContent
 import com.typesafe.config.Config
 
 /** Responsible for applying the navigation order to the 
@@ -38,8 +40,9 @@ object NavigationOrder {
         list.indexOf(nav.path.name) match { case -1 => Int.MaxValue; case other => other }
       }
     }
-    else content.sortBy { nav => 
-      nav.getClass.getSimpleName + nav.path.name 
+    else content.sortBy {
+      case d: Document => "A-" + d.path.name 
+      case t: DocumentTree => "B-" + t.path.name 
     }
   
 }

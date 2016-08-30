@@ -16,6 +16,8 @@
 
 package laika.rewrite
 
+import laika.factory.ParserFactory
+import laika.tree.Elements.Element
 import laika.tree.Elements.RewriteRule
 
 /** Utilities for dealing with rewrite rules.
@@ -31,11 +33,42 @@ object RewriteRules {
    */
   def chain (rules: Seq[RewriteRule]): RewriteRule = {
     
-    val fallback: RewriteRule = { case e => Some(e) }
+    def extractRules (rule: RewriteRule): Seq[RewriteRule] = rule match {
+      case ChainedRewriteRules(rules) => rules
+      case other => Seq(other)
+    }
     
-    if (rules.isEmpty) fallback  
-    else (rules map { _ orElse fallback }) reduceRight { (ruleA,ruleB) => ruleA andThen (_ flatMap ruleB) }
+    ChainedRewriteRules(rules.map(extractRules).flatten)
   }
   
+  private case class ChainedRewriteRules (rules: Seq[RewriteRule]) extends RewriteRule {
+    
+    def apply (element: Element): Option[Element] = {
+      
+      val fallback: RewriteRule = { case e => Some(e) }
+    
+      val f = 
+        if (rules.isEmpty) fallback  
+        else (rules map { _ orElse fallback }) reduceRight { (ruleA,ruleB) => ruleA andThen (_ flatMap ruleB) }
+      
+      f(element)
+    }
+      
+    def isDefinedAt (element: Element): Boolean = true
+    
+  }
+  
+  
+  private val defaultsFactories = Seq(LinkResolver, SectionBuilder)
+  
+  def chainFactories (rules: Seq[DocumentCursor => RewriteRule]): DocumentCursor => RewriteRule = 
+    cursor => chain(rules map (_(cursor)))
+  
+    
+  def defaults: DocumentCursor => RewriteRule = chainFactories(defaultsFactories)
+  
+  def defaultsFor (parsers: ParserFactory*): DocumentCursor => RewriteRule = 
+    chainFactories(parsers.map(_.rewriteRules).flatten ++ defaultsFactories)
    
+    
 }

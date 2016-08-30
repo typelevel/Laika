@@ -24,7 +24,7 @@ import scala.io.Codec
 
 import laika.io.IO
 import laika.io.Input
-import laika.tree.Templates.TemplateDocument
+import laika.tree.Documents.TemplateDocument
 
 /** API for performing a parse operation for a template. Usually not called
  *  directly by application code unless a custom template parser needs

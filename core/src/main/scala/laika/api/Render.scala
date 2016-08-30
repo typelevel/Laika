@@ -20,23 +20,25 @@ import java.io.File
 import java.io.OutputStream
 import scala.annotation.implicitNotFound
 import scala.io.Codec
+import laika.factory.RenderResultProcessor
 import laika.io.IO
 import laika.io.Input
 import laika.io.Output
 import laika.io.Output.Binary
 import laika.io.OutputProvider
 import laika.io.OutputProvider._
+import laika.rewrite.TemplateRewriter
 import laika.tree.Elements.Element
 import laika.tree.Elements.RootElement
 import laika.tree.Elements.RenderFunction
 import laika.tree.Documents._
 import laika.tree.Templates._
 import laika.tree.Paths.Current
+import laika.tree.Paths.Path
 import laika.tree.Paths.Root
 import laika.factory.RendererFactory
 import laika.parse.css.Styles.StyleDeclarationSet
 import Render._
-import laika.factory.RenderResultProcessor
   
 /** API for performing a render operation to various types of output using an existing
  *  document tree model. 
@@ -175,9 +177,9 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
     
     type Operation = () => Unit
     
-    def renderTree (provider: OutputProvider, styles: StyleDeclarationSet)(doc: Document): Operation = {
-      val output = provider.newOutput(doc.path.basename +"."+ factory.fileSuffix)
-      () => render(doc.content, output, styles)
+    def renderTree (provider: OutputProvider, styles: StyleDeclarationSet, path: Path, content: RootElement): Operation = {
+      val output = provider.newOutput(path.basename +"."+ factory.fileSuffix)
+      () => render(content, output, styles)
     } 
       
     def copy (provider: OutputProvider)(input: Input): Operation = {
@@ -188,16 +190,21 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
     def collectOperations (provider: OutputProvider, parentStyles: StyleDeclarationSet, tree: DocumentTree): Seq[Operation] = {
       val styles = parentStyles ++ tree.styles(factory.fileSuffix)
       
-      (tree.documents map renderTree(provider, styles)) ++ 
-      (tree.dynamicDocuments map renderTree(provider, styles)) ++ 
-      (if (config.copyStaticFiles) tree.staticDocuments map copy(provider) else Seq()) ++
-      (tree.subtrees map { subtree => collectOperations(provider.newChild(subtree.name), styles, subtree)}).flatten
+      (tree.content map {
+        case doc: Document => Seq(renderTree(provider, styles, doc.path, doc.content))
+        case tree: DocumentTree => collectOperations(provider.newChild(tree.name), styles, tree)
+      }).flatten ++
+      (tree.additionalContent map {
+        case doc: DynamicDocument => Seq(renderTree(provider, styles, doc.path, doc.content))
+        case static: StaticDocument if (config.copyStaticFiles) => Seq(copy(provider)(static.input))
+        case _ => Seq()
+      }).flatten
     }
   
     val templateName = "default.template." + factory.fileSuffix
     val treeWithTpl = if (tree.selectTemplate(Current / templateName).isDefined) tree 
-                      else tree.withTemplate(new TemplateDocument(Root / templateName, factory.defaultTemplate)) 
-    val finalTree = treeWithTpl.applyTemplates(factory.fileSuffix)
+                      else tree.copy(templates = tree.templates :+ TemplateDocument(Root / templateName, factory.defaultTemplate)) 
+    val finalTree = TemplateRewriter.applyTemplates(treeWithTpl, factory.fileSuffix)
     val operations = collectOperations(config.provider, factory.defaultStyles, finalTree)
     
     (if (config.parallel) operations.par else operations) foreach (_())
@@ -392,10 +399,10 @@ object Render {
       new RenderGatheredOutput(processor, render :: customRenderers)
 
     def from (element: Element): BinaryTarget = 
-      from(new Document(Root / "target", RootElement(Seq(TemplateRoot(Seq(TemplateElement(element)))))))
+      from(Document(Root / "target", RootElement(Seq(TemplateRoot(Seq(TemplateElement(element)))))))
     
     def from (doc: Document): BinaryTarget = 
-      from(new DocumentTree(Root, Seq(doc)))
+      from(DocumentTree(Root, Seq(doc)))
     
     def from (tree: DocumentTree): BinaryTarget = new BinaryTarget {
       protected def renderBinary (out: Output with Binary) = processor.process(tree, render, out.asBinaryOutput)

@@ -41,14 +41,14 @@ import laika.tree.Paths.Path
  * 
  *  @author Jens Halm
  */
-object LinkResolver extends (DocumentContext => RewriteRule) {
+object LinkResolver extends (DocumentCursor => RewriteRule) {
 
   /** The default rules for resolving link references 
    *  to be applied to the document.
    */
-  def apply (context: DocumentContext): RewriteRule = {
+  def apply (cursor: DocumentCursor): RewriteRule = {
     
-    val targets = context.document.linkTargets
+    val targets = cursor.target.linkTargets
     val headerId = targets.headerIds
     
     def replaceHeader (h: Block, origId: String, lookup: String => Option[String]): Option[Element] = lookup(origId).flatMap(replace(h,_))
@@ -60,16 +60,16 @@ object LinkResolver extends (DocumentContext => RewriteRule) {
       
       def selectFromParent = {
         @tailrec def select (path: Path): (Option[TargetResolver],Option[Path]) = {
-          val tree = context.root.selectSubtree(path)
+          val tree = cursor.root.target.selectSubtree(path)
           val target = tree.flatMap(_.selectTarget(selector))
-          if (target.isDefined || path.parent == path) (target,Some(context.document.path))
+          if (target.isDefined || path.parent == path) (target,Some(cursor.target.path))
           else select(path.parent)
         }
-        val path = context.parent.path
+        val path = cursor.parent.target.path
         select(Path(Current, path.components))
       }
       def selectFromRoot (path: String, name: String) = 
-        (context.root.selectTarget(PathSelector(context.parent.path / Path(path), name)),Some(context.document.path))
+        (cursor.root.target.selectTarget(PathSelector(cursor.parent.target.path / Path(path), name)),Some(cursor.target.path))
       
       val (target, path) = {
         val local = targets.local.get(selector)
@@ -111,7 +111,7 @@ object LinkResolver extends (DocumentContext => RewriteRule) {
                                  else                resolve(ref, ref.id, s"unresolved link reference: ${ref.id}", true)
         
       case ref: ImageReference => resolve(ref, ref.id, s"unresolved image reference: ${ref.id}", true)
-      case img @ Image(_,URI(uri, None),_,_) => Some(img.copy(uri = URI(uri, PathInfo.fromURI(uri, context.parent.path)))) 
+      case img @ Image(_,URI(uri, None),_,_) => Some(img.copy(uri = URI(uri, PathInfo.fromURI(uri, cursor.parent.target.path)))) 
       
       case _: Temporary => None
 

@@ -22,8 +22,8 @@ import laika.io.DocumentType.Markup
 import laika.tree.helper.ModelBuilder
 import laika.tree.Elements._
 import laika.tree.Documents._
-import laika.tree.DocumentTreeHelper.{Documents => Docs}
-import laika.tree.DocumentTreeHelper._
+import laika.tree.helper.DocumentViewBuilder.{Documents => Docs}
+import laika.tree.helper.DocumentViewBuilder._
 import laika.tree.Paths._
 
 class CrossReferenceSpec extends FlatSpec 
@@ -38,11 +38,11 @@ class CrossReferenceSpec extends FlatSpec
     def rootElement (b: Block): RootElement = root(p("A"), b, p("B"))
 
     def treeWithDocs (path: Path, name: String, root1: RootElement, root2: RootElement): DocumentTree =
-      new DocumentTree(path, List(new Document(path / (name+"1"), root1), new Document(path / (name+"2"), root2)))
+      DocumentTree(path, List(Document(path / (name+"1"), root1), Document(path / (name+"2"), root2)))
     def treeWithDoc (path: Path, name: String, root: RootElement, subtrees: List[DocumentTree] = Nil): DocumentTree =
-      new DocumentTree(path, List(new Document(path / name, root)), subtrees = subtrees)
+      DocumentTree(path, List(Document(path / name, root)) ++ subtrees)
     def treeWithSubtrees (path: Path, trees: DocumentTree*): DocumentTree =
-      new DocumentTree(path, Nil, subtrees = trees)
+      DocumentTree(path, trees)
     
     def treeViewWithDocs (path: Path, name: String, root1: RootElement, root2: RootElement): TreeView =
       TreeView(path, List(Docs(Markup, List(
@@ -56,7 +56,7 @@ class CrossReferenceSpec extends FlatSpec
     def treeViewWithSubtrees (path: Path, trees: TreeView*): TreeView =
       TreeView(path, List(Subtrees(trees)))
       
-    def rewrite (tree: DocumentTree): DocumentTree = tree.rewrite(Seq(LinkResolver, SectionBuilder))
+    def rewrite (tree: DocumentTree): DocumentTree = tree.rewrite(RewriteRules.defaults)
   }
   
   "The reference resolver" should "resolve a cross reference to a target in another document in the same directory" in {
@@ -144,6 +144,5 @@ class CrossReferenceSpec extends FlatSpec
       viewOf(rewrite(rootTree)) should be (treeResult)
     } 
   }
-  
   
 }

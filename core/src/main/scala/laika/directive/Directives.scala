@@ -18,7 +18,7 @@ package laika.directive
 
 import laika.util.Builders._
 import laika.tree.Elements._
-import laika.tree.Documents.DocumentContext
+import laika.rewrite.DocumentCursor
 import laika.tree.Templates.TemplateSpan
 
 /** API for creating directives, the Laika's extension mechanism for creating
@@ -252,7 +252,7 @@ object Directives {
         
       def part (key: Key): Option[String]
       
-      def context: Option[DocumentContext]
+      def cursor: Option[DocumentCursor]
       
       def parser: Parser
   
@@ -390,18 +390,18 @@ object Directives {
        */
       def parser: DirectivePart[Parser] = part(c => Success(c.parser))
 
-      /** Indicates that access to the document context is required.
+      /** Indicates that access to the document cursor is required.
        *  This may be required if the directive relies on information
        *  from the document structure, its title or the parent tree
        *  it is contained in.
        * 
        *  Use of this function causes the directive to be processed in a later
-       *  rewrite step as the document context is not yet fully populated in
+       *  rewrite step as the document cursor is not yet fully populated in
        *  the initial rewrite step. But this is an implementation detail
        *  you normally do not need to deal with.
        */
-      def context: DirectivePart[DocumentContext] 
-          = part(_.context map (Success(_)) getOrElse (Failure("DocumentContext not available yet")), true)
+      def cursor: DirectivePart[DocumentCursor] 
+          = part(_.cursor map (Success(_)) getOrElse (Failure("DocumentCursor not available yet")), true)
       
     }
   

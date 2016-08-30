@@ -18,20 +18,22 @@ package laika.tree
 
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
-import laika.tree.helper.ModelBuilder
-import laika.tree.Elements._
-import laika.tree.Documents._
-import laika.tree.DocumentTreeHelper.{Documents => Docs}
-import laika.tree.DocumentTreeHelper._
-import com.typesafe.config.ConfigFactory
 import laika.api.Parse
 import laika.parse.markdown.Markdown
-import laika.tree.helper.InputBuilder
-import laika.io.InputProvider.InputConfigBuilder
-import scala.io.Codec
-import laika.tree.Templates._
-import laika.tree.Elements._
 import laika.parse.rst.ReStructuredText
+import laika.io.InputProvider.InputConfigBuilder
+import laika.tree.helper.ModelBuilder
+import laika.tree.Documents._
+import laika.tree.Elements._
+import laika.tree.Paths.Current
+import laika.tree.Templates._
+import laika.tree.helper.DocumentViewBuilder.{Documents => Docs}
+import laika.tree.helper.DocumentViewBuilder._
+import laika.tree.helper.InputBuilder
+import laika.rewrite.TemplateRewriter
+import laika.rewrite.TreeCursor
+import com.typesafe.config.ConfigFactory
+import scala.io.Codec
 
 class ConfigSpec extends FlatSpec 
                     with Matchers
@@ -64,14 +66,18 @@ class ConfigSpec extends FlatSpec
       "markupWithRef" -> markupWithRef
     )
     
-    def resultOf (tree: DocumentTree) = tree.documents.head.content
+    def resultOf (tree: DocumentTree) = {
+      val result = TemplateRewriter.applyTemplates(tree, "html")
+      result.content.collect{case doc: Document => doc}.head.content
+    }
+    
   }
   
   "The Config parser" should "parse configuration sections embedded in Markdown documents" in {
     new Inputs {
       val dir = """- default.template.html:templateWithRef
         |- input.md:markup""".stripMargin
-      val result = root(
+      val expected = root(
         TemplateRoot(List(
           TemplateString("<h1>"),
           TemplateString("bar"),
@@ -80,7 +86,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(Parse as Markdown fromTree builder(dir) applyTemplates "html") should be (result)
+      resultOf(Parse as Markdown fromTree builder(dir)) should be (expected)
     }
   }
   
@@ -88,7 +94,7 @@ class ConfigSpec extends FlatSpec
     new Inputs {
       val dir = """- default.template.html:templateWithRef
         |- input.rst:markup""".stripMargin
-      val result = root(
+      val expected = root(
         TemplateRoot(List(
           TemplateString("<h1>"),
           TemplateString("bar"),
@@ -97,7 +103,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(Parse as ReStructuredText fromTree builder(dir) applyTemplates "html") should be (result)
+      resultOf(Parse as ReStructuredText fromTree builder(dir)) should be (expected)
     }
   }
   
@@ -105,14 +111,14 @@ class ConfigSpec extends FlatSpec
     new Inputs {
       val dir = """- default.template.html:templateWithConfig
         |- input.md:markupWithRef""".stripMargin
-      val result = root(
+      val expected = root(
         TemplateRoot(List(
           TemplateString("<div>"),
           eRoot(p(txt("aaa\n"),txt("bar"),txt("\nbbb"))),
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(Parse as Markdown fromTree builder(dir) applyTemplates "html") should be (result)
+      resultOf(Parse as Markdown fromTree builder(dir)) should be (expected)
     }
   }
   
@@ -120,14 +126,14 @@ class ConfigSpec extends FlatSpec
     new Inputs {
       val dir = """- default.template.html:templateWithConfig
         |- input.rst:markupWithRef""".stripMargin
-      val result = root(
+      val expected = root(
         TemplateRoot(List(
           TemplateString("<div>"),
           eRoot(p(txt("aaa\n"),txt("bar"),txt("\nbbb"))),
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(Parse as ReStructuredText fromTree builder(dir) applyTemplates "html") should be (result)
+      resultOf(Parse as ReStructuredText fromTree builder(dir)) should be (expected)
     }
   }
   
@@ -148,7 +154,7 @@ class ConfigSpec extends FlatSpec
         |{{config.key4}}
         |{{config.key5}}""".stripMargin
       val dirs = """- directory.conf:config4
-          |+ dir 
+          |+ dir
           |  - default.template.html:template
           |  - directory.conf:config3
           |  - input.md:markup""".stripMargin
@@ -156,13 +162,15 @@ class ConfigSpec extends FlatSpec
       val config4 = "key4: val4"
       val config5 = "key5: val5"
         
-      val result = root(
+      val expected = root(
         TemplateRoot(
           (1 to 5) map (n => List(TemplateString("val"+n))) reduce (_ ++ List(TemplateString("\n")) ++ _)
         )
       )
       
-      resultOf((Parse as Markdown fromTree builder(dirs).withConfigString(config5) applyTemplates "html").subtrees(0)) should be (result)
+      val tree = Parse as Markdown fromTree builder(dirs).withConfigString(config5)
+      val result = TemplateRewriter.applyTemplates(tree, "html")
+      result.selectDocument(Current / "dir" / "input.md").get.content should be (expected)
     }
   }
   
