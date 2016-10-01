@@ -16,16 +16,15 @@
 
 package laika.directive
 
-import Directives._
-import laika.util.Builders._
-import laika.tree.Elements._
-import laika.tree.Templates._
-import laika.tree.Documents._
-import laika.tree.Paths.Path
-import laika.rewrite.DocumentCursor
+import laika.directive.Directives._
 import laika.rewrite.TemplateRewriter.rewriteRules
-import laika.rewrite.TocGenerator
-import laika.rewrite.TreeUtil
+import laika.rewrite.{DocumentCursor, TocGenerator, TreeUtil}
+import laika.tree.Documents._
+import laika.tree.Elements._
+import laika.tree.Paths.Path
+import laika.tree.Templates._
+import laika.util.Builders._
+
 import scala.collection.JavaConversions._
 
 /** Provides the implementation for the standard directives included in Laika.
@@ -56,8 +55,9 @@ trait StandardDirectives {
   /** Implementation of the `for` directive for templates.
    */
   lazy val templateFor: Templates.Directive = Templates.create("for") {
+    import java.util.{Collection => JCol, Map => JMap}
+
     import Templates.Combinators._
-    import java.util.{Map => JMap, Collection => JCol}
 
     val emptyValues = Set("",false,null,None)
     
@@ -68,21 +68,19 @@ trait StandardDirectives {
           TemplateSpanSequence(content) rewrite rewriteRules(cursor.withReferenceContext(value))
         
         def rewriteFallback = 
-          fallback map (TemplateSpanSequence(_) rewrite rewriteRules(cursor)) getOrElse (TemplateSpanSequence(Nil))
+          fallback map (TemplateSpanSequence(_) rewrite rewriteRules(cursor)) getOrElse TemplateSpanSequence(Nil)
 
         cursor.resolveReference(path) match {
           case Some(m: Map[_,_])  => rewriteContent(m) 
           case Some(m: JMap[_,_]) => rewriteContent(m) 
           case Some(it: Iterable[_]) if it.isEmpty => rewriteFallback
           case Some(it: JCol[_])     if it.isEmpty => rewriteFallback
-          case Some(it: Iterable[_]) => {
+          case Some(it: Iterable[_]) =>
             val spans = for (value <- it) yield rewriteContent(value)
             TemplateSpanSequence(spans.toSeq)
-          }
-          case Some(it: JCol[_]) => {
+          case Some(it: JCol[_]) =>
             val spans = for (value <- iterableAsScalaIterable(it)) yield rewriteContent(value)
             TemplateSpanSequence(spans.toSeq)
-          }
           case Some(value) if emptyValues(value) => rewriteFallback
           case Some(value)            => rewriteContent(value)
           case None                   => TemplateSpanSequence(Nil)
@@ -94,8 +92,8 @@ trait StandardDirectives {
   /** Implementation of the `if` directive for templates.
    */
   lazy val templateIf: Templates.Directive = Templates.create("if") {
+
     import Templates.Combinators._
-    import java.util.{Map => JMap, Collection => JCol}
     
     val trueStrings = Set("true","yes","on","enabled")
 
@@ -106,7 +104,7 @@ trait StandardDirectives {
           TemplateSpanSequence(content) rewrite rewriteRules(cursor)
         
         def rewriteFallback = 
-          fallback map (TemplateSpanSequence(_) rewrite rewriteRules(cursor)) getOrElse (TemplateSpanSequence(Nil))
+          fallback map (TemplateSpanSequence(_) rewrite rewriteRules(cursor)) getOrElse TemplateSpanSequence(Nil)
         
         cursor.resolveReference(path) match {
           case Some(true) => rewriteContent
@@ -133,14 +131,13 @@ trait StandardDirectives {
       case "#rootTree"        => cursor.root.target
       case "#currentTree"     => cursor.parent.target
       case "#currentDocument" => cursor.target
-      case pathString => {
+      case pathString =>
         val configPath = Path(pathString)
         val root = cursor.root.target
-        val path = 
+        val path =
           (if (configPath.isAbsolute) configPath
-          else (cursor.parent.target.path / configPath)).relativeTo(root.path) 
+          else cursor.parent.target.path / configPath).relativeTo(root.path)
         root.selectDocument(path).getOrElse(root.selectSubtree(path).getOrElse(cursor.root.target))
-      }
     }
     
     val list = root match {

@@ -16,12 +16,10 @@
 
 package laika.directive
 
-import Directives._
-import laika.tree.Elements._
-import laika.util.Builders._
-import scala.collection.mutable.ListBuffer
-import laika.template.TemplateParsers
+import laika.directive.Directives._
 import laika.rewrite.DocumentCursor
+import laika.template.TemplateParsers
+import laika.tree.Elements._
 import laika.tree.Templates._
 
 /** Parsers for all types of custom directives that can be used
@@ -171,7 +169,7 @@ object DirectiveParsers {
     lazy val templateDirectiveParser: Parser[TemplateSpan] = {
       val contextRefOrNestedBraces = '{' -> (reference(TemplateContextReference(_)) | nestedBraces)
       val bodyContent = wsOrNl ~ '{' ~> (withSource(spans(anyUntil('}'), spanParsers + contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
-      withSource(directiveParser(bodyContent, false)) ^^ { case (result, source) =>
+      withSource(directiveParser(bodyContent, includeStartChar = false)) ^^ { case (result, source) =>
         
         def createContext (parts: PartMap, docCursor: Option[DocumentCursor]): Templates.DirectiveContext = {
           new DirectiveContextBase(parts, docCursor) with Templates.DirectiveContext {
@@ -202,7 +200,7 @@ object DirectiveParsers {
     lazy val spanDirectiveParser: Parser[Span] = {
       val contextRefOrNestedBraces = '{' -> (reference(MarkupContextReference(_)) | nestedBraces)
       val bodyContent = wsOrNl ~ '{' ~> (withSource(spans(anyUntil('}'), spanParsers + contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
-      withSource(directiveParser(bodyContent, false)) ^^ { case (result, source) => // TODO - optimization - parsed spans might be cached for DirectiveContext (applies for the template parser, too)
+      withSource(directiveParser(bodyContent, includeStartChar = false)) ^^ { case (result, source) => // TODO - optimization - parsed spans might be cached for DirectiveContext (applies for the template parser, too)
         
         def createContext (parts: PartMap, docCursor: Option[DocumentCursor]): Spans.DirectiveContext = {
           new DirectiveContextBase(parts, docCursor) with Spans.DirectiveContext {
@@ -235,7 +233,7 @@ object DirectiveParsers {
         val trimmed = (block.lines mkString "\n").trim
         Either.cond(trimmed.nonEmpty, trimmed, "empty body")
       }
-      withNestLevel(withSource(directiveParser(bodyContent, true))) ^^ { case (nestLevel, (result, source)) =>
+      withNestLevel(withSource(directiveParser(bodyContent, includeStartChar = true))) ^^ { case (nestLevel, (result, source)) =>
         
         def createContext (parts: PartMap, docCursor: Option[DocumentCursor]): Blocks.DirectiveContext = {
           new DirectiveContextBase(parts, docCursor) with Blocks.DirectiveContext {

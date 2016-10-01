@@ -356,7 +356,7 @@ object Directives {
       /** Specifies a required attribute. 
        * 
        *  @param id the identifier that must be used in markup or templates
-       *  @param convert the function to use for converting and validating the parsed value
+       *  @param converter the function to use for converting and validating the parsed value
        *  @return a directive part that can be combined with further parts with the `~` operator
        */
       def attribute [T](id: Id, converter: Converter[T] = Converters.string): DirectivePart[T] 
@@ -365,7 +365,7 @@ object Directives {
       /** Specifies a required body part. 
        * 
        *  @param id the identifier that must be used in markup or templates
-       *  @param convert the function to use for converting and validating the parsed value
+       *  @param converter the function to use for converting and validating the parsed value
        *  @return a directive part that can be combined with further parts with the `~` operator
        */
       def body [T](id: Id, converter: Converter[T] = Converters.parsed): DirectivePart[T] 
@@ -401,7 +401,7 @@ object Directives {
        *  you normally do not need to deal with.
        */
       def cursor: DirectivePart[DocumentCursor] 
-          = part(_.cursor map (Success(_)) getOrElse (Failure("DocumentCursor not available yet")), true)
+          = part(_.cursor map (Success(_)) getOrElse Failure("DocumentCursor not available yet"), reqContext = true)
       
     }
   
