@@ -90,7 +90,7 @@ object OutputProvider {
    *  @param codec the character encoding of the files, if not specified the platform default will be used
    */
   def forRootDirectory (root: File)(implicit codec: Codec): OutputProvider = {
-    require(root.isDirectory, s"File ${root.getAbsolutePath} is not a directoy")
+    require(root.isDirectory, s"File ${root.getAbsolutePath} is not a directory")
     
     new DirectoryOutputProvider(root, Root, codec)
   }
@@ -122,7 +122,7 @@ object OutputProvider {
   class StringOutputProvider (val path: Path) extends OutputProvider {
     
     class ResultBuilder (path: Path, sb: StringBuilder) {
-      def result = new StringResult(path, sb.toString)
+      def result = StringResult(path, sb.toString)
     }
     
     private val results = ListBuffer[ResultBuilder]()

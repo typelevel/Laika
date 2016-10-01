@@ -200,9 +200,7 @@ object Output {
 
     def write (buf: Array[Char], offset: Int, len: Int): Unit = {
       if ((offset < 0) || (offset > buf.length) || (len < 0) ||
-          ((offset + len) > buf.length) || ((offset + len) < 0)) {
-          throw new IndexOutOfBoundsException();
-      } 
+          ((offset + len) > buf.length) || ((offset + len) < 0)) throw new IndexOutOfBoundsException()
       if (len > 0) builder.appendAll(buf, offset, len);
     }
 

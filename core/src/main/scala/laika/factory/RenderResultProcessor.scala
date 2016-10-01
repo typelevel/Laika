@@ -16,11 +16,9 @@
 
 package laika.factory
 
-import laika.io.OutputProvider.OutputConfigBuilder
-import laika.tree.Documents.DocumentTree
-import laika.io.Output
 import laika.io.Output.BinaryOutput
 import laika.io.OutputProvider.OutputConfig
+import laika.tree.Documents.DocumentTree
 
 /** Post processor for the result output of a renderer.
  *  Useful for scenarios where interim formats will be generated

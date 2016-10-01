@@ -18,7 +18,6 @@ package laika.io
 
 import java.io.File
 import scala.io.Codec
-import laika.tree.Documents._
 import laika.tree.Paths.Path
 import laika.tree.Paths.Root
 import laika.template.ParseTemplate
@@ -116,7 +115,7 @@ object InputProvider {
 
     private lazy val files = {
       def filesInDir (dir: File) = dir.listFiles filter (f => f.isFile && !exclude(f))
-      dirs flatMap (filesInDir(_)) map (f => (docType(f), f)) groupBy (_._1) withDefaultValue Nil
+      dirs flatMap filesInDir map (f => (docType(f), f)) groupBy (_._1) withDefaultValue Nil
     }
     
     private def documents (docType: DocumentType) = files(docType).map(toInput)
@@ -127,7 +126,7 @@ object InputProvider {
     
     lazy val dynamicDocuments: Seq[Input] = documents(Dynamic)
 
-    lazy val styleSheets: Map[String, Seq[Input]] = (files collect { case p @ (StyleSheet(format), pairs) => (format, pairs map toInput) }) 
+    lazy val styleSheets: Map[String, Seq[Input]] = files collect { case p@(StyleSheet(format), pairs) => (format, pairs map toInput) }
     
     lazy val staticDocuments: Seq[Input] = documents(Static)
     
@@ -137,7 +136,7 @@ object InputProvider {
     
     lazy val subtrees: Seq[InputProvider] = {
       def subDirs (dir: File) = dir.listFiles filter (f => f.isDirectory && !exclude(f) && docType(f) != Ignored)
-      val byName = (dirs flatMap (subDirs(_)) groupBy (_.getName)).values
+      val byName = (dirs flatMap subDirs groupBy (_.getName)).values
       byName map (subs => new DirectoryInputProvider(subs, path / subs.head.getName, exclude, docTypeMatcher, codec)) toList
     }
     

@@ -32,7 +32,7 @@ trait ParserFactory {
   /** The file suffixes recognized by this parser.
    *  When transforming entire directories only files with
    *  names ending in one of the specified suffixes will
-   *  be consired. 
+   *  be considered.
    * 
    *  It is recommended not to support `txt`
    *  or similarly common suffixes as this might interfere

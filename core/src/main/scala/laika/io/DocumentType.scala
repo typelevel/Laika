@@ -26,7 +26,7 @@ sealed abstract class DocumentType
  */
 object DocumentType {
   
-  /** A configuation document in the syntax
+  /** A configuration document in the syntax
    *  supported by the Typesafe Config library.
    */
   case object Config extends DocumentType
