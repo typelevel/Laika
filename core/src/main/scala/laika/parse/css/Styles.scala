@@ -16,12 +16,10 @@
 
 package laika.parse.css
 
-import laika.tree.Elements.Element
-import laika.tree.Elements.Customizable
-import laika.tree.Elements.Id
+import laika.tree.Elements.{Customizable, Element}
+import laika.tree.Paths.{Path, Root}
+
 import scala.language.existentials
-import laika.tree.Paths.Path
-import laika.tree.Paths.Root
 
 /** Provides the domain model for the CSS engine.
  *  
@@ -172,7 +170,7 @@ object Styles {
   
   /** Represents a single style declaration.
    * 
-   *  @param selector the selector to determine which elemens this declaration applies to
+   *  @param selector the selector to determine which elements this declaration applies to
    *  @param styles the styles themselves in a map representing the names and values of each style
    */
   case class StyleDeclaration (selector: Selector, styles: Map[String, String]) {
@@ -180,7 +178,7 @@ object Styles {
     /** Indicates whether this style declaration applies to the specified target
      *  element.
      * 
-     *  @param target the target element to apply the selector of this style declaration to
+     *  @param element the target element to apply the selector of this style declaration to
      *  @param parents the parents of the specified target element, which
      *  also need to match in case the selector of this declaration has parent selectors.
      *  @return true if this style declaration applies to the target element

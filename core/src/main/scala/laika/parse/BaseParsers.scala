@@ -64,7 +64,7 @@ trait BaseParsers extends Parsers {
     @tailrec 
     def parse (input: Input): ParseResult[List[T]]  = parser(input) match {
       case Success(x, rest)                         => elems += x ; parse(rest)
-      case ns: NoSuccess if (elems.length >= num)   => Success(elems.toList, input)
+      case ns: NoSuccess if elems.length >= num   => Success(elems.toList, input)
       case ns: NoSuccess                            => ns
     }
 
@@ -133,11 +133,7 @@ trait BaseParsers extends Parsers {
   implicit class TryOps [A] (t: Try[A]) {
     
     /** Converts this instance to an `Either[String, A]`, using the message of the `Throwable`
-     *  ss the value for the `Left` instance.
-     *
-     *  @param f a function that will be applied to this parser's result.
-     *  @return a parser that has the same behaviour as the current parser, but whose result is
-     *         transformed by `f`.
+     *  as the value for the `Left` instance.
      */
     def toEither: Either[String,A] = t match {
       case TSuccess(res) => Right(res)

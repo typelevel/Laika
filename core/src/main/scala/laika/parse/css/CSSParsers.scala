@@ -82,12 +82,12 @@ trait CSSParsers extends laika.parse.InlineParsers {
   lazy val selector: Parser[Selector] = 
     simpleSelectorSequence ~ ((combinator ~ simpleSelectorSequence)*) ^^ { 
       case sel ~ sels => (sel /: sels) {
-        case (parent, Child ~ sel)      => sel.copy(parent = Some(ParentSelector(parent, true)))
-        case (parent, Descendant ~ sel) => sel.copy(parent = Some(ParentSelector(parent, false)))
+        case (parent, Child ~ sel)      => sel.copy(parent = Some(ParentSelector(parent, immediate = true)))
+        case (parent, Descendant ~ sel) => sel.copy(parent = Some(ParentSelector(parent, immediate = false)))
       } 
     }
   
-  /** Parses the subpart of a selector without any combinators, e.g. `Paragraph#title`.
+  /** Parses the sub-part of a selector without any combinators, e.g. `Paragraph#title`.
    */
   lazy val simpleSelectorSequence: Parser[Selector] =
     (((typeSelector ~ (predicate*)) ^^ { case preds1 ~ preds2 => preds1 ::: preds2 }) | (predicate+)) ^^ {
@@ -126,7 +126,7 @@ trait CSSParsers extends laika.parse.InlineParsers {
   
   /** Parses a single CSS comment.
    */
-  lazy val comment: Parser[Unit] = ("/*" ~ anyUntil("*/") ~ wsOrNl) ^^^ (())
+  lazy val comment: Parser[Unit] = ("/*" ~ anyUntil("*/") ~ wsOrNl) ^^^ ()
 
   /** Parses a single style within a declaration.
    */

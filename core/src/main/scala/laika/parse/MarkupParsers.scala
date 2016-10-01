@@ -17,7 +17,6 @@
 package laika.parse
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ListBuffer
 import scala.util.parsing.combinator.RegexParsers
 import scala.util.parsing.input.Reader
 
@@ -40,7 +39,7 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
   /** Implicit conversion that allows to pass a single
    *  character to the range-based `anyIn` parser. 
    */
-  implicit def charToTraversalble (char: Char): Traversable[Char] = Set(char)
+  implicit def charToTraversable (char: Char): Traversable[Char] = Set(char)
   
 
   /** Succeeds at the end of a line, including the end of the input.
@@ -94,34 +93,34 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
    *  anyOf('*','+') min 3
    *  }}}
    */
-  class TextParser private[MarkupParsers] (newParser:        (Int, Int, Boolean, Boolean, Char => Boolean) => Parser[(String,Boolean)], 
-                                           minChar:          Int = 0, 
-                                           maxChar:          Int = 0, 
-                                           mustFailAtEOF:    Boolean = false,
-                                           consumeLastChar: Boolean = false,
-                                           isStopChar:       Char => Boolean = c => false) extends Parser[String] {
+  class TextParser private[MarkupParsers] (newParser:           (Int, Int, Boolean, Boolean, Char => Boolean) => Parser[(String,Boolean)],
+                                           minChar:             Int = 0,
+                                           maxChar:             Int = 0,
+                                           mustFailAtEOF:       Boolean = false,
+                                           mustConsumeLastChar: Boolean = false,
+                                           isStopChar:          Char => Boolean = c => false) extends Parser[String] {
     
-    private val parser = newParser(minChar, maxChar, mustFailAtEOF, consumeLastChar, isStopChar)
+    private val parser = newParser(minChar, maxChar, mustFailAtEOF, mustConsumeLastChar, isStopChar)
     
     /** Creates and returns a new parser that fails if it does not consume the specified minimum number
      *  of characters. It may still consume more characters in case of further matches. 
      */
-    def min (count: Int): TextParser = new TextParser(newParser, count, maxChar, mustFailAtEOF, consumeLastChar, isStopChar)
+    def min (count: Int): TextParser = new TextParser(newParser, count, maxChar, mustFailAtEOF, mustConsumeLastChar, isStopChar)
     
     /** Creates and returns a new parser that consumes at most the specified maximum number of characters. 
      *  Always succeeds, unless a minimum number of matches is also specified.
      */
-    def max (count: Int): TextParser = new TextParser(newParser, minChar, count, mustFailAtEOF, consumeLastChar, isStopChar)
+    def max (count: Int): TextParser = new TextParser(newParser, minChar, count, mustFailAtEOF, mustConsumeLastChar, isStopChar)
     
-    /** Creates and returns a new parser that consumes exactly the specified numer of characters.
+    /** Creates and returns a new parser that consumes exactly the specified number of characters.
      *  Fails if there are less matches, but succeeds in case there are more matches, simply ignoring them.
      *  Calling `take 3` for example is equivalent to calling `min 3 max 3`.
      */
-    def take (count: Int): TextParser = new TextParser(newParser, count, count, mustFailAtEOF, consumeLastChar, isStopChar)
+    def take (count: Int): TextParser = new TextParser(newParser, count, count, mustFailAtEOF, mustConsumeLastChar, isStopChar)
     
-    private[parse] def failAtEOF = new TextParser(newParser, minChar, maxChar, true, consumeLastChar, isStopChar)
+    private[parse] def failAtEOF = new TextParser(newParser, minChar, maxChar, true, mustConsumeLastChar, isStopChar)
   
-    private[parse] def stopChars (chars: Char*) = new TextParser(newParser, minChar, maxChar, mustFailAtEOF, consumeLastChar, charLookupFor(chars:_*))
+    private[parse] def stopChars (chars: Char*) = new TextParser(newParser, minChar, maxChar, mustFailAtEOF, mustConsumeLastChar, charLookupFor(chars:_*))
     
     private[parse] def consumeLastChar = new TextParser(newParser, minChar, maxChar, mustFailAtEOF, true, isStopChar)
     
@@ -233,7 +232,7 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
     
       @tailrec
       def parse (offset: Int): ParseResult[(String,Boolean)] = {
-        if (offset == end) { if (failAtEof) Failure("unecpected end of input", in) else result(offset) }
+        if (offset == end) { if (failAtEof) Failure("unexpected end of input", in) else result(offset) }
         else {
           val c = source.charAt(offset)
           if (!p(c)) result(offset, consumeLastChar)
@@ -271,15 +270,14 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
       
       @tailrec
       def parse (input: Input): ParseResult[(String,Boolean)] = {
-        if (input.atEnd && failAtEof) Failure("unecpected end of input", in)
+        if (input.atEnd && failAtEof) Failure("unexpected end of input", in)
         else parser(input) match {
           case Success(_, next) => result(input.offset, next)
           case Error(msg, next) => Failure(msg, input)
-          case Failure(_, _)    => {
+          case Failure(_, _)    =>
             if (input.offset == maxOffset) result(input.offset, input)
-            else if (isStopChar(input.first)) result(input.offset, input, true) 
+            else if (isStopChar(input.first)) result(input.offset, input, onStopChar = true)
             else parse(input.rest)
-          }
         }
       } 
         

@@ -16,21 +16,13 @@
 
 package laika.parse
   
-import laika.tree.Elements.Block
-import laika.tree.Elements.RootElement
-import laika.tree.Documents.Document
-import laika.tree.Paths.Root
-import scala.util.parsing.input.CharSequenceReader
-import scala.util.parsing.input.Reader
-import laika.rewrite.RewriteRules
-import laika.tree.Paths.Path
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
-import laika.tree.Elements.InvalidBlock
-import laika.tree.Elements.DocumentFragment
-import laika.tree.Elements.ConfigValue
+import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import laika.rewrite.TreeUtil
-import com.typesafe.config.ConfigValueFactory
+import laika.tree.Documents.Document
+import laika.tree.Elements.{Block, ConfigValue, InvalidBlock, RootElement}
+import laika.tree.Paths.Path
+
+import scala.util.parsing.input.{CharSequenceReader, Reader}
   
 /** A generic base trait for block parsers. Provides base parsers that abstract
  *  aspects of block parsing common to most lightweight markup languages.
@@ -203,11 +195,6 @@ trait BlockParsers extends MarkupParsers {
     case _ => 0
   }
   
-  /** Parses a single text line from the current input offset (which may not be at the
-   *  start of the line. Fails for blank lines. Does not include the eol character(s).
-   */
-  val textLine: Parser[String] = not(blankLine) ~> restOfLine
-  
   /** Parses a blank line from the current input offset (which may not be at the
    *  start of the line). Fails for lines that contain any non-whitespace character.
    *  Does always produce an empty string as the result, discarding any whitespace
@@ -223,6 +210,11 @@ trait BlockParsers extends MarkupParsers {
    *  to the number of blank lines consumed.
    */
   val blankLines: Parser[List[String]] = (not(eof) ~> blankLine)+
+
+  /** Parses a single text line from the current input offset (which may not be at the
+    *  start of the line. Fails for blank lines. Does not include the eol character(s).
+    */
+  val textLine: Parser[String] = not(blankLine) ~> restOfLine
 
   /** Parses the rest of the line from the current input offset no matter whether
    *  it consist of whitespace only or some text. Does not include the eol character(s).
@@ -306,10 +298,10 @@ trait BlockParsers extends MarkupParsers {
       })
     }
 
-    guard(firstLineGuard) ~> withNestLevel(rep(firstLine, nextLine)) ^^ { case (nestLevel,parsed) => {
+    guard(firstLineGuard) ~> withNestLevel(rep(firstLine, nextLine)) ^^ { case (nestLevel,parsed) =>
       val (minIndent, lines) = result(parsed)
       IndentedBlock(nestLevel, minIndent, lines)
-    }}
+    }
   }
   
   
