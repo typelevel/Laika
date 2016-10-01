@@ -16,29 +16,20 @@
 
 package laika.api
 
-import java.io.File
-import java.io.OutputStream
-import scala.annotation.implicitNotFound
-import scala.io.Codec
-import laika.factory.RenderResultProcessor
-import laika.io.IO
-import laika.io.Input
-import laika.io.Output
+import java.io.{File, OutputStream}
+
+import laika.factory.{RenderResultProcessor, RendererFactory}
 import laika.io.Output.Binary
-import laika.io.OutputProvider
+import laika.io.{IO, Input, Output, OutputProvider}
 import laika.io.OutputProvider._
-import laika.rewrite.TemplateRewriter
-import laika.tree.Elements.Element
-import laika.tree.Elements.RootElement
-import laika.tree.Elements.RenderFunction
-import laika.tree.Documents._
-import laika.tree.Templates._
-import laika.tree.Paths.Current
-import laika.tree.Paths.Path
-import laika.tree.Paths.Root
-import laika.factory.RendererFactory
 import laika.parse.css.Styles.StyleDeclarationSet
-import Render._
+import laika.rewrite.TemplateRewriter
+import laika.tree.Documents._
+import laika.tree.Elements.{Element, RenderFunction, RootElement}
+import laika.tree.Paths.{Current, Path, Root}
+import laika.tree.Templates._
+
+import scala.io.Codec
   
 /** API for performing a render operation to various types of output using an existing
  *  document tree model. 
@@ -71,7 +62,7 @@ import Render._
  *  Render as PDF from tree toFile "hello.pdf"
  *  }}}
  *  
- *  @tparam W the writer API to use which varies depending on the renderer
+ *  @tparam Writer the writer API to use which varies depending on the renderer
  * 
  *  @author Jens Halm
  */
@@ -156,10 +147,9 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
       
       RenderFunction.delegate = customRenderers match {
         case Nil => renderF
-        case xs  => {
+        case xs  =>
           val default:RenderFunction = { case e => renderF(e) }
           (xs map { _(writer) }).reverse reduceRight { _ orElse _ } orElse default
-        }
       }
       
       RenderFunction(element)
@@ -170,7 +160,7 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
   
   /** Renders the specified document tree to the given output.
    * 
-   *  @param element the element to render
+   *  @param tree the element to render
    *  @param config the configuration for the output to render to
    */
   protected[this] def render (tree: DocumentTree, config: OutputConfig): Unit = {
@@ -190,15 +180,15 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
     def collectOperations (provider: OutputProvider, parentStyles: StyleDeclarationSet, tree: DocumentTree): Seq[Operation] = {
       val styles = parentStyles ++ tree.styles(factory.fileSuffix)
       
-      (tree.content map {
+      (tree.content flatMap {
         case doc: Document => Seq(renderTree(provider, styles, doc.path, doc.content))
         case tree: DocumentTree => collectOperations(provider.newChild(tree.name), styles, tree)
-      }).flatten ++
-      (tree.additionalContent map {
+      }) ++
+      (tree.additionalContent flatMap {
         case doc: DynamicDocument => Seq(renderTree(provider, styles, doc.path, doc.content))
-        case static: StaticDocument if (config.copyStaticFiles) => Seq(copy(provider)(static.input))
+        case static: StaticDocument if config.copyStaticFiles => Seq(copy(provider)(static.input))
         case _ => Seq()
-      }).flatten
+      })
     }
   
     val templateName = "default.template." + factory.fileSuffix
@@ -423,7 +413,7 @@ object Render {
    *  This instance is usually an object provided by the library
    *  or a plugin that is capable of rendering a specific output. 
    * 
-   *  @param factory the renderer factory responsible for creating the final renderer
+   *  @param processor the processor responsible for processing the renderer result
    */
   def as [Writer] (processor: RenderResultProcessor[Writer]): RenderGatheredOutput[Writer] = new RenderGatheredOutput(processor) 
   

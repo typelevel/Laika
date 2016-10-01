@@ -16,30 +16,23 @@
 
 package laika.api
 
-import java.io.File
-import java.io.OutputStream
-import java.io.InputStream
-import java.io.Reader
-import laika.api.Parse.Parsers
-import laika.api.Render.RenderGatheredOutput
-import laika.api.Render.RenderMappedOutput
-import laika.factory.ParserFactory
-import laika.factory.RendererFactory
-import laika.factory.RenderResultProcessor
+import java.io.{File, InputStream, Reader}
+
+import laika.api.Render.{RenderGatheredOutput, RenderMappedOutput}
+import laika.api.Transform._
 import laika.directive.Directives.Templates
-import laika.io._
+import laika.factory.{ParserFactory, RenderResultProcessor, RendererFactory}
 import laika.io.InputProvider._
-import laika.io.OutputProvider._
 import laika.io.Output.Binary
+import laika.io.OutputProvider._
+import laika.io._
 import laika.parse.css.ParseStyleSheet
-import laika.rewrite.DocumentCursor
-import laika.rewrite.RewriteRules
-import laika.template.DefaultTemplate
+import laika.rewrite.{DocumentCursor, RewriteRules}
 import laika.template.ParseTemplate
 import laika.tree.Documents._
 import laika.tree.Elements._
 import laika.tree.Paths.Path
-import Transform._
+
 import scala.io.Codec
   
 /** API for performing a transformation operation from and to various types of input and output,
@@ -90,7 +83,7 @@ import scala.io.Codec
  *  between the parse and render operations and the `rendering` method allows to customize the
  *  way certain types of elements are rendered.
  *  
- *  @tparam W the writer API to use which varies depending on the renderer
+ *  @tparam Writer the writer API to use which varies depending on the renderer
  * 
  *  @author Jens Halm
  */
@@ -222,7 +215,7 @@ abstract class Transform [Writer] private[Transform] (parse: Parse, rules: Rules
    * 
    *  @param name the name of the directory to traverse
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
-   *  @param return a builder which allows to specify the output and other configuration options
+   *  @return a builder which allows to specify the output and other configuration options
    */
   def fromDirectory (name: String)(implicit codec: Codec): TreeTarget = fromDirectory(name, hiddenFileFilter)(codec)
   
@@ -233,7 +226,7 @@ abstract class Transform [Writer] private[Transform] (parse: Parse, rules: Rules
    *  @param name the name of the directory to traverse
    *  @param exclude the files to exclude from processing
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
-   *  @param return a builder which allows to specify the output and other configuration options
+   *  @return a builder which allows to specify the output and other configuration options
    */
   def fromDirectory (name: String, exclude: FileFilter)(implicit codec: Codec): TreeTarget = fromTree(InputProvider.Directory(name, exclude)(codec))
 
@@ -243,7 +236,7 @@ abstract class Transform [Writer] private[Transform] (parse: Parse, rules: Rules
    * 
    *  @param dir the directory to traverse
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
-   *  @param return a builder which allows to specify the output and other configuration options
+   *  @return a builder which allows to specify the output and other configuration options
    */
   def fromDirectory (dir: File)(implicit codec: Codec): TreeTarget = fromDirectory(dir, hiddenFileFilter)(codec)
   
@@ -254,7 +247,7 @@ abstract class Transform [Writer] private[Transform] (parse: Parse, rules: Rules
    *  @param dir the directory to traverse
    *  @param exclude the files to exclude from processing
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
-   *  @param return a builder which allows to specify the output and other configuration options
+   *  @return a builder which allows to specify the output and other configuration options
    */
   def fromDirectory (dir: File, exclude: FileFilter)(implicit codec: Codec): TreeTarget = fromTree(InputProvider.Directory(dir, exclude)(codec))
   
@@ -289,7 +282,7 @@ abstract class Transform [Writer] private[Transform] (parse: Parse, rules: Rules
   /** Renders the specified document and returns a new target instance 
    *  which allows to specify the output and other configuration options.
    * 
-   *  @param inputBuilder the input to transform
+   *  @param doc the document to transform
    */
   protected[this] def fromDocument (doc: Document): DocTarget
   
@@ -517,7 +510,7 @@ object Transform {
      *  previously specified parser. The returned instance is stateless and reusable for
      *  multiple transformations.
      * 
-     *  @param factory the renderer factory to use for the transformation
+     *  @param processor the processor to use for the transformation
      *  @return a new Transform instance
      */
     def to [Writer] (processor: RenderResultProcessor[Writer]): TransformGatheredOutput[Writer] = 

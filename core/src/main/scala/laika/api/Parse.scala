@@ -30,7 +30,6 @@ import laika.io.InputProvider._
 import laika.parse.css.Styles.StyleDeclarationSet
 import laika.rewrite.DocumentCursor
 import laika.rewrite.RewriteRules
-import laika.template.ParseTemplate
 import laika.tree.Documents._
 import laika.tree.Elements.RewriteRule
 import Parse.Parsers
@@ -134,7 +133,6 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
    *  might come in handy for very special requirements.
    * 
    *  @param input the input for the parser
-   *  @param codec the character encoding of the stream, if not specified the platform default will be used.
    */
   def fromInput (input: Input): Document = {
     
@@ -233,20 +231,20 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
 
     def parseMarkup (input: Input): Operation[Document] = () => (Markup, IO(input)(parsers.forInput(input)))
     
-    def parseTemplate (docType: DocumentType)(input: Input): Operation[TemplateDocument] = () => (docType, IO(input)(config.templateParser.fromInput(_)))
+    def parseTemplate (docType: DocumentType)(input: Input): Operation[TemplateDocument] = () => (docType, IO(input)(config.templateParser.fromInput))
 
-    def parseStyleSheet (format: String)(input: Input): Operation[StyleDeclarationSet] = () => (StyleSheet(format), IO(input)(config.styleSheetParser.fromInput(_)))
+    def parseStyleSheet (format: String)(input: Input): Operation[StyleDeclarationSet] = () => (StyleSheet(format), IO(input)(config.styleSheetParser.fromInput))
     
     def parseTreeConfig (input: Input): Operation[TreeConfig] = () => (Config, new TreeConfig(input)) 
     def parseRootConfig (input: Input): Operation[RootConfig] = () => (Config, new RootConfig(input)) 
     
     def collectOperations[T] (provider: InputProvider, f: InputProvider => Seq[Operation[T]]): Seq[Operation[T]] =
-      f(provider) ++ (provider.subtrees map (collectOperations(_,f))).flatten
+      f(provider) ++ (provider.subtrees flatMap (collectOperations(_, f)))
     
     val operations = collectOperations(config.provider, _.markupDocuments.map(parseMarkup)) ++
                      collectOperations(config.provider, _.templates.map(parseTemplate(Template))) ++
                      collectOperations(config.provider, _.dynamicDocuments.map(parseTemplate(Dynamic))) ++
-                     collectOperations(config.provider, _.styleSheets.flatMap({ case (format,inputs) => inputs map (parseStyleSheet(format)) }).toSeq) ++
+                     collectOperations(config.provider, _.styleSheets.flatMap({ case (format,inputs) => inputs map parseStyleSheet(format) }).toSeq) ++
                      config.config.map(parseRootConfig) ++
                      collectOperations(config.provider, _.configDocuments.find(_.path.name == "directory.conf").toList.map(parseTreeConfig)) // TODO - filename could be configurable
     
@@ -268,9 +266,9 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
       case (Config, config: TreeConfig) => (config.path, config)
     }) toMap
     
-    val rootConfigSeq = (results collect {
+    val rootConfigSeq = results collect {
       case (Config, config: RootConfig) => config.config
-    })
+    }
     
     def collectDocuments (provider: InputProvider, root: Boolean = false): DocumentTree = {
       val docs = provider.markupDocuments map (i => docMap(i.path))
@@ -278,7 +276,7 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
       val templates = provider.templates map (i => templateMap((Template,i.path)))
       val styles = (provider.styleSheets mapValues (_.map(i => styleMap(i.path)).reduce(_++_))) withDefaultValue StyleDeclarationSet.empty
       val dynamic = provider.dynamicDocuments map (i => templateMap((Dynamic,i.path)))
-      val static = provider.staticDocuments map (StaticDocument(_))
+      val static = provider.staticDocuments map StaticDocument
       val treeConfig = provider.configDocuments.find(_.path.name == "directory.conf").map(i => treeConfigMap(i.path).config)
       val rootConfig = if (root) rootConfigSeq else Nil
       val config = (treeConfig.toList ++ rootConfig) reduceLeftOption (_ withFallback _) getOrElse ConfigFactory.empty
@@ -286,7 +284,7 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
       DocumentTree(provider.path, docs ++ trees, templates, styles, additionalContent, config, sourcePaths = provider.sourcePaths)
     }
     
-    val tree = collectDocuments(config.provider, true)
+    val tree = collectDocuments(config.provider, root = true)
     
     if (rewrite) {
       val rules = parsers.rewriteRules
@@ -331,9 +329,7 @@ object Parse {
     
     private def parserForInput (input: Input): ParserFactory = {
       if (parsers.size == 1) parsers.head
-      else map.get(suffix(input.name)).getOrElse(
-        throw new IllegalArgumentException("Unable to determine parser based on input name: ${input.name}")
-      )
+      else map.getOrElse(suffix(input.name), throw new IllegalArgumentException("Unable to determine parser based on input name: ${input.name}"))
     }
     
     def rewriteRules: DocumentCursor => RewriteRule = RewriteRules.defaultsFor(parsers: _*)
