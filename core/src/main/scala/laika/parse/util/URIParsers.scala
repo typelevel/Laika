@@ -220,7 +220,7 @@ trait URIParsers extends MarkupParsers {
    *  pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
    *  }}}
    */
-  val pChar: Parser[Any] = (unreserved | pctEncoded | subDelims | (anyOf(':','@') take 1))                  
+  val pChar: Parser[Any] = unreserved | pctEncoded | subDelims | (anyOf(':', '@') take 1)
     
   /** Parses the path of a URI as defined in RFC 3986, but only the path
    *  variant following an authority component.

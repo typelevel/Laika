@@ -34,7 +34,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   private def listItem [I <: ListItem] (itemStart: Parser[String], newListItem: List[Block] => I): Parser[I] = {
       (itemStart ^^ {_.length}) ~ ((ws min 1) ^^ {_.length}) >> { 
         case start ~ ws => indentedBlock(minIndent = start + ws, maxIndent = start + ws) ~ opt(blankLines | eof | guard(itemStart)) ^^? {
-          case (block ~ None) if (block.lines.length < 2) => Left("not a list item")
+          case (block ~ None) if block.lines.length < 2 => Left("not a list item")
           case (block ~ _) => Right(newListItem(parseNestedBlocks(block)))
         }
       } 
@@ -79,7 +79,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   def bulletList: Parser[BulletList] = {
     guard(bulletListStart <~ (ws min 1)) >> { symbol =>
       val bullet = StringBullet(symbol)
-      ((listItem(symbol, BulletListItem(_,bullet))) +) ^^ 
+      (listItem(symbol, BulletListItem(_, bullet)) +) ^^
         { items => BulletList(rewriteListItems(items,(item:BulletListItem,content) => item.copy(content = content)),bullet) }
     }
   }
@@ -210,7 +210,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     
     val options = (option ~ ((", " ~> option)*)) ^^ mkList
     
-    val descStart = ("  " ~ not(blankLine)) | (guard(blankLine ~ (ws min 1) ~ not(blankLine))) ^^^ "" 
+    val descStart = ("  " ~ not(blankLine)) | guard(blankLine ~ (ws min 1) ~ not(blankLine)) ^^^ ""
     
     val item = (options ~ (descStart ~> indentedBlock())) ^^ { 
       case name ~ block => OptionListItem(name, parseNestedBlocks(block))
@@ -242,7 +242,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
         else if (level == stack.top._2) stack.top._1 += item
         else {
           val newBlock = LineBlock(stack.pop._1.toList)
-          if (!stack.isEmpty && stack.top._2 >= level) {
+          if (stack.nonEmpty && stack.top._2 >= level) {
             stack.top._1 += newBlock
             addItem(item, level)
           }

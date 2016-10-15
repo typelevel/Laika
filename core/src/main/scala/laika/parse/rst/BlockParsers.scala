@@ -16,18 +16,17 @@
 
 package laika.parse.rst
 
-import laika.tree.Elements._
-import laika.tree.Documents._
-import laika.tree.Paths.Path
+import com.typesafe.config.{Config, ConfigValueFactory}
 import laika.parse.rst.Elements._
-import scala.collection.mutable.ListBuffer
-import scala.collection.JavaConversions._
-import scala.annotation.tailrec
-import scala.util.parsing.input.Reader
 import laika.rewrite.TreeUtil
-import com.typesafe.config.ConfigValueFactory
-import com.typesafe.config.ConfigValue
-import com.typesafe.config.Config
+import laika.tree.Documents._
+import laika.tree.Elements._
+import laika.tree.Paths.Path
+
+import scala.annotation.tailrec
+import scala.collection.JavaConversions._
+import scala.collection.mutable.ListBuffer
+import scala.util.parsing.input.Reader
 
 /** Provides the parsers for all types of block-level elements of reStructuredText. 
  *  It merges the individual traits that provide implementations for list, tables, etc. and 
@@ -136,8 +135,6 @@ trait BlockParsers extends laika.parse.BlockParsers
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#block-quotes]]
    */
   def blockQuote: Parser[Block] = {
-    
-    import scala.math._
     
     val attributionStart = "---" | "--" | '\u2014' // em dash
         

@@ -34,7 +34,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
 
   
   
-  private val explicitStart = (".." ~ (ws min 1))
+  private val explicitStart = ".." ~ (ws min 1)
   
   
   /** Parses all types of explicit block items.
@@ -290,7 +290,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
         }
         
         val errors = new ListBuffer[String]
-        if (parsed.nonEmpty) errors += parsed.map(_._1).mkString("unknown options: ",", ","")
+        if (parsed.nonEmpty) errors += parsed.keys.mkString("unknown options: ",", ","")
         if (missing.nonEmpty) errors += missing.mkString("missing required options: ",", ","")
         if (invalid.nonEmpty) errors += invalid.mkString("invalid option values: ", ", ", "") 
         Either.cond(errors.isEmpty, (), errors mkString "; ")
@@ -317,7 +317,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
                      withWS: Boolean = false): Result[T] = {
       separator = contentSeparator
       val result = new LazyResult[T]
-      if (withWS) requiredArgWithWS = (argWithWS ^^? convert ^^ result.set)
+      if (withWS) requiredArgWithWS = argWithWS ^^? convert ^^ result.set
       else requiredArgs = requiredArgs ~ (arg ^^? convert ^^ result.set)
       new Result(result.get)
     }
@@ -361,7 +361,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
     
     private def parseContentWith [T](f: IndentedBlock => Either[String,T]): Result[T] = {
       val result = new LazyResult[T]
-      contentParser = (body ^^? f ^^ result.set)
+      contentParser = body ^^? f ^^ result.set
       new Result(result.get)
     }
     

@@ -17,9 +17,8 @@
 package laika.parse.rst
 
 import laika.tree.Elements._
-import laika.parse.rst.Elements._
-import scala.collection.mutable.ListBuffer
-import scala.collection.mutable.Stack
+
+import scala.collection.mutable.{ListBuffer, Stack}
 
 /** Provides parsers for the two table types supported by reStructuredText.
  * 
@@ -78,7 +77,7 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
       object BlankLine extends CellLine(Int.MaxValue) { def padTo (indent: Int) = "" }
       class TextLine (i: Int, text: String) extends CellLine(i) { def padTo (minIndent: Int) = " " * (indent - minIndent) + text }
       
-      val cellLine = not(eof) ~> (((blankLine) ^^^ BlankLine) | 
+      val cellLine = not(eof) ~> ((blankLine ^^^ BlankLine) |
         (ws ~ restOfLine) ^^ { case indent ~ text => new TextLine(indent.length, text.trim) }) 
       
       parseAll(cellLine*, cellContent) match {
@@ -117,15 +116,15 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     
     def previousCell: CellBuilder = cells(1).cell
     
-    def nextCell (): CellBuilder = {
-      if (!cells.isEmpty && cells.top.mergedLeft && rowspanDif != 0)
+    def nextCell: CellBuilder = {
+      if (cells.nonEmpty && cells.top.mergedLeft && rowspanDif != 0)
           throw new MalformedTableException("Illegal merging of rows with different cellspans")
       val cell = new CellBuilder(nestLevel)
       cells push new CellBuilderRef(cell)
       cell
     }
     
-    private def removeCell (): CellBuilder = {
+    private def removeCell: CellBuilder = {
       val cell = cells.pop.cell
       cell.removed = true
       cell
@@ -210,13 +209,13 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
       val colsWithSep = (separators, cols, separators.reverse).zipped.toList
       
       def rowSep (width: Int): Parser[Any] = 
-        (intersect ~ ((anyOf('-') take width) ^^^ RowSeparator) <~ guard(intersect))
+        intersect ~ ((anyOf('-') take width) ^^^ RowSeparator) <~ guard(intersect)
         
       def boundaryPart (width: Int): Parser[Any] = 
-        (intersect ~ ((anyOf('=') take width) ^^^ TableBoundary) <~ guard(intersect))
+        intersect ~ ((anyOf('=') take width) ^^^ TableBoundary) <~ guard(intersect)
         
       def cell (sepL: Parser[Any], width: Int, sepR: Parser[Any]): Parser[Any] = 
-        (sepL ~ ((any take width) ^^ CellElement) <~ guard(sepR))
+        sepL ~ ((any take width) ^^ CellElement) <~ guard(sepR)
       
       val row = (colsWithSep map { case (separatorL, colWidth, separatorR) => 
         rowSep(colWidth) | cell(separatorL, colWidth, separatorR)
@@ -291,7 +290,7 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     withNestLevel(topBorder) >> { case (nestLevel, cols) =>
       
       val (rowColumns, boundaryColumns) = (cols map { case (col, sep) =>
-        val cellText = if (sep == 0) (anyBut('\n','\r')) ^^ CellElement 
+        val cellText = if (sep == 0) anyBut('\n', '\r') ^^ CellElement
                        else (any take col) ^^ CellElement 
         val separator = (anyOf(' ') take sep) ^^ CellSeparator
         val textInSep = (any take sep) ^^ CellSeparator
@@ -322,10 +321,10 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
         val tableBuilder = new TableBuilder(cols map { col => col._1 + col._2 }, nestLevel)
         
         def addBlankLines (acc: ListBuffer[List[TableElement]]) = 
-            acc += (cols map { case (cell, sep) => List(CellElement(" " * cell), CellSeparator(" " * sep)) }).flatten
+            acc += (cols flatMap { case (cell, sep) => List(CellElement(" " * cell), CellSeparator(" " * sep)) })
         
         def addRowSeparators (acc: ListBuffer[List[TableElement]]) = 
-          acc += (cols map { _ => List(RowSeparator, Intersection) }).flatten
+          acc += (cols flatMap { _ => List(RowSeparator, Intersection) })
       
         /* in contrast to the grid table, some rows need to be processed in context,
          * as their exact behaviour depends on preceding or following lines. */
@@ -367,9 +366,9 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
                 case _ => ()
               }
             case CellElement(text) =>
-              tableBuilder.columns.head.addLine(CellSeparator(""), text, false)
+              tableBuilder.columns.head.addLine(CellSeparator(""), text, nextRow = false)
               foreachColumn(row) {
-                case (sep :: CellElement(text) :: Nil, column) => column.addLine(sep, text, false)
+                case (sep :: CellElement(text) :: Nil, column) => column.addLine(sep, text, nextRow = false)
                 case _ => ()
               }
             case _ => ()

@@ -258,7 +258,7 @@ object Directives {
     
     /** Specifies that the body of the directive markup should get passed to the conversion function as a raw string.
      * 
-     *  @param convert the function to use for converting and validating the parsed value
+     *  @param f the function to use for converting and validating the parsed value
      *  @return a directive part that can be combined with further parts with the `~` operator
      */
     def content [T](f: String => Either[String,T]): DirectivePart[T] = part(_.content(f))

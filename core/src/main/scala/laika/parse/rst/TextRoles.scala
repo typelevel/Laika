@@ -203,7 +203,7 @@ object TextRoles {
     
     /** Specifies that the body of the directive markup should get passed to the conversion function as a raw string.
      * 
-     *  @param convert the function to use for converting and validating the parsed value
+     *  @param f the function to use for converting and validating the parsed value
      *  @return a directive part that can be combined with further parts with the `~` operator
      */
     def content [T](f: String => Either[String,T]): RoleDirectivePart[T] = part(_.content(f))
@@ -237,7 +237,7 @@ object TextRoles {
      *  @return a new text role that can be registered with the reStructuredText parser
      */
     def apply [T] (name: String, default: T)(part: RoleDirectivePart[T])(roleF: (T, String) => Span): TextRole = 
-      new TextRole(name.toLowerCase, str => roleF(default, str), _ => part map (res => ((str:String) => roleF(res, str))))
+      new TextRole(name.toLowerCase, str => roleF(default, str), _ => part map (res => (str: String) => roleF(res, str)))
     
     /** Creates a new text role that can be referred to by interpreted text with the specified name.
      *  The `DirectivePart` can be created by using the methods of the `Parts`
@@ -263,7 +263,7 @@ object TextRoles {
      *  @return a new text role that can be registered with the reStructuredText parser
      */
     def recursive [T] (name: String, default: T)(part: BlockParsers with InlineParsers => RoleDirectivePart[T])(roleF: (T, String) => Span): TextRole = 
-      new TextRole(name.toLowerCase, str => roleF(default, str), parsers => part(parsers) map (res => ((str:String) => roleF(res, str))))
+      new TextRole(name.toLowerCase, str => roleF(default, str), parsers => part(parsers) map (res => (str: String) => roleF(res, str)))
     
   }
 

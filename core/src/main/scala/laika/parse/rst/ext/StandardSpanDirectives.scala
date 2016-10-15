@@ -94,7 +94,7 @@ trait StandardSpanDirectives {
    */
   lazy val date: DirectivePart[Span] = {
     optArgument(withWS = true) map { pattern => 
-      Text((new SimpleDateFormat(pattern.getOrElse("yyyy-MM-dd")).format(new Date)))
+      Text(new SimpleDateFormat(pattern.getOrElse("yyyy-MM-dd")).format(new Date))
     } 
   }
   

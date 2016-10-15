@@ -61,7 +61,7 @@ object RewriteRules extends (DocumentCursor => RewriteRule) {
    *  for the specified document. These rules usually get executed
    *  alongside the generic default rules.
    */
-  def apply (cursor: DocumentCursor): RewriteRule = (new DefaultRules(cursor)).rewrite
+  def apply (cursor: DocumentCursor): RewriteRule = new DefaultRules(cursor).rewrite
   
   
 }

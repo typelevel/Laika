@@ -16,13 +16,12 @@
 
 package laika.parse.rst
 
-import laika.tree.Elements._
-import Elements.SubstitutionReference
-import Elements.InterpretedText
-import scala.util.parsing.input.CharSequenceReader
-import scala.collection.mutable.ListBuffer
+import laika.parse.rst.Elements.{InterpretedText, SubstitutionReference}
 import laika.parse.util.URIParsers
-import laika.parse.rst.Elements.InterpretedText
+import laika.tree.Elements._
+
+import scala.collection.mutable.ListBuffer
+import scala.util.parsing.input.CharSequenceReader
 
 /** Provides all inline parsers for reStructuredText.
  *  
@@ -173,8 +172,6 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
 
   private def span (start: Parser[Any], end: Parser[String]): Parser[List[Span]]
     = markupStart(start, end) ~> escapedText(anyUntil(markupEnd(end))) ^^ { text => List(Text(text)) }
-    
-  private def span (end: Parser[String]): Parser[List[Span]] = span(success(()), end)
     
   
   /** Parses an inline literal element.

@@ -16,21 +16,20 @@
 
 package laika.parse.rst
 
+import laika.directive.Directives.{Blocks, Spans}
+import laika.directive.StandardDirectives
+import laika.factory.ParserFactory
 import laika.io.Input
-import laika.tree.Elements._
-import laika.tree.Documents.Document
 import laika.parse.rst.Directives._
+import laika.parse.rst.Elements.CustomizedTextRole
 import laika.parse.rst.TextRoles._
 import laika.parse.rst.ext._
-import scala.util.parsing.input.CharSequenceReader
 import laika.parse.util.WhitespacePreprocessor
-import laika.parse.rst.Elements.CustomizedTextRole
-import laika.factory.ParserFactory
-import laika.directive.Directives.Blocks
-import laika.directive.Directives.Spans
-import laika.directive.DirectiveParsers
 import laika.template.TemplateParsers
-import laika.directive.StandardDirectives
+import laika.tree.Documents.Document
+import laika.tree.Elements._
+
+import scala.util.parsing.input.CharSequenceReader
   
 /** A parser for text written in reStructuredText markup. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:
@@ -82,26 +81,26 @@ import laika.directive.StandardDirectives
  *  @author Jens Halm
  */
 class ReStructuredText private (
-    blockDirectives: List[Directive[Block]],
-    spanDirectives: List[Directive[Span]],
-    textRoles: List[TextRole],
-    defaultTextRole: String = "title-reference",
-    laikaBlockDirectives: List[Blocks.Directive],
-    laikaSpanDirectives: List[Spans.Directive],
-    rawContent: Boolean = false,
-    strict: Boolean = false
+       blockDirectives: List[Directive[Block]],
+       spanDirectives: List[Directive[Span]],
+       textRoles: List[TextRole],
+       defaultTextRole: String = "title-reference",
+       laikaBlockDirectives: List[Blocks.Directive],
+       laikaSpanDirectives: List[Spans.Directive],
+       rawContent: Boolean = false,
+       isStrict: Boolean = false
     ) extends ParserFactory { self =>
 
-  
-  val fileSuffixes: Set[String] = Set("rest","rst")  
-  
+
+  val fileSuffixes: Set[String] = Set("rest","rst")
+
   val rewriteRules = Seq(RewriteRules)
-      
+
   /** Adds the specified directives and returns a new instance of the parser.
    *  These block directives may then be used anywhere in documents parsed by this instance.
-   * 
+   *
    *  Example:
-   * 
+   *
    *  {{{
    *  case class Note (title: String, content: Seq[Block]) extends Block with BlockContainer[Note]
    *
@@ -109,64 +108,64 @@ class ReStructuredText private (
    *    BlockDirective("note") {
    *      (argument() ~ blockContent)(Note)
    *    }
-   *  )                                              
+   *  )
    *
    *  Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"
-   *  }}}   
-   * 
+   *  }}}
+   *
    *  For more details on implementing directives see [[laika.parse.rst.Directives]].
    */
   def withBlockDirectives (directives: Directive[Block]*): ReStructuredText =
-    new ReStructuredText(blockDirectives ++ directives, spanDirectives, textRoles, defaultTextRole, 
-        laikaBlockDirectives, laikaSpanDirectives, rawContent, strict)    
-  
+    new ReStructuredText(blockDirectives ++ directives, spanDirectives, textRoles, defaultTextRole,
+        laikaBlockDirectives, laikaSpanDirectives, rawContent, isStrict)
+
   /** Adds the specified Laika directives and returns a new instance of the parser.
-   * 
+   *
    *  Example:
-   * 
+   *
    *  {{{
-   *  case class Note (title: String, content: Seq[Block], options: Options = NoOpt) 
+   *  case class Note (title: String, content: Seq[Block], options: Options = NoOpt)
    *                                                       extends Block with BlockContainer[Note]
-   *  
+   *
    *  val rst = ReStructuredText withLaikaBlockDirectives (
    *    Blocks.create("note") {
    *      (attribute(Default) ~ body(Default))(Note(_,_))
    *    }
-   *  )   
-   *  Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"   
+   *  )
+   *  Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"
    *  }}}
-   * 
+   *
    *  For more details on implementing Laika directives see [[laika.directive.Directives]].
-   */ 
+   */
   def withLaikaBlockDirectives (directives: Blocks.Directive*): ReStructuredText =
-    new ReStructuredText(blockDirectives, spanDirectives, textRoles, defaultTextRole, 
-        laikaBlockDirectives ++ directives, laikaSpanDirectives, rawContent, strict)      
-     
+    new ReStructuredText(blockDirectives, spanDirectives, textRoles, defaultTextRole,
+        laikaBlockDirectives ++ directives, laikaSpanDirectives, rawContent, isStrict)
+
   /** Adds the specified directives and returns a new instance of the parser.
    *  These span directives can then be referred to by substitution references.
-   * 
+   *
    *  Example:
-   * 
+   *
    *  {{{
    *  val rst = ReStructuredText withSpanDirectives (
    *    SpanDirective("replace") {
    *      spanContent map SpanSequence
    *    }
-   *  ) 
-   * 
-   *  Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"   
+   *  )
+   *
+   *  Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"
    *  }}}
-   * 
+   *
    *  For more details on implementing directives see [[laika.parse.rst.Directives]].
-   */ 
+   */
   def withSpanDirectives (directives: Directive[Span]*): ReStructuredText =
     new ReStructuredText(blockDirectives, spanDirectives ++ directives, textRoles, defaultTextRole,
-        laikaBlockDirectives, laikaSpanDirectives, rawContent, strict)  
-  
+        laikaBlockDirectives, laikaSpanDirectives, rawContent, isStrict)
+
   /** Adds the specified Laika directives and returns a new instance of the parser.
-   * 
+   *
    *  Example:
-   * 
+   *
    *  {{{
    *  val rst = ReStructuredText withLaikaSpanDirectives (
    *    Spans.create("ticket") {
@@ -176,54 +175,54 @@ class ReStructuredText private (
    *        ExternalLink(Seq(Text("Ticket "+ticketNo)), url, options = Styles("ticket"))
    *      }
    *    }
-   *  )    
-   * 
-   *  Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"   
+   *  )
+   *
+   *  Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"
    *  }}}
-   * 
+   *
    *  For more details on implementing Laika directives see [[laika.directive.Directives]].
-   */ 
+   */
   def withLaikaSpanDirectives (directives: Spans.Directive*): ReStructuredText =
     new ReStructuredText(blockDirectives, spanDirectives, textRoles, defaultTextRole,
-        laikaBlockDirectives, laikaSpanDirectives ++ directives, rawContent, strict)  
-  
+        laikaBlockDirectives, laikaSpanDirectives ++ directives, rawContent, isStrict)
+
   /** Adds the specified text roles and returns a new instance of the parser.
    *  These text roles may then be used in interpreted text spans.
-   *  
+   *
    *  Example:
-   * 
+   *
    *  {{{
    *  val rst = ReStructuredText withTextRoles (
    *    TextRole("link", "http://www.our-server.com/tickets/")(field("base-url")) {
    *      (base, text) => Link(List(Text(text)), base + text)
    *    }
    *  )
-   *   
-   *  Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"   
+   *
+   *  Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"
    *  }}}
-   * 
+   *
    *  For more details on implementing directives see [[laika.parse.rst.TextRoles]].
    */
   def withTextRoles (roles: TextRole*): ReStructuredText =
     new ReStructuredText(blockDirectives, spanDirectives, textRoles ++ roles, defaultTextRole,
-        laikaBlockDirectives, laikaSpanDirectives, rawContent, strict)  
-  
+        laikaBlockDirectives, laikaSpanDirectives, rawContent, isStrict)
+
   /** Specifies the name of the default text role
-   *  to apply when interpreted text 
+   *  to apply when interpreted text
    *  is used in markup without an explicit role name.
    */
-  def withDefaultTextRole (role: String): ReStructuredText = 
+  def withDefaultTextRole (role: String): ReStructuredText =
     new ReStructuredText(blockDirectives, spanDirectives, textRoles, role,
-        laikaBlockDirectives, laikaSpanDirectives, rawContent, strict)  
-  
+        laikaBlockDirectives, laikaSpanDirectives, rawContent, isStrict)
+
   /** Adds the `raw` directive and text roles to the parser.
    *  These are disabled by default as they present a potential security risk.
    */
   def withRawContent: ReStructuredText = {
     new ReStructuredText(blockDirectives, spanDirectives, textRoles, defaultTextRole,
-        laikaBlockDirectives, laikaSpanDirectives, true, strict)  
+        laikaBlockDirectives, laikaSpanDirectives, true, isStrict)
   }
-  
+
   /** Turns strict mode on for the returned parser, switching off any
    *  features not part of the reStructuredText specification.
    *  This includes the Laika variant of directives as well as configuration
@@ -231,28 +230,28 @@ class ReStructuredText private (
    */
   def strict: ReStructuredText =
     new ReStructuredText(blockDirectives, spanDirectives, textRoles, defaultTextRole,
-        laikaBlockDirectives, laikaSpanDirectives, rawContent, true)  
-  
-  
+        laikaBlockDirectives, laikaSpanDirectives, rawContent, true)
+
+
   private lazy val parser: BlockParsers with InlineParsers = {
     class StrictParsers extends BlockParsers with InlineParsers {
       val std = new StandardBlockDirectives with StandardSpanDirectives with StandardTextRoles {}
-      
+
       val rawDirective = if (rawContent) List(BlockDirective("raw")(std.rawDirective)) else Nil
       val rawTextRole = if (rawContent) List(std.rawTextRole) else Nil
-      
+
       lazy val blockDirectives = (rawDirective ++ std.blockDirectives ++ self.blockDirectives) map { d => (d.name, d.part(this)) } toMap
       lazy val spanDirectives  = (std.spanDirectives ++ self.spanDirectives)                   map { d => (d.name, d.part(this)) } toMap
       lazy val textRoles       = (rawTextRole ++ std.textRoles ++ self.textRoles)              map { r => (r.name, r.part(this)) } toMap
-      
+
       override val textRoleElements = (std.textRoles ++ self.textRoles) map { role => CustomizedTextRole(role.name, role.default) }
-      override val defaultTextRole = self.defaultTextRole 
-      
+      override val defaultTextRole = self.defaultTextRole
+
       def blockDirective (name: String): Option[DirectivePart[Block]]  = blockDirectives.get(name)
       def spanDirective (name: String): Option[DirectivePart[Span]]     = spanDirectives.get(name)
       def textRole (name: String): Option[RoleDirectivePart[String => Span]] = textRoles.get(name)
     }
-    if (strict) new StrictParsers
+    if (isStrict) new StrictParsers
     else new StrictParsers with TemplateParsers.MarkupBlocks with TemplateParsers.MarkupSpans with StandardDirectives {
       lazy val laikaBlockDirectives = Blocks.toMap(stdBlockDirectives) ++ Blocks.toMap(self.laikaBlockDirectives)
       lazy val laikaSpanDirectives  = Spans.toMap(stdSpanDirectives) ++ Spans.toMap(self.laikaSpanDirectives)

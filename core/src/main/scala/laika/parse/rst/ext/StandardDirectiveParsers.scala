@@ -119,7 +119,7 @@ trait StandardDirectiveParsers extends BlockParsers with InlineParsers {
   def unicode (input: String): Either[String,String] = {
     val hexNum = anyIn('0' to '9', 'A' to 'F', 'a' to 'f') 
     val hex = ((("0x" | "x" | "\\x" | "U+" | "u" | "\\u") ~> hexNum) | ("&#x" ~> hexNum <~ ";")) ^^ { Integer.parseInt(_,16) }
-    val dec = (anyIn('0' to '9') min 1) ^^ { Integer.parseInt(_) }
+    val dec = (anyIn('0' to '9') min 1) ^^ { Integer.parseInt }
     val unicode = (hex | dec) ^^ { int => new String(Character.toChars(int)) }
     val text = anyBut(' ') min 1
     val parser = (((unicode | text) <~ ws)*) ^^ { _.mkString(" ") }
