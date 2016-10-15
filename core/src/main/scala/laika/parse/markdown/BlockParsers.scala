@@ -102,7 +102,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    *  characters with optional spaces between them
    */
   lazy val rule: Parser[Block] = {
-    def pattern (char: Char) = char ~ repMin(2, (anyOf(' ')) ~ char)
+    def pattern (char: Char) = char ~ repMin(2, anyOf(' ') ~ char)
     (pattern('*') | pattern('-') | pattern('_')) ~ ws ~ eol ^^^ { Rule() }
   }
 
@@ -138,7 +138,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    */
   def nestedParagraph: Parser[Block] = {
     val list: Parser[Block] = bulletList | enumList
-    ((((not(bulletListItemStart | enumListItemStart | blankLine) ~> restOfLine) +) ^^ (parseParagraph)) 
+    ((((not(bulletListItemStart | enumListItemStart | blankLine) ~> restOfLine) +) ^^ parseParagraph)
         ~ opt(not(blankLine) ~> list)) ^^ {
       case p ~ None => p
       case p ~ Some(list) => BlockSequence(p :: list :: Nil) // another special case of a "tight" list
@@ -162,7 +162,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   /** Parses a literal block, text indented by a tab or 4 spaces.
    */
   val literalBlock: Parser[LiteralBlock] = {
-    mdBlock(tabOrSpace, tabOrSpace, tabOrSpace) ^^ { lines => new LiteralBlock(lines.map(processWS).mkString("\n")) }
+    mdBlock(tabOrSpace, tabOrSpace, tabOrSpace) ^^ { lines => LiteralBlock(lines.map(processWS).mkString("\n")) }
   }
   
   
@@ -179,7 +179,6 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    *  @param itemStart parser that recognizes the start of a list item, result will be discarded
    *  @param newList function that produces a block element for the document tree
    *  @param newItem function that produces a new list item element based on position and content arguments
-   *  @param nestLevel the current level of nesting of blocks
    */
   def list [T <: Block, I <: ListItem] (itemStart: Parser[String], 
                                         newList: List[ListItem] => T, 

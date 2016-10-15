@@ -70,7 +70,7 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
     }
    
   
-  val htmlTagName: Parser[String] = (anyIn('a' to 'z', 'A' to 'Z') min 1) ~ anyBut(('/'::'>'::htmlWSChars):_*) ^^ { 
+  val htmlTagName: Parser[String] = (anyIn('a' to 'z', 'A' to 'Z') min 1) ~ anyBut('/' :: '>' :: htmlWSChars:_*) ^^ {
     case first ~ rest => first + rest
   }
   
@@ -133,12 +133,12 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
   
   /** Parses a numeric character reference (decimal or hexadecimal) without the leading `'&'`.
    */
-  def htmlNumericReference: Parser[String] = '#' ~ (htmlHexReference | htmlDecReference) ^^ { mkString(_) }
+  def htmlNumericReference: Parser[String] = '#' ~ (htmlHexReference | htmlDecReference) ^^ { mkString }
   
   def htmlHexReference: Parser[String] = {
     val hexNumber = anyIn('0' to '9', 'a' to 'f', 'A' to 'F') min 1
 
-    (elem('x') | elem('X')) ~ hexNumber ^^ { mkString(_) }
+    (elem('x') | elem('X')) ~ hexNumber ^^ { mkString }
   }
   
   def htmlDecReference: Parser[String] = anyIn('0' to '9') min 1

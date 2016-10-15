@@ -124,7 +124,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
     lazy val linkSpanParsers = spanParsers // - '['
     
     def unwrap (ref: LinkReference, suffix: String) = {
-      if (!(ref select (_.isInstanceOf[LinkReference])).tail.isEmpty)
+      if ((ref select (_.isInstanceOf[LinkReference])).tail.nonEmpty)
         SpanSequence(Text("[") :: ref.content.toList ::: Text(suffix) :: Nil)
       else ref
     }
@@ -205,7 +205,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
     val url = (('<' ~> escapedUntil('>')) | text(anyBut(' ', '\n'), escapedChars)) ^^ { _.mkString }
     
     def enclosedBy(start: Char, end: Char) = 
-      start ~> anyUntil((guard(end ~ ws ~ eol) | '\r' | '\n')) <~ end ^^ { _.mkString }
+      start ~> anyUntil(guard(end ~ ws ~ eol) | '\r' | '\n') <~ end ^^ { _.mkString }
     
     val title = (ws ~ opt(eol) ~ ws) ~> (enclosedBy('"', '"') | enclosedBy('\'', '\'') | enclosedBy('(', ')'))
     
