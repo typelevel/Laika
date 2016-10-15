@@ -129,53 +129,59 @@ trait FOProperties {
       "hyphenation-remain-character-count")
   
   
-  private val region = (
-        border ++
-        padding ++ 
-        background ++ Set(
-        "region-name",
-        "extent",
-        "precedence",
-        "display-align",
-        "overflow",
-        "reference-orientation",
-        "writing-mode"))
+  private val region =
+    border ++
+    padding ++
+    background ++
+    Set(
+      "region-name",
+      "extent",
+      "precedence",
+      "display-align",
+      "overflow",
+      "reference-orientation",
+      "writing-mode"
+    )
 
-  private val pageNumber = (
-        border ++
-        padding ++ 
-        background ++ 
-        font ++ 
-        areaAlign ++ 
-        keep ++ Set(
-        "id",
-        "letter-spacing",
-        "line-height",
-        "text-decoration",
-        "text-transform",
-        "word-spacing",
-        "wrap-option"))
+  private val pageNumber =
+    border ++
+    padding ++
+    background ++
+    font ++
+    areaAlign ++
+    keep ++
+    Set(
+      "id",
+      "letter-spacing",
+      "line-height",
+      "text-decoration",
+      "text-transform",
+      "word-spacing",
+      "wrap-option"
+    )
 
-  private val embedded = (
-        border ++
-        padding ++ 
-        background ++ 
-        areaAlign ++ 
-        dimension ++
-        keep ++ Set(
-        "id",
-        "content-height",
-        "content-width",
-        "scaling",
-        "display-align",
-        "line-height",
-        "overflow",
-        "text-align"))
+  private val embedded =
+    border ++
+    padding ++
+    background ++
+    areaAlign ++
+    dimension ++
+    keep ++
+    Set(
+      "id",
+      "content-height",
+      "content-width",
+      "scaling",
+      "display-align",
+      "line-height",
+      "overflow",
+      "text-align"
+    )
         
-  private val tablePart:Set[String] = (border ++ padding ++ background)      
+  private val tablePart: Set[String] = border ++ padding ++ background
 
 
-  private val map = Map[String,Set[String]](
+  private val map = Map[String, Set[String]](
     "page-sequence" -> Set(
         "id", 
         "country",

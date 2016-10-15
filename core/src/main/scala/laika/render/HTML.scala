@@ -163,7 +163,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
   
         case ExternalLink(content, url, title, opt)     => out <<@ ("a", opt, "href"->url,       "title"->title.map(escapeTitle)) << content << "</a>"
         case InternalLink(content, ref, title, opt)     => out <<@ ("a", opt, "href"->("#"+ref), "title"->title.map(escapeTitle)) << content << "</a>"
-        case CrossLink(content, ref, path, title, opt)  => out <<@ ("a", opt, "href"->(crossLinkRef(path,ref)), "title"->title.map(escapeTitle)) << content << "</a>"
+        case CrossLink(content, ref, path, title, opt)  => out <<@ ("a", opt, "href"-> crossLinkRef(path, ref), "title"->title.map(escapeTitle)) << content << "</a>"
         
         case WithFallback(fallback)         => out << fallback
         case c: Customizable                => c match {

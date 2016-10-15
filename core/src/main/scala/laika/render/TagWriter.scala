@@ -165,7 +165,7 @@ abstract class TagWriter (out: String => Unit,
   protected def escaped (str: String): String = {
     var i = 0
     val end = str.length
-    val result = new StringBuilder()
+    val result = new StringBuilder
     while (i < end) {
       str.charAt(i) match {
         case '<' => result append "&lt;"

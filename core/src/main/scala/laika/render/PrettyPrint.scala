@@ -16,11 +16,10 @@
 
 package laika.render
 
-import laika.tree.Elements._
-import laika.tree._
-import laika.io.Output
 import laika.factory.RendererFactory
+import laika.io.Output
 import laika.parse.css.Styles.StyleDeclarationSet
+import laika.tree.Elements._
  
 /** A renderer for PrettyPrint output, primarily useful for debugging purposes. 
  *  May be directly passed to the `Render` or `Transform` APIs:
@@ -90,7 +89,7 @@ class PrettyPrint extends RendererFactory[TextWriter] {
       out << con.productPrefix << attributes(rest, con.content)
       
       val contentDesc = s" - $elementType: ${con.content.length.toString}"
-      if (!elements.isEmpty) out <<|> (elements.toList.asInstanceOf[Seq[Element]] ++ List(Content(con.content, "Content" + contentDesc)))
+      if (elements.nonEmpty) out <<|> (elements.toList.asInstanceOf[Seq[Element]] ++ List(Content(con.content, "Content" + contentDesc)))
       else out << contentDesc <<|> con.content  
     }
     
@@ -107,7 +106,7 @@ class PrettyPrint extends RendererFactory[TextWriter] {
     def element (e: Element): Unit = {
       val (elements, rest) = e.productIterator partition (_.isInstanceOf[Element])
       out << e.productPrefix << attributes(rest)
-      if (!elements.isEmpty) out <<|> (elements.toList.asInstanceOf[Seq[Element]])
+      if (elements.nonEmpty) out <<|> elements.toList.asInstanceOf[Seq[Element]]
     }
     
     def lists (desc: String, lists: (Seq[Element], String)*): Unit = 

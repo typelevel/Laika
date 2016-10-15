@@ -100,7 +100,7 @@ class FOWriter (out: String => Unit,
   /** Renders an FO `basic-link` element for an internal target.
    */
   def internalLink (element: Element, target: String, content: Seq[Span], attr: (String,String)*): FOWriter = 
-    this <<@ ("fo:basic-link", element, (attr :+ ("internal-destination"->target)): _*) << content << "</fo:basic-link>"
+    this <<@ ("fo:basic-link", element, attr :+ ("internal-destination" -> target): _*) << content << "</fo:basic-link>"
   
   /** Renders an FO `block` or `inline` for this internal link
    *  target, depending on whether it is inside a `BlockContainer`
@@ -116,7 +116,7 @@ class FOWriter (out: String => Unit,
   /** Renders an FO `basic-link` element for an external target.
    */
   def externalLink (element: Element, url: String, content: Seq[Span], attr: (String,String)*): FOWriter = 
-    this <<@ ("fo:basic-link", element, (attr :+ ("external-destination"->url)): _*) << content << "</fo:basic-link>"
+    this <<@ ("fo:basic-link", element, attr :+ ("external-destination" -> url): _*) << content << "</fo:basic-link>"
   
   /** Renders an FO `external-graphic` element.
    */
@@ -202,7 +202,7 @@ class FOWriter (out: String => Unit,
    */
   def bookmark (bookmark: Bookmark): FOWriter = {
     val content = BookmarkTitle(bookmark.title) +: bookmark.children
-    this <<@ ("fo:bookmark", bookmark, ("internal-destination" -> buildId(bookmark.path.absolute, bookmark.ref))) <<|> content <<| "</fo:bookmark>"
+    this <<@ ("fo:bookmark", bookmark, "internal-destination" -> buildId(bookmark.path.absolute, bookmark.ref)) <<|> content <<| "</fo:bookmark>"
   }
   
   /** Renders an FO `bookmark-title` element.
