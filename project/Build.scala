@@ -40,7 +40,7 @@ object Build extends Build {
     
     val parser    = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
     
-    val scalatest = "org.scalatest" %% "scalatest" % "2.2.6"  % "test"
+    val scalatest = "org.scalatest" %% "scalatest" % "3.0.1"  % "test"
         
     val jTidy     = "net.sf.jtidy"  % "jtidy"      % "r938" % "test"
         
