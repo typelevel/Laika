@@ -12,7 +12,7 @@ Open Source under the Apache 2.0 License.
 Getting Started
 ---------------
 
-The main artifact is published to Maven Central for Scala 2.10 and 2.11.
+The main artifact is published to Maven Central for Scala 2.10, 2.11 and 2.12.
 
 The sbt plugin is published to the sbt plugin repository for sbt 0.13.x.
 

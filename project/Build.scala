@@ -31,7 +31,7 @@ object Build extends Build {
     
     lazy val module = basic ++ Seq(
       crossVersion       := CrossVersion.binary,
-      crossScalaVersions := Seq("2.10.6", "2.11.8")
+      crossScalaVersions := Seq("2.10.6", "2.11.8", "2.12.1")
     )
     
   }
@@ -40,7 +40,7 @@ object Build extends Build {
     
     val parser    = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
     
-    val scalatest = "org.scalatest" %% "scalatest" % "2.2.6"  % "test"
+    val scalatest = "org.scalatest" %% "scalatest" % "3.0.1"  % "test"
         
     val jTidy     = "net.sf.jtidy"  % "jtidy"      % "r938" % "test"
         
