@@ -459,6 +459,12 @@ class ListParsersSpec extends FlatSpec
       |-b  Option2""".stripMargin
     Parsing (input) should produce (root( optL( oli("-a", "=", "FILE", "Option1"), oli("-b", "Option2"))))
   }
+
+  it should "parse an option argument enclosed in angle brackets" in {
+    val input = """-a <in=out>  Option1
+                  |-b  Option2""".stripMargin
+    Parsing (input) should produce (root( optL( oli("-a", " ", "<in=out>", "Option1"), oli("-b", "Option2"))))
+  }
   
   it should "parse a description starting on the next line" in {
     val input = """-a

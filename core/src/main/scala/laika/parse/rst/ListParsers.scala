@@ -195,13 +195,14 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     def mkString (result: ~[Char,String]) = result._1.toString + result._2
     
     val optionString = anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_', '-').min(1)
+    val optionArg = optionString | (('<' ~> anyUntil('>')) ^^ { "<" + _ + ">" } )
     
     val gnu =        '+' ~ anyIn('a' to 'z', 'A' to 'Z', '0' to '9').take(1) ^^ mkString
     val shortPosix = '-' ~ anyIn('a' to 'z', 'A' to 'Z', '0' to '9').take(1) ^^ mkString
     val longPosix = ("--" <~ not('-')) ~ optionString ^^ { case a ~ b => a+b }
     val dos = '/' ~ optionString ^^ mkString
     
-    val arg = opt(accept('=') | ' ') ~ optionString ^^ { 
+    val arg = opt(accept('=') | ' ') ~ optionArg ^^ {
       case Some(delim) ~ argStr => OptionArgument(argStr, delim.toString)
       case None ~ argStr => OptionArgument(argStr, "") 
     }
