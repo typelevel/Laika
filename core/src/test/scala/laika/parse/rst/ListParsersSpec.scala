@@ -483,9 +483,16 @@ class ListParsersSpec extends FlatSpec
       |-b  Option2""".stripMargin
     Parsing (input) should produce (root( optL( oli("-a", p("Line1\nLine2"), p("Line3")), oli("-b", "Option2"))))
   }
-  
-  
-  
+
+  it should "parse an option separated by more than 2 spaces" in {
+    val input = """-a   Option""".stripMargin
+    Parsing (input) should produce (root( optL(
+      oli("-a", "Option")
+    )))
+  }
+
+
+
   "The line block parser" should "parse a block with out continuation or indentation" in {
     val input = """|| Line1
       || Line2

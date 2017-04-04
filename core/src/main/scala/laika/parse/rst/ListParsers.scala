@@ -210,7 +210,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     
     val options = (option ~ ((", " ~> option)*)) ^^ mkList
     
-    val descStart = ("  " ~ not(blankLine)) | guard(blankLine ~ (ws min 1) ~ not(blankLine)) ^^^ ""
+    val descStart = ((anyOf(' ') min 2) ~ not(blankLine)) | guard(blankLine ~ (ws min 1) ~ not(blankLine)) ^^^ ""
     
     val item = (options ~ (descStart ~> indentedBlock())) ^^ { 
       case name ~ block => OptionListItem(name, parseNestedBlocks(block))
