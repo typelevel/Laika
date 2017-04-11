@@ -91,7 +91,7 @@ The following sections explain how to implement the tag
 and then how to add it either to the Markdown or reStructuredText
 parser or to the template parser.
 
-[directive-api]: https://github.com/planet42/Laika/blob/master/src/main/scala/laika/directive/StandardDirectives.scala
+[directive-api]: https://github.com/planet42/Laika/blob/master/core/src/main/scala/laika/directive/StandardDirectives.scala
 
 
 ### Directive Implementation
