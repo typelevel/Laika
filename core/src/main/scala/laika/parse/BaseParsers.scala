@@ -135,7 +135,7 @@ trait BaseParsers extends Parsers {
     /** Converts this instance to an `Either[String, A]`, using the message of the `Throwable`
      *  as the value for the `Left` instance.
      */
-    def toEither: Either[String,A] = t match {
+    def toStringEither: Either[String,A] = t match {
       case TSuccess(res) => Right(res)
       case TFailure(e)   => Left(e.getMessage)
     }

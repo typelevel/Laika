@@ -86,10 +86,10 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   
   private lazy val enumListStart: Parser[(EnumFormat, Int)] = {
     val firstLowerRoman = (anyOf('i','v','x','l','c','d','m').min(2) | anyOf('i').take(1)) ^^? 
-      { num => TryOps(Try(RomanNumerals.romanToInt(num.toUpperCase), LowerRoman)).toEither }
+      { num => Try(RomanNumerals.romanToInt(num.toUpperCase), LowerRoman).toStringEither }
     
     val firstUpperRoman = (anyOf('I','V','X','L','C','D','M').min(2) | anyOf('I').take(1)) ^^? 
-      { num => TryOps(Try(RomanNumerals.romanToInt(num), UpperRoman)).toEither }
+      { num => Try(RomanNumerals.romanToInt(num), UpperRoman).toStringEither }
     
     val firstLowerAlpha = anyIn('a' to 'h', 'j' to 'z').take(1) ^^ 
       { char => (char.charAt(0) + 1 - 'a', LowerAlpha) } // 'i' is interpreted as Roman numerical
