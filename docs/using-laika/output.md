@@ -172,6 +172,11 @@ The font-related attributes in this case are identical to the ones you know from
 but the type selector does not refer to an HTML tag, but instead to a class name from the
 hierarchy of case classes forming the document tree of a parsed input source.
 
+The CSS files need to be placed into the root directory of your sources with a name
+in the format `<name>.fo.css`. Like with template files you can place alternative CSS
+files into subdirectories of your input tree for styles that should only be applied to 
+that directory.
+
 For an overview over the available attributes you can refer to the [Formatting Properties][fo-props] chapter
 in the XSL-FO specification.
 
