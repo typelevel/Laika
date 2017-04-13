@@ -57,11 +57,7 @@ import org.apache.xmlgraphics.util.MimeConstants
  */
 class PDF private (val factory: XSLFO, config: Option[PDFConfig]) extends RenderResultProcessor[FOWriter] {
 
-  
-  private lazy val fopFactory =
-    new FopFactoryBuilder(new File(".").toURI()).build()
-  
-  
+
   /** Specifies the minimum required level for a system message
    *  to get included into the output by this renderer.
    */
@@ -122,6 +118,9 @@ class PDF private (val factory: XSLFO, config: Option[PDFConfig]) extends Render
   def renderPDF (foInput: Input, output: BinaryOutput, sourcePaths: Seq[String] = Nil): Unit = {
     
     def createSAXResult (out: OutputStream) = {
+
+      val fopFactory = PDF.defaultFopFactory
+
       val resolver = new ResourceResolver {
         
         def getResource (uri: URI): Resource =
@@ -163,7 +162,15 @@ class PDF private (val factory: XSLFO, config: Option[PDFConfig]) extends Render
 
 /** The default instance of the PDF renderer.
  */
-object PDF extends PDF(XSLFO.unformatted, None)
+object PDF extends PDF(XSLFO.unformatted, None) {
+
+  /** The reusable default instance of the FOP factory
+    * that the PDF renderer will use if no custom
+    * factory is specified.
+    */
+  lazy val defaultFopFactory = new FopFactoryBuilder(new File(".").toURI()).build()
+
+}
 
 /** Configuration options for the generated PDF output.
  * 
