@@ -55,18 +55,28 @@ import org.apache.xmlgraphics.util.MimeConstants
  * 
  *  @author Jens Halm
  */
-class PDF private (val factory: XSLFO, config: Option[PDFConfig]) extends RenderResultProcessor[FOWriter] {
+class PDF private (val factory: XSLFO, config: Option[PDFConfig], fopFactory: Option[FopFactory]) extends RenderResultProcessor[FOWriter] {
 
 
   /** Specifies the minimum required level for a system message
    *  to get included into the output by this renderer.
    */
-  def withMessageLevel (level: MessageLevel): PDF = new PDF(factory.withMessageLevel(level), config)
+  def withMessageLevel (level: MessageLevel): PDF = new PDF(factory.withMessageLevel(level), config, fopFactory)
   
   /** Allows to specify configuration options like insertion
    *  of bookmarks or table of content.
    */
-  def withConfig (config: PDFConfig): PDF = new PDF(factory, Some(config))
+  def withConfig (config: PDFConfig): PDF = new PDF(factory, Some(config), fopFactory)
+
+  /** Allows to specify a custom FopFactory in case additional configuration
+    * is required for custom fonts, stemmers or other FOP features.
+    *
+    * A `FopFactory` is a fairly heavy-weight object, so make sure that you reuse
+    * either the `FopFactory` instance itself or the resulting `PDF` renderer.
+    * In case you do not specify a custom factory, Laika ensures that the default
+    * factory is reused between renderers.
+    */
+  def withFopFactory (fopFactory: FopFactory): PDF = new PDF(factory, config, Some(fopFactory))
   
   private lazy val foForPDF = new FOforPDF(config)
   
@@ -119,8 +129,6 @@ class PDF private (val factory: XSLFO, config: Option[PDFConfig]) extends Render
     
     def createSAXResult (out: OutputStream) = {
 
-      val fopFactory = PDF.defaultFopFactory
-
       val resolver = new ResourceResolver {
         
         def getResource (uri: URI): Resource =
@@ -129,12 +137,14 @@ class PDF private (val factory: XSLFO, config: Option[PDFConfig]) extends Render
         def getOutputStream (uri: URI): OutputStream =
           new FileOutputStream(new File(resolve(uri)))
         
-        def resolve (uri: URI): URI = (sourcePaths.collectFirst {
-          case source if (new File(source+uri.getPath)).isFile => new File(source+uri).toURI
-        }).getOrElse(if (uri.isAbsolute) uri else new File(uri.getPath).toURI)
+        def resolve (uri: URI): URI = sourcePaths.collectFirst {
+          case source if (new File(source + uri.getPath)).isFile => new File(source + uri).toURI
+        }.getOrElse(if (uri.isAbsolute) uri else new File(uri.getPath).toURI)
       }
-      val foUserAgent = FOUserAgentFactory.createFOUserAgent(fopFactory, resolver)
-      val fop = fopFactory.newFop(MimeConstants.MIME_PDF, foUserAgent, out)
+
+      val factory = fopFactory.getOrElse(PDF.defaultFopFactory)
+      val foUserAgent = FOUserAgentFactory.createFOUserAgent(factory, resolver)
+      val fop = factory.newFop(MimeConstants.MIME_PDF, foUserAgent, out)
       new SAXResult(fop.getDefaultHandler())
     }
     
@@ -162,7 +172,7 @@ class PDF private (val factory: XSLFO, config: Option[PDFConfig]) extends Render
 
 /** The default instance of the PDF renderer.
  */
-object PDF extends PDF(XSLFO.unformatted, None) {
+object PDF extends PDF(XSLFO.unformatted, None, None) {
 
   /** The reusable default instance of the FOP factory
     * that the PDF renderer will use if no custom

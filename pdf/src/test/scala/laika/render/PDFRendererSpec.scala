@@ -16,24 +16,11 @@
 
 package laika.render
 
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
-import java.io.ByteArrayOutputStream
+import java.io.{ByteArrayOutputStream, File, InputStream}
+
 import laika.api.Render
-import java.io.File
-import laika.tree.Documents.Document
-import laika.tree.Elements.RootElement
-import laika.tree.Elements.Styles
-import laika.tree.Paths.Root
-import laika.tree.Elements.Title
-import laika.tree.Elements.Text
-import laika.tree.Elements.Paragraph
-import laika.tree.Elements.Id
-import com.typesafe.config.ConfigFactory
-import com.typesafe.config.ConfigValueFactory
 import laika.io.Input
-import laika.tree.Documents.DocumentTree
-import java.io.InputStream
+import org.scalatest.{FlatSpec, Matchers}
 
 /** Since there is no straightforward way to validate a rendered PDF document
  *  on the JVM, this Spec merely asserts that a file or OutputStream is non-empty
@@ -58,6 +45,11 @@ class PDFRendererSpec extends FlatSpec with Matchers {
   
   "The PDF Renderer" should "render a document to a file" in new TreeModel with FileSetup {
     Render as PDF from doc(1) toFile file
+    readFile.read should not be (-1)
+  }
+
+  it should "render a document to a file using a custom FopFactory" in new TreeModel with FileSetup {
+    Render as PDF.withFopFactory(PDF.defaultFopFactory) from doc(1) toFile file
     readFile.read should not be (-1)
   }
   
