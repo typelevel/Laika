@@ -33,6 +33,7 @@ import laika.tree.Documents._
 import laika.tree.ElementTraversal
 import laika.tree.Elements._
 import laika.tree.Paths.Path
+import org.apache.fop.apps.FopFactory
 import sbt.Keys._
 import sbt._
 
@@ -86,6 +87,10 @@ object LaikaSbtPlugin extends Plugin {
     val foRenderers         = settingKey[Seq[FOWriter => RenderFunction]]("Custom XSL-FO renderers overriding the defaults per node type")
     
     val prettyPrintRenderers= settingKey[Seq[TextWriter => RenderFunction]]("Custom PrettyPrint renderers overriding the defaults per node type")
+
+    val fopFactory          = settingKey[FopFactory]("The FopFactory for the PDF renderer")
+
+    val fopConfig           = settingKey[Option[File]]("The Apache FOP configuration file for the PDF renderer")
     
     val parallel            = settingKey[Boolean]("Indicates whether parsers and renderers should run in parallel")
     
@@ -196,6 +201,10 @@ object LaikaSbtPlugin extends Plugin {
       outputTree in site  := outputTreeTask(site).value,
       outputTree in xslfo := outputTreeTask(xslfo).value,
       outputTree in prettyPrint  := outputTreeTask(prettyPrint).value,
+
+      fopConfig           := None,
+      fopFactory          := fopFactorySetting.value,
+
       site                := Def.sequential(siteGenTask, copyTask).value,
       generate            := generateTask.evaluated,
       html                := generateTask.toTask(" html").value,
@@ -222,7 +231,13 @@ object LaikaSbtPlugin extends Plugin {
   object Tasks {
     import Def._
     import LaikaKeys._
-    
+
+    val fopFactorySetting: Initialize[FopFactory] = setting {
+      fopConfig.value map {
+        FopFactory.newInstance
+      } getOrElse PDF.defaultFopFactory
+    }
+
     def artifactPathSetting (key: Scoped): Initialize[File] = setting {
       val art = (artifact in key).value
       val classifier = art.classifier map ("-"+_) getOrElse ""
@@ -334,7 +349,7 @@ object LaikaSbtPlugin extends Plugin {
               targetFile.getParentFile.mkdirs()
           
               val pdfRenderer = renderMessageLevel.value map (PDF withMessageLevel _) getOrElse PDF
-              val render = prepareRenderer(Render as pdfRenderer, foRenderers.value)
+              val render = prepareRenderer(Render as pdfRenderer.withFopFactory(fopFactory.value), foRenderers.value)
               render from tree toFile targetFile
               
               streams.value.log.info("Generated PDF in " + targetFile)
