@@ -16,34 +16,25 @@
 
 package laika.sbt
 
-import sbt._
-import Keys._
 import laika.api._
-import laika.io.InputProvider.Directories
-import laika.io.InputProvider.InputConfigBuilder
-import laika.io.OutputProvider.Directory
-import laika.io.OutputProvider.OutputConfigBuilder
-import laika.rewrite.DocumentCursor
-import laika.rewrite.RewriteRules
-import laika.template.ParseTemplate
-import laika.template.DefaultTemplate
+import laika.directive.Directives._
+import laika.io.Input.LazyFileInput
+import laika.io.{DocumentType, Input, InputProvider}
+import laika.io.InputProvider.{Directories, InputConfigBuilder}
+import laika.io.OutputProvider.{Directory, OutputConfigBuilder}
+import laika.parse.markdown.Markdown
+import laika.parse.markdown.html.VerbatimHTML
+import laika.parse.rst.TextRoles.TextRole
+import laika.parse.rst.{ExtendedHTML, ReStructuredText, Directives => rst}
+import laika.render._
+import laika.rewrite.{DocumentCursor, RewriteRules}
+import laika.template.{DefaultTemplate, ParseTemplate}
 import laika.tree.Documents._
+import laika.tree.ElementTraversal
 import laika.tree.Elements._
 import laika.tree.Paths.Path
-import laika.directive.Directives._
-import laika.parse.rst.ReStructuredText
-import laika.parse.rst.{Directives=>rst}
-import laika.parse.rst.TextRoles.TextRole
-import laika.parse.markdown.Markdown
-import laika.render._
-import laika.io.InputProvider
-import laika.io.Input.LazyFileInput
-import laika.io.Input
-import laika.io.DocumentType
-import laika.tree.ElementTraversal
-import laika.parse.markdown.html.VerbatimHTML
-import laika.parse.rst.ExtendedHTML
-import LaikaSbtPlugin.OutputFormats
+import sbt.Keys._
+import sbt._
 
 object LaikaSbtPlugin extends Plugin {
 
@@ -205,7 +196,7 @@ object LaikaSbtPlugin extends Plugin {
       outputTree in site  := outputTreeTask(site).value,
       outputTree in xslfo := outputTreeTask(xslfo).value,
       outputTree in prettyPrint  := outputTreeTask(prettyPrint).value,
-      site                := siteTask.value,
+      site                := Def.sequential(siteGenTask, copyTask).value,
       generate            := generateTask.evaluated,
       html                := generateTask.toTask(" html").value,
       xslfo               := generateTask.toTask(" xslfo").value,
@@ -229,8 +220,8 @@ object LaikaSbtPlugin extends Plugin {
   
   
   object Tasks {
-    import LaikaKeys._
     import Def._
+    import LaikaKeys._
     
     def artifactPathSetting (key: Scoped): Initialize[File] = setting {
       val art = (artifact in key).value
@@ -363,16 +354,15 @@ object LaikaSbtPlugin extends Plugin {
       outputFiles intersect allTargets.value
     }
     
-    private val siteGenTask: Initialize[Task[Set[File]]] = taskDyn {
+    val siteGenTask: Initialize[Task[Set[File]]] = taskDyn {
       if (includePDF.value) generateTask.toTask(" html pdf") 
       else generateTask.toTask(" html")
     }
     
-    val siteTask: Initialize[Task[File]] = task {
-      val gen = siteGenTask.value
+    val copyTask: Initialize[Task[File]] = task {
       val api = copyAPI.value
       val pdf = copyPDF.value
-      
+
       (target in site).value
     }
     
@@ -396,7 +386,6 @@ object LaikaSbtPlugin extends Plugin {
     }
     
     val copyPDFTask: Initialize[Task[File]] = taskDyn {
-      val gen = siteGenTask.value
       val targetDir = (target in site).value
       val pdfSource = (artifactPath in pdf).value
       val pdfTarget = targetDir / pdfSource.getName
@@ -539,7 +528,7 @@ object LaikaSbtPlugin extends Plugin {
     
     def systemMessages (logger: Logger, tree: DocumentTree, level: MessageLevel): Unit = {
       
-      import laika.tree.Elements.{Info=>InfoLevel}
+      import laika.tree.Elements.{Info => InfoLevel}
       
       def logMessage (inv: Invalid[_], path: Path): Unit = {
         val source = inv.fallback match {
