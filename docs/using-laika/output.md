@@ -313,6 +313,46 @@ markup input:
       "source" toFile "out.pdf"
 
 
+#### Customizing Apache FOP
+
+Rendering a PDF file is (roughly) a 3-step process:
+
+1. Parsing all markup files and producing an in-memory document tree representation
+2. Applying templates and CSS to the document tree and render it as XSL-FO
+3. Produce the final PDF file from the resulting XSL-FO
+
+While step 1 and 2 are entirely managed by Laika, without any dependencies to external
+libraries or tools, step 3 is almost solely taken care of by Apache FOP. 
+
+Therefore, any customization for this step is best left for the configuration hooks of FOP itself.
+They allow you to define aspects like the target resolution, custom fonts, custom stemmers and
+a lot more.
+The available options are described in the [Apache FOP documentation][fop-config-docs].
+
+When you are using the sbt plugin, you can specify an Apache FOP configuration file with
+the `fopConfig` setting:
+
+    fopConfig in Laika := Some(baseDirectory.value / "customFop.xconf")
+    
+Note that the default is `None` as FOPs default configuration is often sufficient.
+
+When you are using Laika embedded, the PDF renderer has a hook to specify a custom
+`FopFactory`:
+
+    val configFile = "/path/to/customFop.xconf"
+    val factory = FopFactory.newInstance(new File(configFile))
+    
+    Transform from Markdown to PDF.withFopFactory(factory) fromDirectory 
+      "src" toFile "out.pdf"
+      
+Note that a `FopFactory` is a fairly heavy-weight object, so make sure that you reuse
+either the `FopFactory` instance itself or the resulting `PDF` renderer.
+In case you do not specify a custom factory, Laika ensures that the default
+factory is reused between renderers.
+
+[fop-config-docs]: https://xmlgraphics.apache.org/fop/2.1/configuration.html
+
+
 ### XSL-FO Templates
 
 Like the HTML renderer, the PDF renderer supports templating. However, there should be
