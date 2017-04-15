@@ -56,8 +56,8 @@ object TemplateParsers {
   trait Templates extends TemplateParsers with DirectiveParsers.TemplateDirectives {
     
     protected def prepareSpanParsers: Map[Char, Parser[Span]] = Map(
-      '{' -> (reference(TemplateContextReference(_))),    
-      '@' -> (templateDirectiveParser),
+      '{' -> reference(TemplateContextReference(_)),
+      '@' -> templateDirectiveParser,
       '\\'-> ((any take 1) ^^ { Text(_) })
     )
   
@@ -71,10 +71,12 @@ object TemplateParsers {
       }
     } 
     
-    lazy val templateSpans: Parser[List[TemplateSpan]] = (spans(any, spanParsers) ^^ { _.collect { 
-      case s:TemplateSpan => s 
-      case Text(s,opt) => TemplateString(s,opt)
-    }})
+    lazy val templateSpans: Parser[List[TemplateSpan]] = spans(any, spanParsers) ^^ {
+      _.collect {
+        case s: TemplateSpan => s
+        case Text(s, opt) => TemplateString(s, opt)
+      }
+    }
     
     def templateWithConfig (path: Path): Parser[(Config, List[TemplateSpan])] = opt(configParser(path)) ~ templateSpans ^^ {
       case Some(Right(config)) ~ root => (config, root)

@@ -16,9 +16,6 @@
 
 package laika.util
 
-import scala.annotation.tailrec
-import com.sun.xml.internal.txw2.IllegalAnnotationException
-
 /** Converts Roman numerals to integers and vice versa.
  *  Since there never have been universally accepted rules for Roman numerals,
  *  the conversion functions do not apply strict error checking, so some unusual or 
@@ -77,7 +74,7 @@ object RomanNumerals {
       }
     }
     
-    convert(roman, symbols(0))
+    convert(roman, symbols.head)
   }        
   
 }
