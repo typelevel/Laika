@@ -16,9 +16,9 @@
 
 package laika.tree
 
+import Elements._
+
 import scala.collection.mutable.ListBuffer
-import scala.collection.mutable.Map
-import laika.tree.Elements._
  
 /** Provides means to traverse, select and rewrite elements of a document tree. 
  *  This trait can get mixed in by any element node, not just the root Document class,
@@ -71,12 +71,11 @@ trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Ele
       }
       
       e match {
-        case et: ElementTraversal[_] => {
+        case et: ElementTraversal[_] =>
           val newET = et.rewriteProperties(rule)
           val f = if (newET eq et) rewriteOldElement else rewriteNewElement
           val finalET = f(newET.asInstanceOf[Element])
           optimize(finalET, et)
-        }
         case e: Element         => optimize(rewriteOldElement(e), e)
         case t: Traversable[_]  => optimize(rewriteChildren(t.asInstanceOf[Traversable[AnyRef]]), t)
         case x                  => Retain
@@ -116,7 +115,7 @@ trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Ele
         case Some(result) if changed  => newElements(i) = result
         case None         if changed  => newElements(i) = oldElem // removal only possible for elements of Traversables
         case Some(result)             => changed = true
-                                         if (i>0) for (x <- 0 to (i-1)) newElements(x) = productElement(x) 
+                                         if (i>0) for (x <- 0 until i) newElements(x) = productElement(x)
                                          newElements(i) = result 
         case None                     => ()
       }

@@ -16,26 +16,14 @@
 
 package laika.tree
 
+import com.typesafe.config.{Config, ConfigFactory}
 import laika.io.Input
 import laika.parse.css.Styles.StyleDeclarationSet
-import laika.tree.Paths.Path
-import laika.tree.Paths.Root
-import laika.tree.Paths.Current
-import laika.tree.Paths./
-import laika.tree.Elements._
-import laika.tree.Templates.TemplateRoot
-import laika.tree.Templates.TemplateContextReference
-import laika.rewrite.AutonumberConfig
 import laika.rewrite.LinkTargets._
-import laika.rewrite.DocumentCursor
-import laika.rewrite.TreeCursor
-import laika.rewrite.TreeUtil
-import scala.annotation.tailrec
-import scala.util.Try
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
-import laika.rewrite.LinkTargetProvider
-import laika.rewrite.TemplateRewriter
+import laika.rewrite._
+import laika.tree.Elements._
+import laika.tree.Paths.{/, Current, Path}
+import laika.tree.Templates.TemplateRoot
 
 
 /** Provides the API for Documents and DocumentTrees.
@@ -163,9 +151,8 @@ object Documents {
       
       def extractSections (blocks: Seq[Block]): Seq[SectionInfo] = {
         blocks collect {
-          case Section(Header(_,header,Id(id)), content, _) => {
-            SectionInfo(id, TitleInfo(header), extractSections(content)) 
-          }
+          case Section(Header(_,header,Id(id)), content, _) =>
+            SectionInfo(id, TitleInfo(header), extractSections(content))
         }
       }
       extractSections(findRoot)
@@ -250,10 +237,10 @@ object Documents {
       val all = (List[(Selector,TargetResolver)]() /: content) { 
         case (list, content) => content.globalLinkTargets.toList ::: list
       }
-      (all.groupBy (_._1) collect {
-        case (selector, ((_,target) :: Nil)) => (selector, target)
-        case (s @ UniqueSelector(name), conflicting) => (s, DuplicateTargetResolver(path, name))
-      }).toMap
+      all.groupBy(_._1) collect {
+        case (selector, ((_, target) :: Nil)) => (selector, target)
+        case (s@UniqueSelector(name), conflicting) => (s, DuplicateTargetResolver(path, name))
+      }
     }
     
   }
