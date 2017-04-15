@@ -44,16 +44,27 @@ object Documents {
     lazy val name: String = path.name
     
   }
-  
-  
+
+  /** A titled, positional element in the document tree.
+    */
   sealed trait TreeContent extends Navigatable {
-    
+
+    /** The title of this element or an empty sequence in case
+      * this element does not have a title.
+     */
     def title: Seq[Span]
-    
+
+    /** The configuration associated with this element.
+      */
     def config: Config
-    
+
+    /** The position of this element within the document tree.
+      */
     def position: TreePosition
-    
+
+    /** All link targets that can get referenced from anywhere
+      * in the document tree.
+      */
     def globalLinkTargets: Map[Selector, TargetResolver]
     
     /** Selects a link target by the specified selector
@@ -65,7 +76,7 @@ object Documents {
       if (config.hasPath("title")) {
         val title = List(Text(config.getString("title")))
         val autonumberConfig = AutonumberConfig.fromConfig(config)
-        val autonumberEnabled = autonumberConfig.documents && position.toSeq.size < autonumberConfig.maxDepth
+        val autonumberEnabled = autonumberConfig.documents && position.depth < autonumberConfig.maxDepth
         if (autonumberEnabled) Some(position.toSpan +: title)
         else Some(title)
       }
@@ -73,14 +84,25 @@ object Documents {
     }
     
   }
-  
-  
+
+
+  /** Content within the document tree that is
+    * neither titled nor positional. These are usually
+    * helper documents that do not show up in the main
+    * navigation for the document tree.
+    */
   sealed trait AdditionalContent extends Navigatable
-  
+
+  /** A static document that might get copied to the
+    * target document tree as is.
+    */
   case class StaticDocument (input: Input) extends AdditionalContent {
     val path: Path = input.path
   }
-  
+
+  /** A dynamic document that has been obtained from a template
+    * not associated with any markup document.
+    */
   case class DynamicDocument (path: Path, content: RootElement) extends AdditionalContent
   
   /** A template document containing the element tree of a parsed template and its extracted
@@ -104,15 +126,27 @@ object Documents {
   case class TitleInfo (content: Seq[Span]) extends SpanContainer[TitleInfo] {
     lazy val text: String = TreeUtil.extractText(content)
   }
-  
+
+  /** The position of an element within a document tree.
+    *
+    * @param toSeq the positions (one-based) of each nesting level of this
+    *              position (an empty sequence for the root position)
+    */
   case class TreePosition(toSeq: Seq[Int]) {
 
     override def toString: String = toSeq.mkString(".")
-    
+
+    /** This tree position as a span that can get rendered
+      * as part of a numbered title for example.
+      */
     def toSpan: Span = SectionNumber(toSeq)
-    
+
+    /** The depth (or nesting level) of this position within the document tree.
+      */
     def depth = toSeq.size
-    
+
+    /** Creates a position instance for a child of this element.
+      */
     def forChild(childPos: Int) = TreePosition(toSeq :+ childPos)
   }
   
@@ -120,8 +154,12 @@ object Documents {
     def root = TreePosition(Seq())
   }
 
+  /** The structure of a markup document.
+    */
   trait DocumentStructure { this: TreeContent =>
-  
+
+    /** The tree model obtained from parsing the markup document.
+      */
     def content: RootElement
     
     private def findRoot: Seq[Block] = {
@@ -131,16 +169,18 @@ object Documents {
         case _ => false
       }).headOption map { case RootElement(content) => content } getOrElse Nil
     }
-    
+
     /** The title of this document, obtained from the document
-     *  structure or from the configuration.
-     */
+      * structure or from the configuration. In case no title
+      * is defined in either of the two places the sequence will
+      * be empty.
+      */
     def title: Seq[Span] = {
-      
+
       def titleFromTree = (RootElement(findRoot) collect {
-        case Title(content,_) => content
+        case Title(content, _) => content
       }).headOption
-      
+
       titleFromConfig.orElse(titleFromTree).getOrElse(Seq())
     }
   
@@ -157,19 +197,34 @@ object Documents {
       }
       extractSections(findRoot)
     } 
-    
+
+    /** All link targets of this document, including global and local targets.
+     */
     lazy val linkTargets: LinkTargetProvider = new LinkTargetProvider(path,content)
-    
+
+    /** All link targets that can get referenced from anywhere
+      * in the document tree.
+      */
     lazy val globalLinkTargets = linkTargets.global
     
   }
-  
+
+  /** The structure of a document tree.
+    */
   trait TreeStructure { this: TreeContent =>
-    
+
+    /** The content of this tree structure, containing
+      * all markup documents and subtrees.
+      */
     def content: Seq[TreeContent]
-    
+
+    /** All templates on this level of the tree hierarchy that might
+      * get applied to a document when it gets rendered.
+      */
     def templates: Seq[TemplateDocument]
-    
+
+    /** The actual document tree that this tree structure represents.
+      */
     def targetTree: DocumentTree
     
     /** The title of this tree, obtained from configuration.
@@ -232,7 +287,10 @@ object Documents {
       case path / name => selectSubtree(path) flatMap (_.selectSubtree(name)) 
       case _ => None
     }
-    
+
+    /** All link targets that can get referenced from anywhere
+      * in the document tree.
+      */
     lazy val globalLinkTargets: Map[Selector, TargetResolver] = {
       val all = (List[(Selector,TargetResolver)]() /: content) { 
         case (list, content) => content.globalLinkTargets.toList ::: list
