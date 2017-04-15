@@ -161,15 +161,15 @@ object LaikaSbtPlugin extends Plugin {
       rawContent          := false,
       
       markdown            := {
-                            val md = (Markdown withBlockDirectives (blockDirectives.value: _*) withSpanDirectives (spanDirectives.value: _*))
+                            val md = Markdown withBlockDirectives (blockDirectives.value: _*) withSpanDirectives (spanDirectives.value: _*)
                             val md2 = if (rawContent.value) md.withVerbatimHTML else md
                             if (strict.value) md2.strict else md2
                           },
 
       reStructuredText    := { 
-                            val rst = (ReStructuredText withLaikaBlockDirectives (blockDirectives.value: _*) withLaikaSpanDirectives 
-                            (spanDirectives.value: _*) withBlockDirectives (rstBlockDirectives.value: _*) withSpanDirectives 
-                            (rstSpanDirectives.value: _*) withTextRoles (rstTextRoles.value: _*))
+                            val rst = ReStructuredText withLaikaBlockDirectives (blockDirectives.value: _*) withLaikaSpanDirectives
+                              (spanDirectives.value: _*) withBlockDirectives (rstBlockDirectives.value: _*) withSpanDirectives
+                              (rstSpanDirectives.value: _*) withTextRoles (rstTextRoles.value: _*)
                             val rst2 = if (rawContent.value) rst.withRawContent else rst
                             if (strict.value) rst2.strict else rst2
                           },
@@ -248,7 +248,7 @@ object LaikaSbtPlugin extends Plugin {
       val builder = Directories(sourceDirectories.value, excludeFilter.value.accept)(encoding.value)
         .withTemplateParser(templateParser.value)
       val builder2 = if (parallel.value) builder.inParallel else builder
-      docTypeMatcher.value map (builder2 withDocTypeMatcher _) getOrElse builder2
+      docTypeMatcher.value map (builder2 withDocTypeMatcher) getOrElse builder2
     }
     
     def outputTreeTask (key: Scoped): Initialize[Task[OutputConfigBuilder]] = task {
@@ -291,7 +291,7 @@ object LaikaSbtPlugin extends Plugin {
         streams.value.log.info(Log.inputs(inputs.provider))
         
         val rawTree = markupParser.value fromTree inputs
-        val tree = rawTree rewrite (RewriteRules.chainFactories(rewriteRules.value))
+        val tree = rawTree rewrite RewriteRules.chainFactories(rewriteRules.value)
 
         logMessageLevel.value foreach { Log.systemMessages(streams.value.log, tree, _) }
         
@@ -310,7 +310,7 @@ object LaikaSbtPlugin extends Plugin {
               
               val targetDir = prepareTargetDirectory(site).value.prepare
           
-              val html = renderMessageLevel.value map (HTML withMessageLevel _) getOrElse HTML
+              val html = renderMessageLevel.value map (HTML withMessageLevel) getOrElse HTML
               val renderers = siteRenderers.value :+ VerbatimHTML :+ ExtendedHTML // always install Markdown and rst extensions
               val render = prepareRenderer(Render as html, renderers)
               render from tree toTree (outputTree in site).value
@@ -335,7 +335,7 @@ object LaikaSbtPlugin extends Plugin {
               
               val targetDir = prepareTargetDirectory(xslfo).value.prepare
           
-              val fo = renderMessageLevel.value map (XSLFO withMessageLevel _) getOrElse XSLFO // TODO - ExtendedFO for rst
+              val fo = renderMessageLevel.value map (XSLFO withMessageLevel) getOrElse XSLFO // TODO - ExtendedFO for rst
               val render = prepareRenderer(Render as fo, foRenderers.value)
               render from tree toTree (outputTree in xslfo).value
               
@@ -348,7 +348,7 @@ object LaikaSbtPlugin extends Plugin {
               val targetFile = (artifactPath in pdf).value
               targetFile.getParentFile.mkdirs()
           
-              val pdfRenderer = renderMessageLevel.value map (PDF withMessageLevel _) getOrElse PDF
+              val pdfRenderer = renderMessageLevel.value map (PDF withMessageLevel) getOrElse PDF
               val render = prepareRenderer(Render as pdfRenderer.withFopFactory(fopFactory.value), foRenderers.value)
               render from tree toFile targetFile
               
@@ -507,9 +507,9 @@ object LaikaSbtPlugin extends Plugin {
         val tmpl = provider.dynamicDocuments.length + provider.templates.length
         val conf = provider.configDocuments.length
         val all = (provider.subtrees map count) :+ (docs, tmpl, conf)
-        (((0,0,0) /: (all)) { 
-          case ((d1, t1, c1), (d2, t2, c2)) => (d1+d2, t1+t2, c1+c2)
-        })
+        ((0, 0, 0) /: all) {
+          case ((d1, t1, c1), (d2, t2, c2)) => (d1 + d2, t1 + t2, c1 + c2)
+        }
       }
       
       val (docs, tmpl, conf) = count(provider)
