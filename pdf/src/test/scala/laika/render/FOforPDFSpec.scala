@@ -16,21 +16,16 @@
 
 package laika.render
 
+import java.io.ByteArrayOutputStream
+
 import laika.api.Render
 import laika.factory.RenderResultProcessor
 import laika.io.Input
 import laika.io.Output.BinaryOutput
 import laika.io.OutputProvider.OutputConfig
-import laika.tree.Documents.Document
 import laika.tree.Documents.DocumentTree
 import laika.tree.Paths.Root
-import laika.tree.Elements._
-
-import java.io.ByteArrayOutputStream
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
-import com.typesafe.config.ConfigFactory
-import com.typesafe.config.ConfigValueFactory
+import org.scalatest.{FlatSpec, Matchers}
 
 class FOforPDFSpec extends FlatSpec with Matchers {
   
@@ -56,7 +51,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     
     private lazy val defaultTemplate = Input.fromClasspath("/templates/default.template.fo", Root / "default.template.fo").asParserInput.source.toString
     
-    def results (num: Int): String = (1 to num) map (result) reduce (_ + _)
+    def results (num: Int): String = ((1 to num) map result).sum
     
     def idPrefix (num: Int): String = if (num > 4) "_tree2" else if (num > 2) "_tree1" else ""
     
@@ -66,7 +61,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
         |<fo:block font-family="serif" font-size="10pt" space-after="3mm">Text $num</fo:block>""".stripMargin
     }
     
-    def resultsWithDocTitle (num: Int): String = (1 to num) map (resultWithDocTitle) reduce (_ + _)
+    def resultsWithDocTitle (num: Int): String = ((1 to num) map resultWithDocTitle).sum
     
     def resultWithDocTitle (num: Int): String = {
       s"""<fo:block id="${idPrefix(num)}_doc${num}_">

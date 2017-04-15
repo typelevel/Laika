@@ -16,18 +16,10 @@
 
 package laika.render
 
-import laika.tree.Documents.Document
-import laika.tree.Documents.DocumentTree
-import laika.tree.Elements.RootElement
-import laika.tree.Elements.Text
-import laika.tree.Elements.Title
-import laika.tree.Elements.Id
-import laika.tree.Elements.Styles
-import laika.tree.Elements.Paragraph
+import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
+import laika.tree.Documents.{Document, DocumentTree}
+import laika.tree.Elements._
 import laika.tree.Paths.Root
-import com.typesafe.config.ConfigValueFactory
-import com.typesafe.config.ConfigFactory
-import com.typesafe.config.Config
 
 trait TreeModel {
   

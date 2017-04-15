@@ -17,20 +17,13 @@
 package laika.render
 
 import laika.api.Render
-import laika.io.OutputProvider.OutputConfig
-import laika.io.OutputProvider.ResultTree
-import laika.io.OutputProvider.StringOutputProvider
+import laika.io.OutputProvider.{OutputConfig, ResultTree, StringOutputProvider}
 import laika.render.FOWriter._
-import laika.rewrite.TocGenerator
-import laika.rewrite.TreeUtil
+import laika.rewrite.{TocGenerator, TreeUtil}
 import laika.tree.Documents._
 import laika.tree.Elements._
-import laika.tree.Paths.Path
-import laika.tree.Paths.Current
-import laika.tree.Paths.Root
-import laika.tree.Templates.TemplateRoot
-import laika.tree.Templates.TemplateContextReference
-import com.typesafe.config.Config
+import laika.tree.Paths.{Current, Path, Root}
+import laika.tree.Templates.{TemplateContextReference, TemplateRoot}
 
 /** Responsible for rendering the XSL-FO for an entire document tree
  *  as an interim result to be consumed by the PDF post processor.
@@ -75,7 +68,7 @@ class FOforPDF (config: Option[PDFConfig]) {
         val title = if (linksOnly || tree.title.isEmpty) InternalLinkTarget(Id(""))
                     else Header(1, tree.title, Styles("treeTitle") + Id(""))
         val root = RootElement(Seq(title))
-        val doc = new Document(tree.path / DocNames.treeTitle, root)
+        val doc = Document(tree.path / DocNames.treeTitle, root)
         doc +: newContent
       }
     tree.copy(content = contentWithTitle)
@@ -90,7 +83,7 @@ class FOforPDF (config: Option[PDFConfig]) {
       case title: Title =>
         // toc directives will link to an empty id, not the id of the title element
         Some(BlockSequence(Seq(title), Id("")))
-      case root: RootElement if ((root select { _.isInstanceOf[Title] }).isEmpty) => 
+      case root: RootElement if (root select { _.isInstanceOf[Title] }).isEmpty =>
         val insert = if (linksOnly || cursor.target.title.isEmpty) InternalLinkTarget(Id(""))
                      else Title(cursor.target.title, Id(""))
         Some(RootElement(insert +: root.content))
@@ -139,17 +132,17 @@ class FOforPDF (config: Option[PDFConfig]) {
    */
   def insertToc (tree: DocumentTree, depth: Int, title: Option[String]): DocumentTree = {
 
-    def toBlockSequence (blocks: Seq[Element]): Seq[Block] = ((blocks map {
-      case BulletList(items,_,_)      => toBlockSequence(items)
-      case BulletListItem(blocks,_,_) => toBlockSequence(blocks)
-      case Paragraph(Seq(link:CrossLink),opt) => Seq(Paragraph(Seq(link.copy(
-          content = link.content :+ Leader() :+ PageNumberCitation(link.ref, link.path)
+    def toBlockSequence (blocks: Seq[Element]): Seq[Block] = blocks flatMap {
+      case BulletList(items, _, _) => toBlockSequence(items)
+      case BulletListItem(blocks, _, _) => toBlockSequence(blocks)
+      case Paragraph(Seq(link: CrossLink), opt) => Seq(Paragraph(Seq(link.copy(
+        content = link.content :+ Leader() :+ PageNumberCitation(link.ref, link.path)
       )), opt))
-    }).flatten)
+    }
     
     val toc = toBlockSequence(TocGenerator.fromTree(tree, depth, tree.path / DocNames.toc, treeTitleDoc = Some(DocNames.treeTitle)))
     val root = title.fold(RootElement(toc)){ title => RootElement(Title(Seq(Text(title))) +: toc) }
-    val doc = new Document(tree.path / DocNames.toc, root)
+    val doc = Document(tree.path / DocNames.toc, root)
     tree.copy(content = doc +: tree.content)
   }
       
@@ -197,7 +190,7 @@ class FOforPDF (config: Option[PDFConfig]) {
     def getDefaultTemplate: TemplateDocument = {
       val templateName = "default.template.fo"
       tree.selectTemplate(Current / templateName)
-        .getOrElse(new TemplateDocument(Root / templateName, XSLFO.defaultTemplate))
+        .getOrElse(TemplateDocument(Root / templateName, XSLFO.defaultTemplate))
     }
     
     def append (sb: StringBuilder, result: ResultTree, src: DocumentTree): Unit = {
@@ -221,7 +214,7 @@ class FOforPDF (config: Option[PDFConfig]) {
     
     def applyTemplate(foString: String, template: TemplateDocument, tree: DocumentTree): String = {
       val result = RawContent(Seq("fo"), foString)
-      val finalDoc = new Document(Root / "merged.fo", RootElement(Seq(result)), fragments = generateBookmarks(tree, pdfConfig.bookmarkDepth))
+      val finalDoc = Document(Root / "merged.fo", RootElement(Seq(result)), fragments = generateBookmarks(tree, pdfConfig.bookmarkDepth))
       val templateApplied = template.applyTo(finalDoc)
       Render as XSLFO from templateApplied toString
     }

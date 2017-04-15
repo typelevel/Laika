@@ -16,28 +16,20 @@
 
 package laika.render
 
+import java.io.{File, FileOutputStream, OutputStream}
+import java.net.URI
+import javax.xml.transform.TransformerFactory
+import javax.xml.transform.sax.SAXResult
+import javax.xml.transform.stream.StreamSource
+
 import laika.factory.RenderResultProcessor
 import laika.io.Input
-import laika.io.Output
 import laika.io.Output.BinaryOutput
 import laika.io.OutputProvider.OutputConfig
 import laika.tree.Documents.DocumentTree
-import laika.tree.Elements.Element
 import laika.tree.Elements.MessageLevel
-import java.io.File
-import java.io.FileOutputStream
-import java.io.OutputStream
-import java.io.StringReader
-import java.net.URI
-import javax.xml.transform.TransformerFactory
-import javax.xml.transform.URIResolver
-import javax.xml.transform.sax.SAXResult
-import javax.xml.transform.stream.StreamSource
-import org.apache.fop.apps.FopFactory
-import org.apache.fop.apps.FopFactoryBuilder
-import org.apache.fop.apps.FOUserAgentFactory
-import org.apache.xmlgraphics.io.Resource
-import org.apache.xmlgraphics.io.ResourceResolver
+import org.apache.fop.apps.{FOUserAgentFactory, FopFactory, FopFactoryBuilder}
+import org.apache.xmlgraphics.io.{Resource, ResourceResolver}
 import org.apache.xmlgraphics.util.MimeConstants
 
 /** A post processor for PDF output, based on an interim XSL-FO renderer. 
@@ -132,20 +124,20 @@ class PDF private (val factory: XSLFO, config: Option[PDFConfig], fopFactory: Op
       val resolver = new ResourceResolver {
         
         def getResource (uri: URI): Resource =
-          new Resource(resolve(uri).toURL().openStream())
+          new Resource(resolve(uri).toURL.openStream())
         
         def getOutputStream (uri: URI): OutputStream =
           new FileOutputStream(new File(resolve(uri)))
         
         def resolve (uri: URI): URI = sourcePaths.collectFirst {
-          case source if (new File(source + uri.getPath)).isFile => new File(source + uri).toURI
+          case source if new File(source + uri.getPath).isFile => new File(source + uri).toURI
         }.getOrElse(if (uri.isAbsolute) uri else new File(uri.getPath).toURI)
       }
 
       val factory = fopFactory.getOrElse(PDF.defaultFopFactory)
       val foUserAgent = FOUserAgentFactory.createFOUserAgent(factory, resolver)
       val fop = factory.newFop(MimeConstants.MIME_PDF, foUserAgent, out)
-      new SAXResult(fop.getDefaultHandler())
+      new SAXResult(fop.getDefaultHandler)
     }
     
     def createTransformer = {
@@ -178,7 +170,7 @@ object PDF extends PDF(XSLFO.unformatted, None, None) {
     * that the PDF renderer will use if no custom
     * factory is specified.
     */
-  lazy val defaultFopFactory = new FopFactoryBuilder(new File(".").toURI()).build()
+  lazy val defaultFopFactory = new FopFactoryBuilder(new File(".").toURI).build()
 
 }
 
