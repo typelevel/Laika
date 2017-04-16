@@ -38,7 +38,7 @@ object Build extends Build {
   
   object Dependencies {
     
-    val parser    = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
+    val parser    = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.5"
     
     val scalatest = "org.scalatest" %% "scalatest" % "3.0.1"  % "test"
         
