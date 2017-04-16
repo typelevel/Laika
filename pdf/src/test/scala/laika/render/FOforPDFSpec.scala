@@ -50,8 +50,8 @@ class FOforPDFSpec extends FlatSpec with Matchers {
   trait ResultModel {
     
     private lazy val defaultTemplate = Input.fromClasspath("/templates/default.template.fo", Root / "default.template.fo").asParserInput.source.toString
-    
-    def results (num: Int): String = ((1 to num) map result).sum
+
+    def results (num: Int): String = (1 to num) map (result) reduce (_ + _)
     
     def idPrefix (num: Int): String = if (num > 4) "_tree2" else if (num > 2) "_tree1" else ""
     
@@ -60,8 +60,8 @@ class FOforPDFSpec extends FlatSpec with Matchers {
         |<fo:block id="${idPrefix(num)}_doc${num}_title-$num" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">Title $num</fo:block>
         |<fo:block font-family="serif" font-size="10pt" space-after="3mm">Text $num</fo:block>""".stripMargin
     }
-    
-    def resultsWithDocTitle (num: Int): String = ((1 to num) map resultWithDocTitle).sum
+
+    def resultsWithDocTitle (num: Int): String = (1 to num) map (resultWithDocTitle) reduce (_ + _)
     
     def resultWithDocTitle (num: Int): String = {
       s"""<fo:block id="${idPrefix(num)}_doc${num}_">
