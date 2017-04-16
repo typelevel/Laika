@@ -25,7 +25,7 @@ import laika.tree.Paths.Path
 import laika.tree.Templates._
 import laika.util.Builders._
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /** Provides the implementation for the standard directives included in Laika.
  *  
@@ -79,7 +79,7 @@ trait StandardDirectives {
             val spans = for (value <- it) yield rewriteContent(value)
             TemplateSpanSequence(spans.toSeq)
           case Some(it: JCol[_]) =>
-            val spans = for (value <- iterableAsScalaIterable(it)) yield rewriteContent(value)
+            val spans = for (value <- it.asScala) yield rewriteContent(value)
             TemplateSpanSequence(spans.toSeq)
           case Some(value) if emptyValues(value) => rewriteFallback
           case Some(value)            => rewriteContent(value)

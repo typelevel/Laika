@@ -30,12 +30,12 @@ import com.typesafe.config.Config
  */
 object NavigationOrder {
   
-  import scala.collection.JavaConversions.iterableAsScalaIterable
+  import scala.collection.JavaConverters._
   
   def applyTo (content: Seq[TreeContent], config: Config): Seq[TreeContent] =
     if (config.hasPath("navigationOrder")) {
       val javaList = config.getList("navigationOrder").unwrapped
-      val list = iterableAsScalaIterable(javaList).collect{ case s:String => s }.toIndexedSeq
+      val list = javaList.asScala.collect{ case s:String => s }.toIndexedSeq
       content.sortBy { nav => 
         list.indexOf(nav.path.name) match { case -1 => Int.MaxValue; case other => other }
       }

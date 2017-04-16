@@ -84,10 +84,10 @@ trait BlockParsers extends MarkupParsers {
    */
   protected def parseConfigAndRoot (reader: Reader[Char], path: Path): (Config,RootElement) = {
     def assembleConfig (config: Config, root: RootElement) = {
-      import scala.collection.JavaConversions._
+      import scala.collection.JavaConverters._
       val values = root.content collect { case ConfigValue(name, value, _) => (name, value match {
-        case m: Map[_,_]      => mapAsJavaMap(m)
-        case it: Iterable[_]  => asJavaIterable(it)
+        case m: Map[_,_]      => m.asJava
+        case it: Iterable[_]  => it.asJava
         case other            => other
       })}
       ((config /: values) { case (config, (name, value)) =>

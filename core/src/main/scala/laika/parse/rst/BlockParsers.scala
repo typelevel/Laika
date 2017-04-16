@@ -24,7 +24,7 @@ import laika.tree.Elements._
 import laika.tree.Paths.Path
 
 import scala.annotation.tailrec
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 import scala.util.parsing.input.Reader
 
@@ -53,7 +53,7 @@ trait BlockParsers extends laika.parse.BlockParsers
       val docStart = root.content dropWhile { case c: Comment => true; case h: DecoratedHeader => true; case _ => false } headOption 
       val docInfo = docStart collect { case FieldList(fields,_) => fields map (field => (TreeUtil.extractText(field.name), 
           field.content collect { case p: Paragraph => TreeUtil.extractText(p.content) } mkString)) toMap }
-      docInfo map (i => config.withValue("docInfo", ConfigValueFactory.fromMap(i))) getOrElse config
+      docInfo map (i => config.withValue("docInfo", ConfigValueFactory.fromMap(i.asJava))) getOrElse config
     }
     
     val (config, root) = parseConfigAndRoot(reader, path)

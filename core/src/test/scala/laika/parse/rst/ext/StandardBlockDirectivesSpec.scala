@@ -600,27 +600,26 @@ class StandardBlockDirectivesSpec extends FlatSpec
   }
   
   "The meta directive" should "create config entries in the document instance" in {
-    import scala.collection.JavaConversions.mapAsJavaMap
+    import scala.collection.JavaConverters._
     val input = """.. meta::
       | :key1: val1
       | :key2: val2""".stripMargin
-    val map = mapAsJavaMap(Map("key1"->"val1","key2"->"val2"))
+    val map = Map("key1"->"val1","key2"->"val2").asJava
     parseDoc(input).config.getObject("meta") should be (ConfigValueFactory.fromMap(map))
   }
   
   "The sectnum directive" should "create config entries in the document instance" in {
-    import scala.collection.JavaConversions.mapAsJavaMap
+    import scala.collection.JavaConverters._
     val input = """.. sectnum::
       | :depth: 3
       | :start: 1
       | :prefix: (
       | :suffix: )""".stripMargin
-    val map = mapAsJavaMap(Map("depth"->"3", "start"->"1", "prefix"->"(", "suffix"->")"))
+    val map = Map("depth"->"3", "start"->"1", "prefix"->"(", "suffix"->")").asJava
     parseDoc(input).config.getObject("autonumbering") should be (ConfigValueFactory.fromMap(map))
   }
   
   "The contents directive" should "create a placeholder in the document" in {
-    import scala.collection.JavaConversions.mapAsJavaMap
     val input = """.. contents:: This is the title
       | :depth: 3
       | :local: true""".stripMargin
