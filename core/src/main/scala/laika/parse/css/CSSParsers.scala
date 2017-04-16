@@ -126,7 +126,7 @@ trait CSSParsers extends laika.parse.InlineParsers {
   
   /** Parses a single CSS comment.
    */
-  lazy val comment: Parser[Unit] = ("/*" ~ anyUntil("*/") ~ wsOrNl) ^^^ ()
+  lazy val comment: Parser[Unit] = ("/*" ~ anyUntil("*/") ~ wsOrNl) ^^^ (())
 
   /** Parses a single style within a declaration.
    */
