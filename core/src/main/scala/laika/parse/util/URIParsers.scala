@@ -119,7 +119,7 @@ trait URIParsers extends MarkupParsers {
   val ipv4address: Parser[String] = {
     val decOctet = (digit min 1 max 3) ^^? { res => 
       val num = res.toInt
-      if (num > 0 && num < 256) Right(num) else Left("Number must be between 1 and 255")
+      if (num >= 0 && num < 256) Right(num) else Left("Number must be between 1 and 255")
     }
     
     decOctet ~ repN(3, '.' ~ decOctet) ^^ flatten
