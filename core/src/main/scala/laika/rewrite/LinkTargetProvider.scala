@@ -16,14 +16,12 @@
 
 package laika.rewrite
 
-import scala.annotation.tailrec
-import scala.collection.mutable.ListBuffer
-import IdGenerators._
-import LinkTargets._
+import laika.rewrite.IdGenerators._
+import laika.rewrite.LinkTargets._
 import laika.tree.Elements._
-import laika.tree.Documents._
-import laika.tree.Paths.Current
 import laika.tree.Paths.Path
+
+import scala.collection.mutable.ListBuffer
 
 /** Provider for all tree elements that can be referenced from other
  *  elements, like images, footnotes, citations and other 
@@ -127,7 +125,7 @@ class LinkTargetProvider (path: Path, root: RootElement) {
         if (visited.contains(current.id)) alias.invalid(s"circular link reference: ${alias.from}").withResolvedIds("","")
         else
           map.get(current.ref) map {
-            case SingleTargetResolver(alias2: LinkAliasTarget, _, _) => doResolve(alias2, visited + current.id)
+            case SingleTargetResolver(alias2: LinkAliasTarget, _, _, _) => doResolve(alias2, visited + current.id)
             case other => other.forAlias(selector)
           } getOrElse alias.invalid(s"unresolved link alias: ${alias.ref}").withResolvedIds("","")
       }  
@@ -136,7 +134,7 @@ class LinkTargetProvider (path: Path, root: RootElement) {
     }
                                    
     targets map { 
-      case SingleTargetResolver(alias: LinkAliasTarget, selector, _) => resolve(alias, selector)
+      case SingleTargetResolver(alias: LinkAliasTarget, selector, _, _) => resolve(alias, selector)
       case other => other 
     } 
     
@@ -147,7 +145,7 @@ class LinkTargetProvider (path: Path, root: RootElement) {
    */
   val local: Map[Selector, TargetResolver] = resolveAliases(resolveTargets(selectTargets)).toList groupBy (_.selector) map { 
     case (selector: UniqueSelector, target :: Nil) => (selector, target)
-    case (selector, list) => (selector, new TargetSequenceResolver(list, selector))
+    case (selector, list) => (selector, TargetSequenceResolver(list, selector))
   }
   
   /** Provides a map of all targets that can be referenced from elements

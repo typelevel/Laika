@@ -16,10 +16,10 @@
 
 package laika.rewrite
 
+import laika.tree.Paths.Path
+
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
-import laika.tree.Elements.PathInfo
-import laika.tree.Paths.Path
 
 /** Generators for various different types of automatically generated identifiers.
  * 
@@ -72,7 +72,7 @@ object IdGenerators {
   /** Converts the specified string to an Id instance
    *  that represents a unique identifier.
    */
-  implicit def stringToId (name: String) = Named(name)
+  implicit def stringToId (name: String): Id = Named(name)
   
   
   /** Generates symbol identifiers. 

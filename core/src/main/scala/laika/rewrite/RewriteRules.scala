@@ -38,7 +38,7 @@ object RewriteRules {
       case other => Seq(other)
     }
     
-    ChainedRewriteRules(rules.map(extractRules).flatten)
+    ChainedRewriteRules(rules.flatMap(extractRules))
   }
   
   private case class ChainedRewriteRules (rules: Seq[RewriteRule]) extends RewriteRule {
@@ -68,7 +68,7 @@ object RewriteRules {
   def defaults: DocumentCursor => RewriteRule = chainFactories(defaultsFactories)
   
   def defaultsFor (parsers: ParserFactory*): DocumentCursor => RewriteRule = 
-    chainFactories(parsers.map(_.rewriteRules).flatten ++ defaultsFactories)
+    chainFactories(parsers.flatMap(_.rewriteRules) ++ defaultsFactories)
    
     
 }

@@ -16,14 +16,11 @@
 
 package laika.rewrite
 
-import scala.annotation.tailrec
-import scala.collection.mutable.ListBuffer
-import IdGenerators._
-import LinkTargets._
+import laika.rewrite.LinkTargets._
 import laika.tree.Elements._
-import laika.tree.Documents._
-import laika.tree.Paths.Current
-import laika.tree.Paths.Path
+import laika.tree.Paths.{Current, Path}
+
+import scala.annotation.tailrec
 
 /** The default rewrite rules responsible for resolving link references that get 
  *  applied to the raw document tree after parsing.
@@ -75,11 +72,10 @@ object LinkResolver extends (DocumentCursor => RewriteRule) {
         val local = targets.local.get(selector)
         if (local.isDefined) (local, None)
         else (selector, global) match {
-          case (UniqueSelector(targetName), true) => {
+          case (UniqueSelector(targetName), true) =>
             val index = targetName.indexOf(":")
             if (index == -1) selectFromParent
             else selectFromRoot(targetName take index, targetName drop (index+1))
-          }
           case _ => (None,None)
         }
       }
@@ -108,9 +104,9 @@ object LinkResolver extends (DocumentCursor => RewriteRule) {
       }
         
       case ref: LinkReference => if (ref.id.isEmpty) resolve(ref, AnonymousSelector, "too many anonymous link references")
-                                 else                resolve(ref, ref.id, s"unresolved link reference: ${ref.id}", true)
+                                 else                resolve(ref, ref.id, s"unresolved link reference: ${ref.id}", global = true)
         
-      case ref: ImageReference => resolve(ref, ref.id, s"unresolved image reference: ${ref.id}", true)
+      case ref: ImageReference => resolve(ref, ref.id, s"unresolved image reference: ${ref.id}", global = true)
       case img @ Image(_,URI(uri, None),_,_) => Some(img.copy(uri = URI(uri, PathInfo.fromURI(uri, cursor.parent.target.path)))) 
       
       case _: Temporary => None

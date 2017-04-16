@@ -38,7 +38,7 @@ object AutonumberConfig {
         case "sections"  => (false, true)
         case "all"       => (true,  true)
         case "none"      => (false, false)
-        case other       => throw new ConfigurationException("Unsupported value for key 'autonumbering.scope': "+other)
+        case other       => throw ConfigurationException("Unsupported value for key 'autonumbering.scope': " + other)
       } else                (false, false)
       val depth = if (nConf.hasPath("depth")) nConf.getInt("depth") else Int.MaxValue 
       AutonumberConfig(documents, sections, depth)
@@ -49,6 +49,6 @@ object AutonumberConfig {
   /** The defaults for autonumbering with section
    *  and document numbering both switched off. 
    */
-  def defaults: AutonumberConfig = AutonumberConfig(false, false, 0)
+  def defaults: AutonumberConfig = AutonumberConfig(documents = false, sections = false, maxDepth = 0)
 }
   

@@ -54,7 +54,7 @@ object SectionBuilder extends (DocumentCursor => RewriteRule) {
         stack push new Builder(Header(0,Nil), "") 
         
         def closeSections (toLevel: Int): Unit = {
-          while (!stack.isEmpty && stack.top >= toLevel) {
+          while (stack.nonEmpty && stack.top >= toLevel) {
             val section = stack.pop.toSection
             stack.top += section
           }
@@ -83,10 +83,10 @@ object SectionBuilder extends (DocumentCursor => RewriteRule) {
           else TreePosition.root
           
         def transformRootBlocks (blocks: Seq[Block]): Seq[Block] = 
-          ((ListBuffer[Block]() /: blocks) {
+          (ListBuffer[Block]() /: blocks) {
             case (acc, s: Section) => acc ++= transformRootSection(s)
             case (acc, block) => acc += block
-          }).toList
+          }.toList
         
         def transformRootSection (s: Section): Seq[Block] = {
           val options = SomeOpt(s.header.options.id, s.header.options.styles - "section" + "title")
@@ -107,16 +107,15 @@ object SectionBuilder extends (DocumentCursor => RewriteRule) {
         )  
         
         def numberSections (blocks: Seq[Block], parentPosition: TreePosition, hasTitle: Boolean = false): Seq[Block] = {
-          (((ListBuffer[Block](), 1, hasTitle) /: blocks) { 
-            case ((acc, num, title), s: Section) => {
-              val elements = 
-                if (title) transformRootSection(s) 
+          ((ListBuffer[Block](), 1, hasTitle) /: blocks) {
+            case ((acc, num, title), s: Section) =>
+              val elements =
+                if (title) transformRootSection(s)
                 else if (parentPosition.depth < autonumberConfig.maxDepth) numberSection(s, parentPosition.forChild(num)) :: Nil
                 else List(s)
               (acc ++= elements, if (title) num else num + 1, false)
-            }
             case ((acc, num, title), block) => (acc += block, num, title)
-          })._1.toList
+          }._1.toList
         }
         
         if (autonumberConfig.sections) numberSections(sectionStructure, docPosition, hasTitle)
@@ -135,6 +134,6 @@ object SectionBuilder extends (DocumentCursor => RewriteRule) {
   /** Provides the default rewrite rules for building the section structure
    *  for the specified document (without applying them).
    */
-  def apply (cursor: DocumentCursor): RewriteRule = (new DefaultRule(cursor)).rewrite
+  def apply (cursor: DocumentCursor): RewriteRule = new DefaultRule(cursor).rewrite
   
 }

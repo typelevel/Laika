@@ -16,20 +16,12 @@
 
 package laika.rewrite
 
-import laika.tree.Documents.Document
-import laika.tree.Documents.DocumentTree
-import laika.tree.Documents.DynamicDocument
-import laika.tree.Documents.TemplateDocument
-import laika.tree.Elements.RootElement
-import laika.tree.Elements.Element
-import laika.tree.Elements.RewriteRule
+import laika.tree.Documents.{Document, DocumentTree, DynamicDocument, TemplateDocument}
 import laika.tree.ElementTraversal
-import laika.tree.Elements.NoOpt
-import laika.tree.Paths.Path
-import laika.tree.Paths.Root
-import laika.tree.Templates
+import laika.tree.Elements.{Element, NoOpt, RewriteRule, RootElement}
+import laika.tree.Paths.{Path, Root}
 import laika.tree.Templates._
-import com.typesafe.config.Config
+
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 
