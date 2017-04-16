@@ -258,6 +258,12 @@ class InlineParsersSpec extends FlatSpec
     Parsing ("some http://www.link.com here") should produce (spans(txt("some http"), 
         Reverse(4, link(txt(uri)).url(uri), txt("://www.link.com")), txt(" here")))
   }
+
+  it should "parse a http URI containing an IP4 address" in {
+    val uri = "http://127.0.0.1/path"
+    Parsing (s"some $uri here") should produce (spans(txt("some http"),
+      Reverse(4, link(txt(uri)).url(uri), txt("://127.0.0.1/path")), txt(" here")))
+  }
   
   it should "parse a https URI" in {
     val uri = "https://www.link.com"
