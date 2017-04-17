@@ -1028,7 +1028,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Elements$$PathInfo.html"><span class="name">PathInfo</span></a><span class="params">(<span name="absolute">absolute: <a href="Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>, <span name="relative">relative: <a href="Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="Elements$$PathInfo.html"><span class="name">PathInfo</span></a><span class="params">(<span name="absolute">absolute: <a href="Paths$$Path.html" class="extype" name="laika.tree.Paths.Path">Path</a></span>, <span name="relative">relative: <a href="Paths$$Path.html" class="extype" name="laika.tree.Paths.Path">Path</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       <p class="comment cmt">Represents a single path in absolute and relative form.</p>
@@ -1162,6 +1162,20 @@
       </h4>
       <p class="comment cmt">A section of the document, consisting of a header and content in the form
  of a list of Block elements.</p>
+    </li><li name="laika.tree.Elements.SectionNumber" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SectionNumberextendsElements.ElementwithElements.SpanwithProductwithSerializable"></a>
+      <a id="SectionNumber:SectionNumber"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Elements$$SectionNumber.html"><span class="name">SectionNumber</span></a><span class="params">(<span name="position">position: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Int">Int</span>]</span>, <span name="options">options: <a href="Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol">Elements.this.NoOpt</span></span>)</span><span class="result"> extends <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Represents a section number, usually used in header elements
+ when autonumbering is applied.</p>
     </li><li name="laika.tree.Elements.SomeOpt" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="SomeOptextendsElements.OptionswithProductwithSerializable"></a>
       <a id="SomeOpt:SomeOpt"></a>

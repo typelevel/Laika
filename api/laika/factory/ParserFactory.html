@@ -103,7 +103,7 @@
       <p class="shortcomment cmt">The file suffixes recognized by this parser.</p><div class="fullcomment"><div class="comment cmt"><p>The file suffixes recognized by this parser.
  When transforming entire directories only files with
  names ending in one of the specified suffixes will
- be consired.</p><p> It is recommended not to support <code>txt</code>
+ be considered.</p><p> It is recommended not to support <code>txt</code>
  or similarly common suffixes as this might interfere
  with other installed formats.
 </p></div></div>
@@ -122,6 +122,26 @@
       <p class="shortcomment cmt"> Creates a new parser instance.</p><div class="fullcomment"><div class="comment cmt"><p> Creates a new parser instance.
   Such an instance is expected to be stateless and thread-safe,
   thus capable of repeated and parallel executions.
+</p></div></div>
+    </li><li name="laika.factory.ParserFactory#rewriteRules" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="rewriteRules:Seq[laika.rewrite.DocumentCursor=&gt;laika.tree.Elements.RewriteRule]"></a>
+      <a id="rewriteRules:Seq[(DocumentCursor)⇒RewriteRule]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rewriteRules</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[(<a href="../rewrite/DocumentCursor.html" class="extype" name="laika.rewrite.DocumentCursor">DocumentCursor</a>) ⇒ <a href="../tree/Elements$.html#RewriteRule=PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]" class="extmbr" name="laika.tree.Elements.RewriteRule">RewriteRule</a>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">The parser-specific rewrite rules that need to be
+ applied by default before rendering any document
+ produced by this parser.</p><div class="fullcomment"><div class="comment cmt"><p>The parser-specific rewrite rules that need to be
+ applied by default before rendering any document
+ produced by this parser.</p><p> Providing additional rewrite rules is only necessary
+ if the parser produces tree elements that require
+ rewriting and are unknown to the default rewrite rules.
 </p></div></div>
     </li></ol>
             </div>

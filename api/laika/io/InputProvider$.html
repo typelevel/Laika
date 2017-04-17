@@ -331,7 +331,7 @@
               
         </dd></dl></div>
     </li><li name="laika.io.InputProvider#forRootDirectories" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="forRootDirectories(roots:Seq[java.io.File],exclude:java.io.File=&gt;Boolean,docTypeMatcher:laika.tree.Documents.Path=&gt;laika.tree.Documents.DocumentType)(implicitcodec:scala.io.Codec):laika.io.InputProvider"></a>
+      <a id="forRootDirectories(roots:Seq[java.io.File],exclude:java.io.File=&gt;Boolean,docTypeMatcher:laika.tree.Paths.Path=&gt;laika.io.DocumentType)(implicitcodec:scala.io.Codec):laika.io.InputProvider"></a>
       <a id="forRootDirectories(Seq[File],(File)⇒Boolean,(Path)⇒DocumentType)(Codec):InputProvider"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -339,7 +339,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">forRootDirectories</span><span class="params">(<span name="roots">roots: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="java.io.File">File</span>]</span>, <span name="exclude">exclude: (<span class="extype" name="java.io.File">File</span>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="docTypeMatcher">docTypeMatcher: (<a href="../tree/Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a>) ⇒ <a href="../tree/Documents$$DocumentType.html" class="extype" name="laika.tree.Documents.DocumentType">DocumentType</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="InputProvider.html" class="extype" name="laika.io.InputProvider">InputProvider</a></span>
+        <span class="name">forRootDirectories</span><span class="params">(<span name="roots">roots: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="java.io.File">File</span>]</span>, <span name="exclude">exclude: (<span class="extype" name="java.io.File">File</span>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="docTypeMatcher">docTypeMatcher: (<a href="../tree/Paths$$Path.html" class="extype" name="laika.tree.Paths.Path">Path</a>) ⇒ <a href="DocumentType.html" class="extype" name="laika.io.DocumentType">DocumentType</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="InputProvider.html" class="extype" name="laika.io.InputProvider">InputProvider</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Creates an InputProvider based on the specified directories, including
@@ -350,7 +350,7 @@
 </p></div><dl class="paramcmts block"><dt class="param">roots</dt><dd class="cmt"><p>the root directories of the input tree</p></dd><dt class="param">exclude</dt><dd class="cmt"><p>the files to exclude from processing</p></dd><dt class="param">docTypeMatcher</dt><dd class="cmt"><p>a function determining the document type based on the path of the input</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used
 </p></dd></dl></div>
     </li><li name="laika.io.InputProvider#forRootDirectory" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="forRootDirectory(root:java.io.File,exclude:java.io.File=&gt;Boolean,docTypeMatcher:laika.tree.Documents.Path=&gt;laika.tree.Documents.DocumentType)(implicitcodec:scala.io.Codec):laika.io.InputProvider"></a>
+      <a id="forRootDirectory(root:java.io.File,exclude:java.io.File=&gt;Boolean,docTypeMatcher:laika.tree.Paths.Path=&gt;laika.io.DocumentType)(implicitcodec:scala.io.Codec):laika.io.InputProvider"></a>
       <a id="forRootDirectory(File,(File)⇒Boolean,(Path)⇒DocumentType)(Codec):InputProvider"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -358,7 +358,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">forRootDirectory</span><span class="params">(<span name="root">root: <span class="extype" name="java.io.File">File</span></span>, <span name="exclude">exclude: (<span class="extype" name="java.io.File">File</span>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="docTypeMatcher">docTypeMatcher: (<a href="../tree/Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a>) ⇒ <a href="../tree/Documents$$DocumentType.html" class="extype" name="laika.tree.Documents.DocumentType">DocumentType</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="InputProvider.html" class="extype" name="laika.io.InputProvider">InputProvider</a></span>
+        <span class="name">forRootDirectory</span><span class="params">(<span name="root">root: <span class="extype" name="java.io.File">File</span></span>, <span name="exclude">exclude: (<span class="extype" name="java.io.File">File</span>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="docTypeMatcher">docTypeMatcher: (<a href="../tree/Paths$$Path.html" class="extype" name="laika.tree.Paths.Path">Path</a>) ⇒ <a href="DocumentType.html" class="extype" name="laika.io.DocumentType">DocumentType</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="InputProvider.html" class="extype" name="laika.io.InputProvider">InputProvider</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Creates an InputProvider based on the specified directory, including

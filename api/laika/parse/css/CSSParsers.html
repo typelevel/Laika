@@ -724,16 +724,16 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Parsers</dd></dl></div>
-    </li><li name="laika.parse.MarkupParsers#charToTraversalble" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="charToTraversalble(char:Char):Traversable[Char]"></a>
-      <a id="charToTraversalble(Char):Traversable[Char]"></a>
+    </li><li name="laika.parse.MarkupParsers#charToTraversable" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="charToTraversable(char:Char):Traversable[Char]"></a>
+      <a id="charToTraversable(Char):Traversable[Char]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">charToTraversalble</span><span class="params">(<span name="char">char: <span class="extype" name="scala.Char">Char</span></span>)</span><span class="result">: <span class="extype" name="scala.Traversable">Traversable</span>[<span class="extype" name="scala.Char">Char</span>]</span>
+        <span class="name">charToTraversable</span><span class="params">(<span name="char">char: <span class="extype" name="scala.Char">Char</span></span>)</span><span class="result">: <span class="extype" name="scala.Traversable">Traversable</span>[<span class="extype" name="scala.Char">Char</span>]</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Implicit conversion that allows to pass a single
@@ -1044,7 +1044,7 @@
  helper parsers.</p><div class="fullcomment"><div class="comment cmt"><p>Generic base parser that parses inline elements based on the specified
  helper parsers. Usually not used directly by parser implementations,
  this is the base parser the other inline parsers of this trait delegate to.
-</p></div><dl class="paramcmts block"><dt class="tparam">Elem</dt><dd class="cmt"><p>the element type produced by a single parser for a nested span</p></dd><dt class="tparam">To</dt><dd class="cmt"><p>the type of the result this parser produces</p></dd><dt class="param">nested</dt><dd class="cmt"><p>a mapping from the start character of a span to the corresponding parser for nested span elements</p></dd><dt class="param">resultBuilder</dt><dd class="cmt"><p>responsible for building the final result of this parser based on the results of the helper parsers</p></dd><dt>returns</dt><dd class="cmt"><p>the resulting parser
+</p></div><dl class="paramcmts block"><dt class="tparam">Elem</dt><dd class="cmt"><p>the element type produced by a single parser for a nested span</p></dd><dt class="tparam">To</dt><dd class="cmt"><p>the type of the result this parser produces</p></dd><dt class="param">text</dt><dd class="cmt"><p>the parser for the text of the current span element</p></dd><dt class="param">nested</dt><dd class="cmt"><p>a mapping from the start character of a span to the corresponding parser for nested span elements</p></dd><dt class="param">resultBuilder</dt><dd class="cmt"><p>responsible for building the final result of this parser based on the results of the helper parsers</p></dd><dt>returns</dt><dd class="cmt"><p>the resulting parser
 </p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../InlineParsers.html" class="extype" name="laika.parse.InlineParsers">InlineParsers</a></dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
@@ -1362,7 +1362,7 @@
  text.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../MarkupParsers.html" class="extype" name="laika.parse.MarkupParsers">MarkupParsers</a></dd></dl></div>
     </li><li name="laika.parse.css.CSSParsers#parseStyleSheet" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="parseStyleSheet(reader:scala.util.parsing.input.Reader[Char],path:laika.tree.Documents.Path):laika.parse.css.Styles.StyleDeclarationSet"></a>
+      <a id="parseStyleSheet(reader:scala.util.parsing.input.Reader[Char],path:laika.tree.Paths.Path):laika.parse.css.Styles.StyleDeclarationSet"></a>
       <a id="parseStyleSheet(Reader[Char],Path):StyleDeclarationSet"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -1370,7 +1370,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">parseStyleSheet</span><span class="params">(<span name="reader">reader: <span class="extype" name="scala.util.parsing.input.Reader">Reader</span>[<span class="extype" name="scala.Char">Char</span>]</span>, <span name="path">path: <a href="../../tree/Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>)</span><span class="result">: <a href="Styles$$StyleDeclarationSet.html" class="extype" name="laika.parse.css.Styles.StyleDeclarationSet">StyleDeclarationSet</a></span>
+        <span class="name">parseStyleSheet</span><span class="params">(<span name="reader">reader: <span class="extype" name="scala.util.parsing.input.Reader">Reader</span>[<span class="extype" name="scala.Char">Char</span>]</span>, <span name="path">path: <a href="../../tree/Paths$$Path.html" class="extype" name="laika.tree.Paths.Path">Path</a></span>)</span><span class="result">: <a href="Styles$$StyleDeclarationSet.html" class="extype" name="laika.parse.css.Styles.StyleDeclarationSet">StyleDeclarationSet</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Fully parses the input from the specified reader and returns the resulting
@@ -1628,7 +1628,7 @@
         <span class="name">simpleSelectorSequence</span><span class="result">: <a href="#Parser[+T]extendsParsers.this.Input=&gt;Parsers.this.ParseResult[T]" class="extmbr" name="laika.parse.css.CSSParsers.Parser">Parser</a>[<a href="Styles$$Selector.html" class="extype" name="laika.parse.css.Styles.Selector">Selector</a>]</span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Parses the subpart of a selector without any combinators, e.</p><div class="fullcomment"><div class="comment cmt"><p>Parses the subpart of a selector without any combinators, e.g. <code>Paragraph#title</code>.
+      <p class="shortcomment cmt">Parses the sub-part of a selector without any combinators, e.</p><div class="fullcomment"><div class="comment cmt"><p>Parses the sub-part of a selector without any combinators, e.g. <code>Paragraph#title</code>.
 </p></div></div>
     </li><li name="laika.parse.MarkupParsers#skipWhitespace" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="skipWhitespace:Boolean"></a>
@@ -1678,7 +1678,7 @@
       </span>
       </h4>
       <p class="shortcomment cmt">Parses a list of spans based on the specified helper parsers.</p><div class="fullcomment"><div class="comment cmt"><p>Parses a list of spans based on the specified helper parsers.
-</p></div><dl class="paramcmts block"><dt class="param">parser</dt><dd class="cmt"><p>the parser for the text of the current span element</p></dd><dt>returns</dt><dd class="cmt"><p>the resulting parser
+</p></div><dl class="paramcmts block"><dt class="param">parser</dt><dd class="cmt"><p>the parser for the text of the current span element</p></dd><dt class="param">spanParsers</dt><dd class="cmt"><p>a mapping from the start character of a span to the corresponding parser for nested span elements</p></dd><dt>returns</dt><dd class="cmt"><p>the resulting parser
 </p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../InlineParsers.html" class="extype" name="laika.parse.InlineParsers">InlineParsers</a></dd></dl></div>
     </li><li name="laika.parse.css.CSSParsers#style" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="style:CSSParsers.this.Parser[CSSParsers.this.Style]"></a>

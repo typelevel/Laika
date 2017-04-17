@@ -224,7 +224,7 @@
       <p class="shortcomment cmt">The file suffixes recognized by this parser.</p><div class="fullcomment"><div class="comment cmt"><p>The file suffixes recognized by this parser.
  When transforming entire directories only files with
  names ending in one of the specified suffixes will
- be consired.</p><p> It is recommended not to support <code>txt</code>
+ be considered.</p><p> It is recommended not to support <code>txt</code>
  or similarly common suffixes as this might interfere
  with other installed formats.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Markdown.html" class="extype" name="laika.parse.markdown.Markdown">Markdown</a> → <a href="../../factory/ParserFactory.html" class="extype" name="laika.factory.ParserFactory">ParserFactory</a></dd></dl></div>
@@ -341,6 +341,26 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="laika.parse.markdown.Markdown#rewriteRules" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rewriteRules:Seq[Nothing]"></a>
+      <a id="rewriteRules:Seq[Nothing]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rewriteRules</span><span class="result">: <span class="extype" name="scala.collection.Seq">Seq</span>[<span class="extype" name="scala.Nothing">Nothing</span>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">The parser-specific rewrite rules that need to be
+ applied by default before rendering any document
+ produced by this parser.</p><div class="fullcomment"><div class="comment cmt"><p>The parser-specific rewrite rules that need to be
+ applied by default before rendering any document
+ produced by this parser.</p><p> Providing additional rewrite rules is only necessary
+ if the parser produces tree elements that require
+ rewriting and are unknown to the default rewrite rules.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Markdown.html" class="extype" name="laika.parse.markdown.Markdown">Markdown</a> → <a href="../../factory/ParserFactory.html" class="extype" name="laika.factory.ParserFactory">ParserFactory</a></dd></dl></div>
     </li><li name="laika.parse.markdown.Markdown#strict" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="strict:laika.parse.markdown.Markdown"></a>
       <a id="strict:Markdown"></a>

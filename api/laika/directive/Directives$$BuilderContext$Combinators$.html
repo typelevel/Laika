@@ -177,7 +177,7 @@
       </span>
       </h4>
       <p class="shortcomment cmt">Specifies a required attribute.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies a required attribute.
-</p></div><dl class="paramcmts block"><dt class="param">id</dt><dd class="cmt"><p>the identifier that must be used in markup or templates</p></dd><dt>returns</dt><dd class="cmt"><p>a directive part that can be combined with further parts with the <code>~</code> operator
+</p></div><dl class="paramcmts block"><dt class="param">id</dt><dd class="cmt"><p>the identifier that must be used in markup or templates</p></dd><dt class="param">converter</dt><dd class="cmt"><p>the function to use for converting and validating the parsed value</p></dd><dt>returns</dt><dd class="cmt"><p>a directive part that can be combined with further parts with the <code>~</code> operator
 </p></dd></dl></div>
     </li><li name="laika.directive.Directives.BuilderContext.Combinators#body" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="body[T](id:laika.directive.Directives.Id,converter:(BuilderContext.this.Parser,String)=&gt;laika.directive.Directives.Result[T]):BuilderContext.this.DirectivePart[T]"></a>
@@ -192,7 +192,7 @@
       </span>
       </h4>
       <p class="shortcomment cmt">Specifies a required body part.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies a required body part.
-</p></div><dl class="paramcmts block"><dt class="param">id</dt><dd class="cmt"><p>the identifier that must be used in markup or templates</p></dd><dt>returns</dt><dd class="cmt"><p>a directive part that can be combined with further parts with the <code>~</code> operator
+</p></div><dl class="paramcmts block"><dt class="param">id</dt><dd class="cmt"><p>the identifier that must be used in markup or templates</p></dd><dt class="param">converter</dt><dd class="cmt"><p>the function to use for converting and validating the parsed value</p></dd><dt>returns</dt><dd class="cmt"><p>a directive part that can be combined with further parts with the <code>~</code> operator
 </p></dd></dl></div>
     </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="clone():Object"></a>
@@ -213,23 +213,23 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.directive.Directives.BuilderContext.Combinators#context" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="context:BuilderContext.this.DirectivePart[laika.tree.Documents.DocumentContext]"></a>
-      <a id="context:DirectivePart[DocumentContext]"></a>
+    </li><li name="laika.directive.Directives.BuilderContext.Combinators#cursor" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="cursor:BuilderContext.this.DirectivePart[laika.rewrite.DocumentCursor]"></a>
+      <a id="cursor:DirectivePart[DocumentCursor]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">context</span><span class="result">: <a href="Directives$$BuilderContext$DirectivePart.html" class="extype" name="laika.directive.Directives.BuilderContext.DirectivePart">DirectivePart</a>[<a href="../tree/Documents$$DocumentContext.html" class="extype" name="laika.tree.Documents.DocumentContext">DocumentContext</a>]</span>
+        <span class="name">cursor</span><span class="result">: <a href="Directives$$BuilderContext$DirectivePart.html" class="extype" name="laika.directive.Directives.BuilderContext.DirectivePart">DirectivePart</a>[<a href="../rewrite/DocumentCursor.html" class="extype" name="laika.rewrite.DocumentCursor">DocumentCursor</a>]</span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Indicates that access to the document context is required.</p><div class="fullcomment"><div class="comment cmt"><p>Indicates that access to the document context is required.
+      <p class="shortcomment cmt">Indicates that access to the document cursor is required.</p><div class="fullcomment"><div class="comment cmt"><p>Indicates that access to the document cursor is required.
  This may be required if the directive relies on information
  from the document structure, its title or the parent tree
  it is contained in.</p><p> Use of this function causes the directive to be processed in a later
- rewrite step as the document context is not yet fully populated in
+ rewrite step as the document cursor is not yet fully populated in
  the initial rewrite step. But this is an implementation detail
  you normally do not need to deal with.
 </p></div></div>

@@ -48,7 +48,8 @@ Render as HTML from doc toFile <span class="lit">"hello.html"</span></pre><p> Ex
 
 Render as HTML from tree toDirectory <span class="lit">"path/to/output"</span></pre><p> Example for rendering PDF from an entire tree of documents to a single target file:</p><pre><span class="kw">val</span> tree: DocumentTree = ...
 
-Render as PDF from tree toFile <span class="lit">"hello.pdf"</span></pre></div><div class="toggleContainer block">
+Render as PDF from tree toFile <span class="lit">"hello.pdf"</span></pre></div><dl class="paramcmts block"><dt class="tparam">Writer</dt><dd class="cmt"><p>the writer API to use which varies depending on the renderer
+</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div><div class="toggleContainer block">
@@ -445,7 +446,7 @@ Render as HTML using { out <span class="kw">=&gt;</span>
       </span>
       </h4>
       <p class="shortcomment cmt">Renders the specified document tree to the given output.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the specified document tree to the given output.
-</p></div><dl class="paramcmts block"><dt class="param">config</dt><dd class="cmt"><p>the configuration for the output to render to
+</p></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the element to render</p></dd><dt class="param">config</dt><dd class="cmt"><p>the configuration for the output to render to
 </p></dd></dl><dl class="attributes block"> <dt>Attributes</dt><dd>protected[this] </dd></dl></div>
     </li><li name="laika.api.Render#render" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="render(element:laika.tree.Elements.Element,output:laika.io.Output,styles:laika.parse.css.Styles.StyleDeclarationSet):Unit"></a>

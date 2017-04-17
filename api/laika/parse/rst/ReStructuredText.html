@@ -254,7 +254,7 @@ Transform from ReStructuredText to HTML fromFile <span class="lit">"hello.rst"</
       <p class="shortcomment cmt">The file suffixes recognized by this parser.</p><div class="fullcomment"><div class="comment cmt"><p>The file suffixes recognized by this parser.
  When transforming entire directories only files with
  names ending in one of the specified suffixes will
- be consired.</p><p> It is recommended not to support <code>txt</code>
+ be considered.</p><p> It is recommended not to support <code>txt</code>
  or similarly common suffixes as this might interfere
  with other installed formats.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.rst.ReStructuredText">ReStructuredText</a> → <a href="../../factory/ParserFactory.html" class="extype" name="laika.factory.ParserFactory">ParserFactory</a></dd></dl></div>
@@ -371,6 +371,26 @@ Transform from ReStructuredText to HTML fromFile <span class="lit">"hello.rst"</
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="laika.parse.rst.ReStructuredText#rewriteRules" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rewriteRules:Seq[laika.parse.rst.RewriteRules.type]"></a>
+      <a id="rewriteRules:Seq[RewriteRules.type]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rewriteRules</span><span class="result">: <span class="extype" name="scala.collection.Seq">Seq</span>[<a href="RewriteRules$.html" class="extype" name="laika.parse.rst.RewriteRules">RewriteRules</a>.type]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">The parser-specific rewrite rules that need to be
+ applied by default before rendering any document
+ produced by this parser.</p><div class="fullcomment"><div class="comment cmt"><p>The parser-specific rewrite rules that need to be
+ applied by default before rendering any document
+ produced by this parser.</p><p> Providing additional rewrite rules is only necessary
+ if the parser produces tree elements that require
+ rewriting and are unknown to the default rewrite rules.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.parse.rst.ReStructuredText">ReStructuredText</a> → <a href="../../factory/ParserFactory.html" class="extype" name="laika.factory.ParserFactory">ParserFactory</a></dd></dl></div>
     </li><li name="laika.parse.rst.ReStructuredText#strict" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="strict:laika.parse.rst.ReStructuredText"></a>
       <a id="strict:ReStructuredText"></a>

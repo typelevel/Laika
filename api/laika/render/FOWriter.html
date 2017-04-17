@@ -81,7 +81,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.render.FOWriter#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(out:String=&gt;Unit,render:laika.tree.Elements.Element=&gt;Unit,root:laika.tree.Elements.Element,path:laika.tree.Documents.Path,styles:laika.parse.css.Styles.StyleDeclarationSet,newLine:String,formatted:Boolean):laika.render.FOWriter"></a>
+      <a id="&lt;init&gt;(out:String=&gt;Unit,render:laika.tree.Elements.Element=&gt;Unit,root:laika.tree.Elements.Element,path:laika.tree.Paths.Path,styles:laika.parse.css.Styles.StyleDeclarationSet,newLine:String,formatted:Boolean):laika.render.FOWriter"></a>
       <a id="&lt;init&gt;:FOWriter"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -89,7 +89,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">FOWriter</span><span class="params">(<span name="out">out: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>, <span name="render">render: (<a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>, <span name="root">root: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="path">path: <a href="../tree/Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>, <span name="styles">styles: <a href="../parse/css/Styles$$StyleDeclarationSet.html" class="extype" name="laika.parse.css.Styles.StyleDeclarationSet">StyleDeclarationSet</a></span>, <span name="newLine">newLine: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol">&quot;\n&quot;</span></span>, <span name="formatted">formatted: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>)</span>
+        <span class="name">FOWriter</span><span class="params">(<span name="out">out: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>, <span name="render">render: (<a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>, <span name="root">root: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="path">path: <a href="../tree/Paths$$Path.html" class="extype" name="laika.tree.Paths.Path">Path</a></span>, <span name="styles">styles: <a href="../parse/css/Styles$$StyleDeclarationSet.html" class="extype" name="laika.parse.css.Styles.StyleDeclarationSet">StyleDeclarationSet</a></span>, <span name="newLine">newLine: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol">&quot;\n&quot;</span></span>, <span name="formatted">formatted: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>)</span>
       </span>
       </h4>
       <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">out</dt><dd class="cmt"><p>the render function to write string values to</p></dd><dt class="param">render</dt><dd class="cmt"><p>the render function for writing elements</p></dd><dt class="param">root</dt><dd class="cmt"><p>the root element to render</p></dd><dt class="param">path</dt><dd class="cmt"><p>the path of the document getting rendered, used for generating unique ids</p></dd><dt class="param">styles</dt><dd class="cmt"><p>the styles to apply when writing the attributes of an element</p></dd><dt class="param">newLine</dt><dd class="cmt"><p>the newline character to use</p></dd><dt class="param">formatted</dt><dd class="cmt"><p>whether the output is formatted (adding indentation and newlines)
@@ -694,7 +694,7 @@
       </h4>
       <p class="shortcomment cmt">Renders an FO <code>bookmark-tree</code> element and all of its nested bookmarks.</p>
     </li><li name="laika.render.FOWriter#buildId" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="buildId(path:laika.tree.Documents.Path,ref:String):String"></a>
+      <a id="buildId(path:laika.tree.Paths.Path,ref:String):String"></a>
       <a id="buildId(Path,String):String"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -702,7 +702,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">buildId</span><span class="params">(<span name="path">path: <a href="../tree/Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>, <span name="ref">ref: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+        <span class="name">buildId</span><span class="params">(<span name="path">path: <a href="../tree/Paths$$Path.html" class="extype" name="laika.tree.Paths.Path">Path</a></span>, <span name="ref">ref: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Generates a unique id for the specified path of the target

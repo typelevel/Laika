@@ -71,20 +71,6 @@
       </span>
       </h4>
       <p class="comment cmt">Provides means to traverse, select and rewrite elements of a document tree.</p>
-    </li><li name="laika.tree.LinkResolver" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="LinkResolverextendsAnyRef"></a>
-      <a id="LinkResolver:LinkResolver"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="LinkResolver.html"><span class="name">LinkResolver</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      </h4>
-      <p class="comment cmt">The default rewrite rules responsible for resolving link references that get
- applied to the raw document tree after parsing.</p>
     </li></ol>
             </div>
 
@@ -104,7 +90,7 @@
         <a href="Documents$.html"><span class="name">Documents</span></a>
       </span>
       </h4>
-      <p class="comment cmt">Provides the API for Documents and DocumentTrees as well as the Path API.</p>
+      <p class="comment cmt">Provides the API for Documents and DocumentTrees.</p>
     </li><li name="laika.tree.Elements" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Elements"></a>
       <a id="Elements:Elements"></a>
@@ -118,73 +104,19 @@
       </span>
       </h4>
       <p class="comment cmt">Provides the elements of the document tree.</p>
-    </li><li name="laika.tree.IdGenerators" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="IdGenerators"></a>
-      <a id="IdGenerators:IdGenerators"></a>
+    </li><li name="laika.tree.Paths" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Paths"></a>
+      <a id="Paths:Paths"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="IdGenerators$.html"><span class="name">IdGenerators</span></a>
+        <a href="Paths$.html"><span class="name">Paths</span></a>
       </span>
       </h4>
-      <p class="comment cmt">Generators for various different types of automatically generated identifiers.</p>
-    </li><li name="laika.tree.LinkResolver" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="LinkResolver"></a>
-      <a id="LinkResolver:LinkResolver"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="LinkResolver$.html"><span class="name">LinkResolver</span></a>
-      </span>
-      </h4>
-      
-    </li><li name="laika.tree.LinkTargets" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="LinkTargets"></a>
-      <a id="LinkTargets:LinkTargets"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="LinkTargets$.html"><span class="name">LinkTargets</span></a>
-      </span>
-      </h4>
-      <p class="comment cmt">Representations for various types of link targets.</p>
-    </li><li name="laika.tree.RewriteRules" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="RewriteRules"></a>
-      <a id="RewriteRules:RewriteRules"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="RewriteRules$.html"><span class="name">RewriteRules</span></a>
-      </span>
-      </h4>
-      <p class="comment cmt">Utilities for dealing with rewrite rules.</p>
-    </li><li name="laika.tree.SectionBuilder" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="SectionBuilder"></a>
-      <a id="SectionBuilder:SectionBuilder"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="SectionBuilder$.html"><span class="name">SectionBuilder</span></a><span class="result"> extends (<a href="Documents$$DocumentContext.html" class="extype" name="laika.tree.Documents.DocumentContext">DocumentContext</a>) ⇒ <a href="Elements$.html#RewriteRule=PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]" class="extmbr" name="laika.tree.Elements.RewriteRule">RewriteRule</a></span>
-      </span>
-      </h4>
-      <p class="comment cmt">Rewrite rules responsible for building the section structure
- of a document based on the header elements it contains and
- their level.</p>
+      <p class="comment cmt">Provides the Path API for documents and trees.</p>
     </li><li name="laika.tree.Templates" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Templates"></a>
       <a id="Templates:Templates"></a>
@@ -198,33 +130,6 @@
       </span>
       </h4>
       <p class="comment cmt">Provides the elements of the document tree which are specific to templates.</p>
-    </li><li name="laika.tree.TocGenerator" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="TocGenerator"></a>
-      <a id="TocGenerator:TocGenerator"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="TocGenerator$.html"><span class="name">TocGenerator</span></a>
-      </span>
-      </h4>
-      <p class="comment cmt">Generates the tree model (consisting of BulletList elements) for
- the table of contents for a document or an entire document tree.</p>
-    </li><li name="laika.tree.TreeUtil" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="TreeUtil"></a>
-      <a id="TreeUtil:TreeUtil"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="TreeUtil$.html"><span class="name">TreeUtil</span></a>
-      </span>
-      </h4>
-      <p class="comment cmt">Generic utilities that help with document tree modifications.</p>
     </li></ol>
             </div>
 

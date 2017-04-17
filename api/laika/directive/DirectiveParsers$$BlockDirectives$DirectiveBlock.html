@@ -35,7 +35,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">DirectiveBlock</span><span class="params">(<span name="f">f: (<a href="../tree/Documents$$DocumentContext.html" class="extype" name="laika.tree.Documents.DocumentContext">DocumentContext</a>) ⇒ <a href="../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a></span>, <span name="options">options: <a href="../tree/Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol">laika.tree.Elements.NoOpt</span></span>)</span><span class="result"> extends <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="../tree/Templates$$BlockResolver.html" class="extype" name="laika.tree.Templates.BlockResolver">BlockResolver</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">DirectiveBlock</span><span class="params">(<span name="f">f: (<a href="../rewrite/DocumentCursor.html" class="extype" name="laika.rewrite.DocumentCursor">DocumentCursor</a>) ⇒ <a href="../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a></span>, <span name="options">options: <a href="../tree/Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol">laika.tree.Elements.NoOpt</span></span>)</span><span class="result"> extends <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="../tree/Templates$$BlockResolver.html" class="extype" name="laika.tree.Templates.BlockResolver">BlockResolver</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
@@ -80,7 +80,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.directive.DirectiveParsers.BlockDirectives.DirectiveBlock#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(f:laika.tree.Documents.DocumentContext=&gt;laika.tree.Elements.Block,options:laika.tree.Elements.Options):BlockDirectives.this.DirectiveBlock"></a>
+      <a id="&lt;init&gt;(f:laika.rewrite.DocumentCursor=&gt;laika.tree.Elements.Block,options:laika.tree.Elements.Options):BlockDirectives.this.DirectiveBlock"></a>
       <a id="&lt;init&gt;:DirectiveBlock"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -88,7 +88,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">DirectiveBlock</span><span class="params">(<span name="f">f: (<a href="../tree/Documents$$DocumentContext.html" class="extype" name="laika.tree.Documents.DocumentContext">DocumentContext</a>) ⇒ <a href="../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a></span>, <span name="options">options: <a href="../tree/Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol">laika.tree.Elements.NoOpt</span></span>)</span>
+        <span class="name">DirectiveBlock</span><span class="params">(<span name="f">f: (<a href="../rewrite/DocumentCursor.html" class="extype" name="laika.rewrite.DocumentCursor">DocumentCursor</a>) ⇒ <a href="../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a></span>, <span name="options">options: <a href="../tree/Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol">laika.tree.Elements.NoOpt</span></span>)</span>
       </span>
       </h4>
       
@@ -212,15 +212,15 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="laika.directive.DirectiveParsers.BlockDirectives.DirectiveBlock#f" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="f:laika.tree.Documents.DocumentContext=&gt;laika.tree.Elements.Block"></a>
-      <a id="f:(DocumentContext)⇒Block"></a>
+      <a id="f:laika.rewrite.DocumentCursor=&gt;laika.tree.Elements.Block"></a>
+      <a id="f:(DocumentCursor)⇒Block"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">f</span><span class="result">: (<a href="../tree/Documents$$DocumentContext.html" class="extype" name="laika.tree.Documents.DocumentContext">DocumentContext</a>) ⇒ <a href="../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a></span>
+        <span class="name">f</span><span class="result">: (<a href="../rewrite/DocumentCursor.html" class="extype" name="laika.rewrite.DocumentCursor">DocumentCursor</a>) ⇒ <a href="../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a></span>
       </span>
       </h4>
       
@@ -322,15 +322,15 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.directive.DirectiveParsers.BlockDirectives.DirectiveBlock">DirectiveBlock</a> → <a href="../tree/Elements$$Customizable.html" class="extype" name="laika.tree.Elements.Customizable">Customizable</a></dd></dl></div>
     </li><li name="laika.directive.DirectiveParsers.BlockDirectives.DirectiveBlock#resolve" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="resolve(context:laika.tree.Documents.DocumentContext):laika.tree.Elements.Block"></a>
-      <a id="resolve(DocumentContext):Block"></a>
+      <a id="resolve(cursor:laika.rewrite.DocumentCursor):laika.tree.Elements.Block"></a>
+      <a id="resolve(DocumentCursor):Block"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">resolve</span><span class="params">(<span name="context">context: <a href="../tree/Documents$$DocumentContext.html" class="extype" name="laika.tree.Documents.DocumentContext">DocumentContext</a></span>)</span><span class="result">: <a href="../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a></span>
+        <span class="name">resolve</span><span class="params">(<span name="cursor">cursor: <a href="../rewrite/DocumentCursor.html" class="extype" name="laika.rewrite.DocumentCursor">DocumentCursor</a></span>)</span><span class="result">: <a href="../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.directive.DirectiveParsers.BlockDirectives.DirectiveBlock">DirectiveBlock</a> → <a href="../tree/Templates$$BlockResolver.html" class="extype" name="laika.tree.Templates.BlockResolver">BlockResolver</a></dd></dl></div>

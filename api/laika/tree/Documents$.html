@@ -39,7 +39,7 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Provides the API for Documents and DocumentTrees as well as the Path API.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Provides the API for Documents and DocumentTrees.
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
@@ -82,129 +82,75 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="laika.tree.Documents./" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="/extendsDocuments.PathwithProductwithSerializable"></a>
-      <a id="/:/"></a>
+              <ol><li name="laika.tree.Documents.AdditionalContent" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="AdditionalContentextendsDocuments.Navigatable"></a>
+      <a id="AdditionalContent:AdditionalContent"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="Documents$$$div.html"><span title="gt4s: $div" class="name">/</span></a><span class="params">(<span name="parent">parent: <a href="Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="Documents$$AdditionalContent.html"><span class="name">AdditionalContent</span></a><span class="result"> extends <a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a></span>
       </span>
       </h4>
-      
-    </li><li name="laika.tree.Documents.AutonumberConfig" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="AutonumberConfigextendsProductwithSerializable"></a>
-      <a id="AutonumberConfig:AutonumberConfig"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="Documents$$AutonumberConfig.html"><span class="name">AutonumberConfig</span></a><span class="params">(<span name="documents">documents: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="sections">sections: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="maxDepth">maxDepth: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      <p class="comment cmt">Configuration for autonumbering of documents and sections.</p>
-    </li><li name="laika.tree.Documents.AutonumberContext" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="AutonumberContextextendsProductwithSerializable"></a>
-      <a id="AutonumberContext:AutonumberContext"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="Documents$$AutonumberContext.html"><span class="name">AutonumberContext</span></a><span class="params">(<span name="config">config: <a href="Documents$$AutonumberConfig.html" class="extype" name="laika.tree.Documents.AutonumberConfig">AutonumberConfig</a></span>, <span name="number">number: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Int">Int</span>] = <span class="symbol">immutable.this.Nil</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      <p class="comment cmt">Context for autonumbering of documents and sections, containing the current
- number and the general configuration for autonumbering.</p>
-    </li><li name="laika.tree.Documents.ConfigurationException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ConfigurationExceptionextendsRuntimeExceptionwithProductwithSerializable"></a>
-      <a id="ConfigurationException:ConfigurationException"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="Documents$$ConfigurationException.html"><span class="name">ConfigurationException</span></a><span class="params">(<span name="msg">msg: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.RuntimeException">RuntimeException</span> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="laika.tree.Documents.DefaultDocumentTypeMatcher" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DefaultDocumentTypeMatcherextendslaika.tree.Documents.Path=&gt;laika.tree.Documents.DocumentType"></a>
-      <a id="DefaultDocumentTypeMatcher:DefaultDocumentTypeMatcher"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="Documents$$DefaultDocumentTypeMatcher.html"><span class="name">DefaultDocumentTypeMatcher</span></a><span class="result"> extends (<a href="Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a>) ⇒ <a href="Documents$$DocumentType.html" class="extype" name="laika.tree.Documents.DocumentType">DocumentType</a></span>
-      </span>
-      </h4>
-      <p class="comment cmt">The default implementation for determining the document type
- of the input based on its path.</p>
+      <p class="comment cmt">Content within the document tree that is
+neither titled nor positional.</p>
     </li><li name="laika.tree.Documents.Document" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DocumentextendsDocuments.Titled"></a>
+      <a id="DocumentextendsDocuments.DocumentStructurewithDocuments.TreeContentwithProductwithSerializable"></a>
       <a id="Document:Document"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">class</span>
+        <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Documents$$Document.html"><span class="name">Document</span></a><span class="result"> extends <a href="Documents$$Titled.html" class="extype" name="laika.tree.Documents.Titled">Titled</a></span>
+        <a href="Documents$$Document.html"><span class="name">Document</span></a><span class="params">(<span name="path">path: <a href="Paths$$Path.html" class="extype" name="laika.tree.Paths.Path">Path</a></span>, <span name="content">content: <a href="Elements$$RootElement.html" class="extype" name="laika.tree.Elements.RootElement">RootElement</a></span>, <span name="fragments">fragments: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>] = <span class="defval" name="scala.this.Predef.Map.empty[String, Nothing]">...</span></span>, <span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span> = <span class="defval" name="com.typesafe.config.ConfigFactory.empty()">...</span></span>, <span name="position">position: <a href="Documents$$TreePosition.html" class="extype" name="laika.tree.Documents.TreePosition">TreePosition</a> = <span class="defval" name="Documents.this.TreePosition.apply(collection.this.Seq.apply[Nothing]())">...</span></span>)</span><span class="result"> extends <a href="Documents$$DocumentStructure.html" class="extype" name="laika.tree.Documents.DocumentStructure">DocumentStructure</a> with <a href="Documents$$TreeContent.html" class="extype" name="laika.tree.Documents.TreeContent">TreeContent</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       <p class="comment cmt">Represents a single document and provides access
  to the document content and structure as well
  as hooks for triggering rewrite operations.</p>
-    </li><li name="laika.tree.Documents.DocumentContext" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DocumentContextextendsAnyRef"></a>
-      <a id="DocumentContext:DocumentContext"></a>
+    </li><li name="laika.tree.Documents.DocumentStructure" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="DocumentStructureextendsAnyRef"></a>
+      <a id="DocumentStructure:DocumentStructure"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">class</span>
+        <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="Documents$$DocumentContext.html"><span class="name">DocumentContext</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="Documents$$DocumentStructure.html"><span class="name">DocumentStructure</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
-      <p class="comment cmt">Represents a single document,its parent and root directories,
- its asssociated template and other context information that
- can not be obtained from the Document instance itself.</p>
+      <p class="comment cmt">The structure of a markup document.</p>
     </li><li name="laika.tree.Documents.DocumentTree" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DocumentTreeextendsDocuments.Titled"></a>
+      <a id="DocumentTreeextendsDocuments.TreeStructurewithDocuments.TreeContentwithProductwithSerializable"></a>
       <a id="DocumentTree:DocumentTree"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">class</span>
+        <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Documents$$DocumentTree.html"><span class="name">DocumentTree</span></a><span class="result"> extends <a href="Documents$$Titled.html" class="extype" name="laika.tree.Documents.Titled">Titled</a></span>
+        <a href="Documents$$DocumentTree.html"><span class="name">DocumentTree</span></a><span class="params">(<span name="path">path: <a href="Paths$$Path.html" class="extype" name="laika.tree.Paths.Path">Path</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Documents$$TreeContent.html" class="extype" name="laika.tree.Documents.TreeContent">TreeContent</a>]</span>, <span name="templates">templates: <span class="extype" name="scala.Seq">Seq</span>[<a href="Documents$$TemplateDocument.html" class="extype" name="laika.tree.Documents.TemplateDocument">TemplateDocument</a>] = <span class="symbol">immutable.this.Nil</span></span>, <span name="styles">styles: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="../parse/css/Styles$$StyleDeclarationSet.html" class="extype" name="laika.parse.css.Styles.StyleDeclarationSet">StyleDeclarationSet</a>] = <span class="defval" name="scala.this.Predef.Map.empty[String, Nothing].withDefaultValue[laika.parse.css.Styles.StyleDeclarationSet](laika.parse.css.Styles.StyleDeclarationSet.empty)">...</span></span>, <span name="additionalContent">additionalContent: <span class="extype" name="scala.Seq">Seq</span>[<a href="Documents$$AdditionalContent.html" class="extype" name="laika.tree.Documents.AdditionalContent">AdditionalContent</a>] = <span class="symbol">immutable.this.Nil</span></span>, <span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span> = <span class="defval" name="com.typesafe.config.ConfigFactory.empty()">...</span></span>, <span name="position">position: <a href="Documents$$TreePosition.html" class="extype" name="laika.tree.Documents.TreePosition">TreePosition</a> = <span class="defval" name="Documents.this.TreePosition.apply(collection.this.Seq.apply[Nothing]())">...</span></span>, <span name="sourcePaths">sourcePaths: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">immutable.this.Nil</span></span>)</span><span class="result"> extends <a href="Documents$$TreeStructure.html" class="extype" name="laika.tree.Documents.TreeStructure">TreeStructure</a> with <a href="Documents$$TreeContent.html" class="extype" name="laika.tree.Documents.TreeContent">TreeContent</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       <p class="comment cmt">Represents a tree with all its documents and subtrees.</p>
-    </li><li name="laika.tree.Documents.DocumentType" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="DocumentTypeextendsAnyRef"></a>
-      <a id="DocumentType:DocumentType"></a>
+    </li><li name="laika.tree.Documents.DynamicDocument" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DynamicDocumentextendsDocuments.AdditionalContentwithProductwithSerializable"></a>
+      <a id="DynamicDocument:DynamicDocument"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier">sealed abstract </span>
-        <span class="kind">class</span>
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Documents$$DocumentType.html"><span class="name">DocumentType</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="Documents$$DynamicDocument.html"><span class="name">DynamicDocument</span></a><span class="params">(<span name="path">path: <a href="Paths$$Path.html" class="extype" name="laika.tree.Paths.Path">Path</a></span>, <span name="content">content: <a href="Elements$$RootElement.html" class="extype" name="laika.tree.Elements.RootElement">RootElement</a></span>)</span><span class="result"> extends <a href="Documents$$AdditionalContent.html" class="extype" name="laika.tree.Documents.AdditionalContent">AdditionalContent</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
-      <p class="comment cmt">Base type for all document type descriptors.</p>
+      <p class="comment cmt">A dynamic document that has been obtained from a template
+not associated with any markup document.</p>
     </li><li name="laika.tree.Documents.Navigatable" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="NavigatableextendsAnyRef"></a>
       <a id="Navigatable:Navigatable"></a>
@@ -218,61 +164,6 @@
       </span>
       </h4>
       <p class="comment cmt">A navigatable object is anything that has an associated path.</p>
-    </li><li name="laika.tree.Documents.Parent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ParentextendsDocuments.PathPrefixwithProductwithSerializable"></a>
-      <a id="Parent:Parent"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="Documents$$Parent.html"><span class="name">Parent</span></a><span class="params">(<span name="levels">levels: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <a href="Documents$$PathPrefix.html" class="extype" name="laika.tree.Documents.PathPrefix">PathPrefix</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      <p class="comment cmt">The prefix of a relative path pointing
- to a parent the specified number of levels
- above this path.</p>
-    </li><li name="laika.tree.Documents.Path" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="PathextendsAnyRef"></a>
-      <a id="Path:Path"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">sealed abstract </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="Documents$$Path.html"><span class="name">Path</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      </h4>
-      <p class="comment cmt">Represents a path inside a virtual tree of
- documents.</p>
-    </li><li name="laika.tree.Documents.PathPrefix" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="PathPrefixextendsDocuments.Path"></a>
-      <a id="PathPrefix:PathPrefix"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="Documents$$PathPrefix.html"><span class="name">PathPrefix</span></a><span class="result"> extends <a href="Documents$$Path.html" class="extype" name="laika.tree.Documents.Path">Path</a></span>
-      </span>
-      </h4>
-      
-    </li><li name="laika.tree.Documents.ReferenceResolver" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ReferenceResolverextendsAnyRef"></a>
-      <a id="ReferenceResolver:ReferenceResolver"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="Documents$$ReferenceResolver.html"><span class="name">ReferenceResolver</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      </h4>
-      <p class="comment cmt">A resolver for context references in templates or markup documents.</p>
     </li><li name="laika.tree.Documents.SectionInfo" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="SectionInfoextendsElements.ElementwithElements.ElementContainer[laika.tree.Documents.SectionInfo,laika.tree.Documents.SectionInfo]withProductwithSerializable"></a>
       <a id="SectionInfo:SectionInfo"></a>
@@ -282,24 +173,38 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Documents$$SectionInfo.html"><span class="name">SectionInfo</span></a><span class="params">(<span name="position">position: <span class="extype" name="scala.List">List</span>[<span class="extype" name="scala.Int">Int</span>]</span>, <span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="title">title: <a href="Documents$$TitleInfo.html" class="extype" name="laika.tree.Documents.TitleInfo">TitleInfo</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Documents$$SectionInfo.html" class="extype" name="laika.tree.Documents.SectionInfo">SectionInfo</a>]</span>)</span><span class="result"> extends <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="Elements$$ElementContainer.html" class="extype" name="laika.tree.Elements.ElementContainer">ElementContainer</a>[<a href="Documents$$SectionInfo.html" class="extype" name="laika.tree.Documents.SectionInfo">SectionInfo</a>, <a href="Documents$$SectionInfo.html" class="extype" name="laika.tree.Documents.SectionInfo">SectionInfo</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="Documents$$SectionInfo.html"><span class="name">SectionInfo</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="title">title: <a href="Documents$$TitleInfo.html" class="extype" name="laika.tree.Documents.TitleInfo">TitleInfo</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Documents$$SectionInfo.html" class="extype" name="laika.tree.Documents.SectionInfo">SectionInfo</a>]</span>)</span><span class="result"> extends <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="Elements$$ElementContainer.html" class="extype" name="laika.tree.Elements.ElementContainer">ElementContainer</a>[<a href="Documents$$SectionInfo.html" class="extype" name="laika.tree.Documents.SectionInfo">SectionInfo</a>, <a href="Documents$$SectionInfo.html" class="extype" name="laika.tree.Documents.SectionInfo">SectionInfo</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       <p class="comment cmt">Captures information about a document section, without its content.</p>
-    </li><li name="laika.tree.Documents.StyleSheet" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="StyleSheetextendsDocuments.DocumentTypewithProductwithSerializable"></a>
-      <a id="StyleSheet:StyleSheet"></a>
+    </li><li name="laika.tree.Documents.StaticDocument" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="StaticDocumentextendsDocuments.AdditionalContentwithProductwithSerializable"></a>
+      <a id="StaticDocument:StaticDocument"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Documents$$StyleSheet.html"><span class="name">StyleSheet</span></a><span class="params">(<span name="format">format: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="Documents$$DocumentType.html" class="extype" name="laika.tree.Documents.DocumentType">DocumentType</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="Documents$$StaticDocument.html"><span class="name">StaticDocument</span></a><span class="params">(<span name="input">input: <a href="../io/Input.html" class="extype" name="laika.io.Input">Input</a></span>)</span><span class="result"> extends <a href="Documents$$AdditionalContent.html" class="extype" name="laika.tree.Documents.AdditionalContent">AdditionalContent</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
-      <p class="comment cmt">A style sheet that needs to get passed
- to a renderer.</p>
+      <p class="comment cmt">A static document that might get copied to the
+target document tree as is.</p>
+    </li><li name="laika.tree.Documents.TemplateDocument" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TemplateDocumentextendsDocuments.AdditionalContentwithProductwithSerializable"></a>
+      <a id="TemplateDocument:TemplateDocument"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Documents$$TemplateDocument.html"><span class="name">TemplateDocument</span></a><span class="params">(<span name="path">path: <a href="Paths$$Path.html" class="extype" name="laika.tree.Paths.Path">Path</a></span>, <span name="content">content: <a href="Templates$$TemplateRoot.html" class="extype" name="laika.tree.Templates.TemplateRoot">TemplateRoot</a></span>, <span name="config">config: <span class="extype" name="com.typesafe.config.Config">Config</span> = <span class="defval" name="com.typesafe.config.ConfigFactory.empty()">...</span></span>)</span><span class="result"> extends <a href="Documents$$AdditionalContent.html" class="extype" name="laika.tree.Documents.AdditionalContent">AdditionalContent</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">A template document containing the element tree of a parsed template and its extracted
+ configuration section (if present).</p>
     </li><li name="laika.tree.Documents.TitleInfo" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="TitleInfoextendsElements.ElementwithElements.SpanContainer[laika.tree.Documents.TitleInfo]withProductwithSerializable"></a>
       <a id="TitleInfo:TitleInfo"></a>
@@ -313,19 +218,45 @@
       </span>
       </h4>
       <p class="comment cmt">Represents a section title.</p>
-    </li><li name="laika.tree.Documents.Titled" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="TitledextendsDocuments.Navigatable"></a>
-      <a id="Titled:Titled"></a>
+    </li><li name="laika.tree.Documents.TreeContent" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="TreeContentextendsDocuments.Navigatable"></a>
+      <a id="TreeContent:TreeContent"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Documents$$TreeContent.html"><span class="name">TreeContent</span></a><span class="result"> extends <a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a></span>
+      </span>
+      </h4>
+      <p class="comment cmt">A titled, positional element in the document tree.</p>
+    </li><li name="laika.tree.Documents.TreePosition" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TreePositionextendsProductwithSerializable"></a>
+      <a id="TreePosition:TreePosition"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Documents$$TreePosition.html"><span class="name">TreePosition</span></a><span class="params">(<span name="toSeq">toSeq: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Int">Int</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">The position of an element within a document tree.</p>
+    </li><li name="laika.tree.Documents.TreeStructure" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="TreeStructureextendsAnyRef"></a>
+      <a id="TreeStructure:TreeStructure"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="Documents$$Titled.html"><span class="name">Titled</span></a><span class="result"> extends <a href="Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a></span>
+        <a href="Documents$$TreeStructure.html"><span class="name">TreeStructure</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
-      <p class="comment cmt">A navigatable object that has a title.</p>
+      <p class="comment cmt">The structure of a document tree.</p>
     </li></ol>
             </div>
 
@@ -398,182 +329,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="laika.tree.Documents.AutonumberConfig" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="AutonumberConfig"></a>
-      <a id="AutonumberConfig:AutonumberConfig"></a>
+    </li><li name="laika.tree.Documents.TreePosition" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TreePosition"></a>
+      <a id="TreePosition:TreePosition"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Documents$$AutonumberConfig$.html"><span class="name">AutonumberConfig</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="Documents$$TreePosition$.html"><span class="name">TreePosition</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
-    </li><li name="laika.tree.Documents.AutonumberContext" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="AutonumberContext"></a>
-      <a id="AutonumberContext:AutonumberContext"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Documents$$AutonumberContext$.html"><span class="name">AutonumberContext</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="laika.tree.Documents.Config" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Config"></a>
-      <a id="Config:Config"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Documents$$Config$.html"><span class="name">Config</span></a><span class="result"> extends <a href="Documents$$DocumentType.html" class="extype" name="laika.tree.Documents.DocumentType">DocumentType</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      <p class="comment cmt">A configuation document in the syntax
- supported by the Typesafe Config library.</p>
-    </li><li name="laika.tree.Documents.Current" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Current"></a>
-      <a id="Current:Current"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Documents$$Current$.html"><span class="name">Current</span></a><span class="result"> extends <a href="Documents$$PathPrefix.html" class="extype" name="laika.tree.Documents.PathPrefix">PathPrefix</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      <p class="comment cmt">The root of a relative path.</p>
-    </li><li name="laika.tree.Documents.DocumentContext" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DocumentContext"></a>
-      <a id="DocumentContext:DocumentContext"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Documents$$DocumentContext$.html"><span class="name">DocumentContext</span></a>
-      </span>
-      </h4>
-      
-    </li><li name="laika.tree.Documents.Dynamic" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Dynamic"></a>
-      <a id="Dynamic:Dynamic"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Documents$$Dynamic$.html"><span class="name">Dynamic</span></a><span class="result"> extends <a href="Documents$$DocumentType.html" class="extype" name="laika.tree.Documents.DocumentType">DocumentType</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      <p class="comment cmt">A dynamic document that might contain
- custom directives that need to get
- processed before rendering.</p>
-    </li><li name="laika.tree.Documents.Ignored" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Ignored"></a>
-      <a id="Ignored:Ignored"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Documents$$Ignored$.html"><span class="name">Ignored</span></a><span class="result"> extends <a href="Documents$$DocumentType.html" class="extype" name="laika.tree.Documents.DocumentType">DocumentType</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      <p class="comment cmt">A document that should be ignored and neither
- get processed nor copied.</p>
-    </li><li name="laika.tree.Documents.Markup" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Markup"></a>
-      <a id="Markup:Markup"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Documents$$Markup$.html"><span class="name">Markup</span></a><span class="result"> extends <a href="Documents$$DocumentType.html" class="extype" name="laika.tree.Documents.DocumentType">DocumentType</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      <p class="comment cmt">A text markup document produced by a parser.</p>
-    </li><li name="laika.tree.Documents.NavigationOrder" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="NavigationOrder"></a>
-      <a id="NavigationOrder:NavigationOrder"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Documents$$NavigationOrder$.html"><span class="name">NavigationOrder</span></a>
-      </span>
-      </h4>
-      <p class="comment cmt">Factory for creating the navigation order for the markup
- documents and subtrees of a tree based on its configuration.</p>
-    </li><li name="laika.tree.Documents.Path" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Path"></a>
-      <a id="Path:Path"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Documents$$Path$.html"><span class="name">Path</span></a>
-      </span>
-      </h4>
-      <p class="comment cmt">Factory methods for creating path instances.</p>
-    </li><li name="laika.tree.Documents.Root" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Root"></a>
-      <a id="Root:Root"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Documents$$Root$.html"><span class="name">Root</span></a><span class="result"> extends <a href="Documents$$PathPrefix.html" class="extype" name="laika.tree.Documents.PathPrefix">PathPrefix</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      <p class="comment cmt">The root of an absolute path.</p>
-    </li><li name="laika.tree.Documents.Static" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Static"></a>
-      <a id="Static:Static"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Documents$$Static$.html"><span class="name">Static</span></a><span class="result"> extends <a href="Documents$$DocumentType.html" class="extype" name="laika.tree.Documents.DocumentType">DocumentType</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      <p class="comment cmt">A static file that needs to get copied
- over to the output target.</p>
-    </li><li name="laika.tree.Documents.Template" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Template"></a>
-      <a id="Template:Template"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Documents$$Template$.html"><span class="name">Template</span></a><span class="result"> extends <a href="Documents$$DocumentType.html" class="extype" name="laika.tree.Documents.DocumentType">DocumentType</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      <p class="comment cmt">A template document that might get applied
- to a document when it gets rendered.</p>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -606,19 +374,6 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.tree.Documents#defaultTemplate" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="defaultTemplate:laika.tree.Templates.TemplateDocument"></a>
-      <a id="defaultTemplate:TemplateDocument"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">defaultTemplate</span><span class="result">: <a href="Templates$$TemplateDocument.html" class="extype" name="laika.tree.Templates.TemplateDocument">TemplateDocument</a></span>
-      </span>
-      </h4>
-      
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>

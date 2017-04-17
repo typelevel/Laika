@@ -183,6 +183,21 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="laika.render.PDF#defaultFopFactory" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="defaultFopFactory:org.apache.fop.apps.FopFactory"></a>
+      <a id="defaultFopFactory:FopFactory"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">defaultFopFactory</span><span class="result">: <span class="extype" name="org.apache.fop.apps.FopFactory">FopFactory</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">The reusable default instance of the FOP factory
+that the PDF renderer will use if no custom
+factory is specified.</p>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -479,6 +494,25 @@
       <p class="shortcomment cmt">Allows to specify configuration options like insertion
  of bookmarks or table of content.</p><div class="fullcomment"><div class="comment cmt"><p>Allows to specify configuration options like insertion
  of bookmarks or table of content.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="PDF.html" class="extype" name="laika.render.PDF">PDF</a></dd></dl></div>
+    </li><li name="laika.render.PDF#withFopFactory" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withFopFactory(fopFactory:org.apache.fop.apps.FopFactory):laika.render.PDF"></a>
+      <a id="withFopFactory(FopFactory):PDF"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withFopFactory</span><span class="params">(<span name="fopFactory">fopFactory: <span class="extype" name="org.apache.fop.apps.FopFactory">FopFactory</span></span>)</span><span class="result">: <a href="PDF.html" class="extype" name="laika.render.PDF">PDF</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Allows to specify a custom FopFactory in case additional configuration
+is required for custom fonts, stemmers or other FOP features.</p><div class="fullcomment"><div class="comment cmt"><p>Allows to specify a custom FopFactory in case additional configuration
+is required for custom fonts, stemmers or other FOP features.</p><p>A <code>FopFactory</code> is a fairly heavy-weight object, so make sure that you reuse
+either the <code>FopFactory</code> instance itself or the resulting <code>PDF</code> renderer.
+In case you do not specify a custom factory, Laika ensures that the default
+factory is reused between renderers.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="PDF.html" class="extype" name="laika.render.PDF">PDF</a></dd></dl></div>
     </li><li name="laika.render.PDF#withMessageLevel" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="withMessageLevel(level:laika.tree.Elements.MessageLevel):laika.render.PDF"></a>

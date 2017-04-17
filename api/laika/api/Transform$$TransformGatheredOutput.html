@@ -263,15 +263,15 @@
               
         </dd></dl></div>
     </li><li name="laika.api.Transform.TransformGatheredOutput#creatingRule" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="creatingRule(newRule:laika.tree.Documents.DocumentContext=&gt;laika.tree.Elements.RewriteRule):TransformGatheredOutput.this.ThisType"></a>
-      <a id="creatingRule((DocumentContext)⇒RewriteRule):ThisType"></a>
+      <a id="creatingRule(newRule:laika.rewrite.DocumentCursor=&gt;laika.tree.Elements.RewriteRule):TransformGatheredOutput.this.ThisType"></a>
+      <a id="creatingRule((DocumentCursor)⇒RewriteRule):ThisType"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">creatingRule</span><span class="params">(<span name="newRule">newRule: (<a href="../tree/Documents$$DocumentContext.html" class="extype" name="laika.tree.Documents.DocumentContext">DocumentContext</a>) ⇒ <a href="../tree/Elements$.html#RewriteRule=PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]" class="extmbr" name="laika.tree.Elements.RewriteRule">RewriteRule</a></span>)</span><span class="result">: <a href="#ThisType=laika.api.Transform.TransformGatheredOutput[Writer]" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.ThisType">ThisType</a></span>
+        <span class="name">creatingRule</span><span class="params">(<span name="newRule">newRule: (<a href="../rewrite/DocumentCursor.html" class="extype" name="laika.rewrite.DocumentCursor">DocumentCursor</a>) ⇒ <a href="../tree/Elements$.html#RewriteRule=PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]" class="extmbr" name="laika.tree.Elements.RewriteRule">RewriteRule</a></span>)</span><span class="result">: <a href="#ThisType=laika.api.Transform.TransformGatheredOutput[Writer]" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.ThisType">ThisType</a></span>
       </span>
       </h4>
       <p class="shortcomment cmt">Specifies a rewrite rule to be applied to the document tree model between the
@@ -397,7 +397,8 @@
  other configuration options.</p><div class="fullcomment"><div class="comment cmt"><p>Parses files from the specified directory and its subdirectories
  and returns a new target instance which allows to specify the output and
  other configuration options.
-</p></div><dl class="paramcmts block"><dt class="param">dir</dt><dd class="cmt"><p>the directory to traverse</p></dd><dt class="param">exclude</dt><dd class="cmt"><p>the files to exclude from processing</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">dir</dt><dd class="cmt"><p>the directory to traverse</p></dd><dt class="param">exclude</dt><dd class="cmt"><p>the files to exclude from processing</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.</p></dd><dt>returns</dt><dd class="cmt"><p>a builder which allows to specify the output and other configuration options
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
     </li><li name="laika.api.Transform#fromDirectory" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="fromDirectory(dir:java.io.File)(implicitcodec:scala.io.Codec):Transform.this.TreeTarget"></a>
       <a id="fromDirectory(File)(Codec):TreeTarget"></a>
@@ -415,7 +416,8 @@
  other configuration options.</p><div class="fullcomment"><div class="comment cmt"><p>Parses files from the specified directory and its subdirectories
  and returns a new target instance which allows to specify the output and
  other configuration options.
-</p></div><dl class="paramcmts block"><dt class="param">dir</dt><dd class="cmt"><p>the directory to traverse</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">dir</dt><dd class="cmt"><p>the directory to traverse</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.</p></dd><dt>returns</dt><dd class="cmt"><p>a builder which allows to specify the output and other configuration options
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
     </li><li name="laika.api.Transform#fromDirectory" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="fromDirectory(name:String,exclude:java.io.File=&gt;Boolean)(implicitcodec:scala.io.Codec):Transform.this.TreeTarget"></a>
       <a id="fromDirectory(String,(File)⇒Boolean)(Codec):TreeTarget"></a>
@@ -433,7 +435,8 @@
  other configuration options.</p><div class="fullcomment"><div class="comment cmt"><p>Parses files from the specified directory and its subdirectories
  and returns a new target instance which allows to specify the output and
  other configuration options.
-</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the directory to traverse</p></dd><dt class="param">exclude</dt><dd class="cmt"><p>the files to exclude from processing</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the directory to traverse</p></dd><dt class="param">exclude</dt><dd class="cmt"><p>the files to exclude from processing</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.</p></dd><dt>returns</dt><dd class="cmt"><p>a builder which allows to specify the output and other configuration options
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
     </li><li name="laika.api.Transform#fromDirectory" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="fromDirectory(name:String)(implicitcodec:scala.io.Codec):Transform.this.TreeTarget"></a>
       <a id="fromDirectory(String)(Codec):TreeTarget"></a>
@@ -451,7 +454,8 @@
  other configuration options.</p><div class="fullcomment"><div class="comment cmt"><p>Parses files from the specified directory and its subdirectories
  and returns a new target instance which allows to specify the output and
  other configuration options.
-</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the directory to traverse</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the directory to traverse</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.</p></dd><dt>returns</dt><dd class="cmt"><p>a builder which allows to specify the output and other configuration options
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
     </li><li name="laika.api.Transform.TransformGatheredOutput#fromDocument" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="fromDocument(doc:laika.tree.Documents.Document):laika.api.Render.BinaryTarget"></a>
       <a id="fromDocument(Document):BinaryTarget"></a>
@@ -467,7 +471,8 @@
       <p class="shortcomment cmt">Renders the specified document and returns a new target instance
  which allows to specify the output and other configuration options.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the specified document and returns a new target instance
  which allows to specify the output and other configuration options.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Transform.TransformGatheredOutput">TransformGatheredOutput</a> → <a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">doc</dt><dd class="cmt"><p>the document to transform
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Transform.TransformGatheredOutput">TransformGatheredOutput</a> → <a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
     </li><li name="laika.api.Transform#fromFile" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="fromFile(file:java.io.File)(implicitcodec:scala.io.Codec):Transform.this.DocTarget"></a>
       <a id="fromFile(File)(Codec):DocTarget"></a>

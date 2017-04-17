@@ -365,7 +365,7 @@
               
         </dd></dl></div>
     </li><li name="scala.Function1#compose" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="compose[A](g:A=&gt;T1):A=&gt;R"></a>
+      <a id="compose[A&lt;:&lt;?&gt;](g:&lt;?&gt;):A=&gt;R"></a>
       <a id="compose[A]((A)⇒MarkupParsers.Input):(A)⇒MarkupParsers.ParseResult[String]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -624,7 +624,7 @@
         <span class="name">take</span><span class="params">(<span name="count">count: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="laika.parse.MarkupParsers.TextParser">TextParser</a></span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Creates and returns a new parser that consumes exactly the specified numer of characters.</p><div class="fullcomment"><div class="comment cmt"><p>Creates and returns a new parser that consumes exactly the specified numer of characters.
+      <p class="shortcomment cmt">Creates and returns a new parser that consumes exactly the specified number of characters.</p><div class="fullcomment"><div class="comment cmt"><p>Creates and returns a new parser that consumes exactly the specified number of characters.
  Fails if there are less matches, but succeeds in case there are more matches, simply ignoring them.
  Calling <code>take 3</code> for example is equivalent to calling <code>min 3 max 3</code>.
 </p></div></div>
