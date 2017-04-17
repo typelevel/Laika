@@ -1,5 +1,5 @@
 import LaikaKeys._
-import laika.tree.Documents._
+import laika.io.DocumentType._
 
 name := "site-docTypeMatcher"
 
