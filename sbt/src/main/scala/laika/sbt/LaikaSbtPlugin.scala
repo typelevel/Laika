@@ -291,7 +291,7 @@ object LaikaSbtPlugin extends Plugin {
         streams.value.log.info(Log.inputs(inputs.provider))
         
         val rawTree = markupParser.value fromTree inputs
-        val tree = rawTree rewrite RewriteRules.chainFactories(rewriteRules.value)
+        val tree = rawTree rewrite RewriteRules.chainFactories(rewriteRules.value :+ RewriteRules.defaultsFor(Markdown, ReStructuredText))
 
         logMessageLevel.value foreach { Log.systemMessages(streams.value.log, tree, _) }
         
