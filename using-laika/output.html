@@ -201,6 +201,10 @@ Render as PDF from tree toFile &quot;out.pdf&quot;</pre>
         <p>The font-related attributes in this case are identical to the ones you know from web CSS,
         but the type selector does not refer to an HTML tag, but instead to a class name from the
         hierarchy of case classes forming the document tree of a parsed input source.</p>
+        <p>The CSS files need to be placed into the root directory of your sources with a name
+        in the format <code>&lt;name&gt;.fo.css</code>. Like with template files you can place alternative CSS
+        files into subdirectories of your input tree for styles that should only be applied to 
+        that directory.</p>
         <p>For an overview over the available attributes you can refer to the <a href="http://www.w3.org/TR/xsl11/#pr-section">Formatting Properties</a> chapter
         in the XSL-FO specification.</p>
         <p>For an overview over supported type selectors see the sections following below.</p>
@@ -281,8 +285,7 @@ Render as PDF from tree toFile &quot;out.pdf&quot;</pre>
 )
 
 Transform from Markdown to PDF.withConfig(config) fromDirectory 
-  &quot;source&quot; toFile &quot;out.pdf&quot;
-  </pre>
+  &quot;source&quot; toFile &quot;out.pdf&quot;</pre>
         <p>These properties control the following aspects of the rendering:</p>
         <ul>
           <li><code>insertTitles</code> inserts a title per directory and markup file into the document to give it more
@@ -309,6 +312,36 @@ Transform from Markdown to PDF.withConfig(config) fromDirectory
         markup input:</p>
         <pre>Transform from Markdown to PDF.withMessageLevel(Warning) fromDirectory 
   &quot;source&quot; toFile &quot;out.pdf&quot;</pre>
+        
+        <h4 id="customizing-apache-fop" class="section">Customizing Apache FOP</h4>
+        <p>Rendering a PDF file is (roughly) a 3-step process:</p>
+        <ol class="arabic">
+          <li>Parsing all markup files and producing an in-memory document tree representation</li>
+          <li>Applying templates and CSS to the document tree and render it as XSL-FO</li>
+          <li>Produce the final PDF file from the resulting XSL-FO</li>
+        </ol>
+        <p>While step 1 and 2 are entirely managed by Laika, without any dependencies to external
+        libraries or tools, step 3 is almost solely taken care of by Apache FOP. </p>
+        <p>Therefore, any customization for this step is best left for the configuration hooks of FOP itself.
+        They allow you to define aspects like the target resolution, custom fonts, custom stemmers and
+        a lot more.
+        The available options are described in the <a href="https://xmlgraphics.apache.org/fop/2.1/configuration.html">Apache FOP documentation</a>.</p>
+        <p>When you are using the sbt plugin, you can specify an Apache FOP configuration file with
+        the <code>fopConfig</code> setting:</p>
+        <pre>fopConfig in Laika := Some(baseDirectory.value / &quot;customFop.xconf&quot;)
+</pre>
+        <p>Note that the default is <code>None</code> as FOPs default configuration is often sufficient.</p>
+        <p>When you are using Laika embedded, the PDF renderer has a hook to specify a custom
+        <code>FopFactory</code>:</p>
+        <pre>val configFile = &quot;/path/to/customFop.xconf&quot;
+val factory = FopFactory.newInstance(new File(configFile))
+
+Transform from Markdown to PDF.withFopFactory(factory) fromDirectory 
+  &quot;src&quot; toFile &quot;out.pdf&quot;</pre>
+        <p>Note that a <code>FopFactory</code> is a fairly heavy-weight object, so make sure that you reuse
+        either the <code>FopFactory</code> instance itself or the resulting <code>PDF</code> renderer.
+        In case you do not specify a custom factory, Laika ensures that the default
+        factory is reused between renderers.</p>
         
         <h3 id="xsl-fo-templates" class="section">XSL-FO Templates</h3>
         <p>Like the HTML renderer, the PDF renderer supports templating. However, there should be
