@@ -1,3 +1,10 @@
-New features and changes:
 
-* Cross compile for Scala 2.12
+Major theme for this release is a complete redesign of the Document API.
+
+* Support for Scala 2.12 (with continued support for 2.11 and 2.10)
+* Redesign and cleanup of the Document API: use case classes wherever possible,
+  extract features into pluggable traits and introduce a new Cursor type for tree rewriting
+* Allow to customize the FopFactory for the PDF renderer (in API and sbt plugin)
+* Fix an issue in the laika:site task in the sbt plugin that executed several sub-tasks
+  twice which could lead to IllegalStateExceptions caused by the resulting race condition
+* Fixes for the reStructuredText parser (for option lists and IP addresses)

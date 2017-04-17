@@ -24,7 +24,7 @@ you can read about her [here][laika-wikipedia].
 Getting Started
 ---------------
 
-The current version is published to Maven Central for Scala 2.10, 2.11 and 2.12.
+The current version is published to Maven Central for Scala 2.12, 2.11 and 2.10.
 
 The sbt plugin is published to the sbt plugin repository for sbt 0.13.x.
 
@@ -33,7 +33,7 @@ The sbt plugin is published to the sbt plugin repository for sbt 0.13.x.
 
 Add the plugin to `project/plugins.sbt`:
 
-    addSbtPlugin("org.planet42" % "laika-sbt" % "0.6.0")
+    addSbtPlugin("org.planet42" % "laika-sbt" % "0.7.0")
 
 Import its default settings in your project's `build.sbt`:
 
@@ -48,7 +48,7 @@ in `target/docs/site`.
 
 Adding the Laika dependency to your sbt build:
 
-    libraryDependencies += "org.planet42" %% "laika-core" % "0.6.0"
+    libraryDependencies += "org.planet42" %% "laika-core" % "0.7.0"
 
 Example for transforming from file to file:
 
@@ -65,7 +65,7 @@ Example for transforming an entire directory of markup files to a single PDF fil
     
 When using Laika's PDF support you need to add one more dependency to your build:
 
-    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.6.0"
+    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.7.0"
     
 
 ### Other Resources
@@ -144,11 +144,11 @@ Features
 Road Map
 --------
 
-* New renderer for epub (0.7)
+* Support for output in the epub format (0.8)
 
-* Integrated support for syntax highlighting in source code (0.8)
+* Integrated support for syntax highlighting in source code (0.9)
 
-* Various Markdown extensions: GitHub Markdown, MultiMarkdown, CommonMark, YAML headers, etc. (0.9)
+* Various Markdown extensions: GitHub Markdown, CommonMark(?), YAML headers, etc. (0.9)
 
 * API polishing (1.0)
 
@@ -165,6 +165,16 @@ no decision has been made yet for these other ideas:
 
 Release History
 ---------------
+
+* __0.7.0__ (April 17, 2017):
+
+    * Support for Scala 2.12 (with continued support for 2.11 and 2.10)
+    * Redesign and cleanup of the Document API: use case classes wherever possible,
+      extract features into pluggable traits and introduce a new `Cursor` type for tree rewriting
+    * Allow to customize the `FopFactory` for the PDF renderer (in API and sbt plugin)
+    * Fix an issue in the `laika:site` task in the sbt plugin that executed several sub-tasks
+      twice which could lead to IllegalStateExceptions caused by the resulting race condition
+    * Fixes for the reStructuredText parser (for option lists and IP addresses)
 
 * __0.6.0__ (May 23, 2016):
 
