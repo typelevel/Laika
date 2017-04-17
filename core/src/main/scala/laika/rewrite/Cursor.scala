@@ -22,21 +22,46 @@ import laika.tree.ElementTraversal
 import laika.tree.Elements.{Block, RewriteRule, RootElement}
 import laika.tree.Paths.Root
 
+/** A cursor provides the necessary context during a rewrite operation.
+  * The stateless document tree cannot provide access to parent or sibling
+  * nodes in the tree, therefore a temporary cursor instance is created
+  * during a rewrite operation for this purpose.
+  */
 trait Cursor {
 
+  /** The type of the target this cursor points to.
+    */
   type Target
-  
+
+  /** The target within the document tree this cursor points to
+    * (a markup document or a sub-tree).
+    */
   def target: Target
 
+  /** The root cursor for this document tree.
+    */
   def root: TreeCursor
 
+  /** The configuration associated with this node.
+    */
   def config: Config
-  
+
+  /** The position of this node within the document tree.
+    */
   def position: TreePosition
   
 }
 
 
+/** Cursor for an entire document tree, providing access to all
+  * child cursors of this tree and allowing to trigger rewrite
+  * operations.
+  *
+  * @param target the document tree this cursor points to
+  * @param parent the parent of this tree or `None` if this is the root
+  * @param config the configuration associated with this tree
+  * @param position the position of this tree within the document tree
+  */
 case class TreeCursor(target: DocumentTree, 
                       parent: Option[TreeCursor], 
                       config: Config,
@@ -45,7 +70,9 @@ case class TreeCursor(target: DocumentTree,
   type Target = DocumentTree
   
   lazy val root: TreeCursor = parent.fold(this)(_.root)
-  
+
+  /** The cursors for all children of this node in the document tree.
+    */
   lazy val children: Seq[Cursor] = {
     
     def configForChild(childConfig: Config) = childConfig.withFallback(config).resolve
@@ -59,7 +86,10 @@ case class TreeCursor(target: DocumentTree,
         TreeCursor(tree, Some(this), config, position.forChild(index + 1))
     }
   }
-  
+
+  /** Returns a new tree, with all the document models contained in it
+    * rewritten based on the specified rewrite rule.
+    */
   def rewriteTarget (rule: DocumentCursor => RewriteRule): DocumentTree = {
       
     val rewrittenContent = children map {
@@ -81,14 +111,14 @@ object TreeCursor {
     
 }
 
-/** Represents a single document,its parent and root directories,
+/** Cursor for a single document, its parent and root directories,
  *  its associated template and other context information that
- *  can not be obtained from the Document instance itself.
+ *  is required during a rewrite operation.
  *  
- *  @param target the document this cursor refers to
+ *  @param target the document this cursor points to
  *  @param parent the parent document tree of the referred document
  *  @param resolver the resolver for references in templates
- *  @param config the configuration of the referred document
+ *  @param config the configuration associated with the target document
  *  @param position the position of the target document inside a tree hierarchy
  */
 case class DocumentCursor (target: Document, 
@@ -99,8 +129,10 @@ case class DocumentCursor (target: Document,
                                  
   type Target = Document   
   
-  lazy val root: TreeCursor = parent.root                             
-                                 
+  lazy val root: TreeCursor = parent.root
+
+  /** Returns a new, rewritten document model based on the specified rewrite rule.
+   */
   def rewriteTarget (rule: RewriteRule): Document = {
     
     val newRoot = target.content rewrite rule
@@ -134,15 +166,25 @@ case class DocumentCursor (target: Document,
 }
 
 object DocumentCursor {
-  
+
+  /** Creates a cursor by placing the specified document
+    * as a sole node into an otherwise empty document tree.
+    */
   def apply (document: Document): DocumentCursor = 
     apply(document, TreeCursor(DocumentTree(Root, Seq(document))), document.config, TreePosition.root)
-    
+
+  /** Creates a cursor for an empty document. The only use case within Laika is
+    * for processing a so-called 'dynamic document' that consists of
+    * a template that is not associated with any markup document.
+    */
   def forEmptyDocument (name: String, parent: TreeCursor): DocumentCursor = {
     val emptyDoc = Document(parent.target.path / name, RootElement(Nil))
     apply(emptyDoc, parent, parent.config, TreePosition.root)
   }
-    
+
+  /** Creates a cursor for a document and full context information:
+    * its parent, configuration and position within the document tree.
+    */
   def apply (document: Document, parent: TreeCursor, config: Config, position: TreePosition): DocumentCursor =
     apply(document, parent, ReferenceResolver.forDocument(document, parent, config), config, position)
     
