@@ -209,7 +209,7 @@ object LaikaSbtPlugin extends Plugin {
       generate            := generateTask.evaluated,
       html                := generateTask.toTask(" html").value,
       xslfo               := generateTask.toTask(" xslfo").value,
-      pdf                 := generateTask.toTask(" pdf").value.head,
+      pdf                 := generateTask.toTask(" pdf").value.headOption.getOrElse((artifactPath in pdf).value),
       prettyPrint         := generateTask.toTask(" prettyPrint").value,
       copyAPI             := copyAPITask.value,
       copyPDF             := copyPDFTask.value,
