@@ -188,7 +188,7 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
         case e @ ParsedLiteralBlock(content,_)=> out.blockWithWS(e,content)
         case e @ CodeBlock(lang,content,_)    => out.blockWithWS(e.copy(options=e.options + codeStyles(lang)),content)
         case e @ Header(level, content,_)     => out.block(e.copy(options=e.options + Styles("level"+level.toString)),content,"keep-with-next"->"always")
-        case e @ Title(content,_)             => out << s"""<fo:marker marker-class-name="chapter"><fo:block>${TreeUtil.extractText(content)}</fo:block></fo:marker>"""
+        case e @ Title(content,_)             => out << s"""<fo:marker marker-class-name="chapter"><fo:block>""" <<& TreeUtil.extractText(content) << "</fo:block></fo:marker>"
                                                  out <|;
                                                  out.block(e.copy(options=e.options),content,"keep-with-next"->"always")
 

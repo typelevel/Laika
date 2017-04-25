@@ -36,13 +36,13 @@ trait TreeModel {
   def doc (num: Int): Document = {
     val parent = if (num > 4) Root / "tree2" else if (num > 2) Root / "tree1" else Root
     Document(parent / s"doc$num.md", RootElement(Seq(
-      Title(Seq(Text(s"Title $num")), Id(s"title-$num") + Styles("title")), 
+      Title(Seq(Text(s"Title $num & More")), Id(s"title-$num") + Styles("title")),
       Paragraph(Seq(Text(s"Text $num")))
     )))
   }
     
   def configWithTreeTitle (num: Int): Config = ConfigFactory.empty
-      .withValue("title", ConfigValueFactory.fromAnyRef(s"Tree $num"))
+      .withValue("title", ConfigValueFactory.fromAnyRef(s"Tree $num & More"))
       .withFallback(pdfFileConfig)
   
   lazy val tree = DocumentTree(Root, Seq(

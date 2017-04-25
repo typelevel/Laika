@@ -208,7 +208,7 @@ class FOWriter (out: String => Unit,
   /** Renders an FO `bookmark-title` element.
    */
   def bookmarkTitle (title: BookmarkTitle): FOWriter = {
-    this <<@ ("fo:bookmark-title", title, Nil:_*) << title.content << "</fo:bookmark-title>"
+    this <<@ ("fo:bookmark-title", title, Nil:_*) <<& title.content << "</fo:bookmark-title>"
   }
   
  

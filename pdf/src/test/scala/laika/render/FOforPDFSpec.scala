@@ -56,8 +56,8 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     def idPrefix (num: Int): String = if (num > 4) "_tree2" else if (num > 2) "_tree1" else ""
     
     def result (num: Int): String = {
-      s"""<fo:marker marker-class-name="chapter"><fo:block>Title $num</fo:block></fo:marker>
-        |<fo:block id="${idPrefix(num)}_doc${num}_title-$num" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">Title $num</fo:block>
+      s"""<fo:marker marker-class-name="chapter"><fo:block>Title $num &amp; More</fo:block></fo:marker>
+        |<fo:block id="${idPrefix(num)}_doc${num}_title-$num" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">Title $num &amp; More</fo:block>
         |<fo:block font-family="serif" font-size="10pt" space-after="3mm">Text $num</fo:block>""".stripMargin
     }
 
@@ -65,15 +65,15 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     
     def resultWithDocTitle (num: Int): String = {
       s"""<fo:block id="${idPrefix(num)}_doc${num}_">
-        |  <fo:marker marker-class-name="chapter"><fo:block>Title $num</fo:block></fo:marker>
-        |  <fo:block id="${idPrefix(num)}_doc${num}_title-$num" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">Title $num</fo:block>
+        |  <fo:marker marker-class-name="chapter"><fo:block>Title $num &amp; More</fo:block></fo:marker>
+        |  <fo:block id="${idPrefix(num)}_doc${num}_title-$num" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">Title $num &amp; More</fo:block>
         |</fo:block>
         |<fo:block font-family="serif" font-size="10pt" space-after="3mm">Text $num</fo:block>""".stripMargin
     }
     
     def treeTitleResult (num: Int): String = {
       val idPrefix = if (num == 3) "_tree2" else if (num == 2) "_tree1" else ""
-      s"""<fo:block id="${idPrefix}__title__" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">Tree $num</fo:block>"""
+      s"""<fo:block id="${idPrefix}__title__" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">Tree $num &amp; More</fo:block>"""
     }
     
     def treeLinkResult (num: Int): String = {
@@ -89,32 +89,32 @@ class FOforPDFSpec extends FlatSpec with Matchers {
       val margin = if (num > 2) """ margin-left="4mm"""" else ""
       val fontsize = if (num > 2) "11pt" else "12pt"
       val spaceBefore = if (num > 2) "2mm" else "5mm"
-      s"""<fo:block font-family="serif" font-size="$fontsize"$margin space-after="0mm" space-before="$spaceBefore" text-align-last="justify"><fo:basic-link color="#3956ac" internal-destination="${idPrefix(num)}_doc${num}_">Title $num<fo:leader leader-pattern="dots"></fo:leader><fo:page-number-citation ref-id="${idPrefix(num)}_doc${num}_" /></fo:basic-link></fo:block>""" + "\n"
+      s"""<fo:block font-family="serif" font-size="$fontsize"$margin space-after="0mm" space-before="$spaceBefore" text-align-last="justify"><fo:basic-link color="#3956ac" internal-destination="${idPrefix(num)}_doc${num}_">Title $num &amp; More<fo:leader leader-pattern="dots"></fo:leader><fo:page-number-citation ref-id="${idPrefix(num)}_doc${num}_" /></fo:basic-link></fo:block>""" + "\n"
     }
     
     def tocTreeResult (num: Int): String = 
-      s"""<fo:block font-family="serif" font-size="12pt" space-after="0mm" space-before="5mm" text-align-last="justify"><fo:basic-link color="#3956ac" internal-destination="_tree${num}__title__">Tree ${num+1}<fo:leader leader-pattern="dots"></fo:leader><fo:page-number-citation ref-id="_tree${num}__title__" /></fo:basic-link></fo:block>""" + "\n"  
+      s"""<fo:block font-family="serif" font-size="12pt" space-after="0mm" space-before="5mm" text-align-last="justify"><fo:basic-link color="#3956ac" internal-destination="_tree${num}__title__">Tree ${num+1} &amp; More<fo:leader leader-pattern="dots"></fo:leader><fo:page-number-citation ref-id="_tree${num}__title__" /></fo:basic-link></fo:block>""" + "\n"
     
     def withDefaultTemplate(result: String, bookmarks: String = ""): String =
       defaultTemplate.replace("{{document.content}}", result).replace("{{document.fragments.bookmarks}}", bookmarks)    
       
     def bookmarkTreeResult(treeNum: Int, docNum: Int): String = s"""    <fo:bookmark internal-destination="_tree${treeNum}__title__">
-      |      <fo:bookmark-title>Tree ${treeNum + 1}</fo:bookmark-title>
+      |      <fo:bookmark-title>Tree ${treeNum + 1} &amp; More</fo:bookmark-title>
       |      <fo:bookmark internal-destination="_tree${treeNum}_doc${docNum}_">
-      |        <fo:bookmark-title>Title $docNum</fo:bookmark-title>
+      |        <fo:bookmark-title>Title $docNum &amp; More</fo:bookmark-title>
       |      </fo:bookmark>
       |      <fo:bookmark internal-destination="_tree${treeNum}_doc${docNum + 1}_">
-      |        <fo:bookmark-title>Title ${docNum + 1}</fo:bookmark-title>
+      |        <fo:bookmark-title>Title ${docNum + 1} &amp; More</fo:bookmark-title>
       |      </fo:bookmark>
       |    </fo:bookmark>
       |""".stripMargin  
       
     val bookmarkRootResult = """<fo:bookmark-tree>
       |    <fo:bookmark internal-destination="_doc1_">
-      |      <fo:bookmark-title>Title 1</fo:bookmark-title>
+      |      <fo:bookmark-title>Title 1 &amp; More</fo:bookmark-title>
       |    </fo:bookmark>
       |    <fo:bookmark internal-destination="_doc2_">
-      |      <fo:bookmark-title>Title 2</fo:bookmark-title>
+      |      <fo:bookmark-title>Title 2 &amp; More</fo:bookmark-title>
       |    </fo:bookmark>
       |""".stripMargin  
       
@@ -195,6 +195,6 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     
     result should be (withDefaultTemplate(results(6)))
   }
-  
-  
+
+
 }
