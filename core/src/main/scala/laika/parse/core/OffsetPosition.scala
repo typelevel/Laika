@@ -8,15 +8,17 @@
 
 package laika.parse.core
 
+import java.util.WeakHashMap
+
 import scala.collection.mutable.ArrayBuffer
 
 /** `OffsetPosition` is a standard class for positions
  *   represented as offsets into a source ``document''.
  *
- *
- *   @param source   The source document
+  *
+  *   @param source   The source document
  *   @param offset   The offset indicating the position
- * @author Martin Odersky
+  * @author Martin Odersky
  */
 case class OffsetPosition(source: CharSequence, offset: Int) extends Position {
 
@@ -85,6 +87,19 @@ case class OffsetPosition(source: CharSequence, offset: Int) extends Position {
       this.line < that.line ||
       this.line == that.line && this.column < that.column
   }
+}
+
+/**
+  * @author Tomáš Janoušek
+  */
+private[core] trait PositionCache {
+  private lazy val indexCacheTL =
+  // not DynamicVariable as that would share the map from parent to child :-(
+    new ThreadLocal[java.util.Map[CharSequence, Array[Int]]] {
+      override def initialValue = new WeakHashMap[CharSequence, Array[Int]]
+    }
+
+  private[core] def indexCache = indexCacheTL.get
 }
 
 /** An object holding the index cache.

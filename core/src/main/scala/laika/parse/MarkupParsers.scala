@@ -33,9 +33,6 @@ import laika.parse.core.Reader
 trait MarkupParsers extends RegexParsers with BaseParsers {
 
   
-  override def skipWhitespace: Boolean = false
-  
-
   /** Implicit conversion that allows to pass a single
    *  character to the range-based `anyIn` parser. 
    */

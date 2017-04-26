@@ -128,29 +128,31 @@ class MarkupParsersSpec extends FlatSpec with Matchers with MarkupParsers with P
   it should "stop when a stop char is seen" in {
     Parsing ("abcdxxx") using (anyBut('x') stopChars('c','d')) should produce ("ab")
   }
+
+  val az = anyIn('a' to 'z') min 1
   
   "The anyUntil parser" should "stop as soon as the specified parser succeeds" in {
-    Parsing ("123abc") using anyUntil("[a-z]".r) should produce ("123")
+    Parsing ("123abc") using anyUntil(az) should produce ("123")
   }
   
   it should "fail when it does not consume the specified minimum number of characters" in {
-    Parsing ("12abc") using (anyUntil("[a-z]".r) min 3) should cause [Failure]
+    Parsing ("12abc") using (anyUntil(az) min 3) should cause [Failure]
   }
   
   it should "succeed when it does consume the specified minimum number of characters" in {
-    Parsing ("1234abc") using (anyUntil("[a-z]".r) min 3) should produce ("1234")
+    Parsing ("1234abc") using (anyUntil(az) min 3) should produce ("1234")
   }
   
   it should "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
-    Parsing ("1234xx") using (anyUntil("[a-z]".r) max 3) should produce ("123")
+    Parsing ("1234xx") using (anyUntil(az) max 3) should produce ("123")
   }
   
   it should "stop when a stop char is seen" in {
-    Parsing ("1234abcd") using (anyUntil("[a-z]".r) stopChars('3','4')) should produce ("12")
+    Parsing ("1234abcd") using (anyUntil(az) stopChars('3','4')) should produce ("12")
   }
   
   it should "fail in case the end of the input is reached" in {
-    Parsing ("1234567") using anyUntil("[a-z]".r) should cause [Failure]
+    Parsing ("1234567") using anyUntil(az) should cause [Failure]
   }
   
   
