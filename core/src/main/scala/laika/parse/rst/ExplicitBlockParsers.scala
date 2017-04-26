@@ -170,7 +170,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
   def parseDirectivePart [T] (parser: Parser[T], source: String): Either[String,T] = {
     parseAll(parser, source.trim) match {
       case Success(result,_) => Right(result)
-      case NoSuccess(msg, _) => Left(msg)
+      case Failure(msg, _) => Left(msg)
     }
   }
   
@@ -204,7 +204,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
   private def directive [E](p: Parser[E], name: String): Parser[E] = Parser { in =>
     p(in) match {
       case s @ Success(_,_) => s
-      case NoSuccess(msg, next) => (indentedBlock() ^^ { block =>
+      case Failure(msg, next) => (indentedBlock() ^^ { block =>
         InvalidDirective(msg, s".. $name " + (block.lines mkString "\n")).asInstanceOf[E]
       })(in)
     }

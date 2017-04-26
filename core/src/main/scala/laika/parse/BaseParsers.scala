@@ -47,7 +47,7 @@ trait BaseParsers extends Parsers {
           elems += result
           val newParser = next(result)
           parse(rest, newParser)
-        case ns: NoSuccess => Success(elems.toList, input)
+        case _: Failure => Success(elems.toList, input)
       }
 
     parse(in, first)
@@ -63,9 +63,9 @@ trait BaseParsers extends Parsers {
 
     @tailrec 
     def parse (input: Input): ParseResult[List[T]]  = parser(input) match {
-      case Success(x, rest)                         => elems += x ; parse(rest)
-      case ns: NoSuccess if elems.length >= num   => Success(elems.toList, input)
-      case ns: NoSuccess                            => ns
+      case Success(x, rest)                    => elems += x ; parse(rest)
+      case _: Failure if elems.length >= num   => Success(elems.toList, input)
+      case f: Failure                          => f
     }
 
     parse(in)
@@ -84,7 +84,7 @@ trait BaseParsers extends Parsers {
         if (elems.length == num) Success(elems.toList, input)
         else parser(input) match {
           case Success(x, rest)   => elems += x ; parse(rest)
-          case ns: NoSuccess      => Success(elems.toList, input)
+          case _: Failure         => Success(elems.toList, input)
         }
 
       parse(in)
@@ -97,7 +97,7 @@ trait BaseParsers extends Parsers {
     if (in.offset - offset < 0) Failure("Unable to look behind with offset "+offset, in)
     else parser(in.drop(-offset)) match {
       case Success(result, _) => Success(result, in)
-      case NoSuccess(msg, _)  => Failure(msg, in)
+      case Failure(msg, _)    => Failure(msg, in)
     }
   }
   
@@ -122,7 +122,7 @@ trait BaseParsers extends Parsers {
       
       parser(in) match {
         case Success(result, next) => f(result) fold (msg => Failure(msg,in), res => Success(res,next))
-        case ns: NoSuccess => ns
+        case f: Failure => f
       }
         
     }

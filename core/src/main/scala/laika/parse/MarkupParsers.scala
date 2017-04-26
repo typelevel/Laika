@@ -125,7 +125,7 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
     
     def apply (in: Input): ParseResult[String] = parser(in) match {
       case Success((result,_), next) => Success(result, next)
-      case ns: NoSuccess => ns
+      case f: Failure => f
     }
   }
   
@@ -270,7 +270,6 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
         if (input.atEnd && failAtEof) Failure("unexpected end of input", in)
         else parser(input) match {
           case Success(_, next) => result(input.offset, next)
-          case Error(msg, next) => Failure(msg, input)
           case Failure(_, _)    =>
             if (input.offset == maxOffset) result(input.offset, input)
             else if (isStopChar(input.first)) result(input.offset, input, onStopChar = true)
@@ -293,7 +292,7 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
   def parseMarkup [T] (parser: Parser[T], source: String): T = {
     parseAll(parser, source) match {
       case Success(result,_) => result
-      case ns: NoSuccess     => throw new MarkupParserException(ns)
+      case f: Failure        => throw new MarkupParserException(f)
     }
   }
   
@@ -305,7 +304,7 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
   def parseMarkup [T] (parser: Parser[T], reader: Reader[Char]): T = {
     parseAll(parser, reader) match {
       case Success(result,_) => result
-      case ns: NoSuccess     => throw new MarkupParserException(ns)
+      case ns: Failure       => throw new MarkupParserException(ns)
     }
   }
   
@@ -315,7 +314,7 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
    *  is to treat all unknown or malformed markup as regular text and always succeed.
    *  The result property holds the `NoSuccess` instance that caused the failure.
    */
-  class MarkupParserException (val result: NoSuccess) extends RuntimeException(result.toString)
+  class MarkupParserException (val result: Failure) extends RuntimeException(result.toString)
   
   
 }

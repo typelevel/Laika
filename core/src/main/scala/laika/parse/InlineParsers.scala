@@ -132,7 +132,7 @@ trait InlineParsers extends MarkupParsers {
     @tailrec
     def parse (input: Input) : ParseResult[To] = {
       textParser.applyInternal(input) match {
-        case NoSuccess(msg, _) =>
+        case Failure(msg, _) =>
           Failure(msg, in)
         case Success((text,onStopChar), next) =>
           addText(text)

@@ -36,7 +36,7 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
   def withSource[T] (p: Parser[T]): Parser[(T, String)] = Parser { in =>
     p(in) match {
       case Success(result, next) => Success((result, next.source.subSequence(in.offset, next.offset).toString), next)
-      case ns: NoSuccess         => ns
+      case f: Failure            => f
     }
   }
   

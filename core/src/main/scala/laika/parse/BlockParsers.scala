@@ -182,7 +182,7 @@ trait BlockParsers extends MarkupParsers {
   def withNestLevel [T] (p: => Parser[T]): Parser[(Int, T)] = Parser { in =>
     p(in) match {
       case Success(res, next) => Success((nestLevel(next), res), next)
-      case ns: NoSuccess      => ns
+      case f: Failure         => f
     }
   }
   

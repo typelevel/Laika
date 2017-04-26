@@ -316,7 +316,6 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
     p(new CharSequenceReader(source)) match {
       case Success(result, _) => Success(result.reverse, in)
       case Failure(msg, _) => Failure(msg, in)
-      case Error(msg, _) => Error(msg, in)
     }
   }
   

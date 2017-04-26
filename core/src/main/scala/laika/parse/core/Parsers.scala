@@ -11,7 +11,6 @@ package laika.parse.core
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 import scala.language.implicitConversions
-import scala.util.DynamicVariable
 
 // TODO: better error handling (labelling like parsec's <?>)
 
@@ -153,57 +152,32 @@ trait Parsers {
     val successful = true
   }
 
-
-  /** A common super-class for unsuccessful parse results. */
-  sealed abstract class NoSuccess(val msg: String, override val next: Input) extends ParseResult[Nothing] { // when we don't care about the difference between Failure and Error
-    val successful = false
-
-    def map[U](f: Nothing => U) = this
-    def mapPartial[U](f: PartialFunction[Nothing, U], error: Nothing => String): ParseResult[U] = this
-
-    def flatMapWithNext[U](f: Nothing => Input => ParseResult[U]): ParseResult[U]
-      = this
-
-    def filterWithError(p: Nothing => Boolean, error: Nothing => String, position: Input): ParseResult[Nothing] = this
-
-    def get: Nothing = scala.sys.error("No result when parsing failed")
-  }
-  /** An extractor so `NoSuccess(msg, next)` can be used in matches. */
-  object NoSuccess {
-    def unapply[T](x: ParseResult[T]) = x match {
-      case Failure(msg, next)   => Some((msg, next))
-      case Error(msg, next)     => Some((msg, next))
-      case _                    => None
-    }
-  }
-
   /** The failure case of `ParseResult`: contains an error-message and the remaining input.
    *  Parsing will back-track when a failure occurs.
    *
    *  @param msg    An error message string describing the failure.
    *  @param next   The parser's unconsumed input at the point where the failure occurred.
    */
-  case class Failure(override val msg: String, override val next: Input) extends NoSuccess(msg, next) {
-    /** The toString method of a Failure yields an error message. */
-    override def toString = "["+next.pos+"] failure: "+msg+"\n\n"+next.pos.longString
+  case class Failure(msg: String, next: Input) extends ParseResult[Nothing] {
+
+    val successful = false
+
+    def map[U](f: Nothing => U) = this
+    def mapPartial[U](f: PartialFunction[Nothing, U], error: Nothing => String): ParseResult[U] = this
+
+    def flatMapWithNext[U](f: Nothing => Input => ParseResult[U]): ParseResult[U] = this
+
+    def filterWithError(p: Nothing => Boolean, error: Nothing => String, position: Input): ParseResult[Nothing] = this
+
+    def get: Nothing = scala.sys.error("No result when parsing failed")
 
     def append[U >: Nothing](a: => ParseResult[U]): ParseResult[U] = { val alt = a; alt match {
       case Success(_, _) => alt
-      case ns: NoSuccess => if (alt.next.pos < next.pos) this else alt
+      case f: Failure => if (alt.next.pos < next.pos) this else alt
     }}
-  }
 
-  /** The fatal failure case of ParseResult: contains an error-message and
-   *  the remaining input.
-   *  No back-tracking is done when a parser returns an `Error`.
-   *
-   *  @param msg    An error message string describing the error.
-   *  @param next   The parser's unconsumed input at the point where the error occurred.
-   */
-  case class Error(override val msg: String, override val next: Input) extends NoSuccess(msg, next) {
-    /** The toString method of an Error yields an error message. */
-    override def toString = "["+next.pos+"] error: "+msg+"\n\n"+next.pos.longString
-    def append[U >: Nothing](a: => ParseResult[U]): ParseResult[U] = this
+    /** The toString method of a Failure yields an error message. */
+    override def toString = "["+next.pos+"] failure: "+msg+"\n\n"+next.pos.longString
   }
 
   def Parser[T](f: Input => ParseResult[T]): Parser[T]
@@ -498,7 +472,6 @@ trait Parsers {
       val p0 = p    // avoid repeatedly re-evaluating by-name parser
       @tailrec def applyp(in0: Input): ParseResult[List[T]] = p0(in0) match {
         case Success(x, rest) => elems += x ; applyp(rest)
-        case e @ Error(_, _)  => e  // still have to propagate error
         case _                => Success(elems.toList, in0)
       }
 
@@ -507,7 +480,7 @@ trait Parsers {
 
     first(in) match {
       case Success(x, rest) => elems += x ; continue(rest)
-      case ns: NoSuccess    => ns
+      case f: Failure       => f
     }
   }
 
@@ -530,7 +503,7 @@ trait Parsers {
         if (elems.length == num) Success(elems.toList, in0)
         else p0(in0) match {
           case Success(x, rest) => elems += x ; applyp(rest)
-          case ns: NoSuccess    => ns
+          case f: Failure       => f
         }
 
       applyp(in)

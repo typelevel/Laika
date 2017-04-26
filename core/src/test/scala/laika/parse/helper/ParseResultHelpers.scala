@@ -22,13 +22,13 @@ import org.scalatest.matchers.Matcher
 
 trait ParseResultHelpers { self: Parsers =>
 
-  class ParserNoSuccessMatcher[T <: NoSuccess] (m: Manifest[T]) extends Matcher[ParseResult[_]] {
+  class ParserFailureMatcher[T <: Failure](m: Manifest[T]) extends Matcher[ParseResult[_]] {
 
     def apply (left: ParseResult[_]): MatchResult = {
 
       val failureMessageSuffix = left match {
-        case Success(result,_)   => s"parser produced result $result instead of failing with result type ${m.runtimeClass.getSimpleName}"
-        case ns @ NoSuccess(_,_) => s"parser result type ${ns.getClass.getSimpleName} was not the expected type ${m.runtimeClass.getSimpleName}"
+        case Success(result,_)  => s"parser produced result $result instead of failing with result type ${m.runtimeClass.getSimpleName}"
+        case f @ Failure(_,_)   => s"parser result type ${f.getClass.getSimpleName} was not the expected type ${m.runtimeClass.getSimpleName}"
       }
       val negatedFailureMessageSuffix = s"parser '$left' did have the unexpected result type ${m.runtimeClass.getSimpleName}"
 
@@ -41,8 +41,8 @@ trait ParseResultHelpers { self: Parsers =>
       )
     }
   }
-  
-  def cause [T <: NoSuccess] (implicit m: Manifest[T]): ParserNoSuccessMatcher[T] = new ParserNoSuccessMatcher[T](m)
+
+  def cause [T <: Failure] (implicit m: Manifest[T]): ParserFailureMatcher[T] = new ParserFailureMatcher[T](m)
   
   class ParserSuccessMatcher[T] (expected: T) extends Matcher[ParseResult[T]] {
 
@@ -50,7 +50,7 @@ trait ParseResultHelpers { self: Parsers =>
 
       val failureMessageSuffix = left match {
         case Success(unexpected,_) => s"parser result '$unexpected' was not equal to '$expected'"
-        case NoSuccess(msg,in)     => s"parser failed with message '$msg' at ${in.pos} instead of producing expected result '$expected'"
+        case Failure(msg,in)       => s"parser failed with message '$msg' at ${in.pos} instead of producing expected result '$expected'"
       }
       
       val negatedFailureMessageSuffix = s"parser '$left' did produce the unexpected result $expected"
