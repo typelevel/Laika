@@ -22,12 +22,11 @@ import java.io.FileInputStream
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.StringReader
-import scala.collection.immutable.PagedSeq
+
 import scala.io.Codec
-import laika.parse.core.CharSequenceReader
-import laika.parse.core.PagedSeqReader
-import laika.parse.core.Reader
+import laika.parse.core.{ParserContext, Reader}
 import java.io.File
+
 import laika.tree.Paths.Path
 import laika.tree.Paths.Root
 
@@ -89,13 +88,13 @@ object Input {
     
     def asReader: java.io.Reader = new StringReader(source)
   
-    def asParserInput: Reader = new CharSequenceReader(source)
+    def asParserInput: Reader = ParserContext(source)
     
   }
   
   private class ReaderInput (val asReader: java.io.Reader, val path: Path) extends Input {
    
-    def asParserInput: Reader = new PagedSeqReader(PagedSeq.fromReader(asReader))
+    def asParserInput: Reader = ParserContext(asReader)
 
   }
   
@@ -105,7 +104,7 @@ object Input {
       val asStream = stream
     }
     
-    def asParserInput: Reader = new PagedSeqReader(PagedSeq.fromReader(asReader))
+    def asParserInput: Reader = ParserContext(asReader)
     
     lazy val asReader: java.io.Reader = new BufferedReader(new InputStreamReader(stream, codec.decoder))
     
@@ -127,7 +126,7 @@ object Input {
     private lazy val delegate = new AutocloseStreamInput(new FileInputStream(file), path, codec)
     
     def asReader: java.io.Reader = delegate.asReader
-    def asParserInput: Reader = delegate.asParserInput
+    def asParserInput: Reader = ParserContext(delegate.asReader, file.length.toInt)
     def close: Unit = delegate.close
     def asBinaryInput: BinaryInput = delegate.asBinaryInput
   }

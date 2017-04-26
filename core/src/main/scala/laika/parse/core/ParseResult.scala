@@ -48,7 +48,7 @@ sealed abstract class ParseResult[+T] {
   *  @param result The parser's output
   *  @param next   The parser's remaining input
   */
-case class Success[+T](result: T, override val next: Reader) extends ParseResult[T] {
+case class Success[+T](result: T, next: Reader) extends ParseResult[T] {
   def map[U](f: T => U) = Success(f(result), next)
   def mapPartial[U](f: PartialFunction[T, U], error: T => String): ParseResult[U]
   = if(f.isDefinedAt(result)) Success(f(result), next)
