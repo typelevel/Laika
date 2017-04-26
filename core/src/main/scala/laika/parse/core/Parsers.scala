@@ -71,15 +71,10 @@ import scala.language.implicitConversions
  *  @author Adriaan Moors
  */
 trait Parsers {
-  /** the type of input elements the provided parsers consume (When consuming
-   *  invidual characters, a parser is typically called a ''scanner'', which
-   *  produces ''tokens'' that are consumed by what is normally called a ''parser''.
-   *  Nonetheless, the same principles apply, regardless of the input type.) */
-  type Elem
 
   /** The parser input is an abstract reader of input elements, i.e. the type
    *  of input the parsers in this component expect. */
-  type Input = Reader[Elem]
+  type Input = Reader
 
   /** A base class for parser results. A result is either successful or not
    *  (failure may be fatal, i.e., an Error, or not, i.e., a Failure). On
@@ -375,7 +370,7 @@ trait Parsers {
    *  @param e the `Elem` that must be the next piece of input for the returned parser to succeed
    *  @return a `Parser` that succeeds if `e` is the next available input (and returns it).
    */
-  def elem(e: Elem): Parser[Elem] = accept(e)
+  def elem(e: Char): Parser[Char] = accept(e)
 
   /** A parser that matches only the given element `e`.
    *
@@ -387,7 +382,7 @@ trait Parsers {
    *  @return a `tParser` that succeeds if `e` is the next available input.
    */
 
-  implicit def accept(e: Elem): Parser[Elem] = acceptIf(_ == e)("'"+e+"' expected but " + _ + " found")
+  implicit def accept(e: Char): Parser[Char] = acceptIf(_ == e)("'"+e+"' expected but " + _ + " found")
 
   /** A parser matching input elements that satisfy a given predicate.
    *
@@ -397,10 +392,31 @@ trait Parsers {
    *  @param  p      A predicate that determines which elements match.
    *  @return        A parser for elements satisfying p(e).
    */
-  def acceptIf(p: Elem => Boolean)(err: Elem => String): Parser[Elem] = Parser { in =>
+  def acceptIf(p: Char => Boolean)(err: Char => String): Parser[Char] = Parser { in =>
     if (in.atEnd) Failure("end of input", in)
     else if (p(in.first)) Success(in.first, in.rest)
     else Failure(err(in.first), in)
+  }
+
+  /** A parser that matches a literal string */
+  implicit def literal(s: String): Parser[String] = new Parser[String] {
+    def apply(in: Input) = {
+      val source = in.source
+      val offset = in.offset
+      val start = offset
+      var i = 0
+      var j = start
+      while (i < s.length && j < source.length && s.charAt(i) == source.charAt(j)) {
+        i += 1
+        j += 1
+      }
+      if (i == s.length)
+        Success(source.subSequence(start, j).toString, in.drop(j - offset))
+      else  {
+        val found = if (start == source.length()) "end of source" else "`"+source.charAt(start)+"'"
+        Failure("`"+s+"' expected but "+found+" found", in.drop(start - offset))
+      }
+    }
   }
 
   /** A parser that always fails.
@@ -597,5 +613,18 @@ trait Parsers {
   case class ~[+a, +b](_1: a, _2: b) {
     override def toString = "("+ _1 +"~"+ _2 +")"
   }
+
+
+  /** Parse some prefix of reader `in` with parser `p`. */
+  def parse[T](p: Parser[T], in: Reader): ParseResult[T] = p(in)
+
+  /** Parse some prefix of character sequence `in` with parser `p`. */
+  def parse[T](p: Parser[T], in: java.lang.CharSequence): ParseResult[T] = p(new CharSequenceReader(in))
+
+  /** Parse all of reader `in` with parser `p`. */
+  def parseAll[T](p: Parser[T], in: Reader): ParseResult[T] = parse(consumeAll(p), in)
+
+  /** Parse all of character sequence `in` with parser `p`. */
+  def parseAll[T](p: Parser[T], in: java.lang.CharSequence): ParseResult[T] = parse(consumeAll(p), in)
 
 }

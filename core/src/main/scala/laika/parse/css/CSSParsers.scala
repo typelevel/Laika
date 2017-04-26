@@ -157,7 +157,7 @@ trait CSSParsers extends laika.parse.InlineParsers {
    *  @param path the path the input has been obtained from
    *  @return the resulting set of style declarations
    */
-  def parseStyleSheet (reader: Reader[Char], path: Path): StyleDeclarationSet = {
+  def parseStyleSheet (reader: Reader, path: Path): StyleDeclarationSet = {
     val set = parseMarkup(styleDeclarationSet, reader)
     new StyleDeclarationSet(Set(path), set)
   }

@@ -21,8 +21,6 @@ import laika.parse.core.CharSequenceReader
 
 trait DefaultParserHelpers[T] { self: Parsers =>
   
-  override type Elem = Char
-
   def defaultParser: Parser[T]
   
   object Parsing {

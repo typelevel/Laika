@@ -84,7 +84,7 @@ object TemplateParsers {
       case None ~ root                => (ConfigFactory.empty(), root)
     }
   
-    def parseTemplate (reader: Reader[Char], path: Path): TemplateDocument = {
+    def parseTemplate (reader: Reader, path: Path): TemplateDocument = {
       val (config, root) = parseMarkup(templateWithConfig(path), reader)
       TemplateDocument(path, TemplateRoot(root), config)
     }

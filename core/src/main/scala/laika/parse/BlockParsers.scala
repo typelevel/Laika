@@ -73,7 +73,7 @@ trait BlockParsers extends MarkupParsers {
    *  of this library, as the parsers treat all unknown or malformed markup as regular
    *  text.
    */
-  def parseDocument (reader: Reader[Char], path: Path): Document = {
+  def parseDocument (reader: Reader, path: Path): Document = {
     val (config, root) = parseConfigAndRoot(reader, path)
     Document(path, root, TreeUtil.extractFragments(root.content), config)
   }
@@ -82,7 +82,7 @@ trait BlockParsers extends MarkupParsers {
   
   /** Fully parses the input from the specified reader and returns the configuration and root element. 
    */
-  protected def parseConfigAndRoot (reader: Reader[Char], path: Path): (Config,RootElement) = {
+  protected def parseConfigAndRoot (reader: Reader, path: Path): (Config,RootElement) = {
     def assembleConfig (config: Config, root: RootElement) = {
       import scala.collection.JavaConverters._
       val values = root.content collect { case ConfigValue(name, value, _) => (name, value match {

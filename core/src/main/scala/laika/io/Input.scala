@@ -47,7 +47,7 @@ trait Input {
 
   /** The input as a Reader instance for the parser combinators of the Scala SDK.
    */
-  def asParserInput: Reader[Char]
+  def asParserInput: Reader
   
   /** The full path of this input.
    *  This path is always an absolute path
@@ -89,13 +89,13 @@ object Input {
     
     def asReader: java.io.Reader = new StringReader(source)
   
-    def asParserInput: Reader[Char] = new CharSequenceReader(source)
+    def asParserInput: Reader = new CharSequenceReader(source)
     
   }
   
   private class ReaderInput (val asReader: java.io.Reader, val path: Path) extends Input {
    
-    def asParserInput: Reader[Char] = new PagedSeqReader(PagedSeq.fromReader(asReader))
+    def asParserInput: Reader = new PagedSeqReader(PagedSeq.fromReader(asReader))
 
   }
   
@@ -105,7 +105,7 @@ object Input {
       val asStream = stream
     }
     
-    def asParserInput: Reader[Char] = new PagedSeqReader(PagedSeq.fromReader(asReader))
+    def asParserInput: Reader = new PagedSeqReader(PagedSeq.fromReader(asReader))
     
     lazy val asReader: java.io.Reader = new BufferedReader(new InputStreamReader(stream, codec.decoder))
     
@@ -127,7 +127,7 @@ object Input {
     private lazy val delegate = new AutocloseStreamInput(new FileInputStream(file), path, codec)
     
     def asReader: java.io.Reader = delegate.asReader
-    def asParserInput: Reader[Char] = delegate.asParserInput
+    def asParserInput: Reader = delegate.asParserInput
     def close: Unit = delegate.close
     def asBinaryInput: BinaryInput = delegate.asBinaryInput
   }
@@ -137,7 +137,7 @@ object Input {
     private lazy val delegate = new AutocloseStreamInput(getClass.getResourceAsStream(resource), path, codec)
     
     def asReader: java.io.Reader = delegate.asReader
-    def asParserInput: Reader[Char] = delegate.asParserInput
+    def asParserInput: Reader = delegate.asParserInput
     def close: Unit = delegate.close
     def asBinaryInput: BinaryInput = delegate.asBinaryInput
   }

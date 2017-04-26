@@ -15,34 +15,30 @@ package laika.parse.core
  * @author Martin Odersky
  * @author Adriaan Moors
  */
-abstract class Reader[+T] {
+abstract class Reader {
 
   /** If this is a reader over character sequences, the underlying char sequence.
    *  If not, throws a `NoSuchMethodError` exception.
-   *
-   *  @throws [[java.lang.NoSuchMethodError]] if this not a char sequence reader.
    */
-  def source: java.lang.CharSequence =
-    throw new NoSuchMethodError("not a char sequence reader")
+  def source: java.lang.CharSequence
 
-  def offset: Int =
-    throw new NoSuchMethodError("not a char sequence reader")
+  def offset: Int
 
    /** Returns the first element of the reader
     */
-  def first: T
+  def first: Char
 
   /** Returns an abstract reader consisting of all elements except the first
    *
    * @return If `atEnd` is `true`, the result will be `this';
    *         otherwise, it's a `Reader` containing more elements.
    */
-  def rest: Reader[T]
+  def rest: Reader
 
   /** Returns an abstract reader consisting of all elements except the first `n` elements.
    */
-  def drop(n: Int): Reader[T] = {
-    var r: Reader[T] = this
+  def drop(n: Int): Reader = {
+    var r: Reader = this
     var cnt = n
     while (cnt > 0) {
       r = r.rest; cnt -= 1

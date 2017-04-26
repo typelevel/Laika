@@ -25,7 +25,8 @@ object CharSequenceReader {
  * @author Martin Odersky
  */
 class CharSequenceReader(override val source: java.lang.CharSequence,
-                         override val offset: Int) extends Reader[Char] {
+                         override val offset: Int) extends Reader {
+
   import CharSequenceReader._
 
   /** Construct a `CharSequenceReader` with its first element at

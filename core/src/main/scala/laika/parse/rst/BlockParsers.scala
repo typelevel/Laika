@@ -48,7 +48,7 @@ trait BlockParsers extends laika.parse.BlockParsers
   override def ws: TextParser = anyOf(' ') // other whitespace has been replaced with spaces by preprocessor
                         
   
-  override def parseDocument (reader: Reader[Char], path: Path): Document = {
+  override def parseDocument (reader: Reader, path: Path): Document = {
     def extractDocInfo (config: Config, root: RootElement) = {
       val docStart = root.content dropWhile { case c: Comment => true; case h: DecoratedHeader => true; case _ => false } headOption 
       val docInfo = docStart collect { case FieldList(fields,_) => fields map (field => (TreeUtil.extractText(field.name), 

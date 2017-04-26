@@ -17,7 +17,6 @@
 package laika.parse
 
 import scala.annotation.tailrec
-import laika.parse.core.RegexParsers
 import laika.parse.core.Reader
 
 /** Base parsers that provide optimized low-level renderers for typical requirements
@@ -30,7 +29,7 @@ import laika.parse.core.Reader
  * 
  *  @author Jens Halm
  */
-trait MarkupParsers extends RegexParsers with BaseParsers {
+trait MarkupParsers extends BaseParsers {
 
   
   /** Implicit conversion that allows to pass a single
@@ -301,7 +300,7 @@ trait MarkupParsers extends RegexParsers with BaseParsers {
    *  in this library, as the parsers treat all unknown or malformed markup as regular
    *  text.
    */
-  def parseMarkup [T] (parser: Parser[T], reader: Reader[Char]): T = {
+  def parseMarkup [T] (parser: Parser[T], reader: Reader): T = {
     parseAll(parser, reader) match {
       case Success(result,_) => result
       case ns: Failure       => throw new MarkupParserException(ns)
