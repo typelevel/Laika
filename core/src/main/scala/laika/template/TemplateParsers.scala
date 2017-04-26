@@ -16,7 +16,7 @@
 
 package laika.template
 
-import scala.util.parsing.input.Reader
+import laika.parse.core.Reader
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory

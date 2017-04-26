@@ -352,7 +352,7 @@ object Documents {
                            styles: Map[String,StyleDeclarationSet] = Map.empty.withDefaultValue(StyleDeclarationSet.empty),
                            additionalContent: Seq[AdditionalContent] = Nil,
                            config: Config = ConfigFactory.empty,
-                           position: TreePosition = TreePosition(Seq()),
+                           position: TreePosition = TreePosition.root,
                            sourcePaths: Seq[String] = Nil) extends TreeStructure with TreeContent {
     
     val targetTree = this

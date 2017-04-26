@@ -16,7 +16,7 @@
 
 package laika.parse.helper
 
-import scala.util.parsing.combinator.Parsers
+import laika.parse.core.Parsers
 import org.scalatest.matchers.MatchResult
 import org.scalatest.matchers.Matcher
 

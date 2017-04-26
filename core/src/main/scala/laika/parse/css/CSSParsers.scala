@@ -20,7 +20,7 @@ import laika.parse.css.Styles._
 import laika.tree.Paths.Path
 import laika.tree.Elements.Span
 import laika.io.Input
-import scala.util.parsing.input.Reader
+import laika.parse.core.Reader
 
 /**
  * Parsers for the subset of CSS supported by Laika.

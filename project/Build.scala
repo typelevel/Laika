@@ -38,8 +38,6 @@ object Build extends Build {
   
   object Dependencies {
     
-    val parser    = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.5"
-    
     val scalatest = "org.scalatest" %% "scalatest" % "3.0.1"  % "test"
         
     val jTidy     = "net.sf.jtidy"  % "jtidy"      % "r938" % "test"
@@ -124,14 +122,11 @@ object Build extends Build {
   lazy val core = Project("laika-core", file("core"))
     .settings(Settings.module: _*)
     .settings(Publishing.mavenCentral: _*)
-    .settings(libraryDependencies ++= { Seq(
+    .settings(libraryDependencies ++= Seq(
       Dependencies.config,
       Dependencies.scalatest, 
       Dependencies.jTidy
-    ) ++ { CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, scalaMajor)) if scalaMajor >= 11 => Seq(Dependencies.parser)
-      case _ => Seq()
-    }}})
+    ))
     
   lazy val pdf = Project("laika-pdf", file("pdf"))
     .dependsOn(core)

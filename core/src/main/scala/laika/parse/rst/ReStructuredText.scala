@@ -29,7 +29,7 @@ import laika.template.TemplateParsers
 import laika.tree.Documents.Document
 import laika.tree.Elements._
 
-import scala.util.parsing.input.CharSequenceReader
+import laika.parse.core.CharSequenceReader
   
 /** A parser for text written in reStructuredText markup. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:

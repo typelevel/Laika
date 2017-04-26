@@ -24,9 +24,9 @@ import java.io.InputStreamReader
 import java.io.StringReader
 import scala.collection.immutable.PagedSeq
 import scala.io.Codec
-import scala.util.parsing.input.CharSequenceReader
-import scala.util.parsing.input.PagedSeqReader
-import scala.util.parsing.input.Reader
+import laika.parse.core.CharSequenceReader
+import laika.parse.core.PagedSeqReader
+import laika.parse.core.Reader
 import java.io.File
 import laika.tree.Paths.Path
 import laika.tree.Paths.Root

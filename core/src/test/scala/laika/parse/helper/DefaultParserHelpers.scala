@@ -16,8 +16,8 @@
 
 package laika.parse.helper
 
-import scala.util.parsing.combinator.Parsers
-import scala.util.parsing.input.CharSequenceReader
+import laika.parse.core.Parsers
+import laika.parse.core.CharSequenceReader
 
 trait DefaultParserHelpers[T] { self: Parsers =>
   

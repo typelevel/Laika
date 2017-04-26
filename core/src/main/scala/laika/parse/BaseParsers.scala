@@ -18,7 +18,7 @@ package laika.parse
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
-import scala.util.parsing.combinator.Parsers
+import laika.parse.core.Parsers
 import scala.util.Try
 import scala.util.{Success => TSuccess}
 import scala.util.{Failure => TFailure}

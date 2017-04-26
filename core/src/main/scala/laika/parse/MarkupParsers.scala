@@ -17,8 +17,8 @@
 package laika.parse
 
 import scala.annotation.tailrec
-import scala.util.parsing.combinator.RegexParsers
-import scala.util.parsing.input.Reader
+import laika.parse.core.RegexParsers
+import laika.parse.core.Reader
 
 /** Base parsers that provide optimized low-level renderers for typical requirements
  *  of text markup parsers. In particular they are meant as an efficient replacement

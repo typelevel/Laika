@@ -16,7 +16,7 @@
 
 package laika.parse
 
-import scala.util.parsing.input.CharSequenceReader
+import laika.parse.core.CharSequenceReader
 
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers

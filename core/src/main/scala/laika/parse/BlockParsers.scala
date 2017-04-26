@@ -22,7 +22,7 @@ import laika.tree.Documents.Document
 import laika.tree.Elements.{Block, ConfigValue, InvalidBlock, RootElement}
 import laika.tree.Paths.Path
 
-import scala.util.parsing.input.{CharSequenceReader, Reader}
+import laika.parse.core.{CharSequenceReader, Reader}
   
 /** A generic base trait for block parsers. Provides base parsers that abstract
  *  aspects of block parsing common to most lightweight markup languages.
