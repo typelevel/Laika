@@ -50,9 +50,9 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
   
   /** Parses an attribute value enclosed by the specified character.
    */
-  def htmlQuotedAttributeValue (char: Char): Parser[(List[Span with TextContainer], Option[Char])] = 
-    char ~> spans(anyBut(char), Map('&' -> htmlCharReference)) <~ char ^^ 
-      { spans => (spans.asInstanceOf[List[Span with TextContainer]], Some(char)) }
+  def htmlQuotedAttributeValue (c: Char): Parser[(List[Span with TextContainer], Option[Char])] =
+    c ~> spans(anyBut(c), Map('&' -> htmlCharReference)) <~ c ^^
+      { spans => (spans.asInstanceOf[List[Span with TextContainer]], Some(c)) }
     
   /** Parses quoted and unquoted attribute values.
    */
@@ -139,7 +139,7 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
   def htmlHexReference: Parser[String] = {
     val hexNumber = anyIn('0' to '9', 'a' to 'f', 'A' to 'F') min 1
 
-    (elem('x') | elem('X')) ~ hexNumber ^^ { mkString }
+    (char('x') | char('X')) ~ hexNumber ^^ { mkString }
   }
   
   def htmlDecReference: Parser[String] = anyIn('0' to '9') min 1

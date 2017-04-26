@@ -42,7 +42,7 @@ trait BaseParsers extends Parsers {
     val elems = new ListBuffer[T]
   
     @tailrec 
-    def parse (input: Input, p: Parser[T]): ParseResult[List[T]] =
+    def parse (input: Reader, p: Parser[T]): ParseResult[List[T]] =
       p(input) match {
         case Success(result, rest) => 
           elems += result
@@ -63,7 +63,7 @@ trait BaseParsers extends Parsers {
     lazy val parser = p
 
     @tailrec 
-    def parse (input: Input): ParseResult[List[T]]  = parser(input) match {
+    def parse (input: Reader): ParseResult[List[T]]  = parser(input) match {
       case Success(x, rest)                    => elems += x ; parse(rest)
       case _: Failure if elems.length >= num   => Success(elems.toList, input)
       case f: Failure                          => f
@@ -81,7 +81,7 @@ trait BaseParsers extends Parsers {
       val parser = p
 
       @tailrec 
-      def parse (input: Input): ParseResult[List[T]] =
+      def parse (input: Reader): ParseResult[List[T]] =
         if (elems.length == num) Success(elems.toList, input)
         else parser(input) match {
           case Success(x, rest)   => elems += x ; parse(rest)

@@ -72,37 +72,23 @@ import scala.language.implicitConversions
  */
 trait Parsers {
 
-  /** The parser input is an abstract reader of input elements, i.e. the type
-   *  of input the parsers in this component expect. */
-  type Input = Reader
 
-
-
-  def Parser[T](f: Input => ParseResult[T]): Parser[T]
-    = new Parser[T]{ def apply(in: Input) = f(in) }
-
+  def Parser[T](f: Reader => ParseResult[T]): Parser[T]
+    = new Parser[T]{ def apply(in: Reader) = f(in) }
 
 
   /** A parser that matches only the given element `e`.
-   *
-   *  `elem(e)` succeeds if the input starts with an element `e`.
-   *
-   *  @param e the `Elem` that must be the next piece of input for the returned parser to succeed
-   *  @return a `Parser` that succeeds if `e` is the next available input (and returns it).
-   */
-  def elem(e: Char): Parser[Char] = accept(e)
-
-  /** A parser that matches only the given element `e`.
-   *
-   *  The method is implicit so that elements can automatically be lifted to their parsers.
-   *  For example, when parsing `Token`s, `Identifier("new")` (which is a `Token`) can be used directly,
-   *  instead of first creating a `Parser` using `accept(Identifier("new"))`.
-   *
-   *  @param e the `Elem` that must be the next piece of input for the returned parser to succeed
-   *  @return a `tParser` that succeeds if `e` is the next available input.
-   */
-
-  implicit def accept(e: Char): Parser[Char] = acceptIf(_ == e)("'"+e+"' expected but " + _ + " found")
+    *
+    *  `elem(e)` succeeds if the input starts with an element `e`.
+    *
+    *  The method is implicit so that elements can automatically be lifted to their parsers.
+    *  For example, when parsing `Token`s, `Identifier("new")` (which is a `Token`) can be used directly,
+    *  instead of first creating a `Parser` using `elem(Identifier("new"))`.
+    *
+    *  @param e the `Elem` that must be the next piece of input for the returned parser to succeed
+    *  @return a `Parser` that succeeds if `e` is the next available input (and returns it).
+    */
+  implicit def char(e: Char): Parser[Char] = acceptIf(_ == e)("'"+e+"' expected but " + _ + " found")
 
   /** A parser matching input elements that satisfy a given predicate.
    *
@@ -120,10 +106,9 @@ trait Parsers {
 
   /** A parser that matches a literal string */
   implicit def literal(s: String): Parser[String] = new Parser[String] {
-    def apply(in: Input) = {
+    def apply(in: Reader) = {
       val source = in.source
-      val offset = in.offset
-      val start = offset
+      val start = in.offset
       var i = 0
       var j = start
       while (i < s.length && j < source.length && s.charAt(i) == source.charAt(j)) {
@@ -131,10 +116,10 @@ trait Parsers {
         j += 1
       }
       if (i == s.length)
-        Success(source.subSequence(start, j).toString, in.drop(j - offset))
+        Success(source.subSequence(start, j).toString, in.drop(j - start))
       else  {
         val found = if (start == source.length()) "end of source" else "`"+source.charAt(start)+"'"
-        Failure("`"+s+"' expected but "+found+" found", in.drop(start - offset))
+        Failure("`"+s+"' expected but "+found+" found", in)
       }
     }
   }
@@ -204,9 +189,9 @@ trait Parsers {
     lazy val p = p0 // lazy argument
     val elems = new ListBuffer[T]
 
-    def continue(in: Input): ParseResult[List[T]] = {
+    def continue(in: Reader): ParseResult[List[T]] = {
       val p0 = p    // avoid repeatedly re-evaluating by-name parser
-      @tailrec def applyp(in0: Input): ParseResult[List[T]] = p0(in0) match {
+      @tailrec def applyp(in0: Reader): ParseResult[List[T]] = p0(in0) match {
         case Success(x, rest) => elems += x ; applyp(rest)
         case _                => Success(elems.toList, in0)
       }
@@ -235,7 +220,7 @@ trait Parsers {
       val elems = new ListBuffer[T]
       val p0 = p    // avoid repeatedly re-evaluating by-name parser
 
-      @tailrec def applyp(in0: Input): ParseResult[List[T]] =
+      @tailrec def applyp(in0: Reader): ParseResult[List[T]] =
         if (elems.length == num) Success(elems.toList, in0)
         else p0(in0) match {
           case Success(x, rest) => elems += x ; applyp(rest)

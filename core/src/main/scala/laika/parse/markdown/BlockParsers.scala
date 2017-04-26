@@ -105,7 +105,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    *  characters with optional spaces between them
    */
   lazy val rule: Parser[Block] = {
-    def pattern (char: Char) = char ~ repMin(2, anyOf(' ') ~ char)
+    def pattern (c: Char) = c ~ repMin(2, anyOf(' ') ~ c)
     (pattern('*') | pattern('-') | pattern('_')) ~ ws ~ eol ^^^ { Rule() }
   }
 

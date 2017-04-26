@@ -120,9 +120,9 @@ trait MarkupParsers extends BaseParsers {
     
     private[parse] def consumeLastChar = new TextParser(newParser, minChar, maxChar, mustFailAtEOF, true, isStopChar)
     
-    private[parse] def applyInternal (in: Input) = parser(in)
+    private[parse] def applyInternal (in: Reader) = parser(in)
     
-    def apply (in: Input): ParseResult[String] = parser(in) match {
+    def apply (in: Reader): ParseResult[String] = parser(in) match {
       case Success((result,_), next) => Success(result, next)
       case f: Failure => f
     }
@@ -257,7 +257,7 @@ trait MarkupParsers extends BaseParsers {
       lazy val parser = until
       val maxOffset = if (max > 0) in.offset + max else in.source.length
       
-      def result (resultOffset: Int, next: Input, onStopChar: Boolean = false) = {
+      def result (resultOffset: Int, next: Reader, onStopChar: Boolean = false) = {
         if (resultOffset - in.offset >= min) 
           Success((in.source.subSequence(in.offset, resultOffset).toString, onStopChar), next)
         else 
@@ -265,7 +265,7 @@ trait MarkupParsers extends BaseParsers {
       }
       
       @tailrec
-      def parse (input: Input): ParseResult[(String,Boolean)] = {
+      def parse (input: Reader): ParseResult[(String,Boolean)] = {
         if (input.atEnd && failAtEof) Failure("unexpected end of input", in)
         else parser(input) match {
           case Success(_, next) => result(input.offset, next)

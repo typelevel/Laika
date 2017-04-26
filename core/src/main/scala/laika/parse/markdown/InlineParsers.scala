@@ -80,18 +80,18 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   /** Parses a span enclosed by a single occurrence of the specified character.
    *  Recursively parses nested spans, too. 
    */
-  def enclosedBySingleChar (char: Char): Parser[List[Span]] = {
-    val start = not(elem(' ') | elem(char))
-    val end = char ~ not(lookBehind(2, ' '))
+  def enclosedBySingleChar (c: Char): Parser[List[Span]] = {
+    val start = not(char(' ') | char(c))
+    val end = c ~ not(lookBehind(2, ' '))
     span(start, end) 
   }
   
   /** Parses a span enclosed by two consecutive occurrences of the specified character.
    *  Recursively parses nested spans, too. 
    */
-  def enclosedByDoubleChar (char: Char): Parser[List[Span]] = {
-    val start = char ~ not(' ')
-    val end = char ~ char ~ not(lookBehind(3, ' '))
+  def enclosedByDoubleChar (c: Char): Parser[List[Span]] = {
+    val start = c ~ not(' ')
+    val end = c ~ c ~ not(lookBehind(3, ' '))
     span(start, end)
   }
   

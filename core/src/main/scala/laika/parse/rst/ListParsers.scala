@@ -205,7 +205,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     val longPosix = ("--" <~ not('-')) ~ optionString ^^ { case a ~ b => a+b }
     val dos = '/' ~ optionString ^^ mkString
     
-    val arg = opt(accept('=') | ' ') ~ optionArg ^^ {
+    val arg = opt(char('=') | ' ') ~ optionArg ^^ {
       case Some(delim) ~ argStr => OptionArgument(argStr, delim.toString)
       case None ~ argStr => OptionArgument(argStr, "") 
     }

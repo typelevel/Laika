@@ -189,7 +189,7 @@ trait BlockParsers extends MarkupParsers {
    * 
    *  The nest level is usually only used to prevent endless recursion of nested blocks. 
    */
-  def nestLevel (reader: Input): Int = reader match {
+  def nestLevel (reader: Reader): Int = reader match {
     case nested: NestedCharSequenceReader => nested.nestLevel
     case _ => 0
   }

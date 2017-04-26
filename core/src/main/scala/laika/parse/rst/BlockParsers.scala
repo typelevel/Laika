@@ -212,7 +212,7 @@ trait BlockParsers extends laika.parse.BlockParsers
     }
     
     @tailrec 
-    def parse (p: Parser[Block], in: Input): ParseResult[List[Block]] = p(in) match {
+    def parse (p: Parser[Block], in: Reader): ParseResult[List[Block]] = p(in) match {
       case Success(Paragraph(Text(txt,_) :: Nil,_), rest) if txt.trim == "::" => parse(litBlock, rest)
       case Success(p: Paragraph, rest) => 
         val (paragraph, parser) = processLiteralMarker(p)
