@@ -16,10 +16,9 @@
 
 package laika.parse.markdown
 
+import laika.parse.core.Parser
 import org.scalatest.FlatSpec
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
-
 import laika.parse.helper.DefaultParserHelpers
 import laika.parse.helper.ParseResultHelpers
 import laika.tree.Elements.Span

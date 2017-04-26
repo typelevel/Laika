@@ -21,7 +21,7 @@ import laika.parse.util.URIParsers
 import laika.tree.Elements._
 
 import scala.collection.mutable.ListBuffer
-import laika.parse.core.CharSequenceReader
+import laika.parse.core.{CharSequenceReader, Failure, Parser, Success, ~}
 
 /** Provides all inline parsers for reStructuredText.
  *  

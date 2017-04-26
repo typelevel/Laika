@@ -21,8 +21,7 @@ import laika.rewrite.TreeUtil
 import laika.tree.Documents.Document
 import laika.tree.Elements.{Block, ConfigValue, InvalidBlock, RootElement}
 import laika.tree.Paths.Path
-
-import laika.parse.core.{CharSequenceReader, Reader}
+import laika.parse.core._
   
 /** A generic base trait for block parsers. Provides base parsers that abstract
  *  aspects of block parsing common to most lightweight markup languages.

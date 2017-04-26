@@ -22,6 +22,8 @@ import laika.util.Builders._
 import laika.parse.rst.Elements.SubstitutionDefinition
 import Directives._
 import TextRoles._
+import laika.parse.core.{Failure, Parser, Success, ~}
+
 import scala.collection.mutable.ListBuffer
 
 /** Provides the parsers for all types of explicit block elements.

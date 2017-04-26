@@ -16,6 +16,7 @@
 
 package laika.parse.rst
 
+import laika.parse.core.Parser
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers

@@ -16,12 +16,10 @@
 
 package laika.template
 
-import laika.parse.core.Reader
-
+import laika.parse.core.{Parser, Reader, ~}
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions
-
 import laika.directive.DirectiveParsers
 import laika.parse.InlineParsers
 import laika.tree.Paths.Path

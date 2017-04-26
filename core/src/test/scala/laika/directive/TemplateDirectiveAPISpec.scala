@@ -25,6 +25,7 @@ import laika.template.TemplateParsers
 import laika.directive.Directives.Templates
 import laika.directive.Directives.Templates.Directive
 import laika.directive.Directives.Default
+import laika.parse.core.Parser
 import laika.tree.Templates._
 import laika.tree.Elements._
 import laika.tree.Templates.TemplateContextReference

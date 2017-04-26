@@ -16,9 +16,10 @@
 
 package laika.parse
 
+import laika.parse.core.{Failure, ParseResult, Parser, Success}
+
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
-
 import laika.tree.Elements.Span
 import laika.tree.Elements.Text
 import laika.tree.Elements.NoOpt

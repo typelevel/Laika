@@ -16,22 +16,16 @@
 
 package laika.directive
 
-import org.scalatest.Matchers
-import org.scalatest.FlatSpec
-import laika.parse.helper.ParseResultHelpers
-import laika.parse.helper.DefaultParserHelpers
-import laika.tree.helper.ModelBuilder
-import laika.template.TemplateParsers
-import laika.directive.Directives.Blocks
 import laika.directive.Directives.Blocks.Directive
-import laika.directive.Directives.Default
-import laika.directive.Directives.Spans
-import laika.tree.Templates._
+import laika.directive.Directives.{Blocks, Default, Spans}
+import laika.parse.{BlockParsers, InlineParsers}
+import laika.parse.core.Parser
+import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
+import laika.template.TemplateParsers
 import laika.tree.Elements._
 import laika.tree.Templates.MarkupContextReference
-import laika.util.Builders._
-import laika.parse.InlineParsers
-import laika.parse.BlockParsers
+import laika.tree.helper.ModelBuilder
+import org.scalatest.{FlatSpec, Matchers}
 
 class BlockDirectiveAPISpec extends FlatSpec
                           with Matchers

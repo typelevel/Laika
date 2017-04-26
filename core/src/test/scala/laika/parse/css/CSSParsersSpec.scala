@@ -16,6 +16,7 @@
 
 package laika.parse.css
 
+import laika.parse.core.Parser
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 import laika.parse.helper.DefaultParserHelpers

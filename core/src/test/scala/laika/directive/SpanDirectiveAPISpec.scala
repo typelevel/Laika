@@ -16,20 +16,16 @@
 
 package laika.directive
 
-import org.scalatest.Matchers
-import org.scalatest.FlatSpec
-import laika.parse.helper.ParseResultHelpers
-import laika.parse.helper.DefaultParserHelpers
-import laika.tree.helper.ModelBuilder
-import laika.template.TemplateParsers
-import laika.directive.Directives.Spans
+import laika.directive.Directives.{Default, Spans}
 import laika.directive.Directives.Spans.Directive
-import laika.directive.Directives.Default
-import laika.tree.Templates._
+import laika.parse.InlineParsers
+import laika.parse.core.Parser
+import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
+import laika.template.TemplateParsers
 import laika.tree.Elements._
 import laika.tree.Templates.MarkupContextReference
-import laika.util.Builders._
-import laika.parse.InlineParsers
+import laika.tree.helper.ModelBuilder
+import org.scalatest.{FlatSpec, Matchers}
 
 class SpanDirectiveAPISpec extends FlatSpec
                           with Matchers
@@ -112,7 +108,7 @@ class SpanDirectiveAPISpec extends FlatSpec
   }
   
   trait EmptyInlineParsers extends InlineParsers {
-    override protected def prepareSpanParsers = Map[Char,Parser[Span]]()
+    override protected def prepareSpanParsers = Map[Char, Parser[Span]]()
   }
   trait SpanParser extends EmptyInlineParsers with TemplateParsers.MarkupSpans
                           with ParseResultHelpers 

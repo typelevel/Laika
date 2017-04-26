@@ -16,11 +16,9 @@
 
 package laika.parse
 
-import laika.parse.core.CharSequenceReader
-
+import laika.parse.core.{CharSequenceReader, Failure, ~}
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
-
 import laika.parse.helper.ParseResultHelpers
 import laika.parse.helper.StringParserHelpers
 

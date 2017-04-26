@@ -16,13 +16,11 @@
 
 package laika.parse.markdown
 
-import org.scalatest.FlatSpec
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.Matchers
-import laika.parse.helper.DefaultParserHelpers
-import laika.parse.helper.ParseResultHelpers
+import laika.parse.core.Parser
+import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.tree.Elements._
 import laika.tree.helper.ModelBuilder
+import org.scalatest.{FlatSpec, Matchers}
     
 class BlockParsersSpec extends FlatSpec 
                        with Matchers 

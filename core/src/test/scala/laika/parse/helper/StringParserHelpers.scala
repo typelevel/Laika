@@ -16,8 +16,7 @@
 
 package laika.parse.helper
 
-import laika.parse.core.Parsers
-import laika.parse.core.CharSequenceReader
+import laika.parse.core.{CharSequenceReader, ParseResult, Parser, Parsers}
 
 trait StringParserHelpers { self: Parsers =>
   

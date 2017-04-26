@@ -16,6 +16,7 @@
 
 package laika.parse.rst
 
+import laika.parse.core.{Parser, Success, ~}
 import laika.tree.Elements._
 
 import scala.collection.mutable.{ListBuffer, Stack}

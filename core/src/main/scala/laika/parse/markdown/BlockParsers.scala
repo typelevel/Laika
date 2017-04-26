@@ -16,7 +16,10 @@
 
 package laika.parse.markdown
 
+import laika.parse.core.Parser
+import laika.parse.core.~
 import laika.tree.Elements._
+
 import scala.collection.mutable.StringBuilder
 import laika.parse.util.WhitespacePreprocessor
  

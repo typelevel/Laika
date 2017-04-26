@@ -16,6 +16,8 @@
 
 package laika.parse.markdown
 
+import laika.parse.core.~
+import laika.parse.core.Parser
 import laika.tree.Elements._
  
 /** Provides all inline parsers for Markdown text except for those dealing

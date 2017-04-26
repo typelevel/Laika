@@ -20,6 +20,7 @@ import laika.tree.Elements._
 import laika.parse.markdown.InlineParsers
 import laika.parse.markdown.BlockParsers
 import HTMLElements._
+import laika.parse.core.{Parser, ~}
    
 /** Parses verbatim HTML elements which may interleave with standard Markdown markup.
  *  Extends the Markdown block and inline parsers, overriding several of their

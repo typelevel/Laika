@@ -16,6 +16,7 @@
   
 package laika.parse.rst.ext
 
+import laika.parse.core.~
 import laika.tree.Elements._
 import laika.parse.rst.Directives.DirectivePart
 import laika.parse.rst.TextRoles.RoleDirectivePart
@@ -81,9 +82,9 @@ trait StandardDirectiveParsers extends BlockParsers with InlineParsers {
    */
   def captionAndLegend (p: BlockParsers)(input: String): Either[String,(Seq[Span],Seq[Block])] = {
     val parser = p.opt(p.paragraph) ~ p.opt(p.blankLines ~> p.blockList(p.nestedBlock)) ^^ {
-      case p.~(Some(caption), Some(legend)) => (caption.content, legend)
-      case p.~(Some(caption), None)         => (caption.content, Nil)
-      case _                                => (Nil, Nil)
+      case ~(Some(caption), Some(legend)) => (caption.content, legend)
+      case ~(Some(caption), None)         => (caption.content, Nil)
+      case _                              => (Nil, Nil)
     } 
     p.parseDirectivePart(parser, input)
   }

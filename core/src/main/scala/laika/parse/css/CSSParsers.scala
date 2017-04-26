@@ -20,7 +20,7 @@ import laika.parse.css.Styles._
 import laika.tree.Paths.Path
 import laika.tree.Elements.Span
 import laika.io.Input
-import laika.parse.core.Reader
+import laika.parse.core.{Parser, Reader, ~}
 
 /**
  * Parsers for the subset of CSS supported by Laika.
@@ -32,7 +32,7 @@ import laika.parse.core.Reader
 trait CSSParsers extends laika.parse.InlineParsers { 
 
   
-  protected val prepareSpanParsers: Map[Char,Parser[Span]] = Map.empty
+  protected val prepareSpanParsers: Map[Char, Parser[Span]] = Map.empty
   
   
   /** Represents a combinator between two predicates.

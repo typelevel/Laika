@@ -16,12 +16,15 @@
 
 package laika.parse.rst
 
+import laika.parse.core.{Parser, ~}
 import laika.tree.Elements._
 import laika.parse.rst.Elements._
+
 import scala.annotation.tailrec
 import scala.collection.mutable.Stack
 import scala.collection.mutable.ListBuffer
 import laika.util.RomanNumerals
+
 import scala.util.Try
 
 /** Provides the parsers for all reStructuredText list types.

@@ -23,6 +23,7 @@ import laika.factory.ParserFactory
 import laika.directive.StandardDirectives
 import laika.directive.Directives.Blocks
 import laika.directive.Directives.Spans
+import laika.parse.core.Parser
 import laika.template.TemplateParsers
 import laika.tree.Elements.Block
 import laika.tree.Elements.Header

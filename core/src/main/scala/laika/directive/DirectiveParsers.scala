@@ -17,6 +17,7 @@
 package laika.directive
 
 import laika.directive.Directives._
+import laika.parse.core.{Parser, ~, Success => PSuccess, Failure => PFailure}
 import laika.rewrite.DocumentCursor
 import laika.template.TemplateParsers
 import laika.tree.Elements._
@@ -35,8 +36,8 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
    */
   def withSource[T] (p: Parser[T]): Parser[(T, String)] = Parser { in =>
     p(in) match {
-      case Success(result, next) => Success((result, next.source.subSequence(in.offset, next.offset).toString), next)
-      case f: Failure            => f
+      case PSuccess(result, next) => PSuccess((result, next.source.subSequence(in.offset, next.offset).toString), next)
+      case f: PFailure            => f
     }
   }
   

@@ -26,7 +26,7 @@ import laika.tree.Paths.Path
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
-import laika.parse.core.Reader
+import laika.parse.core.{ParseResult, Parser, Reader, Success, ~}
 
 /** Provides the parsers for all types of block-level elements of reStructuredText. 
  *  It merges the individual traits that provide implementations for list, tables, etc. and 
