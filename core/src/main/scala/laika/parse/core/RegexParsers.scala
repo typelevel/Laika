@@ -46,9 +46,9 @@ trait RegexParsers extends Parsers {
 
   /** Parse all of reader `in` with parser `p`. */
   def parseAll[T](p: Parser[T], in: Reader[Char]): ParseResult[T] =
-    parse(phrase(p), in)
+    parse(consumeAll(p), in)
 
   /** Parse all of character sequence `in` with parser `p`. */
   def parseAll[T](p: Parser[T], in: java.lang.CharSequence): ParseResult[T] =
-    parse(phrase(p), in)
+    parse(consumeAll(p), in)
 }
