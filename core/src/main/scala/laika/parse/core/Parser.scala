@@ -176,12 +176,14 @@ abstract class Parser[+T] extends (Reader => ParseResult[T]) {
     *  def q = sign.? ~ number | failure("Number expected!")
     *  }}}
     *
+    *  TODO - only used in one place
+    *
     *  @param msg The message that will replace the default failure message.
     *  @return    A parser with the same properties and different failure message.
     */
   def withFailureMessage(msg: String) = Parser { in =>
     this(in) match {
-      case Failure(_, next) => Failure(msg, next)
+      case Failure(_, next) => Failure(Message(msg), next)
       case other            => other
     }
   }

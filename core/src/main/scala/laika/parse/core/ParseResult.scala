@@ -32,7 +32,6 @@ sealed abstract class ParseResult[+T] {
 
   def isEmpty = !successful
 
-  /** Returns the embedded result. */
   def get: T
 
   def getOrElse[B >: T](default: => B): B =
@@ -49,24 +48,24 @@ sealed abstract class ParseResult[+T] {
   *  @param next   The parser's remaining input
   */
 case class Success[+T](result: T, next: Reader) extends ParseResult[T] {
-  def map[U](f: T => U) = Success(f(result), next)
-  def mapPartial[U](f: PartialFunction[T, U], error: T => String): ParseResult[U]
-  = if(f.isDefinedAt(result)) Success(f(result), next)
-  else Failure(error(result), next)
 
-  def flatMapWithNext[U](f: T => Reader => ParseResult[U]): ParseResult[U]
-  = f(result)(next)
+  def map[U](f: T => U) = Success(f(result), next)
+
+  def mapPartial[U](f: PartialFunction[T, U], error: T => String): ParseResult[U] =
+    if (f.isDefinedAt(result)) Success(f(result), next)
+    else Failure(new MessageFunction(result, error), next)
+
+  def flatMapWithNext[U](f: T => Reader => ParseResult[U]): ParseResult[U] = f(result)(next)
 
   def filterWithError(p: T => Boolean, error: T => String, position: Reader): ParseResult[T] =
     if (p(result)) this
-    else Failure(error(result), position)
+    else Failure(new MessageFunction(result, error), position)
 
   def append[U >: T](a: => ParseResult[U]): ParseResult[U] = this
 
   def get: T = result
 
-  /** The toString method of a Success. */
-  override def toString = "["+next.pos+"] parsed: "+result
+  override def toString = s"[${next.pos}] parsed: $result"
 
   val successful = true
 }
@@ -74,14 +73,17 @@ case class Success[+T](result: T, next: Reader) extends ParseResult[T] {
 /** The failure case of `ParseResult`: contains an error-message and the remaining input.
   *  Parsing will back-track when a failure occurs.
   *
-  *  @param msg    An error message string describing the failure.
-  *  @param next   The parser's unconsumed input at the point where the failure occurred.
+  *  @param msgProvider  A provider that produces an error message for this failure based on its ParserContext
+  *  @param next         The parser's unconsumed input at the point where the failure occurred.
   */
-case class Failure(msg: String, next: Reader) extends ParseResult[Nothing] {
+case class Failure(msgProvider: MessageProvider, next: Reader) extends ParseResult[Nothing] {
+
+  lazy val message = msgProvider.message(next)
 
   val successful = false
 
   def map[U](f: Nothing => U) = this
+
   def mapPartial[U](f: PartialFunction[Nothing, U], error: Nothing => String): ParseResult[U] = this
 
   def flatMapWithNext[U](f: Nothing => Reader => ParseResult[U]): ParseResult[U] = this
@@ -95,6 +97,5 @@ case class Failure(msg: String, next: Reader) extends ParseResult[Nothing] {
     case f: Failure => if (alt.next.offset < next.offset) this else alt
   }}
 
-  /** The toString method of a Failure yields an error message. */
-  override def toString = "["+next.pos+"] failure: "+msg+"\n\n"+next.pos.lineContentWithCaret
+  override def toString = s"[${next.pos}] failure: $message\n\n${next.pos.lineContentWithCaret}"
 }

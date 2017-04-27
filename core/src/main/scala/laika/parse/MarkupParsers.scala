@@ -45,21 +45,21 @@ trait MarkupParsers extends BaseParsers {
       if (in.atEnd) Success("", in) 
       else if (in.first == '\n') Success("", in.rest)
       else if (in.first == '\r' && in.source.length > in.offset + 1 && in.source.charAt(in.offset + 1) == '\n') Success("", in.drop(2))
-      else Failure("Not at end of line", in)
+      else Failure(Message.ExpectedEOL, in)
   }  
   
   /** Succeeds at the end of the input.
    */
   def eof: Parser[String] = Parser { in =>
       if (in.atEnd) Success("", in) 
-      else Failure("Not at end of input", in)
+      else Failure(Message.ExpectedEOF, in)
   }  
   
   /** Succeeds at the start of the input.
    */
   val atStart: Parser[Unit] = Parser { in =>
     if (in.offset == 0) Success(success(()), in) 
-    else Failure("Not at start of input", in)
+    else Failure(Message.ExpectedStart, in)
   }
   
   /** Parses horizontal whitespace (space and tab).
@@ -206,39 +206,52 @@ trait MarkupParsers extends BaseParsers {
     }
     anyWhile(p)
   }
+
+  private class MessageProviderFactory (minExpected: Int) {
+
+    val msgFunction: Int => String = actual => s"expected at least $minExpected characters, got only $actual"
+
+    def newProvider (actual: Int): MessageProvider = new MessageFunction(actual, msgFunction)
+
+  }
   
   /** Consumes any number of consecutive characters which satisfy the specified predicate.
    *  Always succeeds unless a minimum number of required matches is specified.
    */
   def anyWhile (p: Char => Boolean): TextParser = {
     
-    def newParser (min: Int, max: Int, failAtEof: Boolean, consumeLastChar: Boolean, isStopChar: Char => Boolean) = Parser { in =>
-      val source = in.source
-      val end = source.length
-      val maxOffset = if (max > 0) in.offset + max else end
-      
-      def result (offset: Int, consumeLast: Boolean = false, onStopChar: Boolean = false) = {
-        if (offset - in.offset >= min) {
-          val consumeTo = if (consumeLast) offset + 1 else offset
-          Success((source.subSequence(in.offset, offset).toString, onStopChar), in.drop(consumeTo - in.offset))
+    def newParser (min: Int, max: Int, failAtEof: Boolean, consumeLastChar: Boolean, isStopChar: Char => Boolean) = {
+
+      val msgProviderFactory = new MessageProviderFactory(min)
+
+      Parser { in =>
+        val source = in.source
+        val end = source.length
+        val maxOffset = if (max > 0) in.offset + max else end
+
+        def result (offset: Int, consumeLast: Boolean = false, onStopChar: Boolean = false) = {
+          if (offset - in.offset >= min) {
+            val consumeTo = if (consumeLast) offset + 1 else offset
+            Success((source.subSequence(in.offset, offset).toString, onStopChar), in.drop(consumeTo - in.offset))
+          }
+          else
+            Failure(msgProviderFactory.newProvider(offset - in.offset), in)
         }
-        else 
-          Failure(s"expected at least $min characters, got only ${offset-in.offset}", in)
-      }
-    
-      @tailrec
-      def parse (offset: Int): ParseResult[(String,Boolean)] = {
-        if (offset == end) { if (failAtEof) Failure("unexpected end of input", in) else result(offset) }
-        else {
-          val c = source.charAt(offset)
-          if (!p(c)) result(offset, consumeLastChar)
-          else if (offset == maxOffset) result(offset)
-          else if (isStopChar(c)) result(offset, onStopChar = true)
-          else parse(offset + 1)
+
+        @tailrec
+        def parse (offset: Int): ParseResult[(String,Boolean)] = {
+          if (offset == end) { if (failAtEof) Failure(Message.UnexpectedEOF, in) else result(offset) }
+          else {
+            val c = source.charAt(offset)
+            if (!p(c)) result(offset, consumeLastChar)
+            else if (offset == maxOffset) result(offset)
+            else if (isStopChar(c)) result(offset, onStopChar = true)
+            else parse(offset + 1)
+          }
         }
+
+        parse(in.offset)
       }
-    
-      parse(in.offset)
     }
     
     new TextParser(newParser)
@@ -252,31 +265,36 @@ trait MarkupParsers extends BaseParsers {
    */
   def anyUntil (until: => Parser[Any]): TextParser = {
     
-    def newParser (min: Int, max: Int, failAtEof: Boolean, consumeLastChar: Boolean, isStopChar: Char => Boolean) = Parser { in =>
-    
-      lazy val parser = until
-      val maxOffset = if (max > 0) in.offset + max else in.source.length
-      
-      def result (resultOffset: Int, next: Reader, onStopChar: Boolean = false) = {
-        if (resultOffset - in.offset >= min) 
-          Success((in.source.subSequence(in.offset, resultOffset).toString, onStopChar), next)
-        else 
-          Failure(s"expected at least $min characters, got only ${next.offset-in.offset}", in)
-      }
-      
-      @tailrec
-      def parse (input: Reader): ParseResult[(String,Boolean)] = {
-        if (input.atEnd && failAtEof) Failure("unexpected end of input", in)
-        else parser(input) match {
-          case Success(_, next) => result(input.offset, next)
-          case Failure(_, _)    =>
-            if (input.offset == maxOffset) result(input.offset, input)
-            else if (isStopChar(input.first)) result(input.offset, input, onStopChar = true)
-            else parse(input.rest)
+    def newParser (min: Int, max: Int, failAtEof: Boolean, consumeLastChar: Boolean, isStopChar: Char => Boolean) = {
+
+      val msgProviderFactory = new MessageProviderFactory(min)
+
+      Parser { in =>
+
+        lazy val parser = until
+        val maxOffset = if (max > 0) in.offset + max else in.source.length
+
+        def result (resultOffset: Int, next: Reader, onStopChar: Boolean = false) = {
+          if (resultOffset - in.offset >= min)
+            Success((in.source.subSequence(in.offset, resultOffset).toString, onStopChar), next)
+          else
+            Failure(msgProviderFactory.newProvider(next.offset - in.offset), in)
         }
-      } 
-        
-      parse(in)
+
+        @tailrec
+        def parse (input: Reader): ParseResult[(String,Boolean)] = {
+          if (input.atEnd && failAtEof) Failure(Message.UnexpectedEOF, in)
+          else parser(input) match {
+            case Success(_, next) => result(input.offset, next)
+            case Failure(_, _)    =>
+              if (input.offset == maxOffset) result(input.offset, input)
+              else if (isStopChar(input.first)) result(input.offset, input, onStopChar = true)
+              else parse(input.rest)
+          }
+        }
+
+        parse(in)
+      }
     }
     
     new TextParser(newParser, mustFailAtEOF = true)

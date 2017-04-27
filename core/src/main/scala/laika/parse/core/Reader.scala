@@ -17,10 +17,9 @@ package laika.parse.core
  */
 abstract class Reader {
 
-  /** If this is a reader over character sequences, the underlying char sequence.
-   *  If not, throws a `NoSuchMethodError` exception.
+  /** The underlying source string.
    */
-  def source: java.lang.CharSequence
+  def source: String
 
   def offset: Int
 

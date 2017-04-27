@@ -12,35 +12,16 @@ import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 import scala.language.implicitConversions
 
-// TODO: better error handling (labelling like parsec's <?>)
-
 /** `Parsers` is a component that ''provides'' generic parser combinators.
- *
- *  There are two abstract members that must be defined in order to
- *  produce parsers: the type `Elem` and
- *  [[scala.util.parsing.combinator.Parsers.Parser]]. There are helper
- *  methods that produce concrete `Parser` implementations -- see ''primitive
- *  parser'' below.
- *
- *  A `Parsers` may define multiple `Parser` instances, which are combined
- *  to produced the desired parser.
- *
- *  The type of the elements these parsers should parse must be defined
- *  by declaring `Elem`
- *  (each parser is polymorphic in the type of result it produces).
  *
  *  There are two aspects to the result of a parser:
  *  1. success or failure
  *  1. the result.
  *
- *  A [[scala.util.parsing.combinator.Parsers.Parser]] produces both kinds of information,
- *  by returning a [[scala.util.parsing.combinator.Parsers.ParseResult]] when its `apply`
- *  method is called on an input.
- *
  *  The term ''parser combinator'' refers to the fact that these parsers
  *  are constructed from primitive parsers and composition operators, such
  *  as sequencing, alternation, optionality, repetition, lifting, and so on. For example,
- *  given `p1` and `p2` of type [[scala.util.parsing.combinator.Parsers.Parser]]:
+ *  given `p1` and `p2` of type [[laika.parse.core.Parser]]:
  *
  *  {{{
  *  p1 ~ p2 // sequencing: must match p1 followed by p2
@@ -49,7 +30,7 @@ import scala.language.implicitConversions
  *  p1.*    // repetition: matches any number of repetitions of p1
  *  }}}
  *
- *  These combinators are provided as methods on [[scala.util.parsing.combinator.Parsers.Parser]],
+ *  These combinators are provided as methods on [[laika.parse.core.Parser]],
  *  or as methods taking one or more `Parsers` and returning a `Parser` provided in
  *  this class.
  *
@@ -62,9 +43,7 @@ import scala.language.implicitConversions
  *  - or other conditions, by using one of the other methods available, or subclassing `Parser`
  *
  *  Even more primitive parsers always produce the same result, irrespective of the input. See
- *  methods `success`, `err` and `failure` as examples.
- *
- *  @see [[scala.util.parsing.combinator.RegexParsers]] and other known subclasses for practical examples.
+ *  methods `success` and `failure` as examples.
  *
  *  @author Martin Odersky
  *  @author Iulian Dragos
@@ -99,28 +78,32 @@ trait Parsers {
    *  @return        A parser for elements satisfying p(e).
    */
   def acceptIf(p: Char => Boolean)(err: Char => String): Parser[Char] = Parser { in =>
-    if (in.atEnd) Failure("end of input", in)
+    if (in.atEnd) Failure(Message.UnexpectedEOF, in)
     else if (p(in.first)) Success(in.first, in.rest)
-    else Failure(err(in.first), in)
+    else Failure(new MessageFunction(in.first, err), in) // TODO - avoid object creation
   }
 
   /** A parser that matches a literal string */
-  implicit def literal(s: String): Parser[String] = new Parser[String] {
+  implicit def literal (expected: String): Parser[String] = new Parser[String] {
+
+    val msgProvider = MessageProvider { context =>
+      val endIndex = Math.min(context.source.length, context.offset + expected.length)
+      val found = context.source.substring(context.offset, endIndex)
+      s"`$expected' expected but `$found` found"
+    }
     def apply(in: Reader) = {
       val source = in.source
       val start = in.offset
       var i = 0
       var j = start
-      while (i < s.length && j < source.length && s.charAt(i) == source.charAt(j)) {
+      while (i < expected.length && j < source.length && expected.charAt(i) == source.charAt(j)) {
         i += 1
         j += 1
       }
-      if (i == s.length)
+      if (i == expected.length)
         Success(source.subSequence(start, j).toString, in.drop(j - start))
-      else  {
-        val found = if (start == source.length()) "end of source" else "`"+source.charAt(start)+"'"
-        Failure("`"+s+"' expected but "+found+" found", in)
-      }
+      else
+        Failure(msgProvider, in)
     }
   }
 
@@ -129,7 +112,7 @@ trait Parsers {
    * @param msg The error message describing the failure.
    * @return A parser that always fails with the specified error message.
    */
-  def failure(msg: String) = Parser{ in => Failure(msg, in) }
+  def failure(msg: String) = Parser{ in => Failure(Message(msg), in) }
 
   /** A parser that always succeeds.
    *
@@ -261,7 +244,7 @@ trait Parsers {
    */
   def not[T](p: => Parser[T]): Parser[Unit] = Parser { in =>
     p(in) match {
-      case Success(_, _)  => Failure("Expected failure", in)
+      case Success(_, _)  => Failure(Message.ExpectedFailure, in)
       case _              => Success((), in)
     }
   }
@@ -294,7 +277,7 @@ trait Parsers {
       p(in) match {
         case s @ Success(out, in1) =>
           if (in1.atEnd) s
-          else Failure("end of input expected", in1)
+          else Failure(Message.ExpectedEOF, in1)
         case ns => ns
       }
     }

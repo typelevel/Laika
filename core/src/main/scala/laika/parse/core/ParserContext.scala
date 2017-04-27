@@ -19,6 +19,8 @@ package laika.parse.core
 import scala.collection.mutable.ArrayBuffer
 
 /**
+  * TODO - this is migration in progress
+  * 
   * @author Jens Halm
   */
 class ParserContext {

@@ -95,7 +95,7 @@ trait BaseParsers extends Parsers {
    *  position. Never consumes any input.
    */
   def lookBehind [T] (offset: Int, parser: => Parser[T]): Parser[T] = Parser { in =>
-    if (in.offset - offset < 0) Failure("Unable to look behind with offset "+offset, in)
+    if (in.offset - offset < 0) Failure(new MessageFunction(offset, {o: Int => s"Unable to look behind with offset $o"}), in)
     else parser(in.drop(-offset)) match {
       case Success(result, _) => Success(result, in)
       case Failure(msg, _)    => Failure(msg, in)
@@ -122,7 +122,7 @@ trait BaseParsers extends Parsers {
     def ^^? [B] (f: A => Either[String,B]): Parser[B] = Parser { in =>
       
       parser(in) match {
-        case Success(result, next) => f(result) fold (msg => Failure(msg,in), res => Success(res,next))
+        case Success(result, next) => f(result) fold (msg => Failure(Message(msg),in), res => Success(res,next))
         case f: Failure => f
       }
         
