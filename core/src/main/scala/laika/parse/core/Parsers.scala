@@ -306,13 +306,13 @@ trait Parsers {
   def parse[T](p: Parser[T], in: Reader): ParseResult[T] = p(in)
 
   /** Parse some prefix of character sequence `in` with parser `p`. */
-  def parse[T](p: Parser[T], in: java.lang.CharSequence): ParseResult[T] = p(new CharSequenceReader(in))
+  def parse[T](p: Parser[T], in: String): ParseResult[T] = p(new CharSequenceReader(in))
 
   /** Parse all of reader `in` with parser `p`. */
   def parseAll[T](p: Parser[T], in: Reader): ParseResult[T] = parse(consumeAll(p), in)
 
   /** Parse all of character sequence `in` with parser `p`. */
-  def parseAll[T](p: Parser[T], in: java.lang.CharSequence): ParseResult[T] = parse(consumeAll(p), in)
+  def parseAll[T](p: Parser[T], in: String): ParseResult[T] = parse(consumeAll(p), in)
 
 }
 

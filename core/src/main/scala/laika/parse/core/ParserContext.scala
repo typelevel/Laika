@@ -16,6 +16,8 @@
 
 package laika.parse.core
 
+import scala.collection.mutable.ArrayBuffer
+
 /**
   * @author Jens Halm
   */
@@ -40,6 +42,24 @@ object ParserContext {
     }
 
     new CharSequenceReader(buffer.toString)
+  }
+
+}
+
+case class Source (value: String) {
+
+  /** An index that contains all line starts, including first line, and eof. */
+  lazy val lineStarts: Array[Int] = {
+    val lineStarts = new ArrayBuffer[Int]
+    lineStarts += 0
+    var pos = 0
+    val len = value.length
+    while (pos < len) {
+      if (value(pos) == '\n') lineStarts += pos + 1
+      pos += 1
+    }
+    lineStarts += len
+    lineStarts.toArray
   }
 
 }

@@ -1,75 +1,66 @@
-/*                     __                                               *\
-**     ________ ___   / /  ___     Scala API                            **
-**    / __/ __// _ | / /  / _ |    (c) 2006-2013, LAMP/EPFL             **
-**  __\ \/ /__/ __ |/ /__/ __ |    http://scala-lang.org/               **
-** /____/\___/_/ |_/____/_/ | |                                         **
-**                          |/                                          **
-\*                                                                      */
+/*
+ * Copyright 2013-2017 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package laika.parse.core
 
-/** `Position` is the base trait for objects describing a position in a `document`.
- *
- *  It provides functionality for:
- *   - generating a visual representation of this position (`longString`);
- *   - comparing two positions (`<`).
- *
- *  To use this class for a concrete kind of `document`, implement the `lineContents` method.
- *
- * @author Martin Odersky
- * @author Adriaan Moors
- */
-trait Position {
+import java.util
 
-  /** The line number referred to by the position; line numbers start at 1. */
-  def line: Int
-
-  /** The column number referred to by the position; column numbers start at 1. */
-  def column: Int
-
-  /** The contents of the line at this position. (must not contain a new-line character).
-   */
-  protected def lineContents: String
-
-  /** Returns a string representation of the `Position`, of the form `line.column`. */
-  override def toString = ""+line+"."+column
-
-  /** Returns a more ``visual'' representation of this position.
-   *  More precisely, the resulting string consists of two lines:
-   *   1. the line in the document referred to by this position
-   *   2. a caret indicating the column
-   *
-   *  Example:
-   *  {{{
-   *    List(this, is, a, line, from, the, document)
-   *                 ^
-   *  }}}
-   */
-  def longString = lineContents+"\n"+lineContents.take(column-1).map{x => if (x == '\t') x else ' ' } + "^"
-
-  /** Compare this position to another, by first comparing their line numbers,
-   * and then -- if necessary -- using the columns to break a tie.
-   *
-   * @param `that` a `Position` to compare to this `Position`
-   * @return true if this position's line number or (in case of equal line numbers)
-   *         column is smaller than the corresponding components of `that`
-   */
-  def <(that: Position) = {
-    this.line < that.line ||
-    this.line == that.line && this.column < that.column
-  }
-}
-
-/** Undefined position.
+/**  Represents an offset into a source string. Its main purpose
+  *  is error reporting, e.g. printing a visual representation of the line
+  *  containing the error.
   *
-  * @author Martin Odersky
-  * @author Adriaan Moors
+  *  @param s the source for this position
+  *  @param offset the offset into the source string
+  *
+  *  @author Jens Halm
   */
-object NoPosition extends Position {
-  def line = 0
-  def column = 0
-  override def toString = "<undefined position>"
-  override def longString = toString
-  def lineContents = ""
-}
+case class Position(s: Source, offset: Int) {
 
+  val source = s.value
+
+  /** The line number referred to by this position, starting at 1. */
+  lazy val line: Int = {
+    val result = util.Arrays.binarySearch(s.lineStarts, offset)
+    if (result == s.lineStarts.length - 1) result // EOF position is not on a new line
+    else if (result < 0) Math.abs(result) - 1 // see javadoc for binarySearch
+    else result + 1 // line is 1-based
+  }
+
+  /** The column number referred to by this position, starting at 1. */
+  lazy val column: Int = offset - s.lineStarts(line - 1) + 1
+
+  /** The contents of the line at the current offset (not including a newline). */
+  lazy val lineContent: String = {
+    val startIndex = s.lineStarts(line - 1)
+    val endIndex = s.lineStarts(line)
+
+    val result = source.substring(startIndex, endIndex)
+    if (result.endsWith("\n")) result.dropRight(1) else result
+  }
+
+  /** The contents of the line at the current offset, decorated with
+    * a caret indicating the column. Example:
+    * {{{
+    *   The content of the current line with a caret under the c.
+    *       ^
+    * }}}
+    */
+  def lineContentWithCaret = lineContent + "\n" + " " * (column-1) + "^"
+
+  /** A string representation of this Position of the form `line.column`. */
+  override lazy val toString = s"$line.$column"
+
+}

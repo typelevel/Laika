@@ -153,23 +153,25 @@ trait BlockParsers extends MarkupParsers {
   
   /** Reader implementation that keeps the current nest level in case
    *  of recursive parsing of block-level elements.
+    *
+    *  TODO - integrate this functionality into the new ParserContext
    * 
    *  @param nestLevel the nest level of the parser this reader is used with, 0 being the outermost
    *  @param src the character source to read from
    *  @param off the offset position this reader reads from
    */
   class NestedCharSequenceReader (val nestLevel: Int, 
-                                  src: java.lang.CharSequence,
+                                  src: Source,
                                   off: Int) extends CharSequenceReader(src, off) {
     
-    def this (nestLevel: Int, src: java.lang.CharSequence) = this(nestLevel, src, 0)
+    def this (nestLevel: Int, src: String) = this(nestLevel, Source(src), 0)
     
     override def rest: CharSequenceReader =
-      if (offset < source.length) new NestedCharSequenceReader(nestLevel, source, offset + 1)
+      if (offset < source.length) new NestedCharSequenceReader(nestLevel, src, offset + 1)
       else this
       
     override def drop(n: Int): CharSequenceReader =
-      new NestedCharSequenceReader(nestLevel, source, offset + n)  
+      new NestedCharSequenceReader(nestLevel, src, offset + n)
       
   }
 

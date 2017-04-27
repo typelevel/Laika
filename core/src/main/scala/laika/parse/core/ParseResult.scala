@@ -92,9 +92,9 @@ case class Failure(msg: String, next: Reader) extends ParseResult[Nothing] {
 
   def append[U >: Nothing](a: => ParseResult[U]): ParseResult[U] = { val alt = a; alt match {
     case Success(_, _) => alt
-    case f: Failure => if (alt.next.pos < next.pos) this else alt
+    case f: Failure => if (alt.next.offset < next.offset) this else alt
   }}
 
   /** The toString method of a Failure yields an error message. */
-  override def toString = "["+next.pos+"] failure: "+msg+"\n\n"+next.pos.longString
+  override def toString = "["+next.pos+"] failure: "+msg+"\n\n"+next.pos.lineContentWithCaret
 }
