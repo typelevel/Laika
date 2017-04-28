@@ -8,6 +8,8 @@
 
 package laika.parse.core
 
+import laika.parse.core.text.Literal
+
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 import scala.language.implicitConversions
@@ -84,28 +86,7 @@ trait Parsers {
   }
 
   /** A parser that matches a literal string */
-  implicit def literal (expected: String): Parser[String] = new Parser[String] {
-
-    val msgProvider = MessageProvider { context =>
-      val endIndex = Math.min(context.source.length, context.offset + expected.length)
-      val found = context.source.substring(context.offset, endIndex)
-      s"`$expected' expected but `$found` found"
-    }
-    def apply(in: Reader) = {
-      val source = in.source
-      val start = in.offset
-      var i = 0
-      var j = start
-      while (i < expected.length && j < source.length && expected.charAt(i) == source.charAt(j)) {
-        i += 1
-        j += 1
-      }
-      if (i == expected.length)
-        Success(source.subSequence(start, j).toString, in.drop(j - start))
-      else
-        Failure(msgProvider, in)
-    }
-  }
+  implicit def literal (expected: String): Parser[String] = Literal(expected)
 
   /** A parser that always fails.
    *
