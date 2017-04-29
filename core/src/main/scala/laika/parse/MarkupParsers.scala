@@ -167,7 +167,7 @@ trait MarkupParsers extends BaseParsers {
    *  This parser would consume the entire input unless a `max` constraint
    *  is specified.
    */
-  val any: TextParser = anyWhile(c => true)
+  val any: TextParser = anyWhileLegacy(c => true)
   
   /** Consumes any number of consecutive occurrences of the specified characters.
    *  Always succeeds unless a minimum number of required matches is specified.
@@ -183,8 +183,8 @@ trait MarkupParsers extends BaseParsers {
       case 1 => val c = chars(0); _ != c
       case 2 => val c1 = chars(0); val c2 = chars(1); c => c != c1 && c != c2
       case _ => val lookup = optimizedCharLookup(chars:_*); !lookup(_)
-    } 
-    anyWhile(p)
+    }
+    anyWhileLegacy(p)
   }
   
   /** Consumes any number of consecutive characters that are not one of the specified characters.
@@ -215,11 +215,14 @@ trait MarkupParsers extends BaseParsers {
     def newProvider (actual: Int): MessageProvider = new MessageFunction(actual, msgFunction)
 
   }
-  
+
   /** Consumes any number of consecutive characters which satisfy the specified predicate.
-   *  Always succeeds unless a minimum number of required matches is specified.
-   */
-  def anyWhile (p: Char => Boolean): TextParser = {
+    *  Always succeeds unless a minimum number of required matches is specified.
+    */
+  def anyWhile (p: Char => Boolean): Characters = new Characters(p)
+
+
+  private def anyWhileLegacy (p: Char => Boolean): TextParser = {
     
     def newParser (min: Int, max: Int, failAtEof: Boolean, consumeLastChar: Boolean, isStopChar: Char => Boolean) = {
 
