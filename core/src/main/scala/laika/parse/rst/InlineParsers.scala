@@ -100,7 +100,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    */ 
   def markupStart (end: Parser[String]): Parser[Any] = markupStart(success(()), end)
   
-  /** Parses the end of an inline element  according to reStructuredText markup recognition rules.
+  /** Parses the end of an inline element according to reStructuredText markup recognition rules.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules]].
    * 
@@ -109,6 +109,17 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    */
   def markupEnd (end: Parser[String]): Parser[String] = {
     end >> { markup => (lookBehind(markup.length + 1, beforeEndMarkup) ~ guard(eol | afterEndMarkup)) ^^^ markup }
+  }
+
+  /** Parses the end of an inline element according to reStructuredText markup recognition rules.
+    *
+    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules]].
+    *
+    *  @param delimLength the length of the end delimiter that has already been consumed from the input
+    *  @return a parser that succeeds without consuming any input when the rst markup end conditions are met
+    */
+  def markupEnd (delimLength: Int): Parser[Any] = {
+    lookBehind(delimLength + 1, beforeEndMarkup) ~ guard(eol | afterEndMarkup)
   }
   
   /** Inline markup recognition rules 2 and 5
@@ -252,8 +263,8 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-internal-targets]]
    */
   val internalTarget: Parser[Text] = markupStart('`', "`") ~> 
-    (escapedText(anyBut('`') min 1) ^^ ReferenceName) <~ 
-    markupEnd("`") ^^ (id => Text(id.original, Id(id.normalized) + Styles("target")))
+    (escapedText(anyUntil('`') min 1) ^^ ReferenceName) <~
+    markupEnd(1) ^^ (id => Text(id.original, Id(id.normalized) + Styles("target")))
   
   /** The default text role to use when no role is specified in an interpreted text element.
    */
@@ -264,7 +275,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#interpreted-text]]
    */  
   lazy val interpretedTextWithRolePrefix: Parser[InterpretedText] = {
-    (markupStart(":") ~> simpleRefName) ~ (":`" ~> escapedText(anyBut('`') min 1) <~ markupEnd("`")) ^^ 
+    (markupStart(":") ~> simpleRefName) ~ (":`" ~> escapedText(anyUntil('`') min 1) <~ markupEnd(1)) ^^
       { case role ~ text => InterpretedText(role,text,s":$role:`$text`") }
   }
   
@@ -273,7 +284,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#interpreted-text]]
    */  
   lazy val interpretedTextWithRoleSuffix: Parser[InterpretedText] = {
-    (markupStart("`") ~> escapedText(anyBut('`') min 1) <~ markupEnd("`")) ~ opt(":" ~> simpleRefName <~ markupEnd(":")) ^^
+    (markupStart("`") ~> escapedText(anyUntil('`') min 1) <~ markupEnd(1)) ~ opt(":" ~> simpleRefName <~ markupEnd(":")) ^^
       { case text ~ role => InterpretedText(role.getOrElse(defaultTextRole), text, s"`$text`" + role.map(":"+_+":").getOrElse("")) }
   }
   
@@ -283,8 +294,8 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    */
   lazy val phraseLinkRef: Parser[Span] = {
     def ref (refName: String, url: String) = if (refName.isEmpty) url else refName
-    val url = '<' ~> anyBut('>') <~ '>' ^^ { _.replaceAll("[ \n]+", "") }
-    val refName = escapedText(anyBut('`','<')) ^^ ReferenceName
+    val url = '<' ~> anyUntil('>') ^^ { _.replaceAll("[ \n]+", "") }
+    val refName = escapedText(anyUntil('`','<').keepDelimiter) ^^ ReferenceName
     markupStart("`") ~> refName ~ opt(url) ~ (markupEnd("`__") ^^^ false | markupEnd("`_") ^^^ true) ^^ {
       case refName ~ Some(url) ~ true   => 
         SpanSequence(List(ExternalLink(List(Text(ref(refName.original, url))), url), ExternalLinkDefinition(ref(refName.normalized, url), url)))

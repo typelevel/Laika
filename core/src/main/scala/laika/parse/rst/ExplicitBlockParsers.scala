@@ -121,7 +121,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#substitution-definitions]].
    */
   def substitutionDefinition: Parser[Block] = {
-    val text = not(ws take 1) ~> escapedText(anyBut('|','\n') min 1)  
+    val text = not(ws take 1) ~> escapedText(anyUntil('|','\n').keepDelimiter min 1)
     val prefix = '|' ~> text <~ not(lookBehind(1, ' ')) ~ '|'
     
     ((prefix <~ ws) ~ spanDirectiveParser) ^^ { 

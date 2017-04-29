@@ -96,7 +96,7 @@ trait StandardDirectiveParsers extends BlockParsers with InlineParsers {
    */
   def target (input: String): Either[String,Span] = {
     val phraseLinkRef = {
-      val refName = escapedText(anyBut('`','<')) ^^ ReferenceName
+      val refName = escapedText(anyUntil('`','<').keepDelimiter) ^^ ReferenceName
       "`" ~> refName <~ "`_" ~ ws ~ eof ^^ {
         refName => LinkReference(Nil, refName.normalized, s"`${refName.original}`_") 
       }

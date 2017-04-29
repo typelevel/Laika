@@ -126,7 +126,7 @@ class MarkupParsersSpec extends FlatSpec with Matchers with MarkupParsers with P
   }
   
   it should "stop when a stop char is seen" in {
-    Parsing ("abcdxxx") using (anyBut('x') stopChars('c','d')) should produce ("ab")
+    Parsing ("abcdxxx") using (anyUntil('x') stopChars('c','d')) should produce ("ab")
   }
 
   val az = anyIn('a' to 'z') min 1

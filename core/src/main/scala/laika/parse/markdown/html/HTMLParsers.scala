@@ -42,16 +42,16 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
   val htmlWS: Parser[String] = anyOf(htmlWSChars:_*)
   
 
-  val htmlAttributeName: TextParser = anyBut(htmlAttrEndChars:_*) min 1
+  val htmlAttributeName: Parser[String] = anyBut(htmlAttrEndChars:_*) min 1
  
   val htmlUnquotedAttributeValue: Parser[(List[Span with TextContainer], Option[Char])] = 
-    spans(anyBut(htmlAttrEndChars:_*), Map('&' -> htmlCharReference)) ^?  
+    spans(anyUntil(htmlAttrEndChars:_*).keepDelimiter, Map('&' -> htmlCharReference)) ^?
       { case x :: xs => ((x::xs).asInstanceOf[List[Span with TextContainer]], None) }
   
   /** Parses an attribute value enclosed by the specified character.
    */
   def htmlQuotedAttributeValue (c: Char): Parser[(List[Span with TextContainer], Option[Char])] =
-    c ~> spans(anyBut(c), Map('&' -> htmlCharReference)) <~ c ^^
+    c ~> spans(anyUntil(c), Map('&' -> htmlCharReference)) ^^
       { spans => (spans.asInstanceOf[List[Span with TextContainer]], Some(c)) }
     
   /** Parses quoted and unquoted attribute values.

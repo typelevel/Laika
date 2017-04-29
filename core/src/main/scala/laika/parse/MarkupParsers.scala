@@ -114,6 +114,11 @@ trait MarkupParsers extends BaseParsers {
      *  Calling `take 3` for example is equivalent to calling `min 3 max 3`.
      */
     def take (count: Int): TextParser = new TextParser(newParser, count, count, mustFailAtEOF, mustConsumeLastChar, isStopChar)
+
+    // TODO - transitional API
+    def keepDelimiter: TextParser = new TextParser(newParser, minChar, maxChar, mustFailAtEOF, false, isStopChar)
+    // TODO - transitional API
+    def delimiterOptional: TextParser = new TextParser(newParser, minChar, maxChar, false, false, isStopChar)
     
     private[parse] def failAtEOF = new TextParser(newParser, minChar, maxChar, true, mustConsumeLastChar, isStopChar)
   
@@ -177,14 +182,14 @@ trait MarkupParsers extends BaseParsers {
   /** Consumes any number of consecutive characters that are not one of the specified characters.
    *  Always succeeds unless a minimum number of required matches is specified.
    */
-  def anyBut (chars: Char*): TextParser = {
+  def anyBut (chars: Char*): Characters = {
     val p: Char => Boolean = chars.length match {
       case 0 => c => true
       case 1 => val c = chars(0); _ != c
       case 2 => val c1 = chars(0); val c2 = chars(1); c => c != c1 && c != c2
       case _ => val lookup = optimizedCharLookup(chars:_*); !lookup(_)
     }
-    anyWhileLegacy(p)
+    new Characters(p)
   }
   
   /** Consumes any number of consecutive characters that are not one of the specified characters.
@@ -195,7 +200,15 @@ trait MarkupParsers extends BaseParsers {
    *  to the result. This parser is usually used when a construct like a span
    *  enclosed between two characters needs to be parsed.
    */
-  def anyUntil (chars: Char*): TextParser = anyBut(chars:_*).failAtEOF.consumeLastChar
+  def anyUntil (chars: Char*): TextParser = {
+    val p: Char => Boolean = chars.length match {
+      case 0 => c => true
+      case 1 => val c = chars(0); _ != c
+      case 2 => val c1 = chars(0); val c2 = chars(1); c => c != c1 && c != c2
+      case _ => val lookup = optimizedCharLookup(chars:_*); !lookup(_)
+    }
+    anyWhileLegacy(p).failAtEOF.consumeLastChar
+  }
   
   /** Consumes any number of consecutive characters that are in one of the specified character ranges.
    *  Always succeeds unless a minimum number of required matches is specified.
