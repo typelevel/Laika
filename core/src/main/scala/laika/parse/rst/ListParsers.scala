@@ -16,7 +16,7 @@
 
 package laika.parse.rst
 
-import laika.parse.core.text.Characters
+import laika.parse.core.text.{Characters, DelimitedBy}
 import laika.parse.core.{Parser, ~}
 import laika.tree.Elements._
 import laika.parse.rst.Elements._
@@ -199,7 +199,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     def mkString (result: ~[Char,String]) = result._1.toString + result._2
     
     val optionString = anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_', '-').min(1)
-    val optionArg = optionString | (('<' ~> anyUntil('>')) ^^ { "<" + _ + ">" } )
+    val optionArg = optionString | (('<' ~> DelimitedBy('>')) ^^ { "<" + _ + ">" } )
     
     val gnu =        '+' ~ anyIn('a' to 'z', 'A' to 'Z', '0' to '9').take(1) ^^ mkString
     val shortPosix = '-' ~ anyIn('a' to 'z', 'A' to 'Z', '0' to '9').take(1) ^^ mkString

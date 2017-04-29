@@ -20,6 +20,7 @@ import laika.parse.css.Styles._
 import laika.tree.Paths.Path
 import laika.tree.Elements.Span
 import laika.io.Input
+import laika.parse.core.text.DelimitedBy
 import laika.parse.core.{Parser, Reader, ~}
 
 /**
@@ -138,7 +139,7 @@ trait CSSParsers extends laika.parse.InlineParsers {
    *  any comments..
    */
   lazy val styleValue: Parser[String] = 
-    text(anyUntil(';'), Map('/' -> (('*' ~ anyUntil("*/") ~ wsOrNl) ^^^ "")))
+    text(anyUntil(';'), Map('/' -> (('*' ~ DelimitedBy("*/") ~ wsOrNl) ^^^ "")))
     
   /** Parses an entire set of style declarations.
    *  This is the top level parser of this trait.

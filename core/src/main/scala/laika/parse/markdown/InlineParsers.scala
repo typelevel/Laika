@@ -18,6 +18,7 @@ package laika.parse.markdown
 
 import laika.parse.core.~
 import laika.parse.core.Parser
+import laika.parse.core.text.DelimitedBy
 import laika.tree.Elements._
  
 /** Provides all inline parsers for Markdown text except for those dealing
@@ -101,7 +102,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   def literalEnclosedBySingleChar: Parser[Literal] = { 
     val start = not('`')
     val end = '`'
-    start ~> anyUntil(end) ^^ { s => Literal(s.trim) }
+    start ~> DelimitedBy(end) ^^ { s => Literal(s.trim) }
   }
   
   /** Parses a literal span enclosed by double backticks.
@@ -160,7 +161,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
    */
   def resource (inline: (String, String, Option[String]) => Span, ref: (String, String, String) => Span): Parser[Span] = {
     
-    val linktext = text(anyUntil(']'), Map('\\' -> escapedChar, '[' -> (anyUntil(']') ^^ { "[" + _ + "]" })))
+    val linktext = text(anyUntil(']'), Map('\\' -> escapedChar, '[' -> (DelimitedBy(']') ^^ { "[" + _ + "]" })))
     
     val title = ws ~> (('"' ~> anyUntil('"' ~ guard(ws ~ ')'))) | ('\'' ~> anyUntil('\'' ~ guard(ws ~ ')')))) 
     

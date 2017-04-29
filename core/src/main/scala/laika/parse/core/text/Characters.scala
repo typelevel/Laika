@@ -49,7 +49,7 @@ class Characters (predicate: Char => Boolean,
   private def newMessageProvider (actual: Int): MessageProvider = new MessageFunction(actual, msgFunction)
 
 
-  override def apply (in: Reader): ParseResult[String] = {
+  def apply (in: Reader): ParseResult[String] = {
 
     val source = in.source
     val maxOffset = if (maxChar <= 0 || in.offset + maxChar < 0) source.length

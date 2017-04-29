@@ -16,6 +16,7 @@
 
 package laika.parse.rst
 
+import laika.parse.core.text.DelimitedBy
 import laika.parse.rst.Elements.{InterpretedText, SubstitutionReference}
 import laika.parse.util.URIParsers
 import laika.tree.Elements._
@@ -294,7 +295,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    */
   lazy val phraseLinkRef: Parser[Span] = {
     def ref (refName: String, url: String) = if (refName.isEmpty) url else refName
-    val url = '<' ~> anyUntil('>') ^^ { _.replaceAll("[ \n]+", "") }
+    val url = '<' ~> DelimitedBy('>') ^^ { _.replaceAll("[ \n]+", "") }
     val refName = escapedText(anyUntil('`','<').keepDelimiter) ^^ ReferenceName
     markupStart("`") ~> refName ~ opt(url) ~ (markupEnd("`__") ^^^ false | markupEnd("`_") ^^^ true) ^^ {
       case refName ~ Some(url) ~ true   => 

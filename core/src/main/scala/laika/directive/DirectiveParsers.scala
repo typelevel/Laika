@@ -17,7 +17,8 @@
 package laika.directive
 
 import laika.directive.Directives._
-import laika.parse.core.{Parser, ~, Success => PSuccess, Failure => PFailure}
+import laika.parse.core.text.DelimitedBy
+import laika.parse.core.{Parser, ~, Failure => PFailure, Success => PSuccess}
 import laika.rewrite.DocumentCursor
 import laika.template.TemplateParsers
 import laika.tree.Elements._
@@ -145,7 +146,7 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
     }) 
   }
   
-  protected val nestedBraces = anyUntil('}') ^^ (str => Text(s"{$str}"))
+  protected val nestedBraces = DelimitedBy('}') ^^ (str => Text(s"{$str}"))
   
 }
 
