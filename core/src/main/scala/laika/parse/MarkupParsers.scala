@@ -90,41 +90,25 @@ trait MarkupParsers extends BaseParsers {
    *  anyOf('*','+') min 3
    *  }}}
    */
-  class TextParser private[MarkupParsers] (newParser:           (Int, Int, Boolean, Boolean, Char => Boolean) => Parser[(String,Boolean)],
+  class TextParser private[MarkupParsers] (newParser:           (Int, Boolean, Boolean, Char => Boolean) => Parser[(String,Boolean)],
                                            minChar:             Int = 0,
-                                           maxChar:             Int = 0,
-                                           mustFailAtEOF:       Boolean = false,
-                                           mustConsumeLastChar: Boolean = false,
+                                           mustFailAtEOF:       Boolean = true,
+                                           mustConsumeLastChar: Boolean = true,
                                            isStopChar:          Char => Boolean = c => false) extends Parser[String] {
     
-    private val parser = newParser(minChar, maxChar, mustFailAtEOF, mustConsumeLastChar, isStopChar)
+    private val parser = newParser(minChar, mustFailAtEOF, mustConsumeLastChar, isStopChar)
     
     /** Creates and returns a new parser that fails if it does not consume the specified minimum number
      *  of characters. It may still consume more characters in case of further matches. 
      */
-    def min (count: Int): TextParser = new TextParser(newParser, count, maxChar, mustFailAtEOF, mustConsumeLastChar, isStopChar)
+    def min (count: Int): TextParser = new TextParser(newParser, count, mustFailAtEOF, mustConsumeLastChar, isStopChar)
     
-    /** Creates and returns a new parser that consumes at most the specified maximum number of characters. 
-     *  Always succeeds, unless a minimum number of matches is also specified.
-     */
-    def max (count: Int): TextParser = new TextParser(newParser, minChar, count, mustFailAtEOF, mustConsumeLastChar, isStopChar)
-    
-    /** Creates and returns a new parser that consumes exactly the specified number of characters.
-     *  Fails if there are less matches, but succeeds in case there are more matches, simply ignoring them.
-     *  Calling `take 3` for example is equivalent to calling `min 3 max 3`.
-     */
-    def take (count: Int): TextParser = new TextParser(newParser, count, count, mustFailAtEOF, mustConsumeLastChar, isStopChar)
-
     // TODO - transitional API
-    def keepDelimiter: TextParser = new TextParser(newParser, minChar, maxChar, mustFailAtEOF, false, isStopChar)
+    def keepDelimiter: TextParser = new TextParser(newParser, minChar, mustFailAtEOF, false, isStopChar)
     // TODO - transitional API
-    def delimiterOptional: TextParser = new TextParser(newParser, minChar, maxChar, false, false, isStopChar)
+    def delimiterOptional: TextParser = new TextParser(newParser, minChar, false, false, isStopChar)
     
-    private[parse] def failAtEOF = new TextParser(newParser, minChar, maxChar, true, mustConsumeLastChar, isStopChar)
-  
-    private[parse] def stopChars (chars: Char*) = new TextParser(newParser, minChar, maxChar, mustFailAtEOF, mustConsumeLastChar, charLookupFor(chars:_*))
-    
-    private[parse] def consumeLastChar = new TextParser(newParser, minChar, maxChar, mustFailAtEOF, true, isStopChar)
+    private[parse] def stopChars (chars: Char*) = new TextParser(newParser, minChar, mustFailAtEOF, mustConsumeLastChar, charLookupFor(chars:_*))
     
     private[parse] def applyInternal (in: Reader) = parser(in)
     
@@ -172,7 +156,7 @@ trait MarkupParsers extends BaseParsers {
    *  This parser would consume the entire input unless a `max` constraint
    *  is specified.
    */
-  val any: TextParser = anyWhileLegacy(c => true)
+  val any: Characters = new Characters(_ => true)
   
   /** Consumes any number of consecutive occurrences of the specified characters.
    *  Always succeeds unless a minimum number of required matches is specified.
@@ -190,24 +174,6 @@ trait MarkupParsers extends BaseParsers {
       case _ => val lookup = optimizedCharLookup(chars:_*); !lookup(_)
     }
     new Characters(p)
-  }
-  
-  /** Consumes any number of consecutive characters that are not one of the specified characters.
-   *  
-   *  This parser is identical to the `anyBut` parser except for two differences: this parser fails
-   *  if it reaches the end of the input without seeing any of the specified
-   *  characters and it also consumes this final character, without adding it
-   *  to the result. This parser is usually used when a construct like a span
-   *  enclosed between two characters needs to be parsed.
-   */
-  def anyUntil (chars: Char*): TextParser = {
-    val p: Char => Boolean = chars.length match {
-      case 0 => c => true
-      case 1 => val c = chars(0); _ != c
-      case 2 => val c1 = chars(0); val c2 = chars(1); c => c != c1 && c != c2
-      case _ => val lookup = optimizedCharLookup(chars:_*); !lookup(_)
-    }
-    anyWhileLegacy(p).failAtEOF.consumeLastChar
   }
   
   /** Consumes any number of consecutive characters that are in one of the specified character ranges.
@@ -235,16 +201,29 @@ trait MarkupParsers extends BaseParsers {
   def anyWhile (p: Char => Boolean): Characters = new Characters(p)
 
 
-  private def anyWhileLegacy (p: Char => Boolean): TextParser = {
-    
-    def newParser (min: Int, max: Int, failAtEof: Boolean, consumeLastChar: Boolean, isStopChar: Char => Boolean) = {
+  /** Consumes any number of consecutive characters that are not one of the specified characters.
+    *
+    *  This parser is identical to the `anyBut` parser except for two differences: this parser fails
+    *  if it reaches the end of the input without seeing any of the specified
+    *  characters and it also consumes this final character, without adding it
+    *  to the result. This parser is usually used when a construct like a span
+    *  enclosed between two characters needs to be parsed.
+    */
+  def anyUntil (chars: Char*): TextParser = {
+    val p: Char => Boolean = chars.length match {
+      case 0 => c => true
+      case 1 => val c = chars(0); _ != c
+      case 2 => val c1 = chars(0); val c2 = chars(1); c => c != c1 && c != c2
+      case _ => val lookup = optimizedCharLookup(chars:_*); !lookup(_)
+    }
+
+    def newParser (min: Int, failAtEof: Boolean, consumeLastChar: Boolean, isStopChar: Char => Boolean) = {
 
       val msgProviderFactory = new MessageProviderFactory(min)
 
       Parser { in =>
         val source = in.source
         val end = source.length
-        val maxOffset = if (max > 0) in.offset + max else end
 
         def result (offset: Int, consumeLast: Boolean = false, onStopChar: Boolean = false) = {
           if (offset - in.offset >= min) {
@@ -257,11 +236,12 @@ trait MarkupParsers extends BaseParsers {
 
         @tailrec
         def parse (offset: Int): ParseResult[(String,Boolean)] = {
-          if (offset == end) { if (failAtEof) Failure(Message.UnexpectedEOF, in) else result(offset) }
+          if (offset == end) {
+            if (failAtEof) Failure(Message.UnexpectedEOF, in) else result(offset)
+          }
           else {
             val c = source.charAt(offset)
             if (!p(c)) result(offset, consumeLastChar)
-            else if (offset == maxOffset) result(offset)
             else if (isStopChar(c)) result(offset, onStopChar = true)
             else parse(offset + 1)
           }
@@ -274,22 +254,15 @@ trait MarkupParsers extends BaseParsers {
     new TextParser(newParser)
   }
   
-  /** Consumes any number of characters for which the specified parser fails on the corresponding offset.
-   *  This parser fails if the end of input is reached without the specified parser ever succeeding or
-   *  if the parser causes an Error result instead of a plain Failure or Success. 
-   *  Further constraints like minimum or maximum number of required matching characters can be specified
-   *  through the API of the returned `TextParser` instance.
-   */
   def anyUntil (until: => Parser[Any]): TextParser = {
     
-    def newParser (min: Int, max: Int, failAtEof: Boolean, consumeLastChar: Boolean, isStopChar: Char => Boolean) = {
+    def newParser (min: Int, failAtEof: Boolean, consumeLastChar: Boolean, isStopChar: Char => Boolean) = {
 
       val msgProviderFactory = new MessageProviderFactory(min)
 
       Parser { in =>
 
         lazy val parser = until
-        val maxOffset = if (max > 0) in.offset + max else in.source.length
 
         def result (resultOffset: Int, next: Reader, onStopChar: Boolean = false) = {
           if (resultOffset - in.offset >= min)
@@ -300,12 +273,13 @@ trait MarkupParsers extends BaseParsers {
 
         @tailrec
         def parse (input: Reader): ParseResult[(String,Boolean)] = {
-          if (input.atEnd && failAtEof) Failure(Message.UnexpectedEOF, in)
+          if (input.atEnd) {
+            if (failAtEof) Failure(Message.UnexpectedEOF, in) else result(input.offset, input)
+          }
           else parser(input) match {
             case Success(_, next) => result(input.offset, next)
             case Failure(_, _)    =>
-              if (input.offset == maxOffset) result(input.offset, input)
-              else if (isStopChar(input.first)) result(input.offset, input, onStopChar = true)
+              if (isStopChar(input.first)) result(input.offset, input, onStopChar = true)
               else parse(input.rest)
           }
         }
@@ -314,7 +288,7 @@ trait MarkupParsers extends BaseParsers {
       }
     }
     
-    new TextParser(newParser, mustFailAtEOF = true)
+    new TextParser(newParser, mustConsumeLastChar = false)
   }
   
   

@@ -144,7 +144,7 @@ class MarkupParsersSpec extends FlatSpec with Matchers with MarkupParsers with P
   }
   
   it should "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
-    Parsing ("1234xx") using (anyUntil(az) max 3) should produce ("123")
+    Parsing ("1234xx") using (anyBut('x') max 3) should produce ("123")
   }
   
   it should "stop when a stop char is seen" in {

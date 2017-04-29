@@ -35,7 +35,7 @@ class HTMLParsersSpec extends FlatSpec
                       with HTMLModelBuilder {
  
   
-  val defaultParser: Parser[List[Span]] = spans(any,spanParsers) 
+  val defaultParser: Parser[List[Span]] = spans(spanParsers)
   
   
   "The HTML tag parser" should "parse a single start tag without attributes in flow content" in {

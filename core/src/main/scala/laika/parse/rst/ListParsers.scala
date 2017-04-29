@@ -163,7 +163,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     val term: Parser[String] = not(blankLine | tableStart | explicitStart | listStart | headerStart) ~> 
         anyBut('\n') <~ eol ~ guard((ws min 1) ~ not(blankLine))
     
-    val classifier = lookBehind(2,' ') ~ ' ' ~> spans(any, spanParsers) ^^ (Classifier(_))
+    val classifier = lookBehind(2,' ') ~ ' ' ~> spans(spanParsers) ^^ (Classifier(_))
     val nested = spanParsers + (':' -> classifier)
     
     val item = (term ~ indentedBlock(firstLineIndented = true)) ^?

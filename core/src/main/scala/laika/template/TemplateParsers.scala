@@ -69,7 +69,7 @@ object TemplateParsers {
       }
     } 
     
-    lazy val templateSpans: Parser[List[TemplateSpan]] = spans(any, spanParsers) ^^ {
+    lazy val templateSpans: Parser[List[TemplateSpan]] = spans(spanParsers) ^^ {
       _.collect {
         case s: TemplateSpan => s
         case Text(s, opt) => TemplateString(s, opt)

@@ -159,6 +159,14 @@ trait InlineParsers extends MarkupParsers {
    */
   def spans (parser: => TextParser, spanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]] 
       = inline(parser, spanParsers, new SpanBuilder)
+
+  /** Parses a list of spans based on the specified span parsers.
+    *
+    *  @param spanParsers a mapping from the start character of a span to the corresponding parser for nested span elements
+    *  @return the resulting parser
+    */
+  def spans (spanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]]
+      = inline(anyUntil().delimiterOptional, spanParsers, new SpanBuilder)
   
   /** Parses text based on the specified helper parsers.
    * 
@@ -204,7 +212,7 @@ trait InlineParsers extends MarkupParsers {
    *  @return the result of the parser in form of a list of spans
    */
   def parseInline (source: String, spanParsers: Map[Char, Parser[Span]]): List[Span] = 
-    parseMarkup(inline(any, spanParsers, new SpanBuilder), source)
+    parseMarkup(inline(anyUntil().delimiterOptional, spanParsers, new SpanBuilder), source)
     
   /** Fully parses the input string and produces a list of spans, using the
    *  default span parsers returned by the `spanParsers` method.
