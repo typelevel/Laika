@@ -200,12 +200,12 @@ trait MarkupParsers extends BaseParsers {
   /** Consumes any number of consecutive characters that are in one of the specified character ranges.
    *  Always succeeds unless a minimum number of required matches is specified.
    */
-  def anyIn (ranges: Traversable[Char]*): TextParser = {
+  def anyIn (ranges: Traversable[Char]*): Characters = {
     val p: Char => Boolean = {
       if (ranges.isEmpty) c => false
       else optimizedRangeLookup(ranges:_*)
     }
-    anyWhile(p)
+    new Characters(p)
   }
 
   private class MessageProviderFactory (minExpected: Int) {

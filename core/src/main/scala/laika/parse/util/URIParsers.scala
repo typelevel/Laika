@@ -17,6 +17,7 @@
 package laika.parse.util
 
 import laika.parse.MarkupParsers
+import laika.parse.core.text.Characters
 import laika.parse.core.{Parser, ~}
 
 /**
@@ -49,7 +50,7 @@ trait URIParsers extends MarkupParsers {
    *  ALPHA =  %x41-5A / %x61-7A ; A-Z / a-z
    *  }}}
    */
-  val alpha: TextParser = anyIn('a' to 'z', 'A' to 'Z')
+  val alpha: Characters = anyIn('a' to 'z', 'A' to 'Z')
 
   /** Parses digits according to RFC 2234.
    * 
@@ -57,7 +58,7 @@ trait URIParsers extends MarkupParsers {
    *  DIGIT =  %x30-39; 0-9
    *  }}}
    */
-  val digit: TextParser = anyIn('0' to '9')
+  val digit: Characters = anyIn('0' to '9')
 
   /** Parses a hexadecimal value according to RFC 2234.
    * 
@@ -65,7 +66,7 @@ trait URIParsers extends MarkupParsers {
    *  HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
    *  }}}
    */
-  val hexdig: TextParser = anyIn('0' to '9', 'A' to 'F')
+  val hexdig: Characters = anyIn('0' to '9', 'A' to 'F')
   
   /** Parses a single sub-delimiter as defined in RFC 3986.
    * 
