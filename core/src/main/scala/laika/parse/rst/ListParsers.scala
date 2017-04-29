@@ -16,6 +16,7 @@
 
 package laika.parse.rst
 
+import laika.parse.core.text.Characters
 import laika.parse.core.{Parser, ~}
 import laika.tree.Elements._
 import laika.parse.rst.Elements._
@@ -146,7 +147,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   /** Parser used to parse decorative lines like for rules or headers.
    *  Abstract in this trait as it does not belong to list parsers-
    */
-  def punctuationChar: TextParser
+  def punctuationChar: Characters
   
   /** Parses a definition list.
    * 

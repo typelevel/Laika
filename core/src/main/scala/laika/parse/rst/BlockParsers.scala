@@ -17,6 +17,7 @@
 package laika.parse.rst
 
 import com.typesafe.config.{Config, ConfigValueFactory}
+import laika.parse.core.text.Characters
 import laika.parse.rst.Elements._
 import laika.rewrite.TreeUtil
 import laika.tree.Documents._
@@ -45,7 +46,7 @@ trait BlockParsers extends laika.parse.BlockParsers
                       with ExplicitBlockParsers { self: InlineParsers =>
 
   
-  override def ws: TextParser = anyOf(' ') // other whitespace has been replaced with spaces by preprocessor
+  override def ws: Characters = anyOf(' ') // other whitespace has been replaced with spaces by preprocessor
                         
   
   override def parseDocument (reader: Reader, path: Path): Document = {
@@ -71,7 +72,7 @@ trait BlockParsers extends laika.parse.BlockParsers
   /** Parses punctuation characters as supported by transitions (rules) and 
    *  overlines and underlines for header sections.
    */
-  val punctuationChar: TextParser = 
+  val punctuationChar: Characters =
     anyOf('!','"','#','$','%','&','\'','(',')','[',']','{','}','*','+',',','-','.',':',';','/','<','>','=','?','@','\\','^','_','`','|','~')
 
   /** Parses a transition (rule).

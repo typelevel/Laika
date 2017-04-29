@@ -39,7 +39,7 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
   
   /** Parses and consumes optional whitespace, always succeeds.
    */
-  val htmlWS: TextParser = anyOf(htmlWSChars:_*)
+  val htmlWS: Parser[String] = anyOf(htmlWSChars:_*)
   
 
   val htmlAttributeName: TextParser = anyBut(htmlAttrEndChars:_*) min 1

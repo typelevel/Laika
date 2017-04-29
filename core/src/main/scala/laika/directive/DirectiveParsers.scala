@@ -55,7 +55,7 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
   
   /** Parses horizontal whitespace or newline characters.
    */
-  lazy val wsOrNl: TextParser = anyOf(' ','\t', '\n')
+  lazy val wsOrNl: Parser[String] = anyOf(' ','\t', '\n')
 
   /** Parses a name declaration that start with a letter and 
    *  continues with letters, numbers or the symbols '-' or '_'.

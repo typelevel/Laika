@@ -18,6 +18,7 @@ package laika.parse
 
 import scala.annotation.tailrec
 import laika.parse.core._
+import laika.parse.core.text.Characters
 
 /** Base parsers that provide optimized low-level renderers for typical requirements
  *  of text markup parsers. In particular they are meant as an efficient replacement
@@ -65,7 +66,7 @@ trait MarkupParsers extends BaseParsers {
   /** Parses horizontal whitespace (space and tab).
    *  Always succeeds, consuming all whitespace found.
    */
-  def ws: TextParser = anyOf(' ','\t')
+  def ws: Characters = anyOf(' ','\t')
   
   /** Parses a simple reference name that only allows alphanumerical characters
    *  and the punctuation characters `-`, `_`, `.`, `:`, `+`.
@@ -171,7 +172,7 @@ trait MarkupParsers extends BaseParsers {
   /** Consumes any number of consecutive occurrences of the specified characters.
    *  Always succeeds unless a minimum number of required matches is specified.
    */
-  def anyOf (chars: Char*): TextParser = anyWhile(charLookupFor(chars:_*))
+  def anyOf (chars: Char*): Characters = new Characters(charLookupFor(chars:_*))
   
   /** Consumes any number of consecutive characters that are not one of the specified characters.
    *  Always succeeds unless a minimum number of required matches is specified.

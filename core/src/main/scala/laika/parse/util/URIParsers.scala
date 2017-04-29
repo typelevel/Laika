@@ -74,7 +74,7 @@ trait URIParsers extends MarkupParsers {
    *                   / "*" / "+" / "," / ";" / "="
    *  }}}
    */
-  val subDelims: TextParser = anyOf('!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '=') take 1
+  val subDelims: Parser[String] = anyOf('!', '$', '&', '\'', '(', ')', '*', '+', ',', ';', '=') take 1
   
   /** Parses a single unreserved character as defined in RFC 3986.
    * 
