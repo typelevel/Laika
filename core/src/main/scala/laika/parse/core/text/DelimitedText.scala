@@ -75,12 +75,14 @@ trait Delimiter[T] {
 
 }
 
-case class ConfigurableDelimiter (startChars: Set[Char],
+case class ConfigurableDelimiter (endDelimiters: Set[Char],
                                   postCondition: (Char, Int, Reader) => Int = { (_,_,_) => 0 },
                                   acceptEOF: Boolean = false,
                                   nonEmpty: Boolean = false,
                                   keepDelimiter: Boolean = false,
                                   failOn: Set[Char] = Set()) extends Delimiter[String] {
+
+  val startChars = endDelimiters ++ failOn
 
   private val EmptyResult = Message(s"expected at least 1 character before end delimiter")
 
@@ -129,6 +131,18 @@ trait DelimiterOptions {
 
   def failOn (chars: Char*): DelimitedText[String] with DelimiterOptions = DelimiterOptions(delimiter.copy(failOn = chars.toSet))
 
+  def withPostCondition (parser: Parser[Any]): DelimitedText[String] with DelimiterOptions = {
+    val oldPostCondition = delimiter.postCondition
+    DelimiterOptions(delimiter.copy(postCondition = { (char, consumed, context) =>
+      val firstResult = oldPostCondition(char, consumed, context)
+      if (firstResult == -1) -1 else
+        parser(context.drop(consumed + 1 + firstResult)) match {
+          case Success(_, next) => Math.max(firstResult, next.offset - (context.offset + consumed + 1))
+          case _ => -1
+        }
+    }))
+  }
+
 }
 
 object DelimiterOptions {
@@ -151,7 +165,12 @@ object DelimitedBy {
     if (len == 0) Undelimited
     else if (len == 1) DelimiterOptions(ConfigurableDelimiter(Set(str.head)))
     else if (len == 2) DelimiterOptions(ConfigurableDelimiter(Set(str.head),
+      // TODO - check ctx is not at end
       { (_,consumed,ctx) => if (ctx.source.charAt(ctx.offset + consumed + 1) == str.charAt(1)) 1 else -1 }))
+    else if (len == 3) DelimiterOptions(ConfigurableDelimiter(Set(str.head),
+      // TODO - check ctx is not at end
+      { (_,consumed,ctx) => if (ctx.source.charAt(ctx.offset + consumed + 1) == str.charAt(1)
+        && ctx.source.charAt(ctx.offset + consumed + 2) == str.charAt(2)) 2 else -1 }))
     else throw new NotImplementedError("post conditions > 3 characters not implemented yet")
 
   }

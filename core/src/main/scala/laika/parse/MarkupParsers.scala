@@ -16,7 +16,6 @@
 
 package laika.parse
 
-import scala.annotation.tailrec
 import laika.parse.core._
 import laika.parse.core.text.Characters
 
@@ -80,30 +79,7 @@ trait MarkupParsers extends BaseParsers {
     }
   }
 
-
-  class TextParser private[MarkupParsers] (newParser:  (Int, Char => Boolean) => Parser[(String,Boolean)],
-                                           minChar:    Int = 0,
-                                           isStopChar: Char => Boolean = c => false) extends Parser[String] {
-    
-    private val parser = newParser(minChar, isStopChar)
-    
-    /** Creates and returns a new parser that fails if it does not consume the specified minimum number
-     *  of characters. It may still consume more characters in case of further matches. 
-     */
-    def min (count: Int): TextParser = new TextParser(newParser, count, isStopChar)
-
-    private[parse] def stopChars (chars: Char*) = new TextParser(newParser, minChar, charLookupFor(chars:_*))
-    
-    private[parse] def applyInternal (in: Reader) = parser(in)
-    
-    def apply (in: Reader): ParseResult[String] = parser(in) match {
-      case Success((result,_), next) => Success(result, next)
-      case f: Failure => f
-    }
-  }
-  
-  
-  /** Returns an optimized, Array-based lookup function 
+  /** Returns an optimized, Array-based lookup function
    *  for the specified characters.
    */
   protected def optimizedCharLookup (chars: Char*): Char => Boolean = {
@@ -171,58 +147,12 @@ trait MarkupParsers extends BaseParsers {
     new Characters(p)
   }
 
-  private class MessageProviderFactory (minExpected: Int) {
-
-    val msgFunction: Int => String = actual => s"expected at least $minExpected characters, got only $actual"
-
-    def newProvider (actual: Int): MessageProvider = new MessageFunction(actual, msgFunction)
-
-  }
-
   /** Consumes any number of consecutive characters which satisfy the specified predicate.
     *  Always succeeds unless a minimum number of required matches is specified.
     */
   def anyWhile (p: Char => Boolean): Characters = new Characters(p)
 
-
-  def anyUntil (until: => Parser[Any]): TextParser = {
-    
-    def newParser (min: Int, isStopChar: Char => Boolean) = {
-
-      val msgProviderFactory = new MessageProviderFactory(min)
-
-      Parser { in =>
-
-        lazy val parser = until
-
-        def result (resultOffset: Int, next: Reader, onStopChar: Boolean = false) = {
-          if (resultOffset - in.offset >= min)
-            Success((in.source.subSequence(in.offset, resultOffset).toString, onStopChar), next)
-          else
-            Failure(msgProviderFactory.newProvider(next.offset - in.offset), in)
-        }
-
-        @tailrec
-        def parse (input: Reader): ParseResult[(String,Boolean)] = {
-          if (input.atEnd)
-            Failure(Message.UnexpectedEOF, in)
-          else parser(input) match {
-            case Success(_, next) => result(input.offset, next)
-            case Failure(_, _)    =>
-              if (isStopChar(input.first)) result(input.offset, input, onStopChar = true)
-              else parse(input.rest)
-          }
-        }
-
-        parse(in)
-      }
-    }
-    
-    new TextParser(newParser)
-  }
-  
-  
-  /** Fully parses the specified input string and returns the result. 
+  /** Fully parses the specified input string and returns the result.
    *  This function is expected to always succeed, errors would be considered a bug
    *  in this library, as the parsers treat all unknown or malformed markup as regular
    *  text.
@@ -246,13 +176,11 @@ trait MarkupParsers extends BaseParsers {
     }
   }
   
-  
   /** Exception thrown when parsing a text markup document or fragment fails.
    *  This can only happen due to a bug in this library, as the behaviour of the parser
    *  is to treat all unknown or malformed markup as regular text and always succeed.
    *  The result property holds the `NoSuccess` instance that caused the failure.
    */
   class MarkupParserException (val result: Failure) extends RuntimeException(result.toString)
-  
-  
+
 }

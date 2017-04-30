@@ -26,17 +26,21 @@ class InlineDelimiter (nestedDelimiters: Set[Char], endDelimiters: Delimiter[Str
 
   val startChars = nestedDelimiters ++ endDelimiters.startChars
 
-  def atStartChar (startChar: Char, charsConsumed: Int, context: Reader): DelimiterResult[InlineResult] =
-    if (endDelimiters.startChars.contains(startChar))
-      endDelimiters.atStartChar(startChar, charsConsumed, context) match {
-        case Complete(s: ParseResult[String]) => Complete(s.map(EndDelimiter))
-        case Continue => Continue
-      }
-    else {
+  def atStartChar (startChar: Char, charsConsumed: Int, context: Reader): DelimiterResult[InlineResult] = {
+
+    def nestedDelimiter: DelimiterResult[InlineResult] = {
       val totalConsumed = charsConsumed + 1
       val capturedText = context.source.substring(context.offset, context.offset + charsConsumed)
       Complete(Success(NestedDelimiter(startChar, capturedText), context.drop(totalConsumed)))
     }
+
+    if (endDelimiters.startChars.contains(startChar))
+      endDelimiters.atStartChar(startChar, charsConsumed, context) match {
+        case Complete(s: ParseResult[String]) => Complete(s.map(EndDelimiter))
+        case Continue => if (nestedDelimiters.contains(startChar)) nestedDelimiter else Continue
+      }
+    else nestedDelimiter
+  }
 
   def atEOF (charsConsumed: Int, context: Reader): ParseResult[InlineResult] =
     endDelimiters.atEOF(charsConsumed, context).map(EndDelimiter)

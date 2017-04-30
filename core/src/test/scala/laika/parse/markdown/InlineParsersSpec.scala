@@ -82,6 +82,10 @@ class InlineParsersSpec extends FlatSpec
   it should "parse content enclosed in ** in the middle of a phrase" in {
     Parsing ("some **text** here") should produce (spans(txt("some "),str(txt("text")),txt(" here")))
   }
+
+  it should "parse content enclosed in ** with a nested em span" in {
+    Parsing ("some ***text*** here") should produce (spans(txt("some "),str(em(txt("text"))),txt(" here")))
+  }
   
   it should "parse content enclosed in ** when it spans the entire phrase" in {
     Parsing ("**text**") should produce (spans(str(txt("text"))))

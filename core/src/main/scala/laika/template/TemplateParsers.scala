@@ -22,6 +22,7 @@ import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions
 import laika.directive.DirectiveParsers
 import laika.parse.InlineParsers
+import laika.parse.core.text.DelimitedBy
 import laika.tree.Paths.Path
 import laika.tree.Documents.TemplateDocument
 import laika.tree.Elements._
@@ -59,7 +60,7 @@ object TemplateParsers {
       '\\'-> ((any take 1) ^^ { Text(_) })
     )
   
-    def configParser (path: Path): Parser[Either[InvalidSpan,Config]] = "{%" ~> anyUntil("%}") <~ ws ~ eol ^^ { str =>
+    def configParser (path: Path): Parser[Either[InvalidSpan,Config]] = "{%" ~> DelimitedBy("%}") <~ ws ~ eol ^^ { str =>
       try {
         Right(ConfigFactory.parseString(str, ConfigParseOptions.defaults().setOriginDescription("path:"+path)))
       }
@@ -99,7 +100,7 @@ object TemplateParsers {
     abstract override protected def prepareBlockParsers (nested: Boolean): List[Parser[Block]] = 
       blockDirectiveParser :: super.prepareBlockParsers(nested)
     
-    override def config (path: Path): Parser[Either[InvalidBlock,Config]] = "{%" ~> anyUntil("%}") <~ ws ~ eol ^^ { str =>
+    override def config (path: Path): Parser[Either[InvalidBlock,Config]] = "{%" ~> DelimitedBy("%}") <~ ws ~ eol ^^ { str =>
       try {
         Right(ConfigFactory.parseString(str, ConfigParseOptions.defaults().setOriginDescription("path:"+path)))
       }

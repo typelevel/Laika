@@ -109,7 +109,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
     }
     
     val indirect = {
-      (named <~ ws) ~ ((opt(eol ~ ws) ~ "`" ~> escapedTextNew(DelimitedBy('`')) | simpleRefName) <~ '_' ~ ws ~ eol) ^^ {
+      (named <~ ws) ~ ((opt(eol ~ ws) ~ "`" ~> escapedText(DelimitedBy('`')) | simpleRefName) <~ '_' ~ ws ~ eol) ^^ {
         case name ~ refName => LinkAlias(name, refName.replaceAll("\n", "")) 
       }
     }
@@ -122,7 +122,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#substitution-definitions]].
    */
   def substitutionDefinition: Parser[Block] = {
-    val text = not(ws take 1) ~> escapedTextNew(DelimitedBy('|','\n').keepDelimiter.nonEmpty)
+    val text = not(ws take 1) ~> escapedText(DelimitedBy('|','\n').keepDelimiter.nonEmpty)
     val prefix = '|' ~> text <~ not(lookBehind(1, ' ')) ~ '|'
     
     ((prefix <~ ws) ~ spanDirectiveParser) ^^ { 

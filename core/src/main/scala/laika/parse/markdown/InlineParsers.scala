@@ -73,18 +73,19 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
    *  represent the start and end condition.
    * 
    *  @param start the parser that parses the beginning of the span, result will be discarded
-   *  @param end the parser that recognizes the end of the span, result will be discarded
+   *  @param endDelim the end delimiter of the span
+   *  @param postCondition the parser that checks any post conditions after the end delimiter has been read
    */
-  def span (start: Parser[Any], end: Parser[Any]): Parser[List[Span]]
-    = start ~> spans(anyUntil(end), spanParsers)
+  def span (start: Parser[Any], endDelim: String, postCondition: Parser[Any]): Parser[List[Span]]
+    = start ~> spans(DelimitedBy(endDelim).withPostCondition(postCondition), spanParsers)
   
   /** Parses a span enclosed by a single occurrence of the specified character.
    *  Recursively parses nested spans, too. 
    */
   def enclosedBySingleChar (c: Char): Parser[List[Span]] = {
-    val start = not(char(' ') | char(c))
-    val end = c ~ not(lookBehind(2, ' '))
-    span(start, end) 
+    val start = guard(anyBut(' ', c).take(1))
+    val end = not(lookBehind(2, ' '))
+    span(start, c.toString, end)
   }
   
   /** Parses a span enclosed by two consecutive occurrences of the specified character.
@@ -92,8 +93,8 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
    */
   def enclosedByDoubleChar (c: Char): Parser[List[Span]] = {
     val start = c ~ not(' ')
-    val end = c ~ c ~ not(lookBehind(3, ' '))
-    span(start, end)
+    val end = c <~ not(lookBehind(3, ' '))
+    span(start, c.toString, end)
   }
   
   /** Parses a literal span enclosed by a single backtick.
@@ -111,7 +112,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   def literalEnclosedByDoubleChar: Parser[Literal] = {
     val start = '`'
     val end = "``"
-    start ~> anyUntil(end) ^^ { s => Literal(s.trim) }
+    start ~> DelimitedBy(end) ^^ { s => Literal(s.trim) }
   }
   
   
@@ -161,12 +162,13 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
    */
   def resource (inline: (String, String, Option[String]) => Span, ref: (String, String, String) => Span): Parser[Span] = {
     
-    val linktext = textNew(DelimitedBy(']'), Map('\\' -> escapedChar, '[' -> (DelimitedBy(']') ^^ { "[" + _ + "]" })))
-    
-    val title = ws ~> (('"' ~> anyUntil('"' ~ guard(ws ~ ')'))) | ('\'' ~> anyUntil('\'' ~ guard(ws ~ ')')))) 
-    
-    val url = ('<' ~> self.textNew(DelimitedBy('>',' ').keepDelimiter, Map('\\' -> escapedChar)) <~ '>') |
-       self.textNew(DelimitedBy(')',' ','\t').keepDelimiter, Map('\\' -> escapedChar))
+    val linktext = text(DelimitedBy(']'), Map('\\' -> escapedChar, '[' -> (DelimitedBy(']') ^^ { "[" + _ + "]" })))
+
+    val titleEnd = guard(ws ~ ')')
+    val title = ws ~> (('"' ~> DelimitedBy('"').withPostCondition(titleEnd)) | ('\'' ~> DelimitedBy('\'').withPostCondition(titleEnd)))
+
+    val url = ('<' ~> self.text(DelimitedBy('>',' ').keepDelimiter, Map('\\' -> escapedChar)) <~ '>') |
+       self.text(DelimitedBy(')',' ','\t').keepDelimiter, Map('\\' -> escapedChar))
     
     val urlWithTitle = '(' ~> url ~ opt(title) <~ ws ~ ')' ^^ {  
       case url ~ title => text:String => inline(text, url, title)  
@@ -205,10 +207,10 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   def linkTarget: Parser[ExternalLinkDefinition] = {
     
     val id = '[' ~> escapedUntil(']') <~ ':' <~ ws
-    val url = (('<' ~> escapedUntil('>')) | textNew(DelimitedBy(' ', '\n').acceptEOF.keepDelimiter, escapedChars)) ^^ { _.mkString }
+    val url = (('<' ~> escapedUntil('>')) | text(DelimitedBy(' ', '\n').acceptEOF.keepDelimiter, escapedChars)) ^^ { _.mkString }
     
     def enclosedBy(start: Char, end: Char) = 
-      start ~> anyUntil(guard(end ~ ws ~ eol) | '\r' | '\n') <~ end ^^ { _.mkString }
+      start ~> DelimitedBy(end).withPostCondition(guard(ws ~ eol)).failOn('\r', '\n') ^^ { _.mkString }
     
     val title = (ws ~ opt(eol) ~ ws) ~> (enclosedBy('"', '"') | enclosedBy('\'', '\'') | enclosedBy('(', ')'))
     

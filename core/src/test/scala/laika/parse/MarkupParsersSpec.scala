@@ -126,30 +126,26 @@ class MarkupParsersSpec extends FlatSpec with Matchers with MarkupParsers with P
     Parsing ("xxxxxx") using (anyOf('x') max 3) should produce ("xxx")
   }
   
-  val az = anyIn('a' to 'z') min 1
+  val az = DelimitedBy(('a' to 'z'): _*)
   
-  "The anyUntil parser" should "stop as soon as the specified parser succeeds" in {
-    Parsing ("123abc") using anyUntil(az) should produce ("123")
+  "The DelimitedBy parser" should "stop as soon as the specified end delimiter is seen" in {
+    Parsing ("123abc") using az should produce ("123")
+  }
+
+  it should "succeed even when the result is empty" in {
+    Parsing ("abc") using az should produce ("")
   }
   
-  it should "fail when it does not consume the specified minimum number of characters" in {
-    Parsing ("12abc") using (anyUntil(az) min 3) should cause [Failure]
+  it should "fail when the result is empty but nonEmpty is specified" in {
+    Parsing ("abc") using az.nonEmpty should cause [Failure]
   }
   
-  it should "succeed when it does consume the specified minimum number of characters" in {
-    Parsing ("1234abc") using (anyUntil(az) min 3) should produce ("1234")
-  }
-  
-  it should "stop, but still succeed, when it has consumed the specified maximum number of characters" in {
-    Parsing ("1234xx") using (anyBut('x') max 3) should produce ("123")
-  }
-  
-  it should "stop when a stop char is seen" in {
-    Parsing ("1234abcd") using (anyUntil(az) stopChars('3','4')) should produce ("12")
+  it should "fail when a stop char is seen before the end delimiter" in {
+    Parsing ("1234abcd") using az.failOn('3','4') should cause [Failure]
   }
   
   it should "fail in case the end of the input is reached" in {
-    Parsing ("1234567") using anyUntil(az) should cause [Failure]
+    Parsing ("1234567") using az should cause [Failure]
   }
   
   
