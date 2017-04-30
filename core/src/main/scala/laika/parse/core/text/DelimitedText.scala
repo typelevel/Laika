@@ -23,10 +23,10 @@ import scala.annotation.tailrec
 /**
   * @author Jens Halm
   */
-class DelimitedText[T] (delimiter: Delimiter[T]) extends Parser[T] {
+class DelimitedText[T] (val delimiter: Delimiter[T]) extends Parser[T] {
 
 
-  private val maxChar: Char = delimiter.startChars.max
+  private val maxChar: Char = if (delimiter.startChars.nonEmpty) delimiter.startChars.max else 0
 
   private lazy val optimizedDelimiters: Array[Int] = {
 
@@ -136,7 +136,7 @@ object DelimiterOptions {
   def apply (delim: ConfigurableDelimiter): DelimitedText[String] with DelimiterOptions
       = new DelimitedText(delim) with DelimiterOptions {
 
-    val delimiter = delim
+    override val delimiter = delim
 
   }
 

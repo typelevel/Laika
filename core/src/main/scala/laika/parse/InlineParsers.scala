@@ -16,7 +16,9 @@
 
 package laika.parse
 
-import laika.parse.core.{Failure, ParseResult, Parser, Success, Reader}
+import laika.parse.core.markup.{EndDelimiter, InlineDelimiter, NestedDelimiter}
+import laika.parse.core.text.{DelimitedBy, DelimitedText}
+import laika.parse.core.{Failure, ParseResult, Parser, Reader, Success}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
@@ -150,6 +152,54 @@ trait InlineParsers extends MarkupParsers {
       
     parse(in)
   }
+
+  /** Generic base parser that parses inline elements based on the specified
+    *  helper parsers. Usually not used directly by parser implementations,
+    *  this is the base parser the other inline parsers of this trait delegate to.
+    *
+    *  @tparam Elem the element type produced by a single parser for a nested span
+    *  @tparam To the type of the result this parser produces
+    *  @param text the parser for the text of the current span element
+    *  @param nested a mapping from the start character of a span to the corresponding parser for nested span elements
+    *  @param resultBuilder responsible for building the final result of this parser based on the results of the helper parsers
+    *  @return the resulting parser
+    */
+  def inlineNew [Elem,To] (text: => DelimitedText[String],
+                        nested: => Map[Char, Parser[Elem]],
+                        resultBuilder: => ResultBuilder[Elem,To]): Parser[To] = Parser { in =>
+
+    lazy val builder = resultBuilder // evaluate only once
+    lazy val nestedMap = nested
+    lazy val textParser = DelimitedBy(new InlineDelimiter(nestedMap.keySet, text.delimiter))
+
+    def addText (text: String) = if (!text.isEmpty) builder += builder.fromString(text)
+
+    def nestedSpanOrNextChar (parser: Parser[Elem], input: Reader) = {
+      parser(input) match {
+        case Success(result, next) => builder += result; next
+        case _ => builder += builder.fromString(input.source.charAt(input.offset - 1).toString); input
+      }
+    }
+
+    @tailrec
+    def parse (input: Reader) : ParseResult[To] = {
+      textParser(input) match {
+        case Failure(msg, _) =>
+          Failure(msg, in)
+        case Success(EndDelimiter(text), next) =>
+          addText(text)
+          Success(builder.result, next)
+        case Success(NestedDelimiter(startChar, text), next) =>
+          addText(text)
+          val parser = nestedMap(startChar)
+          val newIn = nestedSpanOrNextChar(parser, next)
+          if (newIn.atEnd) Success(builder.result, newIn)
+          else parse(newIn)
+      }
+    }
+
+    parse(in)
+  }
   
   /** Parses a list of spans based on the specified helper parsers.
    * 
@@ -160,13 +210,22 @@ trait InlineParsers extends MarkupParsers {
   def spans (parser: => TextParser, spanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]] 
       = inline(parser, spanParsers, new SpanBuilder)
 
+  /** Parses a list of spans based on the specified helper parsers.
+    *
+    *  @param parser the parser for the text of the current span element
+    *  @param spanParsers a mapping from the start character of a span to the corresponding parser for nested span elements
+    *  @return the resulting parser
+    */
+  def spansNew (parser: => DelimitedText[String], spanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]]
+      = inlineNew(parser, spanParsers, new SpanBuilder)
+
   /** Parses a list of spans based on the specified span parsers.
     *
     *  @param spanParsers a mapping from the start character of a span to the corresponding parser for nested span elements
     *  @return the resulting parser
     */
   def spans (spanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]]
-      = inline(anyUntil().delimiterOptional, spanParsers, new SpanBuilder)
+      = inlineNew(DelimitedBy.Undelimited, spanParsers, new SpanBuilder)
   
   /** Parses text based on the specified helper parsers.
    * 
@@ -176,6 +235,15 @@ trait InlineParsers extends MarkupParsers {
    */
   def text (parser: => TextParser, nested: => Map[Char, Parser[String]]): Parser[String] 
       = inline(parser, nested, new TextBuilder)
+
+  /** Parses text based on the specified helper parsers.
+    *
+    *  @param parser the parser for the text of the current element
+    *  @param nested a mapping from the start character of a span to the corresponding parser for nested span elements
+    *  @return the resulting parser
+    */
+  def textNew (parser: => DelimitedText[String], nested: => Map[Char, Parser[String]]): Parser[String]
+      = inlineNew(parser, nested, new TextBuilder)
   
   /** Parses a single escape character.
    *  In the default implementation any character can be escaped.
@@ -190,6 +258,13 @@ trait InlineParsers extends MarkupParsers {
    */  
   def escapedText (p: TextParser): Parser[String] = text(p, Map('\\' -> escapedChar))
 
+  /** Adds support for escape sequences to the specified text parser.
+    *
+    *  @param p the parser to add support for escape sequences to
+    *  @return a parser for a text span that supports escape sequences
+    */
+  def escapedTextNew (p: DelimitedText[String]): Parser[String] = textNew(p, Map('\\' -> escapedChar))
+
   /** Parses a span of text until one of the specified characters is seen 
    *  (unless it is escaped),
    *  while also processing escaped characters, but no other nested
@@ -198,7 +273,7 @@ trait InlineParsers extends MarkupParsers {
    *  @param char the character that signals the end of the text span
    *  @return a parser for a text span that supports escape sequences
    */  
-  def escapedUntil (char: Char*): Parser[String] = escapedText(anyUntil(char:_*) min 1)
+  def escapedUntil (char: Char*): Parser[String] = escapedTextNew(DelimitedBy(char:_*).nonEmpty)
   
   /** Fully parses the input string and produces a list of spans.
    *  
@@ -212,7 +287,7 @@ trait InlineParsers extends MarkupParsers {
    *  @return the result of the parser in form of a list of spans
    */
   def parseInline (source: String, spanParsers: Map[Char, Parser[Span]]): List[Span] = 
-    parseMarkup(inline(anyUntil().delimiterOptional, spanParsers, new SpanBuilder), source)
+    parseMarkup(inlineNew(DelimitedBy.Undelimited, spanParsers, new SpanBuilder), source)
     
   /** Fully parses the input string and produces a list of spans, using the
    *  default span parsers returned by the `spanParsers` method.

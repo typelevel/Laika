@@ -161,12 +161,12 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
    */
   def resource (inline: (String, String, Option[String]) => Span, ref: (String, String, String) => Span): Parser[Span] = {
     
-    val linktext = text(anyUntil(']'), Map('\\' -> escapedChar, '[' -> (DelimitedBy(']') ^^ { "[" + _ + "]" })))
+    val linktext = textNew(DelimitedBy(']'), Map('\\' -> escapedChar, '[' -> (DelimitedBy(']') ^^ { "[" + _ + "]" })))
     
     val title = ws ~> (('"' ~> anyUntil('"' ~ guard(ws ~ ')'))) | ('\'' ~> anyUntil('\'' ~ guard(ws ~ ')')))) 
     
-    val url = ('<' ~> self.text(anyUntil('>',' ').keepDelimiter, Map('\\' -> escapedChar)) <~ '>') |
-       self.text(anyUntil(')',' ','\t').keepDelimiter, Map('\\' -> escapedChar))
+    val url = ('<' ~> self.textNew(DelimitedBy('>',' ').keepDelimiter, Map('\\' -> escapedChar)) <~ '>') |
+       self.textNew(DelimitedBy(')',' ','\t').keepDelimiter, Map('\\' -> escapedChar))
     
     val urlWithTitle = '(' ~> url ~ opt(title) <~ ws ~ ')' ^^ {  
       case url ~ title => text:String => inline(text, url, title)  
@@ -205,7 +205,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   def linkTarget: Parser[ExternalLinkDefinition] = {
     
     val id = '[' ~> escapedUntil(']') <~ ':' <~ ws
-    val url = (('<' ~> escapedUntil('>')) | text(anyUntil(' ', '\n').delimiterOptional, escapedChars)) ^^ { _.mkString }
+    val url = (('<' ~> escapedUntil('>')) | textNew(DelimitedBy(' ', '\n').acceptEOF.keepDelimiter, escapedChars)) ^^ { _.mkString }
     
     def enclosedBy(start: Char, end: Char) = 
       start ~> anyUntil(guard(end ~ ws ~ eol) | '\r' | '\n') <~ end ^^ { _.mkString }

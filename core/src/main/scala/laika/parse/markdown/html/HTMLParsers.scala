@@ -20,6 +20,7 @@ import laika.tree.Elements._
 import laika.parse.markdown.InlineParsers
 import laika.parse.markdown.BlockParsers
 import HTMLElements._
+import laika.parse.core.text.DelimitedBy
 import laika.parse.core.{Parser, ~}
    
 /** Parses verbatim HTML elements which may interleave with standard Markdown markup.
@@ -45,13 +46,13 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
   val htmlAttributeName: Parser[String] = anyBut(htmlAttrEndChars:_*) min 1
  
   val htmlUnquotedAttributeValue: Parser[(List[Span with TextContainer], Option[Char])] = 
-    spans(anyUntil(htmlAttrEndChars:_*).keepDelimiter, Map('&' -> htmlCharReference)) ^?
+    spansNew(DelimitedBy(htmlAttrEndChars:_*).keepDelimiter, Map('&' -> htmlCharReference)) ^?
       { case x :: xs => ((x::xs).asInstanceOf[List[Span with TextContainer]], None) }
   
   /** Parses an attribute value enclosed by the specified character.
    */
   def htmlQuotedAttributeValue (c: Char): Parser[(List[Span with TextContainer], Option[Char])] =
-    c ~> spans(anyUntil(c), Map('&' -> htmlCharReference)) ^^
+    c ~> spansNew(DelimitedBy(c), Map('&' -> htmlCharReference)) ^^
       { spans => (spans.asInstanceOf[List[Span with TextContainer]], Some(c)) }
     
   /** Parses quoted and unquoted attribute values.

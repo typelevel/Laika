@@ -264,7 +264,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-internal-targets]]
    */
   val internalTarget: Parser[Text] = markupStart('`', "`") ~> 
-    (escapedText(anyUntil('`') min 1) ^^ ReferenceName) <~
+    (escapedTextNew(DelimitedBy('`').nonEmpty) ^^ ReferenceName) <~
     markupEnd(1) ^^ (id => Text(id.original, Id(id.normalized) + Styles("target")))
   
   /** The default text role to use when no role is specified in an interpreted text element.
@@ -276,7 +276,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#interpreted-text]]
    */  
   lazy val interpretedTextWithRolePrefix: Parser[InterpretedText] = {
-    (markupStart(":") ~> simpleRefName) ~ (":`" ~> escapedText(anyUntil('`') min 1) <~ markupEnd(1)) ^^
+    (markupStart(":") ~> simpleRefName) ~ (":`" ~> escapedTextNew(DelimitedBy('`').nonEmpty) <~ markupEnd(1)) ^^
       { case role ~ text => InterpretedText(role,text,s":$role:`$text`") }
   }
   
@@ -285,7 +285,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#interpreted-text]]
    */  
   lazy val interpretedTextWithRoleSuffix: Parser[InterpretedText] = {
-    (markupStart("`") ~> escapedText(anyUntil('`') min 1) <~ markupEnd(1)) ~ opt(":" ~> simpleRefName <~ markupEnd(":")) ^^
+    (markupStart("`") ~> escapedTextNew(DelimitedBy('`').nonEmpty) <~ markupEnd(1)) ~ opt(":" ~> simpleRefName <~ markupEnd(":")) ^^
       { case text ~ role => InterpretedText(role.getOrElse(defaultTextRole), text, s"`$text`" + role.map(":"+_+":").getOrElse("")) }
   }
   
@@ -296,7 +296,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   lazy val phraseLinkRef: Parser[Span] = {
     def ref (refName: String, url: String) = if (refName.isEmpty) url else refName
     val url = '<' ~> DelimitedBy('>') ^^ { _.replaceAll("[ \n]+", "") }
-    val refName = escapedText(anyUntil('`','<').keepDelimiter) ^^ ReferenceName
+    val refName = escapedTextNew(DelimitedBy('`','<').keepDelimiter) ^^ ReferenceName
     markupStart("`") ~> refName ~ opt(url) ~ (markupEnd("`__") ^^^ false | markupEnd("`_") ^^^ true) ^^ {
       case refName ~ Some(url) ~ true   => 
         SpanSequence(List(ExternalLink(List(Text(ref(refName.original, url))), url), ExternalLinkDefinition(ref(refName.normalized, url), url)))

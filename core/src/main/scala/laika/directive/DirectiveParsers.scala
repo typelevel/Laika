@@ -170,7 +170,7 @@ object DirectiveParsers {
     
     lazy val templateDirectiveParser: Parser[TemplateSpan] = {
       val contextRefOrNestedBraces = '{' -> (reference(TemplateContextReference(_)) | nestedBraces)
-      val bodyContent = wsOrNl ~ '{' ~> (withSource(spans(anyUntil('}'), spanParsers + contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
+      val bodyContent = wsOrNl ~ '{' ~> (withSource(spansNew(DelimitedBy('}'), spanParsers + contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
       withSource(directiveParser(bodyContent, includeStartChar = false)) ^^ { case (result, source) =>
         
         def createContext (parts: PartMap, docCursor: Option[DocumentCursor]): Templates.DirectiveContext = {
@@ -201,7 +201,7 @@ object DirectiveParsers {
     
     lazy val spanDirectiveParser: Parser[Span] = {
       val contextRefOrNestedBraces = '{' -> (reference(MarkupContextReference(_)) | nestedBraces)
-      val bodyContent = wsOrNl ~ '{' ~> (withSource(spans(anyUntil('}'), spanParsers + contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
+      val bodyContent = wsOrNl ~ '{' ~> (withSource(spansNew(DelimitedBy('}'), spanParsers + contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
       withSource(directiveParser(bodyContent, includeStartChar = false)) ^^ { case (result, source) => // TODO - optimization - parsed spans might be cached for DirectiveContext (applies for the template parser, too)
         
         def createContext (parts: PartMap, docCursor: Option[DocumentCursor]): Spans.DirectiveContext = {

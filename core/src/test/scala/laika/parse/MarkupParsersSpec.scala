@@ -17,6 +17,7 @@
 package laika.parse
 
 import laika.parse.core.Failure
+import laika.parse.core.text.DelimitedBy
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 import laika.parse.helper.ParseResultHelpers
@@ -85,12 +86,12 @@ class MarkupParsersSpec extends FlatSpec with Matchers with MarkupParsers with P
     Parsing ("abcabc") using anyBut('x','y','z') should produce ("abcabc")
   }
   
-  "The anyUntil parser" should "behave the same as the anyBut parser in case one of the specified characters is seen" in {
-    Parsing ("abcxxabc") using anyUntil('x') should produce ("abc")
+  "The DelimitedBy parser" should "behave the same as the anyBut parser in case one of the specified characters is seen" in {
+    Parsing ("abcxxabc") using DelimitedBy('x') should produce ("abc")
   }
   
   it should "fail if non of the specified characters appear in the input" in {
-    Parsing ("abcabc") using anyUntil('x') should cause [Failure]
+    Parsing ("abcabc") using DelimitedBy('x') should cause [Failure]
   }
   
   "The anyIn parser" should "succeed for any character within the specified range when 1 range is specified" in {
@@ -125,10 +126,6 @@ class MarkupParsersSpec extends FlatSpec with Matchers with MarkupParsers with P
     Parsing ("xxxxxx") using (anyOf('x') max 3) should produce ("xxx")
   }
   
-  it should "stop when a stop char is seen" in {
-    Parsing ("abcdxxx") using (anyUntil('x') stopChars('c','d')) should produce ("ab")
-  }
-
   val az = anyIn('a' to 'z') min 1
   
   "The anyUntil parser" should "stop as soon as the specified parser succeeds" in {

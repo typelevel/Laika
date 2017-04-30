@@ -139,7 +139,7 @@ trait CSSParsers extends laika.parse.InlineParsers {
    *  any comments..
    */
   lazy val styleValue: Parser[String] = 
-    text(anyUntil(';'), Map('/' -> (('*' ~ DelimitedBy("*/") ~ wsOrNl) ^^^ "")))
+    textNew(DelimitedBy(';'), Map('/' -> (('*' ~ DelimitedBy("*/") ~ wsOrNl) ^^^ "")))
     
   /** Parses an entire set of style declarations.
    *  This is the top level parser of this trait.

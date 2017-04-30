@@ -16,6 +16,7 @@
   
 package laika.parse.rst.ext
 
+import laika.parse.core.text.DelimitedBy
 import laika.parse.core.~
 import laika.tree.Elements._
 import laika.parse.rst.Directives.DirectivePart
@@ -96,7 +97,7 @@ trait StandardDirectiveParsers extends BlockParsers with InlineParsers {
    */
   def target (input: String): Either[String,Span] = {
     val phraseLinkRef = {
-      val refName = escapedText(anyUntil('`','<').keepDelimiter) ^^ ReferenceName
+      val refName = escapedTextNew(DelimitedBy('`','<').keepDelimiter) ^^ ReferenceName
       "`" ~> refName <~ "`_" ~ ws ~ eof ^^ {
         refName => LinkReference(Nil, refName.normalized, s"`${refName.original}`_") 
       }
