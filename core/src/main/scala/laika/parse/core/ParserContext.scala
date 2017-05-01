@@ -44,7 +44,9 @@ case class ParserContext (source: Source, offset: Int, nestLevel: Int) {
     else if (numChars < 0 || numChars + offset > input.length) throw new IndexOutOfBoundsException(numChars.toString)
     else input.substring(offset, offset + numChars)
 
-  def consume (numChars: Int): ParserContext = ParserContext(source, offset + numChars, nestLevel)
+  def consume (numChars: Int): ParserContext =
+    if (numChars != 0) ParserContext(source, offset + numChars, nestLevel)
+    else this
 
   def position: Position = new Position(source, offset)
 
