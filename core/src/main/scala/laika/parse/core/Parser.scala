@@ -3,7 +3,7 @@ package laika.parse.core
 /** The root class of parsers.
   *  Parsers are functions from the Input type to ParseResult.
   */
-abstract class Parser[+T] extends (Reader => ParseResult[T]) {
+abstract class Parser[+T] extends (ParserContext => ParseResult[T]) {
 
   import Parsers._
 
@@ -12,7 +12,7 @@ abstract class Parser[+T] extends (Reader => ParseResult[T]) {
   override def toString() = "Parser ("+ name +")"
 
   /** An unspecified method that defines the behaviour of this parser. */
-  def apply(in: Reader): ParseResult[T]
+  def apply(in: ParserContext): ParseResult[T]
 
   def flatMap[U](f: T => Parser[U]): Parser[U]
     = Parser{ in => this(in) flatMapWithNext(f)}
@@ -104,7 +104,7 @@ abstract class Parser[+T] extends (Reader => ParseResult[T]) {
     */
   def ^^^ [U](v: => U): Parser[U] =  new Parser[U] {
     lazy val v0 = v // lazy argument
-    def apply (in: Reader) = Parser.this(in) map (x => v0)
+    def apply (in: ParserContext) = Parser.this(in) map (x => v0)
   }.named(toString+"^^^")
 
   /** A parser combinator for partial function application.

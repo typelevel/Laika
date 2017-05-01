@@ -28,8 +28,7 @@ import laika.parse.util.WhitespacePreprocessor
 import laika.template.TemplateParsers
 import laika.tree.Documents.Document
 import laika.tree.Elements._
-
-import laika.parse.core.CharSequenceReader
+import laika.parse.core.ParserContext
   
 /** A parser for text written in reStructuredText markup. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:
@@ -264,9 +263,9 @@ class ReStructuredText private (
    *  returning a document tree.
    */
   val newParser: Input => Document = input => {
-    val raw = input.asParserInput.source
+    val raw = input.asParserInput.input
     val preprocessed = (new WhitespacePreprocessor)(raw.toString)
-    parser.parseDocument(new CharSequenceReader(preprocessed), input.path)
+    parser.parseDocument(ParserContext(preprocessed), input.path)
   }
   
 }

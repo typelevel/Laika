@@ -27,27 +27,27 @@ trait Parsed {
 
 trait MessageProvider {
 
-  def message (context: Reader): String
+  def message (context: ParserContext): String
 
 }
 
 object MessageProvider {
 
-  def apply (f: Reader => String): MessageProvider = new MessageProvider {
-    def message (context: Reader): String = f(context)
+  def apply (f: ParserContext => String): MessageProvider = new MessageProvider {
+    def message (context: ParserContext): String = f(context)
   }
 
 }
 
 case class FixedMessage (msg: String) extends MessageProvider {
 
-  def message (context: Reader): String = msg
+  def message (context: ParserContext): String = msg
 
 }
 
 class MessageFunction[T] (input: T, f: T => String) extends MessageProvider {
 
-  def message (context: Reader): String = f(input)
+  def message (context: ParserContext): String = f(input)
 
 }
 

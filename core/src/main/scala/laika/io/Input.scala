@@ -24,7 +24,7 @@ import java.io.InputStreamReader
 import java.io.StringReader
 
 import scala.io.Codec
-import laika.parse.core.{ParserContext, Reader}
+import laika.parse.core.ParserContext
 import java.io.File
 
 import laika.tree.Paths.Path
@@ -46,7 +46,7 @@ trait Input {
 
   /** The input as a Reader instance for the parser combinators of the Scala SDK.
    */
-  def asParserInput: Reader
+  def asParserInput: ParserContext
   
   /** The full path of this input.
    *  This path is always an absolute path
@@ -88,13 +88,13 @@ object Input {
     
     def asReader: java.io.Reader = new StringReader(source)
   
-    def asParserInput: Reader = ParserContext(source)
+    def asParserInput: ParserContext = ParserContext(source)
     
   }
   
   private class ReaderInput (val asReader: java.io.Reader, val path: Path) extends Input {
    
-    def asParserInput: Reader = ParserContext(asReader)
+    def asParserInput: ParserContext = ParserContext(asReader)
 
   }
   
@@ -104,7 +104,7 @@ object Input {
       val asStream = stream
     }
     
-    def asParserInput: Reader = ParserContext(asReader)
+    def asParserInput: ParserContext = ParserContext(asReader)
     
     lazy val asReader: java.io.Reader = new BufferedReader(new InputStreamReader(stream, codec.decoder))
     
@@ -126,7 +126,7 @@ object Input {
     private lazy val delegate = new AutocloseStreamInput(new FileInputStream(file), path, codec)
     
     def asReader: java.io.Reader = delegate.asReader
-    def asParserInput: Reader = ParserContext(delegate.asReader, file.length.toInt)
+    def asParserInput: ParserContext = ParserContext(delegate.asReader, file.length.toInt)
     def close: Unit = delegate.close
     def asBinaryInput: BinaryInput = delegate.asBinaryInput
   }
@@ -136,7 +136,7 @@ object Input {
     private lazy val delegate = new AutocloseStreamInput(getClass.getResourceAsStream(resource), path, codec)
     
     def asReader: java.io.Reader = delegate.asReader
-    def asParserInput: Reader = delegate.asParserInput
+    def asParserInput: ParserContext = delegate.asParserInput
     def close: Unit = delegate.close
     def asBinaryInput: BinaryInput = delegate.asBinaryInput
   }

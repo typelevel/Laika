@@ -310,7 +310,7 @@ class ParseAPISpec extends FlatSpec
   it should "allow to specify a custom template engine" in {
     new TreeParser {
       val parser: Input => TemplateDocument = 
-        input => TemplateDocument(input.path, TemplateRoot(List(TemplateString("$$" + input.asParserInput.source))))
+        input => TemplateDocument(input.path, TemplateRoot(List(TemplateString("$$" + input.asParserInput.input))))
       val dirs = """- main1.template.html:name
         |- main2.template.html:name""".stripMargin
       def template (num: Int) = TemplateView(Root / (s"main$num.template.html"), TemplateRoot(List(TemplateString("$$foo"))))

@@ -276,7 +276,7 @@ class TransformAPISpec extends FlatSpec
       val dirs = """- main1.dynamic.txt:name
         |- main2.dynamic.txt:name""".stripMargin
       val parser: Input => TemplateDocument = 
-        input => TemplateDocument(input.path, TemplateRoot(List(TemplateString("$$" + input.asParserInput.source))))
+        input => TemplateDocument(input.path, TemplateRoot(List(TemplateString("$$" + input.asParserInput.input))))
       val result = """RootElement - Blocks: 1
         |. TemplateRoot - Spans: 1
         |. . TemplateString - '$$foo'""".stripMargin
@@ -294,7 +294,7 @@ class TransformAPISpec extends FlatSpec
       def styleDecl(fontSize: String) =
         StyleDeclaration(ElementType("Paragraph"), "font-size" -> s"${fontSize}pt")
       val parser: Input => StyleDeclarationSet = input =>
-        StyleDeclarationSet(input.path, styleDecl(input.asParserInput.source.toString))
+        StyleDeclarationSet(input.path, styleDecl(input.asParserInput.input))
       val dirs = """- doc1.md:name
         |- styles.fo.css:style""".stripMargin
       val result = RenderResult.fo.withDefaultTemplate("""<fo:block font-family="serif" font-size="13pt" space-after="3mm">foo</fo:block>""")

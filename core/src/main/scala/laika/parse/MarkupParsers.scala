@@ -43,8 +43,8 @@ trait MarkupParsers extends BaseParsers {
    */
   def eol: Parser[String] = Parser { in =>
       if (in.atEnd) Success("", in) 
-      else if (in.first == '\n') Success("", in.rest)
-      else if (in.first == '\r' && in.source.length > in.offset + 1 && in.source.charAt(in.offset + 1) == '\n') Success("", in.drop(2))
+      else if (in.char == '\n') Success("", in.consume(1))
+      else if (in.char == '\r' && in.remaining > 1 && in.charAt(1) == '\n') Success("", in.consume(2))
       else Failure(Message.ExpectedEOL, in)
   }  
   
@@ -169,7 +169,7 @@ trait MarkupParsers extends BaseParsers {
    *  in this library, as the parsers treat all unknown or malformed markup as regular
    *  text.
    */
-  def parseMarkup [T] (parser: Parser[T], reader: Reader): T = {
+  def parseMarkup [T] (parser: Parser[T], reader: ParserContext): T = {
     parseAll(parser, reader) match {
       case Success(result,_) => result
       case ns: Failure       => throw new MarkupParserException(ns)

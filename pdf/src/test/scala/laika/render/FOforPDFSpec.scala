@@ -49,7 +49,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
   
   trait ResultModel {
     
-    private lazy val defaultTemplate = Input.fromClasspath("/templates/default.template.fo", Root / "default.template.fo").asParserInput.source.toString
+    private lazy val defaultTemplate = Input.fromClasspath("/templates/default.template.fo", Root / "default.template.fo").asParserInput.input
 
     def results (num: Int): String = (1 to num) map (result) reduce (_ + _)
     

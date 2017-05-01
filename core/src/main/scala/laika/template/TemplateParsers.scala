@@ -16,7 +16,7 @@
 
 package laika.template
 
-import laika.parse.core.{Parser, Reader, ~}
+import laika.parse.core.{Parser, ParserContext, ~}
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions
@@ -83,7 +83,7 @@ object TemplateParsers {
       case None ~ root                => (ConfigFactory.empty(), root)
     }
   
-    def parseTemplate (reader: Reader, path: Path): TemplateDocument = {
+    def parseTemplate (reader: ParserContext, path: Path): TemplateDocument = {
       val (config, root) = parseMarkup(templateWithConfig(path), reader)
       TemplateDocument(path, TemplateRoot(root), config)
     }

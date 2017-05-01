@@ -26,13 +26,13 @@ import laika.parse.core._
 case class Literal (expected: String) extends Parser[String] {
 
   val msgProvider = MessageProvider { context =>
-    val endIndex = Math.min(context.source.length, context.offset + expected.length)
-    val found = context.source.substring(context.offset, endIndex)
+    val toCapture = Math.min(context.remaining, expected.length)
+    val found = context.capture(toCapture)
     s"`$expected' expected but `$found` found"
   }
 
-  def apply (in: Reader) = {
-    val source = in.source
+  def apply (in: ParserContext) = {
+    val source = in.input
     val start = in.offset
     var i = 0
     var j = start
@@ -40,7 +40,7 @@ case class Literal (expected: String) extends Parser[String] {
       i += 1
       j += 1
     }
-    if (i == expected.length) Success(expected, in.drop(i))
+    if (i == expected.length) Success(expected, in.consume(i))
     else Failure(msgProvider, in)
   }
 

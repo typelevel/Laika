@@ -19,21 +19,46 @@ package laika.parse.core
 import scala.collection.mutable.ArrayBuffer
 
 /**
-  * TODO - this is migration in progress
-  * 
   * @author Jens Halm
   */
-class ParserContext {
+case class ParserContext (source: Source, offset: Int, nestLevel: Int) {
+
+  val input: String = source.value
+
+  /**  Indicates whether this contexts offset is behind
+    *  the last character of the input string
+    */
+  def atEnd: Boolean = offset >= input.length
+
+  def remaining: Int = input.length - offset
+
+  def char: Char = charAt(0)
+
+  def charAt (relativeOffset: Int): Char = {
+    val i = offset + relativeOffset
+    if (i < input.length) input.charAt(i) else throw new IndexOutOfBoundsException(i.toString)
+  }
+
+  def capture (numChars: Int): String =
+    if (numChars == 0) ""
+    else if (numChars < 0 || numChars + offset > input.length) throw new IndexOutOfBoundsException(numChars.toString)
+    else input.substring(offset, offset + numChars)
+
+  def consume (numChars: Int): ParserContext = ParserContext(source, offset + numChars, nestLevel)
+
+  def position: Position = new Position(source, offset)
 
 }
 
 object ParserContext {
 
-  def apply (input: String): Reader = new CharSequenceReader(input)
+  def apply (input: String): ParserContext = ParserContext(Source(input), 0, 0)
 
-  def apply (input: java.io.Reader): Reader = apply(input, 8 * 1024)
+  def apply (input: String, nestLevel: Int): ParserContext = ParserContext(Source(input), 0, nestLevel)
 
-  def apply (input: java.io.Reader, sizeHint: Int): Reader = {
+  def apply (input: java.io.Reader): ParserContext = apply(input, 8 * 1024)
+
+  def apply (input: java.io.Reader, sizeHint: Int): ParserContext = {
 
     val arr = new Array[Char](sizeHint)
     val buffer = new StringBuilder
@@ -43,7 +68,7 @@ object ParserContext {
       buffer.appendAll(arr, 0, numCharsRead)
     }
 
-    new CharSequenceReader(buffer.toString)
+    apply(buffer.toString)
   }
 
 }

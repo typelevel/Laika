@@ -42,7 +42,7 @@ trait BaseParsers extends Parsers {
     val elems = new ListBuffer[T]
   
     @tailrec 
-    def parse (input: Reader, p: Parser[T]): ParseResult[List[T]] =
+    def parse (input: ParserContext, p: Parser[T]): ParseResult[List[T]] =
       p(input) match {
         case Success(result, rest) => 
           elems += result
@@ -63,7 +63,7 @@ trait BaseParsers extends Parsers {
     lazy val parser = p
 
     @tailrec 
-    def parse (input: Reader): ParseResult[List[T]]  = parser(input) match {
+    def parse (input: ParserContext): ParseResult[List[T]]  = parser(input) match {
       case Success(x, rest)                    => elems += x ; parse(rest)
       case _: Failure if elems.length >= num   => Success(elems.toList, input)
       case f: Failure                          => f
@@ -81,7 +81,7 @@ trait BaseParsers extends Parsers {
       val parser = p
 
       @tailrec 
-      def parse (input: Reader): ParseResult[List[T]] =
+      def parse (input: ParserContext): ParseResult[List[T]] =
         if (elems.length == num) Success(elems.toList, input)
         else parser(input) match {
           case Success(x, rest)   => elems += x ; parse(rest)
@@ -96,7 +96,7 @@ trait BaseParsers extends Parsers {
    */
   def lookBehind [T] (offset: Int, parser: => Parser[T]): Parser[T] = Parser { in =>
     if (in.offset - offset < 0) Failure(new MessageFunction(offset, {o: Int => s"Unable to look behind with offset $o"}), in)
-    else parser(in.drop(-offset)) match {
+    else parser(in.consume(-offset)) match {
       case Success(result, _) => Success(result, in)
       case Failure(msg, _)    => Failure(msg, in)
     }

@@ -22,7 +22,7 @@ import laika.parse.util.URIParsers
 import laika.tree.Elements._
 
 import scala.collection.mutable.ListBuffer
-import laika.parse.core.{CharSequenceReader, Failure, Parser, Success, ~}
+import laika.parse.core._
 
 /** Provides all inline parsers for reStructuredText.
  *  
@@ -330,8 +330,8 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   }
   
   private def reverse (offset: Int, p: => Parser[String]): Parser[String] = Parser { in =>
-    val source = in.source.subSequence(0, in.offset - offset).toString.reverse
-    p(new CharSequenceReader(source)) match {
+    val source = in.input.subSequence(0, in.offset - offset).toString.reverse // TODO - inefficient
+    p(ParserContext(source)) match {
       case Success(result, _) => Success(result.reverse, in)
       case Failure(msg, _) => Failure(msg, in)
     }
@@ -367,7 +367,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
         val endTrimmed = end.reverse.dropWhile(endChar).reverse
         val uri = startTrimmed + sep + endTrimmed
         val uriWithScheme = if (sep == "@" && !uri.startsWith("mailto:")) "mailto:"+uri else uri 
-        val nextIn = in.drop(endTrimmed.length - end.length)
+        val nextIn = in.consume(endTrimmed.length - end.length)
         Success(Reverse(startTrimmed.length, ExternalLink(List(Text(uri)), uriWithScheme), Text(sep+endTrimmed)), nextIn)
     }
   }}

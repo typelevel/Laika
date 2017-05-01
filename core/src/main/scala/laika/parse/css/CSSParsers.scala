@@ -21,7 +21,7 @@ import laika.tree.Paths.Path
 import laika.tree.Elements.Span
 import laika.io.Input
 import laika.parse.core.text.DelimitedBy
-import laika.parse.core.{Parser, Reader, ~}
+import laika.parse.core.{Parser, ParserContext, ~}
 
 /**
  * Parsers for the subset of CSS supported by Laika.
@@ -158,7 +158,7 @@ trait CSSParsers extends laika.parse.InlineParsers {
    *  @param path the path the input has been obtained from
    *  @return the resulting set of style declarations
    */
-  def parseStyleSheet (reader: Reader, path: Path): StyleDeclarationSet = {
+  def parseStyleSheet (reader: ParserContext, path: Path): StyleDeclarationSet = {
     val set = parseMarkup(styleDeclarationSet, reader)
     new StyleDeclarationSet(Set(path), set)
   }

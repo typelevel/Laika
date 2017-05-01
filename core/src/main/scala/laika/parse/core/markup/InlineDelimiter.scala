@@ -17,7 +17,7 @@
 package laika.parse.core.markup
 
 import laika.parse.core.text.{Complete, Continue, Delimiter, DelimiterResult}
-import laika.parse.core.{ParseResult, Reader, Success}
+import laika.parse.core.{ParseResult, ParserContext, Success}
 
 /**
   * @author Jens Halm
@@ -26,12 +26,12 @@ class InlineDelimiter (nestedDelimiters: Set[Char], endDelimiters: Delimiter[Str
 
   val startChars = nestedDelimiters ++ endDelimiters.startChars
 
-  def atStartChar (startChar: Char, charsConsumed: Int, context: Reader): DelimiterResult[InlineResult] = {
+  def atStartChar (startChar: Char, charsConsumed: Int, context: ParserContext): DelimiterResult[InlineResult] = {
 
     def nestedDelimiter: DelimiterResult[InlineResult] = {
       val totalConsumed = charsConsumed + 1
-      val capturedText = context.source.substring(context.offset, context.offset + charsConsumed)
-      Complete(Success(NestedDelimiter(startChar, capturedText), context.drop(totalConsumed)))
+      val capturedText = context.capture(charsConsumed)
+      Complete(Success(NestedDelimiter(startChar, capturedText), context.consume(totalConsumed)))
     }
 
     if (endDelimiters.startChars.contains(startChar))
@@ -42,7 +42,7 @@ class InlineDelimiter (nestedDelimiters: Set[Char], endDelimiters: Delimiter[Str
     else nestedDelimiter
   }
 
-  def atEOF (charsConsumed: Int, context: Reader): ParseResult[InlineResult] =
+  def atEOF (charsConsumed: Int, context: ParserContext): ParseResult[InlineResult] =
     endDelimiters.atEOF(charsConsumed, context).map(EndDelimiter)
 
 }

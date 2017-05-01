@@ -49,18 +49,18 @@ class Characters (predicate: Char => Boolean,
   private def newMessageProvider (actual: Int): MessageProvider = new MessageFunction(actual, msgFunction)
 
 
-  def apply (in: Reader): ParseResult[String] = {
+  def apply (ctx: ParserContext): ParseResult[String] = {
 
-    val source = in.source
-    val maxOffset = if (maxChar <= 0 || in.offset + maxChar < 0) source.length
-                    else Math.min(in.offset + maxChar, source.length)
+    val source = ctx.input
+    val maxOffset = if (maxChar <= 0 || ctx.offset + maxChar < 0) source.length
+                    else Math.min(ctx.offset + maxChar, source.length)
 
     def result (offset: Int) = {
-      val consumed = offset - in.offset
+      val consumed = offset - ctx.offset
       if (consumed >= minChar)
-        Success(source.substring(in.offset, offset), in.drop(consumed))
+        Success(source.substring(ctx.offset, offset), ctx.consume(consumed))
       else
-        Failure(newMessageProvider(consumed), in)
+        Failure(newMessageProvider(consumed), ctx)
     }
 
     @tailrec
@@ -68,7 +68,7 @@ class Characters (predicate: Char => Boolean,
       if (offset == maxOffset || !predicate(source.charAt(offset))) result(offset)
       else parse(offset + 1)
 
-    parse(in.offset)
+    parse(ctx.offset)
   }
 
 }

@@ -54,8 +54,8 @@ import scala.language.implicitConversions
 trait Parsers {
 
 
-  def Parser[T](f: Reader => ParseResult[T]): Parser[T]
-    = new Parser[T]{ def apply(in: Reader) = f(in) }
+  def Parser[T](f: ParserContext => ParseResult[T]): Parser[T]
+    = new Parser[T]{ def apply (in: ParserContext) = f(in) }
 
 
   /** A parser that matches only the given element `e`.
@@ -81,8 +81,8 @@ trait Parsers {
    */
   def acceptIf(p: Char => Boolean)(err: Char => String): Parser[Char] = Parser { in =>
     if (in.atEnd) Failure(Message.UnexpectedEOF, in)
-    else if (p(in.first)) Success(in.first, in.rest)
-    else Failure(new MessageFunction(in.first, err), in) // TODO - avoid object creation
+    else if (p(in.char)) Success(in.char, in.consume(1))
+    else Failure(new MessageFunction(in.char, err), in) // TODO - avoid object creation
   }
 
   /** A parser that matches a literal string */
@@ -153,9 +153,9 @@ trait Parsers {
     lazy val p = p0 // lazy argument
     val elems = new ListBuffer[T]
 
-    def continue(in: Reader): ParseResult[List[T]] = {
+    def continue(in: ParserContext): ParseResult[List[T]] = {
       val p0 = p    // avoid repeatedly re-evaluating by-name parser
-      @tailrec def applyp(in0: Reader): ParseResult[List[T]] = p0(in0) match {
+      @tailrec def applyp(in0: ParserContext): ParseResult[List[T]] = p0(in0) match {
         case Success(x, rest) => elems += x ; applyp(rest)
         case _                => Success(elems.toList, in0)
       }
@@ -184,7 +184,7 @@ trait Parsers {
       val elems = new ListBuffer[T]
       val p0 = p    // avoid repeatedly re-evaluating by-name parser
 
-      @tailrec def applyp(in0: Reader): ParseResult[List[T]] =
+      @tailrec def applyp(in0: ParserContext): ParseResult[List[T]] =
         if (elems.length == num) Success(elems.toList, in0)
         else p0(in0) match {
           case Success(x, rest) => elems += x ; applyp(rest)
@@ -267,13 +267,13 @@ trait Parsers {
   def mkList[T] = (_: ~[T, List[T]]) match { case x ~ xs => x :: xs }
 
   /** Parse some prefix of reader `in` with parser `p`. */
-  def parse[T](p: Parser[T], in: Reader): ParseResult[T] = p(in)
+  def parse[T](p: Parser[T], in: ParserContext): ParseResult[T] = p(in)
 
   /** Parse some prefix of character sequence `in` with parser `p`. */
-  def parse[T](p: Parser[T], in: String): ParseResult[T] = p(new CharSequenceReader(in))
+  def parse[T](p: Parser[T], in: String): ParseResult[T] = p(ParserContext(in))
 
   /** Parse all of reader `in` with parser `p`. */
-  def parseAll[T](p: Parser[T], in: Reader): ParseResult[T] = parse(consumeAll(p), in)
+  def parseAll[T](p: Parser[T], in: ParserContext): ParseResult[T] = parse(consumeAll(p), in)
 
   /** Parse all of character sequence `in` with parser `p`. */
   def parseAll[T](p: Parser[T], in: String): ParseResult[T] = parse(consumeAll(p), in)

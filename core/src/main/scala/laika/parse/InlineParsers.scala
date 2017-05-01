@@ -18,7 +18,7 @@ package laika.parse
 
 import laika.parse.core.markup.{EndDelimiter, InlineDelimiter, NestedDelimiter}
 import laika.parse.core.text.{DelimitedBy, DelimitedText}
-import laika.parse.core.{Failure, ParseResult, Parser, Reader, Success}
+import laika.parse.core._
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
@@ -125,15 +125,15 @@ trait InlineParsers extends MarkupParsers {
 
     def addText (text: String) = if (!text.isEmpty) builder += builder.fromString(text)
 
-    def nestedSpanOrNextChar (parser: Parser[Elem], input: Reader) = {
+    def nestedSpanOrNextChar (parser: Parser[Elem], input: ParserContext) = {
       parser(input) match {
         case Success(result, next) => builder += result; next
-        case _ => builder += builder.fromString(input.source.charAt(input.offset - 1).toString); input
+        case _ => builder += builder.fromString(input.charAt(-1).toString); input
       }
     }
 
     @tailrec
-    def parse (input: Reader) : ParseResult[To] = {
+    def parse (input: ParserContext) : ParseResult[To] = {
       textParser(input) match {
         case Failure(msg, _) =>
           Failure(msg, in)

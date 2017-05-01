@@ -23,7 +23,7 @@ object RenderResult {
 
   object html {
     
-    private lazy val defaultTemplate = Input.fromClasspath("/templates/default.template.html", Root / "default.template.html").asParserInput.source.toString
+    private lazy val defaultTemplate = Input.fromClasspath("/templates/default.template.html", Root / "default.template.html").asParserInput.input
     
     def withDefaultTemplate(title: String, content: String): String =
       defaultTemplate.replace("{{document.title}}", title).replace("{{document.content}}", content)
@@ -32,7 +32,7 @@ object RenderResult {
   
   object fo {
     
-    private lazy val defaultTemplate = Input.fromClasspath("/templates/default.template.fo", Root / "default.template.fo").asParserInput.source.toString
+    private lazy val defaultTemplate = Input.fromClasspath("/templates/default.template.fo", Root / "default.template.fo").asParserInput.input
     
     def withDefaultTemplate(content: String): String =
       defaultTemplate.replace("{{document.content}}", content).replace("{{document.fragments.bookmarks}}", "")

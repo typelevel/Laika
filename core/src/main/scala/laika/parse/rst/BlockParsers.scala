@@ -27,7 +27,7 @@ import laika.tree.Paths.Path
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
-import laika.parse.core.{ParseResult, Parser, Reader, Success, ~}
+import laika.parse.core._
 
 /** Provides the parsers for all types of block-level elements of reStructuredText. 
  *  It merges the individual traits that provide implementations for list, tables, etc. and 
@@ -49,7 +49,7 @@ trait BlockParsers extends laika.parse.BlockParsers
   override def ws: Characters = anyOf(' ') // other whitespace has been replaced with spaces by preprocessor
                         
   
-  override def parseDocument (reader: Reader, path: Path): Document = {
+  override def parseDocument (reader: ParserContext, path: Path): Document = {
     def extractDocInfo (config: Config, root: RootElement) = {
       val docStart = root.content dropWhile { case c: Comment => true; case h: DecoratedHeader => true; case _ => false } headOption 
       val docInfo = docStart collect { case FieldList(fields,_) => fields map (field => (TreeUtil.extractText(field.name), 
@@ -213,7 +213,7 @@ trait BlockParsers extends laika.parse.BlockParsers
     }
     
     @tailrec 
-    def parse (p: Parser[Block], in: Reader): ParseResult[List[Block]] = p(in) match {
+    def parse (p: Parser[Block], in: ParserContext): ParseResult[List[Block]] = p(in) match {
       case Success(Paragraph(Text(txt,_) :: Nil,_), rest) if txt.trim == "::" => parse(litBlock, rest)
       case Success(p: Paragraph, rest) => 
         val (paragraph, parser) = processLiteralMarker(p)
