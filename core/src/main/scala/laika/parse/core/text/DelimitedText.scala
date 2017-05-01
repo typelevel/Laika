@@ -28,14 +28,7 @@ class DelimitedText[T] (val delimiter: Delimiter[T]) extends Parser[T] {
 
   private val maxChar: Char = if (delimiter.startChars.nonEmpty) delimiter.startChars.max else 0
 
-  private lazy val optimizedDelimiters: Array[Int] = {
-
-    val lookup = new Array[Int](maxChar + 1)
-
-    for (c <- delimiter.startChars) lookup(c) = 1
-
-    lookup
-  } // TODO - centralize logic for array creation
+  private lazy val optimizedDelimiters: Array[Int] = OptimizedCharLookup.forChars(delimiter.startChars.toSeq)
 
 
   def apply (ctx: ParserContext): ParseResult[T] = {

@@ -17,7 +17,7 @@
 package laika.parse
 
 import laika.parse.core._
-import laika.parse.core.text.Characters
+import laika.parse.core.text.{Characters, OptimizedCharLookup}
 
 /** Base parsers that provide optimized low-level renderers for typical requirements
  *  of text markup parsers. In particular they are meant as an efficient replacement
@@ -79,27 +79,15 @@ trait MarkupParsers extends BaseParsers {
     }
   }
 
-  /** Returns an optimized, Array-based lookup function
-   *  for the specified characters.
-   */
-  protected def optimizedCharLookup (chars: Char*): Char => Boolean = {
-    val max = chars.max
-    val lookup = new Array[Int](max + 1)
-    
-    for (c <- chars) lookup(c) = 1
-    
+  private def optimizedCharLookup (chars: Char*): Char => Boolean = {
+    val lookup = OptimizedCharLookup.forChars(chars)
+    val max = lookup.length - 1
     c:Char => c <= max && lookup(c) == 1
   }
   
-  /** Returns an optimized, Array-based lookup function 
-   *  for the specified ranges of characters.
-   */
-  protected def optimizedRangeLookup (ranges: Traversable[Char]*): Char => Boolean = {
-    val max = ranges map (_.max) max
-    val lookup = new Array[Int](max + 1)
-    
-    for (r <- ranges; c <- r) lookup(c) = 1
-    
+  private def optimizedRangeLookup (ranges: Traversable[Char]*): Char => Boolean = {
+    val lookup = OptimizedCharLookup.forRanges(ranges)
+    val max = lookup.length - 1
     c:Char => c <= max && lookup(c) == 1
   }
   
@@ -107,7 +95,6 @@ trait MarkupParsers extends BaseParsers {
     chars.length match {
       case 0 => c => false
       case 1 => val c = chars(0); _ == c
-      case 2 => val c1 = chars(0); val c2 = chars(1); c => c == c1 || c == c2
       case _ => optimizedCharLookup(chars:_*)
     } 
   }
@@ -130,7 +117,6 @@ trait MarkupParsers extends BaseParsers {
     val p: Char => Boolean = chars.length match {
       case 0 => c => true
       case 1 => val c = chars(0); _ != c
-      case 2 => val c1 = chars(0); val c2 = chars(1); c => c != c1 && c != c2
       case _ => val lookup = optimizedCharLookup(chars:_*); !lookup(_)
     }
     new Characters(p)
