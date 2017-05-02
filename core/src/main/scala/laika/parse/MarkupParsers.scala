@@ -129,11 +129,42 @@ trait MarkupParsers extends BaseParsers {
     }
   }
   
-  /** Exception thrown when parsing a text markup document or fragment fails.
-   *  This can only happen due to a bug in this library, as the behaviour of the parser
-   *  is to treat all unknown or malformed markup as regular text and always succeed.
-   *  The result property holds the `NoSuccess` instance that caused the failure.
-   */
-  class MarkupParserException (val result: Failure) extends RuntimeException(result.toString)
+
+}
+
+/** Exception thrown when parsing a text markup document or fragment fails.
+  *  This can only happen due to a bug in this library, as the behaviour of the parser
+  *  is to treat all unknown or malformed markup as regular text and always succeed.
+  *  The result property holds the `NoSuccess` instance that caused the failure.
+  */
+class MarkupParserException (val result: Failure) extends RuntimeException(result.toString)
+
+
+class MarkupParser[T] (p: Parser[T]) extends Parser[T] {
+
+
+  val parser = Parsers.consumeAll(p)
+
+
+  def apply (ctx: ParserContext): ParseResult[T] = parser(ctx)
+
+
+  /** Fully parses the input from the specified reader and returns the result.
+    *  This function is expected to always succeed, errors would be considered a bug
+    *  in this library, as the parsers treat all unknown or malformed markup as regular
+    *  text.
+    */
+  def parseMarkup (source: String): T = parseMarkup(ParserContext(source))
+
+  /** Fully parses the input from the specified reader and returns the result.
+    *  This function is expected to always succeed, errors would be considered a bug
+    *  in this library, as the parsers treat all unknown or malformed markup as regular
+    *  text.
+    */
+  def parseMarkup (ctx: ParserContext): T = parser(ctx) match {
+    case Success(result, _) => result
+    case ns: Failure        => throw new MarkupParserException(ns)
+  }
+
 
 }

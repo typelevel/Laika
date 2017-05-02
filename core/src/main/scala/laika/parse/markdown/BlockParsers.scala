@@ -95,7 +95,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     } 
     
     ((anyOf('#') min 1 max 6) ^^ { _.length }) ~ (not(blankLine) ~> restOfLine) ^^ 
-      { case level ~ text => Header(level, parseInline(stripDecoration(text))) }
+      { case level ~ text => Header(level, consumeAllSpans.parseMarkup(stripDecoration(text))) }
   }
   
   /** Parses a 1st or 2nd level Setext header. A first level header consists of the
@@ -106,8 +106,8 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    *  before the header. 
    */
   lazy val setextHeader: Parser[Header] = textLine ~ (anyOf('=').min(1) | anyOf('-').min(1)) <~ (ws ~ eol) ^^ {
-    case text ~ decoration if decoration.head == '=' => Header(1, parseInline(text)) 
-    case text ~ _                                    => Header(2, parseInline(text))
+    case text ~ decoration if decoration.head == '=' => Header(1, consumeAllSpans.parseMarkup(text))
+    case text ~ _                                    => Header(2, consumeAllSpans.parseMarkup(text))
   }
   
   /** Parses a horizontal rule, a line only decorated with three or more `'*'`, `'-'` or `'_'`
@@ -134,7 +134,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   lazy val nonRecursiveBlock: Parser[Block] =
     atxHeader | setextHeader | (insignificantSpaces ~> (literalBlock | rule )) | paragraph
 
-  def parseParagraph (lines: List[String]): Paragraph = Paragraph(parseInline(linesToString(lines)))
+  def parseParagraph (lines: List[String]): Paragraph = Paragraph(consumeAllSpans.parseMarkup(linesToString(lines)))
 
   /** Parses a single paragraph. Everything between two blank lines that is not
    *  recognized as a special Markdown block type will be parsed as a regular paragraph.

@@ -125,20 +125,19 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
    *  Recognizes both, an inline link `[text](url)` and a link reference `[text][id]`.
    */
   lazy val link: Parser[Span] = {
-    lazy val linkSpanParsers = spanParsers // - '['
-    
+
     def unwrap (ref: LinkReference, suffix: String) = {
       if ((ref select (_.isInstanceOf[LinkReference])).tail.nonEmpty)
         SpanSequence(Text("[") :: ref.content.toList ::: Text(suffix) :: Nil)
       else ref
     }
     
-    def linkInline (text: String, url: String, title: Option[String]) = ExternalLink(parseInline(text, linkSpanParsers), url, title)
+    def linkInline (text: String, url: String, title: Option[String]) = ExternalLink(consumeAllSpans.parseMarkup(text), url, title)
     def linkReference (text: String, id: String, suffix: String): Span = {
       /* Markdown's design comes with a few arbitrary and inconsistent choices for how to handle nesting of brackets. 
        * The logic here is constructed to make the official test suite pass, other edge cases might still yield unexpected results.
        * Users usually should not bother and simply escape brackets which are not meant to be markup. */
-      val ref = LinkReference(parseInline(text, linkSpanParsers), normalizeId(id), "[" + text + suffix)
+      val ref = LinkReference(consumeAllSpans.parseMarkup(text), normalizeId(id), "[" + text + suffix)
       if (text == id) unwrap(ref, suffix) else ref
     }
     

@@ -226,5 +226,11 @@ trait InlineParsers extends MarkupParsers {
    *  @return the result of the parser in form of a list of spans
    */
   def parseInline (source: String): List[Span] = parseInline(source, spanParsers)
-  
+
+
+  def consumeAllSpans (spanParsers: Map[Char, Parser[Span]]): MarkupParser[List[Span]] =
+    new MarkupParser(spans(spanParsers))
+
+  lazy val consumeAllSpans: MarkupParser[List[Span]] = consumeAllSpans(spanParsers)
+
 }
