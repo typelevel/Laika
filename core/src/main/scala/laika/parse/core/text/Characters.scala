@@ -78,9 +78,9 @@ object Characters {
   /**  Returns an optimized, Array-based lookup function
     *  for the specified characters.
     */
-  def optimizedLookup (chars: Iterable[Char]): Array[Int] = {
+  def optimizedLookup (chars: Iterable[Char]): Array[Byte] = {
     val max = chars.max
-    val lookup = new Array[Int](max + 1)
+    val lookup = new Array[Byte](max + 1)
 
     for (c <- chars) lookup(c) = 1
 
