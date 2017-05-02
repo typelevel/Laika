@@ -112,21 +112,6 @@ trait Parsers {
    */
   def rep[T](p: => Parser[T]): Parser[List[T]] = rep1(p) | success(List())
 
-  /** A parser generator for interleaved repetitions.
-   *
-   *  `repsep(p, q)` repeatedly uses `p` interleaved with `q` to parse the input, until `p` fails.
-   *  (The result is a `List` of the results of `p`.)
-   *
-   *  Example: `repsep(term, ",")` parses a comma-separated list of term's, yielding a list of these terms.
-   *
-   * @param p a `Parser` that is to be applied successively to the input
-   * @param q a `Parser` that parses the elements that separate the elements parsed by `p`
-   * @return A parser that returns a list of results produced by repeatedly applying `p` (interleaved with `q`) to the input.
-   *         The results of `p` are collected in a list. The results of `q` are discarded.
-   */
-  def repsep[T](p: => Parser[T], q: => Parser[Any]): Parser[List[T]] =
-    rep1sep(p, q) | success(List())
-
   /** A parser generator for non-empty repetitions.
    *
    *  `rep1(p)` repeatedly uses `p` to parse the input until `p` fails -- `p` must succeed at least
@@ -193,21 +178,6 @@ trait Parsers {
 
       applyp(in)
     }
-
-  /** A parser generator for non-empty repetitions.
-   *
-   *  `rep1sep(p, q)` repeatedly applies `p` interleaved with `q` to parse the
-   *  input, until `p` fails. The parser `p` must succeed at least once.
-   *
-   * @param p a `Parser` that is to be applied successively to the input
-   * @param q a `Parser` that parses the elements that separate the elements parsed by `p`
-   *          (interleaved with `q`)
-   * @return A parser that returns a list of results produced by repeatedly applying `p` to the input
-   *         (and that only succeeds if `p` matches at least once).
-   *         The results of `p` are collected in a list. The results of `q` are discarded.
-   */
-  def rep1sep[T](p : => Parser[T], q : => Parser[Any]): Parser[List[T]] =
-    p ~ rep(q ~> p) ^^ {case x~y => x::y}
 
   /** A parser generator for optional sub-phrases.
    *
