@@ -72,3 +72,59 @@ class Characters (predicate: Char => Boolean,
   }
 
 }
+
+object Characters {
+
+  /**  Returns an optimized, Array-based lookup function
+    *  for the specified characters.
+    */
+  def optimizedLookup (chars: Iterable[Char]): Array[Int] = {
+    val max = chars.max
+    val lookup = new Array[Int](max + 1)
+
+    for (c <- chars) lookup(c) = 1
+
+    lookup
+  }
+
+  def include (chars: Seq[Char]): Characters = {
+    val p: Char => Boolean = chars.length match {
+      case 0 =>
+        c => false
+      case 1 =>
+        val c = chars(0)
+        _ == c
+      case 2 =>
+        val c1 = chars(0)
+        val c2 = chars(1)
+        c => c == c1 || c == c2
+      case _ =>
+        val lookup = optimizedLookup(chars)
+        val max = lookup.length - 1
+        c:Char => c <= max && lookup(c) == 1
+    }
+    new Characters(p)
+  }
+
+  def exclude (chars: Seq[Char]): Characters = {
+    val p: Char => Boolean = chars.length match {
+      case 0 =>
+        c => true
+      case 1 =>
+        val c = chars(0)
+        _ != c
+      case 2 =>
+        val c1 = chars(0)
+        val c2 = chars(1)
+        c => c != c1 && c != c2
+      case _ =>
+        val lookup = optimizedLookup(chars)
+        val max = lookup.length - 1
+        c:Char => c > max || lookup(c) == 0
+    }
+    new Characters(p)
+  }
+
+  def anyWhile (predicate: Char => Boolean): Characters = new Characters(predicate)
+
+}
