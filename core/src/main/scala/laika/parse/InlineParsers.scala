@@ -144,8 +144,7 @@ trait InlineParsers extends MarkupParsers {
           addText(text)
           val parser = nestedMap(startChar)
           val newIn = nestedSpanOrNextChar(parser, next)
-          if (newIn.atEnd) Success(builder.result, newIn)
-          else parse(newIn)
+          parse(newIn)
       }
     }
 
