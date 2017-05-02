@@ -110,7 +110,7 @@ trait Parsers {
    * @param p a `Parser` that is to be applied successively to the input
    * @return A parser that returns a list of results produced by repeatedly applying `p` to the input.
    */
-  def rep[T](p: => Parser[T]): Parser[List[T]] = rep1(p) | success(List())
+  def rep[T](p: Parser[T]): Parser[List[T]] = rep1(p) | success(List())
 
   /** A parser generator for non-empty repetitions.
    *
@@ -121,7 +121,7 @@ trait Parsers {
    * @return A parser that returns a list of results produced by repeatedly applying `p` to the input
    *        (and that only succeeds if `p` matches at least once).
    */
-  def rep1[T](p: => Parser[T]): Parser[List[T]] = rep1(p, p)
+  def rep1[T](p: Parser[T]): Parser[List[T]] = rep1(p, p)
 
   /** A parser generator for non-empty repetitions.
    *
@@ -130,18 +130,16 @@ trait Parsers {
    *     (the result is a `List` of the consecutive results of `f` and `p`)
    *
    * @param first a `Parser` that parses the first piece of input
-   * @param p0 a `Parser` that is to be applied successively to the rest of the input (if any) -- evaluated at most once, and only when necessary
+   * @param rest a `Parser` that is to be applied successively to the rest of the input (if any) -- evaluated at most once, and only when necessary
    * @return A parser that returns a list of results produced by first applying `f` and then
    *         repeatedly `p` to the input (it only succeeds if `f` matches).
    */
-  def rep1[T](first: => Parser[T], p0: => Parser[T]): Parser[List[T]] = Parser { in =>
-    lazy val p = p0 // lazy argument
+  def rep1[T](first: Parser[T], rest: Parser[T]): Parser[List[T]] = Parser { in =>
     val elems = new ListBuffer[T]
 
     def continue(in: ParserContext): ParseResult[List[T]] = {
-      val p0 = p    // avoid repeatedly re-evaluating by-name parser
-      @tailrec def applyp(in0: ParserContext): ParseResult[List[T]] = p0(in0) match {
-        case Success(x, rest) => elems += x ; applyp(rest)
+      @tailrec def applyp(in0: ParserContext): ParseResult[List[T]] = rest(in0) match {
+        case Success(x, next) => elems += x ; applyp(next)
         case _                => Success(elems.toList, in0)
       }
 
@@ -164,14 +162,13 @@ trait Parsers {
    * @return    A parser that returns a list of results produced by repeatedly applying `p` to the input
    *        (and that only succeeds if `p` matches exactly `n` times).
    */
-  def repN[T](num: Int, p: => Parser[T]): Parser[List[T]] =
+  def repN[T](num: Int, p: Parser[T]): Parser[List[T]] =
     if (num == 0) success(Nil) else Parser { in =>
       val elems = new ListBuffer[T]
-      val p0 = p    // avoid repeatedly re-evaluating by-name parser
 
       @tailrec def applyp(in0: ParserContext): ParseResult[List[T]] =
         if (elems.length == num) Success(elems.toList, in0)
-        else p0(in0) match {
+        else p(in0) match {
           case Success(x, rest) => elems += x ; applyp(rest)
           case f: Failure       => f
         }
@@ -187,13 +184,13 @@ trait Parsers {
    * @return a `Parser` that always succeeds: either with the result provided by `p` or
    *         with the empty result
    */
-  def opt[T](p: => Parser[T]): Parser[Option[T]] =
+  def opt[T](p: Parser[T]): Parser[Option[T]] =
     p ^^ (x => Some(x)) | success(None)
 
   /** Wrap a parser so that its failures and errors become success and
    *  vice versa -- it never consumes any input.
    */
-  def not[T](p: => Parser[T]): Parser[Unit] = Parser { in =>
+  def not[T](p: Parser[T]): Parser[Unit] = Parser { in =>
     p(in) match {
       case Success(_, _)  => Failure(Message.ExpectedFailure, in)
       case _              => Success((), in)
@@ -208,7 +205,7 @@ trait Parsers {
    * @return A parser that returns success if and only if `p` succeeds but
    *         never consumes any input
    */
-  def guard[T](p: => Parser[T]): Parser[T] = Parser { in =>
+  def guard[T](p: Parser[T]): Parser[T] = Parser { in =>
     p(in) match{
       case s@ Success(s1,_) => Success(s1, in)
       case e => e

@@ -38,7 +38,7 @@ trait BaseParsers extends Parsers {
    *  @param first the parser to use for the first piece of input
    *  @param next a function that determines the next parser based on the result of the previous
    */
-  def rep[T] (first: => Parser[T], next: T => Parser[T]): Parser[List[T]] = Parser { in =>
+  def rep[T] (first: Parser[T], next: T => Parser[T]): Parser[List[T]] = Parser { in =>
     val elems = new ListBuffer[T]
   
     @tailrec 
@@ -58,12 +58,11 @@ trait BaseParsers extends Parsers {
    *  Continues to apply the parser after the minimum has been reached until if fails.
    *  The result is the list of results from applying the parser repeatedly.
    */
-  def repMin[T] (num: Int, p: => Parser[T]): Parser[List[T]] = Parser { in =>
+  def repMin[T] (num: Int, p: Parser[T]): Parser[List[T]] = Parser { in =>
     val elems = new ListBuffer[T]
-    lazy val parser = p
 
     @tailrec 
-    def parse (input: ParserContext): ParseResult[List[T]]  = parser(input) match {
+    def parse (input: ParserContext): ParseResult[List[T]]  = p(input) match {
       case Success(x, rest)                    => elems += x ; parse(rest)
       case _: Failure if elems.length >= num   => Success(elems.toList, input)
       case f: Failure                          => f
@@ -75,15 +74,14 @@ trait BaseParsers extends Parsers {
   /** Uses the parser for at most the specified number of repetitions, always succeeds. 
    *  The result is the list of results from applying the parser repeatedly.
    */
-  def repMax[T] (num: Int, p: => Parser[T]): Parser[List[T]] =
+  def repMax[T] (num: Int, p: Parser[T]): Parser[List[T]] =
     if (num == 0) success(Nil) else Parser { in =>
       val elems = new ListBuffer[T]
-      val parser = p
 
       @tailrec 
       def parse (input: ParserContext): ParseResult[List[T]] =
         if (elems.length == num) Success(elems.toList, input)
-        else parser(input) match {
+        else p(input) match {
           case Success(x, rest)   => elems += x ; parse(rest)
           case _: Failure         => Success(elems.toList, input)
         }
