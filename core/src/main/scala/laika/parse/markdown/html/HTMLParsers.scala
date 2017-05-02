@@ -127,28 +127,29 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
   
   
   private def mkString (result: ~[Char,String]): String = result._1.toString + result._2
-  
-  /** Parses a numeric or named character reference without the leading `'&'`.
-   */
-  def htmlCharReference: Parser[HTMLCharacterReference] = 
-    (htmlNumericReference | htmlNamedReference) <~ ';' ^^ 
-      { s => HTMLCharacterReference("&" + s + ";") }
-  
-  /** Parses a numeric character reference (decimal or hexadecimal) without the leading `'&'`.
-   */
-  def htmlNumericReference: Parser[String] = '#' ~ (htmlHexReference | htmlDecReference) ^^ { mkString }
-  
-  def htmlHexReference: Parser[String] = {
+
+
+  val htmlHexReference: Parser[String] = {
     val hexNumber = anyIn('0' to '9', 'a' to 'f', 'A' to 'F') min 1
 
     (char('x') | char('X')) ~ hexNumber ^^ { mkString }
   }
   
-  def htmlDecReference: Parser[String] = anyIn('0' to '9') min 1
+  val htmlDecReference: Parser[String] = anyIn('0' to '9') min 1
   
-  def htmlNamedReference: Parser[String] = anyIn('0' to '9', 'a' to 'z', 'A' to 'Z') min 1
-  
-  
+  val htmlNamedReference: Parser[String] = anyIn('0' to '9', 'a' to 'z', 'A' to 'Z') min 1
+
+  /** Parses a numeric character reference (decimal or hexadecimal) without the leading `'&'`.
+    */
+  val htmlNumericReference: Parser[String] = '#' ~ (htmlHexReference | htmlDecReference) ^^ { mkString }
+
+  /** Parses a numeric or named character reference without the leading `'&'`.
+    */
+  val htmlCharReference: Parser[HTMLCharacterReference] =
+    (htmlNumericReference | htmlNamedReference) <~ ';' ^^
+      { s => HTMLCharacterReference("&" + s + ";") }
+
+
   override protected def prepareSpanParsers: Map[Char, Parser[Span]] = super.prepareSpanParsers ++ htmlParsers
 
   
@@ -178,7 +179,7 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
   /** Parses the start tag of an HTML block, only matches when the tag name is an
    *  actual block-level HTML tag.
    */
-  def htmlBlockStart: Parser[HTMLStartTag] = '<' ~> htmlStartTag ^? { 
+  val htmlBlockStart: Parser[HTMLStartTag] = '<' ~> htmlStartTag ^? {
     case t @ HTMLStartTag(name, _, _) if htmlBlockElements.contains(name) => t 
   }
 
@@ -190,7 +191,7 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
   /** Parses a full HTML block, with the root element being a block-level HTML element
    *  and without parsing any standard Markdown markup.
    */
-  def htmlBlock: Parser[HTMLBlock] = htmlBlockStart >> { 
+  lazy val htmlBlock: Parser[HTMLBlock] = htmlBlockStart >> {
     tag => spans(htmlEndTag(tag.name), htmlBlockParsers) <~ ws <~ eol ^^ {
       spans => HTMLBlock(HTMLElement(tag, spans))  
     } 

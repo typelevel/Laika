@@ -58,7 +58,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   
   /** Parses an explicit hard line break.
    */
-  def lineBreak: Parser[LineBreak] = (anyOf('\r') take 1) ^^^ LineBreak()
+  val lineBreak: Parser[LineBreak] = (anyOf('\r') take 1) ^^^ LineBreak()
   
   /** Parses a span of strong text enclosed by two consecutive occurrences of the specified character. 
    */
@@ -100,7 +100,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   /** Parses a literal span enclosed by a single backtick.
    *  Does neither parse nested spans nor Markdown escapes. 
    */
-  def literalEnclosedBySingleChar: Parser[Literal] = { 
+  val literalEnclosedBySingleChar: Parser[Literal] = {
     val start = not('`')
     val end = '`'
     start ~> DelimitedBy(end) ^^ { s => Literal(s.trim) }
@@ -109,7 +109,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   /** Parses a literal span enclosed by double backticks.
    *  Does neither parse nested spans nor Markdown escapes. 
    */
-  def literalEnclosedByDoubleChar: Parser[Literal] = {
+  val literalEnclosedByDoubleChar: Parser[Literal] = {
     val start = '`'
     val end = "``"
     start ~> DelimitedBy(end) ^^ { s => Literal(s.trim) }
@@ -124,7 +124,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   /** Parses a link, including nested spans in the link text.
    *  Recognizes both, an inline link `[text](url)` and a link reference `[text][id]`.
    */
-  def link: Parser[Span] = {
+  lazy val link: Parser[Span] = {
     lazy val linkSpanParsers = spanParsers // - '['
     
     def unwrap (ref: LinkReference, suffix: String) = {
@@ -148,7 +148,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   /** Parses an inline image.
    *  Recognizes both, an inline image `![text](url)` and an image reference `![text][id]`.
    */
-  def image: Parser[Span] = {
+  val image: Parser[Span] = {
     def imageInline (text: String, uri: String, title: Option[String]) = Image(text, URI(uri), title)
     def imageReference (text: String, id: String, postFix: String): Span = ImageReference(text, normalizeId(id), "![" + text + postFix)
      
@@ -187,7 +187,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   
   /** Parses a simple inline link in the form of &lt;http://someURL/&gt;
    */
-  def simpleLink: Parser[ExternalLink] = {
+  val simpleLink: Parser[ExternalLink] = {
     
     def isAcceptedScheme (s: String) = s == "http" || s == "https" || s == "ftp" || s == "mailto"
     def isURI (s: String) = try { val uri = new java.net.URI(s); uri.isAbsolute && isAcceptedScheme(uri.getScheme) } catch { case _:Throwable => false }
@@ -204,7 +204,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   /** Parses a link definition in the form `[id]: <url> "title"`.
    *  The title is optional as well as the quotes around it and the angle brackets around the url.
    */
-  def linkTarget: Parser[ExternalLinkDefinition] = {
+  val linkTarget: Parser[ExternalLinkDefinition] = {
     
     val id = '[' ~> escapedUntil(']') <~ ':' <~ ws
     val url = (('<' ~> escapedUntil('>')) | text(DelimitedBy(' ', '\n').acceptEOF.keepDelimiter, escapedChars)) ^^ { _.mkString }

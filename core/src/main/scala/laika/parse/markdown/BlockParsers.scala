@@ -53,6 +53,15 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   val insignificantSpaces: Parser[String] = anyOf(' ') max 3
 
   private val processWS = new WhitespacePreprocessor
+
+
+  /** Parses the start of a bullet list item.
+    */
+  val bulletListItemStart: Parser[String] = anyOf('*','-','+').take(1) <~ (anyOf(' ','\t') min 1)
+
+  /** Parses the start of an enumerated list item.
+    */
+  val enumListItemStart: Parser[String] = anyIn('0' to '9').min(1) <~ '.' ~ (anyOf(' ','\t') min 1)
   
   
   /** Merges the specified list of lines into a single string,
@@ -113,7 +122,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   /** Parses all of the standard Markdown blocks, except normal paragraphs and those blocks
    *  that deal with verbatim HTML. For the latter parsers are provided by a separate, optional trait.
    */
-  def standardMarkdownBlock: Parser[Block] = 
+  lazy val standardMarkdownBlock: Parser[Block] =
     atxHeader | setextHeader | (insignificantSpaces ~> 
       (literalBlock | quotedBlock | rule | bulletList | enumList))
 
@@ -122,7 +131,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     else standardMarkdownBlock :: (insignificantSpaces ~> linkTarget) :: paragraph :: Nil
   }
  
-  def nonRecursiveBlock: Parser[Block] = 
+  lazy val nonRecursiveBlock: Parser[Block] =
     atxHeader | setextHeader | (insignificantSpaces ~> (literalBlock | rule )) | paragraph
 
   def parseParagraph (lines: List[String]): Paragraph = Paragraph(parseInline(linesToString(lines)))
@@ -130,7 +139,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   /** Parses a single paragraph. Everything between two blank lines that is not
    *  recognized as a special Markdown block type will be parsed as a regular paragraph.
    */
-  def paragraph: Parser[Paragraph] = 
+  val paragraph: Parser[Paragraph] =
     not(bulletListItemStart | enumListItemStart) ~> ((not(blankLine) ~> restOfLine) +) ^^ parseParagraph
    
   /** Parses a single paragraph nested inside another block.
@@ -139,7 +148,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    *  whereas a top level paragraph won't do that. One of the questionable
    *  Markdown design decisions.
    */
-  def nestedParagraph: Parser[Block] = {
+  val nestedParagraph: Parser[Block] = {
     val list: Parser[Block] = bulletList | enumList
     ((((not(bulletListItemStart | enumListItemStart | blankLine) ~> restOfLine) +) ^^ parseParagraph)
         ~ opt(not(blankLine) ~> list)) ^^ {
@@ -172,7 +181,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   /** Parses a quoted block, a paragraph starting with a `'>'` character,
    *  with subsequent lines optionally starting with a `'>'`, too.
    */
-  def quotedBlock: Parser[QuotedBlock] 
+  lazy val quotedBlock: Parser[QuotedBlock]
     = withNestLevel(mdBlock('>' ~ (ws max 1), ('>' ~ (ws max 1)) | not(blankLine), '>')) ^^ 
       { case (nestLevel,lines) => QuotedBlock(parseNestedBlocks(lines, nestLevel), Nil) }
 
@@ -222,18 +231,9 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     = withNestLevel(mdBlock(not(rule) ~ itemStart, not(blankLine | itemStart) ~ opt(tabOrSpace), tabOrSpace)) ^^
         { case (nestLevel,lines) => parseNestedBlocks(lines, nestLevel) }
  
-  
-  /** Parses the start of a bullet list item.
-   */
-  val bulletListItemStart: Parser[String] = anyOf('*','-','+').take(1) <~ (anyOf(' ','\t') min 1)
-  
-  /** Parses the start of an enumerated list item.
-   */
-  val enumListItemStart: Parser[String] = anyIn('0' to '9').min(1) <~ '.' ~ (anyOf(' ','\t') min 1)
-  
   /** Parses a bullet list, called "unordered list" in the Markdown syntax description.
    */
-  def bulletList: Parser[BulletList] = {
+  lazy val bulletList: Parser[BulletList] = {
     guard(bulletListItemStart) >> { symbol =>
       val bullet = StringBullet(symbol)
       list(bulletListItemStart, BulletList(_,bullet), (_,blocks)=>BulletListItem(blocks,bullet))
@@ -242,7 +242,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     
   /** Parses an enumerated list, called "ordered list" in the Markdown syntax description.
    */
-  def enumList: Parser[EnumList] = {
+  lazy val enumList: Parser[EnumList] = {
     list(enumListItemStart, EnumList(_, EnumFormat()), (pos,blocks)=>EnumListItem(blocks,EnumFormat(),pos)) 
   }
     
