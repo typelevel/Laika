@@ -18,6 +18,7 @@ package laika.parse
 
 import laika.parse.core._
 import laika.parse.core.text.Characters
+import laika.util.~
 
 /** Base parsers that provide optimized low-level renderers for typical requirements
  *  of text markup parsers. In particular they are meant as an efficient replacement
@@ -111,7 +112,7 @@ trait MarkupParsers extends BaseParsers {
    *  text.
    */
   def parseMarkup [T] (parser: Parser[T], source: String): T = {
-    parseAll(parser, source) match {
+    consumeAll(parser).parse(source) match {
       case Success(result,_) => result
       case f: Failure        => throw new MarkupParserException(f)
     }
@@ -122,8 +123,8 @@ trait MarkupParsers extends BaseParsers {
    *  in this library, as the parsers treat all unknown or malformed markup as regular
    *  text.
    */
-  def parseMarkup [T] (parser: Parser[T], reader: ParserContext): T = {
-    parseAll(parser, reader) match {
+  def parseMarkup [T] (parser: Parser[T], ctx: ParserContext): T = {
+    consumeAll(parser).parse(ctx) match {
       case Success(result,_) => result
       case ns: Failure       => throw new MarkupParserException(ns)
     }
@@ -143,10 +144,10 @@ class MarkupParserException (val result: Failure) extends RuntimeException(resul
 class MarkupParser[T] (p: Parser[T]) extends Parser[T] {
 
 
-  val parser = Parsers.consumeAll(p)
+  val parser = BaseParsers.consumeAll(p)
 
 
-  def apply (ctx: ParserContext): ParseResult[T] = parser(ctx)
+  def parse (ctx: ParserContext): Parsed[T] = parser.parse(ctx)
 
 
   /** Fully parses the input from the specified reader and returns the result.
@@ -161,7 +162,7 @@ class MarkupParser[T] (p: Parser[T]) extends Parser[T] {
     *  in this library, as the parsers treat all unknown or malformed markup as regular
     *  text.
     */
-  def parseMarkup (ctx: ParserContext): T = parser(ctx) match {
+  def parseMarkup (ctx: ParserContext): T = parser.parse(ctx) match {
     case Success(result, _) => result
     case ns: Failure        => throw new MarkupParserException(ns)
   }

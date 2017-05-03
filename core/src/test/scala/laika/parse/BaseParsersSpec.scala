@@ -16,11 +16,10 @@
 
 package laika.parse
 
-import laika.parse.core.{Failure, ParserContext, ~}
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
-import laika.parse.helper.ParseResultHelpers
-import laika.parse.helper.StringParserHelpers
+import laika.parse.core.{Failure, ParserContext}
+import laika.parse.helper.{ParseResultHelpers, StringParserHelpers}
+import laika.util.~
+import org.scalatest.{FlatSpec, Matchers}
 
 class BaseParsersSpec extends FlatSpec with Matchers with MarkupParsers with ParseResultHelpers with StringParserHelpers {
 
@@ -63,17 +62,17 @@ class BaseParsersSpec extends FlatSpec with Matchers with MarkupParsers with Par
   
   "The lookBehind parser" should "succeed when the specified parser succeeds at the given negative offset" in {
     val input = ParserContext("abcd").consume(2)
-    (lookBehind(2,'a')(input)) should produce ('a')
+    (lookBehind(2,'a').parse(input)) should produce ('a')
   }
   
   it should "fail when the specified parser fails at the given negative offset" in {
     val input = ParserContext("abcd").consume(2)
-    lookBehind(2,'b')(input) should cause [Failure]
+    lookBehind(2,'b').parse(input) should cause [Failure]
   }
   
   it should "fail when the specified negative offset is too big" in {
     val input = ParserContext("abcd").consume(2)
-    lookBehind(7,'a')(input) should cause [Failure]
+    lookBehind(7,'a').parse(input) should cause [Failure]
   }
   
   

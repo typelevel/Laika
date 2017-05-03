@@ -17,7 +17,7 @@
 package laika.parse.core.markup
 
 import laika.parse.core.text.{Complete, Continue, Delimiter, DelimiterResult}
-import laika.parse.core.{ParseResult, ParserContext, Success}
+import laika.parse.core.{Parsed, ParserContext, Success}
 
 /**
   * @author Jens Halm
@@ -36,13 +36,13 @@ class InlineDelimiter (nestedDelimiters: Set[Char], endDelimiters: Delimiter[Str
 
     if (endDelimiters.startChars.contains(startChar))
       endDelimiters.atStartChar(startChar, charsConsumed, context) match {
-        case Complete(s: ParseResult[String]) => Complete(s.map(EndDelimiter))
+        case Complete(s: Parsed[String]) => Complete(s.map(EndDelimiter))
         case Continue => if (nestedDelimiters.contains(startChar)) nestedDelimiter else Continue
       }
     else nestedDelimiter
   }
 
-  def atEOF (charsConsumed: Int, context: ParserContext): ParseResult[InlineResult] =
+  def atEOF (charsConsumed: Int, context: ParserContext): Parsed[InlineResult] =
     endDelimiters.atEOF(charsConsumed, context).map(EndDelimiter)
 
 }

@@ -17,17 +17,18 @@
 package laika.parse.rst
 
 import com.typesafe.config.{Config, ConfigValueFactory}
+import laika.parse.core._
 import laika.parse.core.text.Characters
 import laika.parse.rst.Elements._
 import laika.rewrite.TreeUtil
 import laika.tree.Documents._
 import laika.tree.Elements._
 import laika.tree.Paths.Path
+import laika.util.~
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
-import laika.parse.core._
 
 /** Provides the parsers for all types of block-level elements of reStructuredText. 
  *  It merges the individual traits that provide implementations for list, tables, etc. and 
@@ -79,7 +80,7 @@ trait BlockParsers extends laika.parse.BlockParsers
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#transitions]].
    */  
-  val transition: Parser[Rule] = (punctuationChar min 4) ~ ws ~ eol ~ guard(blankLine) ^^^ Rule()  
+  val transition: Parser[Rule] = (punctuationChar min 4) ~ ws ~ eol ~ lookAhead(blankLine) ^^^ Rule()
     
   /** Parses a single paragraph. Everything between two blank lines that is not
    *  recognized as a special reStructuredText block type will be parsed as a regular paragraph.
@@ -144,7 +145,7 @@ trait BlockParsers extends laika.parse.BlockParsers
       parseInline(block.lines mkString "\n")
     }
       
-    guard(ws take 1) ~> indentedBlock(firstLineIndented = true, linePredicate = not(attributionStart)) >> { 
+    lookAhead(ws take 1) ~> indentedBlock(firstLineIndented = true, linePredicate = not(attributionStart)) >> {
       block => opt(opt(blankLines) ~> attribution(block.minIndent)) ^^ { 
         spans => QuotedBlock(parseNestedBlocks(block), spans.getOrElse(Nil)) 
       }
@@ -213,7 +214,7 @@ trait BlockParsers extends laika.parse.BlockParsers
     }
     
     @tailrec 
-    def parse (p: Parser[Block], in: ParserContext): ParseResult[List[Block]] = p(in) match {
+    def parse (p: Parser[Block], in: ParserContext): Parsed[List[Block]] = p.parse(in) match {
       case Success(Paragraph(Text(txt,_) :: Nil,_), rest) if txt.trim == "::" => parse(litBlock, rest)
       case Success(p: Paragraph, rest) => 
         val (paragraph, parser) = processLiteralMarker(p)
@@ -234,7 +235,7 @@ trait BlockParsers extends laika.parse.BlockParsers
   def literalBlock: Parser[Block] = {
     val indented = indentedBlock(firstLineIndented = true) ^^ 
       { block => LiteralBlock(block.lines mkString "\n") }
-    val quoted = block(guard(punctuationChar min 1), guard(punctuationChar min 1), failure("blank line always ends quoted block")) ^^ 
+    val quoted = block(lookAhead(punctuationChar min 1), lookAhead(punctuationChar min 1), failure("blank line always ends quoted block")) ^^
       { lines => LiteralBlock(lines mkString "\n") }  
     indented | quoted
   }

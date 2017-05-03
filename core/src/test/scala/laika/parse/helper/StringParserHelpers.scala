@@ -16,12 +16,13 @@
 
 package laika.parse.helper
 
+import laika.parse.BaseParsers
 import laika.parse.core._
 
-trait StringParserHelpers { self: Parsers =>
+trait StringParserHelpers { self: BaseParsers =>
   
   class Source (value: String) {
-    def using [T] (parser: Parser[T]): ParseResult[T] = parser(ParserContext(value))
+    def using [T] (parser: Parser[T]): Parsed[T] = parser.parse(ParserContext(value))
   }
   
   object Parsing {

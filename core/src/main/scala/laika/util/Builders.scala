@@ -41,10 +41,6 @@ object Builders {
     def map [B](f: A => B): Result[B] = new Result(f(get))
     
   }
-    
-  /** A wrapper for two result values.
-   */
-  case class ~[+A,+B](_1:A,_2:B)
 
 
   /** Contract for type classes that adapt a container
@@ -186,3 +182,7 @@ object Builders {
   
   
 }
+
+/** A wrapper for two result values.
+  */
+case class ~[+A,+B] (_1:A, _2:B)

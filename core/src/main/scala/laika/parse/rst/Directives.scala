@@ -18,6 +18,7 @@ package laika.parse.rst
 
 import laika.tree.Elements._
 import laika.util.Builders._
+import laika.util.~
 
 /** API for creating directives, the extension mechanism of reStructuredText.
  *  The API did not aim to mimic the API of the original Python reference implementation.

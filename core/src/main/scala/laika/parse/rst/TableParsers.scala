@@ -16,8 +16,9 @@
 
 package laika.parse.rst
 
-import laika.parse.core.{Parser, Success, ~}
+import laika.parse.core.{Parser, Success}
 import laika.tree.Elements._
+import laika.util.~
 
 import scala.collection.mutable.{ListBuffer, Stack}
 
@@ -81,7 +82,7 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
       val cellLine = not(eof) ~> ((blankLine ^^^ BlankLine) |
         (ws ~ restOfLine) ^^ { case indent ~ text => new TextLine(indent.length, text.trim) }) 
       
-      parseAll(cellLine*, cellContent) match {
+      consumeAll(cellLine*).parse(cellContent) match {
         case Success(lines, _) => 
           val minIndent = lines map (_.indent) min;
           (minIndent, lines map (_.padTo(minIndent)))
@@ -210,13 +211,13 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
       val colsWithSep = (separators, cols, separators.reverse).zipped.toList
       
       def rowSep (width: Int): Parser[Any] = 
-        intersect ~ ((anyOf('-') take width) ^^^ RowSeparator) <~ guard(intersect)
+        intersect ~ ((anyOf('-') take width) ^^^ RowSeparator) <~ lookAhead(intersect)
         
       def boundaryPart (width: Int): Parser[Any] = 
-        intersect ~ ((anyOf('=') take width) ^^^ TableBoundary) <~ guard(intersect)
+        intersect ~ ((anyOf('=') take width) ^^^ TableBoundary) <~ lookAhead(intersect)
         
       def cell (sepL: Parser[Any], width: Int, sepR: Parser[Any]): Parser[Any] = 
-        sepL ~ ((any take width) ^^ CellElement) <~ guard(sepR)
+        sepL ~ ((any take width) ^^ CellElement) <~ lookAhead(sepR)
       
       val row = (colsWithSep map { case (separatorL, colWidth, separatorR) => 
         rowSep(colWidth) | cell(separatorL, colWidth, separatorR)

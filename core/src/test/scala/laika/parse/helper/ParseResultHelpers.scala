@@ -16,15 +16,16 @@
 
 package laika.parse.helper
 
-import laika.parse.core.{Failure, ParseResult, Parsers, Success}
+import laika.parse.BaseParsers
+import laika.parse.core.{Failure, Parsed, Success}
 import org.scalatest.matchers.MatchResult
 import org.scalatest.matchers.Matcher
 
-trait ParseResultHelpers { self: Parsers =>
+trait ParseResultHelpers { self: BaseParsers =>
 
-  class ParserFailureMatcher[T <: Failure](m: Manifest[T]) extends Matcher[ParseResult[_]] {
+  class ParserFailureMatcher[T <: Failure](m: Manifest[T]) extends Matcher[Parsed[_]] {
 
-    def apply (left: ParseResult[_]): MatchResult = {
+    def apply (left: Parsed[_]): MatchResult = {
 
       val failureMessageSuffix = left match {
         case Success(result,_)  => s"parser produced result $result instead of failing with result type ${m.runtimeClass.getSimpleName}"
@@ -33,7 +34,7 @@ trait ParseResultHelpers { self: Parsers =>
       val negatedFailureMessageSuffix = s"parser '$left' did have the unexpected result type ${m.runtimeClass.getSimpleName}"
 
       MatchResult(
-        left.isEmpty && m.runtimeClass.isInstance(left),
+        left.isFailure && m.runtimeClass.isInstance(left),
         "The " + failureMessageSuffix,
         "The " + negatedFailureMessageSuffix,
         "the " + failureMessageSuffix,
@@ -44,9 +45,9 @@ trait ParseResultHelpers { self: Parsers =>
 
   def cause [T <: Failure] (implicit m: Manifest[T]): ParserFailureMatcher[T] = new ParserFailureMatcher[T](m)
   
-  class ParserSuccessMatcher[T] (expected: T) extends Matcher[ParseResult[T]] {
+  class ParserSuccessMatcher[T] (expected: T) extends Matcher[Parsed[T]] {
 
-    def apply (left: ParseResult[T]): MatchResult = {
+    def apply (left: Parsed[T]): MatchResult = {
 
       val failureMessageSuffix = left match {
         case Success(unexpected,_) => s"parser result '$unexpected' was not equal to '$expected'"
@@ -56,7 +57,7 @@ trait ParseResultHelpers { self: Parsers =>
       val negatedFailureMessageSuffix = s"parser '$left' did produce the unexpected result $expected"
 
       MatchResult(
-        left.successful && left.get == expected,
+        left.isSuccess && left.get == expected,
         "The " + failureMessageSuffix,
         "The " + negatedFailureMessageSuffix,
         "the " + failureMessageSuffix,

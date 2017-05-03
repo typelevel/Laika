@@ -31,14 +31,14 @@ class DelimitedText[T] (val delimiter: Delimiter[T]) extends Parser[T] {
   private lazy val optimizedDelimiters: Array[Byte] = Characters.optimizedLookup(delimiter.startChars)
 
 
-  def apply (ctx: ParserContext): ParseResult[T] = {
+  def parse (ctx: ParserContext): Parsed[T] = {
 
     val source = ctx.input
     val end = source.length
     val lookup = optimizedDelimiters
 
     @tailrec
-    def parse (offset: Int): ParseResult[T] = {
+    def parse (offset: Int): Parsed[T] = {
 
       def charsConsumed = offset - ctx.offset
 
@@ -64,7 +64,7 @@ trait Delimiter[T] {
 
   def atStartChar (startChar: Char, charsConsumed: Int, context: ParserContext): DelimiterResult[T]
 
-  def atEOF (charsConsumed: Int, context: ParserContext): ParseResult[T]
+  def atEOF (charsConsumed: Int, context: ParserContext): Parsed[T]
 
 }
 
@@ -97,7 +97,7 @@ case class ConfigurableDelimiter (endDelimiters: Set[Char],
     }
   }
 
-  def atEOF (charsConsumed: Int, context: ParserContext): ParseResult[String] = {
+  def atEOF (charsConsumed: Int, context: ParserContext): Parsed[String] = {
     if (!acceptEOF) Failure(Message.UnexpectedEOF, context)
     else if (charsConsumed == 0 && nonEmpty) Failure(EmptyResult, context)
     else Success(context.capture(charsConsumed), context.consume(charsConsumed))
@@ -108,7 +108,7 @@ case class ConfigurableDelimiter (endDelimiters: Set[Char],
 trait DelimiterResult[+T]
 
 case object Continue extends DelimiterResult[Nothing]
-case class Complete[T] (result: ParseResult[T]) extends DelimiterResult[T]
+case class Complete[T] (result: Parsed[T]) extends DelimiterResult[T]
 
 trait DelimiterOptions {
 
@@ -127,7 +127,7 @@ trait DelimiterOptions {
     DelimiterOptions(delimiter.copy(postCondition = { (char, consumed, context) =>
       val firstResult = oldPostCondition(char, consumed, context)
       if (firstResult == -1) -1 else
-        parser(context.consume(consumed + 1 + firstResult)) match {
+        parser.parse(context.consume(consumed + 1 + firstResult)) match {
           case Success(_, next) => Math.max(firstResult, next.offset - (context.offset + consumed + 1))
           case _ => -1
         }

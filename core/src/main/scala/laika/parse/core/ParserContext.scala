@@ -16,6 +16,8 @@
 
 package laika.parse.core
 
+import java.util
+
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -92,3 +94,51 @@ case class Source (value: String) {
   }
 
 }
+
+/**  Represents an offset into a source string. Its main purpose
+  *  is error reporting, e.g. printing a visual representation of the line
+  *  containing the error.
+  *
+  *  @param s the source for this position
+  *  @param offset the offset into the source string
+  *
+  *  @author Jens Halm
+  */
+case class Position(s: Source, offset: Int) {
+
+  val source = s.value
+
+  /** The line number referred to by this position, starting at 1. */
+  lazy val line: Int = {
+    val result = util.Arrays.binarySearch(s.lineStarts, offset)
+    if (result == s.lineStarts.length - 1) result // EOF position is not on a new line
+    else if (result < 0) Math.abs(result) - 1 // see javadoc for binarySearch
+    else result + 1 // line is 1-based
+  }
+
+  /** The column number referred to by this position, starting at 1. */
+  lazy val column: Int = offset - s.lineStarts(line - 1) + 1
+
+  /** The contents of the line at the current offset (not including a newline). */
+  lazy val lineContent: String = {
+    val startIndex = s.lineStarts(line - 1)
+    val endIndex = s.lineStarts(line)
+
+    val result = source.substring(startIndex, endIndex)
+    if (result.endsWith("\n")) result.dropRight(1) else result
+  }
+
+  /** The contents of the line at the current offset, decorated with
+    * a caret indicating the column. Example:
+    * {{{
+    *   The content of the current line with a caret under the c.
+    *       ^
+    * }}}
+    */
+  def lineContentWithCaret = lineContent + "\n" + " " * (column-1) + "^"
+
+  /** A string representation of this Position of the form `line.column`. */
+  override lazy val toString = s"$line.$column"
+
+}
+

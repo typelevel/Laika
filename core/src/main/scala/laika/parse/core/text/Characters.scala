@@ -49,7 +49,7 @@ class Characters (predicate: Char => Boolean,
   private def newMessageProvider (actual: Int): MessageProvider = new MessageFunction(actual, msgFunction)
 
 
-  def apply (ctx: ParserContext): ParseResult[String] = {
+  def parse (ctx: ParserContext): Parsed[String] = {
 
     val source = ctx.input
     val maxOffset = if (maxChar <= 0 || ctx.offset + maxChar < 0) source.length
@@ -64,7 +64,7 @@ class Characters (predicate: Char => Boolean,
     }
 
     @tailrec
-    def parse (offset: Int): ParseResult[String] =
+    def parse (offset: Int): Parsed[String] =
       if (offset == maxOffset || !predicate(source.charAt(offset))) result(offset)
       else parse(offset + 1)
 

@@ -22,6 +22,7 @@ import laika.tree.Documents.Document
 import laika.tree.Elements.{Block, ConfigValue, InvalidBlock, RootElement}
 import laika.tree.Paths.Path
 import laika.parse.core._
+import laika.util.~
   
 /** A generic base trait for block parsers. Provides base parsers that abstract
  *  aspects of block parsing common to most lightweight markup languages.
@@ -155,7 +156,7 @@ trait BlockParsers extends MarkupParsers {
 
   lazy val safeNestedBlockParser: MarkupParser[List[Block]] = new MarkupParser(Parser { ctx =>
     val p = if (ctx.nestLevel < maxNestLevel) blocksWithRecursion else blocksWithoutRecursion
-    p(ParserContext(ctx.input, ctx.nestLevel + 1))
+    p.parse(ParserContext(ctx.input, ctx.nestLevel + 1))
   })
   
   /** Parses all nested blocks inside the specified indented block.
@@ -173,7 +174,7 @@ trait BlockParsers extends MarkupParsers {
    *  The nest level is usually only used to prevent endless recursion of nested blocks. 
    */
   def withNestLevel [T] (p: => Parser[T]): Parser[(Int, T)] = Parser { in =>
-    p(in) match {
+    p.parse(in) match {
       case Success(res, next) => Success((next.nestLevel, res), next)
       case f: Failure         => f
     }
@@ -218,7 +219,7 @@ trait BlockParsers extends MarkupParsers {
     
     lazy val line = linePrefix ~> restOfLine
     
-    lazy val nextBlock = blankLines <~ guard(nextBlockPrefix) ^^ { _.mkString("\n") }
+    lazy val nextBlock = blankLines <~ lookAhead(nextBlockPrefix) ^^ { _.mkString("\n") }
     
     firstLine ~ ( (line | nextBlock)* ) ^^ mkList
     
@@ -259,7 +260,7 @@ trait BlockParsers extends MarkupParsers {
       case indent1 ~ indent2 ~ text => List(IndentedLine(min(min(indent1, curIndent), maxIndent), indent1 + indent2, text.trim)) 
     }
     
-    def emptyLines (curIndent: Int) = blankLines <~ guard(lineStart(curIndent)) ^^ {
+    def emptyLines (curIndent: Int) = blankLines <~ lookAhead(lineStart(curIndent)) ^^ {
       res => Stream.fill(res.length)(BlankLine(curIndent)).toList 
     }
     
@@ -282,7 +283,7 @@ trait BlockParsers extends MarkupParsers {
       })
     }
 
-    guard(firstLineGuard) ~> withNestLevel(rep(firstLine, nextLine)) ^^ { case (nestLevel,parsed) =>
+    lookAhead(firstLineGuard) ~> withNestLevel(rep(firstLine, nextLine)) ^^ { case (nestLevel,parsed) =>
       val (minIndent, lines) = result(parsed)
       IndentedBlock(nestLevel, minIndent, lines)
     }

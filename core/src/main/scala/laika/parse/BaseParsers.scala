@@ -16,9 +16,9 @@
 
 package laika.parse
 
-import scala.annotation.tailrec
-import scala.collection.mutable.ListBuffer
 import laika.parse.core._
+import laika.parse.core.text.Literal
+import laika.util.~
 
 import scala.util.Try
 import scala.util.{Success => TSuccess}
@@ -29,104 +29,100 @@ import scala.util.{Failure => TFailure}
  * 
  * @author Jens Halm
  */
-trait BaseParsers extends Parsers {
+trait BaseParsers extends RepeatParsers {
 
-  
-  /** A parser generator for repetitions where all subsequent parsers
-   *  after the first depend on the result of the previous.
-   * 
-   *  @param first the parser to use for the first piece of input
-   *  @param next a function that determines the next parser based on the result of the previous
-   */
-  def rep[T] (first: Parser[T], next: T => Parser[T]): Parser[List[T]] = Parser { in =>
-    val elems = new ListBuffer[T]
-  
-    @tailrec 
-    def parse (input: ParserContext, p: Parser[T]): ParseResult[List[T]] =
-      p(input) match {
-        case Success(result, rest) => 
-          elems += result
-          val newParser = next(result)
-          parse(rest, newParser)
-        case _: Failure => Success(elems.toList, input)
-      }
 
-    parse(in, first)
+  /**  A parser that matches only the specified character.
+    *
+    *  The method is implicit so that characters can automatically be lifted to their parsers.
+    */
+  implicit def char (expected: Char): Parser[Char] = Parser { in =>
+    lazy val errMsg = { found: Char => s"'$expected' expected but $found found" }
+    if (in.atEnd) Failure(Message.UnexpectedEOF, in)
+    else if (in.char == expected) Success(in.char, in.consume(1))
+    else Failure(new MessageFunction(in.char, errMsg), in) // TODO - avoid object creation
   }
-  
-  /** Uses the parser for at least the specified number of repetitions or otherwise fails. 
-   *  Continues to apply the parser after the minimum has been reached until if fails.
-   *  The result is the list of results from applying the parser repeatedly.
-   */
-  def repMin[T] (num: Int, p: Parser[T]): Parser[List[T]] = Parser { in =>
-    val elems = new ListBuffer[T]
 
-    @tailrec 
-    def parse (input: ParserContext): ParseResult[List[T]]  = p(input) match {
-      case Success(x, rest)                    => elems += x ; parse(rest)
-      case _: Failure if elems.length >= num   => Success(elems.toList, input)
-      case f: Failure                          => f
+  /**  A parser that matches only the specified literal string.
+    *
+    *  The method is implicit so that strings can automatically be lifted to their parsers.
+    */
+  implicit def literal (expected: String): Parser[String] = Literal(expected)
+
+
+  /** A parser for an optional element that always succeeds.
+    *
+    * If the underlying parser succeeds this parser will contain its result as a `Some`,
+    * if it fails this parser will succeed with a `None`.
+    */
+  def opt[T](p: Parser[T]): Parser[Option[T]] = Parser { in =>
+    p.parse(in) match {
+      case Success(result, next) => Success(Some(result), next)
+      case _                     => Success(None, in)
     }
-
-    parse(in)
   }
-  
-  /** Uses the parser for at most the specified number of repetitions, always succeeds. 
-   *  The result is the list of results from applying the parser repeatedly.
-   */
-  def repMax[T] (num: Int, p: Parser[T]): Parser[List[T]] =
-    if (num == 0) success(Nil) else Parser { in =>
-      val elems = new ListBuffer[T]
 
-      @tailrec 
-      def parse (input: ParserContext): ParseResult[List[T]] =
-        if (elems.length == num) Success(elems.toList, input)
-        else p(input) match {
-          case Success(x, rest)   => elems += x ; parse(rest)
-          case _: Failure         => Success(elems.toList, input)
-        }
-
-      parse(in)
+  /** A parser that only succeeds if the specified parser fails and
+    *  vice versa, it never consumes any input.
+    */
+  def not[T] (p: Parser[T]): Parser[Unit] = Parser { in =>
+    p.parse(in) match {
+      case Success(_, _)  => Failure(Message.ExpectedFailure, in)
+      case _              => Success((), in)
     }
+  }
+
+  /**  Applies the specified parser at the specified offset behind the current
+    *  position. Never consumes any input.
+    */
+  def lookAhead[T] (p: Parser[T]): Parser[T] = Parser { in =>
+    p.parse(in) match{
+      case s@ Success(s1,_) => Success(s1, in)
+      case e => e
+    }
+  }
+
+  /**  Applies the specified parser at the specified offset behind the current
+    *  position. Never consumes any input.
+    */
+  def lookAhead[T] (offset: Int, p: Parser[T]): Parser[T] = Parser { in =>
+    if (in.offset - offset < 0) Failure(new MessageFunction(offset, {o: Int => s"Unable to look ahead with offset $o"}), in)
+    p.parse(in) match{
+      case s@ Success(s1,_) => Success(s1, in)
+      case e => e
+    }
+  }
 
   /** Applies the specified parser at the specified offset behind the current
    *  position. Never consumes any input.
    */
-  def lookBehind [T] (offset: Int, parser: => Parser[T]): Parser[T] = Parser { in =>
+  def lookBehind[T] (offset: Int, parser: => Parser[T]): Parser[T] = Parser { in =>
     if (in.offset - offset < 0) Failure(new MessageFunction(offset, {o: Int => s"Unable to look behind with offset $o"}), in)
-    else parser(in.consume(-offset)) match {
+    else parser.parse(in.consume(-offset)) match {
       case Success(result, _) => Success(result, in)
-      case Failure(msg, _)    => Failure(msg, in)
+      case e => e
     }
   }
-  
-  
-  
-  /** Provides additional combinator methods to parsers via implicit conversion.
-   */
-  implicit class ParserOps [A] (parser: Parser[A]) {
-    
-    /** A parser combinator that applies a function to the result producing an `Either`
-     *  where `Left` is interpreted as failure. It is an alternative to `^?` for scenarios 
-     *  where the conditional check cannot be easily performed in a pattern match.
-     *
-     *  `p ^^? f` succeeds if `p` succeeds and `f` returns a `Right`; 
-     *  it returns the content of `Right` obtained from applying `f` to the result of `p`.
-     *
-     *  @param f a function that will be applied to this parser's result.
-     *  @return a parser that has the same behaviour as the current parser, but whose result is
-     *         transformed by `f`.
-     */
-    def ^^? [B] (f: A => Either[String,B]): Parser[B] = Parser { in =>
-      
-      parser(in) match {
-        case Success(result, next) => f(result) fold (msg => Failure(Message(msg),in), res => Success(res,next))
-        case f: Failure => f
-      }
-        
+
+  /** A parser that always succeeds with the specified value.
+    */
+  def success[T] (v: T) = Parser { in => Success(v, in) }
+
+  /** A parser that always fails with the specified message.
+    */
+  def failure (msg: String) = Parser { in => Failure(Message(msg), in) }
+
+  /** A parser that succeeds if the specified parser succeeds and all input has been consumed.
+    */
+  def consumeAll[T] (p: Parser[T]) = Parser[T] { in =>
+    p.parse(in) match {
+      case s @ Success(out, next) =>
+        if (next.atEnd) s
+        else Failure(Message.ExpectedEOF, next)
+      case e => e
     }
   }
-    
+
   /** Provides additional methods to `Try` via implicit conversion.
    */
   implicit class TryOps [A] (t: Try[A]) {
@@ -140,9 +136,10 @@ trait BaseParsers extends Parsers {
     }
     
   }
-  
+
+  /** Given a concatenation with a list, move the concatenated element into the list */
+  def mkList[T] = (_: ~[T, List[T]]) match { case x ~ xs => x :: xs }
   
 }
 
-
-
+object BaseParsers extends BaseParsers

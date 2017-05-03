@@ -16,12 +16,12 @@
 
 package laika.parse.markdown.html
 
-import laika.tree.Elements._
-import laika.parse.markdown.InlineParsers
-import laika.parse.markdown.BlockParsers
-import HTMLElements._
+import laika.parse.core.Parser
 import laika.parse.core.text.{DelimitedBy, DelimitedText}
-import laika.parse.core.{Parser, ~}
+import laika.parse.markdown.{BlockParsers, InlineParsers}
+import laika.parse.markdown.html.HTMLElements._
+import laika.tree.Elements._
+import laika.util.~
    
 /** Parses verbatim HTML elements which may interleave with standard Markdown markup.
  *  Extends the Markdown block and inline parsers, overriding several of their

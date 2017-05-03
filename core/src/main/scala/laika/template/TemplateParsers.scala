@@ -16,7 +16,7 @@
 
 package laika.template
 
-import laika.parse.core.{Parser, ParserContext, ~}
+import laika.parse.core.{Parser, ParserContext}
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions
@@ -27,6 +27,7 @@ import laika.tree.Paths.Path
 import laika.tree.Documents.TemplateDocument
 import laika.tree.Elements._
 import laika.tree.Templates._
+import laika.util.~
 
 
 /** Provides parsers for the default template format.

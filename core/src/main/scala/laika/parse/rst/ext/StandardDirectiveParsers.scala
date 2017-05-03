@@ -17,12 +17,11 @@
 package laika.parse.rst.ext
 
 import laika.parse.core.text.DelimitedBy
-import laika.parse.core.~
-import laika.tree.Elements._
 import laika.parse.rst.Directives.DirectivePart
+import laika.parse.rst.{BlockParsers, InlineParsers}
 import laika.parse.rst.TextRoles.RoleDirectivePart
-import laika.parse.rst.BlockParsers
-import laika.parse.rst.InlineParsers
+import laika.tree.Elements._
+import laika.util.~
 
 /** Defines the custom argument and body parsers for the standard directives.
  *  Most of these delegate to the default block or inline parsers for `reStructuredText`,

@@ -21,7 +21,8 @@ import laika.tree.Paths.Path
 import laika.tree.Elements.Span
 import laika.io.Input
 import laika.parse.core.text.DelimitedBy
-import laika.parse.core.{Parser, ParserContext, ~}
+import laika.parse.core.{Parser, ParserContext}
+import laika.util.~
 
 /**
  * Parsers for the subset of CSS supported by Laika.

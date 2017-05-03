@@ -559,7 +559,7 @@ class DirectiveSpec extends FlatSpec
   "The role directive parser" should "parse a simple definition" in {
     val input = """.. role::custom(role)
     	| :name: 9""".stripMargin
-    parseAll(docWithTextRoles,input) should produce (root (p("custom(9)")))
+    consumeAll(docWithTextRoles).parse(input) should produce (root (p("custom(9)")))
   }
   
   it should "detect a defintion with a missing required field as invalid" in {

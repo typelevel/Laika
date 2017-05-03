@@ -1,200 +1,191 @@
+/*
+ * Copyright 2013-2017 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package laika.parse.core
 
-/** The root class of parsers.
-  *  Parsers are functions from the Input type to ParseResult.
+import laika.util.~
+
+/**  The abstract base for all parser implementations.
+  *
+  *  @author Jens Halm
   */
-abstract class Parser[+T] extends (ParserContext => ParseResult[T]) {
+abstract class Parser[+T] {
 
-  import Parsers._
 
-  private var name: String = ""
-  def named(n: String): this.type = {name=n; this}
-  override def toString() = "Parser ("+ name +")"
+  import laika.parse.BaseParsers._
 
-  /** An unspecified method that defines the behaviour of this parser. */
-  def apply(in: ParserContext): ParseResult[T]
 
-  def flatMap[U](f: T => Parser[U]): Parser[U]
-    = Parser{ in => this(in) flatMapWithNext(f)}
+  def parse (in: ParserContext): Parsed[T]
 
-  def map[U](f: T => U): Parser[U] //= flatMap{x => success(f(x))}
-    = Parser{ in => this(in) map(f)}
+  def parse (in: String): Parsed[T] = parse(ParserContext(in))
 
-  def filter(p: T => Boolean): Parser[T]
-  = withFilter(p)
 
-  def withFilter(p: T => Boolean): Parser[T]
-    = Parser{ in => this(in) filterWithError(p, "Input doesn't match filter: "+_, in)}
-
-  // no filter yet, dealing with zero is tricky!
-
-  def append[U >: T](p0: => Parser[U]): Parser[U] = { lazy val p = p0 // lazy argument
-    Parser{ in => this(in) append p(in)}
+  def flatMap[U] (f: T => Parser[U]): Parser[U] = Parser { in =>
+    parse(in) match {
+      case Success(result, next) => f(result).parse(next)
+      case e: Failure => e
+    }
   }
 
-  /** A parser combinator for sequential composition.
+  def map[U](f: T => U): Parser[U] = Parser { in => parse(in).map(f) }
+
+
+  def orElse[U >: T] (p0: => Parser[U]): Parser[U] = {
+    lazy val alt = p0
+    Parser { in =>
+      parse(in) orElse alt.parse(in)
+    }
+  }
+
+  /**  Applies the specified parser to the input left over by this parser
+    *  and combines the two results.
     *
-    * `p ~ q` succeeds if `p` succeeds and `q` succeeds on the input left over by `p`.
+    *  `a ~ b` only succeeds if both parsers succeed, with the results
+    *  in a wrapper class named `~` for convenient pattern matching:
     *
-    * @param p a parser that will be executed after `p` (this parser)
-    *          succeeds -- evaluated at most once, and only when necessary.
-    * @return a `Parser` that -- on success -- returns a `~` (like a `Pair`,
-    *         but easier to pattern match on) that contains the result of `p` and
-    *         that of `q`. The resulting parser fails if either `p` or `q` fails.
+    *  {{{
+    *    a ~ b ~ c ^^ {
+    *      case a ~ b ~ c => processResult(a, b, c)
+    *    }
+    *  }}}
     */
-  def ~ [U](p: Parser[U]): Parser[~[T, U]] = Parser { ctx =>
-    apply(ctx) match {
-      case Success(aRes, next) => p(next).map(bRes => new ~(aRes, bRes))
+  def ~ [U] (p: Parser[U]): Parser[T ~ U] = Parser { ctx =>
+    parse(ctx) match {
+      case Success(aRes, next) => p.parse(next).map(bRes => new ~(aRes, bRes))
       case f: Failure => f
     }
   }
 
-  /** A parser combinator for sequential composition which keeps only the right result.
+  /**  Applies the specified parser to the input left over by this parser,
+    *  but only keeps the right result.
     *
-    * `p ~> q` succeeds if `p` succeeds and `q` succeeds on the input left over by `p`.
-    *
-    * @param p a parser that will be executed after `p` (this parser)
-    *        succeeds -- evaluated at most once, and only when necessary.
-    * @return a `Parser` that -- on success -- returns the result of `q`.
+    *  `a ~> b` only succeeds if both parsers succeed.
     */
-  def ~> [U](p: Parser[U]): Parser[U] = Parser { ctx =>
-    apply(ctx) match {
-      case Success(aRes, next) => p(next)
+  def ~> [U] (p: Parser[U]): Parser[U] = Parser { ctx =>
+    parse(ctx) match {
+      case Success(_, next) => p.parse(next)
       case f: Failure => f
     }
   }
 
-  /** A parser combinator for sequential composition which keeps only the left result.
+  /**  Applies the specified parser to the input left over by this parser,
+    *  but only keeps the left result.
     *
-    *  `p <~ q` succeeds if `p` succeeds and `q` succeeds on the input
-    *           left over by `p`.
-    *
-    * @note <~ has lower operator precedence than ~ or ~>.
-    *
-    * @param p a parser that will be executed after `p` (this parser) succeeds -- evaluated at most once, and only when necessary
-    * @return a `Parser` that -- on success -- returns the result of `p`.
+    *  `a <~ b` only succeeds if both parsers succeed.
     */
-  def <~ [U](p: Parser[U]): Parser[T] = Parser { ctx =>
-    apply(ctx) match {
-      case Success(aRes, next) => p(next).map(_ => aRes)
+  def <~ [U] (p: Parser[U]): Parser[T] = Parser { ctx =>
+    parse(ctx) match {
+      case Success(aRes, next) => p.parse(next).map(_ => aRes)
       case f: Failure => f
     }
   }
 
-  /** A parser combinator for alternative composition.
+  /**  Applies the specified parser when this parser fails.
     *
-    *  `p | q` succeeds if `p` succeeds or `q` succeeds.
-    *   Note that `q` is only tried if `p`s failure is non-fatal (i.e., back-tracking is allowed).
+    *  `a | b` succeeds if either of the parsers succeeds.
     *
-    * @param q a parser that will be executed if `p` (this parser) fails (and allows back-tracking)
-    * @return a `Parser` that returns the result of the first parser to succeed (out of `p` and `q`)
-    *         The resulting parser succeeds if (and only if)
-    *         - `p` succeeds, ''or''
-    *         - if `p` fails allowing back-tracking and `q` succeeds.
+    *  Implementation note:
+    *  The parameter is by-name to allow the definition of
+    *  recursive parsers. In contrast to the former SDK
+    *  parser combinators this is the only place where
+    *  a parser with a by-name parameter is used whereas
+    *  in all other places the additional cost is avoided.
     */
-  def | [U >: T](q: => Parser[U]): Parser[U] = append(q).named("|")
+  def | [U >: T] (p: => Parser[U]): Parser[U] = orElse(p)
 
-  /** A parser combinator for function application.
-    *
-    *  `p ^^ f` succeeds if `p` succeeds; it returns `f` applied to the result of `p`.
-    *
-    * @param f a function that will be applied to this parser's result (see `map` in `ParseResult`).
-    * @return a parser that has the same behaviour as the current parser, but whose result is
-    *         transformed by `f`.
+  /**  A synonym for `map`, allowing the grammar to be declared in a concise way.
     */
-  def ^^ [U](f: T => U): Parser[U] = map(f).named(toString+"^^")
+  def ^^ [U](f: T => U): Parser[U] = map(f)
 
-  /** A parser combinator that changes a successful result into the specified value.
+  /**  Returns a parser that ignores the result of this parser (if it succeeds)
+    *  and returns the specified result instead.
     *
-    *  `p ^^^ v` succeeds if `p` succeeds; discards its result, and returns `v` instead.
-    *
-    * @param v The new result for the parser, evaluated at most once (if `p` succeeds), not evaluated at all if `p` fails.
-    * @return a parser that has the same behaviour as the current parser, but whose successful result is `v`
+    *  Subclasses may override this method to avoid any expensive
+    *  result processing.
     */
-  def ^^^ [U](v: => U): Parser[U] =  new Parser[U] {
-    lazy val v0 = v // lazy argument
-    def apply (in: ParserContext) = Parser.this(in) map (x => v0)
-  }.named(toString+"^^^")
+  def ^^^ [U] (v: => U): Parser[U] =  new Parser[U] {
+    lazy val v0 = v
+    def parse (in: ParserContext) = Parser.this.parse(in) map (x => v0)
+  }
 
-  /** A parser combinator for partial function application.
+  /**  Returns a parser that applies a partial function to the result of this parser.
     *
-    *  `p ^? (f, error)` succeeds if `p` succeeds AND `f` is defined at the result of `p`;
-    *  in that case, it returns `f` applied to the result of `p`. If `f` is not applicable,
-    *  error(the result of `p`) should explain why.
+    *  `p ^? f` succeeds if `p` succeeds and `f` is defined at the result of `p`,
+    *  In that case it returns `f` applied to the result of `p`.
     *
-    * @param f a partial function that will be applied to this parser's result
-    *          (see `mapPartial` in `ParseResult`).
-    * @param error a function that takes the same argument as `f` and produces an error message
-    *        to explain why `f` wasn't applicable
-    * @return a parser that succeeds if the current parser succeeds <i>and</i> `f` is applicable
-    *         to the result. If so, the result will be transformed by `f`.
+    * @param f a partial function that will be applied to this parser's result.
+    * @param error an optional function that takes the same argument as `f` and produces an error message.
     */
-  def ^? [U](f: PartialFunction[T, U], error: T => String): Parser[U] = Parser { in =>
-    this(in).mapPartial(f, error)}.named(toString+"^?")
+  def ^? [U](f: PartialFunction[T, U],
+             error: T => String = r => s"Constructor function not defined at $r"): Parser[U] = Parser { in =>
+    parse(in) match {
+      case Success(result, next) =>
+        if (f.isDefinedAt(result)) Success(f(result), next)
+        else Failure(new MessageFunction(result, error), next)
+      case f: Failure => f
+    }
 
-  /** A parser combinator for partial function application.
+
+  }
+
+  /**  Returns a parser that applies a function to the result of this parser producing an `Either`
+    *  where `Left` is interpreted as failure. It is an alternative to `^?` for scenarios
+    *  where the conditional check cannot be easily performed in a pattern match.
     *
-    *  `p ^? f` succeeds if `p` succeeds AND `f` is defined at the result of `p`;
-    *  in that case, it returns `f` applied to the result of `p`.
-    *
-    * @param f a partial function that will be applied to this parser's result
-    *          (see `mapPartial` in `ParseResult`).
-    * @return a parser that succeeds if the current parser succeeds <i>and</i> `f` is applicable
-    *         to the result. If so, the result will be transformed by `f`.
+    *  `p ^^? f` succeeds if `p` succeeds and `f` returns a `Right` when applied to the result
+    *  of `p`.
     */
-  def ^? [U](f: PartialFunction[T, U]): Parser[U] = ^?(f, r => "Constructor function not defined at "+r)
+  def ^^? [U] (f: T => Either[String, U]): Parser[U] = Parser { in =>
 
-  // shortcuts for combinators:
+    parse(in) match {
+      case Success(result, next) => f(result) fold (msg => Failure(Message(msg),in), res => Success(res,next))
+      case f: Failure => f
+    }
 
-  /** Returns `into(fq)`. */
-  def >>[U](fq: T => Parser[U]) = flatMap(fq)
+  }
 
-  /** Returns a parser that repeatedly parses what this parser parses.
-    *
-    *  @return rep(this)
+  def >>[U] (fq: T => Parser[U]) = flatMap(fq)
+
+  /**  Returns a parser that repeatedly applies this parser.
+    *  It will always succeed, potentially with an empty list as the result.
     */
   def * = rep(this)
 
-  /** Returns a parser that repeatedly (at least once) parses what this parser parses.
-    *
-    *  @return rep1(this)
+  /** Returns a parser that repeatedly applies this parser (at least once).
     */
   def + = rep1(this)
 
   /** Returns a parser that optionally parses what this parser parses.
-    *
-    *  @return opt(this)
     */
   def ? = opt(this)
 
-  /** Changes the failure message produced by a parser.
-    *
-    *  This doesn't change the behavior of a parser on neither
-    *  success nor error, just on failure. The semantics are
-    *  slightly different than those obtained by doing `| failure(msg)`,
-    *  in that the message produced by this method will always
-    *  replace the message produced, which is not guaranteed
-    *  by that idiom.
-    *
-    *  For example, parser `p` below will always produce the
-    *  designated failure message, while `q` will not produce
-    *  it if `sign` is parsed but `number` is not.
-    *
-    *  {{{
-    *  def p = sign.? ~ number withFailureMessage  "Number expected!"
-    *  def q = sign.? ~ number | failure("Number expected!")
-    *  }}}
-    *
-    *  TODO - only used in one place
-    *
-    *  @param msg The message that will replace the default failure message.
-    *  @return    A parser with the same properties and different failure message.
+  /**  Changes the failure message produced by a parser.
     */
-  def withFailureMessage(msg: String) = Parser { in =>
-    this(in) match {
+  def withFailureMessage (msg: String) = Parser { in =>
+    parse(in) match {
       case Failure(_, next) => Failure(Message(msg), next)
       case other            => other
     }
   }
+
+}
+
+object Parser {
+
+  def apply[T] (f: ParserContext => Parsed[T]): Parser[T]
+    = new Parser[T] { def parse (ctx: ParserContext) = f(ctx) }
 
 }

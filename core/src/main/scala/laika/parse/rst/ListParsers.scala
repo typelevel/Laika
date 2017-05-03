@@ -16,16 +16,14 @@
 
 package laika.parse.rst
 
+import laika.parse.core.Parser
 import laika.parse.core.text.{Characters, DelimitedBy}
-import laika.parse.core.{Parser, ~}
-import laika.tree.Elements._
 import laika.parse.rst.Elements._
+import laika.tree.Elements._
+import laika.util.{RomanNumerals, ~}
 
 import scala.annotation.tailrec
-import scala.collection.mutable.Stack
-import scala.collection.mutable.ListBuffer
-import laika.util.RomanNumerals
-
+import scala.collection.mutable.{ListBuffer, Stack}
 import scala.util.Try
 
 /** Provides the parsers for all reStructuredText list types.
@@ -37,7 +35,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   
   private def listItem [I <: ListItem] (itemStart: Parser[String], newListItem: List[Block] => I): Parser[I] = {
       (itemStart ^^ {_.length}) ~ ((ws min 1) ^^ {_.length}) >> { 
-        case start ~ ws => indentedBlock(minIndent = start + ws, maxIndent = start + ws) ~ opt(blankLines | eof | guard(itemStart)) ^^? {
+        case start ~ ws => indentedBlock(minIndent = start + ws, maxIndent = start + ws) ~ opt(blankLines | eof | lookAhead(itemStart)) ^^? {
           case (block ~ None) if block.lines.length < 2 => Left("not a list item")
           case (block ~ _) => Right(newListItem(parseNestedBlocks(block)))
         }
@@ -81,7 +79,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#bullet-lists]].
    */
   def bulletList: Parser[BulletList] = {
-    guard(bulletListStart <~ (ws min 1)) >> { symbol =>
+    lookAhead(bulletListStart <~ (ws min 1)) >> { symbol =>
       val bullet = StringBullet(symbol)
       (listItem(symbol, BulletListItem(_, bullet)) +) ^^
         { items => BulletList(rewriteListItems(items,(item:BulletListItem,content) => item.copy(content = content)),bullet) }
@@ -137,7 +135,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     def itemStart (format: EnumFormat): Parser[String] = 
       (format.prefix ~ enumType(format.enumType) ~ format.suffix) ^^ { case prefix ~ enumType ~ suffix => prefix + enumType + suffix }
       
-    guard(enumListStart <~ (ws min 1)) >> { case (format, start) =>
+    lookAhead(enumListStart <~ (ws min 1)) >> { case (format, start) =>
       val pos = Stream.from(start).iterator
       (listItem(itemStart(format), EnumListItem(_, format, pos.next)) +) ^^ 
         { items => EnumList(rewriteListItems(items,(item:EnumListItem,content) => item.copy(content = content)), format, start) }
@@ -161,7 +159,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     val headerStart = (punctuationChar take 1) >> { start => (anyOf(start.charAt(0)) min 2) ~ ws ~ eol }
     
     val term: Parser[String] = not(blankLine | tableStart | explicitStart | listStart | headerStart) ~> 
-        anyBut('\n') <~ eol ~ guard((ws min 1) ~ not(blankLine))
+        anyBut('\n') <~ eol ~ lookAhead((ws min 1) ~ not(blankLine))
     
     val classifier = lookBehind(2,' ') ~ ' ' ~> spans(spanParsers) ^^ (Classifier(_))
     val nested = spanParsers + (':' -> classifier)
@@ -180,7 +178,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    */
   def fieldList: Parser[Block] = {
     
-    val name = ':' ~> escapedUntil(':') <~ (guard(eol) | ' ')
+    val name = ':' ~> escapedUntil(':') <~ (lookAhead(eol) | ' ')
     
     val item = (name ~ indentedBlock()) ^^ { 
       case name ~ block => Field(parseInline(name), parseNestedBlocks(block))
@@ -215,7 +213,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     
     val options = (option ~ ((", " ~> option)*)) ^^ mkList
     
-    val descStart = ((anyOf(' ') min 2) ~ not(blankLine)) | guard(blankLine ~ (ws min 1) ~ not(blankLine)) ^^^ ""
+    val descStart = ((anyOf(' ') min 2) ~ not(blankLine)) | lookAhead(blankLine ~ (ws min 1) ~ not(blankLine)) ^^^ ""
     
     val item = (options ~ (descStart ~> indentedBlock())) ^^ { 
       case name ~ block => OptionListItem(name, parseNestedBlocks(block))

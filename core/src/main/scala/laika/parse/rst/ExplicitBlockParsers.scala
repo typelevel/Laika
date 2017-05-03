@@ -23,7 +23,8 @@ import laika.parse.rst.Elements.SubstitutionDefinition
 import Directives._
 import TextRoles._
 import laika.parse.core.text.DelimitedBy
-import laika.parse.core.{Failure, Parser, Success, ~}
+import laika.parse.core.{Failure, Parser, Success}
+import laika.util.~
 
 import scala.collection.mutable.ListBuffer
 
@@ -46,7 +47,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
    */
   def explicitBlockItem: Parser[Block] = (explicitStart ~>
     (footnote | citation | linkTarget | substitutionDefinition | roleDirective | blockDirective | comment)) |
-    (".." ~ guard("\n") ~> comment) | shortAnonymousLinkTarget
+    (".." ~ lookAhead("\n") ~> comment) | shortAnonymousLinkTarget
   
 
   /** Parses a footnote.
@@ -83,7 +84,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
   }
   
   private lazy val linkDefinitionBody: Parser[String] = {
-    val notEmpty = not(blankLine) | guard(restOfLine ~ (ws min 1) ~ not(blankLine))
+    val notEmpty = not(blankLine) | lookAhead(restOfLine ~ (ws min 1) ~ not(blankLine))
     
     (notEmpty ~> indentedBlock()) ^^ { 
       _.lines map (_.trim) filterNot (_.isEmpty) mkString
@@ -171,7 +172,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
    *  It translates a `Success` into a `Right` and a `NoSuccess` into a `Left`.
    */
   def parseDirectivePart [T] (parser: Parser[T], source: String): Either[String,T] = {
-    parseAll(parser, source.trim) match {
+    consumeAll(parser).parse(source.trim) match {
       case Success(result,_) => Right(result)
       case Failure(msg, in) => Left(msg.message(in))
     }
@@ -205,11 +206,11 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
   private case class InvalidDirective (msg: String, source: String, options: Options = NoOpt) extends Block with Span
   
   private def directive [E](p: Parser[E], name: String): Parser[E] = Parser { in =>
-    p(in) match {
+    p.parse(in) match {
       case s @ Success(_,_) => s
       case Failure(msg, next) => (indentedBlock() ^^ { block =>
         InvalidDirective(msg.message(next), s".. $name " + (block.lines mkString "\n")).asInstanceOf[E]
-      })(in)
+      }).parse(in)
     }
   }
 
@@ -271,7 +272,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
     // TODO - some duplicate logic with original fieldList parser
     lazy val directiveFieldList: Parser[Any] = {
       
-      val name = ':' ~> escapedUntil(':') <~ (guard(eol) | ' ')
+      val name = ':' ~> escapedUntil(':') <~ (lookAhead(eol) | ' ')
 
       val item = (ws min 1) >> { firstIndent =>
           (name ~ indentedBlock(firstIndent.length + 1)) ^^

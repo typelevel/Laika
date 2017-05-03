@@ -20,6 +20,7 @@ import laika.util.Builders._
 import laika.tree.Elements._
 import laika.rewrite.DocumentCursor
 import laika.tree.Templates.TemplateSpan
+import laika.util.~
 
 /** API for creating directives, the Laika's extension mechanism for creating
  *  custom tags for both, templates or text markup.

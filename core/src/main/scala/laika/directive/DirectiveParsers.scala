@@ -18,11 +18,12 @@ package laika.directive
 
 import laika.directive.Directives._
 import laika.parse.core.text.DelimitedBy
-import laika.parse.core.{Parser, ~, Failure => PFailure, Success => PSuccess}
+import laika.parse.core.{Parser, Failure => PFailure, Success => PSuccess}
 import laika.rewrite.DocumentCursor
 import laika.template.TemplateParsers
 import laika.tree.Elements._
 import laika.tree.Templates._
+import laika.util.~
 
 /** Parsers for all types of custom directives that can be used
  *  in templates or as inline or block elements in markup documents.
@@ -36,7 +37,7 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
    *  that it successfully parsed into a tupled result. 
    */
   def withSource[T] (p: Parser[T]): Parser[(T, String)] = Parser { in =>
-    p(in) match {
+    p.parse(in) match {
       case PSuccess(result, next) => PSuccess((result, in.capture(next.offset - in.offset)), next)
       case f: PFailure            => f
     }
@@ -122,8 +123,6 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
       directiveTypeDesc: String
     ): E = {
     
-    import laika.util.Builders.{~ => ~~}
-    
     val directive = directives(parseResult.name).map(Directives.Success(_))
         .getOrElse(Directives.Failure(s"No $directiveTypeDesc directive registered with name: ${parseResult.name}"))
     
@@ -139,7 +138,7 @@ trait DirectiveParsers extends laika.parse.InlineParsers {
           + parseResult.name + "': " + messages.mkString(", "))
     }
     
-    processResult((directive ~ partMap) flatMap { case directive ~~ partMap =>
+    processResult((directive ~ partMap) flatMap { case directive ~ partMap =>
       def directiveWithContext (cursor: Option[DocumentCursor]) = directive(createContext(partMap, cursor))
       if (directive.requiresContext) Directives.Success(createPlaceholder(c => processResult(directiveWithContext(Some(c)))))
       else directiveWithContext(None)

@@ -18,7 +18,8 @@ package laika.parse.util
 
 import laika.parse.MarkupParsers
 import laika.parse.core.text.Characters
-import laika.parse.core.{Parser, ~}
+import laika.parse.core.Parser
+import laika.util.~
 
 /**
  * Parses URIs as defined in RFC 3986 and email addresses as defined in

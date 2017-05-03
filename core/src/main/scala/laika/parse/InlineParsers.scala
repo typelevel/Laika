@@ -126,15 +126,15 @@ trait InlineParsers extends MarkupParsers {
     def addText (text: String) = if (!text.isEmpty) builder += builder.fromString(text)
 
     def nestedSpanOrNextChar (parser: Parser[Elem], input: ParserContext) = {
-      parser(input) match {
+      parser.parse(input) match {
         case Success(result, next) => builder += result; next
         case _ => builder += builder.fromString(input.charAt(-1).toString); input
       }
     }
 
     @tailrec
-    def parse (input: ParserContext) : ParseResult[To] = {
-      textParser(input) match {
+    def parse (input: ParserContext) : Parsed[To] = {
+      textParser.parse(input) match {
         case Failure(msg, _) =>
           Failure(msg, in)
         case Success(EndDelimiter(text), next) =>

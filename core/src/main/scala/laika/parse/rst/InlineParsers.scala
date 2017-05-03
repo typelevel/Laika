@@ -16,13 +16,14 @@
 
 package laika.parse.rst
 
+import laika.parse.core._
 import laika.parse.core.text.{DelimitedBy, DelimitedText, DelimiterOptions}
 import laika.parse.rst.Elements.{InterpretedText, SubstitutionReference}
 import laika.parse.util.URIParsers
 import laika.tree.Elements._
+import laika.util.~
 
 import scala.collection.mutable.ListBuffer
-import laika.parse.core._
 
 /** Provides all inline parsers for reStructuredText.
  *  
@@ -109,11 +110,11 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    *  @return a parser that produces the same result as the parser passed as an argument
    */
   def markupEnd (end: Parser[String]): Parser[String] = {
-    end >> { markup => (lookBehind(markup.length + 1, beforeEndMarkup) ~ guard(eol | afterEndMarkup)) ^^^ markup }
+    end >> { markup => (lookBehind(markup.length + 1, beforeEndMarkup) ~ lookAhead(eol | afterEndMarkup)) ^^^ markup }
   }
 
   def delimitedByMarkupEnd (end: String): DelimitedText[String] with DelimiterOptions = {
-    DelimitedBy(end).withPostCondition(lookBehind(end.length + 1, beforeEndMarkup) ~ guard(eol | afterEndMarkup))
+    DelimitedBy(end).withPostCondition(lookBehind(end.length + 1, beforeEndMarkup) ~ lookAhead(eol | afterEndMarkup))
   }
 
   /** Parses the end of an inline element according to reStructuredText markup recognition rules.
@@ -124,7 +125,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
     *  @return a parser that succeeds without consuming any input when the rst markup end conditions are met
     */
   def markupEnd (delimLength: Int): Parser[Any] = {
-    lookBehind(delimLength + 1, beforeEndMarkup) ~ guard(eol | afterEndMarkup)
+    lookBehind(delimLength + 1, beforeEndMarkup) ~ lookAhead(eol | afterEndMarkup)
   }
   
   /** Inline markup recognition rules 2 and 5
@@ -132,7 +133,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   private def afterStartMarkup (start: Parser[Any])(before: Char): Parser[Any ~ String] = {
     val matching = pairs.getOrElse(before, Set()) 
     val excluded = (matching + ' ' + '\n').toList
-    start ~ guard(anyBut(excluded:_*) take 1)
+    start ~ lookAhead(anyBut(excluded:_*) take 1)
   }
   
   /** Inline markup recognition rules 3
@@ -141,11 +142,11 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   
   /** Inline markup recognition rule 1
    */
-  private val beforeStartMarkup: Parser[Char] = startChars ^^ {_.charAt(0)} | acceptIf(char => startCategories(Character.getType(char)))("Not a start char: " + _)
+  private val beforeStartMarkup: Parser[Char] = (startChars | anyWhile(char => startCategories(Character.getType(char))).take(1)) ^^ {_.charAt(0)}
   
   /** Inline markup recognition rule 4
    */
-  private val afterEndMarkup: Parser[Any] = endChars | acceptIf(char => endCategories(Character.getType(char)))("Not an end char: " + _)
+  private val afterEndMarkup: Parser[Any] = endChars | anyWhile(char => endCategories(Character.getType(char))).take(1)
   
   
   /** A mapping of the start character of an inline element to the corresponding parser.
@@ -331,13 +332,13 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   
   private def reverse (offset: Int, p: => Parser[String]): Parser[String] = Parser { in =>
     val source = in.input.subSequence(0, in.offset - offset).toString.reverse // TODO - inefficient
-    p(ParserContext(source)) match {
+    p.parse(ParserContext(source)) match {
       case Success(result, _) => Success(result.reverse, in)
       case Failure(msg, _) => Failure(msg, in)
     }
   }
   
-  private lazy val reverseMarkupStart: Parser[Any] = guard(eof | beforeStartMarkup)
+  private lazy val reverseMarkupStart: Parser[Any] = lookAhead(eof | beforeStartMarkup)
   
   
   override def parseInline (source: String, spanParsers: Map[Char, Parser[Span]]): List[Span] = {

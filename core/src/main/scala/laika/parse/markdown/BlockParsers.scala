@@ -17,11 +17,11 @@
 package laika.parse.markdown
 
 import laika.parse.core.Parser
-import laika.parse.core.~
+import laika.parse.util.WhitespacePreprocessor
 import laika.tree.Elements._
+import laika.util.~
 
 import scala.collection.mutable.StringBuilder
-import laika.parse.util.WhitespacePreprocessor
  
 
 /** Provides all block parsers for Markdown text except for those dealing
@@ -219,7 +219,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
       items map { item => rewriteItemContent(item._2, pos.next) } 
     }
     
-    guard(itemStart) ~> ((opt(blankLines) ~ listItem(itemStart)) *) ^^ 
+    lookAhead(itemStart) ~> ((opt(blankLines) ~ listItem(itemStart)) *) ^^
       { x => newList(flattenItems(x)) }
   }
   
@@ -234,7 +234,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   /** Parses a bullet list, called "unordered list" in the Markdown syntax description.
    */
   lazy val bulletList: Parser[BulletList] = {
-    guard(bulletListItemStart) >> { symbol =>
+    lookAhead(bulletListItemStart) >> { symbol =>
       val bullet = StringBullet(symbol)
       list(bulletListItemStart, BulletList(_,bullet), (_,blocks)=>BulletListItem(blocks,bullet))
     }

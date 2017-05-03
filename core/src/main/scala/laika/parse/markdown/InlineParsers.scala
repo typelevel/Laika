@@ -16,10 +16,10 @@
 
 package laika.parse.markdown
 
-import laika.parse.core.~
 import laika.parse.core.Parser
 import laika.parse.core.text.DelimitedBy
 import laika.tree.Elements._
+import laika.util.~
  
 /** Provides all inline parsers for Markdown text except for those dealing
  *  with verbatim HTML markup which this library treats as an optional 
@@ -83,7 +83,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
    *  Recursively parses nested spans, too. 
    */
   def enclosedBySingleChar (c: Char): Parser[List[Span]] = {
-    val start = guard(anyBut(' ', c).take(1))
+    val start = lookAhead(anyBut(' ', c).take(1))
     val end = not(lookBehind(2, ' '))
     span(start, c.toString, end)
   }
@@ -163,7 +163,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
     
     val linktext = text(DelimitedBy(']'), Map('\\' -> escapedChar, '[' -> (DelimitedBy(']') ^^ { "[" + _ + "]" })))
 
-    val titleEnd = guard(ws ~ ')')
+    val titleEnd = lookAhead(ws ~ ')')
     val title = ws ~> (('"' ~> DelimitedBy('"').withPostCondition(titleEnd)) | ('\'' ~> DelimitedBy('\'').withPostCondition(titleEnd)))
 
     val url = ('<' ~> self.text(DelimitedBy('>',' ').keepDelimiter, Map('\\' -> escapedChar)) <~ '>') |
@@ -209,7 +209,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
     val url = (('<' ~> escapedUntil('>')) | text(DelimitedBy(' ', '\n').acceptEOF.keepDelimiter, escapedChars)) ^^ { _.mkString }
     
     def enclosedBy(start: Char, end: Char) = 
-      start ~> DelimitedBy(end).withPostCondition(guard(ws ~ eol)).failOn('\r', '\n') ^^ { _.mkString }
+      start ~> DelimitedBy(end).withPostCondition(lookAhead(ws ~ eol)).failOn('\r', '\n') ^^ { _.mkString }
     
     val title = (ws ~ opt(eol) ~ ws) ~> (enclosedBy('"', '"') | enclosedBy('\'', '\'') | enclosedBy('(', ')'))
     
