@@ -42,8 +42,11 @@ abstract class Parser[+T] extends (ParserContext => ParseResult[T]) {
     *         but easier to pattern match on) that contains the result of `p` and
     *         that of `q`. The resulting parser fails if either `p` or `q` fails.
     */
-  def ~ [U](p: Parser[U]): Parser[~[T, U]] = {
-    (for(a <- this; b <- p) yield new ~(a,b)).named("~")
+  def ~ [U](p: Parser[U]): Parser[~[T, U]] = Parser { ctx =>
+    apply(ctx) match {
+      case Success(aRes, next) => p(next).map(bRes => new ~(aRes, bRes))
+      case f: Failure => f
+    }
   }
 
   /** A parser combinator for sequential composition which keeps only the right result.
@@ -54,8 +57,11 @@ abstract class Parser[+T] extends (ParserContext => ParseResult[T]) {
     *        succeeds -- evaluated at most once, and only when necessary.
     * @return a `Parser` that -- on success -- returns the result of `q`.
     */
-  def ~> [U](p: Parser[U]): Parser[U] = {
-    (for(a <- this; b <- p) yield b).named("~>")
+  def ~> [U](p: Parser[U]): Parser[U] = Parser { ctx =>
+    apply(ctx) match {
+      case Success(aRes, next) => p(next)
+      case f: Failure => f
+    }
   }
 
   /** A parser combinator for sequential composition which keeps only the left result.
@@ -68,8 +74,11 @@ abstract class Parser[+T] extends (ParserContext => ParseResult[T]) {
     * @param p a parser that will be executed after `p` (this parser) succeeds -- evaluated at most once, and only when necessary
     * @return a `Parser` that -- on success -- returns the result of `p`.
     */
-  def <~ [U](p: Parser[U]): Parser[T] = {
-    (for(a <- this; b <- p) yield a).named("<~")
+  def <~ [U](p: Parser[U]): Parser[T] = Parser { ctx =>
+    apply(ctx) match {
+      case Success(aRes, next) => p(next).map(_ => aRes)
+      case f: Failure => f
+    }
   }
 
   /** A parser combinator for alternative composition.
