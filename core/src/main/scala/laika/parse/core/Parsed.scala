@@ -58,16 +58,16 @@ case class Success[+T] (result: T, next: ParserContext) extends Parsed[T] {
 /**  The failure case of `Parsed` containing an error message and the remaining input.
   *
   *  Implementation note:
-  *  The message property is of type `MessageProvider`, to allow for lazy message creation.
+  *  The message property is of type `Message`, to allow for lazy message creation.
   *  The former SDK parser combinators which this API is partially inspired by contained
-  *  a lot of unnecessary string concatenations for messages that were then never read.
+  *  a lot of unnecessary string concatenations for messages which were then never read.
   *  This implementation avoids this extra cost and the result is measurable (about 15%
   *  performance gain for a typical Markdown document for example).
   *
   *  @param msgProvider  A provider that produces an error message for this failure based on its ParserContext
   *  @param next         The parser's unconsumed input at the point where the failure occurred.
   */
-case class Failure (msgProvider: MessageProvider, next: ParserContext) extends Parsed[Nothing] {
+case class Failure (msgProvider: Message, next: ParserContext) extends Parsed[Nothing] {
 
   lazy val message = msgProvider.message(next)
 
@@ -81,44 +81,46 @@ case class Failure (msgProvider: MessageProvider, next: ParserContext) extends P
 }
 
 
-trait MessageProvider {
+trait Message {
 
   def message (context: ParserContext): String
 
 }
 
-object MessageProvider {
+object Message {
 
-  def apply (f: ParserContext => String): MessageProvider = new MessageProvider {
+
+  val UnexpectedEOF = fixed("Unexpected end of input")
+
+  val ExpectedFailure = fixed("Expected failure, but parser succeeded")
+
+  val ExpectedEOF = fixed("Expected end of input")
+
+  val ExpectedStart = fixed("Expected start of input")
+
+  val ExpectedEOL = fixed("Expected end of line")
+
+
+  class MessageFactory[T] (f: T => String) extends (T => Message) {
+
+    def apply (value: T): Message = new Message {
+
+      def message (context: ParserContext): String = f(value)
+
+    }
+
+  }
+
+  def fixed (msg: String): Message = new Message {
+
+    def message (context: ParserContext): String = msg
+
+  }
+
+  def forContext (f: ParserContext => String): Message = new Message {
     def message (context: ParserContext): String = f(context)
   }
 
-}
-
-case class FixedMessage (msg: String) extends MessageProvider {
-
-  def message (context: ParserContext): String = msg
-
-}
-
-class MessageFunction[T] (input: T, f: T => String) extends MessageProvider {
-
-  def message (context: ParserContext): String = f(input)
-
-}
-
-object Message {
-
-  val UnexpectedEOF = FixedMessage("Unexpected end of input")
-
-  val ExpectedFailure = FixedMessage("Expected failure, but parser succeeded")
-
-  val ExpectedEOF = FixedMessage("Expected end of input")
-
-  val ExpectedStart = FixedMessage("Expected start of input")
-
-  val ExpectedEOL = FixedMessage("Expected end of line")
-
-  def apply (msg: String): MessageProvider = FixedMessage(msg)
+  def forRuntimeValue[T] (f: T => String): T => Message = new MessageFactory(f)
 
 }

@@ -36,11 +36,13 @@ trait BaseParsers extends RepeatParsers {
     *
     *  The method is implicit so that characters can automatically be lifted to their parsers.
     */
-  implicit def char (expected: Char): Parser[Char] = Parser { in =>
-    lazy val errMsg = { found: Char => s"'$expected' expected but $found found" }
-    if (in.atEnd) Failure(Message.UnexpectedEOF, in)
-    else if (in.char == expected) Success(in.char, in.consume(1))
-    else Failure(new MessageFunction(in.char, errMsg), in) // TODO - avoid object creation
+  implicit def char (expected: Char): Parser[Char] = {
+    val errMsg: Char => Message = Message.forRuntimeValue[Char] { found => s"'$expected' expected but $found found" }
+    Parser { in =>
+      if (in.atEnd) Failure(Message.UnexpectedEOF, in)
+      else if (in.char == expected) Success(in.char, in.consume(1))
+      else Failure(errMsg(in.char), in)
+    }
   }
 
   /**  A parser that matches only the specified literal string.
@@ -85,22 +87,28 @@ trait BaseParsers extends RepeatParsers {
   /**  Applies the specified parser at the specified offset behind the current
     *  position. Never consumes any input.
     */
-  def lookAhead[T] (offset: Int, p: Parser[T]): Parser[T] = Parser { in =>
-    if (in.offset - offset < 0) Failure(new MessageFunction(offset, {o: Int => s"Unable to look ahead with offset $o"}), in)
-    p.parse(in) match{
-      case s@ Success(s1,_) => Success(s1, in)
-      case e => e
+  def lookAhead[T] (offset: Int, p: Parser[T]): Parser[T] = {
+    val errMsg: Int => Message = Message.forRuntimeValue[Int] { o => s"Unable to look ahead with offset $o" }
+    Parser { in =>
+      if (in.offset - offset < 0) Failure(errMsg(offset), in)
+      p.parse(in) match{
+        case s@ Success(s1,_) => Success(s1, in)
+        case e => e
+      }
     }
   }
 
   /** Applies the specified parser at the specified offset behind the current
    *  position. Never consumes any input.
    */
-  def lookBehind[T] (offset: Int, parser: => Parser[T]): Parser[T] = Parser { in =>
-    if (in.offset - offset < 0) Failure(new MessageFunction(offset, {o: Int => s"Unable to look behind with offset $o"}), in)
-    else parser.parse(in.consume(-offset)) match {
-      case Success(result, _) => Success(result, in)
-      case e => e
+  def lookBehind[T] (offset: Int, parser: => Parser[T]): Parser[T] = {
+    val errMsg: Int => Message = Message.forRuntimeValue[Int] { o => s"Unable to look behind with offset $o" }
+    Parser { in =>
+      if (in.offset - offset < 0) Failure(errMsg(offset), in)
+      else parser.parse(in.consume(-offset)) match {
+        case Success(result, _) => Success(result, in)
+        case e => e
+      }
     }
   }
 
@@ -110,7 +118,7 @@ trait BaseParsers extends RepeatParsers {
 
   /** A parser that always fails with the specified message.
     */
-  def failure (msg: String) = Parser { in => Failure(Message(msg), in) }
+  def failure (msg: String) = Parser { in => Failure(Message.fixed(msg), in) }
 
   /** A parser that succeeds if the specified parser succeeds and all input has been consumed.
     */

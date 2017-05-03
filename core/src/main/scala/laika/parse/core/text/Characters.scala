@@ -44,9 +44,8 @@ class Characters (predicate: Char => Boolean,
   def take (count: Int): Characters = new Characters(predicate, count, count)
 
 
-  private val msgFunction: Int => String = actual => s"expected at least $minChar characters, got only $actual"
-
-  private def newMessageProvider (actual: Int): MessageProvider = new MessageFunction(actual, msgFunction)
+  private val msgProvider: Int => Message =
+    Message.forRuntimeValue[Int]( actual => s"expected at least $minChar characters, got only $actual" )
 
 
   def parse (ctx: ParserContext): Parsed[String] = {
@@ -60,7 +59,7 @@ class Characters (predicate: Char => Boolean,
       if (consumed >= minChar)
         Success(source.substring(ctx.offset, offset), ctx.consume(consumed))
       else
-        Failure(newMessageProvider(consumed), ctx)
+        Failure(msgProvider(consumed), ctx)
     }
 
     @tailrec

@@ -77,18 +77,18 @@ case class ConfigurableDelimiter (endDelimiters: Set[Char],
 
   val startChars = endDelimiters ++ failOn
 
-  private val EmptyResult = Message(s"expected at least 1 character before end delimiter")
+  private val emptyResult = Message.fixed(s"expected at least 1 character before end delimiter")
+  private val unexpectedInput: Char => Message =
+    Message.forRuntimeValue[Char] (char => s"unexpected input in delimited text: `$char`")
+
 
   def atStartChar (startChar: Char, charsConsumed: Int, context: ParserContext): DelimiterResult[String] = {
-
-    def unexpectedInput (char: Char)
-      = new MessageFunction(char, (_: Char) => s"unexpected input in delimited text: `$char`")
 
     if (failOn.contains(startChar)) Complete(Failure(unexpectedInput(startChar), context))
     else {
       val delimConsumed = postCondition(startChar, charsConsumed, context)
       if (delimConsumed < 0) Continue
-      else if (charsConsumed == 0 && nonEmpty) Complete(Failure(EmptyResult, context))
+      else if (charsConsumed == 0 && nonEmpty) Complete(Failure(emptyResult, context))
       else {
         val capturedText = context.capture(charsConsumed)
         val totalConsumed = if (keepDelimiter) charsConsumed else charsConsumed + 1 + delimConsumed
@@ -99,7 +99,7 @@ case class ConfigurableDelimiter (endDelimiters: Set[Char],
 
   def atEOF (charsConsumed: Int, context: ParserContext): Parsed[String] = {
     if (!acceptEOF) Failure(Message.UnexpectedEOF, context)
-    else if (charsConsumed == 0 && nonEmpty) Failure(EmptyResult, context)
+    else if (charsConsumed == 0 && nonEmpty) Failure(emptyResult, context)
     else Success(context.capture(charsConsumed), context.consume(charsConsumed))
   }
 

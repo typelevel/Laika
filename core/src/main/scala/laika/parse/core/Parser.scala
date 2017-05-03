@@ -130,15 +130,18 @@ abstract class Parser[+T] {
     * @param error an optional function that takes the same argument as `f` and produces an error message.
     */
   def ^? [U](f: PartialFunction[T, U],
-             error: T => String = r => s"Constructor function not defined at $r"): Parser[U] = Parser { in =>
-    parse(in) match {
-      case Success(result, next) =>
-        if (f.isDefinedAt(result)) Success(f(result), next)
-        else Failure(new MessageFunction(result, error), next)
-      case f: Failure => f
+             error: T => String = r => s"Constructor function not defined at $r"): Parser[U] = {
+    val msg: T => Message = Message.forRuntimeValue(error)
+    Parser { in =>
+      parse(in) match {
+        case Success(result, next) =>
+          if (f.isDefinedAt(result)) Success(f(result), next)
+          else Failure(msg(result), next)
+        case f: Failure => f
+      }
+
+
     }
-
-
   }
 
   /**  Returns a parser that applies a function to the result of this parser producing an `Either`
@@ -151,7 +154,7 @@ abstract class Parser[+T] {
   def ^^? [U] (f: T => Either[String, U]): Parser[U] = Parser { in =>
 
     parse(in) match {
-      case Success(result, next) => f(result) fold (msg => Failure(Message(msg),in), res => Success(res,next))
+      case Success(result, next) => f(result) fold (msg => Failure(Message.fixed(msg),in), res => Success(res,next))
       case f: Failure => f
     }
 
@@ -176,7 +179,7 @@ abstract class Parser[+T] {
     */
   def withFailureMessage (msg: String) = Parser { in =>
     parse(in) match {
-      case Failure(_, next) => Failure(Message(msg), next)
+      case Failure(_, next) => Failure(Message.fixed(msg), next)
       case other            => other
     }
   }
