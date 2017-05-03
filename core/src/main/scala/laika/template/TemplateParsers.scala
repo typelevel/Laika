@@ -21,7 +21,7 @@ import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions
 import laika.directive.DirectiveParsers
-import laika.parse.{InlineParsers, MarkupParsers}
+import laika.parse.{InlineParsers, MarkupParser, MarkupParsers}
 import laika.parse.core.text.DelimitedBy
 import laika.tree.Paths.Path
 import laika.tree.Documents.TemplateDocument
@@ -96,12 +96,14 @@ object TemplateParsers {
       case None ~ root                => (ConfigFactory.empty(), root)
     }
   
-    def parseTemplate (reader: ParserContext, path: Path): TemplateDocument = {
-      val (config, root) = parseMarkup(templateWithConfig(path), reader)
+    def parseTemplate (ctx: ParserContext, path: Path): TemplateDocument = {
+      val (config, root) = new MarkupParser(templateWithConfig(path)).parseMarkup(ctx)
       TemplateDocument(path, TemplateRoot(root), config)
     }
+
+    lazy val consumeAllTemplateSpans = new MarkupParser(templateSpans)
     
-    def parseTemplatePart (source: String): List[TemplateSpan] = parseMarkup(templateSpans, source)
+    def parseTemplatePart (source: String): List[TemplateSpan] = consumeAllTemplateSpans.parseMarkup(source)
       
   }
   

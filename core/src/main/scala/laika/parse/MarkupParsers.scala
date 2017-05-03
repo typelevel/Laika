@@ -40,7 +40,7 @@ trait MarkupParsers extends BaseParsers {
 
 
   /** Parses horizontal whitespace (space and tab).
-    *  Always succeeds, consuming all whitespace found.
+    * Always succeeds, consuming all whitespace found.
     */
   lazy val ws: Characters = anyOf(' ','\t')
 
@@ -69,9 +69,7 @@ trait MarkupParsers extends BaseParsers {
     if (in.offset == 0) Success(success(()), in) 
     else Failure(Message.ExpectedStart, in)
   }
-  
 
-  
   /** Parses a simple reference name that only allows alphanumerical characters
    *  and the punctuation characters `-`, `_`, `.`, `:`, `+`.
    */
@@ -110,34 +108,9 @@ trait MarkupParsers extends BaseParsers {
     */
   def anyWhile (p: Char => Boolean): Characters = Characters.anyWhile(p)
 
-  /** Fully parses the specified input string and returns the result.
-   *  This function is expected to always succeed, errors would be considered a bug
-   *  in this library, as the parsers treat all unknown or malformed markup as regular
-   *  text.
-   */
-  def parseMarkup [T] (parser: Parser[T], source: String): T = {
-    consumeAll(parser).parse(source) match {
-      case Success(result,_) => result
-      case f: Failure        => throw new MarkupParserException(f)
-    }
-  }
-  
-  /** Fully parses the input from the specified reader and returns the result. 
-   *  This function is expected to always succeed, errors would be considered a bug
-   *  in this library, as the parsers treat all unknown or malformed markup as regular
-   *  text.
-   */
-  def parseMarkup [T] (parser: Parser[T], ctx: ParserContext): T = {
-    consumeAll(parser).parse(ctx) match {
-      case Success(result,_) => result
-      case ns: Failure       => throw new MarkupParserException(ns)
-    }
-  }
-  
-
 }
 
-/** Exception thrown when parsing a text markup document or fragment fails.
+ /** Exception thrown when parsing a text markup document or fragment fails.
   *  This can only happen due to a bug in this library, as the behaviour of the parser
   *  is to treat all unknown or malformed markup as regular text and always succeed.
   *  The result property holds the `NoSuccess` instance that caused the failure.
@@ -154,14 +127,14 @@ class MarkupParser[T] (p: Parser[T]) extends Parser[T] {
   def parse (ctx: ParserContext): Parsed[T] = parser.parse(ctx)
 
 
-  /** Fully parses the input from the specified reader and returns the result.
+   /** Fully parses the input from the specified reader and returns the result.
     *  This function is expected to always succeed, errors would be considered a bug
     *  in this library, as the parsers treat all unknown or malformed markup as regular
     *  text.
     */
   def parseMarkup (source: String): T = parseMarkup(ParserContext(source))
 
-  /** Fully parses the input from the specified reader and returns the result.
+   /** Fully parses the input from the specified reader and returns the result.
     *  This function is expected to always succeed, errors would be considered a bug
     *  in this library, as the parsers treat all unknown or malformed markup as regular
     *  text.

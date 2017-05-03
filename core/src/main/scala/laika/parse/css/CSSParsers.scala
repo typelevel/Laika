@@ -20,6 +20,7 @@ import laika.parse.css.Styles._
 import laika.tree.Paths.Path
 import laika.tree.Elements.Span
 import laika.io.Input
+import laika.parse.MarkupParser
 import laika.parse.core.text.DelimitedBy
 import laika.parse.core.{Parser, ParserContext}
 import laika.util.~
@@ -145,22 +146,31 @@ trait CSSParsers extends laika.parse.InlineParsers {
   /** Parses an entire set of style declarations.
    *  This is the top level parser of this trait.
    */
-  lazy val styleDeclarationSet: Parser[Set[StyleDeclaration]] = 
-    (wsOrNl ~ (comment*) ~> ((styleDeclarations <~ wsOrNl ~ (comment*))*)) ^^ { 
+  lazy val styleDeclarationSet: MarkupParser[Set[StyleDeclaration]] = {
+
+    val baseParser = (wsOrNl ~ (comment*) ~> ((styleDeclarations <~ wsOrNl ~ (comment*))*)) ^^ {
       _.flatten.zipWithIndex.map({
         case (decl,pos) => decl.increaseOrderBy(pos)
-      }).toSet 
+      }).toSet
     }
-  
+
+    /* TODO - needs better error handling, the `MarkupParser` was only meant to be used
+       with text markup that is never supposed to fail as there is always a plain-text fallback-parser.
+       But CSS can contain actual errors that prevent successful parsing.
+     */
+
+    new MarkupParser(baseParser)
+  }
+
   /** Fully parses the input from the specified reader and returns the resulting
    *  style declaration set.
    *  
-   *  @param reader the character input to process
+   *  @param ctx the character input to process
    *  @param path the path the input has been obtained from
    *  @return the resulting set of style declarations
    */
-  def parseStyleSheet (reader: ParserContext, path: Path): StyleDeclarationSet = {
-    val set = parseMarkup(styleDeclarationSet, reader)
+  def parseStyleSheet (ctx: ParserContext, path: Path): StyleDeclarationSet = {
+    val set = styleDeclarationSet.parseMarkup(ctx)
     new StyleDeclarationSet(Set(path), set)
   }
     

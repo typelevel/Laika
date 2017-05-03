@@ -99,7 +99,7 @@ trait BlockParsers extends MarkupParsers {
       case Some(Left(block)) ~ root   => assembleConfig(ConfigFactory.empty(), root.copy(content = block +: root.content))
       case None ~ root                => assembleConfig(ConfigFactory.empty(), root)
     }
-    parseMarkup(parser, reader)
+    new MarkupParser(parser).parseMarkup(reader)
   }
   
   
@@ -136,15 +136,27 @@ trait BlockParsers extends MarkupParsers {
    *  @return the parser result as a list of blocks
    */
   def parseNestedBlocks (input: String, nestLevel: Int): List[Block] = {
-    val parser = if (nestLevel < maxNestLevel) nestedBlock else nonRecursiveBlock 
-    val blocks = opt(blankLines) ~> blockList(parser)
-
-    val reader = ParserContext(input, nestLevel + 1)
-
-    parseMarkup(blocks, reader)
+    val parser = if (nestLevel < maxNestLevel) NestedBlocks.recursive else NestedBlocks.nonRecursive
+    val context = ParserContext(input, nestLevel + 1)
+    parser.parseMarkup(context)
   }
 
-  // this is code in migration:
+  object NestedBlocks {
+
+    /*
+    This whole area has become a bit messy. However, 0.8 is merely about
+    speed and this helps to avoid recreating the parsers again and again.
+    0.9 will then introduce new convenient parser extension APIs that will
+    make this cumbersome plumbing obsolete.
+    */
+
+    def createParser (p: Parser[Block]): MarkupParser[List[Block]] =
+      new MarkupParser(opt(blankLines) ~> blockList(p))
+
+    lazy val recursive = createParser(nestedBlock)
+    lazy val nonRecursive = createParser(nonRecursiveBlock)
+
+  }
 
   lazy val blocksWithRecursion: Parser[List[Block]] = nestedBlockParser(true)
   lazy val blocksWithoutRecursion: Parser[List[Block]] = nestedBlockParser(false)

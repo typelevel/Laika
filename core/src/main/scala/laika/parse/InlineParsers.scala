@@ -211,9 +211,11 @@ trait InlineParsers extends MarkupParsers {
    *  @param spanParsers a mapping from the start character of a span to the corresponding parser
    *  @return the result of the parser in form of a list of spans
    */
-  def parseInline (source: String, spanParsers: Map[Char, Parser[Span]]): List[Span] =
-    parseMarkup(inline(DelimitedBy.Undelimited, spanParsers, new SpanBuilder), source)
-    
+  def parseInline (source: String, spanParsers: Map[Char, Parser[Span]]): List[Span] = {
+    val p = new MarkupParser(inline(DelimitedBy.Undelimited, spanParsers, new SpanBuilder))
+    p.parseMarkup(source)
+  }
+
   /** Fully parses the input string and produces a list of spans, using the
    *  default span parsers returned by the `spanParsers` method.
    * 
