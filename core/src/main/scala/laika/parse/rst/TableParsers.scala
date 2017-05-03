@@ -200,7 +200,7 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     val intersect = (anyOf('+') take 1) ^^^ Intersection
     
     val rowSep = (anyOf('-') min 1) ^^ { _.length }
-    val topBorder = intersect ~> ((rowSep <~ intersect)+) <~ ws ~ eol
+    val topBorder = intersect ~> ((rowSep <~ intersect)+) <~ wsEol
     
     withNestLevel(topBorder) >> { case (nestLevel, cols) =>
       
@@ -254,8 +254,8 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
         if (rows.isEmpty || !isSeparatorRow(rows.last)) throw new MalformedTableException("Table not terminated correctly")
       }
       
-      val boundaryRow = tableBoundary <~ (any take 1) ~ ws ~ eol
-      val tablePart = ((not(tableBoundary) ~> row <~ (any take 1) ~ ws ~ eol)*)
+      val boundaryRow = tableBoundary <~ (any take 1) ~ wsEol
+      val tablePart = ((not(tableBoundary) ~> row <~ (any take 1) ~ wsEol)*)
       (tablePart ~ opt(boundaryRow ~> tablePart)) ^^? { result =>
         
       /* Need to fail for certain illegal constructs in the interim model, 
@@ -287,7 +287,7 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
       case col ~ Some(sep) => (col, sep)
       case col ~ None      => (col, 0)
     }
-    val topBorder = repMin(2, columnSpec) <~ ws ~ eol
+    val topBorder = repMin(2, columnSpec) <~ wsEol
     
     withNestLevel(topBorder) >> { case (nestLevel, cols) =>
       
@@ -311,8 +311,8 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
         ((underline | not(boundary) ~> textColumn).asInstanceOf[Parser[Any]], boundary.asInstanceOf[Parser[Any]]) 
       }).unzip
       
-      val row: Parser[Any] = (rowColumns reduceRight (_ ~ _)) <~ ws ~ eol
-      val boundary: Parser[Any] = (boundaryColumns reduceRight (_ ~ _)) <~ ws ~ eol
+      val row: Parser[Any] = (rowColumns reduceRight (_ ~ _)) <~ wsEol
+      val boundary: Parser[Any] = (boundaryColumns reduceRight (_ ~ _)) <~ wsEol
       val blank: Parser[Any] = not(eof) ~> blankLine
       
       val tablePart: Parser[List[Any]] = (((blank | row)*) ~ boundary) ^^ { case rows ~ boundary => rows :+ boundary }

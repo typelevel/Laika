@@ -37,23 +37,30 @@ trait MarkupParsers extends BaseParsers {
    *  character to the range-based `anyIn` parser. 
    */
   implicit def charToTraversable (char: Char): Traversable[Char] = Set(char)
-  
+
+
+  /** Parses horizontal whitespace (space and tab).
+    *  Always succeeds, consuming all whitespace found.
+    */
+  lazy val ws: Characters = anyOf(' ','\t')
 
   /** Succeeds at the end of a line, including the end of the input.
    *  Produces an empty string as a result and consumes any new line characters.
    */
-  def eol: Parser[String] = Parser { in =>
-      if (in.atEnd) Success("", in) 
-      else if (in.char == '\n') Success("", in.consume(1))
-      else if (in.char == '\r' && in.remaining > 1 && in.charAt(1) == '\n') Success("", in.consume(2))
-      else Failure(Message.ExpectedEOL, in)
-  }  
+  val eol: Parser[Unit] = Parser { in =>
+    if (in.atEnd) Success((), in)
+    else if (in.char == '\n') Success((), in.consume(1))
+    else if (in.char == '\r' && in.remaining > 1 && in.charAt(1) == '\n') Success((), in.consume(2))
+    else Failure(Message.ExpectedEOL, in)
+  }
+
+  val wsEol: Parser[Any] = ws ~ eol
   
   /** Succeeds at the end of the input.
    */
-  def eof: Parser[String] = Parser { in =>
-      if (in.atEnd) Success("", in) 
-      else Failure(Message.ExpectedEOF, in)
+  val eof: Parser[String] = Parser { in =>
+    if (in.atEnd) Success("", in)
+    else Failure(Message.ExpectedEOF, in)
   }  
   
   /** Succeeds at the start of the input.
@@ -63,10 +70,7 @@ trait MarkupParsers extends BaseParsers {
     else Failure(Message.ExpectedStart, in)
   }
   
-  /** Parses horizontal whitespace (space and tab).
-   *  Always succeeds, consuming all whitespace found.
-   */
-  def ws: Characters = anyOf(' ','\t')
+
   
   /** Parses a simple reference name that only allows alphanumerical characters
    *  and the punctuation characters `-`, `_`, `.`, `:`, `+`.

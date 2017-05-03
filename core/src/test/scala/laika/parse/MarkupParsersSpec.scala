@@ -27,15 +27,15 @@ class MarkupParsersSpec extends FlatSpec with Matchers with MarkupParsers with P
  
   
   "The eol parser" should "succeed for \\n" in {
-    Parsing ("\naaa") using eol should produce ("")
+    Parsing ("\naaa") using eol should produce (())
   }
   
   it should "succeed for \\r\\n" in {
-    Parsing ("\r\naaa") using eol should produce ("")
+    Parsing ("\r\naaa") using eol should produce (())
   }
   
   it should "succeed at the end of the input" in {
-    Parsing ("") using eol should produce ("")
+    Parsing ("") using eol should produce (())
   }
   
   it should "fail when not at the end of a line" in {

@@ -156,7 +156,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     val tableStart = anyOf(' ','=') ~ eol
     val explicitStart = ".. " | "__ "
     val listStart = (bulletListStart | enumListStart) ~ (ws min 1)
-    val headerStart = (punctuationChar take 1) >> { start => (anyOf(start.charAt(0)) min 2) ~ ws ~ eol }
+    val headerStart = (punctuationChar take 1) >> { start => (anyOf(start.charAt(0)) min 2) ~ wsEol }
     
     val term: Parser[String] = not(blankLine | tableStart | explicitStart | listStart | headerStart) ~> 
         anyBut('\n') <~ eol ~ lookAhead((ws min 1) ~ not(blankLine))

@@ -105,7 +105,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    *  In contrast to several other Markdown parsers this parser requires a blank line
    *  before the header. 
    */
-  lazy val setextHeader: Parser[Header] = textLine ~ (anyOf('=').min(1) | anyOf('-').min(1)) <~ (ws ~ eol) ^^ {
+  lazy val setextHeader: Parser[Header] = textLine ~ (anyOf('=').min(1) | anyOf('-').min(1)) <~ wsEol ^^ {
     case text ~ decoration if decoration.head == '=' => Header(1, consumeAllSpans.parseMarkup(text))
     case text ~ _                                    => Header(2, consumeAllSpans.parseMarkup(text))
   }
@@ -115,7 +115,7 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    */
   lazy val rule: Parser[Block] = {
     def pattern (c: Char) = c ~ repMin(2, anyOf(' ') ~ c)
-    (pattern('*') | pattern('-') | pattern('_')) ~ ws ~ eol ^^^ { Rule() }
+    (pattern('*') | pattern('-') | pattern('_')) ~ wsEol ^^^ { Rule() }
   }
 
 

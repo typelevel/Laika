@@ -209,11 +209,11 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
     val url = (('<' ~> escapedUntil('>')) | text(DelimitedBy(' ', '\n').acceptEOF.keepDelimiter, escapedChars)) ^^ { _.mkString }
     
     def enclosedBy(start: Char, end: Char) = 
-      start ~> DelimitedBy(end).withPostCondition(lookAhead(ws ~ eol)).failOn('\r', '\n') ^^ { _.mkString }
+      start ~> DelimitedBy(end).withPostCondition(lookAhead(wsEol)).failOn('\r', '\n') ^^ { _.mkString }
     
     val title = (ws ~ opt(eol) ~ ws) ~> (enclosedBy('"', '"') | enclosedBy('\'', '\'') | enclosedBy('(', ')'))
     
-    id ~ url ~ opt(title) <~ ws ~ eol ^^ { case id ~ url ~ title => ExternalLinkDefinition(id.toLowerCase, url, title) } 
+    id ~ url ~ opt(title) <~ wsEol ^^ { case id ~ url ~ title => ExternalLinkDefinition(id.toLowerCase, url, title) }
   }
   
   

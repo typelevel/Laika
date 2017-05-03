@@ -189,7 +189,7 @@ trait BlockParsers extends MarkupParsers {
    *  it should never be used in the form of `(blankLine *)` or `(blankLine +)`. Use
    *  the `blankLines` parser instead in these cases.
    */
-  val blankLine: Parser[String] = ws ~ eol ^^^ ""
+  val blankLine: Parser[String] = wsEol ^^^ ""
   
   /** Parses one or more blanklines, producing a list of empty strings corresponding
    *  to the number of blank lines consumed.

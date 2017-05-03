@@ -110,7 +110,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
     }
     
     val indirect = {
-      (named <~ ws) ~ ((opt(eol ~ ws) ~ "`" ~> escapedText(DelimitedBy('`')) | simpleRefName) <~ '_' ~ ws ~ eol) ^^ {
+      (named <~ ws) ~ ((opt(eol ~ ws) ~ "`" ~> escapedText(DelimitedBy('`')) | simpleRefName) <~ '_' ~ wsEol) ^^ {
         case name ~ refName => LinkAlias(name, refName.replaceAll("\n", "")) 
       }
     }
@@ -280,7 +280,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
             (name, (block.lines mkString "\n").trim)
         }}
       
-      ((opt(ws ~ eol) ~> (item +)) | success(Nil)) ^^? { fields =>
+      ((opt(wsEol) ~> (item +)) | success(Nil)) ^^? { fields =>
         
         val parsed = scala.collection.mutable.Map(fields.toArray:_*)
         val missing = scala.collection.mutable.Set.empty[String]

@@ -46,7 +46,7 @@ trait TemplateParsers extends InlineParsers {
 
 object ConfigParser extends MarkupParsers {
 
-  val configBlock = "{%" ~> DelimitedBy("%}") <~ ws ~ eol
+  val configBlock = "{%" ~> DelimitedBy("%}") <~ wsEol
 
   def forPath[T] (path: Path, errorHandler: (Exception, String) => T): Parser[Either[T, Config]] = configBlock ^^ { str =>
     try {

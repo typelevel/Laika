@@ -47,7 +47,7 @@ trait BlockParsers extends laika.parse.BlockParsers
                       with ExplicitBlockParsers { self: InlineParsers =>
 
   
-  override def ws: Characters = anyOf(' ') // other whitespace has been replaced with spaces by preprocessor
+  override lazy val ws: Characters = anyOf(' ') // other whitespace has been replaced with spaces by preprocessor
                         
   
   override def parseDocument (reader: ParserContext, path: Path): Document = {
@@ -80,7 +80,7 @@ trait BlockParsers extends laika.parse.BlockParsers
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#transitions]].
    */  
-  val transition: Parser[Rule] = (punctuationChar min 4) ~ ws ~ eol ~ lookAhead(blankLine) ^^^ Rule()
+  val transition: Parser[Rule] = (punctuationChar min 4) ~ wsEol ~ lookAhead(blankLine) ^^^ Rule()
     
   /** Parses a single paragraph. Everything between two blank lines that is not
    *  recognized as a special reStructuredText block type will be parsed as a regular paragraph.
@@ -98,9 +98,9 @@ trait BlockParsers extends laika.parse.BlockParsers
       val char = start.charAt(0)
       anyOf(char) >> { deco =>
         val len = deco.length + 1
-        (ws ~ eol ~> (anyBut('\n') max len) <~ 
-         ws ~ eol ~ (anyOf(char) take len) ~
-         ws ~ eol) ^^ { title => DecoratedHeader(OverlineAndUnderline(char), parseInline(title.trim)) }
+        (wsEol ~> (anyBut('\n') max len) <~
+         wsEol ~ (anyOf(char) take len) ~
+         wsEol) ^^ { title => DecoratedHeader(OverlineAndUnderline(char), parseInline(title.trim)) }
       }
     }
   }
@@ -115,7 +115,7 @@ trait BlockParsers extends laika.parse.BlockParsers
       (punctuationChar take 1) >> { start =>
         val char = start.charAt(0)
         ((anyOf(char) min (title.length - 1)) ~
-         ws ~ eol) ^^ { _ => DecoratedHeader(Underline(char), parseInline(title)) }
+         wsEol) ^^ { _ => DecoratedHeader(Underline(char), parseInline(title)) }
       }
     }
   }
