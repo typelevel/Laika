@@ -57,7 +57,7 @@ trait BlockParsers extends MarkupParsers {
    */
   final lazy val nestedBlock: Parser[Block] = asChoice(prepareBlockParsers(true))
  
-  /** Parses reStructuredText blocks, except for blocks that allow nesting of blocks. 
+  /** Parses blocks, excluding blocks that allow nesting.
    *  Only used in rare cases when the maximum nest level allowed had been reached
    */
   def nonRecursiveBlock: Parser[Block]
@@ -136,11 +136,27 @@ trait BlockParsers extends MarkupParsers {
    */
   def parseNestedBlocks (input: String, nestLevel: Int): List[Block] = {
     val parser = if (nestLevel < maxNestLevel) nestedBlock else nonRecursiveBlock 
+    val blocks = opt(blankLines) ~> blockList(parser)
+
     val reader = ParserContext(input, nestLevel + 1)
-    val blocks = blockList(parser) 
-    
-    parseMarkup(opt(blankLines) ~> blocks, reader)
+
+    parseMarkup(blocks, reader)
   }
+
+  // this is code in migration:
+
+  lazy val blocksWithRecursion: Parser[List[Block]] = nestedBlockParser(true)
+  lazy val blocksWithoutRecursion: Parser[List[Block]] = nestedBlockParser(false)
+
+  private def nestedBlockParser (allowRecursion: Boolean): Parser[List[Block]] = {
+    val parser = if (allowRecursion) nestedBlock else nonRecursiveBlock
+    opt(blankLines) ~> blockList(parser)
+  }
+
+  lazy val safeNestedBlockParser: MarkupParser[List[Block]] = new MarkupParser(Parser { ctx =>
+    val p = if (ctx.nestLevel < maxNestLevel) blocksWithRecursion else blocksWithoutRecursion
+    p(ParserContext(ctx.input, ctx.nestLevel + 1))
+  })
   
   /** Parses all nested blocks inside the specified indented block.
    */
@@ -179,17 +195,17 @@ trait BlockParsers extends MarkupParsers {
    */
   val blankLines: Parser[List[String]] = (not(eof) ~> blankLine)+
 
+  /** Parses the rest of the line from the current input offset no matter whether
+    *  it consist of whitespace only or some text. Does not include the eol character(s).
+    */
+  val restOfLine: Parser[String] = anyBut('\n','\r') <~ eol
+
   /** Parses a single text line from the current input offset (which may not be at the
     *  start of the line. Fails for blank lines. Does not include the eol character(s).
     */
   val textLine: Parser[String] = not(blankLine) ~> restOfLine
 
-  /** Parses the rest of the line from the current input offset no matter whether
-   *  it consist of whitespace only or some text. Does not include the eol character(s).
-   */
-  def restOfLine: Parser[String] = anyBut('\n','\r') <~ eol
-  
-  
+
   /** Parses a full block based on the specified helper parsers.
    * 
    *  @param firstLinePrefix parser that recognizes the start of the first line of this block

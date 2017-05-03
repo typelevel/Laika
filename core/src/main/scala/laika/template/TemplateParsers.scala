@@ -21,7 +21,7 @@ import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions
 import laika.directive.DirectiveParsers
-import laika.parse.InlineParsers
+import laika.parse.{InlineParsers, MarkupParsers}
 import laika.parse.core.text.DelimitedBy
 import laika.tree.Paths.Path
 import laika.tree.Documents.TemplateDocument
@@ -43,6 +43,22 @@ trait TemplateParsers extends InlineParsers {
 }
 
 
+object ConfigParser extends MarkupParsers {
+
+  val configBlock = "{%" ~> DelimitedBy("%}") <~ ws ~ eol
+
+  def forPath[T] (path: Path, errorHandler: (Exception, String) => T): Parser[Either[T, Config]] = configBlock ^^ { str =>
+    try {
+      Right(ConfigFactory.parseString(str, ConfigParseOptions.defaults().setOriginDescription(s"path:$path")))
+    }
+    catch {
+      case ex: Exception => Left(errorHandler(ex, str))
+    }
+  }
+
+}
+
+
 /** Specializations for the generic template parsers for 
  *  elements embedded in either markup blocks, markup inline
  *  elements or templates.
@@ -60,16 +76,12 @@ object TemplateParsers {
       '\\'-> ((any take 1) ^^ { Text(_) })
     )
   
-    def configParser (path: Path): Parser[Either[InvalidSpan,Config]] = "{%" ~> DelimitedBy("%}") <~ ws ~ eol ^^ { str =>
-      try {
-        Right(ConfigFactory.parseString(str, ConfigParseOptions.defaults().setOriginDescription("path:"+path)))
-      }
-      catch {
-        case ex: Exception => Left(InvalidSpan(SystemMessage(laika.tree.Elements.Error, 
-            "Error parsing config header: "+ex.getMessage), TemplateString(s"{%$str%}")))
-      }
-    } 
-    
+    def configParser (path: Path): Parser[Either[InvalidSpan,Config]] =
+      ConfigParser.forPath(path, {
+        (ex: Exception, str: String) => InvalidSpan(SystemMessage(laika.tree.Elements.Error,
+            "Error parsing config header: "+ex.getMessage), TemplateString(s"{%$str%}"))
+      })
+
     lazy val templateSpans: Parser[List[TemplateSpan]] = spans(spanParsers) ^^ {
       _.collect {
         case s: TemplateSpan => s
@@ -100,15 +112,10 @@ object TemplateParsers {
     abstract override protected def prepareBlockParsers (nested: Boolean): List[Parser[Block]] = 
       blockDirectiveParser :: super.prepareBlockParsers(nested)
     
-    override def config (path: Path): Parser[Either[InvalidBlock,Config]] = "{%" ~> DelimitedBy("%}") <~ ws ~ eol ^^ { str =>
-      try {
-        Right(ConfigFactory.parseString(str, ConfigParseOptions.defaults().setOriginDescription("path:"+path)))
-      }
-      catch {
-        case ex: Exception => Left(InvalidBlock(SystemMessage(laika.tree.Elements.Error, 
-            "Error parsing config header: "+ex.getMessage), LiteralBlock(s"{%$str%}")))
-      }
-    } 
+    override def config (path: Path): Parser[Either[InvalidBlock,Config]] = ConfigParser.forPath(path, {
+      (ex: Exception, str: String) => InvalidBlock(SystemMessage(laika.tree.Elements.Error,
+        "Error parsing config header: "+ex.getMessage), LiteralBlock(s"{%$str%}"))
+    })
   }
   
   
