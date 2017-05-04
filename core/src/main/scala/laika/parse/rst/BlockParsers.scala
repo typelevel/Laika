@@ -147,7 +147,7 @@ trait BlockParsers extends laika.parse.BlockParsers
       
     lookAhead(ws take 1) ~> indentedBlock(firstLineIndented = true, linePredicate = not(attributionStart)) >> {
       block => opt(opt(blankLines) ~> attribution(block.minIndent)) ^^ { 
-        spans => QuotedBlock(parseNestedBlocks(block), spans.getOrElse(Nil)) 
+        spans => QuotedBlock(safeNestedBlockParser.parse(block), spans.getOrElse(Nil))
       }
     }
   }

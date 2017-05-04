@@ -92,7 +92,7 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     
     def parsedCellContent: List[Block] = {
       val (minIndent, lines) = trimmedCellContent
-      parseNestedBlocks(lines, nestLevel)
+      safeNestedBlockParser.parse(lines.mkString("\n"), nestLevel)
     }
     
     def toCell (ct: CellType): Cell = Cell(ct, parsedCellContent, colSpan, rowSpan)

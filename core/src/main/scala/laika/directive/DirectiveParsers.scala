@@ -239,7 +239,7 @@ object DirectiveParsers {
         def createContext (parts: PartMap, docCursor: Option[DocumentCursor]): Blocks.DirectiveContext = {
           new DirectiveContextBase(parts, docCursor) with Blocks.DirectiveContext {
             val parser = new Blocks.Parser {
-              def apply (source: String): Seq[Block] = parseNestedBlocks(source, nestLevel)
+              def apply (source: String): Seq[Block] = safeNestedBlockParser.parse(source, nestLevel)
               def parseInline (source: String): Seq[Span] = BlockDirectives.this.parseInline(source)
             }
           }

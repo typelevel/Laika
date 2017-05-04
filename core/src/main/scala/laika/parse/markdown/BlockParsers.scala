@@ -182,8 +182,8 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    *  with subsequent lines optionally starting with a `'>'`, too.
    */
   lazy val quotedBlock: Parser[QuotedBlock]
-    = mdBlock('>' ~ (ws max 1), ('>' ~ (ws max 1)) | not(blankLine), '>') ^^
-      { lines => QuotedBlock(safeNestedBlockParser.parseMarkup(lines.mkString("\n")), Nil) }
+    = withNestLevel(mdBlock('>' ~ (ws max 1), ('>' ~ (ws max 1)) | not(blankLine), '>')) ^^
+      { case (nestLevel, lines) => QuotedBlock(safeNestedBlockParser.parse(lines.mkString("\n"), nestLevel), Nil) }
 
 
   /** Parses a list based on the specified helper parsers.
@@ -228,8 +228,8 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    *  @param itemStart parser that recognizes the start of a list item, result will be discarded
    */
   def listItem [I <: ListItem] (itemStart: Parser[String]): Parser[List[Block]]
-    = mdBlock(not(rule) ~ itemStart, not(blankLine | itemStart) ~ opt(tabOrSpace), tabOrSpace) ^^
-        { lines => safeNestedBlockParser.parseMarkup(lines.mkString("\n")) }
+    = withNestLevel(mdBlock(not(rule) ~ itemStart, not(blankLine | itemStart) ~ opt(tabOrSpace), tabOrSpace)) ^^
+        { case (nestLevel, lines) => safeNestedBlockParser.parse(lines.mkString("\n"), nestLevel) }
  
   /** Parses a bullet list, called "unordered list" in the Markdown syntax description.
    */

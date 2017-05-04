@@ -58,7 +58,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
     val prefix = '[' ~> footnoteLabel <~ ']' ~ ws
     
     prefix ~ indentedBlock() ^^ {
-      case label ~ block => FootnoteDefinition(label, parseNestedBlocks(block))
+      case label ~ block => FootnoteDefinition(label, safeNestedBlockParser.parse(block))
     }
   }
   
@@ -70,7 +70,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
     val prefix = '[' ~> simpleRefName <~ ']' ~ ws
     
     prefix ~ indentedBlock() ^^ {
-      case label ~ block => Citation(label, parseNestedBlocks(block))
+      case label ~ block => Citation(label, safeNestedBlockParser.parse(block))
     }
   }
   
@@ -352,7 +352,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
     }
     
     def blockContent: Result[Seq[Block]] = parseContentWith {
-      block => Right(parseNestedBlocks(block))
+      block => Right(safeNestedBlockParser.parse(block))
     }
     
     def spanContent: Result[Seq[Span]] = parseContentWith {

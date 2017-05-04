@@ -37,7 +37,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
       (itemStart ^^ {_.length}) ~ ((ws min 1) ^^ {_.length}) >> { 
         case start ~ ws => indentedBlock(minIndent = start + ws, maxIndent = start + ws) ~ opt(blankLines | eof | lookAhead(itemStart)) ^^? {
           case (block ~ None) if block.lines.length < 2 => Left("not a list item")
-          case (block ~ _) => Right(newListItem(parseNestedBlocks(block)))
+          case (block ~ _) => Right(newListItem(safeNestedBlockParser.parse(block)))
         }
       } 
   }
@@ -166,7 +166,8 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     
     val item = (term ~ indentedBlock(firstLineIndented = true)) ^?
       { case term ~ block => 
-          DefinitionListItem(parseInline(term, nested), parseNestedBlocks(block.lines, block.nestLevel)) }
+          DefinitionListItem(parseInline(term, nested),
+            safeNestedBlockParser.parse(block.lines.mkString("\n"), block.nestLevel)) }
     
     ((item <~ opt(blankLines)) +) ^^ (DefinitionList(_))
   }
@@ -181,7 +182,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     val name = ':' ~> escapedUntil(':') <~ (lookAhead(eol) | ' ')
     
     val item = (name ~ indentedBlock()) ^^ { 
-      case name ~ block => Field(parseInline(name), parseNestedBlocks(block))
+      case name ~ block => Field(parseInline(name), safeNestedBlockParser.parse(block))
     }
     
     (item +) ^^ (FieldList(_))
@@ -216,7 +217,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     val descStart = ((anyOf(' ') min 2) ~ not(blankLine)) | lookAhead(blankLine ~ (ws min 1) ~ not(blankLine)) ^^^ ""
     
     val item = (options ~ (descStart ~> indentedBlock())) ^^ { 
-      case name ~ block => OptionListItem(name, parseNestedBlocks(block))
+      case name ~ block => OptionListItem(name, safeNestedBlockParser.parse(block))
     }
     
     ((item <~ opt(blankLines)) +) ^^ (OptionList(_))
