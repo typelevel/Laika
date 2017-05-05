@@ -16,7 +16,7 @@
 
 package laika.parse.rst
 
-import laika.parse.core.{Parser, Success}
+import laika.parse.core.{Failure, Parsed, Parser, Success}
 import laika.tree.Elements._
 import laika.util.~
 
@@ -44,7 +44,7 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     override def toString = text
   }
       
-  class CellBuilder (nestLevel: Int) {
+  class CellBuilder (recParser: String => List[Block]) {
     
     private val seps = new ListBuffer[TableElement]
     private val lines = new ListBuffer[StringBuilder]
@@ -74,7 +74,7 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     
     def cellContent: String = lines map (_.toString) mkString "\n"
     
-    def trimmedCellContent: (Int, List[String]) = {
+    def trimmedCellContent: String = {
       abstract class CellLine (val indent: Int) { def padTo (indent: Int): String }
       object BlankLine extends CellLine(Int.MaxValue) { def padTo (indent: Int) = "" }
       class TextLine (i: Int, text: String) extends CellLine(i) { def padTo (minIndent: Int) = " " * (indent - minIndent) + text }
@@ -85,16 +85,13 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
       consumeAll(cellLine*).parse(cellContent) match {
         case Success(lines, _) => 
           val minIndent = lines map (_.indent) min;
-          (minIndent, lines map (_.padTo(minIndent)))
-        case _ => (0,Nil) // TODO - error handling for edge cases
+          lines map (_.padTo(minIndent)) mkString ("\n")
+        case _ => "" // TODO - error handling for edge cases
       }
     }
     
-    def parsedCellContent: List[Block] = {
-      val (minIndent, lines) = trimmedCellContent
-      safeNestedBlockParser.parse(lines.mkString("\n"), nestLevel)
-    }
-    
+    def parsedCellContent: List[Block] = recParser(trimmedCellContent)
+
     def toCell (ct: CellType): Cell = Cell(ct, parsedCellContent, colSpan, rowSpan)
   }
   
@@ -108,7 +105,7 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     def toRow (ct: CellType): Row = Row(cells filterNot (_.removed) map (_.toCell(ct)) toList)
   }
   
-  class ColumnBuilder (left: Option[ColumnBuilder], nestLevel: Int) {
+  class ColumnBuilder (left: Option[ColumnBuilder], recParser: String => List[Block]) {
     
     private var rowSpan = 1 // only used for sanity checks
     
@@ -121,7 +118,7 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     def nextCell: CellBuilder = {
       if (cells.nonEmpty && cells.top.mergedLeft && rowspanDif != 0)
           throw new MalformedTableException("Illegal merging of rows with different cellspans")
-      val cell = new CellBuilder(nestLevel)
+      val cell = new CellBuilder(recParser)
       cells push new CellBuilderRef(cell)
       cell
     }
@@ -161,11 +158,11 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     }
   }
   
-  class TableBuilder (columnWidths: List[Int], nestLevel: Int) {
+  class TableBuilder (columnWidths: List[Int], recParser: String => List[Block]) {
     object ColumnFactory {
       var lastColumn: Option[ColumnBuilder] = None
       val columnWidthIt = columnWidths.iterator
-      def next = { lastColumn = Some(new ColumnBuilder(lastColumn, nestLevel)); lastColumn.get } 
+      def next = { lastColumn = Some(new ColumnBuilder(lastColumn, recParser)); lastColumn.get }
     }
     val columns = List.fill(columnWidths.length)(ColumnFactory.next)
     private val rows = new ListBuffer[RowBuilder]
@@ -202,7 +199,7 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     val rowSep = (anyOf('-') min 1) ^^ { _.length }
     val topBorder = intersect ~> ((rowSep <~ intersect)+) <~ wsEol
     
-    withNestLevel(topBorder) >> { case (nestLevel, cols) =>
+    withRecursiveBlockParser(topBorder) >> { case (recParser, cols) =>
       
       val colSep = ((anyOf('|') take 1) ^^^ CellSeparator("|")) | intersect
       val colSepOrText = colSep | ((any take 1) ^^ CellElement)
@@ -235,7 +232,7 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
       
       def buildRowList (rows: List[List[TableElement]], ct: CellType): List[Row] = {
         
-        val tableBuilder = new TableBuilder(cols map (_ + 1), nestLevel) // column width includes separator
+        val tableBuilder = new TableBuilder(cols map (_ + 1), recParser) // column width includes separator
             
         rows foreach { row =>
           val hasSeparator = row exists { case RowSeparator => true; case _ => false }
@@ -288,8 +285,8 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
       case col ~ None      => (col, 0)
     }
     val topBorder = repMin(2, columnSpec) <~ wsEol
-    
-    withNestLevel(topBorder) >> { case (nestLevel, cols) =>
+
+    withRecursiveBlockParser(topBorder) >> { case (recParser, cols) =>
       
       val (rowColumns, boundaryColumns) = (cols map { case (col, sep) =>
         val cellText = if (sep == 0) anyBut('\n', '\r') ^^ CellElement
@@ -320,7 +317,7 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
       
       def buildRowList (rows: List[Any], ct: CellType): List[Row] = {
         
-        val tableBuilder = new TableBuilder(cols map { col => col._1 + col._2 }, nestLevel)
+        val tableBuilder = new TableBuilder(cols map { col => col._1 + col._2 }, recParser)
         
         def addBlankLines (acc: ListBuffer[List[TableElement]]) = 
             acc += (cols flatMap { case (cell, sep) => List(CellElement(" " * cell), CellSeparator(" " * sep)) })

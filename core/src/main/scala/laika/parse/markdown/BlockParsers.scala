@@ -181,9 +181,10 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   /** Parses a quoted block, a paragraph starting with a `'>'` character,
    *  with subsequent lines optionally starting with a `'>'`, too.
    */
-  lazy val quotedBlock: Parser[QuotedBlock]
-    = withNestLevel(mdBlock('>' ~ (ws max 1), ('>' ~ (ws max 1)) | not(blankLine), '>')) ^^
-      { case (nestLevel, lines) => QuotedBlock(safeNestedBlockParser.parse(lines.mkString("\n"), nestLevel), Nil) }
+  lazy val quotedBlock: Parser[QuotedBlock] = {
+    val decoratedLine = '>' ~ (ws max 1)
+    recursiveBlocks(mergeLines(mdBlock(decoratedLine, decoratedLine | not(blankLine), '>'))) ^^ (QuotedBlock(_, Nil))
+  }
 
 
   /** Parses a list based on the specified helper parsers.
@@ -194,14 +195,14 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    */
   def list [T <: Block, I <: ListItem] (itemStart: Parser[String], 
                                         newList: List[ListItem] => T, 
-                                        newItem: (Int,List[Block]) => I): Parser[T] = {
+                                        newItem: (Int, Seq[Block]) => I): Parser[T] = {
     
-    def flattenItems (items: List[~[Option[Any],List[Block]]]) = {
+    def flattenItems (items: List[~[Option[Any], Seq[Block]]]) = {
       val hasBlankLines = items exists { 
         case Some(_) ~ _  => true
         case None ~ _     => false
       }
-      def rewriteItemContent (blocks: List[Block], pos: Int) = {
+      def rewriteItemContent (blocks: Seq[Block], pos: Int) = {
         val rewritten = blocks match {
           /* Promoting Paragraph to ForcedParagraph if the list has any blank lines 
              between list items or if it is adjacent to blank lines within the list item 
@@ -227,23 +228,24 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    * 
    *  @param itemStart parser that recognizes the start of a list item, result will be discarded
    */
-  def listItem [I <: ListItem] (itemStart: Parser[String]): Parser[List[Block]]
-    = withNestLevel(mdBlock(not(rule) ~ itemStart, not(blankLine | itemStart) ~ opt(tabOrSpace), tabOrSpace)) ^^
-        { case (nestLevel, lines) => safeNestedBlockParser.parse(lines.mkString("\n"), nestLevel) }
+  def listItem [I <: ListItem] (itemStart: Parser[String]): Parser[Seq[Block]]
+    = recursiveBlocks(mergeLines(mdBlock(
+        not(rule) ~ itemStart, not(blankLine | itemStart) ~ opt(tabOrSpace), tabOrSpace
+      )))
  
   /** Parses a bullet list, called "unordered list" in the Markdown syntax description.
    */
   lazy val bulletList: Parser[BulletList] = {
     lookAhead(bulletListItemStart) >> { symbol =>
       val bullet = StringBullet(symbol)
-      list(bulletListItemStart, BulletList(_,bullet), (_,blocks)=>BulletListItem(blocks,bullet))
+      list(bulletListItemStart, BulletList(_, bullet), (_, blocks) => BulletListItem(blocks, bullet))
     }
   }
     
   /** Parses an enumerated list, called "ordered list" in the Markdown syntax description.
    */
   lazy val enumList: Parser[EnumList] = {
-    list(enumListItemStart, EnumList(_, EnumFormat()), (pos,blocks)=>EnumListItem(blocks,EnumFormat(),pos)) 
+    list(enumListItemStart, EnumList(_, EnumFormat()), (pos, blocks) => EnumListItem(blocks, EnumFormat(), pos))
   }
     
   

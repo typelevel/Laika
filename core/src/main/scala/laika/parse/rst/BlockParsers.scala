@@ -17,7 +17,7 @@
 package laika.parse.rst
 
 import com.typesafe.config.{Config, ConfigValueFactory}
-import laika.parse.core._
+import laika.parse.core.{Failure, Success, _}
 import laika.parse.core.text.Characters
 import laika.parse.rst.Elements._
 import laika.rewrite.TreeUtil
@@ -145,9 +145,10 @@ trait BlockParsers extends laika.parse.BlockParsers
       parseInline(block.lines mkString "\n")
     }
       
-    lookAhead(ws take 1) ~> indentedBlock(firstLineIndented = true, linePredicate = not(attributionStart)) >> {
-      block => opt(opt(blankLines) ~> attribution(block.minIndent)) ^^ { 
-        spans => QuotedBlock(safeNestedBlockParser.parse(block), spans.getOrElse(Nil))
+    lookAhead(ws take 1) ~> withRecursiveBlockParser(indentedBlock(
+        firstLineIndented = true, linePredicate = not(attributionStart))) >> {
+      case (recParser, block) => opt(opt(blankLines) ~> attribution(block.minIndent)) ^^ {
+        spans => QuotedBlock(recParser(block.lines.mkString("\n")), spans.getOrElse(Nil))
       }
     }
   }

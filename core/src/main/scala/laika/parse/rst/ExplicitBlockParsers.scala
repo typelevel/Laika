@@ -57,8 +57,8 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
   def footnote: Parser[FootnoteDefinition] = {
     val prefix = '[' ~> footnoteLabel <~ ']' ~ ws
     
-    prefix ~ indentedBlock() ^^ {
-      case label ~ block => FootnoteDefinition(label, safeNestedBlockParser.parse(block))
+    prefix ~ recursiveBlocks(mergeIndentedLines(indentedBlock())) ^^ {
+      case label ~ blocks => FootnoteDefinition(label, blocks)
     }
   }
   
@@ -69,8 +69,8 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
   def citation: Parser[Citation] = {
     val prefix = '[' ~> simpleRefName <~ ']' ~ ws
     
-    prefix ~ indentedBlock() ^^ {
-      case label ~ block => Citation(label, safeNestedBlockParser.parse(block))
+    prefix ~ recursiveBlocks(mergeIndentedLines(indentedBlock())) ^^ {
+      case label ~ blocks => Citation(label, blocks)
     }
   }
   
@@ -351,9 +351,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
       new Result(result.value)
     }
     
-    def blockContent: Result[Seq[Block]] = parseContentWith {
-      block => Right(safeNestedBlockParser.parse(block))
-    }
+    def blockContent: Result[Seq[Block]] = parseContentWithParser(recursiveBlocks)
     
     def spanContent: Result[Seq[Span]] = parseContentWith {
       block => Right(parseInline(block.lines mkString "\n"))
@@ -366,6 +364,12 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
     private def parseContentWith [T](f: IndentedBlock => Either[String,T]): Result[T] = {
       val result = new LazyResult[T]
       contentParser = body ^^? f ^^ result.set
+      new Result(result.get)
+    }
+
+    private def parseContentWithParser [T](f: Parser[String] => Parser[T]): Result[T] = {
+      val result = new LazyResult[T]
+      contentParser = f(mergeIndentedLines(body)) ^^ result.set
       new Result(result.get)
     }
     

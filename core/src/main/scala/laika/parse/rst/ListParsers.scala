@@ -33,12 +33,14 @@ import scala.util.Try
 trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
 
   
-  private def listItem [I <: ListItem] (itemStart: Parser[String], newListItem: List[Block] => I): Parser[I] = {
+  private def listItem [I <: ListItem] (itemStart: Parser[String], newListItem: Seq[Block] => I): Parser[I] = {
       (itemStart ^^ {_.length}) ~ ((ws min 1) ^^ {_.length}) >> { 
-        case start ~ ws => indentedBlock(minIndent = start + ws, maxIndent = start + ws) ~ opt(blankLines | eof | lookAhead(itemStart)) ^^? {
-          case (block ~ None) if block.lines.length < 2 => Left("not a list item")
-          case (block ~ _) => Right(newListItem(safeNestedBlockParser.parse(block)))
-        }
+        case start ~ ws =>
+          recursiveBlocks(mergeIndentedLines(indentedBlock(minIndent = start + ws, maxIndent = start + ws)) ~
+              opt(blankLines | eof | lookAhead(itemStart)) ^^? {
+            case (block ~ None) if block.lines.length < 2 => Left("not a list item")
+            case (block ~ _) => Right(block)
+          }).map(newListItem)
       } 
   }
   
@@ -59,8 +61,10 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     
     if (isSimple) {
       items map { con => con.content match {
-        case Paragraph(content,opt) :: (nested:ListContainer[_]) :: Nil => newListItem(con, SpanSequence(content,opt) :: nested :: Nil)
-        case _ => con
+        case Paragraph(content,opt) :: (nested:ListContainer[_]) :: Nil =>
+          newListItem(con, SpanSequence(content,opt) :: nested :: Nil)
+        case _ =>
+          con
       }}
     }
     else {
@@ -164,10 +168,9 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     val classifier = lookBehind(2,' ') ~ ' ' ~> spans(spanParsers) ^^ (Classifier(_))
     val nested = spanParsers + (':' -> classifier)
     
-    val item = (term ~ indentedBlock(firstLineIndented = true)) ^?
-      { case term ~ block => 
-          DefinitionListItem(parseInline(term, nested),
-            safeNestedBlockParser.parse(block.lines.mkString("\n"), block.nestLevel)) }
+    val item = (term ~ recursiveBlocks(mergeIndentedLines(indentedBlock(firstLineIndented = true)))) ^? {
+      case term ~ blocks => DefinitionListItem(parseInline(term, nested), blocks)
+    }
     
     ((item <~ opt(blankLines)) +) ^^ (DefinitionList(_))
   }
@@ -181,8 +184,8 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     
     val name = ':' ~> escapedUntil(':') <~ (lookAhead(eol) | ' ')
     
-    val item = (name ~ indentedBlock()) ^^ { 
-      case name ~ block => Field(parseInline(name), safeNestedBlockParser.parse(block))
+    val item = (name ~ recursiveBlocks(mergeIndentedLines(indentedBlock()))) ^^ {
+      case name ~ blocks => Field(parseInline(name), blocks)
     }
     
     (item +) ^^ (FieldList(_))
@@ -216,8 +219,8 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     
     val descStart = ((anyOf(' ') min 2) ~ not(blankLine)) | lookAhead(blankLine ~ (ws min 1) ~ not(blankLine)) ^^^ ""
     
-    val item = (options ~ (descStart ~> indentedBlock())) ^^ { 
-      case name ~ block => OptionListItem(name, safeNestedBlockParser.parse(block))
+    val item = (options ~ (descStart ~> recursiveBlocks(mergeIndentedLines(indentedBlock())))) ^^ {
+      case name ~ blocks => OptionListItem(name, blocks)
     }
     
     ((item <~ opt(blankLines)) +) ^^ (OptionList(_))

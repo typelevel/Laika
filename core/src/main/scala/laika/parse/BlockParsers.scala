@@ -17,11 +17,12 @@
 package laika.parse
   
 import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
+import laika.parse.core.markup.RecursiveBlockParsers
 import laika.rewrite.TreeUtil
 import laika.tree.Documents.Document
-import laika.tree.Elements.{Block, ConfigValue, InvalidBlock, RootElement}
+import laika.tree.Elements.{Block, ConfigValue, Error, InvalidBlock, Paragraph, RootElement, SystemMessage, Text}
 import laika.tree.Paths.Path
-import laika.parse.core.{ParserContext, _}
+import laika.parse.core.{Failure, ParserContext, Success, _}
 import laika.util.~
   
 /** A generic base trait for block parsers. Provides base parsers that abstract
@@ -40,7 +41,7 @@ import laika.util.~
  * 
  *  @author Jens Halm
  */
-trait BlockParsers extends MarkupParsers {
+trait BlockParsers extends MarkupParsers with RecursiveBlockParsers {
 
   
   /** The maximum level of block nesting. Some block types like lists
@@ -115,52 +116,55 @@ trait BlockParsers extends MarkupParsers {
     else parsers.reduceLeft(_ | _)
   
 
-  class RecursiveBlockParser {
+  private class RecursiveBlockParser {
 
-    def createParser (p: Parser[Block]): MarkupParser[List[Block]] =
-      new MarkupParser(opt(blankLines) ~> blockList(p))
+    lazy val recursive    = BaseParsers.consumeAll(opt(blankLines) ~> blockList(nestedBlock))
+    lazy val nonRecursive = BaseParsers.consumeAll(opt(blankLines) ~> blockList(nonRecursiveBlock))
 
-    lazy val recursive = createParser(nestedBlock)
-    lazy val nonRecursive = createParser(nonRecursiveBlock)
-
-     /** Parses all nested blocks for the specified source and nest level.
-      *  Delegates to the abstract `nestedBlock` parser that sub-traits need to define.
-      *  The nest level is primarily used as a protection against malicious
-      *  input that forces endless recursion.
-      *
-      *  @param source the input to parse
-      *  @param nestLevel the level of nesting of the parent block with 0 being the outermost level
-      *  @return the parser result as a list of blocks
-      */
-    def parse (source: String, nestLevel: Int): List[Block] = {
+    def parse (source: String, nestLevel: Int): Parsed[List[Block]] = {
       val p = if (nestLevel < maxNestLevel) recursive else nonRecursive
-      p.parseMarkup(ParserContext(source, nestLevel + 1))
+      p.parse(ParserContext(source, nestLevel + 1))
     }
-
-    // the parent block
-    def parse (block: IndentedBlock): List[Block] =
-      parse(block.lines.mkString("\n"), block.nestLevel)
 
   }
 
-  val safeNestedBlockParser: RecursiveBlockParser = new RecursiveBlockParser
+  def recursiveBlocks (p: Parser[String]): Parser[Seq[Block]] = Parser { ctx =>
+    p.parse(ctx) match {
+      case Success(str, next) =>
+        recursiveBlockParser.parse(str, ctx.nestLevel) match {
+          case Success(blocks, _) => Success(blocks, next)
+          case f: Failure => f
+        }
+      case f: Failure => f
+    }
+  }
+
+  def withRecursiveBlockParser [T] (p: Parser[T]): Parser[(String => List[Block], T)] = Parser { ctx =>
+    p.parse(ctx) match {
+      case Success(res, next) =>
+        val recParser: String => List[Block] = { source: String =>
+          recursiveBlockParser.parse(source, next.nestLevel) match {
+            case Success(blocks, _) => blocks
+            case Failure(msg, next) =>
+              val message = SystemMessage(Error, msg.message(next))
+              val fallback = Paragraph(Seq(Text(source)))
+              List(InvalidBlock(message, fallback))
+          }
+        }
+        Success((recParser, res), next)
+      case f: Failure => f
+    }
+  }
+
+  private val recursiveBlockParser: RecursiveBlockParser = new RecursiveBlockParser
   
   /** Builds a parser for a list of blocks based on the parser for a single block.
    */
   def blockList (p: => Parser[Block]): Parser[List[Block]] = (p <~ opt(blankLines))*
-  
-  /** Creates a new parser that produces a tuple containing the current nest
-   *  level as well as the result from the specified parser.
-   * 
-   *  The nest level is usually only used to prevent endless recursion of nested blocks. 
-   */
-  def withNestLevel [T] (p: => Parser[T]): Parser[(Int, T)] = Parser { in =>
-    p.parse(in) match {
-      case Success(res, next) => Success((next.nestLevel, res), next)
-      case f: Failure         => f
-    }
-  }
-  
+
+  def mergeLines (p: Parser[Seq[String]]): Parser[String] = p ^^ (_.mkString("\n"))
+  def mergeIndentedLines (p: Parser[IndentedBlock]): Parser[String] = p ^^ (_.lines.mkString("\n"))
+
   /** Parses a blank line from the current input offset (which may not be at the
    *  start of the line). Fails for lines that contain any non-whitespace character.
    *  Does always produce an empty string as the result, discarding any whitespace
@@ -206,7 +210,7 @@ trait BlockParsers extends MarkupParsers {
     
   }
   
-  case class IndentedBlock (nestLevel: Int, minIndent: Int, lines: List[String])
+  case class IndentedBlock (minIndent: Int, lines: List[String])
   
   /** Parses a full block based on the specified helper parsers, expecting an indentation for
    *  all lines except the first. The indentation may vary between the parts of the indented
@@ -264,9 +268,9 @@ trait BlockParsers extends MarkupParsers {
       })
     }
 
-    lookAhead(firstLineGuard) ~> withNestLevel(rep(firstLine, nextLine)) ^^ { case (nestLevel,parsed) =>
+    lookAhead(firstLineGuard) ~> rep(firstLine, nextLine) ^^ { parsed =>
       val (minIndent, lines) = result(parsed)
-      IndentedBlock(nestLevel, minIndent, lines)
+      IndentedBlock(minIndent, lines)
     }
   }
   

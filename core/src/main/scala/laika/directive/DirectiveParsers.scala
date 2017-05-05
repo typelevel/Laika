@@ -234,19 +234,20 @@ object DirectiveParsers {
         val trimmed = (block.lines mkString "\n").trim
         Either.cond(trimmed.nonEmpty, trimmed, "empty body")
       }
-      withNestLevel(withSource(directiveParser(bodyContent, includeStartChar = true))) ^^ { case (nestLevel, (result, source)) =>
+      withRecursiveBlockParser(withSource(directiveParser(bodyContent, includeStartChar = true))) ^^ {
+        case (recParser, (result, source)) =>
         
-        def createContext (parts: PartMap, docCursor: Option[DocumentCursor]): Blocks.DirectiveContext = {
-          new DirectiveContextBase(parts, docCursor) with Blocks.DirectiveContext {
-            val parser = new Blocks.Parser {
-              def apply (source: String): Seq[Block] = safeNestedBlockParser.parse(source, nestLevel)
-              def parseInline (source: String): Seq[Span] = BlockDirectives.this.parseInline(source)
+          def createContext (parts: PartMap, docCursor: Option[DocumentCursor]): Blocks.DirectiveContext = {
+            new DirectiveContextBase(parts, docCursor) with Blocks.DirectiveContext {
+              val parser = new Blocks.Parser {
+                def apply (source: String): Seq[Block] = recParser(source)
+                def parseInline (source: String): Seq[Span] = BlockDirectives.this.parseInline(source)
+              }
             }
           }
-        }
-        def invalid (msg: String) = InvalidBlock(SystemMessage(laika.tree.Elements.Error, msg), LiteralBlock(source))
-        
-        applyDirective(Blocks)(result, getBlockDirective, createContext, DirectiveBlock(_), invalid, "block")
+          def invalid (msg: String) = InvalidBlock(SystemMessage(laika.tree.Elements.Error, msg), LiteralBlock(source))
+
+          applyDirective(Blocks)(result, getBlockDirective, createContext, DirectiveBlock(_), invalid, "block")
       }
     }
     
