@@ -168,16 +168,6 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
     case other => other
   }
   
-  /** Utility method to be used by custom parsers for directive argument or body.
-   *  It translates a `Success` into a `Right` and a `NoSuccess` into a `Left`.
-   */
-  def parseDirectivePart [T] (parser: Parser[T], source: String): Either[String,T] = {
-    consumeAll(parser).parse(source.trim) match {
-      case Success(result,_) => Right(result)
-      case Failure(msg, in) => Left(msg.message(in))
-    }
-  }
-  
   /** Parses a block-level directive.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#directives]].
@@ -325,6 +315,13 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
       else requiredArgs = requiredArgs ~ (arg ^^? convert ^^ result.set)
       new Result(result.get)
     }
+
+    def spanArgument: Result[Seq[Span]] = {
+      separator = contentSeparator
+      val result = new LazyResult[Seq[Span]]
+      requiredArgWithWS = recursiveSpans(argWithWS) ^^ result.set
+      new Result(result.get)
+    }
     
     def optArgument [T](convert: String => Either[String,T] = {s:String => Right(s)}, 
                         withWS: Boolean = false): Result[Option[T]] = {
@@ -333,6 +330,13 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
       if (withWS) optionalArgWithWS = (opt(argWithWS) ^^? optionToEither(convert) ^^ result.set)
       else optionalArgs = optionalArgs ~ (opt(arg) ^^? optionToEither(convert) ^^ result.set)
       new Result(result.value)
+    }
+
+    def optSpanArgument: Result[Option[Seq[Span]]] = {
+      separator = contentSeparator
+      val result = new LazyResult[Option[Seq[Span]]]
+      requiredArgWithWS = opt(recursiveSpans(argWithWS)) ^^ result.set
+      new Result(result.get)
     }
     
     def field [T](name: String, f: String => Either[String,T]): Result[T] = {
@@ -350,13 +354,11 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
       optionalFields += (name -> { s:String => f(s).right map result.set })
       new Result(result.value)
     }
-    
+
     def blockContent: Result[Seq[Block]] = parseContentWithParser(recursiveBlocks)
     
-    def spanContent: Result[Seq[Span]] = parseContentWith {
-      block => Right(parseInline(block.lines mkString "\n"))
-    }
-    
+    def spanContent: Result[Seq[Span]] = parseContentWithParser(recursiveSpans)
+
     def content [T](f: String => Either[String,T]): Result[T] = parseContentWith {
       block => f(block.lines mkString "\n")
     }

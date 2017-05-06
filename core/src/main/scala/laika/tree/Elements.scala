@@ -682,6 +682,8 @@ object Elements {
                                                   with SpanContainer[ForcedParagraph] with Fallback {
     def fallback: Element = Paragraph(content, options)
   }
+
+  case class Reverse (length: Int, target: Span, fallback: Span, options: Options = NoOpt) extends Span
   
   
   /** `Options` implementation for non-empty instances.

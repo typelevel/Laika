@@ -165,11 +165,11 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     val term: Parser[String] = not(blankLine | tableStart | explicitStart | listStart | headerStart) ~> 
         anyBut('\n') <~ eol ~ lookAhead((ws min 1) ~ not(blankLine))
     
-    val classifier = lookBehind(2,' ') ~ ' ' ~> spans(spanParsers) ^^ (Classifier(_))
-    val nested = spanParsers + (':' -> classifier)
-    
-    val item = (term ~ recursiveBlocks(mergeIndentedLines(indentedBlock(firstLineIndented = true)))) ^? {
-      case term ~ blocks => DefinitionListItem(parseInline(term, nested), blocks)
+    val classifier = lookBehind(2,' ') ~ ' ' ~> recursiveSpans ^^ (Classifier(_))
+    val termWithClassifier = recursiveSpans(term, Map(':' -> classifier))
+
+    val item = (termWithClassifier ~ recursiveBlocks(mergeIndentedLines(indentedBlock(firstLineIndented = true)))) ^? {
+      case term ~ blocks => DefinitionListItem(term, blocks)
     }
     
     ((item <~ opt(blankLines)) +) ^^ (DefinitionList(_))
@@ -184,8 +184,8 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     
     val name = ':' ~> escapedUntil(':') <~ (lookAhead(eol) | ' ')
     
-    val item = (name ~ recursiveBlocks(mergeIndentedLines(indentedBlock()))) ^^ {
-      case name ~ blocks => Field(parseInline(name), blocks)
+    val item = (recursiveSpans(name) ~ recursiveBlocks(mergeIndentedLines(indentedBlock()))) ^^ {
+      case name ~ blocks => Field(name, blocks)
     }
     
     (item +) ^^ (FieldList(_))
@@ -233,9 +233,9 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   def lineBlock: Parser[Block] = {
     val itemStart = anyOf('|').take(1)
     
-    val line: Parser[(Line,Int)] = {
-      itemStart ~> (ws min 1) ~ indentedBlock(endsOnBlankLine = true) ^^ { 
-        case indent ~ block => (Line(parseInline(block.lines mkString "\n")), indent.length) 
+    val line: Parser[(Line, Int)] = {
+      itemStart ~> (ws min 1) ~ recursiveSpans(mergeIndentedLines(indentedBlock(endsOnBlankLine = true))) ^^ {
+        case indent ~ block => (Line(block), indent.length)
       }
     }
     

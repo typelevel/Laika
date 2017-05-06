@@ -32,7 +32,7 @@ class InlineParsersSpec extends FlatSpec
                         with ModelBuilder {
 
   
-  val defaultParser: Parser[List[Span]] = spans(spanParsers)
+  val defaultParser: Parser[List[Span]] = recursiveSpans
 
   
   "The text parser" should "parse content without any markup as plain text" in {

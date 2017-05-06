@@ -32,6 +32,6 @@ trait RecursiveBlockParsers {
 
 trait RecursiveSpanParsers {
 
-  def recursiveSpans (p: Parser[String]): Parser[Seq[Span]]
+  def recursiveSpans (p: Parser[String]): Parser[List[Span]]
 
 }

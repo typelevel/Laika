@@ -35,7 +35,7 @@ class InlineParsersSpec extends FlatSpec
                         with ModelBuilder {
 
   
-  val defaultParser: Parser[List[Span]] = spans(spanParsers)
+  val defaultParser: Parser[List[Span]] = recursiveSpans
   
   def subst (name: String) = SubstitutionReference(name)
   

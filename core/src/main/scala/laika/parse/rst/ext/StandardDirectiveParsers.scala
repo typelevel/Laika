@@ -16,6 +16,7 @@
   
 package laika.parse.rst.ext
 
+import laika.parse.core.{Failure, Parser, Success}
 import laika.parse.core.text.DelimitedBy
 import laika.parse.rst.Directives.DirectivePart
 import laika.parse.rst.{BlockParsers, InlineParsers}
@@ -36,17 +37,28 @@ trait StandardDirectiveParsers extends BlockParsers with InlineParsers {
   def blockDirective (name: String): Option[DirectivePart[Block]] = None
   def spanDirective (name: String): Option[DirectivePart[Span]] = None
   def textRole (name: String): Option[RoleDirectivePart[String => Span]] = None
-  
+
+
+  /** Utility method to be used by custom parsers for directive argument or body.
+    *  It translates a `Success` into a `Right` and a `NoSuccess` into a `Left`.
+    */
+  def parseDirectivePart [T] (parser: Parser[T], source: String): Either[String,T] = {
+    consumeAll(parser).parse(source.trim) match {
+      case Success(result,_) => Right(result)
+      case Failure(msg, in) => Left(msg.message(in))
+    }
+  }
+
+
   /** Parses all standard inline markup supported by `reStructuredText`.
    *  
    *  @param p the standard inline parsers including all registered directives for recursive use
    *  @param input the input to parse
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
-  def standardSpans (p: InlineParsers)(input: String): Either[String,Seq[Span]] = 
-    try Right(p.parseInline(input.trim))
-    catch { case e: Exception => Left(e.getMessage) }
-  
+  def standardSpans (p: InlineParsers)(input: String): Either[String,Seq[Span]] =
+    parseDirectivePart(p.recursiveSpans, input.trim)
+
   /** Parses a quoted block with nested blocks.
    *  
    *  @param p the standard block parsers including all registered directives for recursive use
@@ -54,7 +66,7 @@ trait StandardDirectiveParsers extends BlockParsers with InlineParsers {
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
   def quotedBlock (p: BlockParsers, style: String)(input: String): Either[String,Block] = {
-    p.parseDirectivePart(p.blockList(p.nestedBlock), input).right.map { blocks =>
+    parseDirectivePart(p.blockList(p.nestedBlock), input).right.map { blocks =>
       blocks.lastOption match {
         case Some(p @ Paragraph(Text(text, opt) :: _, _)) if text startsWith "-- " => 
           val attr = Text(text.drop(3), opt + Styles("attribution")) +: p.content.tail
@@ -72,7 +84,7 @@ trait StandardDirectiveParsers extends BlockParsers with InlineParsers {
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
   def table (p: BlockParsers)(input: String): Either[String, Table] = 
-    p.parseDirectivePart(p.gridTable | p.simpleTable, input)
+    parseDirectivePart(p.gridTable | p.simpleTable, input)
   
   /** Parses a caption (a single paragraph) and a legend (one or more blocks), both being optional.
    *  
@@ -86,7 +98,7 @@ trait StandardDirectiveParsers extends BlockParsers with InlineParsers {
       case ~(Some(caption), None)         => (caption.content, Nil)
       case _                              => (Nil, Nil)
     } 
-    p.parseDirectivePart(parser, input)
+    parseDirectivePart(parser, input)
   }
   
   /** Parses a target which might be a simple reference, a phrase reference or an uri.

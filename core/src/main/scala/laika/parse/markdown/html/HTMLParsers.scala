@@ -110,20 +110,29 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
   /** Parses an HTML element without the leading `'<'`, but including 
    *  all the nested HTML and Text elements.
    */
-  def htmlElement (nested: Map[Char,Parser[Span]]): Parser[HTMLElement] = htmlStartTag >> { 
-    tag => spans(htmlEndTag(tag.name), nested) ^^ {
+  lazy val htmlElement: Parser[HTMLElement] = htmlStartTag >> {
+    tag => spans(htmlEndTag(tag.name), htmlBlockParsers) ^^ {
       spans => HTMLElement(tag, spans) 
+    }
+  }
+
+  /** Parses an HTML element without the leading `'<'`, but including
+    * all the nested HTML and Text elements, as well as any nested Markdown spans.
+    */
+  lazy val htmlElementWithNestedMarkdown: Parser[HTMLElement] = htmlStartTag >> {
+    tag => delimitedRecursiveSpans(htmlEndTag(tag.name)) ^^ {
+      spans => HTMLElement(tag, spans)
     }
   }
   
   
   /** Parses any of the HTML span elements supported by this trait, plus standard markdown inside HTML elements.
    */
-  lazy val htmlSpanWithNestedMarkdown: Parser[HTMLSpan] = htmlComment | htmlEmptyElement | htmlElement(spanParsers) | htmlEndTag | htmlStartTag
+  lazy val htmlSpanWithNestedMarkdown: Parser[HTMLSpan] = htmlComment | htmlEmptyElement | htmlElementWithNestedMarkdown | htmlEndTag | htmlStartTag
   
   /** Parses any of the HTML span elements supported by this trait, but no standard markdown inside HTML elements.
    */
-  lazy val htmlSpan: Parser[HTMLSpan] = htmlComment | htmlEmptyElement | htmlElement(htmlBlockParsers) | htmlEndTag | htmlStartTag
+  lazy val htmlSpan: Parser[HTMLSpan] = htmlComment | htmlEmptyElement | htmlElement | htmlEndTag | htmlStartTag
   
   
   private def mkString (result: ~[Char,String]): String = result._1.toString + result._2

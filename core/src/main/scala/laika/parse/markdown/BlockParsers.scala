@@ -94,8 +94,8 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
       else trimmed
     } 
     
-    ((anyOf('#') min 1 max 6) ^^ { _.length }) ~ (not(blankLine) ~> restOfLine) ^^ 
-      { case level ~ text => Header(level, consumeAllSpans.parseMarkup(stripDecoration(text))) }
+    ((anyOf('#') min 1 max 6) ^^ { _.length }) ~ (not(blankLine) ~> recursiveSpans(restOfLine ^^ stripDecoration)) ^^
+      { case level ~ spans => Header(level, spans) }
   }
   
   /** Parses a 1st or 2nd level Setext header. A first level header consists of the
@@ -105,9 +105,9 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    *  In contrast to several other Markdown parsers this parser requires a blank line
    *  before the header. 
    */
-  lazy val setextHeader: Parser[Header] = textLine ~ (anyOf('=').min(1) | anyOf('-').min(1)) <~ wsEol ^^ {
-    case text ~ decoration if decoration.head == '=' => Header(1, consumeAllSpans.parseMarkup(text))
-    case text ~ _                                    => Header(2, consumeAllSpans.parseMarkup(text))
+  lazy val setextHeader: Parser[Header] = recursiveSpans(textLine) ~ (anyOf('=').min(1) | anyOf('-').min(1)) <~ wsEol ^^ {
+    case spans ~ decoration if decoration.head == '=' => Header(1, spans)
+    case spans ~ _                                    => Header(2, spans)
   }
   
   /** Parses a horizontal rule, a line only decorated with three or more `'*'`, `'-'` or `'_'`
@@ -134,13 +134,12 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   lazy val nonRecursiveBlock: Parser[Block] =
     atxHeader | setextHeader | (insignificantSpaces ~> (literalBlock | rule )) | paragraph
 
-  def parseParagraph (lines: List[String]): Paragraph = Paragraph(consumeAllSpans.parseMarkup(linesToString(lines)))
-
   /** Parses a single paragraph. Everything between two blank lines that is not
    *  recognized as a special Markdown block type will be parsed as a regular paragraph.
    */
   val paragraph: Parser[Paragraph] =
-    not(bulletListItemStart | enumListItemStart) ~> ((not(blankLine) ~> restOfLine) +) ^^ parseParagraph
+    not(bulletListItemStart | enumListItemStart) ~>
+      recursiveSpans(((not(blankLine) ~> restOfLine) +) ^^ linesToString) ^^ { Paragraph(_) }
    
   /** Parses a single paragraph nested inside another block.
    *  Markdown allows nested lists without preceding blank lines,
@@ -150,7 +149,8 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    */
   val nestedParagraph: Parser[Block] = {
     val list: Parser[Block] = bulletList | enumList
-    ((((not(bulletListItemStart | enumListItemStart | blankLine) ~> restOfLine) +) ^^ parseParagraph)
+    val line = not(bulletListItemStart | enumListItemStart | blankLine) ~> restOfLine
+    ((recursiveSpans((line +) ^^ linesToString) ^^ { Paragraph(_) })
         ~ opt(not(blankLine) ~> list)) ^^ {
       case p ~ None => p
       case p ~ Some(list) => BlockSequence(p :: list :: Nil) // another special case of a "tight" list

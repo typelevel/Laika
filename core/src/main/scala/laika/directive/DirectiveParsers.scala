@@ -168,8 +168,8 @@ object DirectiveParsers {
     }
     
     lazy val templateDirectiveParser: Parser[TemplateSpan] = {
-      val contextRefOrNestedBraces = '{' -> (reference(TemplateContextReference(_)) | nestedBraces)
-      val bodyContent = wsOrNl ~ '{' ~> (withSource(spans(DelimitedBy('}'), spanParsers + contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
+      val contextRefOrNestedBraces = Map('{' -> (reference(TemplateContextReference(_)) | nestedBraces))
+      val bodyContent = wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(DelimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
       withSource(directiveParser(bodyContent, includeStartChar = false)) ^^ { case (result, source) =>
         
         def createContext (parts: PartMap, docCursor: Option[DocumentCursor]): Templates.DirectiveContext = {
@@ -199,20 +199,21 @@ object DirectiveParsers {
     }
     
     lazy val spanDirectiveParser: Parser[Span] = {
-      val contextRefOrNestedBraces = '{' -> (reference(MarkupContextReference(_)) | nestedBraces)
-      val bodyContent = wsOrNl ~ '{' ~> (withSource(spans(DelimitedBy('}'), spanParsers + contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
-      withSource(directiveParser(bodyContent, includeStartChar = false)) ^^ { case (result, source) => // TODO - optimization - parsed spans might be cached for DirectiveContext (applies for the template parser, too)
-        
-        def createContext (parts: PartMap, docCursor: Option[DocumentCursor]): Spans.DirectiveContext = {
-          new DirectiveContextBase(parts, docCursor) with Spans.DirectiveContext {
-            val parser = new Spans.Parser {
-              def apply (source: String) = parseInline(source)
+      val contextRefOrNestedBraces = Map('{' -> (reference(MarkupContextReference(_)) | nestedBraces))
+      val bodyContent = wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(DelimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
+      withRecursiveSpanParser(withSource(directiveParser(bodyContent, includeStartChar = false))) ^^ {
+        case (recParser, (result, source)) => // TODO - optimization - parsed spans might be cached for DirectiveContext (applies for the template parser, too)
+
+          def createContext (parts: PartMap, docCursor: Option[DocumentCursor]): Spans.DirectiveContext = {
+            new DirectiveContextBase(parts, docCursor) with Spans.DirectiveContext {
+              val parser = new Spans.Parser {
+                def apply (source: String) = recParser(source)
+              }
             }
           }
-        }
-        def invalid (msg: String) = InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Literal("@"+source))
-        
-        applyDirective(Spans)(result, getSpanDirective, createContext, DirectiveSpan(_), invalid, "span")
+          def invalid (msg: String) = InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Literal("@"+source))
+
+          applyDirective(Spans)(result, getSpanDirective, createContext, DirectiveSpan(_), invalid, "span")
       }
     }
     
@@ -234,14 +235,14 @@ object DirectiveParsers {
         val trimmed = (block.lines mkString "\n").trim
         Either.cond(trimmed.nonEmpty, trimmed, "empty body")
       }
-      withRecursiveBlockParser(withSource(directiveParser(bodyContent, includeStartChar = true))) ^^ {
-        case (recParser, (result, source)) =>
+      withRecursiveSpanParser(withRecursiveBlockParser(withSource(directiveParser(bodyContent, includeStartChar = true)))) ^^ {
+        case (recSpanParser, (recBlockParser, (result, source))) =>
         
           def createContext (parts: PartMap, docCursor: Option[DocumentCursor]): Blocks.DirectiveContext = {
             new DirectiveContextBase(parts, docCursor) with Blocks.DirectiveContext {
               val parser = new Blocks.Parser {
-                def apply (source: String): Seq[Block] = recParser(source)
-                def parseInline (source: String): Seq[Span] = BlockDirectives.this.parseInline(source)
+                def apply (source: String): Seq[Block] = recBlockParser(source)
+                def parseInline (source: String): Seq[Span] = recSpanParser(source)
               }
             }
           }

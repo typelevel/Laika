@@ -16,6 +16,7 @@
 
 package laika.parse.rst
 
+import laika.parse.MarkupParser
 import laika.parse.core._
 import laika.parse.core.text.{DelimitedBy, DelimitedText, DelimiterOptions}
 import laika.parse.rst.Elements.{InterpretedText, SubstitutionReference}
@@ -313,8 +314,6 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
     }
   }
   
-  protected case class Reverse (length: Int, target: Span, fallback: Span, options: Options = NoOpt) extends Span
-  
   /** Parses a simple link reference.
    *  
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#hyperlink-references]]
@@ -339,26 +338,8 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   }
   
   private lazy val reverseMarkupStart: Parser[Any] = lookAhead(eof | beforeStartMarkup)
-  
-  
-  override def parseInline (source: String, spanParsers: Map[Char, Parser[Span]]): List[Span] = {
-    val spans = super.parseInline(source, spanParsers)
-    if (spans.isEmpty) spans
-    else {
-      val buffer = new ListBuffer[Span]
-      val last = (spans.head /: spans.tail) { 
-        case (t @ Text(content,_), Reverse(len, target, fallback, _)) =>
-          if (content.length < len) { buffer += t; fallback }
-          else { buffer += Text(content.dropRight(len)); target }
-        case (prev, Reverse(_, _, fallback, _)) => buffer += prev; fallback
-        case (prev, current)                    => buffer += prev; current
-      }
-      buffer += last
-      buffer.toList
-    }
-  }
-  
-  
+
+
   private def trim (p: Parser[(String,String,String)]): Parser[Span] = p >> { res => Parser { in =>
     val startChar = Set('-',':','/','\'','(','{')
     val endChar   = Set('-',':','/','\'',')','}','.',',',';','!','?') 
@@ -388,6 +369,6 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
   lazy val email: Parser[(String,String,String)] = reverse(1, localPart <~ reverseMarkupStart) ~ domain ^? {
     case local ~ domain if local.nonEmpty && domain.nonEmpty => (local, "@", domain)
   }
-  
-  
+
+
 }

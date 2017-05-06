@@ -110,7 +110,7 @@ class BlockDirectiveAPISpec extends FlatSpec
   trait EmptyBlockParsers extends BlockParsers with InlineParsers {
     override protected def prepareSpanParsers = Map[Char,Parser[Span]]()
     override protected def prepareBlockParsers (nested: Boolean): List[Parser[Block]] = List(
-      ((not(blankLine) ~> restOfLine) +) ^^ { lines => Paragraph(parseInline(lines mkString "\n")) }
+      recursiveSpans(mergeSpanLines((not(blankLine) ~> restOfLine) +)) ^^ { Paragraph(_) }
     )
   }
   trait TemplateParser extends EmptyBlockParsers 

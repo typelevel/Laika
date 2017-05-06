@@ -119,7 +119,7 @@ class SpanDirectiveAPISpec extends FlatSpec
     def getSpanDirective (name: String): Option[Spans.Directive] =
       if (directive.name == name) Some(directive) else None
       
-    val defaultParser: Parser[SpanSequence] = spans(spanParsers) ^^ (SpanSequence(_))
+    val defaultParser: Parser[SpanSequence] = recursiveSpans ^^ (SpanSequence(_))
     
     def invalid (input: String, error: String): InvalidSpan = 
         InvalidSpan(SystemMessage(laika.tree.Elements.Error, error), Literal(input))

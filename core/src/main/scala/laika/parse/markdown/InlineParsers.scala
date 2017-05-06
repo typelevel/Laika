@@ -18,6 +18,7 @@ package laika.parse.markdown
 
 import laika.parse.core.Parser
 import laika.parse.core.text.DelimitedBy
+import laika.rewrite.TreeUtil
 import laika.tree.Elements._
 import laika.util.~
  
@@ -77,7 +78,7 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
    *  @param postCondition the parser that checks any post conditions after the end delimiter has been read
    */
   def span (start: Parser[Any], endDelim: String, postCondition: Parser[Any]): Parser[List[Span]]
-    = start ~> spans(DelimitedBy(endDelim).withPostCondition(postCondition), spanParsers)
+    = start ~> delimitedRecursiveSpans(DelimitedBy(endDelim).withPostCondition(postCondition))
   
   /** Parses a span enclosed by a single occurrence of the specified character.
    *  Recursively parses nested spans, too. 
@@ -120,7 +121,9 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
   
   
   private def normalizeId (id: String): String = id.toLowerCase.replaceAll("[\n ]+", " ")
-  
+
+  type RecParser = (String => List[Span])
+
   /** Parses a link, including nested spans in the link text.
    *  Recognizes both, an inline link `[text](url)` and a link reference `[text][id]`.
    */
@@ -132,12 +135,12 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
       else ref
     }
     
-    def linkInline (text: String, url: String, title: Option[String]) = ExternalLink(consumeAllSpans.parseMarkup(text), url, title)
-    def linkReference (text: String, id: String, suffix: String): Span = {
+    def linkInline (p: RecParser, text: String, url: String, title: Option[String]) = ExternalLink(p(text), url, title)
+    def linkReference (p: RecParser, text: String, id: String, suffix: String): Span = {
       /* Markdown's design comes with a few arbitrary and inconsistent choices for how to handle nesting of brackets. 
        * The logic here is constructed to make the official test suite pass, other edge cases might still yield unexpected results.
        * Users usually should not bother and simply escape brackets which are not meant to be markup. */
-      val ref = LinkReference(consumeAllSpans.parseMarkup(text), normalizeId(id), "[" + text + suffix)
+      val ref = LinkReference(p(text), normalizeId(id), "[" + text + suffix)
       if (text == id) unwrap(ref, suffix) else ref
     }
     
@@ -148,18 +151,24 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
    *  Recognizes both, an inline image `![text](url)` and an image reference `![text][id]`.
    */
   val image: Parser[Span] = {
-    def imageInline (text: String, uri: String, title: Option[String]) = Image(text, URI(uri), title)
-    def imageReference (text: String, id: String, postFix: String): Span = ImageReference(text, normalizeId(id), "![" + text + postFix)
+
+    def imageInline (p: RecParser, text: String, uri: String, title: Option[String]) =
+      Image(text, URI(uri), title)
+
+    def imageReference (p: RecParser, text: String, id: String, postFix: String): Span =
+      ImageReference(text, normalizeId(id), "![" + text + postFix)
      
     '[' ~> resource(imageInline, imageReference)
   }
+
+
   
   /** Helper function that abstracts the common parser logic of links and images.
    * 
    *  @param inline factory function for creating a new inline link or image based on the text, url and optional title parameters
    *  @param ref factory function for creating a new link or image reference based on the text and id parameters
    */
-  def resource (inline: (String, String, Option[String]) => Span, ref: (String, String, String) => Span): Parser[Span] = {
+  def resource (inline: (RecParser, String, String, Option[String]) => Span, ref: (RecParser, String, String, String) => Span): Parser[Span] = {
     
     val linktext = text(DelimitedBy(']'), Map('\\' -> escapedChar, '[' -> (DelimitedBy(']') ^^ { "[" + _ + "]" })))
 
@@ -170,17 +179,18 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
        self.text(DelimitedBy(')',' ','\t').keepDelimiter, Map('\\' -> escapedChar))
     
     val urlWithTitle = '(' ~> url ~ opt(title) <~ ws ~ ')' ^^ {  
-      case url ~ title => text:String => inline(text, url, title)  
+      case url ~ title => (recParser: RecParser, text:String) => inline(recParser, text, url, title)
     }
-    
-    val refId =    ws ~ opt(eol) ~ ('[' ~> escapedUntil(']')) ^^ { 
-      case ws ~ lb ~ id => text:String => ref(text, id,   "]"+ws+ lb.getOrElse("") +"["+id+"]") }
+    val refId =    ws ~ opt(eol) ~ ('[' ~> escapedUntil(']')) ^^ {
+      case ws ~ lb ~ id => (recParser: RecParser, text:String) =>
+        ref(recParser, text, id,   "]"+ws+ lb.getOrElse("") +"["+id+"]") }
     val refEmpty = ws ~ opt(eol) ~ "[]" ^^ { 
-      case ws ~ lb ~ _  => text:String => ref(text, text, "]"+ws+ lb.getOrElse("") +"[]") }
+      case ws ~ lb ~ _  => (recParser: RecParser, text:String) =>
+        ref(recParser, text, text, "]"+ws+ lb.getOrElse("") +"[]") }
   
-    linktext ~ opt(urlWithTitle | refEmpty | refId) ^^ {
-      case text ~ None    => ref(text, text, "]")
-      case text ~ Some(f) => f(text)  
+    withRecursiveSpanParser(linktext) ~ opt(urlWithTitle | refEmpty | refId) ^^ {
+      case (recParser, text) ~ None    => ref(recParser, text, text, "]")
+      case (recParser, text) ~ Some(f) => f(recParser, text)
     }
   }
   

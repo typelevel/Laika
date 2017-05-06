@@ -86,21 +86,22 @@ trait BlockParsers extends laika.parse.BlockParsers
    *  recognized as a special reStructuredText block type will be parsed as a regular paragraph.
    */
   def paragraph: Parser[Paragraph] = 
-      ((not(blankLine) ~> restOfLine) +) ^^ { lines => Paragraph(parseInline(lines mkString "\n")) }
-  
+    recursiveSpans(mergeSpanLines((not(blankLine) ~> restOfLine) +)) ^^ { Paragraph(_) }
+
 
   /** Parses a section header with both overline and underline.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections]].
    */
-  def headerWithOverline: Parser[Block] = {
-    (punctuationChar take 1) >> { start =>
-      val char = start.charAt(0)
-      anyOf(char) >> { deco =>
-        val len = deco.length + 1
-        (wsEol ~> (anyBut('\n') max len) <~
-         wsEol ~ (anyOf(char) take len) ~
-         wsEol) ^^ { title => DecoratedHeader(OverlineAndUnderline(char), parseInline(title.trim)) }
+  def headerWithOverline: Parser[Block] = (punctuationChar take 1) >> { start =>
+    val char = start.charAt(0)
+    anyOf(char) >> { deco =>
+      val len = deco.length + 1
+      val text = recursiveSpans((anyBut('\n') max len) ^^ (_.trim))
+      val decoLine = anyOf(char) take len
+
+      (wsEol ~> text <~ wsEol ~ decoLine ~ wsEol) ^^ {
+        title => DecoratedHeader(OverlineAndUnderline(char), title)
       }
     }
   }
@@ -114,8 +115,9 @@ trait BlockParsers extends laika.parse.BlockParsers
       val title = (char + rest).trim
       (punctuationChar take 1) >> { start =>
         val char = start.charAt(0)
-        ((anyOf(char) min (title.length - 1)) ~
-         wsEol) ^^ { _ => DecoratedHeader(Underline(char), parseInline(title)) }
+        withRecursiveSpanParser((anyOf(char) min (title.length - 1)) ~ wsEol) ^^ {
+          case (recParser, _) => DecoratedHeader(Underline(char), recParser(title))
+        }
       }
     }
   }
@@ -141,9 +143,7 @@ trait BlockParsers extends laika.parse.BlockParsers
     val attributionStart = "---" | "--" | '\u2014' // em dash
         
     def attribution (indent: Int) = (ws take indent) ~ attributionStart ~ (ws max 1) ~> 
-      indentedBlock(minIndent = indent, endsOnBlankLine = true) ^^ { block => 
-      parseInline(block.lines mkString "\n")
-    }
+      recursiveSpans(mergeIndentedLines(indentedBlock(minIndent = indent, endsOnBlankLine = true)))
       
     lookAhead(ws take 1) ~> withRecursiveBlockParser(indentedBlock(
         firstLineIndented = true, linePredicate = not(attributionStart))) >> {

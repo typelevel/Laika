@@ -156,7 +156,10 @@ object Directives {
       
     def argument [T](convert: String => Either[String,T] = {s:String => Right(s)}, 
                      withWS: Boolean = false): Result[T]
-    
+
+    def spanArgument: Result[Seq[Span]]
+    def optSpanArgument: Result[Option[Seq[Span]]]
+
     def optArgument [T](convert: String => Either[String,T] = {s:String => Right(s)}, 
                      withWS: Boolean = false): Result[Option[T]]
     
@@ -256,6 +259,10 @@ object Directives {
     def blockContent: DirectivePart[Seq[Block]] = part(_.blockContent)
 
     def spanContent: DirectivePart[Seq[Span]] = part(_.spanContent)
+
+    def spanArgument: DirectivePart[Seq[Span]] = part(_.spanArgument)
+
+    def optSpanArgument: DirectivePart[Option[Seq[Span]]] = part(_.optSpanArgument)
     
     /** Specifies that the body of the directive markup should get passed to the conversion function as a raw string.
      * 

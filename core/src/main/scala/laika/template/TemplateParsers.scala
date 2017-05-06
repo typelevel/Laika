@@ -83,7 +83,7 @@ object TemplateParsers {
             "Error parsing config header: "+ex.getMessage), TemplateString(s"{%$str%}"))
       })
 
-    lazy val templateSpans: Parser[List[TemplateSpan]] = spans(spanParsers) ^^ {
+    lazy val templateSpans: Parser[List[TemplateSpan]] = recursiveSpans ^^ {
       _.collect {
         case s: TemplateSpan => s
         case Text(s, opt) => TemplateString(s, opt)
