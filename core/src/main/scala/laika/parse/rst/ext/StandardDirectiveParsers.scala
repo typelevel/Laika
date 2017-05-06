@@ -17,6 +17,7 @@
 package laika.parse.rst.ext
 
 import laika.parse.core.{Failure, Parser, Success}
+import laika.parse.core.combinator.Parsers._
 import laika.parse.core.text.DelimitedBy
 import laika.parse.rst.Directives.DirectivePart
 import laika.parse.rst.{BlockParsers, InlineParsers}
@@ -93,7 +94,7 @@ trait StandardDirectiveParsers extends BlockParsers with InlineParsers {
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
   def captionAndLegend (p: BlockParsers)(input: String): Either[String,(Seq[Span],Seq[Block])] = {
-    val parser = p.opt(p.paragraph) ~ p.opt(p.blankLines ~> p.blockList(p.nestedBlock)) ^^ {
+    val parser = opt(p.paragraph) ~ opt(p.blankLines ~> p.blockList(p.nestedBlock)) ^^ {
       case ~(Some(caption), Some(legend)) => (caption.content, legend)
       case ~(Some(caption), None)         => (caption.content, Nil)
       case _                              => (Nil, Nil)

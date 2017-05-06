@@ -17,7 +17,8 @@
 package laika.parse.rst
 
 import com.typesafe.config.{Config, ConfigValueFactory}
-import laika.parse.core.{Failure, Success, _}
+import laika.parse.core._
+import laika.parse.core.combinator.Parsers._
 import laika.parse.core.text.Characters
 import laika.parse.rst.Elements._
 import laika.rewrite.TreeUtil

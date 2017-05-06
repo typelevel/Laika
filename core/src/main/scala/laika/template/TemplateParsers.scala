@@ -17,6 +17,7 @@
 package laika.template
 
 import laika.parse.core.{Parser, ParserContext}
+import laika.parse.core.combinator.Parsers._
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions

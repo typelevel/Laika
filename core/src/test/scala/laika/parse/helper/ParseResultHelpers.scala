@@ -16,12 +16,11 @@
 
 package laika.parse.helper
 
-import laika.parse.BaseParsers
 import laika.parse.core.{Failure, Parsed, Success}
 import org.scalatest.matchers.MatchResult
 import org.scalatest.matchers.Matcher
 
-trait ParseResultHelpers { self: BaseParsers =>
+trait ParseResultHelpers {
 
   class ParserFailureMatcher[T <: Failure](m: Manifest[T]) extends Matcher[Parsed[_]] {
 

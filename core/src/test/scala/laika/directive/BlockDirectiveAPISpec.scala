@@ -18,9 +18,11 @@ package laika.directive
 
 import laika.directive.Directives.Blocks.Directive
 import laika.directive.Directives.{Blocks, Default, Spans}
-import laika.parse.{BlockParsers, InlineParsers}
 import laika.parse.core.Parser
+import laika.parse.core.combinator.Parsers
+import laika.parse.core.combinator.Parsers._
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
+import laika.parse.{BlockParsers, InlineParsers}
 import laika.template.TemplateParsers
 import laika.tree.Elements._
 import laika.tree.Templates.MarkupContextReference
@@ -110,7 +112,7 @@ class BlockDirectiveAPISpec extends FlatSpec
   trait EmptyBlockParsers extends BlockParsers with InlineParsers {
     override protected def prepareSpanParsers = Map[Char,Parser[Span]]()
     override protected def prepareBlockParsers (nested: Boolean): List[Parser[Block]] = List(
-      recursiveSpans(mergeSpanLines((not(blankLine) ~> restOfLine) +)) ^^ { Paragraph(_) }
+      recursiveSpans(mergeSpanLines((Parsers.not(blankLine) ~> restOfLine) +)) ^^ { Paragraph(_) }
     )
   }
   trait TemplateParser extends EmptyBlockParsers 

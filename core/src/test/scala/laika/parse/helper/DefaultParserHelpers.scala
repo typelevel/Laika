@@ -16,10 +16,10 @@
 
 package laika.parse.helper
 
-import laika.parse.BaseParsers
 import laika.parse.core._
+import laika.parse.core.combinator.Parsers
 
-trait DefaultParserHelpers[T] { self: BaseParsers =>
+trait DefaultParserHelpers[T] {
   
   def defaultParser: Parser[T]
   

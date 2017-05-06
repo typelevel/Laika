@@ -17,6 +17,8 @@
 package laika.parse
 
 import laika.parse.core._
+import laika.parse.core.combinator.Parsers
+import laika.parse.core.combinator.Parsers._
 import laika.parse.core.text.Characters
 import laika.util.~
 
@@ -30,7 +32,7 @@ import laika.util.~
  * 
  *  @author Jens Halm
  */
-trait MarkupParsers extends BaseParsers {
+trait MarkupParsers {
 
   
   /** Implicit conversion that allows to pass a single
@@ -121,7 +123,7 @@ class MarkupParserException (val result: Failure) extends RuntimeException(resul
 class MarkupParser[T] (p: Parser[T]) extends Parser[T] {
 
 
-  val parser = BaseParsers.consumeAll(p)
+  val parser = Parsers.consumeAll(p)
 
 
   def parse (ctx: ParserContext): Parsed[T] = parser.parse(ctx)

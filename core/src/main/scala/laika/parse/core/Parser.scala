@@ -25,7 +25,7 @@ import laika.util.~
 abstract class Parser[+T] {
 
 
-  import laika.parse.BaseParsers._
+  import laika.parse.core.combinator.Parsers._
 
 
   def parse (in: ParserContext): Parsed[T]

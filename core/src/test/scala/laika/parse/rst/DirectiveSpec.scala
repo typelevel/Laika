@@ -17,6 +17,7 @@
 package laika.parse.rst
 
 import laika.parse.core.Parser
+import laika.parse.core.combinator.Parsers
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
@@ -559,7 +560,7 @@ class DirectiveSpec extends FlatSpec
   "The role directive parser" should "parse a simple definition" in {
     val input = """.. role::custom(role)
     	| :name: 9""".stripMargin
-    consumeAll(docWithTextRoles).parse(input) should produce (root (p("custom(9)")))
+    Parsers.consumeAll(docWithTextRoles).parse(input) should produce (root (p("custom(9)")))
   }
   
   it should "detect a defintion with a missing required field as invalid" in {

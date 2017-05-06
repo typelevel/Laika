@@ -17,6 +17,7 @@
 package laika.parse
 
 import laika.parse.core.{Failure, ParserContext}
+import laika.parse.core.combinator.Parsers._
 import laika.parse.helper.{ParseResultHelpers, StringParserHelpers}
 import laika.util.~
 import org.scalatest.{FlatSpec, Matchers}

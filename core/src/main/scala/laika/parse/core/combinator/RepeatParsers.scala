@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package laika.parse
+package laika.parse.core.combinator
 
 import laika.parse.core._
+import laika.parse.core.combinator.Parsers._
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
@@ -24,7 +25,7 @@ import scala.collection.mutable.ListBuffer
 /**
   * @author Jens Halm
   */
-trait RepeatParsers { this: BaseParsers =>
+trait RepeatParsers {
 
 
   // TODO - unify these all into a single implementation

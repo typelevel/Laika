@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-package laika.parse
+package laika.parse.core.combinator
 
 import laika.parse.core._
 import laika.parse.core.text.Literal
 import laika.util.~
 
-import scala.util.Try
-import scala.util.{Success => TSuccess}
-import scala.util.{Failure => TFailure}
+import scala.util.{Try, Failure => TFailure, Success => TSuccess}
 
 /**
  * Generic base parsers which are not specifically tailored for parsing of text markup.
  * 
  * @author Jens Halm
  */
-trait BaseParsers extends RepeatParsers {
+object Parsers extends RepeatParsers {
 
 
   /**  A parser that matches only the specified character.
@@ -149,5 +147,3 @@ trait BaseParsers extends RepeatParsers {
   def mkList[T] = (_: ~[T, List[T]]) match { case x ~ xs => x :: xs }
   
 }
-
-object BaseParsers extends BaseParsers

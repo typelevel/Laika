@@ -16,8 +16,8 @@
 
 package laika.parse.rst
 
-import laika.parse.MarkupParser
 import laika.parse.core._
+import laika.parse.core.combinator.Parsers._
 import laika.parse.core.text.{DelimitedBy, DelimitedText, DelimiterOptions}
 import laika.parse.rst.Elements.{InterpretedText, SubstitutionReference}
 import laika.parse.util.URIParsers

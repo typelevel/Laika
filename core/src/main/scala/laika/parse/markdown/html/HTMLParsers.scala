@@ -17,6 +17,7 @@
 package laika.parse.markdown.html
 
 import laika.parse.core.Parser
+import laika.parse.core.combinator.Parsers._
 import laika.parse.core.text.{DelimitedBy, DelimitedText}
 import laika.parse.markdown.{BlockParsers, InlineParsers}
 import laika.parse.markdown.html.HTMLElements._

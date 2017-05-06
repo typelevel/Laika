@@ -17,6 +17,7 @@
 package laika.parse.css
 
 import laika.parse.css.Styles._
+import laika.parse.core.combinator.Parsers._
 import laika.tree.Paths.Path
 import laika.tree.Elements.Span
 import laika.io.Input

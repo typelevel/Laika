@@ -17,6 +17,7 @@
 package laika.parse
   
 import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
+import laika.parse.core.combinator.Parsers._
 import laika.parse.core.markup.RecursiveBlockParsers
 import laika.rewrite.TreeUtil
 import laika.tree.Documents.Document
@@ -118,8 +119,8 @@ trait BlockParsers extends MarkupParsers with RecursiveBlockParsers {
 
   private class RecursiveBlockParser {
 
-    lazy val recursive    = BaseParsers.consumeAll(opt(blankLines) ~> blockList(nestedBlock))
-    lazy val nonRecursive = BaseParsers.consumeAll(opt(blankLines) ~> blockList(nonRecursiveBlock))
+    lazy val recursive    = consumeAll(opt(blankLines) ~> blockList(nestedBlock))
+    lazy val nonRecursive = consumeAll(opt(blankLines) ~> blockList(nonRecursiveBlock))
 
     def parse (source: String, nestLevel: Int): Parsed[List[Block]] = {
       val p = if (nestLevel < maxNestLevel) recursive else nonRecursive
