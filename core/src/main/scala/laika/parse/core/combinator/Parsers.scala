@@ -30,26 +30,6 @@ import scala.util.{Try, Failure => TFailure, Success => TSuccess}
 object Parsers extends RepeatParsers {
 
 
-  /**  A parser that matches only the specified character.
-    *
-    *  The method is implicit so that characters can automatically be lifted to their parsers.
-    */
-  implicit def char (expected: Char): Parser[Char] = {
-    val errMsg: Char => Message = Message.forRuntimeValue[Char] { found => s"'$expected' expected but $found found" }
-    Parser { in =>
-      if (in.atEnd) Failure(Message.UnexpectedEOF, in)
-      else if (in.char == expected) Success(in.char, in.consume(1))
-      else Failure(errMsg(in.char), in)
-    }
-  }
-
-  /**  A parser that matches only the specified literal string.
-    *
-    *  The method is implicit so that strings can automatically be lifted to their parsers.
-    */
-  implicit def literal (expected: String): Parser[String] = Literal(expected)
-
-
   /** A parser for an optional element that always succeeds.
     *
     * If the underlying parser succeeds this parser will contain its result as a `Some`,

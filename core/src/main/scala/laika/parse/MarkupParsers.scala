@@ -19,7 +19,7 @@ package laika.parse
 import laika.parse.core._
 import laika.parse.core.combinator.Parsers
 import laika.parse.core.combinator.Parsers._
-import laika.parse.core.text.Characters
+import laika.parse.core.text.{Characters, Literal}
 import laika.util.~
 
 /** Base parsers that provide optimized low-level renderers for typical requirements
@@ -40,6 +40,24 @@ trait MarkupParsers {
    */
   implicit def charToTraversable (char: Char): Traversable[Char] = Set(char)
 
+  /**  A parser that matches only the specified character.
+    *
+    *  The method is implicit so that characters can automatically be lifted to their parsers.
+    */
+  implicit def char (expected: Char): Parser[Char] = {
+    val errMsg: Char => Message = Message.forRuntimeValue[Char] { found => s"'$expected' expected but $found found" }
+    Parser { in =>
+      if (in.atEnd) Failure(Message.UnexpectedEOF, in)
+      else if (in.char == expected) Success(in.char, in.consume(1))
+      else Failure(errMsg(in.char), in)
+    }
+  }
+
+  /**  A parser that matches only the specified literal string.
+    *
+    *  The method is implicit so that strings can automatically be lifted to their parsers.
+    */
+  implicit def literal (expected: String): Parser[String] = Literal(expected)
 
   /** Parses horizontal whitespace (space and tab).
     * Always succeeds, consuming all whitespace found.
@@ -71,6 +89,32 @@ trait MarkupParsers {
     if (in.offset == 0) Success(success(()), in) 
     else Failure(Message.ExpectedStart, in)
   }
+
+  /** Parses a blank line from the current input offset (which may not be at the
+    *  start of the line). Fails for lines that contain any non-whitespace character.
+    *  Does always produce an empty string as the result, discarding any whitespace
+    *  characters found in the line.
+    *
+    *  Since it also succeeds at the end of the input
+    *  it should never be used in the form of `(blankLine *)` or `(blankLine +)`. Use
+    *  the `blankLines` parser instead in these cases.
+    */
+  val blankLine: Parser[String] = wsEol ^^^ ""
+
+  /** Parses one or more blanklines, producing a list of empty strings corresponding
+    *  to the number of blank lines consumed.
+    */
+  val blankLines: Parser[List[String]] = (not(eof) ~> blankLine)+
+
+  /** Parses the rest of the line from the current input offset no matter whether
+    *  it consist of whitespace only or some text. Does not include the eol character(s).
+    */
+  val restOfLine: Parser[String] = anyBut('\n','\r') <~ eol
+
+  /** Parses a single text line from the current input offset (which may not be at the
+    *  start of the line. Fails for blank lines. Does not include the eol character(s).
+    */
+  val textLine: Parser[String] = not(blankLine) ~> restOfLine
 
   /** Parses a simple reference name that only allows alphanumerical characters
    *  and the punctuation characters `-`, `_`, `.`, `:`, `+`.

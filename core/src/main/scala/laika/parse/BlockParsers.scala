@@ -166,33 +166,6 @@ trait BlockParsers extends MarkupParsers with RecursiveBlockParsers {
   def mergeLines (p: Parser[Seq[String]]): Parser[String] = p ^^ (_.mkString("\n"))
   def mergeIndentedLines (p: Parser[IndentedBlock]): Parser[String] = p ^^ (_.lines.mkString("\n"))
 
-  /** Parses a blank line from the current input offset (which may not be at the
-   *  start of the line). Fails for lines that contain any non-whitespace character.
-   *  Does always produce an empty string as the result, discarding any whitespace
-   *  characters found in the line. 
-   *  
-   *  Since it also succeeds at the end of the input
-   *  it should never be used in the form of `(blankLine *)` or `(blankLine +)`. Use
-   *  the `blankLines` parser instead in these cases.
-   */
-  val blankLine: Parser[String] = wsEol ^^^ ""
-  
-  /** Parses one or more blanklines, producing a list of empty strings corresponding
-   *  to the number of blank lines consumed.
-   */
-  val blankLines: Parser[List[String]] = (not(eof) ~> blankLine)+
-
-  /** Parses the rest of the line from the current input offset no matter whether
-    *  it consist of whitespace only or some text. Does not include the eol character(s).
-    */
-  val restOfLine: Parser[String] = anyBut('\n','\r') <~ eol
-
-  /** Parses a single text line from the current input offset (which may not be at the
-    *  start of the line. Fails for blank lines. Does not include the eol character(s).
-    */
-  val textLine: Parser[String] = not(blankLine) ~> restOfLine
-
-
   /** Parses a full block based on the specified helper parsers.
    * 
    *  @param firstLinePrefix parser that recognizes the start of the first line of this block
