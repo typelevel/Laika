@@ -17,12 +17,12 @@
 package laika.parse
 
 import laika.parse.core.{Failure, ParserContext}
-import laika.parse.core.combinator.Parsers._
+import laika.parse.core.text.TextParsers._
 import laika.parse.helper.{ParseResultHelpers, StringParserHelpers}
 import laika.util.~
 import org.scalatest.{FlatSpec, Matchers}
 
-class BaseParsersSpec extends FlatSpec with Matchers with MarkupParsers with ParseResultHelpers with StringParserHelpers {
+class BaseParsersSpec extends FlatSpec with Matchers with ParseResultHelpers with StringParserHelpers {
 
   
   "The parser for dynamic repetitions" should "parse a sequence based on a dynamically changing parser" in {

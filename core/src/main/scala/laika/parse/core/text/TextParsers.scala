@@ -14,25 +14,23 @@
  * limitations under the License.
  */
 
-package laika.parse
+package laika.parse.core.text
 
 import laika.parse.core._
 import laika.parse.core.combinator.Parsers
-import laika.parse.core.combinator.Parsers._
-import laika.parse.core.text.{Characters, Literal}
 import laika.util.~
 
-/** Base parsers that provide optimized low-level renderers for typical requirements
+/** Base parsers that provide optimized low-level parsers for typical requirements
  *  of text markup parsers. In particular they are meant as an efficient replacement
  *  for scenarios where usually regex parsers are used. In cases where different parsers
  *  need to be tried for relatively short input sequences, regex parsers tend to be less
  *  efficient. Furthermore, these base parsers may also improve readability, as it
  *  allows to combine simple low-level parsers to higher-level parsers based on the
- *  Scala SDK combinator API, instead of producing long regexes which may be hard to read.  
+ *  Laika combinator API, instead of producing long regexes which may be hard to read.
  * 
  *  @author Jens Halm
  */
-trait MarkupParsers {
+object TextParsers extends Parsers {
 
   
   /** Implicit conversion that allows to pass a single

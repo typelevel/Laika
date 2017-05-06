@@ -17,7 +17,7 @@
 package laika.parse.rst
 
 import laika.parse.core.Parser
-import laika.parse.core.combinator.Parsers._
+import laika.parse.core.text.TextParsers._
 import laika.parse.core.text.{Characters, DelimitedBy}
 import laika.parse.rst.Elements._
 import laika.tree.Elements._

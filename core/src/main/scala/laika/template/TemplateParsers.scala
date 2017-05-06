@@ -17,13 +17,13 @@
 package laika.template
 
 import laika.parse.core.{Parser, ParserContext}
-import laika.parse.core.combinator.Parsers._
+import laika.parse.core.text.TextParsers._
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions
 import laika.directive.DirectiveParsers
-import laika.parse.{InlineParsers, MarkupParser, MarkupParsers}
-import laika.parse.core.text.DelimitedBy
+import laika.parse.{InlineParsers}
+import laika.parse.core.text.{DelimitedBy, MarkupParser}
 import laika.tree.Paths.Path
 import laika.tree.Documents.TemplateDocument
 import laika.tree.Elements._
@@ -45,7 +45,7 @@ trait TemplateParsers extends InlineParsers {
 }
 
 
-object ConfigParser extends MarkupParsers {
+object ConfigParser {
 
   val configBlock = "{%" ~> DelimitedBy("%}") <~ wsEol
 

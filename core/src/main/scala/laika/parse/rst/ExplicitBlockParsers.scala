@@ -16,8 +16,8 @@
 
 package laika.parse.rst
 
-import laika.parse.core.combinator.Parsers._
 import laika.parse.core.text.DelimitedBy
+import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Failure, Parser, Success}
 import laika.parse.rst.Directives._
 import laika.parse.rst.Elements.{SubstitutionDefinition, _}

@@ -16,7 +16,7 @@
 
 package laika.parse.rst
 
-import laika.parse.core.combinator.Parsers._
+import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Parser, Success}
 import laika.tree.Elements._
 import laika.util.~

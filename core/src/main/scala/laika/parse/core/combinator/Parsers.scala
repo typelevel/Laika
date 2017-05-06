@@ -27,7 +27,7 @@ import scala.util.{Try, Failure => TFailure, Success => TSuccess}
  * 
  * @author Jens Halm
  */
-object Parsers extends RepeatParsers {
+trait Parsers extends RepeatParsers {
 
 
   /** A parser for an optional element that always succeeds.
@@ -127,3 +127,5 @@ object Parsers extends RepeatParsers {
   def mkList[T] = (_: ~[T, List[T]]) match { case x ~ xs => x :: xs }
   
 }
+
+object Parsers extends Parsers

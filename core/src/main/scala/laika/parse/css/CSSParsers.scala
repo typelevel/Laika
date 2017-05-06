@@ -17,12 +17,11 @@
 package laika.parse.css
 
 import laika.parse.css.Styles._
-import laika.parse.core.combinator.Parsers._
+import laika.parse.core.text.TextParsers._
 import laika.tree.Paths.Path
 import laika.tree.Elements.Span
 import laika.io.Input
-import laika.parse.MarkupParser
-import laika.parse.core.text.DelimitedBy
+import laika.parse.core.text.{DelimitedBy, MarkupParser}
 import laika.parse.core.{Parser, ParserContext}
 import laika.util.~
 

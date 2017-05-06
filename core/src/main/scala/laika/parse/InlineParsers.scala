@@ -17,7 +17,7 @@
 package laika.parse
 
 import laika.parse.core.markup.{EndDelimiter, InlineDelimiter, NestedDelimiter, RecursiveSpanParsers}
-import laika.parse.core.text.{DelimitedBy, DelimitedText}
+import laika.parse.core.text.{DelimitedBy, DelimitedText, TextParsers}
 import laika.parse.core._
 
 import scala.annotation.tailrec
@@ -39,7 +39,7 @@ import laika.tree.Elements._
  *  
  *  @author Jens Halm
  */
-trait InlineParsers extends MarkupParsers with RecursiveSpanParsers {
+trait InlineParsers extends RecursiveSpanParsers {
   
 
   /** The mapping of markup start characters to their corresponding
@@ -171,7 +171,7 @@ trait InlineParsers extends MarkupParsers with RecursiveSpanParsers {
    *  In the default implementation any character can be escaped.
    *  Sub-traits may override this parser to restrict the number of escapable characters.
    */
-  protected lazy val escapedChar: Parser[String] = any take 1
+  protected lazy val escapedChar: Parser[String] = TextParsers.any take 1
 
   /** Adds support for escape sequences to the specified text parser.
     *

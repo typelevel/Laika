@@ -20,7 +20,7 @@ import laika.directive.Directives.Blocks.Directive
 import laika.directive.Directives.{Blocks, Default, Spans}
 import laika.parse.core.Parser
 import laika.parse.core.combinator.Parsers
-import laika.parse.core.combinator.Parsers._
+import laika.parse.core.text.TextParsers._
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.parse.{BlockParsers, InlineParsers}
 import laika.template.TemplateParsers

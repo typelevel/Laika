@@ -17,8 +17,8 @@
 package laika.parse.markdown
 
 import laika.parse.core.Parser
-import laika.parse.core.combinator.Parsers._
 import laika.parse.core.text.DelimitedBy
+import laika.parse.core.text.TextParsers._
 import laika.tree.Elements._
 import laika.util.~
  

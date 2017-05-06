@@ -17,13 +17,14 @@
 package laika.parse
   
 import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
-import laika.parse.core.combinator.Parsers._
 import laika.parse.core.markup.RecursiveBlockParsers
+import laika.parse.core.text.MarkupParser
+import laika.parse.core.text.TextParsers._
+import laika.parse.core.{Failure, ParserContext, Success, _}
 import laika.rewrite.TreeUtil
 import laika.tree.Documents.Document
 import laika.tree.Elements.{Block, ConfigValue, Error, InvalidBlock, Paragraph, RootElement, SystemMessage, Text}
 import laika.tree.Paths.Path
-import laika.parse.core.{Failure, ParserContext, Success, _}
 import laika.util.~
   
 /** A generic base trait for block parsers. Provides base parsers that abstract
@@ -42,7 +43,7 @@ import laika.util.~
  * 
  *  @author Jens Halm
  */
-trait BlockParsers extends MarkupParsers with RecursiveBlockParsers {
+trait BlockParsers extends RecursiveBlockParsers {
 
   
   /** The maximum level of block nesting. Some block types like lists

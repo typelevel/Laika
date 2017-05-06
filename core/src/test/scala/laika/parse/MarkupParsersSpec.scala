@@ -17,13 +17,14 @@
 package laika.parse
 
 import laika.parse.core.Failure
-import laika.parse.core.text.DelimitedBy
+import laika.parse.core.text.{DelimitedBy}
+import laika.parse.core.text.TextParsers._
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 import laika.parse.helper.ParseResultHelpers
 import laika.parse.helper.StringParserHelpers
    
-class MarkupParsersSpec extends FlatSpec with Matchers with MarkupParsers with ParseResultHelpers with StringParserHelpers {
+class MarkupParsersSpec extends FlatSpec with Matchers with ParseResultHelpers with StringParserHelpers {
  
   
   "The eol parser" should "succeed for \\n" in {

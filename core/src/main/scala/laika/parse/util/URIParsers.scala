@@ -16,9 +16,8 @@
 
 package laika.parse.util
 
-import laika.parse.MarkupParsers
-import laika.parse.core.combinator.Parsers._
 import laika.parse.core.text.Characters
+import laika.parse.core.text.TextParsers._
 import laika.parse.core.Parser
 import laika.util.~
 
@@ -28,7 +27,7 @@ import laika.util.~
  * 
  * @author Jens Halm
  */
-trait URIParsers extends MarkupParsers {
+trait URIParsers {
 
   
   /** Flattens the result from various combinators,

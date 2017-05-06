@@ -17,7 +17,7 @@
 package laika.parse.markdown
 
 import laika.parse.core.Parser
-import laika.parse.core.combinator.Parsers._
+import laika.parse.core.text.TextParsers._
 import laika.parse.util.WhitespacePreprocessor
 import laika.tree.Elements._
 import laika.util.~

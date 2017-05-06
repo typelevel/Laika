@@ -18,7 +18,7 @@ package laika.parse.rst
 
 import com.typesafe.config.{Config, ConfigValueFactory}
 import laika.parse.core._
-import laika.parse.core.combinator.Parsers._
+import laika.parse.core.text.TextParsers._
 import laika.parse.core.text.Characters
 import laika.parse.rst.Elements._
 import laika.rewrite.TreeUtil
@@ -48,7 +48,7 @@ trait BlockParsers extends laika.parse.BlockParsers
                       with ExplicitBlockParsers { self: InlineParsers =>
 
   
-  override lazy val ws: Characters = anyOf(' ') // other whitespace has been replaced with spaces by preprocessor
+  val ws: Characters = anyOf(' ') // other whitespace has been replaced with spaces by preprocessor
                         
   
   override def parseDocument (reader: ParserContext, path: Path): Document = {
