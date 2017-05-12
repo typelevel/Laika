@@ -16,9 +16,9 @@
 
 package laika.parse.rst
 
-import laika.parse.core.markup.BlockParsers._
 import laika.parse.core._
-import laika.parse.core.markup.{EscapedTextParsers, InlineParsers, RecursiveParsers}
+import laika.parse.core.markup.BlockParsers._
+import laika.parse.core.markup.{RecursiveParsers, InlineParsers => CoreInlineParsers}
 import laika.parse.core.text.Characters
 import laika.parse.core.text.TextParsers._
 import laika.parse.rst.BaseParsers._
@@ -56,7 +56,7 @@ class BlockParsers (recParsers: RecursiveParsers) {
    *  recognized as a special reStructuredText block type will be parsed as a regular paragraph.
    */
   lazy val paragraph: Parser[Paragraph] =
-    recursiveSpans(InlineParsers.mergeSpanLines((not(blankLine) ~> restOfLine) +)) ^^ { Paragraph(_) }
+    recursiveSpans(CoreInlineParsers.mergeSpanLines((not(blankLine) ~> restOfLine) +)) ^^ { Paragraph(_) }
 
 
   /** Parses a section header with both overline and underline.
