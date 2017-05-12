@@ -170,7 +170,7 @@ class MarkupDirectiveParsers(recParsers: RecursiveParsers,
   val directiveParsers = new DirectiveParsers(escapedText)
 
   import directiveParsers._
-  import laika.parse.BlockParsers._
+  import BlockParsers._
   import recParsers._
 
 

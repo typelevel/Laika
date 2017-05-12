@@ -21,7 +21,7 @@ import laika.parse.core.text.TextParsers._
 import laika.tree.Paths.Path
 import laika.tree.Elements.Span
 import laika.io.Input
-import laika.parse.InlineParsers
+import laika.parse.core.markup.InlineParsers
 import laika.parse.core.text.{DelimitedBy, MarkupParser}
 import laika.parse.core.{Parser, ParserContext}
 import laika.util.~

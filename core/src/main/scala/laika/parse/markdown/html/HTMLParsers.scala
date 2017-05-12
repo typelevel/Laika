@@ -16,7 +16,7 @@
 
 package laika.parse.markdown.html
 
-import laika.parse.InlineParsers._
+import laika.parse.core.markup.InlineParsers._
 import laika.parse.core.Parser
 import laika.parse.core.markup.RecursiveSpanParsers
 import laika.parse.core.text.TextParsers._

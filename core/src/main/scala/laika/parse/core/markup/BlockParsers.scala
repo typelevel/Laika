@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package laika.parse
-  
+package laika.parse.core.markup
+
 import laika.parse.core._
 import laika.parse.core.text.TextParsers._
 import laika.util.~

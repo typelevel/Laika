@@ -16,7 +16,7 @@
 
 package laika.parse.rst
 
-import laika.parse.BlockParsers._
+import laika.parse.core.markup.BlockParsers._
 import laika.parse.core.markup.{EscapedTextParsers, RecursiveParsers}
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.Parser

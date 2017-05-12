@@ -16,7 +16,6 @@
 
 package laika.parse.core.markup
 
-import laika.parse.InlineParsers
 import laika.parse.core.{Failure, Parser, Success}
 import laika.parse.core.text.{DelimitedBy, DelimitedText}
 import laika.tree.Elements.{Error, InvalidSpan, Reverse, Span, SystemMessage, Text}

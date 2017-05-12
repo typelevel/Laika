@@ -16,7 +16,7 @@
 
 package laika.parse.markdown
 
-import laika.parse.InlineParsers.text
+import laika.parse.core.markup.InlineParsers.text
 import laika.parse.core.Parser
 import laika.parse.core.markup.{EscapedTextParsers, RecursiveSpanParsers}
 import laika.parse.core.text.DelimitedBy

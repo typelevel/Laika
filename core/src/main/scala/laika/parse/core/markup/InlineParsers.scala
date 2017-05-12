@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package laika.parse
+package laika.parse.core.markup
 
-import laika.parse.core.markup.{EndDelimiter, InlineDelimiter, NestedDelimiter, RecursiveSpanParsers}
-import laika.parse.core.text.{DelimitedBy, DelimitedText, TextParsers}
 import laika.parse.core._
+import laika.parse.core.text.{DelimitedBy, DelimitedText}
+import laika.tree.Elements._
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
-import laika.tree.Elements._
   
 /** A generic base trait for inline parsers. Provides base parsers that abstract
  *  aspects of inline parsing common to most lightweight markup languages.

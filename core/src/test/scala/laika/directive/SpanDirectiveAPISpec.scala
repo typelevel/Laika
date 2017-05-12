@@ -18,9 +18,8 @@ package laika.directive
 
 import laika.directive.Directives.{Default, Spans}
 import laika.directive.Directives.Spans.Directive
-import laika.parse.InlineParsers
 import laika.parse.core.Parser
-import laika.parse.core.markup.{DefaultEscapedTextParsers, DefaultRecursiveSpanParsers, RecursiveParsers, RootParserBase}
+import laika.parse.core.markup._
 import laika.parse.helper.{DefaultParserHelpers, EmptyRecursiveBlockParsers, ParseResultHelpers}
 import laika.template.TemplateParsers
 import laika.tree.Elements._

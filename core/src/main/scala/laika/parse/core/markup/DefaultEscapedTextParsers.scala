@@ -15,7 +15,6 @@
  */
 
 package laika.parse.core.markup
-import laika.parse.InlineParsers
 import laika.parse.core.Parser
 import laika.parse.core.text.{DelimitedBy, DelimitedText, TextParsers}
 

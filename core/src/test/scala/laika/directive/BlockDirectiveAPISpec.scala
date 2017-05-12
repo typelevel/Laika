@@ -17,18 +17,17 @@
 package laika.directive
 
 import laika.directive.Directives.Blocks.Directive
-import laika.directive.Directives.{Blocks, Default, Spans}
+import laika.directive.Directives.{Blocks, Default}
 import laika.parse.core.Parser
 import laika.parse.core.combinator.Parsers
-import laika.parse.core.markup.RootParserBase
+import laika.parse.core.markup.{InlineParsers, RootParserBase}
 import laika.parse.core.text.TextParsers._
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
-import laika.parse.{BlockParsers, InlineParsers}
-import laika.template.TemplateParsers
 import laika.tree.Elements._
 import laika.tree.Templates.MarkupContextReference
 import laika.tree.helper.ModelBuilder
 import org.scalatest.{FlatSpec, Matchers}
+
 
 class BlockDirectiveAPISpec extends FlatSpec
                           with Matchers
