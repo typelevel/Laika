@@ -38,7 +38,7 @@ import scala.collection.mutable.StringBuilder
  * 
  *  @author Jens Halm
  */
-class BlockParsers (recParsers: RecursiveParsers with EscapedTextParsers) {
+class BlockParsers (recParsers: RecursiveParsers) {
 
 
   import recParsers._

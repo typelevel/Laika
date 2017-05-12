@@ -28,7 +28,7 @@ import scala.collection.mutable.{ListBuffer, Stack}
  * 
  * @author Jens Halm
  */
-class TableParsers (recParsers: RecursiveParsers with EscapedTextParsers) {
+class TableParsers (recParsers: RecursiveParsers) {
 
 
   import recParsers._

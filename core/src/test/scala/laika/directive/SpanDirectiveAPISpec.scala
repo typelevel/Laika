@@ -20,7 +20,7 @@ import laika.directive.Directives.{Default, Spans}
 import laika.directive.Directives.Spans.Directive
 import laika.parse.core.Parser
 import laika.parse.core.markup._
-import laika.parse.helper.{DefaultParserHelpers, EmptyRecursiveBlockParsers, ParseResultHelpers}
+import laika.parse.helper.{DefaultParserHelpers, EmptyRecursiveParsers, ParseResultHelpers}
 import laika.template.TemplateParsers
 import laika.tree.Elements._
 import laika.tree.Templates.MarkupContextReference
@@ -107,16 +107,13 @@ class SpanDirectiveAPISpec extends FlatSpec
     
   }
   
-  trait SpanParser extends DefaultRecursiveSpanParsers
-                   with DefaultEscapedTextParsers
-                   with EmptyRecursiveBlockParsers
-                   with RecursiveParsers
+  trait SpanParser extends EmptyRecursiveParsers
                    with ParseResultHelpers
                    with DefaultParserHelpers[SpanSequence] {
     
     def directive: Directive
 
-    lazy val directiveParsers = new MarkupDirectiveParsers(this, this, Map(), Map(directive.name -> directive))
+    lazy val directiveParsers = new MarkupDirectiveParsers(this, Map(), Map(directive.name -> directive))
 
     protected lazy val spanParsers: Map[Char, Parser[Span]] = directiveParsers.spanParsers
 

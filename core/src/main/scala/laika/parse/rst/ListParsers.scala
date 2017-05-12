@@ -33,7 +33,7 @@ import scala.util.Try
  * 
  * @author Jens Halm
  */
-class ListParsers (recParsers: RecursiveParsers with EscapedTextParsers) {
+class ListParsers (recParsers: RecursiveParsers) {
 
 
   import recParsers._

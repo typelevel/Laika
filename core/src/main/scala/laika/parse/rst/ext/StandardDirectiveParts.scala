@@ -50,7 +50,7 @@ object StandardDirectiveParts {
   /** The image directive for span elements,
     *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#image]] for details.
     */
-  def image (p: RecursiveParsers with EscapedTextParsers): DirectivePart[Span] = {
+  def image (p: RecursiveParsers): DirectivePart[Span] = {
     def multilineURI (text: String) = Right(text.split("\n").map(_.trim).mkString("\n").trim)
 
     (argument(multilineURI, withWS = true) ~ optField("alt") ~ optField("target", StandardDirectiveParsers.target(p)) ~ stdOpt) { (uri, alt, target, opt) =>

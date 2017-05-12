@@ -36,7 +36,7 @@ import laika.util.~
  * 
  *  @author Jens Halm
  */
-class InlineParsers (recParsers: RecursiveSpanParsers with EscapedTextParsers, defaultTextRole: String) {
+class InlineParsers (recParsers: RecursiveSpanParsers, defaultTextRole: String) {
 
 
   import recParsers._

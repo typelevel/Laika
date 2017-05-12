@@ -23,7 +23,7 @@ import laika.tree.Elements.{Block, Error, InvalidBlock, Paragraph, SystemMessage
 /**
   * @author Jens Halm
   */
-trait DefaultRecursiveBlockParsers extends RecursiveBlockParsers {
+trait DefaultRecursiveParsers extends RecursiveParsers with DefaultRecursiveSpanParsers {
 
 
   /** The maximum level of block nesting. Some block types like lists

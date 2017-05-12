@@ -146,7 +146,7 @@ class StandardBlockDirectives {
   /** The sidebar directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#sidebar]] for details.
    */
-  def sidebar (p: RecursiveParsers with EscapedTextParsers): DirectivePart[Block] = {
+  def sidebar (p: RecursiveParsers): DirectivePart[Block] = {
     (spanArgument ~ optField("subtitle", StandardDirectiveParsers.standardSpans(p)) ~
         blockContent ~ stdOpt) { (title, subtitle, content, opt) =>
       val titleAndContent = subtitle.map(s => Paragraph(s, Styles("subtitle"))).toList ++ content
@@ -238,7 +238,7 @@ class StandardBlockDirectives {
   /** The table directive, adding a title to standard reStructuredText tables, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#table]] for details.
    */
-  def table (p: RecursiveParsers with EscapedTextParsers): DirectivePart[Block] = {
+  def table (p: RecursiveParsers): DirectivePart[Block] = {
     (optSpanArgument ~ content(StandardDirectiveParsers.table(p)) ~ stdOpt) { (caption, table, opt) =>
       table.copy(caption = Caption(caption.toList.flatten), options = opt)
     } 
@@ -257,12 +257,12 @@ class StandardBlockDirectives {
   /** The image directive for block elements, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#image]] for details.
    */
-  def imageBlock (p: RecursiveParsers with EscapedTextParsers): DirectivePart[Block] = image(p) map (img => Paragraph(List(img)))
+  def imageBlock (p: RecursiveParsers): DirectivePart[Block] = image(p) map (img => Paragraph(List(img)))
   
   /** The figure directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#figure]] for details.
    */
-  def figure (p: RecursiveParsers with EscapedTextParsers): DirectivePart[Block] = {
+  def figure (p: RecursiveParsers): DirectivePart[Block] = {
     (image(p) ~ content(StandardDirectiveParsers.captionAndLegend(p)) ~ optField("figclass")) { (image, captionAndLegend, figStyles) =>
       Figure(image, captionAndLegend._1, captionAndLegend._2, toOptions(None, figStyles))
     } 

@@ -212,7 +212,7 @@ object TextRoles {
     
   }
 
-  type RoleDirectivePartBuilder[E] = RecursiveParsers with EscapedTextParsers => RoleDirectivePart[E]
+  type RoleDirectivePartBuilder[E] = RecursiveParsers => RoleDirectivePart[E]
 
   /** Represents a single text role implementation.
    */

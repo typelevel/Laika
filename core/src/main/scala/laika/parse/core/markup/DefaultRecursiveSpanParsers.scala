@@ -25,7 +25,7 @@ import scala.collection.mutable.ListBuffer
 /**
   * @author Jens Halm
   */
-trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers {
+trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers with DefaultEscapedTextParsers {
 
 
   /** The mapping of markup start characters to their corresponding

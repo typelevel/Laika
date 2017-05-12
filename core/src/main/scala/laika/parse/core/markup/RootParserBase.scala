@@ -29,10 +29,7 @@ import laika.util.~
 /**
   * @author Jens Halm
   */
-trait RootParserBase extends RecursiveParsers
-                 with DefaultEscapedTextParsers
-                 with DefaultRecursiveSpanParsers
-                 with DefaultRecursiveBlockParsers {
+trait RootParserBase extends DefaultRecursiveParsers {
 
 
   /** Parses a full document, delegating most of the work to the `topLevelBlock` parser.

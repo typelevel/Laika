@@ -163,11 +163,10 @@ class DirectiveParsers (escapedText: EscapedTextParsers) {
 /** Provides the parsers for directives in markup documents.
   */
 class MarkupDirectiveParsers(recParsers: RecursiveParsers,
-                             escapedText: EscapedTextParsers,
                              blockDirectives: Map[String, Blocks.Directive],
                              spanDirectives: Map[String, Spans.Directive]) {
 
-  val directiveParsers = new DirectiveParsers(escapedText)
+  val directiveParsers = new DirectiveParsers(recParsers)
 
   import directiveParsers._
   import BlockParsers._

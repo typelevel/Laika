@@ -37,7 +37,7 @@ import scala.collection.mutable.ListBuffer
  * 
  * @author Jens Halm
  */
-class ExplicitBlockParsers (recParsers: RecursiveParsers with EscapedTextParsers,
+class ExplicitBlockParsers (recParsers: RecursiveParsers,
                             blockDirectives: Map[String, DirectivePart[Block]],
                             spanDirectives: Map[String, DirectivePart[Span]],
                             textRoles: Map[String, RoleDirectivePart[String => Span]],

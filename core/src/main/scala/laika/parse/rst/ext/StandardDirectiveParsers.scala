@@ -53,7 +53,7 @@ object StandardDirectiveParsers {
    *  @param input the input to parse
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
-  def standardSpans (p: RecursiveParsers with EscapedTextParsers)(input: String): Either[String,Seq[Span]] =
+  def standardSpans (p: RecursiveParsers)(input: String): Either[String,Seq[Span]] =
     parseDirectivePart(p.recursiveSpans, input.trim)
 
   /** Parses one of the two table types supported by `reStructuredText`.
@@ -62,7 +62,7 @@ object StandardDirectiveParsers {
    *  @param input the input to parse
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
-  def table (p: RecursiveParsers with EscapedTextParsers)(input: String): Either[String, Table] = {
+  def table (p: RecursiveParsers)(input: String): Either[String, Table] = {
     val tables = new TableParsers(p)
     parseDirectivePart(tables.gridTable | tables.simpleTable, input)
   }
@@ -73,7 +73,7 @@ object StandardDirectiveParsers {
    *  @param input the input to parse
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
-  def captionAndLegend (p: RecursiveParsers with EscapedTextParsers)(input: String): Either[String,(Seq[Span],Seq[Block])] = {
+  def captionAndLegend (p: RecursiveParsers)(input: String): Either[String,(Seq[Span],Seq[Block])] = {
     val blocks = new BlockParsers(p)
     val parser = p.withRecursiveBlockParser(opt(blocks.paragraph)) >> {
       case (parserF, caption) => opt(blankLines) ~> (any ^^ { text =>
@@ -90,7 +90,7 @@ object StandardDirectiveParsers {
    *  @param input the input to parse
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
-  def target (p: RecursiveParsers with EscapedTextParsers)(input: String): Either[String,Span] = {
+  def target (p: RecursiveParsers)(input: String): Either[String,Span] = {
     val phraseLinkRef = {
       val refName = p.escapedText(DelimitedBy('`','<').keepDelimiter) ^^ ReferenceName
       "`" ~> refName <~ "`_" ~ ws ~ eof ^^ {

@@ -38,7 +38,7 @@ class RootParser (blockDirectives: Map[String, Blocks.Directive],
   private val htmlParsers = if (verbatimHTML) Some(new HTMLParsers(this)) else None
 
   private val directiveParsers =
-    if (!isStrict) Some(new MarkupDirectiveParsers(this, this, blockDirectives, spanDirectives)) else None
+    if (!isStrict) Some(new MarkupDirectiveParsers(this, blockDirectives, spanDirectives)) else None
 
   private val inlineParsers = new InlineParsers(this)
 

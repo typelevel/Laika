@@ -18,13 +18,13 @@ package laika.parse.helper
 
 import laika.parse.core.Parser
 import laika.parse.core.combinator.Parsers._
-import laika.parse.core.markup.DefaultRecursiveBlockParsers
+import laika.parse.core.markup.DefaultRecursiveParsers
 import laika.tree.Elements.Block
 
 /**
   * @author Jens Halm
   */
-trait EmptyRecursiveBlockParsers extends DefaultRecursiveBlockParsers {
+trait EmptyRecursiveParsers extends DefaultRecursiveParsers {
 
   override protected def topLevelBlock: Parser[Block] = failure("not implemented")
 

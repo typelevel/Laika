@@ -274,7 +274,7 @@ object Directives {
     
   }
 
-  type DirectivePartBuilder[E] = RecursiveParsers with EscapedTextParsers => DirectivePart[E]
+  type DirectivePartBuilder[E] = RecursiveParsers => DirectivePart[E]
 
   /** Represents a single directive implementation.
    */

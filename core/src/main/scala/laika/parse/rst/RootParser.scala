@@ -47,7 +47,7 @@ class RootParser(laikaBlockDirectives: Map[String, Blocks.Directive] = Map(),
 
 
   private val directiveParsers =
-    if (!isStrict) Some(new MarkupDirectiveParsers(this, this, laikaBlockDirectives, laikaSpanDirectives)) else None
+    if (!isStrict) Some(new MarkupDirectiveParsers(this, laikaBlockDirectives, laikaSpanDirectives)) else None
 
   private val inlineParsers = new InlineParsers(this, defaultTextRole)
   private val blockParsers = new BlockParsers(this)

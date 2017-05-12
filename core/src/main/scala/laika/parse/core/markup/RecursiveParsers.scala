@@ -23,9 +23,7 @@ import laika.tree.Elements.{Block, Span}
 /**
   * @author Jens Halm
   */
-trait RecursiveParsers extends RecursiveBlockParsers with RecursiveSpanParsers
-
-trait RecursiveBlockParsers {
+trait RecursiveParsers extends RecursiveSpanParsers {
 
   def recursiveBlocks (p: Parser[String]): Parser[Seq[Block]]
 
@@ -33,7 +31,7 @@ trait RecursiveBlockParsers {
 
 }
 
-trait RecursiveSpanParsers {
+trait RecursiveSpanParsers extends EscapedTextParsers {
 
   def recursiveSpans (parser: Parser[String]): Parser[List[Span]]
 

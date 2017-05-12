@@ -51,8 +51,7 @@ object ConfigParser {
 
 /** Provides the parsers for directives in templates.
   */
-class TemplateParsers (directives: Map[String, Templates.Directive]) extends DefaultRecursiveSpanParsers
-                                                                     with DefaultEscapedTextParsers {
+class TemplateParsers (directives: Map[String, Templates.Directive]) extends DefaultRecursiveSpanParsers {
 
   val directiveParsers = new DirectiveParsers(this)
 
