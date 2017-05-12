@@ -33,8 +33,7 @@ import scala.util.Try
  * 
  * @author Jens Halm
  */
-class ListParsers (recParsers: RecursiveParsers with EscapedTextParsers,
-                   punctuationChar: Characters) {
+class ListParsers (recParsers: RecursiveParsers with EscapedTextParsers) {
 
 
   import recParsers._
@@ -162,7 +161,7 @@ class ListParsers (recParsers: RecursiveParsers with EscapedTextParsers,
     val tableStart = anyOf(' ','=') ~ eol
     val explicitStart = ".. " | "__ "
     val listStart = (bulletListStart | enumListStart) ~ (ws min 1)
-    val headerStart = (punctuationChar take 1) >> { start => (anyOf(start.charAt(0)) min 2) ~ wsEol }
+    val headerStart = (BaseParsers.punctuationChar take 1) >> { start => (anyOf(start.charAt(0)) min 2) ~ wsEol }
     
     val term: Parser[String] = not(blankLine | tableStart | explicitStart | listStart | headerStart) ~> 
         anyBut('\n') <~ eol ~ lookAhead((ws min 1) ~ not(blankLine))

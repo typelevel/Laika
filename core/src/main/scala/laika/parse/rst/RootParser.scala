@@ -50,12 +50,9 @@ class RootParser(laikaBlockDirectives: Map[String, Blocks.Directive] = Map(),
     if (!isStrict) Some(new MarkupDirectiveParsers(this, this, laikaBlockDirectives, laikaSpanDirectives)) else None
 
   private val inlineParsers = new InlineParsers(this, defaultTextRole)
-
   private val blockParsers = new BlockParsers(this)
-
   private val tableParsers = new TableParsers(this)
-
-  private val listParsers = new ListParsers(this, BaseParsers.punctuationChar)
+  private val listParsers = new ListParsers(this)
 
   private val rstBlockDirectives: Map[String, DirectivePart[Block]] =        blockDirectives map { d => (d.name.toLowerCase, d.part(this)) } toMap
   private val rstSpanDirectives: Map[String, DirectivePart[Span]]  =         spanDirectives  map { d => (d.name.toLowerCase, d.part(this)) } toMap
