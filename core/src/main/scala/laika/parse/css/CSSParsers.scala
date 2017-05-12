@@ -21,6 +21,7 @@ import laika.parse.core.text.TextParsers._
 import laika.tree.Paths.Path
 import laika.tree.Elements.Span
 import laika.io.Input
+import laika.parse.InlineParsers
 import laika.parse.core.text.{DelimitedBy, MarkupParser}
 import laika.parse.core.{Parser, ParserContext}
 import laika.util.~
@@ -32,11 +33,8 @@ import laika.util.~
  * 
  * @author Jens Halm
  */
-trait CSSParsers extends laika.parse.InlineParsers { 
+trait CSSParsers {
 
-  
-  protected val prepareSpanParsers: Map[Char, Parser[Span]] = Map.empty
-  
   
   /** Represents a combinator between two predicates.
    */
@@ -75,74 +73,74 @@ trait CSSParsers extends laika.parse.InlineParsers {
     }
   }
   
-  /** Parses a sequence of selectors, separated by a comma.
-   */
-  lazy val selectorGroup: Parser[Seq[Selector]] = 
-    selector ~ ((ws ~ ',' ~ ws ~> selector)*) ^^ { case sel ~ sels => sel :: sels }
-  
-  /** Parses a single selector.
-   */
-  lazy val selector: Parser[Selector] = 
-    simpleSelectorSequence ~ ((combinator ~ simpleSelectorSequence)*) ^^ { 
-      case sel ~ sels => (sel /: sels) {
-        case (parent, Child ~ sel)      => sel.copy(parent = Some(ParentSelector(parent, immediate = true)))
-        case (parent, Descendant ~ sel) => sel.copy(parent = Some(ParentSelector(parent, immediate = false)))
-      } 
-    }
-  
-  /** Parses the sub-part of a selector without any combinators, e.g. `Paragraph#title`.
-   */
-  lazy val simpleSelectorSequence: Parser[Selector] =
-    (((typeSelector ~ (predicate*)) ^^ { case preds1 ~ preds2 => preds1 ::: preds2 }) | (predicate+)) ^^ {
-      preds => Selector(preds.toSet)
-  }
-  
   /** Parses a combinator between two predicates.
    */
-  lazy val combinator: Parser[Combinator] = 
+  val combinator: Parser[Combinator] =
     ((ws ~ '>' ~ ws) ^^^ Child) | (ws min 1) ^^^ Descendant
 
   /** Parses a single type selector.
    */
-  lazy val typeSelector: Parser[List[Predicate]] =
+  val typeSelector: Parser[List[Predicate]] =
     (styleRefName ^^ { name => List(ElementType(name)) }) | ('*' ^^^ Nil) 
     
   /** Parses a single predicate.
    */
-  lazy val predicate: Parser[Predicate] = {
+  val predicate: Parser[Predicate] = {
     
     val id: Parser[Predicate] = ('#' ~> styleRefName) ^^ Id
     val styleName: Parser[Predicate] = ('.' ~> styleRefName) ^^ StyleName
     
     id | styleName
   }
+
+  /** Parses the sub-part of a selector without any combinators, e.g. `Paragraph#title`.
+    */
+  val simpleSelectorSequence: Parser[Selector] =
+    (((typeSelector ~ (predicate*)) ^^ { case preds1 ~ preds2 => preds1 ::: preds2 }) | (predicate+)) ^^ {
+      preds => Selector(preds.toSet)
+    }
+
+  /** Parses a single selector.
+    */
+  val selector: Parser[Selector] =
+    simpleSelectorSequence ~ ((combinator ~ simpleSelectorSequence)*) ^^ {
+      case sel ~ sels => (sel /: sels) {
+        case (parent, Child ~ sel)      => sel.copy(parent = Some(ParentSelector(parent, immediate = true)))
+        case (parent, Descendant ~ sel) => sel.copy(parent = Some(ParentSelector(parent, immediate = false)))
+      }
+    }
+
+  /** Parses a sequence of selectors, separated by a comma.
+    */
+  val selectorGroup: Parser[Seq[Selector]] =
+    selector ~ ((ws ~ ',' ~ ws ~> selector)*) ^^ { case sel ~ sels => sel :: sels }
+
+  /** Parses the value of a single style, ignoring
+    *  any comments..
+    */
+  val styleValue: Parser[String] =
+    InlineParsers.text(DelimitedBy(';'), Map('/' -> (('*' ~ DelimitedBy("*/") ~ wsOrNl) ^^^ "")))
+
+  /** Parses a single style within a declaration.
+    */
+  val style: Parser[Style] = ((styleRefName <~ ws ~ ':' ~ ws) ~ (styleValue <~ wsOrNl)) ^^ {
+    case name ~ value => Style(name, value)
+  }
+
+  /** Parses a single CSS comment.
+    */
+  val comment: Parser[Unit] = ("/*" ~ DelimitedBy("*/") ~ wsOrNl) ^^^ (())
   
   /** Parses a sequence of style declarations, ignoring
    *  any comments.
    */
-  lazy val styleDeclarations: Parser[Seq[StyleDeclaration]] = 
+  val styleDeclarations: Parser[Seq[StyleDeclaration]] =
     ((selectorGroup <~ wsOrNl ~ '{' ~ wsOrNl) ~ ((comment | style)*) <~ (wsOrNl ~ '}')) ^^ {
       case selectors ~ stylesAndComments => 
         val styles = stylesAndComments collect { case st: Style => (st.name, st.value) } toMap;
         selectors map (StyleDeclaration(_, styles))
     }
   
-  /** Parses a single CSS comment.
-   */
-  lazy val comment: Parser[Unit] = ("/*" ~ DelimitedBy("*/") ~ wsOrNl) ^^^ (())
-
-  /** Parses a single style within a declaration.
-   */
-  lazy val style: Parser[Style] = ((styleRefName <~ ws ~ ':' ~ ws) ~ (styleValue <~ wsOrNl)) ^^ {
-    case name ~ value => Style(name, value)
-  }
-
-  /** Parses the value of a single style, ignoring
-   *  any comments..
-   */
-  lazy val styleValue: Parser[String] = 
-    text(DelimitedBy(';'), Map('/' -> (('*' ~ DelimitedBy("*/") ~ wsOrNl) ^^^ "")))
-    
   /** Parses an entire set of style declarations.
    *  This is the top level parser of this trait.
    */

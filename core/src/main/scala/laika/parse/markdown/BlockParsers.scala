@@ -16,7 +16,10 @@
 
 package laika.parse.markdown
 
+import laika.parse.BlockParsers._
 import laika.parse.core.Parser
+import laika.parse.core.markup.{EscapedTextParsers, RecursiveParsers}
+import laika.parse.core.text.DelimitedBy
 import laika.parse.core.text.TextParsers._
 import laika.parse.util.WhitespacePreprocessor
 import laika.tree.Elements._
@@ -35,8 +38,10 @@ import scala.collection.mutable.StringBuilder
  * 
  *  @author Jens Halm
  */
-trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers => 
-  
+class BlockParsers (recParsers: RecursiveParsers with EscapedTextParsers) {
+
+
+  import recParsers._
 
   
   /** Parses a single tab or space character.
@@ -120,6 +125,23 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
   }
 
 
+  /** Parses a link definition in the form `[id]: <url> "title"`.
+    *  The title is optional as well as the quotes around it and the angle brackets around the url.
+    */
+  val linkTarget: Parser[ExternalLinkDefinition] = {
+
+    val id = '[' ~> escapedUntil(']') <~ ':' <~ ws
+    val url = (('<' ~> escapedUntil('>')) | escapedText(DelimitedBy(' ', '\n').acceptEOF.keepDelimiter)) ^^ { _.mkString }
+
+    def enclosedBy(start: Char, end: Char) =
+      start ~> DelimitedBy(end).withPostCondition(lookAhead(wsEol)).failOn('\r', '\n') ^^ { _.mkString }
+
+    val title = (ws ~ opt(eol) ~ ws) ~> (enclosedBy('"', '"') | enclosedBy('\'', '\'') | enclosedBy('(', ')'))
+
+    id ~ url ~ opt(title) <~ wsEol ^^ { case id ~ url ~ title => ExternalLinkDefinition(id.toLowerCase, url, title) }
+  }
+
+
   /** Parses all of the standard Markdown blocks, except normal paragraphs and those blocks
    *  that deal with verbatim HTML. For the latter parsers are provided by a separate, optional trait.
    */
@@ -127,11 +149,6 @@ trait BlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     atxHeader | setextHeader | (insignificantSpaces ~> 
       (literalBlock | quotedBlock | rule | bulletList | enumList))
 
-  protected def prepareBlockParsers (nested: Boolean): List[Parser[Block]] = {
-    if (nested) standardMarkdownBlock :: nestedParagraph :: Nil
-    else standardMarkdownBlock :: (insignificantSpaces ~> linkTarget) :: paragraph :: Nil
-  }
- 
   lazy val nonRecursiveBlock: Parser[Block] =
     atxHeader | setextHeader | (insignificantSpaces ~> (literalBlock | rule )) | paragraph
 

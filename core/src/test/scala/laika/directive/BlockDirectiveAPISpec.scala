@@ -20,6 +20,7 @@ import laika.directive.Directives.Blocks.Directive
 import laika.directive.Directives.{Blocks, Default, Spans}
 import laika.parse.core.Parser
 import laika.parse.core.combinator.Parsers
+import laika.parse.core.markup.RootParserBase
 import laika.parse.core.text.TextParsers._
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.parse.{BlockParsers, InlineParsers}
@@ -109,38 +110,36 @@ class BlockDirectiveAPISpec extends FlatSpec
     
   }
   
-  trait EmptyBlockParsers extends BlockParsers with InlineParsers {
-    override protected def prepareSpanParsers = Map[Char,Parser[Span]]()
-    override protected def prepareBlockParsers (nested: Boolean): List[Parser[Block]] = List(
-      recursiveSpans(mergeSpanLines((Parsers.not(blankLine) ~> restOfLine) +)) ^^ { Paragraph(_) }
-    )
-  }
-  trait TemplateParser extends EmptyBlockParsers 
-                          with TemplateParsers.MarkupBlocks
-                          with TemplateParsers.MarkupSpans
+  trait TemplateParser extends RootParserBase
                           with ParseResultHelpers 
                           with DefaultParserHelpers[RootElement] {
     
-    val directive: Directive
-    
-    def getBlockDirective (name: String): Option[Blocks.Directive] =
-      if (directive.name == name) Some(directive) else None
-    
-    def getSpanDirective (name: String): Option[Spans.Directive] = None
-    
-    val defaultParser: Parser[RootElement] = rootElement
+    def directive: Directive
+
+    lazy val directiveParsers = new MarkupDirectiveParsers(this, this, Map(directive.name -> directive), Map())
+
+    lazy val paragraphParser: Parser[Block] =
+      recursiveSpans(InlineParsers.mergeSpanLines((Parsers.not(blankLine) ~> restOfLine) +)) ^^ { Paragraph(_) }
+
+    lazy val topLevelBlock: Parser[Block] = directiveParsers.blockDirective | paragraphParser
+
+    lazy val nestedBlock = topLevelBlock
+
+    lazy val defaultParser: Parser[RootElement] = rootElement
     
     def invalid (input: String, error: String): InvalidBlock = 
         InvalidBlock(SystemMessage(laika.tree.Elements.Error, error), LiteralBlock(input))
-        
-    def nonRecursiveBlock: Parser[Block] = success(Paragraph(Nil)) // not used in these tests
+
+    lazy val spanParsers = directiveParsers.spanParsers
+
+    val nonRecursiveBlock: Parser[Block] = success(Paragraph(Nil)) // not used in these tests
   }
   
 
   import DirectiveSetup._
   
   "The directive parser" should "parse a directive with one required default string attribute" in {
-    new RequiredDefaultAttribute with TemplateParser {
+    new TemplateParser with RequiredDefaultAttribute {
       val input = """aa
         |
         |@:dir foo.
@@ -151,7 +150,7 @@ class BlockDirectiveAPISpec extends FlatSpec
   }
   
   it should "detect a directive with a missing required default attribute" in {
-    new RequiredDefaultAttribute with TemplateParser {
+    new TemplateParser with RequiredDefaultAttribute {
       val input = """aa
         |
         |@:dir.
@@ -163,7 +162,7 @@ class BlockDirectiveAPISpec extends FlatSpec
   }
   
   it should "parse a directive with an optional default int attribute" in {
-    new OptionalDefaultAttribute with TemplateParser {
+    new TemplateParser with OptionalDefaultAttribute {
       val input = """aa
         |
         |@:dir 5.
@@ -174,7 +173,7 @@ class BlockDirectiveAPISpec extends FlatSpec
   }
   
   it should "detect a directive with an optional invalid default int attribute" in {
-    new OptionalDefaultAttribute with TemplateParser {
+    new TemplateParser with OptionalDefaultAttribute {
       val input = """aa
         |
         |@:dir foo.
@@ -186,7 +185,7 @@ class BlockDirectiveAPISpec extends FlatSpec
   }
   
   it should "parse a directive with a missing optional default int attribute" in {
-    new OptionalDefaultAttribute with TemplateParser {
+    new TemplateParser with OptionalDefaultAttribute {
       val input = """aa
         |
         |@:dir.
@@ -202,7 +201,7 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:dir name=foo.
         |
         |bb""".stripMargin
-    new RequiredNamedAttribute with TemplateParser {
+    new TemplateParser with RequiredNamedAttribute {
       Parsing (input) should produce (root(p("aa"), p("foo"), p("bb")))
     }
   }
@@ -213,13 +212,13 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:dir name="foo bar".
         |
         |bb""".stripMargin
-    new RequiredNamedAttribute with TemplateParser {
+    new TemplateParser with RequiredNamedAttribute {
       Parsing (input) should produce (root(p("aa"), p("foo bar"), p("bb")))
     }
   }
   
   it should "detect a directive with a missing required named attribute" in {
-    new RequiredNamedAttribute with TemplateParser {
+    new TemplateParser with RequiredNamedAttribute {
       val input = """aa
         |
         |@:dir.
@@ -231,7 +230,7 @@ class BlockDirectiveAPISpec extends FlatSpec
   }
   
   it should "parse a directive with an optional named int attribute" in {
-    new OptionalNamedAttribute with TemplateParser {
+    new TemplateParser with OptionalNamedAttribute {
       val input = """aa
         |
         |@:dir name=5.
@@ -242,7 +241,7 @@ class BlockDirectiveAPISpec extends FlatSpec
   }
   
   it should "detect a directive with an optional invalid named int attribute" in {
-    new OptionalNamedAttribute with TemplateParser {
+    new TemplateParser with OptionalNamedAttribute {
       val input = """aa
         |
         |@:dir name=foo.
@@ -254,7 +253,7 @@ class BlockDirectiveAPISpec extends FlatSpec
   }
   
   it should "parse a directive with a missing optional named int attribute" in {
-    new OptionalNamedAttribute with TemplateParser {
+    new TemplateParser with OptionalNamedAttribute {
       val input = """aa
         |
         |@:dir.
@@ -266,7 +265,7 @@ class BlockDirectiveAPISpec extends FlatSpec
   }
   
   it should "parse a directive with a required default body on the same line" in {
-    new RequiredDefaultBody with TemplateParser {
+    new TemplateParser with RequiredDefaultBody {
       val input = """aa
         |
         |@:dir: some {{ref}} text
@@ -278,7 +277,7 @@ class BlockDirectiveAPISpec extends FlatSpec
   }
   
   it should "parse a directive with a required default body on the following lines" in {
-    new RequiredDefaultBody with TemplateParser {
+    new TemplateParser with RequiredDefaultBody {
       val input = """aa
         |
         |@:dir: 
@@ -293,7 +292,7 @@ class BlockDirectiveAPISpec extends FlatSpec
   }
   
   it should "detect a directive with a missing required default body" in {
-    new RequiredDefaultBody with TemplateParser {
+    new TemplateParser with RequiredDefaultBody {
       val input = """aa
         |
         |@:dir.
@@ -305,7 +304,7 @@ class BlockDirectiveAPISpec extends FlatSpec
   }
   
   it should "parse a directive with an optional default body" in {
-    new OptionalDefaultBody with TemplateParser {
+    new TemplateParser with OptionalDefaultBody {
       val input = """aa
         |
         |@:dir: some {{ref}} text
@@ -317,7 +316,7 @@ class BlockDirectiveAPISpec extends FlatSpec
   }
   
   it should "parse a directive with a missing optional default body" in {
-    new OptionalDefaultBody with TemplateParser {
+    new TemplateParser with OptionalDefaultBody {
       val input = """aa
         |
         |@:dir.
@@ -328,7 +327,7 @@ class BlockDirectiveAPISpec extends FlatSpec
   }
   
   it should "parse a directive with a required named body" in {
-    new RequiredNamedBody with TemplateParser {
+    new TemplateParser with RequiredNamedBody {
       val input = """aa
         |
         |@:dir: ~name: some {{ref}} text
@@ -340,7 +339,7 @@ class BlockDirectiveAPISpec extends FlatSpec
   }
   
   it should "detect a directive with a missing required named body" in {
-    new RequiredNamedBody with TemplateParser {
+    new TemplateParser with RequiredNamedBody {
       val input = """aa
         |
         |@:dir.
@@ -352,7 +351,7 @@ class BlockDirectiveAPISpec extends FlatSpec
   }
   
   it should "parse a directive with an optional named body" in {
-    new OptionalNamedBody with TemplateParser {
+    new TemplateParser with OptionalNamedBody {
       val input = """aa
         |
         |@:dir: ~name: some {{ref}} text
@@ -364,7 +363,7 @@ class BlockDirectiveAPISpec extends FlatSpec
   }
   
   it should "parse a directive with a missing optional named body" in {
-    new OptionalNamedBody with TemplateParser {
+    new TemplateParser with OptionalNamedBody {
       val input = """aa
         |
         |@:dir.
@@ -445,7 +444,7 @@ class BlockDirectiveAPISpec extends FlatSpec
   }
   
   it should "parse a directive with a required default body and parser access" in {
-    new DirectiveWithParserAccess with TemplateParser {
+    new TemplateParser with DirectiveWithParserAccess {
       val input = """aa
         |
         |@:dir: some {{ref}} text
@@ -457,21 +456,21 @@ class BlockDirectiveAPISpec extends FlatSpec
   }
   
   it should "parse a directive with a required default body and cursor access" in {
-    new DirectiveWithContextAccess with TemplateParser {
+    new TemplateParser with DirectiveWithContextAccess {
       val input = """aa
         |
         |@:dir: text
         |
         |bb""".stripMargin
       def translate (result: RootElement) = result rewrite {
-        case d: DirectiveBlock => Some(p("ok")) // cannot compare DirectiveSpans
+        case d: directiveParsers.DirectiveBlock => Some(p("ok")) // cannot compare DirectiveSpans
       }
       Parsing (input) map translate should produce (root(p("aa"), p("ok"), p("bb")))
     }
   }
   
   it should "detect a directive with an unknown name" in {
-    new OptionalNamedAttribute with TemplateParser {
+    new TemplateParser with OptionalNamedAttribute {
       val input = """aa
         |
         |@:foo name=foo.

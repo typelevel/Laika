@@ -16,9 +16,12 @@
 
 package laika.parse.rst
 
+import laika.parse.BlockParsers._
+import laika.parse.core.markup.{EscapedTextParsers, RecursiveParsers}
 import laika.parse.core.text.DelimitedBy
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Failure, Parser, Success}
+import laika.parse.rst.BaseParsers._
 import laika.parse.rst.Directives._
 import laika.parse.rst.Elements.{SubstitutionDefinition, _}
 import laika.parse.rst.TextRoles._
@@ -34,9 +37,15 @@ import scala.collection.mutable.ListBuffer
  * 
  * @author Jens Halm
  */
-trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParsers =>
+class ExplicitBlockParsers (recParsers: RecursiveParsers with EscapedTextParsers,
+                            blockDirectives: Map[String, DirectivePart[Block]],
+                            spanDirectives: Map[String, DirectivePart[Span]],
+                            textRoles: Map[String, RoleDirectivePart[String => Span]],
+                            defaultTextRole: String) {
 
-  
+
+  import recParsers._
+
   
   private val explicitStart = ".." ~ (ws min 1)
   
@@ -45,7 +54,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#explicit-markup-blocks]].
    */
-  def explicitBlockItem: Parser[Block] = (explicitStart ~>
+  lazy val explicitBlockItem: Parser[Block] = (explicitStart ~>
     (footnote | citation | linkTarget | substitutionDefinition | roleDirective | blockDirective | comment)) |
     (".." ~ lookAhead("\n") ~> comment) | shortAnonymousLinkTarget
   
@@ -54,7 +63,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
    *
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#footnotes]]. 
    */
-  def footnote: Parser[FootnoteDefinition] = {
+  lazy val footnote: Parser[FootnoteDefinition] = {
     val prefix = '[' ~> footnoteLabel <~ ']' ~ ws
     
     prefix ~ recursiveBlocks(mergeIndentedLines(indentedBlock())) ^^ {
@@ -66,7 +75,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
    *
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#citations]]. 
    */
-  def citation: Parser[Citation] = {
+  lazy val citation: Parser[Citation] = {
     val prefix = '[' ~> simpleRefName <~ ']' ~ ws
     
     prefix ~ recursiveBlocks(mergeIndentedLines(indentedBlock())) ^^ {
@@ -95,7 +104,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#hyperlink-targets]].
    */
-  def linkTarget: Parser[Block with Span] = {
+  lazy val linkTarget: Parser[Block with Span] = {
     
     val named = '_' ~> (('`' ~> escapedUntil('`') <~ ':') | escapedUntil(':')) ^^ { ReferenceName(_).normalized }
       
@@ -122,7 +131,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#substitution-definitions]].
    */
-  def substitutionDefinition: Parser[Block] = {
+  lazy val substitutionDefinition: Parser[Block] = {
     val text = not(ws take 1) ~> escapedText(DelimitedBy('|','\n').keepDelimiter.nonEmpty)
     val prefix = '|' ~> text <~ not(lookBehind(1, ' ')) ~ '|'
     
@@ -137,32 +146,13 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#comments]].
    */
-  def comment: Parser[Comment] = {
+  val comment: Parser[Comment] = {
     indentedBlock() ^^ { block =>
       Comment((block.lines mkString "\n").trim)
     }
   }
   
   
-  /** Retrieves the block directive with the specified name.
-   * 
-   *  See [[laika.parse.rst.Directives]] for details on how to implement directives.  
-   */
-  def blockDirective (name: String): Option[DirectivePart[Block]]
-  
-  /** Retrieves the span directive with the specified name.
-   * 
-   *  See [[laika.parse.rst.Directives]] for details on how to implement directives.  
-   */
-  def spanDirective (name: String): Option[DirectivePart[Span]]
-  
-  /** Retrieves the text role with the specified name.
-   * 
-   *  See [[laika.parse.rst.TextRoles]] for details on how to implement text roles.  
-   */
-  def textRole (name: String): Option[RoleDirectivePart[String => Span]]
-    
-
   private def replaceInvalidDirective (block: Block): Block = block match {
     case InvalidDirective(msg, source, _) => InvalidBlock(SystemMessage(laika.tree.Elements.Error, msg), LiteralBlock(source))
     case other => other
@@ -172,9 +162,9 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#directives]].
    */
-  def blockDirective: Parser[Block] = directive(blockDirective) ^^ replaceInvalidDirective
+  lazy val blockDirective: Parser[Block] = directive(blockDirectives.get) ^^ replaceInvalidDirective
 
-  private def spanDirectiveParser: Parser[Span] = directive(spanDirective)
+  private lazy val spanDirectiveParser: Parser[Span] = directive(spanDirectives.get)
   
   private def directive [E](provider: String => Option[DirectivePart[E]]): Parser[E] = {
     
@@ -208,7 +198,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#custom-interpreted-text-roles]].
    */
-  def roleDirective: Parser[Block] = {
+  lazy val roleDirective: Parser[Block] = {
     
     val nameParser = "role::" ~ ws ~> simpleRefName ~ opt('(' ~> simpleRefName <~ ')')
     
@@ -224,7 +214,7 @@ trait ExplicitBlockParsers extends laika.parse.BlockParsers { self: InlineParser
     nameParser >> { case name ~ baseName =>
       val base = baseName.getOrElse(defaultTextRole)
       val fullname = s"role::$name" + (baseName map ("("+_+")") getOrElse "")
-      directive(textRole(base.toLowerCase).map(directiveParser(name))
+      directive(textRoles.get(base.toLowerCase).map(directiveParser(name))
           .getOrElse(failure(s"unknown text role: $base")), fullname) ^^ replaceInvalidDirective
     }
     

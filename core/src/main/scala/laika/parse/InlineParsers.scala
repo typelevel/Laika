@@ -39,28 +39,9 @@ import laika.tree.Elements._
  *  
  *  @author Jens Halm
  */
-trait InlineParsers extends RecursiveSpanParsers {
+object InlineParsers {
   
 
-  /** The mapping of markup start characters to their corresponding
-   *  span parsers.
-   * 
-   *  A parser mapped to a start character is not required
-   *  to successfully parse the subsequent input. If it fails the 
-   *  character that triggered the parser invocation will be treated
-   *  as normal text. The mapping is merely used as a performance
-   *  optimization. The parser will be invoked with the input 
-   *  offset pointing to the character after the one
-   *  specified as the key for the mapping.
-   */
-  private lazy val spanParsers: Map[Char,Parser[Span]] = prepareSpanParsers
-  
-  /** Extension hook for modifying the default span parser map.
-   *  The default implementation returns the specified parser unchanged.
-   */
-  protected def prepareSpanParsers: Map[Char,Parser[Span]]
-  
-  
   /** Abstracts the internal process of building up the result of an inline parser.
    *  Since some inline parser produce a tree of nested spans whereas others may
    *  only produce a text result, they often require the same logic in how they
@@ -167,102 +148,8 @@ trait InlineParsers extends RecursiveSpanParsers {
   def text (parser: => DelimitedText[String], nested: => Map[Char, Parser[String]]): Parser[String]
       = inline(parser, nested, new TextBuilder)
 
-  /** Parses a single escape character.
-   *  In the default implementation any character can be escaped.
-   *  Sub-traits may override this parser to restrict the number of escapable characters.
-   */
-  protected lazy val escapedChar: Parser[String] = TextParsers.any take 1
-
-  /** Adds support for escape sequences to the specified text parser.
-    *
-    *  @param p the parser to add support for escape sequences to
-    *  @return a parser for a text span that supports escape sequences
-    */
-  def escapedText (p: DelimitedText[String]): Parser[String] = text(p, Map('\\' -> escapedChar))
-
-  /** Parses a span of text until one of the specified characters is seen
-   *  (unless it is escaped),
-   *  while also processing escaped characters, but no other nested
-   *  spans. The final character is not included in the result.
-   *
-   *  @param char the character that signals the end of the text span
-   *  @return a parser for a text span that supports escape sequences
-   */
-  def escapedUntil (char: Char*): Parser[String] = escapedText(DelimitedBy(char:_*).nonEmpty)
-
 
   def mergeSpanLines (p: Parser[Seq[String]]): Parser[String] = p ^^ (_.mkString("\n"))
 
-
-  private def createRecursiveSpanParser (spanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]]
-    = inline(DelimitedBy.Undelimited, spanParsers, new SpanBuilder)
-
-  private lazy val consumeAllSpans: Parser[List[Span]] = createRecursiveSpanParser(spanParsers)
-
-  def recursiveSpans (p: Parser[String]): Parser[List[Span]] = Parser { ctx =>
-    p.parse(ctx) match {
-      case Success(str, next) =>
-        consumeAllSpans.parse(str) match {
-          case Success(spans, _) => Success(processReverseSpans(spans), next)
-          case f: Failure => f
-        }
-      case f: Failure => f
-    }
-  }
-
-  def recursiveSpans (p: Parser[String], additionalParsers: => Map[Char, Parser[Span]] = Map.empty): Parser[List[Span]] = Parser { ctx =>
-    lazy val spanParser = createRecursiveSpanParser(spanParsers ++ additionalParsers)
-    p.parse(ctx) match {
-      case Success(str, next) =>
-        spanParser.parse(str) match {
-          case Success(spans, _) => Success(processReverseSpans(spans), next)
-          case f: Failure => f
-        }
-      case f: Failure => f
-    }
-  }
-
-  def recursiveSpans: Parser[List[Span]] = consumeAllSpans
-
-  def delimitedRecursiveSpans (textParser: DelimitedText[String], additionalSpanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]] =
-    spans(textParser, spanParsers ++ additionalSpanParsers)
-
-  def delimitedRecursiveSpans (textParser: DelimitedText[String]): Parser[List[Span]] =
-    spans(textParser, spanParsers)
-
-  def withRecursiveSpanParser [T] (p: Parser[T]): Parser[(String => List[Span], T)] = Parser { ctx =>
-    // TODO - avoid duplication with `withRecursiveBlockParser`
-    p.parse(ctx) match {
-      case Success(res, next) =>
-        val recParser: String => List[Span] = { source: String =>
-          consumeAllSpans.parse(source) match {
-            case Success(spans, _) => spans
-            case Failure(msg, next) =>
-              val message = SystemMessage(Error, msg.message(next))
-              val fallback = Text(source)
-              List(InvalidSpan(message, fallback))
-          }
-        }
-        Success((recParser, res), next)
-      case f: Failure => f
-    }
-  }
-
-  private def processReverseSpans (spans: List[Span]): List[Span] = {
-    // TODO - solve this elsewhere and more efficiently
-    if (spans.isEmpty) spans
-    else {
-      val buffer = new ListBuffer[Span]
-      val last = (spans.head /: spans.tail) {
-        case (t @ Text(content,_), Reverse(len, target, fallback, _)) =>
-          if (content.length < len) { buffer += t; fallback }
-          else { buffer += Text(content.dropRight(len)); target }
-        case (prev, Reverse(_, _, fallback, _)) => buffer += prev; fallback
-        case (prev, current)                    => buffer += prev; current
-      }
-      buffer += last
-      buffer.toList
-    }
-  }
 
 }

@@ -16,6 +16,7 @@
 
 package laika.parse.rst
 
+import laika.parse.core.markup.{EscapedTextParsers, RecursiveParsers, RootParserBase}
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Parser, Success}
 import laika.tree.Elements._
@@ -27,7 +28,10 @@ import scala.collection.mutable.{ListBuffer, Stack}
  * 
  * @author Jens Halm
  */
-trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers => 
+class TableParsers (recParsers: RecursiveParsers with EscapedTextParsers) {
+
+
+  import recParsers._
 
   
   private abstract class TableElement
@@ -193,7 +197,7 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#grid-tables]].
    */
-  def gridTable: Parser[Table] = {
+  lazy val gridTable: Parser[Table] = {
     
     val intersect = (anyOf('+') take 1) ^^^ Intersection
     
@@ -277,7 +281,7 @@ trait TableParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#simple-tables]].
    */
-  def simpleTable: Parser[Table] = {
+  lazy val simpleTable: Parser[Table] = {
     
     val intersect = (anyOf(' ') min 1) ^^ { _.length }
     val tableBorder = (anyOf('=') min 1) ^^ { _.length }

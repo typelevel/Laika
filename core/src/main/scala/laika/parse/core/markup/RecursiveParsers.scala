@@ -17,6 +17,7 @@
 package laika.parse.core.markup
 
 import laika.parse.core.Parser
+import laika.parse.core.text.DelimitedText
 import laika.tree.Elements.{Block, Span}
 
 /**
@@ -28,10 +29,32 @@ trait RecursiveBlockParsers {
 
   def recursiveBlocks (p: Parser[String]): Parser[Seq[Block]]
 
+  def withRecursiveBlockParser [T] (p: Parser[T]): Parser[(String => List[Block], T)]
+
 }
 
 trait RecursiveSpanParsers {
 
-  def recursiveSpans (p: Parser[String]): Parser[List[Span]]
+  def recursiveSpans (parser: Parser[String]): Parser[List[Span]]
+
+  def recursiveSpans (parser: Parser[String],
+                      additionalParsers: => Map[Char, Parser[Span]] = Map.empty): Parser[List[Span]]
+
+  def recursiveSpans: Parser[List[Span]]
+
+  def delimitedRecursiveSpans (textParser: DelimitedText[String]): Parser[List[Span]]
+
+  def delimitedRecursiveSpans (textParser: DelimitedText[String],
+                               additionalSpanParsers: => Map[Char, Parser[Span]]): Parser[List[Span]]
+
+  def withRecursiveSpanParser [T] (p: Parser[T]): Parser[(String => List[Span], T)]
+
+}
+
+trait EscapedTextParsers {
+
+  def escapedText(p: DelimitedText[String]): Parser[String]
+
+  def escapedUntil(char: Char*): Parser[String]
 
 }

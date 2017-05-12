@@ -110,21 +110,20 @@ class TemplateDirectiveAPISpec extends FlatSpec
     
   }
   
-  trait TemplateParser extends TemplateParsers.Templates
-                          with ParseResultHelpers 
+  trait TemplateParser extends ParseResultHelpers
                           with DefaultParserHelpers[TemplateRoot] {
     
     val directive: Directive
+
+    val templateParsers = new TemplateParsers(Map(directive.name -> directive))
     
-    def getTemplateDirective (name: String): Option[Templates.Directive] =
-      if (directive.name == name) Some(directive) else None
-    
-    val defaultParser: Parser[TemplateRoot] = templateSpans ^^ (spans => tRoot(spans:_*))
+    val defaultParser: Parser[TemplateRoot] = templateParsers.templateSpans ^^ (spans => tRoot(spans:_*))
     
     def invalid (input: String, error: String): InvalidSpan = 
         InvalidSpan(SystemMessage(laika.tree.Elements.Error, error), Literal(input))
         
     def tss (spans: TemplateSpan*) = TemplateSpanSequence(spans)
+
   }
   
 
@@ -294,7 +293,7 @@ class TemplateDirectiveAPISpec extends FlatSpec
   it should "parse a directive with a required default body and cursor access" in {
     new DirectiveWithContextAccess with TemplateParser {
       def translate (result: TemplateRoot) = result rewrite {
-        case d: DirectiveSpan => Some(TemplateElement(Text("ok"))) // cannot compare DirectiveSpans
+        case d: templateParsers.DirectiveSpan => Some(TemplateElement(Text("ok"))) // cannot compare DirectiveSpans
       }
       Parsing ("aa @:dir: { text } bb") map translate should produce (tRoot(tt("aa "), TemplateElement(txt("ok")), tt(" bb")))
     }

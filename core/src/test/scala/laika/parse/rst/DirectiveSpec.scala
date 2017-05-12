@@ -16,6 +16,7 @@
 
 package laika.parse.rst
 
+import laika.directive.Directives.Spans
 import laika.parse.core.Parser
 import laika.parse.core.combinator.Parsers
 import org.scalatest.FlatSpec
@@ -33,15 +34,61 @@ import laika.parse.rst.TextRoles.RoleDirectivePart
    
 class DirectiveSpec extends FlatSpec 
                         with Matchers 
-                        with BlockParsers 
-                        with InlineParsers
-                        with ParseResultHelpers 
+                        with ParseResultHelpers
                         with DefaultParserHelpers[RootElement] 
                         with ModelBuilder {
 
-  
-  val defaultParser: Parser[RootElement] = rootElement
-  
+
+  val blockDirectives: Seq[Directive[Block]] = Seq(
+    BlockDirective("oneArg")(argument() map p),
+    BlockDirective("twoArgs")((argument() ~ argument()) { (arg1,arg2) => p(arg1+arg2) }),
+    BlockDirective("oneIntArg")(argument(positiveInt) map stars),
+    BlockDirective("oneOptArg")(optArgument() map { arg => p(arg.getOrElse("missing")) }),
+    BlockDirective("oneOptIntArg")(optArgument(positiveInt) map { arg => p("*" * arg.getOrElse(1)) }),
+    BlockDirective("reqAndOptArg")((argument() ~ optArgument()) { (arg1,arg2) => p(arg1+arg2.getOrElse("missing")) }),
+    BlockDirective("argWithWS")((argument() ~ argument(withWS = true)) { (arg1,arg2) => p(arg1+arg2) }),
+    BlockDirective("oneFd")(field("name") map p),
+    BlockDirective("oneIntFd")(field("name",positiveInt) map stars),
+    BlockDirective("twoFd")((field("name1") ~ field("name2")) { (arg1,arg2) => p(arg1+arg2) }),
+    BlockDirective("oneOptFd")(optField("name") map { arg => p(arg.getOrElse("missing")) }),
+    BlockDirective("oneOptIntFd")(optField("name",positiveInt) map { arg => p("*" * arg.getOrElse(1)) }),
+    BlockDirective("reqAndOptFd")((field("name1") ~ optField("name2")) { (arg1,arg2) => p(arg1+arg2.getOrElse("missing")) }),
+    BlockDirective("argAndFd")((argument(positiveInt) ~ field("name",positiveInt)) { (arg1,arg2) => p(("*" * arg1) + ("#" * arg2)) }),
+    BlockDirective("optArgAndFd")((optArgument() ~ optField("name")) { (arg1,arg2) => p(arg1.getOrElse("missing")+arg2.getOrElse("missing")) }),
+    BlockDirective("optArgFdBody")((optArgument(withWS = true) ~ optField("name") ~ content(Right(_))) {
+      (arg1,arg2,content) => p(arg1.getOrElse("missing")+arg2.getOrElse("missing")+content) }),
+    BlockDirective("optFdBody")((optField("name") ~ content(Right(_))) {
+      (field,content) => p(field.getOrElse("missing")+content) }),
+    BlockDirective("stdBody")(blockContent map (BlockSequence(_))),
+    BlockDirective("customBody")(content(body => if (body.length > 10) Right(p(body)) else Left("body too short"))),
+    BlockDirective("argAndBlocks")((argument() ~ blockContent) { (arg,blocks) => BlockSequence(p(arg+"!") +: blocks) }),
+    BlockDirective("argAndSpans")((argument() ~ spanContent) { (arg,spans) => Paragraph(txt(arg) +: spans) }),
+    BlockDirective("fdAndBody")((field("name") ~ blockContent) { (field,blocks) => BlockSequence(p(field+"!") +: blocks) }),
+    BlockDirective("all")((argument() ~ field("name") ~ blockContent) {
+      (arg,field,blocks) => BlockSequence(p(s"$arg:$field") +: blocks)
+    }),
+    BlockDirective("allOpt")((optArgument(positiveInt) ~ optField("name",positiveInt) ~ content(intList)) {
+      (arg,field,list) => p((arg.getOrElse(0) +: field.getOrElse(0) +: list).sum.toString)
+    })
+  )
+
+  val spanDirectives: Seq[Directive[Span]] = Seq(
+    SpanDirective("spans")(argument() map (Text(_)))
+  )
+
+  val textRoles: Seq[TextRole] = Seq(
+    TextRole("role", 7)(TextRoles.Parts.field("name",positiveInt)) { (res,text) =>
+      txt(s"$text($res)")
+    }
+  )
+
+  val rootParser = new RootParser(
+    blockDirectives = blockDirectives,
+    spanDirectives = spanDirectives,
+    textRoles = textRoles
+  )
+  val defaultParser: Parser[RootElement] = rootParser.rootElement
+
   
   def invalid (input: String, error: String): InvalidBlock = 
     InvalidBlock(SystemMessage(laika.tree.Elements.Error, error), 
@@ -67,55 +114,7 @@ class DirectiveSpec extends FlatSpec
   
   def toLowerCase [T] (tuple: (String, T)): (String, T) = (tuple._1.toLowerCase, tuple._2)
   
-  val blockDirectives: Map[String, DirectivePart[Block]] = Map(
-    "oneArg" -> (argument() map p),
-    "twoArgs" -> (argument() ~ argument()) { (arg1,arg2) => p(arg1+arg2) },
-    "oneIntArg" -> (argument(positiveInt) map stars),
-    "oneOptArg" -> (optArgument() map { arg => p(arg.getOrElse("missing")) }),
-    "oneOptIntArg" -> (optArgument(positiveInt) map { arg => p("*" * arg.getOrElse(1)) }),
-    "reqAndOptArg" -> (argument() ~ optArgument()) { (arg1,arg2) => p(arg1+arg2.getOrElse("missing")) },
-    "argWithWS" -> (argument() ~ argument(withWS = true)) { (arg1,arg2) => p(arg1+arg2) },
-    "oneFd" -> (field("name") map p),
-    "oneIntFd" -> (field("name",positiveInt) map stars),
-    "twoFd" -> (field("name1") ~ field("name2")) { (arg1,arg2) => p(arg1+arg2) },
-    "oneOptFd" -> (optField("name") map { arg => p(arg.getOrElse("missing")) }),
-    "oneOptIntFd" -> (optField("name",positiveInt) map { arg => p("*" * arg.getOrElse(1)) }),
-    "reqAndOptFd" -> (field("name1") ~ optField("name2")) { (arg1,arg2) => p(arg1+arg2.getOrElse("missing")) },
-    "argAndFd" -> (argument(positiveInt) ~ field("name",positiveInt)) { (arg1,arg2) => p(("*" * arg1) + ("#" * arg2)) },
-    "optArgAndFd" -> (optArgument() ~ optField("name")) { (arg1,arg2) => p(arg1.getOrElse("missing")+arg2.getOrElse("missing")) },
-    "optArgFdBody" -> (optArgument(withWS = true) ~ optField("name") ~ content(Right(_))) { 
-      (arg1,arg2,content) => p(arg1.getOrElse("missing")+arg2.getOrElse("missing")+content) },
-    "optFdBody" -> (optField("name") ~ content(Right(_))) { 
-      (field,content) => p(field.getOrElse("missing")+content) },
-    "stdBody" -> (blockContent map (BlockSequence(_))),
-    "customBody" -> content(body => if (body.length > 10) Right(p(body)) else Left("body too short")),
-    "argAndBlocks" -> (argument() ~ blockContent) { (arg,blocks) => BlockSequence(p(arg+"!") +: blocks) },
-    "argAndSpans" -> (argument() ~ spanContent) { (arg,spans) => Paragraph(txt(arg) +: spans) },
-    "fdAndBody" -> (field("name") ~ blockContent) { (field,blocks) => BlockSequence(p(field+"!") +: blocks) },
-    "all" -> (argument() ~ field("name") ~ blockContent) {
-      (arg,field,blocks) => BlockSequence(p(s"$arg:$field") +: blocks)
-    },
-    "allOpt" -> (optArgument(positiveInt) ~ optField("name",positiveInt) ~ content(intList)) {
-      (arg,field,list) => (p((arg.getOrElse(0) +: field.getOrElse(0) +: list).sum.toString))
-    }
-  ).map(toLowerCase)
-  
-  val spanDirectives: Map[String, DirectivePart[Span]] = Map(
-    "spans" -> (argument() map (Text(_))) 
-  )
-  
-  val textRoles: Map[String, TextRole] = Map(
-    "role" -> TextRole("role", 7)(TextRoles.Parts.field("name",positiveInt)) { (res,text) =>
-       txt(s"$text($res)")
-    }  
-  )
-  
-  def blockDirective (name: String): Option[DirectivePart[Block]] = blockDirectives.get(name)
-  def spanDirective (name: String): Option[DirectivePart[Span]] = spanDirectives.get(name)
-  def textRole (name: String): Option[RoleDirectivePart[String => Span]] = textRoles.get(name).map(_.part(this))
-  
-  
-  
+
   "The directive parser" should "parse a directive with one required argument" in {
     val input = """.. oneArg:: arg"""
     Parsing (input) should produce (root (p("arg")))

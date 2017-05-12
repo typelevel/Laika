@@ -49,7 +49,7 @@ import scala.collection.JavaConverters._
  *  
  *  @author Jens Halm
  */
-trait StandardDirectives {
+object StandardDirectives {
 
   
   /** Implementation of the `for` directive for templates.

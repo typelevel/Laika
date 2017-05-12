@@ -17,27 +17,25 @@
 package laika.parse.markdown.html
 
 import laika.parse.core.Parser
-import org.scalatest.FlatSpec
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.Matchers
-import laika.parse.helper.DefaultParserHelpers
-import laika.parse.helper.ParseResultHelpers
+import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
+import laika.parse.markdown.RootParser
 import laika.parse.markdown.html.HTMLElements.HTMLBlock
 import laika.tree.Elements.RootElement
 import laika.tree.helper.ModelBuilder
+import org.scalatest.{FlatSpec, Matchers}
  
 class HTMLBlockParserSpec extends FlatSpec 
                           with Matchers 
-                          with HTMLParsers 
-                          with ParseResultHelpers 
+                          with ParseResultHelpers
                           with DefaultParserHelpers[RootElement] 
                           with ModelBuilder 
                           with HTMLModelBuilder {
- 
- 
-  
-  val defaultParser: Parser[RootElement] = rootElement
-  
+
+
+  val rootParser = new RootParser(Map(), Map(), verbatimHTML = true, isStrict = false)
+
+  val defaultParser: Parser[RootElement] = rootParser.rootElement
+
   
   "The HTML block parser" should "parse a block level HTML element with a nested element and text content" in {
     val input = """aaa

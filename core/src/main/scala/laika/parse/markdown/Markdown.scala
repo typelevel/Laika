@@ -137,24 +137,12 @@ class Markdown private (
    */
   def strict: Markdown = new Markdown(blockDirectives, spanDirectives, verbatimHTML, true)
   
-  private lazy val parser: BlockParsers with InlineParsers = {
-    trait ExtendedParsers extends TemplateParsers.MarkupBlocks with TemplateParsers.MarkupSpans with StandardDirectives {
-      lazy val blockDirectiveMap = Blocks.toMap(stdBlockDirectives) ++ Blocks.toMap(blockDirectives)
-      lazy val spanDirectiveMap = Spans.toMap(stdSpanDirectives) ++ Spans.toMap(spanDirectives)
-      def getBlockDirective (name: String) = blockDirectiveMap.get(name)
-      def getSpanDirective (name: String) = spanDirectiveMap.get(name)
-      
-      override def blockList (parser: => Parser[Block]): Parser[List[Block]] = super.blockList(parser) ^^ {
-        _ map { case h: Header => 
-            h.copy(options = h.options + Id(TreeUtil.extractText(h.content).replaceAll("[\n ]+", " ").toLowerCase))
-          case other => other
-        }
-      }
-    }
-    if (verbatimHTML && !isStrict) new BlockParsers with InlineParsers with ExtendedParsers with HTMLParsers
-    else if (verbatimHTML)         new BlockParsers with InlineParsers with HTMLParsers
-    else if (!isStrict)            new BlockParsers with InlineParsers with ExtendedParsers
-    else                           new BlockParsers with InlineParsers
+  private lazy val parser: RootParser = {
+
+      lazy val blockDirectiveMap = Blocks.toMap(StandardDirectives.stdBlockDirectives ++ blockDirectives)
+      lazy val spanDirectiveMap = Spans.toMap(StandardDirectives.stdSpanDirectives ++ spanDirectives)
+
+      new RootParser(blockDirectiveMap, spanDirectiveMap, verbatimHTML, isStrict)
   }
 
   /** The actual parser function, fully parsing the specified input and

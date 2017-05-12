@@ -16,13 +16,13 @@
   
 package laika.parse.rst.ext
 
-import laika.tree.Elements._
-import laika.parse.rst.Elements._
-import laika.parse.rst.Directives._
+import laika.parse.core.markup.{EscapedTextParsers, RecursiveParsers}
 import laika.parse.rst.Directives.Parts._
-import laika.parse.rst.BlockParsers
-import laika.parse.rst.InlineParsers
+import laika.parse.rst.Directives._
+import laika.parse.rst.Elements._
+import laika.parse.rst.ext.StandardDirectiveParts._
 import laika.rewrite.TreeUtil
+import laika.tree.Elements._
 
 /** Defines all supported standard block directives of the reStructuredText reference parser.
  * 
@@ -78,7 +78,8 @@ import laika.rewrite.TreeUtil
  * 
  *  @author Jens Halm
  */
-trait StandardBlockDirectives { this: StandardSpanDirectives =>
+class StandardBlockDirectives {
+
 
   private def positiveInt (value: String) = try { 
       val i = value.toInt
@@ -108,7 +109,7 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
   /** The admonition directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#generic-admonition]] for details.
    */
-  def genericAdmonition (p: InlineParsers): DirectivePart[Block] = {
+  lazy val genericAdmonition: DirectivePart[Block] = {
     (spanArgument ~ blockContent ~ stdOpt) { (title, content, opt) =>
       TitledBlock(title, content, opt + Styles("admonition"))
     } 
@@ -127,32 +128,32 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
   /** The topic directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#topic]] for details.
    */
-  def topic (p: InlineParsers): DirectivePart[Block] = {
+  lazy val topic: DirectivePart[Block] = {
     (spanArgument ~ blockContent ~ stdOpt) { (title, content, opt) =>
       TitledBlock(title, content, opt + Styles("topic"))
     } 
+  }
+
+  /** The rubric directive,
+    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#rubric]] for details.
+    */
+  lazy val rubric: DirectivePart[Block] = {
+    (spanArgument ~ stdOpt) { (text, opt) =>
+      Paragraph(text, opt + Styles("rubric"))
+    }
   }
   
   /** The sidebar directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#sidebar]] for details.
    */
-  def sidebar (p: InlineParsers): DirectivePart[Block] = {
-    (spanArgument ~ optField("subtitle", parse.standardSpans(p)) ~
+  def sidebar (p: RecursiveParsers with EscapedTextParsers): DirectivePart[Block] = {
+    (spanArgument ~ optField("subtitle", StandardDirectiveParsers.standardSpans(p)) ~
         blockContent ~ stdOpt) { (title, subtitle, content, opt) =>
       val titleAndContent = subtitle.map(s => Paragraph(s, Styles("subtitle"))).toList ++ content
       TitledBlock(title, titleAndContent, opt + Styles("sidebar"))
     } 
   }
-  
-  /** The rubric directive, 
-   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#rubric]] for details.
-   */
-  def rubric (p: InlineParsers): DirectivePart[Block] = {
-    (spanArgument ~ stdOpt) { (text, opt) =>
-      Paragraph(text, opt + Styles("rubric"))
-    } 
-  }
-  
+
   /** The title directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#metadata-document-title]] for details.
    */
@@ -215,12 +216,20 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
    *  [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#highlights highlights]] and
    *  [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#pull-quote pull-quote]] for details.
    */
-  def quotedBlock (p:BlockParsers, style: String): DirectivePart[Block] = content(parse.quotedBlock(p,style))
-  
-  /** The parsed-literal directive, see 
+  def quotedBlock (style: String): DirectivePart[Block] = blockContent map { blocks =>
+    blocks.lastOption match {
+      case Some(p @ Paragraph(Text(text, opt) :: _, _)) if text startsWith "-- " =>
+        val attr = Text(text.drop(3), opt + Styles("attribution")) +: p.content.tail
+        QuotedBlock(blocks.init, attr, Styles(style))
+      case _ =>
+        QuotedBlock(blocks, Nil, Styles(style))
+    }
+  }
+
+  /** The parsed-literal directive, see
    *  [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#parsed-literal-block]] for details.
    */
-  def parsedLiteral (p: InlineParsers): DirectivePart[Block] = {
+  lazy val parsedLiteral: DirectivePart[Block] = {
     (spanContent ~ stdOpt) { (content, opt) =>
       ParsedLiteralBlock(content, opt)
     } 
@@ -229,8 +238,8 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
   /** The table directive, adding a title to standard reStructuredText tables, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#table]] for details.
    */
-  def table (p: BlockParsers with InlineParsers): DirectivePart[Block] = {
-    (optSpanArgument ~ content(parse.table(p)) ~ stdOpt) { (caption, table, opt) =>
+  def table (p: RecursiveParsers with EscapedTextParsers): DirectivePart[Block] = {
+    (optSpanArgument ~ content(StandardDirectiveParsers.table(p)) ~ stdOpt) { (caption, table, opt) =>
       table.copy(caption = Caption(caption.toList.flatten), options = opt)
     } 
   }
@@ -248,13 +257,13 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
   /** The image directive for block elements, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#image]] for details.
    */
-  lazy val imageBlock: DirectivePart[Block] = image map (img => Paragraph(List(img)))
+  def imageBlock (p: RecursiveParsers with EscapedTextParsers): DirectivePart[Block] = image(p) map (img => Paragraph(List(img)))
   
   /** The figure directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#figure]] for details.
    */
-  def figure (p: BlockParsers): DirectivePart[Block] = {
-    (image ~ content(parse.captionAndLegend(p)) ~ optField("figclass")) { (image, captionAndLegend, figStyles) => 
+  def figure (p: RecursiveParsers with EscapedTextParsers): DirectivePart[Block] = {
+    (image(p) ~ content(StandardDirectiveParsers.captionAndLegend(p)) ~ optField("figclass")) { (image, captionAndLegend, figStyles) =>
       Figure(image, captionAndLegend._1, captionAndLegend._2, toOptions(None, figStyles))
     } 
   }
@@ -275,18 +284,17 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
   lazy val blockDirectives: List[Directive[Block]] = List(
     BlockDirective("compound")(compound),
     BlockDirective("container")(container),
-    BlockDirective.recursive("topic")(topic),
+    BlockDirective("topic")(topic),
+    BlockDirective("rubric")(rubric),
+    BlockDirective("parsed-literal")(parsedLiteral),
     BlockDirective.recursive("sidebar")(sidebar),
-    BlockDirective.recursive("rubric")(rubric),
-    BlockDirective.recursive("epigraph")(quotedBlock(_,"epigraph")),
-    BlockDirective.recursive("highlights")(quotedBlock(_,"highlights")),
-    BlockDirective.recursive("pull-quote")(quotedBlock(_,"pull-quote")),
-    BlockDirective.recursive("parsed-literal")(parsedLiteral),
     BlockDirective.recursive("table")(table),
     BlockDirective.recursive("figure")(figure),
-    BlockDirective.recursive("admonition")(genericAdmonition),
+    BlockDirective.recursive("image")(imageBlock),
+    BlockDirective("epigraph")(quotedBlock("epigraph")),
+    BlockDirective("highlights")(quotedBlock("highlights")),
+    BlockDirective("pull-quote")(quotedBlock("pull-quote")),
     BlockDirective("code")(code),
-    BlockDirective("image")(imageBlock),
     BlockDirective("header")(header),
     BlockDirective("footer")(footer),
     BlockDirective("include")(include),
@@ -295,6 +303,7 @@ trait StandardBlockDirectives { this: StandardSpanDirectives =>
     BlockDirective("contents")(contents),
     BlockDirective("sectnum")(sectnum),
     BlockDirective("section-autonumbering")(sectnum),
+    BlockDirective("admonition")(genericAdmonition),
     BlockDirective("attention")(admonition("attention","Attention!")),
     BlockDirective("caution")(admonition("caution","Caution!")),
     BlockDirective("danger")(admonition("danger","!DANGER!")),

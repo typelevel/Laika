@@ -27,17 +27,16 @@ import laika.tree.Templates._
 
 class TemplateParsersSpec extends FlatSpec 
                           with Matchers 
-                          with TemplateParsers.Templates
-                          with ParseResultHelpers 
+                          with ParseResultHelpers
                           with DefaultParserHelpers[List[Span]] 
                           with ModelBuilder {
 
+
+  val templateParsers = new TemplateParsers(Map())
+
+  val defaultParser: Parser[List[Span]] = templateParsers.templateSpans
   
-  val defaultParser: Parser[List[Span]] = templateSpans
-  
-  def getTemplateDirective (name: String) = None
-  
-  
+
   
   "The template parser" should "parse content without any markup as plain text" in {
     

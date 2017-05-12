@@ -16,8 +16,10 @@
 
 package laika.parse.rst
 
-import laika.parse.core.Parser
+import laika.parse.BlockParsers._
+import laika.parse.core.markup.{EscapedTextParsers, RecursiveParsers}
 import laika.parse.core.text.TextParsers._
+import laika.parse.core.Parser
 import laika.parse.core.text.{Characters, DelimitedBy}
 import laika.parse.rst.Elements._
 import laika.tree.Elements._
@@ -31,9 +33,13 @@ import scala.util.Try
  * 
  * @author Jens Halm
  */
-trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
+class ListParsers (recParsers: RecursiveParsers with EscapedTextParsers,
+                   punctuationChar: Characters) {
 
-  
+
+  import recParsers._
+
+
   private def listItem [I <: ListItem] (itemStart: Parser[String], newListItem: Seq[Block] => I): Parser[I] = {
       (itemStart ^^ {_.length}) ~ ((ws min 1) ^^ {_.length}) >> { 
         case start ~ ws =>
@@ -83,7 +89,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#bullet-lists]].
    */
-  def bulletList: Parser[BulletList] = {
+  lazy val bulletList: Parser[BulletList] = {
     lookAhead(bulletListStart <~ (ws min 1)) >> { symbol =>
       val bullet = StringBullet(symbol)
       (listItem(symbol, BulletListItem(_, bullet)) +) ^^
@@ -118,7 +124,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#enumerated-lists]].
    */
-  def enumList: Parser[EnumList] = {
+  lazy val enumList: Parser[EnumList] = {
     
     val lowerRoman = anyOf('i','v','x','l','c','d','m').min(1)
     val upperRoman = anyOf('I','V','X','L','C','D','M').min(1)
@@ -147,16 +153,11 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
     }
   }
   
-  /** Parser used to parse decorative lines like for rules or headers.
-   *  Abstract in this trait as it does not belong to list parsers-
-   */
-  def punctuationChar: Characters
-  
   /** Parses a definition list.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#definition-lists]].
    */
-  def definitionList: Parser[Block] = {
+  lazy val definitionList: Parser[Block] = {
     
     val tableStart = anyOf(' ','=') ~ eol
     val explicitStart = ".. " | "__ "
@@ -181,7 +182,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#field-lists]].
    */
-  def fieldList: Parser[Block] = {
+  lazy val fieldList: Parser[Block] = {
     
     val name = ':' ~> escapedUntil(':') <~ (lookAhead(eol) | ' ')
     
@@ -197,7 +198,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#option-lists]].
    */
-  def optionList: Parser[Block] = {
+  lazy val optionList: Parser[Block] = {
     
     def mkString (result: ~[Char,String]) = result._1.toString + result._2
     
@@ -231,7 +232,7 @@ trait ListParsers extends laika.parse.BlockParsers { self: InlineParsers =>
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#line-blocks]].
    */
-  def lineBlock: Parser[Block] = {
+  lazy val lineBlock: Parser[Block] = {
     val itemStart = anyOf('|').take(1)
     
     val line: Parser[(Line, Int)] = {

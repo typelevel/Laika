@@ -17,14 +17,15 @@
 package laika.parse.rst
 
 import laika.parse.core._
+import laika.parse.core.markup.{EscapedTextParsers, RecursiveSpanParsers}
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.text.{DelimitedBy, DelimitedText, DelimiterOptions}
-import laika.parse.rst.Elements.{InterpretedText, SubstitutionReference}
+import laika.parse.rst.BaseParsers._
+import laika.parse.rst.Elements.{InterpretedText, ReferenceName, SubstitutionReference}
 import laika.parse.util.URIParsers
 import laika.tree.Elements._
 import laika.util.~
 
-import scala.collection.mutable.ListBuffer
 
 /** Provides all inline parsers for reStructuredText.
  *  
@@ -35,7 +36,10 @@ import scala.collection.mutable.ListBuffer
  * 
  *  @author Jens Halm
  */
-trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
+class InlineParsers (recParsers: RecursiveSpanParsers with EscapedTextParsers, defaultTextRole: String) {
+
+
+  import recParsers._
 
   
   private val pairs: Map[Char, Set[Char]] = List(/* Ps/Pe pairs */
@@ -154,7 +158,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    *  The mapping is used to provide a fast implementation of an inline parser that
    *  only stops at known special characters. 
    */
-  protected def prepareSpanParsers: Map[Char, Parser[Span]] = Map(
+  lazy val spanParsers: Map[Char, Parser[Span]] = Map(
     '*' -> (strong | em),   
     '`' -> (inlineLiteral | phraseLinkRef | interpretedTextWithRoleSuffix),
     '[' -> (footnoteRef | citationRef),
@@ -165,14 +169,14 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
     '\\'-> (escapedChar ^^ (Text(_)))
   )
 
-  
+  // TODO - declare this elsewhere
   /** Parses an escaped character. For most characters it produces the character
    *  itself as the result with the only exception being an escaped space character
    *  which is removed from the output in reStructuredText.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#escaping-mechanism]].
    */
-  override lazy val escapedChar: Parser[String] = (" " ^^^ "") | (any take 1)
+  lazy val escapedChar: Parser[String] = (" " ^^^ "") | (any take 1)
 
 
   /** Parses a span of emphasized text.
@@ -200,42 +204,13 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    */
   lazy val inlineLiteral: Parser[Literal] = markupStart('`', "``") ~> delimitedByMarkupEnd("``") ^^ (Literal(_))
   
-  
-  /** Represent a reference name.
-   *  When resolving references whitespace needs to be normalized
-   *  and the name converted to lower case.
-   */
-  case class ReferenceName (original: String) {
-    lazy val normalized: String = original.replaceAll("[\n ]+", " ").toLowerCase
-  }
-  
-  /** Parses a simple reference name that only allows alphanumerical characters
-   *  and the punctuation characters `-`, `_`, `.`, `:`, `+`.
-   * 
-   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#reference-names]].
-   */
-  val simpleRefName: Parser[String] = refName
-  
   /** Parses a phrase reference name enclosed in back ticks.
-   * 
+   *
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#reference-names]].
    */
   val phraseRef: Parser[String] = '`' ~> escapedUntil('`')
-  
-  
-  /** Parses any of the four supported types of footnote labels.
-   * 
-   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#footnote-references]].
-   */
-  val footnoteLabel: Parser[FootnoteLabel] = {
-    val decimal = (anyIn('0' to '9') min 1) ^^ { n => NumericLabel(n.toInt) }
-    val autonumber = '#' ^^^ Autonumber 
-    val autosymbol = '*' ^^^ Autosymbol
-    val autonumberLabel = '#' ~> simpleRefName ^^ AutonumberLabel 
-    
-    decimal | autonumberLabel | autonumber | autosymbol
-  }
-  
+
+
   private def toSource (label: FootnoteLabel): String = label match {
     case Autonumber => "[#]_"
     case Autosymbol => "[*]_"
@@ -271,14 +246,10 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-internal-targets]]
    */
-  val internalTarget: Parser[Text] = markupStart('`', "`") ~> 
+  lazy val internalTarget: Parser[Text] = markupStart('`', "`") ~>
     (escapedText(DelimitedBy('`').nonEmpty) ^^ ReferenceName) <~
     markupEnd(1) ^^ (id => Text(id.original, Id(id.normalized) + Styles("target")))
   
-  /** The default text role to use when no role is specified in an interpreted text element.
-   */
-  def defaultTextRole: String = "title-reference"
-
   /** Parses an interpreted text element with the role name as a prefix.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#interpreted-text]]
@@ -353,12 +324,14 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
         Success(Reverse(startTrimmed.length, ExternalLink(List(Text(uri)), uriWithScheme), Text(sep+endTrimmed)), nextIn)
     }
   }}
+
+  private val uriParsers = new URIParsers
   
   /** Parses a standalone HTTP or HTTPS hyperlink (with no surrounding markup).
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#standalone-hyperlinks]]
    */
-  lazy val uri: Parser[(String,String,String)] = reverse(1, ("ptth" | "sptth") <~ reverseMarkupStart) ~ httpUriNoScheme ^^ {
+  lazy val uri: Parser[(String,String,String)] = reverse(1, ("ptth" | "sptth") <~ reverseMarkupStart) ~ uriParsers.httpUriNoScheme ^^ {
     case scheme ~ rest => (scheme, ":", rest)
   }
   
@@ -366,7 +339,7 @@ trait InlineParsers extends laika.parse.InlineParsers with URIParsers {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#standalone-hyperlinks]]
    */
-  lazy val email: Parser[(String,String,String)] = reverse(1, localPart <~ reverseMarkupStart) ~ domain ^? {
+  lazy val email: Parser[(String,String,String)] = reverse(1, uriParsers.localPart <~ reverseMarkupStart) ~ uriParsers.domain ^? {
     case local ~ domain if local.nonEmpty && domain.nonEmpty => (local, "@", domain)
   }
 

@@ -16,6 +16,7 @@
 
 package laika.parse.rst
 
+import laika.parse.core.markup.{EscapedTextParsers, RecursiveParsers}
 import laika.tree.Elements._
 import laika.util.Builders._
 import laika.util.~
@@ -211,9 +212,11 @@ object TextRoles {
     
   }
 
+  type RoleDirectivePartBuilder[E] = RecursiveParsers with EscapedTextParsers => RoleDirectivePart[E]
+
   /** Represents a single text role implementation.
    */
-  class TextRole private (val name: String, val default: String => Span, val part: BlockParsers with InlineParsers => RoleDirectivePart[String => Span])
+  class TextRole private (val name: String, val default: String => Span, val part: RoleDirectivePartBuilder[String => Span])
 
   /** API entry point for setting up a text role that.
    */
@@ -263,7 +266,7 @@ object TextRoles {
      *  value) and the actual text of the interpreted text span
      *  @return a new text role that can be registered with the reStructuredText parser
      */
-    def recursive [T] (name: String, default: T)(part: BlockParsers with InlineParsers => RoleDirectivePart[T])(roleF: (T, String) => Span): TextRole = 
+    def recursive [T] (name: String, default: T)(part: RoleDirectivePartBuilder[T])(roleF: (T, String) => Span): TextRole =
       new TextRole(name.toLowerCase, str => roleF(default, str), parsers => part(parsers) map (res => (str: String) => roleF(res, str)))
     
   }

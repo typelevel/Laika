@@ -29,14 +29,18 @@ import laika.tree.Elements._
      
 class InlineParsersSpec extends FlatSpec 
                         with Matchers 
-                        with InlineParsers 
-                        with ParseResultHelpers 
+                        with ParseResultHelpers
                         with DefaultParserHelpers[List[Span]] 
                         with ModelBuilder {
 
-  
-  val defaultParser: Parser[List[Span]] = recursiveSpans
-  
+
+  val defaultTextRole = "foo"
+
+  val rootParser = new RootParser(defaultTextRole = defaultTextRole)
+
+  val defaultParser: Parser[List[Span]] = rootParser.recursiveSpans
+
+
   def subst (name: String) = SubstitutionReference(name)
   
   

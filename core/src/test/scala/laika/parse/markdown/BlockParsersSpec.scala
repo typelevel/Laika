@@ -24,14 +24,14 @@ import org.scalatest.{FlatSpec, Matchers}
     
 class BlockParsersSpec extends FlatSpec 
                        with Matchers 
-                       with BlockParsers 
-                       with InlineParsers
-                       with ParseResultHelpers 
+                       with ParseResultHelpers
                        with DefaultParserHelpers[RootElement] 
                        with ModelBuilder {
 
-  
-  val defaultParser: Parser[RootElement] = rootElement
+
+  val rootParser = new RootParser(Map(), Map(), verbatimHTML = false, isStrict = true)
+
+  val defaultParser: Parser[RootElement] = rootParser.rootElement
   
   
   def fp (content: String) = ForcedParagraph(List(Text(content)))

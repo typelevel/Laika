@@ -16,10 +16,11 @@
 
 package laika.parse.markdown.html
 
+import laika.parse.InlineParsers._
 import laika.parse.core.Parser
+import laika.parse.core.markup.RecursiveSpanParsers
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.text.{DelimitedBy, DelimitedText}
-import laika.parse.markdown.{BlockParsers, InlineParsers}
 import laika.parse.markdown.html.HTMLElements._
 import laika.tree.Elements._
 import laika.util.~
@@ -30,53 +31,74 @@ import laika.util.~
  * 
  *  @author Jens Halm
  */
-trait HTMLParsers extends InlineParsers with BlockParsers { 
+class HTMLParsers (recParsers: RecursiveSpanParsers) {
 
-  
+
 
   private val htmlWSChars = List(' ','\t','\f','\n','\r')
 
   private val htmlAttrEndChars = List('"','\'','<','=','/','>') ::: htmlWSChars
-  
-  
+
+
   /** Parses and consumes optional whitespace, always succeeds.
    */
   val htmlWS: Parser[String] = anyOf(htmlWSChars:_*)
-  
+
+
+  val htmlHexReference: Parser[String] = {
+    val hexNumber = anyIn('0' to '9', 'a' to 'f', 'A' to 'F') min 1
+
+    (char('x') | char('X')) ~ hexNumber ^^ { mkString }
+  }
+
+  val htmlDecReference: Parser[String] = anyIn('0' to '9') min 1
+
+  val htmlNamedReference: Parser[String] = anyIn('0' to '9', 'a' to 'z', 'A' to 'Z') min 1
+
+  /** Parses a numeric character reference (decimal or hexadecimal) without the leading `'&'`.
+    */
+  val htmlNumericReference: Parser[String] = '#' ~ (htmlHexReference | htmlDecReference) ^^ { mkString }
+
+  /** Parses a numeric or named character reference without the leading `'&'`.
+    */
+  val htmlCharReference: Parser[HTMLCharacterReference] =
+  (htmlNumericReference | htmlNamedReference) <~ ';' ^^
+    { s => HTMLCharacterReference("&" + s + ";") }
+
 
   val htmlAttributeName: Parser[String] = anyBut(htmlAttrEndChars:_*) min 1
- 
-  val htmlUnquotedAttributeValue: Parser[(List[Span with TextContainer], Option[Char])] = 
+
+  val htmlUnquotedAttributeValue: Parser[(List[Span with TextContainer], Option[Char])] =
     spans(DelimitedBy(htmlAttrEndChars:_*).keepDelimiter, Map('&' -> htmlCharReference)) ^?
       { case x :: xs => ((x::xs).asInstanceOf[List[Span with TextContainer]], None) }
-  
+
   /** Parses an attribute value enclosed by the specified character.
    */
   def htmlQuotedAttributeValue (c: Char): Parser[(List[Span with TextContainer], Option[Char])] =
     c ~> spans(DelimitedBy(c), Map('&' -> htmlCharReference)) ^^
       { spans => (spans.asInstanceOf[List[Span with TextContainer]], Some(c)) }
-    
+
   /** Parses quoted and unquoted attribute values.
    */
-  val htmlAttributeValue: Parser[(List[Span with TextContainer], Option[Char])] = 
-    htmlQuotedAttributeValue('"') | 
-    htmlQuotedAttributeValue('\'') | 
+  val htmlAttributeValue: Parser[(List[Span with TextContainer], Option[Char])] =
+    htmlQuotedAttributeValue('"') |
+    htmlQuotedAttributeValue('\'') |
     htmlUnquotedAttributeValue
 
   /** Parses a single attribute, consisting of the name and (optional) equals sign
    *  and value.
    */
-  val htmlAttribute: Parser[HTMLAttribute] = 
-    (htmlAttributeName <~ htmlWS) ~ opt('=' ~> htmlAttributeValue <~ htmlWS) ^^ { 
-      case name ~ Some((value, quotedWith)) => HTMLAttribute(name, value, quotedWith) 
-      case name ~ None                      => HTMLAttribute(name, Nil, None) 
+  val htmlAttribute: Parser[HTMLAttribute] =
+    (htmlAttributeName <~ htmlWS) ~ opt('=' ~> htmlAttributeValue <~ htmlWS) ^^ {
+      case name ~ Some((value, quotedWith)) => HTMLAttribute(name, value, quotedWith)
+      case name ~ None                      => HTMLAttribute(name, Nil, None)
     }
-   
-  
+
+
   val htmlTagName: Parser[String] = (anyIn('a' to 'z', 'A' to 'Z') min 1) ~ anyBut('/' :: '>' :: htmlWSChars:_*) ^^ {
     case first ~ rest => first + rest
   }
-  
+
   /** Parses an HTML tag without the enclosing `'<'` and `'>'` characters.
    */
   val htmlTagContent: Parser[String ~ List[HTMLAttribute]] = htmlTagName ~ (htmlWS ~> (htmlAttribute *) <~ htmlWS)
@@ -84,7 +106,7 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
   /** Parses an HTML end tag without the leading `'<'`.
    */
   val htmlEndTag: Parser[HTMLEndTag] = '/' ~> htmlTagName <~ htmlWS <~ '>' ^^ { HTMLEndTag(_) }
-  
+
   /** Parses an HTML end tag if it matches the specified tag name.
    */
   def htmlEndTag (tagName: String): DelimitedText[String] =
@@ -93,27 +115,27 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
   /** Parses an HTML comment without the leading `'<'`.
    */
   val htmlComment: Parser[HTMLComment] = "!--" ~> DelimitedBy("-->") ^^ { HTMLComment(_) }
-  
+
   /** Parses an empty HTML element without the leading `'<'`.
    *  Only recognizes empty tags explicitly closed.
    */
-  val htmlEmptyElement: Parser[HTMLEmptyElement] = htmlTagContent <~ "/>" ^^ { 
-    case tagName ~ attributes => HTMLEmptyElement(tagName, attributes) 
+  val htmlEmptyElement: Parser[HTMLEmptyElement] = htmlTagContent <~ "/>" ^^ {
+    case tagName ~ attributes => HTMLEmptyElement(tagName, attributes)
   }
-  
+
   /** Parses an HTML start tag without the leading `'<'`.
    *  Only recognizes empty tags explicitly closed.
    */
-  val htmlStartTag: Parser[HTMLStartTag] = htmlTagContent <~ '>' ^^ { 
-    case tagName ~ attributes => HTMLStartTag(tagName, attributes) 
+  val htmlStartTag: Parser[HTMLStartTag] = htmlTagContent <~ '>' ^^ {
+    case tagName ~ attributes => HTMLStartTag(tagName, attributes)
   }
-  
-  /** Parses an HTML element without the leading `'<'`, but including 
+
+  /** Parses an HTML element without the leading `'<'`, but including
    *  all the nested HTML and Text elements.
    */
   lazy val htmlElement: Parser[HTMLElement] = htmlStartTag >> {
     tag => spans(htmlEndTag(tag.name), htmlBlockParsers) ^^ {
-      spans => HTMLElement(tag, spans) 
+      spans => HTMLElement(tag, spans)
     }
   }
 
@@ -121,7 +143,7 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
     * all the nested HTML and Text elements, as well as any nested Markdown spans.
     */
   lazy val htmlElementWithNestedMarkdown: Parser[HTMLElement] = htmlStartTag >> {
-    tag => delimitedRecursiveSpans(htmlEndTag(tag.name)) ^^ {
+    tag => recParsers.delimitedRecursiveSpans(htmlEndTag(tag.name)) ^^ {
       spans => HTMLElement(tag, spans)
     }
   }
@@ -139,34 +161,10 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
   private def mkString (result: ~[Char,String]): String = result._1.toString + result._2
 
 
-  val htmlHexReference: Parser[String] = {
-    val hexNumber = anyIn('0' to '9', 'a' to 'f', 'A' to 'F') min 1
-
-    (char('x') | char('X')) ~ hexNumber ^^ { mkString }
-  }
-  
-  val htmlDecReference: Parser[String] = anyIn('0' to '9') min 1
-  
-  val htmlNamedReference: Parser[String] = anyIn('0' to '9', 'a' to 'z', 'A' to 'Z') min 1
-
-  /** Parses a numeric character reference (decimal or hexadecimal) without the leading `'&'`.
-    */
-  val htmlNumericReference: Parser[String] = '#' ~ (htmlHexReference | htmlDecReference) ^^ { mkString }
-
-  /** Parses a numeric or named character reference without the leading `'&'`.
-    */
-  val htmlCharReference: Parser[HTMLCharacterReference] =
-    (htmlNumericReference | htmlNamedReference) <~ ';' ^^
-      { s => HTMLCharacterReference("&" + s + ";") }
-
-
-  override protected def prepareSpanParsers: Map[Char, Parser[Span]] = super.prepareSpanParsers ++ htmlParsers
-
-  
   /** The mapping of start characters to their corresponding HTML span parsers.
    */
-  lazy val htmlParsers: Map[Char, Parser[Span]] = Map(
-    '<' -> (simpleLink | htmlSpanWithNestedMarkdown),    
+  lazy val htmlSpanParsers: Map[Char, Parser[Span]] = Map(
+    '<' -> htmlSpanWithNestedMarkdown,
     '&' -> htmlCharReference
   )
   
@@ -206,11 +204,10 @@ trait HTMLParsers extends InlineParsers with BlockParsers {
       spans => HTMLBlock(HTMLElement(tag, spans))  
     } 
   }
-  
-  override protected def prepareBlockParsers (nested: Boolean): List[Parser[Block]] = {
-    if (nested) super.prepareBlockParsers(nested)
-    else htmlBlock :: ('<' ~> (htmlComment | htmlEmptyElement | htmlStartTag) <~ wsEol ~ blankLine) :: super.prepareBlockParsers(nested)
-  }
-  
-  
+
+  lazy val htmlBlockElement: Parser[Block] = '<' ~> (htmlComment | htmlEmptyElement | htmlStartTag) <~ wsEol ~ blankLine
+
+  lazy val topLevelBlocks: Seq[Parser[Block]] = Seq(htmlBlock, htmlBlockElement)
+
+
 }

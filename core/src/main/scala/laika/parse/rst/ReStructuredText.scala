@@ -232,31 +232,24 @@ class ReStructuredText private (
         laikaBlockDirectives, laikaSpanDirectives, rawContent, true)
 
 
-  private lazy val parser: BlockParsers with InlineParsers = {
-    class StrictParsers extends BlockParsers with InlineParsers {
-      val std = new StandardBlockDirectives with StandardSpanDirectives with StandardTextRoles {}
+  private lazy val parser: RootParser = {
 
-      val rawDirective = if (rawContent) List(BlockDirective("raw")(std.rawDirective)) else Nil
-      val rawTextRole = if (rawContent) List(std.rawTextRole) else Nil
+    val allLaikaBlockDirectives = Blocks.toMap(StandardDirectives.stdBlockDirectives ++ laikaBlockDirectives)
+    val allLaikaSpanDirectives = Spans.toMap(StandardDirectives.stdSpanDirectives ++ laikaSpanDirectives)
 
-      lazy val blockDirectives = (rawDirective ++ std.blockDirectives ++ self.blockDirectives) map { d => (d.name, d.part(this)) } toMap
-      lazy val spanDirectives  = (std.spanDirectives ++ self.spanDirectives)                   map { d => (d.name, d.part(this)) } toMap
-      lazy val textRoles       = (rawTextRole ++ std.textRoles ++ self.textRoles)              map { r => (r.name, r.part(this)) } toMap
+    val stdBlocks = new StandardBlockDirectives
+    val stdSpans = new StandardSpanDirectives
+    val stdTextRoles = new StandardTextRoles
 
-      override val textRoleElements = (std.textRoles ++ self.textRoles) map { role => CustomizedTextRole(role.name, role.default) }
-      override val defaultTextRole = self.defaultTextRole
+    val rawDirective = if (rawContent) List(BlockDirective("raw")(stdBlocks.rawDirective)) else Nil
+    val rawTextRole = if (rawContent) List(stdTextRoles.rawTextRole) else Nil
 
-      def blockDirective (name: String): Option[DirectivePart[Block]]  = blockDirectives.get(name)
-      def spanDirective (name: String): Option[DirectivePart[Span]]     = spanDirectives.get(name)
-      def textRole (name: String): Option[RoleDirectivePart[String => Span]] = textRoles.get(name)
-    }
-    if (isStrict) new StrictParsers
-    else new StrictParsers with TemplateParsers.MarkupBlocks with TemplateParsers.MarkupSpans with StandardDirectives {
-      lazy val laikaBlockDirectives = Blocks.toMap(stdBlockDirectives) ++ Blocks.toMap(self.laikaBlockDirectives)
-      lazy val laikaSpanDirectives  = Spans.toMap(stdSpanDirectives) ++ Spans.toMap(self.laikaSpanDirectives)
-      def getBlockDirective (name: String) = laikaBlockDirectives.get(name)
-      def getSpanDirective (name: String) = laikaSpanDirectives.get(name)
-    }
+    val rstBlockDirectives = stdBlocks.blockDirectives ++ blockDirectives ++ rawDirective
+    val rstSpanDirectives  = stdSpans.spanDirectives   ++ spanDirectives
+    val rstTextRoles       = stdTextRoles.allRoles     ++ textRoles       ++ rawTextRole
+
+    new RootParser(allLaikaBlockDirectives, allLaikaSpanDirectives,
+      rstBlockDirectives, rstSpanDirectives, rstTextRoles, defaultTextRole, isStrict)
   }
 
   /** The actual parser function, fully parsing the specified input and

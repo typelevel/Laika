@@ -22,27 +22,15 @@ import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions
 import laika.directive.DirectiveParsers
-import laika.parse.{InlineParsers}
+import laika.directive.Directives.Templates
+import laika.parse.core.markup.{DefaultEscapedTextParsers, DefaultRecursiveSpanParsers, EscapedTextParsers, RecursiveSpanParsers}
 import laika.parse.core.text.{DelimitedBy, MarkupParser}
+import laika.rewrite.DocumentCursor
 import laika.tree.Paths.Path
 import laika.tree.Documents.TemplateDocument
 import laika.tree.Elements._
 import laika.tree.Templates._
 import laika.util.~
-
-
-/** Provides parsers for the default template format.
- */
-trait TemplateParsers extends InlineParsers {
-
-  
-  /** Parses a reference enclosed between `{{` and `}}`.
-   */
-  def reference[T] (f: String => T): Parser[T] = 
-    '{' ~ ws ~> refName <~ ws ~ "}}" ^^ f  
-    
-  
-}
 
 
 object ConfigParser {
@@ -61,84 +49,71 @@ object ConfigParser {
 }
 
 
-/** Specializations for the generic template parsers for 
- *  elements embedded in either markup blocks, markup inline
- *  elements or templates.
- */
-object TemplateParsers {
-  
+/** Provides the parsers for directives in templates.
+  */
+class TemplateParsers (directives: Map[String, Templates.Directive]) extends DefaultRecursiveSpanParsers
+                                                                     with DefaultEscapedTextParsers {
 
-  /** Parsers specific to templates.
-   */
-  trait Templates extends TemplateParsers with DirectiveParsers.TemplateDirectives {
-    
-    protected def prepareSpanParsers: Map[Char, Parser[Span]] = Map(
-      '{' -> reference(TemplateContextReference(_)),
-      '@' -> templateDirectiveParser,
-      '\\'-> ((any take 1) ^^ { Text(_) })
-    )
-  
-    def configParser (path: Path): Parser[Either[InvalidSpan,Config]] =
-      ConfigParser.forPath(path, {
-        (ex: Exception, str: String) => InvalidSpan(SystemMessage(laika.tree.Elements.Error,
-            "Error parsing config header: "+ex.getMessage), TemplateString(s"{%$str%}"))
-      })
+  val directiveParsers = new DirectiveParsers(this)
 
-    lazy val templateSpans: Parser[List[TemplateSpan]] = recursiveSpans ^^ {
-      _.collect {
-        case s: TemplateSpan => s
-        case Text(s, opt) => TemplateString(s, opt)
-      }
-    }
-    
-    def templateWithConfig (path: Path): Parser[(Config, List[TemplateSpan])] = opt(configParser(path)) ~ templateSpans ^^ {
-      case Some(Right(config)) ~ root => (config, root)
-      case Some(Left(span)) ~ root    => (ConfigFactory.empty(), TemplateElement(span) :: root)
-      case None ~ root                => (ConfigFactory.empty(), root)
-    }
-  
-    def parseTemplate (ctx: ParserContext, path: Path): TemplateDocument = {
-      val (config, root) = new MarkupParser(templateWithConfig(path)).parseMarkup(ctx)
-      TemplateDocument(path, TemplateRoot(root), config)
-    }
+  import directiveParsers._
 
-    lazy val consumeAllTemplateSpans = new MarkupParser(templateSpans)
-    
-    def parseTemplatePart (source: String): List[TemplateSpan] = consumeAllTemplateSpans.parseMarkup(source)
-      
+  case class DirectiveSpan(f: DocumentCursor => Span, options: Options = NoOpt) extends SpanResolver with TemplateSpan {
+    def resolve(cursor: DocumentCursor) = f(cursor) match {
+      case s: TemplateSpan => s
+      case s: Span => TemplateElement(s)
+    }
   }
-  
-  
-  /** Parsers specific to block elements in text markup.
-   */
-  trait MarkupBlocks extends DirectiveParsers.BlockDirectives {
-    
-    abstract override protected def prepareBlockParsers (nested: Boolean): List[Parser[Block]] = 
-      blockDirectiveParser :: super.prepareBlockParsers(nested)
-    
-    override def config (path: Path): Parser[Either[InvalidBlock,Config]] = ConfigParser.forPath(path, {
-      (ex: Exception, str: String) => InvalidBlock(SystemMessage(laika.tree.Elements.Error,
-        "Error parsing config header: "+ex.getMessage), LiteralBlock(s"{%$str%}"))
+
+  lazy val spanParsers: Map[Char, Parser[Span]] = Map(
+    '{' -> reference(TemplateContextReference(_)),
+    '@' -> templateDirective,
+    '\\'-> ((any take 1) ^^ { Text(_) })
+  )
+
+  lazy val templateDirective: Parser[TemplateSpan] = {
+    val contextRefOrNestedBraces = Map('{' -> (reference(TemplateContextReference(_)) | nestedBraces))
+    val bodyContent = wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(DelimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
+    withSource(directiveParser(bodyContent, includeStartChar = false)) ^^ { case (result, source) =>
+
+      def createContext(parts: PartMap, docCursor: Option[DocumentCursor]): Templates.DirectiveContext = {
+        new DirectiveContextBase(parts, docCursor) with Templates.DirectiveContext {
+          val parser = new Templates.Parser {
+            def apply(source: String) = nestedTemplateSpans.parseMarkup(source)
+          }
+        }
+      }
+      def invalid(msg: String) = TemplateElement(InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Literal("@" + source)))
+
+      applyDirective(Templates)(result, directives.get, createContext, s => DirectiveSpan(s), invalid, "template")
+    }
+  }
+
+  def configParser (path: Path): Parser[Either[InvalidSpan,Config]] =
+    ConfigParser.forPath(path, {
+      (ex: Exception, str: String) => InvalidSpan(SystemMessage(laika.tree.Elements.Error,
+        "Error parsing config header: "+ex.getMessage), TemplateString(s"{%$str%}"))
     })
-  }
-  
-  
-  /** Parsers specific to inline elements in text markup.
-   */
-  trait MarkupSpans extends TemplateParsers with DirectiveParsers.SpanDirectives {
-    
-    abstract override protected def prepareSpanParsers: Map[Char, Parser[Span]] = {
-      
-      def addOrMerge (base: Map[Char, Parser[Span]], char: Char, parser: Parser[Span]) = {
-        val oldParser = base.get(char)
-        base + (char -> oldParser.map(parser | _).getOrElse(parser))
-      }
-      
-      val withRef = addOrMerge(super.prepareSpanParsers, '{', reference(MarkupContextReference(_)))    
-      addOrMerge(withRef, '@', spanDirectiveParser)
+
+  lazy val templateSpans: Parser[List[TemplateSpan]] = recursiveSpans ^^ {
+    _.collect {
+      case s: TemplateSpan => s
+      case Text(s, opt) => TemplateString(s, opt)
     }
-    
   }
-  
-  
+
+  lazy val nestedTemplateSpans = new MarkupParser(templateSpans)
+
+  def templateWithConfig (path: Path): Parser[(Config, List[TemplateSpan])] = opt(configParser(path)) ~ templateSpans ^^ {
+    case Some(Right(config)) ~ root => (config, root)
+    case Some(Left(span)) ~ root    => (ConfigFactory.empty(), TemplateElement(span) :: root)
+    case None ~ root                => (ConfigFactory.empty(), root)
+  }
+
+  def parseTemplate (ctx: ParserContext, path: Path): TemplateDocument = {
+    val (config, root) = new MarkupParser(templateWithConfig(path)).parseMarkup(ctx)
+    TemplateDocument(path, TemplateRoot(root), config)
+  }
+
+
 }

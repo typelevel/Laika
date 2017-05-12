@@ -16,11 +16,13 @@
   
 package laika.parse.rst.ext
 
-import laika.tree.Elements._
-import laika.parse.rst.Directives._
-import laika.parse.rst.Directives.Parts._
 import java.text.SimpleDateFormat
 import java.util.Date
+
+import laika.parse.rst.Directives.Parts._
+import laika.parse.rst.Directives._
+import laika.parse.rst.ext.StandardDirectiveParts._
+import laika.tree.Elements._
 
 /** Defines all supported standard span directives of the reStructuredText reference parser.
  *  A span directive can be used in substitution definitions.
@@ -38,48 +40,10 @@ import java.util.Date
  * 
  *  @author Jens Halm
  */
-trait StandardSpanDirectives {
+class StandardSpanDirectives {
 
-  /** All custom parsers needed by the directive implementations.
-   */
-  val parse: StandardDirectiveParsers = new StandardDirectiveParsers {}
-  
-  /** The name option which is supported by almost all reStructuredText directives.
-   */
-  protected val nameOpt: DirectivePart[Option[String]] = optField("name")
-  
-  /** The class option which is supported by almost all reStructuredText directives.
-   */
-  protected val classOpt: DirectivePart[Option[String]] = optField("class")
-  
-  /** The standard class and name options supported by most directives,
-   *  combined in the result into an Options instance.
-   */
-  protected val stdOpt: DirectivePart[Options] = (nameOpt ~ classOpt) { (id, styles) => toOptions(id, styles) } 
-  
-  /** Converts an optional id and an optional style parameter containing
-   *  a space-delimited list of styles to an `Options` instance.
-   */
-  protected def toOptions (id: Option[String], styles: Option[String]): Options = 
-    Options(id, styles.map(_.split(" ").toSet).getOrElse(Set()))
-  
-  
-  /** The image directive for span elements, 
-   *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#image]] for details.
-   */
-  lazy val image: DirectivePart[Span] = {
-    def multilineURI (text: String) = Right(text.split("\n").map(_.trim).mkString("\n").trim)
-    
-    (argument(multilineURI, withWS = true) ~ optField("alt") ~ optField("target", parse.target) ~ stdOpt) { (uri, alt, target, opt) =>
-      val image = Image(alt.getOrElse(""), URI(uri), None, opt)
-      (target map { 
-        case ref: ExternalLink  => ref.copy(content = List(image))
-        case ref: LinkReference => ref.copy(content = List(image))
-      }).getOrElse(image)
-    } 
-  }
-  
-  /** The replace directive, 
+
+  /** The replace directive,
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#replacement-text]] for details.
    */
   lazy val replace: DirectivePart[Span] = spanContent map (SpanSequence(_)) 
@@ -87,7 +51,7 @@ trait StandardSpanDirectives {
   /** The unicode directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#unicode-character-codes]] for details.
    */
-  lazy val unicode: DirectivePart[Span] = argument(parse.unicode, withWS = true) map (Text(_)) 
+  lazy val unicode: DirectivePart[Span] = argument(StandardDirectiveParsers.unicode, withWS = true) map (Text(_))
   
   /** The date directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#date]] for details.
@@ -102,7 +66,7 @@ trait StandardSpanDirectives {
    *  to be used in substitution references.
    */
   lazy val spanDirectives: List[Directive[Span]] = List(
-    SpanDirective("image")(image),
+    SpanDirective.recursive("image")(image),
     SpanDirective("replace")(replace),
     SpanDirective("unicode")(unicode),
     SpanDirective("date")(date)

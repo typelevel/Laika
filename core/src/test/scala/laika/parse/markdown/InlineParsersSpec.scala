@@ -26,13 +26,14 @@ import laika.tree.helper.ModelBuilder
      
 class InlineParsersSpec extends FlatSpec 
                         with Matchers 
-                        with InlineParsers 
-                        with ParseResultHelpers 
+                        with ParseResultHelpers
                         with DefaultParserHelpers[List[Span]] 
                         with ModelBuilder {
 
-  
-  val defaultParser: Parser[List[Span]] = recursiveSpans
+
+  val rootParser = new RootParser(Map(), Map(), verbatimHTML = false, isStrict = false)
+
+  val defaultParser: Parser[List[Span]] = rootParser.recursiveSpans
 
   
   "The text parser" should "parse content without any markup as plain text" in {

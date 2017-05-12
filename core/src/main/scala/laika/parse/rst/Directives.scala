@@ -16,6 +16,7 @@
 
 package laika.parse.rst
 
+import laika.parse.core.markup.{EscapedTextParsers, RecursiveParsers}
 import laika.tree.Elements._
 import laika.util.Builders._
 import laika.util.~
@@ -273,9 +274,11 @@ object Directives {
     
   }
 
+  type DirectivePartBuilder[E] = RecursiveParsers with EscapedTextParsers => DirectivePart[E]
+
   /** Represents a single directive implementation.
    */
-  class Directive [E <: Element] private[Directives] (val name: String, val part: BlockParsers with InlineParsers => DirectivePart[E])
+  class Directive [E <: Element] private[Directives] (val name: String, val part: DirectivePartBuilder[E])
 
   /** API entry point for setting up a span directive that can be used
    *  in substitution definitions.
@@ -303,7 +306,7 @@ object Directives {
      *  @param part a function returning the implementation of the directive that can be created by using the combinators of the `Parts` object
      *  @return a new directive that can be registered with the reStructuredText parser
      */
-    def recursive (name: String)(part: BlockParsers with InlineParsers => DirectivePart[Span]): Directive[Span] = new Directive(name.toLowerCase, part)
+    def recursive (name: String)(part: DirectivePartBuilder[Span]): Directive[Span] = new Directive(name.toLowerCase, part)
     
   }
   
@@ -332,7 +335,7 @@ object Directives {
      *  @param part a function returning the implementation of the directive that can be created by using the combinators of the `Parts` object
      *  @return a new directive that can be registered with the reStructuredText parser
      */
-    def recursive (name: String)(part: BlockParsers with InlineParsers => DirectivePart[Block]): Directive[Block] = new Directive(name.toLowerCase, part)
+    def recursive (name: String)(part: DirectivePartBuilder[Block]): Directive[Block] = new Directive(name.toLowerCase, part)
     
   }
 

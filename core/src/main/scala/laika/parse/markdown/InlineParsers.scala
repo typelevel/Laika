@@ -16,7 +16,9 @@
 
 package laika.parse.markdown
 
+import laika.parse.InlineParsers.text
 import laika.parse.core.Parser
+import laika.parse.core.markup.{EscapedTextParsers, RecursiveSpanParsers}
 import laika.parse.core.text.DelimitedBy
 import laika.parse.core.text.TextParsers._
 import laika.tree.Elements._
@@ -33,13 +35,14 @@ import laika.util.~
  * 
  *  @author Jens Halm
  */
-trait InlineParsers extends laika.parse.InlineParsers { self =>
- 
-  
+class InlineParsers (recParsers: RecursiveSpanParsers with EscapedTextParsers) {
+
+  import recParsers._
+
   /** Creates a new mapping from the start character of an inline span
     * to the corresponding parser. May be overridden by subtraits.
     */
-  protected def prepareSpanParsers: Map[Char, Parser[Span]] = Map(
+  lazy val allSpanParsers: Map[Char, Parser[Span]] = Map(
     '*' -> (strong('*') | em('*')),    
     '_' -> (strong('_') | em('_')),
     '`' -> (literalEnclosedByDoubleChar | literalEnclosedBySingleChar), 
@@ -49,13 +52,13 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
     '!' -> image
   )
   
-  
+  // TODO - declare this elsewhere
   /** Parses a single escaped character, only recognizing the characters the Markdown syntax document
    *  specifies as escapable.
    * 
    *  Note: escaping > is not mandated by the official syntax description, but by the official test suite.
    */
-  override lazy val escapedChar: Parser[String] = anyOf('\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!', '>') take 1
+  lazy val escapedChar: Parser[String] = anyOf('\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!', '>') take 1
   
   /** Parses an explicit hard line break.
    */
@@ -175,8 +178,8 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
     val titleEnd = lookAhead(ws ~ ')')
     val title = ws ~> (('"' ~> DelimitedBy('"').withPostCondition(titleEnd)) | ('\'' ~> DelimitedBy('\'').withPostCondition(titleEnd)))
 
-    val url = ('<' ~> self.text(DelimitedBy('>',' ').keepDelimiter, Map('\\' -> escapedChar)) <~ '>') |
-       self.text(DelimitedBy(')',' ','\t').keepDelimiter, Map('\\' -> escapedChar))
+    val url = ('<' ~> text(DelimitedBy('>',' ').keepDelimiter, Map('\\' -> escapedChar)) <~ '>') |
+       text(DelimitedBy(')',' ','\t').keepDelimiter, Map('\\' -> escapedChar))
     
     val urlWithTitle = '(' ~> url ~ opt(title) <~ ws ~ ')' ^^ {  
       case url ~ title => (recParser: RecParser, text:String) => inline(recParser, text, url, title)
@@ -210,21 +213,5 @@ trait InlineParsers extends laika.parse.InlineParsers { self =>
     }
   }
   
-  /** Parses a link definition in the form `[id]: <url> "title"`.
-   *  The title is optional as well as the quotes around it and the angle brackets around the url.
-   */
-  val linkTarget: Parser[ExternalLinkDefinition] = {
-    
-    val id = '[' ~> escapedUntil(']') <~ ':' <~ ws
-    val url = (('<' ~> escapedUntil('>')) | text(DelimitedBy(' ', '\n').acceptEOF.keepDelimiter, escapedChars)) ^^ { _.mkString }
-    
-    def enclosedBy(start: Char, end: Char) = 
-      start ~> DelimitedBy(end).withPostCondition(lookAhead(wsEol)).failOn('\r', '\n') ^^ { _.mkString }
-    
-    val title = (ws ~ opt(eol) ~ ws) ~> (enclosedBy('"', '"') | enclosedBy('\'', '\'') | enclosedBy('(', ')'))
-    
-    id ~ url ~ opt(title) <~ wsEol ^^ { case id ~ url ~ title => ExternalLinkDefinition(id.toLowerCase, url, title) }
-  }
-  
-  
+
 }

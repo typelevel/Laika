@@ -16,15 +16,8 @@
 
 package laika.parse
   
-import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
-import laika.parse.core.markup.RecursiveBlockParsers
-import laika.parse.core.text.MarkupParser
+import laika.parse.core._
 import laika.parse.core.text.TextParsers._
-import laika.parse.core.{Failure, ParserContext, Success, _}
-import laika.rewrite.TreeUtil
-import laika.tree.Documents.Document
-import laika.tree.Elements.{Block, ConfigValue, Error, InvalidBlock, Paragraph, RootElement, SystemMessage, Text}
-import laika.tree.Paths.Path
 import laika.util.~
   
 /** A generic base trait for block parsers. Provides base parsers that abstract
@@ -43,129 +36,12 @@ import laika.util.~
  * 
  *  @author Jens Halm
  */
-trait BlockParsers extends RecursiveBlockParsers {
+object BlockParsers {
 
   
-  /** The maximum level of block nesting. Some block types like lists
-   *  and blockquotes contain nested blocks. To protect against malicious
-   *  input or accidentally broken markup, the level of nesting is restricted.
-   */
-  val maxNestLevel: Int = 12
-  
-   
-  /** Parses any kind of top-level block supported by a concrete markup language.
-   */
-  final lazy val topLevelBlock: Parser[Block] = asChoice(prepareBlockParsers(false))
- 
-  /** Parses any kind of nested block supported by a concrete markup language.
-   */
-  final lazy val nestedBlock: Parser[Block] = asChoice(prepareBlockParsers(true))
- 
-  /** Parses blocks, excluding blocks that allow nesting.
-   *  Only used in rare cases when the maximum nest level allowed had been reached
-   */
-  def nonRecursiveBlock: Parser[Block]
-
-  
-  /** Parses a full document, delegating most of the work to the `topLevelBlock` parser.
-   */
-  lazy val rootElement: Parser[RootElement] = opt(blankLines) ~> blockList(topLevelBlock) ^^ RootElement
-  
-  /** Fully parses the input from the specified reader and returns the document tree. 
-   *  This function is expected to always succeed, errors would be considered a bug
-   *  of this library, as the parsers treat all unknown or malformed markup as regular
-   *  text.
-   */
-  def parseDocument (reader: ParserContext, path: Path): Document = {
-    val (config, root) = parseConfigAndRoot(reader, path)
-    Document(path, root, TreeUtil.extractFragments(root.content), config)
-  }
-
-  def config (path: Path): Parser[Either[InvalidBlock,Config]] = failure("configuration sections not enabled")
-  
-  /** Fully parses the input from the specified reader and returns the configuration and root element. 
-   */
-  protected def parseConfigAndRoot (reader: ParserContext, path: Path): (Config,RootElement) = {
-    def assembleConfig (config: Config, root: RootElement) = {
-      import scala.collection.JavaConverters._
-      val values = root.content collect { case ConfigValue(name, value, _) => (name, value match {
-        case m: Map[_,_]      => m.asJava
-        case it: Iterable[_]  => it.asJava
-        case other            => other
-      })}
-      ((config /: values) { case (config, (name, value)) =>
-        config.withValue(name, ConfigValueFactory.fromAnyRef(value))
-      }, root)
-    }
-    val parser = opt(config(path)) ~ rootElement ^^ {
-      case Some(Right(config)) ~ root => assembleConfig(config, root)
-      case Some(Left(block)) ~ root   => assembleConfig(ConfigFactory.empty(), root.copy(content = block +: root.content))
-      case None ~ root                => assembleConfig(ConfigFactory.empty(), root)
-    }
-    new MarkupParser(parser).parseMarkup(reader)
-  }
-  
-  
-  /** Extension hook for assembling the block parsers for a particular markup format.
-   *  
-   *  @param nested true if these are parsers for nested blocks, false if they are for top level blocks
-   *  @return a list of block parsers which later will be interpreted as choices in the specified order
-   */
-  protected def prepareBlockParsers (nested: Boolean): List[Parser[Block]]
-  
-  private def asChoice (parsers: List[Parser[Block]]): Parser[Block] = 
-    if (parsers.isEmpty) failure("No block parsers specified")
-    else parsers.reduceLeft(_ | _)
-  
-
-  private class RecursiveBlockParser {
-
-    lazy val recursive    = consumeAll(opt(blankLines) ~> blockList(nestedBlock))
-    lazy val nonRecursive = consumeAll(opt(blankLines) ~> blockList(nonRecursiveBlock))
-
-    def parse (source: String, nestLevel: Int): Parsed[List[Block]] = {
-      val p = if (nestLevel < maxNestLevel) recursive else nonRecursive
-      p.parse(ParserContext(source, nestLevel + 1))
-    }
-
-  }
-
-  def recursiveBlocks (p: Parser[String]): Parser[Seq[Block]] = Parser { ctx =>
-    p.parse(ctx) match {
-      case Success(str, next) =>
-        recursiveBlockParser.parse(str, ctx.nestLevel) match {
-          case Success(blocks, _) => Success(blocks, next)
-          case f: Failure => f
-        }
-      case f: Failure => f
-    }
-  }
-
-  def withRecursiveBlockParser [T] (p: Parser[T]): Parser[(String => List[Block], T)] = Parser { ctx =>
-    p.parse(ctx) match {
-      case Success(res, next) =>
-        val recParser: String => List[Block] = { source: String =>
-          recursiveBlockParser.parse(source, next.nestLevel) match {
-            case Success(blocks, _) => blocks
-            case Failure(msg, next) =>
-              val message = SystemMessage(Error, msg.message(next))
-              val fallback = Paragraph(Seq(Text(source)))
-              List(InvalidBlock(message, fallback))
-          }
-        }
-        Success((recParser, res), next)
-      case f: Failure => f
-    }
-  }
-
-  private val recursiveBlockParser: RecursiveBlockParser = new RecursiveBlockParser
-  
-  /** Builds a parser for a list of blocks based on the parser for a single block.
-   */
-  def blockList (p: => Parser[Block]): Parser[List[Block]] = (p <~ opt(blankLines))*
-
   def mergeLines (p: Parser[Seq[String]]): Parser[String] = p ^^ (_.mkString("\n"))
   def mergeIndentedLines (p: Parser[IndentedBlock]): Parser[String] = p ^^ (_.lines.mkString("\n"))
+
 
   /** Parses a full block based on the specified helper parsers.
    * 

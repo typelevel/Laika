@@ -78,7 +78,7 @@ object Characters {
     *  for the specified characters.
     */
   def optimizedLookup (chars: Iterable[Char]): Array[Byte] = {
-    val max = chars.max
+    val max = if (chars.nonEmpty) chars.max else -1
     val lookup = new Array[Byte](max + 1)
 
     for (c <- chars) lookup(c) = 1

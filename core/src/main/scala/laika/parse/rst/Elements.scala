@@ -118,6 +118,15 @@ object Elements {
       TitledBlock(List(Text(title)), toc, options + Styles("toc"))
     }
   }
+
+
+  /** Represent a reference name.
+    *  When resolving references whitespace needs to be normalized
+    *  and the name converted to lower case.
+    */
+  case class ReferenceName (original: String) {
+    lazy val normalized: String = original.replaceAll("[\n ]+", " ").toLowerCase
+  }
   
   
 }

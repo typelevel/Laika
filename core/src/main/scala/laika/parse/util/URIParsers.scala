@@ -27,7 +27,7 @@ import laika.util.~
  * 
  * @author Jens Halm
  */
-trait URIParsers {
+class URIParsers {
 
   
   /** Flattens the result from various combinators,

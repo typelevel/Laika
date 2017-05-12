@@ -17,25 +17,24 @@
 package laika.parse.markdown.html
 
 import laika.parse.core.Parser
-import org.scalatest.FlatSpec
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.Matchers
-import laika.parse.helper.DefaultParserHelpers
-import laika.parse.helper.ParseResultHelpers
+import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
+import laika.parse.markdown.RootParser
 import laika.parse.markdown.html.HTMLElements.HTMLAttribute
 import laika.tree.Elements.Span
 import laika.tree.helper.ModelBuilder
+import org.scalatest.{FlatSpec, Matchers}
 
 class HTMLParsersSpec extends FlatSpec 
                       with Matchers 
-                      with HTMLParsers 
-                      with ParseResultHelpers 
+                      with ParseResultHelpers
                       with DefaultParserHelpers[List[Span]] 
                       with ModelBuilder 
                       with HTMLModelBuilder {
- 
-  
-  val defaultParser: Parser[List[Span]] = recursiveSpans
+
+
+  val rootParser = new RootParser(Map(), Map(), verbatimHTML = true, isStrict = false)
+
+  val defaultParser: Parser[List[Span]] = rootParser.recursiveSpans
   
   
   "The HTML tag parser" should "parse a single start tag without attributes in flow content" in {

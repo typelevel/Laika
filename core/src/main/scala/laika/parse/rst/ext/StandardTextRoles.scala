@@ -56,7 +56,7 @@ import laika.tree.Elements._
  * 
  *  @author Jens Halm
  */
-trait StandardTextRoles {
+class StandardTextRoles {
   
   private val classOption = optField("class", opt => Right(Options(None, opt.split(" ").toSet))) map (_.getOrElse(NoOpt))
   
@@ -129,6 +129,6 @@ trait StandardTextRoles {
   /** All standard text roles currently supported by Laika, except for
    *  the `raw` text role which needs to be enabled explicitly.
    */
-  lazy val textRoles: List[TextRole] = List(emphasis,strong,literal,subscript,superscript,sub,sup,titleRef,title,codeSpan)
+  lazy val allRoles: List[TextRole] = List(emphasis,strong,literal,subscript,superscript,sub,sup,titleRef,title,codeSpan)
     
 }

@@ -29,15 +29,12 @@ import laika.directive.StandardDirectives
  *  
  *  @author Jens Halm
  */
-class DefaultTemplate private (
-    directives: List[Templates.Directive]) extends (Input => TemplateDocument) {
+class DefaultTemplate private (directives: List[Templates.Directive]) extends (Input => TemplateDocument) {
 
   
-  private lazy val parser = new TemplateParsers.Templates with StandardDirectives {
-    lazy val directiveMap  = Templates.toMap(stdTemplateDirectives) ++ Templates.toMap(directives)
-    def getTemplateDirective (name: String) = directiveMap.get(name)
-  }
-  
+  private lazy val parser = new TemplateParsers(Templates.toMap(StandardDirectives.stdTemplateDirectives ++ directives))
+
+
   /** Adds the specified Laika directives and returns a new instance of the parser.
    * 
    *  Example:
