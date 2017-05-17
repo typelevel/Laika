@@ -433,6 +433,18 @@ class RenderAPISpec extends FlatSpec
       readFiles(f.getPath)
     }    
   }
+
+  it should "render to a directory using a document with non-ASCII characters" in new DocBuilder {
+    val expected = """RootElement - Blocks: 1
+                     |. Paragraph - Spans: 1
+                     |. . Text - 'Doc äöü'""".stripMargin
+    val f = createTempDirectory("renderNonASCII")
+    val input = DocumentTree(Root, List(
+      Document(Root / ("doc"), root(p("Doc äöü")))
+    ))
+    (Render as PrettyPrint from input).toDirectory(f)(Codec.ISO8859)
+    readFile(new File(f, "doc.txt"), Codec.ISO8859) should be (expected)
+  }
   
 
 }
