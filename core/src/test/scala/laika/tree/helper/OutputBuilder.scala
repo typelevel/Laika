@@ -104,8 +104,10 @@ object OutputBuilder {
   
   def readFile (base: String): String = readFile(new File(base))
   
-  def readFile (f: File): String = {
-    val source = Source.fromFile(f)
+  def readFile (f: File): String = readFile(f, Codec.UTF8)
+
+  def readFile (f: File, codec: Codec): String = {
+    val source = Source.fromFile(f)(codec)
     val fileContent = source.mkString
     source.close()
     fileContent

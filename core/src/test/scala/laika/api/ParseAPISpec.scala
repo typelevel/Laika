@@ -452,6 +452,15 @@ class ParseAPISpec extends FlatSpec
     ))
     viewOf(Parse as Markdown fromDirectories(Seq(dir1,dir2))) should be (treeResult)
   }
+
+  it should "read a directory from the file system containing a file with non-ASCII characters" in {
+    val dirname = getClass.getResource("/trees/c/").getFile
+    def docView (num: Int, path: Path = Root) = DocumentView(path / (s"doc$num.md"), Content(List(p(s"Doc$num äöü"))) :: Nil)
+    val treeResult = TreeView(Root, List(
+      Documents(Markup, List(docView(1)))
+    ))
+    viewOf(Parse as Markdown fromDirectory(dirname)) should be (treeResult)
+  }
   
   it should "allow to specify a custom exclude filter" in {
     val dirname = getClass.getResource("/trees/a/").getFile
