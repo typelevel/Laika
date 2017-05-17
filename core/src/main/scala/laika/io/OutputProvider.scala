@@ -71,7 +71,7 @@ object OutputProvider {
     
     def newOutput (name: String): Output with Binary with Closeable = {
       val f = new File(dir, name)
-      Output.toFile(f, path)
+      Output.toFile(f, path)(codec)
     }
     
     def newChild (name: String): OutputProvider = {
