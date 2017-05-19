@@ -58,11 +58,7 @@ class RootParser (blockDirectives: Map[String, Blocks.Directive],
 
   protected lazy val topLevelBlock: Parser[Block] = {
 
-    val mainParsers = Seq(
-      blockParsers.standardMarkdownBlock,
-      blockParsers.insignificantSpaces ~> blockParsers.linkTarget,
-      blockParsers.paragraph
-    )
+    val mainParsers = Seq(blockParsers.rootMarkdownBlock)
 
     val blockDirectives = directiveParsers.map(_.blockDirective).toSeq
     val htmlBlocks = htmlParsers.map(_.topLevelBlocks).toSeq.flatten
@@ -72,13 +68,14 @@ class RootParser (blockDirectives: Map[String, Blocks.Directive],
 
   protected lazy val nestedBlock: Parser[Block] = {
 
-    val mainParsers = Seq(blockParsers.standardMarkdownBlock, blockParsers.nestedParagraph)
+    val mainParsers = Seq(blockParsers.nestedMarkdownBlock)
+
     val blockDirectives = directiveParsers.map(_.blockDirective).toSeq
 
     mergeBlockParsers(blockDirectives ++ mainParsers)
   }
 
-  protected lazy val nonRecursiveBlock: Parser[Block] = blockParsers.nonRecursiveBlock
+  protected lazy val nonRecursiveBlock: Parser[Block] = blockParsers.nonRecursiveMarkdownBlock
 
 
   // TODO - could be rewrite rule

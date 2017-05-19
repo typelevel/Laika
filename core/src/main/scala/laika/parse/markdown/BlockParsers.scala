@@ -19,12 +19,13 @@ package laika.parse.markdown
 import laika.parse.core.markup.BlockParsers._
 import laika.parse.core.Parser
 import laika.parse.core.markup.{EscapedTextParsers, RecursiveParsers}
-import laika.parse.core.text.DelimitedBy
+import laika.parse.core.text.{Characters, DelimitedBy}
 import laika.parse.core.text.TextParsers._
 import laika.parse.util.WhitespacePreprocessor
 import laika.tree.Elements._
 import laika.util.~
 
+import scala.collection.mutable
 import scala.collection.mutable.StringBuilder
  
 
@@ -43,7 +44,7 @@ class BlockParsers (recParsers: RecursiveParsers) {
 
   import recParsers._
 
-  
+
   /** Parses a single tab or space character.
    */
   val tabOrSpace: Parser[Any] = anyOf(' ','\t') take 1
@@ -87,42 +88,6 @@ class BlockParsers (recParsers: RecursiveParsers) {
     }
     builder.toString
   }
-  
-  /** Parses an ATX header, a line that starts with 1 to 6 `'#'` characters,
-   *  with the number of hash characters corresponding to the level of the header.
-   *  Markdown also allows to decorate the line with trailing `'#'` characters which
-   *  this parser will remove.
-   */
-  lazy val atxHeader: Parser[Header] = {
-    def stripDecoration (text: String) = {
-      val trimmed = text.trim 
-      if (trimmed.last == '#') trimmed.take(trimmed.lastIndexWhere(_ != '#') + 1).trim
-      else trimmed
-    } 
-    
-    ((anyOf('#') min 1 max 6) ^^ { _.length }) ~ (not(blankLine) ~> recursiveSpans(restOfLine ^^ stripDecoration)) ^^
-      { case level ~ spans => Header(level, spans) }
-  }
-  
-  /** Parses a 1st or 2nd level Setext header. A first level header consists of the
-   *  text of the header followed by a line of one or more `'='` characters, a 2nd
-   *  level header uses `'-'` characters instead.
-   *  
-   *  In contrast to several other Markdown parsers this parser requires a blank line
-   *  before the header. 
-   */
-  lazy val setextHeader: Parser[Header] = textLine ~ withRecursiveSpanParser(anyOf('=').min(1) | anyOf('-').min(1)) <~ wsEol ^^ {
-    case text ~ ((parser, decoration)) if decoration.head == '=' => Header(1, parser(text))
-    case text ~ ((parser, _))                                    => Header(2, parser(text))
-  }
-  
-  /** Parses a horizontal rule, a line only decorated with three or more `'*'`, `'-'` or `'_'`
-   *  characters with optional spaces between them
-   */
-  lazy val rule: Parser[Block] = {
-    def pattern (c: Char) = c ~ repMin(2, anyOf(' ') ~ c)
-    (pattern('*') | pattern('-') | pattern('_')) ~ wsEol ^^^ { Rule() }
-  }
 
 
   /** Parses a link definition in the form `[id]: <url> "title"`.
@@ -141,61 +106,137 @@ class BlockParsers (recParsers: RecursiveParsers) {
     id ~ url ~ opt(title) <~ wsEol ^^ { case id ~ url ~ title => ExternalLinkDefinition(id.toLowerCase, url, title) }
   }
 
-
-  /** Parses all of the standard Markdown blocks, except normal paragraphs and those blocks
-   *  that deal with verbatim HTML. For the latter parsers are provided by a separate, optional trait.
-   */
-  lazy val standardMarkdownBlock: Parser[Block] =
-    atxHeader | setextHeader | (insignificantSpaces ~> 
-      (literalBlock | quotedBlock | rule | bulletList | enumList))
-
-  lazy val nonRecursiveBlock: Parser[Block] =
-    atxHeader | setextHeader | (insignificantSpaces ~> (literalBlock | rule )) | paragraph
-
-  /** Parses a single paragraph. Everything between two blank lines that is not
-   *  recognized as a special Markdown block type will be parsed as a regular paragraph.
-   */
-  val paragraph: Parser[Paragraph] =
-    not(bulletListItemStart | enumListItemStart) ~>
-      recursiveSpans(((not(blankLine) ~> restOfLine) +) ^^ linesToString) ^^ { Paragraph(_) }
-   
-  /** Parses a single paragraph nested inside another block.
-   *  Markdown allows nested lists without preceding blank lines,
-   *  therefore will detect list items in the middle of a parapraph,
-   *  whereas a top level paragraph won't do that. One of the questionable
-   *  Markdown design decisions.
-   */
-  val nestedParagraph: Parser[Block] = {
-    val list: Parser[Block] = bulletList | enumList
-    val line = not(bulletListItemStart | enumListItemStart | blankLine) ~> restOfLine
-    ((recursiveSpans((line +) ^^ linesToString) ^^ { Paragraph(_) })
-        ~ opt(not(blankLine) ~> list)) ^^ {
-      case p ~ None => p
-      case p ~ Some(list) => BlockSequence(p :: list :: Nil) // another special case of a "tight" list
-    }
-  }
-
-  
   /** Parses a single Markdown block. In contrast to the generic block parser of the
-   *  super-trait this method also consumes and ignores up to three optional space
-   *  characters at the start of each line.
-   *   
-   *  @param firstLinePrefix parser that recognizes the start of the first line of this block
-   *  @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
-   *  @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block 
-   */
+    *  super-trait this method also consumes and ignores up to three optional space
+    *  characters at the start of each line.
+    *
+    *  @param firstLinePrefix parser that recognizes the start of the first line of this block
+    *  @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
+    *  @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block
+    */
   def mdBlock (firstLinePrefix: Parser[Any], linePrefix: Parser[Any], nextBlockPrefix: Parser[Any]): Parser[List[String]] = {
     block(firstLinePrefix, insignificantSpaces ~ linePrefix, nextBlockPrefix)
   }
-  
-  
+
+  class ParserMapBuilder {
+
+    val map = new mutable.HashMap[Char, Parser[Block]]
+
+    def add (p: Parser[Block], chars: Char*): this.type = {
+      for (char <- chars) map.put(char, p)
+      this
+    }
+
+  }
+
+  lazy val nestedBlockParserMap: Map[Char, Parser[Block]] = {
+    (new ParserMapBuilder)
+      .add(literalBlock, '\t', ' ')
+      .add(quotedBlock, '>')
+      .add(rule, '_')
+      .add(bulletList, '+')
+      .add(rule | bulletList, '*', '-')
+      .add(enumList, ('0' to '9'):_*)
+      .map.toMap
+  }
+
+  lazy val rootBlockParserMap: Map[Char, Parser[Block]] = nestedBlockParserMap + ('[' -> linkTarget)
+
+  lazy val nonRecursiveParserMap: Map[Char, Parser[Block]] = {
+    (new ParserMapBuilder)
+      .add(literalBlock, '\t', ' ')
+      .add(rule, '*', '-', '_')
+      .map.toMap
+  }
+
+  lazy val rootHeaderOrParagraph: Parser[Block] = {
+
+    val lines = (not(blankLine) ~> restOfLine) *
+
+    val decorationOrLines: Parser[Either[String, List[String]]] =
+      (setextDecoration ^^ { Left(_) }) | (lines ^^ { Right(_) })
+
+    (withRecursiveSpanParser(textLine) ~ decorationOrLines) ^^ {
+      case (parser, firstLine) ~ Right(restLines)                      => Paragraph(parser(linesToString(firstLine +: restLines)))
+      case (parser, text) ~ Left(decoration) if decoration.head == '=' => Header(1, parser(text))
+      case (parser, text) ~ Left(_)                                    => Header(2, parser(text))
+    }
+  }
+
+  lazy val nestedHeaderOrParagraph: Parser[Block] = {
+
+    val lines = (not(bulletListItemStart | enumListItemStart | blankLine) ~> restOfLine) *
+
+    /** Parses a single paragraph nested inside another block.
+      *  Markdown allows nested lists without preceding blank lines,
+      *  therefore will detect list items in the middle of a paragraph,
+      *  whereas a top level paragraph won't do that. One of the questionable
+      *  Markdown design decisions.
+      */
+    val decorationOrLines: Parser[Either[String, List[String] ~ Option[Block]]] =
+      (setextDecoration ^^ { Left(_) }) | (lines ~ opt(not(blankLine) ~> (bulletList | enumList)) ^^ { Right(_) })
+
+    (withRecursiveSpanParser(textLine) ~ decorationOrLines) ^^ {
+      case (parser, firstLine) ~ Right(restLines ~ None)               => Paragraph(parser(linesToString(firstLine +: restLines)))
+      case (parser, firstLine) ~ Right(restLines ~ Some(list))         =>
+        BlockSequence(Seq(Paragraph(parser(linesToString(firstLine +: restLines))), list))
+      case (parser, text) ~ Left(decoration) if decoration.head == '=' => Header(1, parser(text))
+      case (parser, text) ~ Left(_)                                    => Header(2, parser(text))
+    }
+  }
+
+  def markdownBlocks (decoratedBlocks: Map[Char, Parser[Block]], undecoratedBlock: Parser[Block]): Parser[Block] = {
+
+    val startChars = anyOf(decoratedBlocks.keySet.toSeq:_*).take(1)
+
+    val decoratedBlock = lookAhead(startChars <~ restOfLine ~ not(setextDecoration)) >> { startChar =>
+      decoratedBlocks(startChar.charAt(0))
+    }
+
+    atxHeader | (insignificantSpaces ~> (decoratedBlock | undecoratedBlock))
+  }
+
+  lazy val rootMarkdownBlock: Parser[Block] = markdownBlocks(rootBlockParserMap, rootHeaderOrParagraph)
+
+  lazy val nestedMarkdownBlock: Parser[Block] = markdownBlocks(nestedBlockParserMap, nestedHeaderOrParagraph)
+
+  lazy val nonRecursiveMarkdownBlock: Parser[Block] = markdownBlocks(nonRecursiveParserMap, nestedHeaderOrParagraph)
+
+
+
+  /** Parses an ATX header, a line that starts with 1 to 6 `'#'` characters,
+   *  with the number of hash characters corresponding to the level of the header.
+   *  Markdown also allows to decorate the line with trailing `'#'` characters which
+   *  this parser will remove.
+   */
+  lazy val atxHeader: Parser[Header] = {
+    def stripDecoration (text: String) = {
+      val trimmed = text.trim 
+      if (trimmed.last == '#') trimmed.take(trimmed.lastIndexWhere(_ != '#') + 1).trim
+      else trimmed
+    } 
+    
+    ((anyOf('#') min 1 max 6) ^^ { _.length }) ~ (not(blankLine) ~> recursiveSpans(restOfLine ^^ stripDecoration)) ^^
+      { case level ~ spans => Header(level, spans) }
+  }
+
+  val setextDecoration: Parser[String] = (anyOf('=').min(1) | anyOf('-').min(1)) <~ wsEol
+
+
+  /** Parses a horizontal rule, a line only decorated with three or more `'*'`, `'-'` or `'_'`
+   *  characters with optional spaces between them
+   */
+  lazy val rule: Parser[Block] = {
+    def pattern (c: Char) = c ~ repMin(2, anyOf(' ') ~ c)
+    (pattern('*') | pattern('-') | pattern('_')) ~ wsEol ^^^ { Rule() }
+  }
+
   /** Parses a literal block, text indented by a tab or 4 spaces.
    */
   val literalBlock: Parser[LiteralBlock] = {
     mdBlock(tabOrSpace, tabOrSpace, tabOrSpace) ^^ { lines => LiteralBlock(lines.map(processWS).mkString("\n")) }
   }
-  
-  
+
   /** Parses a quoted block, a paragraph starting with a `'>'` character,
    *  with subsequent lines optionally starting with a `'>'`, too.
    */
@@ -203,7 +244,6 @@ class BlockParsers (recParsers: RecursiveParsers) {
     val decoratedLine = '>' ~ (ws max 1)
     recursiveBlocks(mergeLines(mdBlock(decoratedLine, decoratedLine | not(blankLine), '>'))) ^^ (QuotedBlock(_, Nil))
   }
-
 
   /** Parses a list based on the specified helper parsers.
    * 
