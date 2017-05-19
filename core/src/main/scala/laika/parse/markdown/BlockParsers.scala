@@ -111,9 +111,9 @@ class BlockParsers (recParsers: RecursiveParsers) {
    *  In contrast to several other Markdown parsers this parser requires a blank line
    *  before the header. 
    */
-  lazy val setextHeader: Parser[Header] = recursiveSpans(textLine) ~ (anyOf('=').min(1) | anyOf('-').min(1)) <~ wsEol ^^ {
-    case spans ~ decoration if decoration.head == '=' => Header(1, spans)
-    case spans ~ _                                    => Header(2, spans)
+  lazy val setextHeader: Parser[Header] = textLine ~ withRecursiveSpanParser(anyOf('=').min(1) | anyOf('-').min(1)) <~ wsEol ^^ {
+    case text ~ ((parser, decoration)) if decoration.head == '=' => Header(1, parser(text))
+    case text ~ ((parser, _))                                    => Header(2, parser(text))
   }
   
   /** Parses a horizontal rule, a line only decorated with three or more `'*'`, `'-'` or `'_'`
