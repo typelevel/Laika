@@ -52,6 +52,8 @@ case class ParserContext (source: Source, offset: Int, nestLevel: Int) {
 
   def position: Position = new Position(source, offset)
 
+  def reverse: ParserContext = ParserContext(source.reverse, remaining, nestLevel)
+
 }
 
 object ParserContext {
@@ -92,6 +94,8 @@ case class Source (value: String) {
     lineStarts += len
     lineStarts.toArray
   }
+
+  lazy val reverse = Source(value.reverse)
 
 }
 

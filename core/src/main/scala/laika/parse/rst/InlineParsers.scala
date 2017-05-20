@@ -301,8 +301,7 @@ class InlineParsers (recParsers: RecursiveSpanParsers, defaultTextRole: String) 
   }
   
   private def reverse (offset: Int, p: => Parser[String]): Parser[String] = Parser { in =>
-    val source = in.input.subSequence(0, in.offset - offset).toString.reverse // TODO - inefficient
-    p.parse(ParserContext(source)) match {
+    p.parse(in.reverse.consume(offset)) match {
       case Success(result, _) => Success(result.reverse, in)
       case Failure(msg, _) => Failure(msg, in)
     }
