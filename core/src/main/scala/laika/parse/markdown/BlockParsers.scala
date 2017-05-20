@@ -131,6 +131,7 @@ class BlockParsers (recParsers: RecursiveParsers) {
 
   lazy val nestedBlockParserMap: Map[Char, Parser[Block]] = {
     (new ParserMapBuilder)
+      .add(atxHeader, '#')
       .add(literalBlock, '\t', ' ')
       .add(quotedBlock, '>')
       .add(rule, '_')
@@ -144,6 +145,7 @@ class BlockParsers (recParsers: RecursiveParsers) {
 
   lazy val nonRecursiveParserMap: Map[Char, Parser[Block]] = {
     (new ParserMapBuilder)
+      .add(atxHeader, '#')
       .add(literalBlock, '\t', ' ')
       .add(rule, '*', '-', '_')
       .map.toMap
@@ -193,7 +195,7 @@ class BlockParsers (recParsers: RecursiveParsers) {
       decoratedBlocks(startChar.charAt(0))
     }
 
-    atxHeader | (insignificantSpaces ~> (decoratedBlock | undecoratedBlock))
+    insignificantSpaces ~> (decoratedBlock | undecoratedBlock)
   }
 
   lazy val rootMarkdownBlock: Parser[Block] = markdownBlocks(rootBlockParserMap, rootHeaderOrParagraph)
