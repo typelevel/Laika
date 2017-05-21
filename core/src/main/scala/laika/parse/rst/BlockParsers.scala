@@ -56,7 +56,7 @@ class BlockParsers (recParsers: RecursiveParsers) {
    *  recognized as a special reStructuredText block type will be parsed as a regular paragraph.
    */
   lazy val paragraph: Parser[Paragraph] =
-    recursiveSpans(CoreInlineParsers.mergeSpanLines((not(blankLine) ~> restOfLine) +)) ^^ { Paragraph(_) }
+    recursiveSpans(((not(blankLine) ~> restOfLine) +) ^^ (_.mkString("\n"))) ^^ { Paragraph(_) }
 
 
   /** Parses a section header with both overline and underline.

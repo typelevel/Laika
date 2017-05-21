@@ -118,7 +118,7 @@ class BlockDirectiveAPISpec extends FlatSpec
     lazy val directiveParsers = new MarkupDirectiveParsers(this, Map(directive.name -> directive), Map())
 
     lazy val paragraphParser: Parser[Block] =
-      recursiveSpans(InlineParsers.mergeSpanLines((Parsers.not(blankLine) ~> restOfLine) +)) ^^ { Paragraph(_) }
+      recursiveSpans(((Parsers.not(blankLine) ~> restOfLine) +) ^^ (_.mkString("\n"))) ^^ { Paragraph(_) }
 
     lazy val topLevelBlock: Parser[Block] = directiveParsers.blockDirective | paragraphParser
 

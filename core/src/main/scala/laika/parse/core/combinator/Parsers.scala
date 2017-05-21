@@ -123,9 +123,6 @@ trait Parsers extends RepeatParsers {
     
   }
 
-  /** Given a concatenation with a list, move the concatenated element into the list */
-  def mkList[T] = (_: ~[T, List[T]]) match { case x ~ xs => x :: xs }
-  
 }
 
 object Parsers extends Parsers

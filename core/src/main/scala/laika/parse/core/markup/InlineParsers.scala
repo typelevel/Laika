@@ -166,7 +166,4 @@ object InlineParsers {
       = inline(parser, nested, new TextBuilder)
 
 
-  def mergeSpanLines (p: Parser[Seq[String]]): Parser[String] = p ^^ (_.mkString("\n"))
-
-
 }

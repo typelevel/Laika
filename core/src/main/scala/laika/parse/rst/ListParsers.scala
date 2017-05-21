@@ -216,7 +216,7 @@ class ListParsers (recParsers: RecursiveParsers) {
     
     val option = (gnu | shortPosix | longPosix | dos) ~ opt(arg) ^^ { case option ~ arg => ProgramOption(option, arg) }
     
-    val options = (option ~ ((", " ~> option)*)) ^^ mkList
+    val options = (option ~ ((", " ~> option)*)) ^^ { case x ~ xs => x :: xs }
     
     val descStart = ((anyOf(' ') min 2) ~ not(blankLine)) | lookAhead(blankLine ~ (ws min 1) ~ not(blankLine)) ^^^ ""
     
