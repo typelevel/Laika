@@ -70,26 +70,6 @@ class BlockParsers (recParsers: RecursiveParsers) {
     */
   val enumListItemStart: Parser[String] = anyIn('0' to '9').min(1) <~ '.' ~ (anyOf(' ','\t') min 1)
   
-  
-  /** Merges the specified list of lines into a single string,
-   *  while looking for lines ending with double spaces which
-   *  stand for a hard line break in Markdown.
-   */
-  def linesToString (lines: List[String]): String = {
-
-    val (builder, _) = ((new StringBuilder, true) /: lines) { (acc, line) => 
-      val (b, first) = acc
-      if (!first) b ++= "\n"
-      /* add a special sequence for hard line breaks so that the
-       * inline parser does not have to stop at each space character */
-      if (line.endsWith("  ")) b ++= line.dropRight(2) ++= "\\\r"
-      else b ++= line
-      (b, false)
-    }
-    builder.toString
-  }
-
-
   /** Parses a link definition in the form `[id]: <url> "title"`.
     *  The title is optional as well as the quotes around it and the angle brackets around the url.
     */
@@ -151,6 +131,29 @@ class BlockParsers (recParsers: RecursiveParsers) {
       .map.toMap
   }
 
+  /** Merges the specified list of lines into a single string,
+    *  while looking for lines ending with double spaces which
+    *  stand for a hard line break in Markdown.
+    */
+  private def processLineBreaks(lines: List[String]): String = {
+
+    var first = true
+    val builder = new mutable.StringBuilder
+
+    for (line <- lines) {
+      if (first) first = false
+      else builder append "\n"
+
+      /* add a special sequence for hard line breaks so that the
+       * inline parser does not have to stop at each space character */
+      if (line.endsWith("  ")) builder append line.dropRight(2) append "\\\r"
+      else builder append line
+    }
+
+    builder.toString
+
+  }
+
   lazy val rootHeaderOrParagraph: Parser[Block] = {
 
     val lines = (not(blankLine) ~> restOfLine) *
@@ -159,7 +162,7 @@ class BlockParsers (recParsers: RecursiveParsers) {
       (setextDecoration ^^ { Left(_) }) | (lines ^^ { Right(_) })
 
     (withRecursiveSpanParser(textLine) ~ decorationOrLines) ^^ {
-      case (parser, firstLine) ~ Right(restLines)                      => Paragraph(parser(linesToString(firstLine +: restLines)))
+      case (parser, firstLine) ~ Right(restLines)                      => Paragraph(parser(processLineBreaks(firstLine +: restLines)))
       case (parser, text) ~ Left(decoration) if decoration.head == '=' => Header(1, parser(text))
       case (parser, text) ~ Left(_)                                    => Header(2, parser(text))
     }
@@ -179,9 +182,9 @@ class BlockParsers (recParsers: RecursiveParsers) {
       (setextDecoration ^^ { Left(_) }) | (lines ~ opt(not(blankLine) ~> (bulletList | enumList)) ^^ { Right(_) })
 
     (withRecursiveSpanParser(textLine) ~ decorationOrLines) ^^ {
-      case (parser, firstLine) ~ Right(restLines ~ None)               => Paragraph(parser(linesToString(firstLine +: restLines)))
+      case (parser, firstLine) ~ Right(restLines ~ None)               => Paragraph(parser(processLineBreaks(firstLine +: restLines)))
       case (parser, firstLine) ~ Right(restLines ~ Some(list))         =>
-        BlockSequence(Seq(Paragraph(parser(linesToString(firstLine +: restLines))), list))
+        BlockSequence(Seq(Paragraph(parser(processLineBreaks(firstLine +: restLines))), list))
       case (parser, text) ~ Left(decoration) if decoration.head == '=' => Header(1, parser(text))
       case (parser, text) ~ Left(_)                                    => Header(2, parser(text))
     }
