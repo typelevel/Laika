@@ -57,18 +57,36 @@ object InlineParsers {
   class SpanBuilder extends ResultBuilder[Span, List[Span]] {
     
     private val buffer = new ListBuffer[Span]
+
+    private var last: Option[Span] = None // ListBuffer does not have constant-time update-last
     
     def fromString (str: String): Span = Text(str)
     
-    def += (item: Span): Unit = buffer += item
-    
-    def mergeAdjacentTextSpans (spans: List[Span]): List[Span] = {
-      (List[Span]() /: spans) {  
-        case (Text(text1,NoOpt) :: rest, Text(text2,NoOpt)) => Text(text1 ++ text2) :: rest
-        case (xs, x) => x :: xs
-      }.reverse
+    def += (item: Span): Unit = (last, item) match {
+      case (Some(Text(text1, NoOpt)), Text(text2, NoOpt)) =>
+        last = Some(Text(text1 ++ text2))
+      case (Some(Text(content, _)), Reverse(len, target, _, _)) if content.length >= len =>
+        buffer += Text(content.dropRight(len))
+        last = Some(target)
+      case (Some(span), Reverse(_, _, fallback, _)) =>
+        buffer += span
+        last = Some(fallback)
+      case (Some(span), newLast) =>
+        buffer += span
+        last = Some(newLast)
+      case (None, Reverse(_, _, fallback, _)) =>
+        last = Some(fallback)
+      case (None, newLast) =>
+        last = Some(newLast)
     }
-    def result: List[Span] = mergeAdjacentTextSpans(buffer.toList)
+
+    def result: List[Span] = last match {
+      case Some(span) =>
+        buffer += span
+        buffer.toList
+      case None =>
+        Nil
+    }
   }
 
   /** ResultBuilder that produces a String.

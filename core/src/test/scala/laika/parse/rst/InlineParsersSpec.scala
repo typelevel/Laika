@@ -243,11 +243,11 @@ class InlineParsersSpec extends FlatSpec
   }
   
   it should "parse a named link reference" in {
-    Parsing ("some link_ here") should produce (spans(txt("some link"), Reverse(4, linkRef("link"), txt("_")), txt(" here")))
+    Parsing ("some link_ here") should produce (spans(txt("some "), linkRef("link"), txt(" here")))
   }
   
   it should "parse an anonymous link reference" in {
-    Parsing ("some link__ here") should produce (spans(txt("some link"), Reverse(4, anonLinkRef("link"), txt("__")) , txt(" here")))
+    Parsing ("some link__ here") should produce (spans(txt("some "), anonLinkRef("link"), txt(" here")))
   }
   
   it should "normalize the id of a phrase link" in {
@@ -259,38 +259,38 @@ class InlineParsersSpec extends FlatSpec
   
   "The standalone link parser" should "parse a http URI" in {
     val uri = "http://www.link.com"
-    Parsing ("some http://www.link.com here") should produce (spans(txt("some http"), 
-        Reverse(4, link(txt(uri)).url(uri), txt("://www.link.com")), txt(" here")))
+    Parsing ("some http://www.link.com here") should produce (spans(txt("some "),
+        link(txt(uri)).url(uri), txt(" here")))
   }
 
   it should "parse a http URI containing an IP4 address" in {
     val uri = "http://127.0.0.1/path"
-    Parsing (s"some $uri here") should produce (spans(txt("some http"),
-      Reverse(4, link(txt(uri)).url(uri), txt("://127.0.0.1/path")), txt(" here")))
+    Parsing (s"some $uri here") should produce (spans(txt("some "),
+      link(txt(uri)).url(uri), txt(" here")))
   }
   
   it should "parse a https URI" in {
     val uri = "https://www.link.com"
-    Parsing ("some https://www.link.com here") should produce (spans(txt("some https"), 
-        Reverse(5, link(txt(uri)).url(uri), txt("://www.link.com")), txt(" here")))
+    Parsing ("some https://www.link.com here") should produce (spans(txt("some "),
+        link(txt(uri)).url(uri), txt(" here")))
   }
   
   it should "parse an email address" in {
     val email = "user@domain.com"
-    Parsing ("some user@domain.com here") should produce (spans(txt("some user"), 
-        Reverse(4, link(txt(email)).url("mailto:"+email), txt("@domain.com")), txt(" here")))
+    Parsing ("some user@domain.com here") should produce (spans(txt("some "),
+        link(txt(email)).url("mailto:"+email), txt(" here")))
   }
   
   it should "parse a http URI without trailing punctuation" in {
     val uri = "http://www.link.com"
-    Parsing ("some http://www.link.com. here") should produce (spans(txt("some http"), 
-        Reverse(4, link(txt(uri)).url(uri), txt("://www.link.com")), txt(". here")))
+    Parsing ("some http://www.link.com. here") should produce (spans(txt("some "),
+        link(txt(uri)).url(uri), txt(". here")))
   }
   
   it should "parse an email address without surrounding punctuation" in {
     val email = "user@domain.com"
-    Parsing ("some {user@domain.com} here") should produce (spans(txt("some {user"), 
-        Reverse(4, link(txt(email)).url("mailto:"+email), txt("@domain.com")), txt("} here")))
+    Parsing ("some {user@domain.com} here") should produce (spans(txt("some {"),
+        link(txt(email)).url("mailto:"+email), txt("} here")))
   }
   
   

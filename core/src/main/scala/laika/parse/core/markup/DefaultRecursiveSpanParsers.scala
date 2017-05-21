@@ -50,7 +50,7 @@ trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers with DefaultEscap
       textParser.parse(ctx) match {
         case Success(str, next) =>
           spanParser0.parse(str) match {
-            case Success(spans, _) => Success(processReverseSpans(spans), next)
+            case Success(spans, _) => Success(spans, next)
             case f: Failure => f
           }
         case f: Failure => f
@@ -92,23 +92,5 @@ trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers with DefaultEscap
       case f: Failure => f
     }
   }
-
-  private def processReverseSpans (spans: List[Span]): List[Span] = {
-    // TODO - solve this elsewhere and more efficiently
-    if (spans.isEmpty) spans
-    else {
-      val buffer = new ListBuffer[Span]
-      val last = (spans.head /: spans.tail) {
-        case (t @ Text(content,_), Reverse(len, target, fallback, _)) =>
-          if (content.length < len) { buffer += t; fallback }
-          else { buffer += Text(content.dropRight(len)); target }
-        case (prev, Reverse(_, _, fallback, _)) => buffer += prev; fallback
-        case (prev, current)                    => buffer += prev; current
-      }
-      buffer += last
-      buffer.toList
-    }
-  }
-
 
 }
