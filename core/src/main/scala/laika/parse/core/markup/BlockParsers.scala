@@ -39,17 +39,16 @@ import laika.util.~
 object BlockParsers {
 
   
-  def mergeLines (p: Parser[Seq[String]]): Parser[String] = p ^^ (_.mkString("\n"))
-  def mergeIndentedLines (p: Parser[IndentedBlock]): Parser[String] = p ^^ (_.lines.mkString("\n"))
-
-
-  /** Parses a full block based on the specified helper parsers.
-   * 
-   *  @param firstLinePrefix parser that recognizes the start of the first line of this block
-   *  @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
-   *  @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block 
-   */
-  def block (firstLinePrefix: Parser[Any], linePrefix: => Parser[Any], nextBlockPrefix: => Parser[Any]): Parser[List[String]] = {
+  /** Parses a full block based on the specified helper parsers.\
+    *
+    * The string result of this parser will not contain the characters consumed by any of the specified prefix
+    * parsers.
+    *
+    *  @param firstLinePrefix parser that recognizes the start of the first line of this block
+    *  @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
+    *  @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block
+    */
+  def block (firstLinePrefix: Parser[Any], linePrefix: => Parser[Any], nextBlockPrefix: => Parser[Any]): Parser[String] = {
     
     val firstLine = firstLinePrefix ~> restOfLine
     
@@ -57,29 +56,41 @@ object BlockParsers {
     
     lazy val nextBlock = blankLines <~ lookAhead(nextBlockPrefix) ^^ { _.mkString("\n") }
     
-    firstLine ~ ( (line | nextBlock)* ) ^^ mkList
+    firstLine ~ ( (line | nextBlock)* ) ^^ {
+      case first ~ Nil  => first
+      case first ~ rest => first + "\n" + rest.mkString("\n")
+    }
     
   }
-  
-  case class IndentedBlock (minIndent: Int, lines: List[String])
-  
+
   /** Parses a full block based on the specified helper parsers, expecting an indentation for
-   *  all lines except the first. The indentation may vary between the parts of the indented
-   *  block, so that this parser only cuts off the minimum indentation shared by all lines,
-   *  but each line must have at least the specified minimum indentation.
-   * 
-   *  @param minIndent the minimum indentation that each line in this block must have
-   *  @param linePredicate parser that recognizes the start of subsequent lines that still belong to the same block
-   *  @param endsOnBlankLine indicates whether parsing should end on the first blank line
-   *  @param firstLineIndented indicates whether the first line is expected to be indented, too
-   *  @param maxIndent the maximum indentation that will get dropped from the start of each line of the result
-   *  @return a parser that produces an instance of IndentedBlock
-   */
+    *  all lines except the first. The indentation may vary between the parts of the indented
+    *  block, so that this parser only cuts off the minimum indentation shared by all lines,
+    *  but each line must have at least the specified minimum indentation.
+    *
+    *  @param minIndent the minimum indentation that each line in this block must have
+    *  @param linePredicate parser that recognizes the start of subsequent lines that still belong to the same block
+    *  @param endsOnBlankLine indicates whether parsing should end on the first blank line
+    *  @param firstLineIndented indicates whether the first line is expected to be indented, too
+    *  @param maxIndent the maximum indentation that will get dropped from the start of each line of the result
+    *  @return a parser that produces an instance of IndentedBlock
+    */
   def indentedBlock (minIndent: Int = 1,
-                     linePredicate: => Parser[Any] = success(()), 
+                     linePredicate: => Parser[Any] = success(()),
                      endsOnBlankLine: Boolean = false,
                      firstLineIndented: Boolean = false,
-                     maxIndent: Int = Int.MaxValue): Parser[IndentedBlock] = {
+                     maxIndent: Int = Int.MaxValue): Parser[String] =
+    indentedBlockWithLevel(minIndent, linePredicate, endsOnBlankLine, firstLineIndented, maxIndent) ^^ {
+      case (block, _) => block
+    }
+
+
+
+  def indentedBlockWithLevel (minIndent: Int = 1,
+                              linePredicate: => Parser[Any] = success(()),
+                              endsOnBlankLine: Boolean = false,
+                              firstLineIndented: Boolean = false,
+                              maxIndent: Int = Int.MaxValue): Parser[(String, Int)] = {
     
     import scala.math._
     
@@ -110,19 +121,16 @@ object BlockParsers {
       if (endsOnBlankLine) textLine(prevLines.head.curIndent)
       else textLine(prevLines.head.curIndent) | emptyLines(prevLines.head.curIndent) 
       
-    def result (lines: List[List[Line]]): (Int, List[String]) = if (lines.isEmpty) (minIndent,Nil) else {
+    def result (lines: List[List[Line]]): (String, Int) = if (lines.isEmpty) ("", minIndent) else {
       val minIndent = lines.last.head.curIndent
-      (minIndent, lines.flatten map {
+      (lines.flatten map {
         case FirstLine(text)             => text
         case IndentedLine(_,indent,text) => " " * (indent - minIndent) + text
         case BlankLine(_)                => ""  
-      })
+      } mkString "\n", minIndent)
     }
 
-    lookAhead(firstLineGuard) ~> rep(firstLine, nextLine) ^^ { parsed =>
-      val (minIndent, lines) = result(parsed)
-      IndentedBlock(minIndent, lines)
-    }
+    lookAhead(firstLineGuard) ~> rep(firstLine, nextLine) ^^ result
   }
   
   

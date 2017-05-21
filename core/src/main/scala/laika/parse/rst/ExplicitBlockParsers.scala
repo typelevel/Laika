@@ -66,7 +66,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers,
   lazy val footnote: Parser[FootnoteDefinition] = {
     val prefix = '[' ~> footnoteLabel <~ ']' ~ ws
     
-    prefix ~ recursiveBlocks(mergeIndentedLines(indentedBlock())) ^^ {
+    prefix ~ recursiveBlocks(indentedBlock()) ^^ {
       case label ~ blocks => FootnoteDefinition(label, blocks)
     }
   }
@@ -78,7 +78,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers,
   lazy val citation: Parser[Citation] = {
     val prefix = '[' ~> simpleRefName <~ ']' ~ ws
     
-    prefix ~ recursiveBlocks(mergeIndentedLines(indentedBlock())) ^^ {
+    prefix ~ recursiveBlocks(indentedBlock()) ^^ {
       case label ~ blocks => Citation(label, blocks)
     }
   }
@@ -148,7 +148,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers,
    */
   val comment: Parser[Comment] = {
     indentedBlock() ^^ { block =>
-      Comment((block.lines mkString "\n").trim)
+      Comment(block.trim)
     }
   }
   
@@ -189,7 +189,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers,
     p.parse(in) match {
       case s @ Success(_,_) => s
       case Failure(msg, next) => (indentedBlock() ^^ { block =>
-        InvalidDirective(msg.message(next), s".. $name " + (block.lines mkString "\n")).asInstanceOf[E]
+        InvalidDirective(msg.message(next), s".. $name " + block).asInstanceOf[E]
       }).parse(in)
     }
   }
@@ -241,13 +241,13 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers,
     
     val argWithWS: Parser[String] = {
       val p = indentedBlock(linePredicate = not(":"), endsOnBlankLine = true) ^^? { block =>
-        val text = (block.lines mkString "\n").trim
+        val text = block.trim
         if (text.nonEmpty) Right(text) else Left("missing required argument")
       }
       requiredArg(p)
     }
     
-    val body: Parser[IndentedBlock] = lookBehind(1, '\n') ~> indentedBlock(firstLineIndented = true) | indentedBlock()
+    val body: Parser[String] = lookBehind(1, '\n') ~> indentedBlock(firstLineIndented = true) | indentedBlock()
     
     // TODO - some duplicate logic with original fieldList parser
     lazy val directiveFieldList: Parser[Any] = {
@@ -257,7 +257,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers,
       val item = (ws min 1) >> { firstIndent =>
           (name ~ indentedBlock(firstIndent.length + 1)) ^^
         { case name ~ block => 
-            (name, (block.lines mkString "\n").trim)
+            (name, block.trim)
         }}
       
       ((opt(wsEol) ~> (item +)) | success(Nil)) ^^? { fields =>
@@ -349,11 +349,9 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers,
     
     def spanContent: Result[Seq[Span]] = parseContentWithParser(recursiveSpans)
 
-    def content [T](f: String => Either[String,T]): Result[T] = parseContentWith {
-      block => f(block.lines mkString "\n")
-    }
+    def content [T](f: String => Either[String,T]): Result[T] = parseContentWith(f)
     
-    private def parseContentWith [T](f: IndentedBlock => Either[String,T]): Result[T] = {
+    private def parseContentWith [T](f: String => Either[String,T]): Result[T] = {
       val result = new LazyResult[T]
       contentParser = body ^^? f ^^ result.set
       new Result(result.get)
@@ -361,7 +359,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers,
 
     private def parseContentWithParser [T](f: Parser[String] => Parser[T]): Result[T] = {
       val result = new LazyResult[T]
-      contentParser = f(mergeIndentedLines(body)) ^^ result.set
+      contentParser = f(body) ^^ result.set
       new Result(result.get)
     }
     

@@ -114,7 +114,7 @@ class BlockParsers (recParsers: RecursiveParsers) {
     *  @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
     *  @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block
     */
-  def mdBlock (firstLinePrefix: Parser[Any], linePrefix: Parser[Any], nextBlockPrefix: Parser[Any]): Parser[List[String]] = {
+  def mdBlock (firstLinePrefix: Parser[Any], linePrefix: Parser[Any], nextBlockPrefix: Parser[Any]): Parser[String] = {
     block(firstLinePrefix, insignificantSpaces ~ linePrefix, nextBlockPrefix)
   }
 
@@ -236,7 +236,7 @@ class BlockParsers (recParsers: RecursiveParsers) {
   /** Parses a literal block, text indented by a tab or 4 spaces.
    */
   val literalBlock: Parser[LiteralBlock] = {
-    mdBlock(tabOrSpace, tabOrSpace, tabOrSpace) ^^ { lines => LiteralBlock(lines.map(processWS).mkString("\n")) }
+    mdBlock(tabOrSpace, tabOrSpace, tabOrSpace) ^^ { lines => LiteralBlock(processWS(lines)) }
   }
 
   /** Parses a quoted block, a paragraph starting with a `'>'` character,
@@ -244,7 +244,7 @@ class BlockParsers (recParsers: RecursiveParsers) {
    */
   lazy val quotedBlock: Parser[QuotedBlock] = {
     val decoratedLine = '>' ~ (ws max 1)
-    recursiveBlocks(mergeLines(mdBlock(decoratedLine, decoratedLine | not(blankLine), '>'))) ^^ (QuotedBlock(_, Nil))
+    recursiveBlocks(mdBlock(decoratedLine, decoratedLine | not(blankLine), '>')) ^^ (QuotedBlock(_, Nil))
   }
 
   /** Parses a list based on the specified helper parsers.
@@ -289,9 +289,9 @@ class BlockParsers (recParsers: RecursiveParsers) {
    *  @param itemStart parser that recognizes the start of a list item, result will be discarded
    */
   def listItem [I <: ListItem] (itemStart: Parser[String]): Parser[Seq[Block]]
-    = recursiveBlocks(mergeLines(mdBlock(
+    = recursiveBlocks(mdBlock(
         not(rule) ~ itemStart, not(blankLine | itemStart) ~ opt(tabOrSpace), tabOrSpace
-      )))
+      ))
  
   /** Parses a bullet list, called "unordered list" in the Markdown syntax description.
    */

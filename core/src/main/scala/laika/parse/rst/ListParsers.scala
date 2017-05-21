@@ -42,7 +42,7 @@ class ListParsers (recParsers: RecursiveParsers) {
   private def listItem [I <: ListItem] (itemStart: Parser[String], newListItem: Seq[Block] => I): Parser[I] = {
       (itemStart ^^ {_.length}) ~ ((ws min 1) ^^ {_.length}) >> { 
         case start ~ ws =>
-          recursiveBlocks(mergeIndentedLines(indentedBlock(minIndent = start + ws, maxIndent = start + ws)) ~
+          recursiveBlocks(indentedBlock(minIndent = start + ws, maxIndent = start + ws) ~
               opt(blankLines | eof | lookAhead(itemStart)) ^^? {
             case (block ~ None) if block.lines.length < 2 => Left("not a list item")
             case (block ~ _) => Right(block)
@@ -169,7 +169,7 @@ class ListParsers (recParsers: RecursiveParsers) {
     val classifier = lookBehind(2,' ') ~ ' ' ~> recursiveSpans ^^ (Classifier(_))
     val termWithClassifier = recursiveSpans(term, Map(':' -> classifier))
 
-    val item = (termWithClassifier ~ recursiveBlocks(mergeIndentedLines(indentedBlock(firstLineIndented = true)))) ^? {
+    val item = (termWithClassifier ~ recursiveBlocks(indentedBlock(firstLineIndented = true))) ^? {
       case term ~ blocks => DefinitionListItem(term, blocks)
     }
     
@@ -185,7 +185,7 @@ class ListParsers (recParsers: RecursiveParsers) {
     
     val name = ':' ~> escapedUntil(':') <~ (lookAhead(eol) | ' ')
     
-    val item = (recursiveSpans(name) ~ recursiveBlocks(mergeIndentedLines(indentedBlock()))) ^^ {
+    val item = (recursiveSpans(name) ~ recursiveBlocks(indentedBlock())) ^^ {
       case name ~ blocks => Field(name, blocks)
     }
     
@@ -220,7 +220,7 @@ class ListParsers (recParsers: RecursiveParsers) {
     
     val descStart = ((anyOf(' ') min 2) ~ not(blankLine)) | lookAhead(blankLine ~ (ws min 1) ~ not(blankLine)) ^^^ ""
     
-    val item = (options ~ (descStart ~> recursiveBlocks(mergeIndentedLines(indentedBlock())))) ^^ {
+    val item = (options ~ (descStart ~> recursiveBlocks(indentedBlock()))) ^^ {
       case name ~ blocks => OptionListItem(name, blocks)
     }
     
@@ -235,7 +235,7 @@ class ListParsers (recParsers: RecursiveParsers) {
     val itemStart = anyOf('|').take(1)
     
     val line: Parser[(Line, Int)] = {
-      itemStart ~> (ws min 1) ~ recursiveSpans(mergeIndentedLines(indentedBlock(endsOnBlankLine = true))) ^^ {
+      itemStart ~> (ws min 1) ~ recursiveSpans(indentedBlock(endsOnBlankLine = true)) ^^ {
         case indent ~ block => (Line(block), indent.length)
       }
     }

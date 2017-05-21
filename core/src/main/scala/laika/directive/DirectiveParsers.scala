@@ -213,7 +213,7 @@ class MarkupDirectiveParsers(recParsers: RecursiveParsers,
 
   lazy val blockDirective: Parser[Block] = {
     val bodyContent = indentedBlock() ^^? { block =>
-      val trimmed = (block.lines mkString "\n").trim
+      val trimmed = block.trim
       Either.cond(trimmed.nonEmpty, trimmed, "empty body")
     }
     withRecursiveSpanParser(withRecursiveBlockParser(withSource(directiveParser(bodyContent, includeStartChar = true)))) ^^ {
