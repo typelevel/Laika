@@ -120,9 +120,6 @@ class InlineParsers (recParsers: RecursiveSpanParsers) {
   }
   
   
-  private val escapedChars: Map[Char, Parser[String]] = Map('\\' -> escapedChar)
-  
-  
   private def normalizeId (id: String): String = id.toLowerCase.replaceAll("[\n ]+", " ")
 
   type RecParser = (String => List[Span])

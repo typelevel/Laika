@@ -200,7 +200,7 @@ class HTMLParsers (recParsers: RecursiveSpanParsers) {
    *  and without parsing any standard Markdown markup.
    */
   lazy val htmlBlock: Parser[HTMLBlock] = htmlBlockStart >> {
-    tag => spans(htmlEndTag(tag.name), htmlBlockParsers) <~ ws <~ eol ^^ {
+    tag => spans(htmlEndTag(tag.name), htmlBlockParsers) <~ wsEol ^^ {
       spans => HTMLBlock(HTMLElement(tag, spans))  
     } 
   }

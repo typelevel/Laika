@@ -203,11 +203,11 @@ class TableParsers (recParsers: RecursiveParsers) {
     
     val rowSep = (anyOf('-') min 1) ^^ { _.length }
     val topBorder = intersect ~> ((rowSep <~ intersect)+) <~ wsEol
-    
+
+    val colSep = ((anyOf('|') take 1) ^^^ CellSeparator("|")) | intersect
+    val colSepOrText = colSep | ((any take 1) ^^ CellElement)
+
     withRecursiveBlockParser(topBorder) >> { case (recParser, cols) =>
-      
-      val colSep = ((anyOf('|') take 1) ^^^ CellSeparator("|")) | intersect
-      val colSepOrText = colSep | ((any take 1) ^^ CellElement)
       
       val separators = colSep :: List.fill(cols.length - 1)(colSepOrText)
       val colsWithSep = (separators, cols, separators.reverse).zipped.toList
