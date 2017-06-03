@@ -157,12 +157,7 @@ object DelimitedBy {
     else if (len == 1) DelimiterOptions(ConfigurableDelimiter(Set(str.head)))
     else if (len == 2) DelimiterOptions(ConfigurableDelimiter(Set(str.head),
       { (_,consumed,ctx) => if (ctx.remaining > consumed + 1 && ctx.charAt(consumed + 1) == str.charAt(1)) 1 else -1 }))
-    else if (len == 3) DelimiterOptions(ConfigurableDelimiter(Set(str.head),
-      // TODO - check ctx is not at end
-      { (_,consumed,ctx) => if (ctx.charAt(consumed + 1) == str.charAt(1)
-        && ctx.charAt(consumed + 2) == str.charAt(2)) 2 else -1 }))
-    else throw new NotImplementedError("post conditions > 3 characters not implemented yet")
-
+    else DelimiterOptions(ConfigurableDelimiter(Set(str.head))).withPostCondition(Literal(str.tail))
   }
 
   def apply[T] (delimiter: Delimiter[T]): DelimitedText[T] = new DelimitedText(delimiter)
