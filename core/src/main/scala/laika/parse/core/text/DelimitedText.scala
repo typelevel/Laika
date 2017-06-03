@@ -91,16 +91,18 @@ case class ConfigurableDelimiter (endDelimiters: Set[Char],
       }
     }
 
+    def result (delimConsumed: Int): Success[String] = {
+      val capturedText = context.capture(charsConsumed)
+      val totalConsumed = if (keepDelimiter) charsConsumed else charsConsumed + 1 + delimConsumed
+      Success(capturedText, context.consume(totalConsumed))
+    }
+
     if (failOn.contains(startChar)) Complete(Failure(unexpectedInput(startChar), context))
     else {
       val delimConsumed = applyPostCondition
       if (delimConsumed < 0) Continue
       else if (charsConsumed == 0 && nonEmpty) Complete(Failure(emptyResult, context))
-      else {
-        val capturedText = context.capture(charsConsumed)
-        val totalConsumed = if (keepDelimiter) charsConsumed else charsConsumed + 1 + delimConsumed
-        Complete(Success(capturedText, context.consume(totalConsumed)))
-      }
+      else Complete(result(delimConsumed))
     }
   }
 
