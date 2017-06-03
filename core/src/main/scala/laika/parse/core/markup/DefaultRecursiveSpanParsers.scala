@@ -16,11 +16,9 @@
 
 package laika.parse.core.markup
 
+import laika.parse.core.text.DelimitedText
 import laika.parse.core.{Failure, Parser, Success}
-import laika.parse.core.text.{DelimitedBy, DelimitedText}
-import laika.tree.Elements.{Error, InvalidSpan, Reverse, Span, SystemMessage, Text}
-
-import scala.collection.mutable.ListBuffer
+import laika.tree.Elements.{Error, InvalidSpan, Span, SystemMessage, Text}
 
 /**
   * @author Jens Halm
@@ -42,7 +40,7 @@ trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers with DefaultEscap
   protected def spanParsers: Map[Char,Parser[Span]]
 
 
-  private lazy val defaultSpanParser: Parser[List[Span]] = InlineParsers.spans(DelimitedBy.Undelimited, spanParsers)
+  private lazy val defaultSpanParser: Parser[List[Span]] = InlineParsers.spans(DelimitedText.Undelimited, spanParsers)
 
   private def createRecursiveSpanParser (textParser: Parser[String], spanParser: => Parser[List[Span]]): Parser[List[Span]] = {
     lazy val spanParser0 = spanParser
@@ -64,7 +62,7 @@ trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers with DefaultEscap
 
   def recursiveSpans (p: Parser[String],
                       additionalParsers: => Map[Char, Parser[Span]] = Map.empty): Parser[List[Span]] =
-    createRecursiveSpanParser(p, InlineParsers.spans(DelimitedBy.Undelimited, spanParsers ++ additionalParsers))
+    createRecursiveSpanParser(p, InlineParsers.spans(DelimitedText.Undelimited, spanParsers ++ additionalParsers))
 
   def recursiveSpans: Parser[List[Span]] = defaultSpanParser
 

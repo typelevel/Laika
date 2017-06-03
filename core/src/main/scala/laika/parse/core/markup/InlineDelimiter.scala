@@ -16,7 +16,8 @@
 
 package laika.parse.core.markup
 
-import laika.parse.core.text.{Complete, Continue, Delimiter, DelimiterResult}
+import laika.parse.core.text.DelimiterResult.{Complete, Continue}
+import laika.parse.core.text.{Delimiter, DelimiterResult}
 import laika.parse.core.{Parsed, ParserContext, Success}
 
 /**

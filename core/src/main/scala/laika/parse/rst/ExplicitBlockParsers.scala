@@ -18,7 +18,6 @@ package laika.parse.rst
 
 import laika.parse.core.markup.BlockParsers._
 import laika.parse.core.markup.{EscapedTextParsers, RecursiveParsers}
-import laika.parse.core.text.DelimitedBy
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Failure, Parser, Success}
 import laika.parse.rst.BaseParsers._
@@ -119,7 +118,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers,
     }
     
     val indirect = {
-      (named <~ ws) ~ ((opt(eol ~ ws) ~ "`" ~> escapedText(DelimitedBy('`')) | simpleRefName) <~ '_' ~ wsEol) ^^ {
+      (named <~ ws) ~ ((opt(eol ~ ws) ~ "`" ~> escapedText(delimitedBy('`')) | simpleRefName) <~ '_' ~ wsEol) ^^ {
         case name ~ refName => LinkAlias(name, refName.replaceAll("\n", "")) 
       }
     }
@@ -132,7 +131,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers,
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#substitution-definitions]].
    */
   lazy val substitutionDefinition: Parser[Block] = {
-    val text = not(ws take 1) ~> escapedText(DelimitedBy('|','\n').keepDelimiter.nonEmpty)
+    val text = not(ws take 1) ~> escapedText(delimitedBy('|','\n').keepDelimiter.nonEmpty)
     val prefix = '|' ~> text <~ not(lookBehind(1, ' ')) ~ '|'
     
     ((prefix <~ ws) ~ spanDirectiveParser) ^^ { 

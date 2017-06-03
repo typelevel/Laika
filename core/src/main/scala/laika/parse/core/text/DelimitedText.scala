@@ -20,6 +20,8 @@ import laika.parse.core._
 
 import scala.annotation.tailrec
 
+import DelimiterResult._
+
 /**
   * @author Jens Halm
   */
@@ -55,6 +57,12 @@ class DelimitedText[T] (val delimiter: Delimiter[T]) extends Parser[T] {
 
     parse(ctx.offset)
   }
+
+}
+
+object DelimitedText {
+
+  lazy val Undelimited: DelimitedText[String] with DelimiterOptions = DelimiterOptions(ConfigurableDelimiter(Set())).acceptEOF
 
 }
 
@@ -116,8 +124,12 @@ case class ConfigurableDelimiter (endDelimiters: Set[Char],
 
 trait DelimiterResult[+T]
 
-case object Continue extends DelimiterResult[Nothing]
-case class Complete[T] (result: Parsed[T]) extends DelimiterResult[T]
+object DelimiterResult {
+
+  case object Continue extends DelimiterResult[Nothing]
+  case class Complete[T] (result: Parsed[T]) extends DelimiterResult[T]
+
+}
 
 trait DelimiterOptions {
 
@@ -141,31 +153,5 @@ object DelimiterOptions {
     override val delimiter = delim
 
   }
-
-}
-
-object DelimitedBy {
-
-  def apply (chars: Char*): DelimitedText[String] with DelimiterOptions = DelimiterOptions(ConfigurableDelimiter(chars.toSet))
-
-  def apply (str: String): DelimitedText[String] with DelimiterOptions = apply(str, None)
-
-  def apply (str: String, postCondition: Parser[Any]): DelimitedText[String] with DelimiterOptions = apply(str, Some(postCondition))
-
-  private def apply (str: String, postCondition: Option[Parser[Any]]): DelimitedText[String] with DelimiterOptions = {
-    val len = str.length
-    if (len == 0) Undelimited
-    else if (len == 1) DelimiterOptions(ConfigurableDelimiter(Set(str.head), postCondition))
-    else {
-      val combinedPostCondition = postCondition.fold(Literal(str.tail): Parser[Any]){ parser =>
-        Literal(str.tail) ~ parser
-      }
-      DelimiterOptions(ConfigurableDelimiter(Set(str.head), Some(combinedPostCondition)))
-    }
-  }
-
-  def apply[T] (delimiter: Delimiter[T]): DelimitedText[T] = new DelimitedText(delimiter)
-
-  lazy val Undelimited: DelimitedText[String] with DelimiterOptions = DelimiterOptions(ConfigurableDelimiter(Set())).acceptEOF
 
 }

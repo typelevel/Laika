@@ -17,7 +17,6 @@
 package laika.parse
 
 import laika.parse.core.Failure
-import laika.parse.core.text.{DelimitedBy}
 import laika.parse.core.text.TextParsers._
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
@@ -88,11 +87,11 @@ class MarkupParsersSpec extends FlatSpec with Matchers with ParseResultHelpers w
   }
   
   "The DelimitedBy parser" should "behave the same as the anyBut parser in case one of the specified characters is seen" in {
-    Parsing ("abcxxabc") using DelimitedBy('x') should produce ("abc")
+    Parsing ("abcxxabc") using delimitedBy('x') should produce ("abc")
   }
   
   it should "fail if non of the specified characters appear in the input" in {
-    Parsing ("abcabc") using DelimitedBy('x') should cause [Failure]
+    Parsing ("abcabc") using delimitedBy('x') should cause [Failure]
   }
   
   "The anyIn parser" should "succeed for any character within the specified range when 1 range is specified" in {
@@ -127,7 +126,7 @@ class MarkupParsersSpec extends FlatSpec with Matchers with ParseResultHelpers w
     Parsing ("xxxxxx") using (anyOf('x') max 3) should produce ("xxx")
   }
   
-  val az = DelimitedBy(('a' to 'z'): _*)
+  val az = delimitedBy(('a' to 'z'): _*)
   
   "The DelimitedBy parser" should "stop as soon as the specified end delimiter is seen" in {
     Parsing ("123abc") using az should produce ("123")

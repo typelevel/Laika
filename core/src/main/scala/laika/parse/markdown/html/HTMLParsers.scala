@@ -16,11 +16,11 @@
 
 package laika.parse.markdown.html
 
-import laika.parse.core.markup.InlineParsers._
 import laika.parse.core.Parser
+import laika.parse.core.markup.InlineParsers._
 import laika.parse.core.markup.RecursiveSpanParsers
+import laika.parse.core.text.DelimitedText
 import laika.parse.core.text.TextParsers._
-import laika.parse.core.text.{DelimitedBy, DelimitedText}
 import laika.parse.markdown.html.HTMLElements._
 import laika.tree.Elements._
 import laika.util.~
@@ -69,13 +69,13 @@ class HTMLParsers (recParsers: RecursiveSpanParsers) {
   val htmlAttributeName: Parser[String] = anyBut(htmlAttrEndChars:_*) min 1
 
   val htmlUnquotedAttributeValue: Parser[(List[Span with TextContainer], Option[Char])] =
-    spans(DelimitedBy(htmlAttrEndChars:_*).keepDelimiter, Map('&' -> htmlCharReference)) ^?
+    spans(delimitedBy(htmlAttrEndChars:_*).keepDelimiter, Map('&' -> htmlCharReference)) ^?
       { case x :: xs => ((x::xs).asInstanceOf[List[Span with TextContainer]], None) }
 
   /** Parses an attribute value enclosed by the specified character.
    */
   def htmlQuotedAttributeValue (c: Char): Parser[(List[Span with TextContainer], Option[Char])] =
-    c ~> spans(DelimitedBy(c), Map('&' -> htmlCharReference)) ^^
+    c ~> spans(delimitedBy(c), Map('&' -> htmlCharReference)) ^^
       { spans => (spans.asInstanceOf[List[Span with TextContainer]], Some(c)) }
 
   /** Parses quoted and unquoted attribute values.
@@ -109,11 +109,11 @@ class HTMLParsers (recParsers: RecursiveSpanParsers) {
 
   /** Parses an HTML end tag if it matches the specified tag name.
    */
-  def htmlEndTag (tagName: String): DelimitedText[String] = DelimitedBy("</", tagName ~ htmlWS ~ '>')
+  def htmlEndTag (tagName: String): DelimitedText[String] = delimitedBy("</", tagName ~ htmlWS ~ '>')
 
   /** Parses an HTML comment without the leading `'<'`.
    */
-  val htmlComment: Parser[HTMLComment] = "!--" ~> DelimitedBy("-->") ^^ { HTMLComment(_) }
+  val htmlComment: Parser[HTMLComment] = "!--" ~> delimitedBy("-->") ^^ { HTMLComment(_) }
 
   /** Parses an empty HTML element without the leading `'<'`.
    *  Only recognizes empty tags explicitly closed.

@@ -16,26 +16,24 @@
 
 package laika.template
 
-import laika.parse.core.{Parser, ParserContext}
-import laika.parse.core.text.TextParsers._
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
-import com.typesafe.config.ConfigParseOptions
+import com.typesafe.config.{Config, ConfigFactory, ConfigParseOptions}
 import laika.directive.DirectiveParsers
 import laika.directive.Directives.Templates
-import laika.parse.core.markup.{DefaultEscapedTextParsers, DefaultRecursiveSpanParsers, EscapedTextParsers, RecursiveSpanParsers}
-import laika.parse.core.text.{DelimitedBy, MarkupParser}
+import laika.parse.core.markup.DefaultRecursiveSpanParsers
+import laika.parse.core.text.MarkupParser
+import laika.parse.core.text.TextParsers._
+import laika.parse.core.{Parser, ParserContext}
 import laika.rewrite.DocumentCursor
-import laika.tree.Paths.Path
 import laika.tree.Documents.TemplateDocument
 import laika.tree.Elements._
+import laika.tree.Paths.Path
 import laika.tree.Templates._
 import laika.util.~
 
 
 object ConfigParser {
 
-  val configBlock = "{%" ~> DelimitedBy("%}") <~ wsEol
+  val configBlock = "{%" ~> delimitedBy("%}") <~ wsEol
 
   def forPath[T] (path: Path, errorHandler: (Exception, String) => T): Parser[Either[T, Config]] = configBlock ^^ { str =>
     try {
@@ -72,7 +70,7 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
 
   lazy val templateDirective: Parser[TemplateSpan] = {
     val contextRefOrNestedBraces = Map('{' -> (reference(TemplateContextReference(_)) | nestedBraces))
-    val bodyContent = wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(DelimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
+    val bodyContent = wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
     withSource(directiveParser(bodyContent, includeStartChar = false)) ^^ { case (result, source) =>
 
       def createContext(parts: PartMap, docCursor: Option[DocumentCursor]): Templates.DirectiveContext = {

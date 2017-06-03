@@ -16,14 +16,13 @@
 
 package laika.parse.css
 
-import laika.parse.css.Styles._
-import laika.parse.core.text.TextParsers._
-import laika.tree.Paths.Path
-import laika.tree.Elements.Span
 import laika.io.Input
 import laika.parse.core.markup.InlineParsers
-import laika.parse.core.text.{DelimitedBy, MarkupParser}
+import laika.parse.core.text.MarkupParser
+import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Parser, ParserContext}
+import laika.parse.css.Styles._
+import laika.tree.Paths.Path
 import laika.util.~
 
 /**
@@ -119,7 +118,7 @@ trait CSSParsers {
     *  any comments..
     */
   val styleValue: Parser[String] =
-    InlineParsers.text(DelimitedBy(';'), Map('/' -> (('*' ~ DelimitedBy("*/") ~ wsOrNl) ^^^ "")))
+    InlineParsers.text(delimitedBy(';'), Map('/' -> (('*' ~ delimitedBy("*/") ~ wsOrNl) ^^^ "")))
 
   /** Parses a single style within a declaration.
     */
@@ -129,7 +128,7 @@ trait CSSParsers {
 
   /** Parses a single CSS comment.
     */
-  val comment: Parser[Unit] = ("/*" ~ DelimitedBy("*/") ~ wsOrNl) ^^^ (())
+  val comment: Parser[Unit] = ("/*" ~ delimitedBy("*/") ~ wsOrNl) ^^^ (())
   
   /** Parses a sequence of style declarations, ignoring
    *  any comments.

@@ -19,7 +19,6 @@ package laika.directive
 import com.typesafe.config.Config
 import laika.directive.Directives._
 import laika.parse.core.markup._
-import laika.parse.core.text.DelimitedBy
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Parser, Failure => PFailure, Success => PSuccess}
 import laika.rewrite.DocumentCursor
@@ -155,7 +154,7 @@ class DirectiveParsers (escapedText: EscapedTextParsers) {
     }) 
   }
   
-  val nestedBraces = DelimitedBy('}') ^^ (str => Text(s"{$str}"))
+  val nestedBraces = delimitedBy('}') ^^ (str => Text(s"{$str}"))
   
 }
 
@@ -194,7 +193,7 @@ class MarkupDirectiveParsers(recParsers: RecursiveParsers,
 
   lazy val spanDirective: Parser[Span] = {
     val contextRefOrNestedBraces = Map('{' -> (reference(MarkupContextReference(_)) | nestedBraces))
-    val bodyContent = wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(DelimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
+    val bodyContent = wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
     withRecursiveSpanParser(withSource(directiveParser(bodyContent, includeStartChar = false))) ^^ {
       case (recParser, (result, source)) => // TODO - optimization - parsed spans might be cached for DirectiveContext (applies for the template parser, too)
 

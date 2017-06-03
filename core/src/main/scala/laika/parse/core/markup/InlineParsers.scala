@@ -17,7 +17,7 @@
 package laika.parse.core.markup
 
 import laika.parse.core._
-import laika.parse.core.text.{DelimitedBy, DelimitedText}
+import laika.parse.core.text.DelimitedText
 import laika.tree.Elements._
 
 import scala.annotation.tailrec
@@ -117,7 +117,7 @@ object InlineParsers {
 
     lazy val builder = resultBuilder // evaluate only once
     lazy val nestedMap = nested
-    lazy val textParser = DelimitedBy(new InlineDelimiter(nestedMap.keySet, text.delimiter))
+    lazy val textParser = new DelimitedText(new InlineDelimiter(nestedMap.keySet, text.delimiter))
 
     def addText (text: String) = if (!text.isEmpty) builder += builder.fromString(text)
 

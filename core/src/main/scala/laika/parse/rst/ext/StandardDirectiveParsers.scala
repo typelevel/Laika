@@ -16,15 +16,13 @@
   
 package laika.parse.rst.ext
 
-import laika.parse.core.markup.{EscapedTextParsers, RecursiveParsers}
-import laika.parse.core.text.DelimitedBy
+import laika.parse.core.markup.RecursiveParsers
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Failure, Parser, Success}
 import laika.parse.rst.BaseParsers.simpleRefName
 import laika.parse.rst.Elements.ReferenceName
 import laika.parse.rst.{BlockParsers, TableParsers}
 import laika.tree.Elements._
-import laika.util.~
 
 /** Defines the custom argument and body parsers for the standard directives.
  *  Most of these delegate to the default block or inline parsers for `reStructuredText`,
@@ -92,7 +90,7 @@ object StandardDirectiveParsers {
    */
   def target (p: RecursiveParsers)(input: String): Either[String,Span] = {
     val phraseLinkRef = {
-      val refName = p.escapedText(DelimitedBy('`','<').keepDelimiter) ^^ ReferenceName
+      val refName = p.escapedText(delimitedBy('`','<').keepDelimiter) ^^ ReferenceName
       "`" ~> refName <~ "`_" ~ ws ~ eof ^^ {
         refName => LinkReference(Nil, refName.normalized, s"`${refName.original}`_") 
       }

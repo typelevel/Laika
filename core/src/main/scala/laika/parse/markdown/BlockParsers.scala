@@ -16,17 +16,15 @@
 
 package laika.parse.markdown
 
-import laika.parse.core.markup.BlockParsers._
 import laika.parse.core.Parser
-import laika.parse.core.markup.{EscapedTextParsers, RecursiveParsers}
-import laika.parse.core.text.{Characters, DelimitedBy}
+import laika.parse.core.markup.BlockParsers._
+import laika.parse.core.markup.RecursiveParsers
 import laika.parse.core.text.TextParsers._
 import laika.parse.util.WhitespacePreprocessor
 import laika.tree.Elements._
 import laika.util.~
 
 import scala.collection.mutable
-import scala.collection.mutable.StringBuilder
  
 
 /** Provides all block parsers for Markdown text except for those dealing
@@ -76,10 +74,10 @@ class BlockParsers (recParsers: RecursiveParsers) {
   val linkTarget: Parser[ExternalLinkDefinition] = {
 
     val id = '[' ~> escapedUntil(']') <~ ':' <~ ws
-    val url = (('<' ~> escapedUntil('>')) | escapedText(DelimitedBy(' ', '\n').acceptEOF.keepDelimiter)) ^^ { _.mkString }
+    val url = (('<' ~> escapedUntil('>')) | escapedText(delimitedBy(' ', '\n').acceptEOF.keepDelimiter)) ^^ { _.mkString }
 
     def enclosedBy(start: Char, end: Char) =
-      start ~> DelimitedBy(end.toString, lookAhead(wsEol)).failOn('\r', '\n') ^^ { _.mkString }
+      start ~> delimitedBy(end.toString, lookAhead(wsEol)).failOn('\r', '\n') ^^ { _.mkString }
 
     val title = (ws ~ opt(eol) ~ ws) ~> (enclosedBy('"', '"') | enclosedBy('\'', '\'') | enclosedBy('(', ')'))
 

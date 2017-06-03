@@ -152,6 +152,24 @@ object TextParsers extends Parsers {
     */
   def anyWhile (p: Char => Boolean): Characters = Characters.anyWhile(p)
 
+
+  def delimitedBy (chars: Char*): DelimitedText[String] with DelimiterOptions =
+    DelimiterOptions(ConfigurableDelimiter(chars.toSet))
+
+  def delimitedBy (str: String): DelimitedText[String] with DelimiterOptions = {
+    val len = str.length
+    if (len == 0) DelimitedText.Undelimited
+    else if (len == 1) DelimiterOptions(ConfigurableDelimiter(Set(str.head)))
+    else delimitedBy(str.head.toString, Literal(str.tail))
+  }
+
+  def delimitedBy (str: String, postCondition: Parser[Any]): DelimitedText[String] with DelimiterOptions = {
+    val len = str.length
+    if (len == 0) DelimitedText.Undelimited
+    else if (len == 1) DelimiterOptions(ConfigurableDelimiter(Set(str.head), Some(postCondition)))
+    else delimitedBy(str.head.toString, Literal(str.tail) ~ postCondition)
+  }
+
 }
 
  /** Exception thrown when parsing a text markup document or fragment fails.

@@ -16,10 +16,9 @@
 
 package laika.parse.markdown
 
-import laika.parse.core.markup.InlineParsers.text
 import laika.parse.core.Parser
-import laika.parse.core.markup.{EscapedTextParsers, RecursiveSpanParsers}
-import laika.parse.core.text.DelimitedBy
+import laika.parse.core.markup.InlineParsers.text
+import laika.parse.core.markup.RecursiveSpanParsers
 import laika.parse.core.text.TextParsers._
 import laika.tree.Elements._
 import laika.util.~
@@ -81,7 +80,7 @@ class InlineParsers (recParsers: RecursiveSpanParsers) {
    *  @param postCondition the parser that checks any post conditions after the end delimiter has been read
    */
   def span (start: Parser[Any], endDelim: String, postCondition: Parser[Any]): Parser[List[Span]]
-    = start ~> delimitedRecursiveSpans(DelimitedBy(endDelim, postCondition))
+    = start ~> delimitedRecursiveSpans(delimitedBy(endDelim, postCondition))
   
   /** Parses a span enclosed by a single occurrence of the specified character.
    *  Recursively parses nested spans, too. 
@@ -107,7 +106,7 @@ class InlineParsers (recParsers: RecursiveSpanParsers) {
   val literalEnclosedBySingleChar: Parser[Literal] = {
     val start = not('`')
     val end = '`'
-    start ~> DelimitedBy(end) ^^ { s => Literal(s.trim) }
+    start ~> delimitedBy(end) ^^ { s => Literal(s.trim) }
   }
   
   /** Parses a literal span enclosed by double backticks.
@@ -116,7 +115,7 @@ class InlineParsers (recParsers: RecursiveSpanParsers) {
   val literalEnclosedByDoubleChar: Parser[Literal] = {
     val start = '`'
     val end = "``"
-    start ~> DelimitedBy(end) ^^ { s => Literal(s.trim) }
+    start ~> delimitedBy(end) ^^ { s => Literal(s.trim) }
   }
   
   
@@ -170,13 +169,13 @@ class InlineParsers (recParsers: RecursiveSpanParsers) {
    */
   def resource (inline: (RecParser, String, String, Option[String]) => Span, ref: (RecParser, String, String, String) => Span): Parser[Span] = {
     
-    val linktext = text(DelimitedBy(']'), Map('\\' -> escapedChar, '[' -> (DelimitedBy(']') ^^ { "[" + _ + "]" })))
+    val linktext = text(delimitedBy(']'), Map('\\' -> escapedChar, '[' -> (delimitedBy(']') ^^ { "[" + _ + "]" })))
 
     val titleEnd = lookAhead(ws ~ ')')
-    val title = ws ~> (('"' ~> DelimitedBy("\"", titleEnd)) | ('\'' ~> DelimitedBy("'", titleEnd)))
+    val title = ws ~> (('"' ~> delimitedBy("\"", titleEnd)) | ('\'' ~> delimitedBy("'", titleEnd)))
 
-    val url = ('<' ~> text(DelimitedBy('>',' ').keepDelimiter, Map('\\' -> escapedChar)) <~ '>') |
-       text(DelimitedBy(')',' ','\t').keepDelimiter, Map('\\' -> escapedChar))
+    val url = ('<' ~> text(delimitedBy('>',' ').keepDelimiter, Map('\\' -> escapedChar)) <~ '>') |
+       text(delimitedBy(')',' ','\t').keepDelimiter, Map('\\' -> escapedChar))
     
     val urlWithTitle = '(' ~> url ~ opt(title) <~ ws ~ ')' ^^ {  
       case url ~ title => (recParser: RecParser, text:String) => inline(recParser, text, url, title)

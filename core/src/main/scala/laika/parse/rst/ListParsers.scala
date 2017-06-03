@@ -16,11 +16,10 @@
 
 package laika.parse.rst
 
-import laika.parse.core.markup.BlockParsers._
-import laika.parse.core.markup.{EscapedTextParsers, RecursiveParsers}
-import laika.parse.core.text.TextParsers._
 import laika.parse.core.Parser
-import laika.parse.core.text.{Characters, DelimitedBy}
+import laika.parse.core.markup.BlockParsers._
+import laika.parse.core.markup.RecursiveParsers
+import laika.parse.core.text.TextParsers._
 import laika.parse.rst.Elements._
 import laika.tree.Elements._
 import laika.util.{RomanNumerals, ~}
@@ -202,7 +201,7 @@ class ListParsers (recParsers: RecursiveParsers) {
     def mkString (result: ~[Char,String]) = result._1.toString + result._2
     
     val optionString = anyIn('a' to 'z', 'A' to 'Z', '0' to '9', '_', '-').min(1)
-    val optionArg = optionString | (('<' ~> DelimitedBy('>')) ^^ { "<" + _ + ">" } )
+    val optionArg = optionString | (('<' ~> delimitedBy('>')) ^^ { "<" + _ + ">" } )
     
     val gnu =        '+' ~ anyIn('a' to 'z', 'A' to 'Z', '0' to '9').take(1) ^^ mkString
     val shortPosix = '-' ~ anyIn('a' to 'z', 'A' to 'Z', '0' to '9').take(1) ^^ mkString

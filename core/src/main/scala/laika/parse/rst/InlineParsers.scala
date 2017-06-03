@@ -17,9 +17,9 @@
 package laika.parse.rst
 
 import laika.parse.core._
-import laika.parse.core.markup.{EscapedTextParsers, RecursiveSpanParsers}
+import laika.parse.core.markup.RecursiveSpanParsers
 import laika.parse.core.text.TextParsers._
-import laika.parse.core.text.{DelimitedBy, DelimitedText, DelimiterOptions}
+import laika.parse.core.text.{DelimitedText, DelimiterOptions}
 import laika.parse.rst.BaseParsers._
 import laika.parse.rst.Elements.{InterpretedText, ReferenceName, SubstitutionReference}
 import laika.parse.util.URIParsers
@@ -120,12 +120,12 @@ class InlineParsers (recParsers: RecursiveSpanParsers, defaultTextRole: String) 
 
   def delimitedByMarkupEnd (end: String): DelimitedText[String] with DelimiterOptions = {
     val postCondition = lookBehind(end.length + 1, beforeEndMarkup) ~ lookAhead(eol | afterEndMarkup)
-    DelimitedBy(end, postCondition)
+    delimitedBy(end, postCondition)
   }
 
   def delimitedByMarkupEnd (end: String, postCondition: Parser[Any]): DelimitedText[String] with DelimiterOptions = {
     val combinedPostCondition = lookBehind(end.length + 1, beforeEndMarkup) ~ lookAhead(eol | afterEndMarkup) ~ postCondition
-    DelimitedBy(end, combinedPostCondition)
+    delimitedBy(end, combinedPostCondition)
   }
 
   /** Parses the end of an inline element according to reStructuredText markup recognition rules.
@@ -253,7 +253,7 @@ class InlineParsers (recParsers: RecursiveSpanParsers, defaultTextRole: String) 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#inline-internal-targets]]
    */
   lazy val internalTarget: Parser[Text] = markupStart('`', "`") ~>
-    (escapedText(DelimitedBy('`').nonEmpty) ^^ ReferenceName) <~
+    (escapedText(delimitedBy('`').nonEmpty) ^^ ReferenceName) <~
     markupEnd(1) ^^ (id => Text(id.original, Id(id.normalized) + Styles("target")))
   
   /** Parses an interpreted text element with the role name as a prefix.
@@ -261,7 +261,7 @@ class InlineParsers (recParsers: RecursiveSpanParsers, defaultTextRole: String) 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#interpreted-text]]
    */  
   lazy val interpretedTextWithRolePrefix: Parser[InterpretedText] = {
-    (markupStart(":") ~> simpleRefName) ~ (":`" ~> escapedText(DelimitedBy('`').nonEmpty) <~ markupEnd(1)) ^^
+    (markupStart(":") ~> simpleRefName) ~ (":`" ~> escapedText(delimitedBy('`').nonEmpty) <~ markupEnd(1)) ^^
       { case role ~ text => InterpretedText(role,text,s":$role:`$text`") }
   }
   
@@ -270,7 +270,7 @@ class InlineParsers (recParsers: RecursiveSpanParsers, defaultTextRole: String) 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#interpreted-text]]
    */  
   lazy val interpretedTextWithRoleSuffix: Parser[InterpretedText] = {
-    (markupStart("`") ~> escapedText(DelimitedBy('`').nonEmpty) <~ markupEnd(1)) ~ opt(":" ~> simpleRefName <~ markupEnd(":")) ^^
+    (markupStart("`") ~> escapedText(delimitedBy('`').nonEmpty) <~ markupEnd(1)) ~ opt(":" ~> simpleRefName <~ markupEnd(":")) ^^
       { case text ~ role => InterpretedText(role.getOrElse(defaultTextRole), text, s"`$text`" + role.map(":"+_+":").getOrElse("")) }
   }
   
@@ -280,8 +280,8 @@ class InlineParsers (recParsers: RecursiveSpanParsers, defaultTextRole: String) 
    */
   lazy val phraseLinkRef: Parser[Span] = {
     def ref (refName: String, url: String) = if (refName.isEmpty) url else refName
-    val url = '<' ~> DelimitedBy('>') ^^ { _.replaceAll("[ \n]+", "") }
-    val refName = escapedText(DelimitedBy('`','<').keepDelimiter) ^^ ReferenceName
+    val url = '<' ~> delimitedBy('>') ^^ { _.replaceAll("[ \n]+", "") }
+    val refName = escapedText(delimitedBy('`','<').keepDelimiter) ^^ ReferenceName
     markupStart("`") ~> refName ~ opt(url) ~ (markupEnd("`__") ^^^ false | markupEnd("`_") ^^^ true) ^^ {
       case refName ~ Some(url) ~ true   => 
         SpanSequence(List(ExternalLink(List(Text(ref(refName.original, url))), url), ExternalLinkDefinition(ref(refName.normalized, url), url)))
