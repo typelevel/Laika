@@ -109,8 +109,7 @@ class HTMLParsers (recParsers: RecursiveSpanParsers) {
 
   /** Parses an HTML end tag if it matches the specified tag name.
    */
-  def htmlEndTag (tagName: String): DelimitedText[String] =
-      DelimitedBy("<").withPostCondition("/" ~> tagName <~ htmlWS <~ '>')
+  def htmlEndTag (tagName: String): DelimitedText[String] = DelimitedBy("</", tagName ~ htmlWS ~ '>')
 
   /** Parses an HTML comment without the leading `'<'`.
    */

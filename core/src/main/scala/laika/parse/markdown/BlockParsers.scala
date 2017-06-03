@@ -79,7 +79,7 @@ class BlockParsers (recParsers: RecursiveParsers) {
     val url = (('<' ~> escapedUntil('>')) | escapedText(DelimitedBy(' ', '\n').acceptEOF.keepDelimiter)) ^^ { _.mkString }
 
     def enclosedBy(start: Char, end: Char) =
-      start ~> DelimitedBy(end).withPostCondition(lookAhead(wsEol)).failOn('\r', '\n') ^^ { _.mkString }
+      start ~> DelimitedBy(end.toString, lookAhead(wsEol)).failOn('\r', '\n') ^^ { _.mkString }
 
     val title = (ws ~ opt(eol) ~ ws) ~> (enclosedBy('"', '"') | enclosedBy('\'', '\'') | enclosedBy('(', ')'))
 

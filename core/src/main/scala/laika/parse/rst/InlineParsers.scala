@@ -119,7 +119,13 @@ class InlineParsers (recParsers: RecursiveSpanParsers, defaultTextRole: String) 
   }
 
   def delimitedByMarkupEnd (end: String): DelimitedText[String] with DelimiterOptions = {
-    DelimitedBy(end).withPostCondition(lookBehind(end.length + 1, beforeEndMarkup) ~ lookAhead(eol | afterEndMarkup))
+    val postCondition = lookBehind(end.length + 1, beforeEndMarkup) ~ lookAhead(eol | afterEndMarkup)
+    DelimitedBy(end, postCondition)
+  }
+
+  def delimitedByMarkupEnd (end: String, postCondition: Parser[Any]): DelimitedText[String] with DelimiterOptions = {
+    val combinedPostCondition = lookBehind(end.length + 1, beforeEndMarkup) ~ lookAhead(eol | afterEndMarkup) ~ postCondition
+    DelimitedBy(end, combinedPostCondition)
   }
 
   /** Parses the end of an inline element according to reStructuredText markup recognition rules.
@@ -196,7 +202,7 @@ class InlineParsers (recParsers: RecursiveSpanParsers, defaultTextRole: String) 
     = markupStart(start, end) ~> escapedText(delimitedByMarkupEnd(end)) ^^ { text => List(Text(text)) }
 
   private def span (start: Parser[Any], end: String, postCondition: Parser[Any]): Parser[List[Span]]
-    = markupStart(start, end) ~> escapedText(delimitedByMarkupEnd(end).withPostCondition(postCondition)) ^^ { text => List(Text(text)) }
+    = markupStart(start, end) ~> escapedText(delimitedByMarkupEnd(end, postCondition)) ^^ { text => List(Text(text)) }
 
   /** Parses an inline literal element.
    * 

@@ -69,7 +69,7 @@ trait Delimiter[T] {
 }
 
 case class ConfigurableDelimiter (endDelimiters: Set[Char],
-                                  postCondition: (Char, Int, ParserContext) => Int = { (_,_,_) => 0 },
+                                  postCondition: Option[Parser[Any]] = None,
                                   acceptEOF: Boolean = false,
                                   nonEmpty: Boolean = false,
                                   keepDelimiter: Boolean = false,
@@ -84,9 +84,16 @@ case class ConfigurableDelimiter (endDelimiters: Set[Char],
 
   def atStartChar (startChar: Char, charsConsumed: Int, context: ParserContext): DelimiterResult[String] = {
 
+    def applyPostCondition: Int = postCondition.fold(0) { parser =>
+      parser.parse(context.consume(charsConsumed + 1)) match {
+        case Success(_, next) => next.offset - (context.offset + charsConsumed + 1)
+        case _ => -1
+      }
+    }
+
     if (failOn.contains(startChar)) Complete(Failure(unexpectedInput(startChar), context))
     else {
-      val delimConsumed = postCondition(startChar, charsConsumed, context)
+      val delimConsumed = applyPostCondition
       if (delimConsumed < 0) Continue
       else if (charsConsumed == 0 && nonEmpty) Complete(Failure(emptyResult, context))
       else {
@@ -122,18 +129,6 @@ trait DelimiterOptions {
 
   def failOn (chars: Char*): DelimitedText[String] with DelimiterOptions = DelimiterOptions(delimiter.copy(failOn = chars.toSet))
 
-  def withPostCondition (parser: Parser[Any]): DelimitedText[String] with DelimiterOptions = {
-    val oldPostCondition = delimiter.postCondition
-    DelimiterOptions(delimiter.copy(postCondition = { (char, consumed, context) =>
-      val firstResult = oldPostCondition(char, consumed, context)
-      if (firstResult == -1) -1 else
-        parser.parse(context.consume(consumed + 1 + firstResult)) match {
-          case Success(_, next) => Math.max(firstResult, next.offset - (context.offset + consumed + 1))
-          case _ => -1
-        }
-    }))
-  }
-
 }
 
 object DelimiterOptions {
@@ -151,13 +146,20 @@ object DelimitedBy {
 
   def apply (chars: Char*): DelimitedText[String] with DelimiterOptions = DelimiterOptions(ConfigurableDelimiter(chars.toSet))
 
-  def apply (str: String): DelimitedText[String] with DelimiterOptions = {
+  def apply (str: String): DelimitedText[String] with DelimiterOptions = apply(str, None)
+
+  def apply (str: String, postCondition: Parser[Any]): DelimitedText[String] with DelimiterOptions = apply(str, Some(postCondition))
+
+  private def apply (str: String, postCondition: Option[Parser[Any]]): DelimitedText[String] with DelimiterOptions = {
     val len = str.length
     if (len == 0) Undelimited
-    else if (len == 1) DelimiterOptions(ConfigurableDelimiter(Set(str.head)))
-    else if (len == 2) DelimiterOptions(ConfigurableDelimiter(Set(str.head),
-      { (_,consumed,ctx) => if (ctx.remaining > consumed + 1 && ctx.charAt(consumed + 1) == str.charAt(1)) 1 else -1 }))
-    else DelimiterOptions(ConfigurableDelimiter(Set(str.head))).withPostCondition(Literal(str.tail))
+    else if (len == 1) DelimiterOptions(ConfigurableDelimiter(Set(str.head), postCondition))
+    else {
+      val combinedPostCondition = postCondition.fold(Literal(str.tail): Parser[Any]){ parser =>
+        Literal(str.tail) ~ parser
+      }
+      DelimiterOptions(ConfigurableDelimiter(Set(str.head), Some(combinedPostCondition)))
+    }
   }
 
   def apply[T] (delimiter: Delimiter[T]): DelimitedText[T] = new DelimitedText(delimiter)

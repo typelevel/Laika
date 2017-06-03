@@ -81,7 +81,7 @@ class InlineParsers (recParsers: RecursiveSpanParsers) {
    *  @param postCondition the parser that checks any post conditions after the end delimiter has been read
    */
   def span (start: Parser[Any], endDelim: String, postCondition: Parser[Any]): Parser[List[Span]]
-    = start ~> delimitedRecursiveSpans(DelimitedBy(endDelim).withPostCondition(postCondition))
+    = start ~> delimitedRecursiveSpans(DelimitedBy(endDelim, postCondition))
   
   /** Parses a span enclosed by a single occurrence of the specified character.
    *  Recursively parses nested spans, too. 
@@ -173,7 +173,7 @@ class InlineParsers (recParsers: RecursiveSpanParsers) {
     val linktext = text(DelimitedBy(']'), Map('\\' -> escapedChar, '[' -> (DelimitedBy(']') ^^ { "[" + _ + "]" })))
 
     val titleEnd = lookAhead(ws ~ ')')
-    val title = ws ~> (('"' ~> DelimitedBy('"').withPostCondition(titleEnd)) | ('\'' ~> DelimitedBy('\'').withPostCondition(titleEnd)))
+    val title = ws ~> (('"' ~> DelimitedBy("\"", titleEnd)) | ('\'' ~> DelimitedBy("'", titleEnd)))
 
     val url = ('<' ~> text(DelimitedBy('>',' ').keepDelimiter, Map('\\' -> escapedChar)) <~ '>') |
        text(DelimitedBy(')',' ','\t').keepDelimiter, Map('\\' -> escapedChar))
