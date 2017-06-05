@@ -144,23 +144,15 @@ Features
 Road Map
 --------
 
-* Support for output in the epub format (0.8)
+* __0.8__: The speed release, doubling parsing speed for Markdown and reStructuredText
 
-* Integrated support for syntax highlighting in source code (0.9)
+* __0.9__: New API for ExtensionBundles, support for GitHub-flavored Markdown
 
-* Various Markdown extensions: GitHub Markdown, CommonMark(?), YAML headers, etc. (0.9)
+* __0.10__: Support for output in the epub format
 
-* API polishing (1.0)
+* __0.11__: Integrated support for syntax highlighting in source code
 
-
-After these four releases priorities depend on user demand, therefore
-no decision has been made yet for these other ideas:
-
-* Markup syntax as output format
-
-* Java API / Gradle plugin
-
-* A command line interface
+* __1.0__: API polishing
 
 
 Release History
