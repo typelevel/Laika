@@ -24,7 +24,9 @@ import scala.collection.mutable.ListBuffer
 /**
   * @author Jens Halm
   */
-class Repeat[+T] (parser: Parser[T]) extends Parser[List[T]] {
+class Repeat[+T] (parser: Parser[T], min: Int = 0) extends Parser[List[T]] {
+
+  def min (num: Int): Repeat[T] = new Repeat(parser, num)
 
   def parse (ctx: ParserContext): Parsed[List[T]] = {
 
@@ -32,13 +34,12 @@ class Repeat[+T] (parser: Parser[T]) extends Parser[List[T]] {
 
     @tailrec
     def rec (ctx: ParserContext): Parsed[List[T]] = parser.parse(ctx) match {
-      case Success(x, next) => elems += x; rec(next)
-      case _ => Success(elems.toList, ctx)
+      case Success(x, next)                  => elems += x; rec(next)
+      case _: Failure if elems.length >= min => Success(elems.toList, ctx)
+      case f: Failure                        => f
     }
 
-    val res = rec(ctx)
-
-    Success(elems.toList, res.next)
+    rec(ctx)
 
   }
 
