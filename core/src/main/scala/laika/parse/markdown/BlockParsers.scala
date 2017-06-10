@@ -230,7 +230,7 @@ class BlockParsers (recParsers: RecursiveParsers) {
    *  characters with optional spaces between them
    */
   lazy val rule: Parser[Block] = {
-    def pattern (c: Char) = c ~ repMin(2, anyOf(' ') ~ c)
+    def pattern (c: Char) = c ~ (anyOf(' ') ~ c).rep.min(2)
     (pattern('*') | pattern('-') | pattern('_')) ~ wsEol ^^^ { Rule() }
   }
 

@@ -289,7 +289,7 @@ class TableParsers (recParsers: RecursiveParsers) {
       case col ~ Some(sep) => (col, sep)
       case col ~ None      => (col, 0)
     }
-    val topBorder = repMin(2, columnSpec) <~ wsEol
+    val topBorder = columnSpec.rep.min(2) <~ wsEol
 
     withRecursiveBlockParser(topBorder) >> { case (recParser, cols) =>
       

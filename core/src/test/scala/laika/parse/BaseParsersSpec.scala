@@ -52,12 +52,12 @@ class BaseParsersSpec extends FlatSpec with Matchers with ParseResultHelpers wit
   }
   
   "The repMin parser" should "fail when the specified parser does not succeed the specified minimum number of times" in {
-    val p = repMin(3, anyOf('a','b').min(1) ~ anyOf('c','d').min(1) ^^ {case s1~s2 => s1+s2})
+    val p = (anyOf('a','b').min(1) ~ anyOf('c','d').min(1) ^^ {case s1~s2 => s1+s2}).rep.min(3)
     Parsing ("abcdabcdab") using p should cause [Failure]
   }
   
   it should "succeed when the specified parser does succeed the specified minimum number of times" in {
-    val p = repMin(2, anyOf('a','b').min(1) ~ anyOf('c','d').min(1) ^^ {case s1~s2 => s1+s2})
+    val p = (anyOf('a','b').min(1) ~ anyOf('c','d').min(1) ^^ {case s1~s2 => s1+s2}).rep.min(2)
     Parsing ("abcdabcdab") using p should produce (List("abcd","abcd"))
   }
   

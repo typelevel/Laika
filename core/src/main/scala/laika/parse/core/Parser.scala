@@ -164,6 +164,12 @@ abstract class Parser[+T] {
   def >>[U] (fq: T => Parser[U]) = flatMap(fq)
 
   /**  Returns a parser that repeatedly applies this parser.
+    *  The returned parser offers an API to specify further constraints
+    *  like `min` or `max`.
+    */
+  def rep = new Repeat(this)
+
+  /**  Returns a parser that repeatedly applies this parser.
     *  It will always succeed, potentially with an empty list as the result.
     */
   def * = new Repeat(this)
