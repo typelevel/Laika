@@ -16,6 +16,7 @@
 
 package laika.parse.core
 
+import laika.parse.core.combinator.Repeat
 import laika.util.~
 
 /**  The abstract base for all parser implementations.
@@ -165,7 +166,7 @@ abstract class Parser[+T] {
   /**  Returns a parser that repeatedly applies this parser.
     *  It will always succeed, potentially with an empty list as the result.
     */
-  def * = rep(this)
+  def * = new Repeat(this)
 
   /** Returns a parser that repeatedly applies this parser (at least once).
     */
