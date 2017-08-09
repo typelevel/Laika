@@ -81,11 +81,12 @@ lazy val pdf = project.in(file("pdf"))
     libraryDependencies ++= Seq(fop, scalatest)
   )
   
-lazy val plugin = Project("laika-sbt", file("sbt"))
+lazy val plugin = project.in(file("sbt"))
   .dependsOn(core, pdf)
   .settings(basicSettings)
   .settings(scriptedSettings)
   .settings(
+    name := "laika-sbt",
     sbtPlugin := true, 
     crossScalaVersions := Seq("2.10.6"),
     publishMavenStyle := false,
