@@ -1,10 +1,9 @@
 import sbt._
 import Keys._
-import bintray.Plugin.bintrayPublishSettings
-import bintray.Keys._
-import sbtunidoc.Plugin.ScalaUnidoc
-import sbtunidoc.Plugin.UnidocKeys._
-import sbtunidoc.Plugin.unidocSettings
+import bintray.BintrayPlugin.autoImport._
+import sbtunidoc.ScalaUnidocPlugin
+import sbtunidoc.ScalaUnidocPlugin.autoImport._
+import sbtunidoc.BaseUnidocPlugin.autoImport._
 
 object Build extends Build {
 
@@ -57,7 +56,7 @@ object Build extends Build {
     val scripted = scriptedSettings ++ Seq(
 
       scriptedLaunchOpts ++=
-        Seq("-Xmx1024M", "-XX:MaxPermSize=256M", "-Dplugin.version=" + version.value),
+        Seq("-Xmx1024M", "-Dplugin.version=" + version.value),
 
       scriptedBufferLog := false
     
@@ -97,11 +96,11 @@ object Build extends Build {
         </developers>)
     )
     
-    lazy val sbtPlugins = bintrayPublishSettings ++ Seq(
+    lazy val sbtPlugins = Seq(
       
       publishMavenStyle := false,
-      repository in bintray := "sbt-plugins",
-      bintrayOrganization in bintray := None
+      bintrayRepository := "sbt-plugins",
+      bintrayOrganization := None
       
     )
     
@@ -118,7 +117,7 @@ object Build extends Build {
     .aggregate(core, pdf, plugin)
     .settings(Settings.basic: _*)
     .settings(Publishing.none: _*)
-    .settings(unidocSettings: _*)
+    .enablePlugins(ScalaUnidocPlugin)
     .settings(unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(plugin))
  
   lazy val core = Project("laika-core", file("core"))
