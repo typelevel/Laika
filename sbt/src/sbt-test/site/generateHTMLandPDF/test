@@ -1,4 +1,4 @@
 # test HTML and PDF output in one operation with the generate task
 > laika:generate html pdf
 $ must-mirror target/docs/site/hello.html expected.html
-$ exists target/docs/site-generateHTMLandPDF-0.1.pdf
+$ exists target/docs/site-generatehtmlandpdf-0.1.pdf 
