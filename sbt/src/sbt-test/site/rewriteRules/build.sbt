@@ -1,4 +1,3 @@
-import LaikaKeys._
 import laika.tree.Elements.Emphasized
 import laika.tree.Elements.Strong
 
@@ -8,8 +7,8 @@ version := "0.1"
 
 scalaVersion := "2.10.6"
 
-LaikaPlugin.defaults
+enablePlugins(LaikaPlugin)
 
-rewriteRules in Laika += rewriteRule { 
+rewriteRules in Laika += rewriteRule {
   case Emphasized(content,_) => Some(Strong(content))
 }

@@ -1,11 +1,9 @@
-import LaikaKeys._
-
 name := "site-excludeFilter"
 
 version := "0.1"
 
 scalaVersion := "2.10.6"
 
-LaikaPlugin.defaults
+enablePlugins(LaikaPlugin)
 
 excludeFilter in Laika := "hello.md"
