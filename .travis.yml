@@ -1,0 +1,19 @@
+language: scala
+sudo: false
+jdk: oraclejdk8
+
+scala:
+  - 2.10.6
+
+script:
+  - sbt "++$TRAVIS_SCALA_VERSION" publishLocal
+  - sbt "++$TRAVIS_SCALA_VERSION" test
+  - sbt "++$TRAVIS_SCALA_VERSION" scripted
+
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt/boot
+before_cache:
+  - find $HOME/.ivy2 -name "ivydata-*.properties" -delete
+  - find $HOME/.sbt -name "*.lock" -delete
