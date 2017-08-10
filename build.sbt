@@ -1,5 +1,5 @@
 lazy val basicSettings = Seq(
-  version               := "0.8.0-SNAPSHOT",
+  version               := "0.7.5",
   homepage              := Some(new URL("http://planet42.github.io/Laika/")),
   organization          := "org.planet42",
   organizationHomepage  := Some(new URL("http://www.planet42.org")),
@@ -52,6 +52,7 @@ lazy val noPublishSettings = Seq(
   publishTo := None
 )
 
+val parser    = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.5"
 val scalatest = "org.scalatest" %% "scalatest" % "3.0.1"  % "test"
 val jTidy     = "net.sf.jtidy"  % "jtidy"      % "r938" % "test"
 val config    = "com.typesafe"  % "config"     % "1.0.2"
@@ -69,8 +70,12 @@ lazy val core = project.in(file("core"))
   .settings(publishSettings)
   .settings(
     name := "laika-core",
-    libraryDependencies ++= Seq(config, scalatest, jTidy)
-  )
+    libraryDependencies ++= (Seq(config, scalatest, jTidy) ++ {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, scalaMajor)) if scalaMajor >= 11 => Seq(parser)
+        case _ => Seq()
+      }}
+  ))
   
 lazy val pdf = project.in(file("pdf"))
   .dependsOn(core)
