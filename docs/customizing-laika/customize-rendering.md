@@ -69,14 +69,9 @@ render operation. All three options are described below.
 
 In `build.sbt`:
 
-    import LaikaKeys._
     import laika.tree.Elements._
     
-    // ... your standard build stuff
-    
-    LaikaPlugin.defaults
-    
-    siteRenderers in Laika += siteRenderer { out => {
+    laikaSiteRenderers += laikaSiteRenderer { out => {
       case Emphasized(content, _) => 
           out << """<em class="big">""" << content << "</em>" 
     }}

@@ -30,10 +30,10 @@ See [Using Laika Embedded] for more details on these APIs.
 If you are using the sbt plugin you can use several of its task for generating
 HTML output:
 
-* `laika:html` for transforming a directory of input files to HTML
-* `laika:generate html <other formats>` for transforming a directory of input files to HTML
+* `laikaHTML` for transforming a directory of input files to HTML
+* `laikaGenerate html <other formats>` for transforming a directory of input files to HTML
   and other output formats with a single parse operation
-* `laika:site` for generating a site optionally containing API documentation (scaladoc) and
+* `laikaSite` for generating a site optionally containing API documentation (scaladoc) and
   PDF files.
   
 See [Using the sbt Plugin] for more details.
@@ -143,10 +143,10 @@ See [Using Laika Embedded] for more details on these APIs.
 If you are using the sbt plugin you can use several of its task for generating
 PDF files:
 
-* `laika:pdf` for transforming a directory of input files to a single PDF file
-* `laika:generate pdf <other formats>` for transforming a directory of input files to PDF
+* `laikaPDF` for transforming a directory of input files to a single PDF file
+* `laikaGenerate pdf <other formats>` for transforming a directory of input files to PDF
   and other output formats with a single parse operation
-* `laika:site` for generating a site optionally containing API documentation (scaladoc) and
+* `laikaSite` for generating a site optionally containing API documentation (scaladoc) and
   PDF files.
   
 See [Using the sbt Plugin] for more details.
@@ -332,7 +332,7 @@ The available options are described in the [Apache FOP documentation][fop-config
 When you are using the sbt plugin, you can specify an Apache FOP configuration file with
 the `fopConfig` setting:
 
-    fopConfig in Laika := Some(baseDirectory.value / "customFop.xconf")
+    fopConfig := Some(baseDirectory.value / "customFop.xconf")
     
 Note that the default is `None` as FOPs default configuration is often sufficient.
 
@@ -405,8 +405,8 @@ See [Using Laika Embedded] for more details on these APIs.
 If you are using the sbt plugin you can use several of its task for generating
 XSL-FO output:
 
-* `laika:xslfo` for transforming a directory of input files to XSL-FO
-* `laika:generate xslfo <other formats>` for transforming a directory of input files to XSL-FO
+* `laikaXSLFO` for transforming a directory of input files to XSL-FO
+* `laikaGenerate xslfo <other formats>` for transforming a directory of input files to XSL-FO
   and other output formats with a single parse operation
   
 See [Using the sbt Plugin] for more details. 
@@ -452,4 +452,4 @@ Alternatively you can use the Render API to render an existing document:
 
 The above will yield the same result as the previous example.
 
-Finally, if you are using the sbt plugin you can use the `laika:prettyPrint` task.
+Finally, if you are using the sbt plugin you can use the `laikaPrettyPrint` task.
