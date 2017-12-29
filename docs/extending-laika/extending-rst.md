@@ -295,7 +295,7 @@ Block Directives:
       // implementation producing a `Block` element
     }
     
-    rstBlockDirectives in Laika += directive
+    rstBlockDirectives += directive
     
     
 Span Directives:
@@ -304,7 +304,7 @@ Span Directives:
       // implementation producing a `Span` element
     }
     
-    rstSpanDirectives in Laika += directive
+    rstSpanDirectives += directive
 
 
 Text Roles:
@@ -313,5 +313,5 @@ Text Roles:
       // implementation producing a `Span` element
     }
     
-    rstTextRoles in Laika += role
+    rstTextRoles += role
     

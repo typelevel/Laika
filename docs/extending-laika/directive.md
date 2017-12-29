@@ -152,13 +152,7 @@ in the example in the previous section.
 
 **sbt Plugin**:
 
-    import LaikaKeys._
-    
-    // ... your standard build stuff
-    
-    LaikaPlugin.defaults
-    
-    spanDirectives in Laika += directive
+    laikaSpanDirectives += directive
     
 This registers the directive for both Markdown and reStructuredText
 parsers. 
@@ -385,7 +379,7 @@ Implementation:
 Registration:
 
     // for Markdown and reStructuredText with sbt plugin:
-    spanDirectives in Laika += directive // in build.sbt
+    laikaSpanDirectives += directive // in build.sbt
 
     // for Markdown with Transform API or Parse API:
     Transform from Markdown.withSpanDirectives(directive) to ...
@@ -415,7 +409,7 @@ Implementation:
 Registration:
 
     // for Markdown and reStructuredText with sbt plugin:
-    blockDirectives in Laika += directive // in build.sbt
+    laikaBlockDirectives += directive // in build.sbt
 
     // for Markdown with Transform API or Parse API:
     Transform from Markdown.withBlockDirectives(directive) to ...
@@ -445,7 +439,7 @@ Implementation:
 Registration:
 
     // for templates with sbt plugin:
-    templateDirectives in Laika += directive // in build.sbt
+    laikaTemplateDirectives += directive // in build.sbt
 
     // for Markdown in Transform API:
     Transform from Markdown to HTML fromDirectory 

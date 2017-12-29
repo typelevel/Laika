@@ -24,23 +24,26 @@ you can read about her [here][laika-wikipedia].
 Getting Started
 ---------------
 
-The current version is published to Maven Central for Scala 2.12, 2.11 and 2.10.
+The current version is published to Maven Central for Scala 2.12 and 2.11.
 
-The sbt plugin is published to the sbt plugin repository for sbt 0.13.x.
+The sbt plugin is published to the sbt plugin repository for sbt 1.x.
+
+If you still need to work with sbt 0.13 and/or Scala 2.10 you need to stay on Laika 0.7.0
+which had been the final release supporting those versions.
 
 
 ### Using the sbt Plugin
 
 Add the plugin to `project/plugins.sbt`:
 
-    addSbtPlugin("org.planet42" % "laika-sbt" % "0.7.0")
+    addSbtPlugin("org.planet42" % "laika-sbt" % "0.7.5")
 
-Import its default settings in your project's `build.sbt`:
+Enable the plugin in your project's `build.sbt`:
 
-    LaikaPlugin.defaults
+    enablePlugins(LaikaPlugin)
     
 Add Markdown, reStructuredText or HTML template files to `src/docs` in your
-project and run the `laika:site` task from within sbt to generate the site
+project and run the `laikaSite` task from within sbt to generate the site
 in `target/docs/site`.    
     
 
@@ -48,7 +51,7 @@ in `target/docs/site`.
 
 Adding the Laika dependency to your sbt build:
 
-    libraryDependencies += "org.planet42" %% "laika-core" % "0.7.0"
+    libraryDependencies += "org.planet42" %% "laika-core" % "0.7.5"
 
 Example for transforming from file to file:
 
@@ -65,7 +68,7 @@ Example for transforming an entire directory of markup files to a single PDF fil
     
 When using Laika's PDF support you need to add one more dependency to your build:
 
-    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.7.0"
+    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.7.5"
     
 
 ### Other Resources
@@ -144,23 +147,16 @@ Features
 Road Map
 --------
 
-* Support for output in the epub format (0.8)
+* Improved performance through redesigning the core parsers (0.8)
 
-* Integrated support for syntax highlighting in source code (0.9)
+* New API for ExtensionBundles and support for GitHub Flavored Markdown (0.9)
 
-* Various Markdown extensions: GitHub Markdown, CommonMark(?), YAML headers, etc. (0.9)
+* Support for output in the epub format (0.10)
+
+* Integrated support for syntax highlighting in source code (0.11)
 
 * API polishing (1.0)
 
-
-After these four releases priorities depend on user demand, therefore
-no decision has been made yet for these other ideas:
-
-* Markup syntax as output format
-
-* Java API / Gradle plugin
-
-* A command line interface
 
 
 Release History
