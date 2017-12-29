@@ -36,6 +36,7 @@ import laika.tree.Paths.Path
 import org.apache.fop.apps.FopFactory
 import sbt.Keys._
 import sbt._
+import sbt.util.CacheStore
 
 object LaikaPlugin extends AutoPlugin {
 
@@ -257,7 +258,7 @@ object LaikaPlugin extends AutoPlugin {
       val apiInSite = (target in laikaCopyAPI).value
       val pdfInSite = (artifactPath in laikaPDF).value
 
-      val filesToDelete = ((targetDir ***) --- targetDir --- pdfInSite --- (apiInSite ***) --- collectParents(apiInSite)).get
+      val filesToDelete = (targetDir.allPaths --- targetDir --- pdfInSite --- apiInSite.allPaths --- collectParents(apiInSite)).get
 
       new TargetDirectory(targetDir, filesToDelete)
     }
@@ -314,7 +315,7 @@ object LaikaPlugin extends AutoPlugin {
               streams.value.log.info(Log.outputs(tree))
               streams.value.log.info("Generated html in " + targetDir)
 
-              (targetDir ***).get.toSet.filter(_.isFile)
+              targetDir.allPaths.get.toSet.filter(_.isFile)
 
             case OutputFormats.PrettyPrint =>
 
@@ -325,7 +326,7 @@ object LaikaPlugin extends AutoPlugin {
 
               streams.value.log.info("Generated Pretty Print in " + targetDir)
 
-              (targetDir ***).get.toSet.filter(_.isFile)
+              targetDir.allPaths.get.toSet.filter(_.isFile)
 
             case OutputFormats.XSLFO =>
 
@@ -337,7 +338,7 @@ object LaikaPlugin extends AutoPlugin {
 
               streams.value.log.info("Generated XSL-FO in " + targetDir)
 
-              (targetDir ***).get.toSet.filter(_.isFile)
+              targetDir.allPaths.get.toSet.filter(_.isFile)
 
             case OutputFormats.PDF =>
 
@@ -385,7 +386,7 @@ object LaikaPlugin extends AutoPlugin {
         val apiMappings = (mappings in packageDoc in Compile).value
         val targetMappings = apiMappings map { case (file, target) => (file, targetDir / target) }
 
-        Sync(cacheDir)(targetMappings)
+        Sync(CacheStore(cacheDir))(targetMappings)
 
         streams.value.log.info("Copied API documentation to " + targetDir)
         targetDir
@@ -403,7 +404,7 @@ object LaikaPlugin extends AutoPlugin {
 
       if (laikaIncludePDF.value) task {
         val cacheDir = streams.value.cacheDirectory / "laika" / "site-pdf"
-        Sync(cacheDir)(Seq((pdfSource, pdfTarget)))
+        Sync(CacheStore(cacheDir))(Seq((pdfSource, pdfTarget)))
 
         streams.value.log.info("Copied PDF output to " + targetDir)
         targetDir
