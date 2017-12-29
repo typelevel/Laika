@@ -6,7 +6,7 @@ lazy val basicSettings = Seq(
   description           := "Text Markup Transformer for sbt and Scala applications",
   startYear             := Some(2012),
   licenses              := Seq("Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
-  scalaVersion          := "2.10.6",
+  scalaVersion          := "2.12.4",
   scalacOptions         := Opts.compile.encoding("UTF-8") :+ 
                            Opts.compile.deprecation :+ 
                            Opts.compile.unchecked :+ 
@@ -18,7 +18,7 @@ lazy val basicSettings = Seq(
 
 lazy val moduleSettings = basicSettings ++ Seq(
   crossVersion       := CrossVersion.binary,
-  crossScalaVersions := Seq("2.10.6", "2.11.8", "2.12.1")
+  crossScalaVersions := Seq("2.12.4", "2.11.12")
 )
 
 lazy val publishSettings = Seq(
@@ -47,8 +47,8 @@ lazy val publishSettings = Seq(
 )
 
 lazy val noPublishSettings = Seq(
-  publish := (),
-  publishLocal := (),
+  publish := (()),
+  publishLocal := (()),
   publishTo := None
 )
 
@@ -60,25 +60,24 @@ val fop       = "org.apache.xmlgraphics" % "fop" % "2.1"
 
 lazy val root = project.in(file("."))
   .aggregate(core, pdf, plugin)
+  .disablePlugins(ScriptedPlugin)
   .settings(basicSettings)
   .settings(noPublishSettings)
   .enablePlugins(ScalaUnidocPlugin)
   .settings(unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(plugin))
 
 lazy val core = project.in(file("core"))
+  .disablePlugins(ScriptedPlugin)
   .settings(moduleSettings)
   .settings(publishSettings)
   .settings(
     name := "laika-core",
-    libraryDependencies ++= (Seq(config, scalatest, jTidy) ++ {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, scalaMajor)) if scalaMajor >= 11 => Seq(parser)
-        case _ => Seq()
-      }}
-  ))
+    libraryDependencies ++= Seq(config, scalatest, jTidy, parser)
+  )
   
 lazy val pdf = project.in(file("pdf"))
   .dependsOn(core)
+  .disablePlugins(ScriptedPlugin)
   .settings(moduleSettings)
   .settings(publishSettings)
   .settings(
@@ -89,11 +88,10 @@ lazy val pdf = project.in(file("pdf"))
 lazy val plugin = project.in(file("sbt"))
   .dependsOn(core, pdf)
   .settings(basicSettings)
-  .settings(scriptedSettings)
   .settings(
     name := "laika-sbt",
-    sbtPlugin := true, 
-    crossScalaVersions := Seq("2.10.6"),
+    sbtPlugin := true,
+    crossScalaVersions := Seq("2.12.4"),
     publishMavenStyle := false,
     bintrayRepository := "sbt-plugins",
     bintrayOrganization := None,
