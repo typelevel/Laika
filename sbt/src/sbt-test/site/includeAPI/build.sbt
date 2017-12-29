@@ -6,4 +6,4 @@ scalaVersion := "2.10.6"
 
 enablePlugins(LaikaPlugin)
 
-laikaIncludeAPI in Laika := true
+laikaIncludeAPI := true

@@ -6,4 +6,4 @@ scalaVersion := "2.10.6"
 
 enablePlugins(LaikaPlugin)
 
-fopConfig in Laika := Some(baseDirectory.value / "customFop.xconf")
+fopConfig := Some(baseDirectory.value / "customFop.xconf")

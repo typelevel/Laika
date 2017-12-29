@@ -8,6 +8,6 @@ scalaVersion := "2.10.6"
 
 enablePlugins(LaikaPlugin)
 
-laikaSiteRenderers in Laika += laikaSiteRenderer { out => {
+laikaSiteRenderers += laikaSiteRenderer { out => {
   case Emphasized(content, _) => out << """<em class="foo">""" << content << "</em>"
 }}

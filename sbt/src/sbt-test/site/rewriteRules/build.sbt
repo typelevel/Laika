@@ -9,6 +9,6 @@ scalaVersion := "2.10.6"
 
 enablePlugins(LaikaPlugin)
 
-laikaRewriteRules in Laika += laikaRewriteRule {
+laikaRewriteRules += laikaRewriteRule {
   case Emphasized(content,_) => Some(Strong(content))
 }

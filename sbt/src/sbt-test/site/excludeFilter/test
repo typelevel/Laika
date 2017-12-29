@@ -1,4 +1,4 @@
 # test site creation with a custom excludeFilter
-> laika:laikaSite
+> laikaSite
 $ must-mirror target/docs/site/hello2.html expected.html
 $ absent target/docs/site/hello.html

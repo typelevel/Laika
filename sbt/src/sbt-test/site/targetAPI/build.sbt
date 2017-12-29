@@ -6,6 +6,6 @@ scalaVersion := "2.10.6"
 
 enablePlugins(LaikaPlugin)
 
-target in laikaCopyAPI in Laika := (target in laikaSite in Laika).value / "latest" / "api"
+target in laikaCopyAPI := (target in laikaSite).value / "latest" / "api"
 
-laikaIncludeAPI in Laika := true
+laikaIncludeAPI := true
