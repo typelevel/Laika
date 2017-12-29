@@ -1,4 +1,4 @@
 # test site creation with a custom document type matcher
-> laika:site
+> laika:laikaSite
 $ must-mirror target/docs/site/hello.html expected.html
 $ must-mirror target/docs/site/hello2.md src/docs/hello2.md

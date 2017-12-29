@@ -8,7 +8,7 @@ scalaVersion := "2.10.6"
 
 enablePlugins(LaikaPlugin)
 
-docTypeMatcher in Laika := Some(_.name match {
+laikaDocTypeMatcher in Laika := Some(_.name match {
   case "hello.md"   => Markup
   case "hello2.md"  => Static
 })

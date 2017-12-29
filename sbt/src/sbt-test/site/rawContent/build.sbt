@@ -6,4 +6,4 @@ scalaVersion := "2.10.6"
 
 enablePlugins(LaikaPlugin)
 
-rawContent in Laika := true
+laikaRawContent in Laika := true

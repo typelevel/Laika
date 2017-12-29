@@ -11,14 +11,14 @@ scalaVersion := "2.10.6"
 
 enablePlugins(LaikaPlugin)
 
-spanDirectives in Laika += Spans.create("span") {
+laikaSpanDirectives in Laika += Spans.create("span") {
   Spans.Combinators.attribute(Directives.Default) map (Literal(_))
 }
 
-blockDirectives in Laika += Blocks.create("block") {
+laikaBlockDirectives in Laika += Blocks.create("block") {
   Blocks.Combinators.attribute(Directives.Default) map (LiteralBlock(_))
 }
 
-templateDirectives in Laika += Templates.create("directive") {
+laikaTemplateDirectives in Laika += Templates.create("directive") {
   Templates.Combinators.attribute(Directives.Default) map { TemplateString(_) }
 }

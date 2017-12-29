@@ -6,4 +6,4 @@ scalaVersion := "2.10.6"
 
 enablePlugins(LaikaPlugin)
 
-includePDF in Laika := true
+laikaIncludePDF in Laika := true
