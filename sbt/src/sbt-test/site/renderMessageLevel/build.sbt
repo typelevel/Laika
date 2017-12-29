@@ -8,4 +8,4 @@ scalaVersion := "2.10.6"
 
 enablePlugins(LaikaPlugin)
 
-laikaRenderMessageLevel in Laika := Some(Warning)
+laikaRenderMessageLevel := Some(Warning)

@@ -132,77 +132,77 @@ object LaikaPlugin extends AutoPlugin {
   import autoImport._
   import Tasks._
 
-  override def projectSettings: Seq[Setting[_]] = inConfig(Laika)(Seq(
-    sourceDirectories   := Seq(sourceDirectory.value / "docs"),
+  override def projectSettings: Seq[Setting[_]] = Seq(
+    sourceDirectories in Laika := Seq(sourceDirectory.value / "docs"),
 
-    target              := target.value / "docs",
+    target in Laika            := target.value / "docs",
 
-    target in laikaSite      := target.value / "site",
+    target in laikaSite        := (target in Laika).value / "site",
 
-    target in laikaXSLFO     := target.value / "fo",
+    target in laikaXSLFO       := (target in Laika).value / "fo",
 
-    target in laikaPrettyPrint := target.value / "prettyPrint",
+    target in laikaPrettyPrint := (target in Laika).value / "prettyPrint",
 
-    target in laikaCopyAPI   := (target in laikaSite).value / "api",
+    target in laikaCopyAPI     := (target in laikaSite).value / "api",
 
-    excludeFilter       := HiddenFileFilter,
+    excludeFilter in Laika     := HiddenFileFilter,
 
-    laikaEncoding            := "UTF-8",
+    laikaEncoding              := "UTF-8",
 
-    laikaStrict              := false,
+    laikaStrict                := false,
 
-    laikaRenderMessageLevel  := None,
+    laikaRenderMessageLevel    := None,
 
-    laikaLogMessageLevel     := Some(Warning),
+    laikaLogMessageLevel       := Some(Warning),
 
-    laikaDocTypeMatcher      := None,
+    laikaDocTypeMatcher        := None,
 
-    laikaRawContent          := false,
+    laikaRawContent            := false,
 
-    laikaMarkdown            := {
-                          val md = Markdown withBlockDirectives (laikaBlockDirectives.value: _*) withSpanDirectives (laikaSpanDirectives.value: _*)
-                          val md2 = if (laikaRawContent.value) md.withVerbatimHTML else md
-                          if (laikaStrict.value) md2.strict else md2
-                        },
+    laikaMarkdown              := {
+                                 val md = Markdown withBlockDirectives (laikaBlockDirectives.value: _*) withSpanDirectives (laikaSpanDirectives.value: _*)
+                                 val md2 = if (laikaRawContent.value) md.withVerbatimHTML else md
+                                 if (laikaStrict.value) md2.strict else md2
+                               },
 
-    laikaReStructuredText    := {
-                          val rst = ReStructuredText withLaikaBlockDirectives (laikaBlockDirectives.value: _*) withLaikaSpanDirectives
-                            (laikaSpanDirectives.value: _*) withBlockDirectives (rstBlockDirectives.value: _*) withSpanDirectives
-                            (rstSpanDirectives.value: _*) withTextRoles (rstTextRoles.value: _*)
-                          val rst2 = if (laikaRawContent.value) rst.withRawContent else rst
-                          if (laikaStrict.value) rst2.strict else rst2
-                        },
+    laikaReStructuredText      := {
+                                 val rst = ReStructuredText withLaikaBlockDirectives (laikaBlockDirectives.value: _*) withLaikaSpanDirectives
+                                   (laikaSpanDirectives.value: _*) withBlockDirectives (rstBlockDirectives.value: _*) withSpanDirectives
+                                   (rstSpanDirectives.value: _*) withTextRoles (rstTextRoles.value: _*)
+                                 val rst2 = if (laikaRawContent.value) rst.withRawContent else rst
+                                 if (laikaStrict.value) rst2.strict else rst2
+                               },
 
-    laikaMarkupParser        := (Parse as laikaMarkdown.value or laikaReStructuredText.value withoutRewrite),
+    laikaMarkupParser          := (Parse as laikaMarkdown.value or laikaReStructuredText.value withoutRewrite),
 
-    laikaTemplateParser      := (ParseTemplate as DefaultTemplate.withDirectives(laikaTemplateDirectives.value: _*)),
+    laikaTemplateParser        := (ParseTemplate as DefaultTemplate.withDirectives(laikaTemplateDirectives.value: _*)),
 
-    laikaRewriteRules        := Nil,
+    laikaRewriteRules          := Nil,
 
-    laikaSiteRenderers       := Nil,
-    laikaPrettyPrintRenderers:= Nil,
-    laikaFoRenderers         := Nil,
+    laikaSiteRenderers         := Nil,
+    laikaPrettyPrintRenderers  := Nil,
+    laikaFoRenderers           := Nil,
 
-    laikaParallel            := true,
+    laikaParallel              := true,
 
-    laikaSpanDirectives      := Nil,
-    laikaBlockDirectives     := Nil,
-    laikaTemplateDirectives  := Nil,
+    laikaSpanDirectives        := Nil,
+    laikaBlockDirectives       := Nil,
+    laikaTemplateDirectives    := Nil,
 
-    rstSpanDirectives   := Nil,
-    rstBlockDirectives  := Nil,
-    rstTextRoles        := Nil,
+    rstSpanDirectives          := Nil,
+    rstBlockDirectives         := Nil,
+    rstTextRoles               := Nil,
 
-    laikaIncludeAPI          := false,
-    laikaIncludePDF          := false,
+    laikaIncludeAPI            := false,
+    laikaIncludePDF            := false,
 
-    laikaInputTree           := inputTreeTask.value,
-    laikaOutputTree in laikaSite  := outputTreeTask(laikaSite).value,
-    laikaOutputTree in laikaXSLFO := outputTreeTask(laikaXSLFO).value,
+    laikaInputTree             := inputTreeTask.value,
+    laikaOutputTree in laikaSite         := outputTreeTask(laikaSite).value,
+    laikaOutputTree in laikaXSLFO        := outputTreeTask(laikaXSLFO).value,
     laikaOutputTree in laikaPrettyPrint  := outputTreeTask(laikaPrettyPrint).value,
 
-    fopConfig           := None,
-    fopFactory          := fopFactorySetting.value,
+    fopConfig                := None,
+    fopFactory               := fopFactorySetting.value,
 
     laikaSite                := Def.sequential(siteGenTask, copyTask).value,
     laikaGenerate            := generateTask.evaluated,
@@ -213,7 +213,7 @@ object LaikaPlugin extends AutoPlugin {
     laikaCopyAPI             := copyAPITask.value,
     laikaCopyPDF             := copyPDFTask.value,
     laikaPackageSite         := packageSiteTask.value,
-    clean               := cleanTask.value,
+    clean in Laika           := cleanTask.value,
 
     mappings in laikaSite    := sbt.Path.allSubpaths(laikaSite.value).toSeq,
 
@@ -222,7 +222,7 @@ object LaikaPlugin extends AutoPlugin {
     artifactPath in laikaPackageSite := artifactPathSetting(laikaPackageSite).value,
     artifactPath in laikaPDF         := artifactPathSetting(laikaPDF).value
 
-  )) :+ (cleanFiles += (target in Laika).value)
+  ) :+ (cleanFiles += (target in Laika).value)
 
 
   object Tasks {
@@ -237,11 +237,11 @@ object LaikaPlugin extends AutoPlugin {
     def artifactPathSetting (key: Scoped): Initialize[File] = setting {
       val art = (artifact in key).value
       val classifier = art.classifier map ("-"+_) getOrElse ""
-      target.value / (art.name + "-" + projectID.value.revision + classifier + "." + art.extension)
+      (target in Laika).value / (art.name + "-" + projectID.value.revision + classifier + "." + art.extension)
     }
 
     val inputTreeTask: Initialize[Task[InputConfigBuilder]] = task {
-      val builder = Directories(sourceDirectories.value, excludeFilter.value.accept)(laikaEncoding.value)
+      val builder = Directories((sourceDirectories in Laika).value, (excludeFilter in Laika).value.accept)(laikaEncoding.value)
         .withTemplateParser(laikaTemplateParser.value)
       val builder2 = if (laikaParallel.value) builder.inParallel else builder
       laikaDocTypeMatcher.value map (builder2 withDocTypeMatcher) getOrElse builder2
@@ -283,7 +283,7 @@ object LaikaPlugin extends AutoPlugin {
 
       lazy val tree = {
 
-        streams.value.log.info("Reading files from " + sourceDirectories.value.mkString(", "))
+        streams.value.log.info("Reading files from " + (sourceDirectories in Laika).value.mkString(", "))
         streams.value.log.info(Log.inputs(inputs.provider))
 
         val rawTree = laikaMarkupParser.value fromTree inputs

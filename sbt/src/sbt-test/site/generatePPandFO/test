@@ -1,4 +1,4 @@
 # test PrettyPrint and XSL-FO output generation in one operation with the generate task
-> laika:laikaGenerate xslfo prettyPrint
+> laikaGenerate xslfo prettyPrint
 $ must-mirror target/docs/fo/hello.fo expected.fo
 $ must-mirror target/docs/prettyPrint/hello.txt expected.txt

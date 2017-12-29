@@ -1,4 +1,4 @@
 # test site creation with an additional source directory
-> laika:laikaSite
+> laikaSite
 $ must-mirror target/docs/site/hello.html expected.html
 $ must-mirror target/docs/site/hello2.html expected2.html

@@ -1,5 +1,5 @@
 # test site creation with inclusion of API documentation in overridden target directory
-> laika:laikaSite
+> laikaSite
 $ must-mirror target/docs/site/hello.html expected.html
 $ exists target/docs/site/latest/api/index.html
 $ exists target/docs/site/latest/api/package.html
