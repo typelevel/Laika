@@ -118,14 +118,9 @@ val renderer: HTMLWriter =&gt; RenderFunction = { out =&gt;
         
         <h3 id="using-the-sbt-plugin" class="section">Using the sbt Plugin</h3>
         <p>In <code>build.sbt</code>:</p>
-        <pre>import LaikaKeys._
-import laika.tree.Elements._
+        <pre>import laika.tree.Elements._
 
-// ... your standard build stuff
-
-LaikaPlugin.defaults
-
-siteRenderers in Laika += siteRenderer { out =&gt; {
+laikaSiteRenderers += laikaSiteRenderer { out =&gt; {
   case Emphasized(content, _) =&gt; 
       out &lt;&lt; &quot;&quot;&quot;&lt;em class=&quot;big&quot;&gt;&quot;&quot;&quot; &lt;&lt; content &lt;&lt; &quot;&lt;/em&gt;&quot; 
 }}

@@ -125,14 +125,9 @@
         <h3 id="using-the-sbt-plugin" class="section">Using the sbt Plugin</h3>
         <p>The following example of an sbt build file shows how to turn each <code>Emphasized</code> node
         into a <code>Strong</code> node while processing everything else with default rules:</p>
-        <pre>import LaikaKeys._
-import laika.tree.Elements._
+        <pre>import laika.tree.Elements._
 
-// ... your standard build stuff
-
-LaikaPlugin.defaults
-
-rewriteRules in Laika += rewriteRule { 
+laikaRewriteRules += laikaRewriteRule { 
   case Emphasized(content, opts) =&gt; Some(Strong(content, opts))
 }</pre>
         

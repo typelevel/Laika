@@ -92,10 +92,10 @@ Render as HTML from document toFile &quot;hello.html&quot;
         <p>If you are using the sbt plugin you can use several of its task for generating
         HTML output:</p>
         <ul>
-          <li><code>laika:html</code> for transforming a directory of input files to HTML</li>
-          <li><code>laika:generate html &lt;other formats&gt;</code> for transforming a directory of input files to HTML
+          <li><code>laikaHTML</code> for transforming a directory of input files to HTML</li>
+          <li><code>laikaGenerate html &lt;other formats&gt;</code> for transforming a directory of input files to HTML
           and other output formats with a single parse operation</li>
-          <li><code>laika:site</code> for generating a site optionally containing API documentation (scaladoc) and
+          <li><code>laikaSite</code> for generating a site optionally containing API documentation (scaladoc) and
           PDF files.</li>
         </ul>
         <p>See <a href="sbt.html#using-the-sbt-plugin">Using the sbt Plugin</a> for more details.</p>
@@ -178,10 +178,10 @@ Render as PDF from tree toFile &quot;out.pdf&quot;</pre>
         <p>If you are using the sbt plugin you can use several of its task for generating
         PDF files:</p>
         <ul>
-          <li><code>laika:pdf</code> for transforming a directory of input files to a single PDF file</li>
-          <li><code>laika:generate pdf &lt;other formats&gt;</code> for transforming a directory of input files to PDF
+          <li><code>laikaPDF</code> for transforming a directory of input files to a single PDF file</li>
+          <li><code>laikaGenerate pdf &lt;other formats&gt;</code> for transforming a directory of input files to PDF
           and other output formats with a single parse operation</li>
-          <li><code>laika:site</code> for generating a site optionally containing API documentation (scaladoc) and
+          <li><code>laikaSite</code> for generating a site optionally containing API documentation (scaladoc) and
           PDF files.</li>
         </ul>
         <p>See <a href="sbt.html#using-the-sbt-plugin">Using the sbt Plugin</a> for more details.</p>
@@ -328,7 +328,7 @@ Transform from Markdown to PDF.withConfig(config) fromDirectory
         The available options are described in the <a href="https://xmlgraphics.apache.org/fop/2.1/configuration.html">Apache FOP documentation</a>.</p>
         <p>When you are using the sbt plugin, you can specify an Apache FOP configuration file with
         the <code>fopConfig</code> setting:</p>
-        <pre>fopConfig in Laika := Some(baseDirectory.value / &quot;customFop.xconf&quot;)
+        <pre>fopConfig := Some(baseDirectory.value / &quot;customFop.xconf&quot;)
 </pre>
         <p>Note that the default is <code>None</code> as FOPs default configuration is often sufficient.</p>
         <p>When you are using Laika embedded, the PDF renderer has a hook to specify a custom
@@ -380,8 +380,8 @@ Render as XSLFO from document toFile &quot;hello.fo&quot;
         <p>If you are using the sbt plugin you can use several of its task for generating
         XSL-FO output:</p>
         <ul>
-          <li><code>laika:xslfo</code> for transforming a directory of input files to XSL-FO</li>
-          <li><code>laika:generate xslfo &lt;other formats&gt;</code> for transforming a directory of input files to XSL-FO
+          <li><code>laikaXSLFO</code> for transforming a directory of input files to XSL-FO</li>
+          <li><code>laikaGenerate xslfo &lt;other formats&gt;</code> for transforming a directory of input files to XSL-FO
           and other output formats with a single parse operation</li>
         </ul>
         <p>See <a href="sbt.html#using-the-sbt-plugin">Using the sbt Plugin</a> for more details. </p>
@@ -416,7 +416,7 @@ val doc = Parse as Markdown fromString input
 
 Render as PrettyPrint from doc toString</pre>
         <p>The above will yield the same result as the previous example.</p>
-        <p>Finally, if you are using the sbt plugin you can use the <code>laika:prettyPrint</code> task.</p>      
+        <p>Finally, if you are using the sbt plugin you can use the <code>laikaPrettyPrint</code> task.</p>      
 
       </div>
     </div>

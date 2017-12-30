@@ -298,7 +298,7 @@ Transform from rst to HTML fromFile &quot;hello.rst&quot; toFile &quot;hello.htm
   // implementation producing a `Block` element
 }
 
-rstBlockDirectives in Laika += directive
+rstBlockDirectives += directive
 
 </pre>
         <p>Span Directives:</p>
@@ -306,13 +306,13 @@ rstBlockDirectives in Laika += directive
   // implementation producing a `Span` element
 }
 
-rstSpanDirectives in Laika += directive</pre>
+rstSpanDirectives += directive</pre>
         <p>Text Roles:</p>
         <pre>val role = TextRole(&quot;name&quot;, &quot;default&quot;) {
   // implementation producing a `Span` element
 }
 
-rstTextRoles in Laika += role
+rstTextRoles += role
 </pre>      
 
       </div>

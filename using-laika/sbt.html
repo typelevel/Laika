@@ -79,14 +79,14 @@
         <h2 id="adding-the-plugin-to-the-build" class="section">Adding the Plugin to the Build</h2>
         <p>Laika&#39;s sbt plugin requires sbt 0.13.x.</p>
         <p>First add the plugin to <code>project/plugins.sbt</code>:</p>
-        <pre>addSbtPlugin(&quot;org.planet42&quot; % &quot;laika-sbt&quot; % &quot;0.6.0&quot;)</pre>
+        <pre>addSbtPlugin(&quot;org.planet42&quot; % &quot;laika-sbt&quot; % &quot;0.7.5&quot;)</pre>
         <p>If you want to install it globally, add the line above to
-        <code>~/.sbt/0.13/plugins/build.sbt</code> instead.</p>
-        <p>Then, in your project&#39;s <code>build.sbt</code>, simply import the default settings:</p>
-        <pre>LaikaPlugin.defaults
+        <code>~/.sbt/1.0/plugins/build.sbt</code> instead.</p>
+        <p>Then enable the plugin in your project&#39;s <code>build.sbt</code>:</p>
+        <pre>enablePlugins(LaikaPlugin)
 </pre>
         <p>You can now add content to the directory <code>src/docs</code> inside your project 
-        and run <code>laika:site</code> from within sbt to generate the site in 
+        and run <code>laikaSite</code> from within sbt to generate the site in 
         <code>target/docs/site</code>. See the following sections for details.</p>
         
         <h2 id="editing-content" class="section">Editing Content</h2>
@@ -142,7 +142,7 @@
         <p>Laika currently supports the following sbt tasks:</p>
         <ul>
           <li>
-            <p><code>laika:site</code>
+            <p><code>laikaSite</code>
             Processes all files from the source directories and renders the 
             result to <code>target/docs/site</code> (unless overridden). By default only
             HTML output gets rendered by this task. You can add API documentation
@@ -150,9 +150,9 @@
             from the same markup sources with the <code>includePDF</code> setting.</p>
           </li>
           <li>
-            <p><code>laika:packageSite</code><br>
+            <p><code>laikaPackageSite</code><br>
             Packages the site into a zip file inside the <code>target/docs</code>
-            directory. Depends on the <code>laika:site</code> task.</p>
+            directory. Depends on the <code>laikaSite</code> task.</p>
           </li>
           <li>
             <p><code>laika:clean</code><br>
@@ -161,93 +161,66 @@
             Laika together with the target directories of other tasks.</p>
           </li>
           <li>
-            <p><code>laika:generate</code>
+            <p><code>laikaGenerate</code>
             Generates the output format specified as arguments to this task.
-            For example <code>laika:generate html pdf</code> generates an HTML site as well
+            For example <code>laikaGenerate html pdf</code> generates an HTML site as well
             as a PDF file from the parsed source markup. The markup will only
             get parsed once, therefore this task is very efficient for producing
             multiple output formats. The formats supported as arguments to this
             task are <code>html</code>, <code>pdf</code>, <code>xslfo</code> and <code>prettyPrint</code>. If you only want
             to generate one output format there are shortcut tasks for each of them:
-            (<code>laika:html</code>, <code>laika:pdf</code>, <code>laika:xslfo</code>, <code>laika:prettyPrint</code>)</p>
+            (<code>laikaHTML</code>, <code>laikaPDF</code>, <code>laikaXSLFO</code>, <code>laikaPrettyPrint</code>)</p>
           </li>
         </ul>
-        <p>The next version of the plugin will add support for epub (0.7 release).</p>
+        <p>A future version of the plugin will add support for epub (scheduled for the 0.10 release).</p>
         <p>The default settings for these tasks should be sufficient for many use cases.
         The following sections show how you can override the defaults. </p>
         
         <h2 id="basic-settings" class="section">Basic Settings</h2>
-        <p>The basic structure of a build with custom Laika settings looks like this:</p>
-        <pre>import LaikaKeys._
-
-name := &quot;...&quot;
-
-organization := &quot;...&quot;
-
-version := &quot;0.1&quot;
-
-LaikaPlugin.defaults
-
-&lt;key&gt; in Laika := &lt;value&gt;
-
-&lt;key&gt; in Laika := &lt;value&gt;
-
-[...]</pre>
-        <p>Where <code>&lt;key&gt;</code> is one of the setting keys listed below.</p>
-        <p>All keys for the Laika plugin are scoped to the Laika configuration, as the keys
-        are a mix of reused built-in keys and custom Laika keys.</p>
-        <p>If you don&#39;t want to specify the Laika configuration with every setting you 
-        can also use an alternative syntax:</p>
-        <pre>inConfig(Laika)(Seq(
-  &lt;key&gt; := &lt;value&gt;,
-  &lt;key&gt; := &lt;value&gt;
-))</pre>
-        <p>The downside of this syntax is that you cannot use blank lines between settings 
-        (in .sbt files).</p>
         <p>The following list shows the names, types and default values of the basic settings:</p>
         <ul>
           <li>
-            <p><code>sourceDirectories</code> - <code>Seq[File]</code> - default <code>Seq(&quot;src/docs&quot;)</code><br>
+            <p><code>sourceDirectories in Laika</code> - <code>Seq[File]</code> - default <code>Seq(&quot;src/docs&quot;)</code><br>
             Specifies one or more
             source directories to process. All specified directories can contain any of the supported
             file types and will get merged into a tree with a single root.</p>
           </li>
           <li>
-            <p><code>target</code> - <code>File</code> - default <code>target/docs</code><br>
+            <p><code>target in Laika</code> - <code>File</code> - default <code>target/docs</code><br>
             Specifies the directory where the plugin
             should generate the site. This key also has separate values scoped to the individual tasks:
-            <code>target in site</code> (default <code>target/docs/site</code>), <code>target in copyAPI</code> (default <code>target/docs/site/api</code>)
-            and <code>target in packageSite</code> (default <code>target/docs</code>). </p>
+            <code>target in laikaSite</code> (default <code>target/docs/site</code>), <code>target in laikaCopyAPI</code> (default <code>target/docs/site/api</code>)
+            and <code>target in laikaPackageSite</code> (default <code>target/docs</code>). </p>
           </li>
           <li>
-            <p><code>excludeFilter</code> - <code>FileFilter</code> - default <code>HiddenFileFilter</code><br>
+            <p><code>excludeFilter in Laika</code> - <code>FileFilter</code> - default <code>HiddenFileFilter</code><br>
             Specifies files to exclude from processing.
             Note that Laika ignores any <code>includeFilter</code> you set, as the tool needs more than a simple yes/no
             decision for deciding how to process files. If a simple exclusion filter is not sufficient, you can
-            specify a <code>docTypeMatcher</code> as explained in <a href="#settings-for-customization-hooks">Settings for Customization Hooks</a>.</p>
+            specify a <code>laikaDocTypeMatcher</code> as explained in <a href="#settings-for-customization-hooks">Settings for Customization Hooks</a>.</p>
           </li>
           <li>
-            <p><code>includeAPI</code> - <code>Boolean</code> - default <code>false</code><br>
-            Indicates whether generated scaladoc APIs should be included when running the <code>laika:site</code> task. 
+            <p><code>laikaIncludeAPI</code> - <code>Boolean</code> - default <code>false</code><br>
+            Indicates whether generated scaladoc APIs should be included when running the <code>laikaSite</code> task. 
             The folder for the API can be set with <code>target in copyAPI</code> (default <code>target/docs/site/api</code>).</p>
           </li>
           <li>
-            <p><code>includePDF</code> - <code>Boolean</code> - default <code>false</code>
-            Indicates whether a generated PDF file should be included when running the <code>laika:site</code> task.
+            <p><code>laikaIncludePDF</code> - <code>Boolean</code> - default <code>false</code>
+            Indicates whether a generated PDF file should be included when running the <code>laikaSite</code> task.
             The file name for the PDF can be set with <code>artifact in pdf</code> (default <code>target/docs/site/&lt;noduleName&gt;-&lt;version&gt;.pdf</code>).</p>
           </li>
           <li>
-            <p><code>encoding</code> - <code>String</code> - default <code>UTF-8</code><br>
+            <p><code>laikaEncoding</code> - <code>String</code> - default <code>UTF-8</code><br>
             Specifies the character encoding for input and output.</p>
           </li>
           <li>
-            <p><code>strict</code> - <code>Boolean</code> - default <code>false</code><br>
+            <p><code>laikaStrict</code> - <code>Boolean</code> - default <code>false</code><br>
             Indicates whether all Laika-specific extensions to the 
             text markup formats should be disabled. When strict is set to true, features like configuration
             headers in markup files or Laika directives are no longer available.</p>
           </li>
           <li>
-            <p><code>rawContent</code> - <code>Boolean</code> - default <code>false</code><br>
+            <p><code>laikaRawContent</code> - <code>Boolean</code> - default <code>false</code><br>
             Indicates whether raw content like embedded verbatim
             HTML is supported in text markup. Setting this flag to true has different effects for the two
             supported markup formats: In Markdown it enables support for raw HTML interspersed with text markup
@@ -256,7 +229,7 @@ LaikaPlugin.defaults
             only HTML would make sense). </p>
           </li>
           <li>
-            <p><code>logMessageLevel</code> - <code>Option[MessageLevel]</code> - default <code>Some(Warning)</code><br>
+            <p><code>laikaLogMessageLevel</code> - <code>Option[MessageLevel]</code> - default <code>Some(Warning)</code><br>
             Specifies the log level for
             problems found in markup files, like unresolved link references or directives. For most of these
             errors the parser recovers and includes the illegal node as plain text in the output, but in most
@@ -264,14 +237,14 @@ LaikaPlugin.defaults
             currently not used by Laika.</p>
           </li>
           <li>
-            <p><code>renderMessageLevel</code> - <code>Option[MessageLevel]</code> - default <code>None</code><br>
+            <p><code>laikaRenderMessageLevel</code> - <code>Option[MessageLevel]</code> - default <code>None</code><br>
             In addition to just logging errors,
             illegal nodes can also be rendered to the target HTML, so you can see them in context. The messages
             are rendered with a span with two classes: <code>system-message</code> and the second specifying the level (<code>error</code>,
             <code>warning</code>, etc.), so you can add CSS to easily identify these nodes in the page.</p>
           </li>
           <li>
-            <p><code>parallel</code> - <code>Boolean</code> - default <code>true</code><br>
+            <p><code>laikaParallel</code> - <code>Boolean</code> - default <code>true</code><br>
             Indicates whether the parsers and renderers should be 
             processed in parallel. If set to true, there is only a short synchronization step between parsing
             and rendering where things like cross references get resolved. Most of
@@ -291,23 +264,23 @@ import laika.tree.Elements._</pre>
         <h3 id="custom-renderers" class="section">Custom Renderers</h3>
         <p>A custom renderer allows to override the generated output for one or more specific node
         types, while falling back to the default renderers for all other node types.</p>
-        <p>The <code>siteRenderers</code> setting is of type <code>Seq[HTMLWriter =&gt; RenderFunction]</code> where <code>RenderFunction</code>
+        <p>The <code>laikaSiteRenderers</code> setting is of type <code>Seq[HTMLWriter =&gt; RenderFunction]</code> where <code>RenderFunction</code>
         is a type alias for <code>PartialFunction[Element,Unit]</code>. <code>Element</code> is the base trait for all nodes
         in a document tree. By default the <code>siteRenderers</code> setting is empty, meaning
         Laika will use the default renderers for all node types. </p>
         <p>The following simple example shows how you can add a style to the renderer for
         the <code>&lt;em&gt;</code> tag:</p>
-        <pre>siteRenderers in Laika += siteRenderer { out =&gt; {
+        <pre>laikaSiteRenderers += laikaSiteRenderer { out =&gt; {
   case Emphasized(content, _) =&gt; 
       out &lt;&lt; &quot;&quot;&quot;&lt;em class=&quot;big&quot;&gt;&quot;&quot;&quot; &lt;&lt; content &lt;&lt; &quot;&lt;/em&gt;&quot; 
 }}</pre>
         <p>For more details see the chapter <a href="../customizing-laika/customize-rendering.html#customizing-renderers">Customizing Renderers</a>.</p>
         <p>There are similar settings for customizing renderers of other output formats. </p>
-        <p>The <code>foRenderers</code> setting is of type <code>Seq[FOWriter =&gt; RenderFunction]</code> and can be used
+        <p>The <code>laikaFoRenderers</code> setting is of type <code>Seq[FOWriter =&gt; RenderFunction]</code> and can be used
         to modify the output of the XSL-FO and PDF renderers (the latter uses XSL-FO as an 
         interim format). In most cases it is more convenient to style a PDF with Laika&#39;s
         CSS support.</p>
-        <p>Finally the <code>prettyPrintRenderers</code> setting is of type <code>Seq[TextWriter =&gt; RenderFunction]</code>
+        <p>Finally the <code>laikaPrettyPrintRenderers</code> setting is of type <code>Seq[TextWriter =&gt; RenderFunction]</code>
         and can be used to adjust pretty print output, which shows a textual representation of the
         document tree model and is primarily useful for debugging purposes. Adjusting this renderer
         should rarely be required.</p>
@@ -316,7 +289,7 @@ import laika.tree.Elements._</pre>
         <p>When customizing renderers you have to repeat the step for each output format (subsequent
         versions will add support for PDF and epub). A rewrite rule lets you express a transformation
         of a node inside the document tree before rendering, so it would have an effect on all output formats.</p>
-        <p>The <code>rewriteRules</code> setting is of type <code>Seq[DocumentContext =&gt; RewriteRule]</code> where <code>RewriteRule</code>
+        <p>The <code>laikaRewriteRules</code> setting is of type <code>Seq[DocumentContext =&gt; RewriteRule]</code> where <code>RewriteRule</code>
         is a type alias for <code>PartialFunction[Element,Option[Element]]</code>. By default this setting is empty, 
         meaning Laika will only use the built-in rewrite rules like those for resolving link references.</p>
         <p>If the partial function is not defined for a particular element the old element is kept in the tree.
@@ -324,7 +297,7 @@ import laika.tree.Elements._</pre>
         If the function returns <code>None</code> the old element is removed from the tree.</p>
         <p>The following (somewhat contrived, but simple) example shows how to turn each <code>Emphasized</code> node
         into a <code>Strong</code> node:</p>
-        <pre>rewriteRules in Laika += rewriteRule { 
+        <pre>laikaRewriteRules += laikaRewriteRule { 
   case Emphasized(content, opts) =&gt; Some(Strong(content, opts))
 }</pre>
         <p>For more details see the chapter <a href="../customizing-laika/tree-rewriting.html#document-tree-rewriting">Document Tree Rewriting</a>.</p>
@@ -358,8 +331,8 @@ import laika.tree.Elements._</pre>
         <p>The Laika variant is more flexible, as it can be used in template files as well
         as Markdown and reStructuredText markup. It is also somewhat simpler in syntax
         and configuration while offering the same functionality. It comes with a small
-        set of predefined directives in this syntax. Use the keys <code>spanDirectives</code>,
-        <code>blockDirectives</code> or <code>templateDirectives</code> for adding custom implementations.
+        set of predefined directives in this syntax. Use the keys <code>laikaSpanDirectives</code>,
+        <code>laikaBlockDirectives</code> or <code>laikaTemplateDirectives</code> for adding custom implementations.
         For more details on this directive type see <a href="../extending-laika/directive.html#directives">Directives</a>.</p>
         <p>The examples in the two chapters linked above show how to implement a directive
         and register it either for use in sbt or in embedded mode.</p>
@@ -372,18 +345,13 @@ import laika.tree.Elements._</pre>
 
 addSbtPlugin(&quot;com.typesafe.sbt&quot; % &quot;sbt-ghpages&quot; % &quot;0.5.2&quot;)</pre>
         <p>Configure the plugins in <code>build.sbt</code>:</p>
-        <pre>import LaikaKeys._
-import GhPagesKeys._
-
-LaikaPlugin.defaults
-
-ghpages.settings
+        <pre>enablePlugins(LaikaPluging, GhpagesPlugin)
 
 git.remoteRepo := &quot;git@github.com:{your username}/{your project}.git&quot;
 
 git.gitCurrentBranch := &quot;master&quot;
 
-mappings in synchLocal := (mappings in LaikaKeys.site in Laika).value
+mappings in synchLocal := (mappings in laikaSite).value
 </pre>
         <p>It is the last line that connects the two plugins, but there is no need
         to understand how that line works.</p>

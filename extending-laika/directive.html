@@ -180,13 +180,7 @@
         All the examples below refer to the <code>directive</code> variable we declared
         in the example in the previous section.</p>
         <p><strong>sbt Plugin</strong>:</p>
-        <pre>import LaikaKeys._
-
-// ... your standard build stuff
-
-LaikaPlugin.defaults
-
-spanDirectives in Laika += directive
+        <pre>laikaSpanDirectives += directive
 </pre>
         <p>This registers the directive for both Markdown and reStructuredText
         parsers. </p>
@@ -352,7 +346,7 @@ val directive = Spans.create(&quot;name&quot;) {
 </pre>
         <p>Registration:</p>
         <pre>// for Markdown and reStructuredText with sbt plugin:
-spanDirectives in Laika += directive // in build.sbt
+laikaSpanDirectives += directive // in build.sbt
 
 // for Markdown with Transform API or Parse API:
 Transform from Markdown.withSpanDirectives(directive) to ...
@@ -377,7 +371,7 @@ val directive = Blocks.create(&quot;name&quot;) {
 </pre>
         <p>Registration:</p>
         <pre>// for Markdown and reStructuredText with sbt plugin:
-blockDirectives in Laika += directive // in build.sbt
+laikaBlockDirectives += directive // in build.sbt
 
 // for Markdown with Transform API or Parse API:
 Transform from Markdown.withBlockDirectives(directive) to ...
@@ -402,7 +396,7 @@ val directive = Templates.create(&quot;name&quot;) {
 </pre>
         <p>Registration:</p>
         <pre>// for templates with sbt plugin:
-templateDirectives in Laika += directive // in build.sbt
+laikaTemplateDirectives += directive // in build.sbt
 
 // for Markdown in Transform API:
 Transform from Markdown to HTML fromDirectory 
