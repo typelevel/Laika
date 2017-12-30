@@ -71,7 +71,7 @@ lazy val core = project.in(file("core"))
   .settings(publishSettings)
   .settings(
     name := "laika-core",
-    libraryDependencies ++= Seq(config, scalatest, jTidy, parser)
+    libraryDependencies ++= Seq(config, scalatest, jTidy)
   )
   
 lazy val pdf = project.in(file("pdf"))
