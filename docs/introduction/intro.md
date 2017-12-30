@@ -162,6 +162,16 @@ Road Map
 Release History
 ---------------
 
+* __0.7.5__ (Dec 30, 2017):
+
+    * Support for sbt 1.0
+    * Laika's sbt plugin is now an AutoPlugin
+    * Prefixed all task and setting keys to adhere to recommended naming pattern
+      (e.g. laikaGenerate) to avoid name conflicts for autoImports
+    * Adjustments for API changes in sbt 1.0
+    * Bug fixes in the library
+    * Drop support for sbt 0.13 and Scala 2.10
+
 * __0.7.0__ (April 17, 2017):
 
     * Support for Scala 2.12 (with continued support for 2.11 and 2.10)

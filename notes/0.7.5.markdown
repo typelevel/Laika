@@ -1,0 +1,13 @@
+
+Support for sbt 1.0.
+
+* Laika's sbt plugin is now an AutoPlugin
+* Prefixed all task and setting keys to adhere to recommended naming pattern
+  (e.g. laikaGenerate)
+* Adjustments for API changes in sbt 1.0
+* Bug fixes in the library
+* Drop support for sbt 0.13 and Scala 2.10
+
+The unusual version number reflects the fact that users of the sbt plugin need
+to update their build for the changes in the key names, while for users of
+the library this release is a drop-in replacement containing only bug fixes.
