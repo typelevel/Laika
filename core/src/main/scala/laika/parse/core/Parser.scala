@@ -176,7 +176,7 @@ abstract class Parser[+T] {
 
   /** Returns a parser that repeatedly applies this parser (at least once).
     */
-  def + = rep1(this)
+  def + = rep.min(1)
 
   /** Returns a parser that optionally parses what this parser parses.
     */

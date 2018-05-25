@@ -42,12 +42,12 @@ class BaseParsersSpec extends FlatSpec with Matchers with ParseResultHelpers wit
   
   
   "The repMax parser" should "not parse more than the specified maximum number of items" in {
-    val p = repMax(2, anyOf('a','b').min(1) ~ anyOf('c','d').min(1) ^^ {case s1~s2 => s1+s2})
+    val p = (anyOf('a','b').min(1) ~ anyOf('c','d').min(1) ^^ {case s1~s2 => s1+s2}).rep.max(2)
     Parsing ("abcdabcdabcdabcd") using p should produce (List("abcd","abcd"))
   }
   
   it should "succeed when the number of repetitions is lower than the specified maximum number of items" in {
-    val p = repMax(2, anyOf('a','b').min(1) ~ anyOf('c','d').min(1) ^^ {case s1~s2 => s1+s2})
+    val p = (anyOf('a','b').min(1) ~ anyOf('c','d').min(1) ^^ {case s1~s2 => s1+s2}).rep.max(2)
     Parsing ("abcdab") using p should produce (List("abcd"))
   }
   

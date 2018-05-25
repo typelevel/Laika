@@ -126,7 +126,7 @@ class URIParsers {
       if (num >= 0 && num < 256) Right(num) else Left("Number must be between 1 and 255")
     }
     
-    decOctet ~ repN(3, '.' ~ decOctet) ^^ flatten
+    decOctet ~ ('.' ~ decOctet).rep.take(3) ^^ flatten
   }
   
   /** Parses an IPv6 address as defined in RFC 3986.
@@ -155,15 +155,15 @@ class URIParsers {
   
     val ls32 = (h16 ~ ':' ~ h16) | ipv4address
   
-    (repN(6, h16Col) ~ ls32) |
-    ("::" ~ repN(5, h16Col) ~ ls32) |
-    (opt(h16) ~ "::" ~ repN(4, h16Col) ~ ls32) |
-    (opt(repMax(1, h16Col) ~ h16) ~ "::" ~ repN(3, h16Col) ~ ls32) |
-    (opt(repMax(2, h16Col) ~ h16) ~ "::" ~ repN(2, h16Col) ~ ls32) |
-    (opt(repMax(3, h16Col) ~ h16) ~ "::" ~ h16Col ~ ls32) |
-    (opt(repMax(4, h16Col) ~ h16) ~ "::" ~ ls32) |
-    (opt(repMax(5, h16Col) ~ h16) ~ "::" ~ h16) |
-    (opt(repMax(6, h16Col) ~ h16) ~ "::")
+    (h16Col.rep.take(6) ~ ls32) |
+    ("::" ~ h16Col.rep.take(5) ~ ls32) |
+    (opt(h16) ~ "::" ~ h16Col.rep.take(4) ~ ls32) |
+    (opt(h16Col.rep.max(1) ~ h16) ~ "::" ~ h16Col.rep.max(3) ~ ls32) |
+    (opt(h16Col.rep.max(2) ~ h16) ~ "::" ~ h16Col.rep.max(2) ~ ls32) |
+    (opt(h16Col.rep.max(3) ~ h16) ~ "::" ~ h16Col ~ ls32) |
+    (opt(h16Col.rep.max(4) ~ h16) ~ "::" ~ ls32) |
+    (opt(h16Col.rep.max(5) ~ h16) ~ "::" ~ h16) |
+    (opt(h16Col.rep.max(6) ~ h16) ~ "::")
   }
   
   /** Parses an ip literal as defined in RFC 3986.
