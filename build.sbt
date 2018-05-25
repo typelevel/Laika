@@ -6,7 +6,7 @@ lazy val basicSettings = Seq(
   description           := "Text Markup Transformer for sbt and Scala applications",
   startYear             := Some(2012),
   licenses              := Seq("Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
-  scalaVersion          := "2.12.4",
+  scalaVersion          := "2.12.6",
   scalacOptions         := Opts.compile.encoding("UTF-8") :+ 
                            Opts.compile.deprecation :+ 
                            Opts.compile.unchecked :+ 
@@ -18,7 +18,7 @@ lazy val basicSettings = Seq(
 
 lazy val moduleSettings = basicSettings ++ Seq(
   crossVersion       := CrossVersion.binary,
-  crossScalaVersions := Seq("2.12.4", "2.11.12")
+  crossScalaVersions := Seq("2.12.6", "2.11.12")
 )
 
 lazy val publishSettings = Seq(
@@ -90,7 +90,7 @@ lazy val plugin = project.in(file("sbt"))
   .settings(
     name := "laika-sbt",
     sbtPlugin := true,
-    crossScalaVersions := Seq("2.12.4"),
+    crossScalaVersions := Seq("2.12.6"),
     publishMavenStyle := false,
     bintrayRepository := "sbt-plugins",
     bintrayOrganization := None,
