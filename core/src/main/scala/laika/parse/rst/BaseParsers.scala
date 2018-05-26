@@ -30,7 +30,7 @@ object BaseParsers {
   /** Parses punctuation characters as supported by transitions (rules) and
     *  overlines and underlines for header sections.
     */
-  val punctuationChar: Characters =
+  val punctuationChar: Characters[String] =
     anyOf('!','"','#','$','%','&','\'','(',')','[',']','{','}','*','+',',','-','.',':',';','/','<','>','=','?','@','\\','^','_','`','|','~')
 
   /** Parses a simple reference name that only allows alphanumerical characters

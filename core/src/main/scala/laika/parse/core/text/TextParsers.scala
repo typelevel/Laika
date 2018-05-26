@@ -60,7 +60,7 @@ object TextParsers extends Parsers {
   /** Parses horizontal whitespace (space and tab).
     * Always succeeds, consuming all whitespace found.
     */
-  lazy val ws: Characters = anyOf(' ','\t')
+  lazy val ws: Characters[String] = anyOf(' ','\t')
 
   /** Succeeds at the end of a line, including the end of the input.
    *  Produces an empty string as a result and consumes any new line characters.
@@ -130,27 +130,27 @@ object TextParsers extends Parsers {
    *  This parser would consume the entire input unless a `max` constraint
    *  is specified.
    */
-  val any: Characters = Characters.anyWhile(_ => true)
+  val any: Characters[String] = Characters.anyWhile(_ => true)
   
   /** Consumes any number of consecutive occurrences of the specified characters.
    *  Always succeeds unless a minimum number of required matches is specified.
    */
-  def anyOf (chars: Char*): Characters = Characters.include(chars)
+  def anyOf (chars: Char*): Characters[String] = Characters.include(chars)
   
   /** Consumes any number of consecutive characters that are not one of the specified characters.
    *  Always succeeds unless a minimum number of required matches is specified.
    */
-  def anyBut (chars: Char*): Characters = Characters.exclude(chars)
+  def anyBut (chars: Char*): Characters[String] = Characters.exclude(chars)
   
   /** Consumes any number of consecutive characters that are in one of the specified character ranges.
    *  Always succeeds unless a minimum number of required matches is specified.
    */
-  def anyIn (ranges: Traversable[Char]*): Characters = Characters.include(ranges.flatten)
+  def anyIn (ranges: Traversable[Char]*): Characters[String] = Characters.include(ranges.flatten)
 
   /** Consumes any number of consecutive characters which satisfy the specified predicate.
     *  Always succeeds unless a minimum number of required matches is specified.
     */
-  def anyWhile (p: Char => Boolean): Characters = Characters.anyWhile(p)
+  def anyWhile (p: Char => Boolean): Characters[String] = Characters.anyWhile(p)
 
 
   def delimitedBy (chars: Char*): DelimitedText[String] with DelimiterOptions =

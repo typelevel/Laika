@@ -43,7 +43,7 @@ class BlockParsers (recParsers: RecursiveParsers) {
   import recParsers._
 
   
-  val ws: Characters = anyOf(' ') // other whitespace has been replaced with spaces by preprocessor
+  val ws: Characters[String] = anyOf(' ') // other whitespace has been replaced with spaces by preprocessor
                         
 
   /** Parses a transition (rule).
