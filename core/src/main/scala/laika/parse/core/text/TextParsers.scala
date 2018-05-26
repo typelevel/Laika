@@ -72,7 +72,7 @@ object TextParsers extends Parsers {
     else Failure(Message.ExpectedEOL, in)
   }
 
-  val wsEol: Parser[Any] = ws ~ eol
+  val wsEol: Parser[Unit] = ws.^ ~> eol
   
   /** Succeeds at the end of the input.
    */

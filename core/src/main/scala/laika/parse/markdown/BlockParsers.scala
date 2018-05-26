@@ -45,41 +45,37 @@ class BlockParsers (recParsers: RecursiveParsers) {
 
   /** Parses a single tab or space character.
    */
-  val tabOrSpace: Parser[Any] = anyOf(' ','\t') take 1
+  val tabOrSpace: Parser[Unit] = anyOf(' ','\t').take(1).noCapture
 
-  /** Parses 0 or 1 space character, always succeeds.
-   */
-  val optSpace: Parser[String] = anyOf(' ') max 1
-  
   /** Parses up to 3 space characters. In Markdown an indentation
    *  of up to 3 spaces is optional and does not have any influence
    *  on the parsing logic.
    */
-  val insignificantSpaces: Parser[String] = anyOf(' ') max 3
+  val insignificantSpaces: Parser[Unit] = anyOf(' ').max(3).noCapture
 
   private val processWS = new WhitespacePreprocessor
 
 
   /** Parses the start of a bullet list item.
     */
-  val bulletListItemStart: Parser[String] = anyOf('*','-','+').take(1) <~ (anyOf(' ','\t') min 1)
+  val bulletListItemStart: Parser[String] = anyOf('*','-','+').take(1) <~ anyOf(' ', '\t').min(1).^
 
   /** Parses the start of an enumerated list item.
     */
-  val enumListItemStart: Parser[String] = anyIn('0' to '9').min(1) <~ '.' ~ (anyOf(' ','\t') min 1)
+  val enumListItemStart: Parser[String] = anyIn('0' to '9').min(1) <~ '.' ~ anyOf(' ', '\t').min(1).^
   
   /** Parses a link definition in the form `[id]: <url> "title"`.
     *  The title is optional as well as the quotes around it and the angle brackets around the url.
     */
   val linkTarget: Parser[ExternalLinkDefinition] = {
 
-    val id = '[' ~> escapedUntil(']') <~ ':' <~ ws
+    val id = '[' ~> escapedUntil(']') <~ ':' <~ ws.^
     val url = (('<' ~> escapedUntil('>')) | escapedText(delimitedBy(' ', '\n').acceptEOF.keepDelimiter)) ^^ { _.mkString }
 
     def enclosedBy(start: Char, end: Char) =
       start ~> delimitedBy(end.toString, lookAhead(wsEol)).failOn('\r', '\n') ^^ { _.mkString }
 
-    val title = (ws ~ opt(eol) ~ ws) ~> (enclosedBy('"', '"') | enclosedBy('\'', '\'') | enclosedBy('(', ')'))
+    val title = (ws.^ ~ opt(eol) ~ ws.^) ~> (enclosedBy('"', '"') | enclosedBy('\'', '\'') | enclosedBy('(', ')'))
 
     id ~ url ~ opt(title) <~ wsEol ^^ { case id ~ url ~ title => ExternalLinkDefinition(id.toLowerCase, url, title) }
   }
@@ -192,7 +188,9 @@ class BlockParsers (recParsers: RecursiveParsers) {
 
     val startChars = anyOf(decoratedBlocks.keySet.toSeq:_*).take(1)
 
-    val decoratedBlock = lookAhead(startChars <~ restOfLine ~ not(setextDecoration)) >> { startChar =>
+    val skipLine = anyBut('\n','\r').^ <~ eol
+
+    val decoratedBlock = lookAhead(startChars <~ skipLine ~ not(setextDecoration)) >> { startChar =>
       decoratedBlocks(startChar.charAt(0))
     }
 
@@ -231,7 +229,7 @@ class BlockParsers (recParsers: RecursiveParsers) {
    *  characters with optional spaces between them
    */
   lazy val rule: Parser[Block] = {
-    def pattern (c: Char) = c ~ (anyOf(' ') ~ c).rep.min(2)
+    def pattern (c: Char) = c ~ (anyOf(' ').^ ~ c).rep.min(2)
     (pattern('*') | pattern('-') | pattern('_')) ~ wsEol ^^^ { Rule() }
   }
 
@@ -245,7 +243,7 @@ class BlockParsers (recParsers: RecursiveParsers) {
    *  with subsequent lines optionally starting with a `'>'`, too.
    */
   lazy val quotedBlock: Parser[QuotedBlock] = {
-    val decoratedLine = '>' ~ (ws max 1)
+    val decoratedLine = '>' ~ ws.max(1).noCapture
     recursiveBlocks(mdBlock(decoratedLine, decoratedLine | not(blankLine), '>')) ^^ (QuotedBlock(_, Nil))
   }
 

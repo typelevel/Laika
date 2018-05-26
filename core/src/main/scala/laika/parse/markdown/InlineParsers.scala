@@ -57,7 +57,7 @@ class InlineParsers (recParsers: RecursiveSpanParsers) {
    * 
    *  Note: escaping > is not mandated by the official syntax description, but by the official test suite.
    */
-  lazy val escapedChar: Parser[String] = anyOf('\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!', '>') take 1
+  val escapedChar: Parser[String] = anyOf('\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!', '>') take 1
   
   /** Parses an explicit hard line break.
    */
@@ -86,7 +86,7 @@ class InlineParsers (recParsers: RecursiveSpanParsers) {
    *  Recursively parses nested spans, too. 
    */
   def enclosedBySingleChar (c: Char): Parser[List[Span]] = {
-    val start = lookAhead(anyBut(' ', c).take(1))
+    val start = lookAhead(anyBut(' ', c).take(1).^)
     val end = not(lookBehind(2, ' '))
     span(start, c.toString, end)
   }
@@ -171,8 +171,8 @@ class InlineParsers (recParsers: RecursiveSpanParsers) {
     
     val linktext = text(delimitedBy(']'), Map('\\' -> escapedChar, '[' -> (delimitedBy(']') ^^ { "[" + _ + "]" })))
 
-    val titleEnd = lookAhead(ws ~ ')')
-    val title = ws ~> (('"' ~> delimitedBy("\"", titleEnd)) | ('\'' ~> delimitedBy("'", titleEnd)))
+    val titleEnd = lookAhead(ws.^ ~ ')')
+    val title = ws.^ ~> (('"' ~> delimitedBy("\"", titleEnd)) | ('\'' ~> delimitedBy("'", titleEnd)))
 
     val url = ('<' ~> text(delimitedBy('>',' ').keepDelimiter, Map('\\' -> escapedChar)) <~ '>') |
        text(delimitedBy(')',' ','\t').keepDelimiter, Map('\\' -> escapedChar))

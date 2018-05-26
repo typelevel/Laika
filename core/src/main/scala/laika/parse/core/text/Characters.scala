@@ -42,9 +42,13 @@ class Characters[T] (predicate:     Char => Boolean,
     *  Fails if there are less matches, but succeeds in case there are more matches, simply ignoring them.
     *  Calling `take 3` for example is equivalent to calling `min 3 max 3`.
     */
-  def take (count: Int): Characters[T] = new Characters[T](predicate, resultBuilder, count, count)
+  def take (count: Int): Characters[T] = new Characters(predicate, resultBuilder, count, count)
 
-  def count: Characters[Int] = new Characters[Int](predicate, Characters.CountResultBuilder, minChar, maxChar)
+  def count: Characters[Int] = new Characters(predicate, Characters.CountResultBuilder, minChar, maxChar)
+
+  def noCapture: Characters[Unit] = new Characters(predicate, Characters.UnitResultBuilder, minChar, maxChar)
+
+  def ^ : Characters[Unit] = noCapture
 
 
   private val msgProvider: Int => Message =
