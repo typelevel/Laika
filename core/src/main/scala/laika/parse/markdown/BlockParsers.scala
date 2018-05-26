@@ -219,8 +219,9 @@ class BlockParsers (recParsers: RecursiveParsers) {
       else trimmed
     } 
     
-    ((anyOf('#') min 1 max 6) ^^ { _.length }) ~ (not(blankLine) ~> recursiveSpans(restOfLine ^^ stripDecoration)) ^^
-      { case level ~ spans => Header(level, spans) }
+    anyOf('#').min(1).max(6).count ~ (not(blankLine) ~> recursiveSpans(restOfLine ^^ stripDecoration)) ^^ {
+      case level ~ spans => Header(level, spans)
+    }
   }
 
   val setextDecoration: Parser[String] = (anyOf('=').min(1) | anyOf('-').min(1)) <~ wsEol

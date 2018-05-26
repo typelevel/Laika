@@ -201,7 +201,7 @@ class TableParsers (recParsers: RecursiveParsers) {
     
     val intersect = (anyOf('+') take 1) ^^^ Intersection
     
-    val rowSep = (anyOf('-') min 1) ^^ { _.length }
+    val rowSep = anyOf('-').min(1).count
     val topBorder = intersect ~> ((rowSep <~ intersect)+) <~ wsEol
 
     val colSep = ((anyOf('|') take 1) ^^^ CellSeparator("|")) | intersect
@@ -283,8 +283,8 @@ class TableParsers (recParsers: RecursiveParsers) {
    */
   lazy val simpleTable: Parser[Table] = {
     
-    val intersect = (anyOf(' ') min 1) ^^ { _.length }
-    val tableBorder = (anyOf('=') min 1) ^^ { _.length }
+    val intersect = anyOf(' ').min(1).count
+    val tableBorder = anyOf('=').min(1).count
     val columnSpec = tableBorder ~ opt(intersect) ^^ {
       case col ~ Some(sep) => (col, sep)
       case col ~ None      => (col, 0)

@@ -44,6 +44,8 @@ class Characters[T] (predicate:     Char => Boolean,
     */
   def take (count: Int): Characters[T] = new Characters[T](predicate, resultBuilder, count, count)
 
+  def count: Characters[Int] = new Characters[Int](predicate, Characters.CountResultBuilder, minChar, maxChar)
+
 
   private val msgProvider: Int => Message =
     Message.forRuntimeValue[Int]( actual => s"expected at least $minChar characters, got only $actual" )

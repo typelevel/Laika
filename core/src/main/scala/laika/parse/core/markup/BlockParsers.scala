@@ -93,9 +93,9 @@ object BlockParsers {
     
     val composedLinePredicate = not(blankLine) ~ linePredicate
     
-    def lineStart (curIndent: Int) = ((ws min minIndent max curIndent) ^^ {_.length}) <~ composedLinePredicate
+    def lineStart (curIndent: Int) = ws.min(minIndent).max(curIndent).count <~ composedLinePredicate
     
-    def textLine (curIndent: Int) = (lineStart(curIndent) ~ (ws ^^ {_.length}) ~ restOfLine) ^^ { 
+    def textLine (curIndent: Int) = (lineStart(curIndent) ~ ws.count ~ restOfLine) ^^ {
       case indent1 ~ indent2 ~ text => List(IndentedLine(min(min(indent1, curIndent), maxIndent), indent1 + indent2, text.trim)) 
     }
     
@@ -107,7 +107,7 @@ object BlockParsers {
       if (firstLineIndented) textLine(Int.MaxValue) 
       else restOfLine ^^ { s => List(FirstLine(s)) }
     
-    val firstLineGuard = if (firstLineIndented) ((ws min minIndent) ^^ {_.length}) ~ composedLinePredicate else success(())
+    val firstLineGuard = if (firstLineIndented) ws.min(minIndent).count ~ composedLinePredicate else success(())
     
     def nextLine (prevLines: List[Line]) = 
       if (endsOnBlankLine) textLine(prevLines.head.curIndent)

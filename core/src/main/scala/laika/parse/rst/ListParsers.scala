@@ -39,7 +39,7 @@ class ListParsers (recParsers: RecursiveParsers) {
 
 
   private def listItem [I <: ListItem] (itemStart: Parser[String], newListItem: Seq[Block] => I): Parser[I] = {
-      (itemStart ^^ {_.length}) ~ ((ws min 1) ^^ {_.length}) >> { 
+      (itemStart ^^ {_.length}) ~ ws.min(1).count >> {
         case start ~ ws =>
           recursiveBlocks(indentedBlock(minIndent = start + ws, maxIndent = start + ws) ~
               opt(blankLines | eof | lookAhead(itemStart)) ^^? {
@@ -52,7 +52,7 @@ class ListParsers (recParsers: RecursiveParsers) {
   private def rewriteListItems [I <: BlockContainer[_]](items: List[I], newListItem: (I,List[Block]) => I): List[I] = {
     
     /* The reStructuredText reference parser makes a distinction between "simple" lists
-     * and normal lists. The exact rules are not documented, but tests seam to hint at
+     * and normal lists. The exact rules are not documented, but tests seem to hint at
      * a "simple" list being a list where all items only have a single paragraph and optionally
      * a nested list below the paragraph. The distinction has an influence on the HTML renderer
      * for example. 
