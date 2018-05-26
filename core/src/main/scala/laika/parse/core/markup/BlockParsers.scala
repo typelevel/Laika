@@ -23,15 +23,7 @@ import laika.util.~
 /** A generic base trait for block parsers. Provides base parsers that abstract
  *  aspects of block parsing common to most lightweight markup languages.
  *  
- *  It contains simple parsers for parsing chunks that make up blocks (text
- *  lines, blank lines, etc.) as well as a convenient `block` helper parser
- *  that simplifies parsing of full blocks.
- *  
- *  Concrete sub-traits can specify the block parsers for a specific markup
- *  format by overriding `prepareBlockParsers` and implementing 
- *  `nonRecursiveBlock`.
- * 
- *  A block parser in Laika can always safely assume that it is invoked at 
+ *  A block parser in Laika can always safely assume that it is invoked at
  *  the start of the current line and that the line is not empty.
  * 
  *  @author Jens Halm
@@ -130,8 +122,8 @@ object BlockParsers {
       } mkString "\n", minIndent)
     }
 
-    lookAhead(firstLineGuard) ~> rep(firstLine, nextLine) ^^ result
+    lookAhead(firstLineGuard) ~> firstLine.repWith(nextLine) ^^ result
   }
-  
-  
+
+
 }

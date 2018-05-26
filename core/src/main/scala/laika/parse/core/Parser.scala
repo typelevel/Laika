@@ -19,6 +19,9 @@ package laika.parse.core
 import laika.parse.core.combinator.Repeat
 import laika.util.~
 
+import scala.annotation.tailrec
+import scala.collection.mutable.ListBuffer
+
 /**  The abstract base for all parser implementations.
   *
   *  @author Jens Halm
@@ -181,6 +184,22 @@ abstract class Parser[+T] {
   /** Returns a parser that optionally parses what this parser parses.
     */
   def ? = opt(this)
+
+  def repWith[U >: T] (next: U => Parser[U]): Parser[List[U]] = Parser { in =>
+    val elems = new ListBuffer[U]
+
+    @tailrec
+    def parse (input: ParserContext, p: Parser[U]): Parsed[List[U]] =
+      p.parse(input) match {
+        case Success(result, rest) =>
+          elems += result
+          val newParser = next(result)
+          parse(rest, newParser)
+        case _: Failure => Success(elems.toList, input)
+      }
+
+    parse(in, this)
+  }
 
   /**  Changes the failure message produced by a parser.
     */

@@ -26,17 +26,17 @@ class BaseParsersSpec extends FlatSpec with Matchers with ParseResultHelpers wit
 
   
   "The parser for dynamic repetitions" should "parse a sequence based on a dynamically changing parser" in {
-    val p = rep("1", {res:String => (res.toInt + 1).toString})
+    val p = literal("1").repWith { res:String => (res.toInt + 1).toString }
     Parsing ("12345999") using p should produce (List("1","2","3","4","5"))
   }
   
   it should "succeed when only the first parsing step succeeds" in {
-    val p = rep("1", {res:String => (res.toInt + 1).toString})
+    val p = literal("1").repWith { res:String => (res.toInt + 1).toString }
     Parsing ("1999") using p should produce (List("1"))
   }
   
   it should "succeed with an empty result when the first parsing step fails" in {
-    val p = rep("1", {res:String => (res.toInt + 1).toString})
+    val p = literal("1").repWith { res:String => (res.toInt + 1).toString }
     Parsing ("999") using p should produce (List[String]())
   }
   

@@ -27,7 +27,7 @@ import scala.util.{Try, Failure => TFailure, Success => TSuccess}
  * 
  * @author Jens Halm
  */
-trait Parsers extends RepeatParsers {
+trait Parsers {
 
 
   /** A parser for an optional element that always succeeds.
