@@ -18,7 +18,6 @@ package laika.parse.core.markup
 
 import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import laika.parse.core._
-import laika.parse.core.text.MarkupParser
 import laika.parse.core.text.TextParsers._
 import laika.rewrite.TreeUtil
 import laika.tree.Documents.Document
@@ -50,7 +49,7 @@ trait RootParserBase extends DefaultRecursiveParsers {
 
   /** Fully parses the input from the specified reader and returns the configuration and root element.
     */
-  protected def parseConfigAndRoot (reader: ParserContext, path: Path): (Config,RootElement) = {
+  protected def parseConfigAndRoot (ctx: ParserContext, path: Path): (Config,RootElement) = {
     // TODO - extract into ConfigHeaderParser
     def assembleConfig (config: Config, root: RootElement) = {
       import scala.collection.JavaConverters._
@@ -68,7 +67,7 @@ trait RootParserBase extends DefaultRecursiveParsers {
       case Some(Left(block)) ~ root   => assembleConfig(ConfigFactory.empty(), root.copy(content = block +: root.content))
       case None ~ root                => assembleConfig(ConfigFactory.empty(), root)
     }
-    new MarkupParser(parser).parseMarkup(reader)
+    unsafeParserFunction(parser)(ctx)
   }
 
 

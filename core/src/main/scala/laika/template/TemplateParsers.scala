@@ -20,7 +20,6 @@ import com.typesafe.config.{Config, ConfigFactory, ConfigParseOptions}
 import laika.directive.DirectiveParsers
 import laika.directive.Directives.Templates
 import laika.parse.core.markup.DefaultRecursiveSpanParsers
-import laika.parse.core.text.MarkupParser
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Parser, ParserContext}
 import laika.rewrite.DocumentCursor
@@ -76,7 +75,7 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
       def createContext(parts: PartMap, docCursor: Option[DocumentCursor]): Templates.DirectiveContext = {
         new DirectiveContextBase(parts, docCursor) with Templates.DirectiveContext {
           val parser = new Templates.Parser {
-            def apply(source: String) = nestedTemplateSpans.parseMarkup(source)
+            def apply(source: String) = nestedTemplateSpans(ParserContext(source))
           }
         }
       }
@@ -99,7 +98,7 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
     }
   }
 
-  lazy val nestedTemplateSpans = new MarkupParser(templateSpans)
+  lazy val nestedTemplateSpans: ParserContext => List[TemplateSpan] = unsafeParserFunction(templateSpans)
 
   def templateWithConfig (path: Path): Parser[(Config, List[TemplateSpan])] = opt(configParser(path)) ~ templateSpans ^^ {
     case Some(Right(config)) ~ root => (config, root)
@@ -108,7 +107,7 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
   }
 
   def parseTemplate (ctx: ParserContext, path: Path): TemplateDocument = {
-    val (config, root) = new MarkupParser(templateWithConfig(path)).parseMarkup(ctx)
+    val (config, root) = unsafeParserFunction(templateWithConfig(path))(ctx)
     TemplateDocument(path, TemplateRoot(root), config)
   }
 

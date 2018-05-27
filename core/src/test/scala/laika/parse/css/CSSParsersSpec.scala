@@ -16,7 +16,7 @@
 
 package laika.parse.css
 
-import laika.parse.core.Parser
+import laika.parse.core.{Parser, Success}
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 import laika.parse.helper.DefaultParserHelpers
@@ -31,7 +31,10 @@ class CSSParsersSpec extends FlatSpec
                         with StyleBuilders {
 
   
-  val defaultParser: Parser[Set[StyleDeclaration]] = styleDeclarationSet
+  val defaultParser: Parser[Set[StyleDeclaration]] = Parser { ctx =>
+    Success(styleDeclarationSet(ctx), ctx.consume(ctx.remaining))
+  }
+
   
   
   "The CSS parser" should "parse a style with a type selector" in {

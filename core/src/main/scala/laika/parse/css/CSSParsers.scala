@@ -18,7 +18,6 @@ package laika.parse.css
 
 import laika.io.Input
 import laika.parse.core.markup.InlineParsers
-import laika.parse.core.text.MarkupParser
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Parser, ParserContext}
 import laika.parse.css.Styles._
@@ -143,7 +142,7 @@ trait CSSParsers {
   /** Parses an entire set of style declarations.
    *  This is the top level parser of this trait.
    */
-  lazy val styleDeclarationSet: MarkupParser[Set[StyleDeclaration]] = {
+  lazy val styleDeclarationSet: ParserContext => Set[StyleDeclaration] = {
 
     val baseParser = (wsOrNl ~ (comment*) ~> ((styleDeclarations <~ wsOrNl ~ (comment*))*)) ^^ {
       _.flatten.zipWithIndex.map({
@@ -151,12 +150,12 @@ trait CSSParsers {
       }).toSet
     }
 
-    /* TODO - needs better error handling, the `MarkupParser` was only meant to be used
+    /* TODO - needs better error handling, the `unsafeParserFunction` was only meant to be used
        with text markup that is never supposed to fail as there is always a plain-text fallback-parser.
        But CSS can contain actual errors that prevent successful parsing.
      */
 
-    new MarkupParser(baseParser)
+    unsafeParserFunction(baseParser)
   }
 
   /** Fully parses the input from the specified reader and returns the resulting
@@ -167,7 +166,7 @@ trait CSSParsers {
    *  @return the resulting set of style declarations
    */
   def parseStyleSheet (ctx: ParserContext, path: Path): StyleDeclarationSet = {
-    val set = styleDeclarationSet.parseMarkup(ctx)
+    val set = styleDeclarationSet(ctx)
     new StyleDeclarationSet(Set(path), set)
   }
     
