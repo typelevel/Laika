@@ -45,7 +45,7 @@ trait RootParserBase extends DefaultRecursiveParsers {
     Document(path, root, TreeUtil.extractFragments(root.content), config)
   }
 
-  def config (path: Path): Parser[Either[InvalidBlock,Config]] = failure("configuration sections not enabled")
+  def config (path: Path): Parser[Either[InvalidBlock,Config]] = success(Right(ConfigFactory.empty))
 
   /** Fully parses the input from the specified reader and returns the configuration and root element.
     */
@@ -62,10 +62,9 @@ trait RootParserBase extends DefaultRecursiveParsers {
         config.withValue(name, ConfigValueFactory.fromAnyRef(value))
       }, root)
     }
-    val parser = opt(config(path)) ~ rootElement ^^ {
-      case Some(Right(config)) ~ root => assembleConfig(config, root)
-      case Some(Left(block)) ~ root   => assembleConfig(ConfigFactory.empty(), root.copy(content = block +: root.content))
-      case None ~ root                => assembleConfig(ConfigFactory.empty(), root)
+    val parser = config(path) ~ rootElement ^^ {
+      case Right(config) ~ root => assembleConfig(config, root)
+      case Left(block) ~ root   => assembleConfig(ConfigFactory.empty, root.copy(content = block +: root.content))
     }
     unsafeParserFunction(parser)(ctx)
   }

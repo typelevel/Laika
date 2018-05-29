@@ -41,7 +41,7 @@ object ConfigParser {
     catch {
       case ex: Exception => Left(errorHandler(ex, str))
     }
-  }
+  } orElse success(Right(ConfigFactory.empty))
 
 }
 
