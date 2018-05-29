@@ -74,7 +74,6 @@ trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers with DefaultEscap
     InlineParsers.spans(textParser, spanParsers)
 
   def withRecursiveSpanParser [T] (p: Parser[T]): Parser[(String => List[Span], T)] = Parser { ctx =>
-    // TODO - avoid duplication with `withRecursiveBlockParser`
     p.parse(ctx) match {
       case Success(res, next) =>
         val recParser: String => List[Span] = { source: String =>
