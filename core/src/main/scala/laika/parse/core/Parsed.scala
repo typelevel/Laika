@@ -25,18 +25,44 @@ package laika.parse.core
   */
 sealed abstract class Parsed[+T] {
 
+  /** The context representing the remaining input
+    * left over by the parser that produced this result.
+    */
   val next: ParserContext
 
+  /** Indicates whether this results represents a successful
+    * parser invocation. The `get` method will throw on instances
+    * where this method returns `false`.
+    */
   val isSuccess: Boolean
 
+  /** Indicates whether this results represents an unsuccessful
+    * parser invocation. The `get` method will throw on instances
+    * where this method returns `true`.
+    */
   def isFailure = !isSuccess
 
+  /** The result value from the parser invocation.
+    * This method will throw on instances
+    * where `isSuccess` returns `false`.
+    *
+    * @return
+    */
   def get: T
 
+  /** Returns the result value from the parser invocation if the
+    * parser succeeded or otherwise the specified fallback value.
+    */
   def getOrElse[B >: T] (default: => B): B = if (isFailure) default else this.get
 
+  /** Returns this `Parsed` instance if the parser suceeded or
+    * otherwise the specified fallback instance.
+    */
   def orElse[U >: T] (default: => Parsed[U]): Parsed[U] = if (isFailure) default else this
 
+  /** Builds a new `Parsed` instance by applying the specified function
+    * to the result of this instance.
+    */
   def map[U] (f: T => U): Parsed[U]
 
 }
@@ -69,6 +95,8 @@ case class Success[+T] (result: T, next: ParserContext) extends Parsed[T] {
   */
 case class Failure (msgProvider: Message, next: ParserContext) extends Parsed[Nothing] {
 
+  /** The message specifying the cause of the failure.
+    */
   lazy val message = msgProvider.message(next)
 
   val isSuccess = false
@@ -81,12 +109,19 @@ case class Failure (msgProvider: Message, next: ParserContext) extends Parsed[No
 }
 
 
+/** Represents a lazy failure message.
+  * Implementations can use the specified `ParserContext` to construct
+  * the actual message, e.g. for adding parts of the input to the message.
+  */
 trait Message {
 
   def message (context: ParserContext): String
 
 }
 
+/** Message companion providing several pre-built messages
+  * and factory methods.
+  */
 object Message {
 
 
@@ -111,16 +146,27 @@ object Message {
 
   }
 
+  /** Builds a message instance for a fixed string,
+    * independent of the parser context.
+    */
   def fixed (msg: String): Message = new Message {
 
     def message (context: ParserContext): String = msg
 
   }
 
+  /** Builds a message instance for the specified
+    * factory function.
+    */
   def forContext (f: ParserContext => String): Message = new Message {
     def message (context: ParserContext): String = f(context)
   }
 
+  /** Builds a factory function that produces new messages
+    * based on some arbitrary input type. This allows
+    * to pre-capture some context for the message that
+    * does not relate to the parser context.
+    */
   def forRuntimeValue[T] (f: T => String): T => Message = new MessageFactory(f)
 
 }

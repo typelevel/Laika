@@ -24,6 +24,9 @@ import scala.collection.mutable.ListBuffer
 
 /**  The abstract base for all parser implementations.
   *
+  *  Contains the main `parse` function as well as various
+  *  combinator function to create a new parser based on this one.
+  *
   *  @author Jens Halm
   */
 abstract class Parser[+T] {
@@ -32,11 +35,24 @@ abstract class Parser[+T] {
   import laika.parse.core.combinator.Parsers._
 
 
+  /** Parses the string content in the specified context
+    * and returns the result.
+    *
+    * This is the only abstract method in `Parser` that
+    * concrete implementations need to implement.
+    */
   def parse (in: ParserContext): Parsed[T]
 
+  /** Parses the specified string and returns the result.
+    */
   def parse (in: String): Parsed[T] = parse(ParserContext(in))
 
 
+  /** Builds a new parser by applying the specified function
+    * to the result of this parser and subsequently applying
+    * the parser returned by that function to the input left
+    * over by this parser.
+    */
   def flatMap[U] (f: T => Parser[U]): Parser[U] = Parser { in =>
     parse(in) match {
       case Success(result, next) => f(result).parse(next)
@@ -44,9 +60,23 @@ abstract class Parser[+T] {
     }
   }
 
+  /** Builds a new parser by applying the specified function
+    * to the result of this parser.
+    */
   def map[U](f: T => U): Parser[U] = Parser { in => parse(in).map(f) }
 
 
+  /**  Applies the specified parser when this parser fails.
+    *
+    *  `a orElse b` succeeds if either of the parsers succeeds.
+    *
+    *  Implementation note:
+    *  The parameter is by-name to allow the definition of
+    *  recursive parsers. In contrast to the former SDK
+    *  parser combinators this is the only place where
+    *  a parser with a by-name parameter is used whereas
+    *  in all other places the additional cost is avoided.
+    */
   def orElse[U >: T] (p0: => Parser[U]): Parser[U] = {
     lazy val alt = p0
     Parser { in =>
@@ -164,6 +194,8 @@ abstract class Parser[+T] {
 
   }
 
+  /** Operator synonym for `flatMap`.
+    */
   def >>[U] (fq: T => Parser[U]) = flatMap(fq)
 
   /**  Returns a parser that repeatedly applies this parser.
@@ -185,6 +217,16 @@ abstract class Parser[+T] {
     */
   def ? = opt(this)
 
+  /** Returns a parser that invokes the specified function repeatedly,
+    * passing the result of this parser if it succeeds, to produce new
+    * parsers that get applied until one of them fails.
+    *
+    * The result of the returned parser is a list containing the
+    *
+    * @param next
+    * @tparam U
+    * @return
+    */
   def repWith[U >: T] (next: U => Parser[U]): Parser[List[U]] = Parser { in =>
     val elems = new ListBuffer[U]
 
@@ -212,8 +254,13 @@ abstract class Parser[+T] {
 
 }
 
+/** Companion factory for creating new parser instances.
+  */
 object Parser {
 
+  /** Builds a new parser based on the specified function
+    * that implements the behaviour of the parser.
+    */
   def apply[T] (f: ParserContext => Parsed[T]): Parser[T]
     = new Parser[T] { def parse (ctx: ParserContext) = f(ctx) }
 

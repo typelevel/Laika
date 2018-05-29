@@ -20,11 +20,16 @@ import java.util
 
 import scala.collection.mutable.ArrayBuffer
 
-/**
+/** Represents the state and context of a parsing operation,
+  * containing the input string as well as positional information/
+  *
   * @author Jens Halm
   */
 case class ParserContext (source: Source, offset: Int, nestLevel: Int) {
 
+  /** The full input string, containing the string
+    * portions before and after the current offset.
+    */
   val input: String = source.value
 
   /**  Indicates whether this contexts offset is behind
@@ -32,38 +37,79 @@ case class ParserContext (source: Source, offset: Int, nestLevel: Int) {
     */
   def atEnd: Boolean = offset >= input.length
 
+  /** Indicates the number of characters remaining in the
+    * input string after the current offset.
+    */
   def remaining: Int = input.length - offset
 
+  /** The character at the current offset.
+    */
   def char: Char = charAt(0)
 
+  /** The character at the specified offset, relative from the current offset.
+    */
   def charAt (relativeOffset: Int): Char = {
     val i = offset + relativeOffset
     if (i < input.length) input.charAt(i) else throw new IndexOutOfBoundsException(i.toString)
   }
 
+  /** Captures a string containing the specified number of characters from the current offset.
+    * Throws an exception if the number of characters left is less than the specified number.
+    */
   def capture (numChars: Int): String =
     if (numChars == 0) ""
     else if (numChars < 0 || numChars + offset > input.length) throw new IndexOutOfBoundsException(numChars.toString)
     else input.substring(offset, offset + numChars)
 
+  /** Consumes the specified number of characters, returning a new `ParserContext`
+    * with the new offset.
+    */
   def consume (numChars: Int): ParserContext =
     if (numChars != 0) ParserContext(source, offset + numChars, nestLevel)
     else this
 
+  /** The current position in the input string.
+    */
   def position: Position = new Position(source, offset)
 
+  /** Returns a new `ParserContext` with the input string being reversed,
+    * but pointing to the same character as this context.
+    *
+    * This is a low-level optimization for parsers that look for strings like
+    * email addresses where the first character is not significant, so that
+    * parsing backwards from any `@` encountered in the input provided better
+    * performance.
+    *
+    * @return
+    */
   def reverse: ParserContext = ParserContext(source.reverse, remaining, nestLevel)
 
 }
 
+/** Companion for creating new `ParserContext` instances.
+  *
+  */
 object ParserContext {
 
+  /** Builds a new instance for the specified input string.
+    */
   def apply (input: String): ParserContext = ParserContext(Source(input), 0, 0)
 
+  /** Builds a new instance for the specified input string and nesting level.
+    *
+    * Keeping track of the nesting level allows to protect against malicious
+    * input that would otherwise cause endless recursion triggering stack
+    * overflows or ultra-slow performance.
+    */
   def apply (input: String, nestLevel: Int): ParserContext = ParserContext(Source(input), 0, nestLevel)
 
+  /** Builds a new instance for the specified input reader.
+    */
   def apply (input: java.io.Reader): ParserContext = apply(input, 8 * 1024)
 
+  /** Builds a new instance for the specified input reader, providing a hint
+    * for the expected size of the input string.
+    */
   def apply (input: java.io.Reader, sizeHint: Int): ParserContext = {
 
     val arr = new Array[Char](sizeHint)
@@ -79,9 +125,12 @@ object ParserContext {
 
 }
 
+/** Represents the input string for a parsing operation.
+  */
 case class Source (value: String) {
 
-  /** An index that contains all line starts, including first line, and eof. */
+  /** An index that contains all line starts, including first line, and eof.
+    */
   lazy val lineStarts: Array[Int] = {
     val lineStarts = new ArrayBuffer[Int]
     lineStarts += 0
@@ -95,6 +144,8 @@ case class Source (value: String) {
     lineStarts.toArray
   }
 
+  /** Builds a new `Source` instance with the input string reversed.
+    */
   lazy val reverse = Source(value.reverse)
 
 }
@@ -112,7 +163,8 @@ case class Position(s: Source, offset: Int) {
 
   val source = s.value
 
-  /** The line number referred to by this position, starting at 1. */
+  /** The line number referred to by this position, starting at 1.
+    */
   lazy val line: Int = {
     val result = util.Arrays.binarySearch(s.lineStarts, offset)
     if (result == s.lineStarts.length - 1) result // EOF position is not on a new line
@@ -120,10 +172,12 @@ case class Position(s: Source, offset: Int) {
     else result + 1 // line is 1-based
   }
 
-  /** The column number referred to by this position, starting at 1. */
+  /** The column number referred to by this position, starting at 1.
+    */
   lazy val column: Int = offset - s.lineStarts(line - 1) + 1
 
-  /** The contents of the line at the current offset (not including a newline). */
+  /** The contents of the line at the current offset (not including a newline).
+    */
   lazy val lineContent: String = {
     val startIndex = s.lineStarts(line - 1)
     val endIndex = s.lineStarts(line)
@@ -141,7 +195,8 @@ case class Position(s: Source, offset: Int) {
     */
   def lineContentWithCaret = lineContent + "\n" + " " * (column-1) + "^"
 
-  /** A string representation of this Position of the form `line.column`. */
+  /** A string representation of this Position of the form `line.column`.
+    */
   override lazy val toString = s"$line.$column"
 
 }
