@@ -51,6 +51,8 @@ trait RecursiveSpanParsers extends EscapedTextParsers {
 
 trait EscapedTextParsers {
 
+  def escapedChar: Parser[String]
+
   def escapedText(p: DelimitedText[String]): Parser[String]
 
   def escapedUntil(char: Char*): Parser[String]

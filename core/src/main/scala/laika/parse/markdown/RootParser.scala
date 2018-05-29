@@ -21,6 +21,7 @@ import laika.directive.Directives.{Blocks, Spans}
 import laika.directive.MarkupDirectiveParsers
 import laika.parse.core.Parser
 import laika.parse.core.markup.RootParserBase
+import laika.parse.core.text.TextParsers.anyOf
 import laika.parse.markdown.html.HTMLParsers
 import laika.rewrite.TreeUtil
 import laika.tree.Elements._
@@ -34,6 +35,12 @@ class RootParser (blockDirectives: Map[String, Blocks.Directive],
                   verbatimHTML: Boolean,
                   isStrict: Boolean) extends RootParserBase {
 
+  /** Parses a single escaped character, only recognizing the characters the Markdown syntax document
+    *  specifies as escapable.
+    *
+    *  Note: escaping > is not mandated by the official syntax description, but by the official test suite.
+    */
+  override lazy val escapedChar: Parser[String] = anyOf('\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!', '>') take 1
 
   private val htmlParsers = if (verbatimHTML) Some(new HTMLParsers(this)) else None
 

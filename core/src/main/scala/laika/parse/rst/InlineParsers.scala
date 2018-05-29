@@ -175,16 +175,6 @@ class InlineParsers (recParsers: RecursiveSpanParsers, defaultTextRole: String) 
     '\\'-> (escapedChar ^^ (Text(_)))
   )
 
-  // TODO - declare this elsewhere
-  /** Parses an escaped character. For most characters it produces the character
-   *  itself as the result with the only exception being an escaped space character
-   *  which is removed from the output in reStructuredText.
-   * 
-   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#escaping-mechanism]].
-   */
-  lazy val escapedChar: Parser[String] = (" " ^^^ "") | (any take 1)
-
-
   /** Parses a span of emphasized text.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#emphasis]]

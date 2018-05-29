@@ -46,6 +46,15 @@ class RootParser(laikaBlockDirectives: Map[String, Blocks.Directive] = Map(),
                  isStrict: Boolean = false) extends RootParserBase {
 
 
+  /** Parses an escaped character. For most characters it produces the character
+    *  itself as the result with the only exception being an escaped space character
+    *  which is removed from the output in reStructuredText.
+    *
+    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#escaping-mechanism]].
+    */
+  override lazy val escapedChar: Parser[String] = (" " ^^^ "") | (any take 1)
+
+
   private val directiveParsers =
     if (!isStrict) Some(new MarkupDirectiveParsers(this, laikaBlockDirectives, laikaSpanDirectives)) else None
 

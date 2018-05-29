@@ -51,14 +51,6 @@ class InlineParsers (recParsers: RecursiveSpanParsers) {
     '!' -> image
   )
   
-  // TODO - declare this elsewhere
-  /** Parses a single escaped character, only recognizing the characters the Markdown syntax document
-   *  specifies as escapable.
-   * 
-   *  Note: escaping > is not mandated by the official syntax description, but by the official test suite.
-   */
-  val escapedChar: Parser[String] = anyOf('\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!', '>') take 1
-  
   /** Parses an explicit hard line break.
    */
   val lineBreak: Parser[LineBreak] = (anyOf('\r') take 1) ^^^ LineBreak()
