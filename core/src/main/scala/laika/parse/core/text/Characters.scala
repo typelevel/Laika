@@ -20,7 +20,8 @@ import laika.parse.core._
 
 import scala.annotation.tailrec
 
-/**
+/** Optimized parser for character input.
+  *
   * @author Jens Halm
   */
 class Characters[T] (predicate:     Char => Boolean,
@@ -44,10 +45,18 @@ class Characters[T] (predicate:     Char => Boolean,
     */
   def take (count: Int): Characters[T] = new Characters(predicate, resultBuilder, count, count)
 
+  /** Creates and returns a new parser that does not produce a string result, but instead
+    * only the number of characters successfully parsed as an `Int`.
+    */
   def count: Characters[Int] = new Characters(predicate, Characters.CountResultBuilder, minChar, maxChar)
 
+  /** Creates and returns a new parser that does not produce a result, but instead
+    * only consumes the number of characters successfully parsed.
+    */
   def noCapture: Characters[Unit] = new Characters(predicate, Characters.UnitResultBuilder, minChar, maxChar)
 
+  /** Operator synonym for `noCapture`.
+    */
   def ^ : Characters[Unit] = noCapture
 
 
@@ -79,6 +88,8 @@ class Characters[T] (predicate:     Char => Boolean,
 
 }
 
+/** Companion with factory methods for creating optimized character parsers.
+  */
 object Characters {
 
   type ResultBuilder[T] = (ParserContext, Int) => T
@@ -99,6 +110,9 @@ object Characters {
     lookup
   }
 
+  /** Builds a parser that consumes any number of consecutive occurrences of the specified characters.
+    * Always succeeds unless a minimum number of required matches is specified.
+    */
   def include (chars: Seq[Char]): Characters[String] = {
     val p: Char => Boolean = chars.length match {
       case 0 =>
@@ -118,6 +132,9 @@ object Characters {
     new Characters(p, StringResultBuilder)
   }
 
+  /** Builds a parser that consumes any number of consecutive characters that are not one of the specified characters.
+    * Always succeeds unless a minimum number of required matches is specified.
+    */
   def exclude (chars: Seq[Char]): Characters[String] = {
     val p: Char => Boolean = chars.length match {
       case 0 =>
@@ -137,6 +154,9 @@ object Characters {
     new Characters(p, StringResultBuilder)
   }
 
+  /** Builds a parser that consumes any number of consecutive characters which satisfy the specified predicate.
+    * Always succeeds unless a minimum number of required matches is specified.
+    */
   def anyWhile (predicate: Char => Boolean): Characters[String] = new Characters(predicate, StringResultBuilder)
 
 }

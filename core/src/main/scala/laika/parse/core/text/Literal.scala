@@ -25,7 +25,7 @@ import laika.parse.core._
   */
 case class Literal (expected: String) extends Parser[String] {
 
-  val msgProvider = Message.forContext { context =>
+  private val msgProvider = Message.forContext { context =>
     val toCapture = Math.min(context.remaining, expected.length)
     val found = context.capture(toCapture)
     s"`$expected' expected but `$found` found"

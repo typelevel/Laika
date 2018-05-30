@@ -20,7 +20,7 @@ import laika.parse.core._
 import laika.parse.core.combinator.Parsers
 import laika.util.~
 
-/** Base parsers that provide optimized low-level parsers for typical requirements
+/** Base text parsers that provide optimized low-level parsers for typical requirements
  *  of text markup parsers. In particular they are meant as an efficient replacement
  *  for scenarios where usually regex parsers are used. In cases where different parsers
  *  need to be tried for relatively short input sequences, regex parsers tend to be less
@@ -72,6 +72,9 @@ object TextParsers extends Parsers {
     else Failure(Message.ExpectedEOL, in)
   }
 
+  /** Parses any number of whitespace characters followed
+    * by a newline character.
+    */
   val wsEol: Parser[Unit] = ws.^ ~> eol
   
   /** Succeeds at the end of the input.
@@ -110,7 +113,7 @@ object TextParsers extends Parsers {
   val restOfLine: Parser[String] = anyBut('\n','\r') <~ eol
 
   /** Parses a single text line from the current input offset (which may not be at the
-    *  start of the line. Fails for blank lines. Does not include the eol character(s).
+    *  start of the line). Fails for blank lines. Does not include the eol character(s).
     */
   val textLine: Parser[String] = not(blankLine) ~> restOfLine
 
@@ -153,9 +156,15 @@ object TextParsers extends Parsers {
   def anyWhile (p: Char => Boolean): Characters[String] = Characters.anyWhile(p)
 
 
+  /** Consumes any number of consecutive characters until one of the specified characters
+    * is encountered on the input string.
+    */
   def delimitedBy (chars: Char*): DelimitedText[String] with DelimiterOptions =
     DelimiterOptions(ConfigurableDelimiter(chars.toSet))
 
+  /** Consumes any number of consecutive characters until the specified string delimiter
+    * is encountered on the input string.
+    */
   def delimitedBy (str: String): DelimitedText[String] with DelimiterOptions = {
     val len = str.length
     if (len == 0) DelimitedText.Undelimited
@@ -163,6 +172,12 @@ object TextParsers extends Parsers {
     else delimitedBy(str.head.toString, Literal(str.tail))
   }
 
+  /** Consumes any number of consecutive characters until the specified string delimiter
+    * is encountered on the input string.
+    *
+    * Only succeeds if the specified `postCondition` parser succeeds at the offset after
+    * the consumed delimiter string.
+    */
   def delimitedBy (str: String, postCondition: Parser[Any]): DelimitedText[String] with DelimiterOptions = {
     val len = str.length
     if (len == 0) DelimitedText.Undelimited
