@@ -20,8 +20,7 @@ import laika.parse.core._
 import laika.parse.core.text.TextParsers._
 import laika.util.~
   
-/** A generic base trait for block parsers. Provides base parsers that abstract
- *  aspects of block parsing common to most lightweight markup languages.
+/** Provides base parsers that abstract aspects of block parsing common to most lightweight markup languages.
  *  
  *  A block parser in Laika can always safely assume that it is invoked at
  *  the start of the current line and that the line is not empty.
@@ -31,7 +30,7 @@ import laika.util.~
 object BlockParsers {
 
   
-  /** Parses a full block based on the specified helper parsers.\
+  /** Parses a full block based on the specified helper parsers.
     *
     * The string result of this parser will not contain the characters consumed by any of the specified prefix
     * parsers.
@@ -55,7 +54,7 @@ object BlockParsers {
     
   }
 
-  /** Parses a full block based on the specified helper parsers, expecting an indentation for
+  /**  Parses a full block based on the specified helper parsers, expecting an indentation for
     *  all lines except the first. The indentation may vary between the parts of the indented
     *  block, so that this parser only cuts off the minimum indentation shared by all lines,
     *  but each line must have at least the specified minimum indentation.
@@ -65,7 +64,7 @@ object BlockParsers {
     *  @param endsOnBlankLine indicates whether parsing should end on the first blank line
     *  @param firstLineIndented indicates whether the first line is expected to be indented, too
     *  @param maxIndent the maximum indentation that will get dropped from the start of each line of the result
-    *  @return a parser that produces an instance of IndentedBlock
+    *  @return a parser that produces the raw text of the parsed block with the indentation removed
     */
   def indentedBlock (minIndent: Int = 1,
                      linePredicate: => Parser[Any] = success(()),
@@ -77,7 +76,19 @@ object BlockParsers {
     }
 
 
-
+  /**  Parses a full block based on the specified helper parsers, expecting an indentation for
+    *  all lines except the first. The indentation may vary between the parts of the indented
+    *  block, so that this parser only cuts off the minimum indentation shared by all lines,
+    *  but each line must have at least the specified minimum indentation.
+    *
+    *  @param minIndent the minimum indentation that each line in this block must have
+    *  @param linePredicate parser that recognizes the start of subsequent lines that still belong to the same block
+    *  @param endsOnBlankLine indicates whether parsing should end on the first blank line
+    *  @param firstLineIndented indicates whether the first line is expected to be indented, too
+    *  @param maxIndent the maximum indentation that will get dropped from the start of each line of the result
+    *  @return a parser that produces the raw text of the parsed block with the indentation removed and the
+    *          indentation level (number of whitespace characters removed from the text lines)
+    */
   def indentedBlockWithLevel (minIndent: Int = 1,
                               linePredicate: => Parser[Any] = success(()),
                               endsOnBlankLine: Boolean = false,

@@ -20,7 +20,8 @@ import laika.parse.core.text.DelimitedText
 import laika.parse.core.{Failure, Parser, Success}
 import laika.tree.Elements.{Error, InvalidSpan, Span, SystemMessage, Text}
 
-/**
+/** Default implementation for parsing inline markup recursively.
+  *
   * @author Jens Halm
   */
 trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers with DefaultEscapedTextParsers {

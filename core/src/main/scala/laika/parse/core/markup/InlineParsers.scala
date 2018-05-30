@@ -23,14 +23,13 @@ import laika.tree.Elements._
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
   
-/** A generic base trait for inline parsers. Provides base parsers that abstract
- *  aspects of inline parsing common to most lightweight markup languages.
+/** Provides base parsers that abstract aspects of inline parsing common to most lightweight markup languages.
  *  
  *  It contains helper parsers that abstract the typical logic required for parsing
  *  nested spans. In many cases a parser has to recognize the end of the span as well
- *  as potentially the start of a nested spans. These two concerns are usually unrelated.
+ *  as potentially the start of a nested span. These two concerns are usually unrelated.
  *  
- *  This trait offers helpers that simplify creating these types of parsers and also
+ *  This object offers helpers that simplify creating these types of parsers and also
  *  optimize performance of inline parsing. Due to the nature of lightweight text markup
  *  inline parsing would usually require trying a long list of choices on each input
  *  character, which is slow. These base parsers work based on mappings from the first

@@ -18,7 +18,8 @@ package laika.parse.core.markup
 import laika.parse.core.Parser
 import laika.parse.core.text.{DelimitedText, TextParsers}
 
-/**
+/** Default implementation for parsing escape sequences.
+  *
   * @author Jens Halm
   */
 trait DefaultEscapedTextParsers extends EscapedTextParsers {
@@ -41,7 +42,7 @@ trait DefaultEscapedTextParsers extends EscapedTextParsers {
     * while also processing escaped characters, but no other nested
     *  spans. The final character is not included in the result.
     *
-    * @param char the character that signals the end of the text span
+    * @param char the character(s) that signals the end of the text span
     * @return a parser for a text span that supports escape sequences
     */
   def escapedUntil(char: Char*): Parser[String] = escapedText(TextParsers.delimitedBy(char: _*).nonEmpty)

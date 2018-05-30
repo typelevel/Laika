@@ -20,7 +20,10 @@ import laika.parse.core.text.DelimiterResult.{Complete, Continue}
 import laika.parse.core.text.{Delimiter, DelimiterResult}
 import laika.parse.core.{Parsed, ParserContext, Success}
 
-/**
+/** Delimiter implementation for parsing inline spans that distinguishes
+  * between a delimiter that marks the end of the span and a delimiter
+  * that marks the start of a nested span.
+  *
   * @author Jens Halm
   */
 class InlineDelimiter (nestedDelimiters: Set[Char], endDelimiters: Delimiter[String]) extends Delimiter[InlineResult] {
@@ -48,8 +51,14 @@ class InlineDelimiter (nestedDelimiters: Set[Char], endDelimiters: Delimiter[Str
 
 }
 
+/** The result of text parsed with an `InlineDelimiter`.
+  */
 sealed trait InlineResult
 
+/** The result in case the start character of a nested span has been parsed.
+  */
 case class NestedDelimiter (startChar: Char, capturedText: String) extends InlineResult
 
+/** The result in case the end delimiter for the text has been parsed.
+  */
 case class EndDelimiter (capturedText: String) extends InlineResult

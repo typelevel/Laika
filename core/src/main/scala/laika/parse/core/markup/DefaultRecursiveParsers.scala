@@ -20,15 +20,16 @@ import laika.parse.core._
 import laika.parse.core.text.TextParsers._
 import laika.tree.Elements.{Block, Error, InvalidBlock, Paragraph, SystemMessage, Text}
 
-/**
+/** Default implementation for parsing inline markup and blocks recursively.
+  *
   * @author Jens Halm
   */
 trait DefaultRecursiveParsers extends RecursiveParsers with DefaultRecursiveSpanParsers {
 
 
   /** The maximum level of block nesting. Some block types like lists
-    *  and blockquotes contain nested blocks. To protect against malicious
-    *  input or accidentally broken markup, the level of nesting is restricted.
+    * and blockquotes contain nested blocks. To protect against malicious
+    * input or accidentally broken markup, the level of nesting is restricted.
     */
   val maxNestLevel: Int = 12
 
