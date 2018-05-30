@@ -32,7 +32,7 @@ import laika.tree.Paths.Root
 
 /** Represents the input for a parser, abstracting over various types of IO resources. 
  *  
- *  For parsers that use the parser combinators from the Scala SDK, 
+ *  For parsers that use the parser combinators of this library,
  *  this trait offers a convenient `asParserInput` method. Other types of parsers
  *  may use the `java.io.Reader` provided by the `asReader` method. 
  * 
@@ -44,7 +44,7 @@ trait Input {
    */
   def asReader: java.io.Reader
 
-  /** The input as a Reader instance for the parser combinators of the Scala SDK.
+  /** The input as a `ParserContext` instance for Laika's parser combinators.
    */
   def asParserInput: ParserContext
   

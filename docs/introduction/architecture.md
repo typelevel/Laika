@@ -28,7 +28,7 @@ Design Principles
 
 * Provide concise and type-safe extension APIs for extensible markup definitions.
   
-* Create the built-in parsers with the Scala parser combinators, providing efficient and
+* Create the built-in parsers with a custom parser combinator implementation, providing efficient and
   reusable base parsers that encapsulate requirements common to all lightweight markup languages,
   while keeping the basic contract for plugging in a new parser function as simple and generic as 
   `Input => Document`, so that other parser frameworks or tools can be used, too.
@@ -54,7 +54,7 @@ red boxes:
 * `Parse` represents the actual parsing step, a pluggable function of type `Input => Document` 
   (or `Input => TemplateDocument` for templates).
   Supported out of the box are Markdown and reStructuredText. Other parsers can easily be added
-  to the system and they do not need to be based on the SDK's parser combinators like the built-in
+  to the system and they do not need to be based on Laika's parser combinators like the built-in
   parsers. Parsers can be extended with custom tags called Directives that allow to add new
   constructs to markup without extending the parser.
   

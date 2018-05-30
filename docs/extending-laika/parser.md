@@ -38,8 +38,7 @@ types of streams.
 `Document` is a case class representing the root node of the document tree.
 
 The way you implement this function depends entirely on your requirements and preferences.
-You may use the parser combinators from the Scala SDK or some other parsing technology.
-You may also use the base traits Laika provides when using combinators, or you may ignore them.
+You may use the parser combinators from Laika or some other parsing technology.
 
 Only if you intend to create a parser that you'd want to contribute to the Laika core, it would
 be required to build upon the available base traits unless this is impractical for some reason.    
@@ -75,21 +74,25 @@ You can achieve this by providing a trait that offers all the available configur
 hooks and returns `this` for each of these methods for easy chaining. Additionally
 you create a companion object that represents the default configuration.
 
-As an example, this is how a simplified trait and object for the Markdown parser 
+As an example, this is how a simplified class and object for the Markdown parser 
 could look (Scaladoc comments, imports and various extension hooks removed for brevity):
 
     package laika.parse.markdown
     
-    class Markdown private (verbatimHTML: Boolean) 
+    class Markdown private (verbatimHTML: Boolean, isStrict: Boolean) 
                                           extends (Input => RawDocument) {
 
-      val fileSuffixes = Set("md","markdown")
+      val fileSuffixes = Set("md", "markdown")
       
-      def withVerbatimHTML = new Markdown(true)
+      def withVerbatimHTML = new Markdown(true, isStrict)
+      
+      def strict = new Markdown(verbatimHTML, true)
   
       private lazy val parser = {
-        if (verbatimHTML) new BlockParsers with InlineParsers with HTMLParsers
-        else              new BlockParsers with InlineParsers
+        lazy val blockDirectiveMap = ...
+        lazy val spanDirectiveMap = ...
+        
+        new RootParser(blockDirectiveMap, spanDirectiveMap, verbatimHTML, isStrict)
       }
 
       def newParser = (input: Input) => parser.parseDocument(input.asParserInput, input.path)
@@ -98,27 +101,23 @@ could look (Scaladoc comments, imports and various extension hooks removed for b
 
     object Markdown extends Markdown(false) 
 
-As you see, all the low-level parsing details are left in the three traits, this is
+As you see, all the low-level parsing details are left in the root parser, this is
 just a wrapper for providing a convenient public API. Support for reStructuredText
 is implemented in a similar way.
 
 It calls `asParserInput` on the `Input` instance which is the most convenient way
-if you use parser combinators, as it directly gives you a `Reader[Char]` no matter
+if you use parser combinators, as it directly gives you a `ParserContext` no matter
 where the text is actually read from. When not using combinators, you can use
 `Input.asReader` to obtain a plain `java.io.Reader`.
 
 
 
-Trait MarkupParsers
--------------------
-
-This is the base trait for both the `InlineParsers` and `BlockParsers` sub-traits,
-but its parsers can also be used directly.
+Text Parsers
+------------
 
 The functionality provided by these parsers is not strictly required for implementing
-parsers for any markup language. But it comes with several advantages over using
-only the parsers from the Scala SDK. The parsers are more tailored for the special 
-requirements of parsing text markup, which is quite different from parsing programming 
+parsers for any markup language. But the parsers are convenient helpers as they are more tailored 
+for the special requirements of parsing text markup, which is quite different from parsing programming 
 languages for example. 
 
 In particular for parsing inline markup (like \*this\* for adding emphasis) Laika's parsers deviate
@@ -128,8 +127,8 @@ The downside of this approach is that this is often quite slow, and not easily e
 if you want to support new or customized markup for an existing parser without touching the parser
 implementation.
 
-For typical basic regex parsers there is usually a corresponding option in the `MarkupParsers`
-trait. You can see the full list of provided parsers in the [Scaladoc][markup-scaladoc].
+For typical basic regex parsers there is usually a corresponding option in the `TextParsers`
+object. You can see the full list of provided parsers in the [Scaladoc][text-scaladoc].
 We'll just show a few examples here:
 
 Parsing three or more lower-case characters:
@@ -154,11 +153,11 @@ there will be edge cases where it is the other way round. To be really sure it's
 to do some benchmarks first. 
 
 
-[markup-scaladoc]: ../api/#laika.parse.MarkupParsers
+[text-scaladoc]: ../api/#laika.parse.core.text.TextParsers
 
 
-Trait InlineParsers
--------------------
+Span Parsers
+------------
 
 Laika parses text markup in two phases: in the first phase it only looks for markup which is
 significant for identifying a block type (like a blockquote, an ordered list, a code block
@@ -171,94 +170,38 @@ span parsers, mapping from the first character to the parser, and then performs 
 map lookup for each character. If no parser is mapped to the character it simply continues
 reading. This works for nested structures, too.
 
-The main method in the `InlineParsers` trait that block parsers use to parse their text is:
+To provide all span parsers for a custom markup parser based on Laika's `RootParserBase`
+you only have to implement the abstract method
 
-    def parseInline (source: String): List[Span]
-    
-It takes the source string usually obtained by a preceding block parsing phase and
-parses all inline elements, returning a list of spans (`Span` is a sub-trait of `Element`, 
-the base class for all node types, mixed in by `Link`, `Image` or `Emphasized` for example). 
-This method uses the default span parser map for parsing inline elements which is defined 
-by the member:
-
-    final lazy val spanParsers: Map[Char,Parser[Span]]
-
-which calls the following abstract method to obtain the available span parsers:
-
-    protected def prepareSpanParsers: Map[Char,Parser[Span]]
-        
-Sub-traits need to implement this method. When a specific parsing operation needs
-to deviate from the standard set of inline parsers, a map can get passed to the
-``parseInline`` method explicitly:
-
-    def parseInline (source: String, spanParsers: Map[Char, Parser[Span]])
+    protected lazy val spanParsers: Map[Char,Parser[Span]]
     
 For Markdown the default span parser map is created like this:
 
-    protected def prepareSpanParsers = Map(
-      '*' -> (strong('*') | em('*')),    
-      '_' -> (strong('_') | em('_')),
-      '`' -> (codeEnclosedByDoubleChar | codeEnclosedBySingleChar), 
-      '\\'-> (escapedChar ^^ { Text(_) }),
-      '[' -> link,
-      '<' -> simpleLink,
-      '!' -> image
-    )
+    protected lazy val spanParsers: Map[Char, Parser[Span]] = Map(
+        '*' -> (strong('*') | em('*')),    
+        '_' -> (strong('_') | em('_')),
+        '`' -> (literalEnclosedByDoubleChar | literalEnclosedBySingleChar), 
+        '\\'-> (lineBreak | (escapedChar ^^ { Text(_) })),
+        '[' -> link,
+        '<' -> simpleLink,
+        '!' -> image
+      )
     
 The parsers mapped to the characters are then pretty standard, apart from the fact
-that they are usually built upon the base parsers provided by the `MarkupParsers`
-trait. These parsers must not look for
+that they are usually built upon the base parsers provided by the `TextParsers`
+object and the `RecursiveSpanParsers` trait. These parsers must not look for
 the initial character as this will be consumed by the map lookup already. And they
 are still allowed to fail, in which case the special character will be treated as
 normal text input.
 
-If any of the parsers need to parse nested structures, `InlineParsers` comes
-with an additional method that allows to specify both, a condition (in form of a parser)
-for when the span ends and a map for available nested parsers, which may or may not
-be identical to the map for top level spans, depending on the markup specification.
-The signature is as follows:
-
-    def spans (parser: TextParser, nested: Map[Char, Parser[Span]]) 
-
-`TextParser` is a sub-trait of `Parser[String]`, and the type of parser produced
-by most methods in `MarkupParsers`. The rules for the map are identical
-to those for top-level spans. The text parser parses the current span, but may get
-suspended for parsing nesting structures based on the parser map. 
-
-Inli
 
 
+Block Parsers
+-------------
 
-Trait BlockParsers
-------------------
-
-This is the base trait for parsing blocks, the first phase of the two-phase parsing
-process. It adds a few utility parsers like `eol` (end-of-line), `blankLine`
-or `restOfLine`. See the [Scaladoc][block-scaladoc] for details on those.
-
-If you mix in this trait you have to implement this abstract method:
-
-    protected def prepareBlockParsers (nested: Boolean): List[Parser[Block]]
-
-It will be invoked twice, so if you have a different set of parsers for the
-top-level blocks and the nested ones, you can return different lists depending
-on the flag. Otherwise you are safe to ignore it.
-
-Finally there is a second abstract method you need to implement:
-
-    def nonRecursiveBlock: Parser[Block]
-
-This one is rarely ever used, it exists
-as a safeguard against malicious input. If a certain (configurable) nest level
-has been reached, only block elements that do not potentially contain further
-nested blocks are considered for subsequent parsing.
-
-Like `Span`, `Block` is a sub-trait of `Element`, the base class for all node types. 
-Examples for case classes mixing in `Block` are `Paragraph`, `CodeBlock` or `OrderedList`.
-
-Finally this trait provides (entirely optional) convenience methods for creating
+Laika offers a `BlockParsers` object with convenience methods for creating
 a typical block parser. This is the signature of the first one:
-
+  
     def block (firstLinePrefix: Parser[Any], 
                linePrefix: Parser[Any], 
                nextBlockPrefix: Parser[Any]): Parser[List[String]]
@@ -272,14 +215,29 @@ blocks or list items that span multiple parapraphs.
 Finally there is a second utility that can be used for indented blocks:
 
     def indentedBlock (minIndent: Int = 1,
-              linePredicate: => Parser[Any] = success(), 
+              linePredicate: => Parser[Any] = success(()),
               endsOnBlankLine: Boolean = false,
               firstLineIndented: Boolean = false,
-              maxIndent: Int = Int.MaxValue): Parser[IndentedBlock]
+              maxIndent: Int = Int.MaxValue): Parser[String] =
               
 Like the other utility it allows to specify a few predicates. This method
 is not used for parsing Markdown's indented blocks, though, as Markdown has
 a very special way of treating whitespace.
 
-[block-scaladoc]: ../api/#laika.parse.BlockParsers
+To provide all block parsers for a custom markup parser based on Laika's `RootParserBase`
+you have to implement the abstract methods
 
+    protected def topLevelBlock: Parser[Block]
+    
+    protected def nestedBlock: Parser[Block]
+
+    protected def nonRecursiveBlock: Parser[Block]
+
+The first two methods allow to make a distinction between a block that is only
+allowed to occur on the top level and those which can appear anywhere. 
+Of course any block can potentially appear in both parsers.
+
+The third method `nonRecursiveBlock` is rarely ever used, it exists
+as a safeguard against malicious input. If a certain (configurable) nest level
+has been reached, only block elements that do not potentially contain further
+nested blocks are considered for subsequent parsing.
