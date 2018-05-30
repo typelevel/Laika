@@ -25,7 +25,9 @@ import laika.tree.Elements._
 import laika.tree.Paths.Path
 import laika.util.~
 
-/**
+/** Base implementation of a root parser, responsible of assembling all the
+  * block, inline, text and configuration parsers supported by a text markup language.
+  *
   * @author Jens Halm
   */
 trait RootParserBase extends DefaultRecursiveParsers {
@@ -45,11 +47,16 @@ trait RootParserBase extends DefaultRecursiveParsers {
     Document(path, root, TreeUtil.extractFragments(root.content), config)
   }
 
+  /** Builds a parser for a configuration header of a document at the specified path.
+    *
+    * The default implementation does not support configuration headers, but always
+    * succeeds providing an empty `Config` instance as the result.
+    */
   def config (path: Path): Parser[Either[InvalidBlock,Config]] = success(Right(ConfigFactory.empty))
 
-  /** Fully parses the input from the specified reader and returns the configuration and root element.
+  /** Fully parses the input from the specified context and returns the configuration and root element.
     */
-  protected def parseConfigAndRoot (ctx: ParserContext, path: Path): (Config,RootElement) = {
+  protected def parseConfigAndRoot (ctx: ParserContext, path: Path): (Config, RootElement) = {
     // TODO - extract into ConfigHeaderParser
     def assembleConfig (config: Config, root: RootElement) = {
       import scala.collection.JavaConverters._
@@ -70,6 +77,9 @@ trait RootParserBase extends DefaultRecursiveParsers {
   }
 
 
+  /** Merges the two specified span parser maps, dealing with collisions in case some
+    * are mapped to the same start character.
+    */
   protected def mergeSpanParsers (base: Map[Char, Parser[Span]], additional: Map[Char, Parser[Span]]) = {
     additional.foldLeft(base) {
       case (acc, (char, parser)) =>
@@ -78,6 +88,8 @@ trait RootParserBase extends DefaultRecursiveParsers {
     }
   }
 
+  /** Merges the two specified block parsers, trying them in the order they appear in the sequence.
+    */
   protected def mergeBlockParsers (parsers: Seq[Parser[Block]]): Parser[Block] =
     if (parsers.isEmpty) failure("No block parsers specified")
     else parsers.reduceLeft(_ | _)

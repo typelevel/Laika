@@ -34,7 +34,9 @@ import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 
-/**
+/** The main parser for reStructuredText, combining the individual parsers for block and inline elements,
+  * and adding functionality like directives depending on configuration.
+  *
   * @author Jens Halm
   */
 class RootParser(laikaBlockDirectives: Map[String, Blocks.Directive] = Map(),

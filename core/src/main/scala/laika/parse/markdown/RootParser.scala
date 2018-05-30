@@ -27,7 +27,9 @@ import laika.rewrite.TreeUtil
 import laika.tree.Elements._
 import laika.tree.Paths.Path
 
-/**
+/** The main parser for Markdown, combining the individual parsers for block and inline elements,
+  * and adding functionality like directives or verbatim HTML depending on configuration.
+  *
   * @author Jens Halm
   */
 class RootParser (blockDirectives: Map[String, Blocks.Directive],
