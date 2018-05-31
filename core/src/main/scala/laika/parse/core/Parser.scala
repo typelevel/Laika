@@ -222,10 +222,9 @@ abstract class Parser[+T] {
     * parsers that get applied until one of them fails.
     *
     * The result of the returned parser is a list containing the
-    *
-    * @param next
-    * @tparam U
-    * @return
+    * result of this parser (if it succeeds) plus the results of
+    * successful invocations of the parsers returned by the specified
+    * function.
     */
   def repWith[U >: T] (next: U => Parser[U]): Parser[List[U]] = Parser { in =>
     val elems = new ListBuffer[U]

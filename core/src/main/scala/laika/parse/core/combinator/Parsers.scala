@@ -52,12 +52,12 @@ trait Parsers {
     }
   }
 
-  /**  Applies the specified parser at the specified offset behind the current
+  /**  Applies the specified parser at the current
     *  position. Never consumes any input.
     */
   def lookAhead[T] (p: Parser[T]): Parser[T] = Parser { in =>
     p.parse(in) match{
-      case s@ Success(s1,_) => Success(s1, in)
+      case Success(s1,_) => Success(s1, in)
       case e => e
     }
   }
@@ -69,7 +69,7 @@ trait Parsers {
     val errMsg: Int => Message = Message.forRuntimeValue[Int] { o => s"Unable to look ahead with offset $o" }
     Parser { in =>
       if (in.offset - offset < 0) Failure(errMsg(offset), in)
-      p.parse(in) match{
+      p.parse(in.consume(offset)) match{
         case s@ Success(s1,_) => Success(s1, in)
         case e => e
       }
