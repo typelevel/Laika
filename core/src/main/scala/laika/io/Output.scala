@@ -23,11 +23,14 @@ import java.io.FileOutputStream
 import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.io.Writer
+
 import scala.collection.mutable.StringBuilder
 import scala.io.Codec
 import laika.tree.Paths.Path
 import laika.tree.Paths.Root
 import java.io.BufferedOutputStream
+
+import laika.io.IO.FileBased
 
 /** Represents the output of a renderer, abstracting over various types of IO resources. 
  *  
@@ -148,7 +151,7 @@ object Output {
     
   }
   
-  private class LazyFileOutput (file: File, val path: Path, codec: Codec) extends Output with Binary with Closeable {
+  private class LazyFileOutput (val file: File, val path: Path, codec: Codec) extends Output with Binary with FileBased with Closeable {
     
     lazy val delegate = new AutocloseStreamOutput(new BufferedOutputStream(new FileOutputStream(file)), path, codec)
     

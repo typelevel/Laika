@@ -174,7 +174,7 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
       
     def copy (provider: OutputProvider)(input: Input): Operation = {
       val output = provider.newOutput(input.path.name)
-      () => if (input.path != output.path) IO.copy(input, output)
+      () => IO.copy(input, output)
     }
     
     def collectOperations (provider: OutputProvider, parentStyles: StyleDeclarationSet, tree: DocumentTree): Seq[Operation] = {

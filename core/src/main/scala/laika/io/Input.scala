@@ -27,6 +27,7 @@ import scala.io.Codec
 import laika.parse.core.ParserContext
 import java.io.File
 
+import laika.io.IO.FileBased
 import laika.tree.Paths.Path
 import laika.tree.Paths.Root
 
@@ -121,7 +122,7 @@ object Input {
     
   }
   
-  class LazyFileInput (val file: File, val path: Path, codec: Codec) extends Input with Binary with Closeable {
+  class LazyFileInput (val file: File, val path: Path, codec: Codec) extends Input with Binary with FileBased with Closeable {
     
     private lazy val delegate = new AutocloseStreamInput(new FileInputStream(file), path, codec)
     

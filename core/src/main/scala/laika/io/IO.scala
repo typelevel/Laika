@@ -24,6 +24,17 @@ import java.io._
  */
 object IO {
 
+  /** Common trait for all `Input` and `Output` instances
+    * which map directly to a File.
+    */
+  trait FileBased {
+
+    /** The file this instance is mapped to.
+      */
+    def file: File
+
+  }
+
   /** Calls the specified function, closes the IO resource if the resource
    *  mixes in `java.io.Closeable` and returns the result of the function call.
    *  
@@ -68,7 +79,13 @@ object IO {
    *  close the Input or Output afterwards.
    */ 
   def copy (input: Input, output: Output): Unit = {
-    (input, output) match {
+
+    val sameFile = (input, output) match {
+      case (a: FileBased, b: FileBased) => a.file == b.file
+      case _ => false
+    }
+
+    if (!sameFile) (input, output) match {
       case (in: Input.Binary, out: Output.Binary) =>
         val binaryIn = in.asBinaryInput
         val binaryOut = out.asBinaryOutput
