@@ -16,38 +16,27 @@
   
 package laika.api
 
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.StringReader
-import java.io.StringWriter
-import scala.io.Codec
-import scala.io.Codec.charset2codec
+import java.io._
+
+import laika.api.Transform.TransformMappedOutput
 import laika.io.DocumentType.Static
-import scala.io.Source
-import org.scalatest.FlatSpec
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.Matchers
 import laika.io.Input
-import laika.parse.rst.ReStructuredText
-import laika.parse.css.Styles.StyleDeclarationSet
-import laika.parse.css.Styles.StyleDeclaration
-import laika.parse.css.Styles.Selector
-import laika.parse.css.Styles.ElementType
 import laika.parse.css.ParseStyleSheet
+import laika.parse.css.Styles.{ElementType, StyleDeclaration, StyleDeclarationSet}
 import laika.parse.markdown.Markdown
-import laika.render.PrettyPrint
-import laika.render.XSLFO
-import laika.render.TextWriter
+import laika.parse.rst.ReStructuredText
+import laika.render.{PrettyPrint, TextWriter, XSLFO}
 import laika.render.helper.RenderResult
+import laika.template.ParseTemplate
 import laika.tree.Documents.TemplateDocument
 import laika.tree.Elements.Text
 import laika.tree.Paths.Root
 import laika.tree.Templates._
+import laika.tree.helper.{InputBuilder, OutputBuilder}
 import laika.tree.helper.OutputBuilder.readFile
-import laika.tree.helper.InputBuilder
-import laika.template.ParseTemplate
-import laika.api.Transform.TransformMappedOutput
+import org.scalatest.{FlatSpec, Matchers}
+
+import scala.io.{Codec, Source}
 
 class TransformAPISpec extends FlatSpec 
                        with Matchers {
@@ -148,18 +137,19 @@ class TransformAPISpec extends FlatSpec
 
   
   trait TreeTransformer extends InputBuilder {
+    import laika.directive.Directives.Templates
     import laika.io.DocumentType
     import laika.io.InputProvider.InputConfigBuilder
     import laika.io.OutputProvider.OutputConfigBuilder
-    import laika.tree.helper.OutputBuilder._
-    import laika.tree.Paths.Path
     import laika.template.ParseTemplate
-    import laika.directive.Directives.Templates
+    import laika.tree.Paths.Path
+    import laika.tree.helper.OutputBuilder
+    import laika.tree.helper.OutputBuilder._
 
     val dirs: String
     
     def input (source: String) = new InputConfigBuilder(parseTreeStructure(source), Codec.UTF8)
-    def output (builder: TestProviderBuilder) = new OutputConfigBuilder(builder, Codec.UTF8)
+    def output (builder: OutputBuilder.TestProviderBuilder) = new OutputConfigBuilder(builder, Codec.UTF8)
 
     def transformTree: RenderedTree = transformWith(identity)
     def transformMultiMarkup: RenderedTree = transformWith(identity, Transform from Markdown or ReStructuredText to PrettyPrint)
@@ -170,13 +160,13 @@ class TransformAPISpec extends FlatSpec
     def transformWithDirective (directive: Templates.Directive): RenderedTree = transformWith(_.withTemplateDirectives(directive))
     
     def transformInParallel: RenderedTree = {
-      val builder = new TestProviderBuilder
+      val builder = new OutputBuilder.TestProviderBuilder
       transform fromTree input(dirs).inParallel toTree output(builder).inParallel
       builder.result
     }
     
     private def transformWith (f: InputConfigBuilder => InputConfigBuilder, transformer: TransformMappedOutput[TextWriter] = transform): RenderedTree = {
-      val builder = new TestProviderBuilder
+      val builder = new OutputBuilder.TestProviderBuilder
       transformer fromTree f(input(dirs)) toTree output(builder)
       builder.result
     }
@@ -289,7 +279,6 @@ class TransformAPISpec extends FlatSpec
   
   it should "transform a tree with a custom style sheet engine" in {
     new TreeTransformer {
-      import laika.tree.helper.OutputBuilder._
       // the PrettyPrint renderer does not use stylesheets, so we must use XSL-FO here
       def styleDecl(fontSize: String) =
         StyleDeclaration(ElementType("Paragraph"), "font-size" -> s"${fontSize}pt")
@@ -298,7 +287,7 @@ class TransformAPISpec extends FlatSpec
       val dirs = """- doc1.md:name
         |- styles.fo.css:style""".stripMargin
       val result = RenderResult.fo.withDefaultTemplate("""<fo:block font-family="serif" font-size="13pt" space-after="3mm">foo</fo:block>""")
-      val providerBuilder = new TestProviderBuilder
+      val providerBuilder = new OutputBuilder.TestProviderBuilder
       val styles = ParseStyleSheet as parser
       Transform from Markdown to XSLFO fromTree input(dirs).inParallel withStyleSheetParser styles toTree output(providerBuilder).inParallel
       providerBuilder.result should be (root(List(docs(
@@ -308,9 +297,8 @@ class TransformAPISpec extends FlatSpec
   }
   
   it should "transform a tree with a template directive" in {
-    import laika.directive.Directives._
-    import laika.directive.Directives.Templates
     import laika.directive.Directives.Templates.Combinators._
+    import laika.directive.Directives.{Templates, _}
     
     val directive = Templates.create("foo") {
       attribute(Default) map { TemplateString(_) }
@@ -415,7 +403,6 @@ class TransformAPISpec extends FlatSpec
   
   trait GatheringTransformer extends InputBuilder {
     import laika.io.InputProvider.InputConfigBuilder
-    import laika.tree.helper.OutputBuilder._
     
     val srcRoot = """Title
       |=====
@@ -541,7 +528,7 @@ class TransformAPISpec extends FlatSpec
       readFile(base+"/dir3/doc8.txt") should be (renderedDoc(8))
     }
   }
-      
+
   it should "read from and write to directories" in {
     import laika.tree.helper.OutputBuilder.createTempDirectory
     new FileSystemTest {
@@ -551,7 +538,7 @@ class TransformAPISpec extends FlatSpec
       readFiles(targetDir.getPath)
     }
   }
-  
+
   it should "allow to specify custom exclude filter" in {
     import laika.tree.helper.OutputBuilder.createTempDirectory
     new FileSystemTest {
@@ -561,7 +548,7 @@ class TransformAPISpec extends FlatSpec
       readFilesFiltered(targetDir.getPath)
     }
   }
-  
+
   it should "read from two root directories" in {
     import laika.tree.helper.OutputBuilder.createTempDirectory
     new FileSystemTest {
@@ -570,6 +557,27 @@ class TransformAPISpec extends FlatSpec
       val targetDir = createTempDirectory("renderToDir")
       transform fromDirectories (Seq(source1, source2)) toDirectory targetDir
       readFilesMerged(targetDir.getPath)
+    }
+  }
+
+  it should "allow to use the same directory as input and output" in {
+    import laika.tree.helper.OutputBuilder.{createTempDirectory, writeFile, readFile}
+    new FileSystemTest {
+      val targetDir = createTempDirectory("renderToDir")
+      val staticFile = new File(targetDir, "static.txt")
+      val inputFile = new File(targetDir, "hello.md")
+      writeFile(inputFile, "Hello")
+      writeFile(staticFile, "Text")
+
+      val result = """RootElement - Blocks: 1
+                     |. Paragraph - Spans: 1
+                     |. . Text - 'Hello'""".stripMargin
+
+      transform fromDirectory targetDir toDirectory targetDir
+
+      readFile(inputFile) shouldBe "Hello"
+      readFile(staticFile) shouldBe "Text"
+      readFile(new File(targetDir, "hello.txt")) shouldBe result
     }
   }
   

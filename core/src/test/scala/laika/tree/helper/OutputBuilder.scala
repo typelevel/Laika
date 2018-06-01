@@ -26,8 +26,10 @@ import laika.io.Output
 import laika.tree.Elements.TextContainer
 import laika.tree.Elements.ElementContainer
 import laika.tree.Elements.Element
+
 import scala.collection.mutable.ListBuffer
-import java.io.File
+import java.io.{BufferedWriter, File, FileWriter}
+
 import scala.annotation.tailrec
 import scala.io.Source
 
@@ -112,6 +114,15 @@ object OutputBuilder {
     source.close()
     fileContent
   }
-  
+
+  def writeFile (f: File, content: String): Unit = {
+    val bw = new BufferedWriter(new FileWriter(f))
+    try {
+      bw.write(content)
+    }
+    finally {
+      bw.close()
+    }
+  }
   
 }
