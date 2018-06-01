@@ -22,10 +22,10 @@ import laika.parse.core.markup.RecursiveParsers
 import laika.parse.core.text.TextParsers._
 import laika.parse.rst.Elements._
 import laika.tree.Elements._
-import laika.util.{RomanNumerals, ~}
+import laika.util.{RomanNumerals, Stack, ~}
 
 import scala.annotation.tailrec
-import scala.collection.mutable.{ListBuffer, Stack}
+import scala.collection.mutable.ListBuffer
 import scala.util.Try
 
 /** Provides the parsers for all reStructuredText list types.
@@ -263,7 +263,7 @@ class ListParsers (recParsers: RecursiveParsers) {
         case (line, level) => addItem(line, level)
       }
   
-      val (topBuffer, _) = stack.reduceLeft { (top, next) =>
+      val (topBuffer, _) = stack.elements.reduceLeft { (top, next) =>
         next._1 += LineBlock(top._1.toList)
         next
       }

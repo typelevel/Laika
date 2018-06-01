@@ -16,13 +16,13 @@
 
 package laika.parse.rst
 
-import laika.parse.core.markup.{EscapedTextParsers, RecursiveParsers, RootParserBase}
+import laika.parse.core.markup.RecursiveParsers
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Parser, Success}
 import laika.tree.Elements._
-import laika.util.~
+import laika.util.{Stack, ~}
 
-import scala.collection.mutable.{ListBuffer, Stack}
+import scala.collection.mutable.ListBuffer
 
 /** Provides parsers for the two table types supported by reStructuredText.
  * 
@@ -118,7 +118,7 @@ class TableParsers (recParsers: RecursiveParsers) {
     
     def currentCell: CellBuilder = cells.top.cell
     
-    def previousCell: CellBuilder = cells(1).cell
+    def previousCell: CellBuilder = cells.elements(1).cell
     
     def nextCell: CellBuilder = {
       if (cells.nonEmpty && cells.top.mergedLeft && rowspanDif != 0)
@@ -164,12 +164,12 @@ class TableParsers (recParsers: RecursiveParsers) {
   }
   
   class TableBuilder (columnWidths: List[Int], recParser: String => List[Block]) {
-    object ColumnFactory {
+    private object ColumnFactory {
       var lastColumn: Option[ColumnBuilder] = None
       val columnWidthIt = columnWidths.iterator
       def next = { lastColumn = Some(new ColumnBuilder(lastColumn, recParser)); lastColumn.get }
     }
-    val columns = List.fill(columnWidths.length)(ColumnFactory.next)
+    val columns: List[ColumnBuilder] = List.fill(columnWidths.length)(ColumnFactory.next)
     private val rows = new ListBuffer[RowBuilder]
     
     private def init () = {
@@ -365,7 +365,7 @@ class TableParsers (recParsers: RecursiveParsers) {
               }
             case TableBoundary =>
               foreachColumn(row) {
-                case (Intersection :: TableBoundary :: Nil, column) => ()
+                case (Intersection :: TableBoundary :: Nil, _) => ()
                 case (TableBoundary :: TableBoundary :: Nil, column) => column.mergeLeft()
                 case _ => ()
               }

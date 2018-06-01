@@ -17,9 +17,9 @@
 package laika.rewrite
 
 import scala.collection.mutable.ListBuffer
-import scala.collection.mutable.Stack
 import laika.tree.Documents.TreePosition
 import laika.tree.Elements._
+import laika.util.Stack
 
 /** Rewrite rules responsible for building the section structure
  *  of a document based on the header elements it contains and
