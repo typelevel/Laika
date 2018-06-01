@@ -50,7 +50,7 @@ trait ParseResultHelpers {
 
       val failureMessageSuffix = left match {
         case Success(unexpected,_) => s"parser result '$unexpected' was not equal to '$expected'"
-        case Failure(msg,in)       => s"parser failed with message '$msg' at ${in.position} instead of producing expected result '$expected'"
+        case Failure(msg,in)       => s"parser failed with message '${msg.message(in)}' at ${in.position} instead of producing expected result '$expected'"
       }
       
       val negatedFailureMessageSuffix = s"parser '$left' did produce the unexpected result $expected"
