@@ -184,6 +184,12 @@ class InlineParsersSpec extends FlatSpec
       spans(txt("some "), link(txt("link "),em(txt("text"))).url("http://foo"), txt(" here"))
     }
   }
+
+  it should "properly parse escape sequences in the text of an inline link" in {
+    Parsing ("some [link \\_text\\_](http://foo) here") should produce {
+      spans(txt("some "), link(txt("link _text_")).url("http://foo"), txt(" here"))
+    }
+  }
   
   
   

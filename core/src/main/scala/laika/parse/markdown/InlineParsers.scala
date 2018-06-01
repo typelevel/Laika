@@ -16,9 +16,10 @@
 
 package laika.parse.markdown
 
-import laika.parse.core.Parser
+import laika.parse.core.{Parser, ParserContext}
 import laika.parse.core.markup.InlineParsers.text
 import laika.parse.core.markup.RecursiveSpanParsers
+import laika.parse.core.text.DelimitedText
 import laika.parse.core.text.TextParsers._
 import laika.tree.Elements._
 import laika.util.~
@@ -143,11 +144,13 @@ class InlineParsers (recParsers: RecursiveSpanParsers) {
    */
   val image: Parser[Span] = {
 
+    val escape = unsafeParserFunction(escapedText(DelimitedText.Undelimited))
+
     def imageInline (p: RecParser, text: String, uri: String, title: Option[String]) =
-      Image(text, URI(uri), title)
+      Image(escape(ParserContext(text)), URI(uri), title)
 
     def imageReference (p: RecParser, text: String, id: String, postFix: String): Span =
-      ImageReference(text, normalizeId(id), "![" + text + postFix)
+      ImageReference(escape(ParserContext(text)), normalizeId(id), "![" + text + postFix)
      
     '[' ~> resource(imageInline, imageReference)
   }
@@ -161,7 +164,7 @@ class InlineParsers (recParsers: RecursiveSpanParsers) {
    */
   def resource (inline: (RecParser, String, String, Option[String]) => Span, ref: (RecParser, String, String, String) => Span): Parser[Span] = {
     
-    val linktext = text(delimitedBy(']'), Map('\\' -> escapedChar, '[' -> (delimitedBy(']') ^^ { "[" + _ + "]" })))
+    val linktext = text(delimitedBy(']'), Map('\\' -> (escapedChar ^^ {"\\" + _}), '[' -> (delimitedBy(']') ^^ { "[" + _ + "]" })))
 
     val titleEnd = lookAhead(ws.^ ~ ')')
     val title = ws.^ ~> (('"' ~> delimitedBy("\"", titleEnd)) | ('\'' ~> delimitedBy("'", titleEnd)))
