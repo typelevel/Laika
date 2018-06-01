@@ -286,6 +286,11 @@ class InlineParsersSpec extends FlatSpec
     Parsing ("some http://www.link.com. here") should produce (spans(txt("some "),
         link(txt(uri)).url(uri), txt(". here")))
   }
+
+  it should "not parse a URI containing unicode characters" in {
+    val text = "some http://www.link.com/fooá here"
+    Parsing (text) should produce (spans(txt(text)))
+  }
   
   it should "parse an email address without surrounding punctuation" in {
     val email = "user@domain.com"

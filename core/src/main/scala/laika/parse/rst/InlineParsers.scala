@@ -326,7 +326,8 @@ class InlineParsers (recParsers: RecursiveSpanParsers, defaultTextRole: String) 
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#standalone-hyperlinks]]
    */
-  lazy val uri: Parser[(String,String,String)] = reverse(1, ("ptth" | "sptth") <~ reverseMarkupStart) ~ uriParsers.httpUriNoScheme ^^ {
+  lazy val uri: Parser[(String,String,String)] = reverse(1, ("ptth" | "sptth") <~ reverseMarkupStart) ~
+      uriParsers.httpUriNoScheme <~ lookAhead(eol | afterEndMarkup) ^^ {
     case scheme ~ rest => (scheme, ":", rest)
   }
   
@@ -334,7 +335,8 @@ class InlineParsers (recParsers: RecursiveSpanParsers, defaultTextRole: String) 
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#standalone-hyperlinks]]
    */
-  lazy val email: Parser[(String,String,String)] = reverse(1, uriParsers.localPart <~ reverseMarkupStart) ~ uriParsers.domain ^? {
+  lazy val email: Parser[(String,String,String)] = reverse(1, uriParsers.localPart <~ reverseMarkupStart) ~
+      uriParsers.domain <~ lookAhead(eol | afterEndMarkup) ^? {
     case local ~ domain if local.nonEmpty && domain.nonEmpty => (local, "@", domain)
   }
 
