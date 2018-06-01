@@ -60,13 +60,20 @@ object RewriteRules {
   
   
   private val defaultsFactories = Seq(LinkResolver, SectionBuilder)
-  
+
+  /** Chains the specified rule factory functions into a single factory function.
+    */
   def chainFactories (rules: Seq[DocumentCursor => RewriteRule]): DocumentCursor => RewriteRule = 
     cursor => chain(rules map (_(cursor)))
-  
-    
+
+  /** The default Laika rewrite rules common to all supported markup languages,
+    * dealing with resolving links and building the section structure of a document.
+    */
   def defaults: DocumentCursor => RewriteRule = chainFactories(defaultsFactories)
-  
+
+  /** Combines the default Laika rewrite rules with the ones provided by the
+    * specified parser factory implementations into a single rule.
+    */
   def defaultsFor (parsers: ParserFactory*): DocumentCursor => RewriteRule = 
     chainFactories(parsers.flatMap(_.rewriteRules) ++ defaultsFactories)
    
