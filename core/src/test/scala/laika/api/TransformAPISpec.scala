@@ -580,6 +580,32 @@ class TransformAPISpec extends FlatSpec
       readFile(new File(targetDir, "hello.txt")) shouldBe result
     }
   }
+
+  it should "not copy files from the output directory if it's nested inside the input directory" in {
+    import laika.tree.helper.OutputBuilder.{createTempDirectory, writeFile, readFile}
+    new FileSystemTest {
+      val targetDir = createTempDirectory("renderToDir")
+      val staticFile = new File(targetDir, "static.txt")
+      val inputFile = new File(targetDir, "hello.md")
+      val subdir = new File(targetDir, "sub")
+      subdir.mkdir()
+      val outputFile = new File(subdir, "hello.js")
+      writeFile(inputFile, "Hello")
+      writeFile(staticFile, "Text")
+      writeFile(outputFile, "Output")
+
+      val result = """RootElement - Blocks: 1
+                     |. Paragraph - Spans: 1
+                     |. . Text - 'Hello'""".stripMargin
+
+      transform fromDirectory targetDir toDirectory subdir
+
+      readFile(inputFile) shouldBe "Hello"
+      readFile(new File(subdir, "static.txt")) shouldBe "Text"
+      readFile(new File(subdir, "hello.txt")) shouldBe result
+      new File(subdir, "sub").exists shouldBe false
+    }
+  }
   
 
 }

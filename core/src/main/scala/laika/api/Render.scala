@@ -178,11 +178,18 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
     }
     
     def collectOperations (provider: OutputProvider, parentStyles: StyleDeclarationSet, tree: DocumentTree): Seq[Operation] = {
+
+      def isOutputRoot (source: DocumentTree) = (source.sourcePaths.headOption, config.provider) match {
+        case (Some(inPath), out: DirectoryOutputProvider) => inPath == out.directory.getAbsolutePath
+        case _ => false
+      }
+
       val styles = parentStyles ++ tree.styles(factory.fileSuffix)
-      
+
       (tree.content flatMap {
         case doc: Document => Seq(renderTree(provider, styles, doc.path, doc.content))
-        case tree: DocumentTree => collectOperations(provider.newChild(tree.name), styles, tree)
+        case tree: DocumentTree if !isOutputRoot(tree) => collectOperations(provider.newChild(tree.name), styles, tree)
+        case _ => Seq()
       }) ++
       (tree.additionalContent flatMap {
         case doc: DynamicDocument => Seq(renderTree(provider, styles, doc.path, doc.content))

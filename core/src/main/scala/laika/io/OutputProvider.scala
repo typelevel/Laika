@@ -67,15 +67,15 @@ object OutputProvider {
   
   /** An output provider that writes to a directory in the file system.
    */
-  class DirectoryOutputProvider (dir: File, val path: Path, codec: Codec) extends OutputProvider {
-    
+  class DirectoryOutputProvider (val directory: File, val path: Path, codec: Codec) extends OutputProvider {
+
     def newOutput (name: String): Output with Binary with Closeable = {
-      val f = new File(dir, name)
+      val f = new File(directory, name)
       Output.toFile(f, path)(codec)
     }
-    
+
     def newChild (name: String): OutputProvider = {
-      val f = new File(dir, name)
+      val f = new File(directory, name)
       require(!f.exists || f.isDirectory, s"File ${f.getAbsolutePath} exists and is not a directory")
       if (!f.exists && !f.mkdir()) throw new IllegalStateException(s"Unable to create directory ${f.getAbsolutePath}")
       new DirectoryOutputProvider(f, path / name, codec)
