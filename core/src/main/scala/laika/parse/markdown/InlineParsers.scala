@@ -147,7 +147,7 @@ class InlineParsers (recParsers: RecursiveSpanParsers) {
     val escape = unsafeParserFunction(escapedText(DelimitedText.Undelimited))
 
     def imageInline (p: RecParser, text: String, uri: String, title: Option[String]) =
-      Image(escape(ParserContext(text)), URI(uri), title)
+      Image(escape(ParserContext(text)), URI(uri), title = title)
 
     def imageReference (p: RecParser, text: String, id: String, postFix: String): Span =
       ImageReference(escape(ParserContext(text)), normalizeId(id), "![" + text + postFix)

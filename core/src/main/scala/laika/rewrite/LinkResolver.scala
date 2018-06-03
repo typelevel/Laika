@@ -107,7 +107,7 @@ object LinkResolver extends (DocumentCursor => RewriteRule) {
                                  else                resolve(ref, ref.id, s"unresolved link reference: ${ref.id}", global = true)
         
       case ref: ImageReference => resolve(ref, ref.id, s"unresolved image reference: ${ref.id}", global = true)
-      case img @ Image(_,URI(uri, None),_,_) => Some(img.copy(uri = URI(uri, PathInfo.fromURI(uri, cursor.parent.target.path)))) 
+      case img @ Image(_,URI(uri, None),_,_,_,_) => Some(img.copy(uri = URI(uri, PathInfo.fromURI(uri, cursor.parent.target.path))))
       
       case _: Temporary => None
 

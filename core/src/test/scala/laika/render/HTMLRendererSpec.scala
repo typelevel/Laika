@@ -479,6 +479,24 @@ class HTMLRendererSpec extends FlatSpec
     val elem = p(txt("some "), img("img", "foo.jpg", title = Some("title")), txt(" span"))
     render (elem) should be ("""<p>some <img src="foo.jpg" alt="img" title="title"> span</p>""") 
   }
+
+  it should "render a paragraph containing an image with width and height in pixels" in {
+    val image = img("img", "foo.jpg", width = Some(Size(200,"px")), height = Some(Size(120,"px")))
+    val elem = p(txt("some "), image, txt(" span"))
+    render (elem) should be ("""<p>some <img src="foo.jpg" alt="img" width="200" height="120"> span</p>""")
+  }
+
+  it should "render a paragraph containing an image with width and height in a unit other than pixels" in {
+    val image = img("img", "foo.jpg", width = Some(Size(12.4,"in")), height = Some(Size(6.8,"in")))
+    val elem = p(txt("some "), image, txt(" span"))
+    render (elem) should be ("""<p>some <img src="foo.jpg" alt="img" style="width:12.4in;height:6.8in"> span</p>""")
+  }
+
+  it should "render a paragraph containing an image with just width in a unit other than pixels" in {
+    val image = img("img", "foo.jpg", width = Some(Size(12.4,"in")))
+    val elem = p(txt("some "), image, txt(" span"))
+    render (elem) should be ("""<p>some <img src="foo.jpg" alt="img" style="width:12.4in"> span</p>""")
+  }
   
   it should "render a paragraph containing an unresolved link reference" in {
     val elem = p(txt("some "), linkRef(txt("link")).id("id").source("[link] [id]"), txt(" span"))

@@ -96,6 +96,40 @@ class StandardSpanDirectivesSpec extends FlatSpec
     val result = root (p(txt("Some "),Image("",URI("picture.jpg", imgPath),options=Styles("foo"))))
     parse(input) should be (result)
   }
+
+  it should "support the align option" in {
+    val input = """.. |subst| image:: picture.jpg
+                  | :align: top
+                  |
+                  |Some |subst|""".stripMargin
+    val result = root (p(txt("Some "),Image("",URI("picture.jpg", imgPath),options=Styles("align-top"))))
+    parse(input) should be (result)
+  }
+
+  it should "support the width and height option" in {
+    val input = """.. |subst| image:: picture.jpg
+                  | :width: 200px
+                  | :height: 120px
+                  |
+                  |Some |subst|""".stripMargin
+    val expectedWidth = Some(Size(200, "px"))
+    val expectedHeight = Some(Size(120, "px"))
+    val result = root (p(txt("Some "),Image("",URI("picture.jpg", imgPath),width = expectedWidth,height = expectedHeight)))
+    parse(input) should be (result)
+  }
+
+  it should "support the scale option" in {
+    val input = """.. |subst| image:: picture.jpg
+                  | :width: 200 px
+                  | :height: 120 px
+                  | :scale: 50%
+                  |
+                  |Some |subst|""".stripMargin
+    val expectedWidth = Some(Size(100, "px"))
+    val expectedHeight = Some(Size(60, "px"))
+    val result = root (p(txt("Some "),Image("",URI("picture.jpg", imgPath),width = expectedWidth,height = expectedHeight)))
+    parse(input) should be (result)
+  }
   
   
   "The replace directive" should "support regular inline markup" in {

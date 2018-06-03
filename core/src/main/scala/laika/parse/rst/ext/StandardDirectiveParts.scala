@@ -16,7 +16,8 @@
 
 package laika.parse.rst.ext
 
-import laika.parse.core.markup.{EscapedTextParsers, RecursiveParsers}
+import laika.parse.core.markup.RecursiveParsers
+import laika.parse.core.text.TextParsers
 import laika.parse.rst.Directives.DirectivePart
 import laika.parse.rst.Directives.Parts._
 import laika.tree.Elements._
@@ -51,14 +52,34 @@ object StandardDirectiveParts {
     *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#image]] for details.
     */
   def image (p: RecursiveParsers): DirectivePart[Span] = {
+    import TextParsers._
+
     def multilineURI (text: String) = Right(text.split("\n").map(_.trim).mkString("\n").trim)
 
-    (argument(multilineURI, withWS = true) ~ optField("alt") ~ optField("target", StandardDirectiveParsers.target(p)) ~ stdOpt) { (uri, alt, target, opt) =>
-      val image = Image(alt.getOrElse(""), URI(uri), None, opt)
+    val align = ("top" | "middle" | "bottom" | "left" | "center" | "right" |
+      any.flatMap(s => failure(s"illegal value for align: '$s'"))) ^^ { a => Styles(s"align-$a") }
+
+    val scale = sizeAndUnit | (anyIn('0' to '9') ^^ { amt => Size(amt.toInt, "%") })
+
+    (argument(multilineURI, withWS = true) ~
+        optField("alt") ~
+        optField("width", StandardDirectiveParsers.parseDirectivePart(sizeAndUnit, _)) ~
+        optField("height", StandardDirectiveParsers.parseDirectivePart(sizeAndUnit, _)) ~
+        optField("scale", StandardDirectiveParsers.parseDirectivePart(scale, _)) ~
+        optField("align", StandardDirectiveParsers.parseDirectivePart(align, _)) ~
+        optField("target", StandardDirectiveParsers.target(p)) ~
+        stdOpt) { (uri, alt, width, height, scale, align, target, opt) =>
+
+      val actualWidth  = scale.fold(width) (s =>  width.map(_.scale(s.amount)))
+      val actualHeight = scale.fold(height)(s => height.map(_.scale(s.amount)))
+      val alignOpt = align.getOrElse(NoOpt)
+
+      val image = Image(alt.getOrElse(""), URI(uri), width = actualWidth, height = actualHeight)
+
       (target map {
-        case ref: ExternalLink  => ref.copy(content = List(image))
-        case ref: LinkReference => ref.copy(content = List(image))
-      }).getOrElse(image)
+        case ref: ExternalLink  => ref.copy(content = List(image.copy(options = opt)), options = alignOpt)
+        case ref: LinkReference => ref.copy(content = List(image.copy(options = opt)), options = alignOpt)
+      }).getOrElse(image.copy(options = alignOpt + opt))
     }
   }
 

@@ -257,7 +257,20 @@ class StandardBlockDirectives {
   /** The image directive for block elements, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#image]] for details.
    */
-  def imageBlock (p: RecursiveParsers): DirectivePart[Block] = image(p) map (img => Paragraph(List(img)))
+  def imageBlock (p: RecursiveParsers): DirectivePart[Block] = image(p) map { img =>
+    val hAlign = Set("align-left", "align-right", "align-center") // promote horizontal align to parent block
+    val (pOpt, imgOpt) = ((NoOpt: Options, Options(img.options.id)) /: img.options.styles) {
+      case ((pOpt, imgOpt), style) =>
+        if (hAlign.contains(style)) (pOpt + Styles(style), imgOpt)
+        else (pOpt, imgOpt + Styles(style))
+    }
+    val content = img match {
+      case img: Image => img.copy(options = imgOpt)
+      case el: ExternalLink => el.copy(options = imgOpt)
+      case lr: LinkReference => lr.copy(options = imgOpt)
+    }
+    Paragraph(List(content), pOpt)
+  }
   
   /** The figure directive, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#figure]] for details.

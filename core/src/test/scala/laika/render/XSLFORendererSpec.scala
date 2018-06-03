@@ -28,7 +28,7 @@ import laika.tree.Templates._
 import laika.tree.Paths.Path
 import laika.tree.helper.ModelBuilder
 
-class XSLFORendererSpec extends FlatSpec 
+class XSLFORendererSpec extends FlatSpec
                         with Matchers
                         with ModelBuilder {
  
@@ -672,7 +672,19 @@ class XSLFORendererSpec extends FlatSpec
     val html = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:external-graphic content-width="scale-down-to-fit" height="100%" scaling="uniform" src="foo.jpg" width="100%"/> span</fo:block>"""
     render (elem) should be (html) 
   }
-  
+
+  it should "render a paragraph containing an image with width and height attributes" in {
+    val elem = p(txt("some "), img("img", "foo.jpg", width = Some(Size(120,"px")), height = Some(Size(80,"px"))), txt(" span"))
+    val html = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:external-graphic content-width="scale-down-to-fit" height="80px" scaling="uniform" src="foo.jpg" width="120px"/> span</fo:block>"""
+    render (elem) should be (html)
+  }
+
+  it should "render a paragraph containing an image with vertical align style" in {
+    val elem = p(txt("some "), img("img", "foo.jpg").copy(options = Styles("align-top")), txt(" span"))
+    val html = """<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:external-graphic content-width="scale-down-to-fit" height="100%" scaling="uniform" src="foo.jpg" vertical-align="top" width="100%"/> span</fo:block>"""
+    render (elem) should be (html)
+  }
+
   it should "render a paragraph containing an unresolved link reference" in {
     val elem = p(txt("some "), linkRef(txt("link")).id("id").source("[link] [id]"), txt(" span"))
     render (elem) should be ("""<fo:block font-family="serif" font-size="10pt" space-after="3mm">some [link] [id] span</fo:block>""") 

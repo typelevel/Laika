@@ -16,8 +16,11 @@
 
 package laika.tree
  
+import java.text.DecimalFormat
+
 import laika.api.Render
 import laika.render.PrettyPrint
+
 import scala.math.Ordered
 import laika.tree.Paths.Path
 import laika.tree.Paths.Root
@@ -589,7 +592,15 @@ object Elements {
   
   /** An inline image with a text description and optional title.
    */
-  case class Image (text: String, uri: URI, title: Option[String] = None, options: Options = NoOpt) extends Link
+  case class Image (text: String, uri: URI, width: Option[Size] = None, height: Option[Size] = None, title: Option[String] = None, options: Options = NoOpt) extends Link
+
+  /** Encapsulates size information with a unit.
+    */
+  case class Size (amount: Double, unit: String) {
+    val formatter = new DecimalFormat("#.##")
+    def scale (percent: Double): Size = copy(amount = amount * percent / 100)
+    def displayValue: String = s"${formatter.format(amount)}$unit"
+  }
   
   
   /** A link reference, the id pointing to the id of a `LinkTarget`. Only part of the

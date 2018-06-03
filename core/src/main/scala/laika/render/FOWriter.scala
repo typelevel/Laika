@@ -48,12 +48,18 @@ class FOWriter (out: String => Unit,
   }
   
   protected def attributes (tag: String, element: Element, attrs: Seq[(String,Any)]): Seq[(String, Any)] = {
-    val fromCSS = styles.collectStyles(element, parents).toSeq
+    val fromCSS = styles.collectStyles(element, parents)
+    val nonEmptyAttrs = (attrs collect {
+      case (name, value: String)       => (name, value)
+      case (name, Some(value: String)) => (name, value)
+    }).toMap
+    val combinedAttrs = (fromCSS ++ nonEmptyAttrs).toSeq.sortBy(_._1)
+
     val options = element match {
       case c: Customizable => c.options
       case _ => NoOpt
     }
-    filterAttributes(tag, ("id"->options.id.map(buildId(path, _))) +: (fromCSS ++: attrs).sortBy(_._1))
+    filterAttributes(tag, ("id"->options.id.map(buildId(path, _))) +: combinedAttrs)
   }
   
   
@@ -120,9 +126,10 @@ class FOWriter (out: String => Unit,
   
   /** Renders an FO `external-graphic` element.
    */
-  def externalGraphic (element: Element, src: String): FOWriter =
-    this <<@/ ("fo:external-graphic", element, "src"->src)
-   
+  def externalGraphic (element: Element, src: String, width: Option[Size], height: Option[Size]): FOWriter =
+    this <<@/ ("fo:external-graphic", element, "src"->src,
+               "width"->width.map(_.displayValue), "height"->height.map(_.displayValue))
+
   /** Renders an FO `list-item` element with the specified label and body.
    */
   def listItem (element: Element, label: Seq[Span], body: Seq[Block], attr: (String,String)*): FOWriter = {

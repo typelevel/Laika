@@ -18,6 +18,7 @@ package laika.parse.core.text
 
 import laika.parse.core._
 import laika.parse.core.combinator.Parsers
+import laika.tree.Elements.Size
 import laika.util.~
 
 /** Base text parsers that provide optimized low-level parsers for typical requirements
@@ -127,6 +128,18 @@ object TextParsers extends Parsers {
     alphanum ~ ((symbol ~ alphanum)*) ^^ { 
       case start ~ rest => start + (rest map { case a~b => a+b }).mkString
     }
+  }
+
+  /** Parses a size and its amount, e.g. 12px.
+    * The unit is mandatory and not validated.
+    */
+  val sizeAndUnit: Parser[Size] = {
+    val digit = anyIn('0' to '9').min(1)
+    val amount = digit ~ opt("." ~ digit) ^^ {
+      case num1 ~ Some(_ ~ num2) => s"$num1.$num2".toDouble
+      case num ~ None => num.toDouble
+    }
+    amount ~ (ws ~> (refName | "%")) ^^ { case amount ~ unit => Size(amount, unit) }
   }
 
   /** Consumes any kind of input, always succeeds.

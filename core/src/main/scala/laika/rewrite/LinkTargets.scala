@@ -137,7 +137,7 @@ object LinkTargets {
     val replace: ((Element,Id)) => Option[Element] = lift (PartialFunction.empty)
     val resolve: ((Element,Id)) => Option[Element] = lift { 
       case (LinkReference (content, _, _, opt), _) => ExternalLink(content, definition.url, definition.title, opt)
-      case (ImageReference (text, _, _, opt), _)   => Image(text, URI(definition.url, PathInfo.fromURI(definition.url, path)), definition.title, opt)
+      case (ImageReference (text, _, _, opt), _)   => Image(text, URI(definition.url, PathInfo.fromURI(definition.url, path)), title = definition.title, options = opt)
     }
   }
   
