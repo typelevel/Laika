@@ -282,7 +282,7 @@ The same options are available programmatically through the `withConfig` method 
     
     Transform from Markdown to PDF.withConfig(config) fromDirectory 
       "source" toFile "out.pdf"
-      
+
 These properties control the following aspects of the rendering:
  
 * `insertTitles` inserts a title per directory and markup file into the document to give it more
@@ -344,7 +344,7 @@ When you are using Laika embedded, the PDF renderer has a hook to specify a cust
     
     Transform from Markdown to PDF.withFopFactory(factory) fromDirectory 
       "src" toFile "out.pdf"
-      
+
 Note that a `FopFactory` is a fairly heavy-weight object, so make sure that you reuse
 either the `FopFactory` instance itself or the resulting `PDF` renderer.
 In case you do not specify a custom factory, Laika ensures that the default

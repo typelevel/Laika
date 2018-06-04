@@ -75,7 +75,7 @@ In `build.sbt`:
       case Emphasized(content, _) => 
           out << """<em class="big">""" << content << "</em>" 
     }}
-    
+
     
 ### Using the Transform API
 

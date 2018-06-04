@@ -296,7 +296,7 @@ Block Directives:
     }
     
     rstBlockDirectives += directive
-    
+
     
 Span Directives:
 

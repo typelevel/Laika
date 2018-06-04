@@ -221,7 +221,7 @@ Markup example:
 Combinator:
 
     attribute(Default)
-    
+
     
 ### Named Attributes
 
@@ -253,7 +253,7 @@ Markup example:
 Combinator:
 
     body(Default)
-    
+
     
 ### Named Bodies
 
@@ -447,6 +447,5 @@ Registration:
 
     // for reStructuredText in Transform API:
     Transform from ReStructuredText to PDF fromDirectory 
-      "source" withTemplateDirectives directive toFile "out.pdf" 
-        
+      "source" withTemplateDirectives directive toFile "out.pdf"
 

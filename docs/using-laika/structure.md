@@ -76,13 +76,13 @@ These sections can then be referenced in templates:
 
     @:for "document.sections": {
       <li><a href="#{{id}}">{{title.content}}</a></li>
-    } 
-    
+    }
+
 Or they can be accessed through a `Document` instance:
 
     val doc: Document = ...
     doc.sections // Seq[SectionInfo]
-    
+
     
 ### Automatic Section Ids
 

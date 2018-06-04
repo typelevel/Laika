@@ -244,7 +244,7 @@ output by renderers for the specified type:
 
     @:format html: This text only appears in the HTML output,
       not in PDF or other formats.
-      
+
 Note that the body of a block directive needs to be indented,
 and does not appear between curly braces.
 
@@ -263,7 +263,7 @@ Block directive:
       subtitle style applied.
       
     While this paragraph does not.
-      
+
 Span directive:
 
     Burrito - @:style price: { £3.50 }.
