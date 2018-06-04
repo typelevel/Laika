@@ -122,13 +122,10 @@ doc.title // Seq[Span]
         <p>These sections can then be referenced in templates:</p>
         <pre>@:for &quot;document.sections&quot;: {
   &lt;li&gt;&lt;a href=&quot;#{{id}}&quot;&gt;{{title.content}}&lt;/a&gt;&lt;/li&gt;
-} 
-</pre>
+}</pre>
         <p>Or they can be accessed through a <code>Document</code> instance:</p>
         <pre>val doc: Document = ...
-doc.sections // Seq[SectionInfo]
-
-</pre>
+doc.sections // Seq[SectionInfo]</pre>
         
         <h3 id="automatic-section-ids" class="section">Automatic Section Ids</h3>
         <p>Laika will automatically generate an id for each headline, so that

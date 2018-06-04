@@ -94,7 +94,7 @@
         
         <h3 id="using-the-sbt-plugin" class="section">Using the sbt Plugin</h3>
         <p>Add the plugin to <code>project/plugins.sbt</code>:</p>
-        <pre>addSbtPlugin(&quot;org.planet42&quot; % &quot;laika-sbt&quot; % &quot;0.7.5&quot;)</pre>
+        <pre>addSbtPlugin(&quot;org.planet42&quot; % &quot;laika-sbt&quot; % &quot;0.8.0&quot;)</pre>
         <p>Enable the plugin in your project&#39;s <code>build.sbt</code>:</p>
         <pre>enablePlugins(LaikaPlugin)
 </pre>
@@ -104,7 +104,7 @@
         
         <h3 id="using-laika-embedded" class="section">Using Laika Embedded</h3>
         <p>Adding the Laika dependency to your sbt build:</p>
-        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-core&quot; % &quot;0.7.5&quot;</pre>
+        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-core&quot; % &quot;0.8.0&quot;</pre>
         <p>Example for transforming from file to file:</p>
         <pre>Transform from Markdown to HTML fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;</pre>
         <p>Example for transforming an entire directory of markup files:</p>
@@ -114,8 +114,7 @@
         <pre>Transform from Markdown to PDF fromDirectory &quot;src&quot; toFile &quot;hello.pdf&quot;
 </pre>
         <p>When using Laika&#39;s PDF support you need to add one more dependency to your build:</p>
-        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-pdf&quot; % &quot;0.7.5&quot;
-</pre>
+        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-pdf&quot; % &quot;0.8.0&quot;</pre>
         
         <h3 id="other-resources" class="section">Other Resources</h3>
         <ul>
@@ -205,24 +204,40 @@
         <h2 id="road-map" class="section">Road Map</h2>
         <ul>
           <li>
-            <p>Improved performance through redesigning the core parsers (0.8)</p>
+            <p><strong>0.9</strong>: New API for ExtensionBundles, support for GitHub-flavored Markdown</p>
           </li>
           <li>
-            <p>New API for ExtensionBundles and support for GitHub Flavored Markdown (0.9)</p>
+            <p><strong>0.10</strong>: Support for output in the epub format</p>
           </li>
           <li>
-            <p>Support for output in the epub format (0.10)</p>
+            <p><strong>0.11</strong>: Integrated support for syntax highlighting in source code</p>
           </li>
           <li>
-            <p>Integrated support for syntax highlighting in source code (0.11)</p>
-          </li>
-          <li>
-            <p>API polishing (1.0)</p>
+            <p><strong>1.0</strong>: API polishing</p>
           </li>
         </ul>
         
         <h2 id="release-history" class="section">Release History</h2>
         <ul>
+          <li>
+            <p><strong>0.8.0</strong> (June 4, 2018):</p>
+            <ul>
+              <li>Doubles parsing speed for both Markdown and reStructuredText</li>
+              <li>Much lower number of parser instance creations on repeated runs</li>
+              <li>
+                Performance goals had been achieved through replacing the former
+                Scala SDK parser combinators with a custom, optimized combinator design:
+                <ul>
+                  <li>Fewer dependent types and base parsers in objects instead of traits, making it easier to freely compose parsers</li>
+                  <li>Create parser error messages lazily, as most of them will never be accessed</li>
+                  <li>Avoid cost of by-name args in all cases except | combinator</li>
+                </ul>
+              </li>
+              <li>Add support for size and align options for the image directive in reStructuredText</li>
+              <li>Fixes for all bugs known and reported to this point </li>
+              <li>Address all deprecation warnings for Scala 2.12  <br></li>
+            </ul>
+          </li>
           <li>
             <p><strong>0.7.5</strong> (Dec 30, 2017):</p>
             <ul>

@@ -123,9 +123,7 @@ val renderer: HTMLWriter =&gt; RenderFunction = { out =&gt;
 laikaSiteRenderers += laikaSiteRenderer { out =&gt; {
   case Emphasized(content, _) =&gt; 
       out &lt;&lt; &quot;&quot;&quot;&lt;em class=&quot;big&quot;&gt;&quot;&quot;&quot; &lt;&lt; content &lt;&lt; &quot;&lt;/em&gt;&quot; 
-}}
-
-</pre>
+}}</pre>
         
         <h3 id="using-the-transform-api" class="section">Using the Transform API</h3>
         <pre>val open = &quot;&quot;&quot;&lt;em class=&quot;big&quot;&gt;&quot;&quot;&quot;
