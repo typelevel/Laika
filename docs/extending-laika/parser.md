@@ -80,7 +80,7 @@ could look (Scaladoc comments, imports and various extension hooks removed for b
     package laika.parse.markdown
     
     class Markdown private (verbatimHTML: Boolean, isStrict: Boolean) 
-                                          extends (Input => RawDocument) {
+                                                   extends ParserFactory {
 
       val fileSuffixes = Set("md", "markdown")
       
@@ -89,17 +89,18 @@ could look (Scaladoc comments, imports and various extension hooks removed for b
       def strict = new Markdown(verbatimHTML, true)
   
       private lazy val parser = {
-        lazy val blockDirectiveMap = ...
-        lazy val spanDirectiveMap = ...
+        lazy val blockDirectives = ...
+        lazy val spanDirectives = ...
         
-        new RootParser(blockDirectiveMap, spanDirectiveMap, verbatimHTML, isStrict)
+        new RootParser(blockDirectives, spanDirectives, verbatimHTML, isStrict)
       }
 
-      def newParser = (input: Input) => parser.parseDocument(input.asParserInput, input.path)
+      val newParser: Input => Document = 
+         (input: Input) => parser.parseDocument(input.asParserInput, input.path)
   
     }
 
-    object Markdown extends Markdown(false) 
+    object Markdown extends Markdown(false, false) 
 
 As you see, all the low-level parsing details are left in the root parser, this is
 just a wrapper for providing a convenient public API. Support for reStructuredText
@@ -218,8 +219,8 @@ Finally there is a second utility that can be used for indented blocks:
               linePredicate: => Parser[Any] = success(()),
               endsOnBlankLine: Boolean = false,
               firstLineIndented: Boolean = false,
-              maxIndent: Int = Int.MaxValue): Parser[String] =
-              
+              maxIndent: Int = Int.MaxValue): Parser[String]
+
 Like the other utility it allows to specify a few predicates. This method
 is not used for parsing Markdown's indented blocks, though, as Markdown has
 a very special way of treating whitespace.
