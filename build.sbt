@@ -1,5 +1,5 @@
 lazy val basicSettings = Seq(
-  version               := "0.8.0-SNAPSHOT",
+  version               := "0.8.0",
   homepage              := Some(new URL("http://planet42.github.io/Laika/")),
   organization          := "org.planet42",
   organizationHomepage  := Some(new URL("http://www.planet42.org")),
@@ -52,9 +52,9 @@ lazy val noPublishSettings = Seq(
   publishTo := None
 )
 
-val scalatest = "org.scalatest" %% "scalatest" % "3.0.1"  % "test"
+val scalatest = "org.scalatest" %% "scalatest" % "3.0.5"  % "test"
 val jTidy     = "net.sf.jtidy"  % "jtidy"      % "r938" % "test"
-val config    = "com.typesafe"  % "config"     % "1.0.2"
+val config    = "com.typesafe"  % "config"     % "1.2.1"
 val fop       = "org.apache.xmlgraphics" % "fop" % "2.1" 
 
 lazy val root = project.in(file("."))

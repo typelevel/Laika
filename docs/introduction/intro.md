@@ -36,7 +36,7 @@ which had been the final release supporting those versions.
 
 Add the plugin to `project/plugins.sbt`:
 
-    addSbtPlugin("org.planet42" % "laika-sbt" % "0.7.5")
+    addSbtPlugin("org.planet42" % "laika-sbt" % "0.8.0")
 
 Enable the plugin in your project's `build.sbt`:
 
@@ -51,7 +51,7 @@ in `target/docs/site`.
 
 Adding the Laika dependency to your sbt build:
 
-    libraryDependencies += "org.planet42" %% "laika-core" % "0.7.5"
+    libraryDependencies += "org.planet42" %% "laika-core" % "0.8.0"
 
 Example for transforming from file to file:
 
@@ -61,15 +61,15 @@ Example for transforming an entire directory of markup files:
 
     Transform from ReStructuredText to 
       HTML fromDirectory "source" toDirectory "target"
-      
+
 Example for transforming an entire directory of markup files to a single PDF file:
 
     Transform from Markdown to PDF fromDirectory "src" toFile "hello.pdf"
     
 When using Laika's PDF support you need to add one more dependency to your build:
 
-    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.7.5"
-    
+    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.8.0"
+
 
 ### Other Resources
 
@@ -147,8 +147,6 @@ Features
 Road Map
 --------
 
-* __0.8__: The speed release, doubling parsing speed for Markdown and reStructuredText
-
 * __0.9__: New API for ExtensionBundles, support for GitHub-flavored Markdown
 
 * __0.10__: Support for output in the epub format
@@ -161,6 +159,19 @@ Road Map
 Release History
 ---------------
 
+* __0.8.0__ (June 4, 2018):
+
+    * Doubles parsing speed for both Markdown and reStructuredText
+    * Much lower number of parser instance creations on repeated runs
+    * Performance goals had been achieved through replacing the former
+      Scala SDK parser combinators with a custom, optimized combinator design:
+        * Fewer dependent types and base parsers in objects instead of traits, making it easier to freely compose parsers
+        * Create parser error messages lazily, as most of them will never be accessed
+        * Avoid cost of by-name args in all cases except | combinator
+    * Add support for size and align options for the image directive in reStructuredText
+    * Fixes for all bugs known and reported to this point 
+    * Address all deprecation warnings for Scala 2.12    
+    
 * __0.7.5__ (Dec 30, 2017):
 
     * Support for sbt 1.0
