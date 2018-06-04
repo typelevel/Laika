@@ -1,32 +1,167 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html >
 <html>
         <head>
-          <title>FOforPDF - laika.render.FOforPDF</title>
-          <meta name="description" content="FOforPDF - laika.render.FOforPDF" />
-          <meta name="keywords" content="FOforPDF laika.render.FOforPDF" />
+          <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+          <title></title>
+          <meta name="description" content="" />
+          <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      <link href="../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.panzoom.min.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.mousewheel.min.js"></script>
+      <script type="text/javascript" src="../../lib/index.js"></script>
+      <script type="text/javascript" src="../../index.js"></script>
+      <script type="text/javascript" src="../../lib/scheduler.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
       <script type="text/javascript">
-         if(top === self) {
-            var url = '../../index.html';
-            var hash = 'laika.render.FOforPDF$';
-            var anchor = window.location.hash;
-            var anchor_opt = '';
-            if (anchor.length >= 1)
-              anchor_opt = '@' + anchor.substring(1);
-            window.location.href = url + '#' + hash + anchor_opt;
-         }
-   	  </script>
+        /* this variable can be used by the JS to determine the path to the root document */
+        var toRoot = '../../';
+      </script>
     
         </head>
-        <body class="value">
+        <body>
+      <div id="search">
+        <span id="doc-title"><span id="doc-version"></span></span>
+        <span class="close-results"><span class="left">&lt;</span> Back</span>
+        <div id="textfilter">
+          <span class="input">
+            <input autocapitalize="none" placeholder="Search" id="index-input" type="text" accesskey="/" />
+            <i class="clear material-icons"></i>
+            <i id="search-icon" class="material-icons"></i>
+          </span>
+        </div>
+    </div>
+      <div id="search-results">
+        <div id="search-progress">
+          <div id="progress-fill"></div>
+        </div>
+        <div id="results-content">
+          <div id="entity-results"></div>
+          <div id="member-results"></div>
+        </div>
+      </div>
+      <div id="content-scroll-container" style="-webkit-overflow-scrolling: touch;">
+        <div id="content-container" style="-webkit-overflow-scrolling: touch;">
+          <div id="subpackage-spacer">
+            <div id="packages">
+              <h1>Packages</h1>
+              <ul>
+                <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="_root_"></a><a id="root:_root_"></a>
+      <span class="permalink">
+      <a href="index.html#_root_" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../../index.html"><span class="name">root</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
+    </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="laika"></a><a id="laika:laika"></a>
+      <span class="permalink">
+      <a href="index.html#laika" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../index.html"><span class="name">laika</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
+    </li><li name="laika.render" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="render"></a><a id="render:render"></a>
+      <span class="permalink">
+      <a href="../laika/index.html#render" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="index.html"><span class="name">render</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
+    </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="FOProperties.html" title="Mapping of XSL-FO tag names to their supported properties."></a>
+                        <a href="FOProperties.html" title="Mapping of XSL-FO tag names to their supported properties.">FOProperties</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="FOWriter$.html" title="Companion providing tree elements specific to the XSL-FO renderer."></a>
+                        <a class="class" href="FOWriter.html" title="API for renderers that produce XSL-FO output."></a>
+                        <a href="FOWriter.html" title="API for renderers that produce XSL-FO output.">FOWriter</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="" title="The default FOforPDF instance using a PDFConfig with all optional features like document titles, bookmarks and table of content enabled."></a>
+                        <a class="class" href="FOforPDF.html" title="Responsible for rendering the XSL-FO for an entire document tree as an interim result to be consumed by the PDF post processor."></a>
+                        <a href="FOforPDF.html" title="Responsible for rendering the XSL-FO for an entire document tree as an interim result to be consumed by the PDF post processor.">FOforPDF</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="HTML$.html" title="The default instance of the HTML renderer."></a>
+                        <a class="class" href="HTML.html" title="A renderer for HTML output."></a>
+                        <a href="HTML.html" title="A renderer for HTML output.">HTML</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="HTMLWriter.html" title="API for renderers that produce HTML output."></a>
+                        <a href="HTMLWriter.html" title="API for renderers that produce HTML output.">HTMLWriter</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="PDF$.html" title="The default instance of the PDF renderer."></a>
+                        <a class="class" href="PDF.html" title="A post processor for PDF output, based on an interim XSL-FO renderer."></a>
+                        <a href="PDF.html" title="A post processor for PDF output, based on an interim XSL-FO renderer.">PDF</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="PDFConfig$.html" title="Companion for the creation of PDFConfig instances."></a>
+                        <a class="class" href="PDFConfig.html" title="Configuration options for the generated PDF output."></a>
+                        <a href="PDFConfig.html" title="Configuration options for the generated PDF output.">PDFConfig</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="PrettyPrint$.html" title=""></a>
+                        <a class="class" href="PrettyPrint.html" title="A renderer for PrettyPrint output, primarily useful for debugging purposes."></a>
+                        <a href="PrettyPrint.html" title="A renderer for PrettyPrint output, primarily useful for debugging purposes.">PrettyPrint</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="TagWriter.html" title="Base type for writers that produce tag-based output formats like XML or HTML."></a>
+                        <a href="TagWriter.html" title="Base type for writers that produce tag-based output formats like XML or HTML.">TagWriter</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="TextWriter.html" title="API for renderers that produce character output."></a>
+                        <a href="TextWriter.html" title="API for renderers that produce character output.">TextWriter</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="XSLFO$.html" title="The default instance of the XSL-FO renderer."></a>
+                        <a class="class" href="XSLFO.html" title="A renderer for XSL-FO output."></a>
+                        <a href="XSLFO.html" title="A renderer for XSL-FO output.">XSLFO</a>
+                      </li>
+              </ul>
+            </div>
+          </div>
+          <div id="content">
+            <body class="object value">
       <div id="definition">
-        <a href="FOforPDF.html" title="Go to companion"><img src="../../lib/object_to_class_big.png" /></a>
-        <p id="owner"><a href="../package.html" class="extype" name="laika">laika</a>.<a href="package.html" class="extype" name="laika.render">render</a></p>
-        <h1><a href="FOforPDF.html" title="Go to companion">FOforPDF</a></h1>
+        <a href="FOforPDF.html" title="See companion class"><div class="big-circle object-companion-class">o</div></a>
+        <p id="owner"><a href="../index.html" class="extype" name="laika">laika</a>.<a href="index.html" class="extype" name="laika.render">render</a></p>
+        <h1><a href="FOforPDF.html" title="See companion class">FOforPDF</a><span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span></h1>
+        <h3><span class="morelinks"><div>
+            Companion <a href="FOforPDF.html" title="See companion class">class FOforPDF</a>
+          </div></span></h3>
       </div>
 
       <h4 id="signature" class="signature">
@@ -38,44 +173,55 @@
         <span class="name">FOforPDF</span><span class="result"> extends <a href="FOforPDF.html" class="extype" name="laika.render.FOforPDF">FOforPDF</a></span>
       </span>
       </h4>
+
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>The default FOforPDF instance using a PDFConfig with all
  optional features like document titles, bookmarks and table
  of content enabled.
 </p></div><div class="toggleContainer block">
-          <span class="toggle">Linear Supertypes</span>
+          <span class="toggle">
+            Linear Supertypes
+          </span>
           <div class="superTypes hiddenContent"><a href="FOforPDF.html" class="extype" name="laika.render.FOforPDF">FOforPDF</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
       <div id="mbrsel">
-        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
-        <div id="order">
-              <span class="filtertype">Ordering</span>
+        <div class="toggle"></div>
+        <div id="memberfilter">
+          <i class="material-icons arrow"></i>
+          <span class="input">
+            <input id="mbrsel-input" placeholder="Filter all members" type="text" accesskey="/" />
+          </span>
+          <i class="clear material-icons"></i>
+        </div>
+        <div id="filterby">
+          <div id="order">
+            <span class="filtertype">Ordering</span>
+            <ol>
+              
+              <li class="alpha in"><span>Alphabetic</span></li>
+              <li class="inherit out"><span>By Inheritance</span></li>
+            </ol>
+          </div>
+          <div class="ancestors">
+                  <span class="filtertype">Inherited<br />
+                  </span>
+                  <ol id="linearization">
+                    <li class="in" name="laika.render.FOforPDF"><span>FOforPDF</span></li><li class="in" name="laika.render.FOforPDF"><span>FOforPDF</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  </ol>
+                </div><div class="ancestors">
+              <span class="filtertype"></span>
               <ol>
-                
-                <li class="alpha in"><span>Alphabetic</span></li>
-                <li class="inherit out"><span>By inheritance</span></li>
+                <li class="hideall out"><span>Hide All</span></li>
+                <li class="showall in"><span>Show All</span></li>
               </ol>
             </div>
-        <div id="ancestors">
-                <span class="filtertype">Inherited<br />
-                </span>
-                <ol id="linearization">
-                  <li class="in" name="laika.render.FOforPDF"><span>FOforPDF</span></li><li class="in" name="laika.render.FOforPDF"><span>FOforPDF</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
-                </ol>
-              </div><div id="ancestors">
-            <span class="filtertype"></span>
-            <ol>
-              <li class="hideall out"><span>Hide All</span></li>
-              <li class="showall in"><span>Show all</span></li>
-            </ol>
-            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
-          </div>
-        <div id="visbl">
-            <span class="filtertype">Visibility</span>
-            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
-          </div>
+          <div id="visbl">
+              <span class="filtertype">Visibility</span>
+              <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+            </div>
+        </div>
       </div>
 
       <div id="template">
@@ -86,25 +232,16 @@
 
         
 
-        <div id="values" class="values members">
+        <div class="values members">
               <h3>Value Members</h3>
-              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="!=(x$1:AnyRef):Boolean"></a>
-      <a id="!=(AnyRef):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="!=(x$1:Any):Boolean"></a>
-      <a id="!=(Any):Boolean"></a>
-      <h4 class="signature">
+              <ol>
+                <li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#!=(x$1:Any):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -112,12 +249,15 @@
       <span class="symbol">
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
-      <a id="##():Int"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html###():Int" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -125,25 +265,15 @@
       <span class="symbol">
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="==(x$1:AnyRef):Boolean"></a>
-      <a id="==(AnyRef):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="==(x$1:Any):Boolean"></a>
-      <a id="==(Any):Boolean"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#==" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a><a id="==(Any):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#==(x$1:Any):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -151,12 +281,15 @@
       <span class="symbol">
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="laika.render.FOforPDF#addTreeTitles" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="addTreeTitles(linksOnly:Boolean)(tree:laika.tree.Documents.DocumentTree):laika.tree.Documents.DocumentTree"></a>
-      <a id="addTreeTitles(Boolean)(DocumentTree):DocumentTree"></a>
-      <h4 class="signature">
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="laika.render.FOforPDF#addTreeTitles" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="addTreeTitles(linksOnly:Boolean)(tree:laika.tree.Documents.DocumentTree):laika.tree.Documents.DocumentTree"></a><a id="addTreeTitles(Boolean)(DocumentTree):DocumentTree"></a>
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#addTreeTitles(linksOnly:Boolean)(tree:laika.tree.Documents.DocumentTree):laika.tree.Documents.DocumentTree" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -164,16 +297,19 @@
       <span class="symbol">
         <span class="name">addTreeTitles</span><span class="params">(<span name="linksOnly">linksOnly: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
       </span>
-      </h4>
+      
       <p class="shortcomment cmt">Adds title elements for each tree and subtree in the specified
  root tree.</p><div class="fullcomment"><div class="comment cmt"><p>Adds title elements for each tree and subtree in the specified
  root tree. Tree titles can be specified in the configuration file
  for each tree.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="FOforPDF.html" class="extype" name="laika.render.FOforPDF">FOforPDF</a></dd></dl></div>
-    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
-      <a id="asInstanceOf[T0]:T0"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#asInstanceOf[T0]:T0" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -181,12 +317,15 @@
       <span class="symbol">
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="clone():Object"></a>
-      <a id="clone():AnyRef"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a><a id="clone():AnyRef"></a>
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#clone():Object" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -194,18 +333,23 @@
       <span class="symbol">
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="eq(x$1:AnyRef):Boolean"></a>
-      <a id="eq(AnyRef):Boolean"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#eq(x$1:AnyRef):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -213,12 +357,15 @@
       <span class="symbol">
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="equals(x$1:Any):Boolean"></a>
-      <a id="equals(Any):Boolean"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#equals" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a><a id="equals(Any):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#equals(x$1:Any):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -226,12 +373,15 @@
       <span class="symbol">
         <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
-      <a id="finalize():Unit"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#finalize():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -239,18 +389,21 @@
       <span class="symbol">
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.render.FOforPDF#generateBookmarks" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="generateBookmarks(root:laika.tree.Documents.DocumentTree,depth:Int):Map[String,laika.tree.Elements.Element]"></a>
-      <a id="generateBookmarks(DocumentTree,Int):Map[String,Element]"></a>
-      <h4 class="signature">
+    </li><li name="laika.render.FOforPDF#generateBookmarks" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="generateBookmarks(root:laika.tree.Documents.DocumentTree,depth:Int):Map[String,laika.tree.Elements.Element]"></a><a id="generateBookmarks(DocumentTree,Int):Map[String,Element]"></a>
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#generateBookmarks(root:laika.tree.Documents.DocumentTree,depth:Int):Map[String,laika.tree.Elements.Element]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -258,17 +411,19 @@
       <span class="symbol">
         <span class="name">generateBookmarks</span><span class="params">(<span name="root">root: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>, <span name="depth">depth: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>]</span>
       </span>
-      </h4>
+      
       <p class="shortcomment cmt">Generates bookmarks for the structure of the DocumentTree.</p><div class="fullcomment"><div class="comment cmt"><p>Generates bookmarks for the structure of the DocumentTree. Individual
  bookmarks can stem from tree or subtree titles, document titles or
  document sections, depending on which recursion depth is configured.
  The configuration key for setting the recursion depth is <code>pdf.bookmarks.depth</code>.
-</p></div><dl class="paramcmts block"><dt class="param">root</dt><dd class="cmt"><p>the document tree to generate bookmarks for</p></dd><dt>returns</dt><dd class="cmt"><p>a fragment map containing the generated bookmarks
-</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="FOforPDF.html" class="extype" name="laika.render.FOforPDF">FOforPDF</a></dd></dl></div>
-    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+</p></div><dl class="paramcmts block"><dt class="param">root</dt><dd class="cmt"><p>the document tree to generate bookmarks for</p></dd><dt>returns</dt><dd class="cmt"><p>a fragment map containing the generated bookmarks</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="FOforPDF.html" class="extype" name="laika.render.FOforPDF">FOforPDF</a></dd></dl></div>
+    </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
-      <a id="getClass():Class[_]"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#getClass():Class[_]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -276,12 +431,18 @@
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="laika.render.FOforPDF#hasContent" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hasContent(nav:laika.tree.Documents.Navigatable):Boolean"></a>
-      <a id="hasContent(Navigatable):Boolean"></a>
-      <h4 class="signature">
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="laika.render.FOforPDF#hasContent" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hasContent(nav:laika.tree.Documents.Navigatable):Boolean"></a><a id="hasContent(Navigatable):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#hasContent(nav:laika.tree.Documents.Navigatable):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -289,13 +450,16 @@
       <span class="symbol">
         <span class="name">hasContent</span><span class="params">(<span name="nav">nav: <a href="../tree/Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      
       <p class="shortcomment cmt">Indicates whether the specified navigatable contains at least one document.</p><div class="fullcomment"><div class="comment cmt"><p>Indicates whether the specified navigatable contains at least one document.
 </p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="FOforPDF.html" class="extype" name="laika.render.FOforPDF">FOforPDF</a></dd></dl></div>
-    </li><li name="laika.render.FOforPDF#hasDocuments" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hasDocuments(tree:laika.tree.Documents.DocumentTree):Boolean"></a>
-      <a id="hasDocuments(DocumentTree):Boolean"></a>
-      <h4 class="signature">
+    </li><li name="laika.render.FOforPDF#hasDocuments" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hasDocuments(tree:laika.tree.Documents.DocumentTree):Boolean"></a><a id="hasDocuments(DocumentTree):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#hasDocuments(tree:laika.tree.Documents.DocumentTree):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -303,13 +467,16 @@
       <span class="symbol">
         <span class="name">hasDocuments</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      
       <p class="shortcomment cmt">Indicates whether the specified tree contains at least one document.</p><div class="fullcomment"><div class="comment cmt"><p>Indicates whether the specified tree contains at least one document.
 </p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="FOforPDF.html" class="extype" name="laika.render.FOforPDF">FOforPDF</a></dd></dl></div>
-    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
-      <a id="hashCode():Int"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#hashCode():Int" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -317,12 +484,18 @@
       <span class="symbol">
         <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="laika.render.FOforPDF#insertDocTitles" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="insertDocTitles(linksOnly:Boolean)(tree:laika.tree.Documents.DocumentTree):laika.tree.Documents.DocumentTree"></a>
-      <a id="insertDocTitles(Boolean)(DocumentTree):DocumentTree"></a>
-      <h4 class="signature">
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="laika.render.FOforPDF#insertDocTitles" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="insertDocTitles(linksOnly:Boolean)(tree:laika.tree.Documents.DocumentTree):laika.tree.Documents.DocumentTree"></a><a id="insertDocTitles(Boolean)(DocumentTree):DocumentTree"></a>
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#insertDocTitles(linksOnly:Boolean)(tree:laika.tree.Documents.DocumentTree):laika.tree.Documents.DocumentTree" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -330,16 +503,19 @@
       <span class="symbol">
         <span class="name">insertDocTitles</span><span class="params">(<span name="linksOnly">linksOnly: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
       </span>
-      </h4>
+      
       <p class="shortcomment cmt">Adds title elements for each document in the specified
  tree, including documents in subtrees.</p><div class="fullcomment"><div class="comment cmt"><p>Adds title elements for each document in the specified
  tree, including documents in subtrees. Document titles will be obtained either
  from a <code>Title</code> element in the document's content or from its configuration header.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="FOforPDF.html" class="extype" name="laika.render.FOforPDF">FOforPDF</a></dd></dl></div>
-    </li><li name="laika.render.FOforPDF#insertToc" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="insertToc(tree:laika.tree.Documents.DocumentTree,depth:Int,title:Option[String]):laika.tree.Documents.DocumentTree"></a>
-      <a id="insertToc(DocumentTree,Int,Option[String]):DocumentTree"></a>
-      <h4 class="signature">
+    </li><li name="laika.render.FOforPDF#insertToc" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="insertToc(tree:laika.tree.Documents.DocumentTree,depth:Int,title:Option[String]):laika.tree.Documents.DocumentTree"></a><a id="insertToc(DocumentTree,Int,Option[String]):DocumentTree"></a>
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#insertToc(tree:laika.tree.Documents.DocumentTree,depth:Int,title:Option[String]):laika.tree.Documents.DocumentTree" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -347,15 +523,18 @@
       <span class="symbol">
         <span class="name">insertToc</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>, <span name="depth">depth: <span class="extype" name="scala.Int">Int</span></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
       </span>
-      </h4>
+      
       <p class="shortcomment cmt">Inserts a table of content into the specified document tree.</p><div class="fullcomment"><div class="comment cmt"><p>Inserts a table of content into the specified document tree.
  The recursion depth can be set with the configuration key
  <code>pdf.toc.depth</code>.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="FOforPDF.html" class="extype" name="laika.render.FOforPDF">FOforPDF</a></dd></dl></div>
-    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
-      <a id="isInstanceOf[T0]:Boolean"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#isInstanceOf[T0]:Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -363,12 +542,15 @@
       <span class="symbol">
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="ne(x$1:AnyRef):Boolean"></a>
-      <a id="ne(AnyRef):Boolean"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#ne(x$1:AnyRef):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -376,12 +558,15 @@
       <span class="symbol">
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#notify" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
-      <a id="notify():Unit"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#notify():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -389,12 +574,18 @@
       <span class="symbol">
         <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
-      <a id="notifyAll():Unit"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#notifyAll():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -402,12 +593,18 @@
       <span class="symbol">
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="laika.render.FOforPDF#prepareTree" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="prepareTree(tree:laika.tree.Documents.DocumentTree,config:laika.render.PDFConfig):laika.tree.Documents.DocumentTree"></a>
-      <a id="prepareTree(DocumentTree,PDFConfig):DocumentTree"></a>
-      <h4 class="signature">
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="laika.render.FOforPDF#prepareTree" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="prepareTree(tree:laika.tree.Documents.DocumentTree,config:laika.render.PDFConfig):laika.tree.Documents.DocumentTree"></a><a id="prepareTree(DocumentTree,PDFConfig):DocumentTree"></a>
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#prepareTree(tree:laika.tree.Documents.DocumentTree,config:laika.render.PDFConfig):laika.tree.Documents.DocumentTree" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -415,16 +612,19 @@
       <span class="symbol">
         <span class="name">prepareTree</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>, <span name="config">config: <a href="PDFConfig.html" class="extype" name="laika.render.PDFConfig">PDFConfig</a></span>)</span><span class="result">: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
       </span>
-      </h4>
+      
       <p class="shortcomment cmt">Prepares the document tree before rendering the interim XSL-FO
  output.</p><div class="fullcomment"><div class="comment cmt"><p>Prepares the document tree before rendering the interim XSL-FO
  output. Preparation may include insertion of tree or document titles
  and a table of content, depending on configuration.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="FOforPDF.html" class="extype" name="laika.render.FOforPDF">FOforPDF</a></dd></dl></div>
-    </li><li name="laika.render.FOforPDF#renderFO" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="renderFO(tree:laika.tree.Documents.DocumentTree,render:(laika.tree.Documents.DocumentTree,laika.io.OutputProvider.OutputConfig)=&gt;Unit):String"></a>
-      <a id="renderFO(DocumentTree,(DocumentTree,OutputConfig)⇒Unit):String"></a>
-      <h4 class="signature">
+    </li><li name="laika.render.FOforPDF#renderFO" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="renderFO(tree:laika.tree.Documents.DocumentTree,render:(laika.tree.Documents.DocumentTree,laika.io.OutputProvider.OutputConfig)=&gt;Unit):String"></a><a id="renderFO(DocumentTree,(DocumentTree,OutputConfig)⇒Unit):String"></a>
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#renderFO(tree:laika.tree.Documents.DocumentTree,render:(laika.tree.Documents.DocumentTree,laika.io.OutputProvider.OutputConfig)=&gt;Unit):String" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -432,19 +632,21 @@
       <span class="symbol">
         <span class="name">renderFO</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>, <span name="render">render: (<a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a>, <a href="../io/OutputProvider$$OutputConfig.html" class="extype" name="laika.io.OutputProvider.OutputConfig">OutputConfig</a>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
-      </h4>
+      
       <p class="shortcomment cmt">Renders the XSL-FO that serves as a basis for producing the final PDF output.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the XSL-FO that serves as a basis for producing the final PDF output.
  The result should include the output from rendering the documents in the
  specified tree as well as any additional insertions like bookmarks or
  table of content. For this the specified <code>DocumentTree</code> instance may get
  modified before passing it to the given render function, depending on
  configuration settings.
-</p></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the document tree serving as input for the renderer</p></dd><dt class="param">render</dt><dd class="cmt"><p>the actual render function for producing the XSL-FO output</p></dd><dt>returns</dt><dd class="cmt"><p>the rendered XSL-FO as a String
-</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="FOforPDF.html" class="extype" name="laika.render.FOforPDF">FOforPDF</a></dd></dl></div>
-    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
-      <a id="synchronized[T0](⇒T0):T0"></a>
-      <h4 class="signature">
+</p></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the document tree serving as input for the renderer</p></dd><dt class="param">render</dt><dd class="cmt"><p>the actual render function for producing the XSL-FO output</p></dd><dt>returns</dt><dd class="cmt"><p>the rendered XSL-FO as a String</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="FOforPDF.html" class="extype" name="laika.render.FOforPDF">FOforPDF</a></dd></dl></div>
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -452,12 +654,15 @@
       <span class="symbol">
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
-      <a id="toString():String"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#toString():String" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -465,12 +670,15 @@
       <span class="symbol">
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
-      <a id="wait():Unit"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#wait():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -478,7 +686,7 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -486,10 +694,13 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
-      <a id="wait(Long,Int):Unit"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a><a id="wait(Long,Int):Unit"></a>
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -497,7 +708,7 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -505,10 +716,13 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="wait(x$1:Long):Unit"></a>
-      <a id="wait(Long):Unit"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a><a id="wait(Long):Unit"></a>
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF$.html#wait(x$1:Long):Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -516,15 +730,18 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
     </span>)</span>
               
         </dd></dl></div>
-    </li></ol>
+    </li>
+              </ol>
             </div>
 
         
@@ -555,6 +772,9 @@
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
+    </body>
+          </div>
+        </div>
+      </div>
     </body>
       </html>

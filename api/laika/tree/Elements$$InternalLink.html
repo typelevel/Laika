@@ -1,32 +1,617 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html >
 <html>
         <head>
-          <title>InternalLink - laika.tree.Elements.InternalLink</title>
-          <meta name="description" content="InternalLink - laika.tree.Elements.InternalLink" />
-          <meta name="keywords" content="InternalLink laika.tree.Elements.InternalLink" />
+          <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+          <title></title>
+          <meta name="description" content="" />
+          <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      <link href="../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.panzoom.min.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.mousewheel.min.js"></script>
+      <script type="text/javascript" src="../../lib/index.js"></script>
+      <script type="text/javascript" src="../../index.js"></script>
+      <script type="text/javascript" src="../../lib/scheduler.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
       <script type="text/javascript">
-         if(top === self) {
-            var url = '../../index.html';
-            var hash = 'laika.tree.Elements$$InternalLink';
-            var anchor = window.location.hash;
-            var anchor_opt = '';
-            if (anchor.length >= 1)
-              anchor_opt = '@' + anchor.substring(1);
-            window.location.href = url + '#' + hash + anchor_opt;
-         }
-   	  </script>
+        /* this variable can be used by the JS to determine the path to the root document */
+        var toRoot = '../../';
+      </script>
     
         </head>
-        <body class="type">
+        <body>
+      <div id="search">
+        <span id="doc-title"><span id="doc-version"></span></span>
+        <span class="close-results"><span class="left">&lt;</span> Back</span>
+        <div id="textfilter">
+          <span class="input">
+            <input autocapitalize="none" placeholder="Search" id="index-input" type="text" accesskey="/" />
+            <i class="clear material-icons"></i>
+            <i id="search-icon" class="material-icons"></i>
+          </span>
+        </div>
+    </div>
+      <div id="search-results">
+        <div id="search-progress">
+          <div id="progress-fill"></div>
+        </div>
+        <div id="results-content">
+          <div id="entity-results"></div>
+          <div id="member-results"></div>
+        </div>
+      </div>
+      <div id="content-scroll-container" style="-webkit-overflow-scrolling: touch;">
+        <div id="content-container" style="-webkit-overflow-scrolling: touch;">
+          <div id="subpackage-spacer">
+            <div id="packages">
+              <h1>Packages</h1>
+              <ul>
+                <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="_root_"></a><a id="root:_root_"></a>
+      <span class="permalink">
+      <a href="index.html#_root_" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../../index.html"><span class="name">root</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
+    </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="laika"></a><a id="laika:laika"></a>
+      <span class="permalink">
+      <a href="index.html#laika" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../index.html"><span class="name">laika</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
+    </li><li name="laika.tree" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="tree"></a><a id="tree:tree"></a>
+      <span class="permalink">
+      <a href="../laika/index.html#tree" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="index.html"><span class="name">tree</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
+    </li><li name="laika.tree.Elements" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Elements"></a><a id="Elements:Elements"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/index.html#Elements" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="Provides the elements of the document tree." href="Elements$.html"><span class="name">Elements</span></a>
+      </span>
+      
+      <p class="shortcomment cmt">Provides the elements of the document tree.</p><div class="fullcomment"><div class="comment cmt"><p>Provides the elements of the document tree. The model is generic and not tied to any
+ specific markup syntax like Markdown. Parsers may only support a subset of the provided
+ element types in case the markup does not have matching syntax for some of them.</p><p> The abstract base classes are not sealed as the tree model is extensible.
+ Renderers should anticipate unknown elements and add fallback rules for those.</p><p> The base class is <code>Element</code> which extends <code>Product</code>, a constraint usually satisfied
+ through defining the concrete types as case classes. Most concrete types are not expected
+ to extend <code>Element</code> directly though, but instead extend either <code>Block</code> or <code>Span</code>, the two
+ major element types. This way they may be part of the content of <code>SpanContainer</code> or
+ <code>BlockContainer</code> types, traits that any element may mix in.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="laika.tree">tree</a></dd></dl></div>
+    </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="Elements$$Arabic$.html" title="Arabic enumeration style (1, 2, 3...)"></a>
+                        <a href="Elements$$Arabic$.html" title="Arabic enumeration style (1, 2, 3...)">Arabic</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="Elements$$Autonumber$.html" title="Label with automatic numbering."></a>
+                        <a href="Elements$$Autonumber$.html" title="Label with automatic numbering.">Autonumber</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$AutonumberLabel.html" title="Label using automatic numbering and explicit label names together."></a>
+                        <a href="Elements$$AutonumberLabel.html" title="Label using automatic numbering and explicit label names together.">AutonumberLabel</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="Elements$$Autosymbol$.html" title="Label with automatic symbol assignment."></a>
+                        <a href="Elements$$Autosymbol$.html" title="Label with automatic symbol assignment.">Autosymbol</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="Elements$$Block.html" title="The base type for all block level elements."></a>
+                        <a href="Elements$$Block.html" title="The base type for all block level elements.">Block</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="Elements$$BlockContainer.html" title="A container of other Block elements."></a>
+                        <a href="Elements$$BlockContainer.html" title="A container of other Block elements.">BlockContainer</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$BlockSequence.html" title="A generic container element containing a list of blocks."></a>
+                        <a href="Elements$$BlockSequence.html" title="A generic container element containing a list of blocks.">BlockSequence</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="Elements$$BodyCell$.html" title="A cell in the body part of the table."></a>
+                        <a href="Elements$$BodyCell$.html" title="A cell in the body part of the table.">BodyCell</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="Elements$$BulletFormat.html" title="The format of a bullet list item."></a>
+                        <a href="Elements$$BulletFormat.html" title="The format of a bullet list item.">BulletFormat</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$BulletList.html" title="A bullet list that may contain nested lists."></a>
+                        <a href="Elements$$BulletList.html" title="A bullet list that may contain nested lists.">BulletList</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$BulletListItem.html" title="A single bullet list item consisting of one or more block elements."></a>
+                        <a href="Elements$$BulletListItem.html" title="A single bullet list item consisting of one or more block elements.">BulletListItem</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$Caption.html" title="The table caption."></a>
+                        <a href="Elements$$Caption.html" title="The table caption.">Caption</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$Cell.html" title="A single cell, potentially spanning multiple rows or columns, containing one or more block elements."></a>
+                        <a href="Elements$$Cell.html" title="A single cell, potentially spanning multiple rows or columns, containing one or more block elements.">Cell</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$CellType.html" title="The cell type specifies which part of the table the cell belongs to."></a>
+                        <a href="Elements$$CellType.html" title="The cell type specifies which part of the table the cell belongs to.">CellType</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$Citation.html" title="A citation that can be referred to by a CitationLink by id."></a>
+                        <a href="Elements$$Citation.html" title="A citation that can be referred to by a CitationLink by id.">Citation</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$CitationLink.html" title="A resolved link to a citation."></a>
+                        <a href="Elements$$CitationLink.html" title="A resolved link to a citation.">CitationLink</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$CitationReference.html" title="A reference to a citation with a matching label."></a>
+                        <a href="Elements$$CitationReference.html" title="A reference to a citation with a matching label.">CitationReference</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$Code.html" title="A span of program code."></a>
+                        <a href="Elements$$Code.html" title="A span of program code.">Code</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$CodeBlock.html" title="A block of program code."></a>
+                        <a href="Elements$$CodeBlock.html" title="A block of program code.">CodeBlock</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$Column.html" title="The options (like styles) for a column table."></a>
+                        <a href="Elements$$Column.html" title="The options (like styles) for a column table.">Column</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="Elements$$Columns$.html" title="Convenient factory for creating a Columns instance based on the options for the individual columns."></a>
+                        <a class="class" href="Elements$$Columns.html" title="Contains the (optional) column specification of a table."></a>
+                        <a href="Elements$$Columns.html" title="Contains the (optional) column specification of a table.">Columns</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$Comment.html" title="A comment that may be omitted by renderers."></a>
+                        <a href="Elements$$Comment.html" title="A comment that may be omitted by renderers.">Comment</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$ConfigValue.html" title="A single configuration value to be merged with the top document config."></a>
+                        <a href="Elements$$ConfigValue.html" title="A single configuration value to be merged with the top document config.">ConfigValue</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="Elements$$Container.html" title="A generic container."></a>
+                        <a href="Elements$$Container.html" title="A generic container.">Container</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$CrossLink.html" title="A link element pointing to a location in a different document, with the span content representing the text (description) of the link."></a>
+                        <a href="Elements$$CrossLink.html" title="A link element pointing to a location in a different document, with the span content representing the text (description) of the link.">CrossLink</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="Elements$$Customizable.html" title="An element that can be customized."></a>
+                        <a href="Elements$$Customizable.html" title="An element that can be customized.">Customizable</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="Elements$$Debug$.html" title="Debugging information that does not have any effect on the parser result."></a>
+                        <a href="Elements$$Debug$.html" title="Debugging information that does not have any effect on the parser result.">Debug</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$DecoratedHeader.html" title="A decorated header where the level gets determined in the rewrite phase based on the decoration used and the order they appear in the document."></a>
+                        <a href="Elements$$DecoratedHeader.html" title="A decorated header where the level gets determined in the rewrite phase based on the decoration used and the order they appear in the document.">DecoratedHeader</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="Elements$$Definition.html" title="Represents a definition that can be used to resolve references."></a>
+                        <a href="Elements$$Definition.html" title="Represents a definition that can be used to resolve references.">Definition</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$DefinitionList.html" title="A list of terms and their definitions."></a>
+                        <a href="Elements$$DefinitionList.html" title="A list of terms and their definitions.">DefinitionList</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$DefinitionListItem.html" title="A single definition item, containing the term and definition (as the content property)."></a>
+                        <a href="Elements$$DefinitionListItem.html" title="A single definition item, containing the term and definition (as the content property).">DefinitionListItem</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$DocumentFragment.html" title="A named document fragment that usually gets rendered separately from the main root element"></a>
+                        <a href="Elements$$DocumentFragment.html" title="A named document fragment that usually gets rendered separately from the main root element">DocumentFragment</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$Element.html" title="The base class for all Elements forming the document tree."></a>
+                        <a href="Elements$$Element.html" title="The base class for all Elements forming the document tree.">Element</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="Elements$$ElementContainer.html" title="A generic container of other elements."></a>
+                        <a href="Elements$$ElementContainer.html" title="A generic container of other elements.">ElementContainer</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$Emphasized.html" title="A span of emphasized inline elements that may contain nested spans."></a>
+                        <a href="Elements$$Emphasized.html" title="A span of emphasized inline elements that may contain nested spans.">Emphasized</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$EnumFormat.html" title="The format of enumerated list items."></a>
+                        <a href="Elements$$EnumFormat.html" title="The format of enumerated list items.">EnumFormat</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$EnumList.html" title="An enumerated list that may contain nested lists."></a>
+                        <a href="Elements$$EnumList.html" title="An enumerated list that may contain nested lists.">EnumList</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$EnumListItem.html" title="A single enum list item consisting of one or more block elements."></a>
+                        <a href="Elements$$EnumListItem.html" title="A single enum list item consisting of one or more block elements.">EnumListItem</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$EnumType.html" title="Represents the type of an ordered list."></a>
+                        <a href="Elements$$EnumType.html" title="Represents the type of an ordered list.">EnumType</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="Elements$$Error$.html" title="A major issue that should be addressed, if ignored, the output will contain unpredictable errors."></a>
+                        <a href="Elements$$Error$.html" title="A major issue that should be addressed, if ignored, the output will contain unpredictable errors.">Error</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$ExternalLink.html" title="An external link element, with the span content representing the text (description) of the link."></a>
+                        <a href="Elements$$ExternalLink.html" title="An external link element, with the span content representing the text (description) of the link.">ExternalLink</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$ExternalLinkDefinition.html" title="An external link target, usually only part of the raw document tree and then removed by the rewrite rule that resolves link and image references."></a>
+                        <a href="Elements$$ExternalLinkDefinition.html" title="An external link target, usually only part of the raw document tree and then removed by the rewrite rule that resolves link and image references.">ExternalLinkDefinition</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="Elements$$Fallback.html" title="Provides a fallback for elements the renderer does not know how to deal with."></a>
+                        <a href="Elements$$Fallback.html" title="Provides a fallback for elements the renderer does not know how to deal with.">Fallback</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="Elements$$Fatal$.html" title="A critical error that must be addressed, if ignored, the output will contain severe errors."></a>
+                        <a href="Elements$$Fatal$.html" title="A critical error that must be addressed, if ignored, the output will contain severe errors.">Fatal</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$Figure.html" title="A figure consists of an image, an optional caption, and an optional legend as the content property."></a>
+                        <a href="Elements$$Figure.html" title="A figure consists of an image, an optional caption, and an optional legend as the content property.">Figure</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$Footnote.html" title="A footnote with resolved id and label that can be referred to by a FootnoteLink by id."></a>
+                        <a href="Elements$$Footnote.html" title="A footnote with resolved id and label that can be referred to by a FootnoteLink by id.">Footnote</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$FootnoteDefinition.html" title="A footnote definition that needs to be resolved to a final footnote by a rewrite rule based on the label type."></a>
+                        <a href="Elements$$FootnoteDefinition.html" title="A footnote definition that needs to be resolved to a final footnote by a rewrite rule based on the label type.">FootnoteDefinition</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$FootnoteLabel.html" title="Base type for all types of footnote labels."></a>
+                        <a href="Elements$$FootnoteLabel.html" title="Base type for all types of footnote labels.">FootnoteLabel</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$FootnoteLink.html" title="A resolved link to a footnote."></a>
+                        <a href="Elements$$FootnoteLink.html" title="A resolved link to a footnote.">FootnoteLink</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$FootnoteReference.html" title="A reference to a footnote with a matching label."></a>
+                        <a href="Elements$$FootnoteReference.html" title="A reference to a footnote with a matching label.">FootnoteReference</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$ForcedParagraph.html" title="A special type of paragraph that serves as a render hint."></a>
+                        <a href="Elements$$ForcedParagraph.html" title="A special type of paragraph that serves as a render hint.">ForcedParagraph</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="Elements$$HeadCell$.html" title="A cell in the head part of the table."></a>
+                        <a href="Elements$$HeadCell$.html" title="A cell in the head part of the table.">HeadCell</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$Header.html" title="A header element with a level, with 1 being the top level of the document."></a>
+                        <a href="Elements$$Header.html" title="A header element with a level, with 1 being the top level of the document.">Header</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="Elements$$HeaderDecoration.html" title="Represents the decoration of a header."></a>
+                        <a href="Elements$$HeaderDecoration.html" title="Represents the decoration of a header.">HeaderDecoration</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="Elements$$Id$.html" title="Factory and extractor for an Options instance with an id."></a>
+                        <a href="Elements$$Id$.html" title="Factory and extractor for an Options instance with an id.">Id</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$Image.html" title="An inline image with a text description and optional title."></a>
+                        <a href="Elements$$Image.html" title="An inline image with a text description and optional title.">Image</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$ImageReference.html" title="An image reference, the id pointing to the id of a LinkTarget."></a>
+                        <a href="Elements$$ImageReference.html" title="An image reference, the id pointing to the id of a LinkTarget.">ImageReference</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="Elements$$Info$.html" title="A minor issue that has very little or no effect on the parser result."></a>
+                        <a href="Elements$$Info$.html" title="A minor issue that has very little or no effect on the parser result.">Info</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="" title="An internal link element, with the span content representing the text (description) of the link."></a>
+                        <a href="" title="An internal link element, with the span content representing the text (description) of the link.">InternalLink</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$InternalLinkTarget.html" title="Points to the following block or span element, making it a target for links."></a>
+                        <a href="Elements$$InternalLinkTarget.html" title="Points to the following block or span element, making it a target for links.">InternalLinkTarget</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="Elements$$Invalid.html" title="Represents an invalid element."></a>
+                        <a href="Elements$$Invalid.html" title="Represents an invalid element.">Invalid</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$InvalidBlock.html" title="Groups a block that could not be successfully parsed with a system message."></a>
+                        <a href="Elements$$InvalidBlock.html" title="Groups a block that could not be successfully parsed with a system message.">InvalidBlock</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$InvalidSpan.html" title="Groups a span that could not be successfully parsed with a system message."></a>
+                        <a href="Elements$$InvalidSpan.html" title="Groups a span that could not be successfully parsed with a system message.">InvalidSpan</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$Line.html" title="A single line inside a line block."></a>
+                        <a href="Elements$$Line.html" title="A single line inside a line block.">Line</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$LineBlock.html" title="A block containing lines which preserve line breaks and optionally nested line blocks."></a>
+                        <a href="Elements$$LineBlock.html" title="A block containing lines which preserve line breaks and optionally nested line blocks.">LineBlock</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$LineBlockItem.html" title="A single item inside a line block."></a>
+                        <a href="Elements$$LineBlockItem.html" title="A single item inside a line block.">LineBlockItem</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$LineBreak.html" title="An explicit hard line break."></a>
+                        <a href="Elements$$LineBreak.html" title="An explicit hard line break.">LineBreak</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="Elements$$Link.html" title="The base type for all link elements."></a>
+                        <a href="Elements$$Link.html" title="The base type for all link elements.">Link</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$LinkAlias.html" title="A link target pointing to another link target, acting like an alias."></a>
+                        <a href="Elements$$LinkAlias.html" title="A link target pointing to another link target, acting like an alias.">LinkAlias</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$LinkReference.html" title="A link reference, the id pointing to the id of a LinkTarget."></a>
+                        <a href="Elements$$LinkReference.html" title="A link reference, the id pointing to the id of a LinkTarget.">LinkReference</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="Elements$$LinkTarget.html" title="The base type for all link targets."></a>
+                        <a href="Elements$$LinkTarget.html" title="The base type for all link targets.">LinkTarget</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="Elements$$ListContainer.html" title="A container of list items."></a>
+                        <a href="Elements$$ListContainer.html" title="A container of list items.">ListContainer</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="Elements$$ListItem.html" title="The base type for all list items."></a>
+                        <a href="Elements$$ListItem.html" title="The base type for all list items.">ListItem</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$Literal.html" title="A span containing plain, unparsed text."></a>
+                        <a href="Elements$$Literal.html" title="A span containing plain, unparsed text.">Literal</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$LiteralBlock.html" title="A literal block with unparsed text content."></a>
+                        <a href="Elements$$LiteralBlock.html" title="A literal block with unparsed text content.">LiteralBlock</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="Elements$$LowerAlpha$.html" title="Lowercase letter enumeration style (a, b, c...)"></a>
+                        <a href="Elements$$LowerAlpha$.html" title="Lowercase letter enumeration style (a, b, c...)">LowerAlpha</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="Elements$$LowerRoman$.html" title="Lowercase Roman numeral enumeration style (i, ii, iii, iv...)"></a>
+                        <a href="Elements$$LowerRoman$.html" title="Lowercase Roman numeral enumeration style (i, ii, iii, iv...)">LowerRoman</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$MessageLevel.html" title="Signals the severity of a system message."></a>
+                        <a href="Elements$$MessageLevel.html" title="Signals the severity of a system message.">MessageLevel</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="Elements$$NoOpt$.html" title="Empty Options implementation."></a>
+                        <a href="Elements$$NoOpt$.html" title="Empty Options implementation.">NoOpt</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$NumericLabel.html" title="Explicit numeric label."></a>
+                        <a href="Elements$$NumericLabel.html" title="Explicit numeric label.">NumericLabel</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="Elements$$Options$.html" title="Companion for the Options trait."></a>
+                        <a class="class" href="Elements$$Options.html" title="Options for customizable elements."></a>
+                        <a href="Elements$$Options.html" title="Options for customizable elements.">Options</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$PageBreak.html" title="An explicit hard page break."></a>
+                        <a href="Elements$$PageBreak.html" title="An explicit hard page break.">PageBreak</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$Paragraph.html" title="A paragraph consisting of span elements."></a>
+                        <a href="Elements$$Paragraph.html" title="A paragraph consisting of span elements.">Paragraph</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$ParsedLiteralBlock.html" title="A literal block with parsed text content."></a>
+                        <a href="Elements$$ParsedLiteralBlock.html" title="A literal block with parsed text content.">ParsedLiteralBlock</a>
+                      </li><li class="current-entities indented3">
+                        <a class="object" href="Elements$$PathInfo$.html" title=""></a>
+                        <a class="class" href="Elements$$PathInfo.html" title="Represents a single path in absolute and relative form."></a>
+                        <a href="Elements$$PathInfo.html" title="Represents a single path in absolute and relative form.">PathInfo</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$QuotedBlock.html" title="A quoted block consisting of a list of blocks that may contain other nested quoted blocks and an attribution which may be empty."></a>
+                        <a href="Elements$$QuotedBlock.html" title="A quoted block consisting of a list of blocks that may contain other nested quoted blocks and an attribution which may be empty.">QuotedBlock</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$RawContent.html" title="Raw content that is usually specific to the specified output formats."></a>
+                        <a href="Elements$$RawContent.html" title="Raw content that is usually specific to the specified output formats.">RawContent</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="Elements$$Reference.html" title="The base type for all reference elements."></a>
+                        <a href="Elements$$Reference.html" title="The base type for all reference elements.">Reference</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$Reverse.html" title=""></a>
+                        <a href="Elements$$Reverse.html" title="">Reverse</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$RootElement.html" title="The root element of a document tree."></a>
+                        <a href="Elements$$RootElement.html" title="The root element of a document tree.">RootElement</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$Row.html" title="A single table row."></a>
+                        <a href="Elements$$Row.html" title="A single table row.">Row</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$Rule.html" title="A horizontal rule."></a>
+                        <a href="Elements$$Rule.html" title="A horizontal rule.">Rule</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$Section.html" title="A section of the document, consisting of a header and content in the form of a list of Block elements."></a>
+                        <a href="Elements$$Section.html" title="A section of the document, consisting of a header and content in the form of a list of Block elements.">Section</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$SectionNumber.html" title="Represents a section number, usually used in header elements when autonumbering is applied."></a>
+                        <a href="Elements$$SectionNumber.html" title="Represents a section number, usually used in header elements when autonumbering is applied.">SectionNumber</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$Size.html" title="Encapsulates size information with a unit."></a>
+                        <a href="Elements$$Size.html" title="Encapsulates size information with a unit.">Size</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$SomeOpt.html" title="Options implementation for non-empty instances."></a>
+                        <a href="Elements$$SomeOpt.html" title="Options implementation for non-empty instances.">SomeOpt</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="Elements$$Span.html" title="The base type for all inline elements."></a>
+                        <a href="Elements$$Span.html" title="The base type for all inline elements.">Span</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="Elements$$SpanContainer.html" title="A container of other Span elements."></a>
+                        <a href="Elements$$SpanContainer.html" title="A container of other Span elements.">SpanContainer</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$SpanSequence.html" title="A generic container element containing a list of spans."></a>
+                        <a href="Elements$$SpanSequence.html" title="A generic container element containing a list of spans.">SpanSequence</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$StringBullet.html" title="Bullet format based on a simple string."></a>
+                        <a href="Elements$$StringBullet.html" title="Bullet format based on a simple string.">StringBullet</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$Strong.html" title="A span of strong inline elements that may contain nested spans."></a>
+                        <a href="Elements$$Strong.html" title="A span of strong inline elements that may contain nested spans.">Strong</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="Elements$$Styles$.html" title="Factory and extractor for an Options instance with style names."></a>
+                        <a href="Elements$$Styles$.html" title="Factory and extractor for an Options instance with style names.">Styles</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$SystemMessage.html" title="Message generated by the parser, usually to signal potential parsing problems."></a>
+                        <a href="Elements$$SystemMessage.html" title="Message generated by the parser, usually to signal potential parsing problems.">SystemMessage</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$Table.html" title="A table consisting of a head and a body part and optional caption and column specification."></a>
+                        <a href="Elements$$Table.html" title="A table consisting of a head and a body part and optional caption and column specification.">Table</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$TableBody.html" title="Contains the body rows of a table."></a>
+                        <a href="Elements$$TableBody.html" title="Contains the body rows of a table.">TableBody</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="Elements$$TableContainer.html" title="A container of table elements."></a>
+                        <a href="Elements$$TableContainer.html" title="A container of table elements.">TableContainer</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="Elements$$TableElement.html" title="A table element, like a row, cell or column."></a>
+                        <a href="Elements$$TableElement.html" title="A table element, like a row, cell or column.">TableElement</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$TableHead.html" title="Contains the header rows of a table."></a>
+                        <a href="Elements$$TableHead.html" title="Contains the header rows of a table.">TableHead</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$TargetFormat.html" title="An element that only gets rendered for a specific output format."></a>
+                        <a href="Elements$$TargetFormat.html" title="An element that only gets rendered for a specific output format.">TargetFormat</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="Elements$$Temporary.html" title="Represents a temporary element only present in the raw document tree and then removed or replaced by a rewrite rule before rendering."></a>
+                        <a href="Elements$$Temporary.html" title="Represents a temporary element only present in the raw document tree and then removed or replaced by a rewrite rule before rendering.">Temporary</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$Text.html" title="A simple text element."></a>
+                        <a href="Elements$$Text.html" title="A simple text element.">Text</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="Elements$$TextContainer.html" title="A container for plain text."></a>
+                        <a href="Elements$$TextContainer.html" title="A container for plain text.">TextContainer</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$Title.html" title="The (optional) title of the document."></a>
+                        <a href="Elements$$Title.html" title="The (optional) title of the document.">Title</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$TitledBlock.html" title="Generic block element with a title."></a>
+                        <a href="Elements$$TitledBlock.html" title="Generic block element with a title.">TitledBlock</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Elements$$URI.html" title="Represents a URI which might also optionally be expressed as a local reference within the processed tree."></a>
+                        <a href="Elements$$URI.html" title="Represents a URI which might also optionally be expressed as a local reference within the processed tree.">URI</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="Elements$$UpperAlpha$.html" title="Uppercase letter enumeration style (A, B, C...)"></a>
+                        <a href="Elements$$UpperAlpha$.html" title="Uppercase letter enumeration style (A, B, C...)">UpperAlpha</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="Elements$$UpperRoman$.html" title="Uppercase Roman numeral enumeration style (I, II, III, IV...)"></a>
+                        <a href="Elements$$UpperRoman$.html" title="Uppercase Roman numeral enumeration style (I, II, III, IV...)">UpperRoman</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="Elements$$Warning$.html" title="An issue that should be addressed, if ignored, there may be minor problems with the output."></a>
+                        <a href="Elements$$Warning$.html" title="An issue that should be addressed, if ignored, there may be minor problems with the output.">Warning</a>
+                      </li>
+              </ul>
+            </div>
+          </div>
+          <div id="content">
+            <body class="class type">
       <div id="definition">
-        <img src="../../lib/class_big.png" />
-        <p id="owner"><a href="../package.html" class="extype" name="laika">laika</a>.<a href="package.html" class="extype" name="laika.tree">tree</a>.<a href="Elements$.html" class="extype" name="laika.tree.Elements">Elements</a></p>
-        <h1>InternalLink</h1>
+        <div class="big-circle class">c</div>
+        <p id="owner"><a href="../index.html" class="extype" name="laika">laika</a>.<a href="index.html" class="extype" name="laika.tree">tree</a>.<a href="Elements$.html" class="extype" name="laika.tree.Elements">Elements</a></p>
+        <h1>InternalLink<span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span></h1>
+        <h3><span class="morelinks"></span></h3>
       </div>
 
       <h4 id="signature" class="signature">
@@ -35,107 +620,133 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">InternalLink</span><span class="params">(<span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>]</span>, <span name="ref">ref: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">scala.None</span></span>, <span name="options">options: <a href="Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol">Elements.this.NoOpt</span></span>)</span><span class="result"> extends <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="Elements$$Link.html" class="extype" name="laika.tree.Elements.Link">Link</a> with <a href="Elements$$SpanContainer.html" class="extype" name="laika.tree.Elements.SpanContainer">SpanContainer</a>[<a href="" class="extype" name="laika.tree.Elements.InternalLink">InternalLink</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">InternalLink</span><span class="params">(<span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>]</span>, <span name="ref">ref: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="options">options: <a href="Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol"><span class="name"><a href="Elements$$NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="Elements$$Link.html" class="extype" name="laika.tree.Elements.Link">Link</a> with <a href="Elements$$SpanContainer.html" class="extype" name="laika.tree.Elements.SpanContainer">SpanContainer</a>[<a href="" class="extype" name="laika.tree.Elements.InternalLink">InternalLink</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
+
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>An internal link element, with the span content representing the text (description) of the link.
 </p></div><div class="toggleContainer block">
-          <span class="toggle">Linear Supertypes</span>
+          <span class="toggle">
+            Linear Supertypes
+          </span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="Elements$$SpanContainer.html" class="extype" name="laika.tree.Elements.SpanContainer">SpanContainer</a>[<a href="" class="extype" name="laika.tree.Elements.InternalLink">InternalLink</a>], <a href="Elements$$ElementContainer.html" class="extype" name="laika.tree.Elements.ElementContainer">ElementContainer</a>[<a href="Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>, <a href="" class="extype" name="laika.tree.Elements.InternalLink">InternalLink</a>], <a href="ElementTraversal.html" class="extype" name="laika.tree.ElementTraversal">ElementTraversal</a>[<a href="" class="extype" name="laika.tree.Elements.InternalLink">InternalLink</a>], <a href="Elements$$Container.html" class="extype" name="laika.tree.Elements.Container">Container</a>[<span class="extype" name="scala.Seq">Seq</span>[<a href="Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>]], <a href="Elements$$Link.html" class="extype" name="laika.tree.Elements.Link">Link</a>, <a href="Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>, <a href="Elements$$Customizable.html" class="extype" name="laika.tree.Elements.Customizable">Customizable</a>, <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
       <div id="mbrsel">
-        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
-        <div id="order">
-              <span class="filtertype">Ordering</span>
+        <div class="toggle"></div>
+        <div id="memberfilter">
+          <i class="material-icons arrow"></i>
+          <span class="input">
+            <input id="mbrsel-input" placeholder="Filter all members" type="text" accesskey="/" />
+          </span>
+          <i class="clear material-icons"></i>
+        </div>
+        <div id="filterby">
+          <div id="order">
+            <span class="filtertype">Ordering</span>
+            <ol>
+              
+              <li class="alpha in"><span>Alphabetic</span></li>
+              <li class="inherit out"><span>By Inheritance</span></li>
+            </ol>
+          </div>
+          <div class="ancestors">
+                  <span class="filtertype">Inherited<br />
+                  </span>
+                  <ol id="linearization">
+                    <li class="in" name="laika.tree.Elements.InternalLink"><span>InternalLink</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="laika.tree.Elements.SpanContainer"><span>SpanContainer</span></li><li class="in" name="laika.tree.Elements.ElementContainer"><span>ElementContainer</span></li><li class="in" name="laika.tree.ElementTraversal"><span>ElementTraversal</span></li><li class="in" name="laika.tree.Elements.Container"><span>Container</span></li><li class="in" name="laika.tree.Elements.Link"><span>Link</span></li><li class="in" name="laika.tree.Elements.Span"><span>Span</span></li><li class="in" name="laika.tree.Elements.Customizable"><span>Customizable</span></li><li class="in" name="laika.tree.Elements.Element"><span>Element</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  </ol>
+                </div><div class="ancestors">
+              <span class="filtertype"></span>
               <ol>
-                
-                <li class="alpha in"><span>Alphabetic</span></li>
-                <li class="inherit out"><span>By inheritance</span></li>
+                <li class="hideall out"><span>Hide All</span></li>
+                <li class="showall in"><span>Show All</span></li>
               </ol>
             </div>
-        <div id="ancestors">
-                <span class="filtertype">Inherited<br />
-                </span>
-                <ol id="linearization">
-                  <li class="in" name="laika.tree.Elements.InternalLink"><span>InternalLink</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="laika.tree.Elements.SpanContainer"><span>SpanContainer</span></li><li class="in" name="laika.tree.Elements.ElementContainer"><span>ElementContainer</span></li><li class="in" name="laika.tree.ElementTraversal"><span>ElementTraversal</span></li><li class="in" name="laika.tree.Elements.Container"><span>Container</span></li><li class="in" name="laika.tree.Elements.Link"><span>Link</span></li><li class="in" name="laika.tree.Elements.Span"><span>Span</span></li><li class="in" name="laika.tree.Elements.Customizable"><span>Customizable</span></li><li class="in" name="laika.tree.Elements.Element"><span>Element</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
-                </ol>
-              </div><div id="ancestors">
-            <span class="filtertype"></span>
-            <ol>
-              <li class="hideall out"><span>Hide All</span></li>
-              <li class="showall in"><span>Show all</span></li>
-            </ol>
-            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
-          </div>
-        <div id="visbl">
-            <span class="filtertype">Visibility</span>
-            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
-          </div>
+          <div id="visbl">
+              <span class="filtertype">Visibility</span>
+              <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+            </div>
+        </div>
       </div>
 
       <div id="template">
         <div id="allMembers">
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
-              <ol><li name="laika.tree.Elements.InternalLink#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(content:Seq[laika.tree.Elements.Span],ref:String,title:Option[String],options:laika.tree.Elements.Options):laika.tree.Elements.InternalLink"></a>
-      <a id="&lt;init&gt;:InternalLink"></a>
-      <h4 class="signature">
+              <ol><li name="laika.tree.Elements.InternalLink#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(content:Seq[laika.tree.Elements.Span],ref:String,title:Option[String],options:laika.tree.Elements.Options):laika.tree.Elements.InternalLink"></a><a id="&lt;init&gt;:InternalLink"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#&lt;init&gt;(content:Seq[laika.tree.Elements.Span],ref:String,title:Option[String],options:laika.tree.Elements.Options):laika.tree.Elements.InternalLink" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">InternalLink</span><span class="params">(<span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>]</span>, <span name="ref">ref: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">scala.None</span></span>, <span name="options">options: <a href="Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol">Elements.this.NoOpt</span></span>)</span>
+        <span class="name">InternalLink</span><span class="params">(<span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>]</span>, <span name="ref">ref: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="options">options: <a href="Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol"><span class="name"><a href="Elements$$NoOpt$.html">NoOpt</a></span></span></span>)</span>
       </span>
-      </h4>
+      
       
     </li></ol>
             </div>
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="laika.tree.ElementTraversal.RewriteException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="RewriteExceptionextendsRuntimeException"></a>
-      <a id="RewriteException:(ElementTraversal.this)#RewriteException"></a>
-      <h4 class="signature">
+              <ol><li name="laika.tree.ElementTraversal.RewriteException" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RewriteExceptionextendsRuntimeException"></a><a id="RewriteException:(ElementTraversal.this)#RewriteException"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/ElementTraversal.html#RewriteExceptionextendsRuntimeException" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="ElementTraversal$RewriteException.html"><span class="name">RewriteException</span></a><span class="result"> extends <span class="extype" name="scala.RuntimeException">RuntimeException</span></span>
+        <a title="Exception thrown when a rewrite rule replaced an element with a new element that does not comply with the contract of its parent container." href="ElementTraversal$RewriteException.html"><span class="name">RewriteException</span></a><span class="result"> extends <span class="extype" name="scala.RuntimeException">RuntimeException</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">Exception thrown when a rewrite rule replaced an element with a new element
- that does not comply with the contract of its parent container.</p>
+      
+      <p class="shortcomment cmt">Exception thrown when a rewrite rule replaced an element with a new element
+ that does not comply with the contract of its parent container.</p><div class="fullcomment"><div class="comment cmt"><p>Exception thrown when a rewrite rule replaced an element with a new element
+ that does not comply with the contract of its parent container.</p><p> The <code>element</code> property holds the offending element.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ElementTraversal.html" class="extype" name="laika.tree.ElementTraversal">ElementTraversal</a></dd></dl></div>
     </li></ol>
             </div>
 
         
 
-        <div id="values" class="values members">
+        <div class="values members">
               <h3>Value Members</h3>
-              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="!=(x$1:AnyRef):Boolean"></a>
-      <a id="!=(AnyRef):Boolean"></a>
-      <h4 class="signature">
+              <ol>
+                <li name="laika.tree.ElementTraversal.RewriteException" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RewriteException"></a><a id="RewriteException:RewriteException"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/ElementTraversal.html#RewriteException" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
+        <span class="modifier"></span>
+        <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+        <a title="" href="ElementTraversal$RewriteException$.html"><span class="name">RewriteException</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="!=(x$1:Any):Boolean"></a>
-      <a id="!=(Any):Boolean"></a>
-      <h4 class="signature">
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ElementTraversal.html" class="extype" name="laika.tree.ElementTraversal">ElementTraversal</a></dd></dl></div>
+    </li><li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#!=(x$1:Any):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -143,12 +754,15 @@
       <span class="symbol">
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
-      <a id="##():Int"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html###():Int" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -156,25 +770,15 @@
       <span class="symbol">
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="==(x$1:AnyRef):Boolean"></a>
-      <a id="==(AnyRef):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="==(x$1:Any):Boolean"></a>
-      <a id="==(Any):Boolean"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#==" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a><a id="==(Any):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#==(x$1:Any):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -182,25 +786,15 @@
       <span class="symbol">
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="laika.tree.ElementTraversal.RewriteException" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="RewriteException"></a>
-      <a id="RewriteException:RewriteException"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="ElementTraversal$RewriteException$.html"><span class="name">RewriteException</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ElementTraversal.html" class="extype" name="laika.tree.ElementTraversal">ElementTraversal</a></dd></dl></div>
-    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
-      <a id="asInstanceOf[T0]:T0"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#asInstanceOf[T0]:T0" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -208,12 +802,15 @@
       <span class="symbol">
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="clone():Object"></a>
-      <a id="clone():AnyRef"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a><a id="clone():AnyRef"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#clone():Object" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -221,18 +818,23 @@
       <span class="symbol">
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.tree.ElementTraversal#collect" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="collect[B](pf:PartialFunction[laika.tree.Elements.Element,B]):List[B]"></a>
-      <a id="collect[B](PartialFunction[Element,B]):List[B]"></a>
-      <h4 class="signature">
+    </li><li name="laika.tree.ElementTraversal#collect" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="collect[B](pf:PartialFunction[laika.tree.Elements.Element,B]):List[B]"></a><a id="collect[B](PartialFunction[Element,B]):List[B]"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#collect[B](pf:PartialFunction[laika.tree.Elements.Element,B]):List[B]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -240,17 +842,20 @@
       <span class="symbol">
         <span class="name">collect</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="pf">pf: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="laika.tree.ElementTraversal.collect.B">B</span>]</span>)</span><span class="result">: <span class="extype" name="scala.List">List</span>[<span class="extype" name="laika.tree.ElementTraversal.collect.B">B</span>]</span>
       </span>
-      </h4>
+      
       <p class="shortcomment cmt">Collects elements by applying the partial function to all elements
  it is defined for, in depth-first traversal, including this element
  itself.</p><div class="fullcomment"><div class="comment cmt"><p>Collects elements by applying the partial function to all elements
  it is defined for, in depth-first traversal, including this element
  itself.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ElementTraversal.html" class="extype" name="laika.tree.ElementTraversal">ElementTraversal</a></dd></dl></div>
-    </li><li name="laika.tree.Elements.InternalLink#content" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="content:Seq[laika.tree.Elements.Span]"></a>
-      <a id="content:Seq[Span]"></a>
-      <h4 class="signature">
+    </li><li name="laika.tree.Elements.InternalLink#content" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="content:Seq[laika.tree.Elements.Span]"></a><a id="content:Seq[Span]"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#content:Seq[laika.tree.Elements.Span]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
@@ -258,12 +863,15 @@
       <span class="symbol">
         <span class="name">content</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>]</span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.tree.Elements.InternalLink">InternalLink</a> → <a href="Elements$$Container.html" class="extype" name="laika.tree.Elements.Container">Container</a></dd></dl></div>
-    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="eq(x$1:AnyRef):Boolean"></a>
-      <a id="eq(AnyRef):Boolean"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#eq(x$1:AnyRef):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -271,12 +879,15 @@
       <span class="symbol">
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
-      <a id="finalize():Unit"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#finalize():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -284,18 +895,21 @@
       <span class="symbol">
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.tree.ElementTraversal#foreach" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="foreach(f:laika.tree.Elements.Element=&gt;Unit):Unit"></a>
-      <a id="foreach((Element)⇒Unit):Unit"></a>
-      <h4 class="signature">
+    </li><li name="laika.tree.ElementTraversal#foreach" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="foreach(f:laika.tree.Elements.Element=&gt;Unit):Unit"></a><a id="foreach((Element)⇒Unit):Unit"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#foreach(f:laika.tree.Elements.Element=&gt;Unit):Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -303,17 +917,20 @@
       <span class="symbol">
         <span class="name">foreach</span><span class="params">(<span name="f">f: (<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      
       <p class="shortcomment cmt">Invokes the specified function for each child of this element
  container, including children of children, and this element itself,
  in depth-first traversal.</p><div class="fullcomment"><div class="comment cmt"><p>Invokes the specified function for each child of this element
  container, including children of children, and this element itself,
  in depth-first traversal.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ElementTraversal.html" class="extype" name="laika.tree.ElementTraversal">ElementTraversal</a></dd></dl></div>
-    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
-      <a id="getClass():Class[_]"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#getClass():Class[_]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -321,12 +938,18 @@
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
-      <a id="isInstanceOf[T0]:Boolean"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#isInstanceOf[T0]:Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -334,12 +957,15 @@
       <span class="symbol">
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="ne(x$1:AnyRef):Boolean"></a>
-      <a id="ne(AnyRef):Boolean"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#ne(x$1:AnyRef):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -347,12 +973,15 @@
       <span class="symbol">
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#notify" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
-      <a id="notify():Unit"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#notify():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -360,12 +989,18 @@
       <span class="symbol">
         <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
-      <a id="notifyAll():Unit"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#notifyAll():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -373,12 +1008,18 @@
       <span class="symbol">
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="laika.tree.Elements.InternalLink#options" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="options:laika.tree.Elements.Options"></a>
-      <a id="options:Options"></a>
-      <h4 class="signature">
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="laika.tree.Elements.InternalLink#options" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="options:laika.tree.Elements.Options"></a><a id="options:Options"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#options:laika.tree.Elements.Options" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
@@ -386,12 +1027,15 @@
       <span class="symbol">
         <span class="name">options</span><span class="result">: <a href="Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.tree.Elements.InternalLink">InternalLink</a> → <a href="Elements$$Customizable.html" class="extype" name="laika.tree.Elements.Customizable">Customizable</a></dd></dl></div>
-    </li><li name="laika.tree.Elements.InternalLink#ref" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="laika.tree.Elements.InternalLink#ref" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ref:String"></a>
-      <a id="ref:String"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#ref:String" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
@@ -399,12 +1043,15 @@
       <span class="symbol">
         <span class="name">ref</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
-      </h4>
       
-    </li><li name="laika.tree.ElementTraversal#rewrite" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="rewrite(rule:laika.tree.Elements.RewriteRule):Self"></a>
-      <a id="rewrite(RewriteRule):InternalLink"></a>
-      <h4 class="signature">
+      
+    </li><li name="laika.tree.ElementTraversal#rewrite" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rewrite(rule:laika.tree.Elements.RewriteRule):Self"></a><a id="rewrite(RewriteRule):InternalLink"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#rewrite(rule:laika.tree.Elements.RewriteRule):Self" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -412,7 +1059,7 @@
       <span class="symbol">
         <span class="name">rewrite</span><span class="params">(<span name="rule">rule: <a href="Elements$.html#RewriteRule=PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]" class="extmbr" name="laika.tree.Elements.RewriteRule">RewriteRule</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.tree.Elements.InternalLink">InternalLink</a></span>
       </span>
-      </h4>
+      
       <p class="shortcomment cmt">Returns a new, rewritten tree model based on the specified rule.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new, rewritten tree model based on the specified rule.
  The rule is a partial function that takes an <code>Element</code> and returns an <code>Option[Element]</code>.</p><p> If the function is not defined for a specific element the old element remains
  in the tree unchanged. If it returns <code>None</code> then the node gets removed from the tree,
@@ -423,10 +1070,13 @@
  been processed.</p><p> In case multiple rewrite rules need to be applied it may be more efficient to
  first combine them with <code>orElse</code>.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ElementTraversal.html" class="extype" name="laika.tree.ElementTraversal">ElementTraversal</a></dd></dl></div>
-    </li><li name="laika.tree.ElementTraversal#select" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="select(p:laika.tree.Elements.Element=&gt;Boolean):List[laika.tree.Elements.Element]"></a>
-      <a id="select((Element)⇒Boolean):List[Element]"></a>
-      <h4 class="signature">
+    </li><li name="laika.tree.ElementTraversal#select" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="select(p:laika.tree.Elements.Element=&gt;Boolean):List[laika.tree.Elements.Element]"></a><a id="select((Element)⇒Boolean):List[Element]"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#select(p:laika.tree.Elements.Element=&gt;Boolean):List[laika.tree.Elements.Element]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -434,15 +1084,18 @@
       <span class="symbol">
         <span class="name">select</span><span class="params">(<span name="p">p: (<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <span class="extype" name="scala.List">List</span>[<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>]</span>
       </span>
-      </h4>
+      
       <p class="shortcomment cmt">Selects all elements satisfying the specified predicate, collecting
  in depth-first traversal, including this element itself.</p><div class="fullcomment"><div class="comment cmt"><p>Selects all elements satisfying the specified predicate, collecting
  in depth-first traversal, including this element itself.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ElementTraversal.html" class="extype" name="laika.tree.ElementTraversal">ElementTraversal</a></dd></dl></div>
-    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
-      <a id="synchronized[T0](⇒T0):T0"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -450,12 +1103,15 @@
       <span class="symbol">
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="laika.tree.Elements.InternalLink#title" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="laika.tree.Elements.InternalLink#title" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="title:Option[String]"></a>
-      <a id="title:Option[String]"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#title:Option[String]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
@@ -463,12 +1119,15 @@
       <span class="symbol">
         <span class="name">title</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
-      </h4>
       
-    </li><li name="laika.tree.Elements.ElementContainer#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      
+    </li><li name="laika.tree.Elements.ElementContainer#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
-      <a id="toString():String"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#toString():String" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -476,12 +1135,15 @@
       <span class="symbol">
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Elements$$ElementContainer.html" class="extype" name="laika.tree.Elements.ElementContainer">ElementContainer</a> → AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
-      <a id="wait():Unit"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#wait():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -489,7 +1151,7 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -497,10 +1159,13 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
-      <a id="wait(Long,Int):Unit"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a><a id="wait(Long,Int):Unit"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -508,7 +1173,7 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -516,10 +1181,13 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="wait(x$1:Long):Unit"></a>
-      <a id="wait(Long):Unit"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a><a id="wait(Long):Unit"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Elements$$InternalLink.html#wait(x$1:Long):Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -527,15 +1195,18 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
     </span>)</span>
               
         </dd></dl></div>
-    </li></ol>
+    </li>
+              </ol>
             </div>
 
         
@@ -588,6 +1259,9 @@
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
+    </body>
+          </div>
+        </div>
+      </div>
     </body>
       </html>

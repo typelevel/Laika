@@ -1,32 +1,137 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html >
 <html>
         <head>
-          <title>Directives - laika.directive.Directives</title>
-          <meta name="description" content="Directives - laika.directive.Directives" />
-          <meta name="keywords" content="Directives laika.directive.Directives" />
+          <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+          <title></title>
+          <meta name="description" content="" />
+          <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      <link href="../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.panzoom.min.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.mousewheel.min.js"></script>
+      <script type="text/javascript" src="../../lib/index.js"></script>
+      <script type="text/javascript" src="../../index.js"></script>
+      <script type="text/javascript" src="../../lib/scheduler.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
       <script type="text/javascript">
-         if(top === self) {
-            var url = '../../index.html';
-            var hash = 'laika.directive.Directives$';
-            var anchor = window.location.hash;
-            var anchor_opt = '';
-            if (anchor.length >= 1)
-              anchor_opt = '@' + anchor.substring(1);
-            window.location.href = url + '#' + hash + anchor_opt;
-         }
-   	  </script>
+        /* this variable can be used by the JS to determine the path to the root document */
+        var toRoot = '../../';
+      </script>
     
         </head>
-        <body class="value">
+        <body>
+      <div id="search">
+        <span id="doc-title"><span id="doc-version"></span></span>
+        <span class="close-results"><span class="left">&lt;</span> Back</span>
+        <div id="textfilter">
+          <span class="input">
+            <input autocapitalize="none" placeholder="Search" id="index-input" type="text" accesskey="/" />
+            <i class="clear material-icons"></i>
+            <i id="search-icon" class="material-icons"></i>
+          </span>
+        </div>
+    </div>
+      <div id="search-results">
+        <div id="search-progress">
+          <div id="progress-fill"></div>
+        </div>
+        <div id="results-content">
+          <div id="entity-results"></div>
+          <div id="member-results"></div>
+        </div>
+      </div>
+      <div id="content-scroll-container" style="-webkit-overflow-scrolling: touch;">
+        <div id="content-container" style="-webkit-overflow-scrolling: touch;">
+          <div id="subpackage-spacer">
+            <div id="packages">
+              <h1>Packages</h1>
+              <ul>
+                <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="_root_"></a><a id="root:_root_"></a>
+      <span class="permalink">
+      <a href="index.html#_root_" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../../index.html"><span class="name">root</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
+    </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="laika"></a><a id="laika:laika"></a>
+      <span class="permalink">
+      <a href="index.html#laika" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../index.html"><span class="name">laika</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
+    </li><li name="laika.directive" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="directive"></a><a id="directive:directive"></a>
+      <span class="permalink">
+      <a href="../laika/index.html#directive" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="index.html"><span class="name">directive</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
+    </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="DirectiveParsers.html" title="Parsers for all types of custom directives that can be used in templates or as inline or block elements in markup documents."></a>
+                        <a href="DirectiveParsers.html" title="Parsers for all types of custom directives that can be used in templates or as inline or block elements in markup documents.">DirectiveParsers</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="" title="API for creating directives, the Laika's extension mechanism for creating custom tags for both, templates or text markup."></a>
+                        <a href="" title="API for creating directives, the Laika's extension mechanism for creating custom tags for both, templates or text markup.">Directives</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="MarkupDirectiveParsers.html" title="Provides the parsers for directives in markup documents."></a>
+                        <a href="MarkupDirectiveParsers.html" title="Provides the parsers for directives in markup documents.">MarkupDirectiveParsers</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="object" href="StandardDirectives$.html" title="Provides the implementation for the standard directives included in Laika."></a>
+                        <a href="StandardDirectives$.html" title="Provides the implementation for the standard directives included in Laika.">StandardDirectives</a>
+                      </li>
+              </ul>
+            </div>
+          </div>
+          <div id="content">
+            <body class="object value">
       <div id="definition">
-        <img src="../../lib/object_big.png" />
-        <p id="owner"><a href="../package.html" class="extype" name="laika">laika</a>.<a href="package.html" class="extype" name="laika.directive">directive</a></p>
-        <h1>Directives</h1>
+        <div class="big-circle object">o</div>
+        <p id="owner"><a href="../index.html" class="extype" name="laika">laika</a>.<a href="index.html" class="extype" name="laika.directive">directive</a></p>
+        <h1>Directives<span class="permalink">
+      <a href="../../laika/directive/Directives$.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span></h1>
+        <h3><span class="morelinks"></span></h3>
       </div>
 
       <h4 id="signature" class="signature">
@@ -38,6 +143,7 @@
         <span class="name">Directives</span>
       </span>
       </h4>
+
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>API for creating directives, the Laika's extension mechanism for creating
  custom tags for both, templates or text markup.</p><p> It contains several simple combinators that allow to specify the expected
@@ -48,8 +154,8 @@
  a node of the tree to render. As a result, the directive can be used
  independent from the output format.</p><p> Entry points of the API are the <code>Templates</code>, <code>Blocks</code> and <code>Spans</code> objects for the
  three different directive types.</p><p> A directive may consist of any combination of arguments, fields and body elements:</p><pre>@:myDirective arg1=value1 arg2=value2: {
-This is the body of the directive. It may consist of any standard or custom
-block-level and inline markup.
+  This is the body of the directive. It may consist of any standard or custom
+  block-level and inline markup.
 }</pre><p> In the example above <code>arg1</code> and <code>arg2</code> are arguments, ollowed by a body element
  enclosed in curly braces.</p><p> For each of these directive elements, the API offers a combinator to specify whether the
  element is required or optional, and an optional function to convert or validate the
@@ -99,39 +205,49 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
   }
 )</pre><p> The attribute may be missing, but if it is present it has to pass the specified validator.
 </p></div><div class="toggleContainer block">
-          <span class="toggle">Linear Supertypes</span>
+          <span class="toggle">
+            Linear Supertypes
+          </span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
       <div id="mbrsel">
-        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
-        <div id="order">
-              <span class="filtertype">Ordering</span>
+        <div class="toggle"></div>
+        <div id="memberfilter">
+          <i class="material-icons arrow"></i>
+          <span class="input">
+            <input id="mbrsel-input" placeholder="Filter all members" type="text" accesskey="/" />
+          </span>
+          <i class="clear material-icons"></i>
+        </div>
+        <div id="filterby">
+          <div id="order">
+            <span class="filtertype">Ordering</span>
+            <ol>
+              
+              <li class="alpha in"><span>Alphabetic</span></li>
+              <li class="inherit out"><span>By Inheritance</span></li>
+            </ol>
+          </div>
+          <div class="ancestors">
+                  <span class="filtertype">Inherited<br />
+                  </span>
+                  <ol id="linearization">
+                    <li class="in" name="laika.directive.Directives"><span>Directives</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  </ol>
+                </div><div class="ancestors">
+              <span class="filtertype"></span>
               <ol>
-                
-                <li class="alpha in"><span>Alphabetic</span></li>
-                <li class="inherit out"><span>By inheritance</span></li>
+                <li class="hideall out"><span>Hide All</span></li>
+                <li class="showall in"><span>Show All</span></li>
               </ol>
             </div>
-        <div id="ancestors">
-                <span class="filtertype">Inherited<br />
-                </span>
-                <ol id="linearization">
-                  <li class="in" name="laika.directive.Directives"><span>Directives</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
-                </ol>
-              </div><div id="ancestors">
-            <span class="filtertype"></span>
-            <ol>
-              <li class="hideall out"><span>Hide All</span></li>
-              <li class="showall in"><span>Show all</span></li>
-            </ol>
-            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
-          </div>
-        <div id="visbl">
-            <span class="filtertype">Visibility</span>
-            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
-          </div>
+          <div id="visbl">
+              <span class="filtertype">Visibility</span>
+              <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+            </div>
+        </div>
       </div>
 
       <div id="template">
@@ -140,152 +256,183 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="laika.directive.Directives.Attribute" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="AttributeextendsDirectives.KeywithProductwithSerializable"></a>
-      <a id="Attribute:Attribute"></a>
-      <h4 class="signature">
+              <ol><li name="laika.directive.Directives.Attribute" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="AttributeextendsDirectives.KeywithProductwithSerializable"></a><a id="Attribute:Attribute"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#AttributeextendsDirectives.KeywithProductwithSerializable" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Directives$$Attribute.html"><span class="name">Attribute</span></a><span class="params">(<span name="id">id: <a href="Directives$$Id.html" class="extype" name="laika.directive.Directives.Id">Id</a></span>)</span><span class="result"> extends <a href="Directives$$Key.html" class="extype" name="laika.directive.Directives.Key">Key</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="" href="Directives$$Attribute.html"><span class="name">Attribute</span></a><span class="params">(<span name="id">id: <a href="Directives$$Id.html" class="extype" name="laika.directive.Directives.Id">Id</a></span>)</span><span class="result"> extends <a href="Directives$$Key.html" class="extype" name="laika.directive.Directives.Key">Key</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
       
-    </li><li name="laika.directive.Directives.Body" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="BodyextendsDirectives.KeywithProductwithSerializable"></a>
-      <a id="Body:Body"></a>
-      <h4 class="signature">
+      
+    </li><li name="laika.directive.Directives.Body" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BodyextendsDirectives.KeywithProductwithSerializable"></a><a id="Body:Body"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#BodyextendsDirectives.KeywithProductwithSerializable" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Directives$$Body.html"><span class="name">Body</span></a><span class="params">(<span name="id">id: <a href="Directives$$Id.html" class="extype" name="laika.directive.Directives.Id">Id</a></span>)</span><span class="result"> extends <a href="Directives$$Key.html" class="extype" name="laika.directive.Directives.Key">Key</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="" href="Directives$$Body.html"><span class="name">Body</span></a><span class="params">(<span name="id">id: <a href="Directives$$Id.html" class="extype" name="laika.directive.Directives.Id">Id</a></span>)</span><span class="result"> extends <a href="Directives$$Key.html" class="extype" name="laika.directive.Directives.Key">Key</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
       
-    </li><li name="laika.directive.Directives.BuilderContext" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="BuilderContext[E&lt;:laika.tree.Elements.Element]extendsAnyRef"></a>
-      <a id="BuilderContext[E&lt;:Element]:BuilderContext[E]"></a>
-      <h4 class="signature">
+      
+    </li><li name="laika.directive.Directives.BuilderContext" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="BuilderContext[E&lt;:laika.tree.Elements.Element]extendsAnyRef"></a><a id="BuilderContext[E&lt;:Element]:BuilderContext[E]"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#BuilderContext[E&lt;:laika.tree.Elements.Element]extendsAnyRef" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="Directives$$BuilderContext.html"><span class="name">BuilderContext</span></a><span class="tparams">[<span name="E">E &lt;: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a title="Provides the basic building blocks for Laika's Directive API." href="Directives$$BuilderContext.html"><span class="name">BuilderContext</span></a><span class="tparams">[<span name="E">E &lt;: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">Provides the basic building blocks for
- Laika's Directive API.</p>
-    </li><li name="laika.directive.Directives.Failure" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="FailureextendsDirectives.Result[Nothing]withProductwithSerializable"></a>
-      <a id="Failure:Failure"></a>
-      <h4 class="signature">
+      
+      <p class="shortcomment cmt">Provides the basic building blocks for
+ Laika's Directive API.</p><div class="fullcomment"><div class="comment cmt"><p>Provides the basic building blocks for
+ Laika's Directive API. This trait
+ is not used directly, but instead its
+ three subtraits <code>Blocks</code>, <code>Spans</code> and <code>Templates</code>,
+ which represent the concrete implementations
+ for the three directive types.
+</p></div></div>
+    </li><li name="laika.directive.Directives.Failure" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="FailureextendsDirectives.Result[Nothing]withProductwithSerializable"></a><a id="Failure:Failure"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#FailureextendsDirectives.Result[Nothing]withProductwithSerializable" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Directives$$Failure.html"><span class="name">Failure</span></a><span class="params">(<span name="messages">messages: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result"> extends <a href="Directives$$Result.html" class="extype" name="laika.directive.Directives.Result">Result</a>[<span class="extype" name="scala.Nothing">Nothing</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Represents the failed computation of a directive part." href="Directives$$Failure.html"><span class="name">Failure</span></a><span class="params">(<span name="messages">messages: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result"> extends <a href="Directives$$Result.html" class="extype" name="laika.directive.Directives.Result">Result</a>[<span class="extype" name="scala.Nothing">Nothing</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">Represents the failed computation
- of a directive part.</p>
-    </li><li name="laika.directive.Directives.Id" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="IdextendsAnyRef"></a>
-      <a id="Id:Id"></a>
-      <h4 class="signature">
+      
+      <p class="shortcomment cmt">Represents the failed computation
+ of a directive part.</p><div class="fullcomment"><div class="comment cmt"><p>Represents the failed computation
+ of a directive part. This failure type
+ can be combined with other failures
+ to &quot;collect&quot; all error messages, in contrast
+ to the <code>Either</code> type for example, which always
+ only carries one <code>Left</code> value through a chain
+ of computations.
+</p></div></div>
+    </li><li name="laika.directive.Directives.Id" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="IdextendsAnyRef"></a><a id="Id:Id"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#IdextendsAnyRef" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">sealed abstract </span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="Directives$$Id.html"><span class="name">Id</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a title="" href="Directives$$Id.html"><span class="name">Id</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
       
-    </li><li name="laika.directive.Directives.Key" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="KeyextendsAnyRef"></a>
-      <a id="Key:Key"></a>
-      <h4 class="signature">
+      
+    </li><li name="laika.directive.Directives.Key" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="KeyextendsAnyRef"></a><a id="Key:Key"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#KeyextendsAnyRef" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">sealed abstract </span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="Directives$$Key.html"><span class="name">Key</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a title="" href="Directives$$Key.html"><span class="name">Key</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
       
-    </li><li name="laika.directive.Directives.Named" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="NamedextendsDirectives.IdwithProductwithSerializable"></a>
-      <a id="Named:Named"></a>
-      <h4 class="signature">
+      
+    </li><li name="laika.directive.Directives.Named" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NamedextendsDirectives.IdwithProductwithSerializable"></a><a id="Named:Named"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#NamedextendsDirectives.IdwithProductwithSerializable" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Directives$$Named.html"><span class="name">Named</span></a><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="Directives$$Id.html" class="extype" name="laika.directive.Directives.Id">Id</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Represents the string identifier of an attribute or body part of a directive." href="Directives$$Named.html"><span class="name">Named</span></a><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="Directives$$Id.html" class="extype" name="laika.directive.Directives.Id">Id</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">Represents the string identifier of an attribute or body part
+      
+      <p class="shortcomment cmt">Represents the string identifier of an attribute or body part
  of a directive.</p>
-    </li><li name="laika.directive.Directives.Result" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="Result[+A]extendsAnyRef"></a>
-      <a id="Result[+A]:Result[A]"></a>
-      <h4 class="signature">
+    </li><li name="laika.directive.Directives.Result" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="Result[+A]extendsAnyRef"></a><a id="Result[+A]:Result[A]"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#Result[+A]extendsAnyRef" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">sealed abstract </span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="Directives$$Result.html"><span class="name">Result</span></a><span class="tparams">[<span name="A">+A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a title="Represents the result (or combined results) of processing one or more parts of a directive." href="Directives$$Result.html"><span class="name">Result</span></a><span class="tparams">[<span name="A">+A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">Represents the result (or combined results)
+      
+      <p class="shortcomment cmt">Represents the result (or combined results)
  of processing one or more parts of a directive.</p>
-    </li><li name="laika.directive.Directives.Success" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Success[+A]extendsDirectives.Result[A]withProductwithSerializable"></a>
-      <a id="Success[+A]:Success[A]"></a>
-      <h4 class="signature">
+    </li><li name="laika.directive.Directives.Success" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Success[+A]extendsDirectives.Result[A]withProductwithSerializable"></a><a id="Success[+A]:Success[A]"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#Success[+A]extendsDirectives.Result[A]withProductwithSerializable" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Directives$$Success.html"><span class="name">Success</span></a><span class="tparams">[<span name="A">+A</span>]</span><span class="params">(<span name="a">a: <span class="extype" name="laika.directive.Directives.Success.A">A</span></span>)</span><span class="result"> extends <a href="Directives$$Result.html" class="extype" name="laika.directive.Directives.Result">Result</a>[<span class="extype" name="laika.directive.Directives.Success.A">A</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Represents the successful computation of a directive part." href="Directives$$Success.html"><span class="name">Success</span></a><span class="tparams">[<span name="A">+A</span>]</span><span class="params">(<span name="a">a: <span class="extype" name="laika.directive.Directives.Success.A">A</span></span>)</span><span class="result"> extends <a href="Directives$$Result.html" class="extype" name="laika.directive.Directives.Result">Result</a>[<span class="extype" name="laika.directive.Directives.Success.A">A</span>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">Represents the successful computation
+      
+      <p class="shortcomment cmt">Represents the successful computation
  of a directive part.</p>
     </li></ol>
             </div>
 
         
 
-        <div id="values" class="values members">
+        <div class="values members">
               <h3>Value Members</h3>
-              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="!=(x$1:AnyRef):Boolean"></a>
-      <a id="!=(AnyRef):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="!=(x$1:Any):Boolean"></a>
-      <a id="!=(Any):Boolean"></a>
-      <h4 class="signature">
+              <ol>
+                <li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#!=(x$1:Any):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -293,12 +440,15 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
       <span class="symbol">
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
-      <a id="##():Int"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html###():Int" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -306,25 +456,15 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
       <span class="symbol">
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="==(x$1:AnyRef):Boolean"></a>
-      <a id="==(AnyRef):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="==(x$1:Any):Boolean"></a>
-      <a id="==(Any):Boolean"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#==" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a><a id="==(Any):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#==(x$1:Any):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -332,81 +472,15 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
       <span class="symbol">
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="laika.directive.Directives.Blocks" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Blocks"></a>
-      <a id="Blocks:Blocks"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Directives$$Blocks$.html"><span class="name">Blocks</span></a><span class="result"> extends <a href="Directives$$BuilderContext.html" class="extype" name="laika.directive.Directives.BuilderContext">BuilderContext</a>[<a href="../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a>]</span>
-      </span>
-      </h4>
-      <p class="comment cmt">The API for declaring directives that can be used
- as block elements in markup documents.</p>
-    </li><li name="laika.directive.Directives.Default" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Default"></a>
-      <a id="Default:Default"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Directives$$Default$.html"><span class="name">Default</span></a><span class="result"> extends <a href="Directives$$Id.html" class="extype" name="laika.directive.Directives.Id">Id</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      <p class="comment cmt">Represents an unnamed attribute or body part
- of a directive.</p>
-    </li><li name="laika.directive.Directives.Failure" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Failure"></a>
-      <a id="Failure:Failure"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Directives$$Failure$.html"><span class="name">Failure</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
       
-    </li><li name="laika.directive.Directives.Spans" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Spans"></a>
-      <a id="Spans:Spans"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Directives$$Spans$.html"><span class="name">Spans</span></a><span class="result"> extends <a href="Directives$$BuilderContext.html" class="extype" name="laika.directive.Directives.BuilderContext">BuilderContext</a>[<a href="../tree/Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>]</span>
-      </span>
-      </h4>
-      <p class="comment cmt">The API for declaring directives that can be used
- as inline elements in markup documents.</p>
-    </li><li name="laika.directive.Directives.Templates" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Templates"></a>
-      <a id="Templates:Templates"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Directives$$Templates$.html"><span class="name">Templates</span></a><span class="result"> extends <a href="Directives$$BuilderContext.html" class="extype" name="laika.directive.Directives.BuilderContext">BuilderContext</a>[<a href="../tree/Templates$$TemplateSpan.html" class="extype" name="laika.tree.Templates.TemplateSpan">TemplateSpan</a>]</span>
-      </span>
-      </h4>
-      <p class="comment cmt">The API for declaring directives that can be used
- in templates.</p>
-    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
-      <a id="asInstanceOf[T0]:T0"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#asInstanceOf[T0]:T0" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -414,12 +488,15 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
       <span class="symbol">
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="clone():Object"></a>
-      <a id="clone():AnyRef"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a><a id="clone():AnyRef"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#clone():Object" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -427,18 +504,23 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
       <span class="symbol">
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="eq(x$1:AnyRef):Boolean"></a>
-      <a id="eq(AnyRef):Boolean"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#eq(x$1:AnyRef):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -446,12 +528,15 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
       <span class="symbol">
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="equals(x$1:Any):Boolean"></a>
-      <a id="equals(Any):Boolean"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#equals" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a><a id="equals(Any):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#equals(x$1:Any):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -459,12 +544,15 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
       <span class="symbol">
         <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
-      <a id="finalize():Unit"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#finalize():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -472,18 +560,21 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
       <span class="symbol">
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
-      <a id="getClass():Class[_]"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#getClass():Class[_]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -491,12 +582,18 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#hashCode" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="hashCode():Int"></a>
-      <a id="hashCode():Int"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#hashCode():Int" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -504,12 +601,18 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
       <span class="symbol">
         <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
-      <a id="isInstanceOf[T0]:Boolean"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#isInstanceOf[T0]:Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -517,12 +620,15 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
       <span class="symbol">
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="ne(x$1:AnyRef):Boolean"></a>
-      <a id="ne(AnyRef):Boolean"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#ne(x$1:AnyRef):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -530,12 +636,15 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
       <span class="symbol">
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#notify" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
-      <a id="notify():Unit"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#notify():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -543,12 +652,18 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
       <span class="symbol">
         <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
-      <a id="notifyAll():Unit"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#notifyAll():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -556,12 +671,18 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
       <span class="symbol">
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="laika.directive.Directives#stringToId" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="stringToId(str:String):laika.directive.Directives.Id"></a>
-      <a id="stringToId(String):Id"></a>
-      <h4 class="signature">
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="laika.directive.Directives#stringToId" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="stringToId(str:String):laika.directive.Directives.Id"></a><a id="stringToId(String):Id"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#stringToId(str:String):laika.directive.Directives.Id" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
         <span class="kind">def</span>
@@ -569,12 +690,15 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
       <span class="symbol">
         <span class="name">stringToId</span><span class="params">(<span name="str">str: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Directives$$Id.html" class="extype" name="laika.directive.Directives.Id">Id</a></span>
       </span>
-      </h4>
       
-    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
-      <a id="synchronized[T0](⇒T0):T0"></a>
-      <h4 class="signature">
+      
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -582,12 +706,15 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
       <span class="symbol">
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
-      <a id="toString():String"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#toString():String" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -595,12 +722,15 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
       <span class="symbol">
         <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
-      <a id="wait():Unit"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#wait():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -608,7 +738,7 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
       <span class="symbol">
         <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -616,10 +746,13 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
-      <a id="wait(Long,Int):Unit"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a><a id="wait(Long,Int):Unit"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -627,7 +760,7 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -635,10 +768,13 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="wait(x$1:Long):Unit"></a>
-      <a id="wait(Long):Unit"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a><a id="wait(Long):Unit"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#wait(x$1:Long):Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -646,15 +782,102 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
     </span>)</span>
               
         </dd></dl></div>
-    </li></ol>
+    </li><li name="laika.directive.Directives.Blocks" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Blocks"></a><a id="Blocks:Blocks"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#Blocks" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="The API for declaring directives that can be used as block elements in markup documents." href="Directives$$Blocks$.html"><span class="name">Blocks</span></a><span class="result"> extends <a href="Directives$$BuilderContext.html" class="extype" name="laika.directive.Directives.BuilderContext">BuilderContext</a>[<a href="../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">The API for declaring directives that can be used
+ as block elements in markup documents.</p>
+    </li><li name="laika.directive.Directives.Default" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Default"></a><a id="Default:Default"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#Default" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="Represents an unnamed attribute or body part of a directive." href="Directives$$Default$.html"><span class="name">Default</span></a><span class="result"> extends <a href="Directives$$Id.html" class="extype" name="laika.directive.Directives.Id">Id</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Represents an unnamed attribute or body part
+ of a directive.</p>
+    </li><li name="laika.directive.Directives.Failure" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Failure"></a><a id="Failure:Failure"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#Failure" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="Directives$$Failure$.html"><span class="name">Failure</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="laika.directive.Directives.Spans" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Spans"></a><a id="Spans:Spans"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#Spans" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="The API for declaring directives that can be used as inline elements in markup documents." href="Directives$$Spans$.html"><span class="name">Spans</span></a><span class="result"> extends <a href="Directives$$BuilderContext.html" class="extype" name="laika.directive.Directives.BuilderContext">BuilderContext</a>[<a href="../tree/Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">The API for declaring directives that can be used
+ as inline elements in markup documents.</p>
+    </li><li name="laika.directive.Directives.Templates" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Templates"></a><a id="Templates:Templates"></a>
+      <span class="permalink">
+      <a href="../../laika/directive/Directives$.html#Templates" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="The API for declaring directives that can be used in templates." href="Directives$$Templates$.html"><span class="name">Templates</span></a><span class="result"> extends <a href="Directives$$BuilderContext.html" class="extype" name="laika.directive.Directives.BuilderContext">BuilderContext</a>[<a href="../tree/Templates$$TemplateSpan.html" class="extype" name="laika.tree.Templates.TemplateSpan">TemplateSpan</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">The API for declaring directives that can be used
+ in templates.</p>
+    </li>
+              </ol>
             </div>
 
         
@@ -683,6 +906,9 @@ Transform from md to HTML fromFile <span class="lit">"hello.md"</span> toFile <s
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
+    </body>
+          </div>
+        </div>
+      </div>
     </body>
       </html>

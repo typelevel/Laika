@@ -1,32 +1,186 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html >
 <html>
         <head>
-          <title>TemplateElement - laika.tree.Templates.TemplateElement</title>
-          <meta name="description" content="TemplateElement - laika.tree.Templates.TemplateElement" />
-          <meta name="keywords" content="TemplateElement laika.tree.Templates.TemplateElement" />
+          <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+          <title></title>
+          <meta name="description" content="" />
+          <meta name="keywords" content="" />
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           
+      <link href="../../lib/index.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.panzoom.min.js"></script>
+      <script type="text/javascript" src="../../lib/jquery.mousewheel.min.js"></script>
+      <script type="text/javascript" src="../../lib/index.js"></script>
+      <script type="text/javascript" src="../../index.js"></script>
+      <script type="text/javascript" src="../../lib/scheduler.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
       <script type="text/javascript">
-         if(top === self) {
-            var url = '../../index.html';
-            var hash = 'laika.tree.Templates$$TemplateElement';
-            var anchor = window.location.hash;
-            var anchor_opt = '';
-            if (anchor.length >= 1)
-              anchor_opt = '@' + anchor.substring(1);
-            window.location.href = url + '#' + hash + anchor_opt;
-         }
-   	  </script>
+        /* this variable can be used by the JS to determine the path to the root document */
+        var toRoot = '../../';
+      </script>
     
         </head>
-        <body class="type">
+        <body>
+      <div id="search">
+        <span id="doc-title"><span id="doc-version"></span></span>
+        <span class="close-results"><span class="left">&lt;</span> Back</span>
+        <div id="textfilter">
+          <span class="input">
+            <input autocapitalize="none" placeholder="Search" id="index-input" type="text" accesskey="/" />
+            <i class="clear material-icons"></i>
+            <i id="search-icon" class="material-icons"></i>
+          </span>
+        </div>
+    </div>
+      <div id="search-results">
+        <div id="search-progress">
+          <div id="progress-fill"></div>
+        </div>
+        <div id="results-content">
+          <div id="entity-results"></div>
+          <div id="member-results"></div>
+        </div>
+      </div>
+      <div id="content-scroll-container" style="-webkit-overflow-scrolling: touch;">
+        <div id="content-container" style="-webkit-overflow-scrolling: touch;">
+          <div id="subpackage-spacer">
+            <div id="packages">
+              <h1>Packages</h1>
+              <ul>
+                <li name="_root_.root" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="_root_"></a><a id="root:_root_"></a>
+      <span class="permalink">
+      <a href="index.html#_root_" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../../index.html"><span class="name">root</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
+    </li><li name="_root_.laika" visbl="pub" class="indented1 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="laika"></a><a id="laika:laika"></a>
+      <span class="permalink">
+      <a href="index.html#laika" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="../index.html"><span class="name">laika</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../../index.html" class="extype" name="_root_">root</a></dd></dl></div>
+    </li><li name="laika.tree" visbl="pub" class="indented2 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="tree"></a><a id="tree:tree"></a>
+      <span class="permalink">
+      <a href="../laika/index.html#tree" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="index.html"><span class="name">tree</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
+    </li><li name="laika.tree.Templates" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Templates"></a><a id="Templates:Templates"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/index.html#Templates" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="Provides the elements of the document tree which are specific to templates." href="Templates$.html"><span class="name">Templates</span></a>
+      </span>
+      
+      <p class="shortcomment cmt">Provides the elements of the document tree which are specific to templates.</p><div class="fullcomment"><div class="comment cmt"><p>Provides the elements of the document tree which are specific to templates.</p><p> In contrast to document trees built from text markup, these elements
+ do not make a distinction between block and inline elements. Therefore
+ all template elements mix in the <code>TemplateSpan</code> trait which extends
+ <code>Span</code>, making it an inline element.</p><p> The abstract base classes are not sealed as the tree model is extensible.
+ Renderers should anticipate unknown elements and add fallback rules for those.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="laika.tree">tree</a></dd></dl></div>
+    </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="Templates$$BlockResolver.html" title="Represents a placeholder block element that needs to be resolved in a rewrite step."></a>
+                        <a href="Templates$$BlockResolver.html" title="Represents a placeholder block element that needs to be resolved in a rewrite step.">BlockResolver</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Templates$$ContextReference.html" title="Represents a reference to a value from the context of the current document."></a>
+                        <a href="Templates$$ContextReference.html" title="Represents a reference to a value from the context of the current document.">ContextReference</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Templates$$EmbeddedRoot.html" title="The root element of a document tree (originating from text markup) inside a template."></a>
+                        <a href="Templates$$EmbeddedRoot.html" title="The root element of a document tree (originating from text markup) inside a template.">EmbeddedRoot</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Templates$$MarkupContextReference.html" title="A context reference specifically for use in markup documents."></a>
+                        <a href="Templates$$MarkupContextReference.html" title="A context reference specifically for use in markup documents.">MarkupContextReference</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="Templates$$SpanResolver.html" title="Represents a placeholder inline element that needs to be resolved in a rewrite step."></a>
+                        <a href="Templates$$SpanResolver.html" title="Represents a placeholder inline element that needs to be resolved in a rewrite step.">SpanResolver</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Templates$$TemplateContextReference.html" title="A context reference specifically for use in template documents."></a>
+                        <a href="Templates$$TemplateContextReference.html" title="A context reference specifically for use in template documents.">TemplateContextReference</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="" title="Wraps a generic element that otherwise could not be placed directly into a template document tree."></a>
+                        <a href="" title="Wraps a generic element that otherwise could not be placed directly into a template document tree.">TemplateElement</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Templates$$TemplateRoot.html" title="The root element of a template document tree."></a>
+                        <a href="Templates$$TemplateRoot.html" title="The root element of a template document tree.">TemplateRoot</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="trait" href="Templates$$TemplateSpan.html" title="The base type for all inline elements that can be found in a template."></a>
+                        <a href="Templates$$TemplateSpan.html" title="The base type for all inline elements that can be found in a template.">TemplateSpan</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Templates$$TemplateSpanSequence.html" title="A generic container element containing a list of template spans."></a>
+                        <a href="Templates$$TemplateSpanSequence.html" title="A generic container element containing a list of template spans.">TemplateSpanSequence</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="class" href="Templates$$TemplateString.html" title="A simple string element, representing the parts of a template that are not detected as special markup constructs and treated as raw text."></a>
+                        <a href="Templates$$TemplateString.html" title="A simple string element, representing the parts of a template that are not detected as special markup constructs and treated as raw text.">TemplateString</a>
+                      </li>
+              </ul>
+            </div>
+          </div>
+          <div id="content">
+            <body class="class type">
       <div id="definition">
-        <img src="../../lib/class_big.png" />
-        <p id="owner"><a href="../package.html" class="extype" name="laika">laika</a>.<a href="package.html" class="extype" name="laika.tree">tree</a>.<a href="Templates$.html" class="extype" name="laika.tree.Templates">Templates</a></p>
-        <h1>TemplateElement</h1>
+        <div class="big-circle class">c</div>
+        <p id="owner"><a href="../index.html" class="extype" name="laika">laika</a>.<a href="index.html" class="extype" name="laika.tree">tree</a>.<a href="Templates$.html" class="extype" name="laika.tree.Templates">Templates</a></p>
+        <h1>TemplateElement<span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span></h1>
+        <h3><span class="morelinks"></span></h3>
       </div>
 
       <h4 id="signature" class="signature">
@@ -35,109 +189,135 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">TemplateElement</span><span class="params">(<span name="element">element: <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="indent">indent: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">0</span></span>, <span name="options">options: <a href="Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol">laika.tree.Elements.NoOpt</span></span>)</span><span class="result"> extends <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="Templates$$TemplateSpan.html" class="extype" name="laika.tree.Templates.TemplateSpan">TemplateSpan</a> with <a href="ElementTraversal.html" class="extype" name="laika.tree.ElementTraversal">ElementTraversal</a>[<a href="" class="extype" name="laika.tree.Templates.TemplateElement">TemplateElement</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">TemplateElement</span><span class="params">(<span name="element">element: <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="indent">indent: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">0</span></span>, <span name="options">options: <a href="Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="Templates$$TemplateSpan.html" class="extype" name="laika.tree.Templates.TemplateSpan">TemplateSpan</a> with <a href="ElementTraversal.html" class="extype" name="laika.tree.ElementTraversal">ElementTraversal</a>[<a href="" class="extype" name="laika.tree.Templates.TemplateElement">TemplateElement</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
+
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Wraps a generic element that otherwise could not be placed directly into
  a template document tree. Useful when custom tags which are placed inside
  a template produce non-template tree elements.
 </p></div><div class="toggleContainer block">
-          <span class="toggle">Linear Supertypes</span>
+          <span class="toggle">
+            Linear Supertypes
+          </span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="ElementTraversal.html" class="extype" name="laika.tree.ElementTraversal">ElementTraversal</a>[<a href="" class="extype" name="laika.tree.Templates.TemplateElement">TemplateElement</a>], <a href="Templates$$TemplateSpan.html" class="extype" name="laika.tree.Templates.TemplateSpan">TemplateSpan</a>, <a href="Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>, <a href="Elements$$Customizable.html" class="extype" name="laika.tree.Elements.Customizable">Customizable</a>, <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
       <div id="mbrsel">
-        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
-        <div id="order">
-              <span class="filtertype">Ordering</span>
+        <div class="toggle"></div>
+        <div id="memberfilter">
+          <i class="material-icons arrow"></i>
+          <span class="input">
+            <input id="mbrsel-input" placeholder="Filter all members" type="text" accesskey="/" />
+          </span>
+          <i class="clear material-icons"></i>
+        </div>
+        <div id="filterby">
+          <div id="order">
+            <span class="filtertype">Ordering</span>
+            <ol>
+              
+              <li class="alpha in"><span>Alphabetic</span></li>
+              <li class="inherit out"><span>By Inheritance</span></li>
+            </ol>
+          </div>
+          <div class="ancestors">
+                  <span class="filtertype">Inherited<br />
+                  </span>
+                  <ol id="linearization">
+                    <li class="in" name="laika.tree.Templates.TemplateElement"><span>TemplateElement</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="laika.tree.ElementTraversal"><span>ElementTraversal</span></li><li class="in" name="laika.tree.Templates.TemplateSpan"><span>TemplateSpan</span></li><li class="in" name="laika.tree.Elements.Span"><span>Span</span></li><li class="in" name="laika.tree.Elements.Customizable"><span>Customizable</span></li><li class="in" name="laika.tree.Elements.Element"><span>Element</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  </ol>
+                </div><div class="ancestors">
+              <span class="filtertype"></span>
               <ol>
-                
-                <li class="alpha in"><span>Alphabetic</span></li>
-                <li class="inherit out"><span>By inheritance</span></li>
+                <li class="hideall out"><span>Hide All</span></li>
+                <li class="showall in"><span>Show All</span></li>
               </ol>
             </div>
-        <div id="ancestors">
-                <span class="filtertype">Inherited<br />
-                </span>
-                <ol id="linearization">
-                  <li class="in" name="laika.tree.Templates.TemplateElement"><span>TemplateElement</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="laika.tree.ElementTraversal"><span>ElementTraversal</span></li><li class="in" name="laika.tree.Templates.TemplateSpan"><span>TemplateSpan</span></li><li class="in" name="laika.tree.Elements.Span"><span>Span</span></li><li class="in" name="laika.tree.Elements.Customizable"><span>Customizable</span></li><li class="in" name="laika.tree.Elements.Element"><span>Element</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
-                </ol>
-              </div><div id="ancestors">
-            <span class="filtertype"></span>
-            <ol>
-              <li class="hideall out"><span>Hide All</span></li>
-              <li class="showall in"><span>Show all</span></li>
-            </ol>
-            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
-          </div>
-        <div id="visbl">
-            <span class="filtertype">Visibility</span>
-            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
-          </div>
+          <div id="visbl">
+              <span class="filtertype">Visibility</span>
+              <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+            </div>
+        </div>
       </div>
 
       <div id="template">
         <div id="allMembers">
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
-              <ol><li name="laika.tree.Templates.TemplateElement#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(element:laika.tree.Elements.Element,indent:Int,options:laika.tree.Elements.Options):laika.tree.Templates.TemplateElement"></a>
-      <a id="&lt;init&gt;:TemplateElement"></a>
-      <h4 class="signature">
+              <ol><li name="laika.tree.Templates.TemplateElement#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(element:laika.tree.Elements.Element,indent:Int,options:laika.tree.Elements.Options):laika.tree.Templates.TemplateElement"></a><a id="&lt;init&gt;:TemplateElement"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html#&lt;init&gt;(element:laika.tree.Elements.Element,indent:Int,options:laika.tree.Elements.Options):laika.tree.Templates.TemplateElement" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">TemplateElement</span><span class="params">(<span name="element">element: <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="indent">indent: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">0</span></span>, <span name="options">options: <a href="Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol">laika.tree.Elements.NoOpt</span></span>)</span>
+        <span class="name">TemplateElement</span><span class="params">(<span name="element">element: <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="indent">indent: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">0</span></span>, <span name="options">options: <a href="Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span>
       </span>
-      </h4>
+      
       
     </li></ol>
             </div>
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="laika.tree.ElementTraversal.RewriteException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="RewriteExceptionextendsRuntimeException"></a>
-      <a id="RewriteException:(ElementTraversal.this)#RewriteException"></a>
-      <h4 class="signature">
+              <ol><li name="laika.tree.ElementTraversal.RewriteException" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RewriteExceptionextendsRuntimeException"></a><a id="RewriteException:(ElementTraversal.this)#RewriteException"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/ElementTraversal.html#RewriteExceptionextendsRuntimeException" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="ElementTraversal$RewriteException.html"><span class="name">RewriteException</span></a><span class="result"> extends <span class="extype" name="scala.RuntimeException">RuntimeException</span></span>
+        <a title="Exception thrown when a rewrite rule replaced an element with a new element that does not comply with the contract of its parent container." href="ElementTraversal$RewriteException.html"><span class="name">RewriteException</span></a><span class="result"> extends <span class="extype" name="scala.RuntimeException">RuntimeException</span></span>
       </span>
-      </h4>
-      <p class="comment cmt">Exception thrown when a rewrite rule replaced an element with a new element
- that does not comply with the contract of its parent container.</p>
+      
+      <p class="shortcomment cmt">Exception thrown when a rewrite rule replaced an element with a new element
+ that does not comply with the contract of its parent container.</p><div class="fullcomment"><div class="comment cmt"><p>Exception thrown when a rewrite rule replaced an element with a new element
+ that does not comply with the contract of its parent container.</p><p> The <code>element</code> property holds the offending element.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ElementTraversal.html" class="extype" name="laika.tree.ElementTraversal">ElementTraversal</a></dd></dl></div>
     </li></ol>
             </div>
 
         
 
-        <div id="values" class="values members">
+        <div class="values members">
               <h3>Value Members</h3>
-              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="!=(x$1:AnyRef):Boolean"></a>
-      <a id="!=(AnyRef):Boolean"></a>
-      <h4 class="signature">
+              <ol>
+                <li name="laika.tree.ElementTraversal.RewriteException" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="RewriteException"></a><a id="RewriteException:RewriteException"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/ElementTraversal.html#RewriteException" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
+        <span class="modifier"></span>
+        <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+        <a title="" href="ElementTraversal$RewriteException$.html"><span class="name">RewriteException</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="!=(x$1:Any):Boolean"></a>
-      <a id="!=(Any):Boolean"></a>
-      <h4 class="signature">
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ElementTraversal.html" class="extype" name="laika.tree.ElementTraversal">ElementTraversal</a></dd></dl></div>
+    </li><li name="scala.AnyRef#!=" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a><a id="!=(Any):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html#!=(x$1:Any):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -145,12 +325,15 @@
       <span class="symbol">
         <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="##():Int"></a>
-      <a id="##():Int"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html###():Int" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -158,25 +341,15 @@
       <span class="symbol">
         <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="==(x$1:AnyRef):Boolean"></a>
-      <a id="==(AnyRef):Boolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">final </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="==(x$1:Any):Boolean"></a>
-      <a id="==(Any):Boolean"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#==" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a><a id="==(Any):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html#==(x$1:Any):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -184,25 +357,15 @@
       <span class="symbol">
         <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="laika.tree.ElementTraversal.RewriteException" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="RewriteException"></a>
-      <a id="RewriteException:RewriteException"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="ElementTraversal$RewriteException$.html"><span class="name">RewriteException</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ElementTraversal.html" class="extype" name="laika.tree.ElementTraversal">ElementTraversal</a></dd></dl></div>
-    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
-      <a id="asInstanceOf[T0]:T0"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html#asInstanceOf[T0]:T0" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -210,12 +373,15 @@
       <span class="symbol">
         <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="clone():Object"></a>
-      <a id="clone():AnyRef"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#clone" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a><a id="clone():AnyRef"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html#clone():Object" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -223,18 +389,23 @@
       <span class="symbol">
         <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.tree.ElementTraversal#collect" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="collect[B](pf:PartialFunction[laika.tree.Elements.Element,B]):List[B]"></a>
-      <a id="collect[B](PartialFunction[Element,B]):List[B]"></a>
-      <h4 class="signature">
+    </li><li name="laika.tree.ElementTraversal#collect" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="collect[B](pf:PartialFunction[laika.tree.Elements.Element,B]):List[B]"></a><a id="collect[B](PartialFunction[Element,B]):List[B]"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html#collect[B](pf:PartialFunction[laika.tree.Elements.Element,B]):List[B]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -242,17 +413,20 @@
       <span class="symbol">
         <span class="name">collect</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="pf">pf: <span class="extype" name="scala.PartialFunction">PartialFunction</span>[<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>, <span class="extype" name="laika.tree.ElementTraversal.collect.B">B</span>]</span>)</span><span class="result">: <span class="extype" name="scala.List">List</span>[<span class="extype" name="laika.tree.ElementTraversal.collect.B">B</span>]</span>
       </span>
-      </h4>
+      
       <p class="shortcomment cmt">Collects elements by applying the partial function to all elements
  it is defined for, in depth-first traversal, including this element
  itself.</p><div class="fullcomment"><div class="comment cmt"><p>Collects elements by applying the partial function to all elements
  it is defined for, in depth-first traversal, including this element
  itself.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ElementTraversal.html" class="extype" name="laika.tree.ElementTraversal">ElementTraversal</a></dd></dl></div>
-    </li><li name="laika.tree.Templates.TemplateElement#element" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="element:laika.tree.Elements.Element"></a>
-      <a id="element:Element"></a>
-      <h4 class="signature">
+    </li><li name="laika.tree.Templates.TemplateElement#element" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="element:laika.tree.Elements.Element"></a><a id="element:Element"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html#element:laika.tree.Elements.Element" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
@@ -260,12 +434,15 @@
       <span class="symbol">
         <span class="name">element</span><span class="result">: <a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>
       </span>
-      </h4>
       
-    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="eq(x$1:AnyRef):Boolean"></a>
-      <a id="eq(AnyRef):Boolean"></a>
-      <h4 class="signature">
+      
+    </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html#eq(x$1:AnyRef):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -273,12 +450,15 @@
       <span class="symbol">
         <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#finalize" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
-      <a id="finalize():Unit"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html#finalize():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -286,18 +466,21 @@
       <span class="symbol">
         <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../java/lang/index.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="symbol">classOf[java.lang.Throwable]</span>
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.tree.ElementTraversal#foreach" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="foreach(f:laika.tree.Elements.Element=&gt;Unit):Unit"></a>
-      <a id="foreach((Element)⇒Unit):Unit"></a>
-      <h4 class="signature">
+    </li><li name="laika.tree.ElementTraversal#foreach" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="foreach(f:laika.tree.Elements.Element=&gt;Unit):Unit"></a><a id="foreach((Element)⇒Unit):Unit"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html#foreach(f:laika.tree.Elements.Element=&gt;Unit):Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -305,17 +488,20 @@
       <span class="symbol">
         <span class="name">foreach</span><span class="params">(<span name="f">f: (<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      
       <p class="shortcomment cmt">Invokes the specified function for each child of this element
  container, including children of children, and this element itself,
  in depth-first traversal.</p><div class="fullcomment"><div class="comment cmt"><p>Invokes the specified function for each child of this element
  container, including children of children, and this element itself,
  in depth-first traversal.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ElementTraversal.html" class="extype" name="laika.tree.ElementTraversal">ElementTraversal</a></dd></dl></div>
-    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
-      <a id="getClass():Class[_]"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html#getClass():Class[_]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -323,12 +509,18 @@
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="laika.tree.Templates.TemplateElement#indent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="laika.tree.Templates.TemplateElement#indent" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="indent:Int"></a>
-      <a id="indent:Int"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html#indent:Int" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
@@ -336,12 +528,15 @@
       <span class="symbol">
         <span class="name">indent</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
-      </h4>
       
-    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
-      <a id="isInstanceOf[T0]:Boolean"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html#isInstanceOf[T0]:Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -349,12 +544,15 @@
       <span class="symbol">
         <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="ne(x$1:AnyRef):Boolean"></a>
-      <a id="ne(AnyRef):Boolean"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#ne" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a><a id="ne(AnyRef):Boolean"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html#ne(x$1:AnyRef):Boolean" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -362,12 +560,15 @@
       <span class="symbol">
         <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#notify" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notify():Unit"></a>
-      <a id="notify():Unit"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html#notify():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -375,12 +576,18 @@
       <span class="symbol">
         <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="notifyAll():Unit"></a>
-      <a id="notifyAll():Unit"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html#notifyAll():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -388,12 +595,18 @@
       <span class="symbol">
         <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="laika.tree.Templates.TemplateElement#options" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="options:laika.tree.Elements.Options"></a>
-      <a id="options:Options"></a>
-      <h4 class="signature">
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="laika.tree.Templates.TemplateElement#options" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="options:laika.tree.Elements.Options"></a><a id="options:Options"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html#options:laika.tree.Elements.Options" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
@@ -401,12 +614,15 @@
       <span class="symbol">
         <span class="name">options</span><span class="result">: <a href="Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.tree.Templates.TemplateElement">TemplateElement</a> → <a href="Elements$$Customizable.html" class="extype" name="laika.tree.Elements.Customizable">Customizable</a></dd></dl></div>
-    </li><li name="laika.tree.ElementTraversal#rewrite" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="rewrite(rule:laika.tree.Elements.RewriteRule):Self"></a>
-      <a id="rewrite(RewriteRule):TemplateElement"></a>
-      <h4 class="signature">
+    </li><li name="laika.tree.ElementTraversal#rewrite" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rewrite(rule:laika.tree.Elements.RewriteRule):Self"></a><a id="rewrite(RewriteRule):TemplateElement"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html#rewrite(rule:laika.tree.Elements.RewriteRule):Self" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -414,7 +630,7 @@
       <span class="symbol">
         <span class="name">rewrite</span><span class="params">(<span name="rule">rule: <a href="Elements$.html#RewriteRule=PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]" class="extmbr" name="laika.tree.Elements.RewriteRule">RewriteRule</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.tree.Templates.TemplateElement">TemplateElement</a></span>
       </span>
-      </h4>
+      
       <p class="shortcomment cmt">Returns a new, rewritten tree model based on the specified rule.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new, rewritten tree model based on the specified rule.
  The rule is a partial function that takes an <code>Element</code> and returns an <code>Option[Element]</code>.</p><p> If the function is not defined for a specific element the old element remains
  in the tree unchanged. If it returns <code>None</code> then the node gets removed from the tree,
@@ -425,10 +641,13 @@
  been processed.</p><p> In case multiple rewrite rules need to be applied it may be more efficient to
  first combine them with <code>orElse</code>.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ElementTraversal.html" class="extype" name="laika.tree.ElementTraversal">ElementTraversal</a></dd></dl></div>
-    </li><li name="laika.tree.ElementTraversal#select" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="select(p:laika.tree.Elements.Element=&gt;Boolean):List[laika.tree.Elements.Element]"></a>
-      <a id="select((Element)⇒Boolean):List[Element]"></a>
-      <h4 class="signature">
+    </li><li name="laika.tree.ElementTraversal#select" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="select(p:laika.tree.Elements.Element=&gt;Boolean):List[laika.tree.Elements.Element]"></a><a id="select((Element)⇒Boolean):List[Element]"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html#select(p:laika.tree.Elements.Element=&gt;Boolean):List[laika.tree.Elements.Element]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
@@ -436,15 +655,18 @@
       <span class="symbol">
         <span class="name">select</span><span class="params">(<span name="p">p: (<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>) ⇒ <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <span class="extype" name="scala.List">List</span>[<a href="Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>]</span>
       </span>
-      </h4>
+      
       <p class="shortcomment cmt">Selects all elements satisfying the specified predicate, collecting
  in depth-first traversal, including this element itself.</p><div class="fullcomment"><div class="comment cmt"><p>Selects all elements satisfying the specified predicate, collecting
  in depth-first traversal, including this element itself.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="ElementTraversal.html" class="extype" name="laika.tree.ElementTraversal">ElementTraversal</a></dd></dl></div>
-    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
-      <a id="synchronized[T0](⇒T0):T0"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html#synchronized[T0](x$1:=&gt;T0):T0" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -452,12 +674,15 @@
       <span class="symbol">
         <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
-      <a id="wait():Unit"></a>
-      <h4 class="signature">
+      <span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html#wait():Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -465,7 +690,7 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -473,10 +698,13 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
-      <a id="wait(Long,Int):Unit"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a><a id="wait(Long,Int):Unit"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html#wait(x$1:Long,x$2:Int):Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -484,7 +712,7 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
                 <span class="name">@throws</span><span class="args">(<span>
       
@@ -492,10 +720,13 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="wait(x$1:Long):Unit"></a>
-      <a id="wait(Long):Unit"></a>
-      <h4 class="signature">
+    </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a><a id="wait(Long):Unit"></a>
+      <span class="permalink">
+      <a href="../../laika/tree/Templates$$TemplateElement.html#wait(x$1:Long):Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
       <span class="modifier_kind">
         <span class="modifier">final </span>
         <span class="kind">def</span>
@@ -503,15 +734,18 @@
       <span class="symbol">
         <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
-      </h4>
+      
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@native</span><span class="args">()</span>
+              
                 <span class="name">@throws</span><span class="args">(<span>
       
       <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
     </span>)</span>
               
         </dd></dl></div>
-    </li></ol>
+    </li>
+              </ol>
             </div>
 
         
@@ -558,6 +792,9 @@
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
+    </body>
+          </div>
+        </div>
+      </div>
     </body>
       </html>
