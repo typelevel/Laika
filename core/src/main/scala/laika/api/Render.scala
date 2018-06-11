@@ -18,6 +18,7 @@ package laika.api
 
 import java.io.{File, OutputStream}
 
+import laika.api.ext.ExtensionBundle
 import laika.factory.{RenderResultProcessor, RendererFactory}
 import laika.io.Output.Binary
 import laika.io.{IO, Input, Output, OutputProvider}
@@ -103,7 +104,13 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
    *  }}}
    */
   def using (render: Writer => RenderFunction): ThisType
-  
+
+  /** Returns a new Render instance with the specified extension bundles installed.
+    *
+    * Bundles are usually provided by libraries (by Laika itself or a 3rd-party extension library)
+    * or as re-usable building blocks by application code.
+    */
+  def using (bundles: ExtensionBundle*): ThisType
   
   /** Specifies the element to render. This may be a `RootElement` instance
    *  as well as any other type of `Element`, thus allowing to render document
@@ -353,14 +360,18 @@ object Render {
    *  @param customRenderers custom renderers to be applied in addition to the default renderers
    */
   class RenderMappedOutput[Writer] (factory: RendererFactory[Writer], 
-                                    customRenderers: List[Writer => RenderFunction] = Nil) extends Render[Writer](factory, customRenderers) {
+                                    customRenderers: List[Writer => RenderFunction] = Nil,
+                                    bundles: Seq[ExtensionBundle] = Nil) extends Render[Writer](factory, customRenderers) {
     
     type DocTarget = SingleTarget
     type TreeTarget = MappedTreeTarget
     type ThisType = RenderMappedOutput[Writer]
     
     def using (render: Writer => RenderFunction): ThisType =
-      new RenderMappedOutput(factory, render :: customRenderers)
+      new RenderMappedOutput(factory, render :: customRenderers, bundles)
+
+    def using (bundles: ExtensionBundle*): ThisType =
+      new RenderMappedOutput(factory, customRenderers, this.bundles ++ bundles)
 
     def from (element: Element): SingleTarget = new SingleTarget {
       protected def renderTo (out: Output) = render(element, out, factory.defaultStyles)
@@ -386,14 +397,18 @@ object Render {
    *  @param customRenderers custom renderers to be applied in addition to the default renderers
    */
   class RenderGatheredOutput[Writer] (processor: RenderResultProcessor[Writer], 
-                                      customRenderers: List[Writer => RenderFunction] = Nil) extends Render[Writer](processor.factory, customRenderers) {
+                                      customRenderers: List[Writer => RenderFunction] = Nil,
+                                      bundles: Seq[ExtensionBundle] = Nil) extends Render[Writer](processor.factory, customRenderers) {
     
     type DocTarget = BinaryTarget
     type TreeTarget = BinaryTarget
     type ThisType = RenderGatheredOutput[Writer]
     
     def using (render: Writer => RenderFunction): ThisType =
-      new RenderGatheredOutput(processor, render :: customRenderers)
+      new RenderGatheredOutput(processor, render :: customRenderers, bundles)
+
+    def using (bundles: ExtensionBundle*): ThisType =
+      new RenderGatheredOutput(processor, customRenderers, this.bundles ++ bundles)
 
     def from (element: Element): BinaryTarget = 
       from(Document(Root / "target", RootElement(Seq(TemplateRoot(Seq(TemplateElement(element)))))))

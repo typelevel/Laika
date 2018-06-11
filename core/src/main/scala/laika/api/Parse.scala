@@ -16,25 +16,21 @@
 
 package laika.api
 
-import java.io.File
-import java.io.InputStream
-import java.io.Reader
-import scala.io.Codec
+import java.io.{File, InputStream, Reader}
+
+import com.typesafe.config.{ConfigFactory, ConfigParseOptions}
+import laika.api.Parse.Parsers
+import laika.api.ext.ExtensionBundle
 import laika.factory.ParserFactory
-import laika.io.DocumentType
 import laika.io.DocumentType._
-import laika.io.IO
-import laika.io.Input
-import laika.io.InputProvider
+import laika.io.{DocumentType, IO, Input, InputProvider}
 import laika.io.InputProvider._
 import laika.parse.css.Styles.StyleDeclarationSet
-import laika.rewrite.DocumentCursor
-import laika.rewrite.RewriteRules
+import laika.rewrite.{DocumentCursor, RewriteRules}
 import laika.tree.Documents._
 import laika.tree.Elements.RewriteRule
-import Parse.Parsers
-import com.typesafe.config.ConfigFactory
-import com.typesafe.config.ConfigParseOptions
+
+import scala.io.Codec
   
 /** API for performing a parse operation from various types of input to obtain
  *  a document tree without a subsequent render operation. 
@@ -63,7 +59,7 @@ import com.typesafe.config.ConfigParseOptions
  * 
  *  @author Jens Halm
  */
-class Parse private (parsers: Parsers, rewrite: Boolean) {
+class Parse private (parsers: Parsers, rewrite: Boolean, bundles: Seq[ExtensionBundle]) {
   
   /** The file suffixes recognized by this parser.
    *  When transforming entire directories only files with
@@ -82,17 +78,21 @@ class Parse private (parsers: Parsers, rewrite: Boolean) {
    * 
    *  @param factory the parser factory to add to the previously specified parsers
    */
-  def or (factory: ParserFactory): Parse = new Parse(parsers.withFactory(factory), rewrite) 
+  def or (factory: ParserFactory): Parse = new Parse(parsers.withFactory(factory), rewrite, bundles)
+
+  /** Returns a new Parse instance with the specified extension bundles installed.
+    *
+    * Bundles are usually provided by libraries (by Laika itself or a 3rd-party extension library)
+    * or as re-usable building blocks by application code.
+    */
+  def using (bundles: ExtensionBundle*): Parse = new Parse(parsers, rewrite, this.bundles ++ bundles)
 
   /** Returns a new Parse instance that produces raw document trees without applying
    *  the default rewrite rules. These rules resolve link and image references and 
    *  rearrange the tree into a hierarchy of sections based on the (flat) sequence
    *  of header instances found in the document.
    */
-  def withoutRewrite: Parse = new Parse(parsers, false)
-  
-  @deprecated("Use withoutRewrite instead","0.5.0")
-  def asRawDocument: Parse = new Parse(parsers, false)
+  def withoutRewrite: Parse = new Parse(parsers, false, bundles)
   
   /** Returns a document obtained from parsing the specified string.
    *  Any kind of input is valid, including an empty string. 
@@ -309,7 +309,7 @@ object Parse {
    * 
    *  @param factory the parser factory to use for all subsequent operations
    */
-  def as (factory: ParserFactory): Parse = new Parse(new Parsers(factory), true) 
+  def as (factory: ParserFactory): Parse = new Parse(new Parsers(factory), true, Seq(ExtensionBundle.Empty))
 
   private[laika] class Parsers (parsers: Seq[ParserFactory]) {
     

@@ -20,6 +20,7 @@ import java.io.{File, InputStream, Reader}
 
 import laika.api.Render.{RenderGatheredOutput, RenderMappedOutput}
 import laika.api.Transform._
+import laika.api.ext.ExtensionBundle
 import laika.directive.Directives.Templates
 import laika.factory.{ParserFactory, RenderResultProcessor, RendererFactory}
 import laika.io.InputProvider._
@@ -170,7 +171,14 @@ abstract class Transform [Writer] private[Transform] (parse: Parse, rules: Rules
    *  } fromFile "hello.md" toFile "hello.html"
    *  }}}
    */
-  def rendering (customRenderer: Writer => RenderFunction): ThisType  
+  def rendering (customRenderer: Writer => RenderFunction): ThisType
+
+  /** Returns a new Transform instance with the specified extension bundles installed.
+    *
+    * Bundles are usually provided by libraries (by Laika itself or a 3rd-party extension library)
+    * or as re-usable building blocks by application code.
+    */
+  def using (bundles: ExtensionBundle*): ThisType
   
   
   /** Parses the specified string and returns a new Operation instance which allows to specify the output.
@@ -322,6 +330,8 @@ object Transform {
     def creatingRule (newRule: DocumentCursor => RewriteRule): ThisType = new TransformMappedOutput(parse, render, rules + newRule) 
   
     def rendering (customRenderer: Writer => RenderFunction): ThisType = new TransformMappedOutput(parse, render using customRenderer, rules)
+
+    def using (bundles: ExtensionBundle*): ThisType = new TransformMappedOutput(parse.using(bundles:_*), render.using(bundles:_*), rules)
     
     def fromDocument (doc: Document): Render.SingleTarget = new Render.SingleTarget {
       protected def renderTo (out: Output) = render from rewrite(doc,rules) toOutput out
@@ -371,6 +381,8 @@ object Transform {
     def creatingRule (newRule: DocumentCursor => RewriteRule): ThisType = new TransformGatheredOutput(parse, render, rules + newRule) 
   
     def rendering (customRenderer: Writer => RenderFunction): ThisType = new TransformGatheredOutput(parse, render using customRenderer, rules)
+
+    def using (bundles: ExtensionBundle*): ThisType = new TransformGatheredOutput(parse.using(bundles:_*), render.using(bundles:_*), rules)
     
     def fromDocument (doc: Document): Render.BinaryTarget = new Render.BinaryTarget {
       protected def renderBinary (out: Output with Binary) = render from rewrite(doc,rules) toBinaryOutput out
