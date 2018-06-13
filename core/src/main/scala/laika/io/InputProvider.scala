@@ -178,7 +178,7 @@ object InputProvider {
    *  the template and style sheet engines to use and a flag whether parsing should be performed
    *  in parallel.
    */
-  case class InputConfig (provider: InputProvider, config: Seq[Input], templateParser: ParseTemplate, styleSheetParser: ParseStyleSheet, parallel: Boolean)
+  case class InputConfig (provider: InputProvider, templateParser: ParseTemplate, styleSheetParser: ParseStyleSheet, parallel: Boolean)
   
   /** Responsible for building new InputProviders based
    *  on the specified document type matcher and codec.
@@ -206,20 +206,19 @@ object InputProvider {
       docTypeMatcher: Option[Path => DocumentType] = None,
       templateParser: Option[ParseTemplate] = None,
       styleSheetParser: Option[ParseStyleSheet] = None,
-      config: List[Input] = Nil,
       isParallel: Boolean = false) {
     
     /** Specifies the style sheet engine to use for 
      *  parsing all CSS inputs found in the tree.
      */
     def withStyleSheetParser (parser: ParseStyleSheet): InputConfigBuilder = 
-      new InputConfigBuilder(provider, codec, docTypeMatcher, templateParser, Some(parser), config, isParallel)
+      new InputConfigBuilder(provider, codec, docTypeMatcher, templateParser, Some(parser), isParallel)
     
     /** Specifies the template engine to use for 
      *  parsing all template inputs found in the tree.
      */
     def withTemplateParser (parser: ParseTemplate): InputConfigBuilder = 
-      new InputConfigBuilder(provider, codec, docTypeMatcher, Some(parser), styleSheetParser, config, isParallel)
+      new InputConfigBuilder(provider, codec, docTypeMatcher, Some(parser), styleSheetParser, isParallel)
     
     /** Specifies custom template directives to use with
      *  the default template engine.
@@ -231,38 +230,14 @@ object InputProvider {
      *  of the input based on its path.
      */
     def withDocTypeMatcher (matcher: Path => DocumentType): InputConfigBuilder =
-      new InputConfigBuilder(provider, codec, Some(matcher), templateParser, styleSheetParser, config, isParallel)
+      new InputConfigBuilder(provider, codec, Some(matcher), templateParser, styleSheetParser, isParallel)
 
-    /** Specifies a root configuration file that gets
-     *  inherited by this tree and its subtrees.
-     *  The syntax of the input is expected to be of a format
-     *  compatible with the Typesafe Config library.
-     */
-    def withConfigFile (file: File): InputConfigBuilder = withConfigInput(Input.fromFile(file)(codec))
-    
-    /** Specifies the name of a root configuration file that gets
-     *  inherited by this tree and its subtrees.
-     *  The syntax of the input is expected to be of a format
-     *  compatible with the Typesafe Config library.
-     */
-    def withConfigFile (name: String): InputConfigBuilder = withConfigInput(Input.fromFile(name)(codec))
-    
-    /** Specifies a root configuration source that gets
-     *  inherited by this tree and its subtrees.
-     *  The syntax of the input is expected to be of a format
-     *  compatible with the Typesafe Config library.
-     */
-    def withConfigString (source: String): InputConfigBuilder = withConfigInput(Input.fromString(source))
-    
-    private def withConfigInput (input: Input): InputConfigBuilder = 
-      new InputConfigBuilder(provider, codec, docTypeMatcher, templateParser, styleSheetParser, input :: config, isParallel)
-    
     /** Instructs the parser to process all inputs in parallel.
      *  The recursive structure of inputs will be flattened before parsing
      *  and then get reassembled afterwards, therefore the parallel processing
      *  includes all subtrees of this input tree.
      */
-    def inParallel: InputConfigBuilder = new InputConfigBuilder(provider, codec, docTypeMatcher, templateParser, styleSheetParser, config, true) // TODO - custom TaskSupport
+    def inParallel: InputConfigBuilder = new InputConfigBuilder(provider, codec, docTypeMatcher, templateParser, styleSheetParser, true) // TODO - custom TaskSupport
     
     /** Builds the final configuration for this input tree
      *  for the specified parser factory.
@@ -273,7 +248,7 @@ object InputProvider {
       val matcher = docTypeMatcher getOrElse new DefaultDocumentTypeMatcher(markupSuffixes)
       val templates = templateParser getOrElse ParseTemplate
       val styleSheets = styleSheetParser getOrElse ParseStyleSheet
-      InputConfig(provider.build(matcher, codec), config, templates, styleSheets, isParallel)
+      InputConfig(provider.build(matcher, codec), templates, styleSheets, isParallel)
     }
   }
 

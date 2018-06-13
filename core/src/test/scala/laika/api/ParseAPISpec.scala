@@ -18,6 +18,9 @@ package laika.api
 
 import java.io.ByteArrayInputStream
 import java.io.StringReader
+
+import laika.api.ext.{BundleProvider, ExtensionBundle}
+
 import scala.io.Codec
 import scala.io.Codec.charset2codec
 import org.scalatest.FlatSpec
@@ -165,6 +168,9 @@ class ParseAPISpec extends FlatSpec
     
     def parsedWith (f: InputConfigBuilder => InputConfigBuilder) =
       viewOf(withTemplatesApplied(Parse as Markdown fromTree f(builder(dirs))))
+
+    def parsedWith (bundle: ExtensionBundle) =
+      viewOf(withTemplatesApplied(Parse.as(Markdown).using(bundle).fromTree(builder(dirs))))
       
     def parsedRawWith (f: InputConfigBuilder => InputConfigBuilder) =
       viewOf((Parse as Markdown withoutRewrite) fromTree f(builder(dirs)))
@@ -242,7 +248,7 @@ class ParseAPISpec extends FlatSpec
       val dirs = """- main.dynamic.html:dynDoc"""
       val dyn = DocumentView(Root / "main.html", List(Content(List(TemplateRoot(List(TemplateString("def")))))))
       val treeResult = TreeView(Root, List(Documents(Dynamic, List(dyn))))
-      parsedWith(_.withConfigString("value: def")) should be (treeResult)
+      parsedWith(BundleProvider.forConfigString("value: def")) should be (treeResult)
     }
   }
   

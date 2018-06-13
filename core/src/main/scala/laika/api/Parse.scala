@@ -18,9 +18,9 @@ package laika.api
 
 import java.io.{File, InputStream, Reader}
 
-import com.typesafe.config.{ConfigFactory, ConfigParseOptions}
+import com.typesafe.config.{ConfigFactory, ConfigParseOptions, Config => TConfig}
 import laika.api.Parse.Parsers
-import laika.api.ext.ExtensionBundle
+import laika.api.ext.{ConfigProvider, ExtensionBundle}
 import laika.factory.ParserFactory
 import laika.io.DocumentType._
 import laika.io.{DocumentType, IO, Input, InputProvider}
@@ -29,6 +29,7 @@ import laika.parse.css.Styles.StyleDeclarationSet
 import laika.rewrite.{DocumentCursor, RewriteRules}
 import laika.tree.Documents._
 import laika.tree.Elements.RewriteRule
+import laika.tree.Paths.Path
 
 import scala.io.Codec
   
@@ -218,14 +219,10 @@ class Parse private (parsers: Parsers, rewrite: Boolean, bundles: Seq[ExtensionB
    *  @param config the configuration for the input tree to process
    */
   def fromTree (config: InputConfig): DocumentTree = {
-    
-    abstract class ConfigInput (input: Input) {
-      val config = ConfigFactory.parseReader(input.asReader, ConfigParseOptions.defaults().setOriginDescription("path:"+input.path))
-      val path = input.path
-    }
-    
-    class TreeConfig (input: Input) extends ConfigInput(input)
-    class RootConfig (input: Input) extends ConfigInput(input)
+
+    val bundle = bundles.reduceLeft(_ withBase _) // TODO - move this to OperationSupport.mergedBundle
+
+    case class TreeConfig (path: Path, config: TConfig)
     
     type Operation[T] = () => (DocumentType, T)
 
@@ -235,9 +232,8 @@ class Parse private (parsers: Parsers, rewrite: Boolean, bundles: Seq[ExtensionB
 
     def parseStyleSheet (format: String)(input: Input): Operation[StyleDeclarationSet] = () => (StyleSheet(format), IO(input)(config.styleSheetParser.fromInput))
     
-    def parseTreeConfig (input: Input): Operation[TreeConfig] = () => (Config, new TreeConfig(input)) 
-    def parseRootConfig (input: Input): Operation[RootConfig] = () => (Config, new RootConfig(input)) 
-    
+    def parseTreeConfig (input: Input): Operation[TreeConfig] = () => (Config, TreeConfig(input.path, ConfigProvider.fromInput(input)))
+
     def collectOperations[T] (provider: InputProvider, f: InputProvider => Seq[Operation[T]]): Seq[Operation[T]] =
       f(provider) ++ (provider.subtrees flatMap (collectOperations(_, f)))
     
@@ -245,7 +241,6 @@ class Parse private (parsers: Parsers, rewrite: Boolean, bundles: Seq[ExtensionB
                      collectOperations(config.provider, _.templates.map(parseTemplate(Template))) ++
                      collectOperations(config.provider, _.dynamicDocuments.map(parseTemplate(Dynamic))) ++
                      collectOperations(config.provider, _.styleSheets.flatMap({ case (format,inputs) => inputs map parseStyleSheet(format) }).toSeq) ++
-                     config.config.map(parseRootConfig) ++
                      collectOperations(config.provider, _.configDocuments.find(_.path.name == "directory.conf").toList.map(parseTreeConfig)) // TODO - filename could be configurable
     
     val results = if (config.parallel) operations.par map (_()) seq else operations map (_())
@@ -259,28 +254,28 @@ class Parse private (parsers: Parsers, rewrite: Boolean, bundles: Seq[ExtensionB
     }) toMap
     
     val styleMap = (results collect {
-      case (StyleSheet(format), style: StyleDeclarationSet) => (style.paths.head, style)
+      case (StyleSheet(_), style: StyleDeclarationSet) => (style.paths.head, style)
     }) toMap
     
     val treeConfigMap = (results collect {
-      case (Config, config: TreeConfig) => (config.path, config)
+      case (Config, config: TreeConfig) => (config.path, config.config)
     }) toMap
-    
-    val rootConfigSeq = results collect {
-      case (Config, config: RootConfig) => config.config
-    }
     
     def collectDocuments (provider: InputProvider, root: Boolean = false): DocumentTree = {
       val docs = provider.markupDocuments map (i => docMap(i.path))
       val trees = provider.subtrees map (collectDocuments(_))
+
       val templates = provider.templates map (i => templateMap((Template,i.path)))
       val styles = (provider.styleSheets mapValues (_.map(i => styleMap(i.path)).reduce(_++_))) withDefaultValue StyleDeclarationSet.empty
+
       val dynamic = provider.dynamicDocuments map (i => templateMap((Dynamic,i.path)))
       val static = provider.staticDocuments map StaticDocument
-      val treeConfig = provider.configDocuments.find(_.path.name == "directory.conf").map(i => treeConfigMap(i.path).config)
-      val rootConfig = if (root) rootConfigSeq else Nil
-      val config = (treeConfig.toList ++ rootConfig) reduceLeftOption (_ withFallback _) getOrElse ConfigFactory.empty
       val additionalContent: Seq[AdditionalContent] = dynamic ++ static
+
+      val treeConfig = provider.configDocuments.find(_.path.name == "directory.conf").map(i => treeConfigMap(i.path))
+      val rootConfig = if (root) Seq(bundle.baseConfig) else Nil
+      val config = (treeConfig.toList ++ rootConfig) reduceLeftOption (_ withFallback _) getOrElse ConfigFactory.empty
+
       DocumentTree(provider.path, docs ++ trees, templates, styles, additionalContent, config, sourcePaths = provider.sourcePaths)
     }
     

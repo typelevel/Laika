@@ -454,27 +454,6 @@ object Transform {
      */
     def withDocTypeMatcher (matcher: Path => DocumentType): ThisType = withInputBuilder(_.withDocTypeMatcher(matcher))
 
-    /** Specifies a root configuration file that gets
-     *  inherited by this tree and its subtrees.
-     *  The syntax of the input is expected to be of a format
-     *  compatible with the Typesafe Config library.
-     */
-    def withConfigFile (file: File): ThisType = withInputBuilder(_.withConfigFile(file))
-    
-    /** Specifies the name of a root configuration file that gets
-     *  inherited by this tree and its subtrees.
-     *  The syntax of the input is expected to be of a format
-     *  compatible with the Typesafe Config library.
-     */
-    def withConfigFile (name: String): ThisType = withInputBuilder(_.withConfigFile(name))
-    
-    /** Specifies a root configuration source that gets
-     *  inherited by this tree and its subtrees.
-     *  The syntax of the input is expected to be of a format
-     *  compatible with the Typesafe Config library.
-     */
-    def withConfigString (source: String): ThisType = withInputBuilder(_.withConfigString(source))
-    
     /** Instructs both the parser and renderer to process all inputs and outputs in parallel.
      *  The recursive structure of document trees will be flattened before parsing and rendering
      *  and then get reassembled afterwards, therefore the parallel processing

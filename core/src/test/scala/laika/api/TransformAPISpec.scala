@@ -19,6 +19,7 @@ package laika.api
 import java.io._
 
 import laika.api.Transform.TransformMappedOutput
+import laika.api.ext.{BundleProvider, ConfigProvider, ExtensionBundle}
 import laika.io.DocumentType.Static
 import laika.io.Input
 import laika.parse.css.ParseStyleSheet
@@ -154,7 +155,7 @@ class TransformAPISpec extends FlatSpec
     def transformTree: RenderedTree = transformWith(identity)
     def transformMultiMarkup: RenderedTree = transformWith(identity, Transform from Markdown or ReStructuredText to PrettyPrint)
     
-    def transformWithConfig (config: String): RenderedTree = transformWith(_.withConfigString(config))
+    def transformWithConfig (config: String): RenderedTree = transformWithBundle(BundleProvider.forConfigString(config))
     def transformWithDocTypeMatcher (matcher: Path => DocumentType): RenderedTree = transformWith(_.withDocTypeMatcher(matcher))
     def transformWithTemplates (templates: ParseTemplate): RenderedTree = transformWith(_.withTemplateParser(templates))
     def transformWithDirective (directive: Templates.Directive): RenderedTree = transformWith(_.withTemplateDirectives(directive))
@@ -168,6 +169,12 @@ class TransformAPISpec extends FlatSpec
     private def transformWith (f: InputConfigBuilder => InputConfigBuilder, transformer: TransformMappedOutput[TextWriter] = transform): RenderedTree = {
       val builder = new OutputBuilder.TestProviderBuilder
       transformer fromTree f(input(dirs)) toTree output(builder)
+      builder.result
+    }
+
+    private def transformWithBundle (bundle: ExtensionBundle, transformer: TransformMappedOutput[TextWriter] = transform): RenderedTree = {
+      val builder = new OutputBuilder.TestProviderBuilder
+      transformer.using(bundle).fromTree(input(dirs)).toTree(output(builder))
       builder.result
     }
     

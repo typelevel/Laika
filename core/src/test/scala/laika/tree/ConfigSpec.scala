@@ -33,6 +33,8 @@ import laika.tree.helper.InputBuilder
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.TreeCursor
 import com.typesafe.config.ConfigFactory
+import laika.api.ext.BundleProvider
+
 import scala.io.Codec
 
 class ConfigSpec extends FlatSpec 
@@ -168,7 +170,7 @@ class ConfigSpec extends FlatSpec
         )
       )
       
-      val tree = Parse as Markdown fromTree builder(dirs).withConfigString(config5)
+      val tree = Parse.as(Markdown).using(BundleProvider.forConfigString(config5)).fromTree(builder(dirs))
       val result = TemplateRewriter.applyTemplates(tree, "html")
       result.selectDocument(Current / "dir" / "input.md").get.content should be (expected)
     }

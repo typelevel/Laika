@@ -83,26 +83,26 @@ trait TemplateRewriter {
   /** The (optional) template to use when rendering the target of the specified document cursor.
    */  
   def selectTemplate (cursor: DocumentCursor, format: String): Option[TemplateDocument] = {
+    import laika.api.ext.ConfigImplicits._
     val config = cursor.config
-    if (config.hasPath("template") || config.hasPath(format + ".template")) {
-      val key = if (config.hasPath(format + ".template")) format+".template" else "template" 
-      val value = config.getValue(key)
-      val desc = value.origin().description()
-      val basePath = if (desc.startsWith("path:")) Path(desc.take(desc.lastIndexOf(":")).drop(5)).parent else Root
-      val templatePath = (basePath / Path(value.unwrapped().toString)).relativeTo(Root)
-      cursor.root.target.selectTemplate(templatePath).orElse(throw new IllegalStateException(s"Template not found: $templatePath"))
-    }
-    else {
-      val filename = "default.template." + format
-      
-      @tailrec def templateForTree(tree: TreeCursor): Option[TemplateDocument] = 
-        (tree.target.selectTemplate(filename), tree.parent) match {
-          case (None, Some(parent)) => templateForTree(parent)
-          case (Some(template), _) => Some(template)
-          case (None, None) => None
-        }
-      
-      templateForTree(cursor.parent)
+    val templatePath = config.getRelativePath("template").orElse(config.getRelativePath(format + ".template"))
+
+    templatePath match {
+      case Some(path) =>
+        cursor.root.target.selectTemplate(path)
+          .orElse(throw new IllegalStateException(s"Template not found: $templatePath"))
+
+      case None =>
+        val filename = "default.template." + format
+
+        @tailrec def templateForTree(tree: TreeCursor): Option[TemplateDocument] =
+          (tree.target.selectTemplate(filename), tree.parent) match {
+            case (None, Some(parent)) => templateForTree(parent)
+            case (Some(template), _) => Some(template)
+            case (None, None) => None
+          }
+
+        templateForTree(cursor.parent)
     }
   }
   
