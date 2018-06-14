@@ -16,7 +16,8 @@
 
 package laika.api.ext
 import com.typesafe.config.Config
-import laika.io.Input
+import laika.io.{DocumentType, Input}
+import laika.tree.Paths.Path
 
 /**
   * @author Jens Halm
@@ -26,6 +27,12 @@ object BundleProvider {
   def forConfigString (input: String): ExtensionBundle = new ExtensionBundle {
 
     override def baseConfig: Config = ConfigProvider.fromInput(Input.fromString(input))
+
+  }
+
+  def forDocTypeMatcher (matcher: PartialFunction[Path, DocumentType]): ExtensionBundle = new ExtensionBundle {
+
+    override def docTypeMatcher: PartialFunction[Path, DocumentType] = matcher
 
   }
 

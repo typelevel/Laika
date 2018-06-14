@@ -16,44 +16,28 @@
 
 package laika.api
 
-import java.io.ByteArrayInputStream
-import java.io.StringReader
+import java.io.{ByteArrayInputStream, StringReader}
 
 import laika.api.ext.{BundleProvider, ExtensionBundle}
-
-import scala.io.Codec
-import scala.io.Codec.charset2codec
-import org.scalatest.FlatSpec
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.Matchers
-import laika.io.DocumentType
 import laika.io.DocumentType._
-import laika.parse.markdown.Markdown
+import laika.io.{DocumentType, Input}
+import laika.io.InputProvider.{Directory, InputConfigBuilder}
 import laika.parse.css.ParseStyleSheet
-import laika.parse.css.Styles.StyleDeclarationSet
-import laika.parse.css.Styles.StyleDeclaration
-import laika.parse.css.Styles.ElementType
-import laika.parse.css.Styles.Selector
-import laika.parse.rst.ReStructuredText
+import laika.parse.css.Styles.{ElementType, StyleDeclaration, StyleDeclarationSet}
+import laika.parse.markdown.Markdown
 import laika.parse.rst.Elements.CustomizedTextRole
-import laika.tree.Elements.ExternalLinkDefinition
-import laika.tree.Elements.ExternalLink
-import laika.tree.Elements.LinkReference
-import laika.tree.Elements.Text
-import laika.tree.Elements.Block
-import laika.tree.helper.ModelBuilder
-import laika.tree.helper.InputBuilder
-import laika.io.InputProvider.InputConfigBuilder
-import laika.tree.Documents._
-import laika.tree.Paths.Path
-import laika.tree.Paths.Root
-import laika.tree.helper.DocumentViewBuilder._
-import laika.tree.Templates.TemplateRoot
-import laika.tree.Templates.TemplateString
+import laika.parse.rst.ReStructuredText
 import laika.rewrite.TemplateRewriter
 import laika.template.ParseTemplate
-import laika.io.Input
-import laika.io.InputProvider.Directory
+import laika.tree.Documents._
+import laika.tree.Elements._
+import laika.tree.Paths.{Path, Root}
+import laika.tree.Templates.{TemplateRoot, TemplateString}
+import laika.tree.helper.DocumentViewBuilder._
+import laika.tree.helper.{InputBuilder, ModelBuilder}
+import org.scalatest.{FlatSpec, Matchers}
+
+import scala.io.Codec
 
 
 class ParseAPISpec extends FlatSpec 
@@ -172,8 +156,8 @@ class ParseAPISpec extends FlatSpec
     def parsedWith (bundle: ExtensionBundle) =
       viewOf(withTemplatesApplied(Parse.as(Markdown).using(bundle).fromTree(builder(dirs))))
       
-    def parsedRawWith (f: InputConfigBuilder => InputConfigBuilder) =
-      viewOf((Parse as Markdown withoutRewrite) fromTree f(builder(dirs)))
+    def parsedRawWith (f: InputConfigBuilder => InputConfigBuilder, bundle: ExtensionBundle = ExtensionBundle.Empty) =
+      viewOf(Parse.as(Markdown).withoutRewrite.using(bundle).fromTree(f(builder(dirs))))
   }
   
 
@@ -309,7 +293,7 @@ class ParseAPISpec extends FlatSpec
       val dirs = """- name.md:name
         |- main.dynamic.html:name""".stripMargin
       val treeResult = TreeView(Root, List(Inputs(Static, List(InputView("name.md"), InputView("main.dynamic.html")))))
-      parsedWith(_.withDocTypeMatcher(_ => Static)) should be (treeResult)
+      parsedWith(BundleProvider.forDocTypeMatcher{ case _ => Static }) should be (treeResult)
     }
   }
   
@@ -327,7 +311,7 @@ class ParseAPISpec extends FlatSpec
   
   it should "allow to specify a custom style sheet engine" in {
     new TreeParser {
-      def docTypeMatcher (path: Path): DocumentType = {
+      val docTypeMatcher: PartialFunction[Path, DocumentType] = { case path =>
         val Stylesheet = """.+\.([a,b]+).css$""".r
         path.name match {
           case Stylesheet(kind) => StyleSheet(kind)
@@ -344,15 +328,15 @@ class ParseAPISpec extends FlatSpec
           "aaa" -> StyleDeclarationSet(Set(Path("/main1.aaa.css"), Path("/main3.aaa.css")), Set(styleDecl("main1"), styleDecl("main3", 1))),
           "bbb" -> StyleDeclarationSet(Set(Path("/main2.bbb.css")), Set(styleDecl("main2")))
       ))))
-      parsedRawWith(_.withStyleSheetParser(ParseStyleSheet as parser).withDocTypeMatcher(docTypeMatcher)) should be (treeResult)
+      parsedRawWith(_.withStyleSheetParser(ParseStyleSheet as parser),
+        BundleProvider.forDocTypeMatcher(docTypeMatcher)) should be (treeResult)
     }
   }
   
   it should "allow to specify a template directive" in {
     new TreeParser {
-      import laika.directive.Directives._
-      import laika.directive.Directives.Templates
       import laika.directive.Directives.Templates.Combinators._
+      import laika.directive.Directives.{Templates, _}
 
       val directive = Templates.create("foo") {
         attribute(Default) map { TemplateString(_) }

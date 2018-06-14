@@ -18,7 +18,7 @@ package laika.api.ext
 
 import com.typesafe.config.{Config, ConfigFactory}
 import laika.factory.RendererFactory
-import laika.io.{DocumentType, InputProvider}
+import laika.io.{DefaultDocumentTypeMatcher, DocumentType, InputProvider}
 import laika.parse.core.Parser
 import laika.parse.core.markup.RecursiveParsers
 import laika.parse.css.ParseStyleSheet
@@ -34,6 +34,12 @@ trait ExtensionBundle { self =>
 
   def baseConfig: Config = ConfigFactory.empty
 
+  /** Specifies the function to use for determining the document type
+    * of the input based on its path. Any path for which this function
+    * is not defined will be processed by the remaining installed bundles.
+    * The documents for paths for which none of the extensions provides
+    * a `DocumentType` will be ignored.
+    */
   def docTypeMatcher: PartialFunction[Path, DocumentType] = PartialFunction.empty
 
   def parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders()
@@ -41,6 +47,7 @@ trait ExtensionBundle { self =>
   def rewriteRules: Seq[DocumentCursor => RewriteRule] = Seq.empty
 
   def themeFor[Writer] (rendererFactory: RendererFactory[Writer]): Theme[Writer] = Theme[Writer]()
+
 
   // for providing APIs like registering Directives
   def processExtension: PartialFunction[ExtensionBundle, ExtensionBundle] = PartialFunction.empty
@@ -67,6 +74,12 @@ trait ExtensionBundle { self =>
 object ExtensionBundle {
 
   object Empty extends ExtensionBundle
+
+  object LaikaDefaults extends ExtensionBundle {
+
+    override def docTypeMatcher: PartialFunction[Path, DocumentType] = DefaultDocumentTypeMatcher.get
+
+  }
 
 }
 

@@ -211,7 +211,10 @@ class Parse private (parsers: Parsers, rewrite: Boolean, bundles: Seq[ExtensionB
    *  
    *  @param builder a builder for the configuration for the input tree to process
    */
-  def fromTree (builder: InputConfigBuilder): DocumentTree = fromTree(builder.build(parsers.suffixes)) 
+  def fromTree (builder: InputConfigBuilder): DocumentTree = {
+    val bundle = bundles.reverse.reduceLeft(_ withBase _) // TODO - move this to OperationSupport.mergedBundle
+    fromTree(builder.build(parsers.suffixes, bundle.docTypeMatcher))
+  }
   
   /** Returns a document tree obtained by parsing files from the
    *  specified input configuration.
@@ -220,7 +223,7 @@ class Parse private (parsers: Parsers, rewrite: Boolean, bundles: Seq[ExtensionB
    */
   def fromTree (config: InputConfig): DocumentTree = {
 
-    val bundle = bundles.reduceLeft(_ withBase _) // TODO - move this to OperationSupport.mergedBundle
+    val bundle = bundles.reverse.reduceLeft(_ withBase _) // TODO - move this to OperationSupport.mergedBundle
 
     case class TreeConfig (path: Path, config: TConfig)
     
@@ -304,7 +307,7 @@ object Parse {
    * 
    *  @param factory the parser factory to use for all subsequent operations
    */
-  def as (factory: ParserFactory): Parse = new Parse(new Parsers(factory), true, Seq(ExtensionBundle.Empty))
+  def as (factory: ParserFactory): Parse = new Parse(new Parsers(factory), true, Seq(ExtensionBundle.LaikaDefaults))
 
   private[laika] class Parsers (parsers: Seq[ParserFactory]) {
     

@@ -1,4 +1,5 @@
 import laika.io.DocumentType._
+import laika.tree.Paths.Path
 
 name := "site-docTypeMatcher"
 
@@ -8,7 +9,7 @@ scalaVersion := "2.10.6"
 
 enablePlugins(LaikaPlugin)
 
-laikaDocTypeMatcher := Some(_.name match {
+laikaDocTypeMatcher := Some({ case path: Path => path.name match {
   case "hello.md"   => Markup
   case "hello2.md"  => Static
-})
+}})

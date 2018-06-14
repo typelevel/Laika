@@ -156,7 +156,7 @@ class TransformAPISpec extends FlatSpec
     def transformMultiMarkup: RenderedTree = transformWith(identity, Transform from Markdown or ReStructuredText to PrettyPrint)
     
     def transformWithConfig (config: String): RenderedTree = transformWithBundle(BundleProvider.forConfigString(config))
-    def transformWithDocTypeMatcher (matcher: Path => DocumentType): RenderedTree = transformWith(_.withDocTypeMatcher(matcher))
+    def transformWithDocTypeMatcher (matcher: PartialFunction[Path, DocumentType]): RenderedTree = transformWithBundle(BundleProvider.forDocTypeMatcher(matcher))
     def transformWithTemplates (templates: ParseTemplate): RenderedTree = transformWith(_.withTemplateParser(templates))
     def transformWithDirective (directive: Templates.Directive): RenderedTree = transformWith(_.withTemplateDirectives(directive))
     
@@ -261,7 +261,7 @@ class TransformAPISpec extends FlatSpec
     new TreeTransformer {
       val dirs = """- name.md:name
         |- main.dynamic.html:name""".stripMargin
-      transformWithDocTypeMatcher(_ => Static) should be (root(List(docs(
+      transformWithDocTypeMatcher({case _ => Static}) should be (root(List(docs(
         (Root / "name.md", "foo"),
         (Root / "main.dynamic.html", "foo")
       ))))

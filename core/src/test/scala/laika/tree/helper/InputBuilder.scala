@@ -73,11 +73,11 @@ trait InputBuilder {
   
   private[InputBuilder] class TestProviderBuilder (dirs: List[TestProviderBuilder], files: List[(String,String)], val path: Path) extends ProviderBuilder {
     
-    def build (docTypeMatcher: Path => DocumentType, codec: Codec): InputProvider = {
+    def build (docTypeMatcher: PartialFunction[Path, DocumentType], codec: Codec): InputProvider = {
     
       def input (inputName: String, contentId: String, path: Path): Input = Input.fromString(contents(contentId), path / inputName)
       
-      def docType (inputName: String): DocumentType = docTypeMatcher(path / inputName)
+      def docType (inputName: String): DocumentType = docTypeMatcher.lift(path / inputName).getOrElse(Ignored)
   
       val documents = files map (f => (docType(f._1), input(f._1, f._2, path))) groupBy (_._1) mapValues (_.map(_._2)) withDefaultValue Nil
       

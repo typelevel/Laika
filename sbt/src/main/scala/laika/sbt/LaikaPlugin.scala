@@ -59,7 +59,7 @@ object LaikaPlugin extends AutoPlugin {
 
     val laikaPDF                 = taskKey[File]("Generates PDF output")
 
-    val laikaDocTypeMatcher      = settingKey[Option[Path => DocumentType]]("Matches a path to a Laika document type")
+    val laikaDocTypeMatcher      = settingKey[Option[PartialFunction[Path, DocumentType]]]("Matches a path to a Laika document type")
 
     val laikaEncoding            = settingKey[String]("The character encoding")
 
@@ -244,8 +244,7 @@ object LaikaPlugin extends AutoPlugin {
     val inputTreeTask: Initialize[Task[InputConfigBuilder]] = task {
       val builder = Directories((sourceDirectories in Laika).value, (excludeFilter in Laika).value.accept)(laikaEncoding.value)
         .withTemplateParser(laikaTemplateParser.value)
-      val builder2 = if (laikaParallel.value) builder.inParallel else builder
-      laikaDocTypeMatcher.value map (builder2 withDocTypeMatcher) getOrElse builder2
+      if (laikaParallel.value) builder.inParallel else builder
     }
 
     def outputTreeTask (key: Scoped): Initialize[Task[OutputConfigBuilder]] = task {
@@ -278,7 +277,7 @@ object LaikaPlugin extends AutoPlugin {
       val formats = spaceDelimited("<format>").parsed.map(OutputFormats.OutputFormat.fromString)
       if (formats.isEmpty) throw new IllegalArgumentException("At least one format must be specified")
 
-      val inputs = laikaInputTree.value.build(laikaMarkupParser.value.fileSuffixes)
+      val inputs = laikaInputTree.value.build(laikaMarkupParser.value.fileSuffixes, laikaDocTypeMatcher.value.getOrElse(PartialFunction.empty))
 
       val cacheDir = streams.value.cacheDirectory / "laika"
 

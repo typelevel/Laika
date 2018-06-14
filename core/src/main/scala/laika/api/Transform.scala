@@ -449,11 +449,6 @@ object Transform {
      */
     def withTemplateDirectives (directives: Templates.Directive*): ThisType = withInputBuilder(_.withTemplateDirectives(directives:_*))
     
-    /** Specifies the function to use for determining the document type
-     *  of the input based on its path.
-     */
-    def withDocTypeMatcher (matcher: Path => DocumentType): ThisType = withInputBuilder(_.withDocTypeMatcher(matcher))
-
     /** Instructs both the parser and renderer to process all inputs and outputs in parallel.
      *  The recursive structure of document trees will be flattened before parsing and rendering
      *  and then get reassembled afterwards, therefore the parallel processing

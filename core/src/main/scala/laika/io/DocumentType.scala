@@ -16,6 +16,8 @@
 
 package laika.io
 
+import laika.parse.markdown.Markdown
+import laika.parse.rst.ReStructuredText
 import laika.tree.Paths.Path
 
 /** Base type for all document type descriptors.
@@ -66,9 +68,11 @@ object DocumentType {
 /** The default implementation for determining the document type
  *  of the input based on its path.
  */
-class DefaultDocumentTypeMatcher (markupSuffixes: Set[String]) extends (Path => DocumentType) {
+object DefaultDocumentTypeMatcher {
   
   import DocumentType._
+
+  val markupSuffixes = Markdown.fileSuffixes ++ ReStructuredText.fileSuffixes // TODO - 0.9 - dynamically handle this in ParserFactory.extensions once implemented
   
   private def suffix (name: String) = name.lastIndexOf(".") match {
     case -1    => ""
@@ -79,14 +83,17 @@ class DefaultDocumentTypeMatcher (markupSuffixes: Set[String]) extends (Path => 
   private val DynamicName = """.+\.dynamic\.[^\.]+$""".r
   private val StylesheetName = """.+\.fo.css$""".r // stylesheets for HTML are treated as static documents
   private val ConfigName = """.+\.conf$""".r
-  
-  def apply (path: Path): DocumentType = path.name match {
-    case name if markupSuffixes(suffix(name)) => Markup
-    case ConfigName()     => Config
-    case TemplateName()   => Template
-    case DynamicName()    => Dynamic
-    case StylesheetName() => StyleSheet("fo")
-    case _                => Static
+
+
+  val get: PartialFunction[Path, DocumentType] = { case path: Path =>
+    path.name match {
+      case name if markupSuffixes(suffix(name)) => Markup
+      case ConfigName()     => Config
+      case TemplateName()   => Template
+      case DynamicName()    => Dynamic
+      case StylesheetName() => StyleSheet("fo")
+      case _                => Static
+    }
   }
-  
+
 }

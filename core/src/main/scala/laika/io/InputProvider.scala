@@ -105,11 +105,11 @@ object InputProvider {
   type FileFilter = File => Boolean
   
   
-  private class DirectoryInputProvider (dirs: Seq[File], val path: Path, exclude: FileFilter, docTypeMatcher: Path => DocumentType, codec: Codec) extends InputProvider {
+  private class DirectoryInputProvider (dirs: Seq[File], val path: Path, exclude: FileFilter, docTypeMatcher: PartialFunction[Path, DocumentType], codec: Codec) extends InputProvider {
     
     import DocumentType._
     
-    private def docType (f: File) = docTypeMatcher(path / f.getName)
+    private def docType (f: File) = docTypeMatcher.lift(path / f.getName).getOrElse(Ignored)
 
     private def toInput (pair: (DocumentType,File)) = Input.fromFile(pair._2, path)(codec)
 
@@ -150,7 +150,7 @@ object InputProvider {
    *  @param docTypeMatcher a function determining the document type based on the path of the input
    *  @param codec the character encoding of the files, if not specified the platform default will be used
    */
-  def forRootDirectory (root: File, exclude: FileFilter, docTypeMatcher: Path => DocumentType)(implicit codec: Codec): InputProvider =
+  def forRootDirectory (root: File, exclude: FileFilter, docTypeMatcher: PartialFunction[Path, DocumentType])(implicit codec: Codec): InputProvider =
     forRootDirectories(Seq(root), exclude, docTypeMatcher)(codec)
   
   /** Creates an InputProvider based on the specified directories, including
@@ -163,7 +163,7 @@ object InputProvider {
    *  @param docTypeMatcher a function determining the document type based on the path of the input
    *  @param codec the character encoding of the files, if not specified the platform default will be used
    */
-  def forRootDirectories (roots: Seq[File], exclude: FileFilter, docTypeMatcher: Path => DocumentType)(implicit codec: Codec): InputProvider = {
+  def forRootDirectories (roots: Seq[File], exclude: FileFilter, docTypeMatcher: PartialFunction[Path, DocumentType])(implicit codec: Codec): InputProvider = {
     require(roots.nonEmpty, "The specified roots sequence must contain at least one directory")
     for (root <- roots) {
       require(root.exists, s"Directory ${root.getAbsolutePath} does not exist")
@@ -184,11 +184,11 @@ object InputProvider {
    *  on the specified document type matcher and codec.
    */
   trait ProviderBuilder {
-    def build (docTypeMatcher: Path => DocumentType, codec: Codec): InputProvider
+    def build (docTypeMatcher: PartialFunction[Path, DocumentType], codec: Codec): InputProvider
   }
   
   private[InputProvider] class DirectoryProviderBuilder (roots: Seq[File], exclude: FileFilter) extends ProviderBuilder {
-    def build (docTypeMatcher: Path => DocumentType, codec: Codec): InputProvider = 
+    def build (docTypeMatcher: PartialFunction[Path, DocumentType], codec: Codec): InputProvider =
       InputProvider.forRootDirectories(roots, exclude, docTypeMatcher)(codec)
   }
   
@@ -203,7 +203,6 @@ object InputProvider {
   class InputConfigBuilder (
       provider: ProviderBuilder,
       codec: Codec,
-      docTypeMatcher: Option[Path => DocumentType] = None,
       templateParser: Option[ParseTemplate] = None,
       styleSheetParser: Option[ParseStyleSheet] = None,
       isParallel: Boolean = false) {
@@ -212,13 +211,13 @@ object InputProvider {
      *  parsing all CSS inputs found in the tree.
      */
     def withStyleSheetParser (parser: ParseStyleSheet): InputConfigBuilder = 
-      new InputConfigBuilder(provider, codec, docTypeMatcher, templateParser, Some(parser), isParallel)
+      new InputConfigBuilder(provider, codec, templateParser, Some(parser), isParallel)
     
     /** Specifies the template engine to use for 
      *  parsing all template inputs found in the tree.
      */
     def withTemplateParser (parser: ParseTemplate): InputConfigBuilder = 
-      new InputConfigBuilder(provider, codec, docTypeMatcher, Some(parser), styleSheetParser, isParallel)
+      new InputConfigBuilder(provider, codec, Some(parser), styleSheetParser, isParallel)
     
     /** Specifies custom template directives to use with
      *  the default template engine.
@@ -226,29 +225,22 @@ object InputProvider {
     def withTemplateDirectives (directives: Templates.Directive*): InputConfigBuilder =
       withTemplateParser(ParseTemplate as DefaultTemplate.withDirectives(directives:_*))
 
-    /** Specifies the function to use for determining the document type
-     *  of the input based on its path.
-     */
-    def withDocTypeMatcher (matcher: Path => DocumentType): InputConfigBuilder =
-      new InputConfigBuilder(provider, codec, Some(matcher), templateParser, styleSheetParser, isParallel)
-
     /** Instructs the parser to process all inputs in parallel.
      *  The recursive structure of inputs will be flattened before parsing
      *  and then get reassembled afterwards, therefore the parallel processing
      *  includes all subtrees of this input tree.
      */
-    def inParallel: InputConfigBuilder = new InputConfigBuilder(provider, codec, docTypeMatcher, templateParser, styleSheetParser, true) // TODO - custom TaskSupport
+    def inParallel: InputConfigBuilder = new InputConfigBuilder(provider, codec, templateParser, styleSheetParser, true) // TODO - custom TaskSupport
     
     /** Builds the final configuration for this input tree
      *  for the specified parser factory.
      *  
      *  @param markupSuffixes all suffixes recognized by the parsers configured to consume this input
      */
-    def build (markupSuffixes: Set[String]): InputConfig = {
-      val matcher = docTypeMatcher getOrElse new DefaultDocumentTypeMatcher(markupSuffixes)
+    def build (markupSuffixes: Set[String], docTypeMatcher: PartialFunction[Path, DocumentType]): InputConfig = {
       val templates = templateParser getOrElse ParseTemplate
       val styleSheets = styleSheetParser getOrElse ParseStyleSheet
-      InputConfig(provider.build(matcher, codec), templates, styleSheets, isParallel)
+      InputConfig(provider.build(docTypeMatcher, codec), templates, styleSheets, isParallel)
     }
   }
 
