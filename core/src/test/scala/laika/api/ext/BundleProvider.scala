@@ -17,6 +17,8 @@
 package laika.api.ext
 import com.typesafe.config.Config
 import laika.io.{DocumentType, Input}
+import laika.parse.core.Parser
+import laika.parse.css.Styles.StyleDeclaration
 import laika.tree.Paths.Path
 
 /**
@@ -33,6 +35,14 @@ object BundleProvider {
   def forDocTypeMatcher (matcher: PartialFunction[Path, DocumentType]): ExtensionBundle = new ExtensionBundle {
 
     override def docTypeMatcher: PartialFunction[Path, DocumentType] = matcher
+
+  }
+
+  def forStyleSheetParser (parser: Parser[Set[StyleDeclaration]]): ExtensionBundle = new ExtensionBundle {
+
+    override def parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders(
+      styleSheetParser = Some(parser)
+    )
 
   }
 

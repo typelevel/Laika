@@ -27,12 +27,10 @@ import laika.io.InputProvider._
 import laika.io.Output.Binary
 import laika.io.OutputProvider._
 import laika.io._
-import laika.parse.css.ParseStyleSheet
 import laika.rewrite.{DocumentCursor, RewriteRules}
 import laika.template.ParseTemplate
 import laika.tree.Documents._
 import laika.tree.Elements._
-import laika.tree.Paths.Path
 
 import scala.io.Codec
   
@@ -434,12 +432,7 @@ object Transform {
     
     protected def withParallelExecution: ThisType
     
-    /** Specifies the style sheet engine to use for 
-     *  parsing all CSS inputs found in the tree.
-     */
-    def withStyleSheetParser (parser: ParseStyleSheet): ThisType = withInputBuilder(_.withStyleSheetParser(parser))
-    
-    /** Specifies the template engine to use for 
+    /** Specifies the template engine to use for
      *  parsing all template inputs found in the tree.
      */
     def withTemplateParser (parse: ParseTemplate): ThisType = withInputBuilder(_.withTemplateParser(parse))

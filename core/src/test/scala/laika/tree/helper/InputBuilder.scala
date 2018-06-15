@@ -81,7 +81,7 @@ trait InputBuilder {
   
       val documents = files map (f => (docType(f._1), input(f._1, f._2, path))) groupBy (_._1) mapValues (_.map(_._2)) withDefaultValue Nil
       
-      val styleSheets = (documents collect { case p @ (StyleSheet(format), inputs) => (format, inputs) }) 
+      val styleSheets = documents collect { case (StyleSheet(format), inputs) => (format, inputs) }
       
       val subtrees = dirs map (_.build(docTypeMatcher,null)) filter (d => docType(d.path.name) != Ignored)
       

@@ -16,8 +16,10 @@
 
 package laika.parse.core.combinator
 
+import laika.io.Input
 import laika.parse.core._
 import laika.parse.core.text.Literal
+import laika.tree.Paths.Path
 import laika.util.~
 
 import scala.util.{Try, Failure => TFailure, Success => TSuccess}
@@ -124,6 +126,11 @@ trait Parsers {
       }
 
     }
+  }
+
+  def documentParserFunction[T,U] (parser: Parser[T], docF: (Path, T) => U): Input => U = {
+    val parserF = unsafeParserFunction(parser)
+    input => docF(input.path, parserF(input.asParserInput))
   }
 
   /** Provides additional methods to `Try` via implicit conversion.

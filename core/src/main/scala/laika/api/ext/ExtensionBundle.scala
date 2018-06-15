@@ -18,10 +18,11 @@ package laika.api.ext
 
 import com.typesafe.config.{Config, ConfigFactory}
 import laika.factory.RendererFactory
-import laika.io.{DefaultDocumentTypeMatcher, DocumentType, InputProvider}
+import laika.io.{DefaultDocumentTypeMatcher, DocumentType}
 import laika.parse.core.Parser
 import laika.parse.core.markup.RecursiveParsers
-import laika.parse.css.ParseStyleSheet
+import laika.parse.css.CSSParsers
+import laika.parse.css.Styles.StyleDeclaration
 import laika.rewrite.DocumentCursor
 import laika.tree.Documents.TemplateDocument
 import laika.tree.Elements._
@@ -58,7 +59,7 @@ trait ExtensionBundle { self =>
 
     override def docTypeMatcher = self.docTypeMatcher.orElse(bundle.docTypeMatcher)
 
-    override def parserDefinitions: ParserDefinitionBuilders = self.parserDefinitions ++ bundle.parserDefinitions
+    override def parserDefinitions: ParserDefinitionBuilders = self.parserDefinitions withBase bundle.parserDefinitions
 
     override def rewriteRules = self.rewriteRules ++ bundle.rewriteRules
 
@@ -79,6 +80,10 @@ object ExtensionBundle {
 
     override def docTypeMatcher: PartialFunction[Path, DocumentType] = DefaultDocumentTypeMatcher.get
 
+    override def parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders(
+      styleSheetParser = Some(CSSParsers.styleDeclarationSet)
+    )
+
   }
 
 }
@@ -91,11 +96,16 @@ trait ExtensionFactory {
 
 case class ParserDefinitionBuilders(blockParsers: Seq[ParserDefinitionBuilder[Block]] = Nil,
                                     spanParsers: Seq[ParserDefinitionBuilder[Span]] = Nil,
-                                    configHeaderParsers: Seq[Parser[Either[InvalidBlock, Config]]] = Nil) { // TODO - does this belong here or in DirectiveSupport?
+                                    configHeaderParsers: Seq[Parser[Either[InvalidBlock, Config]]] = Nil,
+                                    styleSheetParser: Option[Parser[Set[StyleDeclaration]]] = None) {
 
-  def ++ (builders: ParserDefinitionBuilders): ParserDefinitionBuilders =
-    ParserDefinitionBuilders(blockParsers ++ builders.blockParsers,
-      spanParsers ++ builders.spanParsers, configHeaderParsers ++ builders.configHeaderParsers)
+  def withBase(builders: ParserDefinitionBuilders): ParserDefinitionBuilders =
+    ParserDefinitionBuilders(
+      blockParsers ++ builders.blockParsers,
+      spanParsers ++ builders.spanParsers,
+      configHeaderParsers ++ builders.configHeaderParsers,
+      styleSheetParser.orElse(builders.styleSheetParser)
+    )
 
 }
 
@@ -118,17 +128,13 @@ object Precedence {
 }
 
 case class Theme[Writer] (customRenderers: Seq[Writer => RenderFunction] = Nil,
-                          config: Config = ConfigFactory.empty,
-                          defaultTemplate: Option[TemplateDocument] = None,
-                          styleSheetParser: Option[ParseStyleSheet] = None /*,
-                          staticDocuments: InputProvider = InputProvider.empty TODO - implement */) {
+                          defaultTemplate: Option[TemplateDocument] = None
+                          /*, staticDocuments: InputProvider = InputProvider.empty TODO - implement */) {
 
   def withBase(other: Theme[Writer]): Theme[Writer] = Theme(
     customRenderers ++ other.customRenderers,
-    config.withFallback(other.config),
-    defaultTemplate.orElse(other.defaultTemplate),
-    styleSheetParser.orElse(other.styleSheetParser)/*,
-    staticDocuments.merge(other.staticDocuments TODO - implement + simplify InputProvider and related types */
+    defaultTemplate.orElse(other.defaultTemplate)
+    /* staticDocuments.merge(other.staticDocuments TODO - implement + simplify InputProvider and related types */
   )
 
 }

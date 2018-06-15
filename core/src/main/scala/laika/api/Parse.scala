@@ -18,14 +18,16 @@ package laika.api
 
 import java.io.{File, InputStream, Reader}
 
-import com.typesafe.config.{ConfigFactory, ConfigParseOptions, Config => TConfig}
+import com.typesafe.config.{ConfigFactory, Config => TConfig}
 import laika.api.Parse.Parsers
 import laika.api.ext.{ConfigProvider, ExtensionBundle}
 import laika.factory.ParserFactory
 import laika.io.DocumentType._
-import laika.io.{DocumentType, IO, Input, InputProvider}
 import laika.io.InputProvider._
-import laika.parse.css.Styles.StyleDeclarationSet
+import laika.io.{DocumentType, IO, Input, InputProvider}
+import laika.parse.core.Parser
+import laika.parse.core.combinator.Parsers.{documentParserFunction, success}
+import laika.parse.css.Styles.{StyleDeclaration, StyleDeclarationSet}
 import laika.rewrite.{DocumentCursor, RewriteRules}
 import laika.tree.Documents._
 import laika.tree.Elements.RewriteRule
@@ -233,7 +235,11 @@ class Parse private (parsers: Parsers, rewrite: Boolean, bundles: Seq[ExtensionB
     
     def parseTemplate (docType: DocumentType)(input: Input): Operation[TemplateDocument] = () => (docType, IO(input)(config.templateParser.fromInput))
 
-    def parseStyleSheet (format: String)(input: Input): Operation[StyleDeclarationSet] = () => (StyleSheet(format), IO(input)(config.styleSheetParser.fromInput))
+    def parseStyleSheet (format: String)(input: Input): Operation[StyleDeclarationSet] = () => {
+      val parser = bundle.parserDefinitions.styleSheetParser.getOrElse(success(Set.empty[StyleDeclaration]))
+      val docF = documentParserFunction(parser, StyleDeclarationSet.forPath)
+      (StyleSheet(format), IO(input)(docF))
+    }
     
     def parseTreeConfig (input: Input): Operation[TreeConfig] = () => (Config, TreeConfig(input.path, ConfigProvider.fromInput(input)))
 

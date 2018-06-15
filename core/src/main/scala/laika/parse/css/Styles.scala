@@ -243,7 +243,11 @@ object Styles {
      *  the specified declarations.
      */
     def apply(path: Path, styles: StyleDeclaration*): StyleDeclarationSet = apply(Set(path), styles.toSet)
-    
+
+    /** Creates a new StyleDeclarationSet with a single path element and
+      *  the specified declarations.
+      */
+    def forPath(path: Path, styles: Set[StyleDeclaration]) = apply(Set(path), styles)
   }
   
  

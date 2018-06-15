@@ -22,7 +22,8 @@ import laika.api.ext.{BundleProvider, ExtensionBundle}
 import laika.io.DocumentType._
 import laika.io.{DocumentType, Input}
 import laika.io.InputProvider.{Directory, InputConfigBuilder}
-import laika.parse.css.ParseStyleSheet
+import laika.parse.core.Parser
+import laika.parse.core.text.TextParsers
 import laika.parse.css.Styles.{ElementType, StyleDeclaration, StyleDeclarationSet}
 import laika.parse.markdown.Markdown
 import laika.parse.rst.Elements.CustomizedTextRole
@@ -115,6 +116,7 @@ class ParseAPISpec extends FlatSpec
     def contents = Map(
       "link" -> "[link](foo)",
       "name" -> "foo",
+      "name2" -> "bar",
       "multiline" -> """aaa
         |
         |bbb""".stripMargin,
@@ -319,17 +321,16 @@ class ParseAPISpec extends FlatSpec
       }
       def styleDecl(styleName: String, order: Int = 0) =
         StyleDeclaration(ElementType("Type"), styleName -> "foo").increaseOrderBy(order)
-      val parser: Input => StyleDeclarationSet = input =>
-        StyleDeclarationSet(input.path, styleDecl(input.name.takeWhile(_ != '.')))
+      val parser: Parser[Set[StyleDeclaration]] = TextParsers.any ^^ {n => Set(styleDecl(n))}
       val dirs = """- main1.aaa.css:name
-        |- main2.bbb.css:name
+        |- main2.bbb.css:name2
         |- main3.aaa.css:name""".stripMargin
       val treeResult = TreeView(Root, List(StyleSheets(Map(
-          "aaa" -> StyleDeclarationSet(Set(Path("/main1.aaa.css"), Path("/main3.aaa.css")), Set(styleDecl("main1"), styleDecl("main3", 1))),
-          "bbb" -> StyleDeclarationSet(Set(Path("/main2.bbb.css")), Set(styleDecl("main2")))
+          "aaa" -> StyleDeclarationSet(Set(Path("/main1.aaa.css"), Path("/main3.aaa.css")), Set(styleDecl("foo"), styleDecl("foo", 1))),
+          "bbb" -> StyleDeclarationSet(Set(Path("/main2.bbb.css")), Set(styleDecl("bar")))
       ))))
-      parsedRawWith(_.withStyleSheetParser(ParseStyleSheet as parser),
-        BundleProvider.forDocTypeMatcher(docTypeMatcher)) should be (treeResult)
+      parsedRawWith(identity, BundleProvider.forDocTypeMatcher(docTypeMatcher)
+        .withBase(BundleProvider.forStyleSheetParser(parser))) should be (treeResult)
     }
   }
   

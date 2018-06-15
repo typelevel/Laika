@@ -31,7 +31,7 @@ import laika.util.~
  * 
  * @author Jens Halm
  */
-trait CSSParsers {
+object CSSParsers {
 
   
   /** Represents a combinator between two predicates.
@@ -142,45 +142,13 @@ trait CSSParsers {
   /** Parses an entire set of style declarations.
    *  This is the top level parser of this trait.
    */
-  lazy val styleDeclarationSet: ParserContext => Set[StyleDeclaration] = {
+  lazy val styleDeclarationSet: Parser[Set[StyleDeclaration]] = {
 
-    val baseParser = (wsOrNl ~ (comment*) ~> ((styleDeclarations <~ wsOrNl ~ (comment*))*)) ^^ {
+    (wsOrNl ~ (comment*) ~> ((styleDeclarations <~ wsOrNl ~ (comment*))*)) ^^ {
       _.flatten.zipWithIndex.map({
         case (decl,pos) => decl.increaseOrderBy(pos)
       }).toSet
     }
-
-    /* TODO - needs better error handling, the `unsafeParserFunction` was only meant to be used
-       with text markup that is never supposed to fail as there is always a plain-text fallback-parser.
-       But CSS can contain actual errors that prevent successful parsing.
-     */
-
-    unsafeParserFunction(baseParser)
   }
 
-  /** Fully parses the input from the specified reader and returns the resulting
-   *  style declaration set.
-   *  
-   *  @param ctx the character input to process
-   *  @param path the path the input has been obtained from
-   *  @return the resulting set of style declarations
-   */
-  def parseStyleSheet (ctx: ParserContext, path: Path): StyleDeclarationSet = {
-    val set = styleDeclarationSet(ctx)
-    new StyleDeclarationSet(Set(path), set)
-  }
-    
-}
-
-/** Companion for accessing the default implementation.
- */
-object CSSParsers {
-  
-  /** The default parser function for Laika's CSS support.
-   */
-  lazy val default: Input => StyleDeclarationSet = {
-    val parser = new CSSParsers {}
-    input => parser.parseStyleSheet(input.asParserInput, input.path)
-  }
-  
 }

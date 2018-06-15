@@ -19,22 +19,23 @@ package laika.api
 import java.io._
 
 import laika.api.Transform.TransformMappedOutput
-import laika.api.ext.{BundleProvider, ConfigProvider, ExtensionBundle}
+import laika.api.ext.{BundleProvider, ExtensionBundle}
 import laika.io.DocumentType.Static
 import laika.io.Input
-import laika.parse.css.ParseStyleSheet
-import laika.parse.css.Styles.{ElementType, StyleDeclaration, StyleDeclarationSet}
+import laika.parse.core.Parser
+import laika.parse.core.text.TextParsers
+import laika.parse.css.Styles.{ElementType, StyleDeclaration}
 import laika.parse.markdown.Markdown
 import laika.parse.rst.ReStructuredText
-import laika.render.{PrettyPrint, TextWriter, XSLFO}
 import laika.render.helper.RenderResult
+import laika.render.{PrettyPrint, TextWriter, XSLFO}
 import laika.template.ParseTemplate
 import laika.tree.Documents.TemplateDocument
 import laika.tree.Elements.Text
 import laika.tree.Paths.Root
 import laika.tree.Templates._
-import laika.tree.helper.{InputBuilder, OutputBuilder}
 import laika.tree.helper.OutputBuilder.readFile
+import laika.tree.helper.{InputBuilder, OutputBuilder}
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.io.{Codec, Source}
@@ -289,14 +290,14 @@ class TransformAPISpec extends FlatSpec
       // the PrettyPrint renderer does not use stylesheets, so we must use XSL-FO here
       def styleDecl(fontSize: String) =
         StyleDeclaration(ElementType("Paragraph"), "font-size" -> s"${fontSize}pt")
-      val parser: Input => StyleDeclarationSet = input =>
-        StyleDeclarationSet(input.path, styleDecl(input.asParserInput.input))
+      val parser: Parser[Set[StyleDeclaration]] = TextParsers.any ^^ { n => Set(styleDecl(n)) }
       val dirs = """- doc1.md:name
         |- styles.fo.css:style""".stripMargin
       val result = RenderResult.fo.withDefaultTemplate("""<fo:block font-family="serif" font-size="13pt" space-after="3mm">foo</fo:block>""")
       val providerBuilder = new OutputBuilder.TestProviderBuilder
-      val styles = ParseStyleSheet as parser
-      Transform from Markdown to XSLFO fromTree input(dirs).inParallel withStyleSheetParser styles toTree output(providerBuilder).inParallel
+      Transform.from(Markdown).to(XSLFO)
+        .using(BundleProvider.forStyleSheetParser(parser))
+        .fromTree(input(dirs).inParallel).toTree(output(providerBuilder).inParallel)
       providerBuilder.result should be (root(List(docs(
         (Root / "doc1.fo", result)
       ))))
@@ -568,7 +569,7 @@ class TransformAPISpec extends FlatSpec
   }
 
   it should "allow to use the same directory as input and output" in {
-    import laika.tree.helper.OutputBuilder.{createTempDirectory, writeFile, readFile}
+    import laika.tree.helper.OutputBuilder.{createTempDirectory, readFile, writeFile}
     new FileSystemTest {
       val targetDir = createTempDirectory("renderToDir")
       val staticFile = new File(targetDir, "static.txt")
@@ -589,7 +590,7 @@ class TransformAPISpec extends FlatSpec
   }
 
   it should "not copy files from the output directory if it's nested inside the input directory" in {
-    import laika.tree.helper.OutputBuilder.{createTempDirectory, writeFile, readFile}
+    import laika.tree.helper.OutputBuilder.{createTempDirectory, readFile, writeFile}
     new FileSystemTest {
       val targetDir = createTempDirectory("renderToDir")
       val staticFile = new File(targetDir, "static.txt")

@@ -23,7 +23,6 @@ import laika.tree.Paths.Root
 import laika.template.ParseTemplate
 import laika.template.DefaultTemplate
 import laika.directive.Directives.Templates
-import laika.parse.css.ParseStyleSheet
 
 /** Represents a tree structure of Inputs, abstracting over various types of IO resources. 
  *  
@@ -178,7 +177,7 @@ object InputProvider {
    *  the template and style sheet engines to use and a flag whether parsing should be performed
    *  in parallel.
    */
-  case class InputConfig (provider: InputProvider, templateParser: ParseTemplate, styleSheetParser: ParseStyleSheet, parallel: Boolean)
+  case class InputConfig (provider: InputProvider, templateParser: ParseTemplate, parallel: Boolean)
   
   /** Responsible for building new InputProviders based
    *  on the specified document type matcher and codec.
@@ -204,20 +203,13 @@ object InputProvider {
       provider: ProviderBuilder,
       codec: Codec,
       templateParser: Option[ParseTemplate] = None,
-      styleSheetParser: Option[ParseStyleSheet] = None,
       isParallel: Boolean = false) {
     
-    /** Specifies the style sheet engine to use for 
-     *  parsing all CSS inputs found in the tree.
-     */
-    def withStyleSheetParser (parser: ParseStyleSheet): InputConfigBuilder = 
-      new InputConfigBuilder(provider, codec, templateParser, Some(parser), isParallel)
-    
-    /** Specifies the template engine to use for 
+    /** Specifies the template engine to use for
      *  parsing all template inputs found in the tree.
      */
     def withTemplateParser (parser: ParseTemplate): InputConfigBuilder = 
-      new InputConfigBuilder(provider, codec, Some(parser), styleSheetParser, isParallel)
+      new InputConfigBuilder(provider, codec, Some(parser), isParallel)
     
     /** Specifies custom template directives to use with
      *  the default template engine.
@@ -230,7 +222,7 @@ object InputProvider {
      *  and then get reassembled afterwards, therefore the parallel processing
      *  includes all subtrees of this input tree.
      */
-    def inParallel: InputConfigBuilder = new InputConfigBuilder(provider, codec, templateParser, styleSheetParser, true) // TODO - custom TaskSupport
+    def inParallel: InputConfigBuilder = new InputConfigBuilder(provider, codec, templateParser, true) // TODO - custom TaskSupport
     
     /** Builds the final configuration for this input tree
      *  for the specified parser factory.
@@ -239,8 +231,7 @@ object InputProvider {
      */
     def build (markupSuffixes: Set[String], docTypeMatcher: PartialFunction[Path, DocumentType]): InputConfig = {
       val templates = templateParser getOrElse ParseTemplate
-      val styleSheets = styleSheetParser getOrElse ParseStyleSheet
-      InputConfig(provider.build(docTypeMatcher, codec), templates, styleSheets, isParallel)
+      InputConfig(provider.build(docTypeMatcher, codec), templates, isParallel)
     }
   }
 
