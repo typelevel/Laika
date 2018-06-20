@@ -25,7 +25,6 @@ import laika.factory.ParserFactory
 import laika.io.DocumentType._
 import laika.io.InputProvider._
 import laika.io.{DocumentType, IO, Input, InputProvider}
-import laika.parse.core.Parser
 import laika.parse.core.combinator.Parsers.{documentParserFunction, success}
 import laika.parse.css.Styles.{StyleDeclaration, StyleDeclarationSet}
 import laika.rewrite.{DocumentCursor, RewriteRules}
@@ -81,7 +80,7 @@ class Parse private (parsers: Parsers, rewrite: Boolean, bundles: Seq[ExtensionB
    * 
    *  @param factory the parser factory to add to the previously specified parsers
    */
-  def or (factory: ParserFactory): Parse = new Parse(parsers.withFactory(factory), rewrite, bundles)
+  def or (factory: ParserFactory): Parse = new Parse(parsers.withFactory(factory), rewrite, bundles ++ factory.extensions)
 
   /** Returns a new Parse instance with the specified extension bundles installed.
     *
@@ -141,7 +140,12 @@ class Parse private (parsers: Parsers, rewrite: Boolean, bundles: Seq[ExtensionB
     
     val doc = IO(input)(parsers.forInput(input))
 
-    if (rewrite) doc.rewrite(parsers.rewriteRulesFor(input, doc))
+    if (rewrite) {
+      val rules = RewriteRules.chain(
+        bundles.reverse.reduceLeft(_ withBase _).rewriteRules.map(_(DocumentCursor(doc)))
+      ) // TODO - move this to OperationSupport.mergedBundle
+      doc.rewrite(rules)
+    }
     else doc
   }
   
@@ -291,7 +295,7 @@ class Parse private (parsers: Parsers, rewrite: Boolean, bundles: Seq[ExtensionB
     val tree = collectDocuments(config.provider, root = true)
     
     if (rewrite) {
-      val rules = parsers.rewriteRules
+      val rules = RewriteRules.chainFactories(bundle.rewriteRules) // TODO - move this to OperationSupport
       tree.rewrite(rules)
     } 
     else tree
@@ -313,7 +317,8 @@ object Parse {
    * 
    *  @param factory the parser factory to use for all subsequent operations
    */
-  def as (factory: ParserFactory): Parse = new Parse(new Parsers(factory), true, Seq(ExtensionBundle.LaikaDefaults))
+  def as (factory: ParserFactory): Parse = new Parse(new Parsers(factory), rewrite = true, ExtensionBundle.LaikaDefaults +: factory.extensions)
+
 
   private[laika] class Parsers (parsers: Seq[ParserFactory]) {
     
@@ -335,11 +340,7 @@ object Parse {
       if (parsers.size == 1) parsers.head
       else map.getOrElse(suffix(input.name), throw new IllegalArgumentException("Unable to determine parser based on input name: ${input.name}"))
     }
-    
-    def rewriteRules: DocumentCursor => RewriteRule = RewriteRules.defaultsFor(parsers: _*)
-    
-    def rewriteRulesFor (input: Input, doc: Document): RewriteRule = RewriteRules.defaultsFor(parserForInput(input))(DocumentCursor(doc))
-    
+
     def forInput (input: Input): Input => Document = parserForInput(input).newParser
     
   }
