@@ -16,6 +16,7 @@
 
 package laika.parse.rst
 
+import laika.api.ext.ExtensionBundle
 import laika.directive.Directives.{Blocks, Spans}
 import laika.directive.StandardDirectives
 import laika.factory.ParserFactory
@@ -29,6 +30,7 @@ import laika.template.TemplateParsers
 import laika.tree.Documents.Document
 import laika.tree.Elements._
 import laika.parse.core.ParserContext
+import laika.rewrite.DocumentCursor
   
 /** A parser for text written in reStructuredText markup. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:
@@ -93,7 +95,10 @@ class ReStructuredText private (
 
   val fileSuffixes: Set[String] = Set("rest","rst")
 
-  val rewriteRules = Seq(RewriteRules)
+  val extensions = Seq(new ExtensionBundle {
+    override def rewriteRules: Seq[DocumentCursor => RewriteRule] = Seq(RewriteRules)
+    // TODO - add custom renderers
+  })
 
   /** Adds the specified directives and returns a new instance of the parser.
    *  These block directives may then be used anywhere in documents parsed by this instance.

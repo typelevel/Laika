@@ -75,7 +75,7 @@ object RewriteRules {
     * specified parser factory implementations into a single rule.
     */
   def defaultsFor (parsers: ParserFactory*): DocumentCursor => RewriteRule = 
-    chainFactories(parsers.flatMap(_.rewriteRules) ++ defaultsFactories)
+    chainFactories(parsers.flatMap(_.extensions.flatMap(_.rewriteRules) ++ defaultsFactories))
    
     
 }

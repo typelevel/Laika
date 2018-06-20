@@ -16,10 +16,9 @@
 
 package laika.factory
 
+import laika.api.ext.ExtensionBundle
 import laika.io.Input
-import laika.rewrite.DocumentCursor
 import laika.tree.Documents.Document
-import laika.tree.Elements.RewriteRule
 
 /** Responsible for creating parser instances for a specific markup format.
  *  A parser is simply a function of type `Input => Document`.
@@ -40,15 +39,14 @@ trait ParserFactory {
    */
   def fileSuffixes: Set[String]
   
-  /** The parser-specific rewrite rules that need to be
-   *  applied by default before rendering any document
-   *  produced by this parser.
+  /** The parser-specific extensions that need to be installed
+   *  for each transformation that involves this parser.
    * 
-   *  Providing additional rewrite rules is only necessary
-   *  if the parser produces tree elements that require
-   *  rewriting and are unknown to the default rewrite rules.
+   *  One scenario where a parser needs to provide a bundle
+   *  is when it produces tree elements that are unknown
+   *  to the built-in rewrite rules and renderers.
    */
-  def rewriteRules: Seq[DocumentCursor => RewriteRule]
+  def extensions: Seq[ExtensionBundle]
 
   /**  Creates a new parser instance.
    *   Such an instance is expected to be stateless and thread-safe,

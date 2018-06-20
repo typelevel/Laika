@@ -23,7 +23,7 @@ import laika.parse.core.Parser
 import laika.parse.core.markup.RecursiveParsers
 import laika.parse.css.CSSParsers
 import laika.parse.css.Styles.StyleDeclaration
-import laika.rewrite.DocumentCursor
+import laika.rewrite.{DocumentCursor, LinkResolver, SectionBuilder}
 import laika.tree.Documents.TemplateDocument
 import laika.tree.Elements._
 import laika.tree.Paths.Path
@@ -83,6 +83,8 @@ object ExtensionBundle {
     override def parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders(
       styleSheetParser = Some(CSSParsers.styleDeclarationSet)
     )
+
+    override def rewriteRules: Seq[DocumentCursor => RewriteRule] = Seq(LinkResolver, SectionBuilder)
 
   }
 

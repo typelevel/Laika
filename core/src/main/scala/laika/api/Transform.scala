@@ -473,7 +473,8 @@ object Transform {
      *  @param factory the parser factory to add to the previously specified parsers
      *  @return a new Builder instance
      */
-    def or (factory: ParserFactory): Builder = new Builder(parse or factory, RewriteRules.chainFactories(factory.rewriteRules :+ rewriteRule))
+    def or (factory: ParserFactory): Builder = new Builder(parse or factory,
+      RewriteRules.chainFactories(factory.extensions.flatMap(_.rewriteRules) :+ rewriteRule))
     
     /** Creates and returns a new Transform instance for the specified renderer and the
      *  previously specified parser. The returned instance is stateless and reusable for

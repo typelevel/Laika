@@ -73,7 +73,7 @@ class Markdown private (
   
   val fileSuffixes: Set[String] = Set("md","markdown")
   
-  val rewriteRules = Seq()
+  val extensions = Seq()
   
   /** Adds the specified Laika directives and returns a new instance of the parser.
    * 
