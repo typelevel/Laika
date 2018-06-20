@@ -19,7 +19,6 @@ package laika.api
 import java.io.{File, InputStream, Reader}
 
 import laika.api.Render.{RenderGatheredOutput, RenderMappedOutput}
-import laika.api.Transform._
 import laika.api.ext.ExtensionBundle
 import laika.directive.Directives.Templates
 import laika.factory.{ParserFactory, RenderResultProcessor, RendererFactory}
@@ -27,7 +26,7 @@ import laika.io.InputProvider._
 import laika.io.Output.Binary
 import laika.io.OutputProvider._
 import laika.io._
-import laika.rewrite.{DocumentCursor, RewriteRules}
+import laika.rewrite.DocumentCursor
 import laika.template.ParseTemplate
 import laika.tree.Documents._
 import laika.tree.Elements._
@@ -86,7 +85,7 @@ import scala.io.Codec
  * 
  *  @author Jens Halm
  */
-abstract class Transform [Writer] private[Transform] (parse: Parse, rules: Rules) {
+abstract class Transform [Writer] private[Transform] (parse: Parse) {
   
   /** The type of the transformation target for a single input document.
    */
@@ -150,7 +149,9 @@ abstract class Transform [Writer] private[Transform] (parse: Parse, rules: Rules
    *  In case multiple rewrite rules need to be applied it may be more efficient to
    *  first combine them with `orElse`.
    */
-  def creatingRule (newRule: DocumentCursor => RewriteRule): ThisType 
+  def creatingRule (newRule: DocumentCursor => RewriteRule): ThisType = using(new ExtensionBundle {
+    override def rewriteRules: Seq[DocumentCursor => RewriteRule] = Seq(newRule)
+  })
   
   /** Specifies a custom render function that overrides one or more of the default
    *  renderers for the output format this instance uses.
@@ -292,15 +293,7 @@ abstract class Transform [Writer] private[Transform] (parse: Parse, rules: Rules
    */
   protected[this] def fromDocument (doc: Document): DocTarget
   
-  /** Rewrites the specified document, using the given rules.
-   */
-  protected[this] def rewrite (doc: Document, rules: Rules): Document = doc rewrite rules.forDocument(doc)
-
-  /** Rewrites the specified document tree, using the given rules.
-   */
-  protected[this] def rewrite (tree: DocumentTree, rules: Rules): DocumentTree = tree.rewrite(rules.all)
-  
-} 
+}
 
 /** Serves as an entry point to the Transform API.
  * 
@@ -315,9 +308,8 @@ object Transform {
    *  
    *  @param parse the parser to use for parsing the input
    *  @param render the renderer to use for producing the output
-   *  @param rules the rewrite rules to apply between parsing and rendering
    */
-  class TransformMappedOutput[Writer] (parse: Parse, render: RenderMappedOutput[Writer], rules: Rules) extends Transform[Writer](parse, rules) {
+  class TransformMappedOutput[Writer] (parse: Parse, render: RenderMappedOutput[Writer]) extends Transform[Writer](parse) {
     
     type DocTarget = Render.SingleTarget
   
@@ -325,14 +317,12 @@ object Transform {
   
     type ThisType = TransformMappedOutput[Writer]
     
-    def creatingRule (newRule: DocumentCursor => RewriteRule): ThisType = new TransformMappedOutput(parse, render, rules + newRule) 
-  
-    def rendering (customRenderer: Writer => RenderFunction): ThisType = new TransformMappedOutput(parse, render using customRenderer, rules)
+    def rendering (customRenderer: Writer => RenderFunction): ThisType = new TransformMappedOutput(parse, render using customRenderer)
 
-    def using (bundles: ExtensionBundle*): ThisType = new TransformMappedOutput(parse.using(bundles:_*), render.using(bundles:_*), rules)
+    def using (bundles: ExtensionBundle*): ThisType = new TransformMappedOutput(parse.using(bundles:_*), render.using(bundles:_*))
     
     def fromDocument (doc: Document): Render.SingleTarget = new Render.SingleTarget {
-      protected def renderTo (out: Output) = render from rewrite(doc,rules) toOutput out
+      protected def renderTo (out: Output) = render.from(doc).toOutput(out)
     }
     
     def fromTree (input: InputConfigBuilder): MappedTreeTarget = new MappedTreeTarget(input)
@@ -354,7 +344,7 @@ object Transform {
       
       protected def renderTo (out: OutputConfigBuilder): Unit = {
         val tree = parse.fromTree(inputBuilder)
-        render from rewrite(tree,rules) toTree (if (isParallel) out.inParallel else out)
+        render.from(tree).toTree(if (isParallel) out.inParallel else out)
       }
     }
     
@@ -366,9 +356,8 @@ object Transform {
    *  
    *  @param parse the parser to use for parsing the input
    *  @param render the renderer to use for producing the output
-   *  @param rules the rewrite rules to apply between parsing and rendering
    */
-  class TransformGatheredOutput[Writer] (parse: Parse, render: RenderGatheredOutput[Writer], rules: Rules) extends Transform[Writer](parse, rules) {
+  class TransformGatheredOutput[Writer] (parse: Parse, render: RenderGatheredOutput[Writer]) extends Transform[Writer](parse) {
     
     type DocTarget = Render.BinaryTarget
   
@@ -376,14 +365,12 @@ object Transform {
   
     type ThisType = TransformGatheredOutput[Writer]
     
-    def creatingRule (newRule: DocumentCursor => RewriteRule): ThisType = new TransformGatheredOutput(parse, render, rules + newRule) 
-  
-    def rendering (customRenderer: Writer => RenderFunction): ThisType = new TransformGatheredOutput(parse, render using customRenderer, rules)
+    def rendering (customRenderer: Writer => RenderFunction): ThisType = new TransformGatheredOutput(parse, render using customRenderer)
 
-    def using (bundles: ExtensionBundle*): ThisType = new TransformGatheredOutput(parse.using(bundles:_*), render.using(bundles:_*), rules)
+    def using (bundles: ExtensionBundle*): ThisType = new TransformGatheredOutput(parse.using(bundles:_*), render.using(bundles:_*))
     
     def fromDocument (doc: Document): Render.BinaryTarget = new Render.BinaryTarget {
-      protected def renderBinary (out: Output with Binary) = render from rewrite(doc,rules) toBinaryOutput out
+      protected def renderBinary (out: Output with Binary) = render.from(doc).toBinaryOutput(out)
     }
     
     def fromTree (input: InputConfigBuilder): GatherTarget = new GatherTarget(input)
@@ -405,23 +392,13 @@ object Transform {
       
       protected def renderBinary (out: Output with Binary): Unit = {
         val tree = parse.fromTree(inputBuilder)
-        render from rewrite(tree,rules) toBinaryOutput out // TODO - parallel output?
+        render.from(tree).toBinaryOutput(out) // TODO - parallel output?
       }
     }
 
     
   }
-  
-  private[laika] class Rules (rule: DocumentCursor => RewriteRule) {
-    
-    def all: DocumentCursor => RewriteRule = rule
-    
-    def forDocument (doc: Document): RewriteRule = all(DocumentCursor(doc))
-    
-    def + (newRule: DocumentCursor => RewriteRule) = new Rules(RewriteRules.chainFactories(Seq(newRule, rule)))
-    
-  }
-  
+
   /** API for configuring a batch operation for an input tree.
    *  Gives access to all relevant aspects of traversing, parsing and rendering
    *  a tree of inputs.
@@ -460,7 +437,7 @@ object Transform {
   /** Step in the setup for a transform operation where the
    *  renderer must be specified.
    */
-  class Builder private[Transform] (parse: Parse, rewriteRule: DocumentCursor => RewriteRule) {
+  class Builder private[Transform] (parse: Parse) {
 
     /** Returns a new Builder instance adding the specified parser factory.
      *  This factory is usually an object provided by the library
@@ -473,8 +450,7 @@ object Transform {
      *  @param factory the parser factory to add to the previously specified parsers
      *  @return a new Builder instance
      */
-    def or (factory: ParserFactory): Builder = new Builder(parse or factory,
-      RewriteRules.chainFactories(factory.extensions.flatMap(_.rewriteRules) :+ rewriteRule))
+    def or (factory: ParserFactory): Builder = new Builder(parse or factory)
     
     /** Creates and returns a new Transform instance for the specified renderer and the
      *  previously specified parser. The returned instance is stateless and reusable for
@@ -484,7 +460,7 @@ object Transform {
      *  @return a new Transform instance
      */
     def to [Writer] (factory: RendererFactory[Writer]): TransformMappedOutput[Writer] = 
-      new TransformMappedOutput(parse.withoutRewrite, Render as factory, new Rules(rewriteRule)) 
+      new TransformMappedOutput(parse, Render as factory)
     
     /** Creates and returns a new Transform instance for the specified renderer and the
      *  previously specified parser. The returned instance is stateless and reusable for
@@ -494,7 +470,7 @@ object Transform {
      *  @return a new Transform instance
      */
     def to [Writer] (processor: RenderResultProcessor[Writer]): TransformGatheredOutput[Writer] = 
-      new TransformGatheredOutput(parse.withoutRewrite, Render as processor, new Rules(rewriteRule)) 
+      new TransformGatheredOutput(parse, Render as processor)
     
   }
   
@@ -508,7 +484,7 @@ object Transform {
    *  @param factory the parser factory to use
    *  @return a new Builder instance for specifying the renderer
    */
-  def from (factory: ParserFactory): Builder = new Builder(Parse as factory, RewriteRules.defaultsFor(factory))
+  def from (factory: ParserFactory): Builder = new Builder(Parse as factory)
   
   
 }
