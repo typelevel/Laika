@@ -19,19 +19,15 @@ package laika.api
 import laika.factory.RenderResultProcessor
 import laika.io.Output.BinaryOutput
 import laika.io.OutputProvider._
-import laika.tree.Documents.Document
-import laika.tree.Documents.DocumentTree
-import laika.tree.Paths.Root
-import laika.tree.Elements.Block
-import laika.tree.Elements.RootElement
-import laika.render.PrettyPrint
-import laika.render.TextWriter
+import laika.render.{PrettyPrint, TextWriter}
+import laika.tree.Documents.{Document, DocumentTree}
+import laika.tree.Templates.TemplateRoot
 
 object TestRenderResultProcessor extends RenderResultProcessor[TextWriter] {
 
   val factory = PrettyPrint
   
-  def process (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit, output: BinaryOutput): Unit = {
+  def process (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit, defaultTemplate: TemplateRoot, output: BinaryOutput): Unit = {
     
     def baseName(docName: String) = docName.takeWhile(_ != '.')
     

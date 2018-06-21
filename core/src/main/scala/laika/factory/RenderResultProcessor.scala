@@ -19,6 +19,7 @@ package laika.factory
 import laika.io.Output.BinaryOutput
 import laika.io.OutputProvider.OutputConfig
 import laika.tree.Documents.DocumentTree
+import laika.tree.Templates.TemplateRoot
 
 /** Post processor for the result output of a renderer.
  *  Useful for scenarios where interim formats will be generated
@@ -39,9 +40,10 @@ trait RenderResultProcessor[Writer] {
    * 
    *  @param tree the tree to render to the interim result
    *  @param render the render function for producing the interim result
+   *  @param defaultTemplate the default template to merge with the render result
    *  @param output the output to write the final result to
    */
-  def process (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit, output: BinaryOutput): Unit
+  def process (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit, defaultTemplate: TemplateRoot, output: BinaryOutput): Unit // TODO - consider more general type for defaultTemplate
   
   
 }

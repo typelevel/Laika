@@ -25,6 +25,7 @@ import laika.io.Output.BinaryOutput
 import laika.io.OutputProvider.OutputConfig
 import laika.tree.Documents.DocumentTree
 import laika.tree.Paths.Root
+import laika.tree.Templates.TemplateRoot
 import org.scalatest.{FlatSpec, Matchers}
 
 class FOforPDFSpec extends FlatSpec with Matchers {
@@ -36,9 +37,9 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     
     private val foForPDF = new FOforPDF(config)
     
-    def process (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit, output: BinaryOutput): Unit = {
+    def process (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit, defaultTemplate: TemplateRoot, output: BinaryOutput): Unit = {
     
-      val fo = foForPDF.renderFO(tree, render)
+      val fo = foForPDF.renderFO(tree, render, defaultTemplate)
       val out = output.asStream
       out.write(fo.getBytes("UTF-8"))
       

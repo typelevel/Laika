@@ -143,6 +143,13 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
     factory.defaultTheme.defaultStyles ++ bundle.themeFor(factory).defaultStyles
   }
 
+  protected[this] lazy val defaultTemplate: TemplateRoot = {
+    val bundle = bundles.reverse.reduceLeft(_ withBase _) // TODO - move this to OperationSupport.mergedBundle
+    bundle.themeFor(factory).defaultTemplate
+      .orElse(factory.defaultTheme.defaultTemplate)
+      .getOrElse(TemplateRoot(List(TemplateContextReference("document.content"))))
+  }
+
   /** Renders the specified element to the given output.
    * 
    *  @param element the element to render
@@ -214,7 +221,7 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
   
     val templateName = "default.template." + factory.fileSuffix
     val treeWithTpl = if (tree.selectTemplate(Current / templateName).isDefined) tree 
-                      else tree.copy(templates = tree.templates :+ TemplateDocument(Root / templateName, factory.defaultTemplate)) 
+                      else tree.copy(templates = tree.templates :+ TemplateDocument(Root / templateName, defaultTemplate))
     val finalTree = TemplateRewriter.applyTemplates(treeWithTpl, factory.fileSuffix)
     val operations = collectOperations(config.provider, defaultStyles, finalTree)
     
@@ -424,7 +431,7 @@ object Render {
       from(DocumentTree(Root, Seq(doc)))
     
     def from (tree: DocumentTree): BinaryTarget = new BinaryTarget {
-      protected def renderBinary (out: Output with Binary) = processor.process(tree, render, out.asBinaryOutput)
+      protected def renderBinary (out: Output with Binary) = processor.process(tree, render, defaultTemplate, out.asBinaryOutput)
     }
     
   }

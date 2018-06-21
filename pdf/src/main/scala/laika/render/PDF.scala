@@ -28,6 +28,7 @@ import laika.io.Output.BinaryOutput
 import laika.io.OutputProvider.OutputConfig
 import laika.tree.Documents.DocumentTree
 import laika.tree.Elements.MessageLevel
+import laika.tree.Templates.TemplateRoot
 import org.apache.fop.apps.{FOUserAgentFactory, FopFactory, FopFactoryBuilder}
 import org.apache.xmlgraphics.io.{Resource, ResourceResolver}
 import org.apache.xmlgraphics.util.MimeConstants
@@ -88,8 +89,8 @@ class PDF private (val factory: XSLFO, config: Option[PDFConfig], fopFactory: Op
    *  @param render the actual render function for producing the XSL-FO output
    *  @return the rendered XSL-FO as a String 
    */
-  protected def renderFO (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit): String =
-    foForPDF.renderFO(tree, render)
+  protected def renderFO (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit, defaultTemplate: TemplateRoot): String =
+    foForPDF.renderFO(tree, render, defaultTemplate)
   
   /** Processes the tree by first using the specified render function
    *  to produce the interim XSL-FO result, transform the result to PDF and write
@@ -99,9 +100,9 @@ class PDF private (val factory: XSLFO, config: Option[PDFConfig], fopFactory: Op
    *  @param render the render function for producing the interim XSL-FO result
    *  @param output the output to write the final result to
    */  
-  def process (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit, output: BinaryOutput): Unit = {
+  def process (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit, defaultTemplate: TemplateRoot, output: BinaryOutput): Unit = {
     
-    val fo = renderFO(tree, render)
+    val fo = renderFO(tree, render, defaultTemplate)
     
     renderPDF(Input.fromString(fo), output, tree.sourcePaths)
     

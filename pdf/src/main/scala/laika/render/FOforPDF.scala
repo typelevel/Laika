@@ -36,6 +36,7 @@ import laika.tree.Templates.{TemplateContextReference, TemplateRoot}
  */
 class FOforPDF (config: Option[PDFConfig]) {
 
+
   private object DocNames {
     val treeTitle = "_title_"
     val toc = "_toc_"
@@ -170,7 +171,7 @@ class FOforPDF (config: Option[PDFConfig]) {
    *  @param render the actual render function for producing the XSL-FO output
    *  @return the rendered XSL-FO as a String 
    */
-  def renderFO (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit): String = {
+  def renderFO (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit, defaultTemplateRoot: TemplateRoot): String = {
     
     val pdfConfig = config getOrElse {
         
@@ -190,7 +191,7 @@ class FOforPDF (config: Option[PDFConfig]) {
     def getDefaultTemplate: TemplateDocument = {
       val templateName = "default.template.fo"
       tree.selectTemplate(Current / templateName)
-        .getOrElse(TemplateDocument(Root / templateName, XSLFO.defaultTemplate))
+        .getOrElse(TemplateDocument(Root / templateName, defaultTemplateRoot))
     }
     
     def append (sb: StringBuilder, result: ResultTree, src: DocumentTree): Unit = {
