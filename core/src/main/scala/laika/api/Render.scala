@@ -19,6 +19,7 @@ package laika.api
 import java.io.{File, OutputStream}
 
 import laika.api.ext.ExtensionBundle
+import laika.api.ext.ExtensionBundle.LaikaDefaults
 import laika.factory.{RenderResultProcessor, RendererFactory}
 import laika.io.Output.Binary
 import laika.io.{IO, Input, Output, OutputProvider}
@@ -68,7 +69,8 @@ import scala.io.Codec
  *  @author Jens Halm
  */
 abstract class Render[Writer] private (private[Render] val factory: RendererFactory[Writer],
-                              private[Render] val customRenderers: List[Writer => RenderFunction] = Nil) {
+                                       private[Render] val customRenderers: List[Writer => RenderFunction] = Nil,
+                                       bundles: Seq[ExtensionBundle] = Nil) {
 
   
   /** The type of the rendering target for a single input document.
@@ -134,8 +136,13 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
    *  @return a new BatchOperation instance that allows to specify the outputs
    */
   def from (tree: DocumentTree): TreeTarget
-  
-  
+
+
+  protected[this] lazy val defaultStyles: StyleDeclarationSet = {
+    val bundle = bundles.reverse.reduceLeft(_ withBase _) // TODO - move this to OperationSupport.mergedBundle
+    factory.defaultTheme.defaultStyles ++ bundle.themeFor(factory).defaultStyles
+  }
+
   /** Renders the specified element to the given output.
    * 
    *  @param element the element to render
@@ -209,7 +216,7 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
     val treeWithTpl = if (tree.selectTemplate(Current / templateName).isDefined) tree 
                       else tree.copy(templates = tree.templates :+ TemplateDocument(Root / templateName, factory.defaultTemplate)) 
     val finalTree = TemplateRewriter.applyTemplates(treeWithTpl, factory.fileSuffix)
-    val operations = collectOperations(config.provider, factory.defaultStyles, finalTree)
+    val operations = collectOperations(config.provider, defaultStyles, finalTree)
     
     (if (config.parallel) operations.par else operations) foreach (_())
   }
@@ -361,7 +368,7 @@ object Render {
    */
   class RenderMappedOutput[Writer] (factory: RendererFactory[Writer], 
                                     customRenderers: List[Writer => RenderFunction] = Nil,
-                                    bundles: Seq[ExtensionBundle] = Nil) extends Render[Writer](factory, customRenderers) {
+                                    bundles: Seq[ExtensionBundle] = Nil) extends Render[Writer](factory, customRenderers, bundles) {
     
     type DocTarget = SingleTarget
     type TreeTarget = MappedTreeTarget
@@ -374,7 +381,7 @@ object Render {
       new RenderMappedOutput(factory, customRenderers, this.bundles ++ bundles)
 
     def from (element: Element): SingleTarget = new SingleTarget {
-      protected def renderTo (out: Output) = render(element, out, factory.defaultStyles)
+      protected def renderTo (out: Output) = render(element, out, defaultStyles)
     }
     
     def from (doc: Document): SingleTarget = from(doc.content)
@@ -398,7 +405,7 @@ object Render {
    */
   class RenderGatheredOutput[Writer] (processor: RenderResultProcessor[Writer], 
                                       customRenderers: List[Writer => RenderFunction] = Nil,
-                                      bundles: Seq[ExtensionBundle] = Nil) extends Render[Writer](processor.factory, customRenderers) {
+                                      bundles: Seq[ExtensionBundle] = Nil) extends Render[Writer](processor.factory, customRenderers, bundles) {
     
     type DocTarget = BinaryTarget
     type TreeTarget = BinaryTarget
@@ -429,7 +436,7 @@ object Render {
    * 
    *  @param factory the renderer factory responsible for creating the final renderer
    */
-  def as [Writer] (factory: RendererFactory[Writer]): RenderMappedOutput[Writer] = new RenderMappedOutput(factory) 
+  def as [Writer] (factory: RendererFactory[Writer]): RenderMappedOutput[Writer] = new RenderMappedOutput(factory, bundles = Seq(LaikaDefaults))
   
   /** Returns a new Render instance for the specified processor.
    *  This instance is usually an object provided by the library
@@ -437,6 +444,6 @@ object Render {
    * 
    *  @param processor the processor responsible for processing the renderer result
    */
-  def as [Writer] (processor: RenderResultProcessor[Writer]): RenderGatheredOutput[Writer] = new RenderGatheredOutput(processor) 
+  def as [Writer] (processor: RenderResultProcessor[Writer]): RenderGatheredOutput[Writer] = new RenderGatheredOutput(processor, bundles = Seq(LaikaDefaults))
   
 }

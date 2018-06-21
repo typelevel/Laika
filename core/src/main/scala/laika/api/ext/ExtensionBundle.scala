@@ -22,11 +22,12 @@ import laika.io.{DefaultDocumentTypeMatcher, DocumentType}
 import laika.parse.core.Parser
 import laika.parse.core.markup.RecursiveParsers
 import laika.parse.css.CSSParsers
-import laika.parse.css.Styles.StyleDeclaration
+import laika.parse.css.Styles.{StyleDeclaration, StyleDeclarationSet}
 import laika.rewrite.{DocumentCursor, LinkResolver, SectionBuilder}
 import laika.tree.Documents.TemplateDocument
 import laika.tree.Elements._
 import laika.tree.Paths.Path
+import laika.tree.Templates.TemplateRoot
 
 /**
   * @author Jens Halm
@@ -130,12 +131,14 @@ object Precedence {
 }
 
 case class Theme[Writer] (customRenderers: Seq[Writer => RenderFunction] = Nil,
-                          defaultTemplate: Option[TemplateDocument] = None
+                          defaultTemplate: Option[TemplateRoot] = None,
+                          defaultStyles: StyleDeclarationSet = StyleDeclarationSet.empty
                           /*, staticDocuments: InputProvider = InputProvider.empty TODO - implement */) {
 
   def withBase(other: Theme[Writer]): Theme[Writer] = Theme(
     customRenderers ++ other.customRenderers,
-    defaultTemplate.orElse(other.defaultTemplate)
+    defaultTemplate.orElse(other.defaultTemplate),
+    other.defaultStyles ++ defaultStyles
     /* staticDocuments.merge(other.staticDocuments TODO - implement + simplify InputProvider and related types */
   )
 

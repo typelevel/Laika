@@ -16,6 +16,7 @@
 
 package laika.render
 
+import laika.api.ext.Theme
 import laika.factory.RendererFactory
 import laika.io.Output
 import laika.parse.css.Styles.StyleDeclarationSet
@@ -124,6 +125,8 @@ class PrettyPrint extends RendererFactory[TextWriter] {
       case e                              => element(e)
     }
   }
+
+  val defaultTheme = Theme()
     
 
 }

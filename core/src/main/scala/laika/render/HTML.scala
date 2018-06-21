@@ -16,6 +16,7 @@
 
 package laika.render
 
+import laika.api.ext.Theme
 import laika.tree.Documents.TemplateDocument
 import laika.tree.Elements._
 import laika.tree.Templates._
@@ -289,6 +290,10 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
   } 
   
   override lazy val defaultTemplate: TemplateRoot = HTML.templateResource.content
+
+  override def defaultTheme: Theme[HTMLWriter] = Theme[HTMLWriter](
+    defaultTemplate = Some(HTML.templateResource.content)
+  )
   
 }
 

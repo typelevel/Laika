@@ -16,6 +16,7 @@
 
 package laika.factory
 
+import laika.api.ext.Theme
 import laika.io.Output
 import laika.tree.Elements.Element
 import laika.parse.css.Styles.StyleDeclarationSet
@@ -65,9 +66,9 @@ trait RendererFactory[W] {
    */
   def defaultTemplate: TemplateRoot = TemplateRoot(List(TemplateContextReference("document.content")))
 
-  /** The default styles to add as a fallback to the explicitly specified styles.
-   */
-  def defaultStyles: StyleDeclarationSet = StyleDeclarationSet.empty
-  
+  /** The default theme to use if no theme is explicitly specified.
+    */
+  def defaultTheme: Theme[W]
+
   
 }

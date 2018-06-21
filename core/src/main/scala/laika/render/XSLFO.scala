@@ -32,6 +32,7 @@ import laika.parse.css.Styles.StyleDeclarationSet
 
 import scala.language.existentials
 import FOWriter._
+import laika.api.ext.Theme
 import laika.parse.core.combinator.Parsers
 import laika.parse.css.CSSParsers
   
@@ -67,7 +68,7 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
   
   /** Adds the specified styles to the default styles this renderer applies.
    */
-  def withStyles(additionalStyles: StyleDeclarationSet): XSLFO = new XSLFO(Some(defaultStyles ++ additionalStyles), messageLevel, renderFormatted)
+  def withStyles(additionalStyles: StyleDeclarationSet): XSLFO = new XSLFO(Some(defaultTheme.defaultStyles ++ additionalStyles), messageLevel, renderFormatted)
   
   /** The actual setup method for providing both the writer API for customized
    *  renderers as well as the actual default render function itself. The default render
@@ -314,9 +315,12 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
     }  
   } 
   
-  override lazy val defaultStyles: StyleDeclarationSet = styles.getOrElse(XSLFO.styleResource)
   override lazy val defaultTemplate: TemplateRoot = XSLFO.templateResource.content
-  
+  override def defaultTheme: Theme[FOWriter] = Theme[FOWriter](
+    defaultTemplate = Some(XSLFO.templateResource.content),
+    defaultStyles = styles.getOrElse(XSLFO.styleResource)
+  )
+
 }
 
 /** The default instance of the XSL-FO renderer.
