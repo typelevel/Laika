@@ -16,9 +16,11 @@
 
 package laika.api.ext
 import com.typesafe.config.Config
+import laika.factory.RendererFactory
 import laika.io.{DocumentType, Input}
 import laika.parse.core.Parser
 import laika.parse.css.Styles.StyleDeclaration
+import laika.render.{FOWriter, HTML, HTMLWriter, XSLFO}
 import laika.tree.Paths.Path
 
 /**
@@ -43,6 +45,24 @@ object BundleProvider {
     override def parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders(
       styleSheetParser = Some(parser)
     )
+
+  }
+
+  def forHTMLTheme (theme: Theme[HTMLWriter]): ExtensionBundle = new ExtensionBundle {
+
+    override def themeFor[Writer](rendererFactory: RendererFactory[Writer]): Theme[Writer] = rendererFactory match {
+      case _: HTML => theme
+      case _ => Theme[Writer]()
+    }
+
+  }
+
+  def forFOTheme (theme: Theme[FOWriter]): ExtensionBundle = new ExtensionBundle {
+
+    override def themeFor[Writer](rendererFactory: RendererFactory[Writer]): Theme[Writer] = rendererFactory match {
+      case _: XSLFO => theme
+      case _ => Theme[Writer]() // TODO - this might work better as partial function
+    }
 
   }
 

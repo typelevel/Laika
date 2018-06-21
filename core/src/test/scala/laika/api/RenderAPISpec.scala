@@ -19,6 +19,7 @@ package laika.api
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.StringWriter
+
 import scala.io.Codec
 import scala.io.Codec.charset2codec
 import scala.io.Source
@@ -26,6 +27,7 @@ import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
 import laika.api.Render.RenderMappedOutput
+import laika.api.ext.{BundleProvider, Theme}
 import laika.parse.css.Styles.StyleDeclarationSet
 import laika.parse.css.Styles.StyleDeclaration
 import laika.parse.css.Styles.ElementType
@@ -186,12 +188,23 @@ class RenderAPISpec extends FlatSpec
     }
   }
   
-  it should "render a tree with a single document to HTML using a custom template" in {
+  it should "render a tree with a single document to HTML using a custom template in the root directory" in {
     new HTMLRenderer {
       val template = TemplateDocument(Root / "default.template.html", tRoot(tt("["), TemplateContextReference("document.content"), tt("]")))
       val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
       val expected = """[<h1 id="title" class="title">Title</h1>
         |<p>bbb</p>]""".stripMargin
+      renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.html", expected))))))
+    }
+  }
+
+  it should "render a tree with a single document to HTML using a custom template in an extension bundle" in {
+    new HTMLRenderer {
+      val template = tRoot(tt("["), TemplateContextReference("document.content"), tt("]"))
+      override val render = Render as HTML using BundleProvider.forHTMLTheme(Theme(defaultTemplate = Some(template)))
+      val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
+      val expected = """[<h1 id="title" class="title">Title</h1>
+                       |<p>bbb</p>]""".stripMargin
       renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.html", expected))))))
     }
   }
@@ -214,6 +227,28 @@ class RenderAPISpec extends FlatSpec
         |${title("_title", "Title")}
         |<fo:block font-family="serif" font-size="10pt" space-after="3mm">bbb</fo:block>]""".stripMargin
       renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.fo", expected))))))
+    }
+  }
+
+  it should "render a tree with two documents to XSL-FO using a custom style sheet in an extension bundle" in {
+    new FORenderer {
+      override val render = Render as XSLFO using BundleProvider.forFOTheme(Theme(defaultStyles = foStyles("fo")))
+      val input = DocumentTree(Root, List(
+        Document(Root / "doc", rootElem),
+        DocumentTree(Root / "tree", List(Document(Root / "tree" / "sub", subElem)))
+      ))
+      val expectedRoot = RenderResult.fo.withDefaultTemplate(s"""${marker("Title")}
+        |      ${title("_title", "Title")}
+        |      <fo:block font-family="serif" font-size="11pt" space-after="3mm">bbb</fo:block>""".stripMargin)
+      val expectedSub = RenderResult.fo.withDefaultTemplate(s"""${marker("Sub Title")}
+        |      ${title("_sub-title", "Sub Title")}
+        |      <fo:block font-family="serif" font-size="11pt" space-after="3mm">ccc</fo:block>""".stripMargin)
+      renderedTree should be (RenderedTree(Root, List(
+        Documents(List(RenderedDocument(Root / "doc.fo", expectedRoot))),
+        Subtrees(List(RenderedTree(Root / "tree", List(
+          Documents(List(RenderedDocument(Root / "tree" / "sub.fo", expectedSub)))
+        ))))
+      )))
     }
   }
   
