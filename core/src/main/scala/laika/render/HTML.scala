@@ -289,8 +289,6 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
     }  
   } 
   
-  override lazy val defaultTemplate: TemplateRoot = HTML.templateResource.content
-
   override def defaultTheme: Theme[HTMLWriter] = Theme[HTMLWriter](
     defaultTemplate = Some(HTML.templateResource.content)
   )

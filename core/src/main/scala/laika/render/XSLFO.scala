@@ -315,7 +315,6 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
     }  
   } 
   
-  override lazy val defaultTemplate: TemplateRoot = XSLFO.templateResource.content
   override def defaultTheme: Theme[FOWriter] = Theme[FOWriter](
     defaultTemplate = Some(XSLFO.templateResource.content),
     defaultStyles = styles.getOrElse(XSLFO.styleResource)

@@ -18,10 +18,8 @@ package laika.factory
 
 import laika.api.ext.Theme
 import laika.io.Output
-import laika.tree.Elements.Element
 import laika.parse.css.Styles.StyleDeclarationSet
-import laika.tree.Templates.TemplateRoot
-import laika.tree.Templates.TemplateContextReference
+import laika.tree.Elements.Element
 
 /** Responsible for creating renderer instances for a specific output format.
  *  A renderer is simply a function of type `Element => Unit`. In addition
@@ -40,7 +38,11 @@ trait RendererFactory[W] {
    *  replaced by the suffix for the output format.
    */
   def fileSuffix: String
-  
+
+  /** The default theme to use if no theme is explicitly specified.
+    */
+  def defaultTheme: Theme[W]
+
   /** Creates a new renderer and a new writer instance for the specified
    *  output and delegate renderer. The delegate function needs to be used
    *  whenever an element renders its children, as the user might have
@@ -61,14 +63,6 @@ trait RendererFactory[W] {
    *  @return a new writer API of type `W` and a new render function
    */
   def newRenderer (out: Output, root: Element, delegate: Element => Unit, styles: StyleDeclarationSet): (W, Element => Unit)
-  
-  /** The default template to use for this renderer if no template is explicitly specified.
-   */
-  def defaultTemplate: TemplateRoot = TemplateRoot(List(TemplateContextReference("document.content")))
 
-  /** The default theme to use if no theme is explicitly specified.
-    */
-  def defaultTheme: Theme[W]
 
-  
 }
