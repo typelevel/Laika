@@ -18,7 +18,7 @@ package laika.api
 
 import java.io.{File, OutputStream}
 
-import laika.api.ext.ExtensionBundle
+import laika.api.ext.{ExtensionBundle, Theme}
 import laika.api.ext.ExtensionBundle.LaikaDefaults
 import laika.factory.{RenderResultProcessor, RendererFactory}
 import laika.io.Output.Binary
@@ -69,7 +69,6 @@ import scala.io.Codec
  *  @author Jens Halm
  */
 abstract class Render[Writer] private (private[Render] val factory: RendererFactory[Writer],
-                                       private[Render] val customRenderers: List[Writer => RenderFunction] = Nil,
                                        bundles: Seq[ExtensionBundle] = Nil) {
 
   
@@ -105,7 +104,10 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
    *  } from doc toString
    *  }}}
    */
-  def using (render: Writer => RenderFunction): ThisType
+  def using (render: Writer => RenderFunction): ThisType = using(new ExtensionBundle {
+    override def themeFor[W](rendererFactory: RendererFactory[W]): Theme[W] =
+      Theme(customRenderers = Seq(render)).asInstanceOf[Theme[W]]
+  })
 
   /** Returns a new Render instance with the specified extension bundles installed.
     *
@@ -162,6 +164,9 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
       var delegate: Element => Unit = _
       def apply (element: Element) = delegate(element)
     }
+
+    val bundle = bundles.reverse.reduceLeft(_ withBase _) // TODO - move this to OperationSupport.mergedBundle
+    val customRenderers = bundle.themeFor(factory).customRenderers
     
     IO(output) { out =>
       val (writer, renderF) = factory.newRenderer(out, element, RenderFunction, styles)
@@ -371,21 +376,17 @@ object Render {
    *  in the destination tree.
    *  
    *  @param factory the factory for the rendere to use
-   *  @param customRenderers custom renderers to be applied in addition to the default renderers
+   *  @param bundles extensions to use with this renderer
    */
   class RenderMappedOutput[Writer] (factory: RendererFactory[Writer], 
-                                    customRenderers: List[Writer => RenderFunction] = Nil,
-                                    bundles: Seq[ExtensionBundle] = Nil) extends Render[Writer](factory, customRenderers, bundles) {
+                                    bundles: Seq[ExtensionBundle] = Nil) extends Render[Writer](factory, bundles) {
     
     type DocTarget = SingleTarget
     type TreeTarget = MappedTreeTarget
     type ThisType = RenderMappedOutput[Writer]
     
-    def using (render: Writer => RenderFunction): ThisType =
-      new RenderMappedOutput(factory, render :: customRenderers, bundles)
-
     def using (bundles: ExtensionBundle*): ThisType =
-      new RenderMappedOutput(factory, customRenderers, this.bundles ++ bundles)
+      new RenderMappedOutput(factory, this.bundles ++ bundles)
 
     def from (element: Element): SingleTarget = new SingleTarget {
       protected def renderTo (out: Output) = render(element, out, defaultStyles)
@@ -408,21 +409,17 @@ object Render {
    *  be conveniently organized in a full directory structure.
    *  
    *  @param processor the processor that merges the results from the individual render operations into a single output
-   *  @param customRenderers custom renderers to be applied in addition to the default renderers
+   *  @param bundles extensions to use with this renderer
    */
   class RenderGatheredOutput[Writer] (processor: RenderResultProcessor[Writer], 
-                                      customRenderers: List[Writer => RenderFunction] = Nil,
-                                      bundles: Seq[ExtensionBundle] = Nil) extends Render[Writer](processor.factory, customRenderers, bundles) {
+                                      bundles: Seq[ExtensionBundle] = Nil) extends Render[Writer](processor.factory, bundles) {
     
     type DocTarget = BinaryTarget
     type TreeTarget = BinaryTarget
     type ThisType = RenderGatheredOutput[Writer]
     
-    def using (render: Writer => RenderFunction): ThisType =
-      new RenderGatheredOutput(processor, render :: customRenderers, bundles)
-
     def using (bundles: ExtensionBundle*): ThisType =
-      new RenderGatheredOutput(processor, customRenderers, this.bundles ++ bundles)
+      new RenderGatheredOutput(processor, this.bundles ++ bundles)
 
     def from (element: Element): BinaryTarget = 
       from(Document(Root / "target", RootElement(Seq(TemplateRoot(Seq(TemplateElement(element)))))))
