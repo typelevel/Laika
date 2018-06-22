@@ -16,19 +16,12 @@
 
 package laika.parse.markdown
 
-import laika.io.Input
-import laika.parse.markdown.html.HTMLParsers
-import laika.tree.Documents.Document
-import laika.factory.ParserFactory
+import laika.api.ext.ParserDefinitionBuilders
+import laika.directive.Directives.{Blocks, Spans}
 import laika.directive.StandardDirectives
-import laika.directive.Directives.Blocks
-import laika.directive.Directives.Spans
-import laika.parse.core.Parser
-import laika.template.TemplateParsers
-import laika.tree.Elements.Block
-import laika.tree.Elements.Header
-import laika.tree.Elements.Id
-import laika.rewrite.TreeUtil
+import laika.factory.ParserFactory
+import laika.io.Input
+import laika.tree.Documents.Document
   
 /** A parser for Markdown text. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:
@@ -148,7 +141,8 @@ class Markdown private (
   /** The actual parser function, fully parsing the specified input and
    *  returning a document tree.
    */
-  val newParser: Input => Document = (input: Input) => parser.parseDocument(input.asParserInput, input.path)
+  def newParser (parserExtensions: ParserDefinitionBuilders): Input => Document =
+    (input: Input) => parser.parseDocument(input.asParserInput, input.path)
   
 }
 

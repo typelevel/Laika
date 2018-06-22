@@ -16,7 +16,7 @@
 
 package laika.factory
 
-import laika.api.ext.ExtensionBundle
+import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders}
 import laika.io.Input
 import laika.tree.Documents.Document
 
@@ -52,7 +52,7 @@ trait ParserFactory {
    *   Such an instance is expected to be stateless and thread-safe,
    *   thus capable of repeated and parallel executions.
    */
-  def newParser: Input => Document
+  def newParser (parserExtensions: ParserDefinitionBuilders): Input => Document
   
 
 }

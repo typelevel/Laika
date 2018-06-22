@@ -19,7 +19,6 @@ package laika.api
 import java.io.{File, InputStream, Reader}
 
 import com.typesafe.config.{ConfigFactory, Config => TConfig}
-import laika.api.Parse.Parsers
 import laika.api.ext.{ConfigProvider, ExtensionBundle}
 import laika.factory.ParserFactory
 import laika.io.DocumentType._
@@ -29,7 +28,6 @@ import laika.parse.core.combinator.Parsers.{documentParserFunction, success}
 import laika.parse.css.Styles.{StyleDeclaration, StyleDeclarationSet}
 import laika.rewrite.{DocumentCursor, RewriteRules}
 import laika.tree.Documents._
-import laika.tree.Elements.RewriteRule
 import laika.tree.Paths.Path
 
 import scala.io.Codec
@@ -61,14 +59,16 @@ import scala.io.Codec
  * 
  *  @author Jens Halm
  */
-class Parse private (parsers: Parsers, rewrite: Boolean, bundles: Seq[ExtensionBundle]) {
-  
+class Parse private (parsers: Seq[ParserFactory], bundles: Seq[ExtensionBundle], rewrite: Boolean) {
+
+  private lazy val mergedBundle: ExtensionBundle = bundles.reverse.reduceLeft(_ withBase _) // TODO - move this to OperationSupport.mergedBundle
+
   /** The file suffixes recognized by this parser.
    *  When transforming entire directories only files with
    *  names ending in one of the specified suffixes will
    *  be consired. 
    */
-  val fileSuffixes: Set[String] = parsers.suffixes
+  val fileSuffixes: Set[String] = parsers flatMap (_.fileSuffixes) toSet
   
   /** Returns a new Parse instance adding the specified parser factory.
    *  This factory is usually an object provided by the library
@@ -80,21 +80,21 @@ class Parse private (parsers: Parsers, rewrite: Boolean, bundles: Seq[ExtensionB
    * 
    *  @param factory the parser factory to add to the previously specified parsers
    */
-  def or (factory: ParserFactory): Parse = new Parse(parsers.withFactory(factory), rewrite, bundles ++ factory.extensions)
+  def or (factory: ParserFactory): Parse = new Parse(parsers :+ factory, bundles ++ factory.extensions, rewrite)
 
   /** Returns a new Parse instance with the specified extension bundles installed.
     *
     * Bundles are usually provided by libraries (by Laika itself or a 3rd-party extension library)
     * or as re-usable building blocks by application code.
     */
-  def using (bundles: ExtensionBundle*): Parse = new Parse(parsers, rewrite, this.bundles ++ bundles)
+  def using (bundles: ExtensionBundle*): Parse = new Parse(parsers, this.bundles ++ bundles, rewrite)
 
   /** Returns a new Parse instance that produces raw document trees without applying
    *  the default rewrite rules. These rules resolve link and image references and 
    *  rearrange the tree into a hierarchy of sections based on the (flat) sequence
    *  of header instances found in the document.
    */
-  def withoutRewrite: Parse = new Parse(parsers, false, bundles)
+  def withoutRewrite: Parse = new Parse(parsers, bundles, rewrite = false)
   
   /** Returns a document obtained from parsing the specified string.
    *  Any kind of input is valid, including an empty string. 
@@ -137,13 +137,11 @@ class Parse private (parsers: Parsers, rewrite: Boolean, bundles: Seq[ExtensionB
    *  @param input the input for the parser
    */
   def fromInput (input: Input): Document = {
-    
-    val doc = IO(input)(parsers.forInput(input))
+
+    val doc = IO(input)(parserLookup.forInput(input))
 
     if (rewrite) {
-      val rules = RewriteRules.chain(
-        bundles.reverse.reduceLeft(_ withBase _).rewriteRules.map(_(DocumentCursor(doc)))
-      ) // TODO - move this to OperationSupport.mergedBundle
+      val rules = RewriteRules.chain(mergedBundle.rewriteRules.map(_(DocumentCursor(doc)))) // TODO - move this to OperationSupport
       doc.rewrite(rules)
     }
     else doc
@@ -217,11 +215,9 @@ class Parse private (parsers: Parsers, rewrite: Boolean, bundles: Seq[ExtensionB
    *  
    *  @param builder a builder for the configuration for the input tree to process
    */
-  def fromTree (builder: InputConfigBuilder): DocumentTree = {
-    val bundle = bundles.reverse.reduceLeft(_ withBase _) // TODO - move this to OperationSupport.mergedBundle
-    fromTree(builder.build(parsers.suffixes, bundle.docTypeMatcher))
-  }
-  
+  def fromTree (builder: InputConfigBuilder): DocumentTree =
+    fromTree(builder.build(fileSuffixes, mergedBundle.docTypeMatcher))
+
   /** Returns a document tree obtained by parsing files from the
    *  specified input configuration.
    *  
@@ -229,18 +225,16 @@ class Parse private (parsers: Parsers, rewrite: Boolean, bundles: Seq[ExtensionB
    */
   def fromTree (config: InputConfig): DocumentTree = {
 
-    val bundle = bundles.reverse.reduceLeft(_ withBase _) // TODO - move this to OperationSupport.mergedBundle
-
     case class TreeConfig (path: Path, config: TConfig)
     
     type Operation[T] = () => (DocumentType, T)
 
-    def parseMarkup (input: Input): Operation[Document] = () => (Markup, IO(input)(parsers.forInput(input)))
+    def parseMarkup (input: Input): Operation[Document] = () => (Markup, IO(input)(parserLookup.forInput(input)))
     
     def parseTemplate (docType: DocumentType)(input: Input): Operation[TemplateDocument] = () => (docType, IO(input)(config.templateParser.fromInput))
 
     def parseStyleSheet (format: String)(input: Input): Operation[StyleDeclarationSet] = () => {
-      val parser = bundle.parserDefinitions.styleSheetParser.getOrElse(success(Set.empty[StyleDeclaration]))
+      val parser = mergedBundle.parserDefinitions.styleSheetParser.getOrElse(success(Set.empty[StyleDeclaration]))
       val docF = documentParserFunction(parser, StyleDeclarationSet.forPath)
       (StyleSheet(format), IO(input)(docF))
     }
@@ -286,7 +280,7 @@ class Parse private (parsers: Parsers, rewrite: Boolean, bundles: Seq[ExtensionB
       val additionalContent: Seq[AdditionalContent] = dynamic ++ static
 
       val treeConfig = provider.configDocuments.find(_.path.name == "directory.conf").map(i => treeConfigMap(i.path))
-      val rootConfig = if (root) Seq(bundle.baseConfig) else Nil
+      val rootConfig = if (root) Seq(mergedBundle.baseConfig) else Nil
       val config = (treeConfig.toList ++ rootConfig) reduceLeftOption (_ withFallback _) getOrElse ConfigFactory.empty
 
       DocumentTree(provider.path, docs ++ trees, templates, styles, additionalContent, config, sourcePaths = provider.sourcePaths)
@@ -295,12 +289,29 @@ class Parse private (parsers: Parsers, rewrite: Boolean, bundles: Seq[ExtensionB
     val tree = collectDocuments(config.provider, root = true)
     
     if (rewrite) {
-      val rules = RewriteRules.chainFactories(bundle.rewriteRules) // TODO - move this to OperationSupport
+      val rules = RewriteRules.chainFactories(mergedBundle.rewriteRules) // TODO - move this to OperationSupport
       tree.rewrite(rules)
     } 
     else tree
   }
-  
+
+  private object parserLookup {
+
+    private def suffix (name: String): String = name.lastIndexOf(".") match {
+      case -1    => ""
+      case index => name.drop(index+1)
+    }
+
+    private lazy val map: Map[String, Input => Document] =
+      parsers flatMap (p => p.fileSuffixes map ((_, p.newParser(mergedBundle.parserDefinitions)))) toMap
+
+    def forInput (input: Input): Input => Document = {
+      if (parsers.size == 1) map.head._2
+      else map.getOrElse(suffix(input.name),
+        throw new IllegalArgumentException("Unable to determine parser based on input name: ${input.name}"))
+    }
+
+  }
   
 }
 
@@ -317,33 +328,7 @@ object Parse {
    * 
    *  @param factory the parser factory to use for all subsequent operations
    */
-  def as (factory: ParserFactory): Parse = new Parse(new Parsers(factory), rewrite = true, ExtensionBundle.LaikaDefaults +: factory.extensions)
+  def as (factory: ParserFactory): Parse = new Parse(Seq(factory),
+    ExtensionBundle.LaikaDefaults +: factory.extensions, rewrite = true)
 
-
-  private[laika] class Parsers (parsers: Seq[ParserFactory]) {
-    
-    def this (factory: ParserFactory) = this(Seq(factory))
-    
-    def withFactory (factory: ParserFactory): Parsers = new Parsers(parsers :+ factory)
-        
-    private def suffix (name: String): String = name.lastIndexOf(".") match {
-      case -1    => ""
-      case index => name.drop(index+1)
-    }  
-    
-    lazy val map: Map[String, ParserFactory] =
-      parsers flatMap (p => p.fileSuffixes map ((_, p))) toMap
-    
-    lazy val suffixes: Set[String] = parsers flatMap (_.fileSuffixes) toSet
-    
-    private def parserForInput (input: Input): ParserFactory = {
-      if (parsers.size == 1) parsers.head
-      else map.getOrElse(suffix(input.name), throw new IllegalArgumentException("Unable to determine parser based on input name: ${input.name}"))
-    }
-
-    def forInput (input: Input): Input => Document = parserForInput(input).newParser
-    
-  }
-  
-  
 }
