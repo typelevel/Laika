@@ -16,6 +16,7 @@
 
 package laika.parse.markdown.html
 
+import laika.api.ext.ParserDefinitionBuilders
 import laika.parse.core.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.parse.markdown.RootParser
@@ -32,7 +33,7 @@ class HTMLBlockParserSpec extends FlatSpec
                           with HTMLModelBuilder {
 
 
-  val rootParser = new RootParser(Map(), Map(), verbatimHTML = true, isStrict = false)
+  val rootParser = new RootParser(Map(), Map(), ParserDefinitionBuilders(), verbatimHTML = true, isStrict = false)
 
   val defaultParser: Parser[RootElement] = rootParser.rootElement
 

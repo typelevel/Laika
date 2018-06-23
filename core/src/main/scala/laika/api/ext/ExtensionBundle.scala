@@ -110,6 +110,15 @@ case class ParserDefinitionBuilders(blockParsers: Seq[ParserDefinitionBuilder[Bl
       styleSheetParser.orElse(builders.styleSheetParser)
     )
 
+  def markupParsers (recursiveParsers: RecursiveParsers): MarkupParsers =
+    MarkupParsers(blockParsers.map(_.createParser(recursiveParsers)), spanParsers.map(_.createParser(recursiveParsers)))
+
+}
+
+case class MarkupParsers (blockParsers: Seq[ParserDefinition[Block]], spanParsers: Seq[ParserDefinition[Span]]) {
+
+  def spanParserMap: Map[Char, Parser[Span]] = spanParsers.map(p => (p.startChar.get, p.parser)).toMap // TODO - handle empty startChar
+
 }
 
 trait ParserDefinitionBuilder[T] {

@@ -130,19 +130,21 @@ class Markdown private (
    */
   def strict: Markdown = new Markdown(blockDirectives, spanDirectives, verbatimHTML, true)
   
-  private lazy val parser: RootParser = {
+  private def createParser (parserExtensions: ParserDefinitionBuilders): RootParser = {
 
       lazy val blockDirectiveMap = Blocks.toMap(StandardDirectives.stdBlockDirectives ++ blockDirectives)
       lazy val spanDirectiveMap = Spans.toMap(StandardDirectives.stdSpanDirectives ++ spanDirectives)
 
-      new RootParser(blockDirectiveMap, spanDirectiveMap, verbatimHTML, isStrict)
+      new RootParser(blockDirectiveMap, spanDirectiveMap, parserExtensions, verbatimHTML, isStrict)
   }
 
   /** The actual parser function, fully parsing the specified input and
    *  returning a document tree.
    */
-  def newParser (parserExtensions: ParserDefinitionBuilders): Input => Document =
+  def newParser (parserExtensions: ParserDefinitionBuilders): Input => Document = {
+    val parser = createParser(parserExtensions)
     (input: Input) => parser.parseDocument(input.asParserInput, input.path)
+  }
   
 }
 
