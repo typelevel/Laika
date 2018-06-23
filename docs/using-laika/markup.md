@@ -119,7 +119,7 @@ To enable verbatim HTML elements you have to change this standard expression:
     
 to
 
-    Transform from (Markdown withVerbatimHTML) to HTML rendering VerbatimHTML
+    Transform from Markdown to HTML using VerbatimHTML
     
 This installs both, the required parser and renderer extensions. 
 

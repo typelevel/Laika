@@ -22,9 +22,7 @@ import laika.directive.Directives.{Blocks, Spans}
 import laika.directive.MarkupDirectiveParsers
 import laika.parse.core.Parser
 import laika.parse.core.markup.RootParserBase
-import laika.parse.core.text.TextParsers.anyOf
-import laika.parse.core.text.TextParsers.char
-import laika.parse.markdown.html.HTMLParsers
+import laika.parse.core.text.TextParsers.{anyOf, char}
 import laika.rewrite.TreeUtil
 import laika.tree.Elements._
 import laika.tree.Paths.Path
@@ -37,7 +35,6 @@ import laika.tree.Paths.Path
 class RootParser (blockDirectives: Map[String, Blocks.Directive],
                   spanDirectives:  Map[String, Spans.Directive],
                   parserExtensions: ParserDefinitionBuilders,
-                  verbatimHTML: Boolean,
                   isStrict: Boolean) extends RootParserBase {
 
   /** Parses a single escaped character, only recognizing the characters the Markdown syntax document
@@ -48,8 +45,6 @@ class RootParser (blockDirectives: Map[String, Blocks.Directive],
   override lazy val escapedChar: Parser[String] = anyOf('\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!', '>') take 1
 
   private lazy val markupParserExtensions: MarkupParsers = parserExtensions.markupParsers(this)
-
-  private val htmlParsers = if (verbatimHTML) Some(new HTMLParsers(this)) else None
 
   private val directiveParsers =
     if (!isStrict) Some(new MarkupDirectiveParsers(this, blockDirectives, spanDirectives)) else None
@@ -62,11 +57,10 @@ class RootParser (blockDirectives: Map[String, Blocks.Directive],
   protected lazy val spanParsers: Map[Char,Parser[Span]] = {
 
     val mainParsers = inlineParsers.allSpanParsers
-    val htmlSpans = htmlParsers.map(_.htmlSpanParsers).getOrElse(Map())
     val extSpans = markupParserExtensions.spanParserMap
     val directiveSpans = directiveParsers.map(_.spanParsers).getOrElse(Map())
 
-    val withHTML = mergeSpanParsers(mainParsers, htmlSpans ++ extSpans)
+    val withHTML = mergeSpanParsers(mainParsers, extSpans)
     mergeSpanParsers(withHTML, directiveSpans)
   }
 
@@ -78,10 +72,9 @@ class RootParser (blockDirectives: Map[String, Blocks.Directive],
     val mainParsers = Seq(blockParsers.rootMarkdownBlock)
 
     val blockDirectives = directiveParsers.map(_.blockDirective).toSeq
-    val htmlBlocks = htmlParsers.map(_.topLevelBlocks).toSeq.flatten
     val extBlocks = markupParserExtensions.blockParsers.map(toParser)
 
-    mergeBlockParsers(blockDirectives ++ htmlBlocks ++ extBlocks ++ mainParsers)
+    mergeBlockParsers(blockDirectives ++ extBlocks ++ mainParsers)
   }
 
   protected lazy val nestedBlock: Parser[Block] = {

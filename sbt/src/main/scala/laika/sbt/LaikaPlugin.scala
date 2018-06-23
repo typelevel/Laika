@@ -17,13 +17,14 @@
 package laika.sbt
 
 import laika.api._
+import laika.api.ext.ExtensionBundle.LaikaDefaults
 import laika.directive.Directives._
 import laika.io.Input.LazyFileInput
 import laika.io.{DocumentType, Input, InputProvider}
 import laika.io.InputProvider.{Directories, InputConfigBuilder}
 import laika.io.OutputProvider.{Directory, OutputConfigBuilder}
 import laika.parse.markdown.Markdown
-import laika.parse.markdown.html.VerbatimHTML
+import laika.parse.markdown.html.{HTMLRenderer, VerbatimHTML}
 import laika.parse.rst.TextRoles.TextRole
 import laika.parse.rst.{ExtendedHTML, ReStructuredText, Directives => rst}
 import laika.render._
@@ -162,8 +163,7 @@ object LaikaPlugin extends AutoPlugin {
 
     laikaMarkdown              := {
                                  val md = Markdown withBlockDirectives (laikaBlockDirectives.value: _*) withSpanDirectives (laikaSpanDirectives.value: _*)
-                                 val md2 = if (laikaRawContent.value) md.withVerbatimHTML else md
-                                 if (laikaStrict.value) md2.strict else md2
+                                 if (laikaStrict.value) md.strict else md
                                },
 
     laikaReStructuredText      := {
@@ -174,7 +174,10 @@ object LaikaPlugin extends AutoPlugin {
                                  if (laikaStrict.value) rst2.strict else rst2
                                },
 
-    laikaMarkupParser          := (Parse as laikaMarkdown.value or laikaReStructuredText.value withoutRewrite),
+    laikaMarkupParser          := {
+                                 val parser = Parse.as(laikaMarkdown.value).or(laikaReStructuredText.value).withoutRewrite
+                                 if (laikaRawContent.value) parser using VerbatimHTML else parser
+                               },
 
     laikaTemplateParser        := (ParseTemplate as DefaultTemplate.withDirectives(laikaTemplateDirectives.value: _*)),
 
@@ -277,7 +280,7 @@ object LaikaPlugin extends AutoPlugin {
       val formats = spaceDelimited("<format>").parsed.map(OutputFormats.OutputFormat.fromString)
       if (formats.isEmpty) throw new IllegalArgumentException("At least one format must be specified")
 
-      val inputs = laikaInputTree.value.build(laikaMarkupParser.value.fileSuffixes, laikaDocTypeMatcher.value.getOrElse(PartialFunction.empty))
+      val inputs = laikaInputTree.value.build(laikaMarkupParser.value.fileSuffixes, laikaDocTypeMatcher.value.getOrElse(LaikaDefaults.docTypeMatcher))
 
       val cacheDir = streams.value.cacheDirectory / "laika"
 
@@ -307,7 +310,7 @@ object LaikaPlugin extends AutoPlugin {
               val targetDir = prepareTargetDirectory(laikaSite).value.prepare
 
               val html = laikaRenderMessageLevel.value map (HTML withMessageLevel) getOrElse HTML
-              val renderers = laikaSiteRenderers.value :+ VerbatimHTML :+ ExtendedHTML // always install Markdown and rst extensions
+              val renderers = laikaSiteRenderers.value :+ HTMLRenderer :+ ExtendedHTML // always install extensions
               val render = prepareRenderer(Render as html, renderers)
               render from tree toTree (laikaOutputTree in laikaSite).value
 

@@ -16,6 +16,7 @@
 
 package laika.parse.markdown.html
 
+import laika.api.ext.{BlockParser, ParserDefinitionBuilder, SpanParser}
 import laika.parse.core.Parser
 import laika.parse.core.markup.InlineParsers._
 import laika.parse.core.markup.RecursiveSpanParsers
@@ -31,8 +32,7 @@ import laika.util.~
  * 
  *  @author Jens Halm
  */
-class HTMLParsers (recParsers: RecursiveSpanParsers) {
-
+object HTMLParsers {
 
 
   private val htmlWSChars = List(' ','\t','\f','\n','\r')
@@ -141,32 +141,30 @@ class HTMLParsers (recParsers: RecursiveSpanParsers) {
   /** Parses an HTML element without the leading `'<'`, but including
     * all the nested HTML and Text elements, as well as any nested Markdown spans.
     */
-  lazy val htmlElementWithNestedMarkdown: Parser[HTMLElement] = htmlStartTag >> {
+  def htmlElementWithNestedMarkdown (recParsers: RecursiveSpanParsers): Parser[HTMLElement] = htmlStartTag >> {
     tag => recParsers.delimitedRecursiveSpans(htmlEndTag(tag.name)) ^^ {
       spans => HTMLElement(tag, spans)
     }
   }
-  
-  
+
   /** Parses any of the HTML span elements supported by this trait, plus standard markdown inside HTML elements.
-   */
-  lazy val htmlSpanWithNestedMarkdown: Parser[HTMLSpan] = htmlComment | htmlEmptyElement | htmlElementWithNestedMarkdown | htmlEndTag | htmlStartTag
-  
+    */
+  val htmlSpan: ParserDefinitionBuilder[Span] = SpanParser.forStartChar('<').recursive { recParsers =>
+    htmlComment | htmlEmptyElement | htmlElementWithNestedMarkdown(recParsers) | htmlEndTag | htmlStartTag
+  }
+
+  /** Parses a numeric or named character reference.
+    */
+  val htmlCharRef: ParserDefinitionBuilder[Span] = SpanParser.forStartChar('&').standalone(htmlCharReference)
+
   /** Parses any of the HTML span elements supported by this trait, but no standard markdown inside HTML elements.
    */
-  lazy val htmlSpan: Parser[HTMLSpan] = htmlComment | htmlEmptyElement | htmlElement | htmlEndTag | htmlStartTag
+  lazy val htmlSpanInsideBlock: Parser[HTMLSpan] = htmlComment | htmlEmptyElement | htmlElement | htmlEndTag | htmlStartTag
   
   
   private def mkString (result: ~[Char,String]): String = result._1.toString + result._2
 
 
-  /** The mapping of start characters to their corresponding HTML span parsers.
-   */
-  lazy val htmlSpanParsers: Map[Char, Parser[Span]] = Map(
-    '<' -> htmlSpanWithNestedMarkdown,
-    '&' -> htmlCharReference
-  )
-  
   
   /**
    * Elements that the HTML specification does not define as "Phrasing Content".
@@ -191,7 +189,7 @@ class HTMLParsers (recParsers: RecursiveSpanParsers) {
   }
 
   private lazy val htmlBlockParsers: Map[Char, Parser[Span]] = Map(
-    '<' -> htmlSpan,    
+    '<' -> htmlSpanInsideBlock,
     '&' -> htmlCharReference
   )
   
@@ -206,7 +204,7 @@ class HTMLParsers (recParsers: RecursiveSpanParsers) {
 
   lazy val htmlBlockElement: Parser[Block] = '<' ~> (htmlComment | htmlEmptyElement | htmlStartTag) <~ wsEol ~ blankLine
 
-  lazy val topLevelBlocks: Seq[Parser[Block]] = Seq(htmlBlock, htmlBlockElement)
+  lazy val htmlBlockFragment: ParserDefinitionBuilder[Block] = BlockParser.withoutStartChar.standalone(htmlBlock | htmlBlockElement) // TODO - keep separate + set as rootOnly
 
 
 }

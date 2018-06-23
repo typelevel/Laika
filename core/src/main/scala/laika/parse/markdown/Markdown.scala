@@ -39,7 +39,7 @@ import laika.tree.Documents.Document
  *  It must be enabled explicitly:
  *  
  *  {{{
- *  val document = Parse as (Markdown withVerbatimHTML) fromFile "hello.md"
+ *  val document = Parse as Markdown using VerbatimHTML fromFile "hello.md"
  *  }}}
  *  
  *  The methods `withSpanDirectives` and `withBlockDirectives` allow to 
@@ -60,7 +60,6 @@ import laika.tree.Documents.Document
 class Markdown private (
     blockDirectives: List[Blocks.Directive],
     spanDirectives: List[Spans.Directive],
-    verbatimHTML: Boolean,
     isStrict: Boolean) extends ParserFactory {
 
   
@@ -87,7 +86,7 @@ class Markdown private (
    *  For more details on implementing Laika directives see [[laika.directive.Directives]].
    */     
   def withBlockDirectives (directives: Blocks.Directive*): Markdown =
-    new Markdown(blockDirectives ++ directives, spanDirectives, verbatimHTML, isStrict)      
+    new Markdown(blockDirectives ++ directives, spanDirectives, isStrict)
   
   /** Adds the specified Laika directives and returns a new instance of the parser.
    * 
@@ -114,28 +113,21 @@ class Markdown private (
    *  For more details on implementing Laika directives see [[laika.directive.Directives]].
    */ 
   def withSpanDirectives (directives: Spans.Directive*): Markdown = 
-    new Markdown(blockDirectives, spanDirectives ++ directives, verbatimHTML, isStrict)  
-  
-  /** Returns a Markdown parser that also parses verbatim HTML elements alongside
-   *  the standard Markdown markup. Usually only recommended when used together
-   *  with an HTML renderer, as such a parser returns a document tree that contains
-   *  HTML elements which some parsers would not know how to handle.
-   */
-  def withVerbatimHTML: Markdown = new Markdown(blockDirectives, spanDirectives, true, isStrict)
+    new Markdown(blockDirectives, spanDirectives ++ directives, isStrict)
   
   /** Turns strict mode on for the returned parser, switching off any
    *  features not part of the original Markdown syntax.
    *  This includes the registration of directives (custom tags) as well as configuration
    *  sections at the start of the document or id generation for all headers.
    */
-  def strict: Markdown = new Markdown(blockDirectives, spanDirectives, verbatimHTML, true)
+  def strict: Markdown = new Markdown(blockDirectives, spanDirectives, true)
   
   private def createParser (parserExtensions: ParserDefinitionBuilders): RootParser = {
 
       lazy val blockDirectiveMap = Blocks.toMap(StandardDirectives.stdBlockDirectives ++ blockDirectives)
       lazy val spanDirectiveMap = Spans.toMap(StandardDirectives.stdSpanDirectives ++ spanDirectives)
 
-      new RootParser(blockDirectiveMap, spanDirectiveMap, parserExtensions, verbatimHTML, isStrict)
+      new RootParser(blockDirectiveMap, spanDirectiveMap, parserExtensions, isStrict)
   }
 
   /** The actual parser function, fully parsing the specified input and
@@ -152,4 +144,4 @@ class Markdown private (
  * 
  *  @author Jens Halm
  */
-object Markdown extends Markdown(Nil,Nil,false,false)
+object Markdown extends Markdown(Nil, Nil, false)

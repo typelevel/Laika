@@ -16,14 +16,13 @@
 
 package laika.parse.markdown
 
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
 import laika.api.Transform
 import laika.parse.markdown.html.VerbatimHTML
 import laika.render.HTML
 import laika.transform.helper.FileTransformerUtil
-import laika.tree.Elements.Literal
 import laika.tree.Elements.QuotedBlock
+import org.scalatest.{FlatSpec, Matchers}
+
 import scala.io.Codec
 
 /**
@@ -53,9 +52,9 @@ class MarkdownToHTMLSpec extends FlatSpec
 
   def transformAndCompare (name: String): Unit = {
     val path = classPathResource("/markdownTestSuite") + "/" + name
-    val actual = Transform from Markdown.withVerbatimHTML.strict to HTML rendering { out => {
+    val actual = Transform from Markdown.strict to HTML using VerbatimHTML rendering { out => {
       case QuotedBlock(content,_,_) => out << "<blockquote>" <<|>  content <<| "</blockquote>" // Markdown always writes p tags inside blockquotes
-    }} rendering VerbatimHTML fromFile (path + ".md") toString
+    }} fromFile (path + ".md") toString
     val expected = readFile(path + ".html")
     tidyAndAdjust(actual) should be (tidyAndAdjust(expected))
   }

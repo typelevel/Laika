@@ -32,7 +32,7 @@ class InlineParsersSpec extends FlatSpec
                         with ModelBuilder {
 
 
-  val rootParser = new RootParser(Map(), Map(), ParserDefinitionBuilders(), verbatimHTML = false, isStrict = false)
+  val rootParser = new RootParser(Map(), Map(), ParserDefinitionBuilders(), isStrict = false)
 
   val defaultParser: Parser[List[Span]] = rootParser.recursiveSpans
 

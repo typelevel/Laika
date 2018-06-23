@@ -19,12 +19,10 @@ package laika.api.ext
 import com.typesafe.config.{Config, ConfigFactory}
 import laika.factory.RendererFactory
 import laika.io.{DefaultDocumentTypeMatcher, DocumentType}
-import laika.parse.core.Parser
 import laika.parse.core.markup.RecursiveParsers
 import laika.parse.css.CSSParsers
-import laika.parse.css.Styles.{StyleDeclaration, StyleDeclarationSet}
+import laika.parse.css.Styles.StyleDeclarationSet
 import laika.rewrite.{DocumentCursor, LinkResolver, SectionBuilder}
-import laika.tree.Documents.TemplateDocument
 import laika.tree.Elements._
 import laika.tree.Paths.Path
 import laika.tree.Templates.TemplateRoot
@@ -95,48 +93,6 @@ trait ExtensionFactory {
 
   def create (recursiveParsers: RecursiveParsers): ExtensionBundle
 
-}
-
-case class ParserDefinitionBuilders(blockParsers: Seq[ParserDefinitionBuilder[Block]] = Nil,
-                                    spanParsers: Seq[ParserDefinitionBuilder[Span]] = Nil,
-                                    configHeaderParsers: Seq[Parser[Either[InvalidBlock, Config]]] = Nil,
-                                    styleSheetParser: Option[Parser[Set[StyleDeclaration]]] = None) {
-
-  def withBase(builders: ParserDefinitionBuilders): ParserDefinitionBuilders =
-    ParserDefinitionBuilders(
-      blockParsers ++ builders.blockParsers,
-      spanParsers ++ builders.spanParsers,
-      configHeaderParsers ++ builders.configHeaderParsers,
-      styleSheetParser.orElse(builders.styleSheetParser)
-    )
-
-  def markupParsers (recursiveParsers: RecursiveParsers): MarkupParsers =
-    MarkupParsers(blockParsers.map(_.createParser(recursiveParsers)), spanParsers.map(_.createParser(recursiveParsers)))
-
-}
-
-case class MarkupParsers (blockParsers: Seq[ParserDefinition[Block]], spanParsers: Seq[ParserDefinition[Span]]) {
-
-  def spanParserMap: Map[Char, Parser[Span]] = spanParsers.map(p => (p.startChar.get, p.parser)).toMap // TODO - handle empty startChar
-
-}
-
-trait ParserDefinitionBuilder[T] {
-
-  def createParser (recursiveParsers: RecursiveParsers): ParserDefinition[T]
-
-}
-
-case class ParserDefinition[T] (startChar: Option[Char],
-                                parser: Parser[T],
-                                isRecursive: Boolean,
-                                useInRecursion: Boolean,
-                                precedence: Precedence)
-
-sealed trait Precedence
-object Precedence {
-  object High extends Precedence
-  object Low extends Precedence
 }
 
 case class Theme[Writer] (customRenderers: Seq[Writer => RenderFunction] = Nil,

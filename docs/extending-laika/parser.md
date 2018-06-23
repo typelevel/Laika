@@ -64,11 +64,6 @@ The built-in `Markdown` object is an example. Since it does extend that function
 you can easily use it in expressions like this:
 
     val transform = Transform from Markdown to HTML
-    
-When you want to specify options (`Markdown` currently has only one) you can do this
-inline:
-
-    val transform = Transform from (Markdown withVerbatimHTML) to HTML
 
 You can achieve this by providing a trait that offers all the available configuration
 hooks and returns `this` for each of these methods for easy chaining. Additionally
@@ -79,20 +74,17 @@ could look (Scaladoc comments, imports and various extension hooks removed for b
 
     package laika.parse.markdown
     
-    class Markdown private (verbatimHTML: Boolean, isStrict: Boolean) 
-                                                   extends ParserFactory {
+    class Markdown private (isStrict: Boolean) extends ParserFactory {
 
       val fileSuffixes = Set("md", "markdown")
       
-      def withVerbatimHTML = new Markdown(true, isStrict)
-      
-      def strict = new Markdown(verbatimHTML, true)
+      def strict = new Markdown(true)
   
       private lazy val parser = {
         lazy val blockDirectives = ...
         lazy val spanDirectives = ...
         
-        new RootParser(blockDirectives, spanDirectives, verbatimHTML, isStrict)
+        new RootParser(blockDirectives, spanDirectives, isStrict)
       }
 
       val newParser: Input => Document = 
@@ -100,7 +92,7 @@ could look (Scaladoc comments, imports and various extension hooks removed for b
   
     }
 
-    object Markdown extends Markdown(false, false) 
+    object Markdown extends Markdown(false) 
 
 As you see, all the low-level parsing details are left in the root parser, this is
 just a wrapper for providing a convenient public API. Support for reStructuredText
