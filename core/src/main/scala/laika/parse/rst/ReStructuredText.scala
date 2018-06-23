@@ -16,16 +16,17 @@
 
 package laika.parse.rst
 
-import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders}
+import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders, Theme}
 import laika.directive.Directives.{Blocks, Spans}
 import laika.directive.StandardDirectives
-import laika.factory.ParserFactory
+import laika.factory.{ParserFactory, RendererFactory}
 import laika.io.Input
 import laika.parse.core.ParserContext
 import laika.parse.rst.Directives._
 import laika.parse.rst.TextRoles._
 import laika.parse.rst.ext._
 import laika.parse.util.WhitespacePreprocessor
+import laika.render.{HTML, HTMLWriter}
 import laika.rewrite.DocumentCursor
 import laika.tree.Documents.Document
 import laika.tree.Elements._
@@ -95,7 +96,11 @@ class ReStructuredText private (
 
   val extensions = Seq(new ExtensionBundle {
     override def rewriteRules: Seq[DocumentCursor => RewriteRule] = Seq(RewriteRules)
-    // TODO - add custom renderers
+
+    override def themeFor[Writer](rendererFactory: RendererFactory[Writer]): Theme[Writer] = rendererFactory match {
+      case _: HTML => Theme[HTMLWriter](customRenderers = Seq(ExtendedHTML))
+      case _ => Theme[Writer]() // TODO - refactor to return Option instead
+    }
   })
 
   /** Adds the specified directives and returns a new instance of the parser.
@@ -235,7 +240,7 @@ class ReStructuredText private (
         laikaBlockDirectives, laikaSpanDirectives, rawContent, true)
 
 
-  private lazy val parser: RootParser = {
+  private def createParser (parserExtensions: ParserDefinitionBuilders): RootParser = {
 
     val allLaikaBlockDirectives = Blocks.toMap(StandardDirectives.stdBlockDirectives ++ laikaBlockDirectives)
     val allLaikaSpanDirectives = Spans.toMap(StandardDirectives.stdSpanDirectives ++ laikaSpanDirectives)
@@ -251,7 +256,7 @@ class ReStructuredText private (
     val rstSpanDirectives  = stdSpans.spanDirectives   ++ spanDirectives
     val rstTextRoles       = stdTextRoles.allRoles     ++ textRoles       ++ rawTextRole
 
-    new RootParser(allLaikaBlockDirectives, allLaikaSpanDirectives,
+    new RootParser(parserExtensions, allLaikaBlockDirectives, allLaikaSpanDirectives,
       rstBlockDirectives, rstSpanDirectives, rstTextRoles, defaultTextRole, isStrict)
   }
 
@@ -261,7 +266,7 @@ class ReStructuredText private (
   def newParser (parserExtensions: ParserDefinitionBuilders): Input => Document = input => {
     val raw = input.asParserInput.input
     val preprocessed = (new WhitespacePreprocessor)(raw.toString)
-    parser.parseDocument(ParserContext(preprocessed), input.path)
+    createParser(parserExtensions).parseDocument(ParserContext(preprocessed), input.path)
   }
   
 }

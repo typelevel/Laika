@@ -85,7 +85,7 @@ class ReStructuredTextToHTMLSpec extends FlatSpec
       case QuotedBlock(content,attr,opt) => out <<@ ("blockquote",opt); renderBlocks(quotedBlockContent(content,attr), "</blockquote>")
       case InternalLinkTarget(opt)       => out <<@ ("span",opt) << "</span>"
       case i: InvalidBlock               => ()
-    }} rendering ExtendedHTML fromFile (path + ".rst") toString
+    }} fromFile (path + ".rst") toString
     
     val expected = readFile(path + "-tidy.html")
     tidyAndAdjust(actual) should be (expected)

@@ -437,7 +437,9 @@ object Transform {
   /** Step in the setup for a transform operation where the
    *  renderer must be specified.
    */
-  class Builder private[Transform] (parse: Parse) {
+  class Builder private[Transform] (factories: Seq[ParserFactory]) {
+
+    lazy val parse = factories.tail.foldLeft(Parse.as(factories.head))(_ or _)
 
     /** Returns a new Builder instance adding the specified parser factory.
      *  This factory is usually an object provided by the library
@@ -450,7 +452,7 @@ object Transform {
      *  @param factory the parser factory to add to the previously specified parsers
      *  @return a new Builder instance
      */
-    def or (factory: ParserFactory): Builder = new Builder(parse or factory)
+    def or (factory: ParserFactory): Builder = new Builder(factories :+ factory)
     
     /** Creates and returns a new Transform instance for the specified renderer and the
      *  previously specified parser. The returned instance is stateless and reusable for
@@ -460,7 +462,7 @@ object Transform {
      *  @return a new Transform instance
      */
     def to [Writer] (factory: RendererFactory[Writer]): TransformMappedOutput[Writer] = 
-      new TransformMappedOutput(parse, Render as factory)
+      new TransformMappedOutput(parse, Render as factory using (factories.flatMap(_.extensions):_*))
     
     /** Creates and returns a new Transform instance for the specified renderer and the
      *  previously specified parser. The returned instance is stateless and reusable for
@@ -470,7 +472,7 @@ object Transform {
      *  @return a new Transform instance
      */
     def to [Writer] (processor: RenderResultProcessor[Writer]): TransformGatheredOutput[Writer] = 
-      new TransformGatheredOutput(parse, Render as processor)
+      new TransformGatheredOutput(parse, Render as processor using (factories.flatMap(_.extensions):_*))
     
   }
   
@@ -484,7 +486,7 @@ object Transform {
    *  @param factory the parser factory to use
    *  @return a new Builder instance for specifying the renderer
    */
-  def from (factory: ParserFactory): Builder = new Builder(Parse as factory)
+  def from (factory: ParserFactory): Builder = new Builder(Seq(factory))
   
   
 }
