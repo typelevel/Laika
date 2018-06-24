@@ -30,7 +30,7 @@ class BlockParsersSpec extends FlatSpec
                        with ModelBuilder {
 
 
-  val rootParser = new RootParser(Map(), Map(), ParserDefinitionBuilders(), isStrict = true)
+  val rootParser = new RootParser(ParserDefinitionBuilders(), isStrict = true)
 
   val defaultParser: Parser[RootElement] = rootParser.rootElement
   

@@ -19,6 +19,7 @@ package laika.sbt
 import laika.api._
 import laika.api.ext.ExtensionBundle.LaikaDefaults
 import laika.directive.Directives._
+import laika.directive.DirectiveRegistry
 import laika.io.Input.LazyFileInput
 import laika.io.{DocumentType, Input, InputProvider}
 import laika.io.InputProvider.{Directories, InputConfigBuilder}
@@ -162,20 +163,22 @@ object LaikaPlugin extends AutoPlugin {
     laikaRawContent            := false,
 
     laikaMarkdown              := {
-                                 val md = Markdown withBlockDirectives (laikaBlockDirectives.value: _*) withSpanDirectives (laikaSpanDirectives.value: _*)
-                                 if (laikaStrict.value) md.strict else md
+                                 if (laikaStrict.value) Markdown.strict else Markdown
                                },
 
     laikaReStructuredText      := {
-                                 val rst = ReStructuredText withLaikaBlockDirectives (laikaBlockDirectives.value: _*) withLaikaSpanDirectives
-                                   (laikaSpanDirectives.value: _*) withBlockDirectives (rstBlockDirectives.value: _*) withSpanDirectives
+                                 val rst = ReStructuredText withBlockDirectives (rstBlockDirectives.value: _*) withSpanDirectives
                                    (rstSpanDirectives.value: _*) withTextRoles (rstTextRoles.value: _*)
                                  val rst2 = if (laikaRawContent.value) rst.withRawContent else rst
                                  if (laikaStrict.value) rst2.strict else rst2
                                },
 
     laikaMarkupParser          := {
-                                 val parser = Parse.as(laikaMarkdown.value).or(laikaReStructuredText.value).withoutRewrite
+                                 object directives extends DirectiveRegistry {
+                                   val blockDirectives = laikaBlockDirectives.value
+                                   val spanDirectives = laikaSpanDirectives.value
+                                 }
+                                 val parser = Parse.as(laikaMarkdown.value).or(laikaReStructuredText.value).withoutRewrite.using(directives)
                                  if (laikaRawContent.value) parser using VerbatimHTML else parser
                                },
 

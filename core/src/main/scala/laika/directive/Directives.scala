@@ -66,14 +66,17 @@ import laika.util.~
  *  {{{
  *  case class Note (title: String, content: Seq[Span], options: Options = NoOpt) 
  *                                                      extends Span with SpanContainer[Note]
- *  
- *  val md = Markdown withSpanDirectives (
- *    Spans.create("note") {
- *      (attribute(Default) ~ body(Default)) (Note(_,_))
- *    }
- *  )
- *     
- *  Transform from md to HTML fromFile "hello.md" toFile "hello.html"   
+ *
+ *  object MyDirectives extends DirectiveRegistry {
+ *    val spanDirectives = Seq(
+ *      Spans.create("note") {
+ *        (attribute(Default) ~ body(Default)) (Note(_,_))
+ *      }
+ *    )
+ *    val blockDirectives = Seq()
+ *  }
+ *
+ *  Transform from Markdown to HTML using MyDirectives fromFile "hello.md" toFile "hello.html"
  *  }}}
  * 
  *  The `attribute(Default)` combinator specifies a required attribue of type `String` (since no conversion
@@ -97,12 +100,12 @@ import laika.util.~
  *                      content: Seq[Block], 
  *                      options: Options = NoOpt) extends Block 
  *                                                with BlockContainer[Message]
- * 
- *  val md = Markdown withBlockDirectives (
- *    BlockDirective("message") {
+ *
+ *  val blockDirectives = Seq(
+ *    Blocks.create("message") {
  *      (attribute(Default, positiveInt) ~ blockContent) (Message(_,_))
  *    }
- *  )    
+ *  )
  *  }}}
  * 
  *  In the example above the built-in `positiveInt` converter gets passed to the `attribute`
@@ -125,8 +128,8 @@ import laika.util.~
  *                      options: Options = NoOpt) extends Block 
  *                                                with BlockContainer[Message]
  * 
- *  val md = Markdown withBlockDirectives (
- *    BlockDirective("message") {
+ *  val blockDirectives = Seq(
+ *    Blocks.create("message") {
  *      (attribute(Default, positiveInt).optional ~ blockContent) (Message(_,_))
  *    }
  *  )    

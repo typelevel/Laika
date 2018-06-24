@@ -20,6 +20,7 @@ import java.io.{File, InputStream, Reader}
 
 import com.typesafe.config.{ConfigFactory, Config => TConfig}
 import laika.api.ext.{ConfigProvider, ExtensionBundle}
+import laika.directive.DirectiveSupport
 import laika.factory.ParserFactory
 import laika.io.DocumentType._
 import laika.io.InputProvider._
@@ -61,7 +62,7 @@ import scala.io.Codec
  */
 class Parse private (parsers: Seq[ParserFactory], bundles: Seq[ExtensionBundle], rewrite: Boolean) {
 
-  private lazy val mergedBundle: ExtensionBundle = bundles.reverse.reduceLeft(_ withBase _) // TODO - move this to OperationSupport.mergedBundle
+  private lazy val mergedBundle: ExtensionBundle = ExtensionBundle.mergeBundles(bundles)
 
   /** The file suffixes recognized by this parser.
    *  When transforming entire directories only files with
@@ -329,6 +330,6 @@ object Parse {
    *  @param factory the parser factory to use for all subsequent operations
    */
   def as (factory: ParserFactory): Parse = new Parse(Seq(factory),
-    ExtensionBundle.LaikaDefaults +: factory.extensions, rewrite = true)
+    Seq(ExtensionBundle.LaikaDefaults, DirectiveSupport) ++ factory.extensions, rewrite = true)
 
 }

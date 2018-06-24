@@ -164,23 +164,18 @@ file in the `project` directory and then referenced from your
 and then added as a dependency of your build.
 
 
-**Markdown**:
+**Embedded**:
 
-    Transform from Markdown.withSpanDirectives(directive) to 
-      HTML fromFile "hello.md" toFile "hello.html"   
+    object MyDirectives extends DirectiveRegistry {
+      val spanDirectives = Seq(directive)
+      val blockDirectives = Seq()
+    }
+
+    Transform from Markdown to HTML using 
+      MyDirectives fromFile "hello.md" toFile "hello.html"   
 
 The `directive` variable refers to the instance we created above.
 We can now use our `ticket` directive in Markdown files!
-
-
-**reStructuredText**:
-
-    Transform from ReStructuredText.withLaikaSpanDirectives(directive) to 
-      HTML fromFile "hello.md" toFile "hello.html"  
-
-The only difference here is that the method name is `withLaikaSpanDirectives`
-as reStructuredText comes with its own concept of directives which is only
-supported in the reStructuredText parser.
 
 
 **Templates**:
@@ -381,15 +376,15 @@ Registration:
     // for Markdown and reStructuredText with sbt plugin:
     laikaSpanDirectives += directive // in build.sbt
 
-    // for Markdown with Transform API or Parse API:
-    Transform from Markdown.withSpanDirectives(directive) to ...
-    Parse as Markdown.withSpanDirectives(directive) from ...
+    // for Markdown and reStructuredText with Transform API or Parse API:
+    object MyDirectives extends DirectiveRegistry {
+      val spanDirectives = Seq(directive)
+      val blockDirectives = Seq()
+    }
+    Transform from Markdown to HTML using MyDirectives from...
+    Parse as Markdown using MyDirectives from...
+
     
-    // for reStructuredText with Transform API or Parse API:
-    Transform from ReStructuredText.withLaikaSpanDirectives(directive) to ...
-    Parse as ReStructuredText.withLaikaSpanDirectives(directive) from ...
-
-
 ### Block Directives
 
 Use: in block elements in text markup files
@@ -411,14 +406,14 @@ Registration:
     // for Markdown and reStructuredText with sbt plugin:
     laikaBlockDirectives += directive // in build.sbt
 
-    // for Markdown with Transform API or Parse API:
-    Transform from Markdown.withBlockDirectives(directive) to ...
-    Parse as Markdown.withBlockDirectives(directive) from ...
+    // for Markdown and reStructuredText with Transform API or Parse API:
+    object MyDirectives extends DirectiveRegistry {
+      val spanDirectives = Seq()
+      val blockDirectives = Seq(directive)
+    }
+    Transform from Markdown to HTML using MyDirectives from...
+    Parse as Markdown using MyDirectives from...
     
-    // for reStructuredText with Transform API or Parse API:
-    Transform from ReStructuredText.withLaikaBlockDirectives(directive) to ...
-    Parse as ReStructuredText.withLaikaBlockDirectives(directive) from ...
-
 
 ### Template Directives
 

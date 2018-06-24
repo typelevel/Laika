@@ -17,6 +17,7 @@
 package laika.directive
 
 import com.typesafe.config.Config
+import laika.api.ext.{BlockParser, ParserDefinitionBuilder, SpanParser}
 import laika.directive.Directives._
 import laika.parse.core.markup._
 import laika.parse.core.text.TextParsers._
@@ -33,7 +34,7 @@ import laika.util.~
  *  
  *  @author Jens Halm
  */
-class DirectiveParsers (escapedText: EscapedTextParsers) {
+object DirectiveParsers {
   
   
   /** Groups the result of the parser and the source string
@@ -77,7 +78,7 @@ class DirectiveParsers (escapedText: EscapedTextParsers) {
   /** Parses a full directive declaration, containing all its attributes,
    *  but not the body elements.
    */
-  lazy val declaration: Parser[(String, List[Part])] = {
+  def declarationParser (escapedText: EscapedTextParsers): Parser[(String, List[Part])] = {
     
     lazy val attrName: Parser[String] = nameDecl <~ wsOrNl ~ '=' ~ wsOrNl
   
@@ -101,10 +102,13 @@ class DirectiveParsers (escapedText: EscapedTextParsers) {
    *  all attributes and all body elements.
    *  
    *  @param bodyContent the parser for the body content which is different for a block directive than for a span or template directive
+   *  @param escapedText the parser for escape sequences according to the rules of the host markup language
    *  @param includeStartChar indicates whether the starting '@' has to be parsed by this parser
    */
-  def directiveParser (bodyContent: Parser[String], includeStartChar: Boolean): Parser[ParsedDirective] = {
-    
+  def directiveParser (bodyContent: Parser[String], escapedText: EscapedTextParsers, includeStartChar: Boolean): Parser[ParsedDirective] = {
+
+    val declaration = declarationParser(escapedText)
+
     val defaultBody: Parser[Part] = not(wsOrNl ~> bodyName) ~> bodyContent ^^ { Part(Body(Default),_) }
     
     val body: Parser[Part] = wsOrNl ~> bodyName ~ bodyContent ^^ { case name ~ content => Part(Body(name), content) }
@@ -154,47 +158,39 @@ class DirectiveParsers (escapedText: EscapedTextParsers) {
     }) 
   }
   
-  val nestedBraces = delimitedBy('}') ^^ (str => Text(s"{$str}"))
+  val nestedBraces: Parser[Text] = delimitedBy('}') ^^ (str => Text(s"{$str}"))
+
+  // TODO - move this to config header parser extension
+  def configHeader (path: Path): Parser[Either[InvalidBlock,Config]] = ConfigParser.forPath(path, {
+    (ex: Exception, str: String) => InvalidBlock(SystemMessage(laika.tree.Elements.Error,
+      "Error parsing config header: "+ex.getMessage), LiteralBlock(s"{%$str%}"))
+  })
   
 }
 
-
-/** Provides the parsers for directives in markup documents.
+/** Provides the parser definitions for span directives in markup documents.
   */
-class MarkupDirectiveParsers(recParsers: RecursiveParsers,
-                             blockDirectives: Map[String, Blocks.Directive],
-                             spanDirectives: Map[String, Spans.Directive]) {
+object SpanDirectiveParsers {
 
-  val directiveParsers = new DirectiveParsers(recParsers)
-
-  import directiveParsers._
-  import BlockParsers._
-  import recParsers._
-
+  import DirectiveParsers._
 
   case class DirectiveSpan (f: DocumentCursor => Span, options: Options = NoOpt) extends SpanResolver {
     def resolve (cursor: DocumentCursor) = f(cursor)
   }
 
-  case class DirectiveBlock (f: DocumentCursor => Block, options: Options = NoOpt) extends BlockResolver {
-    def resolve (cursor: DocumentCursor) = f(cursor)
-  }
+  val contextRef: ParserDefinitionBuilder[Span] =
+    SpanParser.forStartChar('{').standalone(reference(MarkupContextReference(_)))
 
-  val spanParsers = Map(
-    '{' -> reference(MarkupContextReference(_)),
-    '@' -> spanDirective
-  )
+  def spanDirective (directives: Map[String, Spans.Directive]): ParserDefinitionBuilder[Span] =
+    SpanParser.forStartChar('@').recursive(spanDirectiveParser(directives))
 
+  def spanDirectiveParser(directives: Map[String, Spans.Directive])(recParsers: RecursiveSpanParsers): Parser[Span] = {
 
-  def config (path: Path): Parser[Either[InvalidBlock,Config]] = ConfigParser.forPath(path, {
-    (ex: Exception, str: String) => InvalidBlock(SystemMessage(laika.tree.Elements.Error,
-      "Error parsing config header: "+ex.getMessage), LiteralBlock(s"{%$str%}"))
-  })
+    import recParsers._
 
-  lazy val spanDirective: Parser[Span] = {
     val contextRefOrNestedBraces = Map('{' -> (reference(MarkupContextReference(_)) | nestedBraces))
     val bodyContent = wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
-    withRecursiveSpanParser(withSource(directiveParser(bodyContent, includeStartChar = false))) ^^ {
+    withRecursiveSpanParser(withSource(directiveParser(bodyContent, recParsers, includeStartChar = false))) ^^ {
       case (recParser, (result, source)) => // TODO - optimization - parsed spans might be cached for DirectiveContext (applies for the template parser, too)
 
         def createContext (parts: PartMap, docCursor: Option[DocumentCursor]): Spans.DirectiveContext = {
@@ -206,16 +202,35 @@ class MarkupDirectiveParsers(recParsers: RecursiveParsers,
         }
         def invalid (msg: String) = InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Literal("@"+source))
 
-        applyDirective(Spans)(result, spanDirectives.get, createContext, DirectiveSpan(_), invalid, "span")
+        applyDirective(Spans)(result, directives.get, createContext, DirectiveSpan(_), invalid, "span")
     }
   }
 
-  lazy val blockDirective: Parser[Block] = {
+}
+
+/** Provides the parser definitions for block directives in markup documents.
+  */
+object BlockDirectiveParsers {
+
+  import DirectiveParsers._
+  import BlockParsers._
+
+  case class DirectiveBlock (f: DocumentCursor => Block, options: Options = NoOpt) extends BlockResolver {
+    def resolve (cursor: DocumentCursor) = f(cursor)
+  }
+
+  def blockDirective (directives: Map[String, Blocks.Directive]): ParserDefinitionBuilder[Block] =
+    BlockParser.withoutStartChar.recursive(blockDirectiveParser(directives)) // TODO - include startChar
+
+  def blockDirectiveParser (directives: Map[String, Blocks.Directive])(recParsers: RecursiveParsers): Parser[Block] = {
+
+    import recParsers._
+
     val bodyContent = indentedBlock() ^^? { block =>
       val trimmed = block.trim
       Either.cond(trimmed.nonEmpty, trimmed, "empty body")
     }
-    withRecursiveSpanParser(withRecursiveBlockParser(withSource(directiveParser(bodyContent, includeStartChar = true)))) ^^ {
+    withRecursiveSpanParser(withRecursiveBlockParser(withSource(directiveParser(bodyContent, recParsers, includeStartChar = true)))) ^^ {
       case (recSpanParser, (recBlockParser, (result, source))) =>
 
         def createContext (parts: PartMap, docCursor: Option[DocumentCursor]): Blocks.DirectiveContext = {
@@ -228,7 +243,7 @@ class MarkupDirectiveParsers(recParsers: RecursiveParsers,
         }
         def invalid (msg: String) = InvalidBlock(SystemMessage(laika.tree.Elements.Error, msg), LiteralBlock(source))
 
-        applyDirective(Blocks)(result, blockDirectives.get, createContext, DirectiveBlock(_), invalid, "block")
+        applyDirective(Blocks)(result, directives.get, createContext, DirectiveBlock(_), invalid, "block")
     }
   }
     

@@ -17,8 +17,6 @@
 package laika.parse.markdown
 
 import laika.api.ext.ParserDefinitionBuilders
-import laika.directive.Directives.{Blocks, Spans}
-import laika.directive.StandardDirectives
 import laika.factory.ParserFactory
 import laika.io.Input
 import laika.tree.Documents.Document
@@ -42,12 +40,7 @@ import laika.tree.Documents.Document
  *  val document = Parse as Markdown using VerbatimHTML fromFile "hello.md"
  *  }}}
  *  
- *  The methods `withSpanDirectives` and `withBlockDirectives` allow to 
- *  register custom tags which will be processed by the parser in addition
- *  to standard Markdown markup. For more details on directives see
- *  [[laika.directive.Directives]].
- *  
- *  To switch this feature off alongside other custom extensions like
+ *  To switch off all custom extensions like directives,
  *  configuration sections at the start of the document or automatic
  *  id generation for headers, you can run the parser in strict mode:
  *  
@@ -57,84 +50,24 @@ import laika.tree.Documents.Document
  * 
  *  @author Jens Halm
  */
-class Markdown private (
-    blockDirectives: List[Blocks.Directive],
-    spanDirectives: List[Spans.Directive],
-    isStrict: Boolean) extends ParserFactory {
+class Markdown private (isStrict: Boolean) extends ParserFactory {
 
-  
   val fileSuffixes: Set[String] = Set("md","markdown")
   
   val extensions = Seq()
-  
-  /** Adds the specified Laika directives and returns a new instance of the parser.
-   * 
-   *  Example:
-   * 
-   *  {{{
-   *  case class Note (title: String, content: Seq[Block], options: Options = NoOpt) 
-   *                                                       extends Block with BlockContainer[Note]
-   *  
-   *  val md = Markdown withBlockDirectives (
-   *    Blocks.create("note") {
-   *      (attribute(Default) ~ body(Default))(Note(_,_))
-   *    }
-   *  )   
-   *  Transform from md to HTML fromFile "hello.md" toFile "hello.html"   
-   *  }}}
-   * 
-   *  For more details on implementing Laika directives see [[laika.directive.Directives]].
-   */     
-  def withBlockDirectives (directives: Blocks.Directive*): Markdown =
-    new Markdown(blockDirectives ++ directives, spanDirectives, isStrict)
-  
-  /** Adds the specified Laika directives and returns a new instance of the parser.
-   * 
-   *  Example:
-   * 
-   *  {{{
-   *  val md = Markdown withSpanDirectives (
-   *    Spans.create("ticket") {
-   *      (attribute(Default) ~ attribute("param").optional) { (ticketNo, param) =>
-   *        val base = "http://tickets.service.com/"+ticketNo
-   *        val url = base + (param map (p => "?param="+p) getOrElse "")
-   *        ExternalLink(Seq(Text("Ticket "+ticketNo)), url, options = Styles("ticket"))
-   *      }
-   *    }
-   *  )    
-   * 
-   *  Transform from md to HTML fromFile "hello.md" toFile "hello.html"   
-   *  }}}
-   *  
-   *  The code above registers a span directive that detects markup like
-   *  `@:ticket 2356.` and turns it into an external link node for the
-   *  URL `http://tickets.service.com/2356`.
-   * 
-   *  For more details on implementing Laika directives see [[laika.directive.Directives]].
-   */ 
-  def withSpanDirectives (directives: Spans.Directive*): Markdown = 
-    new Markdown(blockDirectives, spanDirectives ++ directives, isStrict)
   
   /** Turns strict mode on for the returned parser, switching off any
    *  features not part of the original Markdown syntax.
    *  This includes the registration of directives (custom tags) as well as configuration
    *  sections at the start of the document or id generation for all headers.
    */
-  def strict: Markdown = new Markdown(blockDirectives, spanDirectives, true)
+  def strict: Markdown = new Markdown(isStrict = true)
   
-  private def createParser (parserExtensions: ParserDefinitionBuilders): RootParser = {
-
-      lazy val blockDirectiveMap = Blocks.toMap(StandardDirectives.stdBlockDirectives ++ blockDirectives)
-      lazy val spanDirectiveMap = Spans.toMap(StandardDirectives.stdSpanDirectives ++ spanDirectives)
-
-      new RootParser(blockDirectiveMap, spanDirectiveMap, parserExtensions, isStrict)
-  }
-
   /** The actual parser function, fully parsing the specified input and
    *  returning a document tree.
    */
   def newParser (parserExtensions: ParserDefinitionBuilders): Input => Document = {
-    val parser = createParser(parserExtensions)
+    val parser = new RootParser(parserExtensions, isStrict)
     (input: Input) => parser.parseDocument(input.asParserInput, input.path)
   }
   
@@ -144,4 +77,4 @@ class Markdown private (
  * 
  *  @author Jens Halm
  */
-object Markdown extends Markdown(Nil, Nil, false)
+object Markdown extends Markdown(isStrict = false)

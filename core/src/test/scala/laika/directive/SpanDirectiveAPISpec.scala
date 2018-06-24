@@ -16,12 +16,11 @@
 
 package laika.directive
 
-import laika.directive.Directives.{Default, Spans}
+import laika.api.ext.{MarkupParsers, ParserDefinition, ParserDefinitionBuilders}
 import laika.directive.Directives.Spans.Directive
+import laika.directive.Directives.{Default, Spans}
 import laika.parse.core.Parser
-import laika.parse.core.markup._
 import laika.parse.helper.{DefaultParserHelpers, EmptyRecursiveParsers, ParseResultHelpers}
-import laika.template.TemplateParsers
 import laika.tree.Elements._
 import laika.tree.Templates.MarkupContextReference
 import laika.tree.helper.ModelBuilder
@@ -113,9 +112,11 @@ class SpanDirectiveAPISpec extends FlatSpec
     
     def directive: Directive
 
-    lazy val directiveParsers = new MarkupDirectiveParsers(this, Map(), Map(directive.name -> directive))
+    // TODO - move most of this logic to RootParserBase
+    lazy val directiveSupport: ParserDefinitionBuilders = DirectiveSupport.withDirectives(Seq(), Seq(directive)).parserDefinitions
+    lazy val markupParserExtensions: MarkupParsers = directiveSupport.markupParsers(this)
 
-    protected lazy val spanParsers: Map[Char, Parser[Span]] = directiveParsers.spanParsers
+    protected lazy val spanParsers: Map[Char, Parser[Span]] = markupParserExtensions.spanParserMap
 
     lazy val defaultParser: Parser[SpanSequence] = recursiveSpans ^^ (SpanSequence(_))
     
@@ -298,7 +299,7 @@ class SpanDirectiveAPISpec extends FlatSpec
   it should "parse a directive with a required default body and cursor access" in {
     new DirectiveWithContextAccess with SpanParser {
       def translate (result: SpanSequence) = result rewrite {
-        case d: directiveParsers.DirectiveSpan => Some(Text("ok")) // cannot compare DirectiveSpans
+        case _: SpanDirectiveParsers.DirectiveSpan => Some(Text("ok")) // cannot compare DirectiveSpans
       }
       Parsing ("aa @:dir: { text } bb") map translate should produce (ss(txt("aa "), txt("ok"), txt(" bb")))
     }

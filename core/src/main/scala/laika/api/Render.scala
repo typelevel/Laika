@@ -20,6 +20,7 @@ import java.io.{File, OutputStream}
 
 import laika.api.ext.{ExtensionBundle, Theme}
 import laika.api.ext.ExtensionBundle.LaikaDefaults
+import laika.directive.DirectiveSupport
 import laika.factory.{RenderResultProcessor, RendererFactory}
 import laika.io.Output.Binary
 import laika.io.{IO, Input, Output, OutputProvider}
@@ -83,7 +84,9 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
   /** The concrete implementation of the abstract Render type.
    */
   type ThisType <: Render[Writer]
-  
+
+
+  private lazy val mergedBundle: ExtensionBundle = ExtensionBundle.mergeBundles(bundles)
 
   /** Specifies a custom render function that overrides one or more of the default
    *  renderers for the output format this instance uses.
@@ -140,14 +143,11 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
   def from (tree: DocumentTree): TreeTarget
 
 
-  protected[this] lazy val defaultStyles: StyleDeclarationSet = {
-    val bundle = bundles.reverse.reduceLeft(_ withBase _) // TODO - move this to OperationSupport.mergedBundle
-    factory.defaultTheme.defaultStyles ++ bundle.themeFor(factory).defaultStyles
-  }
+  protected[this] lazy val defaultStyles: StyleDeclarationSet =
+    factory.defaultTheme.defaultStyles ++ mergedBundle.themeFor(factory).defaultStyles
 
   protected[this] lazy val defaultTemplate: TemplateRoot = {
-    val bundle = bundles.reverse.reduceLeft(_ withBase _) // TODO - move this to OperationSupport.mergedBundle
-    bundle.themeFor(factory).defaultTemplate
+    mergedBundle.themeFor(factory).defaultTemplate
       .orElse(factory.defaultTheme.defaultTemplate)
       .getOrElse(TemplateRoot(List(TemplateContextReference("document.content"))))
   }
@@ -165,8 +165,7 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
       def apply (element: Element) = delegate(element)
     }
 
-    val bundle = bundles.reverse.reduceLeft(_ withBase _) // TODO - move this to OperationSupport.mergedBundle
-    val customRenderers = bundle.themeFor(factory).customRenderers
+    val customRenderers = mergedBundle.themeFor(factory).customRenderers
     
     IO(output) { out =>
       val (writer, renderF) = factory.newRenderer(out, element, RenderFunction, styles)
@@ -440,7 +439,7 @@ object Render {
    * 
    *  @param factory the renderer factory responsible for creating the final renderer
    */
-  def as [Writer] (factory: RendererFactory[Writer]): RenderMappedOutput[Writer] = new RenderMappedOutput(factory, bundles = Seq(LaikaDefaults))
+  def as [Writer] (factory: RendererFactory[Writer]): RenderMappedOutput[Writer] = new RenderMappedOutput(factory, bundles = Seq(ExtensionBundle.LaikaDefaults, DirectiveSupport))
   
   /** Returns a new Render instance for the specified processor.
    *  This instance is usually an object provided by the library
@@ -448,6 +447,6 @@ object Render {
    * 
    *  @param processor the processor responsible for processing the renderer result
    */
-  def as [Writer] (processor: RenderResultProcessor[Writer]): RenderGatheredOutput[Writer] = new RenderGatheredOutput(processor, bundles = Seq(LaikaDefaults))
+  def as [Writer] (processor: RenderResultProcessor[Writer]): RenderGatheredOutput[Writer] = new RenderGatheredOutput(processor, bundles = Seq(LaikaDefaults, DirectiveSupport))
   
 }

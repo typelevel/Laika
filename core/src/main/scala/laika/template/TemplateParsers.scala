@@ -50,9 +50,7 @@ object ConfigParser {
   */
 class TemplateParsers (directives: Map[String, Templates.Directive]) extends DefaultRecursiveSpanParsers {
 
-  val directiveParsers = new DirectiveParsers(this)
-
-  import directiveParsers._
+  import DirectiveParsers._
 
   case class DirectiveSpan(f: DocumentCursor => Span, options: Options = NoOpt) extends SpanResolver with TemplateSpan {
     def resolve(cursor: DocumentCursor) = f(cursor) match {
@@ -70,7 +68,7 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
   lazy val templateDirective: Parser[TemplateSpan] = {
     val contextRefOrNestedBraces = Map('{' -> (reference(TemplateContextReference(_)) | nestedBraces))
     val bodyContent = wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
-    withSource(directiveParser(bodyContent, includeStartChar = false)) ^^ { case (result, source) =>
+    withSource(directiveParser(bodyContent, this, includeStartChar = false)) ^^ { case (result, source) =>
 
       def createContext(parts: PartMap, docCursor: Option[DocumentCursor]): Templates.DirectiveContext = {
         new DirectiveContextBase(parts, docCursor) with Templates.DirectiveContext {

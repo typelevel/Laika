@@ -18,8 +18,7 @@ package laika.parse.rst
 
 import com.typesafe.config.{Config, ConfigValueFactory}
 import laika.api.ext.{MarkupParsers, ParserDefinition, ParserDefinitionBuilders}
-import laika.directive.Directives.{Blocks, Spans}
-import laika.directive.MarkupDirectiveParsers
+import laika.directive.DirectiveParsers
 import laika.parse.core.markup.RootParserBase
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Parsed, Parser, ParserContext, Success}
@@ -41,8 +40,6 @@ import scala.collection.mutable.ListBuffer
   * @author Jens Halm
   */
 class RootParser(parserExtensions: ParserDefinitionBuilders = ParserDefinitionBuilders(),
-                 laikaBlockDirectives: Map[String, Blocks.Directive] = Map(),
-                 laikaSpanDirectives:  Map[String, Spans.Directive] = Map(),
                  blockDirectives: Seq[Directive[Block]] = Seq(),
                  spanDirectives: Seq[Directive[Span]] = Seq(),
                  textRoles: Seq[TextRole] = Seq(),
@@ -60,9 +57,6 @@ class RootParser(parserExtensions: ParserDefinitionBuilders = ParserDefinitionBu
 
 
   private lazy val markupParserExtensions: MarkupParsers = parserExtensions.markupParsers(this)
-
-  private val directiveParsers =
-    if (!isStrict) Some(new MarkupDirectiveParsers(this, laikaBlockDirectives, laikaSpanDirectives)) else None
 
   private val inlineParsers = new InlineParsers(this, defaultTextRole)
   private val blockParsers = new BlockParsers(this)
@@ -82,35 +76,22 @@ class RootParser(parserExtensions: ParserDefinitionBuilders = ParserDefinitionBu
     definition.startChar.fold(definition.parser){_ ~> definition.parser} // TODO - temporary until startChar is processed
 
   protected lazy val spanParsers: Map[Char,Parser[Span]] = {
-
-    val mainParsers = inlineParsers.spanParsers
     val extSpans = markupParserExtensions.spanParserMap
-    val directiveSpans = directiveParsers.map(_.spanParsers).getOrElse(Map())
-
-    val withExt = mergeSpanParsers(mainParsers, extSpans)
-    mergeSpanParsers(withExt, directiveSpans)
+    mergeSpanParsers(inlineParsers.spanParsers, extSpans)
   }
 
-
   protected lazy val topLevelBlock: Parser[Block] = {
-
-    val blockDirectives = directiveParsers.map(_.blockDirective).toSeq
     val extBlocks = markupParserExtensions.blockParsers.map(toParser)
-
-    mergeBlockParsers(blockDirectives ++ extBlocks ++ mainBlockParsers)
+    mergeBlockParsers(extBlocks ++ mainBlockParsers)
   }
 
   protected lazy val nestedBlock: Parser[Block] = {
-
-    val blockDirectives = directiveParsers.map(_.blockDirective).toSeq
     val extBlocks = markupParserExtensions.blockParsers.filter(_.useInRecursion).map(toParser)
-
-    mergeBlockParsers(blockDirectives ++ extBlocks ++ mainBlockParsers)
+    mergeBlockParsers(extBlocks ++ mainBlockParsers)
   }
 
   protected lazy val nonRecursiveBlock: Parser[Block] = {
     val extBlocks = markupParserExtensions.blockParsers.filterNot(_.isRecursive).map(toParser)
-
     mergeBlockParsers(extBlocks :+ (exParsers.comment | blockParsers.paragraph))
   }
 
@@ -224,6 +205,6 @@ class RootParser(parserExtensions: ParserDefinitionBuilders = ParserDefinitionBu
   }
 
   override def config (path: Path): Parser[Either[InvalidBlock,Config]] =
-    directiveParsers.map(_.config(path)).getOrElse(super.config(path))
+    if (isStrict) super.config(path) else DirectiveParsers.configHeader(path)
 
 }
