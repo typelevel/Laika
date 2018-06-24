@@ -20,7 +20,7 @@ import java.io.{File, InputStream, Reader}
 
 import com.typesafe.config.{ConfigFactory, Config => TConfig}
 import laika.api.ext.{ConfigProvider, ExtensionBundle}
-import laika.directive.DirectiveSupport
+import laika.directive.{DirectiveSupport, StandardDirectives}
 import laika.factory.ParserFactory
 import laika.io.DocumentType._
 import laika.io.InputProvider._
@@ -330,6 +330,6 @@ object Parse {
    *  @param factory the parser factory to use for all subsequent operations
    */
   def as (factory: ParserFactory): Parse = new Parse(Seq(factory),
-    Seq(ExtensionBundle.LaikaDefaults, DirectiveSupport) ++ factory.extensions, rewrite = true)
+    Seq(ExtensionBundle.LaikaDefaults, DirectiveSupport, StandardDirectives) ++ factory.extensions, rewrite = true)
 
 }

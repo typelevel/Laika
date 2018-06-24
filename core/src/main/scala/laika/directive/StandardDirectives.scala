@@ -17,7 +17,7 @@
 package laika.directive
 
 import laika.directive.Directives._
-import laika.rewrite.TemplateRewriter.rewriteRules
+import laika.rewrite.TemplateRewriter
 import laika.rewrite.{DocumentCursor, TocGenerator, TreeUtil}
 import laika.tree.Documents._
 import laika.tree.Elements._
@@ -49,7 +49,7 @@ import scala.collection.JavaConverters._
  *  
  *  @author Jens Halm
  */
-object StandardDirectives {
+object StandardDirectives extends DirectiveRegistry {
 
   
   /** Implementation of the `for` directive for templates.
@@ -65,10 +65,10 @@ object StandardDirectives {
       (path, content, fallback, cursor) => {
         
         def rewriteContent (value: Any) =
-          TemplateSpanSequence(content) rewrite rewriteRules(cursor.withReferenceContext(value))
+          TemplateSpanSequence(content) rewrite TemplateRewriter.rewriteRules(cursor.withReferenceContext(value))
         
         def rewriteFallback = 
-          fallback map (TemplateSpanSequence(_) rewrite rewriteRules(cursor)) getOrElse TemplateSpanSequence(Nil)
+          fallback map (TemplateSpanSequence(_) rewrite TemplateRewriter.rewriteRules(cursor)) getOrElse TemplateSpanSequence(Nil)
 
         cursor.resolveReference(path) match {
           case Some(m: Map[_,_])  => rewriteContent(m) 
@@ -101,10 +101,10 @@ object StandardDirectives {
       (path, content, fallback, cursor) => {
         
         def rewriteContent =
-          TemplateSpanSequence(content) rewrite rewriteRules(cursor)
+          TemplateSpanSequence(content) rewrite TemplateRewriter.rewriteRules(cursor)
         
         def rewriteFallback = 
-          fallback map (TemplateSpanSequence(_) rewrite rewriteRules(cursor)) getOrElse TemplateSpanSequence(Nil)
+          fallback map (TemplateSpanSequence(_) rewrite TemplateRewriter.rewriteRules(cursor)) getOrElse TemplateSpanSequence(Nil)
         
         cursor.resolveReference(path) match {
           case Some(true) => rewriteContent
@@ -256,7 +256,7 @@ object StandardDirectives {
   /** The complete list of standard directives for block
    *  elements in markup documents.
    */
-  lazy val stdBlockDirectives: Seq[Blocks.Directive] = List(
+  lazy val blockDirectives: Seq[Blocks.Directive] = List(
     blockToc,
     blockFragment,
     blockStyle,
@@ -267,7 +267,7 @@ object StandardDirectives {
   /** The complete list of standard directives for span
    *  elements in markup documents.
    */
-  lazy val stdSpanDirectives: Seq[Spans.Directive] = List(
+  lazy val spanDirectives: Seq[Spans.Directive] = List(
     spanStyle
   )
 

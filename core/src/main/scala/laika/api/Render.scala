@@ -20,7 +20,7 @@ import java.io.{File, OutputStream}
 
 import laika.api.ext.{ExtensionBundle, Theme}
 import laika.api.ext.ExtensionBundle.LaikaDefaults
-import laika.directive.DirectiveSupport
+import laika.directive.{DirectiveSupport, StandardDirectives}
 import laika.factory.{RenderResultProcessor, RendererFactory}
 import laika.io.Output.Binary
 import laika.io.{IO, Input, Output, OutputProvider}
@@ -439,7 +439,8 @@ object Render {
    * 
    *  @param factory the renderer factory responsible for creating the final renderer
    */
-  def as [Writer] (factory: RendererFactory[Writer]): RenderMappedOutput[Writer] = new RenderMappedOutput(factory, bundles = Seq(ExtensionBundle.LaikaDefaults, DirectiveSupport))
+  def as [Writer] (factory: RendererFactory[Writer]): RenderMappedOutput[Writer] =
+    new RenderMappedOutput(factory, Seq(LaikaDefaults, DirectiveSupport, StandardDirectives))
   
   /** Returns a new Render instance for the specified processor.
    *  This instance is usually an object provided by the library
@@ -447,6 +448,7 @@ object Render {
    * 
    *  @param processor the processor responsible for processing the renderer result
    */
-  def as [Writer] (processor: RenderResultProcessor[Writer]): RenderGatheredOutput[Writer] = new RenderGatheredOutput(processor, bundles = Seq(LaikaDefaults, DirectiveSupport))
+  def as [Writer] (processor: RenderResultProcessor[Writer]): RenderGatheredOutput[Writer] =
+    new RenderGatheredOutput(processor, Seq(LaikaDefaults, DirectiveSupport, StandardDirectives))
   
 }

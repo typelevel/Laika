@@ -24,14 +24,9 @@ import laika.directive.Directives.{Blocks, Spans}
   */
 class DirectiveSupport (blockDirectives: Seq[Blocks.Directive], spanDirectives: Seq[Spans.Directive]) extends ExtensionBundle {
 
-  // TODO - StandardDirectives can be separate bundle, base DirectiveSupport is empty
-
-  private lazy val blockDirectiveMap = Blocks.toMap(StandardDirectives.stdBlockDirectives ++ blockDirectives)
-  private lazy val spanDirectiveMap = Spans.toMap(StandardDirectives.stdSpanDirectives ++ spanDirectives)
-
   override lazy val parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders(
-    blockParsers = Seq(BlockDirectiveParsers.blockDirective(blockDirectiveMap)),
-    spanParsers = Seq(SpanDirectiveParsers.spanDirective(spanDirectiveMap), SpanDirectiveParsers.contextRef)
+    blockParsers = Seq(BlockDirectiveParsers.blockDirective(Blocks.toMap(blockDirectives))),
+    spanParsers = Seq(SpanDirectiveParsers.spanDirective(Spans.toMap(spanDirectives)), SpanDirectiveParsers.contextRef)
   )
 
   /*
