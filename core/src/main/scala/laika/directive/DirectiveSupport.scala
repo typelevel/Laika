@@ -17,33 +17,32 @@
 package laika.directive
 
 import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders}
-import laika.directive.Directives.{Blocks, Spans}
+import laika.directive.Directives.{Blocks, Spans, Templates}
+import laika.template.TemplateParsers
 
 /**
   * @author Jens Halm
   */
-class DirectiveSupport (blockDirectives: Seq[Blocks.Directive], spanDirectives: Seq[Spans.Directive]) extends ExtensionBundle {
+class DirectiveSupport (blockDirectives: Seq[Blocks.Directive],
+                        spanDirectives: Seq[Spans.Directive],
+                        templateDirectives: Seq[Templates.Directive]) extends ExtensionBundle {
 
   override lazy val parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders(
     blockParsers = Seq(BlockDirectiveParsers.blockDirective(Blocks.toMap(blockDirectives))),
-    spanParsers = Seq(SpanDirectiveParsers.spanDirective(Spans.toMap(spanDirectives)), SpanDirectiveParsers.contextRef)
+    spanParsers = Seq(SpanDirectiveParsers.spanDirective(Spans.toMap(spanDirectives)), SpanDirectiveParsers.contextRef),
+    templateParser = Some(new TemplateParsers(Templates.toMap(templateDirectives)).templateRoot)
   )
 
-  /*
-  TODO - implement:
-  - docTypeMatcher (recognizing templates)
-  - default templates (also in Theme, but this one is specific to directives)
-
-  - template parser
-  - template directive
-  */
-
-  def withDirectives (newBlockDirectives: Seq[Blocks.Directive], newSpanDirectives: Seq[Spans.Directive]) : DirectiveSupport =
-    new DirectiveSupport(blockDirectives ++ newBlockDirectives, spanDirectives ++ newSpanDirectives)
+  def withDirectives (newBlockDirectives: Seq[Blocks.Directive],
+                      newSpanDirectives: Seq[Spans.Directive],
+                      newTemplateDirectives: Seq[Templates.Directive]) : DirectiveSupport =
+    new DirectiveSupport(blockDirectives ++ newBlockDirectives,
+      spanDirectives ++ newSpanDirectives,
+      templateDirectives ++ newTemplateDirectives)
 
 }
 
-object DirectiveSupport extends DirectiveSupport(Nil, Nil)
+object DirectiveSupport extends DirectiveSupport(Nil, Nil, Nil)
 
 
 trait DirectiveRegistry extends ExtensionBundle {
@@ -64,6 +63,7 @@ trait DirectiveRegistry extends ExtensionBundle {
     *      }
     *    )
     *    val blockDirectives = Seq()
+    *    val templateDirectives = Seq()
     *  }
     *
     *  Transform from Markdown to HTML using MyDirectives fromFile "hello.md" toFile "hello.html"
@@ -91,6 +91,7 @@ trait DirectiveRegistry extends ExtensionBundle {
     *      }
     *    )
     *    val spanDirectives = Seq()
+    *    val templateDirectives = Seq()
     *  }
     *
     *  Transform from Markdown to HTML using MyDirectives fromFile "hello.md" toFile "hello.html"
@@ -100,9 +101,39 @@ trait DirectiveRegistry extends ExtensionBundle {
     */
   def blockDirectives: Seq[Blocks.Directive]
 
+  /**  Registers the specified template directives.
+    *
+    *  Example:
+    *
+    *  {{{
+    *  object MyDirectives extends DirectiveRegistry {
+    *    val templateDirectives = Seq(
+    *      Templates.create("ticket") {
+    *        (attribute(Default) ~ attribute("param").optional) { (ticketNo, param) =>
+    *          val base = "http://tickets.service.com/"+ticketNo
+    *          val url = base + (param map (p => "&param="+p) getOrElse "")
+    *          TemplateElement(ExternalLink(Seq(Text("Ticket "+ticketNo)), url, options = Styles("ticket")))
+    *        }
+    *      }
+    *    )
+    *    val blockDirectives = Seq()
+    *    val spanDirectives = Seq()
+    *  }
+    *
+    *  Transform from Markdown to HTML using MyDirectives fromFile "hello.md" toFile "hello.html"
+    *  }}}
+    *
+    *  The code above registers a template directive that detects markup like
+    *  `@:ticket 2356.` and turns it into an external link node for the
+    *  URL `http://tickets.service.com/2356`.
+    *
+    *  For more details on implementing Laika directives see [[laika.directive.Directives]].
+    */
+  def templateDirectives: Seq[Templates.Directive]
+
 
   override def processExtension: PartialFunction[ExtensionBundle, ExtensionBundle] = {
-    case ds: DirectiveSupport => ds.withDirectives(blockDirectives, spanDirectives)
+    case ds: DirectiveSupport => ds.withDirectives(blockDirectives, spanDirectives, templateDirectives)
   }
 
 }

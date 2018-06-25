@@ -273,7 +273,7 @@ object StandardDirectives extends DirectiveRegistry {
 
   /** The complete list of standard directives for templates.
    */
-  lazy val stdTemplateDirectives: Seq[Templates.Directive] = List(
+  lazy val templateDirectives: Seq[Templates.Directive] = List(
     templateToc,
     templateFor,
     templateIf

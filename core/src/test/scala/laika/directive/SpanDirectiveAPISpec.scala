@@ -113,7 +113,7 @@ class SpanDirectiveAPISpec extends FlatSpec
     def directive: Directive
 
     // TODO - move most of this logic to RootParserBase
-    lazy val directiveSupport: ParserDefinitionBuilders = DirectiveSupport.withDirectives(Seq(), Seq(directive)).parserDefinitions
+    lazy val directiveSupport: ParserDefinitionBuilders = DirectiveSupport.withDirectives(Seq(), Seq(directive), Seq()).parserDefinitions
     lazy val markupParserExtensions: MarkupParsers = directiveSupport.markupParsers(this)
 
     protected lazy val spanParsers: Map[Char, Parser[Span]] = markupParserExtensions.spanParserMap

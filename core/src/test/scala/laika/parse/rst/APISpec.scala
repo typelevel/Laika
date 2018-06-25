@@ -91,6 +91,7 @@ class APISpec extends FlatSpec
       )
 
       val spanDirectives = Seq()
+      val templateDirectives = Seq()
     }
   }
   
@@ -107,6 +108,7 @@ class APISpec extends FlatSpec
       )
 
       val blockDirectives = Seq()
+      val templateDirectives = Seq()
     }
   }
   

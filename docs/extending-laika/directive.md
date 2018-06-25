@@ -169,6 +169,7 @@ and then added as a dependency of your build.
     object MyDirectives extends DirectiveRegistry {
       val spanDirectives = Seq(directive)
       val blockDirectives = Seq()
+      val templateDirectives = Seq()
     }
 
     Transform from Markdown to HTML using 
@@ -179,9 +180,6 @@ We can now use our `ticket` directive in Markdown files!
 
 
 **Templates**:
-
-    Transform from Markdown to HTML fromDirectory 
-      "source" withTemplateDirectives directive toDirectory "target" 
 
 When you also want to use the directive in templates you need to create
 a very similar declaration like the one above, just starting with `Templates.create`
@@ -380,6 +378,7 @@ Registration:
     object MyDirectives extends DirectiveRegistry {
       val spanDirectives = Seq(directive)
       val blockDirectives = Seq()
+      val templateDirectives = Seq()
     }
     Transform from Markdown to HTML using MyDirectives from...
     Parse as Markdown using MyDirectives from...
@@ -410,6 +409,7 @@ Registration:
     object MyDirectives extends DirectiveRegistry {
       val spanDirectives = Seq()
       val blockDirectives = Seq(directive)
+      val templateDirectives = Seq()
     }
     Transform from Markdown to HTML using MyDirectives from...
     Parse as Markdown using MyDirectives from...
@@ -436,11 +436,12 @@ Registration:
     // for templates with sbt plugin:
     laikaTemplateDirectives += directive // in build.sbt
 
-    // for Markdown in Transform API:
-    Transform from Markdown to HTML fromDirectory 
-      "source" withTemplateDirectives directive toDirectory "target" 
-
-    // for reStructuredText in Transform API:
-    Transform from ReStructuredText to PDF fromDirectory 
-      "source" withTemplateDirectives directive toFile "out.pdf"
+    // for Markdown and reStructuredText with Transform API or Parse API:
+    object MyDirectives extends DirectiveRegistry {
+      val spanDirectives = Seq()
+      val blockDirectives = Seq()
+      val templateDirectives = Seq(directive)
+    }
+    Transform from Markdown to HTML using MyDirectives from...
+    Parse as Markdown using MyDirectives from...
 

@@ -17,12 +17,10 @@
 package laika.io
 
 import java.io.File
+
+import laika.tree.Paths.{Path, Root}
+
 import scala.io.Codec
-import laika.tree.Paths.Path
-import laika.tree.Paths.Root
-import laika.template.ParseTemplate
-import laika.template.DefaultTemplate
-import laika.directive.Directives.Templates
 
 /** Represents a tree structure of Inputs, abstracting over various types of IO resources. 
  *  
@@ -173,11 +171,9 @@ object InputProvider {
   }
   
   /** The configuration for an input tree, consisting of the actual provider for
-   *  all inputs, a separate input for (optional) root configuration sources,
-   *  the template and style sheet engines to use and a flag whether parsing should be performed
-   *  in parallel.
+   *  all inputs and a flag whether parsing should be performed in parallel.
    */
-  case class InputConfig (provider: InputProvider, templateParser: ParseTemplate, parallel: Boolean)
+  case class InputConfig (provider: InputProvider, parallel: Boolean)
   
   /** Responsible for building new InputProviders based
    *  on the specified document type matcher and codec.
@@ -199,40 +195,22 @@ object InputProvider {
    *  Gives access to all relevant aspects of traversing, parsing and processing
    *  a tree of inputs.
    */
-  class InputConfigBuilder (
-      provider: ProviderBuilder,
-      codec: Codec,
-      templateParser: Option[ParseTemplate] = None,
-      isParallel: Boolean = false) {
-    
-    /** Specifies the template engine to use for
-     *  parsing all template inputs found in the tree.
-     */
-    def withTemplateParser (parser: ParseTemplate): InputConfigBuilder = 
-      new InputConfigBuilder(provider, codec, Some(parser), isParallel)
-    
-    /** Specifies custom template directives to use with
-     *  the default template engine.
-     */
-    def withTemplateDirectives (directives: Templates.Directive*): InputConfigBuilder =
-      withTemplateParser(ParseTemplate as DefaultTemplate.withDirectives(directives:_*))
+  class InputConfigBuilder (provider: ProviderBuilder, codec: Codec, isParallel: Boolean = false) {
 
     /** Instructs the parser to process all inputs in parallel.
      *  The recursive structure of inputs will be flattened before parsing
      *  and then get reassembled afterwards, therefore the parallel processing
      *  includes all subtrees of this input tree.
      */
-    def inParallel: InputConfigBuilder = new InputConfigBuilder(provider, codec, templateParser, true) // TODO - custom TaskSupport
+    def inParallel: InputConfigBuilder = new InputConfigBuilder(provider, codec, true) // TODO - custom TaskSupport
     
     /** Builds the final configuration for this input tree
      *  for the specified parser factory.
      *  
      *  @param markupSuffixes all suffixes recognized by the parsers configured to consume this input
      */
-    def build (markupSuffixes: Set[String], docTypeMatcher: PartialFunction[Path, DocumentType]): InputConfig = {
-      val templates = templateParser getOrElse ParseTemplate
-      InputConfig(provider.build(docTypeMatcher, codec), templates, isParallel)
-    }
+    def build (markupSuffixes: Set[String], docTypeMatcher: PartialFunction[Path, DocumentType]): InputConfig =
+      InputConfig(provider.build(docTypeMatcher, codec), isParallel)
   }
 
   /** Creates InputConfigBuilder instances for a specific root directory in the file system.

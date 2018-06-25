@@ -120,7 +120,7 @@ class BlockDirectiveAPISpec extends FlatSpec
       definition.startChar.fold(definition.parser){_ ~> definition.parser} // TODO - temporary until startChar is processed
 
     // TODO - move most of this logic to RootParserBase
-    lazy val directiveSupport: ParserDefinitionBuilders = DirectiveSupport.withDirectives(Seq(directive), Seq()).parserDefinitions
+    lazy val directiveSupport: ParserDefinitionBuilders = DirectiveSupport.withDirectives(Seq(directive), Seq(), Seq()).parserDefinitions
     lazy val markupParserExtensions: MarkupParsers = directiveSupport.markupParsers(this)
     lazy val extBlocks = markupParserExtensions.blockParsers.map(toParser)
 

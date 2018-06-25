@@ -21,7 +21,6 @@ import java.io._
 import laika.api.Transform.TransformMappedOutput
 import laika.api.ext.{BundleProvider, ExtensionBundle}
 import laika.io.DocumentType.Static
-import laika.io.Input
 import laika.parse.core.Parser
 import laika.parse.core.text.TextParsers
 import laika.parse.css.Styles.{ElementType, StyleDeclaration}
@@ -29,8 +28,6 @@ import laika.parse.markdown.Markdown
 import laika.parse.rst.ReStructuredText
 import laika.render.helper.RenderResult
 import laika.render.{PrettyPrint, TextWriter, XSLFO}
-import laika.template.ParseTemplate
-import laika.tree.Documents.TemplateDocument
 import laika.tree.Elements.Text
 import laika.tree.Paths.Root
 import laika.tree.Templates._
@@ -143,7 +140,6 @@ class TransformAPISpec extends FlatSpec
     import laika.io.DocumentType
     import laika.io.InputProvider.InputConfigBuilder
     import laika.io.OutputProvider.OutputConfigBuilder
-    import laika.template.ParseTemplate
     import laika.tree.Paths.Path
     import laika.tree.helper.OutputBuilder
     import laika.tree.helper.OutputBuilder._
@@ -153,13 +149,13 @@ class TransformAPISpec extends FlatSpec
     def input (source: String) = new InputConfigBuilder(parseTreeStructure(source), Codec.UTF8)
     def output (builder: OutputBuilder.TestProviderBuilder) = new OutputConfigBuilder(builder, Codec.UTF8)
 
-    def transformTree: RenderedTree = transformWith(identity)
-    def transformMultiMarkup: RenderedTree = transformWith(identity, Transform from Markdown or ReStructuredText to PrettyPrint)
+    def transformTree: RenderedTree = transformWith()
+    def transformMultiMarkup: RenderedTree = transformWith(Transform from Markdown or ReStructuredText to PrettyPrint)
     
     def transformWithConfig (config: String): RenderedTree = transformWithBundle(BundleProvider.forConfigString(config))
     def transformWithDocTypeMatcher (matcher: PartialFunction[Path, DocumentType]): RenderedTree = transformWithBundle(BundleProvider.forDocTypeMatcher(matcher))
-    def transformWithTemplates (templates: ParseTemplate): RenderedTree = transformWith(_.withTemplateParser(templates))
-    def transformWithDirective (directive: Templates.Directive): RenderedTree = transformWith(_.withTemplateDirectives(directive))
+    def transformWithTemplates (parser: Parser[TemplateRoot]): RenderedTree = transformWithBundle(BundleProvider.forTemplateParser(parser))
+    def transformWithDirective (directive: Templates.Directive): RenderedTree = transformWithBundle(BundleProvider.forTemplateDirective(directive))
     
     def transformInParallel: RenderedTree = {
       val builder = new OutputBuilder.TestProviderBuilder
@@ -167,17 +163,14 @@ class TransformAPISpec extends FlatSpec
       builder.result
     }
     
-    private def transformWith (f: InputConfigBuilder => InputConfigBuilder, transformer: TransformMappedOutput[TextWriter] = transform): RenderedTree = {
+    private def transformWith (transformer: TransformMappedOutput[TextWriter] = transform): RenderedTree = {
       val builder = new OutputBuilder.TestProviderBuilder
-      transformer fromTree f(input(dirs)) toTree output(builder)
+      transformer fromTree input(dirs) toTree output(builder)
       builder.result
     }
 
-    private def transformWithBundle (bundle: ExtensionBundle, transformer: TransformMappedOutput[TextWriter] = transform): RenderedTree = {
-      val builder = new OutputBuilder.TestProviderBuilder
-      transformer.using(bundle).fromTree(input(dirs)).toTree(output(builder))
-      builder.result
-    }
+    private def transformWithBundle (bundle: ExtensionBundle, transformer: TransformMappedOutput[TextWriter] = transform): RenderedTree =
+      transformWith(transformer.using(bundle))
     
     def root (content: Seq[TreeContent]) = RenderedTree(Root, content)
     
@@ -273,12 +266,11 @@ class TransformAPISpec extends FlatSpec
     new TreeTransformer {
       val dirs = """- main1.dynamic.txt:name
         |- main2.dynamic.txt:name""".stripMargin
-      val parser: Input => TemplateDocument = 
-        input => TemplateDocument(input.path, TemplateRoot(List(TemplateString("$$" + input.asParserInput.input))))
+      val parser: Parser[TemplateRoot] = TextParsers.any ^^ { str => TemplateRoot(List(TemplateString("$$" + str))) }
       val result = """RootElement - Blocks: 1
         |. TemplateRoot - Spans: 1
         |. . TemplateString - '$$foo'""".stripMargin
-      transformWithTemplates(ParseTemplate as parser) should be (root(List(docs(
+      transformWithTemplates(parser) should be (root(List(docs(
         (Root / "main1.txt", result),
         (Root / "main2.txt", result)
       ))))

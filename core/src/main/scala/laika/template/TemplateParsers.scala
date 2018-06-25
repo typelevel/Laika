@@ -19,6 +19,7 @@ package laika.template
 import com.typesafe.config.{Config, ConfigFactory, ConfigParseOptions}
 import laika.directive.DirectiveParsers
 import laika.directive.Directives.Templates
+import laika.io.Input
 import laika.parse.core.markup.DefaultRecursiveSpanParsers
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Parser, ParserContext}
@@ -66,6 +67,8 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
   )
 
   lazy val templateDirective: Parser[TemplateSpan] = {
+    val nestedTemplateSpans: ParserContext => List[TemplateSpan] = unsafeParserFunction(templateSpans)
+
     val contextRefOrNestedBraces = Map('{' -> (reference(TemplateContextReference(_)) | nestedBraces))
     val bodyContent = wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
     withSource(directiveParser(bodyContent, this, includeStartChar = false)) ^^ { case (result, source) =>
@@ -83,12 +86,6 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
     }
   }
 
-  def configParser (path: Path): Parser[Either[InvalidSpan,Config]] =
-    ConfigParser.forPath(path, {
-      (ex: Exception, str: String) => InvalidSpan(SystemMessage(laika.tree.Elements.Error,
-        "Error parsing config header: "+ex.getMessage), TemplateString(s"{%$str%}"))
-    })
-
   lazy val templateSpans: Parser[List[TemplateSpan]] = recursiveSpans ^^ {
     _.collect {
       case s: TemplateSpan => s
@@ -96,18 +93,15 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
     }
   }
 
-  lazy val nestedTemplateSpans: ParserContext => List[TemplateSpan] = unsafeParserFunction(templateSpans)
+  lazy val templateRoot: Parser[TemplateRoot] = templateSpans ^^ (TemplateRoot(_))
 
-  def templateWithConfig (path: Path): Parser[(Config, List[TemplateSpan])] = opt(configParser(path)) ~ templateSpans ^^ {
-    case Some(Right(config)) ~ root => (config, root)
-    case Some(Left(span)) ~ root    => (ConfigFactory.empty(), TemplateElement(span) :: root)
-    case None ~ root                => (ConfigFactory.empty(), root)
+}
+
+// TODO - temporary
+
+object DefaultTemplateParser extends TemplateParsers(Map.empty) {
+  def parse (input: Input): TemplateDocument = {
+    val root = unsafeParserFunction(templateRoot)(input.asParserInput)
+    TemplateDocument(input.path, root)
   }
-
-  def parseTemplate (ctx: ParserContext, path: Path): TemplateDocument = {
-    val (config, root) = unsafeParserFunction(templateWithConfig(path))(ctx)
-    TemplateDocument(path, TemplateRoot(root), config)
-  }
-
-
 }

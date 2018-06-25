@@ -18,16 +18,14 @@ package laika.api
 
 import java.io.{File, InputStream, Reader}
 
-import laika.api.Render.{RenderGatheredOutput, RenderMappedOutput}
+import laika.api.Render.{RenderGatheredOutput, RenderMappedOutput, SingleTarget, MappedTreeTarget, BinaryTarget}
 import laika.api.ext.ExtensionBundle
-import laika.directive.Directives.Templates
 import laika.factory.{ParserFactory, RenderResultProcessor, RendererFactory}
 import laika.io.InputProvider._
 import laika.io.Output.Binary
 import laika.io.OutputProvider._
 import laika.io._
 import laika.rewrite.DocumentCursor
-import laika.template.ParseTemplate
 import laika.tree.Documents._
 import laika.tree.Elements._
 
@@ -284,10 +282,17 @@ abstract class Transform [Writer] private[Transform] (parse: Parse) {
    * 
    *  @param inputBuilder the input to transform
    */
-  def fromTree (inputBuilder: InputConfigBuilder): TreeTarget
+  def fromTree (inputBuilder: InputConfigBuilder): TreeTarget = fromTree(parse.fromTree(inputBuilder))
+
+  /**  Renders the specified document tree and returns a new target instance
+    *  which allows to specify the output.
+    *
+    *  @param tree the document tree to transform
+    */
+  protected[this] def fromTree (tree: DocumentTree): TreeTarget
   
   /** Renders the specified document and returns a new target instance 
-   *  which allows to specify the output and other configuration options.
+   *  which allows to specify the output.
    * 
    *  @param doc the document to transform
    */
@@ -311,7 +316,7 @@ object Transform {
    */
   class TransformMappedOutput[Writer] (parse: Parse, render: RenderMappedOutput[Writer]) extends Transform[Writer](parse) {
     
-    type DocTarget = Render.SingleTarget
+    type DocTarget = SingleTarget
   
     type TreeTarget = MappedTreeTarget
   
@@ -321,31 +326,12 @@ object Transform {
 
     def using (bundles: ExtensionBundle*): ThisType = new TransformMappedOutput(parse.using(bundles:_*), render.using(bundles:_*))
     
-    def fromDocument (doc: Document): Render.SingleTarget = new Render.SingleTarget {
-      protected def renderTo (out: Output) = render.from(doc).toOutput(out)
+    def fromDocument (doc: Document): Render.SingleTarget = new SingleTarget {
+      protected def renderTo (out: Output): Unit = render.from(doc).toOutput(out)
     }
     
-    def fromTree (input: InputConfigBuilder): MappedTreeTarget = new MappedTreeTarget(input)
-    
-    /** Represents a tree of output destinations for recursive render operations,
-     *  where each input document will be mapped to a corresponding output document. 
-     *  Various types of output can be specified to trigger the actual rendering.
-     *  
-     *  @param inputBuilder the builder used to configure the input tree
-     *  @param isParallel indicates whether the transform operations for the individual targets should run in parallel
-     */
-    class MappedTreeTarget (inputBuilder: InputConfigBuilder, 
-                            isParallel:Boolean = false) extends TreeConfigBuilder[MappedTreeTarget] 
-                                                        with Render.MappedTreeTarget { 
-      
-      protected def withInputBuilder (f: InputConfigBuilder => InputConfigBuilder): MappedTreeTarget = new MappedTreeTarget(f(inputBuilder), isParallel)
-      
-      protected def withParallelExecution: MappedTreeTarget = new MappedTreeTarget(inputBuilder.inParallel, true)
-      
-      protected def renderTo (out: OutputConfigBuilder): Unit = {
-        val tree = parse.fromTree(inputBuilder)
-        render.from(tree).toTree(if (isParallel) out.inParallel else out)
-      }
+    def fromTree (tree: DocumentTree): Render.MappedTreeTarget = new MappedTreeTarget {
+      protected def renderTo (out: OutputConfigBuilder): Unit = render.from(tree).toTree(out)
     }
     
   }
@@ -359,9 +345,9 @@ object Transform {
    */
   class TransformGatheredOutput[Writer] (parse: Parse, render: RenderGatheredOutput[Writer]) extends Transform[Writer](parse) {
     
-    type DocTarget = Render.BinaryTarget
+    type DocTarget = BinaryTarget
   
-    type TreeTarget = GatherTarget
+    type TreeTarget = BinaryTarget
   
     type ThisType = TransformGatheredOutput[Writer]
     
@@ -369,71 +355,17 @@ object Transform {
 
     def using (bundles: ExtensionBundle*): ThisType = new TransformGatheredOutput(parse.using(bundles:_*), render.using(bundles:_*))
     
-    def fromDocument (doc: Document): Render.BinaryTarget = new Render.BinaryTarget {
-      protected def renderBinary (out: Output with Binary) = render.from(doc).toBinaryOutput(out)
+    def fromDocument (doc: Document): Render.BinaryTarget = new BinaryTarget {
+      protected def renderBinary (out: Output with Binary): Unit = render.from(doc).toBinaryOutput(out)
     }
     
-    def fromTree (input: InputConfigBuilder): GatherTarget = new GatherTarget(input)
-    
-    /** A target for a render operation that accepts only binary output, the final
-     *  result of the gathering operation that merges the individual render results
-     *  obtained from transforming the input tree.
-     *  
-     *  @param inputBuilder the builder used to configure the input tree
-     *  @param isParallel indicates whether the transform operations for the individual targets should run in parallel
-   	 */
-    class GatherTarget (inputBuilder: InputConfigBuilder, 
-                        isParallel:Boolean = false) extends TreeConfigBuilder[GatherTarget] 
-                                                    with Render.BinaryTarget { 
-      
-      protected def withInputBuilder (f: InputConfigBuilder => InputConfigBuilder): GatherTarget = new GatherTarget(f(inputBuilder), isParallel)
-      
-      protected def withParallelExecution: GatherTarget = new GatherTarget(inputBuilder.inParallel, true)
-      
-      protected def renderBinary (out: Output with Binary): Unit = {
-        val tree = parse.fromTree(inputBuilder)
-        render.from(tree).toBinaryOutput(out) // TODO - parallel output?
-      }
+    def fromTree (tree: DocumentTree): Render.BinaryTarget = new BinaryTarget {
+      protected def renderBinary (out: Output with Binary): Unit = render.from(tree).toBinaryOutput(out)
     }
 
     
   }
 
-  /** API for configuring a batch operation for an input tree.
-   *  Gives access to all relevant aspects of traversing, parsing and rendering
-   *  a tree of inputs.
-   */
-  trait TreeConfigBuilder[ThisType] {
-    
-    protected def withInputBuilder (f: InputConfigBuilder => InputConfigBuilder): ThisType
-    
-    protected def withParallelExecution: ThisType
-    
-    /** Specifies the template engine to use for
-     *  parsing all template inputs found in the tree.
-     */
-    def withTemplateParser (parse: ParseTemplate): ThisType = withInputBuilder(_.withTemplateParser(parse))
-    
-    /** Specifies custom template directives to use with
-     *  the default template engine.
-     */
-    def withTemplateDirectives (directives: Templates.Directive*): ThisType = withInputBuilder(_.withTemplateDirectives(directives:_*))
-    
-    /** Instructs both the parser and renderer to process all inputs and outputs in parallel.
-     *  The recursive structure of document trees will be flattened before parsing and rendering
-     *  and then get reassembled afterwards, therefore the parallel processing
-     *  includes all subtrees of the document tree.
-     *  
-     *  The actual transformation is a three phase process, the first (parsing) and
-     *  third (rendering) can run in parallel. The second phase in the middle cannot,
-     *  as this is the document tree model rewrite step where things like cross references or
-     *  table of contents get processed that need access to more than just the current
-     *  document. 
-     */
-    def inParallel: ThisType = withParallelExecution
-    
-  }
-  
   /** Step in the setup for a transform operation where the
    *  renderer must be specified.
    */

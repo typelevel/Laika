@@ -16,12 +16,15 @@
 
 package laika.api.ext
 import com.typesafe.config.Config
+import laika.directive.DirectiveRegistry
+import laika.directive.Directives.Templates
 import laika.factory.RendererFactory
 import laika.io.{DocumentType, Input}
 import laika.parse.core.Parser
 import laika.parse.css.Styles.StyleDeclaration
 import laika.render.{FOWriter, HTML, HTMLWriter, XSLFO}
 import laika.tree.Paths.Path
+import laika.tree.Templates.TemplateRoot
 
 /**
   * @author Jens Halm
@@ -37,6 +40,22 @@ object BundleProvider {
   def forDocTypeMatcher (matcher: PartialFunction[Path, DocumentType]): ExtensionBundle = new ExtensionBundle {
 
     override def docTypeMatcher: PartialFunction[Path, DocumentType] = matcher
+
+  }
+
+  def forTemplateParser(parser: Parser[TemplateRoot]): ExtensionBundle = new ExtensionBundle {
+
+    override def parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders(
+      templateParser = Some(parser)
+    )
+
+  }
+
+  def forTemplateDirective(directive: Templates.Directive): ExtensionBundle = new DirectiveRegistry {
+
+    val templateDirectives = Seq(directive)
+    val spanDirectives = Seq()
+    val blockDirectives = Seq()
 
   }
 

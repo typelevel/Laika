@@ -25,11 +25,17 @@ import laika.factory.ParserFactory
 import laika.io.DocumentType._
 import laika.io.InputProvider._
 import laika.io.{DocumentType, IO, Input, InputProvider}
+import laika.parse.core.{Parser, ParserContext}
 import laika.parse.core.combinator.Parsers.{documentParserFunction, success}
+import laika.parse.core.text.TextParsers.{opt, unsafeParserFunction}
 import laika.parse.css.Styles.{StyleDeclaration, StyleDeclarationSet}
 import laika.rewrite.{DocumentCursor, RewriteRules}
+import laika.template.ConfigParser
 import laika.tree.Documents._
+import laika.tree.Elements.{InvalidSpan, SystemMessage}
 import laika.tree.Paths.Path
+import laika.tree.Templates.{TemplateElement, TemplateRoot, TemplateSpan, TemplateString}
+import laika.util.~
 
 import scala.io.Codec
   
@@ -232,43 +238,67 @@ class Parse private (parsers: Seq[ParserFactory], bundles: Seq[ExtensionBundle],
 
     def parseMarkup (input: Input): Operation[Document] = () => (Markup, IO(input)(parserLookup.forInput(input)))
     
-    def parseTemplate (docType: DocumentType)(input: Input): Operation[TemplateDocument] = () => (docType, IO(input)(config.templateParser.fromInput))
+    def parseTemplate (docType: DocumentType)(input: Input): Seq[Operation[TemplateDocument]] = mergedBundle.parserDefinitions.templateParser match {
+      case None => Seq()
+      case Some(rootParser) =>
+
+        // TODO - move this logic to new DocumentParsers and ConfigHeaderParsers
+
+        def configParser (path: Path): Parser[Either[InvalidSpan,TConfig]] =
+          ConfigParser.forPath(path, {
+            (ex: Exception, str: String) => InvalidSpan(SystemMessage(laika.tree.Elements.Error,
+              "Error parsing config header: "+ex.getMessage), TemplateString(s"{%$str%}"))
+          })
+
+        def templateWithConfig (path: Path): Parser[(TConfig, TemplateRoot)] = opt(configParser(path)) ~ rootParser ^^ {
+          case Some(Right(config)) ~ root => (config, root)
+          case Some(Left(span)) ~ root    => (ConfigFactory.empty(), root.copy(content = TemplateElement(span) +: root.content))
+          case None ~ root                => (ConfigFactory.empty(), root)
+        }
+
+        def parseDocument (input: Input): TemplateDocument = {
+          val (config, root) = unsafeParserFunction(templateWithConfig(input.path))(input.asParserInput)
+          TemplateDocument(input.path, root, config)
+        }
+
+        Seq(() => (docType, IO(input)(parseDocument)))
+    }
 
     def parseStyleSheet (format: String)(input: Input): Operation[StyleDeclarationSet] = () => {
       val parser = mergedBundle.parserDefinitions.styleSheetParser.getOrElse(success(Set.empty[StyleDeclaration]))
       val docF = documentParserFunction(parser, StyleDeclarationSet.forPath)
       (StyleSheet(format), IO(input)(docF))
     }
-    
+
     def parseTreeConfig (input: Input): Operation[TreeConfig] = () => (Config, TreeConfig(input.path, ConfigProvider.fromInput(input)))
 
     def collectOperations[T] (provider: InputProvider, f: InputProvider => Seq[Operation[T]]): Seq[Operation[T]] =
       f(provider) ++ (provider.subtrees flatMap (collectOperations(_, f)))
-    
+
     val operations = collectOperations(config.provider, _.markupDocuments.map(parseMarkup)) ++
-                     collectOperations(config.provider, _.templates.map(parseTemplate(Template))) ++
-                     collectOperations(config.provider, _.dynamicDocuments.map(parseTemplate(Dynamic))) ++
+                     collectOperations(config.provider, _.templates.flatMap(parseTemplate(Template))) ++
+                     collectOperations(config.provider, _.dynamicDocuments.flatMap(parseTemplate(Dynamic))) ++
                      collectOperations(config.provider, _.styleSheets.flatMap({ case (format,inputs) => inputs map parseStyleSheet(format) }).toSeq) ++
                      collectOperations(config.provider, _.configDocuments.find(_.path.name == "directory.conf").toList.map(parseTreeConfig)) // TODO - filename could be configurable
-    
+
     val results = if (config.parallel) operations.par map (_()) seq else operations map (_())
-    
+
     val docMap = (results collect {
       case (Markup, doc: Document) => (doc.path, doc)
     }) toMap
-    
+
     val templateMap = (results collect {
       case (docType, doc: TemplateDocument) => ((docType, doc.path), doc)
     }) toMap
-    
+
     val styleMap = (results collect {
       case (StyleSheet(_), style: StyleDeclarationSet) => (style.paths.head, style)
     }) toMap
-    
+
     val treeConfigMap = (results collect {
       case (Config, config: TreeConfig) => (config.path, config.config)
     }) toMap
-    
+
     def collectDocuments (provider: InputProvider, root: Boolean = false): DocumentTree = {
       val docs = provider.markupDocuments map (i => docMap(i.path))
       val trees = provider.subtrees map (collectDocuments(_))
@@ -286,13 +316,13 @@ class Parse private (parsers: Seq[ParserFactory], bundles: Seq[ExtensionBundle],
 
       DocumentTree(provider.path, docs ++ trees, templates, styles, additionalContent, config, sourcePaths = provider.sourcePaths)
     }
-    
+
     val tree = collectDocuments(config.provider, root = true)
-    
+
     if (rewrite) {
       val rules = RewriteRules.chainFactories(mergedBundle.rewriteRules) // TODO - move this to OperationSupport
       tree.rewrite(rules)
-    } 
+    }
     else tree
   }
 

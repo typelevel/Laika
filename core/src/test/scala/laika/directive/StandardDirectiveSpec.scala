@@ -24,21 +24,23 @@ import laika.rewrite.TemplateRewriter
 import laika.rewrite.RewriteRules
 import laika.parse.markdown.Markdown
 import laika.tree.helper.ModelBuilder
-import laika.template.ParseTemplate
-import laika.template.DefaultTemplate
 import laika.tree.Elements._
 import laika.tree.Paths._
 import laika.tree.Documents._
 import laika.tree.Templates.TemplateRoot
 import laika.tree.Templates.TemplateSpanSequence
 import com.typesafe.config.ConfigFactory
+import laika.parse.core.ParserContext
+
 import scala.collection.JavaConversions._
 
 class StandardDirectiveSpec extends FlatSpec
                             with Matchers
                             with ModelBuilder {
 
-  
+
+  lazy val templateParser = StandardDirectives.processExtension(DirectiveSupport).parserDefinitions.templateParser.get
+
   def parse (input: String): Document = (Parse as Markdown fromString input)
 
   def parseWithFragments (input: String): (Map[String,Element], RootElement) = {
@@ -46,7 +48,7 @@ class StandardDirectiveSpec extends FlatSpec
     (doc.fragments, doc.content)
   }
   
-  def parseTemplate (input: String): TemplateRoot = (ParseTemplate as DefaultTemplate fromString input).content
+  def parseTemplate (input: String): TemplateRoot = templateParser.parse(ParserContext(input)).get
   
   def parseTemplateWithConfig (input: String, config: String): RootElement = {
     val tRoot = parseTemplate(input)

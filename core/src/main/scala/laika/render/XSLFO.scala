@@ -27,7 +27,6 @@ import laika.io.Input
 import laika.io.Output
 import laika.factory.RendererFactory
 import laika.util.RomanNumerals
-import laika.template.ParseTemplate
 import laika.parse.css.Styles.StyleDeclarationSet
 
 import scala.language.existentials
@@ -35,6 +34,7 @@ import FOWriter._
 import laika.api.ext.Theme
 import laika.parse.core.combinator.Parsers
 import laika.parse.css.CSSParsers
+import laika.template.DefaultTemplateParser
   
 /** A renderer for XSL-FO output. May be directly passed to the `Render` or `Transform` APIs:
  * 
@@ -332,6 +332,6 @@ object XSLFO extends XSLFO(None, None, true) {
   }
 
   lazy val templateResource: TemplateDocument =
-    ParseTemplate.fromInput(Input.fromClasspath("/templates/default.template.fo", Root / "default.template.fo"))
+    DefaultTemplateParser.parse(Input.fromClasspath("/templates/default.template.fo", Root / "default.template.fo"))
   
 }

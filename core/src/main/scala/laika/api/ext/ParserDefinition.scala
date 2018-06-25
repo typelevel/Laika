@@ -21,6 +21,7 @@ import laika.parse.core.Parser
 import laika.parse.core.markup.{RecursiveParsers, RecursiveSpanParsers}
 import laika.parse.css.Styles.StyleDeclaration
 import laika.tree.Elements.{Block, InvalidBlock, Span}
+import laika.tree.Templates.TemplateRoot
 
 /**
   * @author Jens Halm
@@ -40,6 +41,7 @@ trait ParserDefinitionBuilder[T] {
 case class ParserDefinitionBuilders(blockParsers: Seq[ParserDefinitionBuilder[Block]] = Nil,
                                     spanParsers: Seq[ParserDefinitionBuilder[Span]] = Nil,
                                     configHeaderParsers: Seq[Parser[Either[InvalidBlock, Config]]] = Nil,
+                                    templateParser: Option[Parser[TemplateRoot]] = None,
                                     styleSheetParser: Option[Parser[Set[StyleDeclaration]]] = None) {
 
   def withBase(builders: ParserDefinitionBuilders): ParserDefinitionBuilders =
@@ -47,6 +49,7 @@ case class ParserDefinitionBuilders(blockParsers: Seq[ParserDefinitionBuilder[Bl
       blockParsers ++ builders.blockParsers,
       spanParsers ++ builders.spanParsers,
       configHeaderParsers ++ builders.configHeaderParsers,
+      templateParser.orElse(builders.templateParser),
       styleSheetParser.orElse(builders.styleSheetParser)
     )
 

@@ -30,7 +30,6 @@ import laika.parse.rst.TextRoles.TextRole
 import laika.parse.rst.{ExtendedHTML, ReStructuredText, Directives => rst}
 import laika.render._
 import laika.rewrite.{DocumentCursor, RewriteRules}
-import laika.template.{DefaultTemplate, ParseTemplate}
 import laika.tree.Documents._
 import laika.tree.ElementTraversal
 import laika.tree.Elements._
@@ -76,8 +75,6 @@ object LaikaPlugin extends AutoPlugin {
     val laikaReStructuredText    = settingKey[ReStructuredText]("The parser for reStructuredText files")
 
     val laikaMarkupParser        = settingKey[Parse]("The parser for all text markup files")
-
-    val laikaTemplateParser      = settingKey[ParseTemplate]("The parser for template files")
 
     val laikaRawContent          = settingKey[Boolean]("Indicates whether embedding of raw content (like verbatim HTML) is supported in markup")
 
@@ -177,12 +174,11 @@ object LaikaPlugin extends AutoPlugin {
                                  object directives extends DirectiveRegistry {
                                    val blockDirectives = laikaBlockDirectives.value
                                    val spanDirectives = laikaSpanDirectives.value
+                                   val templateDirectives = laikaTemplateDirectives.value
                                  }
                                  val parser = Parse.as(laikaMarkdown.value).or(laikaReStructuredText.value).withoutRewrite.using(directives)
                                  if (laikaRawContent.value) parser using VerbatimHTML else parser
                                },
-
-    laikaTemplateParser        := (ParseTemplate as DefaultTemplate.withDirectives(laikaTemplateDirectives.value: _*)),
 
     laikaRewriteRules          := Nil,
 
@@ -249,7 +245,6 @@ object LaikaPlugin extends AutoPlugin {
 
     val inputTreeTask: Initialize[Task[InputConfigBuilder]] = task {
       val builder = Directories((sourceDirectories in Laika).value, (excludeFilter in Laika).value.accept)(laikaEncoding.value)
-        .withTemplateParser(laikaTemplateParser.value)
       if (laikaParallel.value) builder.inParallel else builder
     }
 

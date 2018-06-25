@@ -19,8 +19,8 @@ package laika.api
 import java.io.{ByteArrayInputStream, StringReader}
 
 import laika.api.ext.{BundleProvider, ExtensionBundle}
+import laika.io.DocumentType
 import laika.io.DocumentType._
-import laika.io.{DocumentType, Input}
 import laika.io.InputProvider.{Directory, InputConfigBuilder}
 import laika.parse.core.Parser
 import laika.parse.core.text.TextParsers
@@ -29,7 +29,6 @@ import laika.parse.markdown.Markdown
 import laika.parse.rst.Elements.CustomizedTextRole
 import laika.parse.rst.ReStructuredText
 import laika.rewrite.TemplateRewriter
-import laika.template.ParseTemplate
 import laika.tree.Documents._
 import laika.tree.Elements._
 import laika.tree.Paths.{Path, Root}
@@ -152,8 +151,7 @@ class ParseAPISpec extends FlatSpec
 
     def rawMixedParsedTree = viewOf((Parse as Markdown or ReStructuredText withoutRewrite) fromTree builder(dirs))
     
-    def parsedWith (f: InputConfigBuilder => InputConfigBuilder) =
-      viewOf(withTemplatesApplied(Parse as Markdown fromTree f(builder(dirs))))
+    def parsedInParallel = viewOf(withTemplatesApplied(Parse as Markdown fromTree builder(dirs).inParallel))
 
     def parsedWith (bundle: ExtensionBundle) =
       viewOf(withTemplatesApplied(Parse.as(Markdown).using(bundle).fromTree(builder(dirs))))
@@ -301,13 +299,12 @@ class ParseAPISpec extends FlatSpec
   
   it should "allow to specify a custom template engine" in {
     new TreeParser {
-      val parser: Input => TemplateDocument = 
-        input => TemplateDocument(input.path, TemplateRoot(List(TemplateString("$$" + input.asParserInput.input))))
+      val parser: Parser[TemplateRoot] = TextParsers.any ^^ { str => TemplateRoot(List(TemplateString("$$" + str))) }
       val dirs = """- main1.template.html:name
         |- main2.template.html:name""".stripMargin
       def template (num: Int) = TemplateView(Root / (s"main$num.template.html"), TemplateRoot(List(TemplateString("$$foo"))))
       val treeResult = TreeView(Root, List(TemplateDocuments(Template, List(template(1),template(2)))))
-      parsedRawWith(_.withTemplateParser(ParseTemplate as parser)) should be (treeResult)
+      parsedRawWith(identity, BundleProvider.forTemplateParser(parser)) should be (treeResult)
     }
   }
   
@@ -346,7 +343,7 @@ class ParseAPISpec extends FlatSpec
         |- main2.template.html:directive""".stripMargin
       def template (num: Int) = TemplateView(Root / (s"main$num.template.html"), tRoot(tt("aa "),tt("bar"),tt(" bb")))
       val treeResult = TreeView(Root, List(TemplateDocuments(Template, List(template(1),template(2)))))
-      parsedRawWith(_.withTemplateDirectives(directive)) should be (treeResult)
+      parsedRawWith(identity, BundleProvider.forTemplateDirective(directive)) should be (treeResult)
     }
   }
   
@@ -414,7 +411,7 @@ class ParseAPISpec extends FlatSpec
         Documents(Markup, List(docView(1),docView(2))),
         Subtrees(List(subtree1,subtree2))
       ))
-      parsedWith(_.inParallel) should be (treeResult)
+      parsedInParallel should be (treeResult)
     }
   }
   
