@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package laika.template
+package laika.directive
 
 import com.typesafe.config.{Config, ConfigFactory, ConfigParseOptions}
-import laika.directive.DirectiveParsers
 import laika.directive.Directives.Templates
 import laika.io.Input
 import laika.parse.core.markup.DefaultRecursiveSpanParsers
@@ -28,7 +27,6 @@ import laika.tree.Documents.TemplateDocument
 import laika.tree.Elements._
 import laika.tree.Paths.Path
 import laika.tree.Templates._
-import laika.util.~
 
 
 object ConfigParser {

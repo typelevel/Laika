@@ -20,7 +20,7 @@ import java.io.{File, InputStream, Reader}
 
 import com.typesafe.config.{ConfigFactory, Config => TConfig}
 import laika.api.ext.{ConfigProvider, ExtensionBundle}
-import laika.directive.{DirectiveSupport, StandardDirectives}
+import laika.directive.{ConfigParser, DirectiveSupport, StandardDirectives}
 import laika.factory.ParserFactory
 import laika.io.DocumentType._
 import laika.io.InputProvider._
@@ -30,7 +30,6 @@ import laika.parse.core.combinator.Parsers.{documentParserFunction, success}
 import laika.parse.core.text.TextParsers.{opt, unsafeParserFunction}
 import laika.parse.css.Styles.{StyleDeclaration, StyleDeclarationSet}
 import laika.rewrite.{DocumentCursor, RewriteRules}
-import laika.template.ConfigParser
 import laika.tree.Documents._
 import laika.tree.Elements.{InvalidSpan, SystemMessage}
 import laika.tree.Paths.Path

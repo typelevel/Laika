@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package laika.template
+package laika.directive
 
 import laika.parse.core.Parser
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
-import laika.parse.helper.DefaultParserHelpers
-import laika.parse.helper.ParseResultHelpers
-import laika.tree.helper.ModelBuilder
+import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.tree.Elements._
 import laika.tree.Templates._
+import laika.tree.helper.ModelBuilder
+import org.scalatest.{FlatSpec, Matchers}
 
 class TemplateParsersSpec extends FlatSpec 
                           with Matchers 

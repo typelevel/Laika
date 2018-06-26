@@ -21,7 +21,6 @@ import org.scalatest.FlatSpec
 import laika.parse.helper.ParseResultHelpers
 import laika.parse.helper.DefaultParserHelpers
 import laika.tree.helper.ModelBuilder
-import laika.template.TemplateParsers
 import laika.directive.Directives.Templates
 import laika.directive.Directives.Templates.Directive
 import laika.directive.Directives.Default

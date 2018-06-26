@@ -23,7 +23,6 @@ import laika.parse.core.markup._
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Parser, Failure => PFailure, Success => PSuccess}
 import laika.rewrite.DocumentCursor
-import laika.template.ConfigParser
 import laika.tree.Elements._
 import laika.tree.Paths.Path
 import laika.tree.Templates._

@@ -17,6 +17,7 @@
 package laika.render
 
 import laika.api.ext.Theme
+import laika.directive.DefaultTemplateParser
 import laika.tree.Documents.TemplateDocument
 import laika.tree.Elements._
 import laika.tree.Templates._
@@ -25,7 +26,6 @@ import laika.io.Input
 import laika.io.Output
 import laika.factory.RendererFactory
 import laika.parse.css.Styles.StyleDeclarationSet
-import laika.template.DefaultTemplateParser
 
 /** A renderer for HTML output. May be directly passed to the `Render` or `Transform` APIs:
  * 

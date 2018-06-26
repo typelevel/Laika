@@ -32,10 +32,10 @@ import laika.parse.css.Styles.StyleDeclarationSet
 import scala.language.existentials
 import FOWriter._
 import laika.api.ext.Theme
+import laika.directive.DefaultTemplateParser
 import laika.parse.core.combinator.Parsers
 import laika.parse.css.CSSParsers
-import laika.template.DefaultTemplateParser
-  
+
 /** A renderer for XSL-FO output. May be directly passed to the `Render` or `Transform` APIs:
  * 
  *  {{{

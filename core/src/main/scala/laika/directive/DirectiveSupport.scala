@@ -18,7 +18,6 @@ package laika.directive
 
 import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders}
 import laika.directive.Directives.{Blocks, Spans, Templates}
-import laika.template.TemplateParsers
 
 /**
   * @author Jens Halm
