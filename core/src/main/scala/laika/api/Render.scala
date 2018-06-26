@@ -18,6 +18,7 @@ package laika.api
 
 import java.io.{File, OutputStream}
 
+import laika.api.config.{OperationConfig, OperationConfigBuilder}
 import laika.api.ext.{ExtensionBundle, Theme}
 import laika.api.ext.ExtensionBundle.LaikaDefaults
 import laika.directive.{DirectiveSupport, StandardDirectives}
@@ -70,7 +71,7 @@ import scala.io.Codec
  *  @author Jens Halm
  */
 abstract class Render[Writer] private (private[Render] val factory: RendererFactory[Writer],
-                                       bundles: Seq[ExtensionBundle] = Nil) {
+                                       protected val config: OperationConfig) extends OperationConfigBuilder {
 
   
   /** The type of the rendering target for a single input document.
@@ -86,7 +87,7 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
   type ThisType <: Render[Writer]
 
 
-  private lazy val mergedBundle: ExtensionBundle = ExtensionBundle.mergeBundles(bundles)
+  private lazy val mergedBundle: ExtensionBundle = ExtensionBundle.mergeBundles(config.bundles)
 
   /** Specifies a custom render function that overrides one or more of the default
    *  renderers for the output format this instance uses.
@@ -112,13 +113,6 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
       Theme(customRenderers = Seq(render)).asInstanceOf[Theme[W]]
   })
 
-  /** Returns a new Render instance with the specified extension bundles installed.
-    *
-    * Bundles are usually provided by libraries (by Laika itself or a 3rd-party extension library)
-    * or as re-usable building blocks by application code.
-    */
-  def using (bundles: ExtensionBundle*): ThisType
-  
   /** Specifies the element to render. This may be a `RootElement` instance
    *  as well as any other type of `Element`, thus allowing to render document
    *  fragments, too.
@@ -375,17 +369,17 @@ object Render {
    *  in the destination tree.
    *  
    *  @param factory the factory for the rendere to use
-   *  @param bundles extensions to use with this renderer
+   *  @param cfg the configuration for the render operation
    */
-  class RenderMappedOutput[Writer] (factory: RendererFactory[Writer], 
-                                    bundles: Seq[ExtensionBundle] = Nil) extends Render[Writer](factory, bundles) {
+  class RenderMappedOutput[Writer] (factory: RendererFactory[Writer],
+                                    cfg: OperationConfig) extends Render[Writer](factory, cfg) {
     
     type DocTarget = SingleTarget
     type TreeTarget = MappedTreeTarget
     type ThisType = RenderMappedOutput[Writer]
-    
-    def using (bundles: ExtensionBundle*): ThisType =
-      new RenderMappedOutput(factory, this.bundles ++ bundles)
+
+    protected[api] def withConfig(newConfig: OperationConfig): ThisType =
+      new RenderMappedOutput[Writer](factory, newConfig)
 
     def from (element: Element): SingleTarget = new SingleTarget {
       protected def renderTo (out: Output) = render(element, out, defaultStyles)
@@ -408,17 +402,17 @@ object Render {
    *  be conveniently organized in a full directory structure.
    *  
    *  @param processor the processor that merges the results from the individual render operations into a single output
-   *  @param bundles extensions to use with this renderer
+   *  @param cfg the configuration for the render operation
    */
-  class RenderGatheredOutput[Writer] (processor: RenderResultProcessor[Writer], 
-                                      bundles: Seq[ExtensionBundle] = Nil) extends Render[Writer](processor.factory, bundles) {
+  class RenderGatheredOutput[Writer] (processor: RenderResultProcessor[Writer],
+                                      cfg: OperationConfig) extends Render[Writer](processor.factory, cfg) {
     
     type DocTarget = BinaryTarget
     type TreeTarget = BinaryTarget
     type ThisType = RenderGatheredOutput[Writer]
-    
-    def using (bundles: ExtensionBundle*): ThisType =
-      new RenderGatheredOutput(processor, this.bundles ++ bundles)
+
+    protected[api] def withConfig(newConfig: OperationConfig): ThisType =
+      new RenderGatheredOutput[Writer](processor, newConfig)
 
     def from (element: Element): BinaryTarget = 
       from(Document(Root / "target", RootElement(Seq(TemplateRoot(Seq(TemplateElement(element)))))))
@@ -440,7 +434,7 @@ object Render {
    *  @param factory the renderer factory responsible for creating the final renderer
    */
   def as [Writer] (factory: RendererFactory[Writer]): RenderMappedOutput[Writer] =
-    new RenderMappedOutput(factory, Seq(LaikaDefaults, DirectiveSupport, StandardDirectives))
+    new RenderMappedOutput(factory, OperationConfig(Seq(LaikaDefaults, DirectiveSupport, StandardDirectives)))
   
   /** Returns a new Render instance for the specified processor.
    *  This instance is usually an object provided by the library
@@ -449,6 +443,6 @@ object Render {
    *  @param processor the processor responsible for processing the renderer result
    */
   def as [Writer] (processor: RenderResultProcessor[Writer]): RenderGatheredOutput[Writer] =
-    new RenderGatheredOutput(processor, Seq(LaikaDefaults, DirectiveSupport, StandardDirectives))
+    new RenderGatheredOutput(processor, OperationConfig(Seq(LaikaDefaults, DirectiveSupport, StandardDirectives)))
   
 }

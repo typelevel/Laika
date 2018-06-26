@@ -18,7 +18,8 @@ package laika.api
 
 import java.io.{File, InputStream, Reader}
 
-import laika.api.Render.{RenderGatheredOutput, RenderMappedOutput, SingleTarget, MappedTreeTarget, BinaryTarget}
+import laika.api.Render.{BinaryTarget, MappedTreeTarget, RenderGatheredOutput, RenderMappedOutput, SingleTarget}
+import laika.api.config.{OperationConfig, OperationConfigBuilder}
 import laika.api.ext.ExtensionBundle
 import laika.factory.{ParserFactory, RenderResultProcessor, RendererFactory}
 import laika.io.InputProvider._
@@ -83,7 +84,7 @@ import scala.io.Codec
  * 
  *  @author Jens Halm
  */
-abstract class Transform [Writer] private[Transform] (parse: Parse) {
+abstract class Transform [Writer] private[Transform] (parse: Parse) extends OperationConfigBuilder {
   
   /** The type of the transformation target for a single input document.
    */
@@ -170,14 +171,6 @@ abstract class Transform [Writer] private[Transform] (parse: Parse) {
    */
   def rendering (customRenderer: Writer => RenderFunction): ThisType
 
-  /** Returns a new Transform instance with the specified extension bundles installed.
-    *
-    * Bundles are usually provided by libraries (by Laika itself or a 3rd-party extension library)
-    * or as re-usable building blocks by application code.
-    */
-  def using (bundles: ExtensionBundle*): ThisType
-  
-  
   /** Parses the specified string and returns a new Operation instance which allows to specify the output.
    *  Any kind of input is valid, including an empty string. 
    */
@@ -314,7 +307,8 @@ object Transform {
    *  @param parse the parser to use for parsing the input
    *  @param render the renderer to use for producing the output
    */
-  class TransformMappedOutput[Writer] (parse: Parse, render: RenderMappedOutput[Writer]) extends Transform[Writer](parse) {
+  class TransformMappedOutput[Writer] (parse: Parse, render: RenderMappedOutput[Writer],
+                                       protected val config: OperationConfig) extends Transform[Writer](parse) {
     
     type DocTarget = SingleTarget
   
@@ -322,9 +316,11 @@ object Transform {
   
     type ThisType = TransformMappedOutput[Writer]
     
-    def rendering (customRenderer: Writer => RenderFunction): ThisType = new TransformMappedOutput(parse, render using customRenderer)
+    def rendering (customRenderer: Writer => RenderFunction): ThisType =
+      new TransformMappedOutput(parse, render using customRenderer, config)
 
-    def using (bundles: ExtensionBundle*): ThisType = new TransformMappedOutput(parse.using(bundles:_*), render.using(bundles:_*))
+    protected def withConfig (newConfig: OperationConfig): ThisType =
+      new TransformMappedOutput(parse.withConfig(newConfig), render.withConfig(newConfig), newConfig)
     
     def fromDocument (doc: Document): Render.SingleTarget = new SingleTarget {
       protected def renderTo (out: Output): Unit = render.from(doc).toOutput(out)
@@ -343,7 +339,8 @@ object Transform {
    *  @param parse the parser to use for parsing the input
    *  @param render the renderer to use for producing the output
    */
-  class TransformGatheredOutput[Writer] (parse: Parse, render: RenderGatheredOutput[Writer]) extends Transform[Writer](parse) {
+  class TransformGatheredOutput[Writer] (parse: Parse, render: RenderGatheredOutput[Writer],
+                                         protected val config: OperationConfig) extends Transform[Writer](parse) {
     
     type DocTarget = BinaryTarget
   
@@ -351,10 +348,12 @@ object Transform {
   
     type ThisType = TransformGatheredOutput[Writer]
     
-    def rendering (customRenderer: Writer => RenderFunction): ThisType = new TransformGatheredOutput(parse, render using customRenderer)
+    def rendering (customRenderer: Writer => RenderFunction): ThisType =
+      new TransformGatheredOutput(parse, render using customRenderer, config)
 
-    def using (bundles: ExtensionBundle*): ThisType = new TransformGatheredOutput(parse.using(bundles:_*), render.using(bundles:_*))
-    
+    protected def withConfig (newConfig: OperationConfig): ThisType =
+      new TransformGatheredOutput(parse.withConfig(newConfig), render.withConfig(newConfig), newConfig)
+
     def fromDocument (doc: Document): Render.BinaryTarget = new BinaryTarget {
       protected def renderBinary (out: Output with Binary): Unit = render.from(doc).toBinaryOutput(out)
     }
@@ -394,7 +393,7 @@ object Transform {
      *  @return a new Transform instance
      */
     def to [Writer] (factory: RendererFactory[Writer]): TransformMappedOutput[Writer] = 
-      new TransformMappedOutput(parse, Render as factory using (factories.flatMap(_.extensions):_*))
+      new TransformMappedOutput(parse, Render as factory withConfig parse.config, parse.config)
     
     /** Creates and returns a new Transform instance for the specified renderer and the
      *  previously specified parser. The returned instance is stateless and reusable for
@@ -404,7 +403,7 @@ object Transform {
      *  @return a new Transform instance
      */
     def to [Writer] (processor: RenderResultProcessor[Writer]): TransformGatheredOutput[Writer] = 
-      new TransformGatheredOutput(parse, Render as processor using (factories.flatMap(_.extensions):_*))
+      new TransformGatheredOutput(parse, Render as processor withConfig parse.config, parse.config)
     
   }
   

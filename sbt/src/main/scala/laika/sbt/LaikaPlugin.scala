@@ -46,7 +46,7 @@ object LaikaPlugin extends AutoPlugin {
 
   object autoImport {
 
-    val Laika                    = config("laika")
+    val Laika                    = sbt.config("laika")
 
     val laikaSite                = taskKey[File]("Generates a static website")
 

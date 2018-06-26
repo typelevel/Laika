@@ -19,13 +19,14 @@ package laika.api
 import java.io.{File, InputStream, Reader}
 
 import com.typesafe.config.{ConfigFactory, Config => TConfig}
+import laika.api.config.{OperationConfig, OperationConfigBuilder}
 import laika.api.ext.{ConfigProvider, ExtensionBundle}
 import laika.directive.{ConfigParser, DirectiveSupport, StandardDirectives}
 import laika.factory.ParserFactory
 import laika.io.DocumentType._
 import laika.io.InputProvider._
 import laika.io.{DocumentType, IO, Input, InputProvider}
-import laika.parse.core.{Parser, ParserContext}
+import laika.parse.core.Parser
 import laika.parse.core.combinator.Parsers.{documentParserFunction, success}
 import laika.parse.core.text.TextParsers.{opt, unsafeParserFunction}
 import laika.parse.css.Styles.{StyleDeclaration, StyleDeclarationSet}
@@ -33,7 +34,7 @@ import laika.rewrite.{DocumentCursor, RewriteRules}
 import laika.tree.Documents._
 import laika.tree.Elements.{InvalidSpan, SystemMessage}
 import laika.tree.Paths.Path
-import laika.tree.Templates.{TemplateElement, TemplateRoot, TemplateSpan, TemplateString}
+import laika.tree.Templates.{TemplateElement, TemplateRoot, TemplateString}
 import laika.util.~
 
 import scala.io.Codec
@@ -65,9 +66,13 @@ import scala.io.Codec
  * 
  *  @author Jens Halm
  */
-class Parse private (parsers: Seq[ParserFactory], bundles: Seq[ExtensionBundle], rewrite: Boolean) {
+class Parse private (parsers: Seq[ParserFactory], protected[api] val config: OperationConfig, rewrite: Boolean) extends OperationConfigBuilder {
 
-  private lazy val mergedBundle: ExtensionBundle = ExtensionBundle.mergeBundles(bundles)
+  type ThisType = Parse
+
+  protected[api] def withConfig(newConfig: OperationConfig): ThisType = new Parse(parsers, newConfig, rewrite)
+
+  private lazy val mergedBundle: ExtensionBundle = ExtensionBundle.mergeBundles(config.bundles)
 
   /** The file suffixes recognized by this parser.
    *  When transforming entire directories only files with
@@ -86,21 +91,14 @@ class Parse private (parsers: Seq[ParserFactory], bundles: Seq[ExtensionBundle],
    * 
    *  @param factory the parser factory to add to the previously specified parsers
    */
-  def or (factory: ParserFactory): Parse = new Parse(parsers :+ factory, bundles ++ factory.extensions, rewrite)
-
-  /** Returns a new Parse instance with the specified extension bundles installed.
-    *
-    * Bundles are usually provided by libraries (by Laika itself or a 3rd-party extension library)
-    * or as re-usable building blocks by application code.
-    */
-  def using (bundles: ExtensionBundle*): Parse = new Parse(parsers, this.bundles ++ bundles, rewrite)
+  def or (factory: ParserFactory): Parse = new Parse(parsers :+ factory, config.withBundles(factory.extensions), rewrite)
 
   /** Returns a new Parse instance that produces raw document trees without applying
    *  the default rewrite rules. These rules resolve link and image references and 
    *  rearrange the tree into a hierarchy of sections based on the (flat) sequence
    *  of header instances found in the document.
    */
-  def withoutRewrite: Parse = new Parse(parsers, bundles, rewrite = false)
+  def withoutRewrite: Parse = new Parse(parsers, config, rewrite = false)
   
   /** Returns a document obtained from parsing the specified string.
    *  Any kind of input is valid, including an empty string. 
@@ -358,7 +356,10 @@ object Parse {
    * 
    *  @param factory the parser factory to use for all subsequent operations
    */
-  def as (factory: ParserFactory): Parse = new Parse(Seq(factory),
-    Seq(ExtensionBundle.LaikaDefaults, DirectiveSupport, StandardDirectives) ++ factory.extensions, rewrite = true)
+  def as (factory: ParserFactory): Parse = new Parse(
+    Seq(factory),
+    OperationConfig(Seq(ExtensionBundle.LaikaDefaults, DirectiveSupport, StandardDirectives) ++ factory.extensions),
+    rewrite = true
+  )
 
 }
