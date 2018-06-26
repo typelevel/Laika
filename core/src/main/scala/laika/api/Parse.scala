@@ -225,16 +225,16 @@ class Parse private (parsers: Seq[ParserFactory], protected[api] val config: Ope
   /** Returns a document tree obtained by parsing files from the
    *  specified input configuration.
    *  
-   *  @param config the configuration for the input tree to process
+   *  @param inputTree the configuration for the input tree to process
    */
-  def fromTree (config: InputConfig): DocumentTree = {
+  def fromTree (inputTree: InputConfig): DocumentTree = {
 
     case class TreeConfig (path: Path, config: TConfig)
-    
+
     type Operation[T] = () => (DocumentType, T)
 
     def parseMarkup (input: Input): Operation[Document] = () => (Markup, IO(input)(parserLookup.forInput(input)))
-    
+
     def parseTemplate (docType: DocumentType)(input: Input): Seq[Operation[TemplateDocument]] = mergedBundle.parserDefinitions.templateParser match {
       case None => Seq()
       case Some(rootParser) =>
@@ -272,11 +272,11 @@ class Parse private (parsers: Seq[ParserFactory], protected[api] val config: Ope
     def collectOperations[T] (provider: InputProvider, f: InputProvider => Seq[Operation[T]]): Seq[Operation[T]] =
       f(provider) ++ (provider.subtrees flatMap (collectOperations(_, f)))
 
-    val operations = collectOperations(config.provider, _.markupDocuments.map(parseMarkup)) ++
-                     collectOperations(config.provider, _.templates.flatMap(parseTemplate(Template))) ++
-                     collectOperations(config.provider, _.dynamicDocuments.flatMap(parseTemplate(Dynamic))) ++
-                     collectOperations(config.provider, _.styleSheets.flatMap({ case (format,inputs) => inputs map parseStyleSheet(format) }).toSeq) ++
-                     collectOperations(config.provider, _.configDocuments.find(_.path.name == "directory.conf").toList.map(parseTreeConfig)) // TODO - filename could be configurable
+    val operations = collectOperations(inputTree.provider, _.markupDocuments.map(parseMarkup)) ++
+                     collectOperations(inputTree.provider, _.templates.flatMap(parseTemplate(Template))) ++
+                     collectOperations(inputTree.provider, _.dynamicDocuments.flatMap(parseTemplate(Dynamic))) ++
+                     collectOperations(inputTree.provider, _.styleSheets.flatMap({ case (format,inputs) => inputs map parseStyleSheet(format) }).toSeq) ++
+                     collectOperations(inputTree.provider, _.configDocuments.find(_.path.name == "directory.conf").toList.map(parseTreeConfig)) // TODO - filename could be configurable
 
     val results = if (config.parallel) operations.par map (_()) seq else operations map (_())
 
@@ -314,7 +314,7 @@ class Parse private (parsers: Seq[ParserFactory], protected[api] val config: Ope
       DocumentTree(provider.path, docs ++ trees, templates, styles, additionalContent, config, sourcePaths = provider.sourcePaths)
     }
 
-    val tree = collectDocuments(config.provider, root = true)
+    val tree = collectDocuments(inputTree.provider, root = true)
 
     if (rewrite) {
       val rules = RewriteRules.chainFactories(mergedBundle.rewriteRules) // TODO - move this to OperationSupport

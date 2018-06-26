@@ -151,7 +151,7 @@ class ParseAPISpec extends FlatSpec
 
     def rawMixedParsedTree = viewOf((Parse as Markdown or ReStructuredText withoutRewrite) fromTree builder(dirs))
     
-    def parsedInParallel = viewOf(withTemplatesApplied(Parse as Markdown fromTree builder(dirs).inParallel))
+    def parsedInParallel = viewOf(withTemplatesApplied(Parse.as(Markdown).inParallel.fromTree(builder(dirs))))
 
     def parsedWith (bundle: ExtensionBundle) =
       viewOf(withTemplatesApplied(Parse.as(Markdown).using(bundle).fromTree(builder(dirs))))

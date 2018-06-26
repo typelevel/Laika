@@ -147,7 +147,7 @@ object OutputProvider {
   /** The configuration for an output tree, consisting of the actual provider for
    *  all outputs and some flags that control the behaviour of the renderer.
    */
-  case class OutputConfig (provider: OutputProvider, parallel: Boolean, copyStaticFiles: Boolean)
+  case class OutputConfig (provider: OutputProvider, copyStaticFiles: Boolean)
   
   /** Responsible for building new OutputProviders based
    *  on the specified codec.
@@ -165,25 +165,11 @@ object OutputProvider {
    *  Gives access to all relevant aspects of traversing and writing to
    *  a tree of outputs.
    */
-  class OutputConfigBuilder (
-      provider: ProviderBuilder,
-      codec: Codec,
-      isParallel: Boolean = false,
-      copyStaticFiles: Boolean = true) {
-    
-    /** Instructs the renderers and writers to process all outputs in parallel.
-     *  The recursive structure of inputs will be flattened before rendering,
-     *  therefore the parallel processing includes all subtrees of this input tree.
-     */
-    def inParallel: OutputConfigBuilder = new OutputConfigBuilder(provider, codec, true, copyStaticFiles)
-    
-    /** Instructs the renderer not to copy all static files to the output destination.
-     */
-    def ignoreStaticFiles: OutputConfigBuilder = new OutputConfigBuilder(provider, codec, isParallel, false)
+  class OutputConfigBuilder (provider: ProviderBuilder, codec: Codec) {
     
     /** Builds the final configuration for this output tree.
      */
-    def build: OutputConfig = OutputConfig(provider.build(codec), isParallel, copyStaticFiles)
+    def build: OutputConfig = OutputConfig(provider.build(codec), copyStaticFiles = true)
   }
   
   /** Creates OutputConfigBuilder instances for a specific root directory in the file system.

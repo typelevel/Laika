@@ -40,7 +40,7 @@ object TestRenderResultProcessor extends RenderResultProcessor[TextWriter] {
     
     val strOutput = new StringOutputProvider(tree.path)
     
-    render(tree, OutputConfig(strOutput, parallel = false, copyStaticFiles = false))
+    render(tree, OutputConfig(strOutput, copyStaticFiles = false))
     
     val sb = new StringBuilder
     append(sb, strOutput.result, tree)

@@ -157,11 +157,7 @@ class TransformAPISpec extends FlatSpec
     def transformWithTemplates (parser: Parser[TemplateRoot]): RenderedTree = transformWithBundle(BundleProvider.forTemplateParser(parser))
     def transformWithDirective (directive: Templates.Directive): RenderedTree = transformWithBundle(BundleProvider.forTemplateDirective(directive))
     
-    def transformInParallel: RenderedTree = {
-      val builder = new OutputBuilder.TestProviderBuilder
-      transform fromTree input(dirs).inParallel toTree output(builder).inParallel
-      builder.result
-    }
+    def transformInParallel: RenderedTree = transformWith(transform.inParallel)
     
     private def transformWith (transformer: TransformMappedOutput[TextWriter] = transform): RenderedTree = {
       val builder = new OutputBuilder.TestProviderBuilder
@@ -287,9 +283,9 @@ class TransformAPISpec extends FlatSpec
         |- styles.fo.css:style""".stripMargin
       val result = RenderResult.fo.withDefaultTemplate("""<fo:block font-family="serif" font-size="13pt" space-after="3mm">foo</fo:block>""")
       val providerBuilder = new OutputBuilder.TestProviderBuilder
-      Transform.from(Markdown).to(XSLFO)
+      Transform.from(Markdown).to(XSLFO).inParallel
         .using(BundleProvider.forStyleSheetParser(parser))
-        .fromTree(input(dirs).inParallel).toTree(output(providerBuilder).inParallel)
+        .fromTree(input(dirs)).toTree(output(providerBuilder))
       providerBuilder.result should be (root(List(docs(
         (Root / "doc1.fo", result)
       ))))

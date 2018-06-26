@@ -206,7 +206,7 @@ class FOforPDF (config: Option[PDFConfig]) {
 
     def renderDocuments(preparedTree: DocumentTree): String = {
       val foOutput = new StringOutputProvider(preparedTree.path)
-      render(preparedTree, OutputConfig(foOutput, parallel = false, copyStaticFiles = false))
+      render(preparedTree, OutputConfig(foOutput, copyStaticFiles = false))
       
       val sb = new StringBuilder
       append(sb, foOutput.result, preparedTree) // TODO - improve formatting

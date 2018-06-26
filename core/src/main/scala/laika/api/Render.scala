@@ -180,25 +180,25 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
   /** Renders the specified document tree to the given output.
    * 
    *  @param tree the element to render
-   *  @param config the configuration for the output to render to
+   *  @param outputTree the configuration for the output to render to
    */
-  protected[this] def render (tree: DocumentTree, config: OutputConfig): Unit = {
-    
+  protected[this] def render (tree: DocumentTree, outputTree: OutputConfig): Unit = {
+
     type Operation = () => Unit
-    
+
     def renderTree (provider: OutputProvider, styles: StyleDeclarationSet, path: Path, content: RootElement): Operation = {
       val output = provider.newOutput(path.basename +"."+ factory.fileSuffix)
       () => render(content, output, styles)
-    } 
-      
+    }
+
     def copy (provider: OutputProvider)(input: Input): Operation = {
       val output = provider.newOutput(input.path.name)
       () => IO.copy(input, output)
     }
-    
+
     def collectOperations (provider: OutputProvider, parentStyles: StyleDeclarationSet, tree: DocumentTree): Seq[Operation] = {
 
-      def isOutputRoot (source: DocumentTree) = (source.sourcePaths.headOption, config.provider) match {
+      def isOutputRoot (source: DocumentTree) = (source.sourcePaths.headOption, outputTree.provider) match {
         case (Some(inPath), out: DirectoryOutputProvider) => inPath == out.directory.getAbsolutePath
         case _ => false
       }
@@ -212,17 +212,17 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
       }) ++
       (tree.additionalContent flatMap {
         case doc: DynamicDocument => Seq(renderTree(provider, styles, doc.path, doc.content))
-        case static: StaticDocument if config.copyStaticFiles => Seq(copy(provider)(static.input))
+        case static: StaticDocument if outputTree.copyStaticFiles => Seq(copy(provider)(static.input))
         case _ => Seq()
       })
     }
-  
+
     val templateName = "default.template." + factory.fileSuffix
-    val treeWithTpl = if (tree.selectTemplate(Current / templateName).isDefined) tree 
+    val treeWithTpl = if (tree.selectTemplate(Current / templateName).isDefined) tree
                       else tree.copy(templates = tree.templates :+ TemplateDocument(Root / templateName, defaultTemplate))
     val finalTree = TemplateRewriter.applyTemplates(treeWithTpl, factory.fileSuffix)
-    val operations = collectOperations(config.provider, defaultStyles, finalTree)
-    
+    val operations = collectOperations(outputTree.provider, defaultStyles, finalTree)
+
     (if (config.parallel) operations.par else operations) foreach (_())
   }
     

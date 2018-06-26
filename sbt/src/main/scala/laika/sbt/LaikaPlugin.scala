@@ -177,7 +177,8 @@ object LaikaPlugin extends AutoPlugin {
                                    val templateDirectives = laikaTemplateDirectives.value
                                  }
                                  val parser = Parse.as(laikaMarkdown.value).or(laikaReStructuredText.value).withoutRewrite.using(directives)
-                                 if (laikaRawContent.value) parser using VerbatimHTML else parser
+                                 val pWithRaw = if (laikaRawContent.value) parser using VerbatimHTML else parser
+                                 if (laikaParallel.value) pWithRaw.inParallel else pWithRaw
                                },
 
     laikaRewriteRules          := Nil,
@@ -244,13 +245,11 @@ object LaikaPlugin extends AutoPlugin {
     }
 
     val inputTreeTask: Initialize[Task[InputConfigBuilder]] = task {
-      val builder = Directories((sourceDirectories in Laika).value, (excludeFilter in Laika).value.accept)(laikaEncoding.value)
-      if (laikaParallel.value) builder.inParallel else builder
+      Directories((sourceDirectories in Laika).value, (excludeFilter in Laika).value.accept)(laikaEncoding.value)
     }
 
     def outputTreeTask (key: Scoped): Initialize[Task[OutputConfigBuilder]] = task {
-      val builder = Directory((target in key).value)(laikaEncoding.value)
-      if (laikaParallel.value) builder.inParallel else builder
+      Directory((target in key).value)(laikaEncoding.value)
     }
 
     def prepareTargetDirectory (key: Scoped): Initialize[TargetDirectory] = setting {
@@ -265,8 +264,10 @@ object LaikaPlugin extends AutoPlugin {
 
     def prepareRenderer [Writer, R <: Render[Writer] { type ThisType = R }] (
         render: R,
-        custom: Seq[Writer => RenderFunction]): R = {
-      (render /: custom) { case (render, renderer) => render using renderer }
+        custom: Seq[Writer => RenderFunction],
+        parallel: Boolean): R = {
+      val renderWithExt = (render /: custom) { case (render, renderer) => render using renderer }
+      if (parallel) renderWithExt.inParallel else renderWithExt
     }
 
     private val allTargets = setting {
@@ -309,7 +310,7 @@ object LaikaPlugin extends AutoPlugin {
 
               val html = laikaRenderMessageLevel.value map (HTML withMessageLevel) getOrElse HTML
               val renderers = laikaSiteRenderers.value :+ HTMLRenderer :+ ExtendedHTML // always install extensions
-              val render = prepareRenderer(Render as html, renderers)
+              val render = prepareRenderer(Render as html, renderers, laikaParallel.value)
               render from tree toTree (laikaOutputTree in laikaSite).value
 
               streams.value.log.info(Log.outputs(tree))
@@ -321,7 +322,7 @@ object LaikaPlugin extends AutoPlugin {
 
               val targetDir = prepareTargetDirectory(laikaPrettyPrint).value.prepare
 
-              val render = prepareRenderer(Render as PrettyPrint, laikaPrettyPrintRenderers.value)
+              val render = prepareRenderer(Render as PrettyPrint, laikaPrettyPrintRenderers.value, laikaParallel.value)
               render from tree toTree (laikaOutputTree in laikaPrettyPrint).value
 
               streams.value.log.info("Generated Pretty Print in " + targetDir)
@@ -333,7 +334,7 @@ object LaikaPlugin extends AutoPlugin {
               val targetDir = prepareTargetDirectory(laikaXSLFO).value.prepare
 
               val fo = laikaRenderMessageLevel.value map (XSLFO withMessageLevel) getOrElse XSLFO // TODO - ExtendedFO for rst
-              val render = prepareRenderer(Render as fo, laikaFoRenderers.value)
+              val render = prepareRenderer(Render as fo, laikaFoRenderers.value, laikaParallel.value)
               render from tree toTree (laikaOutputTree in laikaXSLFO).value
 
               streams.value.log.info("Generated XSL-FO in " + targetDir)
@@ -346,7 +347,7 @@ object LaikaPlugin extends AutoPlugin {
               targetFile.getParentFile.mkdirs()
 
               val pdfRenderer = laikaRenderMessageLevel.value map (PDF withMessageLevel) getOrElse PDF
-              val render = prepareRenderer(Render as pdfRenderer.withFopFactory(fopFactory.value), laikaFoRenderers.value)
+              val render = prepareRenderer(Render as pdfRenderer.withFopFactory(fopFactory.value), laikaFoRenderers.value, laikaParallel.value)
               render from tree toFile targetFile
 
               streams.value.log.info("Generated PDF in " + targetFile)
