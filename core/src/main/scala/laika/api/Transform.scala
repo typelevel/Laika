@@ -22,7 +22,7 @@ import laika.api.Render.{BinaryTarget, MappedTreeTarget, RenderGatheredOutput, R
 import laika.api.config.{OperationConfig, OperationConfigBuilder}
 import laika.api.ext.ExtensionBundle
 import laika.factory.{ParserFactory, RenderResultProcessor, RendererFactory}
-import laika.io.InputProvider.{ProviderBuilder, _}
+import laika.io.InputTree.{InputTreeBuilder, _}
 import laika.io.Output.Binary
 import laika.io.OutputProvider._
 import laika.io._
@@ -277,18 +277,18 @@ abstract class Transform [Writer] private[Transform] (parse: Parse) extends Oper
     fromTree(parse.fromDirectories(roots, exclude)(codec))
   
   /** Parses from the specified input and returns a new target instance 
-   *  which allows to specify the output and other configuration options.
+   *  which allows to specify the output.
    * 
    *  @param inputBuilder the input to transform
    */
-  def fromInputTree (inputBuilder: ProviderBuilder): TreeTarget = fromTree(parse.fromInputTree(inputBuilder))
+  def fromInputTree (inputBuilder: InputTreeBuilder): TreeTarget = fromTree(parse.fromInputTree(inputBuilder))
 
-  /** Parses from the specified input and returns a new target instance
-    *  which allows to specify the output and other configuration options.
+  /**  Parses from the specified input and returns a new target instance
+    *  which allows to specify the output.
     *
     *  @param inputTree the input to transform
     */
-  def fromInputTree (inputTree: InputProvider): TreeTarget = fromTree(parse.fromInputTree(inputTree))
+  def fromInputTree (inputTree: InputTree): TreeTarget = fromTree(parse.fromInputTree(inputTree))
 
   /**  Renders the specified document tree and returns a new target instance
     *  which allows to specify the output.

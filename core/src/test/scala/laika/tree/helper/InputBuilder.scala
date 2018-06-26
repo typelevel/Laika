@@ -20,8 +20,8 @@ import laika.io.Input
 import scala.collection.mutable.ListBuffer
 import laika.tree.Documents._
 import scala.io.Codec
-import laika.io.InputProvider
-import laika.io.InputProvider.ProviderBuilder
+import laika.io.InputTree
+import laika.io.InputTree.InputTreeBuilder
 import laika.tree.Paths.Path
 import laika.tree.Paths.Root
 import laika.io.DocumentType
@@ -32,11 +32,11 @@ trait InputBuilder {
   
   def contents: String => String
   
-  private def parseTree (dirStructure: List[String], path: Path = Root, indent: Int = 0): (TestProviderBuilder, List[String]) = {
+  private def parseTree (dirStructure: List[String], path: Path = Root, indent: Int = 0): (TestInputTreeBuilder, List[String]) = {
     val prefix = indent * 2
     val lines = dirStructure.takeWhile(_.startsWith(" " * prefix))
     
-    def parseLines (lines: List[String]): (List[TestProviderBuilder], List[(String,String)], List[String]) = lines match {
+    def parseLines (lines: List[String]): (List[TestInputTreeBuilder], List[(String,String)], List[String]) = lines match {
       case Nil | "" :: _ => (Nil, Nil, Nil)
       case line :: rest => line.drop(prefix).take(2) match {
         case "+ " => {
@@ -54,26 +54,26 @@ trait InputBuilder {
     }
     
     val (dirs, files, _) = parseLines(lines)
-    (new TestProviderBuilder(dirs, files, path), dirStructure.dropWhile(_.startsWith(" " * prefix)))
+    (new TestInputTreeBuilder(dirs, files, path), dirStructure.dropWhile(_.startsWith(" " * prefix)))
   }
   
-  def parseTreeStructure (source: String): ProviderBuilder = parseTree(source.split("\n").toList)._1
+  def parseTreeStructure (source: String): InputTreeBuilder = parseTree(source.split("\n").toList)._1
   
   
-  case class TestInputProvider (path: Path,
-    configDocuments: Seq[Input],
-    markupDocuments: Seq[Input],
-    dynamicDocuments: Seq[Input],
-    styleSheets: Map[String,Seq[Input]],
-    staticDocuments: Seq[Input],
-    templates: Seq[Input],
-    subtrees: Seq[InputProvider],
-    sourcePaths: Seq[String]
-  ) extends InputProvider
+  case class TestInputTree(path: Path,
+                           configDocuments: Seq[Input],
+                           markupDocuments: Seq[Input],
+                           dynamicDocuments: Seq[Input],
+                           styleSheets: Map[String,Seq[Input]],
+                           staticDocuments: Seq[Input],
+                           templates: Seq[Input],
+                           subtrees: Seq[InputTree],
+                           sourcePaths: Seq[String]
+  ) extends InputTree
   
-  private[InputBuilder] class TestProviderBuilder (dirs: List[TestProviderBuilder], files: List[(String,String)], val path: Path) extends ProviderBuilder {
+  private[InputBuilder] class TestInputTreeBuilder(dirs: List[TestInputTreeBuilder], files: List[(String,String)], val path: Path) extends InputTreeBuilder {
     
-    def build (docTypeMatcher: PartialFunction[Path, DocumentType]): InputProvider = {
+    def build (docTypeMatcher: PartialFunction[Path, DocumentType]): InputTree = {
     
       def input (inputName: String, contentId: String, path: Path): Input = Input.fromString(contents(contentId), path / inputName)
       
@@ -85,7 +85,7 @@ trait InputBuilder {
       
       val subtrees = dirs map (_.build(docTypeMatcher)) filter (d => docType(d.path.name) != Ignored)
       
-      TestInputProvider(path, documents(Config), documents(Markup), documents(Dynamic), styleSheets, documents(Static), documents(Template), subtrees, Nil)
+      TestInputTree(path, documents(Config), documents(Markup), documents(Dynamic), styleSheets, documents(Static), documents(Template), subtrees, Nil)
       
     }
   }

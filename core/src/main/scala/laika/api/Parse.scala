@@ -24,8 +24,8 @@ import laika.api.ext.{ConfigProvider, ExtensionBundle}
 import laika.directive.{ConfigParser, DirectiveSupport, StandardDirectives}
 import laika.factory.ParserFactory
 import laika.io.DocumentType._
-import laika.io.InputProvider._
-import laika.io.{DocumentType, IO, Input, InputProvider}
+import laika.io.InputTree._
+import laika.io.{DocumentType, IO, Input, InputTree}
 import laika.parse.core.Parser
 import laika.parse.core.combinator.Parsers.{documentParserFunction, success}
 import laika.parse.core.text.TextParsers.{opt, unsafeParserFunction}
@@ -220,19 +220,19 @@ class Parse private (parsers: Seq[ParserFactory], protected[api] val config: Ope
     fromInputTree(forWorkingDirectory(mergedBundle.docTypeMatcher, exclude)(codec))
 
   /** Returns a document tree obtained by parsing files from the
-   *  specified input configuration builder.
+   *  specified input tree builder.
    *
-   *  @param builder a builder for the configuration for the input tree to process
+   *  @param builder a builder for the input tree to process
    */
-  def fromInputTree(builder: ProviderBuilder): DocumentTree =
+  def fromInputTree(builder: InputTreeBuilder): DocumentTree =
     fromInputTree(builder.build(mergedBundle.docTypeMatcher))
 
   /** Returns a document tree obtained by parsing files from the
-   *  specified input configuration.
+   *  specified input tree.
    *
-   *  @param inputTree the configuration for the input tree to process
+   *  @param inputTree the input tree to process
    */
-  def fromInputTree(inputTree: InputProvider): DocumentTree = {
+  def fromInputTree(inputTree: InputTree): DocumentTree = {
 
     case class TreeConfig (path: Path, config: TConfig)
 
@@ -274,7 +274,7 @@ class Parse private (parsers: Seq[ParserFactory], protected[api] val config: Ope
 
     def parseTreeConfig (input: Input): Operation[TreeConfig] = () => (Config, TreeConfig(input.path, ConfigProvider.fromInput(input)))
 
-    def collectOperations[T] (provider: InputProvider, f: InputProvider => Seq[Operation[T]]): Seq[Operation[T]] =
+    def collectOperations[T] (provider: InputTree, f: InputTree => Seq[Operation[T]]): Seq[Operation[T]] =
       f(provider) ++ (provider.subtrees flatMap (collectOperations(_, f)))
 
     val operations = collectOperations(inputTree, _.markupDocuments.map(parseMarkup)) ++
@@ -301,7 +301,7 @@ class Parse private (parsers: Seq[ParserFactory], protected[api] val config: Ope
       case (Config, config: TreeConfig) => (config.path, config.config)
     }) toMap
 
-    def collectDocuments (provider: InputProvider, root: Boolean = false): DocumentTree = {
+    def collectDocuments (provider: InputTree, root: Boolean = false): DocumentTree = {
       val docs = provider.markupDocuments map (i => docMap(i.path))
       val trees = provider.subtrees map (collectDocuments(_))
 

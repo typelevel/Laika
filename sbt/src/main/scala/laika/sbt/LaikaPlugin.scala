@@ -21,7 +21,7 @@ import laika.api.ext.ExtensionBundle.LaikaDefaults
 import laika.directive.Directives._
 import laika.directive.DirectiveRegistry
 import laika.io.Input.LazyFileInput
-import laika.io.{DocumentType, Input, InputProvider}
+import laika.io.{DocumentType, Input, InputTree}
 import laika.io.OutputProvider.{Directory, OutputConfigBuilder}
 import laika.parse.markdown.Markdown
 import laika.parse.markdown.html.{HTMLRenderer, VerbatimHTML}
@@ -77,7 +77,7 @@ object LaikaPlugin extends AutoPlugin {
 
     val laikaRawContent          = settingKey[Boolean]("Indicates whether embedding of raw content (like verbatim HTML) is supported in markup")
 
-    val laikaInputTree           = taskKey[InputProvider]("The configured input tree for the parser")
+    val laikaInputTree           = taskKey[InputTree]("The configured input tree for the parser")
 
     val laikaOutputTree          = taskKey[OutputConfigBuilder]("The configured output tree for the renderer")
 
@@ -243,9 +243,9 @@ object LaikaPlugin extends AutoPlugin {
       (target in Laika).value / (art.name + "-" + projectID.value.revision + classifier + "." + art.extension)
     }
 
-    val inputTreeTask: Initialize[Task[InputProvider]] = task {
+    val inputTreeTask: Initialize[Task[InputTree]] = task {
       val docTypeMatcher = laikaDocTypeMatcher.value.getOrElse(LaikaDefaults.docTypeMatcher)
-      InputProvider.forRootDirectories((sourceDirectories in Laika).value, docTypeMatcher,
+      InputTree.forRootDirectories((sourceDirectories in Laika).value, docTypeMatcher,
         (excludeFilter in Laika).value.accept)(laikaEncoding.value)
     }
 
@@ -431,17 +431,17 @@ object LaikaPlugin extends AutoPlugin {
       IO.delete((target in laikaSite).value)
     }
 
-    def collectInputFiles (provider: InputProvider): Set[File] = {
+    def collectInputFiles (tree: InputTree): Set[File] = {
       def allFiles (inputs: Seq[Input]) = (inputs collect {
         case f: LazyFileInput => f.file
       }).toSet
 
-      allFiles(provider.markupDocuments) ++
-      allFiles(provider.dynamicDocuments) ++
-      allFiles(provider.templates) ++
-      allFiles(provider.configDocuments) ++
-      allFiles(provider.staticDocuments) ++
-      (provider.subtrees flatMap collectInputFiles)
+      allFiles(tree.markupDocuments) ++
+      allFiles(tree.dynamicDocuments) ++
+      allFiles(tree.templates) ++
+      allFiles(tree.configDocuments) ++
+      allFiles(tree.staticDocuments) ++
+      (tree.subtrees flatMap collectInputFiles)
     }
 
     def collectParents (file: File): Set[File] = {
@@ -499,19 +499,19 @@ object LaikaPlugin extends AutoPlugin {
 
     def s (num: Int): String = if (num == 1) "" else "s"
 
-    def inputs (provider: InputProvider): String = {
+    def inputs (tree: InputTree): String = {
 
-      def count (provider: InputProvider): (Int, Int, Int) = {
-        val docs = provider.markupDocuments.length
-        val tmpl = provider.dynamicDocuments.length + provider.templates.length
-        val conf = provider.configDocuments.length
-        val all = (provider.subtrees map count) :+ (docs, tmpl, conf)
+      def count (tree: InputTree): (Int, Int, Int) = {
+        val docs = tree.markupDocuments.length
+        val tmpl = tree.dynamicDocuments.length + tree.templates.length
+        val conf = tree.configDocuments.length
+        val all = (tree.subtrees map count) :+ (docs, tmpl, conf)
         ((0, 0, 0) /: all) {
           case ((d1, t1, c1), (d2, t2, c2)) => (d1 + d2, t1 + t2, c1 + c2)
         }
       }
 
-      val (docs, tmpl, conf) = count(provider)
+      val (docs, tmpl, conf) = count(tree)
 
       s"Parsing $docs markup document${s(docs)}, $tmpl template${s(tmpl)}, $conf configuration${s(conf)} ..."
     }

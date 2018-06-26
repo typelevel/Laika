@@ -29,21 +29,21 @@ import scala.io.Codec
  * 
  *  @author Jens Halm
  */
-trait InputProvider {
+trait InputTree {
 
-  
-  /** The local name of the tree represented by this provider.
+
+  /** The local name of the tree represented by this tree.
    */
   lazy val name: String = path.name
 
-  /** The full path of the tree represented by this provider.
+  /** The full path of the tree represented by this tree.
    *  This path is always an absolute path
    *  from the root of the (virtual) input tree,
    *  therefore does not represent the filesystem
    *  path in case of file I/O.
    */
   def path: Path
-  
+
   /** All inputs for configuration files
    *  on this level of the input hierarchy.
    */
@@ -60,7 +60,7 @@ trait InputProvider {
    *  on this level of the input hierarchy.
    */
   def dynamicDocuments: Seq[Input]
-  
+
   /** All inputs for style sheets
    *  that need to be processed
    *  on this level of the input hierarchy,
@@ -78,34 +78,31 @@ trait InputProvider {
    *  on this level of the input hierarchy.
    */
   def templates: Seq[Input]
-  
+
   /** All subtrees of this provider.
    */
-  def subtrees: Seq[InputProvider]
-  
-  /** The paths this provider has been created from 
-   *  or an empty list if this input provider does 
+  def subtrees: Seq[InputTree]
+
+  /** The paths this tree has been created from
+   *  or an empty list if this input tree does
    *  not originate from the file system.
    */
   def sourcePaths: Seq[String]
-  
+
 }
 
 
-/** Factory methods for creating `InputProvider` and `InputConfigBuilder`
- *  instances. The latter offers fine grained control like setting
- *  custom document type matchers or custom template engines, before
- *  creating the actual `InputProvider`.
+/** Factory methods for creating `InputTree` instances.
  */
-object InputProvider {
+object InputTree {
 
   type FileFilter = File => Boolean
-  
-  
-  private class DirectoryInputProvider (dirs: Seq[File], val path: Path, exclude: FileFilter, docTypeMatcher: PartialFunction[Path, DocumentType], codec: Codec) extends InputProvider {
-    
+
+
+  private class DirectoryInputTree(dirs: Seq[File], val path: Path, exclude: FileFilter, docTypeMatcher: PartialFunction[Path, DocumentType], codec: Codec) extends InputTree {
+
     import DocumentType._
-    
+
     private def docType (f: File) = docTypeMatcher.lift(path / f.getName).getOrElse(Ignored)
 
     private def toInput (pair: (DocumentType,File)) = Input.fromFile(pair._2, path)(codec)
@@ -114,59 +111,59 @@ object InputProvider {
       def filesInDir (dir: File) = dir.listFiles filter (f => f.isFile && !exclude(f))
       dirs flatMap filesInDir map (f => (docType(f), f)) groupBy (_._1) withDefaultValue Nil
     }
-    
+
     private def documents (docType: DocumentType) = files(docType).map(toInput)
-    
+
     lazy val configDocuments: Seq[Input] = documents(Config)
-    
+
     lazy val markupDocuments: Seq[Input] = documents(Markup)
-    
+
     lazy val dynamicDocuments: Seq[Input] = documents(Dynamic)
 
     lazy val styleSheets: Map[String, Seq[Input]] = files collect { case p@(StyleSheet(format), pairs) => (format, pairs map toInput) }
-    
+
     lazy val staticDocuments: Seq[Input] = documents(Static)
-    
+
     lazy val templates: Seq[Input] =  documents(Template)
-    
+
     lazy val sourcePaths: Seq[String] = dirs map (_.getAbsolutePath)
-    
-    lazy val subtrees: Seq[InputProvider] = {
+
+    lazy val subtrees: Seq[InputTree] = {
       def subDirs (dir: File) = dir.listFiles filter (f => f.isDirectory && !exclude(f) && docType(f) != Ignored)
       val byName = (dirs flatMap subDirs groupBy (_.getName)).values
-      byName map (subs => new DirectoryInputProvider(subs, path / subs.head.getName, exclude, docTypeMatcher, codec)) toList
+      byName map (subs => new DirectoryInputTree(subs, path / subs.head.getName, exclude, docTypeMatcher, codec)) toList
     }
-    
+
   }
 
-  def forWorkingDirectory (docTypeMatcher: PartialFunction[Path, DocumentType], exclude: FileFilter)(implicit codec: Codec): InputProvider =
+  def forWorkingDirectory (docTypeMatcher: PartialFunction[Path, DocumentType], exclude: FileFilter)(implicit codec: Codec): InputTree =
     forRootDirectories(Seq(new File(System.getProperty("user.dir"))), docTypeMatcher, exclude)
-  
+
   /** Creates an InputProvider based on the specified directories, including
    *  all subdirectories. The directories will be merged into a tree with a single
    *  root. If any of the specified root directories contain sub-directories with
    *  the same name, these sub-directories will be merged, too.
-   * 
+   *
    *  @param roots the root directories of the input tree
    *  @param docTypeMatcher a function determining the document type based on the path of the input
    *  @param exclude the files to exclude from processing
    *  @param codec the character encoding of the files, if not specified the platform default will be used
    */
-  def forRootDirectories (roots: Seq[File], docTypeMatcher: PartialFunction[Path, DocumentType], exclude: FileFilter)(implicit codec: Codec): InputProvider = {
+  def forRootDirectories (roots: Seq[File], docTypeMatcher: PartialFunction[Path, DocumentType], exclude: FileFilter)(implicit codec: Codec): InputTree = {
     require(roots.nonEmpty, "The specified roots sequence must contain at least one directory")
     for (root <- roots) {
       require(root.exists, s"Directory ${root.getAbsolutePath} does not exist")
       require(root.isDirectory, s"File ${root.getAbsolutePath} is not a directory")
     }
-      
-    new DirectoryInputProvider(roots, Root, exclude, docTypeMatcher, codec)
+
+    new DirectoryInputTree(roots, Root, exclude, docTypeMatcher, codec)
   }
-  
-  /** Responsible for building new InputProviders based
+
+  /** Responsible for building new InputTrees based
    *  on the specified document type matcher and codec.
    */
-  trait ProviderBuilder {
-    def build (docTypeMatcher: PartialFunction[Path, DocumentType]): InputProvider
+  trait InputTreeBuilder {
+    def build (docTypeMatcher: PartialFunction[Path, DocumentType]): InputTree
   }
   
   /** A filter that selects files that are hidden according to `java.io.File.isHidden`.
