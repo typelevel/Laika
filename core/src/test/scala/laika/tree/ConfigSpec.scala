@@ -16,26 +16,16 @@
 
 package laika.tree
 
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
 import laika.api.Parse
+import laika.api.ext.BundleProvider
 import laika.parse.markdown.Markdown
 import laika.parse.rst.ReStructuredText
-import laika.io.InputProvider.InputConfigBuilder
-import laika.tree.helper.ModelBuilder
+import laika.rewrite.TemplateRewriter
 import laika.tree.Documents._
-import laika.tree.Elements._
 import laika.tree.Paths.Current
 import laika.tree.Templates._
-import laika.tree.helper.DocumentViewBuilder.{Documents => Docs}
-import laika.tree.helper.DocumentViewBuilder._
-import laika.tree.helper.InputBuilder
-import laika.rewrite.TemplateRewriter
-import laika.rewrite.TreeCursor
-import com.typesafe.config.ConfigFactory
-import laika.api.ext.BundleProvider
-
-import scala.io.Codec
+import laika.tree.helper.{InputBuilder, ModelBuilder}
+import org.scalatest.{FlatSpec, Matchers}
 
 class ConfigSpec extends FlatSpec 
                     with Matchers
@@ -59,7 +49,7 @@ class ConfigSpec extends FlatSpec
       |<div>{{document.content}}</div>
       |CCC""".stripMargin
       
-    def builder (source: String) = new InputConfigBuilder(parseTreeStructure(source), Codec.UTF8)
+    def builder (source: String) = parseTreeStructure(source)
     
     lazy val contents = Map(
       "templateWithRef" -> templateWithRef,
@@ -88,7 +78,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(Parse as Markdown fromTree builder(dir)) should be (expected)
+      resultOf(Parse as Markdown fromInputTree builder(dir)) should be (expected)
     }
   }
   
@@ -105,7 +95,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(Parse as ReStructuredText fromTree builder(dir)) should be (expected)
+      resultOf(Parse as ReStructuredText fromInputTree builder(dir)) should be (expected)
     }
   }
   
@@ -120,7 +110,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(Parse as Markdown fromTree builder(dir)) should be (expected)
+      resultOf(Parse as Markdown fromInputTree builder(dir)) should be (expected)
     }
   }
   
@@ -135,7 +125,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(Parse as ReStructuredText fromTree builder(dir)) should be (expected)
+      resultOf(Parse as ReStructuredText fromInputTree builder(dir)) should be (expected)
     }
   }
   
@@ -170,7 +160,7 @@ class ConfigSpec extends FlatSpec
         )
       )
       
-      val tree = Parse.as(Markdown).using(BundleProvider.forConfigString(config5)).fromTree(builder(dirs))
+      val tree = Parse.as(Markdown).using(BundleProvider.forConfigString(config5)).fromInputTree(builder(dirs))
       val result = TemplateRewriter.applyTemplates(tree, "html")
       result.selectDocument(Current / "dir" / "input.md").get.content should be (expected)
     }

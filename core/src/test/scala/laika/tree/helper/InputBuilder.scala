@@ -73,7 +73,7 @@ trait InputBuilder {
   
   private[InputBuilder] class TestProviderBuilder (dirs: List[TestProviderBuilder], files: List[(String,String)], val path: Path) extends ProviderBuilder {
     
-    def build (docTypeMatcher: PartialFunction[Path, DocumentType], codec: Codec): InputProvider = {
+    def build (docTypeMatcher: PartialFunction[Path, DocumentType]): InputProvider = {
     
       def input (inputName: String, contentId: String, path: Path): Input = Input.fromString(contents(contentId), path / inputName)
       
@@ -83,7 +83,7 @@ trait InputBuilder {
       
       val styleSheets = documents collect { case (StyleSheet(format), inputs) => (format, inputs) }
       
-      val subtrees = dirs map (_.build(docTypeMatcher,null)) filter (d => docType(d.path.name) != Ignored)
+      val subtrees = dirs map (_.build(docTypeMatcher)) filter (d => docType(d.path.name) != Ignored)
       
       TestInputProvider(path, documents(Config), documents(Markup), documents(Dynamic), styleSheets, documents(Static), documents(Template), subtrees, Nil)
       

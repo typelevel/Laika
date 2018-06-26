@@ -22,7 +22,7 @@ import laika.api.Render.{BinaryTarget, MappedTreeTarget, RenderGatheredOutput, R
 import laika.api.config.{OperationConfig, OperationConfigBuilder}
 import laika.api.ext.ExtensionBundle
 import laika.factory.{ParserFactory, RenderResultProcessor, RendererFactory}
-import laika.io.InputProvider._
+import laika.io.InputProvider.{ProviderBuilder, _}
 import laika.io.Output.Binary
 import laika.io.OutputProvider._
 import laika.io._
@@ -215,7 +215,8 @@ abstract class Transform [Writer] private[Transform] (parse: Parse) extends Oper
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    *  @return a builder which allows to specify the output and other configuration options
    */
-  def fromDirectory (name: String)(implicit codec: Codec): TreeTarget = fromDirectory(name, hiddenFileFilter)(codec)
+  def fromDirectory (name: String)(implicit codec: Codec): TreeTarget =
+    fromDirectory(new File(name), hiddenFileFilter)(codec)
   
   /** Parses files from the specified directory and its subdirectories
    *  and returns a new target instance which allows to specify the output and 
@@ -226,7 +227,8 @@ abstract class Transform [Writer] private[Transform] (parse: Parse) extends Oper
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    *  @return a builder which allows to specify the output and other configuration options
    */
-  def fromDirectory (name: String, exclude: FileFilter)(implicit codec: Codec): TreeTarget = fromTree(InputProvider.Directory(name, exclude)(codec))
+  def fromDirectory (name: String, exclude: FileFilter)(implicit codec: Codec): TreeTarget =
+    fromDirectory(new File(name), exclude)(codec)
 
   /** Parses files from the specified directory and its subdirectories
    *  and returns a new target instance which allows to specify the output and 
@@ -236,7 +238,8 @@ abstract class Transform [Writer] private[Transform] (parse: Parse) extends Oper
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    *  @return a builder which allows to specify the output and other configuration options
    */
-  def fromDirectory (dir: File)(implicit codec: Codec): TreeTarget = fromDirectory(dir, hiddenFileFilter)(codec)
+  def fromDirectory (dir: File)(implicit codec: Codec): TreeTarget =
+    fromDirectory(dir, hiddenFileFilter)(codec)
   
   /** Parses files from the specified directory and its subdirectories
    *  and returns a new target instance which allows to specify the output and 
@@ -247,7 +250,8 @@ abstract class Transform [Writer] private[Transform] (parse: Parse) extends Oper
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    *  @return a builder which allows to specify the output and other configuration options
    */
-  def fromDirectory (dir: File, exclude: FileFilter)(implicit codec: Codec): TreeTarget = fromTree(InputProvider.Directory(dir, exclude)(codec))
+  def fromDirectory (dir: File, exclude: FileFilter)(implicit codec: Codec): TreeTarget =
+    fromDirectories(Seq(dir), exclude)(codec)
   
   /** Parses files from the specified directories and its subdirectories, 
    *  merging them into a tree with a single root
@@ -257,7 +261,8 @@ abstract class Transform [Writer] private[Transform] (parse: Parse) extends Oper
    *  @param roots the root directories to traverse
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def fromDirectories (roots: Seq[File])(implicit codec: Codec): TreeTarget = fromDirectories(roots, hiddenFileFilter)(codec)
+  def fromDirectories (roots: Seq[File])(implicit codec: Codec): TreeTarget =
+    fromDirectories(roots, hiddenFileFilter)(codec)
   
   /** Parses files from the specified directories and its subdirectories, 
    *  merging them into a tree with a single root
@@ -268,14 +273,22 @@ abstract class Transform [Writer] private[Transform] (parse: Parse) extends Oper
    *  @param exclude the files to exclude from processing
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def fromDirectories (roots: Seq[File], exclude: FileFilter)(implicit codec: Codec): TreeTarget = fromTree(InputProvider.Directories(roots, exclude)(codec))
+  def fromDirectories (roots: Seq[File], exclude: FileFilter)(implicit codec: Codec): TreeTarget =
+    fromTree(parse.fromDirectories(roots, exclude)(codec))
   
   /** Parses from the specified input and returns a new target instance 
    *  which allows to specify the output and other configuration options.
    * 
    *  @param inputBuilder the input to transform
    */
-  def fromTree (inputBuilder: InputConfigBuilder): TreeTarget = fromTree(parse.fromTree(inputBuilder))
+  def fromInputTree (inputBuilder: ProviderBuilder): TreeTarget = fromTree(parse.fromInputTree(inputBuilder))
+
+  /** Parses from the specified input and returns a new target instance
+    *  which allows to specify the output and other configuration options.
+    *
+    *  @param inputTree the input to transform
+    */
+  def fromInputTree (inputTree: InputProvider): TreeTarget = fromTree(parse.fromInputTree(inputTree))
 
   /**  Renders the specified document tree and returns a new target instance
     *  which allows to specify the output.

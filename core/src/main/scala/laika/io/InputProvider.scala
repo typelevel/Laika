@@ -139,16 +139,8 @@ object InputProvider {
     
   }
 
-  /** Creates an InputProvider based on the specified directory, including
-   *  all subdirectories.
-   * 
-   *  @param root the root directory of the input tree
-   *  @param exclude the files to exclude from processing
-   *  @param docTypeMatcher a function determining the document type based on the path of the input
-   *  @param codec the character encoding of the files, if not specified the platform default will be used
-   */
-  def forRootDirectory (root: File, exclude: FileFilter, docTypeMatcher: PartialFunction[Path, DocumentType])(implicit codec: Codec): InputProvider =
-    forRootDirectories(Seq(root), exclude, docTypeMatcher)(codec)
+  def forWorkingDirectory (docTypeMatcher: PartialFunction[Path, DocumentType], exclude: FileFilter)(implicit codec: Codec): InputProvider =
+    forRootDirectories(Seq(new File(System.getProperty("user.dir"))), docTypeMatcher, exclude)
   
   /** Creates an InputProvider based on the specified directories, including
    *  all subdirectories. The directories will be merged into a tree with a single
@@ -156,11 +148,11 @@ object InputProvider {
    *  the same name, these sub-directories will be merged, too.
    * 
    *  @param roots the root directories of the input tree
-   *  @param exclude the files to exclude from processing
    *  @param docTypeMatcher a function determining the document type based on the path of the input
+   *  @param exclude the files to exclude from processing
    *  @param codec the character encoding of the files, if not specified the platform default will be used
    */
-  def forRootDirectories (roots: Seq[File], exclude: FileFilter, docTypeMatcher: PartialFunction[Path, DocumentType])(implicit codec: Codec): InputProvider = {
+  def forRootDirectories (roots: Seq[File], docTypeMatcher: PartialFunction[Path, DocumentType], exclude: FileFilter)(implicit codec: Codec): InputProvider = {
     require(roots.nonEmpty, "The specified roots sequence must contain at least one directory")
     for (root <- roots) {
       require(root.exists, s"Directory ${root.getAbsolutePath} does not exist")
@@ -170,67 +162,15 @@ object InputProvider {
     new DirectoryInputProvider(roots, Root, exclude, docTypeMatcher, codec)
   }
   
-  /** The configuration for an input tree, consisting of the actual provider for
-   *  all inputs and a flag whether parsing should be performed in parallel.
-   */
-  case class InputConfig (provider: InputProvider)
-  
   /** Responsible for building new InputProviders based
    *  on the specified document type matcher and codec.
    */
   trait ProviderBuilder {
-    def build (docTypeMatcher: PartialFunction[Path, DocumentType], codec: Codec): InputProvider
-  }
-  
-  private[InputProvider] class DirectoryProviderBuilder (roots: Seq[File], exclude: FileFilter) extends ProviderBuilder {
-    def build (docTypeMatcher: PartialFunction[Path, DocumentType], codec: Codec): InputProvider =
-      InputProvider.forRootDirectories(roots, exclude, docTypeMatcher)(codec)
+    def build (docTypeMatcher: PartialFunction[Path, DocumentType]): InputProvider
   }
   
   /** A filter that selects files that are hidden according to `java.io.File.isHidden`.
    */
   val hiddenFileFilter: FileFilter = file => file.isHidden && file.getName != "."
-    
-  /** API for configuring an input tree.
-   *  Gives access to all relevant aspects of traversing, parsing and processing
-   *  a tree of inputs.
-   */
-  class InputConfigBuilder (provider: ProviderBuilder, codec: Codec) {
 
-    /** Builds the final configuration for this input tree
-     *  for the specified parser factory.
-     *  
-     *  @param markupSuffixes all suffixes recognized by the parsers configured to consume this input
-     */
-    def build (markupSuffixes: Set[String], docTypeMatcher: PartialFunction[Path, DocumentType]): InputConfig =
-      InputConfig(provider.build(docTypeMatcher, codec))
-  }
-
-  /** Creates InputConfigBuilder instances for a specific root directory in the file system.
-   */
-  object Directory {
-    def apply (name: String)(implicit codec: Codec): InputConfigBuilder = apply(new File(name), hiddenFileFilter)(codec)
-    
-    def apply (name: String, exclude: FileFilter)(implicit codec: Codec): InputConfigBuilder = apply(new File(name), exclude)(codec)
-    
-    def apply (file: File)(implicit codec: Codec): InputConfigBuilder = apply(file, hiddenFileFilter)(codec)
-    
-    def apply (file: File, exclude: FileFilter)(implicit codec: Codec): InputConfigBuilder = new InputConfigBuilder(new DirectoryProviderBuilder(Seq(file), exclude), codec)
-  }
-
-  /** Creates InputConfigBuilder instances for several root directories in the file system
-   *  which will be merged into a tree with a single root.
-   */
-  object Directories {
-    def apply (roots: Seq[File])(implicit codec: Codec): InputConfigBuilder = apply(roots, hiddenFileFilter)(codec)
-    
-    def apply (roots: Seq[File], exclude: FileFilter)(implicit codec: Codec): InputConfigBuilder = new InputConfigBuilder(new DirectoryProviderBuilder(roots, exclude), codec)
-  }
-  
-  /** Creates InputConfigBuilder instances using the current working directory as its root.
-   */
-  object DefaultDirectory {
-    def apply (exclude: FileFilter = hiddenFileFilter)(implicit codec: Codec): InputConfigBuilder = Directory(System.getProperty("user.dir"), exclude)(codec)
-  }
-  
 }

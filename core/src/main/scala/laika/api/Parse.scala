@@ -157,7 +157,8 @@ class Parse private (parsers: Seq[ParserFactory], protected[api] val config: Ope
    *  @param name the name of the directory to traverse
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def fromDirectory (name: String)(implicit codec: Codec): DocumentTree = fromTree(Directory(name, hiddenFileFilter)(codec))
+  def fromDirectory (name: String)(implicit codec: Codec): DocumentTree =
+    fromDirectory(new File(name), hiddenFileFilter)(codec)
   
   /** Returns a document tree obtained by parsing files from the
    *  specified directory and its subdirectories.
@@ -166,7 +167,8 @@ class Parse private (parsers: Seq[ParserFactory], protected[api] val config: Ope
    *  @param exclude the files to exclude from processing
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def fromDirectory (name: String, exclude: FileFilter)(implicit codec: Codec): DocumentTree = fromTree(Directory(name, exclude)(codec))
+  def fromDirectory (name: String, exclude: FileFilter)(implicit codec: Codec): DocumentTree =
+    fromDirectory(new File(name), exclude)(codec)
 
   /** Returns a document tree obtained by parsing files from the
    *  specified directory and its subdirectories.
@@ -174,7 +176,8 @@ class Parse private (parsers: Seq[ParserFactory], protected[api] val config: Ope
    *  @param dir the root directory to traverse
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def fromDirectory (dir: File)(implicit codec: Codec): DocumentTree = fromTree(Directory(dir, hiddenFileFilter)(codec))
+  def fromDirectory (dir: File)(implicit codec: Codec): DocumentTree =
+    fromDirectory(dir, hiddenFileFilter)(codec)
 
   /** Returns a document tree obtained by parsing files from the
    *  specified directory and its subdirectories.
@@ -183,8 +186,9 @@ class Parse private (parsers: Seq[ParserFactory], protected[api] val config: Ope
    *  @param exclude the files to exclude from processing
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def fromDirectory (dir: File, exclude: FileFilter)(implicit codec: Codec): DocumentTree = fromTree(Directory(dir, exclude)(codec))
-  
+  def fromDirectory (dir: File, exclude: FileFilter)(implicit codec: Codec): DocumentTree =
+    fromDirectories(Seq(dir), exclude)(codec)
+
   /** Returns a document tree obtained by parsing files from the
    *  specified directories and its subdirectories, merging them into
    *  a tree with a single root.
@@ -192,7 +196,8 @@ class Parse private (parsers: Seq[ParserFactory], protected[api] val config: Ope
    *  @param roots the root directories to traverse
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def fromDirectories (roots: Seq[File])(implicit codec: Codec): DocumentTree = fromTree(Directories(roots, hiddenFileFilter)(codec))
+  def fromDirectories (roots: Seq[File])(implicit codec: Codec): DocumentTree =
+    fromDirectories(roots, hiddenFileFilter)(codec)
   
   /** Returns a document tree obtained by parsing files from the
    *  specified directories and its subdirectories, merging them into
@@ -203,31 +208,31 @@ class Parse private (parsers: Seq[ParserFactory], protected[api] val config: Ope
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
   def fromDirectories (roots: Seq[File], exclude: FileFilter)(implicit codec: Codec): DocumentTree = 
-    fromTree(Directories(roots, hiddenFileFilter)(codec))
-  
+    fromInputTree(forRootDirectories(roots, mergedBundle.docTypeMatcher, exclude)(codec))
+
   /** Returns a document tree obtained by parsing files from the
    *  current working directory.
-   * 
+   *
    *  @param exclude the files to exclude from processing
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
-  def fromDefaultDirectory (exclude: FileFilter = hiddenFileFilter)(implicit codec: Codec): DocumentTree = 
-    fromTree(DefaultDirectory(exclude)(codec))
-  
+  def fromDefaultDirectory (exclude: FileFilter = hiddenFileFilter)(implicit codec: Codec): DocumentTree =
+    fromInputTree(forWorkingDirectory(mergedBundle.docTypeMatcher, exclude)(codec))
+
   /** Returns a document tree obtained by parsing files from the
    *  specified input configuration builder.
-   *  
+   *
    *  @param builder a builder for the configuration for the input tree to process
    */
-  def fromTree (builder: InputConfigBuilder): DocumentTree =
-    fromTree(builder.build(fileSuffixes, mergedBundle.docTypeMatcher))
+  def fromInputTree(builder: ProviderBuilder): DocumentTree =
+    fromInputTree(builder.build(mergedBundle.docTypeMatcher))
 
   /** Returns a document tree obtained by parsing files from the
    *  specified input configuration.
-   *  
+   *
    *  @param inputTree the configuration for the input tree to process
    */
-  def fromTree (inputTree: InputConfig): DocumentTree = {
+  def fromInputTree(inputTree: InputProvider): DocumentTree = {
 
     case class TreeConfig (path: Path, config: TConfig)
 
@@ -272,11 +277,11 @@ class Parse private (parsers: Seq[ParserFactory], protected[api] val config: Ope
     def collectOperations[T] (provider: InputProvider, f: InputProvider => Seq[Operation[T]]): Seq[Operation[T]] =
       f(provider) ++ (provider.subtrees flatMap (collectOperations(_, f)))
 
-    val operations = collectOperations(inputTree.provider, _.markupDocuments.map(parseMarkup)) ++
-                     collectOperations(inputTree.provider, _.templates.flatMap(parseTemplate(Template))) ++
-                     collectOperations(inputTree.provider, _.dynamicDocuments.flatMap(parseTemplate(Dynamic))) ++
-                     collectOperations(inputTree.provider, _.styleSheets.flatMap({ case (format,inputs) => inputs map parseStyleSheet(format) }).toSeq) ++
-                     collectOperations(inputTree.provider, _.configDocuments.find(_.path.name == "directory.conf").toList.map(parseTreeConfig)) // TODO - filename could be configurable
+    val operations = collectOperations(inputTree, _.markupDocuments.map(parseMarkup)) ++
+                     collectOperations(inputTree, _.templates.flatMap(parseTemplate(Template))) ++
+                     collectOperations(inputTree, _.dynamicDocuments.flatMap(parseTemplate(Dynamic))) ++
+                     collectOperations(inputTree, _.styleSheets.flatMap({ case (format,inputs) => inputs map parseStyleSheet(format) }).toSeq) ++
+                     collectOperations(inputTree, _.configDocuments.find(_.path.name == "directory.conf").toList.map(parseTreeConfig)) // TODO - filename could be configurable
 
     val results = if (config.parallel) operations.par map (_()) seq else operations map (_())
 
@@ -314,7 +319,7 @@ class Parse private (parsers: Seq[ParserFactory], protected[api] val config: Ope
       DocumentTree(provider.path, docs ++ trees, templates, styles, additionalContent, config, sourcePaths = provider.sourcePaths)
     }
 
-    val tree = collectDocuments(inputTree.provider, root = true)
+    val tree = collectDocuments(inputTree, root = true)
 
     if (rewrite) {
       val rules = RewriteRules.chainFactories(mergedBundle.rewriteRules) // TODO - move this to OperationSupport

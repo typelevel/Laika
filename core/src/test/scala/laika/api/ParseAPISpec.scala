@@ -21,7 +21,6 @@ import java.io.{ByteArrayInputStream, StringReader}
 import laika.api.ext.{BundleProvider, ExtensionBundle}
 import laika.io.DocumentType
 import laika.io.DocumentType._
-import laika.io.InputProvider.{Directory, InputConfigBuilder}
 import laika.parse.core.Parser
 import laika.parse.core.text.TextParsers
 import laika.parse.css.Styles.{ElementType, StyleDeclaration, StyleDeclarationSet}
@@ -138,26 +137,26 @@ class ParseAPISpec extends FlatSpec
         |]""".stripMargin
     )
     
-    def builder (source: String) = new InputConfigBuilder(parseTreeStructure(source), Codec.UTF8)
+    def builder (source: String) = parseTreeStructure(source)
     def docView (num: Int, path: Path = Root) = DocumentView(path / (s"doc$num.md"), Content(List(p("foo"))) :: Nil)
     
     def customDocView (name: String, content: Seq[Block], path: Path = Root) = DocumentView(path / name, Content(content) :: Nil)
   
     def withTemplatesApplied (tree: DocumentTree): DocumentTree = TemplateRewriter.applyTemplates(tree, "html")
     
-    def parsedTree = viewOf(withTemplatesApplied(Parse as Markdown fromTree builder(dirs)))
+    def parsedTree = viewOf(withTemplatesApplied(Parse as Markdown fromInputTree builder(dirs)))
     
-    def rawParsedTree = viewOf((Parse as Markdown withoutRewrite) fromTree builder(dirs))
+    def rawParsedTree = viewOf((Parse as Markdown withoutRewrite) fromInputTree builder(dirs))
 
-    def rawMixedParsedTree = viewOf((Parse as Markdown or ReStructuredText withoutRewrite) fromTree builder(dirs))
+    def rawMixedParsedTree = viewOf((Parse as Markdown or ReStructuredText withoutRewrite) fromInputTree builder(dirs))
     
-    def parsedInParallel = viewOf(withTemplatesApplied(Parse.as(Markdown).inParallel.fromTree(builder(dirs))))
+    def parsedInParallel = viewOf(withTemplatesApplied(Parse.as(Markdown).inParallel.fromInputTree(builder(dirs))))
 
     def parsedWith (bundle: ExtensionBundle) =
-      viewOf(withTemplatesApplied(Parse.as(Markdown).using(bundle).fromTree(builder(dirs))))
+      viewOf(withTemplatesApplied(Parse.as(Markdown).using(bundle).fromInputTree(builder(dirs))))
       
-    def parsedRawWith (f: InputConfigBuilder => InputConfigBuilder, bundle: ExtensionBundle = ExtensionBundle.Empty) =
-      viewOf(Parse.as(Markdown).withoutRewrite.using(bundle).fromTree(f(builder(dirs))))
+    def parsedRawWith (bundle: ExtensionBundle = ExtensionBundle.Empty) =
+      viewOf(Parse.as(Markdown).withoutRewrite.using(bundle).fromInputTree(builder(dirs)))
   }
   
 
@@ -304,7 +303,7 @@ class ParseAPISpec extends FlatSpec
         |- main2.template.html:name""".stripMargin
       def template (num: Int) = TemplateView(Root / (s"main$num.template.html"), TemplateRoot(List(TemplateString("$$foo"))))
       val treeResult = TreeView(Root, List(TemplateDocuments(Template, List(template(1),template(2)))))
-      parsedRawWith(identity, BundleProvider.forTemplateParser(parser)) should be (treeResult)
+      parsedRawWith(BundleProvider.forTemplateParser(parser)) should be (treeResult)
     }
   }
   
@@ -326,7 +325,7 @@ class ParseAPISpec extends FlatSpec
           "aaa" -> StyleDeclarationSet(Set(Path("/main1.aaa.css"), Path("/main3.aaa.css")), Set(styleDecl("foo"), styleDecl("foo", 1))),
           "bbb" -> StyleDeclarationSet(Set(Path("/main2.bbb.css")), Set(styleDecl("bar")))
       ))))
-      parsedRawWith(identity, BundleProvider.forDocTypeMatcher(docTypeMatcher)
+      parsedRawWith(BundleProvider.forDocTypeMatcher(docTypeMatcher)
         .withBase(BundleProvider.forStyleSheetParser(parser))) should be (treeResult)
     }
   }
@@ -343,7 +342,7 @@ class ParseAPISpec extends FlatSpec
         |- main2.template.html:directive""".stripMargin
       def template (num: Int) = TemplateView(Root / (s"main$num.template.html"), tRoot(tt("aa "),tt("bar"),tt(" bb")))
       val treeResult = TreeView(Root, List(TemplateDocuments(Template, List(template(1),template(2)))))
-      parsedRawWith(identity, BundleProvider.forTemplateDirective(directive)) should be (treeResult)
+      parsedRawWith(BundleProvider.forTemplateDirective(directive)) should be (treeResult)
     }
   }
   
@@ -388,7 +387,7 @@ class ParseAPISpec extends FlatSpec
         |  - rectangle.md:name
         |- cherry.md:name
         |- directory.conf:order""".stripMargin
-      val tree = Parse as Markdown fromTree builder(dirs)
+      val tree = Parse as Markdown fromInputTree builder(dirs)
       tree.content map (_.path.name) should be (List("lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
     }
   }
@@ -470,7 +469,7 @@ class ParseAPISpec extends FlatSpec
       Documents(Markup, List(docView(1),docView(2))),
       Subtrees(List(subtree1,subtree2))
     ))
-    viewOf(Parse as Markdown fromTree(Directory(dirname))) should be (treeResult)
+    viewOf(Parse as Markdown fromDirectory dirname) should be (treeResult)
   }
 
 }

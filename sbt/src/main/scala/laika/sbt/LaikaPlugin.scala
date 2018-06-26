@@ -22,7 +22,6 @@ import laika.directive.Directives._
 import laika.directive.DirectiveRegistry
 import laika.io.Input.LazyFileInput
 import laika.io.{DocumentType, Input, InputProvider}
-import laika.io.InputProvider.{Directories, InputConfigBuilder}
 import laika.io.OutputProvider.{Directory, OutputConfigBuilder}
 import laika.parse.markdown.Markdown
 import laika.parse.markdown.html.{HTMLRenderer, VerbatimHTML}
@@ -78,7 +77,7 @@ object LaikaPlugin extends AutoPlugin {
 
     val laikaRawContent          = settingKey[Boolean]("Indicates whether embedding of raw content (like verbatim HTML) is supported in markup")
 
-    val laikaInputTree           = taskKey[InputConfigBuilder]("The configured input tree for the parser")
+    val laikaInputTree           = taskKey[InputProvider]("The configured input tree for the parser")
 
     val laikaOutputTree          = taskKey[OutputConfigBuilder]("The configured output tree for the renderer")
 
@@ -244,8 +243,10 @@ object LaikaPlugin extends AutoPlugin {
       (target in Laika).value / (art.name + "-" + projectID.value.revision + classifier + "." + art.extension)
     }
 
-    val inputTreeTask: Initialize[Task[InputConfigBuilder]] = task {
-      Directories((sourceDirectories in Laika).value, (excludeFilter in Laika).value.accept)(laikaEncoding.value)
+    val inputTreeTask: Initialize[Task[InputProvider]] = task {
+      val docTypeMatcher = laikaDocTypeMatcher.value.getOrElse(LaikaDefaults.docTypeMatcher)
+      InputProvider.forRootDirectories((sourceDirectories in Laika).value, docTypeMatcher,
+        (excludeFilter in Laika).value.accept)(laikaEncoding.value)
     }
 
     def outputTreeTask (key: Scoped): Initialize[Task[OutputConfigBuilder]] = task {
@@ -279,16 +280,16 @@ object LaikaPlugin extends AutoPlugin {
       val formats = spaceDelimited("<format>").parsed.map(OutputFormats.OutputFormat.fromString)
       if (formats.isEmpty) throw new IllegalArgumentException("At least one format must be specified")
 
-      val inputs = laikaInputTree.value.build(laikaMarkupParser.value.fileSuffixes, laikaDocTypeMatcher.value.getOrElse(LaikaDefaults.docTypeMatcher))
+      val inputs = laikaInputTree.value
 
       val cacheDir = streams.value.cacheDirectory / "laika"
 
       lazy val tree = {
 
         streams.value.log.info("Reading files from " + (sourceDirectories in Laika).value.mkString(", "))
-        streams.value.log.info(Log.inputs(inputs.provider))
+        streams.value.log.info(Log.inputs(inputs))
 
-        val rawTree = laikaMarkupParser.value fromTree inputs
+        val rawTree = laikaMarkupParser.value fromInputTree inputs
         val tree = rawTree rewrite RewriteRules.chainFactories(laikaRewriteRules.value :+ RewriteRules.defaultsFor(Markdown, ReStructuredText))
 
         laikaLogMessageLevel.value foreach { Log.systemMessages(streams.value.log, tree, _) }
@@ -296,7 +297,7 @@ object LaikaPlugin extends AutoPlugin {
         tree
       }
 
-      val inputFiles = collectInputFiles(inputs.provider)
+      val inputFiles = collectInputFiles(inputs)
 
       val results = formats map { format =>
 
