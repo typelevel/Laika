@@ -357,7 +357,7 @@ object Parse {
    */
   def as (factory: ParserFactory): Parse = new Parse(
     Seq(factory),
-    OperationConfig(Seq(ExtensionBundle.LaikaDefaults, DirectiveSupport, StandardDirectives) ++ factory.extensions),
+    OperationConfig.default.withBundles(factory.extensions),
     rewrite = true
   )
 

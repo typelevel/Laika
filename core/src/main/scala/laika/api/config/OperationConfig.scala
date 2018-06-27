@@ -17,6 +17,8 @@
 package laika.api.config
 
 import laika.api.ext.ExtensionBundle
+import laika.api.ext.ExtensionBundle.LaikaDefaults
+import laika.directive.{DirectiveSupport, StandardDirectives}
 import laika.rewrite.{DocumentCursor, RewriteRules}
 import laika.tree.Documents.Document
 import laika.tree.Elements.RewriteRule
@@ -33,6 +35,14 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil, parallel: Boole
   def rewriteRuleFor (doc: Document): RewriteRule = rewriteRule(DocumentCursor(doc))
 
   def withBundles (bundles: Seq[ExtensionBundle]): OperationConfig = copy(bundles = this.bundles ++ bundles)
+
+}
+
+object OperationConfig {
+
+  val default: OperationConfig = OperationConfig(
+    bundles = Seq(LaikaDefaults, DirectiveSupport, StandardDirectives)
+  )
 
 }
 

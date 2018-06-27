@@ -419,7 +419,7 @@ object Render {
    *  @param factory the renderer factory responsible for creating the final renderer
    */
   def as [Writer] (factory: RendererFactory[Writer]): RenderMappedOutput[Writer] =
-    new RenderMappedOutput(factory, OperationConfig(Seq(LaikaDefaults, DirectiveSupport, StandardDirectives)))
+    new RenderMappedOutput(factory, OperationConfig.default)
   
   /** Returns a new Render instance for the specified processor.
    *  This instance is usually an object provided by the library
@@ -428,6 +428,6 @@ object Render {
    *  @param processor the processor responsible for processing the renderer result
    */
   def as [Writer] (processor: RenderResultProcessor[Writer]): RenderGatheredOutput[Writer] =
-    new RenderGatheredOutput(processor, OperationConfig(Seq(LaikaDefaults, DirectiveSupport, StandardDirectives)))
+    new RenderGatheredOutput(processor, OperationConfig.default)
   
 }
