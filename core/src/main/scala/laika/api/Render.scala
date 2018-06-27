@@ -24,8 +24,8 @@ import laika.api.ext.ExtensionBundle.LaikaDefaults
 import laika.directive.{DirectiveSupport, StandardDirectives}
 import laika.factory.{RenderResultProcessor, RendererFactory}
 import laika.io.Output.Binary
-import laika.io.{IO, Input, Output, OutputProvider}
-import laika.io.OutputProvider._
+import laika.io.{IO, Input, Output, OutputTree}
+import laika.io.OutputTree._
 import laika.parse.css.Styles.StyleDeclarationSet
 import laika.rewrite.TemplateRewriter
 import laika.tree.Documents._
@@ -179,49 +179,49 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
   
   /** Renders the specified document tree to the given output.
    * 
-   *  @param tree the element to render
-   *  @param outputTree the configuration for the output to render to
+   *  @param docTree the tree to render
+   *  @param outputTree the output tree to render to
    */
-  protected[this] def render (tree: DocumentTree, outputTree: OutputConfig): Unit = {
+  protected[this] def render (docTree: DocumentTree, outputTree: OutputTree): Unit = {
 
     type Operation = () => Unit
 
-    def renderTree (provider: OutputProvider, styles: StyleDeclarationSet, path: Path, content: RootElement): Operation = {
-      val output = provider.newOutput(path.basename +"."+ factory.fileSuffix)
+    def renderTree (outputTree: OutputTree, styles: StyleDeclarationSet, path: Path, content: RootElement): Operation = {
+      val output = outputTree.newOutput(path.basename +"."+ factory.fileSuffix)
       () => render(content, output, styles)
     }
 
-    def copy (provider: OutputProvider)(input: Input): Operation = {
-      val output = provider.newOutput(input.path.name)
+    def copy (outputTree: OutputTree)(input: Input): Operation = {
+      val output = outputTree.newOutput(input.path.name)
       () => IO.copy(input, output)
     }
 
-    def collectOperations (provider: OutputProvider, parentStyles: StyleDeclarationSet, tree: DocumentTree): Seq[Operation] = {
+    def collectOperations (outputTree: OutputTree, parentStyles: StyleDeclarationSet, docTree: DocumentTree): Seq[Operation] = {
 
-      def isOutputRoot (source: DocumentTree) = (source.sourcePaths.headOption, outputTree.provider) match {
-        case (Some(inPath), out: DirectoryOutputProvider) => inPath == out.directory.getAbsolutePath
+      def isOutputRoot (source: DocumentTree) = (source.sourcePaths.headOption, outputTree) match {
+        case (Some(inPath), out: DirectoryOutputTree) => inPath == out.directory.getAbsolutePath
         case _ => false
       }
 
-      val styles = parentStyles ++ tree.styles(factory.fileSuffix)
+      val styles = parentStyles ++ docTree.styles(factory.fileSuffix)
 
-      (tree.content flatMap {
-        case doc: Document => Seq(renderTree(provider, styles, doc.path, doc.content))
-        case tree: DocumentTree if !isOutputRoot(tree) => collectOperations(provider.newChild(tree.name), styles, tree)
+      (docTree.content flatMap {
+        case doc: Document => Seq(renderTree(outputTree, styles, doc.path, doc.content))
+        case tree: DocumentTree if !isOutputRoot(tree) => collectOperations(outputTree.newChild(tree.name), styles, tree)
         case _ => Seq()
       }) ++
-      (tree.additionalContent flatMap {
-        case doc: DynamicDocument => Seq(renderTree(provider, styles, doc.path, doc.content))
-        case static: StaticDocument if outputTree.copyStaticFiles => Seq(copy(provider)(static.input))
+      (docTree.additionalContent flatMap {
+        case doc: DynamicDocument => Seq(renderTree(outputTree, styles, doc.path, doc.content))
+        case static: StaticDocument if outputTree.acceptsStaticFiles => Seq(copy(outputTree)(static.input))
         case _ => Seq()
       })
     }
 
     val templateName = "default.template." + factory.fileSuffix
-    val treeWithTpl = if (tree.selectTemplate(Current / templateName).isDefined) tree
-                      else tree.copy(templates = tree.templates :+ TemplateDocument(Root / templateName, defaultTemplate))
+    val treeWithTpl = if (docTree.selectTemplate(Current / templateName).isDefined) docTree
+                      else docTree.copy(templates = docTree.templates :+ TemplateDocument(Root / templateName, defaultTemplate))
     val finalTree = TemplateRewriter.applyTemplates(treeWithTpl, factory.fileSuffix)
-    val operations = collectOperations(outputTree.provider, defaultStyles, finalTree)
+    val operations = collectOperations(outputTree, defaultStyles, finalTree)
 
     (if (config.parallel) operations.par else operations) foreach (_())
   }
@@ -245,34 +245,30 @@ object Render {
      *  @param name the name of the file to parse
      *  @param codec the character encoding of the file, if not specified the platform default will be used.
      */
-    def toFile (name: String)(implicit codec: Codec): Unit = renderBinary(Output.toFile(name)(codec))
+    def toFile (name: String)(implicit codec: Codec): Unit = toBinaryOutput(Output.toFile(name)(codec))
     
     /** Renders the model to the specified file.
      * 
      *  @param file the file to write to
      *  @param codec the character encoding of the file, if not specified the platform default will be used.
      */
-    def toFile (file: File)(implicit codec: Codec): Unit = renderBinary(Output.toFile(file)(codec))
+    def toFile (file: File)(implicit codec: Codec): Unit = toBinaryOutput(Output.toFile(file)(codec))
     
     /** Renders the model to the specified output stream.
      * 
      *  @param stream the stream to render to
      *  @param codec the character encoding of the stream, if not specified the platform default will be used.
      */
-    def toStream (stream: OutputStream)(implicit codec: Codec): Unit = renderBinary(Output.toStream(stream)(codec))
-    
+    def toStream (stream: OutputStream)(implicit codec: Codec): Unit = toBinaryOutput(Output.toStream(stream)(codec))
+
     /** Renders the model to the specified output.
      *  
      *  This is a generic method based on Laika's IO abstraction layer that concrete
      *  methods delegate to. Usually not used directly in application code, but
      *  might come in handy for very special requirements.
      */
-    def toBinaryOutput (out: Output with Binary): Unit = renderBinary(out)
-    
-    /** Renders the model to the specified binary output.
-     */
-    protected def renderBinary (out: Output with Binary): Unit
-      
+    def toBinaryOutput (out: Output with Binary): Unit
+
   }
   
   /** Represents a single destination for a render operation. 
@@ -287,11 +283,11 @@ object Render {
 
     /** Renders the model to the specified writer.
      */
-    def toWriter (writer: java.io.Writer): Unit = renderTo(Output.toWriter(writer))
+    def toWriter (writer: java.io.Writer): Unit = toOutput(Output.toWriter(writer))
 
     /** Renders the model to the specified `StringBuilder`.
      */
-    def toBuilder (builder: StringBuilder): Unit = renderTo(Output.toBuilder(builder))
+    def toBuilder (builder: StringBuilder): Unit = toOutput(Output.toBuilder(builder))
     
     /** Renders the model to a String and returns it.
      */
@@ -307,15 +303,11 @@ object Render {
      *  methods delegate to. Usually not used directly in application code, but
      *  might come in handy for very special requirements.
      */
-    def toOutput (out: Output): Unit = renderTo(out)
+    def toOutput (out: Output): Unit
     
     /** Renders the model to the specified binary output.
      */
-    protected def renderTo (out: Output): Unit
-     
-    /** Renders the model to the specified binary output.
-     */
-    protected def renderBinary (out: Output with Binary): Unit = renderTo(out)
+    def toBinaryOutput (out: Output with Binary): Unit = toOutput(out)
     
   }
   
@@ -331,7 +323,7 @@ object Render {
      *  @param name the name of the directory to write to
      *  @param codec the character encoding of the files, if not specified the platform default will be used.
      */
-    def toDirectory (name: String)(implicit codec: Codec): Unit = toTree(Directory(name)(codec))
+    def toDirectory (name: String)(implicit codec: Codec): Unit = toDirectory(new File(name))
 
     /** Renders the document tree to the
      *  specified directory and its subdirectories.
@@ -340,26 +332,19 @@ object Render {
      *  @param dir the directory to write to
      *  @param codec the character encoding of the files, if not specified the platform default will be used.
      */
-    def toDirectory (dir: File)(implicit codec: Codec): Unit = toTree(Directory(dir)(codec))
-  
+    def toDirectory (dir: File)(implicit codec: Codec): Unit = toOutputTree(OutputTree.forRootDirectory(dir))
+
     /** Renders the document tree to the
      *  current working directory and its subdirectories.
      *  Required subdirectories which do not exist yet will be created.
-     * 
+     *
      *  @param codec the character encoding of the files, if not specified the platform default will be used.
      */
-    def toDefaultDirectory (implicit codec: Codec): Unit = toTree(DefaultDirectory(codec))
+    def toDefaultDirectory (implicit codec: Codec): Unit = toOutputTree(OutputTree.forWorkingDirectory)
 
-    /** Renders the document tree to the output
-     *  obtained from the specified configuation builder.
-     *  
-     *  @param builder a builder for the configuration from which the output to write to can be obtained
+    /** Renders the document tree to the specified output tree.
      */
-    def toTree (builder: OutputConfigBuilder): Unit = renderTo(builder)
-      
-    /** Renders the model to the specified output.
-     */
-    protected def renderTo (out: OutputConfigBuilder): Unit
+    def toOutputTree (tree: OutputTree): Unit
     
   }
   
@@ -382,13 +367,13 @@ object Render {
       new RenderMappedOutput[Writer](factory, newConfig)
 
     def from (element: Element): SingleTarget = new SingleTarget {
-      protected def renderTo (out: Output) = render(element, out, defaultStyles)
+      def toOutput (out: Output) = render(element, out, defaultStyles)
     }
     
     def from (doc: Document): SingleTarget = from(doc.content)
     
     def from (tree: DocumentTree): TreeTarget = new MappedTreeTarget {
-      protected def renderTo (out: OutputConfigBuilder) = render(tree, out.build)
+      def toOutputTree (out: OutputTree) = render(tree, out)
     }
     
   }
@@ -421,7 +406,7 @@ object Render {
       from(DocumentTree(Root, Seq(doc)))
     
     def from (tree: DocumentTree): BinaryTarget = new BinaryTarget {
-      protected def renderBinary (out: Output with Binary) = processor.process(tree, render, defaultTemplate, out.asBinaryOutput)
+      def toBinaryOutput (out: Output with Binary) = processor.process(tree, render, defaultTemplate, out.asBinaryOutput)
     }
     
   }

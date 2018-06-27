@@ -17,7 +17,7 @@
 package laika.factory
 
 import laika.io.Output.BinaryOutput
-import laika.io.OutputProvider.OutputConfig
+import laika.io.OutputTree
 import laika.tree.Documents.DocumentTree
 import laika.tree.Templates.TemplateRoot
 
@@ -43,7 +43,7 @@ trait RenderResultProcessor[Writer] {
    *  @param defaultTemplate the default template to merge with the render result
    *  @param output the output to write the final result to
    */
-  def process (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit, defaultTemplate: TemplateRoot, output: BinaryOutput): Unit // TODO - consider more general type for defaultTemplate
+  def process (tree: DocumentTree, render: (DocumentTree, OutputTree) => Unit, defaultTemplate: TemplateRoot, output: BinaryOutput): Unit // TODO - consider more general type for defaultTemplate
   
   
 }

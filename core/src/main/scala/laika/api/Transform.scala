@@ -18,13 +18,11 @@ package laika.api
 
 import java.io.{File, InputStream, Reader}
 
-import laika.api.Render.{BinaryTarget, MappedTreeTarget, RenderGatheredOutput, RenderMappedOutput, SingleTarget}
+import laika.api.Render._
 import laika.api.config.{OperationConfig, OperationConfigBuilder}
 import laika.api.ext.ExtensionBundle
 import laika.factory.{ParserFactory, RenderResultProcessor, RendererFactory}
 import laika.io.InputTree.{InputTreeBuilder, _}
-import laika.io.Output.Binary
-import laika.io.OutputProvider._
 import laika.io._
 import laika.rewrite.DocumentCursor
 import laika.tree.Documents._
@@ -335,14 +333,10 @@ object Transform {
     protected def withConfig (newConfig: OperationConfig): ThisType =
       new TransformMappedOutput(parse.withConfig(newConfig), render.withConfig(newConfig), newConfig)
     
-    def fromDocument (doc: Document): Render.SingleTarget = new SingleTarget {
-      protected def renderTo (out: Output): Unit = render.from(doc).toOutput(out)
-    }
+    def fromDocument (doc: Document): Render.SingleTarget = render.from(doc)
     
-    def fromTree (tree: DocumentTree): Render.MappedTreeTarget = new MappedTreeTarget {
-      protected def renderTo (out: OutputConfigBuilder): Unit = render.from(tree).toTree(out)
-    }
-    
+    def fromTree (tree: DocumentTree): Render.MappedTreeTarget = render.from(tree)
+
   }
   
   /** A transform operation that gathers input from one or more
@@ -367,15 +361,10 @@ object Transform {
     protected def withConfig (newConfig: OperationConfig): ThisType =
       new TransformGatheredOutput(parse.withConfig(newConfig), render.withConfig(newConfig), newConfig)
 
-    def fromDocument (doc: Document): Render.BinaryTarget = new BinaryTarget {
-      protected def renderBinary (out: Output with Binary): Unit = render.from(doc).toBinaryOutput(out)
-    }
+    def fromDocument (doc: Document): Render.BinaryTarget = render.from(doc)
     
-    def fromTree (tree: DocumentTree): Render.BinaryTarget = new BinaryTarget {
-      protected def renderBinary (out: Output with Binary): Unit = render.from(tree).toBinaryOutput(out)
-    }
+    def fromTree (tree: DocumentTree): Render.BinaryTarget = render.from(tree)
 
-    
   }
 
   /** Step in the setup for a transform operation where the

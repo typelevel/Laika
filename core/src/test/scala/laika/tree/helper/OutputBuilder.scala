@@ -16,22 +16,15 @@
 
 package laika.tree.helper
 
-import scala.io.Codec
-import laika.io.OutputProvider
-import laika.tree.Paths.Path
-import laika.tree.Paths.Root
-import laika.tree.Paths.Current
-import laika.io.OutputProvider.ProviderBuilder
-import laika.io.Output
-import laika.tree.Elements.TextContainer
-import laika.tree.Elements.ElementContainer
-import laika.tree.Elements.Element
-
-import scala.collection.mutable.ListBuffer
 import java.io.{BufferedWriter, File, FileWriter}
 
+import laika.io.{Output, OutputTree}
+import laika.tree.Elements.{Element, ElementContainer}
+import laika.tree.Paths.{Path, Root}
+
 import scala.annotation.tailrec
-import scala.io.Source
+import scala.collection.mutable.ListBuffer
+import scala.io.{Codec, Source}
 
 object OutputBuilder {
 
@@ -48,11 +41,11 @@ object OutputBuilder {
   case class RenderedTree (path: Path, content: Seq[TreeContent]) extends ElementContainer[TreeContent, RenderedTree]
   
   
-  class TestOutputProvider (val path: Path) extends OutputProvider {
+  class TestOutputTree(val path: Path) extends OutputTree {
     
     val documents = ListBuffer[(Path,StringBuilder)]()
     
-    val subtrees = ListBuffer[TestOutputProvider]()
+    val subtrees = ListBuffer[TestOutputTree]()
 
     def toTree: RenderedTree = new RenderedTree(path, List( 
       Documents(documents map { case (path, builder) => RenderedDocument(path, builder.toString) }),
@@ -65,25 +58,18 @@ object OutputBuilder {
       Output.toBuilder(builder)
     }
   
-    def newChild (name: String): OutputProvider = {
-      val provider = new TestOutputProvider(path / name)
+    def newChild (name: String): OutputTree = {
+      val provider = new TestOutputTree(path / name)
       subtrees += provider
       provider
     }
-  
+
+    val acceptsStaticFiles: Boolean = true
   }
-  
-  
-  class TestProviderBuilder extends ProviderBuilder {
-    
-    val provider = new TestOutputProvider(Root)
-    
-    def result: RenderedTree = provider.toTree
-    
-    def build (codec: Codec): OutputProvider = provider
-    
+
+  object TestOutputTree {
+    def newRoot: TestOutputTree = new TestOutputTree(Root)
   }
-  
   
   def createTempDirectory (baseName: String): File = {
     val maxAttempts = 100

@@ -21,8 +21,7 @@ import laika.api.ext.ExtensionBundle.LaikaDefaults
 import laika.directive.Directives._
 import laika.directive.DirectiveRegistry
 import laika.io.Input.LazyFileInput
-import laika.io.{DocumentType, Input, InputTree}
-import laika.io.OutputProvider.{Directory, OutputConfigBuilder}
+import laika.io.{DocumentType, Input, InputTree, OutputTree}
 import laika.parse.markdown.Markdown
 import laika.parse.markdown.html.{HTMLRenderer, VerbatimHTML}
 import laika.parse.rst.TextRoles.TextRole
@@ -79,7 +78,7 @@ object LaikaPlugin extends AutoPlugin {
 
     val laikaInputTree           = taskKey[InputTree]("The configured input tree for the parser")
 
-    val laikaOutputTree          = taskKey[OutputConfigBuilder]("The configured output tree for the renderer")
+    val laikaOutputTree          = taskKey[OutputTree]("The configured output tree for the renderer")
 
     val laikaRewriteRules        = settingKey[Seq[DocumentCursor => RewriteRule]]("Custom rewrite rules to add to the standard rules")
 
@@ -249,8 +248,8 @@ object LaikaPlugin extends AutoPlugin {
         (excludeFilter in Laika).value.accept)(laikaEncoding.value)
     }
 
-    def outputTreeTask (key: Scoped): Initialize[Task[OutputConfigBuilder]] = task {
-      Directory((target in key).value)(laikaEncoding.value)
+    def outputTreeTask (key: Scoped): Initialize[Task[OutputTree]] = task {
+      OutputTree.forRootDirectory((target in key).value)(laikaEncoding.value)
     }
 
     def prepareTargetDirectory (key: Scoped): Initialize[TargetDirectory] = setting {
@@ -312,7 +311,7 @@ object LaikaPlugin extends AutoPlugin {
               val html = laikaRenderMessageLevel.value map (HTML withMessageLevel) getOrElse HTML
               val renderers = laikaSiteRenderers.value :+ HTMLRenderer :+ ExtendedHTML // always install extensions
               val render = prepareRenderer(Render as html, renderers, laikaParallel.value)
-              render from tree toTree (laikaOutputTree in laikaSite).value
+              render from tree toOutputTree (laikaOutputTree in laikaSite).value
 
               streams.value.log.info(Log.outputs(tree))
               streams.value.log.info("Generated html in " + targetDir)
@@ -324,7 +323,7 @@ object LaikaPlugin extends AutoPlugin {
               val targetDir = prepareTargetDirectory(laikaPrettyPrint).value.prepare
 
               val render = prepareRenderer(Render as PrettyPrint, laikaPrettyPrintRenderers.value, laikaParallel.value)
-              render from tree toTree (laikaOutputTree in laikaPrettyPrint).value
+              render from tree toOutputTree (laikaOutputTree in laikaPrettyPrint).value
 
               streams.value.log.info("Generated Pretty Print in " + targetDir)
 
@@ -336,7 +335,7 @@ object LaikaPlugin extends AutoPlugin {
 
               val fo = laikaRenderMessageLevel.value map (XSLFO withMessageLevel) getOrElse XSLFO // TODO - ExtendedFO for rst
               val render = prepareRenderer(Render as fo, laikaFoRenderers.value, laikaParallel.value)
-              render from tree toTree (laikaOutputTree in laikaXSLFO).value
+              render from tree toOutputTree (laikaOutputTree in laikaXSLFO).value
 
               streams.value.log.info("Generated XSL-FO in " + targetDir)
 

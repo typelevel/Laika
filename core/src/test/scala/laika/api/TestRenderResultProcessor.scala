@@ -18,7 +18,8 @@ package laika.api
 
 import laika.factory.RenderResultProcessor
 import laika.io.Output.BinaryOutput
-import laika.io.OutputProvider._
+import laika.io.OutputTree
+import laika.io.OutputTree._
 import laika.render.{PrettyPrint, TextWriter}
 import laika.tree.Documents.{Document, DocumentTree}
 import laika.tree.Templates.TemplateRoot
@@ -27,7 +28,7 @@ object TestRenderResultProcessor extends RenderResultProcessor[TextWriter] {
 
   val factory = PrettyPrint
   
-  def process (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit, defaultTemplate: TemplateRoot, output: BinaryOutput): Unit = {
+  def process (tree: DocumentTree, render: (DocumentTree, OutputTree) => Unit, defaultTemplate: TemplateRoot, output: BinaryOutput): Unit = {
     
     def baseName(docName: String) = docName.takeWhile(_ != '.')
     
@@ -38,9 +39,9 @@ object TestRenderResultProcessor extends RenderResultProcessor[TextWriter] {
       }
     }
     
-    val strOutput = new StringOutputProvider(tree.path)
+    val strOutput = new StringOutputTree(tree.path)
     
-    render(tree, OutputConfig(strOutput, copyStaticFiles = false))
+    render(tree, strOutput)
     
     val sb = new StringBuilder
     append(sb, strOutput.result, tree)

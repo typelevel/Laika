@@ -31,7 +31,7 @@ import laika.render.{PrettyPrint, TextWriter, XSLFO}
 import laika.tree.Elements.Text
 import laika.tree.Paths.Root
 import laika.tree.Templates._
-import laika.tree.helper.OutputBuilder.readFile
+import laika.tree.helper.OutputBuilder.{TestOutputTree, readFile}
 import laika.tree.helper.{InputBuilder, OutputBuilder}
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -138,7 +138,6 @@ class TransformAPISpec extends FlatSpec
   trait TreeTransformer extends InputBuilder {
     import laika.directive.Directives.Templates
     import laika.io.DocumentType
-    import laika.io.OutputProvider.OutputConfigBuilder
     import laika.tree.Paths.Path
     import laika.tree.helper.OutputBuilder
     import laika.tree.helper.OutputBuilder._
@@ -146,7 +145,6 @@ class TransformAPISpec extends FlatSpec
     val dirs: String
     
     def input (source: String) = parseTreeStructure(source)
-    def output (builder: OutputBuilder.TestProviderBuilder) = new OutputConfigBuilder(builder, Codec.UTF8)
 
     def transformTree: RenderedTree = transformWith()
     def transformMultiMarkup: RenderedTree = transformWith(Transform from Markdown or ReStructuredText to PrettyPrint)
@@ -159,9 +157,9 @@ class TransformAPISpec extends FlatSpec
     def transformInParallel: RenderedTree = transformWith(transform.inParallel)
     
     private def transformWith (transformer: TransformMappedOutput[TextWriter] = transform): RenderedTree = {
-      val builder = new OutputBuilder.TestProviderBuilder
-      transformer fromInputTree input(dirs) toTree output(builder)
-      builder.result
+      val builder = TestOutputTree.newRoot
+      transformer fromInputTree input(dirs) toOutputTree builder
+      builder.toTree
     }
 
     private def transformWithBundle (bundle: ExtensionBundle, transformer: TransformMappedOutput[TextWriter] = transform): RenderedTree =
@@ -281,11 +279,11 @@ class TransformAPISpec extends FlatSpec
       val dirs = """- doc1.md:name
         |- styles.fo.css:style""".stripMargin
       val result = RenderResult.fo.withDefaultTemplate("""<fo:block font-family="serif" font-size="13pt" space-after="3mm">foo</fo:block>""")
-      val providerBuilder = new OutputBuilder.TestProviderBuilder
+      val builder = TestOutputTree.newRoot
       Transform.from(Markdown).to(XSLFO).inParallel
         .using(BundleProvider.forStyleSheetParser(parser))
-        .fromInputTree(input(dirs)).toTree(output(providerBuilder))
-      providerBuilder.result should be (root(List(docs(
+        .fromInputTree(input(dirs)).toOutputTree(builder)
+      builder.toTree should be (root(List(docs(
         (Root / "doc1.fo", result)
       ))))
     }

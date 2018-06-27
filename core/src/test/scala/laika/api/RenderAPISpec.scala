@@ -16,39 +16,23 @@
 
 package laika.api
 
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.StringWriter
+import java.io.{ByteArrayOutputStream, File, StringWriter}
 
-import scala.io.Codec
-import scala.io.Codec.charset2codec
-import scala.io.Source
-import org.scalatest.FlatSpec
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.Matchers
 import laika.api.Render.RenderMappedOutput
 import laika.api.ext.{BundleProvider, Theme}
-import laika.parse.css.Styles.StyleDeclarationSet
-import laika.parse.css.Styles.StyleDeclaration
-import laika.parse.css.Styles.ElementType
-import laika.render.PrettyPrint
-import laika.render._
-import laika.render.helper.RenderResult
-import laika.tree.Elements.Text
-import laika.tree.Elements.Title
-import laika.tree.helper.ModelBuilder
-import laika.tree.Documents.DocumentTree
-import laika.tree.Documents.Document
-import laika.tree.Documents.DynamicDocument
-import laika.tree.Documents.StaticDocument
-import laika.tree.Documents.TemplateDocument
-import laika.tree.Paths.Path
-import laika.tree.Paths.Root
-import laika.tree.Templates._
-import laika.tree.helper.OutputBuilder._
-import laika.io.OutputProvider.OutputConfigBuilder
 import laika.io.Input
-import laika.io.OutputProvider.Directory
+import laika.parse.css.Styles.{ElementType, StyleDeclaration, StyleDeclarationSet}
+import laika.render.{PrettyPrint, _}
+import laika.render.helper.RenderResult
+import laika.tree.Documents._
+import laika.tree.Elements.Text
+import laika.tree.Paths.{Path, Root}
+import laika.tree.Templates._
+import laika.tree.helper.ModelBuilder
+import laika.tree.helper.OutputBuilder._
+import org.scalatest.{FlatSpec, Matchers}
+
+import scala.io.Codec
 
 class RenderAPISpec extends FlatSpec 
                     with Matchers
@@ -134,12 +118,10 @@ class RenderAPISpec extends FlatSpec
     
     def render: RenderMappedOutput[W]
     
-    def tree (builder: TestProviderBuilder) = new OutputConfigBuilder(builder, Codec.UTF8)
-    
     def renderedTree: RenderedTree = {
-      val builder = new TestProviderBuilder
-      render from input toTree tree(builder)
-      builder.result
+      val output = TestOutputTree.newRoot
+      render from input toOutputTree output
+      output.toTree
     }
   }
   
@@ -456,7 +438,7 @@ class RenderAPISpec extends FlatSpec
   it should "render to a directory using the Directory object" in {
     new FileSystemTest {
       val f = createTempDirectory("renderToTree")
-      Render as PrettyPrint from input toTree Directory(f)
+      Render as PrettyPrint from input toDirectory(f)
       readFiles(f.getPath)
     }    
   }
@@ -464,7 +446,7 @@ class RenderAPISpec extends FlatSpec
   it should "render to a directory in parallel" in {
     new FileSystemTest {
       val f = createTempDirectory("renderParallel")
-      (Render as PrettyPrint).inParallel from input toTree Directory(f)
+      (Render as PrettyPrint).inParallel from input toDirectory(f)
       readFiles(f.getPath)
     }    
   }

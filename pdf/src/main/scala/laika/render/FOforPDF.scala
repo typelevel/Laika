@@ -17,7 +17,8 @@
 package laika.render
 
 import laika.api.Render
-import laika.io.OutputProvider.{OutputConfig, ResultTree, StringOutputProvider}
+import laika.io.OutputTree
+import laika.io.OutputTree.{ResultTree, StringOutputTree}
 import laika.render.FOWriter._
 import laika.rewrite.{TocGenerator, TreeUtil}
 import laika.tree.Documents._
@@ -171,7 +172,7 @@ class FOforPDF (config: Option[PDFConfig]) {
    *  @param render the actual render function for producing the XSL-FO output
    *  @return the rendered XSL-FO as a String 
    */
-  def renderFO (tree: DocumentTree, render: (DocumentTree, OutputConfig) => Unit, defaultTemplateRoot: TemplateRoot): String = {
+  def renderFO (tree: DocumentTree, render: (DocumentTree, OutputTree) => Unit, defaultTemplateRoot: TemplateRoot): String = {
     
     val pdfConfig = config getOrElse {
         
@@ -205,8 +206,8 @@ class FOforPDF (config: Option[PDFConfig]) {
     }
 
     def renderDocuments(preparedTree: DocumentTree): String = {
-      val foOutput = new StringOutputProvider(preparedTree.path)
-      render(preparedTree, OutputConfig(foOutput, copyStaticFiles = false))
+      val foOutput = new StringOutputTree(preparedTree.path)
+      render(preparedTree, foOutput)
       
       val sb = new StringBuilder
       append(sb, foOutput.result, preparedTree) // TODO - improve formatting
