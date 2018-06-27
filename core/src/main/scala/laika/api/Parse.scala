@@ -144,10 +144,7 @@ class Parse private (parsers: Seq[ParserFactory], protected[api] val config: Ope
 
     val doc = IO(input)(parserLookup.forInput(input))
 
-    if (rewrite) {
-      val rules = RewriteRules.chain(mergedBundle.rewriteRules.map(_(DocumentCursor(doc)))) // TODO - move this to OperationSupport
-      doc.rewrite(rules)
-    }
+    if (rewrite) doc.rewrite(config.rewriteRuleFor(doc))
     else doc
   }
   
@@ -321,10 +318,7 @@ class Parse private (parsers: Seq[ParserFactory], protected[api] val config: Ope
 
     val tree = collectDocuments(inputTree, root = true)
 
-    if (rewrite) {
-      val rules = RewriteRules.chainFactories(mergedBundle.rewriteRules) // TODO - move this to OperationSupport
-      tree.rewrite(rules)
-    }
+    if (rewrite) tree.rewrite(config.rewriteRule)
     else tree
   }
 
