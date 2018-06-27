@@ -99,17 +99,17 @@ object InputTree {
   type FileFilter = File => Boolean
 
 
-  private class DirectoryInputTree(dirs: Seq[File], val path: Path, exclude: FileFilter, docTypeMatcher: PartialFunction[Path, DocumentType], codec: Codec) extends InputTree {
+  private class DirectoryInputTree(dirs: Seq[File], val path: Path, exclude: FileFilter, docTypeMatcher: Path => DocumentType, codec: Codec) extends InputTree {
 
     import DocumentType._
 
-    private def docType (f: File) = docTypeMatcher.lift(path / f.getName).getOrElse(Ignored)
+    private def pathFor (f: File) = path / f.getName
 
     private def toInput (pair: (DocumentType,File)) = Input.fromFile(pair._2, path)(codec)
 
     private lazy val files = {
       def filesInDir (dir: File) = dir.listFiles filter (f => f.isFile && !exclude(f))
-      dirs flatMap filesInDir map (f => (docType(f), f)) groupBy (_._1) withDefaultValue Nil
+      dirs flatMap filesInDir map (f => (docTypeMatcher(pathFor(f)), f)) groupBy (_._1) withDefaultValue Nil
     }
 
     private def documents (docType: DocumentType) = files(docType).map(toInput)
@@ -129,14 +129,14 @@ object InputTree {
     lazy val sourcePaths: Seq[String] = dirs map (_.getAbsolutePath)
 
     lazy val subtrees: Seq[InputTree] = {
-      def subDirs (dir: File) = dir.listFiles filter (f => f.isDirectory && !exclude(f) && docType(f) != Ignored)
+      def subDirs (dir: File) = dir.listFiles filter (f => f.isDirectory && !exclude(f) && docTypeMatcher(pathFor(f)) != Ignored)
       val byName = (dirs flatMap subDirs groupBy (_.getName)).values
       byName map (subs => new DirectoryInputTree(subs, path / subs.head.getName, exclude, docTypeMatcher, codec)) toList
     }
 
   }
 
-  def forWorkingDirectory (docTypeMatcher: PartialFunction[Path, DocumentType], exclude: FileFilter)(implicit codec: Codec): InputTree =
+  def forWorkingDirectory (docTypeMatcher: Path => DocumentType, exclude: FileFilter)(implicit codec: Codec): InputTree =
     forRootDirectories(Seq(new File(System.getProperty("user.dir"))), docTypeMatcher, exclude)
 
   /** Creates an InputProvider based on the specified directories, including
@@ -149,7 +149,7 @@ object InputTree {
    *  @param exclude the files to exclude from processing
    *  @param codec the character encoding of the files, if not specified the platform default will be used
    */
-  def forRootDirectories (roots: Seq[File], docTypeMatcher: PartialFunction[Path, DocumentType], exclude: FileFilter)(implicit codec: Codec): InputTree = {
+  def forRootDirectories (roots: Seq[File], docTypeMatcher: Path => DocumentType, exclude: FileFilter)(implicit codec: Codec): InputTree = {
     require(roots.nonEmpty, "The specified roots sequence must contain at least one directory")
     for (root <- roots) {
       require(root.exists, s"Directory ${root.getAbsolutePath} does not exist")
@@ -163,7 +163,7 @@ object InputTree {
    *  on the specified document type matcher and codec.
    */
   trait InputTreeBuilder {
-    def build (docTypeMatcher: PartialFunction[Path, DocumentType]): InputTree
+    def build (docTypeMatcher: Path => DocumentType): InputTree
   }
   
   /** A filter that selects files that are hidden according to `java.io.File.isHidden`.

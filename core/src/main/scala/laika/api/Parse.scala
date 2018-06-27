@@ -21,7 +21,7 @@ import java.io.{File, InputStream, Reader}
 import com.typesafe.config.{ConfigFactory, Config => TConfig}
 import laika.api.config.{OperationConfig, OperationConfigBuilder}
 import laika.api.ext.{ConfigProvider, ExtensionBundle}
-import laika.directive.{ConfigParser, DirectiveSupport, StandardDirectives}
+import laika.directive.ConfigParser
 import laika.factory.ParserFactory
 import laika.io.DocumentType._
 import laika.io.InputTree._
@@ -30,7 +30,6 @@ import laika.parse.core.Parser
 import laika.parse.core.combinator.Parsers.{documentParserFunction, success}
 import laika.parse.core.text.TextParsers.{opt, unsafeParserFunction}
 import laika.parse.css.Styles.{StyleDeclaration, StyleDeclarationSet}
-import laika.rewrite.{DocumentCursor, RewriteRules}
 import laika.tree.Documents._
 import laika.tree.Elements.{InvalidSpan, SystemMessage}
 import laika.tree.Paths.Path
@@ -205,7 +204,7 @@ class Parse private (parsers: Seq[ParserFactory], protected[api] val config: Ope
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
   def fromDirectories (roots: Seq[File], exclude: FileFilter)(implicit codec: Codec): DocumentTree = 
-    fromInputTree(forRootDirectories(roots, mergedBundle.docTypeMatcher, exclude)(codec))
+    fromInputTree(forRootDirectories(roots, config.docTypeMatcher, exclude)(codec))
 
   /** Returns a document tree obtained by parsing files from the
    *  current working directory.
@@ -214,7 +213,7 @@ class Parse private (parsers: Seq[ParserFactory], protected[api] val config: Ope
    *  @param codec the character encoding of the files, if not specified the platform default will be used.
    */
   def fromDefaultDirectory (exclude: FileFilter = hiddenFileFilter)(implicit codec: Codec): DocumentTree =
-    fromInputTree(forWorkingDirectory(mergedBundle.docTypeMatcher, exclude)(codec))
+    fromInputTree(forWorkingDirectory(config.docTypeMatcher, exclude)(codec))
 
   /** Returns a document tree obtained by parsing files from the
    *  specified input tree builder.
@@ -222,7 +221,7 @@ class Parse private (parsers: Seq[ParserFactory], protected[api] val config: Ope
    *  @param builder a builder for the input tree to process
    */
   def fromInputTree(builder: InputTreeBuilder): DocumentTree =
-    fromInputTree(builder.build(mergedBundle.docTypeMatcher))
+    fromInputTree(builder.build(config.docTypeMatcher))
 
   /** Returns a document tree obtained by parsing files from the
    *  specified input tree.

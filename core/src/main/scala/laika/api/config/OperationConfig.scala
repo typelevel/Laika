@@ -19,9 +19,12 @@ package laika.api.config
 import laika.api.ext.ExtensionBundle
 import laika.api.ext.ExtensionBundle.LaikaDefaults
 import laika.directive.{DirectiveSupport, StandardDirectives}
+import laika.io.DocumentType
+import laika.io.DocumentType.Ignored
 import laika.rewrite.{DocumentCursor, RewriteRules}
 import laika.tree.Documents.Document
 import laika.tree.Elements.RewriteRule
+import laika.tree.Paths.Path
 
 /**
   * @author Jens Halm
@@ -29,6 +32,8 @@ import laika.tree.Elements.RewriteRule
 case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil, parallel: Boolean = false) {
 
   private lazy val mergedBundle: ExtensionBundle = ExtensionBundle.mergeBundles(bundles)
+
+  lazy val docTypeMatcher: Path => DocumentType = mergedBundle.docTypeMatcher.lift.andThen(_.getOrElse(Ignored))
 
   lazy val rewriteRule: DocumentCursor => RewriteRule = RewriteRules.chainFactories(mergedBundle.rewriteRules)
 

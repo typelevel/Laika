@@ -73,17 +73,17 @@ trait InputBuilder {
   
   private[InputBuilder] class TestInputTreeBuilder(dirs: List[TestInputTreeBuilder], files: List[(String,String)], val path: Path) extends InputTreeBuilder {
     
-    def build (docTypeMatcher: PartialFunction[Path, DocumentType]): InputTree = {
+    def build (docTypeMatcher: Path => DocumentType): InputTree = {
     
       def input (inputName: String, contentId: String, path: Path): Input = Input.fromString(contents(contentId), path / inputName)
-      
-      def docType (inputName: String): DocumentType = docTypeMatcher.lift(path / inputName).getOrElse(Ignored)
+
+      def pathFor (f: String) = path / f
   
-      val documents = files map (f => (docType(f._1), input(f._1, f._2, path))) groupBy (_._1) mapValues (_.map(_._2)) withDefaultValue Nil
+      val documents = files map (f => (docTypeMatcher(pathFor(f._1)), input(f._1, f._2, path))) groupBy (_._1) mapValues (_.map(_._2)) withDefaultValue Nil
       
       val styleSheets = documents collect { case (StyleSheet(format), inputs) => (format, inputs) }
       
-      val subtrees = dirs map (_.build(docTypeMatcher)) filter (d => docType(d.path.name) != Ignored)
+      val subtrees = dirs map (_.build(docTypeMatcher)) filter (d => docTypeMatcher(pathFor(d.path.name)) != Ignored)
       
       TestInputTree(path, documents(Config), documents(Markup), documents(Dynamic), styleSheets, documents(Static), documents(Template), subtrees, Nil)
       
