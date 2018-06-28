@@ -17,14 +17,11 @@
 package laika.api
 
 import laika.api.Render._
-import laika.api.config.{OperationConfig, OperationConfigBuilder}
-import laika.api.ext.ExtensionBundle
+import laika.api.config.{OperationConfig, TransformConfigBuilder}
 import laika.factory.{ParserFactory, RenderResultProcessor, RendererFactory}
 import laika.io._
-import laika.rewrite.DocumentCursor
 import laika.tree.Documents._
-import laika.tree.Elements._
-  
+
 /** API for performing a transformation operation from and to various types of input and output,
  *  combining a parse and render operation. 
  *  
@@ -78,84 +75,11 @@ import laika.tree.Elements._
  *  @author Jens Halm
  */
 abstract class Transform [Writer] private[Transform] (parse: Parse) extends
-  OperationConfigBuilder with InputOps with InputTreeOps  {
+  TransformConfigBuilder[Writer] with InputOps with InputTreeOps  {
   
   type ThisType <: Transform[Writer]
   type InputResult <: OutputOps
   type InputTreeResult <: OutputOps
-
-  /** Specifies a rewrite rule to be applied to the document tree model between the
-   *  parse and render operations. This is identical to calling `Document.rewrite`
-   *  directly, but if there is no need to otherwise access the document instance
-   *  and just chain parse and render operations this hook is more convenient.
-   *  
-   *  The rule is a partial function that takes an `Element` and returns an `Option[Element]`.
-   *  
-   *  If the function is not defined for a specific element the old element remains
-   *  in the tree unchanged. If it returns `None` then the node gets removed from the tree, 
-   *  if it returns an element it will replace the old one. Of course the function may
-   *  also return the old element.
-   *  
-   *  The rewriting is performed in a way that only branches of the tree that contain
-   *  new or removed elements will be replaced. It is processed bottom-up, therefore
-   *  any element container passed to the rule only contains children which have already
-   *  been processed. 
-   *  
-   *  In case multiple rewrite rules need to be applied it may be more efficient to
-   *  first combine them with `orElse`.
-   */
-  def usingRule (newRule: RewriteRule): ThisType = creatingRule(_ => newRule)
-  
-  /** Specifies a rewrite rule to be applied to the document tree model between the
-   *  parse and render operations. This is identical to calling `Document.rewrite`
-   *  directly, but if there is no need to otherwise access the document instance
-   *  and just chain parse and render operations this hook is more convenient.
-   *  
-   *  The difference of this method to the `usingRule` method is that it expects a function
-   *  that expects a Document instance and returns the rewrite rule. This way the full document
-   *  can be queried before any rule is applied. This is necessary in cases where the rule
-   *  (which gets applied node-by-node) depends on information from other nodes. An example
-   *  from the built-in rewrite rules is the rule that resolves link references. To replace
-   *  all link reference elements with actual link elements, the rewrite rule needs to know
-   *  all LinkDefinitions the document tree contains.
-   *  
-   *  The rule itself is a partial function that takes an `Element` and returns an `Option[Element]`.
-   *  
-   *  If the function is not defined for a specific element the old element remains
-   *  in the tree unchanged. If it returns `None` then the node gets removed from the tree, 
-   *  if it returns an element it will replace the old one. Of course the function may
-   *  also return the old element.
-   *  
-   *  The rewriting is performed in a way that only branches of the tree that contain
-   *  new or removed elements will be replaced. It is processed bottom-up, therefore
-   *  any element container passed to the rule only contains children which have already
-   *  been processed. 
-   *  
-   *  In case multiple rewrite rules need to be applied it may be more efficient to
-   *  first combine them with `orElse`.
-   */
-  def creatingRule (newRule: DocumentCursor => RewriteRule): ThisType = using(new ExtensionBundle {
-    override def rewriteRules: Seq[DocumentCursor => RewriteRule] = Seq(newRule)
-  })
-  
-  /** Specifies a custom render function that overrides one or more of the default
-   *  renderers for the output format this instance uses.
-   *  
-   *  This method expects a function that returns a partial function as the parameter.
-   *  The outer function allows to capture the writer instance to write to and will
-   *  only be invoked once. The partial function will then be invoked for each
-   *  elememnt it is defined at. 
-   * 
-   *  Simple example for customizing the HTML output for emphasized text, adding a specific
-   *  style class:
-   *  
-   *  {{{
-   *  Transform from Markdown to HTML rendering { out => 
-   *    { case Emphasized(content) => out << """&lt;em class="big">""" << content << "&lt;/em>" } 
-   *  } fromFile "hello.md" toFile "hello.html"
-   *  }}}
-   */
-  def rendering (customRenderer: Writer => RenderFunction): ThisType
 
   def fromInput (input: Input): InputResult = fromDocument(parse.fromInput(input))
 
@@ -200,9 +124,6 @@ object Transform {
   
     type ThisType = TransformMappedOutput[Writer]
     
-    def rendering (customRenderer: Writer => RenderFunction): ThisType =
-      new TransformMappedOutput(parse, render using customRenderer, config)
-
     protected def withConfig (newConfig: OperationConfig): ThisType =
       new TransformMappedOutput(parse.withConfig(newConfig), render.withConfig(newConfig), newConfig)
     
@@ -228,9 +149,6 @@ object Transform {
   
     type ThisType = TransformGatheredOutput[Writer]
     
-    def rendering (customRenderer: Writer => RenderFunction): ThisType =
-      new TransformGatheredOutput(parse, render using customRenderer, config)
-
     protected def withConfig (newConfig: OperationConfig): ThisType =
       new TransformGatheredOutput(parse.withConfig(newConfig), render.withConfig(newConfig), newConfig)
 

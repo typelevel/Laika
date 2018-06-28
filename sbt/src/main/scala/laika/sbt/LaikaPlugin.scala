@@ -266,7 +266,7 @@ object LaikaPlugin extends AutoPlugin {
         render: R,
         custom: Seq[Writer => RenderFunction],
         parallel: Boolean): R = {
-      val renderWithExt = (render /: custom) { case (render, renderer) => render using renderer }
+      val renderWithExt = (render /: custom) { case (render, renderer) => render rendering renderer }
       if (parallel) renderWithExt.inParallel else renderWithExt
     }
 

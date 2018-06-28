@@ -91,7 +91,7 @@ class RenderAPISpec extends FlatSpec
   }
   
   it should "allow to override the default renderer for specific element types" in {
-    val render = Render as PrettyPrint using { out => { case Text(content,_) => out << "String - '" << content << "'" } }
+    val render = Render as PrettyPrint rendering { out => { case Text(content,_) => out << "String - '" << content << "'" } }
     val modifiedResult = expected.replaceAllLiterally("Text", "String")
     (render from rootElem toString) should be (modifiedResult)
   }
@@ -101,7 +101,7 @@ class RenderAPISpec extends FlatSpec
     def markupDoc (num: Int, path: Path = Root)  = Document(path / ("doc"+num), root(p("Doc"+num)))
     def dynamicDoc (num: Int, path: Path = Root) = DynamicDocument(path / ("doc"+num), root(TemplateRoot(List(TemplateString("Doc"+num)))))
     
-    def staticDoc (num: Int, path: Path = Root) = StaticDocument(Input.fromString("Static"+num, path / (s"static$num.txt")))
+    def staticDoc (num: Int, path: Path = Root) = StaticDocument(Input.fromString("Static"+num, path / s"static$num.txt"))
     
     
     def renderedDynDoc (num: Int) = """RootElement - Blocks: 1
@@ -457,7 +457,7 @@ class RenderAPISpec extends FlatSpec
                      |. . Text - 'Doc äöü'""".stripMargin
     val f = createTempDirectory("renderNonASCII")
     val input = DocumentTree(Root, List(
-      Document(Root / ("doc"), root(p("Doc äöü")))
+      Document(Root / "doc", root(p("Doc äöü")))
     ))
     (Render as PrettyPrint from input).toDirectory(f)(Codec.ISO8859)
     readFile(new File(f, "doc.txt"), Codec.ISO8859) should be (expected)

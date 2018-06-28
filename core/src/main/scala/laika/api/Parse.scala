@@ -17,7 +17,7 @@
 package laika.api
 
 import com.typesafe.config.{ConfigFactory, Config => TConfig}
-import laika.api.config.{OperationConfig, OperationConfigBuilder}
+import laika.api.config.{OperationConfig, ParseConfigBuilder}
 import laika.api.ext.{ConfigProvider, ExtensionBundle}
 import laika.directive.ConfigParser
 import laika.factory.ParserFactory
@@ -61,7 +61,7 @@ import laika.util.~
  *  @author Jens Halm
  */
 class Parse private (parsers: Seq[ParserFactory], val config: OperationConfig, rewrite: Boolean)
-  extends OperationConfigBuilder with InputOps with InputTreeOps {
+  extends ParseConfigBuilder with InputOps with InputTreeOps {
 
   type ThisType = Parse
 

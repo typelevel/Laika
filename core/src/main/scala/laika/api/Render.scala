@@ -16,8 +16,8 @@
 
 package laika.api
 
-import laika.api.config.{OperationConfig, OperationConfigBuilder}
-import laika.api.ext.{ExtensionBundle, Theme}
+import laika.api.config.{OperationConfig, RenderConfigBuilder}
+import laika.api.ext.ExtensionBundle
 import laika.factory.{RenderResultProcessor, RendererFactory}
 import laika.io.Output.Binary
 import laika.io.OutputTree._
@@ -65,7 +65,7 @@ import laika.tree.Templates._
  *  @author Jens Halm
  */
 abstract class Render[Writer] private (private[Render] val factory: RendererFactory[Writer],
-                                       protected val config: OperationConfig) extends OperationConfigBuilder {
+                                       protected val config: OperationConfig) extends RenderConfigBuilder[Writer] {
 
   
   /** The output operations that can be performed for a single input document.
@@ -83,29 +83,8 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
 
   private lazy val mergedBundle: ExtensionBundle = ExtensionBundle.mergeBundles(config.bundles)
 
-  /** Specifies a custom render function that overrides one or more of the default
-   *  renderers for the output format this instance uses.
-   *
-   *  To be precise this method expects a function that returns a partial function.
-   *  The outer function allows to capture the writer instance to write to and will
-   *  only be invoked once. The partial function will then be invoked for each
-   *  elememnt it is defined at.
-   *
-   *  Simple example for customizing the HTML output for emphasized text, adding a specific
-   *  style class:
-   *
-   *  {{{
-   *  val doc: Document = ...
-   *
-   *  Render as HTML using { out =>
-   *    { case Emphasized(content) => out << """&lt;em class="big">""" << content << "&lt;/em>" }
-   *  } from doc toString
-   *  }}}
-   */
-  def using (render: Writer => RenderFunction): ThisType = using(new ExtensionBundle {
-    override def themeFor[W](rendererFactory: RendererFactory[W]): Theme[W] =
-      Theme(customRenderers = Seq(render)).asInstanceOf[Theme[W]]
-  })
+  @deprecated("renamed to rendering for consistency", "0.9.0")
+  def using (render: Writer => RenderFunction): ThisType = rendering(render)
 
   /** Specifies the element to render. This may be a `RootElement` instance
    *  as well as any other type of `Element`, thus allowing to render document

@@ -50,34 +50,3 @@ object OperationConfig {
   )
 
 }
-
-trait OperationConfigBuilder {
-
-  type ThisType
-
-  protected def withConfig(newConfig: OperationConfig): ThisType
-
-  protected def config: OperationConfig
-
-  /** Returns a new instance with the specified extension bundles installed.
-    * Features in the new bundles may override features in already installed bundles.
-    *
-    * Bundles are usually provided by libraries (by Laika itself or a 3rd-party extension library)
-    * or as re-usable building blocks by application code.
-    */
-  def using (bundles: ExtensionBundle*): ThisType = withConfig(config.withBundles(bundles))
-
-  /**  Instructs the parser and/or renderer to process all inputs and outputs in parallel.
-    *  The recursive structure of document trees will be flattened before parsing and rendering
-    *  and then get reassembled afterwards, therefore the parallel processing
-    *  includes all subtrees of the document tree.
-    *
-    *  The actual transformation is a three phase process, the first (parsing) and
-    *  third (rendering) can run in parallel. The second phase in the middle cannot,
-    *  as this is the document tree model rewrite step where things like cross references or
-    *  table of contents get processed that need access to more than just the current
-    *  document.
-    */
-  def inParallel: ThisType = withConfig(config.copy(parallel = true))
-
-}
