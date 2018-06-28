@@ -81,7 +81,9 @@ abstract class Transform [Writer] private[Transform] (parse: Parse) extends
   OperationConfigBuilder with InputOps with InputTreeOps  {
   
   type ThisType <: Transform[Writer]
-  
+  type InputResult <: OutputOps
+  type InputTreeResult <: OutputOps
+
   /** Specifies a rewrite rule to be applied to the document tree model between the
    *  parse and render operations. This is identical to calling `Document.rewrite`
    *  directly, but if there is no need to otherwise access the document instance
@@ -192,9 +194,9 @@ object Transform {
   class TransformMappedOutput[Writer] (parse: Parse, render: RenderMappedOutput[Writer],
                                        val config: OperationConfig) extends Transform[Writer](parse) {
     
-    type InputResult = SingleTarget
+    type InputResult = TextOuputOps
   
-    type InputTreeResult = MappedTreeTarget
+    type InputTreeResult = OutputTreeOps
   
     type ThisType = TransformMappedOutput[Writer]
     
@@ -204,9 +206,9 @@ object Transform {
     protected def withConfig (newConfig: OperationConfig): ThisType =
       new TransformMappedOutput(parse.withConfig(newConfig), render.withConfig(newConfig), newConfig)
     
-    def fromDocument (doc: Document): SingleTarget = render.from(doc)
+    def fromDocument (doc: Document): TextOuputOps = render.from(doc)
     
-    def fromTree (tree: DocumentTree): MappedTreeTarget = render.from(tree)
+    def fromTree (tree: DocumentTree): OutputTreeOps = render.from(tree)
 
   }
   
@@ -220,9 +222,9 @@ object Transform {
   class TransformGatheredOutput[Writer] (parse: Parse, render: RenderGatheredOutput[Writer],
                                          val config: OperationConfig) extends Transform[Writer](parse) {
     
-    type InputResult = BinaryTarget
+    type InputResult = BinaryOutputOps
   
-    type InputTreeResult = BinaryTarget
+    type InputTreeResult = BinaryOutputOps
   
     type ThisType = TransformGatheredOutput[Writer]
     
@@ -232,9 +234,9 @@ object Transform {
     protected def withConfig (newConfig: OperationConfig): ThisType =
       new TransformGatheredOutput(parse.withConfig(newConfig), render.withConfig(newConfig), newConfig)
 
-    def fromDocument (doc: Document): BinaryTarget = render.from(doc)
+    def fromDocument (doc: Document): BinaryOutputOps = render.from(doc)
     
-    def fromTree (tree: DocumentTree): BinaryTarget = render.from(tree)
+    def fromTree (tree: DocumentTree): BinaryOutputOps = render.from(tree)
 
   }
 
