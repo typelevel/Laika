@@ -19,7 +19,6 @@ package laika.api.ext
 import com.typesafe.config.{Config, ConfigFactory}
 import laika.factory.RendererFactory
 import laika.io.{DefaultDocumentTypeMatcher, DocumentType}
-import laika.parse.core.markup.RecursiveParsers
 import laika.parse.css.CSSParsers
 import laika.parse.css.Styles.StyleDeclarationSet
 import laika.rewrite.{DocumentCursor, LinkResolver, SectionBuilder}
@@ -56,6 +55,8 @@ trait ExtensionBundle { self =>
 
   def withBase (bundle: ExtensionBundle): ExtensionBundle = new ExtensionBundle {
 
+    override val useInStrictMode = self.useInStrictMode && bundle.useInStrictMode
+
     override def baseConfig = self.baseConfig.withFallback(bundle.baseConfig)
 
     override def docTypeMatcher = self.docTypeMatcher.orElse(bundle.docTypeMatcher)
@@ -70,6 +71,10 @@ trait ExtensionBundle { self =>
     override def processExtension: PartialFunction[ExtensionBundle, ExtensionBundle] =
       self.processExtension.orElse(bundle.processExtension)
   }
+
+  def useInStrictMode: Boolean = false
+
+  def acceptRawContent: Boolean = false
 
 }
 
@@ -95,6 +100,8 @@ object ExtensionBundle {
 
   object LaikaDefaults extends ExtensionBundle {
 
+    override val useInStrictMode = true
+
     override def docTypeMatcher: PartialFunction[Path, DocumentType] = DefaultDocumentTypeMatcher.get
 
     override def parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders(
@@ -104,12 +111,6 @@ object ExtensionBundle {
     override def rewriteRules: Seq[DocumentCursor => RewriteRule] = Seq(LinkResolver, SectionBuilder)
 
   }
-
-}
-
-trait ExtensionFactory {
-
-  def create (recursiveParsers: RecursiveParsers): ExtensionBundle
 
 }
 

@@ -76,6 +76,7 @@ trait TransformConfigBuilder[Writer] extends ParseConfigBuilder with RenderConfi
     *  first combine them with `orElse`.
     */
   def creatingRule (newRule: DocumentCursor => RewriteRule): ThisType = using(new ExtensionBundle {
+    override val useInStrictMode: Boolean = true
     override def rewriteRules: Seq[DocumentCursor => RewriteRule] = Seq(newRule)
   })
 

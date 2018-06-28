@@ -50,24 +50,17 @@ import laika.tree.Documents.Document
  * 
  *  @author Jens Halm
  */
-class Markdown private (isStrict: Boolean) extends ParserFactory {
+class Markdown private () extends ParserFactory {
 
   val fileSuffixes: Set[String] = Set("md","markdown")
   
   val extensions = Seq()
   
-  /** Turns strict mode on for the returned parser, switching off any
-   *  features not part of the original Markdown syntax.
-   *  This includes the registration of directives (custom tags) as well as configuration
-   *  sections at the start of the document or id generation for all headers.
-   */
-  def strict: Markdown = new Markdown(isStrict = true)
-  
   /** The actual parser function, fully parsing the specified input and
    *  returning a document tree.
    */
   def newParser (parserExtensions: ParserDefinitionBuilders): Input => Document = {
-    val parser = new RootParser(parserExtensions, isStrict)
+    val parser = new RootParser(parserExtensions)
     (input: Input) => parser.parseDocument(input.asParserInput, input.path)
   }
   
@@ -77,4 +70,4 @@ class Markdown private (isStrict: Boolean) extends ParserFactory {
  * 
  *  @author Jens Halm
  */
-object Markdown extends Markdown(isStrict = false)
+object Markdown extends Markdown()

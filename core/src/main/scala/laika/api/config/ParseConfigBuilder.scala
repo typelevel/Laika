@@ -21,4 +21,11 @@ package laika.api.config
   */
 trait ParseConfigBuilder extends OperationConfigBuilder {
 
+  /**  Turns strict mode on for the target parser, switching off any
+    *  features not part of the original markup syntax.
+    *  This includes the registration of directives (custom tags), custom templates
+    *  with directives, as well as configuration sections at the start of the document.
+    */
+  def strict: ThisType = withConfig(config.forStrictMode)
+
 }

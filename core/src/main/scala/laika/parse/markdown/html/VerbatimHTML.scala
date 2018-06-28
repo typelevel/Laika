@@ -37,6 +37,8 @@ import laika.render.{HTML, HTMLWriter}
   */
 object VerbatimHTML extends ExtensionBundle {
 
+  override val useInStrictMode: Boolean = true
+
   override def parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders(
     blockParsers = Seq(HTMLParsers.htmlBlockFragment),
     spanParsers = Seq(HTMLParsers.htmlSpan, HTMLParsers.htmlCharRef)

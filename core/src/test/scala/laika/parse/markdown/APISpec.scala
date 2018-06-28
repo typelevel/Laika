@@ -72,14 +72,12 @@ class APISpec extends FlatSpec
     }
   }
 
-  // TODO - resurrect tests for strict mode after its refactoring - merge the two APISpecs
-  
-  ignore should "ignore the registration of block directives when run in strict mode" in {
+  it should "ignore the registration of block directives when run in strict mode" in {
     new BlockDirectives {
       val input = """@:oneArg arg.
         |
         |@:twoArgs arg1 name=arg2.""".stripMargin
-      (Parse as Markdown.strict using TestDirectives fromString input).content should be (root (p("@:oneArg arg."),p("@:twoArgs arg1 name=arg2.")))
+      Parse.as(Markdown).using(TestDirectives).strict.fromString(input).content should be (root (p("@:oneArg arg."),p("@:twoArgs arg1 name=arg2.")))
     }
   }
   
@@ -90,10 +88,10 @@ class APISpec extends FlatSpec
     }
   }
 
-  ignore should "ignore the registration of span directives when run in strict mode" in {
+  it should "ignore the registration of span directives when run in strict mode" in {
     new SpanDirectives {
       val input = """one @:oneArg arg. two @:twoArgs arg1 name=arg2. three"""
-      (Parse as Markdown.strict using TestDirectives fromString input).content should be (root (p("one @:oneArg arg. two @:twoArgs arg1 name=arg2. three")))
+      Parse.as(Markdown).using(TestDirectives).strict.fromString(input).content should be (root (p("one @:oneArg arg. two @:twoArgs arg1 name=arg2. three")))
     }
   }
   

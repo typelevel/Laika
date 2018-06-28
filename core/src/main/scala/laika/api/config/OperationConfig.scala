@@ -29,9 +29,11 @@ import laika.tree.Paths.Path
 /**
   * @author Jens Halm
   */
-case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil, parallel: Boolean = false) {
+case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
+                            bundleFilter: BundleFilter = BundleFilter(),
+                            parallel: Boolean = false) {
 
-  private lazy val mergedBundle: ExtensionBundle = ExtensionBundle.mergeBundles(bundles)
+  private lazy val mergedBundle: ExtensionBundle = ExtensionBundle.mergeBundles(bundles.filter(bundleFilter))
 
   lazy val docTypeMatcher: Path => DocumentType = mergedBundle.docTypeMatcher.lift.andThen(_.getOrElse(Ignored))
 
@@ -39,7 +41,10 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil, parallel: Boole
 
   def rewriteRuleFor (doc: Document): RewriteRule = rewriteRule(DocumentCursor(doc))
 
+
   def withBundles (bundles: Seq[ExtensionBundle]): OperationConfig = copy(bundles = this.bundles ++ bundles)
+
+  def forStrictMode: OperationConfig = copy(bundleFilter = bundleFilter.copy(strict = true))
 
 }
 
@@ -49,4 +54,9 @@ object OperationConfig {
     bundles = Seq(LaikaDefaults, DirectiveSupport, StandardDirectives)
   )
 
+}
+
+case class BundleFilter (strict: Boolean = false, acceptRawContent: Boolean = false) extends (ExtensionBundle => Boolean) {
+  override def apply (bundle: ExtensionBundle): Boolean =
+    (!strict || bundle.useInStrictMode) && (acceptRawContent || !bundle.acceptRawContent)
 }

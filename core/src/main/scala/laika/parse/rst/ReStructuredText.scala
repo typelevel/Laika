@@ -82,14 +82,14 @@ class ReStructuredText private (
        spanDirectives: List[Directive[Span]],
        textRoles: List[TextRole],
        defaultTextRole: String = "title-reference",
-       rawContent: Boolean = false,
-       isStrict: Boolean = false
+       rawContent: Boolean = false
     ) extends ParserFactory { self =>
 
 
   val fileSuffixes: Set[String] = Set("rest","rst")
 
   val extensions = Seq(new ExtensionBundle {
+    override val useInStrictMode: Boolean = true
     override def rewriteRules: Seq[DocumentCursor => RewriteRule] = Seq(RewriteRules)
 
     override def themeFor[Writer](rendererFactory: RendererFactory[Writer]): Theme[Writer] = rendererFactory match {
@@ -118,7 +118,7 @@ class ReStructuredText private (
    *  For more details on implementing directives see [[laika.parse.rst.Directives]].
    */
   def withBlockDirectives (directives: Directive[Block]*): ReStructuredText =
-    new ReStructuredText(blockDirectives ++ directives, spanDirectives, textRoles, defaultTextRole, rawContent, isStrict)
+    new ReStructuredText(blockDirectives ++ directives, spanDirectives, textRoles, defaultTextRole, rawContent)
 
   /** Adds the specified directives and returns a new instance of the parser.
    *  These span directives can then be referred to by substitution references.
@@ -138,7 +138,7 @@ class ReStructuredText private (
    *  For more details on implementing directives see [[laika.parse.rst.Directives]].
    */
   def withSpanDirectives (directives: Directive[Span]*): ReStructuredText =
-    new ReStructuredText(blockDirectives, spanDirectives ++ directives, textRoles, defaultTextRole, rawContent, isStrict)
+    new ReStructuredText(blockDirectives, spanDirectives ++ directives, textRoles, defaultTextRole, rawContent)
 
   /** Adds the specified text roles and returns a new instance of the parser.
    *  These text roles may then be used in interpreted text spans.
@@ -158,30 +158,21 @@ class ReStructuredText private (
    *  For more details on implementing directives see [[laika.parse.rst.TextRoles]].
    */
   def withTextRoles (roles: TextRole*): ReStructuredText =
-    new ReStructuredText(blockDirectives, spanDirectives, textRoles ++ roles, defaultTextRole, rawContent, isStrict)
+    new ReStructuredText(blockDirectives, spanDirectives, textRoles ++ roles, defaultTextRole, rawContent)
 
   /** Specifies the name of the default text role
    *  to apply when interpreted text
    *  is used in markup without an explicit role name.
    */
   def withDefaultTextRole (role: String): ReStructuredText =
-    new ReStructuredText(blockDirectives, spanDirectives, textRoles, role, rawContent, isStrict)
+    new ReStructuredText(blockDirectives, spanDirectives, textRoles, role, rawContent)
 
   /** Adds the `raw` directive and text roles to the parser.
    *  These are disabled by default as they present a potential security risk.
    */
   def withRawContent: ReStructuredText = {
-    new ReStructuredText(blockDirectives, spanDirectives, textRoles, defaultTextRole, true, isStrict)
+    new ReStructuredText(blockDirectives, spanDirectives, textRoles, defaultTextRole, true)
   }
-
-  /** Turns strict mode on for the returned parser, switching off any
-   *  features not part of the reStructuredText specification.
-   *  This includes the Laika variant of directives as well as configuration
-   *  sections at the start of the document.
-   */
-  def strict: ReStructuredText =
-    new ReStructuredText(blockDirectives, spanDirectives, textRoles, defaultTextRole, rawContent, true)
-
 
   private def createParser (parserExtensions: ParserDefinitionBuilders): RootParser = {
 
@@ -196,7 +187,7 @@ class ReStructuredText private (
     val rstSpanDirectives  = stdSpans.spanDirectives   ++ spanDirectives
     val rstTextRoles       = stdTextRoles.allRoles     ++ textRoles       ++ rawTextRole
 
-    new RootParser(parserExtensions, rstBlockDirectives, rstSpanDirectives, rstTextRoles, defaultTextRole, isStrict)
+    new RootParser(parserExtensions, rstBlockDirectives, rstSpanDirectives, rstTextRoles, defaultTextRole)
   }
 
   /** The actual parser function, fully parsing the specified input and
@@ -214,4 +205,4 @@ class ReStructuredText private (
  * 
  *  @author Jens Halm
  */
-object ReStructuredText extends ReStructuredText(Nil,Nil,Nil,"title-reference",false,false)
+object ReStructuredText extends ReStructuredText(Nil,Nil,Nil,"title-reference",false)

@@ -17,9 +17,13 @@
 package laika.parse.markdown
 
 import laika.api.Transform
+import laika.api.ext.ParserDefinitionBuilders
+import laika.factory.ParserFactory
+import laika.io.Input
 import laika.parse.markdown.html.VerbatimHTML
 import laika.render.HTML
 import laika.transform.helper.FileTransformerUtil
+import laika.tree.Documents.Document
 import laika.tree.Elements.QuotedBlock
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -48,13 +52,22 @@ class MarkdownToHTMLSpec extends FlatSpec
     
     tidy(cleaned).replace(">\n\n<",">\n<") // Markdown often adds blank lines between tags
   }
-  
+
+  // TODO - remove once strict mode is handled properly
+  object StrictMarkdown extends ParserFactory {
+    val fileSuffixes: Set[String] = Set("md","markdown")
+    val extensions = Seq()
+    def newParser (parserExtensions: ParserDefinitionBuilders): Input => Document = {
+      val parser = new RootParser(parserExtensions, isStrict = true)
+      (input: Input) => parser.parseDocument(input.asParserInput, input.path)
+    }
+  }
 
   def transformAndCompare (name: String): Unit = {
     val path = classPathResource("/markdownTestSuite") + "/" + name
-    val actual = Transform from Markdown.strict to HTML using VerbatimHTML rendering { out => {
+    val actual = (Transform from StrictMarkdown to HTML using VerbatimHTML rendering { out => {
       case QuotedBlock(content,_,_) => out << "<blockquote>" <<|>  content <<| "</blockquote>" // Markdown always writes p tags inside blockquotes
-    }} fromFile (path + ".md") toString
+    }}).strict fromFile (path + ".md") toString
     val expected = readFile(path + ".html")
     tidyAndAdjust(actual) should be (tidyAndAdjust(expected))
   }

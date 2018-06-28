@@ -31,8 +31,7 @@ import laika.tree.Paths.Path
   *
   * @author Jens Halm
   */
-class RootParser (parserExtensions: ParserDefinitionBuilders,
-                  isStrict: Boolean) extends RootParserBase {
+class RootParser (parserExtensions: ParserDefinitionBuilders, isStrict: Boolean = false) extends RootParserBase {
 
   /** Parses a single escaped character, only recognizing the characters the Markdown syntax document
     *  specifies as escapable.
@@ -71,7 +70,7 @@ class RootParser (parserExtensions: ParserDefinitionBuilders,
   }
 
 
-  // TODO - could be rewrite rule
+  // TODO - could be rewrite rule - don't use in strict mode - remove strict flag from this class
   override def blockList (parser: => Parser[Block]): Parser[List[Block]] =
     if (isStrict) super.blockList(parser)
     else super.blockList(parser) ^^ {
@@ -82,7 +81,7 @@ class RootParser (parserExtensions: ParserDefinitionBuilders,
     }
 
   override def config (path: Path): Parser[Either[InvalidBlock,Config]] =
-    if (isStrict) super.config(path) else DirectiveParsers.configHeader(path)
+    DirectiveParsers.configHeader(path) // TODO - do not use in strict mode
 
 
 }

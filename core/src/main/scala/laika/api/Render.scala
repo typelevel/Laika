@@ -81,7 +81,7 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
   type ThisType <: Render[Writer]
 
 
-  private lazy val mergedBundle: ExtensionBundle = ExtensionBundle.mergeBundles(config.bundles)
+  private lazy val mergedBundle: ExtensionBundle = ExtensionBundle.mergeBundles(config.bundles.filter(config.bundleFilter))
 
   @deprecated("renamed to rendering for consistency", "0.9.0")
   def using (render: Writer => RenderFunction): ThisType = rendering(render)

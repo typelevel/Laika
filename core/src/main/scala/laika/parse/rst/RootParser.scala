@@ -43,8 +43,7 @@ class RootParser(parserExtensions: ParserDefinitionBuilders = ParserDefinitionBu
                  blockDirectives: Seq[Directive[Block]] = Seq(),
                  spanDirectives: Seq[Directive[Span]] = Seq(),
                  textRoles: Seq[TextRole] = Seq(),
-                 defaultTextRole: String = "title-reference",
-                 isStrict: Boolean = false) extends RootParserBase {
+                 defaultTextRole: String = "title-reference") extends RootParserBase {
 
 
   /** Parses an escaped character. For most characters it produces the character
@@ -205,6 +204,6 @@ class RootParser(parserExtensions: ParserDefinitionBuilders = ParserDefinitionBu
   }
 
   override def config (path: Path): Parser[Either[InvalidBlock,Config]] =
-    if (isStrict) super.config(path) else DirectiveParsers.configHeader(path)
+    DirectiveParsers.configHeader(path) // TODO - do not use in strict mode
 
 }

@@ -71,7 +71,7 @@ class Parse private (parsers: Seq[ParserFactory], val config: OperationConfig, r
 
   protected[api] def withConfig(newConfig: OperationConfig): ThisType = new Parse(parsers, newConfig, rewrite)
 
-  private lazy val mergedBundle: ExtensionBundle = ExtensionBundle.mergeBundles(config.bundles)
+  private lazy val mergedBundle: ExtensionBundle = ExtensionBundle.mergeBundles(config.bundles.filter(config.bundleFilter))
 
   /** The file suffixes recognized by this parser.
    *  When transforming entire directories only files with
