@@ -16,19 +16,14 @@
 
 package laika.api
 
-import java.io.{File, InputStream, Reader}
-
 import laika.api.Render._
 import laika.api.config.{OperationConfig, OperationConfigBuilder}
 import laika.api.ext.ExtensionBundle
 import laika.factory.{ParserFactory, RenderResultProcessor, RendererFactory}
-import laika.io.InputTree.{InputTreeBuilder, _}
 import laika.io._
 import laika.rewrite.DocumentCursor
 import laika.tree.Documents._
 import laika.tree.Elements._
-
-import scala.io.Codec
   
 /** API for performing a transformation operation from and to various types of input and output,
  *  combining a parse and render operation. 
@@ -82,18 +77,9 @@ import scala.io.Codec
  * 
  *  @author Jens Halm
  */
-abstract class Transform [Writer] private[Transform] (parse: Parse) extends OperationConfigBuilder {
+abstract class Transform [Writer] private[Transform] (parse: Parse) extends
+  OperationConfigBuilder with InputOps with InputTreeOps  {
   
-  /** The type of the transformation target for a single input document.
-   */
-  type DocTarget
-  
-  /** The type of the transformation target for an entire tree of input documents. 
-   */
-  type TreeTarget
-  
-  /** The concrete implementation of the abstract Transform type.
-   */
   type ThisType <: Transform[Writer]
   
   /** Specifies a rewrite rule to be applied to the document tree model between the
@@ -169,138 +155,23 @@ abstract class Transform [Writer] private[Transform] (parse: Parse) extends Oper
    */
   def rendering (customRenderer: Writer => RenderFunction): ThisType
 
-  /** Parses the specified string and returns a new Operation instance which allows to specify the output.
-   *  Any kind of input is valid, including an empty string. 
-   */
-  def fromString (str: String): DocTarget = fromDocument(parse.fromString(str))
-  
-  /** Parses the input from the specified reader
-   *  and returns a new Operation instance which allows to specify the output.
-   */
-  def fromReader (reader: Reader): DocTarget = fromDocument(parse.fromReader(reader))
-  
-  /** Parses the file with the specified name
-   *  and returns a new Operation instance which allows to specify the output.
-   *  Any kind of character input is valid, including empty files.
-   * 
-   *  @param name the name of the file to parse
-   *  @param codec the character encoding of the file, if not specified the platform default will be used.
-   */
-  def fromFile (name: String)(implicit codec: Codec): DocTarget = fromDocument(parse.fromFile(name)(codec))
-  
-  /** Parses the specified file
-   *  and returns a new Operation instance which allows to specify the output.
-   *  Any kind of character input is valid, including empty files.
-   * 
-   *  @param file the file to read from
-   *  @param codec the character encoding of the file, if not specified the platform default will be used.
-   */
-  def fromFile (file: File)(implicit codec: Codec): DocTarget = fromDocument(parse.fromFile(file)(codec))
-  
-  /** Parses the input from the specified stream
-   *  and returns a new Operation instance which allows to specify the output.
-   * 
-   *  @param stream the stream to use as input for the parser
-   *  @param codec the character encoding of the stream, if not specified the platform default will be used.
-   */
-  def fromStream (stream: InputStream)(implicit codec: Codec): DocTarget = fromDocument(parse.fromStream(stream)(codec))
-  
-  /** Parses files from the specified directory and its subdirectories
-   *  and returns a new target instance which allows to specify the output and 
-   *  other configuration options.
-   * 
-   *  @param name the name of the directory to traverse
-   *  @param codec the character encoding of the files, if not specified the platform default will be used.
-   *  @return a builder which allows to specify the output and other configuration options
-   */
-  def fromDirectory (name: String)(implicit codec: Codec): TreeTarget =
-    fromDirectory(new File(name), hiddenFileFilter)(codec)
-  
-  /** Parses files from the specified directory and its subdirectories
-   *  and returns a new target instance which allows to specify the output and 
-   *  other configuration options.
-   * 
-   *  @param name the name of the directory to traverse
-   *  @param exclude the files to exclude from processing
-   *  @param codec the character encoding of the files, if not specified the platform default will be used.
-   *  @return a builder which allows to specify the output and other configuration options
-   */
-  def fromDirectory (name: String, exclude: FileFilter)(implicit codec: Codec): TreeTarget =
-    fromDirectory(new File(name), exclude)(codec)
+  def fromInput (input: Input): InputResult = fromDocument(parse.fromInput(input))
 
-  /** Parses files from the specified directory and its subdirectories
-   *  and returns a new target instance which allows to specify the output and 
-   *  other configuration options.
-   * 
-   *  @param dir the directory to traverse
-   *  @param codec the character encoding of the files, if not specified the platform default will be used.
-   *  @return a builder which allows to specify the output and other configuration options
-   */
-  def fromDirectory (dir: File)(implicit codec: Codec): TreeTarget =
-    fromDirectory(dir, hiddenFileFilter)(codec)
-  
-  /** Parses files from the specified directory and its subdirectories
-   *  and returns a new target instance which allows to specify the output and 
-   *  other configuration options.
-   * 
-   *  @param dir the directory to traverse
-   *  @param exclude the files to exclude from processing
-   *  @param codec the character encoding of the files, if not specified the platform default will be used.
-   *  @return a builder which allows to specify the output and other configuration options
-   */
-  def fromDirectory (dir: File, exclude: FileFilter)(implicit codec: Codec): TreeTarget =
-    fromDirectories(Seq(dir), exclude)(codec)
-  
-  /** Parses files from the specified directories and its subdirectories, 
-   *  merging them into a tree with a single root
-   *  and returns a new target instance which allows to specify the output and 
-   *  other configuration options.
-   * 
-   *  @param roots the root directories to traverse
-   *  @param codec the character encoding of the files, if not specified the platform default will be used.
-   */
-  def fromDirectories (roots: Seq[File])(implicit codec: Codec): TreeTarget =
-    fromDirectories(roots, hiddenFileFilter)(codec)
-  
-  /** Parses files from the specified directories and its subdirectories, 
-   *  merging them into a tree with a single root
-   *  and returns a new target instance which allows to specify the output and 
-   *  other configuration options.
-   * 
-   *  @param roots the root directories to traverse
-   *  @param exclude the files to exclude from processing
-   *  @param codec the character encoding of the files, if not specified the platform default will be used.
-   */
-  def fromDirectories (roots: Seq[File], exclude: FileFilter)(implicit codec: Codec): TreeTarget =
-    fromTree(parse.fromDirectories(roots, exclude)(codec))
-  
-  /** Parses from the specified input and returns a new target instance 
-   *  which allows to specify the output.
-   * 
-   *  @param inputBuilder the input to transform
-   */
-  def fromInputTree (inputBuilder: InputTreeBuilder): TreeTarget = fromTree(parse.fromInputTree(inputBuilder))
-
-  /**  Parses from the specified input and returns a new target instance
-    *  which allows to specify the output.
-    *
-    *  @param inputTree the input to transform
-    */
-  def fromInputTree (inputTree: InputTree): TreeTarget = fromTree(parse.fromInputTree(inputTree))
+  def fromInputTree (inputTree: InputTree): InputTreeResult = fromTree(parse.fromInputTree(inputTree))
 
   /**  Renders the specified document tree and returns a new target instance
     *  which allows to specify the output.
     *
     *  @param tree the document tree to transform
     */
-  protected[this] def fromTree (tree: DocumentTree): TreeTarget
+  protected[this] def fromTree (tree: DocumentTree): InputTreeResult
   
   /** Renders the specified document and returns a new target instance 
    *  which allows to specify the output.
    * 
    *  @param doc the document to transform
    */
-  protected[this] def fromDocument (doc: Document): DocTarget
+  protected[this] def fromDocument (doc: Document): InputResult
   
 }
 
@@ -319,11 +190,11 @@ object Transform {
    *  @param render the renderer to use for producing the output
    */
   class TransformMappedOutput[Writer] (parse: Parse, render: RenderMappedOutput[Writer],
-                                       protected val config: OperationConfig) extends Transform[Writer](parse) {
+                                       val config: OperationConfig) extends Transform[Writer](parse) {
     
-    type DocTarget = SingleTarget
+    type InputResult = SingleTarget
   
-    type TreeTarget = MappedTreeTarget
+    type InputTreeResult = MappedTreeTarget
   
     type ThisType = TransformMappedOutput[Writer]
     
@@ -333,9 +204,9 @@ object Transform {
     protected def withConfig (newConfig: OperationConfig): ThisType =
       new TransformMappedOutput(parse.withConfig(newConfig), render.withConfig(newConfig), newConfig)
     
-    def fromDocument (doc: Document): Render.SingleTarget = render.from(doc)
+    def fromDocument (doc: Document): SingleTarget = render.from(doc)
     
-    def fromTree (tree: DocumentTree): Render.MappedTreeTarget = render.from(tree)
+    def fromTree (tree: DocumentTree): MappedTreeTarget = render.from(tree)
 
   }
   
@@ -347,11 +218,11 @@ object Transform {
    *  @param render the renderer to use for producing the output
    */
   class TransformGatheredOutput[Writer] (parse: Parse, render: RenderGatheredOutput[Writer],
-                                         protected val config: OperationConfig) extends Transform[Writer](parse) {
+                                         val config: OperationConfig) extends Transform[Writer](parse) {
     
-    type DocTarget = BinaryTarget
+    type InputResult = BinaryTarget
   
-    type TreeTarget = BinaryTarget
+    type InputTreeResult = BinaryTarget
   
     type ThisType = TransformGatheredOutput[Writer]
     
@@ -361,9 +232,9 @@ object Transform {
     protected def withConfig (newConfig: OperationConfig): ThisType =
       new TransformGatheredOutput(parse.withConfig(newConfig), render.withConfig(newConfig), newConfig)
 
-    def fromDocument (doc: Document): Render.BinaryTarget = render.from(doc)
+    def fromDocument (doc: Document): BinaryTarget = render.from(doc)
     
-    def fromTree (tree: DocumentTree): Render.BinaryTarget = render.from(tree)
+    def fromTree (tree: DocumentTree): BinaryTarget = render.from(tree)
 
   }
 

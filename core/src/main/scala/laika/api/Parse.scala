@@ -16,16 +16,13 @@
 
 package laika.api
 
-import java.io.{File, InputStream, Reader}
-
 import com.typesafe.config.{ConfigFactory, Config => TConfig}
 import laika.api.config.{OperationConfig, OperationConfigBuilder}
 import laika.api.ext.{ConfigProvider, ExtensionBundle}
 import laika.directive.ConfigParser
 import laika.factory.ParserFactory
 import laika.io.DocumentType._
-import laika.io.InputTree._
-import laika.io.{DocumentType, IO, Input, InputTree}
+import laika.io._
 import laika.parse.core.Parser
 import laika.parse.core.combinator.Parsers.{documentParserFunction, success}
 import laika.parse.core.text.TextParsers.{opt, unsafeParserFunction}
@@ -35,8 +32,6 @@ import laika.tree.Elements.{InvalidSpan, SystemMessage}
 import laika.tree.Paths.Path
 import laika.tree.Templates.{TemplateElement, TemplateRoot, TemplateString}
 import laika.util.~
-
-import scala.io.Codec
   
 /** API for performing a parse operation from various types of input to obtain
  *  a document tree without a subsequent render operation. 
@@ -65,9 +60,14 @@ import scala.io.Codec
  * 
  *  @author Jens Halm
  */
-class Parse private (parsers: Seq[ParserFactory], protected[api] val config: OperationConfig, rewrite: Boolean) extends OperationConfigBuilder {
+class Parse private (parsers: Seq[ParserFactory], val config: OperationConfig, rewrite: Boolean)
+  extends OperationConfigBuilder with InputOps with InputTreeOps {
 
   type ThisType = Parse
+
+  type InputResult = Document
+
+  type InputTreeResult = DocumentTree
 
   protected[api] def withConfig(newConfig: OperationConfig): ThisType = new Parse(parsers, newConfig, rewrite)
 
@@ -99,46 +99,6 @@ class Parse private (parsers: Seq[ParserFactory], protected[api] val config: Ope
    */
   def withoutRewrite: Parse = new Parse(parsers, config, rewrite = false)
   
-  /** Returns a document obtained from parsing the specified string.
-   *  Any kind of input is valid, including an empty string. 
-   */
-  def fromString (str: String): Document = fromInput(Input.fromString(str))
-  
-  /** Returns a document obtained from parsing the input from the specified reader.
-   */
-  def fromReader (reader: Reader): Document = fromInput(Input.fromReader(reader))
-
-  /** Returns a document obtained from parsing the file with the specified name.
-   *  Any kind of character input is valid, including empty files.
-   * 
-   *  @param name the name of the file to parse
-   *  @param codec the character encoding of the file, if not specified the platform default will be used.
-   */
-  def fromFile (name: String)(implicit codec: Codec): Document = fromInput(Input.fromFile(name)(codec))
-  
-  /** Returns a document obtained from parsing the specified file.
-   *  Any kind of character input is valid, including empty files.
-   * 
-   *  @param file the file to use as input
-   *  @param codec the character encoding of the file, if not specified the platform default will be used.
-   */
-  def fromFile (file: File)(implicit codec: Codec): Document = fromInput(Input.fromFile(file)(codec))
-  
-  /** Returns a document obtained from parsing the input from the specified stream.
-   * 
-   *  @param stream the stream to use as input for the parser
-   *  @param codec the character encoding of the stream, if not specified the platform default will be used.
-   */
-  def fromStream (stream: InputStream)(implicit codec: Codec): Document = fromInput(Input.fromStream(stream)(codec))
-  
-  /** Returns a document obtained from parsing the specified input.
-   *  
-   *  This is a generic method based on Laika's IO abstraction layer that concrete
-   *  methods delegate to. Usually not used directly in application code, but
-   *  might come in handy for very special requirements.
-   * 
-   *  @param input the input for the parser
-   */
   def fromInput (input: Input): Document = {
 
     val doc = IO(input)(parserLookup.forInput(input))
@@ -147,87 +107,6 @@ class Parse private (parsers: Seq[ParserFactory], protected[api] val config: Ope
     else doc
   }
   
-  /** Returns a document tree obtained by parsing files from the
-   *  specified directory and its subdirectories.
-   * 
-   *  @param name the name of the directory to traverse
-   *  @param codec the character encoding of the files, if not specified the platform default will be used.
-   */
-  def fromDirectory (name: String)(implicit codec: Codec): DocumentTree =
-    fromDirectory(new File(name), hiddenFileFilter)(codec)
-  
-  /** Returns a document tree obtained by parsing files from the
-   *  specified directory and its subdirectories.
-   * 
-   *  @param name the name of the directory to traverse
-   *  @param exclude the files to exclude from processing
-   *  @param codec the character encoding of the files, if not specified the platform default will be used.
-   */
-  def fromDirectory (name: String, exclude: FileFilter)(implicit codec: Codec): DocumentTree =
-    fromDirectory(new File(name), exclude)(codec)
-
-  /** Returns a document tree obtained by parsing files from the
-   *  specified directory and its subdirectories.
-   * 
-   *  @param dir the root directory to traverse
-   *  @param codec the character encoding of the files, if not specified the platform default will be used.
-   */
-  def fromDirectory (dir: File)(implicit codec: Codec): DocumentTree =
-    fromDirectory(dir, hiddenFileFilter)(codec)
-
-  /** Returns a document tree obtained by parsing files from the
-   *  specified directory and its subdirectories.
-   * 
-   *  @param dir the root directory to traverse
-   *  @param exclude the files to exclude from processing
-   *  @param codec the character encoding of the files, if not specified the platform default will be used.
-   */
-  def fromDirectory (dir: File, exclude: FileFilter)(implicit codec: Codec): DocumentTree =
-    fromDirectories(Seq(dir), exclude)(codec)
-
-  /** Returns a document tree obtained by parsing files from the
-   *  specified directories and its subdirectories, merging them into
-   *  a tree with a single root.
-   * 
-   *  @param roots the root directories to traverse
-   *  @param codec the character encoding of the files, if not specified the platform default will be used.
-   */
-  def fromDirectories (roots: Seq[File])(implicit codec: Codec): DocumentTree =
-    fromDirectories(roots, hiddenFileFilter)(codec)
-  
-  /** Returns a document tree obtained by parsing files from the
-   *  specified directories and its subdirectories, merging them into
-   *  a tree with a single root.
-   * 
-   *  @param roots the root directories to traverse
-   *  @param exclude the files to exclude from processing
-   *  @param codec the character encoding of the files, if not specified the platform default will be used.
-   */
-  def fromDirectories (roots: Seq[File], exclude: FileFilter)(implicit codec: Codec): DocumentTree = 
-    fromInputTree(forRootDirectories(roots, config.docTypeMatcher, exclude)(codec))
-
-  /** Returns a document tree obtained by parsing files from the
-   *  current working directory.
-   *
-   *  @param exclude the files to exclude from processing
-   *  @param codec the character encoding of the files, if not specified the platform default will be used.
-   */
-  def fromDefaultDirectory (exclude: FileFilter = hiddenFileFilter)(implicit codec: Codec): DocumentTree =
-    fromInputTree(forWorkingDirectory(config.docTypeMatcher, exclude)(codec))
-
-  /** Returns a document tree obtained by parsing files from the
-   *  specified input tree builder.
-   *
-   *  @param builder a builder for the input tree to process
-   */
-  def fromInputTree(builder: InputTreeBuilder): DocumentTree =
-    fromInputTree(builder.build(config.docTypeMatcher))
-
-  /** Returns a document tree obtained by parsing files from the
-   *  specified input tree.
-   *
-   *  @param inputTree the input tree to process
-   */
   def fromInputTree(inputTree: InputTree): DocumentTree = {
 
     case class TreeConfig (path: Path, config: TConfig)
