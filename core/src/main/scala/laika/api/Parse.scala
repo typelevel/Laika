@@ -18,7 +18,7 @@ package laika.api
 
 import com.typesafe.config.{ConfigFactory, Config => TConfig}
 import laika.api.config.{OperationConfig, ParseConfigBuilder}
-import laika.api.ext.{ConfigProvider, ExtensionBundle}
+import laika.api.ext.ConfigProvider
 import laika.directive.ConfigParser
 import laika.factory.ParserFactory
 import laika.io.DocumentType._
@@ -71,8 +71,6 @@ class Parse private (parsers: Seq[ParserFactory], val config: OperationConfig, r
 
   def withConfig(newConfig: OperationConfig): ThisType = new Parse(parsers, newConfig, rewrite)
 
-  private lazy val mergedBundle: ExtensionBundle = ExtensionBundle.mergeBundles(config.bundles.filter(config.bundleFilter))
-
   /** The file suffixes recognized by this parser.
    *  When transforming entire directories only files with
    *  names ending in one of the specified suffixes will
@@ -115,7 +113,7 @@ class Parse private (parsers: Seq[ParserFactory], val config: OperationConfig, r
 
     def parseMarkup (input: Input): Operation[Document] = () => (Markup, IO(input)(parserLookup.forInput(input)))
 
-    def parseTemplate (docType: DocumentType)(input: Input): Seq[Operation[TemplateDocument]] = mergedBundle.parserDefinitions.templateParser match {
+    def parseTemplate (docType: DocumentType)(input: Input): Seq[Operation[TemplateDocument]] = config.parserDefinitions.templateParser match {
       case None => Seq()
       case Some(rootParser) =>
 
@@ -142,7 +140,7 @@ class Parse private (parsers: Seq[ParserFactory], val config: OperationConfig, r
     }
 
     def parseStyleSheet (format: String)(input: Input): Operation[StyleDeclarationSet] = () => {
-      val parser = mergedBundle.parserDefinitions.styleSheetParser.getOrElse(success(Set.empty[StyleDeclaration]))
+      val parser = config.parserDefinitions.styleSheetParser.getOrElse(success(Set.empty[StyleDeclaration]))
       val docF = documentParserFunction(parser, StyleDeclarationSet.forPath)
       (StyleSheet(format), IO(input)(docF))
     }
@@ -188,10 +186,10 @@ class Parse private (parsers: Seq[ParserFactory], val config: OperationConfig, r
       val additionalContent: Seq[AdditionalContent] = dynamic ++ static
 
       val treeConfig = provider.configDocuments.find(_.path.name == "directory.conf").map(i => treeConfigMap(i.path))
-      val rootConfig = if (root) Seq(mergedBundle.baseConfig) else Nil
-      val config = (treeConfig.toList ++ rootConfig) reduceLeftOption (_ withFallback _) getOrElse ConfigFactory.empty
+      val rootConfig = if (root) Seq(config.baseConfig) else Nil
+      val fullConfig = (treeConfig.toList ++ rootConfig) reduceLeftOption (_ withFallback _) getOrElse ConfigFactory.empty
 
-      DocumentTree(provider.path, docs ++ trees, templates, styles, additionalContent, config, sourcePaths = provider.sourcePaths)
+      DocumentTree(provider.path, docs ++ trees, templates, styles, additionalContent, fullConfig, sourcePaths = provider.sourcePaths)
     }
 
     val tree = collectDocuments(inputTree, root = true)
@@ -208,7 +206,7 @@ class Parse private (parsers: Seq[ParserFactory], val config: OperationConfig, r
     }
 
     private lazy val map: Map[String, Input => Document] =
-      parsers flatMap (p => p.fileSuffixes map ((_, p.newParser(mergedBundle.parserDefinitions)))) toMap
+      parsers flatMap (p => p.fileSuffixes map ((_, p.newParser(config.parserDefinitions)))) toMap
 
     def forInput (input: Input): Input => Document = {
       if (parsers.size == 1) map.head._2

@@ -16,9 +16,11 @@
 
 package laika.api.config
 
-import laika.api.ext.ExtensionBundle
+import com.typesafe.config.Config
+import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders}
 import laika.api.ext.ExtensionBundle.LaikaDefaults
 import laika.directive.{DirectiveSupport, StandardDirectives}
+import laika.factory.RendererFactory
 import laika.io.DocumentType
 import laika.io.DocumentType.Ignored
 import laika.rewrite.{DocumentCursor, RewriteRules}
@@ -36,11 +38,18 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
 
   private lazy val mergedBundle: ExtensionBundle = ExtensionBundle.mergeBundles(bundles.filter(bundleFilter))
 
+
+  lazy val baseConfig: Config = mergedBundle.baseConfig
+
   lazy val docTypeMatcher: Path => DocumentType = mergedBundle.docTypeMatcher.lift.andThen(_.getOrElse(Ignored))
+
+  lazy val parserDefinitions: ParserDefinitionBuilders = mergedBundle.parserDefinitions
 
   lazy val rewriteRule: DocumentCursor => RewriteRule = RewriteRules.chainFactories(mergedBundle.rewriteRules)
 
   def rewriteRuleFor (doc: Document): RewriteRule = rewriteRule(DocumentCursor(doc))
+
+  def themeFor[Writer] (rendererFactory: RendererFactory[Writer]) = mergedBundle.themeFor(rendererFactory)
 
 
   def withBundles (bundles: Seq[ExtensionBundle]): OperationConfig = copy(bundles = this.bundles ++ bundles)

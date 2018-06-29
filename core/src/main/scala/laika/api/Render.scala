@@ -81,8 +81,6 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
   type ThisType <: Render[Writer]
 
 
-  private lazy val mergedBundle: ExtensionBundle = ExtensionBundle.mergeBundles(config.bundles.filter(config.bundleFilter))
-
   @deprecated("renamed to rendering for consistency", "0.9.0")
   def using (render: Writer => RenderFunction): ThisType = rendering(render)
 
@@ -110,11 +108,12 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
   def from (tree: DocumentTree): TreeOps
 
 
+  // TODO - move these 2 methods to OperationConfig
   protected[this] lazy val defaultStyles: StyleDeclarationSet =
-    factory.defaultTheme.defaultStyles ++ mergedBundle.themeFor(factory).defaultStyles
+    factory.defaultTheme.defaultStyles ++ config.themeFor(factory).defaultStyles
 
   protected[this] lazy val defaultTemplate: TemplateRoot = {
-    mergedBundle.themeFor(factory).defaultTemplate
+    config.themeFor(factory).defaultTemplate
       .orElse(factory.defaultTheme.defaultTemplate)
       .getOrElse(TemplateRoot(List(TemplateContextReference("document.content"))))
   }
@@ -132,7 +131,7 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
       def apply (element: Element) = delegate(element)
     }
 
-    val customRenderers = mergedBundle.themeFor(factory).customRenderers
+    val customRenderers = config.themeFor(factory).customRenderers
     
     IO(output) { out =>
       val (writer, renderF) = factory.newRenderer(out, element, RenderFunction, styles, config.minMessageLevel)
