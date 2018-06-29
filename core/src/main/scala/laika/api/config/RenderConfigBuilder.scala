@@ -18,7 +18,7 @@ package laika.api.config
 
 import laika.api.ext.{ExtensionBundle, Theme}
 import laika.factory.RendererFactory
-import laika.tree.Elements.RenderFunction
+import laika.tree.Elements.{MessageLevel, RenderFunction}
 
 /**
   * @author Jens Halm
@@ -47,5 +47,10 @@ trait RenderConfigBuilder[Writer] extends OperationConfigBuilder {
     override def themeFor[W](rendererFactory: RendererFactory[W]): Theme[W] =
       Theme(customRenderers = Seq(customRenderer)).asInstanceOf[Theme[W]]
   })
+
+  /**  Specifies the minimum required level for a system message
+    *  to get included into the output by this renderer.
+    */
+  def withMessageLevel (level: MessageLevel): ThisType = withConfig(config.copy(minMessageLevel = level))
 
 }

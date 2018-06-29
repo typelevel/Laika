@@ -36,7 +36,7 @@ class XSLFORendererSpec extends FlatSpec
   def render (elem: Element): String = Render as XSLFO from elem toString 
   
   def render (elem: Element, messageLevel: MessageLevel): String = 
-    Render as (XSLFO withMessageLevel messageLevel) from elem toString
+    Render as XSLFO withMessageLevel messageLevel from elem toString
     
   def render (elem: Element, style: StyleDeclaration): String = 
     Render as (XSLFO withStyles StyleDeclarationSet(Root, style)) from elem toString

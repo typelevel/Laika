@@ -34,7 +34,7 @@ class ExtendedHTMLSpec extends FlatSpec
   def render (elem: Element): String = Render as HTML using (ReStructuredText.extensions:_*) from elem toString
   
   def render (elem: Element, messageLevel: MessageLevel): String = 
-    Render as (HTML withMessageLevel messageLevel) using (ReStructuredText.extensions:_*) from elem toString
+    Render as HTML withMessageLevel messageLevel using (ReStructuredText.extensions:_*) from elem toString
   
   
   "The Extended HTML renderer" should "render a doctest block" in {

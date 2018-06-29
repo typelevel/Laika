@@ -124,7 +124,7 @@ object Transform {
   
     type ThisType = TransformMappedOutput[Writer]
     
-    protected def withConfig (newConfig: OperationConfig): ThisType =
+    def withConfig (newConfig: OperationConfig): ThisType =
       new TransformMappedOutput(parse.withConfig(newConfig), render.withConfig(newConfig), newConfig)
     
     def fromDocument (doc: Document): TextOuputOps = render.from(doc)
@@ -149,7 +149,7 @@ object Transform {
   
     type ThisType = TransformGatheredOutput[Writer]
     
-    protected def withConfig (newConfig: OperationConfig): ThisType =
+    def withConfig (newConfig: OperationConfig): ThisType =
       new TransformGatheredOutput(parse.withConfig(newConfig), render.withConfig(newConfig), newConfig)
 
     def fromDocument (doc: Document): BinaryOutputOps = render.from(doc)

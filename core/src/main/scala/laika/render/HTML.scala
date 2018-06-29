@@ -37,20 +37,15 @@ import laika.parse.css.Styles.StyleDeclarationSet
  * 
  *  @author Jens Halm
  */
-class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean) 
+class HTML private (renderFormatted: Boolean)
     extends RendererFactory[HTMLWriter] {
   
   val fileSuffix = "html"
  
-  /** Specifies the minimum required level for a system message
-   *  to get included into the output by this renderer.
-   */
-  def withMessageLevel (level: MessageLevel): HTML = new HTML(Some(level), renderFormatted)
-  
-  /** Renders HTML without any formatting (line breaks or indentation) around tags. 
+  /** Renders HTML without any formatting (line breaks or indentation) around tags.
    *  Useful when storing the output in a database for example. 
    */
-  def unformatted: HTML = new HTML(messageLevel, false)
+  def unformatted: HTML = new HTML(false)
   
   /** The actual setup method for providing both the writer API for customized
    *  renderers as well as the actual default render function itself. The default render
@@ -65,18 +60,16 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
    *  @return a tuple consisting of the writer API for customizing
    *  the renderer as well as the actual default render function itself
    */
-  def newRenderer (output: Output, root: Element, render: Element => Unit, styles: StyleDeclarationSet): (HTMLWriter, Element => Unit) = {
+  def newRenderer (output: Output, root: Element, render: Element => Unit, styles: StyleDeclarationSet, messageLevel: MessageLevel): (HTMLWriter, Element => Unit) = {
     val out = new HTMLWriter(output asFunction, render, root, formatted = renderFormatted)  
-    (out, renderElement(out))
+    (out, renderElement(out, messageLevel))
   }
 
   
-  private def renderElement (out: HTMLWriter)(elem: Element): Unit = {
+  private def renderElement (out: HTMLWriter, messageLevel: MessageLevel)(elem: Element): Unit = {
     
-    def include (msg: SystemMessage): Boolean = {
-      messageLevel flatMap {lev => if (lev <= msg.level) Some(lev) else None} isDefined
-    }
-    
+    def include (msg: SystemMessage): Boolean = messageLevel <= msg.level
+
     def noneIfDefault [T](actual: T, default: T): Option[String] = if (actual == default) None else Some(actual.toString)
     
     def renderBlocks (blocks: Seq[Block], close: String): HTMLWriter = blocks match {
@@ -297,7 +290,7 @@ class HTML private (messageLevel: Option[MessageLevel], renderFormatted: Boolean
 
 /** The default instance of the HTML renderer.
  */
-object HTML extends HTML(None, true) {
+object HTML extends HTML(renderFormatted = true) {
   
   lazy val templateResource: TemplateDocument =
     DefaultTemplateParser.parse(Input.fromClasspath("/templates/default.template.html", Root / "default.template.html"))

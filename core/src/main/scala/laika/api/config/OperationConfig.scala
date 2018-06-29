@@ -23,7 +23,7 @@ import laika.io.DocumentType
 import laika.io.DocumentType.Ignored
 import laika.rewrite.{DocumentCursor, RewriteRules}
 import laika.tree.Documents.Document
-import laika.tree.Elements.RewriteRule
+import laika.tree.Elements.{Fatal, MessageLevel, RewriteRule}
 import laika.tree.Paths.Path
 
 /**
@@ -31,6 +31,7 @@ import laika.tree.Paths.Path
   */
 case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
                             bundleFilter: BundleFilter = BundleFilter(),
+                            minMessageLevel: MessageLevel = Fatal,
                             parallel: Boolean = false) {
 
   private lazy val mergedBundle: ExtensionBundle = ExtensionBundle.mergeBundles(bundles.filter(bundleFilter))

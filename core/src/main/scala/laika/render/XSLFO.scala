@@ -50,25 +50,20 @@ import laika.parse.css.CSSParsers
  * 
  *  @author Jens Halm
  */
-class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[MessageLevel], renderFormatted: Boolean) 
+class XSLFO private (styles: Option[StyleDeclarationSet], renderFormatted: Boolean)
     extends RendererFactory[FOWriter] {
   
   
   val fileSuffix = "fo"
  
-  /** Specifies the minimum required level for a system message
-   *  to get included into the output by this renderer.
-   */
-  def withMessageLevel (level: MessageLevel): XSLFO = new XSLFO(styles, Some(level), renderFormatted)
-  
-  /** Renders XSL-FO without any formatting (line breaks or indentation) around tags. 
+  /** Renders XSL-FO without any formatting (line breaks or indentation) around tags.
    *  Useful when storing the output in a database for example. 
    */
-  def unformatted: XSLFO = new XSLFO(styles, messageLevel, false)
+  def unformatted: XSLFO = new XSLFO(styles, false)
   
   /** Adds the specified styles to the default styles this renderer applies.
    */
-  def withStyles(additionalStyles: StyleDeclarationSet): XSLFO = new XSLFO(Some(defaultTheme.defaultStyles ++ additionalStyles), messageLevel, renderFormatted)
+  def withStyles(additionalStyles: StyleDeclarationSet): XSLFO = new XSLFO(Some(defaultTheme.defaultStyles ++ additionalStyles), renderFormatted)
   
   /** The actual setup method for providing both the writer API for customized
    *  renderers as well as the actual default render function itself. The default render
@@ -83,10 +78,10 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
    *  @return a tuple consisting of the writer API for customizing
    *  the renderer as well as the actual default render function itself
    */
-  def newRenderer (output: Output, root: Element, render: Element => Unit, styles: StyleDeclarationSet): (FOWriter, Element => Unit) = {
+  def newRenderer (output: Output, root: Element, render: Element => Unit, styles: StyleDeclarationSet, messageLevel: MessageLevel): (FOWriter, Element => Unit) = {
     val out = new FOWriter(output asFunction, render, root, output.path, styles, formatted = renderFormatted)
     val (footnotes, citations) = collectTargets(root)
-    (out, renderElement(out,footnotes,citations,output.path))
+    (out, renderElement(out,footnotes,citations,output.path, messageLevel))
   }
   
   private def collectTargets (root: Element): (Map[String,Footnote], Map[String,Citation]) = root match {
@@ -97,12 +92,10 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
   }
 
   private def renderElement (out: FOWriter, footnotes: Map[String,Footnote], 
-      citations: Map[String,Citation], path: Path)(elem: Element): Unit = {
+      citations: Map[String,Citation], path: Path, messageLevel: MessageLevel)(elem: Element): Unit = {
     
-    def include (msg: SystemMessage): Boolean = {
-      messageLevel flatMap {lev => if (lev <= msg.level) Some(lev) else None} isDefined
-    }
-    
+    def include (msg: SystemMessage): Boolean = messageLevel <= msg.level
+
     def noneIfDefault [T](actual: T, default: T): Option[String] = if (actual == default) None else Some(actual.toString)
     
     def renderTable (table: Table): Unit = {
@@ -324,7 +317,7 @@ class XSLFO private (styles: Option[StyleDeclarationSet], messageLevel: Option[M
 
 /** The default instance of the XSL-FO renderer.
  */
-object XSLFO extends XSLFO(None, None, true) {
+object XSLFO extends XSLFO(styles = None, renderFormatted = true) {
   
   lazy val styleResource: StyleDeclarationSet = {
     val input = Input.fromClasspath("/styles/default.fo.css", Root / "default.fo.css")

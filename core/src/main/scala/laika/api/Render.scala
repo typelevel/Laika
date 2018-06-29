@@ -65,7 +65,7 @@ import laika.tree.Templates._
  *  @author Jens Halm
  */
 abstract class Render[Writer] private (private[Render] val factory: RendererFactory[Writer],
-                                       protected val config: OperationConfig) extends RenderConfigBuilder[Writer] {
+                                       val config: OperationConfig) extends RenderConfigBuilder[Writer] {
 
   
   /** The output operations that can be performed for a single input document.
@@ -135,7 +135,7 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
     val customRenderers = mergedBundle.themeFor(factory).customRenderers
     
     IO(output) { out =>
-      val (writer, renderF) = factory.newRenderer(out, element, RenderFunction, styles)
+      val (writer, renderF) = factory.newRenderer(out, element, RenderFunction, styles, config.minMessageLevel)
       
       RenderFunction.delegate = customRenderers match {
         case Nil => renderF
@@ -222,7 +222,7 @@ object Render {
     type TreeOps = OutputTreeOps
     type ThisType = RenderMappedOutput[Writer]
 
-    protected[api] def withConfig(newConfig: OperationConfig): ThisType =
+    def withConfig(newConfig: OperationConfig): ThisType =
       new RenderMappedOutput[Writer](factory, newConfig)
 
     def from (element: Element): TextOuputOps = new TextOuputOps {
@@ -255,7 +255,7 @@ object Render {
     type TreeOps = BinaryOutputOps
     type ThisType = RenderGatheredOutput[Writer]
 
-    protected[api] def withConfig(newConfig: OperationConfig): ThisType =
+    def withConfig(newConfig: OperationConfig): ThisType =
       new RenderGatheredOutput[Writer](processor, newConfig)
 
     def from (element: Element): BinaryOutputOps =

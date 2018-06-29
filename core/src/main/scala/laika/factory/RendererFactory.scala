@@ -19,7 +19,7 @@ package laika.factory
 import laika.api.ext.Theme
 import laika.io.Output
 import laika.parse.css.Styles.StyleDeclarationSet
-import laika.tree.Elements.Element
+import laika.tree.Elements.{Element, MessageLevel}
 
 /** Responsible for creating renderer instances for a specific output format.
  *  A renderer is simply a function of type `Element => Unit`. In addition
@@ -60,9 +60,10 @@ trait RendererFactory[W] {
    *  @param root the root element the new renderer will be used for
    *  @param delegate a render function to use for rendering the children of an element
    *  @param styles the styles the new renderer should apply to the rendered elements
+   *  @param messageLevel the minimum message level for system messages to be included in the rendered output
    *  @return a new writer API of type `W` and a new render function
    */
-  def newRenderer (out: Output, root: Element, delegate: Element => Unit, styles: StyleDeclarationSet): (W, Element => Unit)
+  def newRenderer (out: Output, root: Element, delegate: Element => Unit, styles: StyleDeclarationSet, messageLevel: MessageLevel): (W, Element => Unit)
 
 
 }

@@ -50,11 +50,6 @@ import org.apache.xmlgraphics.util.MimeConstants
 class PDF private (val factory: XSLFO, config: Option[PDFConfig], fopFactory: Option[FopFactory]) extends RenderResultProcessor[FOWriter] {
 
 
-  /** Specifies the minimum required level for a system message
-   *  to get included into the output by this renderer.
-   */
-  def withMessageLevel (level: MessageLevel): PDF = new PDF(factory.withMessageLevel(level), config, fopFactory)
-  
   /** Allows to specify configuration options like insertion
    *  of bookmarks or table of content.
    */

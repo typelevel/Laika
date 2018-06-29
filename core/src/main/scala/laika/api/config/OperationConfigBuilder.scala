@@ -25,9 +25,9 @@ trait OperationConfigBuilder {
 
   type ThisType
 
-  protected def withConfig(newConfig: OperationConfig): ThisType
+  def withConfig(newConfig: OperationConfig): ThisType
 
-  protected def config: OperationConfig
+  def config: OperationConfig
 
   /** Returns a new instance with the specified extension bundles installed.
     * Features in the new bundles may override features in already installed bundles.

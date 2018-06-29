@@ -60,7 +60,7 @@ class PrettyPrint extends RendererFactory[TextWriter] {
    *  @return a tuple consisting of the writer API for customizing
    *  the renderer as well as the actual default render function itself
    */
-  def newRenderer (output: Output, root: Element, render: Element => Unit, styles: StyleDeclarationSet): (TextWriter, Element => Unit) = {
+  def newRenderer (output: Output, root: Element, render: Element => Unit, styles: StyleDeclarationSet, messageLevel: MessageLevel): (TextWriter, Element => Unit) = {
     val out = new TextWriter(output asFunction, render, root, ". ") 
     (out, renderElement(out))
   }

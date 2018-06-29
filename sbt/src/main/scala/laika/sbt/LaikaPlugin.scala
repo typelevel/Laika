@@ -68,8 +68,6 @@ object LaikaPlugin extends AutoPlugin {
 
     val laikaLogMessageLevel     = settingKey[Option[MessageLevel]]("The minimum level for system messages to be logged")
 
-    val laikaMarkdown            = settingKey[Markdown]("The parser for Markdown files")
-
     val laikaReStructuredText    = settingKey[ReStructuredText]("The parser for reStructuredText files")
 
     val laikaMarkupParser        = settingKey[Parse]("The parser for all text markup files")
@@ -157,15 +155,10 @@ object LaikaPlugin extends AutoPlugin {
 
     laikaRawContent            := false,
 
-    laikaMarkdown              := {
-                                 if (laikaStrict.value) Markdown.strict else Markdown
-                               },
-
     laikaReStructuredText      := {
                                  val rst = ReStructuredText withBlockDirectives (rstBlockDirectives.value: _*) withSpanDirectives
                                    (rstSpanDirectives.value: _*) withTextRoles (rstTextRoles.value: _*)
-                                 val rst2 = if (laikaRawContent.value) rst.withRawContent else rst
-                                 if (laikaStrict.value) rst2.strict else rst2
+                                 if (laikaRawContent.value) rst.withRawContent else rst
                                },
 
     laikaMarkupParser          := {
@@ -174,9 +167,10 @@ object LaikaPlugin extends AutoPlugin {
                                    val spanDirectives = laikaSpanDirectives.value
                                    val templateDirectives = laikaTemplateDirectives.value
                                  }
-                                 val parser = Parse.as(laikaMarkdown.value).or(laikaReStructuredText.value).withoutRewrite.using(directives)
+                                 val parser = Parse.as(Markdown).or(laikaReStructuredText.value).withoutRewrite.using(directives)
                                  val pWithRaw = if (laikaRawContent.value) parser using VerbatimHTML else parser
-                                 if (laikaParallel.value) pWithRaw.inParallel else pWithRaw
+                                 val pWithPar = if (laikaParallel.value) pWithRaw.inParallel else pWithRaw
+                                 if (laikaStrict.value) pWithPar.strict else pWithPar
                                },
 
     laikaRewriteRules          := Nil,
@@ -249,7 +243,9 @@ object LaikaPlugin extends AutoPlugin {
     }
 
     def outputTreeTask (key: Scoped): Initialize[Task[OutputTree]] = task {
-      OutputTree.forRootDirectory((target in key).value)(laikaEncoding.value)
+      val outputDir = (target in key).value
+      if (!outputDir.exists) outputDir.mkdirs()
+      OutputTree.forRootDirectory(outputDir)(laikaEncoding.value)
     }
 
     def prepareTargetDirectory (key: Scoped): Initialize[TargetDirectory] = setting {
@@ -265,9 +261,11 @@ object LaikaPlugin extends AutoPlugin {
     def prepareRenderer [Writer, R <: Render[Writer] { type ThisType = R }] (
         render: R,
         custom: Seq[Writer => RenderFunction],
-        parallel: Boolean): R = {
+        parallel: Boolean,
+        minMessageLevel: Option[MessageLevel]): R = {
       val renderWithExt = (render /: custom) { case (render, renderer) => render rendering renderer }
-      if (parallel) renderWithExt.inParallel else renderWithExt
+      val config = renderWithExt.config.copy(parallel = parallel, minMessageLevel = minMessageLevel.getOrElse(Fatal))
+      renderWithExt.withConfig(config)
     }
 
     private val allTargets = setting {
@@ -308,9 +306,8 @@ object LaikaPlugin extends AutoPlugin {
 
               val targetDir = prepareTargetDirectory(laikaSite).value.prepare
 
-              val html = laikaRenderMessageLevel.value map (HTML withMessageLevel) getOrElse HTML
               val renderers = laikaSiteRenderers.value :+ HTMLRenderer :+ ExtendedHTML // always install extensions
-              val render = prepareRenderer(Render as html, renderers, laikaParallel.value)
+              val render = prepareRenderer(Render as HTML, renderers, laikaParallel.value, laikaRenderMessageLevel.value)
               render from tree toOutputTree (laikaOutputTree in laikaSite).value
 
               streams.value.log.info(Log.outputs(tree))
@@ -322,7 +319,7 @@ object LaikaPlugin extends AutoPlugin {
 
               val targetDir = prepareTargetDirectory(laikaPrettyPrint).value.prepare
 
-              val render = prepareRenderer(Render as PrettyPrint, laikaPrettyPrintRenderers.value, laikaParallel.value)
+              val render = prepareRenderer(Render as PrettyPrint, laikaPrettyPrintRenderers.value, laikaParallel.value, laikaRenderMessageLevel.value)
               render from tree toOutputTree (laikaOutputTree in laikaPrettyPrint).value
 
               streams.value.log.info("Generated Pretty Print in " + targetDir)
@@ -333,8 +330,7 @@ object LaikaPlugin extends AutoPlugin {
 
               val targetDir = prepareTargetDirectory(laikaXSLFO).value.prepare
 
-              val fo = laikaRenderMessageLevel.value map (XSLFO withMessageLevel) getOrElse XSLFO // TODO - ExtendedFO for rst
-              val render = prepareRenderer(Render as fo, laikaFoRenderers.value, laikaParallel.value)
+              val render = prepareRenderer(Render as XSLFO, laikaFoRenderers.value, laikaParallel.value, laikaRenderMessageLevel.value)
               render from tree toOutputTree (laikaOutputTree in laikaXSLFO).value
 
               streams.value.log.info("Generated XSL-FO in " + targetDir)
@@ -346,8 +342,7 @@ object LaikaPlugin extends AutoPlugin {
               val targetFile = (artifactPath in laikaPDF).value
               targetFile.getParentFile.mkdirs()
 
-              val pdfRenderer = laikaRenderMessageLevel.value map (PDF withMessageLevel) getOrElse PDF
-              val render = prepareRenderer(Render as pdfRenderer.withFopFactory(fopFactory.value), laikaFoRenderers.value, laikaParallel.value)
+              val render = prepareRenderer(Render as PDF.withFopFactory(fopFactory.value), laikaFoRenderers.value, laikaParallel.value, laikaRenderMessageLevel.value)
               render from tree toFile targetFile
 
               streams.value.log.info("Generated PDF in " + targetFile)

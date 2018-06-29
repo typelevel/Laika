@@ -69,7 +69,7 @@ class Parse private (parsers: Seq[ParserFactory], val config: OperationConfig, r
 
   type InputTreeResult = DocumentTree
 
-  protected[api] def withConfig(newConfig: OperationConfig): ThisType = new Parse(parsers, newConfig, rewrite)
+  def withConfig(newConfig: OperationConfig): ThisType = new Parse(parsers, newConfig, rewrite)
 
   private lazy val mergedBundle: ExtensionBundle = ExtensionBundle.mergeBundles(config.bundles.filter(config.bundleFilter))
 
