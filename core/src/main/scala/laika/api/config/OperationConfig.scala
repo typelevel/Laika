@@ -20,8 +20,8 @@ import com.typesafe.config.Config
 import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders}
 import laika.api.ext.ExtensionBundle.LaikaDefaults
 import laika.directive.{DirectiveSupport, StandardDirectives}
-import laika.factory.RendererFactory
-import laika.io.DocumentType
+import laika.factory.{ParserFactory, RendererFactory}
+import laika.io.{DefaultDocumentTypeMatcher, DocumentType}
 import laika.io.DocumentType.Ignored
 import laika.rewrite.{DocumentCursor, RewriteRules}
 import laika.tree.Documents.Document
@@ -53,6 +53,15 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
 
 
   def withBundles (bundles: Seq[ExtensionBundle]): OperationConfig = copy(bundles = this.bundles ++ bundles)
+
+  def withBundlesFor (factory: ParserFactory): OperationConfig = {
+    val docTypeMatcher = new ExtensionBundle {
+      override val docTypeMatcher: PartialFunction[Path, DocumentType] =
+        DefaultDocumentTypeMatcher.forMarkup(factory.fileSuffixes)
+      override val useInStrictMode: Boolean = true
+    }
+    copy(bundles = this.bundles ++ factory.extensions :+ docTypeMatcher)
+  }
 
   def forStrictMode: OperationConfig = copy(bundleFilter = bundleFilter.copy(strict = true))
 

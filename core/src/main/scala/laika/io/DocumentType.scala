@@ -72,8 +72,6 @@ object DefaultDocumentTypeMatcher {
   
   import DocumentType._
 
-  val markupSuffixes = Markdown.fileSuffixes ++ ReStructuredText.fileSuffixes // TODO - 0.9 - dynamically handle this in ParserFactory.extensions once implemented
-  
   private def suffix (name: String) = name.lastIndexOf(".") match {
     case -1    => ""
     case index => name.drop(index+1)
@@ -87,13 +85,16 @@ object DefaultDocumentTypeMatcher {
 
   val get: PartialFunction[Path, DocumentType] = { case path: Path =>
     path.name match {
-      case name if markupSuffixes(suffix(name)) => Markup
       case ConfigName()     => Config
       case TemplateName()   => Template
       case DynamicName()    => Dynamic
       case StylesheetName() => StyleSheet("fo")
       case _                => Static
     }
+  }
+
+  def forMarkup (fileSuffixes: Set[String]): PartialFunction[Path, DocumentType] = {
+    case path if fileSuffixes(suffix(path.name)) => Markup
   }
 
 }

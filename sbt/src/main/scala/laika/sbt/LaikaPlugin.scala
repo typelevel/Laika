@@ -237,7 +237,7 @@ object LaikaPlugin extends AutoPlugin {
     }
 
     val inputTreeTask: Initialize[Task[InputTree]] = task {
-      val docTypeMatcher = laikaDocTypeMatcher.value.getOrElse(LaikaDefaults.docTypeMatcher)
+      val docTypeMatcher = laikaDocTypeMatcher.value.getOrElse(laikaMarkupParser.value.config.docTypeMatcher)
       InputTree.forRootDirectories((sourceDirectories in Laika).value, docTypeMatcher,
         (excludeFilter in Laika).value.accept)(laikaEncoding.value)
     }

@@ -88,7 +88,7 @@ class Parse private (parsers: Seq[ParserFactory], val config: OperationConfig, r
    * 
    *  @param factory the parser factory to add to the previously specified parsers
    */
-  def or (factory: ParserFactory): Parse = new Parse(parsers :+ factory, config.withBundles(factory.extensions), rewrite)
+  def or (factory: ParserFactory): Parse = new Parse(parsers :+ factory, config.withBundlesFor(factory), rewrite)
 
   /** Returns a new Parse instance that produces raw document trees without applying
    *  the default rewrite rules. These rules resolve link and image references and 
@@ -233,7 +233,7 @@ object Parse {
    */
   def as (factory: ParserFactory): Parse = new Parse(
     Seq(factory),
-    OperationConfig.default.withBundles(factory.extensions),
+    OperationConfig.default.withBundlesFor(factory),
     rewrite = true
   )
 
