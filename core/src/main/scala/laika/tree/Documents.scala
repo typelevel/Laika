@@ -25,6 +25,8 @@ import laika.tree.Elements._
 import laika.tree.Paths.{/, Current, Path}
 import laika.tree.Templates.TemplateRoot
 
+import scala.annotation.tailrec
+
 
 /** Provides the API for Documents and DocumentTrees.
  *  
@@ -132,7 +134,7 @@ object Documents {
     * @param toSeq the positions (one-based) of each nesting level of this
     *              position (an empty sequence for the root position)
     */
-  case class TreePosition(toSeq: Seq[Int]) {
+  case class TreePosition(toSeq: Seq[Int]) extends Ordered[TreePosition] {
 
     override def toString: String = toSeq.mkString(".")
 
@@ -148,6 +150,22 @@ object Documents {
     /** Creates a position instance for a child of this element.
       */
     def forChild(childPos: Int) = TreePosition(toSeq :+ childPos)
+
+    def compare (other: TreePosition): Int = {
+
+      @tailrec
+      def compare (pos1: Seq[Int], pos2: Seq[Int]): Int = (pos1.headOption, pos2.headOption) match {
+        case (Some(a), Some(b)) => a.compare(b) match {
+          case 0 => compare(pos1.tail, pos2.tail)
+          case other => other
+        }
+        case _ => 0
+      }
+
+      val maxLen = Math.max(toSeq.length, other.toSeq.length)
+      compare(toSeq.padTo(maxLen, 0), other.toSeq.padTo(maxLen, 0))
+    }
+
   }
   
   object TreePosition {

@@ -22,7 +22,7 @@ import laika.factory.RendererFactory
 import laika.io.{DocumentType, Input}
 import laika.parse.core.Parser
 import laika.parse.css.Styles.StyleDeclaration
-import laika.render.{FOWriter, HTML, HTMLWriter, XSLFO}
+import laika.render._
 import laika.tree.Paths.Path
 import laika.tree.Templates.TemplateRoot
 
@@ -81,6 +81,15 @@ object BundleProvider {
     override def themeFor[Writer](rendererFactory: RendererFactory[Writer]): Theme[Writer] = rendererFactory match {
       case _: XSLFO => theme
       case _ => Theme[Writer]() // TODO - this might work better as partial function
+    }
+
+  }
+
+  def forTextTheme (theme: Theme[TextWriter]): ExtensionBundle = new ExtensionBundle {
+
+    override def themeFor[Writer](rendererFactory: RendererFactory[Writer]): Theme[Writer] = rendererFactory match {
+      case _: PrettyPrint => theme
+      case _ => Theme[Writer]()
     }
 
   }

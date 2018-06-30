@@ -17,7 +17,6 @@
 package laika.api
 
 import laika.api.config.{OperationConfig, RenderConfigBuilder}
-import laika.api.ext.ExtensionBundle
 import laika.factory.{RenderResultProcessor, RendererFactory}
 import laika.io.Output.Binary
 import laika.io.OutputTree._
@@ -67,7 +66,8 @@ import laika.tree.Templates._
 abstract class Render[Writer] private (private[Render] val factory: RendererFactory[Writer],
                                        val config: OperationConfig) extends RenderConfigBuilder[Writer] {
 
-  
+  private lazy val theme = config.themeFor(factory)
+
   /** The output operations that can be performed for a single input document.
    */
   type DocOps
@@ -110,10 +110,10 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
 
   // TODO - move these 2 methods to OperationConfig
   protected[this] lazy val defaultStyles: StyleDeclarationSet =
-    factory.defaultTheme.defaultStyles ++ config.themeFor(factory).defaultStyles
+    factory.defaultTheme.defaultStyles ++ theme.defaultStyles
 
   protected[this] lazy val defaultTemplate: TemplateRoot = {
-    config.themeFor(factory).defaultTemplate
+    theme.defaultTemplate
       .orElse(factory.defaultTheme.defaultTemplate)
       .getOrElse(TemplateRoot(List(TemplateContextReference("document.content"))))
   }
@@ -131,7 +131,7 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
       def apply (element: Element) = delegate(element)
     }
 
-    val customRenderers = config.themeFor(factory).customRenderers
+    val customRenderers = theme.customRenderers
     
     IO(output) { out =>
       val (writer, renderF) = factory.newRenderer(out, element, RenderFunction, styles, config.minMessageLevel)
@@ -192,7 +192,8 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
     val templateName = "default.template." + factory.fileSuffix
     val treeWithTpl = if (docTree.selectTemplate(Current / templateName).isDefined) docTree
                       else docTree.copy(templates = docTree.templates :+ TemplateDocument(Root / templateName, defaultTemplate))
-    val finalTree = TemplateRewriter.applyTemplates(treeWithTpl, factory.fileSuffix)
+    val treeWithTplApplied = TemplateRewriter.applyTemplates(treeWithTpl, factory.fileSuffix)
+    val finalTree = theme.staticDocuments.merge(treeWithTplApplied)
     val operations = collectOperations(outputTree, defaultStyles, finalTree)
 
     (if (config.parallel) operations.par else operations) foreach (_())
@@ -216,7 +217,7 @@ object Render {
    */
   class RenderMappedOutput[Writer] (factory: RendererFactory[Writer],
                                     cfg: OperationConfig) extends Render[Writer](factory, cfg) {
-    
+
     type DocOps = TextOuputOps
     type TreeOps = OutputTreeOps
     type ThisType = RenderMappedOutput[Writer]
