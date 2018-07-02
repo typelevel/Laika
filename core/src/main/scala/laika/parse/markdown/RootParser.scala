@@ -80,8 +80,4 @@ class RootParser (parserExtensions: ParserDefinitionBuilders, isStrict: Boolean 
       }
     }
 
-  override def config (path: Path): Parser[Either[InvalidBlock,Config]] =
-    DirectiveParsers.configHeader(path) // TODO - do not use in strict mode
-
-
 }

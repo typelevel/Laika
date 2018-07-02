@@ -19,19 +19,14 @@ package laika.api
 import com.typesafe.config.{ConfigFactory, Config => TConfig}
 import laika.api.config.{OperationConfig, ParseConfigBuilder}
 import laika.api.ext.ConfigProvider
-import laika.directive.ConfigParser
 import laika.factory.ParserFactory
 import laika.io.DocumentType._
 import laika.io._
-import laika.parse.core.Parser
 import laika.parse.core.combinator.Parsers.{documentParserFunction, success}
-import laika.parse.core.text.TextParsers.{opt, unsafeParserFunction}
+import laika.parse.core.markup.DocumentParser
 import laika.parse.css.Styles.{StyleDeclaration, StyleDeclarationSet}
 import laika.tree.Documents._
-import laika.tree.Elements.{InvalidSpan, SystemMessage}
 import laika.tree.Paths.Path
-import laika.tree.Templates.{TemplateElement, TemplateRoot, TemplateString}
-import laika.util.~
   
 /** API for performing a parse operation from various types of input to obtain
  *  a document tree without a subsequent render operation. 
@@ -116,27 +111,8 @@ class Parse private (parsers: Seq[ParserFactory], val config: OperationConfig, r
     def parseTemplate (docType: DocumentType)(input: Input): Seq[Operation[TemplateDocument]] = config.parserDefinitions.templateParser match {
       case None => Seq()
       case Some(rootParser) =>
-
-        // TODO - move this logic to new DocumentParsers and ConfigHeaderParsers
-
-        def configParser (path: Path): Parser[Either[InvalidSpan,TConfig]] =
-          ConfigParser.forPath(path, {
-            (ex: Exception, str: String) => InvalidSpan(SystemMessage(laika.tree.Elements.Error,
-              "Error parsing config header: "+ex.getMessage), TemplateString(s"{%$str%}"))
-          })
-
-        def templateWithConfig (path: Path): Parser[(TConfig, TemplateRoot)] = opt(configParser(path)) ~ rootParser ^^ {
-          case Some(Right(config)) ~ root => (config, root)
-          case Some(Left(span)) ~ root    => (ConfigFactory.empty(), root.copy(content = TemplateElement(span) +: root.content))
-          case None ~ root                => (ConfigFactory.empty(), root)
-        }
-
-        def parseDocument (input: Input): TemplateDocument = {
-          val (config, root) = unsafeParserFunction(templateWithConfig(input.path))(input.asParserInput)
-          TemplateDocument(input.path, root, config)
-        }
-
-        Seq(() => (docType, IO(input)(parseDocument)))
+        val docParser = DocumentParser.forTemplate(rootParser, config.configHeaderParser)
+        Seq(() => (docType, IO(input)(docParser)))
     }
 
     def parseStyleSheet (format: String)(input: Input): Operation[StyleDeclarationSet] = () => {

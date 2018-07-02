@@ -159,12 +159,6 @@ object DirectiveParsers {
   
   val nestedBraces: Parser[Text] = delimitedBy('}') ^^ (str => Text(s"{$str}"))
 
-  // TODO - move this to config header parser extension
-  def configHeader (path: Path): Parser[Either[InvalidBlock,Config]] = ConfigParser.forPath(path, {
-    (ex: Exception, str: String) => InvalidBlock(SystemMessage(laika.tree.Elements.Error,
-      "Error parsing config header: "+ex.getMessage), LiteralBlock(s"{%$str%}"))
-  })
-  
 }
 
 /** Provides the parser definitions for span directives in markup documents.

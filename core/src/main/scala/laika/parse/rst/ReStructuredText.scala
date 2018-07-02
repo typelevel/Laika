@@ -16,18 +16,22 @@
 
 package laika.parse.rst
 
+import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders, Theme}
 import laika.factory.{ParserFactory, RendererFactory}
 import laika.io.Input
-import laika.parse.core.ParserContext
+import laika.parse.core.combinator.Parsers
+import laika.parse.core.markup.DocumentParser
 import laika.parse.rst.Directives._
+import laika.parse.rst.Elements.FieldList
 import laika.parse.rst.TextRoles._
 import laika.parse.rst.ext._
 import laika.parse.util.WhitespacePreprocessor
 import laika.render.{HTML, HTMLWriter}
-import laika.rewrite.DocumentCursor
+import laika.rewrite.{DocumentCursor, TreeUtil}
 import laika.tree.Documents.Document
 import laika.tree.Elements._
+import laika.tree.Paths.Path
   
 /** A parser for text written in reStructuredText markup. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:
@@ -196,7 +200,26 @@ class ReStructuredText private (
   def newParser (parserExtensions: ParserDefinitionBuilders): Input => Document = input => {
     val raw = input.asParserInput.input
     val preprocessed = (new WhitespacePreprocessor)(raw.toString)
-    createParser(parserExtensions).parseDocument(ParserContext(preprocessed), input.path)
+
+    // TODO - extract this logic once ParserFactory API gets finalized
+    def extractDocInfo (config: Config, root: RootElement) = {
+      import scala.collection.JavaConverters._
+      val docStart = root.content dropWhile { case c: Comment => true; case h: DecoratedHeader => true; case _ => false } headOption
+      val docInfo = docStart collect { case FieldList(fields,_) => fields map (field => (TreeUtil.extractText(field.name),
+        field.content collect { case p: Paragraph => TreeUtil.extractText(p.content) } mkString)) toMap }
+      docInfo map (i => config.withValue("docInfo", ConfigValueFactory.fromMap(i.asJava))) getOrElse config
+    }
+
+    val rootParser = createParser(parserExtensions)
+    val configHeaderParsers = parserExtensions.configHeaderParsers :+ { _:Path => Parsers.success(Right(ConfigFactory.empty)) }
+    val configHeaderParser = { path: Path => configHeaderParsers.map(_(path)).reduce(_ | _) }
+    val doc = DocumentParser.forMarkup(rootParser.rootElement, configHeaderParser)(Input.fromString(preprocessed, input.path))
+
+    // these two lines to postProcessDocument
+    val finalConfig = extractDocInfo(doc.config, doc.content)
+    val finalRoot = doc.content.copy(content = doc.content.content ++ rootParser.textRoleElements)
+
+    doc.copy(config = finalConfig, content = finalRoot)
   }
   
 }

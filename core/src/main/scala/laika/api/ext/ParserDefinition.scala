@@ -18,9 +18,11 @@ package laika.api.ext
 
 import com.typesafe.config.Config
 import laika.parse.core.Parser
+import laika.parse.core.markup.DocumentParser.InvalidElement
 import laika.parse.core.markup.{RecursiveParsers, RecursiveSpanParsers}
 import laika.parse.css.Styles.StyleDeclaration
-import laika.tree.Elements.{Block, InvalidBlock, Span}
+import laika.tree.Elements.{Block, Span}
+import laika.tree.Paths.Path
 import laika.tree.Templates.TemplateRoot
 
 /**
@@ -40,7 +42,7 @@ trait ParserDefinitionBuilder[T] {
 
 case class ParserDefinitionBuilders(blockParsers: Seq[ParserDefinitionBuilder[Block]] = Nil,
                                     spanParsers: Seq[ParserDefinitionBuilder[Span]] = Nil,
-                                    configHeaderParsers: Seq[Parser[Either[InvalidBlock, Config]]] = Nil,
+                                    configHeaderParsers: Seq[Path => Parser[Either[InvalidElement, Config]]] = Nil,
                                     templateParser: Option[Parser[TemplateRoot]] = None,
                                     styleSheetParser: Option[Parser[Set[StyleDeclaration]]] = None) {
 

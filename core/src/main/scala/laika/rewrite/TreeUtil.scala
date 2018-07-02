@@ -62,6 +62,9 @@ object TreeUtil {
    */
   def extractFragments (blocks: Seq[Element]): Map[String,Element] = 
     blocks.collect{case f: DocumentFragment => (f.name, f.root)}.toMap
+
+  def extractConfigValues (container: ElementContainer[_,_]): Map[String,AnyRef] =
+    container.collect{case c: ConfigValue => (c.name, c.value)}.toMap
   
   
 }

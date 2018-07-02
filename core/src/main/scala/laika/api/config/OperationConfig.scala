@@ -16,13 +16,16 @@
 
 package laika.api.config
 
-import com.typesafe.config.Config
+import com.typesafe.config.{Config, ConfigFactory}
 import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders}
 import laika.api.ext.ExtensionBundle.LaikaDefaults
 import laika.directive.{DirectiveSupport, StandardDirectives}
 import laika.factory.{ParserFactory, RendererFactory}
 import laika.io.{DefaultDocumentTypeMatcher, DocumentType}
 import laika.io.DocumentType.Ignored
+import laika.parse.core.Parser
+import laika.parse.core.combinator.Parsers
+import laika.parse.core.markup.DocumentParser.InvalidElement
 import laika.rewrite.{DocumentCursor, RewriteRules}
 import laika.tree.Documents.Document
 import laika.tree.Elements.{Fatal, MessageLevel, RewriteRule}
@@ -45,10 +48,17 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
 
   lazy val parserDefinitions: ParserDefinitionBuilders = mergedBundle.parserDefinitions
 
+  lazy val configHeaderParser: Path => Parser[Either[InvalidElement, Config]] = {
+    val allParsers = mergedBundle.parserDefinitions.configHeaderParsers :+
+      { _:Path => Parsers.success(Right(ConfigFactory.empty)) }
+    { path: Path => allParsers.map(_(path)).reduce(_ | _) }
+  }
+
   lazy val rewriteRule: DocumentCursor => RewriteRule = RewriteRules.chainFactories(mergedBundle.rewriteRules)
 
   def rewriteRuleFor (doc: Document): RewriteRule = rewriteRule(DocumentCursor(doc))
 
+  // TODO - withBase rendererFactory.defaultTheme - withBase Theme.fallback (== Theme[Nothing])
   def themeFor[Writer] (rendererFactory: RendererFactory[Writer]) = mergedBundle.themeFor(rendererFactory)
 
 

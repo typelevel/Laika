@@ -16,22 +16,17 @@
 
 package laika.parse.rst
 
-import com.typesafe.config.{Config, ConfigValueFactory}
 import laika.api.ext.{MarkupParsers, ParserDefinition, ParserDefinitionBuilders}
-import laika.directive.DirectiveParsers
 import laika.parse.core.markup.RootParserBase
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Parsed, Parser, ParserContext, Success}
 import laika.parse.rst.Directives.{Directive, DirectivePart}
-import laika.parse.rst.Elements.{CustomizedTextRole, FieldList, ReferenceName}
+import laika.parse.rst.Elements.{CustomizedTextRole, ReferenceName}
 import laika.parse.rst.TextRoles.{RoleDirectivePart, TextRole}
 import laika.rewrite.TreeUtil
-import laika.tree.Documents.Document
 import laika.tree.Elements._
-import laika.tree.Paths.Path
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 
 /** The main parser for reStructuredText, combining the individual parsers for block and inline elements,
@@ -68,7 +63,7 @@ class RootParser(parserExtensions: ParserDefinitionBuilders = ParserDefinitionBu
 
   private val exParsers = new ExplicitBlockParsers(this, rstBlockDirectives, rstSpanDirectives, rstTextRoles, defaultTextRole)
 
-  private val textRoleElements = textRoles map { role => CustomizedTextRole(role.name, role.default) }
+  val textRoleElements = textRoles map { role => CustomizedTextRole(role.name, role.default) }
 
 
   private def toParser (definition: ParserDefinition[Block]): Parser[Block] =
@@ -112,22 +107,6 @@ class RootParser(parserExtensions: ParserDefinitionBuilders = ParserDefinitionBu
     listParsers.definitionList,
     blockParsers.paragraph
   )
-
-
-  override def parseDocument (reader: ParserContext, path: Path): Document = {
-    def extractDocInfo (config: Config, root: RootElement) = {
-      val docStart = root.content dropWhile { case c: Comment => true; case h: DecoratedHeader => true; case _ => false } headOption
-      val docInfo = docStart collect { case FieldList(fields,_) => fields map (field => (TreeUtil.extractText(field.name),
-        field.content collect { case p: Paragraph => TreeUtil.extractText(p.content) } mkString)) toMap }
-      docInfo map (i => config.withValue("docInfo", ConfigValueFactory.fromMap(i.asJava))) getOrElse config
-    }
-
-    val (config, root) = parseConfigAndRoot(reader, path)
-    val finalConfig = extractDocInfo(config, root)
-    val finalRoot = root.copy(content = root.content ++ textRoleElements)
-    Document(path, finalRoot, TreeUtil.extractFragments(root.content), finalConfig)
-  }
-
 
   /** Builds a parser for a list of blocks based on the parser for a single block.
     *
@@ -189,6 +168,7 @@ class RootParser(parserExtensions: ParserDefinitionBuilders = ParserDefinitionBu
       processed.toList
     }
 
+    // TODO - could use repWith
     @tailrec
     def parse (p: Parser[Block], in: ParserContext): Parsed[List[Block]] = p.parse(in) match {
       case Success(Paragraph(Text(txt,_) :: Nil,_), rest) if txt.trim == "::" => parse(litBlock, rest)
@@ -203,7 +183,5 @@ class RootParser(parserExtensions: ParserDefinitionBuilders = ParserDefinitionBu
     parse(defaultBlock, in)
   }
 
-  override def config (path: Path): Parser[Either[InvalidBlock,Config]] =
-    DirectiveParsers.configHeader(path) // TODO - do not use in strict mode
 
 }

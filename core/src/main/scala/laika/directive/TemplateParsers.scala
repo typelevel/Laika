@@ -16,7 +16,6 @@
 
 package laika.directive
 
-import com.typesafe.config.{Config, ConfigFactory, ConfigParseOptions}
 import laika.directive.Directives.Templates
 import laika.io.Input
 import laika.parse.core.markup.DefaultRecursiveSpanParsers
@@ -25,24 +24,7 @@ import laika.parse.core.{Parser, ParserContext}
 import laika.rewrite.DocumentCursor
 import laika.tree.Documents.TemplateDocument
 import laika.tree.Elements._
-import laika.tree.Paths.Path
 import laika.tree.Templates._
-
-
-object ConfigParser {
-
-  val configBlock = "{%" ~> delimitedBy("%}") <~ wsEol
-
-  def forPath[T] (path: Path, errorHandler: (Exception, String) => T): Parser[Either[T, Config]] = configBlock ^^ { str =>
-    try {
-      Right(ConfigFactory.parseString(str, ConfigParseOptions.defaults().setOriginDescription(s"path:$path")))
-    }
-    catch {
-      case ex: Exception => Left(errorHandler(ex, str))
-    }
-  } orElse success(Right(ConfigFactory.empty))
-
-}
 
 
 /** Provides the parsers for directives in templates.

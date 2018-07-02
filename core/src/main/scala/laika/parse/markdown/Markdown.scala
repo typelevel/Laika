@@ -16,10 +16,14 @@
 
 package laika.parse.markdown
 
+import com.typesafe.config.ConfigFactory
 import laika.api.ext.ParserDefinitionBuilders
 import laika.factory.ParserFactory
 import laika.io.Input
+import laika.parse.core.combinator.Parsers
+import laika.parse.core.markup.DocumentParser
 import laika.tree.Documents.Document
+import laika.tree.Paths.Path
   
 /** A parser for Markdown text. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:
@@ -60,8 +64,11 @@ class Markdown private () extends ParserFactory {
    *  returning a document tree.
    */
   def newParser (parserExtensions: ParserDefinitionBuilders): Input => Document = {
-    val parser = new RootParser(parserExtensions)
-    (input: Input) => parser.parseDocument(input.asParserInput, input.path)
+    // TODO - extract this logic once ParserFactory API gets finalized
+    val rootParser = new RootParser(parserExtensions)
+    val configHeaderParsers = parserExtensions.configHeaderParsers :+ { _:Path => Parsers.success(Right(ConfigFactory.empty)) }
+    val configHeaderParser = { path: Path => configHeaderParsers.map(_(path)).reduce(_ | _) }
+    DocumentParser.forMarkup(rootParser.rootElement, configHeaderParser)
   }
   
 }
