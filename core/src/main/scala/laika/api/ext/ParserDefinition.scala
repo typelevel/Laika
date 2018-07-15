@@ -75,17 +75,20 @@ object Precedence {
 class SpanParser (startChar: Char) {
 
   class DefinitionBuilder (parserFactory: RecursiveSpanParsers => Parser[Span],
-                           recursive: Boolean) extends ParserDefinitionBuilder[Span] {
+                           recursive: Boolean,
+                           precedence: Precedence) extends ParserDefinitionBuilder[Span] {
 
     override def createParser (recursiveParsers: RecursiveParsers): ParserDefinition[Span] =
-      ParserDefinition(Some(startChar), parserFactory(recursiveParsers), recursive, true, Precedence.High)
+      ParserDefinition(Some(startChar), parserFactory(recursiveParsers), recursive, true, precedence)
+
+    def withLowPrecedence: DefinitionBuilder = new DefinitionBuilder(parserFactory, recursive, Precedence.Low)
 
   }
 
-  def standalone (parser: Parser[Span]): ParserDefinitionBuilder[Span] = new DefinitionBuilder(_ => parser, false) // TODO - consider different name
+  def standalone (parser: Parser[Span]): DefinitionBuilder = new DefinitionBuilder(_ => parser, false, Precedence.High) // TODO - consider different name
 
-  def recursive (factory: RecursiveSpanParsers => Parser[Span]): ParserDefinitionBuilder[Span] =
-    new DefinitionBuilder(factory, true)
+  def recursive (factory: RecursiveSpanParsers => Parser[Span]): DefinitionBuilder =
+    new DefinitionBuilder(factory, true, Precedence.High)
 
 }
 

@@ -16,15 +16,12 @@
 
 package laika.parse.markdown
 
-import com.typesafe.config.Config
-import laika.api.ext.{MarkupParsers, ParserDefinition, ParserDefinitionBuilders}
-import laika.directive.DirectiveParsers
+import laika.api.ext.{MarkupParsers, ParserDefinition, ParserDefinitionBuilders, SpanParser}
 import laika.parse.core.Parser
 import laika.parse.core.markup.RootParserBase
 import laika.parse.core.text.TextParsers.{anyOf, char}
 import laika.rewrite.TreeUtil
 import laika.tree.Elements._
-import laika.tree.Paths.Path
 
 /** The main parser for Markdown, combining the individual parsers for block and inline elements,
   * and adding functionality like directives or verbatim HTML depending on configuration.
@@ -42,13 +39,22 @@ class RootParser (parserExtensions: ParserDefinitionBuilders, isStrict: Boolean 
 
 
   private lazy val markupParserExtensions: MarkupParsers = parserExtensions.markupParsers(this)
-  private val inlineParsers = new InlineParsers(this)
   private val blockParsers = new BlockParsers(this)
 
 
   protected lazy val spanParsers: Map[Char,Parser[Span]] = {
-    val extSpans = markupParserExtensions.spanParserMap
-    mergeSpanParsers(inlineParsers.allSpanParsers, extSpans)
+    val mainSpans = Seq(
+      InlineParsers.enclosedByAsterisk,
+      InlineParsers.enclosedByUnderscore,
+      InlineParsers.literalSpan,
+      InlineParsers.image,
+      InlineParsers.link,
+      InlineParsers.simpleLink,
+      InlineParsers.lineBreak,
+      SpanParser.forStartChar('\\').standalone(escapedChar ^^ { Text(_) }).withLowPrecedence
+    ).map(_.createParser(this))
+    val extSpans = markupParserExtensions.spanParsers
+    toSpanParserMap(mainSpans, extSpans)
   }
 
   private def toParser (definition: ParserDefinition[Block]): Parser[Block] =

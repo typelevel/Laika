@@ -16,6 +16,7 @@
 
 package laika.parse.markdown
 
+import laika.api.ext.{ParserDefinitionBuilder, SpanParser}
 import laika.parse.core.{Parser, ParserContext}
 import laika.parse.core.markup.InlineParsers.text
 import laika.parse.core.markup.RecursiveSpanParsers
@@ -35,34 +36,20 @@ import laika.util.~
  * 
  *  @author Jens Halm
  */
-class InlineParsers (recParsers: RecursiveSpanParsers) {
+object InlineParsers {
 
-  import recParsers._
 
-  /** Creates a new mapping from the start character of an inline span
-    * to the corresponding parser. May be overridden by subtraits.
-    */
-  lazy val allSpanParsers: Map[Char, Parser[Span]] = Map(
-    '*' -> (strong('*') | em('*')),    
-    '_' -> (strong('_') | em('_')),
-    '`' -> (literalEnclosedByDoubleChar | literalEnclosedBySingleChar), 
-    '\\'-> (lineBreak | (escapedChar ^^ { Text(_) })),
-    '[' -> link,
-    '<' -> simpleLink,
-    '!' -> image
-  )
-  
   /** Parses an explicit hard line break.
    */
-  val lineBreak: Parser[LineBreak] = (anyOf('\r') take 1) ^^^ LineBreak()
+  val lineBreak: ParserDefinitionBuilder[Span] = SpanParser.forStartChar('\\').standalone(anyOf('\r').take(1) ^^^ LineBreak())
   
   /** Parses a span of strong text enclosed by two consecutive occurrences of the specified character. 
    */
-  def strong (char: Char): Parser[Strong] = enclosedByDoubleChar(char) ^^ { Strong(_) }
+  def strong (char: Char)(implicit recParsers: RecursiveSpanParsers): Parser[Strong] = enclosedByDoubleChar(char) ^^ { Strong(_) }
   
   /** Parses a span of emphasized text enclosed by one occurrence of the specified character.
    */
-  def em (char: Char): Parser[Emphasized] = enclosedBySingleChar(char) ^^ { Emphasized(_) }
+  def em (char: Char)(implicit recParsers: RecursiveSpanParsers): Parser[Emphasized] = enclosedBySingleChar(char) ^^ { Emphasized(_) }
 
   
   /** Creates a parser for an inline span based on the specified parsers that
@@ -72,13 +59,21 @@ class InlineParsers (recParsers: RecursiveSpanParsers) {
    *  @param endDelim the end delimiter of the span
    *  @param postCondition the parser that checks any post conditions after the end delimiter has been read
    */
-  def span (start: Parser[Any], endDelim: String, postCondition: Parser[Any]): Parser[List[Span]]
-    = start ~> delimitedRecursiveSpans(delimitedBy(endDelim, postCondition))
-  
+  def span (start: Parser[Any], endDelim: String, postCondition: Parser[Any])(implicit recParsers: RecursiveSpanParsers): Parser[List[Span]]
+    = start ~> recParsers.delimitedRecursiveSpans(delimitedBy(endDelim, postCondition))
+
+  val enclosedByAsterisk: ParserDefinitionBuilder[Span] = SpanParser.forStartChar('*').recursive { implicit recParsers =>
+    strong('*') | em('*')
+  }
+
+  val enclosedByUnderscore: ParserDefinitionBuilder[Span] = SpanParser.forStartChar('_').recursive { implicit recParsers =>
+    strong('_') | em('_')
+  }
+
   /** Parses a span enclosed by a single occurrence of the specified character.
    *  Recursively parses nested spans, too. 
    */
-  def enclosedBySingleChar (c: Char): Parser[List[Span]] = {
+  def enclosedBySingleChar (c: Char)(implicit recParsers: RecursiveSpanParsers): Parser[List[Span]] = {
     val start = lookAhead(anyBut(' ', c).take(1).^)
     val end = not(lookBehind(2, ' '))
     span(start, c.toString, end)
@@ -87,7 +82,7 @@ class InlineParsers (recParsers: RecursiveSpanParsers) {
   /** Parses a span enclosed by two consecutive occurrences of the specified character.
    *  Recursively parses nested spans, too. 
    */
-  def enclosedByDoubleChar (c: Char): Parser[List[Span]] = {
+  def enclosedByDoubleChar (c: Char)(implicit recParsers: RecursiveSpanParsers): Parser[List[Span]] = {
     val start = c ~ not(' ')
     val end = c <~ not(lookBehind(3, ' '))
     span(start, c.toString, end)
@@ -110,6 +105,9 @@ class InlineParsers (recParsers: RecursiveSpanParsers) {
     val end = "``"
     start ~> delimitedBy(end) ^^ { s => Literal(s.trim) }
   }
+
+  val literalSpan: ParserDefinitionBuilder[Span] = SpanParser.forStartChar('`')
+    .standalone(literalEnclosedByDoubleChar | literalEnclosedBySingleChar)
   
   
   private def normalizeId (id: String): String = id.toLowerCase.replaceAll("[\n ]+", " ")
@@ -117,54 +115,59 @@ class InlineParsers (recParsers: RecursiveSpanParsers) {
   type RecParser = (String => List[Span])
 
   /** Parses a link, including nested spans in the link text.
-   *  Recognizes both, an inline link `[text](url)` and a link reference `[text][id]`.
-   */
-  lazy val link: Parser[Span] = {
+    *  Recognizes both, an inline link `[text](url)` and a link reference `[text][id]`.
+    */
+  lazy val link: ParserDefinitionBuilder[Span] = SpanParser.forStartChar('[').recursive { recParsers =>
 
     def unwrap (ref: LinkReference, suffix: String) = {
       if ((ref select (_.isInstanceOf[LinkReference])).tail.nonEmpty)
         SpanSequence(Text("[") :: ref.content.toList ::: Text(suffix) :: Nil)
       else ref
     }
-    
+
     def linkInline (p: RecParser, text: String, url: String, title: Option[String]) = ExternalLink(p(text), url, title)
     def linkReference (p: RecParser, text: String, id: String, suffix: String): Span = {
-      /* Markdown's design comes with a few arbitrary and inconsistent choices for how to handle nesting of brackets. 
+      /* Markdown's design comes with a few arbitrary and inconsistent choices for how to handle nesting of brackets.
        * The logic here is constructed to make the official test suite pass, other edge cases might still yield unexpected results.
        * Users usually should not bother and simply escape brackets which are not meant to be markup. */
       val ref = LinkReference(p(text), normalizeId(id), "[" + text + suffix)
       if (text == id) unwrap(ref, suffix) else ref
     }
-    
-    resource(linkInline, linkReference)
-  }
-  
-  /** Parses an inline image.
-   *  Recognizes both, an inline image `![text](url)` and an image reference `![text][id]`.
-   */
-  val image: Parser[Span] = {
 
-    val escape = unsafeParserFunction(escapedText(DelimitedText.Undelimited))
+    resource(linkInline, linkReference, recParsers)
+  }
+
+  /** Parses an inline image.
+    *  Recognizes both, an inline image `![text](url)` and an image reference `![text][id]`.
+    */
+  val image: ParserDefinitionBuilder[Span] = SpanParser.forStartChar('!').recursive { recParsers =>
+
+    val escape = unsafeParserFunction(recParsers.escapedText(DelimitedText.Undelimited))
 
     def imageInline (p: RecParser, text: String, uri: String, title: Option[String]) =
       Image(escape(ParserContext(text)), URI(uri), title = title)
 
     def imageReference (p: RecParser, text: String, id: String, postFix: String): Span =
       ImageReference(escape(ParserContext(text)), normalizeId(id), "![" + text + postFix)
-     
-    '[' ~> resource(imageInline, imageReference)
+
+    '[' ~> resource(imageInline, imageReference, recParsers)
   }
-
-
   
   /** Helper function that abstracts the common parser logic of links and images.
    * 
    *  @param inline factory function for creating a new inline link or image based on the text, url and optional title parameters
    *  @param ref factory function for creating a new link or image reference based on the text and id parameters
    */
-  def resource (inline: (RecParser, String, String, Option[String]) => Span, ref: (RecParser, String, String, String) => Span): Parser[Span] = {
-    
-    val linktext = text(delimitedBy(']'), Map('\\' -> (escapedChar ^^ {"\\" + _}), '[' -> (delimitedBy(']') ^^ { "[" + _ + "]" })))
+  def resource (inline: (RecParser, String, String, Option[String]) => Span,
+                ref: (RecParser, String, String, String) => Span,
+                recParsers: RecursiveSpanParsers): Parser[Span] = {
+
+    import recParsers._
+
+    val linktext = text(delimitedBy(']'), Map(
+      '\\' -> (escapedChar ^^ {"\\" + _}),
+      '[' -> (delimitedBy(']') ^^ { "[" + _ + "]" })
+    ))
 
     val titleEnd = lookAhead(ws.^ ~ ')')
     val title = ws.^ ~> (('"' ~> delimitedBy("\"", titleEnd)) | ('\'' ~> delimitedBy("'", titleEnd)))
@@ -178,7 +181,8 @@ class InlineParsers (recParsers: RecursiveSpanParsers) {
     val refId =    ws ~ opt(eol) ~ ('[' ~> escapedUntil(']')) ^^ {
       case ws ~ lb ~ id => (recParser: RecParser, text:String) =>
         ref(recParser, text, id,   "]"+ws+ lb.getOrElse("") +"["+id+"]") }
-    val refEmpty = ws ~ opt(eol) ~ "[]" ^^ { 
+
+    val refEmpty = ws ~ opt(eol) ~ "[]" ^^ {
       case ws ~ lb ~ _  => (recParser: RecParser, text:String) =>
         ref(recParser, text, text, "]"+ws+ lb.getOrElse("") +"[]") }
   
@@ -187,22 +191,21 @@ class InlineParsers (recParsers: RecursiveSpanParsers) {
       case (recParser, text) ~ Some(f) => f(recParser, text)
     }
   }
-  
+
   /** Parses a simple inline link in the form of &lt;http://someURL/&gt;
-   */
-  val simpleLink: Parser[ExternalLink] = {
-    
+    */
+  val simpleLink: ParserDefinitionBuilder[Span] = SpanParser.forStartChar('<').standalone {
+
     def isAcceptedScheme (s: String) = s == "http" || s == "https" || s == "ftp" || s == "mailto"
     def isURI (s: String) = try { val uri = new java.net.URI(s); uri.isAbsolute && isAcceptedScheme(uri.getScheme) } catch { case _:Throwable => false }
     def isEmail (s: String) = s.contains("@") && isURI(s"mailto:$s") // TODO - improve
-    
-    def toLink(s: String) = ExternalLink(List(Text(s)), s) 
-    
-    anyBut(' ','\r','\n','\t','>') <~ '>' ^? { 
+
+    def toLink(s: String) = ExternalLink(List(Text(s)), s)
+
+    anyBut(' ','\r','\n','\t','>') <~ '>' ^? {
       case s if isURI(s) => toLink(s)
       case s if isEmail(s) => toLink(s"mailto:$s")
     }
   }
-  
 
 }

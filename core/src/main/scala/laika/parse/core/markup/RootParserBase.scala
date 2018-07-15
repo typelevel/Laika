@@ -16,6 +16,7 @@
 
 package laika.parse.core.markup
 
+import laika.api.ext.{ParserDefinition, Precedence}
 import laika.parse.core._
 import laika.parse.core.text.TextParsers._
 import laika.tree.Elements._
@@ -34,11 +35,20 @@ trait RootParserBase extends DefaultRecursiveParsers {
   /** Merges the two specified span parser maps, dealing with collisions in case some
     * are mapped to the same start character.
     */
-  protected def mergeSpanParsers (base: Map[Char, Parser[Span]], additional: Map[Char, Parser[Span]]) = {
+  protected def mergeSpanParsers (base: Map[Char, Parser[Span]], additional: Map[Char, Parser[Span]]): Map[Char, Parser[Span]] = {
     additional.foldLeft(base) {
       case (acc, (char, parser)) =>
         val oldParser = base.get(char)
         acc + (char -> oldParser.map(parser | _).getOrElse(parser))
+    }
+  }
+
+  protected def toSpanParserMap (mainParsers: Seq[ParserDefinition[Span]],
+                                 extParsers: Seq[ParserDefinition[Span]]): Map[Char, Parser[Span]] = {
+    val (mainHigh, mainLow) = mainParsers.partition(_.precedence == Precedence.High)
+    val (extHigh, extLow) = extParsers.partition(_.precedence == Precedence.High)
+    (extHigh ++ mainHigh ++ mainLow ++ extLow).groupBy(_.startChar.get).map {
+      case (char, definitions) => (char, definitions.map(_.parser).reduceLeft(_ | _))
     }
   }
 
