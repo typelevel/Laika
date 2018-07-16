@@ -16,7 +16,7 @@
 
 package laika.parse.rst
 
-import laika.api.ext.{MarkupParsers, ParserDefinition, ParserDefinitionBuilders}
+import laika.api.ext._
 import laika.parse.core.markup.RootParserBase
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Parsed, Parser, ParserContext, Success}
@@ -66,7 +66,7 @@ class RootParser(parserExtensions: ParserDefinitionBuilders = ParserDefinitionBu
   val textRoleElements = textRoles map { role => CustomizedTextRole(role.name, role.default) }
 
 
-  private def toParser (definition: ParserDefinition[Block]): Parser[Block] =
+  private def toParser (definition: BlockParserDefinition): Parser[Block] =
     definition.startChar.fold(definition.parser){_ ~> definition.parser} // TODO - temporary until startChar is processed
 
   protected lazy val spanParsers: Map[Char,Parser[Span]] = {
@@ -80,7 +80,7 @@ class RootParser(parserExtensions: ParserDefinitionBuilders = ParserDefinitionBu
   }
 
   protected lazy val nestedBlock: Parser[Block] = {
-    val extBlocks = markupParserExtensions.blockParsers.filter(_.useInRecursion).map(toParser)
+    val extBlocks = markupParserExtensions.blockParsers.filter(_.position != BlockPosition.RootOnly).map(toParser)
     mergeBlockParsers(extBlocks ++ mainBlockParsers)
   }
 

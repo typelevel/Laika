@@ -16,7 +16,7 @@
 
 package laika.parse.markdown.html
 
-import laika.api.ext.{BlockParser, ParserDefinitionBuilder, SpanParser}
+import laika.api.ext._
 import laika.parse.core.Parser
 import laika.parse.core.markup.InlineParsers._
 import laika.parse.core.markup.RecursiveSpanParsers
@@ -149,13 +149,13 @@ object HTMLParsers {
 
   /** Parses any of the HTML span elements supported by this trait, plus standard markdown inside HTML elements.
     */
-  val htmlSpan: ParserDefinitionBuilder[Span] = SpanParser.forStartChar('<').recursive { recParsers =>
+  val htmlSpan: SpanParserBuilder = SpanParser.forStartChar('<').recursive { recParsers =>
     htmlComment | htmlEmptyElement | htmlElementWithNestedMarkdown(recParsers) | htmlEndTag | htmlStartTag
   }
 
   /** Parses a numeric or named character reference.
     */
-  val htmlCharRef: ParserDefinitionBuilder[Span] = SpanParser.forStartChar('&').standalone(htmlCharReference)
+  val htmlCharRef: SpanParserBuilder = SpanParser.forStartChar('&').standalone(htmlCharReference)
 
   /** Parses any of the HTML span elements supported by this trait, but no standard markdown inside HTML elements.
    */
@@ -204,7 +204,7 @@ object HTMLParsers {
 
   lazy val htmlBlockElement: Parser[Block] = '<' ~> (htmlComment | htmlEmptyElement | htmlStartTag) <~ wsEol ~ blankLine
 
-  lazy val htmlBlockFragment: ParserDefinitionBuilder[Block] = BlockParser.withoutStartChar.standalone(htmlBlock | htmlBlockElement) // TODO - keep separate + set as rootOnly
+  lazy val htmlBlockFragment: BlockParserBuilder = BlockParser.withoutStartChar.standalone(htmlBlock | htmlBlockElement).rootOnly // TODO - keep separate
 
 
 }

@@ -16,15 +16,13 @@
 
 package laika.directive
 
-import com.typesafe.config.Config
-import laika.api.ext.{BlockParser, ParserDefinitionBuilder, SpanParser}
+import laika.api.ext._
 import laika.directive.Directives._
 import laika.parse.core.markup._
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Parser, Failure => PFailure, Success => PSuccess}
 import laika.rewrite.DocumentCursor
 import laika.tree.Elements._
-import laika.tree.Paths.Path
 import laika.tree.Templates._
 import laika.util.~
 
@@ -171,10 +169,10 @@ object SpanDirectiveParsers {
     def resolve (cursor: DocumentCursor) = f(cursor)
   }
 
-  val contextRef: ParserDefinitionBuilder[Span] =
+  val contextRef: SpanParserBuilder =
     SpanParser.forStartChar('{').standalone(reference(MarkupContextReference(_)))
 
-  def spanDirective (directives: Map[String, Spans.Directive]): ParserDefinitionBuilder[Span] =
+  def spanDirective (directives: Map[String, Spans.Directive]): SpanParserBuilder =
     SpanParser.forStartChar('@').recursive(spanDirectiveParser(directives))
 
   def spanDirectiveParser(directives: Map[String, Spans.Directive])(recParsers: RecursiveSpanParsers): Parser[Span] = {
@@ -205,14 +203,14 @@ object SpanDirectiveParsers {
   */
 object BlockDirectiveParsers {
 
-  import DirectiveParsers._
   import BlockParsers._
+  import DirectiveParsers._
 
   case class DirectiveBlock (f: DocumentCursor => Block, options: Options = NoOpt) extends BlockResolver {
     def resolve (cursor: DocumentCursor) = f(cursor)
   }
 
-  def blockDirective (directives: Map[String, Blocks.Directive]): ParserDefinitionBuilder[Block] =
+  def blockDirective (directives: Map[String, Blocks.Directive]): BlockParserBuilder =
     BlockParser.withoutStartChar.recursive(blockDirectiveParser(directives)) // TODO - include startChar
 
   def blockDirectiveParser (directives: Map[String, Blocks.Directive])(recParsers: RecursiveParsers): Parser[Block] = {

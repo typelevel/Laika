@@ -16,7 +16,7 @@
 
 package laika.parse.markdown
 
-import laika.api.ext.{ParserDefinitionBuilder, SpanParser}
+import laika.api.ext.{ParserBuilder, SpanParser, SpanParserBuilder}
 import laika.parse.core.{Parser, ParserContext}
 import laika.parse.core.markup.InlineParsers.text
 import laika.parse.core.markup.RecursiveSpanParsers
@@ -41,7 +41,7 @@ object InlineParsers {
 
   /** Parses an explicit hard line break.
    */
-  val lineBreak: ParserDefinitionBuilder[Span] = SpanParser.forStartChar('\\').standalone(anyOf('\r').take(1) ^^^ LineBreak())
+  val lineBreak: SpanParserBuilder = SpanParser.forStartChar('\\').standalone(anyOf('\r').take(1) ^^^ LineBreak())
   
   /** Parses a span of strong text enclosed by two consecutive occurrences of the specified character. 
    */
@@ -62,11 +62,11 @@ object InlineParsers {
   def span (start: Parser[Any], endDelim: String, postCondition: Parser[Any])(implicit recParsers: RecursiveSpanParsers): Parser[List[Span]]
     = start ~> recParsers.delimitedRecursiveSpans(delimitedBy(endDelim, postCondition))
 
-  val enclosedByAsterisk: ParserDefinitionBuilder[Span] = SpanParser.forStartChar('*').recursive { implicit recParsers =>
+  val enclosedByAsterisk: SpanParserBuilder = SpanParser.forStartChar('*').recursive { implicit recParsers =>
     strong('*') | em('*')
   }
 
-  val enclosedByUnderscore: ParserDefinitionBuilder[Span] = SpanParser.forStartChar('_').recursive { implicit recParsers =>
+  val enclosedByUnderscore: SpanParserBuilder = SpanParser.forStartChar('_').recursive { implicit recParsers =>
     strong('_') | em('_')
   }
 
@@ -106,7 +106,7 @@ object InlineParsers {
     start ~> delimitedBy(end) ^^ { s => Literal(s.trim) }
   }
 
-  val literalSpan: ParserDefinitionBuilder[Span] = SpanParser.forStartChar('`')
+  val literalSpan: SpanParserBuilder = SpanParser.forStartChar('`')
     .standalone(literalEnclosedByDoubleChar | literalEnclosedBySingleChar)
   
   
@@ -117,7 +117,7 @@ object InlineParsers {
   /** Parses a link, including nested spans in the link text.
     *  Recognizes both, an inline link `[text](url)` and a link reference `[text][id]`.
     */
-  lazy val link: ParserDefinitionBuilder[Span] = SpanParser.forStartChar('[').recursive { recParsers =>
+  lazy val link: SpanParserBuilder = SpanParser.forStartChar('[').recursive { recParsers =>
 
     def unwrap (ref: LinkReference, suffix: String) = {
       if ((ref select (_.isInstanceOf[LinkReference])).tail.nonEmpty)
@@ -140,7 +140,7 @@ object InlineParsers {
   /** Parses an inline image.
     *  Recognizes both, an inline image `![text](url)` and an image reference `![text][id]`.
     */
-  val image: ParserDefinitionBuilder[Span] = SpanParser.forStartChar('!').recursive { recParsers =>
+  val image: SpanParserBuilder = SpanParser.forStartChar('!').recursive { recParsers =>
 
     val escape = unsafeParserFunction(recParsers.escapedText(DelimitedText.Undelimited))
 
@@ -194,7 +194,7 @@ object InlineParsers {
 
   /** Parses a simple inline link in the form of &lt;http://someURL/&gt;
     */
-  val simpleLink: ParserDefinitionBuilder[Span] = SpanParser.forStartChar('<').standalone {
+  val simpleLink: SpanParserBuilder = SpanParser.forStartChar('<').standalone {
 
     def isAcceptedScheme (s: String) = s == "http" || s == "https" || s == "ftp" || s == "mailto"
     def isURI (s: String) = try { val uri = new java.net.URI(s); uri.isAbsolute && isAcceptedScheme(uri.getScheme) } catch { case _:Throwable => false }

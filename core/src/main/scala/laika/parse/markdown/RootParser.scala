@@ -16,10 +16,10 @@
 
 package laika.parse.markdown
 
-import laika.api.ext.{MarkupParsers, ParserDefinition, ParserDefinitionBuilders, SpanParser}
+import laika.api.ext._
 import laika.parse.core.Parser
 import laika.parse.core.markup.RootParserBase
-import laika.parse.core.text.TextParsers.{anyOf, char}
+import laika.parse.core.text.TextParsers.anyOf
 import laika.rewrite.TreeUtil
 import laika.tree.Elements._
 
@@ -39,8 +39,22 @@ class RootParser (parserExtensions: ParserDefinitionBuilders, isStrict: Boolean 
 
 
   private lazy val markupParserExtensions: MarkupParsers = parserExtensions.markupParsers(this)
-  private val blockParsers = new BlockParsers(this)
 
+  private lazy val sortedBlockParsers: Seq[BlockParserDefinition] = {
+    val mainBlocks = Seq(
+      BlockParsers.atxHeader,
+      BlockParsers.linkTarget,
+      BlockParsers.quotedBlock,
+      BlockParsers.rootHeaderOrParagraph,
+      BlockParsers.nestedHeaderOrParagraph
+    ) ++
+    BlockParsers.literalBlocks ++
+    BlockParsers.rules ++
+    ListParsers.enumLists ++
+    ListParsers.bulletLists
+
+    toSortedList(mainBlocks.map(_.createParser(this)), markupParserExtensions.blockParsers)
+  }
 
   protected lazy val spanParsers: Map[Char,Parser[Span]] = {
     val mainSpans = Seq(
@@ -52,34 +66,19 @@ class RootParser (parserExtensions: ParserDefinitionBuilders, isStrict: Boolean 
       InlineParsers.simpleLink,
       InlineParsers.lineBreak,
       SpanParser.forStartChar('\\').standalone(escapedChar ^^ { Text(_) }).withLowPrecedence
-    ).map(_.createParser(this))
-    val extSpans = markupParserExtensions.spanParsers
-    toSpanParserMap(mainSpans, extSpans)
+    )
+
+    toSpanParserMap(mainSpans.map(_.createParser(this)), markupParserExtensions.spanParsers)
   }
 
-  private def toParser (definition: ParserDefinition[Block]): Parser[Block] =
-    definition.startChar.fold(definition.parser){_ ~> definition.parser} // TODO - temporary until startChar is processed
-
-  protected lazy val topLevelBlock: Parser[Block] = {
-    val extBlocks = markupParserExtensions.blockParsers.map(toParser)
-    mergeBlockParsers(extBlocks :+ blockParsers.rootMarkdownBlock)
-  }
-
-  protected lazy val nestedBlock: Parser[Block] = {
-    val extBlocks = markupParserExtensions.blockParsers.filter(_.useInRecursion).map(toParser)
-    mergeBlockParsers(extBlocks :+ blockParsers.nestedMarkdownBlock)
-  }
-
-  protected lazy val nonRecursiveBlock: Parser[Block] = {
-    val extBlocks = markupParserExtensions.blockParsers.filterNot(_.isRecursive).map(toParser)
-    mergeBlockParsers(extBlocks :+ blockParsers.nonRecursiveMarkdownBlock)
-  }
-
+  protected lazy val topLevelBlock     = toBlockParser(sortedBlockParsers.filter(_.position != BlockPosition.NestedOnly))
+  protected lazy val nestedBlock       = toBlockParser(sortedBlockParsers.filter(_.position != BlockPosition.RootOnly))
+  protected lazy val nonRecursiveBlock = toBlockParser(sortedBlockParsers.filterNot(_.isRecursive))
 
   // TODO - could be rewrite rule - don't use in strict mode - remove strict flag from this class
   override def blockList (parser: => Parser[Block]): Parser[List[Block]] =
-    if (isStrict) super.blockList(parser)
-    else super.blockList(parser) ^^ {
+    if (isStrict) super.blockList(BlockParsers.insignificantSpaces ~> parser)
+    else super.blockList(BlockParsers.insignificantSpaces ~> parser) ^^ {
       _ map { case h: Header =>
         h.copy(options = h.options + Id(TreeUtil.extractText(h.content).replaceAll("[\n ]+", " ").toLowerCase))
       case other => other

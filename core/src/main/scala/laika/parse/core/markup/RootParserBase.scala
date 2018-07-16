@@ -16,7 +16,7 @@
 
 package laika.parse.core.markup
 
-import laika.api.ext.{ParserDefinition, Precedence}
+import laika.api.ext.{BlockParserDefinition, Precedence, SpanParserDefinition}
 import laika.parse.core._
 import laika.parse.core.text.TextParsers._
 import laika.tree.Elements._
@@ -43,13 +43,33 @@ trait RootParserBase extends DefaultRecursiveParsers {
     }
   }
 
-  protected def toSpanParserMap (mainParsers: Seq[ParserDefinition[Span]],
-                                 extParsers: Seq[ParserDefinition[Span]]): Map[Char, Parser[Span]] = {
+  protected def toSpanParserMap (mainParsers: Seq[SpanParserDefinition],
+                                 extParsers: Seq[SpanParserDefinition]): Map[Char, Parser[Span]] = {
     val (mainHigh, mainLow) = mainParsers.partition(_.precedence == Precedence.High)
     val (extHigh, extLow) = extParsers.partition(_.precedence == Precedence.High)
-    (extHigh ++ mainHigh ++ mainLow ++ extLow).groupBy(_.startChar.get).map {
+    (extHigh ++ mainHigh ++ mainLow ++ extLow).groupBy(_.startChar).map {
       case (char, definitions) => (char, definitions.map(_.parser).reduceLeft(_ | _))
     }
+  }
+
+  protected def toSortedList (mainParsers: Seq[BlockParserDefinition],
+                              extParsers: Seq[BlockParserDefinition]): Seq[BlockParserDefinition] = {
+    val (mainHigh, mainLow) = mainParsers.partition(_.precedence == Precedence.High)
+    val (extHigh, extLow) = extParsers.partition(_.precedence == Precedence.High)
+    extHigh ++ mainHigh ++ mainLow ++ extLow
+  }
+
+  protected def toBlockParser (parserDefinitions: Seq[BlockParserDefinition]): Parser[Block] = {
+    val grouped = parserDefinitions.groupBy(_.startChar).map {
+      case (char, definitions) => (char, definitions.map(_.parser).reduceLeft(_ | _))
+    }
+    val decoratedBlockParserMap = grouped.collect {
+      case (Some(char), definition) => (char, definition)
+    }
+    val undecoratedBlock = grouped.getOrElse(None, failure("No undecorated block parser available"))
+    val startChars = anyOf(decoratedBlockParserMap.keySet.toSeq:_*).take(1) ^^ (_.charAt(0))
+    val decoratedBlock = startChars >> decoratedBlockParserMap
+    decoratedBlock | undecoratedBlock
   }
 
   /** Merges the two specified block parsers, trying them in the order they appear in the sequence.

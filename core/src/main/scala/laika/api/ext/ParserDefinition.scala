@@ -19,7 +19,8 @@ package laika.api.ext
 import com.typesafe.config.Config
 import laika.parse.core.Parser
 import laika.parse.core.markup.DocumentParser.InvalidElement
-import laika.parse.core.markup.{RecursiveParsers, RecursiveSpanParsers}
+import laika.parse.core.markup.{EscapedTextParsers, RecursiveParsers, RecursiveSpanParsers}
+import laika.parse.core.text.TextParsers.char
 import laika.parse.css.Styles.StyleDeclaration
 import laika.tree.Elements.{Block, Span}
 import laika.tree.Paths.Path
@@ -28,20 +29,32 @@ import laika.tree.Templates.TemplateRoot
 /**
   * @author Jens Halm
   */
-case class ParserDefinition[T] (startChar: Option[Char],
-                                parser: Parser[T],
-                                isRecursive: Boolean,
-                                useInRecursion: Boolean,
-                                precedence: Precedence)
+sealed trait ParserDefinition
 
-trait ParserDefinitionBuilder[T] {
+case class BlockParserDefinition (startChar: Option[Char],
+                                  parser: Parser[Block],
+                                  isRecursive: Boolean,
+                                  position: BlockPosition,
+                                  precedence: Precedence) extends ParserDefinition {
+  val fullParser = startChar.fold(parser)(_ ~> parser)
+}
 
-  def createParser (recursiveParsers: RecursiveParsers): ParserDefinition[T]
+case class SpanParserDefinition (startChar: Char,
+                                 parser: Parser[Span],
+                                 isRecursive: Boolean,
+                                 precedence: Precedence) extends ParserDefinition
+
+sealed trait ParserBuilder[T <: ParserDefinition] {
+
+  def createParser (recursiveParsers: RecursiveParsers): T
 
 }
 
-case class ParserDefinitionBuilders(blockParsers: Seq[ParserDefinitionBuilder[Block]] = Nil,
-                                    spanParsers: Seq[ParserDefinitionBuilder[Span]] = Nil,
+trait BlockParserBuilder extends ParserBuilder[BlockParserDefinition]
+trait SpanParserBuilder extends ParserBuilder[SpanParserDefinition]
+
+case class ParserDefinitionBuilders(blockParsers: Seq[BlockParserBuilder] = Nil,
+                                    spanParsers: Seq[SpanParserBuilder] = Nil,
                                     configHeaderParsers: Seq[Path => Parser[Either[InvalidElement, Config]]] = Nil,
                                     templateParser: Option[Parser[TemplateRoot]] = None,
                                     styleSheetParser: Option[Parser[Set[StyleDeclaration]]] = None) {
@@ -60,9 +73,9 @@ case class ParserDefinitionBuilders(blockParsers: Seq[ParserDefinitionBuilder[Bl
 
 }
 
-case class MarkupParsers (blockParsers: Seq[ParserDefinition[Block]], spanParsers: Seq[ParserDefinition[Span]]) {
+case class MarkupParsers (blockParsers: Seq[BlockParserDefinition], spanParsers: Seq[SpanParserDefinition]) {
 
-  def spanParserMap: Map[Char, Parser[Span]] = spanParsers.map(p => (p.startChar.get, p.parser)).toMap // TODO - handle empty startChar
+  def spanParserMap: Map[Char, Parser[Span]] = spanParsers.map(p => (p.startChar, p.parser)).toMap // TODO - remove
 
 }
 
@@ -76,16 +89,16 @@ class SpanParser (startChar: Char) {
 
   class DefinitionBuilder (parserFactory: RecursiveSpanParsers => Parser[Span],
                            recursive: Boolean,
-                           precedence: Precedence) extends ParserDefinitionBuilder[Span] {
+                           precedence: Precedence) extends SpanParserBuilder {
 
-    override def createParser (recursiveParsers: RecursiveParsers): ParserDefinition[Span] =
-      ParserDefinition(Some(startChar), parserFactory(recursiveParsers), recursive, true, precedence)
+    override def createParser (recursiveParsers: RecursiveParsers): SpanParserDefinition =
+      SpanParserDefinition(startChar, parserFactory(recursiveParsers), recursive, precedence)
 
     def withLowPrecedence: DefinitionBuilder = new DefinitionBuilder(parserFactory, recursive, Precedence.Low)
 
   }
 
-  def standalone (parser: Parser[Span]): DefinitionBuilder = new DefinitionBuilder(_ => parser, false, Precedence.High) // TODO - consider different name
+  def standalone (parser: Parser[Span]): DefinitionBuilder = new DefinitionBuilder(_ => parser, false, Precedence.High)
 
   def recursive (factory: RecursiveSpanParsers => Parser[Span]): DefinitionBuilder =
     new DefinitionBuilder(factory, true, Precedence.High)
@@ -98,20 +111,37 @@ object SpanParser {
 
 }
 
+sealed trait BlockPosition
+object BlockPosition {
+  object Any extends BlockPosition
+  object RootOnly extends BlockPosition
+  object NestedOnly extends BlockPosition
+}
+
 class BlockParser (startChar: Option[Char] = None) {
 
-  class DefinitionBuilder (parserFactory: RecursiveParsers => Parser[Block],
-                           recursive: Boolean) extends ParserDefinitionBuilder[Block] {
+  case class DefinitionBuilder (parserFactory: RecursiveParsers => Parser[Block],
+                                recursive: Boolean = false,
+                                position: BlockPosition = BlockPosition.Any,
+                                precedence: Precedence = Precedence.High) extends BlockParserBuilder {
 
-    override def createParser (recursiveParsers: RecursiveParsers): ParserDefinition[Block] =
-      ParserDefinition(startChar, parserFactory(recursiveParsers), recursive, true, Precedence.High)
+    override def createParser (recursiveParsers: RecursiveParsers): BlockParserDefinition =
+      BlockParserDefinition(startChar, parserFactory(recursiveParsers), recursive, position, precedence)
+
+    def withLowPrecedence: DefinitionBuilder = copy(precedence = Precedence.Low)
+
+    def rootOnly: DefinitionBuilder = copy(position = BlockPosition.RootOnly)
+    def nestedOnly: DefinitionBuilder = copy(position = BlockPosition.NestedOnly)
 
   }
 
-  def standalone (parser: Parser[Block]): ParserDefinitionBuilder[Block] = new DefinitionBuilder(_ => parser, false) // TODO - consider different name
+  def standalone (parser: Parser[Block]): DefinitionBuilder = new DefinitionBuilder(_ => parser)
 
-  def recursive (factory: RecursiveParsers => Parser[Block]): ParserDefinitionBuilder[Block] =
-    new DefinitionBuilder(factory, true)
+  def recursive (factory: RecursiveParsers => Parser[Block]): DefinitionBuilder =
+    new DefinitionBuilder(factory, recursive = true)
+
+  def withEscapedText (factory: EscapedTextParsers => Parser[Block]): DefinitionBuilder =
+    new DefinitionBuilder(factory)
 
 }
 

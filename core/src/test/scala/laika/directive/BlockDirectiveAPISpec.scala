@@ -16,7 +16,7 @@
 
 package laika.directive
 
-import laika.api.ext.{MarkupParsers, ParserDefinition, ParserDefinitionBuilders}
+import laika.api.ext.{BlockParserDefinition, MarkupParsers, ParserDefinition, ParserDefinitionBuilders}
 import laika.directive.Directives.Blocks.Directive
 import laika.directive.Directives.{Blocks, Default}
 import laika.parse.core.Parser
@@ -116,7 +116,7 @@ class BlockDirectiveAPISpec extends FlatSpec
     
     def directive: Directive
 
-    private def toParser (definition: ParserDefinition[Block]): Parser[Block] =
+    private def toParser (definition: BlockParserDefinition): Parser[Block] =
       definition.startChar.fold(definition.parser){_ ~> definition.parser} // TODO - temporary until startChar is processed
 
     // TODO - move most of this logic to RootParserBase
