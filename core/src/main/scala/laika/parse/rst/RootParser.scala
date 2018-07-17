@@ -52,7 +52,6 @@ class RootParser(parserExtensions: ParserDefinitionBuilders = ParserDefinitionBu
 
   private lazy val markupParserExtensions: MarkupParsers = parserExtensions.markupParsers(this)
 
-  private val inlineParsers = new InlineParsers(this, defaultTextRole)
   private val blockParsers = new BlockParsers(this)
   private val tableParsers = new TableParsers(this)
   private val listParsers = new ListParsers(this)
@@ -70,8 +69,24 @@ class RootParser(parserExtensions: ParserDefinitionBuilders = ParserDefinitionBu
     definition.startChar.fold(definition.parser){_ ~> definition.parser} // TODO - temporary until startChar is processed
 
   protected lazy val spanParsers: Map[Char,Parser[Span]] = {
-    val extSpans = markupParserExtensions.spanParserMap
-    mergeSpanParsers(inlineParsers.spanParsers, extSpans)
+    val mainSpans = Seq(
+      InlineParsers.strong,
+      InlineParsers.em,
+      InlineParsers.inlineLiteral,
+      InlineParsers.phraseLinkRef,
+      InlineParsers.simpleLinkRef,
+      InlineParsers.footnoteRef,
+      InlineParsers.citationRef,
+      InlineParsers.substitutionRef,
+      InlineParsers.internalTarget,
+      InlineParsers.interpretedTextWithRolePrefix,
+      InlineParsers.interpretedTextWithRoleSuffix(defaultTextRole),
+      InlineParsers.uri,
+      InlineParsers.email,
+      SpanParser.forStartChar('\\').standalone(escapedChar ^^ { Text(_) }).withLowPrecedence
+    )
+
+    toSpanParserMap(mainSpans.map(_.createParser(this)), markupParserExtensions.spanParsers)
   }
 
   protected lazy val topLevelBlock: Parser[Block] = {

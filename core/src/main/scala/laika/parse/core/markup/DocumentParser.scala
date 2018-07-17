@@ -17,7 +17,7 @@
 package laika.parse.core.markup
 
 import com.typesafe.config.{Config, ConfigFactory}
-import laika.api.ext.ParserDefinitionBuilder
+import laika.api.ext.{BlockParserBuilder, ParserBuilder, SpanParserBuilder}
 import laika.directive.ConfigHeaderParser
 import laika.io.Input
 import laika.parse.core.Parser
@@ -93,15 +93,23 @@ object DocumentParser {
 
 trait MarkupParser { // replacing ParserFactory and RootParserBase
 
-  // stuff moving over from ParserFactory
+  // stuff moving over from ParserFactory, fileSuffixes, extensions
 
-  def blockParsers: Seq[ParserDefinitionBuilder[Block]]
+  def blockParsers: Seq[BlockParserBuilder]
 
-  def spanParsers: Seq[ParserDefinitionBuilder[Span]]
+  def spanParsers: Seq[SpanParserBuilder]
 
   // this one is tricky as it is already needed in DefaultRecursiveParsers
   def createBlockListParser (parser: => Parser[Block]): Parser[List[Block]] = parser.rep // (p <~ opt(blankLines))*
+  // rst -> parser depends on prev block result, md -> prepend insignificant spaces
 
-  def postProcessBlocks (parser: => Parser[Seq[Block]]): Parser[Seq[Block]] = parser
+  def postProcessBlocks (blocks: Seq[Block]): Seq[Block] = blocks
+  // rst - simplified id processor
+
+  def postProcessDocument (doc: Document): Document = doc
+  // rst - insert text roles, etc.
+
+  def preProcessInput (input: Input): Input = input
+  // rst - process whitespace
 
 }

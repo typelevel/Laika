@@ -32,16 +32,6 @@ trait RootParserBase extends DefaultRecursiveParsers {
     */
   lazy val rootElement: Parser[RootElement] = opt(blankLines) ~> blockList(topLevelBlock) ^^ RootElement
 
-  /** Merges the two specified span parser maps, dealing with collisions in case some
-    * are mapped to the same start character.
-    */
-  protected def mergeSpanParsers (base: Map[Char, Parser[Span]], additional: Map[Char, Parser[Span]]): Map[Char, Parser[Span]] = {
-    additional.foldLeft(base) {
-      case (acc, (char, parser)) =>
-        val oldParser = base.get(char)
-        acc + (char -> oldParser.map(parser | _).getOrElse(parser))
-    }
-  }
 
   protected def toSpanParserMap (mainParsers: Seq[SpanParserDefinition],
                                  extParsers: Seq[SpanParserDefinition]): Map[Char, Parser[Span]] = {
