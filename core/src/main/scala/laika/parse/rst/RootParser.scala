@@ -50,23 +50,12 @@ class RootParser(parserExtensions: ParserDefinitionBuilders = ParserDefinitionBu
   override lazy val escapedChar: Parser[String] = (" " ^^^ "") | (any take 1)
 
 
-  private lazy val markupParserExtensions: MarkupParsers = parserExtensions.markupParsers(this)
-
-  private val blockParsers = new BlockParsers(this)
-  private val tableParsers = new TableParsers(this)
-  private val listParsers = new ListParsers(this)
-
   private val rstBlockDirectives: Map[String, DirectivePart[Block]] =        blockDirectives map { d => (d.name.toLowerCase, d.part(this)) } toMap
   private val rstSpanDirectives: Map[String, DirectivePart[Span]]  =         spanDirectives  map { d => (d.name.toLowerCase, d.part(this)) } toMap
   private val rstTextRoles: Map[String, RoleDirectivePart[String => Span]] = textRoles       map { r => (r.name.toLowerCase, r.part(this)) } toMap
 
-  private val exParsers = new ExplicitBlockParsers(this, rstBlockDirectives, rstSpanDirectives, rstTextRoles, defaultTextRole)
-
   val textRoleElements = textRoles map { role => CustomizedTextRole(role.name, role.default) }
 
-
-  private def toParser (definition: BlockParserDefinition): Parser[Block] =
-    definition.startChar.fold(definition.parser){_ ~> definition.parser} // TODO - temporary until startChar is processed
 
   protected lazy val spanParsers: Map[Char,Parser[Span]] = {
     val mainSpans = Seq(
@@ -86,42 +75,34 @@ class RootParser(parserExtensions: ParserDefinitionBuilders = ParserDefinitionBu
       SpanParser.forStartChar('\\').standalone(escapedChar ^^ { Text(_) }).withLowPrecedence
     )
 
-    toSpanParserMap(mainSpans.map(_.createParser(this)), markupParserExtensions.spanParsers)
+    toSpanParserMap(createParsers(mainSpans), createParsers(parserExtensions.spanParsers))
   }
 
-  protected lazy val topLevelBlock: Parser[Block] = {
-    val extBlocks = markupParserExtensions.blockParsers.map(toParser)
-    mergeBlockParsers(extBlocks ++ mainBlockParsers)
-  }
-
-  protected lazy val nestedBlock: Parser[Block] = {
-    val extBlocks = markupParserExtensions.blockParsers.filter(_.position != BlockPosition.RootOnly).map(toParser)
-    mergeBlockParsers(extBlocks ++ mainBlockParsers)
-  }
-
-  protected lazy val nonRecursiveBlock: Parser[Block] = {
-    val extBlocks = markupParserExtensions.blockParsers.filterNot(_.isRecursive).map(toParser)
-    mergeBlockParsers(extBlocks :+ (exParsers.comment | blockParsers.paragraph))
-  }
-
-
-  private lazy val mainBlockParsers = Seq(
-    listParsers.bulletList,
-    listParsers.enumList,
-    listParsers.fieldList,
-    listParsers.lineBlock,
-    listParsers.optionList,
-    exParsers.explicitBlockItem,
-    tableParsers.gridTable,
-    tableParsers.simpleTable,
-    blockParsers.doctest,
-    blockParsers.blockQuote,
-    blockParsers.headerWithOverline,
-    blockParsers.transition,
-    blockParsers.headerWithUnderline,
-    listParsers.definitionList,
-    blockParsers.paragraph
+  private val mainBlockParsers = Seq(
+    ListParsers.bulletList,
+    ListParsers.enumList,
+    ListParsers.fieldList,
+    ListParsers.lineBlock,
+    ListParsers.optionList,
+    ExplicitBlockParsers.allBlocks(rstBlockDirectives, rstSpanDirectives, rstTextRoles, defaultTextRole),
+    ExplicitBlockParsers.shortAnonymousLinkTarget,
+    TableParsers.gridTable,
+    TableParsers.simpleTable,
+    BlockParsers.doctest,
+    BlockParsers.blockQuote,
+    BlockParsers.headerWithOverline,
+    BlockParsers.transition,
+    BlockParsers.headerWithUnderline,
+    ListParsers.definitionList,
+    BlockParsers.paragraph
   )
+
+  private lazy val sortedBlockParsers: Seq[BlockParserDefinition] =
+    toSortedList(createParsers(mainBlockParsers), createParsers(parserExtensions.blockParsers))
+
+  protected lazy val topLevelBlock     = toBlockParser(sortedBlockParsers.filter(_.position != BlockPosition.NestedOnly))
+  protected lazy val nestedBlock       = toBlockParser(sortedBlockParsers.filter(_.position != BlockPosition.RootOnly))
+  protected lazy val nonRecursiveBlock = toBlockParser(sortedBlockParsers.filterNot(_.isRecursive))
 
   /** Builds a parser for a list of blocks based on the parser for a single block.
     *
@@ -139,7 +120,7 @@ class RootParser(parserExtensions: ParserDefinitionBuilders = ParserDefinitionBu
     case object Mock extends Block { val options = NoOpt }
 
     val defaultBlock = parser <~ opt(blankLines)
-    val litBlock = (blockParsers.literalBlock | defaultBlock) <~ opt(blankLines)
+    val litBlock = (BlockParsers.literalBlock | defaultBlock) <~ opt(blankLines)
     val elems = new ListBuffer[Block]
     elems += Mock
 

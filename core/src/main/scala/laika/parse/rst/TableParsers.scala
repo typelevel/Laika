@@ -16,7 +16,7 @@
 
 package laika.parse.rst
 
-import laika.parse.core.markup.RecursiveParsers
+import laika.api.ext.{BlockParser, BlockParserBuilder}
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Parser, Success}
 import laika.tree.Elements._
@@ -28,12 +28,9 @@ import scala.collection.mutable.ListBuffer
  * 
  * @author Jens Halm
  */
-class TableParsers (recParsers: RecursiveParsers) {
+object TableParsers {
 
 
-  import recParsers._
-
-  
   private abstract class TableElement
   
   private abstract class TableDecoration extends TableElement
@@ -197,17 +194,17 @@ class TableParsers (recParsers: RecursiveParsers) {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#grid-tables]].
    */
-  lazy val gridTable: Parser[Table] = {
+  lazy val gridTable: BlockParserBuilder = BlockParser.forStartChar('+').recursive { recParsers =>
     
     val intersect = (anyOf('+') take 1) ^^^ Intersection
     
     val rowSep = anyOf('-').min(1).count
-    val topBorder = intersect ~> ((rowSep <~ intersect)+) <~ wsEol
+    val topBorder = ((rowSep <~ intersect)+) <~ wsEol
 
     val colSep = ((anyOf('|') take 1) ^^^ CellSeparator("|")) | intersect
     val colSepOrText = colSep | ((any take 1) ^^ CellElement)
 
-    withRecursiveBlockParser(topBorder) >> { case (recParser, cols) =>
+    recParsers.withRecursiveBlockParser(topBorder) >> { case (recParser, cols) =>
       
       val separators = colSep :: List.fill(cols.length - 1)(colSepOrText)
       val colsWithSep = (separators, cols, separators.reverse).zipped.toList
@@ -281,7 +278,7 @@ class TableParsers (recParsers: RecursiveParsers) {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#simple-tables]].
    */
-  lazy val simpleTable: Parser[Table] = {
+  lazy val simpleTable: BlockParserBuilder = BlockParser.withoutStartChar.recursive { recParsers =>
     
     val intersect = anyOf(' ').min(1).count
     val tableBorder = anyOf('=').min(1).count
@@ -291,7 +288,7 @@ class TableParsers (recParsers: RecursiveParsers) {
     }
     val topBorder = columnSpec.rep.min(2) <~ wsEol
 
-    withRecursiveBlockParser(topBorder) >> { case (recParser, cols) =>
+    recParsers.withRecursiveBlockParser(topBorder) >> { case (recParser, cols) =>
       
       val (rowColumns, boundaryColumns) = (cols map { case (col, sep) =>
         val cellText = if (sep == 0) anyBut('\n', '\r') ^^ CellElement

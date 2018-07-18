@@ -68,14 +68,15 @@ case class ParserDefinitionBuilders(blockParsers: Seq[BlockParserBuilder] = Nil,
       styleSheetParser.orElse(builders.styleSheetParser)
     )
 
-  def markupParsers (recursiveParsers: RecursiveParsers): MarkupParsers =
+  def markupParsers (recursiveParsers: RecursiveParsers): MarkupParsers = // TODO - remove
     MarkupParsers(blockParsers.map(_.createParser(recursiveParsers)), spanParsers.map(_.createParser(recursiveParsers)))
 
 }
 
+// TODO - remove
 case class MarkupParsers (blockParsers: Seq[BlockParserDefinition], spanParsers: Seq[SpanParserDefinition]) {
 
-  def spanParserMap: Map[Char, Parser[Span]] = spanParsers.map(p => (p.startChar, p.parser)).toMap // TODO - remove
+  def spanParserMap: Map[Char, Parser[Span]] = spanParsers.map(p => (p.startChar, p.parser)).toMap
 
 }
 
@@ -139,6 +140,9 @@ class BlockParser (startChar: Option[Char] = None) {
 
   def recursive (factory: RecursiveParsers => Parser[Block]): DefinitionBuilder =
     new DefinitionBuilder(factory, recursive = true)
+
+  def withSpans (factory: RecursiveSpanParsers => Parser[Block]): DefinitionBuilder =
+    new DefinitionBuilder(factory)
 
   def withEscapedText (factory: EscapedTextParsers => Parser[Block]): DefinitionBuilder =
     new DefinitionBuilder(factory)

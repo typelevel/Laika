@@ -17,7 +17,7 @@
 package laika.parse.rst.ext
 
 import laika.parse.core.markup.RecursiveParsers
-import laika.parse.core.text.TextParsers._
+import laika.parse.core.text.TextParsers.{opt, _}
 import laika.parse.core.{Failure, Parser, Success}
 import laika.parse.rst.BaseParsers.simpleRefName
 import laika.parse.rst.Elements.ReferenceName
@@ -60,9 +60,10 @@ object StandardDirectiveParsers {
    *  @param input the input to parse
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
-  def table (p: RecursiveParsers)(input: String): Either[String, Table] = {
-    val tables = new TableParsers(p)
-    parseDirectivePart(tables.gridTable | tables.simpleTable, input)
+  def table (p: RecursiveParsers)(input: String): Either[String, Block] = {
+    val gridTable = TableParsers.gridTable.createParser(p).fullParser
+    val simpleTable = TableParsers.simpleTable.createParser(p).fullParser
+    parseDirectivePart(gridTable | simpleTable, input)
   }
 
   /** Parses a caption (a single paragraph) and a legend (one or more blocks), both being optional.
@@ -72,10 +73,9 @@ object StandardDirectiveParsers {
    *  @return `Right` in case of parser success and `Left` in case of failure, to adjust to the Directive API
    */
   def captionAndLegend (p: RecursiveParsers)(input: String): Either[String,(Seq[Span],Seq[Block])] = {
-    val blocks = new BlockParsers(p)
-    val parser = p.withRecursiveBlockParser(opt(blocks.paragraph)) >> {
-      case (parserF, caption) => opt(blankLines) ~> (any ^^ { text =>
-        val captionSpans = caption.map(_.content).getOrElse(Nil)
+    val caption = p.recursiveSpans((textLine *) ^^ (_.mkString("\n")))
+    val parser = p.withRecursiveBlockParser(caption) >> {
+      case (parserF, captionSpans) => opt(blankLines) ~> (any ^^ { text =>
         val legendBlocks = parserF(text.trim)
         (captionSpans, legendBlocks)
       })

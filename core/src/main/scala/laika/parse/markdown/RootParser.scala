@@ -38,8 +38,6 @@ class RootParser (parserExtensions: ParserDefinitionBuilders, isStrict: Boolean 
   override lazy val escapedChar: Parser[String] = anyOf('\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!', '>') take 1
 
 
-  private lazy val markupParserExtensions: MarkupParsers = parserExtensions.markupParsers(this)
-
   private lazy val sortedBlockParsers: Seq[BlockParserDefinition] = {
     val mainBlocks = Seq(
       BlockParsers.atxHeader,
@@ -53,7 +51,7 @@ class RootParser (parserExtensions: ParserDefinitionBuilders, isStrict: Boolean 
     ListParsers.enumLists ++
     ListParsers.bulletLists
 
-    toSortedList(mainBlocks.map(_.createParser(this)), markupParserExtensions.blockParsers)
+    toSortedList(createParsers(mainBlocks), createParsers(parserExtensions.blockParsers))
   }
 
   protected lazy val spanParsers: Map[Char,Parser[Span]] = {
@@ -68,7 +66,7 @@ class RootParser (parserExtensions: ParserDefinitionBuilders, isStrict: Boolean 
       SpanParser.forStartChar('\\').standalone(escapedChar ^^ { Text(_) }).withLowPrecedence
     )
 
-    toSpanParserMap(mainSpans.map(_.createParser(this)), markupParserExtensions.spanParsers)
+    toSpanParserMap(createParsers(mainSpans), createParsers(parserExtensions.spanParsers))
   }
 
   protected lazy val topLevelBlock     = toBlockParser(sortedBlockParsers.filter(_.position != BlockPosition.NestedOnly))

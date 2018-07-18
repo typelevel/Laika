@@ -16,8 +16,9 @@
 
 package laika.parse.rst
 
+import laika.api.ext.{BlockParser, BlockParserBuilder}
 import laika.parse.core.markup.BlockParsers._
-import laika.parse.core.markup.{EscapedTextParsers, RecursiveParsers}
+import laika.parse.core.markup.RecursiveParsers
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Failure, Parser, Success}
 import laika.parse.rst.BaseParsers._
@@ -46,7 +47,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers,
   import recParsers._
 
   
-  private val explicitStart = ".." ~ (ws min 1)
+  private val explicitStart = "." ~ (ws min 1)
   
   
   /** Parses all types of explicit block items.
@@ -55,7 +56,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers,
    */
   lazy val explicitBlockItem: Parser[Block] = (explicitStart ~>
     (footnote | citation | linkTarget | substitutionDefinition | roleDirective | blockDirective | comment)) |
-    (".." ~ lookAhead("\n") ~> comment) | shortAnonymousLinkTarget
+    ("." ~ lookAhead("\n") ~> comment)
   
 
   /** Parses a footnote.
@@ -82,23 +83,6 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers,
     }
   }
   
-  /** Parses the short variant of an anonymous link definition
-   *  (that starts with `__` instead of `.. __:`)
-   * 
-   *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#anonymous-hyperlinks]].
-   */
-  lazy val shortAnonymousLinkTarget: Parser[ExternalLinkDefinition] = {
-    "__ " ~> linkDefinitionBody ^^ { body => ExternalLinkDefinition("", body) } 
-  }
-  
-  private lazy val linkDefinitionBody: Parser[String] = {
-    val notEmpty = not(blankLine) | lookAhead(restOfLine ~ (ws min 1) ~ not(blankLine))
-    
-    (notEmpty ~> indentedBlock()) ^^ { 
-      _.lines map (_.trim) filterNot (_.isEmpty) mkString
-    }
-  }
-  
   /** Parses a link definition, either an internal, external or indirect link.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#hyperlink-targets]].
@@ -112,7 +96,7 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers,
     val external = {
       val anonymous = "__:" ^^^ ""
     
-      (anonymous | named) ~ linkDefinitionBody ^^ {
+      (anonymous | named) ~ ExplicitBlockParsers.linkDefinitionBody ^^ {
         case name ~ body => ExternalLinkDefinition(name, body)
       }
     }
@@ -379,4 +363,32 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers,
   }
     
   
+}
+
+object ExplicitBlockParsers {
+
+  def allBlocks (blockDirectives: Map[String, DirectivePart[Block]],
+                 spanDirectives: Map[String, DirectivePart[Span]],
+                 textRoles: Map[String, RoleDirectivePart[String => Span]],
+                 defaultTextRole: String): BlockParserBuilder = BlockParser.forStartChar('.').recursive { recParsers =>
+    new ExplicitBlockParsers(recParsers, blockDirectives, spanDirectives, textRoles, defaultTextRole).explicitBlockItem
+  }
+
+  lazy val linkDefinitionBody: Parser[String] = {
+    val notEmpty = not(blankLine) | lookAhead(restOfLine ~ (ws min 1) ~ not(blankLine))
+
+    (notEmpty ~> indentedBlock()) ^^ {
+      _.lines map (_.trim) filterNot (_.isEmpty) mkString
+    }
+  }
+
+  /** Parses the short variant of an anonymous link definition
+    *  (that starts with `__` instead of `.. __:`)
+    *
+    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#anonymous-hyperlinks]].
+    */
+  lazy val shortAnonymousLinkTarget: BlockParserBuilder = BlockParser.forStartChar('_').standalone {
+    "_ " ~> linkDefinitionBody ^^ { body => ExternalLinkDefinition("", body) }
+  }
+
 }

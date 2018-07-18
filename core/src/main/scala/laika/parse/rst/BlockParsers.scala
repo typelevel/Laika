@@ -16,9 +16,9 @@
 
 package laika.parse.rst
 
+import laika.api.ext.{BlockParser, BlockParserBuilder}
 import laika.parse.core._
 import laika.parse.core.markup.BlockParsers._
-import laika.parse.core.markup.{RecursiveParsers, InlineParsers => CoreInlineParsers}
 import laika.parse.core.text.Characters
 import laika.parse.core.text.TextParsers._
 import laika.parse.rst.BaseParsers._
@@ -37,12 +37,9 @@ import laika.util.~
  * 
  * @author Jens Halm
  */
-class BlockParsers (recParsers: RecursiveParsers) {
+object BlockParsers {
 
 
-  import recParsers._
-
-  
   val ws: Characters[String] = anyOf(' ') // other whitespace has been replaced with spaces by preprocessor
                         
 
@@ -50,28 +47,34 @@ class BlockParsers (recParsers: RecursiveParsers) {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#transitions]].
    */  
-  val transition: Parser[Rule] = (punctuationChar min 4) ~ wsEol ~ lookAhead(blankLine) ^^^ Rule()
+  val transition: BlockParserBuilder = BlockParser.withoutStartChar.standalone {
+    (punctuationChar min 4) ~ wsEol ~ lookAhead(blankLine) ^^^ Rule()
+  }
     
   /** Parses a single paragraph. Everything between two blank lines that is not
    *  recognized as a special reStructuredText block type will be parsed as a regular paragraph.
    */
-  lazy val paragraph: Parser[Paragraph] =
-    recursiveSpans(((not(blankLine) ~> restOfLine) +) ^^ (_.mkString("\n"))) ^^ { Paragraph(_) }
-
+  lazy val paragraph: BlockParserBuilder = BlockParser.withoutStartChar.withSpans { spanParsers =>
+    spanParsers.recursiveSpans((textLine +) ^^ (_.mkString("\n"))) ^^ {
+      Paragraph(_)
+    }
+  }
 
   /** Parses a section header with both overline and underline.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections]].
    */
-  lazy val headerWithOverline: Parser[Block] = (punctuationChar take 1) >> { start =>
-    val char = start.charAt(0)
-    anyOf(char) >> { deco =>
-      val len = deco.length + 1
-      val text = recursiveSpans((anyBut('\n') max len) ^^ (_.trim))
-      val decoLine = anyOf(char) take len
+  lazy val headerWithOverline: BlockParserBuilder = BlockParser.withoutStartChar.withSpans { spanParsers =>
+    (punctuationChar take 1) >> { start =>
+      val char = start.charAt(0)
+      anyOf(char) >> { deco =>
+        val len = deco.length + 1
+        val text = spanParsers.recursiveSpans((anyBut('\n') max len) ^^ (_.trim))
+        val decoLine = anyOf(char) take len
 
-      (wsEol ~> text <~ wsEol ~ decoLine ~ wsEol) ^^ {
-        title => DecoratedHeader(OverlineAndUnderline(char), title)
+        (wsEol ~> text <~ wsEol ~ decoLine ~ wsEol) ^^ {
+          title => DecoratedHeader(OverlineAndUnderline(char), title)
+        }
       }
     }
   }
@@ -80,12 +83,12 @@ class BlockParsers (recParsers: RecursiveParsers) {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#sections]].
    */
-  lazy val headerWithUnderline: Parser[Block] = {
+  lazy val headerWithUnderline: BlockParserBuilder = BlockParser.withoutStartChar.withSpans { spanParsers =>
     (anyBut(' ') take 1) ~ restOfLine >> { case char ~ rest =>
       val title = (char + rest).trim
       (punctuationChar take 1) >> { start =>
         val char = start.charAt(0)
-        withRecursiveSpanParser((anyOf(char) min (title.length - 1)) ~ wsEol) ^^ {
+        spanParsers.withRecursiveSpanParser((anyOf(char) min (title.length - 1)) ~ wsEol) ^^ {
           case (recParser, _) => DecoratedHeader(Underline(char), recParser(title))
         }
       }
@@ -100,22 +103,24 @@ class BlockParsers (recParsers: RecursiveParsers) {
    *  
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#doctest-blocks]]
    */
-  val doctest: Parser[Block] = ">>> " ~> restOfLine ~
-      ((not(blankLine) ~> restOfLine) *) ^^ { case first ~ rest => DoctestBlock((first :: rest) mkString "\n") }
+  val doctest: BlockParserBuilder = BlockParser.forStartChar('>').standalone {
+    ">> " ~> restOfLine ~ ((not(blankLine) ~> restOfLine) *) ^^ {
+      case first ~ rest => DoctestBlock((first :: rest) mkString "\n")
+    }
+  }
   
-  
-  /** Parses a block quote with an optional attribution. 
+  /** Parses a block quote with an optional attribution.
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#block-quotes]]
    */
-  lazy val blockQuote: Parser[Block] = {
+  lazy val blockQuote: BlockParserBuilder = BlockParser.withoutStartChar.recursive { recParsers =>
     
     val attributionStart = "---" | "--" | '\u2014' // em dash
         
-    def attribution (indent: Int) = (ws take indent) ~ attributionStart ~ (ws max 1) ~> 
-      recursiveSpans(indentedBlock(minIndent = indent, endsOnBlankLine = true))
+    def attribution (indent: Int) = (ws take indent) ~ attributionStart ~ (ws max 1) ~>
+      recParsers.recursiveSpans(indentedBlock(minIndent = indent, endsOnBlankLine = true))
       
-    lookAhead(ws take 1) ~> withRecursiveBlockParser(indentedBlockWithLevel(
+    lookAhead(ws take 1) ~> recParsers.withRecursiveBlockParser(indentedBlockWithLevel(
         firstLineIndented = true, linePredicate = not(attributionStart))) >> {
       case (recParser, (block, minIndent)) => opt(opt(blankLines) ~> attribution(minIndent)) ^^ {
         spans => QuotedBlock(recParser(block), spans.getOrElse(Nil))

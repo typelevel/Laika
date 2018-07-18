@@ -16,6 +16,7 @@
 
 package laika.parse.rst
 
+import laika.api.ext.{BlockParser, BlockParserBuilder}
 import laika.parse.core.Parser
 import laika.parse.core.markup.BlockParsers._
 import laika.parse.core.markup.RecursiveParsers
@@ -32,16 +33,14 @@ import scala.util.Try
  * 
  * @author Jens Halm
  */
-class ListParsers (recParsers: RecursiveParsers) {
+object ListParsers {
 
 
-  import recParsers._
-
-
-  private def listItem [I <: ListItem] (itemStart: Parser[String], newListItem: Seq[Block] => I): Parser[I] = {
+  private def listItem [I <: ListItem] (itemStart: Parser[String], newListItem: Seq[Block] => I)
+                                       (implicit recParsers: RecursiveParsers): Parser[I] = {
       (itemStart ^^ {_.length}) ~ ws.min(1).count >> {
         case start ~ ws =>
-          recursiveBlocks(indentedBlock(minIndent = start + ws, maxIndent = start + ws) ~
+          recParsers.recursiveBlocks(indentedBlock(minIndent = start + ws, maxIndent = start + ws) ~
               opt(blankLines | eof | lookAhead(itemStart)) ^^? {
             case (block ~ None) if block.lines.length < 2 => Left("not a list item")
             case (block ~ _) => Right(block)
@@ -87,7 +86,7 @@ class ListParsers (recParsers: RecursiveParsers) {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#bullet-lists]].
    */
-  lazy val bulletList: Parser[BulletList] = {
+  lazy val bulletList: BlockParserBuilder = BlockParser.withoutStartChar.recursive { implicit recParsers =>
     lookAhead(bulletListStart <~ (ws min 1)) >> { symbol =>
       val bullet = StringBullet(symbol)
       (listItem(symbol, BulletListItem(_, bullet)) +) ^^
@@ -122,7 +121,7 @@ class ListParsers (recParsers: RecursiveParsers) {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#enumerated-lists]].
    */
-  lazy val enumList: Parser[EnumList] = {
+  lazy val enumList: BlockParserBuilder = BlockParser.withoutStartChar.recursive { implicit recParsers =>
     
     val lowerRoman = anyOf('i','v','x','l','c','d','m').min(1)
     val upperRoman = anyOf('I','V','X','L','C','D','M').min(1)
@@ -155,7 +154,7 @@ class ListParsers (recParsers: RecursiveParsers) {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#definition-lists]].
    */
-  lazy val definitionList: Parser[Block] = {
+  lazy val definitionList: BlockParserBuilder = BlockParser.withoutStartChar.recursive { recParsers =>
     
     val tableStart = anyOf(' ','=') ~ eol
     val explicitStart = ".. " | "__ "
@@ -165,10 +164,10 @@ class ListParsers (recParsers: RecursiveParsers) {
     val term: Parser[String] = not(blankLine | tableStart | explicitStart | listStart | headerStart) ~> 
         anyBut('\n') <~ eol ~ lookAhead((ws min 1) ~ not(blankLine))
     
-    val classifier = lookBehind(2,' ') ~ ' ' ~> recursiveSpans ^^ (Classifier(_))
-    val termWithClassifier = recursiveSpans(term, Map(':' -> classifier))
+    val classifier = lookBehind(2,' ') ~ ' ' ~> recParsers.recursiveSpans ^^ (Classifier(_))
+    val termWithClassifier = recParsers.recursiveSpans(term, Map(':' -> classifier))
 
-    val item = (termWithClassifier ~ recursiveBlocks(indentedBlock(firstLineIndented = true))) ^? {
+    val item = (termWithClassifier ~ recParsers.recursiveBlocks(indentedBlock(firstLineIndented = true))) ^? {
       case term ~ blocks => DefinitionListItem(term, blocks)
     }
     
@@ -180,11 +179,11 @@ class ListParsers (recParsers: RecursiveParsers) {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#field-lists]].
    */
-  lazy val fieldList: Parser[Block] = {
+  lazy val fieldList: BlockParserBuilder = BlockParser.withoutStartChar.recursive { recParsers =>
     
-    val name = ':' ~> escapedUntil(':') <~ (lookAhead(eol) | ' ')
+    val name = ':' ~> recParsers.escapedUntil(':') <~ (lookAhead(eol) | ' ')
     
-    val item = (recursiveSpans(name) ~ recursiveBlocks(indentedBlock())) ^^ {
+    val item = (recParsers.recursiveSpans(name) ~ recParsers.recursiveBlocks(indentedBlock())) ^^ {
       case name ~ blocks => Field(name, blocks)
     }
     
@@ -196,7 +195,7 @@ class ListParsers (recParsers: RecursiveParsers) {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#option-lists]].
    */
-  lazy val optionList: Parser[Block] = {
+  lazy val optionList: BlockParserBuilder = BlockParser.withoutStartChar.recursive { recParsers =>
     
     def mkString (result: ~[Char,String]) = result._1.toString + result._2
     
@@ -219,7 +218,7 @@ class ListParsers (recParsers: RecursiveParsers) {
     
     val descStart = ((anyOf(' ') min 2) ~ not(blankLine)) | lookAhead(blankLine ~ (ws min 1) ~ not(blankLine)) ^^^ ""
     
-    val item = (options ~ (descStart ~> recursiveBlocks(indentedBlock()))) ^^ {
+    val item = (options ~ (descStart ~> recParsers.recursiveBlocks(indentedBlock()))) ^^ {
       case name ~ blocks => OptionListItem(name, blocks)
     }
     
@@ -230,11 +229,11 @@ class ListParsers (recParsers: RecursiveParsers) {
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#line-blocks]].
    */
-  lazy val lineBlock: Parser[Block] = {
+  lazy val lineBlock: BlockParserBuilder = BlockParser.withoutStartChar.recursive { recParsers =>
     val itemStart = anyOf('|').take(1)
     
     val line: Parser[(Line, Int)] = {
-      itemStart ~> (ws min 1) ~ recursiveSpans(indentedBlock(endsOnBlankLine = true)) ^^ {
+      itemStart ~> (ws min 1) ~ recParsers.recursiveSpans(indentedBlock(endsOnBlankLine = true)) ^^ {
         case indent ~ block => (Line(block), indent.length)
       }
     }

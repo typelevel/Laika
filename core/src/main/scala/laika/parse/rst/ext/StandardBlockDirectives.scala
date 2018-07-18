@@ -239,7 +239,11 @@ class StandardBlockDirectives {
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#table]] for details.
    */
   def table (p: RecursiveParsers): DirectivePart[Block] = {
-    (optSpanArgument ~ content(StandardDirectiveParsers.table(p)) ~ stdOpt) { (caption, table, opt) =>
+    (optSpanArgument ~ content(StandardDirectiveParsers.table(p)) ~ stdOpt) { (caption, tableBlock, opt) =>
+      val table = tableBlock match {
+        case t: Table => t
+        case block => Table(TableHead(Nil), TableBody(Seq(Row(Seq(Cell(BodyCell, Seq(block)))))))
+      }
       table.copy(caption = Caption(caption.toList.flatten), options = opt)
     } 
   }

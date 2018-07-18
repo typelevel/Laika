@@ -16,7 +16,7 @@
 
 package laika.parse.core.markup
 
-import laika.api.ext.{BlockParserDefinition, Precedence, SpanParserDefinition}
+import laika.api.ext._
 import laika.parse.core._
 import laika.parse.core.text.TextParsers._
 import laika.tree.Elements._
@@ -42,6 +42,8 @@ trait RootParserBase extends DefaultRecursiveParsers {
     }
   }
 
+  protected def createParsers[T <: ParserDefinition] (builders: Seq[ParserBuilder[T]]): Seq[T] = builders.map(_.createParser(this))
+
   protected def toSortedList (mainParsers: Seq[BlockParserDefinition],
                               extParsers: Seq[BlockParserDefinition]): Seq[BlockParserDefinition] = {
     val (mainHigh, mainLow) = mainParsers.partition(_.precedence == Precedence.High)
@@ -64,7 +66,7 @@ trait RootParserBase extends DefaultRecursiveParsers {
 
   /** Merges the two specified block parsers, trying them in the order they appear in the sequence.
     */
-  protected def mergeBlockParsers (parsers: Seq[Parser[Block]]): Parser[Block] =
+  protected def mergeBlockParsers (parsers: Seq[Parser[Block]]): Parser[Block] = // TODO - remove
     if (parsers.isEmpty) failure("No block parsers specified")
     else parsers.reduceLeft(_ | _)
 
