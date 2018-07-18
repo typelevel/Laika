@@ -23,6 +23,7 @@ import laika.parse.core.{Parsed, Parser, ParserContext, Success}
 import laika.parse.rst.Directives.{Directive, DirectivePart}
 import laika.parse.rst.Elements.{CustomizedTextRole, ReferenceName}
 import laika.parse.rst.TextRoles.{RoleDirectivePart, TextRole}
+import laika.parse.rst.ext.ExtensionParsers
 import laika.rewrite.TreeUtil
 import laika.tree.Elements._
 
@@ -59,12 +60,13 @@ class RootParser(val blockParserExtensions: Seq[BlockParserBuilder] = Nil,
 
 
   val mainBlockParsers = Seq(
+    ExtensionParsers.allBlocks(rstBlockDirectives, rstSpanDirectives, rstTextRoles, defaultTextRole),
     ListParsers.bulletList,
     ListParsers.enumList,
     ListParsers.fieldList,
     ListParsers.lineBlock,
     ListParsers.optionList,
-    ExplicitBlockParsers.allBlocks(rstBlockDirectives, rstSpanDirectives, rstTextRoles, defaultTextRole),
+    ExplicitBlockParsers.allBlocks,
     ExplicitBlockParsers.shortAnonymousLinkTarget,
     TableParsers.gridTable,
     TableParsers.simpleTable,
