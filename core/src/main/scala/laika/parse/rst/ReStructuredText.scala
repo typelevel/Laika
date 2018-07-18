@@ -191,7 +191,8 @@ class ReStructuredText private (
     val rstSpanDirectives  = stdSpans.spanDirectives   ++ spanDirectives
     val rstTextRoles       = stdTextRoles.allRoles     ++ textRoles       ++ rawTextRole
 
-    new RootParser(parserExtensions, rstBlockDirectives, rstSpanDirectives, rstTextRoles, defaultTextRole)
+    new RootParser(parserExtensions.blockParsers, parserExtensions.spanParsers,
+      rstBlockDirectives, rstSpanDirectives, rstTextRoles, defaultTextRole)
   }
 
   /** The actual parser function, fully parsing the specified input and

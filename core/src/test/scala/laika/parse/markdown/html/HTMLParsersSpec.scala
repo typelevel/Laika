@@ -33,7 +33,7 @@ class HTMLParsersSpec extends FlatSpec
                       with HTMLModelBuilder {
 
 
-  val rootParser = new RootParser(VerbatimHTML.parserDefinitions)
+  val rootParser = new RootParser(VerbatimHTML.parserDefinitions.blockParsers, VerbatimHTML.parserDefinitions.spanParsers)
 
   val defaultParser: Parser[List[Span]] = rootParser.recursiveSpans
   

@@ -33,25 +33,37 @@ trait RootParserBase extends DefaultRecursiveParsers {
   lazy val rootElement: Parser[RootElement] = opt(blankLines) ~> blockList(topLevelBlock) ^^ RootElement
 
 
-  protected def toSpanParserMap (mainParsers: Seq[SpanParserDefinition],
-                                 extParsers: Seq[SpanParserDefinition]): Map[Char, Parser[Span]] = {
-    val (mainHigh, mainLow) = mainParsers.partition(_.precedence == Precedence.High)
-    val (extHigh, extLow) = extParsers.partition(_.precedence == Precedence.High)
-    (extHigh ++ mainHigh ++ mainLow ++ extLow).groupBy(_.startChar).map {
+  def mainBlockParsers: Seq[BlockParserBuilder]
+  def mainSpanParsers: Seq[SpanParserBuilder]
+
+  def blockParserExtensions: Seq[BlockParserBuilder]
+  def spanParserExtensions: Seq[SpanParserBuilder]
+
+
+  private lazy val sortedBlockParsers: Seq[BlockParserDefinition] = createParsers(mainBlockParsers, blockParserExtensions)
+
+  protected lazy val topLevelBlock     = merge(sortedBlockParsers.filter(_.position != BlockPosition.NestedOnly))
+  protected lazy val nestedBlock       = merge(sortedBlockParsers.filter(_.position != BlockPosition.RootOnly))
+  protected lazy val nonRecursiveBlock = merge(sortedBlockParsers.filterNot(_.isRecursive))
+
+  protected lazy val spanParsers: Map[Char,Parser[Span]] = {
+    createParsers(mainSpanParsers, spanParserExtensions).groupBy(_.startChar).map {
       case (char, definitions) => (char, definitions.map(_.parser).reduceLeft(_ | _))
     }
   }
 
-  protected def createParsers[T <: ParserDefinition] (builders: Seq[ParserBuilder[T]]): Seq[T] = builders.map(_.createParser(this))
+  private def createParsers[T <: ParserDefinition] (mainParsers: Seq[ParserBuilder[T]],
+                                                      extParsers: Seq[ParserBuilder[T]]): Seq[T] = {
 
-  protected def toSortedList (mainParsers: Seq[BlockParserDefinition],
-                              extParsers: Seq[BlockParserDefinition]): Seq[BlockParserDefinition] = {
-    val (mainHigh, mainLow) = mainParsers.partition(_.precedence == Precedence.High)
-    val (extHigh, extLow) = extParsers.partition(_.precedence == Precedence.High)
+    def createParsers (builders: Seq[ParserBuilder[T]]): (Seq[T],Seq[T]) =
+      builders.map(_.createParser(this)).partition(_.precedence == Precedence.High)
+
+    val (mainHigh, mainLow) = createParsers(mainParsers)
+    val (extHigh, extLow) = createParsers(extParsers)
     extHigh ++ mainHigh ++ mainLow ++ extLow
   }
 
-  protected def toBlockParser (parserDefinitions: Seq[BlockParserDefinition]): Parser[Block] = {
+  private def merge (parserDefinitions: Seq[BlockParserDefinition]): Parser[Block] = {
     val grouped = parserDefinitions.groupBy(_.startChar).map {
       case (char, definitions) => (char, definitions.map(_.parser).reduceLeft(_ | _))
     }
@@ -63,11 +75,5 @@ trait RootParserBase extends DefaultRecursiveParsers {
     val decoratedBlock = startChars >> decoratedBlockParserMap
     decoratedBlock | undecoratedBlock
   }
-
-  /** Merges the two specified block parsers, trying them in the order they appear in the sequence.
-    */
-  protected def mergeBlockParsers (parsers: Seq[Parser[Block]]): Parser[Block] = // TODO - remove
-    if (parsers.isEmpty) failure("No block parsers specified")
-    else parsers.reduceLeft(_ | _)
 
 }

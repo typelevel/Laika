@@ -28,7 +28,9 @@ import laika.tree.Elements._
   *
   * @author Jens Halm
   */
-class RootParser (parserExtensions: ParserDefinitionBuilders, isStrict: Boolean = false) extends RootParserBase {
+class RootParser (val blockParserExtensions: Seq[BlockParserBuilder] = Nil,
+                  val spanParserExtensions: Seq[SpanParserBuilder] = Nil,
+                  isStrict: Boolean = false) extends RootParserBase {
 
   /** Parses a single escaped character, only recognizing the characters the Markdown syntax document
     *  specifies as escapable.
@@ -37,41 +39,28 @@ class RootParser (parserExtensions: ParserDefinitionBuilders, isStrict: Boolean 
     */
   override lazy val escapedChar: Parser[String] = anyOf('\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!', '>') take 1
 
-
-  private lazy val sortedBlockParsers: Seq[BlockParserDefinition] = {
-    val mainBlocks = Seq(
-      BlockParsers.atxHeader,
-      BlockParsers.linkTarget,
-      BlockParsers.quotedBlock,
-      BlockParsers.rootHeaderOrParagraph,
-      BlockParsers.nestedHeaderOrParagraph
-    ) ++
+  val mainBlockParsers = Seq(
+    BlockParsers.atxHeader,
+    BlockParsers.linkTarget,
+    BlockParsers.quotedBlock,
+    BlockParsers.rootHeaderOrParagraph,
+    BlockParsers.nestedHeaderOrParagraph
+  ) ++
     BlockParsers.literalBlocks ++
     BlockParsers.rules ++
     ListParsers.enumLists ++
     ListParsers.bulletLists
 
-    toSortedList(createParsers(mainBlocks), createParsers(parserExtensions.blockParsers))
-  }
-
-  protected lazy val spanParsers: Map[Char,Parser[Span]] = {
-    val mainSpans = Seq(
-      InlineParsers.enclosedByAsterisk,
-      InlineParsers.enclosedByUnderscore,
-      InlineParsers.literalSpan,
-      InlineParsers.image,
-      InlineParsers.link,
-      InlineParsers.simpleLink,
-      InlineParsers.lineBreak,
-      SpanParser.forStartChar('\\').standalone(escapedChar ^^ { Text(_) }).withLowPrecedence
-    )
-
-    toSpanParserMap(createParsers(mainSpans), createParsers(parserExtensions.spanParsers))
-  }
-
-  protected lazy val topLevelBlock     = toBlockParser(sortedBlockParsers.filter(_.position != BlockPosition.NestedOnly))
-  protected lazy val nestedBlock       = toBlockParser(sortedBlockParsers.filter(_.position != BlockPosition.RootOnly))
-  protected lazy val nonRecursiveBlock = toBlockParser(sortedBlockParsers.filterNot(_.isRecursive))
+  val mainSpanParsers = Seq(
+    InlineParsers.enclosedByAsterisk,
+    InlineParsers.enclosedByUnderscore,
+    InlineParsers.literalSpan,
+    InlineParsers.image,
+    InlineParsers.link,
+    InlineParsers.simpleLink,
+    InlineParsers.lineBreak,
+    SpanParser.forStartChar('\\').standalone(escapedChar ^^ { Text(_) }).withLowPrecedence // TODO - extract
+  )
 
   // TODO - could be rewrite rule - don't use in strict mode - remove strict flag from this class
   override def blockList (parser: => Parser[Block]): Parser[List[Block]] =

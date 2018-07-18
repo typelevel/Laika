@@ -34,7 +34,8 @@ import scala.collection.mutable.ListBuffer
   *
   * @author Jens Halm
   */
-class RootParser(parserExtensions: ParserDefinitionBuilders = ParserDefinitionBuilders(),
+class RootParser(val blockParserExtensions: Seq[BlockParserBuilder] = Nil,
+                 val spanParserExtensions: Seq[SpanParserBuilder] = Nil,
                  blockDirectives: Seq[Directive[Block]] = Seq(),
                  spanDirectives: Seq[Directive[Span]] = Seq(),
                  textRoles: Seq[TextRole] = Seq(),
@@ -57,28 +58,7 @@ class RootParser(parserExtensions: ParserDefinitionBuilders = ParserDefinitionBu
   val textRoleElements = textRoles map { role => CustomizedTextRole(role.name, role.default) }
 
 
-  protected lazy val spanParsers: Map[Char,Parser[Span]] = {
-    val mainSpans = Seq(
-      InlineParsers.strong,
-      InlineParsers.em,
-      InlineParsers.inlineLiteral,
-      InlineParsers.phraseLinkRef,
-      InlineParsers.simpleLinkRef,
-      InlineParsers.footnoteRef,
-      InlineParsers.citationRef,
-      InlineParsers.substitutionRef,
-      InlineParsers.internalTarget,
-      InlineParsers.interpretedTextWithRolePrefix,
-      InlineParsers.interpretedTextWithRoleSuffix(defaultTextRole),
-      InlineParsers.uri,
-      InlineParsers.email,
-      SpanParser.forStartChar('\\').standalone(escapedChar ^^ { Text(_) }).withLowPrecedence
-    )
-
-    toSpanParserMap(createParsers(mainSpans), createParsers(parserExtensions.spanParsers))
-  }
-
-  private val mainBlockParsers = Seq(
+  val mainBlockParsers = Seq(
     ListParsers.bulletList,
     ListParsers.enumList,
     ListParsers.fieldList,
@@ -97,12 +77,22 @@ class RootParser(parserExtensions: ParserDefinitionBuilders = ParserDefinitionBu
     BlockParsers.paragraph
   )
 
-  private lazy val sortedBlockParsers: Seq[BlockParserDefinition] =
-    toSortedList(createParsers(mainBlockParsers), createParsers(parserExtensions.blockParsers))
-
-  protected lazy val topLevelBlock     = toBlockParser(sortedBlockParsers.filter(_.position != BlockPosition.NestedOnly))
-  protected lazy val nestedBlock       = toBlockParser(sortedBlockParsers.filter(_.position != BlockPosition.RootOnly))
-  protected lazy val nonRecursiveBlock = toBlockParser(sortedBlockParsers.filterNot(_.isRecursive))
+  val mainSpanParsers = Seq(
+    InlineParsers.strong,
+    InlineParsers.em,
+    InlineParsers.inlineLiteral,
+    InlineParsers.phraseLinkRef,
+    InlineParsers.simpleLinkRef,
+    InlineParsers.footnoteRef,
+    InlineParsers.citationRef,
+    InlineParsers.substitutionRef,
+    InlineParsers.internalTarget,
+    InlineParsers.interpretedTextWithRolePrefix,
+    InlineParsers.interpretedTextWithRoleSuffix(defaultTextRole),
+    InlineParsers.uri,
+    InlineParsers.email,
+    SpanParser.forStartChar('\\').standalone(escapedChar ^^ { Text(_) }).withLowPrecedence // TODO - extract
+  )
 
   /** Builds a parser for a list of blocks based on the parser for a single block.
     *

@@ -33,7 +33,7 @@ class HTMLBlockParserSpec extends FlatSpec
                           with HTMLModelBuilder {
 
 
-  val rootParser = new RootParser(VerbatimHTML.parserDefinitions)
+  val rootParser = new RootParser(VerbatimHTML.parserDefinitions.blockParsers, VerbatimHTML.parserDefinitions.spanParsers)
 
   val defaultParser: Parser[RootElement] = rootParser.rootElement
 

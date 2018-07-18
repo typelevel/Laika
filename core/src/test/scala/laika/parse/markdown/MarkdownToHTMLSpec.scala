@@ -62,7 +62,7 @@ class MarkdownToHTMLSpec extends FlatSpec
     val fileSuffixes: Set[String] = Set("md","markdown")
     val extensions = Seq()
     def newParser (parserExtensions: ParserDefinitionBuilders): Input => Document = {
-      val rootParser = new RootParser(parserExtensions, isStrict = true)
+      val rootParser = new RootParser(parserExtensions.blockParsers, parserExtensions.spanParsers, isStrict = true)
       val configHeaderParsers = parserExtensions.configHeaderParsers :+ { _:Path => Parsers.success(Right(ConfigFactory.empty)) }
       val configHeaderParser = { path: Path => configHeaderParsers.map(_(path)).reduce(_ | _) }
       DocumentParser.forMarkup(rootParser.rootElement, configHeaderParser)

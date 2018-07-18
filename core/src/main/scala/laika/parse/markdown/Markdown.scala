@@ -65,7 +65,7 @@ class Markdown private () extends ParserFactory {
    */
   def newParser (parserExtensions: ParserDefinitionBuilders): Input => Document = {
     // TODO - extract this logic once ParserFactory API gets finalized
-    val rootParser = new RootParser(parserExtensions)
+    val rootParser = new RootParser(parserExtensions.blockParsers, parserExtensions.spanParsers)
     val configHeaderParsers = parserExtensions.configHeaderParsers :+ { _:Path => Parsers.success(Right(ConfigFactory.empty)) }
     val configHeaderParser = { path: Path => configHeaderParsers.map(_(path)).reduce(_ | _) }
     DocumentParser.forMarkup(rootParser.rootElement, configHeaderParser)

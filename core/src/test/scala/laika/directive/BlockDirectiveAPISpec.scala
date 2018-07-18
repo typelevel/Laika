@@ -16,7 +16,7 @@
 
 package laika.directive
 
-import laika.api.ext.{BlockParserDefinition, MarkupParsers, ParserDefinition, ParserDefinitionBuilders}
+import laika.api.ext._
 import laika.directive.Directives.Blocks.Directive
 import laika.directive.Directives.{Blocks, Default}
 import laika.parse.core.Parser
@@ -116,29 +116,23 @@ class BlockDirectiveAPISpec extends FlatSpec
     
     def directive: Directive
 
-    private def toParser (definition: BlockParserDefinition): Parser[Block] =
-      definition.startChar.fold(definition.parser){_ ~> definition.parser} // TODO - temporary until startChar is processed
-
-    // TODO - move most of this logic to RootParserBase
     lazy val directiveSupport: ParserDefinitionBuilders = DirectiveSupport.withDirectives(Seq(directive), Seq(), Seq()).parserDefinitions
-    lazy val markupParserExtensions: MarkupParsers = directiveSupport.markupParsers(this)
-    lazy val extBlocks = markupParserExtensions.blockParsers.map(toParser)
 
-    lazy val paragraphParser: Parser[Block] =
-      recursiveSpans(((Parsers.not(blankLine) ~> restOfLine) +) ^^ (_.mkString("\n"))) ^^ { Paragraph(_) }
-
-    lazy val topLevelBlock: Parser[Block] = mergeBlockParsers(extBlocks :+ paragraphParser)
-
-    lazy val nestedBlock = topLevelBlock
+    lazy val paragraphParser: BlockParserBuilder = BlockParser.withoutStartChar.recursive { recParser =>
+      recParser.recursiveSpans(((Parsers.not(blankLine) ~> restOfLine) +) ^^ (_.mkString("\n"))) ^^ { Paragraph(_) }
+    }
 
     lazy val defaultParser: Parser[RootElement] = rootElement
 
     def invalid (input: String, error: String): InvalidBlock =
         InvalidBlock(SystemMessage(laika.tree.Elements.Error, error), LiteralBlock(input))
 
-    lazy val spanParsers = markupParserExtensions.spanParserMap
+    lazy val mainBlockParsers = Seq(paragraphParser)
+    lazy val mainSpanParsers = Nil
 
-    val nonRecursiveBlock: Parser[Block] = success(Paragraph(Nil)) // not used in these tests
+    lazy val blockParserExtensions = directiveSupport.blockParsers
+    lazy val spanParserExtensions = directiveSupport.spanParsers
+
   }
 
 

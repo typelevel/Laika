@@ -29,7 +29,13 @@ import laika.tree.Templates.TemplateRoot
 /**
   * @author Jens Halm
   */
-sealed trait ParserDefinition
+sealed trait ParserDefinition {
+
+  def isRecursive: Boolean
+
+  def precedence: Precedence
+
+}
 
 case class BlockParserDefinition (startChar: Option[Char],
                                   parser: Parser[Block],
