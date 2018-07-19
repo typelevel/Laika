@@ -56,7 +56,7 @@ import laika.tree.Paths.Path
  * 
  *  @author Jens Halm
  */
-class ReStructuredText private (rawContent: Boolean = false) extends ParserFactory { self =>
+object ReStructuredText extends ParserFactory { self =>
 
 
   val fileSuffixes: Set[String] = Set("rest","rst")
@@ -71,13 +71,9 @@ class ReStructuredText private (rawContent: Boolean = false) extends ParserFacto
       }
     },
     RstExtensionSupport,
-    StandardExtensions
-  ) ++ (if (rawContent) Seq(RawContentExtensions) else Nil) // TODO - move
-
-  /** Adds the `raw` directive and text roles to the parser.
-   *  These are disabled by default as they present a potential security risk.
-   */
-  def withRawContent: ReStructuredText = new ReStructuredText(true)
+    StandardExtensions,
+    RawContentExtensions
+  )
 
   /** The actual parser function, fully parsing the specified input and
    *  returning a document tree.
@@ -105,9 +101,3 @@ class ReStructuredText private (rawContent: Boolean = false) extends ParserFacto
   }
   
 }
-
-/** The default reStructuredText parser configuration.
- * 
- *  @author Jens Halm
- */
-object ReStructuredText extends ReStructuredText(false)

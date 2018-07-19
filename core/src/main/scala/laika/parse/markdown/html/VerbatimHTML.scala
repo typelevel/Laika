@@ -27,10 +27,10 @@ import laika.render.{HTML, HTMLWriter}
   *  by this library as it aims to also support renderers for other formats than HTML,
   *  this extension is disabled by default.
   *
-  *  You can install it with the Transform API:
+  *  You can enable it with the Transform API:
   *
   *  {{{
-  *  val transform = Transform from Markdown to HTML using VerbatimHTML
+  *  val transform = Transform.from(Markdown).to(HTML).withRawContent
   *  }}}
   *
   *  @author Jens Halm
@@ -38,6 +38,7 @@ import laika.render.{HTML, HTMLWriter}
 object VerbatimHTML extends ExtensionBundle {
 
   override val useInStrictMode: Boolean = true
+  override val acceptRawContent: Boolean = true
 
   override def parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders(
     blockParsers = Seq(HTMLParsers.htmlBlockFragment),

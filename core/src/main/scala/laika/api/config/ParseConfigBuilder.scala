@@ -28,4 +28,12 @@ trait ParseConfigBuilder extends OperationConfigBuilder {
     */
   def strict: ThisType = withConfig(config.forStrictMode)
 
+  /**  Enables all extensions that process raw content embedded into the host
+    *  markup language.
+    *  These are disabled by default as Laika is designed to render to multiple
+    *  output formats from a single input document. With raw content embedded
+    *  the markup document is tied to a specific output format.
+    */
+  def withRawContent: ThisType = withConfig(config.forRawContent)
+
 }

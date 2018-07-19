@@ -124,7 +124,7 @@ class StandardTextRoles {
     
   /** The raw text role, which is not enabled by default, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/roles.html#raw]] for details.
-   *  It can be enabled with `ReStructuredText.withRawContent`.
+   *  It can be enabled with `Transform.from(ReStructuredText).to(HTML).withRawContent`.
    */
   lazy val rawTextRole: TextRole =
     TextRole("raw", (Nil:List[String],NoOpt:Options)) {

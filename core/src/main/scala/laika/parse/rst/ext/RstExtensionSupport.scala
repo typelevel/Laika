@@ -203,6 +203,7 @@ object StandardExtensions extends RstExtensionRegistry {
 
 object RawContentExtensions extends RstExtensionRegistry {
 
+  override val acceptRawContent = true
   lazy val blockDirectives = Seq((new StandardBlockDirectives).rawDirective)
   lazy val spanDirectives = Seq()
   lazy val textRoles = Seq((new StandardTextRoles).rawTextRole)

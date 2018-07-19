@@ -75,6 +75,8 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
 
   def forStrictMode: OperationConfig = copy(bundleFilter = bundleFilter.copy(strict = true))
 
+  def forRawContent: OperationConfig = copy(bundleFilter = bundleFilter.copy(acceptRawContent = true))
+
 }
 
 object OperationConfig {

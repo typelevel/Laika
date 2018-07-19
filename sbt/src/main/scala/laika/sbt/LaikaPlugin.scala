@@ -17,15 +17,14 @@
 package laika.sbt
 
 import laika.api._
-import laika.api.ext.ExtensionBundle.LaikaDefaults
-import laika.directive.Directives._
 import laika.directive.DirectiveRegistry
+import laika.directive.Directives._
 import laika.io.Input.LazyFileInput
 import laika.io.{DocumentType, Input, InputTree, OutputTree}
 import laika.parse.markdown.Markdown
-import laika.parse.markdown.html.{HTMLRenderer, VerbatimHTML}
-import laika.parse.rst.ext.{Directives, RstExtensionRegistry}
+import laika.parse.markdown.html.HTMLRenderer
 import laika.parse.rst.ext.TextRoles.TextRole
+import laika.parse.rst.ext.{Directives, RstExtensionRegistry}
 import laika.parse.rst.{ExtendedHTML, ReStructuredText}
 import laika.render._
 import laika.rewrite.{DocumentCursor, RewriteRules}
@@ -124,8 +123,8 @@ object LaikaPlugin extends AutoPlugin {
 
   }
 
-  import autoImport._
   import Tasks._
+  import autoImport._
 
   override def projectSettings: Seq[Setting[_]] = Seq(
     sourceDirectories in Laika := Seq(sourceDirectory.value / "docs"),
@@ -165,9 +164,9 @@ object LaikaPlugin extends AutoPlugin {
                                    val spanDirectives = rstSpanDirectives.value
                                    val textRoles = rstTextRoles.value
                                  }
-                                 val rst = if (laikaRawContent.value) ReStructuredText.withRawContent else ReStructuredText
-                                 val parser = Parse.as(Markdown).or(rst).withoutRewrite.using(directives, rstExtensions)
-                                 val pWithRaw = if (laikaRawContent.value) parser using VerbatimHTML else parser
+                                 val parser = Parse.as(Markdown).or(ReStructuredText)
+                                   .withoutRewrite.using(directives, rstExtensions)
+                                 val pWithRaw = if (laikaRawContent.value) parser.withRawContent else parser
                                  val pWithPar = if (laikaParallel.value) pWithRaw.inParallel else pWithRaw
                                  if (laikaStrict.value) pWithPar.strict else pWithPar
                                },

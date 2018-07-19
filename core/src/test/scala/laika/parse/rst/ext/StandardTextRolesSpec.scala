@@ -179,7 +179,7 @@ class StandardTextRolesSpec extends FlatSpec
       |
       |some :foo:`text`""".stripMargin
     val result = root(p(txt("some "), RawContent(List("AML","BML","CML"), "text", Styles("foo"))))
-    (Parse as ReStructuredText.withRawContent fromString input).content should be (result)
+    Parse.as(ReStructuredText).withRawContent.fromString(input).content should be (result)
   }
 
   it should "be disabled by default" in {

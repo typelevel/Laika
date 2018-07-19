@@ -60,7 +60,7 @@ class MarkdownToHTMLSpec extends FlatSpec
   // TODO - remove once strict mode is handled properly
   object StrictMarkdown extends ParserFactory {
     val fileSuffixes: Set[String] = Set("md","markdown")
-    val extensions = Seq()
+    val extensions = Seq(VerbatimHTML)
     def newParser (parserExtensions: ParserDefinitionBuilders): Input => Document = {
       val rootParser = new RootParser(parserExtensions.blockParsers, parserExtensions.spanParsers, isStrict = true)
       val configHeaderParsers = parserExtensions.configHeaderParsers :+ { _:Path => Parsers.success(Right(ConfigFactory.empty)) }
@@ -71,7 +71,7 @@ class MarkdownToHTMLSpec extends FlatSpec
 
   def transformAndCompare (name: String): Unit = {
     val path = classPathResource("/markdownTestSuite") + "/" + name
-    val actual = (Transform from StrictMarkdown to HTML using VerbatimHTML rendering { out => {
+    val actual = ((Transform from StrictMarkdown to HTML).withRawContent rendering { out => {
       case QuotedBlock(content,_,_) => out << "<blockquote>" <<|>  content <<| "</blockquote>" // Markdown always writes p tags inside blockquotes
     }}).strict fromFile (path + ".md") toString
     val expected = readFile(path + ".html")

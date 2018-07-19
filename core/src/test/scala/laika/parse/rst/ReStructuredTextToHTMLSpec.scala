@@ -16,15 +16,13 @@
 
 package laika.parse.rst
 
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
 import laika.api.Transform
-import laika.parse.markdown.html.VerbatimHTML
 import laika.render.HTML
 import laika.transform.helper.FileTransformerUtil
 import laika.tree.Elements._
+import org.scalatest.{FlatSpec, Matchers}
+
 import scala.io.Codec
-import laika.io.Input
 
 /**
  * @author Jens Halm

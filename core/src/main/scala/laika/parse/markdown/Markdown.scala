@@ -22,6 +22,7 @@ import laika.factory.ParserFactory
 import laika.io.Input
 import laika.parse.core.combinator.Parsers
 import laika.parse.core.markup.DocumentParser
+import laika.parse.markdown.html.VerbatimHTML
 import laika.tree.Documents.Document
 import laika.tree.Paths.Path
   
@@ -41,7 +42,7 @@ import laika.tree.Paths.Path
  *  It must be enabled explicitly:
  *  
  *  {{{
- *  val document = Parse as Markdown using VerbatimHTML fromFile "hello.md"
+ *  val document = Parse.as(Markdown).withRawContent.fromFile("hello.md")
  *  }}}
  *  
  *  To switch off all custom extensions like directives,
@@ -49,16 +50,17 @@ import laika.tree.Paths.Path
  *  id generation for headers, you can run the parser in strict mode:
  *  
  *  {{{
- *  Transform from Markdown.strict to HTML fromFile "hello.md" toFile "hello.html"
+ *  Transform.from(Markdown).to(HTML).strict
+ *    .fromFile("hello.md").toFile("hello.html")
  *  }}}
  * 
  *  @author Jens Halm
  */
-class Markdown private () extends ParserFactory {
+object Markdown extends ParserFactory {
 
   val fileSuffixes: Set[String] = Set("md","markdown")
   
-  val extensions = Seq()
+  val extensions = Seq(VerbatimHTML)
   
   /** The actual parser function, fully parsing the specified input and
    *  returning a document tree.
@@ -72,9 +74,3 @@ class Markdown private () extends ParserFactory {
   }
   
 }
-
-/** The default Markdown parser configuration, with verbatim HTML elements disabled.
- * 
- *  @author Jens Halm
- */
-object Markdown extends Markdown()

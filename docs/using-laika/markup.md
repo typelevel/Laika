@@ -27,8 +27,8 @@ Laika supports several convenient features for processing groups of documents.
 These are built as extensions to both Markdown and reStructuredText parsers.
 They can be switched off when you run these two parsers in strict mode:
 
-    Transform from Markdown.strict to 
-      HTML fromFile "hello.md" toFile "hello.html"
+    Transform.from(Markdown).to(HTML).strict
+      .fromFile("hello.md").toFile("hello.html")
 
 The extensions are documented in their respective section linked to from
 the list below:
@@ -104,8 +104,8 @@ Finally there is one major difference to standard Markdown: the parsing of verba
 is not enabled by default, but it can be switched on if required. 
 
 When using this feature
-you need to be aware of the fact that it ties your markup files to HTML output. Future
-versions of Laika are supposed to support formats like PDF, epub and DocBook, and markup
+you need to be aware of the fact that it ties your markup files to HTML output. Laika
+supports multiple output formats like HTML, PDF, XSL-FO and in the future epub, and markup
 files containing raw HTML could not be used for those.
 
 When the markup originates from user input in a web application, it would not be safe 
@@ -115,11 +115,11 @@ customization hooks like [Document Tree Rewriting] or [Customizing Renderers].
  
 To enable verbatim HTML elements you have to change this standard expression:
 
-    Transform from Markdown to HTML
+    Transform.from(Markdown).to(HTML)
     
 to
 
-    Transform from Markdown to HTML using VerbatimHTML
+    Transform.from(Markdown).to(HTML).withRawContent
     
 This installs both, the required parser and renderer extensions. 
 
@@ -241,7 +241,7 @@ seamed too exotic to warrant inclusion in Laika.
 
 Finally some of the defaults for these extensions can be changed through the API:
 
-    ReStructuredText.withRawContent
+    val transformer = Transform.from(ReStructuredText).to(HTML).withRawContent
     
 enables both the `raw` directive and the `raw` text role. They are disabled by default as
 they present a potential security risk.

@@ -30,7 +30,7 @@ import laika.tree.Elements.{RenderFunction, Text, TextContainer}
   *  It must be applied explicitly as part of the `VerbatimHTML` bundle when enabling verbatim HTML:
   *
   *  {{{
-  *  val transform = Transform from Markdown to HTML using VerbatimHTML
+  *  val transform = Transform.from(Markdown).to(HTML).withRawContent
   *  }}}
   *
   *  @author Jens Halm
