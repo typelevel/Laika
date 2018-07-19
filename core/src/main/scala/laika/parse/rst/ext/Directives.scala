@@ -17,7 +17,6 @@
 package laika.parse.rst.ext
 
 import laika.parse.core.markup.RecursiveParsers
-import laika.parse.rst.ext.TextRoles.RoleDirectivePart
 import laika.tree.Elements._
 import laika.util.Builders._
 import laika.util.~
@@ -73,12 +72,18 @@ import laika.util.~
  *                   options: Options = NoOpt) extends Block 
  *                                             with BlockContainer[Note]
  *
- *  val rst = ReStructuredText withBlockDirectives
- *    BlockDirective("note") {
- *      (argument(withWS = true) ~ blockContent)(Note(_,_))
- *    }                                        
+ *  object MyDirectives extends RstExtensionRegistry {
+ *    val blockDirectives = Seq(
+ *      BlockDirective("note") {
+ *        (argument(withWS = true) ~ blockContent)(Note(_,_))
+ *      }
+ *    )
+ *    val spanDirectives = Nil
+ *    val textRoles = Nil
+ *  )
  *
- *  Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"
+ *  Transform from ReStructuredText to HTML using
+ *    MyDirectives fromFile "hello.rst" toFile "hello.html"
  *  }}}
  * 
  *  The `argument()` method specifies a required argument of type `String` (since no conversion
@@ -109,10 +114,14 @@ import laika.util.~
  *                      options: Options = NoOpt) extends Block 
  *                                                with BlockContainer[Message]
  * 
- *  val rst = ReStructuredText withBlockDirectives (
- *    BlockDirective("message") {
- *      (argument(nonNegativeInt) ~ blockContent)(Message(_,_))
- *    }
+ *  object MyDirectives extends RstExtensionRegistry {
+ *    val blockDirectives = Seq(
+ *      BlockDirective("message") {
+ *        (argument(nonNegativeInt) ~ blockContent)(Message(_,_))
+ *      }
+ *    )
+ *    val spanDirectives = Nil
+ *    val textRoles = Nil
  *  )    
  *  }}}
  * 
@@ -132,11 +141,15 @@ import laika.util.~
  *                      options: Options = NoOpt) extends Block 
  *                                                with BlockContainer[Message]
  * 
- *  val rst = ReStructuredText withBlockDirectives (
- *    BlockDirective("message") {
- *      (optArgument(nonNegativeInt) ~ blockContent)(Message(_,_))
- *    }
- *  )    
+ *  object MyDirectives extends RstExtensionRegistry {
+ *    val blockDirectives = Seq(
+ *      BlockDirective("message") {
+ *        (optArgument(nonNegativeInt) ~ blockContent)(Message(_,_))
+ *      }
+ *    )
+ *    val spanDirectives = Nil
+ *    val textRoles = Nil
+ *  }
  *  }}}
  * 
  *  The argument may be missing, but if it is present it has to pass the specified validator.

@@ -31,8 +31,8 @@ import laika.util.~
 
 import scala.collection.mutable.ListBuffer
 
-/** Provides the parsers for all types of explicit block elements.
- *  In reStructuredText an explicit block element starts with `.. `,
+/** Provides the parsers for all types of extensions (directives and text roles).
+ *  In reStructuredText an explicit block element for an extension starts with `.. `,
  *  followed by a block where the second and subsequent lines are indented.
  * 
  * @author Jens Halm
@@ -60,7 +60,7 @@ class RstExtensionParsers(recParsers: RecursiveParsers,
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#substitution-definitions]].
    */
-  lazy val substitutionDefinition: Parser[Block] = { // TODO - move
+  lazy val substitutionDefinition: Parser[Block] = {
     val text = not(ws take 1) ~> escapedText(delimitedBy('|','\n').keepDelimiter.nonEmpty)
     val prefix = '|' ~> text <~ not(lookBehind(1, ' ')) ~ '|'
     
@@ -70,7 +70,7 @@ class RstExtensionParsers(recParsers: RecursiveParsers,
       case name ~ content => SubstitutionDefinition(name, content) 
     }
   }
-  private lazy val spanDirectiveParser: Parser[Span] = directive(spanDirectives.get) // TODO - move
+  private lazy val spanDirectiveParser: Parser[Span] = directive(spanDirectives.get)
   
   private def replaceInvalidDirective (block: Block): Block = block match {
     case InvalidDirective(msg, source, _) => InvalidBlock(SystemMessage(laika.tree.Elements.Error, msg), LiteralBlock(source))
@@ -81,7 +81,7 @@ class RstExtensionParsers(recParsers: RecursiveParsers,
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#directives]].
    */
-  lazy val blockDirective: Parser[Block] = directive(blockDirectives.get) ^^ replaceInvalidDirective // TODO - move
+  lazy val blockDirective: Parser[Block] = directive(blockDirectives.get) ^^ replaceInvalidDirective
 
   
   private def directive [E](provider: String => Option[DirectivePart[E]]): Parser[E] = {
@@ -116,7 +116,7 @@ class RstExtensionParsers(recParsers: RecursiveParsers,
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#custom-interpreted-text-roles]].
    */
-  lazy val roleDirective: Parser[Block] = { // TODO - move
+  lazy val roleDirective: Parser[Block] = {
     
     val nameParser = "role::" ~ ws ~> simpleRefName ~ opt('(' ~> simpleRefName <~ ')')
     

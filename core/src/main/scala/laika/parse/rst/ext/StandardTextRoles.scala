@@ -49,7 +49,14 @@ import laika.tree.Elements._
  *  through the API when creating a parser instance:
  * 
  *  {{{
- *  Parse as ReStructuredText.withDefaultTextRole("my-role-name")
+ *  object RstExtensions extends RstExtensionRegistry {
+ *    val blockDirectives = Nil
+ *    val spanDirectives = Nil
+ *    val textRoles = Nil
+ *    override val defaultTextRole = "my-role-name"
+ *  }
+ *
+ *  val transformer = Transform from ReStructuredText to HTML using RstExtensions
  *  }}}
  * 
  *  See [[http://docutils.sourceforge.net/docs/ref/rst/roles.html]] for details.
@@ -96,7 +103,7 @@ class StandardTextRoles {
     TextRole("sup", NoOpt:Options)(classOption)((opt, text) => Text(text, opt + Styles("superscript")))
     
   /** The standard title-reference text role, the default text role in reStructuredText unless overridden
-   *  with `ReStructuredText.withDefaultTextRole`.
+   *  with `RstExtensionRegistry.defaultTextRole`.
    */
   lazy val titleRef: TextRole =
     TextRole("title-reference", NoOpt:Options)(classOption)((opt, text) => Emphasized(List(Text(text)), opt + Styles("title-reference")))

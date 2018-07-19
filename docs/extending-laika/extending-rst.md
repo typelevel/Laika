@@ -118,13 +118,19 @@ The implementation of this directive could look like this:
                      content: Seq[Block], 
                      options: Options = NoOpt) extends Block 
                                                with BlockContainer[Note]
+
+    object MyDirectives extends RstExtensionRegistry {
+      val blockDirectives = Seq(
+        BlockDirective("note") {
+          (argument(withWS = true) ~ blockContent)(Note(_,_))
+        }
+      )
+      val spanDirectives = Seq()
+      val textRoles = Seq()
+    }
  
-    val rst = ReStructuredText withBlockDirectives
-      BlockDirective("note") {
-        (argument(withWS = true) ~ blockContent)(Note(_,_))
-      }
- 
-    Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"
+    Transform from ReStructuredText to HTML using 
+      MyDirectives fromFile "hello.rst" toFile "hello.html"
  
  
 The `argument()` method specifies a required argument of type `String` (since no conversion
@@ -157,11 +163,16 @@ be passed to the corresponding function:
                         options: Options = NoOpt) extends Block 
                                                   with BlockContainer[Message]
  
-    val rst = ReStructuredText withBlockDirectives
-      BlockDirective("message") {
-        (argument(nonNegativeInt) ~ blockContent)(Message(_,_))
-      }
-
+    object MyDirectives extends RstExtensionRegistry {
+      val blockDirectives = Seq(
+        BlockDirective("message") {
+          (argument(nonNegativeInt) ~ blockContent)(Message(_,_))
+        }
+      )
+      val spanDirectives = Seq()
+      val textRoles = Seq()
+    }
+ 
 
 The function has to provide an `Either[String, T]` as a result. A `Left` result will be interpreted
 as an error by the parser with the string being used as the message and an instance of `InvalidBlock`
@@ -180,12 +191,16 @@ considered valid and `None` will be passed to your function:
                         content: Seq[Block],
                         options: Options = NoOpt) extends Block 
                                                   with BlockContainer[Message]
-  
-    val rst = ReStructuredText withBlockDirectives
-      BlockDirective("message") {
-        (optArgument(nonNegativeInt) ~ blockContent)(Message(_,_))
-      }
-    
+
+    object MyDirectives extends RstExtensionRegistry {
+      val blockDirectives = Seq(
+        BlockDirective("message") {
+          (optArgument(nonNegativeInt) ~ blockContent)(Message(_,_))
+        }
+      )
+      val spanDirectives = Seq()
+      val textRoles = Seq()
+    }  
  
 The argument may be missing, but if it is present it has to pass the specified validator.
  
@@ -237,13 +252,18 @@ see the previous section.
  
 The implementation of the `link` text role could look like this:
  
-    val rst = ReStructuredText withTextRoles (
-      TextRole("link", "http://www.company.com/main/")(field("base-url")) {
-        (base, text) => Link(List(Text(text)), base + text)
-      }
-    )
-   
-    Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"   
+    val textRole = TextRole("link", "http://www.company.com/main/")(field("base-url")) {
+      (base, text) => Link(List(Text(text)), base + text)
+    }
+ 
+    object MyDirectives extends RstExtensionRegistry {
+      val textRoles = Seq(textRole)
+      val spanDirectives = Seq()
+      val blockDirectives = Seq()
+    }  
+        
+    Transform from ReStructuredText to HTML using 
+          MyDirectives fromFile "hello.rst" toFile "hello.html"    
 
  
 We specify the name of the role to be `link`, and the default value the URL provided as the
@@ -287,31 +307,22 @@ Registering Extensions with the sbt Plugin
 ------------------------------------------
 
 All previous examples showed how to register directives or text roles with the Laika API.
-This section shows how to register the same elements with the sbt plugin.
+This code sample shows how to register the same elements with the sbt plugin.
 
-Block Directives:
-
-    val directive = BlockDirective("name") {
-      // implementation producing a `Block` element
-    }
+    object MyExtensions extends RstExtensionRegisty {
+        
+      val blockDirectives = Seq(BlockDirective("name") {
+        // implementation producing a `Block` element
+      })
+        
+      val spanDirectives = Seq(SpanDirective("name") {
+        // implementation producing a `Span` element
+      })
     
-    rstBlockDirectives += directive
-
+      val textRoles = Seq(TextRole("name", "default") {
+        // implementation producing a `Span` element
+      })
+      
+    }  
     
-Span Directives:
-
-    val directive = SpanDirective("name") {
-      // implementation producing a `Span` element
-    }
-    
-    rstSpanDirectives += directive
-
-
-Text Roles:
-
-    val role = TextRole("name", "default") {
-      // implementation producing a `Span` element
-    }
-    
-    rstTextRoles += role
-    
+    laikaExtensions += MyExtensions

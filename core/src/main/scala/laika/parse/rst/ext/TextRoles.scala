@@ -61,18 +61,23 @@ import laika.util.~
  * 
  *  Before such a role directive can be used, an implementation has to be provided
  *  for the base role with the name `link`. For more details on implementing directives
- *  see [[laika.parse.rst.Directives]].
+ *  see [[laika.parse.rst.ext.Directives]].
  * 
  *  The implementation of the `link` text role could look like this:
  * 
  *  {{{
- *  val rst = ReStructuredText withTextRoles (
- *    TextRole("link", "http://www.company.com/main/")(field("base-url")) {
- *      (base, text) => Link(List(Text(text)), base + text)
- *    }
- *  )
- *   
- *  Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"   
+ *  val textRole = TextRole("link", "http://www.company.com/main/")(field("base-url")) {
+ *    (base, text) => Link(List(Text(text)), base + text)
+ *  }
+ *
+ *  object MyDirectives extends RstExtensionRegistry {
+ *    val textRoles = Seq(textRole)
+ *    val spanDirectives = Seq()
+ *    val blockDirectives = Seq()
+ *  }
+ *
+ *  Transform from ReStructuredText to HTML using
+ *    MyDirectives fromFile "hello.rst" toFile "hello.html"
  *  }}}
  * 
  *  We specify the name of the role to be `link`, and the default value the URL provided as the
@@ -88,7 +93,7 @@ import laika.util.~
  *  
  *  If you need to define more fields or body content they can be added with the `~` combinator
  *  just like with normal directives. Likewise you can specify validators and converters for 
- *  fields and body values like documented in [[laika.parse.rst.Directives]].
+ *  fields and body values like documented in [[laika.parse.rst.ext.Directives]].
  * 
  *  Our example role can then be used in the following ways:
  * 

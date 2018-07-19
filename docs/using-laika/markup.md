@@ -195,9 +195,6 @@ Laika supports the following directives:
  
 The following limitations apply to these directives:
 
- * `figure` and `image` do not support the various layout options (`width`, `height`, `scale`, `align`), 
-   as no other tree nodes in Laika carry concrete layout information. It is recommended to use styles instead.
- 
  * `code` does currently not support syntax highlighting 
    (it allows to set the language though, so client-side highlighters can be integrated if required).
    
@@ -249,9 +246,16 @@ Finally some of the defaults for these extensions can be changed through the API
 enables both the `raw` directive and the `raw` text role. They are disabled by default as
 they present a potential security risk.
 
-    ReStructuredText.withDefaultTextRole("my-role-name")
+    object RstExtensions extends RstExtensionRegistry {
+      val blockDirectives = Nil
+      val spanDirectives = Nil
+      val textRoles = Nil
+      override val defaultTextRole = "my-role-name"
+    }
     
-sets the text role `my-role-name` as the default role.
+    val transformer = Transform from ReStructuredText to HTML using RstExtensions
+    
+sets the text role `my-role-name` as the default role for the transformer.
 
 
 ### Implementing a Custom Directive
