@@ -22,9 +22,9 @@ import laika.parse.core.markup.RecursiveParsers
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Failure, Parser, Success}
 import laika.parse.rst.BaseParsers._
-import laika.parse.rst.Directives._
+import Directives._
 import laika.parse.rst.Elements.{SubstitutionDefinition, _}
-import laika.parse.rst.TextRoles._
+import TextRoles._
 import laika.tree.Elements._
 import laika.util.Builders._
 import laika.util.~
@@ -37,11 +37,11 @@ import scala.collection.mutable.ListBuffer
  * 
  * @author Jens Halm
  */
-class ExtensionParsers (recParsers: RecursiveParsers,
-                        blockDirectives: Map[String, DirectivePart[Block]],
-                        spanDirectives: Map[String, DirectivePart[Span]],
-                        textRoles: Map[String, RoleDirectivePart[String => Span]],
-                        defaultTextRole: String) {
+class RstExtensionParsers(recParsers: RecursiveParsers,
+                          blockDirectives: Map[String, DirectivePart[Block]],
+                          spanDirectives: Map[String, DirectivePart[Span]],
+                          textRoles: Map[String, RoleDirectivePart[String => Span]],
+                          defaultTextRole: String) {
 
 
   import recParsers._
@@ -300,11 +300,15 @@ class ExtensionParsers (recParsers: RecursiveParsers,
   
 }
 
-object ExtensionParsers {
-  def allBlocks(blockDirectives: Map[String, DirectivePart[Block]],
-                spanDirectives: Map[String, DirectivePart[Span]],
-                textRoles: Map[String, RoleDirectivePart[String => Span]],
+object RstExtensionParsers {
+  def allBlocks(blockDirectives: Seq[Directive[Block]],
+                spanDirectives: Seq[Directive[Span]],
+                textRoles: Seq[TextRole],
                 defaultTextRole: String): BlockParserBuilder = BlockParser.forStartChar('.').recursive { recParsers =>
-    new ExtensionParsers(recParsers, blockDirectives, spanDirectives, textRoles, defaultTextRole).explicitBlockItem
+    new RstExtensionParsers(recParsers,
+      RstExtension.createAsMap(blockDirectives, recParsers),
+      RstExtension.createAsMap(spanDirectives, recParsers),
+      RstExtension.createAsMap(textRoles, recParsers),
+      defaultTextRole).explicitBlockItem
   }
 }

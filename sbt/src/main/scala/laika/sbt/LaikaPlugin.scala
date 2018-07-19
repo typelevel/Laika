@@ -24,8 +24,9 @@ import laika.io.Input.LazyFileInput
 import laika.io.{DocumentType, Input, InputTree, OutputTree}
 import laika.parse.markdown.Markdown
 import laika.parse.markdown.html.{HTMLRenderer, VerbatimHTML}
-import laika.parse.rst.TextRoles.TextRole
-import laika.parse.rst.{ExtendedHTML, ReStructuredText, Directives => rst}
+import laika.parse.rst.ext.{Directives, RstExtensionRegistry}
+import laika.parse.rst.ext.TextRoles.TextRole
+import laika.parse.rst.{ExtendedHTML, ReStructuredText}
 import laika.render._
 import laika.rewrite.{DocumentCursor, RewriteRules}
 import laika.tree.Documents._
@@ -68,8 +69,6 @@ object LaikaPlugin extends AutoPlugin {
 
     val laikaLogMessageLevel     = settingKey[Option[MessageLevel]]("The minimum level for system messages to be logged")
 
-    val laikaReStructuredText    = settingKey[ReStructuredText]("The parser for reStructuredText files")
-
     val laikaMarkupParser        = settingKey[Parse]("The parser for all text markup files")
 
     val laikaRawContent          = settingKey[Boolean]("Indicates whether embedding of raw content (like verbatim HTML) is supported in markup")
@@ -98,9 +97,9 @@ object LaikaPlugin extends AutoPlugin {
 
     val laikaTemplateDirectives  = settingKey[Seq[Templates.Directive]]("Directives for templates")
 
-    val rstSpanDirectives        = settingKey[Seq[rst.Directive[Span]]]("Inline directives for reStructuredText")
+    val rstSpanDirectives        = settingKey[Seq[Directives.Directive[Span]]]("Inline directives for reStructuredText")
 
-    val rstBlockDirectives       = settingKey[Seq[rst.Directive[Block]]]("Block directives for reStructuredText")
+    val rstBlockDirectives       = settingKey[Seq[Directives.Directive[Block]]]("Block directives for reStructuredText")
 
     val rstTextRoles             = settingKey[Seq[TextRole]]("Custom text roles for reStructuredText")
 
@@ -155,19 +154,19 @@ object LaikaPlugin extends AutoPlugin {
 
     laikaRawContent            := false,
 
-    laikaReStructuredText      := {
-                                 val rst = ReStructuredText withBlockDirectives (rstBlockDirectives.value: _*) withSpanDirectives
-                                   (rstSpanDirectives.value: _*) withTextRoles (rstTextRoles.value: _*)
-                                 if (laikaRawContent.value) rst.withRawContent else rst
-                               },
-
     laikaMarkupParser          := {
                                  object directives extends DirectiveRegistry {
                                    val blockDirectives = laikaBlockDirectives.value
                                    val spanDirectives = laikaSpanDirectives.value
                                    val templateDirectives = laikaTemplateDirectives.value
                                  }
-                                 val parser = Parse.as(Markdown).or(laikaReStructuredText.value).withoutRewrite.using(directives)
+                                 object rstExtensions extends RstExtensionRegistry {
+                                   val blockDirectives = rstBlockDirectives.value
+                                   val spanDirectives = rstSpanDirectives.value
+                                   val textRoles = rstTextRoles.value
+                                 }
+                                 val rst = if (laikaRawContent.value) ReStructuredText.withRawContent else ReStructuredText
+                                 val parser = Parse.as(Markdown).or(rst).withoutRewrite.using(directives, rstExtensions)
                                  val pWithRaw = if (laikaRawContent.value) parser using VerbatimHTML else parser
                                  val pWithPar = if (laikaParallel.value) pWithRaw.inParallel else pWithRaw
                                  if (laikaStrict.value) pWithPar.strict else pWithPar

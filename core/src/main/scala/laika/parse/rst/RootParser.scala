@@ -20,10 +20,7 @@ import laika.api.ext._
 import laika.parse.core.markup.RootParserBase
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Parsed, Parser, ParserContext, Success}
-import laika.parse.rst.Directives.{Directive, DirectivePart}
-import laika.parse.rst.Elements.{CustomizedTextRole, ReferenceName}
-import laika.parse.rst.TextRoles.{RoleDirectivePart, TextRole}
-import laika.parse.rst.ext.ExtensionParsers
+import laika.parse.rst.Elements.ReferenceName
 import laika.rewrite.TreeUtil
 import laika.tree.Elements._
 
@@ -36,11 +33,7 @@ import scala.collection.mutable.ListBuffer
   * @author Jens Halm
   */
 class RootParser(val blockParserExtensions: Seq[BlockParserBuilder] = Nil,
-                 val spanParserExtensions: Seq[SpanParserBuilder] = Nil,
-                 blockDirectives: Seq[Directive[Block]] = Seq(),
-                 spanDirectives: Seq[Directive[Span]] = Seq(),
-                 textRoles: Seq[TextRole] = Seq(),
-                 defaultTextRole: String = "title-reference") extends RootParserBase {
+                 val spanParserExtensions: Seq[SpanParserBuilder] = Nil) extends RootParserBase {
 
 
   /** Parses an escaped character. For most characters it produces the character
@@ -52,15 +45,7 @@ class RootParser(val blockParserExtensions: Seq[BlockParserBuilder] = Nil,
   override lazy val escapedChar: Parser[String] = (" " ^^^ "") | (any take 1)
 
 
-  private val rstBlockDirectives: Map[String, DirectivePart[Block]] =        blockDirectives map { d => (d.name.toLowerCase, d.part(this)) } toMap
-  private val rstSpanDirectives: Map[String, DirectivePart[Span]]  =         spanDirectives  map { d => (d.name.toLowerCase, d.part(this)) } toMap
-  private val rstTextRoles: Map[String, RoleDirectivePart[String => Span]] = textRoles       map { r => (r.name.toLowerCase, r.part(this)) } toMap
-
-  val textRoleElements = textRoles map { role => CustomizedTextRole(role.name, role.default) }
-
-
   val mainBlockParsers = Seq(
-    ExtensionParsers.allBlocks(rstBlockDirectives, rstSpanDirectives, rstTextRoles, defaultTextRole),
     ListParsers.bulletList,
     ListParsers.enumList,
     ListParsers.fieldList,
@@ -90,7 +75,6 @@ class RootParser(val blockParserExtensions: Seq[BlockParserBuilder] = Nil,
     InlineParsers.substitutionRef,
     InlineParsers.internalTarget,
     InlineParsers.interpretedTextWithRolePrefix,
-    InlineParsers.interpretedTextWithRoleSuffix(defaultTextRole),
     InlineParsers.uri,
     InlineParsers.email,
     SpanParser.forStartChar('\\').standalone(escapedChar ^^ { Text(_) }).withLowPrecedence // TODO - extract

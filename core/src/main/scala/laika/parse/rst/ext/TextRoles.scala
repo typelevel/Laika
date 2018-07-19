@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package laika.parse.rst
+package laika.parse.rst.ext
 
-import laika.parse.core.markup.{EscapedTextParsers, RecursiveParsers}
+import laika.parse.core.markup.RecursiveParsers
 import laika.tree.Elements._
 import laika.util.Builders._
 import laika.util.~
@@ -216,7 +216,9 @@ object TextRoles {
 
   /** Represents a single text role implementation.
    */
-  class TextRole private (val name: String, val default: String => Span, val part: RoleDirectivePartBuilder[String => Span])
+  class TextRole private (val name: String,
+                          val default: String => Span,
+                          val part: RoleDirectivePartBuilder[String => Span]) extends RstExtension[RoleDirectivePart[String => Span]]
 
   /** API entry point for setting up a text role that.
    */

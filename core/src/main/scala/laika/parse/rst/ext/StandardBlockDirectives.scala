@@ -17,8 +17,8 @@
 package laika.parse.rst.ext
 
 import laika.parse.core.markup.{EscapedTextParsers, RecursiveParsers}
-import laika.parse.rst.Directives.Parts._
-import laika.parse.rst.Directives._
+import Directives.Parts._
+import Directives._
 import laika.parse.rst.Elements._
 import laika.parse.rst.ext.StandardDirectiveParts._
 import laika.rewrite.TreeUtil
@@ -50,6 +50,8 @@ import laika.tree.Elements._
  *  - `table`
  *  - `contents`
  *  - `sectnum`
+ *  - `figure`
+ *  - `image`
  *  - `header`
  *  - `footer`
  *  - `title`
@@ -57,15 +59,12 @@ import laika.tree.Elements._
  *  
  *  The following directives are supported with some limitations:
  * 
- *  - `figure` and `image` do not support the various layout options (`width`, `height`, `scale`, `align`), as no other
- *    tree nodes in Laika carry concrete layout information. It is recommended to use styles instead.
- * 
- *  - `code` does currently not support syntax highlighting 
+ *  - `code` does currently not support syntax highlighting
  *    (it allows to set the language so client-side highlighters can be integrated if required)
  *    
  *  - `sectnum` does currently not support the `prefix`, `suffix` and `start` options.
  * 
- *  - `raw` does not support the `file` or `url` options (multi-file transformations are planned for version 0.4).
+ *  - `raw` does not support the `file` or `url` options.
  * 
  *  - `include` does not support any of the options apart from the filename. See the API entry for this directive
  *    for details.
@@ -289,7 +288,7 @@ class StandardBlockDirectives {
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#raw-data-pass-through]] for details.
    *  It can be enabled with `ReStructuredText.withRawContent`.
    */
-  lazy val rawDirective: DirectivePart[Block] = {
+  lazy val rawDirective: Directive[Block] = BlockDirective("raw") {
     (argument(withWS = true) ~ content(Right(_))) { (formats, content) =>
       RawContent(formats.split(" "), content)
     } 

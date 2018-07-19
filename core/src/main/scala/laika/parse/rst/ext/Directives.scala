@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package laika.parse.rst
+package laika.parse.rst.ext
 
-import laika.parse.core.markup.{EscapedTextParsers, RecursiveParsers}
+import laika.parse.core.markup.RecursiveParsers
+import laika.parse.rst.ext.TextRoles.RoleDirectivePart
 import laika.tree.Elements._
 import laika.util.Builders._
 import laika.util.~
@@ -278,7 +279,8 @@ object Directives {
 
   /** Represents a single directive implementation.
    */
-  class Directive [E <: Element] private[Directives] (val name: String, val part: DirectivePartBuilder[E])
+  class Directive [E <: Element] private[Directives](val name: String, val part: DirectivePartBuilder[E])
+    extends RstExtension[DirectivePart[E]]
 
   /** API entry point for setting up a span directive that can be used
    *  in substitution definitions.

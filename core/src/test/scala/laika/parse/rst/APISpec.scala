@@ -19,9 +19,10 @@ package laika.parse.rst
 import laika.api._
 import laika.directive.DirectiveRegistry
 import laika.directive.Directives.{Blocks, Spans}
-import laika.parse.rst.Directives.Parts._
-import laika.parse.rst.Directives._
-import laika.parse.rst.TextRoles._
+import laika.parse.rst.ext.Directives.Parts._
+import laika.parse.rst.ext.Directives._
+import laika.parse.rst.ext.ExtensionProvider
+import laika.parse.rst.ext.TextRoles._
 import laika.tree.Elements._
 import laika.tree.helper.ModelBuilder
 import org.scalatest.{FlatSpec, Matchers}
@@ -39,7 +40,8 @@ class APISpec extends FlatSpec
     val input = """.. oneArg:: arg
       |
       |.. twoArgs:: arg arg""".stripMargin
-    (Parse as (ReStructuredText withBlockDirectives (directives:_*)) fromString input).content should be (root (p("arg"),p("argarg")))
+    (Parse as ReStructuredText using ExtensionProvider.forExtensions(blocks = directives) fromString input)
+      .content should be (root (p("arg"),p("argarg")))
   }
   
   it should "support registration of span directives" in {
@@ -52,12 +54,13 @@ class APISpec extends FlatSpec
       |.. |one| oneArg:: arg
       |
       |.. |two| twoArgs:: arg arg""".stripMargin
-    (Parse as (ReStructuredText withSpanDirectives (directives:_*)) fromString input).content should be (root 
+    (Parse as ReStructuredText using ExtensionProvider.forExtensions(spans = directives) fromString input)
+      .content should be (root
         (p(txt("foo "), txt("arg"), txt(" foo "), txt("argarg"))))
   }
   
   it should "support registration of text roles" in {
-    import laika.parse.rst.TextRoles.{Parts => P}
+    import laika.parse.rst.ext.TextRoles.{Parts => P}
     val roles = List(
       TextRole("oneArg", "foo1")(P.field("name")) { (res,text) =>
        txt(res+text)
@@ -74,8 +77,8 @@ class APISpec extends FlatSpec
       |.. role::two(twoArgs)
       | :name1: val1
       | :name2: val2""".stripMargin
-    (Parse as (ReStructuredText withTextRoles (roles:_*)) fromString input).content should be (root 
-        (p(txt("foo "), txt("valone"), txt(" foo "), txt("val1val2two"))))
+    (Parse as ReStructuredText using ExtensionProvider.forExtensions(roles = roles) fromString input)
+      .content should be (root (p(txt("foo "), txt("valone"), txt(" foo "), txt("val1val2two"))))
   }
   
   trait BlockDirectives {

@@ -25,6 +25,7 @@ import laika.parse.helper.ParseResultHelpers
 import laika.tree.Elements.Span
 import laika.tree.helper.ModelBuilder
 import laika.parse.rst.Elements._
+import laika.parse.rst.ext.{ExtensionProvider, RootParserProvider}
 import laika.tree.Elements._
      
 class InlineParsersSpec extends FlatSpec 
@@ -36,7 +37,7 @@ class InlineParsersSpec extends FlatSpec
 
   val defaultTextRole = "foo"
 
-  val rootParser = new RootParser(defaultTextRole = defaultTextRole)
+  val rootParser = RootParserProvider.forBundle(ExtensionProvider.forDefaultTextRole(defaultTextRole))
 
   val defaultParser: Parser[List[Span]] = rootParser.recursiveSpans
 

@@ -16,8 +16,8 @@
   
 package laika.parse.rst.ext
 
-import laika.parse.rst.TextRoles.TextRole
-import laika.parse.rst.TextRoles.Parts._
+import TextRoles.TextRole
+import TextRoles.Parts._
 import laika.tree.Elements._
 
 /** Defines all supported standard text roles of the reStructuredText reference parser.

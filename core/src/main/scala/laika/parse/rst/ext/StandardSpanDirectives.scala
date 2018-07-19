@@ -19,8 +19,8 @@ package laika.parse.rst.ext
 import java.text.SimpleDateFormat
 import java.util.Date
 
-import laika.parse.rst.Directives.Parts._
-import laika.parse.rst.Directives._
+import Directives.Parts._
+import Directives._
 import laika.parse.rst.ext.StandardDirectiveParts._
 import laika.tree.Elements._
 

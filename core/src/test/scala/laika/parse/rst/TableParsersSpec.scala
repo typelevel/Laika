@@ -26,8 +26,8 @@ import laika.tree.Elements.Span
 import laika.tree.helper.ModelBuilder
 import laika.parse.rst.Elements._
 import laika.tree.Elements._
-import laika.parse.rst.TextRoles.RoleDirectivePart
-import laika.parse.rst.Directives.DirectivePart
+import laika.parse.rst.ext.TextRoles.RoleDirectivePart
+import laika.parse.rst.ext.Directives.DirectivePart
      
 class TableParsersSpec extends FlatSpec 
                         with Matchers 

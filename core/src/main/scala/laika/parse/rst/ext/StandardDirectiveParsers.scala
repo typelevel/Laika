@@ -21,7 +21,7 @@ import laika.parse.core.text.TextParsers.{opt, _}
 import laika.parse.core.{Failure, Parser, Success}
 import laika.parse.rst.BaseParsers.simpleRefName
 import laika.parse.rst.Elements.ReferenceName
-import laika.parse.rst.{BlockParsers, TableParsers}
+import laika.parse.rst.TableParsers
 import laika.tree.Elements._
 
 /** Defines the custom argument and body parsers for the standard directives.

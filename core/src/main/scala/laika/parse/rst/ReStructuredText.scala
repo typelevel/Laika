@@ -22,9 +22,7 @@ import laika.factory.{ParserFactory, RendererFactory}
 import laika.io.Input
 import laika.parse.core.combinator.Parsers
 import laika.parse.core.markup.DocumentParser
-import laika.parse.rst.Directives._
 import laika.parse.rst.Elements.FieldList
-import laika.parse.rst.TextRoles._
 import laika.parse.rst.ext._
 import laika.parse.util.WhitespacePreprocessor
 import laika.render.{HTML, HTMLWriter}
@@ -81,146 +79,52 @@ import laika.tree.Paths.Path
  * 
  *  @author Jens Halm
  */
-class ReStructuredText private (
-       blockDirectives: List[Directive[Block]],
-       spanDirectives: List[Directive[Span]],
-       textRoles: List[TextRole],
-       defaultTextRole: String = "title-reference",
-       rawContent: Boolean = false
-    ) extends ParserFactory { self =>
+class ReStructuredText private (rawContent: Boolean = false) extends ParserFactory { self =>
 
 
   val fileSuffixes: Set[String] = Set("rest","rst")
 
-  val extensions = Seq(new ExtensionBundle {
-    override val useInStrictMode: Boolean = true
-    override def rewriteRules: Seq[DocumentCursor => RewriteRule] = Seq(RewriteRules)
+  val extensions = Seq(
+    new ExtensionBundle {
+      override val useInStrictMode: Boolean = true
 
-    override def themeFor[Writer](rendererFactory: RendererFactory[Writer]): Theme[Writer] = rendererFactory match {
-      case _: HTML => Theme[HTMLWriter](customRenderers = Seq(ExtendedHTML))
-      case _ => Theme[Writer]() // TODO - refactor to return Option instead
-    }
-  })
-
-  /** Adds the specified directives and returns a new instance of the parser.
-   *  These block directives may then be used anywhere in documents parsed by this instance.
-   *
-   *  Example:
-   *
-   *  {{{
-   *  case class Note (title: String, content: Seq[Block]) extends Block with BlockContainer[Note]
-   *
-   *  val rst = ReStructuredText withBlockDirectives (
-   *    BlockDirective("note") {
-   *      (argument() ~ blockContent)(Note)
-   *    }
-   *  )
-   *
-   *  Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"
-   *  }}}
-   *
-   *  For more details on implementing directives see [[laika.parse.rst.Directives]].
-   */
-  def withBlockDirectives (directives: Directive[Block]*): ReStructuredText =
-    new ReStructuredText(blockDirectives ++ directives, spanDirectives, textRoles, defaultTextRole, rawContent)
-
-  /** Adds the specified directives and returns a new instance of the parser.
-   *  These span directives can then be referred to by substitution references.
-   *
-   *  Example:
-   *
-   *  {{{
-   *  val rst = ReStructuredText withSpanDirectives (
-   *    SpanDirective("replace") {
-   *      spanContent map SpanSequence
-   *    }
-   *  )
-   *
-   *  Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"
-   *  }}}
-   *
-   *  For more details on implementing directives see [[laika.parse.rst.Directives]].
-   */
-  def withSpanDirectives (directives: Directive[Span]*): ReStructuredText =
-    new ReStructuredText(blockDirectives, spanDirectives ++ directives, textRoles, defaultTextRole, rawContent)
-
-  /** Adds the specified text roles and returns a new instance of the parser.
-   *  These text roles may then be used in interpreted text spans.
-   *
-   *  Example:
-   *
-   *  {{{
-   *  val rst = ReStructuredText withTextRoles (
-   *    TextRole("link", "http://www.our-server.com/tickets/")(field("base-url")) {
-   *      (base, text) => Link(List(Text(text)), base + text)
-   *    }
-   *  )
-   *
-   *  Transform from rst to HTML fromFile "hello.rst" toFile "hello.html"
-   *  }}}
-   *
-   *  For more details on implementing directives see [[laika.parse.rst.TextRoles]].
-   */
-  def withTextRoles (roles: TextRole*): ReStructuredText =
-    new ReStructuredText(blockDirectives, spanDirectives, textRoles ++ roles, defaultTextRole, rawContent)
-
-  /** Specifies the name of the default text role
-   *  to apply when interpreted text
-   *  is used in markup without an explicit role name.
-   */
-  def withDefaultTextRole (role: String): ReStructuredText =
-    new ReStructuredText(blockDirectives, spanDirectives, textRoles, role, rawContent)
+      override def themeFor[Writer](rendererFactory: RendererFactory[Writer]): Theme[Writer] = rendererFactory match {
+        case _: HTML => Theme[HTMLWriter](customRenderers = Seq(ExtendedHTML))
+        case _ => Theme[Writer]() // TODO - refactor to return Option instead
+      }
+    },
+    RstExtensionSupport,
+    StandardExtensions
+  ) ++ (if (rawContent) Seq(RawContentExtensions) else Nil) // TODO - move
 
   /** Adds the `raw` directive and text roles to the parser.
    *  These are disabled by default as they present a potential security risk.
    */
-  def withRawContent: ReStructuredText = {
-    new ReStructuredText(blockDirectives, spanDirectives, textRoles, defaultTextRole, true)
-  }
-
-  private def createParser (parserExtensions: ParserDefinitionBuilders): RootParser = {
-
-    val stdBlocks = new StandardBlockDirectives
-    val stdSpans = new StandardSpanDirectives
-    val stdTextRoles = new StandardTextRoles
-
-    val rawDirective = if (rawContent) List(BlockDirective("raw")(stdBlocks.rawDirective)) else Nil
-    val rawTextRole = if (rawContent) List(stdTextRoles.rawTextRole) else Nil
-
-    val rstBlockDirectives = stdBlocks.blockDirectives ++ blockDirectives ++ rawDirective
-    val rstSpanDirectives  = stdSpans.spanDirectives   ++ spanDirectives
-    val rstTextRoles       = stdTextRoles.allRoles     ++ textRoles       ++ rawTextRole
-
-    new RootParser(parserExtensions.blockParsers, parserExtensions.spanParsers,
-      rstBlockDirectives, rstSpanDirectives, rstTextRoles, defaultTextRole)
-  }
+  def withRawContent: ReStructuredText = new ReStructuredText(true)
 
   /** The actual parser function, fully parsing the specified input and
    *  returning a document tree.
    */
   def newParser (parserExtensions: ParserDefinitionBuilders): Input => Document = input => {
+    // TODO - extract this logic once ParserFactory API gets finalized (preProcessInput)
     val raw = input.asParserInput.input
     val preprocessed = (new WhitespacePreprocessor)(raw.toString)
 
-    // TODO - extract this logic once ParserFactory API gets finalized
-    def extractDocInfo (config: Config, root: RootElement) = {
+    // TODO - extract this logic into DocumentParser and/or OperationConfig and/or ParserFactory
+    val rootParser = new RootParser(parserExtensions.blockParsers, parserExtensions.spanParsers)
+    val configHeaderParsers = parserExtensions.configHeaderParsers :+ { _:Path => Parsers.success(Right(ConfigFactory.empty)) }
+    val configHeaderParser = { path: Path => configHeaderParsers.map(_(path)).reduce(_ | _) }
+    val doc = DocumentParser.forMarkup(rootParser.rootElement, configHeaderParser)(Input.fromString(preprocessed, input.path))
+
+    // TODO - extract this logic once ParserFactory API gets finalized (postProcessDocument)
+    def extractDocInfo (config: Config, root: RootElement): Config = {
       import scala.collection.JavaConverters._
       val docStart = root.content dropWhile { case c: Comment => true; case h: DecoratedHeader => true; case _ => false } headOption
       val docInfo = docStart collect { case FieldList(fields,_) => fields map (field => (TreeUtil.extractText(field.name),
         field.content collect { case p: Paragraph => TreeUtil.extractText(p.content) } mkString)) toMap }
       docInfo map (i => config.withValue("docInfo", ConfigValueFactory.fromMap(i.asJava))) getOrElse config
     }
-
-    val rootParser = createParser(parserExtensions)
-    val configHeaderParsers = parserExtensions.configHeaderParsers :+ { _:Path => Parsers.success(Right(ConfigFactory.empty)) }
-    val configHeaderParser = { path: Path => configHeaderParsers.map(_(path)).reduce(_ | _) }
-    val doc = DocumentParser.forMarkup(rootParser.rootElement, configHeaderParser)(Input.fromString(preprocessed, input.path))
-
-    // these two lines to postProcessDocument
-    val finalConfig = extractDocInfo(doc.config, doc.content)
-    val finalRoot = doc.content.copy(content = doc.content.content ++ rootParser.textRoleElements)
-
-    doc.copy(config = finalConfig, content = finalRoot)
+    doc.copy(config = extractDocInfo(doc.config, doc.content))
   }
   
 }
@@ -229,4 +133,4 @@ class ReStructuredText private (
  * 
  *  @author Jens Halm
  */
-object ReStructuredText extends ReStructuredText(Nil,Nil,Nil,"title-reference",false)
+object ReStructuredText extends ReStructuredText(false)

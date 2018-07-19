@@ -18,8 +18,8 @@ package laika.parse.rst.ext
 
 import laika.parse.core.markup.RecursiveParsers
 import laika.parse.core.text.TextParsers
-import laika.parse.rst.Directives.DirectivePart
-import laika.parse.rst.Directives.Parts._
+import Directives.DirectivePart
+import Directives.Parts._
 import laika.tree.Elements._
 
 /**

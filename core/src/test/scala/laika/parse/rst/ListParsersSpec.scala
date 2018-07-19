@@ -25,8 +25,9 @@ import laika.parse.helper.ParseResultHelpers
 import laika.tree.helper.ModelBuilder
 import laika.parse.rst.Elements._
 import laika.tree.Elements._
-import laika.parse.rst.TextRoles.RoleDirectivePart
-import laika.parse.rst.Directives.DirectivePart
+import laika.parse.rst.ext.TextRoles.RoleDirectivePart
+import laika.parse.rst.ext.Directives.DirectivePart
+import laika.parse.rst.ext.{ExtensionProvider, RootParserProvider}
      
 class ListParsersSpec extends FlatSpec 
                         with Matchers 
@@ -35,7 +36,7 @@ class ListParsersSpec extends FlatSpec
                         with ModelBuilder {
 
 
-  val rootParser = new RootParser
+  val rootParser = RootParserProvider.forBundle(ExtensionProvider.forExtensions())
   val defaultParser: Parser[RootElement] = rootParser.rootElement
 
   

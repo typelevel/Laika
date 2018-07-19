@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package laika.parse.rst
+package laika.parse.rst.ext
 
-import laika.tree.Elements._
-import laika.rewrite.DocumentCursor
 import laika.parse.rst.Elements._
+import laika.parse.rst.ext.TextRoles.TextRole
+import laika.rewrite.DocumentCursor
+import laika.tree.Elements._
 
 /** 
  *  The default rewrite rules that get applied to the raw document tree after parsing
@@ -28,19 +29,20 @@ import laika.parse.rst.Elements._
  * 
  *  @author Jens Halm
  */
-object RewriteRules extends (DocumentCursor => RewriteRule) {
+class RewriteRules (textRoles: Seq[TextRole]) extends (DocumentCursor => RewriteRule) {
 
-  
-  class DefaultRules (cursor: DocumentCursor) { 
-    
+  val baseRoleElements: Map[String, String => Span] = textRoles map { role => (role.name, role.default) } toMap
+
+  class DefaultRules (cursor: DocumentCursor) {
+
     val substitutions: Map[String, Span] = cursor.target.content.collect { 
       case SubstitutionDefinition(id,content,_) => (id,content) 
     } toMap
     
-    val textRoles: Map[String, String => Span] = cursor.target.content.collect { 
+    val textRoles: Map[String, String => Span] = (cursor.target.content.collect {
       case CustomizedTextRole(id,f,_) => (id,f)                                   
-    } toMap  
-    
+    } toMap) ++ baseRoleElements
+
     def invalidSpan (message: String, fallback: String): InvalidSpan =
       InvalidSpan(SystemMessage(laika.tree.Elements.Error, message), Text(fallback))
       

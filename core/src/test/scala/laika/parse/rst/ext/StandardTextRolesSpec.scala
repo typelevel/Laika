@@ -196,7 +196,8 @@ class StandardTextRolesSpec extends FlatSpec
   "The default text role" should "be adjustable through the API" in {
     val input = "some `text`"
     val result = root(p(txt("some "), Emphasized(List(Text("text")))))
-    (Parse as ReStructuredText.withDefaultTextRole("emphasis") fromString input).content should be (result)
+    (Parse as ReStructuredText using ExtensionProvider.forDefaultTextRole("emphasis") fromString input)
+      .content should be (result)
   } 
   
   

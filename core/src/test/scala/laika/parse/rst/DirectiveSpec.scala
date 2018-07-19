@@ -16,21 +16,17 @@
 
 package laika.parse.rst
 
-import laika.directive.Directives.Spans
 import laika.parse.core.Parser
 import laika.parse.core.combinator.Parsers
-import org.scalatest.FlatSpec
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.Matchers
-import laika.parse.helper.DefaultParserHelpers
-import laika.parse.helper.ParseResultHelpers
-import laika.tree.helper.ModelBuilder
+import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.parse.rst.Elements._
+import laika.parse.rst.ext.Directives.Parts._
+import laika.parse.rst.ext.Directives._
+import laika.parse.rst.ext.TextRoles.TextRole
+import laika.parse.rst.ext.{ExtensionProvider, RootParserProvider, TextRoles}
 import laika.tree.Elements._
-import laika.parse.rst.TextRoles.TextRole
-import laika.parse.rst.Directives._
-import laika.parse.rst.Directives.Parts._
-import laika.parse.rst.TextRoles.RoleDirectivePart
+import laika.tree.helper.ModelBuilder
+import org.scalatest.{FlatSpec, Matchers}
    
 class DirectiveSpec extends FlatSpec 
                         with Matchers 
@@ -82,11 +78,7 @@ class DirectiveSpec extends FlatSpec
     }
   )
 
-  val rootParser = new RootParser(
-    blockDirectives = blockDirectives,
-    spanDirectives = spanDirectives,
-    textRoles = textRoles
-  )
+  val rootParser = RootParserProvider.forBundle(ExtensionProvider.forExtensions(blockDirectives, spanDirectives, textRoles))
   val defaultParser: Parser[RootElement] = rootParser.rootElement
 
   
