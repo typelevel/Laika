@@ -36,7 +36,7 @@ class BlockParsersSpec extends FlatSpec
                         with ModelBuilder {
 
 
-  val rootParser = new RootParser
+  val rootParser = new RootParser(postProcessBlocks = LinkTargetProcessor)
   val defaultParser: Parser[RootElement] = rootParser.rootElement
   
   

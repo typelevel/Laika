@@ -20,11 +20,14 @@ import laika.api.ext.{BlockParser, BlockParserBuilder}
 import laika.parse.core._
 import laika.parse.core.markup.BlockParsers._
 import laika.parse.core.text.Characters
-import laika.parse.core.text.TextParsers._
+import laika.parse.core.text.TextParsers.{opt, _}
 import laika.parse.rst.BaseParsers._
 import laika.parse.rst.Elements._
 import laika.tree.Elements._
 import laika.util.~
+
+import scala.annotation.tailrec
+import scala.collection.mutable.ListBuffer
 
 /** Provides the parsers for all types of block-level elements of reStructuredText. 
  *  It merges the individual traits that provide implementations for list, tables, etc. and 
@@ -140,6 +143,48 @@ object BlockParsers {
     val quoted = block(quotedLine, quotedLine, failure("blank line always ends quoted block")) ^^ { LiteralBlock(_) }
 
     indented | quoted
+  }
+
+  /**  Builds a parser for a list of blocks based on the parser for a single block.
+    *
+    *  Adds the processing required for cases where a block has influence
+    *  on the parsing or processing of the subsequent block.
+    *
+    *  This includes checking each Paragraph for a double colon ending which turns
+    *  the following block into a literal block as well as processing internal
+    *  link targets and section headers.
+    *
+    *  @param blockParser the parser for a single block element
+    *  @return a parser for a list of blocks
+    */
+  def createBlockListParser (blockParser: Parser[Block]): Parser[Seq[Block]] = Parser { in =>
+
+    val defaultBlock = blockParser <~ opt(blankLines)
+    val litBlock = (BlockParsers.literalBlock | defaultBlock) <~ opt(blankLines)
+    val elems = new ListBuffer[Block]
+
+    def processLiteralMarker (par: Paragraph) = {
+      par.content.lastOption match {
+        case Some(Text(text,opt)) if text.trim.endsWith("::") =>
+          val drop = if (text.length > 2 && text.charAt(text.length-3) == ' ') 3 else 1
+          val spans = par.content.init.toList ::: List(Text(text.dropRight(drop),opt))
+          (Paragraph(spans,par.options), litBlock)
+        case _ => (par, defaultBlock)
+      }
+    }
+
+    @tailrec
+    def parse (p: Parser[Block], in: ParserContext): Parsed[Seq[Block]] = p.parse(in) match {
+      case Success(Paragraph(Text(txt,_) :: Nil,_), rest) if txt.trim == "::" => parse(litBlock, rest)
+      case Success(p: Paragraph, rest) =>
+        val (paragraph, parser) = processLiteralMarker(p)
+        elems += paragraph
+        parse(parser, rest)
+      case Success(x, rest) => elems += x; parse(defaultBlock, rest)
+      case _                => Success(elems.toList, in)
+    }
+
+    parse(defaultBlock, in)
   }
   
 

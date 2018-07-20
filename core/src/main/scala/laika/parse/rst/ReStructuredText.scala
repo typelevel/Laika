@@ -51,7 +51,7 @@ import laika.render.{HTML, HTMLWriter}
 object ReStructuredText extends ParserFactory { self =>
 
 
-  val fileSuffixes: Set[String] = Set("rest","rst")
+  val fileSuffixes: Set[String] = Set("rest", "rst")
 
   val extensions = Seq(
     new ExtensionBundle {
@@ -60,13 +60,14 @@ object ReStructuredText extends ParserFactory { self =>
       override val parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders(
         rootParserHooks = Some(RootParserHooks(
           preProcessInput = WhitespacePreprocessor.forInput,
-          postProcessDocument = DocInfoExtractor
+          postProcessDocument = DocInfoExtractor,
+          postProcessBlocks = LinkTargetProcessor
         ))
       )
 
       override def themeFor[Writer](rendererFactory: RendererFactory[Writer]): Theme[Writer] = rendererFactory match {
         case _: HTML => Theme[HTMLWriter](customRenderers = Seq(ExtendedHTML))
-        case _ => Theme[Writer]() // TODO - refactor to return Option instead
+        case _ => Theme[Writer]()
       }
     },
     RstExtensionSupport,
@@ -78,6 +79,7 @@ object ReStructuredText extends ParserFactory { self =>
    *  returning a document tree.
    */
   def newRootParser (parserExtensions: ParserDefinitionBuilders): RootParserBase =
-    new RootParser(parserExtensions.blockParsers, parserExtensions.spanParsers)
+    new RootParser(parserExtensions.blockParsers, parserExtensions.spanParsers,
+      parserExtensions.rootParserHooks.map(_.postProcessBlocks).getOrElse(identity))
   
 }

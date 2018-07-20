@@ -17,7 +17,7 @@
 package laika.parse.rst.ext
 
 import laika.api.ext.ExtensionBundle
-import laika.parse.rst.RootParser
+import laika.parse.rst.{LinkTargetProcessor, RootParser}
 import laika.parse.rst.ext.Directives.Directive
 import laika.parse.rst.ext.TextRoles.TextRole
 import laika.tree.Elements.{Block, Span}
@@ -48,7 +48,7 @@ object RootParserProvider {
 
   def forBundle (bundle: ExtensionBundle): RootParser = {
     val finalBundle = bundle.processExtension(RstExtensionSupport)
-    new RootParser(finalBundle.parserDefinitions.blockParsers, finalBundle.parserDefinitions.spanParsers)
+    new RootParser(finalBundle.parserDefinitions.blockParsers, finalBundle.parserDefinitions.spanParsers, LinkTargetProcessor)
   }
 
 }
