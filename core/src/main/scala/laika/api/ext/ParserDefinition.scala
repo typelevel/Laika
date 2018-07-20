@@ -17,11 +17,13 @@
 package laika.api.ext
 
 import com.typesafe.config.Config
+import laika.io.Input
 import laika.parse.core.Parser
 import laika.parse.core.markup.DocumentParser.InvalidElement
 import laika.parse.core.markup.{EscapedTextParsers, RecursiveParsers, RecursiveSpanParsers}
 import laika.parse.core.text.TextParsers.char
 import laika.parse.css.Styles.StyleDeclaration
+import laika.tree.Documents.Document
 import laika.tree.Elements.{Block, Span}
 import laika.tree.Paths.Path
 import laika.tree.Templates.TemplateRoot
@@ -59,8 +61,21 @@ sealed trait ParserBuilder[T <: ParserDefinition] {
 trait BlockParserBuilder extends ParserBuilder[BlockParserDefinition]
 trait SpanParserBuilder extends ParserBuilder[SpanParserDefinition]
 
+case class RootParserHooks (postProcessBlocks: Seq[Block] => Seq[Block] = identity,
+                            postProcessDocument: Document => Document = identity,
+                            preProcessInput: Input => Input = identity) {
+
+  def withBase (base: RootParserHooks): RootParserHooks = new RootParserHooks(
+    base.postProcessBlocks andThen postProcessBlocks,
+    base.postProcessDocument andThen postProcessDocument,
+    base.preProcessInput andThen preProcessInput
+  )
+
+}
+
 case class ParserDefinitionBuilders(blockParsers: Seq[BlockParserBuilder] = Nil,
                                     spanParsers: Seq[SpanParserBuilder] = Nil,
+                                    rootParserHooks: Option[RootParserHooks] = None,
                                     configHeaderParsers: Seq[Path => Parser[Either[InvalidElement, Config]]] = Nil,
                                     templateParser: Option[Parser[TemplateRoot]] = None,
                                     styleSheetParser: Option[Parser[Set[StyleDeclaration]]] = None) {
@@ -69,20 +84,11 @@ case class ParserDefinitionBuilders(blockParsers: Seq[BlockParserBuilder] = Nil,
     ParserDefinitionBuilders(
       blockParsers ++ builders.blockParsers,
       spanParsers ++ builders.spanParsers,
+      (rootParserHooks.toSeq ++ builders.rootParserHooks.toSeq).reduceLeftOption(_ withBase _),
       configHeaderParsers ++ builders.configHeaderParsers,
       templateParser.orElse(builders.templateParser),
       styleSheetParser.orElse(builders.styleSheetParser)
     )
-
-  def markupParsers (recursiveParsers: RecursiveParsers): MarkupParsers = // TODO - remove
-    MarkupParsers(blockParsers.map(_.createParser(recursiveParsers)), spanParsers.map(_.createParser(recursiveParsers)))
-
-}
-
-// TODO - remove
-case class MarkupParsers (blockParsers: Seq[BlockParserDefinition], spanParsers: Seq[SpanParserDefinition]) {
-
-  def spanParserMap: Map[Char, Parser[Span]] = spanParsers.map(p => (p.startChar, p.parser)).toMap
 
 }
 

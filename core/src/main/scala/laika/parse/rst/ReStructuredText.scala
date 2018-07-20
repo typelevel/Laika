@@ -17,7 +17,7 @@
 package laika.parse.rst
 
 import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
-import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders, Theme}
+import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders, RootParserHooks, Theme}
 import laika.factory.{ParserFactory, RendererFactory}
 import laika.io.Input
 import laika.parse.core.combinator.Parsers
@@ -78,26 +78,33 @@ object ReStructuredText extends ParserFactory { self =>
   /** The actual parser function, fully parsing the specified input and
    *  returning a document tree.
    */
-  def newParser (parserExtensions: ParserDefinitionBuilders): Input => Document = input => {
-    // TODO - extract this logic once ParserFactory API gets finalized (preProcessInput)
-    val raw = input.asParserInput.input
-    val preprocessed = (new WhitespacePreprocessor)(raw.toString)
+  def newParser (parserExtensions: ParserDefinitionBuilders): Input => Document = {
 
-    // TODO - extract this logic into DocumentParser and/or OperationConfig and/or ParserFactory
-    val rootParser = new RootParser(parserExtensions.blockParsers, parserExtensions.spanParsers)
-    val configHeaderParsers = parserExtensions.configHeaderParsers :+ { _:Path => Parsers.success(Right(ConfigFactory.empty)) }
-    val configHeaderParser = { path: Path => configHeaderParsers.map(_(path)).reduce(_ | _) }
-    val doc = DocumentParser.forMarkup(rootParser.rootElement, configHeaderParser)(Input.fromString(preprocessed, input.path))
+    val hooks = parserExtensions.rootParserHooks.getOrElse(RootParserHooks())
 
-    // TODO - extract this logic once ParserFactory API gets finalized (postProcessDocument)
-    def extractDocInfo (config: Config, root: RootElement): Config = {
-      import scala.collection.JavaConverters._
-      val docStart = root.content dropWhile { case c: Comment => true; case h: DecoratedHeader => true; case _ => false } headOption
-      val docInfo = docStart collect { case FieldList(fields,_) => fields map (field => (TreeUtil.extractText(field.name),
-        field.content collect { case p: Paragraph => TreeUtil.extractText(p.content) } mkString)) toMap }
-      docInfo map (i => config.withValue("docInfo", ConfigValueFactory.fromMap(i.asJava))) getOrElse config
-    }
-    doc.copy(config = extractDocInfo(doc.config, doc.content))
+    val mainF = { input: Input => {
+      // TODO - extract this logic once ParserFactory API gets finalized (preProcessInput)
+      val raw = input.asParserInput.input
+      val preprocessed = (new WhitespacePreprocessor)(raw.toString)
+
+      // TODO - extract this logic into DocumentParser and/or OperationConfig and/or ParserFactory
+      val rootParser = new RootParser(parserExtensions.blockParsers, parserExtensions.spanParsers)
+      val configHeaderParsers = parserExtensions.configHeaderParsers :+ { _:Path => Parsers.success(Right(ConfigFactory.empty)) }
+      val configHeaderParser = { path: Path => configHeaderParsers.map(_(path)).reduce(_ | _) }
+      val doc = DocumentParser.forMarkup(rootParser.rootElement, configHeaderParser)(Input.fromString(preprocessed, input.path))
+
+      // TODO - extract this logic once ParserFactory API gets finalized (postProcessDocument)
+      def extractDocInfo (config: Config, root: RootElement): Config = {
+        import scala.collection.JavaConverters._
+        val docStart = root.content dropWhile { case c: Comment => true; case h: DecoratedHeader => true; case _ => false } headOption
+        val docInfo = docStart collect { case FieldList(fields,_) => fields map (field => (TreeUtil.extractText(field.name),
+          field.content collect { case p: Paragraph => TreeUtil.extractText(p.content) } mkString)) toMap }
+        docInfo map (i => config.withValue("docInfo", ConfigValueFactory.fromMap(i.asJava))) getOrElse config
+      }
+      doc.copy(config = extractDocInfo(doc.config, doc.content))
+    }}
+
+    hooks.preProcessInput andThen mainF andThen hooks.postProcessDocument
   }
   
 }

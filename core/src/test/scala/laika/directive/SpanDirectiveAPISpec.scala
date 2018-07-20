@@ -16,11 +16,12 @@
 
 package laika.directive
 
-import laika.api.ext.{MarkupParsers, ParserDefinition, ParserDefinitionBuilders}
+import laika.api.ext.ParserDefinitionBuilders
 import laika.directive.Directives.Spans.Directive
 import laika.directive.Directives.{Default, Spans}
 import laika.parse.core.Parser
-import laika.parse.helper.{DefaultParserHelpers, EmptyRecursiveParsers, ParseResultHelpers}
+import laika.parse.core.markup.RootParserBase
+import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.tree.Elements._
 import laika.tree.Templates.MarkupContextReference
 import laika.tree.helper.ModelBuilder
@@ -106,17 +107,13 @@ class SpanDirectiveAPISpec extends FlatSpec
     
   }
   
-  trait SpanParser extends EmptyRecursiveParsers
+  trait SpanParser extends RootParserBase
                    with ParseResultHelpers
                    with DefaultParserHelpers[SpanSequence] {
     
     def directive: Directive
 
-    // TODO - move most of this logic to RootParserBase
     lazy val directiveSupport: ParserDefinitionBuilders = DirectiveSupport.withDirectives(Seq(), Seq(directive), Seq()).parserDefinitions
-    lazy val markupParserExtensions: MarkupParsers = directiveSupport.markupParsers(this)
-
-    protected lazy val spanParsers: Map[Char, Parser[Span]] = markupParserExtensions.spanParserMap
 
     lazy val defaultParser: Parser[SpanSequence] = recursiveSpans ^^ (SpanSequence(_))
     
@@ -124,6 +121,12 @@ class SpanDirectiveAPISpec extends FlatSpec
         InvalidSpan(SystemMessage(laika.tree.Elements.Error, error), Literal(input))
         
     def ss (spans: Span*): SpanSequence = SpanSequence(spans)
+
+    lazy val mainBlockParsers = Nil
+    lazy val mainSpanParsers = Nil
+
+    lazy val blockParserExtensions = Nil
+    lazy val spanParserExtensions = directiveSupport.spanParsers
   }
   
 

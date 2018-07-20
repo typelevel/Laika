@@ -58,7 +58,7 @@ class LinkTargetProvider (path: Path, root: RootElement) {
       
       case lt: LinkAlias              => new LinkAliasTarget(lt)
       
-      case hd @ DecoratedHeader(_,_,Id(id)) => new DecoratedHeaderTarget(hd, suggestedId(id, headerIdMap), path, levels)  // TODO - does not handle headers without id
+      case hd @ DecoratedHeader(_,_,Id(id)) => new DecoratedHeaderTarget(hd, suggestedId(id, headerIdMap), path, levels)
       
       case hd @ Header(_,_,Id(id))          => new HeaderTarget(hd, suggestedId(id, headerIdMap), path)
       
