@@ -19,10 +19,9 @@ package laika.directive
 import laika.api.ext._
 import laika.directive.Directives.Blocks.Directive
 import laika.directive.Directives.{Blocks, Default}
-import laika.parse.core.Parser
 import laika.parse.core.combinator.Parsers
-import laika.parse.core.markup.RootParserBase
 import laika.parse.core.text.TextParsers._
+import laika.parse.core.{Parser, RootParserProvider}
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.tree.Elements._
 import laika.tree.Templates.MarkupContextReference
@@ -110,10 +109,9 @@ class BlockDirectiveAPISpec extends FlatSpec
     
   }
   
-  trait TemplateParser extends RootParserBase
-                          with ParseResultHelpers 
+  trait TemplateParser extends ParseResultHelpers
                           with DefaultParserHelpers[RootElement] {
-    
+
     def directive: Directive
 
     lazy val directiveSupport: ParserDefinitionBuilders = DirectiveSupport.withDirectives(Seq(directive), Seq(), Seq()).parserDefinitions
@@ -122,16 +120,13 @@ class BlockDirectiveAPISpec extends FlatSpec
       recParser.recursiveSpans(((Parsers.not(blankLine) ~> restOfLine) +) ^^ (_.mkString("\n"))) ^^ { Paragraph(_) }
     }
 
-    lazy val defaultParser: Parser[RootElement] = rootElement
+    lazy val defaultParser: Parser[RootElement] = RootParserProvider.forParsers(
+      blockParsers = Seq(paragraphParser),
+      markupExtensions = directiveSupport.markupExtensions
+    ).rootElement
 
     def invalid (input: String, error: String): InvalidBlock =
         InvalidBlock(SystemMessage(laika.tree.Elements.Error, error), LiteralBlock(input))
-
-    lazy val mainBlockParsers = Seq(paragraphParser)
-    lazy val mainSpanParsers = Nil
-
-    lazy val blockParserExtensions = directiveSupport.blockParsers
-    lazy val spanParserExtensions = directiveSupport.spanParsers
 
   }
 

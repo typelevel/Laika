@@ -16,10 +16,13 @@
 
 package laika.parse.markdown
 
-import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders, RootParserHooks}
-import laika.factory.ParserFactory
-import laika.parse.core.markup.RootParserBase
+import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders, RootParserHooks, SpanParser}
+import laika.factory.MarkupParser
+import laika.parse.core.Parser
+import laika.parse.core.markup.RootParser
+import laika.parse.core.text.TextParsers.anyOf
 import laika.parse.markdown.html.VerbatimHTML
+import laika.tree.Elements.{Block, Text}
   
 /** A parser for Markdown text. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:
@@ -51,10 +54,35 @@ import laika.parse.markdown.html.VerbatimHTML
  * 
  *  @author Jens Halm
  */
-object Markdown extends ParserFactory {
+object Markdown extends MarkupParser {
 
   val fileSuffixes: Set[String] = Set("md", "markdown")
-  
+
+  val blockParsers = Seq(
+    BlockParsers.atxHeader,
+    BlockParsers.linkTarget,
+    BlockParsers.quotedBlock,
+    BlockParsers.rootHeaderOrParagraph,
+    BlockParsers.nestedHeaderOrParagraph
+  ) ++
+    BlockParsers.literalBlocks ++
+    BlockParsers.rules ++
+    ListParsers.enumLists ++
+    ListParsers.bulletLists
+
+  val spanParsers = Seq(
+    InlineParsers.enclosedByAsterisk,
+    InlineParsers.enclosedByUnderscore,
+    InlineParsers.literalSpan,
+    InlineParsers.image,
+    InlineParsers.link,
+    InlineParsers.simpleLink,
+    InlineParsers.lineBreak,
+    SpanParser.forStartChar('\\').standalone(escapedChar ^^ { Text(_) }).withLowPrecedence // TODO - extract
+  )
+
+  override lazy val escapedChar = InlineParsers.escapedChar
+
   val extensions = Seq(
     new ExtensionBundle {
       override val parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders(
@@ -65,12 +93,9 @@ object Markdown extends ParserFactory {
     },
     VerbatimHTML
   )
+
+  override def createBlockListParser (parser: Parser[Block]): Parser[Seq[Block]] =
+    super.createBlockListParser(BlockParsers.insignificantSpaces ~> parser)
   
-  /** The actual parser function, fully parsing the specified input and
-   *  returning a document tree.
-   */
-  def newRootParser (parserExtensions: ParserDefinitionBuilders): RootParserBase =
-    new RootParser(parserExtensions.blockParsers, parserExtensions.spanParsers,
-      parserExtensions.rootParserHooks.map(_.postProcessBlocks).getOrElse(identity))
 
 }

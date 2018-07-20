@@ -16,10 +16,11 @@
 
 package laika.parse.markdown.html
 
-import laika.api.ext.ParserDefinitionBuilders
+import laika.api.config.OperationConfig
 import laika.parse.core.Parser
+import laika.parse.core.markup.RootParser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
-import laika.parse.markdown.RootParser
+import laika.parse.markdown.Markdown
 import laika.parse.markdown.html.HTMLElements.HTMLAttribute
 import laika.tree.Elements.Span
 import laika.tree.helper.ModelBuilder
@@ -33,7 +34,7 @@ class HTMLParsersSpec extends FlatSpec
                       with HTMLModelBuilder {
 
 
-  val rootParser = new RootParser(VerbatimHTML.parserDefinitions.blockParsers, VerbatimHTML.parserDefinitions.spanParsers)
+  val rootParser = new RootParser(Markdown, OperationConfig(Markdown.extensions).forRawContent.markupExtensions)
 
   val defaultParser: Parser[List[Span]] = rootParser.recursiveSpans
   

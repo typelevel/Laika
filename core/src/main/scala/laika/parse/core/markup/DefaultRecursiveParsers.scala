@@ -35,22 +35,26 @@ trait DefaultRecursiveParsers extends RecursiveParsers with DefaultRecursiveSpan
 
   /** Parses any kind of top-level block supported by a concrete markup language.
     */
-  protected def topLevelBlock: Parser[Block]
+  protected def rootBlock: Parser[Block]
 
   /** Parses any kind of nested block supported by a concrete markup language.
     */
   protected def nestedBlock: Parser[Block]
 
-  /** Parses blocks, excluding blocks that allow nesting.
+  /**  Parses blocks, excluding blocks that allow nesting.
     *  Only used in rare cases when the maximum nest level allowed had been reached
     */
-  protected def nonRecursiveBlock: Parser[Block]
+  protected def fallbackBlock: Parser[Block]
+
+  /** Builds a parser for a list of blocks based on the parser for a single block.
+    */
+  protected def blockList (p: => Parser[Block]): Parser[Seq[Block]]
 
 
   private class RecursiveBlockParser {
 
     lazy val recursive    = consumeAll(opt(blankLines) ~> blockList(nestedBlock))
-    lazy val nonRecursive = consumeAll(opt(blankLines) ~> blockList(nonRecursiveBlock))
+    lazy val nonRecursive = consumeAll(opt(blankLines) ~> blockList(fallbackBlock))
 
     def parse (source: String, nestLevel: Int): Parsed[Seq[Block]] = {
       val p = if (nestLevel < maxNestLevel) recursive else nonRecursive
@@ -89,9 +93,5 @@ trait DefaultRecursiveParsers extends RecursiveParsers with DefaultRecursiveSpan
       case f: Failure => f
     }
   }
-
-  /** Builds a parser for a list of blocks based on the parser for a single block.
-    */
-  def blockList (p: => Parser[Block]): Parser[Seq[Block]] = (p <~ opt(blankLines))*
 
 }

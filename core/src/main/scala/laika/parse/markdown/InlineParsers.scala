@@ -39,6 +39,14 @@ import laika.util.~
 object InlineParsers {
 
 
+  /**  Parses a single escaped character, only recognizing the characters the Markdown syntax document
+    *  specifies as escapable.
+    *
+    *  Note: escaping > is not mandated by the official syntax description, but by the official test suite.
+    */
+  val escapedChar: Parser[String] = anyOf('\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!', '>') take 1
+
+
   /** Parses an explicit hard line break.
    */
   val lineBreak: SpanParserBuilder = SpanParser.forStartChar('\\').standalone(anyOf('\r').take(1) ^^^ LineBreak())
@@ -162,31 +170,29 @@ object InlineParsers {
                 ref: (RecParser, String, String, String) => Span,
                 recParsers: RecursiveSpanParsers): Parser[Span] = {
 
-    import recParsers._
-
     val linktext = text(delimitedBy(']'), Map(
-      '\\' -> (escapedChar ^^ {"\\" + _}),
+      '\\' -> (recParsers.escapedChar ^^ {"\\" + _}),
       '[' -> (delimitedBy(']') ^^ { "[" + _ + "]" })
     ))
 
     val titleEnd = lookAhead(ws.^ ~ ')')
     val title = ws.^ ~> (('"' ~> delimitedBy("\"", titleEnd)) | ('\'' ~> delimitedBy("'", titleEnd)))
 
-    val url = ('<' ~> text(delimitedBy('>',' ').keepDelimiter, Map('\\' -> escapedChar)) <~ '>') |
-       text(delimitedBy(')',' ','\t').keepDelimiter, Map('\\' -> escapedChar))
+    val url = ('<' ~> text(delimitedBy('>',' ').keepDelimiter, Map('\\' -> recParsers.escapedChar)) <~ '>') |
+       text(delimitedBy(')',' ','\t').keepDelimiter, Map('\\' -> recParsers.escapedChar))
     
     val urlWithTitle = '(' ~> url ~ opt(title) <~ ws ~ ')' ^^ {  
       case url ~ title => (recParser: RecParser, text:String) => inline(recParser, text, url, title)
     }
-    val refId =    ws ~ opt(eol) ~ ('[' ~> escapedUntil(']')) ^^ {
+    val refId =    ws ~ opt(eol) ~ ('[' ~> recParsers.escapedUntil(']')) ^^ {
       case ws ~ lb ~ id => (recParser: RecParser, text:String) =>
         ref(recParser, text, id,   "]"+ws+ lb.getOrElse("") +"["+id+"]") }
 
     val refEmpty = ws ~ opt(eol) ~ "[]" ^^ {
       case ws ~ lb ~ _  => (recParser: RecParser, text:String) =>
         ref(recParser, text, text, "]"+ws+ lb.getOrElse("") +"[]") }
-  
-    withRecursiveSpanParser(linktext) ~ opt(urlWithTitle | refEmpty | refId) ^^ {
+
+    recParsers.withRecursiveSpanParser(linktext) ~ opt(urlWithTitle | refEmpty | refId) ^^ {
       case (recParser, text) ~ None    => ref(recParser, text, text, "]")
       case (recParser, text) ~ Some(f) => f(recParser, text)
     }

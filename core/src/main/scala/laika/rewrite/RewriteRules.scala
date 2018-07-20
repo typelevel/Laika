@@ -16,7 +16,7 @@
 
 package laika.rewrite
 
-import laika.factory.ParserFactory
+import laika.factory.MarkupParser
 import laika.tree.Elements.Element
 import laika.tree.Elements.RewriteRule
 
@@ -74,7 +74,7 @@ object RewriteRules {
   /** Combines the default Laika rewrite rules with the ones provided by the
     * specified parser factory implementations into a single rule.
     */
-  def defaultsFor (parsers: ParserFactory*): DocumentCursor => RewriteRule = 
+  def defaultsFor (parsers: MarkupParser*): DocumentCursor => RewriteRule =
     chainFactories(parsers.flatMap(_.extensions.flatMap(_.rewriteRules) ++ defaultsFactories))
    
     

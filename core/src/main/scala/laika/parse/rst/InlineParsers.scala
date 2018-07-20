@@ -40,6 +40,15 @@ import laika.util.~
 object InlineParsers {
 
 
+  /** Parses an escaped character. For most characters it produces the character
+    *  itself as the result with the only exception being an escaped space character
+    *  which is removed from the output in reStructuredText.
+    *
+    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#escaping-mechanism]].
+    */
+  val escapedChar: Parser[String] = (" " ^^^ "") | (any take 1)
+
+
   private val pairs: Map[Char, Set[Char]] = List(/* Ps/Pe pairs */
                   '('->')', '['->']', '{'->'}', '<'->'>', '"'->'"', '\''->'\'', 
                   '\u0f3a'->'\u0f3b', '\u0f3c'->'\u0f3d', '\u169b'->'\u169c', '\u2045'->'\u2046',

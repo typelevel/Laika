@@ -16,12 +16,13 @@
 
 package laika.parse.rst
 
-import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders, RootParserHooks, Theme}
-import laika.factory.{ParserFactory, RendererFactory}
-import laika.parse.core.markup.RootParserBase
+import laika.api.ext._
+import laika.factory.{MarkupParser, RendererFactory}
+import laika.parse.core.Parser
 import laika.parse.rst.ext._
 import laika.parse.util.WhitespacePreprocessor
 import laika.render.{HTML, HTMLWriter}
+import laika.tree.Elements.{Block, Text}
   
 /** A parser for text written in reStructuredText markup. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:
@@ -48,10 +49,47 @@ import laika.render.{HTML, HTMLWriter}
  * 
  *  @author Jens Halm
  */
-object ReStructuredText extends ParserFactory { self =>
+object ReStructuredText extends MarkupParser { self =>
 
 
   val fileSuffixes: Set[String] = Set("rest", "rst")
+
+  val blockParsers = Seq(
+    ListParsers.bulletList,
+    ListParsers.enumList,
+    ListParsers.fieldList,
+    ListParsers.lineBlock,
+    ListParsers.optionList,
+    ExplicitBlockParsers.allBlocks,
+    ExplicitBlockParsers.shortAnonymousLinkTarget,
+    TableParsers.gridTable,
+    TableParsers.simpleTable,
+    BlockParsers.doctest,
+    BlockParsers.blockQuote,
+    BlockParsers.headerWithOverline,
+    BlockParsers.transition,
+    BlockParsers.headerWithUnderline,
+    ListParsers.definitionList,
+    BlockParsers.paragraph
+  )
+
+  val spanParsers = Seq(
+    InlineParsers.strong,
+    InlineParsers.em,
+    InlineParsers.inlineLiteral,
+    InlineParsers.phraseLinkRef,
+    InlineParsers.simpleLinkRef,
+    InlineParsers.footnoteRef,
+    InlineParsers.citationRef,
+    InlineParsers.substitutionRef,
+    InlineParsers.internalTarget,
+    InlineParsers.interpretedTextWithRolePrefix,
+    InlineParsers.uri,
+    InlineParsers.email,
+    SpanParser.forStartChar('\\').standalone(escapedChar ^^ { Text(_) }).withLowPrecedence // TODO - extract
+  )
+
+  override lazy val escapedChar = InlineParsers.escapedChar
 
   val extensions = Seq(
     new ExtensionBundle {
@@ -75,11 +113,6 @@ object ReStructuredText extends ParserFactory { self =>
     RawContentExtensions
   )
 
-  /** The actual parser function, fully parsing the specified input and
-   *  returning a document tree.
-   */
-  def newRootParser (parserExtensions: ParserDefinitionBuilders): RootParserBase =
-    new RootParser(parserExtensions.blockParsers, parserExtensions.spanParsers,
-      parserExtensions.rootParserHooks.map(_.postProcessBlocks).getOrElse(identity))
-  
+  override def createBlockListParser (parser: Parser[Block]): Parser[Seq[Block]] = BlockParsers.createBlockListParser(parser)
+
 }

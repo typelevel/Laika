@@ -16,21 +16,19 @@
 
 package laika.factory
 
-import com.typesafe.config.ConfigFactory
-import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders, RootParserHooks}
-import laika.io.Input
-import laika.parse.core.combinator.Parsers
-import laika.parse.core.markup.{DocumentParser, RootParserBase}
-import laika.tree.Documents.Document
-import laika.tree.Paths.Path
+import laika.api.ext._
+import laika.parse.core.Parser
+import laika.parse.core.combinator.Parsers.opt
+import laika.parse.core.text.TextParsers
+import laika.parse.core.text.TextParsers.blankLines
+import laika.tree.Elements.Block
 
 /** Responsible for creating parser instances for a specific markup format.
  *  A parser is simply a function of type `Input => Document`.
  *  
  *  @author Jens Halm
  */
-trait ParserFactory {
-  
+trait MarkupParser {
   
   /** The file suffixes recognized by this parser.
    *  When transforming entire directories only files with
@@ -42,7 +40,22 @@ trait ParserFactory {
    *  with other installed formats.
    */
   def fileSuffixes: Set[String]
-  
+
+  /** All block parsers for the markup language this parser processes.
+    */
+  def blockParsers: Seq[BlockParserBuilder]
+
+  /** All span parsers for the markup language this parser processes.
+    */
+  def spanParsers: Seq[SpanParserBuilder]
+
+  /** Parses the character after the one that started the escape sequence (usually a backslash).
+    *
+    * The default implementation parses any character as is, this can be overridden in case
+    * the host language has more specific rules for escape sequences.
+    */
+  def escapedChar: Parser[String] = TextParsers.any.take(1)
+
   /** The parser-specific extensions that need to be installed
    *  for each transformation that involves this parser.
    * 
@@ -52,21 +65,6 @@ trait ParserFactory {
    */
   def extensions: Seq[ExtensionBundle]
 
-  def newRootParser (parserExtensions: ParserDefinitionBuilders): RootParserBase // TODO - temporary
-
-  /**  Creates a new parser instance.
-   *   Such an instance is expected to be stateless and thread-safe,
-   *   thus capable of repeated and parallel executions.
-   */
-  def newParser (parserExtensions: ParserDefinitionBuilders): Input => Document = {
-
-    // TODO - extract this logic into DocumentParser and/or OperationConfig
-    val configHeaderParsers = parserExtensions.configHeaderParsers :+ { _:Path => Parsers.success(Right(ConfigFactory.empty)) }
-    val configHeaderParser = { path: Path => configHeaderParsers.map(_(path)).reduce(_ | _) }
-
-    val hooks = parserExtensions.rootParserHooks.getOrElse(RootParserHooks())
-
-    hooks.preProcessInput andThen DocumentParser.forMarkup(newRootParser(parserExtensions).rootElement, configHeaderParser) andThen hooks.postProcessDocument
-  }
+  def createBlockListParser (parser: Parser[Block]): Parser[Seq[Block]] = (parser <~ opt(blankLines))*
 
 }

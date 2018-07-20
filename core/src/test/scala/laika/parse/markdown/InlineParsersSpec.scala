@@ -16,7 +16,9 @@
 
 package laika.parse.markdown
 
+import laika.api.config.OperationConfig
 import laika.parse.core.Parser
+import laika.parse.core.markup.RootParser
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 import laika.parse.helper.DefaultParserHelpers
@@ -31,7 +33,7 @@ class InlineParsersSpec extends FlatSpec
                         with ModelBuilder {
 
 
-  val rootParser = new RootParser()
+  val rootParser = new RootParser(Markdown, OperationConfig(Markdown.extensions).markupExtensions)
 
   val defaultParser: Parser[List[Span]] = rootParser.recursiveSpans
 

@@ -18,7 +18,7 @@ package laika.api
 
 import laika.api.Render._
 import laika.api.config.{OperationConfig, TransformConfigBuilder}
-import laika.factory.{ParserFactory, RenderResultProcessor, RendererFactory}
+import laika.factory.{MarkupParser, RenderResultProcessor, RendererFactory}
 import laika.io._
 import laika.tree.Documents._
 
@@ -161,7 +161,7 @@ object Transform {
   /** Step in the setup for a transform operation where the
    *  renderer must be specified.
    */
-  class Builder private[Transform] (factories: Seq[ParserFactory]) {
+  class Builder private[Transform] (factories: Seq[MarkupParser]) {
 
     lazy val parse = factories.tail.foldLeft(Parse.as(factories.head))(_ or _)
 
@@ -176,7 +176,7 @@ object Transform {
      *  @param factory the parser factory to add to the previously specified parsers
      *  @return a new Builder instance
      */
-    def or (factory: ParserFactory): Builder = new Builder(factories :+ factory)
+    def or (factory: MarkupParser): Builder = new Builder(factories :+ factory)
     
     /** Creates and returns a new Transform instance for the specified renderer and the
      *  previously specified parser. The returned instance is stateless and reusable for
@@ -210,7 +210,7 @@ object Transform {
    *  @param factory the parser factory to use
    *  @return a new Builder instance for specifying the renderer
    */
-  def from (factory: ParserFactory): Builder = new Builder(Seq(factory))
+  def from (factory: MarkupParser): Builder = new Builder(Seq(factory))
   
   
 }

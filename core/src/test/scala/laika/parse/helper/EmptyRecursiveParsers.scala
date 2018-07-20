@@ -26,10 +26,10 @@ import laika.tree.Elements.Block
   */
 trait EmptyRecursiveParsers extends DefaultRecursiveParsers {
 
-  override protected def topLevelBlock: Parser[Block] = failure("not implemented")
+  override protected def rootBlock: Parser[Block] = failure("not implemented")
 
   override protected def nestedBlock: Parser[Block] = failure("not implemented")
 
-  override protected def nonRecursiveBlock: Parser[Block] = failure("not implemented")
+  override protected def fallbackBlock: Parser[Block] = failure("not implemented")
 
 }

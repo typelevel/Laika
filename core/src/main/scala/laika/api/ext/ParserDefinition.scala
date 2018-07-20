@@ -90,7 +90,14 @@ case class ParserDefinitionBuilders(blockParsers: Seq[BlockParserBuilder] = Nil,
       styleSheetParser.orElse(builders.styleSheetParser)
     )
 
+  def markupExtensions: MarkupExtensions =
+    MarkupExtensions(blockParsers, spanParsers, rootParserHooks.getOrElse(RootParserHooks()))
+
 }
+
+case class MarkupExtensions (blockParsers: Seq[BlockParserBuilder],
+                             spanParsers: Seq[SpanParserBuilder],
+                             rootParserHooks: RootParserHooks)
 
 sealed trait Precedence
 object Precedence {

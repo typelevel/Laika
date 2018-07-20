@@ -18,8 +18,8 @@ package laika.parse.markdown
 
 import laika.api.Transform
 import laika.api.ext.ParserDefinitionBuilders
-import laika.factory.ParserFactory
-import laika.parse.core.markup.{DocumentParser, RootParserBase}
+import laika.factory.MarkupParser
+import laika.parse.core.markup.{DocumentParser, RootParser}
 import laika.parse.markdown.html.VerbatimHTML
 import laika.render.HTML
 import laika.transform.helper.FileTransformerUtil

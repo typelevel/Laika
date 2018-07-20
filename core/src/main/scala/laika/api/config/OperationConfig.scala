@@ -16,20 +16,22 @@
 
 package laika.api.config
 
-import com.typesafe.config.{Config, ConfigFactory}
-import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders}
+import com.typesafe.config.Config
 import laika.api.ext.ExtensionBundle.LaikaDefaults
-import laika.directive.{DirectiveSupport, StandardDirectives}
-import laika.factory.{ParserFactory, RendererFactory}
-import laika.io.{DefaultDocumentTypeMatcher, DocumentType}
+import laika.api.ext.{ExtensionBundle, MarkupExtensions, ParserDefinitionBuilders}
+import laika.directive.{ConfigHeaderParser, DirectiveSupport, StandardDirectives}
+import laika.factory.{MarkupParser, RendererFactory}
 import laika.io.DocumentType.Ignored
+import laika.io.{DefaultDocumentTypeMatcher, DocumentType}
 import laika.parse.core.Parser
-import laika.parse.core.combinator.Parsers
+import laika.parse.core.combinator.Parsers.success
 import laika.parse.core.markup.DocumentParser.InvalidElement
+import laika.parse.css.Styles.StyleDeclaration
 import laika.rewrite.{DocumentCursor, RewriteRules}
 import laika.tree.Documents.Document
 import laika.tree.Elements.{Fatal, MessageLevel, RewriteRule}
 import laika.tree.Paths.Path
+import laika.tree.Templates.TemplateRoot
 
 /**
   * @author Jens Halm
@@ -46,13 +48,15 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
 
   lazy val docTypeMatcher: Path => DocumentType = mergedBundle.docTypeMatcher.lift.andThen(_.getOrElse(Ignored))
 
-  lazy val parserDefinitions: ParserDefinitionBuilders = mergedBundle.parserDefinitions
+  lazy val markupExtensions: MarkupExtensions = mergedBundle.parserDefinitions.markupExtensions
 
-  lazy val configHeaderParser: Path => Parser[Either[InvalidElement, Config]] = {
-    val allParsers = mergedBundle.parserDefinitions.configHeaderParsers :+
-      { _:Path => Parsers.success(Right(ConfigFactory.empty)) }
-    { path: Path => allParsers.map(_(path)).reduce(_ | _) }
-  }
+  lazy val configHeaderParser: Path => Parser[Either[InvalidElement, Config]] =
+    ConfigHeaderParser.merged(mergedBundle.parserDefinitions.configHeaderParsers :+ ConfigHeaderParser.fallback)
+
+  lazy val styleSheetParser: Parser[Set[StyleDeclaration]] =
+    mergedBundle.parserDefinitions.styleSheetParser.getOrElse(success(Set.empty[StyleDeclaration]))
+
+  lazy val templateParser: Option[Parser[TemplateRoot]] = mergedBundle.parserDefinitions.templateParser
 
   lazy val rewriteRule: DocumentCursor => RewriteRule = RewriteRules.chainFactories(mergedBundle.rewriteRules)
 
@@ -64,7 +68,7 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
 
   def withBundles (bundles: Seq[ExtensionBundle]): OperationConfig = copy(bundles = this.bundles ++ bundles)
 
-  def withBundlesFor (factory: ParserFactory): OperationConfig = {
+  def withBundlesFor (factory: MarkupParser): OperationConfig = {
     val docTypeMatcher = new ExtensionBundle {
       override val docTypeMatcher: PartialFunction[Path, DocumentType] =
         DefaultDocumentTypeMatcher.forMarkup(factory.fileSuffixes)

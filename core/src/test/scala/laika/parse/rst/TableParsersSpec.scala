@@ -16,18 +16,15 @@
 
 package laika.parse.rst
 
+import laika.api.ext.ParserDefinitionBuilders
 import laika.parse.core.Parser
-import org.scalatest.FlatSpec
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.Matchers
-import laika.parse.helper.DefaultParserHelpers
-import laika.parse.helper.ParseResultHelpers
-import laika.tree.Elements.Span
-import laika.tree.helper.ModelBuilder
-import laika.parse.rst.Elements._
-import laika.tree.Elements._
-import laika.parse.rst.ext.TextRoles.RoleDirectivePart
+import laika.parse.core.markup.RootParser
+import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.parse.rst.ext.Directives.DirectivePart
+import laika.parse.rst.ext.TextRoles.RoleDirectivePart
+import laika.tree.Elements.{Span, _}
+import laika.tree.helper.ModelBuilder
+import org.scalatest.{FlatSpec, Matchers}
      
 class TableParsersSpec extends FlatSpec 
                         with Matchers 
@@ -36,7 +33,7 @@ class TableParsersSpec extends FlatSpec
                         with ModelBuilder {
 
 
-  val rootParser = new RootParser
+  val rootParser = new RootParser(ReStructuredText, ParserDefinitionBuilders().markupExtensions)
   val defaultParser: Parser[RootElement] = rootParser.rootElement
 
   

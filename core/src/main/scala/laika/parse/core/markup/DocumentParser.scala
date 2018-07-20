@@ -17,8 +17,9 @@
 package laika.parse.core.markup
 
 import com.typesafe.config.{Config, ConfigFactory}
-import laika.api.ext.{BlockParserBuilder, ParserBuilder, SpanParserBuilder}
+import laika.api.ext.MarkupExtensions
 import laika.directive.ConfigHeaderParser
+import laika.factory.MarkupParser
 import laika.io.Input
 import laika.parse.core.Parser
 import laika.parse.core.text.TextParsers.unsafeParserFunction
@@ -65,6 +66,18 @@ object DocumentParser {
     def apply (message: String, source: String): InvalidElement = apply(SystemMessage(laika.tree.Elements.Error, message), source)
   }
 
+  def forMarkup (markupParser: MarkupParser,
+                 markupExtensions: MarkupExtensions,
+                 configHeaderParser: ConfigHeaderParser): Input => Document = {
+
+    val rootParser = new RootParser(markupParser, markupExtensions).rootElement
+
+    markupExtensions.rootParserHooks.preProcessInput andThen
+      forMarkup(rootParser, configHeaderParser) andThen
+      markupExtensions.rootParserHooks.postProcessDocument
+  }
+
+
   def forMarkup (rootParser: Parser[RootElement], configHeaderParser: ConfigHeaderParser): Input => Document =
 
     create(rootParser, configHeaderParser) { (path, config, invalid, root) =>
@@ -88,28 +101,5 @@ object DocumentParser {
 
   }
 
-
-}
-
-trait MarkupParser { // replacing ParserFactory and RootParserBase
-
-  // stuff moving over from ParserFactory, fileSuffixes, extensions
-
-  def blockParsers: Seq[BlockParserBuilder]
-
-  def spanParsers: Seq[SpanParserBuilder]
-
-  // this one is tricky as it is already needed in DefaultRecursiveParsers
-  def createBlockListParser (parser: => Parser[Block]): Parser[List[Block]] = parser.rep // (p <~ opt(blankLines))*
-  // rst -> parser depends on prev block result, md -> prepend insignificant spaces
-
-  def postProcessBlocks (blocks: Seq[Block]): Seq[Block] = blocks
-  // rst - simplified id processor
-
-  def postProcessDocument (doc: Document): Document = doc
-  // rst - insert text roles, etc.
-
-  def preProcessInput (input: Input): Input = input
-  // rst - process whitespace
 
 }

@@ -18,6 +18,7 @@ package laika.directive
 
 import com.typesafe.config.{Config, ConfigFactory, ConfigParseOptions, ConfigValueFactory}
 import laika.parse.core.Parser
+import laika.parse.core.combinator.Parsers
 import laika.parse.core.markup.DocumentParser.InvalidElement
 import laika.parse.core.text.TextParsers
 import laika.parse.core.text.TextParsers._
@@ -28,19 +29,21 @@ import laika.tree.Paths.Path
   */
 object ConfigHeaderParser {
 
-  def withDefaultLineDelimiters(path: Path): Parser[Either[InvalidElement, Config]] = betweenLines("{%","%}")(path)
+  type ConfigHeaderParser = Parser[Either[InvalidElement, Config]]
 
-  def betweenLines(startDelim: String, endDelim: String)(path: Path): Parser[Either[InvalidElement, Config]] = {
+  def withDefaultLineDelimiters(path: Path): ConfigHeaderParser = betweenLines("{%","%}")(path)
+
+  def betweenLines(startDelim: String, endDelim: String)(path: Path): ConfigHeaderParser = {
     val parser = startDelim ~> TextParsers.delimitedBy(endDelim) <~ wsEol
     forTextParser(parser)(path)
   }
 
-  def beforeLine(endDelim: String)(path: Path): Parser[Either[InvalidElement, Config]] = {
+  def beforeLine(endDelim: String)(path: Path): ConfigHeaderParser = {
     val parser = TextParsers.delimitedBy(endDelim) <~ wsEol
     forTextParser(parser)(path)
   }
 
-  def forTextParser (parser: Parser[String])(path: Path): Parser[Either[InvalidElement, Config]] = parser ^^ { str =>
+  def forTextParser (parser: Parser[String])(path: Path): ConfigHeaderParser = parser ^^ { str =>
     try {
       Right(ConfigFactory.parseString(str, ConfigParseOptions.defaults().setOriginDescription(s"path:$path")))
     }
@@ -48,6 +51,11 @@ object ConfigHeaderParser {
       case ex: Exception => Left(InvalidElement("Error parsing config header: "+ex.getMessage, s"{%$str%}"))
     }
   }
+
+  def merged (parsers: Seq[Path => ConfigHeaderParser])(path: Path): ConfigHeaderParser =
+    parsers.map(_(path)).reduce(_ | _)
+
+  val fallback: Path => Parser[Either[InvalidElement, Config]] = { _ => Parsers.success(Right(ConfigFactory.empty)) }
 
   def merge (config: Config, values: Map[String, AnyRef]): Config = {
     import scala.collection.JavaConverters._

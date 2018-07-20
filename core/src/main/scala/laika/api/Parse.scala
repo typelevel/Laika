@@ -19,7 +19,7 @@ package laika.api
 import com.typesafe.config.{ConfigFactory, Config => TConfig}
 import laika.api.config.{OperationConfig, ParseConfigBuilder}
 import laika.api.ext.ConfigProvider
-import laika.factory.ParserFactory
+import laika.factory.MarkupParser
 import laika.io.DocumentType._
 import laika.io._
 import laika.parse.core.combinator.Parsers.{documentParserFunction, success}
@@ -55,7 +55,7 @@ import laika.tree.Paths.Path
  * 
  *  @author Jens Halm
  */
-class Parse private (parsers: Seq[ParserFactory], val config: OperationConfig, rewrite: Boolean)
+class Parse private (parsers: Seq[MarkupParser], val config: OperationConfig, rewrite: Boolean)
   extends ParseConfigBuilder with InputOps with InputTreeOps {
 
   type ThisType = Parse
@@ -83,7 +83,7 @@ class Parse private (parsers: Seq[ParserFactory], val config: OperationConfig, r
    * 
    *  @param factory the parser factory to add to the previously specified parsers
    */
-  def or (factory: ParserFactory): Parse = new Parse(parsers :+ factory, config.withBundlesFor(factory), rewrite)
+  def or (factory: MarkupParser): Parse = new Parse(parsers :+ factory, config.withBundlesFor(factory), rewrite)
 
   /** Returns a new Parse instance that produces raw document trees without applying
    *  the default rewrite rules. These rules resolve link and image references and 
@@ -108,7 +108,7 @@ class Parse private (parsers: Seq[ParserFactory], val config: OperationConfig, r
 
     def parseMarkup (input: Input): Operation[Document] = () => (Markup, IO(input)(parserLookup.forInput(input)))
 
-    def parseTemplate (docType: DocumentType)(input: Input): Seq[Operation[TemplateDocument]] = config.parserDefinitions.templateParser match {
+    def parseTemplate (docType: DocumentType)(input: Input): Seq[Operation[TemplateDocument]] = config.templateParser match {
       case None => Seq()
       case Some(rootParser) =>
         val docParser = DocumentParser.forTemplate(rootParser, config.configHeaderParser)
@@ -116,8 +116,7 @@ class Parse private (parsers: Seq[ParserFactory], val config: OperationConfig, r
     }
 
     def parseStyleSheet (format: String)(input: Input): Operation[StyleDeclarationSet] = () => {
-      val parser = config.parserDefinitions.styleSheetParser.getOrElse(success(Set.empty[StyleDeclaration]))
-      val docF = documentParserFunction(parser, StyleDeclarationSet.forPath)
+      val docF = documentParserFunction(config.styleSheetParser, StyleDeclarationSet.forPath)
       (StyleSheet(format), IO(input)(docF))
     }
 
@@ -182,7 +181,10 @@ class Parse private (parsers: Seq[ParserFactory], val config: OperationConfig, r
     }
 
     private lazy val map: Map[String, Input => Document] =
-      parsers flatMap (p => p.fileSuffixes map ((_, p.newParser(config.parserDefinitions)))) toMap
+      parsers.flatMap { parser =>
+        val docParser = DocumentParser.forMarkup(parser, config.markupExtensions, config.configHeaderParser)
+        parser.fileSuffixes.map((_, docParser))
+      }.toMap
 
     def forInput (input: Input): Input => Document = {
       if (parsers.size == 1) map.head._2
@@ -207,7 +209,7 @@ object Parse {
    * 
    *  @param factory the parser factory to use for all subsequent operations
    */
-  def as (factory: ParserFactory): Parse = new Parse(
+  def as (factory: MarkupParser): Parse = new Parse(
     Seq(factory),
     OperationConfig.default.withBundlesFor(factory),
     rewrite = true
