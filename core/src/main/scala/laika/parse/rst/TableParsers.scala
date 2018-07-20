@@ -46,7 +46,7 @@ object TableParsers {
     override def toString = text
   }
       
-  class CellBuilder (recParser: String => List[Block]) {
+  class CellBuilder (recParser: String => Seq[Block]) {
     
     private val seps = new ListBuffer[TableElement]
     private val lines = new ListBuffer[StringBuilder]
@@ -92,7 +92,7 @@ object TableParsers {
       }
     }
     
-    def parsedCellContent: List[Block] = recParser(trimmedCellContent)
+    def parsedCellContent: Seq[Block] = recParser(trimmedCellContent)
 
     def toCell (ct: CellType): Cell = Cell(ct, parsedCellContent, colSpan, rowSpan)
   }
@@ -107,7 +107,7 @@ object TableParsers {
     def toRow (ct: CellType): Row = Row(cells filterNot (_.removed) map (_.toCell(ct)) toList)
   }
   
-  class ColumnBuilder (left: Option[ColumnBuilder], recParser: String => List[Block]) {
+  class ColumnBuilder (left: Option[ColumnBuilder], recParser: String => Seq[Block]) {
     
     private var rowSpan = 1 // only used for sanity checks
     
@@ -160,7 +160,7 @@ object TableParsers {
     }
   }
   
-  class TableBuilder (columnWidths: List[Int], recParser: String => List[Block]) {
+  class TableBuilder (columnWidths: List[Int], recParser: String => Seq[Block]) {
     private object ColumnFactory {
       var lastColumn: Option[ColumnBuilder] = None
       val columnWidthIt = columnWidths.iterator

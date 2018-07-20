@@ -92,7 +92,7 @@ class RootParser(val blockParserExtensions: Seq[BlockParserBuilder] = Nil,
     *  @param parser the parser for a single block element
     *  @return a parser for a list of blocks
     */
-  override def blockList (parser: => Parser[Block]): Parser[List[Block]] = Parser { in =>
+  override def blockList (parser: => Parser[Block]): Parser[Seq[Block]] = Parser { in =>
     case object Mock extends Block { val options = NoOpt }
 
     val defaultBlock = parser <~ opt(blankLines)

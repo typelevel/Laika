@@ -52,7 +52,7 @@ trait DefaultRecursiveParsers extends RecursiveParsers with DefaultRecursiveSpan
     lazy val recursive    = consumeAll(opt(blankLines) ~> blockList(nestedBlock))
     lazy val nonRecursive = consumeAll(opt(blankLines) ~> blockList(nonRecursiveBlock))
 
-    def parse (source: String, nestLevel: Int): Parsed[List[Block]] = {
+    def parse (source: String, nestLevel: Int): Parsed[Seq[Block]] = {
       val p = if (nestLevel < maxNestLevel) recursive else nonRecursive
       p.parse(ParserContext(source, nestLevel + 1))
     }
@@ -73,10 +73,10 @@ trait DefaultRecursiveParsers extends RecursiveParsers with DefaultRecursiveSpan
     }
   }
 
-  def withRecursiveBlockParser [T] (p: Parser[T]): Parser[(String => List[Block], T)] = Parser { ctx =>
+  def withRecursiveBlockParser [T] (p: Parser[T]): Parser[(String => Seq[Block], T)] = Parser { ctx =>
     p.parse(ctx) match {
       case Success(res, next) =>
-        val recParser: String => List[Block] = { source: String =>
+        val recParser: String => Seq[Block] = { source: String =>
           recursiveBlockParser.parse(source, next.nestLevel) match {
             case Success(blocks, _) => blocks
             case Failure(msg, next) =>
@@ -92,6 +92,6 @@ trait DefaultRecursiveParsers extends RecursiveParsers with DefaultRecursiveSpan
 
   /** Builds a parser for a list of blocks based on the parser for a single block.
     */
-  def blockList (p: => Parser[Block]): Parser[List[Block]] = (p <~ opt(blankLines))*
+  def blockList (p: => Parser[Block]): Parser[Seq[Block]] = (p <~ opt(blankLines))*
 
 }

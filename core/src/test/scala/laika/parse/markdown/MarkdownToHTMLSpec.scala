@@ -52,19 +52,15 @@ class MarkdownToHTMLSpec extends FlatSpec
     tidy(cleaned).replace(">\n\n<",">\n<") // Markdown often adds blank lines between tags
   }
 
-  // TODO - remove once strict mode is handled properly
-  object StrictMarkdown extends ParserFactory {
-    val fileSuffixes: Set[String] = Set("md","markdown")
-    val extensions = Seq(VerbatimHTML)
-    def newRootParser (parserExtensions: ParserDefinitionBuilders): RootParserBase =
-      new RootParser(parserExtensions.blockParsers, parserExtensions.spanParsers, isStrict = true)
-  }
-
   def transformAndCompare (name: String): Unit = {
     val path = classPathResource("/markdownTestSuite") + "/" + name
-    val actual = ((Transform from StrictMarkdown to HTML).withRawContent rendering { out => {
-      case QuotedBlock(content,_,_) => out << "<blockquote>" <<|>  content <<| "</blockquote>" // Markdown always writes p tags inside blockquotes
-    }}).strict fromFile (path + ".md") toString
+    val actual = Transform
+      .from(Markdown).to(HTML)
+      .strict.withRawContent
+      .rendering { out => {
+        case QuotedBlock(content, _, _) => out << "<blockquote>" <<|> content <<| "</blockquote>" // Markdown always writes p tags inside blockquotes
+      }}
+      .fromFile(path + ".md").toString
     val expected = readFile(path + ".html")
     tidyAndAdjust(actual) should be (tidyAndAdjust(expected))
   }

@@ -45,7 +45,7 @@ trait RecursiveParsers extends RecursiveSpanParsers {
     * The parser function never fails, but instead inserts blocks of type `InvalidBlock`
     * into the result in case of errors.
     */
-  def withRecursiveBlockParser [T] (p: Parser[T]): Parser[(String => List[Block], T)]
+  def withRecursiveBlockParser [T] (p: Parser[T]): Parser[(String => Seq[Block], T)]
 
 }
 

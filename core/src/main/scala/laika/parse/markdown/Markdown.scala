@@ -16,7 +16,7 @@
 
 package laika.parse.markdown
 
-import laika.api.ext.ParserDefinitionBuilders
+import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders, RootParserHooks}
 import laika.factory.ParserFactory
 import laika.parse.core.markup.RootParserBase
 import laika.parse.markdown.html.VerbatimHTML
@@ -55,12 +55,22 @@ object Markdown extends ParserFactory {
 
   val fileSuffixes: Set[String] = Set("md", "markdown")
   
-  val extensions = Seq(VerbatimHTML)
+  val extensions = Seq(
+    new ExtensionBundle {
+      override val parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders(
+        rootParserHooks = Some(RootParserHooks(
+          postProcessBlocks = HeaderIdInsertion
+        ))
+      )
+    },
+    VerbatimHTML
+  )
   
   /** The actual parser function, fully parsing the specified input and
    *  returning a document tree.
    */
   def newRootParser (parserExtensions: ParserDefinitionBuilders): RootParserBase =
-    new RootParser(parserExtensions.blockParsers, parserExtensions.spanParsers)
+    new RootParser(parserExtensions.blockParsers, parserExtensions.spanParsers,
+      parserExtensions.rootParserHooks.map(_.postProcessBlocks).getOrElse(identity))
 
 }

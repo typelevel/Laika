@@ -30,7 +30,7 @@ import laika.tree.Elements._
   */
 class RootParser (val blockParserExtensions: Seq[BlockParserBuilder] = Nil,
                   val spanParserExtensions: Seq[SpanParserBuilder] = Nil,
-                  isStrict: Boolean = false) extends RootParserBase {
+                  postProcessBlocks: Seq[Block] => Seq[Block] = identity) extends RootParserBase {
 
   /** Parses a single escaped character, only recognizing the characters the Markdown syntax document
     *  specifies as escapable.
@@ -62,14 +62,7 @@ class RootParser (val blockParserExtensions: Seq[BlockParserBuilder] = Nil,
     SpanParser.forStartChar('\\').standalone(escapedChar ^^ { Text(_) }).withLowPrecedence // TODO - extract
   )
 
-  // TODO - move to rootParserHooks - don't use in strict mode - remove strict flag from this class
-  override def blockList (parser: => Parser[Block]): Parser[List[Block]] =
-    if (isStrict) super.blockList(BlockParsers.insignificantSpaces ~> parser)
-    else super.blockList(BlockParsers.insignificantSpaces ~> parser) ^^ {
-      _ map { case h: Header =>
-        h.copy(options = h.options + Id(TreeUtil.extractText(h.content).replaceAll("[\n ]+", " ").toLowerCase))
-      case other => other
-      }
-    }
+  override def blockList (parser: => Parser[Block]): Parser[Seq[Block]] =
+    super.blockList(BlockParsers.insignificantSpaces ~> parser) ^^ postProcessBlocks
 
 }
