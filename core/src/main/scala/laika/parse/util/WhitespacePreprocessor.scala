@@ -16,6 +16,8 @@
 
 package laika.parse.util
 
+import laika.io.Input
+
 /** Processes whitespace, removing or replacing most whitespace characters except
  *  for newline and space.
  * 
@@ -82,4 +84,16 @@ class WhitespacePreprocessor extends (String => String) {
   }
   
   
+}
+
+object WhitespacePreprocessor {
+
+  val forString: String => String = new WhitespacePreprocessor
+
+  val forInput: Input => Input = { input =>
+    val raw = input.asParserInput.input
+    val preprocessed = forString(raw.toString)
+    Input.fromString(preprocessed, input.path)
+  }
+
 }

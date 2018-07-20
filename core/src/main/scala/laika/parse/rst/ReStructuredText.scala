@@ -65,6 +65,12 @@ object ReStructuredText extends ParserFactory { self =>
     new ExtensionBundle {
       override val useInStrictMode: Boolean = true
 
+      override val parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders(
+        rootParserHooks = Some(RootParserHooks(
+          preProcessInput = WhitespacePreprocessor.forInput
+        ))
+      )
+
       override def themeFor[Writer](rendererFactory: RendererFactory[Writer]): Theme[Writer] = rendererFactory match {
         case _: HTML => Theme[HTMLWriter](customRenderers = Seq(ExtendedHTML))
         case _ => Theme[Writer]() // TODO - refactor to return Option instead
@@ -83,15 +89,12 @@ object ReStructuredText extends ParserFactory { self =>
     val hooks = parserExtensions.rootParserHooks.getOrElse(RootParserHooks())
 
     val mainF = { input: Input => {
-      // TODO - extract this logic once ParserFactory API gets finalized (preProcessInput)
-      val raw = input.asParserInput.input
-      val preprocessed = (new WhitespacePreprocessor)(raw.toString)
 
       // TODO - extract this logic into DocumentParser and/or OperationConfig and/or ParserFactory
       val rootParser = new RootParser(parserExtensions.blockParsers, parserExtensions.spanParsers)
       val configHeaderParsers = parserExtensions.configHeaderParsers :+ { _:Path => Parsers.success(Right(ConfigFactory.empty)) }
       val configHeaderParser = { path: Path => configHeaderParsers.map(_(path)).reduce(_ | _) }
-      val doc = DocumentParser.forMarkup(rootParser.rootElement, configHeaderParser)(Input.fromString(preprocessed, input.path))
+      val doc = DocumentParser.forMarkup(rootParser.rootElement, configHeaderParser)(input)
 
       // TODO - extract this logic once ParserFactory API gets finalized (postProcessDocument)
       def extractDocInfo (config: Config, root: RootElement): Config = {
