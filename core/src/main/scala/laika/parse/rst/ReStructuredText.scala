@@ -16,17 +16,12 @@
 
 package laika.parse.rst
 
-import com.typesafe.config.ConfigFactory
 import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders, RootParserHooks, Theme}
 import laika.factory.{ParserFactory, RendererFactory}
-import laika.io.Input
-import laika.parse.core.combinator.Parsers
-import laika.parse.core.markup.DocumentParser
+import laika.parse.core.markup.RootParserBase
 import laika.parse.rst.ext._
 import laika.parse.util.WhitespacePreprocessor
 import laika.render.{HTML, HTMLWriter}
-import laika.tree.Documents.Document
-import laika.tree.Paths.Path
   
 /** A parser for text written in reStructuredText markup. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:
@@ -82,16 +77,7 @@ object ReStructuredText extends ParserFactory { self =>
   /** The actual parser function, fully parsing the specified input and
    *  returning a document tree.
    */
-  def newParser (parserExtensions: ParserDefinitionBuilders): Input => Document = {
-
-    val hooks = parserExtensions.rootParserHooks.getOrElse(RootParserHooks())
-
-    // TODO - extract this logic into DocumentParser and/or OperationConfig and/or ParserFactory
-    val rootParser = new RootParser(parserExtensions.blockParsers, parserExtensions.spanParsers)
-    val configHeaderParsers = parserExtensions.configHeaderParsers :+ { _:Path => Parsers.success(Right(ConfigFactory.empty)) }
-    val configHeaderParser = { path: Path => configHeaderParsers.map(_(path)).reduce(_ | _) }
-
-    hooks.preProcessInput andThen DocumentParser.forMarkup(rootParser.rootElement, configHeaderParser) andThen hooks.postProcessDocument
-  }
+  def newRootParser (parserExtensions: ParserDefinitionBuilders): RootParserBase =
+    new RootParser(parserExtensions.blockParsers, parserExtensions.spanParsers)
   
 }

@@ -16,15 +16,10 @@
 
 package laika.parse.markdown
 
-import com.typesafe.config.ConfigFactory
-import laika.api.ext.{ParserDefinitionBuilders, RootParserHooks}
+import laika.api.ext.ParserDefinitionBuilders
 import laika.factory.ParserFactory
-import laika.io.Input
-import laika.parse.core.combinator.Parsers
-import laika.parse.core.markup.DocumentParser
+import laika.parse.core.markup.RootParserBase
 import laika.parse.markdown.html.VerbatimHTML
-import laika.tree.Documents.Document
-import laika.tree.Paths.Path
   
 /** A parser for Markdown text. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:
@@ -58,22 +53,14 @@ import laika.tree.Paths.Path
  */
 object Markdown extends ParserFactory {
 
-  val fileSuffixes: Set[String] = Set("md","markdown")
+  val fileSuffixes: Set[String] = Set("md", "markdown")
   
   val extensions = Seq(VerbatimHTML)
   
   /** The actual parser function, fully parsing the specified input and
    *  returning a document tree.
    */
-  def newParser (parserExtensions: ParserDefinitionBuilders): Input => Document = {
-    // TODO - extract this logic once ParserFactory API gets finalized
-    val hooks = parserExtensions.rootParserHooks.getOrElse(RootParserHooks())
+  def newRootParser (parserExtensions: ParserDefinitionBuilders): RootParserBase =
+    new RootParser(parserExtensions.blockParsers, parserExtensions.spanParsers)
 
-    val rootParser = new RootParser(parserExtensions.blockParsers, parserExtensions.spanParsers)
-    val configHeaderParsers = parserExtensions.configHeaderParsers :+ { _:Path => Parsers.success(Right(ConfigFactory.empty)) }
-    val configHeaderParser = { path: Path => configHeaderParsers.map(_(path)).reduce(_ | _) }
-
-    hooks.preProcessInput andThen DocumentParser.forMarkup(rootParser.rootElement, configHeaderParser) andThen hooks.postProcessDocument
-  }
-  
 }

@@ -16,9 +16,13 @@
 
 package laika.factory
 
-import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders}
+import com.typesafe.config.ConfigFactory
+import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders, RootParserHooks}
 import laika.io.Input
+import laika.parse.core.combinator.Parsers
+import laika.parse.core.markup.{DocumentParser, RootParserBase}
 import laika.tree.Documents.Document
+import laika.tree.Paths.Path
 
 /** Responsible for creating parser instances for a specific markup format.
  *  A parser is simply a function of type `Input => Document`.
@@ -48,11 +52,21 @@ trait ParserFactory {
    */
   def extensions: Seq[ExtensionBundle]
 
+  def newRootParser (parserExtensions: ParserDefinitionBuilders): RootParserBase // TODO - temporary
+
   /**  Creates a new parser instance.
    *   Such an instance is expected to be stateless and thread-safe,
    *   thus capable of repeated and parallel executions.
    */
-  def newParser (parserExtensions: ParserDefinitionBuilders): Input => Document
-  
+  def newParser (parserExtensions: ParserDefinitionBuilders): Input => Document = {
+
+    // TODO - extract this logic into DocumentParser and/or OperationConfig
+    val configHeaderParsers = parserExtensions.configHeaderParsers :+ { _:Path => Parsers.success(Right(ConfigFactory.empty)) }
+    val configHeaderParser = { path: Path => configHeaderParsers.map(_(path)).reduce(_ | _) }
+
+    val hooks = parserExtensions.rootParserHooks.getOrElse(RootParserHooks())
+
+    hooks.preProcessInput andThen DocumentParser.forMarkup(newRootParser(parserExtensions).rootElement, configHeaderParser) andThen hooks.postProcessDocument
+  }
 
 }

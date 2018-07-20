@@ -16,19 +16,14 @@
 
 package laika.parse.markdown
 
-import com.typesafe.config.ConfigFactory
 import laika.api.Transform
 import laika.api.ext.ParserDefinitionBuilders
 import laika.factory.ParserFactory
-import laika.io.Input
-import laika.parse.core.combinator.Parsers
-import laika.parse.core.markup.DocumentParser
+import laika.parse.core.markup.{DocumentParser, RootParserBase}
 import laika.parse.markdown.html.VerbatimHTML
 import laika.render.HTML
 import laika.transform.helper.FileTransformerUtil
-import laika.tree.Documents.Document
 import laika.tree.Elements.QuotedBlock
-import laika.tree.Paths.Path
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.io.Codec
@@ -61,12 +56,8 @@ class MarkdownToHTMLSpec extends FlatSpec
   object StrictMarkdown extends ParserFactory {
     val fileSuffixes: Set[String] = Set("md","markdown")
     val extensions = Seq(VerbatimHTML)
-    def newParser (parserExtensions: ParserDefinitionBuilders): Input => Document = {
-      val rootParser = new RootParser(parserExtensions.blockParsers, parserExtensions.spanParsers, isStrict = true)
-      val configHeaderParsers = parserExtensions.configHeaderParsers :+ { _:Path => Parsers.success(Right(ConfigFactory.empty)) }
-      val configHeaderParser = { path: Path => configHeaderParsers.map(_(path)).reduce(_ | _) }
-      DocumentParser.forMarkup(rootParser.rootElement, configHeaderParser)
-    }
+    def newRootParser (parserExtensions: ParserDefinitionBuilders): RootParserBase =
+      new RootParser(parserExtensions.blockParsers, parserExtensions.spanParsers, isStrict = true)
   }
 
   def transformAndCompare (name: String): Unit = {
