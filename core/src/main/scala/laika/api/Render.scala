@@ -112,11 +112,10 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
   protected[this] lazy val defaultStyles: StyleDeclarationSet =
     factory.defaultTheme.defaultStyles ++ theme.defaultStyles
 
-  protected[this] lazy val defaultTemplate: TemplateRoot = {
+  protected[this] lazy val defaultTemplate: TemplateRoot =
     theme.defaultTemplate
       .orElse(factory.defaultTheme.defaultTemplate)
       .getOrElse(TemplateRoot(List(TemplateContextReference("document.content"))))
-  }
 
   /** Renders the specified element to the given output.
    * 
@@ -131,20 +130,10 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
       def apply (element: Element) = delegate(element)
     }
 
-    val customRenderers = theme.customRenderers
-    
     IO(output) { out =>
       val (writer, renderF) = factory.newRenderer(out, element, RenderFunction, styles, config.minMessageLevel)
-      
-      RenderFunction.delegate = customRenderers match {
-        case Nil => renderF
-        case xs  =>
-          val default:RenderFunction = { case e => renderF(e) }
-          (xs map { _(writer) }).reverse reduceRight { _ orElse _ } orElse default
-      }
-      
+      RenderFunction.delegate = theme.customRenderer(writer).applyOrElse(_, renderF)
       RenderFunction(element)
-      
       out.flush()
     }
   }

@@ -45,7 +45,7 @@ trait RenderConfigBuilder[Writer] extends OperationConfigBuilder {
   def rendering (customRenderer: Writer => RenderFunction): ThisType = using(new ExtensionBundle {
     override val useInStrictMode: Boolean = true
     override def themeFor[W](rendererFactory: RendererFactory[W]): Theme[W] =
-      Theme(customRenderers = Seq(customRenderer)).asInstanceOf[Theme[W]]
+      Theme(customRenderer = customRenderer).asInstanceOf[Theme[W]]
   })
 
   /**  Specifies the minimum required level for a system message

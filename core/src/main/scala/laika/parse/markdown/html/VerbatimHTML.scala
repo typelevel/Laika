@@ -46,7 +46,7 @@ object VerbatimHTML extends ExtensionBundle {
   )
 
   override def themeFor[Writer](rendererFactory: RendererFactory[Writer]): Theme[Writer] = rendererFactory match {
-    case _: HTML => Theme[HTMLWriter](customRenderers = Seq(HTMLRenderer))
+    case _: HTML => Theme[HTMLWriter](customRenderer = HTMLRenderer)
     case _ => Theme[Writer]()
   }
 

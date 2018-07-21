@@ -102,7 +102,7 @@ object ReStructuredText extends MarkupParser { self =>
     )
 
     override def themeFor[Writer](rendererFactory: RendererFactory[Writer]): Theme[Writer] = rendererFactory match {
-      case _: HTML => Theme[HTMLWriter](customRenderers = Seq(ExtendedHTML))
+      case _: HTML => Theme[HTMLWriter](customRenderer = ExtendedHTML)
       case _ => Theme[Writer]()
     }
   }

@@ -117,13 +117,13 @@ object ExtensionBundle {
 
 }
 
-case class Theme[Writer] (customRenderers: Seq[Writer => RenderFunction] = Nil,
+case class Theme[Writer] (customRenderer: Writer => RenderFunction = {_: Writer => PartialFunction.empty},
                           defaultTemplate: Option[TemplateRoot] = None,
                           defaultStyles: StyleDeclarationSet = StyleDeclarationSet.empty,
                           staticDocuments: StaticDocuments = StaticDocuments.empty) {
 
   def withBase(other: Theme[Writer]): Theme[Writer] = Theme(
-    customRenderers ++ other.customRenderers,
+    { w: Writer => customRenderer(w).orElse(other.customRenderer(w)) },
     defaultTemplate.orElse(other.defaultTemplate),
     other.defaultStyles ++ defaultStyles,
     StaticDocuments(staticDocuments.merge(other.staticDocuments.tree))
