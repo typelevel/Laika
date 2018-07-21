@@ -125,15 +125,16 @@ abstract class Render[Writer] private (private[Render] val factory: RendererFact
    */
   protected[this] def render (element: Element, output: Output, styles: StyleDeclarationSet): Unit = { 
     
-    object RenderFunction extends (Element => Unit) {
-      var delegate: Element => Unit = _
-      def apply (element: Element) = delegate(element)
+    class Renderer (out: Output) extends (Element => Unit) {
+      lazy val (writer, renderF) = factory.newRenderer(out, element, this, styles, config.minMessageLevel)
+
+      lazy val mainF: Element => Unit = theme.customRenderer(writer).applyOrElse(_, renderF)
+
+      def apply (element: Element) = mainF(element)
     }
 
     IO(output) { out =>
-      val (writer, renderF) = factory.newRenderer(out, element, RenderFunction, styles, config.minMessageLevel)
-      RenderFunction.delegate = theme.customRenderer(writer).applyOrElse(_, renderF)
-      RenderFunction(element)
+      new Renderer(out).apply(element)
       out.flush()
     }
   }
