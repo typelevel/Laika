@@ -39,7 +39,8 @@ import laika.tree.Templates.TemplateRoot
 case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
                             bundleFilter: BundleFilter = BundleFilter(),
                             minMessageLevel: MessageLevel = Fatal,
-                            parallel: Boolean = false) {
+                            renderFormatted: Boolean = true,
+                            parallel: Boolean = false) extends RenderConfig {
 
   private lazy val mergedBundle: ExtensionBundle = ExtensionBundle.mergeBundles(bundles.filter(bundleFilter))
 
@@ -81,6 +82,11 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
 
   def forRawContent: OperationConfig = copy(bundleFilter = bundleFilter.copy(acceptRawContent = true))
 
+}
+
+trait RenderConfig {
+  def minMessageLevel: MessageLevel
+  def renderFormatted: Boolean
 }
 
 object OperationConfig {

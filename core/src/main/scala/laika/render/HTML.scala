@@ -16,6 +16,7 @@
 
 package laika.render
 
+import laika.api.config.RenderConfig
 import laika.directive.DefaultTemplateParser
 import laika.tree.Documents.TemplateDocument
 import laika.tree.Elements._
@@ -36,16 +37,10 @@ import laika.parse.css.Styles.StyleDeclarationSet
  * 
  *  @author Jens Halm
  */
-class HTML private (renderFormatted: Boolean)
-    extends RendererFactory[HTMLWriter] {
+object HTML extends RendererFactory[HTMLWriter] {
   
   val fileSuffix = "html"
  
-  /** Renders HTML without any formatting (line breaks or indentation) around tags.
-   *  Useful when storing the output in a database for example. 
-   */
-  def unformatted: HTML = new HTML(false)
-  
   /** The actual setup method for providing both the writer API for customized
    *  renderers as well as the actual default render function itself. The default render
    *  function always only renders a single element and then delegates to the composite
@@ -59,9 +54,10 @@ class HTML private (renderFormatted: Boolean)
    *  @return a tuple consisting of the writer API for customizing
    *  the renderer as well as the actual default render function itself
    */
-  def newRenderer (output: Output, root: Element, render: Element => Unit, styles: StyleDeclarationSet, messageLevel: MessageLevel): (HTMLWriter, Element => Unit) = {
-    val out = new HTMLWriter(output asFunction, render, root, formatted = renderFormatted)  
-    (out, renderElement(out, messageLevel))
+  def newRenderer (output: Output, root: Element, render: Element => Unit,
+                   styles: StyleDeclarationSet, config: RenderConfig): (HTMLWriter, Element => Unit) = {
+    val out = new HTMLWriter(output asFunction, render, root, formatted = config.renderFormatted)
+    (out, renderElement(out, config.minMessageLevel))
   }
 
   
@@ -281,15 +277,9 @@ class HTML private (renderFormatted: Boolean)
     }  
   } 
   
-  override lazy val defaultTheme: Theme = Theme(defaultTemplate = Some(HTML.templateResource.content))
-  
-}
+  override lazy val defaultTheme: Theme = Theme(defaultTemplate = Some(templateResource.content))
 
-/** The default instance of the HTML renderer.
- */
-object HTML extends HTML(renderFormatted = true) {
-  
-  lazy val templateResource: TemplateDocument =
+  private lazy val templateResource: TemplateDocument =
     DefaultTemplateParser.parse(Input.fromClasspath("/templates/default.template.html", Root / "default.template.html"))
-  
+
 }

@@ -159,7 +159,7 @@ class PDF private (val factory: XSLFO, config: Option[PDFConfig], fopFactory: Op
 
 /** The default instance of the PDF renderer.
  */
-object PDF extends PDF(XSLFO.unformatted, None, None) {
+object PDF extends PDF(XSLFO, None, None) {
 
   /** The reusable default instance of the FOP factory
     * that the PDF renderer will use if no custom

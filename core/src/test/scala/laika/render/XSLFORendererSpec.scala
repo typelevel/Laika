@@ -42,7 +42,7 @@ class XSLFORendererSpec extends FlatSpec
     Render as XSLFO using BundleProvider
       .forTheme(XSLFO.Theme(defaultStyles = StyleDeclarationSet(Root, style))) from elem toString
     
-  def renderUnformatted (elem: Element): String = Render as XSLFO.unformatted from elem toString
+  def renderUnformatted (elem: Element): String = (Render as XSLFO).unformatted from elem toString
   
   
   "The XSLFO renderer" should "render a paragraph with plain text" in {

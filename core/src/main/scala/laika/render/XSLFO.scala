@@ -31,6 +31,7 @@ import laika.parse.css.Styles.StyleDeclarationSet
 
 import scala.language.existentials
 import FOWriter._
+import laika.api.config.RenderConfig
 import laika.directive.DefaultTemplateParser
 import laika.parse.core.combinator.Parsers
 import laika.parse.css.CSSParsers
@@ -49,17 +50,11 @@ import laika.parse.css.CSSParsers
  * 
  *  @author Jens Halm
  */
-class XSLFO private (styles: Option[StyleDeclarationSet], renderFormatted: Boolean)
-    extends RendererFactory[FOWriter] {
+object XSLFO extends RendererFactory[FOWriter] {
   
   
   val fileSuffix = "fo"
  
-  /** Renders XSL-FO without any formatting (line breaks or indentation) around tags.
-   *  Useful when storing the output in a database for example. 
-   */
-  def unformatted: XSLFO = new XSLFO(styles, false)
-  
   /** The actual setup method for providing both the writer API for customized
    *  renderers as well as the actual default render function itself. The default render
    *  function always only renders a single element and then delegates to the composite
@@ -73,10 +68,11 @@ class XSLFO private (styles: Option[StyleDeclarationSet], renderFormatted: Boole
    *  @return a tuple consisting of the writer API for customizing
    *  the renderer as well as the actual default render function itself
    */
-  def newRenderer (output: Output, root: Element, render: Element => Unit, styles: StyleDeclarationSet, messageLevel: MessageLevel): (FOWriter, Element => Unit) = {
-    val out = new FOWriter(output asFunction, render, root, output.path, styles, formatted = renderFormatted)
+  def newRenderer (output: Output, root: Element, render: Element => Unit,
+                   styles: StyleDeclarationSet, config: RenderConfig): (FOWriter, Element => Unit) = {
+    val out = new FOWriter(output asFunction, render, root, output.path, styles, formatted = config.renderFormatted)
     val (footnotes, citations) = collectTargets(root)
-    (out, renderElement(out,footnotes,citations,output.path, messageLevel))
+    (out, renderElement(out,footnotes,citations,output.path, config.minMessageLevel))
   }
   
   private def collectTargets (root: Element): (Map[String,Footnote], Map[String,Citation]) = root match {
@@ -304,22 +300,17 @@ class XSLFO private (styles: Option[StyleDeclarationSet], renderFormatted: Boole
   } 
   
   override lazy val defaultTheme: Theme = Theme(
-    defaultTemplate = Some(XSLFO.templateResource.content),
-    defaultStyles = styles.getOrElse(XSLFO.styleResource)
+    defaultTemplate = Some(templateResource.content),
+    defaultStyles = styleResource
   )
 
-}
-
-/** The default instance of the XSL-FO renderer.
- */
-object XSLFO extends XSLFO(styles = None, renderFormatted = true) {
-  
-  lazy val styleResource: StyleDeclarationSet = {
+  private lazy val styleResource: StyleDeclarationSet = {
     val input = Input.fromClasspath("/styles/default.fo.css", Root / "default.fo.css")
     Parsers.documentParserFunction(CSSParsers.styleDeclarationSet, StyleDeclarationSet.forPath)(input)
   }
 
-  lazy val templateResource: TemplateDocument =
+  private lazy val templateResource: TemplateDocument =
     DefaultTemplateParser.parse(Input.fromClasspath("/templates/default.template.fo", Root / "default.template.fo"))
-  
+
+
 }

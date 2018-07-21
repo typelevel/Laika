@@ -128,7 +128,7 @@ abstract class Render[Writer] private (protected[api] val factory: RendererFacto
   protected[this] def render (element: Element, output: Output, styles: StyleDeclarationSet): Unit = { 
     
     class Renderer (out: Output) extends (Element => Unit) {
-      lazy val (writer, renderF) = factory.newRenderer(out, element, this, styles, config.minMessageLevel)
+      lazy val (writer, renderF) = factory.newRenderer(out, element, this, styles, config)
 
       lazy val mainF: Element => Unit = theme.customRenderer(writer).applyOrElse(_, renderF)
 

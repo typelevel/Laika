@@ -16,6 +16,7 @@
 
 package laika.factory
 
+import laika.api.config.RenderConfig
 import laika.api.ext.{GenTheme, StaticDocuments}
 import laika.io.Output
 import laika.parse.css.Styles.StyleDeclarationSet
@@ -61,10 +62,11 @@ trait RendererFactory[W] {
    *  @param root the root element the new renderer will be used for
    *  @param delegate a render function to use for rendering the children of an element
    *  @param styles the styles the new renderer should apply to the rendered elements
-   *  @param messageLevel the minimum message level for system messages to be included in the rendered output
+   *  @param config additional configuration for the renderer
    *  @return a new writer API of type `W` and a new render function
    */
-  def newRenderer (out: Output, root: Element, delegate: Element => Unit, styles: StyleDeclarationSet, messageLevel: MessageLevel): (W, Element => Unit)
+  def newRenderer (out: Output, root: Element, delegate: Element => Unit,
+                   styles: StyleDeclarationSet, config: RenderConfig): (W, Element => Unit)
 
 
   case class Theme (customRenderer: W => RenderFunction = {_: W => PartialFunction.empty},

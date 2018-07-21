@@ -54,4 +54,9 @@ trait RenderConfigBuilder[Writer] extends OperationConfigBuilder {
     */
   def withMessageLevel (level: MessageLevel): ThisType = withConfig(config.copy(minMessageLevel = level))
 
+  /**  Renders without any formatting (line breaks or indentation).
+    *  Useful when storing the output in a database for example.
+    */
+  def unformatted: ThisType = withConfig(config.copy(renderFormatted = false))
+
 }

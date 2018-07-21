@@ -16,6 +16,7 @@
 
 package laika.render
 
+import laika.api.config.RenderConfig
 import laika.factory.RendererFactory
 import laika.io.Output
 import laika.parse.css.Styles.StyleDeclarationSet
@@ -32,7 +33,7 @@ import laika.tree.Elements._
  * 
  *  @author Jens Halm
  */
-class PrettyPrint extends RendererFactory[TextWriter] {
+object PrettyPrint extends RendererFactory[TextWriter] {
 
   val fileSuffix = "txt"
   
@@ -59,7 +60,8 @@ class PrettyPrint extends RendererFactory[TextWriter] {
    *  @return a tuple consisting of the writer API for customizing
    *  the renderer as well as the actual default render function itself
    */
-  def newRenderer (output: Output, root: Element, render: Element => Unit, styles: StyleDeclarationSet, messageLevel: MessageLevel): (TextWriter, Element => Unit) = {
+  def newRenderer (output: Output, root: Element, render: Element => Unit,
+                   styles: StyleDeclarationSet, config: RenderConfig): (TextWriter, Element => Unit) = {
     val out = new TextWriter(output asFunction, render, root, ". ") 
     (out, renderElement(out))
   }
@@ -129,5 +131,3 @@ class PrettyPrint extends RendererFactory[TextWriter] {
     
 
 }
-
-object PrettyPrint extends PrettyPrint
