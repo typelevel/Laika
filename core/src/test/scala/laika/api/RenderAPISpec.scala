@@ -19,7 +19,7 @@ package laika.api
 import java.io.{ByteArrayOutputStream, File, StringWriter}
 
 import laika.api.Render.RenderMappedOutput
-import laika.api.ext.{BundleProvider, StaticDocuments, Theme}
+import laika.api.ext.{BundleProvider, StaticDocuments}
 import laika.io.Input
 import laika.parse.css.Styles.{ElementType, StyleDeclaration, StyleDeclarationSet}
 import laika.render.{PrettyPrint, _}
@@ -193,7 +193,7 @@ class RenderAPISpec extends FlatSpec
   it should "render a tree with a single document to HTML using a custom template in an extension bundle" in {
     new HTMLRenderer {
       val template = tRoot(tt("["), TemplateContextReference("document.content"), tt("]"))
-      override lazy val render = Render as HTML using BundleProvider.forHTMLTheme(Theme(defaultTemplate = Some(template)))
+      override lazy val render = Render as HTML using BundleProvider.forTheme(HTML.Theme(defaultTemplate = Some(template)))
       val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
       val expected = """[<h1 id="title" class="title">Title</h1>
                        |<p>bbb</p>]""".stripMargin
@@ -224,7 +224,7 @@ class RenderAPISpec extends FlatSpec
 
   it should "render a tree with two documents to XSL-FO using a custom style sheet in an extension bundle" in {
     new FORenderer {
-      override val render = Render as XSLFO using BundleProvider.forFOTheme(Theme(defaultStyles = foStyles("fo")))
+      override val render = Render as XSLFO using BundleProvider.forTheme(XSLFO.Theme(defaultStyles = foStyles("fo")))
       val input = DocumentTree(Root, List(
         Document(Root / "doc", rootElem),
         DocumentTree(Root / "tree", List(Document(Root / "tree" / "sub", subElem)))
@@ -383,10 +383,10 @@ class RenderAPISpec extends FlatSpec
                  |+ dir3
                  |  - theme5.js:name5
                  |  - theme6.js:name6""".stripMargin
-    val theme = Theme[TextWriter](
+    val theme = PrettyPrint.Theme(
       staticDocuments = StaticDocuments.fromInputTree(parseTreeStructure(dirs))
     )
-    val bundle = BundleProvider.forTextTheme(theme)
+    val bundle = BundleProvider.forTheme(theme)
     val render = Render.as(PrettyPrint).using(bundle)
 
     val input = addPosition(DocumentTree(Root,

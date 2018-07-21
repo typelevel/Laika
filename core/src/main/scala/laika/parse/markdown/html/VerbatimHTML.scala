@@ -16,9 +16,8 @@
 
 package laika.parse.markdown.html
 
-import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders, Theme}
-import laika.factory.RendererFactory
-import laika.render.{HTML, HTMLWriter}
+import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders}
+import laika.render.HTML
 
 /**  Markdown extension that also parses verbatim HTML elements alongside
   *  the standard Markdown markup.
@@ -45,9 +44,6 @@ object VerbatimHTML extends ExtensionBundle {
     spanParsers = Seq(HTMLParsers.htmlSpan, HTMLParsers.htmlCharRef)
   )
 
-  override def themeFor[Writer](rendererFactory: RendererFactory[Writer]): Theme[Writer] = rendererFactory match {
-    case _: HTML => Theme[HTMLWriter](customRenderer = HTMLRenderer)
-    case _ => Theme[Writer]()
-  }
+  override val themes = Seq(HTML.Theme(customRenderer = HTMLRenderer))
 
 }

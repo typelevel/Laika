@@ -74,7 +74,7 @@ import laika.tree.Documents._
  * 
  *  @author Jens Halm
  */
-abstract class Transform [Writer] private[Transform] (parse: Parse) extends
+abstract class Transform [Writer] private[Transform] (parse: Parse, protected val factory: RendererFactory[Writer]) extends
   TransformConfigBuilder[Writer] with InputOps with InputTreeOps  {
   
   type ThisType <: Transform[Writer]
@@ -116,7 +116,7 @@ object Transform {
    *  @param render the renderer to use for producing the output
    */
   class TransformMappedOutput[Writer] (parse: Parse, render: RenderMappedOutput[Writer],
-                                       val config: OperationConfig) extends Transform[Writer](parse) {
+                                       val config: OperationConfig) extends Transform[Writer](parse, render.factory) {
     
     type InputResult = TextOuputOps
   
@@ -141,7 +141,7 @@ object Transform {
    *  @param render the renderer to use for producing the output
    */
   class TransformGatheredOutput[Writer] (parse: Parse, render: RenderGatheredOutput[Writer],
-                                         val config: OperationConfig) extends Transform[Writer](parse) {
+                                         val config: OperationConfig) extends Transform[Writer](parse, render.factory) {
     
     type InputResult = BinaryOutputOps
   

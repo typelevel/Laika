@@ -16,7 +16,7 @@
 
 package laika.api.config
 
-import laika.api.ext.{ExtensionBundle, Theme}
+import laika.api.ext.ExtensionBundle
 import laika.factory.RendererFactory
 import laika.tree.Elements.{MessageLevel, RenderFunction}
 
@@ -24,6 +24,8 @@ import laika.tree.Elements.{MessageLevel, RenderFunction}
   * @author Jens Halm
   */
 trait RenderConfigBuilder[Writer] extends OperationConfigBuilder {
+
+  protected def factory: RendererFactory[Writer]
 
   /** Specifies a custom render function that overrides one or more of the default
     *  renderers for the output format this instance uses.
@@ -44,8 +46,7 @@ trait RenderConfigBuilder[Writer] extends OperationConfigBuilder {
     */
   def rendering (customRenderer: Writer => RenderFunction): ThisType = using(new ExtensionBundle {
     override val useInStrictMode: Boolean = true
-    override def themeFor[W](rendererFactory: RendererFactory[W]): Theme[W] =
-      Theme(customRenderer = customRenderer).asInstanceOf[Theme[W]]
+    override val themes = Seq(factory.Theme(customRenderer = customRenderer))
   })
 
   /**  Specifies the minimum required level for a system message

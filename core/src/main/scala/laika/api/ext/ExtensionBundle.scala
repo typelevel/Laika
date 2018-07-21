@@ -50,7 +50,7 @@ trait ExtensionBundle { self =>
 
   def rewriteRules: Seq[DocumentCursor => RewriteRule] = Seq.empty
 
-  def themeFor[Writer] (rendererFactory: RendererFactory[Writer]): Theme[Writer] = Theme[Writer]()
+  def themes: Seq[GenTheme] = Seq.empty
 
 
   // for providing APIs like registering Directives
@@ -68,8 +68,7 @@ trait ExtensionBundle { self =>
 
     override lazy val rewriteRules = self.rewriteRules ++ bundle.rewriteRules
 
-    override def themeFor[Writer] (rendererFactory: RendererFactory[Writer]) =
-      self.themeFor(rendererFactory).withBase(bundle.themeFor(rendererFactory))
+    override lazy val themes = self.themes ++ bundle.themes
 
     override def processExtension: PartialFunction[ExtensionBundle, ExtensionBundle] =
       self.processExtension.orElse(bundle.processExtension)
@@ -117,17 +116,17 @@ object ExtensionBundle {
 
 }
 
-case class Theme[Writer] (customRenderer: Writer => RenderFunction = {_: Writer => PartialFunction.empty},
-                          defaultTemplate: Option[TemplateRoot] = None,
-                          defaultStyles: StyleDeclarationSet = StyleDeclarationSet.empty,
-                          staticDocuments: StaticDocuments = StaticDocuments.empty) {
+trait GenTheme {
 
-  def withBase(other: Theme[Writer]): Theme[Writer] = Theme(
-    { w: Writer => customRenderer(w).orElse(other.customRenderer(w)) },
-    defaultTemplate.orElse(other.defaultTemplate),
-    other.defaultStyles ++ defaultStyles,
-    StaticDocuments(staticDocuments.merge(other.staticDocuments.tree))
-  )
+  type Writer
+
+  def customRenderer: Writer => RenderFunction
+
+  def defaultTemplate: Option[TemplateRoot]
+
+  def defaultStyles: StyleDeclarationSet
+
+  def staticDocuments: StaticDocuments
 
 }
 

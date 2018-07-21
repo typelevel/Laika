@@ -67,30 +67,9 @@ object BundleProvider {
 
   }
 
-  def forHTMLTheme (theme: Theme[HTMLWriter]): ExtensionBundle = new ExtensionBundle {
+  def forTheme (theme: GenTheme): ExtensionBundle = new ExtensionBundle {
 
-    override def themeFor[Writer](rendererFactory: RendererFactory[Writer]): Theme[Writer] = rendererFactory match {
-      case _: HTML => theme
-      case _ => Theme[Writer]()
-    }
-
-  }
-
-  def forFOTheme (theme: Theme[FOWriter]): ExtensionBundle = new ExtensionBundle {
-
-    override def themeFor[Writer](rendererFactory: RendererFactory[Writer]): Theme[Writer] = rendererFactory match {
-      case _: XSLFO => theme
-      case _ => Theme[Writer]() // TODO - this might work better as partial function
-    }
-
-  }
-
-  def forTextTheme (theme: Theme[TextWriter]): ExtensionBundle = new ExtensionBundle {
-
-    override def themeFor[Writer](rendererFactory: RendererFactory[Writer]): Theme[Writer] = rendererFactory match {
-      case _: PrettyPrint => theme
-      case _ => Theme[Writer]()
-    }
+    override def themes: Seq[GenTheme] = Seq(theme)
 
   }
 

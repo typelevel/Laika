@@ -31,7 +31,6 @@ import laika.parse.css.Styles.StyleDeclarationSet
 
 import scala.language.existentials
 import FOWriter._
-import laika.api.ext.Theme
 import laika.directive.DefaultTemplateParser
 import laika.parse.core.combinator.Parsers
 import laika.parse.css.CSSParsers
@@ -308,7 +307,7 @@ class XSLFO private (styles: Option[StyleDeclarationSet], renderFormatted: Boole
     }  
   } 
   
-  override def defaultTheme: Theme[FOWriter] = Theme[FOWriter](
+  override lazy val defaultTheme: Theme = Theme(
     defaultTemplate = Some(XSLFO.templateResource.content),
     defaultStyles = styles.getOrElse(XSLFO.styleResource)
   )

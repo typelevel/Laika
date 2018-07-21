@@ -63,10 +63,12 @@ import laika.tree.Templates._
  * 
  *  @author Jens Halm
  */
-abstract class Render[Writer] private (private[Render] val factory: RendererFactory[Writer],
+abstract class Render[Writer] private (protected[api] val factory: RendererFactory[Writer],
                                        val config: OperationConfig) extends RenderConfigBuilder[Writer] {
 
-  private lazy val theme = config.themeFor(factory)
+  private lazy val theme = (config.themes.collect {
+    case t: factory.Theme => t
+  } :+ factory.Theme()).reduceLeft(_ withBase _)
 
   /** The output operations that can be performed for a single input document.
    */

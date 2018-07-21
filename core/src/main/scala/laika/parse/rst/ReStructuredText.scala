@@ -17,12 +17,12 @@
 package laika.parse.rst
 
 import laika.api.ext._
-import laika.factory.{MarkupParser, RendererFactory}
+import laika.factory.MarkupParser
 import laika.parse.core.Parser
 import laika.parse.rst.ext._
 import laika.parse.util.WhitespacePreprocessor
-import laika.render.{HTML, HTMLWriter}
-import laika.tree.Elements.{Block, Text}
+import laika.render.HTML
+import laika.tree.Elements.Block
   
 /** A parser for text written in reStructuredText markup. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:
@@ -101,10 +101,7 @@ object ReStructuredText extends MarkupParser { self =>
       ))
     )
 
-    override def themeFor[Writer](rendererFactory: RendererFactory[Writer]): Theme[Writer] = rendererFactory match {
-      case _: HTML => Theme[HTMLWriter](customRenderer = ExtendedHTML)
-      case _ => Theme[Writer]()
-    }
+    override val themes = Seq(HTML.Theme(customRenderer = ExtendedHTML))
   }
 
   val extensions = Seq(

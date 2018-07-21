@@ -16,10 +16,11 @@
 
 package laika.factory
 
-import laika.api.ext.Theme
+import laika.api.ext.{GenTheme, StaticDocuments}
 import laika.io.Output
 import laika.parse.css.Styles.StyleDeclarationSet
-import laika.tree.Elements.{Element, MessageLevel}
+import laika.tree.Elements.{Element, MessageLevel, RenderFunction}
+import laika.tree.Templates.TemplateRoot
 
 /** Responsible for creating renderer instances for a specific output format.
  *  A renderer is simply a function of type `Element => Unit`. In addition
@@ -41,7 +42,7 @@ trait RendererFactory[W] {
 
   /** The default theme to use if no theme is explicitly specified.
     */
-  def defaultTheme: Theme[W]
+  def defaultTheme: Theme
 
   /** Creates a new renderer and a new writer instance for the specified
    *  output and delegate renderer. The delegate function needs to be used
@@ -65,5 +66,21 @@ trait RendererFactory[W] {
    */
   def newRenderer (out: Output, root: Element, delegate: Element => Unit, styles: StyleDeclarationSet, messageLevel: MessageLevel): (W, Element => Unit)
 
+
+  case class Theme (customRenderer: W => RenderFunction = {_: W => PartialFunction.empty},
+                    defaultTemplate: Option[TemplateRoot] = None,
+                    defaultStyles: StyleDeclarationSet = StyleDeclarationSet.empty,
+                    staticDocuments: StaticDocuments = StaticDocuments.empty) extends GenTheme {
+
+    type Writer = W
+
+    def withBase(other: Theme): Theme = Theme(
+      { w: W => customRenderer(w).orElse(other.customRenderer(w)) },
+      defaultTemplate.orElse(other.defaultTemplate),
+      other.defaultStyles ++ defaultStyles,
+      StaticDocuments(staticDocuments.merge(other.staticDocuments.tree))
+    )
+
+  }
 
 }

@@ -16,7 +16,6 @@
 
 package laika.render
 
-import laika.api.ext.Theme
 import laika.directive.DefaultTemplateParser
 import laika.tree.Documents.TemplateDocument
 import laika.tree.Elements._
@@ -282,9 +281,7 @@ class HTML private (renderFormatted: Boolean)
     }  
   } 
   
-  override def defaultTheme: Theme[HTMLWriter] = Theme[HTMLWriter](
-    defaultTemplate = Some(HTML.templateResource.content)
-  )
+  override lazy val defaultTheme: Theme = Theme(defaultTemplate = Some(HTML.templateResource.content))
   
 }
 
