@@ -60,10 +60,6 @@ class XSLFO private (styles: Option[StyleDeclarationSet], renderFormatted: Boole
    */
   def unformatted: XSLFO = new XSLFO(styles, false)
   
-  /** Adds the specified styles to the default styles this renderer applies.
-   */
-  def withStyles(additionalStyles: StyleDeclarationSet): XSLFO = new XSLFO(Some(defaultTheme.defaultStyles ++ additionalStyles), renderFormatted)
-  
   /** The actual setup method for providing both the writer API for customized
    *  renderers as well as the actual default render function itself. The default render
    *  function always only renders a single element and then delegates to the composite

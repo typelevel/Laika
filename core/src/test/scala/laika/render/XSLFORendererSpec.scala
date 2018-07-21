@@ -19,9 +19,9 @@ package laika.render
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
-
 import laika.api.Render
-import laika.parse.css.Styles.{StyleDeclarationSet, StyleDeclaration, Selector, StyleName}
+import laika.api.ext.BundleProvider
+import laika.parse.css.Styles.{Selector, StyleDeclaration, StyleDeclarationSet, StyleName}
 import laika.tree.Paths.Root
 import laika.tree.Elements._
 import laika.tree.Templates._
@@ -39,7 +39,8 @@ class XSLFORendererSpec extends FlatSpec
     Render as XSLFO withMessageLevel messageLevel from elem toString
     
   def render (elem: Element, style: StyleDeclaration): String = 
-    Render as (XSLFO withStyles StyleDeclarationSet(Root, style)) from elem toString
+    Render as XSLFO using BundleProvider
+      .forTheme(XSLFO.Theme(defaultStyles = StyleDeclarationSet(Root, style))) from elem toString
     
   def renderUnformatted (elem: Element): String = Render as XSLFO.unformatted from elem toString
   

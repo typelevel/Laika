@@ -286,28 +286,6 @@ class RenderAPISpec extends FlatSpec
     }
   }
 
-  it should "render a tree with two documents to XSL-FO using a custom style sheet programmatically" in {
-    new FORenderer {
-      override val render = Render as XSLFO.withStyles(foStyles("fo"))
-      val input = DocumentTree(Root, List(
-        Document(Root / "doc", rootElem),
-        DocumentTree(Root / "tree", List(Document(Root / "tree" / "sub", subElem)))
-      ))
-      val expectedRoot = RenderResult.fo.withDefaultTemplate(s"""${marker("Title")}
-        |      ${title("_title", "Title")}
-        |      <fo:block font-family="serif" font-size="11pt" space-after="3mm">bbb</fo:block>""".stripMargin)
-      val expectedSub = RenderResult.fo.withDefaultTemplate(s"""${marker("Sub Title")}
-        |      ${title("_sub-title", "Sub Title")}
-        |      <fo:block font-family="serif" font-size="11pt" space-after="3mm">ccc</fo:block>""".stripMargin)
-      renderedTree should be (RenderedTree(Root, List(
-          Documents(List(RenderedDocument(Root / "doc.fo", expectedRoot))),
-          Subtrees(List(RenderedTree(Root / "tree", List(
-              Documents(List(RenderedDocument(Root / "tree" / "sub.fo", expectedSub)))
-          ))))
-      )))
-    }
-  }
-
   it should "render a tree with a single dynamic document" in {
     new PrettyPrintRenderer with DocBuilder {
       val input = DocumentTree(Root, Nil, additionalContent = List(dynamicDoc(1)))
