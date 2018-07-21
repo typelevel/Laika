@@ -41,7 +41,9 @@ class RootParser (markupParser: MarkupParser, markupExtensions: MarkupExtensions
   protected lazy val fallbackBlock = merge(sortedBlockParsers.filterNot(_.isRecursive))
 
   protected lazy val spanParsers: Map[Char,Parser[Span]] = {
-    createParsers(markupParser.spanParsers, markupExtensions.spanParsers).groupBy(_.startChar).map {
+    val escapedText = SpanParser.forStartChar('\\').standalone(markupParser.escapedChar.map(Text(_))).withLowPrecedence
+
+    createParsers(markupParser.spanParsers :+ escapedText, markupExtensions.spanParsers).groupBy(_.startChar).map {
       case (char, definitions) => (char, definitions.map(_.parser).reduceLeft(_ | _))
     }
   }
@@ -50,7 +52,7 @@ class RootParser (markupParser: MarkupParser, markupExtensions: MarkupExtensions
     markupParser.createBlockListParser(p) ^^ markupExtensions.rootParserHooks.postProcessBlocks
 
   private def createParsers[T <: ParserDefinition] (mainParsers: Seq[ParserBuilder[T]],
-                                                      extParsers: Seq[ParserBuilder[T]]): Seq[T] = {
+                                                    extParsers: Seq[ParserBuilder[T]]): Seq[T] = {
 
     def createParsers (builders: Seq[ParserBuilder[T]]): (Seq[T],Seq[T]) =
       builders.map(_.createParser(this)).partition(_.precedence == Precedence.High)

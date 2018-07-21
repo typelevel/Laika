@@ -100,9 +100,8 @@ object DirectiveParsers {
    *  
    *  @param bodyContent the parser for the body content which is different for a block directive than for a span or template directive
    *  @param escapedText the parser for escape sequences according to the rules of the host markup language
-   *  @param includeStartChar indicates whether the starting '@' has to be parsed by this parser
    */
-  def directiveParser (bodyContent: Parser[String], escapedText: EscapedTextParsers, includeStartChar: Boolean): Parser[ParsedDirective] = {
+  def directiveParser (bodyContent: Parser[String], escapedText: EscapedTextParsers): Parser[ParsedDirective] = {
 
     val declaration = declarationParser(escapedText)
 
@@ -111,9 +110,8 @@ object DirectiveParsers {
     val body: Parser[Part] = wsOrNl ~> bodyName ~ bodyContent ^^ { case name ~ content => Part(Body(name), content) }
     
     val bodies = ':' ~> (defaultBody | body) ~ (body*) ^^ { case first ~ rest => first :: rest }
-    
-    val decl = if (includeStartChar) "@" ~> declaration else declaration
-    decl ~ (noBody | bodies) ^^ { case (name, attrs) ~ bodies => ParsedDirective(name, attrs ::: bodies) }
+
+    declaration ~ (noBody | bodies) ^^ { case (name, attrs) ~ bodies => ParsedDirective(name, attrs ::: bodies) }
   }
   
   abstract class DirectiveContextBase (parts: PartMap, docCursor: Option[DocumentCursor] = None) {
@@ -181,7 +179,7 @@ object SpanDirectiveParsers {
 
     val contextRefOrNestedBraces = Map('{' -> (reference(MarkupContextReference(_)) | nestedBraces))
     val bodyContent = wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
-    withRecursiveSpanParser(withSource(directiveParser(bodyContent, recParsers, includeStartChar = false))) ^^ {
+    withRecursiveSpanParser(withSource(directiveParser(bodyContent, recParsers))) ^^ {
       case (recParser, (result, source)) => // TODO - optimization - parsed spans might be cached for DirectiveContext (applies for the template parser, too)
 
         def createContext (parts: PartMap, docCursor: Option[DocumentCursor]): Spans.DirectiveContext = {
@@ -211,7 +209,7 @@ object BlockDirectiveParsers {
   }
 
   def blockDirective (directives: Map[String, Blocks.Directive]): BlockParserBuilder =
-    BlockParser.withoutStartChar.recursive(blockDirectiveParser(directives)) // TODO - include startChar
+    BlockParser.forStartChar('@').recursive(blockDirectiveParser(directives))
 
   def blockDirectiveParser (directives: Map[String, Blocks.Directive])(recParsers: RecursiveParsers): Parser[Block] = {
 
@@ -221,7 +219,7 @@ object BlockDirectiveParsers {
       val trimmed = block.trim
       Either.cond(trimmed.nonEmpty, trimmed, "empty body")
     }
-    withRecursiveSpanParser(withRecursiveBlockParser(withSource(directiveParser(bodyContent, recParsers, includeStartChar = true)))) ^^ {
+    withRecursiveSpanParser(withRecursiveBlockParser(withSource(directiveParser(bodyContent, recParsers)))) ^^ {
       case (recSpanParser, (recBlockParser, (result, source))) =>
 
         def createContext (parts: PartMap, docCursor: Option[DocumentCursor]): Blocks.DirectiveContext = {
@@ -232,7 +230,7 @@ object BlockDirectiveParsers {
             }
           }
         }
-        def invalid (msg: String) = InvalidBlock(SystemMessage(laika.tree.Elements.Error, msg), LiteralBlock(source))
+        def invalid (msg: String) = InvalidBlock(SystemMessage(laika.tree.Elements.Error, msg), LiteralBlock(s"@$source"))
 
         applyDirective(Blocks)(result, directives.get, createContext, DirectiveBlock(_), invalid, "block")
     }

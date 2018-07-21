@@ -46,7 +46,7 @@ class ReStructuredTextToHTMLSpec extends FlatSpec
       .replace("""class="field-list"""", """class="docinfo"""").replace("""class="field-name"""","""class="docinfo-name"""").replace("""class="field-body"""","""class="docinfo-content"""") // docinfo field lists deferred to 0.4
     
     tidy(prepared)
-      .replace("<col></colgroup>", "<col>\n</colgroup>") // TODO - why is it rendered like this? JTidy oddity
+      .replace("<col></colgroup>", "<col>\n</colgroup>") // fix for JTidy oddity
       .replace(">\n\n<",">\n<") // rst often adds blank lines between tags
       .replace("§§§§","&mdash;") // JTidy converts it back to utf-8 char otherwise
       .trim

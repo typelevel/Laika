@@ -16,13 +16,11 @@
 
 package laika.parse.markdown
 
-import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders, RootParserHooks, SpanParser}
+import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders, RootParserHooks}
 import laika.factory.MarkupParser
 import laika.parse.core.Parser
-import laika.parse.core.markup.RootParser
-import laika.parse.core.text.TextParsers.anyOf
 import laika.parse.markdown.html.VerbatimHTML
-import laika.tree.Elements.{Block, Text}
+import laika.tree.Elements.Block
   
 /** A parser for Markdown text. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:
@@ -77,22 +75,20 @@ object Markdown extends MarkupParser {
     InlineParsers.image,
     InlineParsers.link,
     InlineParsers.simpleLink,
-    InlineParsers.lineBreak,
-    SpanParser.forStartChar('\\').standalone(escapedChar ^^ { Text(_) }).withLowPrecedence // TODO - extract
+    InlineParsers.lineBreak
   )
 
   override lazy val escapedChar = InlineParsers.escapedChar
 
-  val extensions = Seq(
-    new ExtensionBundle {
-      override val parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders(
-        rootParserHooks = Some(RootParserHooks(
-          postProcessBlocks = HeaderIdInsertion
-        ))
-      )
-    },
-    VerbatimHTML
-  )
+  object BundledDefaults extends ExtensionBundle {
+    override val parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders(
+      rootParserHooks = Some(RootParserHooks(
+        postProcessBlocks = HeaderIdInsertion
+      ))
+    )
+  }
+
+  val extensions = Seq(BundledDefaults, VerbatimHTML)
 
   override def createBlockListParser (parser: Parser[Block]): Parser[Seq[Block]] =
     super.createBlockListParser(BlockParsers.insignificantSpaces ~> parser)

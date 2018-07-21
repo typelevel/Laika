@@ -85,29 +85,30 @@ object ReStructuredText extends MarkupParser { self =>
     InlineParsers.internalTarget,
     InlineParsers.interpretedTextWithRolePrefix,
     InlineParsers.uri,
-    InlineParsers.email,
-    SpanParser.forStartChar('\\').standalone(escapedChar ^^ { Text(_) }).withLowPrecedence // TODO - extract
+    InlineParsers.email
   )
 
   override lazy val escapedChar = InlineParsers.escapedChar
 
+  object BundledDefaults extends ExtensionBundle {
+    override val useInStrictMode: Boolean = true
+
+    override val parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders(
+      rootParserHooks = Some(RootParserHooks(
+        preProcessInput = WhitespacePreprocessor.forInput,
+        postProcessDocument = DocInfoExtractor,
+        postProcessBlocks = LinkTargetProcessor
+      ))
+    )
+
+    override def themeFor[Writer](rendererFactory: RendererFactory[Writer]): Theme[Writer] = rendererFactory match {
+      case _: HTML => Theme[HTMLWriter](customRenderers = Seq(ExtendedHTML))
+      case _ => Theme[Writer]()
+    }
+  }
+
   val extensions = Seq(
-    new ExtensionBundle {
-      override val useInStrictMode: Boolean = true
-
-      override val parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders(
-        rootParserHooks = Some(RootParserHooks(
-          preProcessInput = WhitespacePreprocessor.forInput,
-          postProcessDocument = DocInfoExtractor,
-          postProcessBlocks = LinkTargetProcessor
-        ))
-      )
-
-      override def themeFor[Writer](rendererFactory: RendererFactory[Writer]): Theme[Writer] = rendererFactory match {
-        case _: HTML => Theme[HTMLWriter](customRenderers = Seq(ExtendedHTML))
-        case _ => Theme[Writer]()
-      }
-    },
+    BundledDefaults,
     RstExtensionSupport,
     StandardExtensions,
     RawContentExtensions
