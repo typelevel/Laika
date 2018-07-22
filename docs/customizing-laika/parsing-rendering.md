@@ -59,7 +59,7 @@ parsed directory.
 
 Like with a full transformation, parsing can be performed in parallel:
 
-    Parse as Markdown fromTree Directory("source").inParallel
+    Parse.as(Markdown).inParallel.fromDirectory("source")
 
 When specifying options like parallel execution, you cannot use
 the `fromDirectory` shortcut like in the previous example, but
@@ -101,6 +101,26 @@ The Render API is similar to the Transform API, but expects
 that you already have a document tree model, either obtained
 by a previous parsing step or built programmatically, and now
 want to render it to a specific output format.
+
+
+### Reusing the parser configuration
+
+In contrast to the Transform API, the Parse and Render APIs keep these
+two operations completely separate. However, this also means that the
+renderer does not know about any custom renderers the parser might 
+provide as extensions for rendering custom AST nodes the default renderer
+does not know about.
+
+For this reason it is always best to copy the parser configuration over
+to the Render API:
+
+    val parser = Parse.as(Markdown).strict
+    
+    val doc = parse.fromFile("foo.md")
+    
+    Render.as(HTML).withConfig(parser.config).toFile("hello.html")
+
+For the sake of brevity we omit this detail from the following examples.
 
 
 ### Rendering a Single Document
@@ -147,7 +167,7 @@ Like with a full transformation, rendering can be performed in parallel:
 
     val tree: DocumentTree = ...
     
-    Render as HTML from tree toTree Directory("source").inParallel
+    Render.as(HTML).inParallel.from(tree).toDirectory("source")
 
 
 ### Reusing Renderers

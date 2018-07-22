@@ -71,8 +71,8 @@ See [Templates] for more details.
 The `unformatted` property tells the renderer to omit any formatting (line breaks or indentation) 
 around tags. Useful when storing the output in a database for example:
 
-    Transform from Markdown to HTML.unformatted fromFile 
-      "hello.md" toFile "hello.html"
+    Transform.from(Markdown).to(HTML).unformatted 
+      .fromFile("hello.md").toFile("hello.html")
 
 The `withMessageLevel` property instructs the renderer to include system messages in the
 generated HTML. Messages may get inserted into the document tree for problems during
@@ -81,8 +81,8 @@ exist. By default these messages are not included in the output. They are mostly
 for testing and debugging, or for providing feedback to application users producing 
 markup input:
 
-    Transform from Markdown to HTML.withMessageLevel(Warning) fromFile 
-      "hello.md" toFile "hello.html"
+    Transform.from(Markdown).to(HTML).withMessageLevel(Warning) 
+      .fromFile("hello.md").toFile("hello.html")
 
 
 ### CSS, JavaScript and other Files
@@ -129,7 +129,7 @@ to first do performance and load testing.
 
 Using the PDF renderer requires to add another dependency to your build:
 
-    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.6.0"
+    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.8.0"
 
 The PDF renderer can then be used with the `Transform` or `Render` APIs:
 
@@ -374,7 +374,7 @@ You can override it if required by saving a custom template in a file called
 Finally you can adjust the `fo` tags rendered for one or more node types
 of the document tree programmatically with a simple partial function:
 
-    Transform from Markdown to HTML rendering { out => { 
+    Transform from Markdown to PDF rendering { out => { 
       case elem @ Emphasized(content, _) => out.inline(
         elem.copy(options = Style("myStyle")), content
       ) 

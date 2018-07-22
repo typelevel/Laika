@@ -5,8 +5,7 @@ Supported Markup
 The current release supports Markdown and reStructuredText. Both implementations stay as close
 as possible to the original descriptions and specifications of these formats. 
 
-The markup
-gets parsed into a generic document tree model shared between all parsers. This means
+The markup gets parsed into a generic document tree model shared between all parsers. This means
 that there are some adjustments in terminology (e.g. a bullet list in reStructuredText
 is called an "unordered list" in the Markdown syntax description). 
 

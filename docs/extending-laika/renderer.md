@@ -19,14 +19,20 @@ is often quite straightforward nevertheless. A renderer has to mix in the follow
     trait RendererFactory[W] {
       
       def fileSuffix: String
-  
-      def newRenderer (out: Output, delegate: Element => Unit): 
-                                                      (W, Element => Unit)
       
+      def defaultTheme: Theme
+      
+      def newRenderer (out: Output, root: Element, delegate: Element => Unit,
+          styles: StyleDeclarationSet, config: RenderConfig): (W, Element => Unit)
+  
     }
-    
+
 The `fileSuffix` method returns the suffix to append when writing files in this format
 (without the ".").
+
+The `defaultTheme` specifies the theme to use when it is not overridden by the user.
+It allows to specify a default template and/or static files to include in the output.
+For details see the section about [Themes].
 
 The `newRenderer` method creates the actual renderer. In contrast to the parser factory
 it creates a new function for each render operation.    
@@ -37,8 +43,7 @@ types of streams.
 
 `Element => Unit` is the actual render function. The `delegate` function that gets passed to your
 renderer is the *composed* render function. Since default renderers can be overridden by users
-of your renderer
-as described in the chapter [Customizing Renderers], you need to use this function
+of your renderer as described in the chapter [Customizing Renderers], you need to use this function
 as the delegate when your default render function needs to render the children of
 an element. 
 
@@ -48,61 +53,6 @@ to use for all elements where no custom renderer has been defined.
 Finally, `W` is a parameterized type representing the Writer API that render functions
 should use for writing the actual output. For the built-in renderers, this is `TextWriter`
 for the `PrettyPrint` renderer and `HTMLWriter` for the `HTML` renderer.
-
-
-
-Providing an API
-----------------
-
-When you build a new renderer you should provide the following features for your users:
-
-* An easy way to use your renderer with the Transform API
-
-* An easy way to use it with the Render API
-
-* A fluent API for specifying options (in case your renderer is configurable)
-
-The first two come for free when you create an object that extends the setup function
-explained in the previous section.
-The built-in `PrettyPrint` or `HTML` object are an example. Since they do extend that function,
-you can easily use them in expressions like this:
-
-    val transform = Transform from Markdown to HTML
-    
-When you want to specify options this should be possible inline:
-
-    val transform = Transform from Markdown to (MyFormat withOption "foo")
-
-You can achieve this by providing a trait that offers all the available configuration
-hooks and returns `this` for each of these methods for easy chaining. Additionally
-you create a companion object that represents the default configuration.
-
-This is how skeletons for the trait and object for the HTML renderer look as an example (Scaladoc
-comments, imports and actual render logic removed for brevity):
-
-    class HTML private (messageLevel: Option[MessageLevel]) 
-                                      extends RendererFactory[HTMLWriter] {
-    
-      val fileSuffix = "html"
-      
-      def withMessageLevel (level: MessageLevel) = new HTML(Some(level))
-      
-      def newRenderer (output: Output, render: Element => Unit) = {
-        val out = new HTMLWriter(output.asFunction, render)  
-        (out, renderElement(out))
-      }
-      
-      private def renderElement (out: HTMLWriter)(elem: Element): Unit = {
-        /* actual render logic omitted */
-      } 
-    }
-    
-    object HTML extends HTML(None)
-
-It calls `asFunction` on the `Output` instance which is the most convenient way
-if all you need for writing is a simple `String => Unit` function, no matter
-where the text is actually written to. Alternatively you can use
-`Output.asWriter` to get access to the full `java.io.Writer` API.
 
 
 
@@ -160,10 +110,3 @@ functions easier to read. It's the only API where Laika uses symbols as method n
 [Writer API]: customize.html#writer
   
   
-  
-  
-  
-  
-
-
-

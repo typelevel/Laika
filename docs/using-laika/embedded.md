@@ -188,11 +188,12 @@ All you have to do is pass both parsers to the API:
 When transforming a large number of files you may want to run the operations
 in parallel: 
 
-    (Transform from Markdown to 
-      HTML fromDirectory "source").inParallel toDirectory "target"
+    Transform.from(Markdown).to(HTML).inParallel
+      .fromDirectory("source").toDirectory("target")
 
-Note that we have to introduce parenthesis here, as `inParallel` is
-a no-arg method breaking the pattern of the fluent API.
+Note that we show this in standard dot-notation here, as the fluent
+dot-less API we use in other examples does not work well with parameter-less
+methods like `inParallel`.
 
 The actual transformation is a three phase process, the first (parsing) and
 third (rendering) can run in parallel. For the second phase this is not possible,
@@ -249,8 +250,5 @@ users to edit text with markup, giving them visual feedback for their mistakes.
 
 The following example renders all message with the level `Warning` or higher:
 
-    Transform from Markdown to 
-      HTML.withMessageLevel(Warning) fromDirectory 
-      "source" toDirectory "target"
-
-
+    Transform.from(Markdown).to(HTML).withMessageLevel(Warning)
+      .fromDirectory("source").toDirectory("target")

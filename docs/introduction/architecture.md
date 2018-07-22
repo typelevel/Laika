@@ -29,11 +29,9 @@ Design Principles
 * Provide concise and type-safe extension APIs for extensible markup definitions.
   
 * Create the built-in parsers with a custom parser combinator implementation, providing efficient and
-  reusable base parsers that encapsulate requirements common to all lightweight markup languages,
-  while keeping the basic contract for plugging in a new parser function as simple and generic as 
-  `Input => Document`, so that other parser frameworks or tools can be used, too.
+  reusable base parsers that encapsulate requirements common to all lightweight markup languages.
   
-* Designed for robustness: Laika has more than 900 tests, it is protected against malicious
+* Designed for robustness: Laika has more than 1100 tests, it is protected against malicious
   or accidentally malformed input like endless recursion (a type of guard most other text markup 
   parsers do not include) and parsers like the URI parser are based on the actual relevant RFCs
   (and not just a rough approximation like in many other parsers). 
@@ -54,8 +52,8 @@ red boxes:
 * `Parse` represents the actual parsing step, a pluggable function of type `Input => Document` 
   (or `Input => TemplateDocument` for templates).
   Supported out of the box are Markdown and reStructuredText. Other parsers can easily be added
-  to the system and they do not need to be based on Laika's parser combinators like the built-in
-  parsers. Parsers can be extended with custom tags called Directives that allow to add new
+  to the system based on Laika's parser combinators. 
+  Parsers can be extended with custom tags called Directives that allow to add new
   constructs to markup without extending the parser.
   
 * `Rewrite` is a customizable step for transforming the document tree model before rendering.
@@ -69,7 +67,7 @@ red boxes:
   is optional, so this step may get skipped.
   
 * `Render` is the final render step. Currently supported out of the box are HTML, PDF, XSL-FO and PrettyPrint,
-  the latter visualizing the document tree for debugging purposes. Planned for the next release
+  the latter visualizing the document AST for debugging purposes. Planned for the next release
   is support for epub. Like with the rewrite step, the entire renderer can be replaced
   by a custom one, or an existing one can customized based on a partial function that deals with
   specific node types only.

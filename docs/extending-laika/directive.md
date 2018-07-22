@@ -105,7 +105,7 @@ parser or to the template parser.
           ExternalLink(linkText, url, options = Styles("ticket"))
       }
     }
-    
+
 Let's examine the code:
 
 With `Spans.create("ticket")` we specify the name of the directive (`ticket`)
@@ -247,7 +247,7 @@ Combinator:
 
     body(Default)
 
-    
+
 ### Named Bodies
 
 A named body element usually appears after a default body (but it does not have
@@ -264,7 +264,7 @@ Markup example:
 Combinator:
 
     body("empty")
-    
+
 
 ### Optional Elements
 
@@ -274,7 +274,7 @@ as default and named bodies can be marked as optional.
 Combinator:
 
     body("empty").optional
-    
+
 The parameter type of your directive function changes accordingly,
 from `T` to `Option[T]` where `T` is either the type returned by
 your converter (see below) or the default type (which is different
@@ -322,7 +322,7 @@ addition to the other values:
       val parsedSpans = parser("["+attrValue+"]")
       SpanSequence(parsedSpans)
     }
-    
+
 In this contrived example the attribute value is modified before being passed
 to the parser and then wrapped inside a sequence.
 
@@ -368,7 +368,7 @@ Implementation:
     val directive = Spans.create("name") {
       // implementation producing a `Span` element
     }    
-    
+
 Registration:
 
     // for Markdown and reStructuredText with sbt plugin:
@@ -383,7 +383,7 @@ Registration:
     Transform from Markdown to HTML using MyDirectives from...
     Parse as Markdown using MyDirectives from...
 
-    
+
 ### Block Directives
 
 Use: in block elements in text markup files
@@ -398,8 +398,8 @@ Implementation:
     
     val directive = Blocks.create("name") {
       // implementation producing a `Block` element
-    }    
-    
+    }
+
 Registration:
 
     // for Markdown and reStructuredText with sbt plugin:
@@ -413,7 +413,7 @@ Registration:
     }
     Transform from Markdown to HTML using MyDirectives from...
     Parse as Markdown using MyDirectives from...
-    
+
 
 ### Template Directives
 
@@ -430,7 +430,7 @@ Implementation:
     val directive = Templates.create("name") {
       // implementation producing a `TemplateSpan` element
     }    
-    
+
 Registration:
 
     // for templates with sbt plugin:

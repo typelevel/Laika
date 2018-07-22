@@ -147,7 +147,7 @@ Features
 Road Map
 --------
 
-* __0.9__: New API for ExtensionBundles, support for GitHub-flavored Markdown
+* __0.9__: Support for GitHub-flavored Markdown
 
 * __0.10__: Support for output in the epub format
 

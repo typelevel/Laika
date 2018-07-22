@@ -263,7 +263,7 @@ The implementation of the `link` text role could look like this:
     }  
         
     Transform from ReStructuredText to HTML using 
-          MyDirectives fromFile "hello.rst" toFile "hello.html"    
+      MyDirectives fromFile "hello.rst" toFile "hello.html"    
 
  
 We specify the name of the role to be `link`, and the default value the URL provided as the

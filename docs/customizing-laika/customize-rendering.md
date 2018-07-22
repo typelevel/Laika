@@ -160,3 +160,52 @@ the following methods:
   for name and value of the attribute. If the value is None, nothing will be written,
   but it often makes writing optional attributes more concise.
 
+
+### Themes
+
+A theme is a collection of customized renderers as shown in the previous sections,
+plus optionally default templates and/or static files to be copied to the output
+directory.
+
+This is the signature of the `Theme` case class:
+
+    case class Theme (customRenderer: W => RenderFunction,
+                      defaultTemplate: Option[TemplateRoot],
+                      defaultStyles: StyleDeclarationSet,
+                      staticDocuments: StaticDocuments)
+
+* The `customRenderer` is a renderer function that overrides the built-in renderers
+  for one or more nodes, see the sections above for details on how to write such a function.
+  
+* The `defaultTemplate` is the AST for the template to embed the render result in, 
+  overriding the default template of the library. You can create the AST programmatically
+  or use Laika's templating syntax and parse it from a file or the resource directory if
+  you bundle your theme in a jar:
+  
+      DefaultTemplateParser.parse(Input.fromClasspath(
+        "/templates/default.template.html", Root / "default.template.html"
+      )) 
+
+* The `defaultStyles` allow you to customize the default CSS for a format. This
+  is currently only processed for PDF, as it is the only format where Laika processes
+  the CSS and applies it to the render result. If you want to add CSS for HTML, add them
+  as static files instead, as Laika will just copy them over without processing them.
+  
+* The `staticDocuments` provides a collection of files to be copied over to the output
+  directory on each transformation. You can bundle images, script or CSS files this way:
+  
+      val docs = StaticDocuments.fromDirectory("theme-files")
+      
+A theme can be installed as part of an extension bundle:
+
+    object MyExtensions extends ExtensionBundle {
+    
+      override val themes = Seq(HTML.Theme(...), PDF.Theme(...))
+        
+    }
+    
+    Transform.from(Markdown).to(HTML).using(MyExtensions)
+      .fromFile("hello.md").toFile("hello.html")         
+
+A theme is specific to a particular output format, separate instances need to be 
+provided if you want to install themes for several formats like HTML and PDF.

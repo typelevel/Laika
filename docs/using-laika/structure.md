@@ -8,15 +8,10 @@ that make it easier to deal with structured content.
 These features are enabled by default, but can be switched off
 explicitly.
 
-This is how you can switch them off for Markdown:
+This is how you can switch them off for any markup format:
 
-    Transform from Markdown.strict to 
-      PDF fromFile "hello.md" toFile "hello.pdf"
-
-And likewise, the same `strict` property is available for reStructuredText:
-
-    Transform from ReStructuredText.strict to 
-      HTML fromFile "hello.md" toFile "hello.html"
+    Transform.from(Markdown).to(PDF).strict 
+      .fromFile("hello.md").toFile("hello.pdf")
 
 
 Document Title
@@ -299,18 +294,21 @@ by its name, in the following way:
   output directory unmodified.
   
 If you need to customize the document type recognition,
-you can do that with a simple function:
+you can do that with a simple function and install it as
+part of an extension bundle:
 
-    val matcher: Path => DocumentType
+    object MyExtensions extends ExtensionBundle {
     
-    Transform from Markdown to HTML fromDirectory 
-      "source" withDocTypeMatcher matcher toDirectory "target"
+        override val docTypeMatcher: PartialFunction[Path, DocumentType] = ...
+    
+        // ... optionally other customizations
+      }
+    
+    Transform from Markdown to HTML using MyExtensions fromDirectory 
+      "source" toDirectory "target"
 
-The valid return types correspond to the document types listed
+The valid return types of the matcher function correspond to the document types listed
 above:
 
     Markup, Template, Dynamic, Static, Config, Ignored
-
-
-
 
