@@ -24,30 +24,6 @@ import laika.tree.Elements._
  */
 object TreeUtil {
 
-  
-  /** Returns a new instance of the customizable element
-   *  without its id.
-   */
-  def removeId [C <: Customizable] (c: C): C = modifyOptions(c, opt => Options(None,opt.styles))
-
-  /** Returns a new instance of the customizable element
-   *  with its id set to the specified value, overriding any existing value.
-   */
-  def setId [C <: Customizable] (c: C, id: String): C = modifyOptions(c, opt => Options(Some(id), opt.styles))
-
-  /** Returns a new instance of the customizable element
-   *  with its options modified according to the specified function.
-   */
-  def modifyOptions [C <: Customizable] (c: C, f: Options => Options): C = {
-    val newElements = (c.productIterator map { 
-      case opt:Options => f(opt)   
-      case other => other  
-    }).toArray
-      
-    c.getClass.getConstructors()(0)
-      .newInstance(newElements.asInstanceOf[Array[AnyRef]]:_*).asInstanceOf[C]
-  }
-
   /** Extracts all document fragments from the specified sequence of blocks.
    */
   def extractFragments (blocks: Seq[Element]): Map[String,Element] = 

@@ -754,6 +754,34 @@ object Elements {
     def apply (id: Option[String] = None, styles: Set[String] = Set()): Options =
       if (id.isEmpty && styles.isEmpty) NoOpt
       else SomeOpt(id,styles)
+
+    /** Returns a new instance of the customizable element
+      *  without its id.
+      */
+    def removeId [C <: Customizable] (c: C): C = modifyOptions(c, opt => Options(None,opt.styles))
+
+    /** Returns a new instance of the customizable element
+      *  with its id set to the specified value, overriding any existing value.
+      */
+    def setId [C <: Customizable] (c: C, id: String): C = modifyOptions(c, opt => Options(Some(id), opt.styles))
+
+    /** Returns a new instance of the customizable element
+      *  with its options merged with the specified options/
+      */
+    def merge [C <: Customizable] (c: C, opt: Options): C = modifyOptions(c, _ + opt)
+
+    /** Returns a new instance of the customizable element
+      *  with its options modified according to the specified function.
+      */
+    private def modifyOptions [C <: Customizable] (c: C, f: Options => Options): C = {
+      val newElements = (c.productIterator map {
+        case opt:Options => f(opt)
+        case other => other
+      }).toArray
+
+      c.getClass.getConstructors()(0)
+        .newInstance(newElements.asInstanceOf[Array[AnyRef]]:_*).asInstanceOf[C]
+    }
   }
   
   /** Specifies how a particular element, document or document

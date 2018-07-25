@@ -159,8 +159,8 @@ object LinkTargets {
       case (target, id) =>
         val replaced = delegate.replace(target, id)
         replaced match {
-          case Some(b: Block) => InvalidBlock(sysMsg, TreeUtil.removeId(b))
-          case Some(s: Span)  => InvalidSpan(sysMsg, TreeUtil.removeId(s))
+          case Some(b: Block) => InvalidBlock(sysMsg, Options.removeId(b))
+          case Some(s: Span)  => InvalidSpan(sysMsg, Options.removeId(s))
           case _              => sysMsg
         }
       }
@@ -171,7 +171,7 @@ object LinkTargets {
   
   abstract class DefaultTarget (target: Customizable, id: Id, path: Path) extends TargetDefinition(target, id, true) {
     val replace: ((Element,Id)) => Option[Element] = lift { 
-      case (c: Customizable, Named(name)) => TreeUtil.setId(c, name) 
+      case (c: Customizable, Named(name)) => Options.setId(c, name)
     }
     val resolve: ((Element,Id)) => Option[Element] = lift { 
       case (LinkReference (content, _, _, opt), Named(name))            => InternalLink(linkContent(content,name), name, options = opt) 
