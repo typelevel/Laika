@@ -25,7 +25,7 @@ import laika.tree.Elements.{Block, Header, Id}
 object HeaderIdInsertion extends (Seq[Block] => Seq[Block]) {
 
   def apply (blocks: Seq[Block]): Seq[Block] = blocks.map {
-    case h: Header => h.copy(options = h.options + Id(TreeUtil.extractText(h.content).replaceAll("[\n ]+", " ").toLowerCase))
+    case h: Header => h.copy(options = h.options + Id(h.extractText.replaceAll("[\n ]+", " ").toLowerCase))
     case other => other
   }
 

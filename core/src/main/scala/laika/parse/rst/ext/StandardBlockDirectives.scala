@@ -167,8 +167,8 @@ class StandardBlockDirectives {
    */
   lazy val meta: DirectivePart[Block] = blockContent map {
     case FieldList(fields,_) :: Nil => 
-      ConfigValue("meta", fields map (field => (TreeUtil.extractText(field.name), 
-          field.content collect { case p: Paragraph => TreeUtil.extractText(p.content) } mkString)) toMap)
+      ConfigValue("meta", fields map (field => (SpanSequence(field.name).extractText,
+          field.content collect { case p: Paragraph => p.extractText } mkString)) toMap)
     case other => InvalidBlock(SystemMessage(Error, 
         "The meta directive expects a FieldList as its only block content"), BlockSequence(other))
   }

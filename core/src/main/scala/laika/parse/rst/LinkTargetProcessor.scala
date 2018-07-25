@@ -31,7 +31,7 @@ object LinkTargetProcessor extends (Seq[Block] => Seq[Block]) {
 
     case object Mock extends Block { val options = NoOpt }
 
-    def toLinkId (h: DecoratedHeader) = ReferenceName(TreeUtil.extractText(h.content)).normalized
+    def toLinkId (h: DecoratedHeader) = ReferenceName(h.extractText).normalized
 
     // TODO - simplify
     (Mock +: blocks :+ Mock).sliding(3).foldLeft(new ListBuffer[Block]()) {

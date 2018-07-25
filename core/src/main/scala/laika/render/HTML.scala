@@ -190,8 +190,9 @@ object HTML extends RendererFactory[HTMLWriter] {
         case _                         => out <<@ ("span",opt)  <<   content << "</span>"
       }} 
       case Literal(content,opt)        => out <<@ ("code",opt)  <<<& content << "</code>" 
-      case LiteralBlock(content,opt)   => out <<@ ("pre",opt)  << "<code>" <<<&  content << "</code></pre>"
+      case LiteralBlock(content,opt)   => out <<@ ("pre",opt)   <<  "<code>" <<<& content << "</code></pre>"
       case Comment(content,opt)        => out << "<!-- "        <<   content << " -->"
+      case sn@ SectionNumber(_, opt)   => out << Text(sn.content, opt + Styles("sectionNumber"))
       
       case WithFallback(fallback)      => out << fallback
       case c: Customizable             => out <<@ ("span",c.options) << c.content << "</span>"
@@ -210,7 +211,6 @@ object HTML extends RendererFactory[HTMLWriter] {
     def renderSimpleSpan (span: Span): Unit = span match {
       case CitationLink(ref,label,opt) => out <<@ ("a",opt + Styles("citation"),"href"->("#"+ref)) << "[" << label << "]</a>" 
       case FootnoteLink(ref,label,opt) => out <<@ ("a",opt + Styles("footnote"),"href"->("#"+ref)) << "[" << label << "]</a>" 
-      case SectionNumber(pos, opt)     => out << Text(pos.mkString(".") + " ", opt + Styles("sectionNumber"))
 
       case Image(text,uri,width,height,title,opt) =>
         def sizeAttr (size: Option[Size], styleName: String): (Option[String],Option[String]) = size map {

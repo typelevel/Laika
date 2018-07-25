@@ -47,17 +47,7 @@ object TreeUtil {
     c.getClass.getConstructors()(0)
       .newInstance(newElements.asInstanceOf[Array[AnyRef]]:_*).asInstanceOf[C]
   }
-  
-  /** Extracts the text from the specified sequence of spans, removing
-   *  any formatting or links.
-   */
-  def extractText (spans: Seq[Span]): String = ("" /: spans) { (acc, span) => span match {
-    case SectionNumber(pos, _)=> pos.mkString(".") + " "
-    case Text(content, _)     => acc + content
-    case sc: SpanContainer[_] => acc + extractText(sc.content)
-    case _ => acc
-  }}
-  
+
   /** Extracts all document fragments from the specified sequence of blocks.
    */
   def extractFragments (blocks: Seq[Element]): Map[String,Element] = 

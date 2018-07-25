@@ -20,7 +20,7 @@ import com.typesafe.config.ConfigValueFactory
 import laika.parse.rst.Elements.FieldList
 import laika.rewrite.TreeUtil
 import laika.tree.Documents.Document
-import laika.tree.Elements.{Comment, DecoratedHeader, Paragraph}
+import laika.tree.Elements.{Comment, DecoratedHeader, Paragraph, SpanSequence}
 
 /**
   * @author Jens Halm
@@ -38,9 +38,9 @@ object DocInfoExtractor extends (Document => Document) {
 
     val docInfoMap = docStartBlock.collect {
       case FieldList(fields, _) => fields.map { field =>
-        val name = TreeUtil.extractText(field.name)
+        val name = SpanSequence(field.name).extractText
         val value = field.content.collect {
-          case p: Paragraph => TreeUtil.extractText(p.content)
+          case p: Paragraph => p.extractText
         }.mkString
         (name, value)
       }.toMap

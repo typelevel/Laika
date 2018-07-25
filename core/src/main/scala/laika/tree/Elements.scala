@@ -20,10 +20,9 @@ import java.text.DecimalFormat
 
 import laika.api.Render
 import laika.render.PrettyPrint
+import laika.tree.Paths.{Path, Root}
 
 import scala.math.Ordered
-import laika.tree.Paths.Path
-import laika.tree.Paths.Root
 
 /** Provides the elements of the document tree. The model is generic and not tied to any
  *  specific markup syntax like Markdown. Parsers may only support a subset of the provided
@@ -183,8 +182,19 @@ object Elements {
   /** A container of other Span elements. Such a container may be a Block
    *  or a Span itself.
    */
-  trait SpanContainer[Self <: SpanContainer[Self]] extends ElementContainer[Span,Self]
-  
+  trait SpanContainer[Self <: SpanContainer[Self]] extends ElementContainer[Span,Self] {
+
+    /**  Extracts the text from the spans of this container, removing
+      *  any formatting or links.
+      */
+    def extractText: String = content map {
+      case tc: TextContainer    => tc.content
+      case sc: SpanContainer[_] => sc.extractText
+      case _ => ""
+    } mkString
+
+  }
+
   /** A container of list items. Such a container is usually a Block itself.
    */
   trait ListContainer[Self <: ListContainer[Self]] extends ElementContainer[ListItem,Self]
@@ -239,8 +249,10 @@ object Elements {
   /** Represents a section number, usually used in header elements
    *  when autonumbering is applied.
    */
-  case class SectionNumber(position: Seq[Int], options: Options = NoOpt) extends Span {
-  
+  case class SectionNumber(position: Seq[Int], options: Options = NoOpt) extends Span with TextContainer {
+
+    val content = position.mkString(".") + " "
+
     /** Creates a new instance for a child section
      *  of this section at the specified position.
      */
@@ -267,7 +279,7 @@ object Elements {
   /** A paragraph consisting of span elements.
    */
   case class Paragraph (content: Seq[Span], options: Options = NoOpt) extends Block with SpanContainer[Paragraph]
-    
+
   /** A literal block with unparsed text content.
    */
   case class LiteralBlock (content: String, options: Options = NoOpt) extends Block with TextContainer

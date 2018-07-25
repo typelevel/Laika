@@ -104,7 +104,7 @@ class FOforPDF (config: Option[PDFConfig]) {
     def sectionBookmarks (path: Path, sections: Seq[SectionInfo], levels: Int): Seq[Bookmark] = 
       if (levels == 0) Nil
       else for (section <- sections) yield {
-        val title = section.title.text
+        val title = section.title.extractText
         val children = sectionBookmarks(path, section.content, levels - 1)
         Bookmark(section.id, PathInfo.fromPath(path, root.path), title, children)
       }
@@ -114,11 +114,11 @@ class FOforPDF (config: Option[PDFConfig]) {
       else (for (nav <- tree.content if hasContent(nav)) yield nav match {
         case doc: Document if doc.name == DocNames.treeTitle || doc.name == DocNames.toc => Seq()
         case doc: Document =>
-          val title = if (doc.title.nonEmpty) TreeUtil.extractText(doc.title) else doc.name
+          val title = if (doc.title.nonEmpty) SpanSequence(doc.title).extractText else doc.name
           val children = sectionBookmarks(doc.path, doc.sections, levels - 1)
           Seq(Bookmark("", PathInfo.fromPath(doc.path, root.path), title, children))
         case subtree: DocumentTree => 
-          val title = if (subtree.title.nonEmpty) TreeUtil.extractText(subtree.title) else subtree.name
+          val title = if (subtree.title.nonEmpty) SpanSequence(subtree.title).extractText else subtree.name
           val children = treeBookmarks(subtree, levels - 1)
           Seq(Bookmark("", PathInfo.fromPath(subtree.path / DocNames.treeTitle, root.path), title, children)) 
       }).flatten

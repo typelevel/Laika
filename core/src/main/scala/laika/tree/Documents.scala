@@ -125,9 +125,7 @@ object Documents {
 
   /** Represents a section title.
    */
-  case class TitleInfo (content: Seq[Span]) extends SpanContainer[TitleInfo] {
-    lazy val text: String = TreeUtil.extractText(content)
-  }
+  case class TitleInfo (content: Seq[Span]) extends SpanContainer[TitleInfo]
 
   /** The position of an element within a document tree.
     *
