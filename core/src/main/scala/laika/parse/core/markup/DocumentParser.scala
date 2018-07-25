@@ -23,7 +23,6 @@ import laika.factory.MarkupParser
 import laika.io.Input
 import laika.parse.core.Parser
 import laika.parse.core.text.TextParsers.unsafeParserFunction
-import laika.rewrite.TreeUtil
 import laika.tree.Documents.{Document, TemplateDocument}
 import laika.tree.Elements._
 import laika.tree.Paths.Path
@@ -41,10 +40,13 @@ object DocumentParser {
                                              configHeaderParser: ConfigHeaderParser)
                                             (docFactory: (Path, Config, Option[InvalidElement], R) => D): Input => D = { input =>
 
+    def extractConfigValues (root: R): Map[String,AnyRef] =
+      root.collect { case c: ConfigValue => (c.name, c.value) }.toMap
+
     val parser = configHeaderParser(input.path) ~ rootParser ^^ { case configHeader ~ root =>
       val config = configHeader.right.getOrElse(ConfigFactory.empty)
       val message = configHeader.left.toOption
-      val processedConfig = ConfigHeaderParser.merge(config, TreeUtil.extractConfigValues(root))
+      val processedConfig = ConfigHeaderParser.merge(config, extractConfigValues(root))
       docFactory(input.path, processedConfig, message, root)
     }
 
@@ -82,7 +84,7 @@ object DocumentParser {
 
     create(rootParser, configHeaderParser) { (path, config, invalid, root) =>
 
-      val fragments = TreeUtil.extractFragments(root.content)
+      val fragments = root.collect { case f: DocumentFragment => (f.name, f.root) }.toMap
       val content = invalid.fold(root) { inv =>
         root.copy(content = inv.asBlock +: root.content)
       }

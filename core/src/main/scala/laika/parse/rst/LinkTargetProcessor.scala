@@ -17,7 +17,6 @@
 package laika.parse.rst
 
 import laika.parse.rst.Elements.ReferenceName
-import laika.rewrite.TreeUtil
 import laika.tree.Elements._
 
 import scala.collection.mutable.ListBuffer

@@ -21,7 +21,6 @@ import Directives.Parts._
 import Directives._
 import laika.parse.rst.Elements._
 import laika.parse.rst.ext.StandardDirectiveParts._
-import laika.rewrite.TreeUtil
 import laika.tree.Elements._
 
 /** Defines all supported standard block directives of the reStructuredText reference parser.

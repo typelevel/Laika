@@ -16,7 +16,6 @@
 
 package laika.parse.markdown
 
-import laika.rewrite.TreeUtil
 import laika.tree.Elements.{Block, Header, Id}
 
 /**

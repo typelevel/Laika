@@ -22,11 +22,10 @@ import javax.xml.transform.TransformerFactory
 import javax.xml.transform.sax.SAXResult
 import javax.xml.transform.stream.StreamSource
 
-import laika.factory.RenderResultProcessor
+import laika.factory.{RenderResultProcessor, RendererFactory}
 import laika.io.{Input, OutputTree}
 import laika.io.Output.BinaryOutput
 import laika.tree.Documents.DocumentTree
-import laika.tree.Elements.MessageLevel
 import laika.tree.Templates.TemplateRoot
 import org.apache.fop.apps.{FOUserAgentFactory, FopFactory, FopFactoryBuilder}
 import org.apache.xmlgraphics.io.{Resource, ResourceResolver}
@@ -47,7 +46,7 @@ import org.apache.xmlgraphics.util.MimeConstants
  * 
  *  @author Jens Halm
  */
-class PDF private (val factory: XSLFO, config: Option[PDFConfig], fopFactory: Option[FopFactory]) extends RenderResultProcessor[FOWriter] {
+class PDF private (val factory: RendererFactory[FOWriter], config: Option[PDFConfig], fopFactory: Option[FopFactory]) extends RenderResultProcessor[FOWriter] {
 
 
   /** Allows to specify configuration options like insertion

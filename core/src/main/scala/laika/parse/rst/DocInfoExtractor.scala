@@ -18,7 +18,6 @@ package laika.parse.rst
 
 import com.typesafe.config.ConfigValueFactory
 import laika.parse.rst.Elements.FieldList
-import laika.rewrite.TreeUtil
 import laika.tree.Documents.Document
 import laika.tree.Elements.{Comment, DecoratedHeader, Paragraph, SpanSequence}
 
