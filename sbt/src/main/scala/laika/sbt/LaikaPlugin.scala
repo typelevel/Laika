@@ -17,6 +17,8 @@
 package laika.sbt
 
 import laika.api._
+import laika.api.config.OperationConfig
+import laika.api.ext.RewriteRules
 import laika.directive.DirectiveRegistry
 import laika.directive.Directives._
 import laika.io.Input.LazyFileInput
@@ -27,7 +29,7 @@ import laika.parse.rst.ext.TextRoles.TextRole
 import laika.parse.rst.ext.{Directives, RstExtensionRegistry}
 import laika.parse.rst.{ExtendedHTML, ReStructuredText}
 import laika.render._
-import laika.rewrite.{DocumentCursor, RewriteRules}
+import laika.rewrite.DocumentCursor
 import laika.tree.Documents._
 import laika.tree.ElementTraversal
 import laika.tree.Elements._
@@ -285,7 +287,9 @@ object LaikaPlugin extends AutoPlugin {
         streams.value.log.info(Log.inputs(inputs))
 
         val rawTree = laikaMarkupParser.value fromInputTree inputs
-        val tree = rawTree rewrite RewriteRules.chainFactories(laikaRewriteRules.value :+ RewriteRules.defaultsFor(Markdown, ReStructuredText))
+        val tree = rawTree rewrite RewriteRules.chainFactories(
+          laikaRewriteRules.value :+ OperationConfig.default.withBundlesFor(Markdown).withBundlesFor(ReStructuredText).rewriteRule
+        )
 
         laikaLogMessageLevel.value foreach { Log.systemMessages(streams.value.log, tree, _) }
 

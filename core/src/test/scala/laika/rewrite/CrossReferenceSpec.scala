@@ -16,6 +16,7 @@
 
 package laika.rewrite
 
+import laika.api.config.OperationConfig
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 import laika.io.DocumentType.Markup
@@ -56,7 +57,7 @@ class CrossReferenceSpec extends FlatSpec
     def treeViewWithSubtrees (path: Path, trees: TreeView*): TreeView =
       TreeView(path, List(Subtrees(trees)))
       
-    def rewrite (tree: DocumentTree): DocumentTree = tree.rewrite(RewriteRules.defaults)
+    def rewrite (tree: DocumentTree): DocumentTree = tree.rewrite(OperationConfig.default.rewriteRule)
   }
   
   "The reference resolver" should "resolve a cross reference to a target in another document in the same directory" in {

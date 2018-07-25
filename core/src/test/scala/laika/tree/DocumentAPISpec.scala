@@ -19,9 +19,10 @@ package laika.tree
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 import laika.api.Parse
+import laika.api.config.OperationConfig
+import laika.api.ext.RewriteRules
 import laika.parse.markdown.Markdown
 import laika.rewrite.DocumentCursor
-import laika.rewrite.RewriteRules
 import laika.tree.Elements._
 import laika.tree.helper.ModelBuilder
 
@@ -79,8 +80,8 @@ class DocumentAPISpec extends FlatSpec
     
     val doc = (Parse as Markdown withoutRewrite) fromString markup
     
-    val rewritten1 = doc.rewrite(RewriteRules.defaults(DocumentCursor(doc)))
-    val rewritten2 = rewritten1.rewrite(RewriteRules.defaults(DocumentCursor(rewritten1)))
+    val rewritten1 = doc.rewrite(OperationConfig.default.rewriteRule(DocumentCursor(doc)))
+    val rewritten2 = rewritten1.rewrite(OperationConfig.default.rewriteRule(DocumentCursor(rewritten1)))
     rewritten1.content should be (rewritten2.content)
   }
   
@@ -98,7 +99,7 @@ class DocumentAPISpec extends FlatSpec
     val testRule: RewriteRule = {
       case Text("Some text",_) => Some(Text("Swapped"))
     }
-    val rules = RewriteRules.chain(Seq(testRule, RewriteRules.defaults(cursor)))
+    val rules = RewriteRules.chain(Seq(testRule, OperationConfig.default.rewriteRule(cursor)))
     val rewritten = raw rewrite rules
     rewritten.content should be (root(
       Section(Header(1, List(Text("Section 1")), Id("section-1") + Styles("section")), List(p("Swapped"))),

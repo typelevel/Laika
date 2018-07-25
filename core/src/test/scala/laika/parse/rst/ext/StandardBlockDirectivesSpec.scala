@@ -32,6 +32,7 @@ import laika.tree.Templates.TemplateContextReference
 import laika.tree.helper.ModelBuilder
 import com.typesafe.config.impl.SimpleConfigObject
 import com.typesafe.config.ConfigValueFactory
+import laika.api.config.OperationConfig
 
 /**
  * @author Jens Halm
@@ -589,7 +590,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
     val doc2 = Document(Root / "doc2", root(p("text")))
     val template = TemplateDocument(Root / "default.template.html", tRoot(TemplateContextReference("document.content")))
     val tree = DocumentTree(Root, List(doc1, doc2), templates = List(template))
-    val rewrittenTree = tree.rewrite(laika.rewrite.RewriteRules.defaultsFor(ReStructuredText))
+    val rewrittenTree = tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRule)
     val templatesApplied = TemplateRewriter.applyTemplates(rewrittenTree, "html")
     templatesApplied.content.collect{case doc: Document => doc}.head.content should be (root(BlockSequence(List(p("text")))))
   }
@@ -660,7 +661,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
     val document = Document(Root / "doc", sectionsWithTitle)
     val template = TemplateDocument(Root / "default.template.html", tRoot(TemplateContextReference("document.content")))
     val tree = DocumentTree(Root, content = List(document), templates = List(template))
-    val rewrittenTree = tree.rewrite(laika.rewrite.RewriteRules.defaultsFor(ReStructuredText))
+    val rewrittenTree = tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRule)
     val templatesApplied = TemplateRewriter.applyTemplates(rewrittenTree, "html")
     templatesApplied.content.collect{case doc: Document => doc}.head.content should be (result)
   }

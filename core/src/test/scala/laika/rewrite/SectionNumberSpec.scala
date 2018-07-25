@@ -28,6 +28,7 @@ import laika.tree.Paths.Path
 import laika.tree.Paths.Root
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
+import laika.api.config.OperationConfig
 
 class SectionNumberSpec extends FlatSpec 
                         with Matchers
@@ -148,7 +149,7 @@ class SectionNumberSpec extends FlatSpec
     )
 
     lazy val expected: TreeView = treeView(resultView)
-    lazy val result: TreeView = viewOf(tree(sections).rewrite(RewriteRules.defaults))
+    lazy val result: TreeView = viewOf(tree(sections).rewrite(OperationConfig.default.rewriteRule))
   }
   
   trait SectionsWithoutTitle extends TreeModel {
@@ -172,7 +173,7 @@ class SectionNumberSpec extends FlatSpec
     )
 
     lazy val expected: TreeView = treeView(resultView)
-    lazy val result: TreeView = viewOf(tree(sections).rewrite(RewriteRules.defaults))
+    lazy val result: TreeView = viewOf(tree(sections).rewrite(OperationConfig.default.rewriteRule))
   }
   
   

@@ -16,6 +16,7 @@
 
 package laika.rewrite
 
+import laika.api.config.OperationConfig
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 import laika.tree.Elements._
@@ -33,7 +34,7 @@ class RewriteRulesSpec extends FlatSpec
   
   def rewritten (root: RootElement): RootElement = {
     val doc = Document(Root, root)
-    val rules = RewriteRules.defaults(DocumentCursor(doc))
+    val rules = OperationConfig.default.rewriteRule(DocumentCursor(doc))
     doc.rewrite(rules).content
   }
   

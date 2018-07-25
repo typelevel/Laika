@@ -21,7 +21,6 @@ import org.scalatest.Matchers
 import laika.api.Parse
 import laika.rewrite.DocumentCursor
 import laika.rewrite.TemplateRewriter
-import laika.rewrite.RewriteRules
 import laika.parse.markdown.Markdown
 import laika.tree.helper.ModelBuilder
 import laika.tree.Elements._
@@ -30,6 +29,7 @@ import laika.tree.Documents._
 import laika.tree.Templates.TemplateRoot
 import laika.tree.Templates.TemplateSpanSequence
 import com.typesafe.config.ConfigFactory
+import laika.api.config.OperationConfig
 import laika.parse.core.ParserContext
 
 import scala.collection.JavaConversions._
@@ -299,7 +299,7 @@ class StandardDirectiveSpec extends FlatSpec
     def parseAndRewrite (template: String, markup: String) = {
       val templateDoc = TemplateDocument(Root / "test.html", parseTemplate(template))
       val doc = Document(pathUnderTest, parse(markup).content, config = ConfigFactory.parseString("title: Doc 7, template: /test.html"))
-      val tree = buildTree(templateDoc, doc).rewrite(RewriteRules.defaults)
+      val tree = buildTree(templateDoc, doc).rewrite(OperationConfig.default.rewriteRule)
       TemplateRewriter.applyTemplates(tree, "html").selectDocument(Current / "sub2" / "doc7").get.content
     }
     

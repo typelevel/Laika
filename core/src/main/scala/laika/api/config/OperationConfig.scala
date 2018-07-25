@@ -18,7 +18,7 @@ package laika.api.config
 
 import com.typesafe.config.Config
 import laika.api.ext.ExtensionBundle.LaikaDefaults
-import laika.api.ext.{ExtensionBundle, MarkupExtensions}
+import laika.api.ext.{ExtensionBundle, MarkupExtensions, RewriteRules}
 import laika.directive.{ConfigHeaderParser, DirectiveSupport, StandardDirectives}
 import laika.factory.MarkupParser
 import laika.io.DocumentType.Ignored
@@ -27,7 +27,7 @@ import laika.parse.core.Parser
 import laika.parse.core.combinator.Parsers.success
 import laika.parse.core.markup.DocumentParser.InvalidElement
 import laika.parse.css.Styles.StyleDeclaration
-import laika.rewrite.{DocumentCursor, RewriteRules}
+import laika.rewrite.DocumentCursor
 import laika.tree.Documents.Document
 import laika.tree.Elements.{Fatal, MessageLevel, RewriteRule}
 import laika.tree.Paths.Path
