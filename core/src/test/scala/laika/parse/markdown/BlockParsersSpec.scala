@@ -221,6 +221,11 @@ class BlockParsersSpec extends FlatSpec
       |>ccc""".stripMargin
     Parsing (input) should produce (root( quote(p("aaa"), quote("bbb"), p("ccc"))))
   }
+
+  it should "prevent endless recursion and stop after the configured maximum of 12 nest levels" in {
+    val input = ">>>>>>>>>>>>>>>>aaa\n\nbbb"
+    Parsing (input) should containElement (p(">>>aaa")) // 3 '>' chars left (16 minus root level minus 12 nest levels)
+  }
   
   
   

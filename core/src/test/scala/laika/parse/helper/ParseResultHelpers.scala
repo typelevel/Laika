@@ -17,6 +17,7 @@
 package laika.parse.helper
 
 import laika.parse.core.{Failure, Parsed, Success}
+import laika.tree.Elements.{Element, ElementContainer}
 import org.scalatest.matchers.MatchResult
 import org.scalatest.matchers.Matcher
 
@@ -66,6 +67,28 @@ trait ParseResultHelpers {
   }
   
   def produce [T] (result: T): ParserSuccessMatcher[T] = new ParserSuccessMatcher(result)
-  
+
+  class ParserContainsMatcher (expected: Element) extends Matcher[Parsed[ElementContainer[_,_]]] {
+
+    def apply (left: Parsed[ElementContainer[_,_]]): MatchResult = {
+
+      val failureMessageSuffix = left match {
+        case Success(unexpected,_) => s"parser result '$unexpected' did not contain '$expected'"
+        case Failure(msg,in)       => s"parser failed with message '${msg.message(in)}' at ${in.position} instead of producing expected result containing '$expected'"
+      }
+
+      val negatedFailureMessageSuffix = s"parser '$left' did produce the unexpected result $expected"
+
+      MatchResult(
+        left.isSuccess && left.get.select(_ == expected).nonEmpty,
+        "The " + failureMessageSuffix,
+        "The " + negatedFailureMessageSuffix,
+        "the " + failureMessageSuffix,
+        "the " + negatedFailureMessageSuffix
+      )
+    }
+  }
+
+  def containElement (element: Element): ParserContainsMatcher = new ParserContainsMatcher(element)
   
 }

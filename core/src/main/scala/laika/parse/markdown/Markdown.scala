@@ -61,7 +61,8 @@ object Markdown extends MarkupParser {
     BlockParsers.linkTarget,
     BlockParsers.quotedBlock,
     BlockParsers.rootHeaderOrParagraph,
-    BlockParsers.nestedHeaderOrParagraph
+    BlockParsers.nestedHeaderOrParagraph,
+    BlockParsers.fallbackParagraph
   ) ++
     BlockParsers.literalBlocks ++
     BlockParsers.rules ++

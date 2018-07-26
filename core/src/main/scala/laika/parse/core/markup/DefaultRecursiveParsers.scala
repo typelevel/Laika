@@ -57,8 +57,9 @@ trait DefaultRecursiveParsers extends RecursiveParsers with DefaultRecursiveSpan
     lazy val nonRecursive = consumeAll(opt(blankLines) ~> blockList(fallbackBlock))
 
     def parse (source: String, nestLevel: Int): Parsed[Seq[Block]] = {
-      val p = if (nestLevel < maxNestLevel) recursive else nonRecursive
-      p.parse(ParserContext(source, nestLevel + 1))
+      val newNestLevel = nestLevel + 1
+      val p = if (newNestLevel <= maxNestLevel) recursive else nonRecursive
+      p.parse(ParserContext(source, newNestLevel))
     }
 
   }

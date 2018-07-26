@@ -133,9 +133,9 @@ object SpanParser {
 
 sealed trait BlockPosition
 object BlockPosition {
-  object Any extends BlockPosition
-  object RootOnly extends BlockPosition
-  object NestedOnly extends BlockPosition
+  case object Any extends BlockPosition
+  case object RootOnly extends BlockPosition
+  case object NestedOnly extends BlockPosition
 }
 
 class BlockParser (startChar: Option[Char] = None) {

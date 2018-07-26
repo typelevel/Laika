@@ -20,6 +20,7 @@ import laika.api.ext.{BlockParser, BlockParserBuilder}
 import laika.parse.core.Parser
 import laika.parse.core.markup.BlockParsers._
 import laika.parse.core.markup.RecursiveParsers
+import laika.parse.core.text.TextParsers
 import laika.parse.core.text.TextParsers._
 import laika.parse.util.WhitespacePreprocessor
 import laika.tree.Elements._
@@ -93,7 +94,7 @@ object BlockParsers {
   }.nestedOnly
 
   def headerOrParagraph (lineCondition: Parser[Any], listWithoutBlankline: Parser[Option[Block]])
-                        (implicit recParsers:RecursiveParsers) : Parser[Block] = {
+                        (implicit recParsers: RecursiveParsers) : Parser[Block] = {
 
       val lines = (lineCondition ~> restOfLine) *
 
@@ -186,6 +187,15 @@ object BlockParsers {
     val decoratedLine = '>' ~ textAfterDeco
     recParsers.recursiveBlocks(decoratedBlock(textAfterDeco, decoratedLine | not(blankLine), '>')) ^^ (QuotedBlock(_, Nil))
   }
+
+  /** Parses just a plain paragraph after the maximum nest level has been reached.
+    * This is necessary as a separate parser as the default markdown paragraph parser
+    * is combined with potentially nested lists which makes that parser recursive.
+    */
+  val fallbackParagraph: BlockParserBuilder = BlockParser.withoutStartChar.withSpans { spanParsers =>
+    val block: Parser[String] = TextParsers.textLine.rep.min(1) ^^ (_.mkString)
+    spanParsers.recursiveSpans(block).map(Paragraph(_))
+  }.nestedOnly.withLowPrecedence
 
 
 }
