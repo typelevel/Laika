@@ -59,7 +59,8 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
 
   lazy val templateParser: Option[Parser[TemplateRoot]] = mergedBundle.parserDefinitions.templateParser
 
-  lazy val rewriteRule: DocumentCursor => RewriteRule = RewriteRules.chainFactories(mergedBundle.rewriteRules)
+  lazy val rewriteRule: DocumentCursor => RewriteRule =
+    RewriteRules.chainFactories(mergedBundle.rewriteRules ++ RewriteRules.defaults)
 
   def rewriteRuleFor (doc: Document): RewriteRule = rewriteRule(DocumentCursor(doc))
 

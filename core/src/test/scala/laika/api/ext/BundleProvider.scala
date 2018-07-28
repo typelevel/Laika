@@ -18,11 +18,11 @@ package laika.api.ext
 import com.typesafe.config.Config
 import laika.directive.DirectiveRegistry
 import laika.directive.Directives.Templates
-import laika.factory.RendererFactory
 import laika.io.{DocumentType, Input}
 import laika.parse.core.Parser
 import laika.parse.css.Styles.StyleDeclaration
-import laika.render._
+import laika.rewrite.DocumentCursor
+import laika.tree.Elements.RewriteRule
 import laika.tree.Paths.Path
 import laika.tree.Templates.TemplateRoot
 
@@ -40,6 +40,12 @@ object BundleProvider {
   def forDocTypeMatcher (matcher: PartialFunction[Path, DocumentType]): ExtensionBundle = new ExtensionBundle {
 
     override def docTypeMatcher: PartialFunction[Path, DocumentType] = matcher
+
+  }
+
+  def forRewriteRule (rule: RewriteRule): ExtensionBundle = new ExtensionBundle {
+
+    override def rewriteRules: Seq[DocumentCursor => RewriteRule] = Seq(_ => rule)
 
   }
 

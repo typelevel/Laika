@@ -16,7 +16,7 @@
 
 package laika.api.ext
 
-import laika.rewrite.DocumentCursor
+import laika.rewrite.{DocumentCursor, LinkResolver, SectionBuilder}
 import laika.tree.Elements.{Element, RewriteRule}
 
 /** Utilities for dealing with rewrite rules.
@@ -61,5 +61,11 @@ object RewriteRules {
     */
   def chainFactories (rules: Seq[DocumentCursor => RewriteRule]): DocumentCursor => RewriteRule =
     cursor => chain(rules map (_(cursor)))
+
+  /** The default built-in rewrite rules, dealing with section building and link resolution.
+    * These are not installed as part of any default extension bundle as they have specific
+    * ordering requirements not compatible with the standard bundle ordering in `OperationConfig`.
+    */
+  val defaults = Seq(LinkResolver, SectionBuilder)
 
 }

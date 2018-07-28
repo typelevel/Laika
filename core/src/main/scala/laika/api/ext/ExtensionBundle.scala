@@ -56,22 +56,24 @@ trait ExtensionBundle { self =>
   // for providing APIs like registering Directives
   def processExtension: PartialFunction[ExtensionBundle, ExtensionBundle] = PartialFunction.empty
 
-  def withBase (bundle: ExtensionBundle): ExtensionBundle = new ExtensionBundle {
+  def withBase (base: ExtensionBundle): ExtensionBundle = new ExtensionBundle {
 
-    override val useInStrictMode = self.useInStrictMode && bundle.useInStrictMode
+    override val useInStrictMode = self.useInStrictMode && base.useInStrictMode
 
-    override lazy val baseConfig = self.baseConfig.withFallback(bundle.baseConfig)
+    override lazy val baseConfig = self.baseConfig.withFallback(base.baseConfig)
 
-    override lazy val docTypeMatcher = self.docTypeMatcher.orElse(bundle.docTypeMatcher)
+    override lazy val docTypeMatcher = self.docTypeMatcher.orElse(base.docTypeMatcher)
 
-    override lazy val parserDefinitions: ParserDefinitionBuilders = self.parserDefinitions withBase bundle.parserDefinitions
+    override lazy val parserDefinitions: ParserDefinitionBuilders = self.parserDefinitions withBase base.parserDefinitions
 
-    override lazy val rewriteRules = self.rewriteRules ++ bundle.rewriteRules
+    /* flipped on purpose, base rules need to be applied first, so that app rules do not need to deal with potentially
+       unknown node types */
+    override lazy val rewriteRules = base.rewriteRules ++ self.rewriteRules
 
-    override lazy val themes = self.themes ++ bundle.themes
+    override lazy val themes = self.themes ++ base.themes
 
     override def processExtension: PartialFunction[ExtensionBundle, ExtensionBundle] =
-      self.processExtension.orElse(bundle.processExtension)
+      self.processExtension.orElse(base.processExtension)
   }
 
   def useInStrictMode: Boolean = false
@@ -104,13 +106,11 @@ object ExtensionBundle {
 
     override val useInStrictMode = true
 
-    override def docTypeMatcher: PartialFunction[Path, DocumentType] = DefaultDocumentTypeMatcher.get
+    override val docTypeMatcher: PartialFunction[Path, DocumentType] = DefaultDocumentTypeMatcher.get
 
-    override def parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders(
+    override val parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders(
       styleSheetParser = Some(CSSParsers.styleDeclarationSet)
     )
-
-    override def rewriteRules: Seq[DocumentCursor => RewriteRule] = Seq(LinkResolver, SectionBuilder)
 
   }
 
