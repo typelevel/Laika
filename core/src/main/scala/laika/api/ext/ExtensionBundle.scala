@@ -135,11 +135,13 @@ trait RenderTheme {
 
   def staticDocuments: StaticDocuments
 
+  def defaultTemplateOrFallback: TemplateRoot = defaultTemplate.getOrElse(TemplateRoot.fallback)
+
 }
 
 case class StaticDocuments (tree: DocumentTree) {
 
-  def merge (other: DocumentTree): DocumentTree = {
+  def merge (base: DocumentTree): DocumentTree = {
 
     def mergeContent (content: Seq[TreeContent]): Seq[TreeContent] = {
       val trees = content.collect{ case t: DocumentTree => t }.groupBy(_.path).mapValues(_.reduceLeft(mergeTrees)).values.toList
@@ -153,7 +155,7 @@ case class StaticDocuments (tree: DocumentTree) {
       )
     }
 
-    mergeTrees(tree, other)
+    mergeTrees(tree, base)
 
   }
 

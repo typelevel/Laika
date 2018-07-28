@@ -66,9 +66,8 @@ import laika.tree.Templates._
 abstract class Render[Writer] private (protected[api] val factory: RendererFactory[Writer],
                                        val config: OperationConfig) extends RenderConfigBuilder[Writer] {
 
-  private lazy val theme = (config.themes.collect {
-    case t: factory.Theme => t
-  } :+ factory.Theme()).reduceLeft(_ withBase _)
+  protected[this] lazy val theme = config.themeFor(factory)
+
 
   /** The output operations that can be performed for a single input document.
    */
@@ -109,15 +108,6 @@ abstract class Render[Writer] private (protected[api] val factory: RendererFacto
    */
   def from (tree: DocumentTree): TreeOps
 
-
-  // TODO - move these 2 methods to OperationConfig
-  protected[this] lazy val defaultStyles: StyleDeclarationSet =
-    factory.defaultTheme.defaultStyles ++ theme.defaultStyles
-
-  protected[this] lazy val defaultTemplate: TemplateRoot =
-    theme.defaultTemplate
-      .orElse(factory.defaultTheme.defaultTemplate)
-      .getOrElse(TemplateRoot(List(TemplateContextReference("document.content"))))
 
   /** Renders the specified element to the given output.
    * 
@@ -183,10 +173,11 @@ abstract class Render[Writer] private (protected[api] val factory: RendererFacto
 
     val templateName = "default.template." + factory.fileSuffix
     val treeWithTpl = if (docTree.selectTemplate(Current / templateName).isDefined) docTree
-                      else docTree.copy(templates = docTree.templates :+ TemplateDocument(Root / templateName, defaultTemplate))
+                      else docTree.copy(templates = docTree.templates :+ TemplateDocument(Root / templateName,
+                           theme.defaultTemplateOrFallback))
     val treeWithTplApplied = TemplateRewriter.applyTemplates(treeWithTpl, factory.fileSuffix)
     val finalTree = theme.staticDocuments.merge(treeWithTplApplied)
-    val operations = collectOperations(outputTree, defaultStyles, finalTree)
+    val operations = collectOperations(outputTree, theme.defaultStyles, finalTree)
 
     (if (config.parallel) operations.par else operations) foreach (_())
   }
@@ -218,7 +209,7 @@ object Render {
       new RenderMappedOutput[Writer](factory, newConfig)
 
     def from (element: Element): TextOuputOps = new TextOuputOps {
-      def toOutput (out: Output) = render(element, out, defaultStyles)
+      def toOutput (out: Output) = render(element, out, theme.defaultStyles)
     }
     
     def from (doc: Document): TextOuputOps = from(doc.content)
@@ -257,7 +248,8 @@ object Render {
       from(DocumentTree(Root, Seq(doc)))
     
     def from (tree: DocumentTree): BinaryOutputOps = new BinaryOutputOps {
-      def toBinaryOutput (out: Output with Binary) = processor.process(tree, render, defaultTemplate, out.asBinaryOutput)
+      def toBinaryOutput (out: Output with Binary) =
+        processor.process(tree, render, theme.defaultTemplateOrFallback, out.asBinaryOutput)
     }
     
   }

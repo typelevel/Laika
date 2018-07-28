@@ -130,6 +130,15 @@ object Templates {
   /** The root element of a template document tree.
    */
   case class TemplateRoot (content: Seq[TemplateSpan], options: Options = NoOpt) extends Block with SpanContainer[TemplateRoot]
+
+  /** Companion with a fallback instance for setups without a default template */
+  object TemplateRoot {
+
+    /** A fallback instance that can be used when no user-specified template
+      * is available. It simply inserts the content of the parsed markup document
+      * without any surrounding decoration. */
+    val fallback = TemplateRoot(List(TemplateContextReference("document.content")))
+  }
   
   /** The root element of a document tree (originating from text markup) inside a template.
    *  Usually created by a template reference like `{{document.content}}`.

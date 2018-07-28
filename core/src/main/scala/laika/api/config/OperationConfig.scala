@@ -18,9 +18,9 @@ package laika.api.config
 
 import com.typesafe.config.Config
 import laika.api.ext.ExtensionBundle.LaikaDefaults
-import laika.api.ext.{ExtensionBundle, MarkupExtensions, RewriteRules}
+import laika.api.ext.{ExtensionBundle, MarkupExtensions, RenderTheme, RewriteRules}
 import laika.directive.{ConfigHeaderParser, DirectiveSupport, StandardDirectives}
-import laika.factory.MarkupParser
+import laika.factory.{MarkupParser, RendererFactory}
 import laika.io.DocumentType.Ignored
 import laika.io.{DefaultDocumentTypeMatcher, DocumentType}
 import laika.parse.core.Parser
@@ -31,7 +31,7 @@ import laika.rewrite.DocumentCursor
 import laika.tree.Documents.Document
 import laika.tree.Elements.{Fatal, MessageLevel, RewriteRule}
 import laika.tree.Paths.Path
-import laika.tree.Templates.TemplateRoot
+import laika.tree.Templates.{TemplateContextReference, TemplateRoot}
 
 /**
   * @author Jens Halm
@@ -64,9 +64,9 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
 
   def rewriteRuleFor (doc: Document): RewriteRule = rewriteRule(DocumentCursor(doc))
 
-  // TODO - withBase rendererFactory.defaultTheme - withBase Theme.fallback
-  lazy val themes = mergedBundle.themes
-
+  def themeFor[W] (factory: RendererFactory[W]): factory.Theme = (mergedBundle.themes.collect {
+    case t: factory.Theme => t
+  } :+ factory.defaultTheme :+ factory.Theme()).reduceLeft(_ withBase _)
 
   def withBundles (bundles: Seq[ExtensionBundle]): OperationConfig = copy(bundles = this.bundles ++ bundles)
 

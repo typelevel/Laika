@@ -76,11 +76,11 @@ trait RendererFactory[W] {
 
     type Writer = W
 
-    def withBase(other: Theme): Theme = Theme(
-      { w: W => customRenderer(w).orElse(other.customRenderer(w)) },
-      defaultTemplate.orElse(other.defaultTemplate),
-      other.defaultStyles ++ defaultStyles,
-      StaticDocuments(staticDocuments.merge(other.staticDocuments.tree))
+    def withBase (base: Theme): Theme = Theme(
+      { w: W => customRenderer(w).orElse(base.customRenderer(w)) },
+      defaultTemplate.orElse(base.defaultTemplate),
+      base.defaultStyles ++ defaultStyles,
+      StaticDocuments(staticDocuments.merge(base.staticDocuments.tree))
     )
 
   }
