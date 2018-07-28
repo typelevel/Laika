@@ -16,7 +16,7 @@
 
 package laika.parse.core
 
-import laika.api.ext.{BlockParserBuilder, MarkupExtensions, ParserDefinitionBuilders, SpanParserBuilder}
+import laika.api.ext.{BlockParserBuilder, MarkupExtensions, ParserConfig, SpanParserBuilder}
 import laika.factory.MarkupParser
 import laika.parse.core.markup.RootParser
 
@@ -27,7 +27,7 @@ object RootParserProvider {
 
   def forParsers (blockParsers: Seq[BlockParserBuilder] = Nil,
                   spanParsers: Seq[SpanParserBuilder] = Nil,
-                  markupExtensions: MarkupExtensions = ParserDefinitionBuilders().markupExtensions): RootParser = {
+                  markupExtensions: MarkupExtensions = ParserConfig().markupExtensions): RootParser = {
 
     val bp = blockParsers
     val sp = spanParsers

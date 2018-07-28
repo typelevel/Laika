@@ -36,6 +36,10 @@ import scala.annotation.tailrec
   */
 trait ExtensionBundle { self =>
 
+  /** Base configuration that serves as a fallback for
+    * configuration files in the source directories
+    * and/or config headers in markup and template documents.
+    */
   def baseConfig: Config = ConfigFactory.empty
 
   /** Specifies the function to use for determining the document type
@@ -46,11 +50,14 @@ trait ExtensionBundle { self =>
     */
   def docTypeMatcher: PartialFunction[Path, DocumentType] = PartialFunction.empty
 
-  def parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders()
+  /** Specifies extensions and/or replacements for parsers that deal with
+    * text markup, templates, CSS or configuration headers.
+    */
+  def parsers: ParserConfig = ParserConfig()
 
   def rewriteRules: Seq[DocumentCursor => RewriteRule] = Seq.empty
 
-  def themes: Seq[GenTheme] = Seq.empty
+  def themes: Seq[RenderTheme] = Seq.empty
 
 
   // for providing APIs like registering Directives
@@ -64,7 +71,7 @@ trait ExtensionBundle { self =>
 
     override lazy val docTypeMatcher = self.docTypeMatcher.orElse(base.docTypeMatcher)
 
-    override lazy val parserDefinitions: ParserDefinitionBuilders = self.parserDefinitions withBase base.parserDefinitions
+    override lazy val parsers: ParserConfig = self.parsers withBase base.parsers
 
     /* flipped on purpose, base rules need to be applied first, so that app rules do not need to deal with potentially
        unknown node types */
@@ -108,7 +115,7 @@ object ExtensionBundle {
 
     override val docTypeMatcher: PartialFunction[Path, DocumentType] = DefaultDocumentTypeMatcher.get
 
-    override val parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders(
+    override val parsers: ParserConfig = ParserConfig(
       styleSheetParser = Some(CSSParsers.styleDeclarationSet)
     )
 
@@ -116,7 +123,7 @@ object ExtensionBundle {
 
 }
 
-trait GenTheme {
+trait RenderTheme {
 
   type Writer
 

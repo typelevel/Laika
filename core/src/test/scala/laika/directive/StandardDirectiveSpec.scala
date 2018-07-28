@@ -39,7 +39,7 @@ class StandardDirectiveSpec extends FlatSpec
                             with ModelBuilder {
 
 
-  lazy val templateParser = StandardDirectives.processExtension(DirectiveSupport).parserDefinitions.templateParser.get
+  lazy val templateParser = StandardDirectives.processExtension(DirectiveSupport).parsers.templateParser.get
 
   def parse (input: String): Document = (Parse as Markdown fromString input)
 

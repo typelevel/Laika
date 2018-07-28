@@ -51,7 +51,7 @@ object BundleProvider {
 
   def forTemplateParser(parser: Parser[TemplateRoot]): ExtensionBundle = new ExtensionBundle {
 
-    override def parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders(
+    override def parsers: ParserConfig = ParserConfig(
       templateParser = Some(parser)
     )
 
@@ -67,15 +67,15 @@ object BundleProvider {
 
   def forStyleSheetParser (parser: Parser[Set[StyleDeclaration]]): ExtensionBundle = new ExtensionBundle {
 
-    override def parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders(
+    override def parsers: ParserConfig = ParserConfig(
       styleSheetParser = Some(parser)
     )
 
   }
 
-  def forTheme (theme: GenTheme): ExtensionBundle = new ExtensionBundle {
+  def forTheme (theme: RenderTheme): ExtensionBundle = new ExtensionBundle {
 
-    override def themes: Seq[GenTheme] = Seq(theme)
+    override def themes: Seq[RenderTheme] = Seq(theme)
 
   }
 

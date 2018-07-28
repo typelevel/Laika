@@ -49,15 +49,15 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
 
   lazy val docTypeMatcher: Path => DocumentType = mergedBundle.docTypeMatcher.lift.andThen(_.getOrElse(Ignored))
 
-  lazy val markupExtensions: MarkupExtensions = mergedBundle.parserDefinitions.markupExtensions
+  lazy val markupExtensions: MarkupExtensions = mergedBundle.parsers.markupExtensions
 
   lazy val configHeaderParser: Path => Parser[Either[InvalidElement, Config]] =
-    ConfigHeaderParser.merged(mergedBundle.parserDefinitions.configHeaderParsers :+ ConfigHeaderParser.fallback)
+    ConfigHeaderParser.merged(mergedBundle.parsers.configHeaderParsers :+ ConfigHeaderParser.fallback)
 
   lazy val styleSheetParser: Parser[Set[StyleDeclaration]] =
-    mergedBundle.parserDefinitions.styleSheetParser.getOrElse(success(Set.empty[StyleDeclaration]))
+    mergedBundle.parsers.styleSheetParser.getOrElse(success(Set.empty[StyleDeclaration]))
 
-  lazy val templateParser: Option[Parser[TemplateRoot]] = mergedBundle.parserDefinitions.templateParser
+  lazy val templateParser: Option[Parser[TemplateRoot]] = mergedBundle.parsers.templateParser
 
   lazy val rewriteRule: DocumentCursor => RewriteRule =
     RewriteRules.chainFactories(mergedBundle.rewriteRules ++ RewriteRules.defaults)

@@ -16,7 +16,7 @@
 
 package laika.directive
 
-import laika.api.ext.ParserDefinitionBuilders
+import laika.api.ext.ParserConfig
 import laika.directive.Directives.Spans.Directive
 import laika.directive.Directives.{Default, Spans}
 import laika.parse.core.{Parser, RootParserProvider}
@@ -112,7 +112,7 @@ class SpanDirectiveAPISpec extends FlatSpec
     
     def directive: Directive
 
-    lazy val directiveSupport: ParserDefinitionBuilders = DirectiveSupport.withDirectives(Seq(), Seq(directive), Seq()).parserDefinitions
+    lazy val directiveSupport: ParserConfig = DirectiveSupport.withDirectives(Seq(), Seq(directive), Seq()).parsers
 
     lazy val defaultParser: Parser[SpanSequence] = RootParserProvider.forParsers(
       markupExtensions = directiveSupport.markupExtensions

@@ -61,11 +61,11 @@ sealed trait ParserBuilder[T <: ParserDefinition] {
 trait BlockParserBuilder extends ParserBuilder[BlockParserDefinition]
 trait SpanParserBuilder extends ParserBuilder[SpanParserDefinition]
 
-case class RootParserHooks (postProcessBlocks: Seq[Block] => Seq[Block] = identity,
-                            postProcessDocument: Document => Document = identity,
-                            preProcessInput: Input => Input = identity) {
+case class ParserHooks(postProcessBlocks: Seq[Block] => Seq[Block] = identity,
+                       postProcessDocument: Document => Document = identity,
+                       preProcessInput: Input => Input = identity) {
 
-  def withBase (base: RootParserHooks): RootParserHooks = new RootParserHooks(
+  def withBase (base: ParserHooks): ParserHooks = new ParserHooks(
     base.postProcessBlocks andThen postProcessBlocks,
     base.postProcessDocument andThen postProcessDocument,
     base.preProcessInput andThen preProcessInput
@@ -73,31 +73,31 @@ case class RootParserHooks (postProcessBlocks: Seq[Block] => Seq[Block] = identi
 
 }
 
-case class ParserDefinitionBuilders(blockParsers: Seq[BlockParserBuilder] = Nil,
-                                    spanParsers: Seq[SpanParserBuilder] = Nil,
-                                    rootParserHooks: Option[RootParserHooks] = None,
-                                    configHeaderParsers: Seq[Path => Parser[Either[InvalidElement, Config]]] = Nil,
-                                    templateParser: Option[Parser[TemplateRoot]] = None,
-                                    styleSheetParser: Option[Parser[Set[StyleDeclaration]]] = None) {
+case class ParserConfig(blockParsers: Seq[BlockParserBuilder] = Nil,
+                        spanParsers: Seq[SpanParserBuilder] = Nil,
+                        markupParserHooks: Option[ParserHooks] = None,
+                        configHeaderParsers: Seq[Path => Parser[Either[InvalidElement, Config]]] = Nil,
+                        templateParser: Option[Parser[TemplateRoot]] = None,
+                        styleSheetParser: Option[Parser[Set[StyleDeclaration]]] = None) {
 
-  def withBase(builders: ParserDefinitionBuilders): ParserDefinitionBuilders =
-    ParserDefinitionBuilders(
-      blockParsers ++ builders.blockParsers,
-      spanParsers ++ builders.spanParsers,
-      (rootParserHooks.toSeq ++ builders.rootParserHooks.toSeq).reduceLeftOption(_ withBase _),
-      configHeaderParsers ++ builders.configHeaderParsers,
-      templateParser.orElse(builders.templateParser),
-      styleSheetParser.orElse(builders.styleSheetParser)
+  def withBase (base: ParserConfig): ParserConfig =
+    ParserConfig(
+      blockParsers ++ base.blockParsers,
+      spanParsers ++ base.spanParsers,
+      (markupParserHooks.toSeq ++ base.markupParserHooks.toSeq).reduceLeftOption(_ withBase _),
+      configHeaderParsers ++ base.configHeaderParsers,
+      templateParser.orElse(base.templateParser),
+      styleSheetParser.orElse(base.styleSheetParser)
     )
 
   def markupExtensions: MarkupExtensions =
-    MarkupExtensions(blockParsers, spanParsers, rootParserHooks.getOrElse(RootParserHooks()))
+    MarkupExtensions(blockParsers, spanParsers, markupParserHooks.getOrElse(ParserHooks()))
 
 }
 
 case class MarkupExtensions (blockParsers: Seq[BlockParserBuilder],
                              spanParsers: Seq[SpanParserBuilder],
-                             rootParserHooks: RootParserHooks)
+                             rootParserHooks: ParserHooks)
 
 sealed trait Precedence
 object Precedence {

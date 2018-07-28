@@ -16,7 +16,7 @@
 
 package laika.parse.rst.ext
 
-import laika.api.ext.{ExtensionBundle, MarkupExtensions, ParserDefinitionBuilders, RootParserHooks}
+import laika.api.ext.{ExtensionBundle, MarkupExtensions, ParserConfig, ParserHooks}
 import laika.parse.core.markup.RootParser
 import laika.parse.rst.{LinkTargetProcessor, ReStructuredText}
 import laika.parse.rst.ext.Directives.Directive
@@ -50,9 +50,9 @@ object RootParserProvider {
   def forBundle (bundle: ExtensionBundle): RootParser = {
     val finalBundle = bundle.processExtension(RstExtensionSupport)
     val markupExtensions = MarkupExtensions(
-      blockParsers = finalBundle.parserDefinitions.blockParsers,
-      spanParsers = finalBundle.parserDefinitions.spanParsers,
-      rootParserHooks = RootParserHooks(postProcessBlocks = LinkTargetProcessor)
+      blockParsers = finalBundle.parsers.blockParsers,
+      spanParsers = finalBundle.parsers.spanParsers,
+      rootParserHooks = ParserHooks(postProcessBlocks = LinkTargetProcessor)
     )
     new RootParser(ReStructuredText, markupExtensions)
   }

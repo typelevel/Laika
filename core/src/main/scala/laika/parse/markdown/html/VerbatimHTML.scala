@@ -16,7 +16,7 @@
 
 package laika.parse.markdown.html
 
-import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders}
+import laika.api.ext.{ExtensionBundle, ParserConfig}
 import laika.render.HTML
 
 /**  Markdown extension that also parses verbatim HTML elements alongside
@@ -39,7 +39,7 @@ object VerbatimHTML extends ExtensionBundle {
   override val useInStrictMode: Boolean = true
   override val acceptRawContent: Boolean = true
 
-  override def parserDefinitions: ParserDefinitionBuilders = ParserDefinitionBuilders(
+  override def parsers: ParserConfig = ParserConfig(
     blockParsers = Seq(HTMLParsers.htmlBlockFragment),
     spanParsers = Seq(HTMLParsers.htmlSpan, HTMLParsers.htmlCharRef)
   )

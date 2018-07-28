@@ -17,10 +17,6 @@
 package laika.parse.markdown
 
 import laika.api.Transform
-import laika.api.ext.ParserDefinitionBuilders
-import laika.factory.MarkupParser
-import laika.parse.core.markup.{DocumentParser, RootParser}
-import laika.parse.markdown.html.VerbatimHTML
 import laika.render.HTML
 import laika.transform.helper.FileTransformerUtil
 import laika.tree.Elements.QuotedBlock

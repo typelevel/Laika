@@ -17,7 +17,7 @@
 package laika.factory
 
 import laika.api.config.RenderConfig
-import laika.api.ext.{GenTheme, StaticDocuments}
+import laika.api.ext.{RenderTheme, StaticDocuments}
 import laika.io.Output
 import laika.parse.css.Styles.StyleDeclarationSet
 import laika.tree.Elements.{Element, MessageLevel, RenderFunction}
@@ -72,7 +72,7 @@ trait RendererFactory[W] {
   case class Theme (customRenderer: W => RenderFunction = {_: W => PartialFunction.empty},
                     defaultTemplate: Option[TemplateRoot] = None,
                     defaultStyles: StyleDeclarationSet = StyleDeclarationSet.empty,
-                    staticDocuments: StaticDocuments = StaticDocuments.empty) extends GenTheme {
+                    staticDocuments: StaticDocuments = StaticDocuments.empty) extends RenderTheme {
 
     type Writer = W
 

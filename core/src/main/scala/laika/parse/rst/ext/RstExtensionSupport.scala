@@ -16,7 +16,7 @@
 
 package laika.parse.rst.ext
 
-import laika.api.ext.{ExtensionBundle, ParserDefinitionBuilders}
+import laika.api.ext.{ExtensionBundle, ParserConfig}
 import laika.parse.core.markup.RecursiveParsers
 import laika.parse.rst.InlineParsers
 import laika.parse.rst.ext.Directives.Directive
@@ -36,16 +36,14 @@ class RstExtensionSupport (blockDirectives: Seq[Directive[Block]],
 
   override def rewriteRules: Seq[DocumentCursor => RewriteRule] = Seq(new RewriteRules(textRoles))
 
-  override lazy val parserDefinitions: ParserDefinitionBuilders = {
-    ParserDefinitionBuilders(
-      blockParsers = Seq(
-        RstExtensionParsers.allBlocks(blockDirectives, spanDirectives, textRoles, defaultTextRole)
-      ),
-      spanParsers = Seq(
-        InlineParsers.interpretedTextWithRoleSuffix(defaultTextRole)
-      )
+  override lazy val parsers: ParserConfig = ParserConfig(
+    blockParsers = Seq(
+      RstExtensionParsers.allBlocks(blockDirectives, spanDirectives, textRoles, defaultTextRole)
+    ),
+    spanParsers = Seq(
+      InlineParsers.interpretedTextWithRoleSuffix(defaultTextRole)
     )
-  }
+  )
 
   def withDirectives (newBlockDirectives: Seq[Directive[Block]],
                       newSpanDirectives: Seq[Directive[Span]],
