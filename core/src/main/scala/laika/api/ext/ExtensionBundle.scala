@@ -53,7 +53,7 @@ trait ExtensionBundle { self =>
   /** Specifies extensions and/or replacements for parsers that deal with
     * text markup, templates, CSS or configuration headers.
     */
-  def parsers: ParserConfig = ParserConfig()
+  def parsers: ParserBundle = ParserBundle()
 
   def rewriteRules: Seq[DocumentCursor => RewriteRule] = Seq.empty
 
@@ -71,7 +71,7 @@ trait ExtensionBundle { self =>
 
     override lazy val docTypeMatcher = self.docTypeMatcher.orElse(base.docTypeMatcher)
 
-    override lazy val parsers: ParserConfig = self.parsers withBase base.parsers
+    override lazy val parsers: ParserBundle = self.parsers withBase base.parsers
 
     /* flipped on purpose, base rules need to be applied first, so that app rules do not need to deal with potentially
        unknown node types */
@@ -115,7 +115,7 @@ object ExtensionBundle {
 
     override val docTypeMatcher: PartialFunction[Path, DocumentType] = DefaultDocumentTypeMatcher.get
 
-    override val parsers: ParserConfig = ParserConfig(
+    override val parsers: ParserBundle = ParserBundle(
       styleSheetParser = Some(CSSParsers.styleDeclarationSet)
     )
 

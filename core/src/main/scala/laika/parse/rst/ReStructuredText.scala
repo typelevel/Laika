@@ -93,7 +93,7 @@ object ReStructuredText extends MarkupParser { self =>
   object BundledDefaults extends ExtensionBundle {
     override val useInStrictMode: Boolean = true
 
-    override val parsers: ParserConfig = ParserConfig(
+    override val parsers: ParserBundle = ParserBundle(
       markupParserHooks = Some(ParserHooks(
         preProcessInput = WhitespacePreprocessor.forInput,
         postProcessDocument = DocInfoExtractor,

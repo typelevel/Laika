@@ -73,15 +73,15 @@ case class ParserHooks(postProcessBlocks: Seq[Block] => Seq[Block] = identity,
 
 }
 
-case class ParserConfig(blockParsers: Seq[BlockParserBuilder] = Nil,
+case class ParserBundle(blockParsers: Seq[BlockParserBuilder] = Nil,
                         spanParsers: Seq[SpanParserBuilder] = Nil,
                         markupParserHooks: Option[ParserHooks] = None,
                         configHeaderParsers: Seq[Path => Parser[Either[InvalidElement, Config]]] = Nil,
                         templateParser: Option[Parser[TemplateRoot]] = None,
                         styleSheetParser: Option[Parser[Set[StyleDeclaration]]] = None) {
 
-  def withBase (base: ParserConfig): ParserConfig =
-    ParserConfig(
+  def withBase (base: ParserBundle): ParserBundle =
+    ParserBundle(
       blockParsers ++ base.blockParsers,
       spanParsers ++ base.spanParsers,
       (markupParserHooks.toSeq ++ base.markupParserHooks.toSeq).reduceLeftOption(_ withBase _),

@@ -16,7 +16,7 @@
 
 package laika.directive
 
-import laika.api.ext.{ExtensionBundle, ParserConfig}
+import laika.api.ext.{ExtensionBundle, ParserBundle}
 import laika.directive.Directives.{Blocks, Spans, Templates}
 
 /**
@@ -26,7 +26,7 @@ class DirectiveSupport (blockDirectives: Seq[Blocks.Directive],
                         spanDirectives: Seq[Spans.Directive],
                         templateDirectives: Seq[Templates.Directive]) extends ExtensionBundle {
 
-  override lazy val parsers: ParserConfig = ParserConfig(
+  override lazy val parsers: ParserBundle = ParserBundle(
     blockParsers = Seq(BlockDirectiveParsers.blockDirective(Blocks.toMap(blockDirectives))),
     spanParsers = Seq(SpanDirectiveParsers.spanDirective(Spans.toMap(spanDirectives)), SpanDirectiveParsers.contextRef),
     configHeaderParsers = Seq(ConfigHeaderParser.withDefaultLineDelimiters),

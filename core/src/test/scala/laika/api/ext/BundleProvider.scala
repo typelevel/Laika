@@ -36,7 +36,7 @@ object BundleProvider {
   def forMarkupParser (blockParsers: Seq[BlockParserBuilder] = Nil,
                        spanParsers: Seq[SpanParserBuilder] = Nil): ExtensionBundle = new ExtensionBundle {
 
-    override def parsers: ParserConfig = ParserConfig(
+    override def parsers: ParserBundle = ParserBundle(
       blockParsers = blockParsers,
       spanParsers = spanParsers
     )
@@ -47,7 +47,7 @@ object BundleProvider {
                       postProcessDocument: Document => Document = identity,
                       preProcessInput: Input => Input = identity): ExtensionBundle = new ExtensionBundle {
 
-    override def parsers: ParserConfig = ParserConfig(
+    override def parsers: ParserBundle = ParserBundle(
       markupParserHooks = Some(ParserHooks(
         postProcessBlocks = postProcessBlocks,
         postProcessDocument = postProcessDocument,
@@ -59,7 +59,7 @@ object BundleProvider {
 
   def forConfigHeaderParser (parser: Path => Parser[Either[InvalidElement, Config]]): ExtensionBundle = new ExtensionBundle {
 
-    override def parsers: ParserConfig = ParserConfig(
+    override def parsers: ParserBundle = ParserBundle(
       configHeaderParsers = Seq(parser)
     )
 
@@ -85,7 +85,7 @@ object BundleProvider {
 
   def forTemplateParser(parser: Parser[TemplateRoot]): ExtensionBundle = new ExtensionBundle {
 
-    override def parsers: ParserConfig = ParserConfig(
+    override def parsers: ParserBundle = ParserBundle(
       templateParser = Some(parser)
     )
 
@@ -101,7 +101,7 @@ object BundleProvider {
 
   def forStyleSheetParser (parser: Parser[Set[StyleDeclaration]]): ExtensionBundle = new ExtensionBundle {
 
-    override def parsers: ParserConfig = ParserConfig(
+    override def parsers: ParserBundle = ParserBundle(
       styleSheetParser = Some(parser)
     )
 

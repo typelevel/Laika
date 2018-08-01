@@ -16,7 +16,7 @@
 
 package laika.parse.rst
 
-import laika.api.ext.ParserConfig
+import laika.api.ext.ParserBundle
 import laika.parse.core.Parser
 import laika.parse.core.markup.RootParser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
@@ -33,7 +33,7 @@ class TableParsersSpec extends FlatSpec
                         with ModelBuilder {
 
 
-  val rootParser = new RootParser(ReStructuredText, ParserConfig().markupExtensions)
+  val rootParser = new RootParser(ReStructuredText, ParserBundle().markupExtensions)
   val defaultParser: Parser[RootElement] = rootParser.rootElement
 
   

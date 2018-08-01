@@ -16,7 +16,7 @@
 
 package laika.parse.rst.ext
 
-import laika.api.ext.{ExtensionBundle, MarkupExtensions, ParserConfig, ParserHooks}
+import laika.api.ext.{ExtensionBundle, MarkupExtensions, ParserBundle, ParserHooks}
 import laika.parse.core.markup.RootParser
 import laika.parse.rst.{LinkTargetProcessor, ReStructuredText}
 import laika.parse.rst.ext.Directives.Directive

@@ -35,7 +35,7 @@ import org.scalatest.{Matchers, WordSpec}
 /**
   * @author Jens Halm
   */
-class ParserConfigSpec extends WordSpec with Matchers {
+class ParserBundleSpec extends WordSpec with Matchers {
 
 
   trait SetupBase { self =>

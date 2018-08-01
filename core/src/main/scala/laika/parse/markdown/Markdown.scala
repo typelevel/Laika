@@ -16,7 +16,7 @@
 
 package laika.parse.markdown
 
-import laika.api.ext.{ExtensionBundle, ParserConfig, ParserHooks}
+import laika.api.ext.{ExtensionBundle, ParserBundle, ParserHooks}
 import laika.factory.MarkupParser
 import laika.parse.core.Parser
 import laika.parse.markdown.html.VerbatimHTML
@@ -82,7 +82,7 @@ object Markdown extends MarkupParser {
   override lazy val escapedChar = InlineParsers.escapedChar
 
   object BundledDefaults extends ExtensionBundle {
-    override val parsers: ParserConfig = ParserConfig(
+    override val parsers: ParserBundle = ParserBundle(
       markupParserHooks = Some(ParserHooks(
         postProcessBlocks = HeaderIdInsertion
       ))
