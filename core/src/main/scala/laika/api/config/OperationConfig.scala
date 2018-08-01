@@ -18,20 +18,21 @@ package laika.api.config
 
 import com.typesafe.config.Config
 import laika.api.ext.ExtensionBundle.LaikaDefaults
-import laika.api.ext.{ExtensionBundle, MarkupExtensions, RenderTheme, RewriteRules}
+import laika.api.ext.{ExtensionBundle, MarkupExtensions, RewriteRules}
 import laika.directive.{ConfigHeaderParser, DirectiveSupport, StandardDirectives}
 import laika.factory.{MarkupParser, RendererFactory}
 import laika.io.DocumentType.Ignored
 import laika.io.{DefaultDocumentTypeMatcher, DocumentType}
 import laika.parse.core.Parser
 import laika.parse.core.combinator.Parsers.success
-import laika.parse.core.markup.DocumentParser.InvalidElement
 import laika.parse.css.Styles.StyleDeclaration
 import laika.rewrite.DocumentCursor
 import laika.tree.Documents.Document
-import laika.tree.Elements.{Fatal, MessageLevel, RewriteRule}
+import laika.tree.Elements.{Fatal, InvalidElement, MessageLevel, RewriteRule}
 import laika.tree.Paths.Path
-import laika.tree.Templates.{TemplateContextReference, TemplateRoot}
+import laika.tree.Templates.TemplateRoot
+
+import scala.annotation.tailrec
 
 /**
   * @author Jens Halm
@@ -42,7 +43,7 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
                             renderFormatted: Boolean = true,
                             parallel: Boolean = false) extends RenderConfig {
 
-  private lazy val mergedBundle: ExtensionBundle = ExtensionBundle.mergeBundles(bundles.filter(bundleFilter))
+  private lazy val mergedBundle: ExtensionBundle = OperationConfig.mergeBundles(bundles.filter(bundleFilter))
 
 
   lazy val baseConfig: Config = mergedBundle.baseConfig
@@ -91,6 +92,21 @@ trait RenderConfig {
 }
 
 object OperationConfig {
+
+  def mergeBundles (bundles: Seq[ExtensionBundle]): ExtensionBundle = {
+
+    @tailrec
+    def processBundles (past: Seq[ExtensionBundle], pending: Seq[ExtensionBundle]): Seq[ExtensionBundle] = pending match {
+      case Nil => past
+      case next :: rest =>
+        val newPast = past.map(ex => next.processExtension.lift(ex).getOrElse(ex)) :+ next
+        val newPending = rest.map(ex => next.processExtension.lift(ex).getOrElse(ex))
+        processBundles(newPast, newPending)
+    }
+
+    processBundles(Nil, bundles).reverse.reduceLeftOption(_ withBase _).getOrElse(ExtensionBundle.Empty)
+
+  }
 
   val default: OperationConfig = OperationConfig(
     bundles = Seq(LaikaDefaults, DirectiveSupport, StandardDirectives)

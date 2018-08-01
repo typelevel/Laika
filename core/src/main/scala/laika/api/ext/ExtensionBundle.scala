@@ -23,8 +23,6 @@ import laika.rewrite.DocumentCursor
 import laika.tree.Elements._
 import laika.tree.Paths.Path
 
-import scala.annotation.tailrec
-
 /**
   * @author Jens Halm
   */
@@ -84,22 +82,6 @@ trait ExtensionBundle { self =>
 }
 
 object ExtensionBundle {
-
-  // TODO - move this to OperationSetup.mergedBundle
-  def mergeBundles (bundles: Seq[ExtensionBundle]): ExtensionBundle = {
-
-    @tailrec
-    def processBundles (past: Seq[ExtensionBundle], pending: Seq[ExtensionBundle]): Seq[ExtensionBundle] = pending match {
-      case Nil => past
-      case next :: rest =>
-        val newPast = past.map(ex => next.processExtension.lift(ex).getOrElse(ex)) :+ next
-        val newPending = rest.map(ex => next.processExtension.lift(ex).getOrElse(ex))
-        processBundles(newPast, newPending)
-    }
-
-    processBundles(Nil, bundles).reverse.reduceLeftOption(_ withBase _).getOrElse(ExtensionBundle.Empty)
-
-  }
 
   object Empty extends ExtensionBundle
 
