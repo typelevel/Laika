@@ -163,7 +163,7 @@ object Transform {
    */
   class Builder private[Transform] (factories: Seq[MarkupParser]) {
 
-    lazy val parse = factories.tail.foldLeft(Parse.as(factories.head))(_ or _)
+    private lazy val parse = factories.tail.foldLeft(Parse.as(factories.head))(_ or _)
 
     /** Returns a new Builder instance adding the specified parser factory.
      *  This factory is usually an object provided by the library

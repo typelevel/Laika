@@ -20,7 +20,9 @@ import laika.api.ext.ExtensionBundle
 import laika.factory.RendererFactory
 import laika.tree.Elements.{MessageLevel, RenderFunction}
 
-/**
+/** API for specifying configuration options that apply to all
+  * kinds of operations that contain a rendering step (Render and Transform APIs).
+  *
   * @author Jens Halm
   */
 trait RenderConfigBuilder[Writer] extends OperationConfigBuilder {

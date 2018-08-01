@@ -136,10 +136,17 @@ object InputTree {
 
   }
 
+  /**  Creates an instance based on the current working directory, including
+    *  all subdirectories.
+    *
+    *  @param docTypeMatcher a function determining the document type based on the path of the input
+    *  @param exclude the files to exclude from processing
+    *  @param codec the character encoding of the files, if not specified the platform default will be used
+    */
   def forWorkingDirectory (docTypeMatcher: Path => DocumentType, exclude: FileFilter)(implicit codec: Codec): InputTree =
     forRootDirectories(Seq(new File(System.getProperty("user.dir"))), docTypeMatcher, exclude)
 
-  /** Creates an InputProvider based on the specified directories, including
+  /** Creates an instance based on the specified directories, including
    *  all subdirectories. The directories will be merged into a tree with a single
    *  root. If any of the specified root directories contain sub-directories with
    *  the same name, these sub-directories will be merged, too.

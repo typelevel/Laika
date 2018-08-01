@@ -20,7 +20,9 @@ import laika.api.ext.ExtensionBundle
 import laika.rewrite.DocumentCursor
 import laika.tree.Elements.RewriteRule
 
-/**
+/** API for specifying configuration options that apply to all
+  * kinds of operations that contain both, a parsing and a rendering step (only Transform API).
+  *
   * @author Jens Halm
   */
 trait TransformConfigBuilder[Writer] extends ParseConfigBuilder with RenderConfigBuilder[Writer] {

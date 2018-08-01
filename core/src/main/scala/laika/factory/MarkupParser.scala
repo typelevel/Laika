@@ -65,6 +65,18 @@ trait MarkupParser {
    */
   def extensions: Seq[ExtensionBundle]
 
+  /** Creates the parser for a sequence of blocks based on the parser
+    * for a single block.
+    *
+    * The parser for a single block is already the result of merging all block parsers
+    * defined within this instance with all extension parsers defined
+    * by the user.
+    *
+    * The default implementation simply applies this parser repeatedly while
+    * skipping blank lines between the parsed blocks. This method can get overridden
+    * for special requirements, for example when the previous result has an influence on
+    * which parser to pick for the subsequent block.
+    */
   def createBlockListParser (parser: Parser[Block]): Parser[Seq[Block]] = (parser <~ opt(blankLines))*
 
 }

@@ -89,7 +89,7 @@ object ExtensionBundle {
 
     override val useInStrictMode = true
 
-    override val docTypeMatcher: PartialFunction[Path, DocumentType] = DefaultDocumentTypeMatcher.get
+    override val docTypeMatcher: PartialFunction[Path, DocumentType] = DefaultDocumentTypeMatcher.base
 
     override val parsers: ParserBundle = ParserBundle(
       styleSheetParser = Some(CSSParsers.styleDeclarationSet)

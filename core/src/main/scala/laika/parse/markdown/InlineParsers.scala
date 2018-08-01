@@ -70,10 +70,14 @@ object InlineParsers {
   def span (start: Parser[Any], endDelim: String, postCondition: Parser[Any])(implicit recParsers: RecursiveSpanParsers): Parser[List[Span]]
     = start ~> recParsers.delimitedRecursiveSpans(delimitedBy(endDelim, postCondition))
 
+  /** Parses either strong spans enclosed in double asterisks or emphasized spans enclosed in single asterisks.
+    */
   val enclosedByAsterisk: SpanParserBuilder = SpanParser.forStartChar('*').recursive { implicit recParsers =>
     strong('*') | em('*')
   }
 
+  /** Parses either strong spans enclosed in double underscores or emphasized spans enclosed in single underscores.
+    */
   val enclosedByUnderscore: SpanParserBuilder = SpanParser.forStartChar('_').recursive { implicit recParsers =>
     strong('_') | em('_')
   }
@@ -114,6 +118,8 @@ object InlineParsers {
     start ~> delimitedBy(end) ^^ { s => Literal(s.trim) }
   }
 
+  /** Parses a literal span enclosed by double or single backticks.
+    */
   val literalSpan: SpanParserBuilder = SpanParser.forStartChar('`')
     .standalone(literalEnclosedByDoubleChar | literalEnclosedBySingleChar)
   

@@ -86,10 +86,18 @@ class WhitespacePreprocessor extends (String => String) {
   
 }
 
+/** Companion for creating instances of WhitespacePreprocessor.
+  */
 object WhitespacePreprocessor {
 
+  /** Processes all whitespace in the specified string.
+    */
   val forString: String => String = new WhitespacePreprocessor
 
+  /** Processes the specified Input instance and returns
+    * a new instance with the same path, but all whitespace
+    * pre-processed.
+    */
   val forInput: Input => Input = { input =>
     val raw = input.asParserInput.input
     val preprocessed = forString(raw.toString)

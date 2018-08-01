@@ -27,7 +27,9 @@ import laika.tree.Elements._
 import laika.tree.Templates._
 
 
-/** Provides the parsers for directives in templates.
+/** Provides the parsers for directives and context references in templates.
+  *
+  * @author Jens Halm
   */
 class TemplateParsers (directives: Map[String, Templates.Directive]) extends DefaultRecursiveSpanParsers {
 
@@ -77,6 +79,9 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
 
 }
 
+/** Default template parser without any template directives,
+  * usually used for parsing fallback templates from resource folders.
+  */
 object DefaultTemplateParser extends TemplateParsers(Map.empty) {
   def parse (input: Input): TemplateDocument = {
     val root = unsafeParserFunction(templateRoot)(input.asParserInput)

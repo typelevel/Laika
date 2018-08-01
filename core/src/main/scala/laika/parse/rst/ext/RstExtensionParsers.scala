@@ -32,9 +32,7 @@ import laika.util.~
 import scala.collection.mutable.ListBuffer
 
 /** Provides the parsers for all types of extensions (directives and text roles).
- *  In reStructuredText an explicit block element for an extension starts with `.. `,
- *  followed by a block where the second and subsequent lines are indented.
- * 
+ *
  * @author Jens Halm
  */
 class RstExtensionParsers(recParsers: RecursiveParsers,
@@ -300,7 +298,14 @@ class RstExtensionParsers(recParsers: RecursiveParsers,
   
 }
 
+/** Provides the parsers for all types of extensions (directives and text roles).
+  *
+  * @author Jens Halm
+  */
 object RstExtensionParsers {
+
+  /** Creates a new parser builder based on the specified extensions.
+    */
   def allBlocks(blockDirectives: Seq[Directive[Block]],
                 spanDirectives: Seq[Directive[Span]],
                 textRoles: Seq[TextRole],

@@ -18,7 +18,13 @@ package laika.parse.markdown
 
 import laika.tree.Elements.{Block, Header, Id}
 
-/**
+/** Block list post-processor that auto-generates ids for
+  * headers so that they can serve as link target within
+  * the same document or as cross-link targets from other
+  * documents.
+  *
+  * This extension is disabled when Markdown is parsed in strict mode.
+  *
   * @author Jens Halm
   */
 object HeaderIdInsertion extends (Seq[Block] => Seq[Block]) {

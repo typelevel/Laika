@@ -18,15 +18,28 @@ package laika.api.config
 
 import laika.api.ext.ExtensionBundle
 
-/**
+/** Base API for specifying configuration options that apply to all
+  * kinds of operations (Parse, Render and Transform).
+  *
   * @author Jens Halm
   */
 trait OperationConfigBuilder {
 
+  /** The type of the operation being configured by this instance
+    */
   type ThisType
 
-  def withConfig(newConfig: OperationConfig): ThisType
+  /** Returns a new instance with the specified configuration.
+    *
+    * This method discards any previously specified
+    * options. It is usually meant to be used when copying over
+    * the configuration from a fully configured object to an
+    * unconfigured one.
+    */
+  def withConfig (newConfig: OperationConfig): ThisType
 
+  /** The current configuration for this instance.
+    */
   def config: OperationConfig
 
   /** Returns a new instance with the specified extension bundles installed.

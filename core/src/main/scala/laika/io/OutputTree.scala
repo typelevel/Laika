@@ -99,6 +99,11 @@ object OutputTree {
     new DirectoryOutputTree(root, Root, codec)
   }
 
+  /**  Creates an OutputTree based on the current working directory, including
+    *  all subdirectories.
+    *
+    *  @param codec the character encoding of the files, if not specified the platform default will be used
+    */
   def forWorkingDirectory (implicit codec: Codec): OutputTree =
     forRootDirectory(new File(System.getProperty("user.dir")))
 

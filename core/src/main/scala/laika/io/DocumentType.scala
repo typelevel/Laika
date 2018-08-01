@@ -65,7 +65,7 @@ object DocumentType {
 
 }
 
-/** The default implementation for determining the document type
+/** The default implementations for determining the document type
  *  of the input based on its path.
  */
 object DefaultDocumentTypeMatcher {
@@ -83,7 +83,11 @@ object DefaultDocumentTypeMatcher {
   private val ConfigName = """.+\.conf$""".r
 
 
-  val get: PartialFunction[Path, DocumentType] = { case path: Path =>
+  /** The base matcher that recognizes all file types known to Laika
+    * except text markup documents, which depend on the installed parsers
+    * and need to be created separately.
+    */
+  val base: PartialFunction[Path, DocumentType] = { case path: Path =>
     path.name match {
       case ConfigName()     => Config
       case TemplateName()   => Template
@@ -93,6 +97,9 @@ object DefaultDocumentTypeMatcher {
     }
   }
 
+  /** Creates a document type matcher that recognizes all input files
+    * with one of the specified file suffixes as a markup document.
+    */
   def forMarkup (fileSuffixes: Set[String]): PartialFunction[Path, DocumentType] = {
     case path if fileSuffixes(suffix(path.name)) => Markup
   }

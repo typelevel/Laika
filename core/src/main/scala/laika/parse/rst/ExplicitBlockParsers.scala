@@ -112,21 +112,30 @@ class ExplicitBlockParsers (recParsers: RecursiveParsers) {
   
 }
 
+/** Provides the parsers for all types of explicit block elements.
+  * In reStructuredText an explicit block element starts with `.. `,
+  * followed by a block where the second and subsequent lines are indented.
+  *
+  * @author Jens Halm
+  */
 object ExplicitBlockParsers {
 
+  /** The parser builder for all explicit block items that start with `..` except
+    * for directives which are provided by an extension.
+    */
   val allBlocks: BlockParserBuilder = BlockParser.forStartChar('.').recursive { recParsers =>
     new ExplicitBlockParsers(recParsers).explicitBlockItem
   }
 
-  lazy val linkDefinitionBody: Parser[String] = {
+  private[rst] lazy val linkDefinitionBody: Parser[String] = {
     val notEmpty = not(blankLine) | lookAhead(restOfLine ~ (ws min 1) ~ not(blankLine))
 
     (notEmpty ~> indentedBlock()) ^^ {
-      _.lines map (_.trim) filterNot (_.isEmpty) mkString
+      _.lines map (_.trim) mkString
     }
   }
 
-  /** Parses the short variant of an anonymous link definition
+  /**  Parses the short variant of an anonymous link definition
     *  (that starts with `__` instead of `.. __:`)
     *
     *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#anonymous-hyperlinks]].

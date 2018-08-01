@@ -27,7 +27,8 @@ import laika.tree.Elements._
 import laika.util.~
 
 
-/** Provides all block parsers for Markdown text except for those dealing
+/** Provides all block parsers for Markdown text except for for lists which
+ *  are factored out into a separate parser object and those blocks dealing
  *  with verbatim HTML markup which this library treats as an optional 
  *  feature that has to be explicitly mixed in.
  *  
@@ -50,6 +51,8 @@ object BlockParsers {
    */
   val insignificantSpaces: Parser[Unit] = anyOf(' ').max(3).noCapture
 
+  /** Parses the decoration (underline) of a setext header.
+    */
   val setextDecoration: Parser[String] = (anyOf('=').min(1) | anyOf('-').min(1)) <~ wsEol
 
   /**  Parses a single Markdown block. In contrast to the generic block parser of the
@@ -64,18 +67,34 @@ object BlockParsers {
     block(firstLinePrefix, insignificantSpaces ~ linePrefix, nextBlockPrefix)
   }
 
+  /**  Parses a single Markdown block. In contrast to the `mdBlock` parser
+    *  this method also verifies that the second line is not a setext header
+    *  decoration.
+    *
+    *  @param firstLinePrefix parser that recognizes the start of the first line of this block
+    *  @param linePrefix parser that recognizes the start of subsequent lines that still belong to the same block
+    *  @param nextBlockPrefix parser that recognizes whether a line after one or more blank lines still belongs to the same block
+    */
   def decoratedBlock (firstLinePrefix: Parser[Any], linePrefix: Parser[Any], nextBlockPrefix: Parser[Any]): Parser[String] = {
     val skipLine = anyBut('\n','\r').^ <~ eol
     val noHeader = lookAhead(skipLine ~ not(setextDecoration))
     mdBlock(noHeader ~ firstLinePrefix, linePrefix, nextBlockPrefix)
   }
 
+  /** Parses either a setext header, or a plain paragraph if the second line of the block
+    * is not a setext header decoration. Only used for root level blocks where lists starting
+    * in the middle of a paragraph are not allowed.
+    */
   lazy val rootHeaderOrParagraph: BlockParserBuilder = BlockParser.withoutStartChar.recursive { implicit recParsers =>
     val lineCondition = not(blankLine)
     val listWithoutBlankline = success(None)
     headerOrParagraph(lineCondition, listWithoutBlankline)
   }.rootOnly
 
+  /** Parses either a setext header, or a plain paragraph if the second line of the block
+    * is not a setext header decoration. Only used for nested blocks where lists starting
+    * in the middle of a paragraph are allowed.
+    */
   lazy val nestedHeaderOrParagraph: BlockParserBuilder = BlockParser.withoutStartChar.recursive { implicit recParsers =>
 
     val lineCondition = not(ListParsers.bulletListItemStart | ListParsers.enumListItemStart | blankLine)
@@ -93,7 +112,7 @@ object BlockParsers {
     headerOrParagraph(lineCondition, listWithoutBlankline)
   }.nestedOnly
 
-  def headerOrParagraph (lineCondition: Parser[Any], listWithoutBlankline: Parser[Option[Block]])
+  private def headerOrParagraph (lineCondition: Parser[Any], listWithoutBlankline: Parser[Option[Block]])
                         (implicit recParsers: RecursiveParsers) : Parser[Block] = {
 
       val lines = (lineCondition ~> restOfLine) *

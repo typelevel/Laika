@@ -21,7 +21,12 @@ import laika.parse.rst.Elements.FieldList
 import laika.tree.Documents.Document
 import laika.tree.Elements.{Comment, DecoratedHeader, Paragraph, SpanSequence}
 
-/**
+/** Responsible for extracting a docInfo block at the start
+  * of a reStructuredText document and inserting it into the
+  * `docInfo` element in the config object for that document.
+  *
+  * See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#bibliographic-fields]].
+  *
   * @author Jens Halm
   */
 object DocInfoExtractor extends (Document => Document) {
