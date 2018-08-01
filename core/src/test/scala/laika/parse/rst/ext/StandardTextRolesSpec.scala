@@ -187,8 +187,8 @@ class StandardTextRolesSpec extends FlatSpec
       | :format: AML BML CML
       |
       |some :foo:`text`""".stripMargin
-    val result = root(InvalidBlock(SystemMessage(Error, "unknown text role: raw"), LiteralBlock(".. role::foo(raw) \n:format: AML BML CML")),
-        p(txt("some "), InvalidSpan(SystemMessage(Error, "unknown text role: foo"), Text("`text`"))))
+    val result = root(InvalidElement("unknown text role: raw", ".. role::foo(raw) \n:format: AML BML CML").asBlock,
+        p(txt("some "), InvalidElement("unknown text role: foo", "`text`").asSpan))
     parse(input) should be (result)
   }
   

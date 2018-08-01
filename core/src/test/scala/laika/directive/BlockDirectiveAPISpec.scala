@@ -125,8 +125,7 @@ class BlockDirectiveAPISpec extends FlatSpec
       markupExtensions = directiveSupport.markupExtensions
     ).rootElement
 
-    def invalid (input: String, error: String): InvalidBlock =
-        InvalidBlock(SystemMessage(laika.tree.Elements.Error, error), LiteralBlock(input))
+    def invalid (input: String, error: String): InvalidBlock = InvalidElement(error, input).asBlock
 
   }
 

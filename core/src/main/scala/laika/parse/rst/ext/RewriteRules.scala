@@ -43,8 +43,7 @@ class RewriteRules (textRoles: Seq[TextRole]) extends (DocumentCursor => Rewrite
       case CustomizedTextRole(id,f,_) => (id,f)                                   
     } toMap) ++ baseRoleElements
 
-    def invalidSpan (message: String, fallback: String): InvalidSpan =
-      InvalidSpan(SystemMessage(laika.tree.Elements.Error, message), Text(fallback))
+    def invalidSpan (message: String, fallback: String): InvalidSpan = InvalidElement(message, fallback).asSpan
       
     /** Function providing the default rewrite rules when passed a document instance.
      */

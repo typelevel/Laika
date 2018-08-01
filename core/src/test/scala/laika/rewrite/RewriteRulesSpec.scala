@@ -38,8 +38,7 @@ class RewriteRulesSpec extends FlatSpec
     doc.rewrite(rules).content
   }
   
-  def invalidSpan (message: String, fallback: String): InvalidSpan =
-      InvalidSpan(SystemMessage(laika.tree.Elements.Error, message), Text(fallback))
+  def invalidSpan (message: String, fallback: String): InvalidSpan = InvalidElement(message, fallback).asSpan
       
   def invalidBlock (message: String, fallback: Block): InvalidBlock =
       InvalidBlock(SystemMessage(laika.tree.Elements.Error, message), fallback)
@@ -171,22 +170,22 @@ class RewriteRulesSpec extends FlatSpec
   
   it should "replace an unresolvable reference with an invalid span" in {
     val rootElem = root(p(simpleLinkRef()))
-    rewritten (rootElem) should be (root(p(invalidSpan("unresolved link reference: name", txt("text")))))
+    rewritten (rootElem) should be (root(p(invalidSpan("unresolved link reference: name", "text"))))
   }
   
   it should "replace an unresolvable reference to a link alias with an invalid span" in {
     val rootElem = root(p(simpleLinkRef()), LinkAlias("name","ref"))
-    rewritten (rootElem) should be (root(p(invalidSpan("unresolved link alias: ref", txt("text")))))
+    rewritten (rootElem) should be (root(p(invalidSpan("unresolved link alias: ref", "text"))))
   }
   
   it should "replace a surplus anonymous reference with an invalid span" in {
     val rootElem = root(p(simpleLinkRef("")))
-    rewritten (rootElem) should be (root(p(invalidSpan("too many anonymous link references", txt("text")))))
+    rewritten (rootElem) should be (root(p(invalidSpan("too many anonymous link references", "text"))))
   }
   
   it should "replace circular indirect references with invalid spans" in {
     val rootElem = root(p(simpleLinkRef()), LinkAlias("name","ref"), LinkAlias("ref","name"))
-    rewritten (rootElem) should be (root(p(invalidSpan("circular link reference: name", txt("text")))))
+    rewritten (rootElem) should be (root(p(invalidSpan("circular link reference: name", "text"))))
   }
   
   it should "resolve references when some parent element also gets rewritten" in {
@@ -202,7 +201,7 @@ class RewriteRulesSpec extends FlatSpec
   
   it should "replace an unresolvable reference with an invalid span" in {
     val rootElem = root(p(simpleImgRef()))
-    rewritten (rootElem) should be (root(p(invalidSpan("unresolved image reference: name", txt("text")))))
+    rewritten (rootElem) should be (root(p(invalidSpan("unresolved image reference: name", "text"))))
   }
   
   

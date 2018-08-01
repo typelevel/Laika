@@ -53,21 +53,6 @@ object DocumentParser {
     unsafeParserFunction(parser)(input.asParserInput)
   }
 
-  case class InvalidElement (message: SystemMessage, source: String) {
-
-    def asBlock: InvalidBlock = InvalidBlock(message, LiteralBlock(source))
-
-    def asSpan: InvalidSpan = InvalidSpan(message, Text(source))
-
-    def asTemplateSpan: TemplateSpan = TemplateElement(InvalidSpan(message, TemplateString(source)))
-
-  }// TODO - move to elements, implement traits (Element? Invalid?) {
-
-  // TODO - use this shortcut in other parts, too
-  object InvalidElement {
-    def apply (message: String, source: String): InvalidElement = apply(SystemMessage(laika.tree.Elements.Error, message), source)
-  }
-
   def forMarkup (markupParser: MarkupParser,
                  markupExtensions: MarkupExtensions,
                  configHeaderParser: ConfigHeaderParser): Input => Document = {

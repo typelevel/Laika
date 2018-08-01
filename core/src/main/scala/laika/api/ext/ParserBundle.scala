@@ -19,10 +19,9 @@ package laika.api.ext
 import com.typesafe.config.Config
 import laika.io.Input
 import laika.parse.core.Parser
-import laika.parse.core.markup.DocumentParser.InvalidElement
 import laika.parse.css.Styles.StyleDeclaration
 import laika.tree.Documents.Document
-import laika.tree.Elements.Block
+import laika.tree.Elements.{Block, InvalidElement}
 import laika.tree.Paths.Path
 import laika.tree.Templates.TemplateRoot
 

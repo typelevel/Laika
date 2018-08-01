@@ -21,6 +21,7 @@ import java.text.DecimalFormat
 import laika.api.Render
 import laika.render.PrettyPrint
 import laika.tree.Paths.{Path, Root}
+import laika.tree.Templates.{TemplateElement, TemplateSpan}
 
 import scala.math.Ordered
 
@@ -693,7 +694,26 @@ object Elements {
    *  Renderers may then choose to just render the fallback, the message or both.
    */
   case class InvalidBlock (message: SystemMessage, fallback: Block, options: Options = NoOpt) extends Block with Invalid[Block]
-  
+
+  /** Represents an invalid element in any position, block, span or template.
+    * Provides convenience converters to produce instances for any of these three positions.
+    */
+  case class InvalidElement (message: SystemMessage, source: String) extends Element {
+
+    def asBlock: InvalidBlock = InvalidBlock(message, LiteralBlock(source))
+
+    def asSpan: InvalidSpan = InvalidSpan(message, Text(source))
+
+    def asTemplateSpan: TemplateSpan = TemplateElement(asSpan)
+
+  }
+
+  /** Companion for InvalidElement. */
+  object InvalidElement {
+    def apply (message: String, source: String): InvalidElement =
+      apply(SystemMessage(laika.tree.Elements.Error, message), source)
+  }
+
   /** A special type of paragraph that serves as a render hint.
    *  Some renderers simplify the rendering of block elements containing only a single
    *  paragraph and render the span content inline (e.g. a `&lt;li&gt;` tag without a nested `&lt;p&gt;` tag

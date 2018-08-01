@@ -60,7 +60,7 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
           }
         }
       }
-      def invalid(msg: String) = TemplateElement(InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Literal("@" + source)))
+      def invalid (msg: String) = InvalidElement(msg, "@" + source).asTemplateSpan
 
       applyDirective(Templates)(result, directives.get, createContext, s => DirectiveSpan(s), invalid, "template")
     }

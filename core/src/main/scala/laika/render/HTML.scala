@@ -244,7 +244,7 @@ object HTML extends RendererFactory[HTMLWriter] {
     }
     
     def renderUnresolvedReference (ref: Reference): Unit = {
-      out << InvalidSpan(SystemMessage(Error,s"unresolved reference: $ref"), Text(ref.source)) 
+      out << InvalidElement(s"unresolved reference: $ref", ref.source).asSpan
     }
     
     def renderInvalidElement (elem: Invalid[_ <: Element]): Unit = elem match {

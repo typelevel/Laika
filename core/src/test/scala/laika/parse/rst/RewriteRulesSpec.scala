@@ -38,8 +38,7 @@ class RewriteRulesSpec extends FlatSpec
     doc.rewrite(rules).content
   }
   
-  def invalidSpan (message: String, fallback: String): InvalidSpan =
-      InvalidSpan(SystemMessage(laika.tree.Elements.Error, message), Text(fallback))
+  def invalidSpan (message: String, fallback: String): InvalidSpan = InvalidElement(message, fallback).asSpan
       
       
   "The rewrite rules for substitutions" should "replace a single reference with the target span" in {

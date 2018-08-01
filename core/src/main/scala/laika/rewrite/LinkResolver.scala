@@ -80,7 +80,7 @@ object LinkResolver extends (DocumentCursor => RewriteRule) {
         }
       }
       Some(target.flatMap(_.resolveReference(ref,path))
-          .getOrElse(InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Text(ref.source))))
+          .getOrElse(InvalidElement(msg, ref.source).asSpan))
     }
       
     {

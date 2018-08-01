@@ -20,11 +20,10 @@ import laika.directive.DirectiveRegistry
 import laika.directive.Directives.Templates
 import laika.io.{DocumentType, Input}
 import laika.parse.core.Parser
-import laika.parse.core.markup.DocumentParser.InvalidElement
 import laika.parse.css.Styles.StyleDeclaration
 import laika.rewrite.DocumentCursor
 import laika.tree.Documents.Document
-import laika.tree.Elements.{Block, RewriteRule}
+import laika.tree.Elements.{Block, InvalidElement, RewriteRule}
 import laika.tree.Paths.Path
 import laika.tree.Templates.TemplateRoot
 

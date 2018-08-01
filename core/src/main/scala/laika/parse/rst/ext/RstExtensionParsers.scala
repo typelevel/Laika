@@ -65,15 +65,15 @@ class RstExtensionParsers(recParsers: RecursiveParsers,
     val prefix = '|' ~> text <~ not(lookBehind(1, ' ')) ~ '|'
     
     ((prefix <~ ws) ~ spanDirectiveParser) ^^ { 
-      case name ~ InvalidDirective(msg, source, _) => 
-        InvalidBlock(SystemMessage(laika.tree.Elements.Error, msg), LiteralBlock(source.replaceFirst(".. ",s".. |$name| ")))
+      case name ~ InvalidDirective(msg, source, _) =>
+        InvalidElement(msg, source.replaceFirst(".. ",s".. |$name| ")).asBlock
       case name ~ content => SubstitutionDefinition(name, content) 
     }
   }
   private lazy val spanDirectiveParser: Parser[Span] = directive(spanDirectives.get)
   
   private def replaceInvalidDirective (block: Block): Block = block match {
-    case InvalidDirective(msg, source, _) => InvalidBlock(SystemMessage(laika.tree.Elements.Error, msg), LiteralBlock(source))
+    case InvalidDirective(msg, source, _) => InvalidElement(msg, source).asBlock
     case other => other
   }
   

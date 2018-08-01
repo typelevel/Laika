@@ -18,7 +18,7 @@ package laika.parse.core.markup
 
 import laika.parse.core.text.DelimitedText
 import laika.parse.core.{Failure, Parser, Success}
-import laika.tree.Elements.{Error, InvalidSpan, Span, SystemMessage, Text}
+import laika.tree.Elements.{Error, InvalidElement, InvalidSpan, Span, SystemMessage, Text}
 
 /** Default implementation for parsing inline markup recursively.
   *
@@ -79,11 +79,8 @@ trait DefaultRecursiveSpanParsers extends RecursiveSpanParsers with DefaultEscap
       case Success(res, next) =>
         val recParser: String => List[Span] = { source: String =>
           defaultSpanParser.parse(source) match {
-            case Success(spans, _) => spans
-            case Failure(msg, next) =>
-              val message = SystemMessage(Error, msg.message(next))
-              val fallback = Text(source)
-              List(InvalidSpan(message, fallback))
+            case Success(spans, _)  => spans
+            case Failure(msg, next) => List(InvalidElement(msg.message(next), source).asSpan)
           }
         }
         Success((recParser, res), next)

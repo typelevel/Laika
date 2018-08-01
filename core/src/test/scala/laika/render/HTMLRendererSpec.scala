@@ -500,7 +500,7 @@ class HTMLRendererSpec extends FlatSpec
   
   it should "render a paragraph containing an unresolved link reference" in {
     val elem = p(txt("some "), linkRef(txt("link")).id("id").source("[link] [id]"), txt(" span"))
-    render (elem) should be ("""<p>some [link] [id] span</p>""") 
+    render (elem) should be ("""<p>some [link] [id] span</p>""")
   }
   
   it should "render a paragraph containing an unresolved image reference" in {

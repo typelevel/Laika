@@ -352,8 +352,8 @@ class ListParsersSpec extends FlatSpec
       |
       |.. foo::
       | :name: value""".stripMargin
-    Parsing (input) should produce (root( defList + ("term 1", p("aaa")) + ("term 2", p("bbb")), 
-        InvalidBlock(SystemMessage(laika.tree.Elements.Error, "unknown directive: foo"), LiteralBlock(".. foo:: \n:name: value"))))
+    Parsing (input) should produce (root( defList + ("term 1", p("aaa")) + ("term 2", p("bbb")),
+      InvalidElement("unknown directive: foo", ".. foo:: \n:name: value").asBlock))
   }
   
   it should "ignore subsequent bullet lists" in {

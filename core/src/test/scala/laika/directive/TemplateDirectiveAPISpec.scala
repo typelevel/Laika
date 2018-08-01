@@ -118,8 +118,7 @@ class TemplateDirectiveAPISpec extends FlatSpec
     
     val defaultParser: Parser[TemplateRoot] = templateParsers.templateSpans ^^ (spans => tRoot(spans:_*))
     
-    def invalid (input: String, error: String): InvalidSpan = 
-        InvalidSpan(SystemMessage(laika.tree.Elements.Error, error), Literal(input))
+    def invalid (input: String, error: String): InvalidSpan = InvalidElement(error, input).asSpan
         
     def tss (spans: TemplateSpan*) = TemplateSpanSequence(spans)
 

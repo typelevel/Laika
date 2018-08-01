@@ -189,7 +189,7 @@ object SpanDirectiveParsers {
             }
           }
         }
-        def invalid (msg: String) = InvalidSpan(SystemMessage(laika.tree.Elements.Error, msg), Literal("@"+source))
+        def invalid (msg: String) = InvalidElement(msg, "@"+source).asSpan
 
         applyDirective(Spans)(result, directives.get, createContext, DirectiveSpan(_), invalid, "span")
     }
@@ -230,7 +230,7 @@ object BlockDirectiveParsers {
             }
           }
         }
-        def invalid (msg: String) = InvalidBlock(SystemMessage(laika.tree.Elements.Error, msg), LiteralBlock(s"@$source"))
+        def invalid (msg: String) = InvalidElement(msg, s"@$source").asBlock
 
         applyDirective(Blocks)(result, directives.get, createContext, DirectiveBlock(_), invalid, "block")
     }

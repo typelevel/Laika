@@ -82,9 +82,8 @@ class DirectiveSpec extends FlatSpec
   val defaultParser: Parser[RootElement] = rootParser.rootElement
 
   
-  def invalid (input: String, error: String): InvalidBlock = 
-    InvalidBlock(SystemMessage(laika.tree.Elements.Error, error), 
-        LiteralBlock(input.replaceAll("\n ","\n").replaceAll("::$",":: ").replaceAll("::\n",":: \n")))
+  def invalid (input: String, error: String): InvalidBlock =
+    InvalidElement(error, input.replaceAll("\n ","\n").replaceAll("::$",":: ").replaceAll("::\n",":: \n")).asBlock
   
   def positiveInt (input: String): Either[String, Int] = 
     try {

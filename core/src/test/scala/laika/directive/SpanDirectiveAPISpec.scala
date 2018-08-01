@@ -118,8 +118,7 @@ class SpanDirectiveAPISpec extends FlatSpec
       markupExtensions = directiveSupport.markupExtensions
     ).recursiveSpans ^^ (SpanSequence(_))
     
-    def invalid (input: String, error: String): InvalidSpan = 
-        InvalidSpan(SystemMessage(laika.tree.Elements.Error, error), Literal(input))
+    def invalid (input: String, error: String): InvalidSpan = InvalidElement(error, input).asSpan
         
     def ss (spans: Span*): SpanSequence = SpanSequence(spans)
 

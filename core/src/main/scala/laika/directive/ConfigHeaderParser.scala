@@ -19,9 +19,9 @@ package laika.directive
 import com.typesafe.config.{Config, ConfigFactory, ConfigParseOptions, ConfigValueFactory}
 import laika.parse.core.Parser
 import laika.parse.core.combinator.Parsers
-import laika.parse.core.markup.DocumentParser.InvalidElement
 import laika.parse.core.text.TextParsers
 import laika.parse.core.text.TextParsers._
+import laika.tree.Elements.InvalidElement
 import laika.tree.Paths.Path
 
 /**

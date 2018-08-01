@@ -272,7 +272,8 @@ object LinkTargets {
     val global = true
     
     def resolveReference (rewrittenRef: Element, path: Option[Path] = None): Option[Element] = rewrittenRef match { 
-      case ref: Reference => Some(InvalidSpan(SystemMessage(Error, s"More than one link target with name ${selector.name} in path $path"), Text(ref.source)))
+      case ref: Reference =>
+        Some(InvalidElement(s"More than one link target with name ${selector.name} in path $path", ref.source).asSpan)
       case _ => None
     }
     

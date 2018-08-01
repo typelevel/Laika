@@ -105,8 +105,7 @@ object Elements {
     def resolve (cursor: DocumentCursor): Block = 
       cursor.parent.target.selectDocument(path) match {
         case Some(target) => BlockSequence(target.content.content)
-        case None => InvalidBlock(SystemMessage(Error, s"Unresolvable path reference: $path"), 
-            LiteralBlock(s".. include:: $path"))
+        case None         => InvalidElement(s"Unresolvable path reference: $path", s".. include:: $path").asBlock
       }
   }
   
