@@ -21,16 +21,13 @@ import laika.io.Input
 import laika.tree.Paths.{Path, Root}
 import laika.parse.core.text.TextParsers._
 
-/**
+/** Factory for Typesafe Config instances that add information
+  * about the virtual path of the configuration within a Laika
+  * document tree.
+  *
   * @author Jens Halm
   */
 object ConfigProvider {
-
-//  def fromFile (name: String)(implicit codec: Codec): Config = fromInput(Input.fromFile(name)(codec))
-//
-//  def fromFile (file: File)(implicit codec: Codec): Config = fromInput(Input.fromFile(file)(codec))
-//
-//  def fromString (input: String, path: Path = Root): Config = fromInput(Input.fromString(input, path))
 
   /** Creates a Typesafe Config instance based on the specified input string
     * which is expected to be in HOCON format.
@@ -43,17 +40,25 @@ object ConfigProvider {
   def fromInput (input: Input): Config =
     ConfigFactory.parseReader(input.asReader, ConfigParseOptions.defaults().setOriginDescription("path:"+input.path))
 
-
-
-
 }
 
+/** Extension methods for Typesafe Config instances.
+  */
 object ConfigImplicits {
 
   private val laikaPath = "path:" ~> anyBut(':') <~ opt(':' ~ anyIn('0' to '9').min(1)) ^^ (Path(_).parent)
 
+  /** Extension methods for Typesafe Config instances.
+    */
   implicit class ConfigOps (val config: Config) extends AnyVal {
 
+    /** Looks up the specified key and if found, resolves
+      * it as a path relative to the path of the configuration.
+      *
+      * Any path reference users declare in configuration files
+      * or in configuration headers in text markup files can
+      * be interpreted as relative paths.
+      */
     def getRelativePath (key: String): Option[Path] = {
       if (config.hasPath(key)) {
         val value = config.getValue(key)

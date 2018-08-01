@@ -24,25 +24,39 @@ import laika.parse.core.text.TextParsers._
 import laika.tree.Elements.InvalidElement
 import laika.tree.Paths.Path
 
-/**
+/** Provides parser implementation for configuration header sections
+  * in text markup files, which are expected to be in HOCON format
+  * as defined in the Typesafe Config library.
+  *
   * @author Jens Halm
   */
 object ConfigHeaderParser {
 
   type ConfigHeaderParser = Parser[Either[InvalidElement, Config]]
 
+  /** Parser for default configuration headers which are enclosed
+    * between lines containing `{%` and `%}` respectively.
+    */
   def withDefaultLineDelimiters(path: Path): ConfigHeaderParser = betweenLines("{%","%}")(path)
 
+  /** Parser for configuration headers which are enclosed
+    * between the specified start and end delimiters.
+    * These delimiters are expected to be both on a separate line.
+    */
   def betweenLines(startDelim: String, endDelim: String)(path: Path): ConfigHeaderParser = {
     val parser = startDelim ~> TextParsers.delimitedBy(endDelim) <~ wsEol
     forTextParser(parser)(path)
   }
 
-  def beforeLine(endDelim: String)(path: Path): ConfigHeaderParser = {
-    val parser = TextParsers.delimitedBy(endDelim) <~ wsEol
-    forTextParser(parser)(path)
-  }
-
+  /** Generic base parser for configuration headers based on the specified string parser.
+    *
+    * The parser is expected to detect and consume any start and end delimiters without
+    * adding them to the result which is supposed to be a string in HOCON format.
+    *
+    * The contract for such a parser is that it fails if it cannot successfully read
+    * the expected start or end delimiters, so that other parsers (if defined) can be
+    * tried instead.
+    */
   def forTextParser (parser: Parser[String])(path: Path): ConfigHeaderParser = parser ^^ { str =>
     try {
       Right(ConfigFactory.parseString(str, ConfigParseOptions.defaults().setOriginDescription(s"path:$path")))
@@ -52,6 +66,9 @@ object ConfigHeaderParser {
     }
   }
 
+  /** Merges the specified parsers so that they will be tried consecutively until
+    * one of them succeeds. If all of them fail, the merged parser will fail, too.
+    */
   def merged (parsers: Seq[Path => ConfigHeaderParser])(path: Path): ConfigHeaderParser =
     parsers.map(_(path)).reduce(_ | _)
 
