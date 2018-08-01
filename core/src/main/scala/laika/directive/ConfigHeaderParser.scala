@@ -16,7 +16,7 @@
 
 package laika.directive
 
-import com.typesafe.config.{Config, ConfigFactory, ConfigParseOptions, ConfigValueFactory}
+import com.typesafe.config.{Config, ConfigFactory, ConfigParseOptions}
 import laika.parse.core.Parser
 import laika.parse.core.combinator.Parsers
 import laika.parse.core.text.TextParsers
@@ -64,9 +64,7 @@ object ConfigHeaderParser {
       case it: Iterable[_]  => it.asJava
       case other            => other
     }
-    (config /: javaValues) { case (config, (name, value)) =>
-      config.withValue(name, ConfigValueFactory.fromAnyRef(value)) // TODO - simply use fromMap?
-    }
+    config.withFallback(ConfigFactory.parseMap(javaValues.asJava))
   }
 
 
