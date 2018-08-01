@@ -20,9 +20,11 @@ import laika.directive.DirectiveRegistry
 import laika.directive.Directives.Templates
 import laika.io.{DocumentType, Input}
 import laika.parse.core.Parser
+import laika.parse.core.markup.DocumentParser.InvalidElement
 import laika.parse.css.Styles.StyleDeclaration
 import laika.rewrite.DocumentCursor
-import laika.tree.Elements.RewriteRule
+import laika.tree.Documents.Document
+import laika.tree.Elements.{Block, RewriteRule}
 import laika.tree.Paths.Path
 import laika.tree.Templates.TemplateRoot
 
@@ -30,6 +32,38 @@ import laika.tree.Templates.TemplateRoot
   * @author Jens Halm
   */
 object BundleProvider {
+
+  def forMarkupParser (blockParsers: Seq[BlockParserBuilder] = Nil,
+                       spanParsers: Seq[SpanParserBuilder] = Nil): ExtensionBundle = new ExtensionBundle {
+
+    override def parsers: ParserConfig = ParserConfig(
+      blockParsers = blockParsers,
+      spanParsers = spanParsers
+    )
+
+  }
+
+  def forParserHooks (postProcessBlocks: Seq[Block] => Seq[Block] = identity,
+                      postProcessDocument: Document => Document = identity,
+                      preProcessInput: Input => Input = identity): ExtensionBundle = new ExtensionBundle {
+
+    override def parsers: ParserConfig = ParserConfig(
+      markupParserHooks = Some(ParserHooks(
+        postProcessBlocks = postProcessBlocks,
+        postProcessDocument = postProcessDocument,
+        preProcessInput = preProcessInput
+      ))
+    )
+
+  }
+
+  def forConfigHeaderParser (parser: Path => Parser[Either[InvalidElement, Config]]): ExtensionBundle = new ExtensionBundle {
+
+    override def parsers: ParserConfig = ParserConfig(
+      configHeaderParsers = Seq(parser)
+    )
+
+  }
 
   def forConfigString (input: String): ExtensionBundle = new ExtensionBundle {
 

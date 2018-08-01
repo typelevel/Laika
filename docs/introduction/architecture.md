@@ -31,7 +31,7 @@ Design Principles
 * Create the built-in parsers with a custom parser combinator implementation, providing efficient and
   reusable base parsers that encapsulate requirements common to all lightweight markup languages.
   
-* Designed for robustness: Laika has more than 1100 tests, it is protected against malicious
+* Designed for robustness: Laika has more than 1200 tests, it is protected against malicious
   or accidentally malformed input like endless recursion (a type of guard most other text markup 
   parsers do not include) and parsers like the URI parser are based on the actual relevant RFCs
   (and not just a rough approximation like in many other parsers). 
