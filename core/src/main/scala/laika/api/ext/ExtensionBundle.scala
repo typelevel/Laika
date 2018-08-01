@@ -17,17 +17,11 @@
 package laika.api.ext
 
 import com.typesafe.config.{Config, ConfigFactory}
-import laika.api.config.OperationConfig
-import laika.factory.RendererFactory
-import laika.io.DocumentType.Static
-import laika.io.{DefaultDocumentTypeMatcher, DocumentType, InputTree, InputTreeOps}
+import laika.io.{DefaultDocumentTypeMatcher, DocumentType}
 import laika.parse.css.CSSParsers
-import laika.parse.css.Styles.StyleDeclarationSet
-import laika.rewrite.{DocumentCursor, LinkResolver, SectionBuilder}
-import laika.tree.Documents.{Document, DocumentTree, StaticDocument, TreeContent}
+import laika.rewrite.DocumentCursor
 import laika.tree.Elements._
-import laika.tree.Paths.{Path, Root}
-import laika.tree.Templates.TemplateRoot
+import laika.tree.Paths.Path
 
 import scala.annotation.tailrec
 
@@ -119,65 +113,6 @@ object ExtensionBundle {
       styleSheetParser = Some(CSSParsers.styleDeclarationSet)
     )
 
-  }
-
-}
-
-trait RenderTheme {
-
-  type Writer
-
-  def customRenderer: Writer => RenderFunction
-
-  def defaultTemplate: Option[TemplateRoot]
-
-  def defaultStyles: StyleDeclarationSet
-
-  def staticDocuments: StaticDocuments
-
-  def defaultTemplateOrFallback: TemplateRoot = defaultTemplate.getOrElse(TemplateRoot.fallback)
-
-}
-
-case class StaticDocuments (tree: DocumentTree) {
-
-  def merge (base: DocumentTree): DocumentTree = {
-
-    def mergeContent (content: Seq[TreeContent]): Seq[TreeContent] = {
-      val trees = content.collect{ case t: DocumentTree => t }.groupBy(_.path).mapValues(_.reduceLeft(mergeTrees)).values.toList
-      (content.filter(_.isInstanceOf[Document]) ++ trees).sortBy(_.position)
-    }
-
-    def mergeTrees (left: DocumentTree, right: DocumentTree): DocumentTree = {
-      right.copy(
-        content = mergeContent(left.content ++ right.content),
-        additionalContent = left.additionalContent ++ right.additionalContent
-      )
-    }
-
-    mergeTrees(tree, base)
-
-  }
-
-}
-
-object StaticDocuments extends InputTreeOps {
-
-  val empty = StaticDocuments(DocumentTree(Root, Nil))
-
-  override type InputTreeResult = StaticDocuments
-
-  override def config: OperationConfig = OperationConfig(Seq(new ExtensionBundle {
-    override def docTypeMatcher: PartialFunction[Path, DocumentType] = { case _ => Static }
-  }))
-
-  override def fromInputTree (inputTree: InputTree): StaticDocuments = {
-    def collectDocuments (currentTree: InputTree): DocumentTree = {
-      val trees = currentTree.subtrees map collectDocuments
-      val static = currentTree.staticDocuments map StaticDocument
-      DocumentTree(currentTree.path, trees, additionalContent = static, sourcePaths = currentTree.sourcePaths)
-    }
-    StaticDocuments(collectDocuments(inputTree))
   }
 
 }

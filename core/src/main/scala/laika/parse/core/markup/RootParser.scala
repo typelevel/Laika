@@ -51,8 +51,8 @@ class RootParser (markupParser: MarkupParser, markupExtensions: MarkupExtensions
   def blockList (p: => Parser[Block]): Parser[Seq[Block]] =
     markupParser.createBlockListParser(p) ^^ markupExtensions.rootParserHooks.postProcessBlocks
 
-  private def createParsers[T <: ParserDefinition] (mainParsers: Seq[ParserBuilder[T]],
-                                                    extParsers: Seq[ParserBuilder[T]]): Seq[T] = {
+  private def createParsers[T <: ParserDefinition[_]] (mainParsers: Seq[ParserBuilder[T]],
+                                                       extParsers: Seq[ParserBuilder[T]]): Seq[T] = {
 
     def createParsers (builders: Seq[ParserBuilder[T]]): (Seq[T],Seq[T]) =
       builders.map(_.createParser(this)).partition(_.precedence == Precedence.High)
