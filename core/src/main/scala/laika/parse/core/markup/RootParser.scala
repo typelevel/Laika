@@ -49,7 +49,7 @@ class RootParser (markupParser: MarkupParser, markupExtensions: MarkupExtensions
   }
 
   def blockList (p: => Parser[Block]): Parser[Seq[Block]] =
-    markupParser.createBlockListParser(p) ^^ markupExtensions.rootParserHooks.postProcessBlocks
+    markupParser.createBlockListParser(p) ^^ markupExtensions.parserHooks.postProcessBlocks
 
   private def createParsers[T <: ParserDefinition[_]] (mainParsers: Seq[ParserBuilder[T]],
                                                        extParsers: Seq[ParserBuilder[T]]): Seq[T] = {

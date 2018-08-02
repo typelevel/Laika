@@ -65,9 +65,9 @@ object DocumentParser {
 
     val rootParser = new RootParser(markupParser, markupExtensions).rootElement
 
-    markupExtensions.rootParserHooks.preProcessInput andThen
+    markupExtensions.parserHooks.preProcessInput andThen
       forMarkup(rootParser, configHeaderParser) andThen
-      markupExtensions.rootParserHooks.postProcessDocument
+      markupExtensions.parserHooks.postProcessDocument
   }
 
   /** Combines the specified parsers for the root element and for (optional) configuration
