@@ -19,7 +19,11 @@ package laika.directive
 import laika.api.ext.{ExtensionBundle, ParserBundle}
 import laika.directive.Directives.{Blocks, Spans, Templates}
 
-/**
+/** Internal API that processes all directives defined
+  * by one or more DirectiveRegistries. This extension
+  * is installed by default, unless the transformation
+  * is run in strict mode.
+  *
   * @author Jens Halm
   */
 class DirectiveSupport (blockDirectives: Seq[Blocks.Directive],
@@ -33,6 +37,8 @@ class DirectiveSupport (blockDirectives: Seq[Blocks.Directive],
     templateParser = Some(new TemplateParsers(Templates.toMap(templateDirectives)).templateRoot)
   )
 
+  /** Hook for extension registries for adding block, span and template directives.
+    */
   def withDirectives (newBlockDirectives: Seq[Blocks.Directive],
                       newSpanDirectives: Seq[Spans.Directive],
                       newTemplateDirectives: Seq[Templates.Directive]) : DirectiveSupport =
@@ -42,9 +48,34 @@ class DirectiveSupport (blockDirectives: Seq[Blocks.Directive],
 
 }
 
+/** Empty default instance without any directives installed.
+  */
 object DirectiveSupport extends DirectiveSupport(Nil, Nil, Nil)
 
 
+/** Registry for custom directives. Application code can define
+  * any number of instances mixing in this trait and then pass
+  * them to Parse, Render or Transform operations:
+  *
+  * {{{
+  * object MyDirectives extends DirectiveRegistry {
+  *   val spanDirectives = Seq(...)
+  *   val blockDirectives = Seq(...)
+  *   val templateDirectives = Seq(...)
+  * }
+  * object OtherDirectives extends DirectiveRegistry {
+  *   [...]
+  * }
+  *
+  * Transform
+  *   .from(Markdown)
+  *   .to(HTML)
+  *   .using(MyDirectives, OtherDirectives)
+  *   .fromFile("hello.md")
+  *   .toFile("hello.html")
+  * }}}
+  *
+  */
 trait DirectiveRegistry extends ExtensionBundle {
 
   /**  Registers the specified span directives.
