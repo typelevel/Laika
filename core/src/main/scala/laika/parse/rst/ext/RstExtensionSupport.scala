@@ -24,7 +24,11 @@ import laika.parse.rst.ext.TextRoles.TextRole
 import laika.rewrite.DocumentCursor
 import laika.tree.Elements.{Block, RewriteRule, Span}
 
-/**
+/** Internal API that processes all extensions defined
+  * by one or more RstExtensionRegistries. This extension
+  * is installed by default when using the reStructuredText
+  * parser.
+  *
   * @author Jens Halm
   */
 class RstExtensionSupport (blockDirectives: Seq[Directive[Block]],
@@ -55,28 +59,64 @@ class RstExtensionSupport (blockDirectives: Seq[Directive[Block]],
       textRoles ++ newTextRoles,
       newDefaultTextRole.getOrElse(defaultTextRole))
 
-  // val textRoleElements = textRoles map { role => CustomizedTextRole(role.name, role.default) }
 }
 
+/** Empty base instance as a basis for registering reStructuredText extensions.
+  */
 object RstExtensionSupport extends RstExtensionSupport(Nil, Nil, Nil, "title-reference")
 
+/** Common base trait for reStructuredText extensions (directives and text roles).
+  */
 trait RstExtension[P] {
 
+  /** The name the extension is identified by in text markup.
+    */
   def name: String
 
+  /** The factory creating an instance of the extension based
+    * on the recursive parsers of the host language.
+    */
   def part: RecursiveParsers => P
 
 }
 
+/** Companion with utilities for initializing extensions.
+  */
 object RstExtension {
 
+  /** Initializes the specified extensions with the given recursive parsers
+    * and returns them as a map keyed by the name of the extension.
+    */
   def createAsMap[P] (ext: Seq[RstExtension[P]], recParsers: RecursiveParsers): Map[String, P] =
     ext map { e => (e.name.toLowerCase, e.part(recParsers)) } toMap
 
 }
 
-/**  In contrast to the original Python implementation, the API has been redesigned to be a more
-  *  idiomatic, concise and type-safe Scala DSL.
+/** Registry for custom reStructuredText extensions. Application code can define
+  * any number of instances mixing in this trait and then pass
+  * them to Parse, Render or Transform operations:
+  *
+  * {{{
+  * object MyExtensions extends RstExtensionRegistry {
+  *   val spanDirectives = Seq(...)
+  *   val blockDirectives = Seq(...)
+  *   val textRoles = Seq(...)
+  * }
+  * object OtherExtensions extends RstExtensionRegistry {
+  *   [...]
+  * }
+  *
+  * Transform
+  *   .from(ReStructuredText)
+  *   .to(HTML)
+  *   .using(MyDirectives, OtherDirectives)
+  *   .fromFile("hello.rst")
+  *   .toFile("hello.html")
+  * }}}
+  *
+  * In contrast to the original Python implementation, this API has been redesigned to be a more
+  *  idiomatic, concise and type-safe Scala DSL. See the documentation for the methods of this trait
+  *  for concrete examples on how to implement an extension.
   *
   *  The following extension types are available:
   *
@@ -191,6 +231,14 @@ trait RstExtensionRegistry extends ExtensionBundle {
 
 }
 
+/** Registry for all standard extensions of ReStructuredText as defined by the
+  * specification, except for those which allow for raw content pass-through,
+  * which are kept separately in `RawContentExtensions`.
+  *
+  * See [[http://docutils.sourceforge.net/docs/ref/rst/directives.html]] for details.
+  *
+  * This extension is installed by default when using the reStructuredText parser.
+  */
 object StandardExtensions extends RstExtensionRegistry {
 
   lazy val blockDirectives = (new StandardBlockDirectives).blockDirectives
@@ -199,6 +247,19 @@ object StandardExtensions extends RstExtensionRegistry {
 
 }
 
+/** Registry for the standard extensions of ReStructuredText which allow for
+  * raw content pass-through. These have to be enabled to call `withRawContent`
+  * on the `Parse` or `Transform` APIs:
+  *
+  * {{{
+  * Transform
+  *   .from(ReStructuredText)
+  *   .to(HTML)
+  *   .withRawContent
+  *   .fromFile("hello.rst")
+  *   .toFile("hello.html")
+  * }}}
+  */
 object RawContentExtensions extends RstExtensionRegistry {
 
   override val acceptRawContent = true
