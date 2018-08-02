@@ -29,7 +29,10 @@ import laika.tree.Paths.Path
 import laika.tree.Templates.{TemplateElement, TemplateRoot, TemplateSpan, TemplateString}
 import laika.util.~
 
-/**
+/** Responsible for creating the top level parsers for text markup and template documents,
+  * by combining the parser for the root element with a parser for an (optional) configuration
+  * header.
+  *
   * @author Jens Halm
   */
 object DocumentParser {
@@ -53,6 +56,9 @@ object DocumentParser {
     unsafeParserFunction(parser)(input.asParserInput)
   }
 
+  /** Combines the specified markup parsers and extensions and the parser for (optional) configuration
+    * headers to create a parser function for an entire text markup document.
+    */
   def forMarkup (markupParser: MarkupParser,
                  markupExtensions: MarkupExtensions,
                  configHeaderParser: ConfigHeaderParser): Input => Document = {
@@ -64,7 +70,9 @@ object DocumentParser {
       markupExtensions.rootParserHooks.postProcessDocument
   }
 
-
+  /** Combines the specified parsers for the root element and for (optional) configuration
+    * headers to create a parser function for an entire text markup document.
+    */
   def forMarkup (rootParser: Parser[RootElement], configHeaderParser: ConfigHeaderParser): Input => Document =
 
     create(rootParser, configHeaderParser) { (path, config, invalid, root) =>
@@ -76,6 +84,9 @@ object DocumentParser {
       Document(path, content, fragments, config)
    }
 
+  /** Combines the specified parsers for the root element and for (optional) configuration
+    * headers to create a parser function for an entire template document.
+    */
   def forTemplate (rootParser: Parser[TemplateRoot], configHeaderParser: ConfigHeaderParser): Input => TemplateDocument = {
 
     create(rootParser, configHeaderParser) { (path, config, invalid, root) =>
