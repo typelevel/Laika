@@ -29,10 +29,10 @@ trait RenderConfigBuilder[Writer] extends OperationConfigBuilder {
 
   protected def factory: RendererFactory[Writer]
 
-  /** Specifies a custom render function that overrides one or more of the default
+  /**  Specifies a custom render function that overrides one or more of the default
     *  renderers for the output format this instance uses.
     *
-    *  This method expects a function that returns a partial function as the parameter.
+    *  This method expects a function that returns a partial function as the result.
     *  The outer function allows to capture the writer instance to write to and will
     *  only be invoked once. The partial function will then be invoked for each
     *  element it is defined at.

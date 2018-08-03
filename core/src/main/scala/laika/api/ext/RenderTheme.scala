@@ -25,27 +25,70 @@ import laika.tree.Elements.RenderFunction
 import laika.tree.Paths.{Path, Root}
 import laika.tree.Templates.TemplateRoot
 
-/**
+/** Collects templates, styles and custom render functions to form
+  * a theme for a specific output format.
+  *
   * @author Jens Halm
   */
 trait RenderTheme {
 
+  /** The type of the Writer API a custom render function
+    * for this theme uses.
+    */
   type Writer
 
+  /** Specifies a custom render function that overrides one or more of the default
+    * renderers for the output format this instance uses.
+    *
+    * This method expects a function that returns a partial function as the result.
+    * The outer function allows to capture the writer instance to write to and will
+    * only be invoked once. The partial function will then be invoked for each
+    * element it is defined at.
+    */
   def customRenderer: Writer => RenderFunction
 
+  /** The default template to embed the nodes of the parsed markup documents in,
+    * in case no user-defined template overwrites the default.
+    */
   def defaultTemplate: Option[TemplateRoot]
 
+  /** The default styles to apply in addition to any user-defined styles.
+    *
+    * These styles are only processed for output formats where the transformer
+    * processes the CSS to adjust the rendered output. This is only the case
+    * for PDF and XSL-FO.
+    *
+    * Styling for other formats like HTML has to happen via static files
+    * in the input directory that are merely copied over to the target directory
+    * by the transformer.
+    */
   def defaultStyles: StyleDeclarationSet
 
+  /** Specifies any additional static documents to be copied over to the
+    * target directory in each transform operation.
+    *
+    * This is allows for a central collection of CSS, JavaScript, image and
+    * other files needed for a specific theme.
+    */
   def staticDocuments: StaticDocuments
 
+  /** Returns the default template specified by this theme or the
+    * system-wide default in case the default is empty.
+    */
   def defaultTemplateOrFallback: TemplateRoot = defaultTemplate.getOrElse(TemplateRoot.fallback)
 
 }
 
+/** A collection of static documents to be copied over to the
+  * target directory in each transform operation.
+  *
+  * This is allows for a central collection of CSS, JavaScript, image and
+  * other files needed for a specific theme.
+  */
 case class StaticDocuments (tree: DocumentTree) {
 
+  /** Merges this instance with the specified base recursively.
+    */
   def merge (base: DocumentTree): DocumentTree = {
 
     def mergeContent (content: Seq[TreeContent]): Seq[TreeContent] = {
@@ -66,6 +109,12 @@ case class StaticDocuments (tree: DocumentTree) {
 
 }
 
+/** API for defining a collection of static documents
+  * based on one or more directories.
+  *
+  * Like with all Laika IO, these may be actual file system directories
+  * or virtual in-memory trees of input documents.
+  */
 object StaticDocuments extends InputTreeOps {
 
   val empty = StaticDocuments(DocumentTree(Root, Nil))

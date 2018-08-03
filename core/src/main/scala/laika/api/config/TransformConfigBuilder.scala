@@ -27,7 +27,7 @@ import laika.tree.Elements.RewriteRule
   */
 trait TransformConfigBuilder[Writer] extends ParseConfigBuilder with RenderConfigBuilder[Writer] {
 
-  /** Specifies a rewrite rule to be applied to the document tree model between the
+  /**  Specifies a rewrite rule to be applied to the document tree model between the
     *  parse and render operations. This is identical to calling `Document.rewrite`
     *  directly, but if there is no need to otherwise access the document instance
     *  and just chain parse and render operations this hook is more convenient.
@@ -49,7 +49,7 @@ trait TransformConfigBuilder[Writer] extends ParseConfigBuilder with RenderConfi
     */
   def usingRule (newRule: RewriteRule): ThisType = creatingRule(_ => newRule)
 
-  /** Specifies a rewrite rule to be applied to the document tree model between the
+  /**  Specifies a rewrite rule to be applied to the document tree model between the
     *  parse and render operations. This is identical to calling `Document.rewrite`
     *  directly, but if there is no need to otherwise access the document instance
     *  and just chain parse and render operations this hook is more convenient.
