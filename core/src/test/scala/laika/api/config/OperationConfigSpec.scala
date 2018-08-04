@@ -178,7 +178,7 @@ class OperationConfigSpec extends WordSpec with Matchers {
 
     trait FlagSetup {
       val appBundles = Seq(Defaults, Strict, RawContent, Both)
-      def config: OperationConfig = OperationConfig().withBundles(appBundles)
+      def config: OperationConfig = OperationConfig.empty.withBundles(appBundles)
     }
 
     "remove all raw content bundles in the default settings" in new FlagSetup {

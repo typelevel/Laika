@@ -55,7 +55,7 @@ trait TransformConfigBuilder[Writer] extends ParseConfigBuilder with RenderConfi
     *  and just chain parse and render operations this hook is more convenient.
     *
     *  The difference of this method to the `usingRule` method is that it expects a function
-    *  that expects a Document instance and returns the rewrite rule. This way the full document
+    *  that takes a Document instance and returns the rewrite rule. This way the full document
     *  can be queried before any rule is applied. This is necessary in cases where the rule
     *  (which gets applied node-by-node) depends on information from other nodes. An example
     *  from the built-in rewrite rules is the rule that resolves link references. To replace
