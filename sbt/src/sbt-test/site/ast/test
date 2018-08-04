@@ -1,0 +1,3 @@
+# test prettyPrint output generation with the prettyPrint task
+> laikaAST
+$ must-mirror target/docs/ast/hello.txt expected.txt

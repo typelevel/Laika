@@ -16,567 +16,152 @@
 
 package laika.sbt
 
-import laika.api._
-import laika.api.config.OperationConfig
-import laika.api.ext.RewriteRules
-import laika.directive.DirectiveRegistry
-import laika.directive.Directives._
-import laika.io.Input.LazyFileInput
-import laika.io.{DocumentType, Input, InputTree, OutputTree}
-import laika.parse.markdown.Markdown
-import laika.parse.markdown.html.HTMLRenderer
-import laika.parse.rst.ext.TextRoles.TextRole
-import laika.parse.rst.ext.{Directives, RstExtensionRegistry}
-import laika.parse.rst.{ExtendedHTML, ReStructuredText}
-import laika.render._
-import laika.rewrite.DocumentCursor
-import laika.tree.Documents._
-import laika.tree.ElementTraversal
+import laika.api.ext.ExtensionBundle
 import laika.tree.Elements._
-import laika.tree.Paths.Path
 import org.apache.fop.apps.FopFactory
 import sbt.Keys._
 import sbt._
-import sbt.util.CacheStore
 
+
+/** Plugin that adapts the features of the Laika library for use from within sbt.
+  *
+  * It is only a thin layer on top the library API, defining sbt settings and tasks that allow
+  * to configure a Laika transformation. The only feature not available in the library API
+  * is the optional integration with the scaladoc API generator to be included in the
+  * generated html site.
+  *
+  *
+  * The following settings are available:
+  *
+  * - `sourceDirectories in Laika`: one or more directories containing text markup and other markup files (default `src/docs`)
+  *
+  * - `target in Laika`: the output directory root (default `target/docs`)
+  *
+  * - `excludeFilter in Laika`: files in the source directories to be excluded (default `HiddenFileFilter`)
+  *
+  * - `laikaExtensions`: the main extension hook that allows to add one or more `ExtensionBundle` instances for adding
+  *   directives, parser extensions, rewrite rules or custom renderers. See the API of [[laika.api.ext.ExtensionBundle]].
+  *
+  * - `laikaConfig`: allows to specify additional flags and settings through instances of `LaikaConfig`:
+  *     - `encoding`: specifies the character encoding (default `UTF-8`)
+  *     - `strict`: switches off all extensions and only uses features defined in the spec of the markup languages (default `false`)
+  *     - `rawContent`: allows to include raw content like HTML embedded in text markup (default `false`)
+  *     - `renderMessageLevel`: the minimum level required for an invalid node to be rendered to the output (default `Warning`)
+  *     - `logMessageLevel`: the minimum level required for an invalid node to be logged to the console (default `Warning`)
+  *     - `parallel`: whether parsing and rendering should happen in parallel (default `true`)
+  *
+  * - `includeAPI` and `includePDF`: specifies whether to include scaladoc and/or PDF output in the generated site.
+  *
+  * - `fopConfig` and `fopFactory`: specify custom Apache FOP factories to be used for rendering PDF.
+  *
+  *
+  * The actual tasks for running a transformation are:
+  *
+  * - `laikaGenerate`: main transformation task of the plugin, accepts one or more arguments specifying the output
+  *   formats. Valid arguments are `html`, `pdf`, `xsl-fo` and `ast`.
+  *
+  * - `laikaHTML`, `laikaPDF`, `laikaXSLFO`, `laikaAST`: shortcuts for `laikaGenerate` when only a single output format
+  *   is required
+  *
+  * - `laikaSite`: combines the html generator with optionally also rendering a PDF document from the same input and
+  *   creating scaladoc documentation and copying both over to the target directory.
+  *
+  * - `laikaPackageSite`: packages the generated html site and (optionally) the included API documentation and
+  *   PDF file into a zip archive.
+  */
 object LaikaPlugin extends AutoPlugin {
 
   val requirements = plugins.JvmPlugin
   override val trigger = noTrigger
 
-  object autoImport {
 
-    val Laika                    = sbt.config("laika")
+  object autoImport extends ExtensionBundles {
 
-    val laikaSite                = taskKey[File]("Generates a static website")
-
-    val laikaGenerate            = inputKey[Set[File]]("Generates the specified output formats")
-
-    val laikaHTML                = taskKey[Set[File]]("Generates HTML output")
-
-    val laikaPrettyPrint         = taskKey[Set[File]]("Generates Pretty Print output (document tree visualization)")
-
-    val laikaXSLFO               = taskKey[Set[File]]("Generates XSL-FO output")
-
-    val laikaPDF                 = taskKey[File]("Generates PDF output")
-
-    val laikaDocTypeMatcher      = settingKey[Option[PartialFunction[Path, DocumentType]]]("Matches a path to a Laika document type")
-
-    val laikaEncoding            = settingKey[String]("The character encoding")
-
-    val laikaStrict              = settingKey[Boolean]("Indicates whether all features not part of the original Markdown or reStructuredText syntax should be switched off")
-
-    val laikaRenderMessageLevel  = settingKey[Option[MessageLevel]]("The minimum level for system messages to be rendered to HTML")
-
-    val laikaLogMessageLevel     = settingKey[Option[MessageLevel]]("The minimum level for system messages to be logged")
-
-    val laikaMarkupParser        = settingKey[Parse]("The parser for all text markup files")
-
-    val laikaRawContent          = settingKey[Boolean]("Indicates whether embedding of raw content (like verbatim HTML) is supported in markup")
-
-    val laikaInputTree           = taskKey[InputTree]("The configured input tree for the parser")
-
-    val laikaOutputTree          = taskKey[OutputTree]("The configured output tree for the renderer")
-
-    val laikaRewriteRules        = settingKey[Seq[DocumentCursor => RewriteRule]]("Custom rewrite rules to add to the standard rules")
-
-    val laikaSiteRenderers       = settingKey[Seq[HTMLWriter => RenderFunction]]("Custom HTML renderers overriding the defaults per node type")
-
-    val laikaFoRenderers         = settingKey[Seq[FOWriter => RenderFunction]]("Custom XSL-FO renderers overriding the defaults per node type")
-
-    val laikaPrettyPrintRenderers= settingKey[Seq[TextWriter => RenderFunction]]("Custom PrettyPrint renderers overriding the defaults per node type")
-
-    val fopFactory               = settingKey[FopFactory]("The FopFactory for the PDF renderer")
-
-    val fopConfig                = settingKey[Option[File]]("The Apache FOP configuration file for the PDF renderer")
-
-    val laikaParallel            = settingKey[Boolean]("Indicates whether parsers and renderers should run in parallel")
-
-    val laikaSpanDirectives      = settingKey[Seq[Spans.Directive]]("Directives for inline markup")
-
-    val laikaBlockDirectives     = settingKey[Seq[Blocks.Directive]]("Directives for block-level markup")
-
-    val laikaTemplateDirectives  = settingKey[Seq[Templates.Directive]]("Directives for templates")
-
-    val rstSpanDirectives        = settingKey[Seq[Directives.Directive[Span]]]("Inline directives for reStructuredText")
-
-    val rstBlockDirectives       = settingKey[Seq[Directives.Directive[Block]]]("Block directives for reStructuredText")
-
-    val rstTextRoles             = settingKey[Seq[TextRole]]("Custom text roles for reStructuredText")
-
-    val laikaIncludeAPI          = settingKey[Boolean]("Indicates whether API documentation should be copied to the site")
-
-    val laikaIncludePDF          = settingKey[Boolean]("Indicates whether PDF output should be copied to the site")
-
-    val laikaCopyAPI             = taskKey[File]("Copies the API documentation to the site")
-
-    val laikaCopyPDF             = taskKey[File]("Copies the PDF output to the site")
-
-    val laikaPackageSite         = taskKey[File]("Create a zip file of the site")
+    val Laika             = sbt.config("laika")
 
 
-    // helping the type inferrer:
+    val laikaSite         = taskKey[File]("Generates a static website")
 
-    def laikaSiteRenderer(f: HTMLWriter => RenderFunction) = f
-    def laikaFoRenderer(f: FOWriter => RenderFunction) = f
-    def laikaTextRenderer(f: TextWriter => RenderFunction) = f
-    def laikaRewriteRule(rule: RewriteRule): DocumentCursor => RewriteRule = _ => rule
-    def laikaRewriteRuleFactory(factory: DocumentCursor => RewriteRule) = factory
+    val laikaGenerate     = inputKey[Set[File]]("Generates the specified output formats")
 
+    val laikaHTML         = taskKey[Set[File]]("Generates HTML output")
+
+    val laikaPDF          = taskKey[File]("Generates PDF output")
+
+    val laikaXSLFO        = taskKey[Set[File]]("Generates XSL-FO output")
+
+    val laikaAST          = taskKey[Set[File]]("Generates a formatted output of the AST obtained from a parser")
+
+
+    val laikaExtensions   = settingKey[Seq[ExtensionBundle]]("Custom extension bundles to use in each transformation")
+
+    val laikaConfig       = settingKey[LaikaConfig]("Configuration options for all transformations")
+
+    val fopFactory        = settingKey[FopFactory]("The FopFactory for the PDF renderer")
+
+    val fopConfig         = settingKey[Option[File]]("The Apache FOP configuration file for the PDF renderer")
+
+
+    val laikaIncludeAPI   = settingKey[Boolean]("Indicates whether API documentation should be copied to the site")
+
+    val laikaIncludePDF   = settingKey[Boolean]("Indicates whether PDF output should be copied to the site")
+
+    val laikaCopyAPI      = taskKey[File]("Copies the API documentation to the site")
+
+    val laikaCopyPDF      = taskKey[File]("Copies the PDF output to the site")
+
+    val laikaPackageSite  = taskKey[File]("Create a zip file of the site")
+
+
+    case class LaikaConfig(encoding: String = "UTF-8",
+                           rawContent: Boolean = false,
+                           strict: Boolean = false,
+                           parallel: Boolean = true,
+                           renderMessageLevel: MessageLevel = Warning,
+                           logMessageLevel: MessageLevel = Warning)
   }
 
-  import Tasks._
+
   import autoImport._
 
   override def projectSettings: Seq[Setting[_]] = Seq(
-    sourceDirectories in Laika := Seq(sourceDirectory.value / "docs"),
+    sourceDirectories in Laika  := Seq(sourceDirectory.value / "docs"),
 
-    target in Laika            := target.value / "docs",
+    target in Laika         := target.value / "docs",
+    target in laikaSite     := (target in Laika).value / "site",
+    target in laikaXSLFO    := (target in Laika).value / "fo",
+    target in laikaAST      := (target in Laika).value / "ast",
+    target in laikaCopyAPI  := (target in laikaSite).value / "api",
 
-    target in laikaSite        := (target in Laika).value / "site",
+    excludeFilter in Laika  := HiddenFileFilter,
 
-    target in laikaXSLFO       := (target in Laika).value / "fo",
+    laikaExtensions         := Nil,
+    laikaConfig             := LaikaConfig(),
 
-    target in laikaPrettyPrint := (target in Laika).value / "prettyPrint",
+    laikaIncludeAPI         := false,
+    laikaIncludePDF         := false,
 
-    target in laikaCopyAPI     := (target in laikaSite).value / "api",
+    fopConfig               := None,
+    fopFactory              := Settings.fopFactory.value,
 
-    excludeFilter in Laika     := HiddenFileFilter,
+    laikaSite               := Def.sequential(Tasks.site, Tasks.copy).value,
+    laikaGenerate           := Tasks.generate.evaluated,
+    laikaHTML               := Tasks.generate.toTask(" html").value,
+    laikaXSLFO              := Tasks.generate.toTask(" xslfo").value,
+    laikaPDF                := Tasks.generate.toTask(" pdf").value.headOption.getOrElse((artifactPath in laikaPDF).value),
+    laikaAST                := Tasks.generate.toTask(" ast").value,
+    laikaCopyAPI            := Tasks.copyAPI.value,
+    laikaCopyPDF            := Tasks.copyPDF.value,
+    laikaPackageSite        := Tasks.packageSite.value,
+    clean in Laika          := Tasks.clean.value,
 
-    laikaEncoding              := "UTF-8",
-
-    laikaStrict                := false,
-
-    laikaRenderMessageLevel    := None,
-
-    laikaLogMessageLevel       := Some(Warning),
-
-    laikaDocTypeMatcher        := None,
-
-    laikaRawContent            := false,
-
-    laikaMarkupParser          := {
-                                 object directives extends DirectiveRegistry {
-                                   val blockDirectives = laikaBlockDirectives.value
-                                   val spanDirectives = laikaSpanDirectives.value
-                                   val templateDirectives = laikaTemplateDirectives.value
-                                 }
-                                 object rstExtensions extends RstExtensionRegistry {
-                                   val blockDirectives = rstBlockDirectives.value
-                                   val spanDirectives = rstSpanDirectives.value
-                                   val textRoles = rstTextRoles.value
-                                 }
-                                 val parser = Parse.as(Markdown).or(ReStructuredText)
-                                   .withoutRewrite.using(directives, rstExtensions)
-                                 val pWithRaw = if (laikaRawContent.value) parser.withRawContent else parser
-                                 val pWithPar = if (laikaParallel.value) pWithRaw.inParallel else pWithRaw
-                                 if (laikaStrict.value) pWithPar.strict else pWithPar
-                               },
-
-    laikaRewriteRules          := Nil,
-
-    laikaSiteRenderers         := Nil,
-    laikaPrettyPrintRenderers  := Nil,
-    laikaFoRenderers           := Nil,
-
-    laikaParallel              := true,
-
-    laikaSpanDirectives        := Nil,
-    laikaBlockDirectives       := Nil,
-    laikaTemplateDirectives    := Nil,
-
-    rstSpanDirectives          := Nil,
-    rstBlockDirectives         := Nil,
-    rstTextRoles               := Nil,
-
-    laikaIncludeAPI            := false,
-    laikaIncludePDF            := false,
-
-    laikaInputTree             := inputTreeTask.value,
-    laikaOutputTree in laikaSite         := outputTreeTask(laikaSite).value,
-    laikaOutputTree in laikaXSLFO        := outputTreeTask(laikaXSLFO).value,
-    laikaOutputTree in laikaPrettyPrint  := outputTreeTask(laikaPrettyPrint).value,
-
-    fopConfig                := None,
-    fopFactory               := fopFactorySetting.value,
-
-    laikaSite                := Def.sequential(siteGenTask, copyTask).value,
-    laikaGenerate            := generateTask.evaluated,
-    laikaHTML                := generateTask.toTask(" html").value,
-    laikaXSLFO               := generateTask.toTask(" xslfo").value,
-    laikaPDF                 := generateTask.toTask(" pdf").value.headOption.getOrElse((artifactPath in laikaPDF).value),
-    laikaPrettyPrint         := generateTask.toTask(" prettyPrint").value,
-    laikaCopyAPI             := copyAPITask.value,
-    laikaCopyPDF             := copyPDFTask.value,
-    laikaPackageSite         := packageSiteTask.value,
-    clean in Laika           := cleanTask.value,
-
-    mappings in laikaSite    := sbt.Path.allSubpaths(laikaSite.value).toSeq,
+    mappings in laikaSite   := sbt.Path.allSubpaths(laikaSite.value).toSeq,
 
     artifact in laikaPackageSite     := Artifact(moduleName.value, Artifact.DocType, "zip", "site"),
     artifact in laikaPDF             := Artifact(moduleName.value, Artifact.DocType, "pdf"),
-    artifactPath in laikaPackageSite := artifactPathSetting(laikaPackageSite).value,
-    artifactPath in laikaPDF         := artifactPathSetting(laikaPDF).value
+    artifactPath in laikaPackageSite := Settings.createArtifactPath(laikaPackageSite).value,
+    artifactPath in laikaPDF         := Settings.createArtifactPath(laikaPDF).value,
 
   ) :+ (cleanFiles += (target in Laika).value)
-
-
-  object Tasks {
-    import Def._
-
-    val fopFactorySetting: Initialize[FopFactory] = setting {
-      fopConfig.value map {
-        FopFactory.newInstance
-      } getOrElse PDF.defaultFopFactory
-    }
-
-    def artifactPathSetting (key: Scoped): Initialize[File] = setting {
-      val art = (artifact in key).value
-      val classifier = art.classifier map ("-"+_) getOrElse ""
-      (target in Laika).value / (art.name + "-" + projectID.value.revision + classifier + "." + art.extension)
-    }
-
-    val inputTreeTask: Initialize[Task[InputTree]] = task {
-      val docTypeMatcher = laikaDocTypeMatcher.value.getOrElse(laikaMarkupParser.value.config.docTypeMatcher)
-      InputTree.forRootDirectories((sourceDirectories in Laika).value, docTypeMatcher,
-        (excludeFilter in Laika).value.accept)(laikaEncoding.value)
-    }
-
-    def outputTreeTask (key: Scoped): Initialize[Task[OutputTree]] = task {
-      val outputDir = (target in key).value
-      if (!outputDir.exists) outputDir.mkdirs()
-      OutputTree.forRootDirectory(outputDir)(laikaEncoding.value)
-    }
-
-    def prepareTargetDirectory (key: Scoped): Initialize[TargetDirectory] = setting {
-      val targetDir = (target in key).value
-      val apiInSite = (target in laikaCopyAPI).value
-      val pdfInSite = (artifactPath in laikaPDF).value
-
-      val filesToDelete = (targetDir.allPaths --- targetDir --- pdfInSite --- apiInSite.allPaths --- collectParents(apiInSite)).get
-
-      new TargetDirectory(targetDir, filesToDelete)
-    }
-
-    def prepareRenderer [Writer, R <: Render[Writer] { type ThisType = R }] (
-        render: R,
-        custom: Seq[Writer => RenderFunction],
-        parallel: Boolean,
-        minMessageLevel: Option[MessageLevel]): R = {
-      val renderWithExt = (render /: custom) { case (render, renderer) => render rendering renderer }
-      val config = renderWithExt.config.copy(parallel = parallel, minMessageLevel = minMessageLevel.getOrElse(Fatal))
-      renderWithExt.withConfig(config)
-    }
-
-    private val allTargets = setting {
-      Set((target in laikaSite).value, (artifactPath in laikaPDF).value, (target in laikaXSLFO).value, (target in laikaPrettyPrint).value)
-    }
-
-    val generateTask: Initialize[InputTask[Set[File]]] = inputTask {
-
-      val formats = spaceDelimited("<format>").parsed.map(OutputFormats.OutputFormat.fromString)
-      if (formats.isEmpty) throw new IllegalArgumentException("At least one format must be specified")
-
-      val inputs = laikaInputTree.value
-
-      val cacheDir = streams.value.cacheDirectory / "laika"
-
-      lazy val tree = {
-
-        streams.value.log.info("Reading files from " + (sourceDirectories in Laika).value.mkString(", "))
-        streams.value.log.info(Log.inputs(inputs))
-
-        val rawTree = laikaMarkupParser.value fromInputTree inputs
-        val tree = rawTree rewrite RewriteRules.chainFactories(
-          laikaRewriteRules.value :+ OperationConfig.default.withBundlesFor(Markdown).withBundlesFor(ReStructuredText).rewriteRule
-        )
-
-        laikaLogMessageLevel.value foreach { Log.systemMessages(streams.value.log, tree, _) }
-
-        tree
-      }
-
-      val inputFiles = collectInputFiles(inputs)
-
-      val results = formats map { format =>
-
-        val fun = FileFunction.cached(cacheDir / format.toString.toLowerCase, FilesInfo.lastModified, FilesInfo.exists) { _ =>
-
-          format match {
-
-            case OutputFormats.HTML =>
-
-              val targetDir = prepareTargetDirectory(laikaSite).value.prepare
-
-              val renderers = laikaSiteRenderers.value :+ HTMLRenderer :+ ExtendedHTML // always install extensions
-              val render = prepareRenderer(Render as HTML, renderers, laikaParallel.value, laikaRenderMessageLevel.value)
-              render from tree toOutputTree (laikaOutputTree in laikaSite).value
-
-              streams.value.log.info(Log.outputs(tree))
-              streams.value.log.info("Generated html in " + targetDir)
-
-              targetDir.allPaths.get.toSet.filter(_.isFile)
-
-            case OutputFormats.PrettyPrint =>
-
-              val targetDir = prepareTargetDirectory(laikaPrettyPrint).value.prepare
-
-              val render = prepareRenderer(Render as PrettyPrint, laikaPrettyPrintRenderers.value, laikaParallel.value, laikaRenderMessageLevel.value)
-              render from tree toOutputTree (laikaOutputTree in laikaPrettyPrint).value
-
-              streams.value.log.info("Generated Pretty Print in " + targetDir)
-
-              targetDir.allPaths.get.toSet.filter(_.isFile)
-
-            case OutputFormats.XSLFO =>
-
-              val targetDir = prepareTargetDirectory(laikaXSLFO).value.prepare
-
-              val render = prepareRenderer(Render as XSLFO, laikaFoRenderers.value, laikaParallel.value, laikaRenderMessageLevel.value)
-              render from tree toOutputTree (laikaOutputTree in laikaXSLFO).value
-
-              streams.value.log.info("Generated XSL-FO in " + targetDir)
-
-              targetDir.allPaths.get.toSet.filter(_.isFile)
-
-            case OutputFormats.PDF =>
-
-              val targetFile = (artifactPath in laikaPDF).value
-              targetFile.getParentFile.mkdirs()
-
-              val render = prepareRenderer(Render as PDF.withFopFactory(fopFactory.value), laikaFoRenderers.value, laikaParallel.value, laikaRenderMessageLevel.value)
-              render from tree toFile targetFile
-
-              streams.value.log.info("Generated PDF in " + targetFile)
-
-              Set(targetFile)
-
-          }
-
-        }
-
-        fun(inputFiles)
-
-      }
-
-      val outputFiles = results reduce (_ ++ _)
-
-      outputFiles intersect allTargets.value
-    }
-
-    val siteGenTask: Initialize[Task[Set[File]]] = taskDyn {
-      if (laikaIncludePDF.value) generateTask.toTask(" html pdf")
-      else generateTask.toTask(" html")
-    }
-
-    val copyTask: Initialize[Task[File]] = task {
-      val api = laikaCopyAPI.value
-      val pdf = laikaCopyPDF.value
-
-      (target in laikaSite).value
-    }
-
-    val copyAPITask: Initialize[Task[File]] = taskDyn {
-      val targetDir = (target in laikaCopyAPI).value
-      if (laikaIncludeAPI.value) task {
-
-        val cacheDir = streams.value.cacheDirectory / "laika" / "api"
-        val apiMappings = (mappings in packageDoc in Compile).value
-        val targetMappings = apiMappings map { case (file, target) => (file, targetDir / target) }
-
-        Sync(CacheStore(cacheDir))(targetMappings)
-
-        streams.value.log.info("Copied API documentation to " + targetDir)
-        targetDir
-      }
-      else task {
-        IO.delete(targetDir)
-        targetDir
-      }
-    }
-
-    val copyPDFTask: Initialize[Task[File]] = taskDyn {
-      val targetDir = (target in laikaSite).value
-      val pdfSource = (artifactPath in laikaPDF).value
-      val pdfTarget = targetDir / pdfSource.getName
-
-      if (laikaIncludePDF.value) task {
-        val cacheDir = streams.value.cacheDirectory / "laika" / "site-pdf"
-        Sync(CacheStore(cacheDir))(Seq((pdfSource, pdfTarget)))
-
-        streams.value.log.info("Copied PDF output to " + targetDir)
-        targetDir
-      }
-      else task {
-        IO.delete(pdfTarget)
-        targetDir
-      }
-    }
-
-    val packageSiteTask: Initialize[Task[File]] = task {
-      val zipFile = (artifactPath in laikaPackageSite).value
-      streams.value.log.info(s"Packaging $zipFile ...")
-
-      IO.zip((mappings in laikaSite).value, zipFile)
-
-      streams.value.log.info("Done packaging.")
-      zipFile
-    }
-
-    val cleanTask: Initialize[Task[Unit]] = task {
-      IO.delete((target in laikaSite).value)
-    }
-
-    def collectInputFiles (tree: InputTree): Set[File] = {
-      def allFiles (inputs: Seq[Input]) = (inputs collect {
-        case f: LazyFileInput => f.file
-      }).toSet
-
-      allFiles(tree.markupDocuments) ++
-      allFiles(tree.dynamicDocuments) ++
-      allFiles(tree.templates) ++
-      allFiles(tree.configDocuments) ++
-      allFiles(tree.staticDocuments) ++
-      (tree.subtrees flatMap collectInputFiles)
-    }
-
-    def collectParents (file: File): Set[File] = {
-      def collect (file: File, acc: Set[File]): Set[File] = {
-        file.getParentFile match {
-          case null => acc
-          case p => collect(p, acc + p)
-        }
-      }
-      collect(file, Set())
-    }
-
-  }
-
-  class TargetDirectory(dir: File, toBeDeleted: Seq[File]) {
-
-    def prepare: File = {
-      IO.delete(toBeDeleted)
-
-      if (!dir.exists) dir.mkdirs()
-
-      dir
-    }
-
-  }
-
-  object OutputFormats {
-
-    object OutputFormat {
-
-      def fromString (name: String): OutputFormat = name.toLowerCase match {
-        case "html" => HTML
-        case "pdf" => PDF
-        case "fo" | "xslfo" | "xsl-fo" => XSLFO
-        case "prettyprint" | "pretty-print" => PrettyPrint
-        case _ => throw new IllegalArgumentException(s"Unsupported format: $name")
-      }
-
-    }
-
-    sealed abstract class OutputFormat
-
-    case object HTML extends OutputFormat
-
-    case object PDF extends OutputFormat
-
-    case object XSLFO extends OutputFormat
-
-    case object PrettyPrint extends OutputFormat
-
-  }
-
-
-  object Log {
-
-    def s (num: Int): String = if (num == 1) "" else "s"
-
-    def inputs (tree: InputTree): String = {
-
-      def count (tree: InputTree): (Int, Int, Int) = {
-        val docs = tree.markupDocuments.length
-        val tmpl = tree.dynamicDocuments.length + tree.templates.length
-        val conf = tree.configDocuments.length
-        val all = (tree.subtrees map count) :+ (docs, tmpl, conf)
-        ((0, 0, 0) /: all) {
-          case ((d1, t1, c1), (d2, t2, c2)) => (d1 + d2, t1 + t2, c1 + c2)
-        }
-      }
-
-      val (docs, tmpl, conf) = count(tree)
-
-      s"Parsing $docs markup document${s(docs)}, $tmpl template${s(tmpl)}, $conf configuration${s(conf)} ..."
-    }
-
-    def outputs (tree: DocumentTree): String = {
-
-      def count (tree: DocumentTree): (Int, Int) = {
-
-        val (render, copy) = tree.content.foldLeft((0,0)) {
-          case ((render, copy), _: Document) => (render + 1, copy)
-          case ((render, copy), tree: DocumentTree) =>
-            val (childRender, childCopy) = count(tree)
-            (render + childRender, copy + childCopy)
-        }
-
-        tree.additionalContent.foldLeft((render, copy)) {
-          case ((render, copy), _: DynamicDocument) => (render + 1, copy)
-          case ((render, copy), _: StaticDocument) => (render, copy + 1)
-          case _ => (render, copy)
-        }
-
-      }
-
-      val (render, copy) = count(tree)
-
-      s"Rendering $render HTML document${s(render)}, copying $copy static file${s(copy)} ..."
-    }
-
-    def systemMessages (logger: Logger, tree: DocumentTree, level: MessageLevel): Unit = {
-
-      import laika.tree.Elements.{Info => InfoLevel}
-
-      def logMessage (inv: Invalid[_], path: Path): Unit = {
-        val source = inv.fallback match {
-          case tc: TextContainer => tc.content
-          case other => other.toString
-        }
-        val text = s"$path: ${inv.message.content}\nsource: $source"
-        inv.message.level match {
-          // we do not log above warn level as the build will still succeed with invalid nodes
-          case Debug => logger.debug(text)
-          case InfoLevel => logger.info(text)
-          case Warning | Error | Fatal => logger.warn(text)
-        }
-      }
-
-      def log (tree: DocumentTree): Unit = {
-
-        def logRoot (e: ElementTraversal[_], path: Path) = {
-          val nodes = e collect {
-            case i: Invalid[_] if i.message.level >= level => i
-          }
-          nodes foreach { logMessage(_, path) }
-        }
-
-        tree.content foreach {
-          case doc: Document => logRoot(doc.content, doc.path)
-          case tree: DocumentTree => log(tree)
-        }
-        tree.additionalContent foreach {
-          case doc: DynamicDocument => logRoot(doc.content, doc.path)
-          case _ => ()
-        }
-      }
-
-      log(tree)
-
-    }
-
-  }
 
 }

@@ -5,11 +5,13 @@ name := "site-docTypeMatcher"
 
 version := "0.1"
 
-scalaVersion := "2.10.6"
+scalaVersion := "2.12.6"
 
 enablePlugins(LaikaPlugin)
 
-laikaDocTypeMatcher := Some({ case path: Path => path.name match {
-  case "hello.md"   => Markup
-  case "hello2.md"  => Static
-}})
+laikaExtensions += laikaDocTypeMatcher {
+  case path: Path => path.name match {
+    case "hello.md"   => Markup
+    case "hello2.md"  => Static
+  }
+}

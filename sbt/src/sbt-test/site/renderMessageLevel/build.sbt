@@ -4,8 +4,8 @@ name := "site-renderMessageLevel"
 
 version := "0.1"
 
-scalaVersion := "2.10.6"
+scalaVersion := "2.12.6"
 
 enablePlugins(LaikaPlugin)
 
-laikaRenderMessageLevel := Some(Warning)
+laikaConfig := LaikaConfig(renderMessageLevel = Warning)

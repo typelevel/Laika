@@ -4,10 +4,10 @@ name := "site-renderers"
 
 version := "0.1"
 
-scalaVersion := "2.10.6"
+scalaVersion := "2.12.6"
 
 enablePlugins(LaikaPlugin)
 
-laikaSiteRenderers += laikaSiteRenderer { out => {
+laikaExtensions += laikaHtmlRenderer { out => {
   case Emphasized(content, _) => out << """<em class="foo">""" << content << "</em>"
 }}

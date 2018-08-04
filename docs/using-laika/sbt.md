@@ -113,9 +113,9 @@ Laika currently supports the following sbt tasks:
   as a PDF file from the parsed source markup. The markup will only
   get parsed once, therefore this task is very efficient for producing
   multiple output formats. The formats supported as arguments to this
-  task are `html`, `pdf`, `xslfo` and `prettyPrint`. If you only want
+  task are `html`, `pdf`, `xslfo` and `ast`. If you only want
   to generate one output format there are shortcut tasks for each of them:
-  (`laikaHTML`, `laikaPDF`, `laikaXSLFO`, `laikaPrettyPrint`)
+  (`laikaHTML`, `laikaPDF`, `laikaXSLFO`, `laikaAST`)
   
 A future version of the plugin will add support for epub (scheduled for the 0.10 release).
   
@@ -147,6 +147,20 @@ The following list shows the names, types and default values of the basic settin
   decision for deciding how to process files. If a simple exclusion filter is not sufficient, you can
   specify a `laikaDocTypeMatcher` as explained in [Settings for Customization Hooks].
 
+* `laikaExtensions` - `Seq[ExtensionBundle]` - default `Nil`
+  The main extension hook that allows to add one or more `ExtensionBundle` instances for adding
+  directives, parser extensions, rewrite rules or custom renderers. See the sections below for examples
+  for custom renderers and rewrite rules.
+
+* `laikaConfig` - `LaikaConfig`
+  allows to specify additional flags and settings through instances of `LaikaConfig`:
+    * `encoding`: specifies the character encoding (default `UTF-8`)
+    * `strict`: switches off all extensions and only uses features defined in the spec of the markup languages (default `false`)
+    * `rawContent`: allows to include raw content like HTML embedded in text markup (default `false`)
+    * `renderMessageLevel`: the minimum level required for an invalid node to be rendered to the output (default `Warning`)
+    * `logMessageLevel`: the minimum level required for an invalid node to be logged to the console (default `Warning`)
+    * `parallel`: whether parsing and rendering should happen in parallel (default `true`)
+
 * `laikaIncludeAPI` - `Boolean` - default `false`  
   Indicates whether generated scaladoc APIs should be included when running the `laikaSite` task. 
   The folder for the API can be set with `target in copyAPI` (default `target/docs/site/api`).
@@ -154,41 +168,6 @@ The following list shows the names, types and default values of the basic settin
 * `laikaIncludePDF` - `Boolean` - default `false`
   Indicates whether a generated PDF file should be included when running the `laikaSite` task.
   The file name for the PDF can be set with `artifact in pdf` (default `target/docs/site/<noduleName>-<version>.pdf`).
-
-* `laikaEncoding` - `String` - default `UTF-8`  
-  Specifies the character encoding for input and output.
-
-* `laikaStrict` - `Boolean` - default `false`  
-  Indicates whether all Laika-specific extensions to the 
-  text markup formats should be disabled. When strict is set to true, features like configuration
-  headers in markup files or Laika directives are no longer available.
-
-* `laikaRawContent` - `Boolean` - default `false`  
-  Indicates whether raw content like embedded verbatim
-  HTML is supported in text markup. Setting this flag to true has different effects for the two
-  supported markup formats: In Markdown it enables support for raw HTML interspersed with text markup
-  like specified in the original Markdown syntax description, in reStructuredText it enables the standard 
-  `raw` directive which allows to embed content in any target format (although in the context of this plugin
-  only HTML would make sense). 
-
-* `laikaLogMessageLevel` - `Option[MessageLevel]` - default `Some(Warning)`  
-  Specifies the log level for
-  problems found in markup files, like unresolved link references or directives. For most of these
-  errors the parser recovers and includes the illegal node as plain text in the output, but in most
-  cases you want to fix these issues and these logs help with that. `Info` and `Debug` levels are
-  currently not used by Laika.
-
-* `laikaRenderMessageLevel` - `Option[MessageLevel]` - default `None`  
-  In addition to just logging errors,
-  illegal nodes can also be rendered to the target HTML, so you can see them in context. The messages
-  are rendered with a span with two classes: `system-message` and the second specifying the level (`error`,
-  `warning`, etc.), so you can add CSS to easily identify these nodes in the page.
-
-* `laikaParallel` - `Boolean` - default `true`  
-  Indicates whether the parsers and renderers should be 
-  processed in parallel. If set to true, there is only a short synchronization step between parsing
-  and rendering where things like cross references get resolved. Most of
-  the heavy work before and after that can be done for all input and output files in parallel.
 
 
 
@@ -211,52 +190,43 @@ it is most comfortable to add the following imports to the build:
 A custom renderer allows to override the generated output for one or more specific node
 types, while falling back to the default renderers for all other node types.
 
-The `laikaSiteRenderers` setting is of type `Seq[HTMLWriter => RenderFunction]` where `RenderFunction`
-is a type alias for `PartialFunction[Element,Unit]`. `Element` is the base trait for all nodes
-in a document tree. By default the `siteRenderers` setting is empty, meaning
+The `laikaHtmlRenderer` shortcut allows to add a custom HTML renderer to the `laikaExtensions` setting
+and expects a function of type `HTMLWriter => RenderFunction` where `RenderFunction`
+is a type alias for `PartialFunction[Element, Unit]`. `Element` is the base trait for all nodes
+in a document tree. For all elements where this partial function is not defined,
 Laika will use the default renderers for all node types. 
 
 The following simple example shows how you can add a style to the renderer for
 the `<em>` tag:
 
-    laikaSiteRenderers += laikaSiteRenderer { out => {
+    laikaExtensions += laikaHtmlRenderer { out => {
       case Emphasized(content, _) => 
           out << """<em class="big">""" << content << "</em>" 
     }}
   
 For more details see the chapter [Customizing Renderers].
   
-There are similar settings for customizing renderers of other output formats. 
+Similarly the `laikaFoRenderer` shortcut can be used to add a custom `XSL-FO` renderer 
+of type `FOWriter => RenderFunction`. `XSL-FO` is an interim format for PDF output,
+so this option would also allow to change the appearance of PDF documents.
 
-The `laikaFoRenderers` setting is of type `Seq[FOWriter => RenderFunction]` and can be used
-to modify the output of the XSL-FO and PDF renderers (the latter uses XSL-FO as an 
-interim format). In most cases it is more convenient to style a PDF with Laika's
-CSS support.
-
-Finally the `laikaPrettyPrintRenderers` setting is of type `Seq[TextWriter => RenderFunction]`
-and can be used to adjust pretty print output, which shows a textual representation of the
-document tree model and is primarily useful for debugging purposes. Adjusting this renderer
-should rarely be required.
     
 
 ### Custom Rewrite Rules
 
-When customizing renderers you have to repeat the step for each output format (subsequent
-versions will add support for PDF and epub). A rewrite rule lets you express a transformation
+When customizing renderers you have to repeat the step for each output format like HTML or PDF 
+(and a subsequent version will add support for epub). A rewrite rule lets you express a transformation
 of a node inside the document tree before rendering, so it would have an effect on all output formats.
 
-The `laikaRewriteRules` setting is of type `Seq[DocumentContext => RewriteRule]` where `RewriteRule`
-is a type alias for `PartialFunction[Element,Option[Element]]`. By default this setting is empty, 
-meaning Laika will only use the built-in rewrite rules like those for resolving link references.
-
-If the partial function is not defined for a particular element the old element is kept in the tree.
+A rewrite rule is a function of type `PartialFunction[Element, Option[Element]]`.
+If the function is not defined for a particular element the old element is kept in the tree.
 If it returns `Some(Element)` this element replaces the old one.
 If the function returns `None` the old element is removed from the tree.
 
 The following (somewhat contrived, but simple) example shows how to turn each `Emphasized` node
 into a `Strong` node:
 
-    laikaRewriteRules += laikaRewriteRule { 
+    laikaExtensions += laikaRewriteRule { 
       case Emphasized(content, opts) => Some(Strong(content, opts))
     }
 
@@ -274,10 +244,14 @@ objects:
     
 These values correspond to the descriptions provided in [Document Types].
 
-The setting is of type `Option[Path => DocumentType]` and the default is `None`, which
-means that the built-in `DefaultDocumentTypeMatcher` will be used. Its naming
-conventions will probably be sufficient in almost all use cases.
-The matcher will only be used for inputs which make it past the `excludeFilter`.
+The function is of type `Path => DocumentType` and can be added to the `laikaExtensions` setting:
+
+    laikaExtensions += laikaDocTypeMatcher {
+      case path: Path => path.name match {
+        case "hello.md" => Markup
+        case "hello.js" => Static
+      }
+    }
  
 
 
@@ -294,16 +268,15 @@ The reStructuredText
 variant is supported for full compatibility with the reStructuredText specification
 and reuse of existing reStructuredText files making use of some of the standard
 directives. Laika supports almost all of the directives defined in the
-specification. 
-Use the keys `rstSpanDirectives` or `rstBlockDirectives` for adding custom
-implementations to the built-in ones.
+specification. Add an instance of type `RstExtensionRegistry` to the `laikaExtensions` 
+setting for adding custom implementations to the built-in ones.
 For more details on this directive type see [Extending reStructuredText].
 
 The Laika variant is more flexible, as it can be used in template files as well
 as Markdown and reStructuredText markup. It is also somewhat simpler in syntax
 and configuration while offering the same functionality. It comes with a small
-set of predefined directives in this syntax. Use the keys `laikaSpanDirectives`,
-`laikaBlockDirectives` or `laikaTemplateDirectives` for adding custom implementations.
+set of predefined directives in this syntax. Add an instance of type `DirectiveRegistry` 
+to the `laikaExtensions` setting for adding custom implementations to the built-in ones.
 For more details on this directive type see [Directives][../extending-laika/directive.md:Directives].
 
 The examples in the two chapters linked above show how to implement a directive

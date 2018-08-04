@@ -5,10 +5,10 @@ name := "site-rewriteRules"
 
 version := "0.1"
 
-scalaVersion := "2.10.6"
+scalaVersion := "2.12.6"
 
 enablePlugins(LaikaPlugin)
 
-laikaRewriteRules += laikaRewriteRule {
+laikaExtensions += laikaRewriteRule {
   case Emphasized(content,_) => Some(Strong(content))
 }
