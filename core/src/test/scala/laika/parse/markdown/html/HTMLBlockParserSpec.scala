@@ -17,10 +17,10 @@
 package laika.parse.markdown.html
 
 import laika.api.config.OperationConfig
+import laika.format.Markdown
 import laika.parse.core.Parser
 import laika.parse.core.markup.RootParser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
-import laika.parse.markdown.Markdown
 import laika.parse.markdown.html.HTMLElements.HTMLBlock
 import laika.tree.Elements.RootElement
 import laika.tree.helper.ModelBuilder

@@ -17,6 +17,7 @@
 package laika.parse.rst
 
 import laika.api.config.OperationConfig
+import laika.format.ReStructuredText
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers

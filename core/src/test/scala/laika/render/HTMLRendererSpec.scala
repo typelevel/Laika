@@ -19,8 +19,8 @@ package laika.render
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
-
 import laika.api.Render
+import laika.format.HTML
 import laika.tree.Elements._
 import laika.tree.Templates._
 import laika.tree.Paths.Path

@@ -20,9 +20,10 @@ import java.io.{ByteArrayOutputStream, File, StringWriter}
 
 import laika.api.Render.RenderMappedOutput
 import laika.api.ext.{BundleProvider, StaticDocuments}
+import laika.format.{AST, HTML, XSLFO}
 import laika.io.Input
 import laika.parse.css.Styles.{ElementType, StyleDeclaration, StyleDeclarationSet}
-import laika.render.{AST, _}
+import laika.render._
 import laika.render.helper.RenderResult
 import laika.tree.Documents._
 import laika.tree.Elements.Text

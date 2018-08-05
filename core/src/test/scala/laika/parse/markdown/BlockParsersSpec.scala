@@ -17,6 +17,7 @@
 package laika.parse.markdown
 
 import laika.api.config.OperationConfig
+import laika.format.Markdown
 import laika.parse.core.Parser
 import laika.parse.core.markup.RootParser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}

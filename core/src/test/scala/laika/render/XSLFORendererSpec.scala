@@ -21,6 +21,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
 import laika.api.Render
 import laika.api.ext.BundleProvider
+import laika.format.XSLFO
 import laika.parse.css.Styles.{Selector, StyleDeclaration, StyleDeclarationSet, StyleName}
 import laika.tree.Paths.Root
 import laika.tree.Elements._

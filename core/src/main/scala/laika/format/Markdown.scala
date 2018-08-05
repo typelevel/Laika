@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package laika.parse.markdown
+package laika.format
 
 import laika.api.ext.{ExtensionBundle, ParserBundle, ParserHooks}
 import laika.factory.MarkupParser
 import laika.parse.core.Parser
 import laika.parse.markdown.html.VerbatimHTML
+import laika.parse.markdown.{BlockParsers, HeaderIdInsertion, InlineParsers, ListParsers}
 import laika.tree.Elements.Block
   
 /** A parser for Markdown text. Instances of this class may be passed directly

@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package laika.parse.rst
+package laika.format
 
 import laika.api.ext._
 import laika.factory.MarkupParser
 import laika.parse.core.Parser
+import laika.parse.rst._
 import laika.parse.rst.ext._
 import laika.parse.util.WhitespacePreprocessor
-import laika.render.HTML
 import laika.tree.Elements.Block
   
 /** A parser for text written in reStructuredText markup. Instances of this class may be passed directly

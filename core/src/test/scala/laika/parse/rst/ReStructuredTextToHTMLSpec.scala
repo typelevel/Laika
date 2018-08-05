@@ -17,7 +17,7 @@
 package laika.parse.rst
 
 import laika.api.Transform
-import laika.render.HTML
+import laika.format.{HTML, ReStructuredText}
 import laika.transform.helper.FileTransformerUtil
 import laika.tree.Elements._
 import org.scalatest.{FlatSpec, Matchers}

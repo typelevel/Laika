@@ -20,9 +20,8 @@ import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
 import laika.api.{Parse, Render}
-import laika.parse.markdown.Markdown
+import laika.format.{HTML, Markdown}
 import laika.parse.markdown.html.HTMLElements._
-import laika.render.HTML
 import laika.tree.Elements.Element
 import laika.tree.helper.ModelBuilder
  

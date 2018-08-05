@@ -16,7 +16,7 @@
 
 package laika.sbt
 
-import laika.render.PDF
+import laika.format.PDF
 import laika.sbt.LaikaPlugin.autoImport._
 import org.apache.fop.apps.FopFactory
 import sbt.Keys.{artifact, artifactPath, projectID, target}

@@ -21,7 +21,6 @@ import org.scalatest.Matchers
 import laika.api.Parse
 import laika.rewrite.DocumentCursor
 import laika.rewrite.TemplateRewriter
-import laika.parse.markdown.Markdown
 import laika.tree.helper.ModelBuilder
 import laika.tree.Elements._
 import laika.tree.Paths._
@@ -30,6 +29,7 @@ import laika.tree.Templates.TemplateRoot
 import laika.tree.Templates.TemplateSpanSequence
 import com.typesafe.config.ConfigFactory
 import laika.api.config.OperationConfig
+import laika.format.Markdown
 import laika.parse.core.ParserContext
 
 import scala.collection.JavaConversions._

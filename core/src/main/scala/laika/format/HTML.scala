@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package laika.render
+package laika.format
 
 import laika.api.config.RenderConfig
 import laika.directive.DefaultTemplateParser
 import laika.factory.RenderFormat
 import laika.io.{Input, Output}
 import laika.parse.css.Styles.StyleDeclarationSet
+import laika.render.{HTMLRenderer, HTMLWriter}
 import laika.tree.Documents.TemplateDocument
 import laika.tree.Elements.Element
 import laika.tree.Paths.Root

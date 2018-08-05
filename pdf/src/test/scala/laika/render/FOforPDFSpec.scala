@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream
 
 import laika.api.Render
 import laika.factory.RenderResultProcessor
+import laika.format.{PDFConfig, XSLFO}
 import laika.io.{Input, OutputTree}
 import laika.io.Output.BinaryOutput
 import laika.tree.Documents.DocumentTree

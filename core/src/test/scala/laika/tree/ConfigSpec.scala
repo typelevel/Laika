@@ -18,8 +18,7 @@ package laika.tree
 
 import laika.api.Parse
 import laika.api.ext.BundleProvider
-import laika.parse.markdown.Markdown
-import laika.parse.rst.ReStructuredText
+import laika.format.{Markdown, ReStructuredText}
 import laika.rewrite.TemplateRewriter
 import laika.tree.Documents._
 import laika.tree.Paths.Current

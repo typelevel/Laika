@@ -18,11 +18,10 @@ package laika.parse.rst.ext
 
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
-
 import laika.tree.helper.ModelBuilder
 import laika.tree.Elements._
-import laika.parse.rst.ReStructuredText
 import laika.api.Parse
+import laika.format.ReStructuredText
 
 /**
  * @author Jens Halm

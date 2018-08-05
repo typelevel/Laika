@@ -21,7 +21,7 @@ import org.scalatest.Matchers
 import laika.api.Parse
 import laika.api.config.OperationConfig
 import laika.api.ext.RewriteRules
-import laika.parse.markdown.Markdown
+import laika.format.Markdown
 import laika.rewrite.DocumentCursor
 import laika.tree.Elements._
 import laika.tree.helper.ModelBuilder

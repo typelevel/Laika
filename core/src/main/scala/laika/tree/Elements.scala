@@ -19,7 +19,7 @@ package laika.tree
 import java.text.DecimalFormat
 
 import laika.api.Render
-import laika.render.AST
+import laika.format.AST
 import laika.tree.Paths.{Path, Root}
 import laika.tree.Templates.{TemplateElement, TemplateSpan}
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.render
+package laika.format
 
 import java.io.{File, FileOutputStream, OutputStream}
 import java.net.URI
@@ -22,9 +22,10 @@ import javax.xml.transform.TransformerFactory
 import javax.xml.transform.sax.SAXResult
 import javax.xml.transform.stream.StreamSource
 
-import laika.factory.{RenderResultProcessor, RenderFormat}
-import laika.io.{Input, OutputTree}
+import laika.factory.{RenderFormat, RenderResultProcessor}
 import laika.io.Output.BinaryOutput
+import laika.io.{Input, OutputTree}
+import laika.render.{FOWriter, FOforPDF}
 import laika.tree.Documents.DocumentTree
 import laika.tree.Templates.TemplateRoot
 import org.apache.fop.apps.{FOUserAgentFactory, FopFactory, FopFactoryBuilder}

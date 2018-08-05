@@ -17,7 +17,7 @@
 package laika.parse.markdown.html
 
 import laika.api.ext.{ExtensionBundle, ParserBundle}
-import laika.render.HTML
+import laika.format.HTML
 
 /**  Markdown extension that also parses verbatim HTML elements alongside
   *  the standard Markdown markup.

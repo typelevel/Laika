@@ -18,12 +18,10 @@ package laika.sbt
 
 import laika.api.{Parse, Render}
 import laika.api.config.BundleFilter
-import laika.factory.{RenderResultProcessor, RenderFormat}
+import laika.factory.{RenderFormat, RenderResultProcessor}
+import laika.format._
 import laika.io.Input.LazyFileInput
 import laika.io.{Input, InputTree}
-import laika.parse.markdown.Markdown
-import laika.parse.rst.ReStructuredText
-import laika.render.{HTML, PDF, AST, XSLFO}
 import LaikaPlugin.autoImport._
 import sbt._
 import sbt.Keys._

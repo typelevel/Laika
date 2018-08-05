@@ -19,14 +19,13 @@ package laika.api
 import java.io.{ByteArrayInputStream, StringReader}
 
 import laika.api.ext.{BundleProvider, ExtensionBundle}
+import laika.format.{Markdown, ReStructuredText}
 import laika.io.DocumentType
 import laika.io.DocumentType._
 import laika.parse.core.Parser
 import laika.parse.core.text.TextParsers
 import laika.parse.css.Styles.{ElementType, StyleDeclaration, StyleDeclarationSet}
-import laika.parse.markdown.Markdown
 import laika.parse.rst.Elements.CustomizedTextRole
-import laika.parse.rst.ReStructuredText
 import laika.rewrite.TemplateRewriter
 import laika.tree.Documents._
 import laika.tree.Elements._

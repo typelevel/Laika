@@ -17,7 +17,7 @@
 package laika.parse.markdown
 
 import laika.api.Transform
-import laika.render.HTML
+import laika.format.{HTML, Markdown}
 import laika.transform.helper.FileTransformerUtil
 import laika.tree.Elements.QuotedBlock
 import org.scalatest.{FlatSpec, Matchers}

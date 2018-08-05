@@ -17,6 +17,7 @@
 package laika.parse.rst
 
 import laika.api.ext.ParserBundle
+import laika.format.ReStructuredText
 import laika.parse.core.Parser
 import laika.parse.core.markup.RootParser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}

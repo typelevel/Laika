@@ -20,14 +20,13 @@ import java.io._
 
 import laika.api.Transform.TransformMappedOutput
 import laika.api.ext.{BundleProvider, ExtensionBundle}
+import laika.format.{AST, Markdown, ReStructuredText, XSLFO}
 import laika.io.DocumentType.Static
 import laika.parse.core.Parser
 import laika.parse.core.text.TextParsers
 import laika.parse.css.Styles.{ElementType, StyleDeclaration}
-import laika.parse.markdown.Markdown
-import laika.parse.rst.ReStructuredText
 import laika.render.helper.RenderResult
-import laika.render.{AST, TextWriter, XSLFO}
+import laika.render.TextWriter
 import laika.tree.Elements.Text
 import laika.tree.Paths.Root
 import laika.tree.Templates._

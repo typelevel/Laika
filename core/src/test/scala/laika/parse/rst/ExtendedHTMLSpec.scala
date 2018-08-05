@@ -19,9 +19,8 @@ package laika.parse.rst
 import org.scalatest.FlatSpec
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
-
-import laika.render.HTML
 import laika.api.Render
+import laika.format.{HTML, ReStructuredText}
 import laika.tree.Elements._
 import laika.parse.rst.Elements._
 import laika.tree.helper.ModelBuilder

@@ -17,8 +17,9 @@
 package laika.sbt
 
 import laika.api.ext.{ExtensionBundle, RenderTheme}
+import laika.format.{HTML, XSLFO}
 import laika.io.DocumentType
-import laika.render.{FOWriter, HTML, HTMLWriter, XSLFO}
+import laika.render.{FOWriter, HTMLWriter}
 import laika.rewrite.DocumentCursor
 import laika.tree.Elements.{RenderFunction, RewriteRule}
 import laika.tree.Paths

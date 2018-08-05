@@ -19,6 +19,7 @@ package laika.parse.rst
 import laika.api._
 import laika.directive.DirectiveRegistry
 import laika.directive.Directives.{Blocks, Spans}
+import laika.format.ReStructuredText
 import laika.parse.rst.ext.Directives.Parts._
 import laika.parse.rst.ext.Directives._
 import laika.parse.rst.ext.ExtensionProvider

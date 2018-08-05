@@ -17,10 +17,11 @@
 package laika.api
 
 import laika.factory.RenderResultProcessor
+import laika.format.AST
 import laika.io.Output.BinaryOutput
 import laika.io.OutputTree
 import laika.io.OutputTree._
-import laika.render.{AST, TextWriter}
+import laika.render.TextWriter
 import laika.tree.Documents.{Document, DocumentTree}
 import laika.tree.Templates.TemplateRoot
 

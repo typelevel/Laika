@@ -23,10 +23,11 @@ import laika.tree.Elements._
 import laika.tree.Documents._
 import laika.tree.Paths.Current
 import laika.tree.Paths.Root
-import laika.parse.rst.ReStructuredText
 import laika.api.Parse
 import java.text.SimpleDateFormat
 import java.util.Date
+
+import laika.format.ReStructuredText
 
 /**
  * @author Jens Halm

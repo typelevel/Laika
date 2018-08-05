@@ -14,26 +14,21 @@
  * limitations under the License.
  */
 
-package laika.render
+package laika.format
 
-import laika.tree.Paths.Path
-import laika.tree.Paths.Root
-import laika.tree.Documents.TemplateDocument
-import laika.tree.Elements._
-import laika.tree.ElementTraversal
-import laika.tree.Templates._
-import laika.io.Input
-import laika.io.Output
-import laika.factory.RenderFormat
-import laika.util.RomanNumerals
-import laika.parse.css.Styles.StyleDeclarationSet
-
-import scala.language.existentials
-import FOWriter._
 import laika.api.config.RenderConfig
 import laika.directive.DefaultTemplateParser
+import laika.factory.RenderFormat
+import laika.io.{Input, Output}
 import laika.parse.core.combinator.Parsers
 import laika.parse.css.CSSParsers
+import laika.parse.css.Styles.StyleDeclarationSet
+import laika.render.{FORenderer, FOWriter}
+import laika.tree.Documents.TemplateDocument
+import laika.tree.Elements._
+import laika.tree.Paths.Root
+
+import scala.language.existentials
 
 /** A renderer for XSL-FO output. May be directly passed to the `Render` or `Transform` APIs:
  * 

@@ -19,6 +19,7 @@ package laika.render
 import java.io.{ByteArrayOutputStream, File, InputStream}
 
 import laika.api.Render
+import laika.format.PDF
 import laika.io.Input
 import org.scalatest.{FlatSpec, Matchers}
 

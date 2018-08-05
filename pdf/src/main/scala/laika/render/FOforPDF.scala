@@ -17,10 +17,11 @@
 package laika.render
 
 import laika.api.Render
+import laika.format.{PDFConfig, XSLFO}
 import laika.io.OutputTree
 import laika.io.OutputTree.{ResultTree, StringOutputTree}
 import laika.render.FOWriter._
-import laika.rewrite.{TocGenerator}
+import laika.rewrite.TocGenerator
 import laika.tree.Documents._
 import laika.tree.Elements._
 import laika.tree.Paths.{Current, Path, Root}
