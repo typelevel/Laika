@@ -20,13 +20,13 @@ import laika.factory.RenderResultProcessor
 import laika.io.Output.BinaryOutput
 import laika.io.OutputTree
 import laika.io.OutputTree._
-import laika.render.{PrettyPrint, TextWriter}
+import laika.render.{AST, TextWriter}
 import laika.tree.Documents.{Document, DocumentTree}
 import laika.tree.Templates.TemplateRoot
 
 object TestRenderResultProcessor extends RenderResultProcessor[TextWriter] {
 
-  val factory = PrettyPrint
+  val factory = AST
   
   def process (tree: DocumentTree, render: (DocumentTree, OutputTree) => Unit, defaultTemplate: TemplateRoot, output: BinaryOutput): Unit = {
     

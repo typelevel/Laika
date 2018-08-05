@@ -22,7 +22,7 @@ import laika.api.Render.RenderMappedOutput
 import laika.api.ext.{BundleProvider, StaticDocuments}
 import laika.io.Input
 import laika.parse.css.Styles.{ElementType, StyleDeclaration, StyleDeclarationSet}
-import laika.render.{PrettyPrint, _}
+import laika.render.{AST, _}
 import laika.render.helper.RenderResult
 import laika.tree.Documents._
 import laika.tree.Elements.Text
@@ -48,50 +48,50 @@ class RenderAPISpec extends FlatSpec
       |. . Text - 'bbb'""".stripMargin
 
   "The Render API" should "render a document to a string" in {
-    (Render as PrettyPrint from rootElem toString) should be (expected)
+    (Render as AST from rootElem toString) should be (expected)
   }
 
   it should "render a document to a builder" in {
     val builder = new StringBuilder
-    Render as PrettyPrint from rootElem toBuilder builder
+    Render as AST from rootElem toBuilder builder
     builder.toString should be (expected)
   }
 
   it should "render a document to a file" in {
     val f = File.createTempFile("output", null)
 
-    Render as PrettyPrint from rootElem toFile f
+    Render as AST from rootElem toFile f
 
     readFile(f) should be (expected)
   }
 
   it should "render a document to a java.io.Writer" in {
     val writer = new StringWriter
-    Render as PrettyPrint from rootElem toWriter writer
+    Render as AST from rootElem toWriter writer
     writer.toString should be (expected)
   }
 
   it should "render a document to a java.io.OutputStream" in {
     val stream = new ByteArrayOutputStream
-    Render as PrettyPrint from rootElem toStream stream
+    Render as AST from rootElem toStream stream
     stream.toString should be (expected)
   }
 
   it should "render a document to a java.io.OutputStream, specifying the encoding explicitly" in {
     val stream = new ByteArrayOutputStream
-    (Render as PrettyPrint from rootElem).toStream(stream)(Codec.ISO8859)
+    (Render as AST from rootElem).toStream(stream)(Codec.ISO8859)
     stream.toString("ISO-8859-1") should be (expected)
   }
 
   it should "render a document to a java.io.OutputStream, specifying the encoding implicitly" in {
     implicit val codec:Codec = Codec.ISO8859
     val stream = new ByteArrayOutputStream
-    Render as PrettyPrint from rootElem toStream stream
+    Render as AST from rootElem toStream stream
     stream.toString("ISO-8859-1") should be (expected)
   }
 
   it should "allow to override the default renderer for specific element types" in {
-    val render = Render as PrettyPrint rendering { out => { case Text(content,_) => out << "String - '" << content << "'" } }
+    val render = Render as AST rendering { out => { case Text(content,_) => out << "String - '" << content << "'" } }
     val modifiedResult = expected.replaceAllLiterally("Text", "String")
     (render from rootElem toString) should be (modifiedResult)
   }
@@ -135,8 +135,8 @@ class RenderAPISpec extends FlatSpec
     }
   }
   
-  trait PrettyPrintRenderer extends TreeRenderer[TextWriter] {
-    lazy val render = Render as PrettyPrint
+  trait ASTRenderer extends TreeRenderer[TextWriter] {
+    lazy val render = Render as AST
   }
 
   trait HTMLRenderer extends TreeRenderer[HTMLWriter] {
@@ -158,14 +158,14 @@ class RenderAPISpec extends FlatSpec
   }
 
   it should "render an empty tree" in {
-    new PrettyPrintRenderer {
+    new ASTRenderer {
       val input = DocumentTree(Root, Nil)
       renderedTree should be (RenderedTree(Root, Nil))
     }
   }
 
   it should "render a tree with a single document" in {
-    new PrettyPrintRenderer {
+    new ASTRenderer {
       val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
       renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.txt", expected))))))
     }
@@ -287,21 +287,21 @@ class RenderAPISpec extends FlatSpec
   }
 
   it should "render a tree with a single dynamic document" in {
-    new PrettyPrintRenderer with DocBuilder {
+    new ASTRenderer with DocBuilder {
       val input = DocumentTree(Root, Nil, additionalContent = List(dynamicDoc(1)))
       renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc1.txt", renderedDynDoc(1)))))))
     }
   }
 
   it should "render a tree with a single static document" in {
-    new PrettyPrintRenderer with DocBuilder {
+    new ASTRenderer with DocBuilder {
       val input = DocumentTree(Root, Nil, additionalContent = List(staticDoc(1)))
       renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "static1.txt", "Static1"))))))
     }
   }
 
   it should "render a tree with all available file types" in {
-    new PrettyPrintRenderer with DocBuilder {
+    new ASTRenderer with DocBuilder {
       val input = addPosition(DocumentTree(Root,
         content = List(
           markupDoc(1),
@@ -361,11 +361,11 @@ class RenderAPISpec extends FlatSpec
                  |+ dir3
                  |  - theme5.js:name5
                  |  - theme6.js:name6""".stripMargin
-    val theme = PrettyPrint.Theme(
+    val theme = AST.Theme(
       staticDocuments = StaticDocuments.fromInputTree(parseTreeStructure(dirs))
     )
     val bundle = BundleProvider.forTheme(theme)
-    val render = Render.as(PrettyPrint).using(bundle)
+    val render = Render.as(AST).using(bundle)
 
     val input = addPosition(DocumentTree(Root,
       content = List(
@@ -492,7 +492,7 @@ class RenderAPISpec extends FlatSpec
   it should "render to a directory using the toDirectory method" in {
     new FileSystemTest {
       val f = createTempDirectory("renderToDir")
-      Render as PrettyPrint from input toDirectory f
+      Render as AST from input toDirectory f
       readFiles(f.getPath)
     }
   }
@@ -500,7 +500,7 @@ class RenderAPISpec extends FlatSpec
   it should "render to a directory using the Directory object" in {
     new FileSystemTest {
       val f = createTempDirectory("renderToTree")
-      Render as PrettyPrint from input toDirectory(f)
+      Render as AST from input toDirectory(f)
       readFiles(f.getPath)
     }
   }
@@ -508,7 +508,7 @@ class RenderAPISpec extends FlatSpec
   it should "render to a directory in parallel" in {
     new FileSystemTest {
       val f = createTempDirectory("renderParallel")
-      (Render as PrettyPrint).inParallel from input toDirectory(f)
+      (Render as AST).inParallel from input toDirectory(f)
       readFiles(f.getPath)
     }
   }
@@ -521,7 +521,7 @@ class RenderAPISpec extends FlatSpec
     val input = DocumentTree(Root, List(
       Document(Root / "doc", root(p("Doc äöü")))
     ))
-    (Render as PrettyPrint from input).toDirectory(f)(Codec.ISO8859)
+    (Render as AST from input).toDirectory(f)(Codec.ISO8859)
     readFile(new File(f, "doc.txt"), Codec.ISO8859) should be (expected)
   }
   

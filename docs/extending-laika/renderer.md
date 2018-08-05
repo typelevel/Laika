@@ -51,8 +51,8 @@ The render function you return in the tuple is the *default* render function
 to use for all elements where no custom renderer has been defined. 
 
 Finally, `W` is a parameterized type representing the Writer API that render functions
-should use for writing the actual output. For the built-in renderers, this is `TextWriter`
-for the `PrettyPrint` renderer and `HTMLWriter` for the `HTML` renderer.
+should use for writing the actual output. For the built-in renderers, this is `FOWriter`
+for the `XSLFO` renderer and `HTMLWriter` for the `HTML` renderer.
 
 
 

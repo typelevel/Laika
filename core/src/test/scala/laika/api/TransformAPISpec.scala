@@ -27,7 +27,7 @@ import laika.parse.css.Styles.{ElementType, StyleDeclaration}
 import laika.parse.markdown.Markdown
 import laika.parse.rst.ReStructuredText
 import laika.render.helper.RenderResult
-import laika.render.{PrettyPrint, TextWriter, XSLFO}
+import laika.render.{AST, TextWriter, XSLFO}
 import laika.tree.Elements.Text
 import laika.tree.Paths.Root
 import laika.tree.Templates._
@@ -51,7 +51,7 @@ class TransformAPISpec extends FlatSpec
     |. Paragraph - Spans: 1
     |. . Text - 'text'""".stripMargin
     
-  val transform = Transform from Markdown to PrettyPrint
+  val transform = Transform from Markdown to AST
   
   
   "The Transform API" should "transform from string to string" in {
@@ -60,7 +60,7 @@ class TransformAPISpec extends FlatSpec
   
   it should "transform from string to string builder" in {
     val builder = new StringBuilder
-    Transform from Markdown to PrettyPrint fromString input toBuilder builder
+    Transform from Markdown to AST fromString input toBuilder builder
     builder.toString should be (output)
   }
   
@@ -147,7 +147,7 @@ class TransformAPISpec extends FlatSpec
     def input (source: String) = parseTreeStructure(source)
 
     def transformTree: RenderedTree = transformWith()
-    def transformMultiMarkup: RenderedTree = transformWith(Transform from Markdown or ReStructuredText to PrettyPrint)
+    def transformMultiMarkup: RenderedTree = transformWith(Transform from Markdown or ReStructuredText to AST)
     
     def transformWithConfig (config: String): RenderedTree = transformWithBundle(BundleProvider.forConfigString(config))
     def transformWithDocTypeMatcher (matcher: PartialFunction[Path, DocumentType]): RenderedTree = transformWithBundle(BundleProvider.forDocTypeMatcher(matcher))
@@ -272,7 +272,7 @@ class TransformAPISpec extends FlatSpec
   
   it should "transform a tree with a custom style sheet engine" in {
     new TreeTransformer {
-      // the PrettyPrint renderer does not use stylesheets, so we must use XSL-FO here
+      // the AST renderer does not use stylesheets, so we must use XSL-FO here
       def styleDecl(fontSize: String) =
         StyleDeclaration(ElementType("Paragraph"), "font-size" -> s"${fontSize}pt")
       val parser: Parser[Set[StyleDeclaration]] = TextParsers.any ^^ { n => Set(styleDecl(n)) }

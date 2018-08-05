@@ -6,7 +6,7 @@ It supports the following features:
 
 * Support for Markdown as input
 
-* Support for HTML and PrettyPrint as output
+* Support for HTML and AST as output
 
 * Customization hooks for renderers
 

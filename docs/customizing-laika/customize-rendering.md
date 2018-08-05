@@ -12,9 +12,8 @@ This is the signature of a custom renderer hook:
     W => PartialFunction[Element,Unit]
     
 `W` is a generic type representing the writer API which is different for each 
-output format. For HTML it is `HTMLWriter`, for PrettyPrint it is `TextWriter`,
-a superclass of `HTMLWriter`. This way renderers can offer the most convenient
-API for a specific output format.
+output format. For HTML it is `HTMLWriter`, for XSL-FO it is `FOWriter`. 
+This way renderers can offer the most convenient API for a specific output format.
 
 Creating a function that expects a writer instance and returns the actual custom
 render function in form of a partial function allows to 'capture' the writer
@@ -121,8 +120,8 @@ so there is no need to share it between threads.
 
 ### TextWriter
 
-This is the base API supported by both the `PrettyPrint` and `HTML` renderer,
-while the latter adds a few additional methods specific to HTML.
+This is the base API supported by both the `XSL-FO` and `HTML` renderer,
+both of them adding several methods with rendering logic specific to that format.
 
 All methods below are overloaded and accept `String`, `Element` or `Seq[Element]` 
 as a parameter, with `Element` being the abstract base type of all tree nodes.

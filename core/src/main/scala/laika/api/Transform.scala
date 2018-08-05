@@ -48,13 +48,13 @@ import laika.tree.Documents._
  *  Transform from Markdown to PDF fromDirectory "source" toFile "hello.pdf"
  *  }}}
  *  
- *  Or for transforming a document fragment from a string to the PrettyPrint format
+ *  Or for transforming a document fragment from a string to the AST format
  *  for debugging purposes:
  *  
  *  {{{
  *  val input = "some *emphasized* text"
  *  
- *  Transform from Markdown to PrettyPrint fromString input toString
+ *  Transform from Markdown to AST fromString input toString
  *  
  *  res0: java.lang.String = 
  *  Document - Blocks: 1

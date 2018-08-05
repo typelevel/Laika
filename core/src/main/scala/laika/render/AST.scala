@@ -22,18 +22,18 @@ import laika.io.Output
 import laika.parse.css.Styles.StyleDeclarationSet
 import laika.tree.Elements._
  
-/** A renderer for PrettyPrint output, primarily useful for debugging purposes. 
+/** A renderer for AST output (a formatted Abstract Syntax Tree), primarily useful for debugging purposes.
  *  May be directly passed to the `Render` or `Transform` APIs:
  * 
  *  {{{
- *  Render as PrettyPrint from document toString
+ *  Render as AST from document toString
  *  
- *  Transform from Markdown to PrettyPrint fromFile "hello.md" toConsole
+ *  Transform from Markdown to AST fromFile "hello.md" toConsole
  *  }}}
  * 
  *  @author Jens Halm
  */
-object PrettyPrint extends RendererFactory[TextWriter] {
+object AST extends RendererFactory[TextWriter] {
 
   val fileSuffix = "txt"
   
@@ -41,7 +41,7 @@ object PrettyPrint extends RendererFactory[TextWriter] {
                    styles: StyleDeclarationSet, config: RenderConfig): (TextWriter, Element => Unit) = {
 
     val writer = new TextWriter(output asFunction, render, root, ". ")
-    val renderer = new FormattedASTRenderer(writer)
+    val renderer = new ASTRenderer(writer)
 
     (writer, renderer.render)
   }

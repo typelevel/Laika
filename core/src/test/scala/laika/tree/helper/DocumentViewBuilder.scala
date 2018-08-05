@@ -26,7 +26,7 @@ import laika.tree.Templates._
 import laika.tree.Paths.Path
 
 /* Provides a view of DocumentTree structures that allows for 
- * PrettyPrint rendering (for debugging purposes) and case
+ * formatted AST rendering (for debugging purposes) and case
  * class based equality for test assertions, whereas the corresponding
  * original model classes do not come with any useful notion of equality.
  * This is because they have content like a Typesafe Config instance or

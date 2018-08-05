@@ -29,7 +29,7 @@ import scala.io.{Codec, Source}
 object OutputBuilder {
 
   
-  /* translating render results to Elements gives us nicely formatted PrettyPrint for free */
+  /* translating render results to Elements gives us a nicely formatted AST for free */
   
   case class RenderedDocument (path: Path, content: String) extends Element
   

@@ -66,7 +66,7 @@ red boxes:
   It is basically just a merge of two trees consisting of case classes. The use of templates
   is optional, so this step may get skipped.
   
-* `Render` is the final render step. Currently supported out of the box are HTML, PDF, XSL-FO and PrettyPrint,
+* `Render` is the final render step. Currently supported out of the box are HTML, PDF, XSL-FO and AST,
   the latter visualizing the document AST for debugging purposes. Planned for the next release
   is support for epub. Like with the rewrite step, the entire renderer can be replaced
   by a custom one, or an existing one can customized based on a partial function that deals with

@@ -2,13 +2,13 @@
 Supported Output Formats
 ========================
 
-The current release supports HTML, PDF, XSL-FO and PrettyPrint.
+The current release supports HTML, PDF, XSL-FO and AST.
 Rendering happens from a generic document tree model shared between all parsers,
 so that no renderer implementation has to understand specifics about a concrete
 markup syntax like Markdown or reStructuredText.
 
 Customization of the output is possible on two levels, first most formats (except
-for PrettyPrint) can be styled with CSS. Secondly the rendering of specific nodes
+for AST) can be styled with CSS. Secondly the rendering of specific nodes
 can be overridden with a simple partial function as described in [Customizing Renderers].
 
 Finally you can develop an entirely new renderer for a format not supported by Laika
@@ -422,8 +422,8 @@ described in [HTML Renderer Properties] and finally `withStyles` to programmatic
 apply a custom CSS declarations.
 
 
-PrettyPrint
------------
+Formatted AST
+-------------
 
 A renderer that visualizes the document tree structure, essentially a formatted
 `toString` for a tree of case classes, mainly useful for testing and debugging
@@ -433,7 +433,7 @@ You can use this renderer with the Transform API:
 
     val input = "some *text* example"
     
-    Transform from Markdown to PrettyPrint fromString input toString
+    Transform from Markdown to AST fromString input toString
     
     res0: java.lang.String = Document - Blocks: 1
     . Paragraph - Spans: 3
@@ -448,8 +448,8 @@ Alternatively you can use the Render API to render an existing document:
     
     val doc = Parse as Markdown fromString input
     
-    Render as PrettyPrint from doc toString
+    Render as AST from doc toString
 
 The above will yield the same result as the previous example.
 
-Finally, if you are using the sbt plugin you can use the `laikaPrettyPrint` task.
+Finally, if you are using the sbt plugin you can use the `laikaAST` task.

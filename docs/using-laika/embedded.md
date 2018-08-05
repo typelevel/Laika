@@ -81,15 +81,15 @@ using the same input for two different types of output could be coded like this:
     
 
 
-### Pretty Print Output
+### Formatted AST Output
     
-Laika also supports a PrettyPrint renderer which can be useful for debugging.
+Laika also supports a AST renderer which can be useful for debugging.
 It visualizes the document tree model while shortening longer text spans
 into one line:
 
     val input = "some *text* example"
     
-    Transform from Markdown to PrettyPrint fromString input toString
+    Transform from Markdown to AST fromString input toString
     
     res0: java.lang.String = Document - Blocks: 1
     . Paragraph - Spans: 3

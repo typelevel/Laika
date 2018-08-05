@@ -23,7 +23,7 @@ import laika.io.Input.LazyFileInput
 import laika.io.{Input, InputTree}
 import laika.parse.markdown.Markdown
 import laika.parse.rst.ReStructuredText
-import laika.render.{HTML, PDF, PrettyPrint, XSLFO}
+import laika.render.{HTML, PDF, AST, XSLFO}
 import LaikaPlugin.autoImport._
 import sbt._
 import sbt.Keys._
@@ -114,7 +114,7 @@ object Tasks {
       val fun = FileFunction.cached(cacheDir / format.toString.toLowerCase, FilesInfo.lastModified, FilesInfo.exists) { _ =>
         format match {
           case OutputFormat.HTML  => renderWithFactory(HTML, (target in laikaSite).value, "HTML")
-          case OutputFormat.AST   => renderWithFactory(PrettyPrint, (target in laikaAST).value, "Formatted AST")
+          case OutputFormat.AST   => renderWithFactory(AST, (target in laikaAST).value, "Formatted AST")
           case OutputFormat.XSLFO => renderWithFactory(XSLFO, (target in laikaXSLFO).value, "XSL-FO")
           case OutputFormat.PDF   => renderWithProcessor(PDF.withFopFactory(fopFactory.value), (artifactPath in laikaPDF).value, "PDF")
         }

@@ -108,7 +108,7 @@ Features
 
 * Support for Markdown and reStructuredText as input
 
-* Support for HTML, PDF, XSL-FO and PrettyPrint (for debugging) as output
+* Support for HTML, PDF, XSL-FO and AST (for debugging) as output
 
 * Template-based Site Generation
 
@@ -261,7 +261,7 @@ Release History
 * __0.1.0__ (Jan 12, 2013): 
 
     * Support for Markdown as input
-    * Support for HTML and PrettyPrint as output
+    * Support for HTML and AST as output
     * Customization hooks for renderers
     * Document tree rewriting
     * Various options for input and output (strings, files, java.io.Reader/Writer, java.io streams)

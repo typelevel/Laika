@@ -22,7 +22,7 @@ import laika.tree.Elements._
   *
   * @author Jens Halm
   */
-class FormattedASTRenderer (out: TextWriter) {
+class ASTRenderer (out: TextWriter) {
 
   /**  The maximum width of a single text element.
     *  For any text that exceeds this limit only the beginnig
