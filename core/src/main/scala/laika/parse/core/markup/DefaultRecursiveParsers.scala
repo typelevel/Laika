@@ -18,7 +18,7 @@ package laika.parse.core.markup
 
 import laika.parse.core._
 import laika.parse.core.text.TextParsers._
-import laika.tree.Elements.{Block, Error, InvalidBlock, Paragraph, SystemMessage, Text}
+import laika.ast._
 
 /** Default implementation for parsing inline markup and blocks recursively.
   *
@@ -85,7 +85,7 @@ trait DefaultRecursiveParsers extends RecursiveParsers with DefaultRecursiveSpan
           recursiveBlockParser.parse(source, next.nestLevel) match {
             case Success(blocks, _) => blocks
             case Failure(msg, next) =>
-              val message = SystemMessage(Error, msg.message(next))
+              val message = SystemMessage(MessageLevel.Error, msg.message(next))
               val fallback = Paragraph(Seq(Text(source)))
               List(InvalidBlock(message, fallback))
           }

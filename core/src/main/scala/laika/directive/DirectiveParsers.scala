@@ -17,13 +17,12 @@
 package laika.directive
 
 import laika.api.ext._
+import laika.ast._
 import laika.directive.Directives._
 import laika.parse.core.markup._
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Parser, Failure => PFailure, Success => PSuccess}
 import laika.rewrite.DocumentCursor
-import laika.tree.Elements._
-import laika.tree.Templates._
 import laika.util.~
 
 /** Parsers for all types of custom directives that can be used

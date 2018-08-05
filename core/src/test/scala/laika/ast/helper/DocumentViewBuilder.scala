@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package laika.tree.helper
+package laika.ast.helper
 
+import laika.ast._
 import laika.io.Input
 import laika.io.DocumentType
 import laika.io.DocumentType._
-import laika.parse.css.Styles.StyleDeclarationSet
-import laika.tree.Elements._
-import laika.tree.Documents._
-import laika.tree.Templates._
-import laika.tree.Paths.Path
 
 /* Provides a view of DocumentTree structures that allows for 
  * formatted AST rendering (for debugging purposes) and case

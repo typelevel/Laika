@@ -63,7 +63,7 @@ on nodes obtained by a separate parse operation. All three options are described
 The following example of an sbt build file shows how to turn each `Emphasized` node
 into a `Strong` node while processing everything else with default rules:
 
-    import laika.tree.Elements._
+    import laika.ast._
     
     laikaRewriteRules += laikaRewriteRule { 
       case Emphasized(content, opts) => Some(Strong(content, opts))

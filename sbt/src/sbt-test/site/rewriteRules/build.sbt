@@ -1,5 +1,5 @@
-import laika.tree.Elements.Emphasized
-import laika.tree.Elements.Strong
+import laika.ast.Emphasized
+import laika.ast.Strong
 
 name := "site-rewriteRules"
 

@@ -18,7 +18,7 @@ package laika.parse.core.text
 
 import laika.parse.core._
 import laika.parse.core.combinator.Parsers
-import laika.tree.Elements.Size
+import laika.ast.Size
 import laika.util.~
 
 /** Base text parsers that provide optimized low-level parsers for typical requirements

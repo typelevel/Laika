@@ -16,8 +16,7 @@
 
 package laika.render
 
-import laika.tree.Elements._
-import laika.tree.Templates._
+import laika.ast._
 
 /** Default renderer implementation for the HTML output format.
   *

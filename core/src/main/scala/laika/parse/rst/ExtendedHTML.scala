@@ -17,10 +17,10 @@
 package laika.parse.rst
 
 import laika.render.HTMLWriter
-import laika.tree.Elements._
+import laika.ast._
 import laika.parse.rst.Elements._
 
-/** HTML renderer for special reStructuredText tree elements not part of the default document tree model. 
+/** HTML renderer for special reStructuredText tree elements not part of the default document tree model.
  *  
  *  The following tree elements are specific to reStructuredText and are not included in the default model:
  * 

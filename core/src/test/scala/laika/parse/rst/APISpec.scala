@@ -24,8 +24,8 @@ import laika.parse.rst.ext.Directives.Parts._
 import laika.parse.rst.ext.Directives._
 import laika.parse.rst.ext.ExtensionProvider
 import laika.parse.rst.ext.TextRoles._
-import laika.tree.Elements._
-import laika.tree.helper.ModelBuilder
+import laika.ast._
+import laika.ast.helper.ModelBuilder
 import org.scalatest.{FlatSpec, Matchers}
 
 class APISpec extends FlatSpec 

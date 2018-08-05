@@ -19,14 +19,12 @@ package laika.parse.rst
 import laika.api.config.OperationConfig
 import laika.format.ReStructuredText
 import org.scalatest.FlatSpec
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
 import laika.parse.rst.Elements._
 import laika.rewrite.DocumentCursor
-import laika.tree.Documents._
-import laika.tree.Elements._
-import laika.tree.Paths.Root
-import laika.tree.helper.ModelBuilder
+import laika.ast._
+import laika.ast.Path.Root
+import laika.ast.helper.ModelBuilder
  
 class RewriteRulesSpec extends FlatSpec 
                   with Matchers

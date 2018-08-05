@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package laika.tree.helper
+package laika.ast.helper
 
 import java.io.{BufferedWriter, File, FileWriter}
 
 import laika.io.{Output, OutputTree}
-import laika.tree.Elements.{Element, ElementContainer}
-import laika.tree.Paths.{Path, Root}
+import laika.ast.{Element, ElementContainer, Path}
+import laika.ast.Path.Root
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer

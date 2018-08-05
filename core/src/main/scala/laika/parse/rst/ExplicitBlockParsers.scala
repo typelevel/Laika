@@ -23,7 +23,7 @@ import laika.parse.core.markup.RecursiveParsers
 import laika.parse.core.text.TextParsers._
 import laika.parse.rst.BaseParsers._
 import laika.parse.rst.Elements._
-import laika.tree.Elements._
+import laika.ast._
 import laika.util.~
 
 /** Provides the parsers for all types of explicit block elements.

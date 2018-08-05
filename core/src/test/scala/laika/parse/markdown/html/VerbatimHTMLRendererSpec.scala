@@ -22,8 +22,8 @@ import org.scalatest.Matchers
 import laika.api.{Parse, Render}
 import laika.format.{HTML, Markdown}
 import laika.parse.markdown.html.HTMLElements._
-import laika.tree.Elements.Element
-import laika.tree.helper.ModelBuilder
+import laika.ast.Element
+import laika.ast.helper.ModelBuilder
  
 
 class VerbatimHTMLRendererSpec extends FlatSpec 

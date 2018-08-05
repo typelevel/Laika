@@ -16,7 +16,7 @@
 
 package laika.render
 
-import laika.tree.Elements._
+import laika.ast._
 
 /** API for renderers that produce character output.
  *  

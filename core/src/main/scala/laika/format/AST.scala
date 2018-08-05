@@ -17,12 +17,11 @@
 package laika.format
 
 import laika.api.config.RenderConfig
+import laika.ast._
 import laika.factory.RenderFormat
 import laika.io.Output
-import laika.parse.css.Styles.StyleDeclarationSet
 import laika.render.{ASTRenderer, TextWriter}
-import laika.tree.Elements._
- 
+
 /** A renderer for AST output (a formatted Abstract Syntax Tree), primarily useful for debugging purposes.
  *  May be directly passed to the `Render` or `Transform` APIs:
  * 

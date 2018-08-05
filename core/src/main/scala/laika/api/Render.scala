@@ -17,17 +17,14 @@
 package laika.api
 
 import laika.api.config.{OperationConfig, RenderConfigBuilder}
+import laika.ast._
+import laika.ast.Path.{Current, Root}
 import laika.factory.{RenderResultProcessor, RenderFormat}
 import laika.io.Output.Binary
 import laika.io.OutputTree._
 import laika.io._
-import laika.parse.css.Styles.StyleDeclarationSet
 import laika.rewrite.TemplateRewriter
-import laika.tree.Documents._
-import laika.tree.Elements.{Element, RenderFunction, RootElement}
-import laika.tree.Paths.{Current, Path, Root}
-import laika.tree.Templates._
-  
+
 /** API for performing a render operation to various types of output using an existing
  *  document tree model. 
  *  

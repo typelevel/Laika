@@ -18,7 +18,7 @@ package laika.api.config
 
 import laika.api.ext.ExtensionBundle
 import laika.rewrite.DocumentCursor
-import laika.tree.Elements.RewriteRule
+import laika.ast.RewriteRule
 
 /** API for specifying configuration options that apply to all
   * kinds of operations that contain both, a parsing and a rendering step (only Transform API).

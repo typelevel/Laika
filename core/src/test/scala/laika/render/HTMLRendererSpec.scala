@@ -17,14 +17,11 @@
 package laika.render
 
 import org.scalatest.FlatSpec
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
 import laika.api.Render
 import laika.format.HTML
-import laika.tree.Elements._
-import laika.tree.Templates._
-import laika.tree.Paths.Path
-import laika.tree.helper.ModelBuilder
+import laika.ast._
+import laika.ast.helper.ModelBuilder
 
 class HTMLRendererSpec extends FlatSpec 
                        with Matchers
@@ -119,7 +116,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render an enumerated list with lower roman enumeration style" in {
-    val elem = enumList(EnumFormat(LowerRoman, "", ".")) + "aaa" + "bbb"
+    val elem = enumList(EnumFormat(EnumType.LowerRoman, "", ".")) + "aaa" + "bbb"
     val html = """<ol class="lowerroman">
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -128,7 +125,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render an enumerated list with upper roman enumeration style" in {
-    val elem = enumList(EnumFormat(UpperRoman, "", ".")) + "aaa" + "bbb"
+    val elem = enumList(EnumFormat(EnumType.UpperRoman, "", ".")) + "aaa" + "bbb"
     val html = """<ol class="upperroman">
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -137,7 +134,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render an enumerated list with lower alpha enumeration style" in {
-    val elem = enumList(EnumFormat(LowerAlpha, "", ".")) + "aaa" + "bbb"
+    val elem = enumList(EnumFormat(EnumType.LowerAlpha, "", ".")) + "aaa" + "bbb"
     val html = """<ol class="loweralpha">
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -146,7 +143,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render an enumerated list with upper alpha enumeration style" in {
-    val elem = enumList(EnumFormat(UpperAlpha, "", ".")) + "aaa" + "bbb"
+    val elem = enumList(EnumFormat(EnumType.UpperAlpha, "", ".")) + "aaa" + "bbb"
     val html = """<ol class="upperalpha">
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -155,7 +152,7 @@ class HTMLRendererSpec extends FlatSpec
   }
   
   it should "render an enumerated list with the start value if it is not 1" in {
-    val elem = enumList(EnumFormat(Arabic, "", "."), 7) + "aaa" + "bbb"
+    val elem = enumList(EnumFormat(EnumType.Arabic, "", "."), 7) + "aaa" + "bbb"
     val html = """<ol class="arabic" start="7">
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -536,6 +533,8 @@ class HTMLRendererSpec extends FlatSpec
       |</div>cc""".stripMargin
     render (elem) should be (html)
   }
+
+  import MessageLevel._
   
   it should "render a system message" in {
     val html = """<span class="system-message warning">some message</span>"""

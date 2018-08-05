@@ -24,8 +24,8 @@ import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 import laika.parse.helper.DefaultParserHelpers
 import laika.parse.helper.ParseResultHelpers
-import laika.tree.Elements.Span
-import laika.tree.helper.ModelBuilder
+import laika.ast.Span
+import laika.ast.helper.ModelBuilder
      
 class InlineParsersSpec extends FlatSpec 
                         with Matchers 

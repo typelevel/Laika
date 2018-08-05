@@ -26,8 +26,8 @@ import laika.factory.{RenderFormat, RenderResultProcessor}
 import laika.io.Output.BinaryOutput
 import laika.io.{Input, OutputTree}
 import laika.render.{FOWriter, FOforPDF}
-import laika.tree.Documents.DocumentTree
-import laika.tree.Templates.TemplateRoot
+import laika.ast.DocumentTree
+import laika.ast.TemplateRoot
 import org.apache.fop.apps.{FOUserAgentFactory, FopFactory, FopFactoryBuilder}
 import org.apache.xmlgraphics.io.{Resource, ResourceResolver}
 import org.apache.xmlgraphics.util.MimeConstants
@@ -47,13 +47,13 @@ import org.apache.xmlgraphics.util.MimeConstants
  * 
  *  @author Jens Halm
  */
-class PDF private (val format: RenderFormat[FOWriter], config: Option[PDFConfig], fopFactory: Option[FopFactory]) extends RenderResultProcessor[FOWriter] {
+class PDF private (val format: RenderFormat[FOWriter], config: Option[PDF.Config], fopFactory: Option[FopFactory]) extends RenderResultProcessor[FOWriter] {
 
 
   /** Allows to specify configuration options like insertion
    *  of bookmarks or table of content.
    */
-  def withConfig (config: PDFConfig): PDF = new PDF(format, Some(config), fopFactory)
+  def withConfig (config: PDF.Config): PDF = new PDF(format, Some(config), fopFactory)
 
   /** Allows to specify a custom FopFactory in case additional configuration
     * is required for custom fonts, stemmers or other FOP features.
@@ -167,24 +167,24 @@ object PDF extends PDF(XSLFO, None, None) {
     */
   lazy val defaultFopFactory = new FopFactoryBuilder(new File(".").toURI).build()
 
-}
+  /** Configuration options for the generated PDF output.
+    *
+    *  @param insertTitles indicates whether a title will be inserted for each tree, subtree,
+    *  and document, relying on titles specified in the configuration file for the tree
+    *  or document, but only if there is no `Title` element in the document already
+    *  @param bookmarkDepth the number of levels bookmarks should be generated for, use 0 to switch off bookmark generation
+    *  @param tocDepth the number of levels to generate a table of contents for, use 0 to switch off toc generation
+    *  @param tocTitle the title for the table of contents
+    */
+  case class Config(insertTitles: Boolean = true, bookmarkDepth: Int = Int.MaxValue, tocDepth: Int = Int.MaxValue, tocTitle: Option[String] = None)
 
-/** Configuration options for the generated PDF output.
- * 
- *  @param insertTitles indicates whether a title will be inserted for each tree, subtree,
- *  and document, relying on titles specified in the configuration file for the tree
- *  or document, but only if there is no `Title` element in the document already
- *  @param bookmarkDepth the number of levels bookmarks should be generated for, use 0 to switch off bookmark generation
- *  @param tocDepth the number of levels to generate a table of contents for, use 0 to switch off toc generation
- *  @param tocTitle the title for the table of contents
- */
-case class PDFConfig(insertTitles: Boolean = true, bookmarkDepth: Int = Int.MaxValue, tocDepth: Int = Int.MaxValue, tocTitle: Option[String] = None)
+  /** Companion for the creation of `PDFConfig` instances.
+    */
+  object Config {
 
-/** Companion for the creation of `PDFConfig` instances.
- */
-object PDFConfig {
-  
-  /** The default configuration, with all optional features enabled.
-   */
-  val default: PDFConfig = apply()
+    /** The default configuration, with all optional features enabled.
+      */
+    val default: Config = apply()
+  }
+
 }

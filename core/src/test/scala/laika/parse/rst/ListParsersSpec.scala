@@ -18,13 +18,12 @@ package laika.parse.rst
 
 import laika.parse.core.Parser
 import org.scalatest.FlatSpec
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
 import laika.parse.helper.DefaultParserHelpers
 import laika.parse.helper.ParseResultHelpers
-import laika.tree.helper.ModelBuilder
+import laika.ast.helper.ModelBuilder
 import laika.parse.rst.Elements._
-import laika.tree.Elements._
+import laika.ast._
 import laika.parse.rst.ext.TextRoles.RoleDirectivePart
 import laika.parse.rst.ext.Directives.DirectivePart
 import laika.parse.rst.ext.{ExtensionProvider, RootParserProvider}
@@ -35,6 +34,7 @@ class ListParsersSpec extends FlatSpec
                         with DefaultParserHelpers[RootElement] 
                         with ModelBuilder {
 
+  import EnumType._
 
   val rootParser = RootParserProvider.forBundle(ExtensionProvider.forExtensions())
   val defaultParser: Parser[RootElement] = rootParser.rootElement

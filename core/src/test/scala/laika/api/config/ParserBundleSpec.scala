@@ -24,12 +24,9 @@ import laika.factory.MarkupParser
 import laika.io.Input
 import laika.parse.core.combinator.Parsers
 import laika.parse.core.text.TextParsers
-import laika.parse.css.Styles.StyleDeclaration
-import laika.parse.css.{CSSParsers, Styles}
-import laika.tree.Documents.Document
-import laika.tree.Elements._
-import laika.tree.Paths.Root
-import laika.tree.Templates.{TemplateRoot, TemplateString}
+import laika.parse.css.CSSParsers
+import laika.ast._
+import laika.ast.Path.Root
 import org.scalatest.{Matchers, WordSpec}
 
 /**
@@ -402,7 +399,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
   "The configuration for the style sheet parser" should {
 
     def style (value: String): Set[StyleDeclaration] = Set(
-      StyleDeclaration(Styles.Id("id"), "foo" -> value)
+      StyleDeclaration(StylePredicate.Id("id"), "foo" -> value)
     )
 
     "let an app config override a parser in the extension config" in new BundleSetup {

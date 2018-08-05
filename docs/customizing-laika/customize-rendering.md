@@ -68,7 +68,7 @@ render operation. All three options are described below.
 
 In `build.sbt`:
 
-    import laika.tree.Elements._
+    import laika.ast._
     
     laikaSiteRenderers += laikaSiteRenderer { out => {
       case Emphasized(content, _) => 

@@ -17,13 +17,9 @@
 package laika.api.ext
 
 import laika.api.config.OperationConfig
+import laika.ast._
 import laika.io.DocumentType.Static
 import laika.io.{DocumentType, InputTree, InputTreeOps}
-import laika.parse.css.Styles.StyleDeclarationSet
-import laika.tree.Documents.{Document, DocumentTree, StaticDocument, TreeContent}
-import laika.tree.Elements.RenderFunction
-import laika.tree.Paths.{Path, Root}
-import laika.tree.Templates.TemplateRoot
 
 /** Collects templates, styles and custom render functions to form
   * a theme for a specific output format.
@@ -117,7 +113,7 @@ case class StaticDocuments (tree: DocumentTree) {
   */
 object StaticDocuments extends InputTreeOps {
 
-  val empty = StaticDocuments(DocumentTree(Root, Nil))
+  val empty = StaticDocuments(DocumentTree(Path.Root, Nil))
 
   override type InputTreeResult = StaticDocuments
 

@@ -17,7 +17,7 @@
 package laika.sbt
 
 import laika.api.ext.ExtensionBundle
-import laika.tree.Elements._
+import laika.ast._
 import org.apache.fop.apps.FopFactory
 import sbt.Keys._
 import sbt._
@@ -117,8 +117,8 @@ object LaikaPlugin extends AutoPlugin {
                            rawContent: Boolean = false,
                            strict: Boolean = false,
                            parallel: Boolean = true,
-                           renderMessageLevel: MessageLevel = Warning,
-                           logMessageLevel: MessageLevel = Warning)
+                           renderMessageLevel: MessageLevel = MessageLevel.Warning,
+                           logMessageLevel: MessageLevel = MessageLevel.Warning)
   }
 
 

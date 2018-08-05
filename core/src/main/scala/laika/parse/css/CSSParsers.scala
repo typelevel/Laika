@@ -16,12 +16,10 @@
 
 package laika.parse.css
 
-import laika.io.Input
+import laika.ast._
+import laika.parse.core.Parser
 import laika.parse.core.markup.InlineParsers
 import laika.parse.core.text.TextParsers._
-import laika.parse.core.{Parser, ParserContext}
-import laika.parse.css.Styles._
-import laika.tree.Paths.Path
 import laika.util.~
 
 /**
@@ -78,29 +76,29 @@ object CSSParsers {
 
   /** Parses a single type selector.
    */
-  val typeSelector: Parser[List[Predicate]] =
-    (styleRefName ^^ { name => List(ElementType(name)) }) | ('*' ^^^ Nil) 
+  val typeSelector: Parser[List[StylePredicate]] =
+    (styleRefName ^^ { name => List(StylePredicate.ElementType(name)) }) | ('*' ^^^ Nil)
     
   /** Parses a single predicate.
    */
-  val predicate: Parser[Predicate] = {
+  val predicate: Parser[StylePredicate] = {
     
-    val id: Parser[Predicate] = ('#' ~> styleRefName) ^^ Id
-    val styleName: Parser[Predicate] = ('.' ~> styleRefName) ^^ StyleName
+    val id: Parser[StylePredicate] = ('#' ~> styleRefName) ^^ StylePredicate.Id
+    val styleName: Parser[StylePredicate] = ('.' ~> styleRefName) ^^ StylePredicate.StyleName
     
     id | styleName
   }
 
   /** Parses the sub-part of a selector without any combinators, e.g. `Paragraph#title`.
     */
-  val simpleSelectorSequence: Parser[Selector] =
+  val simpleSelectorSequence: Parser[StyleSelector] =
     (((typeSelector ~ (predicate*)) ^^ { case preds1 ~ preds2 => preds1 ::: preds2 }) | (predicate+)) ^^ {
-      preds => Selector(preds.toSet)
+      preds => StyleSelector(preds.toSet)
     }
 
   /** Parses a single selector.
     */
-  val selector: Parser[Selector] =
+  val selector: Parser[StyleSelector] =
     simpleSelectorSequence ~ ((combinator ~ simpleSelectorSequence)*) ^^ {
       case sel ~ sels => (sel /: sels) {
         case (parent, Child ~ sel)      => sel.copy(parent = Some(ParentSelector(parent, immediate = true)))
@@ -110,7 +108,7 @@ object CSSParsers {
 
   /** Parses a sequence of selectors, separated by a comma.
     */
-  val selectorGroup: Parser[Seq[Selector]] =
+  val selectorGroup: Parser[Seq[StyleSelector]] =
     selector ~ ((ws ~ ',' ~ ws ~> selector)*) ^^ { case sel ~ sels => sel :: sels }
 
   /** Parses the value of a single style, ignoring

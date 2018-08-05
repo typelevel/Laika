@@ -18,8 +18,7 @@ package laika.parse.rst
 
 import com.typesafe.config.ConfigValueFactory
 import laika.parse.rst.Elements.FieldList
-import laika.tree.Documents.Document
-import laika.tree.Elements.{Comment, DecoratedHeader, Paragraph, SpanSequence}
+import laika.ast.{Comment, DecoratedHeader, Document, Paragraph, SpanSequence}
 
 /** Responsible for extracting a docInfo block at the start
   * of a reStructuredText document and inserting it into the

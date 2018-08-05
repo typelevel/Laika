@@ -17,17 +17,13 @@
 package laika.render
 
 import org.scalatest.FlatSpec
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
 import laika.api.Render
 import laika.api.ext.BundleProvider
 import laika.format.XSLFO
-import laika.parse.css.Styles.{Selector, StyleDeclaration, StyleDeclarationSet, StyleName}
-import laika.tree.Paths.Root
-import laika.tree.Elements._
-import laika.tree.Templates._
-import laika.tree.Paths.Path
-import laika.tree.helper.ModelBuilder
+import laika.ast.Path.Root
+import laika.ast._
+import laika.ast.helper.ModelBuilder
 
 class XSLFORendererSpec extends FlatSpec
                         with Matchers
@@ -64,7 +60,7 @@ class XSLFORendererSpec extends FlatSpec
       |  <fo:block font-family="serif" font-size="10pt" space-after="3mm">aaa</fo:block>
       |  <fo:block font-family="serif" font-size="10pt" space-after="3mm">bbb</fo:block>
       |</fo:block>""".stripMargin
-    val style = StyleDeclaration(Selector(Set(StyleName("foo"))), Map("font-weight" -> "bold"))
+    val style = StyleDeclaration(StyleSelector(Set(StylePredicate.StyleName("foo"))), Map("font-weight" -> "bold"))
     render (elem, style) should be (html) 
   }
   
@@ -182,7 +178,7 @@ class XSLFORendererSpec extends FlatSpec
   }
   
   it should "render an enumerated list with lower roman enumeration style" in {
-    val elem = enumList(EnumFormat(LowerRoman, "", ".")) + "aaa" + "bbb"
+    val elem = enumList(EnumFormat(EnumType.LowerRoman, "", ".")) + "aaa" + "bbb"
     val html = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">
@@ -205,7 +201,7 @@ class XSLFORendererSpec extends FlatSpec
   }
   
   it should "render an enumerated list with upper roman enumeration style" in {
-    val elem = enumList(EnumFormat(UpperRoman, "", ".")) + "aaa" + "bbb"
+    val elem = enumList(EnumFormat(EnumType.UpperRoman, "", ".")) + "aaa" + "bbb"
     val html = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">
@@ -228,7 +224,7 @@ class XSLFORendererSpec extends FlatSpec
   }
   
   it should "render an enumerated list with lower alpha enumeration style" in {
-    val elem = enumList(EnumFormat(LowerAlpha, "", ".")) + "aaa" + "bbb"
+    val elem = enumList(EnumFormat(EnumType.LowerAlpha, "", ".")) + "aaa" + "bbb"
     val html = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">
@@ -251,7 +247,7 @@ class XSLFORendererSpec extends FlatSpec
   }
   
   it should "render an enumerated list with upper alpha enumeration style" in {
-    val elem = enumList(EnumFormat(UpperAlpha, "", ".")) + "aaa" + "bbb"
+    val elem = enumList(EnumFormat(EnumType.UpperAlpha, "", ".")) + "aaa" + "bbb"
     val html = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">
@@ -274,7 +270,7 @@ class XSLFORendererSpec extends FlatSpec
   }
   
   it should "render an enumerated list with the start value other than 1" in {
-    val elem = enumList(EnumFormat(Arabic, "", "."), 7) + "aaa" + "bbb"
+    val elem = enumList(EnumFormat(EnumType.Arabic, "", "."), 7) + "aaa" + "bbb"
     val html = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">
@@ -726,6 +722,8 @@ class XSLFORendererSpec extends FlatSpec
       |</fo:block>cc""".stripMargin
     render (elem) should be (html)
   }
+
+  import MessageLevel._
   
   it should "render a system message" in {
     val html = """<fo:inline background-color="#ffff33" color="white">some message</fo:inline>"""

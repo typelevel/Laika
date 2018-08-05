@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package laika.tree.helper
+package laika.ast.helper
 
-import laika.tree.Elements._
-import laika.tree.Templates._
-   
+import laika.ast._
+
 trait ModelBuilder {
 
   

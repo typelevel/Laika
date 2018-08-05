@@ -17,13 +17,9 @@
 package laika.api.ext
 
 import com.typesafe.config.Config
+import laika.ast._
 import laika.io.Input
 import laika.parse.core.Parser
-import laika.parse.css.Styles.StyleDeclaration
-import laika.tree.Documents.Document
-import laika.tree.Elements.{Block, InvalidElement}
-import laika.tree.Paths.Path
-import laika.tree.Templates.TemplateRoot
 
 /** Bundles a collection of all types of parsers used in a transformation.
   *

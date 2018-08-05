@@ -21,7 +21,7 @@ import laika.parse.core.Parser
 import laika.parse.core.combinator.Parsers.opt
 import laika.parse.core.text.TextParsers
 import laika.parse.core.text.TextParsers.blankLines
-import laika.tree.Elements.Block
+import laika.ast.Block
 
 /** Responsible for creating parser instances for a specific markup format.
  *  A parser is simply a function of type `Input => Document`.

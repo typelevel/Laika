@@ -191,7 +191,7 @@ A type selector in the context of Laika's PDF support does not refer to the name
 but instead to a class name from the hierarchy of case classes forming the document tree of a 
 parsed input source. See [Elements Scaladoc][elements-scaladoc] for an overview of all node types.
 
-[elements-scaladoc]: ../api/#laika.tree.Elements$
+[elements-scaladoc]: ../api/#laika.ast
 
 Example:
 

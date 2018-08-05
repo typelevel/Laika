@@ -18,8 +18,9 @@ package laika.parse.css
 
 import laika.parse.core.Parser
 import laika.parse.css.CSSParsers._
-import laika.parse.css.Styles._
+import laika.ast._
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
+import laika.ast.StylePredicate._
 import org.scalatest.{FlatSpec, Matchers}
 
 class CSSParsersSpec extends FlatSpec 
@@ -56,7 +57,7 @@ class CSSParsersSpec extends FlatSpec
       | foo: bar;
       |}""".stripMargin
     
-    Parsing (css) should produce (Set(styleDecl(Id("id"))))
+    Parsing (css) should produce (Set(styleDecl(StylePredicate.Id("id"))))
   }
   
   it should "parse a style with a type and class selector" in {
@@ -74,7 +75,7 @@ class CSSParsersSpec extends FlatSpec
       | foo: bar;
       |}""".stripMargin
     
-    Parsing (css) should produce (Set(styleDecl(ElementType("Type"), Id("id"))))
+    Parsing (css) should produce (Set(styleDecl(ElementType("Type"), StylePredicate.Id("id"))))
   }
   
   it should "parse a style with a child selector" in {
@@ -103,7 +104,7 @@ class CSSParsersSpec extends FlatSpec
     
     val top = selector(ElementType("Type"))
     val middle = selector(selector(StyleName("class")), top, false)
-    val finalSelector = selector(selector(Id("id")), middle, true)
+    val finalSelector = selector(selector(StylePredicate.Id("id")), middle, true)
     Parsing (css) should produce (Set(styleDecl(finalSelector)))
   }
   

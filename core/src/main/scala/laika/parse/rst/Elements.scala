@@ -17,8 +17,7 @@
 package laika.parse.rst
 
 import laika.rewrite.{DocumentCursor, TocGenerator}
-import laika.tree.Elements._
-import laika.tree.Templates.BlockResolver
+import laika.ast._
 
 /** Provides the elements of the document tree that are too specific to reStructuredText
  *  to be added to the generic tree model. 

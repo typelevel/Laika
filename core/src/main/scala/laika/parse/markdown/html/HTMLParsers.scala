@@ -23,7 +23,7 @@ import laika.parse.core.markup.RecursiveSpanParsers
 import laika.parse.core.text.DelimitedText
 import laika.parse.core.text.TextParsers._
 import laika.parse.markdown.html.HTMLElements._
-import laika.tree.Elements._
+import laika.ast._
 import laika.util.~
    
 /** Parses verbatim HTML elements which may interleave with standard Markdown markup.

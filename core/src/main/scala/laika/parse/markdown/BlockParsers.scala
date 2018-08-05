@@ -23,7 +23,7 @@ import laika.parse.core.markup.RecursiveParsers
 import laika.parse.core.text.TextParsers
 import laika.parse.core.text.TextParsers._
 import laika.parse.util.WhitespacePreprocessor
-import laika.tree.Elements._
+import laika.ast._
 import laika.util.~
 
 

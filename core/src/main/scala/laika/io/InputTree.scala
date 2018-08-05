@@ -18,7 +18,7 @@ package laika.io
 
 import java.io.File
 
-import laika.tree.Paths.{Path, Root}
+import laika.ast.Path
 
 import scala.io.Codec
 
@@ -163,7 +163,7 @@ object InputTree {
       require(root.isDirectory, s"File ${root.getAbsolutePath} is not a directory")
     }
 
-    new DirectoryInputTree(roots, Root, exclude, docTypeMatcher, codec)
+    new DirectoryInputTree(roots, Path.Root, exclude, docTypeMatcher, codec)
   }
 
   /** Responsible for building new InputTrees based

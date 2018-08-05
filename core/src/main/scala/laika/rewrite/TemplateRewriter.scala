@@ -16,18 +16,14 @@
 
 package laika.rewrite
 
-import laika.tree.Documents.{Document, DocumentTree, DynamicDocument, TemplateDocument}
-import laika.tree.ElementTraversal
-import laika.tree.Elements.{Element, NoOpt, RewriteRule, RootElement}
-import laika.tree.Paths.{Path, Root}
-import laika.tree.Templates._
+import laika.ast._
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 
 trait TemplateRewriter {
   
-  val defaultTemplate: TemplateDocument = TemplateDocument(Root / "default.template", TemplateRoot(List(TemplateContextReference("document.content"))))
+  val defaultTemplate: TemplateDocument = TemplateDocument(Path.Root / "default.template", TemplateRoot(List(TemplateContextReference("document.content"))))
   
   /** Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.
    */

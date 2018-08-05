@@ -16,12 +16,12 @@
   
 package laika.parse.rst.ext
 
-import laika.parse.core.markup.{EscapedTextParsers, RecursiveParsers}
-import Directives.Parts._
-import Directives._
+import laika.ast._
+import laika.parse.core.markup.RecursiveParsers
 import laika.parse.rst.Elements._
+import laika.parse.rst.ext.Directives.Parts._
+import laika.parse.rst.ext.Directives._
 import laika.parse.rst.ext.StandardDirectiveParts._
-import laika.tree.Elements._
 
 /** Defines all supported standard block directives of the reStructuredText reference parser.
  * 
@@ -168,7 +168,7 @@ class StandardBlockDirectives {
     case FieldList(fields,_) :: Nil => 
       ConfigValue("meta", fields map (field => (SpanSequence(field.name).extractText,
           field.content collect { case p: Paragraph => p.extractText } mkString)) toMap)
-    case other => InvalidBlock(SystemMessage(Error, 
+    case other => InvalidBlock(SystemMessage(MessageLevel.Error,
         "The meta directive expects a FieldList as its only block content"), BlockSequence(other))
   }
   

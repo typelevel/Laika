@@ -18,7 +18,7 @@ package laika.api.ext
 
 import laika.parse.core.Parser
 import laika.parse.core.markup.{EscapedTextParsers, RecursiveParsers, RecursiveSpanParsers}
-import laika.tree.Elements.{Block, Span}
+import laika.ast.{Block, Span}
 
 /** Builds a parser definition lazily by passing the recursive parsers
   * of the host language.

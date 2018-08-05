@@ -17,8 +17,7 @@
 package laika.rewrite
 
 import laika.rewrite.LinkTargets._
-import laika.tree.Elements._
-import laika.tree.Paths.{Current, Path}
+import laika.ast._
 
 import scala.annotation.tailrec
 
@@ -63,7 +62,7 @@ object LinkResolver extends (DocumentCursor => RewriteRule) {
           else select(path.parent)
         }
         val path = cursor.parent.target.path
-        select(Path(Current, path.components))
+        select(Path(Path.Current, path.components))
       }
       def selectFromRoot (path: String, name: String) = 
         (cursor.root.target.selectTarget(PathSelector(cursor.parent.target.path / Path(path), name)),Some(cursor.target.path))

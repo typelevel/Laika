@@ -19,13 +19,9 @@ package laika.api.config
 import laika.api.ext.{BundleProvider, ExtensionBundle, StaticDocuments}
 import laika.factory.RenderFormat
 import laika.io.{Input, Output}
-import laika.parse.css.Styles
-import laika.parse.css.Styles.{StyleDeclaration, StyleDeclarationSet}
 import laika.render.TextWriter
-import laika.tree.Documents.{DocumentTree, StaticDocument}
-import laika.tree.Elements._
-import laika.tree.Paths.{Path, Root}
-import laika.tree.Templates.{TemplateRoot, TemplateString}
+import laika.ast._
+import Path.Root
 import org.scalatest.{Matchers, WordSpec}
 
 /**
@@ -161,13 +157,13 @@ class ThemeConfigSpec extends WordSpec with Matchers {
   "The configuration for default styles" should {
 
     val lowPrecedenceStyles = StyleDeclarationSet(Set.empty[Path], Set(
-      StyleDeclaration(Styles.Id("id1"), "foo" -> "red"),
-      StyleDeclaration(Styles.Id("id2"), "foo" -> "green")
+      StyleDeclaration(StylePredicate.Id("id1"), "foo" -> "red"),
+      StyleDeclaration(StylePredicate.Id("id2"), "foo" -> "green")
     ))
 
     val highPrecedenceStyles = StyleDeclarationSet(Set.empty[Path], Set(
-      StyleDeclaration(Styles.Id("id1"), "foo" -> "blue"),
-      StyleDeclaration(Styles.Id("id3"), "foo" -> "yellow")
+      StyleDeclaration(StylePredicate.Id("id1"), "foo" -> "blue"),
+      StyleDeclaration(StylePredicate.Id("id3"), "foo" -> "yellow")
     ))
 
     "merge styles from the default theme with the styles from an app extension" in new BundleSetup {

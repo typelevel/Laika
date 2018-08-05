@@ -22,7 +22,7 @@ import java.util.Date
 import Directives.Parts._
 import Directives._
 import laika.parse.rst.ext.StandardDirectiveParts._
-import laika.tree.Elements._
+import laika.ast._
 
 /** Defines all supported standard span directives of the reStructuredText reference parser.
  *  A span directive can be used in substitution definitions.

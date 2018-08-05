@@ -19,18 +19,14 @@ package laika.api.config
 import com.typesafe.config.Config
 import laika.api.ext.ExtensionBundle.LaikaDefaults
 import laika.api.ext.{ExtensionBundle, MarkupExtensions, RewriteRules}
+import laika.ast.{InvalidElement, Document, Path, TemplateRoot, MessageLevel, RewriteRule, StyleDeclaration}
 import laika.directive.{ConfigHeaderParser, DirectiveSupport, StandardDirectives}
 import laika.factory.{MarkupParser, RenderFormat}
 import laika.io.DocumentType.Ignored
 import laika.io.{DefaultDocumentTypeMatcher, DocumentType}
 import laika.parse.core.Parser
 import laika.parse.core.combinator.Parsers.success
-import laika.parse.css.Styles.StyleDeclaration
 import laika.rewrite.DocumentCursor
-import laika.tree.Documents.Document
-import laika.tree.Elements.{Fatal, InvalidElement, MessageLevel, RewriteRule}
-import laika.tree.Paths.Path
-import laika.tree.Templates.TemplateRoot
 
 import scala.annotation.tailrec
 
@@ -47,7 +43,7 @@ import scala.annotation.tailrec
   */
 case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
                             bundleFilter: BundleFilter = BundleFilter(),
-                            minMessageLevel: MessageLevel = Fatal,
+                            minMessageLevel: MessageLevel = MessageLevel.Fatal,
                             renderFormatted: Boolean = true,
                             parallel: Boolean = false) extends RenderConfig {
 

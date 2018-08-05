@@ -17,7 +17,7 @@
 package laika.parse.rst.ext
 
 import laika.parse.core.markup.RecursiveParsers
-import laika.tree.Elements._
+import laika.ast._
 import laika.util.Builders._
 import laika.util.~
 

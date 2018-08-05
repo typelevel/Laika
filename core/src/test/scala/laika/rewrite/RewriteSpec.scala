@@ -18,8 +18,8 @@ package laika.rewrite
 
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
-import laika.tree.Elements._
-import laika.tree.helper.ModelBuilder
+import laika.ast._
+import laika.ast.helper.ModelBuilder
  
 class RewriteSpec extends FlatSpec 
                   with Matchers

@@ -19,7 +19,7 @@ package laika.parse.helper
 import laika.parse.core.Parser
 import laika.parse.core.combinator.Parsers._
 import laika.parse.core.markup.DefaultRecursiveParsers
-import laika.tree.Elements.Block
+import laika.ast.Block
 
 /**
   * @author Jens Halm

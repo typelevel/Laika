@@ -22,7 +22,7 @@ import laika.parse.core.markup.InlineParsers.text
 import laika.parse.core.markup.RecursiveSpanParsers
 import laika.parse.core.text.DelimitedText
 import laika.parse.core.text.TextParsers._
-import laika.tree.Elements._
+import laika.ast._
 import laika.util.~
  
 /** Provides all inline parsers for Markdown text except for those dealing

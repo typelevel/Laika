@@ -19,20 +19,17 @@ package laika.api
 import java.io.{ByteArrayInputStream, StringReader}
 
 import laika.api.ext.{BundleProvider, ExtensionBundle}
+import laika.ast._
+import laika.ast.helper.DocumentViewBuilder._
+import laika.ast.helper.{InputBuilder, ModelBuilder}
 import laika.format.{Markdown, ReStructuredText}
 import laika.io.DocumentType
 import laika.io.DocumentType._
 import laika.parse.core.Parser
 import laika.parse.core.text.TextParsers
-import laika.parse.css.Styles.{ElementType, StyleDeclaration, StyleDeclarationSet}
 import laika.parse.rst.Elements.CustomizedTextRole
 import laika.rewrite.TemplateRewriter
-import laika.tree.Documents._
-import laika.tree.Elements._
-import laika.tree.Paths.{Path, Root}
-import laika.tree.Templates.{TemplateRoot, TemplateString}
-import laika.tree.helper.DocumentViewBuilder._
-import laika.tree.helper.{InputBuilder, ModelBuilder}
+import Path.Root
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.io.Codec
@@ -315,7 +312,7 @@ class ParseAPISpec extends FlatSpec
         }
       }
       def styleDecl(styleName: String, order: Int = 0) =
-        StyleDeclaration(ElementType("Type"), styleName -> "foo").increaseOrderBy(order)
+        StyleDeclaration(StylePredicate.ElementType("Type"), styleName -> "foo").increaseOrderBy(order)
       val parser: Parser[Set[StyleDeclaration]] = TextParsers.any ^^ {n => Set(styleDecl(n))}
       val dirs = """- main1.aaa.css:name
         |- main2.bbb.css:name2
@@ -347,7 +344,7 @@ class ParseAPISpec extends FlatSpec
   
   it should "add indentation information if an embedded root is preceded by whitespace characters" in {
     new TreeParser {
-      import laika.tree.Templates.EmbeddedRoot
+      import laika.ast.EmbeddedRoot
       val dirs = """- default.template.html:template
         |- doc.md:multiline""".stripMargin
       val docResult = DocumentView(Root / "doc.md", Content(List(tRoot(
@@ -362,7 +359,7 @@ class ParseAPISpec extends FlatSpec
   
   it should "not add indentation information if an embedded root is preceded by non-whitespace characters" in {
     new TreeParser {
-      import laika.tree.Templates.EmbeddedRoot
+      import laika.ast.EmbeddedRoot
       val dirs = """- default.template.html:template2
         |- doc.md:multiline""".stripMargin
       val docResult = DocumentView(Root / "doc.md", Content(List(tRoot(

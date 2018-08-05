@@ -17,7 +17,7 @@
 package laika.api.ext
 
 import laika.rewrite.{DocumentCursor, LinkResolver, SectionBuilder}
-import laika.tree.Elements.{Element, RewriteRule}
+import laika.ast.{Element, RewriteRule}
 
 /** Utilities for dealing with rewrite rules.
  * 

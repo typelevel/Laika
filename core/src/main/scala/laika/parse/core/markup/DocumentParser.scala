@@ -18,15 +18,12 @@ package laika.parse.core.markup
 
 import com.typesafe.config.{Config, ConfigFactory}
 import laika.api.ext.MarkupExtensions
+import laika.ast._
 import laika.directive.ConfigHeaderParser
 import laika.factory.MarkupParser
 import laika.io.Input
 import laika.parse.core.Parser
 import laika.parse.core.text.TextParsers.unsafeParserFunction
-import laika.tree.Documents.{Document, TemplateDocument}
-import laika.tree.Elements._
-import laika.tree.Paths.Path
-import laika.tree.Templates.{TemplateElement, TemplateRoot, TemplateSpan, TemplateString}
 import laika.util.~
 
 /** Responsible for creating the top level parsers for text markup and template documents,

@@ -1,8 +1,7 @@
+import laika.ast._
 import laika.directive.DirectiveRegistry
-import laika.tree.Elements._
 import laika.directive.Directives
 import laika.directive.Directives._
-import laika.tree.Templates.TemplateString
 
 name := "site-directives"
 

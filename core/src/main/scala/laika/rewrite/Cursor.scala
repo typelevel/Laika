@@ -17,10 +17,8 @@
 package laika.rewrite
 
 import com.typesafe.config.Config
-import laika.tree.Documents._
-import laika.tree.ElementTraversal
-import laika.tree.Elements.{Block, RewriteRule, RootElement}
-import laika.tree.Paths.Root
+import laika.ast._
+import laika.ast.Path.Root
 
 /** A cursor provides the necessary context during a rewrite operation.
   * The stateless document tree cannot provide access to parent or sibling

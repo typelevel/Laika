@@ -19,7 +19,7 @@ package laika.parse.rst
 import laika.api.Transform
 import laika.format.{HTML, ReStructuredText}
 import laika.transform.helper.FileTransformerUtil
-import laika.tree.Elements._
+import laika.ast._
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.io.Codec

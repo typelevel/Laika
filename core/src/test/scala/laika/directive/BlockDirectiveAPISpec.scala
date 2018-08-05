@@ -23,9 +23,8 @@ import laika.parse.core.combinator.Parsers
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Parser, RootParserProvider}
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
-import laika.tree.Elements._
-import laika.tree.Templates.MarkupContextReference
-import laika.tree.helper.ModelBuilder
+import laika.ast._
+import laika.ast.helper.ModelBuilder
 import org.scalatest.{FlatSpec, Matchers}
 
 

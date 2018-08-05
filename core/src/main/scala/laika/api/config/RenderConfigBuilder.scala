@@ -18,7 +18,7 @@ package laika.api.config
 
 import laika.api.ext.ExtensionBundle
 import laika.factory.RenderFormat
-import laika.tree.Elements.{MessageLevel, RenderFunction}
+import laika.ast.{MessageLevel, RenderFunction}
 
 /** API for specifying configuration options that apply to all
   * kinds of operations that contain a rendering step (Render and Transform APIs).

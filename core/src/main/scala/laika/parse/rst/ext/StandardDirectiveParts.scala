@@ -20,7 +20,7 @@ import laika.parse.core.markup.RecursiveParsers
 import laika.parse.core.text.TextParsers
 import Directives.DirectivePart
 import Directives.Parts._
-import laika.tree.Elements._
+import laika.ast._
 
 /**
   * @author Jens Halm

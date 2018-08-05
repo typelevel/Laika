@@ -20,12 +20,11 @@ import laika.api.config.OperationConfig
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 import laika.io.DocumentType.Markup
-import laika.tree.helper.ModelBuilder
-import laika.tree.Elements._
-import laika.tree.Documents._
-import laika.tree.helper.DocumentViewBuilder.{Documents => Docs}
-import laika.tree.helper.DocumentViewBuilder._
-import laika.tree.Paths._
+import laika.ast.helper.ModelBuilder
+import laika.ast._
+import laika.ast.helper.DocumentViewBuilder.{Documents => Docs}
+import laika.ast.helper.DocumentViewBuilder._
+import Path._
 
 class CrossReferenceSpec extends FlatSpec 
                       with Matchers

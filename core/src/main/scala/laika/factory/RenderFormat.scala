@@ -18,10 +18,8 @@ package laika.factory
 
 import laika.api.config.RenderConfig
 import laika.api.ext.{RenderTheme, StaticDocuments}
+import laika.ast.{Element, MessageLevel, RenderFunction, StyleDeclarationSet, TemplateRoot}
 import laika.io.Output
-import laika.parse.css.Styles.StyleDeclarationSet
-import laika.tree.Elements.{Element, MessageLevel, RenderFunction}
-import laika.tree.Templates.TemplateRoot
 
 /** Responsible for creating renderer instances for a specific output format.
  *  A renderer is simply a function of type `Element => Unit`. In addition

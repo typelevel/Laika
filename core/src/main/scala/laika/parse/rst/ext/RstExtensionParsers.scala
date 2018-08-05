@@ -25,7 +25,7 @@ import laika.parse.rst.BaseParsers._
 import Directives._
 import laika.parse.rst.Elements.{SubstitutionDefinition, _}
 import TextRoles._
-import laika.tree.Elements._
+import laika.ast._
 import laika.util.Builders._
 import laika.util.~
 

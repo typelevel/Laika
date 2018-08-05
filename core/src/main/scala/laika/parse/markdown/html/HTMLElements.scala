@@ -16,7 +16,7 @@
 
 package laika.parse.markdown.html
 
-import laika.tree.Elements._
+import laika.ast._
 
 /** The document tree model for all types of verbatim HTML elements.
  *  This includes orphaned start and end tags with no matching second tag.

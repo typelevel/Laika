@@ -18,7 +18,7 @@ package laika.parse.core.markup
 
 import laika.parse.core.Parser
 import laika.parse.core.text.DelimitedText
-import laika.tree.Elements.{Block, Span}
+import laika.ast.{Block, Span}
 
 /** Provides parsers for nested blocks, custom block parser implementations
   * can use these without knowing the available span types of the host

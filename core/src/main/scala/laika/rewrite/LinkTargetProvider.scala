@@ -18,8 +18,7 @@ package laika.rewrite
 
 import laika.rewrite.IdGenerators._
 import laika.rewrite.LinkTargets._
-import laika.tree.Elements._
-import laika.tree.Paths.Path
+import laika.ast._
 
 import scala.collection.mutable.ListBuffer
 

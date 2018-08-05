@@ -19,9 +19,8 @@ package laika.api.config
 import laika.api.ext.{BundleProvider, ExtensionBundle}
 import laika.factory.MarkupParser
 import laika.io.DocumentType.{Markup, Static, Template}
-import laika.tree.Documents.Document
-import laika.tree.Elements._
-import laika.tree.Paths.Root
+import laika.ast._
+import laika.ast.Path.Root
 import org.scalatest.{Matchers, WordSpec}
 
 /**
@@ -81,8 +80,6 @@ class OperationConfigSpec extends WordSpec with Matchers {
   }
 
   "The configuration for the docTypeMatcher" should {
-
-    import laika.tree.Paths._
 
     "merge docTypeMatcher from a markup extension with the docTypeMatcher from an app extension" in new BundleSetup {
       val parserBundles = Seq(BundleProvider.forDocTypeMatcher { case Root / "foo" => Markup })

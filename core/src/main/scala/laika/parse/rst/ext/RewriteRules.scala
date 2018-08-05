@@ -19,7 +19,7 @@ package laika.parse.rst.ext
 import laika.parse.rst.Elements._
 import laika.parse.rst.ext.TextRoles.TextRole
 import laika.rewrite.DocumentCursor
-import laika.tree.Elements._
+import laika.ast._
 
 /** 
  *  The default rewrite rules that get applied to the raw document tree after parsing

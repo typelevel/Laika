@@ -20,18 +20,16 @@ import java.io._
 
 import laika.api.Transform.TransformMappedOutput
 import laika.api.ext.{BundleProvider, ExtensionBundle}
+import laika.ast._
+import laika.ast.Path.Root
+import laika.ast.helper.InputBuilder
+import laika.ast.helper.OutputBuilder.{TestOutputTree, readFile}
 import laika.format.{AST, Markdown, ReStructuredText, XSLFO}
 import laika.io.DocumentType.Static
 import laika.parse.core.Parser
 import laika.parse.core.text.TextParsers
-import laika.parse.css.Styles.{ElementType, StyleDeclaration}
-import laika.render.helper.RenderResult
 import laika.render.TextWriter
-import laika.tree.Elements.Text
-import laika.tree.Paths.Root
-import laika.tree.Templates._
-import laika.tree.helper.OutputBuilder.{TestOutputTree, readFile}
-import laika.tree.helper.{InputBuilder, OutputBuilder}
+import laika.render.helper.RenderResult
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.io.{Codec, Source}
@@ -135,11 +133,10 @@ class TransformAPISpec extends FlatSpec
 
   
   trait TreeTransformer extends InputBuilder {
+    import laika.ast.Path
+    import laika.ast.helper.OutputBuilder._
     import laika.directive.Directives.Templates
     import laika.io.DocumentType
-    import laika.tree.Paths.Path
-    import laika.tree.helper.OutputBuilder
-    import laika.tree.helper.OutputBuilder._
 
     val dirs: String
     
@@ -273,7 +270,7 @@ class TransformAPISpec extends FlatSpec
     new TreeTransformer {
       // the AST renderer does not use stylesheets, so we must use XSL-FO here
       def styleDecl(fontSize: String) =
-        StyleDeclaration(ElementType("Paragraph"), "font-size" -> s"${fontSize}pt")
+        StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> s"${fontSize}pt")
       val parser: Parser[Set[StyleDeclaration]] = TextParsers.any ^^ { n => Set(styleDecl(n)) }
       val dirs = """- doc1.md:name
         |- styles.fo.css:style""".stripMargin
@@ -480,7 +477,7 @@ class TransformAPISpec extends FlatSpec
   }
   
   trait FileSystemTest {
-    import laika.tree.helper.OutputBuilder.readFile
+    import laika.ast.helper.OutputBuilder.readFile
     
     def renderedDynDoc (num: Int) = """RootElement - Blocks: 1
       |. TemplateRoot - Spans: 1
@@ -521,7 +518,7 @@ class TransformAPISpec extends FlatSpec
   }
 
   it should "read from and write to directories" in {
-    import laika.tree.helper.OutputBuilder.createTempDirectory
+    import laika.ast.helper.OutputBuilder.createTempDirectory
     new FileSystemTest {
       val sourceName = getClass.getResource("/trees/a/").getFile
       val targetDir = createTempDirectory("renderToDir")
@@ -531,7 +528,7 @@ class TransformAPISpec extends FlatSpec
   }
 
   it should "allow to specify custom exclude filter" in {
-    import laika.tree.helper.OutputBuilder.createTempDirectory
+    import laika.ast.helper.OutputBuilder.createTempDirectory
     new FileSystemTest {
       val sourceName = getClass.getResource("/trees/a/").getFile
       val targetDir = createTempDirectory("renderToDir")
@@ -541,7 +538,7 @@ class TransformAPISpec extends FlatSpec
   }
 
   it should "read from two root directories" in {
-    import laika.tree.helper.OutputBuilder.createTempDirectory
+    import laika.ast.helper.OutputBuilder.createTempDirectory
     new FileSystemTest {
       val source1 = new File(getClass.getResource("/trees/a/").getFile)
       val source2 = new File(getClass.getResource("/trees/b/").getFile)
@@ -552,7 +549,7 @@ class TransformAPISpec extends FlatSpec
   }
 
   it should "allow to use the same directory as input and output" in {
-    import laika.tree.helper.OutputBuilder.{createTempDirectory, readFile, writeFile}
+    import laika.ast.helper.OutputBuilder.{createTempDirectory, readFile, writeFile}
     new FileSystemTest {
       val targetDir = createTempDirectory("renderToDir")
       val staticFile = new File(targetDir, "static.txt")
@@ -573,7 +570,7 @@ class TransformAPISpec extends FlatSpec
   }
 
   it should "not copy files from the output directory if it's nested inside the input directory" in {
-    import laika.tree.helper.OutputBuilder.{createTempDirectory, readFile, writeFile}
+    import laika.ast.helper.OutputBuilder.{createTempDirectory, readFile, writeFile}
     new FileSystemTest {
       val targetDir = createTempDirectory("renderToDir")
       val staticFile = new File(targetDir, "static.txt")

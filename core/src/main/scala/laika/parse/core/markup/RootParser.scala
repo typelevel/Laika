@@ -20,7 +20,7 @@ import laika.api.ext._
 import laika.factory.MarkupParser
 import laika.parse.core._
 import laika.parse.core.text.TextParsers._
-import laika.tree.Elements._
+import laika.ast._
 
 /** Responsible of assembling all the block, inline, text and configuration parsers
   * supported by a text markup language.

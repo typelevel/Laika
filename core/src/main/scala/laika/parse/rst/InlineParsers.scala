@@ -24,7 +24,7 @@ import laika.parse.core.text.{DelimitedText, DelimiterOptions}
 import laika.parse.rst.BaseParsers._
 import laika.parse.rst.Elements.{InterpretedText, ReferenceName, SubstitutionReference}
 import laika.parse.util.URIParsers
-import laika.tree.Elements._
+import laika.ast._
 import laika.util.~
 
 

@@ -16,9 +16,7 @@
 
 package laika.rewrite
 
-import laika.tree.Documents._
-import laika.tree.Paths._
-import laika.tree.Elements._
+import laika.ast._
 
 
 /** Generates the tree model (consisting of BulletList elements) for

@@ -20,7 +20,7 @@ import laika.api.Render._
 import laika.api.config.{OperationConfig, TransformConfigBuilder}
 import laika.factory.{MarkupParser, RenderResultProcessor, RenderFormat}
 import laika.io._
-import laika.tree.Documents._
+import laika.ast._
 
 /** API for performing a transformation operation from and to various types of input and output,
  *  combining a parse and render operation. 

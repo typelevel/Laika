@@ -17,12 +17,12 @@
 package laika.sbt
 
 import laika.api.ext.{ExtensionBundle, RenderTheme}
+import laika.ast
+import laika.ast.{RenderFunction, RewriteRule}
 import laika.format.{HTML, XSLFO}
 import laika.io.DocumentType
 import laika.render.{FOWriter, HTMLWriter}
 import laika.rewrite.DocumentCursor
-import laika.tree.Elements.{RenderFunction, RewriteRule}
-import laika.tree.Paths
 
 /** API shortcuts for the most common extension points that create
   * an extension bundle from a single feature, so that it can be passed
@@ -78,8 +78,8 @@ trait ExtensionBundles {
     *
     * The matcher function determines the document type of the input based on its path.
     */
-  def laikaDocTypeMatcher (f: PartialFunction[Paths.Path, DocumentType]): ExtensionBundle = new ExtensionBundle {
-    override def docTypeMatcher: PartialFunction[Paths.Path, DocumentType] = f
+  def laikaDocTypeMatcher (f: PartialFunction[ast.Path, DocumentType]): ExtensionBundle = new ExtensionBundle {
+    override def docTypeMatcher: PartialFunction[ast.Path, DocumentType] = f
   }
 
 }

@@ -18,8 +18,8 @@ package laika.factory
 
 import laika.io.Output.BinaryOutput
 import laika.io.OutputTree
-import laika.tree.Documents.DocumentTree
-import laika.tree.Templates.TemplateRoot
+import laika.ast.DocumentTree
+import laika.ast.TemplateRoot
 
 /** Post processor for the result output of a renderer.
  *  Useful for scenarios where interim formats will be generated

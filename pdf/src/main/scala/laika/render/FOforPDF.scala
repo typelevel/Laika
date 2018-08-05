@@ -17,15 +17,12 @@
 package laika.render
 
 import laika.api.Render
-import laika.format.{PDFConfig, XSLFO}
+import laika.ast._
+import laika.format.{PDF, XSLFO}
 import laika.io.OutputTree
 import laika.io.OutputTree.{ResultTree, StringOutputTree}
 import laika.render.FOWriter._
 import laika.rewrite.TocGenerator
-import laika.tree.Documents._
-import laika.tree.Elements._
-import laika.tree.Paths.{Current, Path, Root}
-import laika.tree.Templates.{TemplateContextReference, TemplateRoot}
 
 /** Responsible for rendering the XSL-FO for an entire document tree
  *  as an interim result to be consumed by the PDF post processor.
@@ -36,7 +33,7 @@ import laika.tree.Templates.{TemplateContextReference, TemplateRoot}
  * 
  *  @author Jens Halm
  */
-class FOforPDF (config: Option[PDFConfig]) {
+class FOforPDF (config: Option[PDF.Config]) {
 
 
   private object DocNames {
@@ -153,9 +150,9 @@ class FOforPDF (config: Option[PDFConfig]) {
    *  output. Preparation may include insertion of tree or document titles
    *  and a table of content, depending on configuration.
    */
-  def prepareTree (tree: DocumentTree, config: PDFConfig): DocumentTree = {
+  def prepareTree (tree: DocumentTree, config: PDF.Config): DocumentTree = {
     val insertLinks = config.bookmarkDepth > 0 || config.tocDepth > 0
-    val withoutTemplates = tree.copy(templates = Seq(TemplateDocument(Root / "default.template.fo", 
+    val withoutTemplates = tree.copy(templates = Seq(TemplateDocument(Path.Root / "default.template.fo",
         TemplateRoot(List(TemplateContextReference("document.content"))))))
     val withDocTitles = if (config.insertTitles || insertLinks) insertDocTitles(!config.insertTitles)(withoutTemplates) else withoutTemplates
     val withToc = if (config.tocDepth > 0) insertToc(withDocTitles, config.tocDepth, config.tocTitle) else withDocTitles
@@ -177,7 +174,7 @@ class FOforPDF (config: Option[PDFConfig]) {
     
     val pdfConfig = config getOrElse {
         
-      val defaults = PDFConfig.default
+      val defaults = PDF.Config.default
       
       def getOpt [T](key: String, read: String => T): Option[T] = 
         if (tree.config.hasPath(key)) Some(read(key)) else None
@@ -187,13 +184,13 @@ class FOforPDF (config: Option[PDFConfig]) {
       val tocDepth = getOpt("pdf.toc.depth", tree.config.getInt).getOrElse(defaults.tocDepth)
       val tocTitle = getOpt("pdf.toc.title", tree.config.getString).orElse(defaults.tocTitle)
  
-      PDFConfig(insertTitles, bookmarkDepth, tocDepth, tocTitle)
+      PDF.Config(insertTitles, bookmarkDepth, tocDepth, tocTitle)
     }
     
     def getDefaultTemplate: TemplateDocument = {
       val templateName = "default.template.fo"
-      tree.selectTemplate(Current / templateName)
-        .getOrElse(TemplateDocument(Root / templateName, defaultTemplateRoot))
+      tree.selectTemplate(Path.Current / templateName)
+        .getOrElse(TemplateDocument(Path.Root / templateName, defaultTemplateRoot))
     }
     
     def append (sb: StringBuilder, result: ResultTree, src: DocumentTree): Unit = {
@@ -217,7 +214,7 @@ class FOforPDF (config: Option[PDFConfig]) {
     
     def applyTemplate(foString: String, template: TemplateDocument, tree: DocumentTree): String = {
       val result = RawContent(Seq("fo"), foString)
-      val finalDoc = Document(Root / "merged.fo", RootElement(Seq(result)), fragments = generateBookmarks(tree, pdfConfig.bookmarkDepth))
+      val finalDoc = Document(Path.Root / "merged.fo", RootElement(Seq(result)), fragments = generateBookmarks(tree, pdfConfig.bookmarkDepth))
       val templateApplied = template.applyTo(finalDoc)
       Render as XSLFO from templateApplied toString
     }

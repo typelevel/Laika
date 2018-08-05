@@ -17,7 +17,7 @@
 package laika.render
 
 import scala.collection.mutable.StringBuilder
-import laika.tree.Elements._
+import laika.ast._
 
 /** Base type for writers that produce tag-based output formats like XML 
  *  or HTML.

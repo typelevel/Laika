@@ -33,12 +33,11 @@ Reading from a String:
     val document = Parse as Markdown fromString input
     
 The `document` instance gives you the full document model. See
-the [Documents Scaladoc][doc-scaladoc] for details.
+the [AST Scaladoc][ast-scaladoc] for details.
 
 The `content` property of the `document` instance holds
 the parsed content of the document in the form a tree 
-of case classes. You can read the
-[Elements Scaladoc][elements-scaladoc] for an overview of all node types.
+of case classes.
 
 You can then specify rewrite
 rules to transform some nodes of the model (see [Document Tree Rewriting] for 
@@ -90,8 +89,7 @@ This codec will then be used by `fromDirectory` and other methods
 shown in the examples above.
 
 
-[doc-scaladoc]: ../api/#laika.tree.Documents$
-[elements-scaladoc]: ../api/#laika.tree.Elements$
+[ast-scaladoc]: ../api/#laika.ast
     
 
 The Render API

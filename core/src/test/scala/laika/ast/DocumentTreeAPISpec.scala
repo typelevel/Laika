@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package laika.tree
+package laika.ast
 
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 import laika.io.DocumentType.Markup
-import laika.tree.helper.ModelBuilder
-import laika.tree.Templates.TemplateRoot
-import laika.tree.Elements._
-import laika.tree.Documents._
-import laika.tree.helper.DocumentViewBuilder.{Documents => Docs}
-import laika.tree.helper.DocumentViewBuilder._
-import laika.tree.Paths.Path
-import laika.tree.Paths.Current
-import laika.tree.Paths.Root
+import laika.ast.Path.{Current, Root}
+import laika.ast.helper.ModelBuilder
+import laika.ast.helper.DocumentViewBuilder.{Documents => Docs}
+import laika.ast.helper.DocumentViewBuilder._
 import laika.rewrite.DocumentCursor
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.TreeCursor

@@ -16,7 +16,7 @@
 
 package laika.render
 
-import laika.tree.Elements._
+import laika.ast._
 
 /** Default renderer implementation for the Formatted AST output format.
   *

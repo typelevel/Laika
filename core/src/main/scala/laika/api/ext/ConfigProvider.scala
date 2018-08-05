@@ -17,8 +17,8 @@
 package laika.api.ext
 
 import com.typesafe.config.{Config, ConfigFactory, ConfigParseOptions}
+import laika.ast.Path
 import laika.io.Input
-import laika.tree.Paths.{Path, Root}
 import laika.parse.core.text.TextParsers._
 
 /** Factory for Typesafe Config instances that add information
@@ -63,8 +63,8 @@ object ConfigImplicits {
       if (config.hasPath(key)) {
         val value = config.getValue(key)
         val desc = value.origin.description
-        val basePath = laikaPath.parse(desc).getOrElse(Root)
-        Some((basePath / Path(value.unwrapped().toString)).relativeTo(Root))
+        val basePath = laikaPath.parse(desc).getOrElse(Path.Root)
+        Some((basePath / Path(value.unwrapped().toString)).relativeTo(Path.Root))
       }
       else None
     }

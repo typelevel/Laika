@@ -16,11 +16,8 @@
 
 package laika.render
 
+import laika.ast._
 import laika.render.FOWriter._
-import laika.tree.ElementTraversal
-import laika.tree.Elements._
-import laika.tree.Paths.Path
-import laika.tree.Templates._
 import laika.util.RomanNumerals
 
 /** Default renderer implementation for the XSL-FO output format.
@@ -73,6 +70,7 @@ class FORenderer (out: FOWriter, rootElement: Element, path: Path, messageLevel:
         List(Paragraph(List(img)), Paragraph(caption, Styles("caption")), BlockSequence(legend, Styles("legend")))
 
       def enumLabel (format: EnumFormat, num: Int): String = {
+        import EnumType._
         val pos = format.enumType match {
           case Arabic => num.toString
           case LowerAlpha => ('a' + num - 1).toChar.toString

@@ -22,7 +22,7 @@ import laika.parse.rst.InlineParsers
 import laika.parse.rst.ext.Directives.Directive
 import laika.parse.rst.ext.TextRoles.TextRole
 import laika.rewrite.DocumentCursor
-import laika.tree.Elements.{Block, RewriteRule, Span}
+import laika.ast.{Block, RewriteRule, Span}
 
 /** Internal API that processes all extensions defined
   * by one or more RstExtensionRegistries. This extension

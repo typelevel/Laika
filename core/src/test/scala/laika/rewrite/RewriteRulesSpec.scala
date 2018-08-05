@@ -19,14 +19,11 @@ package laika.rewrite
 import laika.api.config.OperationConfig
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
-import laika.tree.Elements._
-import laika.tree.Documents._
+import laika.ast._
 import laika.parse.rst.Elements._
-import laika.tree.helper.ModelBuilder
-import laika.tree.Elements._
-import laika.tree.Paths.Root
-import laika.tree.Paths.Current
- 
+import laika.ast.helper.ModelBuilder
+import laika.ast.Path.Root
+
 class RewriteRulesSpec extends FlatSpec 
                   with Matchers
                   with ModelBuilder {
@@ -41,10 +38,10 @@ class RewriteRulesSpec extends FlatSpec
   def invalidSpan (message: String, fallback: String): InvalidSpan = InvalidElement(message, fallback).asSpan
       
   def invalidBlock (message: String, fallback: Block): InvalidBlock =
-      InvalidBlock(SystemMessage(laika.tree.Elements.Error, message), fallback)
+      InvalidBlock(SystemMessage(MessageLevel.Error, message), fallback)
       
   def invalidSpan (message: String, fallback: Span): InvalidSpan =
-      InvalidSpan(SystemMessage(laika.tree.Elements.Error, message), fallback)
+      InvalidSpan(SystemMessage(MessageLevel.Error, message), fallback)
       
   def fnRefs (labels: FootnoteLabel*): Paragraph = p((labels map { label => FootnoteReference(label,toSource(label))}):_*)
 
@@ -196,7 +193,7 @@ class RewriteRulesSpec extends FlatSpec
   
   "The rewrite rules for image references" should "resolve external link references" in {
     val rootElem = root(p(simpleImgRef()), ExternalLinkDefinition("name", "foo.jpg"))
-    rewritten (rootElem) should be (root(p(img("text", "foo.jpg", Some(PathInfo(Root / "foo.jpg", Current / "foo.jpg"))))))
+    rewritten (rootElem) should be (root(p(img("text", "foo.jpg", Some(PathInfo(Root / "foo.jpg", Path.Current / "foo.jpg"))))))
   }
   
   it should "replace an unresolvable reference with an invalid span" in {

@@ -16,7 +16,7 @@
 
 package laika.parse.markdown
 
-import laika.tree.Elements.{Block, Header, Id}
+import laika.ast.{Block, Header, Id}
 
 /** Block list post-processor that auto-generates ids for
   * headers so that they can serve as link target within

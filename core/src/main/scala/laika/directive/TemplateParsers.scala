@@ -16,15 +16,13 @@
 
 package laika.directive
 
+import laika.ast._
 import laika.directive.Directives.Templates
 import laika.io.Input
 import laika.parse.core.markup.DefaultRecursiveSpanParsers
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Parser, ParserContext}
 import laika.rewrite.DocumentCursor
-import laika.tree.Documents.TemplateDocument
-import laika.tree.Elements._
-import laika.tree.Templates._
 
 
 /** Provides the parsers for directives and context references in templates.

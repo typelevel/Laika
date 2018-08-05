@@ -23,7 +23,7 @@ import laika.parse.core.text.Characters
 import laika.parse.core.text.TextParsers.{opt, _}
 import laika.parse.rst.BaseParsers._
 import laika.parse.rst.Elements._
-import laika.tree.Elements._
+import laika.ast._
 import laika.util.~
 
 import scala.annotation.tailrec
@@ -100,7 +100,7 @@ object BlockParsers {
   
   /** Parses a doctest block. This is a feature which is very specific to the
    *  world of Python where reStructuredText originates. Therefore the resulting
-   *  `DoctestBlock` tree element is not part of the standard Laika tree model.
+   *  `DoctestBlock` tree element is not part of the standard Laika AST model.
    *  When this block type is used the corresponding special renderers must 
    *  be enabled (e.g. the `ExtendedHTML` renderer for HTML).
    *  

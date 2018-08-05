@@ -19,7 +19,7 @@ package laika.parse.rst
 import laika.parse.core.Parser
 import laika.parse.core.text.{Characters, TextParsers}
 import laika.parse.core.text.TextParsers._
-import laika.tree.Elements._
+import laika.ast._
 
 /**
   * @author Jens Halm

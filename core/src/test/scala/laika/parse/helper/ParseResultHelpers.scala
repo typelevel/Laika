@@ -17,7 +17,7 @@
 package laika.parse.helper
 
 import laika.parse.core.{Failure, Parsed, Success}
-import laika.tree.Elements.{Element, ElementContainer}
+import laika.ast.{Element, ElementContainer}
 import org.scalatest.matchers.MatchResult
 import org.scalatest.matchers.Matcher
 

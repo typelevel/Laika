@@ -21,8 +21,8 @@ import laika.parse.core.Parser
 import laika.parse.core.combinator.Parsers
 import laika.parse.core.text.TextParsers
 import laika.parse.core.text.TextParsers._
-import laika.tree.Elements.InvalidElement
-import laika.tree.Paths.Path
+import laika.ast.InvalidElement
+import laika.ast.Path
 
 /** Provides parser implementation for configuration header sections
   * in text markup files, which are expected to be in HOCON format

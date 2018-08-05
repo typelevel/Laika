@@ -18,7 +18,7 @@ package laika.parse.core.markup
 
 import laika.parse.core._
 import laika.parse.core.text.DelimitedText
-import laika.tree.Elements._
+import laika.ast._
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer

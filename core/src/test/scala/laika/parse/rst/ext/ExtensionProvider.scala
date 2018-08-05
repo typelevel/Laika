@@ -22,7 +22,7 @@ import laika.parse.core.markup.RootParser
 import laika.parse.rst.LinkTargetProcessor
 import laika.parse.rst.ext.Directives.Directive
 import laika.parse.rst.ext.TextRoles.TextRole
-import laika.tree.Elements.{Block, Span}
+import laika.ast.{Block, Span}
 
 /**
   * @author Jens Halm

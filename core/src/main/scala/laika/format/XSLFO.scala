@@ -17,16 +17,14 @@
 package laika.format
 
 import laika.api.config.RenderConfig
+import laika.ast.{StyleDeclarationSet, TemplateDocument, Element}
+import laika.ast.Path.Root
 import laika.directive.DefaultTemplateParser
 import laika.factory.RenderFormat
 import laika.io.{Input, Output}
 import laika.parse.core.combinator.Parsers
 import laika.parse.css.CSSParsers
-import laika.parse.css.Styles.StyleDeclarationSet
 import laika.render.{FORenderer, FOWriter}
-import laika.tree.Documents.TemplateDocument
-import laika.tree.Elements._
-import laika.tree.Paths.Root
 
 import scala.language.existentials
 
@@ -52,7 +50,7 @@ object XSLFO extends RenderFormat[FOWriter] {
   def newRenderer (output: Output, root: Element, render: Element => Unit,
                    styles: StyleDeclarationSet, config: RenderConfig): (FOWriter, Element => Unit) = {
 
-    val writer = new FOWriter(output asFunction, render, root, output.path, styles, formatted = config.renderFormatted)
+    val writer = new FOWriter(output.asFunction, render, root, output.path, styles, formatted = config.renderFormatted)
     val renderer = new FORenderer(writer, root, output.path, config.minMessageLevel)
 
     (writer, renderer.render)

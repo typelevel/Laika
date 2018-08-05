@@ -16,9 +16,9 @@
 
 package laika.rewrite
 
-import laika.tree.Documents.Document
-import laika.tree.Documents.DocumentTree
-import laika.tree.Documents.TreeContent
+import laika.ast.Document
+import laika.ast.DocumentTree
+import laika.ast.TreeContent
 import com.typesafe.config.Config
 
 /** Responsible for applying the navigation order to the 

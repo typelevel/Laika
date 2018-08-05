@@ -22,7 +22,7 @@ import laika.parse.core.{Failure, Parser, Success}
 import laika.parse.rst.BaseParsers.simpleRefName
 import laika.parse.rst.Elements.ReferenceName
 import laika.parse.rst.TableParsers
-import laika.tree.Elements._
+import laika.ast._
 
 /** Defines the custom argument and body parsers for the standard directives.
  *  Most of these delegate to the default block or inline parsers for `reStructuredText`,

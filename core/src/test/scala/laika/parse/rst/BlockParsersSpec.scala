@@ -24,8 +24,8 @@ import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.parse.rst.Elements._
 import laika.parse.rst.ext.Directives.DirectivePart
 import laika.parse.rst.ext.TextRoles.RoleDirectivePart
-import laika.tree.Elements.{Span, _}
-import laika.tree.helper.ModelBuilder
+import laika.ast._
+import laika.ast.helper.ModelBuilder
 import org.scalatest.{FlatSpec, Matchers}
     
 class BlockParsersSpec extends FlatSpec 

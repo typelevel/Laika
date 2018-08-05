@@ -19,7 +19,7 @@ package laika.parse.core.combinator
 import laika.io.Input
 import laika.parse.core._
 import laika.parse.core.text.Literal
-import laika.tree.Paths.Path
+import laika.ast.Path
 import laika.util.~
 
 import scala.util.{Try, Failure => TFailure, Success => TSuccess}

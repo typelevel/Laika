@@ -19,18 +19,15 @@ package laika.directive
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 import laika.api.Parse
-import laika.rewrite.DocumentCursor
-import laika.rewrite.TemplateRewriter
-import laika.tree.helper.ModelBuilder
-import laika.tree.Elements._
-import laika.tree.Paths._
-import laika.tree.Documents._
-import laika.tree.Templates.TemplateRoot
-import laika.tree.Templates.TemplateSpanSequence
-import com.typesafe.config.ConfigFactory
 import laika.api.config.OperationConfig
+import laika.ast._
+import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
 import laika.parse.core.ParserContext
+import laika.rewrite.DocumentCursor
+import laika.rewrite.TemplateRewriter
+import Path._
+import com.typesafe.config.ConfigFactory
 
 import scala.collection.JavaConversions._
 
@@ -309,7 +306,7 @@ class StandardDirectiveSpec extends FlatSpec
   }
   
   trait TocModel {
-    import laika.tree.Elements.TitledBlock
+    import laika.ast.TitledBlock
     
     val treeUnderTest = Root / "sub2"
     

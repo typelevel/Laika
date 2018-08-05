@@ -16,9 +16,9 @@
 
 package laika.parse.core.markup
 
+import laika.ast.{InvalidElement, Span}
 import laika.parse.core.text.DelimitedText
 import laika.parse.core.{Failure, Parser, Success}
-import laika.tree.Elements.{Error, InvalidElement, InvalidSpan, Span, SystemMessage, Text}
 
 /** Default implementation for parsing inline markup recursively.
   *

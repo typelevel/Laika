@@ -28,8 +28,8 @@ import laika.parse.core.ParserContext
 import java.io.File
 
 import laika.io.IO.FileBased
-import laika.tree.Paths.Path
-import laika.tree.Paths.Root
+import laika.ast.Path
+import laika.ast.Path.Root
 
 /** Represents the input for a parser, abstracting over various types of IO resources. 
  *  

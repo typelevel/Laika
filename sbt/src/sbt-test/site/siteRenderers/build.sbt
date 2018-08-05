@@ -1,4 +1,4 @@
-import laika.tree.Elements.Emphasized
+import laika.ast.Emphasized
 
 name := "site-renderers"
 

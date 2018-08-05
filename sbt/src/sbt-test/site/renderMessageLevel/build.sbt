@@ -1,4 +1,4 @@
-import laika.tree.Elements.Warning
+import laika.ast.MessageLevel.Warning
 
 name := "site-renderMessageLevel"
 

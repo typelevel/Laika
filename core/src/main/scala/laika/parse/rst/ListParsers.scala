@@ -22,7 +22,7 @@ import laika.parse.core.markup.BlockParsers._
 import laika.parse.core.markup.RecursiveParsers
 import laika.parse.core.text.TextParsers._
 import laika.parse.rst.Elements._
-import laika.tree.Elements._
+import laika.ast._
 import laika.util.{RomanNumerals, Stack, ~}
 
 import scala.annotation.tailrec
@@ -95,6 +95,7 @@ object ListParsers {
   }
   
   private lazy val enumListStart: Parser[(EnumFormat, Int)] = {
+    import EnumType._
     val firstLowerRoman = (anyOf('i','v','x','l','c','d','m').min(2) | anyOf('i').take(1)) ^^? 
       { num => Try(RomanNumerals.romanToInt(num.toUpperCase), LowerRoman).toStringEither }
     
@@ -122,7 +123,8 @@ object ListParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#enumerated-lists]].
    */
   lazy val enumList: BlockParserBuilder = BlockParser.withoutStartChar.recursive { implicit recParsers =>
-    
+    import EnumType._
+
     val lowerRoman = anyOf('i','v','x','l','c','d','m').min(1)
     val upperRoman = anyOf('I','V','X','L','C','D','M').min(1)
     val lowerAlpha = anyIn('a' to 'z').take(1)

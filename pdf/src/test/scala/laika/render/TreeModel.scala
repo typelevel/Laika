@@ -17,9 +17,8 @@
 package laika.render
 
 import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
-import laika.tree.Documents.{Document, DocumentTree}
-import laika.tree.Elements._
-import laika.tree.Paths.Root
+import laika.ast._
+import laika.ast.Path.Root
 
 trait TreeModel {
   

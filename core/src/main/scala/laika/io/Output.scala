@@ -26,8 +26,8 @@ import java.io.Writer
 
 import scala.collection.mutable.StringBuilder
 import scala.io.Codec
-import laika.tree.Paths.Path
-import laika.tree.Paths.Root
+import laika.ast.Path
+import laika.ast.Path.Root
 import java.io.BufferedOutputStream
 
 import laika.io.IO.FileBased

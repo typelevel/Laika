@@ -16,7 +16,7 @@
 
 package laika.rewrite
 
-import laika.tree.Paths.Path
+import laika.ast.Path
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer

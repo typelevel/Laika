@@ -17,7 +17,7 @@
 package laika.parse.markdown.html
 
 import laika.parse.markdown.html.HTMLElements._
-import laika.tree.Elements.{Span, TextContainer}
+import laika.ast.{Span, TextContainer}
 
 trait HTMLModelBuilder {
 

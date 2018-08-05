@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package laika.tree
+package laika.ast
 
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 
-import laika.tree.Paths._
+import Path._
 
 class PathAPISpec extends FlatSpec 
                   with Matchers {

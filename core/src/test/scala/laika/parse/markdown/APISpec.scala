@@ -19,7 +19,7 @@ package laika.parse.markdown
 import laika.api.Parse
 import laika.directive.DirectiveRegistry
 import laika.format.Markdown
-import laika.tree.helper.ModelBuilder
+import laika.ast.helper.ModelBuilder
 import org.scalatest.{FlatSpec, Matchers}
 
 class APISpec extends FlatSpec 

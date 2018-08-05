@@ -22,8 +22,7 @@ import laika.io.Output.BinaryOutput
 import laika.io.OutputTree
 import laika.io.OutputTree._
 import laika.render.TextWriter
-import laika.tree.Documents.{Document, DocumentTree}
-import laika.tree.Templates.TemplateRoot
+import laika.ast.{Document, DocumentTree, TemplateRoot}
 
 object TestRenderResultProcessor extends RenderResultProcessor[TextWriter] {
 

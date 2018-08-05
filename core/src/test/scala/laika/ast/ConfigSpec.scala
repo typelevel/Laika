@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package laika.tree
+package laika.ast
 
 import laika.api.Parse
 import laika.api.ext.BundleProvider
 import laika.format.{Markdown, ReStructuredText}
 import laika.rewrite.TemplateRewriter
-import laika.tree.Documents._
-import laika.tree.Paths.Current
-import laika.tree.Templates._
-import laika.tree.helper.{InputBuilder, ModelBuilder}
+import laika.ast.helper.{InputBuilder, ModelBuilder}
 import org.scalatest.{FlatSpec, Matchers}
 
 class ConfigSpec extends FlatSpec 
@@ -161,7 +158,7 @@ class ConfigSpec extends FlatSpec
       
       val tree = Parse.as(Markdown).using(BundleProvider.forConfigString(config5)).fromInputTree(builder(dirs))
       val result = TemplateRewriter.applyTemplates(tree, "html")
-      result.selectDocument(Current / "dir" / "input.md").get.content should be (expected)
+      result.selectDocument(Path.Current / "dir" / "input.md").get.content should be (expected)
     }
   }
   

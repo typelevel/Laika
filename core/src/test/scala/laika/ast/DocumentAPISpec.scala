@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.tree
+package laika.ast
 
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
@@ -23,8 +23,7 @@ import laika.api.config.OperationConfig
 import laika.api.ext.RewriteRules
 import laika.format.Markdown
 import laika.rewrite.DocumentCursor
-import laika.tree.Elements._
-import laika.tree.helper.ModelBuilder
+import laika.ast.helper.ModelBuilder
 
 class DocumentAPISpec extends FlatSpec 
                       with Matchers

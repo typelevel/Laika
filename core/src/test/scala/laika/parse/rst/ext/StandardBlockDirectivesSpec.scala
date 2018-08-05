@@ -16,23 +16,16 @@
 
 package laika.parse.rst.ext
 
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
-import laika.api.Parse
-import laika.parse.rst.Elements.Contents
-import laika.parse.rst.Elements.Include
-import laika.rewrite.TemplateRewriter
-import laika.tree.Documents._
-import laika.tree.Elements._
-import laika.tree.Paths.Current
-import laika.tree.Paths.Root
-import laika.tree.Templates.TemplateElement
-import laika.tree.Templates.TemplateContextReference
-import laika.tree.helper.ModelBuilder
-import com.typesafe.config.impl.SimpleConfigObject
 import com.typesafe.config.ConfigValueFactory
+import laika.api.Parse
 import laika.api.config.OperationConfig
+import laika.ast.Path.{Current, Root}
+import laika.ast._
+import laika.ast.helper.ModelBuilder
 import laika.format.ReStructuredText
+import laika.parse.rst.Elements.{Contents, Include}
+import laika.rewrite.TemplateRewriter
+import org.scalatest.{FlatSpec, Matchers}
 
 /**
  * @author Jens Halm

@@ -18,9 +18,8 @@ package laika.directive
 
 import laika.parse.core.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
-import laika.tree.Elements._
-import laika.tree.Templates._
-import laika.tree.helper.ModelBuilder
+import laika.ast._
+import laika.ast.helper.ModelBuilder
 import org.scalatest.{FlatSpec, Matchers}
 
 class TemplateParsersSpec extends FlatSpec 

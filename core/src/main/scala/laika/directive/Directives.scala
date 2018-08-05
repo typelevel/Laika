@@ -17,9 +17,8 @@
 package laika.directive
 
 import laika.util.Builders._
-import laika.tree.Elements._
+import laika.ast._
 import laika.rewrite.DocumentCursor
-import laika.tree.Templates.TemplateSpan
 import laika.util.~
 
 /** API for creating directives, the Laika's extension mechanism for creating

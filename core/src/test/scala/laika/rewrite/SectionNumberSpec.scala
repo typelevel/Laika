@@ -19,13 +19,11 @@ package laika.rewrite
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 import laika.io.DocumentType.Markup
-import laika.tree.helper.ModelBuilder
-import laika.tree.Elements._
-import laika.tree.Documents._
-import laika.tree.helper.DocumentViewBuilder.{Documents => Docs}
-import laika.tree.helper.DocumentViewBuilder._
-import laika.tree.Paths.Path
-import laika.tree.Paths.Root
+import laika.ast.helper.ModelBuilder
+import laika.ast._
+import laika.ast.helper.DocumentViewBuilder.{Documents => Docs}
+import laika.ast.helper.DocumentViewBuilder._
+import laika.ast.Path.Root
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import laika.api.config.OperationConfig
@@ -137,11 +135,11 @@ class SectionNumberSpec extends FlatSpec
     
     def resultView (docNum: List[Int]): List[DocumentContent] = List(
       Content(List(
-        laika.tree.Elements.Title(numberedHeader(1,1, docNum, "title").content,Id("title1") + Styles("title")),
+        laika.ast.Title(numberedHeader(1,1, docNum, "title").content,Id("title1") + Styles("title")),
         numberedSection(2,2, docNum:+1, numberedSection(3,3, docNum:+1:+1)),
         numberedSection(2,4, docNum:+2, numberedSection(3,5, docNum:+2:+1))
       )),
-      laika.tree.helper.DocumentViewBuilder.Title(numberedHeader(1,1, docNum, "title").content),
+      laika.ast.helper.DocumentViewBuilder.Title(numberedHeader(1,1, docNum, "title").content),
       Sections(List(
         numberedSectionInfo(2,2, docNum:+1, numberedSectionInfo(3,3, docNum:+1:+1)),
         numberedSectionInfo(2,4, docNum:+2, numberedSectionInfo(3,5, docNum:+2:+1))

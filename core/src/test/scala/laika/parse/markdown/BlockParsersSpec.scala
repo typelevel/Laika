@@ -21,8 +21,8 @@ import laika.format.Markdown
 import laika.parse.core.Parser
 import laika.parse.core.markup.RootParser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
-import laika.tree.Elements._
-import laika.tree.helper.ModelBuilder
+import laika.ast._
+import laika.ast.helper.ModelBuilder
 import org.scalatest.{FlatSpec, Matchers}
     
 class BlockParsersSpec extends FlatSpec 

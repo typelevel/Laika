@@ -22,11 +22,10 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
 import laika.parse.helper.DefaultParserHelpers
 import laika.parse.helper.ParseResultHelpers
-import laika.tree.Elements.Span
-import laika.tree.helper.ModelBuilder
+import laika.ast.helper.ModelBuilder
 import laika.parse.rst.Elements._
 import laika.parse.rst.ext.{ExtensionProvider, RootParserProvider}
-import laika.tree.Elements._
+import laika.ast._
      
 class InlineParsersSpec extends FlatSpec 
                         with Matchers 

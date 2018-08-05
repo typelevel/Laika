@@ -21,7 +21,7 @@ import laika.parse.core.Parser
 import laika.parse.core.combinator.Parsers.opt
 import laika.parse.core.markup.RecursiveParsers
 import laika.parse.core.text.TextParsers._
-import laika.tree.Elements._
+import laika.ast._
 import laika.util.~
 
 /** Provides parsers for bullet lists ("unordered list" in the Markdown spec)

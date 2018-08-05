@@ -21,9 +21,9 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
 import laika.api.Render
 import laika.format.{HTML, ReStructuredText}
-import laika.tree.Elements._
+import laika.ast._
 import laika.parse.rst.Elements._
-import laika.tree.helper.ModelBuilder
+import laika.ast.helper.ModelBuilder
 
 class ExtendedHTMLSpec extends FlatSpec 
                        with Matchers

@@ -22,9 +22,8 @@ import laika.directive.Directives.{Default, Spans}
 import laika.parse.core.{Parser, RootParserProvider}
 import laika.parse.core.markup.RootParser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
-import laika.tree.Elements._
-import laika.tree.Templates.MarkupContextReference
-import laika.tree.helper.ModelBuilder
+import laika.ast._
+import laika.ast.helper.ModelBuilder
 import org.scalatest.{FlatSpec, Matchers}
 
 class SpanDirectiveAPISpec extends FlatSpec

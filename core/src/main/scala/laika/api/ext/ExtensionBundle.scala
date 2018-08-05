@@ -17,11 +17,10 @@
 package laika.api.ext
 
 import com.typesafe.config.{Config, ConfigFactory}
+import laika.ast._
 import laika.io.{DefaultDocumentTypeMatcher, DocumentType}
 import laika.parse.css.CSSParsers
 import laika.rewrite.DocumentCursor
-import laika.tree.Elements._
-import laika.tree.Paths.Path
 
 /** An extension bundle is a collection of parser extensions, rewrite rules, render themes
   * and other features to be applied to parse, render and transform operations. It serves

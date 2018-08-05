@@ -21,7 +21,7 @@ import laika.factory.MarkupParser
 import laika.parse.core.Parser
 import laika.parse.markdown.html.VerbatimHTML
 import laika.parse.markdown.{BlockParsers, HeaderIdInsertion, InlineParsers, ListParsers}
-import laika.tree.Elements.Block
+import laika.ast.Block
   
 /** A parser for Markdown text. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:

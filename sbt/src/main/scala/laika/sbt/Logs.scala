@@ -16,11 +16,8 @@
 
 package laika.sbt
 
+import laika.ast._
 import laika.io.InputTree
-import laika.tree.Documents.{Document, DocumentTree, DynamicDocument, StaticDocument}
-import laika.tree.ElementTraversal
-import laika.tree.Elements.{Debug, Error, Fatal, Invalid, MessageLevel, TextContainer, Warning}
-import laika.tree.Paths.Path
 import sbt.Logger
 
 /** Provides detailed logs for the tasks of the sbt plugin.
@@ -90,8 +87,6 @@ object Logs {
     */
   def systemMessages (logger: Logger, tree: DocumentTree, level: MessageLevel): Unit = {
 
-    import laika.tree.Elements.{Info => InfoLevel}
-
     def logMessage (inv: Invalid[_], path: Path): Unit = {
       val source = inv.fallback match {
         case tc: TextContainer => tc.content
@@ -100,9 +95,9 @@ object Logs {
       val text = s"$path: ${inv.message.content}\nsource: $source"
       inv.message.level match {
         // we do not log above warn level as the build will still succeed with invalid nodes
-        case Debug => logger.debug(text)
-        case InfoLevel => logger.info(text)
-        case Warning | Error | Fatal => logger.warn(text)
+        case MessageLevel.Debug => logger.debug(text)
+        case MessageLevel.Info => logger.info(text)
+        case MessageLevel.Warning | MessageLevel.Error | MessageLevel.Fatal => logger.warn(text)
       }
     }
 

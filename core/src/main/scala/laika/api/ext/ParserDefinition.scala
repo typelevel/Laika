@@ -18,7 +18,7 @@ package laika.api.ext
 
 import laika.parse.core.Parser
 import laika.parse.core.text.TextParsers.char
-import laika.tree.Elements.{Block, Element, Span}
+import laika.ast.{Block, Element, Span}
 
 /** Defines a parser for a single kind of text markup,
   * like a literal text span or a bullet list for example.

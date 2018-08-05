@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package laika.tree
+package laika.ast
 
 import org.scalatest.FlatSpec
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.Matchers
 
-import laika.tree.Elements._
-import laika.tree.helper.ModelBuilder
+import laika.ast.helper.ModelBuilder
  
 class ElementTraversalSpec extends FlatSpec 
                            with Matchers

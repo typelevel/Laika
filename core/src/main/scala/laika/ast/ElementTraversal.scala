@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package laika.tree
-
-import Elements._
+package laika.ast
 
 import scala.collection.mutable.ListBuffer
  
@@ -37,7 +35,7 @@ trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Ele
    *  The rule is a partial function that takes an `Element` and returns an `Option[Element]`.
    *  
    *  If the function is not defined for a specific element the old element remains
-   *  in the tree unchanged. If it returns `None` then the node gets removed from the tree, 
+   *  in the tree unchanged. If it returns `None` then the node gets removed from the tree,
    *  if it returns an element it will replace the old one. Of course the function may
    *  also return the old element.
    *  

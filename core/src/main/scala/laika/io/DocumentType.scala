@@ -17,7 +17,7 @@
 package laika.io
 
 import laika.format.{Markdown, ReStructuredText}
-import laika.tree.Paths.Path
+import laika.ast.Path
 
 /** Base type for all document type descriptors.
  */

@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package laika.tree.helper
+package laika.ast.helper
 
-import laika.io.Input
-import scala.collection.mutable.ListBuffer
-import laika.tree.Documents._
-import scala.io.Codec
-import laika.io.InputTree
-import laika.io.InputTree.InputTreeBuilder
-import laika.tree.Paths.Path
-import laika.tree.Paths.Root
-import laika.io.DocumentType
+import laika.ast.Path
+import laika.ast.Path.Root
 import laika.io.DocumentType._
+import laika.io.{DocumentType, Input, InputTree}
+import laika.io.InputTree.InputTreeBuilder
 
 trait InputBuilder {
 

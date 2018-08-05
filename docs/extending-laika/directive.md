@@ -361,7 +361,7 @@ Implementation:
 
     import laika.directive.Directives.Spans
     import laika.util.Builders._
-    import laika.tree.Elements._
+    import laika.ast._
     import Spans.Combinators._
     import Spans.Converters._
     
@@ -392,7 +392,7 @@ Implementation:
 
     import laika.directive.Directives.Blocks
     import laika.util.Builders._
-    import laika.tree.Elements._
+    import laika.ast._
     import Blocks.Combinators._
     import Blocks.Converters._
     
@@ -423,7 +423,7 @@ Implementation:
 
     import laika.directive.Directives.Templates
     import laika.util.Builders._
-    import laika.tree.Templates._
+    import laika.ast._
     import Templates.Combinators._
     import Templates.Converters._
     

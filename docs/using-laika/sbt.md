@@ -179,10 +179,9 @@ adjust is the processing of one or more particular nodes types, a simple partial
 to do that while still benefiting from the defaults for all other node types.
 
 When working with the document tree (the internal AST representing the document structure),
-it is most comfortable to add the following imports to the build:
+it is most comfortable to add the following import to the build:
 
-    import laika.tree.Documents._
-    import laika.tree.Elements._
+    import laika.ast._
 
 
 ### Custom Renderers

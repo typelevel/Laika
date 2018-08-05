@@ -16,27 +16,27 @@
 
 package laika.parse.css
 
-import laika.parse.css.Styles._
+import laika.ast._
 
 trait StyleBuilders {
 
   val defaultStyleMap = Map("foo"->"bar")
   
-  def selector (predicates: Predicate*): Selector = Selector(predicates.toSet)
+  def selector (predicates: StylePredicate*): StyleSelector = StyleSelector(predicates.toSet)
   
-  def selector (selector: Selector, parent: Selector, immediate: Boolean): Selector =
+  def selector (selector: StyleSelector, parent: StyleSelector, immediate: Boolean): StyleSelector =
     selector.copy(parent = Some(ParentSelector(parent, immediate)))
   
-  def styleDecl (styles: Map[String,String], selector: Selector): StyleDeclaration = 
+  def styleDecl (styles: Map[String,String], selector: StyleSelector): StyleDeclaration =
     StyleDeclaration(selector, styles)
     
-  def styleDecl (selector: Selector): StyleDeclaration = 
+  def styleDecl (selector: StyleSelector): StyleDeclaration =
     StyleDeclaration(selector, defaultStyleMap)
 
-  def styleDecl (predicates: Predicate*): StyleDeclaration = 
-    StyleDeclaration(Selector(predicates.toSet), defaultStyleMap)
+  def styleDecl (predicates: StylePredicate*): StyleDeclaration =
+    StyleDeclaration(StyleSelector(predicates.toSet), defaultStyleMap)
 
-  def styleDecl (styles: Map[String,String], predicates: Predicate*): StyleDeclaration = 
-    StyleDeclaration(Selector(predicates.toSet), styles)
+  def styleDecl (styles: Map[String,String], predicates: StylePredicate*): StyleDeclaration =
+    StyleDeclaration(StyleSelector(predicates.toSet), styles)
   
 }

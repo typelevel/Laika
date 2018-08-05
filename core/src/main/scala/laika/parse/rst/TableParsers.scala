@@ -19,7 +19,7 @@ package laika.parse.rst
 import laika.api.ext.{BlockParser, BlockParserBuilder}
 import laika.parse.core.text.TextParsers._
 import laika.parse.core.{Parser, Success}
-import laika.tree.Elements._
+import laika.ast._
 import laika.util.{Stack, ~}
 
 import scala.collection.mutable.ListBuffer

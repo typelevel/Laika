@@ -22,15 +22,12 @@ import laika.api.Render.RenderMappedOutput
 import laika.api.ext.{BundleProvider, StaticDocuments}
 import laika.format.{AST, HTML, XSLFO}
 import laika.io.Input
-import laika.parse.css.Styles.{ElementType, StyleDeclaration, StyleDeclarationSet}
 import laika.render._
 import laika.render.helper.RenderResult
-import laika.tree.Documents._
-import laika.tree.Elements.Text
-import laika.tree.Paths.{Path, Root}
-import laika.tree.Templates._
-import laika.tree.helper.{InputBuilder, ModelBuilder}
-import laika.tree.helper.OutputBuilder._
+import laika.ast._
+import laika.ast.helper.{InputBuilder, ModelBuilder}
+import laika.ast.helper.OutputBuilder._
+import Path.Root
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.io.Codec
@@ -146,7 +143,7 @@ class RenderAPISpec extends FlatSpec
   }
 
   trait FORenderer extends TreeRenderer[FOWriter] {
-    val foStyles = Map("fo" -> StyleDeclarationSet(Root / "styles.fo.css", StyleDeclaration(ElementType("Paragraph"), "font-size" -> "11pt")))
+    val foStyles = Map("fo" -> StyleDeclarationSet(Root / "styles.fo.css", StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> "11pt")))
     val rootElem = root(self.title("Title"), p("bbb"))
     val subElem = root(self.title("Sub Title"), p("ccc"))
 

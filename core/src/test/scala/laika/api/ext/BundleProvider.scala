@@ -16,16 +16,12 @@
 
 package laika.api.ext
 import com.typesafe.config.Config
+import laika.ast.{Block, Document, InvalidElement, Path, RewriteRule, StyleDeclaration, TemplateRoot}
 import laika.directive.DirectiveRegistry
 import laika.directive.Directives.Templates
 import laika.io.{DocumentType, Input}
 import laika.parse.core.Parser
-import laika.parse.css.Styles.StyleDeclaration
 import laika.rewrite.DocumentCursor
-import laika.tree.Documents.Document
-import laika.tree.Elements.{Block, InvalidElement, RewriteRule}
-import laika.tree.Paths.Path
-import laika.tree.Templates.TemplateRoot
 
 /**
   * @author Jens Halm

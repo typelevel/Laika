@@ -17,8 +17,7 @@
 package laika.rewrite
 
 import IdGenerators._
-import laika.tree.Elements._
-import laika.tree.Paths.Path
+import laika.ast._
 
 /** Representations for various types of link targets.
  * 
@@ -154,7 +153,7 @@ object LinkTargets {
       val t = delegate.withResolvedIds(documentId, displayId)
       SingleTargetResolver(this, t.selector, t.render)
     }
-    val sysMsg: SystemMessage = SystemMessage(Error, msg)
+    val sysMsg: SystemMessage = SystemMessage(MessageLevel.Error, msg)
     val replace: ((Element,Id)) => Option[Element] = lift {
       case (target, id) =>
         val replaced = delegate.replace(target, id)

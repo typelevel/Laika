@@ -19,14 +19,12 @@ package laika.api
 import com.typesafe.config.{ConfigFactory, Config => TConfig}
 import laika.api.config.{OperationConfig, ParseConfigBuilder}
 import laika.api.ext.ConfigProvider
+import laika.ast._
 import laika.factory.MarkupParser
 import laika.io.DocumentType._
 import laika.io._
-import laika.parse.core.combinator.Parsers.{documentParserFunction, success}
+import laika.parse.core.combinator.Parsers.documentParserFunction
 import laika.parse.core.markup.DocumentParser
-import laika.parse.css.Styles.{StyleDeclaration, StyleDeclarationSet}
-import laika.tree.Documents._
-import laika.tree.Paths.Path
   
 /** API for performing a parse operation from various types of input to obtain
  *  a document tree without a subsequent render operation. 
