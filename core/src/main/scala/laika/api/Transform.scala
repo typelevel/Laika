@@ -18,7 +18,7 @@ package laika.api
 
 import laika.api.Render._
 import laika.api.config.{OperationConfig, TransformConfigBuilder}
-import laika.factory.{MarkupParser, RenderResultProcessor, RendererFactory}
+import laika.factory.{MarkupParser, RenderResultProcessor, RenderFormat}
 import laika.io._
 import laika.tree.Documents._
 
@@ -74,7 +74,7 @@ import laika.tree.Documents._
  * 
  *  @author Jens Halm
  */
-abstract class Transform [Writer] private[Transform] (parse: Parse, protected val factory: RendererFactory[Writer]) extends
+abstract class Transform [Writer] private[Transform] (parse: Parse, protected val format: RenderFormat[Writer]) extends
   TransformConfigBuilder[Writer] with InputOps with InputTreeOps  {
   
   type ThisType <: Transform[Writer]
@@ -116,7 +116,7 @@ object Transform {
    *  @param render the renderer to use for producing the output
    */
   class TransformMappedOutput[Writer] (parse: Parse, render: RenderMappedOutput[Writer],
-                                       val config: OperationConfig) extends Transform[Writer](parse, render.factory) {
+                                       val config: OperationConfig) extends Transform[Writer](parse, render.format) {
     
     type InputResult = TextOuputOps
   
@@ -141,7 +141,7 @@ object Transform {
    *  @param render the renderer to use for producing the output
    */
   class TransformGatheredOutput[Writer] (parse: Parse, render: RenderGatheredOutput[Writer],
-                                         val config: OperationConfig) extends Transform[Writer](parse, render.factory) {
+                                         val config: OperationConfig) extends Transform[Writer](parse, render.format) {
     
     type InputResult = BinaryOutputOps
   
@@ -173,20 +173,20 @@ object Transform {
      *  This method is useful if you want to combine different markup
      *  formats within a single document tree. 
      * 
-     *  @param factory the parser factory to add to the previously specified parsers
+     *  @param parser the parser factory to add to the previously specified parsers
      *  @return a new Builder instance
      */
-    def or (factory: MarkupParser): Builder = new Builder(factories :+ factory)
+    def or (parser: MarkupParser): Builder = new Builder(factories :+ parser)
     
     /** Creates and returns a new Transform instance for the specified renderer and the
      *  previously specified parser. The returned instance is stateless and reusable for
      *  multiple transformations.
      * 
-     *  @param factory the renderer factory to use for the transformation
+     *  @param format the render format to use for the transformation
      *  @return a new Transform instance
      */
-    def to [Writer] (factory: RendererFactory[Writer]): TransformMappedOutput[Writer] = 
-      new TransformMappedOutput(parse, Render as factory withConfig parse.config, parse.config)
+    def to [Writer] (format: RenderFormat[Writer]): TransformMappedOutput[Writer] =
+      new TransformMappedOutput(parse, Render as format withConfig parse.config, parse.config)
     
     /** Creates and returns a new Transform instance for the specified renderer and the
      *  previously specified parser. The returned instance is stateless and reusable for
@@ -207,10 +207,10 @@ object Transform {
    *  can then be used to specifiy the renderer to create the actual
    *  Transform instance.
    * 
-   *  @param factory the parser factory to use
+   *  @param parser the parser factory to use
    *  @return a new Builder instance for specifying the renderer
    */
-  def from (factory: MarkupParser): Builder = new Builder(Seq(factory))
+  def from (parser: MarkupParser): Builder = new Builder(Seq(parser))
   
   
 }

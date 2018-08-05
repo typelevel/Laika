@@ -17,7 +17,7 @@
 package laika.api.config
 
 import laika.api.ext.{BundleProvider, ExtensionBundle, StaticDocuments}
-import laika.factory.RendererFactory
+import laika.factory.RenderFormat
 import laika.io.{Input, Output}
 import laika.parse.css.Styles
 import laika.parse.css.Styles.{StyleDeclaration, StyleDeclarationSet}
@@ -46,7 +46,7 @@ class ThemeConfigSpec extends WordSpec with Matchers {
     def template (text: String): TemplateRoot = TemplateRoot(Seq(TemplateString(text)))
 
 
-    object TestFormat extends RendererFactory[TextWriter] {
+    object TestFormat extends RenderFormat[TextWriter] {
 
       override val fileSuffix = "test"
 

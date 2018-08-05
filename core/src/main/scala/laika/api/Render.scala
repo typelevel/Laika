@@ -17,7 +17,7 @@
 package laika.api
 
 import laika.api.config.{OperationConfig, RenderConfigBuilder}
-import laika.factory.{RenderResultProcessor, RendererFactory}
+import laika.factory.{RenderResultProcessor, RenderFormat}
 import laika.io.Output.Binary
 import laika.io.OutputTree._
 import laika.io._
@@ -63,10 +63,10 @@ import laika.tree.Templates._
  * 
  *  @author Jens Halm
  */
-abstract class Render[Writer] private (protected[api] val factory: RendererFactory[Writer],
+abstract class Render[Writer] private (protected[api] val format: RenderFormat[Writer],
                                        val config: OperationConfig) extends RenderConfigBuilder[Writer] {
 
-  protected[this] lazy val theme = config.themeFor(factory)
+  protected[this] lazy val theme = config.themeFor(format)
 
 
   /** The output operations that can be performed for a single input document.
@@ -118,7 +118,7 @@ abstract class Render[Writer] private (protected[api] val factory: RendererFacto
   protected[this] def render (element: Element, output: Output, styles: StyleDeclarationSet): Unit = { 
     
     class Renderer (out: Output) extends (Element => Unit) {
-      lazy val (writer, renderF) = factory.newRenderer(out, element, this, styles, config)
+      lazy val (writer, renderF) = format.newRenderer(out, element, this, styles, config)
 
       lazy val mainF: Element => Unit = theme.customRenderer(writer).applyOrElse(_, renderF)
 
@@ -141,7 +141,7 @@ abstract class Render[Writer] private (protected[api] val factory: RendererFacto
     type Operation = () => Unit
 
     def renderTree (outputTree: OutputTree, styles: StyleDeclarationSet, path: Path, content: RootElement): Operation = {
-      val output = outputTree.newOutput(path.basename +"."+ factory.fileSuffix)
+      val output = outputTree.newOutput(path.basename +"."+ format.fileSuffix)
       () => render(content, output, styles)
     }
 
@@ -157,7 +157,7 @@ abstract class Render[Writer] private (protected[api] val factory: RendererFacto
         case _ => false
       }
 
-      val styles = parentStyles ++ docTree.styles(factory.fileSuffix)
+      val styles = parentStyles ++ docTree.styles(format.fileSuffix)
 
       (docTree.content flatMap {
         case doc: Document => Seq(renderTree(outputTree, styles, doc.path, doc.content))
@@ -171,11 +171,11 @@ abstract class Render[Writer] private (protected[api] val factory: RendererFacto
       })
     }
 
-    val templateName = "default.template." + factory.fileSuffix
+    val templateName = "default.template." + format.fileSuffix
     val treeWithTpl = if (docTree.selectTemplate(Current / templateName).isDefined) docTree
                       else docTree.copy(templates = docTree.templates :+ TemplateDocument(Root / templateName,
                            theme.defaultTemplateOrFallback))
-    val treeWithTplApplied = TemplateRewriter.applyTemplates(treeWithTpl, factory.fileSuffix)
+    val treeWithTplApplied = TemplateRewriter.applyTemplates(treeWithTpl, format.fileSuffix)
     val finalTree = theme.staticDocuments.merge(treeWithTplApplied)
     val operations = collectOperations(outputTree, theme.defaultStyles, finalTree)
 
@@ -195,18 +195,18 @@ object Render {
    *  given input tree to a corresponding output document
    *  in the destination tree.
    *  
-   *  @param factory the factory for the rendere to use
+   *  @param format the factory for the rendere to use
    *  @param cfg the configuration for the render operation
    */
-  class RenderMappedOutput[Writer] (factory: RendererFactory[Writer],
-                                    cfg: OperationConfig) extends Render[Writer](factory, cfg) {
+  class RenderMappedOutput[Writer] (format: RenderFormat[Writer],
+                                    cfg: OperationConfig) extends Render[Writer](format, cfg) {
 
     type DocOps = TextOuputOps
     type TreeOps = OutputTreeOps
     type ThisType = RenderMappedOutput[Writer]
 
     def withConfig(newConfig: OperationConfig): ThisType =
-      new RenderMappedOutput[Writer](factory, newConfig)
+      new RenderMappedOutput[Writer](format, newConfig)
 
     def from (element: Element): TextOuputOps = new TextOuputOps {
       def toOutput (out: Output) = render(element, out, theme.defaultStyles)
@@ -232,7 +232,7 @@ object Render {
    *  @param cfg the configuration for the render operation
    */
   class RenderGatheredOutput[Writer] (processor: RenderResultProcessor[Writer],
-                                      cfg: OperationConfig) extends Render[Writer](processor.factory, cfg) {
+                                      cfg: OperationConfig) extends Render[Writer](processor.format, cfg) {
     
     type DocOps = BinaryOutputOps
     type TreeOps = BinaryOutputOps
@@ -255,14 +255,14 @@ object Render {
   }
   
 
-  /** Returns a new Render instance for the specified renderer factory.
+  /** Returns a new Render instance for the specified render format.
    *  This factory is usually an object provided by the library
    *  or a plugin that is capable of rendering a specific output. 
    * 
-   *  @param factory the renderer factory responsible for creating the final renderer
+   *  @param format the renderer factory responsible for creating the final renderer
    */
-  def as [Writer] (factory: RendererFactory[Writer]): RenderMappedOutput[Writer] =
-    new RenderMappedOutput(factory, OperationConfig.default)
+  def as [Writer] (format: RenderFormat[Writer]): RenderMappedOutput[Writer] =
+    new RenderMappedOutput(format, OperationConfig.default)
   
   /** Returns a new Render instance for the specified processor.
    *  This instance is usually an object provided by the library

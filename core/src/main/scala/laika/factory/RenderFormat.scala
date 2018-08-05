@@ -31,7 +31,7 @@ import laika.tree.Templates.TemplateRoot
  *  
  *  @author Jens Halm
  */
-trait RendererFactory[W] {
+trait RenderFormat[W] {
 
   
   /** The file suffix to use when rendering the output

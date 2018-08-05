@@ -20,7 +20,7 @@ import com.typesafe.config.Config
 import laika.api.ext.ExtensionBundle.LaikaDefaults
 import laika.api.ext.{ExtensionBundle, MarkupExtensions, RewriteRules}
 import laika.directive.{ConfigHeaderParser, DirectiveSupport, StandardDirectives}
-import laika.factory.{MarkupParser, RendererFactory}
+import laika.factory.{MarkupParser, RenderFormat}
 import laika.io.DocumentType.Ignored
 import laika.io.{DefaultDocumentTypeMatcher, DocumentType}
 import laika.parse.core.Parser
@@ -106,9 +106,9 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
   /** Provides the theme for the specified render format, obtained by merging all themes defined
     * for this format and adding the default theme for the format and a fallback theme.
     */
-  def themeFor[W] (factory: RendererFactory[W]): factory.Theme = (mergedBundle.themes.collect {
-    case t: factory.Theme => t
-  } :+ factory.defaultTheme :+ factory.Theme()).reduceLeft(_ withBase _)
+  def themeFor[W] (format: RenderFormat[W]): format.Theme = (mergedBundle.themes.collect {
+    case t: format.Theme => t
+  } :+ format.defaultTheme :+ format.Theme()).reduceLeft(_ withBase _)
 
   /** Returns a new instance with the specified extension bundles added to the
     * bundles defined in this instance. The new bundles are treated with higher
@@ -119,13 +119,13 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
   /** Returns a new instance with the extension bundles provided by the specified markup
     * parser added to the bundles defined in this instance.
     */
-  def withBundlesFor (factory: MarkupParser): OperationConfig = {
+  def withBundlesFor (parser: MarkupParser): OperationConfig = {
     val docTypeMatcher = new ExtensionBundle {
       override val docTypeMatcher: PartialFunction[Path, DocumentType] =
-        DefaultDocumentTypeMatcher.forMarkup(factory.fileSuffixes)
+        DefaultDocumentTypeMatcher.forMarkup(parser.fileSuffixes)
       override val useInStrictMode: Boolean = true
     }
-    copy(bundles = this.bundles ++ factory.extensions :+ docTypeMatcher)
+    copy(bundles = this.bundles ++ parser.extensions :+ docTypeMatcher)
   }
 
   /** Creates a new instance that is configured to interpret text markup as defined by its specification,

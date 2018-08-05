@@ -22,7 +22,7 @@ import javax.xml.transform.TransformerFactory
 import javax.xml.transform.sax.SAXResult
 import javax.xml.transform.stream.StreamSource
 
-import laika.factory.{RenderResultProcessor, RendererFactory}
+import laika.factory.{RenderResultProcessor, RenderFormat}
 import laika.io.{Input, OutputTree}
 import laika.io.Output.BinaryOutput
 import laika.tree.Documents.DocumentTree
@@ -42,17 +42,17 @@ import org.apache.xmlgraphics.util.MimeConstants
  *  }}}
  *  
  *  In the second example above the input from an entire directory gets
- *  merged into a single output directory.
+ *  merged into a single output file.
  * 
  *  @author Jens Halm
  */
-class PDF private (val factory: RendererFactory[FOWriter], config: Option[PDFConfig], fopFactory: Option[FopFactory]) extends RenderResultProcessor[FOWriter] {
+class PDF private (val format: RenderFormat[FOWriter], config: Option[PDFConfig], fopFactory: Option[FopFactory]) extends RenderResultProcessor[FOWriter] {
 
 
   /** Allows to specify configuration options like insertion
    *  of bookmarks or table of content.
    */
-  def withConfig (config: PDFConfig): PDF = new PDF(factory, Some(config), fopFactory)
+  def withConfig (config: PDFConfig): PDF = new PDF(format, Some(config), fopFactory)
 
   /** Allows to specify a custom FopFactory in case additional configuration
     * is required for custom fonts, stemmers or other FOP features.
@@ -62,7 +62,7 @@ class PDF private (val factory: RendererFactory[FOWriter], config: Option[PDFCon
     * In case you do not specify a custom factory, Laika ensures that the default
     * factory is reused between renderers.
     */
-  def withFopFactory (fopFactory: FopFactory): PDF = new PDF(factory, config, Some(fopFactory))
+  def withFopFactory (fopFactory: FopFactory): PDF = new PDF(format, config, Some(fopFactory))
   
   private lazy val foForPDF = new FOforPDF(config)
   

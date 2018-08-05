@@ -26,7 +26,7 @@ import laika.tree.Templates.TemplateRoot
 
 object TestRenderResultProcessor extends RenderResultProcessor[TextWriter] {
 
-  val factory = AST
+  val format = AST
   
   def process (tree: DocumentTree, render: (DocumentTree, OutputTree) => Unit, defaultTemplate: TemplateRoot, output: BinaryOutput): Unit = {
     

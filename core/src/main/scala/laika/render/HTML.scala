@@ -18,7 +18,7 @@ package laika.render
 
 import laika.api.config.RenderConfig
 import laika.directive.DefaultTemplateParser
-import laika.factory.RendererFactory
+import laika.factory.RenderFormat
 import laika.io.{Input, Output}
 import laika.parse.css.Styles.StyleDeclarationSet
 import laika.tree.Documents.TemplateDocument
@@ -35,7 +35,7 @@ import laika.tree.Paths.Root
  * 
  *  @author Jens Halm
  */
-object HTML extends RendererFactory[HTMLWriter] {
+object HTML extends RenderFormat[HTMLWriter] {
   
   val fileSuffix = "html"
  

@@ -24,7 +24,7 @@ import laika.tree.ElementTraversal
 import laika.tree.Templates._
 import laika.io.Input
 import laika.io.Output
-import laika.factory.RendererFactory
+import laika.factory.RenderFormat
 import laika.util.RomanNumerals
 import laika.parse.css.Styles.StyleDeclarationSet
 
@@ -49,7 +49,7 @@ import laika.parse.css.CSSParsers
  * 
  *  @author Jens Halm
  */
-object XSLFO extends RendererFactory[FOWriter] {
+object XSLFO extends RenderFormat[FOWriter] {
   
   
   val fileSuffix = "fo"

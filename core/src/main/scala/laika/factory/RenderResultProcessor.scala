@@ -32,7 +32,7 @@ trait RenderResultProcessor[Writer] {
 
   /** The factory for the renderer that produces the interim result.
    */
-  def factory: RendererFactory[Writer]
+  def format: RenderFormat[Writer]
 
   /** Processes the tree by first using the specified render function
    *  to produce the interim result, process the result and write

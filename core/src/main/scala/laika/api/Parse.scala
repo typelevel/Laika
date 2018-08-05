@@ -81,9 +81,9 @@ class Parse private (parsers: Seq[MarkupParser], val config: OperationConfig, re
    *  This method is useful if you want to combine different markup
    *  formats within a single document tree. 
    * 
-   *  @param factory the parser factory to add to the previously specified parsers
+   *  @param parser the parser factory to add to the previously specified parsers
    */
-  def or (factory: MarkupParser): Parse = new Parse(parsers :+ factory, config.withBundlesFor(factory), rewrite)
+  def or (parser: MarkupParser): Parse = new Parse(parsers :+ parser, config.withBundlesFor(parser), rewrite)
 
   /** Returns a new Parse instance that produces raw document trees without applying
    *  the default rewrite rules. These rules resolve link and image references and 
@@ -207,11 +207,11 @@ object Parse {
    *  or a plugin that is capable of parsing a specific markup
    *  format like Markdown or reStructuredText. 
    * 
-   *  @param factory the parser factory to use for all subsequent operations
+   *  @param parser the parser factory to use for all subsequent operations
    */
-  def as (factory: MarkupParser): Parse = new Parse(
-    Seq(factory),
-    OperationConfig.default.withBundlesFor(factory),
+  def as (parser: MarkupParser): Parse = new Parse(
+    Seq(parser),
+    OperationConfig.default.withBundlesFor(parser),
     rewrite = true
   )
 

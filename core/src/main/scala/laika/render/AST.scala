@@ -17,7 +17,7 @@
 package laika.render
 
 import laika.api.config.RenderConfig
-import laika.factory.RendererFactory
+import laika.factory.RenderFormat
 import laika.io.Output
 import laika.parse.css.Styles.StyleDeclarationSet
 import laika.tree.Elements._
@@ -33,7 +33,7 @@ import laika.tree.Elements._
  * 
  *  @author Jens Halm
  */
-object AST extends RendererFactory[TextWriter] {
+object AST extends RenderFormat[TextWriter] {
 
   val fileSuffix = "txt"
   

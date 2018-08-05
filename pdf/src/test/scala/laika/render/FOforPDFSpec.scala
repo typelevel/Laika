@@ -32,7 +32,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
   
   case class FOTest (config: Option[PDFConfig]) extends RenderResultProcessor[FOWriter] {
     
-    val factory = XSLFO
+    val format = XSLFO
     
     private val foForPDF = new FOforPDF(config)
     

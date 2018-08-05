@@ -18,7 +18,7 @@ package laika.sbt
 
 import laika.api.{Parse, Render}
 import laika.api.config.BundleFilter
-import laika.factory.{RenderResultProcessor, RendererFactory}
+import laika.factory.{RenderResultProcessor, RenderFormat}
 import laika.io.Input.LazyFileInput
 import laika.io.{Input, InputTree}
 import laika.parse.markdown.Markdown
@@ -79,7 +79,7 @@ object Tasks {
       tree
     }
 
-    def renderWithFactory[W] (factory: RendererFactory[W], targetDir: File, formatDesc: String): Set[File] = {
+    def renderWithFormat[W] (format: RenderFormat[W], targetDir: File, formatDesc: String): Set[File] = {
       val apiInSite = (target in laikaCopyAPI).value
       val pdfInSite = (artifactPath in laikaPDF).value
       val filesToDelete = (targetDir.allPaths --- targetDir --- pdfInSite --- apiInSite.allPaths --- collectParents(apiInSite)).get
@@ -87,7 +87,7 @@ object Tasks {
 
       if (!targetDir.exists) targetDir.mkdirs()
 
-      Render.as(factory).withConfig(parser.config).from(tree).toDirectory(targetDir)(laikaConfig.value.encoding)
+      Render.as(format).withConfig(parser.config).from(tree).toDirectory(targetDir)(laikaConfig.value.encoding)
 
       streams.value.log.info(Logs.outputs(tree, formatDesc))
       streams.value.log.info(s"Generated $formatDesc in $targetDir")
@@ -113,9 +113,9 @@ object Tasks {
 
       val fun = FileFunction.cached(cacheDir / format.toString.toLowerCase, FilesInfo.lastModified, FilesInfo.exists) { _ =>
         format match {
-          case OutputFormat.HTML  => renderWithFactory(HTML, (target in laikaSite).value, "HTML")
-          case OutputFormat.AST   => renderWithFactory(AST, (target in laikaAST).value, "Formatted AST")
-          case OutputFormat.XSLFO => renderWithFactory(XSLFO, (target in laikaXSLFO).value, "XSL-FO")
+          case OutputFormat.HTML  => renderWithFormat(HTML, (target in laikaSite).value, "HTML")
+          case OutputFormat.AST   => renderWithFormat(AST, (target in laikaAST).value, "Formatted AST")
+          case OutputFormat.XSLFO => renderWithFormat(XSLFO, (target in laikaXSLFO).value, "XSL-FO")
           case OutputFormat.PDF   => renderWithProcessor(PDF.withFopFactory(fopFactory.value), (artifactPath in laikaPDF).value, "PDF")
         }
       }
