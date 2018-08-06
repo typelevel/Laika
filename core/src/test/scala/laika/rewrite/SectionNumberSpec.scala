@@ -16,14 +16,12 @@
 
 package laika.rewrite
 
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
+import com.typesafe.config.{Config, ConfigFactory}
 import laika.ast._
-import laika.ast.helper.ModelBuilder
 import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
+import laika.ast.helper.ModelBuilder
 import laika.config.OperationConfig
+import org.scalatest.{FlatSpec, Matchers}
 
 class SectionNumberSpec extends FlatSpec
                         with Matchers

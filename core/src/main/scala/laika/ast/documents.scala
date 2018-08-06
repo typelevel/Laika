@@ -22,7 +22,6 @@ import laika.rewrite.TemplateRewriter
 import laika.rewrite.link.LinkTargetProvider
 import laika.rewrite.link.LinkTargets._
 import laika.rewrite.nav.AutonumberConfig
-import Path.Current
 
 import scala.annotation.tailrec
 
@@ -220,6 +219,8 @@ trait DocumentStructure { this: TreeContent =>
 /** The structure of a document tree.
   */
 trait TreeStructure { this: TreeContent =>
+
+  import Path.Current
 
   /** The content of this tree structure, containing
     * all markup documents and subtrees.

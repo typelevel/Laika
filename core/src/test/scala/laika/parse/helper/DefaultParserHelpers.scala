@@ -17,8 +17,6 @@
 package laika.parse.helper
 
 import laika.parse.{Parsed, Parser, ParserContext}
-import laika.parse.combinator.Parsers
-import laika.parse._
 
 trait DefaultParserHelpers[T] {
   

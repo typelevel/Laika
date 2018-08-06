@@ -22,7 +22,6 @@ import java.util.Date
 import laika.ast._
 import laika.rst.ext.Directives.Parts._
 import laika.rst.ext.Directives._
-import laika.rst.std.StandardDirectiveParts._
 
 /** Defines all supported standard span directives of the reStructuredText reference parser.
  *  A span directive can be used in substitution definitions.
@@ -66,7 +65,7 @@ class StandardSpanDirectives {
    *  to be used in substitution references.
    */
   lazy val spanDirectives: List[Directive[Span]] = List(
-    SpanDirective.recursive("image")(image),
+    SpanDirective.recursive("image")(StandardDirectiveParts.image),
     SpanDirective("replace")(replace),
     SpanDirective("unicode")(unicode),
     SpanDirective("date")(date)

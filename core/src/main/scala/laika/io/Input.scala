@@ -16,20 +16,13 @@
 
 package laika.io
  
-import java.io.BufferedReader
-import java.io.Closeable
-import java.io.FileInputStream
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.io.StringReader
+import java.io._
+
+import laika.ast.Path
+import laika.io.IO.FileBased
+import laika.parse.ParserContext
 
 import scala.io.Codec
-import java.io.File
-
-import laika.io.IO.FileBased
-import laika.ast.Path
-import laika.ast.Path.Root
-import laika.parse.ParserContext
 
 /** Represents the input for a parser, abstracting over various types of IO resources. 
  *  
@@ -147,7 +140,7 @@ object Input {
    *  @param source the string to parse
    *  @param path the path of the document in the virtual tree 
    */
-  def fromString (source: String, path: Path = Root): Input = new StringInput(source, path)
+  def fromString (source: String, path: Path = Path.Root): Input = new StringInput(source, path)
 
   /** Creates a new Input instance for the file with the specified name.
    *  
@@ -189,14 +182,14 @@ object Input {
    *  @param path the (potentially virtual) path of the input source
    *  @param codec the character encoding used by the text input, if not specified the platform default will be used.
    */
-  def fromStream (stream: InputStream, path: Path = Root)(implicit codec: Codec): Input with Binary = new StreamInput(stream, path, codec)
+  def fromStream (stream: InputStream, path: Path = Path.Root)(implicit codec: Codec): Input with Binary = new StreamInput(stream, path, codec)
   
   /** Creates a new Input instance for the specified Reader.
    *  
    *  @param reader the reader to read character data from
    *  @param path the (potentially virtual) path of the input source
    */
-  def fromReader (reader: java.io.Reader, path: Path = Root): Input = new ReaderInput(reader, path)
+  def fromReader (reader: java.io.Reader, path: Path = Path.Root): Input = new ReaderInput(reader, path)
   
   
 }

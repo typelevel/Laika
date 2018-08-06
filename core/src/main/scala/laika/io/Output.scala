@@ -16,21 +16,13 @@
 
 package laika.io
 
-import java.io.BufferedWriter
-import java.io.Closeable
-import java.io.File
-import java.io.FileOutputStream
-import java.io.OutputStream
-import java.io.OutputStreamWriter
-import java.io.Writer
+import java.io._
+
+import laika.ast.Path
+import laika.io.IO.FileBased
 
 import scala.collection.mutable.StringBuilder
 import scala.io.Codec
-import laika.ast.Path
-import laika.ast.Path.Root
-import java.io.BufferedOutputStream
-
-import laika.io.IO.FileBased
 
 /** Represents the output of a renderer, abstracting over various types of IO resources. 
  *  
@@ -185,15 +177,15 @@ object Output {
    *  @param path the (potentially virtual) path of the output target
    *  @param codec the character encoding to use for producing the bytes, if not specified the platform default will be used.
    */
-  def toStream (stream: OutputStream, path: Path = Root)(implicit codec: Codec): Output with Binary = new StreamOutput(stream, path, codec)
+  def toStream (stream: OutputStream, path: Path = Path.Root)(implicit codec: Codec): Output with Binary = new StreamOutput(stream, path, codec)
 
   /** Creates a new Output instance for the specified Writer.
    */
-  def toWriter (writer: Writer, path: Path = Root): Output = new WriterOutput(writer, path)
+  def toWriter (writer: Writer, path: Path = Path.Root): Output = new WriterOutput(writer, path)
 
   /** Creates a new Output instance for the specified StringBuilder.
    */
-  def toBuilder (builder: StringBuilder, path: Path = Root): Output = new StringBuilderOutput(builder, path)
+  def toBuilder (builder: StringBuilder, path: Path = Path.Root): Output = new StringBuilderOutput(builder, path)
   
   
   

@@ -16,8 +16,6 @@
 
 package laika.parse
 
-import java.util
-
 import scala.collection.mutable.ArrayBuffer
 
 /** Represents the state and context of a parsing operation,
@@ -166,7 +164,7 @@ case class Position(s: Source, offset: Int) {
   /** The line number referred to by this position, starting at 1.
     */
   lazy val line: Int = {
-    val result = util.Arrays.binarySearch(s.lineStarts, offset)
+    val result = java.util.Arrays.binarySearch(s.lineStarts, offset)
     if (result == s.lineStarts.length - 1) result // EOF position is not on a new line
     else if (result < 0) Math.abs(result) - 1 // see javadoc for binarySearch
     else result + 1 // line is 1-based

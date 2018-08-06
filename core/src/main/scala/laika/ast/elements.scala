@@ -20,7 +20,6 @@ import java.text.DecimalFormat
 
 import laika.api.Render
 import laika.format.AST
-import Path.Root
 
 import scala.math.Ordered
 
@@ -552,7 +551,7 @@ object PathInfo {
    */
   def fromPath (path: Path, refPath: Path): PathInfo =
     if (path.isAbsolute) PathInfo(path, path.relativeTo(refPath))
-    else PathInfo(Root / path.relativeTo(refPath), path)
+    else PathInfo(Path.Root / path.relativeTo(refPath), path)
 
   /** Creates an instance for the specified URI relative to
    *  the provided reference path. Returns `None` if the specified

@@ -16,16 +16,13 @@
 
 package laika.ast
 
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
+import com.typesafe.config.{Config, ConfigFactory, ConfigParseOptions}
 import laika.ast.DocumentType.Markup
 import laika.ast.Path.{Current, Root}
-import laika.ast.helper.ModelBuilder
 import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}
+import laika.ast.helper.ModelBuilder
 import laika.rewrite.TemplateRewriter
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
-import com.typesafe.config.ConfigParseOptions
+import org.scalatest.{FlatSpec, Matchers}
 
 class DocumentTreeAPISpec extends FlatSpec 
                       with Matchers

@@ -16,7 +16,7 @@
 
 package laika.api
 
-import laika.api.Render._
+import laika.api.Render.{RenderMappedOutput, RenderGatheredOutput}
 import laika.ast._
 import laika.config.{OperationConfig, TransformConfigBuilder}
 import laika.factory.{MarkupParser, RenderFormat, RenderResultProcessor}

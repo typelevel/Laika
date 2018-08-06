@@ -16,7 +16,6 @@
 
 package laika.sbt
 
-import laika.ast
 import laika.ast.{DocumentCursor, DocumentType, RenderFunction, RewriteRule}
 import laika.bundle.{ExtensionBundle, RenderTheme}
 import laika.format.{HTML, XSLFO}
@@ -76,8 +75,8 @@ trait ExtensionBundles {
     *
     * The matcher function determines the document type of the input based on its path.
     */
-  def laikaDocTypeMatcher (f: PartialFunction[ast.Path, DocumentType]): ExtensionBundle = new ExtensionBundle {
-    override def docTypeMatcher: PartialFunction[ast.Path, DocumentType] = f
+  def laikaDocTypeMatcher (f: PartialFunction[laika.ast.Path, DocumentType]): ExtensionBundle = new ExtensionBundle {
+    override def docTypeMatcher: PartialFunction[laika.ast.Path, DocumentType] = f
   }
 
 }

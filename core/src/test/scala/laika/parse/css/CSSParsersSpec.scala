@@ -16,12 +16,12 @@
 
 package laika.parse.css
 
-import laika.parse.css.CSSParsers._
-import laika.ast._
-import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.ast.StylePredicate._
+import laika.ast._
 import laika.ast.helper.StyleBuilders
 import laika.parse.Parser
+import laika.parse.css.CSSParsers._
+import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import org.scalatest.{FlatSpec, Matchers}
 
 class CSSParsersSpec extends FlatSpec 

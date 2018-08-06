@@ -16,7 +16,7 @@
 
 package laika.factory
 
-import laika.ast.{Element, MessageLevel, RenderFunction, StyleDeclarationSet, TemplateRoot}
+import laika.ast.{Element, RenderFunction, StyleDeclarationSet, TemplateRoot}
 import laika.bundle.{RenderTheme, StaticDocuments}
 import laika.config.RenderConfig
 import laika.io.Output

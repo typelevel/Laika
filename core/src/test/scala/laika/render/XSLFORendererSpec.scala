@@ -16,14 +16,12 @@
 
 package laika.render
 
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
 import laika.api.Render
-import laika.format.XSLFO
-import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.bundle.BundleProvider
+import laika.format.XSLFO
+import org.scalatest.{FlatSpec, Matchers}
 
 class XSLFORendererSpec extends FlatSpec
                         with Matchers
@@ -37,7 +35,7 @@ class XSLFORendererSpec extends FlatSpec
     
   def render (elem: Element, style: StyleDeclaration): String = 
     Render as XSLFO using BundleProvider
-      .forTheme(XSLFO.Theme(defaultStyles = StyleDeclarationSet(Root, style))) from elem toString
+      .forTheme(XSLFO.Theme(defaultStyles = StyleDeclarationSet(Path.Root, style))) from elem toString
     
   def renderUnformatted (elem: Element): String = (Render as XSLFO).unformatted from elem toString
   

@@ -17,8 +17,6 @@
 package laika.render
 
 import laika.ast._
-import laika.ast.Path.Root
-import FOWriter._ 
 
 /** API for renderers that produce XSL-FO output.
  * 
@@ -40,6 +38,8 @@ class FOWriter (out: String => Unit,
                 newLine: String = "\n",
                 formatted: Boolean = true) extends TagWriter(out, render, root, newLine, formatted) 
                                            with FOProperties {
+
+  import FOWriter._
 
   protected def attributes (tag: String, options: Options, attrs: Seq[(String,Any)]): Seq[(String, Any)] = {
     filterAttributes(tag, ("id"->options.id) +: attrs.sortBy(_._1))
@@ -65,8 +65,8 @@ class FOWriter (out: String => Unit,
    *  document and the local reference.
    */
   def buildId (path: Path, ref: String): String = {
-    val treePath = if (path.parent == Root) "" else path.parent.toString.replaceAllLiterally("/", "_")
-    val docPath = if (path == Root) "" else treePath + "_" + path.basename
+    val treePath = if (path.parent == Path.Root) "" else path.parent.toString.replaceAllLiterally("/", "_")
+    val docPath = if (path == Path.Root) "" else treePath + "_" + path.basename
     docPath + "_" + ref
   }
   

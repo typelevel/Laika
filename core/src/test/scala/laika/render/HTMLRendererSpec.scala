@@ -16,12 +16,11 @@
 
 package laika.render
 
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
 import laika.api.Render
-import laika.format.HTML
 import laika.ast._
 import laika.ast.helper.ModelBuilder
+import laika.format.HTML
+import org.scalatest.{FlatSpec, Matchers}
 
 class HTMLRendererSpec extends FlatSpec 
                        with Matchers

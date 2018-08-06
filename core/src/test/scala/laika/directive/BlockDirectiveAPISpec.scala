@@ -21,9 +21,9 @@ import laika.ast.helper.ModelBuilder
 import laika.bundle.{BlockParser, BlockParserBuilder, ParserBundle}
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
-import laika.parse.markup.RootParserProvider
 import laika.parse.directive.BlockDirectiveParsers
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
+import laika.parse.markup.RootParserProvider
 import laika.parse.text.TextParsers._
 import org.scalatest.{FlatSpec, Matchers}
 

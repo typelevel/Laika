@@ -18,13 +18,11 @@ package laika.config
 
 import com.typesafe.config.Config
 import laika.ast._
-import laika.ast.DocumentType.Ignored
-import laika.bundle.ExtensionBundle.LaikaDefaults
 import laika.bundle.{DocumentTypeMatcher, ExtensionBundle, MarkupExtensions, RewriteRules}
 import laika.directive.{DirectiveSupport, StandardDirectives}
 import laika.factory.{MarkupParser, RenderFormat}
 import laika.parse.Parser
-import laika.parse.combinator.Parsers.success
+import laika.parse.combinator.Parsers
 import laika.parse.directive.ConfigHeaderParser
 
 import scala.annotation.tailrec
@@ -59,7 +57,8 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
     * of merging the partial functions from all defined bundles and adding
     * a fallback (the `Ignored` document type) for all unhandled `Path` instances.
     */
-  lazy val docTypeMatcher: Path => DocumentType = mergedBundle.docTypeMatcher.lift.andThen(_.getOrElse(Ignored))
+  lazy val docTypeMatcher: Path => DocumentType =
+    mergedBundle.docTypeMatcher.lift.andThen(_.getOrElse(DocumentType.Ignored))
 
   /** Provides all extensions for the text markup parser extracted from
     * all defined bundles.
@@ -77,7 +76,7 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
     * and adding a fallback that produces an empty style declaration set if all other parsers fail (or none are defined).
     */
   lazy val styleSheetParser: Parser[Set[StyleDeclaration]] =
-    mergedBundle.parsers.styleSheetParser.getOrElse(success(Set.empty[StyleDeclaration]))
+    mergedBundle.parsers.styleSheetParser.getOrElse(Parsers.success(Set.empty[StyleDeclaration]))
 
   /** Provides the parser for template documents, obtained by merging the parsers defined in all extension bundles
     * (or none if no bundle defines a parser). This method does not provide a fallback parser as the lack of any
@@ -182,7 +181,7 @@ object OperationConfig {
   /** A configuration instance with all the libraries default extension bundles.
     */
   val default: OperationConfig = OperationConfig(
-    bundles = Seq(LaikaDefaults, DirectiveSupport, StandardDirectives)
+    bundles = Seq(ExtensionBundle.LaikaDefaults, DirectiveSupport, StandardDirectives)
   )
 
   /** An empty configuration instance.

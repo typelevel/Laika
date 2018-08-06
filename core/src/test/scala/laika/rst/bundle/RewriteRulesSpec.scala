@@ -16,7 +16,6 @@
 
 package laika.rst.bundle
 
-import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.config.OperationConfig
@@ -30,7 +29,7 @@ class RewriteRulesSpec extends FlatSpec
 
   
   def rewritten (root: RootElement): RootElement = {
-    val doc = Document(Root, root)
+    val doc = Document(Path.Root, root)
     val rules = OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRule(DocumentCursor(doc))
     doc.rewrite(rules).content
   }

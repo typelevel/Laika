@@ -19,8 +19,7 @@ package laika.rst
 import laika.api._
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.directive.DirectiveRegistry
-import laika.directive.{Blocks, Spans}
+import laika.directive.{Blocks, DirectiveRegistry, Spans}
 import laika.format.ReStructuredText
 import laika.rst.ext.Directives.Parts._
 import laika.rst.ext.Directives._

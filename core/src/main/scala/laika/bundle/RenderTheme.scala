@@ -17,7 +17,6 @@
 package laika.bundle
 
 import laika.ast._
-import laika.ast.DocumentType.Static
 import laika.config.OperationConfig
 import laika.io.{InputTree, InputTreeOps}
 
@@ -118,7 +117,7 @@ object StaticDocuments extends InputTreeOps {
   override type InputTreeResult = StaticDocuments
 
   override def config: OperationConfig = OperationConfig(Seq(new ExtensionBundle {
-    override def docTypeMatcher: PartialFunction[Path, DocumentType] = { case _ => Static }
+    override def docTypeMatcher: PartialFunction[Path, DocumentType] = { case _ => DocumentType.Static }
   }))
 
   override def fromInputTree (inputTree: InputTree): StaticDocuments = {

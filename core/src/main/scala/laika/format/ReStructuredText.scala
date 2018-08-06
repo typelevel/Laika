@@ -17,12 +17,12 @@
 package laika.format
 
 import laika.ast.Block
-import laika.factory.MarkupParser
 import laika.bundle.{ExtensionBundle, ParserBundle, ParserHooks}
+import laika.factory.MarkupParser
 import laika.parse.Parser
 import laika.parse.text.WhitespacePreprocessor
-import laika.rst.bundle._
 import laika.rst._
+import laika.rst.bundle._
   
 /** A parser for text written in reStructuredText markup. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:

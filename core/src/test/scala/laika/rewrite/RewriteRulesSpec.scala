@@ -16,13 +16,11 @@
 
 package laika.rewrite
 
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.ast.Path.Root
 import laika.config.OperationConfig
 import laika.rst.ast.Underline
+import org.scalatest.{FlatSpec, Matchers}
 
 class RewriteRulesSpec extends FlatSpec 
                   with Matchers
@@ -30,7 +28,7 @@ class RewriteRulesSpec extends FlatSpec
 
   
   def rewritten (root: RootElement): RootElement = {
-    val doc = Document(Root, root)
+    val doc = Document(Path.Root, root)
     val rules = OperationConfig.default.rewriteRule(DocumentCursor(doc))
     doc.rewrite(rules).content
   }
@@ -193,7 +191,7 @@ class RewriteRulesSpec extends FlatSpec
   
   "The rewrite rules for image references" should "resolve external link references" in {
     val rootElem = root(p(simpleImgRef()), ExternalLinkDefinition("name", "foo.jpg"))
-    rewritten (rootElem) should be (root(p(img("text", "foo.jpg", Some(PathInfo(Root / "foo.jpg", Path.Current / "foo.jpg"))))))
+    rewritten (rootElem) should be (root(p(img("text", "foo.jpg", Some(PathInfo(Path.Root / "foo.jpg", Path.Current / "foo.jpg"))))))
   }
   
   it should "replace an unresolvable reference with an invalid span" in {

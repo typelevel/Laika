@@ -16,13 +16,13 @@
 
 package laika.io
 
-import java.io.File
-import scala.io.Codec
+import java.io.{Closeable, File}
+
 import laika.ast.Path
-import laika.ast.Path.Root
-import scala.collection.mutable.ListBuffer
 import laika.io.Output.Binary
-import java.io.Closeable
+
+import scala.collection.mutable.ListBuffer
+import scala.io.Codec
 
 /** Represents a tree structure of Outputs, abstracting over various types of IO resources. 
  *  
@@ -96,7 +96,7 @@ object OutputTree {
   def forRootDirectory (root: File)(implicit codec: Codec): OutputTree = {
     require(root.isDirectory, s"File ${root.getAbsolutePath} is not a directory")
 
-    new DirectoryOutputTree(root, Root, codec)
+    new DirectoryOutputTree(root, Path.Root, codec)
   }
 
   /**  Creates an OutputTree based on the current working directory, including

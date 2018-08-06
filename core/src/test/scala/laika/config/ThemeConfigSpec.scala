@@ -16,7 +16,6 @@
 
 package laika.config
 
-import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.{BundleProvider, ExtensionBundle, StaticDocuments}
 import laika.factory.RenderFormat
@@ -62,7 +61,7 @@ class ThemeConfigSpec extends WordSpec with Matchers {
 
     def defaultStyles: StyleDeclarationSet = StyleDeclarationSet.empty
 
-    def staticDocuments: StaticDocuments = StaticDocuments(DocumentTree(Root, Nil))
+    def staticDocuments: StaticDocuments = StaticDocuments(DocumentTree(Path.Root, Nil))
 
     def defaultRenderer: TextWriter => RenderFunction = { _ => { case _ => () } }
 
@@ -200,15 +199,15 @@ class ThemeConfigSpec extends WordSpec with Matchers {
   "The configuration for static content" should {
 
     "merge static content defined in a default theme with static content defined in an app extension" in new BundleSetup {
-      val docA = StaticDocument(Input.fromString("a", Root / "a"))
-      val docB = StaticDocument(Input.fromString("b", Root / "b"))
-      override lazy val staticDocuments = StaticDocuments(DocumentTree(Root, Nil, additionalContent = Seq(docA)))
-      val moreDocuments = StaticDocuments(DocumentTree(Root, Nil, additionalContent = Seq(docB)))
+      val docA = StaticDocument(Input.fromString("a", Path.Root / "a"))
+      val docB = StaticDocument(Input.fromString("b", Path.Root / "b"))
+      override lazy val staticDocuments = StaticDocuments(DocumentTree(Path.Root, Nil, additionalContent = Seq(docA)))
+      val moreDocuments = StaticDocuments(DocumentTree(Path.Root, Nil, additionalContent = Seq(docB)))
       val appBundles = Seq(BundleProvider.forTheme(TestFormat.Theme(staticDocuments = moreDocuments)))
 
       val mergedStaticDocuments = config.themeFor(TestFormat).staticDocuments
 
-      mergedStaticDocuments shouldBe StaticDocuments(DocumentTree(Root, Nil, additionalContent = Seq(docB, docA)))
+      mergedStaticDocuments shouldBe StaticDocuments(DocumentTree(Path.Root, Nil, additionalContent = Seq(docB, docA)))
     }
 
   }

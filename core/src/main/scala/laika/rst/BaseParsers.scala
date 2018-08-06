@@ -18,7 +18,7 @@ package laika.rst
 
 import laika.ast._
 import laika.parse.Parser
-import laika.parse.text.TextParsers._
+import laika.parse.text.TextParsers.{anyOf, anyIn, char}
 import laika.parse.text.{Characters, TextParsers}
 
 /**

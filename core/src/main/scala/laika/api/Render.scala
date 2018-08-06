@@ -16,9 +16,7 @@
 
 package laika.api
 
-import laika.config.RenderConfigBuilder
 import laika.ast._
-import laika.ast.Path.{Current, Root}
 import laika.config.{OperationConfig, RenderConfigBuilder}
 import laika.factory.{RenderFormat, RenderResultProcessor}
 import laika.io.Output.Binary
@@ -170,8 +168,8 @@ abstract class Render[Writer] private (protected[api] val format: RenderFormat[W
     }
 
     val templateName = "default.template." + format.fileSuffix
-    val treeWithTpl = if (docTree.selectTemplate(Current / templateName).isDefined) docTree
-                      else docTree.copy(templates = docTree.templates :+ TemplateDocument(Root / templateName,
+    val treeWithTpl = if (docTree.selectTemplate(Path.Current / templateName).isDefined) docTree
+                      else docTree.copy(templates = docTree.templates :+ TemplateDocument(Path.Root / templateName,
                            theme.defaultTemplateOrFallback))
     val treeWithTplApplied = TemplateRewriter.applyTemplates(treeWithTpl, format.fileSuffix)
     val finalTree = theme.staticDocuments.merge(treeWithTplApplied)
@@ -240,10 +238,10 @@ object Render {
       new RenderGatheredOutput[Writer](processor, newConfig)
 
     def from (element: Element): BinaryOutputOps =
-      from(Document(Root / "target", RootElement(Seq(TemplateRoot(Seq(TemplateElement(element)))))))
+      from(Document(Path.Root / "target", RootElement(Seq(TemplateRoot(Seq(TemplateElement(element)))))))
     
     def from (doc: Document): BinaryOutputOps =
-      from(DocumentTree(Root, Seq(doc)))
+      from(DocumentTree(Path.Root, Seq(doc)))
     
     def from (tree: DocumentTree): BinaryOutputOps = new BinaryOutputOps {
       def toBinaryOutput (out: Output with Binary) =

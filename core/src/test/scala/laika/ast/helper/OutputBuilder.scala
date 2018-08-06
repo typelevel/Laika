@@ -18,9 +18,8 @@ package laika.ast.helper
 
 import java.io.{BufferedWriter, File, FileWriter}
 
-import laika.io.{Output, OutputTree}
 import laika.ast.{Element, ElementContainer, Path}
-import laika.ast.Path.Root
+import laika.io.{Output, OutputTree}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
@@ -68,7 +67,7 @@ object OutputBuilder {
   }
 
   object TestOutputTree {
-    def newRoot: TestOutputTree = new TestOutputTree(Root)
+    def newRoot: TestOutputTree = new TestOutputTree(Path.Root)
   }
   
   def createTempDirectory (baseName: String): File = {

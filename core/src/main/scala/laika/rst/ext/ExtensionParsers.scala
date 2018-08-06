@@ -18,16 +18,16 @@ package laika.rst.ext
 
 import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder}
-import laika.parse.{Failure, Success, Parser}
+import laika.directive.Builders.Result
 import laika.parse.markup.BlockParsers._
 import laika.parse.markup.RecursiveParsers
 import laika.parse.text.TextParsers._
+import laika.parse.{Failure, Parser, Success}
 import laika.rst.BaseParsers._
 import laika.rst.ast.{CustomizedTextRole, SubstitutionDefinition}
 import laika.rst.bundle.RstExtension
 import laika.rst.ext.Directives._
 import laika.rst.ext.TextRoles._
-import laika.directive.Builders._
 
 import scala.collection.mutable.ListBuffer
 

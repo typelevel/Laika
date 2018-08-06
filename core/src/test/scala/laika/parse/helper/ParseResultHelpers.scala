@@ -16,11 +16,9 @@
 
 package laika.parse.helper
 
-import laika.parse.{Failure, Success}
 import laika.ast.{Element, ElementContainer}
-import laika.parse.{Failure, Parsed}
-import org.scalatest.matchers.MatchResult
-import org.scalatest.matchers.Matcher
+import laika.parse.{Failure, Parsed, Success}
+import org.scalatest.matchers.{MatchResult, Matcher}
 
 trait ParseResultHelpers {
 

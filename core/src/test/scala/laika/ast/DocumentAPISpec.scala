@@ -16,13 +16,12 @@
 
 package laika.ast
 
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
 import laika.api.Parse
-import laika.format.Markdown
 import laika.ast.helper.ModelBuilder
 import laika.bundle.RewriteRules
 import laika.config.OperationConfig
+import laika.format.Markdown
+import org.scalatest.{FlatSpec, Matchers}
 
 class DocumentAPISpec extends FlatSpec 
                       with Matchers

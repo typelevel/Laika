@@ -22,12 +22,11 @@ import javax.xml.transform.TransformerFactory
 import javax.xml.transform.sax.SAXResult
 import javax.xml.transform.stream.StreamSource
 
+import laika.ast.{DocumentTree, TemplateRoot}
 import laika.factory.{RenderFormat, RenderResultProcessor}
 import laika.io.Output.BinaryOutput
 import laika.io.{Input, OutputTree}
 import laika.render.{FOWriter, FOforPDF}
-import laika.ast.DocumentTree
-import laika.ast.TemplateRoot
 import org.apache.fop.apps.{FOUserAgentFactory, FopFactory, FopFactoryBuilder}
 import org.apache.xmlgraphics.io.{Resource, ResourceResolver}
 import org.apache.xmlgraphics.util.MimeConstants

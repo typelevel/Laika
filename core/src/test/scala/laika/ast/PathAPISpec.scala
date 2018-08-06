@@ -16,10 +16,8 @@
 
 package laika.ast
 
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
-
-import Path._
+import laika.ast.Path._
+import org.scalatest.{FlatSpec, Matchers}
 
 class PathAPISpec extends FlatSpec 
                   with Matchers {

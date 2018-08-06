@@ -16,14 +16,12 @@
 
 package laika.directive
 
-import org.scalatest.Matchers
-import org.scalatest.FlatSpec
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.parse.Parser
 import laika.parse.directive.TemplateParsers
-import laika.parse.helper.ParseResultHelpers
-import laika.parse.helper.DefaultParserHelpers
+import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
+import org.scalatest.{FlatSpec, Matchers}
 
 class TemplateDirectiveAPISpec extends FlatSpec
                           with Matchers

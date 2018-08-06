@@ -19,9 +19,9 @@ package laika.api
 import java.io._
 
 import laika.api.Transform.TransformMappedOutput
-import laika.ast._
 import laika.ast.DocumentType.Static
 import laika.ast.Path.Root
+import laika.ast._
 import laika.ast.helper.InputBuilder
 import laika.ast.helper.OutputBuilder.{TestOutputTree, readFile}
 import laika.bundle.{BundleProvider, ExtensionBundle}
@@ -134,8 +134,8 @@ class TransformAPISpec extends FlatSpec
 
   
   trait TreeTransformer extends InputBuilder {
-    import laika.ast.{DocumentType, Path}
     import laika.ast.helper.OutputBuilder._
+    import laika.ast.{DocumentType, Path}
 
     val dirs: String
     

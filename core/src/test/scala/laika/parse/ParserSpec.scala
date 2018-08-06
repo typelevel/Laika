@@ -21,7 +21,6 @@ import laika.parse.combinator.Parsers
 import laika.parse.combinator.Parsers._
 import laika.parse.helper.{ParseResultHelpers, StringParserHelpers}
 import laika.parse.text.TextParsers
-import laika.parse.text.TextParsers.literal
 import org.scalatest.{Matchers, WordSpec}
 
 /**
@@ -203,6 +202,8 @@ class ParserSpec extends WordSpec with Matchers with ParseResultHelpers with Str
   }
 
   "The parser for dynamic repetition" should {
+
+    import TextParsers._
 
     val parser = literal("1").repWith { res:String => (res.toInt + 1).toString }
 

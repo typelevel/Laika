@@ -17,7 +17,6 @@
 package laika.directive
 
 import laika.ast._
-import laika.directive.Builders.CanBuild
 
 /** Represents the result (or combined results)
   *  of processing one or more parts of a directive.
@@ -166,7 +165,7 @@ trait BuilderContext[E <: Element] {
 
   /** Type class required for using the generic `Builders` API with directives.
     */
-  implicit object CanBuildDirectivePart extends CanBuild[DirectivePart] {
+  implicit object CanBuildDirectivePart extends Builders.CanBuild[DirectivePart] {
 
     def apply [A,B](ma: DirectivePart[A], mb: DirectivePart[B]): DirectivePart[A~B] = new DirectivePart[A~B] {
       def apply (p: DirectiveContext) = ma(p) ~ mb(p)

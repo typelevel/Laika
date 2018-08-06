@@ -16,10 +16,8 @@
 
 package laika.ast
 
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
-
 import laika.ast.helper.ModelBuilder
+import org.scalatest.{FlatSpec, Matchers}
  
 class ElementTraversalSpec extends FlatSpec 
                            with Matchers

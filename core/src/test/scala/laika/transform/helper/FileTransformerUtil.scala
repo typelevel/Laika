@@ -16,9 +16,10 @@
 
 package laika.transform.helper
 
-import java.io.StringReader
-import java.io.StringWriter
+import java.io.{StringReader, StringWriter}
+
 import org.w3c.tidy.Tidy
+
 import scala.io.Codec
 
 /** Helpers for tests that read entire sample files with markup and compare

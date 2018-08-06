@@ -19,7 +19,6 @@ package laika.rst.bundle
 import laika.ast.{Block, Span}
 import laika.bundle.ExtensionBundle
 import laika.rst.ext.Directives.Directive
-import laika.rst.ext.{Directives, TextRoles}
 import laika.rst.ext.TextRoles.TextRole
 import laika.rst.std.{StandardBlockDirectives, StandardSpanDirectives, StandardTextRoles}
 

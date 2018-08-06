@@ -16,17 +16,15 @@
 
 package laika.directive
 
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
+import com.typesafe.config.ConfigFactory
 import laika.api.Parse
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.format.Markdown
-import laika.rewrite.TemplateRewriter
-import Path._
-import com.typesafe.config.ConfigFactory
 import laika.config.OperationConfig
+import laika.format.Markdown
 import laika.parse.ParserContext
+import laika.rewrite.TemplateRewriter
+import org.scalatest.{FlatSpec, Matchers}
 
 
 class StandardDirectiveSpec extends FlatSpec
@@ -47,8 +45,8 @@ class StandardDirectiveSpec extends FlatSpec
   
   def parseTemplateWithConfig (input: String, config: String): RootElement = {
     val tRoot = parseTemplate(input)
-    val template = TemplateDocument(Root, tRoot)
-    val cursor = DocumentCursor(Document(Root, root(), config = ConfigFactory.parseString(config)))
+    val template = TemplateDocument(Path.Root, tRoot)
+    val cursor = DocumentCursor(Document(Path.Root, root(), config = ConfigFactory.parseString(config)))
     TemplateRewriter.applyTemplate(cursor, template).content
   }
   
@@ -266,6 +264,8 @@ class StandardDirectiveSpec extends FlatSpec
   
   
   trait TreeModel {
+
+    import Path._
     
     val pathUnderTest = Root / "sub2" / "doc7"
     
@@ -305,6 +305,7 @@ class StandardDirectiveSpec extends FlatSpec
   
   trait TocModel {
     import laika.ast.TitledBlock
+    import Path._
     
     val treeUnderTest = Root / "sub2"
     

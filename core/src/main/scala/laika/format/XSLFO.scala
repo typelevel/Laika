@@ -16,8 +16,7 @@
 
 package laika.format
 
-import laika.ast.{Element, StyleDeclarationSet, TemplateDocument}
-import laika.ast.Path.Root
+import laika.ast.{Element, Path, StyleDeclarationSet, TemplateDocument}
 import laika.config.RenderConfig
 import laika.factory.RenderFormat
 import laika.io.{Input, Output}
@@ -62,11 +61,11 @@ object XSLFO extends RenderFormat[FOWriter] {
   )
 
   private lazy val styleResource: StyleDeclarationSet = {
-    val input = Input.fromClasspath("/styles/default.fo.css", Root / "default.fo.css")
+    val input = Input.fromClasspath("/styles/default.fo.css", Path.Root / "default.fo.css")
     Parsers.documentParserFunction(CSSParsers.styleDeclarationSet, StyleDeclarationSet.forPath)(input)
   }
 
   private lazy val templateResource: TemplateDocument =
-    DefaultTemplateParser.parse(Input.fromClasspath("/templates/default.template.fo", Root / "default.template.fo"))
+    DefaultTemplateParser.parse(Input.fromClasspath("/templates/default.template.fo", Path.Root / "default.template.fo"))
 
 }

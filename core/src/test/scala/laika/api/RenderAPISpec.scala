@@ -19,15 +19,15 @@ package laika.api
 import java.io.{ByteArrayOutputStream, File, StringWriter}
 
 import laika.api.Render.RenderMappedOutput
+import laika.ast.Path.Root
+import laika.ast._
+import laika.ast.helper.OutputBuilder._
+import laika.ast.helper.{InputBuilder, ModelBuilder}
+import laika.bundle.{BundleProvider, StaticDocuments}
 import laika.format.{AST, HTML, XSLFO}
 import laika.io.Input
 import laika.render._
 import laika.render.helper.RenderResult
-import laika.ast._
-import laika.ast.helper.{InputBuilder, ModelBuilder}
-import laika.ast.helper.OutputBuilder._
-import Path.Root
-import laika.bundle.{BundleProvider, StaticDocuments}
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.io.Codec
