@@ -18,8 +18,9 @@ package laika.directive
 
 import laika.ast._
 import laika.directive.Directives._
-import laika.rewrite.{DocumentCursor, TemplateRewriter, TocGenerator}
-import laika.util.Builders._
+import laika.rewrite.TemplateRewriter
+import laika.rewrite.nav.TocGenerator
+import Builders._
 
 import scala.collection.JavaConverters._
 

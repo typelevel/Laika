@@ -16,12 +16,10 @@
 
 package laika.factory
 
-import laika.api.ext._
-import laika.parse.core.Parser
-import laika.parse.core.combinator.Parsers.opt
-import laika.parse.core.text.TextParsers
-import laika.parse.core.text.TextParsers.blankLines
 import laika.ast.Block
+import laika.bundle.{BlockParserBuilder, ExtensionBundle, SpanParserBuilder}
+import laika.parse.Parser
+import laika.parse.text.TextParsers
 
 /** Responsible for creating parser instances for a specific markup format.
  *  A parser is simply a function of type `Input => Document`.
@@ -77,6 +75,6 @@ trait MarkupParser {
     * for special requirements, for example when the previous result has an influence on
     * which parser to pick for the subsequent block.
     */
-  def createBlockListParser (parser: Parser[Block]): Parser[Seq[Block]] = (parser <~ opt(blankLines))*
+  def createBlockListParser (parser: Parser[Block]): Parser[Seq[Block]] = (parser <~ (TextParsers.blankLines).?)*
 
 }

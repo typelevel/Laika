@@ -16,14 +16,14 @@
 
 package laika.format
 
-import laika.api.config.RenderConfig
-import laika.ast.{StyleDeclarationSet, TemplateDocument, Element}
+import laika.ast.{Element, StyleDeclarationSet, TemplateDocument}
 import laika.ast.Path.Root
-import laika.directive.DefaultTemplateParser
+import laika.config.RenderConfig
 import laika.factory.RenderFormat
 import laika.io.{Input, Output}
-import laika.parse.core.combinator.Parsers
+import laika.parse.combinator.Parsers
 import laika.parse.css.CSSParsers
+import laika.parse.directive.DefaultTemplateParser
 import laika.render.{FORenderer, FOWriter}
 
 import scala.language.existentials

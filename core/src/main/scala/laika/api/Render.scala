@@ -16,10 +16,11 @@
 
 package laika.api
 
-import laika.api.config.{OperationConfig, RenderConfigBuilder}
+import laika.config.RenderConfigBuilder
 import laika.ast._
 import laika.ast.Path.{Current, Root}
-import laika.factory.{RenderResultProcessor, RenderFormat}
+import laika.config.{OperationConfig, RenderConfigBuilder}
+import laika.factory.{RenderFormat, RenderResultProcessor}
 import laika.io.Output.Binary
 import laika.io.OutputTree._
 import laika.io._

@@ -18,22 +18,21 @@ package laika.rewrite
 
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
-import laika.io.DocumentType.Markup
-import laika.ast.helper.ModelBuilder
 import laika.ast._
-import laika.ast.helper.DocumentViewBuilder.{Documents => Docs}
-import laika.ast.helper.DocumentViewBuilder._
-import laika.ast.Path.Root
+import laika.ast.helper.ModelBuilder
+import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
-import laika.api.config.OperationConfig
+import laika.config.OperationConfig
 
-class SectionNumberSpec extends FlatSpec 
+class SectionNumberSpec extends FlatSpec
                         with Matchers
                         with ModelBuilder {
 
   
   trait TreeModel {
+
+    import Path.Root
     
     def header (level: Int, title: Int, style: String = "section") =
       Header(level,List(Text(s"Title $title")),Id(s"title$title") + Styles(style))
@@ -64,9 +63,9 @@ class SectionNumberSpec extends FlatSpec
       def docs (path: Path, nums: (Int, List[Int])*) = nums map { 
         case (fileNum, titleNums) => new DocumentView(path / ("doc"+fileNum), content(numbers(titleNums)))
       }
-      TreeView(Root, Docs(Markup, docs(Root, (1,List(1)),(2,List(2)))) :: Subtrees(List(
-        TreeView(Root / "sub1", Docs(Markup, docs(Root / "sub1",(3,List(3,1)),(4, List(3,2)))) :: Nil),
-        TreeView(Root / "sub2", Docs(Markup, docs(Root / "sub2",(5,List(4,1)),(6, List(4,2)))) :: Nil)
+      TreeView(Root, Docs(DocumentType.Markup, docs(Root, (1,List(1)),(2,List(2)))) :: Subtrees(List(
+        TreeView(Root / "sub1", Docs(DocumentType.Markup, docs(Root / "sub1",(3,List(3,1)),(4, List(3,2)))) :: Nil),
+        TreeView(Root / "sub2", Docs(DocumentType.Markup, docs(Root / "sub2",(5,List(4,1)),(6, List(4,2)))) :: Nil)
       )) :: Nil)
     }
     

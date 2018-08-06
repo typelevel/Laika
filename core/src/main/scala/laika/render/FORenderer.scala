@@ -18,7 +18,6 @@ package laika.render
 
 import laika.ast._
 import laika.render.FOWriter._
-import laika.util.RomanNumerals
 
 /** Default renderer implementation for the XSL-FO output format.
   *

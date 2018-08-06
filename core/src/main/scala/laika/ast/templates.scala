@@ -16,9 +16,7 @@
 
 package laika.ast
 
-import laika.rewrite.DocumentCursor
 import laika.rewrite.TemplateRewriter
-import laika.ast._
 
 /** Represents a placeholder inline element that needs
  *  to be resolved in a rewrite step.

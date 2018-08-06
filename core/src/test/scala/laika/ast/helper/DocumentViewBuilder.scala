@@ -17,9 +17,8 @@
 package laika.ast.helper
 
 import laika.ast._
+import laika.ast.DocumentType._
 import laika.io.Input
-import laika.io.DocumentType
-import laika.io.DocumentType._
 
 /* Provides a view of DocumentTree structures that allows for 
  * formatted AST rendering (for debugging purposes) and case

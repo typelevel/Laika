@@ -16,13 +16,11 @@
 
 package laika.sbt
 
-import laika.api.ext.{ExtensionBundle, RenderTheme}
 import laika.ast
-import laika.ast.{RenderFunction, RewriteRule}
+import laika.ast.{DocumentCursor, DocumentType, RenderFunction, RewriteRule}
+import laika.bundle.{ExtensionBundle, RenderTheme}
 import laika.format.{HTML, XSLFO}
-import laika.io.DocumentType
 import laika.render.{FOWriter, HTMLWriter}
-import laika.rewrite.DocumentCursor
 
 /** API shortcuts for the most common extension points that create
   * an extension bundle from a single feature, so that it can be passed

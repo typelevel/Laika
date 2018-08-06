@@ -64,7 +64,7 @@ includes all the block parsers this trait has specified as well as any extension
 a user might have installed.
 
 
-[bundle-scaladoc]: ../api/#laika.api.ext.ExtensionBundle
+[bundle-scaladoc]: ../api/#laika.bundle.ExtensionBundle
 
 
 

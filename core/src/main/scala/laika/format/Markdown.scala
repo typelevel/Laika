@@ -16,12 +16,12 @@
 
 package laika.format
 
-import laika.api.ext.{ExtensionBundle, ParserBundle, ParserHooks}
-import laika.factory.MarkupParser
-import laika.parse.core.Parser
-import laika.parse.markdown.html.VerbatimHTML
-import laika.parse.markdown.{BlockParsers, HeaderIdInsertion, InlineParsers, ListParsers}
 import laika.ast.Block
+import laika.bundle.{ExtensionBundle, ParserBundle, ParserHooks}
+import laika.factory.MarkupParser
+import laika.markdown.{BlockParsers, InlineParsers, ListParsers}
+import laika.markdown.bundle.{HeaderIdInsertion, VerbatimHTML}
+import laika.parse.Parser
   
 /** A parser for Markdown text. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:

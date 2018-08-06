@@ -17,15 +17,14 @@
 package laika.api
 
 import com.typesafe.config.{ConfigFactory, Config => TConfig}
-import laika.api.config.{OperationConfig, ParseConfigBuilder}
-import laika.api.ext.ConfigProvider
 import laika.ast._
+import laika.bundle.ConfigProvider
+import laika.config.{OperationConfig, ParseConfigBuilder}
 import laika.factory.MarkupParser
-import laika.io.DocumentType._
 import laika.io._
-import laika.parse.core.combinator.Parsers.documentParserFunction
-import laika.parse.core.markup.DocumentParser
-  
+import laika.parse.combinator.Parsers.documentParserFunction
+import laika.parse.markup.DocumentParser
+
 /** API for performing a parse operation from various types of input to obtain
  *  a document tree without a subsequent render operation. 
  *  
@@ -99,6 +98,8 @@ class Parse private (parsers: Seq[MarkupParser], val config: OperationConfig, re
   }
   
   def fromInputTree(inputTree: InputTree): DocumentTree = {
+
+    import DocumentType._
 
     case class TreeConfig (path: Path, config: TConfig)
 

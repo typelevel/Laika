@@ -38,4 +38,8 @@ package object ast {
     */
   type RenderFunction = PartialFunction[Element,Unit]
 
+  /** A wrapper for two result values.
+    */
+  case class ~[+A,+B] (_1:A, _2:B)
+
 }

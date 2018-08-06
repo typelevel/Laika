@@ -16,10 +16,10 @@
 
 package laika.parse.helper
 
-import laika.parse.core.Parser
-import laika.parse.core.combinator.Parsers._
-import laika.parse.core.markup.DefaultRecursiveParsers
+import laika.parse.combinator.Parsers._
 import laika.ast.Block
+import laika.parse.Parser
+import laika.parse.markup.DefaultRecursiveParsers
 
 /**
   * @author Jens Halm

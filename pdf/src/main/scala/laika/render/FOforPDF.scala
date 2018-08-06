@@ -22,7 +22,7 @@ import laika.format.{PDF, XSLFO}
 import laika.io.OutputTree
 import laika.io.OutputTree.{ResultTree, StringOutputTree}
 import laika.render.FOWriter._
-import laika.rewrite.TocGenerator
+import laika.rewrite.nav.TocGenerator
 
 /** Responsible for rendering the XSL-FO for an entire document tree
  *  as an interim result to be consumed by the PDF post processor.

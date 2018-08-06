@@ -18,7 +18,7 @@ package laika.io
 
 import java.io.File
 
-import laika.ast.Path
+import laika.ast.{DocumentType, Path}
 
 import scala.io.Codec
 

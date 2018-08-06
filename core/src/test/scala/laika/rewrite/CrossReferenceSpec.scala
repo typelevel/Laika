@@ -16,15 +16,14 @@
 
 package laika.rewrite
 
-import laika.api.config.OperationConfig
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
-import laika.io.DocumentType.Markup
-import laika.ast.helper.ModelBuilder
 import laika.ast._
-import laika.ast.helper.DocumentViewBuilder.{Documents => Docs}
-import laika.ast.helper.DocumentViewBuilder._
+import laika.ast.DocumentType.Markup
+import laika.ast.helper.ModelBuilder
+import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}
 import Path._
+import laika.config.OperationConfig
 
 class CrossReferenceSpec extends FlatSpec 
                       with Matchers

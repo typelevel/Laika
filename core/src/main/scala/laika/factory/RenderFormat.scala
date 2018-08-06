@@ -16,9 +16,9 @@
 
 package laika.factory
 
-import laika.api.config.RenderConfig
-import laika.api.ext.{RenderTheme, StaticDocuments}
 import laika.ast.{Element, MessageLevel, RenderFunction, StyleDeclarationSet, TemplateRoot}
+import laika.bundle.{RenderTheme, StaticDocuments}
+import laika.config.RenderConfig
 import laika.io.Output
 
 /** Responsible for creating renderer instances for a specific output format.

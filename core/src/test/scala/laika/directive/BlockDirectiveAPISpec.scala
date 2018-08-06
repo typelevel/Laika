@@ -16,15 +16,17 @@
 
 package laika.directive
 
-import laika.api.ext._
-import laika.directive.Directives.Blocks.Directive
-import laika.directive.Directives.{Blocks, Default}
-import laika.parse.core.combinator.Parsers
-import laika.parse.core.text.TextParsers._
-import laika.parse.core.{Parser, RootParserProvider}
-import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
+import laika.bundle.{BlockParser, BlockParserBuilder, ParserBundle}
+import laika.directive.Directives.Blocks.Directive
+import laika.directive.Directives.{Blocks, Default}
+import laika.parse.Parser
+import laika.parse.combinator.Parsers
+import laika.parse.markup.RootParserProvider
+import laika.parse.directive.BlockDirectiveParsers
+import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
+import laika.parse.text.TextParsers._
 import org.scalatest.{FlatSpec, Matchers}
 
 
@@ -36,7 +38,7 @@ class BlockDirectiveAPISpec extends FlatSpec
   object DirectiveSetup {
     import Blocks.Combinators._
     import Blocks.Converters._
-    import laika.util.Builders._
+    import Builders._
     
     trait RequiredDefaultAttribute {
       val directive = Blocks.create("dir") { attribute(Default) map (p(_)) }

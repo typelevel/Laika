@@ -24,12 +24,12 @@ import java.io.InputStreamReader
 import java.io.StringReader
 
 import scala.io.Codec
-import laika.parse.core.ParserContext
 import java.io.File
 
 import laika.io.IO.FileBased
 import laika.ast.Path
 import laika.ast.Path.Root
+import laika.parse.ParserContext
 
 /** Represents the input for a parser, abstracting over various types of IO resources. 
  *  

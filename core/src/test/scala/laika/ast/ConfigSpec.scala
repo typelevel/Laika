@@ -17,10 +17,10 @@
 package laika.ast
 
 import laika.api.Parse
-import laika.api.ext.BundleProvider
 import laika.format.{Markdown, ReStructuredText}
 import laika.rewrite.TemplateRewriter
 import laika.ast.helper.{InputBuilder, ModelBuilder}
+import laika.bundle.BundleProvider
 import org.scalatest.{FlatSpec, Matchers}
 
 class ConfigSpec extends FlatSpec 

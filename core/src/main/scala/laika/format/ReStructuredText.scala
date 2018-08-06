@@ -16,13 +16,13 @@
 
 package laika.format
 
-import laika.api.ext._
-import laika.factory.MarkupParser
-import laika.parse.core.Parser
-import laika.parse.rst._
-import laika.parse.rst.ext._
-import laika.parse.util.WhitespacePreprocessor
 import laika.ast.Block
+import laika.factory.MarkupParser
+import laika.bundle.{ExtensionBundle, ParserBundle, ParserHooks}
+import laika.parse.Parser
+import laika.parse.text.WhitespacePreprocessor
+import laika.rst.bundle._
+import laika.rst._
   
 /** A parser for text written in reStructuredText markup. Instances of this class may be passed directly
  *  to the `Parse` or `Transform` APIs:
@@ -34,7 +34,7 @@ import laika.ast.Block
  *  }}}
  * 
  *  reStructuredText has several types of extension points that are fully supported by Laika.
- *  For more information on how to implement and register those see [[laika.parse.rst.ext.RstExtensionRegistry]].
+ *  For more information on how to implement and register those see [[RstExtensionRegistry]].
  *
  *  In addition to the standard reStructuredText directives, the API also supports a custom directive
  *  type unique to Laika. They represent a library-wide extension mechanism and allow you to implement
@@ -101,7 +101,7 @@ object ReStructuredText extends MarkupParser { self =>
       ))
     )
 
-    override val themes = Seq(HTML.Theme(customRenderer = ExtendedHTML))
+    override val themes = Seq(HTML.Theme(customRenderer = ExtendedHTMLRenderer))
   }
 
   val extensions = Seq(
@@ -111,6 +111,7 @@ object ReStructuredText extends MarkupParser { self =>
     RawContentExtensions
   )
 
-  override def createBlockListParser (parser: Parser[Block]): Parser[Seq[Block]] = BlockParsers.createBlockListParser(parser)
+  override def createBlockListParser (parser: Parser[Block]): Parser[Seq[Block]] =
+    BlockParsers.createBlockListParser(parser)
 
 }

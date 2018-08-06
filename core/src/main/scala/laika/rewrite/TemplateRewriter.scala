@@ -79,7 +79,7 @@ trait TemplateRewriter {
   /** The (optional) template to use when rendering the target of the specified document cursor.
    */  
   def selectTemplate (cursor: DocumentCursor, format: String): Option[TemplateDocument] = {
-    import laika.api.ext.ConfigImplicits._
+    import laika.bundle.ConfigImplicits._
     val config = cursor.config
     val templatePath = config.getRelativePath("template").orElse(config.getRelativePath(format + ".template"))
 

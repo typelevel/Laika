@@ -16,13 +16,13 @@
 
 package laika.rewrite
 
-import laika.api.config.OperationConfig
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 import laika.ast._
-import laika.parse.rst.Elements._
 import laika.ast.helper.ModelBuilder
 import laika.ast.Path.Root
+import laika.config.OperationConfig
+import laika.rst.ast.Underline
 
 class RewriteRulesSpec extends FlatSpec 
                   with Matchers

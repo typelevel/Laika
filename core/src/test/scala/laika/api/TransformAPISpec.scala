@@ -19,15 +19,15 @@ package laika.api
 import java.io._
 
 import laika.api.Transform.TransformMappedOutput
-import laika.api.ext.{BundleProvider, ExtensionBundle}
 import laika.ast._
+import laika.ast.DocumentType.Static
 import laika.ast.Path.Root
 import laika.ast.helper.InputBuilder
 import laika.ast.helper.OutputBuilder.{TestOutputTree, readFile}
+import laika.bundle.{BundleProvider, ExtensionBundle}
 import laika.format.{AST, Markdown, ReStructuredText, XSLFO}
-import laika.io.DocumentType.Static
-import laika.parse.core.Parser
-import laika.parse.core.text.TextParsers
+import laika.parse.Parser
+import laika.parse.text.TextParsers
 import laika.render.TextWriter
 import laika.render.helper.RenderResult
 import org.scalatest.{FlatSpec, Matchers}
@@ -133,10 +133,9 @@ class TransformAPISpec extends FlatSpec
 
   
   trait TreeTransformer extends InputBuilder {
-    import laika.ast.Path
+    import laika.ast.{DocumentType, Path}
     import laika.ast.helper.OutputBuilder._
     import laika.directive.Directives.Templates
-    import laika.io.DocumentType
 
     val dirs: String
     

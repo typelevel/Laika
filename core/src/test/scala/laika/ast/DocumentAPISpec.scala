@@ -19,11 +19,10 @@ package laika.ast
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 import laika.api.Parse
-import laika.api.config.OperationConfig
-import laika.api.ext.RewriteRules
 import laika.format.Markdown
-import laika.rewrite.DocumentCursor
 import laika.ast.helper.ModelBuilder
+import laika.bundle.RewriteRules
+import laika.config.OperationConfig
 
 class DocumentAPISpec extends FlatSpec 
                       with Matchers

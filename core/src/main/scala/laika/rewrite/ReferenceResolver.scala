@@ -17,8 +17,8 @@
 package laika.rewrite
 
 import com.typesafe.config.Config
-import laika.ast.Document
-import laika.ast.SpanSequence
+import laika.ast.{Document, SpanSequence, TreeCursor}
+
 import scala.util.Try
 
 /** A resolver for context references in templates or markup documents.

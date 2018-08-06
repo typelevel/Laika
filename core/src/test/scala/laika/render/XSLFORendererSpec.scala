@@ -19,11 +19,11 @@ package laika.render
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 import laika.api.Render
-import laika.api.ext.BundleProvider
 import laika.format.XSLFO
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
+import laika.bundle.BundleProvider
 
 class XSLFORendererSpec extends FlatSpec
                         with Matchers

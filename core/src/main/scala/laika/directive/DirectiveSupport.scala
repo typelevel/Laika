@@ -16,8 +16,9 @@
 
 package laika.directive
 
-import laika.api.ext.{ExtensionBundle, ParserBundle}
+import laika.bundle.{ExtensionBundle, ParserBundle}
 import laika.directive.Directives.{Blocks, Spans, Templates}
+import laika.parse.directive.{BlockDirectiveParsers, ConfigHeaderParser, SpanDirectiveParsers, TemplateParsers}
 
 /** Internal API that processes all directives defined
   * by one or more DirectiveRegistries. This extension
@@ -51,120 +52,3 @@ class DirectiveSupport (blockDirectives: Seq[Blocks.Directive],
 /** Empty default instance without any directives installed.
   */
 object DirectiveSupport extends DirectiveSupport(Nil, Nil, Nil)
-
-
-/** Registry for custom directives. Application code can define
-  * any number of instances mixing in this trait and then pass
-  * them to Parse, Render or Transform operations:
-  *
-  * {{{
-  * object MyDirectives extends DirectiveRegistry {
-  *   val spanDirectives = Seq(...)
-  *   val blockDirectives = Seq(...)
-  *   val templateDirectives = Seq(...)
-  * }
-  * object OtherDirectives extends DirectiveRegistry {
-  *   [...]
-  * }
-  *
-  * Transform
-  *   .from(Markdown)
-  *   .to(HTML)
-  *   .using(MyDirectives, OtherDirectives)
-  *   .fromFile("hello.md")
-  *   .toFile("hello.html")
-  * }}}
-  *
-  */
-trait DirectiveRegistry extends ExtensionBundle {
-
-  /**  Registers the specified span directives.
-    *
-    *  Example:
-    *
-    *  {{{
-    *  object MyDirectives extends DirectiveRegistry {
-    *    val spanDirectives = Seq(
-    *      Spans.create("ticket") {
-    *        (attribute(Default) ~ attribute("param").optional) { (ticketNo, param) =>
-    *          val base = "http://tickets.service.com/"+ticketNo
-    *          val url = base + (param map (p => "?param="+p) getOrElse "")
-    *          ExternalLink(Seq(Text("Ticket "+ticketNo)), url, options = Styles("ticket"))
-    *        }
-    *      }
-    *    )
-    *    val blockDirectives = Seq()
-    *    val templateDirectives = Seq()
-    *  }
-    *
-    *  Transform from Markdown to HTML using MyDirectives fromFile "hello.md" toFile "hello.html"
-    *  }}}
-    *
-    *  The code above registers a span directive that detects markup like
-    *  `@:ticket 2356.` and turns it into an external link node for the
-    *  URL `http://tickets.service.com/2356`.
-    *
-    *  For more details on implementing Laika directives see [[laika.directive.Directives]].
-    */
-  def spanDirectives: Seq[Spans.Directive]
-
-  /**  Registers the specified block directives.
-    *
-    *  Example:
-    *
-    *  {{{
-    *  case class Note (title: String, content: Seq[Block], options: Options = NoOpt)
-    *                                                       extends Block with BlockContainer[Note]
-    *  object MyDirectives extends DirectiveRegistry {
-    *    val blockDirectives = Seq(
-    *      Blocks.create("note") {
-    *        (attribute(Default) ~ body(Default))(Note(_,_))
-    *      }
-    *    )
-    *    val spanDirectives = Seq()
-    *    val templateDirectives = Seq()
-    *  }
-    *
-    *  Transform from Markdown to HTML using MyDirectives fromFile "hello.md" toFile "hello.html"
-    *  }}}
-    *
-    *  For more details on implementing Laika directives see [[laika.directive.Directives]].
-    */
-  def blockDirectives: Seq[Blocks.Directive]
-
-  /**  Registers the specified template directives.
-    *
-    *  Example:
-    *
-    *  {{{
-    *  object MyDirectives extends DirectiveRegistry {
-    *    val templateDirectives = Seq(
-    *      Templates.create("ticket") {
-    *        (attribute(Default) ~ attribute("param").optional) { (ticketNo, param) =>
-    *          val base = "http://tickets.service.com/"+ticketNo
-    *          val url = base + (param map (p => "&param="+p) getOrElse "")
-    *          TemplateElement(ExternalLink(Seq(Text("Ticket "+ticketNo)), url, options = Styles("ticket")))
-    *        }
-    *      }
-    *    )
-    *    val blockDirectives = Seq()
-    *    val spanDirectives = Seq()
-    *  }
-    *
-    *  Transform from Markdown to HTML using MyDirectives fromFile "hello.md" toFile "hello.html"
-    *  }}}
-    *
-    *  The code above registers a template directive that detects markup like
-    *  `@:ticket 2356.` and turns it into an external link node for the
-    *  URL `http://tickets.service.com/2356`.
-    *
-    *  For more details on implementing Laika directives see [[laika.directive.Directives]].
-    */
-  def templateDirectives: Seq[Templates.Directive]
-
-
-  override def processExtension: PartialFunction[ExtensionBundle, ExtensionBundle] = {
-    case ds: DirectiveSupport => ds.withDirectives(blockDirectives, spanDirectives, templateDirectives)
-  }
-
-}

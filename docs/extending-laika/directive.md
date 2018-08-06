@@ -359,9 +359,9 @@ Use: in inline elements in text markup files
 
 Implementation:
 
-    import laika.directive.Directives.Spans
-    import laika.util.Builders._
     import laika.ast._
+    import laika.directive.Builders._
+    import laika.directive.Directives.Spans
     import Spans.Combinators._
     import Spans.Converters._
     
@@ -390,9 +390,9 @@ Use: in block elements in text markup files
 
 Implementation:
 
-    import laika.directive.Directives.Blocks
-    import laika.util.Builders._
     import laika.ast._
+    import laika.directive.Builders._
+    import laika.directive.Directives.Blocks
     import Blocks.Combinators._
     import Blocks.Converters._
     
@@ -421,9 +421,9 @@ Use: in template files
 
 Implementation:
 
-    import laika.directive.Directives.Templates
-    import laika.util.Builders._
     import laika.ast._
+    import laika.directive.Builders._
+    import laika.directive.Directives.Templates
     import Templates.Combinators._
     import Templates.Converters._
     

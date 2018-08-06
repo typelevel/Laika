@@ -16,10 +16,8 @@
 
 package laika.directive
 
-import laika.util.Builders._
+import Builders._
 import laika.ast._
-import laika.rewrite.DocumentCursor
-import laika.util.~
 
 /** API for creating directives, the Laika's extension mechanism for creating
  *  custom tags for both, templates or text markup.
@@ -328,7 +326,6 @@ object Directives {
    
     /** Provides various combinators to describe the expected
      *  format of a specific directive.
-     * 
      */
     object Combinators {
       

@@ -18,7 +18,7 @@ package laika.io
 
 import java.io.{File, InputStream, Reader}
 
-import laika.api.config.OperationConfig
+import laika.config.OperationConfig
 import laika.io.InputTree._
 
 import scala.io.Codec

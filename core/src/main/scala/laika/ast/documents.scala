@@ -18,8 +18,10 @@ package laika.ast
 
 import com.typesafe.config.{Config, ConfigFactory}
 import laika.io.Input
-import laika.rewrite.LinkTargets._
-import laika.rewrite._
+import laika.rewrite.TemplateRewriter
+import laika.rewrite.link.LinkTargetProvider
+import laika.rewrite.link.LinkTargets._
+import laika.rewrite.nav.AutonumberConfig
 import Path.Current
 
 import scala.annotation.tailrec
@@ -308,6 +310,52 @@ trait TreeStructure { this: TreeContent =>
   }
 
 }
+
+/** Base type for all document type descriptors.
+  */
+sealed abstract class DocumentType
+
+/** Provides all available DocumentTypes.
+  */
+object DocumentType {
+
+  /** A configuration document in the syntax
+    *  supported by the Typesafe Config library.
+    */
+  case object Config extends DocumentType
+
+  /** A text markup document produced by a parser.
+    */
+  case object Markup extends DocumentType
+
+  /** A template document that might get applied
+    *  to a document when it gets rendered.
+    */
+  case object Template extends DocumentType
+
+  /** A dynamic document that might contain
+    *  custom directives that need to get
+    *  processed before rendering.
+    */
+  case object Dynamic extends DocumentType
+
+  /** A style sheet that needs to get passed
+    *  to a renderer.
+    */
+  case class StyleSheet (format: String) extends DocumentType
+
+  /** A static file that needs to get copied
+    *  over to the output target.
+    */
+  case object Static extends DocumentType
+
+  /** A document that should be ignored and neither
+    *  get processed nor copied.
+    */
+  case object Ignored extends DocumentType
+
+}
+
 
 /** Represents a single document and provides access
  *  to the document content and structure as well

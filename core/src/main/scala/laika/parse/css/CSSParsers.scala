@@ -17,10 +17,9 @@
 package laika.parse.css
 
 import laika.ast._
-import laika.parse.core.Parser
-import laika.parse.core.markup.InlineParsers
-import laika.parse.core.text.TextParsers._
-import laika.util.~
+import laika.parse.Parser
+import laika.parse.markup.InlineParsers
+import laika.parse.text.TextParsers._
 
 /**
  * Parsers for the subset of CSS supported by Laika.

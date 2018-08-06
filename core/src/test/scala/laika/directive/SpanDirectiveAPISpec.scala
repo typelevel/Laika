@@ -16,14 +16,15 @@
 
 package laika.directive
 
-import laika.api.ext.ParserBundle
 import laika.directive.Directives.Spans.Directive
 import laika.directive.Directives.{Default, Spans}
-import laika.parse.core.{Parser, RootParserProvider}
-import laika.parse.core.markup.RootParser
+import laika.parse.markup.RootParserProvider
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
+import laika.bundle.ParserBundle
+import laika.parse.Parser
+import laika.parse.directive.SpanDirectiveParsers
 import org.scalatest.{FlatSpec, Matchers}
 
 class SpanDirectiveAPISpec extends FlatSpec
@@ -34,7 +35,7 @@ class SpanDirectiveAPISpec extends FlatSpec
   object DirectiveSetup {
     import Spans.Combinators._
     import Spans.Converters._
-    import laika.util.Builders._
+    import Builders._
     
     trait RequiredDefaultAttribute {
       val directive = Spans.create("dir") { attribute(Default) map (Text(_)) }

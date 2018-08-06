@@ -16,8 +16,8 @@
 
 package laika.format
 
-import laika.api.config.RenderConfig
 import laika.ast._
+import laika.config.RenderConfig
 import laika.factory.RenderFormat
 import laika.io.Output
 import laika.render.{ASTRenderer, TextWriter}

@@ -16,8 +16,8 @@
 
 package laika.sbt
 
-import laika.api.ext.ExtensionBundle
 import laika.ast._
+import laika.bundle.ExtensionBundle
 import org.apache.fop.apps.FopFactory
 import sbt.Keys._
 import sbt._
@@ -40,7 +40,7 @@ import sbt._
   * - `excludeFilter in Laika`: files in the source directories to be excluded (default `HiddenFileFilter`)
   *
   * - `laikaExtensions`: the main extension hook that allows to add one or more `ExtensionBundle` instances for adding
-  *   directives, parser extensions, rewrite rules or custom renderers. See the API of [[laika.api.ext.ExtensionBundle]].
+  *   directives, parser extensions, rewrite rules or custom renderers. See the API of [[ExtensionBundle]].
   *
   * - `laikaConfig`: allows to specify additional flags and settings through instances of `LaikaConfig`:
   *     - `encoding`: specifies the character encoding (default `UTF-8`)

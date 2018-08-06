@@ -18,14 +18,11 @@ package laika.ast
 
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
-import laika.io.DocumentType.Markup
+import laika.ast.DocumentType.Markup
 import laika.ast.Path.{Current, Root}
 import laika.ast.helper.ModelBuilder
-import laika.ast.helper.DocumentViewBuilder.{Documents => Docs}
-import laika.ast.helper.DocumentViewBuilder._
-import laika.rewrite.DocumentCursor
+import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}
 import laika.rewrite.TemplateRewriter
-import laika.rewrite.TreeCursor
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigParseOptions

@@ -16,10 +16,9 @@
 
 package laika.ast.helper
 
-import laika.ast.Path
-import laika.ast.Path.Root
-import laika.io.DocumentType._
-import laika.io.{DocumentType, Input, InputTree}
+import laika.ast.{DocumentType, Path}
+import laika.ast.DocumentType._
+import laika.io.{Input, InputTree}
 import laika.io.InputTree.InputTreeBuilder
 
 trait InputBuilder {
@@ -27,7 +26,7 @@ trait InputBuilder {
   
   def contents: String => String
   
-  private def parseTree (dirStructure: List[String], path: Path = Root, indent: Int = 0): (TestInputTreeBuilder, List[String]) = {
+  private def parseTree (dirStructure: List[String], path: Path = Path.Root, indent: Int = 0): (TestInputTreeBuilder, List[String]) = {
     val prefix = indent * 2
     val lines = dirStructure.takeWhile(_.startsWith(" " * prefix))
     

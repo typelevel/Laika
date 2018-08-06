@@ -18,18 +18,17 @@ package laika.api
 
 import java.io.{ByteArrayInputStream, StringReader}
 
-import laika.api.ext.{BundleProvider, ExtensionBundle}
 import laika.ast._
+import laika.ast.Path.Root
+import laika.ast.DocumentType._
 import laika.ast.helper.DocumentViewBuilder._
 import laika.ast.helper.{InputBuilder, ModelBuilder}
+import laika.bundle.{BundleProvider, ExtensionBundle}
 import laika.format.{Markdown, ReStructuredText}
-import laika.io.DocumentType
-import laika.io.DocumentType._
-import laika.parse.core.Parser
-import laika.parse.core.text.TextParsers
-import laika.parse.rst.Elements.CustomizedTextRole
+import laika.parse.Parser
+import laika.parse.text.TextParsers
 import laika.rewrite.TemplateRewriter
-import Path.Root
+import laika.rst.ast.CustomizedTextRole
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.io.Codec

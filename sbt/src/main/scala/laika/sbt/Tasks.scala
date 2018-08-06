@@ -17,7 +17,7 @@
 package laika.sbt
 
 import laika.api.{Parse, Render}
-import laika.api.config.BundleFilter
+import laika.config.BundleFilter
 import laika.factory.{RenderFormat, RenderResultProcessor}
 import laika.format._
 import laika.io.Input.LazyFileInput

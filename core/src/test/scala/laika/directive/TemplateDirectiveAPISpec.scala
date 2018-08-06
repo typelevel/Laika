@@ -25,7 +25,8 @@ import laika.ast.helper.ModelBuilder
 import laika.directive.Directives.Templates
 import laika.directive.Directives.Templates.Directive
 import laika.directive.Directives.Default
-import laika.parse.core.Parser
+import laika.parse.Parser
+import laika.parse.directive.TemplateParsers
 
 class TemplateDirectiveAPISpec extends FlatSpec
                           with Matchers
@@ -35,7 +36,7 @@ class TemplateDirectiveAPISpec extends FlatSpec
   object DirectiveSetup {
     import Templates.Combinators._
     import Templates.Converters._
-    import laika.util.Builders._
+    import Builders._
     
     trait RequiredDefaultAttribute {
       val directive = Templates.create("dir") { attribute(Default) map (TemplateString(_)) }

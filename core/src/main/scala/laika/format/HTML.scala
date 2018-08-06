@@ -16,12 +16,12 @@
 
 package laika.format
 
-import laika.api.config.RenderConfig
-import laika.ast.{StyleDeclarationSet, TemplateDocument, Element}
+import laika.ast.{Element, StyleDeclarationSet, TemplateDocument}
 import laika.ast.Path.Root
-import laika.directive.DefaultTemplateParser
+import laika.config.RenderConfig
 import laika.factory.RenderFormat
 import laika.io.{Input, Output}
+import laika.parse.directive.DefaultTemplateParser
 import laika.render.{HTMLRenderer, HTMLWriter}
 
 /** A render format for HTML output. May be directly passed to the `Render` or `Transform` APIs:
