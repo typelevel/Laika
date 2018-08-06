@@ -18,8 +18,7 @@ package laika.bundle
 
 import com.typesafe.config.Config
 import laika.ast._
-import laika.directive.DirectiveRegistry
-import laika.directive.Directives.Templates
+import laika.directive.{DirectiveRegistry, Templates}
 import laika.io.Input
 import laika.parse.Parser
 

@@ -28,7 +28,6 @@ import com.typesafe.config.ConfigFactory
 import laika.config.OperationConfig
 import laika.parse.ParserContext
 
-import scala.collection.JavaConversions._
 
 class StandardDirectiveSpec extends FlatSpec
                             with Matchers

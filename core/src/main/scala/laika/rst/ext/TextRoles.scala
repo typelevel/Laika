@@ -17,9 +17,10 @@
 package laika.rst.ext
 
 import laika.ast._
+import laika.directive.Builders
+import laika.directive.Builders.{CanBuild, Result}
 import laika.parse.markup.RecursiveParsers
 import laika.rst.bundle.RstExtension
-import laika.directive.Builders._
 
 /** API for creating interpreted text roles, the extension mechanism for inline elements of reStructuredText.
  *  The API did not aim to mimic the API of the original Python reference implementation.
@@ -173,7 +174,7 @@ object TextRoles {
   /** The public user API for specifying the required and optional parts of a directive
    *  (fields or body) together with optional converter/validator functions.
    */
-  object Parts {
+  object Parts extends Builders.Implicits {
     
     private def part [T](f: RoleDirectiveParser => Result[T]): RoleDirectivePart[T] = new RoleDirectivePart[T] {
       def apply (p: RoleDirectiveParser) = f(p)

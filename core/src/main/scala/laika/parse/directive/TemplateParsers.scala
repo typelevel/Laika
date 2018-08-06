@@ -17,7 +17,7 @@
 package laika.parse.directive
 
 import laika.ast._
-import laika.directive.Directives.Templates
+import laika.directive.Templates
 import laika.io.Input
 import laika.parse.markup.DefaultRecursiveSpanParsers
 import laika.parse.text.TextParsers._

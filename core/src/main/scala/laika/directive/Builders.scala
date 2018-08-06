@@ -23,7 +23,7 @@ import laika.ast.~
  * 
  *  The concrete use case for Laika is a concise and type-safe API for
  *  setting up directives or text roles. For these APIs and sample
- *  code see [[laika.directive.Directives]], [[laika.rst.ext.Directives]] and [[laika.rst.ext.TextRoles]].
+ *  code see [[laika.directive.BuilderContext.dsl]], [[laika.rst.ext.Directives]] and [[laika.rst.ext.TextRoles]].
  * 
  *  This implementation is based on a concept outlined by Sadek Drobi in this gist: 
  *  [[https://gist.github.com/sadache/3646092]].
@@ -57,20 +57,25 @@ object Builders {
     def map [A,B](m: M[A], f: A => B): M[B]
             
   }
-    
-    
-  /** Allows to use the `~` combinator function on all classes
-   *  that have a matching `CanBuild` type class.
-   */
-  implicit class BuilderOps [M[_],A](ma:M[A])(implicit fcb: CanBuild[M]) {
-   
-    def ~ [B](mb: M[B]): Builder[M]#CanBuild2[A,B] = { 
-      val b = new Builder(fcb)
-      new b.CanBuild2(ma,mb)
+
+  /** Adds the `~` combinator function to all classes
+    * that have a matching `CanBuild` type class.
+    */
+  trait Implicits {
+
+    /** Allows to use the `~` combinator function on all classes
+     *  that have a matching `CanBuild` type class.
+     */
+    implicit class BuilderOps [M[_],A](ma:M[A])(implicit fcb: CanBuild[M]) {
+
+      def ~ [B](mb: M[B]): Builder[M]#CanBuild2[A,B] = {
+        val b = new Builder(fcb)
+        new b.CanBuild2(ma,mb)
+      }
+
     }
-   
   }
-  
+
   /** Builders for using combinators for up to 12 result values.
    */
   class Builder [M[_]](canBuild: CanBuild[M]) {

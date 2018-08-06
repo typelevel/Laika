@@ -327,8 +327,8 @@ class ParseAPISpec extends FlatSpec
   
   it should "allow to specify a template directive" in {
     new TreeParser {
-      import laika.directive.Directives.Templates.Combinators._
-      import laika.directive.Directives.{Templates, _}
+      import laika.directive.Templates
+      import Templates.dsl._
 
       val directive = Templates.create("foo") {
         attribute(Default) map { TemplateString(_) }

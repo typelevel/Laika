@@ -17,9 +17,10 @@
 package laika.rst.ext
 
 import laika.ast._
+import laika.directive.Builders
+import laika.directive.Builders.{CanBuild, Result}
 import laika.parse.markup.RecursiveParsers
 import laika.rst.bundle.RstExtension
-import laika.directive.Builders._
 
 /** API for creating directives, the extension mechanism of reStructuredText.
  *  The API did not aim to mimic the API of the original Python reference implementation.
@@ -219,7 +220,7 @@ object Directives {
   /** The public user API for specifying the required and optional parts of a directive
    *  (arguments, fields or body) together with optional converter/validator functions.
    */
-  object Parts {
+  object Parts extends Builders.Implicits {
     
     private def part [T](f: DirectiveParser => Result[T]): DirectivePart[T] = new DirectivePart[T] {
       def apply (p: DirectiveParser) = f(p)

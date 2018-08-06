@@ -18,9 +18,9 @@ package laika.parse.directive
 
 import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder, SpanParser, SpanParserBuilder}
-import laika.directive.Directives
-import laika.directive.Directives._
-import laika.parse.{Failure, Parser, Success}
+import laika.directive._
+import laika.directive.PartId.Default
+import laika.parse.Parser
 import laika.parse.markup.{EscapedTextParsers, RecursiveParsers, RecursiveSpanParsers}
 import laika.parse.text.TextParsers._
 
@@ -37,8 +37,8 @@ object DirectiveParsers {
    */
   def withSource[T] (p: Parser[T]): Parser[(T, String)] = Parser { in =>
     p.parse(in) match {
-      case Success(result, next) => Success((result, in.capture(next.offset - in.offset)), next)
-      case f: Failure            => f
+      case laika.parse.Success(result, next) => laika.parse.Success((result, in.capture(next.offset - in.offset)), next)
+      case f: laika.parse.Failure            => f
     }
   }
 
@@ -129,24 +129,24 @@ object DirectiveParsers {
       directiveTypeDesc: String
     ): E = {
     
-    val directive = directives(parseResult.name).map(Directives.Success(_))
-        .getOrElse(Directives.Failure(s"No $directiveTypeDesc directive registered with name: ${parseResult.name}"))
+    val directive = directives(parseResult.name).map(Success(_))
+        .getOrElse(Failure(s"No $directiveTypeDesc directive registered with name: ${parseResult.name}"))
     
     val partMap = {
       val dups = parseResult.parts groupBy (_.key) filterNot (_._2.tail.isEmpty) keySet;
-      if (dups.isEmpty) Directives.Success(parseResult.parts map (p => (p.key, p.content)) toMap)
-      else Directives.Failure(dups.map("Duplicate "+_.desc).toList)
+      if (dups.isEmpty) Success(parseResult.parts map (p => (p.key, p.content)) toMap)
+      else Failure(dups.map("Duplicate "+_.desc).toList)
     }
     
-    def processResult (result: Directives.Result[E]) = result match {
-      case Directives.Success(result)   => result
-      case Directives.Failure(messages) => createInvalidElement("One or more errors processing directive '"
+    def processResult (result: Result[E]) = result match {
+      case Success(result)   => result
+      case Failure(messages) => createInvalidElement("One or more errors processing directive '"
           + parseResult.name + "': " + messages.mkString(", "))
     }
     
     processResult((directive ~ partMap) flatMap { case directive ~ partMap =>
       def directiveWithContext (cursor: Option[DocumentCursor]) = directive(createContext(partMap, cursor))
-      if (directive.requiresContext) Directives.Success(createPlaceholder(c => processResult(directiveWithContext(Some(c)))))
+      if (directive.requiresContext) Success(createPlaceholder(c => processResult(directiveWithContext(Some(c)))))
       else directiveWithContext(None)
     }) 
   }
@@ -160,6 +160,7 @@ object DirectiveParsers {
 object SpanDirectiveParsers {
 
   import DirectiveParsers._
+  import laika.directive.Spans
 
   case class DirectiveSpan (f: DocumentCursor => Span, options: Options = NoOpt) extends SpanResolver {
     def resolve (cursor: DocumentCursor) = f(cursor)
@@ -200,6 +201,7 @@ object SpanDirectiveParsers {
 object BlockDirectiveParsers {
 
   import DirectiveParsers._
+  import laika.directive.Blocks
   import laika.parse.markup.BlockParsers._
 
   case class DirectiveBlock (f: DocumentCursor => Block, options: Options = NoOpt) extends BlockResolver {

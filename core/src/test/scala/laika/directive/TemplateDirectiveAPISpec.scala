@@ -18,15 +18,12 @@ package laika.directive
 
 import org.scalatest.Matchers
 import org.scalatest.FlatSpec
-import laika.parse.helper.ParseResultHelpers
-import laika.parse.helper.DefaultParserHelpers
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.directive.Directives.Templates
-import laika.directive.Directives.Templates.Directive
-import laika.directive.Directives.Default
 import laika.parse.Parser
 import laika.parse.directive.TemplateParsers
+import laika.parse.helper.ParseResultHelpers
+import laika.parse.helper.DefaultParserHelpers
 
 class TemplateDirectiveAPISpec extends FlatSpec
                           with Matchers
@@ -34,10 +31,8 @@ class TemplateDirectiveAPISpec extends FlatSpec
 
   
   object DirectiveSetup {
-    import Templates.Combinators._
-    import Templates.Converters._
-    import Builders._
-    
+    import Templates.dsl._
+
     trait RequiredDefaultAttribute {
       val directive = Templates.create("dir") { attribute(Default) map (TemplateString(_)) }
     }
@@ -111,7 +106,7 @@ class TemplateDirectiveAPISpec extends FlatSpec
   trait TemplateParser extends ParseResultHelpers
                           with DefaultParserHelpers[TemplateRoot] {
     
-    val directive: Directive
+    val directive: Templates.Directive
 
     val templateParsers = new TemplateParsers(Map(directive.name -> directive))
     

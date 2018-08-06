@@ -360,10 +360,8 @@ Use: in inline elements in text markup files
 Implementation:
 
     import laika.ast._
-    import laika.directive.Builders._
-    import laika.directive.Directives.Spans
-    import Spans.Combinators._
-    import Spans.Converters._
+    import laika.directive.Spans
+    import Spans.dsl._
     
     val directive = Spans.create("name") {
       // implementation producing a `Span` element
@@ -391,10 +389,8 @@ Use: in block elements in text markup files
 Implementation:
 
     import laika.ast._
-    import laika.directive.Builders._
-    import laika.directive.Directives.Blocks
-    import Blocks.Combinators._
-    import Blocks.Converters._
+    import laika.directive.Blocks
+    import Blocks.dsl._
     
     val directive = Blocks.create("name") {
       // implementation producing a `Block` element
@@ -422,10 +418,8 @@ Use: in template files
 Implementation:
 
     import laika.ast._
-    import laika.directive.Builders._
-    import laika.directive.Directives.Templates
-    import Templates.Combinators._
-    import Templates.Converters._
+    import laika.directive.Templates
+    Templates Blocks.dsl._
     
     val directive = Templates.create("name") {
       // implementation producing a `TemplateSpan` element

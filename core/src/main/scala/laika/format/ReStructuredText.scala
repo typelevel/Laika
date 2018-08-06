@@ -34,7 +34,7 @@ import laika.rst._
  *  }}}
  * 
  *  reStructuredText has several types of extension points that are fully supported by Laika.
- *  For more information on how to implement and register those see [[RstExtensionRegistry]].
+ *  For more information on how to implement and register those see [[laika.rst.bundle.RstExtensionRegistry]].
  *
  *  In addition to the standard reStructuredText directives, the API also supports a custom directive
  *  type unique to Laika. They represent a library-wide extension mechanism and allow you to implement

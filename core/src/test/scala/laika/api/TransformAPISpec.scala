@@ -25,6 +25,7 @@ import laika.ast.Path.Root
 import laika.ast.helper.InputBuilder
 import laika.ast.helper.OutputBuilder.{TestOutputTree, readFile}
 import laika.bundle.{BundleProvider, ExtensionBundle}
+import laika.directive.Templates
 import laika.format.{AST, Markdown, ReStructuredText, XSLFO}
 import laika.parse.Parser
 import laika.parse.text.TextParsers
@@ -135,7 +136,6 @@ class TransformAPISpec extends FlatSpec
   trait TreeTransformer extends InputBuilder {
     import laika.ast.{DocumentType, Path}
     import laika.ast.helper.OutputBuilder._
-    import laika.directive.Directives.Templates
 
     val dirs: String
     
@@ -285,9 +285,8 @@ class TransformAPISpec extends FlatSpec
   }
   
   it should "transform a tree with a template directive" in {
-    import laika.directive.Directives.Templates.Combinators._
-    import laika.directive.Directives.{Templates, _}
-    
+    import Templates.dsl._
+
     val directive = Templates.create("foo") {
       attribute(Default) map { TemplateString(_) }
     }

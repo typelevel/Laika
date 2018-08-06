@@ -79,18 +79,18 @@ import laika.rst.std.StandardDirectiveParts._
 class StandardBlockDirectives {
 
 
-  private def positiveInt (value: String) = try { 
+  private def positiveInt (value: String) = try {
       val i = value.toInt
       if (i > 0) Right(i) else Left(s"Not a posivitve number: $i")
-    } catch { 
+    } catch {
       case e: NumberFormatException => Left(s"Not a number: $value")
     }
-  
-  /** The compound directive, 
+
+  /** The compound directive,
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#compound-paragraph]] for details.
    */
   lazy val compound: DirectivePart[Block] = {
-    (blockContent ~ stdOpt) { (content, opt) => 
+    (blockContent ~ stdOpt) { (content, opt) =>
       BlockSequence(content, opt + Styles("compound"))
     } 
   }

@@ -17,7 +17,6 @@
 package laika.directive
 
 import laika.bundle.ExtensionBundle
-import laika.directive.Directives.{Blocks, Spans, Templates}
 
 /** Registry for custom directives. Application code can define
   * any number of instances mixing in this trait and then pass
@@ -71,7 +70,7 @@ trait DirectiveRegistry extends ExtensionBundle {
     *  `@:ticket 2356.` and turns it into an external link node for the
     *  URL `http://tickets.service.com/2356`.
     *
-    *  For more details on implementing Laika directives see [[laika.directive.Directives]].
+    *  For more details on implementing Laika directives see [[laika.directive.BuilderContext.dsl]].
     */
   def spanDirectives: Seq[Spans.Directive]
 
@@ -95,7 +94,7 @@ trait DirectiveRegistry extends ExtensionBundle {
     *  Transform from Markdown to HTML using MyDirectives fromFile "hello.md" toFile "hello.html"
     *  }}}
     *
-    *  For more details on implementing Laika directives see [[laika.directive.Directives]].
+    *  For more details on implementing Laika directives see [[laika.directive.BuilderContext.dsl]].
     */
   def blockDirectives: Seq[Blocks.Directive]
 
@@ -125,7 +124,7 @@ trait DirectiveRegistry extends ExtensionBundle {
     *  `@:ticket 2356.` and turns it into an external link node for the
     *  URL `http://tickets.service.com/2356`.
     *
-    *  For more details on implementing Laika directives see [[laika.directive.Directives]].
+    *  For more details on implementing Laika directives see [[laika.directive.BuilderContext.dsl]].
     */
   def templateDirectives: Seq[Templates.Directive]
 

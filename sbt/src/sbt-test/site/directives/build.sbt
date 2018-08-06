@@ -1,7 +1,5 @@
 import laika.ast._
-import laika.directive.DirectiveRegistry
-import laika.directive.Directives
-import laika.directive.Directives._
+import laika.directive.{Blocks, DirectiveRegistry, Spans, Templates}
 
 name := "site-directives"
 
@@ -11,13 +9,16 @@ scalaVersion := "2.12.6"
 
 val TestDirectives = new DirectiveRegistry {
   val spanDirectives = Seq(Spans.create("span") {
-    Spans.Combinators.attribute(Directives.Default) map (Literal(_))
+    import Spans.dsl._
+    attribute(Default) map (Literal(_))
   })
   val blockDirectives = Seq(Blocks.create("block") {
-    Blocks.Combinators.attribute(Directives.Default) map (LiteralBlock(_))
+    import Blocks.dsl._
+    attribute(Default) map (LiteralBlock(_))
   })
   val templateDirectives = Seq(Templates.create("directive") {
-    Templates.Combinators.attribute(Directives.Default) map { TemplateString(_) }
+    import Templates.dsl._
+    attribute(Default) map { TemplateString(_) }
   })
 }
 

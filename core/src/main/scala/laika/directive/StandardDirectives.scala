@@ -17,10 +17,8 @@
 package laika.directive
 
 import laika.ast._
-import laika.directive.Directives._
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.nav.TocGenerator
-import Builders._
 
 import scala.collection.JavaConverters._
 
@@ -54,7 +52,7 @@ object StandardDirectives extends DirectiveRegistry {
   lazy val templateFor: Templates.Directive = Templates.create("for") {
     import java.util.{Collection => JCol, Map => JMap}
 
-    import Templates.Combinators._
+    import Templates.dsl._
 
     val emptyValues = Set("",false,null,None)
     
@@ -90,7 +88,7 @@ object StandardDirectives extends DirectiveRegistry {
    */
   lazy val templateIf: Templates.Directive = Templates.create("if") {
 
-    import Templates.Combinators._
+    import Templates.dsl._
     
     val trueStrings = Set("true","yes","on","enabled")
 
@@ -150,9 +148,9 @@ object StandardDirectives extends DirectiveRegistry {
   /** Implementation of the `toc` directive for templates.
    */
   lazy val templateToc: Templates.Directive  = Templates.create("toc") {
-    import Templates.Combinators._
-    import Templates.Converters._
-    
+
+    import Templates.dsl._
+
     (attribute("depth", positiveInt).optional ~ 
         attribute("root").optional ~ 
         attribute("title").optional ~ 
@@ -165,8 +163,8 @@ object StandardDirectives extends DirectiveRegistry {
   /** Implementation of the `toc` directive for block elements in markup documents.
    */
   lazy val blockToc: Blocks.Directive  = Blocks.create("toc") {
-    import Blocks.Combinators._
-    import Blocks.Converters._
+
+    import Blocks.dsl._
     
     (attribute("depth", positiveInt).optional ~ 
         attribute("root").optional ~ 
@@ -194,7 +192,7 @@ object StandardDirectives extends DirectiveRegistry {
    *  output format (e.g. `pdf` or `html`).
    */
   lazy val format: Blocks.Directive  = Blocks.create("format") {
-    import Blocks.Combinators._
+    import Blocks.dsl._
     
     (attribute(Default) ~ body(Default)) {
       (name, content) => 
@@ -205,7 +203,7 @@ object StandardDirectives extends DirectiveRegistry {
   /** Implementation of the `style` directive for block elements in markup documents.
    */
   lazy val blockStyle: Blocks.Directive  = Blocks.create("style") {
-    import Blocks.Combinators._
+    import Blocks.dsl._
     
     (attribute(Default) ~ body(Default)) {
       (style, content) => asBlock(content, Styles(style))
@@ -215,7 +213,7 @@ object StandardDirectives extends DirectiveRegistry {
   /** Implementation of the `style` directive for span elements in markup documents.
    */
   lazy val spanStyle: Spans.Directive  = Spans.create("style") {
-    import Spans.Combinators._
+    import Spans.dsl._
     
     (attribute(Default) ~ body(Default)) {
       (style, content) => asSpan(content, Styles(style))
@@ -225,7 +223,7 @@ object StandardDirectives extends DirectiveRegistry {
   /** Implementation of the `fragment` directive for block elements in markup documents.
    */
   lazy val blockFragment: Blocks.Directive  = Blocks.create("fragment") {
-    import Blocks.Combinators._
+    import Blocks.dsl._
     
     (attribute(Default) ~ body(Default)) {
       (name, content) => DocumentFragment(name, asBlock(content, Styles(name)))
@@ -235,7 +233,7 @@ object StandardDirectives extends DirectiveRegistry {
   /** Implementation of the `fragment` directive for templates.
    */
   lazy val templateFragment: Templates.Directive  = Templates.create("fragment") {
-    import Templates.Combinators._
+    import Templates.dsl._
     
     (attribute(Default) ~ body(Default)) {
       (name, content) => TemplateElement(DocumentFragment(name, TemplateSpanSequence(content)))
@@ -245,7 +243,7 @@ object StandardDirectives extends DirectiveRegistry {
   /** Implementation of the `pageBreak` directive.
    */
   lazy val pageBreak: Blocks.Directive  = Blocks.create("pageBreak") {
-    import Blocks.Combinators._
+    import Blocks.dsl._
     
     empty(PageBreak())
   }

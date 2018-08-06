@@ -17,7 +17,6 @@
 package laika.directive
 
 import laika.bundle.{ExtensionBundle, ParserBundle}
-import laika.directive.Directives.{Blocks, Spans, Templates}
 import laika.parse.directive.{BlockDirectiveParsers, ConfigHeaderParser, SpanDirectiveParsers, TemplateParsers}
 
 /** Internal API that processes all directives defined

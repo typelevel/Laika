@@ -20,7 +20,7 @@ import laika.api._
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.directive.DirectiveRegistry
-import laika.directive.Directives.{Blocks, Spans}
+import laika.directive.{Blocks, Spans}
 import laika.format.ReStructuredText
 import laika.rst.ext.Directives.Parts._
 import laika.rst.ext.Directives._
@@ -83,9 +83,7 @@ class APISpec extends FlatSpec
   }
   
   trait BlockDirectives {
-    import Blocks.Combinators._
-    import laika.directive.Directives.Default
-    import laika.directive.Builders._
+    import Blocks.dsl._
 
     object TestDirectives extends DirectiveRegistry {
 
@@ -100,9 +98,7 @@ class APISpec extends FlatSpec
   }
   
   trait SpanDirectives {
-    import Spans.Combinators._
-    import laika.directive.Directives.Default
-    import laika.directive.Builders._
+    import Spans.dsl._
 
     object TestDirectives extends DirectiveRegistry {
 

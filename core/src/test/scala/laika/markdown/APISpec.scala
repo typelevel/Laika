@@ -28,10 +28,8 @@ class APISpec extends FlatSpec
   
   
   trait BlockDirectives {
-    import laika.directive.Directives.Blocks
-    import Blocks.Combinators._
-    import laika.directive.Directives.Default
-    import laika.directive.Builders._
+    import laika.directive.Blocks
+    import Blocks.dsl._
 
     object TestDirectives extends DirectiveRegistry {
 
@@ -47,10 +45,8 @@ class APISpec extends FlatSpec
   }
   
   trait SpanDirectives {
-    import laika.directive.Directives.Spans
-    import Spans.Combinators._
-    import laika.directive.Directives.Default
-    import laika.directive.Builders._
+    import laika.directive.Spans
+    import Spans.dsl._
 
     object TestDirectives extends DirectiveRegistry {
 

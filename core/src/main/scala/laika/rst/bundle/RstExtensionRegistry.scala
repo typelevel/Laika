@@ -96,7 +96,7 @@ trait RstExtensionRegistry extends ExtensionBundle {
     *    .fromFile("hello.rst").toFile("hello.html")
     *  }}}
     *
-    *  For more details on implementing directives see [[Directives]].
+    *  For more details on implementing directives see [[laika.rst.ext.Directives]].
     */
   def spanDirectives: Seq[Directive[Span]]
 
@@ -122,7 +122,7 @@ trait RstExtensionRegistry extends ExtensionBundle {
     *    .fromFile("hello.rst").toFile("hello.html")
     *  }}}
     *
-    *  For more details on implementing directives see [[Directives]].
+    *  For more details on implementing directives see [[laika.rst.ext.Directives]].
     */
   def blockDirectives: Seq[Directive[Block]]
 
@@ -146,7 +146,7 @@ trait RstExtensionRegistry extends ExtensionBundle {
     *    MyDirectives fromFile "hello.rst" toFile "hello.html"
     *  }}}
     *
-    *  For more details on implementing directives see [[TextRoles]].
+    *  For more details on implementing directives see [[laika.rst.ext.TextRoles]].
     */
   def textRoles: Seq[TextRole]
 
