@@ -2,7 +2,7 @@ lazy val basicSettings = Seq(
   version               := "0.9.0-SNAPSHOT",
   homepage              := Some(new URL("http://planet42.github.io/Laika/")),
   organization          := "org.planet42",
-  organizationHomepage  := Some(new URL("http://www.planet42.org")),
+  organizationHomepage  := Some(new URL("http://planet42.org")),
   description           := "Text Markup Transformer for sbt and Scala applications",
   startYear             := Some(2012),
   licenses              := Seq("Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
@@ -41,7 +41,7 @@ lazy val publishSettings = Seq(
       <developer>
         <id>jenshalm</id>
         <name>Jens Halm</name>
-        <url>http://www.planet42.org</url>
+        <url>http://planet42.org</url>
       </developer>
     </developers>)
 )

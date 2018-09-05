@@ -76,7 +76,7 @@ For further information:
  
 
 [Manual]: http://planet42.github.com/Laika/index.html
-[Web Tool]: http://www.planet42.org/laika/webtool
+[Web Tool]: http://planet42.org/
 [API]: http://planet42.github.com/Laika/api/
 [Twitter]: https://twitter.com/_planet42
 [Issues]: https://github.com/planet42/Laika/issues

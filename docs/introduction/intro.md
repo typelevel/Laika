@@ -95,7 +95,7 @@ This manual is written in Markdown and transformed by Laika. Its source
 is included in the repository inside the `docs` folder.
 
 
-[Web Tool]: http://www.planet42.org/laika/webtool
+[Web Tool]: http://planet42.org/
 [GitHub]: https://github.com/planet42/Laika
 [API]: ../api/
 [Twitter]: https://twitter.com/_planet42
