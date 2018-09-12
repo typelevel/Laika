@@ -1,0 +1,15 @@
+
+Introduction of the ExtensionBundle API.
+
+* New ExtensionBundle APIs allow to bundle extensions into a single object for easier reuse. Supported extension
+  hooks include directives, markup parser extensions, rewrite rules, custom renderers, document type matchers, 
+  alternative parsers for stylesheets, templates or configuration headers and default templates per output format. 
+  For migrating from 0.8 extension hooks, see <https://github.com/planet42/Laika/issues/56>.
+* Reduced number of settings and tasks in the sbt plugin, by using the new ExtensionBundle API for sbt settings.
+  The most common tasks and setting remain unchanged, for users of the lower level extension settings of the plugin 
+  see <https://github.com/planet42/Laika/issues/65> for migration instructions.
+* Improved package structure to reduce number of required imports. For simpler use cases a global "organize imports"
+  should suffice for migration, for all other cases see <https://github.com/planet42/Laika/issues/66>. 
+* The changes listed above fix some of the design issues of the very early releases from 2013/14 and bring the API 
+  closer to the intended 1.0 API. Upcoming releases are expected to have a much lower number of breaking changes, 
+  if any, as they are mostly feature additions.  

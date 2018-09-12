@@ -147,17 +147,24 @@ Features
 Road Map
 --------
 
-* __0.9__: Support for GitHub-flavored Markdown
+* __0.10__: Support for GitHub-flavored Markdown
 
-* __0.10__: Support for output in the epub format
+* __0.11__: Support for output in the epub format
 
-* __0.11__: Integrated support for syntax highlighting in source code
+* __0.12__: Integrated support for syntax highlighting in source code
 
 * __1.0__: API polishing
 
 
 Release History
 ---------------
+* __0.9.0__ (Sep ??, 2018):
+
+    * New ExtensionBundle APIs allow to bundle extensions into a single object for easier reuse. Supported extension
+      hooks include directives, markup parser extensions, rewrite rules, custom renderers, document type matchers, 
+      alternative parsers for stylesheets, templates or configuration headers and default templates per output format. 
+    * Reduced number of settings and tasks in the sbt plugin, by using the new ExtensionBundle API for sbt settings.
+    * Improved package structure to reduce number of required imports. 
 
 * __0.8.0__ (June 4, 2018):
 
