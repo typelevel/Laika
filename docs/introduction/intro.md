@@ -97,7 +97,7 @@ is included in the repository inside the `docs` folder.
 
 [Web Tool]: http://planet42.org/
 [GitHub]: https://github.com/planet42/Laika
-[API]: ../api/
+[API]: ../api/laika/api/
 [Twitter]: https://twitter.com/_planet42
 [Issues]: https://github.com/planet42/Laika/issues
 [Stackoverflow]: http://stackoverflow.com/questions/ask?tags=scala%2claika

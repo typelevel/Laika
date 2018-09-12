@@ -64,7 +64,7 @@ includes all the block parsers this trait has specified as well as any extension
 a user might have installed.
 
 
-[bundle-scaladoc]: ../api/#laika.bundle.ExtensionBundle
+[bundle-scaladoc]: ../api/laika/bundle/ExtensionBundle.html
 
 
 
@@ -109,7 +109,7 @@ there will be edge cases where it is the other way round. To be really sure it's
 to do some benchmarks first. 
 
 
-[text-scaladoc]: ../api/#laika.parse.core.text.TextParsers
+[text-scaladoc]: ../api/laika/parse/core/text/TextParsers$.html
 
 
 

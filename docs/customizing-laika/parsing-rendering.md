@@ -89,7 +89,7 @@ This codec will then be used by `fromDirectory` and other methods
 shown in the examples above.
 
 
-[ast-scaladoc]: ../api/#laika.ast
+[ast-scaladoc]: ../api/laika/ast/
     
 
 The Render API
