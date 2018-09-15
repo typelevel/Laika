@@ -32,7 +32,7 @@ object RootParserProvider {
     val sp = spanParsers
 
     object Parser extends MarkupParser {
-      val fileSuffixes = Set()
+      val fileSuffixes = Set.empty[String]
       val blockParsers = bp
       val spanParsers = sp
       val extensions = Seq()
