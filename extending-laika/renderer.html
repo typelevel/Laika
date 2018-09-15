@@ -55,7 +55,7 @@
           
           <li class="nav-header">Project Links</li>
           <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
-          <li><a href="../api/">API Documentation</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
           <li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>
           <li><a href="http://planet42.org/">Transformer Web Tool</a></li>
           <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
@@ -83,14 +83,18 @@
         <pre>trait RendererFactory[W] {
   
   def fileSuffix: String
-
-  def newRenderer (out: Output, delegate: Element =&gt; Unit): 
-                                                  (W, Element =&gt; Unit)
   
-}
-</pre>
+  def defaultTheme: Theme
+  
+  def newRenderer (out: Output, root: Element, delegate: Element =&gt; Unit,
+      styles: StyleDeclarationSet, config: RenderConfig): (W, Element =&gt; Unit)
+
+}</pre>
         <p>The <code>fileSuffix</code> method returns the suffix to append when writing files in this format
         (without the &quot;.&quot;).</p>
+        <p>The <code>defaultTheme</code> specifies the theme to use when it is not overridden by the user.
+        It allows to specify a default template and/or static files to include in the output.
+        For details see the section about <a href="../customizing-laika/customize-rendering.html#themes">Themes</a>.</p>
         <p>The <code>newRenderer</code> method creates the actual renderer. In contrast to the parser factory
         it creates a new function for each render operation.  <br></p>
         <p><code>Output</code> is a little IO abstraction provided by Laika so that you do not have to
@@ -98,64 +102,14 @@
         types of streams.</p>
         <p><code>Element =&gt; Unit</code> is the actual render function. The <code>delegate</code> function that gets passed to your
         renderer is the <em>composed</em> render function. Since default renderers can be overridden by users
-        of your renderer
-        as described in the chapter <a href="../customizing-laika/customize-rendering.html#customizing-renderers">Customizing Renderers</a>, you need to use this function
+        of your renderer as described in the chapter <a href="../customizing-laika/customize-rendering.html#customizing-renderers">Customizing Renderers</a>, you need to use this function
         as the delegate when your default render function needs to render the children of
         an element. </p>
         <p>The render function you return in the tuple is the <em>default</em> render function
         to use for all elements where no custom renderer has been defined. </p>
         <p>Finally, <code>W</code> is a parameterized type representing the Writer API that render functions
-        should use for writing the actual output. For the built-in renderers, this is <code>TextWriter</code>
-        for the <code>PrettyPrint</code> renderer and <code>HTMLWriter</code> for the <code>HTML</code> renderer.</p>
-        
-        <h2 id="providing-an-api" class="section">Providing an API</h2>
-        <p>When you build a new renderer you should provide the following features for your users:</p>
-        <ul>
-          <li>
-            <p>An easy way to use your renderer with the Transform API</p>
-          </li>
-          <li>
-            <p>An easy way to use it with the Render API</p>
-          </li>
-          <li>
-            <p>A fluent API for specifying options (in case your renderer is configurable)</p>
-          </li>
-        </ul>
-        <p>The first two come for free when you create an object that extends the setup function
-        explained in the previous section.
-        The built-in <code>PrettyPrint</code> or <code>HTML</code> object are an example. Since they do extend that function,
-        you can easily use them in expressions like this:</p>
-        <pre>val transform = Transform from Markdown to HTML
-</pre>
-        <p>When you want to specify options this should be possible inline:</p>
-        <pre>val transform = Transform from Markdown to (MyFormat withOption &quot;foo&quot;)</pre>
-        <p>You can achieve this by providing a trait that offers all the available configuration
-        hooks and returns <code>this</code> for each of these methods for easy chaining. Additionally
-        you create a companion object that represents the default configuration.</p>
-        <p>This is how skeletons for the trait and object for the HTML renderer look as an example (Scaladoc
-        comments, imports and actual render logic removed for brevity):</p>
-        <pre>class HTML private (messageLevel: Option[MessageLevel]) 
-                                  extends RendererFactory[HTMLWriter] {
-
-  val fileSuffix = &quot;html&quot;
-  
-  def withMessageLevel (level: MessageLevel) = new HTML(Some(level))
-  
-  def newRenderer (output: Output, render: Element =&gt; Unit) = {
-    val out = new HTMLWriter(output.asFunction, render)  
-    (out, renderElement(out))
-  }
-  
-  private def renderElement (out: HTMLWriter)(elem: Element): Unit = {
-    /* actual render logic omitted */
-  } 
-}
-
-object HTML extends HTML(None)</pre>
-        <p>It calls <code>asFunction</code> on the <code>Output</code> instance which is the most convenient way
-        if all you need for writing is a simple <code>String =&gt; Unit</code> function, no matter
-        where the text is actually written to. Alternatively you can use
-        <code>Output.asWriter</code> to get access to the full <code>java.io.Writer</code> API.</p>
+        should use for writing the actual output. For the built-in renderers, this is <code>FOWriter</code>
+        for the <code>XSLFO</code> renderer and <code>HTMLWriter</code> for the <code>HTML</code> renderer.</p>
         
         <h2 id="the-render-function" class="section">The Render Function</h2>
         <p>Finally you need to provide the actual default render function which we omitted in the example

@@ -55,7 +55,7 @@
           
           <li class="nav-header">Project Links</li>
           <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
-          <li><a href="../api/">API Documentation</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
           <li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>
           <li><a href="http://planet42.org/">Transformer Web Tool</a></li>
           <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
@@ -71,12 +71,12 @@
         <div class="page-header">
           <h1>Supported Output Formats</h1>
         </div>
-        <p>The current release supports HTML, PDF, XSL-FO and PrettyPrint.
+        <p>The current release supports HTML, PDF, XSL-FO and AST.
         Rendering happens from a generic document tree model shared between all parsers,
         so that no renderer implementation has to understand specifics about a concrete
         markup syntax like Markdown or reStructuredText.</p>
         <p>Customization of the output is possible on two levels, first most formats (except
-        for PrettyPrint) can be styled with CSS. Secondly the rendering of specific nodes
+        for AST) can be styled with CSS. Secondly the rendering of specific nodes
         can be overridden with a simple partial function as described in <a href="../customizing-laika/customize-rendering.html#customizing-renderers">Customizing Renderers</a>.</p>
         <p>Finally you can develop an entirely new renderer for a format not supported by Laika
         out of the box. See chapter <a href="../extending-laika/renderer.html#implementing-a-renderer">Implementing a Renderer</a> for details.</p>
@@ -126,16 +126,16 @@ Render as HTML from document toFile &quot;hello.html&quot;
         <h3 id="html-renderer-properties" class="section">HTML Renderer Properties</h3>
         <p>The <code>unformatted</code> property tells the renderer to omit any formatting (line breaks or indentation) 
         around tags. Useful when storing the output in a database for example:</p>
-        <pre>Transform from Markdown to HTML.unformatted fromFile 
-  &quot;hello.md&quot; toFile &quot;hello.html&quot;</pre>
+        <pre>Transform.from(Markdown).to(HTML).unformatted 
+  .fromFile(&quot;hello.md&quot;).toFile(&quot;hello.html&quot;)</pre>
         <p>The <code>withMessageLevel</code> property instructs the renderer to include system messages in the
         generated HTML. Messages may get inserted into the document tree for problems during
         parsing or reference resolution, e.g. an internal link to a destination that does not
         exist. By default these messages are not included in the output. They are mostly useful
         for testing and debugging, or for providing feedback to application users producing 
         markup input:</p>
-        <pre>Transform from Markdown to HTML.withMessageLevel(Warning) fromFile 
-  &quot;hello.md&quot; toFile &quot;hello.html&quot;</pre>
+        <pre>Transform.from(Markdown).to(HTML).withMessageLevel(Warning) 
+  .fromFile(&quot;hello.md&quot;).toFile(&quot;hello.html&quot;)</pre>
         
         <h3 id="css-javascript-and-other-files" class="section">CSS, JavaScript and other Files</h3>
         <p>The generated HTML can be styled with CSS like any other static HTML files.
@@ -168,7 +168,7 @@ Transform from Markdown to HTML rendering { out =&gt;
         plan to use Laika&#39;s PDF support embedded in live application it is recommended
         to first do performance and load testing.</p>
         <p>Using the PDF renderer requires to add another dependency to your build:</p>
-        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-pdf&quot; % &quot;0.6.0&quot;</pre>
+        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-pdf&quot; % &quot;0.9.0&quot;</pre>
         <p>The PDF renderer can then be used with the <code>Transform</code> or <code>Render</code> APIs:</p>
         <pre>Transform from Markdown to PDF fromDirectory &quot;src&quot; toFile &quot;out.pdf&quot;
 
@@ -212,7 +212,7 @@ Render as PDF from tree toFile &quot;out.pdf&quot;</pre>
         <h4 id="type-selectors" class="section">Type Selectors</h4>
         <p>A type selector in the context of Laika&#39;s PDF support does not refer to the name of an HTML tag,
         but instead to a class name from the hierarchy of case classes forming the document tree of a 
-        parsed input source. See <a href="../api/#laika.tree.Elements$">Elements Scaladoc</a> for an overview of all node types.</p>
+        parsed input source. See <a href="../api/laika/ast/">Elements Scaladoc</a> for an overview of all node types.</p>
         <p>Example:</p>
         <pre>Paragraph {
   font-size: 12pt;
@@ -356,7 +356,7 @@ Transform from Markdown to PDF.withFopFactory(factory) fromDirectory
         <h3 id="customizing-the-xsl-fo-renderer" class="section">Customizing the XSL-FO Renderer</h3>
         <p>Finally you can adjust the <code>fo</code> tags rendered for one or more node types
         of the document tree programmatically with a simple partial function:</p>
-        <pre>Transform from Markdown to HTML rendering { out =&gt; { 
+        <pre>Transform from Markdown to PDF rendering { out =&gt; { 
   case elem @ Emphasized(content, _) =&gt; out.inline(
     elem.copy(options = Style(&quot;myStyle&quot;)), content
   ) 
@@ -394,14 +394,14 @@ Render as XSLFO from document toFile &quot;hello.fo&quot;
         described in <a href="#html-renderer-properties">HTML Renderer Properties</a> and finally <code>withStyles</code> to programmatically
         apply a custom CSS declarations.</p>
         
-        <h2 id="prettyprint" class="section">PrettyPrint</h2>
+        <h2 id="formatted-ast" class="section">Formatted AST</h2>
         <p>A renderer that visualizes the document tree structure, essentially a formatted
         <code>toString</code> for a tree of case classes, mainly useful for testing and debugging
         purposes.</p>
         <p>You can use this renderer with the Transform API:</p>
         <pre>val input = &quot;some *text* example&quot;
 
-Transform from Markdown to PrettyPrint fromString input toString
+Transform from Markdown to AST fromString input toString
 
 res0: java.lang.String = Document - Blocks: 1
 . Paragraph - Spans: 3
@@ -414,9 +414,9 @@ res0: java.lang.String = Document - Blocks: 1
 
 val doc = Parse as Markdown fromString input
 
-Render as PrettyPrint from doc toString</pre>
+Render as AST from doc toString</pre>
         <p>The above will yield the same result as the previous example.</p>
-        <p>Finally, if you are using the sbt plugin you can use the <code>laikaPrettyPrint</code> task.</p>      
+        <p>Finally, if you are using the sbt plugin you can use the <code>laikaAST</code> task.</p>      
 
       </div>
     </div>

@@ -55,7 +55,7 @@
           
           <li class="nav-header">Project Links</li>
           <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
-          <li><a href="../api/">API Documentation</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
           <li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>
           <li><a href="http://planet42.org/">Transformer Web Tool</a></li>
           <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
@@ -125,7 +125,7 @@
         <h3 id="using-the-sbt-plugin" class="section">Using the sbt Plugin</h3>
         <p>The following example of an sbt build file shows how to turn each <code>Emphasized</code> node
         into a <code>Strong</code> node while processing everything else with default rules:</p>
-        <pre>import laika.tree.Elements._
+        <pre>import laika.ast._
 
 laikaRewriteRules += laikaRewriteRule { 
   case Emphasized(content, opts) =&gt; Some(Strong(content, opts))

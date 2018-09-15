@@ -55,7 +55,7 @@
           
           <li class="nav-header">Project Links</li>
           <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
-          <li><a href="../api/">API Documentation</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
           <li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>
           <li><a href="http://planet42.org/">Transformer Web Tool</a></li>
           <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
@@ -159,12 +159,18 @@
                  options: Options = NoOpt) extends Block 
                                            with BlockContainer[Note]
 
-val rst = ReStructuredText withBlockDirectives
-  BlockDirective(&quot;note&quot;) {
-    (argument(withWS = true) ~ blockContent)(Note(_,_))
-  }
+object MyDirectives extends RstExtensionRegistry {
+  val blockDirectives = Seq(
+    BlockDirective(&quot;note&quot;) {
+      (argument(withWS = true) ~ blockContent)(Note(_,_))
+    }
+  )
+  val spanDirectives = Seq()
+  val textRoles = Seq()
+}
 
-Transform from rst to HTML fromFile &quot;hello.rst&quot; toFile &quot;hello.html&quot;</pre>
+Transform from ReStructuredText to HTML using 
+  MyDirectives fromFile &quot;hello.rst&quot; toFile &quot;hello.html&quot;</pre>
         <p>The <code>argument()</code> method specifies a required argument of type <code>String</code> (since no conversion
         function was supplied). We need to set the <code>withWS</code> flag to true as an argument cannot have
         whitespace per default. The <code>blockContent</code> method specifies standard block content (any block-level
@@ -192,10 +198,15 @@ case class Message (severity: Int,
                     options: Options = NoOpt) extends Block 
                                               with BlockContainer[Message]
 
-val rst = ReStructuredText withBlockDirectives
-  BlockDirective(&quot;message&quot;) {
-    (argument(nonNegativeInt) ~ blockContent)(Message(_,_))
-  }</pre>
+object MyDirectives extends RstExtensionRegistry {
+  val blockDirectives = Seq(
+    BlockDirective(&quot;message&quot;) {
+      (argument(nonNegativeInt) ~ blockContent)(Message(_,_))
+    }
+  )
+  val spanDirectives = Seq()
+  val textRoles = Seq()
+}</pre>
         <p>The function has to provide an <code>Either[String, T]</code> as a result. A <code>Left</code> result will be interpreted
         as an error by the parser with the string being used as the message and an instance of <code>InvalidBlock</code>
         containing the validator message and the raw source of the directive will be inserted into the document
@@ -211,11 +222,15 @@ val rst = ReStructuredText withBlockDirectives
                     options: Options = NoOpt) extends Block 
                                               with BlockContainer[Message]
 
-val rst = ReStructuredText withBlockDirectives
-  BlockDirective(&quot;message&quot;) {
-    (optArgument(nonNegativeInt) ~ blockContent)(Message(_,_))
-  }
-</pre>
+object MyDirectives extends RstExtensionRegistry {
+  val blockDirectives = Seq(
+    BlockDirective(&quot;message&quot;) {
+      (optArgument(nonNegativeInt) ~ blockContent)(Message(_,_))
+    }
+  )
+  val spanDirectives = Seq()
+  val textRoles = Seq()
+}  </pre>
         <p>The argument may be missing, but if it is present it has to pass the specified validator.</p>
         <p>In case of multiple arguments, the order you specify them is also the order in which they
         are parsed from the directive markup, with the only exception being that required arguments
@@ -259,13 +274,18 @@ val rst = ReStructuredText withBlockDirectives
         for the base role with the name <code>link</code>. For more details on implementing directives
         see the previous section.</p>
         <p>The implementation of the <code>link</code> text role could look like this:</p>
-        <pre>val rst = ReStructuredText withTextRoles (
-  TextRole(&quot;link&quot;, &quot;http://www.company.com/main/&quot;)(field(&quot;base-url&quot;)) {
-    (base, text) =&gt; Link(List(Text(text)), base + text)
-  }
-)
+        <pre>val textRole = TextRole(&quot;link&quot;, &quot;http://www.company.com/main/&quot;)(field(&quot;base-url&quot;)) {
+  (base, text) =&gt; Link(List(Text(text)), base + text)
+}
 
-Transform from rst to HTML fromFile &quot;hello.rst&quot; toFile &quot;hello.html&quot;   </pre>
+object MyDirectives extends RstExtensionRegistry {
+  val textRoles = Seq(textRole)
+  val spanDirectives = Seq()
+  val blockDirectives = Seq()
+}  
+    
+Transform from ReStructuredText to HTML using 
+  MyDirectives fromFile &quot;hello.rst&quot; toFile &quot;hello.html&quot;    </pre>
         <p>We specify the name of the role to be <code>link</code>, and the default value the URL provided as the
         second argument. The second parameter list specifies the role directive implementation,
         in this case only consisting of a call to <code>field(&quot;base-url&quot;)</code> which specifies a required 
@@ -292,26 +312,24 @@ Transform from rst to HTML fromFile &quot;hello.rst&quot; toFile &quot;hello.htm
         
         <h2 id="registering-extensions-with-the-sbt-plugin" class="section">Registering Extensions with the sbt Plugin</h2>
         <p>All previous examples showed how to register directives or text roles with the Laika API.
-        This section shows how to register the same elements with the sbt plugin.</p>
-        <p>Block Directives:</p>
-        <pre>val directive = BlockDirective(&quot;name&quot;) {
-  // implementation producing a `Block` element
-}
+        This code sample shows how to register the same elements with the sbt plugin.</p>
+        <pre>object MyExtensions extends RstExtensionRegisty {
+    
+  val blockDirectives = Seq(BlockDirective(&quot;name&quot;) {
+    // implementation producing a `Block` element
+  })
+    
+  val spanDirectives = Seq(SpanDirective(&quot;name&quot;) {
+    // implementation producing a `Span` element
+  })
 
-rstBlockDirectives += directive</pre>
-        <p>Span Directives:</p>
-        <pre>val directive = SpanDirective(&quot;name&quot;) {
-  // implementation producing a `Span` element
-}
+  val textRoles = Seq(TextRole(&quot;name&quot;, &quot;default&quot;) {
+    // implementation producing a `Span` element
+  })
+  
+}  
 
-rstSpanDirectives += directive</pre>
-        <p>Text Roles:</p>
-        <pre>val role = TextRole(&quot;name&quot;, &quot;default&quot;) {
-  // implementation producing a `Span` element
-}
-
-rstTextRoles += role
-</pre>      
+laikaExtensions += MyExtensions</pre>      
 
       </div>
     </div>

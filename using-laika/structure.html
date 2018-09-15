@@ -55,7 +55,7 @@
           
           <li class="nav-header">Project Links</li>
           <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
-          <li><a href="../api/">API Documentation</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
           <li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>
           <li><a href="http://planet42.org/">Transformer Web Tool</a></li>
           <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
@@ -75,12 +75,9 @@
         that make it easier to deal with structured content.</p>
         <p>These features are enabled by default, but can be switched off
         explicitly.</p>
-        <p>This is how you can switch them off for Markdown:</p>
-        <pre>Transform from Markdown.strict to 
-  PDF fromFile &quot;hello.md&quot; toFile &quot;hello.pdf&quot;</pre>
-        <p>And likewise, the same <code>strict</code> property is available for reStructuredText:</p>
-        <pre>Transform from ReStructuredText.strict to 
-  HTML fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;</pre>
+        <p>This is how you can switch them off for any markup format:</p>
+        <pre>Transform.from(Markdown).to(PDF).strict 
+  .fromFile(&quot;hello.md&quot;).toFile(&quot;hello.pdf&quot;)</pre>
         
         <h2 id="document-title" class="section">Document Title</h2>
         <p>The document title can then be accessed in a template through
@@ -293,12 +290,18 @@ doc.fragments // Map[String, Element]</pre>
           output directory unmodified.</li>
         </ul>
         <p>If you need to customize the document type recognition,
-        you can do that with a simple function:</p>
-        <pre>val matcher: Path =&gt; DocumentType
+        you can do that with a simple function and install it as
+        part of an extension bundle:</p>
+        <pre>object MyExtensions extends ExtensionBundle {
 
-Transform from Markdown to HTML fromDirectory 
-  &quot;source&quot; withDocTypeMatcher matcher toDirectory &quot;target&quot;</pre>
-        <p>The valid return types correspond to the document types listed
+    override val docTypeMatcher: PartialFunction[Path, DocumentType] = ...
+
+    // ... optionally other customizations
+  }
+
+Transform from Markdown to HTML using MyExtensions fromDirectory 
+  &quot;source&quot; toDirectory &quot;target&quot;</pre>
+        <p>The valid return types of the matcher function correspond to the document types listed
         above:</p>
         <pre>Markup, Template, Dynamic, Static, Config, Ignored</pre>      
 

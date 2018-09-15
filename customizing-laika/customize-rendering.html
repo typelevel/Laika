@@ -55,7 +55,7 @@
           
           <li class="nav-header">Project Links</li>
           <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
-          <li><a href="../api/">API Documentation</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
           <li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>
           <li><a href="http://planet42.org/">Transformer Web Tool</a></li>
           <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
@@ -79,9 +79,8 @@
         <pre>W =&gt; PartialFunction[Element,Unit]
 </pre>
         <p><code>W</code> is a generic type representing the writer API which is different for each 
-        output format. For HTML it is <code>HTMLWriter</code>, for PrettyPrint it is <code>TextWriter</code>,
-        a superclass of <code>HTMLWriter</code>. This way renderers can offer the most convenient
-        API for a specific output format.</p>
+        output format. For HTML it is <code>HTMLWriter</code>, for XSL-FO it is <code>FOWriter</code>. 
+        This way renderers can offer the most convenient API for a specific output format.</p>
         <p>Creating a function that expects a writer instance and returns the actual custom
         render function in form of a partial function allows to &#39;capture&#39; the writer
         in a concise way like the examples below will show.</p>
@@ -118,7 +117,7 @@ val renderer: HTMLWriter =&gt; RenderFunction = { out =&gt;
         
         <h3 id="using-the-sbt-plugin" class="section">Using the sbt Plugin</h3>
         <p>In <code>build.sbt</code>:</p>
-        <pre>import laika.tree.Elements._
+        <pre>import laika.ast._
 
 laikaSiteRenderers += laikaSiteRenderer { out =&gt; {
   case Emphasized(content, _) =&gt; 
@@ -160,8 +159,8 @@ Render as HTML using { out =&gt;
         so there is no need to share it between threads.<br></p>
         
         <h3 id="textwriter" class="section">TextWriter</h3>
-        <p>This is the base API supported by both the <code>PrettyPrint</code> and <code>HTML</code> renderer,
-        while the latter adds a few additional methods specific to HTML.</p>
+        <p>This is the base API supported by both the <code>XSL-FO</code> and <code>HTML</code> renderer,
+        both of them adding several methods with rendering logic specific to that format.</p>
         <p>All methods below are overloaded and accept <code>String</code>, <code>Element</code> or <code>Seq[Element]</code> 
         as a parameter, with <code>Element</code> being the abstract base type of all tree nodes.
         When passing Elements to the writer it will delegate to the renderers responsible
@@ -203,7 +202,54 @@ Render as HTML using { out =&gt;
             for name and value of the attribute. If the value is None, nothing will be written,
             but it often makes writing optional attributes more concise.</p>
           </li>
-        </ul>      
+        </ul>
+        
+        <h3 id="themes" class="section">Themes</h3>
+        <p>A theme is a collection of customized renderers as shown in the previous sections,
+        plus optionally default templates and/or static files to be copied to the output
+        directory.</p>
+        <p>This is the signature of the <code>Theme</code> case class:</p>
+        <pre>case class Theme (customRenderer: W =&gt; RenderFunction,
+                  defaultTemplate: Option[TemplateRoot],
+                  defaultStyles: StyleDeclarationSet,
+                  staticDocuments: StaticDocuments)</pre>
+        <ul>
+          <li>
+            <p>The <code>customRenderer</code> is a renderer function that overrides the built-in renderers
+            for one or more nodes, see the sections above for details on how to write such a function.</p>
+          </li>
+          <li>
+            <p>The <code>defaultTemplate</code> is the AST for the template to embed the render result in, 
+            overriding the default template of the library. You can create the AST programmatically
+            or use Laika&#39;s templating syntax and parse it from a file or the resource directory if
+            you bundle your theme in a jar:</p>
+            <p>DefaultTemplateParser.parse(Input.fromClasspath(
+                &quot;/templates/default.template.html&quot;, Root / &quot;default.template.html&quot;
+              )) </p>
+          </li>
+          <li>
+            <p>The <code>defaultStyles</code> allow you to customize the default CSS for a format. This
+            is currently only processed for PDF, as it is the only format where Laika processes
+            the CSS and applies it to the render result. If you want to add CSS for HTML, add them
+            as static files instead, as Laika will just copy them over without processing them.</p>
+          </li>
+          <li>
+            <p>The <code>staticDocuments</code> provides a collection of files to be copied over to the output
+            directory on each transformation. You can bundle images, script or CSS files this way:</p>
+            <p>val docs = StaticDocuments.fromDirectory(&quot;theme-files&quot;)</p>
+          </li>
+        </ul>
+        <p>A theme can be installed as part of an extension bundle:</p>
+        <pre>object MyExtensions extends ExtensionBundle {
+
+  override val themes = Seq(HTML.Theme(...), PDF.Theme(...))
+    
+}
+
+Transform.from(Markdown).to(HTML).using(MyExtensions)
+  .fromFile(&quot;hello.md&quot;).toFile(&quot;hello.html&quot;)         </pre>
+        <p>A theme is specific to a particular output format, separate instances need to be 
+        provided if you want to install themes for several formats like HTML and PDF.</p>      
 
       </div>
     </div>

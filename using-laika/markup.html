@@ -55,7 +55,7 @@
           
           <li class="nav-header">Project Links</li>
           <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
-          <li><a href="../api/">API Documentation</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
           <li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>
           <li><a href="http://planet42.org/">Transformer Web Tool</a></li>
           <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
@@ -73,8 +73,7 @@
         </div>
         <p>The current release supports Markdown and reStructuredText. Both implementations stay as close
         as possible to the original descriptions and specifications of these formats. </p>
-        <p>The markup
-        gets parsed into a generic document tree model shared between all parsers. This means
+        <p>The markup gets parsed into a generic document tree model shared between all parsers. This means
         that there are some adjustments in terminology (e.g. a bullet list in reStructuredText
         is called an &quot;unordered list&quot; in the Markdown syntax description). </p>
         <p>It also means that
@@ -88,8 +87,8 @@
         <p>Laika supports several convenient features for processing groups of documents.
         These are built as extensions to both Markdown and reStructuredText parsers.
         They can be switched off when you run these two parsers in strict mode:</p>
-        <pre>Transform from Markdown.strict to 
-  HTML fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;</pre>
+        <pre>Transform.from(Markdown).to(HTML).strict
+  .fromFile(&quot;hello.md&quot;).toFile(&quot;hello.html&quot;)</pre>
         <p>The extensions are documented in their respective section linked to from
         the list below:</p>
         <ul>
@@ -153,18 +152,18 @@
         <p>Finally there is one major difference to standard Markdown: the parsing of verbatim HTML elements
         is not enabled by default, but it can be switched on if required. </p>
         <p>When using this feature
-        you need to be aware of the fact that it ties your markup files to HTML output. Future
-        versions of Laika are supposed to support formats like PDF, epub and DocBook, and markup
+        you need to be aware of the fact that it ties your markup files to HTML output. Laika
+        supports multiple output formats like HTML, PDF, XSL-FO and in the future epub, and markup
         files containing raw HTML could not be used for those.</p>
         <p>When the markup originates from user input in a web application, it would not be safe 
         to use without additional filtering. By default Laika does not filter any tags, not
         even <code>&lt;script&gt;</code> tags, but whitelist filtering can be added fairly easily through Laika&#39;s 
         customization hooks like <a href="../customizing-laika/tree-rewriting.html#document-tree-rewriting">Document Tree Rewriting</a> or <a href="../customizing-laika/customize-rendering.html#customizing-renderers">Customizing Renderers</a>.</p>
         <p>To enable verbatim HTML elements you have to change this standard expression:</p>
-        <pre>Transform from Markdown to HTML
+        <pre>Transform.from(Markdown).to(HTML)
 </pre>
         <p>to</p>
-        <pre>Transform from (Markdown withVerbatimHTML) to HTML rendering VerbatimHTML
+        <pre>Transform.from(Markdown).to(HTML).withRawContent
 </pre>
         <p>This installs both, the required parser and renderer extensions. </p>
         
@@ -238,10 +237,6 @@
         </ul>
         <p>The following limitations apply to these directives:</p>
         <ul>
-          <li><code>figure</code> and <code>image</code> do not support the various layout options (<code>width</code>, <code>height</code>, <code>scale</code>, <code>align</code>), 
-          as no other tree nodes in Laika carry concrete layout information. It is recommended to use styles instead.</li>
-        </ul>
-        <ul>
           <li><code>code</code> does currently not support syntax highlighting 
           (it allows to set the language though, so client-side highlighters can be integrated if required).</li>
         </ul>
@@ -302,13 +297,20 @@
         
         <h3 id="extension-options" class="section">Extension Options</h3>
         <p>Finally some of the defaults for these extensions can be changed through the API:</p>
-        <pre>ReStructuredText.withRawContent
+        <pre>val transformer = Transform.from(ReStructuredText).to(HTML).withRawContent
 </pre>
         <p>enables both the <code>raw</code> directive and the <code>raw</code> text role. They are disabled by default as
         they present a potential security risk.</p>
-        <pre>ReStructuredText.withDefaultTextRole(&quot;my-role-name&quot;)
+        <pre>object RstExtensions extends RstExtensionRegistry {
+  val blockDirectives = Nil
+  val spanDirectives = Nil
+  val textRoles = Nil
+  override val defaultTextRole = &quot;my-role-name&quot;
+}
+
+val transformer = Transform from ReStructuredText to HTML using RstExtensions
 </pre>
-        <p>sets the text role <code>my-role-name</code> as the default role.</p>
+        <p>sets the text role <code>my-role-name</code> as the default role for the transformer.</p>
         
         <h3 id="implementing-a-custom-directive" class="section">Implementing a Custom Directive</h3>
         <p>Laika comes with a concise and typesafe DSL to declare custom directives and text roles.

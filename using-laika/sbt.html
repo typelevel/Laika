@@ -55,7 +55,7 @@
           
           <li class="nav-header">Project Links</li>
           <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
-          <li><a href="../api/">API Documentation</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
           <li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>
           <li><a href="http://planet42.org/">Transformer Web Tool</a></li>
           <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
@@ -79,7 +79,7 @@
         <h2 id="adding-the-plugin-to-the-build" class="section">Adding the Plugin to the Build</h2>
         <p>Laika&#39;s sbt plugin requires sbt 0.13.x.</p>
         <p>First add the plugin to <code>project/plugins.sbt</code>:</p>
-        <pre>addSbtPlugin(&quot;org.planet42&quot; % &quot;laika-sbt&quot; % &quot;0.8.0&quot;)</pre>
+        <pre>addSbtPlugin(&quot;org.planet42&quot; % &quot;laika-sbt&quot; % &quot;0.9.0&quot;)</pre>
         <p>If you want to install it globally, add the line above to
         <code>~/.sbt/1.0/plugins/build.sbt</code> instead.</p>
         <p>Then enable the plugin in your project&#39;s <code>build.sbt</code>:</p>
@@ -167,9 +167,9 @@
             as a PDF file from the parsed source markup. The markup will only
             get parsed once, therefore this task is very efficient for producing
             multiple output formats. The formats supported as arguments to this
-            task are <code>html</code>, <code>pdf</code>, <code>xslfo</code> and <code>prettyPrint</code>. If you only want
+            task are <code>html</code>, <code>pdf</code>, <code>xslfo</code> and <code>ast</code>. If you only want
             to generate one output format there are shortcut tasks for each of them:
-            (<code>laikaHTML</code>, <code>laikaPDF</code>, <code>laikaXSLFO</code>, <code>laikaPrettyPrint</code>)</p>
+            (<code>laikaHTML</code>, <code>laikaPDF</code>, <code>laikaXSLFO</code>, <code>laikaAST</code>)</p>
           </li>
         </ul>
         <p>A future version of the plugin will add support for epub (scheduled for the 0.10 release).</p>
@@ -200,6 +200,24 @@
             specify a <code>laikaDocTypeMatcher</code> as explained in <a href="#settings-for-customization-hooks">Settings for Customization Hooks</a>.</p>
           </li>
           <li>
+            <p><code>laikaExtensions</code> - <code>Seq[ExtensionBundle]</code> - default <code>Nil</code>
+            The main extension hook that allows to add one or more <code>ExtensionBundle</code> instances for adding
+            directives, parser extensions, rewrite rules or custom renderers. See the sections below for examples
+            for custom renderers and rewrite rules.</p>
+          </li>
+          <li>
+            <p><code>laikaConfig</code> - <code>LaikaConfig</code>
+            allows to specify additional flags and settings through instances of <code>LaikaConfig</code>:</p>
+            <ul>
+              <li><code>encoding</code>: specifies the character encoding (default <code>UTF-8</code>)</li>
+              <li><code>strict</code>: switches off all extensions and only uses features defined in the spec of the markup languages (default <code>false</code>)</li>
+              <li><code>rawContent</code>: allows to include raw content like HTML embedded in text markup (default <code>false</code>)</li>
+              <li><code>renderMessageLevel</code>: the minimum level required for an invalid node to be rendered to the output (default <code>Warning</code>)</li>
+              <li><code>logMessageLevel</code>: the minimum level required for an invalid node to be logged to the console (default <code>Warning</code>)</li>
+              <li><code>parallel</code>: whether parsing and rendering should happen in parallel (default <code>true</code>)</li>
+            </ul>
+          </li>
+          <li>
             <p><code>laikaIncludeAPI</code> - <code>Boolean</code> - default <code>false</code><br>
             Indicates whether generated scaladoc APIs should be included when running the <code>laikaSite</code> task. 
             The folder for the API can be set with <code>target in copyAPI</code> (default <code>target/docs/site/api</code>).</p>
@@ -209,47 +227,6 @@
             Indicates whether a generated PDF file should be included when running the <code>laikaSite</code> task.
             The file name for the PDF can be set with <code>artifact in pdf</code> (default <code>target/docs/site/&lt;noduleName&gt;-&lt;version&gt;.pdf</code>).</p>
           </li>
-          <li>
-            <p><code>laikaEncoding</code> - <code>String</code> - default <code>UTF-8</code><br>
-            Specifies the character encoding for input and output.</p>
-          </li>
-          <li>
-            <p><code>laikaStrict</code> - <code>Boolean</code> - default <code>false</code><br>
-            Indicates whether all Laika-specific extensions to the 
-            text markup formats should be disabled. When strict is set to true, features like configuration
-            headers in markup files or Laika directives are no longer available.</p>
-          </li>
-          <li>
-            <p><code>laikaRawContent</code> - <code>Boolean</code> - default <code>false</code><br>
-            Indicates whether raw content like embedded verbatim
-            HTML is supported in text markup. Setting this flag to true has different effects for the two
-            supported markup formats: In Markdown it enables support for raw HTML interspersed with text markup
-            like specified in the original Markdown syntax description, in reStructuredText it enables the standard 
-            <code>raw</code> directive which allows to embed content in any target format (although in the context of this plugin
-            only HTML would make sense). </p>
-          </li>
-          <li>
-            <p><code>laikaLogMessageLevel</code> - <code>Option[MessageLevel]</code> - default <code>Some(Warning)</code><br>
-            Specifies the log level for
-            problems found in markup files, like unresolved link references or directives. For most of these
-            errors the parser recovers and includes the illegal node as plain text in the output, but in most
-            cases you want to fix these issues and these logs help with that. <code>Info</code> and <code>Debug</code> levels are
-            currently not used by Laika.</p>
-          </li>
-          <li>
-            <p><code>laikaRenderMessageLevel</code> - <code>Option[MessageLevel]</code> - default <code>None</code><br>
-            In addition to just logging errors,
-            illegal nodes can also be rendered to the target HTML, so you can see them in context. The messages
-            are rendered with a span with two classes: <code>system-message</code> and the second specifying the level (<code>error</code>,
-            <code>warning</code>, etc.), so you can add CSS to easily identify these nodes in the page.</p>
-          </li>
-          <li>
-            <p><code>laikaParallel</code> - <code>Boolean</code> - default <code>true</code><br>
-            Indicates whether the parsers and renderers should be 
-            processed in parallel. If set to true, there is only a short synchronization step between parsing
-            and rendering where things like cross references get resolved. Most of
-            the heavy work before and after that can be done for all input and output files in parallel.</p>
-          </li>
         </ul>
         
         <h2 id="settings-for-customization-hooks" class="section">Settings for Customization Hooks</h2>
@@ -257,47 +234,39 @@
         adjust is the processing of one or more particular nodes types, a simple partial function allows
         to do that while still benefiting from the defaults for all other node types.</p>
         <p>When working with the document tree (the internal AST representing the document structure),
-        it is most comfortable to add the following imports to the build:</p>
-        <pre>import laika.tree.Documents._
-import laika.tree.Elements._</pre>
+        it is most comfortable to add the following import to the build:</p>
+        <pre>import laika.ast._</pre>
         
         <h3 id="custom-renderers" class="section">Custom Renderers</h3>
         <p>A custom renderer allows to override the generated output for one or more specific node
         types, while falling back to the default renderers for all other node types.</p>
-        <p>The <code>laikaSiteRenderers</code> setting is of type <code>Seq[HTMLWriter =&gt; RenderFunction]</code> where <code>RenderFunction</code>
-        is a type alias for <code>PartialFunction[Element,Unit]</code>. <code>Element</code> is the base trait for all nodes
-        in a document tree. By default the <code>siteRenderers</code> setting is empty, meaning
+        <p>The <code>laikaHtmlRenderer</code> shortcut allows to add a custom HTML renderer to the <code>laikaExtensions</code> setting
+        and expects a function of type <code>HTMLWriter =&gt; RenderFunction</code> where <code>RenderFunction</code>
+        is a type alias for <code>PartialFunction[Element, Unit]</code>. <code>Element</code> is the base trait for all nodes
+        in a document tree. For all elements where this partial function is not defined,
         Laika will use the default renderers for all node types. </p>
         <p>The following simple example shows how you can add a style to the renderer for
         the <code>&lt;em&gt;</code> tag:</p>
-        <pre>laikaSiteRenderers += laikaSiteRenderer { out =&gt; {
+        <pre>laikaExtensions += laikaHtmlRenderer { out =&gt; {
   case Emphasized(content, _) =&gt; 
       out &lt;&lt; &quot;&quot;&quot;&lt;em class=&quot;big&quot;&gt;&quot;&quot;&quot; &lt;&lt; content &lt;&lt; &quot;&lt;/em&gt;&quot; 
 }}</pre>
         <p>For more details see the chapter <a href="../customizing-laika/customize-rendering.html#customizing-renderers">Customizing Renderers</a>.</p>
-        <p>There are similar settings for customizing renderers of other output formats. </p>
-        <p>The <code>laikaFoRenderers</code> setting is of type <code>Seq[FOWriter =&gt; RenderFunction]</code> and can be used
-        to modify the output of the XSL-FO and PDF renderers (the latter uses XSL-FO as an 
-        interim format). In most cases it is more convenient to style a PDF with Laika&#39;s
-        CSS support.</p>
-        <p>Finally the <code>laikaPrettyPrintRenderers</code> setting is of type <code>Seq[TextWriter =&gt; RenderFunction]</code>
-        and can be used to adjust pretty print output, which shows a textual representation of the
-        document tree model and is primarily useful for debugging purposes. Adjusting this renderer
-        should rarely be required.</p>
+        <p>Similarly the <code>laikaFoRenderer</code> shortcut can be used to add a custom <code>XSL-FO</code> renderer 
+        of type <code>FOWriter =&gt; RenderFunction</code>. <code>XSL-FO</code> is an interim format for PDF output,
+        so this option would also allow to change the appearance of PDF documents.</p>
         
         <h3 id="custom-rewrite-rules" class="section">Custom Rewrite Rules</h3>
-        <p>When customizing renderers you have to repeat the step for each output format (subsequent
-        versions will add support for PDF and epub). A rewrite rule lets you express a transformation
+        <p>When customizing renderers you have to repeat the step for each output format like HTML or PDF 
+        (and a subsequent version will add support for epub). A rewrite rule lets you express a transformation
         of a node inside the document tree before rendering, so it would have an effect on all output formats.</p>
-        <p>The <code>laikaRewriteRules</code> setting is of type <code>Seq[DocumentContext =&gt; RewriteRule]</code> where <code>RewriteRule</code>
-        is a type alias for <code>PartialFunction[Element,Option[Element]]</code>. By default this setting is empty, 
-        meaning Laika will only use the built-in rewrite rules like those for resolving link references.</p>
-        <p>If the partial function is not defined for a particular element the old element is kept in the tree.
+        <p>A rewrite rule is a function of type <code>PartialFunction[Element, Option[Element]]</code>.
+        If the function is not defined for a particular element the old element is kept in the tree.
         If it returns <code>Some(Element)</code> this element replaces the old one.
         If the function returns <code>None</code> the old element is removed from the tree.</p>
         <p>The following (somewhat contrived, but simple) example shows how to turn each <code>Emphasized</code> node
         into a <code>Strong</code> node:</p>
-        <pre>laikaRewriteRules += laikaRewriteRule { 
+        <pre>laikaExtensions += laikaRewriteRule { 
   case Emphasized(content, opts) =&gt; Some(Strong(content, opts))
 }</pre>
         <p>For more details see the chapter <a href="../customizing-laika/tree-rewriting.html#document-tree-rewriting">Document Tree Rewriting</a>.</p>
@@ -310,10 +279,13 @@ import laika.tree.Elements._</pre>
         <pre>Markup, Template, Dynamic, Static, Config, Ignored
 </pre>
         <p>These values correspond to the descriptions provided in <a href="structure.html#document-types">Document Types</a>.</p>
-        <p>The setting is of type <code>Option[Path =&gt; DocumentType]</code> and the default is <code>None</code>, which
-        means that the built-in <code>DefaultDocumentTypeMatcher</code> will be used. Its naming
-        conventions will probably be sufficient in almost all use cases.
-        The matcher will only be used for inputs which make it past the <code>excludeFilter</code>.</p>
+        <p>The function is of type <code>Path =&gt; DocumentType</code> and can be added to the <code>laikaExtensions</code> setting:</p>
+        <pre>laikaExtensions += laikaDocTypeMatcher {
+  case path: Path =&gt; path.name match {
+    case &quot;hello.md&quot; =&gt; Markup
+    case &quot;hello.js&quot; =&gt; Static
+  }
+}</pre>
         
         <h2 id="settings-for-directives" class="section">Settings for Directives</h2>
         <p>Directives are Laika&#39;s extension hook for both, templates and text markup.
@@ -324,15 +296,14 @@ import laika.tree.Elements._</pre>
         variant is supported for full compatibility with the reStructuredText specification
         and reuse of existing reStructuredText files making use of some of the standard
         directives. Laika supports almost all of the directives defined in the
-        specification. 
-        Use the keys <code>rstSpanDirectives</code> or <code>rstBlockDirectives</code> for adding custom
-        implementations to the built-in ones.
+        specification. Add an instance of type <code>RstExtensionRegistry</code> to the <code>laikaExtensions</code> 
+        setting for adding custom implementations to the built-in ones.
         For more details on this directive type see <a href="../extending-laika/extending-rst.html#extending-restructuredtext">Extending reStructuredText</a>.</p>
         <p>The Laika variant is more flexible, as it can be used in template files as well
         as Markdown and reStructuredText markup. It is also somewhat simpler in syntax
         and configuration while offering the same functionality. It comes with a small
-        set of predefined directives in this syntax. Use the keys <code>laikaSpanDirectives</code>,
-        <code>laikaBlockDirectives</code> or <code>laikaTemplateDirectives</code> for adding custom implementations.
+        set of predefined directives in this syntax. Add an instance of type <code>DirectiveRegistry</code> 
+        to the <code>laikaExtensions</code> setting for adding custom implementations to the built-in ones.
         For more details on this directive type see <a href="../extending-laika/directive.html#directives">Directives</a>.</p>
         <p>The examples in the two chapters linked above show how to implement a directive
         and register it either for use in sbt or in embedded mode.</p>

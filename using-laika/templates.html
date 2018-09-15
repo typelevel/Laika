@@ -55,7 +55,7 @@
           
           <li class="nav-header">Project Links</li>
           <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
-          <li><a href="../api/">API Documentation</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
           <li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>
           <li><a href="http://planet42.org/">Transformer Web Tool</a></li>
           <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
@@ -244,13 +244,13 @@
         common scenarios. Some of them can only be used in templates, whereas others can
         also be used in text markup, as stated for each individual directive below.</p>
         
-        <h3 id="the-directive" class="section">The <code>toc</code> directive</h3>
+        <h3 id="the-toc-directive" class="section">The <code>toc</code> directive</h3>
         <p>Can be used in templates and as block elements in text markup.</p>
         <p>Generates a table of contents containing the documents of the tree
         and/or the sections inside these documents.</p>
         <p>This directive is explained in detail in the <a href="structure.html#document-structure">Document Structure</a> chapter.</p>
         
-        <h3 id="the-directive-1" class="section">The <code>fragment</code> directive</h3>
+        <h3 id="the-fragment-directive" class="section">The <code>fragment</code> directive</h3>
         <p>Can only be used in block elements in text markup, not in templates (yet).</p>
         <p>Produces a block element which is not part of the main body of the markup
         document (so will not be rendered with a <code>{{document.content}}</code> reference).
@@ -259,7 +259,7 @@
         in different locations of the output, like headers, footers or sidebars.</p>
         <p>This directive is explained in detail in the <a href="structure.html#document-fragments">Document Structure</a> chapter.</p>
         
-        <h3 id="the-directive-2" class="section">The <code>format</code> directive</h3>
+        <h3 id="the-format-directive" class="section">The <code>format</code> directive</h3>
         <p>Can only be used in block elements in text markup.</p>
         <p>The body of such a directive will only be included into the
         output by renderers for the specified type:</p>
@@ -268,7 +268,7 @@
         <p>Note that the body of a block directive needs to be indented,
         and does not appear between curly braces.</p>
         
-        <h3 id="the-directive-3" class="section">The <code>style</code> directive</h3>
+        <h3 id="the-style-directive" class="section">The <code>style</code> directive</h3>
         <p>Can be used in block and span elements in text markup.</p>
         <p>Adds a style to the root element of the body of the directive,
         that can be used by renderers to change the appearance of the
@@ -281,7 +281,7 @@ While this paragraph does not.</pre>
         <p>Span directive:</p>
         <pre>Burrito - @:style price: { £3.50 }.</pre>
         
-        <h3 id="the-directive-4" class="section">The <code>for</code> directive</h3>
+        <h3 id="the-for-directive" class="section">The <code>for</code> directive</h3>
         <p>Can only be used inside templates.</p>
         <p>Executes the body of the directive multiple times for each element of
         a non-empty collection (or array-type entry in a configuration section),
@@ -310,7 +310,7 @@ While this paragraph does not.</pre>
         is still readable, relatively easy to memorize, while minimizing
         the likeliness to conflict with plain template text.</p>
         
-        <h3 id="the-directive-5" class="section">The <code>if</code> directive</h3>
+        <h3 id="the-if-directive" class="section">The <code>if</code> directive</h3>
         <p>Can only be used inside templates.</p>
         <p>Executes the body of the directive exactly once for a Boolean
         <code>true</code> or the strings <code>true</code>, <code>on</code>, <code>yes</code> and <code>enabled</code>.</p>
@@ -329,7 +329,7 @@ While this paragraph does not.</pre>
   &lt;p&gt;This document does not have any sections&lt;/p&gt;
 }</pre>
         
-        <h3 id="the-directive-6" class="section">The <code>pageBreak</code> directive</h3>
+        <h3 id="the-pagebreak-directive" class="section">The <code>pageBreak</code> directive</h3>
         <p>Can only be used in block elements in text markup.</p>
         <p>Only page-oriented output formats like PDF or XSL-FO
         know how to render page break elements.</p>

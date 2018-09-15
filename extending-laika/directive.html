@@ -55,7 +55,7 @@
           
           <li class="nav-header">Project Links</li>
           <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
-          <li><a href="../api/">API Documentation</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
           <li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>
           <li><a href="http://planet42.org/">Transformer Web Tool</a></li>
           <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
@@ -144,8 +144,7 @@
       val linkText = Seq(Text(&quot;#&quot;+ticketNo))
       ExternalLink(linkText, url, options = Styles(&quot;ticket&quot;))
   }
-}
-</pre>
+}</pre>
         <p>Let&#39;s examine the code:</p>
         <p>With <code>Spans.create(&quot;ticket&quot;)</code> we specify the name of the directive (<code>ticket</code>)
         which is also the name we are going to use in markup files (<code>@:ticket</code>).</p>
@@ -189,20 +188,18 @@
         file in the <code>project</code> directory and then referenced from your
         <code>build.sbt</code>. Reusable directives are best packaged as a library
         and then added as a dependency of your build.</p>
-        <p><strong>Markdown</strong>:</p>
-        <pre>Transform from Markdown.withSpanDirectives(directive) to 
-  HTML fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;   </pre>
+        <p><strong>Embedded</strong>:</p>
+        <pre>object MyDirectives extends DirectiveRegistry {
+  val spanDirectives = Seq(directive)
+  val blockDirectives = Seq()
+  val templateDirectives = Seq()
+}
+
+Transform from Markdown to HTML using 
+  MyDirectives fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;   </pre>
         <p>The <code>directive</code> variable refers to the instance we created above.
         We can now use our <code>ticket</code> directive in Markdown files!</p>
-        <p><strong>reStructuredText</strong>:</p>
-        <pre>Transform from ReStructuredText.withLaikaSpanDirectives(directive) to 
-  HTML fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;  </pre>
-        <p>The only difference here is that the method name is <code>withLaikaSpanDirectives</code>
-        as reStructuredText comes with its own concept of directives which is only
-        supported in the reStructuredText parser.</p>
         <p><strong>Templates</strong>:</p>
-        <pre>Transform from Markdown to HTML fromDirectory 
-  &quot;source&quot; withTemplateDirectives directive toDirectory &quot;target&quot; </pre>
         <p>When you also want to use the directive in templates you need to create
         a very similar declaration like the one above, just starting with <code>Templates.create</code>
         instead and wrapping the <code>ExternalLink</code> node in a <code>TemplateElement</code>. You can extract
@@ -256,15 +253,13 @@
   &lt;p&gt;no sections&lt;/p&gt;
 }</pre>
         <p>Combinator:</p>
-        <pre>body(&quot;empty&quot;)
-</pre>
+        <pre>body(&quot;empty&quot;)</pre>
         
         <h3 id="optional-elements" class="section">Optional Elements</h3>
         <p>All the element types shown above, default and named attributes as well
         as default and named bodies can be marked as optional.</p>
         <p>Combinator:</p>
-        <pre>body(&quot;empty&quot;).optional
-</pre>
+        <pre>body(&quot;empty&quot;).optional</pre>
         <p>The parameter type of your directive function changes accordingly,
         from <code>T</code> to <code>Option[T]</code> where <code>T</code> is either the type returned by
         your converter (see below) or the default type (which is different
@@ -302,8 +297,7 @@
         <pre>attribute(Default) ~ parser { (attrValue, parser) =&gt;
   val parsedSpans = parser(&quot;[&quot;+attrValue+&quot;]&quot;)
   SpanSequence(parsedSpans)
-}
-</pre>
+}</pre>
         <p>In this contrived example the attribute value is modified before being passed
         to the parser and then wrapped inside a sequence.</p>
         
@@ -330,77 +324,71 @@
         <h3 id="span-directives" class="section">Span Directives</h3>
         <p>Use: in inline elements in text markup files</p>
         <p>Implementation:</p>
-        <pre>import laika.directive.Directives.Spans
-import laika.util.Builders._
-import laika.tree.Elements._
-import Spans.Combinators._
-import Spans.Converters._
+        <pre>import laika.ast._
+import laika.directive.Spans
+import Spans.dsl._
 
 val directive = Spans.create(&quot;name&quot;) {
   // implementation producing a `Span` element
-}    
-</pre>
+}    </pre>
         <p>Registration:</p>
         <pre>// for Markdown and reStructuredText with sbt plugin:
 laikaSpanDirectives += directive // in build.sbt
 
-// for Markdown with Transform API or Parse API:
-Transform from Markdown.withSpanDirectives(directive) to ...
-Parse as Markdown.withSpanDirectives(directive) from ...
-
-// for reStructuredText with Transform API or Parse API:
-Transform from ReStructuredText.withLaikaSpanDirectives(directive) to ...
-Parse as ReStructuredText.withLaikaSpanDirectives(directive) from ...</pre>
+// for Markdown and reStructuredText with Transform API or Parse API:
+object MyDirectives extends DirectiveRegistry {
+  val spanDirectives = Seq(directive)
+  val blockDirectives = Seq()
+  val templateDirectives = Seq()
+}
+Transform from Markdown to HTML using MyDirectives from...
+Parse as Markdown using MyDirectives from...</pre>
         
         <h3 id="block-directives" class="section">Block Directives</h3>
         <p>Use: in block elements in text markup files</p>
         <p>Implementation:</p>
-        <pre>import laika.directive.Directives.Blocks
-import laika.util.Builders._
-import laika.tree.Elements._
-import Blocks.Combinators._
-import Blocks.Converters._
+        <pre>import laika.ast._
+import laika.directive.Blocks
+import Blocks.dsl._
 
 val directive = Blocks.create(&quot;name&quot;) {
   // implementation producing a `Block` element
-}    
-</pre>
+}</pre>
         <p>Registration:</p>
         <pre>// for Markdown and reStructuredText with sbt plugin:
 laikaBlockDirectives += directive // in build.sbt
 
-// for Markdown with Transform API or Parse API:
-Transform from Markdown.withBlockDirectives(directive) to ...
-Parse as Markdown.withBlockDirectives(directive) from ...
-
-// for reStructuredText with Transform API or Parse API:
-Transform from ReStructuredText.withLaikaBlockDirectives(directive) to ...
-Parse as ReStructuredText.withLaikaBlockDirectives(directive) from ...</pre>
+// for Markdown and reStructuredText with Transform API or Parse API:
+object MyDirectives extends DirectiveRegistry {
+  val spanDirectives = Seq()
+  val blockDirectives = Seq(directive)
+  val templateDirectives = Seq()
+}
+Transform from Markdown to HTML using MyDirectives from...
+Parse as Markdown using MyDirectives from...</pre>
         
         <h3 id="template-directives" class="section">Template Directives</h3>
         <p>Use: in template files</p>
         <p>Implementation:</p>
-        <pre>import laika.directive.Directives.Templates
-import laika.util.Builders._
-import laika.tree.Templates._
-import Templates.Combinators._
-import Templates.Converters._
+        <pre>import laika.ast._
+import laika.directive.Templates
+Templates Blocks.dsl._
 
 val directive = Templates.create(&quot;name&quot;) {
   // implementation producing a `TemplateSpan` element
-}    
-</pre>
+}    </pre>
         <p>Registration:</p>
         <pre>// for templates with sbt plugin:
 laikaTemplateDirectives += directive // in build.sbt
 
-// for Markdown in Transform API:
-Transform from Markdown to HTML fromDirectory 
-  &quot;source&quot; withTemplateDirectives directive toDirectory &quot;target&quot; 
-
-// for reStructuredText in Transform API:
-Transform from ReStructuredText to PDF fromDirectory 
-  &quot;source&quot; withTemplateDirectives directive toFile &quot;out.pdf&quot;</pre>      
+// for Markdown and reStructuredText with Transform API or Parse API:
+object MyDirectives extends DirectiveRegistry {
+  val spanDirectives = Seq()
+  val blockDirectives = Seq()
+  val templateDirectives = Seq(directive)
+}
+Transform from Markdown to HTML using MyDirectives from...
+Parse as Markdown using MyDirectives from...</pre>      
 
       </div>
     </div>

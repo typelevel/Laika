@@ -55,7 +55,7 @@
           
           <li class="nav-header">Project Links</li>
           <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
-          <li><a href="api/">API Documentation</a></li>
+          <li><a href="api/laika/api/">API Documentation</a></li>
           <li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>
           <li><a href="http://planet42.org/">Transformer Web Tool</a></li>
           <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
@@ -94,7 +94,7 @@
         
         <h3 id="using-the-sbt-plugin" class="section">Using the sbt Plugin</h3>
         <p>Add the plugin to <code>project/plugins.sbt</code>:</p>
-        <pre>addSbtPlugin(&quot;org.planet42&quot; % &quot;laika-sbt&quot; % &quot;0.8.0&quot;)</pre>
+        <pre>addSbtPlugin(&quot;org.planet42&quot; % &quot;laika-sbt&quot; % &quot;0.9.0&quot;)</pre>
         <p>Enable the plugin in your project&#39;s <code>build.sbt</code>:</p>
         <pre>enablePlugins(LaikaPlugin)
 </pre>
@@ -104,7 +104,7 @@
         
         <h3 id="using-laika-embedded" class="section">Using Laika Embedded</h3>
         <p>Adding the Laika dependency to your sbt build:</p>
-        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-core&quot; % &quot;0.8.0&quot;</pre>
+        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-core&quot; % &quot;0.9.0&quot;</pre>
         <p>Example for transforming from file to file:</p>
         <pre>Transform from Markdown to HTML fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;</pre>
         <p>Example for transforming an entire directory of markup files:</p>
@@ -114,7 +114,7 @@
         <pre>Transform from Markdown to PDF fromDirectory &quot;src&quot; toFile &quot;hello.pdf&quot;
 </pre>
         <p>When using Laika&#39;s PDF support you need to add one more dependency to your build:</p>
-        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-pdf&quot; % &quot;0.8.0&quot;</pre>
+        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-pdf&quot; % &quot;0.9.0&quot;</pre>
         
         <h3 id="other-resources" class="section">Other Resources</h3>
         <ul>
@@ -130,7 +130,7 @@
             <p>Browse the source on <a href="https://github.com/planet42/Laika">GitHub</a>.</p>
           </li>
           <li>
-            <p>Browse the <a href="api/">API</a>.</p>
+            <p>Browse the <a href="api/laika/api/">API</a>.</p>
           </li>
           <li>
             <p>Follow on <a href="https://twitter.com/_planet42">Twitter</a> for release announcements.</p>
@@ -152,7 +152,7 @@
             <p>Support for Markdown and reStructuredText as input</p>
           </li>
           <li>
-            <p>Support for HTML, PDF, XSL-FO and PrettyPrint (for debugging) as output</p>
+            <p>Support for HTML, PDF, XSL-FO and AST (for debugging) as output</p>
           </li>
           <li>
             <p>Template-based Site Generation</p>
@@ -204,13 +204,13 @@
         <h2 id="road-map" class="section">Road Map</h2>
         <ul>
           <li>
-            <p><strong>0.9</strong>: New API for ExtensionBundles, support for GitHub-flavored Markdown</p>
+            <p><strong>0.10</strong>: Support for GitHub-flavored Markdown</p>
           </li>
           <li>
-            <p><strong>0.10</strong>: Support for output in the epub format</p>
+            <p><strong>0.11</strong>: Support for output in the epub format</p>
           </li>
           <li>
-            <p><strong>0.11</strong>: Integrated support for syntax highlighting in source code</p>
+            <p><strong>0.12</strong>: Integrated support for syntax highlighting in source code</p>
           </li>
           <li>
             <p><strong>1.0</strong>: API polishing</p>
@@ -219,6 +219,16 @@
         
         <h2 id="release-history" class="section">Release History</h2>
         <ul>
+          <li>
+            <p><strong>0.9.0</strong> (Sep ??, 2018):</p>
+            <ul>
+              <li>New ExtensionBundle APIs allow to bundle extensions into a single object for easier reuse. Supported extension
+              hooks include directives, markup parser extensions, rewrite rules, custom renderers, document type matchers, 
+              alternative parsers for stylesheets, templates or configuration headers and default templates per output format. </li>
+              <li>Reduced number of settings and tasks in the sbt plugin, by using the new ExtensionBundle API for sbt settings.</li>
+              <li>Improved package structure to reduce number of required imports. </li>
+            </ul>
+          </li>
           <li>
             <p><strong>0.8.0</strong> (June 4, 2018):</p>
             <ul>
@@ -344,7 +354,7 @@
             <p><strong>0.1.0</strong> (Jan 12, 2013): </p>
             <ul>
               <li>Support for Markdown as input</li>
-              <li>Support for HTML and PrettyPrint as output</li>
+              <li>Support for HTML and AST as output</li>
               <li>Customization hooks for renderers</li>
               <li>Document tree rewriting</li>
               <li>Various options for input and output (strings, files, java.io.Reader/Writer, java.io streams)</li>

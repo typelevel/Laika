@@ -55,7 +55,7 @@
           
           <li class="nav-header">Project Links</li>
           <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
-          <li><a href="../api/">API Documentation</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
           <li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>
           <li><a href="http://planet42.org/">Transformer Web Tool</a></li>
           <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
@@ -78,90 +78,46 @@
         for standard usage of Laika.</p>
         
         <h2 id="factory-contract" class="section">Factory Contract</h2>
-        <p>The contract a parser factory has to adhere to is quite simple, it has mix in the following
+        <p>The contract a parser factory has to adhere to is captured in the following
         trait:</p>
-        <pre>trait ParserFactory {
+        <pre>trait MarkupParser {
 
   def fileSuffixes: Set[String]
 
-  def newParser: Input =&gt; Document
+  def blockParsers: Seq[BlockParserBuilder]
   
-}
-</pre>
+  def spanParsers: Seq[SpanParserBuilder]
+
+  def extensions: Seq[ExtensionBundle]
+  
+}</pre>
+        <p>These are the four abstract method each parser has to implement.  <br></p>
         <p>The <code>fileSuffixes</code> method should simply return the set of supported file
-        suffixes (without the &#39;.&#39;). For Markdown this would be <code>Set(&quot;md&quot;,&quot;markdown&quot;)</code>
+        suffixes (without the &#39;.&#39;). For Markdown this would be <code>Set(&quot;md&quot;, &quot;markdown&quot;)</code>
         for example. It is not recommended to support generic suffixes like <code>txt</code> as this
         could lead to conflicts with other parsers.</p>
-        <p>The <code>newParser</code> method is the actual factory method. It should return
-        a function that is safe to use repeatedly and concurrently.</p>
-        <p><code>Input</code> is a little IO abstraction provided by Laika so that you do not have to
-        deal with the details of whether the text comes from a string or file or other 
-        types of streams.</p>
-        <p><code>Document</code> is a case class representing the root node of the document tree.</p>
-        <p>The way you implement this function depends entirely on your requirements and preferences.
-        You may use the parser combinators from Laika or some other parsing technology.</p>
-        <p>Only if you intend to create a parser that you&#39;d want to contribute to the Laika core, it would
-        be required to build upon the available base traits unless this is impractical for some reason.  <br></p>
-        <p>If you are not using the base traits all you need to know from this document is the next section
-        about providing an API. The remaining sections deal with the optional base traits provided by Laika.</p>
-        
-        <h2 id="providing-an-api" class="section">Providing an API</h2>
-        <p>When you build a new parser you should provide the following features for your users:</p>
-        <ul>
-          <li>
-            <p>An easy way to use your parser with the Transform API</p>
-          </li>
-          <li>
-            <p>An easy way to use it with the Parse API</p>
-          </li>
-          <li>
-            <p>A fluent API for specifying options (in case your parser is configurable)</p>
-          </li>
-        </ul>
-        <p>The first two come for free when you create an object that extends <code>Input =&gt; RawDocument</code>.
-        The built-in <code>Markdown</code> object is an example. Since it does extend that function,
-        you can easily use it in expressions like this:</p>
-        <pre>val transform = Transform from Markdown to HTML
-</pre>
-        <p>When you want to specify options (<code>Markdown</code> currently has only one) you can do this
-        inline:</p>
-        <pre>val transform = Transform from (Markdown withVerbatimHTML) to HTML</pre>
-        <p>You can achieve this by providing a trait that offers all the available configuration
-        hooks and returns <code>this</code> for each of these methods for easy chaining. Additionally
-        you create a companion object that represents the default configuration.</p>
-        <p>As an example, this is how a simplified class and object for the Markdown parser 
-        could look (Scaladoc comments, imports and various extension hooks removed for brevity):</p>
-        <pre>package laika.parse.markdown
+        <p>The <code>blockParsers</code> and <code>spanParsers</code> collections provide the definitions for the
+        actual markup parsers. They are based on Laika&#39;s own parser combinator implementation
+        that is optimized for parsing of text markup. See the sections below for how to 
+        create such a definition.</p>
+        <p>The <code>extensions</code> collection allows to add functionality beyond just markup parsing.
+        If, for example, the markup parser inserts AST nodes into the final result that
+        are not known to the default renderers for HTML or PDF, an extension might provide
+        additional renderers for these custom nodes. </p>
+        <p>See the <a href="../api/laika/bundle/ExtensionBundle.html">ExtensionBundle Scaladoc</a> for an overview of the available
+        extension hooks.</p>
+        <p>Finally there are two concrete methods that may be overridden if required:</p>
+        <pre>def escapedChar: Parser[String] = TextParsers.any.take(1)
 
-class Markdown private (verbatimHTML: Boolean, isStrict: Boolean) 
-                                               extends ParserFactory {
-
-  val fileSuffixes = Set(&quot;md&quot;, &quot;markdown&quot;)
-  
-  def withVerbatimHTML = new Markdown(true, isStrict)
-  
-  def strict = new Markdown(verbatimHTML, true)
-
-  private lazy val parser = {
-    lazy val blockDirectives = ...
-    lazy val spanDirectives = ...
-    
-    new RootParser(blockDirectives, spanDirectives, verbatimHTML, isStrict)
-  }
-
-  val newParser: Input =&gt; Document = 
-     (input: Input) =&gt; parser.parseDocument(input.asParserInput, input.path)
-
-}
-
-object Markdown extends Markdown(false, false) </pre>
-        <p>As you see, all the low-level parsing details are left in the root parser, this is
-        just a wrapper for providing a convenient public API. Support for reStructuredText
-        is implemented in a similar way.</p>
-        <p>It calls <code>asParserInput</code> on the <code>Input</code> instance which is the most convenient way
-        if you use parser combinators, as it directly gives you a <code>ParserContext</code> no matter
-        where the text is actually read from. When not using combinators, you can use
-        <code>Input.asReader</code> to obtain a plain <code>java.io.Reader</code>.</p>
+def createBlockListParser (parser: Parser[Block]): Parser[Seq[Block]] = 
+  (parser &lt;~ opt(blankLines))*</pre>
+        <p>The first method controls the parsing of an escape sequence (the character after
+        a backslash). The default implementation accepts any character.</p>
+        <p>The second controls how a parser for a single block is turned into a parser for
+        a sequence of blocks. The default implementation just skips whitespace between
+        the blocks and repeats the same parser. The parser passed to this method already
+        includes all the block parsers this trait has specified as well as any extensions
+        a user might have installed.</p>
         
         <h2 id="text-parsers" class="section">Text Parsers</h2>
         <p>The functionality provided by these parsers is not strictly required for implementing
@@ -175,22 +131,19 @@ object Markdown extends Markdown(false, false) </pre>
         if you want to support new or customized markup for an existing parser without touching the parser
         implementation.</p>
         <p>For typical basic regex parsers there is usually a corresponding option in the <code>TextParsers</code>
-        object. You can see the full list of provided parsers in the <a href="../api/#laika.parse.core.text.TextParsers">Scaladoc</a>.
+        object. You can see the full list of provided parsers in the <a href="../api/laika/parse/core/text/TextParsers$.html">Scaladoc</a>.
         We&#39;ll just show a few examples here:</p>
         <p>Parsing three or more lower-case characters:</p>
         <pre>&quot;[a-z]{3,}&quot;.r              // regex
 
-anyIn(&#39;a&#39; to &#39;z&#39;) min 3    // Laika alternative
-</pre>
+anyIn(&#39;a&#39; to &#39;z&#39;) min 3    // Laika alternative</pre>
         <p>Parsing any character apart from space or tab:</p>
         <pre>&quot;[^ \t]*&quot;.r               // regex
 
-anyBut(&#39; &#39;,&#39;\t&#39;)          // Laika alternative
-</pre>
+anyBut(&#39; &#39;,&#39;\t&#39;)          // Laika alternative</pre>
         <p>Note that for the Laika base parsers the default is to parse any number of characters,
         as this is the most common case. To read just one you can write:</p>
-        <pre>anyBut(&#39; &#39;,&#39;\t&#39;) take 1
-</pre>
+        <pre>anyBut(&#39; &#39;,&#39;\t&#39;) take 1</pre>
         <p>The parsers of this trait will be faster than regex parsers in many scenarios, but
         there will be edge cases where it is the other way round. To be really sure it&#39;s best
         to do some benchmarks first. </p>
@@ -205,29 +158,38 @@ anyBut(&#39; &#39;,&#39;\t&#39;)          // Laika alternative
         span parsers, mapping from the first character to the parser, and then performs a simple
         map lookup for each character. If no parser is mapped to the character it simply continues
         reading. This works for nested structures, too.</p>
-        <p>To provide all span parsers for a custom markup parser based on Laika&#39;s <code>RootParserBase</code>
-        you only have to implement the abstract method</p>
-        <pre>protected lazy val spanParsers: Map[Char,Parser[Span]]
-</pre>
-        <p>For Markdown the default span parser map is created like this:</p>
-        <pre>protected lazy val spanParsers: Map[Char, Parser[Span]] = Map(
-    &#39;*&#39; -&gt; (strong(&#39;*&#39;) | em(&#39;*&#39;)),    
-    &#39;_&#39; -&gt; (strong(&#39;_&#39;) | em(&#39;_&#39;)),
-    &#39;`&#39; -&gt; (literalEnclosedByDoubleChar | literalEnclosedBySingleChar), 
-    &#39;\\&#39;-&gt; (lineBreak | (escapedChar ^^ { Text(_) })),
-    &#39;[&#39; -&gt; link,
-    &#39;&lt;&#39; -&gt; simpleLink,
-    &#39;!&#39; -&gt; image
-  )
-</pre>
-        <p>The parsers mapped to the characters are then pretty standard, apart from the fact
-        that they are usually built upon the base parsers provided by the <code>TextParsers</code>
-        object and the <code>RecursiveSpanParsers</code> trait. These parsers must not look for
-        the initial character as this will be consumed by the map lookup already. And they
-        are still allowed to fail, in which case the special character will be treated as
+        <p>This is captured in the API for creating a parser:</p>
+        <pre>SpanParser.forStartChar(&#39;*&#39;).standalone {
+  delimitedBy(&quot;*&quot;)
+}    </pre>
+        <p>The parser above simply parses text between two asterisk. The <code>standalone</code> method means
+        that the parser is independent of any parsers in the host language.</p>
+        <p>If the parser is allowed to contain nested spans with any of the parsers of the host language
+        or any installed extensions, your definition must ask for the recursive parser to be provided
+        as you cannot anticipate the extensions a user might have configured:</p>
+        <pre>SpanParser.forStartChar(&#39;*&#39;).recursive { recParsers =&gt;
+  recParsers.delimitedRecursiveSpans(delimitedBy(&quot;*&quot;))
+} </pre>
+        <p>Here you simply pass the same text parser from the previous example to the recursive
+        parsers provided by Laika which lifts the text parser into a span parser.</p>
+        <p>It&#39;s important that parsers do not look for the initial character as this will be consumed by the map lookup already. 
+        And they are still allowed to fail, in which case the special character will be treated as
         normal text input.</p>
         
         <h2 id="block-parsers" class="section">Block Parsers</h2>
+        <p>The API for creating block parsers is similar to that for span parsers. One difference
+        is that the start character is optional, as many types of blocks, like a plain paragraph
+        for example, do not have a concrete start character. In those cases you can create the block
+        parser like this:</p>
+        <pre>BlockParser.withoutStartChar.standalone {
+  // your parser impl
+}    </pre>
+        <p>If the parser allows the nesting of other blocks you can rely on the library to pass
+        the recursive parsers for all installed block parsers to your parser definition, similar
+        to the span parser mechanism:</p>
+        <pre>BlockParser.forStartChar(&#39;*&#39;).recursive { recParsers =&gt;
+  // your parser impl
+} </pre>
         <p>Laika offers a <code>BlockParsers</code> object with convenience methods for creating
         a typical block parser. This is the signature of the first one:</p>
         <pre>def block (firstLinePrefix: Parser[Any], 
@@ -237,7 +199,27 @@ anyBut(&#39; &#39;,&#39;\t&#39;)          // Laika alternative
         the three parser parameters: detecting the first line of a block, any subsequent
         line and finally whether the block continues after a blank line has been seen.
         Often a blank line marks the end of a block, but there are exceptions, like code
-        blocks or list items that span multiple parapraphs.</p>
+        blocks or list items that span multiple paragraphs.</p>
+        <p>The following code is an example for a parser for quoted blocks, decorated
+        by a <code>&gt;</code> character at the start of each line:</p>
+        <pre>BlockParser.forStartChar(&#39;&gt;&#39;).recursive { recParsers =&gt;
+  
+  val textAfterDeco = TextParsers.ws       // any whitespace
+  val decoratedLine = &#39;&gt;&#39; ~ textAfterDeco  // &#39;&gt;&#39; followed by whitespace
+  val afterBlankLine = Parsers.failure(&quot;blank line ends block&quot;)
+  
+  val textBlock = BlockParsers.block(textAfterDeco, decoratedLine, afterBlankLine)
+  
+  recParsers.recursiveBlocks(textBlock) ^^ (QuotedBlock(_, Nil))
+}
+</pre>
+        <p>This implementation uses the <code>BlockParsers</code> helper. It passes just the whitespace
+        parser as the condition for the first line, as the start character has already 
+        been consumed. For subsequent lines, the decoration needs to be present, so
+        we pass <code>decoratedLine</code> as the condition for them.</p>
+        <p>Finally we pass the <code>textBlock</code> parser to the recursive parsers which lift our
+        <code>Parser[String]</code> to a <code>Parser[Seq[Block]]</code> and the result of that parser is 
+        passed to the <code>QuotedBlock</code> AST node.</p>
         <p>Finally there is a second utility that can be used for indented blocks:</p>
         <pre>def indentedBlock (minIndent: Int = 1,
           linePredicate: =&gt; Parser[Any] = success(()),
@@ -246,21 +228,7 @@ anyBut(&#39; &#39;,&#39;\t&#39;)          // Laika alternative
           maxIndent: Int = Int.MaxValue): Parser[String]</pre>
         <p>Like the other utility it allows to specify a few predicates. This method
         is not used for parsing Markdown&#39;s indented blocks, though, as Markdown has
-        a very special way of treating whitespace.</p>
-        <p>To provide all block parsers for a custom markup parser based on Laika&#39;s <code>RootParserBase</code>
-        you have to implement the abstract methods</p>
-        <pre>protected def topLevelBlock: Parser[Block]
-
-protected def nestedBlock: Parser[Block]
-
-protected def nonRecursiveBlock: Parser[Block]</pre>
-        <p>The first two methods allow to make a distinction between a block that is only
-        allowed to occur on the top level and those which can appear anywhere. 
-        Of course any block can potentially appear in both parsers.</p>
-        <p>The third method <code>nonRecursiveBlock</code> is rarely ever used, it exists
-        as a safeguard against malicious input. If a certain (configurable) nest level
-        has been reached, only block elements that do not potentially contain further
-        nested blocks are considered for subsequent parsing.</p>      
+        a very special way of treating whitespace.</p>      
 
       </div>
     </div>

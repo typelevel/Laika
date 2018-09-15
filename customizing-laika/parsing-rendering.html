@@ -55,7 +55,7 @@
           
           <li class="nav-header">Project Links</li>
           <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
-          <li><a href="../api/">API Documentation</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
           <li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>
           <li><a href="http://planet42.org/">Transformer Web Tool</a></li>
           <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
@@ -94,11 +94,10 @@
 val document = Parse as Markdown fromString input
 </pre>
         <p>The <code>document</code> instance gives you the full document model. See
-        the <a href="../api/#laika.tree.Documents$">Documents Scaladoc</a> for details.</p>
+        the <a href="../api/laika/ast/">AST Scaladoc</a> for details.</p>
         <p>The <code>content</code> property of the <code>document</code> instance holds
         the parsed content of the document in the form a tree 
-        of case classes. You can read the
-        <a href="../api/#laika.tree.Elements$">Elements Scaladoc</a> for an overview of all node types.</p>
+        of case classes.</p>
         <p>You can then specify rewrite
         rules to transform some nodes of the model (see <a href="tree-rewriting.html#document-tree-rewriting">Document Tree Rewriting</a> for 
         details) and use the Render API (explained below) to render
@@ -113,7 +112,7 @@ val document = Parse as Markdown fromString input
         
         <h3 id="parallel-execution" class="section">Parallel Execution</h3>
         <p>Like with a full transformation, parsing can be performed in parallel:</p>
-        <pre>Parse as Markdown fromTree Directory(&quot;source&quot;).inParallel</pre>
+        <pre>Parse.as(Markdown).inParallel.fromDirectory(&quot;source&quot;)</pre>
         <p>When specifying options like parallel execution, you cannot use
         the <code>fromDirectory</code> shortcut like in the previous example, but
         instead use the <code>Directory</code> entry point to the full configuration
@@ -140,6 +139,21 @@ val doc2 = parse fromFile &quot;input2.rst&quot;</pre>
         that you already have a document tree model, either obtained
         by a previous parsing step or built programmatically, and now
         want to render it to a specific output format.</p>
+        
+        <h3 id="reusing-the-parser-configuration" class="section">Reusing the parser configuration</h3>
+        <p>In contrast to the Transform API, the Parse and Render APIs keep these
+        two operations completely separate. However, this also means that the
+        renderer does not know about any custom renderers the parser might 
+        provide as extensions for rendering custom AST nodes the default renderer
+        does not know about.</p>
+        <p>For this reason it is always best to copy the parser configuration over
+        to the Render API:</p>
+        <pre>val parser = Parse.as(Markdown).strict
+
+val doc = parse.fromFile(&quot;foo.md&quot;)
+
+Render.as(HTML).withConfig(parser.config).toFile(&quot;hello.html&quot;)</pre>
+        <p>For the sake of brevity we omit this detail from the following examples.</p>
         
         <h3 id="rendering-a-single-document" class="section">Rendering a Single Document</h3>
         <p>Rendering to a file:</p>
@@ -175,7 +189,7 @@ Render as PDF from tree toFile &quot;out.pdf&quot;
         <p>Like with a full transformation, rendering can be performed in parallel:</p>
         <pre>val tree: DocumentTree = ...
 
-Render as HTML from tree toTree Directory(&quot;source&quot;).inParallel</pre>
+Render.as(HTML).inParallel.from(tree).toDirectory(&quot;source&quot;)</pre>
         
         <h3 id="reusing-renderers" class="section">Reusing Renderers</h3>
         <p>Like with the Transform API, all objects are reusable and immutable:</p>

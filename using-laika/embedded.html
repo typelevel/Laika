@@ -55,7 +55,7 @@
           
           <li class="nav-header">Project Links</li>
           <li><a href="http://github.com/planet42/Laika">Source Code</a></li>
-          <li><a href="../api/">API Documentation</a></li>
+          <li><a href="../api/laika/api/">API Documentation</a></li>
           <li><a href="http://github.com/planet42/Laika/issues">Issue Tracker</a></li>
           <li><a href="http://planet42.org/">Transformer Web Tool</a></li>
           <li class="follow"><a href="https://twitter.com/_planet42" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-dnt="true">Follow @_planet42</a>
@@ -125,13 +125,13 @@ doc toFile &quot;hello.html&quot;
 val res = doc toString
 </pre>
         
-        <h3 id="pretty-print-output" class="section">Pretty Print Output</h3>
-        <p>Laika also supports a PrettyPrint renderer which can be useful for debugging.
+        <h3 id="formatted-ast-output" class="section">Formatted AST Output</h3>
+        <p>Laika also supports a AST renderer which can be useful for debugging.
         It visualizes the document tree model while shortening longer text spans
         into one line:</p>
         <pre>val input = &quot;some *text* example&quot;
 
-Transform from Markdown to PrettyPrint fromString input toString
+Transform from Markdown to AST fromString input toString
 
 res0: java.lang.String = Document - Blocks: 1
 . Paragraph - Spans: 3
@@ -204,10 +204,11 @@ res0: java.lang.String = Document - Blocks: 1
         <h3 id="parallel-execution" class="section">Parallel Execution</h3>
         <p>When transforming a large number of files you may want to run the operations
         in parallel: </p>
-        <pre>(Transform from Markdown to 
-  HTML fromDirectory &quot;source&quot;).inParallel toDirectory &quot;target&quot;</pre>
-        <p>Note that we have to introduce parenthesis here, as <code>inParallel</code> is
-        a no-arg method breaking the pattern of the fluent API.</p>
+        <pre>Transform.from(Markdown).to(HTML).inParallel
+  .fromDirectory(&quot;source&quot;).toDirectory(&quot;target&quot;)</pre>
+        <p>Note that we show this in standard dot-notation here, as the fluent
+        dot-less API we use in other examples does not work well with parameter-less
+        methods like <code>inParallel</code>.</p>
         <p>The actual transformation is a three phase process, the first (parsing) and
         third (rendering) can run in parallel. For the second phase this is not possible,
         as this is the document tree model rewrite step where things like cross references or
@@ -249,9 +250,8 @@ transform fromDirectory &quot;source-2&quot; toDirectory &quot;target-2&quot;</p
         useful for your own debugging purposes, but also for applications that allow
         users to edit text with markup, giving them visual feedback for their mistakes.</p>
         <p>The following example renders all message with the level <code>Warning</code> or higher:</p>
-        <pre>Transform from Markdown to 
-  HTML.withMessageLevel(Warning) fromDirectory 
-  &quot;source&quot; toDirectory &quot;target&quot;</pre>      
+        <pre>Transform.from(Markdown).to(HTML).withMessageLevel(Warning)
+  .fromDirectory(&quot;source&quot;).toDirectory(&quot;target&quot;)</pre>      
 
       </div>
     </div>
