@@ -103,8 +103,16 @@
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
     </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="class" href="ASTRenderer.html" title="Default renderer implementation for the Formatted AST output format."></a>
+                        <a href="ASTRenderer.html" title="Default renderer implementation for the Formatted AST output format.">ASTRenderer</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="trait" href="FOProperties.html" title="Mapping of XSL-FO tag names to their supported properties."></a>
                         <a href="FOProperties.html" title="Mapping of XSL-FO tag names to their supported properties.">FOProperties</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="FORenderer.html" title="Default renderer implementation for the XSL-FO output format."></a>
+                        <a href="FORenderer.html" title="Default renderer implementation for the XSL-FO output format.">FORenderer</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="FOWriter$.html" title="Companion providing tree elements specific to the XSL-FO renderer."></a>
                         <a class="class" href="" title="API for renderers that produce XSL-FO output."></a>
@@ -114,25 +122,13 @@
                         <a class="class" href="FOforPDF.html" title="Responsible for rendering the XSL-FO for an entire document tree as an interim result to be consumed by the PDF post processor."></a>
                         <a href="FOforPDF.html" title="Responsible for rendering the XSL-FO for an entire document tree as an interim result to be consumed by the PDF post processor.">FOforPDF</a>
                       </li><li class="current-entities indented2">
-                        <a class="object" href="HTML$.html" title="The default instance of the HTML renderer."></a>
-                        <a class="class" href="HTML.html" title="A renderer for HTML output."></a>
-                        <a href="HTML.html" title="A renderer for HTML output.">HTML</a>
+                        <span class="separator"></span>
+                        <a class="class" href="HTMLRenderer.html" title="Default renderer implementation for the HTML output format."></a>
+                        <a href="HTMLRenderer.html" title="Default renderer implementation for the HTML output format.">HTMLRenderer</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="HTMLWriter.html" title="API for renderers that produce HTML output."></a>
                         <a href="HTMLWriter.html" title="API for renderers that produce HTML output.">HTMLWriter</a>
-                      </li><li class="current-entities indented2">
-                        <a class="object" href="PDF$.html" title="The default instance of the PDF renderer."></a>
-                        <a class="class" href="PDF.html" title="A post processor for PDF output, based on an interim XSL-FO renderer."></a>
-                        <a href="PDF.html" title="A post processor for PDF output, based on an interim XSL-FO renderer.">PDF</a>
-                      </li><li class="current-entities indented2">
-                        <a class="object" href="PDFConfig$.html" title="Companion for the creation of PDFConfig instances."></a>
-                        <a class="class" href="PDFConfig.html" title="Configuration options for the generated PDF output."></a>
-                        <a href="PDFConfig.html" title="Configuration options for the generated PDF output.">PDFConfig</a>
-                      </li><li class="current-entities indented2">
-                        <a class="object" href="PrettyPrint$.html" title=""></a>
-                        <a class="class" href="PrettyPrint.html" title="A renderer for PrettyPrint output, primarily useful for debugging purposes."></a>
-                        <a href="PrettyPrint.html" title="A renderer for PrettyPrint output, primarily useful for debugging purposes.">PrettyPrint</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="TagWriter.html" title="Base type for writers that produce tag-based output formats like XML or HTML."></a>
@@ -141,10 +137,6 @@
                         <span class="separator"></span>
                         <a class="class" href="TextWriter.html" title="API for renderers that produce character output."></a>
                         <a href="TextWriter.html" title="API for renderers that produce character output.">TextWriter</a>
-                      </li><li class="current-entities indented2">
-                        <a class="object" href="XSLFO$.html" title="The default instance of the XSL-FO renderer."></a>
-                        <a class="class" href="XSLFO.html" title="A renderer for XSL-FO output."></a>
-                        <a href="XSLFO.html" title="A renderer for XSL-FO output.">XSLFO</a>
                       </li>
               </ul>
             </div>
@@ -227,9 +219,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.render.FOWriter#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(out:String=&gt;Unit,render:laika.tree.Elements.Element=&gt;Unit,root:laika.tree.Elements.Element,path:laika.tree.Paths.Path,styles:laika.parse.css.Styles.StyleDeclarationSet,newLine:String,formatted:Boolean):laika.render.FOWriter"></a><a id="&lt;init&gt;:FOWriter"></a>
+      <a id="&lt;init&gt;(out:String=&gt;Unit,render:laika.ast.Element=&gt;Unit,root:laika.ast.Element,path:laika.ast.Path,styles:laika.ast.StyleDeclarationSet,newLine:String,formatted:Boolean):laika.render.FOWriter"></a><a id="&lt;init&gt;:FOWriter"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#&lt;init&gt;(out:String=&gt;Unit,render:laika.tree.Elements.Element=&gt;Unit,root:laika.tree.Elements.Element,path:laika.tree.Paths.Path,styles:laika.parse.css.Styles.StyleDeclarationSet,newLine:String,formatted:Boolean):laika.render.FOWriter" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#&lt;init&gt;(out:String=&gt;Unit,render:laika.ast.Element=&gt;Unit,root:laika.ast.Element,path:laika.ast.Path,styles:laika.ast.StyleDeclarationSet,newLine:String,formatted:Boolean):laika.render.FOWriter" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -238,7 +230,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">FOWriter</span><span class="params">(<span name="out">out: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>, <span name="render">render: (<a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>, <span name="root">root: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="path">path: <a href="../tree/Paths$$Path.html" class="extype" name="laika.tree.Paths.Path">Path</a></span>, <span name="styles">styles: <a href="../parse/css/Styles$$StyleDeclarationSet.html" class="extype" name="laika.parse.css.Styles.StyleDeclarationSet">StyleDeclarationSet</a></span>, <span name="newLine">newLine: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol">&quot;\n&quot;</span></span>, <span name="formatted">formatted: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>)</span>
+        <span class="name">FOWriter</span><span class="params">(<span name="out">out: (<span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>, <span name="render">render: (<a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>, <span name="root">root: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="path">path: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="styles">styles: <a href="../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a></span>, <span name="newLine">newLine: <span class="extype" name="scala.Predef.String">String</span> = <span class="symbol">&quot;\n&quot;</span></span>, <span name="formatted">formatted: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>)</span>
       </span>
       
       <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">out</dt><dd class="cmt"><p>the render function to write string values to</p></dd><dt class="param">render</dt><dd class="cmt"><p>the render function for writing elements</p></dd><dt class="param">root</dt><dd class="cmt"><p>the root element to render</p></dd><dt class="param">path</dt><dd class="cmt"><p>the path of the document getting rendered, used for generating unique ids</p></dd><dt class="param">styles</dt><dd class="cmt"><p>the styles to apply when writing the attributes of an element</p></dd><dt class="param">newLine</dt><dd class="cmt"><p>the newline character to use</p></dd><dt class="param">formatted</dt><dd class="cmt"><p>whether the output is formatted (adding indentation and newlines)</p></dd></dl></div>
@@ -285,9 +277,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="laika.render.TextWriter#&lt;&lt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;&lt;(element:laika.tree.Elements.Element):TextWriter.this.type"></a><a id="&lt;&lt;(Element):FOWriter.this.type"></a>
+      <a id="&lt;&lt;(element:laika.ast.Element):TextWriter.this.type"></a><a id="&lt;&lt;(Element):FOWriter.this.type"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#&lt;&lt;(element:laika.tree.Elements.Element):TextWriter.this.type" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#&lt;&lt;(element:laika.ast.Element):TextWriter.this.type" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -296,7 +288,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $less$less" class="name">&lt;&lt;</span><span class="params">(<span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a>.this.type</span>
+        <span title="gt4s: $less$less" class="name">&lt;&lt;</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a>.this.type</span>
       </span>
       
       <p class="shortcomment cmt">Writes the specified element to the output,
@@ -304,9 +296,9 @@
  on the same line.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TextWriter.html" class="extype" name="laika.render.TextWriter">TextWriter</a></dd></dl></div>
     </li><li name="laika.render.TextWriter#&lt;&lt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;&lt;(elements:Seq[laika.tree.Elements.Element]):TextWriter.this.type"></a><a id="&lt;&lt;(Seq[Element]):FOWriter.this.type"></a>
+      <a id="&lt;&lt;(elements:Seq[laika.ast.Element]):TextWriter.this.type"></a><a id="&lt;&lt;(Seq[Element]):FOWriter.this.type"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#&lt;&lt;(elements:Seq[laika.tree.Elements.Element]):TextWriter.this.type" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#&lt;&lt;(elements:Seq[laika.ast.Element]):TextWriter.this.type" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -315,7 +307,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $less$less" class="name">&lt;&lt;</span><span class="params">(<span name="elements">elements: <span class="extype" name="scala.Seq">Seq</span>[<a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>]</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a>.this.type</span>
+        <span title="gt4s: $less$less" class="name">&lt;&lt;</span><span class="params">(<span name="elements">elements: <span class="extype" name="scala.Seq">Seq</span>[<a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>]</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a>.this.type</span>
       </span>
       
       <p class="shortcomment cmt">Writes the specified elements to the output,
@@ -359,9 +351,9 @@
  with all special XML/HTML characters converted to entities.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
     </li><li name="laika.render.TagWriter#&lt;&lt;&lt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;&lt;&lt;(elements:Seq[laika.tree.Elements.Span]):TagWriter.this.type"></a><a id="&lt;&lt;&lt;(Seq[Span]):FOWriter.this.type"></a>
+      <a id="&lt;&lt;&lt;(elements:Seq[laika.ast.Span]):TagWriter.this.type"></a><a id="&lt;&lt;&lt;(Seq[Span]):FOWriter.this.type"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#&lt;&lt;&lt;(elements:Seq[laika.tree.Elements.Span]):TagWriter.this.type" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#&lt;&lt;&lt;(elements:Seq[laika.ast.Span]):TagWriter.this.type" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -370,7 +362,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $less$less$less" class="name">&lt;&lt;&lt;</span><span class="params">(<span name="elements">elements: <span class="extype" name="scala.Seq">Seq</span>[<a href="../tree/Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>]</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a>.this.type</span>
+        <span title="gt4s: $less$less$less" class="name">&lt;&lt;&lt;</span><span class="params">(<span name="elements">elements: <span class="extype" name="scala.Seq">Seq</span>[<a href="../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a>.this.type</span>
       </span>
       
       <p class="shortcomment cmt">Writes the specified span elements to the output,
@@ -405,9 +397,9 @@
  tags where whitespace is significant.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
     </li><li name="laika.render.TagWriter#&lt;&lt;@" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;&lt;@(tag:String,element:laika.tree.Elements.Element,attrs:(String,Any)*):TagWriter.this.type"></a><a id="&lt;&lt;@(String,Element,(String,Any)*):FOWriter.this.type"></a>
+      <a id="&lt;&lt;@(tag:String,element:laika.ast.Element,attrs:(String,Any)*):TagWriter.this.type"></a><a id="&lt;&lt;@(String,Element,(String,Any)*):FOWriter.this.type"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#&lt;&lt;@(tag:String,element:laika.tree.Elements.Element,attrs:(String,Any)*):TagWriter.this.type" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#&lt;&lt;@(tag:String,element:laika.ast.Element,attrs:(String,Any)*):TagWriter.this.type" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -416,7 +408,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $less$less$at" class="name">&lt;&lt;@</span><span class="params">(<span name="tag">tag: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="attrs">attrs: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a>.this.type</span>
+        <span title="gt4s: $less$less$at" class="name">&lt;&lt;@</span><span class="params">(<span name="tag">tag: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="attrs">attrs: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a>.this.type</span>
       </span>
       
       <p class="shortcomment cmt">Writes an opening tag with attributes derived from both
@@ -424,9 +416,9 @@
  the element parameter and the subsequent tuples.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
     </li><li name="laika.render.TagWriter#&lt;&lt;@" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;&lt;@(tag:String,options:laika.tree.Elements.Options,attrs:(String,Any)*):TagWriter.this.type"></a><a id="&lt;&lt;@(String,Options,(String,Any)*):FOWriter.this.type"></a>
+      <a id="&lt;&lt;@(tag:String,options:laika.ast.Options,attrs:(String,Any)*):TagWriter.this.type"></a><a id="&lt;&lt;@(String,Options,(String,Any)*):FOWriter.this.type"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#&lt;&lt;@(tag:String,options:laika.tree.Elements.Options,attrs:(String,Any)*):TagWriter.this.type" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#&lt;&lt;@(tag:String,options:laika.ast.Options,attrs:(String,Any)*):TagWriter.this.type" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -435,7 +427,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $less$less$at" class="name">&lt;&lt;@</span><span class="params">(<span name="tag">tag: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="options">options: <a href="../tree/Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a></span>, <span name="attrs">attrs: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a>.this.type</span>
+        <span title="gt4s: $less$less$at" class="name">&lt;&lt;@</span><span class="params">(<span name="tag">tag: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="options">options: <a href="../ast/Options.html" class="extype" name="laika.ast.Options">Options</a></span>, <span name="attrs">attrs: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a>.this.type</span>
       </span>
       
       <p class="shortcomment cmt">Writes an opening tag with attributes derived from both
@@ -522,9 +514,9 @@
  will be written to the output.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
     </li><li name="laika.render.TagWriter#&lt;&lt;@/" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;&lt;@/(tag:String,element:laika.tree.Elements.Element,attrs:(String,Any)*):TagWriter.this.type"></a><a id="&lt;&lt;@/(String,Element,(String,Any)*):FOWriter.this.type"></a>
+      <a id="&lt;&lt;@/(tag:String,element:laika.ast.Element,attrs:(String,Any)*):TagWriter.this.type"></a><a id="&lt;&lt;@/(String,Element,(String,Any)*):FOWriter.this.type"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#&lt;&lt;@/(tag:String,element:laika.tree.Elements.Element,attrs:(String,Any)*):TagWriter.this.type" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#&lt;&lt;@/(tag:String,element:laika.ast.Element,attrs:(String,Any)*):TagWriter.this.type" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -533,7 +525,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $less$less$at$div" class="name">&lt;&lt;@/</span><span class="params">(<span name="tag">tag: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="attrs">attrs: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a>.this.type</span>
+        <span title="gt4s: $less$less$at$div" class="name">&lt;&lt;@/</span><span class="params">(<span name="tag">tag: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="attrs">attrs: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a>.this.type</span>
       </span>
       
       <p class="shortcomment cmt">Writes an empty tag with attributes derived from both
@@ -541,9 +533,9 @@
  the element parameter and the subsequent tuples.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
     </li><li name="laika.render.TagWriter#&lt;&lt;@/" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;&lt;@/(tag:String,options:laika.tree.Elements.Options,attrs:(String,Any)*):TagWriter.this.type"></a><a id="&lt;&lt;@/(String,Options,(String,Any)*):FOWriter.this.type"></a>
+      <a id="&lt;&lt;@/(tag:String,options:laika.ast.Options,attrs:(String,Any)*):TagWriter.this.type"></a><a id="&lt;&lt;@/(String,Options,(String,Any)*):FOWriter.this.type"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#&lt;&lt;@/(tag:String,options:laika.tree.Elements.Options,attrs:(String,Any)*):TagWriter.this.type" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#&lt;&lt;@/(tag:String,options:laika.ast.Options,attrs:(String,Any)*):TagWriter.this.type" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -552,7 +544,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $less$less$at$div" class="name">&lt;&lt;@/</span><span class="params">(<span name="tag">tag: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="options">options: <a href="../tree/Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a></span>, <span name="attrs">attrs: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a>.this.type</span>
+        <span title="gt4s: $less$less$at$div" class="name">&lt;&lt;@/</span><span class="params">(<span name="tag">tag: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="options">options: <a href="../ast/Options.html" class="extype" name="laika.ast.Options">Options</a></span>, <span name="attrs">attrs: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a>.this.type</span>
       </span>
       
       <p class="shortcomment cmt">Writes an empty tag with attributes derived from both
@@ -560,9 +552,9 @@
  the options parameter and the subsequent tuples.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
     </li><li name="laika.render.TextWriter#&lt;&lt;|" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;&lt;|(element:laika.tree.Elements.Element):TextWriter.this.type"></a><a id="&lt;&lt;|(Element):FOWriter.this.type"></a>
+      <a id="&lt;&lt;|(element:laika.ast.Element):TextWriter.this.type"></a><a id="&lt;&lt;|(Element):FOWriter.this.type"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#&lt;&lt;|(element:laika.tree.Elements.Element):TextWriter.this.type" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#&lt;&lt;|(element:laika.ast.Element):TextWriter.this.type" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -571,7 +563,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $less$less$bar" class="name">&lt;&lt;|</span><span class="params">(<span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a>.this.type</span>
+        <span title="gt4s: $less$less$bar" class="name">&lt;&lt;|</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a>.this.type</span>
       </span>
       
       <p class="shortcomment cmt">Writes the specified element to the output,
@@ -579,9 +571,9 @@
  on a new line using the current level of indentation.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TextWriter.html" class="extype" name="laika.render.TextWriter">TextWriter</a></dd></dl></div>
     </li><li name="laika.render.TextWriter#&lt;&lt;|" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;&lt;|(elements:Seq[laika.tree.Elements.Element]):TextWriter.this.type"></a><a id="&lt;&lt;|(Seq[Element]):FOWriter.this.type"></a>
+      <a id="&lt;&lt;|(elements:Seq[laika.ast.Element]):TextWriter.this.type"></a><a id="&lt;&lt;|(Seq[Element]):FOWriter.this.type"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#&lt;&lt;|(elements:Seq[laika.tree.Elements.Element]):TextWriter.this.type" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#&lt;&lt;|(elements:Seq[laika.ast.Element]):TextWriter.this.type" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -590,7 +582,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $less$less$bar" class="name">&lt;&lt;|</span><span class="params">(<span name="elements">elements: <span class="extype" name="scala.Seq">Seq</span>[<a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>]</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a>.this.type</span>
+        <span title="gt4s: $less$less$bar" class="name">&lt;&lt;|</span><span class="params">(<span name="elements">elements: <span class="extype" name="scala.Seq">Seq</span>[<a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>]</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a>.this.type</span>
       </span>
       
       <p class="shortcomment cmt">Writes the specified elements to the output,
@@ -638,9 +630,9 @@
  with all special XML/HTML characters converted to entities.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
     </li><li name="laika.render.TextWriter#&lt;&lt;|&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;&lt;|&gt;(element:laika.tree.Elements.Element):TextWriter.this.type"></a><a id="&lt;&lt;|&gt;(Element):FOWriter.this.type"></a>
+      <a id="&lt;&lt;|&gt;(element:laika.ast.Element):TextWriter.this.type"></a><a id="&lt;&lt;|&gt;(Element):FOWriter.this.type"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#&lt;&lt;|&gt;(element:laika.tree.Elements.Element):TextWriter.this.type" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#&lt;&lt;|&gt;(element:laika.ast.Element):TextWriter.this.type" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -649,7 +641,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $less$less$bar$greater" class="name">&lt;&lt;|&gt;</span><span class="params">(<span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a>.this.type</span>
+        <span title="gt4s: $less$less$bar$greater" class="name">&lt;&lt;|&gt;</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a>.this.type</span>
       </span>
       
       <p class="shortcomment cmt">Writes the specified element to the output,
@@ -657,9 +649,9 @@
  on a new line and increasing indentation one level to the right.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TextWriter.html" class="extype" name="laika.render.TextWriter">TextWriter</a></dd></dl></div>
     </li><li name="laika.render.TextWriter#&lt;&lt;|&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;&lt;|&gt;(elements:Seq[laika.tree.Elements.Element]):TextWriter.this.type"></a><a id="&lt;&lt;|&gt;(Seq[Element]):FOWriter.this.type"></a>
+      <a id="&lt;&lt;|&gt;(elements:Seq[laika.ast.Element]):TextWriter.this.type"></a><a id="&lt;&lt;|&gt;(Seq[Element]):FOWriter.this.type"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#&lt;&lt;|&gt;(elements:Seq[laika.tree.Elements.Element]):TextWriter.this.type" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#&lt;&lt;|&gt;(elements:Seq[laika.ast.Element]):TextWriter.this.type" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -668,7 +660,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span title="gt4s: $less$less$bar$greater" class="name">&lt;&lt;|&gt;</span><span class="params">(<span name="elements">elements: <span class="extype" name="scala.Seq">Seq</span>[<a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>]</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a>.this.type</span>
+        <span title="gt4s: $less$less$bar$greater" class="name">&lt;&lt;|&gt;</span><span class="params">(<span name="elements">elements: <span class="extype" name="scala.Seq">Seq</span>[<a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>]</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a>.this.type</span>
       </span>
       
       <p class="shortcomment cmt">Writes the specified elements to the output,
@@ -765,9 +757,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="laika.render.FOWriter#attributes" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="attributes(tag:String,element:laika.tree.Elements.Element,attrs:Seq[(String,Any)]):Seq[(String,Any)]"></a><a id="attributes(String,Element,Seq[(String,Any)]):Seq[(String,Any)]"></a>
+      <a id="attributes(tag:String,element:laika.ast.Element,attrs:Seq[(String,Any)]):Seq[(String,Any)]"></a><a id="attributes(String,Element,Seq[(String,Any)]):Seq[(String,Any)]"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#attributes(tag:String,element:laika.tree.Elements.Element,attrs:Seq[(String,Any)]):Seq[(String,Any)]" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#attributes(tag:String,element:laika.ast.Element,attrs:Seq[(String,Any)]):Seq[(String,Any)]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -776,15 +768,15 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">attributes</span><span class="params">(<span name="tag">tag: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="attrs">attrs: <span class="extype" name="scala.Seq">Seq</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>)]</span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>)]</span>
+        <span class="name">attributes</span><span class="params">(<span name="tag">tag: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="attrs">attrs: <span class="extype" name="scala.Seq">Seq</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>)]</span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>)]</span>
       </span>
       
       <p class="shortcomment cmt">Produces the complete sequence of attributes to write for the specified tag.</p><div class="fullcomment"><div class="comment cmt"><p>Produces the complete sequence of attributes to write for the specified tag.
 </p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.render.FOWriter">FOWriter</a> → <a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
     </li><li name="laika.render.FOWriter#attributes" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="attributes(tag:String,options:laika.tree.Elements.Options,attrs:Seq[(String,Any)]):Seq[(String,Any)]"></a><a id="attributes(String,Options,Seq[(String,Any)]):Seq[(String,Any)]"></a>
+      <a id="attributes(tag:String,options:laika.ast.Options,attrs:Seq[(String,Any)]):Seq[(String,Any)]"></a><a id="attributes(String,Options,Seq[(String,Any)]):Seq[(String,Any)]"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#attributes(tag:String,options:laika.tree.Elements.Options,attrs:Seq[(String,Any)]):Seq[(String,Any)]" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#attributes(tag:String,options:laika.ast.Options,attrs:Seq[(String,Any)]):Seq[(String,Any)]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -793,15 +785,15 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">attributes</span><span class="params">(<span name="tag">tag: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="options">options: <a href="../tree/Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a></span>, <span name="attrs">attrs: <span class="extype" name="scala.Seq">Seq</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>)]</span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>)]</span>
+        <span class="name">attributes</span><span class="params">(<span name="tag">tag: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="options">options: <a href="../ast/Options.html" class="extype" name="laika.ast.Options">Options</a></span>, <span name="attrs">attrs: <span class="extype" name="scala.Seq">Seq</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>)]</span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[(<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Any">Any</span>)]</span>
       </span>
       
       <p class="shortcomment cmt">Produces the complete sequence of attributes to write for the specified tag.</p><div class="fullcomment"><div class="comment cmt"><p>Produces the complete sequence of attributes to write for the specified tag.
 </p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.render.FOWriter">FOWriter</a> → <a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
     </li><li name="laika.render.FOWriter#block" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="block(element:laika.tree.Elements.Element,attr:(String,String)*):laika.render.FOWriter"></a><a id="block(Element,(String,String)*):FOWriter"></a>
+      <a id="block(element:laika.ast.Element,attr:(String,String)*):laika.render.FOWriter"></a><a id="block(Element,(String,String)*):FOWriter"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#block(element:laika.tree.Elements.Element,attr:(String,String)*):laika.render.FOWriter" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#block(element:laika.ast.Element,attr:(String,String)*):laika.render.FOWriter" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -810,14 +802,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">block</span><span class="params">(<span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
+        <span class="name">block</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
       </span>
       
       <p class="shortcomment cmt">Renders an empty FO <code>block</code> element.</p>
     </li><li name="laika.render.FOWriter#block" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="block(element:laika.tree.Elements.Element,content:Seq[laika.tree.Elements.Span],attr:(String,String)*):laika.render.FOWriter"></a><a id="block(Element,Seq[Span],(String,String)*):FOWriter"></a>
+      <a id="block(element:laika.ast.Element,content:Seq[laika.ast.Span],attr:(String,String)*):laika.render.FOWriter"></a><a id="block(Element,Seq[Span],(String,String)*):FOWriter"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#block(element:laika.tree.Elements.Element,content:Seq[laika.tree.Elements.Span],attr:(String,String)*):laika.render.FOWriter" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#block(element:laika.ast.Element,content:Seq[laika.ast.Span],attr:(String,String)*):laika.render.FOWriter" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -826,14 +818,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">block</span><span class="params">(<span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="../tree/Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>]</span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
+        <span class="name">block</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
       </span>
       
       <p class="shortcomment cmt">Renders an FO <code>block</code> element and the specified nested spans.</p>
     </li><li name="laika.render.FOWriter#blockContainer" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="blockContainer(element:laika.tree.Elements.Element,content:Seq[laika.tree.Elements.Block],attr:(String,String)*):laika.render.FOWriter"></a><a id="blockContainer(Element,Seq[Block],(String,String)*):FOWriter"></a>
+      <a id="blockContainer(element:laika.ast.Element,content:Seq[laika.ast.Block],attr:(String,String)*):laika.render.FOWriter"></a><a id="blockContainer(Element,Seq[Block],(String,String)*):FOWriter"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#blockContainer(element:laika.tree.Elements.Element,content:Seq[laika.tree.Elements.Block],attr:(String,String)*):laika.render.FOWriter" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#blockContainer(element:laika.ast.Element,content:Seq[laika.ast.Block],attr:(String,String)*):laika.render.FOWriter" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -842,14 +834,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">blockContainer</span><span class="params">(<span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a>]</span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
+        <span class="name">blockContainer</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
       </span>
       
       <p class="shortcomment cmt">Renders an FO <code>block</code> element, containing nested blocks.</p>
     </li><li name="laika.render.FOWriter#blockWithWS" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="blockWithWS(element:laika.tree.Elements.Element,content:Seq[laika.tree.Elements.Span],attr:(String,String)*):laika.render.FOWriter"></a><a id="blockWithWS(Element,Seq[Span],(String,String)*):FOWriter"></a>
+      <a id="blockWithWS(element:laika.ast.Element,content:Seq[laika.ast.Span],attr:(String,String)*):laika.render.FOWriter"></a><a id="blockWithWS(Element,Seq[Span],(String,String)*):FOWriter"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#blockWithWS(element:laika.tree.Elements.Element,content:Seq[laika.tree.Elements.Span],attr:(String,String)*):laika.render.FOWriter" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#blockWithWS(element:laika.ast.Element,content:Seq[laika.ast.Span],attr:(String,String)*):laika.render.FOWriter" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -858,7 +850,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">blockWithWS</span><span class="params">(<span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="../tree/Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>]</span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
+        <span class="name">blockWithWS</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
       </span>
       
       <p class="shortcomment cmt">Renders an FO <code>block</code> element and the specified nested spans, preserving
@@ -912,9 +904,9 @@
       
       <p class="shortcomment cmt">Renders an FO <code>bookmark-tree</code> element and all of its nested bookmarks.</p>
     </li><li name="laika.render.FOWriter#buildId" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="buildId(path:laika.tree.Paths.Path,ref:String):String"></a><a id="buildId(Path,String):String"></a>
+      <a id="buildId(path:laika.ast.Path,ref:String):String"></a><a id="buildId(Path,String):String"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#buildId(path:laika.tree.Paths.Path,ref:String):String" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#buildId(path:laika.ast.Path,ref:String):String" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -923,7 +915,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">buildId</span><span class="params">(<span name="path">path: <a href="../tree/Paths$$Path.html" class="extype" name="laika.tree.Paths.Path">Path</a></span>, <span name="ref">ref: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+        <span class="name">buildId</span><span class="params">(<span name="path">path: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>, <span name="ref">ref: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       
       <p class="shortcomment cmt">Generates a unique id for the specified path of the target
@@ -1004,9 +996,9 @@
  with entities.
 </p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="TagWriter.html" class="extype" name="laika.render.TagWriter">TagWriter</a></dd></dl></div>
     </li><li name="laika.render.FOWriter#externalGraphic" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="externalGraphic(element:laika.tree.Elements.Element,src:String,width:Option[laika.tree.Elements.Size],height:Option[laika.tree.Elements.Size]):laika.render.FOWriter"></a><a id="externalGraphic(Element,String,Option[Size],Option[Size]):FOWriter"></a>
+      <a id="externalGraphic(element:laika.ast.Element,src:String,width:Option[laika.ast.Size],height:Option[laika.ast.Size]):laika.render.FOWriter"></a><a id="externalGraphic(Element,String,Option[Size],Option[Size]):FOWriter"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#externalGraphic(element:laika.tree.Elements.Element,src:String,width:Option[laika.tree.Elements.Size],height:Option[laika.tree.Elements.Size]):laika.render.FOWriter" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#externalGraphic(element:laika.ast.Element,src:String,width:Option[laika.ast.Size],height:Option[laika.ast.Size]):laika.render.FOWriter" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1015,14 +1007,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">externalGraphic</span><span class="params">(<span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="src">src: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="width">width: <span class="extype" name="scala.Option">Option</span>[<a href="../tree/Elements$$Size.html" class="extype" name="laika.tree.Elements.Size">Size</a>]</span>, <span name="height">height: <span class="extype" name="scala.Option">Option</span>[<a href="../tree/Elements$$Size.html" class="extype" name="laika.tree.Elements.Size">Size</a>]</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
+        <span class="name">externalGraphic</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="src">src: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="width">width: <span class="extype" name="scala.Option">Option</span>[<a href="../ast/Size.html" class="extype" name="laika.ast.Size">Size</a>]</span>, <span name="height">height: <span class="extype" name="scala.Option">Option</span>[<a href="../ast/Size.html" class="extype" name="laika.ast.Size">Size</a>]</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
       </span>
       
       <p class="shortcomment cmt">Renders an FO <code>external-graphic</code> element.</p>
     </li><li name="laika.render.FOWriter#externalLink" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="externalLink(element:laika.tree.Elements.Element,url:String,content:Seq[laika.tree.Elements.Span],attr:(String,String)*):laika.render.FOWriter"></a><a id="externalLink(Element,String,Seq[Span],(String,String)*):FOWriter"></a>
+      <a id="externalLink(element:laika.ast.Element,url:String,content:Seq[laika.ast.Span],attr:(String,String)*):laika.render.FOWriter"></a><a id="externalLink(Element,String,Seq[Span],(String,String)*):FOWriter"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#externalLink(element:laika.tree.Elements.Element,url:String,content:Seq[laika.tree.Elements.Span],attr:(String,String)*):laika.render.FOWriter" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#externalLink(element:laika.ast.Element,url:String,content:Seq[laika.ast.Span],attr:(String,String)*):laika.render.FOWriter" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1031,7 +1023,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">externalLink</span><span class="params">(<span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="url">url: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="../tree/Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>]</span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
+        <span class="name">externalLink</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="url">url: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
       </span>
       
       <p class="shortcomment cmt">Renders an FO <code>basic-link</code> element for an external target.</p>
@@ -1077,9 +1069,9 @@
               
         </dd></dl></div>
     </li><li name="laika.render.FOWriter#footnote" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="footnote(element:laika.tree.Elements.Element,label:String,body:Seq[laika.tree.Elements.Block],options:laika.tree.Elements.Options):laika.render.FOWriter"></a><a id="footnote(Element,String,Seq[Block],Options):FOWriter"></a>
+      <a id="footnote(element:laika.ast.Element,label:String,body:Seq[laika.ast.Block],options:laika.ast.Options):laika.render.FOWriter"></a><a id="footnote(Element,String,Seq[Block],Options):FOWriter"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#footnote(element:laika.tree.Elements.Element,label:String,body:Seq[laika.tree.Elements.Block],options:laika.tree.Elements.Options):laika.render.FOWriter" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#footnote(element:laika.ast.Element,label:String,body:Seq[laika.ast.Block],options:laika.ast.Options):laika.render.FOWriter" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1088,7 +1080,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">footnote</span><span class="params">(<span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="label">label: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="body">body: <span class="extype" name="scala.Seq">Seq</span>[<a href="../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a>]</span>, <span name="options">options: <a href="../tree/Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
+        <span class="name">footnote</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="label">label: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="body">body: <span class="extype" name="scala.Seq">Seq</span>[<a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>, <span name="options">options: <a href="../ast/Options.html" class="extype" name="laika.ast.Options">Options</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
       </span>
       
       <p class="shortcomment cmt">Renders an FO <code>footnote</code> element.</p>
@@ -1152,9 +1144,9 @@
  than the currently active one).
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="TextWriter.html" class="extype" name="laika.render.TextWriter">TextWriter</a></dd></dl></div>
     </li><li name="laika.render.FOWriter#inline" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="inline(element:laika.tree.Elements.Element,content:Seq[laika.tree.Elements.Span],attr:(String,String)*):laika.render.FOWriter"></a><a id="inline(Element,Seq[Span],(String,String)*):FOWriter"></a>
+      <a id="inline(element:laika.ast.Element,content:Seq[laika.ast.Span],attr:(String,String)*):laika.render.FOWriter"></a><a id="inline(Element,Seq[Span],(String,String)*):FOWriter"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#inline(element:laika.tree.Elements.Element,content:Seq[laika.tree.Elements.Span],attr:(String,String)*):laika.render.FOWriter" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#inline(element:laika.ast.Element,content:Seq[laika.ast.Span],attr:(String,String)*):laika.render.FOWriter" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1163,14 +1155,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">inline</span><span class="params">(<span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="../tree/Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>]</span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
+        <span class="name">inline</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
       </span>
       
       <p class="shortcomment cmt">Renders an FO <code>inline</code> element and the specified nested spans.</p>
     </li><li name="laika.render.FOWriter#internalLink" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="internalLink(element:laika.tree.Elements.Element,target:String,content:Seq[laika.tree.Elements.Span],attr:(String,String)*):laika.render.FOWriter"></a><a id="internalLink(Element,String,Seq[Span],(String,String)*):FOWriter"></a>
+      <a id="internalLink(element:laika.ast.Element,target:String,content:Seq[laika.ast.Span],attr:(String,String)*):laika.render.FOWriter"></a><a id="internalLink(Element,String,Seq[Span],(String,String)*):FOWriter"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#internalLink(element:laika.tree.Elements.Element,target:String,content:Seq[laika.tree.Elements.Span],attr:(String,String)*):laika.render.FOWriter" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#internalLink(element:laika.ast.Element,target:String,content:Seq[laika.ast.Span],attr:(String,String)*):laika.render.FOWriter" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1179,14 +1171,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">internalLink</span><span class="params">(<span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="target">target: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="../tree/Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>]</span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
+        <span class="name">internalLink</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="target">target: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
       </span>
       
       <p class="shortcomment cmt">Renders an FO <code>basic-link</code> element for an internal target.</p>
     </li><li name="laika.render.FOWriter#internalLinkTarget" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="internalLinkTarget(element:laika.tree.Elements.Element):laika.render.FOWriter"></a><a id="internalLinkTarget(Element):FOWriter"></a>
+      <a id="internalLinkTarget(element:laika.ast.Element):laika.render.FOWriter"></a><a id="internalLinkTarget(Element):FOWriter"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#internalLinkTarget(element:laika.tree.Elements.Element):laika.render.FOWriter" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#internalLinkTarget(element:laika.ast.Element):laika.render.FOWriter" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1195,7 +1187,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">internalLinkTarget</span><span class="params">(<span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
+        <span class="name">internalLinkTarget</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
       </span>
       
       <p class="shortcomment cmt">Renders an FO <code>block</code> or <code>inline</code> for this internal link
@@ -1218,9 +1210,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="laika.render.FOWriter#listBlock" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="listBlock(element:laika.tree.Elements.Element,content:Seq[laika.tree.Elements.ListItem],attr:(String,String)*):laika.render.FOWriter"></a><a id="listBlock(Element,Seq[ListItem],(String,String)*):FOWriter"></a>
+      <a id="listBlock(element:laika.ast.Element,content:Seq[laika.ast.ListItem],attr:(String,String)*):laika.render.FOWriter"></a><a id="listBlock(Element,Seq[ListItem],(String,String)*):FOWriter"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#listBlock(element:laika.tree.Elements.Element,content:Seq[laika.tree.Elements.ListItem],attr:(String,String)*):laika.render.FOWriter" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#listBlock(element:laika.ast.Element,content:Seq[laika.ast.ListItem],attr:(String,String)*):laika.render.FOWriter" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1229,14 +1221,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">listBlock</span><span class="params">(<span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="../tree/Elements$$ListItem.html" class="extype" name="laika.tree.Elements.ListItem">ListItem</a>]</span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
+        <span class="name">listBlock</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="../ast/ListItem.html" class="extype" name="laika.ast.ListItem">ListItem</a>]</span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
       </span>
       
       <p class="shortcomment cmt">Renders an FO <code>list-block</code> element, and the specified list items.</p>
     </li><li name="laika.render.FOWriter#listItem" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="listItem(element:laika.tree.Elements.Element,label:Seq[laika.tree.Elements.Span],body:Seq[laika.tree.Elements.Block],attr:(String,String)*):laika.render.FOWriter"></a><a id="listItem(Element,Seq[Span],Seq[Block],(String,String)*):FOWriter"></a>
+      <a id="listItem(element:laika.ast.Element,label:Seq[laika.ast.Span],body:Seq[laika.ast.Block],attr:(String,String)*):laika.render.FOWriter"></a><a id="listItem(Element,Seq[Span],Seq[Block],(String,String)*):FOWriter"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#listItem(element:laika.tree.Elements.Element,label:Seq[laika.tree.Elements.Span],body:Seq[laika.tree.Elements.Block],attr:(String,String)*):laika.render.FOWriter" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#listItem(element:laika.ast.Element,label:Seq[laika.ast.Span],body:Seq[laika.ast.Block],attr:(String,String)*):laika.render.FOWriter" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1245,14 +1237,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">listItem</span><span class="params">(<span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="label">label: <span class="extype" name="scala.Seq">Seq</span>[<a href="../tree/Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a>]</span>, <span name="body">body: <span class="extype" name="scala.Seq">Seq</span>[<a href="../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a>]</span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
+        <span class="name">listItem</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="label">label: <span class="extype" name="scala.Seq">Seq</span>[<a href="../ast/Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="body">body: <span class="extype" name="scala.Seq">Seq</span>[<a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
       </span>
       
       <p class="shortcomment cmt">Renders an FO <code>list-item</code> element with the specified label and body.</p>
     </li><li name="laika.render.FOWriter#listItemBody" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="listItemBody(element:laika.tree.Elements.Element,content:Seq[laika.tree.Elements.Block],attr:(String,String)*):laika.render.FOWriter"></a><a id="listItemBody(Element,Seq[Block],(String,String)*):FOWriter"></a>
+      <a id="listItemBody(element:laika.ast.Element,content:Seq[laika.ast.Block],attr:(String,String)*):laika.render.FOWriter"></a><a id="listItemBody(Element,Seq[Block],(String,String)*):FOWriter"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#listItemBody(element:laika.tree.Elements.Element,content:Seq[laika.tree.Elements.Block],attr:(String,String)*):laika.render.FOWriter" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#listItemBody(element:laika.ast.Element,content:Seq[laika.ast.Block],attr:(String,String)*):laika.render.FOWriter" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1261,14 +1253,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">listItemBody</span><span class="params">(<span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a>]</span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
+        <span class="name">listItemBody</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
       </span>
       
       <p class="shortcomment cmt">Renders an FO <code>list-item-body</code> element.</p>
     </li><li name="laika.render.FOWriter#listItemLabel" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="listItemLabel(element:laika.tree.Elements.Element,content:laika.tree.Elements.Block,attr:(String,String)*):laika.render.FOWriter"></a><a id="listItemLabel(Element,Block,(String,String)*):FOWriter"></a>
+      <a id="listItemLabel(element:laika.ast.Element,content:laika.ast.Block,attr:(String,String)*):laika.render.FOWriter"></a><a id="listItemLabel(Element,Block,(String,String)*):FOWriter"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#listItemLabel(element:laika.tree.Elements.Element,content:laika.tree.Elements.Block,attr:(String,String)*):laika.render.FOWriter" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#listItemLabel(element:laika.ast.Element,content:laika.ast.Block,attr:(String,String)*):laika.render.FOWriter" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1277,7 +1269,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">listItemLabel</span><span class="params">(<span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="content">content: <a href="../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a></span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
+        <span class="name">listItemLabel</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="content">content: <a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a></span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
       </span>
       
       <p class="shortcomment cmt">Renders an FO <code>list-item-label</code> element.</p>
@@ -1336,9 +1328,9 @@
               
         </dd></dl></div>
     </li><li name="laika.render.TextWriter#parents" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="parents:List[laika.tree.Elements.Element]"></a><a id="parents:List[Element]"></a>
+      <a id="parents:List[laika.ast.Element]"></a><a id="parents:List[Element]"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#parents:List[laika.tree.Elements.Element]" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#parents:List[laika.ast.Element]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1347,14 +1339,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">parents</span><span class="result">: <span class="extype" name="scala.List">List</span>[<a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>]</span>
+        <span class="name">parents</span><span class="result">: <span class="extype" name="scala.List">List</span>[<a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>]</span>
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="TextWriter.html" class="extype" name="laika.render.TextWriter">TextWriter</a></dd></dl></div>
     </li><li name="laika.render.FOWriter#rawText" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="rawText(element:laika.tree.Elements.Element,content:String,attr:(String,String)*):laika.render.FOWriter"></a><a id="rawText(Element,String,(String,String)*):FOWriter"></a>
+      <a id="rawText(element:laika.ast.Element,content:String,attr:(String,String)*):laika.render.FOWriter"></a><a id="rawText(Element,String,(String,String)*):FOWriter"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#rawText(element:laika.tree.Elements.Element,content:String,attr:(String,String)*):laika.render.FOWriter" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#rawText(element:laika.ast.Element,content:String,attr:(String,String)*):laika.render.FOWriter" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1363,7 +1355,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">rawText</span><span class="params">(<span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
+        <span class="name">rawText</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
       </span>
       
       <p class="shortcomment cmt">Renders an FO <code>inline</code> element and the specified text, treating it as
@@ -1388,9 +1380,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="laika.render.FOWriter#text" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="text(element:laika.tree.Elements.Element,content:String,attr:(String,String)*):laika.render.FOWriter"></a><a id="text(Element,String,(String,String)*):FOWriter"></a>
+      <a id="text(element:laika.ast.Element,content:String,attr:(String,String)*):laika.render.FOWriter"></a><a id="text(Element,String,(String,String)*):FOWriter"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#text(element:laika.tree.Elements.Element,content:String,attr:(String,String)*):laika.render.FOWriter" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#text(element:laika.ast.Element,content:String,attr:(String,String)*):laika.render.FOWriter" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1399,7 +1391,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">text</span><span class="params">(<span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
+        <span class="name">text</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
       </span>
       
       <p class="shortcomment cmt">Renders an FO <code>inline</code> element and the specified text.</p><div class="fullcomment"><div class="comment cmt"><p>Renders an FO <code>inline</code> element and the specified text.
@@ -1407,9 +1399,9 @@
  attributes associated with the text.
 </p></div></div>
     </li><li name="laika.render.FOWriter#textBlockWithWS" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="textBlockWithWS(element:laika.tree.Elements.Element,content:String,attr:(String,String)*):laika.render.FOWriter"></a><a id="textBlockWithWS(Element,String,(String,String)*):FOWriter"></a>
+      <a id="textBlockWithWS(element:laika.ast.Element,content:String,attr:(String,String)*):laika.render.FOWriter"></a><a id="textBlockWithWS(Element,String,(String,String)*):FOWriter"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#textBlockWithWS(element:laika.tree.Elements.Element,content:String,attr:(String,String)*):laika.render.FOWriter" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#textBlockWithWS(element:laika.ast.Element,content:String,attr:(String,String)*):laika.render.FOWriter" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1418,7 +1410,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">textBlockWithWS</span><span class="params">(<span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
+        <span class="name">textBlockWithWS</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
       </span>
       
       <p class="shortcomment cmt">Renders an FO <code>block</code> element and the specified text, preserving
@@ -1427,9 +1419,9 @@
  attributes associated with the text.
 </p></div></div>
     </li><li name="laika.render.FOWriter#textWithWS" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="textWithWS(element:laika.tree.Elements.Element,content:String,attr:(String,String)*):laika.render.FOWriter"></a><a id="textWithWS(Element,String,(String,String)*):FOWriter"></a>
+      <a id="textWithWS(element:laika.ast.Element,content:String,attr:(String,String)*):laika.render.FOWriter"></a><a id="textWithWS(Element,String,(String,String)*):FOWriter"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter.html#textWithWS(element:laika.tree.Elements.Element,content:String,attr:(String,String)*):laika.render.FOWriter" title="Permalink">
+      <a href="../../laika/render/FOWriter.html#textWithWS(element:laika.ast.Element,content:String,attr:(String,String)*):laika.render.FOWriter" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -1438,7 +1430,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">textWithWS</span><span class="params">(<span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
+        <span class="name">textWithWS</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="attr">attr: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)*</span>)</span><span class="result">: <a href="" class="extype" name="laika.render.FOWriter">FOWriter</a></span>
       </span>
       
       <p class="shortcomment cmt">Renders an FO <code>inline</code> element and the specified text, preserving

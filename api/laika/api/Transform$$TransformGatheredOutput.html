@@ -130,10 +130,6 @@
                         <span class="separator"></span>
                         <a class="class" href="Transform$$TransformMappedOutput.html" title="A transform operation that maps each input document of a given input tree to a corresponding output document in the destination tree."></a>
                         <a href="Transform$$TransformMappedOutput.html" title="A transform operation that maps each input document of a given input tree to a corresponding output document in the destination tree.">TransformMappedOutput</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="trait" href="Transform$$TreeConfigBuilder.html" title="API for configuring a batch operation for an input tree."></a>
-                        <a href="Transform$$TreeConfigBuilder.html" title="API for configuring a batch operation for an input tree.">TreeConfigBuilder</a>
                       </li>
               </ul>
             </div>
@@ -169,7 +165,7 @@
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a>[<span class="extype" name="laika.api.Transform.TransformGatheredOutput.Writer">Writer</span>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a>[<span class="extype" name="laika.api.Transform.TransformGatheredOutput.Writer">Writer</span>], <a href="../io/InputTreeOps.html" class="extype" name="laika.io.InputTreeOps">InputTreeOps</a>, <a href="../io/InputOps.html" class="extype" name="laika.io.InputOps">InputOps</a>, <a href="../config/TransformConfigBuilder.html" class="extype" name="laika.config.TransformConfigBuilder">TransformConfigBuilder</a>[<span class="extype" name="laika.api.Transform.TransformGatheredOutput.Writer">Writer</span>], <a href="../config/RenderConfigBuilder.html" class="extype" name="laika.config.RenderConfigBuilder">RenderConfigBuilder</a>[<span class="extype" name="laika.api.Transform.TransformGatheredOutput.Writer">Writer</span>], <a href="../config/ParseConfigBuilder.html" class="extype" name="laika.config.ParseConfigBuilder">ParseConfigBuilder</a>, <a href="../config/OperationConfigBuilder.html" class="extype" name="laika.config.OperationConfigBuilder">OperationConfigBuilder</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -195,7 +191,7 @@
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="laika.api.Transform.TransformGatheredOutput"><span>TransformGatheredOutput</span></li><li class="in" name="laika.api.Transform"><span>Transform</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="laika.api.Transform.TransformGatheredOutput"><span>TransformGatheredOutput</span></li><li class="in" name="laika.api.Transform"><span>Transform</span></li><li class="in" name="laika.io.InputTreeOps"><span>InputTreeOps</span></li><li class="in" name="laika.io.InputOps"><span>InputOps</span></li><li class="in" name="laika.config.TransformConfigBuilder"><span>TransformConfigBuilder</span></li><li class="in" name="laika.config.RenderConfigBuilder"><span>RenderConfigBuilder</span></li><li class="in" name="laika.config.ParseConfigBuilder"><span>ParseConfigBuilder</span></li><li class="in" name="laika.config.OperationConfigBuilder"><span>OperationConfigBuilder</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -216,9 +212,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.api.Transform.TransformGatheredOutput#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(parse:laika.api.Parse,render:laika.api.Render.RenderGatheredOutput[Writer],rules:laika.api.Transform.Rules):laika.api.Transform.TransformGatheredOutput[Writer]"></a><a id="&lt;init&gt;:TransformGatheredOutput[Writer]"></a>
+      <a id="&lt;init&gt;(parse:laika.api.Parse,render:laika.api.Render.RenderGatheredOutput[Writer],config:laika.config.OperationConfig):laika.api.Transform.TransformGatheredOutput[Writer]"></a><a id="&lt;init&gt;:TransformGatheredOutput[Writer]"></a>
       <span class="permalink">
-      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#&lt;init&gt;(parse:laika.api.Parse,render:laika.api.Render.RenderGatheredOutput[Writer],rules:laika.api.Transform.Rules):laika.api.Transform.TransformGatheredOutput[Writer]" title="Permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#&lt;init&gt;(parse:laika.api.Parse,render:laika.api.Render.RenderGatheredOutput[Writer],config:laika.config.OperationConfig):laika.api.Transform.TransformGatheredOutput[Writer]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -227,19 +223,19 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">TransformGatheredOutput</span><span class="params">(<span name="parse">parse: <a href="Parse.html" class="extype" name="laika.api.Parse">Parse</a></span>, <span name="render">render: <a href="Render$$RenderGatheredOutput.html" class="extype" name="laika.api.Render.RenderGatheredOutput">RenderGatheredOutput</a>[<span class="extype" name="laika.api.Transform.TransformGatheredOutput.Writer">Writer</span>]</span>, <span name="rules">rules: <span class="extype" name="laika.api.Transform.Rules">Rules</span></span>)</span>
+        <span class="name">TransformGatheredOutput</span><span class="params">(<span name="parse">parse: <a href="Parse.html" class="extype" name="laika.api.Parse">Parse</a></span>, <span name="render">render: <a href="Render$$RenderGatheredOutput.html" class="extype" name="laika.api.Render.RenderGatheredOutput">RenderGatheredOutput</a>[<span class="extype" name="laika.api.Transform.TransformGatheredOutput.Writer">Writer</span>]</span>, <span name="config">config: <a href="../config/OperationConfig.html" class="extype" name="laika.config.OperationConfig">OperationConfig</a></span>)</span>
       </span>
       
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">parse</dt><dd class="cmt"><p>the parser to use for parsing the input</p></dd><dt class="param">render</dt><dd class="cmt"><p>the renderer to use for producing the output</p></dd><dt class="param">rules</dt><dd class="cmt"><p>the rewrite rules to apply between parsing and rendering</p></dd></dl></div>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">parse</dt><dd class="cmt"><p>the parser to use for parsing the input</p></dd><dt class="param">render</dt><dd class="cmt"><p>the renderer to use for producing the output</p></dd></dl></div>
     </li></ol>
             </div>
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="laika.api.Transform.TransformGatheredOutput.DocTarget" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="DocTarget=laika.api.Render.BinaryTarget"></a><a id="DocTarget:DocTarget"></a>
+              <ol><li name="laika.api.Transform.TransformGatheredOutput.InputResult" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="InputResult=laika.io.BinaryOutputOps"></a><a id="InputResult:InputResult"></a>
       <span class="permalink">
-      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#DocTarget=laika.api.Render.BinaryTarget" title="Permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#InputResult=laika.io.BinaryOutputOps" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -248,29 +244,28 @@
         <span class="kind">type</span>
       </span>
       <span class="symbol">
-        <span class="name">DocTarget</span><span class="result alias"> = <a href="Render$$BinaryTarget.html" class="extype" name="laika.api.Render.BinaryTarget">BinaryTarget</a></span>
+        <span class="name">InputResult</span><span class="result alias"> = <a href="../io/BinaryOutputOps.html" class="extype" name="laika.io.BinaryOutputOps">BinaryOutputOps</a></span>
       </span>
       
-      <p class="shortcomment cmt">The type of the transformation target for a single input document.</p><div class="fullcomment"><div class="comment cmt"><p>The type of the transformation target for a single input document.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Transform.TransformGatheredOutput">TransformGatheredOutput</a> → <a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
-    </li><li name="laika.api.Transform.TransformGatheredOutput.GatherTarget" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="GatherTargetextendsTransform.TreeConfigBuilder[TransformGatheredOutput.this.GatherTarget]withRender.BinaryTarget"></a><a id="GatherTarget:GatherTarget"></a>
+      <p class="shortcomment cmt">The type of the result returned by all operations of this trait.</p><div class="fullcomment"><div class="comment cmt"><p>The type of the result returned by all operations of this trait.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Transform.TransformGatheredOutput">TransformGatheredOutput</a> → <a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a> → <a href="../io/InputOps.html" class="extype" name="laika.io.InputOps">InputOps</a></dd></dl></div>
+    </li><li name="laika.api.Transform.TransformGatheredOutput.InputTreeResult" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="InputTreeResult=laika.io.BinaryOutputOps"></a><a id="InputTreeResult:InputTreeResult"></a>
       <span class="permalink">
-      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#GatherTargetextendsTransform.TreeConfigBuilder[TransformGatheredOutput.this.GatherTarget]withRender.BinaryTarget" title="Permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#InputTreeResult=laika.io.BinaryOutputOps" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">class</span>
+        <span class="kind">type</span>
       </span>
       <span class="symbol">
-        <a title="A target for a render operation that accepts only binary output, the final result of the gathering operation that merges the individual render results obtained from transforming the input tree." href="Transform$$TransformGatheredOutput$GatherTarget.html"><span class="name">GatherTarget</span></a><span class="result"> extends <a href="Transform$$TreeConfigBuilder.html" class="extype" name="laika.api.Transform.TreeConfigBuilder">TreeConfigBuilder</a>[<a href="Transform$$TransformGatheredOutput$GatherTarget.html" class="extype" name="laika.api.Transform.TransformGatheredOutput.GatherTarget">GatherTarget</a>] with <a href="Render$$BinaryTarget.html" class="extype" name="laika.api.Render.BinaryTarget">BinaryTarget</a></span>
+        <span class="name">InputTreeResult</span><span class="result alias"> = <a href="../io/BinaryOutputOps.html" class="extype" name="laika.io.BinaryOutputOps">BinaryOutputOps</a></span>
       </span>
       
-      <p class="shortcomment cmt">A target for a render operation that accepts only binary output, the final
- result of the gathering operation that merges the individual render results
- obtained from transforming the input tree.</p>
+      <p class="shortcomment cmt">The type of the result returned by all operations of this trait.</p><div class="fullcomment"><div class="comment cmt"><p>The type of the result returned by all operations of this trait.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Transform.TransformGatheredOutput">TransformGatheredOutput</a> → <a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a> → <a href="../io/InputTreeOps.html" class="extype" name="laika.io.InputTreeOps">InputTreeOps</a></dd></dl></div>
     </li><li name="laika.api.Transform.TransformGatheredOutput.ThisType" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ThisType=laika.api.Transform.TransformGatheredOutput[Writer]"></a><a id="ThisType:ThisType"></a>
       <span class="permalink">
@@ -286,25 +281,9 @@
         <span class="name">ThisType</span><span class="result alias"> = <a href="" class="extype" name="laika.api.Transform.TransformGatheredOutput">TransformGatheredOutput</a>[<span class="extype" name="laika.api.Transform.TransformGatheredOutput.Writer">Writer</span>]</span>
       </span>
       
-      <p class="shortcomment cmt">The concrete implementation of the abstract Transform type.</p><div class="fullcomment"><div class="comment cmt"><p>The concrete implementation of the abstract Transform type.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Transform.TransformGatheredOutput">TransformGatheredOutput</a> → <a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
-    </li><li name="laika.api.Transform.TransformGatheredOutput.TreeTarget" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="TreeTarget=TransformGatheredOutput.this.GatherTarget"></a><a id="TreeTarget:TreeTarget"></a>
-      <span class="permalink">
-      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#TreeTarget=TransformGatheredOutput.this.GatherTarget" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">type</span>
-      </span>
-      <span class="symbol">
-        <span class="name">TreeTarget</span><span class="result alias"> = <a href="Transform$$TransformGatheredOutput$GatherTarget.html" class="extype" name="laika.api.Transform.TransformGatheredOutput.GatherTarget">GatherTarget</a></span>
-      </span>
-      
-      <p class="shortcomment cmt">The type of the transformation target for an entire tree of input documents.</p><div class="fullcomment"><div class="comment cmt"><p>The type of the transformation target for an entire tree of input documents.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Transform.TransformGatheredOutput">TransformGatheredOutput</a> → <a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
+      <p class="shortcomment cmt">The type of the operation being configured by this instance
+</p><div class="fullcomment"><div class="comment cmt"><p>The type of the operation being configured by this instance
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Transform.TransformGatheredOutput">TransformGatheredOutput</a> → <a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a> → <a href="../config/OperationConfigBuilder.html" class="extype" name="laika.config.OperationConfigBuilder">OperationConfigBuilder</a></dd></dl></div>
     </li></ol>
             </div>
 
@@ -401,10 +380,27 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.api.Transform.TransformGatheredOutput#creatingRule" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="creatingRule(newRule:laika.rewrite.DocumentCursor=&gt;laika.tree.Elements.RewriteRule):TransformGatheredOutput.this.ThisType"></a><a id="creatingRule((DocumentCursor)⇒RewriteRule):ThisType"></a>
+    </li><li name="laika.api.Transform.TransformGatheredOutput#config" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="config:laika.config.OperationConfig"></a><a id="config:OperationConfig"></a>
       <span class="permalink">
-      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#creatingRule(newRule:laika.rewrite.DocumentCursor=&gt;laika.tree.Elements.RewriteRule):TransformGatheredOutput.this.ThisType" title="Permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#config:laika.config.OperationConfig" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">config</span><span class="result">: <a href="../config/OperationConfig.html" class="extype" name="laika.config.OperationConfig">OperationConfig</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">The configuration to use for all input operations.</p><div class="fullcomment"><div class="comment cmt"><p>The configuration to use for all input operations.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Transform.TransformGatheredOutput">TransformGatheredOutput</a> → <a href="../io/InputTreeOps.html" class="extype" name="laika.io.InputTreeOps">InputTreeOps</a> → <a href="../config/OperationConfigBuilder.html" class="extype" name="laika.config.OperationConfigBuilder">OperationConfigBuilder</a></dd></dl></div>
+    </li><li name="laika.config.TransformConfigBuilder#creatingRule" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="creatingRule(newRule:laika.ast.DocumentCursor=&gt;laika.ast.RewriteRule):TransformConfigBuilder.this.ThisType"></a><a id="creatingRule((DocumentCursor)⇒RewriteRule):ThisType"></a>
+      <span class="permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#creatingRule(newRule:laika.ast.DocumentCursor=&gt;laika.ast.RewriteRule):TransformConfigBuilder.this.ThisType" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -413,15 +409,15 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">creatingRule</span><span class="params">(<span name="newRule">newRule: (<a href="../rewrite/DocumentCursor.html" class="extype" name="laika.rewrite.DocumentCursor">DocumentCursor</a>) ⇒ <a href="../tree/Elements$.html#RewriteRule=PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]" class="extmbr" name="laika.tree.Elements.RewriteRule">RewriteRule</a></span>)</span><span class="result">: <a href="#ThisType=laika.api.Transform.TransformGatheredOutput[Writer]" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.ThisType">ThisType</a></span>
+        <span class="name">creatingRule</span><span class="params">(<span name="newRule">newRule: (<a href="../ast/DocumentCursor.html" class="extype" name="laika.ast.DocumentCursor">DocumentCursor</a>) ⇒ <a href="../ast/index.html#RewriteRule=PartialFunction[laika.ast.Element,Option[laika.ast.Element]]" class="extmbr" name="laika.ast.RewriteRule">RewriteRule</a></span>)</span><span class="result">: <a href="#ThisType=laika.api.Transform.TransformGatheredOutput[Writer]" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.ThisType">ThisType</a></span>
       </span>
       
-      <p class="shortcomment cmt">Specifies a rewrite rule to be applied to the document tree model between the
- parse and render operations.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies a rewrite rule to be applied to the document tree model between the
+      <p class="shortcomment cmt"> Specifies a rewrite rule to be applied to the document tree model between the
+ parse and render operations.</p><div class="fullcomment"><div class="comment cmt"><p> Specifies a rewrite rule to be applied to the document tree model between the
  parse and render operations. This is identical to calling <code>Document.rewrite</code>
  directly, but if there is no need to otherwise access the document instance
  and just chain parse and render operations this hook is more convenient.</p><p> The difference of this method to the <code>usingRule</code> method is that it expects a function
- that expects a Document instance and returns the rewrite rule. This way the full document
+ that takes a Document instance and returns the rewrite rule. This way the full document
  can be queried before any rule is applied. This is necessary in cases where the rule
  (which gets applied node-by-node) depends on information from other nodes. An example
  from the built-in rewrite rules is the rule that resolves link references. To replace
@@ -434,7 +430,7 @@
  any element container passed to the rule only contains children which have already
  been processed.</p><p> In case multiple rewrite rules need to be applied it may be more efficient to
  first combine them with <code>orElse</code>.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Transform.TransformGatheredOutput">TransformGatheredOutput</a> → <a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../config/TransformConfigBuilder.html" class="extype" name="laika.config.TransformConfigBuilder">TransformConfigBuilder</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -489,10 +485,26 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.api.Transform#fromDirectories" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="fromDirectories(roots:Seq[java.io.File],exclude:laika.io.InputProvider.FileFilter)(implicitcodec:scala.io.Codec):Transform.this.TreeTarget"></a><a id="fromDirectories(Seq[File],FileFilter)(Codec):TreeTarget"></a>
+    </li><li name="laika.api.Transform#format" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="format:laika.factory.RenderFormat[Writer]"></a><a id="format:RenderFormat[Writer]"></a>
       <span class="permalink">
-      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromDirectories(roots:Seq[java.io.File],exclude:laika.io.InputProvider.FileFilter)(implicitcodec:scala.io.Codec):Transform.this.TreeTarget" title="Permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#format:laika.factory.RenderFormat[Writer]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">format</span><span class="result">: <a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a>[<span class="extype" name="laika.api.Transform.TransformGatheredOutput.Writer">Writer</span>]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a> → <a href="../config/RenderConfigBuilder.html" class="extype" name="laika.config.RenderConfigBuilder">RenderConfigBuilder</a></dd></dl></div>
+    </li><li name="laika.io.InputTreeOps#fromDefaultDirectory" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromDefaultDirectory(exclude:laika.io.InputTree.FileFilter)(implicitcodec:scala.io.Codec):InputTreeOps.this.InputTreeResult"></a><a id="fromDefaultDirectory(FileFilter)(Codec):InputTreeResult"></a>
+      <span class="permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromDefaultDirectory(exclude:laika.io.InputTree.FileFilter)(implicitcodec:scala.io.Codec):InputTreeOps.this.InputTreeResult" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -501,21 +513,17 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">fromDirectories</span><span class="params">(<span name="roots">roots: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="java.io.File">File</span>]</span>, <span name="exclude">exclude: <a href="../io/InputProvider$.html#FileFilter=java.io.File=&gt;Boolean" class="extmbr" name="laika.io.InputProvider.FileFilter">FileFilter</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="#TreeTarget=TransformGatheredOutput.this.GatherTarget" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.TreeTarget">TreeTarget</a></span>
+        <span class="name">fromDefaultDirectory</span><span class="params">(<span name="exclude">exclude: <a href="../io/InputTree$.html#FileFilter=java.io.File=&gt;Boolean" class="extmbr" name="laika.io.InputTree.FileFilter">FileFilter</a> = <span class="symbol"><span class="name"><a href="../index.html">hiddenFileFilter</a></span></span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="#InputTreeResult=laika.io.BinaryOutputOps" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.InputTreeResult">InputTreeResult</a></span>
       </span>
       
-      <p class="shortcomment cmt">Parses files from the specified directories and its subdirectories,
- merging them into a tree with a single root
- and returns a new target instance which allows to specify the output and
- other configuration options.</p><div class="fullcomment"><div class="comment cmt"><p>Parses files from the specified directories and its subdirectories,
- merging them into a tree with a single root
- and returns a new target instance which allows to specify the output and
- other configuration options.
-</p></div><dl class="paramcmts block"><dt class="param">roots</dt><dd class="cmt"><p>the root directories to traverse</p></dd><dt class="param">exclude</dt><dd class="cmt"><p>the files to exclude from processing</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
-    </li><li name="laika.api.Transform#fromDirectories" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="fromDirectories(roots:Seq[java.io.File])(implicitcodec:scala.io.Codec):Transform.this.TreeTarget"></a><a id="fromDirectories(Seq[File])(Codec):TreeTarget"></a>
+      <p class="shortcomment cmt"> Returns the result obtained by parsing files from the
+ current working directory.</p><div class="fullcomment"><div class="comment cmt"><p> Returns the result obtained by parsing files from the
+ current working directory.
+</p></div><dl class="paramcmts block"><dt class="param">exclude</dt><dd class="cmt"><p>the files to exclude from processing</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../io/InputTreeOps.html" class="extype" name="laika.io.InputTreeOps">InputTreeOps</a></dd></dl></div>
+    </li><li name="laika.io.InputTreeOps#fromDirectories" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromDirectories(roots:Seq[java.io.File],exclude:laika.io.InputTree.FileFilter)(implicitcodec:scala.io.Codec):InputTreeOps.this.InputTreeResult"></a><a id="fromDirectories(Seq[File],FileFilter)(Codec):InputTreeResult"></a>
       <span class="permalink">
-      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromDirectories(roots:Seq[java.io.File])(implicitcodec:scala.io.Codec):Transform.this.TreeTarget" title="Permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromDirectories(roots:Seq[java.io.File],exclude:laika.io.InputTree.FileFilter)(implicitcodec:scala.io.Codec):InputTreeOps.this.InputTreeResult" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -524,21 +532,19 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">fromDirectories</span><span class="params">(<span name="roots">roots: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="java.io.File">File</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="#TreeTarget=TransformGatheredOutput.this.GatherTarget" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.TreeTarget">TreeTarget</a></span>
+        <span class="name">fromDirectories</span><span class="params">(<span name="roots">roots: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="java.io.File">File</span>]</span>, <span name="exclude">exclude: <a href="../io/InputTree$.html#FileFilter=java.io.File=&gt;Boolean" class="extmbr" name="laika.io.InputTree.FileFilter">FileFilter</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="#InputTreeResult=laika.io.BinaryOutputOps" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.InputTreeResult">InputTreeResult</a></span>
       </span>
       
-      <p class="shortcomment cmt">Parses files from the specified directories and its subdirectories,
- merging them into a tree with a single root
- and returns a new target instance which allows to specify the output and
- other configuration options.</p><div class="fullcomment"><div class="comment cmt"><p>Parses files from the specified directories and its subdirectories,
- merging them into a tree with a single root
- and returns a new target instance which allows to specify the output and
- other configuration options.
-</p></div><dl class="paramcmts block"><dt class="param">roots</dt><dd class="cmt"><p>the root directories to traverse</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
-    </li><li name="laika.api.Transform#fromDirectory" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="fromDirectory(dir:java.io.File,exclude:laika.io.InputProvider.FileFilter)(implicitcodec:scala.io.Codec):Transform.this.TreeTarget"></a><a id="fromDirectory(File,FileFilter)(Codec):TreeTarget"></a>
+      <p class="shortcomment cmt"> Returns the result obtained by parsing files from the
+ specified directories and its subdirectories, merging them into
+ a tree with a single root.</p><div class="fullcomment"><div class="comment cmt"><p> Returns the result obtained by parsing files from the
+ specified directories and its subdirectories, merging them into
+ a tree with a single root.
+</p></div><dl class="paramcmts block"><dt class="param">roots</dt><dd class="cmt"><p>the root directories to traverse</p></dd><dt class="param">exclude</dt><dd class="cmt"><p>the files to exclude from processing</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../io/InputTreeOps.html" class="extype" name="laika.io.InputTreeOps">InputTreeOps</a></dd></dl></div>
+    </li><li name="laika.io.InputTreeOps#fromDirectories" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromDirectories(roots:Seq[java.io.File])(implicitcodec:scala.io.Codec):InputTreeOps.this.InputTreeResult"></a><a id="fromDirectories(Seq[File])(Codec):InputTreeResult"></a>
       <span class="permalink">
-      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromDirectory(dir:java.io.File,exclude:laika.io.InputProvider.FileFilter)(implicitcodec:scala.io.Codec):Transform.this.TreeTarget" title="Permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromDirectories(roots:Seq[java.io.File])(implicitcodec:scala.io.Codec):InputTreeOps.this.InputTreeResult" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -547,19 +553,19 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">fromDirectory</span><span class="params">(<span name="dir">dir: <span class="extype" name="java.io.File">File</span></span>, <span name="exclude">exclude: <a href="../io/InputProvider$.html#FileFilter=java.io.File=&gt;Boolean" class="extmbr" name="laika.io.InputProvider.FileFilter">FileFilter</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="#TreeTarget=TransformGatheredOutput.this.GatherTarget" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.TreeTarget">TreeTarget</a></span>
+        <span class="name">fromDirectories</span><span class="params">(<span name="roots">roots: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="java.io.File">File</span>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="#InputTreeResult=laika.io.BinaryOutputOps" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.InputTreeResult">InputTreeResult</a></span>
       </span>
       
-      <p class="shortcomment cmt">Parses files from the specified directory and its subdirectories
- and returns a new target instance which allows to specify the output and
- other configuration options.</p><div class="fullcomment"><div class="comment cmt"><p>Parses files from the specified directory and its subdirectories
- and returns a new target instance which allows to specify the output and
- other configuration options.
-</p></div><dl class="paramcmts block"><dt class="param">dir</dt><dd class="cmt"><p>the directory to traverse</p></dd><dt class="param">exclude</dt><dd class="cmt"><p>the files to exclude from processing</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.</p></dd><dt>returns</dt><dd class="cmt"><p>a builder which allows to specify the output and other configuration options</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
-    </li><li name="laika.api.Transform#fromDirectory" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="fromDirectory(dir:java.io.File)(implicitcodec:scala.io.Codec):Transform.this.TreeTarget"></a><a id="fromDirectory(File)(Codec):TreeTarget"></a>
+      <p class="shortcomment cmt"> Returns the result obtained by parsing files from the
+ specified directories and its subdirectories, merging them into
+ a tree with a single root.</p><div class="fullcomment"><div class="comment cmt"><p> Returns the result obtained by parsing files from the
+ specified directories and its subdirectories, merging them into
+ a tree with a single root.
+</p></div><dl class="paramcmts block"><dt class="param">roots</dt><dd class="cmt"><p>the root directories to traverse</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../io/InputTreeOps.html" class="extype" name="laika.io.InputTreeOps">InputTreeOps</a></dd></dl></div>
+    </li><li name="laika.io.InputTreeOps#fromDirectory" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromDirectory(dir:java.io.File,exclude:laika.io.InputTree.FileFilter)(implicitcodec:scala.io.Codec):InputTreeOps.this.InputTreeResult"></a><a id="fromDirectory(File,FileFilter)(Codec):InputTreeResult"></a>
       <span class="permalink">
-      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromDirectory(dir:java.io.File)(implicitcodec:scala.io.Codec):Transform.this.TreeTarget" title="Permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromDirectory(dir:java.io.File,exclude:laika.io.InputTree.FileFilter)(implicitcodec:scala.io.Codec):InputTreeOps.this.InputTreeResult" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -568,19 +574,17 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">fromDirectory</span><span class="params">(<span name="dir">dir: <span class="extype" name="java.io.File">File</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="#TreeTarget=TransformGatheredOutput.this.GatherTarget" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.TreeTarget">TreeTarget</a></span>
+        <span class="name">fromDirectory</span><span class="params">(<span name="dir">dir: <span class="extype" name="java.io.File">File</span></span>, <span name="exclude">exclude: <a href="../io/InputTree$.html#FileFilter=java.io.File=&gt;Boolean" class="extmbr" name="laika.io.InputTree.FileFilter">FileFilter</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="#InputTreeResult=laika.io.BinaryOutputOps" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.InputTreeResult">InputTreeResult</a></span>
       </span>
       
-      <p class="shortcomment cmt">Parses files from the specified directory and its subdirectories
- and returns a new target instance which allows to specify the output and
- other configuration options.</p><div class="fullcomment"><div class="comment cmt"><p>Parses files from the specified directory and its subdirectories
- and returns a new target instance which allows to specify the output and
- other configuration options.
-</p></div><dl class="paramcmts block"><dt class="param">dir</dt><dd class="cmt"><p>the directory to traverse</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.</p></dd><dt>returns</dt><dd class="cmt"><p>a builder which allows to specify the output and other configuration options</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
-    </li><li name="laika.api.Transform#fromDirectory" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="fromDirectory(name:String,exclude:laika.io.InputProvider.FileFilter)(implicitcodec:scala.io.Codec):Transform.this.TreeTarget"></a><a id="fromDirectory(String,FileFilter)(Codec):TreeTarget"></a>
+      <p class="shortcomment cmt"> Returns the result obtained by parsing files from the
+ specified directory and its subdirectories.</p><div class="fullcomment"><div class="comment cmt"><p> Returns the result obtained by parsing files from the
+ specified directory and its subdirectories.
+</p></div><dl class="paramcmts block"><dt class="param">dir</dt><dd class="cmt"><p>the root directory to traverse</p></dd><dt class="param">exclude</dt><dd class="cmt"><p>the files to exclude from processing</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../io/InputTreeOps.html" class="extype" name="laika.io.InputTreeOps">InputTreeOps</a></dd></dl></div>
+    </li><li name="laika.io.InputTreeOps#fromDirectory" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromDirectory(dir:java.io.File)(implicitcodec:scala.io.Codec):InputTreeOps.this.InputTreeResult"></a><a id="fromDirectory(File)(Codec):InputTreeResult"></a>
       <span class="permalink">
-      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromDirectory(name:String,exclude:laika.io.InputProvider.FileFilter)(implicitcodec:scala.io.Codec):Transform.this.TreeTarget" title="Permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromDirectory(dir:java.io.File)(implicitcodec:scala.io.Codec):InputTreeOps.this.InputTreeResult" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -589,19 +593,17 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">fromDirectory</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="exclude">exclude: <a href="../io/InputProvider$.html#FileFilter=java.io.File=&gt;Boolean" class="extmbr" name="laika.io.InputProvider.FileFilter">FileFilter</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="#TreeTarget=TransformGatheredOutput.this.GatherTarget" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.TreeTarget">TreeTarget</a></span>
+        <span class="name">fromDirectory</span><span class="params">(<span name="dir">dir: <span class="extype" name="java.io.File">File</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="#InputTreeResult=laika.io.BinaryOutputOps" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.InputTreeResult">InputTreeResult</a></span>
       </span>
       
-      <p class="shortcomment cmt">Parses files from the specified directory and its subdirectories
- and returns a new target instance which allows to specify the output and
- other configuration options.</p><div class="fullcomment"><div class="comment cmt"><p>Parses files from the specified directory and its subdirectories
- and returns a new target instance which allows to specify the output and
- other configuration options.
-</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the directory to traverse</p></dd><dt class="param">exclude</dt><dd class="cmt"><p>the files to exclude from processing</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.</p></dd><dt>returns</dt><dd class="cmt"><p>a builder which allows to specify the output and other configuration options</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
-    </li><li name="laika.api.Transform#fromDirectory" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="fromDirectory(name:String)(implicitcodec:scala.io.Codec):Transform.this.TreeTarget"></a><a id="fromDirectory(String)(Codec):TreeTarget"></a>
+      <p class="shortcomment cmt"> Returns the result obtained by parsing files from the
+ specified directory and its subdirectories.</p><div class="fullcomment"><div class="comment cmt"><p> Returns the result obtained by parsing files from the
+ specified directory and its subdirectories.
+</p></div><dl class="paramcmts block"><dt class="param">dir</dt><dd class="cmt"><p>the root directory to traverse</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../io/InputTreeOps.html" class="extype" name="laika.io.InputTreeOps">InputTreeOps</a></dd></dl></div>
+    </li><li name="laika.io.InputTreeOps#fromDirectory" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromDirectory(name:String,exclude:laika.io.InputTree.FileFilter)(implicitcodec:scala.io.Codec):InputTreeOps.this.InputTreeResult"></a><a id="fromDirectory(String,FileFilter)(Codec):InputTreeResult"></a>
       <span class="permalink">
-      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromDirectory(name:String)(implicitcodec:scala.io.Codec):Transform.this.TreeTarget" title="Permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromDirectory(name:String,exclude:laika.io.InputTree.FileFilter)(implicitcodec:scala.io.Codec):InputTreeOps.this.InputTreeResult" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -610,19 +612,36 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">fromDirectory</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="#TreeTarget=TransformGatheredOutput.this.GatherTarget" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.TreeTarget">TreeTarget</a></span>
+        <span class="name">fromDirectory</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="exclude">exclude: <a href="../io/InputTree$.html#FileFilter=java.io.File=&gt;Boolean" class="extmbr" name="laika.io.InputTree.FileFilter">FileFilter</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="#InputTreeResult=laika.io.BinaryOutputOps" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.InputTreeResult">InputTreeResult</a></span>
       </span>
       
-      <p class="shortcomment cmt">Parses files from the specified directory and its subdirectories
- and returns a new target instance which allows to specify the output and
- other configuration options.</p><div class="fullcomment"><div class="comment cmt"><p>Parses files from the specified directory and its subdirectories
- and returns a new target instance which allows to specify the output and
- other configuration options.
-</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the directory to traverse</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.</p></dd><dt>returns</dt><dd class="cmt"><p>a builder which allows to specify the output and other configuration options</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
+      <p class="shortcomment cmt"> Returns the result obtained by parsing files from the
+ specified directory and its subdirectories.</p><div class="fullcomment"><div class="comment cmt"><p> Returns the result obtained by parsing files from the
+ specified directory and its subdirectories.
+</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the directory to traverse</p></dd><dt class="param">exclude</dt><dd class="cmt"><p>the files to exclude from processing</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../io/InputTreeOps.html" class="extype" name="laika.io.InputTreeOps">InputTreeOps</a></dd></dl></div>
+    </li><li name="laika.io.InputTreeOps#fromDirectory" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromDirectory(name:String)(implicitcodec:scala.io.Codec):InputTreeOps.this.InputTreeResult"></a><a id="fromDirectory(String)(Codec):InputTreeResult"></a>
+      <span class="permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromDirectory(name:String)(implicitcodec:scala.io.Codec):InputTreeOps.this.InputTreeResult" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fromDirectory</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="#InputTreeResult=laika.io.BinaryOutputOps" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.InputTreeResult">InputTreeResult</a></span>
+      </span>
+      
+      <p class="shortcomment cmt"> Returns the result obtained by parsing files from the
+ specified directory and its subdirectories.</p><div class="fullcomment"><div class="comment cmt"><p> Returns the result obtained by parsing files from the
+ specified directory and its subdirectories.
+</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the directory to traverse</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the files, if not specified the platform default will be used.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../io/InputTreeOps.html" class="extype" name="laika.io.InputTreeOps">InputTreeOps</a></dd></dl></div>
     </li><li name="laika.api.Transform.TransformGatheredOutput#fromDocument" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="fromDocument(doc:laika.tree.Documents.Document):laika.api.Render.BinaryTarget"></a><a id="fromDocument(Document):BinaryTarget"></a>
+      <a id="fromDocument(doc:laika.ast.Document):laika.io.BinaryOutputOps"></a><a id="fromDocument(Document):BinaryOutputOps"></a>
       <span class="permalink">
-      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromDocument(doc:laika.tree.Documents.Document):laika.api.Render.BinaryTarget" title="Permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromDocument(doc:laika.ast.Document):laika.io.BinaryOutputOps" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -631,17 +650,17 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">fromDocument</span><span class="params">(<span name="doc">doc: <a href="../tree/Documents$$Document.html" class="extype" name="laika.tree.Documents.Document">Document</a></span>)</span><span class="result">: <a href="Render$$BinaryTarget.html" class="extype" name="laika.api.Render.BinaryTarget">BinaryTarget</a></span>
+        <span class="name">fromDocument</span><span class="params">(<span name="doc">doc: <a href="../ast/Document.html" class="extype" name="laika.ast.Document">Document</a></span>)</span><span class="result">: <a href="../io/BinaryOutputOps.html" class="extype" name="laika.io.BinaryOutputOps">BinaryOutputOps</a></span>
       </span>
       
       <p class="shortcomment cmt">Renders the specified document and returns a new target instance
- which allows to specify the output and other configuration options.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the specified document and returns a new target instance
- which allows to specify the output and other configuration options.
+ which allows to specify the output.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the specified document and returns a new target instance
+ which allows to specify the output.
 </p></div><dl class="paramcmts block"><dt class="param">doc</dt><dd class="cmt"><p>the document to transform</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Transform.TransformGatheredOutput">TransformGatheredOutput</a> → <a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
-    </li><li name="laika.api.Transform#fromFile" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="fromFile(file:java.io.File)(implicitcodec:scala.io.Codec):Transform.this.DocTarget"></a><a id="fromFile(File)(Codec):DocTarget"></a>
+    </li><li name="laika.io.InputOps#fromFile" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromFile(file:java.io.File)(implicitcodec:scala.io.Codec):InputOps.this.InputResult"></a><a id="fromFile(File)(Codec):InputResult"></a>
       <span class="permalink">
-      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromFile(file:java.io.File)(implicitcodec:scala.io.Codec):Transform.this.DocTarget" title="Permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromFile(file:java.io.File)(implicitcodec:scala.io.Codec):InputOps.this.InputResult" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -650,18 +669,16 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">fromFile</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="#DocTarget=laika.api.Render.BinaryTarget" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.DocTarget">DocTarget</a></span>
+        <span class="name">fromFile</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="#InputResult=laika.io.BinaryOutputOps" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.InputResult">InputResult</a></span>
       </span>
       
-      <p class="shortcomment cmt">Parses the specified file
- and returns a new Operation instance which allows to specify the output.</p><div class="fullcomment"><div class="comment cmt"><p>Parses the specified file
- and returns a new Operation instance which allows to specify the output.
+      <p class="shortcomment cmt">Returns the result from parsing the specified file.</p><div class="fullcomment"><div class="comment cmt"><p>Returns the result from parsing the specified file.
  Any kind of character input is valid, including empty files.
-</p></div><dl class="paramcmts block"><dt class="param">file</dt><dd class="cmt"><p>the file to read from</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the file, if not specified the platform default will be used.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
-    </li><li name="laika.api.Transform#fromFile" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="fromFile(name:String)(implicitcodec:scala.io.Codec):Transform.this.DocTarget"></a><a id="fromFile(String)(Codec):DocTarget"></a>
+</p></div><dl class="paramcmts block"><dt class="param">file</dt><dd class="cmt"><p>the file to use as input</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the file, if not specified the platform default will be used.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../io/InputOps.html" class="extype" name="laika.io.InputOps">InputOps</a></dd></dl></div>
+    </li><li name="laika.io.InputOps#fromFile" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromFile(name:String)(implicitcodec:scala.io.Codec):InputOps.this.InputResult"></a><a id="fromFile(String)(Codec):InputResult"></a>
       <span class="permalink">
-      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromFile(name:String)(implicitcodec:scala.io.Codec):Transform.this.DocTarget" title="Permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromFile(name:String)(implicitcodec:scala.io.Codec):InputOps.this.InputResult" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -670,18 +687,16 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">fromFile</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="#DocTarget=laika.api.Render.BinaryTarget" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.DocTarget">DocTarget</a></span>
+        <span class="name">fromFile</span><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="#InputResult=laika.io.BinaryOutputOps" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.InputResult">InputResult</a></span>
       </span>
       
-      <p class="shortcomment cmt">Parses the file with the specified name
- and returns a new Operation instance which allows to specify the output.</p><div class="fullcomment"><div class="comment cmt"><p>Parses the file with the specified name
- and returns a new Operation instance which allows to specify the output.
+      <p class="shortcomment cmt">Returns the result from parsing the file with the specified name.</p><div class="fullcomment"><div class="comment cmt"><p>Returns the result from parsing the file with the specified name.
  Any kind of character input is valid, including empty files.
-</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the file to parse</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the file, if not specified the platform default will be used.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
-    </li><li name="laika.api.Transform#fromReader" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="fromReader(reader:java.io.Reader):Transform.this.DocTarget"></a><a id="fromReader(Reader):DocTarget"></a>
+</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the file to parse</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the file, if not specified the platform default will be used.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../io/InputOps.html" class="extype" name="laika.io.InputOps">InputOps</a></dd></dl></div>
+    </li><li name="laika.api.Transform#fromInput" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromInput(input:laika.io.Input):Transform.this.InputResult"></a><a id="fromInput(Input):InputResult"></a>
       <span class="permalink">
-      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromReader(reader:java.io.Reader):Transform.this.DocTarget" title="Permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromInput(input:laika.io.Input):Transform.this.InputResult" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -690,17 +705,17 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">fromReader</span><span class="params">(<span name="reader">reader: <span class="extype" name="java.io.Reader">Reader</span></span>)</span><span class="result">: <a href="#DocTarget=laika.api.Render.BinaryTarget" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.DocTarget">DocTarget</a></span>
+        <span class="name">fromInput</span><span class="params">(<span name="input">input: <a href="../io/Input.html" class="extype" name="laika.io.Input">Input</a></span>)</span><span class="result">: <a href="#InputResult=laika.io.BinaryOutputOps" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.InputResult">InputResult</a></span>
       </span>
       
-      <p class="shortcomment cmt">Parses the input from the specified reader
- and returns a new Operation instance which allows to specify the output.</p><div class="fullcomment"><div class="comment cmt"><p>Parses the input from the specified reader
- and returns a new Operation instance which allows to specify the output.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
-    </li><li name="laika.api.Transform#fromStream" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="fromStream(stream:java.io.InputStream)(implicitcodec:scala.io.Codec):Transform.this.DocTarget"></a><a id="fromStream(InputStream)(Codec):DocTarget"></a>
+      <p class="shortcomment cmt">Returns the result from parsing the specified input.</p><div class="fullcomment"><div class="comment cmt"><p>Returns the result from parsing the specified input.</p><p> This is a generic method based on Laika's IO abstraction layer that concrete
+ methods delegate to. Usually not used directly in application code, but
+ might come in handy for very special requirements.
+</p></div><dl class="paramcmts block"><dt class="param">input</dt><dd class="cmt"><p>the input for the parser</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a> → <a href="../io/InputOps.html" class="extype" name="laika.io.InputOps">InputOps</a></dd></dl></div>
+    </li><li name="laika.api.Transform#fromInputTree" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromInputTree(inputTree:laika.io.InputTree):Transform.this.InputTreeResult"></a><a id="fromInputTree(InputTree):InputTreeResult"></a>
       <span class="permalink">
-      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromStream(stream:java.io.InputStream)(implicitcodec:scala.io.Codec):Transform.this.DocTarget" title="Permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromInputTree(inputTree:laika.io.InputTree):Transform.this.InputTreeResult" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -709,17 +724,17 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">fromStream</span><span class="params">(<span name="stream">stream: <span class="extype" name="java.io.InputStream">InputStream</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="#DocTarget=laika.api.Render.BinaryTarget" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.DocTarget">DocTarget</a></span>
+        <span class="name">fromInputTree</span><span class="params">(<span name="inputTree">inputTree: <a href="../io/InputTree.html" class="extype" name="laika.io.InputTree">InputTree</a></span>)</span><span class="result">: <a href="#InputTreeResult=laika.io.BinaryOutputOps" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.InputTreeResult">InputTreeResult</a></span>
       </span>
       
-      <p class="shortcomment cmt">Parses the input from the specified stream
- and returns a new Operation instance which allows to specify the output.</p><div class="fullcomment"><div class="comment cmt"><p>Parses the input from the specified stream
- and returns a new Operation instance which allows to specify the output.
-</p></div><dl class="paramcmts block"><dt class="param">stream</dt><dd class="cmt"><p>the stream to use as input for the parser</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the stream, if not specified the platform default will be used.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
-    </li><li name="laika.api.Transform#fromString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="fromString(str:String):Transform.this.DocTarget"></a><a id="fromString(String):DocTarget"></a>
+      <p class="shortcomment cmt">Returns the result obtained by parsing files from the
+ specified input tree.</p><div class="fullcomment"><div class="comment cmt"><p>Returns the result obtained by parsing files from the
+ specified input tree.
+</p></div><dl class="paramcmts block"><dt class="param">inputTree</dt><dd class="cmt"><p>the input tree to process</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a> → <a href="../io/InputTreeOps.html" class="extype" name="laika.io.InputTreeOps">InputTreeOps</a></dd></dl></div>
+    </li><li name="laika.io.InputTreeOps#fromInputTree" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromInputTree(builder:laika.io.InputTree.InputTreeBuilder):InputTreeOps.this.InputTreeResult"></a><a id="fromInputTree(InputTreeBuilder):InputTreeResult"></a>
       <span class="permalink">
-      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromString(str:String):Transform.this.DocTarget" title="Permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromInputTree(builder:laika.io.InputTree.InputTreeBuilder):InputTreeOps.this.InputTreeResult" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -728,16 +743,69 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">fromString</span><span class="params">(<span name="str">str: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="#DocTarget=laika.api.Render.BinaryTarget" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.DocTarget">DocTarget</a></span>
+        <span class="name">fromInputTree</span><span class="params">(<span name="builder">builder: <a href="../io/InputTree$$InputTreeBuilder.html" class="extype" name="laika.io.InputTree.InputTreeBuilder">InputTreeBuilder</a></span>)</span><span class="result">: <a href="#InputTreeResult=laika.io.BinaryOutputOps" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.InputTreeResult">InputTreeResult</a></span>
       </span>
       
-      <p class="shortcomment cmt">Parses the specified string and returns a new Operation instance which allows to specify the output.</p><div class="fullcomment"><div class="comment cmt"><p>Parses the specified string and returns a new Operation instance which allows to specify the output.
+      <p class="shortcomment cmt"> Returns the result obtained by parsing files from the
+ specified input tree builder.</p><div class="fullcomment"><div class="comment cmt"><p> Returns the result obtained by parsing files from the
+ specified input tree builder.
+</p></div><dl class="paramcmts block"><dt class="param">builder</dt><dd class="cmt"><p>a builder for the input tree to process</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../io/InputTreeOps.html" class="extype" name="laika.io.InputTreeOps">InputTreeOps</a></dd></dl></div>
+    </li><li name="laika.io.InputOps#fromReader" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromReader(reader:java.io.Reader):InputOps.this.InputResult"></a><a id="fromReader(Reader):InputResult"></a>
+      <span class="permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromReader(reader:java.io.Reader):InputOps.this.InputResult" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fromReader</span><span class="params">(<span name="reader">reader: <span class="extype" name="java.io.Reader">Reader</span></span>)</span><span class="result">: <a href="#InputResult=laika.io.BinaryOutputOps" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.InputResult">InputResult</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Returns the result from parsing the input from the specified reader.</p><div class="fullcomment"><div class="comment cmt"><p>Returns the result from parsing the input from the specified reader.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../io/InputOps.html" class="extype" name="laika.io.InputOps">InputOps</a></dd></dl></div>
+    </li><li name="laika.io.InputOps#fromStream" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromStream(stream:java.io.InputStream)(implicitcodec:scala.io.Codec):InputOps.this.InputResult"></a><a id="fromStream(InputStream)(Codec):InputResult"></a>
+      <span class="permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromStream(stream:java.io.InputStream)(implicitcodec:scala.io.Codec):InputOps.this.InputResult" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fromStream</span><span class="params">(<span name="stream">stream: <span class="extype" name="java.io.InputStream">InputStream</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="#InputResult=laika.io.BinaryOutputOps" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.InputResult">InputResult</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Returns the result from parsing the input from the specified stream.</p><div class="fullcomment"><div class="comment cmt"><p>Returns the result from parsing the input from the specified stream.
+</p></div><dl class="paramcmts block"><dt class="param">stream</dt><dd class="cmt"><p>the stream to use as input for the parser</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the stream, if not specified the platform default will be used.</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../io/InputOps.html" class="extype" name="laika.io.InputOps">InputOps</a></dd></dl></div>
+    </li><li name="laika.io.InputOps#fromString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromString(str:String):InputOps.this.InputResult"></a><a id="fromString(String):InputResult"></a>
+      <span class="permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromString(str:String):InputOps.this.InputResult" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fromString</span><span class="params">(<span name="str">str: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="#InputResult=laika.io.BinaryOutputOps" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.InputResult">InputResult</a></span>
+      </span>
+      
+      <p class="shortcomment cmt"> Returns the result from parsing a the specified string.</p><div class="fullcomment"><div class="comment cmt"><p> Returns the result from parsing a the specified string.
  Any kind of input is valid, including an empty string.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../io/InputOps.html" class="extype" name="laika.io.InputOps">InputOps</a></dd></dl></div>
     </li><li name="laika.api.Transform.TransformGatheredOutput#fromTree" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="fromTree(input:laika.io.InputProvider.InputConfigBuilder):TransformGatheredOutput.this.GatherTarget"></a><a id="fromTree(InputConfigBuilder):GatherTarget"></a>
+      <a id="fromTree(tree:laika.ast.DocumentTree):laika.io.BinaryOutputOps"></a><a id="fromTree(DocumentTree):BinaryOutputOps"></a>
       <span class="permalink">
-      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromTree(input:laika.io.InputProvider.InputConfigBuilder):TransformGatheredOutput.this.GatherTarget" title="Permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#fromTree(tree:laika.ast.DocumentTree):laika.io.BinaryOutputOps" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -746,13 +814,13 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">fromTree</span><span class="params">(<span name="input">input: <a href="../io/InputProvider$$InputConfigBuilder.html" class="extype" name="laika.io.InputProvider.InputConfigBuilder">InputConfigBuilder</a></span>)</span><span class="result">: <a href="Transform$$TransformGatheredOutput$GatherTarget.html" class="extype" name="laika.api.Transform.TransformGatheredOutput.GatherTarget">GatherTarget</a></span>
+        <span class="name">fromTree</span><span class="params">(<span name="tree">tree: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <a href="../io/BinaryOutputOps.html" class="extype" name="laika.io.BinaryOutputOps">BinaryOutputOps</a></span>
       </span>
       
-      <p class="shortcomment cmt">Parses from the specified input and returns a new target instance
- which allows to specify the output and other configuration options.</p><div class="fullcomment"><div class="comment cmt"><p>Parses from the specified input and returns a new target instance
- which allows to specify the output and other configuration options.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Transform.TransformGatheredOutput">TransformGatheredOutput</a> → <a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
+      <p class="shortcomment cmt"> Renders the specified document tree and returns a new target instance
+ which allows to specify the output.</p><div class="fullcomment"><div class="comment cmt"><p> Renders the specified document tree and returns a new target instance
+ which allows to specify the output.
+</p></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the document tree to transform</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Transform.TransformGatheredOutput">TransformGatheredOutput</a> → <a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
@@ -791,6 +859,30 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.config.OperationConfigBuilder#inParallel" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="inParallel:OperationConfigBuilder.this.ThisType"></a><a id="inParallel:ThisType"></a>
+      <span class="permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#inParallel:OperationConfigBuilder.this.ThisType" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">inParallel</span><span class="result">: <a href="#ThisType=laika.api.Transform.TransformGatheredOutput[Writer]" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.ThisType">ThisType</a></span>
+      </span>
+      
+      <p class="shortcomment cmt"> Instructs the parser and/or renderer to process all inputs and outputs in parallel.</p><div class="fullcomment"><div class="comment cmt"><p> Instructs the parser and/or renderer to process all inputs and outputs in parallel.
+ The recursive structure of document trees will be flattened before parsing and rendering
+ and then get reassembled afterwards, therefore the parallel processing
+ includes all subtrees of the document tree.</p><p> The actual transformation is a three phase process, the first (parsing) and
+ third (rendering) can run in parallel. The second phase in the middle cannot,
+ as this is the document tree model rewrite step where things like cross references or
+ table of contents get processed that need access to more than just the current
+ document.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../config/OperationConfigBuilder.html" class="extype" name="laika.config.OperationConfigBuilder">OperationConfigBuilder</a></dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
@@ -861,10 +953,10 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.api.Transform.TransformGatheredOutput#rendering" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="rendering(customRenderer:Writer=&gt;laika.tree.Elements.RenderFunction):TransformGatheredOutput.this.ThisType"></a><a id="rendering((Writer)⇒RenderFunction):ThisType"></a>
+    </li><li name="laika.config.RenderConfigBuilder#rendering" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rendering(customRenderer:Writer=&gt;laika.ast.RenderFunction):RenderConfigBuilder.this.ThisType"></a><a id="rendering((Writer)⇒RenderFunction):ThisType"></a>
       <span class="permalink">
-      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#rendering(customRenderer:Writer=&gt;laika.tree.Elements.RenderFunction):TransformGatheredOutput.this.ThisType" title="Permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#rendering(customRenderer:Writer=&gt;laika.ast.RenderFunction):RenderConfigBuilder.this.ThisType" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -873,22 +965,22 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">rendering</span><span class="params">(<span name="customRenderer">customRenderer: (<span class="extype" name="laika.api.Transform.TransformGatheredOutput.Writer">Writer</span>) ⇒ <a href="../tree/Elements$.html#RenderFunction=PartialFunction[laika.tree.Elements.Element,Unit]" class="extmbr" name="laika.tree.Elements.RenderFunction">RenderFunction</a></span>)</span><span class="result">: <a href="#ThisType=laika.api.Transform.TransformGatheredOutput[Writer]" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.ThisType">ThisType</a></span>
+        <span class="name">rendering</span><span class="params">(<span name="customRenderer">customRenderer: (<span class="extype" name="laika.api.Transform.TransformGatheredOutput.Writer">Writer</span>) ⇒ <a href="../ast/index.html#RenderFunction=PartialFunction[laika.ast.Element,Unit]" class="extmbr" name="laika.ast.RenderFunction">RenderFunction</a></span>)</span><span class="result">: <a href="#ThisType=laika.api.Transform.TransformGatheredOutput[Writer]" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.ThisType">ThisType</a></span>
       </span>
       
-      <p class="shortcomment cmt">Specifies a custom render function that overrides one or more of the default
- renderers for the output format this instance uses.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies a custom render function that overrides one or more of the default
- renderers for the output format this instance uses.</p><p> This method expects a function that returns a partial function as the parameter.
+      <p class="shortcomment cmt"> Specifies a custom render function that overrides one or more of the default
+ renderers for the output format this instance uses.</p><div class="fullcomment"><div class="comment cmt"><p> Specifies a custom render function that overrides one or more of the default
+ renderers for the output format this instance uses.</p><p> This method expects a function that returns a partial function as the result.
  The outer function allows to capture the writer instance to write to and will
  only be invoked once. The partial function will then be invoked for each
- elememnt it is defined at.</p><p> Simple example for customizing the HTML output for emphasized text, adding a specific
+ element it is defined at.</p><p> Simple example for customizing the HTML output for emphasized text, adding a specific
  style class:</p><pre>Transform from Markdown to HTML rendering { out <span class="kw">=&gt;</span>
   { <span class="kw">case</span> Emphasized(content) <span class="kw">=&gt;</span> out &lt;&lt; <span class="lit">""</span><span class="lit">"&lt;em class="</span>big<span class="lit">">"</span><span class="lit">""</span> &lt;&lt; content &lt;&lt; <span class="lit">"&lt;/em>"</span> }
-} fromFile <span class="lit">"hello.md"</span> toFile <span class="lit">"hello.html"</span></pre></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Transform.TransformGatheredOutput">TransformGatheredOutput</a> → <a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
-    </li><li name="laika.api.Transform#rewrite" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="rewrite(tree:laika.tree.Documents.DocumentTree,rules:laika.api.Transform.Rules):laika.tree.Documents.DocumentTree"></a><a id="rewrite(DocumentTree,Rules):DocumentTree"></a>
+} fromFile <span class="lit">"hello.md"</span> toFile <span class="lit">"hello.html"</span></pre></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../config/RenderConfigBuilder.html" class="extype" name="laika.config.RenderConfigBuilder">RenderConfigBuilder</a></dd></dl></div>
+    </li><li name="laika.config.ParseConfigBuilder#strict" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="strict:ParseConfigBuilder.this.ThisType"></a><a id="strict:ThisType"></a>
       <span class="permalink">
-      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#rewrite(tree:laika.tree.Documents.DocumentTree,rules:laika.api.Transform.Rules):laika.tree.Documents.DocumentTree" title="Permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#strict:ParseConfigBuilder.this.ThisType" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -897,28 +989,16 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">rewrite</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>, <span name="rules">rules: <span class="extype" name="laika.api.Transform.Rules">Rules</span></span>)</span><span class="result">: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
+        <span class="name">strict</span><span class="result">: <a href="#ThisType=laika.api.Transform.TransformGatheredOutput[Writer]" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.ThisType">ThisType</a></span>
       </span>
       
-      <p class="shortcomment cmt">Rewrites the specified document tree, using the given rules.</p><div class="fullcomment"><div class="comment cmt"><p>Rewrites the specified document tree, using the given rules.
-</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected[this] </dd><dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
-    </li><li name="laika.api.Transform#rewrite" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="rewrite(doc:laika.tree.Documents.Document,rules:laika.api.Transform.Rules):laika.tree.Documents.Document"></a><a id="rewrite(Document,Rules):Document"></a>
-      <span class="permalink">
-      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#rewrite(doc:laika.tree.Documents.Document,rules:laika.api.Transform.Rules):laika.tree.Documents.Document" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">rewrite</span><span class="params">(<span name="doc">doc: <a href="../tree/Documents$$Document.html" class="extype" name="laika.tree.Documents.Document">Document</a></span>, <span name="rules">rules: <span class="extype" name="laika.api.Transform.Rules">Rules</span></span>)</span><span class="result">: <a href="../tree/Documents$$Document.html" class="extype" name="laika.tree.Documents.Document">Document</a></span>
-      </span>
-      
-      <p class="shortcomment cmt">Rewrites the specified document, using the given rules.</p><div class="fullcomment"><div class="comment cmt"><p>Rewrites the specified document, using the given rules.
-</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected[this] </dd><dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
+      <p class="shortcomment cmt"> Turns strict mode on for the target parser, switching off any
+ features not part of the original markup syntax.</p><div class="fullcomment"><div class="comment cmt"><p> Turns strict mode on for the target parser, switching off any
+ features not part of the original markup syntax.
+ This includes the registration of directives (custom tags), custom templates
+ with directives, as well as configuration sections at the start of the document.</p><p> Technically it removes all <code>ExtensionBundle</code> instances which do not have
+ the <code>useInStrictMode</code> flag set to true.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../config/ParseConfigBuilder.html" class="extype" name="laika.config.ParseConfigBuilder">ParseConfigBuilder</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
@@ -951,10 +1031,10 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="laika.api.Transform#usingRule" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="usingRule(newRule:laika.tree.Elements.RewriteRule):Transform.this.ThisType"></a><a id="usingRule(RewriteRule):ThisType"></a>
+    </li><li name="laika.config.RenderConfigBuilder#unformatted" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="unformatted:RenderConfigBuilder.this.ThisType"></a><a id="unformatted:ThisType"></a>
       <span class="permalink">
-      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#usingRule(newRule:laika.tree.Elements.RewriteRule):Transform.this.ThisType" title="Permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#unformatted:RenderConfigBuilder.this.ThisType" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -963,11 +1043,48 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">usingRule</span><span class="params">(<span name="newRule">newRule: <a href="../tree/Elements$.html#RewriteRule=PartialFunction[laika.tree.Elements.Element,Option[laika.tree.Elements.Element]]" class="extmbr" name="laika.tree.Elements.RewriteRule">RewriteRule</a></span>)</span><span class="result">: <a href="#ThisType=laika.api.Transform.TransformGatheredOutput[Writer]" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.ThisType">ThisType</a></span>
+        <span class="name">unformatted</span><span class="result">: <a href="#ThisType=laika.api.Transform.TransformGatheredOutput[Writer]" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.ThisType">ThisType</a></span>
       </span>
       
-      <p class="shortcomment cmt">Specifies a rewrite rule to be applied to the document tree model between the
- parse and render operations.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies a rewrite rule to be applied to the document tree model between the
+      <p class="shortcomment cmt"> Renders without any formatting (line breaks or indentation).</p><div class="fullcomment"><div class="comment cmt"><p> Renders without any formatting (line breaks or indentation).
+ Useful when storing the output in a database for example.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../config/RenderConfigBuilder.html" class="extype" name="laika.config.RenderConfigBuilder">RenderConfigBuilder</a></dd></dl></div>
+    </li><li name="laika.config.OperationConfigBuilder#using" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="using(bundles:laika.bundle.ExtensionBundle*):OperationConfigBuilder.this.ThisType"></a><a id="using(ExtensionBundle*):ThisType"></a>
+      <span class="permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#using(bundles:laika.bundle.ExtensionBundle*):OperationConfigBuilder.this.ThisType" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">using</span><span class="params">(<span name="bundles">bundles: <a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a>*</span>)</span><span class="result">: <a href="#ThisType=laika.api.Transform.TransformGatheredOutput[Writer]" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.ThisType">ThisType</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Returns a new instance with the specified extension bundles installed.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new instance with the specified extension bundles installed.
+Features in the new bundles may override features in already installed bundles.</p><p>Bundles are usually provided by libraries (by Laika itself or a 3rd-party extension library)
+or as re-usable building blocks by application code.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../config/OperationConfigBuilder.html" class="extype" name="laika.config.OperationConfigBuilder">OperationConfigBuilder</a></dd></dl></div>
+    </li><li name="laika.config.TransformConfigBuilder#usingRule" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="usingRule(newRule:laika.ast.RewriteRule):TransformConfigBuilder.this.ThisType"></a><a id="usingRule(RewriteRule):ThisType"></a>
+      <span class="permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#usingRule(newRule:laika.ast.RewriteRule):TransformConfigBuilder.this.ThisType" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">usingRule</span><span class="params">(<span name="newRule">newRule: <a href="../ast/index.html#RewriteRule=PartialFunction[laika.ast.Element,Option[laika.ast.Element]]" class="extmbr" name="laika.ast.RewriteRule">RewriteRule</a></span>)</span><span class="result">: <a href="#ThisType=laika.api.Transform.TransformGatheredOutput[Writer]" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.ThisType">ThisType</a></span>
+      </span>
+      
+      <p class="shortcomment cmt"> Specifies a rewrite rule to be applied to the document tree model between the
+ parse and render operations.</p><div class="fullcomment"><div class="comment cmt"><p> Specifies a rewrite rule to be applied to the document tree model between the
  parse and render operations. This is identical to calling <code>Document.rewrite</code>
  directly, but if there is no need to otherwise access the document instance
  and just chain parse and render operations this hook is more convenient.</p><p> The rule is a partial function that takes an <code>Element</code> and returns an <code>Option[Element]</code>.</p><p> If the function is not defined for a specific element the old element remains
@@ -978,7 +1095,7 @@
  any element container passed to the rule only contains children which have already
  been processed.</p><p> In case multiple rewrite rules need to be applied it may be more efficient to
  first combine them with <code>orElse</code>.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a></dd></dl></div>
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../config/TransformConfigBuilder.html" class="extype" name="laika.config.TransformConfigBuilder">TransformConfigBuilder</a></dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">
@@ -1047,6 +1164,68 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="laika.api.Transform.TransformGatheredOutput#withConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withConfig(newConfig:laika.config.OperationConfig):TransformGatheredOutput.this.ThisType"></a><a id="withConfig(OperationConfig):ThisType"></a>
+      <span class="permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#withConfig(newConfig:laika.config.OperationConfig):TransformGatheredOutput.this.ThisType" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withConfig</span><span class="params">(<span name="newConfig">newConfig: <a href="../config/OperationConfig.html" class="extype" name="laika.config.OperationConfig">OperationConfig</a></span>)</span><span class="result">: <a href="#ThisType=laika.api.Transform.TransformGatheredOutput[Writer]" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.ThisType">ThisType</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Returns a new instance with the specified configuration.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new instance with the specified configuration.</p><p>This method discards any previously specified
+options. It is usually meant to be used when copying over
+the configuration from a fully configured object to an
+unconfigured one.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Transform.TransformGatheredOutput">TransformGatheredOutput</a> → <a href="../config/OperationConfigBuilder.html" class="extype" name="laika.config.OperationConfigBuilder">OperationConfigBuilder</a></dd></dl></div>
+    </li><li name="laika.config.RenderConfigBuilder#withMessageLevel" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withMessageLevel(level:laika.ast.MessageLevel):RenderConfigBuilder.this.ThisType"></a><a id="withMessageLevel(MessageLevel):ThisType"></a>
+      <span class="permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#withMessageLevel(level:laika.ast.MessageLevel):RenderConfigBuilder.this.ThisType" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withMessageLevel</span><span class="params">(<span name="level">level: <a href="../ast/MessageLevel.html" class="extype" name="laika.ast.MessageLevel">MessageLevel</a></span>)</span><span class="result">: <a href="#ThisType=laika.api.Transform.TransformGatheredOutput[Writer]" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.ThisType">ThisType</a></span>
+      </span>
+      
+      <p class="shortcomment cmt"> Specifies the minimum required level for a system message
+ to get included into the output by this renderer.</p><div class="fullcomment"><div class="comment cmt"><p> Specifies the minimum required level for a system message
+ to get included into the output by this renderer.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../config/RenderConfigBuilder.html" class="extype" name="laika.config.RenderConfigBuilder">RenderConfigBuilder</a></dd></dl></div>
+    </li><li name="laika.config.ParseConfigBuilder#withRawContent" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withRawContent:ParseConfigBuilder.this.ThisType"></a><a id="withRawContent:ThisType"></a>
+      <span class="permalink">
+      <a href="../../laika/api/Transform$$TransformGatheredOutput.html#withRawContent:ParseConfigBuilder.this.ThisType" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withRawContent</span><span class="result">: <a href="#ThisType=laika.api.Transform.TransformGatheredOutput[Writer]" class="extmbr" name="laika.api.Transform.TransformGatheredOutput.ThisType">ThisType</a></span>
+      </span>
+      
+      <p class="shortcomment cmt"> Enables all extensions that process raw content embedded into the host
+ markup language.</p><div class="fullcomment"><div class="comment cmt"><p> Enables all extensions that process raw content embedded into the host
+ markup language.
+ These are disabled by default as Laika is designed to render to multiple
+ output formats from a single input document. With raw content embedded
+ the markup document is tied to a specific output format.</p><p> Technically it activates all <code>ExtensionBundle</code> instances which have
+ the <code>acceptRawContent</code> flag set to true.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../config/ParseConfigBuilder.html" class="extype" name="laika.config.ParseConfigBuilder">ParseConfigBuilder</a></dd></dl></div>
     </li>
               </ol>
             </div>
@@ -1059,6 +1238,18 @@
         <div id="inheritedMembers">
         <div class="parent" name="laika.api.Transform">
               <h3>Inherited from <a href="Transform.html" class="extype" name="laika.api.Transform">Transform</a>[<span class="extype" name="laika.api.Transform.TransformGatheredOutput.Writer">Writer</span>]</h3>
+            </div><div class="parent" name="laika.io.InputTreeOps">
+              <h3>Inherited from <a href="../io/InputTreeOps.html" class="extype" name="laika.io.InputTreeOps">InputTreeOps</a></h3>
+            </div><div class="parent" name="laika.io.InputOps">
+              <h3>Inherited from <a href="../io/InputOps.html" class="extype" name="laika.io.InputOps">InputOps</a></h3>
+            </div><div class="parent" name="laika.config.TransformConfigBuilder">
+              <h3>Inherited from <a href="../config/TransformConfigBuilder.html" class="extype" name="laika.config.TransformConfigBuilder">TransformConfigBuilder</a>[<span class="extype" name="laika.api.Transform.TransformGatheredOutput.Writer">Writer</span>]</h3>
+            </div><div class="parent" name="laika.config.RenderConfigBuilder">
+              <h3>Inherited from <a href="../config/RenderConfigBuilder.html" class="extype" name="laika.config.RenderConfigBuilder">RenderConfigBuilder</a>[<span class="extype" name="laika.api.Transform.TransformGatheredOutput.Writer">Writer</span>]</h3>
+            </div><div class="parent" name="laika.config.ParseConfigBuilder">
+              <h3>Inherited from <a href="../config/ParseConfigBuilder.html" class="extype" name="laika.config.ParseConfigBuilder">ParseConfigBuilder</a></h3>
+            </div><div class="parent" name="laika.config.OperationConfigBuilder">
+              <h3>Inherited from <a href="../config/OperationConfigBuilder.html" class="extype" name="laika.config.OperationConfigBuilder">OperationConfigBuilder</a></h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">

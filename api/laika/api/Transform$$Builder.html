@@ -130,10 +130,6 @@
                         <span class="separator"></span>
                         <a class="class" href="Transform$$TransformMappedOutput.html" title="A transform operation that maps each input document of a given input tree to a corresponding output document in the destination tree."></a>
                         <a href="Transform$$TransformMappedOutput.html" title="A transform operation that maps each input document of a given input tree to a corresponding output document in the destination tree.">TransformMappedOutput</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="trait" href="Transform$$TreeConfigBuilder.html" title="API for configuring a batch operation for an input tree."></a>
-                        <a href="Transform$$TreeConfigBuilder.html" title="API for configuring a batch operation for an input tree.">TreeConfigBuilder</a>
                       </li>
               </ul>
             </div>
@@ -472,9 +468,9 @@
               
         </dd></dl></div>
     </li><li name="laika.api.Transform.Builder#or" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="or(factory:laika.factory.ParserFactory):laika.api.Transform.Builder"></a><a id="or(ParserFactory):Builder"></a>
+      <a id="or(parser:laika.factory.MarkupParser):laika.api.Transform.Builder"></a><a id="or(MarkupParser):Builder"></a>
       <span class="permalink">
-      <a href="../../laika/api/Transform$$Builder.html#or(factory:laika.factory.ParserFactory):laika.api.Transform.Builder" title="Permalink">
+      <a href="../../laika/api/Transform$$Builder.html#or(parser:laika.factory.MarkupParser):laika.api.Transform.Builder" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -483,7 +479,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">or</span><span class="params">(<span name="factory">factory: <a href="../factory/ParserFactory.html" class="extype" name="laika.factory.ParserFactory">ParserFactory</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.api.Transform.Builder">Builder</a></span>
+        <span class="name">or</span><span class="params">(<span name="parser">parser: <a href="../factory/MarkupParser.html" class="extype" name="laika.factory.MarkupParser">MarkupParser</a></span>)</span><span class="result">: <a href="" class="extype" name="laika.api.Transform.Builder">Builder</a></span>
       </span>
       
       <p class="shortcomment cmt">Returns a new Builder instance adding the specified parser factory.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new Builder instance adding the specified parser factory.
@@ -491,7 +487,7 @@
  or a plugin that is capable of parsing a specific markup
  format like Markdown or reStructuredText.</p><p> This method is useful if you want to combine different markup
  formats within a single document tree.
-</p></div><dl class="paramcmts block"><dt class="param">factory</dt><dd class="cmt"><p>the parser factory to add to the previously specified parsers</p></dd><dt>returns</dt><dd class="cmt"><p>a new Builder instance</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">parser</dt><dd class="cmt"><p>the parser factory to add to the previously specified parsers</p></dd><dt>returns</dt><dd class="cmt"><p>a new Builder instance</p></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
@@ -529,9 +525,9 @@
  multiple transformations.
 </p></div><dl class="paramcmts block"><dt class="param">processor</dt><dd class="cmt"><p>the processor to use for the transformation</p></dd><dt>returns</dt><dd class="cmt"><p>a new Transform instance</p></dd></dl></div>
     </li><li name="laika.api.Transform.Builder#to" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="to[Writer](factory:laika.factory.RendererFactory[Writer]):laika.api.Transform.TransformMappedOutput[Writer]"></a><a id="to[Writer](RendererFactory[Writer]):TransformMappedOutput[Writer]"></a>
+      <a id="to[Writer](format:laika.factory.RenderFormat[Writer]):laika.api.Transform.TransformMappedOutput[Writer]"></a><a id="to[Writer](RenderFormat[Writer]):TransformMappedOutput[Writer]"></a>
       <span class="permalink">
-      <a href="../../laika/api/Transform$$Builder.html#to[Writer](factory:laika.factory.RendererFactory[Writer]):laika.api.Transform.TransformMappedOutput[Writer]" title="Permalink">
+      <a href="../../laika/api/Transform$$Builder.html#to[Writer](format:laika.factory.RenderFormat[Writer]):laika.api.Transform.TransformMappedOutput[Writer]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -540,14 +536,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">to</span><span class="tparams">[<span name="Writer">Writer</span>]</span><span class="params">(<span name="factory">factory: <a href="../factory/RendererFactory.html" class="extype" name="laika.factory.RendererFactory">RendererFactory</a>[<span class="extype" name="laika.api.Transform.Builder.to.Writer">Writer</span>]</span>)</span><span class="result">: <a href="Transform$$TransformMappedOutput.html" class="extype" name="laika.api.Transform.TransformMappedOutput">TransformMappedOutput</a>[<span class="extype" name="laika.api.Transform.Builder.to.Writer">Writer</span>]</span>
+        <span class="name">to</span><span class="tparams">[<span name="Writer">Writer</span>]</span><span class="params">(<span name="format">format: <a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a>[<span class="extype" name="laika.api.Transform.Builder.to.Writer">Writer</span>]</span>)</span><span class="result">: <a href="Transform$$TransformMappedOutput.html" class="extype" name="laika.api.Transform.TransformMappedOutput">TransformMappedOutput</a>[<span class="extype" name="laika.api.Transform.Builder.to.Writer">Writer</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Creates and returns a new Transform instance for the specified renderer and the
  previously specified parser.</p><div class="fullcomment"><div class="comment cmt"><p>Creates and returns a new Transform instance for the specified renderer and the
  previously specified parser. The returned instance is stateless and reusable for
  multiple transformations.
-</p></div><dl class="paramcmts block"><dt class="param">factory</dt><dd class="cmt"><p>the renderer factory to use for the transformation</p></dd><dt>returns</dt><dd class="cmt"><p>a new Transform instance</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">format</dt><dd class="cmt"><p>the render format to use for the transformation</p></dd><dt>returns</dt><dd class="cmt"><p>a new Transform instance</p></dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <span class="permalink">

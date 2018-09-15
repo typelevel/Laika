@@ -103,12 +103,8 @@
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
     </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="class" href="DefaultDocumentTypeMatcher.html" title="The default implementation for determining the document type of the input based on its path."></a>
-                        <a href="DefaultDocumentTypeMatcher.html" title="The default implementation for determining the document type of the input based on its path.">DefaultDocumentTypeMatcher</a>
-                      </li><li class="current-entities indented2">
-                        <a class="object" href="DocumentType$.html" title="Provides all available DocumentTypes."></a>
-                        <a class="class" href="DocumentType.html" title="Base type for all document type descriptors."></a>
-                        <a href="DocumentType.html" title="Base type for all document type descriptors.">DocumentType</a>
+                        <a class="trait" href="BinaryOutputOps.html" title="A target for a render operation that accepts only binary output."></a>
+                        <a href="BinaryOutputOps.html" title="A target for a render operation that accepts only binary output.">BinaryOutputOps</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="object" href="IO$.html" title="Collection of I/O utilities."></a>
@@ -118,17 +114,37 @@
                         <a class="trait" href="Input.html" title="Represents the input for a parser, abstracting over various types of IO resources."></a>
                         <a href="Input.html" title="Represents the input for a parser, abstracting over various types of IO resources.">Input</a>
                       </li><li class="current-entities indented2">
-                        <a class="object" href="InputProvider$.html" title="Factory methods for creating InputProvider and InputConfigBuilder instances."></a>
-                        <a class="trait" href="InputProvider.html" title="Represents a tree structure of Inputs, abstracting over various types of IO resources."></a>
-                        <a href="InputProvider.html" title="Represents a tree structure of Inputs, abstracting over various types of IO resources.">InputProvider</a>
+                        <span class="separator"></span>
+                        <a class="trait" href="InputOps.html" title="API for producing a result from processing various types of input."></a>
+                        <a href="InputOps.html" title="API for producing a result from processing various types of input.">InputOps</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="InputTree$.html" title="Factory methods for creating InputTree instances."></a>
+                        <a class="trait" href="InputTree.html" title="Represents a tree structure of Inputs, abstracting over various types of IO resources."></a>
+                        <a href="InputTree.html" title="Represents a tree structure of Inputs, abstracting over various types of IO resources.">InputTree</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="InputTreeOps.html" title="API for producing a result from processing various types of input trees."></a>
+                        <a href="InputTreeOps.html" title="API for producing a result from processing various types of input trees.">InputTreeOps</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="" title="Factory methods for creating Output instances from different types of IO resources."></a>
                         <a class="trait" href="Output.html" title="Represents the output of a renderer, abstracting over various types of IO resources."></a>
                         <a href="Output.html" title="Represents the output of a renderer, abstracting over various types of IO resources.">Output</a>
                       </li><li class="current-entities indented2">
-                        <a class="object" href="OutputProvider$.html" title="Factory methods for creating OutputProvider and OutputConfigBuilder instances."></a>
-                        <a class="trait" href="OutputProvider.html" title="Represents a tree structure of Outputs, abstracting over various types of IO resources."></a>
-                        <a href="OutputProvider.html" title="Represents a tree structure of Outputs, abstracting over various types of IO resources.">OutputProvider</a>
+                        <span class="separator"></span>
+                        <a class="trait" href="OutputOps.html" title="Base trait for various collections of output operations."></a>
+                        <a href="OutputOps.html" title="Base trait for various collections of output operations.">OutputOps</a>
+                      </li><li class="current-entities indented2">
+                        <a class="object" href="OutputTree$.html" title="Factory methods for creating OutputTree instances."></a>
+                        <a class="trait" href="OutputTree.html" title="Represents a tree structure of Outputs, abstracting over various types of IO resources."></a>
+                        <a href="OutputTree.html" title="Represents a tree structure of Outputs, abstracting over various types of IO resources.">OutputTree</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="OutputTreeOps.html" title="Represents a tree of output destinations for recursive render operations."></a>
+                        <a href="OutputTreeOps.html" title="Represents a tree of output destinations for recursive render operations.">OutputTreeOps</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="TextOuputOps.html" title="Represents a single destination for a render operation."></a>
+                        <a href="TextOuputOps.html" title="Represents a single destination for a render operation.">TextOuputOps</a>
                       </li>
               </ul>
             </div>
@@ -525,9 +541,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="laika.io.Output#toBuilder" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="toBuilder(builder:StringBuilder,path:laika.tree.Paths.Path):laika.io.Output"></a><a id="toBuilder(StringBuilder,Path):Output"></a>
+      <a id="toBuilder(builder:StringBuilder,path:laika.ast.Path):laika.io.Output"></a><a id="toBuilder(StringBuilder,Path):Output"></a>
       <span class="permalink">
-      <a href="../../laika/io/Output$.html#toBuilder(builder:StringBuilder,path:laika.tree.Paths.Path):laika.io.Output" title="Permalink">
+      <a href="../../laika/io/Output$.html#toBuilder(builder:StringBuilder,path:laika.ast.Path):laika.io.Output" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -536,14 +552,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toBuilder</span><span class="params">(<span name="builder">builder: <span class="extype" name="scala.collection.mutable.StringBuilder">StringBuilder</span></span>, <span name="path">path: <a href="../tree/Paths$$Path.html" class="extype" name="laika.tree.Paths.Path">Path</a> = <span class="symbol"><span class="name"><a href="../index.html">Root</a></span></span></span>)</span><span class="result">: <a href="Output.html" class="extype" name="laika.io.Output">Output</a></span>
+        <span class="name">toBuilder</span><span class="params">(<span name="builder">builder: <span class="extype" name="scala.collection.mutable.StringBuilder">StringBuilder</span></span>, <span name="path">path: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a> = <span class="symbol"><span class="name"><a href="../index.html">Path.Root</a></span></span></span>)</span><span class="result">: <a href="Output.html" class="extype" name="laika.io.Output">Output</a></span>
       </span>
       
       <p class="shortcomment cmt">Creates a new Output instance for the specified StringBuilder.</p>
     </li><li name="laika.io.Output#toFile" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="toFile(file:java.io.File,virtualPath:laika.tree.Paths.Path)(implicitcodec:scala.io.Codec):laika.io.Outputwithlaika.io.Output.Binarywithjava.io.Closeable"></a><a id="toFile(File,Path)(Codec):OutputwithBinarywithCloseable"></a>
+      <a id="toFile(file:java.io.File,virtualPath:laika.ast.Path)(implicitcodec:scala.io.Codec):laika.io.Outputwithlaika.io.Output.Binarywithjava.io.Closeable"></a><a id="toFile(File,Path)(Codec):OutputwithBinarywithCloseable"></a>
       <span class="permalink">
-      <a href="../../laika/io/Output$.html#toFile(file:java.io.File,virtualPath:laika.tree.Paths.Path)(implicitcodec:scala.io.Codec):laika.io.Outputwithlaika.io.Output.Binarywithjava.io.Closeable" title="Permalink">
+      <a href="../../laika/io/Output$.html#toFile(file:java.io.File,virtualPath:laika.ast.Path)(implicitcodec:scala.io.Codec):laika.io.Outputwithlaika.io.Output.Binarywithjava.io.Closeable" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -552,7 +568,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toFile</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>, <span name="virtualPath">virtualPath: <a href="../tree/Paths$$Path.html" class="extype" name="laika.tree.Paths.Path">Path</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="Output.html" class="extype" name="laika.io.Output">Output</a> with <a href="Output$$Binary.html" class="extype" name="laika.io.Output.Binary">Binary</a> with <span class="extype" name="java.io.Closeable">Closeable</span></span>
+        <span class="name">toFile</span><span class="params">(<span name="file">file: <span class="extype" name="java.io.File">File</span></span>, <span name="virtualPath">virtualPath: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="Output.html" class="extype" name="laika.io.Output">Output</a> with <a href="Output$$Binary.html" class="extype" name="laika.io.Output.Binary">Binary</a> with <span class="extype" name="java.io.Closeable">Closeable</span></span>
       </span>
       
       
@@ -591,9 +607,9 @@
       <p class="shortcomment cmt">Creates a new Output instance for the file with the specified name.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new Output instance for the file with the specified name.
 </p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>the name of the file</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the character encoding of the file, if not specified the platform default will be used.</p></dd></dl></div>
     </li><li name="laika.io.Output#toStream" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toStream(stream:java.io.OutputStream,path:laika.tree.Paths.Path)(implicitcodec:scala.io.Codec):laika.io.Outputwithlaika.io.Output.Binary"></a><a id="toStream(OutputStream,Path)(Codec):OutputwithBinary"></a>
+      <a id="toStream(stream:java.io.OutputStream,path:laika.ast.Path)(implicitcodec:scala.io.Codec):laika.io.Outputwithlaika.io.Output.Binary"></a><a id="toStream(OutputStream,Path)(Codec):OutputwithBinary"></a>
       <span class="permalink">
-      <a href="../../laika/io/Output$.html#toStream(stream:java.io.OutputStream,path:laika.tree.Paths.Path)(implicitcodec:scala.io.Codec):laika.io.Outputwithlaika.io.Output.Binary" title="Permalink">
+      <a href="../../laika/io/Output$.html#toStream(stream:java.io.OutputStream,path:laika.ast.Path)(implicitcodec:scala.io.Codec):laika.io.Outputwithlaika.io.Output.Binary" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -602,7 +618,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toStream</span><span class="params">(<span name="stream">stream: <span class="extype" name="java.io.OutputStream">OutputStream</span></span>, <span name="path">path: <a href="../tree/Paths$$Path.html" class="extype" name="laika.tree.Paths.Path">Path</a> = <span class="symbol"><span class="name"><a href="../index.html">Root</a></span></span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="Output.html" class="extype" name="laika.io.Output">Output</a> with <a href="Output$$Binary.html" class="extype" name="laika.io.Output.Binary">Binary</a></span>
+        <span class="name">toStream</span><span class="params">(<span name="stream">stream: <span class="extype" name="java.io.OutputStream">OutputStream</span></span>, <span name="path">path: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a> = <span class="symbol"><span class="name"><a href="../index.html">Path.Root</a></span></span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="codec">codec: <span class="extype" name="scala.io.Codec">Codec</span></span>)</span><span class="result">: <a href="Output.html" class="extype" name="laika.io.Output">Output</a> with <a href="Output$$Binary.html" class="extype" name="laika.io.Output.Binary">Binary</a></span>
       </span>
       
       <p class="shortcomment cmt">Creates a new Output instance for the specified OutputStream.</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new Output instance for the specified OutputStream.
@@ -624,9 +640,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="laika.io.Output#toWriter" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="toWriter(writer:java.io.Writer,path:laika.tree.Paths.Path):laika.io.Output"></a><a id="toWriter(Writer,Path):Output"></a>
+      <a id="toWriter(writer:java.io.Writer,path:laika.ast.Path):laika.io.Output"></a><a id="toWriter(Writer,Path):Output"></a>
       <span class="permalink">
-      <a href="../../laika/io/Output$.html#toWriter(writer:java.io.Writer,path:laika.tree.Paths.Path):laika.io.Output" title="Permalink">
+      <a href="../../laika/io/Output$.html#toWriter(writer:java.io.Writer,path:laika.ast.Path):laika.io.Output" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -635,7 +651,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toWriter</span><span class="params">(<span name="writer">writer: <span class="extype" name="java.io.Writer">Writer</span></span>, <span name="path">path: <a href="../tree/Paths$$Path.html" class="extype" name="laika.tree.Paths.Path">Path</a> = <span class="symbol"><span class="name"><a href="../index.html">Root</a></span></span></span>)</span><span class="result">: <a href="Output.html" class="extype" name="laika.io.Output">Output</a></span>
+        <span class="name">toWriter</span><span class="params">(<span name="writer">writer: <span class="extype" name="java.io.Writer">Writer</span></span>, <span name="path">path: <a href="../ast/Path.html" class="extype" name="laika.ast.Path">Path</a> = <span class="symbol"><span class="name"><a href="../index.html">Path.Root</a></span></span></span>)</span><span class="result">: <a href="Output.html" class="extype" name="laika.io.Output">Output</a></span>
       </span>
       
       <p class="shortcomment cmt">Creates a new Output instance for the specified Writer.</p>

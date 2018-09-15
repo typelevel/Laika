@@ -249,25 +249,6 @@
       <p class="shortcomment cmt">A transform operation that maps each input document of a
  given input tree to a corresponding output document
  in the destination tree.</p>
-    </li><li name="laika.api.Transform.TreeConfigBuilder" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="TreeConfigBuilder[ThisType]extendsAnyRef"></a><a id="TreeConfigBuilder[ThisType]:TreeConfigBuilder[ThisType]"></a>
-      <span class="permalink">
-      <a href="../../laika/api/Transform$.html#TreeConfigBuilder[ThisType]extendsAnyRef" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a title="API for configuring a batch operation for an input tree." href="Transform$$TreeConfigBuilder.html"><span class="name">TreeConfigBuilder</span></a><span class="tparams">[<span name="ThisType">ThisType</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">API for configuring a batch operation for an input tree.</p><div class="fullcomment"><div class="comment cmt"><p>API for configuring a batch operation for an input tree.
- Gives access to all relevant aspects of traversing, parsing and rendering
- a tree of inputs.
-</p></div></div>
     </li></ol>
             </div>
 
@@ -419,9 +400,9 @@
               
         </dd></dl></div>
     </li><li name="laika.api.Transform#from" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="from(factory:laika.factory.ParserFactory):laika.api.Transform.Builder"></a><a id="from(ParserFactory):Builder"></a>
+      <a id="from(parser:laika.factory.MarkupParser):laika.api.Transform.Builder"></a><a id="from(MarkupParser):Builder"></a>
       <span class="permalink">
-      <a href="../../laika/api/Transform$.html#from(factory:laika.factory.ParserFactory):laika.api.Transform.Builder" title="Permalink">
+      <a href="../../laika/api/Transform$.html#from(parser:laika.factory.MarkupParser):laika.api.Transform.Builder" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -430,7 +411,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">from</span><span class="params">(<span name="factory">factory: <a href="../factory/ParserFactory.html" class="extype" name="laika.factory.ParserFactory">ParserFactory</a></span>)</span><span class="result">: <a href="Transform$$Builder.html" class="extype" name="laika.api.Transform.Builder">Builder</a></span>
+        <span class="name">from</span><span class="params">(<span name="parser">parser: <a href="../factory/MarkupParser.html" class="extype" name="laika.factory.MarkupParser">MarkupParser</a></span>)</span><span class="result">: <a href="Transform$$Builder.html" class="extype" name="laika.api.Transform.Builder">Builder</a></span>
       </span>
       
       <p class="shortcomment cmt">Returns a new Builder instance for the specified parser factory.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new Builder instance for the specified parser factory.
@@ -439,7 +420,7 @@
  format like Markdown or reStructuredText. The returned builder
  can then be used to specifiy the renderer to create the actual
  Transform instance.
-</p></div><dl class="paramcmts block"><dt class="param">factory</dt><dd class="cmt"><p>the parser factory to use</p></dd><dt>returns</dt><dd class="cmt"><p>a new Builder instance for specifying the renderer</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">parser</dt><dd class="cmt"><p>the parser factory to use</p></dd><dt>returns</dt><dd class="cmt"><p>a new Builder instance for specifying the renderer</p></dd></dl></div>
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">

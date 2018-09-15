@@ -103,8 +103,16 @@
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
     </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="class" href="ASTRenderer.html" title="Default renderer implementation for the Formatted AST output format."></a>
+                        <a href="ASTRenderer.html" title="Default renderer implementation for the Formatted AST output format.">ASTRenderer</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="trait" href="FOProperties.html" title="Mapping of XSL-FO tag names to their supported properties."></a>
                         <a href="FOProperties.html" title="Mapping of XSL-FO tag names to their supported properties.">FOProperties</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="FORenderer.html" title="Default renderer implementation for the XSL-FO output format."></a>
+                        <a href="FORenderer.html" title="Default renderer implementation for the XSL-FO output format.">FORenderer</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="" title="Companion providing tree elements specific to the XSL-FO renderer."></a>
                         <a class="class" href="FOWriter.html" title="API for renderers that produce XSL-FO output."></a>
@@ -114,25 +122,13 @@
                         <a class="class" href="FOforPDF.html" title="Responsible for rendering the XSL-FO for an entire document tree as an interim result to be consumed by the PDF post processor."></a>
                         <a href="FOforPDF.html" title="Responsible for rendering the XSL-FO for an entire document tree as an interim result to be consumed by the PDF post processor.">FOforPDF</a>
                       </li><li class="current-entities indented2">
-                        <a class="object" href="HTML$.html" title="The default instance of the HTML renderer."></a>
-                        <a class="class" href="HTML.html" title="A renderer for HTML output."></a>
-                        <a href="HTML.html" title="A renderer for HTML output.">HTML</a>
+                        <span class="separator"></span>
+                        <a class="class" href="HTMLRenderer.html" title="Default renderer implementation for the HTML output format."></a>
+                        <a href="HTMLRenderer.html" title="Default renderer implementation for the HTML output format.">HTMLRenderer</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="HTMLWriter.html" title="API for renderers that produce HTML output."></a>
                         <a href="HTMLWriter.html" title="API for renderers that produce HTML output.">HTMLWriter</a>
-                      </li><li class="current-entities indented2">
-                        <a class="object" href="PDF$.html" title="The default instance of the PDF renderer."></a>
-                        <a class="class" href="PDF.html" title="A post processor for PDF output, based on an interim XSL-FO renderer."></a>
-                        <a href="PDF.html" title="A post processor for PDF output, based on an interim XSL-FO renderer.">PDF</a>
-                      </li><li class="current-entities indented2">
-                        <a class="object" href="PDFConfig$.html" title="Companion for the creation of PDFConfig instances."></a>
-                        <a class="class" href="PDFConfig.html" title="Configuration options for the generated PDF output."></a>
-                        <a href="PDFConfig.html" title="Configuration options for the generated PDF output.">PDFConfig</a>
-                      </li><li class="current-entities indented2">
-                        <a class="object" href="PrettyPrint$.html" title=""></a>
-                        <a class="class" href="PrettyPrint.html" title="A renderer for PrettyPrint output, primarily useful for debugging purposes."></a>
-                        <a href="PrettyPrint.html" title="A renderer for PrettyPrint output, primarily useful for debugging purposes.">PrettyPrint</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="TagWriter.html" title="Base type for writers that produce tag-based output formats like XML or HTML."></a>
@@ -141,10 +137,6 @@
                         <span class="separator"></span>
                         <a class="class" href="TextWriter.html" title="API for renderers that produce character output."></a>
                         <a href="TextWriter.html" title="API for renderers that produce character output.">TextWriter</a>
-                      </li><li class="current-entities indented2">
-                        <a class="object" href="XSLFO$.html" title="The default instance of the XSL-FO renderer."></a>
-                        <a class="class" href="XSLFO.html" title="A renderer for XSL-FO output."></a>
-                        <a href="XSLFO.html" title="A renderer for XSL-FO output.">XSLFO</a>
                       </li>
               </ul>
             </div>
@@ -232,9 +224,9 @@
         <div id="types" class="types members">
               <h3>Type Members</h3>
               <ol><li name="laika.render.FOWriter.Bookmark" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="BookmarkextendsElements.ElementwithElements.BlockwithProductwithSerializable"></a><a id="Bookmark:Bookmark"></a>
+      <a id="BookmarkextendsElementwithBlockwithProductwithSerializable"></a><a id="Bookmark:Bookmark"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter$.html#BookmarkextendsElements.ElementwithElements.BlockwithProductwithSerializable" title="Permalink">
+      <a href="../../laika/render/FOWriter$.html#BookmarkextendsElementwithBlockwithProductwithSerializable" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -243,14 +235,14 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="A single bookmark and its nested children." href="FOWriter$$Bookmark.html"><span class="name">Bookmark</span></a><span class="params">(<span name="ref">ref: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="path">path: <a href="../tree/Elements$$PathInfo.html" class="extype" name="laika.tree.Elements.PathInfo">PathInfo</a></span>, <span name="title">title: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="children">children: <span class="extype" name="scala.Seq">Seq</span>[<a href="FOWriter$$Bookmark.html" class="extype" name="laika.render.FOWriter.Bookmark">Bookmark</a>]</span>, <span name="options">options: <a href="../tree/Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="A single bookmark and its nested children." href="FOWriter$$Bookmark.html"><span class="name">Bookmark</span></a><span class="params">(<span name="ref">ref: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="path">path: <a href="../ast/PathInfo.html" class="extype" name="laika.ast.PathInfo">PathInfo</a></span>, <span name="title">title: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="children">children: <span class="extype" name="scala.Seq">Seq</span>[<a href="FOWriter$$Bookmark.html" class="extype" name="laika.render.FOWriter.Bookmark">Bookmark</a>]</span>, <span name="options">options: <a href="../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A single bookmark and its nested children.</p>
     </li><li name="laika.render.FOWriter.BookmarkTitle" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="BookmarkTitleextendsElements.ElementwithElements.BlockwithElements.TextContainerwithProductwithSerializable"></a><a id="BookmarkTitle:BookmarkTitle"></a>
+      <a id="BookmarkTitleextendsElementwithBlockwithTextContainerwithProductwithSerializable"></a><a id="BookmarkTitle:BookmarkTitle"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter$.html#BookmarkTitleextendsElements.ElementwithElements.BlockwithElements.TextContainerwithProductwithSerializable" title="Permalink">
+      <a href="../../laika/render/FOWriter$.html#BookmarkTitleextendsElementwithBlockwithTextContainerwithProductwithSerializable" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -259,14 +251,14 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="A bookmark title." href="FOWriter$$BookmarkTitle.html"><span class="name">BookmarkTitle</span></a><span class="params">(<span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="options">options: <a href="../tree/Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a> with <a href="../tree/Elements$$TextContainer.html" class="extype" name="laika.tree.Elements.TextContainer">TextContainer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="A bookmark title." href="FOWriter$$BookmarkTitle.html"><span class="name">BookmarkTitle</span></a><span class="params">(<span name="content">content: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="options">options: <a href="../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a> with <a href="../ast/TextContainer.html" class="extype" name="laika.ast.TextContainer">TextContainer</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A bookmark title.</p>
     </li><li name="laika.render.FOWriter.BookmarkTree" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="BookmarkTreeextendsElements.ElementwithElements.BlockwithProductwithSerializable"></a><a id="BookmarkTree:BookmarkTree"></a>
+      <a id="BookmarkTreeextendsElementwithBlockwithProductwithSerializable"></a><a id="BookmarkTree:BookmarkTree"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter$.html#BookmarkTreeextendsElements.ElementwithElements.BlockwithProductwithSerializable" title="Permalink">
+      <a href="../../laika/render/FOWriter$.html#BookmarkTreeextendsElementwithBlockwithProductwithSerializable" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -275,15 +267,15 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="An entire bookmark tree and its nested bookmarks, the top level element for FO bookmarks." href="FOWriter$$BookmarkTree.html"><span class="name">BookmarkTree</span></a><span class="params">(<span name="bookmarks">bookmarks: <span class="extype" name="scala.Seq">Seq</span>[<a href="FOWriter$$Bookmark.html" class="extype" name="laika.render.FOWriter.Bookmark">Bookmark</a>]</span>, <span name="options">options: <a href="../tree/Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="An entire bookmark tree and its nested bookmarks, the top level element for FO bookmarks." href="FOWriter$$BookmarkTree.html"><span class="name">BookmarkTree</span></a><span class="params">(<span name="bookmarks">bookmarks: <span class="extype" name="scala.Seq">Seq</span>[<a href="FOWriter$$Bookmark.html" class="extype" name="laika.render.FOWriter.Bookmark">Bookmark</a>]</span>, <span name="options">options: <a href="../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">An entire bookmark tree and its nested bookmarks,
  the top level element for FO bookmarks.</p>
     </li><li name="laika.render.FOWriter.FootnoteBody" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="FootnoteBodyextendsElements.ElementwithElements.BlockwithElements.BlockContainer[laika.render.FOWriter.FootnoteBody]withProductwithSerializable"></a><a id="FootnoteBody:FootnoteBody"></a>
+      <a id="FootnoteBodyextendsElementwithBlockwithBlockContainer[laika.render.FOWriter.FootnoteBody]withProductwithSerializable"></a><a id="FootnoteBody:FootnoteBody"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter$.html#FootnoteBodyextendsElements.ElementwithElements.BlockwithElements.BlockContainer[laika.render.FOWriter.FootnoteBody]withProductwithSerializable" title="Permalink">
+      <a href="../../laika/render/FOWriter$.html#FootnoteBodyextendsElementwithBlockwithBlockContainer[laika.render.FOWriter.FootnoteBody]withProductwithSerializable" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -292,14 +284,14 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="The body of a footnote containing a sequence of block elements." href="FOWriter$$FootnoteBody.html"><span class="name">FootnoteBody</span></a><span class="params">(<span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a>]</span>, <span name="options">options: <a href="../tree/Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a> with <a href="../tree/Elements$$BlockContainer.html" class="extype" name="laika.tree.Elements.BlockContainer">BlockContainer</a>[<a href="FOWriter$$FootnoteBody.html" class="extype" name="laika.render.FOWriter.FootnoteBody">FootnoteBody</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="The body of a footnote containing a sequence of block elements." href="FOWriter$$FootnoteBody.html"><span class="name">FootnoteBody</span></a><span class="params">(<span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>, <span name="options">options: <a href="../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a> with <a href="../ast/BlockContainer.html" class="extype" name="laika.ast.BlockContainer">BlockContainer</a>[<a href="FOWriter$$FootnoteBody.html" class="extype" name="laika.render.FOWriter.FootnoteBody">FootnoteBody</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">The body of a footnote containing a sequence of block elements.</p>
     </li><li name="laika.render.FOWriter.Leader" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="LeaderextendsElements.ElementwithElements.SpanwithProductwithSerializable"></a><a id="Leader:Leader"></a>
+      <a id="LeaderextendsElementwithSpanwithProductwithSerializable"></a><a id="Leader:Leader"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter$.html#LeaderextendsElements.ElementwithElements.SpanwithProductwithSerializable" title="Permalink">
+      <a href="../../laika/render/FOWriter$.html#LeaderextendsElementwithSpanwithProductwithSerializable" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -308,14 +300,14 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="A leader element." href="FOWriter$$Leader.html"><span class="name">Leader</span></a><span class="params">(<span name="options">options: <a href="../tree/Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="../tree/Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="A leader element." href="FOWriter$$Leader.html"><span class="name">Leader</span></a><span class="params">(<span name="options">options: <a href="../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="../ast/Span.html" class="extype" name="laika.ast.Span">Span</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A leader element.</p>
     </li><li name="laika.render.FOWriter.ListItemBody" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ListItemBodyextendsElements.ElementwithElements.BlockwithElements.BlockContainer[laika.render.FOWriter.ListItemBody]withProductwithSerializable"></a><a id="ListItemBody:ListItemBody"></a>
+      <a id="ListItemBodyextendsElementwithBlockwithBlockContainer[laika.render.FOWriter.ListItemBody]withProductwithSerializable"></a><a id="ListItemBody:ListItemBody"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter$.html#ListItemBodyextendsElements.ElementwithElements.BlockwithElements.BlockContainer[laika.render.FOWriter.ListItemBody]withProductwithSerializable" title="Permalink">
+      <a href="../../laika/render/FOWriter$.html#ListItemBodyextendsElementwithBlockwithBlockContainer[laika.render.FOWriter.ListItemBody]withProductwithSerializable" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -324,14 +316,14 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="The body of a list item containing a sequence of block elements." href="FOWriter$$ListItemBody.html"><span class="name">ListItemBody</span></a><span class="params">(<span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a>]</span>, <span name="options">options: <a href="../tree/Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a> with <a href="../tree/Elements$$BlockContainer.html" class="extype" name="laika.tree.Elements.BlockContainer">BlockContainer</a>[<a href="FOWriter$$ListItemBody.html" class="extype" name="laika.render.FOWriter.ListItemBody">ListItemBody</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="The body of a list item containing a sequence of block elements." href="FOWriter$$ListItemBody.html"><span class="name">ListItemBody</span></a><span class="params">(<span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a>]</span>, <span name="options">options: <a href="../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a> with <a href="../ast/BlockContainer.html" class="extype" name="laika.ast.BlockContainer">BlockContainer</a>[<a href="FOWriter$$ListItemBody.html" class="extype" name="laika.render.FOWriter.ListItemBody">ListItemBody</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">The body of a list item containing a sequence of block elements.</p>
     </li><li name="laika.render.FOWriter.ListItemLabel" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ListItemLabelextendsElements.ElementwithElements.BlockwithProductwithSerializable"></a><a id="ListItemLabel:ListItemLabel"></a>
+      <a id="ListItemLabelextendsElementwithBlockwithProductwithSerializable"></a><a id="ListItemLabel:ListItemLabel"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter$.html#ListItemLabelextendsElements.ElementwithElements.BlockwithProductwithSerializable" title="Permalink">
+      <a href="../../laika/render/FOWriter$.html#ListItemLabelextendsElementwithBlockwithProductwithSerializable" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -340,14 +332,14 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="A label for a list item, represented by a single Block element." href="FOWriter$$ListItemLabel.html"><span class="name">ListItemLabel</span></a><span class="params">(<span name="content">content: <a href="../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a></span>, <span name="options">options: <a href="../tree/Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="../tree/Elements$$Block.html" class="extype" name="laika.tree.Elements.Block">Block</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="A label for a list item, represented by a single Block element." href="FOWriter$$ListItemLabel.html"><span class="name">ListItemLabel</span></a><span class="params">(<span name="content">content: <a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a></span>, <span name="options">options: <a href="../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="../ast/Block.html" class="extype" name="laika.ast.Block">Block</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">A label for a list item, represented by a single Block element.</p>
     </li><li name="laika.render.FOWriter.PageNumberCitation" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="PageNumberCitationextendsElements.ElementwithElements.SpanwithProductwithSerializable"></a><a id="PageNumberCitation:PageNumberCitation"></a>
+      <a id="PageNumberCitationextendsElementwithSpanwithProductwithSerializable"></a><a id="PageNumberCitation:PageNumberCitation"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOWriter$.html#PageNumberCitationextendsElements.ElementwithElements.SpanwithProductwithSerializable" title="Permalink">
+      <a href="../../laika/render/FOWriter$.html#PageNumberCitationextendsElementwithSpanwithProductwithSerializable" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -356,7 +348,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="An internal link to be rendered as a page number." href="FOWriter$$PageNumberCitation.html"><span class="name">PageNumberCitation</span></a><span class="params">(<span name="ref">ref: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="path">path: <a href="../tree/Elements$$PathInfo.html" class="extype" name="laika.tree.Elements.PathInfo">PathInfo</a></span>, <span name="options">options: <a href="../tree/Elements$$Options.html" class="extype" name="laika.tree.Elements.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a> with <a href="../tree/Elements$$Span.html" class="extype" name="laika.tree.Elements.Span">Span</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="An internal link to be rendered as a page number." href="FOWriter$$PageNumberCitation.html"><span class="name">PageNumberCitation</span></a><span class="params">(<span name="ref">ref: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="path">path: <a href="../ast/PathInfo.html" class="extype" name="laika.ast.PathInfo">PathInfo</a></span>, <span name="options">options: <a href="../ast/Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="../index.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="../ast/Span.html" class="extype" name="laika.ast.Span">Span</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">An internal link to be rendered as a page number.</p><div class="fullcomment"><div class="comment cmt"><p>An internal link to be rendered as a page number.

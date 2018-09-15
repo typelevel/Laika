@@ -196,41 +196,7 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="laika.api.Render.BinaryTarget" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="BinaryTargetextendsAnyRef"></a><a id="BinaryTarget:BinaryTarget"></a>
-      <span class="permalink">
-      <a href="../../laika/api/Render$.html#BinaryTargetextendsAnyRef" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a title="A target for a render operation that accepts only binary output." href="Render$$BinaryTarget.html"><span class="name">BinaryTarget</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">A target for a render operation that accepts only binary output.</p>
-    </li><li name="laika.api.Render.MappedTreeTarget" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="MappedTreeTargetextendsAnyRef"></a><a id="MappedTreeTarget:MappedTreeTarget"></a>
-      <span class="permalink">
-      <a href="../../laika/api/Render$.html#MappedTreeTargetextendsAnyRef" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a title="Represents a tree of output destinations for recursive render operations." href="Render$$MappedTreeTarget.html"><span class="name">MappedTreeTarget</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      
-      <p class="shortcomment cmt">Represents a tree of output destinations for recursive render operations.</p><div class="fullcomment"><div class="comment cmt"><p>Represents a tree of output destinations for recursive render operations.
- Various types of output can be specified to trigger the actual rendering.
-</p></div></div>
-    </li><li name="laika.api.Render.RenderGatheredOutput" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+              <ol><li name="laika.api.Render.RenderGatheredOutput" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="RenderGatheredOutput[Writer]extendsRender[Writer]"></a><a id="RenderGatheredOutput[Writer]:RenderGatheredOutput[Writer]"></a>
       <span class="permalink">
       <a href="../../laika/api/Render$.html#RenderGatheredOutput[Writer]extendsRender[Writer]" title="Permalink">
@@ -271,25 +237,6 @@
       <p class="shortcomment cmt">A render operation that maps each input document of a
  given input tree to a corresponding output document
  in the destination tree.</p>
-    </li><li name="laika.api.Render.SingleTarget" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="SingleTargetextendsRender.BinaryTarget"></a><a id="SingleTarget:SingleTarget"></a>
-      <span class="permalink">
-      <a href="../../laika/api/Render$.html#SingleTargetextendsRender.BinaryTarget" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a title="Represents a single destination for a render operation." href="Render$$SingleTarget.html"><span class="name">SingleTarget</span></a><span class="result"> extends <a href="Render$$BinaryTarget.html" class="extype" name="laika.api.Render.BinaryTarget">BinaryTarget</a></span>
-      </span>
-      
-      <p class="shortcomment cmt">Represents a single destination for a render operation.</p><div class="fullcomment"><div class="comment cmt"><p>Represents a single destination for a render operation.
- Various types of output can be
- specified to trigger the actual rendering.
-</p></div></div>
     </li></ol>
             </div>
 
@@ -366,9 +313,9 @@
  or a plugin that is capable of rendering a specific output.
 </p></div><dl class="paramcmts block"><dt class="param">processor</dt><dd class="cmt"><p>the processor responsible for processing the renderer result</p></dd></dl></div>
     </li><li name="laika.api.Render#as" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="as[Writer](factory:laika.factory.RendererFactory[Writer]):laika.api.Render.RenderMappedOutput[Writer]"></a><a id="as[Writer](RendererFactory[Writer]):RenderMappedOutput[Writer]"></a>
+      <a id="as[Writer](format:laika.factory.RenderFormat[Writer]):laika.api.Render.RenderMappedOutput[Writer]"></a><a id="as[Writer](RenderFormat[Writer]):RenderMappedOutput[Writer]"></a>
       <span class="permalink">
-      <a href="../../laika/api/Render$.html#as[Writer](factory:laika.factory.RendererFactory[Writer]):laika.api.Render.RenderMappedOutput[Writer]" title="Permalink">
+      <a href="../../laika/api/Render$.html#as[Writer](format:laika.factory.RenderFormat[Writer]):laika.api.Render.RenderMappedOutput[Writer]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -377,13 +324,13 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">as</span><span class="tparams">[<span name="Writer">Writer</span>]</span><span class="params">(<span name="factory">factory: <a href="../factory/RendererFactory.html" class="extype" name="laika.factory.RendererFactory">RendererFactory</a>[<span class="extype" name="laika.api.Render.as.Writer">Writer</span>]</span>)</span><span class="result">: <a href="Render$$RenderMappedOutput.html" class="extype" name="laika.api.Render.RenderMappedOutput">RenderMappedOutput</a>[<span class="extype" name="laika.api.Render.as.Writer">Writer</span>]</span>
+        <span class="name">as</span><span class="tparams">[<span name="Writer">Writer</span>]</span><span class="params">(<span name="format">format: <a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a>[<span class="extype" name="laika.api.Render.as.Writer">Writer</span>]</span>)</span><span class="result">: <a href="Render$$RenderMappedOutput.html" class="extype" name="laika.api.Render.RenderMappedOutput">RenderMappedOutput</a>[<span class="extype" name="laika.api.Render.as.Writer">Writer</span>]</span>
       </span>
       
-      <p class="shortcomment cmt">Returns a new Render instance for the specified renderer factory.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new Render instance for the specified renderer factory.
+      <p class="shortcomment cmt">Returns a new Render instance for the specified render format.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new Render instance for the specified render format.
  This factory is usually an object provided by the library
  or a plugin that is capable of rendering a specific output.
-</p></div><dl class="paramcmts block"><dt class="param">factory</dt><dd class="cmt"><p>the renderer factory responsible for creating the final renderer</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">format</dt><dd class="cmt"><p>the renderer factory responsible for creating the final renderer</p></dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <span class="permalink">

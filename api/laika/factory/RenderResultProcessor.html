@@ -103,16 +103,16 @@
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
     </li><li class="current-entities indented2">
                         <span class="separator"></span>
-                        <a class="trait" href="ParserFactory.html" title="Responsible for creating parser instances for a specific markup format."></a>
-                        <a href="ParserFactory.html" title="Responsible for creating parser instances for a specific markup format.">ParserFactory</a>
+                        <a class="trait" href="MarkupParser.html" title="Responsible for creating parser instances for a specific markup format."></a>
+                        <a href="MarkupParser.html" title="Responsible for creating parser instances for a specific markup format.">MarkupParser</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="trait" href="RenderFormat.html" title="Responsible for creating renderer instances for a specific output format."></a>
+                        <a href="RenderFormat.html" title="Responsible for creating renderer instances for a specific output format.">RenderFormat</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="" title="Post processor for the result output of a renderer."></a>
                         <a href="" title="Post processor for the result output of a renderer.">RenderResultProcessor</a>
-                      </li><li class="current-entities indented2">
-                        <span class="separator"></span>
-                        <a class="trait" href="RendererFactory.html" title="Responsible for creating renderer instances for a specific output format."></a>
-                        <a href="RendererFactory.html" title="Responsible for creating renderer instances for a specific output format.">RendererFactory</a>
                       </li>
               </ul>
             </div>
@@ -153,7 +153,7 @@
             <span class="toggle">
               Known Subclasses
             </span>
-            <div class="subClasses hiddenContent"><a href="../render/PDF.html" class="extype" name="laika.render.PDF">PDF</a>, <a href="../render/PDF$.html" class="extype" name="laika.render.PDF">PDF</a></div>
+            <div class="subClasses hiddenContent"><a href="../format/PDF.html" class="extype" name="laika.format.PDF">PDF</a>, <a href="../format/PDF$.html" class="extype" name="laika.format.PDF">PDF</a></div>
           </div></div>
         
 
@@ -203,10 +203,10 @@
 
         <div class="values members">
               <h3>Abstract Value Members</h3>
-              <ol><li name="laika.factory.RenderResultProcessor#factory" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="factory:laika.factory.RendererFactory[Writer]"></a><a id="factory:RendererFactory[Writer]"></a>
+              <ol><li name="laika.factory.RenderResultProcessor#format" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="format:laika.factory.RenderFormat[Writer]"></a><a id="format:RenderFormat[Writer]"></a>
       <span class="permalink">
-      <a href="../../laika/factory/RenderResultProcessor.html#factory:laika.factory.RendererFactory[Writer]" title="Permalink">
+      <a href="../../laika/factory/RenderResultProcessor.html#format:laika.factory.RenderFormat[Writer]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -215,14 +215,14 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">factory</span><span class="result">: <a href="RendererFactory.html" class="extype" name="laika.factory.RendererFactory">RendererFactory</a>[<span class="extype" name="laika.factory.RenderResultProcessor.Writer">Writer</span>]</span>
+        <span class="name">format</span><span class="result">: <a href="RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a>[<span class="extype" name="laika.factory.RenderResultProcessor.Writer">Writer</span>]</span>
       </span>
       
       <p class="shortcomment cmt">The factory for the renderer that produces the interim result.</p>
     </li><li name="laika.factory.RenderResultProcessor#process" visbl="pub" class="indented0 " data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="process(tree:laika.tree.Documents.DocumentTree,render:(laika.tree.Documents.DocumentTree,laika.io.OutputProvider.OutputConfig)=&gt;Unit,output:laika.io.Output.BinaryOutput):Unit"></a><a id="process(DocumentTree,(DocumentTree,OutputConfig)⇒Unit,BinaryOutput):Unit"></a>
+      <a id="process(tree:laika.ast.DocumentTree,render:(laika.ast.DocumentTree,laika.io.OutputTree)=&gt;Unit,defaultTemplate:laika.ast.TemplateRoot,output:laika.io.Output.BinaryOutput):Unit"></a><a id="process(DocumentTree,(DocumentTree,OutputTree)⇒Unit,TemplateRoot,BinaryOutput):Unit"></a>
       <span class="permalink">
-      <a href="../../laika/factory/RenderResultProcessor.html#process(tree:laika.tree.Documents.DocumentTree,render:(laika.tree.Documents.DocumentTree,laika.io.OutputProvider.OutputConfig)=&gt;Unit,output:laika.io.Output.BinaryOutput):Unit" title="Permalink">
+      <a href="../../laika/factory/RenderResultProcessor.html#process(tree:laika.ast.DocumentTree,render:(laika.ast.DocumentTree,laika.io.OutputTree)=&gt;Unit,defaultTemplate:laika.ast.TemplateRoot,output:laika.io.Output.BinaryOutput):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -231,7 +231,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">process</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>, <span name="render">render: (<a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a>, <a href="../io/OutputProvider$$OutputConfig.html" class="extype" name="laika.io.OutputProvider.OutputConfig">OutputConfig</a>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>, <span name="output">output: <a href="../io/Output$$BinaryOutput.html" class="extype" name="laika.io.Output.BinaryOutput">BinaryOutput</a></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">process</span><span class="params">(<span name="tree">tree: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="render">render: (<a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a>, <a href="../io/OutputTree.html" class="extype" name="laika.io.OutputTree">OutputTree</a>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>, <span name="defaultTemplate">defaultTemplate: <a href="../ast/TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a></span>, <span name="output">output: <a href="../io/Output$$BinaryOutput.html" class="extype" name="laika.io.Output.BinaryOutput">BinaryOutput</a></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
       <p class="shortcomment cmt">Processes the tree by first using the specified render function
@@ -239,7 +239,7 @@
  it to the specified final output.</p><div class="fullcomment"><div class="comment cmt"><p>Processes the tree by first using the specified render function
  to produce the interim result, process the result and write
  it to the specified final output.
-</p></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the tree to render to the interim result</p></dd><dt class="param">render</dt><dd class="cmt"><p>the render function for producing the interim result</p></dd><dt class="param">output</dt><dd class="cmt"><p>the output to write the final result to</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the tree to render to the interim result</p></dd><dt class="param">render</dt><dd class="cmt"><p>the render function for producing the interim result</p></dd><dt class="param">defaultTemplate</dt><dd class="cmt"><p>the default template to merge with the render result</p></dd><dt class="param">output</dt><dd class="cmt"><p>the output to write the final result to</p></dd></dl></div>
     </li></ol>
             </div>
 

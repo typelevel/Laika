@@ -103,8 +103,16 @@
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
     </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="class" href="ASTRenderer.html" title="Default renderer implementation for the Formatted AST output format."></a>
+                        <a href="ASTRenderer.html" title="Default renderer implementation for the Formatted AST output format.">ASTRenderer</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="trait" href="FOProperties.html" title="Mapping of XSL-FO tag names to their supported properties."></a>
                         <a href="FOProperties.html" title="Mapping of XSL-FO tag names to their supported properties.">FOProperties</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="FORenderer.html" title="Default renderer implementation for the XSL-FO output format."></a>
+                        <a href="FORenderer.html" title="Default renderer implementation for the XSL-FO output format.">FORenderer</a>
                       </li><li class="current-entities indented2">
                         <a class="object" href="FOWriter$.html" title="Companion providing tree elements specific to the XSL-FO renderer."></a>
                         <a class="class" href="FOWriter.html" title="API for renderers that produce XSL-FO output."></a>
@@ -114,25 +122,13 @@
                         <a class="class" href="FOforPDF.html" title="Responsible for rendering the XSL-FO for an entire document tree as an interim result to be consumed by the PDF post processor."></a>
                         <a href="FOforPDF.html" title="Responsible for rendering the XSL-FO for an entire document tree as an interim result to be consumed by the PDF post processor.">FOforPDF</a>
                       </li><li class="current-entities indented2">
-                        <a class="object" href="HTML$.html" title="The default instance of the HTML renderer."></a>
-                        <a class="class" href="HTML.html" title="A renderer for HTML output."></a>
-                        <a href="HTML.html" title="A renderer for HTML output.">HTML</a>
+                        <span class="separator"></span>
+                        <a class="class" href="HTMLRenderer.html" title="Default renderer implementation for the HTML output format."></a>
+                        <a href="HTMLRenderer.html" title="Default renderer implementation for the HTML output format.">HTMLRenderer</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="HTMLWriter.html" title="API for renderers that produce HTML output."></a>
                         <a href="HTMLWriter.html" title="API for renderers that produce HTML output.">HTMLWriter</a>
-                      </li><li class="current-entities indented2">
-                        <a class="object" href="PDF$.html" title="The default instance of the PDF renderer."></a>
-                        <a class="class" href="PDF.html" title="A post processor for PDF output, based on an interim XSL-FO renderer."></a>
-                        <a href="PDF.html" title="A post processor for PDF output, based on an interim XSL-FO renderer.">PDF</a>
-                      </li><li class="current-entities indented2">
-                        <a class="object" href="PDFConfig$.html" title="Companion for the creation of PDFConfig instances."></a>
-                        <a class="class" href="PDFConfig.html" title="Configuration options for the generated PDF output."></a>
-                        <a href="PDFConfig.html" title="Configuration options for the generated PDF output.">PDFConfig</a>
-                      </li><li class="current-entities indented2">
-                        <a class="object" href="PrettyPrint$.html" title=""></a>
-                        <a class="class" href="PrettyPrint.html" title="A renderer for PrettyPrint output, primarily useful for debugging purposes."></a>
-                        <a href="PrettyPrint.html" title="A renderer for PrettyPrint output, primarily useful for debugging purposes.">PrettyPrint</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="TagWriter.html" title="Base type for writers that produce tag-based output formats like XML or HTML."></a>
@@ -141,10 +137,6 @@
                         <span class="separator"></span>
                         <a class="class" href="TextWriter.html" title="API for renderers that produce character output."></a>
                         <a href="TextWriter.html" title="API for renderers that produce character output.">TextWriter</a>
-                      </li><li class="current-entities indented2">
-                        <a class="object" href="XSLFO$.html" title="The default instance of the XSL-FO renderer."></a>
-                        <a class="class" href="XSLFO.html" title="A renderer for XSL-FO output."></a>
-                        <a href="XSLFO.html" title="A renderer for XSL-FO output.">XSLFO</a>
                       </li>
               </ul>
             </div>
@@ -284,9 +276,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="laika.render.FOforPDF#addTreeTitles" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="addTreeTitles(linksOnly:Boolean)(tree:laika.tree.Documents.DocumentTree):laika.tree.Documents.DocumentTree"></a><a id="addTreeTitles(Boolean)(DocumentTree):DocumentTree"></a>
+      <a id="addTreeTitles(linksOnly:Boolean)(tree:laika.ast.DocumentTree):laika.ast.DocumentTree"></a><a id="addTreeTitles(Boolean)(DocumentTree):DocumentTree"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOforPDF$.html#addTreeTitles(linksOnly:Boolean)(tree:laika.tree.Documents.DocumentTree):laika.tree.Documents.DocumentTree" title="Permalink">
+      <a href="../../laika/render/FOforPDF$.html#addTreeTitles(linksOnly:Boolean)(tree:laika.ast.DocumentTree):laika.ast.DocumentTree" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -295,7 +287,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">addTreeTitles</span><span class="params">(<span name="linksOnly">linksOnly: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
+        <span class="name">addTreeTitles</span><span class="params">(<span name="linksOnly">linksOnly: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span name="tree">tree: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>
       </span>
       
       <p class="shortcomment cmt">Adds title elements for each tree and subtree in the specified
@@ -398,9 +390,9 @@
               
         </dd></dl></div>
     </li><li name="laika.render.FOforPDF#generateBookmarks" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="generateBookmarks(root:laika.tree.Documents.DocumentTree,depth:Int):Map[String,laika.tree.Elements.Element]"></a><a id="generateBookmarks(DocumentTree,Int):Map[String,Element]"></a>
+      <a id="generateBookmarks(root:laika.ast.DocumentTree,depth:Int):Map[String,laika.ast.Element]"></a><a id="generateBookmarks(DocumentTree,Int):Map[String,Element]"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOforPDF$.html#generateBookmarks(root:laika.tree.Documents.DocumentTree,depth:Int):Map[String,laika.tree.Elements.Element]" title="Permalink">
+      <a href="../../laika/render/FOforPDF$.html#generateBookmarks(root:laika.ast.DocumentTree,depth:Int):Map[String,laika.ast.Element]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -409,7 +401,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">generateBookmarks</span><span class="params">(<span name="root">root: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>, <span name="depth">depth: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a>]</span>
+        <span class="name">generateBookmarks</span><span class="params">(<span name="root">root: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="depth">depth: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a>]</span>
       </span>
       
       <p class="shortcomment cmt">Generates bookmarks for the structure of the DocumentTree.</p><div class="fullcomment"><div class="comment cmt"><p>Generates bookmarks for the structure of the DocumentTree. Individual
@@ -437,9 +429,9 @@
               
         </dd></dl></div>
     </li><li name="laika.render.FOforPDF#hasContent" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hasContent(nav:laika.tree.Documents.Navigatable):Boolean"></a><a id="hasContent(Navigatable):Boolean"></a>
+      <a id="hasContent(nav:laika.ast.Navigatable):Boolean"></a><a id="hasContent(Navigatable):Boolean"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOforPDF$.html#hasContent(nav:laika.tree.Documents.Navigatable):Boolean" title="Permalink">
+      <a href="../../laika/render/FOforPDF$.html#hasContent(nav:laika.ast.Navigatable):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -448,15 +440,15 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">hasContent</span><span class="params">(<span name="nav">nav: <a href="../tree/Documents$$Navigatable.html" class="extype" name="laika.tree.Documents.Navigatable">Navigatable</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+        <span class="name">hasContent</span><span class="params">(<span name="nav">nav: <a href="../ast/Navigatable.html" class="extype" name="laika.ast.Navigatable">Navigatable</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       
       <p class="shortcomment cmt">Indicates whether the specified navigatable contains at least one document.</p><div class="fullcomment"><div class="comment cmt"><p>Indicates whether the specified navigatable contains at least one document.
 </p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="FOforPDF.html" class="extype" name="laika.render.FOforPDF">FOforPDF</a></dd></dl></div>
     </li><li name="laika.render.FOforPDF#hasDocuments" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="hasDocuments(tree:laika.tree.Documents.DocumentTree):Boolean"></a><a id="hasDocuments(DocumentTree):Boolean"></a>
+      <a id="hasDocuments(tree:laika.ast.DocumentTree):Boolean"></a><a id="hasDocuments(DocumentTree):Boolean"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOforPDF$.html#hasDocuments(tree:laika.tree.Documents.DocumentTree):Boolean" title="Permalink">
+      <a href="../../laika/render/FOforPDF$.html#hasDocuments(tree:laika.ast.DocumentTree):Boolean" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -465,7 +457,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">hasDocuments</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+        <span class="name">hasDocuments</span><span class="params">(<span name="tree">tree: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       
       <p class="shortcomment cmt">Indicates whether the specified tree contains at least one document.</p><div class="fullcomment"><div class="comment cmt"><p>Indicates whether the specified tree contains at least one document.
@@ -490,9 +482,9 @@
               
         </dd></dl></div>
     </li><li name="laika.render.FOforPDF#insertDocTitles" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="insertDocTitles(linksOnly:Boolean)(tree:laika.tree.Documents.DocumentTree):laika.tree.Documents.DocumentTree"></a><a id="insertDocTitles(Boolean)(DocumentTree):DocumentTree"></a>
+      <a id="insertDocTitles(linksOnly:Boolean)(tree:laika.ast.DocumentTree):laika.ast.DocumentTree"></a><a id="insertDocTitles(Boolean)(DocumentTree):DocumentTree"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOforPDF$.html#insertDocTitles(linksOnly:Boolean)(tree:laika.tree.Documents.DocumentTree):laika.tree.Documents.DocumentTree" title="Permalink">
+      <a href="../../laika/render/FOforPDF$.html#insertDocTitles(linksOnly:Boolean)(tree:laika.ast.DocumentTree):laika.ast.DocumentTree" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -501,7 +493,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">insertDocTitles</span><span class="params">(<span name="linksOnly">linksOnly: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
+        <span class="name">insertDocTitles</span><span class="params">(<span name="linksOnly">linksOnly: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span name="tree">tree: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>
       </span>
       
       <p class="shortcomment cmt">Adds title elements for each document in the specified
@@ -510,9 +502,9 @@
  from a <code>Title</code> element in the document's content or from its configuration header.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="FOforPDF.html" class="extype" name="laika.render.FOforPDF">FOforPDF</a></dd></dl></div>
     </li><li name="laika.render.FOforPDF#insertToc" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="insertToc(tree:laika.tree.Documents.DocumentTree,depth:Int,title:Option[String]):laika.tree.Documents.DocumentTree"></a><a id="insertToc(DocumentTree,Int,Option[String]):DocumentTree"></a>
+      <a id="insertToc(tree:laika.ast.DocumentTree,depth:Int,title:Option[String]):laika.ast.DocumentTree"></a><a id="insertToc(DocumentTree,Int,Option[String]):DocumentTree"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOforPDF$.html#insertToc(tree:laika.tree.Documents.DocumentTree,depth:Int,title:Option[String]):laika.tree.Documents.DocumentTree" title="Permalink">
+      <a href="../../laika/render/FOforPDF$.html#insertToc(tree:laika.ast.DocumentTree,depth:Int,title:Option[String]):laika.ast.DocumentTree" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -521,7 +513,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">insertToc</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>, <span name="depth">depth: <span class="extype" name="scala.Int">Int</span></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
+        <span class="name">insertToc</span><span class="params">(<span name="tree">tree: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="depth">depth: <span class="extype" name="scala.Int">Int</span></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result">: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>
       </span>
       
       <p class="shortcomment cmt">Inserts a table of content into the specified document tree.</p><div class="fullcomment"><div class="comment cmt"><p>Inserts a table of content into the specified document tree.
@@ -599,9 +591,9 @@
               
         </dd></dl></div>
     </li><li name="laika.render.FOforPDF#prepareTree" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="prepareTree(tree:laika.tree.Documents.DocumentTree,config:laika.render.PDFConfig):laika.tree.Documents.DocumentTree"></a><a id="prepareTree(DocumentTree,PDFConfig):DocumentTree"></a>
+      <a id="prepareTree(tree:laika.ast.DocumentTree,config:laika.format.PDF.Config):laika.ast.DocumentTree"></a><a id="prepareTree(DocumentTree,Config):DocumentTree"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOforPDF$.html#prepareTree(tree:laika.tree.Documents.DocumentTree,config:laika.render.PDFConfig):laika.tree.Documents.DocumentTree" title="Permalink">
+      <a href="../../laika/render/FOforPDF$.html#prepareTree(tree:laika.ast.DocumentTree,config:laika.format.PDF.Config):laika.ast.DocumentTree" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -610,7 +602,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">prepareTree</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>, <span name="config">config: <a href="PDFConfig.html" class="extype" name="laika.render.PDFConfig">PDFConfig</a></span>)</span><span class="result">: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>
+        <span class="name">prepareTree</span><span class="params">(<span name="tree">tree: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="config">config: <a href="../format/PDF$$Config.html" class="extype" name="laika.format.PDF.Config">Config</a></span>)</span><span class="result">: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>
       </span>
       
       <p class="shortcomment cmt">Prepares the document tree before rendering the interim XSL-FO
@@ -619,9 +611,9 @@
  and a table of content, depending on configuration.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="FOforPDF.html" class="extype" name="laika.render.FOforPDF">FOforPDF</a></dd></dl></div>
     </li><li name="laika.render.FOforPDF#renderFO" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="renderFO(tree:laika.tree.Documents.DocumentTree,render:(laika.tree.Documents.DocumentTree,laika.io.OutputProvider.OutputConfig)=&gt;Unit):String"></a><a id="renderFO(DocumentTree,(DocumentTree,OutputConfig)⇒Unit):String"></a>
+      <a id="renderFO(tree:laika.ast.DocumentTree,render:(laika.ast.DocumentTree,laika.io.OutputTree)=&gt;Unit,defaultTemplateRoot:laika.ast.TemplateRoot):String"></a><a id="renderFO(DocumentTree,(DocumentTree,OutputTree)⇒Unit,TemplateRoot):String"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOforPDF$.html#renderFO(tree:laika.tree.Documents.DocumentTree,render:(laika.tree.Documents.DocumentTree,laika.io.OutputProvider.OutputConfig)=&gt;Unit):String" title="Permalink">
+      <a href="../../laika/render/FOforPDF$.html#renderFO(tree:laika.ast.DocumentTree,render:(laika.ast.DocumentTree,laika.io.OutputTree)=&gt;Unit,defaultTemplateRoot:laika.ast.TemplateRoot):String" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -630,7 +622,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">renderFO</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>, <span name="render">render: (<a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a>, <a href="../io/OutputProvider$$OutputConfig.html" class="extype" name="laika.io.OutputProvider.OutputConfig">OutputConfig</a>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+        <span class="name">renderFO</span><span class="params">(<span name="tree">tree: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="render">render: (<a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a>, <a href="../io/OutputTree.html" class="extype" name="laika.io.OutputTree">OutputTree</a>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>, <span name="defaultTemplateRoot">defaultTemplateRoot: <a href="../ast/TemplateRoot.html" class="extype" name="laika.ast.TemplateRoot">TemplateRoot</a></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
       </span>
       
       <p class="shortcomment cmt">Renders the XSL-FO that serves as a basis for producing the final PDF output.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the XSL-FO that serves as a basis for producing the final PDF output.

@@ -120,24 +120,12 @@
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="laika.api">api</a></dd></dl></div>
     </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="trait" href="Render$$BinaryTarget.html" title="A target for a render operation that accepts only binary output."></a>
-                        <a href="Render$$BinaryTarget.html" title="A target for a render operation that accepts only binary output.">BinaryTarget</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="trait" href="Render$$MappedTreeTarget.html" title="Represents a tree of output destinations for recursive render operations."></a>
-                        <a href="Render$$MappedTreeTarget.html" title="Represents a tree of output destinations for recursive render operations.">MappedTreeTarget</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
                         <a class="class" href="" title="A render operation that gathers input from one or more input documents in an input tree structure to be rendered to a single output destination."></a>
                         <a href="" title="A render operation that gathers input from one or more input documents in an input tree structure to be rendered to a single output destination.">RenderGatheredOutput</a>
                       </li><li class="current-entities indented3">
                         <span class="separator"></span>
                         <a class="class" href="Render$$RenderMappedOutput.html" title="A render operation that maps each input document of a given input tree to a corresponding output document in the destination tree."></a>
                         <a href="Render$$RenderMappedOutput.html" title="A render operation that maps each input document of a given input tree to a corresponding output document in the destination tree.">RenderMappedOutput</a>
-                      </li><li class="current-entities indented3">
-                        <span class="separator"></span>
-                        <a class="trait" href="Render$$SingleTarget.html" title="Represents a single destination for a render operation."></a>
-                        <a href="Render$$SingleTarget.html" title="Represents a single destination for a render operation.">SingleTarget</a>
                       </li>
               </ul>
             </div>
@@ -175,7 +163,7 @@
           <span class="toggle">
             Linear Supertypes
           </span>
-          <div class="superTypes hiddenContent"><a href="Render.html" class="extype" name="laika.api.Render">Render</a>[<span class="extype" name="laika.api.Render.RenderGatheredOutput.Writer">Writer</span>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="Render.html" class="extype" name="laika.api.Render">Render</a>[<span class="extype" name="laika.api.Render.RenderGatheredOutput.Writer">Writer</span>], <a href="../config/RenderConfigBuilder.html" class="extype" name="laika.config.RenderConfigBuilder">RenderConfigBuilder</a>[<span class="extype" name="laika.api.Render.RenderGatheredOutput.Writer">Writer</span>], <a href="../config/OperationConfigBuilder.html" class="extype" name="laika.config.OperationConfigBuilder">OperationConfigBuilder</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -201,7 +189,7 @@
                   <span class="filtertype">Inherited<br />
                   </span>
                   <ol id="linearization">
-                    <li class="in" name="laika.api.Render.RenderGatheredOutput"><span>RenderGatheredOutput</span></li><li class="in" name="laika.api.Render"><span>Render</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                    <li class="in" name="laika.api.Render.RenderGatheredOutput"><span>RenderGatheredOutput</span></li><li class="in" name="laika.api.Render"><span>Render</span></li><li class="in" name="laika.config.RenderConfigBuilder"><span>RenderConfigBuilder</span></li><li class="in" name="laika.config.OperationConfigBuilder"><span>OperationConfigBuilder</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                   </ol>
                 </div><div class="ancestors">
               <span class="filtertype"></span>
@@ -222,9 +210,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.api.Render.RenderGatheredOutput#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(processor:laika.factory.RenderResultProcessor[Writer],customRenderers:List[Writer=&gt;laika.tree.Elements.RenderFunction]):laika.api.Render.RenderGatheredOutput[Writer]"></a><a id="&lt;init&gt;:RenderGatheredOutput[Writer]"></a>
+      <a id="&lt;init&gt;(processor:laika.factory.RenderResultProcessor[Writer],cfg:laika.config.OperationConfig):laika.api.Render.RenderGatheredOutput[Writer]"></a><a id="&lt;init&gt;:RenderGatheredOutput[Writer]"></a>
       <span class="permalink">
-      <a href="../../laika/api/Render$$RenderGatheredOutput.html#&lt;init&gt;(processor:laika.factory.RenderResultProcessor[Writer],customRenderers:List[Writer=&gt;laika.tree.Elements.RenderFunction]):laika.api.Render.RenderGatheredOutput[Writer]" title="Permalink">
+      <a href="../../laika/api/Render$$RenderGatheredOutput.html#&lt;init&gt;(processor:laika.factory.RenderResultProcessor[Writer],cfg:laika.config.OperationConfig):laika.api.Render.RenderGatheredOutput[Writer]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -233,19 +221,19 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">RenderGatheredOutput</span><span class="params">(<span name="processor">processor: <a href="../factory/RenderResultProcessor.html" class="extype" name="laika.factory.RenderResultProcessor">RenderResultProcessor</a>[<span class="extype" name="laika.api.Render.RenderGatheredOutput.Writer">Writer</span>]</span>, <span name="customRenderers">customRenderers: <span class="extype" name="scala.List">List</span>[(<span class="extype" name="laika.api.Render.RenderGatheredOutput.Writer">Writer</span>) ⇒ <a href="../tree/Elements$.html#RenderFunction=PartialFunction[laika.tree.Elements.Element,Unit]" class="extmbr" name="laika.tree.Elements.RenderFunction">RenderFunction</a>] = <span class="symbol">Nil</span></span>)</span>
+        <span class="name">RenderGatheredOutput</span><span class="params">(<span name="processor">processor: <a href="../factory/RenderResultProcessor.html" class="extype" name="laika.factory.RenderResultProcessor">RenderResultProcessor</a>[<span class="extype" name="laika.api.Render.RenderGatheredOutput.Writer">Writer</span>]</span>, <span name="cfg">cfg: <a href="../config/OperationConfig.html" class="extype" name="laika.config.OperationConfig">OperationConfig</a></span>)</span>
       </span>
       
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">processor</dt><dd class="cmt"><p>the processor that merges the results from the individual render operations into a single output</p></dd><dt class="param">customRenderers</dt><dd class="cmt"><p>custom renderers to be applied in addition to the default renderers</p></dd></dl></div>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">processor</dt><dd class="cmt"><p>the processor that merges the results from the individual render operations into a single output</p></dd><dt class="param">cfg</dt><dd class="cmt"><p>the configuration for the render operation</p></dd></dl></div>
     </li></ol>
             </div>
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="laika.api.Render.RenderGatheredOutput.DocTarget" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="DocTarget=laika.api.Render.BinaryTarget"></a><a id="DocTarget:DocTarget"></a>
+              <ol><li name="laika.api.Render.RenderGatheredOutput.DocOps" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="DocOps=laika.io.BinaryOutputOps"></a><a id="DocOps:DocOps"></a>
       <span class="permalink">
-      <a href="../../laika/api/Render$$RenderGatheredOutput.html#DocTarget=laika.api.Render.BinaryTarget" title="Permalink">
+      <a href="../../laika/api/Render$$RenderGatheredOutput.html#DocOps=laika.io.BinaryOutputOps" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -254,10 +242,10 @@
         <span class="kind">type</span>
       </span>
       <span class="symbol">
-        <span class="name">DocTarget</span><span class="result alias"> = <a href="Render$$BinaryTarget.html" class="extype" name="laika.api.Render.BinaryTarget">BinaryTarget</a></span>
+        <span class="name">DocOps</span><span class="result alias"> = <a href="../io/BinaryOutputOps.html" class="extype" name="laika.io.BinaryOutputOps">BinaryOutputOps</a></span>
       </span>
       
-      <p class="shortcomment cmt">The type of the rendering target for a single input document.</p><div class="fullcomment"><div class="comment cmt"><p>The type of the rendering target for a single input document.
+      <p class="shortcomment cmt">The output operations that can be performed for a single input document.</p><div class="fullcomment"><div class="comment cmt"><p>The output operations that can be performed for a single input document.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Render.RenderGatheredOutput">RenderGatheredOutput</a> → <a href="Render.html" class="extype" name="laika.api.Render">Render</a></dd></dl></div>
     </li><li name="laika.api.Render.RenderGatheredOutput.ThisType" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ThisType=laika.api.Render.RenderGatheredOutput[Writer]"></a><a id="ThisType:ThisType"></a>
@@ -275,11 +263,11 @@
       </span>
       
       <p class="shortcomment cmt">The concrete implementation of the abstract Render type.</p><div class="fullcomment"><div class="comment cmt"><p>The concrete implementation of the abstract Render type.
-</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Render.RenderGatheredOutput">RenderGatheredOutput</a> → <a href="Render.html" class="extype" name="laika.api.Render">Render</a></dd></dl></div>
-    </li><li name="laika.api.Render.RenderGatheredOutput.TreeTarget" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="TreeTarget=laika.api.Render.BinaryTarget"></a><a id="TreeTarget:TreeTarget"></a>
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Render.RenderGatheredOutput">RenderGatheredOutput</a> → <a href="Render.html" class="extype" name="laika.api.Render">Render</a> → <a href="../config/OperationConfigBuilder.html" class="extype" name="laika.config.OperationConfigBuilder">OperationConfigBuilder</a></dd></dl></div>
+    </li><li name="laika.api.Render.RenderGatheredOutput.TreeOps" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="TreeOps=laika.io.BinaryOutputOps"></a><a id="TreeOps:TreeOps"></a>
       <span class="permalink">
-      <a href="../../laika/api/Render$$RenderGatheredOutput.html#TreeTarget=laika.api.Render.BinaryTarget" title="Permalink">
+      <a href="../../laika/api/Render$$RenderGatheredOutput.html#TreeOps=laika.io.BinaryOutputOps" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -288,10 +276,10 @@
         <span class="kind">type</span>
       </span>
       <span class="symbol">
-        <span class="name">TreeTarget</span><span class="result alias"> = <a href="Render$$BinaryTarget.html" class="extype" name="laika.api.Render.BinaryTarget">BinaryTarget</a></span>
+        <span class="name">TreeOps</span><span class="result alias"> = <a href="../io/BinaryOutputOps.html" class="extype" name="laika.io.BinaryOutputOps">BinaryOutputOps</a></span>
       </span>
       
-      <p class="shortcomment cmt">The type of the rendering target for an entire tree of input documents.</p><div class="fullcomment"><div class="comment cmt"><p>The type of the rendering target for an entire tree of input documents.
+      <p class="shortcomment cmt">The output operations that can be performed for an entire tree of input documents.</p><div class="fullcomment"><div class="comment cmt"><p>The output operations that can be performed for an entire tree of input documents.
 </p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Render.RenderGatheredOutput">RenderGatheredOutput</a> → <a href="Render.html" class="extype" name="laika.api.Render">Render</a></dd></dl></div>
     </li></ol>
             </div>
@@ -389,6 +377,23 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="laika.api.Render#config" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="config:laika.config.OperationConfig"></a><a id="config:OperationConfig"></a>
+      <span class="permalink">
+      <a href="../../laika/api/Render$$RenderGatheredOutput.html#config:laika.config.OperationConfig" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">config</span><span class="result">: <a href="../config/OperationConfig.html" class="extype" name="laika.config.OperationConfig">OperationConfig</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">The current configuration for this instance.</p><div class="fullcomment"><div class="comment cmt"><p>The current configuration for this instance.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Render.html" class="extype" name="laika.api.Render">Render</a> → <a href="../config/OperationConfigBuilder.html" class="extype" name="laika.config.OperationConfigBuilder">OperationConfigBuilder</a></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -443,10 +448,26 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.api.Render.RenderGatheredOutput#from" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="from(tree:laika.tree.Documents.DocumentTree):laika.api.Render.BinaryTarget"></a><a id="from(DocumentTree):BinaryTarget"></a>
+    </li><li name="laika.api.Render#format" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="format:laika.factory.RenderFormat[Writer]"></a><a id="format:RenderFormat[Writer]"></a>
       <span class="permalink">
-      <a href="../../laika/api/Render$$RenderGatheredOutput.html#from(tree:laika.tree.Documents.DocumentTree):laika.api.Render.BinaryTarget" title="Permalink">
+      <a href="../../laika/api/Render$$RenderGatheredOutput.html#format:laika.factory.RenderFormat[Writer]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">format</span><span class="result">: <a href="../factory/RenderFormat.html" class="extype" name="laika.factory.RenderFormat">RenderFormat</a>[<span class="extype" name="laika.api.Render.RenderGatheredOutput.Writer">Writer</span>]</span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="index.html" class="extype" name="laika.api">laika.api</a>] </dd><dt>Definition Classes</dt><dd><a href="Render.html" class="extype" name="laika.api.Render">Render</a> → <a href="../config/RenderConfigBuilder.html" class="extype" name="laika.config.RenderConfigBuilder">RenderConfigBuilder</a></dd></dl></div>
+    </li><li name="laika.api.Render.RenderGatheredOutput#from" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="from(tree:laika.ast.DocumentTree):laika.io.BinaryOutputOps"></a><a id="from(DocumentTree):BinaryOutputOps"></a>
+      <span class="permalink">
+      <a href="../../laika/api/Render$$RenderGatheredOutput.html#from(tree:laika.ast.DocumentTree):laika.io.BinaryOutputOps" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -455,15 +476,15 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">from</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <a href="Render$$BinaryTarget.html" class="extype" name="laika.api.Render.BinaryTarget">BinaryTarget</a></span>
+        <span class="name">from</span><span class="params">(<span name="tree">tree: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <a href="../io/BinaryOutputOps.html" class="extype" name="laika.io.BinaryOutputOps">BinaryOutputOps</a></span>
       </span>
       
       <p class="shortcomment cmt">Specifies the document tree to render.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies the document tree to render.
 </p></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the document tree to render</p></dd><dt>returns</dt><dd class="cmt"><p>a new BatchOperation instance that allows to specify the outputs</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Render.RenderGatheredOutput">RenderGatheredOutput</a> → <a href="Render.html" class="extype" name="laika.api.Render">Render</a></dd></dl></div>
     </li><li name="laika.api.Render.RenderGatheredOutput#from" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="from(doc:laika.tree.Documents.Document):laika.api.Render.BinaryTarget"></a><a id="from(Document):BinaryTarget"></a>
+      <a id="from(doc:laika.ast.Document):laika.io.BinaryOutputOps"></a><a id="from(Document):BinaryOutputOps"></a>
       <span class="permalink">
-      <a href="../../laika/api/Render$$RenderGatheredOutput.html#from(doc:laika.tree.Documents.Document):laika.api.Render.BinaryTarget" title="Permalink">
+      <a href="../../laika/api/Render$$RenderGatheredOutput.html#from(doc:laika.ast.Document):laika.io.BinaryOutputOps" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -472,15 +493,15 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">from</span><span class="params">(<span name="doc">doc: <a href="../tree/Documents$$Document.html" class="extype" name="laika.tree.Documents.Document">Document</a></span>)</span><span class="result">: <a href="Render$$BinaryTarget.html" class="extype" name="laika.api.Render.BinaryTarget">BinaryTarget</a></span>
+        <span class="name">from</span><span class="params">(<span name="doc">doc: <a href="../ast/Document.html" class="extype" name="laika.ast.Document">Document</a></span>)</span><span class="result">: <a href="../io/BinaryOutputOps.html" class="extype" name="laika.io.BinaryOutputOps">BinaryOutputOps</a></span>
       </span>
       
       <p class="shortcomment cmt">Specifies the document to render.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies the document to render.
 </p></div><dl class="paramcmts block"><dt class="param">doc</dt><dd class="cmt"><p>the document to render</p></dd><dt>returns</dt><dd class="cmt"><p>a new Operation instance that allows to specify the output</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Render.RenderGatheredOutput">RenderGatheredOutput</a> → <a href="Render.html" class="extype" name="laika.api.Render">Render</a></dd></dl></div>
     </li><li name="laika.api.Render.RenderGatheredOutput#from" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="from(element:laika.tree.Elements.Element):laika.api.Render.BinaryTarget"></a><a id="from(Element):BinaryTarget"></a>
+      <a id="from(element:laika.ast.Element):laika.io.BinaryOutputOps"></a><a id="from(Element):BinaryOutputOps"></a>
       <span class="permalink">
-      <a href="../../laika/api/Render$$RenderGatheredOutput.html#from(element:laika.tree.Elements.Element):laika.api.Render.BinaryTarget" title="Permalink">
+      <a href="../../laika/api/Render$$RenderGatheredOutput.html#from(element:laika.ast.Element):laika.io.BinaryOutputOps" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -489,7 +510,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">from</span><span class="params">(<span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>)</span><span class="result">: <a href="Render$$BinaryTarget.html" class="extype" name="laika.api.Render.BinaryTarget">BinaryTarget</a></span>
+        <span class="name">from</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>)</span><span class="result">: <a href="../io/BinaryOutputOps.html" class="extype" name="laika.io.BinaryOutputOps">BinaryOutputOps</a></span>
       </span>
       
       <p class="shortcomment cmt">Specifies the element to render.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies the element to render. This may be a <code>RootElement</code> instance
@@ -534,6 +555,30 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.config.OperationConfigBuilder#inParallel" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="inParallel:OperationConfigBuilder.this.ThisType"></a><a id="inParallel:ThisType"></a>
+      <span class="permalink">
+      <a href="../../laika/api/Render$$RenderGatheredOutput.html#inParallel:OperationConfigBuilder.this.ThisType" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">inParallel</span><span class="result">: <a href="#ThisType=laika.api.Render.RenderGatheredOutput[Writer]" class="extmbr" name="laika.api.Render.RenderGatheredOutput.ThisType">ThisType</a></span>
+      </span>
+      
+      <p class="shortcomment cmt"> Instructs the parser and/or renderer to process all inputs and outputs in parallel.</p><div class="fullcomment"><div class="comment cmt"><p> Instructs the parser and/or renderer to process all inputs and outputs in parallel.
+ The recursive structure of document trees will be flattened before parsing and rendering
+ and then get reassembled afterwards, therefore the parallel processing
+ includes all subtrees of the document tree.</p><p> The actual transformation is a three phase process, the first (parsing) and
+ third (rendering) can run in parallel. The second phase in the middle cannot,
+ as this is the document tree model rewrite step where things like cross references or
+ table of contents get processed that need access to more than just the current
+ document.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../config/OperationConfigBuilder.html" class="extype" name="laika.config.OperationConfigBuilder">OperationConfigBuilder</a></dd></dl></div>
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">
@@ -605,9 +650,9 @@
               
         </dd></dl></div>
     </li><li name="laika.api.Render#render" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="render(tree:laika.tree.Documents.DocumentTree,config:laika.io.OutputProvider.OutputConfig):Unit"></a><a id="render(DocumentTree,OutputConfig):Unit"></a>
+      <a id="render(docTree:laika.ast.DocumentTree,outputTree:laika.io.OutputTree):Unit"></a><a id="render(DocumentTree,OutputTree):Unit"></a>
       <span class="permalink">
-      <a href="../../laika/api/Render$$RenderGatheredOutput.html#render(tree:laika.tree.Documents.DocumentTree,config:laika.io.OutputProvider.OutputConfig):Unit" title="Permalink">
+      <a href="../../laika/api/Render$$RenderGatheredOutput.html#render(docTree:laika.ast.DocumentTree,outputTree:laika.io.OutputTree):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -616,15 +661,15 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">render</span><span class="params">(<span name="tree">tree: <a href="../tree/Documents$$DocumentTree.html" class="extype" name="laika.tree.Documents.DocumentTree">DocumentTree</a></span>, <span name="config">config: <a href="../io/OutputProvider$$OutputConfig.html" class="extype" name="laika.io.OutputProvider.OutputConfig">OutputConfig</a></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">render</span><span class="params">(<span name="docTree">docTree: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>, <span name="outputTree">outputTree: <a href="../io/OutputTree.html" class="extype" name="laika.io.OutputTree">OutputTree</a></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
       <p class="shortcomment cmt">Renders the specified document tree to the given output.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the specified document tree to the given output.
-</p></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the element to render</p></dd><dt class="param">config</dt><dd class="cmt"><p>the configuration for the output to render to</p></dd></dl><dl class="attributes block"> <dt>Attributes</dt><dd>protected[this] </dd><dt>Definition Classes</dt><dd><a href="Render.html" class="extype" name="laika.api.Render">Render</a></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">docTree</dt><dd class="cmt"><p>the tree to render</p></dd><dt class="param">outputTree</dt><dd class="cmt"><p>the output tree to render to</p></dd></dl><dl class="attributes block"> <dt>Attributes</dt><dd>protected[this] </dd><dt>Definition Classes</dt><dd><a href="Render.html" class="extype" name="laika.api.Render">Render</a></dd></dl></div>
     </li><li name="laika.api.Render#render" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="render(element:laika.tree.Elements.Element,output:laika.io.Output,styles:laika.parse.css.Styles.StyleDeclarationSet):Unit"></a><a id="render(Element,Output,StyleDeclarationSet):Unit"></a>
+      <a id="render(element:laika.ast.Element,output:laika.io.Output,styles:laika.ast.StyleDeclarationSet):Unit"></a><a id="render(Element,Output,StyleDeclarationSet):Unit"></a>
       <span class="permalink">
-      <a href="../../laika/api/Render$$RenderGatheredOutput.html#render(element:laika.tree.Elements.Element,output:laika.io.Output,styles:laika.parse.css.Styles.StyleDeclarationSet):Unit" title="Permalink">
+      <a href="../../laika/api/Render$$RenderGatheredOutput.html#render(element:laika.ast.Element,output:laika.io.Output,styles:laika.ast.StyleDeclarationSet):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -633,11 +678,35 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">render</span><span class="params">(<span name="element">element: <a href="../tree/Elements$$Element.html" class="extype" name="laika.tree.Elements.Element">Element</a></span>, <span name="output">output: <a href="../io/Output.html" class="extype" name="laika.io.Output">Output</a></span>, <span name="styles">styles: <a href="../parse/css/Styles$$StyleDeclarationSet.html" class="extype" name="laika.parse.css.Styles.StyleDeclarationSet">StyleDeclarationSet</a></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">render</span><span class="params">(<span name="element">element: <a href="../ast/Element.html" class="extype" name="laika.ast.Element">Element</a></span>, <span name="output">output: <a href="../io/Output.html" class="extype" name="laika.io.Output">Output</a></span>, <span name="styles">styles: <a href="../ast/StyleDeclarationSet.html" class="extype" name="laika.ast.StyleDeclarationSet">StyleDeclarationSet</a></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
       <p class="shortcomment cmt">Renders the specified element to the given output.</p><div class="fullcomment"><div class="comment cmt"><p>Renders the specified element to the given output.
 </p></div><dl class="paramcmts block"><dt class="param">element</dt><dd class="cmt"><p>the element to render</p></dd><dt class="param">output</dt><dd class="cmt"><p>the output to render to</p></dd><dt class="param">styles</dt><dd class="cmt"><p>the styles to apply to the elements during the render process</p></dd></dl><dl class="attributes block"> <dt>Attributes</dt><dd>protected[this] </dd><dt>Definition Classes</dt><dd><a href="Render.html" class="extype" name="laika.api.Render">Render</a></dd></dl></div>
+    </li><li name="laika.config.RenderConfigBuilder#rendering" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="rendering(customRenderer:Writer=&gt;laika.ast.RenderFunction):RenderConfigBuilder.this.ThisType"></a><a id="rendering((Writer)⇒RenderFunction):ThisType"></a>
+      <span class="permalink">
+      <a href="../../laika/api/Render$$RenderGatheredOutput.html#rendering(customRenderer:Writer=&gt;laika.ast.RenderFunction):RenderConfigBuilder.this.ThisType" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">rendering</span><span class="params">(<span name="customRenderer">customRenderer: (<span class="extype" name="laika.api.Render.RenderGatheredOutput.Writer">Writer</span>) ⇒ <a href="../ast/index.html#RenderFunction=PartialFunction[laika.ast.Element,Unit]" class="extmbr" name="laika.ast.RenderFunction">RenderFunction</a></span>)</span><span class="result">: <a href="#ThisType=laika.api.Render.RenderGatheredOutput[Writer]" class="extmbr" name="laika.api.Render.RenderGatheredOutput.ThisType">ThisType</a></span>
+      </span>
+      
+      <p class="shortcomment cmt"> Specifies a custom render function that overrides one or more of the default
+ renderers for the output format this instance uses.</p><div class="fullcomment"><div class="comment cmt"><p> Specifies a custom render function that overrides one or more of the default
+ renderers for the output format this instance uses.</p><p> This method expects a function that returns a partial function as the result.
+ The outer function allows to capture the writer instance to write to and will
+ only be invoked once. The partial function will then be invoked for each
+ element it is defined at.</p><p> Simple example for customizing the HTML output for emphasized text, adding a specific
+ style class:</p><pre>Transform from Markdown to HTML rendering { out <span class="kw">=&gt;</span>
+  { <span class="kw">case</span> Emphasized(content) <span class="kw">=&gt;</span> out &lt;&lt; <span class="lit">""</span><span class="lit">"&lt;em class="</span>big<span class="lit">">"</span><span class="lit">""</span> &lt;&lt; content &lt;&lt; <span class="lit">"&lt;/em>"</span> }
+} fromFile <span class="lit">"hello.md"</span> toFile <span class="lit">"hello.html"</span></pre></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../config/RenderConfigBuilder.html" class="extype" name="laika.config.RenderConfigBuilder">RenderConfigBuilder</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
@@ -654,6 +723,22 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="laika.api.Render#theme" visbl="prt" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="theme:Render.this.format.Theme"></a><a id="theme:Theme"></a>
+      <span class="permalink">
+      <a href="../../laika/api/Render$$RenderGatheredOutput.html#theme:Render.this.format.Theme" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">theme</span><span class="result">: <a href="../factory/RenderFormat$Theme.html" class="extype" name="laika.factory.RenderFormat.Theme">Theme</a></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[this] </dd><dt>Definition Classes</dt><dd><a href="Render.html" class="extype" name="laika.api.Render">Render</a></dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <span class="permalink">
@@ -670,10 +755,10 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="laika.api.Render.RenderGatheredOutput#using" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="using(render:Writer=&gt;laika.tree.Elements.RenderFunction):RenderGatheredOutput.this.ThisType"></a><a id="using((Writer)⇒RenderFunction):ThisType"></a>
+    </li><li name="laika.config.RenderConfigBuilder#unformatted" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="unformatted:RenderConfigBuilder.this.ThisType"></a><a id="unformatted:ThisType"></a>
       <span class="permalink">
-      <a href="../../laika/api/Render$$RenderGatheredOutput.html#using(render:Writer=&gt;laika.tree.Elements.RenderFunction):RenderGatheredOutput.this.ThisType" title="Permalink">
+      <a href="../../laika/api/Render$$RenderGatheredOutput.html#unformatted:RenderConfigBuilder.this.ThisType" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -682,20 +767,31 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">using</span><span class="params">(<span name="render">render: (<span class="extype" name="laika.api.Render.RenderGatheredOutput.Writer">Writer</span>) ⇒ <a href="../tree/Elements$.html#RenderFunction=PartialFunction[laika.tree.Elements.Element,Unit]" class="extmbr" name="laika.tree.Elements.RenderFunction">RenderFunction</a></span>)</span><span class="result">: <a href="#ThisType=laika.api.Render.RenderGatheredOutput[Writer]" class="extmbr" name="laika.api.Render.RenderGatheredOutput.ThisType">ThisType</a></span>
+        <span class="name">unformatted</span><span class="result">: <a href="#ThisType=laika.api.Render.RenderGatheredOutput[Writer]" class="extmbr" name="laika.api.Render.RenderGatheredOutput.ThisType">ThisType</a></span>
       </span>
       
-      <p class="shortcomment cmt">Specifies a custom render function that overrides one or more of the default
- renderers for the output format this instance uses.</p><div class="fullcomment"><div class="comment cmt"><p>Specifies a custom render function that overrides one or more of the default
- renderers for the output format this instance uses.</p><p> To be precise this method expects a function that returns a partial function.
- The outer function allows to capture the writer instance to write to and will
- only be invoked once. The partial function will then be invoked for each
- elememnt it is defined at.</p><p> Simple example for customizing the HTML output for emphasized text, adding a specific
- style class:</p><pre><span class="kw">val</span> doc: Document = ...
-
-Render as HTML using { out <span class="kw">=&gt;</span>
-  { <span class="kw">case</span> Emphasized(content) <span class="kw">=&gt;</span> out &lt;&lt; <span class="lit">""</span><span class="lit">"&lt;em class="</span>big<span class="lit">">"</span><span class="lit">""</span> &lt;&lt; content &lt;&lt; <span class="lit">"&lt;/em>"</span> }
-} from doc toString</pre></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Render.RenderGatheredOutput">RenderGatheredOutput</a> → <a href="Render.html" class="extype" name="laika.api.Render">Render</a></dd></dl></div>
+      <p class="shortcomment cmt"> Renders without any formatting (line breaks or indentation).</p><div class="fullcomment"><div class="comment cmt"><p> Renders without any formatting (line breaks or indentation).
+ Useful when storing the output in a database for example.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../config/RenderConfigBuilder.html" class="extype" name="laika.config.RenderConfigBuilder">RenderConfigBuilder</a></dd></dl></div>
+    </li><li name="laika.config.OperationConfigBuilder#using" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="using(bundles:laika.bundle.ExtensionBundle*):OperationConfigBuilder.this.ThisType"></a><a id="using(ExtensionBundle*):ThisType"></a>
+      <span class="permalink">
+      <a href="../../laika/api/Render$$RenderGatheredOutput.html#using(bundles:laika.bundle.ExtensionBundle*):OperationConfigBuilder.this.ThisType" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">using</span><span class="params">(<span name="bundles">bundles: <a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a>*</span>)</span><span class="result">: <a href="#ThisType=laika.api.Render.RenderGatheredOutput[Writer]" class="extmbr" name="laika.api.Render.RenderGatheredOutput.ThisType">ThisType</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Returns a new instance with the specified extension bundles installed.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new instance with the specified extension bundles installed.
+Features in the new bundles may override features in already installed bundles.</p><p>Bundles are usually provided by libraries (by Laika itself or a 3rd-party extension library)
+or as re-usable building blocks by application code.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../config/OperationConfigBuilder.html" class="extype" name="laika.config.OperationConfigBuilder">OperationConfigBuilder</a></dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">
@@ -764,18 +860,83 @@ Render as HTML using { out <span class="kw">=&gt;</span>
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="laika.api.Render.RenderGatheredOutput#withConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withConfig(newConfig:laika.config.OperationConfig):RenderGatheredOutput.this.ThisType"></a><a id="withConfig(OperationConfig):ThisType"></a>
+      <span class="permalink">
+      <a href="../../laika/api/Render$$RenderGatheredOutput.html#withConfig(newConfig:laika.config.OperationConfig):RenderGatheredOutput.this.ThisType" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withConfig</span><span class="params">(<span name="newConfig">newConfig: <a href="../config/OperationConfig.html" class="extype" name="laika.config.OperationConfig">OperationConfig</a></span>)</span><span class="result">: <a href="#ThisType=laika.api.Render.RenderGatheredOutput[Writer]" class="extmbr" name="laika.api.Render.RenderGatheredOutput.ThisType">ThisType</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Returns a new instance with the specified configuration.</p><div class="fullcomment"><div class="comment cmt"><p>Returns a new instance with the specified configuration.</p><p>This method discards any previously specified
+options. It is usually meant to be used when copying over
+the configuration from a fully configured object to an
+unconfigured one.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="laika.api.Render.RenderGatheredOutput">RenderGatheredOutput</a> → <a href="../config/OperationConfigBuilder.html" class="extype" name="laika.config.OperationConfigBuilder">OperationConfigBuilder</a></dd></dl></div>
+    </li><li name="laika.config.RenderConfigBuilder#withMessageLevel" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="withMessageLevel(level:laika.ast.MessageLevel):RenderConfigBuilder.this.ThisType"></a><a id="withMessageLevel(MessageLevel):ThisType"></a>
+      <span class="permalink">
+      <a href="../../laika/api/Render$$RenderGatheredOutput.html#withMessageLevel(level:laika.ast.MessageLevel):RenderConfigBuilder.this.ThisType" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withMessageLevel</span><span class="params">(<span name="level">level: <a href="../ast/MessageLevel.html" class="extype" name="laika.ast.MessageLevel">MessageLevel</a></span>)</span><span class="result">: <a href="#ThisType=laika.api.Render.RenderGatheredOutput[Writer]" class="extmbr" name="laika.api.Render.RenderGatheredOutput.ThisType">ThisType</a></span>
+      </span>
+      
+      <p class="shortcomment cmt"> Specifies the minimum required level for a system message
+ to get included into the output by this renderer.</p><div class="fullcomment"><div class="comment cmt"><p> Specifies the minimum required level for a system message
+ to get included into the output by this renderer.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../config/RenderConfigBuilder.html" class="extype" name="laika.config.RenderConfigBuilder">RenderConfigBuilder</a></dd></dl></div>
     </li>
               </ol>
             </div>
 
         
 
-        
+        <div class="values members">
+              <h3>Deprecated Value Members</h3>
+              <ol><li name="laika.api.Render#using" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="using(render:Writer=&gt;laika.ast.RenderFunction):Render.this.ThisType"></a><a id="using((Writer)⇒RenderFunction):ThisType"></a>
+      <span class="permalink">
+      <a href="../../laika/api/Render$$RenderGatheredOutput.html#using(render:Writer=&gt;laika.ast.RenderFunction):Render.this.ThisType" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name deprecated" title="Deprecated: (Since version 0.9.0) renamed to rendering for consistency">using</span><span class="params">(<span name="render">render: (<span class="extype" name="laika.api.Render.RenderGatheredOutput.Writer">Writer</span>) ⇒ <a href="../ast/index.html#RenderFunction=PartialFunction[laika.ast.Element,Unit]" class="extmbr" name="laika.ast.RenderFunction">RenderFunction</a></span>)</span><span class="result">: <a href="#ThisType=laika.api.Render.RenderGatheredOutput[Writer]" class="extmbr" name="laika.api.Render.RenderGatheredOutput.ThisType">ThisType</a></span>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="Render.html" class="extype" name="laika.api.Render">Render</a></dd><dt>Annotations</dt><dd>
+                <span class="name">@deprecated</span>
+              
+        </dd><dt>Deprecated</dt><dd class="cmt"><p><i>(Since version 0.9.0)</i> renamed to rendering for consistency</p></dd></dl></div>
+    </li></ol>
+            </div>
         </div>
 
         <div id="inheritedMembers">
         <div class="parent" name="laika.api.Render">
               <h3>Inherited from <a href="Render.html" class="extype" name="laika.api.Render">Render</a>[<span class="extype" name="laika.api.Render.RenderGatheredOutput.Writer">Writer</span>]</h3>
+            </div><div class="parent" name="laika.config.RenderConfigBuilder">
+              <h3>Inherited from <a href="../config/RenderConfigBuilder.html" class="extype" name="laika.config.RenderConfigBuilder">RenderConfigBuilder</a>[<span class="extype" name="laika.api.Render.RenderGatheredOutput.Writer">Writer</span>]</h3>
+            </div><div class="parent" name="laika.config.OperationConfigBuilder">
+              <h3>Inherited from <a href="../config/OperationConfigBuilder.html" class="extype" name="laika.config.OperationConfigBuilder">OperationConfigBuilder</a></h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">

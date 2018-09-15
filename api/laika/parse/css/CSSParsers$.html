@@ -118,17 +118,9 @@
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.parse">parse</a></dd></dl></div>
     </li><li class="current-entities indented3">
-                        <a class="object" href="" title="Companion for accessing the default implementation."></a>
-                        <a class="trait" href="CSSParsers.html" title="Parsers for the subset of CSS supported by Laika."></a>
-                        <a href="CSSParsers.html" title="Parsers for the subset of CSS supported by Laika.">CSSParsers</a>
-                      </li><li class="current-entities indented3">
-                        <a class="object" href="ParseStyleSheet$.html" title="Serves as an entry point to the ParseTemplate API."></a>
-                        <a class="class" href="ParseStyleSheet.html" title="API for performing a parse operation for a style sheet."></a>
-                        <a href="ParseStyleSheet.html" title="API for performing a parse operation for a style sheet.">ParseStyleSheet</a>
-                      </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="object" href="Styles$.html" title="Provides the domain model for the CSS engine."></a>
-                        <a href="Styles$.html" title="Provides the domain model for the CSS engine.">Styles</a>
+                        <a class="object" href="" title="Parsers for the subset of CSS supported by Laika."></a>
+                        <a href="" title="Parsers for the subset of CSS supported by Laika.">CSSParsers</a>
                       </li>
               </ul>
             </div>
@@ -136,16 +128,14 @@
           <div id="content">
             <body class="object value">
       <div id="definition">
-        <a href="CSSParsers.html" title="See companion trait"><div class="big-circle object-companion-trait">o</div></a>
+        <div class="big-circle object">o</div>
         <p id="owner"><a href="../../index.html" class="extype" name="laika">laika</a>.<a href="../index.html" class="extype" name="laika.parse">parse</a>.<a href="index.html" class="extype" name="laika.parse.css">css</a></p>
-        <h1><a href="CSSParsers.html" title="See companion trait">CSSParsers</a><span class="permalink">
+        <h1>CSSParsers<span class="permalink">
       <a href="../../../laika/parse/css/CSSParsers$.html" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span></h1>
-        <h3><span class="morelinks"><div>
-            Companion <a href="CSSParsers.html" title="See companion trait">trait CSSParsers</a>
-          </div></span></h3>
+        <h3><span class="morelinks"></span></h3>
       </div>
 
       <h4 id="signature" class="signature">
@@ -159,7 +149,7 @@
       </h4>
 
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Companion for accessing the default implementation.
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Parsers for the subset of CSS supported by Laika.</p><p>Not supported are attribute selectors, pseudo classes, namespaces and media queries.
 </p></div><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
@@ -210,7 +200,43 @@
         <div id="allMembers">
         
 
-        
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="laika.parse.css.CSSParsers.Combinator" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="CombinatorextendsAnyRef"></a><a id="Combinator:Combinator"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/css/CSSParsers$.html#CombinatorextendsAnyRef" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier">sealed abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a title="Represents a combinator between two predicates." href="CSSParsers$$Combinator.html"><span class="name">Combinator</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Represents a combinator between two predicates.</p>
+    </li><li name="laika.parse.css.CSSParsers.Style" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="StyleextendsProductwithSerializable"></a><a id="Style:Style"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/css/CSSParsers$.html#StyleextendsProductwithSerializable" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="Represents a single style within a style declaration." href="CSSParsers$$Style.html"><span class="name">Style</span></a><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="value">value: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Represents a single style within a style
+ declaration.</p>
+    </li></ol>
+            </div>
 
         
 
@@ -305,22 +331,38 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="laika.parse.css.CSSParsers#default" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="default:laika.io.Input=&gt;laika.parse.css.Styles.StyleDeclarationSet"></a><a id="default:(Input)⇒StyleDeclarationSet"></a>
+    </li><li name="laika.parse.css.CSSParsers#combinator" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="combinator:laika.parse.Parser[laika.parse.css.CSSParsers.Combinator]"></a><a id="combinator:Parser[Combinator]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/css/CSSParsers$.html#default:laika.io.Input=&gt;laika.parse.css.Styles.StyleDeclarationSet" title="Permalink">
+      <a href="../../../laika/parse/css/CSSParsers$.html#combinator:laika.parse.Parser[laika.parse.css.CSSParsers.Combinator]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">lazy val</span>
+        <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">default</span><span class="result">: (<a href="../../io/Input.html" class="extype" name="laika.io.Input">Input</a>) ⇒ <a href="Styles$$StyleDeclarationSet.html" class="extype" name="laika.parse.css.Styles.StyleDeclarationSet">StyleDeclarationSet</a></span>
+        <span class="name">combinator</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="CSSParsers$$Combinator.html" class="extype" name="laika.parse.css.CSSParsers.Combinator">Combinator</a>]</span>
       </span>
       
-      <p class="shortcomment cmt">The default parser function for Laika's CSS support.</p>
+      <p class="shortcomment cmt">Parses a combinator between two predicates.</p>
+    </li><li name="laika.parse.css.CSSParsers#comment" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="comment:laika.parse.Parser[Unit]"></a><a id="comment:Parser[Unit]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/css/CSSParsers$.html#comment:laika.parse.Parser[Unit]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">comment</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Parses a single CSS comment.</p>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -483,6 +525,158 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
+    </li><li name="laika.parse.css.CSSParsers#predicate" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="predicate:laika.parse.Parser[laika.ast.StylePredicate]"></a><a id="predicate:Parser[StylePredicate]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/css/CSSParsers$.html#predicate:laika.parse.Parser[laika.ast.StylePredicate]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">predicate</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../../ast/StylePredicate.html" class="extype" name="laika.ast.StylePredicate">StylePredicate</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Parses a single predicate.</p>
+    </li><li name="laika.parse.css.CSSParsers#selector" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="selector:laika.parse.Parser[laika.ast.StyleSelector]"></a><a id="selector:Parser[StyleSelector]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/css/CSSParsers$.html#selector:laika.parse.Parser[laika.ast.StyleSelector]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">selector</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../../ast/StyleSelector.html" class="extype" name="laika.ast.StyleSelector">StyleSelector</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Parses a single selector.</p>
+    </li><li name="laika.parse.css.CSSParsers#selectorGroup" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="selectorGroup:laika.parse.Parser[Seq[laika.ast.StyleSelector]]"></a><a id="selectorGroup:Parser[Seq[StyleSelector]]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/css/CSSParsers$.html#selectorGroup:laika.parse.Parser[Seq[laika.ast.StyleSelector]]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">selectorGroup</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/StyleSelector.html" class="extype" name="laika.ast.StyleSelector">StyleSelector</a>]]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Parses a sequence of selectors, separated by a comma.</p>
+    </li><li name="laika.parse.css.CSSParsers#simpleSelectorSequence" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="simpleSelectorSequence:laika.parse.Parser[laika.ast.StyleSelector]"></a><a id="simpleSelectorSequence:Parser[StyleSelector]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/css/CSSParsers$.html#simpleSelectorSequence:laika.parse.Parser[laika.ast.StyleSelector]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">simpleSelectorSequence</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="../../ast/StyleSelector.html" class="extype" name="laika.ast.StyleSelector">StyleSelector</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Parses the sub-part of a selector without any combinators, e.g.</p><div class="fullcomment"><div class="comment cmt"><p>Parses the sub-part of a selector without any combinators, e.g. <code>Paragraph#title</code>.
+</p></div></div>
+    </li><li name="laika.parse.css.CSSParsers#style" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="style:laika.parse.Parser[laika.parse.css.CSSParsers.Style]"></a><a id="style:Parser[Style]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/css/CSSParsers$.html#style:laika.parse.Parser[laika.parse.css.CSSParsers.Style]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">style</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<a href="CSSParsers$$Style.html" class="extype" name="laika.parse.css.CSSParsers.Style">Style</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Parses a single style within a declaration.</p>
+    </li><li name="laika.parse.css.CSSParsers#styleDeclarationSet" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="styleDeclarationSet:laika.parse.Parser[Set[laika.ast.StyleDeclaration]]"></a><a id="styleDeclarationSet:Parser[Set[StyleDeclaration]]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/css/CSSParsers$.html#styleDeclarationSet:laika.parse.Parser[Set[laika.ast.StyleDeclaration]]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">styleDeclarationSet</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.Set">Set</span>[<a href="../../ast/StyleDeclaration.html" class="extype" name="laika.ast.StyleDeclaration">StyleDeclaration</a>]]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Parses an entire set of style declarations.</p><div class="fullcomment"><div class="comment cmt"><p>Parses an entire set of style declarations.
+ This is the top level parser of this trait.
+</p></div></div>
+    </li><li name="laika.parse.css.CSSParsers#styleDeclarations" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="styleDeclarations:laika.parse.Parser[Seq[laika.ast.StyleDeclaration]]"></a><a id="styleDeclarations:Parser[Seq[StyleDeclaration]]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/css/CSSParsers$.html#styleDeclarations:laika.parse.Parser[Seq[laika.ast.StyleDeclaration]]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">styleDeclarations</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Seq">Seq</span>[<a href="../../ast/StyleDeclaration.html" class="extype" name="laika.ast.StyleDeclaration">StyleDeclaration</a>]]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Parses a sequence of style declarations, ignoring
+ any comments.</p>
+    </li><li name="laika.parse.css.CSSParsers#styleRefName" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="styleRefName:laika.parse.Parser[String]"></a><a id="styleRefName:Parser[String]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/css/CSSParsers$.html#styleRefName:laika.parse.Parser[String]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">styleRefName</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Parses the name of a style.</p><div class="fullcomment"><div class="comment cmt"><p>Parses the name of a style. The name must start
+ with a letter, while subsequent characters can be
+ letters, digits or one of the symbols <code>'-'</code> or <code>'_'</code>.
+</p></div></div>
+    </li><li name="laika.parse.css.CSSParsers#styleValue" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="styleValue:laika.parse.Parser[String]"></a><a id="styleValue:Parser[String]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/css/CSSParsers$.html#styleValue:laika.parse.Parser[String]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">styleValue</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Parses the value of a single style, ignoring
+ any comments..</p>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>
       <span class="permalink">
@@ -515,6 +709,22 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="laika.parse.css.CSSParsers#typeSelector" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="typeSelector:laika.parse.Parser[List[laika.ast.StylePredicate]]"></a><a id="typeSelector:Parser[List[StylePredicate]]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/css/CSSParsers$.html#typeSelector:laika.parse.Parser[List[laika.ast.StylePredicate]]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">typeSelector</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.List">List</span>[<a href="../../ast/StylePredicate.html" class="extype" name="laika.ast.StylePredicate">StylePredicate</a>]]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Parses a single type selector.</p>
     </li><li name="scala.AnyRef#wait" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <span class="permalink">
@@ -583,6 +793,55 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="laika.parse.css.CSSParsers#wsOrNl" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="wsOrNl:laika.parse.Parser[String]"></a><a id="wsOrNl:Parser[String]"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/css/CSSParsers$.html#wsOrNl:laika.parse.Parser[String]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wsOrNl</span><span class="result">: <a href="../Parser.html" class="extype" name="laika.parse.Parser">Parser</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">Parses horizontal whitespace or newline characters.</p>
+    </li><li name="laika.parse.css.CSSParsers.Child" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Child"></a><a id="Child:Child"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/css/CSSParsers$.html#Child" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="A combinator for an immediate child." href="CSSParsers$$Child$.html"><span class="name">Child</span></a><span class="result"> extends <a href="CSSParsers$$Combinator.html" class="extype" name="laika.parse.css.CSSParsers.Combinator">Combinator</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">A combinator for an immediate child.</p>
+    </li><li name="laika.parse.css.CSSParsers.Descendant" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Descendant"></a><a id="Descendant:Descendant"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/css/CSSParsers$.html#Descendant" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="A combinator for a descendant on any nesting level." href="CSSParsers$$Descendant$.html"><span class="name">Descendant</span></a><span class="result"> extends <a href="CSSParsers$$Combinator.html" class="extype" name="laika.parse.css.CSSParsers.Combinator">Combinator</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">A combinator for a descendant on any nesting
+ level.</p>
     </li>
               </ol>
             </div>
