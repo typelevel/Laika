@@ -1,4 +1,4 @@
-import laika.io.DocumentType._
+import laika.ast.DocumentType._
 import laika.ast.Path
 
 name := "site-docTypeMatcher"
