@@ -129,7 +129,7 @@ to first do performance and load testing.
 
 Using the PDF renderer requires to add another dependency to your build:
 
-    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.8.0"
+    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.9.0"
 
 The PDF renderer can then be used with the `Transform` or `Render` APIs:
 

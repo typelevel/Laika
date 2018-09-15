@@ -36,7 +36,7 @@ which had been the final release supporting those versions.
 
 Add the plugin to `project/plugins.sbt`:
 
-    addSbtPlugin("org.planet42" % "laika-sbt" % "0.8.0")
+    addSbtPlugin("org.planet42" % "laika-sbt" % "0.9.0")
 
 Enable the plugin in your project's `build.sbt`:
 
@@ -51,7 +51,7 @@ in `target/docs/site`.
 
 Adding the Laika dependency to your sbt build:
 
-    libraryDependencies += "org.planet42" %% "laika-core" % "0.8.0"
+    libraryDependencies += "org.planet42" %% "laika-core" % "0.9.0"
 
 Example for transforming from file to file:
 
@@ -68,7 +68,7 @@ Example for transforming an entire directory of markup files to a single PDF fil
     
 When using Laika's PDF support you need to add one more dependency to your build:
 
-    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.8.0"
+    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.9.0"
 
 
 ### Other Resources
@@ -158,7 +158,7 @@ Road Map
 
 Release History
 ---------------
-* __0.9.0__ (Sep ??, 2018):
+* __0.9.0__ (Sep 15, 2018):
 
     * New ExtensionBundle APIs allow to bundle extensions into a single object for easier reuse. Supported extension
       hooks include directives, markup parser extensions, rewrite rules, custom renderers, document type matchers, 
