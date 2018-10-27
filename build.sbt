@@ -55,7 +55,7 @@ lazy val noPublishSettings = Seq(
 val scalatest = "org.scalatest" %% "scalatest" % "3.0.5"  % "test"
 val jTidy     = "net.sf.jtidy"  % "jtidy"      % "r938" % "test"
 val config    = "com.typesafe"  % "config"     % "1.2.1"
-val fop       = "org.apache.xmlgraphics" % "fop" % "2.1"
+val fop       = "org.apache.xmlgraphics" % "fop" % "2.3"
 
 lazy val root = project.in(file("."))
   .aggregate(core, pdf, plugin)
