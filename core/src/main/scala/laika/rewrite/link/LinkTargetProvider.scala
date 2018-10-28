@@ -108,7 +108,7 @@ class LinkTargetProvider (path: Path, root: RootElement) {
         case _ =>
           (buf += t.withResolvedIds("", ""), used, docIds)
       }
-    }._1
+    }._1.toSeq
   }
   
   /** Resolves all aliases contained in the specified target sequence,

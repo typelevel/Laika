@@ -47,8 +47,8 @@ object OutputBuilder {
     val subtrees = ListBuffer[TestOutputTree]()
 
     def toTree: RenderedTree = new RenderedTree(path, List( 
-      Documents(documents map { case (path, builder) => RenderedDocument(path, builder.toString) }),
-      Subtrees(subtrees map (_.toTree))
+      Documents(documents.toSeq map { case (path, builder) => RenderedDocument(path, builder.toString) }),
+      Subtrees(subtrees.toSeq map (_.toTree))
     ) filterNot { case c: ElementContainer[_,_] => c.content.isEmpty })
     
     def newOutput (name: String): Output = {

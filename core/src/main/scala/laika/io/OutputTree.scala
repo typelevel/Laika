@@ -154,7 +154,7 @@ object OutputTree {
       prov
     }
     
-    def result: ResultTree = ResultTree(path, results map (_.result), subtrees map (_.result))
+    def result: ResultTree = ResultTree(path, results.toSeq map (_.result), subtrees.toSeq map (_.result))
     
   }
 
