@@ -17,6 +17,7 @@
 package laika.ast
 
 import com.typesafe.config.{Config, ConfigFactory}
+import laika.collection.TransitionalCollectionOps._
 import laika.io.Input
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.link.LinkTargetProvider
@@ -241,7 +242,7 @@ trait TreeStructure { this: TreeContent =>
   lazy val title: Seq[Span] = titleFromConfig.getOrElse(Nil)
 
   private def toMap [T <: Navigatable] (navigatables: Seq[T]): Map[String,T] = {
-    navigatables groupBy (_.name) mapValues {
+    navigatables groupBy (_.name) mapValuesStrict {
       case Seq(nav) => nav
       case multiple => throw new IllegalStateException("Multiple navigatables with the name " +
           s"${multiple.head.name} in tree $path")

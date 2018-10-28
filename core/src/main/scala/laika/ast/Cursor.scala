@@ -18,6 +18,7 @@ package laika.ast
 
 import com.typesafe.config.Config
 import laika.ast.Path.Root
+import laika.collection.TransitionalCollectionOps._
 import laika.rewrite.ReferenceResolver
 import laika.rewrite.nav.NavigationOrder
 
@@ -136,7 +137,7 @@ case class DocumentCursor (target: Document,
     
     val newRoot = target.content rewrite rule
        
-    val newFragments = target.fragments mapValues {
+    val newFragments = target.fragments mapValuesStrict {
       case et: ElementTraversal[_] => (et rewrite rule).asInstanceOf[Block]
       case block => block
     }

@@ -17,6 +17,7 @@
 package laika.bundle
 
 import laika.ast._
+import laika.collection.TransitionalCollectionOps._
 import laika.config.OperationConfig
 import laika.io.{InputTree, InputTreeOps}
 
@@ -87,7 +88,7 @@ case class StaticDocuments (tree: DocumentTree) {
   def merge (base: DocumentTree): DocumentTree = {
 
     def mergeContent (content: Seq[TreeContent]): Seq[TreeContent] = {
-      val trees = content.collect{ case t: DocumentTree => t }.groupBy(_.path).mapValues(_.reduceLeft(mergeTrees)).values.toList
+      val trees = content.collect{ case t: DocumentTree => t }.groupBy(_.path).mapValuesStrict(_.reduceLeft(mergeTrees)).values.toList
       (content.filter(_.isInstanceOf[Document]) ++ trees).sortBy(_.position)
     }
 

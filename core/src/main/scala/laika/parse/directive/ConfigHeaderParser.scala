@@ -18,6 +18,7 @@ package laika.parse.directive
 
 import com.typesafe.config.{Config, ConfigFactory, ConfigParseOptions}
 import laika.ast.{InvalidElement, Path}
+import laika.collection.TransitionalCollectionOps._
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
 import laika.parse.text.TextParsers._
@@ -74,7 +75,7 @@ object ConfigHeaderParser {
 
   def merge (config: Config, values: Map[String, AnyRef]): Config = {
     import scala.collection.JavaConverters._
-    val javaValues = values.mapValues {
+    val javaValues = values.mapValuesStrict {
       case m: Map[_,_]      => m.asJava
       case it: Iterable[_]  => it.asJava
       case other            => other

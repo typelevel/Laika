@@ -18,6 +18,7 @@ package laika.ast.helper
 
 import laika.ast.{DocumentType, Path}
 import laika.ast.DocumentType._
+import laika.collection.TransitionalCollectionOps._
 import laika.io.{Input, InputTree}
 import laika.io.InputTree.InputTreeBuilder
 
@@ -73,7 +74,7 @@ trait InputBuilder {
 
       def pathFor (f: String) = path / f
   
-      val documents = files map (f => (docTypeMatcher(pathFor(f._1)), input(f._1, f._2, path))) groupBy (_._1) mapValues (_.map(_._2)) withDefaultValue Nil
+      val documents = files map (f => (docTypeMatcher(pathFor(f._1)), input(f._1, f._2, path))) groupBy (_._1) mapValuesStrict (_.map(_._2)) withDefaultValue Nil
       
       val styleSheets = documents collect { case (StyleSheet(format), inputs) => (format, inputs) }
       

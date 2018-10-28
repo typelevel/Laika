@@ -100,6 +100,7 @@ class Parse private (parsers: Seq[MarkupParser], val config: OperationConfig, re
   def fromInputTree(inputTree: InputTree): DocumentTree = {
 
     import DocumentType._
+    import laika.collection.TransitionalCollectionOps._
 
     case class TreeConfig (path: Path, config: TConfig)
 
@@ -153,7 +154,7 @@ class Parse private (parsers: Seq[MarkupParser], val config: OperationConfig, re
       val trees = provider.subtrees map (collectDocuments(_))
 
       val templates = provider.templates map (i => templateMap((Template,i.path)))
-      val styles = (provider.styleSheets mapValues (_.map(i => styleMap(i.path)).reduce(_++_))) withDefaultValue StyleDeclarationSet.empty
+      val styles = (provider.styleSheets mapValuesStrict (_.map(i => styleMap(i.path)).reduce(_++_))) withDefaultValue StyleDeclarationSet.empty
 
       val dynamic = provider.dynamicDocuments map (i => templateMap((Dynamic,i.path)))
       val static = provider.staticDocuments map StaticDocument

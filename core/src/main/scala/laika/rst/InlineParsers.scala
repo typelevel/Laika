@@ -18,6 +18,7 @@ package laika.rst
 
 import laika.ast._
 import laika.bundle.{SpanParser, SpanParserBuilder}
+import laika.collection.TransitionalCollectionOps._
 import laika.parse.markup.RecursiveSpanParsers
 import laika.parse.text.TextParsers._
 import laika.parse.text.{DelimitedText, DelimiterOptions}
@@ -75,7 +76,7 @@ object InlineParsers {
                   /* additional pairing of open/close quotes for different typographic conventions in different languages */
                   '\u00bb'->'\u00bb', '\u2018'->'\u201a', '\u2019'->'\u2019', '\u201a'->'\u2018', '\u201a'->'\u2019',
                   '\u201c'->'\u201e', '\u201e'->'\u201c', '\u201e'->'\u201d', '\u201d'->'\u201d', '\u203a'->'\u203a')
-                  .groupBy(_._1).mapValues(_.map(_._2).toSet)
+                  .groupBy(_._1).mapValuesStrict(_.map(_._2).toSet)
 
                   
   private val startChars = anyOf(' ','-',':','/','\'','"','<','(','[','{','\n') take 1

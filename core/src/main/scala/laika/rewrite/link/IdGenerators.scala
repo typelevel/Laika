@@ -129,13 +129,15 @@ object IdGenerators {
    *  returns them one after the other.
    */
   class IdMap {
+    import laika.collection.TransitionalCollectionOps._
+
     private val map = scala.collection.mutable.Map[String,ListBuffer[String]]()
     def += (origId: String, docId: String): Unit = {
       val list = map.getOrElseUpdate(origId, ListBuffer())
       list += docId
     }
     def lookupFunction: String => Option[String] = {
-      val lookup = map.mapValues(_.iterator).view.force
+      val lookup = map.toMap.mapValuesStrict(_.iterator)
       s => lookup.get(s).flatMap(i => if (i.hasNext) Some(i.next) else None)
     }
   }
