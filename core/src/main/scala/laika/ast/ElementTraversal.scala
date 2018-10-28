@@ -74,16 +74,16 @@ trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Ele
           val f = if (newET eq et) rewriteOldElement else rewriteNewElement
           val finalET = f(newET.asInstanceOf[Element])
           optimize(finalET, et)
-        case e: Element         => optimize(rewriteOldElement(e), e)
-        case t: Traversable[_]  => optimize(rewriteChildren(t.asInstanceOf[Traversable[AnyRef]]), t)
-        case x                  => Retain
+        case e: Element     => optimize(rewriteOldElement(e), e)
+        case t: Iterable[_] => optimize(rewriteChildren(t), t)
+        case x              => Retain
       }
     }
     
-    def rewriteChildren (children: Traversable[AnyRef]): Option[AnyRef] = {
+    def rewriteChildren (children: Iterable[_]): Option[AnyRef] = {
       var i = 0
       var changed = false
-      lazy val newChildren = ListBuffer[AnyRef]() 
+      lazy val newChildren = ListBuffer[Any]()
   
       children.foreach { oldElem =>
         rewriteElement(oldElem) match {
@@ -111,7 +111,7 @@ trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Ele
       rewriteElement(oldElem) match {
         case Retain                   => if (changed) newElements(i) = oldElem
         case Some(result) if changed  => newElements(i) = result
-        case None         if changed  => newElements(i) = oldElem // removal only possible for elements of Traversables
+        case None         if changed  => newElements(i) = oldElem // removal only possible for elements of Iterables
         case Some(result)             => changed = true
                                          if (i>0) for (x <- 0 until i) newElements(x) = productElement(x)
                                          newElements(i) = result 
@@ -141,15 +141,15 @@ trait ElementTraversal [Self <: Element with ElementTraversal[Self]] { self: Ele
   def foreach (f: Element => Unit): Unit = { 
     
     def foreachInElement (element: Element, f: Element => Unit): Unit = {
-      foreachInTraversable(element.productIterator, f) 
+      foreachInIterable(element.productIterator.toSeq, f)
       f(element)
     }
-    
-    def foreachInTraversable (t: TraversableOnce[Any], f: Element => Unit): Unit = {
-      t.foreach { 
-        case e:  Element          => foreachInElement(e, f)
-        case t:  Traversable[_]   => foreachInTraversable(t, f) 
-        case _                    => ()
+
+    def foreachInIterable (t: Iterable[_], f: Element => Unit): Unit = {
+      t.foreach {
+        case e:  Element       => foreachInElement(e, f)
+        case t:  Iterable[_]   => foreachInIterable(t, f)
+        case _                 => ()
       }
     }
     

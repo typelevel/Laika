@@ -36,7 +36,7 @@ object TextParsers extends Parsers {
   /** Implicit conversion that allows to pass a single
    *  character to the range-based `anyIn` parser. 
    */
-  implicit def charToTraversable (char: Char): Traversable[Char] = Set(char)
+  implicit def charToIterable (char: Char): Iterable[Char] = Set(char)
 
   /**  A parser that matches only the specified character.
     *
@@ -160,7 +160,7 @@ object TextParsers extends Parsers {
   /** Consumes any number of consecutive characters that are in one of the specified character ranges.
    *  Always succeeds unless a minimum number of required matches is specified.
    */
-  def anyIn (ranges: Traversable[Char]*): Characters[String] = Characters.include(ranges.flatten)
+  def anyIn (ranges: Iterable[Char]*): Characters[String] = Characters.include(ranges.flatten)
 
   /** Consumes any number of consecutive characters which satisfy the specified predicate.
     *  Always succeeds unless a minimum number of required matches is specified.

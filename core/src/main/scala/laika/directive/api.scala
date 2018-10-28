@@ -311,7 +311,7 @@ trait BuilderContext[E <: Element] {
   /** Turns a collection of directives into a map,
     *  using the name of the directive as the key.
     */
-  def toMap (directives: Traversable[Directive]): Map[String, Directive] = directives map (dir => (dir.name, dir)) toMap
+  def toMap (directives: Iterable[Directive]): Map[String, Directive] = directives map (dir => (dir.name, dir)) toMap
 
   /**  Provides the basic building blocks for defining directives, Laika's extension
     *  mechanism for creating custom tags for both, templates or text markup.
