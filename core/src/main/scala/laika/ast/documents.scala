@@ -302,7 +302,7 @@ trait TreeStructure { this: TreeContent =>
     * in the document tree.
     */
   lazy val globalLinkTargets: Map[Selector, TargetResolver] = {
-    val all = (List[(Selector,TargetResolver)]() /: content) {
+    val all = content.foldLeft(List[(Selector,TargetResolver)]()) {
       case (list, content) => content.globalLinkTargets.toList ::: list
     }
     all.groupBy(_._1) collect {

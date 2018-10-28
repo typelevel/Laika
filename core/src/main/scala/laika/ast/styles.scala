@@ -211,7 +211,7 @@ case class StyleDeclarationSet (paths: Set[Path], styles: Set[StyleDeclaration])
     */
   def collectStyles (target: Element, parents: Seq[Element]): Map[String, String] = {
     val decls = styles.filter(_.appliesTo(target, parents)).toSeq.sortBy(_.selector.specificity)
-    (Map[String,String]() /: decls) { case (acc, decl) => acc ++ decl.styles }
+    decls.foldLeft(Map[String,String]()) { case (acc, decl) => acc ++ decl.styles }
   }
 
   /** Merges the style declaration of this instance with the specified set

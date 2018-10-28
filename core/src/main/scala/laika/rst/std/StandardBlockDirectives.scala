@@ -261,7 +261,7 @@ class StandardBlockDirectives {
    */
   def imageBlock (p: RecursiveParsers): DirectivePart[Block] = image(p) map { img =>
     val hAlign = Set("align-left", "align-right", "align-center") // promote horizontal align to parent block
-    val (pOpt, imgOpt) = ((NoOpt: Options, Options(img.options.id)) /: img.options.styles) {
+    val (pOpt, imgOpt) =  img.options.styles.foldLeft((NoOpt: Options, Options(img.options.id))) {
       case ((pOpt, imgOpt), style) =>
         if (hAlign.contains(style)) (pOpt + Styles(style), imgOpt)
         else (pOpt, imgOpt + Styles(style))

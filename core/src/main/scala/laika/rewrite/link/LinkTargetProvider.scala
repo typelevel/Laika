@@ -91,8 +91,8 @@ class LinkTargetProvider (path: Path, root: RootElement) {
       val gen = suggestedId(if (suggest.isEmpty) "id" else suggest, docIdMap)
       gen.generator(used)
     }
-    
-    ((new ListBuffer[SingleTargetResolver], usedIds, Set("id")) /: orderedTargets) { 
+
+    orderedTargets.foldLeft((new ListBuffer[SingleTargetResolver], usedIds, Set("id"))) {
       case ((buf, used, docIds), t) => t.id match {
         case Generated(f) => 
           val displayId = f(used)

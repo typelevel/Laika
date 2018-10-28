@@ -82,8 +82,8 @@ object SectionBuilder extends (DocumentCursor => RewriteRule) {
           if (autonumberConfig.documents) cursor.position
           else TreePosition.root
           
-        def transformRootBlocks (blocks: Seq[Block]): Seq[Block] = 
-          (ListBuffer[Block]() /: blocks) {
+        def transformRootBlocks (blocks: Seq[Block]): Seq[Block] =
+          blocks.foldLeft(ListBuffer[Block]()) {
             case (acc, s: Section) => acc ++= transformRootSection(s)
             case (acc, block) => acc += block
           }.toList
@@ -107,7 +107,7 @@ object SectionBuilder extends (DocumentCursor => RewriteRule) {
         )  
         
         def numberSections (blocks: Seq[Block], parentPosition: TreePosition, hasTitle: Boolean = false): Seq[Block] = {
-          ((ListBuffer[Block](), 1, hasTitle) /: blocks) {
+          blocks.foldLeft((ListBuffer[Block](), 1, hasTitle)) {
             case ((acc, num, title), s: Section) =>
               val elements =
                 if (title) transformRootSection(s)

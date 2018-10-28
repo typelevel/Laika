@@ -41,7 +41,7 @@ object HTMLRenderer extends (HTMLWriter => RenderFunction) {
   def apply (out: HTMLWriter): RenderFunction = {
 
     def prepareAttributeValue (spans: List[TextContainer]): String =
-      ("" /: spans) {
+      spans.foldLeft("") {
         case (acc, Text(content,_)) => acc + content.replace("&","&amp;").replace("\"","&quot;").replace("'","$#39;")
         case (acc, span) => acc + span.content
       }

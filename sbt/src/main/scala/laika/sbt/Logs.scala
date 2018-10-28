@@ -40,7 +40,7 @@ object Logs {
       val styles = tree.styleSheets.size
       val conf = tree.configDocuments.length
       val all = (tree.subtrees map count) :+ (docs, tmpl, styles, conf)
-      ((0, 0, 0, 0) /: all) {
+      all.foldLeft((0, 0, 0, 0)) {
         case ((d1, t1, s1, c1), (d2, t2, s2, c2)) => (d1 + d2, t1 + t2, s1 + s2, c1 + c2)
       }
     }

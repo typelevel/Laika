@@ -99,7 +99,7 @@ object CSSParsers {
     */
   val selector: Parser[StyleSelector] =
     simpleSelectorSequence ~ ((combinator ~ simpleSelectorSequence)*) ^^ {
-      case sel ~ sels => (sel /: sels) {
+      case sel ~ sels =>  sels.foldLeft(sel) {
         case (parent, Child ~ sel)      => sel.copy(parent = Some(ParentSelector(parent, immediate = true)))
         case (parent, Descendant ~ sel) => sel.copy(parent = Some(ParentSelector(parent, immediate = false)))
       }

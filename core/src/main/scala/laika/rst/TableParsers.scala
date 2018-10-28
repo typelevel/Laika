@@ -329,7 +329,7 @@ object TableParsers {
       
         /* in contrast to the grid table, some rows need to be processed in context,
          * as their exact behaviour depends on preceding or following lines. */
-        val rowBuffer = ((ListBuffer[List[TableElement]](), 0, false) /: rows) { case ((acc, blanks, rowOpen), row) =>
+        val rowBuffer = rows.foldLeft((ListBuffer[List[TableElement]](), 0, false)) { case ((acc, blanks, rowOpen), row) =>
           row match {
             case result: ~[_,_] => 
               val row = flattenElements(result)

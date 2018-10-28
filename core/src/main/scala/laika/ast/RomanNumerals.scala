@@ -50,7 +50,7 @@ object RomanNumerals {
   def intToRoman (value: Int): String = {
     require(value > 0 && value < 5000, "Number must be between 1 and 4999") 
     
-    ((value, "") /: symbols) {
+    symbols.foldLeft((value, "")) {
       case ((remaining, result), symbol) => 
         val occurrences = remaining / symbol.value
         (remaining - occurrences * symbol.value, result + symbol.roman * occurrences)
