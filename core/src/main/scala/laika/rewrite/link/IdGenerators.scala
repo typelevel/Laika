@@ -82,7 +82,7 @@ object IdGenerators {
    */
   class SymbolGenerator extends (Set[String] => String) {
     private val symbols = List('*','\u2020','\u2021','\u00a7','\u00b6','#','\u2660','\u2665','\u2666','\u2663')
-    private val stream = Stream.iterate((symbols,1)){ case (sym,num) => if (sym.isEmpty) (symbols,num+1) else (sym.tail,num) }.iterator
+    private val stream = Iterator.iterate((symbols,1)){ case (sym,num) => if (sym.isEmpty) (symbols,num+1) else (sym.tail,num) }
     @tailrec final def apply (used: Set[String]): String = {
       val (sym,num) = stream.next
       val candidate = sym.head.toString * num
@@ -96,7 +96,7 @@ object IdGenerators {
    *  in the Set of used identifiers passed to the function.
    */
   class NumberGenerator extends (Set[String] => String) {
-    private val numbers = Stream.from(1).iterator
+    private val numbers = Iterator.from(1)
     @tailrec final def apply (used: Set[String]): String = {
       val candidate = numbers.next.toString
       if (!used.contains(candidate)) candidate 

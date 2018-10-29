@@ -75,7 +75,7 @@ object ListParsers {
 
         newItem(pos,rewritten)
       }
-      val pos = Stream.from(1).iterator
+      val pos = Iterator.from(1)
       blockItems map { item => rewriteItemContent(item, pos.next) }
     }
 

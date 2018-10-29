@@ -205,7 +205,7 @@ object LinkTargets {
     
   class DecoratedHeaderLevels {
     private val levelMap = scala.collection.mutable.Map.empty[HeaderDecoration,Int]
-    private val levelIt = Stream.from(1).iterator
+    private val levelIt = Iterator.from(1)
     def levelFor (deco: HeaderDecoration): Int = levelMap.getOrElseUpdate(deco, levelIt.next)
   }
   

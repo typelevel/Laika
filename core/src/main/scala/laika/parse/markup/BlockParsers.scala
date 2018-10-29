@@ -111,7 +111,7 @@ object BlockParsers {
     }
     
     def emptyLines (curIndent: Int) = blankLines <~ lookAhead(lineStart(curIndent)) ^^ {
-      res => Stream.fill(res.length)(BlankLine(curIndent)).toList 
+      res => List.fill(res.length)(BlankLine(curIndent))
     }
     
     val firstLine = 

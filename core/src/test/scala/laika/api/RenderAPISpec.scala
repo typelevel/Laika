@@ -123,7 +123,7 @@ class RenderAPISpec extends FlatSpec
     }
 
     def addPosition (tree: DocumentTree, pos: Seq[Int] = Nil): DocumentTree = {
-      val nextNum = Stream.from(1).iterator
+      val nextNum = Iterator.from(1)
       tree.copy(content = tree.content.map {
         case d: Document => d.copy(position = TreePosition(pos :+ nextNum.next))
         case t: DocumentTree =>

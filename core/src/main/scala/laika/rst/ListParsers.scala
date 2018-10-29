@@ -146,7 +146,7 @@ object ListParsers {
       (format.prefix ~ enumType(format.enumType) ~ format.suffix) ^^ { case prefix ~ enumType ~ suffix => prefix + enumType + suffix }
       
     lookAhead(enumListStart <~ (ws min 1)) >> { case (format, start) =>
-      val pos = Stream.from(start).iterator
+      val pos = Iterator.from(start)
       (listItem(itemStart(format), EnumListItem(_, format, pos.next)) +) ^^ 
         { items => EnumList(rewriteListItems(items,(item:EnumListItem,content) => item.copy(content = content)), format, start) }
     }

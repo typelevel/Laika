@@ -40,7 +40,7 @@ class LinkTargetProvider (path: Path, root: RootElement) {
     val levels = new DecoratedHeaderLevels
     val symbols = new SymbolGenerator
     val numbers = new NumberGenerator
-    val anonPos = Stream.from(1).iterator
+    val anonPos = Iterator.from(1)
                               
     root.collect {
       case c: Citation => new CitationTarget(c) 
