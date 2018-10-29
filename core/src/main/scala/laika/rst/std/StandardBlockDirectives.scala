@@ -289,7 +289,7 @@ class StandardBlockDirectives {
    */
   lazy val rawDirective: Directive[Block] = BlockDirective("raw") {
     (argument(withWS = true) ~ content(Right(_))) { (formats, content) =>
-      RawContent(formats.split(" "), content)
+      RawContent(formats.split(" ").toSeq, content)
     } 
   }
     

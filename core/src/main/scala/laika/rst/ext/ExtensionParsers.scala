@@ -178,10 +178,10 @@ class ExtensionParsers(recParsers: RecursiveParsers,
       
       ((opt(wsEol) ~> (item +)) | success(Nil)) ^^? { fields =>
         
-        val parsed = scala.collection.mutable.Map(fields.toArray:_*)
+        val parsed = scala.collection.mutable.Map(fields:_*)
         val missing = scala.collection.mutable.Set.empty[String]
         val invalid = new ListBuffer[String]
-        
+
         for ((name, f) <- requiredFields) {
           parsed.remove(name).map(res => f(res).left map {invalid += name + ": " + _}).getOrElse(missing += name)
         }

@@ -73,7 +73,7 @@ object OutputBuilder {
   def createTempDirectory (baseName: String): File = {
     val maxAttempts = 100
     val baseDir = new File(System.getProperty("java.io.tmpdir"))
-    val name = System.currentTimeMillis() + "-";
+    val name = System.currentTimeMillis.toString + "-";
     
     def abort () = throw new IllegalStateException("Failed to create directory within "
         + maxAttempts + " attempts (tried "
