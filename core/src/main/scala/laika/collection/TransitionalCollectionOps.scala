@@ -16,10 +16,7 @@
 
 package laika.collection
 
-/** Temporary extension methods to back-port parts of the Collection API for 2.13
-  * to the Laika release for Scala 2.12.
-  *
-  * This will remain in place as long as Laika supports Scala 2.12.
+/** Temporary extension methods for cross-building to Scala 2.12 and 2.13.
   *
   * @author Jens Halm
   */
@@ -40,6 +37,17 @@ object TransitionalCollectionOps {
       }
     }
 
+  }
+
+  /** Temporary replacement for the deprecated Tuple3.zipped method,
+    * to be replaced by xs.lazyZip(ys).lazyZip(zs) once support for 2.12 is dropped.
+    */
+  case class Zip3Iterator[A,B,C](as: Iterable[A], bs: Iterable[B], cs: Iterable[C]) extends Iterator[(A,B,C)] {
+    private val aIter = as.iterator
+    private val bIter = bs.iterator
+    private val cIter = cs.iterator
+    def hasNext = aIter.hasNext && bIter.hasNext && cIter.hasNext
+    def next() = (aIter.next(), bIter.next(), cIter.next())
   }
 
 }

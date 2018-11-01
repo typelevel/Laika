@@ -18,6 +18,7 @@ package laika.rst
 
 import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder}
+import laika.collection.TransitionalCollectionOps.Zip3Iterator
 import laika.collection.Stack
 import laika.parse.{Parser, Success}
 import laika.parse.text.TextParsers._
@@ -68,7 +69,7 @@ object TableParsers {
       last ++= line
     }
     def merge (right: CellBuilder): Unit = {
-      (lines, right.seps, right.lines).zipped.foreach {
+      Zip3Iterator(lines, right.seps, right.lines).foreach {
         case (left, sep, right) => left ++= sep.toString ++= right
       }
       colSpan += 1
@@ -207,7 +208,7 @@ object TableParsers {
     recParsers.withRecursiveBlockParser(topBorder) >> { case (recParser, cols) =>
       
       val separators = colSep :: List.fill(cols.length - 1)(colSepOrText)
-      val colsWithSep = (separators, cols, separators.reverse).zipped.toList
+      val colsWithSep = Zip3Iterator(separators, cols, separators.reverse)
       
       def rowSep (width: Int): Parser[Any] = 
         intersect ~ ((anyOf('-') take width) ^^^ RowSeparator) <~ lookAhead(intersect)
