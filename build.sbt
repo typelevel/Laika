@@ -6,7 +6,7 @@ lazy val basicSettings = Seq(
   description           := "Text Markup Transformer for sbt and Scala applications",
   startYear             := Some(2012),
   licenses              := Seq("Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
-  scalaVersion          := "2.12.6",
+  scalaVersion          := "2.12.7",
   scalacOptions         := Opts.compile.encoding("UTF-8") :+ 
                            Opts.compile.deprecation :+ 
                            Opts.compile.unchecked :+ 
@@ -26,11 +26,8 @@ lazy val publishSettings = Seq(
   publishArtifact in Test := false,
   pomIncludeRepository    := { _ => false },
   publishTo := {
-    val nexus = "https://oss.sonatype.org/"
-    if (version.value.trim.endsWith("SNAPSHOT"))
-      Some("snapshots" at nexus + "content/repositories/snapshots")
-    else
-      Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+    if (version.value.trim.endsWith("SNAPSHOT")) None
+    else Some("releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
   },
   pomExtra := (
     <scm>
@@ -52,10 +49,10 @@ lazy val noPublishSettings = Seq(
   publishTo := None
 )
 
-val scalatest = "org.scalatest" %% "scalatest" % "3.0.5"  % "test"
-val jTidy     = "net.sf.jtidy"  % "jtidy"      % "r938" % "test"
-val config    = "com.typesafe"  % "config"     % "1.2.1"
-val fop       = "org.apache.xmlgraphics" % "fop" % "2.3"
+val scalatest = "org.scalatest"          %% "scalatest" % "3.0.5" % "test"
+val jTidy     = "net.sf.jtidy"           % "jtidy"      % "r938"  % "test"
+val config    = "com.typesafe"           % "config"     % "1.2.1"
+val fop       = "org.apache.xmlgraphics" % "fop"        % "2.3"
 
 lazy val root = project.in(file("."))
   .aggregate(core, pdf, plugin)
