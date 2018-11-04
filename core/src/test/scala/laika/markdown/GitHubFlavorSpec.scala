@@ -16,7 +16,7 @@
 
 package laika.markdown
 
-import laika.ast.RootElement
+import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.config.OperationConfig
 import laika.format.Markdown
@@ -37,6 +37,9 @@ class GitHubFlavorSpec extends WordSpec
 
   val defaultParser: Parser[RootElement] = rootParser.rootElement
 
+  def headerRow(cells: String*): TableHead =
+    TableHead(Seq(Row(cells.map(c => Cell(HeadCell, Seq(Paragraph(Seq(Text(c)))))))))
+
   "The Markdown parser with GitHubFlavor extension" should {
 
     "parse standard Markdown" in {
@@ -45,6 +48,34 @@ class GitHubFlavorSpec extends WordSpec
                     |
                     |# CCC""".stripMargin
       Parsing (input) should produce (root( p("aaa\nbbb"), h(1, "CCC", "ccc")))
+    }
+
+  }
+
+  "The GitHubFlavor table parser" should {
+
+    "parse a table head without body" in {
+      val input =
+        """|| AAA | BBB |
+           || --- | --- |
+        """.stripMargin
+      Parsing (input) should produce (root(Table(headerRow("AAA","BBB"), TableBody(Nil))))
+    }
+
+    "parse a table head without body without leading | in the separator row" in {
+      val input =
+        """|| AAA | BBB |
+           |  --- | --- |
+        """.stripMargin
+      Parsing (input) should produce (root(Table(headerRow("AAA","BBB"), TableBody(Nil))))
+    }
+
+    "not recognize a table head where the number of cells in the separator row does not match the header row" in {
+      val input =
+        """|| AAA | BBB |
+           |  --- |
+           |  CCC |""".stripMargin
+      Parsing (input) should produce (root(p(input)))
     }
 
   }
