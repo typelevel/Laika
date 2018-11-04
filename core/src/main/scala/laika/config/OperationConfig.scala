@@ -42,7 +42,7 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
                             bundleFilter: BundleFilter = BundleFilter(),
                             minMessageLevel: MessageLevel = MessageLevel.Fatal,
                             renderFormatted: Boolean = true,
-                            parallel: Boolean = false) extends RenderConfig {
+                            parallelConfig: ParallelConfig = ParallelConfig.sequential) extends RenderConfig {
 
   private lazy val mergedBundle: ExtensionBundle = OperationConfig.mergeBundles(bundles.filter(bundleFilter))
 
@@ -153,6 +153,33 @@ trait RenderConfig {
   /** Indicates whether rendering should include any formatting (line breaks or indentation).
     */
   def renderFormatted: Boolean
+}
+
+/** Configuration for parallel execution of parse and render operations.
+  *
+  * @param parallelism the number of batches to be executed in parallel, 1 means sequential execution
+  * @param threshold the minimum number of operations required for parallel execution
+  */
+case class ParallelConfig (parallelism: Int, threshold: Int)
+
+/** Default configurations for parallel and sequential execution.
+  */
+object ParallelConfig {
+
+  /** Disables parallel execution.
+    */
+  val sequential: ParallelConfig = ParallelConfig(1, Int.MaxValue)
+
+  /** The default level of parallelism, corresponding to the number
+    * of CPUs.
+    */
+  lazy val defaultParallelism = Runtime.getRuntime.availableProcessors
+
+  /** The default level of parallelism when parallel execution is enabled.
+    * Corresponds to the number of CPU.
+    */
+  lazy val default: ParallelConfig = ParallelConfig(defaultParallelism, Math.max(2, defaultParallelism / 2))
+
 }
 
 /** Provides OperationConfig instances and a utility for merging bundles.

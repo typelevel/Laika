@@ -175,7 +175,7 @@ abstract class Render[Writer] private (protected[api] val format: RenderFormat[W
     val finalTree = theme.staticDocuments.merge(treeWithTplApplied)
     val operations = collectOperations(outputTree, theme.defaultStyles, finalTree)
 
-    Executor.execute(operations, config.parallel)
+    Executor.execute(operations, config.parallelConfig.parallelism, config.parallelConfig.threshold)
   }
     
 

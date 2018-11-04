@@ -131,7 +131,7 @@ class Parse private (parsers: Seq[MarkupParser], val config: OperationConfig, re
                      collectOperations(inputTree, _.styleSheets.flatMap({ case (format,inputs) => inputs map parseStyleSheet(format) }).toSeq) ++
                      collectOperations(inputTree, _.configDocuments.find(_.path.name == "directory.conf").toList.map(parseTreeConfig)) // TODO - filename could be configurable
 
-    val results = Executor.execute(operations, config.parallel)
+    val results = Executor.execute(operations, config.parallelConfig.parallelism, config.parallelConfig.threshold)
 
     val docMap = (results collect {
       case (Markup, doc: Document) => (doc.path, doc)

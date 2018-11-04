@@ -30,22 +30,6 @@ private[api] object Executor {
 
   type Batch[T] = Seq[() => T]
 
-  /** The default level of parallelism, corresponding to the number
-    * of CPUs.
-    */
-  lazy val defaultParallelism = Runtime.getRuntime.availableProcessors
-
-  /** The default minimum number of operations for parallel execution.
-    */
-  lazy val defaultParallelThreshold = Math.max(2, defaultParallelism / 2)
-
-  /** Executes the specified batch either sequentially or in parallel,
-    * depending on the boolean flag provided.
-    */
-  def execute[T] (ops: Batch[T], parallel: Boolean): Seq[T] =
-    if (parallel) execute(ops, defaultParallelism, defaultParallelThreshold)
-    else execute(ops, 1, Int.MaxValue)
-
   /** Executes the specified batch either sequentially or in parallel,
     * depending on the specified parameters.
     *
@@ -67,7 +51,7 @@ private[api] object Executor {
   /** Splits the specified operations into batches based on the given
     * desired parallelism.
     */
-  def createBatches[T] (ops: Seq[() => T], parallelism: Int): Seq[Batch[T]] = {
+  def createBatches[T] (ops: Batch[T], parallelism: Int): Seq[Batch[T]] = {
     val mod = ops.size % parallelism
     val loSize = ops.size / parallelism
     val hiSize = loSize + 1

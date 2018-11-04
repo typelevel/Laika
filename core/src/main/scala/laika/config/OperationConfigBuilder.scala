@@ -50,7 +50,9 @@ trait OperationConfigBuilder {
     */
   def using (bundles: ExtensionBundle*): ThisType = withConfig(config.withBundles(bundles))
 
-  /**  Instructs the parser and/or renderer to process all inputs and outputs in parallel.
+  /**  Instructs the parser and/or renderer to process all inputs and outputs in parallel,
+    *  with the default level of parallelism which corresponds to the number of CPUs.
+    *
     *  The recursive structure of document trees will be flattened before parsing and rendering
     *  and then get reassembled afterwards, therefore the parallel processing
     *  includes all subtrees of the document tree.
@@ -61,6 +63,25 @@ trait OperationConfigBuilder {
     *  table of contents get processed that need access to more than just the current
     *  document.
     */
-  def inParallel: ThisType = withConfig(config.copy(parallel = true))
+  def inParallel: ThisType = withConfig(config.copy(parallelConfig = ParallelConfig.default))
+
+  /**  Instructs the parser and/or renderer to process all inputs and outputs in parallel,
+    *  with the specified level of parallelism.
+    *
+    *  The recursive structure of document trees will be flattened before parsing and rendering
+    *  and then get reassembled afterwards, therefore the parallel processing
+    *  includes all subtrees of the document tree.
+    *
+    *  The actual transformation is a three phase process, the first (parsing) and
+    *  third (rendering) can run in parallel. The second phase in the middle cannot,
+    *  as this is the document tree model rewrite step where things like cross references or
+    *  table of contents get processed that need access to more than just the current
+    *  document.
+    *
+    * @param parallelism the number of batches to be executed in parallel, 1 means sequential execution
+    * @param threshold the minimum number of operations required for parallel execution
+    */
+  def inParallel (parallelism: Int, threshold: Int): ThisType =
+    withConfig(config.copy(parallelConfig = ParallelConfig(parallelism, threshold)))
 
 }
