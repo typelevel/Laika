@@ -99,6 +99,17 @@ class GitHubFlavorSpec extends WordSpec
       ))
     }
 
+    "parse an escaped '|' as literal text" in {
+      val input =
+        """|| AAA | BBB |
+           || --- | --- |
+           || \|  | \|  |
+        """.stripMargin
+      Parsing (input) should produce (root(
+        Table(headerRow("AAA","BBB"), TableBody(Seq(bodyRow("|","|"))))
+      ))
+    }
+
     "parse a table head without body" in {
       val input =
         """|| AAA | BBB |

@@ -31,7 +31,7 @@ object Table {
 
   val parser: BlockParserBuilder = BlockParser.forStartChar('|').withSpans { spanParsers =>
 
-    val cellText = anyBut('|','\n')
+    val cellText = spanParsers.escapedUntil('|','\n')
     val finalCellText = textLine
 
     def cell (textParser: Parser[String], cellType: CellType): Parser[Cell] =
@@ -40,7 +40,7 @@ object Table {
       }
 
     def row (cellType: CellType): Parser[Row] =
-      opt('|') ~> (cell(cellText, cellType) <~ '|').rep ~ (cell(finalCellText, cellType).map(Some(_)) | restOfLine ^^^ None) ^? {
+      opt('|') ~> (cell(cellText, cellType) <~ lookBehind(1,'|')).rep ~ (cell(finalCellText, cellType).map(Some(_)) | restOfLine ^^^ None) ^? {
         case cells ~ optFinal if cells.nonEmpty || optFinal.nonEmpty => Row(cells ++ optFinal.toSeq)
       }
 
