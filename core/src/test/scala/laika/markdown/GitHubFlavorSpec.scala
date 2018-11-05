@@ -167,6 +167,25 @@ class GitHubFlavorSpec extends WordSpec
       ))
     }
 
+    "parse a table with alignments" in {
+      val input =
+        """|| AAA | BBB | CCC |
+           || :--- | ---: | :--: |
+           || DDD | EEE | FFF |
+           || GGG | HHH | III |
+        """.stripMargin
+      val options = Seq(Styles("align-left"), Styles("align-right"), Styles("align-center"))
+      def applyOptions (rows: Seq[Row]): Seq[Row] = rows map { row =>
+        Row(row.content.zip(options).map {
+          case (cell, opt) => cell.copy(options = opt)
+        })
+      }
+      Parsing (input) should produce (root(Table(
+        TableHead(applyOptions(headerRow("AAA","BBB","CCC").content)),
+        TableBody(applyOptions(Seq(bodyRow("DDD","EEE","FFF"), bodyRow("GGG","HHH","III")))))
+      ))
+    }
+
     "parse a table head without body" in {
       val input =
         """|| AAA | BBB |

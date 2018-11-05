@@ -34,7 +34,7 @@ import laika.bundle.{ExtensionBundle, ParserBundle}
   * - strikethrough - (TODO)
   * - auto-links (urls and email addresses) - (TODO)
   * - fenced code blocks - (TODO)
-  * - tables - (TODO)
+  * - tables
   *
   * @author Jens Halm
   */

@@ -32,47 +32,66 @@ object Table {
 
   val parser: BlockParserBuilder = BlockParser.forStartChar('|').withSpans { spanParsers =>
 
-    val cellText = spanParsers.escapedUntil('|','\n')
-    val finalCellText = textLine
-
     def cell (textParser: Parser[String], cellType: CellType): Parser[Cell] =
       spanParsers.recursiveSpans(textParser.map(_.trim)) ^^ { spans =>
         Cell(cellType, Seq(Paragraph(spans)))
       }
 
     def row (cellType: CellType): Parser[Row] = {
+      val cellText = spanParsers.escapedUntil('|','\n')
+      val finalCellText = textLine
+
       val delimitedCells = (cell(cellText, cellType) <~ lookBehind(1,'|')).rep
-      val optUndelimitedCell = cell(finalCellText, cellType).map(Some(_)) | restOfLine ^^^ None
+      val optFinalCell = cell(finalCellText, cellType).map(Some(_)) | restOfLine ^^^ None
 
       val rowStart = insignificantSpaces ~ not(anyOf('*','+','-','>','_','#','[',' ','\t').take(1)) ~ opt('|')
 
-      rowStart ~> delimitedCells ~ optUndelimitedCell ^? {
+      rowStart ~> delimitedCells ~ optFinalCell ^? {
         case cells ~ optFinal if cells.nonEmpty || optFinal.nonEmpty => Row(cells ++ optFinal.toSeq)
       }
     }
 
-    val separator: Parser[Unit] = ws ~> anyOf('-').min(1).^ <~ ws
+    val sepRow: Parser[Seq[Options]] = {
 
-    val sepRow: Parser[Int] = {
-      val delimitedSeparator = (separator ~ '|').rep.map(_.size)
-      val optUndelimitedSep = opt(separator).map(_.fold(0)(_ => 1))
+      val separator: Parser[Option[Char] ~ Option[Char]] =
+        (ws ~> opt(':')) ~ (anyOf('-').min(1).^ ~> opt(':') <~ ws)
 
-      opt('|') ~> delimitedSeparator ~ optUndelimitedSep <~ wsEol ^^ {
-        case sep ~ finalSep => sep + finalSep
+      val delimitedSeparators = (separator <~ '|').rep
+      val optFinalSep = opt(separator)
+
+      opt('|') ~> delimitedSeparators ~ optFinalSep <~ wsEol ^^ {
+        case seps ~ finalSep => (seps ++ finalSep.toSeq).map {
+          case Some(_) ~ Some(_) => Styles("align-center")
+          case Some(_) ~ None    => Styles("align-left")
+          case None ~ Some(_)    => Styles("align-right")
+          case _                 => NoOpt
+        }
       }
     }
 
-    val header: Parser[Row] = row(HeadCell) ~ sepRow ^? {
-      case row ~ sepRow if row.content.size == sepRow => row
+    case class Header (row: Row, columnOptions: Seq[Options])
+
+    val header: Parser[Header] = row(HeadCell) ~ sepRow ^? {
+      case row ~ sepRow if row.content.size == sepRow.size => Header(row, sepRow)
     }
 
-    def adjustCellCount (rows: Seq[Row], count: Int): Seq[Row] =
-      rows.map(row => row.copy(content = row.content.take(count).padTo(count, Cell(BodyCell, Nil))))
+    def applyColumnOptions (rows: Seq[Row], columnOptions: Seq[Options]): Seq[Row] = {
+      val count = columnOptions.size
+      rows.map(row => row.copy(content =
+        row.content
+          .take(count)
+          .padTo(count, Cell(BodyCell, Nil))
+          .zip(columnOptions)
+          .map {
+            case (cell, opt) => cell.copy(options = opt)
+          }
+      ))
+    }
 
-    header ~ row(BodyCell).rep ^^ { case headerRow ~ bodyRows =>
+    header ~ row(BodyCell).rep ^^ { case header ~ bodyRows =>
       laika.ast.Table(
-        TableHead(Seq(headerRow)),
-        TableBody(adjustCellCount(bodyRows, headerRow.content.size))
+        TableHead(applyColumnOptions(Seq(header.row), header.columnOptions)),
+        TableBody(applyColumnOptions(bodyRows, header.columnOptions))
       )
     }
   }
