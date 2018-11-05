@@ -39,23 +39,38 @@ object Table {
         Cell(cellType, Seq(Paragraph(spans)))
       }
 
-    def row (cellType: CellType): Parser[Row] =
-      opt('|') ~> (cell(cellText, cellType) <~ lookBehind(1,'|')).rep ~ (cell(finalCellText, cellType).map(Some(_)) | restOfLine ^^^ None) ^? {
+    def row (cellType: CellType): Parser[Row] = {
+      val delimitedCells = (cell(cellText, cellType) <~ lookBehind(1,'|')).rep
+      val optUndelimitedCell = cell(finalCellText, cellType).map(Some(_)) | restOfLine ^^^ None
+
+      opt('|') ~> delimitedCells ~ optUndelimitedCell ^? {
         case cells ~ optFinal if cells.nonEmpty || optFinal.nonEmpty => Row(cells ++ optFinal.toSeq)
       }
+    }
 
     val separator: Parser[Unit] = ws ~> anyOf('-').min(1).^ <~ ws
 
-    val sepRow: Parser[Int] = opt('|') ~> (separator ~ '|').rep.map(_.size) ~ opt(separator).map(_.fold(0)(_ => 1)) <~ wsEol ^^ {
-      case sep ~ finalSep => sep + finalSep
+    val sepRow: Parser[Int] = {
+      val delimitedSeparator = (separator ~ '|').rep.map(_.size)
+      val optUndelimitedSep = opt(separator).map(_.fold(0)(_ => 1))
+
+      opt('|') ~> delimitedSeparator ~ optUndelimitedSep <~ wsEol ^^ {
+        case sep ~ finalSep => sep + finalSep
+      }
     }
 
     val header: Parser[Row] = row(HeadCell) ~ sepRow ^? {
       case row ~ sepRow if row.content.size == sepRow => row
     }
 
+    def adjustCellCount (rows: Seq[Row], count: Int): Seq[Row] =
+      rows.map(row => row.copy(content = row.content.take(count).padTo(count, Cell(BodyCell, Nil))))
+
     header ~ row(BodyCell).rep ^^ { case headerRow ~ bodyRows =>
-      laika.ast.Table(TableHead(Seq(headerRow)), TableBody(bodyRows))
+      laika.ast.Table(
+        TableHead(Seq(headerRow)),
+        TableBody(adjustCellCount(bodyRows, headerRow.content.size))
+      )
     }
   }
 

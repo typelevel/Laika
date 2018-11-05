@@ -99,6 +99,34 @@ class GitHubFlavorSpec extends WordSpec
       ))
     }
 
+    "ignore cells that are exceeding the number of header cells" in {
+      val input =
+        """|| AAA | BBB |
+           || --- | --- |
+           || CCC | DDD | XXX |
+           |  EEE | FFF |
+        """.stripMargin
+      Parsing (input) should produce (root(
+        Table(headerRow("AAA","BBB"), TableBody(Seq(bodyRow("CCC","DDD"), bodyRow("EEE","FFF"))))
+      ))
+    }
+
+    "insert empty cells when the row has less cells than the header row" in {
+      val input =
+        """|| AAA | BBB |
+           || --- | --- |
+           || CCC |
+           |  EEE | FFF |
+        """.stripMargin
+      val paddedRow = {
+        val nonEmpty = bodyRow("CCC")
+        nonEmpty.copy(content = nonEmpty.content :+ Cell(BodyCell, Nil))
+      }
+      Parsing (input) should produce (root(
+        Table(headerRow("AAA","BBB"), TableBody(Seq(paddedRow, bodyRow("EEE","FFF"))))
+      ))
+    }
+
     "parse an escaped '|' as literal text" in {
       val input =
         """|| AAA | BBB |
