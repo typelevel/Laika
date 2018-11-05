@@ -20,6 +20,7 @@ import laika.ast._
 import laika.bundle.{BlockParser, BlockParserBuilder}
 import laika.parse.Parser
 import laika.parse.text.TextParsers._
+import laika.markdown.BlockParsers._
 
 /** Parser for the table extension of GitHub Flavored Markdown.
   *
@@ -43,7 +44,9 @@ object Table {
       val delimitedCells = (cell(cellText, cellType) <~ lookBehind(1,'|')).rep
       val optUndelimitedCell = cell(finalCellText, cellType).map(Some(_)) | restOfLine ^^^ None
 
-      opt('|') ~> delimitedCells ~ optUndelimitedCell ^? {
+      val rowStart = insignificantSpaces ~ not(anyOf('*','+','-','>','_','#','[',' ','\t').take(1)) ~ opt('|')
+
+      rowStart ~> delimitedCells ~ optUndelimitedCell ^? {
         case cells ~ optFinal if cells.nonEmpty || optFinal.nonEmpty => Row(cells ++ optFinal.toSeq)
       }
     }

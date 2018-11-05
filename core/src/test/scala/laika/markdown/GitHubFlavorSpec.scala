@@ -43,6 +43,11 @@ class GitHubFlavorSpec extends WordSpec
   def bodyRow(cells: String*): Row =
     Row(cells.map(c => Cell(BodyCell, Seq(Paragraph(Seq(Text(c)))))))
 
+  def paddedBodyRow(count: Int, cells: String*): Row = {
+    val cellsWithText = bodyRow(cells:_*).content
+    Row(cellsWithText.padTo(count, Cell(BodyCell, Nil)))
+  }
+
   def bodyRowSpans(cells: Seq[Span]*): Row =
     Row(cells.map(c => Cell(BodyCell, Seq(Paragraph(c)))))
 
@@ -118,12 +123,8 @@ class GitHubFlavorSpec extends WordSpec
            || CCC |
            |  EEE | FFF |
         """.stripMargin
-      val paddedRow = {
-        val nonEmpty = bodyRow("CCC")
-        nonEmpty.copy(content = nonEmpty.content :+ Cell(BodyCell, Nil))
-      }
       Parsing (input) should produce (root(
-        Table(headerRow("AAA","BBB"), TableBody(Seq(paddedRow, bodyRow("EEE","FFF"))))
+        Table(headerRow("AAA","BBB"), TableBody(Seq(paddedBodyRow(2, "CCC"), bodyRow("EEE","FFF"))))
       ))
     }
 
@@ -135,6 +136,34 @@ class GitHubFlavorSpec extends WordSpec
         """.stripMargin
       Parsing (input) should produce (root(
         Table(headerRow("AAA","BBB"), TableBody(Seq(bodyRow("|","|"))))
+      ))
+    }
+
+    "parse a table that ends on a blank line" in {
+      val input =
+        """|| AAA | BBB |
+           || --- | --- |
+           |CCC
+           |
+           |DDD
+        """.stripMargin
+      Parsing (input) should produce (root(
+        Table(headerRow("AAA","BBB"), TableBody(Seq(paddedBodyRow(2, "CCC")))),
+        p("DDD")
+      ))
+    }
+
+    "parse a table that ends when a new block item starts" in {
+      val input =
+        """|| AAA | BBB |
+           || --- | --- |
+           |CCC
+           |* DDD
+           |* EEE
+        """.stripMargin
+      Parsing (input) should produce (root(
+        Table(headerRow("AAA","BBB"), TableBody(Seq(paddedBodyRow(2, "CCC")))),
+        bulletList() + "DDD" + "EEE"
       ))
     }
 
