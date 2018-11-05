@@ -31,29 +31,32 @@ object Table {
 
   val parser: BlockParserBuilder = BlockParser.forStartChar('|').withSpans { spanParsers =>
 
-    val cell: Parser[Cell] = spanParsers.recursiveSpans(anyBut('|','\n').map(_.trim)) ^^ { spans =>
-      Cell(HeadCell, Seq(Paragraph(spans)))
-    }
+    val cellText = anyBut('|','\n')
+    val finalCellText = textLine
 
-    val finalCell: Parser[Cell] = spanParsers.recursiveSpans(textLine.map(_.trim)) ^^ { spans =>
-      Cell(HeadCell, Seq(Paragraph(spans)))
-    }
+    def cell (textParser: Parser[String], cellType: CellType): Parser[Cell] =
+      spanParsers.recursiveSpans(textParser.map(_.trim)) ^^ { spans =>
+        Cell(cellType, Seq(Paragraph(spans)))
+      }
 
-    val row: Parser[Row] = (cell <~ '|').rep ~ (finalCell.map(Some(_)) | restOfLine ^^^ None) ^^ {
-      case cells ~ optFinal => Row(cells ++ optFinal.toSeq)
-    }
+    def row (cellType: CellType): Parser[Row] =
+      opt('|') ~> (cell(cellText, cellType) <~ '|').rep ~ (cell(finalCellText, cellType).map(Some(_)) | restOfLine ^^^ None) ^? {
+        case cells ~ optFinal if cells.nonEmpty || optFinal.nonEmpty => Row(cells ++ optFinal.toSeq)
+      }
 
     val separator: Parser[Unit] = ws ~> anyOf('-').min(1).^ <~ ws
 
-    val sepRow: Parser[Int] = opt('|') ~> (separator ~ '|').rep.map(_.size) ~ opt(separator).map(_.fold(0)(_ => 1)) ^^ {
+    val sepRow: Parser[Int] = opt('|') ~> (separator ~ '|').rep.map(_.size) ~ opt(separator).map(_.fold(0)(_ => 1)) <~ wsEol ^^ {
       case sep ~ finalSep => sep + finalSep
     }
 
-    val header: Parser[Row] = row ~ sepRow ^? {
+    val header: Parser[Row] = row(HeadCell) ~ sepRow ^? {
       case row ~ sepRow if row.content.size == sepRow => row
     }
 
-    header ^^ { row => laika.ast.Table(TableHead(Seq(row)), TableBody(Nil)) }
+    header ~ row(BodyCell).rep ^^ { case headerRow ~ bodyRows =>
+      laika.ast.Table(TableHead(Seq(headerRow)), TableBody(bodyRows))
+    }
   }
 
 }

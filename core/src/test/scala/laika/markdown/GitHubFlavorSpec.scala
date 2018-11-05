@@ -40,6 +40,12 @@ class GitHubFlavorSpec extends WordSpec
   def headerRow(cells: String*): TableHead =
     TableHead(Seq(Row(cells.map(c => Cell(HeadCell, Seq(Paragraph(Seq(Text(c)))))))))
 
+  def bodyRow(cells: String*): Row =
+    Row(cells.map(c => Cell(BodyCell, Seq(Paragraph(Seq(Text(c)))))))
+
+  def bodyRowSpans(cells: Seq[Span]*): Row =
+    Row(cells.map(c => Cell(BodyCell, Seq(Paragraph(c)))))
+
   "The Markdown parser with GitHubFlavor extension" should {
 
     "parse standard Markdown" in {
@@ -54,6 +60,45 @@ class GitHubFlavorSpec extends WordSpec
 
   "The GitHubFlavor table parser" should {
 
+    "parse a table head and body" in {
+      val input =
+        """|| AAA | BBB |
+           || --- | --- |
+           || CCC | DDD |
+           || EEE | FFF |
+        """.stripMargin
+      Parsing (input) should produce (root(
+        Table(headerRow("AAA","BBB"), TableBody(Seq(bodyRow("CCC","DDD"), bodyRow("EEE","FFF"))))
+      ))
+    }
+
+    "parse a table with inline markup in one cell" in {
+      val input =
+        """|| AAA | BBB |
+           || --- | --- |
+           || CCC | DDD |
+           || EEE | FFF *GGG* |
+        """.stripMargin
+      Parsing (input) should produce (root(
+        Table(headerRow("AAA","BBB"), TableBody(Seq(
+          bodyRow("CCC","DDD"),
+          bodyRowSpans(Seq(Text("EEE")), Seq(Text("FFF "), Emphasized(Seq(Text("GGG")))))
+        )))
+      ))
+    }
+
+    "parse a table head and body with leading and trailing '|' missing in some rows" in {
+      val input =
+        """|| AAA | BBB |
+           || --- | --- |
+           || CCC | DDD
+           |  EEE | FFF |
+        """.stripMargin
+      Parsing (input) should produce (root(
+        Table(headerRow("AAA","BBB"), TableBody(Seq(bodyRow("CCC","DDD"), bodyRow("EEE","FFF"))))
+      ))
+    }
+
     "parse a table head without body" in {
       val input =
         """|| AAA | BBB |
@@ -62,10 +107,18 @@ class GitHubFlavorSpec extends WordSpec
       Parsing (input) should produce (root(Table(headerRow("AAA","BBB"), TableBody(Nil))))
     }
 
-    "parse a table head without body without leading | in the separator row" in {
+    "parse a table head without body without leading '|' in the separator row" in {
       val input =
         """|| AAA | BBB |
            |  --- | --- |
+        """.stripMargin
+      Parsing (input) should produce (root(Table(headerRow("AAA","BBB"), TableBody(Nil))))
+    }
+
+    "parse a table head without body without trailing '|' in the separator row" in {
+      val input =
+        """|| AAA | BBB |
+           || --- | ---
         """.stripMargin
       Parsing (input) should produce (root(Table(headerRow("AAA","BBB"), TableBody(Nil))))
     }
