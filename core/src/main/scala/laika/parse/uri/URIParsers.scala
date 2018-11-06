@@ -27,7 +27,7 @@ import laika.parse.text.Characters
  * 
  * @author Jens Halm
  */
-class URIParsers {
+object URIParsers {
 
   
   /** Flattens the result from various combinators,

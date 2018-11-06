@@ -291,7 +291,7 @@ object TableParsers {
 
     recParsers.withRecursiveBlockParser(topBorder) >> { case (recParser, cols) =>
       
-      val (rowColumns, boundaryColumns) = (cols map { case (col, sep) =>
+      val (rowColumns, boundaryColumns): (Seq[Parser[Any]],Seq[Parser[Any]]) = (cols map { case (col, sep) =>
         val cellText = if (sep == 0) anyBut('\n', '\r') ^^ CellElement
                        else (any take col) ^^ CellElement 
         val separator = (anyOf(' ') take sep) ^^ CellSeparator
@@ -308,7 +308,7 @@ object TableParsers {
         val bSplit =  (anyOf(' ') take sep) ^^^ Intersection
         val boundary = bCell ~ (bSplit | bMerged)
         
-        ((underline | not(boundary) ~> textColumn).asInstanceOf[Parser[Any]], boundary.asInstanceOf[Parser[Any]]) 
+        (underline | not(boundary) ~> textColumn, boundary)
       }).unzip
       
       val row: Parser[Any] = (rowColumns reduceRight (_ ~ _)) <~ wsEol

@@ -317,15 +317,13 @@ object InlineParsers {
     }
   }}
 
-  private val uriParsers = new URIParsers
-  
   /** Parses a standalone HTTP or HTTPS hyperlink (with no surrounding markup).
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#standalone-hyperlinks]]
    */
   lazy val uri: SpanParserBuilder = SpanParser.forStartChar(':').standalone {
     trim(reverse(1, ("ptth" | "sptth") <~ reverseMarkupStart) ~
-      uriParsers.httpUriNoScheme <~ lookAhead(eol | afterEndMarkup) ^^ {
+      URIParsers.httpUriNoScheme <~ lookAhead(eol | afterEndMarkup) ^^ {
       case scheme ~ rest => (scheme, ":", rest)
     })
   }.withLowPrecedence
@@ -335,8 +333,8 @@ object InlineParsers {
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#standalone-hyperlinks]]
    */
   lazy val email: SpanParserBuilder = SpanParser.forStartChar('@').standalone {
-    trim(reverse(1, uriParsers.localPart <~ reverseMarkupStart) ~
-      uriParsers.domain <~ lookAhead(eol | afterEndMarkup) ^? {
+    trim(reverse(1, URIParsers.localPart <~ reverseMarkupStart) ~
+      URIParsers.domain <~ lookAhead(eol | afterEndMarkup) ^? {
       case local ~ domain if local.nonEmpty && domain.nonEmpty => (local, "@", domain)
     })
   }.withLowPrecedence
