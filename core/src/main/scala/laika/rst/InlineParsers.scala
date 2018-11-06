@@ -22,7 +22,7 @@ import laika.collection.TransitionalCollectionOps._
 import laika.parse.markup.RecursiveSpanParsers
 import laika.parse.text.TextParsers._
 import laika.parse.text.{DelimitedText, DelimiterOptions}
-import laika.parse.uri.URIParsers
+import laika.parse.uri.{AutoLinkParsers, URIParsers}
 import laika.parse.{Failure, Parser, Success}
 import laika.rst.BaseParsers._
 import laika.rst.ast.{InterpretedText, ReferenceName, SubstitutionReference}
@@ -317,27 +317,23 @@ object InlineParsers {
     }
   }}
 
+  private val autoLinks = new AutoLinkParsers(
+    reverseMarkupStart,
+    afterEndMarkup,
+    Set('-',':','/','\'','(','{'),
+    Set('-',':','/','\'',')','}','.',',',';','!','?')
+  )
+
   /** Parses a standalone HTTP or HTTPS hyperlink (with no surrounding markup).
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#standalone-hyperlinks]]
    */
-  lazy val uri: SpanParserBuilder = SpanParser.forStartChar(':').standalone {
-    trim(reverse(1, ("ptth" | "sptth") <~ reverseMarkupStart) ~
-      URIParsers.httpUriNoScheme <~ lookAhead(eol | afterEndMarkup) ^^ {
-      case scheme ~ rest => (scheme, ":", rest)
-    })
-  }.withLowPrecedence
+  lazy val uri: SpanParserBuilder = autoLinks.http
   
   /** Parses a standalone email address (with no surrounding markup).
    * 
    *  See [[http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html#standalone-hyperlinks]]
    */
-  lazy val email: SpanParserBuilder = SpanParser.forStartChar('@').standalone {
-    trim(reverse(1, URIParsers.localPart <~ reverseMarkupStart) ~
-      URIParsers.domain <~ lookAhead(eol | afterEndMarkup) ^? {
-      case local ~ domain if local.nonEmpty && domain.nonEmpty => (local, "@", domain)
-    })
-  }.withLowPrecedence
-
+  lazy val email: SpanParserBuilder = autoLinks.email
 
 }
