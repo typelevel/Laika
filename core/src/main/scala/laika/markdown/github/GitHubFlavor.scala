@@ -41,8 +41,13 @@ import laika.bundle.{ExtensionBundle, ParserBundle}
 object GitHubFlavor extends ExtensionBundle {
 
   override def parsers: ParserBundle = ParserBundle(
-    blockParsers = Seq(Table.parser),
-    spanParsers = Nil
+    blockParsers = Seq(
+      Table.parser
+    ),
+    spanParsers = Seq(
+      AutoLinks.parsers.http,
+      AutoLinks.parsers.email
+    )
   )
 
 }

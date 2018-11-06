@@ -63,6 +63,53 @@ class GitHubFlavorSpec extends WordSpec
 
   }
 
+  "The GitHubFlavor auto-link parser" should {
+
+    def r (spans: Seq[Span]): RootElement = root(p(spans:_*))
+
+    "parse a http URI" in {
+      val uri = "http://www.link.com"
+      Parsing ("some http://www.link.com here") should produce (r(spans(txt("some "),
+        link(txt(uri)).url(uri), txt(" here"))))
+    }
+
+    "parse a http URI containing an IP4 address" in {
+      val uri = "http://127.0.0.1/path"
+      Parsing (s"some $uri here") should produce (r(spans(txt("some "),
+        link(txt(uri)).url(uri), txt(" here"))))
+    }
+
+    "parse a https URI" in {
+      val uri = "https://www.link.com"
+      Parsing ("some https://www.link.com here") should produce (r(spans(txt("some "),
+        link(txt(uri)).url(uri), txt(" here"))))
+    }
+
+    "parse an email address" in {
+      val email = "user@domain.com"
+      Parsing ("some user@domain.com here") should produce (r(spans(txt("some "),
+        link(txt(email)).url("mailto:"+email), txt(" here"))))
+    }
+
+    "parse a http URI without trailing punctuation" in {
+      val uri = "http://www.link.com"
+      Parsing ("some http://www.link.com. here") should produce (r(spans(txt("some "),
+        link(txt(uri)).url(uri), txt(". here"))))
+    }
+
+    "not parse a URI containing unicode characters" in {
+      val text = "some http://www.link.com/fooá here"
+      Parsing (text) should produce (r(spans(txt(text))))
+    }
+
+    "parse an email address without surrounding punctuation" in {
+      val email = "user@domain.com"
+      Parsing ("some (user@domain.com) here") should produce (r(spans(txt("some ("),
+        link(txt(email)).url("mailto:"+email), txt(") here"))))
+    }
+
+  }
+
   "The GitHubFlavor table parser" should {
 
     "parse a table head and body" in {
