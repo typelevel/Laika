@@ -122,6 +122,100 @@ class GitHubFlavorSpec extends WordSpec
 
   }
 
+  "The GitHubFlavor parser for fenced code blocks" should {
+
+    "parse a code block with backtick fences" in {
+      val input =
+        """```
+          |code
+          |```
+        """.stripMargin
+      Parsing (input) should produce (root(LiteralBlock("code")))
+    }
+
+    "parse a code block with tilde fences" in {
+      val input =
+        """~~~
+          |code
+          |~~~
+        """.stripMargin
+      Parsing (input) should produce (root(LiteralBlock("code")))
+    }
+
+    "parse a code block with a closing fence that is longer than the opening fence" in {
+      val input =
+        """~~~
+          |code
+          |~~~~~
+        """.stripMargin
+      Parsing (input) should produce (root(LiteralBlock("code")))
+    }
+
+    "not recognize a closing fence that is shorter than the opening fence" in {
+      val input =
+        """~~~~~
+          |code
+          |~~~
+          |~~~~~
+        """.stripMargin
+      Parsing (input) should produce (root(LiteralBlock("code\n~~~")))
+    }
+
+    "not recognize a closing fence that consists of different fence characters" in {
+      val input =
+        """~~~~~
+          |code
+          |`````
+          |~~~~~
+        """.stripMargin
+      Parsing (input) should produce (root(LiteralBlock("code\n`````")))
+    }
+
+    "parse a code block with an info/language hint" in {
+      val input =
+        """~~~ foo
+          |code
+          |~~~
+        """.stripMargin
+      Parsing (input) should produce (root(CodeBlock("foo", Seq(Text("code")))))
+    }
+
+    "parse a code block without a closing fence" in {
+      val input =
+        """~~~
+          |code
+        """.stripMargin
+      Parsing (input) should produce (root(LiteralBlock("code")))
+    }
+
+    "not recognize a fence that is shorter than 3 characters" in {
+      val input =
+        """~~
+          |code
+          |~~
+        """.stripMargin
+      Parsing (input) should produce (root(p("~~\ncode\n~~")))
+    }
+
+    "not recognize a fence that is indented more than 3 characters" in {
+      val input =
+        """    ~~~~
+          |    code
+          |    ~~~~""".stripMargin
+      Parsing (input) should produce (root(LiteralBlock("~~~~\ncode\n~~~~")))
+    }
+
+    "not recognize a closing fence with additional characters" in {
+      val input =
+        """~~~
+          |code
+          |~~~xxx
+        """.stripMargin
+      Parsing (input) should produce (root(LiteralBlock("code\n~~~xxx")))
+    }
+
+  }
+
   "The GitHubFlavor table parser" should {
 
     "parse a table head and body" in {

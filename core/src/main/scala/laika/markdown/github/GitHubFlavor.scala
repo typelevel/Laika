@@ -43,7 +43,7 @@ object GitHubFlavor extends ExtensionBundle {
   override def parsers: ParserBundle = ParserBundle(
     blockParsers = Seq(
       Table.parser
-    ),
+    ) ++ FencedCodeBlocks.parsers,
     spanParsers = Seq(
       AutoLinks.parsers.www,
       AutoLinks.parsers.http,
