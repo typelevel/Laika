@@ -81,8 +81,7 @@ object URIParsers {
   /** Parses a single unreserved character as defined in RFC 3986.
    * 
    *  {{{
-   *  sub-delims = "!" / "$" / "&" / "'" / "(" / ")"
-   *                   / "*" / "+" / "," / ";" / "="
+   *  unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
    *  }}}
    */
   val unreserved: Parser[String] = (alpha take 1) | (digit take 1) | (anyOf('-', '.', '_', '~') take 1)
