@@ -20,6 +20,7 @@ import laika.ast.{ExternalLink, Reverse, Span, Text, ~}
 import laika.bundle.{SpanParser, SpanParserBuilder}
 import laika.parse.{Failure, Parser, Success}
 import laika.parse.text.TextParsers._
+import laika.parse.uri.URIParsers.{regName, path, query, fragment, flatten}
 
 /** Parser for inline auto-links, which are urls or email addresses that are recognized and
   * inserted as links into the AST without any surrounding markup delimiters.
@@ -53,14 +54,23 @@ class AutoLinkParsers (reverseMarkupStart: Parser[Any],
     }
   }}
 
+  private def uri (reverseParser: Parser[String], forwardParser: Parser[String], separator: String): Parser[Span] =
+    trim(reverse(1, reverseParser <~ reverseMarkupStart) ~
+      forwardParser <~ lookAhead(eol | afterEndMarkup) ^^ {
+        case scheme ~ rest => (scheme, separator, rest)
+      })
+
   /** Parses a standalone HTTP or HTTPS hyperlink (with no surrounding markup).
     */
-  lazy val http: SpanParserBuilder = SpanParser.forStartChar(':').standalone {
-    trim(reverse(1, ("ptth" | "sptth") <~ reverseMarkupStart) ~
-      URIParsers.httpUriNoScheme <~ lookAhead(eol | afterEndMarkup) ^^ {
-      case scheme ~ rest => (scheme, ":", rest)
-    })
-  }.withLowPrecedence
+  lazy val http: SpanParserBuilder = SpanParser.forStartChar(':')
+    .standalone(uri("ptth" | "sptth", URIParsers.httpUriNoScheme, ":"))
+    .withLowPrecedence
+
+  /** Parses a standalone www hyperlink (with no surrounding markup).
+    */
+  lazy val www: SpanParserBuilder = SpanParser.forStartChar('.')
+    .standalone(uri("www", (regName ~ path ~ opt('?' ~ query) ~ opt('#' ~ fragment)) ^^ flatten, "."))
+    .withLowPrecedence
 
   /** Parses a standalone email address (with no surrounding markup).
     */

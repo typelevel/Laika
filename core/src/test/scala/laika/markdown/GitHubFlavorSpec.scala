@@ -85,6 +85,12 @@ class GitHubFlavorSpec extends WordSpec
         link(txt(uri)).url(uri), txt(" here"))))
     }
 
+    "parse a www URI" in {
+      val uri = "www.link.com"
+      Parsing ("some www.link.com here") should produce (r(spans(txt("some "),
+        link(txt(uri)).url(uri), txt(" here"))))
+    }
+
     "parse an email address" in {
       val email = "user@domain.com"
       Parsing ("some user@domain.com here") should produce (r(spans(txt("some "),
@@ -94,6 +100,12 @@ class GitHubFlavorSpec extends WordSpec
     "parse a http URI without trailing punctuation" in {
       val uri = "http://www.link.com"
       Parsing ("some http://www.link.com. here") should produce (r(spans(txt("some "),
+        link(txt(uri)).url(uri), txt(". here"))))
+    }
+
+    "parse a www URI without trailing punctuation" in {
+      val uri = "www.link.com"
+      Parsing ("some www.link.com. here") should produce (r(spans(txt("some "),
         link(txt(uri)).url(uri), txt(". here"))))
     }
 
