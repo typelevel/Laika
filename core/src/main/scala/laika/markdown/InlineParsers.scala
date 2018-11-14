@@ -85,7 +85,7 @@ object InlineParsers {
    *  Recursively parses nested spans, too. 
    */
   def enclosedBySingleChar (c: Char)(implicit recParsers: RecursiveSpanParsers): Parser[List[Span]] = {
-    val start = lookAhead(anyBut(' ', c).take(1).^)
+    val start = lookAhead(anyBut(' ','\n',c).take(1).^)
     val end = not(lookBehind(2, ' '))
     span(start, c.toString, end)
   }
@@ -94,7 +94,7 @@ object InlineParsers {
    *  Recursively parses nested spans, too. 
    */
   def enclosedByDoubleChar (c: Char)(implicit recParsers: RecursiveSpanParsers): Parser[List[Span]] = {
-    val start = c ~ not(' ')
+    val start = c ~ lookAhead(anyBut(' ','\n').take(1).^)
     val end = c <~ not(lookBehind(3, ' '))
     span(start, c.toString, end)
   }

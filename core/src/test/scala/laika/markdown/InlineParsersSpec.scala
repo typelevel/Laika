@@ -62,6 +62,10 @@ class InlineParsersSpec extends FlatSpec
   it should "ignore an * character when it is enclosed in spaces" in {
     Parsing ("some * text * here") should produce (spans(txt("some * text * here")))
   }
+
+  it should "ignore an * start markup when it is at the end of the line" in {
+    Parsing ("some *\ntext* here") should produce (spans(txt("some *\ntext* here")))
+  }
   
   it should "ignore an * character when it is not matched by a second *" in {
     Parsing ("some *text here") should produce (spans(txt("some *text here")))
