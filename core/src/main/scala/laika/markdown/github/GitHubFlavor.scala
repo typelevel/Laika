@@ -45,6 +45,7 @@ object GitHubFlavor extends ExtensionBundle {
       Tables.parser
     ) ++ FencedCodeBlocks.parsers,
     spanParsers = Seq(
+      Strikethrough.parser,
       AutoLinks.parsers.www,
       AutoLinks.parsers.http,
       AutoLinks.parsers.email

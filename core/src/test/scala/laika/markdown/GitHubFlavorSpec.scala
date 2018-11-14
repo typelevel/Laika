@@ -63,6 +63,43 @@ class GitHubFlavorSpec extends WordSpec
 
   }
 
+  "The GitHubFlavor strikethrough parser" should {
+
+    def r (spans: Seq[Span]): RootElement = root(p(spans:_*))
+
+    def del (text: String): Span = Deleted(Seq(Text(text)))
+    def delS (span: Span): Span = Deleted(Seq(span))
+
+    "parse content enclosed in ~~ at the beginning of a phrase" in {
+      Parsing ("~~some~~ text") should produce (r(spans(del("some"),txt(" text"))))
+    }
+
+    "parse content enclosed in ~~ at the end of a phrase" in {
+      Parsing ("some ~~text~~") should produce (r(spans(txt("some "),del("text"))))
+    }
+
+    "parse content enclosed in ~~ in the middle of a phrase" in {
+      Parsing ("some ~~text~~ here") should produce (r(spans(txt("some "),del("text"),txt(" here"))))
+    }
+
+    "parse content enclosed in ~~ with a nested em span" in {
+      Parsing ("some ~~*text*~~ here") should produce (r(spans(txt("some "),delS(em(txt("text"))),txt(" here"))))
+    }
+
+    "parse content enclosed in ~~ when it spans the entire phrase" in {
+      Parsing ("~~text~~") should produce (r(spans(del("text"))))
+    }
+
+    "ignore a ~~ sequence when it is enclosed in spaces" in {
+      Parsing ("some ~~ text ~~ here") should produce (r(spans(txt("some ~~ text ~~ here"))))
+    }
+
+    "ignore a ~~ sequence when it is not matched by a second ~~" in {
+      Parsing ("some ~~text here") should produce (r(spans(txt("some ~~text here"))))
+    }
+
+  }
+
   "The GitHubFlavor auto-link parser" should {
 
     def r (spans: Seq[Span]): RootElement = root(p(spans:_*))
