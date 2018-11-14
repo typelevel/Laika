@@ -28,7 +28,7 @@ import laika.markdown.BlockParsers._
   *
   * @author Jens Halm
   */
-object Table {
+object Tables {
 
   val parser: BlockParserBuilder = BlockParser.forStartChar('|').withSpans { spanParsers =>
 
