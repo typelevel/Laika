@@ -536,6 +536,14 @@ case class Literal (content: String, options: Options = NoOpt) extends Span with
  */
 case class Code (language: String, content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer[Code]
 
+/** A span representing deleted inline elements that may contain nested spans.
+  */
+case class Deleted (content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer[Deleted]
+
+/** A span representing inserted inline elements that may contain nested spans.
+  */
+case class Inserted (content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer[Inserted]
+
 /** Represents a URI which might also optionally be expressed as a local reference within the processed tree.
  */
 case class URI (uri: String, localRef: Option[PathInfo] = None)
