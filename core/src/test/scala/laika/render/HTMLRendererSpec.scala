@@ -410,6 +410,16 @@ class HTMLRendererSpec extends FlatSpec
     val elem = p(txt("some "), str("strong"), txt(" text")) 
     render (elem) should be ("<p>some <strong>strong</strong> text</p>") 
   }
+
+  it should "render a paragraph containing a deleted span" in {
+    val elem = p(txt("some "), Deleted(Seq(Text("deleted"))), txt(" text"))
+    render (elem) should be ("<p>some <del>deleted</del> text</p>")
+  }
+
+  it should "render a paragraph containing an inserted span" in {
+    val elem = p(txt("some "), Inserted(Seq(Text("inserted"))), txt(" text"))
+    render (elem) should be ("<p>some <ins>inserted</ins> text</p>")
+  }
   
   it should "render a paragraph containing a literal span" in {
     val elem = p(txt("some "), lit("code"), txt(" span"))

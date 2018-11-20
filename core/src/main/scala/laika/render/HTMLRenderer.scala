@@ -107,6 +107,8 @@ class HTMLRenderer (out: HTMLWriter, messageLevel: MessageLevel) {
         case Paragraph(content,opt)         => out <<@ ("p",opt)       <<  content <<  "</p>"
         case Emphasized(content,opt)        => out <<@ ("em",opt)      <<  content <<  "</em>"
         case Strong(content,opt)            => out <<@ ("strong",opt)  <<  content <<  "</strong>"
+        case Deleted(content,opt)           => out <<@ ("del",opt)  <<  content <<  "</del>"
+        case Inserted(content,opt)          => out <<@ ("ins",opt)  <<  content <<  "</ins>"
         case ParsedLiteralBlock(content,opt)=> out <<@ ("pre",opt) << "<code>" <<<  content << "</code></pre>"
         case CodeBlock(lang,content,opt)    => out <<@ ("pre",opt+codeStyles(lang)) << "<code>" <<<  content << "</code></pre>"
         case Code(lang,content,opt)         => out <<@ ("code",opt+codeStyles(lang)) <<  content << "</code>"
