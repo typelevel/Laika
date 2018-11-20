@@ -134,6 +134,8 @@ class FORenderer (out: FOWriter, rootElement: Element, path: Path, messageLevel:
 
         case e @ Emphasized(content,_)        => out.inline(e,content)
         case e @ Strong(content,_)            => out.inline(e,content)
+        case e @ Deleted(content,_)           => out.inline(e,content)
+        case e @ Inserted(content,_)          => out.inline(e,content)
         case e @ Code(lang,content,_)         => out.inline(e.copy(options=e.options + codeStyles(lang)),content)
         case e @ Line(content,_)              => out.block(e, content)
 

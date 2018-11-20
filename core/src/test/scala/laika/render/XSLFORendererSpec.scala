@@ -597,6 +597,16 @@ class XSLFORendererSpec extends FlatSpec
     val elem = p(txt("some "), str("strong"), txt(" text")) 
     render (elem) should be ("""<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:inline font-weight="bold">strong</fo:inline> text</fo:block>""") 
   }
+
+  it should "render a paragraph containing a deleted span" in {
+    val elem = p(txt("some "), Deleted(Seq(Text("deleted"))), txt(" text"))
+    render (elem) should be ("""<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:inline text-decoration="line-through">deleted</fo:inline> text</fo:block>""")
+  }
+
+  it should "render a paragraph containing an inserted span" in {
+    val elem = p(txt("some "), Inserted(Seq(Text("inserted"))), txt(" text"))
+    render (elem) should be ("""<fo:block font-family="serif" font-size="10pt" space-after="3mm">some <fo:inline text-decoration="underline">inserted</fo:inline> text</fo:block>""")
+  }
   
   it should "render a paragraph containing a literal span" in {
     val elem = p(txt("some "), lit("code"), txt(" span"))

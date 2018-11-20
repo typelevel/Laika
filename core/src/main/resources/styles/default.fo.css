@@ -164,6 +164,14 @@ Strong, .title {
   font-weight: bold;
 }
 
+Deleted {
+  text-decoration: line-through;
+}
+
+Inserted {
+  text-decoration: underline;
+}
+
 Literal, Code {
   font-family: monospace;
 }
