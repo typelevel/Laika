@@ -18,14 +18,14 @@ package laika.markdown.github
 
 import laika.parse.Parser
 import laika.parse.text.TextParsers._
-import laika.parse.uri.{AutoLinkParsers, URIParsers}
+import laika.parse.uri.AutoLinkParsers
 
 /** Parsers for inline auto-links, which are urls or email addresses that are recognized and
   * inserted as links into the AST without any surrounding markup delimiters.
   *
   * In contrast to the rather informal description of the GitHub-Flavored-Markdown spec,
   * parsing of the http or email URIs is based on the corresponding RFCs.
-  * See [[URIParsers]] for details.
+  * See [[laika.parse.uri.URIParsers]] for details.
   *
   * @author Jens Halm
   */

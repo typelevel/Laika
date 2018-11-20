@@ -31,9 +31,9 @@ import laika.bundle.{ExtensionBundle, ParserBundle}
   *
   * These are the parsers this extension adds to standard Markdown:
   *
-  * - strikethrough - (TODO)
-  * - auto-links (urls and email addresses) - (TODO)
-  * - fenced code blocks - (TODO)
+  * - strikethrough
+  * - auto-links (urls and email addresses)
+  * - fenced code blocks
   * - tables
   *
   * @author Jens Halm
