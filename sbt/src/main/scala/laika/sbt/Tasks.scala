@@ -17,7 +17,7 @@
 package laika.sbt
 
 import laika.api.{Parse, Render}
-import laika.config.BundleFilter
+import laika.config.{BundleFilter, ParallelConfig}
 import laika.factory.{RenderFormat, RenderResultProcessor}
 import laika.format._
 import laika.io.Input.LazyFileInput
@@ -57,7 +57,7 @@ object Tasks {
       val userConfig = laikaConfig.value
       val mergedConfig = parser.config.copy(
         bundleFilter = BundleFilter(strict = userConfig.strict, acceptRawContent = userConfig.rawContent),
-        parallel = userConfig.parallel,
+        parallelConfig = if (userConfig.parallel) ParallelConfig.default else ParallelConfig.sequential,
         minMessageLevel = userConfig.renderMessageLevel
       )
       parser.withConfig(mergedConfig).using(laikaExtensions.value: _*)
