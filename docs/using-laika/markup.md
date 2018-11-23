@@ -97,6 +97,58 @@ one (known) minor exception:
 [Babelmark]: http://johnmacfarlane.net/babelmark2/
 
 
+### GitHub Flavored Markdown
+
+Laika supports the syntax of GitHubFlavored Markdown through an `ExtensionBundle` that must
+be enabled explicitly:
+
+    Transform
+      .from(Markdown).to(HTML)
+      .using(GitHubFlavor)
+      .fromFile("hello.md").toFile("hello.html")
+
+When using the sbt plugin it can be added to the `laikaExtensions` settings:
+
+    laikaExtensions += GitHubFlavor      
+
+These are the parsers this extension adds to standard Markdown:
+
+* strikethrough ([spec][gfm strike])
+* auto-links (urls and email addresses - [spec][gfm autolinks])
+* fenced code blocks ([spec][gfm fences])
+* tables ([spec][gfm tables])
+
+[gfm strike]:    https://github.github.com/gfm/#strikethrough-extension-
+[gfm autolinks]: https://github.github.com/gfm/#autolinks-extension-
+[gfm fences]:    https://github.github.com/gfm/#fenced-code-blocks
+[gfm tables]:    https://github.github.com/gfm/#tables-extension-
+
+
+#### Subtle Differences to the GitHub Specification
+
+* **Spec Alignment**: The Laika implementation is an extension of classic, standard Markdown, in a similar fashion as 
+  GitHub Flavored Markdown had initially been defined. However, GitHub's spec has since moved on and is now based on 
+  the CommonMark spec. This should not make a huge difference for the most common use cases as CommonMark stays pretty 
+  close to classic Markdown and the syntax that has since moved to CommonMark (e.g. fenced code blocks) is included
+  in Laika's extension. You'll probably only notice differences around any of the subtle lower-level ambiguities
+  in Markdown's syntax.
+
+* **Auto-Links**: The parsing of URIs in auto-links is based on the relevant RFCs and not on the rather informal 
+  description in the GitHub spec. This should not make any difference for the most common use cases. The RFC based 
+  URI parser has been part of Laika for years (as reStructuredText natively supports auto-links) and its higher level 
+  of correctness justifies the bypassing of the informal description of GitHubs spec.
+  
+* **Fenced Code Blocks** need a preceding blank line to be recognized by Laika's parser. This is due to technical
+  limitations (the built-in paragraph parser does not know about all the rules of parser extensions).
+  Future versions might lift this restriction, but it would require additional features for how extension parsers
+  register with the host language to allow to specify a line test that causes interruption of a paragraph.
+  
+* **Tables**: Since Laika is a tool that uses an internal AST that abstracts away the features of a specific output 
+  format, it does not follow the exact syntax for HTML output as shown in the GitHub spec. Specifically it does not 
+  render table cells using the deprecated `align` attributes. Instead it renders the cells with classes (`alignLeft`, 
+  `alignCenter`, `alignRight` or none) so that the cells can get styled in CSS.
+
+
 ### Verbatim HTML
 
 Finally there is one major difference to standard Markdown: the parsing of verbatim HTML elements
@@ -233,7 +285,7 @@ The following extensions are not supported:
 There are various reasons for excluding these extensions, some of them being rather technical.
 For example, the `target-notes` and `class` directives would require processing beyond the 
 directive itself, therefore would require new API. Others, like the `pep-reference` text role,
-seamed too exotic to warrant inclusion in Laika.
+seemed too exotic to warrant inclusion in Laika.
 
 
 ### Extension Options
@@ -261,8 +313,3 @@ sets the text role `my-role-name` as the default role for the transformer.
 
 Laika comes with a concise and typesafe DSL to declare custom directives and text roles.
 It is fully documented in [Extending reStructuredText].
-
-
-
-
-  

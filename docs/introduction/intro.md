@@ -106,11 +106,11 @@ is included in the repository inside the `docs` folder.
 Features
 --------
 
-* Support for Markdown and reStructuredText as input
+* Support for Markdown (incl. GitHub Flavored Markdown) and reStructuredText as input
 
 * Support for HTML, PDF, XSL-FO and AST (for debugging) as output
 
-* Template-based Site Generation
+* Template-based Site and Book Generation
 
 * Support for tables of contents, convenient cross-linking between 
   documents and auto-numbering of documents and sections for all 
@@ -141,7 +141,7 @@ Features
 
 * Parallel processing of parsers and renderers
 
-* More than 1,000 tests
+* More than 1,200 tests
 
 
 Road Map
