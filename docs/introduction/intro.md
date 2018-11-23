@@ -147,13 +147,17 @@ Features
 Road Map
 --------
 
-* __0.10__: Support for GitHub-flavored Markdown
-
 * __0.11__: Support for output in the epub format
 
 * __0.12__: Integrated support for syntax highlighting in source code
 
-* __1.0__: API polishing
+* __0.13__: Library API: integration with cats-effect and improved referential transparency
+
+* __0.14__: Library API (tentative): support for Scala.js
+
+* __0.15__: Include a set of default themes for all output formats
+
+* __1.0__: API polishing and removal of all deprecations
 
 
 Release History
