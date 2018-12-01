@@ -46,6 +46,8 @@ bin/
 .DS_Store
 
 # Other
+local/
+release/
 *.pyc
 .*.swp
 \#*#

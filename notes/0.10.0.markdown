@@ -1,0 +1,15 @@
+
+Support for GitHub Flavored Markdown.
+
+* New Markdown parser extensions for GitHub Flavor:
+    * Tables
+    * Fenced Code Blocks
+    * Auto-Links
+    * Strikethrough
+* Preparing for Scala 2.13    
+    * Adjust use of Collection API for breaking changes and deprecations in 2.13
+    * Replace use of parallel collections with custom executor
+    * Release will follow once 2.13 is final
+* Level of parallelism of transformations is now configurable
+* Backwards-compatible to 0.9.0 - if you update from earlier version, please see
+  the release notes for 0.9.0 for migration
