@@ -860,6 +860,31 @@
               
         </dd></dl></div>
     </li><li name="laika.config.OperationConfigBuilder#inParallel" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="inParallel(parallelism:Int,threshold:Int):OperationConfigBuilder.this.ThisType"></a><a id="inParallel(Int,Int):ThisType"></a>
+      <span class="permalink">
+      <a href="../../laika/api/Transform$$TransformMappedOutput.html#inParallel(parallelism:Int,threshold:Int):OperationConfigBuilder.this.ThisType" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">inParallel</span><span class="params">(<span name="parallelism">parallelism: <span class="extype" name="scala.Int">Int</span></span>, <span name="threshold">threshold: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="#ThisType=laika.api.Transform.TransformMappedOutput[Writer]" class="extmbr" name="laika.api.Transform.TransformMappedOutput.ThisType">ThisType</a></span>
+      </span>
+      
+      <p class="shortcomment cmt"> Instructs the parser and/or renderer to process all inputs and outputs in parallel,
+ with the specified level of parallelism.</p><div class="fullcomment"><div class="comment cmt"><p> Instructs the parser and/or renderer to process all inputs and outputs in parallel,
+ with the specified level of parallelism.</p><p> The recursive structure of document trees will be flattened before parsing and rendering
+ and then get reassembled afterwards, therefore the parallel processing
+ includes all subtrees of the document tree.</p><p> The actual transformation is a three phase process, the first (parsing) and
+ third (rendering) can run in parallel. The second phase in the middle cannot,
+ as this is the document tree model rewrite step where things like cross references or
+ table of contents get processed that need access to more than just the current
+ document.
+</p></div><dl class="paramcmts block"><dt class="param">parallelism</dt><dd class="cmt"><p>the number of batches to be executed in parallel, 1 means sequential execution</p></dd><dt class="param">threshold</dt><dd class="cmt"><p>the minimum number of operations required for parallel execution</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../config/OperationConfigBuilder.html" class="extype" name="laika.config.OperationConfigBuilder">OperationConfigBuilder</a></dd></dl></div>
+    </li><li name="laika.config.OperationConfigBuilder#inParallel" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="inParallel:OperationConfigBuilder.this.ThisType"></a><a id="inParallel:ThisType"></a>
       <span class="permalink">
       <a href="../../laika/api/Transform$$TransformMappedOutput.html#inParallel:OperationConfigBuilder.this.ThisType" title="Permalink">
@@ -874,8 +899,9 @@
         <span class="name">inParallel</span><span class="result">: <a href="#ThisType=laika.api.Transform.TransformMappedOutput[Writer]" class="extmbr" name="laika.api.Transform.TransformMappedOutput.ThisType">ThisType</a></span>
       </span>
       
-      <p class="shortcomment cmt"> Instructs the parser and/or renderer to process all inputs and outputs in parallel.</p><div class="fullcomment"><div class="comment cmt"><p> Instructs the parser and/or renderer to process all inputs and outputs in parallel.
- The recursive structure of document trees will be flattened before parsing and rendering
+      <p class="shortcomment cmt"> Instructs the parser and/or renderer to process all inputs and outputs in parallel,
+ with the default level of parallelism which corresponds to the number of CPUs.</p><div class="fullcomment"><div class="comment cmt"><p> Instructs the parser and/or renderer to process all inputs and outputs in parallel,
+ with the default level of parallelism which corresponds to the number of CPUs.</p><p> The recursive structure of document trees will be flattened before parsing and rendering
  and then get reassembled afterwards, therefore the parallel processing
  includes all subtrees of the document tree.</p><p> The actual transformation is a three phase process, the first (parsing) and
  third (rendering) can run in parallel. The second phase in the middle cannot,

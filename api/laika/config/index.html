@@ -178,6 +178,10 @@
                         <a class="trait" href="OperationConfigBuilder.html" title="Base API for specifying configuration options that apply to all kinds of operations (Parse, Render and Transform)."></a>
                         <a href="OperationConfigBuilder.html" title="Base API for specifying configuration options that apply to all kinds of operations (Parse, Render and Transform).">OperationConfigBuilder</a>
                       </li><li class="current-entities indented2">
+                        <a class="object" href="ParallelConfig$.html" title="Default configurations for parallel and sequential execution."></a>
+                        <a class="class" href="ParallelConfig.html" title="Configuration for parallel execution of parse and render operations."></a>
+                        <a href="ParallelConfig.html" title="Configuration for parallel execution of parse and render operations.">ParallelConfig</a>
+                      </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="ParseConfigBuilder.html" title="API for specifying configuration options that apply to all kinds of operations that contain a parsing step (Parse and Transform APIs)."></a>
                         <a href="ParseConfigBuilder.html" title="API for specifying configuration options that apply to all kinds of operations that contain a parsing step (Parse and Transform APIs).">ParseConfigBuilder</a>
@@ -429,12 +433,12 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="Represents the configuration for an operation based on extension bundles and several flags." href="OperationConfig.html"><span class="name">OperationConfig</span></a><span class="params">(<span name="bundles">bundles: <span class="extype" name="scala.Seq">Seq</span>[<a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a>] = <span class="symbol">Nil</span></span>, <span name="bundleFilter">bundleFilter: <a href="BundleFilter.html" class="extype" name="laika.config.BundleFilter">BundleFilter</a> = <span class="symbol">BundleFilter()</span></span>, <span name="minMessageLevel">minMessageLevel: <a href="../ast/MessageLevel.html" class="extype" name="laika.ast.MessageLevel">MessageLevel</a> = <span class="symbol"><span class="name"><a href="../index.html">MessageLevel.Fatal</a></span></span></span>, <span name="renderFormatted">renderFormatted: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>, <span name="parallel">parallel: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>)</span><span class="result"> extends <a href="RenderConfig.html" class="extype" name="laika.config.RenderConfig">RenderConfig</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Represents the configuration for an operation based on extension bundles and several flags." href="OperationConfig.html"><span class="name">OperationConfig</span></a><span class="params">(<span name="bundles">bundles: <span class="extype" name="scala.Seq">Seq</span>[<a href="../bundle/ExtensionBundle.html" class="extype" name="laika.bundle.ExtensionBundle">ExtensionBundle</a>] = <span class="symbol">Nil</span></span>, <span name="bundleFilter">bundleFilter: <a href="BundleFilter.html" class="extype" name="laika.config.BundleFilter">BundleFilter</a> = <span class="symbol">BundleFilter()</span></span>, <span name="minMessageLevel">minMessageLevel: <a href="../ast/MessageLevel.html" class="extype" name="laika.ast.MessageLevel">MessageLevel</a> = <span class="symbol"><span class="name"><a href="../index.html">MessageLevel.Fatal</a></span></span></span>, <span name="renderFormatted">renderFormatted: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>, <span name="parallelConfig">parallelConfig: <a href="ParallelConfig.html" class="extype" name="laika.config.ParallelConfig">ParallelConfig</a> = <span class="symbol"><span class="name"><a href="ParallelConfig$.html">ParallelConfig.sequential</a></span></span></span>)</span><span class="result"> extends <a href="RenderConfig.html" class="extype" name="laika.config.RenderConfig">RenderConfig</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">Represents the configuration for an operation based on extension bundles and several flags.</p><div class="fullcomment"><div class="comment cmt"><p>Represents the configuration for an operation based on extension bundles and several flags.</p><p>Provides convenient access to the result of merging the defined bundles and adding fallback
 options wherever necessary.
-</p></div><dl class="paramcmts block"><dt class="param">bundles</dt><dd class="cmt"><p>all extension bundles defined by this operation</p></dd><dt class="param">bundleFilter</dt><dd class="cmt"><p>a filter that might deactivate some of the bundles based on user configuration</p></dd><dt class="param">minMessageLevel</dt><dd class="cmt"><p>specifies the minimum required level for a system message to get included into the output by a renderer</p></dd><dt class="param">renderFormatted</dt><dd class="cmt"><p>indicates whether rendering should include any formatting (line breaks or indentation)</p></dd><dt class="param">parallel</dt><dd class="cmt"><p>indicates whether parsers and renderers should run in parallel</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">bundles</dt><dd class="cmt"><p>all extension bundles defined by this operation</p></dd><dt class="param">bundleFilter</dt><dd class="cmt"><p>a filter that might deactivate some of the bundles based on user configuration</p></dd><dt class="param">minMessageLevel</dt><dd class="cmt"><p>specifies the minimum required level for a system message to get included into the output by a renderer</p></dd><dt class="param">renderFormatted</dt><dd class="cmt"><p>indicates whether rendering should include any formatting (line breaks or indentation)</p></dd></dl></div>
     </li><li name="laika.config.OperationConfigBuilder" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="OperationConfigBuilderextendsAnyRef"></a><a id="OperationConfigBuilder:OperationConfigBuilder"></a>
       <span class="permalink">
@@ -452,6 +456,23 @@ options wherever necessary.
       
       <p class="shortcomment cmt">Base API for specifying configuration options that apply to all
 kinds of operations (Parse, Render and Transform).</p>
+    </li><li name="laika.config.ParallelConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ParallelConfigextendsProductwithSerializable"></a><a id="ParallelConfig:ParallelConfig"></a>
+      <span class="permalink">
+      <a href="../../laika/config/index.html#ParallelConfigextendsProductwithSerializable" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="Configuration for parallel execution of parse and render operations." href="ParallelConfig.html"><span class="name">ParallelConfig</span></a><span class="params">(<span name="parallelism">parallelism: <span class="extype" name="scala.Int">Int</span></span>, <span name="threshold">threshold: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Configuration for parallel execution of parse and render operations.</p><div class="fullcomment"><div class="comment cmt"><p>Configuration for parallel execution of parse and render operations.
+</p></div><dl class="paramcmts block"><dt class="param">parallelism</dt><dd class="cmt"><p>the number of batches to be executed in parallel, 1 means sequential execution</p></dd><dt class="param">threshold</dt><dd class="cmt"><p>the minimum number of operations required for parallel execution</p></dd></dl></div>
     </li><li name="laika.config.ParseConfigBuilder" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="ParseConfigBuilderextendsOperationConfigBuilder"></a><a id="ParseConfigBuilder:ParseConfigBuilder"></a>
       <span class="permalink">
@@ -543,6 +564,22 @@ kinds of operations that contain both, a parsing and a rendering step (only Tran
       </span>
       
       <p class="shortcomment cmt">Provides OperationConfig instances and a utility for merging bundles.</p>
+    </li><li name="laika.config.ParallelConfig" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ParallelConfig"></a><a id="ParallelConfig:ParallelConfig"></a>
+      <span class="permalink">
+      <a href="../../laika/config/index.html#ParallelConfig" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="Default configurations for parallel and sequential execution." href="ParallelConfig$.html"><span class="name">ParallelConfig</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Default configurations for parallel and sequential execution.</p>
     </li>
               </ol>
             </div>

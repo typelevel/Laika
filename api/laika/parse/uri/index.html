@@ -199,8 +199,12 @@
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika.parse">parse</a></dd></dl></div>
     </li><li class="current-entities indented3">
                         <span class="separator"></span>
-                        <a class="class" href="URIParsers.html" title="Parses URIs as defined in RFC 3986 and email addresses as defined in RFC 6068, 5322 and 3986 with base types defined in RFC 2234."></a>
-                        <a href="URIParsers.html" title="Parses URIs as defined in RFC 3986 and email addresses as defined in RFC 6068, 5322 and 3986 with base types defined in RFC 2234.">URIParsers</a>
+                        <a class="class" href="AutoLinkParsers.html" title="Parser for inline auto-links, which are urls or email addresses that are recognized and inserted as links into the AST without any surrounding markup delimiters."></a>
+                        <a href="AutoLinkParsers.html" title="Parser for inline auto-links, which are urls or email addresses that are recognized and inserted as links into the AST without any surrounding markup delimiters.">AutoLinkParsers</a>
+                      </li><li class="current-entities indented3">
+                        <span class="separator"></span>
+                        <a class="object" href="URIParsers$.html" title="Parses URIs as defined in RFC 3986 and email addresses as defined in RFC 6068, 5322 and 3986 with base types defined in RFC 2234."></a>
+                        <a href="URIParsers$.html" title="Parses URIs as defined in RFC 3986 and email addresses as defined in RFC 6068, 5322 and 3986 with base types defined in RFC 2234.">URIParsers</a>
                       </li>
               </ul>
             </div>
@@ -232,7 +236,31 @@
           <div id="comment" class="fullcommenttop"></div>
         
 
-      
+      <div id="mbrsel">
+        <div class="toggle"></div>
+        <div id="memberfilter">
+          <i class="material-icons arrow"></i>
+          <span class="input">
+            <input id="mbrsel-input" placeholder="Filter all members" type="text" accesskey="/" />
+          </span>
+          <i class="clear material-icons"></i>
+        </div>
+        <div id="filterby">
+          <div id="order">
+            <span class="filtertype">Ordering</span>
+            <ol>
+              
+              <li class="alpha in"><span>Alphabetic</span></li>
+              
+            </ol>
+          </div>
+          
+          <div id="visbl">
+              <span class="filtertype">Visibility</span>
+              <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+            </div>
+        </div>
+      </div>
 
       <div id="template">
         <div id="allMembers">
@@ -240,10 +268,10 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="laika.parse.uri.URIParsers" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="URIParsersextendsAnyRef"></a><a id="URIParsers:URIParsers"></a>
+              <ol><li name="laika.parse.uri.AutoLinkParsers" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="AutoLinkParsersextendsAnyRef"></a><a id="AutoLinkParsers:AutoLinkParsers"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/uri/index.html#URIParsersextendsAnyRef" title="Permalink">
+      <a href="../../../laika/parse/uri/index.html#AutoLinkParsersextendsAnyRef" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -252,17 +280,42 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a title="Parses URIs as defined in RFC 3986 and email addresses as defined in RFC 6068, 5322 and 3986 with base types defined in RFC 2234." href="URIParsers.html"><span class="name">URIParsers</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a title="Parser for inline auto-links, which are urls or email addresses that are recognized and inserted as links into the AST without any surrounding markup delimiters." href="AutoLinkParsers.html"><span class="name">AutoLinkParsers</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       
-      <p class="shortcomment cmt">Parses URIs as defined in RFC 3986 and email addresses as defined in
-RFC 6068, 5322 and 3986 with base types defined in RFC 2234.</p>
+      <p class="shortcomment cmt">Parser for inline auto-links, which are urls or email addresses that are recognized and
+inserted as links into the AST without any surrounding markup delimiters.</p><div class="fullcomment"><div class="comment cmt"><p>Parser for inline auto-links, which are urls or email addresses that are recognized and
+inserted as links into the AST without any surrounding markup delimiters.</p><p>The parsing of the http or email URIs is based on the corresponding RFCs.
+See <a href="URIParsers$.html" class="extype" name="laika.parse.uri.URIParsers">URIParsers</a> for details.
+</p></div></div>
     </li></ol>
             </div>
 
         
 
-        
+        <div class="values members">
+              <h3>Value Members</h3>
+              <ol>
+                <li name="laika.parse.uri.URIParsers" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="URIParsers"></a><a id="URIParsers:URIParsers"></a>
+      <span class="permalink">
+      <a href="../../../laika/parse/uri/index.html#URIParsers" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="Parses URIs as defined in RFC 3986 and email addresses as defined in RFC 6068, 5322 and 3986 with base types defined in RFC 2234." href="URIParsers$.html"><span class="name">URIParsers</span></a>
+      </span>
+      
+      <p class="shortcomment cmt">Parses URIs as defined in RFC 3986 and email addresses as defined in
+RFC 6068, 5322 and 3986 with base types defined in RFC 2234.</p>
+    </li>
+              </ol>
+            </div>
 
         
 

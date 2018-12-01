@@ -148,6 +148,53 @@
           According to Babelmark, there are at least two parsers (Pandoc, Python-Markdown) that agree.</li>
         </ul>
         
+        <h3 id="github-flavored-markdown" class="section">GitHub Flavored Markdown</h3>
+        <p>Laika supports the syntax of GitHubFlavored Markdown through an <code>ExtensionBundle</code> that must
+        be enabled explicitly:</p>
+        <pre>Transform
+  .from(Markdown).to(HTML)
+  .using(GitHubFlavor)
+  .fromFile(&quot;hello.md&quot;).toFile(&quot;hello.html&quot;)</pre>
+        <p>When using the sbt plugin it can be added to the <code>laikaExtensions</code> settings:</p>
+        <pre>laikaExtensions += GitHubFlavor      </pre>
+        <p>These are the parsers this extension adds to standard Markdown:</p>
+        <ul>
+          <li>strikethrough (<a href="https://github.github.com/gfm/#strikethrough-extension-">spec</a>)</li>
+          <li>auto-links (urls and email addresses - <a href="https://github.github.com/gfm/#autolinks-extension-">spec</a>)</li>
+          <li>fenced code blocks (<a href="https://github.github.com/gfm/#fenced-code-blocks">spec</a>)</li>
+          <li>tables (<a href="https://github.github.com/gfm/#tables-extension-">spec</a>)</li>
+        </ul>
+        
+        <h4 id="subtle-differences-to-the-github-specification" class="section">Subtle Differences to the GitHub Specification</h4>
+        <ul>
+          <li>
+            <p><strong>Spec Alignment</strong>: The Laika implementation is an extension of classic, standard Markdown, in a similar fashion as 
+            GitHub Flavored Markdown had initially been defined. However, GitHub&#39;s spec has since moved on and is now based on 
+            the CommonMark spec. This should not make a huge difference for the most common use cases as CommonMark stays pretty 
+            close to classic Markdown and the syntax that has since moved to CommonMark (e.g. fenced code blocks) is included
+            in Laika&#39;s extension. You&#39;ll probably only notice differences around any of the subtle lower-level ambiguities
+            in Markdown&#39;s syntax.</p>
+          </li>
+          <li>
+            <p><strong>Auto-Links</strong>: The parsing of URIs in auto-links is based on the relevant RFCs and not on the rather informal 
+            description in the GitHub spec. This should not make any difference for the most common use cases. The RFC based 
+            URI parser has been part of Laika for years (as reStructuredText natively supports auto-links) and its higher level 
+            of correctness justifies the bypassing of the informal description of GitHubs spec.</p>
+          </li>
+          <li>
+            <p><strong>Fenced Code Blocks</strong> need a preceding blank line to be recognized by Laika&#39;s parser. This is due to technical
+            limitations (the built-in paragraph parser does not know about all the rules of parser extensions).
+            Future versions might lift this restriction, but it would require additional features for how extension parsers
+            register with the host language to allow to specify a line test that causes interruption of a paragraph.</p>
+          </li>
+          <li>
+            <p><strong>Tables</strong>: Since Laika is a tool that uses an internal AST that abstracts away the features of a specific output 
+            format, it does not follow the exact syntax for HTML output as shown in the GitHub spec. Specifically it does not 
+            render table cells using the deprecated <code>align</code> attributes. Instead it renders the cells with classes (<code>alignLeft</code>, 
+            <code>alignCenter</code>, <code>alignRight</code> or none) so that the cells can get styled in CSS.</p>
+          </li>
+        </ul>
+        
         <h3 id="verbatim-html" class="section">Verbatim HTML</h3>
         <p>Finally there is one major difference to standard Markdown: the parsing of verbatim HTML elements
         is not enabled by default, but it can be switched on if required. </p>
@@ -293,7 +340,7 @@
         <p>There are various reasons for excluding these extensions, some of them being rather technical.
         For example, the <code>target-notes</code> and <code>class</code> directives would require processing beyond the 
         directive itself, therefore would require new API. Others, like the <code>pep-reference</code> text role,
-        seamed too exotic to warrant inclusion in Laika.</p>
+        seemed too exotic to warrant inclusion in Laika.</p>
         
         <h3 id="extension-options" class="section">Extension Options</h3>
         <p>Finally some of the defaults for these extensions can be changed through the API:</p>

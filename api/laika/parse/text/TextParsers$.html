@@ -367,9 +367,9 @@
  Always succeeds unless a minimum number of required matches is specified.
 </p></div></div>
     </li><li name="laika.parse.text.TextParsers#anyIn" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="anyIn(ranges:Traversable[Char]*):laika.parse.text.Characters[String]"></a><a id="anyIn(Traversable[Char]*):Characters[String]"></a>
+      <a id="anyIn(ranges:Iterable[Char]*):laika.parse.text.Characters[String]"></a><a id="anyIn(Iterable[Char]*):Characters[String]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/text/TextParsers$.html#anyIn(ranges:Traversable[Char]*):laika.parse.text.Characters[String]" title="Permalink">
+      <a href="../../../laika/parse/text/TextParsers$.html#anyIn(ranges:Iterable[Char]*):laika.parse.text.Characters[String]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -378,7 +378,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">anyIn</span><span class="params">(<span name="ranges">ranges: <span class="extype" name="scala.Traversable">Traversable</span>[<span class="extype" name="scala.Char">Char</span>]*</span>)</span><span class="result">: <a href="Characters.html" class="extype" name="laika.parse.text.Characters">Characters</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">anyIn</span><span class="params">(<span name="ranges">ranges: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="scala.Char">Char</span>]*</span>)</span><span class="result">: <a href="Characters.html" class="extype" name="laika.parse.text.Characters">Characters</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Consumes any number of consecutive characters that are in one of the specified character ranges.</p><div class="fullcomment"><div class="comment cmt"><p>Consumes any number of consecutive characters that are in one of the specified character ranges.
@@ -509,10 +509,10 @@
       
       <p class="shortcomment cmt"> A parser that matches only the specified character.</p><div class="fullcomment"><div class="comment cmt"><p> A parser that matches only the specified character.</p><p> The method is implicit so that characters can automatically be lifted to their parsers.
 </p></div></div>
-    </li><li name="laika.parse.text.TextParsers#charToTraversable" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="charToTraversable(char:Char):Traversable[Char]"></a><a id="charToTraversable(Char):Traversable[Char]"></a>
+    </li><li name="laika.parse.text.TextParsers#charToIterable" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="charToIterable(char:Char):Iterable[Char]"></a><a id="charToIterable(Char):Iterable[Char]"></a>
       <span class="permalink">
-      <a href="../../../laika/parse/text/TextParsers$.html#charToTraversable(char:Char):Traversable[Char]" title="Permalink">
+      <a href="../../../laika/parse/text/TextParsers$.html#charToIterable(char:Char):Iterable[Char]" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -521,7 +521,7 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">charToTraversable</span><span class="params">(<span name="char">char: <span class="extype" name="scala.Char">Char</span></span>)</span><span class="result">: <span class="extype" name="scala.Traversable">Traversable</span>[<span class="extype" name="scala.Char">Char</span>]</span>
+        <span class="name">charToIterable</span><span class="params">(<span name="char">char: <span class="extype" name="scala.Char">Char</span></span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="scala.Char">Char</span>]</span>
       </span>
       
       <p class="shortcomment cmt">Implicit conversion that allows to pass a single

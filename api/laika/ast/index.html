@@ -255,6 +255,10 @@
                         <a href="DefinitionListItem.html" title="A single definition item, containing the term and definition (as the content property).">DefinitionListItem</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="class" href="Deleted.html" title="A span representing deleted inline elements that may contain nested spans."></a>
+                        <a href="Deleted.html" title="A span representing deleted inline elements that may contain nested spans.">Deleted</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="class" href="Document.html" title="Represents a single document and provides access to the document content and structure as well as hooks for triggering rewrite operations."></a>
                         <a href="Document.html" title="Represents a single document and provides access to the document content and structure as well as hooks for triggering rewrite operations.">Document</a>
                       </li><li class="current-entities indented2">
@@ -381,6 +385,10 @@
                         <span class="separator"></span>
                         <a class="class" href="ImageReference.html" title="An image reference, the id pointing to the id of a LinkTarget."></a>
                         <a href="ImageReference.html" title="An image reference, the id pointing to the id of a LinkTarget.">ImageReference</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
+                        <a class="class" href="Inserted.html" title="A span representing inserted inline elements that may contain nested spans."></a>
+                        <a href="Inserted.html" title="A span representing inserted inline elements that may contain nested spans.">Inserted</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="InternalLink.html" title="An internal link element, with the span content representing the text (description) of the link."></a>
@@ -1533,6 +1541,22 @@ during a rewrite operation for this purpose.
       </span>
       
       <p class="shortcomment cmt">A single definition item, containing the term and definition (as the content property).</p>
+    </li><li name="laika.ast.Deleted" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DeletedextendsElementwithSpanwithSpanContainer[laika.ast.Deleted]withProductwithSerializable"></a><a id="Deleted:Deleted"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/index.html#DeletedextendsElementwithSpanwithSpanContainer[laika.ast.Deleted]withProductwithSerializable" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="A span representing deleted inline elements that may contain nested spans." href="Deleted.html"><span class="name">Deleted</span></a><span class="params">(<span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Span.html" class="extype" name="laika.ast.Span">Span</a> with <a href="SpanContainer.html" class="extype" name="laika.ast.SpanContainer">SpanContainer</a>[<a href="Deleted.html" class="extype" name="laika.ast.Deleted">Deleted</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">A span representing deleted inline elements that may contain nested spans.</p>
     </li><li name="laika.ast.Document" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="DocumentextendsDocumentStructurewithTreeContentwithProductwithSerializable"></a><a id="Document:Document"></a>
       <span class="permalink">
@@ -2057,6 +2081,22 @@ not associated with any markup document.</p>
       <p class="shortcomment cmt">An image reference, the id pointing to the id of a <code>LinkTarget</code>.</p><div class="fullcomment"><div class="comment cmt"><p>An image reference, the id pointing to the id of a <code>LinkTarget</code>. Only part of the
  raw document tree and then removed by the rewrite rule that resolves link and image references.
 </p></div></div>
+    </li><li name="laika.ast.Inserted" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="InsertedextendsElementwithSpanwithSpanContainer[laika.ast.Inserted]withProductwithSerializable"></a><a id="Inserted:Inserted"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/index.html#InsertedextendsElementwithSpanwithSpanContainer[laika.ast.Inserted]withProductwithSerializable" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="A span representing inserted inline elements that may contain nested spans." href="Inserted.html"><span class="name">Inserted</span></a><span class="params">(<span name="content">content: <span class="extype" name="scala.Seq">Seq</span>[<a href="Span.html" class="extype" name="laika.ast.Span">Span</a>]</span>, <span name="options">options: <a href="Options.html" class="extype" name="laika.ast.Options">Options</a> = <span class="symbol"><span class="name"><a href="NoOpt$.html">NoOpt</a></span></span></span>)</span><span class="result"> extends <a href="Element.html" class="extype" name="laika.ast.Element">Element</a> with <a href="Span.html" class="extype" name="laika.ast.Span">Span</a> with <a href="SpanContainer.html" class="extype" name="laika.ast.SpanContainer">SpanContainer</a>[<a href="Inserted.html" class="extype" name="laika.ast.Inserted">Inserted</a>] with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">A span representing inserted inline elements that may contain nested spans.</p>
     </li><li name="laika.ast.InternalLink" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="InternalLinkextendsElementwithLinkwithSpanContainer[laika.ast.InternalLink]withProductwithSerializable"></a><a id="InternalLink:InternalLink"></a>
       <span class="permalink">
