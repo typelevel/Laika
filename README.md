@@ -24,11 +24,15 @@ which had been the final release supporting those versions.
 
 Add the plugin to `project/plugins.sbt`:
 
-    addSbtPlugin("org.planet42" % "laika-sbt" % "0.10.0")
+```scala
+addSbtPlugin("org.planet42" % "laika-sbt" % "0.10.0")
+```
 
 Enable the plugin in your project's `build.sbt`:
 
-    enablePlugins(LaikaPlugin)
+```scala
+enablePlugins(LaikaPlugin)
+```
 
 Add Markdown, reStructuredText or HTML template files to `src/docs` in your
 project and run the `laikaSite` task from within sbt to generate the site
@@ -39,24 +43,33 @@ in `target/docs/site`.
 
 Adding the Laika dependency to your sbt build:
 
-    libraryDependencies += "org.planet42" %% "laika-core" % "0.10.0"
+```scala
+libraryDependencies += "org.planet42" %% "laika-core" % "0.10.0"
+```
 
 Example for transforming from file to file:
 
-    Transform from Markdown to HTML fromFile "hello.md" toFile "hello.html"
+```scala
+Transform.from(Markdown).to(HTML).fromFile("hello.md").toFile("hello.html")
+```
 
 Example for transforming an entire directory of markup files:
 
-    Transform from ReStructuredText to HTML fromDirectory "source" toDirectory "target"
+```scala
+Transform.from(ReStructuredText).to(HTML).fromDirectory("source").toDirectory("target")
+```
 
 Example for transforming an entire directory of markup files to a single PDF file:
 
-    Transform from Markdown to PDF fromDirectory "source" toFile "hello.pdf"
+```scala
+Transform.from(Markdown).to(PDF).fromDirectory("source").toFile("hello.pdf")
+```
 
 When using Laika's PDF support you need to add one more dependency to your build:
 
-    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.10.0"
-        
+```scala
+libraryDependencies += "org.planet42" %% "laika-pdf" % "0.10.0"
+```        
 
 ### Other Resources
 
