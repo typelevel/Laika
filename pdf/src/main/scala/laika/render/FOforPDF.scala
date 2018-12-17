@@ -95,6 +95,7 @@ class FOforPDF (config: Option[PDF.Config]) {
    *  The configuration key for setting the recursion depth is `pdf.bookmarks.depth`.
    *  
    *  @param root the document tree to generate bookmarks for
+   *  @param depth the recursion depth through trees, documents and sections
    *  @return a fragment map containing the generated bookmarks
    */
   def generateBookmarks (root: DocumentTree, depth: Int): Map[String, Element] = {
