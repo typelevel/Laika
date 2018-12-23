@@ -16,7 +16,6 @@
 
 package laika.render.epub
 
-import laika.ast.Path.Root
 import laika.ast._
 
 /** Renders the entire content of an NCX navigation file.
@@ -52,22 +51,14 @@ class NCXRenderer {
 
   /** Renders a single navPoint node.
     */
-  def navPoint (title: String, link: String, pos: Int, navPoints: String): String =
+  def navPoint (title: String, link: String, pos: Int, children: String): String =
     s"""    <navPoint id="navPoint-$pos">
        |      <navLabel>
        |        <text>$title</text>
        |      </navLabel>
        |      <content src="$link" />
-       |$navPoints
+       |$children
        |    </navPoint>""".stripMargin
-
-
-  /** Indicates whether the specified navigation item contains at least one document.
-    */
-  protected def hasContent (level: Int)(nav: Navigatable): Boolean = nav match {
-    case _: Document => true
-    case tree: DocumentTree => if (level > 0) tree.content.exists(hasContent(level - 1)) else false
-  }
 
   /** Generates navPoints for the structure of the DocumentTree. Individual
     * navPoints can stem from tree or subtree titles, document titles or
@@ -78,44 +69,22 @@ class NCXRenderer {
     * @param depth the recursion depth through trees, documents and sections
     * @return the navPoint XML nodes for the specified document tree
     */
-  def navPoints (root: DocumentTree, depth: Int): String = {
+  def navPoints (bookNav: Seq[BookNavigation]): String = {
 
-    def fullPath (path: Path): String = {
-      val parent = path.parent match {
-        case Root => ""
-        case _ => path.parent.toString
-      }
-      "text" + parent + "/" + path.basename + ".xhtml"
+    def linkOfFirstChild(children: Seq[BookNavigation]): BookNavigationLink = children.head match {
+      case link: BookNavigationLink => link
+      case header: BookSectionHeader => linkOfFirstChild(header.children)
     }
 
-    def navPointsForSections (path: Path, sections: Seq[SectionInfo], levels: Int, pos: Iterator[Int]): String =
-      if (levels == 0) ""
-      else (for (section <- sections) yield {
-        val title = section.title.extractText
-        val parentPos = pos.next
-        val children = navPointsForSections(path, section.content, levels - 1, pos)
-        navPoint(title, fullPath(path) + "#" + section.id, parentPos, children)
-      }).mkString("\n")
+    bookNav.map {
 
-    def navPointsForTree (tree: DocumentTree, levels: Int, pos: Iterator[Int]): String = {
-      if (levels == 0) ""
-      else (for (nav <- tree.content if hasContent(levels - 1)(nav)) yield nav match {
-        case doc: Document =>
-          val title = if (doc.title.nonEmpty) SpanSequence(doc.title).extractText else doc.name
-          val parentPos = pos.next
-          val children = navPointsForSections(doc.path, doc.sections, levels - 1, pos)
-          navPoint(title, fullPath(doc.path), parentPos, children)
-        case subtree: DocumentTree =>
-          val title = if (subtree.title.nonEmpty) SpanSequence(subtree.title).extractText else subtree.name
-          val parentPos = pos.next
-          val children = navPointsForTree(subtree, levels - 1, pos)
-          val link = fullPath(subtree.content.collectFirst{ case d: Document => d }.get.path)
-          navPoint(title, link, parentPos, children)
-      }).mkString("\n")
-    }
+      case BookSectionHeader(title, pos, children) =>
+        navPoint(title, linkOfFirstChild(children).link, pos, navPoints(children)) // NCX does not allow navigation headers without links
 
-    if (depth == 0) ""
-    else navPointsForTree(root, depth, Iterator.from(0))
+      case BookNavigationLink(title, link, pos, children) =>
+        navPoint(title, link, pos, navPoints(children))
+
+    }.mkString("\n")
   }
 
   /** Renders the entire content of an NCX navigation file for
@@ -126,7 +95,8 @@ class NCXRenderer {
     */
   def render (tree: DocumentTree, uuid: String, depth: Int): String = {
     val title = SpanSequence(tree.title).extractText
-    val renderedNavPoints = navPoints(tree, depth)
+    val bookNav = BookNavigation.forTree(tree, depth)
+    val renderedNavPoints = navPoints(bookNav)
     fileContent(uuid, title, renderedNavPoints, depth)
   }
 
