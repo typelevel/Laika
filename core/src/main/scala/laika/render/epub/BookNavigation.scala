@@ -37,6 +37,17 @@ case class BookNavigationLink (title: String, link: String, pos: Int, children: 
 
 object BookNavigation {
 
+  /** Provides the full path to the document relative to the EPUB container root
+    * from the specified virtual path of the Laika document tree.
+    */
+  def fullPath (path: Path): String = {
+    val parent = path.parent match {
+      case Root => ""
+      case _ => path.parent.toString
+    }
+    "text" + parent + "/" + path.basename + ".xhtml"
+  }
+
   /** Extracts navigation structure from document trees, documents and section in the specified
     * tree.
     *
@@ -47,14 +58,6 @@ object BookNavigation {
     * @return a recursive structure of `BookNavigation` instances
     */
   def forTree (tree: DocumentTree, depth: Int, pos: Iterator[Int] = Iterator.from(0)): Seq[BookNavigation] = {
-
-    def fullPath (path: Path): String = {
-      val parent = path.parent match {
-        case Root => ""
-        case _ => path.parent.toString
-      }
-      "text" + parent + "/" + path.basename + ".xhtml"
-    }
 
     def hasContent (level: Int)(nav: Navigatable): Boolean = nav match {
       case _: Document => true
