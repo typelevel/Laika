@@ -17,6 +17,11 @@
 package laika.io
   
 import java.io._
+import java.util.zip.{ZipEntry, ZipOutputStream}
+
+import laika.ast.Path
+import laika.io.Input.Binary
+import laika.io.Output.BinaryOutput
 
 /** Collection of I/O utilities.
  * 
@@ -94,6 +99,25 @@ object IO {
         apply(input) { in => apply(output) { out => copy(in.asReader, out.asWriter) } }
     }
   }
-  
+
+  /** Writes a Zip file to the specified output.
+    * The virtual path of the given inputs will also become the path within
+    * the Zip container.
+    */
+  def zip (inputs: Seq[Input with Binary], output: BinaryOutput): Unit = {
+
+    val zip = new ZipOutputStream(output.asStream)
+
+    inputs.foreach { input =>
+
+      zip.putNextEntry(new ZipEntry(input.path.relativeTo(Path.Root).toString))
+
+      copy(input.asBinaryInput.asStream, zip)
+
+      zip.closeEntry()
+    }
+
+    zip.close()
+  }
   
 }
