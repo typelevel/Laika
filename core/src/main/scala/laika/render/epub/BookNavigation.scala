@@ -40,12 +40,12 @@ object BookNavigation {
   /** Provides the full path to the document relative to the EPUB container root
     * from the specified virtual path of the Laika document tree.
     */
-  def fullPath (path: Path): String = {
+  def fullPath (path: Path, forceXhtml: Boolean = false): String = {
     val parent = path.parent match {
       case Root => ""
       case _ => path.parent.toString
     }
-    "text" + parent + "/" + path.basename + ".xhtml"
+    "content" + parent + "/" + path.basename + "." + (if (forceXhtml || path.suffix == "html") "xhtml" else path.suffix)
   }
 
   /** Extracts navigation structure from document trees, documents and section in the specified
@@ -70,7 +70,7 @@ object BookNavigation {
         val title = section.title.extractText
         val parentPos = pos.next
         val children = forSections(path, section.content, levels - 1, pos)
-        BookNavigationLink(title, fullPath(path) + "#" + section.id, parentPos, children)
+        BookNavigationLink(title, fullPath(path, forceXhtml = true) + "#" + section.id, parentPos, children)
       }
 
     if (depth == 0) Nil
@@ -79,12 +79,12 @@ object BookNavigation {
         val title = if (doc.title.nonEmpty) SpanSequence(doc.title).extractText else doc.name
         val parentPos = pos.next
         val children = forSections(doc.path, doc.sections, depth - 1, pos)
-        BookNavigationLink(title, fullPath(doc.path), parentPos, children)
+        BookNavigationLink(title, fullPath(doc.path, forceXhtml = true), parentPos, children)
       case subtree: DocumentTree =>
         val title = if (subtree.title.nonEmpty) SpanSequence(subtree.title).extractText else subtree.name
         val parentPos = pos.next
         val children = forTree(subtree, depth - 1, pos)
-        val link = fullPath(subtree.content.collectFirst{ case d: Document => d }.get.path)
+        val link = fullPath(subtree.content.collectFirst{ case d: Document => d }.get.path, forceXhtml = true)
         if (depth == 1) BookNavigationLink(title, link, parentPos, children)
         else BookSectionHeader(title, parentPos, children)
     }

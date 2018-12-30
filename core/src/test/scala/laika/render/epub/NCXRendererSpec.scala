@@ -49,7 +49,7 @@ class NCXRendererSpec extends FlatSpec with Matchers with ModelBuilder {
      |      <navLabel>
      |        <text>Title 2</text>
      |      </navLabel>
-     |      <content src="text/foo.xhtml" />
+     |      <content src="content/foo.xhtml" />
      |
      |    </navPoint>""".stripMargin
     renderer.render(tree(Path.Root, 1, doc), uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result, 1)
@@ -62,14 +62,14 @@ class NCXRendererSpec extends FlatSpec with Matchers with ModelBuilder {
      |      <navLabel>
      |        <text>Title 2</text>
      |      </navLabel>
-     |      <content src="text/foo.xhtml" />
+     |      <content src="content/foo.xhtml" />
      |
      |    </navPoint>
      |    <navPoint id="navPoint-1">
      |      <navLabel>
      |        <text>Title 3</text>
      |      </navLabel>
-     |      <content src="text/bar.xhtml" />
+     |      <content src="content/bar.xhtml" />
      |
      |    </navPoint>""".stripMargin
     renderer.render(tree(Path.Root, 1, doc1, doc2), uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result, 1)
@@ -83,19 +83,19 @@ class NCXRendererSpec extends FlatSpec with Matchers with ModelBuilder {
      |      <navLabel>
      |        <text>Title 2</text>
      |      </navLabel>
-     |      <content src="text/foo.xhtml" />
+     |      <content src="content/foo.xhtml" />
      |
      |    </navPoint>
      |    <navPoint id="navPoint-1">
      |      <navLabel>
      |        <text>Tree 4</text>
      |      </navLabel>
-     |      <content src="text/sub/bar.xhtml" />
+     |      <content src="content/sub/bar.xhtml" />
      |    <navPoint id="navPoint-2">
      |      <navLabel>
      |        <text>Title 3</text>
      |      </navLabel>
-     |      <content src="text/sub/bar.xhtml" />
+     |      <content src="content/sub/bar.xhtml" />
      |
      |    </navPoint>
      |    </navPoint>""".stripMargin
@@ -110,7 +110,7 @@ class NCXRendererSpec extends FlatSpec with Matchers with ModelBuilder {
      |      <navLabel>
      |        <text>Title 2</text>
      |      </navLabel>
-     |      <content src="text/foo.xhtml" />
+     |      <content src="content/foo.xhtml" />
      |
      |    </navPoint>""".stripMargin
     renderer.render(tree(Path.Root, 1, doc1, subtree), uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result, 1)
@@ -123,19 +123,19 @@ class NCXRendererSpec extends FlatSpec with Matchers with ModelBuilder {
      |      <navLabel>
      |        <text>Title 2</text>
      |      </navLabel>
-     |      <content src="text/foo.xhtml" />
+     |      <content src="content/foo.xhtml" />
      |    <navPoint id="navPoint-1">
      |      <navLabel>
      |        <text>Section A</text>
      |      </navLabel>
-     |      <content src="text/foo.xhtml#A" />
+     |      <content src="content/foo.xhtml#A" />
      |
      |    </navPoint>
      |    <navPoint id="navPoint-2">
      |      <navLabel>
      |        <text>Section B</text>
      |      </navLabel>
-     |      <content src="text/foo.xhtml#B" />
+     |      <content src="content/foo.xhtml#B" />
      |
      |    </navPoint>
      |    </navPoint>
@@ -143,19 +143,19 @@ class NCXRendererSpec extends FlatSpec with Matchers with ModelBuilder {
      |      <navLabel>
      |        <text>Title 3</text>
      |      </navLabel>
-     |      <content src="text/bar.xhtml" />
+     |      <content src="content/bar.xhtml" />
      |    <navPoint id="navPoint-4">
      |      <navLabel>
      |        <text>Section A</text>
      |      </navLabel>
-     |      <content src="text/bar.xhtml#A" />
+     |      <content src="content/bar.xhtml#A" />
      |
      |    </navPoint>
      |    <navPoint id="navPoint-5">
      |      <navLabel>
      |        <text>Section B</text>
      |      </navLabel>
-     |      <content src="text/bar.xhtml#B" />
+     |      <content src="content/bar.xhtml#B" />
      |
      |    </navPoint>
      |    </navPoint>""".stripMargin
@@ -169,14 +169,14 @@ class NCXRendererSpec extends FlatSpec with Matchers with ModelBuilder {
      |      <navLabel>
      |        <text>Title 2</text>
      |      </navLabel>
-     |      <content src="text/foo.xhtml" />
+     |      <content src="content/foo.xhtml" />
      |
      |    </navPoint>
      |    <navPoint id="navPoint-1">
      |      <navLabel>
      |        <text>Title 3</text>
      |      </navLabel>
-     |      <content src="text/bar.xhtml" />
+     |      <content src="content/bar.xhtml" />
      |
      |    </navPoint>""".stripMargin
     renderer.render(tree(Path.Root, 1, doc1, doc2), uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result, 1)

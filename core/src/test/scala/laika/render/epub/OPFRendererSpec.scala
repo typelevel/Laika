@@ -21,6 +21,7 @@ import java.time.Instant
 import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
+import laika.io.Input
 import org.scalatest.{FlatSpec, Matchers}
 
 class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
@@ -49,7 +50,7 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
   it should "render a tree with a single document" in {
     val doc = Document(Path.Root / "foo", rootElem(2))
     val manifestItems =
-      """    <item id="foo_xhtml" href="text/foo.xhtml" media-type="application/xhtml+xml" />"""
+      """    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" />"""
     val spineRefs =
       """    <itemref idref="foo_xhtml" />"""
     renderer.render(tree(Path.Root, 1, doc), uuid, instant) shouldBe fileContent(manifestItems, spineRefs)
@@ -59,8 +60,8 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
     val doc1 = Document(Path.Root / "foo", rootElem(2))
     val doc2 = Document(Path.Root / "bar", rootElem(3))
     val manifestItems =
-      """    <item id="foo_xhtml" href="text/foo.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="bar_xhtml" href="text/bar.xhtml" media-type="application/xhtml+xml" />""".stripMargin
+      """    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="bar_xhtml" href="content/bar.xhtml" media-type="application/xhtml+xml" />""".stripMargin
     val spineRefs =
       """    <itemref idref="foo_xhtml" />
         |    <itemref idref="bar_xhtml" />"""
@@ -72,8 +73,8 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
     val doc2 = Document(Path.Root / "sub" / "bar", rootElem(3))
     val subtree = tree(Path.Root / "sub", 4, doc2)
     val manifestItems =
-      """    <item id="foo_xhtml" href="text/foo.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="sub_bar_xhtml" href="text/sub/bar.xhtml" media-type="application/xhtml+xml" />""".stripMargin
+      """    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="sub_bar_xhtml" href="content/sub/bar.xhtml" media-type="application/xhtml+xml" />""".stripMargin
     val spineRefs =
       """    <itemref idref="foo_xhtml" />
         |    <itemref idref="sub_bar_xhtml" />"""
@@ -89,11 +90,11 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
     val subtree1 = tree(Path.Root / "sub1", 2, doc2, doc3)
     val subtree2 = tree(Path.Root / "sub2", 3, doc4, doc5)
     val manifestItems =
-      """    <item id="foo_xhtml" href="text/foo.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="sub1_bar_xhtml" href="text/sub1/bar.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="sub1_baz_xhtml" href="text/sub1/baz.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="sub2_bar_xhtml" href="text/sub2/bar.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="sub2_baz_xhtml" href="text/sub2/baz.xhtml" media-type="application/xhtml+xml" />"""
+      """    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="sub1_bar_xhtml" href="content/sub1/bar.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="sub1_baz_xhtml" href="content/sub1/baz.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="sub2_bar_xhtml" href="content/sub2/bar.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="sub2_baz_xhtml" href="content/sub2/baz.xhtml" media-type="application/xhtml+xml" />"""
     val spineRefs =
       """    <itemref idref="foo_xhtml" />
         |    <itemref idref="sub1_bar_xhtml" />
@@ -101,6 +102,24 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
         |    <itemref idref="sub2_bar_xhtml" />
         |    <itemref idref="sub2_baz_xhtml" />"""
     renderer.render(tree(Path.Root, 1, doc1, subtree1, subtree2), uuid, instant) shouldBe fileContent(manifestItems, spineRefs)
+  }
+
+  it should "render a tree with a nested tree and static documents" in {
+    val doc1 = Document(Path.Root / "foo", rootElem(2))
+    val doc2 = Document(Path.Root / "sub" / "bar", rootElem(3))
+    val static1 = StaticDocument(Input.fromFile("/sub/image.jpg"))
+    val static2 = StaticDocument(Input.fromFile("/sub/styles.css"))
+    val unknown = StaticDocument(Input.fromFile("/sub/doc.pdf"))
+    val subtree = tree(Path.Root / "sub", 4, doc2).copy(additionalContent = Seq(static1, static2, unknown))
+    val manifestItems =
+      """    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="sub_bar_xhtml" href="content/sub/bar.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="sub_image_jpg" href="content/sub/image.jpg" media-type="image/jpeg" />
+        |    <item id="sub_styles_css" href="content/sub/styles.css" media-type="text/css" />""".stripMargin
+    val spineRefs =
+      """    <itemref idref="foo_xhtml" />
+        |    <itemref idref="sub_bar_xhtml" />"""
+    renderer.render(tree(Path.Root, 1, doc1, subtree), uuid, instant) shouldBe fileContent(manifestItems, spineRefs)
   }
 
   def fileContent (manifestItems: String, spineRefs: String): String =
