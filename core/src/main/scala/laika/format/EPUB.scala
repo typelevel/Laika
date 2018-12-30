@@ -22,7 +22,7 @@ import laika.io.Output.BinaryOutput
 import laika.io.OutputTree
 import laika.io.OutputTree.{ResultTree, StringOutputTree}
 import laika.render.HTMLWriter
-import laika.render.epub.EPUBContainerWriter
+import laika.render.epub.ContainerWriter
 
 /** A post processor for EPUB output, based on an interim HTML renderer.
  *  May be directly passed to the `Render` or `Transform` APIs:
@@ -47,7 +47,7 @@ class EPUB private (val format: RenderFormat[HTMLWriter], config: Option[EPUB.Co
   def withConfig (config: EPUB.Config): EPUB = new EPUB(format, Some(config))
 
 
-  private lazy val writer = new EPUBContainerWriter(config.getOrElse(EPUB.Config.default))
+  private lazy val writer = new ContainerWriter(config.getOrElse(EPUB.Config.default))
 
   /** Renders the HTML that serves as a basis for producing the final EPUB output.
    *  The result should include the output from rendering the documents in the 
