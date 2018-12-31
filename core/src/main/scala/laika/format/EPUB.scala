@@ -16,13 +16,15 @@
 
 package laika.format
 
-import laika.ast.{DocumentTree, TemplateRoot}
+import laika.ast._
+import laika.config.RenderConfig
 import laika.factory.{RenderFormat, RenderResultProcessor}
 import laika.io.Output.BinaryOutput
-import laika.io.OutputTree
-import laika.io.OutputTree.{ResultTree, StringOutputTree}
-import laika.render.HTMLWriter
+import laika.io.OutputTree.StringOutputTree
+import laika.io.{Input, Output, OutputTree}
+import laika.parse.directive.DefaultTemplateParser
 import laika.render.epub.ContainerWriter
+import laika.render.{HTMLRenderer, HTMLWriter}
 
 /** A post processor for EPUB output, based on an interim HTML renderer.
  *  May be directly passed to the `Render` or `Transform` APIs:
@@ -39,64 +41,38 @@ import laika.render.epub.ContainerWriter
  * 
  *  @author Jens Halm
  */
-class EPUB private (val format: RenderFormat[HTMLWriter], config: Option[EPUB.Config]) extends RenderResultProcessor[HTMLWriter] {
+object EPUB extends RenderResultProcessor[HTMLWriter] {
 
+  /** A render format for XHTML output as used by EPUB output.
+    *
+    * This format is usually not used directly with Laika's `Render` or `Transform` APIs.
+    * It is primarily used internally by the parent `EPUB` instance.
+    *
+    *  @author Jens Halm
+    */
+  object XHTML extends RenderFormat[HTMLWriter] {
 
-  /** Allows to specify configuration options like the recursion depth for the table of content.
-   */
-  def withConfig (config: EPUB.Config): EPUB = new EPUB(format, Some(config))
+    val fileSuffix: String = "xhtml"
 
+    def newRenderer (output: Output, root: Element, render: Element => Unit,
+                     styles: StyleDeclarationSet, config: RenderConfig): (HTMLWriter, Element => Unit) = {
 
-  private lazy val writer = new ContainerWriter(config.getOrElse(EPUB.Config.default))
+      val writer = new HTMLWriter(output.asFunction, render, root, formatted = config.renderFormatted)
+      val renderer = new HTMLRenderer(writer, config.minMessageLevel)
 
-  /** Renders the HTML that serves as a basis for producing the final EPUB output.
-   *  The result should include the output from rendering the documents in the 
-   *  specified tree as well as any additional insertions like a table of content.
-   *  For this the specified `DocumentTree` instance may get
-   *  modified before passing it to the given render function.
-   *  
-   *  In rare cases where the flexibility provided by `EPUB.Config` is not sufficient,
-   *  this method may get overridden.
-   * 
-   *  @param tree the document tree serving as input for the renderer
-   *  @param render the actual render function for producing the HTML output
-   *  @return the rendered HTML as a tree of String results
-   */
-  protected def renderHTML (tree: DocumentTree, render: (DocumentTree, OutputTree) => Unit, defaultTemplate: TemplateRoot): ResultTree = {
-    val htmlOutput = new StringOutputTree(tree.path)
-    render(tree, htmlOutput)
-    htmlOutput.result
-  }
+      (writer, renderer.render)
+    }
 
-  /** Produces an EPUB container from the specified document tree.
-   *
-   *  It included the following file in the container:
-   *
-   *  - All text markup in the provided document tree, transformed to HTML by the specified render function.
-   *  - All static content in the provided document tree, copied to the same relative path within the EPUB container.
-   *  - Metadata and navigation files as required by the EPUB specification, auto-generated from the document tree
-   *    and the configuration of this instance.
-   *  EPUB container metadata as well as all included  to the specified final output.
-   * 
-   *  @param tree the tree to render to HTML
-   *  @param render the render function for producing the HTML
-   *  @param output the output to write the EPUB container to
-   */  
-  def process (tree: DocumentTree, render: (DocumentTree, OutputTree) => Unit, defaultTemplate: TemplateRoot, output: BinaryOutput): Unit = {
-    
-    val resultTree = renderHTML(tree, render, defaultTemplate)
+    override lazy val defaultTheme: Theme = Theme(defaultTemplate = Some(templateResource.content))
 
-    writer.write(tree, resultTree, output)
+    private val templateName = "default.template.epub.xhtml"
 
-    // TODO - do we need a default template here?
+    private lazy val templateResource: TemplateDocument =
+      DefaultTemplateParser.parse(Input.fromClasspath(s"/templates/$templateName", Path.Root / templateName))
 
   }
-  
-}
 
-/** The default instance of the EPUB renderer.
-  */
-object EPUB extends EPUB(HTML, None) {
+  val format = XHTML
 
   /** Configuration options for the generated EPUB output.
     *
@@ -114,4 +90,29 @@ object EPUB extends EPUB(HTML, None) {
     val default: Config = apply()
   }
 
+  private lazy val writer = new ContainerWriter(EPUB.Config.default) // TODO - read from tree root
+
+  /** Produces an EPUB container from the specified document tree.
+   *
+   *  It included the following file in the container:
+   *
+   *  - All text markup in the provided document tree, transformed to HTML by the specified render function.
+   *  - All static content in the provided document tree, copied to the same relative path within the EPUB container.
+   *  - Metadata and navigation files as required by the EPUB specification, auto-generated from the document tree
+   *    and the configuration of this instance.
+   *  EPUB container metadata as well as all included  to the specified final output.
+   * 
+   *  @param tree the tree to render to HTML
+   *  @param render the render function for producing the HTML
+   *  @param output the output to write the EPUB container to
+   */  
+  def process (tree: DocumentTree, render: (DocumentTree, OutputTree) => Unit, defaultTemplate: TemplateRoot, output: BinaryOutput): Unit = {
+
+    val htmlOutput = new StringOutputTree(tree.path)
+    render(tree, htmlOutput)
+
+    writer.write(tree, htmlOutput.result, output)
+
+  }
+  
 }
