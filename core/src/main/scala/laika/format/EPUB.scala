@@ -90,7 +90,7 @@ object EPUB extends RenderResultProcessor[HTMLWriter] {
     val default: Config = apply()
   }
 
-  private lazy val writer = new ContainerWriter(EPUB.Config.default) // TODO - read from tree root
+  private lazy val writer = new ContainerWriter(EPUB.Config.default)
 
   /** Produces an EPUB container from the specified document tree.
    *

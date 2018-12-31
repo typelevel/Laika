@@ -42,6 +42,17 @@ class ContainerWriter (config: EPUB.Config) {
   private val ncxRenderer = new NCXRenderer
 
 
+  private def configFor (tree: DocumentTree): EPUB.Config = {
+
+    def getOpt [T](key: String, read: String => T): Option[T] =
+      if (tree.config.hasPath(key)) Some(read(key)) else None
+
+    val tocDepth = getOpt("epub.toc.depth", tree.config.getInt).getOrElse(config.tocDepth)
+    val tocTitle = getOpt("epub.toc.title", tree.config.getString).orElse(config.tocTitle)
+
+    EPUB.Config(tocDepth, tocTitle)
+  }
+
   /** Collects all documents that need to be written to the EPUB container.
     *
     * This includes:
@@ -89,13 +100,14 @@ class ContainerWriter (config: EPUB.Config) {
     }
 
     val uuid = UUID.randomUUID.toString
+    val treeConfig = configFor(tree)
 
     val mimeType  = toBinaryInput(StaticContent.mimeType, Root / "mimetype")
     val container = toBinaryInput(StaticContent.container, Root / "META-INF" / "container.xml")
     val iBooksOpt = toBinaryInput(StaticContent.iBooksOptions, Root / "META-INF" / "com.apple.ibooks.display-options.xml")
     val opf       = toBinaryInput(opfRenderer.render(tree, uuid, Instant.now), Root / "EPUB" / "content.opf")
-    val nav       = toBinaryInput(navRenderer.render(tree, uuid, config.tocDepth), Root / "EPUB" / "nav.xhtml")
-    val ncx       = toBinaryInput(ncxRenderer.render(tree, uuid, config.tocDepth), Root / "EPUB" / "toc.ncx")
+    val nav       = toBinaryInput(navRenderer.render(tree, uuid, treeConfig.tocDepth), Root / "EPUB" / "nav.xhtml")
+    val ncx       = toBinaryInput(ncxRenderer.render(tree, uuid, treeConfig.tocDepth), Root / "EPUB" / "toc.ncx")
 
     Seq(mimeType, container, iBooksOpt, opf, nav, ncx) ++ toInput(html) ++ collectStaticFiles(tree)
   }
