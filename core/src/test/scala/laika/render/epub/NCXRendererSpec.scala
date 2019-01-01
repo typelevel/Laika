@@ -16,7 +16,6 @@
 
 package laika.render.epub
 
-import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import org.scalatest.{FlatSpec, Matchers}
@@ -25,40 +24,25 @@ class NCXRendererSpec extends FlatSpec with Matchers with ModelBuilder {
 
   val renderer = new NCXRenderer
 
-  val uuid = "some-uuid"
-
-  def rootElem(num: Int) = root(title(s"Title $num"), p("zzz"))
-
-  def section(letter: Char) = Section(Header(1, Seq(Text(s"Section $letter")), Id(letter.toString)), Seq(p("zzz")))
-
-  def rootElemWithSections(num: Int) = root(title(s"Title $num"), section('A'), section('B'))
-
-  def configWithTreeTitle (num: Int): Config = ConfigFactory.empty
-    .withValue("title", ConfigValueFactory.fromAnyRef(s"Tree $num"))
-
-  def tree (path: Path, titleNum: Int, docs: TreeContent*): DocumentTree =
-    DocumentTree(Path.Root, docs, config = configWithTreeTitle(titleNum))
-
-  "The NCX Renderer" should "render an empty tree" in {
+  "The NCX Renderer" should "render an empty tree" in new InputTreeBuilder {
     renderer.render(tree(Path.Root, 1), uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", "", 1)
   }
 
-  it should "render a tree with a single document" in {
-    val doc = Document(Path.Root / "foo", rootElem(2))
-    val result = """    <navPoint id="navPoint-0">
-     |      <navLabel>
-     |        <text>Title 2</text>
-     |      </navLabel>
-     |      <content src="content/foo.xhtml" />
-     |
-     |    </navPoint>""".stripMargin
-    renderer.render(tree(Path.Root, 1, doc), uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result, 1)
+  it should "render a tree with a single document" in new SingleDocument {
+    val result =
+    """    <navPoint id="navPoint-0">
+      |      <navLabel>
+      |        <text>Title 2</text>
+      |      </navLabel>
+      |      <content src="content/foo.xhtml" />
+      |
+      |    </navPoint>""".stripMargin
+    renderer.render(input, uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result, 1)
   }
 
-  it should "render a tree with a two documents" in {
-    val doc1 = Document(Path.Root / "foo", rootElem(2))
-    val doc2 = Document(Path.Root / "bar", rootElem(3))
-    val result = """    <navPoint id="navPoint-0">
+  it should "render a tree with a two documents" in new TwoDocuments {
+    val result =
+    """    <navPoint id="navPoint-0">
      |      <navLabel>
      |        <text>Title 2</text>
      |      </navLabel>
@@ -72,14 +56,13 @@ class NCXRendererSpec extends FlatSpec with Matchers with ModelBuilder {
      |      <content src="content/bar.xhtml" />
      |
      |    </navPoint>""".stripMargin
-    renderer.render(tree(Path.Root, 1, doc1, doc2), uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result, 1)
+    renderer.render(input, uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result, 1)
   }
 
-  it should "render a tree with a nested tree" in {
-    val doc1 = Document(Path.Root / "foo", rootElem(2))
-    val doc2 = Document(Path.Root / "sub" / "bar", rootElem(3))
-    val subtree = tree(Path.Root / "sub", 4, doc2)
-    val result = """    <navPoint id="navPoint-0">
+  it should "render a tree with a nested tree" in new NestedTree {
+
+    val result =
+    """    <navPoint id="navPoint-0">
      |      <navLabel>
      |        <text>Title 2</text>
      |      </navLabel>
@@ -99,26 +82,22 @@ class NCXRendererSpec extends FlatSpec with Matchers with ModelBuilder {
      |
      |    </navPoint>
      |    </navPoint>""".stripMargin
-    renderer.render(tree(Path.Root, 1, doc1, subtree), uuid, 2) shouldBe renderer.fileContent(uuid, "Tree 1", result, 2)
+    renderer.render(input, uuid, 2) shouldBe renderer.fileContent(uuid, "Tree 1", result, 2)
   }
 
-  it should "not render a nested tree if the depth is 1" in {
-    val doc1 = Document(Path.Root / "foo", rootElem(2))
-    val doc2 = Document(Path.Root / "sub" / "bar", rootElem(3))
-    val subtree = tree(Path.Root / "sub", 4, doc2)
-    val result = """    <navPoint id="navPoint-0">
+  it should "not render a nested tree if the depth is 1" in new NestedTree {
+    val result =
+    """    <navPoint id="navPoint-0">
      |      <navLabel>
      |        <text>Title 2</text>
      |      </navLabel>
      |      <content src="content/foo.xhtml" />
      |
      |    </navPoint>""".stripMargin
-    renderer.render(tree(Path.Root, 1, doc1, subtree), uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result, 1)
+    renderer.render(input, uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result, 1)
   }
 
-  it should "render a document with sections when the depth is 2" in {
-    val doc1 = Document(Path.Root / "foo", rootElemWithSections(2))
-    val doc2 = Document(Path.Root / "bar", rootElemWithSections(3))
+  it should "render a document with sections when the depth is 2" in new DocumentsWithSections {
     val result = """    <navPoint id="navPoint-0">
      |      <navLabel>
      |        <text>Title 2</text>
@@ -159,12 +138,10 @@ class NCXRendererSpec extends FlatSpec with Matchers with ModelBuilder {
      |
      |    </navPoint>
      |    </navPoint>""".stripMargin
-    renderer.render(tree(Path.Root, 1, doc1, doc2), uuid, 2) shouldBe renderer.fileContent(uuid, "Tree 1", result, 2)
+    renderer.render(input, uuid, 2) shouldBe renderer.fileContent(uuid, "Tree 1", result, 2)
   }
 
-  it should "not render a document with sections when the depth is 1" in {
-    val doc1 = Document(Path.Root / "foo", rootElemWithSections(2))
-    val doc2 = Document(Path.Root / "bar", rootElemWithSections(3))
+  it should "not render a document with sections when the depth is 1" in new DocumentsWithSections {
     val result = """    <navPoint id="navPoint-0">
      |      <navLabel>
      |        <text>Title 2</text>
@@ -179,7 +156,7 @@ class NCXRendererSpec extends FlatSpec with Matchers with ModelBuilder {
      |      <content src="content/bar.xhtml" />
      |
      |    </navPoint>""".stripMargin
-    renderer.render(tree(Path.Root, 1, doc1, doc2), uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result, 1)
+    renderer.render(input, uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result, 1)
   }
 
 }

@@ -18,77 +18,51 @@ package laika.render.epub
 
 import java.time.Instant
 
-import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.io.Input
 import org.scalatest.{FlatSpec, Matchers}
 
 class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
 
   val renderer = new OPFRenderer
 
-  val uuid = "some-uuid"
-
   val timestamp = "2018-01-01T12:00:00Z"
   val instant = Instant.parse(timestamp)
 
-  def rootElem(num: Int) = root(title(s"Title $num"), p("zzz"))
 
-  def section(letter: Char) = Section(Header(1, Seq(Text(s"Section $letter")), Id(letter.toString)), Seq(p("zzz")))
-
-  def configWithTreeTitle (num: Int): Config = ConfigFactory.empty
-    .withValue("title", ConfigValueFactory.fromAnyRef(s"Tree $num"))
-
-  def tree (path: Path, titleNum: Int, docs: TreeContent*): DocumentTree =
-    DocumentTree(path, docs, config = configWithTreeTitle(titleNum))
-
-  "The OPF Renderer" should "render an empty tree" in {
-    renderer.render(tree(Path.Root, 1), uuid, instant) shouldBe fileContent("", "")
+  "The OPF Renderer" should "render an empty tree" in new InputTreeBuilder {
+    renderer.render(tree(Path.Root, 1), uuid, instant) shouldBe fileContent("", "", uuid)
   }
 
-  it should "render a tree with a single document" in {
-    val doc = Document(Path.Root / "foo", rootElem(2))
+  it should "render a tree with a single document" in new SingleDocument {
     val manifestItems =
       """    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" />"""
     val spineRefs =
       """    <itemref idref="foo_xhtml" />"""
-    renderer.render(tree(Path.Root, 1, doc), uuid, instant) shouldBe fileContent(manifestItems, spineRefs)
+    renderer.render(input, uuid, instant) shouldBe fileContent(manifestItems, spineRefs, uuid)
   }
 
-  it should "render a tree with a two documents" in {
-    val doc1 = Document(Path.Root / "foo", rootElem(2))
-    val doc2 = Document(Path.Root / "bar", rootElem(3))
+  it should "render a tree with a two documents" in new TwoDocuments {
     val manifestItems =
       """    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" />
         |    <item id="bar_xhtml" href="content/bar.xhtml" media-type="application/xhtml+xml" />""".stripMargin
     val spineRefs =
       """    <itemref idref="foo_xhtml" />
         |    <itemref idref="bar_xhtml" />"""
-    renderer.render(tree(Path.Root, 1, doc1, doc2), uuid, instant) shouldBe fileContent(manifestItems, spineRefs)
+    renderer.render(input, uuid, instant) shouldBe fileContent(manifestItems, spineRefs, uuid)
   }
 
-  it should "render a tree with a nested tree" in {
-    val doc1 = Document(Path.Root / "foo", rootElem(2))
-    val doc2 = Document(Path.Root / "sub" / "bar", rootElem(3))
-    val subtree = tree(Path.Root / "sub", 4, doc2)
+  it should "render a tree with a nested tree" in new NestedTree {
     val manifestItems =
       """    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" />
         |    <item id="sub_bar_xhtml" href="content/sub/bar.xhtml" media-type="application/xhtml+xml" />""".stripMargin
     val spineRefs =
       """    <itemref idref="foo_xhtml" />
         |    <itemref idref="sub_bar_xhtml" />"""
-    renderer.render(tree(Path.Root, 1, doc1, subtree), uuid, instant) shouldBe fileContent(manifestItems, spineRefs)
+    renderer.render(input, uuid, instant) shouldBe fileContent(manifestItems, spineRefs, uuid)
   }
 
-  it should "render a tree with two nested trees" in {
-    val doc1 = Document(Path.Root / "foo", rootElem(2))
-    val doc2 = Document(Path.Root / "sub1" / "bar", rootElem(3))
-    val doc3 = Document(Path.Root / "sub1" / "baz", rootElem(4))
-    val doc4 = Document(Path.Root / "sub2" / "bar", rootElem(5))
-    val doc5 = Document(Path.Root / "sub2" / "baz", rootElem(6))
-    val subtree1 = tree(Path.Root / "sub1", 2, doc2, doc3)
-    val subtree2 = tree(Path.Root / "sub2", 3, doc4, doc5)
+  it should "render a tree with two nested trees" in new TwoNestedTrees {
     val manifestItems =
       """    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" />
         |    <item id="sub1_bar_xhtml" href="content/sub1/bar.xhtml" media-type="application/xhtml+xml" />
@@ -101,16 +75,10 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
         |    <itemref idref="sub1_baz_xhtml" />
         |    <itemref idref="sub2_bar_xhtml" />
         |    <itemref idref="sub2_baz_xhtml" />"""
-    renderer.render(tree(Path.Root, 1, doc1, subtree1, subtree2), uuid, instant) shouldBe fileContent(manifestItems, spineRefs)
+    renderer.render(input, uuid, instant) shouldBe fileContent(manifestItems, spineRefs, uuid)
   }
 
-  it should "render a tree with a nested tree and static documents" in {
-    val doc1 = Document(Path.Root / "foo", rootElem(2))
-    val doc2 = Document(Path.Root / "sub" / "bar", rootElem(3))
-    val static1 = StaticDocument(Input.fromFile("/sub/image.jpg"))
-    val static2 = StaticDocument(Input.fromFile("/sub/styles.css"))
-    val unknown = StaticDocument(Input.fromFile("/sub/doc.pdf"))
-    val subtree = tree(Path.Root / "sub", 4, doc2).copy(additionalContent = Seq(static1, static2, unknown))
+  it should "render a tree with a nested tree and static documents" in new TreeWithStaticDocuments {
     val manifestItems =
       """    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" />
         |    <item id="sub_bar_xhtml" href="content/sub/bar.xhtml" media-type="application/xhtml+xml" />
@@ -119,10 +87,10 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
     val spineRefs =
       """    <itemref idref="foo_xhtml" />
         |    <itemref idref="sub_bar_xhtml" />"""
-    renderer.render(tree(Path.Root, 1, doc1, subtree), uuid, instant) shouldBe fileContent(manifestItems, spineRefs)
+    renderer.render(input, uuid, instant) shouldBe fileContent(manifestItems, spineRefs, uuid)
   }
 
-  def fileContent (manifestItems: String, spineRefs: String): String =
+  def fileContent (manifestItems: String, spineRefs: String, uuid: String): String =
     s"""<?xml version="1.0" encoding="UTF-8"?>
        |<package
        |    version="3.0"

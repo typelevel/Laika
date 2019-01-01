@@ -16,7 +16,6 @@
 
 package laika.render.epub
 
-import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import org.scalatest.{FlatSpec, Matchers}
@@ -25,39 +24,24 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
 
   val renderer = new HtmlNavRenderer
 
-  val uuid = "some-uuid"
-
-  def rootElem(num: Int) = root(title(s"Title $num"), p("zzz"))
-
-  def section(letter: Char) = Section(Header(1, Seq(Text(s"Section $letter")), Id(letter.toString)), Seq(p("zzz")))
-
-  def rootElemWithSections(num: Int) = root(title(s"Title $num"), section('A'), section('B'))
-
-  def configWithTreeTitle (num: Int): Config = ConfigFactory.empty
-    .withValue("title", ConfigValueFactory.fromAnyRef(s"Tree $num"))
-
-  def tree (path: Path, titleNum: Int, docs: TreeContent*): DocumentTree =
-    DocumentTree(Path.Root, docs, config = configWithTreeTitle(titleNum))
-
-  "The Navigation Renderer" should "render an empty tree" in {
+  "The Navigation Renderer" should "render an empty tree" in new InputTreeBuilder {
     renderer.render(tree(Path.Root, 1), uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", "")
   }
 
-  it should "render a tree with a single document" in {
-    val doc = Document(Path.Root / "foo", rootElem(2))
-    val result = """      <ol class="toc">
+  it should "render a tree with a single document" in new SingleDocument {
+    val result =
+    """      <ol class="toc">
       |        <li id="toc-li-0">
       |          <a href="content/foo.xhtml">Title 2</a>
       |
       |        </li>
       |      </ol>""".stripMargin
-    renderer.render(tree(Path.Root, 1, doc), uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result)
+    renderer.render(input, uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result)
   }
 
-  it should "render a tree with a two documents" in {
-    val doc1 = Document(Path.Root / "foo", rootElem(2))
-    val doc2 = Document(Path.Root / "bar", rootElem(3))
-    val result = """      <ol class="toc">
+  it should "render a tree with a two documents" in new TwoDocuments {
+    val result =
+    """      <ol class="toc">
      |        <li id="toc-li-0">
      |          <a href="content/foo.xhtml">Title 2</a>
      |
@@ -67,13 +51,10 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
      |
      |        </li>
      |      </ol>""".stripMargin
-    renderer.render(tree(Path.Root, 1, doc1, doc2), uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result)
+    renderer.render(input, uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result)
   }
 
-  it should "render a tree with a nested tree" in {
-    val doc1 = Document(Path.Root / "foo", rootElem(2))
-    val doc2 = Document(Path.Root / "sub" / "bar", rootElem(3))
-    val subtree = tree(Path.Root / "sub", 4, doc2)
+  it should "render a tree with a nested tree" in new NestedTree {
     val result =
       """      <ol class="toc">
         |        <li id="toc-li-0">
@@ -90,25 +71,21 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
         |      </ol>
         |        </li>
         |      </ol>""".stripMargin
-    renderer.render(tree(Path.Root, 1, doc1, subtree), uuid, 2) shouldBe renderer.fileContent(uuid, "Tree 1", result)
+    renderer.render(input, uuid, 2) shouldBe renderer.fileContent(uuid, "Tree 1", result)
   }
 
-  it should "not render a nested tree if the depth is 1" in {
-    val doc1 = Document(Path.Root / "foo", rootElem(2))
-    val doc2 = Document(Path.Root / "sub" / "bar", rootElem(3))
-    val subtree = tree(Path.Root / "sub", 4, doc2)
-    val result = """      <ol class="toc">
+  it should "not render a nested tree if the depth is 1" in new NestedTree {
+    val result =
+    """      <ol class="toc">
      |        <li id="toc-li-0">
      |          <a href="content/foo.xhtml">Title 2</a>
      |
      |        </li>
      |      </ol>""".stripMargin
-    renderer.render(tree(Path.Root, 1, doc1, subtree), uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result)
+    renderer.render(input, uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result)
   }
 
-  it should "render a document with sections when the depth is 2" in {
-    val doc1 = Document(Path.Root / "foo", rootElemWithSections(2))
-    val doc2 = Document(Path.Root / "bar", rootElemWithSections(3))
+  it should "render a document with sections when the depth is 2" in new DocumentsWithSections {
     val result =
       """      <ol class="toc">
         |        <li id="toc-li-0">
@@ -138,12 +115,10 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
         |      </ol>
         |        </li>
         |      </ol>""".stripMargin
-    renderer.render(tree(Path.Root, 1, doc1, doc2), uuid, 2) shouldBe renderer.fileContent(uuid, "Tree 1", result)
+    renderer.render(input, uuid, 2) shouldBe renderer.fileContent(uuid, "Tree 1", result)
   }
 
-  it should "not render a document with sections when the depth is 1" in {
-    val doc1 = Document(Path.Root / "foo", rootElemWithSections(2))
-    val doc2 = Document(Path.Root / "bar", rootElemWithSections(3))
+  it should "not render a document with sections when the depth is 1" in new DocumentsWithSections {
     val result = """      <ol class="toc">
      |        <li id="toc-li-0">
      |          <a href="content/foo.xhtml">Title 2</a>
@@ -154,7 +129,7 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
      |
      |        </li>
      |      </ol>""".stripMargin
-    renderer.render(tree(Path.Root, 1, doc1, doc2), uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result)
+    renderer.render(input, uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result)
   }
 
 }
