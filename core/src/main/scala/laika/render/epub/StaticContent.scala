@@ -44,5 +44,17 @@ object StaticContent {
    |  </platform>
    |</display_options>""".stripMargin
 
+  /** Minimal fallback CSS that gets used in the EPUB container
+    * if no CSS files are present in the input tree of the
+    * Transform operation.
+    */
+  val fallbackStyles =
+    """body { margin: 5%; text-align: justify; font-size: medium; }
+      |code { font-family: monospace; }
+      |ol.toc { padding: 0; }
+      |ol.toc li { list-style-type: none; margin: 0; padding: 0; }
+      |a.footnote-ref { vertical-align: super; }
+    """.stripMargin
+
 
 }

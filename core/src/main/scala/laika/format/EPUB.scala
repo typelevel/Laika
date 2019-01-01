@@ -23,7 +23,7 @@ import laika.io.Output.BinaryOutput
 import laika.io.OutputTree.StringOutputTree
 import laika.io.{Input, Output, OutputTree}
 import laika.parse.directive.DefaultTemplateParser
-import laika.render.epub.ContainerWriter
+import laika.render.epub.{ContainerWriter, StyleSupport}
 import laika.render.{HTMLRenderer, HTMLWriter}
 
 /** A post processor for EPUB output, based on an interim HTML renderer.
@@ -109,9 +109,10 @@ object EPUB extends RenderResultProcessor[HTMLWriter] {
   def process (tree: DocumentTree, render: (DocumentTree, OutputTree) => Unit, defaultTemplate: TemplateRoot, output: BinaryOutput): Unit = {
 
     val htmlOutput = new StringOutputTree(tree.path)
-    render(tree, htmlOutput)
+    val treeWithStyles = StyleSupport.ensureContainsStyles(tree)
 
-    writer.write(tree, htmlOutput.result, output)
+    render(treeWithStyles, htmlOutput)
+    writer.write(treeWithStyles, htmlOutput.result, output)
 
   }
   
