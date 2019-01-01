@@ -17,7 +17,10 @@
 package laika.render.epub
 
 import laika.ast._
+import laika.directive.Templates
 import laika.io.Input
+import laika.parse.directive.TemplateParsers
+import laika.parse.text.TextParsers.unsafeParserFunction
 
 /** Processes CSS inputs for EPUB containers.
   *
@@ -45,6 +48,31 @@ object StyleSupport {
 
     if (allStyles.isEmpty) tree.copy(additionalContent = tree.additionalContent :+ fallbackStyles)
     else tree
+  }
+
+  /** Template directive that inserts links to all CSS inputs found in the document tree, using a path
+    * relative to the currently processed document.
+    */
+  lazy val styleLinksDirective: Templates.Directive = Templates.create("styleLinks") {
+    import Templates.dsl._
+
+    cursor.map { docCursor =>
+      val refPath = docCursor.parent.target.path
+      val allLinks = collectStyles(docCursor.root.target).map { input =>
+        val path = input.path.relativeTo(refPath).toString
+        s"""<link rel="stylesheet" type="text/css" href="$path" />"""
+      }
+      TemplateElement(RawContent(Seq("html","xhtml"), allLinks.mkString("\n    ")))
+    }
+  }
+
+  /** Parser for the EPUB-XHTML default template that supports the `styleLinks` directive.
+    */
+  object XHTMLTemplateParser extends TemplateParsers(Map(styleLinksDirective.name -> styleLinksDirective)) {
+    def parse (input: Input): TemplateDocument = {
+      val root = unsafeParserFunction(templateRoot)(input.asParserInput)
+      TemplateDocument(input.path, root)
+    }
   }
 
 }

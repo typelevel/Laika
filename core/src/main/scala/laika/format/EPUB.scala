@@ -22,7 +22,7 @@ import laika.factory.{RenderFormat, RenderResultProcessor}
 import laika.io.Output.BinaryOutput
 import laika.io.OutputTree.StringOutputTree
 import laika.io.{Input, Output, OutputTree}
-import laika.parse.directive.DefaultTemplateParser
+import laika.render.epub.StyleSupport.XHTMLTemplateParser
 import laika.render.epub.{ContainerWriter, StyleSupport}
 import laika.render.{HTMLRenderer, HTMLWriter}
 
@@ -68,7 +68,7 @@ object EPUB extends RenderResultProcessor[HTMLWriter] {
     private val templateName = "default.template.epub.xhtml"
 
     private lazy val templateResource: TemplateDocument =
-      DefaultTemplateParser.parse(Input.fromClasspath(s"/templates/$templateName", Path.Root / templateName))
+      XHTMLTemplateParser.parse(Input.fromClasspath(s"/templates/$templateName", Path.Root / templateName))
 
   }
 

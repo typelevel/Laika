@@ -17,6 +17,7 @@
 package laika.directive
 
 import laika.ast._
+import laika.render.epub.StyleSupport
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.nav.TocGenerator
 
@@ -271,7 +272,8 @@ object StandardDirectives extends DirectiveRegistry {
   lazy val templateDirectives: Seq[Templates.Directive] = List(
     templateToc,
     templateFor,
-    templateIf
+    templateIf,
+    StyleSupport.styleLinksDirective
   )
   
 }
