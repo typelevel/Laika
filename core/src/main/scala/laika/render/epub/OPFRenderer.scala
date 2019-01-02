@@ -17,6 +17,8 @@
 package laika.render.epub
 
 import java.time.Instant
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 import laika.ast._
 
@@ -47,7 +49,6 @@ class OPFRenderer {
        |  <manifest>
        |    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
        |    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav" />
-       |    <item id="style" href="styles/stylesheet1.css" media-type="text/css" />
        |${docRefs.map { ref => s"""    <item id="${ref.id}" href="${ref.link}" media-type="${ref.mediaType}" />""" }.mkString("\n")}
        |  </manifest>
        |  <spine toc="ncx">
@@ -82,8 +83,9 @@ class OPFRenderer {
       }
     }
 
-    val title = SpanSequence(tree.title).extractText
-    fileContent(uuid, title, publicationTime.toString, spineRefs(tree))
+    val title = if (tree.title.isEmpty) "UNTITLED" else SpanSequence(tree.title).extractText
+    val formattedPubTime = DateTimeFormatter.ISO_INSTANT.format(publicationTime.truncatedTo(ChronoUnit.SECONDS))
+    fileContent(uuid, title, formattedPubTime, spineRefs(tree))
   }
 
 

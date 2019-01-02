@@ -107,7 +107,6 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
        |  <manifest>
        |    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
        |    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav" />
-       |    <item id="style" href="styles/stylesheet1.css" media-type="text/css" />
        |$manifestItems
        |  </manifest>
        |  <spine toc="ncx">

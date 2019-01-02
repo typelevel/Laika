@@ -36,7 +36,6 @@ class HtmlNavRenderer {
        |    <meta charset="utf-8" />
        |    <meta name="generator" content="laika" />
        |    <title>$title</title>
-       |    <link rel="stylesheet" type="text/css" href="styles/stylesheet1.css" />
        |  </head>
        |  <body>
        |    <nav epub:type="toc" id="toc">
@@ -44,7 +43,7 @@ class HtmlNavRenderer {
        |$navItems
        |    </nav>
        |    <nav epub:type="landmarks" hidden="hidden">
-       |      <li><a href="#toc" epub:type="toc">$title</a></li>
+       |      <ol />
        |    </nav>
        |  </body>
        |</html>
@@ -90,7 +89,7 @@ class HtmlNavRenderer {
     * The configuration key for setting the recursion depth is `epub.toc.depth`.
     */
   def render (tree: DocumentTree, uuid: String, depth: Int): String = {
-    val title = SpanSequence(tree.title).extractText
+    val title = if (tree.title.isEmpty) "UNTITLED" else SpanSequence(tree.title).extractText
     val bookNav = BookNavigation.forTree(tree, depth)
     val renderedNavPoints = navItems(bookNav)
     fileContent(uuid, title, renderedNavPoints)

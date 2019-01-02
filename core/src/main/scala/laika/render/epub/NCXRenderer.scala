@@ -94,7 +94,7 @@ class NCXRenderer {
     * The configuration key for setting the recursion depth is `epub.toc.depth`.
     */
   def render (tree: DocumentTree, uuid: String, depth: Int): String = {
-    val title = SpanSequence(tree.title).extractText
+    val title = if (tree.title.isEmpty) "UNTITLED" else SpanSequence(tree.title).extractText
     val bookNav = BookNavigation.forTree(tree, depth)
     val renderedNavPoints = navPoints(bookNav)
     fileContent(uuid, title, renderedNavPoints, depth)
