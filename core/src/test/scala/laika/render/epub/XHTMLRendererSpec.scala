@@ -93,5 +93,37 @@ class XHTMLRendererSpec extends FlatSpec with Matchers with ModelBuilder {
     }
   }
 
+  it should "render a footnote link with an epub:type attribute" in {
+
+  }
+
+  it should "render a paragraph containing a citation link with an epub:type attribute" in {
+    val elem = p(txt("some "), CitationLink("ref","label"), txt(" span"))
+    Render.as(EPUB.XHTML).from(elem).toString should be ("""<p>some <a class="citation" href="#ref" epub:type="noteref">[label]</a> span</p>""")
+  }
+
+  it should "render a paragraph containing a footnote link with an epub:type attribute" in {
+    val elem = p(txt("some "), FootnoteLink("id","label"), txt(" span"))
+    Render.as(EPUB.XHTML).from(elem).toString should be ("""<p>some <a class="footnote" href="#id" epub:type="noteref">[label]</a> span</p>""")
+  }
+
+  it should "render a footnote with an epub:type attribute" in {
+    val elem = Footnote("label", List(p("a"),p("b")), Id("id"))
+    val html = """<aside id="id" class="footnote" epub:type="footnote">
+     |  <p>a</p>
+     |  <p>b</p>
+     |</aside>""".stripMargin
+    Render.as(EPUB.XHTML).from(elem).toString should be (html)
+  }
+
+  it should "render a citation with an epub:type attribute" in {
+    val elem = Citation("ref", List(p("a"),p("b")), Id("ref"))
+    val html = """<aside id="ref" class="citation" epub:type="footnote">
+     |  <p>a</p>
+     |  <p>b</p>
+     |</aside>""".stripMargin
+    Render.as(EPUB.XHTML).from(elem).toString should be (html)
+  }
+
 
 }

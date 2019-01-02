@@ -23,7 +23,7 @@ import laika.io.Output.BinaryOutput
 import laika.io.OutputTree.StringOutputTree
 import laika.io.{Input, Output, OutputTree}
 import laika.render.epub.StyleSupport.XHTMLTemplateParser
-import laika.render.epub.{ContainerWriter, StyleSupport}
+import laika.render.epub.{ContainerWriter, HtmlRenderExtensions, StyleSupport}
 import laika.render.{HTMLRenderer, HTMLWriter}
 
 /** A post processor for EPUB output, based on an interim HTML renderer.
@@ -63,7 +63,10 @@ object EPUB extends RenderResultProcessor[HTMLWriter] {
       (writer, renderer.render)
     }
 
-    override lazy val defaultTheme: Theme = Theme(defaultTemplate = Some(templateResource.content))
+    override lazy val defaultTheme: Theme = Theme(
+      customRenderer = HtmlRenderExtensions.all,
+      defaultTemplate = Some(templateResource.content)
+    )
 
     private val templateName = "default.template.epub.xhtml"
 
