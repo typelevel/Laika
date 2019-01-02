@@ -22,7 +22,7 @@ import laika.ast._
   *
   * @author Jens Halm
   */
-class HTMLRenderer (out: HTMLWriter, messageLevel: MessageLevel) {
+class HTMLRenderer (out: HTMLWriter, messageLevel: MessageLevel, fileSuffix: String = "html") {
 
 
   def render (element: Element): Unit = {
@@ -97,7 +97,7 @@ class HTMLRenderer (out: HTMLWriter, messageLevel: MessageLevel) {
       def crossLinkRef (path: PathInfo, ref: String) = {
         val target = path.relative.name.lastIndexOf(".") match {
           case -1 => path.relative.toString
-          case i  => (path.relative.parent / (path.relative.name.take(i) + ".html")).toString
+          case i  => (path.relative.parent / (path.relative.name.take(i) + "." + fileSuffix)).toString
         }
         if (ref.isEmpty) target else s"$target#$ref"
       }
@@ -151,7 +151,7 @@ class HTMLRenderer (out: HTMLWriter, messageLevel: MessageLevel) {
         case NoOpt                     => out                   <<  content
         case _                         => out <<@ ("span",opt)  <<  content << "</span>"
       }
-      case RawContent(formats, content, opt) => if (formats.contains("html")) { opt match {
+      case RawContent(formats, content, opt) => if (formats.contains("html") || formats.contains("html")) { opt match {
         case NoOpt                     => out                   <<   content
         case _                         => out <<@ ("span",opt)  <<   content << "</span>"
       }}
@@ -169,6 +169,7 @@ class HTMLRenderer (out: HTMLWriter, messageLevel: MessageLevel) {
       case Rule(opt)                   => out <<@ ("hr",opt)
       case InternalLinkTarget(opt)     => out <<@ ("a",opt) << "</a>"
       case TargetFormat("html",e,_)    => out << e
+      case TargetFormat("xhtml",e,_)   => out << e
 
       case WithFallback(fallback)      => out << fallback
       case unknown                     => ()

@@ -58,7 +58,7 @@ object EPUB extends RenderResultProcessor[HTMLWriter] {
                      styles: StyleDeclarationSet, config: RenderConfig): (HTMLWriter, Element => Unit) = {
 
       val writer = new HTMLWriter(output.asFunction, render, root, formatted = config.renderFormatted)
-      val renderer = new HTMLRenderer(writer, config.minMessageLevel)
+      val renderer = new HTMLRenderer(writer, config.minMessageLevel, "xhtml")
 
       (writer, renderer.render)
     }
