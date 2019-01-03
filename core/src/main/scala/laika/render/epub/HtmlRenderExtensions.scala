@@ -35,6 +35,17 @@ object HtmlRenderExtensions {
     case FootnoteLink(ref,label,opt) => out <<@ ("a",opt + Styles("footnote"),"href"->("#"+ref),"epub:type"->"noteref") << "[" << label << "]</a>"
     case Citation(_,content,opt) => out <<@ ("aside",opt + Styles("citation"),"epub:type"->"footnote") <<|> content <<| "</aside>"
     case Footnote(_,content,opt) => out <<@ ("aside",opt + Styles("footnote"),"epub:type"->"footnote") <<|> content <<| "</aside>"
+    case Image(text,uri,width,height,title,opt) =>
+      def sizeAttr (size: Option[Size], styleName: String): (Option[String],Option[String]) = size map {
+        case Size(amount, "px") => (Some(amount.toInt.toString), None)
+        case Size(amount, unit) => (None, Some(s"$styleName:$amount$unit"))
+      } getOrElse (None, None)
+      val (widthAttr, wStyle) = sizeAttr(width, "width")
+      val (heightAttr, hStyle) = sizeAttr(height, "height")
+      val styleAttr = (wStyle ++ hStyle).reduceLeftOption((a,b) => s"$a;$b")
+      out <<@/ ("img",opt,"src"->uri.uri,"alt"->text,"title"->title,
+        "width"->widthAttr,"height"->heightAttr,"style"->styleAttr)
+    // TODO - the image rendering is copied from the default HTML renderer just to use a closed tag for XHTML
   }
 
 }
