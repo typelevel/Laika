@@ -108,7 +108,7 @@ Features
 
 * Support for Markdown (incl. GitHub Flavored Markdown) and reStructuredText as input
 
-* Support for HTML, PDF, XSL-FO and AST (for debugging) as output
+* Support for HTML, EPUB, PDF, XSL-FO and AST (for debugging) as output
 
 * Template-based Site and Book Generation
 

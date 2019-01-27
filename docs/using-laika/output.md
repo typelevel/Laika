@@ -2,7 +2,7 @@
 Supported Output Formats
 ========================
 
-The current release supports HTML, PDF, XSL-FO and AST.
+The current release supports HTML, EPUB, PDF, XSL-FO and AST.
 Rendering happens from a generic document tree model shared between all parsers,
 so that no renderer implementation has to understand specifics about a concrete
 markup syntax like Markdown or reStructuredText.
@@ -111,6 +111,93 @@ Note that in some cases the simpler way to achieve the same result may be
 styling with CSS.
 
 See [Customizing Renderers] for more details.
+
+
+EPUB
+----
+
+Since version 0.11.0 Laika support the generation of e-books in the EPUB format.
+Similar to the PDF export, it allows you to transform an entire directory with
+text markup, CSS, image and font files into a single EPUB container.
+
+The EPUB renderer can be used with the `Transform` or `Render` APIs:
+
+    Transform from Markdown to EPUB fromDirectory "src" toFile "out.epub"
+
+    val tree: DocumentTree = Parse as Markdown fromDirectory "src"
+    Render as EPUB from tree toFile "out.epub"
+
+See [Using Laika Embedded] for more details on these APIs.
+    
+If you are using the sbt plugin you can use several of its task for generating
+EPUB files:
+
+* `laikaEPUB` for transforming a directory of input files to a single PDF file
+* `laikaGenerate epub <other formats>` for transforming a directory of input files to PDF
+  and other output formats with a single parse operation
+* `laikaSite` for generating a site optionally containing API documentation (scaladoc) and
+  PDF and/or EPUB files.
+  
+See [Using the sbt Plugin] for more details.
+
+
+### EPUB Directory Structure
+
+The structure of the generated EPUB file will exactly mirror the structure of the
+input directory, apart from the additional metadata files it needs to generate.
+This means that the file size of the resulting HTML documents inside the EPUB container
+will roughly correspond to the size of the text markup documents used as input.
+For that reason it is recommended to split the input into multiple files to avoid
+large files which might slow down the experience in the e-book reader.
+
+Laika supports a directory structure with sub-directories of any depth. Since EPUB
+requires a linear spine to be defined for its navigation order, the transformer
+will produce a spine that corresponds to a depth-first traversal of you input directories.
+
+
+### CSS for EPUB
+
+Since content files for EPUB are standard XHMTL files (apart from optional EPUB-specific attributes), you
+can style your e-books with standard CSS. It is sufficient to simply place all CSS into the input directory,
+alongside the text markup and other file types. References to these CSS files will be automatically added
+to the header section of all generated HTML files. When referencing images or fonts from your CSS files,
+you can use relative paths, as the directory layout will be retained inside the EPUB container.
+
+
+### Images, Fonts and other File Types
+
+You can also place images, fonts and other supported file types into the input directory.
+Laika will add these files to the generated EPUB container and metadata files.
+
+The supported file types / suffixes are:
+
+* Images: `jpg`, `jpeg`, `gif`, `png`, `svg`
+* Audio: `mp3`, `mp4`
+* HTML: `html`, `xhtml`
+* JavaScript: `js`
+* CSS: `css`   
+* Fonts: `woff2`, `woff`, `ttf`, `otf` 
+       
+
+### Configuration
+
+There are several configuration options for EPUB generation that can be set
+in the file `directory.conf` in the root directory of your input sources:
+
+    epub {
+      toc.depth = 3
+      toc.title = "Contents"
+    }  
+
+These properties control the following aspects of the rendering:
+ 
+* `tocDepth` the number of levels to generate a table of contents for. 
+  Every level of the tree hierarchy will be considered for an entry in the table 
+  of contents: directories, files and sections within files.
+  The default value is `Int.MaxValue`.
+* `tocTitle` specifies the title for the table of contents. The default value is `Contents`.
+  
+For more details on these features see [Document Structure].
 
 
 PDF
@@ -301,16 +388,6 @@ These properties control the following aspects of the rendering:
 * `tocTitle` specifies the title for the table of contents. The default value is `None`.
   
 For more details on these features see [Document Structure].
-
-Finally, the `withMessageLevel` property instructs the renderer to include system messages in the
-generated PDF. Messages may get inserted into the document tree for problems during
-parsing or reference resolution, e.g. an internal link to a destination that does not
-exist. By default these messages are not included in the output. They are mostly useful
-for testing and debugging, or for providing feedback to application users producing 
-markup input:
-
-    Transform from Markdown to PDF.withMessageLevel(Warning) fromDirectory 
-      "source" toFile "out.pdf"
 
 
 #### Customizing Apache FOP

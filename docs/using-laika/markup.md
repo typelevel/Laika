@@ -156,7 +156,7 @@ is not enabled by default, but it can be switched on if required.
 
 When using this feature
 you need to be aware of the fact that it ties your markup files to HTML output. Laika
-supports multiple output formats like HTML, PDF, XSL-FO and in the future epub, and markup
+supports multiple output formats like HTML, EPUB, PDF and XSL-FO, and markup
 files containing raw HTML could not be used for those.
 
 When the markup originates from user input in a web application, it would not be safe 

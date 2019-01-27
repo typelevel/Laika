@@ -112,11 +112,11 @@ directories separately:
 The parser will pick up any document with a recognized suffix (`.md` or `.markdown`
 for Markdown, `.rst` for reStructuredText).
 
-When transforming to PDF, a directory of input files will get merged 
-into a single PDF document:
+When transforming to EPUB or PDF, a directory of input files will get merged 
+into a single document:
 
     Transform from Markdown to 
-      PDF fromDirectory "source" toFile "target.pdf"
+      EPUB fromDirectory "source" toFile "target.epub"
 
 
 ### HTML Templates
@@ -179,8 +179,8 @@ files by the reStructuredText parser.
 
 All you have to do is pass both parsers to the API:
 
-    Transform from Markdown or ReStructuredText to 
-      PDF fromDirectory "source" toFile "target.pdf"
+    Transform.from(Markdown).or(ReStructuredText).to(PDF)
+      .fromDirectory("source").toFile("target.pdf")
 
 
 ### Parallel Execution

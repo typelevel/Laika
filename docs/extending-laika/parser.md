@@ -41,7 +41,7 @@ create such a definition.
 
 The `extensions` collection allows to add functionality beyond just markup parsing.
 If, for example, the markup parser inserts AST nodes into the final result that
-are not known to the default renderers for HTML or PDF, an extension might provide
+are not known to the default renderers for HTML, EPUB or PDF, an extension might provide
 additional renderers for these custom nodes. 
 
 See the [ExtensionBundle Scaladoc][bundle-scaladoc] for an overview of the available

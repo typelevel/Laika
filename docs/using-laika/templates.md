@@ -243,7 +243,7 @@ The body of such a directive will only be included into the
 output by renderers for the specified type:
 
     @:format html: This text only appears in the HTML output,
-      not in PDF or other formats.
+      not in PDF, EPUB or any other format.
 
 Note that the body of a block directive needs to be indented,
 and does not appear between curly braces.

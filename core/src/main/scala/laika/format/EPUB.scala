@@ -97,14 +97,13 @@ object EPUB extends RenderResultProcessor[HTMLWriter] {
 
   /** Produces an EPUB container from the specified document tree.
    *
-   *  It included the following file in the container:
+   *  It includes the following files in the container:
    *
    *  - All text markup in the provided document tree, transformed to HTML by the specified render function.
    *  - All static content in the provided document tree, copied to the same relative path within the EPUB container.
    *  - Metadata and navigation files as required by the EPUB specification, auto-generated from the document tree
    *    and the configuration of this instance.
-   *  EPUB container metadata as well as all included  to the specified final output.
-   * 
+   *
    *  @param tree the tree to render to HTML
    *  @param render the render function for producing the HTML
    *  @param output the output to write the EPUB container to

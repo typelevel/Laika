@@ -187,8 +187,8 @@ This is the signature of the `Theme` case class:
 
 * The `defaultStyles` allow you to customize the default CSS for a format. This
   is currently only processed for PDF, as it is the only format where Laika processes
-  the CSS and applies it to the render result. If you want to add CSS for HTML, add them
-  as static files instead, as Laika will just copy them over without processing them.
+  the CSS and applies it to the render result. If you want to add CSS for HTML or EPUB, 
+  add them as static files instead, as Laika will just copy them over without processing them.
   
 * The `staticDocuments` provides a collection of files to be copied over to the output
   directory on each transformation. You can bundle images, script or CSS files this way:
@@ -207,4 +207,4 @@ A theme can be installed as part of an extension bundle:
       .fromFile("hello.md").toFile("hello.html")         
 
 A theme is specific to a particular output format, separate instances need to be 
-provided if you want to install themes for several formats like HTML and PDF.
+provided if you want to install themes for several formats like HTML, PDF or EPUB.
