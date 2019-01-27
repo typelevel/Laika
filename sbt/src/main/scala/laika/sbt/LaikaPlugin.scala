@@ -86,6 +86,8 @@ object LaikaPlugin extends AutoPlugin {
 
     val laikaHTML         = taskKey[Set[File]]("Generates HTML output")
 
+    val laikaEPUB         = taskKey[File]("Generates EPUB output")
+
     val laikaPDF          = taskKey[File]("Generates PDF output")
 
     val laikaXSLFO        = taskKey[Set[File]]("Generates XSL-FO output")
@@ -148,6 +150,7 @@ object LaikaPlugin extends AutoPlugin {
     laikaGenerate           := Tasks.generate.evaluated,
     laikaHTML               := Tasks.generate.toTask(" html").value,
     laikaXSLFO              := Tasks.generate.toTask(" xslfo").value,
+    laikaEPUB               := Tasks.generate.toTask(" epub").value.headOption.getOrElse((artifactPath in laikaEPUB).value),
     laikaPDF                := Tasks.generate.toTask(" pdf").value.headOption.getOrElse((artifactPath in laikaPDF).value),
     laikaAST                := Tasks.generate.toTask(" ast").value,
     laikaCopyAPI            := Tasks.copyAPI.value,
@@ -158,8 +161,10 @@ object LaikaPlugin extends AutoPlugin {
     mappings in laikaSite   := sbt.Path.allSubpaths(laikaSite.value).toSeq,
 
     artifact in laikaPackageSite     := Artifact(moduleName.value, Artifact.DocType, "zip", "site"),
+    artifact in laikaEPUB            := Artifact(moduleName.value, Artifact.DocType, "epub"),
     artifact in laikaPDF             := Artifact(moduleName.value, Artifact.DocType, "pdf"),
     artifactPath in laikaPackageSite := Settings.createArtifactPath(laikaPackageSite).value,
+    artifactPath in laikaEPUB        := Settings.createArtifactPath(laikaEPUB).value,
     artifactPath in laikaPDF         := Settings.createArtifactPath(laikaPDF).value,
 
   ) :+ (cleanFiles += (target in Laika).value)

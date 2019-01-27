@@ -97,7 +97,7 @@ object Tasks {
       targetFile.getParentFile.mkdirs()
 
       val render = Render.as(processor).withConfig(parser.config)
-      render from tree toFile targetFile
+      render.from(tree).toFile(targetFile)
 
       streams.value.log.info(s"Generated $formatDesc in $targetFile")
 
@@ -114,6 +114,7 @@ object Tasks {
           case OutputFormat.HTML  => renderWithFormat(HTML, (target in laikaSite).value, "HTML")
           case OutputFormat.AST   => renderWithFormat(AST, (target in laikaAST).value, "Formatted AST")
           case OutputFormat.XSLFO => renderWithFormat(XSLFO, (target in laikaXSLFO).value, "XSL-FO")
+          case OutputFormat.EPUB  => renderWithProcessor(EPUB, (artifactPath in laikaEPUB).value, "EPUB")
           case OutputFormat.PDF   => renderWithProcessor(PDF.withFopFactory(fopFactory.value), (artifactPath in laikaPDF).value, "PDF")
         }
       }
@@ -244,6 +245,8 @@ object Tasks {
 
     case object HTML extends OutputFormat
 
+    case object EPUB extends OutputFormat
+
     case object PDF extends OutputFormat
 
     case object XSLFO extends OutputFormat
@@ -252,6 +255,7 @@ object Tasks {
 
     def fromString (name: String): OutputFormat = name.toLowerCase match {
       case "html" => HTML
+      case "epub" => EPUB
       case "pdf" => PDF
       case "fo" | "xslfo" | "xsl-fo" => XSLFO
       case "formatted-ast" | "ast" => AST

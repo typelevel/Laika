@@ -1,5 +1,5 @@
 
-name := "site-generateHTMLandPDF"
+name := "site-generateMultipleFormats"
 
 version := "0.1"
 
