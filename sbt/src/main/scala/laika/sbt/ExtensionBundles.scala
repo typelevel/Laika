@@ -18,7 +18,7 @@ package laika.sbt
 
 import laika.ast.{DocumentCursor, DocumentType, RenderFunction, RewriteRule}
 import laika.bundle.{ExtensionBundle, RenderTheme}
-import laika.format.{HTML, XSLFO}
+import laika.format.{EPUB, HTML, XSLFO}
 import laika.render.{FOWriter, HTMLWriter}
 
 /** API shortcuts for the most common extension points that create
@@ -44,6 +44,12 @@ trait ExtensionBundles {
     */
   def laikaHtmlRenderer (f: HTMLWriter => RenderFunction): ExtensionBundle = new ExtensionBundle {
     override def themes: Seq[RenderTheme] = Seq(HTML.Theme(customRenderer = f))
+  }
+
+  /** Create an extension bundle based on the specified custom HTML render function.
+    */
+  def laikaEpubRenderer (f: HTMLWriter => RenderFunction): ExtensionBundle = new ExtensionBundle {
+    override def themes: Seq[RenderTheme] = Seq(EPUB.XHTML.Theme(customRenderer = f))
   }
 
   /** Create an extension bundle based on the specified custom XSL-FO render function.
