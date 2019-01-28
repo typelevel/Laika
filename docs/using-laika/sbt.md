@@ -13,7 +13,10 @@ parts of the manual apply to both embedded use and sbt plugin.
 Adding the Plugin to the Build
 ------------------------------
 
-Laika's sbt plugin requires sbt 0.13.x.
+Laika's sbt plugin requires sbt 1.x.
+
+If you still need to use sbt 0.13.x, you can use Laika 0.7.0 which was the last release
+supporting that sbt version.
 
 First add the plugin to `project/plugins.sbt`:
 
@@ -109,15 +112,13 @@ Laika currently supports the following sbt tasks:
   
 * `laikaGenerate`
   Generates the output format specified as arguments to this task.
-  For example `laikaGenerate html pdf` generates an HTML site as well
-  as a PDF file from the parsed source markup. The markup will only
+  For example `laikaGenerate html epub pdf` generates an HTML site as well
+  as an EPUB and a PDF file from the parsed source markup. The markup will only
   get parsed once, therefore this task is very efficient for producing
   multiple output formats. The formats supported as arguments to this
-  task are `html`, `pdf`, `xslfo` and `ast`. If you only want
+  task are `html`, `epub`, pdf`, `xslfo` and `ast`. If you only want
   to generate one output format there are shortcut tasks for each of them:
-  (`laikaHTML`, `laikaPDF`, `laikaXSLFO`, `laikaAST`)
-  
-A future version of the plugin will add support for epub (scheduled for the 0.10 release).
+  (`laikaHTML`, `laikaEPUB`, `laikaPDF`, `laikaXSLFO`, `laikaAST`)
   
 The default settings for these tasks should be sufficient for many use cases.
 The following sections show how you can override the defaults. 
@@ -164,10 +165,14 @@ The following list shows the names, types and default values of the basic settin
 * `laikaIncludeAPI` - `Boolean` - default `false`  
   Indicates whether generated scaladoc APIs should be included when running the `laikaSite` task. 
   The folder for the API can be set with `target in copyAPI` (default `target/docs/site/api`).
-  
+
+* `laikaIncludeEPUB` - `Boolean` - default `false`
+  Indicates whether a generated EPUB file should be included when running the `laikaSite` task.
+  The file name for the EPUB can be set with `artifact in laikaEPUB` (default `target/docs/site/<noduleName>-<version>.epub`).
+    
 * `laikaIncludePDF` - `Boolean` - default `false`
   Indicates whether a generated PDF file should be included when running the `laikaSite` task.
-  The file name for the PDF can be set with `artifact in pdf` (default `target/docs/site/<noduleName>-<version>.pdf`).
+  The file name for the PDF can be set with `artifact in laikaPDF` (default `target/docs/site/<noduleName>-<version>.pdf`).
 
 
 
@@ -208,6 +213,9 @@ For more details see the chapter [Customizing Renderers].
 Similarly the `laikaFoRenderer` shortcut can be used to add a custom `XSL-FO` renderer 
 of type `FOWriter => RenderFunction`. `XSL-FO` is an interim format for PDF output,
 so this option would also allow to change the appearance of PDF documents.
+
+For EPUB the `laikaEpubRenderer` can be used to add a custom XHMTL renderer of type
+`HTMLWriter => RenderFunction`. 
 
     
 
