@@ -141,8 +141,9 @@ object Tasks {
     * to the target directory of the site task.
     */
   val copy: Initialize[Task[File]] = task {
-    val api = laikaCopyAPI.value
-    val pdf = laikaCopyPDF.value
+    val api  = laikaCopyAPI.value
+    val epub = laikaCopyEPUB.value
+    val pdf  = laikaCopyPDF.value
 
     (target in laikaSite).value
   }
@@ -165,6 +166,27 @@ object Tasks {
     }
     else task {
       IO.delete(targetDir)
+      targetDir
+    }
+  }
+
+  /** Copies the rendered EPUB document to the target directory of the site task.
+    * Does nothing if the `laikaIncludeEPUB` setting is set to false (the default).
+    */
+  val copyEPUB: Initialize[Task[File]] = taskDyn {
+    val targetDir = (target in laikaSite).value
+    val epubSource = (artifactPath in laikaEPUB).value
+    val epubTarget = targetDir / epubSource.getName
+
+    if (laikaIncludeEPUB.value) task {
+      val cacheDir = streams.value.cacheDirectory / "laika" / "site-epub"
+      Sync(CacheStore(cacheDir))(Seq((epubSource, epubTarget)))
+
+      streams.value.log.info("Copied EPUB output to " + targetDir)
+      targetDir
+    }
+    else task {
+      IO.delete(epubTarget)
       targetDir
     }
   }

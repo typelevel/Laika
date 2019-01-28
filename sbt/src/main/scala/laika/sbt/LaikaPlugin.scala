@@ -106,9 +106,13 @@ object LaikaPlugin extends AutoPlugin {
 
     val laikaIncludeAPI   = settingKey[Boolean]("Indicates whether API documentation should be copied to the site")
 
+    val laikaIncludeEPUB  = settingKey[Boolean]("Indicates whether EPUB output should be copied to the site")
+
     val laikaIncludePDF   = settingKey[Boolean]("Indicates whether PDF output should be copied to the site")
 
     val laikaCopyAPI      = taskKey[File]("Copies the API documentation to the site")
+
+    val laikaCopyEPUB     = taskKey[File]("Copies the EPUB output to the site")
 
     val laikaCopyPDF      = taskKey[File]("Copies the PDF output to the site")
 
@@ -141,6 +145,7 @@ object LaikaPlugin extends AutoPlugin {
     laikaConfig             := LaikaConfig(),
 
     laikaIncludeAPI         := false,
+    laikaIncludeEPUB        := false,
     laikaIncludePDF         := false,
 
     fopConfig               := None,
@@ -154,6 +159,7 @@ object LaikaPlugin extends AutoPlugin {
     laikaPDF                := Tasks.generate.toTask(" pdf").value.headOption.getOrElse((artifactPath in laikaPDF).value),
     laikaAST                := Tasks.generate.toTask(" ast").value,
     laikaCopyAPI            := Tasks.copyAPI.value,
+    laikaCopyEPUB           := Tasks.copyEPUB.value,
     laikaCopyPDF            := Tasks.copyPDF.value,
     laikaPackageSite        := Tasks.packageSite.value,
     clean in Laika          := Tasks.clean.value,
