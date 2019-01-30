@@ -241,6 +241,17 @@ trait TreeStructure { this: TreeContent =>
    */
   lazy val title: Seq[Span] = titleFromConfig.getOrElse(Nil)
 
+  /** The title document for this tree, if present.
+    *
+    * A document with the base name `title` and the corresponding
+    * suffix for the input markup, e.g. `title.md` for Markdown,
+    * can be used as an introductory section for a chapter represented
+    * by a directory tree.
+    */
+  def titleDocument: Option[Document] = content.collectFirst {
+    case doc: Document if doc.path.basename == "title" => doc
+  }
+
   private def toMap [T <: Navigatable] (navigatables: Seq[T]): Map[String,T] = {
     navigatables groupBy (_.name) mapValuesStrict {
       case Seq(nav) => nav

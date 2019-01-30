@@ -85,6 +85,13 @@ class DocumentTreeAPISpec extends FlatSpec
       }}) should be (treeResult)
     }
   }
+
+  it should "allow to select the title document from a tree" in {
+    new TreeModel {
+      val tree = treeWithDoc(Root, "title", root())
+      tree.titleDocument.map(_.path) should be (Some(Root / "title"))
+    }
+  }
   
   it should "allow to select a document from a subdirectory using a relative path" in {
     new TreeModel {
