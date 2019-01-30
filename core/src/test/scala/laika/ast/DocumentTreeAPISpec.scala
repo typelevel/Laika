@@ -92,6 +92,14 @@ class DocumentTreeAPISpec extends FlatSpec
       tree.titleDocument.map(_.path) should be (Some(Root / "title"))
     }
   }
+
+  it should "obtain the tree title from the title document if present" in {
+    new TreeModel {
+      val title = Seq(Text("Title"))
+      val tree = treeWithDoc(Root, "title", root(laika.ast.Title(title)))
+      tree.title should be (title)
+    }
+  }
   
   it should "allow to select a document from a subdirectory using a relative path" in {
     new TreeModel {

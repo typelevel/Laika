@@ -239,7 +239,7 @@ trait TreeStructure { this: TreeContent =>
 
   /** The title of this tree, obtained from configuration.
    */
-  lazy val title: Seq[Span] = titleFromConfig.getOrElse(Nil)
+  lazy val title: Seq[Span] = titleDocument.map(_.title).orElse(titleFromConfig)  .getOrElse(Nil)
 
   /** The title document for this tree, if present.
     *
