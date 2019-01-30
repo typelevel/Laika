@@ -30,17 +30,26 @@ object NavigationOrder {
   
   import scala.collection.JavaConverters._
   
-  def applyTo (content: Seq[TreeContent], config: Config): Seq[TreeContent] =
-    if (config.hasPath("navigationOrder")) {
+  def applyTo (content: Seq[TreeContent], config: Config): Seq[TreeContent] = {
+
+    val (titleDoc, otherDocs) = content.partition {
+      case d: Document if d.path.basename == "title" => true
+      case _ => false
+    }
+
+    val sorted = if (config.hasPath("navigationOrder")) {
       val javaList = config.getList("navigationOrder").unwrapped
       val list = javaList.asScala.collect{ case s:String => s }.toIndexedSeq
-      content.sortBy { nav => 
+      otherDocs.sortBy { nav =>
         list.indexOf(nav.path.name) match { case -1 => Int.MaxValue; case other => other }
       }
     }
-    else content.sortBy {
-      case d: Document => "A-" + d.path.name 
-      case t: DocumentTree => "B-" + t.path.name 
+    else otherDocs.sortBy {
+      case d: Document => "A-" + d.path.name
+      case t: DocumentTree => "B-" + t.path.name
     }
-  
+
+    titleDoc ++ sorted
+  }
+
 }

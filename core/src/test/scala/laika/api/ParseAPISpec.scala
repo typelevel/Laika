@@ -386,6 +386,23 @@ class ParseAPISpec extends FlatSpec
       tree.content map (_.path.name) should be (List("lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
     }
   }
+
+  it should "always move title documents to the front, even with a custom navigation order" in {
+    new TreeParser {
+      val dirs = """- apple.md:name
+                   |- orange.md:name
+                   |+ colors
+                   |  - green.md:name
+                   |- lemon.md:name
+                   |- title.md:name
+                   |+ shapes
+                   |  - rectangle.md:name
+                   |- cherry.md:name
+                   |- directory.conf:order""".stripMargin
+      val tree = Parse as Markdown fromInputTree builder(dirs)
+      tree.content map (_.path.name) should be (List("title.md","lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
+    }
+  }
   
   it should "allow parallel parser execution" in {
     new TreeParser {
