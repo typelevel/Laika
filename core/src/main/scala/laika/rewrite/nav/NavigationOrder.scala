@@ -17,7 +17,7 @@
 package laika.rewrite.nav
 
 import com.typesafe.config.Config
-import laika.ast.{Document, DocumentTree, TreeContent}
+import laika.ast._
 
 /** Responsible for applying the navigation order to the 
  *  contents of a document tree, either based on user-specified
@@ -30,10 +30,28 @@ object NavigationOrder {
   
   import scala.collection.JavaConverters._
   
-  def applyTo (content: Seq[TreeContent], config: Config): Seq[TreeContent] = {
+  def applyTo (content: Seq[Cursor], config: Config, parentPosition: TreePosition): Seq[Cursor] = {
+
+    def reAssignPosition (cursor: Cursor, position: TreePosition, configF: Config => Config = identity): Cursor = cursor match {
+      case doc: DocumentCursor => doc.copy(
+        position = position,
+        target = doc.target.copy(position = position),
+        config = configF(cursor.config)
+      )
+      case tree: TreeCursor => tree.copy(
+        position = position,
+        target = tree.target.copy(position = position),
+        config = configF(cursor.config)
+      )
+    }
+
+    def reAssignPositions (content: Seq[Cursor]): Seq[Cursor] =
+      content.zipWithIndex.map {
+        case (cursor, index) => reAssignPosition(cursor, parentPosition.forChild(index + 1))
+      }
 
     val (titleDoc, otherDocs) = content.partition {
-      case d: Document if d.path.basename == "title" => true
+      case d: DocumentCursor if d.path.basename == "title" => true
       case _ => false
     }
 
@@ -45,11 +63,12 @@ object NavigationOrder {
       }
     }
     else otherDocs.sortBy {
-      case d: Document => "A-" + d.path.name
-      case t: DocumentTree => "B-" + t.path.name
+      case d: DocumentCursor => "A-" + d.path.name
+      case t: TreeCursor => "B-" + t.path.name
     }
 
-    titleDoc ++ sorted
+    titleDoc.map(reAssignPosition(_, parentPosition, AutonumberConfig.withoutSectionNumbering)) ++
+      reAssignPositions(sorted)
   }
 
 }

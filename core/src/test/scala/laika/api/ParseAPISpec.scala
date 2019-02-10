@@ -401,6 +401,15 @@ class ParseAPISpec extends FlatSpec
                    |- directory.conf:order""".stripMargin
       val tree = Parse as Markdown fromInputTree builder(dirs)
       tree.content map (_.path.name) should be (List("title.md","lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
+      tree.content map (_.position) should be (List(
+        TreePosition(Nil),
+        TreePosition(Seq(1)),
+        TreePosition(Seq(2)),
+        TreePosition(Seq(3)),
+        TreePosition(Seq(4)),
+        TreePosition(Seq(5)),
+        TreePosition(Seq(6)),
+      ))
     }
   }
   

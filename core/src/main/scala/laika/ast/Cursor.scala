@@ -20,14 +20,14 @@ import com.typesafe.config.Config
 import laika.ast.Path.Root
 import laika.collection.TransitionalCollectionOps._
 import laika.rewrite.ReferenceResolver
-import laika.rewrite.nav.NavigationOrder
+import laika.rewrite.nav.{AutonumberConfig, NavigationOrder}
 
 /** A cursor provides the necessary context during a rewrite operation.
   * The stateless document tree cannot provide access to parent or sibling
   * nodes in the tree, therefore a temporary cursor instance is created
   * during a rewrite operation for this purpose.
   */
-trait Cursor {
+sealed trait Cursor {
 
   /** The type of the target this cursor points to.
     */
@@ -37,6 +37,10 @@ trait Cursor {
     * (a markup document or a sub-tree).
     */
   def target: Target
+
+  /** The full, absolute path of the target of this cursor in the (virtual) document tree
+    */
+  def path: Path
 
   /** The root cursor for this document tree.
     */
@@ -68,6 +72,8 @@ case class TreeCursor(target: DocumentTree,
                       position: TreePosition) extends Cursor {
 
   type Target = DocumentTree
+
+  val path: Path = target.path
   
   lazy val root: TreeCursor = parent.fold(this)(_.root)
 
@@ -92,14 +98,14 @@ case class TreeCursor(target: DocumentTree,
     */
   def rewriteTarget (rule: DocumentCursor => RewriteRule): DocumentTree = {
       
-    val rewrittenContent = children map {
+    val sortedContent = NavigationOrder.applyTo(children, config, position)
+
+    val rewrittenContent = sortedContent map {
       case doc: DocumentCursor => doc.rewriteTarget(rule(doc))
-      case tree: TreeCursor => tree.rewriteTarget(rule)   
+      case tree: TreeCursor => tree.rewriteTarget(rule)
     }
-    
-    val sortedContent = NavigationOrder.applyTo(rewrittenContent, config)
-    
-    target.copy(content = sortedContent, position = position)  
+
+    target.copy(content = rewrittenContent, position = position)
   }
 
 }
@@ -127,8 +133,10 @@ case class DocumentCursor (target: Document,
                            config: Config,
                            position: TreePosition) extends Cursor { self =>
                                  
-  type Target = Document   
-  
+  type Target = Document
+
+  val path: Path = target.path
+
   lazy val root: TreeCursor = parent.root
 
   /** Returns a new, rewritten document model based on the specified rewrite rule.

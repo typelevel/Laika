@@ -16,7 +16,7 @@
 
 package laika.rewrite.nav
 
-import com.typesafe.config.Config
+import com.typesafe.config.{Config, ConfigValueFactory}
 
 /** Configuration for autonumbering of documents and sections.
  */
@@ -25,7 +25,23 @@ case class AutonumberConfig (documents: Boolean, sections: Boolean, maxDepth: In
 case class ConfigurationException (msg: String) extends RuntimeException(msg)
 
 object AutonumberConfig {
-  
+
+  /** Disables section numbering for the specified config instance.
+    * Retains the existing value for auto-numbering of documents.
+    */
+  def withoutSectionNumbering (config: Config): Config = {
+    if (config.hasPath("autonumbering.scope")) {
+      config.getString("autonumbering.scope") match {
+        case "documents" => config
+        case "sections"  => config.withValue("autonumbering.scope", ConfigValueFactory.fromAnyRef("none"))
+        case "all"       => config.withValue("autonumbering.scope", ConfigValueFactory.fromAnyRef("documents"))
+        case "none"      => config
+        case other       => throw ConfigurationException("Unsupported value for key 'autonumbering.scope': " + other)
+      }
+    }
+    else config
+  }
+
   /** Tries to obtain the autonumbering configuration
    *  from the specified configuration instance or returns
    *  the default configuration if not found.
