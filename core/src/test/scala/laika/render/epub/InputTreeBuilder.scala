@@ -48,6 +48,16 @@ trait NestedTree extends InputTreeBuilder {
   val input = tree(Path.Root, 1, doc1, subtree)
 }
 
+trait NestedTreeWithTitleDoc extends InputTreeBuilder {
+
+  val titleDoc = Document(Path.Root / "sub" / "title", rootElem(0))
+  val doc1 = Document(Path.Root / "foo", rootElem(2))
+  val doc2 = Document(Path.Root / "sub" / "bar", rootElem(3))
+  val subtree = tree(Path.Root / "sub", 4, doc2)
+
+  val input = tree(Path.Root, 1, doc1, subtree.copy(content = titleDoc +: subtree.content))
+}
+
 trait TwoNestedTrees extends InputTreeBuilder {
 
   val doc1 = Document(Path.Root / "foo", rootElem(2))

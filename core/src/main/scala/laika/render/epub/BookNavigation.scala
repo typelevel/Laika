@@ -74,19 +74,23 @@ object BookNavigation {
       }
 
     if (depth == 0) Nil
-    else for (nav <- tree.content if hasContent(depth - 1)(nav)) yield nav match {
-      case doc: Document =>
-        val title = if (doc.title.nonEmpty) SpanSequence(doc.title).extractText else doc.name
-        val parentPos = pos.next
-        val children = forSections(doc.path, doc.sections, depth - 1, pos)
-        BookNavigationLink(title, fullPath(doc.path, forceXhtml = true), parentPos, children)
-      case subtree: DocumentTree =>
-        val title = if (subtree.title.nonEmpty) SpanSequence(subtree.title).extractText else subtree.name
-        val parentPos = pos.next
-        val children = forTree(subtree, depth - 1, pos)
-        val link = fullPath(subtree.content.collectFirst{ case d: Document => d }.get.path, forceXhtml = true)
-        if (depth == 1) BookNavigationLink(title, link, parentPos, children)
-        else BookSectionHeader(title, parentPos, children)
+    else {
+      val contents = if (tree.titleDocument.isDefined) tree.content.tail else tree.content
+      for (nav <- contents if hasContent(depth - 1)(nav)) yield nav match {
+        case doc: Document =>
+          val title = if (doc.title.nonEmpty) SpanSequence(doc.title).extractText else doc.name
+          val parentPos = pos.next
+          val children = forSections(doc.path, doc.sections, depth - 1, pos)
+          BookNavigationLink(title, fullPath(doc.path, forceXhtml = true), parentPos, children)
+        case subtree: DocumentTree =>
+          val title = if (subtree.title.nonEmpty) SpanSequence(subtree.title).extractText else subtree.name
+          val parentPos = pos.next
+          val children = forTree(subtree, depth - 1, pos)
+          val targetDoc = subtree.titleDocument.orElse(subtree.content.collectFirst{ case d: Document => d }).get
+          val link = fullPath(targetDoc.path, forceXhtml = true)
+          if (depth == 1 || subtree.titleDocument.nonEmpty) BookNavigationLink(title, link, parentPos, children)
+          else BookSectionHeader(title, parentPos, children)
+      }
     }
   }
 

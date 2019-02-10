@@ -74,6 +74,26 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
     renderer.render(input, uuid, 2) shouldBe renderer.fileContent(uuid, "Tree 1", result)
   }
 
+  it should "render a tree with a nested tree with a title document" in new NestedTreeWithTitleDoc {
+    val result =
+      """      <ol class="toc">
+        |        <li id="toc-li-0">
+        |          <a href="content/foo.xhtml">Title 2</a>
+        |
+        |        </li>
+        |        <li id="toc-li-1">
+        |          <a href="content/sub/title.xhtml">Title 0</a>
+        |      <ol class="toc">
+        |        <li id="toc-li-2">
+        |          <a href="content/sub/bar.xhtml">Title 3</a>
+        |
+        |        </li>
+        |      </ol>
+        |        </li>
+        |      </ol>""".stripMargin
+    renderer.render(input, uuid, 2) shouldBe renderer.fileContent(uuid, "Tree 1", result)
+  }
+
   it should "not render a nested tree if the depth is 1" in new NestedTree {
     val result =
     """      <ol class="toc">
