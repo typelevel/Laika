@@ -268,7 +268,9 @@ class StandardDirectiveSpec extends FlatSpec
     import Path._
     
     val pathUnderTest = Root / "sub2" / "doc7"
-    
+
+    def hasTitleDocs: Boolean = false
+
     def header (level: Int, title: Int, style: String = "section") =
       Header(level,List(Text("Section "+title)),Id("title"+title) + Styles(style))
       
@@ -279,10 +281,14 @@ class StandardDirectiveSpec extends FlatSpec
       header(2,4) ::
       Nil
     )
+
+    def titleDoc (path: Path): Seq[Document] =
+      if (!hasTitleDocs || path == Root) Nil
+      else Seq(Document(path / "title", sectionsWithoutTitle, config = ConfigFactory.parseString("title: TitleDoc")))
     
-    def docs (path: Path, nums: Int*) = nums map { 
+    def docs (path: Path, nums: Int*): Seq[Document] = titleDoc(path) ++ (nums map {
       n => Document(path / ("doc"+n), sectionsWithoutTitle, config = ConfigFactory.parseString("title: Doc "+n))
-    }
+    })
 
     def buildTree (template: TemplateDocument, markup: Document) = {
       DocumentTree(Root, docs(Root, 1,2) ++ List(
@@ -310,6 +316,8 @@ class StandardDirectiveSpec extends FlatSpec
     val treeUnderTest = Root / "sub2"
     
     def title: Option[String] = None
+
+    def hasTitleDocLinks: Boolean = false
     
     def sectionCrossLink (path: Path, section: Int, level: Int) = 
       Paragraph(Seq(CrossLink(List(txt("Section "+section)), "title"+section, PathInfo.fromPath(path, treeUnderTest))), Styles("toc","level"+level))
@@ -347,11 +355,15 @@ class StandardDirectiveSpec extends FlatSpec
         BulletList(List(
           internalLink(1, level+1),
           internalLink(2, level+1)
-        ), StringBullet("*"))), StringBullet("*"))) 
+        ), StringBullet("*"))), StringBullet("*")))
+
+    def treeTitle (treeNum: Int) =
+      if (!hasTitleDocLinks) Paragraph(List(Text("Tree "+treeNum)), Styles("toc","level1"))
+      else Paragraph(Seq(CrossLink(List(txt("TitleDoc")), "", PathInfo.fromPath(Root / ("sub"+treeNum) / "title", treeUnderTest))), Styles("toc","level1"))
       
     def treeList (treeNum: Int, docStart: Int) = 
       BulletListItem(List(
-        Paragraph(List(Text("Tree "+treeNum)), Styles("toc","level1")), 
+        treeTitle(treeNum),
         BulletList(List(
           docList(Root / ("sub"+treeNum) / ("doc"+docStart),     docStart,   2),
           docList(Root / ("sub"+treeNum) / ("doc"+(docStart+1)), docStart+1, 2)
@@ -360,28 +372,28 @@ class StandardDirectiveSpec extends FlatSpec
       
     def rootList = 
       BulletList(List(
-        docList(Root / ("doc1"), 1, 1),
-        docList(Root / ("doc2"), 2, 1),
+        docList(Root / "doc1", 1, 1),
+        docList(Root / "doc2", 2, 1),
         treeList(1, 3),
         treeList(2, 5)
       ), StringBullet("*"))
       
     def currentList =
       BulletList(List(
-        docList(Root / ("sub2") / ("doc5"), 5, 1),
-        docList(Root / ("sub2") / ("doc6"), 6, 1)
+        docList(Root / "sub2" / "doc5", 5, 1),
+        docList(Root / "sub2" / "doc6", 6, 1)
       ) ++ extraDoc(2,1), StringBullet("*"))
       
     def firstTree =
       BulletList(List(
-        docList(Root / ("sub1") / ("doc3"), 3, 1),
-        docList(Root / ("sub1") / ("doc4"), 4, 1)
+        docList(Root / "sub1" / "doc3", 3, 1),
+        docList(Root / "sub1" / "doc4", 4, 1)
       ), StringBullet("*"))
       
     def firstTreeFirstLevel =
       BulletList(List(
-        docListFirstLevel(Root / ("sub1") / ("doc3"), 3, 1),
-        docListFirstLevel(Root / ("sub1") / ("doc4"), 4, 1)
+        docListFirstLevel(Root / "sub1" / "doc3", 3, 1),
+        docListFirstLevel(Root / "sub1" / "doc4", 4, 1)
       ), StringBullet("*"))
      
     def currentDoc =
@@ -420,8 +432,20 @@ class StandardDirectiveSpec extends FlatSpec
       
       parseAndRewrite(template, markup) should be (result(rootList))  
     }
-  } 
-  
+  }
+
+  it should "produce a table of content starting from the root tree containing title documents" in {
+    new TreeModel with TocModel {
+
+      override val hasTitleDocs = true
+      override val hasTitleDocLinks = true
+
+      val template = """aaa @:toc. bbb {{document.content}}"""
+
+      parseAndRewrite(template, markup) should be (result(rootList))
+    }
+  }
+
   it should "produce a table of content starting from the root tree with a title" in {
     new TreeModel with TocModel {
       

@@ -87,12 +87,15 @@ object TocGenerator {
       case _:Document => true
       case tree: DocumentTree => tree.content.exists(hasContent)
     }
-    
-    def treeTitle (tree: DocumentTree, level: Int): Paragraph = 
-      treeTitleDoc.fold(
+
+    def treeTitle (tree: DocumentTree, level: Int): Paragraph =
+      treeTitleDoc.orElse(tree.titleDocument.map(_.path.name)).fold(
         Paragraph(titleOrName(tree), options = styles(level))
-      )( doc => 
-        Paragraph(List(CrossLink(titleOrName(tree), "", PathInfo.fromPath(tree.path / doc, refPath.parent))), options = styles(level))
+      )( doc =>
+        if (tree.path / doc == refPath)
+          Paragraph(titleOrName(tree), options = styles(level) + Styles("active"))
+        else
+          Paragraph(List(CrossLink(titleOrName(tree), "", PathInfo.fromPath(tree.path / doc, refPath.parent))), options = styles(level))
       )
     
     def docTitle (document: Document, level: Int): Paragraph =
@@ -101,24 +104,25 @@ object TocGenerator {
       else
         Paragraph(List(CrossLink(titleOrName(document), "", PathInfo.fromPath(document.path, refPath.parent))), options = styles(level))
     
-    def navigatablesToList (navigatables: Seq[Navigatable], curLevel: Int): List[Block] = {
+    def treeToBulletList (tree: DocumentTree, curLevel: Int): List[Block] = {
       if (curLevel > maxLevel) Nil else {
-        val items = for (navigatable <- navigatables if hasContent(navigatable)) yield navigatable match {
-          case doc: Document => 
+        val contents = if (tree.titleDocument.isDefined) tree.content.tail else tree.content
+        val items = for (content <- contents if hasContent(content)) yield content match {
+          case doc: Document =>
             val title = docTitle(doc, curLevel)
             val sections = fromDocument(doc, curLevel + 1, maxLevel, refPath)
             BulletListItem(title :: sections, bullet)
-          case tree: DocumentTree => 
+          case tree: DocumentTree =>
             val title = treeTitle(tree, curLevel)
-            val subtrees = navigatablesToList(tree.content, curLevel + 1)
+            val subtrees = treeToBulletList(tree, curLevel + 1)
             BulletListItem(title :: subtrees, bullet)
         }
-          
+
         List(BulletList(items, bullet))
       }
     }
-    
-    navigatablesToList(tree.content, curLevel)
+
+    treeToBulletList(tree, curLevel)
   }
     
   
