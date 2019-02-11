@@ -164,18 +164,15 @@ object PDF extends PDF(XSLFO, None, None) {
     * that the PDF renderer will use if no custom
     * factory is specified.
     */
-  lazy val defaultFopFactory = new FopFactoryBuilder(new File(".").toURI).build()
+  lazy val defaultFopFactory: FopFactory = new FopFactoryBuilder(new File(".").toURI).build
 
   /** Configuration options for the generated PDF output.
     *
-    *  @param insertTitles indicates whether a title will be inserted for each tree, subtree,
-    *  and document, relying on titles specified in the configuration file for the tree
-    *  or document, but only if there is no `Title` element in the document already
     *  @param bookmarkDepth the number of levels bookmarks should be generated for, use 0 to switch off bookmark generation
     *  @param tocDepth the number of levels to generate a table of contents for, use 0 to switch off toc generation
     *  @param tocTitle the title for the table of contents
     */
-  case class Config(insertTitles: Boolean = true, bookmarkDepth: Int = Int.MaxValue, tocDepth: Int = Int.MaxValue, tocTitle: Option[String] = None)
+  case class Config(bookmarkDepth: Int = Int.MaxValue, tocDepth: Int = Int.MaxValue, tocTitle: Option[String] = None)
 
   /** Companion for the creation of `PDFConfig` instances.
     */
