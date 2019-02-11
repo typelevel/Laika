@@ -97,6 +97,39 @@ when you intend to use the `toc` directive.
 
 
 
+Directory Structure
+-------------------
+
+In contrast to many other tools Laika supports an arbitrarily deep directory structure
+for organizing source files.
+
+The most common scenarios are:
+
+* **Single File**: there is one input and one output file for all formats, which is a
+  convenient setup for very small sites and e-books. But note that in the case of EPUB
+  output, the EPUB container will also only contain one XHTML file which might have
+  a negative influence on loading speed of e-readers.
+  
+* **One File per Chapter**: Here each file would represent a chapter of the site or e-book.
+  In case of HTML each input markup file will correspond to one HTML file. For PDF the
+  inputs will get linearised into a single binary file. For EPUB each input file will
+  become a separate file inside the EPUB container. The files will form a single book
+  with linear navigation, but the division into smaller files may help with loading speed.
+  
+* **One Directory per Chapter**: For larger e-books and sites you can use an entire directory
+  for each chapter, where each file within those directories represents a section of that 
+  chapter. In this case you can optionally add a file with `title` as the basename (e.g. `title.md`)
+  to each directory that represents the introductory section of the corresponding chapter. 
+  It would also appears on a level above the other chapter documents in the navigation, 
+  serving as a section header and separator.
+  
+* **One Directory per Book Part**: For very large books you can also choose to have two layers
+  of directories, the first representing a larger part of the book and the lower layer
+  representing chapters within that part. This would also give you an additional layer of
+  nesting in the navigation.
+  
+  
+
 Document Fragments
 ------------------
 

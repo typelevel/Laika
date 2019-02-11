@@ -352,7 +352,6 @@ or programmatically on the `PDF` renderer.
 In `directory.conf` you can set the following options:
 
     pdf {
-      insertTitles = false
       bookmarks.depth = 3
       toc.depth = 3
       toc.title = "Contents"
@@ -361,7 +360,6 @@ In `directory.conf` you can set the following options:
 The same options are available programmatically through the `withConfig` method on the `PDF` renderer:
 
     val config = PDFConfig(
-      insertTitles = false, 
       bookmarkDepth = 3,
       tocDepth = 3,
       tocTitle = Some("Contents")
@@ -372,11 +370,6 @@ The same options are available programmatically through the `withConfig` method 
 
 These properties control the following aspects of the rendering:
  
-* `insertTitles` inserts a title per directory and markup file into the document to give it more
-  structure, since all documents get merged into a single target PDF. Tree titles can
-  be set per directory with the `title` attribute in the file `directory.conf`, document titles
-  in the configuration header of the markup document, unless there is already a title element
-  in the content of the document. The default value is `true`.
 * `bookmarkDepth` the number of levels bookmarks should be generated for, 
   you can use 0 to switch off bookmark generation entirely. Every level of the tree hierarchy will
   be considered for a bookmark entry: directories, files and sections within files.
