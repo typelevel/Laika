@@ -35,6 +35,8 @@ object HtmlRenderExtensions {
     case FootnoteLink(ref,label,opt) => out <<@ ("a",opt + Styles("footnote"),"href"->("#"+ref),"epub:type"->"noteref") << "[" << label << "]</a>"
     case Citation(_,content,opt) => out <<@ ("aside",opt + Styles("citation"),"epub:type"->"footnote") <<|> content <<| "</aside>"
     case Footnote(_,content,opt) => out <<@ ("aside",opt + Styles("footnote"),"epub:type"->"footnote") <<|> content <<| "</aside>"
+    case LineBreak(opt)          => out << "<br/>"
+    case Rule(opt)               => out <<@/ ("hr",opt)
     case Image(text,uri,width,height,title,opt) =>
       def sizeAttr (size: Option[Size], styleName: String): (Option[String],Option[String]) = size map {
         case Size(amount, "px") => (Some(amount.toInt.toString), None)
