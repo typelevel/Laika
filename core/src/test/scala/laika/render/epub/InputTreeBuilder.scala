@@ -39,6 +39,14 @@ trait TwoDocuments extends InputTreeBuilder {
   val input = tree(Path.Root, 1, doc1, doc2)
 }
 
+trait DocumentPlusTitle extends InputTreeBuilder {
+
+  val doc1 = Document(Path.Root / "title", rootElem(2))
+  val doc2 = Document(Path.Root / "bar", rootElem(3))
+
+  val input = tree(Path.Root, 1, doc1, doc2)
+}
+
 trait NestedTree extends InputTreeBuilder {
 
   val doc1 = Document(Path.Root / "foo", rootElem(2))

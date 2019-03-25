@@ -32,7 +32,7 @@ class OPFRenderer {
   /** Inserts the specified spine references into the OPF document template
     * and returns the content of the entire OPF file.
     */
-  def fileContent (uuid: String, title: String, timestamp: String, docRefs: Seq[DocumentRef]): String =
+  def fileContent (uuid: String, title: String, timestamp: String, titleDoc: Option[DocumentRef], docRefs: Seq[DocumentRef]): String =
     s"""<?xml version="1.0" encoding="UTF-8"?>
        |<package
        |    version="3.0"
@@ -49,9 +49,11 @@ class OPFRenderer {
        |  <manifest>
        |    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
        |    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav" />
-       |${docRefs.map { ref => s"""    <item id="${ref.id}" href="${ref.link}" media-type="${ref.mediaType}" />""" }.mkString("\n")}
+       |${(titleDoc.toSeq ++ docRefs).map { ref => s"""    <item id="${ref.id}" href="${ref.link}" media-type="${ref.mediaType}" />""" }.mkString("\n")}
        |  </manifest>
        |  <spine toc="ncx">
+       |${titleDoc.filter(_.isTitle).map { ref => s"""    <itemref idref="${ref.id}" />""" }.getOrElse("")}
+       |    <itemref idref="nav" />
        |${docRefs.filter(_.isSpine).map { ref => s"""    <itemref idref="${ref.id}" />""" }.mkString("\n")}
        |  </spine>
        |  <guide>
@@ -60,7 +62,7 @@ class OPFRenderer {
        |</package>
     """.stripMargin
 
-  private case class DocumentRef (path: Path, mediaType: String, isSpine: Boolean, forceXhtml: Boolean = false) {
+  private case class DocumentRef (path: Path, mediaType: String, isSpine: Boolean, isTitle: Boolean = false, forceXhtml: Boolean = false) {
 
     val link = BookNavigation.fullPath(path, forceXhtml)
 
@@ -73,19 +75,20 @@ class OPFRenderer {
     */
   def render (tree: DocumentTree, uuid: String, publicationTime: Instant): String = {
 
+    val titleDoc = tree.titleDocument.map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = false, isTitle = true, forceXhtml = true))
     def spineRefs (root: DocumentTree): Seq[DocumentRef] = {
       root.content.flatMap {
         case sub: DocumentTree => spineRefs(sub)
-        case doc: Document => Seq(DocumentRef(doc.path, "application/xhtml+xml", isSpine = true, forceXhtml = true))
+        case doc: Document if !tree.titleDocument.map(_.path).contains(doc.path) => Seq(DocumentRef(doc.path, "application/xhtml+xml", isSpine = true, forceXhtml = true))
+        case _ => Nil
       } ++
       root.additionalContent.filter(c => MimeTypes.supportedTypes.contains(c.path.suffix)).collect {
         case StaticDocument(input) => DocumentRef(input.path, MimeTypes.supportedTypes(input.path.suffix), isSpine = false)
       }
     }
-
     val title = if (tree.title.isEmpty) "UNTITLED" else SpanSequence(tree.title).extractText
     val formattedPubTime = DateTimeFormatter.ISO_INSTANT.format(publicationTime.truncatedTo(ChronoUnit.SECONDS))
-    fileContent(uuid, title, formattedPubTime, spineRefs(tree))
+    fileContent(uuid, title, formattedPubTime, titleDoc, spineRefs(tree))
   }
 
 
