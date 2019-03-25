@@ -25,7 +25,7 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
   val renderer = new HtmlNavRenderer
 
   "The Navigation Renderer" should "render an empty tree" in new InputTreeBuilder {
-    renderer.render(tree(Path.Root, 1), uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", "")
+    renderer.render(tree(Path.Root, 1), uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", "", "")
   }
 
   it should "render a tree with a single document" in new SingleDocument {
@@ -36,10 +36,10 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
       |
       |        </li>
       |      </ol>""".stripMargin
-    renderer.render(input, uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result)
+    renderer.render(input, uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", "", result)
   }
 
-  it should "render a tree with a two documents" in new TwoDocuments {
+  it should "render a tree with two documents" in new TwoDocuments {
     val result =
     """      <ol class="toc">
      |        <li id="toc-li-0">
@@ -51,7 +51,19 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
      |
      |        </li>
      |      </ol>""".stripMargin
-    renderer.render(input, uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result)
+    renderer.render(input, uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", "", result)
+  }
+
+  it should "render a tree with a single document and a CSS file" in new DocumentPlusStyle {
+    val result =
+      """      <ol class="toc">
+        |        <li id="toc-li-0">
+        |          <a href="content/foo.xhtml">Title 2</a>
+        |
+        |        </li>
+        |      </ol>""".stripMargin
+    val cssLink = """<link rel="stylesheet" type="text/css" href="content/test-style.css" />"""
+    renderer.render(input, uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", cssLink, result)
   }
 
   it should "render a tree with a nested tree" in new NestedTree {
@@ -71,7 +83,7 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
         |      </ol>
         |        </li>
         |      </ol>""".stripMargin
-    renderer.render(input, uuid, 2) shouldBe renderer.fileContent(uuid, "Tree 1", result)
+    renderer.render(input, uuid, 2) shouldBe renderer.fileContent(uuid, "Tree 1", "", result)
   }
 
   it should "render a tree with a nested tree with a title document" in new NestedTreeWithTitleDoc {
@@ -91,7 +103,7 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
         |      </ol>
         |        </li>
         |      </ol>""".stripMargin
-    renderer.render(input, uuid, 2) shouldBe renderer.fileContent(uuid, "Tree 1", result)
+    renderer.render(input, uuid, 2) shouldBe renderer.fileContent(uuid, "Tree 1", "", result)
   }
 
   it should "not render a nested tree if the depth is 1" in new NestedTree {
@@ -102,7 +114,7 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
      |
      |        </li>
      |      </ol>""".stripMargin
-    renderer.render(input, uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result)
+    renderer.render(input, uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", "", result)
   }
 
   it should "render a document with sections when the depth is 2" in new DocumentsWithSections {
@@ -135,7 +147,7 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
         |      </ol>
         |        </li>
         |      </ol>""".stripMargin
-    renderer.render(input, uuid, 2) shouldBe renderer.fileContent(uuid, "Tree 1", result)
+    renderer.render(input, uuid, 2) shouldBe renderer.fileContent(uuid, "Tree 1", "", result)
   }
 
   it should "not render a document with sections when the depth is 1" in new DocumentsWithSections {
@@ -149,7 +161,7 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
      |
      |        </li>
      |      </ol>""".stripMargin
-    renderer.render(input, uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result)
+    renderer.render(input, uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", "", result)
   }
 
 }

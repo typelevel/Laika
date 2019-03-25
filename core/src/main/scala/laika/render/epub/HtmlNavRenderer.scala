@@ -17,6 +17,7 @@
 package laika.render.epub
 
 import laika.ast._
+import laika.render.epub.StyleSupport.collectStyles
 
 /** Renders the entire content of an EPUB HTML navigation file.
   *
@@ -28,7 +29,7 @@ class HtmlNavRenderer {
   /** Inserts the specified (pre-rendered) navPoints into the NCX document template
     * and returns the content of the entire NCX file.
     */
-  def fileContent (uuid: String, title: String, navItems: String): String =
+  def fileContent (uuid: String, title: String, styles: String, navItems: String): String =
     s"""<?xml version="1.0" encoding="UTF-8"?>
        |<!DOCTYPE html>
        |<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
@@ -36,6 +37,7 @@ class HtmlNavRenderer {
        |    <meta charset="utf-8" />
        |    <meta name="generator" content="laika" />
        |    <title>$title</title>
+       |    $styles
        |  </head>
        |  <body>
        |    <nav epub:type="toc" id="toc">
@@ -91,8 +93,11 @@ class HtmlNavRenderer {
   def render (tree: DocumentTree, uuid: String, depth: Int): String = {
     val title = if (tree.title.isEmpty) "UNTITLED" else SpanSequence(tree.title).extractText
     val bookNav = BookNavigation.forTree(tree, depth)
+    val styles = collectStyles(tree).map { input =>
+      s"""<link rel="stylesheet" type="text/css" href="content${input.path.toString}" />"""
+    }.mkString("\n    ")
     val renderedNavPoints = navItems(bookNav)
-    fileContent(uuid, title, renderedNavPoints)
+    fileContent(uuid, title, styles, renderedNavPoints)
   }
 
 

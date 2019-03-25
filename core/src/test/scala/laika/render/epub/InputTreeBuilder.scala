@@ -47,6 +47,14 @@ trait DocumentPlusTitle extends InputTreeBuilder {
   val input = tree(Path.Root, 1, doc1, doc2)
 }
 
+trait DocumentPlusStyle extends InputTreeBuilder {
+
+  val doc1 = Document(Path.Root / "foo", rootElem(2))
+  val css = StaticDocument(Input.fromString("{}", Path.Root / "test-style.css"))
+
+  val input = tree(Path.Root, 1, doc1).copy(additionalContent = Seq(css))
+}
+
 trait NestedTree extends InputTreeBuilder {
 
   val doc1 = Document(Path.Root / "foo", rootElem(2))
