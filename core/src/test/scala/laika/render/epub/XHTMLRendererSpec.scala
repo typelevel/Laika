@@ -93,10 +93,6 @@ class XHTMLRendererSpec extends FlatSpec with Matchers with ModelBuilder {
     }
   }
 
-  it should "render a footnote link with an epub:type attribute" in {
-
-  }
-
   it should "render a paragraph containing a citation link with an epub:type attribute" in {
     val elem = p(txt("some "), CitationLink("ref","label"), txt(" span"))
     Render.as(EPUB.XHTML).from(elem).toString should be ("""<p>some <a class="citation" href="#ref" epub:type="noteref">[label]</a> span</p>""")
