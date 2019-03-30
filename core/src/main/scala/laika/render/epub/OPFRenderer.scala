@@ -16,11 +16,8 @@
 
 package laika.render.epub
 
-import java.time.Instant
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
-
 import laika.ast._
+import laika.format.EPUB
 
 /** Renders the content of an EPUB Package document (OPF).
   *
@@ -32,7 +29,7 @@ class OPFRenderer {
   /** Inserts the specified spine references into the OPF document template
     * and returns the content of the entire OPF file.
     */
-  def fileContent (uuid: String, title: String, timestamp: String, titleDoc: Option[DocumentRef], docRefs: Seq[DocumentRef]): String =
+  def fileContent (identifier: String, language: String, title: String, timestamp: String, titleDoc: Option[DocumentRef], docRefs: Seq[DocumentRef], authors: Seq[String] = Nil): String =
     s"""<?xml version="1.0" encoding="UTF-8"?>
        |<package
        |    version="3.0"
@@ -40,10 +37,11 @@ class OPFRenderer {
        |    unique-identifier="epub-id-1"
        |    prefix="ibooks: http://vocabulary.itunes.apple.com/rdf/ibooks/vocabulary-extensions-1.0/">
        |  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
-       |    <dc:identifier id="epub-id-1">urn:uuid:$uuid</dc:identifier>
+       |    <dc:identifier id="epub-id-1">$identifier</dc:identifier>
        |    <dc:title>$title</dc:title>
        |    <dc:date id="epub-date">$timestamp</dc:date>
-       |    <dc:language>en-GB</dc:language>
+       |    <dc:language>$language</dc:language>
+       |${authors.map(author => s"    <dc:creator>$author</dc:creator>").mkString("\n")}
        |    <meta property="dcterms:modified">$timestamp</meta>
        |  </metadata>
        |  <manifest>
@@ -73,7 +71,7 @@ class OPFRenderer {
   /** Renders the content of an EPUB Package document (OPF) generated from
     * the specified document tree.
     */
-  def render (tree: DocumentTree, uuid: String, publicationTime: Instant): String = {
+  def render (tree: DocumentTree, config: EPUB.Config): String = {
 
     val titleDoc = tree.titleDocument.map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = false, isTitle = true, forceXhtml = true))
     def spineRefs (root: DocumentTree): Seq[DocumentRef] = {
@@ -87,8 +85,7 @@ class OPFRenderer {
       }
     }
     val title = if (tree.title.isEmpty) "UNTITLED" else SpanSequence(tree.title).extractText
-    val formattedPubTime = DateTimeFormatter.ISO_INSTANT.format(publicationTime.truncatedTo(ChronoUnit.SECONDS))
-    fileContent(uuid, title, formattedPubTime, titleDoc, spineRefs(tree))
+    fileContent(config.identifier, config.language.toLanguageTag, title, config.formattedDate, titleDoc, spineRefs(tree), config.metadata.authors)
   }
 
 

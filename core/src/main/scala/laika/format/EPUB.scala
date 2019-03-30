@@ -16,6 +16,11 @@
 
 package laika.format
 
+import java.time.Instant
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import java.util.{Locale, UUID}
+
 import laika.ast._
 import laika.config.RenderConfig
 import laika.factory.{RenderFormat, RenderResultProcessor}
@@ -79,10 +84,16 @@ object EPUB extends RenderResultProcessor[HTMLWriter] {
 
   /** Configuration options for the generated EPUB output.
     *
+    *  @param metadata the metadata associated with the document
     *  @param tocDepth the number of levels to generate a table of contents for
     *  @param tocTitle the title for the table of contents
     */
-  case class Config(tocDepth: Int = Int.MaxValue, tocTitle: Option[String] = None)
+  case class Config(metadata: DocumentMetadata = DocumentMetadata(), tocDepth: Int = Int.MaxValue, tocTitle: Option[String] = None) {
+    lazy val identifier: String = metadata.identifier.getOrElse(s"urn:uuid:${UUID.randomUUID.toString}")
+    lazy val date: Instant = metadata.date.getOrElse(Instant.now)
+    lazy val formattedDate: String = DateTimeFormatter.ISO_INSTANT.format(date.truncatedTo(ChronoUnit.SECONDS))
+    lazy val language: Locale = metadata.language.getOrElse(Locale.getDefault)
+  }
 
   /** Companion for the creation of `Config` instances.
     */

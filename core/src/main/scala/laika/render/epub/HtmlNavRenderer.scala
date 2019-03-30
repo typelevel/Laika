@@ -29,7 +29,7 @@ class HtmlNavRenderer {
   /** Inserts the specified (pre-rendered) navPoints into the NCX document template
     * and returns the content of the entire NCX file.
     */
-  def fileContent (uuid: String, title: String, styles: String, navItems: String): String =
+  def fileContent (title: String, styles: String, navItems: String): String =
     s"""<?xml version="1.0" encoding="UTF-8"?>
        |<!DOCTYPE html>
        |<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
@@ -90,14 +90,14 @@ class HtmlNavRenderer {
     * trees, documents and sections.
     * The configuration key for setting the recursion depth is `epub.toc.depth`.
     */
-  def render (tree: DocumentTree, uuid: String, depth: Int): String = {
+  def render (tree: DocumentTree, depth: Int): String = {
     val title = if (tree.title.isEmpty) "UNTITLED" else SpanSequence(tree.title).extractText
     val bookNav = BookNavigation.forTree(tree, depth)
     val styles = collectStyles(tree).map { input =>
       s"""<link rel="stylesheet" type="text/css" href="content${input.path.toString}" />"""
     }.mkString("\n    ")
     val renderedNavPoints = navItems(bookNav)
-    fileContent(uuid, title, styles, renderedNavPoints)
+    fileContent(title, styles, renderedNavPoints)
   }
 
 

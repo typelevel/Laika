@@ -30,11 +30,11 @@ class NCXRenderer {
   /** Inserts the specified (pre-rendered) navPoints into the NCX document template
     * and returns the content of the entire NCX file.
     */
-  def fileContent (uuid: String, title: String, navPoints: String, depth: Int): String =
+  def fileContent (identifier: String, title: String, navPoints: String, depth: Int): String =
     s"""<?xml version="1.0" encoding="UTF-8"?>
       |<ncx version="2005-1" xmlns="http://www.daisy.org/z3986/2005/ncx/">
       |  <head>
-      |    <meta name="dtb:uid" content="urn:uuid:$uuid" />
+      |    <meta name="dtb:uid" content="$identifier" />
       |    <meta name="dtb:depth" content="$depth" />
       |    <meta name="dtb:totalPageCount" content="0" />
       |    <meta name="dtb:maxPageNumber" content="0" />
@@ -93,11 +93,11 @@ class NCXRenderer {
     * trees, documents and sections.
     * The configuration key for setting the recursion depth is `epub.toc.depth`.
     */
-  def render (tree: DocumentTree, uuid: String, depth: Int): String = {
+  def render (tree: DocumentTree, identifier: String, depth: Int): String = {
     val title = if (tree.title.isEmpty) "UNTITLED" else SpanSequence(tree.title).extractText
     val bookNav = BookNavigation.forTree(tree, depth)
     val renderedNavPoints = navPoints(bookNav)
-    fileContent(uuid, title, renderedNavPoints, depth)
+    fileContent(identifier, title, renderedNavPoints, depth)
   }
 
 

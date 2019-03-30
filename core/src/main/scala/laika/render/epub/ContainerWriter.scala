@@ -18,11 +18,9 @@ package laika.render.epub
 
 import java.io.ByteArrayInputStream
 import java.nio.charset.Charset
-import java.time.Instant
-import java.util.UUID
 
 import laika.ast.Path.Root
-import laika.ast.{DocumentTree, Path, StaticDocument}
+import laika.ast.{DocumentMetadata, DocumentTree, Path, StaticDocument}
 import laika.format.EPUB
 import laika.io.Input.Binary
 import laika.io.Output.BinaryOutput
@@ -50,7 +48,10 @@ class ContainerWriter (config: EPUB.Config) {
     val tocDepth = getOpt("epub.toc.depth", tree.config.getInt).getOrElse(config.tocDepth)
     val tocTitle = getOpt("epub.toc.title", tree.config.getString).orElse(config.tocTitle)
 
-    EPUB.Config(tocDepth, tocTitle)
+    val configForMetadata = tree.titleDocument.fold(tree.config)(_.config)
+    val metadata = DocumentMetadata.fromConfig(configForMetadata)
+
+    EPUB.Config(metadata, tocDepth, tocTitle)
   }
 
   /** Collects all documents that need to be written to the EPUB container.
@@ -99,15 +100,14 @@ class ContainerWriter (config: EPUB.Config) {
       }
     }
 
-    val uuid = UUID.randomUUID.toString
     val treeConfig = configFor(tree)
 
     val mimeType  = toBinaryInput(StaticContent.mimeType, Root / "mimetype")
     val container = toBinaryInput(StaticContent.container, Root / "META-INF" / "container.xml")
     val iBooksOpt = toBinaryInput(StaticContent.iBooksOptions, Root / "META-INF" / "com.apple.ibooks.display-options.xml")
-    val opf       = toBinaryInput(opfRenderer.render(tree, uuid, Instant.now), Root / "EPUB" / "content.opf")
-    val nav       = toBinaryInput(navRenderer.render(tree, uuid, treeConfig.tocDepth), Root / "EPUB" / "nav.xhtml")
-    val ncx       = toBinaryInput(ncxRenderer.render(tree, uuid, treeConfig.tocDepth), Root / "EPUB" / "toc.ncx")
+    val opf       = toBinaryInput(opfRenderer.render(tree, treeConfig), Root / "EPUB" / "content.opf")
+    val nav       = toBinaryInput(navRenderer.render(tree, treeConfig.tocDepth), Root / "EPUB" / "nav.xhtml")
+    val ncx       = toBinaryInput(ncxRenderer.render(tree, treeConfig.identifier, treeConfig.tocDepth), Root / "EPUB" / "toc.ncx")
 
     Seq(mimeType, container, iBooksOpt, opf, nav, ncx) ++ toInput(html) ++ collectStaticFiles(tree)
   }

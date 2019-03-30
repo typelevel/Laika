@@ -17,9 +17,11 @@
 package laika.render.epub
 
 import java.time.Instant
+import java.util.Locale
 
 import laika.ast._
 import laika.ast.helper.ModelBuilder
+import laika.format.EPUB
 import org.scalatest.{FlatSpec, Matchers}
 
 class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
@@ -28,10 +30,17 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
 
   val timestamp = "2018-01-01T12:00:00Z"
   val instant = Instant.parse(timestamp)
+  val identifier = s"urn:uuid:${new InputTreeBuilder{}.uuid}"
+  val config: EPUB.Config = EPUB.Config.default.copy(metadata = DocumentMetadata(
+    identifier = Some(identifier),
+    date = Some(instant),
+    language = Some(Locale.UK),
+    authors = Seq("Mia Miller")
+  ))
 
 
   "The OPF Renderer" should "render an empty tree" in new InputTreeBuilder {
-    renderer.render(tree(Path.Root, 1), uuid, instant) shouldBe fileContent("", "", "", uuid)
+    renderer.render(tree(Path.Root, 1), config) shouldBe fileContent("", "", "", uuid)
   }
 
   it should "render a tree with a single document" in new SingleDocument {
@@ -39,7 +48,7 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
       """    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" />"""
     val spineRefs =
       """    <itemref idref="foo_xhtml" />"""
-    renderer.render(input, uuid, instant) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
+    renderer.render(input, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
   }
 
   it should "render a tree with a two documents" in new TwoDocuments {
@@ -49,7 +58,7 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
     val spineRefs =
       """    <itemref idref="foo_xhtml" />
         |    <itemref idref="bar_xhtml" />"""
-    renderer.render(input, uuid, instant) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
+    renderer.render(input, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
   }
 
   it should "render a tree with a title document" in new DocumentPlusTitle {
@@ -59,7 +68,7 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
     val titleRef = """    <itemref idref="title_xhtml" />"""
     val spineRefs =
       """    <itemref idref="bar_xhtml" />"""
-    renderer.render(input, uuid, instant) shouldBe fileContent(manifestItems, titleRef, spineRefs, uuid, "Title 2")
+    renderer.render(input, config) shouldBe fileContent(manifestItems, titleRef, spineRefs, uuid, "Title 2")
   }
 
   it should "render a tree with a nested tree" in new NestedTree {
@@ -69,7 +78,7 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
     val spineRefs =
       """    <itemref idref="foo_xhtml" />
         |    <itemref idref="sub_bar_xhtml" />"""
-    renderer.render(input, uuid, instant) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
+    renderer.render(input, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
   }
 
   it should "render a tree with two nested trees" in new TwoNestedTrees {
@@ -85,7 +94,7 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
         |    <itemref idref="sub1_baz_xhtml" />
         |    <itemref idref="sub2_bar_xhtml" />
         |    <itemref idref="sub2_baz_xhtml" />"""
-    renderer.render(input, uuid, instant) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
+    renderer.render(input, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
   }
 
   it should "render a tree with a nested tree and static documents" in new TreeWithStaticDocuments {
@@ -97,7 +106,7 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
     val spineRefs =
       """    <itemref idref="foo_xhtml" />
         |    <itemref idref="sub_bar_xhtml" />"""
-    renderer.render(input, uuid, instant) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
+    renderer.render(input, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
   }
 
   def fileContent (manifestItems: String, titleRef: String, spineRefs: String, uuid: String, title: String = "Tree 1"): String =
@@ -112,6 +121,7 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
        |    <dc:title>$title</dc:title>
        |    <dc:date id="epub-date">$timestamp</dc:date>
        |    <dc:language>en-GB</dc:language>
+       |    <dc:creator>Mia Miller</dc:creator>
        |    <meta property="dcterms:modified">$timestamp</meta>
        |  </metadata>
        |  <manifest>
