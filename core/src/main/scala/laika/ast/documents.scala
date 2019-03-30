@@ -16,6 +16,9 @@
 
 package laika.ast
 
+import java.time.Instant
+import java.util.Locale
+
 import com.typesafe.config.{Config, ConfigFactory}
 import laika.collection.TransitionalCollectionOps._
 import laika.io.Input
@@ -25,6 +28,7 @@ import laika.rewrite.link.LinkTargets._
 import laika.rewrite.nav.AutonumberConfig
 
 import scala.annotation.tailrec
+import scala.util.Try
 
 
 /** A navigatable object is anything that has an associated path.
@@ -118,6 +122,32 @@ case class SectionInfo (id: String, title: TitleInfo, content: Seq[SectionInfo])
 /** Represents a section title.
  */
 case class TitleInfo (content: Seq[Span]) extends SpanContainer[TitleInfo]
+
+/** Metadata associated with a document.
+  */
+case class DocumentMetadata (identifier: Option[String] = None, authors: Seq[String] = Nil, language: Option[Locale] = None, date: Option[Instant] = None)
+
+object DocumentMetadata {
+
+  import scala.collection.JavaConverters._
+
+  /** Tries to obtain the document metadata
+    * from the specified configuration instance or returns
+    * an empty instance.
+    */
+  def fromConfig (config: Config): DocumentMetadata = {
+    if (config.hasPath("metadata")) {
+      val nConf = config.getObject("metadata").toConfig
+      val identifier = if (nConf.hasPath("identifier")) Some(nConf.getString("identifier")) else None
+      val authors = if (nConf.hasPath("author")) Seq(nConf.getString("author")) else if (nConf.hasPath("authors")) nConf.getStringList("authors").asScala else Nil
+      val language = if (nConf.hasPath("language")) Try(Locale.forLanguageTag(nConf.getString("language"))).toOption else None
+      val date = if (nConf.hasPath("date")) Try(Instant.parse(nConf.getString("date"))).toOption else None
+      DocumentMetadata(identifier, authors, language, date)
+    }
+    else DocumentMetadata()
+  }
+
+}
 
 /** The position of an element within a document tree.
   *
