@@ -18,16 +18,17 @@ package laika.format
 
 import java.io.{File, FileOutputStream, OutputStream}
 import java.net.URI
+import java.util.Date
+
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.sax.SAXResult
 import javax.xml.transform.stream.StreamSource
-
-import laika.ast.{DocumentTree, TemplateRoot}
+import laika.ast.{DocumentMetadata, DocumentTree, SpanSequence, TemplateRoot}
 import laika.factory.{RenderFormat, RenderResultProcessor}
 import laika.io.Output.BinaryOutput
 import laika.io.{Input, OutputTree}
 import laika.render.{FOWriter, FOforPDF}
-import org.apache.fop.apps.{FOUserAgentFactory, FopFactory, FopFactoryBuilder}
+import org.apache.fop.apps.{FOUserAgent, FOUserAgentFactory, FopFactory, FopFactoryBuilder}
 import org.apache.xmlgraphics.io.{Resource, ResourceResolver}
 import org.apache.xmlgraphics.util.MimeConstants
 
@@ -96,8 +97,12 @@ class PDF private (val format: RenderFormat[FOWriter], config: Option[PDF.Config
   def process (tree: DocumentTree, render: (DocumentTree, OutputTree) => Unit, defaultTemplate: TemplateRoot, output: BinaryOutput): Unit = {
     
     val fo = renderFO(tree, render, defaultTemplate)
+
+    val configForMetadata = tree.titleDocument.fold(tree.config)(_.config)
+    val metadata = DocumentMetadata.fromConfig(configForMetadata)
+    val title = if (tree.title.isEmpty) None else Some(SpanSequence(tree.title).extractText)
     
-    renderPDF(Input.fromString(fo), output, tree.sourcePaths)
+    renderPDF(Input.fromString(fo), output, metadata, title, tree.sourcePaths)
     
   }
   
@@ -108,11 +113,19 @@ class PDF private (val format: RenderFormat[FOWriter], config: Option[PDF.Config
    * 
    *  @param foInput the input in XSL-FO format
    *  @param output the output to write the final result to
+   *  @param metadata the metadata associated with the PDF
+   *  @param title the title of the document
    *  @param sourcePaths the paths that may contain files like images
    *  which will be used to resolve relative paths
    */
-  def renderPDF (foInput: Input, output: BinaryOutput, sourcePaths: Seq[String] = Nil): Unit = {
-    
+  def renderPDF (foInput: Input, output: BinaryOutput, metadata: DocumentMetadata, title: Option[String] = None, sourcePaths: Seq[String] = Nil): Unit = {
+
+    def applyMetadata (agent: FOUserAgent): Unit = {
+      metadata.date.foreach(d => agent.setCreationDate(Date.from(d)))
+      metadata.authors.headOption.foreach(a => agent.setAuthor(a))
+      title.foreach(t => agent.setTitle(t))
+    }
+
     def createSAXResult (out: OutputStream) = {
 
       val resolver = new ResourceResolver {
@@ -130,6 +143,7 @@ class PDF private (val format: RenderFormat[FOWriter], config: Option[PDF.Config
 
       val factory = fopFactory.getOrElse(PDF.defaultFopFactory)
       val foUserAgent = FOUserAgentFactory.createFOUserAgent(factory, resolver)
+      applyMetadata(foUserAgent)
       val fop = factory.newFop(MimeConstants.MIME_PDF, foUserAgent, out)
       new SAXResult(fop.getDefaultHandler)
     }
