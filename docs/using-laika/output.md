@@ -188,6 +188,12 @@ in the file `directory.conf` in the root directory of your input sources:
       toc.depth = 3
       toc.title = "Contents"
     }  
+    metadata {
+      identifier = "urn:isbn:978-3-16-148410-0"
+      date = "2018-01-01T12:00:00Z"
+      language = "en:GB"
+      author = "Mia Miller"
+    }
 
 These properties control the following aspects of the rendering:
  
@@ -196,6 +202,9 @@ These properties control the following aspects of the rendering:
   of contents: directories, files and sections within files.
   The default value is `Int.MaxValue`.
 * `tocTitle` specifies the title for the table of contents. The default value is `Contents`.
+* `metadata` specifies document metadata to be added to the container configuration. Three of the 
+  properties are mandatory, but Laika will use sensible defaults if they are not set explicitly
+  (a random UUID for the identifier, the current time and the language of the Locale of the JVM process)
   
 For more details on these features see [Document Structure].
 
