@@ -75,10 +75,9 @@ class OPFRenderer {
 
     val titleDoc = tree.titleDocument.map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = false, isTitle = true, forceXhtml = true))
     def spineRefs (root: DocumentTree): Seq[DocumentRef] = {
-      root.content.flatMap {
+      root.contentAfterTitle.flatMap {
         case sub: DocumentTree => spineRefs(sub)
-        case doc: Document if !tree.titleDocument.map(_.path).contains(doc.path) => Seq(DocumentRef(doc.path, "application/xhtml+xml", isSpine = true, forceXhtml = true))
-        case _ => Nil
+        case doc: Document => Seq(DocumentRef(doc.path, "application/xhtml+xml", isSpine = true, forceXhtml = true))
       } ++
       root.additionalContent.filter(c => MimeTypes.supportedTypes.contains(c.path.suffix)).collect {
         case StaticDocument(input) => DocumentRef(input.path, MimeTypes.supportedTypes(input.path.suffix), isSpine = false)

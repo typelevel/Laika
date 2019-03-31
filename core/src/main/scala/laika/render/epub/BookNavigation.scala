@@ -75,8 +75,7 @@ object BookNavigation {
 
     if (depth == 0) Nil
     else {
-      val contents = if (tree.titleDocument.isDefined) tree.content.tail else tree.content
-      for (nav <- contents if hasContent(depth - 1)(nav)) yield nav match {
+      for (nav <- tree.contentAfterTitle if hasContent(depth - 1)(nav)) yield nav match {
         case doc: Document =>
           val title = if (doc.title.nonEmpty) SpanSequence(doc.title).extractText else doc.name
           val parentPos = pos.next

@@ -282,6 +282,13 @@ trait TreeStructure { this: TreeContent =>
     case doc: Document if doc.path.basename == "title" => doc
   }
 
+  /** The content after the title document, if present.
+    */
+  def contentAfterTitle: Seq[TreeContent] = content.collect {
+    case doc: Document if doc.path.basename != "title" => doc
+    case tree: DocumentTree => tree
+  }
+
   private def toMap [T <: Navigatable] (navigatables: Seq[T]): Map[String,T] = {
     navigatables groupBy (_.name) mapValuesStrict {
       case Seq(nav) => nav
