@@ -26,7 +26,7 @@ import org.scalatest.{FlatSpec, Matchers}
 class ContainerWriterSpec extends FlatSpec with Matchers with ModelBuilder {
 
 
-  val writer = new ContainerWriter(EPUB.Config.default)
+  val writer = new ContainerWriter
 
   val standardFiles = Seq(
     "/mimetype",
@@ -49,7 +49,7 @@ class ContainerWriterSpec extends FlatSpec with Matchers with ModelBuilder {
       ResultTree(currentTree.path, docs, subTrees)
     }
 
-    writer.collectInputs(tree, toResultTree(tree)).map(_.path.toString)
+    writer.collectInputs(tree, EPUB.Config.default, toResultTree(tree)).map(_.path.toString)
   }
 
 

@@ -20,7 +20,7 @@ import java.io.ByteArrayInputStream
 import java.nio.charset.Charset
 
 import laika.ast.Path.Root
-import laika.ast.{DocumentMetadata, DocumentTree, Path, StaticDocument}
+import laika.ast.{DocumentTree, Path, StaticDocument}
 import laika.format.EPUB
 import laika.io.Input.Binary
 import laika.io.Output.BinaryOutput
@@ -32,27 +32,13 @@ import laika.io.{IO, Input}
   *
   * @author Jens Halm
   */
-class ContainerWriter (config: EPUB.Config) {
+class ContainerWriter {
 
 
   private val opfRenderer = new OPFRenderer
   private val navRenderer = new HtmlNavRenderer
   private val ncxRenderer = new NCXRenderer
 
-
-  private def configFor (tree: DocumentTree): EPUB.Config = {
-
-    def getOpt [T](key: String, read: String => T): Option[T] =
-      if (tree.config.hasPath(key)) Some(read(key)) else None
-
-    val tocDepth = getOpt("epub.toc.depth", tree.config.getInt).getOrElse(config.tocDepth)
-    val tocTitle = getOpt("epub.toc.title", tree.config.getString).orElse(config.tocTitle)
-
-    val configForMetadata = tree.titleDocument.fold(tree.config)(_.config)
-    val metadata = DocumentMetadata.fromConfig(configForMetadata)
-
-    EPUB.Config(metadata, tocDepth, tocTitle)
-  }
 
   /** Collects all documents that need to be written to the EPUB container.
     *
@@ -67,7 +53,7 @@ class ContainerWriter (config: EPUB.Config) {
     *  @param html the dynamically rendered HTML output
     *  @return a list of all documents that need to be written to the EPUB container.
     */
-  def collectInputs (tree: DocumentTree, html: ResultTree): Seq[Input with Binary] = {
+  def collectInputs (tree: DocumentTree, config: EPUB.Config, html: ResultTree): Seq[Input with Binary] = {
 
     val contentRoot = Root / "EPUB" / "content"
 
@@ -100,14 +86,12 @@ class ContainerWriter (config: EPUB.Config) {
       }
     }
 
-    val treeConfig = configFor(tree)
-
     val mimeType  = toBinaryInput(StaticContent.mimeType, Root / "mimetype")
     val container = toBinaryInput(StaticContent.container, Root / "META-INF" / "container.xml")
     val iBooksOpt = toBinaryInput(StaticContent.iBooksOptions, Root / "META-INF" / "com.apple.ibooks.display-options.xml")
-    val opf       = toBinaryInput(opfRenderer.render(tree, treeConfig), Root / "EPUB" / "content.opf")
-    val nav       = toBinaryInput(navRenderer.render(tree, treeConfig.tocDepth), Root / "EPUB" / "nav.xhtml")
-    val ncx       = toBinaryInput(ncxRenderer.render(tree, treeConfig.identifier, treeConfig.tocDepth), Root / "EPUB" / "toc.ncx")
+    val opf       = toBinaryInput(opfRenderer.render(tree, config), Root / "EPUB" / "content.opf")
+    val nav       = toBinaryInput(navRenderer.render(tree, config.tocDepth), Root / "EPUB" / "nav.xhtml")
+    val ncx       = toBinaryInput(ncxRenderer.render(tree, config.identifier, config.tocDepth), Root / "EPUB" / "toc.ncx")
 
     Seq(mimeType, container, iBooksOpt, opf, nav, ncx) ++ toInput(html) ++ collectStaticFiles(tree)
   }
@@ -122,12 +106,13 @@ class ContainerWriter (config: EPUB.Config) {
     *   and the configuration of this instance.
     *
     *  @param tree the tree to obtain navigation info from
+    *  @param config the configuration for the EPUB container
     *  @param html the dynamically rendered HTML output
     *  @param output the output to write the EPUB container to
     */
-  def write (tree: DocumentTree, html: ResultTree, output: BinaryOutput): Unit = {
+  def write (tree: DocumentTree, config: EPUB.Config, html: ResultTree, output: BinaryOutput): Unit = {
 
-    val inputs = collectInputs(tree, html)
+    val inputs = collectInputs(tree, config, html)
 
     IO.zip(inputs, output)
 

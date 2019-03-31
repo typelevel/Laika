@@ -21,6 +21,7 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.{Locale, UUID}
 
+import laika.ast.Path.Root
 import laika.ast._
 import laika.config.RenderConfig
 import laika.factory.{RenderFormat, RenderResultProcessor}
@@ -28,7 +29,7 @@ import laika.io.Output.BinaryOutput
 import laika.io.OutputTree.StringOutputTree
 import laika.io.{Input, Output, OutputTree}
 import laika.render.epub.StyleSupport.XHTMLTemplateParser
-import laika.render.epub.{ContainerWriter, HtmlRenderExtensions, StyleSupport}
+import laika.render.epub.{ConfigFactory, ContainerWriter, HtmlRenderExtensions, StyleSupport}
 import laika.render.{HTMLRenderer, HTMLWriter}
 
 /** A post processor for EPUB output, based on an interim HTML renderer.
@@ -88,7 +89,7 @@ object EPUB extends RenderResultProcessor[HTMLWriter] {
     *  @param tocDepth the number of levels to generate a table of contents for
     *  @param tocTitle the title for the table of contents
     */
-  case class Config(metadata: DocumentMetadata = DocumentMetadata(), tocDepth: Int = Int.MaxValue, tocTitle: Option[String] = None) {
+  case class Config(metadata: DocumentMetadata = DocumentMetadata(), tocDepth: Int = Int.MaxValue, tocTitle: Option[String] = None, titleImage: Option[String] = None) {
     lazy val identifier: String = metadata.identifier.getOrElse(s"urn:uuid:${UUID.randomUUID.toString}")
     lazy val date: Instant = metadata.date.getOrElse(Instant.now)
     lazy val formattedDate: String = DateTimeFormatter.ISO_INSTANT.format(date.truncatedTo(ChronoUnit.SECONDS))
@@ -104,7 +105,7 @@ object EPUB extends RenderResultProcessor[HTMLWriter] {
     val default: Config = apply()
   }
 
-  private lazy val writer = new ContainerWriter(EPUB.Config.default)
+  private lazy val writer = new ContainerWriter
 
   /** Produces an EPUB container from the specified document tree.
    *
@@ -122,10 +123,14 @@ object EPUB extends RenderResultProcessor[HTMLWriter] {
   def process (tree: DocumentTree, render: (DocumentTree, OutputTree) => Unit, defaultTemplate: TemplateRoot, output: BinaryOutput): Unit = {
 
     val htmlOutput = new StringOutputTree(tree.path)
+    val treeConfig = ConfigFactory.forTree(tree)
     val treeWithStyles = StyleSupport.ensureContainsStyles(tree)
+    val treeWithCover = treeConfig.titleImage.fold(tree) { image =>
+      tree.copy(content = Document(Root / "cover", RootElement(Seq(SpanSequence(Seq(Image("cover", URI(image))))))) +: tree.content)
+    }
 
-    render(treeWithStyles, htmlOutput)
-    writer.write(treeWithStyles, htmlOutput.result, output)
+    render(treeWithCover, htmlOutput)
+    writer.write(treeWithStyles, treeConfig, htmlOutput.result, output)
 
   }
   
