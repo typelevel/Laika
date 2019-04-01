@@ -40,7 +40,7 @@ case class ReferenceResolver (root: Any, parent: Option[ReferenceResolver] = Non
       case other        => (Try { target.getClass.getMethod(path.head).invoke(target) } toOption, path.tail)
     }
     result match {
-      case (None, _) if root && parent.isDefined => parent.get.resolve(target, path, root)
+      case (None, _) if root && parent.isDefined => parent.get.resolve(parent.get.root, path, root)
       case (None, _)            => (None, Nil)
       case (Some(value), Nil)   => (Some(value), Nil)
       case (Some(value), path)  => resolve(value, path)
