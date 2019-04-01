@@ -44,8 +44,8 @@ object RenderResult {
     private lazy val defaultTemplate = Input.fromClasspath("/templates/default.template.fo", Root / "default.template.fo").asParserInput.input
     
     def withDefaultTemplate(content: String): String =
-      defaultTemplate.replace("{{document.content}}", content).replace("{{document.fragments.bookmarks}}", "")
-    
+      defaultTemplate.replace("{{document.content}}", content).replace("{{document.fragments.bookmarks}}", "").replaceAll("(?s)@.*  }", "")
+
   }
   
 }
