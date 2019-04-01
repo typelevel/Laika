@@ -57,8 +57,8 @@ The directories can contain different types of files:
   
 * A template file `default.template.<format>` that gets applied to all markup files in 
   this directory (and its subdirectories unless overridden). The suffix may be any
-  output format in Laika that supports templating, currently this is `.html` for HTML
-  output and `.fo` for PDF or XSL-FO output. A very basic HTML template may look 
+  output format in Laika that supports templating, currently this is `.html` for HTML,
+  `.epub.xhtml` for EPUB and `.fo` for PDF or XSL-FO output. A very basic HTML template may look 
   like this:
 
         <html>

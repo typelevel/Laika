@@ -119,11 +119,11 @@ into a single document:
       EPUB fromDirectory "source" toFile "target.epub"
 
 
-### HTML Templates
+### Templates
 
 The directories that contain the markup documents can optionally contain
 templates that get applied to the parsed documents. A very basic template
-may look like this:
+for HTML output may look like this:
 
     <html>
       <head>
@@ -140,10 +140,13 @@ The two placeholders enclosed in double curly braces will be replaced with the
 title and content of the parsed markup document. Everything else will be copied
 to the final document unchanged.
 
-Every directory can contain a file with the name `default.template.html` that
+Every directory can contain a file with the name `default.template.<suffix>` that
 automatically gets applied to all documents in that directory and its subdirectories,
 unless overridden in a subdirectory. There are also ways to manually declare a
 template for a specific markup document only. 
+
+The suffix must match the output format of the transformation, e.g. `.html` for HTML,
+`.fo` for PDF (as it renders via XSL-FO) and `.epub.xhtml` for EPUB.
 
 For more details on the template engine, see the chapter [Templates].
 

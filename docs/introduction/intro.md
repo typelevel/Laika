@@ -153,9 +153,7 @@ Road Map
 
 * __0.13__: Library API: integration with cats-effect and improved referential transparency
 
-* __0.14__: Library API (tentative): support for Scala.js
-
-* __0.15__: Include a set of default themes for all output formats
+* __0.14__: Include a set of default themes for all output formats
 
 * __1.0__: API polishing and removal of all deprecations
 

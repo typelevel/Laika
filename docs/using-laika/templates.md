@@ -118,7 +118,7 @@ These are the variables you can use in templates:
   which in turn have the same properties like the `parent` and `root` references listed
   here
 * `config`: let's you access any configuration variable, e.g. {{config.autonumbering.scope}}
-  referes to the scope attribute from the template example at the beginning of this section.
+  refers to the scope attribute from the template example at the beginning of this section.
   You can refer to configuration entries from any of the following sources (which the
   resolver will try in this order):
     - a configuration header in the corresponding document  
@@ -175,11 +175,11 @@ There are two simple options for specifying which template to use:
 
 ### Default Template per Directory
 
-The most convenient way is to simply add a file with the name `default.template.html`
-to the directory containing your text markup documents. This template is then used
-for all documents in this directory and its subdirectories, unless it is overridden
-by either a different default template in one of the subdirectories or by explicitly
-specifying a template in one of the text markup documents.
+The most convenient way is to simply add a file with the name `default.template.<suffix>`
+(e.g. `default.template.html`) to the directory containing your text markup documents. 
+This template is then used for all documents in this directory and its subdirectories, 
+unless it is overridden by either a different default template in one of the 
+subdirectories or by explicitly specifying a template in one of the text markup documents.
 
 
 ### Explicit Template per Document
@@ -195,10 +195,8 @@ This will override any default template for the directory. The path is relative 
 document, but has to be somewhere below the root directory processed by Laika, as
 templates are parsed and cached upfront, before getting applied to documents.
 
-All templates must have the suffix `.template.html`.
-
-This also means that you should not have too many unused templates inside these
-directories, as they will get parsed nevertheless.
+All templates must have the suffix `.template.<suffix>` where the suffix matches
+the output format of the transformation operation, e.g. `.template.html`.
 
 
 
@@ -340,5 +338,5 @@ know how to render page break elements.
 
 This directive does not support any attributes:
 
-    @pageBreak
+    @:pageBreak.
 

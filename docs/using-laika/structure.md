@@ -308,10 +308,10 @@ by its name, in the following way:
 
 * `directory.conf`: the configuration for this directory
 * `*.conf`: other configuration files (currently ignored)
-* `default.template.html`: the default template to apply to documents
-  in this directory
-* `*.template.html`: other templates that markup documents can
-  explicitly refer to
+* `default.template.<suffix>`: the default template to apply to documents
+  in this directory, the suffix must match the output format of the transformation (e.g. `.html`)
+* `*.template.<suffix>`: other templates that markup documents can
+  explicitly refer to, the suffix must match the output format of the transformation (e.g. `.html`)
 * `*.<markup-suffix>`: markup files with a suffix recognized
   by the parser in use, e.g. `.md` or `.markdown` for Markdown
   and `.rst` for reStructuredText

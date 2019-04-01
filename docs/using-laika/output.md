@@ -177,6 +177,22 @@ The supported file types / suffixes are:
 * JavaScript: `js`
 * CSS: `css`   
 * Fonts: `woff2`, `woff`, `ttf`, `otf` 
+
+
+### EPUB XHTML Templates
+
+Like the HTML renderer, the EPUB renderer supports templating. EPUB requires XHTML as the output
+format and also may contain custom attributes specific to EPUB. Therefore they are handled separately
+from regular HTML templates and are recognised by the suffix `.epub.xhtml`. 
+
+You can have a look at the [default EPUB XHTML template][default-epub-template] used 
+by the EPUB renderer for reference.
+
+[default-epub-template]: https://github.com/planet42/Laika/blob/master/core/src/main/resources/templates/default.template.epub.xhtml
+
+You can override it if required by saving a custom template in a file called 
+`default.template.epub.xhtml` in the root directory of your input sources.
+
        
 
 ### Configuration
