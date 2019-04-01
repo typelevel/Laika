@@ -16,8 +16,9 @@
 
 package laika.render
 
-import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
+import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import laika.api.Render
+import laika.ast.Path.Root
 import laika.ast._
 import laika.format.{PDF, XSLFO}
 import laika.io.OutputTree
@@ -215,10 +216,19 @@ class FOforPDF (config: Option[PDF.Config]) {
       append(sb, foOutput.result, preparedTree) // TODO - improve formatting
       sb.toString
     }
+
+    def resolveCoverImagePath: Config =
+      if (tree.config.hasPath("pdf.titleImage")) {
+        val uri = tree.config.getString("pdf.titleImage")
+        val resolvedUri = PathInfo.fromURI(uri, Root).fold(uri)(_.absolute.toString)
+        tree.config.withValue("pdf.titleImage", ConfigValueFactory.fromAnyRef(resolvedUri))
+      } else tree.config
+
     
     def applyTemplate(foString: String, template: TemplateDocument, tree: DocumentTree): String = {
       val result = RawContent(Seq("fo"), foString)
-      val finalDoc = Document(Path.Root / "merged.fo", RootElement(Seq(result)), fragments = generateBookmarks(tree, pdfConfig.bookmarkDepth), config = tree.config)
+      val finalConfig = resolveCoverImagePath
+      val finalDoc = Document(Path.Root / "merged.fo", RootElement(Seq(result)), fragments = generateBookmarks(tree, pdfConfig.bookmarkDepth), config = finalConfig)
       val templateApplied = template.applyTo(finalDoc)
       Render as XSLFO from templateApplied toString
     }
