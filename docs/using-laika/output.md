@@ -203,6 +203,7 @@ in the file `directory.conf` in the root directory of your input sources:
     epub {
       toc.depth = 3
       toc.title = "Contents"
+      titleImage = "cover.png"
     }  
     metadata {
       identifier = "urn:isbn:978-3-16-148410-0"
@@ -213,11 +214,12 @@ in the file `directory.conf` in the root directory of your input sources:
 
 These properties control the following aspects of the rendering:
  
-* `tocDepth` the number of levels to generate a table of contents for. 
+* `toc.depth` the number of levels to generate a table of contents for. 
   Every level of the tree hierarchy will be considered for an entry in the table 
   of contents: directories, files and sections within files.
   The default value is `Int.MaxValue`.
-* `tocTitle` specifies the title for the table of contents. The default value is `Contents`.
+* `toc.title` specifies the title for the table of contents. The default value is `Contents`.
+* `titleImage` specifies the cover image for the book
 * `metadata` specifies document metadata to be added to the container configuration. Three of the 
   properties are mandatory, but Laika will use sensible defaults if they are not set explicitly
   (a random UUID for the identifier, the current time and the language of the Locale of the JVM process)
@@ -380,6 +382,7 @@ In `directory.conf` you can set the following options:
       bookmarks.depth = 3
       toc.depth = 3
       toc.title = "Contents"
+      titleImage = "cover.png"
     }  
 
 The same options are available programmatically through the `withConfig` method on the `PDF` renderer:
@@ -399,11 +402,12 @@ These properties control the following aspects of the rendering:
   you can use 0 to switch off bookmark generation entirely. Every level of the tree hierarchy will
   be considered for a bookmark entry: directories, files and sections within files.
   The default value is `Int.MaxValue`.
-* `tocDepth` the number of levels to generate a table of contents for, 
+* `toc.depth` the number of levels to generate a table of contents for, 
   you can use 0 to switch off toc generation entirely. Every level of the tree hierarchy will
   be considered for an entry in the table of contents: directories, files and sections within files.
   The default value is `Int.MaxValue`.
-* `tocTitle` specifies the title for the table of contents. The default value is `None`.
+* `toc.title` specifies the title for the table of contents. The default value is `None`.
+* `titleImage` specifies the cover image for the book
   
 For more details on these features see [Document Structure].
 
