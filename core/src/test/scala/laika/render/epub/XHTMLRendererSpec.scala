@@ -85,8 +85,8 @@ class XHTMLRendererSpec extends FlatSpec with Matchers with ModelBuilder {
       )
 
       val expected = Seq(
-        StringResult(Root / "doc1.xhtml", renderedXhtml(1, "sub/styles2.css", "styles1.css")),
-        StringResult(Root / "sub" / "doc2.xhtml", renderedXhtml(2, "styles2.css", "../styles1.css"))
+        StringResult(Root / "doc1.epub.xhtml", renderedXhtml(1, "sub/styles2.css", "styles1.css")),
+        StringResult(Root / "sub" / "doc2.epub.xhtml", renderedXhtml(2, "styles2.css", "../styles1.css"))
       )
 
       renderedDocs(input) shouldBe expected

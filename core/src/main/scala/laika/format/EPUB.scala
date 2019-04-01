@@ -58,13 +58,13 @@ object EPUB extends RenderResultProcessor[HTMLWriter] {
     */
   object XHTML extends RenderFormat[HTMLWriter] {
 
-    val fileSuffix: String = "xhtml"
+    val fileSuffix: String = "epub.xhtml"
 
     def newRenderer (output: Output, root: Element, render: Element => Unit,
                      styles: StyleDeclarationSet, config: RenderConfig): (HTMLWriter, Element => Unit) = {
 
       val writer = new HTMLWriter(output.asFunction, render, root, formatted = config.renderFormatted)
-      val renderer = new HTMLRenderer(writer, config.minMessageLevel, "xhtml")
+      val renderer = new HTMLRenderer(writer, config.minMessageLevel, "epub.xhtml")
 
       (writer, renderer.render)
     }

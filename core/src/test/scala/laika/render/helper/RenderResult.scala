@@ -29,6 +29,15 @@ object RenderResult {
       defaultTemplate.replace("{{document.title}}", title).replace("{{document.content}}", content)
     
   }
+
+  object epub {
+
+    private lazy val defaultTemplate = Input.fromClasspath("/templates/default.template.epub.xhtml", Root / "default.template.epub.xhtml").asParserInput.input
+
+    def withDefaultTemplate(title: String, content: String): String =
+      defaultTemplate.replace("{{document.title}}", title).replace("{{document.content}}", content).replace("@:styleLinks.", "")
+
+  }
   
   object fo {
     
