@@ -21,6 +21,11 @@
 
   {{document.fragments.bookmarks}}
 
+  @:for "config.pdf.titleImage": {
+    <fox:external-document src="{{config.pdf.titleImage}}"
+      width="21cm" height="29.7cm" content-width="21cm"/>
+  }
+
   <fo:page-sequence master-reference="default">
 
     <fo:static-content flow-name="xsl-region-before">
