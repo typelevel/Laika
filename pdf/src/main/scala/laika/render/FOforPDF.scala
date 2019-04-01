@@ -218,7 +218,7 @@ class FOforPDF (config: Option[PDF.Config]) {
     
     def applyTemplate(foString: String, template: TemplateDocument, tree: DocumentTree): String = {
       val result = RawContent(Seq("fo"), foString)
-      val finalDoc = Document(Path.Root / "merged.fo", RootElement(Seq(result)), fragments = generateBookmarks(tree, pdfConfig.bookmarkDepth))
+      val finalDoc = Document(Path.Root / "merged.fo", RootElement(Seq(result)), fragments = generateBookmarks(tree, pdfConfig.bookmarkDepth), config = tree.config)
       val templateApplied = template.applyTo(finalDoc)
       Render as XSLFO from templateApplied toString
     }
