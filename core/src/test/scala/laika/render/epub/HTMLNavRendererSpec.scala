@@ -32,7 +32,7 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
     val result =
     """      <ol class="toc">
       |        <li id="toc-li-0">
-      |          <a href="content/foo.xhtml">Title 2</a>
+      |          <a href="content/foo.epub.xhtml">Title 2</a>
       |
       |        </li>
       |      </ol>""".stripMargin
@@ -43,11 +43,11 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
     val result =
     """      <ol class="toc">
      |        <li id="toc-li-0">
-     |          <a href="content/foo.xhtml">Title 2</a>
+     |          <a href="content/foo.epub.xhtml">Title 2</a>
      |
      |        </li>
      |        <li id="toc-li-1">
-     |          <a href="content/bar.xhtml">Title 3</a>
+     |          <a href="content/bar.epub.xhtml">Title 3</a>
      |
      |        </li>
      |      </ol>""".stripMargin
@@ -58,7 +58,7 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
     val result =
       """      <ol class="toc">
         |        <li id="toc-li-0">
-        |          <a href="content/foo.xhtml">Title 2</a>
+        |          <a href="content/foo.epub.xhtml">Title 2</a>
         |
         |        </li>
         |      </ol>""".stripMargin
@@ -70,14 +70,14 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
     val result =
       """      <ol class="toc">
         |        <li id="toc-li-0">
-        |          <a href="content/foo.xhtml">Title 2</a>
+        |          <a href="content/foo.epub.xhtml">Title 2</a>
         |
         |        </li>
         |        <li id="toc-li-1">
         |          <span>Tree 4</span>
         |      <ol class="toc">
         |        <li id="toc-li-2">
-        |          <a href="content/sub/bar.xhtml">Title 3</a>
+        |          <a href="content/sub/bar.epub.xhtml">Title 3</a>
         |
         |        </li>
         |      </ol>
@@ -90,14 +90,14 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
     val result =
       """      <ol class="toc">
         |        <li id="toc-li-0">
-        |          <a href="content/foo.xhtml">Title 2</a>
+        |          <a href="content/foo.epub.xhtml">Title 2</a>
         |
         |        </li>
         |        <li id="toc-li-1">
-        |          <a href="content/sub/title.xhtml">Title 0</a>
+        |          <a href="content/sub/title.epub.xhtml">Title 0</a>
         |      <ol class="toc">
         |        <li id="toc-li-2">
-        |          <a href="content/sub/bar.xhtml">Title 3</a>
+        |          <a href="content/sub/bar.epub.xhtml">Title 3</a>
         |
         |        </li>
         |      </ol>
@@ -110,7 +110,7 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
     val result =
     """      <ol class="toc">
      |        <li id="toc-li-0">
-     |          <a href="content/foo.xhtml">Title 2</a>
+     |          <a href="content/foo.epub.xhtml">Title 2</a>
      |
      |        </li>
      |      </ol>""".stripMargin
@@ -121,27 +121,27 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
     val result =
       """      <ol class="toc">
         |        <li id="toc-li-0">
-        |          <a href="content/foo.xhtml">Title 2</a>
+        |          <a href="content/foo.epub.xhtml">Title 2</a>
         |      <ol class="toc">
         |        <li id="toc-li-1">
-        |          <a href="content/foo.xhtml#A">Section A</a>
+        |          <a href="content/foo.epub.xhtml#A">Section A</a>
         |
         |        </li>
         |        <li id="toc-li-2">
-        |          <a href="content/foo.xhtml#B">Section B</a>
+        |          <a href="content/foo.epub.xhtml#B">Section B</a>
         |
         |        </li>
         |      </ol>
         |        </li>
         |        <li id="toc-li-3">
-        |          <a href="content/bar.xhtml">Title 3</a>
+        |          <a href="content/bar.epub.xhtml">Title 3</a>
         |      <ol class="toc">
         |        <li id="toc-li-4">
-        |          <a href="content/bar.xhtml#A">Section A</a>
+        |          <a href="content/bar.epub.xhtml#A">Section A</a>
         |
         |        </li>
         |        <li id="toc-li-5">
-        |          <a href="content/bar.xhtml#B">Section B</a>
+        |          <a href="content/bar.epub.xhtml#B">Section B</a>
         |
         |        </li>
         |      </ol>
@@ -153,11 +153,11 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
   it should "not render a document with sections when the depth is 1" in new DocumentsWithSections {
     val result = """      <ol class="toc">
      |        <li id="toc-li-0">
-     |          <a href="content/foo.xhtml">Title 2</a>
+     |          <a href="content/foo.epub.xhtml">Title 2</a>
      |
      |        </li>
      |        <li id="toc-li-1">
-     |          <a href="content/bar.xhtml">Title 3</a>
+     |          <a href="content/bar.epub.xhtml">Title 3</a>
      |
      |        </li>
      |      </ol>""".stripMargin

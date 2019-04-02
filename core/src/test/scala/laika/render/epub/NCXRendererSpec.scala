@@ -34,7 +34,7 @@ class NCXRendererSpec extends FlatSpec with Matchers with ModelBuilder {
       |      <navLabel>
       |        <text>Title 2</text>
       |      </navLabel>
-      |      <content src="content/foo.xhtml" />
+      |      <content src="content/foo.epub.xhtml" />
       |
       |    </navPoint>""".stripMargin
     renderer.render(input, uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result, 1)
@@ -46,14 +46,14 @@ class NCXRendererSpec extends FlatSpec with Matchers with ModelBuilder {
      |      <navLabel>
      |        <text>Title 2</text>
      |      </navLabel>
-     |      <content src="content/foo.xhtml" />
+     |      <content src="content/foo.epub.xhtml" />
      |
      |    </navPoint>
      |    <navPoint id="navPoint-1">
      |      <navLabel>
      |        <text>Title 3</text>
      |      </navLabel>
-     |      <content src="content/bar.xhtml" />
+     |      <content src="content/bar.epub.xhtml" />
      |
      |    </navPoint>""".stripMargin
     renderer.render(input, uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result, 1)
@@ -66,19 +66,19 @@ class NCXRendererSpec extends FlatSpec with Matchers with ModelBuilder {
      |      <navLabel>
      |        <text>Title 2</text>
      |      </navLabel>
-     |      <content src="content/foo.xhtml" />
+     |      <content src="content/foo.epub.xhtml" />
      |
      |    </navPoint>
      |    <navPoint id="navPoint-1">
      |      <navLabel>
      |        <text>Tree 4</text>
      |      </navLabel>
-     |      <content src="content/sub/bar.xhtml" />
+     |      <content src="content/sub/bar.epub.xhtml" />
      |    <navPoint id="navPoint-2">
      |      <navLabel>
      |        <text>Title 3</text>
      |      </navLabel>
-     |      <content src="content/sub/bar.xhtml" />
+     |      <content src="content/sub/bar.epub.xhtml" />
      |
      |    </navPoint>
      |    </navPoint>""".stripMargin
@@ -91,7 +91,7 @@ class NCXRendererSpec extends FlatSpec with Matchers with ModelBuilder {
      |      <navLabel>
      |        <text>Title 2</text>
      |      </navLabel>
-     |      <content src="content/foo.xhtml" />
+     |      <content src="content/foo.epub.xhtml" />
      |
      |    </navPoint>""".stripMargin
     renderer.render(input, uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result, 1)
@@ -102,19 +102,19 @@ class NCXRendererSpec extends FlatSpec with Matchers with ModelBuilder {
      |      <navLabel>
      |        <text>Title 2</text>
      |      </navLabel>
-     |      <content src="content/foo.xhtml" />
+     |      <content src="content/foo.epub.xhtml" />
      |    <navPoint id="navPoint-1">
      |      <navLabel>
      |        <text>Section A</text>
      |      </navLabel>
-     |      <content src="content/foo.xhtml#A" />
+     |      <content src="content/foo.epub.xhtml#A" />
      |
      |    </navPoint>
      |    <navPoint id="navPoint-2">
      |      <navLabel>
      |        <text>Section B</text>
      |      </navLabel>
-     |      <content src="content/foo.xhtml#B" />
+     |      <content src="content/foo.epub.xhtml#B" />
      |
      |    </navPoint>
      |    </navPoint>
@@ -122,19 +122,19 @@ class NCXRendererSpec extends FlatSpec with Matchers with ModelBuilder {
      |      <navLabel>
      |        <text>Title 3</text>
      |      </navLabel>
-     |      <content src="content/bar.xhtml" />
+     |      <content src="content/bar.epub.xhtml" />
      |    <navPoint id="navPoint-4">
      |      <navLabel>
      |        <text>Section A</text>
      |      </navLabel>
-     |      <content src="content/bar.xhtml#A" />
+     |      <content src="content/bar.epub.xhtml#A" />
      |
      |    </navPoint>
      |    <navPoint id="navPoint-5">
      |      <navLabel>
      |        <text>Section B</text>
      |      </navLabel>
-     |      <content src="content/bar.xhtml#B" />
+     |      <content src="content/bar.epub.xhtml#B" />
      |
      |    </navPoint>
      |    </navPoint>""".stripMargin
@@ -146,14 +146,14 @@ class NCXRendererSpec extends FlatSpec with Matchers with ModelBuilder {
      |      <navLabel>
      |        <text>Title 2</text>
      |      </navLabel>
-     |      <content src="content/foo.xhtml" />
+     |      <content src="content/foo.epub.xhtml" />
      |
      |    </navPoint>
      |    <navPoint id="navPoint-1">
      |      <navLabel>
      |        <text>Title 3</text>
      |      </navLabel>
-     |      <content src="content/bar.xhtml" />
+     |      <content src="content/bar.epub.xhtml" />
      |
      |    </navPoint>""".stripMargin
     renderer.render(input, uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", result, 1)

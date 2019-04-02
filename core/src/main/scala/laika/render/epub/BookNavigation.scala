@@ -45,7 +45,7 @@ object BookNavigation {
       case Root => ""
       case _ => path.parent.toString
     }
-    "content" + parent + "/" + path.basename + "." + (if (forceXhtml || path.suffix == "html") "xhtml" else path.suffix)
+    "content" + parent + "/" + path.basename + "." + (if (forceXhtml || path.suffix == "html") "epub.xhtml" else path.suffix)
   }
 
   /** Extracts navigation structure from document trees, documents and section in the specified

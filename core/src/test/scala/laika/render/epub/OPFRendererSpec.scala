@@ -45,67 +45,67 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
 
   it should "render a tree with a single document" in new SingleDocument {
     val manifestItems =
-      """    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" />"""
+      """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />"""
     val spineRefs =
-      """    <itemref idref="foo_xhtml" />"""
+      """    <itemref idref="foo_epub_xhtml" />"""
     renderer.render(input, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
   }
 
   it should "render a tree with a two documents" in new TwoDocuments {
     val manifestItems =
-      """    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="bar_xhtml" href="content/bar.xhtml" media-type="application/xhtml+xml" />""".stripMargin
+      """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="bar_epub_xhtml" href="content/bar.epub.xhtml" media-type="application/xhtml+xml" />""".stripMargin
     val spineRefs =
-      """    <itemref idref="foo_xhtml" />
-        |    <itemref idref="bar_xhtml" />"""
+      """    <itemref idref="foo_epub_xhtml" />
+        |    <itemref idref="bar_epub_xhtml" />"""
     renderer.render(input, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
   }
 
   it should "render a tree with a title document" in new DocumentPlusTitle {
     val manifestItems =
-      """    <item id="title_xhtml" href="content/title.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="bar_xhtml" href="content/bar.xhtml" media-type="application/xhtml+xml" />""".stripMargin
-    val titleRef = """    <itemref idref="title_xhtml" />"""
+      """    <item id="title_epub_xhtml" href="content/title.epub.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="bar_epub_xhtml" href="content/bar.epub.xhtml" media-type="application/xhtml+xml" />""".stripMargin
+    val titleRef = """    <itemref idref="title_epub_xhtml" />"""
     val spineRefs =
-      """    <itemref idref="bar_xhtml" />"""
+      """    <itemref idref="bar_epub_xhtml" />"""
     renderer.render(input, config) shouldBe fileContent(manifestItems, titleRef, spineRefs, uuid, "Title 2")
   }
 
   it should "render a tree with a nested tree" in new NestedTree {
     val manifestItems =
-      """    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="sub_bar_xhtml" href="content/sub/bar.xhtml" media-type="application/xhtml+xml" />""".stripMargin
+      """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="sub_bar_epub_xhtml" href="content/sub/bar.epub.xhtml" media-type="application/xhtml+xml" />""".stripMargin
     val spineRefs =
-      """    <itemref idref="foo_xhtml" />
-        |    <itemref idref="sub_bar_xhtml" />"""
+      """    <itemref idref="foo_epub_xhtml" />
+        |    <itemref idref="sub_bar_epub_xhtml" />"""
     renderer.render(input, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
   }
 
   it should "render a tree with two nested trees" in new TwoNestedTrees {
     val manifestItems =
-      """    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="sub1_bar_xhtml" href="content/sub1/bar.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="sub1_baz_xhtml" href="content/sub1/baz.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="sub2_bar_xhtml" href="content/sub2/bar.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="sub2_baz_xhtml" href="content/sub2/baz.xhtml" media-type="application/xhtml+xml" />"""
+      """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="sub1_bar_epub_xhtml" href="content/sub1/bar.epub.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="sub1_baz_epub_xhtml" href="content/sub1/baz.epub.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="sub2_bar_epub_xhtml" href="content/sub2/bar.epub.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="sub2_baz_epub_xhtml" href="content/sub2/baz.epub.xhtml" media-type="application/xhtml+xml" />"""
     val spineRefs =
-      """    <itemref idref="foo_xhtml" />
-        |    <itemref idref="sub1_bar_xhtml" />
-        |    <itemref idref="sub1_baz_xhtml" />
-        |    <itemref idref="sub2_bar_xhtml" />
-        |    <itemref idref="sub2_baz_xhtml" />"""
+      """    <itemref idref="foo_epub_xhtml" />
+        |    <itemref idref="sub1_bar_epub_xhtml" />
+        |    <itemref idref="sub1_baz_epub_xhtml" />
+        |    <itemref idref="sub2_bar_epub_xhtml" />
+        |    <itemref idref="sub2_baz_epub_xhtml" />"""
     renderer.render(input, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
   }
 
   it should "render a tree with a nested tree and static documents" in new TreeWithStaticDocuments {
     val manifestItems =
-      """    <item id="foo_xhtml" href="content/foo.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="sub_bar_xhtml" href="content/sub/bar.xhtml" media-type="application/xhtml+xml" />
+      """    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="sub_bar_epub_xhtml" href="content/sub/bar.epub.xhtml" media-type="application/xhtml+xml" />
         |    <item id="sub_image_jpg" href="content/sub/image.jpg" media-type="image/jpeg" />
         |    <item id="sub_styles_css" href="content/sub/styles.css" media-type="text/css" />""".stripMargin
     val spineRefs =
-      """    <itemref idref="foo_xhtml" />
-        |    <itemref idref="sub_bar_xhtml" />"""
+      """    <itemref idref="foo_epub_xhtml" />
+        |    <itemref idref="sub_bar_epub_xhtml" />"""
     renderer.render(input, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
   }
 
@@ -130,6 +130,7 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
        |$manifestItems
        |  </manifest>
        |  <spine toc="ncx">
+       |
        |$titleRef
        |    <itemref idref="nav" />
        |$spineRefs
