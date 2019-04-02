@@ -44,9 +44,6 @@ class HtmlNavRenderer {
        |      <h1 id="toc-title">$title</h1>
        |$navItems
        |    </nav>
-       |    <nav epub:type="landmarks" hidden="hidden">
-       |      <ol />
-       |    </nav>
        |  </body>
        |</html>
        |
