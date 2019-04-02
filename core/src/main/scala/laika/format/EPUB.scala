@@ -126,11 +126,11 @@ object EPUB extends RenderResultProcessor[HTMLWriter] {
     val treeConfig = ConfigFactory.forTree(tree)
     val treeWithStyles = StyleSupport.ensureContainsStyles(tree)
     val treeWithCover = treeConfig.titleImage.fold(tree) { image =>
-      tree.copy(content = Document(Root / "cover", RootElement(Seq(SpanSequence(Seq(Image("cover", URI(image))))))) +: tree.content)
+      treeWithStyles.copy(content = Document(Root / "cover", RootElement(Seq(SpanSequence(Seq(Image("cover", URI(image)))))), config = com.typesafe.config.ConfigFactory.parseString("title: Cover")) +: tree.content)
     }
 
     render(treeWithCover, htmlOutput)
-    writer.write(treeWithStyles, treeConfig, htmlOutput.result, output)
+    writer.write(treeWithCover, treeConfig, htmlOutput.result, output)
 
   }
   
