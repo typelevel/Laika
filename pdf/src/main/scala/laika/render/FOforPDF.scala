@@ -218,10 +218,10 @@ class FOforPDF (config: Option[PDF.Config]) {
     }
 
     def resolveCoverImagePath: Config =
-      if (tree.config.hasPath("pdf.titleImage")) {
-        val uri = tree.config.getString("pdf.titleImage")
+      if (tree.config.hasPath("pdf.coverImage")) {
+        val uri = tree.config.getString("pdf.coverImage")
         val resolvedUri = PathInfo.fromURI(uri, Root).fold(uri)(_.absolute.toString)
-        tree.config.withValue("pdf.titleImage", ConfigValueFactory.fromAnyRef(resolvedUri))
+        tree.config.withValue("pdf.coverImage", ConfigValueFactory.fromAnyRef(resolvedUri))
       } else tree.config
 
     

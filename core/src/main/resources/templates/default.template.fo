@@ -21,8 +21,8 @@
 
   {{document.fragments.bookmarks}}
 
-  @:for "config.pdf.titleImage": {
-    <fox:external-document src="{{config.pdf.titleImage}}"
+  @:for "config.pdf.coverImage": {
+    <fox:external-document src="{{config.pdf.coverImage}}"
       width="21cm" height="29.7cm" content-width="21cm"/>
   }
 

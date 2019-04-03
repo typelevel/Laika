@@ -89,7 +89,7 @@ object EPUB extends RenderResultProcessor[HTMLWriter] {
     *  @param tocDepth the number of levels to generate a table of contents for
     *  @param tocTitle the title for the table of contents
     */
-  case class Config(metadata: DocumentMetadata = DocumentMetadata(), tocDepth: Int = Int.MaxValue, tocTitle: Option[String] = None, titleImage: Option[String] = None) {
+  case class Config(metadata: DocumentMetadata = DocumentMetadata(), tocDepth: Int = Int.MaxValue, tocTitle: Option[String] = None, coverImage: Option[String] = None) {
     lazy val identifier: String = metadata.identifier.getOrElse(s"urn:uuid:${UUID.randomUUID.toString}")
     lazy val date: Instant = metadata.date.getOrElse(Instant.now)
     lazy val formattedDate: String = DateTimeFormatter.ISO_INSTANT.format(date.truncatedTo(ChronoUnit.SECONDS))
@@ -125,7 +125,7 @@ object EPUB extends RenderResultProcessor[HTMLWriter] {
     val htmlOutput = new StringOutputTree(tree.path)
     val treeConfig = ConfigFactory.forTree(tree)
     val treeWithStyles = StyleSupport.ensureContainsStyles(tree)
-    val treeWithCover = treeConfig.titleImage.fold(tree) { image =>
+    val treeWithCover = treeConfig.coverImage.fold(tree) { image =>
       treeWithStyles.copy(content = Document(Root / "cover", RootElement(Seq(SpanSequence(Seq(Image("cover", URI(image)))))), config = com.typesafe.config.ConfigFactory.parseString("title: Cover")) +: tree.content)
     }
 

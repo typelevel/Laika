@@ -39,12 +39,12 @@ object ConfigFactory {
 
     val tocDepth = getOpt("epub.toc.depth", tree.config.getInt).getOrElse(defaults.tocDepth)
     val tocTitle = getOpt("epub.toc.title", tree.config.getString).orElse(defaults.tocTitle)
-    val titleImage = getOpt("epub.titleImage", tree.config.getString).orElse(defaults.titleImage)
+    val coverImage = getOpt("epub.coverImage", tree.config.getString).orElse(defaults.coverImage)
 
     val configForMetadata = tree.titleDocument.fold(tree.config)(_.config)
     val metadata = DocumentMetadata.fromConfig(configForMetadata)
 
-    EPUB.Config(metadata, tocDepth, tocTitle, titleImage)
+    EPUB.Config(metadata, tocDepth, tocTitle, coverImage)
   }
 
 }
