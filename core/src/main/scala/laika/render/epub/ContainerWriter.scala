@@ -114,7 +114,7 @@ class ContainerWriter {
 
     val inputs = collectInputs(tree, config, html)
 
-    IO.zip(inputs, output)
+    IO.zipEPUB(inputs, output)
 
   }
 
