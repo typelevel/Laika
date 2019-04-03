@@ -1,6 +1,6 @@
 package laika.render.epub
 
-import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
+import com.typesafe.config.{Config, ConfigValueFactory}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.io.Input
@@ -15,7 +15,7 @@ trait InputTreeBuilder extends ModelBuilder {
 
   def rootElemWithSections(num: Int) = root(title(s"Title $num"), section('A'), section('B'))
 
-  def configWithTreeTitle (num: Int): Config = ConfigFactory.empty
+  def configWithTreeTitle (num: Int): Config = com.typesafe.config.ConfigFactory.empty
     .withValue("title", ConfigValueFactory.fromAnyRef(s"Tree $num"))
 
   def tree (path: Path, titleNum: Int, docs: TreeContent*): DocumentTree =
@@ -42,6 +42,14 @@ trait TwoDocuments extends InputTreeBuilder {
 trait DocumentPlusTitle extends InputTreeBuilder {
 
   val doc1 = Document(Path.Root / "title", rootElem(2))
+  val doc2 = Document(Path.Root / "bar", rootElem(3))
+
+  val input = tree(Path.Root, 1, doc1, doc2)
+}
+
+trait DocumentPlusCover extends InputTreeBuilder {
+
+  val doc1 = Document(Path.Root / "cover", rootElem(2))
   val doc2 = Document(Path.Root / "bar", rootElem(3))
 
   val input = tree(Path.Root, 1, doc1, doc2)
