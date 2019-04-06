@@ -31,7 +31,7 @@ object TransitionalCollectionOps {
       * This is a temporary, strict implementation of `mapValues` until
       * the SDK offers such a method.
       */
-    def mapValuesStrict[W](f: V ⇒ W): Map[K, W] = {
+    def mapValuesStrict[W](f: V => W): Map[K, W] = {
       map.map {
         case (k,v) => (k,f(v))
       }
