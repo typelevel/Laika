@@ -18,7 +18,7 @@ lazy val basicSettings = Seq(
 
 lazy val moduleSettings = basicSettings ++ Seq(
   crossVersion       := CrossVersion.binary,
-  crossScalaVersions := Seq("2.12.8", "2.11.12")
+  crossScalaVersions := Seq("2.12.8")
 )
 
 lazy val publishSettings = Seq(
@@ -87,7 +87,7 @@ lazy val plugin = project.in(file("sbt"))
   .settings(
     name := "laika-sbt",
     sbtPlugin := true,
-    crossScalaVersions := Seq("2.12.6"),
+    crossScalaVersions := Seq("2.12.8"),
     publishMavenStyle := false,
     bintrayRepository := "sbt-plugins",
     bintrayOrganization := None,
