@@ -142,7 +142,7 @@ object DocumentMetadata {
       val authors = if (nConf.hasPath("author")) Seq(nConf.getString("author")) else if (nConf.hasPath("authors")) nConf.getStringList("authors").asScala else Nil
       val language = if (nConf.hasPath("language")) Try(Locale.forLanguageTag(nConf.getString("language"))).toOption else None
       val date = if (nConf.hasPath("date")) Try(Instant.parse(nConf.getString("date"))).toOption else None
-      DocumentMetadata(identifier, authors, language, date)
+      DocumentMetadata(identifier, authors.toSeq, language, date)
     }
     else DocumentMetadata()
   }
