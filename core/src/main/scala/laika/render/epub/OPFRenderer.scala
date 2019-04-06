@@ -30,7 +30,7 @@ class OPFRenderer {
   /** Inserts the specified spine references into the OPF document template
     * and returns the content of the entire OPF file.
     */
-  def fileContent (identifier: String, language: String, title: String, timestamp: String, docRefs: Seq[DocumentRef], authors: Seq[String] = Nil): String =
+  def fileContent (identifier: String, language: String, title: String, coverImage: Option[String], timestamp: String, docRefs: Seq[DocumentRef], authors: Seq[String] = Nil): String =
     s"""<?xml version="1.0" encoding="UTF-8"?>
        |<package
        |    version="3.0"
@@ -43,6 +43,7 @@ class OPFRenderer {
        |    <dc:date id="epub-date">$timestamp</dc:date>
        |    <dc:language>$language</dc:language>
        |${authors.map(author => s"    <dc:creator>$author</dc:creator>").mkString("\n")}
+       |${coverImage.map { img => s"""    <meta name="cover" content="EPUB/content/$img" />"""}.getOrElse("")}
        |    <meta property="dcterms:modified">$timestamp</meta>
        |  </metadata>
        |  <manifest>
@@ -58,9 +59,10 @@ class OPFRenderer {
        |  </spine>
        |  <guide>
        |    <reference type="toc" title="Table of Content" href="nav.xhtml" />
+       |${docRefs.filter(_.isCover).map { ref => s"""    <reference type="cover" title="Cover" href="${ref.link}" />""" }.mkString("\n")}
        |  </guide>
        |</package>
-    """.stripMargin
+    """.stripMargin.replaceAll("[\n]+", "\n")
 
   private case class DocumentRef (path: Path, mediaType: String, isSpine: Boolean, isTitle: Boolean = false, isCover: Boolean = false, forceXhtml: Boolean = false) {
 
@@ -90,7 +92,7 @@ class OPFRenderer {
     val docRefs = coverDoc.toSeq ++ titleDoc.toSeq ++ spineRefs(tree)
 
     val title = if (tree.title.isEmpty) "UNTITLED" else SpanSequence(tree.title).extractText
-    fileContent(config.identifier, config.language.toLanguageTag, title, config.formattedDate, docRefs, config.metadata.authors)
+    fileContent(config.identifier, config.language.toLanguageTag, title, config.coverImage, config.formattedDate, docRefs, config.metadata.authors)
   }
 
 
