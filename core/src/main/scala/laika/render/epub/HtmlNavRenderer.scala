@@ -16,6 +16,7 @@
 
 package laika.render.epub
 
+import laika.ast.Path.Current
 import laika.ast._
 import laika.render.epub.StyleSupport.collectStyles
 
@@ -29,7 +30,7 @@ class HtmlNavRenderer {
   /** Inserts the specified (pre-rendered) navPoints into the NCX document template
     * and returns the content of the entire NCX file.
     */
-  def fileContent (title: String, styles: String, navItems: String): String =
+  def fileContent (title: String, styles: String, navItems: String, coverDoc: Option[String] = None, titleDoc: Option[String] = None): String =
     s"""<?xml version="1.0" encoding="UTF-8"?>
        |<!DOCTYPE html>
        |<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
@@ -44,16 +45,25 @@ class HtmlNavRenderer {
        |      <h1 id="toc-title">$title</h1>
        |$navItems
        |    </nav>
+       |    <nav epub:type="landmarks" id="landmarks">
+       |      <h2>Guide</h2>
+       |      <ol>
+       |${coverDoc.fold("")(uri => navLink("Cover", uri, 100001, "", "epub:type=\"cover\" "))}
+       |${titleDoc.fold("")(uri => navLink(title, uri, 100002, "", "epub:type=\"titlepage\" "))}
+       |        <li>
+       |          <a epub:type="toc" href="#toc">Table of Contents</a>
+       |        </li>
+       |    </nav>
        |  </body>
        |</html>
        |
-    """.stripMargin
+    """.stripMargin.replaceAll("[\n]+", "\n")
 
   /** Renders a single navigation link.
     */
-  def navLink (title: String, link: String, pos: Int, children: String): String =
+  def navLink (title: String, link: String, pos: Int, children: String, epubType: String = ""): String =
     s"""        <li id="toc-li-$pos">
-       |          <a href="$link">$title</a>
+       |          <a ${epubType}href="$link">$title</a>
        |$children
        |        </li>""".stripMargin
 
@@ -89,12 +99,15 @@ class HtmlNavRenderer {
     */
   def render (tree: DocumentTree, depth: Int): String = {
     val title = if (tree.title.isEmpty) "UNTITLED" else SpanSequence(tree.title).extractText
-    val bookNav = BookNavigation.forTree(tree, depth)
+    val bookNav = BookNavigation.forTree(tree.copy(content = tree.content.filter(_.path.basename != "cover")), depth)
     val styles = collectStyles(tree).map { input =>
       s"""<link rel="stylesheet" type="text/css" href="content${input.path.toString}" />"""
     }.mkString("\n    ")
     val renderedNavPoints = navItems(bookNav)
-    fileContent(title, styles, renderedNavPoints)
+    val coverDoc = tree.selectDocument(Current / "cover").map(doc => BookNavigation.fullPath(doc.path, forceXhtml = true))
+    val titleDoc = tree.titleDocument.map(doc => BookNavigation.fullPath(doc.path, forceXhtml = true))
+
+    fileContent(title, styles, renderedNavPoints, coverDoc, titleDoc)
   }
 
 
