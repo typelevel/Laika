@@ -130,7 +130,7 @@ object ExplicitBlockParsers {
     val notEmpty = not(blankLine) | lookAhead(restOfLine ~ (ws min 1) ~ not(blankLine))
 
     (notEmpty ~> indentedBlock()) ^^ {
-      _.lines map (_.trim) mkString
+      _.linesIterator map (_.trim) mkString
     }
   }
 

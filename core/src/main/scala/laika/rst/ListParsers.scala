@@ -42,7 +42,7 @@ object ListParsers {
         case start ~ ws =>
           recParsers.recursiveBlocks(indentedBlock(minIndent = start + ws, maxIndent = start + ws) ~
               opt(blankLines | eof | lookAhead(itemStart)) ^^? {
-            case (block ~ None) if block.lines.length < 2 => Left("not a list item")
+            case (block ~ None) if block.linesIterator.length < 2 => Left("not a list item")
             case (block ~ _) => Right(block)
           }).map(newListItem)
       } 
