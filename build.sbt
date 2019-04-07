@@ -18,7 +18,7 @@ lazy val basicSettings = Seq(
 
 lazy val moduleSettings = basicSettings ++ Seq(
   crossVersion       := CrossVersion.binary,
-  crossScalaVersions := Seq("2.12.8")
+  crossScalaVersions := Seq("2.12.8", "2.13.0-RC1")
 )
 
 lazy val publishSettings = Seq(
@@ -49,7 +49,7 @@ lazy val noPublishSettings = Seq(
   publishTo := None
 )
 
-val scalatest = "org.scalatest"          %% "scalatest" % "3.0.5" % "test"
+val scalatest = "org.scalatest"          %% "scalatest" % "3.0.8-RC2" % "test"
 val jTidy     = "net.sf.jtidy"           % "jtidy"      % "r938"  % "test"
 val config    = "com.typesafe"           % "config"     % "1.2.1"
 val fop       = "org.apache.xmlgraphics" % "fop"        % "2.3"
