@@ -103,7 +103,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
 
 
     def withDefaultTemplate(result: String, bookmarks: String = ""): String =
-      defaultTemplate.replace("{{document.content}}", result).replace("{{document.fragments.bookmarks}}", bookmarks)    
+      defaultTemplate.replace("{{document.content}}", result).replace("{{document.fragments.bookmarks}}", bookmarks).replaceAll("(?s)@.*  }", "")
       
     def bookmarkTreeResult(treeNum: Int, docNum: Int, titleDoc: Boolean = false): String = {
       val title = if (!titleDoc) s"Tree ${treeNum+1} &amp; More" else s"Title Doc ${treeNum+1}"
