@@ -43,8 +43,8 @@ object DocumentParser {
       root.collect { case c: ConfigValue => (c.name, c.value) }.toMap
 
     val parser = configHeaderParser(input.path) ~ rootParser ^^ { case configHeader ~ root =>
-      val config = configHeader.right.getOrElse(ConfigFactory.empty)
-      val message = configHeader.left.toOption
+      val config = configHeader.getOrElse(ConfigFactory.empty)
+      val message = configHeader.swap.toOption
       val processedConfig = ConfigHeaderParser.merge(config, extractConfigValues(root))
       docFactory(input.path, processedConfig, message, root)
     }

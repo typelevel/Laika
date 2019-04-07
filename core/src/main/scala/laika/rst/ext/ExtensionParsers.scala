@@ -183,10 +183,10 @@ class ExtensionParsers(recParsers: RecursiveParsers,
         val invalid = new ListBuffer[String]
 
         for ((name, f) <- requiredFields) {
-          parsed.remove(name).map(res => f(res).left map {invalid += name + ": " + _}).getOrElse(missing += name)
+          parsed.remove(name).map(res => f(res).swap map {invalid += name + ": " + _}).getOrElse(missing += name)
         }
         for ((name, f) <- optionalFields) {
-          parsed.remove(name).map(res => f(res).left map {invalid += name + ": " + _})
+          parsed.remove(name).map(res => f(res).swap map {invalid += name + ": " + _})
         }
         
         val errors = new ListBuffer[String]
@@ -211,7 +211,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
     }
     
     def optionToEither [T](f: String => Either[String,T])(res: Option[String]): Either[String,Option[T]] =
-      (res map f) map (_.right map (res => Some(res))) getOrElse Right(None)
+      (res map f) map (_.map(res => Some(res))) getOrElse Right(None)
     
     def argument [T](convert: String => Either[String,T] = {s:String => Right(s)}, 
                      withWS: Boolean = false): Result[T] = {
@@ -249,7 +249,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
       separator = contentSeparator
       fields = directiveFieldList
       val result = new LazyResult[T]
-      requiredFields += (name -> { s:String => f(s).right map result.set })
+      requiredFields += (name -> { s:String => f(s) map result.set })
       new Result(result.get)
     }
     
@@ -257,7 +257,7 @@ class ExtensionParsers(recParsers: RecursiveParsers,
       separator = if (separator ne contentSeparator) opt(contentSeparator) else contentSeparator
       fields = directiveFieldList
       val result = new LazyResult[T]
-      optionalFields += (name -> { s:String => f(s).right map result.set })
+      optionalFields += (name -> { s:String => f(s) map result.set })
       new Result(result.value)
     }
 
