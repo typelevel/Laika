@@ -45,15 +45,6 @@ class HtmlNavRenderer {
        |      <h1 id="toc-title">$title</h1>
        |$navItems
        |    </nav>
-       |    <nav epub:type="landmarks" id="landmarks">
-       |      <h2>Guide</h2>
-       |      <ol>
-       |${coverDoc.fold("")(uri => navLink("Cover", uri, 100001, "", "epub:type=\"cover\" "))}
-       |${titleDoc.fold("")(uri => navLink(title, uri, 100002, "", "epub:type=\"titlepage\" "))}
-       |        <li>
-       |          <a epub:type="toc" href="#toc">Table of Contents</a>
-       |        </li>
-       |    </nav>
        |  </body>
        |</html>
        |
