@@ -76,9 +76,10 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
   it should "render a tree with a cover" in new DocumentPlusCover {
     val manifestItems =
       """    <item id="cover_epub_xhtml" href="content/cover.epub.xhtml" media-type="application/xhtml+xml" />
-        |    <item id="bar_epub_xhtml" href="content/bar.epub.xhtml" media-type="application/xhtml+xml" />""".stripMargin
+        |    <item id="bar_epub_xhtml" href="content/bar.epub.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="cover_png" href="content/cover.png" media-type="image/png" />""".stripMargin
     val coverEntries = CoverEntries(
-      metadata = """    <meta name="cover" content="EPUB/content/cover.png" />""",
+      metadata = """    <meta name="cover" content="cover_png" />""",
       spine =    """    <itemref idref="cover_epub_xhtml" />""",
       guide =    """    <reference type="cover" title="Cover" href="content/cover.epub.xhtml" />"""
     )

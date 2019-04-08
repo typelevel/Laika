@@ -1,6 +1,7 @@
 package laika.render.epub
 
 import com.typesafe.config.{Config, ConfigValueFactory}
+import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.io.Input
@@ -51,8 +52,9 @@ trait DocumentPlusCover extends InputTreeBuilder {
 
   val doc1 = Document(Path.Root / "cover", rootElem(2))
   val doc2 = Document(Path.Root / "bar", rootElem(3))
+  val coverImage = StaticDocument(Input.fromString("", Root / "cover.png"))
 
-  val input = tree(Path.Root, 1, doc1, doc2)
+  val input = tree(Path.Root, 1, doc1, doc2).copy(additionalContent = Seq(coverImage))
 }
 
 trait DocumentPlusStyle extends InputTreeBuilder {

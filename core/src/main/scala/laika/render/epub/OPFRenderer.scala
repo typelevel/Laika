@@ -43,7 +43,7 @@ class OPFRenderer {
        |    <dc:date id="epub-date">$timestamp</dc:date>
        |    <dc:language>$language</dc:language>
        |${authors.map(author => s"    <dc:creator>$author</dc:creator>").mkString("\n")}
-       |${coverImage.map { img => s"""    <meta name="cover" content="EPUB/content/$img" />"""}.getOrElse("")}
+       |${docRefs.filter(ref => coverImage.contains(ref.link)).map { ref => s"""    <meta name="cover" content="${ref.id}" />"""}.mkString("\n")}
        |    <meta property="dcterms:modified">$timestamp</meta>
        |  </metadata>
        |  <manifest>
@@ -92,7 +92,7 @@ class OPFRenderer {
     val docRefs = coverDoc.toSeq ++ titleDoc.toSeq ++ spineRefs(tree)
 
     val title = if (tree.title.isEmpty) "UNTITLED" else SpanSequence(tree.title).extractText
-    fileContent(config.identifier, config.language.toLanguageTag, title, config.coverImage, config.formattedDate, docRefs, config.metadata.authors)
+    fileContent(config.identifier, config.language.toLanguageTag, title, config.coverImage.map("content/"+_), config.formattedDate, docRefs, config.metadata.authors)
   }
 
 
