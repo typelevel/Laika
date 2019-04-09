@@ -36,7 +36,7 @@ which had been the final release supporting those versions.
 
 Add the plugin to `project/plugins.sbt`:
 
-    addSbtPlugin("org.planet42" % "laika-sbt" % "0.10.0")
+    addSbtPlugin("org.planet42" % "laika-sbt" % "0.11.0")
 
 Enable the plugin in your project's `build.sbt`:
 
@@ -51,7 +51,7 @@ in `target/docs/site`.
 
 Adding the Laika dependency to your sbt build:
 
-    libraryDependencies += "org.planet42" %% "laika-core" % "0.10.0"
+    libraryDependencies += "org.planet42" %% "laika-core" % "0.11.0"
 
 Example for transforming from file to file:
 
@@ -68,7 +68,7 @@ Example for transforming an entire directory of markup files to a single PDF fil
     
 When using Laika's PDF support you need to add one more dependency to your build:
 
-    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.10.0"
+    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.11.0"
 
 
 ### Other Resources
@@ -147,19 +147,30 @@ Features
 Road Map
 --------
 
-* __0.11__: Support for output in the epub format
+* __0.12__: Library API: integration with cats-effect and improved referential transparency
 
-* __0.12__: Integrated support for syntax highlighting in source code
+* __0.13__: (tentative) Support for Scala.js
 
-* __0.13__: Library API: integration with cats-effect and improved referential transparency
+* __0.14__: Integrated support for syntax highlighting in source code
 
-* __0.14__: Include a set of default themes for all output formats
+* __0.15__: Include a set of default themes for all output formats
 
 * __1.0__: API polishing and removal of all deprecations
 
 
 Release History
 ---------------
+
+* __0.11.0__ (?, 2019):
+
+    * New Renderer for producing EPUB containers
+    * New `laikaEPUB` task in the sbt plugin
+    * New `laikaIncludeEPUB` setting for the `laikaSite` task
+    * Support for cover images for EPUB and PDF
+    * Support for document metadata (author, language, date, etc.) for EPUB and PDF
+    * Support for title pages per chapter
+    * Backwards-compatible to 0.9.0 and 0.10.0 - if you update from earlier version, please see
+      the release notes for 0.9.0 for migration
 
 * __0.10.0__ (Dec 1, 2018):
 
