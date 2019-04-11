@@ -290,12 +290,6 @@ class XSLFORendererSpec extends FlatSpec
     render (elem) should be (html) 
   }
   
-  case class ForcedParagraph (content: Seq[Span], options: Options = NoOpt) extends Block 
-                                                                            with SpanContainer[ForcedParagraph] 
-                                                                            with Fallback {
-    def fallback = Paragraph(content, options)
-  }
-  
   private def fp (content: String) = ForcedParagraph(List(Text(content)))
   
   it should "render a bullet list with forced paragraphs as list items the same way as normal paragraphs" in {
