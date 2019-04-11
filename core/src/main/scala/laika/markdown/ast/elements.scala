@@ -34,7 +34,9 @@ abstract class HTMLSpan extends Span
 /** Represents a full HTML element with matching start and end tags. The content of this span container
   *  may contain further nested HTML elements and tags as well as simple text elements.
   */
-case class HTMLElement (startTag: HTMLStartTag, content: List[Span], options: Options = NoOpt) extends HTMLSpan with SpanContainer[HTMLElement]
+case class HTMLElement (startTag: HTMLStartTag, content: Seq[Span], options: Options = NoOpt) extends HTMLSpan with SpanContainer[HTMLElement] {
+  protected def withContent (newContent: Seq[Span]): HTMLElement = copy(content = newContent)
+}
 
 /** Represent a start tag. When this element is part of a final document tree, it represents
   *  an orphaned start tag without matching end tag. In HTML this may be legal (some tags like the p

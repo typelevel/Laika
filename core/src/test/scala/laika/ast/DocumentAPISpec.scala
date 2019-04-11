@@ -18,7 +18,6 @@ package laika.ast
 
 import laika.api.Parse
 import laika.ast.helper.ModelBuilder
-import laika.bundle.RewriteRules
 import laika.config.OperationConfig
 import laika.format.Markdown
 import org.scalatest.{FlatSpec, Matchers}
@@ -96,7 +95,7 @@ class DocumentAPISpec extends FlatSpec
     val testRule: RewriteRule = {
       case Text("Some text",_) => Some(Text("Swapped"))
     }
-    val rules = RewriteRules.chain(Seq(testRule, OperationConfig.default.rewriteRule(cursor)))
+    val rules = laika.bundle.RewriteRules.chain(Seq(testRule, OperationConfig.default.rewriteRule(cursor)))
     val rewritten = raw rewrite rules
     rewritten.content should be (root(
       Section(Header(1, List(Text("Section 1")), Id("section-1") + Styles("section")), List(p("Swapped"))),

@@ -68,7 +68,9 @@ object DocumentViewBuilder {
   
   case class Content (content: Seq[Block]) extends DocumentContent with BlockContainer[Content]
   
-  case class Title (content: Seq[Span]) extends DocumentContent with SpanContainer[Title]
+  case class Title (content: Seq[Span]) extends DocumentContent with SpanContainer[Title]  {
+    protected def withContent (newContent: Seq[Span]): Title = copy(content = newContent)
+  }
   
   case class Sections (content: Seq[SectionInfo]) extends DocumentContent with ElementContainer[SectionInfo, Sections]
   

@@ -16,9 +16,11 @@
 
 package laika.bundle
 
-import laika.ast.{DocumentCursor, Element, RewriteRule}
+import laika.ast._
 import laika.rewrite.link.LinkResolver
 import laika.rewrite.nav.SectionBuilder
+
+import scala.annotation.tailrec
 
 /** Utilities for dealing with rewrite rules.
  * 
@@ -39,6 +41,27 @@ object RewriteRules {
     }
     
     ChainedRewriteRules(rules.flatMap(extractRules))
+  }
+  
+  case class ChainedRewriteRules2[T] (rules: Seq[PartialFunction[T, RewriteAction[T]]]) {
+
+    def apply (element: T): RewriteAction[T] = {
+      
+      @tailrec
+      def applyNextRule (currentAction: RewriteAction[T], remainingRules: Seq[PartialFunction[T, RewriteAction[T]]]): RewriteAction[T] =
+        if (currentAction == Remove || remainingRules.isEmpty) currentAction
+        else {
+          val input = currentAction match {
+            case Replace(elem) => elem
+            case _ => element
+          }
+          val action = remainingRules.head.applyOrElse[T, RewriteAction[T]](input, _ => currentAction)
+          applyNextRule(action, remainingRules.tail)
+        }
+      
+      applyNextRule(Retain, rules)
+    }
+    
   }
   
   private case class ChainedRewriteRules (rules: Seq[RewriteRule]) extends RewriteRule {

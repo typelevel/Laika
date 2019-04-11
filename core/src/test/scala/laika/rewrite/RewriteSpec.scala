@@ -81,6 +81,16 @@ class RewriteSpec extends FlatSpec
     val after = before rewrite { case Paragraph(Seq(Text("a",_)),_) => Some(p("x")) }
     before.content(1) should be theSameInstanceAs (after.content(1))
   }
+
+  it should "rewrite a span container" in {
+    val before = p(txt("a"), em("b"), txt("c"))
+    before rewriteSpans { case Emphasized(Seq(Text("b",_)),_) => Replace(str("x")) } should be (p(txt("a"), str("x"), txt("c")))
+  }
+
+  it should "rewrite a nested span container" in {
+    val before = p(txt("a"), em("b"), txt("c"))
+    before rewriteSpans { case Text("b",_) => Replace(txt("x")) } should be (p(txt("a"), em("x"), txt("c")))
+  }
   
   it should "throw an exception when a rewrite rule produces a new element that violates the contract of its parent element" in {
     val rootElem = root(Section(h(1,"Title"), Nil)) 

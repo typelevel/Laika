@@ -104,7 +104,9 @@ case class TemplateElement (element: Element, indent: Int = 0, options: Options 
  *  Usually renderers do not treat the container as a special element and render its children
  *  as s sub flow of the parent container.
  */
-case class TemplateSpanSequence (content: Seq[TemplateSpan], options: Options = NoOpt) extends TemplateSpan with SpanContainer[TemplateSpanSequence]
+case class TemplateSpanSequence (content: Seq[TemplateSpan], options: Options = NoOpt) extends TemplateSpan with SpanContainer[TemplateSpanSequence] {
+  protected def withContent (newContent: Seq[Span]): TemplateSpanSequence = copy(content = content) // TODO - 0.12 - fix type mismatch
+}
 
 /** A simple string element, representing the parts of a template
  *  that are not detected as special markup constructs and treated as raw text.
@@ -113,7 +115,9 @@ case class TemplateString (content: String, options: Options = NoOpt) extends Te
 
 /** The root element of a template document tree.
  */
-case class TemplateRoot (content: Seq[TemplateSpan], options: Options = NoOpt) extends Block with SpanContainer[TemplateRoot]
+case class TemplateRoot (content: Seq[TemplateSpan], options: Options = NoOpt) extends Block with SpanContainer[TemplateRoot] {
+  protected def withContent (newContent: Seq[Span]): TemplateRoot = copy(content = content) // TODO - 0.12 - fix type mismatch
+}
 
 /** Companion with a fallback instance for setups without a default template */
 object TemplateRoot {

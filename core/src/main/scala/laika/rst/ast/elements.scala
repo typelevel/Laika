@@ -30,7 +30,9 @@ case class Field (name: Seq[Span], content: Seq[Block], options: Options = NoOpt
 
 /** A classifier for a term in a definition list.
   */
-case class Classifier (content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer[Classifier]
+case class Classifier (content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer[Classifier] {
+  protected def withContent (newContent: Seq[Span]): Classifier = copy(content = newContent)
+}
 
 /** A list of command line options and descriptions.
   */

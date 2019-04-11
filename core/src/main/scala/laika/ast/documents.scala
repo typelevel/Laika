@@ -121,7 +121,9 @@ case class SectionInfo (id: String, title: TitleInfo, content: Seq[SectionInfo])
 
 /** Represents a section title.
  */
-case class TitleInfo (content: Seq[Span]) extends SpanContainer[TitleInfo]
+case class TitleInfo (content: Seq[Span]) extends SpanContainer[TitleInfo] {
+  protected def withContent (newContent: Seq[Span]): TitleInfo = copy(content = newContent)
+}
 
 /** Metadata associated with a document.
   */
