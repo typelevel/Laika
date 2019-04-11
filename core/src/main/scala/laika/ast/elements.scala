@@ -163,7 +163,7 @@ trait BlockContainer[Self <: BlockContainer[Self]] extends ElementContainer[Bloc
 /** A container of other Span elements. Such a container may be a Block
  *  or a Span itself.
  */
-trait SpanContainer[Self <: SpanContainer[Self]] extends ElementContainer[Span,Self] with RewritableContainer[Span, Self] {
+trait SpanContainer[Self <: SpanContainer[Self]] extends ElementContainer[Span,Self] with RewritableContainer[Span, Self] { this: Self =>
 
   protected def rulesForContent (rules: RewriteRules): RewriteRule[Span] = rules.spanRules
   

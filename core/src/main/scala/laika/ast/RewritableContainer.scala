@@ -40,7 +40,7 @@ trait Rewritable[Self <: Rewritable[Self]] {
   
 }
 
-trait RewritableContainer[E <: AnyRef, Self <: RewritableContainer[E, Self]] extends Rewritable[Self] {
+trait RewritableContainer[E <: AnyRef, Self <: RewritableContainer[E, Self]] extends Rewritable[Self] { this: Self =>
 
   def content: Seq[E] // TODO - 0.12 - should extend a Container trait
   
@@ -56,7 +56,7 @@ trait RewritableContainer[E <: AnyRef, Self <: RewritableContainer[E, Self]] ext
       case child => contentRules.applyOrElse[E, RewriteAction[E]](child, _ => Retain)
     }
     
-    if (actions.forall(_ == Retain)) this.asInstanceOf[Self]
+    if (actions.forall(_ == Retain)) this
     else {
       val newContent = content.zip(actions) flatMap {
         case (element, Retain) => Some(element)
