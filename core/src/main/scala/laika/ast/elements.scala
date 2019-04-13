@@ -158,7 +158,16 @@ trait ElementContainer[+E <: Element, Self <: ElementContainer[E,Self]] extends 
 /** A container of other Block elements. Such a container is usually
  *  also a Block itself.
  */
-trait BlockContainer[Self <: BlockContainer[Self]] extends ElementContainer[Block,Self]
+trait BlockContainer[Self <: BlockContainer[Self]] extends ElementContainer[Block,Self] with RewritableContainer[Block, Self] { this: Self =>
+
+  protected def rulesForContent (rules: RewriteRules): RewriteRule[Block] = rules.blockRules
+
+  def rewriteBlocks (rules: RewriteRule[Block]): Self = rewrite2(new RewriteRules {
+    override def spanRules: PartialFunction[Span, RewriteAction[Span]] = PartialFunction.empty
+    override def blockRules: PartialFunction[Block, RewriteAction[Block]] = rules
+  })
+  
+}
 
 /** A container of other Span elements. Such a container may be a Block
  *  or a Span itself.
@@ -186,7 +195,9 @@ trait ListContainer[Self <: ListContainer[Self]] extends ElementContainer[ListIt
 
 /** The root element of a document tree.
  */
-case class RootElement (content: Seq[Block]) extends Element with BlockContainer[RootElement]
+case class RootElement (content: Seq[Block]) extends Element with BlockContainer[RootElement] {
+  protected def withContent (newContent: Seq[Block]): RootElement = copy(content = newContent)
+}
 
 /** A named document fragment that usually gets rendered separately from the main root element
  */
@@ -206,7 +217,9 @@ case class ConfigValue (name: String, value: AnyRef, options: Options = NoOpt) e
  *  of a list of Block elements. Sections may be nested inside other sections,
  *  they are arranged in a hierarchy based on the level of their header element.
  */
-case class Section (header: Header, content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[Section]
+case class Section (header: Header, content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[Section] {
+  protected def withContent (newContent: Seq[Block]): Section = copy(content = newContent)
+}
 
 /** A header element with a level, with 1 being the top level of the document.
  */
@@ -255,7 +268,9 @@ case class SectionNumber(position: Seq[Int], options: Options = NoOpt) extends S
  *  Usually renderers do not treat the container as a special element and render its children
  *  as s sub flow of the parent container.
  */
-case class BlockSequence (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[BlockSequence]
+case class BlockSequence (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[BlockSequence] {
+  protected def withContent (newContent: Seq[Block]): BlockSequence = copy(content = newContent)
+}
 
 /** A generic container element containing a list of spans. Can be used where a sequence
  *  of spans must be inserted in a place where a single element is required by the API.
@@ -296,19 +311,25 @@ case class CodeBlock (language: String, content: Seq[Span], options: Options = N
  *  nested quoted blocks and an attribution which may be empty.
  */
 case class QuotedBlock (content: Seq[Block], attribution: Seq[Span], options: Options = NoOpt) extends Block
-                                                                                               with BlockContainer[QuotedBlock]
+                                                                                               with BlockContainer[QuotedBlock] {
+  protected def withContent (newContent: Seq[Block]): QuotedBlock = copy(content = newContent)
+}
 
 /** Generic block element with a title.
  *  Often combined with the the `styles` attribute of the `options` parameter to provide
  *  additional render hints.
  */
 case class TitledBlock (title: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends Block
-                                                                                         with BlockContainer[TitledBlock]
+                                                                                         with BlockContainer[TitledBlock] {
+  protected def withContent (newContent: Seq[Block]): TitledBlock = copy(content = newContent)
+}
 
 /** A figure consists of an image, an optional caption, and an optional legend as the `content` property.
  *  The `image` property is of type `Span` as the image might be wrapped inside a link reference.
  */
-case class Figure (image: Span, caption: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[Figure]
+case class Figure (image: Span, caption: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[Figure] {
+  protected def withContent (newContent: Seq[Block]): Figure = copy(content = newContent)
+}
 
 /** A bullet list that may contain nested lists.
  */
@@ -367,12 +388,16 @@ object EnumType {
 /** A single bullet list item consisting of one or more block elements.
  */
 case class BulletListItem (content: Seq[Block], format: BulletFormat, options: Options = NoOpt) extends ListItem
-                                                                                                with BlockContainer[BulletListItem]
+                                                                                                with BlockContainer[BulletListItem] {
+  protected def withContent (newContent: Seq[Block]): BulletListItem = copy(content = newContent)
+}
 
 /** A single enum list item consisting of one or more block elements.
  */
 case class EnumListItem (content: Seq[Block], format: EnumFormat, position: Int, options: Options = NoOpt) extends ListItem
-                                                                                                    with BlockContainer[EnumListItem]
+                                                                                                    with BlockContainer[EnumListItem] {
+  protected def withContent (newContent: Seq[Block]): EnumListItem = copy(content = newContent)
+}
 
 /** A list of terms and their definitions.
  *  Not related to the `Definition` base trait.
@@ -382,7 +407,9 @@ case class DefinitionList (content: Seq[DefinitionListItem], options: Options = 
 /** A single definition item, containing the term and definition (as the content property).
  */
 case class DefinitionListItem (term: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends ListItem
-                                                                                               with BlockContainer[DefinitionListItem]
+                                                                                               with BlockContainer[DefinitionListItem] {
+  protected def withContent (newContent: Seq[Block]): DefinitionListItem = copy(content = newContent)
+}
 
 /** A single item inside a line block.
  */
@@ -396,7 +423,9 @@ case class Line (content: Seq[Span], options: Options = NoOpt) extends LineBlock
 
 /** A block containing lines which preserve line breaks and optionally nested line blocks.
  */
-case class LineBlock (content: Seq[LineBlockItem], options: Options = NoOpt) extends LineBlockItem with BlockContainer[LineBlock]
+case class LineBlock (content: Seq[LineBlockItem], options: Options = NoOpt) extends LineBlockItem with BlockContainer[LineBlock] {
+  protected def withContent (newContent: Seq[Block]): LineBlock = copy(content = newContent.asInstanceOf[Seq[LineBlockItem]]) // TODO - 0.12 - type mismatch
+}
 
 
 /** A table consisting of a head and a body part and optional caption and column specification.
@@ -453,7 +482,9 @@ case class Row (content: Seq[Cell], options: Options = NoOpt) extends TableEleme
  *  one or more block elements.
  */
 case class Cell (cellType: CellType, content: Seq[Block], colspan: Int = 1, rowspan: Int = 1, options: Options = NoOpt) extends TableElement
-                                                                                                                        with BlockContainer[Cell]
+                                                                                                                        with BlockContainer[Cell] {
+  protected def withContent (newContent: Seq[Block]): Cell = copy(content = newContent)
+}
 
 /** The cell type specifies which part of the table the cell belongs to.
  */
@@ -482,7 +513,9 @@ case class LinkAlias (id: String, target: String, options: Options = NoOpt) exte
  *  by a rewrite rule based on the label type.
  */
 case class FootnoteDefinition (label: FootnoteLabel, content: Seq[Block], options: Options = NoOpt) extends Definition
-                                                                                                    with BlockContainer[Footnote]
+                                                                                                    with BlockContainer[FootnoteDefinition] {
+  protected def withContent (newContent: Seq[Block]): FootnoteDefinition = copy(content = newContent)
+}
 
 
 /** Points to the following block or span element, making it a target for links.
@@ -493,13 +526,17 @@ case class InternalLinkTarget (options: Options = NoOpt) extends Block with Span
  */
 case class Citation (label: String, content: Seq[Block], options: Options = NoOpt) extends Block
                                                                                 with LinkTarget
-                                                                                with BlockContainer[Footnote]
+                                                                                with BlockContainer[Citation] {
+  protected def withContent (newContent: Seq[Block]): Citation = copy(content = newContent)
+}
 
 /** A footnote with resolved id and label that can be referred to by a `FootnoteLink` by id.
  */
 case class Footnote (label: String, content: Seq[Block], options: Options = NoOpt) extends Block
                                                                                                with LinkTarget
-                                                                                               with BlockContainer[Footnote]
+                                                                                               with BlockContainer[Footnote] {
+  protected def withContent (newContent: Seq[Block]): Footnote = copy(content = newContent)
+}
 
 
 /** Base type for all types of footnote labels.

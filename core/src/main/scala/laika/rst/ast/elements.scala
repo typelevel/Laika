@@ -26,7 +26,9 @@ case class FieldList (content: Seq[Field], options: Options = NoOpt) extends Blo
 
 /** A single entry in a field list consisting of name and body.
   */
-case class Field (name: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends ListItem with BlockContainer[Field]
+case class Field (name: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends ListItem with BlockContainer[Field] {
+  protected def withContent (newContent: Seq[Block]): Field = copy(content = content)
+}
 
 /** A classifier for a term in a definition list.
   */
@@ -41,7 +43,9 @@ case class OptionList (content: Seq[OptionListItem], options: Options = NoOpt) e
 /** A single item in an option list. The content property serves as the description of the option.
   */
 case class OptionListItem (programOptions: Seq[ProgramOption], content: Seq[Block], options: Options = NoOpt) extends ListItem
-  with BlockContainer[OptionListItem]
+                                                                                                              with BlockContainer[OptionListItem] {
+  protected def withContent (newContent: Seq[Block]): OptionListItem = copy(content = content)
+}
 
 /** A single option, including its name and all arguments, but not the description.
   */

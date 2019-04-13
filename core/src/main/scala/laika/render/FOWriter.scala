@@ -244,11 +244,15 @@ object FOWriter {
 
   /** The body of a list item containing a sequence of block elements.
    */
-  case class ListItemBody (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[ListItemBody]
+  case class ListItemBody (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[ListItemBody] {
+    protected def withContent (newContent: Seq[Block]): ListItemBody = copy(content = content)
+  }
 
   /** The body of a footnote containing a sequence of block elements.
    */
-  case class FootnoteBody (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[FootnoteBody]
+  case class FootnoteBody (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[FootnoteBody] {
+    protected def withContent (newContent: Seq[Block]): FootnoteBody = copy(content = content)
+  }
   
   /** An entire bookmark tree and its nested bookmarks,
    *  the top level element for FO bookmarks.
