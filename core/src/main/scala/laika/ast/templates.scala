@@ -95,12 +95,14 @@ trait TemplateSpan extends Span
 
 /** A container of other TemplateSpan elements.
   */
-trait TemplateSpanContainer[Self <: TemplateSpanContainer[Self]] extends ElementContainer[TemplateSpan, Self] with RewritableContainer[TemplateSpan, Self] { this: Self =>
-
-  protected def rulesForContent (rules: RewriteRules): RewriteRule[TemplateSpan] = rules.templateRules
+trait TemplateSpanContainer[Self <: TemplateSpanContainer[Self]] extends ElementContainer[TemplateSpan, Self] with Rewritable[Self] { this: Self =>
 
   def rewriteTemplateSpans (rules: RewriteRule[TemplateSpan]): Self = rewrite2(RewriteRules(templateRules = rules))
 
+  def rewrite2 (rules: RewriteRules): Self = rules.rewriteTemplateSpans(content).fold(this)(withContent)
+
+  def withContent (newContent: Seq[TemplateSpan]): Self
+  
 } 
 
 /** Wraps a generic element that otherwise could not be placed directly into
@@ -115,7 +117,7 @@ case class TemplateElement (element: Element, indent: Int = 0, options: Options 
  *  as s sub flow of the parent container.
  */
 case class TemplateSpanSequence (content: Seq[TemplateSpan], options: Options = NoOpt) extends TemplateSpan with TemplateSpanContainer[TemplateSpanSequence] {
-  protected def withContent (newContent: Seq[TemplateSpan]): TemplateSpanSequence = copy(content = newContent)
+  def withContent (newContent: Seq[TemplateSpan]): TemplateSpanSequence = copy(content = newContent)
 }
 
 /** A simple string element, representing the parts of a template
@@ -126,7 +128,7 @@ case class TemplateString (content: String, options: Options = NoOpt) extends Te
 /** The root element of a template document tree.
  */
 case class TemplateRoot (content: Seq[TemplateSpan], options: Options = NoOpt) extends Block with TemplateSpanContainer[TemplateRoot] {
-  protected def withContent (newContent: Seq[TemplateSpan]): TemplateRoot = copy(content = newContent)
+  def withContent (newContent: Seq[TemplateSpan]): TemplateRoot = copy(content = newContent)
 }
 
 /** Companion with a fallback instance for setups without a default template */
@@ -142,5 +144,5 @@ object TemplateRoot {
  *  Usually created by a template reference like `{{document.content}}`.
  */
 case class EmbeddedRoot (content: Seq[Block], indent: Int = 0, options: Options = NoOpt) extends TemplateSpan with BlockContainer[EmbeddedRoot] {
-  protected def withContent (newContent: Seq[Block]): EmbeddedRoot = copy(content = content)
+  def withContent (newContent: Seq[Block]): EmbeddedRoot = copy(content = content)
 }

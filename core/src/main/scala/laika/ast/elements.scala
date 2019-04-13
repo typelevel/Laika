@@ -158,20 +158,24 @@ trait ElementContainer[+E <: Element, Self <: ElementContainer[E,Self]] extends 
 /** A container of other Block elements. Such a container is usually
  *  also a Block itself.
  */
-trait BlockContainer[Self <: BlockContainer[Self]] extends ElementContainer[Block,Self] with RewritableContainer[Block, Self] { this: Self =>
-
-  protected def rulesForContent (rules: RewriteRules): RewriteRule[Block] = rules.blockRules
+trait BlockContainer[Self <: BlockContainer[Self]] extends ElementContainer[Block,Self] with Rewritable[Self] { this: Self =>
 
   def rewriteBlocks (rules: RewriteRule[Block]): Self = rewrite2(RewriteRules(blockRules = rules))
+
+  def rewrite2 (rules: RewriteRules): Self = rules.rewriteBlocks(content).fold(this)(withContent)
+
+  def withContent (newContent: Seq[Block]): Self
 
 }
 
 /** A container of other Span elements. Such a container may be a Block
  *  or a Span itself.
  */
-trait SpanContainer[Self <: SpanContainer[Self]] extends ElementContainer[Span,Self] with RewritableContainer[Span, Self] { this: Self =>
+trait SpanContainer[Self <: SpanContainer[Self]] extends ElementContainer[Span,Self] with Rewritable[Self] { this: Self =>
 
-  protected def rulesForContent (rules: RewriteRules): RewriteRule[Span] = rules.spanRules
+  def rewrite2 (rules: RewriteRules): Self = rules.rewriteSpans(content).fold(this)(withContent)
+
+  def withContent (newContent: Seq[Span]): Self
   
   /**  Extracts the text from the spans of this container, removing
     *  any formatting or links.
@@ -193,7 +197,7 @@ trait ListContainer[Self <: ListContainer[Self]] extends ElementContainer[ListIt
 /** The root element of a document tree.
  */
 case class RootElement (content: Seq[Block]) extends Element with BlockContainer[RootElement] {
-  protected def withContent (newContent: Seq[Block]): RootElement = copy(content = newContent)
+  def withContent (newContent: Seq[Block]): RootElement = copy(content = newContent)
 }
 
 /** A named document fragment that usually gets rendered separately from the main root element
@@ -215,19 +219,19 @@ case class ConfigValue (name: String, value: AnyRef, options: Options = NoOpt) e
  *  they are arranged in a hierarchy based on the level of their header element.
  */
 case class Section (header: Header, content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[Section] {
-  protected def withContent (newContent: Seq[Block]): Section = copy(content = newContent)
+  def withContent (newContent: Seq[Block]): Section = copy(content = newContent)
 }
 
 /** A header element with a level, with 1 being the top level of the document.
  */
 case class Header (level: Int, content: Seq[Span], options: Options = NoOpt) extends Block with SpanContainer[Header] {
-  protected def withContent (newContent: Seq[Span]): Header = copy(content = newContent)
+  def withContent (newContent: Seq[Span]): Header = copy(content = newContent)
 }
 
 /** The (optional) title of the document.
  */
 case class Title (content: Seq[Span], options: Options = NoOpt) extends Block with SpanContainer[Title] {
-  protected def withContent (newContent: Seq[Span]): Title = copy(content = newContent)
+  def withContent (newContent: Seq[Span]): Title = copy(content = newContent)
 }
 
 /** A decorated header where the level gets determined in the rewrite phase based
@@ -238,7 +242,7 @@ case class Title (content: Seq[Span], options: Options = NoOpt) extends Block wi
 case class DecoratedHeader (decoration: HeaderDecoration, content: Seq[Span], options: Options = NoOpt) extends Block
                                                                                                         with Temporary
                                                                                                         with SpanContainer[DecoratedHeader] {
-  protected def withContent (newContent: Seq[Span]): DecoratedHeader = copy(content = newContent)
+  def withContent (newContent: Seq[Span]): DecoratedHeader = copy(content = newContent)
 }
 
 /** Represents the decoration of a header.
@@ -266,7 +270,7 @@ case class SectionNumber(position: Seq[Int], options: Options = NoOpt) extends S
  *  as s sub flow of the parent container.
  */
 case class BlockSequence (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[BlockSequence] {
-  protected def withContent (newContent: Seq[Block]): BlockSequence = copy(content = newContent)
+  def withContent (newContent: Seq[Block]): BlockSequence = copy(content = newContent)
 }
 
 /** A generic container element containing a list of spans. Can be used where a sequence
@@ -276,14 +280,14 @@ case class BlockSequence (content: Seq[Block], options: Options = NoOpt) extends
  *  used as both a span and a block.
  */
 case class SpanSequence (content: Seq[Span], options: Options = NoOpt) extends Block with Span with SpanContainer[SpanSequence] {
-  protected def withContent (newContent: Seq[Span]): SpanSequence = copy(content = newContent)
+  def withContent (newContent: Seq[Span]): SpanSequence = copy(content = newContent)
 }
 
 
 /** A paragraph consisting of span elements.
  */
 case class Paragraph (content: Seq[Span], options: Options = NoOpt) extends Block with SpanContainer[Paragraph] {
-  protected def withContent (newContent: Seq[Span]): Paragraph = copy(content = newContent)
+  def withContent (newContent: Seq[Span]): Paragraph = copy(content = newContent)
 }
 
 /** A literal block with unparsed text content.
@@ -293,7 +297,7 @@ case class LiteralBlock (content: String, options: Options = NoOpt) extends Bloc
 /** A literal block with parsed text content.
  */
 case class ParsedLiteralBlock (content: Seq[Span], options: Options = NoOpt) extends Block with SpanContainer[ParsedLiteralBlock] {
-  protected def withContent (newContent: Seq[Span]): ParsedLiteralBlock = copy(content = newContent)
+  def withContent (newContent: Seq[Span]): ParsedLiteralBlock = copy(content = newContent)
 }
 
 /** A block of program code. The content is a sequence of spans to support
@@ -301,7 +305,7 @@ case class ParsedLiteralBlock (content: Seq[Span], options: Options = NoOpt) ext
  *  the sequence will only consist of a single `Text` element.
  */
 case class CodeBlock (language: String, content: Seq[Span], options: Options = NoOpt) extends Block with SpanContainer[CodeBlock] {
-  protected def withContent (newContent: Seq[Span]): CodeBlock = copy(content = newContent)
+  def withContent (newContent: Seq[Span]): CodeBlock = copy(content = newContent)
 }
 
 /** A quoted block consisting of a list of blocks that may contain other
@@ -309,7 +313,7 @@ case class CodeBlock (language: String, content: Seq[Span], options: Options = N
  */
 case class QuotedBlock (content: Seq[Block], attribution: Seq[Span], options: Options = NoOpt) extends Block
                                                                                                with BlockContainer[QuotedBlock] {
-  protected def withContent (newContent: Seq[Block]): QuotedBlock = copy(content = newContent)
+  def withContent (newContent: Seq[Block]): QuotedBlock = copy(content = newContent)
 }
 
 /** Generic block element with a title.
@@ -318,14 +322,14 @@ case class QuotedBlock (content: Seq[Block], attribution: Seq[Span], options: Op
  */
 case class TitledBlock (title: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends Block
                                                                                          with BlockContainer[TitledBlock] {
-  protected def withContent (newContent: Seq[Block]): TitledBlock = copy(content = newContent)
+  def withContent (newContent: Seq[Block]): TitledBlock = copy(content = newContent)
 }
 
 /** A figure consists of an image, an optional caption, and an optional legend as the `content` property.
  *  The `image` property is of type `Span` as the image might be wrapped inside a link reference.
  */
 case class Figure (image: Span, caption: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[Figure] {
-  protected def withContent (newContent: Seq[Block]): Figure = copy(content = newContent)
+  def withContent (newContent: Seq[Block]): Figure = copy(content = newContent)
 }
 
 /** A bullet list that may contain nested lists.
@@ -386,14 +390,14 @@ object EnumType {
  */
 case class BulletListItem (content: Seq[Block], format: BulletFormat, options: Options = NoOpt) extends ListItem
                                                                                                 with BlockContainer[BulletListItem] {
-  protected def withContent (newContent: Seq[Block]): BulletListItem = copy(content = newContent)
+  def withContent (newContent: Seq[Block]): BulletListItem = copy(content = newContent)
 }
 
 /** A single enum list item consisting of one or more block elements.
  */
 case class EnumListItem (content: Seq[Block], format: EnumFormat, position: Int, options: Options = NoOpt) extends ListItem
                                                                                                     with BlockContainer[EnumListItem] {
-  protected def withContent (newContent: Seq[Block]): EnumListItem = copy(content = newContent)
+  def withContent (newContent: Seq[Block]): EnumListItem = copy(content = newContent)
 }
 
 /** A list of terms and their definitions.
@@ -405,7 +409,7 @@ case class DefinitionList (content: Seq[DefinitionListItem], options: Options = 
  */
 case class DefinitionListItem (term: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends ListItem
                                                                                                with BlockContainer[DefinitionListItem] {
-  protected def withContent (newContent: Seq[Block]): DefinitionListItem = copy(content = newContent)
+  def withContent (newContent: Seq[Block]): DefinitionListItem = copy(content = newContent)
 }
 
 /** A single item inside a line block.
@@ -415,13 +419,13 @@ abstract class LineBlockItem extends Block
 /** A single line inside a line block.
  */
 case class Line (content: Seq[Span], options: Options = NoOpt) extends LineBlockItem with SpanContainer[Line] {
-  protected def withContent (newContent: Seq[Span]): Line = copy(content = newContent)
+  def withContent (newContent: Seq[Span]): Line = copy(content = newContent)
 }
 
 /** A block containing lines which preserve line breaks and optionally nested line blocks.
  */
 case class LineBlock (content: Seq[LineBlockItem], options: Options = NoOpt) extends LineBlockItem with BlockContainer[LineBlock] {
-  protected def withContent (newContent: Seq[Block]): LineBlock = copy(content = newContent.asInstanceOf[Seq[LineBlockItem]]) // TODO - 0.12 - type mismatch
+  def withContent (newContent: Seq[Block]): LineBlock = copy(content = newContent.asInstanceOf[Seq[LineBlockItem]]) // TODO - 0.12 - type mismatch
 }
 
 
@@ -451,7 +455,7 @@ case class TableBody (content: Seq[Row], options: Options = NoOpt) extends Table
 /** The table caption.
  */
 case class Caption (content: Seq[Span] = Nil, options: Options = NoOpt) extends TableElement with SpanContainer[Caption] {
-  protected def withContent (newContent: Seq[Span]): Caption = copy(content = newContent)
+  def withContent (newContent: Seq[Span]): Caption = copy(content = newContent)
 }
 
 /** Contains the (optional) column specification of a table.
@@ -480,7 +484,7 @@ case class Row (content: Seq[Cell], options: Options = NoOpt) extends TableEleme
  */
 case class Cell (cellType: CellType, content: Seq[Block], colspan: Int = 1, rowspan: Int = 1, options: Options = NoOpt) extends TableElement
                                                                                                                         with BlockContainer[Cell] {
-  protected def withContent (newContent: Seq[Block]): Cell = copy(content = newContent)
+  def withContent (newContent: Seq[Block]): Cell = copy(content = newContent)
 }
 
 /** The cell type specifies which part of the table the cell belongs to.
@@ -511,7 +515,7 @@ case class LinkAlias (id: String, target: String, options: Options = NoOpt) exte
  */
 case class FootnoteDefinition (label: FootnoteLabel, content: Seq[Block], options: Options = NoOpt) extends Definition
                                                                                                     with BlockContainer[FootnoteDefinition] {
-  protected def withContent (newContent: Seq[Block]): FootnoteDefinition = copy(content = newContent)
+  def withContent (newContent: Seq[Block]): FootnoteDefinition = copy(content = newContent)
 }
 
 
@@ -524,7 +528,7 @@ case class InternalLinkTarget (options: Options = NoOpt) extends Block with Span
 case class Citation (label: String, content: Seq[Block], options: Options = NoOpt) extends Block
                                                                                 with LinkTarget
                                                                                 with BlockContainer[Citation] {
-  protected def withContent (newContent: Seq[Block]): Citation = copy(content = newContent)
+  def withContent (newContent: Seq[Block]): Citation = copy(content = newContent)
 }
 
 /** A footnote with resolved id and label that can be referred to by a `FootnoteLink` by id.
@@ -532,7 +536,7 @@ case class Citation (label: String, content: Seq[Block], options: Options = NoOp
 case class Footnote (label: String, content: Seq[Block], options: Options = NoOpt) extends Block
                                                                                                with LinkTarget
                                                                                                with BlockContainer[Footnote] {
-  protected def withContent (newContent: Seq[Block]): Footnote = copy(content = newContent)
+  def withContent (newContent: Seq[Block]): Footnote = copy(content = newContent)
 }
 
 
@@ -576,13 +580,13 @@ case class Text (content: String, options: Options = NoOpt) extends Span with Te
 /** A span of emphasized inline elements that may contain nested spans.
  */
 case class Emphasized (content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer[Emphasized] {
-  protected def withContent (newContent: Seq[Span]): Emphasized = copy(content = newContent)
+  def withContent (newContent: Seq[Span]): Emphasized = copy(content = newContent)
 }
 
 /** A span of strong inline elements that may contain nested spans.
  */
 case class Strong (content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer[Strong] {
-  protected def withContent (newContent: Seq[Span]): Strong = copy(content = newContent)
+  def withContent (newContent: Seq[Span]): Strong = copy(content = newContent)
 }
 
 /** A span containing plain, unparsed text.
@@ -594,19 +598,19 @@ case class Literal (content: String, options: Options = NoOpt) extends Span with
  *  the sequence will only consist of a single `Text` element.
  */
 case class Code (language: String, content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer[Code] {
-  protected def withContent (newContent: Seq[Span]): Code = copy(content = newContent)
+  def withContent (newContent: Seq[Span]): Code = copy(content = newContent)
 }
 
 /** A span representing deleted inline elements that may contain nested spans.
   */
 case class Deleted (content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer[Deleted] {
-  protected def withContent (newContent: Seq[Span]): Deleted = copy(content = newContent)
+  def withContent (newContent: Seq[Span]): Deleted = copy(content = newContent)
 }
 
 /** A span representing inserted inline elements that may contain nested spans.
   */
 case class Inserted (content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer[Inserted] {
-  protected def withContent (newContent: Seq[Span]): Inserted = copy(content = newContent)
+  def withContent (newContent: Seq[Span]): Inserted = copy(content = newContent)
 }
 
 /** Represents a URI which might also optionally be expressed as a local reference within the processed tree.
@@ -642,21 +646,21 @@ object PathInfo {
  */
 case class ExternalLink (content: Seq[Span], url: String, title: Option[String] = None, options: Options = NoOpt) extends Link
                                                                                                                   with SpanContainer[ExternalLink] {
-  protected def withContent (newContent: Seq[Span]): ExternalLink = copy(content = newContent)
+  def withContent (newContent: Seq[Span]): ExternalLink = copy(content = newContent)
 }
 
 /** An internal link element, with the span content representing the text (description) of the link.
  */
 case class InternalLink (content: Seq[Span], ref: String, title: Option[String] = None, options: Options = NoOpt) extends Link
                                                                                                                   with SpanContainer[InternalLink] {
-  protected def withContent (newContent: Seq[Span]): InternalLink = copy(content = newContent)
+  def withContent (newContent: Seq[Span]): InternalLink = copy(content = newContent)
 }
 
 /** A link element pointing to a location in a different document, with the span content representing the text (description) of the link.
  */
 case class CrossLink (content: Seq[Span], ref: String, path: PathInfo, title: Option[String] = None, options: Options = NoOpt) extends Link
                                                                                                                      with SpanContainer[CrossLink] {
-  protected def withContent (newContent: Seq[Span]): CrossLink = copy(content = newContent)
+  def withContent (newContent: Seq[Span]): CrossLink = copy(content = newContent)
 }
 
 /** A resolved link to a footnote.
@@ -685,7 +689,7 @@ case class Size (amount: Double, unit: String) {
  */
 case class LinkReference (content: Seq[Span], id: String, source: String, options: Options = NoOpt) extends Reference
                                                                                                     with SpanContainer[LinkReference] {
-  protected def withContent (newContent: Seq[Span]): LinkReference = copy(content = newContent)
+  def withContent (newContent: Seq[Span]): LinkReference = copy(content = newContent)
 }
 
 /** An image reference, the id pointing to the id of a `LinkTarget`. Only part of the
@@ -795,7 +799,7 @@ object InvalidElement {
 case class ForcedParagraph (content: Seq[Span], options: Options = NoOpt) extends Block
                                                 with SpanContainer[ForcedParagraph] with Fallback {
   
-  protected def withContent (newContent: Seq[Span]): ForcedParagraph = copy(content = newContent)
+  def withContent (newContent: Seq[Span]): ForcedParagraph = copy(content = newContent)
   
   def fallback: Element = Paragraph(content, options)
 }

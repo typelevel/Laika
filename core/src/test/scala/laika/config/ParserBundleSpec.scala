@@ -82,7 +82,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
       """.stripMargin
 
     case class DecoratedBlock (deco: Char, content: Seq[Span], options: Options = NoOpt) extends Block with SpanContainer[DecoratedBlock] {
-      protected def withContent (newContent: Seq[Span]): DecoratedBlock = copy(content = newContent)
+      def withContent (newContent: Seq[Span]): DecoratedBlock = copy(content = newContent)
     }
     
     def blockFor (deco: Char): BlockParserBuilder = blockFor(deco, deco)

@@ -27,13 +27,13 @@ case class FieldList (content: Seq[Field], options: Options = NoOpt) extends Blo
 /** A single entry in a field list consisting of name and body.
   */
 case class Field (name: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends ListItem with BlockContainer[Field] {
-  protected def withContent (newContent: Seq[Block]): Field = copy(content = content)
+  def withContent (newContent: Seq[Block]): Field = copy(content = content)
 }
 
 /** A classifier for a term in a definition list.
   */
 case class Classifier (content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer[Classifier] {
-  protected def withContent (newContent: Seq[Span]): Classifier = copy(content = newContent)
+  def withContent (newContent: Seq[Span]): Classifier = copy(content = newContent)
 }
 
 /** A list of command line options and descriptions.
@@ -44,7 +44,7 @@ case class OptionList (content: Seq[OptionListItem], options: Options = NoOpt) e
   */
 case class OptionListItem (programOptions: Seq[ProgramOption], content: Seq[Block], options: Options = NoOpt) extends ListItem
                                                                                                               with BlockContainer[OptionListItem] {
-  protected def withContent (newContent: Seq[Block]): OptionListItem = copy(content = content)
+  def withContent (newContent: Seq[Block]): OptionListItem = copy(content = content)
 }
 
 /** A single option, including its name and all arguments, but not the description.

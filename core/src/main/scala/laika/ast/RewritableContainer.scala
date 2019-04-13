@@ -21,6 +21,32 @@ case class RewriteRules (spanRules: PartialFunction[Span, RewriteAction[Span]] =
                          blockRules: PartialFunction[Block, RewriteAction[Block]] = PartialFunction.empty,
                          templateRules: PartialFunction[TemplateSpan, RewriteAction[TemplateSpan]] = PartialFunction.empty) {
 
+  def rewriteSpans (spans: Seq[Span]): Option[Seq[Span]] = rewrite(spanRules, spans)
+  def rewriteBlocks (blocks: Seq[Block]): Option[Seq[Block]] = rewrite(blockRules, blocks)
+  def rewriteTemplateSpans (spans: Seq[TemplateSpan]): Option[Seq[TemplateSpan]] = rewrite(templateRules, spans)
+  
+  private def rewrite[T <: AnyRef] (childRules: PartialFunction[T, RewriteAction[T]], children: Seq[T]): Option[Seq[T]] = {
+
+    val actions = children map {
+      case rw: Rewritable[_] =>
+        val newChild = rw.rewrite2(this).asInstanceOf[T]
+        val action = childRules.applyOrElse[T, RewriteAction[T]](newChild, _ => Retain)
+        if (action == Retain && newChild.ne(rw)) Replace(newChild)
+        else action
+      case child => childRules.applyOrElse[T, RewriteAction[T]](child, _ => Retain)
+    }
+
+    if (actions.forall(_ == Retain)) None
+    else {
+      val newContent = children.zip(actions) flatMap {
+        case (element, Retain) => Some(element)
+        case (_, Remove) => None
+        case (_, Replace(e)) => Some(e)
+      }
+      Some(newContent)
+    }
+  }
+  
 }
 
 sealed trait RewriteAction[+T]
@@ -35,38 +61,5 @@ trait Rewritable[Self <: Rewritable[Self]] { this: Self =>
   def rewrite2 (rules: RewriteRules): Self // TODO - 0.12 - rename after old API is gone
   
   def rewriteSpans (rules: RewriteRule[Span]): Self = rewrite2(RewriteRules(spanRules = rules))
-  
-}
 
-trait RewritableContainer[E <: AnyRef, Self <: RewritableContainer[E, Self]] extends Rewritable[Self] { this: Self =>
-
-  def content: Seq[E] // TODO - 0.12 - should extend a Container trait
-  
-  def rewrite2 (rules: RewriteRules): Self = {
-    val contentRules = rulesForContent(rules)
-    
-    val actions = content map {
-      case rw: Rewritable[_] => 
-        val newChild = rw.rewrite2(rules).asInstanceOf[E]
-        val action = contentRules.applyOrElse[E, RewriteAction[E]](newChild, _ => Retain)
-        if (action == Retain && newChild.ne(rw)) Replace(newChild)
-        else action
-      case child => contentRules.applyOrElse[E, RewriteAction[E]](child, _ => Retain)
-    }
-    
-    if (actions.forall(_ == Retain)) this
-    else {
-      val newContent = content.zip(actions) flatMap {
-        case (element, Retain) => Some(element)
-        case (_, Remove) => None
-        case (_, Replace(e)) => Some(e)
-      }
-      withContent(newContent)
-    }
-  }
-  
-  protected def rulesForContent (rules: RewriteRules): RewriteRule[E]
-  
-  protected def withContent (newContent: Seq[E]): Self
-  
 }
