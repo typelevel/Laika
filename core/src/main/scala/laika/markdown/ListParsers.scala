@@ -53,7 +53,7 @@ object ListParsers {
     */
   def list [T <: Block, I <: ListItem] (itemStartChar: Parser[Any],
                                         itemStartRest: Parser[Any],
-                                        newList: List[ListItem] => T,
+                                        newList: List[I] => T,
                                         newItem: (Int, Seq[Block]) => I)(implicit recParsers: RecursiveParsers): Parser[T] = {
 
     def flattenItems (firstItem: Seq[Block], items: List[~[Option[Any], Seq[Block]]]) = {
@@ -99,7 +99,7 @@ object ListParsers {
   val bulletLists: Seq[BlockParserBuilder] = Seq('+', '*', '-').map { bulletChar =>
     BlockParser.forStartChar(bulletChar).recursive { implicit recParsers =>
       val bullet = StringBullet(bulletChar.toString)
-      list(bulletChar, wsAfterItemStart, BulletList(_, bullet), (_, blocks) => BulletListItem(blocks, bullet))
+      list(bulletChar, wsAfterItemStart, BulletList(_: List[BulletListItem], bullet), (_, blocks) => BulletListItem(blocks, bullet))
     }.withLowPrecedence
   }
 
@@ -107,7 +107,7 @@ object ListParsers {
     */
   val enumLists: Seq[BlockParserBuilder] = ('0' to '9').map { enumChar =>
     BlockParser.forStartChar(enumChar).recursive { implicit recParsers =>
-      list(this.enumChar, enumStartRest, EnumList(_, EnumFormat()), (pos, blocks) => EnumListItem(blocks, EnumFormat(), pos))
+      list(this.enumChar, enumStartRest, EnumList(_: List[EnumListItem], EnumFormat()), (pos, blocks) => EnumListItem(blocks, EnumFormat(), pos))
     }
   }
 

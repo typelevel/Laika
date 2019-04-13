@@ -109,7 +109,19 @@ trait TemplateSpanContainer[Self <: TemplateSpanContainer[Self]] extends Element
  *  a template document tree. Useful when custom tags which are placed inside
  *  a template produce non-template tree elements.
  */
-case class TemplateElement (element: Element, indent: Int = 0, options: Options = NoOpt) extends TemplateSpan with ElementTraversal[TemplateElement] // TODO - 0.12 - make rewritable
+case class TemplateElement (element: Element, indent: Int = 0, options: Options = NoOpt) extends TemplateSpan with ElementTraversal[TemplateElement] 
+                                                                                                              with Rewritable[TemplateElement] {
+
+  def rewrite2 (rules: RewriteRules): TemplateElement = element match {
+    case t: TemplateSpan => rules.rewriteTemplateSpans(Seq(t)).fold(this)(_.headOption.fold(copy(element = TemplateSpanSequence(Nil)))(t => copy(element = t)))
+    case s: Span => rules.rewriteSpans(Seq(s)).fold(this)(_.headOption.fold(copy(element = SpanSequence(Nil)))(s => copy(element = s)))
+    case b: Block => rules.rewriteBlocks(Seq(b)).fold(this)(_.headOption.fold(copy(element = BlockSequence(Nil)))(b => copy(element = b)))
+    case r: Rewritable[_] => 
+      val rewritten = r.rewrite2(rules).asInstanceOf[Element]
+      if (rewritten.eq(element)) this else copy(element = rewritten)
+  }
+  
+}
 
 /** A generic container element containing a list of template spans. Can be used where a sequence
  *  of spans must be inserted in a place where a single element is required by the API.

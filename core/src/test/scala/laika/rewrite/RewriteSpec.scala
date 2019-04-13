@@ -55,11 +55,10 @@ class RewriteSpec extends FlatSpec
     rootElem rewriteBlocks { case Paragraph(Seq(Text("c",_)),_) => Remove } should be (root(p("a"), p("b")))
   }
   
-//  it should "replace the header of a section, which is not part of the content list" in {
-  // TODO - 0.12 - resurrect after MultiContainers are implemented
-//    val rootElem = root(Section(h(1, txt("Title")), List(p("Text"))))
-//    rootElem rewriteBlocks { case Header(1, content, _) => Replace(Header(2, content)) } should be (root(Section(h(2, txt("Title")), List(p("Text")))))
-//  }
+  it should "replace the content of the header of a section, which is not part of the content list" in {
+    val rootElem = root(Section(h(1, txt("Title")), List(p("Text"))))
+    rootElem rewriteSpans { case Text("Title", _) => Replace(Text("New")) } should be (root(Section(h(1, txt("New")), List(p("Text")))))
+  }
   
   it should "return the same instance if no rewrite rule matches" in {
     val rootElem = root(p("a"), p("b"), p("c"))
@@ -88,4 +87,29 @@ class RewriteSpec extends FlatSpec
     before rewriteSpans { case Text("b",_) => Replace(txt("x")) } should be (p(txt("a"), em("x"), txt("c")))
   }
   
+  it should "rewrite main content and attribution in a QuotedBlock" in {
+    val before = root(QuotedBlock(Seq(p("a"), p("b")), Seq(txt("a"), txt("c"))))
+    before.rewriteSpans { case Text("a", _) => Remove } should be (root(QuotedBlock(Seq(Paragraph(Nil), p("b")), Seq(txt("c")))))
+  }
+
+  it should "rewrite text in bullet list items" in {
+    val before = root(bulletList() + "a" + "b" + "c")
+    before.rewriteSpans { case Text("b", _) => Replace(Text("x")) } should be (root(bulletList() + "a" + "x" + "c"))
+  }
+
+  it should "rewrite text in enum list items" in {
+    val before = root(enumList() + "a" + "b" + "c")
+    before.rewriteSpans { case Text("b", _) => Replace(Text("x")) } should be (root(enumList() + "a" + "x" + "c"))
+  }
+
+  it should "rewrite text in a template element" in {
+    val before = TemplateSpanSequence(Seq(TemplateElement(txt("a"))))
+    before.rewriteSpans { case Text("a", _) => Replace(Text("x")) } should be (TemplateSpanSequence(Seq(TemplateElement(txt("x")))))
+  }
+
+  it should "rewrite text in table cells" in {
+    val before = root(table(row(cell("a"), cell("b")), row(cell("a"), cell("c"))))
+    before.rewriteSpans { case Text("a", _) => Replace(Text("x")) } should be (root(table(row(cell("x"), cell("b")), row(cell("x"), cell("c")))))
+  }
+   
 }
