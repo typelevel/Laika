@@ -123,11 +123,18 @@ class HTMLRenderer (out: HTMLWriter, messageLevel: MessageLevel, fileSuffix: Str
         case WithFallback(fallback)         => out << fallback
         case c: Customizable                => c match {
           case SpanSequence(content, NoOpt) => out << content // this case could be standalone above, but triggers a compiler bug then
-          case TemplateRoot(content, NoOpt) => out << content
-          case TemplateSpanSequence(content, NoOpt) => out << content
           case _ => out <<@ ("span",c.options) << c.content << "</span>"
         }
         case unknown                        => out << "<span>" << unknown.content << "</span>"
+      }
+    }
+
+    def renderTemplateSpanContainer [T <: TemplateSpanContainer[T]](con: TemplateSpanContainer[T]): Unit = {
+      con match {
+        case TemplateRoot(content, NoOpt)         => out << content
+        case TemplateSpanSequence(content, NoOpt) => out << content
+        case c: Customizable                      => out <<@ ("span",c.options) << c.content << "</span>"
+        case unknown                              => out << "<span>" << unknown.content << "</span>"
       }
     }
 
@@ -236,6 +243,7 @@ class HTMLRenderer (out: HTMLWriter, messageLevel: MessageLevel, fileSuffix: Str
       case e: SpanContainer[_]    => renderSpanContainer(e)
       case e: ListContainer[_]    => renderListContainer(e)
       case e: TextContainer       => renderTextContainer(e)
+      case e: TemplateSpanContainer[_] => renderTemplateSpanContainer(e)
       case e: Block               => renderSimpleBlock(e)
       case e: Span                => renderSimpleSpan(e)
 

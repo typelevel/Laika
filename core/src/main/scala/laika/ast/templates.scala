@@ -93,19 +93,29 @@ case class MarkupContextReference (ref: String, options: Options = NoOpt) extend
  */
 trait TemplateSpan extends Span
 
+/** A container of other TemplateSpan elements.
+  */
+trait TemplateSpanContainer[Self <: TemplateSpanContainer[Self]] extends ElementContainer[TemplateSpan, Self] with RewritableContainer[TemplateSpan, Self] { this: Self =>
+
+  protected def rulesForContent (rules: RewriteRules): RewriteRule[TemplateSpan] = rules.templateRules
+
+  def rewriteTemplateSpans (rules: RewriteRule[TemplateSpan]): Self = rewrite2(RewriteRules(templateRules = rules))
+
+} 
+
 /** Wraps a generic element that otherwise could not be placed directly into
  *  a template document tree. Useful when custom tags which are placed inside
  *  a template produce non-template tree elements.
  */
-case class TemplateElement (element: Element, indent: Int = 0, options: Options = NoOpt) extends TemplateSpan with ElementTraversal[TemplateElement]
+case class TemplateElement (element: Element, indent: Int = 0, options: Options = NoOpt) extends TemplateSpan with ElementTraversal[TemplateElement] // TODO - 0.12 - make rewritable
 
 /** A generic container element containing a list of template spans. Can be used where a sequence
  *  of spans must be inserted in a place where a single element is required by the API.
  *  Usually renderers do not treat the container as a special element and render its children
  *  as s sub flow of the parent container.
  */
-case class TemplateSpanSequence (content: Seq[TemplateSpan], options: Options = NoOpt) extends TemplateSpan with SpanContainer[TemplateSpanSequence] {
-  protected def withContent (newContent: Seq[Span]): TemplateSpanSequence = copy(content = content) // TODO - 0.12 - fix type mismatch
+case class TemplateSpanSequence (content: Seq[TemplateSpan], options: Options = NoOpt) extends TemplateSpan with TemplateSpanContainer[TemplateSpanSequence] {
+  protected def withContent (newContent: Seq[TemplateSpan]): TemplateSpanSequence = copy(content = newContent)
 }
 
 /** A simple string element, representing the parts of a template
@@ -115,8 +125,8 @@ case class TemplateString (content: String, options: Options = NoOpt) extends Te
 
 /** The root element of a template document tree.
  */
-case class TemplateRoot (content: Seq[TemplateSpan], options: Options = NoOpt) extends Block with SpanContainer[TemplateRoot] {
-  protected def withContent (newContent: Seq[Span]): TemplateRoot = copy(content = content) // TODO - 0.12 - fix type mismatch
+case class TemplateRoot (content: Seq[TemplateSpan], options: Options = NoOpt) extends Block with TemplateSpanContainer[TemplateRoot] {
+  protected def withContent (newContent: Seq[TemplateSpan]): TemplateRoot = copy(content = newContent)
 }
 
 /** Companion with a fallback instance for setups without a default template */

@@ -108,7 +108,7 @@ trait TemplateRewriter {
    *  element they produce based on the specified
    *  document cursor.
    */
-  def rewriteRules (cursor: DocumentCursor) = {
+  def rewriteRules (cursor: DocumentCursor): RewriteRule = {
     
     lazy val rule: RewriteRule = {
       case ph: BlockResolver => Some(rewriteChild(ph resolve cursor))

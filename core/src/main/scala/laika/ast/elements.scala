@@ -162,11 +162,8 @@ trait BlockContainer[Self <: BlockContainer[Self]] extends ElementContainer[Bloc
 
   protected def rulesForContent (rules: RewriteRules): RewriteRule[Block] = rules.blockRules
 
-  def rewriteBlocks (rules: RewriteRule[Block]): Self = rewrite2(new RewriteRules {
-    override def spanRules: PartialFunction[Span, RewriteAction[Span]] = PartialFunction.empty
-    override def blockRules: PartialFunction[Block, RewriteAction[Block]] = rules
-  })
-  
+  def rewriteBlocks (rules: RewriteRule[Block]): Self = rewrite2(RewriteRules(blockRules = rules))
+
 }
 
 /** A container of other Span elements. Such a container may be a Block

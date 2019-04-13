@@ -87,6 +87,7 @@ class ASTRenderer (out: TextWriter) {
       case SectionNumber(pos, opt)        => out << "SectionNumber" << attributes(Seq(pos.mkString("."), opt).iterator)
       case bc: BlockContainer[_]          => elementContainerDesc(bc, "Blocks")
       case sc: SpanContainer[_]           => elementContainerDesc(sc, "Spans")
+      case tsc: TemplateSpanContainer[_]  => elementContainerDesc(tsc, "TemplateSpans")
       case tc: TextContainer              => textContainerDesc(tc)
       case Content(content,desc)          => out << desc <<|> content
       case ec: ElementContainer[_,_]      => elementContainerDesc(ec, "Elements")

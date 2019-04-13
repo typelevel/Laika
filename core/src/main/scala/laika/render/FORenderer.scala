@@ -146,12 +146,18 @@ class FORenderer (out: FOWriter, rootElement: Element, path: Path, messageLevel:
         case WithFallback(fallback)         => out << fallback
         case c: Customizable                => c match {
           case SpanSequence(content, NoOpt) => out << content // this case could be standalone above, but triggers a compiler bug then
-          case TemplateRoot(content, NoOpt) => out << content
-          case TemplateSpanSequence(content, NoOpt) => out << content
           case unknown: Block               => out.block(unknown, unknown.content)
           case unknown                      => out.inline(unknown, unknown.content)
         }
         case unknown                        => out.inline(unknown, unknown.content)
+      }
+    }
+
+    def renderTemplateSpanContainer [T <: TemplateSpanContainer[T]](con: TemplateSpanContainer[T]): Unit = {
+      con match {
+        case TemplateRoot(content, NoOpt)         => out << content
+        case TemplateSpanSequence(content, NoOpt) => out << content
+        case unknown                              => out.inline(unknown, unknown.content)
       }
     }
 
@@ -247,6 +253,7 @@ class FORenderer (out: FOWriter, rootElement: Element, path: Path, messageLevel:
       case e: SpanContainer[_]    => renderSpanContainer(e)
       case e: ListContainer[_]    => renderListContainer(e)
       case e: TextContainer       => renderTextContainer(e)
+      case e: TemplateSpanContainer[_] => renderTemplateSpanContainer(e)
       case e: Block               => renderSimpleBlock(e)
       case e: Span                => renderSimpleSpan(e)
 

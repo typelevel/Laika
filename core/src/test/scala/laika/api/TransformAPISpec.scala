@@ -216,7 +216,7 @@ class TransformAPISpec extends FlatSpec
       val dirs = """- main.dynamic.txt:dynDoc
           |- directory.conf:conf""".stripMargin
       val result = """RootElement - Blocks: 1
-          |. TemplateRoot - Spans: 1
+          |. TemplateRoot - TemplateSpans: 1
           |. . TemplateString - 'abc'""".stripMargin
       transformTree should be (root(List(docs((Root / "main.txt", result)))))
     }
@@ -226,7 +226,7 @@ class TransformAPISpec extends FlatSpec
     new TreeTransformer {
       val dirs = """- main.dynamic.txt:dynDoc"""
       val result = """RootElement - Blocks: 1
-          |. TemplateRoot - Spans: 1
+          |. TemplateRoot - TemplateSpans: 1
           |. . TemplateString - 'def'""".stripMargin
       transformWithConfig("value: def") should be (root(List(docs((Root / "main.txt", result)))))
     }
@@ -256,7 +256,7 @@ class TransformAPISpec extends FlatSpec
         |- main2.dynamic.txt:name""".stripMargin
       val parser: Parser[TemplateRoot] = TextParsers.any ^^ { str => TemplateRoot(List(TemplateString("$$" + str))) }
       val result = """RootElement - Blocks: 1
-        |. TemplateRoot - Spans: 1
+        |. TemplateRoot - TemplateSpans: 1
         |. . TemplateString - '$$foo'""".stripMargin
       transformWithTemplates(parser) should be (root(List(docs(
         (Root / "main1.txt", result),
@@ -294,7 +294,7 @@ class TransformAPISpec extends FlatSpec
       val dirs = """- main1.dynamic.txt:directive
         |- main2.dynamic.txt:directive""".stripMargin
       val result = """RootElement - Blocks: 1
-        |. TemplateRoot - Spans: 3
+        |. TemplateRoot - TemplateSpans: 3
         |. . TemplateString - 'aa '
         |. . TemplateString - 'bar'
         |. . TemplateString - ' bb'""".stripMargin
@@ -322,7 +322,7 @@ class TransformAPISpec extends FlatSpec
         |. Paragraph - Spans: 1
         |. . Text - 'foo'""".stripMargin  
       val withTemplate2 = """RootElement - Blocks: 1
-        |. TemplateRoot - Spans: 3
+        |. TemplateRoot - TemplateSpans: 3
         |. . TemplateString - '('
         |. . EmbeddedRoot(0) - Blocks: 1
         |. . . Paragraph - Spans: 1

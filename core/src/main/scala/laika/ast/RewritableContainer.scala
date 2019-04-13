@@ -17,9 +17,10 @@
 package laika.ast
 
 
-trait RewriteRules {
-  def spanRules: PartialFunction[Span, RewriteAction[Span]]
-  def blockRules: PartialFunction[Block, RewriteAction[Block]]
+case class RewriteRules (spanRules: PartialFunction[Span, RewriteAction[Span]] = PartialFunction.empty,
+                         blockRules: PartialFunction[Block, RewriteAction[Block]] = PartialFunction.empty,
+                         templateRules: PartialFunction[TemplateSpan, RewriteAction[TemplateSpan]] = PartialFunction.empty) {
+
 }
 
 sealed trait RewriteAction[+T]
@@ -29,14 +30,11 @@ case object Remove extends RewriteAction[Nothing]
 
 trait Rewritable[Self <: Rewritable[Self]] { this: Self =>
   
-  type RewriteRule[T] = PartialFunction[T, RewriteAction[T]]
+  type RewriteRule[T] = PartialFunction[T, RewriteAction[T]] // TODO - 0.12 - promote to package object
   
   def rewrite2 (rules: RewriteRules): Self // TODO - 0.12 - rename after old API is gone
   
-  def rewriteSpans (rules: RewriteRule[Span]): Self = rewrite2(new RewriteRules {
-    override def spanRules: PartialFunction[Span, RewriteAction[Span]] = rules
-    override def blockRules: PartialFunction[Block, RewriteAction[Block]] = PartialFunction.empty
-  })
+  def rewriteSpans (rules: RewriteRule[Span]): Self = rewrite2(RewriteRules(spanRules = rules))
   
 }
 

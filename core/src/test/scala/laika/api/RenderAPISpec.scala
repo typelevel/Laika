@@ -103,7 +103,7 @@ class RenderAPISpec extends FlatSpec
     
     
     def renderedDynDoc (num: Int) = """RootElement - Blocks: 1
-      |. TemplateRoot - Spans: 1
+      |. TemplateRoot - TemplateSpans: 1
       |. . TemplateString - 'Doc""".stripMargin + num + "'"
       
     def renderedDoc (num: Int) = """RootElement - Blocks: 1
