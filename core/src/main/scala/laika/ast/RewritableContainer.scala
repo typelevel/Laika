@@ -27,7 +27,7 @@ case class Replace[T] (newValue: T) extends RewriteAction[T]
 case object Retain extends RewriteAction[Nothing]
 case object Remove extends RewriteAction[Nothing]
 
-trait Rewritable[Self <: Rewritable[Self]] {
+trait Rewritable[Self <: Rewritable[Self]] { this: Self =>
   
   type RewriteRule[T] = PartialFunction[T, RewriteAction[T]]
   
@@ -48,7 +48,7 @@ trait RewritableContainer[E <: AnyRef, Self <: RewritableContainer[E, Self]] ext
     val contentRules = rulesForContent(rules)
     
     val actions = content map {
-      case rw: RewritableContainer[_, _] => 
+      case rw: Rewritable[_] => 
         val newChild = rw.rewrite2(rules).asInstanceOf[E]
         val action = contentRules.applyOrElse[E, RewriteAction[E]](newChild, _ => Retain)
         if (action == Retain && newChild.ne(rw)) Replace(newChild)
