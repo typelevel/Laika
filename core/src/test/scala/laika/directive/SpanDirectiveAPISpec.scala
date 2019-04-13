@@ -292,8 +292,8 @@ class SpanDirectiveAPISpec extends FlatSpec
   
   it should "parse a directive with a required default body and cursor access" in {
     new DirectiveWithContextAccess with SpanParser {
-      def translate (result: SpanSequence) = result rewrite {
-        case _: SpanDirectiveParsers.DirectiveSpan => Some(Text("ok")) // cannot compare DirectiveSpans
+      def translate (result: SpanSequence) = result rewriteSpans {
+        case _: SpanDirectiveParsers.DirectiveSpan => Replace(Text("ok")) // cannot compare DirectiveSpans
       }
       Parsing ("aa @:dir: { text } bb") map translate should produce (ss(txt("aa "), txt("ok"), txt(" bb")))
     }

@@ -19,6 +19,7 @@ package laika.ast.helper
 import laika.ast._
 import laika.ast.DocumentType._
 import laika.io.Input
+import laika.rst.ast.CustomizedTextRole
 
 /* Provides a view of DocumentTree structures that allows for 
  * formatted AST rendering (for debugging purposes) and case
@@ -103,7 +104,7 @@ object DocumentViewBuilder {
       case other => other
     }
     val content = (
-      Content(doc.content.content) :: 
+      Content(doc.content.rewriteBlocks{ case CustomizedTextRole(_,_,_) => Remove }.content) :: 
       Fragments(viewOf(doc.fragments)) :: 
       Title(filterTitle(doc.title)) ::
       Sections(doc.sections) ::

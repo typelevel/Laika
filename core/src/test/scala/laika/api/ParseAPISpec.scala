@@ -278,7 +278,7 @@ class ParseAPISpec extends FlatSpec
         TemplateDocuments(Template, List(template('A', Root))),
         Subtrees(List(subtree1,subtree2))
       ))
-      rawMixedParsedTree.rewrite{case CustomizedTextRole(_,_,_) => None} should be (treeResult)
+      rawMixedParsedTree should be (treeResult)
     }
   }
   

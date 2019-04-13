@@ -453,8 +453,8 @@ class BlockDirectiveAPISpec extends FlatSpec
         |@:dir: text
         |
         |bb""".stripMargin
-      def translate (result: RootElement) = result rewrite {
-        case _: BlockDirectiveParsers.DirectiveBlock => Some(p("ok")) // cannot compare DirectiveSpans
+      def translate (result: RootElement) = result rewriteBlocks {
+        case _: BlockDirectiveParsers.DirectiveBlock => Replace(p("ok")) // cannot compare DirectiveBlocks
       }
       Parsing (input) map translate should produce (root(p("aa"), p("ok"), p("bb")))
     }

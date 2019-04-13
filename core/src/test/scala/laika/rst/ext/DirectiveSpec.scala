@@ -541,8 +541,8 @@ class DirectiveSpec extends FlatSpec
   
   
   val docWithTextRoles: Parser[RootElement] = defaultParser ^^ { root =>
-    root.rewrite { 
-      case CustomizedTextRole(name, f, _) => Some(p(f(name)))
+    root.rewriteBlocks { 
+      case CustomizedTextRole(name, f, _) => Replace(p(f(name)))
     }
   }
   
