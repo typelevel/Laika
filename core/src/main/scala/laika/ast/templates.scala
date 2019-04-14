@@ -59,11 +59,8 @@ abstract class ContextReference[T <: Span] (ref: String) extends SpanResolver {
   def resolve (cursor: DocumentCursor): Span = {
     
     cursor.resolveReference(ref) match {
-      case Some(b: Block)        => result(Some(TemplateRewriter.rewriteRules(cursor).rewriteBlock(b)))
-      case Some(t: TemplateSpan) => result(Some(TemplateRewriter.rewriteRules(cursor).rewriteTemplateSpan(t)))
-      case Some(s: Span)         => result(Some(TemplateRewriter.rewriteRules(cursor).rewriteSpan(s)))
-      case Some(r: RewritableContainer[_]) => result(Some(r.rewriteChildren(TemplateRewriter.rewriteRules(cursor))))
-      case other => result(other)
+      case Some(element: Element) => result(Some(TemplateRewriter.rewriteRules(cursor).rewriteElement(element)))
+      case other                  => result(other)
     }
   }
 }
@@ -118,16 +115,7 @@ trait TemplateSpanContainer[Self <: TemplateSpanContainer[Self]] extends Element
 case class TemplateElement (element: Element, indent: Int = 0, options: Options = NoOpt) extends TemplateSpan with ElementTraversal
                                                                                                               with RewritableContainer[TemplateElement] {
 
-  def rewriteChildren (rules: RewriteRules): TemplateElement = element match {
-    // TODO - 0.12 - use single method variants when memory optimization gets removed
-    case t: TemplateSpan => rules.rewriteTemplateSpans(Seq(t)).fold(this)(_.headOption.fold(copy(element = TemplateSpanSequence(Nil)))(t => copy(element = t)))
-    case s: Span => rules.rewriteSpans(Seq(s)).fold(this)(_.headOption.fold(copy(element = SpanSequence(Nil)))(s => copy(element = s)))
-    case b: Block => rules.rewriteBlocks(Seq(b)).fold(this)(_.headOption.fold(copy(element = BlockSequence(Nil)))(b => copy(element = b)))
-    case r: RewritableContainer[_] => 
-      val rewritten = r.rewriteChildren(rules).asInstanceOf[Element]
-      if (rewritten.eq(element)) this else copy(element = rewritten)
-    case _ => this
-  }
+  def rewriteChildren (rules: RewriteRules): TemplateElement = copy(element = rules.rewriteElement(element))
   
 }
 

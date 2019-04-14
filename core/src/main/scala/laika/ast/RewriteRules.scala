@@ -34,6 +34,14 @@ case class RewriteRules (spanRules: Seq[RewriteRule[Span]] = Nil,
   def ++ (other: RewriteRules): RewriteRules =
     RewriteRules(spanRules ++ other.spanRules, blockRules ++ other.blockRules, templateRules ++ other.templateRules)
 
+  def rewriteElement (element: Element): Element = element match {
+    case b: Block                  => rewriteBlock(b)
+    case t: TemplateSpan           => rewriteTemplateSpan(t)
+    case s: Span                   => rewriteSpan(s)
+    case r: RewritableContainer[_] => r.rewriteChildren(this)
+    case other                     => other
+  }
+  
   def rewriteSpan (span: Span): Span = rewriteSpans(Seq(span)).fold(span)(_.headOption.getOrElse(SpanSequence(Nil)))
   def rewriteBlock (block: Block): Block = rewriteBlocks(Seq(block)).fold(block)(_.headOption.getOrElse(BlockSequence(Nil)))
   def rewriteTemplateSpan (span: TemplateSpan): TemplateSpan = rewriteTemplateSpans(Seq(span)).fold(span)(_.headOption.getOrElse(TemplateSpanSequence(Nil)))
