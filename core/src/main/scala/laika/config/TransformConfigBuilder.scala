@@ -16,7 +16,7 @@
 
 package laika.config
 
-import laika.ast.{DocumentCursor, RewriteRule}
+import laika.ast.{DocumentCursor, RewriteRule, RewriteRules, Span}
 import laika.bundle.ExtensionBundle
 
 /** API for specifying configuration options that apply to all
@@ -45,8 +45,12 @@ trait TransformConfigBuilder[Writer] extends ParseConfigBuilder with RenderConfi
     *
     *  In case multiple rewrite rules need to be applied it may be more efficient to
     *  first combine them with `orElse`.
+    *  
+    *  TODO - 0.12 - update scaladoc - rename to usingRules - add methods for single partial function, e.g. usingBlockRule
     */
-  def usingRule (newRule: RewriteRule): ThisType = creatingRule(_ => newRule)
+  def usingRule (newRules: RewriteRules): ThisType = creatingRule(_ => newRules)
+  
+  def usingSpanRule (rule: RewriteRule[Span]) = usingRule(RewriteRules.forSpans(rule))
 
   /**  Specifies a rewrite rule to be applied to the document tree model between the
     *  parse and render operations. This is identical to calling `Document.rewrite`
@@ -75,10 +79,12 @@ trait TransformConfigBuilder[Writer] extends ParseConfigBuilder with RenderConfi
     *
     *  In case multiple rewrite rules need to be applied it may be more efficient to
     *  first combine them with `orElse`.
+    *  
+    *  TODO - 0.12 - update scaladoc
     */
-  def creatingRule (newRule: DocumentCursor => RewriteRule): ThisType = using(new ExtensionBundle {
+  def creatingRule (newRules: DocumentCursor => RewriteRules): ThisType = using(new ExtensionBundle {
     override val useInStrictMode: Boolean = true
-    override def rewriteRules: Seq[DocumentCursor => RewriteRule] = Seq(newRule)
+    override def rewriteRules: Seq[DocumentCursor => RewriteRules] = Seq(newRules)
   })
 
 }

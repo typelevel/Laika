@@ -71,9 +71,9 @@ object BundleProvider {
 
   }
 
-  def forRewriteRule (rule: RewriteRule): ExtensionBundle = new ExtensionBundle {
+  def forSpanRewriteRule (rule: RewriteRule[Span]): ExtensionBundle = new ExtensionBundle {
 
-    override def rewriteRules: Seq[DocumentCursor => RewriteRule] = Seq(_ => rule)
+    override def rewriteRules: Seq[DocumentCursor => RewriteRules] = Seq(_ => laika.ast.RewriteRules.forSpans(rule))
 
   }
 

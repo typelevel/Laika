@@ -116,8 +116,8 @@ class OperationConfigSpec extends WordSpec with Matchers {
   "The configuration for the rewrite rule" should {
 
     "merge a rewrite rule from a markup extension with the rewrite rule from an app extension" in new BundleSetup {
-      val parserBundles = Seq(BundleProvider.forRewriteRule { case s: Strong => Some(Literal(s.extractText)) })
-      val appBundles =    Seq(BundleProvider.forRewriteRule { case s: Emphasized => Some(Literal(s.extractText)) })
+      val parserBundles = Seq(BundleProvider.forSpanRewriteRule { case s: Strong => Replace(Literal(s.extractText)) })
+      val appBundles =    Seq(BundleProvider.forSpanRewriteRule { case s: Emphasized => Replace(Literal(s.extractText)) })
 
       val doc = Document(Root, RootElement(Seq(Paragraph(Seq(
         Strong(Seq(Text("foo"))),
@@ -129,32 +129,32 @@ class OperationConfigSpec extends WordSpec with Matchers {
         Literal("bar")
       )))))
 
-      val rewriteRule = config.rewriteRuleFor(doc)
+      val rewriteRule = config.rewriteRulesFor(doc)
       doc.rewrite(rewriteRule) shouldBe expected
     }
 
     "apply a rewrite rule from an app config and a rule from a markup extension successively" in new BundleSetup {
-      val parserBundles = Seq(BundleProvider.forRewriteRule { case Literal(text, _) => Some(Literal(text+"!")) })
-      val appBundles =    Seq(BundleProvider.forRewriteRule { case Literal(text, _) => Some(Literal(text+"?")) })
+      val parserBundles = Seq(BundleProvider.forSpanRewriteRule { case Literal(text, _) => Replace(Literal(text+"!")) })
+      val appBundles =    Seq(BundleProvider.forSpanRewriteRule { case Literal(text, _) => Replace(Literal(text+"?")) })
 
       val doc =      Document(Root, RootElement(Seq(Paragraph(Seq(Literal("foo"))))))
       val expected = Document(Root, RootElement(Seq(Paragraph(Seq(Literal("foo!?"))))))
 
-      val rewriteRule = config.rewriteRuleFor(doc)
+      val rewriteRule = config.rewriteRulesFor(doc)
       doc.rewrite(rewriteRule) shouldBe expected
     }
 
     "apply a rewrite rule from an app config and a rule from a previously installed app config successively" in new BundleSetup {
       val parserBundles = Nil
       val appBundles =    Seq(
-        BundleProvider.forRewriteRule { case Literal(text, _) => Some(Literal(text+"!")) },
-        BundleProvider.forRewriteRule { case Literal(text, _) => Some(Literal(text+"?")) }
+        BundleProvider.forSpanRewriteRule { case Literal(text, _) => Replace(Literal(text+"!")) },
+        BundleProvider.forSpanRewriteRule { case Literal(text, _) => Replace(Literal(text+"?")) }
       )
 
       val doc =      Document(Root, RootElement(Seq(Paragraph(Seq(Literal("foo"))))))
       val expected = Document(Root, RootElement(Seq(Paragraph(Seq(Literal("foo!?"))))))
 
-      val rewriteRule = config.rewriteRuleFor(doc)
+      val rewriteRule = config.rewriteRulesFor(doc)
       doc.rewrite(rewriteRule) shouldBe expected
     }
 

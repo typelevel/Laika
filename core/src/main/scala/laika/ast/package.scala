@@ -22,14 +22,15 @@ package laika
 package object ast {
 
   /** Specifies how a particular element, document or document
-    *  tree should be rewritten.
+    * tree should be rewritten.
     *
-    *  If the rule is not defined for a specific element the old element remains
-    *  in the tree unchanged. If it returns `None` then the node gets removed from the ast,
-    *  if it returns an element it will replace the old one. Of course the function may
-    *  also return the old element.
+    * If the rule is not defined for a specific element or the rule returns 
+    * a `Retain` action as a result the old element remains in the tree unchanged. 
+    * 
+    * If it returns `Remove` then the node gets removed from the ast,
+    * if it returns `Replace` with a new element it will replace the old one. 
     */
-  type RewriteRule = PartialFunction[Element,Option[Element]]
+  type RewriteRule[T] = PartialFunction[T, RewriteAction[T]]
 
   /** Specifies a custom render function that may override the rendered
     *  output for one or more node types. For elements this function

@@ -103,7 +103,7 @@ object Logs {
 
     def log (tree: DocumentTree): Unit = {
 
-      def logRoot (e: ElementTraversal[_], path: Path) = {
+      def logRoot (e: ElementTraversal, path: Path) = {
         val nodes = e collect {
           case i: Invalid[_] if i.message.level >= level => i
         }

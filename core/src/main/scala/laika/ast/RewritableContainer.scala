@@ -16,24 +16,53 @@
 
 package laika.ast
 
+import laika.bundle.RewriteRules.ChainedRewriteRules
 
-case class RewriteRules (spanRules: PartialFunction[Span, RewriteAction[Span]] = PartialFunction.empty,
-                         blockRules: PartialFunction[Block, RewriteAction[Block]] = PartialFunction.empty,
-                         templateRules: PartialFunction[TemplateSpan, RewriteAction[TemplateSpan]] = PartialFunction.empty) {
 
-  def rewriteSpans (spans: Seq[Span]): Option[Seq[Span]] = rewrite(spanRules, spans)
-  def rewriteBlocks (blocks: Seq[Block]): Option[Seq[Block]] = rewrite(blockRules, blocks)
-  def rewriteTemplateSpans (spans: Seq[TemplateSpan]): Option[Seq[TemplateSpan]] = rewrite(templateRules, spans)
+case class RewriteRules (spanRules: Seq[RewriteRule[Span]] = Nil,
+                         blockRules: Seq[RewriteRule[Block]] = Nil,
+                         templateRules: Seq[RewriteRule[TemplateSpan]] = Nil) {
+
+  lazy val chainedSpanRules: Span => RewriteAction[Span] = ChainedRewriteRules(spanRules)
+  lazy val chainedBlockRules: Block => RewriteAction[Block] = ChainedRewriteRules(blockRules)
+  lazy val chainedTemplateRules: TemplateSpan => RewriteAction[TemplateSpan] = ChainedRewriteRules(templateRules)
   
-  private def rewrite[T <: AnyRef] (childRules: PartialFunction[T, RewriteAction[T]], children: Seq[T]): Option[Seq[T]] = {
+  def ++ (other: RewriteRules): RewriteRules =
+    RewriteRules(spanRules ++ other.spanRules, blockRules ++ other.blockRules, templateRules ++ other.templateRules)
+
+  def rewriteSpan (span: Span): Span = rewriteSpans(Seq(span)).fold(span)(_.headOption.getOrElse(SpanSequence(Nil)))
+  def rewriteBlock (block: Block): Block = rewriteBlocks(Seq(block)).fold(block)(_.headOption.getOrElse(BlockSequence(Nil)))
+  def rewriteTemplateSpan (span: TemplateSpan): TemplateSpan = rewriteTemplateSpans(Seq(span)).fold(span)(_.headOption.getOrElse(TemplateSpanSequence(Nil)))
+  
+  def rewriteSpans (spans: Seq[Span]): Option[Seq[Span]] = rewrite(chainedSpanRules, spans)
+  def rewriteBlocks (blocks: Seq[Block]): Option[Seq[Block]] = rewrite(chainedBlockRules, blocks)
+  def rewriteTemplateSpans (spans: Seq[TemplateSpan]): Option[Seq[TemplateSpan]] = rewrite(chainedTemplateRules, spans)
+
+  /** Returns a new, rewritten tree model based on the specified rule.
+    *  The rule is a partial function that takes an `Element` and returns an `Option[Element]`.
+    *
+    *  If the function is not defined for a specific element the old element remains
+    *  in the tree unchanged. If it returns `None` then the node gets removed from the tree,
+    *  if it returns an element it will replace the old one. Of course the function may
+    *  also return the old element.
+    *
+    *  The rewriting is performed in a way that only branches of the tree that contain
+    *  new or removed elements will be replaced. It is processed bottom-up, therefore
+    *  any element container passed to the rule only contains children which have already
+    *  been processed. 
+    *
+    *  In case multiple rewrite rules need to be applied it may be more efficient to
+    *  first combine them with `orElse`.
+    */
+  private def rewrite[T <: AnyRef] (childRules: T => RewriteAction[T], children: Seq[T]): Option[Seq[T]] = {
 
     val actions = children map {
-      case rw: Rewritable[_] =>
-        val newChild = rw.rewrite2(this).asInstanceOf[T]
-        val action = childRules.applyOrElse[T, RewriteAction[T]](newChild, _ => Retain)
+      case rw: RewritableContainer[_] =>
+        val newChild = rw.rewriteChildren(this).asInstanceOf[T]
+        val action = childRules(newChild)
         if (action == Retain && newChild.ne(rw)) Replace(newChild)
         else action
-      case child => childRules.applyOrElse[T, RewriteAction[T]](child, _ => Retain)
+      case child => childRules(child)
     }
 
     if (actions.forall(_ == Retain)) None
@@ -49,17 +78,21 @@ case class RewriteRules (spanRules: PartialFunction[Span, RewriteAction[Span]] =
   
 }
 
+object RewriteRules {
+  def forSpans (rule: RewriteRule[Span]): RewriteRules = RewriteRules(spanRules = Seq(rule))
+  def forBlocks (rule: RewriteRule[Block]): RewriteRules = RewriteRules(blockRules = Seq(rule))
+  def forTemplates (rule: RewriteRule[TemplateSpan]): RewriteRules = RewriteRules(templateRules = Seq(rule))
+}
+
 sealed trait RewriteAction[+T]
 case class Replace[T] (newValue: T) extends RewriteAction[T]
 case object Retain extends RewriteAction[Nothing]
 case object Remove extends RewriteAction[Nothing]
 
-trait Rewritable[Self <: Rewritable[Self]] { this: Self =>
+trait RewritableContainer[Self <: RewritableContainer[Self]] { this: Self =>
   
-  type RewriteRule[T] = PartialFunction[T, RewriteAction[T]] // TODO - 0.12 - promote to package object
+  def rewriteChildren (rules: RewriteRules): Self
   
-  def rewrite2 (rules: RewriteRules): Self // TODO - 0.12 - rename after old API is gone
-  
-  def rewriteSpans (rules: RewriteRule[Span]): Self = rewrite2(RewriteRules(spanRules = rules))
+  def rewriteSpans (rules: RewriteRule[Span]): Self = rewriteChildren(RewriteRules(spanRules = Seq(rules)))
 
 }

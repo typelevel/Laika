@@ -76,8 +76,8 @@ class DocumentAPISpec extends FlatSpec
     
     val doc = (Parse as Markdown withoutRewrite) fromString markup
     
-    val rewritten1 = doc.rewrite(OperationConfig.default.rewriteRule(DocumentCursor(doc)))
-    val rewritten2 = rewritten1.rewrite(OperationConfig.default.rewriteRule(DocumentCursor(rewritten1)))
+    val rewritten1 = doc.rewrite(OperationConfig.default.rewriteRules(DocumentCursor(doc)))
+    val rewritten2 = rewritten1.rewrite(OperationConfig.default.rewriteRules(DocumentCursor(rewritten1)))
     rewritten1.content should be (rewritten2.content)
   }
   
@@ -92,10 +92,10 @@ class DocumentAPISpec extends FlatSpec
     
     val raw = (Parse as Markdown withoutRewrite) fromString markup
     val cursor = DocumentCursor(raw)
-    val testRule: RewriteRule = {
-      case Text("Some text",_) => Some(Text("Swapped"))
+    val testRule = RewriteRules.forSpans {
+      case Text("Some text",_) => Replace(Text("Swapped"))
     }
-    val rules = laika.bundle.RewriteRules.chain(Seq(testRule, OperationConfig.default.rewriteRule(cursor)))
+    val rules = testRule ++ OperationConfig.default.rewriteRules(cursor)
     val rewritten = raw rewrite rules
     rewritten.content should be (root(
       Section(Header(1, List(Text("Section 1")), Id("section-1") + Styles("section")), List(p("Swapped"))),

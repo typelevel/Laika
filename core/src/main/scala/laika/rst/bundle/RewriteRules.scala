@@ -28,7 +28,7 @@ import laika.rst.ext.TextRoles.TextRole
  * 
  *  @author Jens Halm
  */
-class RewriteRules (textRoles: Seq[TextRole]) extends (DocumentCursor => RewriteRule) {
+class RewriteRules (textRoles: Seq[TextRole]) extends (DocumentCursor => laika.ast.RewriteRules) {
 
   val baseRoleElements: Map[String, String => Span] = textRoles map { role => (role.name, role.default) } toMap
 
@@ -46,13 +46,13 @@ class RewriteRules (textRoles: Seq[TextRole]) extends (DocumentCursor => Rewrite
       
     /** Function providing the default rewrite rules when passed a document instance.
      */
-    val rewrite: RewriteRule = {
+    val rewrite: laika.ast.RewriteRules = laika.ast.RewriteRules.forSpans {
           
-      case SubstitutionReference(id,_) =>
-        substitutions.get(id).orElse(Some(invalidSpan(s"unknown substitution id: $id", s"|$id|")))
+      case SubstitutionReference(id, _) =>
+        Replace(substitutions.getOrElse(id, invalidSpan(s"unknown substitution id: $id", s"|$id|")))
         
-      case InterpretedText(role,text,_,_) =>
-        textRoles.get(role).orElse(Some({s: String => invalidSpan(s"unknown text role: $role", s"`$s`")})).map(_(text))
+      case InterpretedText(role, text, _, _) =>
+        Replace(textRoles.get(role).fold[Span](invalidSpan(s"unknown text role: $role", s"`$text`"))(_(text)))
         
     }
   }
@@ -61,7 +61,7 @@ class RewriteRules (textRoles: Seq[TextRole]) extends (DocumentCursor => Rewrite
    *  for the specified document. These rules usually get executed
    *  alongside the generic default rules.
    */
-  def apply (cursor: DocumentCursor): RewriteRule = new DefaultRules(cursor).rewrite
+  def apply (cursor: DocumentCursor): laika.ast.RewriteRules = new DefaultRules(cursor).rewrite
   
   
 }

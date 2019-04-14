@@ -56,9 +56,15 @@ abstract class ContextReference[T <: Span] (ref: String) extends SpanResolver {
 
   def result (value: Option[Any]): T
 
-  def resolve (cursor: DocumentCursor): Span = cursor.resolveReference(ref) match {
-    case Some(s: ElementTraversal[_]) => result(Some(s rewrite TemplateRewriter.rewriteRules(cursor)))
-    case other => result(other)
+  def resolve (cursor: DocumentCursor): Span = {
+    
+    cursor.resolveReference(ref) match {
+      case Some(b: Block)        => result(Some(TemplateRewriter.rewriteRules(cursor).rewriteBlock(b)))
+      case Some(t: TemplateSpan) => result(Some(TemplateRewriter.rewriteRules(cursor).rewriteTemplateSpan(t)))
+      case Some(s: Span)         => result(Some(TemplateRewriter.rewriteRules(cursor).rewriteSpan(s)))
+      case Some(r: RewritableContainer[_]) => result(Some(r.rewriteChildren(TemplateRewriter.rewriteRules(cursor))))
+      case other => result(other)
+    }
   }
 }
 
@@ -67,11 +73,11 @@ abstract class ContextReference[T <: Span] (ref: String) extends SpanResolver {
 case class TemplateContextReference (ref: String, options: Options = NoOpt) extends ContextReference[TemplateSpan](ref) with TemplateSpan {
 
   def result (value: Option[Any]): TemplateSpan = value match {
-    case Some(s: TemplateSpan)      => s
-    case Some(RootElement(content)) => EmbeddedRoot(content)
-    case Some(e: Element)           => TemplateElement(e)
-    case Some(other)                => TemplateString(other.toString)
-    case None                       => TemplateString("")
+    case Some(s: TemplateSpan)        => s
+    case Some(RootElement(content,_)) => EmbeddedRoot(content)
+    case Some(e: Element)             => TemplateElement(e)
+    case Some(other)                  => TemplateString(other.toString)
+    case None                         => TemplateString("")
   }
 }
 
@@ -95,11 +101,11 @@ trait TemplateSpan extends Span
 
 /** A container of other TemplateSpan elements.
   */
-trait TemplateSpanContainer[Self <: TemplateSpanContainer[Self]] extends ElementContainer[TemplateSpan, Self] with Rewritable[Self] { this: Self =>
+trait TemplateSpanContainer[Self <: TemplateSpanContainer[Self]] extends ElementContainer[TemplateSpan, Self] with RewritableContainer[Self] { this: Self =>
 
-  def rewriteTemplateSpans (rules: RewriteRule[TemplateSpan]): Self = rewrite2(RewriteRules(templateRules = rules))
+  def rewriteTemplateSpans (rules: RewriteRule[TemplateSpan]): Self = rewriteChildren(RewriteRules(templateRules = Seq(rules)))
 
-  def rewrite2 (rules: RewriteRules): Self = rules.rewriteTemplateSpans(content).fold(this)(withContent)
+  def rewriteChildren (rules: RewriteRules): Self = rules.rewriteTemplateSpans(content).fold(this)(withContent)
 
   def withContent (newContent: Seq[TemplateSpan]): Self
   
@@ -109,16 +115,18 @@ trait TemplateSpanContainer[Self <: TemplateSpanContainer[Self]] extends Element
  *  a template document tree. Useful when custom tags which are placed inside
  *  a template produce non-template tree elements.
  */
-case class TemplateElement (element: Element, indent: Int = 0, options: Options = NoOpt) extends TemplateSpan with ElementTraversal[TemplateElement] 
-                                                                                                              with Rewritable[TemplateElement] {
+case class TemplateElement (element: Element, indent: Int = 0, options: Options = NoOpt) extends TemplateSpan with ElementTraversal
+                                                                                                              with RewritableContainer[TemplateElement] {
 
-  def rewrite2 (rules: RewriteRules): TemplateElement = element match {
+  def rewriteChildren (rules: RewriteRules): TemplateElement = element match {
+    // TODO - 0.12 - use single method variants when memory optimization gets removed
     case t: TemplateSpan => rules.rewriteTemplateSpans(Seq(t)).fold(this)(_.headOption.fold(copy(element = TemplateSpanSequence(Nil)))(t => copy(element = t)))
     case s: Span => rules.rewriteSpans(Seq(s)).fold(this)(_.headOption.fold(copy(element = SpanSequence(Nil)))(s => copy(element = s)))
     case b: Block => rules.rewriteBlocks(Seq(b)).fold(this)(_.headOption.fold(copy(element = BlockSequence(Nil)))(b => copy(element = b)))
-    case r: Rewritable[_] => 
-      val rewritten = r.rewrite2(rules).asInstanceOf[Element]
+    case r: RewritableContainer[_] => 
+      val rewritten = r.rewriteChildren(rules).asInstanceOf[Element]
       if (rewritten.eq(element)) this else copy(element = rewritten)
+    case _ => this
   }
   
 }

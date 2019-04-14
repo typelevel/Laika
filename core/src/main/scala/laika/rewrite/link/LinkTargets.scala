@@ -85,7 +85,7 @@ object LinkTargets {
     /** Convenience method lifting the partial function to a plain function
      *  returning an Option result.
      */
-    protected def lift (f: PartialFunction[(Element,Id), Element]): ((Element,Id)) => Option[Element] = f lift
+    protected def lift[E <: Element] (f: PartialFunction[(E,Id), E]): ((E,Id)) => Option[E] = f lift
     
     /** Converts the original target element to the final representation 
      *  (with its final, resolved identifiers)
@@ -95,7 +95,7 @@ object LinkTargets {
     /** Converts an element referencing this target to the final
      *  link element.
      */
-    def resolve: ((Element,Id)) => Option[Element]
+    def resolve: ((Span,Id)) => Option[Span]
     
   }
   
@@ -107,7 +107,7 @@ object LinkTargets {
     val replace: ((Element,Id)) => Option[Element] = lift { 
       case (Citation(label,content,opt),    Named(id)) => Citation(label, content, opt + Id(id)) 
     }
-    val resolve: ((Element,Id)) => Option[Element] = lift { 
+    val resolve: ((Span,Id)) => Option[Span] = lift { 
       case (CitationReference(label,_,opt), Named(id)) => CitationLink(id, label, opt) 
     }
   }
@@ -120,7 +120,7 @@ object LinkTargets {
     val replace: ((Element,Id)) => Option[Element] = lift { 
       case (FootnoteDefinition(_,content,opt), Hybrid(name,Named(display))) => Footnote(display, content, opt + Id(name))
     }
-    val resolve: ((Element,Id)) => Option[Element] = lift { 
+    val resolve: ((Span,Id)) => Option[Span] = lift { 
       case (FootnoteReference (_, _, opt), Hybrid(id,Named(display))) => FootnoteLink(id, display, opt)
     }
     override def invalid (msg: String): InvalidTarget = new InvalidTarget(this, msg) {
@@ -134,7 +134,7 @@ object LinkTargets {
   class ExternalLinkTarget (definition: ExternalLinkDefinition, id: Id, selector: Selector, path: Path) extends TargetDefinition(definition, id, true) {
     def withResolvedIds (documentId: String, displayId: String): SingleTargetResolver = SingleTargetResolver(this, selector, Hidden)
     val replace: ((Element,Id)) => Option[Element] = lift (PartialFunction.empty)
-    val resolve: ((Element,Id)) => Option[Element] = lift { 
+    val resolve: ((Span,Id)) => Option[Span] = lift { 
       case (LinkReference (content, _, _, opt), _) => ExternalLink(content, definition.url, definition.title, opt)
       case (ImageReference (text, _, _, opt), _)   => Image(text, URI(definition.url, PathInfo.fromURI(definition.url, path)), title = definition.title, options = opt)
     }
@@ -143,7 +143,7 @@ object LinkTargets {
   class LinkAliasTarget (alias: LinkAlias) extends TargetDefinition(alias, alias.id, false) {
     def withResolvedIds (documentId: String, displayId: String): SingleTargetResolver = SingleTargetResolver(this, alias.id, Hidden)
     val replace: ((Element,Id)) => Option[Element] = lift (PartialFunction.empty)
-    val resolve: ((Element,Id)) => Option[Element] = lift (PartialFunction.empty)
+    val resolve: ((Span,Id)) => Option[Span] = lift (PartialFunction.empty)
     val ref: String = alias.target
     val from: String = alias.id
   }
@@ -163,7 +163,7 @@ object LinkTargets {
           case _              => sysMsg
         }
       }
-    val resolve: ((Element,Id)) => Option[Element] = lift {
+    val resolve: ((Span,Id)) => Option[Span] = lift {
       case (ref: Reference, _) => InvalidSpan(sysMsg, Text(ref.source))
     }
   }
@@ -172,7 +172,7 @@ object LinkTargets {
     val replace: ((Element,Id)) => Option[Element] = lift { 
       case (c: Customizable, Named(name)) => Options.setId(c, name)
     }
-    val resolve: ((Element,Id)) => Option[Element] = lift { 
+    val resolve: ((Span,Id)) => Option[Span] = lift { 
       case (LinkReference (content, _, _, opt), Named(name))            => InternalLink(linkContent(content,name), name, options = opt) 
       case (LinkReference (content, _, _, opt), Relative(source, name)) => CrossLink(linkContent(content,name), name, PathInfo.fromPath(path, source.parent), options = opt) 
     } 
@@ -233,7 +233,7 @@ object LinkTargets {
      *  @param path if defined it defines the relative path between the document of the reference
      *  and that of the link target, if empty it is a local reference 
      */
-    def resolveReference (rewrittenRef: Element, path: Option[Path] = None): Option[Element]
+    def resolveReference (rewrittenRef: Span, path: Option[Path] = None): Option[Span]
 
     /** Creates the final target element (with its final, resolved identifiers).
      * 
@@ -250,7 +250,7 @@ object LinkTargets {
     
     def global: Boolean = target.global
     
-    def resolveReference (rewrittenRef: Element, path: Option[Path] = None): Option[Element] = {
+    def resolveReference (rewrittenRef: Span, path: Option[Path] = None): Option[Span] = {
       val id = (path, render) match {
         case (Some(path), Named(name)) => Relative(path, name) 
         case _ => render
@@ -270,7 +270,7 @@ object LinkTargets {
     
     val global = true
     
-    def resolveReference (rewrittenRef: Element, path: Option[Path] = None): Option[Element] = rewrittenRef match { 
+    def resolveReference (rewrittenRef: Span, path: Option[Path] = None): Option[Span] = rewrittenRef match { 
       case ref: Reference =>
         Some(InvalidElement(s"More than one link target with name ${selector.name} in path $path", ref.source).asSpan)
       case _ => None
@@ -291,7 +291,7 @@ object LinkTargets {
     
     private def nextOption (it: Iterator[TargetResolver]) = if (it.hasNext) Some(it.next) else None
     
-    def resolveReference (rewrittenRef: Element, path: Option[Path] = None): Option[Element] 
+    def resolveReference (rewrittenRef: Span, path: Option[Path] = None): Option[Span] 
                                                                     = nextOption(refIt).flatMap(_.resolveReference(rewrittenRef))
 
     def replaceTarget (rewrittenOriginal: Element): Option[Element] = nextOption(targetIt).flatMap(_.replaceTarget(rewrittenOriginal))

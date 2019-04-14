@@ -16,7 +16,7 @@
 
 package laika.sbt
 
-import laika.ast.{DocumentCursor, DocumentType, RenderFunction, RewriteRule}
+import laika.ast._
 import laika.bundle.{ExtensionBundle, RenderTheme}
 import laika.format.{EPUB, HTML, XSLFO}
 import laika.render.{FOWriter, HTMLWriter}
@@ -61,11 +61,17 @@ trait ExtensionBundles {
     override def themes: Seq[RenderTheme] = Seq(XSLFO.Theme(customRenderer = f))
   }
 
-  /** Create an extension bundle based on the specified rewrite rule.
+  /** Create an extension bundle based on the specified rewrite rule for spans.
     *
     * Rewrite rules allow the modification of the document AST between parse and render operations.
     */
-  def laikaRewriteRule (rule: RewriteRule): ExtensionBundle = laikaRewriteRuleFactory(_ => rule)
+  def laikaSpanRewriteRule (rule: RewriteRule[Span]): ExtensionBundle = laikaRewriteRuleFactory(_ => RewriteRules.forSpans(rule))
+
+  /** Create an extension bundle based on the specified rewrite rule for blocks.
+    *
+    * Rewrite rules allow the modification of the document AST between parse and render operations.
+    */
+  def laikaBlockRewriteRule (rule: RewriteRule[Block]): ExtensionBundle = laikaRewriteRuleFactory(_ => RewriteRules.forBlocks(rule))
 
   /** Create an extension bundle based on the specified rewrite rule.
     *
@@ -73,8 +79,8 @@ trait ExtensionBundles {
     * The supplied function will get invoked for every document in the transformation, therefore
     * creating a new rule for each document.
     */
-  def laikaRewriteRuleFactory (factory: DocumentCursor => RewriteRule): ExtensionBundle = new ExtensionBundle {
-    override def rewriteRules: Seq[DocumentCursor => RewriteRule] = Seq(factory)
+  def laikaRewriteRuleFactory (factory: DocumentCursor => RewriteRules): ExtensionBundle = new ExtensionBundle {
+    override def rewriteRules: Seq[DocumentCursor => RewriteRules] = Seq(factory)
   }
 
   /** Create an extension bundle based on the specified document type matcher.

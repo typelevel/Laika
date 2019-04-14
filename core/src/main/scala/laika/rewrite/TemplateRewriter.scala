@@ -67,7 +67,7 @@ trait TemplateRewriter {
       config = mergedConfig,  
       resolver = ReferenceResolver.forDocument(cursor.target, cursor.parent, mergedConfig)
     )
-    val newContent = template.content rewrite rewriteRules(cursorWithMergedConfig)
+    val newContent = rewriteRules(cursorWithMergedConfig).rewriteBlock(template.content)
     val newRoot = newContent match {
       case TemplateRoot(List(TemplateElement(root: RootElement, _, _)), _) => root
       case TemplateRoot(List(EmbeddedRoot(content, _, _)), _) => RootElement(content)
@@ -108,19 +108,25 @@ trait TemplateRewriter {
    *  element they produce based on the specified
    *  document cursor.
    */
-  def rewriteRules (cursor: DocumentCursor): RewriteRule = {
+  def rewriteRules (cursor: DocumentCursor): RewriteRules = {
     
-    lazy val rule: RewriteRule = {
-      case ph: BlockResolver => Some(rewriteChild(ph resolve cursor))
-      case ph: SpanResolver  => Some(rewriteChild(ph resolve cursor))
-      case TemplateRoot(spans, opt)         => Some(TemplateRoot(format(spans), opt))
-      case TemplateSpanSequence(spans, opt) => Some(TemplateSpanSequence(format(spans), opt))
+    lazy val rules: RewriteRules = RewriteRules.forBlocks {
+      case ph: BlockResolver                => Replace(rewriteBlock(ph resolve cursor))
+      case TemplateRoot(spans, opt)         => Replace(TemplateRoot(format(spans), opt))
+    } ++ RewriteRules.forSpans {
+      case ph: SpanResolver                 => Replace(rewriteSpan(ph resolve cursor))
+    } ++ RewriteRules.forTemplates {
+      case ph: SpanResolver                 => Replace(rewriteTemplateSpan(asTemplateSpan(ph resolve cursor)))
+      case TemplateSpanSequence(spans, opt) => Replace(TemplateSpanSequence(format(spans), opt))
     }
     
-    def rewriteChild (e: Element): Element = e match {
-      case et: ElementTraversal[_] => et rewrite rule
-      case other => other
-    }
+    def asTemplateSpan (span: Span) = span match {
+      case t: TemplateSpan => t
+      case s => TemplateElement(s)
+    } 
+    def rewriteBlock (block: Block): Block = rules.rewriteBlock(block)
+    def rewriteSpan (span: Span): Span = rules.rewriteSpan(span)
+    def rewriteTemplateSpan (span: TemplateSpan): TemplateSpan = rules.rewriteTemplateSpan(span)
     
     def format (spans: Seq[TemplateSpan]): Seq[TemplateSpan] = {
       def indentFor(text: String): Int = text.lastIndexOf('\n') match {
@@ -129,15 +135,15 @@ trait TemplateRewriter {
       }
       if (spans.isEmpty) spans
       else spans.sliding(2).foldLeft(new ListBuffer[TemplateSpan]() += spans.head) { 
-        case (buffer, TemplateString(text, NoOpt) :: TemplateElement(elem, 0, opt) :: Nil) => 
+        case (buffer, Seq(TemplateString(text, NoOpt), TemplateElement(elem, 0, opt))) => 
           buffer += TemplateElement(elem, indentFor(text), opt)
-        case (buffer, TemplateString(text, NoOpt) :: EmbeddedRoot(elem, 0, opt) :: Nil) => 
+        case (buffer, Seq(TemplateString(text, NoOpt), EmbeddedRoot(elem, 0, opt))) =>
           buffer += EmbeddedRoot(elem, indentFor(text), opt)
-        case (buffer, _ :: elem :: Nil) => buffer += elem
+        case (buffer, Seq(_, elem)) => buffer += elem
         case (buffer, _) => buffer
       }.toList
     }
-    rule
+    rules
   }
   
 }

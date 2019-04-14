@@ -28,27 +28,12 @@ import scala.annotation.tailrec
  */
 object RewriteRules {
 
-  
-  /** Chains the specified rules into one PartialFunction composition.
-   *  The resulting function is always defined, but is returned
-   *  as a PartialFunction as required by the `ElementTraversal` API.
-   */
-  def chain (rules: Seq[RewriteRule]): RewriteRule = {
-    
-    def extractRules (rule: RewriteRule): Seq[RewriteRule] = rule match {
-      case ChainedRewriteRules(rules) => rules
-      case other => Seq(other)
-    }
-    
-    ChainedRewriteRules(rules.flatMap(extractRules))
-  }
-  
-  case class ChainedRewriteRules2[T] (rules: Seq[PartialFunction[T, RewriteAction[T]]]) {
+  case class ChainedRewriteRules[T] (rules: Seq[RewriteRule[T]]) extends (T => RewriteAction[T]) {
 
     def apply (element: T): RewriteAction[T] = {
       
       @tailrec
-      def applyNextRule (currentAction: RewriteAction[T], remainingRules: Seq[PartialFunction[T, RewriteAction[T]]]): RewriteAction[T] =
+      def applyNextRule (currentAction: RewriteAction[T], remainingRules: Seq[RewriteRule[T]]): RewriteAction[T] =
         if (currentAction == Remove || remainingRules.isEmpty) currentAction
         else {
           val input = currentAction match {
@@ -63,28 +48,11 @@ object RewriteRules {
     }
     
   }
-  
-  private case class ChainedRewriteRules (rules: Seq[RewriteRule]) extends RewriteRule {
-    
-    def apply (element: Element): Option[Element] = {
-      
-      val fallback: RewriteRule = { case e => Some(e) }
-    
-      val f = 
-        if (rules.isEmpty) fallback  
-        else (rules map { _ orElse fallback }) reduceRight { (ruleA,ruleB) => ruleA andThen (_ flatMap ruleB) }
-      
-      f(element)
-    }
-      
-    def isDefinedAt (element: Element): Boolean = true
-    
-  }
-  
+
   /** Chains the specified rule factory functions into a single factory function.
     */
-  def chainFactories (rules: Seq[DocumentCursor => RewriteRule]): DocumentCursor => RewriteRule =
-    cursor => chain(rules map (_(cursor)))
+  def chainFactories (rules: Seq[DocumentCursor => RewriteRules]): DocumentCursor => RewriteRules =
+    cursor => rules.map(_(cursor)).reduce(_ ++ _) // TODO - 0.12 - verify rules is always non-empty or use Nel
 
   /** The default built-in rewrite rules, dealing with section building and link resolution.
     * These are not installed as part of any default extension bundle as they have specific

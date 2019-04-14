@@ -128,7 +128,7 @@ trait Link extends Span
  *  unique for the whole document across all types
  *  of `LinkTarget` implementations.
  */
-trait LinkTarget extends Customizable
+trait LinkTarget extends Block
 
 
 
@@ -151,18 +151,18 @@ trait TextContainer extends Container[String]
  *  Usually not mixed in directly, instead one of the sub-traits
  *  `ListContainer`, `SpanContainer` or `BlockContainer` should be used.
  */
-trait ElementContainer[+E <: Element, Self <: ElementContainer[E,Self]] extends Container[Seq[E]] with ElementTraversal[Self] {
+trait ElementContainer[+E <: Element, Self <: ElementContainer[E,Self]] extends Container[Seq[E]] with ElementTraversal {
   override def toString: String = "\n" + (Render as AST from this toString) + "\n"
 }
 
 /** A container of other Block elements. Such a container is usually
  *  also a Block itself.
  */
-trait BlockContainer[Self <: BlockContainer[Self]] extends ElementContainer[Block,Self] with Rewritable[Self] { this: Self =>
+trait BlockContainer[Self <: BlockContainer[Self]] extends ElementContainer[Block,Self] with RewritableContainer[Self] { this: Self =>
 
-  def rewriteBlocks (rules: RewriteRule[Block]): Self = rewrite2(RewriteRules(blockRules = rules))
+  def rewriteBlocks (rules: RewriteRule[Block]): Self = rewriteChildren(RewriteRules(blockRules = Seq(rules)))
 
-  def rewrite2 (rules: RewriteRules): Self = rules.rewriteBlocks(content).fold(this)(withContent)
+  def rewriteChildren (rules: RewriteRules): Self = rules.rewriteBlocks(content).fold(this)(withContent)
 
   def withContent (newContent: Seq[Block]): Self
 
@@ -171,9 +171,9 @@ trait BlockContainer[Self <: BlockContainer[Self]] extends ElementContainer[Bloc
 /** A container of other Span elements. Such a container may be a Block
  *  or a Span itself.
  */
-trait SpanContainer[Self <: SpanContainer[Self]] extends ElementContainer[Span,Self] with Rewritable[Self] { this: Self =>
+trait SpanContainer[Self <: SpanContainer[Self]] extends ElementContainer[Span,Self] with RewritableContainer[Self] { this: Self =>
 
-  def rewrite2 (rules: RewriteRules): Self = rules.rewriteSpans(content).fold(this)(withContent)
+  def rewriteChildren (rules: RewriteRules): Self = rules.rewriteSpans(content).fold(this)(withContent)
 
   def withContent (newContent: Seq[Span]): Self
   
@@ -194,7 +194,7 @@ trait ListContainer[Self <: ListContainer[Self]] extends ElementContainer[ListIt
 
 /** The root element of a document tree.
  */
-case class RootElement (content: Seq[Block]) extends Element with BlockContainer[RootElement] {
+case class RootElement (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[RootElement] {
   def withContent (newContent: Seq[Block]): RootElement = copy(content = newContent)
 }
 
@@ -218,11 +218,14 @@ case class ConfigValue (name: String, value: AnyRef, options: Options = NoOpt) e
  */
 case class Section (header: Header, content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[Section] {
 
-  override def rewrite2 (rules: RewriteRules): Section = (rules.rewriteBlocks(content), rules.rewriteSpans(header.content)) match {
-    case (None, None) => this
-    case (newContent, newHeader) => copy(
+  override def rewriteChildren (rules: RewriteRules): Section = (rules.rewriteBlocks(content), rules.rewriteBlock(header)) match {
+    case (newContent, newHeader: Header) => copy(
       content = newContent.getOrElse(content), 
-      header = newHeader.fold(header)(Header(header.level, _, header.options))
+      header = newHeader
+    )
+    case (newContent, newHeader) => copy(
+      content = newHeader +: newContent.getOrElse(content),
+      header = header.copy(content = Nil)
     )
   }
   
@@ -321,7 +324,7 @@ case class CodeBlock (language: String, content: Seq[Span], options: Options = N
 case class QuotedBlock (content: Seq[Block], attribution: Seq[Span], options: Options = NoOpt) extends Block
                                                                                                with BlockContainer[QuotedBlock] {
 
-  override def rewrite2 (rules: RewriteRules): QuotedBlock = (rules.rewriteBlocks(content), rules.rewriteSpans(attribution)) match {
+  override def rewriteChildren (rules: RewriteRules): QuotedBlock = (rules.rewriteBlocks(content), rules.rewriteSpans(attribution)) match {
     case (None, None) => this
     case (newContent, newAttribution) => copy(content = newContent.getOrElse(content), attribution = newAttribution.getOrElse(attribution))
   }
@@ -336,7 +339,7 @@ case class QuotedBlock (content: Seq[Block], attribution: Seq[Span], options: Op
 case class TitledBlock (title: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends Block
                                                                                          with BlockContainer[TitledBlock] {
 
-  override def rewrite2 (rules: RewriteRules): TitledBlock = (rules.rewriteBlocks(content), rules.rewriteSpans(title)) match {
+  override def rewriteChildren (rules: RewriteRules): TitledBlock = (rules.rewriteBlocks(content), rules.rewriteSpans(title)) match {
     case (None, None) => this
     case (newContent, newTitle) => copy(content = newContent.getOrElse(content), title = newTitle.getOrElse(title))
   }
@@ -349,7 +352,7 @@ case class TitledBlock (title: Seq[Span], content: Seq[Block], options: Options 
  */
 case class Figure (image: Span, caption: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[Figure] {
 
-  override def rewrite2 (rules: RewriteRules): Figure = (rules.rewriteBlocks(content), rules.rewriteSpans(caption), rules.rewriteSpans(Seq(image))) match {
+  override def rewriteChildren (rules: RewriteRules): Figure = (rules.rewriteBlocks(content), rules.rewriteSpans(caption), rules.rewriteSpans(Seq(image))) match {
     case (None, None, None) => this
     case (newContent, newCaption, newImage) => copy(
       content = newContent.getOrElse(content), 
@@ -368,9 +371,9 @@ case class Figure (image: Span, caption: Seq[Span], content: Seq[Block], options
  */
 case class BulletList (content: Seq[BulletListItem], format: BulletFormat, options: Options = NoOpt) extends Block
                                                                                                with ListContainer[BulletList]
-                                                                                               with Rewritable[BulletList] {
+                                                                                               with RewritableContainer[BulletList] {
 
-  override def rewrite2 (rules: RewriteRules): BulletList = {
+  override def rewriteChildren (rules: RewriteRules): BulletList = {
     val rewrittenItems = content.map(i => rules.rewriteBlocks(i.content))
     if (rewrittenItems.forall(_.isEmpty)) this
     else copy(content = rewrittenItems.zip(content) map {
@@ -383,10 +386,10 @@ case class BulletList (content: Seq[BulletListItem], format: BulletFormat, optio
  */
 case class EnumList (content: Seq[EnumListItem], format: EnumFormat, start: Int = 1, options: Options = NoOpt) extends Block
                                                                                                            with ListContainer[EnumList]
-                                                                                                           with Rewritable[EnumList] {
+                                                                                                           with RewritableContainer[EnumList] {
 
   // TODO - 0.12 - reduce boilerplate for list-rewriting
-  override def rewrite2 (rules: RewriteRules): EnumList = {
+  override def rewriteChildren (rules: RewriteRules): EnumList = {
     val rewrittenItems = content.map(i => rules.rewriteBlocks(i.content))
     if (rewrittenItems.forall(_.isEmpty)) this
     else copy(content = rewrittenItems.zip(content) map {
@@ -457,15 +460,9 @@ case class EnumListItem (content: Seq[Block], format: EnumFormat, position: Int,
  *  Not related to the `Definition` base trait.
  */
 case class DefinitionList (content: Seq[DefinitionListItem], options: Options = NoOpt) extends Block with ListContainer[DefinitionList]
-                                                                                                     with Rewritable[DefinitionList] {
+                                                                                                     with RewritableContainer[DefinitionList] {
 
-  override def rewrite2 (rules: RewriteRules): DefinitionList = {
-    val rewrittenItems = content.map(i => rules.rewriteBlocks(i.content))
-    if (rewrittenItems.forall(_.isEmpty)) this
-    else copy(content = rewrittenItems.zip(content) map {
-      case (rewrittenItem, oldItem) => rewrittenItem.fold(oldItem)(c => oldItem.copy(content = c))
-    })
-  }
+  def rewriteChildren (rules: RewriteRules): DefinitionList = copy(content = content.map(_.rewriteChildren(rules)))
 }
 
 /** A single definition item, containing the term and definition (as the content property).
@@ -473,8 +470,8 @@ case class DefinitionList (content: Seq[DefinitionListItem], options: Options = 
 case class DefinitionListItem (term: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends ListItem
                                                                                                with BlockContainer[DefinitionListItem] {
 
-  override def rewrite2 (rules: RewriteRules): DefinitionListItem = (rules.rewriteBlocks(content), rules.rewriteSpans(term)) match {
-    case (None, None) => this
+  override def rewriteChildren (rules: RewriteRules): DefinitionListItem = (rules.rewriteBlocks(content), rules.rewriteSpans(term)) match {
+    case (None, None)          => this
     case (newContent, newTerm) => copy(content = newContent.getOrElse(content), term = newTerm.getOrElse(term))
   }
   
@@ -502,9 +499,9 @@ case class LineBlock (content: Seq[LineBlockItem], options: Options = NoOpt) ext
 /** A table consisting of a head and a body part and optional caption and column specification.
  */
 case class Table (head: TableHead, body: TableBody, caption: Caption = Caption(), columns: Columns = Columns(Nil), options: Options = NoOpt) extends Block
-                                                                                                               with ElementTraversal[Table] with Rewritable[Table] {
+                                                                                                               with ElementTraversal with RewritableContainer[Table] {
   
-  def rewrite2 (rules: RewriteRules): Table = copy(head = head.rewrite2(rules), body = body.rewrite2(rules), caption = caption.rewrite2(rules))
+  def rewriteChildren (rules: RewriteRules): Table = copy(head = head.rewriteChildren(rules), body = body.rewriteChildren(rules), caption = caption.rewriteChildren(rules))
  
   override def toString = "\n" + (Render as AST from this toString) + "\n"
 }
@@ -519,14 +516,14 @@ trait TableContainer[Self <: TableContainer[Self]] extends TableElement with Ele
 
 /** Contains the header rows of a table.
  */
-case class TableHead (content: Seq[Row], options: Options = NoOpt) extends TableElement with TableContainer[TableHead] with Rewritable[TableHead] {
-  def rewrite2 (rules: RewriteRules): TableHead = copy(content = content.map(_.rewrite2(rules)))
+case class TableHead (content: Seq[Row], options: Options = NoOpt) extends TableElement with TableContainer[TableHead] with RewritableContainer[TableHead] {
+  def rewriteChildren (rules: RewriteRules): TableHead = copy(content = content.map(_.rewriteChildren(rules)))
 }
 
 /** Contains the body rows of a table.
  */
-case class TableBody (content: Seq[Row], options: Options = NoOpt) extends TableElement with TableContainer[TableBody] with Rewritable[TableBody] {
-  def rewrite2 (rules: RewriteRules): TableBody = copy(content = content.map(_.rewrite2(rules)))
+case class TableBody (content: Seq[Row], options: Options = NoOpt) extends TableElement with TableContainer[TableBody] with RewritableContainer[TableBody] {
+  def rewriteChildren (rules: RewriteRules): TableBody = copy(content = content.map(_.rewriteChildren(rules)))
 }
 
 /** The table caption.
@@ -554,8 +551,8 @@ case class Column (options: Options = NoOpt) extends TableElement
  *  cells with a colspan greater than 1, this row may contain
  *  fewer cells than the number of columns in the table.
  */
-case class Row (content: Seq[Cell], options: Options = NoOpt) extends TableElement with TableContainer[Row] with Rewritable[Row] {
-  def rewrite2 (rules: RewriteRules): Row = copy(content = content.map(_.rewrite2(rules)))
+case class Row (content: Seq[Cell], options: Options = NoOpt) extends TableElement with TableContainer[Row] with RewritableContainer[Row] {
+  def rewriteChildren (rules: RewriteRules): Row = copy(content = content.map(_.rewriteChildren(rules)))
 }
 
 /** A single cell, potentially spanning multiple rows or columns, containing

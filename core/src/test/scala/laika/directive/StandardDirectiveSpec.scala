@@ -300,7 +300,7 @@ class StandardDirectiveSpec extends FlatSpec
     def parseAndRewrite (template: String, markup: String) = {
       val templateDoc = TemplateDocument(Root / "test.html", parseTemplate(template))
       val doc = Document(pathUnderTest, parse(markup).content, config = ConfigFactory.parseString("title: Doc 7, template: /test.html"))
-      val tree = buildTree(templateDoc, doc).rewrite(OperationConfig.default.rewriteRule)
+      val tree = buildTree(templateDoc, doc).rewrite(OperationConfig.default.rewriteRules)
       TemplateRewriter.applyTemplates(tree, "html").selectDocument(Current / "sub2" / "doc7").get.content
     }
     

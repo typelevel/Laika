@@ -204,10 +204,10 @@ trait DocumentStructure { this: TreeContent =>
 
   private def findRoot: Seq[Block] = {
     (content select {
-      case RootElement(TemplateRoot(_,_) :: Nil) => false
-      case RootElement(_) => true
+      case RootElement(TemplateRoot(_,_) :: Nil, _) => false
+      case RootElement(_, _) => true
       case _ => false
-    }).headOption map { case RootElement(content) => content } getOrElse Nil
+    }).headOption map { case RootElement(content, _) => content } getOrElse Nil
   }
 
   /** The title of this document, obtained from the document
@@ -425,19 +425,20 @@ case class Document (path: Path,
                      config: Config = ConfigFactory.empty,
                      position: TreePosition = TreePosition(Seq())) extends DocumentStructure with TreeContent {
 
-  /** Returns a new, rewritten document model based on the specified rewrite rule.
+  /** Returns a new, rewritten document model based on the specified rewrite rules.
    *
-   *  If the specified partial function is not defined for a specific element the old element remains
-   *  in the tree unchanged. If it returns `None` then the node gets removed from the ast,
-   *  if it returns an element it will replace the old one. Of course the function may
-   *  also return the old element.
+   *  If the rule is not defined for a specific element or the rule returns
+   *  a `Retain` action as a result the old element remains in the tree unchanged. 
+   * 
+   *  If it returns `Remove` then the node gets removed from the ast,
+   *  if it returns `Replace` with a new element it will replace the old one. 
    *
    *  The rewriting is performed in a way that only branches of the tree that contain
    *  new or removed elements will be replaced. It is processed bottom-up, therefore
    *  any element container passed to the rule only contains children which have already
    *  been processed.
    */
-  def rewrite (rule: RewriteRule): Document = DocumentCursor(this).rewriteTarget(rule)
+  def rewrite (rules: RewriteRules): Document = DocumentCursor(this).rewriteTarget(rules)
 
 }
 
@@ -464,12 +465,13 @@ case class DocumentTree (path:Path,
   val targetTree = this
 
   /** Returns a new tree, with all the document models contained in it
-   *  rewritten based on the specified rewrite rule.
+   *  rewritten based on the specified rewrite rules.
    *
-   *  If the specified partial function is not defined for a specific element the old element remains
-   *  in the tree unchanged. If it returns `None` then the node gets removed from the ast,
-   *  if it returns an element it will replace the old one. Of course the function may
-   *  also return the old element.
+   *  If the rule is not defined for a specific element or the rule returns
+   *  a `Retain` action as a result the old element remains in the tree unchanged. 
+   * 
+   *  If it returns `Remove` then the node gets removed from the ast,
+   *  if it returns `Replace` with a new element it will replace the old one. 
    *
    *  The rewriting is performed in a way that only branches of the tree that contain
    *  new or removed elements will be replaced. It is processed bottom-up, therefore
@@ -480,6 +482,6 @@ case class DocumentTree (path:Path,
    *  tree and must return a partial function that represents the rewrite rules for that
    *  particular document.
    */
-  def rewrite (rule: DocumentCursor => RewriteRule): DocumentTree = TreeCursor(this).rewriteTarget(rule)
+  def rewrite (rules: DocumentCursor => RewriteRules): DocumentTree = TreeCursor(this).rewriteTarget(rules)
 
 }

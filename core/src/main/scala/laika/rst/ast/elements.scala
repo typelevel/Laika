@@ -23,10 +23,10 @@ import laika.rewrite.nav.TocGenerator
 /** A two-column table-like structure used for bibliographic fields or directive options.
   */
 case class FieldList (content: Seq[Field], options: Options = NoOpt) extends Block with ListContainer[FieldList]
-                                                                                   with Rewritable[FieldList] {
+                                                                                   with RewritableContainer[FieldList] {
 
-  override def rewrite2 (rules: RewriteRules): FieldList = {
-    val zippedContent = content.map(_.rewrite2(rules)).zip(content)
+  override def rewriteChildren (rules: RewriteRules): FieldList = {
+    val zippedContent = content.map(_.rewriteChildren(rules)).zip(content)
     if (zippedContent.forall { case (rewritten, old) => rewritten.eq(old) }) this
     else copy(content = zippedContent.map(_._1))
   }
@@ -35,7 +35,7 @@ case class FieldList (content: Seq[Field], options: Options = NoOpt) extends Blo
 /** A single entry in a field list consisting of name and body.
   */
 case class Field (name: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends ListItem with BlockContainer[Field] {
-  override def rewrite2 (rules: RewriteRules): Field = (rules.rewriteBlocks(content), rules.rewriteSpans(name)) match {
+  override def rewriteChildren (rules: RewriteRules): Field = (rules.rewriteBlocks(content), rules.rewriteSpans(name)) match {
     case (None, None) => this
     case (newContent, newName) => copy(content = newContent.getOrElse(content), name = newName.getOrElse(name))
   }
@@ -51,9 +51,9 @@ case class Classifier (content: Seq[Span], options: Options = NoOpt) extends Spa
 /** A list of command line options and descriptions.
   */
 case class OptionList (content: Seq[OptionListItem], options: Options = NoOpt) extends Block with ListContainer[OptionList]
-                                                                                             with Rewritable[OptionList] {
+                                                                                             with RewritableContainer[OptionList] {
 
-  override def rewrite2 (rules: RewriteRules): OptionList = {
+  override def rewriteChildren (rules: RewriteRules): OptionList = {
     val rewrittenItems = content.map(i => rules.rewriteBlocks(i.content))
     if (rewrittenItems.forall(_.isEmpty)) this
     else copy(content = rewrittenItems.zip(content) map {

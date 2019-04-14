@@ -37,22 +37,32 @@ import scala.annotation.tailrec
  * 
  *  @author Jens Halm
  */
-object LinkResolver extends (DocumentCursor => RewriteRule) {
+object LinkResolver extends (DocumentCursor => RewriteRules) {
 
   /** The default rules for resolving link references 
    *  to be applied to the document.
    */
-  def apply (cursor: DocumentCursor): RewriteRule = {
+  def apply (cursor: DocumentCursor): RewriteRules = {
     
     val targets = cursor.target.linkTargets
     val headerId = targets.headerIds
     
-    def replaceHeader (h: Block, origId: String, lookup: String => Option[String]): Option[Element] = lookup(origId).flatMap(replace(h,_))
+    def replaceHeader (h: Block, origId: String, lookup: String => Option[String]): RewriteAction[Block] = 
+      lookup(origId).fold[RewriteAction[Block]](Remove)(replace(h,_))
     
-    def replace (element: Element, selector: Selector): Option[Element] = 
-      targets.local.get(selector).flatMap(_.replaceTarget(element))
+    def replace (element: Block, selector: Selector): RewriteAction[Block] =
+      targets.local.get(selector)
+        .flatMap(_.replaceTarget(element))
+        .collect{ case b: Block => b }
+        .fold[RewriteAction[Block]](Remove)(Replace(_))
+
+    def replaceSpan (element: Span, selector: Selector): RewriteAction[Span] =
+      targets.local.get(selector)
+        .flatMap(_.replaceTarget(element))
+        .collect{ case s: Span => s }
+        .fold[RewriteAction[Span]](Remove)(Replace(_))
     
-    def resolve (ref: Reference, selector: Selector, msg: => String, global: Boolean = false): Option[Element] = {
+    def resolve (ref: Reference, selector: Selector, msg: => String, global: Boolean = false): RewriteAction[Span] = {
       
       def selectFromParent = {
         @tailrec def select (path: Path): (Option[TargetResolver],Option[Path]) = {
@@ -78,11 +88,12 @@ object LinkResolver extends (DocumentCursor => RewriteRule) {
           case _ => (None,None)
         }
       }
-      Some(target.flatMap(_.resolveReference(ref,path))
+      Replace(target.flatMap(_.resolveReference(ref,path))
           .getOrElse(InvalidElement(msg, ref.source).asSpan))
     }
       
-    {
+    RewriteRules.forBlocks {
+      
       case f: FootnoteDefinition => f.label match {
         case NumericLabel(num)   => replace(f, num.toString)
         case AutonumberLabel(id) => replace(f, id)
@@ -93,25 +104,32 @@ object LinkResolver extends (DocumentCursor => RewriteRule) {
       case h: DecoratedHeader    => replaceHeader(h, h.options.id.get, headerId)
       case h@ Header(_,_,Id(id)) => replaceHeader(h, id, headerId)
       
-      case c @ CitationReference(label,_,_) => resolve(c, label, s"unresolved citation reference: $label")
+      case _: Temporary => Remove
+
+      case c: Customizable if c.options.id.isDefined => replace(c, c.options.id.get)
       
+    } ++ RewriteRules.forSpans {
+      
+      case c @ CitationReference(label,_,_) => resolve(c, label, s"unresolved citation reference: $label")
+
       case ref: FootnoteReference => ref.label match {
         case NumericLabel(num)   => resolve(ref, num.toString, s"unresolved footnote reference: $num")
         case AutonumberLabel(id) => resolve(ref, id, s"unresolved footnote reference: $id")
         case Autonumber          => resolve(ref, AutonumberSelector, "too many autonumber references")
         case Autosymbol          => resolve(ref, AutosymbolSelector, "too many autosymbol references")
       }
+
+      case img @ Image(_,URI(uri, None),_,_,_,_) => Replace(img.copy(uri = URI(uri, PathInfo.fromURI(uri, cursor.parent.target.path))))
         
       case ref: LinkReference => if (ref.id.isEmpty) resolve(ref, AnonymousSelector, "too many anonymous link references")
                                  else                resolve(ref, ref.id, s"unresolved link reference: ${ref.id}", global = true)
-        
-      case ref: ImageReference => resolve(ref, ref.id, s"unresolved image reference: ${ref.id}", global = true)
-      case img @ Image(_,URI(uri, None),_,_,_,_) => Some(img.copy(uri = URI(uri, PathInfo.fromURI(uri, cursor.parent.target.path))))
-      
-      case _: Temporary => None
 
-      case c: Customizable if c.options.id.isDefined => replace(c, c.options.id.get)
-      
+      case ref: ImageReference => resolve(ref, ref.id, s"unresolved image reference: ${ref.id}", global = true)
+
+      case _: Temporary => Remove
+
+      case c: Customizable if c.options.id.isDefined => replaceSpan(c, c.options.id.get)
+
     }
   }
   

@@ -89,13 +89,13 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
   /** The combined rewrite rule, obtained by merging the rewrite rules defined in all bundles.
     * This combined rule gets applied to the document between parse and render operations.
     */
-  lazy val rewriteRule: DocumentCursor => RewriteRule =
+  lazy val rewriteRules: DocumentCursor => RewriteRules =
     RewriteRules.chainFactories(mergedBundle.rewriteRules ++ RewriteRules.defaults)
 
   /** The combined rewrite rule for the specified document, obtained by merging the rewrite rules defined in all bundles.
     * This combined rule gets applied to the document between parse and render operations.
     */
-  def rewriteRuleFor (doc: Document): RewriteRule = rewriteRule(DocumentCursor(doc))
+  def rewriteRulesFor (doc: Document): RewriteRules = rewriteRules(DocumentCursor(doc))
 
   /** Provides the theme for the specified render format, obtained by merging all themes defined
     * for this format and adding the default theme for the format and a fallback theme.

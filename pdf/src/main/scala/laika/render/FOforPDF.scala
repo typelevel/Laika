@@ -83,13 +83,13 @@ class FOforPDF (config: Option[PDF.Config]) {
    *  from a `Title` element in the document's content or from its configuration header.
    */
   def addDocLinks (tree: DocumentTree): DocumentTree =
-    tree rewrite { _ => {
+    tree rewrite { _ => RewriteRules.forBlocks {
       case title: Title =>
         // toc directives will link to an empty id, not the id of the title element
-        Some(BlockSequence(Seq(title), Id("")))
+        Replace(BlockSequence(Seq(title), Id("")))
       case root: RootElement if (root select { _.isInstanceOf[Title] }).isEmpty =>
         val insert = InternalLinkTarget(Id(""))
-        Some(RootElement(insert +: root.content))
+        Replace(RootElement(insert +: root.content)) 
     }}
 
   /** Generates bookmarks for the structure of the DocumentTree. Individual

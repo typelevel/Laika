@@ -93,7 +93,7 @@ class Parse private (parsers: Seq[MarkupParser], val config: OperationConfig, re
 
     val doc = IO(input)(parserLookup.forInput(input))
 
-    if (rewrite) doc.rewrite(config.rewriteRuleFor(doc))
+    if (rewrite) doc.rewrite(config.rewriteRulesFor(doc))
     else doc
   }
   
@@ -169,7 +169,7 @@ class Parse private (parsers: Seq[MarkupParser], val config: OperationConfig, re
 
     val tree = collectDocuments(inputTree, root = true)
 
-    if (rewrite) tree.rewrite(config.rewriteRule)
+    if (rewrite) tree.rewrite(config.rewriteRules)
     else tree
   }
 

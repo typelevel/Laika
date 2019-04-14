@@ -27,7 +27,7 @@ import scala.collection.mutable.ListBuffer
  * 
  * @author Jens Halm
  */
-object SectionBuilder extends (DocumentCursor => RewriteRule) {
+object SectionBuilder extends (DocumentCursor => RewriteRules) {
 
   
   class DefaultRule (cursor: DocumentCursor) { 
@@ -126,14 +126,14 @@ object SectionBuilder extends (DocumentCursor => RewriteRule) {
       RootElement(numberedSections)
     }
 
-    val rewrite: RewriteRule = { 
-      case root: RootElement => Some(buildSections(root)) 
+    val rewrite: RewriteRules = RewriteRules.forBlocks { 
+      case root: RootElement => Replace(buildSections(root)) 
     }
   }
   
   /** Provides the default rewrite rules for building the section structure
    *  for the specified document (without applying them).
    */
-  def apply (cursor: DocumentCursor): RewriteRule = new DefaultRule(cursor).rewrite
+  def apply (cursor: DocumentCursor): RewriteRules = new DefaultRule(cursor).rewrite
   
 }

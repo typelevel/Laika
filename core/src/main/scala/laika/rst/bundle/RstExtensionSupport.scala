@@ -38,7 +38,7 @@ class RstExtensionSupport (blockDirectives: Seq[Directive[Block]],
 
   override val useInStrictMode: Boolean = true
 
-  override def rewriteRules: Seq[DocumentCursor => RewriteRule] = Seq(new RewriteRules(textRoles))
+  override def rewriteRules: Seq[DocumentCursor => laika.ast.RewriteRules] = Seq(new RewriteRules(textRoles))
 
   override lazy val parsers: ParserBundle = ParserBundle(
     blockParsers = Seq(

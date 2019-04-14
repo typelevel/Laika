@@ -80,7 +80,7 @@ trait ExtensionBundle { self =>
     * which is a partial function from `Element` to `Option[Element]` that allows
     * to remove or replace elements from the tree.
     */
-  def rewriteRules: Seq[DocumentCursor => RewriteRule] = Seq.empty
+  def rewriteRules: Seq[DocumentCursor => RewriteRules] = Seq.empty
 
   /** The themes defined by this bundle, which are a collection of templates, styles
     * and custom render functions.

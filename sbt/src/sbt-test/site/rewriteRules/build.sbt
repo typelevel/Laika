@@ -1,5 +1,6 @@
 import laika.ast.Emphasized
 import laika.ast.Strong
+import laika.ast.Replace
 
 name := "site-rewriteRules"
 
@@ -9,6 +10,6 @@ scalaVersion := "2.12.6"
 
 enablePlugins(LaikaPlugin)
 
-laikaExtensions += laikaRewriteRule {
-  case Emphasized(content,_) => Some(Strong(content))
+laikaExtensions += laikaSpanRewriteRule {
+  case Emphasized(content,_) => Replace(Strong(content))
 }

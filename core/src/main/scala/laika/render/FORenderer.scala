@@ -27,7 +27,7 @@ class FORenderer (out: FOWriter, rootElement: Element, path: Path, messageLevel:
 
 
   val (footnotes, citations) = rootElement match {
-    case et: ElementTraversal[_] => (
+    case et: ElementTraversal => (
       et collect { case f: Footnote if f.options.id.isDefined => (f.options.id.get, f) } toMap,
       et collect { case c: Citation if c.options.id.isDefined => (c.options.id.get, c) } toMap
     )
@@ -91,7 +91,7 @@ class FORenderer (out: FOWriter, rootElement: Element, path: Path, messageLevel:
       }
 
       con match {
-        case RootElement(content)               => if (content.nonEmpty) out << content.head <<| content.tail
+        case RootElement(content, _)            => if (content.nonEmpty) out << content.head <<| content.tail
         case EmbeddedRoot(content,indent,_)     => out.indented(indent) { if (content.nonEmpty) out << content.head <<| content.tail }
         case Section(header, content,_)         => out <<| header <<| content
         case e @ TitledBlock(title, content, _) => out.blockContainer(e, Paragraph(title,Styles("title")) +: content)

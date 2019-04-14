@@ -20,7 +20,7 @@ import com.typesafe.config.Config
 import laika.ast.Path.Root
 import laika.collection.TransitionalCollectionOps._
 import laika.rewrite.ReferenceResolver
-import laika.rewrite.nav.{AutonumberConfig, NavigationOrder}
+import laika.rewrite.nav.NavigationOrder
 
 /** A cursor provides the necessary context during a rewrite operation.
   * The stateless document tree cannot provide access to parent or sibling
@@ -96,13 +96,13 @@ case class TreeCursor(target: DocumentTree,
   /** Returns a new tree, with all the document models contained in it
     * rewritten based on the specified rewrite rule.
     */
-  def rewriteTarget (rule: DocumentCursor => RewriteRule): DocumentTree = {
+  def rewriteTarget (rules: DocumentCursor => RewriteRules): DocumentTree = {
       
     val sortedContent = NavigationOrder.applyTo(children, config, position)
 
     val rewrittenContent = sortedContent map {
-      case doc: DocumentCursor => doc.rewriteTarget(rule(doc))
-      case tree: TreeCursor => tree.rewriteTarget(rule)
+      case doc: DocumentCursor => doc.rewriteTarget(rules(doc))
+      case tree: TreeCursor => tree.rewriteTarget(rules)
     }
 
     target.copy(content = rewrittenContent, position = position)
@@ -141,12 +141,15 @@ case class DocumentCursor (target: Document,
 
   /** Returns a new, rewritten document model based on the specified rewrite rule.
    */
-  def rewriteTarget (rule: RewriteRule): Document = {
+  def rewriteTarget (rules: RewriteRules): Document = {
     
-    val newRoot = target.content rewrite rule
+    val newRoot = rules.rewriteBlock(target.content) match {
+      case r: RootElement => r
+      case b => target.content.copy(content = Seq(b))
+    }
        
     val newFragments = target.fragments mapValuesStrict {
-      case et: ElementTraversal[_] => (et rewrite rule).asInstanceOf[Block]
+      case r: RewritableContainer[_] with Block => r.rewriteChildren(rules).asInstanceOf[Block]
       case block => block
     }
     

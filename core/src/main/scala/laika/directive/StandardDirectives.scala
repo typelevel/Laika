@@ -61,10 +61,10 @@ object StandardDirectives extends DirectiveRegistry {
       (path, content, fallback, cursor) => {
         
         def rewriteContent (value: Any) =
-          TemplateSpanSequence(content) rewrite TemplateRewriter.rewriteRules(cursor.withReferenceContext(value))
+          TemplateSpanSequence(content) rewriteChildren TemplateRewriter.rewriteRules(cursor.withReferenceContext(value))
         
         def rewriteFallback = 
-          fallback map (TemplateSpanSequence(_) rewrite TemplateRewriter.rewriteRules(cursor)) getOrElse TemplateSpanSequence(Nil)
+          fallback map (TemplateSpanSequence(_) rewriteChildren TemplateRewriter.rewriteRules(cursor)) getOrElse TemplateSpanSequence(Nil)
 
         cursor.resolveReference(path) match {
           case Some(m: Map[_,_])  => rewriteContent(m) 
@@ -97,10 +97,10 @@ object StandardDirectives extends DirectiveRegistry {
       (path, content, fallback, cursor) => {
         
         def rewriteContent =
-          TemplateSpanSequence(content) rewrite TemplateRewriter.rewriteRules(cursor)
+          TemplateSpanSequence(content) rewriteChildren TemplateRewriter.rewriteRules(cursor)
         
         def rewriteFallback = 
-          fallback map (TemplateSpanSequence(_) rewrite TemplateRewriter.rewriteRules(cursor)) getOrElse TemplateSpanSequence(Nil)
+          fallback map (TemplateSpanSequence(_) rewriteChildren TemplateRewriter.rewriteRules(cursor)) getOrElse TemplateSpanSequence(Nil)
         
         cursor.resolveReference(path) match {
           case Some(true) => rewriteContent

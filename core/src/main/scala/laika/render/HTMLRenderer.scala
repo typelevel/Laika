@@ -68,7 +68,7 @@ class HTMLRenderer (out: HTMLWriter, messageLevel: MessageLevel, fileSuffix: Str
         List(SpanSequence(List(img)), Paragraph(caption, Styles("caption")), BlockSequence(legend, Styles("legend")))
 
       con match {
-        case RootElement(content)             => if (content.nonEmpty) out << content.head <<| content.tail
+        case RootElement(content, _)          => if (content.nonEmpty) out << content.head <<| content.tail
         case EmbeddedRoot(content,indent,_)   => out.indented(indent) { if (content.nonEmpty) out << content.head <<| content.tail }
         case Section(header, content,_)       => out <<         header <<|   content
         case TitledBlock(title, content, opt) => out <<@ ("div",opt) <<|> (Paragraph(title,Styles("title")) +: content) <<| "</div>"

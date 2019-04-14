@@ -115,20 +115,22 @@ class TransformAPISpec extends FlatSpec
   
   it should "allow to specify a custom rewrite rule" in {
     val modifiedOutput = output.replaceAllLiterally("äöü", "zzz")
-    val transformCustom = transform usingRule { case Text("Title äöü",_) => Some(Text("Title zzz")) }
+    val transformCustom = transform usingSpanRule { case Text("Title äöü",_) => Replace(Text("Title zzz")) }
     (transformCustom fromString input toString) should be (modifiedOutput)
   }
   
   it should "allow to specify multiple rewrite rules" in {
     val modifiedOutput = output.replaceAllLiterally("äöü", "zzz").replaceAllLiterally("text", "new")
-    val transformCustom = transform usingRule { case Text("Title äöü",_) => Some(Text("Title zzz")) } usingRule
-                                              { case Text("text",_) => Some(Text("new")) }
+    val transformCustom = transform usingSpanRule { case Text("Title äöü",_) => Replace(Text("Title zzz")) } usingSpanRule
+                                                  { case Text("text",_)      => Replace(Text("new")) }
     (transformCustom fromString input toString) should be (modifiedOutput)
   }
   
   it should "allow to specify a custom rewrite rule that depends on the document" in {
     val modifiedOutput = output.replaceAllLiterally("äöü", "2")
-    val transformCustom = transform creatingRule { cursor => { case Text("Title äöü",_) => Some(Text("Title " + cursor.target.content.content.length)) }}
+    val transformCustom = transform creatingRule { cursor => RewriteRules.forSpans { 
+      case Text("Title äöü",_) => Replace(Text("Title " + cursor.target.content.content.length)) 
+    }}
     (transformCustom fromString input toString) should be (modifiedOutput)
   }
 
@@ -448,8 +450,8 @@ class TransformAPISpec extends FlatSpec
   it should "render a tree with a RenderResultProcessor with a custom rewrite rule" in new GatheringTransformer {
     val modifiedResult = expectedResult.replaceAllLiterally("Title'", "zzz'")
     val out = new ByteArrayOutputStream
-    Transform from ReStructuredText to TestRenderResultProcessor usingRule { 
-      case Text(txt,_) => Some(Text(txt.replaceAllLiterally("Title", "zzz"))) 
+    Transform from ReStructuredText to TestRenderResultProcessor usingSpanRule { 
+      case Text(txt,_) => Replace(Text(txt.replaceAllLiterally("Title", "zzz"))) 
     } fromInputTree input(dirs) toStream out
     out.toString should be (modifiedResult)
   }
@@ -457,10 +459,10 @@ class TransformAPISpec extends FlatSpec
   it should "render a tree with a RenderResultProcessor with multiple custom rewrite rules" in new GatheringTransformer {
     val modifiedResult = expectedResult.replaceAllLiterally("Title'", "zzz'").replaceAllLiterally("bbb", "xxx")
     val out = new ByteArrayOutputStream
-    Transform from ReStructuredText to TestRenderResultProcessor usingRule { 
-      case Text(txt,_) => Some(Text(txt.replaceAllLiterally("Title", "zzz"))) 
-    } usingRule { 
-      case Text("bbb",_) => Some(Text("xxx")) 
+    Transform from ReStructuredText to TestRenderResultProcessor usingSpanRule { 
+      case Text(txt,_) => Replace(Text(txt.replaceAllLiterally("Title", "zzz"))) 
+    } usingSpanRule { 
+      case Text("bbb",_) => Replace(Text("xxx")) 
     } fromInputTree input(dirs) toStream out
     out.toString should be (modifiedResult)
   }
@@ -468,8 +470,8 @@ class TransformAPISpec extends FlatSpec
   it should "render a tree with a RenderResultProcessor with a custom rewrite rule that depends on the document cursor" in new GatheringTransformer {
     val modifiedResult = expectedResult.replaceAllLiterally("Sub Title", "Sub docSub.rst")
     val out = new ByteArrayOutputStream
-    Transform from ReStructuredText to TestRenderResultProcessor creatingRule { cursor => { 
-      case Text("Sub Title",_) => Some(Text("Sub " + cursor.target.path.name))
+    Transform from ReStructuredText to TestRenderResultProcessor creatingRule { cursor => RewriteRules.forSpans { 
+      case Text("Sub Title",_) => Replace(Text("Sub " + cursor.target.path.name))
     }} fromInputTree input(dirs) toStream out
     out.toString should be (modifiedResult)
   }
