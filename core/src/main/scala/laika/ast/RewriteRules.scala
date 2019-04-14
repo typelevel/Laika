@@ -16,7 +16,11 @@
 
 package laika.ast
 
-import laika.bundle.RewriteRules.ChainedRewriteRules
+import laika.ast.RewriteRules.ChainedRewriteRules
+import laika.rewrite.link.LinkResolver
+import laika.rewrite.nav.SectionBuilder
+
+import scala.annotation.tailrec
 
 
 case class RewriteRules (spanRules: Seq[RewriteRule[Span]] = Nil,
@@ -78,21 +82,51 @@ case class RewriteRules (spanRules: Seq[RewriteRule[Span]] = Nil,
   
 }
 
+/** Utilities for dealing with rewrite rules.
+  *
+  *  @author Jens Halm
+  */
 object RewriteRules {
+
   def forSpans (rule: RewriteRule[Span]): RewriteRules = RewriteRules(spanRules = Seq(rule))
   def forBlocks (rule: RewriteRule[Block]): RewriteRules = RewriteRules(blockRules = Seq(rule))
   def forTemplates (rule: RewriteRule[TemplateSpan]): RewriteRules = RewriteRules(templateRules = Seq(rule))
+  
+  case class ChainedRewriteRules[T] (rules: Seq[RewriteRule[T]]) extends (T => RewriteAction[T]) {
+
+    def apply (element: T): RewriteAction[T] = {
+
+      @tailrec
+      def applyNextRule (currentAction: RewriteAction[T], remainingRules: Seq[RewriteRule[T]]): RewriteAction[T] =
+        if (currentAction == Remove || remainingRules.isEmpty) currentAction
+        else {
+          val input = currentAction match {
+            case Replace(elem) => elem
+            case _ => element
+          }
+          val action = remainingRules.head.applyOrElse[T, RewriteAction[T]](input, _ => currentAction)
+          applyNextRule(action, remainingRules.tail)
+        }
+
+      applyNextRule(Retain, rules)
+    }
+
+  }
+
+  /** Chains the specified rule factory functions into a single factory function.
+    */
+  def chainFactories (rules: Seq[DocumentCursor => RewriteRules]): DocumentCursor => RewriteRules =
+    cursor => rules.map(_(cursor)).reduce(_ ++ _) // TODO - 0.12 - verify rules is always non-empty or use Nel
+
+  /** The default built-in rewrite rules, dealing with section building and link resolution.
+    * These are not installed as part of any default extension bundle as they have specific
+    * ordering requirements not compatible with the standard bundle ordering in `OperationConfig`.
+    */
+  val defaults = Seq(LinkResolver, SectionBuilder)
+
 }
 
 sealed trait RewriteAction[+T]
 case class Replace[T] (newValue: T) extends RewriteAction[T]
 case object Retain extends RewriteAction[Nothing]
 case object Remove extends RewriteAction[Nothing]
-
-trait RewritableContainer[Self <: RewritableContainer[Self]] { this: Self =>
-  
-  def rewriteChildren (rules: RewriteRules): Self
-  
-  def rewriteSpans (rules: RewriteRule[Span]): Self = rewriteChildren(RewriteRules(spanRules = Seq(rules)))
-
-}

@@ -18,7 +18,7 @@ package laika.config
 
 import com.typesafe.config.Config
 import laika.ast._
-import laika.bundle.{DocumentTypeMatcher, ExtensionBundle, MarkupExtensions, RewriteRules}
+import laika.bundle.{DocumentTypeMatcher, ExtensionBundle, MarkupExtensions}
 import laika.directive.{DirectiveSupport, StandardDirectives}
 import laika.factory.{MarkupParser, RenderFormat}
 import laika.parse.Parser

@@ -155,6 +155,17 @@ trait ElementContainer[+E <: Element, Self <: ElementContainer[E,Self]] extends 
   override def toString: String = "\n" + (Render as AST from this toString) + "\n"
 }
 
+/** A generic container of child elements which can have
+  * rewrite rules applied to them in recursive tree rewriting.
+  */
+trait RewritableContainer[Self <: RewritableContainer[Self]] { this: Self =>
+
+  def rewriteChildren (rules: RewriteRules): Self
+
+  def rewriteSpans (rules: RewriteRule[Span]): Self = rewriteChildren(RewriteRules(spanRules = Seq(rules)))
+
+}
+
 /** A container of other Block elements. Such a container is usually
  *  also a Block itself.
  */
