@@ -160,9 +160,19 @@ trait ElementContainer[+E <: Element, Self <: ElementContainer[E,Self]] extends 
   */
 trait RewritableContainer[Self <: RewritableContainer[Self]] extends Element { this: Self =>
 
+  /** Rewrites all children of this container based on the specified rules.
+    * 
+    * Concrete types are expected to support rewriting at least for all standard block, span and template span
+    * elements they contain, plus optionally for any other elements that have custom support for rewriting.
+    */
   def rewriteChildren (rules: RewriteRules): Self
 
-  def rewriteSpans (rules: RewriteRule[Span]): Self = rewriteChildren(RewriteRules(spanRules = Seq(rules)))
+  /** Rewrites all span children of this container based on the specified rules.
+    *
+    * Concrete types are expected to support rewriting at least for all standard block, span and template span
+    * elements they contain, plus optionally for any other elements that have custom support for rewriting.
+    */
+  def rewriteSpans (rule: RewriteRule[Span]): Self = rewriteChildren(RewriteRules(spanRules = Seq(rule)))
 
 }
 
@@ -171,10 +181,20 @@ trait RewritableContainer[Self <: RewritableContainer[Self]] extends Element { t
  */
 trait BlockContainer[Self <: BlockContainer[Self]] extends ElementContainer[Block,Self] with RewritableContainer[Self] { this: Self =>
 
+  /** Rewrites all block children of this container based on the specified rules.
+    *
+    * Concrete types are expected to support rewriting at least for all standard block, span and template span
+    * elements they contain, plus optionally for any other elements that have custom support for rewriting.
+    */
   def rewriteBlocks (rules: RewriteRule[Block]): Self = rewriteChildren(RewriteRules(blockRules = Seq(rules)))
 
   def rewriteChildren (rules: RewriteRules): Self = withContent(rules.rewriteBlocks(content))
 
+  /** Creates a copy of this instance with the specified new content.
+    * 
+    * Implementation note: This method exists to deal with the fact that there is no polymorphic copy method
+    * and trades a small bit of boilerplate for avoiding the compile time hit of using shapeless for this.
+    */
   def withContent (newContent: Seq[Block]): Self
 
 }
@@ -186,6 +206,11 @@ trait SpanContainer[Self <: SpanContainer[Self]] extends ElementContainer[Span,S
 
   def rewriteChildren (rules: RewriteRules): Self = withContent(rules.rewriteSpans(content))
 
+  /** Creates a copy of this instance with the specified new content.
+    *
+    * Implementation note: This method exists to deal with the fact that there is no polymorphic copy method
+    * and trades a small bit of boilerplate for avoiding the compile time hit of using shapeless for this.
+    */
   def withContent (newContent: Seq[Span]): Self
   
   /**  Extracts the text from the spans of this container, removing

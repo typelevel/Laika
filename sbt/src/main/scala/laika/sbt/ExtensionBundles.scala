@@ -28,8 +28,8 @@ import laika.render.{FOWriter, HTMLWriter}
   * Example:
   *
   * {{{
-  * laikaExtensions += laikaRewriteRule {
-  *   case Emphasized(content, _) => Some(Strong(content))
+  * laikaExtensions += laikaSpanRewriteRule {
+  *   case Emphasized(content, _) => Replace(Strong(content))
   * }
   * }}}
   *

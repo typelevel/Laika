@@ -22,7 +22,11 @@ import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 
 trait TemplateRewriter {
-  
+
+  /** The default template to use if no user-defined template exists.
+    * 
+    * The default simply inserts the rendered document into the rendered result without any surrounding template text.
+    */
   val defaultTemplate: TemplateDocument = TemplateDocument(Path.Root / "default.template", TemplateRoot(List(TemplateContextReference("document.content"))))
   
   /** Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.
@@ -60,7 +64,9 @@ trait TemplateRewriter {
     val template = selectTemplate(cursor, format).getOrElse(defaultTemplate)
     applyTemplate(cursor, template)
   }
-  
+
+  /** Applies the specified template to the target of the specified document cursor.
+    */
   def applyTemplate (cursor: DocumentCursor, template: TemplateDocument): Document = {
     val mergedConfig = cursor.config.withFallback(template.config).resolve
     val cursorWithMergedConfig = cursor.copy(
@@ -106,7 +112,7 @@ trait TemplateRewriter {
    *  responsible for replacing all
    *  span and block resolvers with the final resolved
    *  element they produce based on the specified
-   *  document cursor.
+   *  document cursor and its configuration.
    */
   def rewriteRules (cursor: DocumentCursor): RewriteRules = {
     

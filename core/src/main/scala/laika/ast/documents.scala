@@ -433,8 +433,7 @@ case class Document (path: Path,
    *  If it returns `Remove` then the node gets removed from the ast,
    *  if it returns `Replace` with a new element it will replace the old one. 
    *
-   *  The rewriting is performed in a way that only branches of the tree that contain
-   *  new or removed elements will be replaced. It is processed bottom-up, therefore
+   *  The rewriting is performed bottom-up (depth-first), therefore
    *  any element container passed to the rule only contains children which have already
    *  been processed.
    */
@@ -473,14 +472,12 @@ case class DocumentTree (path:Path,
    *  If it returns `Remove` then the node gets removed from the ast,
    *  if it returns `Replace` with a new element it will replace the old one. 
    *
-   *  The rewriting is performed in a way that only branches of the tree that contain
-   *  new or removed elements will be replaced. It is processed bottom-up, therefore
+   *  The rewriting is performed bottom-up (depth-first), therefore
    *  any element container passed to the rule only contains children which have already
    *  been processed.
    *
    *  The specified factory function will be invoked for each document contained in this
-   *  tree and must return a partial function that represents the rewrite rules for that
-   *  particular document.
+   *  tree and must return the rewrite rules for that particular document.
    */
   def rewrite (rules: DocumentCursor => RewriteRules): DocumentTree = TreeCursor(this).rewriteTarget(rules)
 

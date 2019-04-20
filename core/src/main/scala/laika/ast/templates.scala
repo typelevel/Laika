@@ -100,10 +100,20 @@ trait TemplateSpan extends Span
   */
 trait TemplateSpanContainer[Self <: TemplateSpanContainer[Self]] extends ElementContainer[TemplateSpan, Self] with RewritableContainer[Self] { this: Self =>
 
+  /** Rewrites all template span children of this container based on the specified rules.
+    *
+    * Concrete types are expected to support rewriting at least for all standard block, span and template span
+    * elements they contain, plus optionally for any other elements that have custom support for rewriting.
+    */
   def rewriteTemplateSpans (rules: RewriteRule[TemplateSpan]): Self = rewriteChildren(RewriteRules(templateRules = Seq(rules)))
 
   def rewriteChildren (rules: RewriteRules): Self = withContent(rules.rewriteTemplateSpans(content))
 
+  /** Creates a copy of this instance with the specified new content.
+    *
+    * Implementation note: This method exists to deal with the fact that there is no polymorphic copy method
+    * and trades a small bit of boilerplate for avoiding the compile time hit of using shapeless for this.
+    */
   def withContent (newContent: Seq[TemplateSpan]): Self
   
 } 

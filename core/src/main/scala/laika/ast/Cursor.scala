@@ -139,7 +139,7 @@ case class DocumentCursor (target: Document,
 
   lazy val root: TreeCursor = parent.root
 
-  /** Returns a new, rewritten document model based on the specified rewrite rule.
+  /** Returns a new, rewritten document model based on the specified rewrite rules.
    */
   def rewriteTarget (rules: RewriteRules): Document = {
     

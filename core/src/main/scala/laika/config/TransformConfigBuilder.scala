@@ -16,7 +16,7 @@
 
 package laika.config
 
-import laika.ast.{DocumentCursor, RewriteRule, RewriteRules, Span}
+import laika.ast._
 import laika.bundle.ExtensionBundle
 
 /** API for specifying configuration options that apply to all
@@ -26,61 +26,110 @@ import laika.bundle.ExtensionBundle
   */
 trait TransformConfigBuilder[Writer] extends ParseConfigBuilder with RenderConfigBuilder[Writer] {
 
-  /**  Specifies a rewrite rule to be applied to the document tree model between the
+  /**  Specifies rewrite rules to be applied to the document tree model between the
     *  parse and render operations. This is identical to calling `Document.rewrite`
     *  directly, but if there is no need to otherwise access the document instance
     *  and just chain parse and render operations this hook is more convenient.
     *
-    *  The rule is a partial function that takes an `Element` and returns an `Option[Element]`.
+    *  The rules are partial functions of type `PartialFunction[T, RewriteRule[T]]` where `T` is
+    *  either `Span`, `Block` or `TemplateSpan`, the 3 main categories of element types that support
+    *  rewriting.
     *
-    *  If the function is not defined for a specific element the old element remains
-    *  in the tree unchanged. If it returns `None` then the node gets removed from the tree,
-    *  if it returns an element it will replace the old one. Of course the function may
-    *  also return the old element.
+    *  If the partial function is not defined for a specific element or the rule returns
+    *  a `Retain` action as a result the old element remains in the tree unchanged. 
     *
-    *  The rewriting is performed in a way that only branches of the tree that contain
-    *  new or removed elements will be replaced. It is processed bottom-up, therefore
+    *  If it returns `Remove` then the element gets removed from the ast,
+    *  if it returns `Replace` with a new element it will replace the old one. 
+    *
+    *  The rewriting is performed bottom-up (depth-first), therefore
     *  any element container passed to the rule only contains children which have already
     *  been processed.
-    *
-    *  In case multiple rewrite rules need to be applied it may be more efficient to
-    *  first combine them with `orElse`.
-    *  
-    *  TODO - 0.12 - update scaladoc - rename to usingRules - add methods for single partial function, e.g. usingBlockRule
     */
-  def usingRule (newRules: RewriteRules): ThisType = creatingRule(_ => newRules)
-  
-  def usingSpanRule (rule: RewriteRule[Span]) = usingRule(RewriteRules.forSpans(rule))
+  def usingRules (newRules: RewriteRules): ThisType = creatingRule(_ => newRules)
+
+  /**  Specifies a single block rewrite rule to be applied to the document tree model between the
+    *  parse and render operations. This is identical to calling `Document.rewrite`
+    *  directly, but if there is no need to otherwise access the document instance
+    *  and just chain parse and render operations this hook is more convenient.
+    *
+    *  The rule is a type alias for a partial function of type `PartialFunction[Block, RewriteRule[Block]]`.
+    *
+    *  If the partial function is not defined for a specific block or the rule returns
+    *  a `Retain` action as a result the old block remains in the tree unchanged. 
+    *
+    *  If it returns `Remove` then the block gets removed from the ast,
+    *  if it returns `Replace` with a new block it will replace the old one. 
+    *
+    *  The rewriting is performed bottom-up (depth-first), therefore
+    *  any element container passed to the rule only contains children which have already
+    *  been processed.
+    */
+  def usingBlockRule (rule: RewriteRule[Block]): ThisType = usingRules(RewriteRules.forBlocks(rule))
+
+  /**  Specifies a single span rewrite rule to be applied to the document tree model between the
+    *  parse and render operations. This is identical to calling `Document.rewrite`
+    *  directly, but if there is no need to otherwise access the document instance
+    *  and just chain parse and render operations this hook is more convenient.
+    *
+    *  The rule is a type alias for a partial function of type `PartialFunction[Span, RewriteRule[Span]`.
+    *
+    *  If the partial function is not defined for a specific span or the rule returns
+    *  a `Retain` action as a result the old span remains in the tree unchanged. 
+    *
+    *  If it returns `Remove` then the span gets removed from the ast,
+    *  if it returns `Replace` with a new span it will replace the old one. 
+    *
+    *  The rewriting is performed bottom-up (depth-first), therefore
+    *  any element container passed to the rule only contains children which have already
+    *  been processed.
+    */
+  def usingSpanRule (rule: RewriteRule[Span]): ThisType = usingRules(RewriteRules.forSpans(rule))
+
+  /**  Specifies a single rewrite rule for template spans to be applied to the template tree model between the
+    *  parse and render operations. This is identical to calling `TemplateDocument.rewrite`
+    *  directly, but if there is no need to otherwise access the document instance
+    *  and just chain parse and render operations this hook is more convenient.
+    *
+    *  The rule is a type alias for a partial function of type `PartialFunction[TemplateSpan, RewriteRule[TemplateSpan]`.
+    *
+    *  If the partial function is not defined for a specific span or the rule returns
+    *  a `Retain` action as a result the old span remains in the tree unchanged. 
+    *
+    *  If it returns `Remove` then the span gets removed from the ast,
+    *  if it returns `Replace` with a new span it will replace the old one. 
+    *
+    *  The rewriting is performed bottom-up (depth-first), therefore
+    *  any element container passed to the rule only contains children which have already
+    *  been processed.
+    */
+  def usingTemplateRule (rule: RewriteRule[TemplateSpan]): ThisType = usingRules(RewriteRules.forTemplates(rule))
 
   /**  Specifies a rewrite rule to be applied to the document tree model between the
     *  parse and render operations. This is identical to calling `Document.rewrite`
     *  directly, but if there is no need to otherwise access the document instance
     *  and just chain parse and render operations this hook is more convenient.
     *
-    *  The difference of this method to the `usingRule` method is that it expects a function
-    *  that takes a Document instance and returns the rewrite rule. This way the full document
+    *  The difference of this method to the `usingRules` method is that it expects a function
+    *  that takes a Document instance and returns the rewrite rules. This way the full document
     *  can be queried before any rule is applied. This is necessary in cases where the rule
     *  (which gets applied node-by-node) depends on information from other nodes. An example
     *  from the built-in rewrite rules is the rule that resolves link references. To replace
     *  all link reference elements with actual link elements, the rewrite rule needs to know
     *  all LinkDefinitions the document tree contains.
     *
-    *  The rule itself is a partial function that takes an `Element` and returns an `Option[Element]`.
+    *  The rules themselves are partial functions of type `PartialFunction[T, RewriteRule[T]]` where `T` is
+    *  either `Span`, `Block` or `TemplateSpan`, the 3 main categories of element types that support
+    *  rewriting.
     *
-    *  If the function is not defined for a specific element the old element remains
-    *  in the tree unchanged. If it returns `None` then the node gets removed from the tree,
-    *  if it returns an element it will replace the old one. Of course the function may
-    *  also return the old element.
-    *
-    *  The rewriting is performed in a way that only branches of the tree that contain
-    *  new or removed elements will be replaced. It is processed bottom-up, therefore
+    *  If the partial function is not defined for a specific element or the rule returns
+    *  a `Retain` action as a result the old block remains in the tree unchanged. 
+    * 
+    *  If it returns `Remove` then the element gets removed from the ast,
+    *  if it returns `Replace` with a new element it will replace the old one. 
+    * 
+    *  The rewriting is performed bottom-up (depth-first), therefore
     *  any element container passed to the rule only contains children which have already
     *  been processed.
-    *
-    *  In case multiple rewrite rules need to be applied it may be more efficient to
-    *  first combine them with `orElse`.
-    *  
-    *  TODO - 0.12 - update scaladoc
     */
   def creatingRule (newRules: DocumentCursor => RewriteRules): ThisType = using(new ExtensionBundle {
     override val useInStrictMode: Boolean = true
