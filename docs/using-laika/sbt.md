@@ -221,20 +221,22 @@ For EPUB the `laikaEpubRenderer` can be used to add a custom XHMTL renderer of t
 
 ### Custom Rewrite Rules
 
-When customizing renderers you have to repeat the step for each output format like HTML or PDF 
-(and a subsequent version will add support for epub). A rewrite rule lets you express a transformation
+When customizing renderers you have to repeat the step for each output format like HTML, EPUB or PDF. 
+A rewrite rule lets you express a transformation
 of a node inside the document tree before rendering, so it would have an effect on all output formats.
 
-A rewrite rule is a function of type `PartialFunction[Element, Option[Element]]`.
-If the function is not defined for a particular element the old element is kept in the tree.
-If it returns `Some(Element)` this element replaces the old one.
-If the function returns `None` the old element is removed from the tree.
+A rewrite rule is a function of type `PartialFunction[T, RewriteAction[T]]`.
+If the function is not defined for a particular element or the result is `Retain` the old element is kept in the tree.
+If it returns `Replace(Element)` this element replaces the old one.
+If the function returns `Remove` the old element is removed from the tree.
+The type parameter `T` is either `Block`, `Span` or `TemplateSpan`, depending on the kind of AST element you
+want to rewrite.
 
 The following (somewhat contrived, but simple) example shows how to turn each `Emphasized` node
 into a `Strong` node:
 
-    laikaExtensions += laikaRewriteRule { 
-      case Emphasized(content, opts) => Some(Strong(content, opts))
+    laikaExtensions += laikaSpanRewriteRule { 
+      case Emphasized(content, opts) => Replace(Strong(content, opts))
     }
 
 For more details see the chapter [Document Tree Rewriting].

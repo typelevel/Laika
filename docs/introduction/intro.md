@@ -161,6 +161,10 @@ Road Map
 Release History
 ---------------
 
+* __0.12.0__ (<WIP>, 2019):
+
+    * Refactoring of AST Rewrite API to be fully type-safe and avoid runtime reflection and exceptions.
+
 * __0.11.0__ (?, 2019):
 
     * New Renderer for producing EPUB containers

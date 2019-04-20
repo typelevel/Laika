@@ -24,27 +24,22 @@ with Laika as they support tree models consisting of `Product` instances
 How Rewrite Rules Work
 ----------------------
 
-A rewrite rule has the type `PartialFunction[Element,Option[Element]]`. Laika offers
-a type alias `RewriteRule` for convenience.
+A rewrite rule has the type `PartialFunction[T, RewriteAction[T]]`. Laika offers
+a type alias `RewriteRule[T]` for convenience.
 
-The partial function expects an `Element` and returns an `Option[Element]`.
 The rules are as follows:
 
-* If the function is not defined for a particular element the old element is kept in the tree.
+* If the function is not defined for a particular element or it returns `Retain` the old element is kept in the tree.
 
-* If the function returns `Some(Element)` this element is used in place of the old one.
+* If the function returns `Replace(newElement)` this element is used in place of the old one.
 
-* If the function returns `None` the old element is removed from the tree.
+* If the function returns `Remove` the old element is removed from the tree.
 
 * Processing happens depth-first (bottom-up), so all nodes getting passed to this function
   already had their children getting processed.
 
-* The tree is immutable, so new instances are returned when rewriting, but unmodified
-  branches are reused.
+* The tree is immutable, so new instances are returned when rewriting.
   
-* Therefore, if the rule does not affect any child node, the rule will simply return
-  the old root node. 
-
 The following sections show the three ways to apply such a rule.
 
 
@@ -65,8 +60,8 @@ into a `Strong` node while processing everything else with default rules:
 
     import laika.ast._
     
-    laikaRewriteRules += laikaRewriteRule { 
-      case Emphasized(content, opts) => Some(Strong(content, opts))
+    laikaExtensions += laikaSpanRewriteRule { 
+      case Emphasized(content, opts) => Replace(Strong(content, opts))
     }
 
 
@@ -78,8 +73,8 @@ in one go, as a step in the transformation process.
 
 Again we replace all `Emphasized` nodes with `Strong` nodes:
 
-    Transform from ReStructuredText to HTML usingRule {
-      case Emphasized(content, opts) => Some(Strong(content, opts))
+    Transform from ReStructuredText to HTML usingSpanRule {
+      case Emphasized(content, opts) => Replace(Strong(content, opts))
     } fromFile "hello.rst" toFile "hello.html"
 
 
@@ -97,7 +92,7 @@ Once again we are turning all `Emphasized` nodes in the text to `Strong` nodes:
     val doc: Document = ... // obtained through the Parse API
     
     val newDoc = doc rewrite {
-      case Emphasized(content, opts) => Some(Strong(content, opts))
+      case Emphasized(content, opts) => Replace(Strong(content, opts))
     }
 
 For a slightly more advanced example, let's assume you only want to replace `Emphasized`
@@ -105,8 +100,8 @@ nodes inside headers. To accomplish this you need to nest a rewrite operation
 inside another one:
 
     val newDoc = doc rewrite {
-      case h: Header => Some(h rewrite {
-        case Emphasized(content, opts) => Some(Strong(content, opts))
+      case h: Header => Some(h rewriteChildren {
+        case Emphasized(content, opts) => Replace(Strong(content, opts))
       })
     }
 
