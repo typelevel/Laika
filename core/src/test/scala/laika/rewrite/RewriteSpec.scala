@@ -60,23 +60,12 @@ class RewriteSpec extends FlatSpec
     rootElem rewriteSpans { case Text("Title", _) => Replace(Text("New")) } should be (root(Section(h(1, txt("New")), List(p("Text")))))
   }
   
-  it should "return the same instance if no rewrite rule matches" in {
-    val rootElem = root(p("a"), p("b"), p("c"))
-    rootElem rewriteBlocks { case Paragraph(Seq(Text("f",_)),_) => Remove } should be theSameInstanceAs (rootElem)
-  }
-  
   it should "return a new instance for a branch in the document tree that contains one or more modified children" in {
     val before = root(quote(p("a")), quote(p("b")), quote(p("c")))
     val after = before rewriteBlocks { case Paragraph(Seq(Text("a",_)),_) => Replace(p("x")) }
     before.content(0) should not be theSameInstanceAs (after.content(0))
   }
   
-  it should "return the same instance for a branch in the document tree that does not contain any modified children" in {
-    val before = root(quote(p("a")), quote(p("b")), quote(p("c")))
-    val after = before rewriteBlocks { case Paragraph(Seq(Text("a",_)),_) => Replace(p("x")) }
-    before.content(1) should be theSameInstanceAs (after.content(1))
-  }
-
   it should "rewrite a span container" in {
     val before = p(txt("a"), em("b"), txt("c"))
     before rewriteSpans { case Emphasized(Seq(Text("b",_)),_) => Replace(str("x")) } should be (p(txt("a"), str("x"), txt("c")))

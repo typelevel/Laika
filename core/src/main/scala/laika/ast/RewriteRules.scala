@@ -42,13 +42,13 @@ case class RewriteRules (spanRules: Seq[RewriteRule[Span]] = Nil,
     case other                     => other
   }
   
-  def rewriteSpan (span: Span): Span = rewriteSpans(Seq(span)).fold(span)(_.headOption.getOrElse(SpanSequence(Nil)))
-  def rewriteBlock (block: Block): Block = rewriteBlocks(Seq(block)).fold(block)(_.headOption.getOrElse(BlockSequence(Nil)))
-  def rewriteTemplateSpan (span: TemplateSpan): TemplateSpan = rewriteTemplateSpans(Seq(span)).fold(span)(_.headOption.getOrElse(TemplateSpanSequence(Nil)))
+  def rewriteSpan (span: Span): Span = rewriteSpans(Seq(span)).headOption.getOrElse(SpanSequence(Nil))
+  def rewriteBlock (block: Block): Block = rewriteBlocks(Seq(block)).headOption.getOrElse(BlockSequence(Nil))
+  def rewriteTemplateSpan (span: TemplateSpan): TemplateSpan = rewriteTemplateSpans(Seq(span)).headOption.getOrElse(TemplateSpanSequence(Nil))
   
-  def rewriteSpans (spans: Seq[Span]): Option[Seq[Span]] = rewrite(chainedSpanRules, spans)
-  def rewriteBlocks (blocks: Seq[Block]): Option[Seq[Block]] = rewrite(chainedBlockRules, blocks)
-  def rewriteTemplateSpans (spans: Seq[TemplateSpan]): Option[Seq[TemplateSpan]] = rewrite(chainedTemplateRules, spans)
+  def rewriteSpans (spans: Seq[Span]): Seq[Span] = rewrite(chainedSpanRules, spans)
+  def rewriteBlocks (blocks: Seq[Block]): Seq[Block] = rewrite(chainedBlockRules, blocks)
+  def rewriteTemplateSpans (spans: Seq[TemplateSpan]): Seq[TemplateSpan] = rewrite(chainedTemplateRules, spans)
 
   /** Returns a new, rewritten tree model based on the specified rule.
     *  The rule is a partial function that takes an `Element` and returns an `Option[Element]`.
@@ -66,25 +66,21 @@ case class RewriteRules (spanRules: Seq[RewriteRule[Span]] = Nil,
     *  In case multiple rewrite rules need to be applied it may be more efficient to
     *  first combine them with `orElse`.
     */
-  private def rewrite[T <: AnyRef] (childRules: T => RewriteAction[T], children: Seq[T]): Option[Seq[T]] = {
+  private def rewrite[T <: AnyRef] (childRules: T => RewriteAction[T], children: Seq[T]): Seq[T] = {
 
-    val actions = children map {
-      case rw: RewritableContainer[_] =>
-        val newChild = rw.rewriteChildren(this).asInstanceOf[T]
-        val action = childRules(newChild)
-        if (action == Retain && newChild.ne(rw)) Replace(newChild)
-        else action
-      case child => childRules(child)
+    def newChild (oldChild: T, action: RewriteAction[T]): Option[T] = action match {
+      case Retain => Some(oldChild)
+      case Remove => None
+      case Replace(e) => Some(e)
     }
-
-    if (actions.forall(_ == Retain)) None
-    else {
-      val newContent = children.zip(actions) flatMap {
-        case (element, Retain) => Some(element)
-        case (_, Remove) => None
-        case (_, Replace(e)) => Some(e)
-      }
-      Some(newContent)
+    
+    children flatMap {
+      case rw: RewritableContainer[_] =>
+        val rewritten = rw.rewriteChildren(this).asInstanceOf[T]
+        val action = childRules(rewritten)
+        newChild(rewritten, action)
+      case child => 
+        newChild(child, childRules(child))
     }
   }
   

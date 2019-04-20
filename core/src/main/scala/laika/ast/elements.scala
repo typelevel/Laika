@@ -173,7 +173,7 @@ trait BlockContainer[Self <: BlockContainer[Self]] extends ElementContainer[Bloc
 
   def rewriteBlocks (rules: RewriteRule[Block]): Self = rewriteChildren(RewriteRules(blockRules = Seq(rules)))
 
-  def rewriteChildren (rules: RewriteRules): Self = rules.rewriteBlocks(content).fold(this)(withContent)
+  def rewriteChildren (rules: RewriteRules): Self = withContent(rules.rewriteBlocks(content))
 
   def withContent (newContent: Seq[Block]): Self
 
@@ -184,7 +184,7 @@ trait BlockContainer[Self <: BlockContainer[Self]] extends ElementContainer[Bloc
  */
 trait SpanContainer[Self <: SpanContainer[Self]] extends ElementContainer[Span,Self] with RewritableContainer[Self] { this: Self =>
 
-  def rewriteChildren (rules: RewriteRules): Self = rules.rewriteSpans(content).fold(this)(withContent)
+  def rewriteChildren (rules: RewriteRules): Self = withContent(rules.rewriteSpans(content))
 
   def withContent (newContent: Seq[Span]): Self
   
@@ -230,14 +230,8 @@ case class ConfigValue (name: String, value: AnyRef, options: Options = NoOpt) e
 case class Section (header: Header, content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[Section] {
 
   override def rewriteChildren (rules: RewriteRules): Section = (rules.rewriteBlocks(content), rules.rewriteBlock(header)) match {
-    case (newContent, newHeader: Header) => copy(
-      content = newContent.getOrElse(content), 
-      header = newHeader
-    )
-    case (newContent, newHeader) => copy(
-      content = newHeader +: newContent.getOrElse(content),
-      header = header.copy(content = Nil)
-    )
+    case (newContent, newHeader: Header) => copy(content = newContent, header = newHeader)
+    case (newContent, newHeader)         => copy(content = newHeader +: newContent, header = header.copy(content = Nil))
   }
   
   def withContent (newContent: Seq[Block]): Section = copy(content = newContent)
@@ -335,10 +329,8 @@ case class CodeBlock (language: String, content: Seq[Span], options: Options = N
 case class QuotedBlock (content: Seq[Block], attribution: Seq[Span], options: Options = NoOpt) extends Block
                                                                                                with BlockContainer[QuotedBlock] {
 
-  override def rewriteChildren (rules: RewriteRules): QuotedBlock = (rules.rewriteBlocks(content), rules.rewriteSpans(attribution)) match {
-    case (None, None) => this
-    case (newContent, newAttribution) => copy(content = newContent.getOrElse(content), attribution = newAttribution.getOrElse(attribution))
-  }
+  override def rewriteChildren (rules: RewriteRules): QuotedBlock = 
+    copy(content = rules.rewriteBlocks(content), attribution = rules.rewriteSpans(attribution))
   
   def withContent (newContent: Seq[Block]): QuotedBlock = copy(content = newContent)
 }
@@ -350,10 +342,8 @@ case class QuotedBlock (content: Seq[Block], attribution: Seq[Span], options: Op
 case class TitledBlock (title: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends Block
                                                                                          with BlockContainer[TitledBlock] {
 
-  override def rewriteChildren (rules: RewriteRules): TitledBlock = (rules.rewriteBlocks(content), rules.rewriteSpans(title)) match {
-    case (None, None) => this
-    case (newContent, newTitle) => copy(content = newContent.getOrElse(content), title = newTitle.getOrElse(title))
-  }
+  override def rewriteChildren (rules: RewriteRules): TitledBlock = 
+    copy(content = rules.rewriteBlocks(content), title = rules.rewriteSpans(title))
   
   def withContent (newContent: Seq[Block]): TitledBlock = copy(content = newContent)
 }
@@ -363,17 +353,11 @@ case class TitledBlock (title: Seq[Span], content: Seq[Block], options: Options 
  */
 case class Figure (image: Span, caption: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[Figure] {
 
-  override def rewriteChildren (rules: RewriteRules): Figure = (rules.rewriteBlocks(content), rules.rewriteSpans(caption), rules.rewriteSpans(Seq(image))) match {
-    case (None, None, None) => this
-    case (newContent, newCaption, newImage) => copy(
-      content = newContent.getOrElse(content), 
-      caption = newCaption.getOrElse(caption),
-      image = newImage.fold(image) {
-        case Nil => SpanSequence(Nil)
-        case newSpan => newSpan.head
-      }
-    )
-  }
+  override def rewriteChildren (rules: RewriteRules): Figure = copy(
+    content = rules.rewriteBlocks(content), 
+    caption = rules.rewriteSpans(caption),
+    image = rules.rewriteSpan(image)
+  )
   
   def withContent (newContent: Seq[Block]): Figure = copy(content = newContent)
 }
@@ -384,13 +368,8 @@ case class BulletList (content: Seq[BulletListItem], format: BulletFormat, optio
                                                                                                with ListContainer[BulletList]
                                                                                                with RewritableContainer[BulletList] {
 
-  override def rewriteChildren (rules: RewriteRules): BulletList = {
-    val rewrittenItems = content.map(i => rules.rewriteBlocks(i.content))
-    if (rewrittenItems.forall(_.isEmpty)) this
-    else copy(content = rewrittenItems.zip(content) map {
-      case (rewrittenItem, oldItem) => rewrittenItem.fold(oldItem)(c => oldItem.copy(content = c))
-    })
-  }
+  override def rewriteChildren (rules: RewriteRules): BulletList =
+    copy(content = content.map(_.rewriteChildren(rules)))
 }
 
 /** An enumerated list that may contain nested lists.
@@ -399,14 +378,8 @@ case class EnumList (content: Seq[EnumListItem], format: EnumFormat, start: Int 
                                                                                                            with ListContainer[EnumList]
                                                                                                            with RewritableContainer[EnumList] {
 
-  // TODO - 0.12 - reduce boilerplate for list-rewriting
-  override def rewriteChildren (rules: RewriteRules): EnumList = {
-    val rewrittenItems = content.map(i => rules.rewriteBlocks(i.content))
-    if (rewrittenItems.forall(_.isEmpty)) this
-    else copy(content = rewrittenItems.zip(content) map {
-      case (rewrittenItem, oldItem) => rewrittenItem.fold(oldItem)(c => oldItem.copy(content = c))
-    })
-  }
+  override def rewriteChildren (rules: RewriteRules): EnumList =
+    copy(content = content.map(_.rewriteChildren(rules)))
 }
 
 /** The format of a bullet list item.
@@ -481,10 +454,8 @@ case class DefinitionList (content: Seq[DefinitionListItem], options: Options = 
 case class DefinitionListItem (term: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends ListItem
                                                                                                with BlockContainer[DefinitionListItem] {
 
-  override def rewriteChildren (rules: RewriteRules): DefinitionListItem = (rules.rewriteBlocks(content), rules.rewriteSpans(term)) match {
-    case (None, None)          => this
-    case (newContent, newTerm) => copy(content = newContent.getOrElse(content), term = newTerm.getOrElse(term))
-  }
+  override def rewriteChildren (rules: RewriteRules): DefinitionListItem = 
+    copy(content = rules.rewriteBlocks(content), term = rules.rewriteSpans(term))
   
   def withContent (newContent: Seq[Block]): DefinitionListItem = copy(content = newContent)
   

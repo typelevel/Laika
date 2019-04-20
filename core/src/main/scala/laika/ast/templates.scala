@@ -102,7 +102,7 @@ trait TemplateSpanContainer[Self <: TemplateSpanContainer[Self]] extends Element
 
   def rewriteTemplateSpans (rules: RewriteRule[TemplateSpan]): Self = rewriteChildren(RewriteRules(templateRules = Seq(rules)))
 
-  def rewriteChildren (rules: RewriteRules): Self = rules.rewriteTemplateSpans(content).fold(this)(withContent)
+  def rewriteChildren (rules: RewriteRules): Self = withContent(rules.rewriteTemplateSpans(content))
 
   def withContent (newContent: Seq[TemplateSpan]): Self
   
