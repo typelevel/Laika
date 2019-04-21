@@ -81,9 +81,9 @@ abstract class Transform [Writer] private[Transform] (parse: Parse, protected va
   type InputResult <: OutputOps
   type InputTreeResult <: OutputOps
 
-  def fromInput (input: Input): InputResult = fromDocument(parse.fromInput(input))
+  def fromInput (input: Input): InputResult = fromDocument(parse.fromInput(input).execute)
 
-  def fromInputTree (inputTree: InputTree): InputTreeResult = fromTree(parse.fromInputTree(inputTree))
+  def fromInputTree (inputTree: InputTree): InputTreeResult = fromTree(parse.fromInputTree(inputTree).execute)
 
   /**  Renders the specified document tree and returns a new target instance
     *  which allows to specify the output.

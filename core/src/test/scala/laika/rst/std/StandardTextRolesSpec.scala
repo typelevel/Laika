@@ -31,7 +31,7 @@ class StandardTextRolesSpec extends FlatSpec
                             with ModelBuilder {
 
   
-  def parse (input: String): RootElement = (Parse as ReStructuredText fromString input).content
+  def parse (input: String): RootElement = (Parse as ReStructuredText fromString input).execute.content
   
   
   "The emphasis text role" should "produce an Emphasized node without styles" in {
@@ -178,7 +178,7 @@ class StandardTextRolesSpec extends FlatSpec
       |
       |some :foo:`text`""".stripMargin
     val result = root(p(txt("some "), RawContent(List("AML","BML","CML"), "text", Styles("foo"))))
-    Parse.as(ReStructuredText).withRawContent.fromString(input).content should be (result)
+    Parse.as(ReStructuredText).withRawContent.fromString(input).execute.content should be (result)
   }
 
   it should "be disabled by default" in {
@@ -196,7 +196,7 @@ class StandardTextRolesSpec extends FlatSpec
     val input = "some `text`"
     val result = root(p(txt("some "), Emphasized(List(Text("text")))))
     (Parse as ReStructuredText using ExtensionProvider.forDefaultTextRole("emphasis") fromString input)
-      .content should be (result)
+      .execute.content should be (result)
   } 
   
   

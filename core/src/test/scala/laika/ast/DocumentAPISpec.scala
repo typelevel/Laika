@@ -37,8 +37,8 @@ class DocumentAPISpec extends FlatSpec
       |## Section
       |
       |Some more text""".stripMargin
-    
-    (Parse as Markdown fromString markup).title should be (List(txt("Foo and Bar")))
+
+    Parse.as(Markdown).fromString(markup).execute.title should be (List(txt("Foo and Bar")))
   }
   
   it should "use the title from the first headline if it is not overridden in a config section" in {
@@ -49,8 +49,8 @@ class DocumentAPISpec extends FlatSpec
       |## Section
       |
       |Some more text""".stripMargin
-    
-    (Parse as Markdown fromString markup).title should be (List(txt("Title")))
+
+    Parse.as(Markdown).fromString(markup).execute.title should be (List(txt("Title")))
   }
   
   it should "return an empty list if there is neither a structure with a title nor a title in a config section" in {
@@ -61,8 +61,8 @@ class DocumentAPISpec extends FlatSpec
       |# Section 2
       |
       |Some more text""".stripMargin
-    
-    (Parse as Markdown fromString markup).title should be (Nil)
+
+    Parse.as(Markdown).fromString(markup).execute.title should be (Nil)
   }
   
   it should "produce the same result when rewriting a document once or twice" in {
@@ -74,7 +74,7 @@ class DocumentAPISpec extends FlatSpec
       |
       |Some more text""".stripMargin
     
-    val doc = (Parse as Markdown withoutRewrite) fromString markup
+    val doc = Parse.as(Markdown).withoutRewrite.fromString(markup).execute
     
     val rewritten1 = doc.rewrite(OperationConfig.default.rewriteRules(DocumentCursor(doc)))
     val rewritten2 = rewritten1.rewrite(OperationConfig.default.rewriteRules(DocumentCursor(rewritten1)))
@@ -90,7 +90,7 @@ class DocumentAPISpec extends FlatSpec
       |
       |Some more text""".stripMargin
     
-    val raw = (Parse as Markdown withoutRewrite) fromString markup
+    val raw = Parse.as(Markdown).withoutRewrite.fromString(markup).execute
     val cursor = DocumentCursor(raw)
     val testRule = RewriteRules.forSpans {
       case Text("Some text",_) => Replace(Text("Swapped"))

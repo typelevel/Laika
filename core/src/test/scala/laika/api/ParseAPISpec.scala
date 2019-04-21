@@ -43,7 +43,7 @@ class ParseAPISpec extends FlatSpec
     val input = """aaa
       |bbb
       |ccc""".stripMargin
-    (Parse as Markdown fromString input).content should be (root(p(input)))
+    (Parse as Markdown fromString input).execute.content should be (root(p(input)))
   }
   
   it should "allow parsing Markdown from a file" in {
@@ -51,7 +51,7 @@ class ParseAPISpec extends FlatSpec
       |bbb
       |ccc""".stripMargin
     val filename = getClass.getResource("/testInput.md").getFile
-    (Parse as Markdown fromFile filename).content should be (root(p(input))) 
+    (Parse as Markdown fromFile filename).execute.content should be (root(p(input))) 
   }
   
   it should "allow parsing Markdown from a java.io.Reader instance" in {
@@ -59,7 +59,7 @@ class ParseAPISpec extends FlatSpec
       |bbb
       |ccc""".stripMargin
     val reader = new StringReader(input)
-    (Parse as Markdown fromReader reader).content should be (root(p(input)))
+    (Parse as Markdown fromReader reader).execute.content should be (root(p(input)))
   }
   
   it should "allow parsing Markdown from a java.io.InputStream instance" in {
@@ -67,7 +67,7 @@ class ParseAPISpec extends FlatSpec
       |bbb
       |ccc""".stripMargin
     val stream = new ByteArrayInputStream(input.getBytes())
-    (Parse as Markdown fromStream stream).content should be (root(p(input)))
+    (Parse as Markdown fromStream stream).execute.content should be (root(p(input)))
   }
   
   it should "allow parsing Markdown from a java.io.InputStream instance, specifying the encoding explicitly" in {
@@ -75,7 +75,7 @@ class ParseAPISpec extends FlatSpec
       |ööö
       |üüü""".stripMargin
     val stream = new ByteArrayInputStream(input.getBytes("ISO-8859-1"))
-    (Parse as Markdown).fromStream(stream)(Codec.ISO8859).content should be (root(p(input)))
+    (Parse as Markdown).fromStream(stream)(Codec.ISO8859).execute.content should be (root(p(input)))
   }
   
   it should "allow parsing Markdown from a java.io.InputStream instance, specifying the encoding implicitly" in {
@@ -84,21 +84,21 @@ class ParseAPISpec extends FlatSpec
       |üüü""".stripMargin
     val stream = new ByteArrayInputStream(input.getBytes("ISO-8859-1"))
     implicit val codec:Codec = Codec.ISO8859
-    (Parse as Markdown fromStream stream).content should be (root(p(input)))
+    (Parse as Markdown fromStream stream).execute.content should be (root(p(input)))
   }
   
   it should "allow parsing Markdown with all link references resolved through the default rewrite rules" in {
     val input = """[link][id]
       |
       |[id]: http://foo/""".stripMargin
-    (Parse as Markdown fromString input).content should be (root(p(link(txt("link")).url("http://foo/"))))
+    (Parse as Markdown fromString input).execute.content should be (root(p(link(txt("link")).url("http://foo/"))))
   }
   
   it should "allow parsing Markdown into a raw document, without applying the default rewrite rules" in {
     val input = """[link][id]
       |
       |[id]: http://foo/""".stripMargin
-    ((Parse as Markdown withoutRewrite) fromString input).content should be (root 
+    ((Parse as Markdown withoutRewrite) fromString input).execute.content should be (root 
         (p (LinkReference(List(Text("link")), "id", "[link][id]")), ExternalLinkDefinition("id","http://foo/",None)))
   }
   
@@ -139,19 +139,19 @@ class ParseAPISpec extends FlatSpec
   
     def withTemplatesApplied (tree: DocumentTree): DocumentTree = TemplateRewriter.applyTemplates(tree, "html")
     
-    def parsedTree = viewOf(withTemplatesApplied(Parse as Markdown fromInputTree builder(dirs)))
+    def parsedTree = viewOf(withTemplatesApplied(Parse.as(Markdown).fromInputTree(builder(dirs)).execute))
     
-    def rawParsedTree = viewOf((Parse as Markdown withoutRewrite) fromInputTree builder(dirs))
+    def rawParsedTree = viewOf(Parse.as(Markdown).withoutRewrite.fromInputTree(builder(dirs)).execute)
 
-    def rawMixedParsedTree = viewOf((Parse as Markdown or ReStructuredText withoutRewrite) fromInputTree builder(dirs))
+    def rawMixedParsedTree = viewOf(Parse.as(Markdown).or(ReStructuredText).withoutRewrite.fromInputTree(builder(dirs)).execute)
     
-    def parsedInParallel = viewOf(withTemplatesApplied(Parse.as(Markdown).inParallel.fromInputTree(builder(dirs))))
+    def parsedInParallel = viewOf(withTemplatesApplied(Parse.as(Markdown).inParallel.fromInputTree(builder(dirs)).execute))
 
     def parsedWith (bundle: ExtensionBundle) =
-      viewOf(withTemplatesApplied(Parse.as(Markdown).using(bundle).fromInputTree(builder(dirs))))
+      viewOf(withTemplatesApplied(Parse.as(Markdown).using(bundle).fromInputTree(builder(dirs)).execute))
       
     def parsedRawWith (bundle: ExtensionBundle = ExtensionBundle.Empty) =
-      viewOf(Parse.as(Markdown).withoutRewrite.using(bundle).fromInputTree(builder(dirs)))
+      viewOf(Parse.as(Markdown).withoutRewrite.using(bundle).fromInputTree(builder(dirs)).execute)
   }
   
 
@@ -383,7 +383,7 @@ class ParseAPISpec extends FlatSpec
         |- cherry.md:name
         |- directory.conf:order""".stripMargin
       val tree = Parse as Markdown fromInputTree builder(dirs)
-      tree.content map (_.path.name) should be (List("lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
+      tree.execute.content map (_.path.name) should be (List("lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
     }
   }
 
@@ -400,8 +400,8 @@ class ParseAPISpec extends FlatSpec
                    |- cherry.md:name
                    |- directory.conf:order""".stripMargin
       val tree = Parse as Markdown fromInputTree builder(dirs)
-      tree.content map (_.path.name) should be (List("title.md","lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
-      tree.content map (_.position) should be (List(
+      tree.execute.content map (_.path.name) should be (List("title.md","lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
+      tree.execute.content map (_.position) should be (List(
         TreePosition(Nil),
         TreePosition(Seq(1)),
         TreePosition(Seq(2)),
@@ -444,7 +444,7 @@ class ParseAPISpec extends FlatSpec
       Documents(Markup, List(docView(1),docView(2))),
       Subtrees(List(subtree1,subtree2))
     ))
-    viewOf(Parse as Markdown fromDirectory(dirname)) should be (treeResult)
+    viewOf(Parse.as(Markdown).fromDirectory(dirname).execute) should be (treeResult)
   }
   
   it should "read a directory from the file system using the fromDirectories method" in {
@@ -458,7 +458,7 @@ class ParseAPISpec extends FlatSpec
       Documents(Markup, List(docView(1),docView(2),docView(9))),
       Subtrees(List(subtree1,subtree2,subtree3))
     ))
-    viewOf(Parse as Markdown fromDirectories(Seq(dir1,dir2))) should be (treeResult)
+    viewOf(Parse.as(Markdown).fromDirectories(Seq(dir1,dir2)).execute) should be (treeResult)
   }
 
   it should "read a directory from the file system containing a file with non-ASCII characters" in {
@@ -467,7 +467,7 @@ class ParseAPISpec extends FlatSpec
     val treeResult = TreeView(Root, List(
       Documents(Markup, List(docView(1)))
     ))
-    viewOf(Parse as Markdown fromDirectory(dirname)) should be (treeResult)
+    viewOf(Parse.as(Markdown).fromDirectory(dirname).execute) should be (treeResult)
   }
   
   it should "allow to specify a custom exclude filter" in {
@@ -478,7 +478,7 @@ class ParseAPISpec extends FlatSpec
       Documents(Markup, List(docView(2))),
       Subtrees(List(subtree2))
     ))
-    viewOf(Parse as Markdown fromDirectory(dirname, {f:java.io.File => f.getName == "doc1.md" || f.getName == "dir1"})) should be (treeResult)
+    viewOf(Parse.as(Markdown).fromDirectory(dirname, {f:java.io.File => f.getName == "doc1.md" || f.getName == "dir1"}).execute) should be (treeResult)
   }
   
   it should "read a directory from the file system using the Directory object" in {
@@ -490,7 +490,7 @@ class ParseAPISpec extends FlatSpec
       Documents(Markup, List(docView(1),docView(2))),
       Subtrees(List(subtree1,subtree2))
     ))
-    viewOf(Parse as Markdown fromDirectory dirname) should be (treeResult)
+    viewOf(Parse.as(Markdown).fromDirectory(dirname).execute) should be (treeResult)
   }
 
 }

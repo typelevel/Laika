@@ -34,7 +34,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
                                   with ModelBuilder {
 
 
-  def parse (input: String): RootElement = (Parse as ReStructuredText fromString input).content
+  def parse (input: String): RootElement = (Parse as ReStructuredText fromString input).execute.content
   
   val imgPath = Some(PathInfo(Root / "picture.jpg", Current / "picture.jpg"))
   

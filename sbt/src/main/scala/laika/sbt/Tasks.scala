@@ -70,7 +70,7 @@ object Tasks {
       streams.value.log.info("Reading files from " + (sourceDirectories in Laika).value.mkString(", "))
       streams.value.log.info(Logs.inputs(inputs))
 
-      val tree = parser.fromInputTree(inputs)
+      val tree = parser.fromInputTree(inputs).execute
 
       Logs.systemMessages(streams.value.log, tree, laikaConfig.value.logMessageLevel)
 

@@ -74,7 +74,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(Parse as Markdown fromInputTree builder(dir)) should be (expected)
+      resultOf(Parse.as(Markdown).fromInputTree(builder(dir)).execute) should be (expected)
     }
   }
   
@@ -91,7 +91,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(Parse as ReStructuredText fromInputTree builder(dir)) should be (expected)
+      resultOf(Parse.as(ReStructuredText).fromInputTree(builder(dir)).execute) should be (expected)
     }
   }
   
@@ -106,7 +106,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(Parse as Markdown fromInputTree builder(dir)) should be (expected)
+      resultOf(Parse.as(Markdown).fromInputTree(builder(dir)).execute) should be (expected)
     }
   }
   
@@ -121,7 +121,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(Parse as ReStructuredText fromInputTree builder(dir)) should be (expected)
+      resultOf(Parse.as(ReStructuredText).fromInputTree(builder(dir)).execute) should be (expected)
     }
   }
   
@@ -157,7 +157,7 @@ class ConfigSpec extends FlatSpec
       )
       
       val tree = Parse.as(Markdown).using(BundleProvider.forConfigString(config5)).fromInputTree(builder(dirs))
-      val result = TemplateRewriter.applyTemplates(tree, "html")
+      val result = TemplateRewriter.applyTemplates(tree.execute, "html")
       result.selectDocument(Path.Current / "dir" / "input.md").get.content should be (expected)
     }
   }
