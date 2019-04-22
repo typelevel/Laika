@@ -16,7 +16,7 @@
 
 package laika.api
 
-import laika.api.Render.{RenderMappedOutput, RenderGatheredOutput}
+import laika.api.Render.{RenderMappedOutput, RenderMergedOutput}
 import laika.ast._
 import laika.config.{OperationConfig, TransformConfigBuilder}
 import laika.factory.{MarkupParser, RenderFormat, RenderResultProcessor}
@@ -118,18 +118,18 @@ object Transform {
   class TransformMappedOutput[Writer] (parse: Parse, render: RenderMappedOutput[Writer],
                                        val config: OperationConfig) extends Transform[Writer](parse, render.format) {
     
-    type InputResult = TextOuputOps
+    type InputResult = TextOutputOps[Writer]
   
-    type InputTreeResult = OutputTreeOps
+    type InputTreeResult = OutputTreeOps[Writer]
   
     type ThisType = TransformMappedOutput[Writer]
     
     def withConfig (newConfig: OperationConfig): ThisType =
       new TransformMappedOutput(parse.withConfig(newConfig), render.withConfig(newConfig), newConfig)
     
-    def fromDocument (doc: Document): TextOuputOps = render.from(doc)
+    def fromDocument (doc: Document): TextOutputOps[Writer] = render.from(doc)
     
-    def fromTree (tree: DocumentTree): OutputTreeOps = render.from(tree)
+    def fromTree (tree: DocumentTree): OutputTreeOps[Writer] = render.from(tree)
 
   }
   
@@ -140,21 +140,21 @@ object Transform {
    *  @param parse the parser to use for parsing the input
    *  @param render the renderer to use for producing the output
    */
-  class TransformGatheredOutput[Writer] (parse: Parse, render: RenderGatheredOutput[Writer],
+  class TransformGatheredOutput[Writer] (parse: Parse, render: RenderMergedOutput[Writer],
                                          val config: OperationConfig) extends Transform[Writer](parse, render.format) {
     
-    type InputResult = BinaryOutputOps
+    type InputResult = BinaryOutputOps[Writer]
   
-    type InputTreeResult = BinaryOutputOps
+    type InputTreeResult = BinaryOutputOps[Writer]
   
     type ThisType = TransformGatheredOutput[Writer]
     
     def withConfig (newConfig: OperationConfig): ThisType =
       new TransformGatheredOutput(parse.withConfig(newConfig), render.withConfig(newConfig), newConfig)
 
-    def fromDocument (doc: Document): BinaryOutputOps = render.from(doc)
+    def fromDocument (doc: Document): BinaryOutputOps[Writer] = render.from(doc)
     
-    def fromTree (tree: DocumentTree): BinaryOutputOps = render.from(tree)
+    def fromTree (tree: DocumentTree): BinaryOutputOps[Writer] = render.from(tree)
 
   }
 

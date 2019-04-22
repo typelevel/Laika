@@ -58,7 +58,7 @@ class TransformAPISpec extends FlatSpec
   
   it should "transform from string to string builder" in {
     val builder = new StringBuilder
-    Transform from Markdown to AST fromString input toBuilder builder
+    (Transform from Markdown to AST fromString input toBuilder builder).execute
     builder.toString should be (output)
   }
   
@@ -67,7 +67,7 @@ class TransformAPISpec extends FlatSpec
     val outFile = File.createTempFile("output", null)
     implicit val codec:Codec = Codec.UTF8
     
-    transform fromFile inFile toFile outFile
+    (transform fromFile inFile toFile outFile).execute
     
     val source = Source.fromFile(outFile)
     val fileContent = source.mkString
@@ -80,14 +80,14 @@ class TransformAPISpec extends FlatSpec
   it should "transform from a java.io.Reader to a java.io.Writer" in {
     val reader = new StringReader(input)
     val writer = new StringWriter
-    transform fromReader reader toWriter writer
+    (transform fromReader reader toWriter writer).execute
     writer.toString should be (output)
   }
   
   it should "transform from a java.io.InputStream to a java.io.OutputStream" in {
     val inStream = new ByteArrayInputStream(input.getBytes())
     val outStream = new ByteArrayOutputStream
-    transform fromStream inStream toStream outStream
+    (transform fromStream inStream toStream outStream).execute
     outStream.toString should be (output)
   }
   
@@ -95,7 +95,7 @@ class TransformAPISpec extends FlatSpec
     val inStream = new ByteArrayInputStream(input.getBytes("ISO-8859-1"))
     val outStream = new ByteArrayOutputStream
     val codec = Codec.ISO8859
-    transform.fromStream(inStream)(codec).toStream(outStream)(codec)
+    (transform.fromStream(inStream)(codec).toStream(outStream)(codec)).execute
     outStream.toString("ISO-8859-1") should be (output)
   }
   
@@ -103,7 +103,7 @@ class TransformAPISpec extends FlatSpec
     val inStream = new ByteArrayInputStream(input.getBytes("ISO-8859-1"))
     val outStream = new ByteArrayOutputStream
     implicit val codec:Codec = Codec.ISO8859
-    transform fromStream inStream toStream outStream
+    (transform fromStream inStream toStream outStream).execute
     outStream.toString("ISO-8859-1") should be (output)
   }
   
@@ -155,7 +155,7 @@ class TransformAPISpec extends FlatSpec
     
     private def transformWith (transformer: TransformMappedOutput[TextWriter] = transform): RenderedTree = {
       val builder = TestOutputTree.newRoot
-      transformer fromInputTree input(dirs) toOutputTree builder
+      transformer.fromInputTree(input(dirs)).toOutputTree(builder).execute
       builder.toTree
     }
 
@@ -279,7 +279,7 @@ class TransformAPISpec extends FlatSpec
       val builder = TestOutputTree.newRoot
       Transform.from(Markdown).to(XSLFO).inParallel
         .using(BundleProvider.forStyleSheetParser(parser))
-        .fromInputTree(input(dirs)).toOutputTree(builder)
+        .fromInputTree(input(dirs)).toOutputTree(builder).execute
       builder.toTree should be (root(List(docs(
         (Root / "doc1.fo", result)
       ))))
@@ -428,56 +428,58 @@ class TransformAPISpec extends FlatSpec
   
   it should "render a tree with a RenderResultProcessor writing to an output stream" in new GatheringTransformer {
     val out = new ByteArrayOutputStream
-    Transform from ReStructuredText to TestRenderResultProcessor fromInputTree input(dirs) toStream out
+    (Transform from ReStructuredText to TestRenderResultProcessor fromInputTree input(dirs) toStream out).execute
     out.toString should be (expectedResult)
   }
   
   it should "render a tree with a RenderResultProcessor writing to a file" in new GatheringTransformer {
     val f = File.createTempFile("output", null)
-    Transform from ReStructuredText to TestRenderResultProcessor fromInputTree input(dirs) toFile f
+    (Transform from ReStructuredText to TestRenderResultProcessor fromInputTree input(dirs) toFile f).execute
     readFile(f) should be (expectedResult)
   }
   
   it should "render a tree with a RenderResultProcessor overriding the default renderer for specific element types" in new GatheringTransformer {
     val modifiedResult = expectedResult.replaceAllLiterally(". Text", ". String")
     val out = new ByteArrayOutputStream
-    Transform from ReStructuredText to TestRenderResultProcessor rendering { 
+    (Transform from ReStructuredText to TestRenderResultProcessor rendering { 
       out => { case Text(content,_) => out << "String - '" << content << "'" } 
-    } fromInputTree input(dirs) toStream out
+    } fromInputTree input(dirs) toStream out).execute
     out.toString should be (modifiedResult)
   }
   
   it should "render a tree with a RenderResultProcessor with a custom rewrite rule" in new GatheringTransformer {
     val modifiedResult = expectedResult.replaceAllLiterally("Title'", "zzz'")
     val out = new ByteArrayOutputStream
-    Transform from ReStructuredText to TestRenderResultProcessor usingSpanRule { 
+    (Transform from ReStructuredText to TestRenderResultProcessor usingSpanRule { 
       case Text(txt,_) => Replace(Text(txt.replaceAllLiterally("Title", "zzz"))) 
-    } fromInputTree input(dirs) toStream out
+    } fromInputTree input(dirs) toStream out).execute
     out.toString should be (modifiedResult)
   }
   
   it should "render a tree with a RenderResultProcessor with multiple custom rewrite rules" in new GatheringTransformer {
     val modifiedResult = expectedResult.replaceAllLiterally("Title'", "zzz'").replaceAllLiterally("bbb", "xxx")
     val out = new ByteArrayOutputStream
-    Transform from ReStructuredText to TestRenderResultProcessor usingSpanRule { 
+    (Transform from ReStructuredText to TestRenderResultProcessor usingSpanRule { 
       case Text(txt,_) => Replace(Text(txt.replaceAllLiterally("Title", "zzz"))) 
     } usingSpanRule { 
       case Text("bbb",_) => Replace(Text("xxx")) 
-    } fromInputTree input(dirs) toStream out
+    } fromInputTree input(dirs) toStream out).execute
     out.toString should be (modifiedResult)
   }
   
   it should "render a tree with a RenderResultProcessor with a custom rewrite rule that depends on the document cursor" in new GatheringTransformer {
     val modifiedResult = expectedResult.replaceAllLiterally("Sub Title", "Sub docSub.rst")
     val out = new ByteArrayOutputStream
-    Transform from ReStructuredText to TestRenderResultProcessor creatingRule { cursor => RewriteRules.forSpans { 
+    (Transform from ReStructuredText to TestRenderResultProcessor creatingRule { cursor => RewriteRules.forSpans { 
       case Text("Sub Title",_) => Replace(Text("Sub " + cursor.target.path.name))
-    }} fromInputTree input(dirs) toStream out
+    }} fromInputTree input(dirs) toStream out).execute
     out.toString should be (modifiedResult)
   }
   
   trait FileSystemTest {
     import laika.ast.helper.OutputBuilder.readFile
+    
+    def resourcePath (path: String): String = getClass.getResource(path).getFile
     
     def renderedDynDoc (num: Int) = """RootElement - Blocks: 1
       |. TemplateRoot - Spans: 1
@@ -520,9 +522,9 @@ class TransformAPISpec extends FlatSpec
   it should "read from and write to directories" in {
     import laika.ast.helper.OutputBuilder.createTempDirectory
     new FileSystemTest {
-      val sourceName = getClass.getResource("/trees/a/").getFile
+      val sourceName = resourcePath("/trees/a/")
       val targetDir = createTempDirectory("renderToDir")
-      transform fromDirectory sourceName toDirectory targetDir
+      transform.fromDirectory(sourceName).toDirectory(targetDir).execute
       readFiles(targetDir.getPath)
     }
   }
@@ -530,9 +532,9 @@ class TransformAPISpec extends FlatSpec
   it should "allow to specify custom exclude filter" in {
     import laika.ast.helper.OutputBuilder.createTempDirectory
     new FileSystemTest {
-      val sourceName = getClass.getResource("/trees/a/").getFile
+      val sourceName = resourcePath("/trees/a/")
       val targetDir = createTempDirectory("renderToDir")
-      transform fromDirectory (sourceName, {f:File => f.getName == "doc1.md" || f.getName == "dir1"}) toDirectory targetDir
+      transform.fromDirectory(sourceName, {f:File => f.getName == "doc1.md" || f.getName == "dir1"}).toDirectory(targetDir).execute
       readFilesFiltered(targetDir.getPath)
     }
   }
@@ -540,10 +542,10 @@ class TransformAPISpec extends FlatSpec
   it should "read from two root directories" in {
     import laika.ast.helper.OutputBuilder.createTempDirectory
     new FileSystemTest {
-      val source1 = new File(getClass.getResource("/trees/a/").getFile)
-      val source2 = new File(getClass.getResource("/trees/b/").getFile)
+      val source1 = new File(resourcePath("/trees/a/"))
+      val source2 = new File(resourcePath("/trees/b/"))
       val targetDir = createTempDirectory("renderToDir")
-      transform fromDirectories (Seq(source1, source2)) toDirectory targetDir
+      transform.fromDirectories(Seq(source1, source2)).toDirectory(targetDir).execute
       readFilesMerged(targetDir.getPath)
     }
   }
@@ -561,7 +563,7 @@ class TransformAPISpec extends FlatSpec
                      |. Paragraph - Spans: 1
                      |. . Text - 'Hello'""".stripMargin
 
-      transform fromDirectory targetDir toDirectory targetDir
+      transform.fromDirectory(targetDir).toDirectory(targetDir).execute
 
       readFile(inputFile) shouldBe "Hello"
       readFile(staticFile) shouldBe "Text"
@@ -586,7 +588,7 @@ class TransformAPISpec extends FlatSpec
                      |. Paragraph - Spans: 1
                      |. . Text - 'Hello'""".stripMargin
 
-      transform fromDirectory targetDir toDirectory subdir
+      transform.fromDirectory(targetDir).toDirectory(subdir).execute
 
       readFile(inputFile) shouldBe "Hello"
       readFile(new File(subdir, "static.txt")) shouldBe "Text"

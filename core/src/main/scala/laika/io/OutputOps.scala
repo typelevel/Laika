@@ -18,6 +18,7 @@ package laika.io
 
 import java.io.{File, OutputStream}
 
+import laika.api.Render
 import laika.io.Output.Binary
 
 import scala.io.Codec
@@ -28,30 +29,32 @@ import scala.io.Codec
   */
 trait OutputOps
 
-/** A target for a render operation that accepts only binary output.
+/** A target for a render operation that renders to a single output.
   */
-trait BinaryOutputOps extends OutputOps {
+trait SingleOutputOps[Writer] extends OutputOps {
+  
+  type Result
 
   /** Renders the model to the file with the specified name.
     *
     *  @param name the name of the file to parse
     *  @param codec the character encoding of the file, if not specified the platform default will be used.
     */
-  def toFile (name: String)(implicit codec: Codec): Unit = toBinaryOutput(Output.toFile(name)(codec))
+  def toFile (name: String)(implicit codec: Codec): Result = toBinaryOutput(Output.toFile(name)(codec))
 
   /** Renders the model to the specified file.
     *
     *  @param file the file to write to
     *  @param codec the character encoding of the file, if not specified the platform default will be used.
     */
-  def toFile (file: File)(implicit codec: Codec): Unit = toBinaryOutput(Output.toFile(file)(codec))
+  def toFile (file: File)(implicit codec: Codec): Result = toBinaryOutput(Output.toFile(file)(codec))
 
   /** Renders the model to the specified output stream.
     *
     *  @param stream the stream to render to
     *  @param codec the character encoding of the stream, if not specified the platform default will be used.
     */
-  def toStream (stream: OutputStream)(implicit codec: Codec): Unit = toBinaryOutput(Output.toStream(stream)(codec))
+  def toStream (stream: OutputStream)(implicit codec: Codec): Result = toBinaryOutput(Output.toStream(stream)(codec))
 
   /** Renders the model to the specified output.
     *
@@ -59,33 +62,41 @@ trait BinaryOutputOps extends OutputOps {
     *  methods delegate to. Usually not used directly in application code, but
     *  might come in handy for very special requirements.
     */
-  def toBinaryOutput (out: Output with Binary): Unit
+  def toBinaryOutput (out: Output with Binary): Result
 
+}
+
+trait BinaryOutputOps[Writer] extends SingleOutputOps[Writer] {
+
+  type Result = Render.BinaryOp[Writer]
+  
 }
 
 /** Represents a single destination for a render operation.
   *  Various types of output can be
   *  specified to trigger the actual rendering.
   */
-trait TextOuputOps extends BinaryOutputOps {
+trait TextOutputOps[Writer] extends SingleOutputOps[Writer] {
+  
+  type Result = Render.Op[Writer]
 
   /** Renders the model to the console.
     */
-  def toConsole: Unit = toStream(System.out)
+  def toConsole: Result = toStream(System.out)
 
   /** Renders the model to the specified writer.
     */
-  def toWriter (writer: java.io.Writer): Unit = toOutput(Output.toWriter(writer))
+  def toWriter (writer: java.io.Writer): Result = toOutput(Output.toWriter(writer))
 
   /** Renders the model to the specified `StringBuilder`.
     */
-  def toBuilder (builder: StringBuilder): Unit = toOutput(Output.toBuilder(builder))
+  def toBuilder (builder: StringBuilder): Result = toOutput(Output.toBuilder(builder))
 
   /** Renders the model to a String and returns it.
     */
-  override def toString = {
+  override def toString = { // TODO - 0.12 - toString needs new name (and has a different return type)
     val builder = new StringBuilder
-    toBuilder(builder)
+    toBuilder(builder).execute
     builder.toString
   }
 
@@ -95,18 +106,18 @@ trait TextOuputOps extends BinaryOutputOps {
     *  methods delegate to. Usually not used directly in application code, but
     *  might come in handy for very special requirements.
     */
-  def toOutput (out: Output): Unit
+  def toOutput (out: Output): Result
 
   /** Renders the model to the specified binary output.
     */
-  def toBinaryOutput (out: Output with Binary): Unit = toOutput(out)
+  def toBinaryOutput (out: Output with Binary): Result = toOutput(out)
 
 }
 
 /** Represents a tree of output destinations for recursive render operations.
   *  Various types of output can be specified to trigger the actual rendering.
   */
-trait OutputTreeOps extends OutputOps {
+trait OutputTreeOps[Writer] extends OutputOps {
 
   /** Renders the document tree to the
     *  specified directory and its subdirectories.
@@ -115,7 +126,7 @@ trait OutputTreeOps extends OutputOps {
     *  @param name the name of the directory to write to
     *  @param codec the character encoding of the files, if not specified the platform default will be used.
     */
-  def toDirectory (name: String)(implicit codec: Codec): Unit = toDirectory(new File(name))
+  def toDirectory (name: String)(implicit codec: Codec): Render.TreeOp[Writer] = toDirectory(new File(name))
 
   /** Renders the document tree to the
     *  specified directory and its subdirectories.
@@ -124,7 +135,7 @@ trait OutputTreeOps extends OutputOps {
     *  @param dir the directory to write to
     *  @param codec the character encoding of the files, if not specified the platform default will be used.
     */
-  def toDirectory (dir: File)(implicit codec: Codec): Unit = toOutputTree(OutputTree.forRootDirectory(dir))
+  def toDirectory (dir: File)(implicit codec: Codec): Render.TreeOp[Writer] = toOutputTree(OutputTree.forRootDirectory(dir))
 
   /** Renders the document tree to the
     *  current working directory and its subdirectories.
@@ -132,10 +143,10 @@ trait OutputTreeOps extends OutputOps {
     *
     *  @param codec the character encoding of the files, if not specified the platform default will be used.
     */
-  def toDefaultDirectory (implicit codec: Codec): Unit = toOutputTree(OutputTree.forWorkingDirectory)
+  def toDefaultDirectory (implicit codec: Codec): Render.TreeOp[Writer] = toOutputTree(OutputTree.forWorkingDirectory)
 
   /** Renders the document tree to the specified output tree.
     */
-  def toOutputTree (tree: OutputTree): Unit
+  def toOutputTree (tree: OutputTree): Render.TreeOp[Writer]
 
 }

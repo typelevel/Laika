@@ -47,7 +47,7 @@ class XHTMLRendererSpec extends FlatSpec with Matchers with ModelBuilder {
 
 
       val out = new io.OutputTree.StringOutputTree(Path.Root)
-      Render.as(EPUB.XHTML).from(tree).toOutputTree(out)
+      Render.as(EPUB.XHTML).from(tree).toOutputTree(out).execute
 
       collectDocuments(out.result)
     }

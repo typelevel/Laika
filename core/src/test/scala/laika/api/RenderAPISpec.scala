@@ -51,40 +51,40 @@ class RenderAPISpec extends FlatSpec
 
   it should "render a document to a builder" in {
     val builder = new StringBuilder
-    Render as AST from rootElem toBuilder builder
+    (Render as AST from rootElem toBuilder builder).execute
     builder.toString should be (expected)
   }
 
   it should "render a document to a file" in {
     val f = File.createTempFile("output", null)
 
-    Render as AST from rootElem toFile f
+    (Render as AST from rootElem toFile f).execute
 
     readFile(f) should be (expected)
   }
 
   it should "render a document to a java.io.Writer" in {
     val writer = new StringWriter
-    Render as AST from rootElem toWriter writer
+    (Render as AST from rootElem toWriter writer).execute
     writer.toString should be (expected)
   }
 
   it should "render a document to a java.io.OutputStream" in {
     val stream = new ByteArrayOutputStream
-    Render as AST from rootElem toStream stream
+    (Render as AST from rootElem toStream stream).execute
     stream.toString should be (expected)
   }
 
   it should "render a document to a java.io.OutputStream, specifying the encoding explicitly" in {
     val stream = new ByteArrayOutputStream
-    (Render as AST from rootElem).toStream(stream)(Codec.ISO8859)
+    (Render as AST from rootElem).toStream(stream)(Codec.ISO8859).execute
     stream.toString("ISO-8859-1") should be (expected)
   }
 
   it should "render a document to a java.io.OutputStream, specifying the encoding implicitly" in {
     implicit val codec:Codec = Codec.ISO8859
     val stream = new ByteArrayOutputStream
-    Render as AST from rootElem toStream stream
+    (Render as AST from rootElem toStream stream).execute
     stream.toString("ISO-8859-1") should be (expected)
   }
 
@@ -118,7 +118,7 @@ class RenderAPISpec extends FlatSpec
     
     def renderedTree: RenderedTree = {
       val output = TestOutputTree.newRoot
-      render from input toOutputTree output
+      (render from input toOutputTree output).execute
       output.toTree
     }
 
@@ -485,7 +485,7 @@ class RenderAPISpec extends FlatSpec
   it should "render a tree with two documents using a RenderResultProcessor writing to an output stream" in {
     new GatherRenderer {
       val out = new ByteArrayOutputStream
-      Render as TestRenderResultProcessor from input toStream out
+      (Render as TestRenderResultProcessor from input toStream out).execute
       out.toString should be (expectedResult)
     }
   }
@@ -493,7 +493,7 @@ class RenderAPISpec extends FlatSpec
   it should "render a tree with two documents using a RenderResultProcessor writing to a file" in {
     new GatherRenderer {
       val f = File.createTempFile("output", null)
-      Render as TestRenderResultProcessor from input toFile f
+      (Render as TestRenderResultProcessor from input toFile f).execute
       readFile(f) should be (expectedResult)
     }
   }
@@ -525,7 +525,7 @@ class RenderAPISpec extends FlatSpec
   it should "render to a directory using the toDirectory method" in {
     new FileSystemTest {
       val f = createTempDirectory("renderToDir")
-      Render as AST from input toDirectory f
+      (Render as AST from input toDirectory f).execute
       readFiles(f.getPath)
     }
   }
@@ -533,7 +533,7 @@ class RenderAPISpec extends FlatSpec
   it should "render to a directory using the Directory object" in {
     new FileSystemTest {
       val f = createTempDirectory("renderToTree")
-      Render as AST from input toDirectory(f)
+      (Render as AST from input toDirectory(f)).execute
       readFiles(f.getPath)
     }
   }
@@ -541,7 +541,7 @@ class RenderAPISpec extends FlatSpec
   it should "render to a directory in parallel" in {
     new FileSystemTest {
       val f = createTempDirectory("renderParallel")
-      (Render as AST).inParallel from input toDirectory(f)
+      Render.as(AST).inParallel.from(input).toDirectory(f).execute
       readFiles(f.getPath)
     }
   }
@@ -554,7 +554,7 @@ class RenderAPISpec extends FlatSpec
     val input = DocumentTree(Root, List(
       Document(Root / "doc", root(p("Doc äöü")))
     ))
-    (Render as AST from input).toDirectory(f)(Codec.ISO8859)
+    Render.as(AST).from(input).toDirectory(f)(Codec.ISO8859).execute
     readFile(new File(f, "doc.txt"), Codec.ISO8859) should be (expected)
   }
   
