@@ -18,7 +18,7 @@ package laika.io
 
 import java.io.{File, OutputStream}
 
-import laika.api.Render
+import laika.api.{Render, Transform}
 import laika.io.Output.Binary
 
 import scala.io.Codec
@@ -72,13 +72,19 @@ trait BinaryOutputOps[Writer] extends SingleOutputOps[Writer] {
   
 }
 
-/** Represents a single destination for a render operation.
+trait BinaryTransformOutputOps[Writer] extends SingleOutputOps[Writer] {
+
+  type Result = Transform.MergeOp[Writer]
+
+}
+
+/**  Represents a single destination for a render operation.
   *  Various types of output can be
   *  specified to trigger the actual rendering.
   */
 trait TextOutputOps[Writer] extends SingleOutputOps[Writer] {
   
-  type Result = Render.Op[Writer]
+  type Result
 
   /** Renders the model to the console.
     */
@@ -91,14 +97,6 @@ trait TextOutputOps[Writer] extends SingleOutputOps[Writer] {
   /** Renders the model to the specified `StringBuilder`.
     */
   def toBuilder (builder: StringBuilder): Result = toOutput(Output.toBuilder(builder))
-
-  /** Renders the model to a String and returns it.
-    */
-  override def toString = { // TODO - 0.12 - toString needs new name (and has a different return type)
-    val builder = new StringBuilder
-    toBuilder(builder).execute
-    builder.toString
-  }
 
   /** Renders the model to the specified output.
     *
@@ -114,10 +112,40 @@ trait TextOutputOps[Writer] extends SingleOutputOps[Writer] {
 
 }
 
+trait TextRenderOutputOps[Writer] extends TextOutputOps[Writer] {
+
+  type Result = Render.Op[Writer]
+  
+  /** Renders the model to a String and returns it.
+    */
+  override def toString = { // TODO - 0.12 - toString needs new name (and has a different return type)
+    val builder = new StringBuilder
+    toBuilder(builder).execute
+    builder.toString
+  }
+
+}
+
+trait TextTransformOutputOps[Writer] extends TextOutputOps[Writer] {
+
+  type Result = Transform.Op[Writer]
+
+  /** Renders the model to a String and returns it.
+    */
+  override def toString = { // TODO - 0.12 - toString needs new name (and has a different return type)
+    val builder = new StringBuilder
+    toBuilder(builder).execute
+    builder.toString
+  }
+
+}
+
 /** Represents a tree of output destinations for recursive render operations.
   *  Various types of output can be specified to trigger the actual rendering.
   */
 trait OutputTreeOps[Writer] extends OutputOps {
+  
+  type Result
 
   /** Renders the document tree to the
     *  specified directory and its subdirectories.
@@ -126,7 +154,7 @@ trait OutputTreeOps[Writer] extends OutputOps {
     *  @param name the name of the directory to write to
     *  @param codec the character encoding of the files, if not specified the platform default will be used.
     */
-  def toDirectory (name: String)(implicit codec: Codec): Render.TreeOp[Writer] = toDirectory(new File(name))
+  def toDirectory (name: String)(implicit codec: Codec): Result = toDirectory(new File(name))
 
   /** Renders the document tree to the
     *  specified directory and its subdirectories.
@@ -135,7 +163,7 @@ trait OutputTreeOps[Writer] extends OutputOps {
     *  @param dir the directory to write to
     *  @param codec the character encoding of the files, if not specified the platform default will be used.
     */
-  def toDirectory (dir: File)(implicit codec: Codec): Render.TreeOp[Writer] = toOutputTree(OutputTree.forRootDirectory(dir))
+  def toDirectory (dir: File)(implicit codec: Codec): Result = toOutputTree(OutputTree.forRootDirectory(dir))
 
   /** Renders the document tree to the
     *  current working directory and its subdirectories.
@@ -143,10 +171,23 @@ trait OutputTreeOps[Writer] extends OutputOps {
     *
     *  @param codec the character encoding of the files, if not specified the platform default will be used.
     */
-  def toDefaultDirectory (implicit codec: Codec): Render.TreeOp[Writer] = toOutputTree(OutputTree.forWorkingDirectory)
+  def toDefaultDirectory (implicit codec: Codec): Result = toOutputTree(OutputTree.forWorkingDirectory)
 
   /** Renders the document tree to the specified output tree.
     */
-  def toOutputTree (tree: OutputTree): Render.TreeOp[Writer]
+  def toOutputTree (tree: OutputTree): Result
+
+}
+
+// TODO - 0.12 - unclutter trait hierarchies
+trait RenderOutputTreeOps[Writer] extends OutputTreeOps[Writer] {
+  
+  type Result = Render.TreeOp[Writer]
+  
+}
+
+trait TransformOutputTreeOps[Writer] extends OutputTreeOps[Writer] {
+
+  type Result = Transform.TreeOp[Writer]
 
 }

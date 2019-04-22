@@ -136,20 +136,20 @@ object Render {
   class RenderMappedOutput[Writer] (format: RenderFormat[Writer],
                                     cfg: OperationConfig) extends Render[Writer](format, cfg) {
 
-    type DocOps = TextOutputOps[Writer]
-    type TreeOps = OutputTreeOps[Writer]
+    type DocOps = TextRenderOutputOps[Writer]
+    type TreeOps = RenderOutputTreeOps[Writer]
     type ThisType = RenderMappedOutput[Writer]
 
     def withConfig(newConfig: OperationConfig): ThisType =
       new RenderMappedOutput[Writer](format, newConfig)
 
-    def from (element: Element): TextOutputOps[Writer] = new TextOutputOps[Writer] {
+    def from (element: Element): TextRenderOutputOps[Writer] = new TextRenderOutputOps[Writer] {
       def toOutput (out: Output) = Op[Writer](format, cfg, element, out)
     }
     
-    def from (doc: Document): TextOutputOps[Writer] = from(doc.content)
+    def from (doc: Document): TextRenderOutputOps[Writer] = from(doc.content)
     
-    def from (tree: DocumentTree): OutputTreeOps[Writer] = new OutputTreeOps[Writer] {
+    def from (tree: DocumentTree): RenderOutputTreeOps[Writer] = new RenderOutputTreeOps[Writer] {
       def toOutputTree (out: OutputTree) = TreeOp[Writer](format, cfg, tree, out)
     }
     
