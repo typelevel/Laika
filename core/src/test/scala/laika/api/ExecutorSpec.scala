@@ -16,6 +16,7 @@
 
 package laika.api
 
+import laika.execute.BatchExecutor
 import org.scalatest.{Matchers, WordSpec}
 
 class ExecutorSpec extends WordSpec with Matchers {
@@ -26,7 +27,7 @@ class ExecutorSpec extends WordSpec with Matchers {
 
     def batchCount(numOps: Int, parallelism: Int): Seq[Int] = {
       val ops = List.fill(numOps)(dummyOp)
-      Executor.createBatches(ops, parallelism).map(_.size)
+      BatchExecutor.createBatches(ops, parallelism).map(_.size)
     }
 
   }
