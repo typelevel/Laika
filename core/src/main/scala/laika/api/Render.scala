@@ -20,8 +20,8 @@ import laika.ast._
 import laika.config.{OperationConfig, RenderConfigBuilder}
 import laika.execute.RenderExecutor
 import laika.factory.{RenderFormat, RenderResultProcessor}
+import laika.io.{BinaryOutputOps, Output, OutputTree, RenderOutputTreeOps, TextRenderOutputOps}
 import laika.io.Output.Binary
-import laika.io._
 
 /** API for performing a render operation to various types of output using an existing
  *  document tree model. 

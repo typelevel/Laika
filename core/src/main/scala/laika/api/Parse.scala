@@ -20,7 +20,7 @@ import laika.ast.{Document, DocumentTree}
 import laika.config.{OperationConfig, ParseConfigBuilder}
 import laika.execute.ParseExecutor
 import laika.factory.MarkupParser
-import laika.io._
+import laika.io.{Input, InputOps, InputTree, InputTreeOps}
 
 /** API for performing a parse operation from various types of input to obtain
  *  a document tree without a subsequent render operation. 
