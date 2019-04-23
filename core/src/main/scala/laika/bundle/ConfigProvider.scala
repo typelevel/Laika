@@ -18,7 +18,6 @@ package laika.bundle
 
 import com.typesafe.config.{Config, ConfigFactory, ConfigParseOptions}
 import laika.ast.Path
-import laika.io.Input
 import laika.parse.text.TextParsers._
 
 /** Factory for Typesafe Config instances that add information
@@ -37,8 +36,8 @@ object ConfigProvider {
     * files in that respect). The origin description helps resolving relative paths within
     * this configuration instance.
     */
-  def fromInput (input: Input): Config =
-    ConfigFactory.parseReader(input.asReader, ConfigParseOptions.defaults().setOriginDescription("path:"+input.path))
+  def fromInput (input: String, path: Path): Config =
+    ConfigFactory.parseString(input, ConfigParseOptions.defaults().setOriginDescription("path:" + path))
 
 }
 

@@ -16,11 +16,12 @@
 
 package laika.ast
 
-import com.typesafe.config.{Config, ConfigFactory, ConfigParseOptions}
+import com.typesafe.config.{Config, ConfigFactory}
 import laika.ast.DocumentType.Markup
 import laika.ast.Path.{Current, Root}
 import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}
 import laika.ast.helper.ModelBuilder
+import laika.bundle.ConfigProvider
 import laika.rewrite.TemplateRewriter
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -32,7 +33,7 @@ class DocumentTreeAPISpec extends FlatSpec
     def rootElement (b: Block): RootElement = root(b, p("b"), p("c"))
     
     def createConfig (path: Path, source: Option[String]): Config =
-      source.map(c =>ConfigFactory.parseString(c, ConfigParseOptions.defaults().setOriginDescription(s"path:$path")))
+      source.map(c => ConfigProvider.fromInput(c, path))
       .getOrElse(ConfigFactory.empty)
     
     def treeWithDoc (path: Path, name: String, root: RootElement, config: Option[String] = None): DocumentTree =

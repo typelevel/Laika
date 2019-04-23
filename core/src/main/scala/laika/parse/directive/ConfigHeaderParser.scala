@@ -16,8 +16,9 @@
 
 package laika.parse.directive
 
-import com.typesafe.config.{Config, ConfigFactory, ConfigParseOptions}
+import com.typesafe.config.{Config, ConfigFactory}
 import laika.ast.{InvalidElement, Path}
+import laika.bundle.ConfigProvider
 import laika.collection.TransitionalCollectionOps._
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
@@ -58,7 +59,7 @@ object ConfigHeaderParser {
     */
   def forTextParser (parser: Parser[String])(path: Path): ConfigHeaderParser = parser ^^ { str =>
     try {
-      Right(ConfigFactory.parseString(str, ConfigParseOptions.defaults().setOriginDescription(s"path:$path")))
+      Right(ConfigProvider.fromInput(str, path))
     }
     catch {
       case ex: Exception => Left(InvalidElement("Error parsing config header: "+ex.getMessage, s"{%$str%}"))

@@ -17,6 +17,7 @@
 package laika.bundle
 
 import com.typesafe.config.Config
+import laika.ast.Path.Root
 import laika.ast._
 import laika.directive.{DirectiveRegistry, Templates}
 import laika.io.Input
@@ -61,7 +62,7 @@ object BundleProvider {
 
   def forConfigString (input: String): ExtensionBundle = new ExtensionBundle {
 
-    override def baseConfig: Config = ConfigProvider.fromInput(Input.fromString(input))
+    override def baseConfig: Config = ConfigProvider.fromInput(input, Root)
 
   }
 

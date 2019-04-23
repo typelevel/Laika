@@ -62,7 +62,7 @@ object ParseExecutor {
       (StyleSheet(format), IO(input)(docF))
     }
 
-    def parseTreeConfig (input: Input): Operation[TreeConfig] = () => (Config, TreeConfig(input.path, ConfigProvider.fromInput(input)))
+    def parseTreeConfig (input: Input): Operation[TreeConfig] = () => (Config, TreeConfig(input.path, ConfigProvider.fromInput(input.asParserInput.input, input.path)))
 
     def collectOperations[T] (provider: InputTree, f: InputTree => Seq[Operation[T]]): Seq[Operation[T]] =
       f(provider) ++ (provider.subtrees flatMap (collectOperations(_, f)))
@@ -71,7 +71,7 @@ object ParseExecutor {
       collectOperations(op.input, _.templates.flatMap(parseTemplate(Template))) ++
       collectOperations(op.input, _.dynamicDocuments.flatMap(parseTemplate(Dynamic))) ++
       collectOperations(op.input, _.styleSheets.flatMap({ case (format,inputs) => inputs map parseStyleSheet(format) }).toSeq) ++
-      collectOperations(op.input, _.configDocuments.find(_.path.name == "directory.conf").toList.map(parseTreeConfig)) // TODO - filename could be configurable
+      collectOperations(op.input, _.configDocuments.find(_.path.name == "directory.conf").toList.map(parseTreeConfig))
 
     val results = BatchExecutor.execute(operations, op.config.parallelConfig.parallelism, op.config.parallelConfig.threshold)
 
