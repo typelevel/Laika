@@ -16,7 +16,7 @@
 
 package laika.format
 
-import java.io.{File, FileOutputStream, OutputStream}
+import java.io.{File, FileOutputStream, OutputStream, StringReader}
 import java.net.URI
 import java.util.Date
 
@@ -26,7 +26,7 @@ import javax.xml.transform.stream.StreamSource
 import laika.ast.{DocumentMetadata, DocumentTree, SpanSequence, TemplateRoot}
 import laika.factory.{RenderFormat, RenderResultProcessor}
 import laika.io.Output.BinaryOutput
-import laika.io.{Input, OutputTree}
+import laika.io.OutputTree
 import laika.render.{FOWriter, FOforPDF}
 import org.apache.fop.apps.{FOUserAgent, FOUserAgentFactory, FopFactory, FopFactoryBuilder}
 import org.apache.xmlgraphics.io.{Resource, ResourceResolver}
@@ -102,7 +102,7 @@ class PDF private (val format: RenderFormat[FOWriter], config: Option[PDF.Config
     val metadata = DocumentMetadata.fromConfig(configForMetadata)
     val title = if (tree.title.isEmpty) None else Some(SpanSequence(tree.title).extractText)
     
-    renderPDF(Input.fromString(fo), output, metadata, title, tree.sourcePaths)
+    renderPDF(fo, output, metadata, title, tree.sourcePaths)
     
   }
   
@@ -118,7 +118,7 @@ class PDF private (val format: RenderFormat[FOWriter], config: Option[PDF.Config
    *  @param sourcePaths the paths that may contain files like images
    *  which will be used to resolve relative paths
    */
-  def renderPDF (foInput: Input, output: BinaryOutput, metadata: DocumentMetadata, title: Option[String] = None, sourcePaths: Seq[String] = Nil): Unit = {
+  def renderPDF (foInput: String, output: BinaryOutput, metadata: DocumentMetadata, title: Option[String] = None, sourcePaths: Seq[String] = Nil): Unit = {
 
     def applyMetadata (agent: FOUserAgent): Unit = {
       metadata.date.foreach(d => agent.setCreationDate(Date.from(d)))
@@ -156,7 +156,7 @@ class PDF private (val format: RenderFormat[FOWriter], config: Option[PDF.Config
     val out = output.asStream
     
     try {
-      val source = new StreamSource(foInput.asReader)
+      val source = new StreamSource(new StringReader(foInput))
       val result = createSAXResult(out)
 
       createTransformer.transform(source, result)
