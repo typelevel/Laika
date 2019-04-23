@@ -101,26 +101,6 @@ object ParserContext {
     */
   def apply (input: String, nestLevel: Int): ParserContext = ParserContext(Source(input), 0, nestLevel)
 
-  /** Builds a new instance for the specified input reader.
-    */
-  def apply (input: java.io.Reader): ParserContext = apply(input, 8 * 1024)
-
-  /** Builds a new instance for the specified input reader, providing a hint
-    * for the expected size of the input string.
-    */
-  def apply (input: java.io.Reader, sizeHint: Int): ParserContext = {
-
-    val arr = new Array[Char](sizeHint)
-    val buffer = new StringBuilder
-    var numCharsRead: Int = 0
-
-    while ({numCharsRead = input.read(arr, 0, arr.length); numCharsRead != -1}) {
-      buffer.appendAll(arr, 0, numCharsRead)
-    }
-
-    apply(buffer.toString)
-  }
-
 }
 
 /** Represents the input string for a parsing operation.

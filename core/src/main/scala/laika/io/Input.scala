@@ -19,6 +19,7 @@ package laika.io
 import java.io._
 
 import laika.ast.Path
+import laika.execute.InputExecutor
 import laika.io.IO.FileBased
 import laika.parse.ParserContext
 
@@ -88,7 +89,7 @@ object Input {
   
   private class ReaderInput (val asReader: java.io.Reader, val path: Path) extends Input {
    
-    def asParserInput: ParserContext = ParserContext(asReader)
+    def asParserInput: ParserContext = ParserContext(InputExecutor.readAll(asReader))
 
   }
   
@@ -98,7 +99,7 @@ object Input {
       val asStream = stream
     }
     
-    def asParserInput: ParserContext = ParserContext(asReader)
+    def asParserInput: ParserContext = ParserContext(InputExecutor.readAll(asReader))
     
     lazy val asReader: java.io.Reader = new BufferedReader(new InputStreamReader(stream, codec.decoder))
     
@@ -120,7 +121,7 @@ object Input {
     private lazy val delegate = new AutocloseStreamInput(new FileInputStream(file), path, codec)
     
     def asReader: java.io.Reader = delegate.asReader
-    def asParserInput: ParserContext = ParserContext(delegate.asReader, file.length.toInt)
+    def asParserInput: ParserContext = ParserContext(InputExecutor.readAll(delegate.asReader, file.length.toInt))
     def close: Unit = delegate.close
     def asBinaryInput: BinaryInput = delegate.asBinaryInput
   }
