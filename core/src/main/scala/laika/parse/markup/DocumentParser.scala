@@ -20,8 +20,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import laika.ast._
 import laika.bundle.MarkupExtensions
 import laika.factory.MarkupParser
-import laika.io.Input
-import laika.parse.Parser
+import laika.parse.{Parser, ParserContext}
 import laika.parse.directive.ConfigHeaderParser
 import laika.parse.text.TextParsers.unsafeParserFunction
 
@@ -32,12 +31,14 @@ import laika.parse.text.TextParsers.unsafeParserFunction
   * @author Jens Halm
   */
 object DocumentParser {
+  
+  case class ParserInput (path: Path, context: ParserContext)
 
   type ConfigHeaderParser = Path => Parser[Either[InvalidElement, Config]]
 
   private def create [D, R <: ElementContainer[_,_]](rootParser: Parser[R],
                                              configHeaderParser: ConfigHeaderParser)
-                                            (docFactory: (Path, Config, Option[InvalidElement], R) => D): Input => D = { input =>
+                                            (docFactory: (Path, Config, Option[InvalidElement], R) => D): ParserInput => D = { input =>
 
     def extractConfigValues (root: R): Map[String,AnyRef] =
       root.collect { case c: ConfigValue => (c.name, c.value) }.toMap
@@ -49,7 +50,7 @@ object DocumentParser {
       docFactory(input.path, processedConfig, message, root)
     }
 
-    unsafeParserFunction(parser)(input.asParserInput)
+    unsafeParserFunction(parser)(input.context)
   }
 
   /** Combines the specified markup parsers and extensions and the parser for (optional) configuration
@@ -57,7 +58,7 @@ object DocumentParser {
     */
   def forMarkup (markupParser: MarkupParser,
                  markupExtensions: MarkupExtensions,
-                 configHeaderParser: ConfigHeaderParser): Input => Document = {
+                 configHeaderParser: ConfigHeaderParser): ParserInput => Document = {
 
     val rootParser = new RootParser(markupParser, markupExtensions).rootElement
 
@@ -69,7 +70,7 @@ object DocumentParser {
   /** Combines the specified parsers for the root element and for (optional) configuration
     * headers to create a parser function for an entire text markup document.
     */
-  def forMarkup (rootParser: Parser[RootElement], configHeaderParser: ConfigHeaderParser): Input => Document =
+  def forMarkup (rootParser: Parser[RootElement], configHeaderParser: ConfigHeaderParser): ParserInput => Document =
 
     create(rootParser, configHeaderParser) { (path, config, invalid, root) =>
 
@@ -83,7 +84,7 @@ object DocumentParser {
   /** Combines the specified parsers for the root element and for (optional) configuration
     * headers to create a parser function for an entire template document.
     */
-  def forTemplate (rootParser: Parser[TemplateRoot], configHeaderParser: ConfigHeaderParser): Input => TemplateDocument = {
+  def forTemplate (rootParser: Parser[TemplateRoot], configHeaderParser: ConfigHeaderParser): ParserInput => TemplateDocument = {
 
     create(rootParser, configHeaderParser) { (path, config, invalid, root) =>
 

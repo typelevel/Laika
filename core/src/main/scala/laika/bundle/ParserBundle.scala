@@ -18,8 +18,8 @@ package laika.bundle
 
 import com.typesafe.config.Config
 import laika.ast._
-import laika.io.Input
 import laika.parse.Parser
+import laika.parse.markup.DocumentParser.ParserInput
 
 /** Bundles a collection of all types of parsers used in a transformation.
   *
@@ -46,7 +46,7 @@ case class ParserBundle(blockParsers: Seq[BlockParserBuilder] = Nil,
 
   /** Merges this instance with the specified base.
     * Collections of parsers will be merged.
-    * Opional parsers in this instance will overwrite optional parsers
+    * Optional parsers in this instance will overwrite optional parsers
     * in the base (if defined), with the base only serving as a fallback.
     */
   def withBase (base: ParserBundle): ParserBundle =
@@ -77,7 +77,7 @@ case class ParserBundle(blockParsers: Seq[BlockParserBuilder] = Nil,
   */
 case class ParserHooks(postProcessBlocks: Seq[Block] => Seq[Block] = identity,
                        postProcessDocument: Document => Document = identity,
-                       preProcessInput: Input => Input = identity) {
+                       preProcessInput: ParserInput => ParserInput = identity) {
 
   /** Merges this instance with the specified base.
     * The functions specified in the base are always invoked before

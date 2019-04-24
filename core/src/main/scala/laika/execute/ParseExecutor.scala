@@ -25,6 +25,7 @@ import laika.factory.MarkupParser
 import laika.io.{IO, Input, InputTree}
 import laika.parse.combinator.Parsers.documentParserFunction
 import laika.parse.markup.DocumentParser
+import laika.parse.markup.DocumentParser.ParserInput
 
 /** 
   *  @author Jens Halm
@@ -53,7 +54,7 @@ object ParseExecutor {
     def parseTemplate (docType: DocumentType)(input: Input): Seq[Operation[TemplateDocument]] = op.config.templateParser match {
       case None => Seq()
       case Some(rootParser) =>
-        val docParser = DocumentParser.forTemplate(rootParser, op.config.configHeaderParser)
+        val docParser: Input => TemplateDocument = input => DocumentParser.forTemplate(rootParser, op.config.configHeaderParser)(ParserInput(input.path, input.asParserInput))
         Seq(() => (docType, IO(input)(docParser)))
     }
 
@@ -122,16 +123,17 @@ object ParseExecutor {
       case index => name.drop(index+1)
     }
 
-    private lazy val map: Map[String, Input => Document] =
+    private lazy val map: Map[String, ParserInput => Document] =
       parsers.flatMap { parser =>
         val docParser = DocumentParser.forMarkup(parser, config.markupExtensions, config.configHeaderParser)
         parser.fileSuffixes.map((_, docParser))
       }.toMap
 
-    def forInput (input: Input): Input => Document = {
-      if (parsers.size == 1) map.head._2
+    def forInput (input: Input): Input => Document = { input =>
+      val pi = ParserInput(input.path, input.asParserInput)
+      if (parsers.size == 1) map.head._2(pi)
       else map.getOrElse(suffix(input.name),
-        throw new IllegalArgumentException("Unable to determine parser based on input name: ${input.name}"))
+        throw new IllegalArgumentException("Unable to determine parser based on input name: ${input.name}"))(pi)
     }
 
   }

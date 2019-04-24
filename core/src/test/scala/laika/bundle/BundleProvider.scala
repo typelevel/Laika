@@ -22,6 +22,7 @@ import laika.ast._
 import laika.directive.{DirectiveRegistry, Templates}
 import laika.io.Input
 import laika.parse.Parser
+import laika.parse.markup.DocumentParser.ParserInput
 
 /**
   * @author Jens Halm
@@ -40,7 +41,7 @@ object BundleProvider {
 
   def forParserHooks (postProcessBlocks: Seq[Block] => Seq[Block] = identity,
                       postProcessDocument: Document => Document = identity,
-                      preProcessInput: Input => Input = identity): ExtensionBundle = new ExtensionBundle {
+                      preProcessInput: ParserInput => ParserInput = identity): ExtensionBundle = new ExtensionBundle {
 
     override def parsers: ParserBundle = ParserBundle(
       markupParserHooks = Some(ParserHooks(

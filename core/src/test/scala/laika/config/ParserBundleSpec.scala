@@ -22,10 +22,11 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle._
 import laika.factory.MarkupParser
-import laika.io.Input
+import laika.parse.ParserContext
 import laika.parse.combinator.Parsers
 import laika.parse.css.CSSParsers
 import laika.parse.directive.ConfigHeaderParser
+import laika.parse.markup.DocumentParser.ParserInput
 import laika.parse.text.TextParsers
 import org.scalatest.{Matchers, WordSpec}
 
@@ -209,9 +210,9 @@ class ParserBundleSpec extends WordSpec with Matchers {
       TextParsers.textLine ^^ { text => Paragraph(Seq(Text(text))) }
     })
 
-    def preProcess (append: String): Input => Input = { input =>
-      val raw = input.asParserInput.input
-      Input.fromString(raw + append, input.path)
+    def preProcess (append: String): ParserInput => ParserInput = { input =>
+      val raw = input.context.input
+      input.copy(context = ParserContext(raw + append))
     }
 
     def processDoc (append: String): Document => Document = { doc =>
