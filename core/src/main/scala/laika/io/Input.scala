@@ -87,13 +87,7 @@ object Input {
     
   }
   
-  private class ReaderInput (val asReader: java.io.Reader, val path: Path) extends Input {
-   
-    def asParserInput: ParserContext = ParserContext(InputExecutor.readAll(asReader))
-
-  }
-  
-  private class StreamInput (stream: InputStream, val path: Path, codec: Codec) extends Input with Binary {
+  class StreamInput (stream: InputStream, val path: Path, codec: Codec) extends Input with Binary {
    
     def asBinaryInput: BinaryInput = new BinaryInput {
       val asStream = stream
@@ -176,21 +170,5 @@ object Input {
    */
   def fromClasspath (resource: String, virtualPath: Path)(implicit codec: Codec): Input with Binary with Closeable
     = new LazyClasspathInput(resource, virtualPath, codec)
-  
-  /** Creates a new Input instance for the specified InputStream.
-   *  
-   *  @param stream the stream to read character data from
-   *  @param path the (potentially virtual) path of the input source
-   *  @param codec the character encoding used by the text input, if not specified the platform default will be used.
-   */
-  def fromStream (stream: InputStream, path: Path = Path.Root)(implicit codec: Codec): Input with Binary = new StreamInput(stream, path, codec)
-  
-  /** Creates a new Input instance for the specified Reader.
-   *  
-   *  @param reader the reader to read character data from
-   *  @param path the (potentially virtual) path of the input source
-   */
-  def fromReader (reader: java.io.Reader, path: Path = Path.Root): Input = new ReaderInput(reader, path)
-  
   
 }

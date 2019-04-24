@@ -16,16 +16,18 @@
 
 package laika.render.epub
 
-import java.io.ByteArrayInputStream
+import java.io.{ByteArrayInputStream, InputStream}
 import java.nio.charset.Charset
 
 import laika.ast.Path.Root
 import laika.ast.{DocumentTree, Path, StaticDocument}
 import laika.format.EPUB
-import laika.io.Input.Binary
+import laika.io.Input.{Binary, StreamInput}
 import laika.io.Output.BinaryOutput
 import laika.io.OutputTree.ResultTree
 import laika.io.{IO, Input}
+
+import scala.io.Codec
 
 /** Creates the EPUB container based on a document tree and the HTML result
   * of a preceding render operation.
@@ -38,6 +40,9 @@ class ContainerWriter {
   private val opfRenderer = new OPFRenderer
   private val navRenderer = new HtmlNavRenderer
   private val ncxRenderer = new NCXRenderer
+
+  // TODO - 0.12 - replace with new model
+  def fromStream (stream: InputStream, path: Path = Path.Root)(implicit codec: Codec): Input with Binary = new StreamInput(stream, path, codec)
 
 
   /** Collects all documents that need to be written to the EPUB container.
@@ -64,7 +69,7 @@ class ContainerWriter {
     def toBinaryInput (content: String, path: Path): Input with Binary = {
       val bytes = content.getBytes(Charset.forName("UTF-8"))
       val in = new ByteArrayInputStream(bytes)
-      Input.fromStream(in, path)
+      fromStream(in, path)
     }
 
     def toInput (htmlTree: ResultTree): Seq[Input with Binary] = {
@@ -76,7 +81,7 @@ class ContainerWriter {
     def collectStaticFiles (currentTree: DocumentTree): Seq[Input with Binary] = {
       currentTree.additionalContent.filter(c => MimeTypes.supportedTypes.contains(c.path.suffix)).flatMap {
         case StaticDocument(input: Input with Binary) =>
-          Seq(Input.fromStream(input.asBinaryInput.asStream, shiftContentPath(input.path)))
+          Seq(fromStream(input.asBinaryInput.asStream, shiftContentPath(input.path)))
         case StaticDocument(input) =>
           Seq(toBinaryInput(input.asParserInput.input, shiftContentPath(input.path)))
         case _ => Seq()

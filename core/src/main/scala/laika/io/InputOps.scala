@@ -38,14 +38,10 @@ trait InputOps {
     */
   type InputResult
 
-  /**  Returns the result from parsing a the specified string.
+  /**  Returns the result from parsing the specified string.
     *  Any kind of input is valid, including an empty string.
     */
   def fromString (str: String): InputResult = fromInput(Input.fromString(str))
-
-  /** Returns the result from parsing the input from the specified reader.
-    */
-  def fromReader (reader: Reader): InputResult = fromInput(Input.fromReader(reader))
 
   /** Returns the result from parsing the file with the specified name.
     *  Any kind of character input is valid, including empty files.
@@ -62,13 +58,6 @@ trait InputOps {
     *  @param codec the character encoding of the file, if not specified the platform default will be used.
     */
   def fromFile (file: File)(implicit codec: Codec): InputResult = fromInput(Input.fromFile(file)(codec))
-
-  /** Returns the result from parsing the input from the specified stream.
-    *
-    *  @param stream the stream to use as input for the parser
-    *  @param codec the character encoding of the stream, if not specified the platform default will be used.
-    */
-  def fromStream (stream: InputStream)(implicit codec: Codec): InputResult = fromInput(Input.fromStream(stream)(codec))
 
   /** Returns the result from parsing the specified input.
     *
