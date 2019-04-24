@@ -19,8 +19,9 @@ package laika.format
 import laika.ast.{Element, Path, StyleDeclarationSet, TemplateDocument}
 import laika.config.RenderConfig
 import laika.directive.StandardDirectives
+import laika.execute.InputExecutor
 import laika.factory.RenderFormat
-import laika.io.{Input, Output}
+import laika.io.Output
 import laika.parse.combinator.Parsers
 import laika.parse.css.CSSParsers
 import laika.parse.directive.TemplateParsers
@@ -64,17 +65,17 @@ object XSLFO extends RenderFormat[FOWriter] {
   )
 
   private lazy val styleResource: StyleDeclarationSet = {
-    val input = Input.fromClasspath("/styles/default.fo.css", Path.Root / "default.fo.css")
-    Parsers.documentParserFunction(CSSParsers.styleDeclarationSet, StyleDeclarationSet.forPath)(ParserInput(input.path, input.asParserInput))
+    val input = InputExecutor.classPathParserInput("/styles/default.fo.css", Path.Root / "default.fo.css")
+    Parsers.documentParserFunction(CSSParsers.styleDeclarationSet, StyleDeclarationSet.forPath)(input)
   }
 
   class XSLFOTemplateParser extends TemplateParsers(Map("for"->StandardDirectives.templateFor)) {
-    def parse (input: Input): TemplateDocument = {
-      val root = unsafeParserFunction(templateRoot)(input.asParserInput)
+    def parse (input: ParserInput): TemplateDocument = {
+      val root = unsafeParserFunction(templateRoot)(input.context)
       TemplateDocument(input.path, root)
     }
   }
   private lazy val templateResource: TemplateDocument =
-    new XSLFOTemplateParser().parse(Input.fromClasspath("/templates/default.template.fo", Path.Root / "default.template.fo"))
+    new XSLFOTemplateParser().parse(InputExecutor.classPathParserInput("/templates/default.template.fo", Path.Root / "default.template.fo"))
 
 }

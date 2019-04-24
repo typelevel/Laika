@@ -1,6 +1,13 @@
 package laika.execute
 
-import java.io.Reader
+import java.io.{BufferedReader, InputStreamReader, Reader}
+
+import laika.ast.Path
+import laika.io.IO
+import laika.parse.ParserContext
+import laika.parse.markup.DocumentParser.ParserInput
+
+import scala.io.Codec
 
 object InputExecutor {
   
@@ -22,6 +29,16 @@ object InputExecutor {
     }
 
     buffer.toString
+  }
+  
+  // TODO - 0.12 - temporary solution
+  def classPathParserInput (resourcePath: String, virtualPath: Path)(implicit codec: Codec): ParserInput = {
+    val stream = getClass.getResourceAsStream(resourcePath)
+    IO(stream){ in =>
+      val reader = new BufferedReader(new InputStreamReader(in, codec.decoder))
+      val content = InputExecutor.readAll(reader)
+      ParserInput(virtualPath, ParserContext(content))
+    }
   }
   
 }

@@ -20,6 +20,7 @@ import laika.ast._
 import laika.directive.Templates
 import laika.io.Input
 import laika.parse.directive.TemplateParsers
+import laika.parse.markup.DocumentParser.ParserInput
 import laika.parse.text.TextParsers.unsafeParserFunction
 
 /** Processes CSS inputs for EPUB containers.
@@ -69,8 +70,8 @@ object StyleSupport {
   /** Parser for the EPUB-XHTML default template that supports the `styleLinks` directive.
     */
   object XHTMLTemplateParser extends TemplateParsers(Map(styleLinksDirective.name -> styleLinksDirective)) {
-    def parse (input: Input): TemplateDocument = {
-      val root = unsafeParserFunction(templateRoot)(input.asParserInput)
+    def parse (input: ParserInput): TemplateDocument = {
+      val root = unsafeParserFunction(templateRoot)(input.context)
       TemplateDocument(input.path, root)
     }
   }

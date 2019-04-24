@@ -18,8 +18,8 @@ package laika.parse.directive
 
 import laika.ast._
 import laika.directive.Templates
-import laika.io.Input
 import laika.parse.markup.DefaultRecursiveSpanParsers
+import laika.parse.markup.DocumentParser.ParserInput
 import laika.parse.text.TextParsers._
 import laika.parse.{Parser, ParserContext}
 
@@ -80,8 +80,8 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
   * usually used for parsing fallback templates from resource folders.
   */
 object DefaultTemplateParser extends TemplateParsers(Map.empty) {
-  def parse (input: Input): TemplateDocument = {
-    val root = unsafeParserFunction(templateRoot)(input.asParserInput)
+  def parse (input: ParserInput): TemplateDocument = {
+    val root = unsafeParserFunction(templateRoot)(input.context)
     TemplateDocument(input.path, root)
   }
 }

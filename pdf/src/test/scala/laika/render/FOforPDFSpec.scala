@@ -20,10 +20,11 @@ import java.io.ByteArrayOutputStream
 
 import laika.api.Render
 import laika.ast.{DocumentTree, Path, TemplateRoot}
+import laika.execute.InputExecutor
 import laika.factory.RenderResultProcessor
 import laika.format.{PDF, XSLFO}
 import laika.io.Output.BinaryOutput
-import laika.io.{Input, OutputTree}
+import laika.io.OutputTree
 import org.scalatest.{FlatSpec, Matchers}
 
 class FOforPDFSpec extends FlatSpec with Matchers {
@@ -48,7 +49,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
   
   trait ResultModel {
     
-    private lazy val defaultTemplate = Input.fromClasspath("/templates/default.template.fo", Path.Root / "default.template.fo").asParserInput.input
+    private lazy val defaultTemplate = InputExecutor.classPathParserInput("/templates/default.template.fo", Path.Root / "default.template.fo").context.input
 
     def results (num: Int): String = (1 to num) map (result) reduce (_ + _)
     

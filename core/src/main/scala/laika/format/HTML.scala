@@ -18,8 +18,9 @@ package laika.format
 
 import laika.ast.{Element, Path, StyleDeclarationSet, TemplateDocument}
 import laika.config.RenderConfig
+import laika.execute.InputExecutor
 import laika.factory.RenderFormat
-import laika.io.{Input, Output}
+import laika.io.Output
 import laika.parse.directive.DefaultTemplateParser
 import laika.render.{HTMLRenderer, HTMLWriter}
 
@@ -49,6 +50,6 @@ object HTML extends RenderFormat[HTMLWriter] {
   override lazy val defaultTheme: Theme = Theme(defaultTemplate = Some(templateResource.content))
 
   private lazy val templateResource: TemplateDocument =
-    DefaultTemplateParser.parse(Input.fromClasspath("/templates/default.template.html", Path.Root / "default.template.html"))
+    DefaultTemplateParser.parse(InputExecutor.classPathParserInput("/templates/default.template.html", Path.Root / "default.template.html"))
 
 }

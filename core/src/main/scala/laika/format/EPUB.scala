@@ -24,10 +24,11 @@ import java.util.{Locale, UUID}
 import laika.ast.Path.Root
 import laika.ast._
 import laika.config.RenderConfig
+import laika.execute.InputExecutor
 import laika.factory.{RenderFormat, RenderResultProcessor}
 import laika.io.Output.BinaryOutput
 import laika.io.OutputTree.StringOutputTree
-import laika.io.{Input, Output, OutputTree}
+import laika.io.{Output, OutputTree}
 import laika.render.epub.StyleSupport.XHTMLTemplateParser
 import laika.render.epub.{ConfigFactory, ContainerWriter, HtmlRenderExtensions, StyleSupport}
 import laika.render.{HTMLRenderer, HTMLWriter}
@@ -77,7 +78,7 @@ object EPUB extends RenderResultProcessor[HTMLWriter] {
     private val templateName = "default.template.epub.xhtml"
 
     private lazy val templateResource: TemplateDocument =
-      XHTMLTemplateParser.parse(Input.fromClasspath(s"/templates/$templateName", Path.Root / templateName))
+      XHTMLTemplateParser.parse(InputExecutor.classPathParserInput(s"/templates/$templateName", Path.Root / templateName))
 
   }
 

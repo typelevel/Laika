@@ -120,16 +120,6 @@ object Input {
     def asBinaryInput: BinaryInput = delegate.asBinaryInput
   }
   
-  class LazyClasspathInput (val resource: String, val path: Path, codec: Codec) extends Input with Binary with Closeable {
-    
-    private lazy val delegate = new AutocloseStreamInput(getClass.getResourceAsStream(resource), path, codec)
-    
-    def asReader: java.io.Reader = delegate.asReader
-    def asParserInput: ParserContext = delegate.asParserInput
-    def close: Unit = delegate.close
-    def asBinaryInput: BinaryInput = delegate.asBinaryInput
-  }
-  
   /** Creates a new Input instance from the specified source string.
    *  
    *  @param source the string to parse
@@ -161,14 +151,5 @@ object Input {
    */
   def fromFile (file: File, virtualPath: Path)(implicit codec: Codec): Input with Binary with Closeable 
     = new LazyFileInput(file, virtualPath / file.getName, codec)
-  
-  /** Creates a new Input instance for the specified classpath resource.
-   *  
-   *  @param resource the name of the resource on the classpath
-   *  @param virtualPath the path of the document in the virtual tree 
-   *  @param codec the character encoding of the input, if not specified the platform default will be used.
-   */
-  def fromClasspath (resource: String, virtualPath: Path)(implicit codec: Codec): Input with Binary with Closeable
-    = new LazyClasspathInput(resource, virtualPath, codec)
   
 }
