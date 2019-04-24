@@ -20,7 +20,7 @@ import java.io._
 import java.util.zip.{CRC32, ZipEntry, ZipOutputStream}
 
 import laika.ast.Path
-import laika.io.Output.BinaryOutput
+import laika.io.Output.{BinaryOutput, StringBuilderOutput}
 import laika.render.epub.{StaticContent, StreamInput}
 
 /** Collection of I/O utilities.
@@ -98,6 +98,15 @@ object IO {
         }
         val binaryOut = out.asBinaryOutput
         apply(binaryIn) { in => apply(binaryOut) { out => copy(in, out.asStream) } }
+      case (in, StringBuilderOutput(builder, _)) =>
+        // TODO - 0.12 - temporary just to keep some more of the tests green during migration
+        val binaryIn = in match {
+          case BinaryFileInput(file, _) => new BufferedInputStream(new FileInputStream(file)) // TODO - 0.12 - avoid duplication
+          case ByteInput(bytes, _)      => new ByteArrayInputStream(bytes)
+        }
+        val binaryOut = new ByteArrayOutputStream(8196)
+        apply(binaryIn) { in => apply(binaryOut) { out => copy(in, out) } }
+        builder.append(new String(binaryOut.toByteArray, "UTF-8"))
       case _ =>
         throw new RuntimeException("case not supported during 0.12 migration")
     }

@@ -16,7 +16,7 @@
 
 package laika.io
 
-import java.io.{File, OutputStream}
+import java.io.File
 
 import laika.api.{Render, Transform}
 import laika.io.Output.Binary
@@ -49,13 +49,6 @@ trait SingleOutputOps[Writer] extends OutputOps {
     */
   def toFile (file: File)(implicit codec: Codec): Result = toBinaryOutput(Output.toFile(file)(codec))
 
-  /** Renders the model to the specified output stream.
-    *
-    *  @param stream the stream to render to
-    *  @param codec the character encoding of the stream, if not specified the platform default will be used.
-    */
-  def toStream (stream: OutputStream)(implicit codec: Codec): Result = toBinaryOutput(Output.toStream(stream)(codec))
-
   /** Renders the model to the specified output.
     *
     *  This is a generic method based on Laika's IO abstraction layer that concrete
@@ -85,14 +78,6 @@ trait BinaryTransformOutputOps[Writer] extends SingleOutputOps[Writer] {
 trait TextOutputOps[Writer] extends SingleOutputOps[Writer] {
   
   type Result
-
-  /** Renders the model to the console.
-    */
-  def toConsole: Result = toStream(System.out)
-
-  /** Renders the model to the specified writer.
-    */
-  def toWriter (writer: java.io.Writer): Result = toOutput(Output.toWriter(writer))
 
   /** Renders the model to the specified `StringBuilder`.
     */

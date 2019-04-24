@@ -42,19 +42,19 @@ object OutputBuilder {
   
   class TestOutputTree(val path: Path) extends OutputTree {
     
-    val documents = ListBuffer[(Path,ByteArrayOutputStream)]()
+    val documents = ListBuffer[(Path,StringBuilder)]()
     
     val subtrees = ListBuffer[TestOutputTree]()
 
     def toTree: RenderedTree = new RenderedTree(path, List( 
-      Documents(documents.toSeq map { case (path, builder) => RenderedDocument(path, new String(builder.toByteArray, "UTF-8")) }),
+      Documents(documents.toSeq map { case (path, builder) => RenderedDocument(path, builder.toString) }),
       Subtrees(subtrees.toSeq map (_.toTree))
     ) filterNot { case c: ElementContainer[_,_] => c.content.isEmpty })
     
     def newOutput (name: String): Output = {
-      val builder = new ByteArrayOutputStream(8196)
+      val builder = new StringBuilder
       documents += ((path / name, builder))
-      Output.toStream(builder)
+      Output.toBuilder(builder)
     }
   
     def newChild (name: String): OutputTree = {

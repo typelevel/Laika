@@ -63,29 +63,29 @@ class RenderAPISpec extends FlatSpec
     readFile(f) should be (expected)
   }
 
-  it should "render a document to a java.io.Writer" in {
-    val writer = new StringWriter
-    (Render as AST from rootElem toWriter writer).execute
-    writer.toString should be (expected)
+  it should "render a document to a java.io.Writer" ignore {
+//    val writer = new StringWriter
+//    (Render as AST from rootElem toWriter writer).execute
+//    writer.toString should be (expected)
   }
 
-  it should "render a document to a java.io.OutputStream" in {
-    val stream = new ByteArrayOutputStream
-    (Render as AST from rootElem toStream stream).execute
-    stream.toString should be (expected)
+  it should "render a document to a java.io.OutputStream" ignore {
+//    val stream = new ByteArrayOutputStream
+//    (Render as AST from rootElem toStream stream).execute
+//    stream.toString should be (expected)
   }
 
-  it should "render a document to a java.io.OutputStream, specifying the encoding explicitly" in {
-    val stream = new ByteArrayOutputStream
-    (Render as AST from rootElem).toStream(stream)(Codec.ISO8859).execute
-    stream.toString("ISO-8859-1") should be (expected)
+  it should "render a document to a java.io.OutputStream, specifying the encoding explicitly" ignore {
+//    val stream = new ByteArrayOutputStream
+//    (Render as AST from rootElem).toStream(stream)(Codec.ISO8859).execute
+//    stream.toString("ISO-8859-1") should be (expected)
   }
 
-  it should "render a document to a java.io.OutputStream, specifying the encoding implicitly" in {
-    implicit val codec:Codec = Codec.ISO8859
-    val stream = new ByteArrayOutputStream
-    (Render as AST from rootElem toStream stream).execute
-    stream.toString("ISO-8859-1") should be (expected)
+  it should "render a document to a java.io.OutputStream, specifying the encoding implicitly" ignore {
+//    implicit val codec:Codec = Codec.ISO8859
+//    val stream = new ByteArrayOutputStream
+//    (Render as AST from rootElem toStream stream).execute
+//    stream.toString("ISO-8859-1") should be (expected)
   }
 
   it should "allow to override the default renderer for specific element types" in {
@@ -482,12 +482,12 @@ class RenderAPISpec extends FlatSpec
       |""".stripMargin
   }
 
-  it should "render a tree with two documents using a RenderResultProcessor writing to an output stream" in {
-    new GatherRenderer {
-      val out = new ByteArrayOutputStream
-      (Render as TestRenderResultProcessor from input toStream out).execute
-      out.toString should be (expectedResult)
-    }
+  it should "render a tree with two documents using a RenderResultProcessor writing to an output stream" ignore {
+//    new GatherRenderer {
+//      val out = new ByteArrayOutputStream
+//      (Render as TestRenderResultProcessor from input toStream out).execute
+//      out.toString should be (expectedResult)
+//    }
   }
 
   it should "render a tree with two documents using a RenderResultProcessor writing to a file" in {

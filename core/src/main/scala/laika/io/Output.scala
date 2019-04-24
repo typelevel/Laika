@@ -101,19 +101,12 @@ object Output {
     
   }
   
-  private class StringBuilderOutput (builder: StringBuilder, val path: Path) extends Output {
+  case class StringBuilderOutput (builder: StringBuilder, path: Path) extends Output {
     
     def asWriter: Writer = new StringBuilderWriter(builder)
   
     def asFunction: String => Unit = builder.append(_:String)
     
-  }
-  
-  private class WriterOutput (val asWriter: Writer, val path: Path) extends Output {
-   
-    def asFunction: String => Unit = asWriter.write(_:String)
-    
-    override def flush (): Unit = asWriter flush
   }
   
   private class StreamOutput (stream: OutputStream, val path: Path, codec: Codec) extends Output with Binary {
@@ -170,18 +163,6 @@ object Output {
   
   def toFile (file: File, virtualPath: Path)(implicit codec: Codec): Output with Binary with Closeable = 
     new LazyFileOutput(file, virtualPath / file.getName, codec)
-
-  /** Creates a new Output instance for the specified OutputStream.
-   *  
-   *  @param stream the stream to write to
-   *  @param path the (potentially virtual) path of the output target
-   *  @param codec the character encoding to use for producing the bytes, if not specified the platform default will be used.
-   */
-  def toStream (stream: OutputStream, path: Path = Path.Root)(implicit codec: Codec): Output with Binary = new StreamOutput(stream, path, codec)
-
-  /** Creates a new Output instance for the specified Writer.
-   */
-  def toWriter (writer: Writer, path: Path = Path.Root): Output = new WriterOutput(writer, path)
 
   /** Creates a new Output instance for the specified StringBuilder.
    */
