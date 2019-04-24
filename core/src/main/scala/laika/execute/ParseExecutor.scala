@@ -54,12 +54,14 @@ object ParseExecutor {
     def parseTemplate (docType: DocumentType)(input: Input): Seq[Operation[TemplateDocument]] = op.config.templateParser match {
       case None => Seq()
       case Some(rootParser) =>
-        val docParser: Input => TemplateDocument = input => DocumentParser.forTemplate(rootParser, op.config.configHeaderParser)(ParserInput(input.path, input.asParserInput))
+        val docParser: Input => TemplateDocument = input => 
+          DocumentParser.forTemplate(rootParser, op.config.configHeaderParser)(ParserInput(input.path, input.asParserInput))
         Seq(() => (docType, IO(input)(docParser)))
     }
 
     def parseStyleSheet (format: String)(input: Input): Operation[StyleDeclarationSet] = () => {
-      val docF = documentParserFunction(op.config.styleSheetParser, StyleDeclarationSet.forPath)
+      val docF: Input => StyleDeclarationSet = input => 
+        documentParserFunction(op.config.styleSheetParser, StyleDeclarationSet.forPath)(ParserInput(input.path, input.asParserInput))
       (StyleSheet(format), IO(input)(docF))
     }
 

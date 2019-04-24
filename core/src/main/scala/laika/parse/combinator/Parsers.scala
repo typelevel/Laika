@@ -17,8 +17,8 @@
 package laika.parse.combinator
 
 import laika.ast.Path
-import laika.io.Input
 import laika.parse._
+import laika.parse.markup.DocumentParser.ParserInput
 
 import scala.util.{Try, Failure => TFailure, Success => TSuccess}
 
@@ -132,9 +132,9 @@ trait Parsers {
     *
     * The `docF` function turns the result of the parser into a document instance.
     */
-  def documentParserFunction[T,U] (parser: Parser[T], docF: (Path, T) => U): Input => U = {
+  def documentParserFunction[T,U] (parser: Parser[T], docF: (Path, T) => U): ParserInput => U = {
     val parserF = unsafeParserFunction(parser)
-    input => docF(input.path, parserF(input.asParserInput))
+    input => docF(input.path, parserF(input.context))
   }
 
   /** Provides additional methods to `Try` via implicit conversion.
