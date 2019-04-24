@@ -19,7 +19,7 @@ package laika.ast.helper
 import laika.ast.{DocumentType, Path}
 import laika.ast.DocumentType._
 import laika.collection.TransitionalCollectionOps._
-import laika.io.{Input, InputTree}
+import laika.io._
 import laika.io.InputTree.InputTreeBuilder
 
 trait InputBuilder {
@@ -56,12 +56,12 @@ trait InputBuilder {
   
   
   case class TestInputTree(path: Path,
-                           configDocuments: Seq[Input],
-                           markupDocuments: Seq[Input],
-                           dynamicDocuments: Seq[Input],
-                           styleSheets: Map[String,Seq[Input]],
-                           staticDocuments: Seq[Input],
-                           templates: Seq[Input],
+                           configDocuments: Seq[TextInput],
+                           markupDocuments: Seq[TextInput],
+                           dynamicDocuments: Seq[TextInput],
+                           styleSheets: Map[String,Seq[TextInput]],
+                           staticDocuments: Seq[BinaryInput],
+                           templates: Seq[TextInput],
                            subtrees: Seq[InputTree],
                            sourcePaths: Seq[String]
   ) extends InputTree
@@ -70,17 +70,21 @@ trait InputBuilder {
     
     def build (docTypeMatcher: Path => DocumentType): InputTree = {
     
-      def input (inputName: String, contentId: String, path: Path): Input = Input.fromString(contents(contentId), path / inputName)
+      def documents (docType: DocumentType): Seq[TextInput] = files collect {
+        case (name, content) if docTypeMatcher(path / name) == docType => StringInput(contents(content), path / name)
+      }
 
-      def pathFor (f: String) = path / f
-  
-      val documents = files map (f => (docTypeMatcher(pathFor(f._1)), input(f._1, f._2, path))) groupBy (_._1) mapValuesStrict (_.map(_._2)) withDefaultValue Nil
+      def static: Seq[BinaryInput] = files collect {
+        case (name, content) if docTypeMatcher(path / name) == Static => ByteInput(contents(content), path / name)
+      }
       
-      val styleSheets = documents collect { case (StyleSheet(format), inputs) => (format, inputs) }
+      val styleSheets = files.map(f => (f._1, f._2, docTypeMatcher(path / f._1))).collect {
+        case (name, content, StyleSheet(format)) => (format, StringInput(contents(content), path / name))
+      }.groupBy(_._1).mapValuesStrict (_.map(_._2))
       
-      val subtrees = dirs map (_.build(docTypeMatcher)) filter (d => docTypeMatcher(pathFor(d.path.name)) != Ignored)
+      val subtrees = dirs map (_.build(docTypeMatcher)) filter (d => docTypeMatcher(path / d.path.name) != Ignored)
       
-      TestInputTree(path, documents(Config), documents(Markup), documents(Dynamic), styleSheets, documents(Static), documents(Template), subtrees, Nil)
+      TestInputTree(path, documents(Config), documents(Markup), documents(Dynamic), styleSheets, static, documents(Template), subtrees, Nil)
       
     }
   }

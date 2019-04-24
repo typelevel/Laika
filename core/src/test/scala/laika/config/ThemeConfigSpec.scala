@@ -19,7 +19,7 @@ package laika.config
 import laika.ast._
 import laika.bundle.{BundleProvider, ExtensionBundle, StaticDocuments}
 import laika.factory.RenderFormat
-import laika.io.{Input, Output}
+import laika.io.{ByteInput, Output}
 import laika.render.TextWriter
 import org.scalatest.{Matchers, WordSpec}
 
@@ -199,8 +199,8 @@ class ThemeConfigSpec extends WordSpec with Matchers {
   "The configuration for static content" should {
 
     "merge static content defined in a default theme with static content defined in an app extension" in new BundleSetup {
-      val docA = StaticDocument(Input.fromString("a", Path.Root / "a"))
-      val docB = StaticDocument(Input.fromString("b", Path.Root / "b"))
+      val docA = StaticDocument(ByteInput("a", Path.Root / "a"))
+      val docB = StaticDocument(ByteInput("b", Path.Root / "b"))
       override lazy val staticDocuments = StaticDocuments(DocumentTree(Path.Root, Nil, additionalContent = Seq(docA)))
       val moreDocuments = StaticDocuments(DocumentTree(Path.Root, Nil, additionalContent = Seq(docB)))
       val appBundles = Seq(BundleProvider.forTheme(TestFormat.Theme(staticDocuments = moreDocuments)))

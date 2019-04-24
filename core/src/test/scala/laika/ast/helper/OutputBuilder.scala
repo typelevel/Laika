@@ -16,7 +16,7 @@
 
 package laika.ast.helper
 
-import java.io.{BufferedWriter, File, FileWriter}
+import java.io.{BufferedWriter, ByteArrayOutputStream, File, FileWriter}
 
 import laika.ast.{Element, ElementContainer, Path}
 import laika.io.{Output, OutputTree}
@@ -42,19 +42,19 @@ object OutputBuilder {
   
   class TestOutputTree(val path: Path) extends OutputTree {
     
-    val documents = ListBuffer[(Path,StringBuilder)]()
+    val documents = ListBuffer[(Path,ByteArrayOutputStream)]()
     
     val subtrees = ListBuffer[TestOutputTree]()
 
     def toTree: RenderedTree = new RenderedTree(path, List( 
-      Documents(documents.toSeq map { case (path, builder) => RenderedDocument(path, builder.toString) }),
+      Documents(documents.toSeq map { case (path, builder) => RenderedDocument(path, new String(builder.toByteArray, "UTF-8")) }),
       Subtrees(subtrees.toSeq map (_.toTree))
     ) filterNot { case c: ElementContainer[_,_] => c.content.isEmpty })
     
     def newOutput (name: String): Output = {
-      val builder = new StringBuilder
+      val builder = new ByteArrayOutputStream(8196)
       documents += ((path / name, builder))
-      Output.toBuilder(builder)
+      Output.toStream(builder)
     }
   
     def newChild (name: String): OutputTree = {

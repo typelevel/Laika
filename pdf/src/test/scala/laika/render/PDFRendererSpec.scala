@@ -16,11 +16,10 @@
 
 package laika.render
 
-import java.io.{ByteArrayOutputStream, File, InputStream}
+import java.io.{BufferedInputStream, ByteArrayOutputStream, File, FileInputStream, InputStream}
 
 import laika.api.Render
 import laika.format.PDF
-import laika.io.Input
 import org.scalatest.{FlatSpec, Matchers}
 
 /** Since there is no straightforward way to validate a rendered PDF document
@@ -39,7 +38,7 @@ class PDFRendererSpec extends FlatSpec with Matchers {
     
     val file: File = File.createTempFile("output", null)
     
-    def readFile: InputStream = Input.fromFile(file).asBinaryInput.asStream
+    def readFile: InputStream = new BufferedInputStream(new FileInputStream(file))
     
   }
   

@@ -92,7 +92,7 @@ abstract class Transform [Writer] private[Transform] (parsers: Seq[MarkupParser]
  */
 object Transform {
 
-  case class Op[Writer] (parsers: Seq[MarkupParser], format: RenderFormat[Writer], config: OperationConfig, input: Input, output: Output) {
+  case class Op[Writer] (parsers: Seq[MarkupParser], format: RenderFormat[Writer], config: OperationConfig, input: TextInput, output: Output) {
     def execute: Done = TransformExecutor.execute(this)
   }
 
@@ -122,7 +122,7 @@ object Transform {
     
     def withConfig (newConfig: OperationConfig): ThisType = new TransformMappedOutput(parsers, format, newConfig)
 
-    def fromInput (input: Input): InputResult = new TextTransformOutputOps[Writer] {
+    def fromInput (input: TextInput): InputResult = new TextTransformOutputOps[Writer] {
       def toOutput (out: Output) = Op[Writer](parsers, format, config, input, out)
     }
 
@@ -150,16 +150,16 @@ object Transform {
     
     def withConfig (newConfig: OperationConfig): ThisType = new TransformMergedOutput(parsers, processor, newConfig)
 
-    def fromInput (input: Input): InputResult = {
+    def fromInput (input: TextInput): InputResult = {
       // TODO - 0.12 - temporary workaround until IO gets redesigned
       val inputTree = new InputTree {
         override def path: Path = Root
-        override def configDocuments: Seq[Input] = Nil
-        override def markupDocuments: Seq[Input] = Seq(input)
-        override def dynamicDocuments: Seq[Input] = Nil
-        override def styleSheets: Map[String, Seq[Input]] = Map.empty
-        override def staticDocuments: Seq[Input] = Nil
-        override def templates: Seq[Input] = Nil
+        override def configDocuments: Seq[TextInput] = Nil
+        override def markupDocuments: Seq[TextInput] = Seq(input)
+        override def dynamicDocuments: Seq[TextInput] = Nil
+        override def styleSheets: Map[String, Seq[TextInput]] = Map.empty
+        override def staticDocuments: Seq[BinaryInput] = Nil
+        override def templates: Seq[TextInput] = Nil
         override def subtrees: Seq[InputTree] = Nil
         override def sourcePaths: Seq[String] = Nil
       }

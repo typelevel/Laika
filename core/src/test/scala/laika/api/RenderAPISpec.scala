@@ -25,7 +25,7 @@ import laika.ast.helper.OutputBuilder._
 import laika.ast.helper.{InputBuilder, ModelBuilder}
 import laika.bundle.{BundleProvider, StaticDocuments}
 import laika.format.{AST, EPUB, HTML, XSLFO}
-import laika.io.Input
+import laika.io.{ByteInput, Input}
 import laika.render._
 import laika.render.helper.RenderResult
 import org.scalatest.{FlatSpec, Matchers}
@@ -99,7 +99,7 @@ class RenderAPISpec extends FlatSpec
     def markupDoc (num: Int, path: Path = Root)  = Document(path / ("doc"+num), root(p("Doc"+num)))
     def dynamicDoc (num: Int, path: Path = Root) = DynamicDocument(path / ("doc"+num), root(TemplateRoot(List(TemplateString("Doc"+num)))))
     
-    def staticDoc (num: Int, path: Path = Root) = StaticDocument(Input.fromString("Static"+num, path / s"static$num.txt"))
+    def staticDoc (num: Int, path: Path = Root) = StaticDocument(ByteInput("Static"+num, path / s"static$num.txt"))
     
     
     def renderedDynDoc (num: Int) = """RootElement - Blocks: 1

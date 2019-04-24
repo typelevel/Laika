@@ -4,7 +4,7 @@ import com.typesafe.config.{Config, ConfigValueFactory}
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.io.Input
+import laika.io.ByteInput
 
 trait InputTreeBuilder extends ModelBuilder {
 
@@ -52,7 +52,7 @@ trait DocumentPlusCover extends InputTreeBuilder {
 
   val doc1 = Document(Path.Root / "cover", rootElem(2))
   val doc2 = Document(Path.Root / "bar", rootElem(3))
-  val coverImage = StaticDocument(Input.fromString("", Root / "cover.png"))
+  val coverImage = StaticDocument(ByteInput("", Root / "cover.png"))
 
   val input = tree(Path.Root, 1, doc1, doc2).copy(additionalContent = Seq(coverImage))
 }
@@ -60,7 +60,7 @@ trait DocumentPlusCover extends InputTreeBuilder {
 trait DocumentPlusStyle extends InputTreeBuilder {
 
   val doc1 = Document(Path.Root / "foo", rootElem(2))
-  val css = StaticDocument(Input.fromString("{}", Path.Root / "test-style.css"))
+  val css = StaticDocument(ByteInput("{}", Path.Root / "test-style.css"))
 
   val input = tree(Path.Root, 1, doc1).copy(additionalContent = Seq(css))
 }
@@ -101,9 +101,9 @@ trait TreeWithStaticDocuments extends InputTreeBuilder {
 
   val doc1 = Document(Path.Root / "foo", rootElem(2))
   val doc2 = Document(Path.Root / "sub" / "bar", rootElem(3))
-  val static1 = StaticDocument(Input.fromString("", Path("/sub/image.jpg")))
-  val static2 = StaticDocument(Input.fromString("", Path("/sub/styles.css")))
-  val unknown = StaticDocument(Input.fromString("", Path("/sub/doc.pdf")))
+  val static1 = StaticDocument(ByteInput("", Path("/sub/image.jpg")))
+  val static2 = StaticDocument(ByteInput("", Path("/sub/styles.css")))
+  val unknown = StaticDocument(ByteInput("", Path("/sub/doc.pdf")))
   val subtree = tree(Path.Root / "sub", 4, doc2).copy(additionalContent = Seq(static1, static2, unknown))
 
   val input = tree(Path.Root, 1, doc1, subtree)

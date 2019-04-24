@@ -21,7 +21,7 @@ import java.util.Locale
 
 import com.typesafe.config.{Config, ConfigFactory}
 import laika.collection.TransitionalCollectionOps._
-import laika.io.Input
+import laika.io.BinaryInput
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.link.LinkTargetProvider
 import laika.rewrite.link.LinkTargets._
@@ -94,7 +94,7 @@ sealed trait AdditionalContent extends Navigatable
 /** A static document that might get copied to the
   * target document tree as is.
   */
-case class StaticDocument (input: Input) extends AdditionalContent {
+case class StaticDocument (input: BinaryInput) extends AdditionalContent {
   val path: Path = input.path
 }
 

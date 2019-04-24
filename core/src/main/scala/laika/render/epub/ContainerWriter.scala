@@ -16,18 +16,18 @@
 
 package laika.render.epub
 
-import java.io.{ByteArrayInputStream, InputStream}
+import java.io.{BufferedInputStream, ByteArrayInputStream, FileInputStream, InputStream}
 import java.nio.charset.Charset
 
 import laika.ast.Path.Root
 import laika.ast.{DocumentTree, Path, StaticDocument}
 import laika.format.EPUB
-import laika.io.Input.{Binary, StreamInput}
 import laika.io.Output.BinaryOutput
 import laika.io.OutputTree.ResultTree
-import laika.io.{IO, Input}
+import laika.io.{BinaryFileInput, ByteInput, IO}
 
-import scala.io.Codec
+// TODO - 0.12 - replace with new model
+case class StreamInput (stream: InputStream, path: Path)
 
 /** Creates the EPUB container based on a document tree and the HTML result
   * of a preceding render operation.
@@ -42,8 +42,8 @@ class ContainerWriter {
   private val ncxRenderer = new NCXRenderer
 
   // TODO - 0.12 - replace with new model
-  def fromStream (stream: InputStream, path: Path = Path.Root)(implicit codec: Codec): Input with Binary = new StreamInput(stream, path, codec)
-
+  def fromStream (stream: InputStream, path: Path = Path.Root): StreamInput = StreamInput(stream, path)
+  
 
   /** Collects all documents that need to be written to the EPUB container.
     *
@@ -58,7 +58,7 @@ class ContainerWriter {
     *  @param html the dynamically rendered HTML output
     *  @return a list of all documents that need to be written to the EPUB container.
     */
-  def collectInputs (tree: DocumentTree, config: EPUB.Config, html: ResultTree): Seq[Input with Binary] = {
+  def collectInputs (tree: DocumentTree, config: EPUB.Config, html: ResultTree): Seq[StreamInput] = {
 
     val contentRoot = Root / "EPUB" / "content"
 
@@ -66,24 +66,24 @@ class ContainerWriter {
       if (path.suffix == "html") Path(contentRoot, path.components.dropRight(1) :+ path.basename + ".xhtml")
       else Path(contentRoot, path.components)
 
-    def toBinaryInput (content: String, path: Path): Input with Binary = {
+    def toBinaryInput (content: String, path: Path): StreamInput = {
       val bytes = content.getBytes(Charset.forName("UTF-8"))
       val in = new ByteArrayInputStream(bytes)
       fromStream(in, path)
     }
 
-    def toInput (htmlTree: ResultTree): Seq[Input with Binary] = {
+    def toInput (htmlTree: ResultTree): Seq[StreamInput] = {
       htmlTree.results.map {
         doc => toBinaryInput(doc.result, shiftContentPath(doc.path))
       } ++ htmlTree.subtrees.flatMap(toInput)
     }
 
-    def collectStaticFiles (currentTree: DocumentTree): Seq[Input with Binary] = {
+    def collectStaticFiles (currentTree: DocumentTree): Seq[StreamInput] = {
       currentTree.additionalContent.filter(c => MimeTypes.supportedTypes.contains(c.path.suffix)).flatMap {
-        case StaticDocument(input: Input with Binary) =>
-          Seq(fromStream(input.asBinaryInput.asStream, shiftContentPath(input.path)))
-        case StaticDocument(input) =>
-          Seq(toBinaryInput(input.asParserInput.input, shiftContentPath(input.path)))
+        case StaticDocument(input: BinaryFileInput) =>
+          Seq(fromStream(new BufferedInputStream(new FileInputStream(input.file)), shiftContentPath(input.path)))
+        case StaticDocument(input: ByteInput) =>
+          Seq(fromStream(new ByteArrayInputStream(input.bytes), shiftContentPath(input.path)))
         case _ => Seq()
       } ++ currentTree.content.flatMap {
         case childTree: DocumentTree => collectStaticFiles(childTree)

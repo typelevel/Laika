@@ -20,9 +20,8 @@ import java.io._
 import java.util.zip.{CRC32, ZipEntry, ZipOutputStream}
 
 import laika.ast.Path
-import laika.io.Input.Binary
 import laika.io.Output.BinaryOutput
-import laika.render.epub.StaticContent
+import laika.render.epub.{StaticContent, StreamInput}
 
 /** Collection of I/O utilities.
  * 
@@ -84,20 +83,23 @@ object IO {
    *  Output. Rethrows all Exceptions and does not
    *  close the Input or Output afterwards.
    */ 
-  def copy (input: Input, output: Output): Unit = {
+  def copy (input: BinaryInput, output: Output): Unit = {
 
-    val sameFile = (input, output) match {
+    val sameFile = (input, output) match { // TODO - 0.12 - resurrect this check
       case (a: FileBased, b: FileBased) => a.file == b.file
       case _ => false
     }
 
     if (!sameFile) (input, output) match {
-      case (in: Input.Binary, out: Output.Binary) =>
-        val binaryIn = in.asBinaryInput
+      case (in, out: Output.Binary) =>
+        val binaryIn = in match {
+          case BinaryFileInput(file, _) => new BufferedInputStream(new FileInputStream(file)) // TODO - 0.12 - avoid duplication
+          case ByteInput(bytes, _)      => new ByteArrayInputStream(bytes)
+        }
         val binaryOut = out.asBinaryOutput
-        apply(binaryIn) { in => apply(binaryOut) { out => copy(in.asStream, out.asStream) } }
+        apply(binaryIn) { in => apply(binaryOut) { out => copy(in, out.asStream) } }
       case _ =>
-        apply(input) { in => apply(output) { out => copy(in.asReader, out.asWriter) } }
+        throw new RuntimeException("case not supported during 0.12 migration")
     }
   }
 
@@ -108,18 +110,18 @@ object IO {
     * file (called `mimeType`) is written uncompressed. Hence this is not
     * a generic zip utility as the method name suggests.
     */
-  def zipEPUB (inputs: Seq[Input with Binary], output: BinaryOutput): Unit = {
+  def zipEPUB (inputs: Seq[StreamInput], output: BinaryOutput): Unit = { // TODO - 0.12 - StreamInput is a temporary model
 
     val zip = new ZipOutputStream(output.asStream)
 
-    def writeEntry (input: Input with Binary, prepareEntry: ZipEntry => Unit = _ => ()): Unit = {
+    def writeEntry (input: StreamInput, prepareEntry: ZipEntry => Unit = _ => ()): Unit = {
 
       val entry = new ZipEntry(input.path.relativeTo(Path.Root).toString)
 
       prepareEntry(entry)
       zip.putNextEntry(entry)
 
-      copy(input.asBinaryInput.asStream, zip)
+      copy(input.stream, zip)
 
       zip.closeEntry()
     }

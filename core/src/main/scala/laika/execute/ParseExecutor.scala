@@ -22,7 +22,7 @@ import laika.ast._
 import laika.bundle.ConfigProvider
 import laika.config.OperationConfig
 import laika.factory.MarkupParser
-import laika.io.{IO, Input, InputTree}
+import laika.io.{TextInput, IO, InputTree}
 import laika.parse.combinator.Parsers.documentParserFunction
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.ParserInput
@@ -49,23 +49,26 @@ object ParseExecutor {
 
     type Operation[T] = () => (DocumentType, T)
 
-    def parseMarkup (input: Input): Operation[Document] = () => (Markup, IO(input)(ParserLookup(op.parsers, op.config).forInput(input)))
+    def parseMarkup (input: TextInput): Operation[Document] = () => (Markup, IO(input)(ParserLookup(op.parsers, op.config).forInput(input)))
 
-    def parseTemplate (docType: DocumentType)(input: Input): Seq[Operation[TemplateDocument]] = op.config.templateParser match {
+    def parseTemplate (docType: DocumentType)(input: TextInput): Seq[Operation[TemplateDocument]] = op.config.templateParser match {
       case None => Seq()
       case Some(rootParser) =>
-        val docParser: Input => TemplateDocument = input => 
-          DocumentParser.forTemplate(rootParser, op.config.configHeaderParser)(ParserInput(input.path, input.asParserInput))
+        val docParser: TextInput => TemplateDocument = input => 
+          DocumentParser.forTemplate(rootParser, op.config.configHeaderParser)(InputExecutor.asParserInput(input))
         Seq(() => (docType, IO(input)(docParser)))
     }
 
-    def parseStyleSheet (format: String)(input: Input): Operation[StyleDeclarationSet] = () => {
-      val docF: Input => StyleDeclarationSet = input => 
-        documentParserFunction(op.config.styleSheetParser, StyleDeclarationSet.forPath)(ParserInput(input.path, input.asParserInput))
+    def parseStyleSheet (format: String)(input: TextInput): Operation[StyleDeclarationSet] = () => {
+      val docF: TextInput => StyleDeclarationSet = input => 
+        documentParserFunction(op.config.styleSheetParser, StyleDeclarationSet.forPath)(InputExecutor.asParserInput(input))
       (StyleSheet(format), IO(input)(docF))
     }
 
-    def parseTreeConfig (input: Input): Operation[TreeConfig] = () => (Config, TreeConfig(input.path, ConfigProvider.fromInput(input.asParserInput.input, input.path)))
+    def parseTreeConfig (input: TextInput): Operation[TreeConfig] = () => {
+      val pi = InputExecutor.asParserInput(input)
+      (Config, TreeConfig(input.path, ConfigProvider.fromInput(pi.context.input, pi.path)))
+    }
 
     def collectOperations[T] (provider: InputTree, f: InputTree => Seq[Operation[T]]): Seq[Operation[T]] =
       f(provider) ++ (provider.subtrees flatMap (collectOperations(_, f)))
@@ -131,8 +134,8 @@ object ParseExecutor {
         parser.fileSuffixes.map((_, docParser))
       }.toMap
 
-    def forInput (input: Input): Input => Document = { input =>
-      val pi = ParserInput(input.path, input.asParserInput)
+    def forInput (input: TextInput): TextInput => Document = { input =>
+      val pi = InputExecutor.asParserInput(input)
       if (parsers.size == 1) map.head._2(pi)
       else map.getOrElse(suffix(input.name),
         throw new IllegalArgumentException("Unable to determine parser based on input name: ${input.name}"))(pi)

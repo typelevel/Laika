@@ -22,7 +22,7 @@ import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.EPUB
 import laika.io
-import laika.io.Input
+import laika.io.ByteInput
 import laika.io.OutputTree.{ResultTree, StringResult}
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -35,7 +35,7 @@ class XHTMLRendererSpec extends FlatSpec with Matchers with ModelBuilder {
 
     def markupDoc (num: Int, path: Path = Root) = Document(path / ("doc"+num), root(p("Doc"+num)))
 
-    def staticDoc (num: Int, path: Path = Root) = StaticDocument(Input.fromString(s"p { margin: ${num}px; }", path / s"styles$num.css"))
+    def staticDoc (num: Int, path: Path = Root) = StaticDocument(ByteInput(s"p { margin: ${num}px; }", path / s"styles$num.css"))
   }
 
   trait StringRenderer {

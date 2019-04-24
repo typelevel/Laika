@@ -1,9 +1,9 @@
 package laika.execute
 
-import java.io.{BufferedReader, InputStreamReader, Reader}
+import java.io.{BufferedReader, FileInputStream, InputStreamReader, Reader}
 
 import laika.ast.Path
-import laika.io.IO
+import laika.io.{TextInput, IO, StringInput, TextFileInput}
 import laika.parse.ParserContext
 import laika.parse.markup.DocumentParser.ParserInput
 
@@ -29,6 +29,13 @@ object InputExecutor {
     }
 
     buffer.toString
+  }
+  
+  def asParserInput (input: TextInput): ParserInput = input match {
+    case StringInput(source, path) => ParserInput(path, ParserContext(source))
+    case TextFileInput(file, path, codec) => 
+      val source = IO(new BufferedReader(new InputStreamReader(new FileInputStream(file), codec.decoder)))(readAll)
+      ParserInput(path, ParserContext(source))
   }
   
   // TODO - 0.12 - temporary solution

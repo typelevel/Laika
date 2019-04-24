@@ -20,8 +20,7 @@ import laika.api.{Parse, Render}
 import laika.config.{BundleFilter, ParallelConfig}
 import laika.factory.{RenderFormat, RenderResultProcessor}
 import laika.format._
-import laika.io.Input.LazyFileInput
-import laika.io.{Input, InputTree}
+import laika.io.{BinaryFileInput, Input, InputTree, TextFileInput}
 import LaikaPlugin.autoImport._
 import sbt._
 import sbt.Keys._
@@ -236,7 +235,8 @@ object Tasks {
     */
   def collectInputFiles (tree: InputTree): Set[File] = {
     def allFiles (inputs: Seq[Input]) = (inputs collect {
-      case f: LazyFileInput => f.file
+      case f: TextFileInput => f.file
+      case f: BinaryFileInput => f.file
     }).toSet
 
     allFiles(tree.markupDocuments) ++

@@ -47,37 +47,37 @@ trait InputTree {
   /** All inputs for configuration files
    *  on this level of the input hierarchy.
    */
-  def configDocuments: Seq[Input]
+  def configDocuments: Seq[TextInput]
 
   /** All inputs for markup documents
    *  that need to be parsed
    *  on this level of the input hierarchy.
    */
-  def markupDocuments: Seq[Input]
+  def markupDocuments: Seq[TextInput]
 
   /** All inputs for dynamic files
    *  that need to be processed
    *  on this level of the input hierarchy.
    */
-  def dynamicDocuments: Seq[Input]
+  def dynamicDocuments: Seq[TextInput]
 
   /** All inputs for style sheets
    *  that need to be processed
    *  on this level of the input hierarchy,
    *  mapped to their format.
    */
-  def styleSheets: Map[String,Seq[Input]]
+  def styleSheets: Map[String,Seq[TextInput]]
 
   /** All inputs for static files
    *  that need to be copied
    *  from this level of the input hierarchy.
    */
-  def staticDocuments: Seq[Input]
+  def staticDocuments: Seq[BinaryInput]
 
   /** All inputs for template files
    *  on this level of the input hierarchy.
    */
-  def templates: Seq[Input]
+  def templates: Seq[TextInput]
 
   /** All subtrees of this provider.
    */
@@ -105,7 +105,8 @@ object InputTree {
 
     private def pathFor (f: File) = path / f.getName
 
-    private def toInput (pair: (DocumentType,File)) = Input.fromFile(pair._2, path)(codec)
+    private def toInput (pair: (DocumentType,File)) = TextFileInput(pair._2, path / pair._2.getName, codec)
+    private def toBinaryInput (pair: (DocumentType,File)) = BinaryFileInput(pair._2, path / pair._2.getName)
 
     private lazy val files = {
       def filesInDir (dir: File) = dir.listFiles filter (f => f.isFile && !exclude(f))
@@ -114,17 +115,17 @@ object InputTree {
 
     private def documents (docType: DocumentType) = files(docType).map(toInput)
 
-    lazy val configDocuments: Seq[Input] = documents(Config)
+    lazy val configDocuments: Seq[TextInput] = documents(Config)
 
-    lazy val markupDocuments: Seq[Input] = documents(Markup)
+    lazy val markupDocuments: Seq[TextInput] = documents(Markup)
 
-    lazy val dynamicDocuments: Seq[Input] = documents(Dynamic)
+    lazy val dynamicDocuments: Seq[TextInput] = documents(Dynamic)
 
-    lazy val styleSheets: Map[String, Seq[Input]] = files collect { case p@(StyleSheet(format), pairs) => (format, pairs map toInput) }
+    lazy val styleSheets: Map[String, Seq[TextInput]] = files collect { case p@(StyleSheet(format), pairs) => (format, pairs map toInput) }
 
-    lazy val staticDocuments: Seq[Input] = documents(Static)
+    lazy val staticDocuments: Seq[BinaryInput] = files(Static).map(toBinaryInput)
 
-    lazy val templates: Seq[Input] =  documents(Template)
+    lazy val templates: Seq[TextInput] =  documents(Template)
 
     lazy val sourcePaths: Seq[String] = dirs map (_.getAbsolutePath)
 

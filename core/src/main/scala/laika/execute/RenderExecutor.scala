@@ -20,7 +20,7 @@ import laika.api.Render
 import laika.api.Render.Done
 import laika.ast._
 import laika.io.OutputTree.DirectoryOutputTree
-import laika.io.{IO, Input, Output, OutputTree}
+import laika.io.{BinaryInput, IO, Output, OutputTree}
 import laika.rewrite.TemplateRewriter
 
 /**
@@ -71,7 +71,7 @@ object RenderExecutor {
       () => execute(Render.Op(op.format, op.config, content, output), Some(styles))
     }
 
-    def copy (outputTree: OutputTree)(input: Input): Operation = {
+    def copy (outputTree: OutputTree)(input: BinaryInput): Operation = {
       val output = outputTree.newOutput(input.path.name)
       () => IO.copy(input, output)
     }

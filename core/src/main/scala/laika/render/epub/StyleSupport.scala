@@ -16,9 +16,11 @@
 
 package laika.render.epub
 
+import java.nio.charset.Charset
+
 import laika.ast._
 import laika.directive.Templates
-import laika.io.Input
+import laika.io.{BinaryInput, ByteInput}
 import laika.parse.directive.TemplateParsers
 import laika.parse.markup.DocumentParser.ParserInput
 import laika.parse.text.TextParsers.unsafeParserFunction
@@ -29,12 +31,12 @@ import laika.parse.text.TextParsers.unsafeParserFunction
   */
 object StyleSupport {
 
-  private val fallbackStyles = StaticDocument(Input.fromString(StaticContent.fallbackStyles, Path.Root / "styles" / "fallback.css"))
+  private val fallbackStyles = StaticDocument(ByteInput(StaticContent.fallbackStyles.getBytes(Charset.forName("UTF-8")), Path.Root / "styles" / "fallback.css"))
 
   /** Collects all CSS inputs (recursively) in the provided document tree.
     * CSS inputs are recognized by file suffix).
     */
-  def collectStyles (tree: DocumentTree): Seq[Input] = {
+  def collectStyles (tree: DocumentTree): Seq[BinaryInput] = {
     val children = tree.content.collect { case subTree: DocumentTree => subTree }.flatMap(collectStyles)
     children ++ tree.additionalContent.collect { case StaticDocument(input) if input.path.suffix == "css" => input }
   }

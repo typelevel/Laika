@@ -16,8 +16,9 @@
 
 package laika.io
 
-import java.io.{File, InputStream, Reader}
+import java.io.File
 
+import laika.ast.Path
 import laika.config.OperationConfig
 import laika.io.InputTree._
 
@@ -41,7 +42,7 @@ trait InputOps {
   /**  Returns the result from parsing the specified string.
     *  Any kind of input is valid, including an empty string.
     */
-  def fromString (str: String): InputResult = fromInput(Input.fromString(str))
+  def fromString (str: String): InputResult = fromInput(StringInput(str))
 
   /** Returns the result from parsing the file with the specified name.
     *  Any kind of character input is valid, including empty files.
@@ -49,7 +50,7 @@ trait InputOps {
     *  @param name the name of the file to parse
     *  @param codec the character encoding of the file, if not specified the platform default will be used.
     */
-  def fromFile (name: String)(implicit codec: Codec): InputResult = fromInput(Input.fromFile(name)(codec))
+  def fromFile (name: String)(implicit codec: Codec): InputResult = fromFile(new File(name))
 
   /** Returns the result from parsing the specified file.
     *  Any kind of character input is valid, including empty files.
@@ -57,7 +58,7 @@ trait InputOps {
     *  @param file the file to use as input
     *  @param codec the character encoding of the file, if not specified the platform default will be used.
     */
-  def fromFile (file: File)(implicit codec: Codec): InputResult = fromInput(Input.fromFile(file)(codec))
+  def fromFile (file: File)(implicit codec: Codec): InputResult = fromInput(TextFileInput(file, Path(file.getName), codec))
 
   /** Returns the result from parsing the specified input.
     *
@@ -67,7 +68,7 @@ trait InputOps {
     *
     *  @param input the input for the parser
     */
-  def fromInput (input: Input): InputResult
+  def fromInput (input: TextInput): InputResult
 
 }
 
