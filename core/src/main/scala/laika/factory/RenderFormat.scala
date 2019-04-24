@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,24 @@
 
 package laika.factory
 
-import laika.ast.{Element, RenderFunction, StyleDeclarationSet, TemplateRoot}
+import laika.ast.{Element, Path, RenderFunction, StyleDeclarationSet, TemplateRoot}
 import laika.bundle.{RenderTheme, StaticDocuments}
 import laika.config.RenderConfig
-import laika.io.Output
+
+/**
+  * @param renderString the output to write rendered text to
+  * @param renderChild a render function to use for rendering the children of an element
+  * @param root the root element the new renderer will be used for
+  * @param styles the styles the new renderer should apply to the rendered elements
+  * @param path the (virtual) path the output will be rendered to              
+  * @param config additional configuration for the renderer
+  */
+case class RenderContext (renderString: String => Unit,
+                          renderChild: Element => Unit,
+                          root: Element, 
+                          styles: StyleDeclarationSet,
+                          path: Path,
+                          config: RenderConfig)
 
 /** Responsible for creating renderer instances for a specific output format.
  *  A renderer is simply a function of type `Element => Unit`. In addition
@@ -44,7 +58,7 @@ trait RenderFormat[W] {
   def defaultTheme: Theme
 
   /** Creates a new renderer and a new writer instance for the specified
-   *  output and delegate renderer. The delegate function needs to be used
+   *  context. The delegate function of the context needs to be used
    *  whenever an element renders its children, as the user might have
    *  installed custom renderer overrides this instance is not aware of.
    *  If no custom renderer is responsible for the children, the invocation
@@ -56,15 +70,10 @@ trait RenderFormat[W] {
    *  an instance of the generic `W` type which is the writer API to use
    *  for custom renderer functions and which is specific to the output format.
    *  
-   *  @param out the output to write to
-   *  @param root the root element the new renderer will be used for
-   *  @param delegate a render function to use for rendering the children of an element
-   *  @param styles the styles the new renderer should apply to the rendered elements
-   *  @param config additional configuration for the renderer
+   *  @param context the setup, environment, path and base renderers to use
    *  @return a new writer API of type `W` and a new render function
    */
-  def newRenderer (out: Output, root: Element, delegate: Element => Unit,
-                   styles: StyleDeclarationSet, config: RenderConfig): (W, Element => Unit)
+  def newRenderer (context: RenderContext): (W, Element => Unit)
 
 
   case class Theme (customRenderer: W => RenderFunction = {_: W => PartialFunction.empty},

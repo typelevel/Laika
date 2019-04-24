@@ -19,6 +19,7 @@ package laika.execute
 import laika.api.Render
 import laika.api.Render.Done
 import laika.ast._
+import laika.factory.RenderContext
 import laika.io.OutputTree.DirectoryOutputTree
 import laika.io.{BinaryInput, IO, Output, OutputTree}
 import laika.rewrite.TemplateRewriter
@@ -35,7 +36,7 @@ object RenderExecutor {
     val effectiveStyles = styles.getOrElse(theme.defaultStyles)
     
     class Renderer (out: Output) extends (Element => Unit) {
-      lazy val (writer, renderF) = op.format.newRenderer(out, op.element, this, effectiveStyles, op.config)
+      lazy val (writer, renderF) = op.format.newRenderer(RenderContext(out.asFunction, this, op.element, effectiveStyles, out.path, op.config))
 
       lazy val mainF: Element => Unit = theme.customRenderer(writer).applyOrElse(_, renderF)
 

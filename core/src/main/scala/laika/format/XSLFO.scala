@@ -17,11 +17,9 @@
 package laika.format
 
 import laika.ast.{Element, Path, StyleDeclarationSet, TemplateDocument}
-import laika.config.RenderConfig
 import laika.directive.StandardDirectives
 import laika.execute.InputExecutor
-import laika.factory.RenderFormat
-import laika.io.Output
+import laika.factory.{RenderContext, RenderFormat}
 import laika.parse.combinator.Parsers
 import laika.parse.css.CSSParsers
 import laika.parse.directive.TemplateParsers
@@ -50,11 +48,10 @@ object XSLFO extends RenderFormat[FOWriter] {
   
   val fileSuffix = "fo"
  
-  def newRenderer (output: Output, root: Element, render: Element => Unit,
-                   styles: StyleDeclarationSet, config: RenderConfig): (FOWriter, Element => Unit) = {
+  def newRenderer (context: RenderContext): (FOWriter, Element => Unit) = {
 
-    val writer = new FOWriter(output.asFunction, render, root, output.path, styles, formatted = config.renderFormatted)
-    val renderer = new FORenderer(writer, root, output.path, config.minMessageLevel)
+    val writer = new FOWriter(context.renderString, context.renderChild, context.root, context.path, context.styles, formatted = context.config.renderFormatted)
+    val renderer = new FORenderer(writer, context.root, context.path, context.config.minMessageLevel)
 
     (writer, renderer.render)
   }

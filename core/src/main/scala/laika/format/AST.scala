@@ -17,9 +17,7 @@
 package laika.format
 
 import laika.ast._
-import laika.config.RenderConfig
-import laika.factory.RenderFormat
-import laika.io.Output
+import laika.factory.{RenderContext, RenderFormat}
 import laika.render.{ASTRenderer, TextWriter}
 
 /** A renderer for AST output (a formatted Abstract Syntax Tree), primarily useful for debugging purposes.
@@ -37,10 +35,9 @@ object AST extends RenderFormat[TextWriter] {
 
   val fileSuffix = "txt"
   
-  def newRenderer (output: Output, root: Element, render: Element => Unit,
-                   styles: StyleDeclarationSet, config: RenderConfig): (TextWriter, Element => Unit) = {
+  def newRenderer (context: RenderContext): (TextWriter, Element => Unit) = {
 
-    val writer = new TextWriter(output asFunction, render, root, ". ")
+    val writer = new TextWriter(context.renderString, context.renderChild, context.root, ". ")
     val renderer = new ASTRenderer(writer)
 
     (writer, renderer.render)

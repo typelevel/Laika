@@ -18,7 +18,7 @@ package laika.config
 
 import laika.ast._
 import laika.bundle.{BundleProvider, ExtensionBundle, StaticDocuments}
-import laika.factory.RenderFormat
+import laika.factory.{RenderContext, RenderFormat}
 import laika.io.{ByteInput, Output}
 import laika.render.TextWriter
 import org.scalatest.{Matchers, WordSpec}
@@ -53,8 +53,7 @@ class ThemeConfigSpec extends WordSpec with Matchers {
       )
 
 
-      override def newRenderer(out: Output, root: Element, delegate: Element => Unit,
-                               styles: StyleDeclarationSet, config: RenderConfig): (TextWriter, Element => Unit) = ???
+      override def newRenderer(context: RenderContext): (TextWriter, Element => Unit) = ???
     }
 
     def defaultTemplate: Option[TemplateRoot] = None

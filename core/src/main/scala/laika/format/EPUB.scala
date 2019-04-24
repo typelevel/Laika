@@ -23,12 +23,11 @@ import java.util.{Locale, UUID}
 
 import laika.ast.Path.Root
 import laika.ast._
-import laika.config.RenderConfig
 import laika.execute.InputExecutor
-import laika.factory.{RenderFormat, RenderResultProcessor}
+import laika.factory.{RenderContext, RenderFormat, RenderResultProcessor}
 import laika.io.Output.BinaryOutput
 import laika.io.OutputTree.StringOutputTree
-import laika.io.{Output, OutputTree}
+import laika.io.OutputTree
 import laika.render.epub.StyleSupport.XHTMLTemplateParser
 import laika.render.epub.{ConfigFactory, ContainerWriter, HtmlRenderExtensions, StyleSupport}
 import laika.render.{HTMLRenderer, HTMLWriter}
@@ -61,11 +60,10 @@ object EPUB extends RenderResultProcessor[HTMLWriter] {
 
     val fileSuffix: String = "epub.xhtml"
 
-    def newRenderer (output: Output, root: Element, render: Element => Unit,
-                     styles: StyleDeclarationSet, config: RenderConfig): (HTMLWriter, Element => Unit) = {
+    def newRenderer (context: RenderContext): (HTMLWriter, Element => Unit) = {
 
-      val writer = new HTMLWriter(output.asFunction, render, root, formatted = config.renderFormatted)
-      val renderer = new HTMLRenderer(writer, config.minMessageLevel, "epub.xhtml")
+      val writer = new HTMLWriter(context.renderString, context.renderChild, context.root, formatted = context.config.renderFormatted)
+      val renderer = new HTMLRenderer(writer, context.config.minMessageLevel, "epub.xhtml")
 
       (writer, renderer.render)
     }

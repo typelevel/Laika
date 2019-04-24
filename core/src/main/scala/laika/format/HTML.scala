@@ -16,11 +16,9 @@
 
 package laika.format
 
-import laika.ast.{Element, Path, StyleDeclarationSet, TemplateDocument}
-import laika.config.RenderConfig
+import laika.ast.{Element, Path, TemplateDocument}
 import laika.execute.InputExecutor
-import laika.factory.RenderFormat
-import laika.io.Output
+import laika.factory.{RenderContext, RenderFormat}
 import laika.parse.directive.DefaultTemplateParser
 import laika.render.{HTMLRenderer, HTMLWriter}
 
@@ -38,11 +36,11 @@ object HTML extends RenderFormat[HTMLWriter] {
   
   val fileSuffix = "html"
  
-  def newRenderer (output: Output, root: Element, render: Element => Unit,
-                   styles: StyleDeclarationSet, config: RenderConfig): (HTMLWriter, Element => Unit) = {
+  def newRenderer (context: RenderContext): (HTMLWriter, Element => Unit) = {
 
-    val writer = new HTMLWriter(output.asFunction, render, root, formatted = config.renderFormatted)
-    val renderer = new HTMLRenderer(writer, config.minMessageLevel)
+    // TODO - 0.12 - introduce Writer constructors taking a RenderContext
+    val writer = new HTMLWriter(context.renderString, context.renderChild, context.root, formatted = context.config.renderFormatted)
+    val renderer = new HTMLRenderer(writer, context.config.minMessageLevel)
 
     (writer, renderer.render)
   }
