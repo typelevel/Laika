@@ -45,29 +45,29 @@ class PDFRendererSpec extends FlatSpec with Matchers {
   
   
   "The PDF Renderer" should "render a document to a file" in new TreeModel with FileSetup {
-    Render as PDF from doc(1) toFile file
+    Render.as(PDF).from(doc(1)).toFile(file).execute
     readFile.read should not be (-1)
   }
 
   it should "render a document to a file using a custom FopFactory" in new TreeModel with FileSetup {
-    Render as PDF.withFopFactory(PDF.defaultFopFactory) from doc(1) toFile file
+    Render.as(PDF.withFopFactory(PDF.defaultFopFactory)).from(doc(1)).toFile(file).execute
     readFile.read should not be (-1)
   }
   
   it should "render a document to an OutputStream" in new TreeModel {
     val stream = new ByteArrayOutputStream
-    Render as PDF from doc(1) toStream stream
+    Render.as(PDF).from(doc(1)).toStream(stream).execute
     stream.toByteArray should not be empty
   }
   
   it should "render a tree to a file" in new TreeModel with FileSetup {
-    Render as PDF from tree toFile file
+    Render.as(PDF).from(tree).toFile(file).execute
     readFile.read should not be (-1)
   }
   
   it should "render a tree to an OutputStream" in new TreeModel {
     val stream = new ByteArrayOutputStream
-    Render as PDF from tree toStream stream
+    Render.as(PDF).from(tree).toStream(stream).execute
     stream.toByteArray should not be empty
   }
   
