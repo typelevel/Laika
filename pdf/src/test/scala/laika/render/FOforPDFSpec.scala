@@ -16,15 +16,11 @@
 
 package laika.render
 
-import java.io.ByteArrayOutputStream
-
-import laika.api.Render
 import laika.ast.{DocumentTree, Path, TemplateRoot}
-import laika.execute.InputExecutor
+import laika.execute.{InputExecutor, OutputExecutor}
 import laika.factory.RenderResultProcessor
 import laika.format.{PDF, XSLFO}
-import laika.io.Output.BinaryOutput
-import laika.io.OutputTree
+import laika.io.{BinaryOutput, OutputTree}
 import org.scalatest.{FlatSpec, Matchers}
 
 class FOforPDFSpec extends FlatSpec with Matchers {
@@ -39,7 +35,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     def process (tree: DocumentTree, render: (DocumentTree, OutputTree) => Unit, defaultTemplate: TemplateRoot, output: BinaryOutput): Unit = {
     
       val fo = foForPDF.renderFO(tree, render, defaultTemplate)
-      val out = output.asStream
+      val out = OutputExecutor.asStream(output)
       out.write(fo.getBytes("UTF-8"))
       
     }

@@ -22,9 +22,8 @@ import java.nio.charset.Charset
 import laika.ast.Path.Root
 import laika.ast.{DocumentTree, Path, StaticDocument}
 import laika.format.EPUB
-import laika.io.Output.BinaryOutput
 import laika.io.OutputTree.ResultTree
-import laika.io.{BinaryFileInput, ByteInput, IO}
+import laika.io.{BinaryFileInput, BinaryOutput, ByteInput, IO}
 
 // TODO - 0.12 - replace with new model
 case class StreamInput (stream: InputStream, path: Path)

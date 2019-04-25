@@ -21,7 +21,7 @@ import laika.api.Render.Done
 import laika.ast._
 import laika.factory.RenderContext
 import laika.io.OutputTree.DirectoryOutputTree
-import laika.io.{BinaryInput, IO, Output, OutputTree}
+import laika.io.{BinaryInput, IO, OutputTree, TextOutput}
 import laika.rewrite.TemplateRewriter
 
 /**
@@ -35,8 +35,10 @@ object RenderExecutor {
     
     val effectiveStyles = styles.getOrElse(theme.defaultStyles)
     
-    class Renderer (out: Output) extends (Element => Unit) {
-      lazy val (writer, renderF) = op.format.newRenderer(RenderContext(out.asFunction, this, op.element, effectiveStyles, out.path, op.config))
+    class Renderer (out: TextOutput) extends (Element => Unit) {
+      val renderFunction = OutputExecutor.asRenderFunction(out)
+      
+      lazy val (writer, renderF) = op.format.newRenderer(RenderContext(renderFunction.render, this, op.element, effectiveStyles, out.path, op.config))
 
       lazy val mainF: Element => Unit = theme.customRenderer(writer).applyOrElse(_, renderF)
 
@@ -44,19 +46,20 @@ object RenderExecutor {
     }
 
     IO(op.output) { out =>
-      new Renderer(out).apply(op.element)
-      out.flush()
+      val r = new Renderer(out)
+      r.apply(op.element)
+      r.renderFunction.close()
     }
     
     Done
   }
 
-  def execute[Writer] (op: Render.BinaryOp[Writer]): Done = {
+  def execute[Writer] (op: Render.MergeOp[Writer]): Done = {
     val template = op.config.themeFor(op.processor.format).defaultTemplateOrFallback
     val renderOp: (DocumentTree, OutputTree) => Unit = (tree, out) => {
       execute(Render.TreeOp(op.processor.format, op.config, tree, out))
     }
-    op.processor.process(op.tree, renderOp, template, op.output.asBinaryOutput)
+    op.processor.process(op.tree, renderOp, template, op.output)
     
     Done
   }
@@ -68,7 +71,7 @@ object RenderExecutor {
     val theme = op.config.themeFor(op.format)
 
     def renderTree (outputTree: OutputTree, styles: StyleDeclarationSet, path: Path, content: RootElement): Operation = {
-      val output = outputTree.newOutput(path.basename +"."+ op.format.fileSuffix)
+      val output = outputTree.newTextOutput(path.basename +"."+ op.format.fileSuffix)
       () => execute(Render.Op(op.format, op.config, content, output), Some(styles))
     }
 

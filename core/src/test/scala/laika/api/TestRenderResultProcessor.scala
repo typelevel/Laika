@@ -17,10 +17,10 @@
 package laika.api
 
 import laika.ast.{Document, DocumentTree, TemplateRoot}
+import laika.execute.OutputExecutor
 import laika.factory.RenderResultProcessor
 import laika.format.AST
-import laika.io.Output.BinaryOutput
-import laika.io.OutputTree
+import laika.io.{BinaryOutput, OutputTree}
 import laika.io.OutputTree._
 import laika.render.TextWriter
 
@@ -47,7 +47,7 @@ object TestRenderResultProcessor extends RenderResultProcessor[TextWriter] {
     append(sb, strOutput.result, tree)
     val result = sb.toString
 
-    val out = output.asStream
+    val out = OutputExecutor.asStream(output)
     try {
       out.write(result.getBytes("UTF-8"))
     } finally {

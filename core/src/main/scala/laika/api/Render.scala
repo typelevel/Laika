@@ -20,8 +20,7 @@ import laika.ast._
 import laika.config.{OperationConfig, RenderConfigBuilder}
 import laika.execute.RenderExecutor
 import laika.factory.{RenderFormat, RenderResultProcessor}
-import laika.io.{BinaryOutputOps, Output, OutputTree, RenderOutputTreeOps, TextRenderOutputOps}
-import laika.io.Output.Binary
+import laika.io._
 
 /** API for performing a render operation to various types of output using an existing
  *  document tree model. 
@@ -114,7 +113,7 @@ object Render {
   sealed trait Done
   case object Done extends Done
   
-  case class Op[Writer] (format: RenderFormat[Writer], config: OperationConfig, element: Element, output: Output) {
+  case class Op[Writer] (format: RenderFormat[Writer], config: OperationConfig, element: Element, output: TextOutput) {
     def execute: Done = RenderExecutor.execute(this)
   }
 
@@ -122,7 +121,7 @@ object Render {
     def execute: Done = RenderExecutor.execute(this)
   }
 
-  case class BinaryOp[Writer] (processor: RenderResultProcessor[Writer], config: OperationConfig, tree: DocumentTree, output: Output with Binary) {
+  case class MergeOp[Writer] (processor: RenderResultProcessor[Writer], config: OperationConfig, tree: DocumentTree, output: BinaryOutput) {
     def execute: Done = RenderExecutor.execute(this)
   }
   
@@ -144,7 +143,7 @@ object Render {
       new RenderMappedOutput[Writer](format, newConfig)
 
     def from (element: Element): TextRenderOutputOps[Writer] = new TextRenderOutputOps[Writer] {
-      def toOutput (out: Output) = Op[Writer](format, cfg, element, out)
+      def toTextOutput (out: TextOutput) = Op[Writer](format, cfg, element, out)
     }
     
     def from (doc: Document): TextRenderOutputOps[Writer] = from(doc.content)
@@ -169,21 +168,21 @@ object Render {
   class RenderMergedOutput[Writer] (processor: RenderResultProcessor[Writer],
                                     cfg: OperationConfig) extends Render[Writer](processor.format, cfg) {
     
-    type DocOps = BinaryOutputOps[Writer]
-    type TreeOps = BinaryOutputOps[Writer]
+    type DocOps = BinaryRenderOutputOps[Writer]
+    type TreeOps = BinaryRenderOutputOps[Writer]
     type ThisType = RenderMergedOutput[Writer]
 
     def withConfig(newConfig: OperationConfig): ThisType =
       new RenderMergedOutput[Writer](processor, newConfig)
 
-    def from (element: Element): BinaryOutputOps[Writer] =
+    def from (element: Element): BinaryRenderOutputOps[Writer] =
       from(Document(Path.Root / "target", RootElement(Seq(TemplateRoot(Seq(TemplateElement(element)))))))
     
-    def from (doc: Document): BinaryOutputOps[Writer] =
+    def from (doc: Document): BinaryRenderOutputOps[Writer] =
       from(DocumentTree(Path.Root, Seq(doc)))
     
-    def from (tree: DocumentTree): BinaryOutputOps[Writer] = new BinaryOutputOps[Writer] {
-      def toBinaryOutput (out: Output with Binary): Result = BinaryOp[Writer](processor, cfg, tree, out)
+    def from (tree: DocumentTree): BinaryRenderOutputOps[Writer] = new BinaryRenderOutputOps[Writer] {
+      def toBinaryOutput (out: BinaryOutput): Result = MergeOp[Writer](processor, cfg, tree, out)
     }
     
   }

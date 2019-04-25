@@ -16,10 +16,9 @@
 
 package laika.io
 
-import java.io.{Closeable, File}
+import java.io.File
 
 import laika.ast.Path
-import laika.io.Output.Binary
 
 import scala.collection.mutable.ListBuffer
 import scala.io.Codec
@@ -49,6 +48,9 @@ trait OutputTree {
    *  on this level of the output hierarchy.
    */
   def newOutput (name: String): Output
+  
+  // TODO - 0.12 - probably temporary
+  def newTextOutput (name: String): TextOutput 
 
   /** Creates a new subtree of outputs with
    *  the specified name.
@@ -73,9 +75,14 @@ object OutputTree {
 
     val acceptsStaticFiles = true
 
-    def newOutput (name: String): Output with Binary with Closeable = {
+    def newOutput (name: String): Output = {
       val f = new File(directory, name)
-      Output.toFile(f, path)(codec)
+      BinaryFileOutput(f, path)
+    }
+
+    def newTextOutput (name: String): TextOutput = {
+      val f = new File(directory, name)
+      TextFileOutput(f, path, codec)
     }
 
     def newChild (name: String): OutputTree = {
@@ -142,10 +149,12 @@ object OutputTree {
     private val results = ListBuffer[ResultBuilder]()
     private val subtrees = ListBuffer[StringOutputTree]()
 
-    def newOutput (name: String): Output = {
+    def newOutput (name: String): Output = newTextOutput(name)
+
+    def newTextOutput (name: String): TextOutput = {
       val builder = new StringBuilder
       results += new ResultBuilder(path / name, builder)
-      Output.toBuilder(builder, path / name)
+      StringOutput(builder, path / name)
     }
 
     def newChild (name: String): OutputTree = {

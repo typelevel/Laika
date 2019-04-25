@@ -25,9 +25,8 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.execute.InputExecutor
 import laika.factory.{RenderContext, RenderFormat, RenderResultProcessor}
-import laika.io.Output.BinaryOutput
 import laika.io.OutputTree.StringOutputTree
-import laika.io.OutputTree
+import laika.io.{BinaryOutput, OutputTree}
 import laika.render.epub.StyleSupport.XHTMLTemplateParser
 import laika.render.epub.{ConfigFactory, ContainerWriter, HtmlRenderExtensions, StyleSupport}
 import laika.render.{HTMLRenderer, HTMLWriter}

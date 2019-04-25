@@ -18,8 +18,9 @@ package laika.ast.helper
 
 import java.io.{BufferedWriter, ByteArrayOutputStream, File, FileWriter}
 
+import laika.ast.Path.Root
 import laika.ast.{Element, ElementContainer, Path}
-import laika.io.{Output, OutputTree}
+import laika.io.{Output, OutputTree, StringOutput, TextOutput}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
@@ -51,10 +52,12 @@ object OutputBuilder {
       Subtrees(subtrees.toSeq map (_.toTree))
     ) filterNot { case c: ElementContainer[_,_] => c.content.isEmpty })
     
-    def newOutput (name: String): Output = {
+    def newOutput (name: String): Output = newTextOutput(name)
+
+    def newTextOutput (name: String): TextOutput = {
       val builder = new StringBuilder
       documents += ((path / name, builder))
-      Output.toBuilder(builder)
+      StringOutput(builder, Root)
     }
   
     def newChild (name: String): OutputTree = {

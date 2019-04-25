@@ -41,7 +41,7 @@ object TransformExecutor {
   def execute[Writer] (op: Transform.MergeOp[Writer]): Done = {
     val parseOp = Parse.TreeOp(op.parsers, op.config, op.input, rewrite = true)
     val tree = parseOp.execute
-    val renderOp = Render.BinaryOp(op.processor, op.config, tree, op.output)
+    val renderOp = Render.MergeOp(op.processor, op.config, tree, op.output)
     renderOp.execute
   }
   

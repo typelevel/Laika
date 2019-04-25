@@ -19,7 +19,8 @@ package laika.io
 import java.io.File
 
 import laika.api.{Render, Transform}
-import laika.io.Output.Binary
+import laika.ast.Path
+import laika.ast.Path.Root
 
 import scala.io.Codec
 
@@ -40,14 +41,20 @@ trait SingleOutputOps[Writer] extends OutputOps {
     *  @param name the name of the file to parse
     *  @param codec the character encoding of the file, if not specified the platform default will be used.
     */
-  def toFile (name: String)(implicit codec: Codec): Result = toBinaryOutput(Output.toFile(name)(codec))
+  def toFile (name: String)(implicit codec: Codec): Result = toFile(new File(name))
 
   /** Renders the model to the specified file.
     *
     *  @param file the file to write to
     *  @param codec the character encoding of the file, if not specified the platform default will be used.
     */
-  def toFile (file: File)(implicit codec: Codec): Result = toBinaryOutput(Output.toFile(file)(codec))
+  def toFile (file: File)(implicit codec: Codec): Result
+
+}
+
+trait BinaryOutputOps[Writer] extends SingleOutputOps[Writer] {
+
+  def toFile (file: File)(implicit codec: Codec): Result = toBinaryOutput(BinaryFileOutput(file, Path(file.getName)))
 
   /** Renders the model to the specified output.
     *
@@ -55,17 +62,17 @@ trait SingleOutputOps[Writer] extends OutputOps {
     *  methods delegate to. Usually not used directly in application code, but
     *  might come in handy for very special requirements.
     */
-  def toBinaryOutput (out: Output with Binary): Result
-
-}
-
-trait BinaryOutputOps[Writer] extends SingleOutputOps[Writer] {
-
-  type Result = Render.BinaryOp[Writer]
+  def toBinaryOutput (out: BinaryOutput): Result
   
 }
 
-trait BinaryTransformOutputOps[Writer] extends SingleOutputOps[Writer] {
+trait BinaryRenderOutputOps[Writer] extends BinaryOutputOps[Writer] {
+
+  type Result = Render.MergeOp[Writer]
+  
+}
+
+trait BinaryTransformOutputOps[Writer] extends BinaryOutputOps[Writer] {
 
   type Result = Transform.MergeOp[Writer]
 
@@ -79,9 +86,11 @@ trait TextOutputOps[Writer] extends SingleOutputOps[Writer] {
   
   type Result
 
+  def toFile (file: File)(implicit codec: Codec): Result = toTextOutput(TextFileOutput(file, Path(file.getName), codec))
+
   /** Renders the model to the specified `StringBuilder`.
     */
-  def toBuilder (builder: StringBuilder): Result = toOutput(Output.toBuilder(builder))
+  def toBuilder (builder: StringBuilder): Result = toTextOutput(StringOutput(builder, Root))
 
   /** Renders the model to the specified output.
     *
@@ -89,11 +98,7 @@ trait TextOutputOps[Writer] extends SingleOutputOps[Writer] {
     *  methods delegate to. Usually not used directly in application code, but
     *  might come in handy for very special requirements.
     */
-  def toOutput (out: Output): Result
-
-  /** Renders the model to the specified binary output.
-    */
-  def toBinaryOutput (out: Output with Binary): Result = toOutput(out)
+  def toTextOutput (out: TextOutput): Result
 
 }
 

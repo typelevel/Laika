@@ -22,7 +22,6 @@ import laika.ast._
 import laika.config.{OperationConfig, TransformConfigBuilder}
 import laika.execute.TransformExecutor
 import laika.factory.{MarkupParser, RenderFormat, RenderResultProcessor}
-import laika.io.Output.Binary
 import laika.io._
 
 /** API for performing a transformation operation from and to various types of input and output,
@@ -92,7 +91,7 @@ abstract class Transform [Writer] private[Transform] (parsers: Seq[MarkupParser]
  */
 object Transform {
 
-  case class Op[Writer] (parsers: Seq[MarkupParser], format: RenderFormat[Writer], config: OperationConfig, input: TextInput, output: Output) {
+  case class Op[Writer] (parsers: Seq[MarkupParser], format: RenderFormat[Writer], config: OperationConfig, input: TextInput, output: TextOutput) {
     def execute: Done = TransformExecutor.execute(this)
   }
 
@@ -100,7 +99,7 @@ object Transform {
     def execute: Done = TransformExecutor.execute(this)
   }
 
-  case class MergeOp[Writer] (parsers: Seq[MarkupParser], processor: RenderResultProcessor[Writer], config: OperationConfig, input: InputTree, output: Output with Binary) {
+  case class MergeOp[Writer] (parsers: Seq[MarkupParser], processor: RenderResultProcessor[Writer], config: OperationConfig, input: InputTree, output: BinaryOutput) {
     def execute: Done = TransformExecutor.execute(this)
   }
   
@@ -123,7 +122,7 @@ object Transform {
     def withConfig (newConfig: OperationConfig): ThisType = new TransformMappedOutput(parsers, format, newConfig)
 
     def fromInput (input: TextInput): InputResult = new TextTransformOutputOps[Writer] {
-      def toOutput (out: Output) = Op[Writer](parsers, format, config, input, out)
+      def toTextOutput (out: TextOutput) = Op[Writer](parsers, format, config, input, out)
     }
 
     def fromInputTree (inputTree: InputTree): InputTreeResult = new TransformOutputTreeOps[Writer] {
@@ -167,7 +166,7 @@ object Transform {
     }
 
     def fromInputTree (inputTree: InputTree): InputTreeResult = new BinaryTransformOutputOps[Writer] {
-      def toBinaryOutput (out: Output with Binary): Result = MergeOp[Writer](parsers, processor, config, inputTree, out)
+      def toBinaryOutput (out: BinaryOutput): Result = MergeOp[Writer](parsers, processor, config, inputTree, out)
     }
 
   }

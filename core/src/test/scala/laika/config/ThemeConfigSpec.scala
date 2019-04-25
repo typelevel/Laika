@@ -16,10 +16,12 @@
 
 package laika.config
 
+import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.{BundleProvider, ExtensionBundle, StaticDocuments}
+import laika.execute.OutputExecutor
 import laika.factory.{RenderContext, RenderFormat}
-import laika.io.{ByteInput, Output}
+import laika.io.{ByteInput, Output, StringOutput}
 import laika.render.TextWriter
 import org.scalatest.{Matchers, WordSpec}
 
@@ -71,8 +73,8 @@ class ThemeConfigSpec extends WordSpec with Matchers {
 
     trait RenderSetup extends BundleSetup {
       val sb = new StringBuilder
-      val out = Output.toBuilder(sb).asFunction
-      lazy val renderer = config.themeFor(TestFormat).customRenderer(new TextWriter(out, _ => (), RootElement(Nil)))
+      val out = OutputExecutor.asRenderFunction(StringOutput(sb, Root))
+      lazy val renderer = config.themeFor(TestFormat).customRenderer(new TextWriter(out.render, _ => (), RootElement(Nil)))
 
       def result: String = sb.toString
     }

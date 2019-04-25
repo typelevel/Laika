@@ -20,7 +20,7 @@ import java.io._
 import java.util.zip.{CRC32, ZipEntry, ZipOutputStream}
 
 import laika.ast.Path
-import laika.io.Output.{BinaryOutput, StringBuilderOutput}
+import laika.execute.OutputExecutor
 import laika.render.epub.{StaticContent, StreamInput}
 
 /** Collection of I/O utilities.
@@ -91,14 +91,14 @@ object IO {
     }
 
     if (!sameFile) (input, output) match {
-      case (in, out: Output.Binary) =>
+      case (in, out: BinaryOutput) =>
         val binaryIn = in match {
           case BinaryFileInput(file, _) => new BufferedInputStream(new FileInputStream(file)) // TODO - 0.12 - avoid duplication
           case ByteInput(bytes, _)      => new ByteArrayInputStream(bytes)
         }
-        val binaryOut = out.asBinaryOutput
-        apply(binaryIn) { in => apply(binaryOut) { out => copy(in, out.asStream) } }
-      case (in, StringBuilderOutput(builder, _)) =>
+        val binaryOut = OutputExecutor.asStream(out)
+        apply(binaryIn) { in => apply(binaryOut) { out => copy(in, out) } }
+      case (in, StringOutput(builder, _)) =>
         // TODO - 0.12 - temporary just to keep some more of the tests green during migration
         val binaryIn = in match {
           case BinaryFileInput(file, _) => new BufferedInputStream(new FileInputStream(file)) // TODO - 0.12 - avoid duplication
@@ -121,7 +121,7 @@ object IO {
     */
   def zipEPUB (inputs: Seq[StreamInput], output: BinaryOutput): Unit = { // TODO - 0.12 - StreamInput is a temporary model
 
-    val zip = new ZipOutputStream(output.asStream)
+    val zip = new ZipOutputStream(OutputExecutor.asStream(output))
 
     def writeEntry (input: StreamInput, prepareEntry: ZipEntry => Unit = _ => ()): Unit = {
 
