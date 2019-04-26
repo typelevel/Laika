@@ -16,11 +16,10 @@
 
 package laika.ast.helper
 
-import laika.ast.{DocumentType, Path}
+import laika.ast.{DocumentType, Path, TextDocumentType}
 import laika.ast.DocumentType._
-import laika.collection.TransitionalCollectionOps._
 import laika.io._
-import laika.io.InputTree.InputTreeBuilder
+import laika.io.TreeInput.InputTreeBuilder
 
 trait InputBuilder {
 
@@ -55,37 +54,31 @@ trait InputBuilder {
   def parseTreeStructure (source: String): InputTreeBuilder = parseTree(source.split("\n").toList)._1
   
   
-  case class TestInputTree(path: Path,
-                           configDocuments: Seq[TextInput],
-                           markupDocuments: Seq[TextInput],
-                           dynamicDocuments: Seq[TextInput],
-                           styleSheets: Map[String,Seq[TextInput]],
-                           staticDocuments: Seq[BinaryInput],
-                           templates: Seq[TextInput],
-                           subtrees: Seq[InputTree],
+  // TODO - 0.12 - simular type will soon be in Prod source
+  case class TestInputTree(textInputs: Seq[TextInput],
+                           binaryInputs: Seq[BinaryInput],
                            sourcePaths: Seq[String]
-  ) extends InputTree
+  ) extends TreeInput {
+    def ++ (other: TestInputTree): TestInputTree = copy(textInputs = textInputs ++ other.textInputs, binaryInputs = binaryInputs ++ other.binaryInputs)
+  }
   
   private[InputBuilder] class TestInputTreeBuilder(dirs: List[TestInputTreeBuilder], files: List[(String,String)], val path: Path) extends InputTreeBuilder {
     
-    def build (docTypeMatcher: Path => DocumentType): InputTree = {
+    def build (docTypeMatcher: Path => DocumentType): TestInputTree = {
     
-      def documents (docType: DocumentType): Seq[TextInput] = files collect {
-        case (name, content) if docTypeMatcher(path / name) == docType => StringInput(contents(content), path / name)
+      def text: Seq[TextInput] = files.map(f => (f._1, f._2, docTypeMatcher(path / f._1))) collect {
+        case (name, content, docType: TextDocumentType) => StringInput(contents(content), docType, path / name)
       }
 
       def static: Seq[BinaryInput] = files collect {
         case (name, content) if docTypeMatcher(path / name) == Static => ByteInput(contents(content), path / name)
       }
       
-      val styleSheets = files.map(f => (f._1, f._2, docTypeMatcher(path / f._1))).collect {
-        case (name, content, StyleSheet(format)) => (format, StringInput(contents(content), path / name))
-      }.groupBy(_._1).mapValuesStrict (_.map(_._2))
+      val subtrees = dirs map (_.build(docTypeMatcher)) filter (d => docTypeMatcher(path / d.path.name) != Ignored) reduceOption(_ ++ _)
       
-      val subtrees = dirs map (_.build(docTypeMatcher)) filter (d => docTypeMatcher(path / d.path.name) != Ignored)
+      val thisTree = TestInputTree(text, static, Nil)
       
-      TestInputTree(path, documents(Config), documents(Markup), documents(Dynamic), styleSheets, static, documents(Template), subtrees, Nil)
-      
+      subtrees.fold(thisTree)(thisTree ++ _)
     }
   }
   

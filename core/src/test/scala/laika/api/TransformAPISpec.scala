@@ -206,13 +206,6 @@ class TransformAPISpec extends FlatSpec
     }
   }
   
-  it should "transform a tree with a single subtree" in {
-    new TreeTransformer {
-      val dirs = """+ subtree"""
-      transformTree should be (root(List(trees((Root / "subtree", Nil)))))
-    }
-  }
-  
   it should "transform a tree with a dynamic document populated by a config file in the directory" in {
     new TreeTransformer {
       val dirs = """- main.dynamic.txt:dynDoc

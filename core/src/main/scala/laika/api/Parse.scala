@@ -16,11 +16,12 @@
 
 package laika.api
 
-import laika.ast.{Document, DocumentTree}
+import laika.ast.DocumentType.Markup
+import laika.ast.{Document, DocumentTree, TextDocumentType}
 import laika.config.{OperationConfig, ParseConfigBuilder}
 import laika.execute.ParseExecutor
 import laika.factory.MarkupParser
-import laika.io.{InputOps, InputTree, InputTreeOps, TextInput}
+import laika.io.{InputOps, InputTreeOps, TextInput, TreeInput}
 
 /** API for performing a parse operation from various types of input to obtain
  *  a document tree without a subsequent render operation. 
@@ -52,6 +53,8 @@ import laika.io.{InputOps, InputTree, InputTreeOps, TextInput}
 class Parse private (parsers: Seq[MarkupParser], val config: OperationConfig, rewrite: Boolean)
   extends ParseConfigBuilder with InputOps with InputTreeOps {
 
+  val docType: TextDocumentType = Markup
+  
   type ThisType = Parse
 
   type InputResult = Parse.Op
@@ -88,7 +91,7 @@ class Parse private (parsers: Seq[MarkupParser], val config: OperationConfig, re
 
   def fromInput (input: TextInput): Parse.Op = Parse.Op(parsers, config, input, rewrite)
   
-  def fromInputTree(inputTree: InputTree): Parse.TreeOp = Parse.TreeOp(parsers, config, inputTree, rewrite)
+  def fromInputTree(inputTree: TreeInput): Parse.TreeOp = Parse.TreeOp(parsers, config, inputTree, rewrite)
   
 }
 
@@ -102,7 +105,7 @@ object Parse {
     def execute: Document = ParseExecutor.execute(this)
   }
   
-  case class TreeOp (parsers: Seq[MarkupParser], config: OperationConfig, input: InputTree, rewrite: Boolean) {
+  case class TreeOp (parsers: Seq[MarkupParser], config: OperationConfig, input: TreeInput, rewrite: Boolean) {
     def execute: DocumentTree = ParseExecutor.execute(this)
   }
   

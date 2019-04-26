@@ -17,6 +17,7 @@
 package laika.api
 
 import laika.api.Render.Done
+import laika.ast.DocumentType.Markup
 import laika.ast.Path.Root
 import laika.ast._
 import laika.config.{OperationConfig, TransformConfigBuilder}
@@ -83,6 +84,8 @@ abstract class Transform [Writer] private[Transform] (parsers: Seq[MarkupParser]
   type InputResult <: OutputOps
   type InputTreeResult <: OutputOps
 
+  val docType: TextDocumentType = Markup
+
 }
 
 /** Serves as an entry point to the Transform API.
@@ -95,11 +98,11 @@ object Transform {
     def execute: Done = TransformExecutor.execute(this)
   }
 
-  case class TreeOp[Writer] (parsers: Seq[MarkupParser], format: RenderFormat[Writer], config: OperationConfig, input: InputTree, output: OutputTree) {
+  case class TreeOp[Writer] (parsers: Seq[MarkupParser], format: RenderFormat[Writer], config: OperationConfig, input: TreeInput, output: OutputTree) {
     def execute: Done = TransformExecutor.execute(this)
   }
 
-  case class MergeOp[Writer] (parsers: Seq[MarkupParser], processor: RenderResultProcessor[Writer], config: OperationConfig, input: InputTree, output: BinaryOutput) {
+  case class MergeOp[Writer] (parsers: Seq[MarkupParser], processor: RenderResultProcessor[Writer], config: OperationConfig, input: TreeInput, output: BinaryOutput) {
     def execute: Done = TransformExecutor.execute(this)
   }
   
@@ -125,7 +128,7 @@ object Transform {
       def toTextOutput (out: TextOutput) = Op[Writer](parsers, format, config, input, out)
     }
 
-    def fromInputTree (inputTree: InputTree): InputTreeResult = new TransformOutputTreeOps[Writer] {
+    def fromInputTree (inputTree: TreeInput): InputTreeResult = new TransformOutputTreeOps[Writer] {
       def toOutputTree (tree: OutputTree) = TreeOp[Writer](parsers, format, config, inputTree, tree)
     }
     
@@ -150,22 +153,17 @@ object Transform {
     def withConfig (newConfig: OperationConfig): ThisType = new TransformMergedOutput(parsers, processor, newConfig)
 
     def fromInput (input: TextInput): InputResult = {
-      // TODO - 0.12 - temporary workaround until IO gets redesigned
-      val inputTree = new InputTree {
+      // TODO - 0.12 - temporary
+      val inputTree = new TreeInput {
         override def path: Path = Root
-        override def configDocuments: Seq[TextInput] = Nil
-        override def markupDocuments: Seq[TextInput] = Seq(input)
-        override def dynamicDocuments: Seq[TextInput] = Nil
-        override def styleSheets: Map[String, Seq[TextInput]] = Map.empty
-        override def staticDocuments: Seq[BinaryInput] = Nil
-        override def templates: Seq[TextInput] = Nil
-        override def subtrees: Seq[InputTree] = Nil
+        override def textInputs: Seq[TextInput] = Seq(input)
+        override def binaryInputs: Seq[BinaryInput] = Nil
         override def sourcePaths: Seq[String] = Nil
       }
       fromInputTree(inputTree)
     }
 
-    def fromInputTree (inputTree: InputTree): InputTreeResult = new BinaryTransformOutputOps[Writer] {
+    def fromInputTree (inputTree: TreeInput): InputTreeResult = new BinaryTransformOutputOps[Writer] {
       def toBinaryOutput (out: BinaryOutput): Result = MergeOp[Writer](parsers, processor, config, inputTree, out)
     }
 

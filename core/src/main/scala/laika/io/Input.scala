@@ -18,7 +18,7 @@ package laika.io
  
 import java.io._
 
-import laika.ast.Path
+import laika.ast.{Path, TextDocumentType}
 import laika.ast.Path.Root
 
 import scala.io.Codec
@@ -40,7 +40,7 @@ sealed trait Input {
   /** The local name of this input.
    */
   lazy val name: String = path.name
-  
+
 }
 
 /** A marker trait for binary input.
@@ -49,12 +49,18 @@ sealed trait BinaryInput extends Input
 
 /** A marker trait for textual input.
   */
-sealed trait TextInput extends Input
+sealed trait TextInput extends Input {
+
+  /** The type of the document.
+    */
+  def docType: TextDocumentType
+  
+}
 
 
-case class StringInput (source: String, path: Path = Root) extends TextInput
+case class StringInput (source: String, docType: TextDocumentType, path: Path = Root) extends TextInput
 
-case class TextFileInput (file: File, path: Path, codec: Codec) extends TextInput
+case class TextFileInput (file: File, docType: TextDocumentType, path: Path, codec: Codec) extends TextInput
 
 case class BinaryFileInput (file: File, path: Path) extends BinaryInput
 

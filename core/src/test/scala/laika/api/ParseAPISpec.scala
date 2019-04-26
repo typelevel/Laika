@@ -173,15 +173,6 @@ class ParseAPISpec extends FlatSpec
     }
   }
   
-  it should "allow parsing a tree with a single subtree" in {
-    new TreeParser {
-      val dirs = """+ subtree"""
-      val subtree = TreeView(Root / "subtree", Nil)
-      val treeResult = TreeView(Root, List(Subtrees(List(subtree))))
-      parsedTree should be (treeResult)
-    }
-  }
-  
   it should "allow parsing a tree with multiple subtrees" in {
     new TreeParser {
       val dirs = """- doc1.md:name

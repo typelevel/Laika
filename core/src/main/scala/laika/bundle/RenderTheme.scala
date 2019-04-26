@@ -19,7 +19,8 @@ package laika.bundle
 import laika.ast._
 import laika.collection.TransitionalCollectionOps._
 import laika.config.OperationConfig
-import laika.io.{InputTree, InputTreeOps}
+import laika.execute.ParseExecutor.TreeBuilder
+import laika.io.{InputTreeOps, TreeInput}
 
 /** Collects templates, styles and custom render functions to form
   * a theme for a specific output format.
@@ -121,13 +122,11 @@ object StaticDocuments extends InputTreeOps {
     override def docTypeMatcher: PartialFunction[Path, DocumentType] = { case _ => DocumentType.Static }
   }))
 
-  override def fromInputTree (inputTree: InputTree): StaticDocuments = {
-    def collectDocuments (currentTree: InputTree): DocumentTree = {
-      val trees = currentTree.subtrees map collectDocuments
-      val static = currentTree.staticDocuments map StaticDocument
-      DocumentTree(currentTree.path, trees, additionalContent = static, sourcePaths = currentTree.sourcePaths)
-    }
-    StaticDocuments(collectDocuments(inputTree))
+  override def fromInputTree (inputTree: TreeInput): StaticDocuments = {
+    val static = inputTree.binaryInputs map StaticDocument
+    def buildTree (path: Path, content: Seq[StaticDocument], subTrees: Seq[DocumentTree]): DocumentTree =
+      DocumentTree(path, subTrees, additionalContent = content, sourcePaths = inputTree.sourcePaths)
+    StaticDocuments(TreeBuilder.build(static, buildTree))
   }
 
 }

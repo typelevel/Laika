@@ -20,7 +20,7 @@ import laika.api.{Parse, Render}
 import laika.config.{BundleFilter, ParallelConfig}
 import laika.factory.{RenderFormat, RenderResultProcessor}
 import laika.format._
-import laika.io.{BinaryFileInput, Input, InputTree, TextFileInput}
+import laika.io.{BinaryFileInput, Input, TreeInput, TextFileInput}
 import LaikaPlugin.autoImport._
 import sbt._
 import sbt.Keys._
@@ -62,7 +62,7 @@ object Tasks {
       parser.withConfig(mergedConfig).using(laikaExtensions.value: _*)
     }
 
-    val inputs = InputTree.forRootDirectories((sourceDirectories in Laika).value, parser.config.docTypeMatcher,
+    val inputs = TreeInput.forRootDirectories((sourceDirectories in Laika).value, parser.config.docTypeMatcher,
       (excludeFilter in Laika).value.accept)(laikaConfig.value.encoding)
 
     lazy val tree = {
@@ -233,18 +233,14 @@ object Tasks {
   /** Recursively collects all input files from the specified
     * input tree. Ignores any virtual files in the input trees.
     */
-  def collectInputFiles (tree: InputTree): Set[File] = {
+  def collectInputFiles (tree: TreeInput): Set[File] = {
+    
     def allFiles (inputs: Seq[Input]) = (inputs collect {
       case f: TextFileInput => f.file
       case f: BinaryFileInput => f.file
     }).toSet
 
-    allFiles(tree.markupDocuments) ++
-      allFiles(tree.dynamicDocuments) ++
-      allFiles(tree.templates) ++
-      allFiles(tree.configDocuments) ++
-      allFiles(tree.staticDocuments) ++
-      (tree.subtrees flatMap collectInputFiles)
+    allFiles(tree.textInputs) ++ allFiles(tree.binaryInputs)
   }
 
   /** Collects all parent directories of the specified file or directory.

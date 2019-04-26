@@ -51,8 +51,8 @@ object InputExecutor {
   }
   
   def asParserInput (input: TextInput): ParserInput = input match {
-    case StringInput(source, path) => ParserInput(path, ParserContext(source))
-    case TextFileInput(file, path, codec) => 
+    case StringInput(source, _, path) => ParserInput(path, ParserContext(source))
+    case TextFileInput(file, _, path, codec) => 
       val source = IO(new BufferedReader(new InputStreamReader(new FileInputStream(file), codec.decoder)))(readAll)
       ParserInput(path, ParserContext(source))
   }

@@ -18,7 +18,8 @@ package laika.io
 
 import java.io.File
 
-import laika.ast.{DocumentType, Path}
+import laika.ast.Path.Root
+import laika.ast.{DocumentType, Path, TextDocumentType}
 
 import scala.io.Codec
 
@@ -29,9 +30,10 @@ import scala.io.Codec
  * 
  *  @author Jens Halm
  */
-trait InputTree {
+trait TreeInput {
 
-
+  // TODO - move and extend Input
+  
   /** The local name of the tree represented by this tree.
    */
   lazy val name: String = path.name
@@ -42,47 +44,16 @@ trait InputTree {
    *  therefore does not represent the filesystem
    *  path in case of file I/O.
    */
-  def path: Path
+  def path: Path = Root
 
-  /** All inputs for configuration files
-   *  on this level of the input hierarchy.
+  /** All textual inputs (recursively) .
    */
-  def configDocuments: Seq[TextInput]
+  def textInputs: Seq[TextInput]
 
-  /** All inputs for markup documents
-   *  that need to be parsed
-   *  on this level of the input hierarchy.
-   */
-  def markupDocuments: Seq[TextInput]
-
-  /** All inputs for dynamic files
-   *  that need to be processed
-   *  on this level of the input hierarchy.
-   */
-  def dynamicDocuments: Seq[TextInput]
-
-  /** All inputs for style sheets
-   *  that need to be processed
-   *  on this level of the input hierarchy,
-   *  mapped to their format.
-   */
-  def styleSheets: Map[String,Seq[TextInput]]
-
-  /** All inputs for static files
-   *  that need to be copied
-   *  from this level of the input hierarchy.
-   */
-  def staticDocuments: Seq[BinaryInput]
-
-  /** All inputs for template files
-   *  on this level of the input hierarchy.
-   */
-  def templates: Seq[TextInput]
-
-  /** All subtrees of this provider.
-   */
-  def subtrees: Seq[InputTree]
-
+  /** All binary inputs (recursively) .
+    */
+  def binaryInputs: Seq[BinaryInput]
+  
   /** The paths this tree has been created from
    *  or an empty list if this input tree does
    *  not originate from the file system.
@@ -94,46 +65,42 @@ trait InputTree {
 
 /** Factory methods for creating `InputTree` instances.
  */
-object InputTree {
+object TreeInput {
 
   type FileFilter = File => Boolean
 
+  case class Directory (path: Path, file: File)
 
-  private class DirectoryInputTree(dirs: Seq[File], val path: Path, exclude: FileFilter, docTypeMatcher: Path => DocumentType, codec: Codec) extends InputTree {
+  private class DirectoryInputTree(rootDirs: Seq[File], exclude: FileFilter, docTypeMatcher: Path => DocumentType, codec: Codec) extends TreeInput {
 
     import DocumentType._
-
-    private def pathFor (f: File) = path / f.getName
-
-    private def toInput (pair: (DocumentType,File)) = TextFileInput(pair._2, path / pair._2.getName, codec)
-    private def toBinaryInput (pair: (DocumentType,File)) = BinaryFileInput(pair._2, path / pair._2.getName)
-
-    private lazy val files = {
-      def filesInDir (dir: File) = dir.listFiles filter (f => f.isFile && !exclude(f))
-      dirs flatMap filesInDir map (f => (docTypeMatcher(pathFor(f)), f)) groupBy (_._1) withDefaultValue Nil
+    
+    private lazy val allDirs: Seq[Directory] = {
+      
+      def collectSubDirectories (dir: Directory): Seq[Directory] = {
+        val subDirs = dir.file.listFiles filter (f => f.isDirectory && !exclude(f) && docTypeMatcher(dir.path / f.getName) != Ignored) map (d => Directory(dir.path / d.getName, d))
+        dir +: subDirs.flatMap(collectSubDirectories)
+      }
+      
+      rootDirs.map(d => Directory(Root, d)).flatMap(collectSubDirectories)
     }
 
-    private def documents (docType: DocumentType) = files(docType).map(toInput)
-
-    lazy val configDocuments: Seq[TextInput] = documents(Config)
-
-    lazy val markupDocuments: Seq[TextInput] = documents(Markup)
-
-    lazy val dynamicDocuments: Seq[TextInput] = documents(Dynamic)
-
-    lazy val styleSheets: Map[String, Seq[TextInput]] = files collect { case p@(StyleSheet(format), pairs) => (format, pairs map toInput) }
-
-    lazy val staticDocuments: Seq[BinaryInput] = files(Static).map(toBinaryInput)
-
-    lazy val templates: Seq[TextInput] =  documents(Template)
-
-    lazy val sourcePaths: Seq[String] = dirs map (_.getAbsolutePath)
-
-    lazy val subtrees: Seq[InputTree] = {
-      def subDirs (dir: File) = dir.listFiles filter (f => f.isDirectory && !exclude(f) && docTypeMatcher(pathFor(f)) != Ignored)
-      val byName = (dirs flatMap subDirs groupBy (_.getName)).values
-      byName map (subs => new DirectoryInputTree(subs, path / subs.head.getName, exclude, docTypeMatcher, codec)) toList
+    private lazy val allFiles: Seq[(DocumentType, Path, File)] = {
+      def filesInDir (dir: Directory): Array[(DocumentType, Path, File)] = dir.file.listFiles collect {
+        case file if file.isFile && !exclude(file) => (docTypeMatcher(dir.path / file.getName), dir.path / file.getName, file)
+      }
+      allDirs.flatMap(filesInDir)
     }
+    
+    lazy val textInputs: Seq[TextInput] = allFiles.collect {
+      case (docType: TextDocumentType, filePath, file) => TextFileInput(file, docType, filePath, codec)
+    }
+    
+    lazy val binaryInputs: Seq[BinaryInput] = allFiles.collect {
+      case (Static, filePath, file) => BinaryFileInput(file, filePath)
+    }
+
+    lazy val sourcePaths: Seq[String] = rootDirs map (_.getAbsolutePath)
 
   }
 
@@ -144,7 +111,7 @@ object InputTree {
     *  @param exclude the files to exclude from processing
     *  @param codec the character encoding of the files, if not specified the platform default will be used
     */
-  def forWorkingDirectory (docTypeMatcher: Path => DocumentType, exclude: FileFilter)(implicit codec: Codec): InputTree =
+  def forWorkingDirectory (docTypeMatcher: Path => DocumentType, exclude: FileFilter)(implicit codec: Codec): TreeInput =
     forRootDirectories(Seq(new File(System.getProperty("user.dir"))), docTypeMatcher, exclude)
 
   /** Creates an instance based on the specified directories, including
@@ -157,21 +124,21 @@ object InputTree {
    *  @param exclude the files to exclude from processing
    *  @param codec the character encoding of the files, if not specified the platform default will be used
    */
-  def forRootDirectories (roots: Seq[File], docTypeMatcher: Path => DocumentType, exclude: FileFilter)(implicit codec: Codec): InputTree = {
+  def forRootDirectories (roots: Seq[File], docTypeMatcher: Path => DocumentType, exclude: FileFilter)(implicit codec: Codec): TreeInput = {
     require(roots.nonEmpty, "The specified roots sequence must contain at least one directory")
     for (root <- roots) {
       require(root.exists, s"Directory ${root.getAbsolutePath} does not exist")
       require(root.isDirectory, s"File ${root.getAbsolutePath} is not a directory")
     }
 
-    new DirectoryInputTree(roots, Path.Root, exclude, docTypeMatcher, codec)
+    new DirectoryInputTree(roots, exclude, docTypeMatcher, codec)
   }
 
   /** Responsible for building new InputTrees based
    *  on the specified document type matcher and codec.
    */
   trait InputTreeBuilder {
-    def build (docTypeMatcher: Path => DocumentType): InputTree
+    def build (docTypeMatcher: Path => DocumentType): TreeInput
   }
   
   /** A filter that selects files that are hidden according to `java.io.File.isHidden`.

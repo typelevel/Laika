@@ -18,11 +18,12 @@ package laika.execute
 
 import com.typesafe.config.{ConfigFactory, Config => TConfig}
 import laika.api.Parse
+import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.ConfigProvider
 import laika.config.OperationConfig
 import laika.factory.MarkupParser
-import laika.io.{TextInput, IO, InputTree}
+import laika.io.{IO, TextInput}
 import laika.parse.combinator.Parsers.documentParserFunction
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.ParserInput
@@ -39,86 +40,108 @@ object ParseExecutor {
     if (op.rewrite) doc.rewrite(op.config.rewriteRulesFor(doc))
     else doc
   }
+  
+  private object interimModel {
+    sealed trait ParserResult extends Navigatable
+    sealed trait NavigatableResult extends ParserResult {
+      def doc: Navigatable
+      def path: Path = doc.path
+    }
+    case class MarkupResult (doc: Document) extends NavigatableResult
+    case class DynamicResult (doc: TemplateDocument) extends NavigatableResult
+    case class TemplateResult (doc: TemplateDocument) extends NavigatableResult
+    case class StyleResult (doc: StyleDeclarationSet, format: String) extends ParserResult {
+      val path: Path = doc.paths.head
+    }
+    case class ConfigResult (path: Path, config: TConfig) extends ParserResult
+  }
 
   def execute (op: Parse.TreeOp): DocumentTree = {
     
     import DocumentType._
-    import laika.collection.TransitionalCollectionOps._
+    import interimModel._
 
-    case class TreeConfig (path: Path, config: TConfig)
+    type Operation = () => ParserResult
 
-    type Operation[T] = () => (DocumentType, T)
+    def parseMarkup (input: TextInput): Operation = () => MarkupResult(IO(input)(ParserLookup(op.parsers, op.config).forInput(input)))
 
-    def parseMarkup (input: TextInput): Operation[Document] = () => (Markup, IO(input)(ParserLookup(op.parsers, op.config).forInput(input)))
-
-    def parseTemplate (docType: DocumentType)(input: TextInput): Seq[Operation[TemplateDocument]] = op.config.templateParser match {
+    def parseTemplate (docType: DocumentType)(input: TextInput): Seq[Operation] = op.config.templateParser match {
       case None => Seq()
       case Some(rootParser) =>
         val docParser: TextInput => TemplateDocument = input => 
           DocumentParser.forTemplate(rootParser, op.config.configHeaderParser)(InputExecutor.asParserInput(input))
-        Seq(() => (docType, IO(input)(docParser)))
+        val constr = if (docType == Template) TemplateResult else DynamicResult
+        Seq(() => constr(IO(input)(docParser)))
     }
 
-    def parseStyleSheet (format: String)(input: TextInput): Operation[StyleDeclarationSet] = () => {
+    def parseStyleSheet (format: String)(input: TextInput): Operation = () => {
       val docF: TextInput => StyleDeclarationSet = input => 
         documentParserFunction(op.config.styleSheetParser, StyleDeclarationSet.forPath)(InputExecutor.asParserInput(input))
-      (StyleSheet(format), IO(input)(docF))
+      StyleResult(IO(input)(docF), format)
     }
 
-    def parseTreeConfig (input: TextInput): Operation[TreeConfig] = () => {
+    def parseTreeConfig (input: TextInput): Operation = () => {
       val pi = InputExecutor.asParserInput(input)
-      (Config, TreeConfig(input.path, ConfigProvider.fromInput(pi.context.input, pi.path)))
+      ConfigResult(input.path, ConfigProvider.fromInput(pi.context.input, pi.path))
     }
 
-    def collectOperations[T] (provider: InputTree, f: InputTree => Seq[Operation[T]]): Seq[Operation[T]] =
-      f(provider) ++ (provider.subtrees flatMap (collectOperations(_, f)))
+    val textOps = op.input.textInputs.flatMap { in => in.docType match {
+      case Markup             => Seq(parseMarkup(in))
+      case Template           => parseTemplate(Template)(in)
+      case Dynamic            => parseTemplate(Dynamic)(in)
+      case StyleSheet(format) => Seq(parseStyleSheet(format)(in))
+      case Config             => Seq(parseTreeConfig(in))
+    }}
+    
+    val results = BatchExecutor.execute(textOps, op.config.parallelConfig.parallelism, op.config.parallelConfig.threshold)
 
-    val operations = collectOperations(op.input, _.markupDocuments.map(parseMarkup)) ++
-      collectOperations(op.input, _.templates.flatMap(parseTemplate(Template))) ++
-      collectOperations(op.input, _.dynamicDocuments.flatMap(parseTemplate(Dynamic))) ++
-      collectOperations(op.input, _.styleSheets.flatMap({ case (format,inputs) => inputs map parseStyleSheet(format) }).toSeq) ++
-      collectOperations(op.input, _.configDocuments.find(_.path.name == "directory.conf").toList.map(parseTreeConfig))
+    def buildNode (path: Path, content: Seq[ParserResult], subTrees: Seq[DocumentTree]): DocumentTree = {
+      val treeContent = content.collect { case MarkupResult(doc) => doc } ++ subTrees
+      val templates = content.collect { case TemplateResult(doc) => doc }
+      val dynamic = content.collect { case DynamicResult(doc) => doc }
+      val styles = content.collect { case StyleResult(styleSet, format) => (format, styleSet) }.toMap.withDefaultValue(StyleDeclarationSet.empty)
+      val static = op.input.binaryInputs.map(StaticDocument)
 
-    val results = BatchExecutor.execute(operations, op.config.parallelConfig.parallelism, op.config.parallelConfig.threshold)
-
-    val docMap = (results collect {
-      case (Markup, doc: Document) => (doc.path, doc)
-    }) toMap
-
-    val templateMap = (results collect {
-      case (docType, doc: TemplateDocument) => ((docType, doc.path), doc)
-    }) toMap
-
-    val styleMap = (results collect {
-      case (StyleSheet(_), style: StyleDeclarationSet) => (style.paths.head, style)
-    }) toMap
-
-    val treeConfigMap = (results collect {
-      case (Config, config: TreeConfig) => (config.path, config.config)
-    }) toMap
-
-    def collectDocuments (provider: InputTree, root: Boolean = false): DocumentTree = {
-      val docs = provider.markupDocuments map (i => docMap(i.path))
-      val trees = provider.subtrees map (collectDocuments(_))
-
-      val templates = provider.templates map (i => templateMap((Template,i.path)))
-      val styles = (provider.styleSheets mapValuesStrict (_.map(i => styleMap(i.path)).reduce(_++_))) withDefaultValue StyleDeclarationSet.empty
-
-      val dynamic = provider.dynamicDocuments map (i => templateMap((Dynamic,i.path)))
-      val static = provider.staticDocuments map StaticDocument
-      val additionalContent: Seq[AdditionalContent] = dynamic ++ static
-
-      val treeConfig = provider.configDocuments.find(_.path.name == "directory.conf").map(i => treeConfigMap(i.path))
-      val rootConfig = if (root) Seq(op.config.baseConfig) else Nil
+      val treeConfig = content.collect { case ConfigResult(_, config) => config }
+      val rootConfig = if (path == Root) Seq(op.config.baseConfig) else Nil
       val fullConfig = (treeConfig.toList ++ rootConfig) reduceLeftOption (_ withFallback _) getOrElse ConfigFactory.empty
 
-      DocumentTree(provider.path, docs ++ trees, templates, styles, additionalContent, fullConfig, sourcePaths = provider.sourcePaths)
+      DocumentTree(path, treeContent, templates, styles, dynamic ++ static, fullConfig, sourcePaths = op.input.sourcePaths)
     }
-
-    val tree = collectDocuments(op.input, root = true)
+    
+    val tree = TreeBuilder.build(results, buildNode)
 
     if (op.rewrite) tree.rewrite(op.config.rewriteRules)
     else tree
+  }
+
+  /** Generically builds a tree structure out of a flat sequence of elements with a `Path` property that 
+    * signifies the position in the tree. Essentially factors recursion out of the tree building process.
+    */
+  object TreeBuilder {
+    
+    def build[C <: Navigatable, T <: Navigatable] (content: Seq[C], buildNode: (Path, Seq[C], Seq[T]) => T): T = {
+      
+      def buildNodes (depth: Int, contentByParent: Map[Path, Seq[C]], nodesByParent: Map[Path, Seq[T]]): Seq[T] = {
+        
+        val newNodes = contentByParent.filter(_._1.depth == depth).map {
+          case (path, nodeContent) => buildNode(path, nodeContent, nodesByParent.getOrElse(path, Nil))
+        }.toSeq.groupBy(_.path.parent)
+        
+        val newContent = newNodes.keys.filterNot(p => contentByParent.contains(p)).map((_, Seq.empty[C])).toMap
+        
+        if (depth == 0) newNodes.values.flatten.toSeq
+        else buildNodes(depth - 1, contentByParent ++ newContent, newNodes)
+      }
+
+      if (content.isEmpty) buildNode(Root, Nil, Nil)
+      else {
+        val contentByParent: Map[Path, Seq[C]] = content.groupBy(_.path.parent)
+        val maxPathLength = contentByParent.map(_._1.depth).max
+        buildNodes(maxPathLength, contentByParent, Map.empty).head
+      }
+    }
+    
   }
 
   private case class ParserLookup (parsers: Seq[MarkupParser], config: OperationConfig) {
