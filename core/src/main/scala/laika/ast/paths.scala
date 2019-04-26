@@ -42,6 +42,10 @@ sealed abstract class Path {
    */
   def components: List[String]
 
+  /** The depth of this path from the virtual root.
+    */
+  def depth: Int = components.size
+
   def isAbsolute: Boolean = prefix == Root
 
   /** Creates a new path with the specified name
