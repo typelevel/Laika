@@ -367,6 +367,10 @@ trait TreeStructure { this: TreeContent =>
   */
 sealed abstract class DocumentType
 
+/** Base type for all document type descriptors for text input.
+  */
+sealed abstract class TextDocumentType extends DocumentType
+
 /** Provides all available DocumentTypes.
   */
 object DocumentType {
@@ -374,27 +378,27 @@ object DocumentType {
   /** A configuration document in the syntax
     *  supported by the Typesafe Config library.
     */
-  case object Config extends DocumentType
+  case object Config extends TextDocumentType
 
   /** A text markup document produced by a parser.
     */
-  case object Markup extends DocumentType
+  case object Markup extends TextDocumentType
 
   /** A template document that might get applied
     *  to a document when it gets rendered.
     */
-  case object Template extends DocumentType
+  case object Template extends TextDocumentType
 
   /** A dynamic document that might contain
     *  custom directives that need to get
     *  processed before rendering.
     */
-  case object Dynamic extends DocumentType
+  case object Dynamic extends TextDocumentType
 
   /** A style sheet that needs to get passed
     *  to a renderer.
     */
-  case class StyleSheet (format: String) extends DocumentType
+  case class StyleSheet (format: String) extends TextDocumentType
 
   /** A static file that needs to get copied
     *  over to the output target.
