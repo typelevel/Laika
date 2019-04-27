@@ -18,9 +18,6 @@ package laika.bundle
 
 import laika.ast._
 import laika.collection.TransitionalCollectionOps._
-import laika.config.OperationConfig
-import laika.execute.ParseExecutor.TreeBuilder
-import laika.io.{InputTreeOps, TreeInput}
 
 /** Collects templates, styles and custom render functions to form
   * a theme for a specific output format.

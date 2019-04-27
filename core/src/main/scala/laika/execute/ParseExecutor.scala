@@ -123,36 +123,6 @@ object ParseExecutor {
     else tree
   }
 
-  /** Generically builds a tree structure out of a flat sequence of elements with a `Path` property that 
-    * signifies the position in the tree. Essentially factors recursion out of the tree building process.
-    */
-  object TreeBuilder {
-    
-    // TODO - 0.12 - move to ast.documents
-    def build[C <: Navigatable, T <: Navigatable] (content: Seq[C], buildNode: (Path, Seq[C], Seq[T]) => T): T = {
-      
-      def buildNodes (depth: Int, contentByParent: Map[Path, Seq[C]], nodesByParent: Map[Path, Seq[T]]): Seq[T] = {
-        
-        val newNodes = contentByParent.filter(_._1.depth == depth).map {
-          case (path, nodeContent) => buildNode(path, nodeContent, nodesByParent.getOrElse(path, Nil))
-        }.toSeq.groupBy(_.path.parent)
-        
-        val newContent = newNodes.keys.filterNot(p => contentByParent.contains(p)).map((_, Seq.empty[C])).toMap
-        
-        if (depth == 0) newNodes.values.flatten.toSeq
-        else buildNodes(depth - 1, contentByParent ++ newContent, newNodes)
-      }
-
-      if (content.isEmpty) buildNode(Root, Nil, Nil)
-      else {
-        val contentByParent: Map[Path, Seq[C]] = content.groupBy(_.path.parent)
-        val maxPathLength = contentByParent.map(_._1.depth).max
-        buildNodes(maxPathLength, contentByParent, Map.empty).head
-      }
-    }
-    
-  }
-
   private case class ParserLookup (parsers: Seq[MarkupParser], config: OperationConfig) {
 
     private def suffix (name: String): String = name.lastIndexOf(".") match {

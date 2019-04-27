@@ -20,6 +20,7 @@ import java.time.Instant
 import java.util.Locale
 
 import com.typesafe.config.{Config, ConfigFactory}
+import laika.ast.Path.Root
 import laika.collection.TransitionalCollectionOps._
 import laika.io.BinaryInput
 import laika.rewrite.TemplateRewriter
@@ -358,6 +359,40 @@ trait TreeStructure { this: TreeContent =>
     all.groupBy(_._1) collect {
       case (selector, ((_, target) :: Nil)) => (selector, target)
       case (s@UniqueSelector(name), conflicting) => (s, DuplicateTargetResolver(path, name))
+    }
+  }
+
+}
+
+/** Generically builds a tree structure out of a flat sequence of elements with a `Path` property that 
+  * signifies the position in the tree. Essentially factors recursion out of the tree building process.
+  */
+object TreeBuilder {
+
+  /** Builds a tree structure from the specified leaf elements, using the given builder function.
+    * The function will be invoked for each node recursively, with the path for the node to build,
+    * the leaf elements belonging to that node and any child nodes that are immediate children
+    * of the node to build.
+    */
+  def build[C <: Navigatable, T <: Navigatable] (content: Seq[C], buildNode: (Path, Seq[C], Seq[T]) => T): T = {
+
+    def buildNodes (depth: Int, contentByParent: Map[Path, Seq[C]], nodesByParent: Map[Path, Seq[T]]): Seq[T] = {
+
+      val newNodes = contentByParent.filter(_._1.depth == depth).map {
+        case (path, nodeContent) => buildNode(path, nodeContent, nodesByParent.getOrElse(path, Nil))
+      }.toSeq.groupBy(_.path.parent)
+
+      val newContent = newNodes.keys.filterNot(p => contentByParent.contains(p)).map((_, Seq.empty[C])).toMap
+
+      if (depth == 0) newNodes.values.flatten.toSeq
+      else buildNodes(depth - 1, contentByParent ++ newContent, newNodes)
+    }
+
+    if (content.isEmpty) buildNode(Root, Nil, Nil)
+    else {
+      val contentByParent: Map[Path, Seq[C]] = content.groupBy(_.path.parent)
+      val maxPathLength = contentByParent.map(_._1.depth).max
+      buildNodes(maxPathLength, contentByParent, Map.empty).head
     }
   }
 
