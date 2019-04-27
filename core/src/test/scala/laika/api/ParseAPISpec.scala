@@ -25,6 +25,7 @@ import laika.ast.helper.DocumentViewBuilder._
 import laika.ast.helper.{InputBuilder, ModelBuilder}
 import laika.bundle.{BundleProvider, ExtensionBundle}
 import laika.format.{Markdown, ReStructuredText}
+import laika.io.TreeInput
 import laika.parse.Parser
 import laika.parse.text.TextParsers
 import laika.rewrite.TemplateRewriter
@@ -132,26 +133,29 @@ class ParseAPISpec extends FlatSpec
         |]""".stripMargin
     )
     
-    def builder (source: String) = parseTreeStructure(source)
+    val docTypeMatcher = Parse.as(Markdown).or(ReStructuredText).config.docTypeMatcher
+    
+    def builder (source: String): TreeInput = parseTreeStructure(source, docTypeMatcher)
+    
     def docView (num: Int, path: Path = Root) = DocumentView(path / (s"doc$num.md"), Content(List(p("foo"))) :: Nil)
     
     def customDocView (name: String, content: Seq[Block], path: Path = Root) = DocumentView(path / name, Content(content) :: Nil)
   
     def withTemplatesApplied (tree: DocumentTree): DocumentTree = TemplateRewriter.applyTemplates(tree, "html")
     
-    def parsedTree = viewOf(withTemplatesApplied(Parse.as(Markdown).fromInputTree(builder(dirs)).execute))
+    def parsedTree = viewOf(withTemplatesApplied(Parse.as(Markdown).fromTreeInput(builder(dirs)).execute))
     
-    def rawParsedTree = viewOf(Parse.as(Markdown).withoutRewrite.fromInputTree(builder(dirs)).execute)
+    def rawParsedTree = viewOf(Parse.as(Markdown).withoutRewrite.fromTreeInput(builder(dirs)).execute)
 
-    def rawMixedParsedTree = viewOf(Parse.as(Markdown).or(ReStructuredText).withoutRewrite.fromInputTree(builder(dirs)).execute)
+    def rawMixedParsedTree = viewOf(Parse.as(Markdown).or(ReStructuredText).withoutRewrite.fromTreeInput(builder(dirs)).execute)
     
-    def parsedInParallel = viewOf(withTemplatesApplied(Parse.as(Markdown).inParallel.fromInputTree(builder(dirs)).execute))
+    def parsedInParallel = viewOf(withTemplatesApplied(Parse.as(Markdown).inParallel.fromTreeInput(builder(dirs)).execute))
 
     def parsedWith (bundle: ExtensionBundle) =
-      viewOf(withTemplatesApplied(Parse.as(Markdown).using(bundle).fromInputTree(builder(dirs)).execute))
+      viewOf(withTemplatesApplied(Parse.as(Markdown).using(bundle).fromTreeInput(builder(dirs)).execute))
       
-    def parsedRawWith (bundle: ExtensionBundle = ExtensionBundle.Empty) =
-      viewOf(Parse.as(Markdown).withoutRewrite.using(bundle).fromInputTree(builder(dirs)).execute)
+    def parsedRawWith (bundle: ExtensionBundle = ExtensionBundle.Empty, customMatcher: PartialFunction[Path, DocumentType] = PartialFunction.empty) =
+      viewOf(Parse.as(Markdown).withoutRewrite.using(bundle).fromTreeInput(parseTreeStructure(dirs, customMatcher.orElse({case path => docTypeMatcher(path)}))).execute)
   }
   
 
@@ -273,7 +277,8 @@ class ParseAPISpec extends FlatSpec
     }
   }
   
-  it should "allow to specify a custom document type matcher" in {
+  it should "allow to specify a custom document type matcher" ignore {
+    // TODO - 0.12 - might need to become a file-system based test, as in-memory input do no longer use/need a docTypeMatcher
     new TreeParser {
       val dirs = """- name.md:name
         |- main.dynamic.html:name""".stripMargin
@@ -295,7 +300,7 @@ class ParseAPISpec extends FlatSpec
   
   it should "allow to specify a custom style sheet engine" in {
     new TreeParser {
-      val docTypeMatcher: PartialFunction[Path, DocumentType] = { case path =>
+      override val docTypeMatcher: PartialFunction[Path, DocumentType] = { case path =>
         val Stylesheet = """.+\.([a,b]+).css$""".r
         path.name match {
           case Stylesheet(kind) => StyleSheet(kind)
@@ -373,7 +378,7 @@ class ParseAPISpec extends FlatSpec
         |  - rectangle.md:name
         |- cherry.md:name
         |- directory.conf:order""".stripMargin
-      val tree = Parse as Markdown fromInputTree builder(dirs)
+      val tree = Parse as Markdown fromTreeInput builder(dirs)
       tree.execute.content map (_.path.name) should be (List("lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
     }
   }
@@ -390,7 +395,7 @@ class ParseAPISpec extends FlatSpec
                    |  - rectangle.md:name
                    |- cherry.md:name
                    |- directory.conf:order""".stripMargin
-      val tree = Parse as Markdown fromInputTree builder(dirs)
+      val tree = Parse as Markdown fromTreeInput builder(dirs)
       tree.execute.content map (_.path.name) should be (List("title.md","lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
       tree.execute.content map (_.position) should be (List(
         TreePosition(Nil),

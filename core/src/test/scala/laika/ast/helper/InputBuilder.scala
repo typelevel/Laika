@@ -19,7 +19,6 @@ package laika.ast.helper
 import laika.ast.{DocumentType, Path, TextDocumentType}
 import laika.ast.DocumentType._
 import laika.io._
-import laika.io.TreeInput.InputTreeBuilder
 
 trait InputBuilder {
 
@@ -51,20 +50,11 @@ trait InputBuilder {
     (new TestInputTreeBuilder(dirs, files, path), dirStructure.dropWhile(_.startsWith(" " * prefix)))
   }
   
-  def parseTreeStructure (source: String): InputTreeBuilder = parseTree(source.split("\n").toList)._1
+  def parseTreeStructure (source: String, docTypeMatcher: Path => DocumentType): TreeInput = parseTree(source.split("\n").toList)._1.build(docTypeMatcher)
   
-  
-  // TODO - 0.12 - simular type will soon be in Prod source
-  case class TestInputTree(textInputs: Seq[TextInput],
-                           binaryInputs: Seq[BinaryInput],
-                           sourcePaths: Seq[String]
-  ) extends TreeInput {
-    def ++ (other: TestInputTree): TestInputTree = copy(textInputs = textInputs ++ other.textInputs, binaryInputs = binaryInputs ++ other.binaryInputs)
-  }
-  
-  private[InputBuilder] class TestInputTreeBuilder(dirs: List[TestInputTreeBuilder], files: List[(String,String)], val path: Path) extends InputTreeBuilder {
+  private[InputBuilder] class TestInputTreeBuilder(dirs: List[TestInputTreeBuilder], files: List[(String,String)], val path: Path) {
     
-    def build (docTypeMatcher: Path => DocumentType): TestInputTree = {
+    def build (docTypeMatcher: Path => DocumentType): InputCollection = {
     
       def text: Seq[TextInput] = files.map(f => (f._1, f._2, docTypeMatcher(path / f._1))) collect {
         case (name, content, docType: TextDocumentType) => StringInput(contents(content), docType, path / name)
@@ -73,12 +63,17 @@ trait InputBuilder {
       def static: Seq[BinaryInput] = files collect {
         case (name, content) if docTypeMatcher(path / name) == Static => ByteInput(contents(content), path / name)
       }
+
+      def merge (c1: InputCollection, c2: InputCollection): InputCollection = c1.copy(
+        textInputs = c1.textInputs ++ c2.textInputs, 
+        binaryInputs = c1.binaryInputs ++ c2.binaryInputs
+      )
       
-      val subtrees = dirs map (_.build(docTypeMatcher)) filter (d => docTypeMatcher(path / d.path.name) != Ignored) reduceOption(_ ++ _)
+      val subtrees = dirs map (_.build(docTypeMatcher)) filter (d => docTypeMatcher(path / d.path.name) != Ignored)
       
-      val thisTree = TestInputTree(text, static, Nil)
+      val thisTree = InputCollection(text, static)
       
-      subtrees.fold(thisTree)(thisTree ++ _)
+      (thisTree +: subtrees).reduce(merge)
     }
   }
   

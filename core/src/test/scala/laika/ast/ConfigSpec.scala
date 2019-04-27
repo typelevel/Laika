@@ -44,8 +44,11 @@ class ConfigSpec extends FlatSpec
     val templateWithConfig= """{% foo: bar %}
       |<div>{{document.content}}</div>
       |CCC""".stripMargin
+    
+    val mdMatcher = Parse.as(Markdown).config.docTypeMatcher
+    val rstMatcher = Parse.as(ReStructuredText).config.docTypeMatcher
       
-    def builder (source: String) = parseTreeStructure(source)
+    def builder (source: String, docTypeMatcher: Path => DocumentType) = parseTreeStructure(source, docTypeMatcher)
     
     lazy val contents = Map(
       "templateWithRef" -> templateWithRef,
@@ -74,7 +77,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(Parse.as(Markdown).fromInputTree(builder(dir)).execute) should be (expected)
+      resultOf(Parse.as(Markdown).fromTreeInput(builder(dir, mdMatcher)).execute) should be (expected)
     }
   }
   
@@ -91,7 +94,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(Parse.as(ReStructuredText).fromInputTree(builder(dir)).execute) should be (expected)
+      resultOf(Parse.as(ReStructuredText).fromTreeInput(builder(dir, rstMatcher)).execute) should be (expected)
     }
   }
   
@@ -106,7 +109,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(Parse.as(Markdown).fromInputTree(builder(dir)).execute) should be (expected)
+      resultOf(Parse.as(Markdown).fromTreeInput(builder(dir, mdMatcher)).execute) should be (expected)
     }
   }
   
@@ -121,7 +124,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(Parse.as(ReStructuredText).fromInputTree(builder(dir)).execute) should be (expected)
+      resultOf(Parse.as(ReStructuredText).fromTreeInput(builder(dir, rstMatcher)).execute) should be (expected)
     }
   }
   
@@ -156,7 +159,7 @@ class ConfigSpec extends FlatSpec
         )
       )
       
-      val tree = Parse.as(Markdown).using(BundleProvider.forConfigString(config5)).fromInputTree(builder(dirs))
+      val tree = Parse.as(Markdown).using(BundleProvider.forConfigString(config5)).fromTreeInput(builder(dirs, mdMatcher))
       val result = TemplateRewriter.applyTemplates(tree.execute, "html")
       result.selectDocument(Path.Current / "dir" / "input.md").get.content should be (expected)
     }

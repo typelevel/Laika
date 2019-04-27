@@ -128,8 +128,8 @@ object Transform {
       def toTextOutput (out: TextOutput) = Op[Writer](parsers, format, config, input, out)
     }
 
-    def fromInputTree (inputTree: TreeInput): InputTreeResult = new TransformOutputTreeOps[Writer] {
-      def toOutputTree (tree: OutputTree) = TreeOp[Writer](parsers, format, config, inputTree, tree)
+    def fromTreeInput (input: TreeInput): InputTreeResult = new TransformOutputTreeOps[Writer] {
+      def toOutputTree (tree: OutputTree) = TreeOp[Writer](parsers, format, config, input, tree)
     }
     
   }
@@ -152,19 +152,10 @@ object Transform {
     
     def withConfig (newConfig: OperationConfig): ThisType = new TransformMergedOutput(parsers, processor, newConfig)
 
-    def fromInput (input: TextInput): InputResult = {
-      // TODO - 0.12 - temporary
-      val inputTree = new TreeInput {
-        override def path: Path = Root
-        override def textInputs: Seq[TextInput] = Seq(input)
-        override def binaryInputs: Seq[BinaryInput] = Nil
-        override def sourcePaths: Seq[String] = Nil
-      }
-      fromInputTree(inputTree)
-    }
+    def fromInput (input: TextInput): InputResult = fromTreeInput(InputCollection(input))
 
-    def fromInputTree (inputTree: TreeInput): InputTreeResult = new BinaryTransformOutputOps[Writer] {
-      def toBinaryOutput (out: BinaryOutput): Result = MergeOp[Writer](parsers, processor, config, inputTree, out)
+    def fromTreeInput (input: TreeInput): InputTreeResult = new BinaryTransformOutputOps[Writer] {
+      def toBinaryOutput (out: BinaryOutput): Result = MergeOp[Writer](parsers, processor, config, input, out)
     }
 
   }

@@ -27,6 +27,7 @@ import laika.ast.helper.OutputBuilder.{TestOutputTree, readFile}
 import laika.bundle.{BundleProvider, ExtensionBundle}
 import laika.directive.Templates
 import laika.format.{AST, Markdown, ReStructuredText, XSLFO}
+import laika.io.TreeInput
 import laika.parse.Parser
 import laika.parse.text.TextParsers
 import laika.render.TextWriter
@@ -141,7 +142,7 @@ class TransformAPISpec extends FlatSpec
 
     val dirs: String
     
-    def input (source: String) = parseTreeStructure(source)
+    def input (source: String, docTypeMatcher: Path => DocumentType): TreeInput = parseTreeStructure(source, docTypeMatcher)
 
     def transformTree: RenderedTree = transformWith()
     def transformMultiMarkup: RenderedTree = transformWith(Transform from Markdown or ReStructuredText to AST)
@@ -155,7 +156,7 @@ class TransformAPISpec extends FlatSpec
     
     private def transformWith (transformer: TransformMappedOutput[TextWriter] = transform): RenderedTree = {
       val builder = TestOutputTree.newRoot
-      transformer.fromInputTree(input(dirs)).toOutputTree(builder).execute
+      transformer.fromTreeInput(input(dirs, transformer.config.docTypeMatcher)).toOutputTree(builder).execute
       builder.toTree
     }
 
@@ -270,9 +271,8 @@ class TransformAPISpec extends FlatSpec
         |- styles.fo.css:style""".stripMargin
       val result = RenderResult.fo.withDefaultTemplate("""<fo:block font-family="serif" font-size="13pt" space-after="3mm">foo</fo:block>""")
       val builder = TestOutputTree.newRoot
-      Transform.from(Markdown).to(XSLFO).inParallel
-        .using(BundleProvider.forStyleSheetParser(parser))
-        .fromInputTree(input(dirs)).toOutputTree(builder).execute
+      val transform = Transform.from(Markdown).to(XSLFO).inParallel.using(BundleProvider.forStyleSheetParser(parser))
+      transform.fromTreeInput(input(dirs, transform.config.docTypeMatcher)).toOutputTree(builder).execute
       builder.toTree should be (root(List(docs(
         (Root / "doc1.fo", result)
       ))))
@@ -416,18 +416,19 @@ class TransformAPISpec extends FlatSpec
       |. . Text - 'ccc'
       |""".stripMargin
     
-    def input (source: String) = parseTreeStructure(source)
+    def input (source: String, docTypeMatcher: Path => DocumentType) = parseTreeStructure(source, docTypeMatcher)
   }
   
   it should "render a tree with a RenderResultProcessor writing to an output stream" ignore new GatheringTransformer {
 //    val out = new ByteArrayOutputStream
-//    (Transform from ReStructuredText to TestRenderResultProcessor fromInputTree input(dirs) toStream out).execute
+//    (Transform from ReStructuredText to TestRenderResultProcessor fromTreeInput input(dirs) toStream out).execute
 //    out.toString should be (expectedResult)
   }
   
   it should "render a tree with a RenderResultProcessor writing to a file" in new GatheringTransformer {
     val f = File.createTempFile("output", null)
-    (Transform from ReStructuredText to TestRenderResultProcessor fromInputTree input(dirs) toFile f).execute
+    val transform = Transform.from(ReStructuredText).to(TestRenderResultProcessor)
+    transform.fromTreeInput(input(dirs, transform.config.docTypeMatcher)).toFile(f).execute
     readFile(f) should be (expectedResult)
   }
   
@@ -436,7 +437,7 @@ class TransformAPISpec extends FlatSpec
 //    val out = new ByteArrayOutputStream
 //    (Transform from ReStructuredText to TestRenderResultProcessor rendering { 
 //      out => { case Text(content,_) => out << "String - '" << content << "'" } 
-//    } fromInputTree input(dirs) toStream out).execute
+//    } fromTreeInput input(dirs) toStream out).execute
 //    out.toString should be (modifiedResult)
   }
   
@@ -445,7 +446,7 @@ class TransformAPISpec extends FlatSpec
 //    val out = new ByteArrayOutputStream
 //    (Transform from ReStructuredText to TestRenderResultProcessor usingSpanRule { 
 //      case Text(txt,_) => Replace(Text(txt.replaceAllLiterally("Title", "zzz"))) 
-//    } fromInputTree input(dirs) toStream out).execute
+//    } fromTreeInput input(dirs) toStream out).execute
 //    out.toString should be (modifiedResult)
   }
   
@@ -456,7 +457,7 @@ class TransformAPISpec extends FlatSpec
 //      case Text(txt,_) => Replace(Text(txt.replaceAllLiterally("Title", "zzz"))) 
 //    } usingSpanRule { 
 //      case Text("bbb",_) => Replace(Text("xxx")) 
-//    } fromInputTree input(dirs) toStream out).execute
+//    } fromTreeInput input(dirs) toStream out).execute
 //    out.toString should be (modifiedResult)
   }
   
@@ -465,7 +466,7 @@ class TransformAPISpec extends FlatSpec
 //    val out = new ByteArrayOutputStream
 //    (Transform from ReStructuredText to TestRenderResultProcessor creatingRule { cursor => RewriteRules.forSpans { 
 //      case Text("Sub Title",_) => Replace(Text("Sub " + cursor.target.path.name))
-//    }} fromInputTree input(dirs) toStream out).execute
+//    }} fromTreeInput input(dirs) toStream out).execute
 //    out.toString should be (modifiedResult)
   }
   

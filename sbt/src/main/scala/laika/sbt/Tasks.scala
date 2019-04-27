@@ -20,8 +20,9 @@ import laika.api.{Parse, Render}
 import laika.config.{BundleFilter, ParallelConfig}
 import laika.factory.{RenderFormat, RenderResultProcessor}
 import laika.format._
-import laika.io.{BinaryFileInput, Input, TreeInput, TextFileInput}
+import laika.io.{IO => _, _}
 import LaikaPlugin.autoImport._
+import laika.execute.InputExecutor
 import sbt._
 import sbt.Keys._
 import sbt.util.CacheStore
@@ -62,14 +63,14 @@ object Tasks {
       parser.withConfig(mergedConfig).using(laikaExtensions.value: _*)
     }
 
-    val inputs = TreeInput.forRootDirectories((sourceDirectories in Laika).value, parser.config.docTypeMatcher,
-      (excludeFilter in Laika).value.accept)(laikaConfig.value.encoding)
+    val inputs = DirectoryInput((sourceDirectories in Laika).value, laikaConfig.value.encoding, parser.config.docTypeMatcher,
+      (excludeFilter in Laika).value.accept)
 
     lazy val tree = {
       streams.value.log.info("Reading files from " + (sourceDirectories in Laika).value.mkString(", "))
       streams.value.log.info(Logs.inputs(inputs))
 
-      val tree = parser.fromInputTree(inputs).execute
+      val tree = parser.fromTreeInput(inputs).execute
 
       Logs.systemMessages(streams.value.log, tree, laikaConfig.value.logMessageLevel)
 
@@ -104,7 +105,7 @@ object Tasks {
     }
 
     val cacheDir = streams.value.cacheDirectory / "laika"
-    val inputFiles = collectInputFiles(inputs)
+    val inputFiles = collectInputFiles(InputExecutor.asInputCollection(inputs))
 
     val results = formats map { format =>
 
@@ -230,17 +231,17 @@ object Tasks {
     IO.delete((target in laikaSite).value)
   }
 
-  /** Recursively collects all input files from the specified
-    * input tree. Ignores any virtual files in the input trees.
+  /** Collects all input files from the specified
+    * input tree. Ignores any virtual inputs in the input trees.
     */
-  def collectInputFiles (tree: TreeInput): Set[File] = {
+  def collectInputFiles (inputs: InputCollection): Set[File] = {
     
     def allFiles (inputs: Seq[Input]) = (inputs collect {
       case f: TextFileInput => f.file
       case f: BinaryFileInput => f.file
     }).toSet
 
-    allFiles(tree.textInputs) ++ allFiles(tree.binaryInputs)
+    allFiles(inputs.textInputs) ++ allFiles(inputs.binaryInputs)
   }
 
   /** Collects all parent directories of the specified file or directory.

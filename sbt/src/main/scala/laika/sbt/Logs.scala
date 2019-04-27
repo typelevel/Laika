@@ -35,13 +35,15 @@ object Logs {
     */
   def inputs (tree: TreeInput): String = {
 
-    val docTypes = tree.textInputs.map(_.docType)
-    val docs = docTypes.count(_ == Markup)
-    val tmpl = docTypes.count(_ == Template) + docTypes.count(_ == Dynamic)
-    val styles = docTypes.count(_.isInstanceOf[StyleSheet])
-    val conf = docTypes.count(_ == Config)
-
-    s"Parsing $docs markup document${s(docs)}, $tmpl template${s(tmpl)}, $conf configuration${s(conf)} ..."
+    // TODO - 0.12 - resurrect based on new describeF function
+//    val docTypes = tree.textInputs.map(_.docType)
+//    val docs = docTypes.count(_ == Markup)
+//    val tmpl = docTypes.count(_ == Template) + docTypes.count(_ == Dynamic)
+//    val styles = docTypes.count(_.isInstanceOf[StyleSheet])
+//    val conf = docTypes.count(_ == Config)
+//
+//    s"Parsing $docs markup document${s(docs)}, $tmpl template${s(tmpl)}, $conf configuration${s(conf)} ..."
+    ""
   }
 
   /** Create a string containing detailed information about

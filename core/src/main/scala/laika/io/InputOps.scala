@@ -20,7 +20,6 @@ import java.io.File
 
 import laika.ast.{Path, TextDocumentType}
 import laika.config.OperationConfig
-import laika.io.TreeInput._
 
 import scala.io.Codec
 
@@ -87,6 +86,8 @@ trait InputOps {
   */
 trait InputTreeOps {
 
+  type FileFilter = File => Boolean
+
   /** The type of the result returned by all operations of this trait.
     */
   type InputTreeResult
@@ -102,7 +103,7 @@ trait InputTreeOps {
     *  @param codec the character encoding of the files, if not specified the platform default will be used.
     */
   def fromDirectory (name: String)(implicit codec: Codec): InputTreeResult =
-    fromDirectory(new File(name), hiddenFileFilter)(codec)
+    fromDirectory(new File(name), DirectoryInput.hiddenFileFilter)(codec)
 
   /**  Returns the result obtained by parsing files from the
     *  specified directory and its subdirectories.
@@ -121,7 +122,7 @@ trait InputTreeOps {
     *  @param codec the character encoding of the files, if not specified the platform default will be used.
     */
   def fromDirectory (dir: File)(implicit codec: Codec): InputTreeResult =
-    fromDirectory(dir, hiddenFileFilter)(codec)
+    fromDirectory(dir, DirectoryInput.hiddenFileFilter)(codec)
 
   /**  Returns the result obtained by parsing files from the
     *  specified directory and its subdirectories.
@@ -141,7 +142,7 @@ trait InputTreeOps {
     *  @param codec the character encoding of the files, if not specified the platform default will be used.
     */
   def fromDirectories (roots: Seq[File])(implicit codec: Codec): InputTreeResult =
-    fromDirectories(roots, hiddenFileFilter)(codec)
+    fromDirectories(roots, DirectoryInput.hiddenFileFilter)(codec)
 
   /**  Returns the result obtained by parsing files from the
     *  specified directories and its subdirectories, merging them into
@@ -152,7 +153,7 @@ trait InputTreeOps {
     *  @param codec the character encoding of the files, if not specified the platform default will be used.
     */
   def fromDirectories (roots: Seq[File], exclude: FileFilter)(implicit codec: Codec): InputTreeResult =
-    fromInputTree(TreeInput.forRootDirectories(roots, config.docTypeMatcher, exclude)(codec))
+    fromTreeInput(DirectoryInput(roots, codec, config.docTypeMatcher, exclude))
 
   /**  Returns the result obtained by parsing files from the
     *  current working directory.
@@ -160,22 +161,14 @@ trait InputTreeOps {
     *  @param exclude the files to exclude from processing
     *  @param codec the character encoding of the files, if not specified the platform default will be used.
     */
-  def fromDefaultDirectory (exclude: FileFilter = hiddenFileFilter)(implicit codec: Codec): InputTreeResult =
-    fromInputTree(TreeInput.forWorkingDirectory(config.docTypeMatcher, exclude)(codec))
-
-  /**  Returns the result obtained by parsing files from the
-    *  specified input tree builder.
-    *
-    *  @param builder a builder for the input tree to process
-    */
-  def fromInputTree(builder: InputTreeBuilder): InputTreeResult =
-    fromInputTree(builder.build(config.docTypeMatcher))
+  def fromWorkingDirectory (exclude: FileFilter = DirectoryInput.hiddenFileFilter)(implicit codec: Codec): InputTreeResult =
+    fromDirectories(Seq(new File(System.getProperty("user.dir"))), exclude)
 
   /** Returns the result obtained by parsing files from the
     *  specified input tree.
     *
     *  @param inputTree the input tree to process
     */
-  def fromInputTree(inputTree: TreeInput): InputTreeResult
+  def fromTreeInput(input: TreeInput): InputTreeResult
 
 }

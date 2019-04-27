@@ -112,21 +112,23 @@ case class StaticDocuments (tree: DocumentTree) {
   * Like with all Laika IO, these may be actual file system directories
   * or virtual in-memory trees of input documents.
   */
-object StaticDocuments extends InputTreeOps {
+object StaticDocuments {
 
   val empty = StaticDocuments(DocumentTree(Path.Root, Nil))
 
-  override type InputTreeResult = StaticDocuments
-
-  override def config: OperationConfig = OperationConfig(Seq(new ExtensionBundle {
-    override def docTypeMatcher: PartialFunction[Path, DocumentType] = { case _ => DocumentType.Static }
-  }))
-
-  override def fromInputTree (inputTree: TreeInput): StaticDocuments = {
-    val static = inputTree.binaryInputs map StaticDocument
-    def buildTree (path: Path, content: Seq[StaticDocument], subTrees: Seq[DocumentTree]): DocumentTree =
-      DocumentTree(path, subTrees, additionalContent = content, sourcePaths = inputTree.sourcePaths)
-    StaticDocuments(TreeBuilder.build(static, buildTree))
-  }
+  // TODO - 0.12 - should now just be a `Seq[BinaryInput]`
+  
+//  override type InputTreeResult = StaticDocuments
+//
+//  override def config: OperationConfig = OperationConfig(Seq(new ExtensionBundle {
+//    override def docTypeMatcher: PartialFunction[Path, DocumentType] = { case _ => DocumentType.Static }
+//  }))
+//
+//  override def fromTreeInput (input: TreeInput): StaticDocuments = {
+//    val static = input.binaryInputs map StaticDocument
+//    def buildTree (path: Path, content: Seq[StaticDocument], subTrees: Seq[DocumentTree]): DocumentTree =
+//      DocumentTree(path, subTrees, additionalContent = content, sourcePaths = input.sourcePaths)
+//    StaticDocuments(TreeBuilder.build(static, buildTree))
+//  }
 
 }

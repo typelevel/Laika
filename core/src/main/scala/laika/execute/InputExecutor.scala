@@ -16,10 +16,12 @@
 
 package laika.execute
 
-import java.io.{BufferedReader, FileInputStream, InputStreamReader, Reader}
+import java.io.{BufferedReader, File, FileInputStream, InputStreamReader, Reader}
 
-import laika.ast.Path
-import laika.io.{TextInput, IO, StringInput, TextFileInput}
+import laika.ast.DocumentType.Static
+import laika.ast.Path.Root
+import laika.ast.{DocumentType, Path, TextDocumentType}
+import laika.io._
 import laika.parse.ParserContext
 import laika.parse.markup.DocumentParser.ParserInput
 
@@ -65,6 +67,48 @@ object InputExecutor {
       val content = InputExecutor.readAll(reader)
       ParserInput(virtualPath, ParserContext(content))
     }
+  }
+
+  case class Directory (path: Path, file: File)
+
+  def asInputCollection (input: DirectoryInput): InputCollection = {
+
+    import DocumentType._
+
+    //    require(roots.nonEmpty, "The specified roots sequence must contain at least one directory")
+    //    for (root <- roots) {
+    //      require(root.exists, s"Directory ${root.getAbsolutePath} does not exist")
+    //      require(root.isDirectory, s"File ${root.getAbsolutePath} is not a directory")
+    //    }
+
+    val allDirs: Seq[Directory] = {
+
+      def collectSubDirectories (dir: Directory): Seq[Directory] = {
+        val subDirs = dir.file.listFiles filter (f => f.isDirectory && !input.fileFilter(f) && input.docTypeMatcher(dir.path / f.getName) != Ignored) map (d => Directory(dir.path / d.getName, d))
+        dir +: subDirs.flatMap(collectSubDirectories)
+      }
+
+      input.directories.map(d => Directory(Root, d)).flatMap(collectSubDirectories)
+    }
+
+    val allFiles: Seq[(DocumentType, Path, File)] = {
+      def filesInDir (dir: Directory): Array[(DocumentType, Path, File)] = dir.file.listFiles collect {
+        case file if file.isFile && !input.fileFilter(file) => (input.docTypeMatcher(dir.path / file.getName), dir.path / file.getName, file)
+      }
+      allDirs.flatMap(filesInDir)
+    }
+
+    val textInputs: Seq[TextInput] = allFiles.collect {
+      case (docType: TextDocumentType, filePath, file) => TextFileInput(file, docType, filePath, input.codec)
+    }
+
+    val binaryInputs: Seq[BinaryInput] = allFiles.collect {
+      case (Static, filePath, file) => BinaryFileInput(file, filePath)
+    }
+
+    val sourcePaths: Seq[String] = input.directories map (_.getAbsolutePath)
+
+    InputCollection(textInputs, binaryInputs) // TODO - 0.12 - what about sourceDirectories?
   }
   
 }

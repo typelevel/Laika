@@ -23,7 +23,7 @@ import laika.ast._
 import laika.bundle.ConfigProvider
 import laika.config.OperationConfig
 import laika.factory.MarkupParser
-import laika.io.{IO, TextInput}
+import laika.io.{DirectoryInput, IO, InputCollection, TextInput}
 import laika.parse.combinator.Parsers.documentParserFunction
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.ParserInput
@@ -60,9 +60,10 @@ object ParseExecutor {
     
     import DocumentType._
     import interimModel._
+    import laika.collection.TransitionalCollectionOps._
 
     type Operation = () => ParserResult
-
+    
     def parseMarkup (input: TextInput): Operation = () => MarkupResult(IO(input)(ParserLookup(op.parsers, op.config).forInput(input)))
 
     def parseTemplate (docType: DocumentType)(input: TextInput): Seq[Operation] = op.config.templateParser match {
@@ -85,7 +86,12 @@ object ParseExecutor {
       ConfigResult(input.path, ConfigProvider.fromInput(pi.context.input, pi.path))
     }
 
-    val textOps = op.input.textInputs.flatMap { in => in.docType match {
+    val inputs: InputCollection = op.input match {
+      case col: InputCollection => col
+      case dir: DirectoryInput => InputExecutor.asInputCollection(dir)
+    }
+
+    val textOps = inputs.textInputs.flatMap { in => in.docType match {
       case Markup             => Seq(parseMarkup(in))
       case Template           => parseTemplate(Template)(in)
       case Dynamic            => parseTemplate(Dynamic)(in)
@@ -96,11 +102,13 @@ object ParseExecutor {
     val results = BatchExecutor.execute(textOps, op.config.parallelConfig.parallelism, op.config.parallelConfig.threshold)
 
     def buildNode (path: Path, content: Seq[ParserResult], subTrees: Seq[DocumentTree]): DocumentTree = {
-      val treeContent = content.collect { case MarkupResult(doc) => doc } ++ subTrees
+      val treeContent = content.collect { case MarkupResult(doc) => doc } ++ subTrees.sortBy(_.path.name)
       val templates = content.collect { case TemplateResult(doc) => doc }
       val dynamic = content.collect { case DynamicResult(doc) => doc }
-      val styles = content.collect { case StyleResult(styleSet, format) => (format, styleSet) }.toMap.withDefaultValue(StyleDeclarationSet.empty)
-      val static = op.input.binaryInputs.map(StaticDocument)
+      val styles = content.collect { case StyleResult(styleSet, format) => (format, styleSet) }
+        .groupBy(_._1).mapValuesStrict(_.map(_._2).reduce(_ ++ _)).withDefaultValue(StyleDeclarationSet.empty)
+      
+      val static = inputs.binaryInputs.filter(_.path.parent == path).map(StaticDocument)
 
       val treeConfig = content.collect { case ConfigResult(_, config) => config }
       val rootConfig = if (path == Root) Seq(op.config.baseConfig) else Nil
@@ -120,6 +128,7 @@ object ParseExecutor {
     */
   object TreeBuilder {
     
+    // TODO - 0.12 - move to ast.documents
     def build[C <: Navigatable, T <: Navigatable] (content: Seq[C], buildNode: (Path, Seq[C], Seq[T]) => T): T = {
       
       def buildNodes (depth: Int, contentByParent: Map[Path, Seq[C]], nodesByParent: Map[Path, Seq[T]]): Seq[T] = {

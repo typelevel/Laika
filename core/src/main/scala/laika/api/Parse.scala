@@ -91,7 +91,7 @@ class Parse private (parsers: Seq[MarkupParser], val config: OperationConfig, re
 
   def fromInput (input: TextInput): Parse.Op = Parse.Op(parsers, config, input, rewrite)
   
-  def fromInputTree(inputTree: TreeInput): Parse.TreeOp = Parse.TreeOp(parsers, config, inputTree, rewrite)
+  def fromTreeInput(input: TreeInput): Parse.TreeOp = Parse.TreeOp(parsers, config, input, rewrite)
   
 }
 
