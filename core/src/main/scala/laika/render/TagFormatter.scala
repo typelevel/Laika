@@ -32,9 +32,9 @@ import scala.collection.mutable.StringBuilder
  *                    
  *  @author Jens Halm
  */
-abstract class TagFormatter[Rep <: TextFormatter[Rep]] (renderChild: (Rep, Element) => String,
+abstract class TagFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Element) => String,
                                                         elementStack: Seq[Element],
-                                                        indentation: Indentation) extends TextFormatter[Rep](renderChild, elementStack, indentation) { this: Rep =>
+                                                        indentation: Indentation) extends BaseFormatter[Rep](renderChild, elementStack, indentation) { this: Rep =>
   
   /** Renders the specified string on the same line, 
    *  with all special XML/HTML characters converted to entities.

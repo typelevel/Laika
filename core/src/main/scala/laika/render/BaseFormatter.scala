@@ -26,7 +26,7 @@ import laika.ast._
  * 
  *  @author Jens Halm
  */
-abstract class TextFormatter[Rep <: TextFormatter[Rep]] (renderChild: (Rep, Element) => String,
+abstract class BaseFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Element) => String,
                                                          elementStack: Seq[Element],
                                                          indentation: Indentation) { this: Rep =>
   
