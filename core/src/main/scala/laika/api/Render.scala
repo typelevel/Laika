@@ -19,7 +19,7 @@ package laika.api
 import laika.ast._
 import laika.config.{OperationConfig, RenderConfigBuilder}
 import laika.execute.RenderExecutor
-import laika.factory.{RenderFormat, RenderResultProcessor}
+import laika.factory.{RenderFormat, RenderFormat2, RenderResultProcessor}
 import laika.io._
 
 /** API for performing a render operation to various types of output using an existing
@@ -115,6 +115,10 @@ object Render {
   
   case class Op[Writer] (format: RenderFormat[Writer], config: OperationConfig, element: Element, output: TextOutput) {
     def execute: Done = RenderExecutor.execute(this)
+  }
+
+  case class Op2[FMT] (format: RenderFormat2[FMT], config: OperationConfig, element: Element, output: TextOutput) {
+    def execute: String = RenderExecutor.execute(this, None)
   }
 
   case class TreeOp[Writer] (format: RenderFormat[Writer], config: OperationConfig, tree: DocumentTree, output: OutputTree) {

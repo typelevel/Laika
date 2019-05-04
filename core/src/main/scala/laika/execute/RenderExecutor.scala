@@ -19,7 +19,7 @@ package laika.execute
 import laika.api.Render
 import laika.api.Render.Done
 import laika.ast._
-import laika.factory.RenderContext
+import laika.factory.{RenderContext, RenderContext2}
 import laika.io.OutputTree.DirectoryOutputTree
 import laika.io.{BinaryInput, IO, OutputTree, TextOutput}
 import laika.rewrite.TemplateRewriter
@@ -29,6 +29,24 @@ import laika.rewrite.TemplateRewriter
   */
 object RenderExecutor {
 
+  def execute[FMT] (op: Render.Op2[FMT], styles: Option[StyleDeclarationSet]): String = {
+
+    val theme = op.config.themeFor(op.format)
+
+    val effectiveStyles = styles.getOrElse(theme.defaultStyles)
+
+    val renderFunction: (FMT, Element) => String = (fmt, element) => 
+      theme.customRenderer.applyOrElse[(FMT,Element),String]((fmt, element), { case (f, e) => op.format.defaultRenderFunction(f, e) })
+    
+    val renderContext = RenderContext2(renderFunction, op.element, effectiveStyles, op.output.path, op.config)
+
+    val fmt = op.format.newFormatter(renderContext)
+    
+    val result = renderFunction(fmt, op.element)
+
+    result // TODO - 0.12 - deal with different types of Output
+  }
+  
   def execute[Writer] (op: Render.Op[Writer], styles: Option[StyleDeclarationSet] = None): Done = {
 
     val theme = op.config.themeFor(op.format)
