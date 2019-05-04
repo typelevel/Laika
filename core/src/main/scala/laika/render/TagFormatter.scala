@@ -47,7 +47,7 @@ abstract class TagFormatter[Rep <: TextFormatter[Rep]] (renderChild: (Rep, Eleme
     s"<$tagName${attributes(tagName,options,attrs)}>${children(content)}</$tagName>"
 
   def indentedElement (tagName: String, options: Options, content: Seq[Element], attrs: (String,Any)*): String =
-    s"<$tagName${attributes(tagName,options,attrs)}>${indentedChildren(content)}</$tagName>"
+    s"<$tagName${attributes(tagName,options,attrs)}>${indentedChildren(content)}$newLine</$tagName>"
 
   def rawElement (tagName: String, options: Options, content: String, attrs: (String,Any)*): String =
     s"<$tagName${attributes(tagName,options,attrs)}>$content</$tagName>"

@@ -33,7 +33,7 @@ case class HTMLFormatter (renderChild: (HTMLFormatter, Element) => String,
 
   protected def withChild (element: Element): HTMLFormatter = copy(elementStack = elementStack :+ element)
 
-  protected def withIndentation (newIndentation: Indentation): HTMLFormatter = copy(indentation = indentation)
+  protected def withIndentation (newIndentation: Indentation): HTMLFormatter = copy(indentation = newIndentation)
   
   def attributes (tag: String, options: Options, attrs: Seq[(String,Any)]): String = {
     val id = options.id.map("id" -> _)
