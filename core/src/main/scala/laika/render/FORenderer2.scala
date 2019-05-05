@@ -23,9 +23,9 @@ import laika.render.FOFormatter._
   *
   * @author Jens Halm
   */
-object FORenderer2 {
+object FORenderer2 extends ((FOFormatter, Element) => String) {
 
-  def render (fmt: FOFormatter, element: Element): String = {
+  def apply (fmt: FOFormatter, element: Element): String = {
 
     def noneIfDefault [T](actual: T, default: T): Option[String] = if (actual == default) None else Some(actual.toString)
 

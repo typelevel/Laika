@@ -17,6 +17,7 @@
 package laika.render
 
 import laika.ast._
+import laika.factory.RenderContext2
 
 
 /** API for renderers that produce HTML output.
@@ -56,4 +57,9 @@ case class HTMLFormatter (renderChild: (HTMLFormatter, Element) => String,
 
   override def emptyElement (tagName: String): String = s"<$tagName>"
  
+}
+
+object HTMLFormatter extends (RenderContext2[HTMLFormatter] => HTMLFormatter) {
+  def apply (context: RenderContext2[HTMLFormatter]): HTMLFormatter =
+    HTMLFormatter(context.renderChild, List(context.root), context.indentation, context.config.minMessageLevel)
 }

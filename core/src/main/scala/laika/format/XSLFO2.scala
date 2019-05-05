@@ -48,10 +48,10 @@ object XSLFO2 extends RenderFormat2[FOFormatter] {
   
   val fileSuffix = "fo"
 
-  val defaultRenderFunction: (FOFormatter, Element) => String = FORenderer2.render
+  val defaultRenderer: (FOFormatter, Element) => String = FORenderer2
 
-  def newFormatter (context: RenderContext2[FOFormatter]): FOFormatter = FOFormatter(context)
-  
+  val formatterFactory: RenderContext2[FOFormatter] => FOFormatter = FOFormatter
+
   override lazy val defaultTheme: Theme = Theme(
     defaultTemplate = Some(templateResource.content),
     defaultStyles = styleResource

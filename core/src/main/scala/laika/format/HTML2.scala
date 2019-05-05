@@ -20,7 +20,7 @@ import laika.ast.{Element, Path, TemplateDocument}
 import laika.execute.InputExecutor
 import laika.factory.{RenderContext2, RenderFormat2}
 import laika.parse.directive.DefaultTemplateParser
-import laika.render.{HTMLFormatter, HTMLRenderer2, Indentation}
+import laika.render.{HTMLFormatter, HTMLRenderer2}
 
 /** A render format for HTML output. May be directly passed to the `Render` or `Transform` APIs:
  * 
@@ -36,15 +36,10 @@ object HTML2 extends RenderFormat2[HTMLFormatter] {
   
   val fileSuffix = "html"
 
-  val defaultRenderFunction: (HTMLFormatter, Element) => String = new HTMLRenderer2().render
+  val defaultRenderer: (HTMLFormatter, Element) => String = HTMLRenderer2
+
+  val formatterFactory: RenderContext2[HTMLFormatter] => HTMLFormatter = HTMLFormatter
  
-  def newFormatter (context: RenderContext2[HTMLFormatter]): HTMLFormatter = {
-
-    // TODO - 0.12 - introduce Writer constructors taking a RenderContext
-    val indentation = if (context.config.renderFormatted) Indentation.default else Indentation.none
-    HTMLFormatter(context.renderChild, List(context.root), indentation, context.config.minMessageLevel)
-  }
-
   override lazy val defaultTheme: Theme = Theme(defaultTemplate = Some(templateResource.content))
 
   private lazy val templateResource: TemplateDocument =

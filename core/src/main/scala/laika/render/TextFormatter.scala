@@ -17,6 +17,7 @@
 package laika.render
 
 import laika.ast._
+import laika.factory.RenderContext2
 
 
 /** API for renderers that produce text output.
@@ -35,4 +36,9 @@ case class TextFormatter (renderChild: (TextFormatter, Element) => String,
 
   protected def withIndentation (newIndentation: Indentation): TextFormatter = copy(indentation = newIndentation)
   
+}
+
+object TextFormatter extends (RenderContext2[TextFormatter] => TextFormatter) {
+  def apply (context: RenderContext2[TextFormatter]): TextFormatter = 
+    TextFormatter(context.renderChild, List(context.root), context.indentation)
 }

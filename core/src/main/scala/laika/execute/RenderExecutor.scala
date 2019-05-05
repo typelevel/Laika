@@ -36,11 +36,11 @@ object RenderExecutor {
     val effectiveStyles = styles.getOrElse(theme.defaultStyles)
 
     val renderFunction: (FMT, Element) => String = (fmt, element) => 
-      theme.customRenderer.applyOrElse[(FMT,Element),String]((fmt, element), { case (f, e) => op.format.defaultRenderFunction(f, e) })
+      theme.customRenderer.applyOrElse[(FMT,Element),String]((fmt, element), { case (f, e) => op.format.defaultRenderer(f, e) })
     
     val renderContext = RenderContext2(renderFunction, op.element, effectiveStyles, op.output.path, op.config)
 
-    val fmt = op.format.newFormatter(renderContext)
+    val fmt = op.format.formatterFactory(renderContext)
     
     val result = renderFunction(fmt, op.element)
 

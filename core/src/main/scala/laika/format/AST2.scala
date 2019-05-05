@@ -35,14 +35,9 @@ object AST2 extends RenderFormat2[TextFormatter] {
 
   val fileSuffix = "txt"
 
-  val defaultRenderFunction: (TextFormatter, Element) => String = ASTRenderer2.render
+  val defaultRenderer: (TextFormatter, Element) => String = ASTRenderer2
 
-  def newFormatter (context: RenderContext2[TextFormatter]): TextFormatter = {
-
-    // TODO - 0.12 - introduce Writer constructors taking a RenderContext
-    val indentation = if (context.config.renderFormatted) Indentation.default else Indentation.none
-    TextFormatter(context.renderChild, List(context.root), indentation)
-  }
+  val formatterFactory: RenderContext2[TextFormatter] => TextFormatter = TextFormatter
   
   val defaultTheme = Theme()
 

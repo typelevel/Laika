@@ -60,9 +60,11 @@ trait RenderFormat2[FMT] {
     */
   def defaultTheme: Theme
   
-  def defaultRenderFunction: (FMT, Element) => String
+  def defaultRenderer: (FMT, Element) => String
   
-  type CustomRenderFunction[FMT] = PartialFunction[(FMT, Element), String]
+  def formatterFactory: RenderContext2[FMT] => FMT
+  
+  type CustomRenderFunction[FMT] = PartialFunction[(FMT, Element), String] // TODO - 0.12 - move
 
   /** Creates a new renderer and a new writer instance for the specified
    *  context. The delegate function of the context needs to be used
@@ -80,7 +82,7 @@ trait RenderFormat2[FMT] {
    *  @param context the setup, environment, path and base renderers to use
    *  @return a new writer API of type `W` and a new render function
    */
-  def newFormatter (context: RenderContext2[FMT]): FMT
+  // def newFormatter (context: RenderContext2[FMT]): FMT
 
 
   case class Theme (customRenderer: CustomRenderFunction[FMT] = PartialFunction.empty,

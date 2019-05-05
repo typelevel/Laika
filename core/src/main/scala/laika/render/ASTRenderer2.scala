@@ -22,7 +22,7 @@ import laika.ast._
   *
   * @author Jens Halm
   */
-object ASTRenderer2 {
+object ASTRenderer2 extends ((TextFormatter, Element) => String) {
 
   /**  The maximum width of a single text element.
     *  For any text that exceeds this limit only the beginning
@@ -35,7 +35,7 @@ object ASTRenderer2 {
 
   private case class Content (content: Seq[Element], desc: String) extends Element with ElementContainer[Element,Content]
 
-  def render (fmt: TextFormatter, element: Element): String = {
+  def apply (fmt: TextFormatter, element: Element): String = {
 
     object NoRef
 

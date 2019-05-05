@@ -22,10 +22,10 @@ import laika.ast._
   *
   * @author Jens Halm
   */
-class HTMLRenderer2 (fileSuffix: String = "html") {
+class HTMLRenderer2 (fileSuffix: String) extends ((HTMLFormatter, Element) => String) {
 
 
-  def render (fmt: HTMLFormatter, element: Element): String = {
+  def apply (fmt: HTMLFormatter, element: Element): String = {
 
     def noneIfDefault [T](actual: T, default: T): Option[String] = if (actual == default) None else Some(actual.toString)
 
@@ -250,3 +250,7 @@ class HTMLRenderer2 (fileSuffix: String = "html") {
   }
 
 }
+
+object HTMLRenderer2 extends HTMLRenderer2(fileSuffix = "html")
+
+object XHTMLRenderer extends HTMLRenderer2(fileSuffix = "xhtml")
