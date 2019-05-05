@@ -29,7 +29,7 @@ class HTMLRenderer2 (fileSuffix: String) extends ((HTMLFormatter, Element) => St
 
     def noneIfDefault [T](actual: T, default: T): Option[String] = if (actual == default) None else Some(actual.toString)
 
-    def renderBlocks (tagName: String, options: Options, content: Seq[Block], attrs: (String,Any)*): String = content match {
+    def renderBlocks (tagName: String, options: Options, content: Seq[Block], attrs: (String, String)*): String = content match {
       case Seq(ss: SpanSequence)     => fmt.element(tagName, options, Seq(ss), attrs: _*)
       case Seq(Paragraph(spans,opt)) => fmt.element(tagName, options, Seq(SpanSequence(spans,opt)), attrs: _*)
       case other                     => fmt.indentedElement(tagName, options, other, attrs: _*)
@@ -99,6 +99,11 @@ class HTMLRenderer2 (fileSuffix: String) extends ((HTMLFormatter, Element) => St
         }
         if (ref.isEmpty) target else s"$target#$ref"
       }
+      
+      def linkAttributes (url: String, title: Option[String]): Seq[(String, String)] = fmt.optAttributes(
+        "href" -> Some(url),       
+        "title" -> title.map(fmt.text)
+      )
 
       con match {
 
@@ -114,9 +119,9 @@ class HTMLRenderer2 (fileSuffix: String) extends ((HTMLFormatter, Element) => St
         case Title(content, opt)            => fmt.element("h1", opt, content)
         case Header(level, content, opt)    => fmt.newLine + fmt.element("h"+level.toString, opt,content)
 
-        case ExternalLink(content, url, title, opt)     => fmt.element("a", opt, content, "href" -> url,       "title" -> title.map(fmt.text))
-        case InternalLink(content, ref, title, opt)     => fmt.element("a", opt, content, "href" -> ("#"+ref), "title" -> title.map(fmt.text))
-        case CrossLink(content, ref, path, title, opt)  => fmt.element("a", opt, content, "href" -> crossLinkRef(path, ref), "title" -> title.map(fmt.text))
+        case ExternalLink(content, url, title, opt)     => fmt.element("a", opt, content, linkAttributes(url, title):_*)
+        case InternalLink(content, ref, title, opt)     => fmt.element("a", opt, content, linkAttributes("#"+ref, title):_*)
+        case CrossLink(content, ref, path, title, opt)  => fmt.element("a", opt, content, linkAttributes(crossLinkRef(path, ref), title):_*)
 
         case WithFallback(fallback)         => fmt.child(fallback)
         case c: Customizable                => c match {
@@ -138,7 +143,7 @@ class HTMLRenderer2 (fileSuffix: String) extends ((HTMLFormatter, Element) => St
 
     def renderListContainer [T <: ListContainer[T]](con: ListContainer[T]): String = con match {
       case EnumList(content,format,start,opt) =>
-        fmt.indentedElement("ol", opt, content, "class" -> format.enumType.toString.toLowerCase, "start" -> noneIfDefault(start,1))
+        fmt.indentedElement("ol", opt, content, fmt.optAttributes("class" -> Some(format.enumType.toString.toLowerCase), "start" -> noneIfDefault(start,1)):_*)
       case BulletList(content,_,opt)   => fmt.indentedElement("ul", opt, content)
       case DefinitionList(content,opt) => fmt.indentedElement("dl", opt, content)
 
@@ -192,8 +197,9 @@ class HTMLRenderer2 (fileSuffix: String) extends ((HTMLFormatter, Element) => St
         val (widthAttr, wStyle) = sizeAttr(width, "width")
         val (heightAttr, hStyle) = sizeAttr(height, "height")
         val styleAttr = (wStyle ++ hStyle).reduceLeftOption((a,b) => s"$a;$b")
-        fmt.emptyElement("img", opt, "src"->uri.uri, "alt"->text, "title"->title,
-          "width"->widthAttr, "height"->heightAttr, "style"->styleAttr)
+        val allAttr = fmt.optAttributes("src" -> Some(uri.uri), "alt" -> Some(text), "title" -> title,
+          "width" -> widthAttr, "height" -> heightAttr, "style" -> styleAttr)
+        fmt.emptyElement("img", opt, allAttr:_*)
 
       case LineBreak(_)                   => fmt.emptyElement("br")
       case TemplateElement(elem,indent,_) => fmt.withMinIndentation(indent)(_.child(elem))
@@ -210,9 +216,9 @@ class HTMLRenderer2 (fileSuffix: String) extends ((HTMLFormatter, Element) => St
       case Caption(content, opt)       => fmt.element("caption", opt, content)
       case Column(opt)                 => fmt.textElement("col", opt, "")
       case Cell(HeadCell, content, colspan, rowspan, opt) =>
-        renderBlocks("th", opt, content, "colspan" -> noneIfDefault(colspan,1), "rowspan" -> noneIfDefault(rowspan,1))
+        renderBlocks("th", opt, content, fmt.optAttributes("colspan" -> noneIfDefault(colspan,1), "rowspan" -> noneIfDefault(rowspan,1)):_*)
       case Cell(BodyCell, content, colspan, rowspan, opt) =>
-        renderBlocks("td", opt, content, "colspan" -> noneIfDefault(colspan,1), "rowspan" -> noneIfDefault(rowspan,1))
+        renderBlocks("td", opt, content, fmt.optAttributes("colspan" -> noneIfDefault(colspan,1), "rowspan" -> noneIfDefault(rowspan,1)):_*)
     }
 
     def renderUnresolvedReference (ref: Reference): String =

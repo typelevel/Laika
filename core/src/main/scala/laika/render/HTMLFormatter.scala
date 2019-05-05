@@ -41,18 +41,13 @@ case class HTMLFormatter (renderChild: (HTMLFormatter, Element) => String,
 
   protected def withIndentation (newIndentation: Indentation): HTMLFormatter = copy(indentation = newIndentation)
   
-  def attributes (tag: String, options: Options, attrs: Seq[(String,Any)]): String = {
-    val id = options.id.map("id" -> _)
-    val styles = if (options.styles.isEmpty) None else Some("class" -> options.styles.mkString(" "))
-    val other = attrs map {
-      case (name, Some(value)) => Some(name -> value.toString)
-      case (_, None)           => None
-      case (name, value)       => Some(name -> value.toString)
-    }
-    attributes((id +: styles +: other).flatten)
+  def attributes (tag: String, styleHint: StyleHint, attrs: Seq[(String, String)]): String = {
+    val id = styleHint.id.map("id" -> _).toSeq
+    val styles = if (styleHint.styles.isEmpty) Nil else Seq("class" -> styleHint.styles.mkString(" "))
+    attributes(id ++ styles ++ attrs)
   }
 
-  override def emptyElement (tagName: String, styleHint: StyleHint, attrs: (String,Any)*): String =
+  override def emptyElement (tagName: String, styleHint: StyleHint, attrs: (String, String)*): String =
     s"<$tagName${attributes(tagName,styleHint,attrs)}>"
 
   override def emptyElement (tagName: String): String = s"<$tagName>"

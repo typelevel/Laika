@@ -208,9 +208,10 @@ object FORenderer2 extends ((FOFormatter, Element) => String) {
       case e: Column               => fmt.emptyElement("fo:table-column", e)
       case e @ Row(cells,_)        => fmt.indentedElement("fo:table-row", e, cells)
       case e @ Cell(_, content, colspan, rowspan, _) => 
-        fmt.indentedElement("fo:table-cell", e, content,
+        fmt.indentedElement("fo:table-cell", e, content, fmt.optAttributes(
           "number-columns-spanned" -> noneIfDefault(colspan,1),
-          "number-rows-spanned"    -> noneIfDefault(rowspan,1))
+          "number-rows-spanned"    -> noneIfDefault(rowspan,1)):_*
+        )
     }
 
     def renderUnresolvedReference (ref: Reference): String = {

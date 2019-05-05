@@ -18,7 +18,7 @@ package laika.render
 
 import laika.ast._
 
-import scala.collection.mutable.StringBuilder
+import scala.collection.mutable
 
 /** Base type for writers that produce tag-based output formats like XML 
  *  or HTML.
@@ -48,31 +48,35 @@ abstract class TagFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Eleme
   
   def comment (content: String): String = s"<!-- $content -->"
 
-  def element (tagName: String, styleHint: StyleHint, content: Seq[Element], attrs: (String,Any)*): String =
+  def element (tagName: String, styleHint: StyleHint, content: Seq[Element], attrs: (String, String)*): String =
     s"<$tagName${attributes(tagName,styleHint,attrs)}>${children(content)}</$tagName>"
 
-  def indentedElement (tagName: String, styleHint: StyleHint, content: Seq[Element], attrs: (String,Any)*): String =
+  def indentedElement (tagName: String, styleHint: StyleHint, content: Seq[Element], attrs: (String, String)*): String =
     s"<$tagName${attributes(tagName,styleHint,attrs)}>${indentedChildren(content)}$newLine</$tagName>"
 
-  def rawElement (tagName: String, styleHint: StyleHint, content: String, attrs: (String,Any)*): String =
+  def rawElement (tagName: String, styleHint: StyleHint, content: String, attrs: (String, String)*): String =
     s"<$tagName${attributes(tagName,styleHint,attrs)}>$content</$tagName>"
 
-  def textElement (tagName: String, styleHint: StyleHint, txt: String, attrs: (String,Any)*): String =
+  def textElement (tagName: String, styleHint: StyleHint, txt: String, attrs: (String, String)*): String =
     s"<$tagName${attributes(tagName,styleHint,attrs)}>${text(txt)}</$tagName>"
   
-  def emptyElement (tagName: String, styleHint: StyleHint, attrs: (String,Any)*): String =
+  def emptyElement (tagName: String, styleHint: StyleHint, attrs: (String, String)*): String =
     s"<$tagName${attributes(tagName,styleHint,attrs)}/>"
   
   def emptyElement (tagName: String): String = s"<$tagName/>"
   
   /** Produces the complete sequence of attributes to write for the specified tag.
    */
-  def attributes (tag: String, styleHint: StyleHint, attrs: Seq[(String,Any)]): String // TODO - 0.12 - move to String,String
+  def attributes (tag: String, styleHint: StyleHint, attrs: Seq[(String, String)]): String
 
   /** Writes the specified attributes (passed as name-value tuples),
     * including a preceding space character.
     */
   def attributes (attrs: Seq[(String, String)]): String = attrs.map(t => attribute(t._1 , t._2)).mkString
+  
+  def optAttributes (attrs: (String, Option[String])*): Seq[(String, String)] = attrs.collect {
+    case (name, Some(value)) => (name, value)
+  }
 
   /** Writes the specified attribute including a preceding space character.
     */
@@ -84,7 +88,7 @@ abstract class TagFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Eleme
   private def escaped (str: String): String = {
     var i = 0
     val end = str.length
-    val result = new StringBuilder
+    val result = new mutable.StringBuilder
     while (i < end) {
       str.charAt(i) match {
         case '<' => result append "&lt;"

@@ -54,13 +54,9 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
 
   import FOFormatter._
 
-  def attributes (tag: String, element: Element, attrs: Seq[(String,Any)]): String = {
+  def attributes (tag: String, element: Element, attrs: Seq[(String, String)]): String = {
     val fromCSS = styles.collectStyles(element, parents)
-    val nonEmptyAttrs = (attrs collect {
-      case (name, value: String)       => (name, value)
-      case (name, Some(value: String)) => (name, value)
-    }).toMap
-    val combinedAttrs = (fromCSS ++ nonEmptyAttrs).toSeq.sortBy(_._1)
+    val combinedAttrs = (fromCSS ++ attrs).toSeq.sortBy(_._1)
 
     val options = element match {
       case c: Customizable => c.options
@@ -144,8 +140,8 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
   /** Renders an FO `external-graphic` element.
    */
   def externalGraphic (styleHint: Element, src: String, width: Option[Size], height: Option[Size]): String =
-    emptyElement("fo:external-graphic", styleHint, "src" -> src,
-                 "width" -> width.map(_.displayValue), "height" -> height.map(_.displayValue))
+    emptyElement("fo:external-graphic", styleHint, optAttributes("src" -> Some(src),
+                 "width" -> width.map(_.displayValue), "height" -> height.map(_.displayValue)):_*)
 
   /** Renders an FO `list-item` element with the specified label and body.
    */
