@@ -41,7 +41,7 @@ object AST2 extends RenderFormat2[TextFormatter] {
 
     // TODO - 0.12 - introduce Writer constructors taking a RenderContext
     val indentation = if (context.config.renderFormatted) Indentation.default else Indentation.none
-    TextFormatter(context.renderChild, Seq(context.root), indentation)
+    TextFormatter(context.renderChild, List(context.root), indentation)
   }
   
   val defaultTheme = Theme()

@@ -33,7 +33,7 @@ import scala.collection.mutable.StringBuilder
  *  @author Jens Halm
  */
 abstract class TagFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Element) => String,
-                                                        elementStack: Seq[Element],
+                                                        elementStack: List[Element],
                                                         indentation: Indentation) extends BaseFormatter[Rep](renderChild, elementStack, indentation) { this: Rep =>
   
   type StyleHint

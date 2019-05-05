@@ -42,7 +42,7 @@ object HTML2 extends RenderFormat2[HTMLFormatter] {
 
     // TODO - 0.12 - introduce Writer constructors taking a RenderContext
     val indentation = if (context.config.renderFormatted) Indentation.default else Indentation.none
-    HTMLFormatter(context.renderChild, Seq(context.root), indentation)
+    HTMLFormatter(context.renderChild, List(context.root), indentation)
   }
 
   override lazy val defaultTheme: Theme = Theme(defaultTemplate = Some(templateResource.content))

@@ -28,10 +28,10 @@ import laika.ast._
  *  @author Jens Halm
  */
 case class TextFormatter (renderChild: (TextFormatter, Element) => String,
-                          elementStack: Seq[Element],
+                          elementStack: List[Element],
                           indentation: Indentation) extends BaseFormatter[TextFormatter](renderChild, elementStack, indentation) {
 
-  protected def withChild (element: Element): TextFormatter = copy(elementStack = elementStack :+ element)
+  protected def withChild (element: Element): TextFormatter = copy(elementStack = element :: elementStack)
 
   protected def withIndentation (newIndentation: Indentation): TextFormatter = copy(indentation = newIndentation)
   

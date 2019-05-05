@@ -30,7 +30,7 @@ import laika.factory.RenderContext2
  * @author Jens Halm
  */
 case class FOFormatter (renderChild: (FOFormatter, Element) => String,
-                        elementStack: Seq[Element], // TODO - 0.12 - should be Nel
+                        elementStack: List[Element], // TODO - 0.12 - should be Nel
                         path: Path,
                         styles: StyleDeclarationSet,
                         indentation: Indentation) extends TagFormatter[FOFormatter](renderChild, elementStack, indentation)
@@ -38,11 +38,11 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
 
   type StyleHint = Element
 
-  protected def withChild (element: Element): FOFormatter = copy(elementStack = elementStack :+ element)
+  protected def withChild (element: Element): FOFormatter = copy(elementStack = element :: elementStack)
 
   protected def withIndentation (newIndentation: Indentation): FOFormatter = copy(indentation = newIndentation)
 
-  private lazy val (footnotes, citations) = elementStack.head match {
+  private lazy val (footnotes, citations) = elementStack.last match {
     case et: ElementTraversal => (
       et collect { case f: Footnote if f.options.id.isDefined => (f.options.id.get, f) } toMap,
       et collect { case c: Citation if c.options.id.isDefined => (c.options.id.get, c) } toMap
@@ -276,7 +276,7 @@ object FOFormatter extends (RenderContext2[FOFormatter] => FOFormatter) {
   case class BookmarkTitle (content: String, options: Options = NoOpt) extends Block with TextContainer
 
   def apply(context: RenderContext2[FOFormatter]): FOFormatter =
-    FOFormatter(context.renderChild, Seq(context.root), context.path, context.styles, context.indentation)
+    FOFormatter(context.renderChild, List(context.root), context.path, context.styles, context.indentation)
   
 }
 

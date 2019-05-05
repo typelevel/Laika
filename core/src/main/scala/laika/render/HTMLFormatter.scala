@@ -28,12 +28,12 @@ import laika.ast._
  *  @author Jens Halm
  */
 case class HTMLFormatter (renderChild: (HTMLFormatter, Element) => String,
-                          elementStack: Seq[Element],
+                          elementStack: List[Element],
                           indentation: Indentation) extends TagFormatter[HTMLFormatter](renderChild, elementStack, indentation) {
 
   type StyleHint = Options
   
-  protected def withChild (element: Element): HTMLFormatter = copy(elementStack = elementStack :+ element)
+  protected def withChild (element: Element): HTMLFormatter = copy(elementStack = element :: elementStack)
 
   protected def withIndentation (newIndentation: Indentation): HTMLFormatter = copy(indentation = newIndentation)
   
