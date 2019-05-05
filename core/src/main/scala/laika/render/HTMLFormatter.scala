@@ -24,12 +24,15 @@ import laika.ast._
  * @param renderChild the function to use for rendering child elements
  * @param elementStack the stack of parent elements of this formatter in recursive rendering
  * @param indentation the level of indentation for this formatter
+ * @param messageLevel the minimum severity level for a system message to be rendered  
  *                   
  *  @author Jens Halm
  */
 case class HTMLFormatter (renderChild: (HTMLFormatter, Element) => String,
                           elementStack: List[Element],
-                          indentation: Indentation) extends TagFormatter[HTMLFormatter](renderChild, elementStack, indentation) {
+                          indentation: Indentation,
+                          messageLevel: MessageLevel) extends 
+  TagFormatter[HTMLFormatter](renderChild, elementStack, indentation, messageLevel) {
 
   type StyleHint = Options
   

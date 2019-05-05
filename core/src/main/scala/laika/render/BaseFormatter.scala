@@ -23,12 +23,14 @@ import laika.ast._
  *  @param renderChild the function to use for rendering child elements
  *  @param elementStack the stack of parent elements of this formatter in recursive rendering
  *  @param indentation the level of indentation for this formatter
+ *  @param messageLevel the minimum severity level for a system message to be rendered                   
  * 
  *  @author Jens Halm
  */
 abstract class BaseFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Element) => String,
                                                          elementStack: List[Element],
-                                                         indentation: Indentation) { this: Rep =>
+                                                         indentation: Indentation,
+                                                         messageLevel: MessageLevel) { this: Rep =>
   
   /** A newline character followed by whitespace matching the indentation level of this instance. 
     */
@@ -56,6 +58,9 @@ abstract class BaseFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Elem
     else withIndentation(indentation.copy(currentLevel = minIndent))
     f(newIndentation)
   }
+  
+  def forMessage (message: SystemMessage)(whenEnabled: String): String = 
+    if (messageLevel <= message.level) whenEnabled else ""
   
   
   /** Renders the specified elements, all on the same line.

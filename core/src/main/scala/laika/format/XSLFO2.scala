@@ -16,7 +16,7 @@
 
 package laika.format
 
-import laika.ast.{Element, MessageLevel, Path, StyleDeclarationSet, TemplateDocument}
+import laika.ast.{Element, Path, StyleDeclarationSet, TemplateDocument}
 import laika.directive.StandardDirectives
 import laika.execute.InputExecutor
 import laika.factory.{RenderContext2, RenderFormat2}
@@ -48,7 +48,7 @@ object XSLFO2 extends RenderFormat2[FOFormatter] {
   
   val fileSuffix = "fo"
 
-  val defaultRenderFunction: (FOFormatter, Element) => String = new FORenderer2(MessageLevel.Fatal).render // TODO - 0.12 - move MessageLevel to Formatter
+  val defaultRenderFunction: (FOFormatter, Element) => String = FORenderer2.render
 
   def newFormatter (context: RenderContext2[FOFormatter]): FOFormatter = FOFormatter(context)
   

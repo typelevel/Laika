@@ -22,12 +22,10 @@ import laika.ast._
   *
   * @author Jens Halm
   */
-class HTMLRenderer2 (messageLevel: MessageLevel, fileSuffix: String = "html") {
+class HTMLRenderer2 (fileSuffix: String = "html") {
 
 
   def render (fmt: HTMLFormatter, element: Element): String = {
-
-    def include (msg: SystemMessage): Boolean = messageLevel <= msg.level
 
     def noneIfDefault [T](actual: T, default: T): Option[String] = if (actual == default) None else Some(actual.toString)
 
@@ -222,17 +220,15 @@ class HTMLRenderer2 (messageLevel: MessageLevel, fileSuffix: String = "html") {
 
     def renderInvalidElement (elem: Invalid[_ <: Element]): String = elem match {
       case InvalidBlock(msg, fallback, opt) => 
-        if (include(msg)) fmt.children(List(Paragraph(List(msg),opt), fallback))
-        else fmt.child(fallback)
-      case e => 
-        if (include(e.message)) fmt.child(e.message) + " " + fmt.child(e.fallback)
-        else fmt.child(e.fallback)
+        fmt.forMessage(msg)(fmt.child(Paragraph(List(msg), opt))) + fmt.child(fallback)
+      case e =>
+        fmt.forMessage(e.message)(e.message + " ") + fmt.child(e.fallback)
     }
 
     def renderSystemMessage (message: SystemMessage): String = {
-      if (include(message))
+      fmt.forMessage(message) {
         fmt.textElement("span", message.options + Styles("system-message", message.level.toString.toLowerCase), message.content)
-      else ""
+      }
     }
 
     element match {

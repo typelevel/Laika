@@ -26,6 +26,7 @@ import laika.factory.RenderContext2
  * @param path        the path of the document getting rendered, used for generating unique ids
  * @param styles      the styles to apply when writing the attributes of an element
  * @param indentation the level of indentation for this formatter
+ * @param messageLevel the minimum severity level for a system message to be rendered                     
  * 
  * @author Jens Halm
  */
@@ -33,8 +34,9 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
                         elementStack: List[Element], // TODO - 0.12 - should be Nel
                         path: Path,
                         styles: StyleDeclarationSet,
-                        indentation: Indentation) extends TagFormatter[FOFormatter](renderChild, elementStack, indentation)
-                                                  with FOProperties {
+                        indentation: Indentation,
+                        messageLevel: MessageLevel) extends 
+  TagFormatter[FOFormatter](renderChild, elementStack, indentation, messageLevel) with FOProperties {
 
   type StyleHint = Element
 
@@ -276,7 +278,7 @@ object FOFormatter extends (RenderContext2[FOFormatter] => FOFormatter) {
   case class BookmarkTitle (content: String, options: Options = NoOpt) extends Block with TextContainer
 
   def apply(context: RenderContext2[FOFormatter]): FOFormatter =
-    FOFormatter(context.renderChild, List(context.root), context.path, context.styles, context.indentation)
+    FOFormatter(context.renderChild, List(context.root), context.path, context.styles, context.indentation, context.config.minMessageLevel)
   
 }
 

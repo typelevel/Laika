@@ -23,11 +23,9 @@ import laika.render.FOFormatter._
   *
   * @author Jens Halm
   */
-class FORenderer2 (messageLevel: MessageLevel) {
+object FORenderer2 {
 
   def render (fmt: FOFormatter, element: Element): String = {
-
-    def include (msg: SystemMessage): Boolean = messageLevel <= msg.level
 
     def noneIfDefault [T](actual: T, default: T): Option[String] = if (actual == default) None else Some(actual.toString)
 
@@ -220,18 +218,16 @@ class FORenderer2 (messageLevel: MessageLevel) {
     }
 
     def renderInvalidElement (elem: Invalid[_ <: Element]): String = elem match {
-      case InvalidBlock(msg, fallback, opt) => 
-        if (include(msg)) fmt.children(List(Paragraph(List(msg),opt), fallback))
-        else fmt.child(fallback)
-      case e => 
-        if (include(e.message)) e.message + " " + fmt.child(e.fallback)
-        else fmt.child(e.fallback)
+      case InvalidBlock(msg, fallback, opt) =>
+        fmt.forMessage(msg)(fmt.child(Paragraph(List(msg), opt))) + fmt.child(fallback)
+      case e =>
+        fmt.forMessage(e.message)(e.message + " ") + fmt.child(e.fallback)
     }
 
     def renderSystemMessage (message: SystemMessage): String = {
-      if (include(message))
-        fmt.text(message.copy(options=message.options + Styles(message.level.toString.toLowerCase)), message.content)
-      else ""
+      fmt.forMessage(message) {
+        fmt.text(message.copy(options = message.options + Styles(message.level.toString.toLowerCase)), message.content)
+      }
     }
 
     element match {

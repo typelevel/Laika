@@ -16,7 +16,7 @@
 
 package laika.format
 
-import laika.ast.{Element, MessageLevel, Path, TemplateDocument}
+import laika.ast.{Element, Path, TemplateDocument}
 import laika.execute.InputExecutor
 import laika.factory.{RenderContext2, RenderFormat2}
 import laika.parse.directive.DefaultTemplateParser
@@ -36,13 +36,13 @@ object HTML2 extends RenderFormat2[HTMLFormatter] {
   
   val fileSuffix = "html"
 
-  val defaultRenderFunction: (HTMLFormatter, Element) => String = new HTMLRenderer2(MessageLevel.Fatal).render // TODO - 0.12 - move MessageLevel to Formatter
+  val defaultRenderFunction: (HTMLFormatter, Element) => String = new HTMLRenderer2().render
  
   def newFormatter (context: RenderContext2[HTMLFormatter]): HTMLFormatter = {
 
     // TODO - 0.12 - introduce Writer constructors taking a RenderContext
     val indentation = if (context.config.renderFormatted) Indentation.default else Indentation.none
-    HTMLFormatter(context.renderChild, List(context.root), indentation)
+    HTMLFormatter(context.renderChild, List(context.root), indentation, context.config.minMessageLevel)
   }
 
   override lazy val defaultTheme: Theme = Theme(defaultTemplate = Some(templateResource.content))

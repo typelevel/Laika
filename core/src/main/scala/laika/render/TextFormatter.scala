@@ -29,7 +29,7 @@ import laika.ast._
  */
 case class TextFormatter (renderChild: (TextFormatter, Element) => String,
                           elementStack: List[Element],
-                          indentation: Indentation) extends BaseFormatter[TextFormatter](renderChild, elementStack, indentation) {
+                          indentation: Indentation) extends BaseFormatter[TextFormatter](renderChild, elementStack, indentation, MessageLevel.Debug) {
 
   protected def withChild (element: Element): TextFormatter = copy(elementStack = element :: elementStack)
 
