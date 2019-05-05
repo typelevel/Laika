@@ -31,6 +31,8 @@ case class HTMLFormatter (renderChild: (HTMLFormatter, Element) => String,
                           elementStack: Seq[Element],
                           indentation: Indentation) extends TagFormatter[HTMLFormatter](renderChild, elementStack, indentation) {
 
+  type StyleHint = Options
+  
   protected def withChild (element: Element): HTMLFormatter = copy(elementStack = elementStack :+ element)
 
   protected def withIndentation (newIndentation: Indentation): HTMLFormatter = copy(indentation = newIndentation)
@@ -45,5 +47,10 @@ case class HTMLFormatter (renderChild: (HTMLFormatter, Element) => String,
     }
     attributes((id +: styles +: other).flatten)
   }
+
+  override def emptyElement (tagName: String, styleHint: StyleHint, attrs: (String,Any)*): String =
+    s"<$tagName${attributes(tagName,styleHint,attrs)}>"
+
+  override def emptyElement (tagName: String): String = s"<$tagName>"
  
 }

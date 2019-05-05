@@ -36,6 +36,8 @@ abstract class TagFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Eleme
                                                         elementStack: Seq[Element],
                                                         indentation: Indentation) extends BaseFormatter[Rep](renderChild, elementStack, indentation) { this: Rep =>
   
+  type StyleHint
+  
   /** Renders the specified string on the same line, 
    *  with all special XML/HTML characters converted to entities.
    */
@@ -43,26 +45,26 @@ abstract class TagFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Eleme
   
   def comment (content: String): String = s"<!-- $content -->"
 
-  def element (tagName: String, options: Options, content: Seq[Element], attrs: (String,Any)*): String =
-    s"<$tagName${attributes(tagName,options,attrs)}>${children(content)}</$tagName>"
+  def element (tagName: String, styleHint: StyleHint, content: Seq[Element], attrs: (String,Any)*): String =
+    s"<$tagName${attributes(tagName,styleHint,attrs)}>${children(content)}</$tagName>"
 
-  def indentedElement (tagName: String, options: Options, content: Seq[Element], attrs: (String,Any)*): String =
-    s"<$tagName${attributes(tagName,options,attrs)}>${indentedChildren(content)}$newLine</$tagName>"
+  def indentedElement (tagName: String, styleHint: StyleHint, content: Seq[Element], attrs: (String,Any)*): String =
+    s"<$tagName${attributes(tagName,styleHint,attrs)}>${indentedChildren(content)}$newLine</$tagName>"
 
-  def rawElement (tagName: String, options: Options, content: String, attrs: (String,Any)*): String =
-    s"<$tagName${attributes(tagName,options,attrs)}>$content</$tagName>"
+  def rawElement (tagName: String, styleHint: StyleHint, content: String, attrs: (String,Any)*): String =
+    s"<$tagName${attributes(tagName,styleHint,attrs)}>$content</$tagName>"
 
-  def textElement (tagName: String, options: Options, txt: String, attrs: (String,Any)*): String =
-    s"<$tagName${attributes(tagName,options,attrs)}>${text(txt)}</$tagName>"
+  def textElement (tagName: String, styleHint: StyleHint, txt: String, attrs: (String,Any)*): String =
+    s"<$tagName${attributes(tagName,styleHint,attrs)}>${text(txt)}</$tagName>"
   
-  def emptyElement (tagName: String, options: Options, attrs: (String,Any)*): String =
-    s"<$tagName${attributes(tagName,options,attrs)}>"
+  def emptyElement (tagName: String, styleHint: StyleHint, attrs: (String,Any)*): String =
+    s"<$tagName${attributes(tagName,styleHint,attrs)}/>"
   
-  def emptyElement (tagName: String): String = s"<$tagName>"
+  def emptyElement (tagName: String): String = s"<$tagName/>"
   
   /** Produces the complete sequence of attributes to write for the specified tag.
    */
-  def attributes (tag: String, options: Options, attrs: Seq[(String,Any)]): String
+  def attributes (tag: String, styleHint: StyleHint, attrs: Seq[(String,Any)]): String // TODO - 0.12 - move to String,String
 
   /** Writes the specified attributes (passed as name-value tuples),
     * including a preceding space character.
