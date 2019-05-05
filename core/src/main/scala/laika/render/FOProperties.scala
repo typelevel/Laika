@@ -446,7 +446,7 @@ trait FOProperties {
    *  @param attributes the attributes to filter as a sequence of key-name tuples
    *  @return a new sequence containing only attributes valid for that tag
    */
-  def filterAttributes (tagName: String, attributes: Seq[(String, Any)]): Seq[(String, Any)] = {
+  def filterAttributes (tagName: String, attributes: Seq[(String, String)]): Seq[(String, String)] = {
     val supportedProps = map(tagName.drop(3))
     attributes.filter(pair => supportedProps(pair._1))
   }

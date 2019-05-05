@@ -19,6 +19,7 @@ package laika.factory
 import laika.ast.{Element, Path, StyleDeclarationSet, TemplateRoot}
 import laika.bundle.{RenderTheme2, StaticDocuments}
 import laika.config.RenderConfig
+import laika.render.Indentation
 
 /**
   * @param renderChild a render function to use for rendering the children of an element
@@ -31,7 +32,11 @@ case class RenderContext2[FMT] (renderChild: (FMT, Element) => String,
                           root: Element, 
                           styles: StyleDeclarationSet,
                           path: Path,
-                          config: RenderConfig)
+                          config: RenderConfig) {
+  
+  val indentation: Indentation = if (config.renderFormatted) Indentation.default else Indentation.none
+  
+}
 
 /** Responsible for creating renderer instances for a specific output format.
  *  A renderer is simply a function of type `(Formatter, Element) => String`. In addition

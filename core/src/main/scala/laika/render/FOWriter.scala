@@ -42,7 +42,12 @@ class FOWriter (out: String => Unit,
   import FOWriter._
 
   protected def attributes (tag: String, options: Options, attrs: Seq[(String,Any)]): Seq[(String, Any)] = {
-    filterAttributes(tag, ("id"->options.id) +: attrs.sortBy(_._1))
+    val idAttr = options.id.map(id => "id"-> buildId(path, id)).toSeq
+    val nonEmptyAttrs = attrs collect {
+      case (name, value: String)       => (name, value)
+      case (name, Some(value: String)) => (name, value)
+    }
+    filterAttributes(tag, idAttr ++ nonEmptyAttrs.sortBy(_._1))
   }
   
   protected def attributes (tag: String, element: Element, attrs: Seq[(String,Any)]): Seq[(String, Any)] = {
@@ -57,7 +62,8 @@ class FOWriter (out: String => Unit,
       case c: Customizable => c.options
       case _ => NoOpt
     }
-    filterAttributes(tag, ("id"->options.id.map(buildId(path, _))) +: combinedAttrs)
+    val idAttr = options.id.map(id => "id"-> buildId(path, id)).toSeq
+    filterAttributes(tag, idAttr ++ combinedAttrs)
   }
   
   
@@ -162,7 +168,7 @@ class FOWriter (out: String => Unit,
    */
   def text (element: Element, content: String, attr: (String,String)*): FOWriter = {
     val attrs = attributes("fo:inline",element,attr)
-    if (hasAttributes(attrs)) this <<@ ("fo:inline", NoOpt, attrs: _*) <<& content << "</fo:inline>"
+    if (hasAttributes(attrs)) this <<@ ("fo:inline", element, attrs: _*) <<& content << "</fo:inline>"
     else this <<& content
   }
     
@@ -172,7 +178,7 @@ class FOWriter (out: String => Unit,
    */
   def textWithWS (element: Element, content: String, attr: (String,String)*): FOWriter = {
     val attrs = attributes("fo:inline",element,attr)
-    if (hasAttributes(attrs)) this <<@ ("fo:inline", NoOpt, attrs: _*) <<<& content << "</fo:inline>"
+    if (hasAttributes(attrs)) this <<@ ("fo:inline", element, attrs: _*) <<<& content << "</fo:inline>"
     else this <<<& content
   }
   
@@ -182,7 +188,7 @@ class FOWriter (out: String => Unit,
    */
   def textBlockWithWS (element: Element, content: String, attr: (String,String)*): FOWriter = {
     val attrs = attributes("fo:block",element,attr)
-    if (hasAttributes(attrs)) this <<@ ("fo:block", NoOpt, attrs: _*) <<<& content << "</fo:block>"
+    if (hasAttributes(attrs)) this <<@ ("fo:block", element, attrs: _*) <<<& content << "</fo:block>"
     else this <<<& content
   }
     
@@ -192,7 +198,7 @@ class FOWriter (out: String => Unit,
    */
   def rawText (element: Element, content: String, attr: (String,String)*): FOWriter = {
     val attrs = attributes("fo:inline",element,attr)
-    if (hasAttributes(attrs)) this <<@ ("fo:inline", NoOpt, attrs: _*) << content << "</fo:inline>"
+    if (hasAttributes(attrs)) this <<@ ("fo:inline", element, attrs: _*) << content << "</fo:inline>"
     else this << content
   }
   
