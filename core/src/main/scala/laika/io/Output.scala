@@ -18,7 +18,9 @@ package laika.io
 
 import java.io._
 
-import laika.ast.Path
+import com.typesafe.config.Config
+import laika.ast.{Navigatable, Path, Span, TemplateDocument}
+import laika.ast.Path.Root
 
 import scala.collection.mutable.StringBuilder
 import scala.io.Codec
@@ -59,6 +61,12 @@ sealed trait BinaryOutput extends Output
   */
 sealed trait TextOutput extends Output
 
+sealed trait TreeOutput extends Output {
+
+  val path: Path = Root
+  
+}
+
 case class TextFileOutput (file: File, path: Path, codec: Codec) extends TextOutput
 
 // TODO - 0.12 - temporary mutable solution to ease migration
@@ -68,3 +76,28 @@ case class BinaryFileOutput (file: File, path: Path) extends BinaryOutput
 
 // TODO - 0.12 - temporary mutable solution to ease migration
 case class ByteOutput (out: ByteArrayOutputStream, path: Path) extends BinaryOutput
+
+case class DirectoryOutput (directory: File, codec: Codec) extends TreeOutput
+
+case object StringTreeOutput extends TreeOutput
+
+sealed trait RenderContent extends Navigatable {
+  def path: Path
+}
+sealed trait RenderNavigationContent extends RenderContent {
+  def title: Seq[Span]
+}
+
+case class RenderedTree (path: Path, title: Seq[Span], content: Seq[RenderContent]) extends RenderNavigationContent {
+  val titleDocument: Option[RenderedDocument] = ??? // TODO
+  val navigationContent: Seq[RenderNavigationContent] = ???
+  val navigationContentAfterTitle: Seq[RenderNavigationContent] = ???
+}
+
+case class RenderedDocument (path: Path, title: Seq[Span], content: String) extends RenderNavigationContent
+
+case class RenderedTemplate (path: Path, content: String) extends RenderContent
+
+case class CopiedDocument (path: Path, content: BinaryInput) extends RenderContent
+
+case class RenderResult2 (coverDocument: Option[RenderedDocument], rootTree: RenderedTree, template: TemplateDocument, config: Config)
