@@ -17,7 +17,7 @@
 package laika.rst.bundle
 
 import laika.ast._
-import laika.render.HTMLWriter
+import laika.render.HTMLFormatter
 import laika.rst.ast._
 
 /** HTML renderer for special reStructuredText tree elements not part of the default document tree model.
@@ -39,7 +39,7 @@ import laika.rst.ast._
  * 
  *  @author Jens Halm
  */
-class ExtendedHTMLRenderer extends (HTMLWriter => RenderFunction) {
+class ExtendedHTMLRenderer {
 
   
   private case class ProgramOptions (opts: Seq[Element], options: Options = NoOpt) extends Block
@@ -68,22 +68,16 @@ class ExtendedHTMLRenderer extends (HTMLWriter => RenderFunction) {
         Columns.options(Styles("field-name"),Styles("field-body")), Styles("field-list"))
   }
   
-  def apply (out: HTMLWriter): RenderFunction = {
-    
-    val pf: RenderFunction = {
-      case DoctestBlock(content,_)    => out << """<pre class="doctest-block">""" <<<& (">>> "+content) <<  "</pre>"
-      case fl: FieldList              => out << toTable(fl)
-      case ol: OptionList             => out << toTable(ol)
-      case ProgramOptions(options,_)  => out << "<kbd>" << options << "</kbd>"
-      case ProgramOption(name,arg)    => out << """<span class="option">""" << name << arg.getOrElse(Text("")) << "</span>"
-      case OptionArgument(value,delim)=> out << delim << "<var>" << value << "</var>"
-    } 
-    
-    pf
-      
+  val custom: PartialFunction[(HTMLFormatter, Element), String] = {
+    case (fmt, DoctestBlock(content,opt))  => fmt.withoutIndentation(_.textElement("pre", opt, ">>> "+content, "class" -> "doctest-block"))
+    case (fmt, fl: FieldList)              => fmt.child(toTable(fl))
+    case (fmt, ol: OptionList)             => fmt.child(toTable(ol))
+    case (fmt, ProgramOptions(options,opt))=> fmt.element("kbd", opt, options)
+    case (fmt, ProgramOption(name,arg))    => fmt.element("span", NoOpt, Seq(Text(name), arg.getOrElse(Text(""))), "class" -> "option")
+    case (_, OptionArgument(value,delim))  => s"$delim<var>$value</var>"
   }
-  
-  
+
+
 }
 
 object ExtendedHTMLRenderer extends ExtendedHTMLRenderer
