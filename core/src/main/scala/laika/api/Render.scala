@@ -19,7 +19,7 @@ package laika.api
 import laika.ast._
 import laika.config.{OperationConfig, RenderConfigBuilder}
 import laika.execute.RenderExecutor
-import laika.factory.{RenderFormat, RenderFormat2, RenderResultProcessor}
+import laika.factory.{RenderFormat, RenderFormat2, RenderResultProcessor, RenderResultProcessor2}
 import laika.io._
 
 /** API for performing a render operation to various types of output using an existing
@@ -125,7 +125,15 @@ object Render {
     def execute: Done = RenderExecutor.execute(this)
   }
 
+  case class TreeOp2[FMT] (format: RenderFormat2[FMT], config: OperationConfig, tree: DocumentTree, output: TreeOutput) {
+    def execute: RenderResult2 = RenderExecutor.execute(this)
+  }
+
   case class MergeOp[Writer] (processor: RenderResultProcessor[Writer], config: OperationConfig, tree: DocumentTree, output: BinaryOutput) {
+    def execute: Done = RenderExecutor.execute(this)
+  }
+
+  case class MergeOp2[FMT] (processor: RenderResultProcessor2[FMT], config: OperationConfig, tree: DocumentTree, output: BinaryOutput) {
     def execute: Done = RenderExecutor.execute(this)
   }
   

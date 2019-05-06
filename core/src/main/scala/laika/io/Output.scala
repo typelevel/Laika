@@ -19,7 +19,7 @@ package laika.io
 import java.io._
 
 import com.typesafe.config.Config
-import laika.ast.{Navigatable, Path, Span, TemplateDocument}
+import laika.ast.{Navigatable, Path, Span, TemplateRoot}
 import laika.ast.Path.Root
 
 import scala.collection.mutable.StringBuilder
@@ -100,4 +100,4 @@ case class RenderedTemplate (path: Path, content: String) extends RenderContent
 
 case class CopiedDocument (path: Path, content: BinaryInput) extends RenderContent
 
-case class RenderResult2 (coverDocument: Option[RenderedDocument], rootTree: RenderedTree, template: TemplateDocument, config: Config)
+case class RenderResult2 (coverDocument: Option[RenderedDocument], rootTree: RenderedTree, template: TemplateRoot, config: Config)
