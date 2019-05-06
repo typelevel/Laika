@@ -19,7 +19,7 @@ package laika.ast
 import java.text.DecimalFormat
 
 import laika.api.Render
-import laika.format.AST
+import laika.format.{AST, AST2}
 
 import scala.math.Ordered
 
@@ -152,7 +152,7 @@ trait TextContainer extends Container[String]
  *  `ListContainer`, `SpanContainer` or `BlockContainer` should be used.
  */
 trait ElementContainer[+E <: Element, Self <: ElementContainer[E,Self]] extends Container[Seq[E]] with ElementTraversal {
-  override def toString: String = "\n" + (Render as AST from this toString) + "\n"
+  override def toString: String = "\n" + (Render as AST2 from this toString) + "\n"
 }
 
 /** A generic container of child elements which can have
@@ -510,7 +510,7 @@ case class Table (head: TableHead, body: TableBody, caption: Caption = Caption()
   
   def rewriteChildren (rules: RewriteRules): Table = copy(head = head.rewriteChildren(rules), body = body.rewriteChildren(rules), caption = caption.rewriteChildren(rules))
  
-  override def toString = "\n" + (Render as AST from this toString) + "\n"
+  override def toString = "\n" + (Render as AST2 from this toString) + "\n"
 }
 
 /** A table element, like a row, cell or column.
