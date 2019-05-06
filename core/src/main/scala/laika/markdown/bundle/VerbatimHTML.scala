@@ -17,7 +17,7 @@
 package laika.markdown.bundle
 
 import laika.bundle.{ExtensionBundle, ParserBundle}
-import laika.format.HTML
+import laika.format.{HTML, HTML2}
 import laika.markdown.HTMLParsers
 
 /**  Markdown extension that also parses verbatim HTML elements alongside
@@ -45,6 +45,6 @@ object VerbatimHTML extends ExtensionBundle {
     spanParsers = Seq(HTMLParsers.htmlSpan, HTMLParsers.htmlCharRef)
   )
 
-  override val themes = Seq(HTML.Theme(customRenderer = HTMLRenderer))
+  override val themes = Seq(HTML2.Theme(customRenderer = HTMLRenderer.custom))
 
 }

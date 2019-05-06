@@ -16,9 +16,9 @@
 
 package laika.markdown.bundle
 
-import laika.ast.{RenderFunction, Text, TextContainer}
+import laika.ast.{Element, Text, TextContainer}
 import laika.markdown.ast._
-import laika.render.HTMLWriter
+import laika.render.HTMLFormatter
 
 /**  Renderer for verbatim HTML elements. Since verbatim HTML is treated as an optional feature
   *  by this library as it aims to also support renderers for other formats than HTML,
@@ -35,44 +35,37 @@ import laika.render.HTMLWriter
   *
   *  @author Jens Halm
   */
-object HTMLRenderer extends (HTMLWriter => RenderFunction) {
+object HTMLRenderer {
 
-
-  def apply (out: HTMLWriter): RenderFunction = {
-
-    def prepareAttributeValue (spans: List[TextContainer]): String =
-      spans.foldLeft("") {
-        case (acc, Text(content,_)) => acc + content.replace("&","&amp;").replace("\"","&quot;").replace("'","$#39;")
-        case (acc, span) => acc + span.content
-      }
-
-    def tagStart (name: String, attributes: List[HTMLAttribute]): Unit = {
-      out << "<" << name
-      attributes.foreach { at =>
-        out << " " << at.name
-        at match {
-          case HTMLAttribute(_, value, Some(char))  => out << "=" << char.toString << prepareAttributeValue(value) << char.toString
-          case HTMLAttribute(_, Nil, None)          => ()
-          case HTMLAttribute(_, value, None)        => out << "=" << prepareAttributeValue(value)
-        }
-      }
+  def prepareAttributeValue (spans: List[TextContainer]): String =
+    spans.foldLeft("") {
+      case (acc, Text(content,_)) => acc + content.replace("&","&amp;").replace("\"","&quot;").replace("'","$#39;")
+      case (acc, span) => acc + span.content
     }
 
-    val pf: RenderFunction = {
-
-      case HTMLElement(st @ HTMLStartTag("pre", _,_), content, _) => out << st <<< content << "</" << st.name << ">"
-      case HTMLElement(startTag, content,_)     => out << startTag << content << "</" << startTag.name << ">"
-      case HTMLStartTag(name, attributes,_)     => tagStart(name, attributes); out << ">"
-      case HTMLEmptyElement(name, attributes,_) => tagStart(name, attributes); out << "/>"
-      case HTMLEndTag(name,_)                   => out << "</" << name << ">"
-      case HTMLComment(content,_)               => out << "<!--" << content << "-->"
-      case HTMLCharacterReference(ref,_)        => out << ref
-      case HTMLBlock(root,_)                    => out << root
+  def tagStart (tagName: String, attributes: List[HTMLAttribute]): String = {
+    
+    val renderedAttrs = attributes.map { at =>
+      val name = " " + at.name
+      at match {
+        case HTMLAttribute(_, value, Some(char))  => s"=$char${prepareAttributeValue(value)}$char"
+        case HTMLAttribute(_, Nil, None)          => ""
+        case HTMLAttribute(_, value, None)        => "=" + prepareAttributeValue(value)
+      }
     }
-
-    pf
-
+    s"<$tagName$renderedAttrs"
   }
 
+  val custom: PartialFunction[(HTMLFormatter, Element), String] = {
+
+    case (fmt, HTMLElement(st @ HTMLStartTag("pre", _,_), content, _)) => fmt.child(st) + fmt.withoutIndentation(_.children(content)) + s"</${st.name}>"
+    case (fmt, HTMLElement(startTag, content,_))   => fmt.child(startTag) + fmt.children(content) + s"</${startTag.name}>"
+    case (_, HTMLStartTag(name, attributes,_))     => tagStart(name, attributes) + ">"
+    case (_, HTMLEmptyElement(name, attributes,_)) => tagStart(name, attributes) + "/>"
+    case (_, HTMLEndTag(name,_))                   => s"</$name>"
+    case (fmt, HTMLComment(content,_))             => fmt.comment(content)
+    case (_, HTMLCharacterReference(ref,_))        => ref
+    case (fmt, HTMLBlock(root,_))                  => fmt.child(root)
+  }
 
 }
