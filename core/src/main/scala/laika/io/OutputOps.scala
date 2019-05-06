@@ -66,15 +66,15 @@ trait BinaryOutputOps[Writer] extends SingleOutputOps[Writer] {
   
 }
 
-trait BinaryRenderOutputOps[Writer] extends BinaryOutputOps[Writer] {
+trait BinaryRenderOutputOps[FMT] extends BinaryOutputOps[FMT] {
 
-  type Result = Render.MergeOp[Writer]
+  type Result = Render.MergeOp2[FMT]
   
 }
 
-trait BinaryTransformOutputOps[Writer] extends BinaryOutputOps[Writer] {
+trait BinaryTransformOutputOps[FMT] extends BinaryOutputOps[FMT] {
 
-  type Result = Transform.MergeOp[Writer]
+  type Result = Transform.MergeOp[FMT]
 
 }
 
@@ -82,7 +82,7 @@ trait BinaryTransformOutputOps[Writer] extends BinaryOutputOps[Writer] {
   *  Various types of output can be
   *  specified to trigger the actual rendering.
   */
-trait TextOutputOps[Writer] extends SingleOutputOps[Writer] {
+trait TextOutputOps[FMT] extends SingleOutputOps[FMT] {
   
   type Result
 
@@ -102,9 +102,9 @@ trait TextOutputOps[Writer] extends SingleOutputOps[Writer] {
 
 }
 
-trait TextRenderOutputOps[Writer] extends TextOutputOps[Writer] {
+trait TextRenderOutputOps[FMT] extends TextOutputOps[FMT] {
 
-  type Result = Render.Op[Writer]
+  type Result = Render.Op2[FMT]
   
   /** Renders the model to a String and returns it.
     */
@@ -153,7 +153,7 @@ trait OutputTreeOps[Writer] extends OutputOps {
     *  @param dir the directory to write to
     *  @param codec the character encoding of the files, if not specified the platform default will be used.
     */
-  def toDirectory (dir: File)(implicit codec: Codec): Result = toOutputTree(OutputTree.forRootDirectory(dir))
+  def toDirectory (dir: File)(implicit codec: Codec): Result = toOutputTree(DirectoryOutput(dir, codec))
 
   /** Renders the document tree to the
     *  current working directory and its subdirectories.
@@ -161,18 +161,18 @@ trait OutputTreeOps[Writer] extends OutputOps {
     *
     *  @param codec the character encoding of the files, if not specified the platform default will be used.
     */
-  def toDefaultDirectory (implicit codec: Codec): Result = toOutputTree(OutputTree.forWorkingDirectory)
+  def toDefaultDirectory (implicit codec: Codec): Result = toOutputTree(DirectoryOutput(new File(System.getProperty("user.dir")), codec))
 
   /** Renders the document tree to the specified output tree.
     */
-  def toOutputTree (tree: OutputTree): Result
+  def toOutputTree (tree: TreeOutput): Result // TODO - rename
 
 }
 
 // TODO - 0.12 - unclutter trait hierarchies
 trait RenderOutputTreeOps[Writer] extends OutputTreeOps[Writer] {
   
-  type Result = Render.TreeOp[Writer]
+  type Result = Render.TreeOp2[Writer]
   
 }
 

@@ -53,12 +53,12 @@ import laika.io._
  *  Render as PDF from tree toFile "hello.pdf"
  *  }}}
  *  
- *  @tparam Writer the writer API to use which varies depending on the renderer
+ *  @tparam FMT the formatter API to use which varies depending on the renderer
  * 
  *  @author Jens Halm
  */
-abstract class Render[Writer] private (protected[api] val format: RenderFormat[Writer],
-                                       val config: OperationConfig) extends RenderConfigBuilder[Writer] {
+abstract class Render[FMT] private (protected[api] val format: RenderFormat2[FMT],
+                                       val config: OperationConfig) extends RenderConfigBuilder[FMT] {
 
   protected[this] lazy val theme = config.themeFor(format)
 
@@ -73,11 +73,7 @@ abstract class Render[Writer] private (protected[api] val format: RenderFormat[W
 
   /** The concrete implementation of the abstract Render type.
    */
-  type ThisType <: Render[Writer]
-
-
-  @deprecated("renamed to rendering for consistency", "0.9.0")
-  def using (render: Writer => RenderFunction): ThisType = rendering(render)
+  type ThisType <: Render[FMT]
 
   /** Specifies the element to render. This may be a `RootElement` instance
    *  as well as any other type of `Element`, thus allowing to render document
@@ -144,24 +140,24 @@ object Render {
    *  @param format the factory for the rendere to use
    *  @param cfg the configuration for the render operation
    */
-  class RenderMappedOutput[Writer] (format: RenderFormat[Writer],
-                                    cfg: OperationConfig) extends Render[Writer](format, cfg) {
+  class RenderMappedOutput[FMT] (format: RenderFormat2[FMT],
+                                    cfg: OperationConfig) extends Render[FMT](format, cfg) {
 
-    type DocOps = TextRenderOutputOps[Writer]
-    type TreeOps = RenderOutputTreeOps[Writer]
-    type ThisType = RenderMappedOutput[Writer]
+    type DocOps = TextRenderOutputOps[FMT]
+    type TreeOps = RenderOutputTreeOps[FMT]
+    type ThisType = RenderMappedOutput[FMT]
 
     def withConfig(newConfig: OperationConfig): ThisType =
-      new RenderMappedOutput[Writer](format, newConfig)
+      new RenderMappedOutput[FMT](format, newConfig)
 
-    def from (element: Element): TextRenderOutputOps[Writer] = new TextRenderOutputOps[Writer] {
-      def toTextOutput (out: TextOutput) = Op[Writer](format, cfg, element, out)
+    def from (element: Element): TextRenderOutputOps[FMT] = new TextRenderOutputOps[FMT] {
+      def toTextOutput (out: TextOutput) = Op2[FMT](format, cfg, element, out)
     }
     
-    def from (doc: Document): TextRenderOutputOps[Writer] = from(doc.content)
+    def from (doc: Document): TextRenderOutputOps[FMT] = from(doc.content)
     
-    def from (tree: DocumentTree): RenderOutputTreeOps[Writer] = new RenderOutputTreeOps[Writer] {
-      def toOutputTree (out: OutputTree) = TreeOp[Writer](format, cfg, tree, out)
+    def from (tree: DocumentTree): RenderOutputTreeOps[FMT] = new RenderOutputTreeOps[FMT] {
+      def toOutputTree (out: TreeOutput) = TreeOp2[FMT](format, cfg, tree, out)
     }
     
   }
@@ -177,24 +173,24 @@ object Render {
    *  @param processor the processor that merges the results from the individual render operations into a single output
    *  @param cfg the configuration for the render operation
    */
-  class RenderMergedOutput[Writer] (processor: RenderResultProcessor[Writer],
-                                    cfg: OperationConfig) extends Render[Writer](processor.format, cfg) {
+  class RenderMergedOutput[FMT] (processor: RenderResultProcessor2[FMT],
+                                    cfg: OperationConfig) extends Render[FMT](processor.format, cfg) {
     
-    type DocOps = BinaryRenderOutputOps[Writer]
-    type TreeOps = BinaryRenderOutputOps[Writer]
-    type ThisType = RenderMergedOutput[Writer]
+    type DocOps = BinaryRenderOutputOps[FMT]
+    type TreeOps = BinaryRenderOutputOps[FMT]
+    type ThisType = RenderMergedOutput[FMT]
 
     def withConfig(newConfig: OperationConfig): ThisType =
-      new RenderMergedOutput[Writer](processor, newConfig)
+      new RenderMergedOutput[FMT](processor, newConfig)
 
-    def from (element: Element): BinaryRenderOutputOps[Writer] =
+    def from (element: Element): BinaryRenderOutputOps[FMT] =
       from(Document(Path.Root / "target", RootElement(Seq(TemplateRoot(Seq(TemplateElement(element)))))))
     
-    def from (doc: Document): BinaryRenderOutputOps[Writer] =
+    def from (doc: Document): BinaryRenderOutputOps[FMT] =
       from(DocumentTree(Path.Root, Seq(doc)))
     
-    def from (tree: DocumentTree): BinaryRenderOutputOps[Writer] = new BinaryRenderOutputOps[Writer] {
-      def toBinaryOutput (out: BinaryOutput): Result = MergeOp[Writer](processor, cfg, tree, out)
+    def from (tree: DocumentTree): BinaryRenderOutputOps[FMT] = new BinaryRenderOutputOps[FMT] {
+      def toBinaryOutput (out: BinaryOutput): Result = MergeOp2[FMT](processor, cfg, tree, out)
     }
     
   }
@@ -206,7 +202,7 @@ object Render {
    * 
    *  @param format the renderer factory responsible for creating the final renderer
    */
-  def as [Writer] (format: RenderFormat[Writer]): RenderMappedOutput[Writer] =
+  def as [FMT] (format: RenderFormat2[FMT]): RenderMappedOutput[FMT] =
     new RenderMappedOutput(format, OperationConfig.default)
   
   /** Returns a new Render instance for the specified processor.
@@ -215,7 +211,7 @@ object Render {
    * 
    *  @param processor the processor responsible for processing the renderer result
    */
-  def as [Writer] (processor: RenderResultProcessor[Writer]): RenderMergedOutput[Writer] =
+  def as [FMT] (processor: RenderResultProcessor2[FMT]): RenderMergedOutput[FMT] =
     new RenderMergedOutput(processor, OperationConfig.default)
   
 }

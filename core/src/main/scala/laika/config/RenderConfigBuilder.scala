@@ -16,18 +16,18 @@
 
 package laika.config
 
-import laika.ast.{MessageLevel, RenderFunction}
+import laika.ast.{Element, MessageLevel}
 import laika.bundle.ExtensionBundle
-import laika.factory.RenderFormat
+import laika.factory.RenderFormat2
 
 /** API for specifying configuration options that apply to all
   * kinds of operations that contain a rendering step (Render and Transform APIs).
   *
   * @author Jens Halm
   */
-trait RenderConfigBuilder[Writer] extends OperationConfigBuilder {
+trait RenderConfigBuilder[FMT] extends OperationConfigBuilder {
 
-  protected def format: RenderFormat[Writer]
+  protected def format: RenderFormat2[FMT]
 
   /**  Specifies a custom render function that overrides one or more of the default
     *  renderers for the output format this instance uses.
@@ -46,7 +46,7 @@ trait RenderConfigBuilder[Writer] extends OperationConfigBuilder {
     *  } fromFile "hello.md" toFile "hello.html"
     *  }}}
     */
-  def rendering (customRenderer: Writer => RenderFunction): ThisType = using(new ExtensionBundle {
+  def rendering (customRenderer: PartialFunction[(FMT, Element), String]): ThisType = using(new ExtensionBundle {
     override val useInStrictMode: Boolean = true
     override val themes = Seq(format.Theme(customRenderer = customRenderer))
   })
