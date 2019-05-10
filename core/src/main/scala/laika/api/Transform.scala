@@ -16,13 +16,13 @@
 
 package laika.api
 
-import laika.api.Render.Done
+import laika.api.Render.{Done, Op2, TreeOp2}
 import laika.ast.DocumentType.Markup
 import laika.ast.Path.Root
 import laika.ast._
 import laika.config.{OperationConfig, TransformConfigBuilder}
 import laika.execute.TransformExecutor
-import laika.factory.{MarkupParser, RenderFormat, RenderResultProcessor}
+import laika.factory.{MarkupParser, RenderFormat, RenderFormat2, RenderResultProcessor, RenderResultProcessor2}
 import laika.io._
 
 /** API for performing a transformation operation from and to various types of input and output,
@@ -73,14 +73,14 @@ import laika.io._
  *  between the parse and render operations and the `rendering` method allows to customize the
  *  way certain types of elements are rendered.
  *  
- *  @tparam Writer the writer API to use which varies depending on the renderer
+ *  @tparam FMT the formatter API to use which varies depending on the renderer
  * 
  *  @author Jens Halm
  */
-abstract class Transform [Writer] private[Transform] (parsers: Seq[MarkupParser], protected val format: RenderFormat[Writer]) extends
-  TransformConfigBuilder[Writer] with InputOps with InputTreeOps  {
+abstract class Transform [FMT] private[Transform] (parsers: Seq[MarkupParser], protected val format: RenderFormat2[FMT]) extends
+  TransformConfigBuilder[FMT] with InputOps with InputTreeOps  {
   
-  type ThisType <: Transform[Writer]
+  type ThisType <: Transform[FMT]
   type InputResult <: OutputOps
   type InputTreeResult <: OutputOps
 
@@ -94,15 +94,27 @@ abstract class Transform [Writer] private[Transform] (parsers: Seq[MarkupParser]
  */
 object Transform {
 
-  case class Op[Writer] (parsers: Seq[MarkupParser], format: RenderFormat[Writer], config: OperationConfig, input: TextInput, output: TextOutput) {
+  case class Op[FMT] (parsers: Seq[MarkupParser], format: RenderFormat[FMT], config: OperationConfig, input: TextInput, output: TextOutput) {
     def execute: Done = TransformExecutor.execute(this)
   }
 
-  case class TreeOp[Writer] (parsers: Seq[MarkupParser], format: RenderFormat[Writer], config: OperationConfig, input: TreeInput, output: OutputTree) {
+  case class TreeOp[FMT] (parsers: Seq[MarkupParser], format: RenderFormat[FMT], config: OperationConfig, input: TreeInput, output: OutputTree) {
     def execute: Done = TransformExecutor.execute(this)
   }
 
-  case class MergeOp[Writer] (parsers: Seq[MarkupParser], processor: RenderResultProcessor[Writer], config: OperationConfig, input: TreeInput, output: BinaryOutput) {
+  case class MergeOp[FMT] (parsers: Seq[MarkupParser], processor: RenderResultProcessor[FMT], config: OperationConfig, input: TreeInput, output: BinaryOutput) {
+    def execute: Done = TransformExecutor.execute(this)
+  }
+
+  case class Op2[FMT] (parsers: Seq[MarkupParser], format: RenderFormat2[FMT], config: OperationConfig, input: TextInput, output: TextOutput) {
+    def execute: String = TransformExecutor.execute(this)
+  }
+
+  case class TreeOp2[FMT] (parsers: Seq[MarkupParser], format: RenderFormat2[FMT], config: OperationConfig, input: TreeInput, output: TreeOutput) {
+    def execute: RenderResult2 = TransformExecutor.execute(this)
+  }
+
+  case class MergeOp2[FMT] (parsers: Seq[MarkupParser], processor: RenderResultProcessor2[FMT], config: OperationConfig, input: TreeInput, output: BinaryOutput) {
     def execute: Done = TransformExecutor.execute(this)
   }
   
@@ -110,26 +122,26 @@ object Transform {
    *  given input tree to a corresponding output document
    *  in the destination tree.
    *  
-   *  @param parse the parser to use for parsing the input
-   *  @param render the renderer to use for producing the output
+   *  @param parsers the parsers to use for parsing the input
+   *  @param format the renderer to use for producing the output
    */
-  class TransformMappedOutput[Writer] (parsers: Seq[MarkupParser], format: RenderFormat[Writer],
-                                       val config: OperationConfig) extends Transform[Writer](parsers, format) {
+  class TransformMappedOutput[FMT] (parsers: Seq[MarkupParser], format: RenderFormat2[FMT],
+                                    val config: OperationConfig) extends Transform[FMT](parsers, format) {
     
-    type InputResult = TextTransformOutputOps[Writer]
+    type InputResult = TextTransformOutputOps[FMT]
   
-    type InputTreeResult = TransformOutputTreeOps[Writer]
+    type InputTreeResult = TransformOutputTreeOps[FMT]
   
-    type ThisType = TransformMappedOutput[Writer]
+    type ThisType = TransformMappedOutput[FMT]
     
     def withConfig (newConfig: OperationConfig): ThisType = new TransformMappedOutput(parsers, format, newConfig)
 
-    def fromInput (input: TextInput): InputResult = new TextTransformOutputOps[Writer] {
-      def toTextOutput (out: TextOutput) = Op[Writer](parsers, format, config, input, out)
+    def fromInput (input: TextInput): InputResult = new TextTransformOutputOps[FMT] {
+      def toTextOutput (out: TextOutput) = Op2[FMT](parsers, format, config, input, out)
     }
 
-    def fromTreeInput (input: TreeInput): InputTreeResult = new TransformOutputTreeOps[Writer] {
-      def toOutputTree (tree: OutputTree) = TreeOp[Writer](parsers, format, config, input, tree)
+    def fromTreeInput (input: TreeInput): InputTreeResult = new TransformOutputTreeOps[FMT] {
+      def toOutputTree (tree: TreeOutput) = TreeOp2[FMT](parsers, format, config, input, tree)
     }
     
   }
@@ -138,24 +150,24 @@ object Transform {
    *  input documents in an input tree structure to be rendered 
    *  to a single output destination.
    *  
-   *  @param parse the parser to use for parsing the input
-   *  @param render the renderer to use for producing the output
+   *  @param parsers the parsers to use for parsing the input
+   *  @param processor the result processor to use for producing the output from the rendered interim result
    */
-  class TransformMergedOutput[Writer] (parsers: Seq[MarkupParser], processor: RenderResultProcessor[Writer],
-                                       val config: OperationConfig) extends Transform[Writer](parsers, processor.format) {
+  class TransformMergedOutput[FMT] (parsers: Seq[MarkupParser], processor: RenderResultProcessor2[FMT],
+                                    val config: OperationConfig) extends Transform[FMT](parsers, processor.format) {
     
-    type InputResult = BinaryTransformOutputOps[Writer]
+    type InputResult = BinaryTransformOutputOps[FMT]
   
-    type InputTreeResult = BinaryTransformOutputOps[Writer]
+    type InputTreeResult = BinaryTransformOutputOps[FMT]
   
-    type ThisType = TransformMergedOutput[Writer]
+    type ThisType = TransformMergedOutput[FMT]
     
     def withConfig (newConfig: OperationConfig): ThisType = new TransformMergedOutput(parsers, processor, newConfig)
 
     def fromInput (input: TextInput): InputResult = fromTreeInput(InputCollection(input))
 
-    def fromTreeInput (input: TreeInput): InputTreeResult = new BinaryTransformOutputOps[Writer] {
-      def toBinaryOutput (out: BinaryOutput): Result = MergeOp[Writer](parsers, processor, config, input, out)
+    def fromTreeInput (input: TreeInput): InputTreeResult = new BinaryTransformOutputOps[FMT] {
+      def toBinaryOutput (out: BinaryOutput): Result = MergeOp2[FMT](parsers, processor, config, input, out)
     }
 
   }
@@ -185,7 +197,7 @@ object Transform {
      *  @param format the render format to use for the transformation
      *  @return a new Transform instance
      */
-    def to [Writer] (format: RenderFormat[Writer]): TransformMappedOutput[Writer] =
+    def to [FMT] (format: RenderFormat2[FMT]): TransformMappedOutput[FMT] =
       new TransformMappedOutput(factories, format, config)
     
     /** Creates and returns a new Transform instance for the specified renderer and the
@@ -195,7 +207,7 @@ object Transform {
      *  @param processor the processor to use for the transformation
      *  @return a new Transform instance
      */
-    def to [Writer] (processor: RenderResultProcessor[Writer]): TransformMergedOutput[Writer] = 
+    def to [FMT] (processor: RenderResultProcessor2[FMT]): TransformMergedOutput[FMT] = 
       new TransformMergedOutput(factories, processor, config)
     
   }

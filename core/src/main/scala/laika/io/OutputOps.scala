@@ -74,7 +74,7 @@ trait BinaryRenderOutputOps[FMT] extends BinaryOutputOps[FMT] {
 
 trait BinaryTransformOutputOps[FMT] extends BinaryOutputOps[FMT] {
 
-  type Result = Transform.MergeOp[FMT]
+  type Result = Transform.MergeOp2[FMT]
 
 }
 
@@ -110,22 +110,24 @@ trait TextRenderOutputOps[FMT] extends TextOutputOps[FMT] {
     */
   override def toString = { // TODO - 0.12 - toString needs new name (and has a different return type)
     val builder = new StringBuilder
-    toBuilder(builder).execute
-    builder.toString
+    toTextOutput(StringOutput(builder, Root)).execute
+    //toBuilder(builder).execute
+    //builder.toString
   }
 
 }
 
 trait TextTransformOutputOps[Writer] extends TextOutputOps[Writer] {
 
-  type Result = Transform.Op[Writer]
+  type Result = Transform.Op2[Writer]
 
   /** Renders the model to a String and returns it.
     */
   override def toString = { // TODO - 0.12 - toString needs new name (and has a different return type)
     val builder = new StringBuilder
-    toBuilder(builder).execute
-    builder.toString
+    toTextOutput(StringOutput(builder, Root)).execute
+//    toBuilder(builder).execute
+//    builder.toString
   }
 
 }
@@ -178,6 +180,6 @@ trait RenderOutputTreeOps[Writer] extends OutputTreeOps[Writer] {
 
 trait TransformOutputTreeOps[Writer] extends OutputTreeOps[Writer] {
 
-  type Result = Transform.TreeOp[Writer]
+  type Result = Transform.TreeOp2[Writer]
 
 }

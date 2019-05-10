@@ -49,7 +49,12 @@ object RenderExecutor {
     
     val result = renderFunction(fmt, op.element)
 
-    result // TODO - 0.12 - deal with different types of Output
+    op.output match {
+      case StringOutput(builder, _) => result
+      case _ => result
+    }
+    
+    // result // TODO - 0.12 - deal with different types of Output
   }
   
   def execute[Writer] (op: Render.Op[Writer], styles: Option[StyleDeclarationSet] = None): Done = {
@@ -123,7 +128,7 @@ object RenderExecutor {
     def copy (document: StaticDocument): Seq[Operation] = binaryOutputFor(document.path).map { out =>
       () => {
         IO.copy(document.input, out)
-        CopiedDocument(document.path, document.input)
+        CopiedDocument(document.input)
       }
     }
 

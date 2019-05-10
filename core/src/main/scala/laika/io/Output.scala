@@ -19,7 +19,7 @@ package laika.io
 import java.io._
 
 import com.typesafe.config.Config
-import laika.ast.{Navigatable, Path, Span, TemplateRoot}
+import laika.ast._
 import laika.ast.Path.Root
 
 import scala.collection.mutable.StringBuilder
@@ -89,15 +89,28 @@ sealed trait RenderNavigationContent extends RenderContent {
 }
 
 case class RenderedTree (path: Path, title: Seq[Span], content: Seq[RenderContent]) extends RenderNavigationContent {
-  val titleDocument: Option[RenderedDocument] = ??? // TODO
-  val navigationContent: Seq[RenderNavigationContent] = ???
-  val navigationContentAfterTitle: Seq[RenderNavigationContent] = ???
+  val titleDocument: Option[RenderedDocument] = content.collectFirst {
+    case doc: RenderedDocument if doc.path.basename == "title" => doc
+  }
+  val navigationContent: Seq[RenderNavigationContent] = content collect {
+    case rnc: RenderNavigationContent => rnc
+  }
+  val navigationContentAfterTitle: Seq[RenderNavigationContent] = content.collect { // TODO - 0.12 - might keep copied documents separately so that this property becomes obsolete
+    case doc: RenderedDocument if doc.path.basename != "title" => doc
+    case tree: RenderedTree => tree
+  }
 }
 
 case class RenderedDocument (path: Path, title: Seq[Span], content: String) extends RenderNavigationContent
 
 case class RenderedTemplate (path: Path, content: String) extends RenderContent
 
-case class CopiedDocument (path: Path, content: BinaryInput) extends RenderContent
+case class CopiedDocument (content: BinaryInput) extends RenderContent {
+  val path: Path = content.path
+}
 
-case class RenderResult2 (coverDocument: Option[RenderedDocument], rootTree: RenderedTree, template: TemplateRoot, config: Config)
+case class RenderResult2 (coverDocument: Option[RenderedDocument], rootTree: RenderedTree, template: TemplateRoot, config: Config) {
+  // TODO - 0.12 - ensure coverDocument is not in rootTree
+  val title: Seq[Span] = rootTree.title
+  val titleDocument: Option[RenderedDocument] = rootTree.titleDocument
+}
