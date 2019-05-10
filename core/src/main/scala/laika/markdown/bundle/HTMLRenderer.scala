@@ -47,12 +47,13 @@ object HTMLRenderer {
     
     val renderedAttrs = attributes.map { at =>
       val name = " " + at.name
-      at match {
+      val value = at match {
         case HTMLAttribute(_, value, Some(char))  => s"=$char${prepareAttributeValue(value)}$char"
         case HTMLAttribute(_, Nil, None)          => ""
         case HTMLAttribute(_, value, None)        => "=" + prepareAttributeValue(value)
       }
-    }
+      name + value
+    }.mkString
     s"<$tagName$renderedAttrs"
   }
 
@@ -63,7 +64,7 @@ object HTMLRenderer {
     case (_, HTMLStartTag(name, attributes,_))     => tagStart(name, attributes) + ">"
     case (_, HTMLEmptyElement(name, attributes,_)) => tagStart(name, attributes) + "/>"
     case (_, HTMLEndTag(name,_))                   => s"</$name>"
-    case (fmt, HTMLComment(content,_))             => fmt.comment(content)
+    case (_, HTMLComment(content,_))               => s"<!--$content-->"
     case (_, HTMLCharacterReference(ref,_))        => ref
     case (fmt, HTMLBlock(root,_))                  => fmt.child(root)
   }
