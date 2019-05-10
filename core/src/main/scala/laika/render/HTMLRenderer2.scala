@@ -259,4 +259,4 @@ class HTMLRenderer2 (fileSuffix: String) extends ((HTMLFormatter, Element) => St
 
 object HTMLRenderer2 extends HTMLRenderer2(fileSuffix = "html")
 
-object XHTMLRenderer extends HTMLRenderer2(fileSuffix = "xhtml")
+object XHTMLRenderer extends HTMLRenderer2(fileSuffix = "epub.xhtml")

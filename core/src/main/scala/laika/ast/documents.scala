@@ -168,7 +168,7 @@ case class TreePosition(toSeq: Seq[Int]) extends Ordered[TreePosition] {
 
   /** The depth (or nesting level) of this position within the document tree.
     */
-  def depth = toSeq.size
+  def depth: Int = toSeq.size
 
   /** Creates a position instance for a child of this element.
     */

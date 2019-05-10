@@ -18,6 +18,7 @@ package laika.render.epub
 
 import laika.ast.Path.Root
 import laika.ast._
+import laika.io.{RenderedDocument, RenderedTree}
 
 /** Represents a recursive book navigation structure.
   */
@@ -48,6 +49,42 @@ object BookNavigation {
     "content" + parent + "/" + path.basename + "." + (if (forceXhtml || path.suffix == "html") "epub.xhtml" else path.suffix)
   }
 
+  def forTree (tree: RenderedTree, depth: Int, pos: Iterator[Int] = Iterator.from(0)): Seq[BookNavigation] = {
+
+    def hasContent (level: Int)(nav: Navigatable): Boolean = nav match {
+      case _: RenderedDocument => true
+      case tree: RenderedTree => if (level > 0) tree.navigationContent.exists(hasContent(level - 1)) else false
+    }
+
+    def forSections (path: Path, sections: Seq[SectionInfo], levels: Int, pos: Iterator[Int]): Seq[BookNavigation] =
+      if (levels == 0) Nil
+      else for (section <- sections) yield {
+        val title = section.title.extractText
+        val parentPos = pos.next
+        val children = forSections(path, section.content, levels - 1, pos)
+        BookNavigationLink(title, fullPath(path, forceXhtml = true) + "#" + section.id, parentPos, children)
+      }
+
+    if (depth == 0) Nil
+    else {
+      for (nav <- tree.navigationContentAfterTitle if hasContent(depth - 1)(nav)) yield nav match {
+        case doc: RenderedDocument =>
+          val title = if (doc.title.nonEmpty) SpanSequence(doc.title).extractText else doc.name
+          val parentPos = pos.next
+          val children = forSections(doc.path, Nil, depth - 1, pos) // TODO - 0.12 - add sections
+          BookNavigationLink(title, fullPath(doc.path, forceXhtml = true), parentPos, children)
+        case subtree: RenderedTree =>
+          val title = if (subtree.title.nonEmpty) SpanSequence(subtree.title).extractText else subtree.name
+          val parentPos = pos.next
+          val children = forTree(subtree, depth - 1, pos)
+          val targetDoc = subtree.titleDocument.orElse(subtree.navigationContent.collectFirst{ case d: RenderedDocument => d }).get
+          val link = fullPath(targetDoc.path, forceXhtml = true)
+          if (depth == 1 || subtree.titleDocument.nonEmpty) BookNavigationLink(title, link, parentPos, children)
+          else BookSectionHeader(title, parentPos, children)
+      }
+    }
+  }
+  
   /** Extracts navigation structure from document trees, documents and section in the specified
     * tree.
     *
@@ -57,7 +94,7 @@ object BookNavigation {
     * @param depth the recursion depth through trees, documents and sections
     * @return a recursive structure of `BookNavigation` instances
     */
-  def forTree (tree: DocumentTree, depth: Int, pos: Iterator[Int] = Iterator.from(0)): Seq[BookNavigation] = {
+  def forTreeOld (tree: DocumentTree, depth: Int, pos: Iterator[Int] = Iterator.from(0)): Seq[BookNavigation] = {
 
     def hasContent (level: Int)(nav: Navigatable): Boolean = nav match {
       case _: Document => true
@@ -84,7 +121,7 @@ object BookNavigation {
         case subtree: DocumentTree =>
           val title = if (subtree.title.nonEmpty) SpanSequence(subtree.title).extractText else subtree.name
           val parentPos = pos.next
-          val children = forTree(subtree, depth - 1, pos)
+          val children = forTreeOld(subtree, depth - 1, pos)
           val targetDoc = subtree.titleDocument.orElse(subtree.content.collectFirst{ case d: Document => d }).get
           val link = fullPath(targetDoc.path, forceXhtml = true)
           if (depth == 1 || subtree.titleDocument.nonEmpty) BookNavigationLink(title, link, parentPos, children)

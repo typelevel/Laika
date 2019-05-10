@@ -17,6 +17,7 @@
 package laika.render.epub
 
 import laika.ast._
+import laika.io.RenderResult2
 
 /** Renders the entire content of an NCX navigation file.
   * These files will be ignored by EPUB 3 readers and are only
@@ -93,9 +94,9 @@ class NCXRenderer {
     * trees, documents and sections.
     * The configuration key for setting the recursion depth is `epub.toc.depth`.
     */
-  def render (tree: DocumentTree, identifier: String, depth: Int): String = {
-    val title = if (tree.title.isEmpty) "UNTITLED" else SpanSequence(tree.title).extractText
-    val bookNav = BookNavigation.forTree(tree, depth)
+  def render (result: RenderResult2, identifier: String, depth: Int): String = {
+    val title = if (result.title.isEmpty) "UNTITLED" else SpanSequence(result.title).extractText
+    val bookNav = BookNavigation.forTree(result.rootTree, depth)
     val renderedNavPoints = navPoints(bookNav)
     fileContent(identifier, title, renderedNavPoints, depth)
   }

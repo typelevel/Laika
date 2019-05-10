@@ -16,9 +16,9 @@
 
 package laika.render.epub
 
-import laika.ast.Path.{Current, Root}
 import laika.ast._
-import laika.format.EPUB
+import laika.format.EPUB2
+import laika.io.{CopiedDocument, RenderResult2, RenderedDocument, RenderedTree}
 
 /** Renders the content of an EPUB Package document (OPF).
   *
@@ -75,23 +75,25 @@ class OPFRenderer {
   /** Renders the content of an EPUB Package document (OPF) generated from
     * the specified document tree.
     */
-  def render (tree: DocumentTree, config: EPUB.Config): String = {
+  def render (result: RenderResult2, config: EPUB2.Config): String = {
 
-    val coverDoc = tree.selectDocument(Current / "cover").map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = false, isCover = true, forceXhtml = true))
-    val titleDoc = tree.titleDocument.map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = false, isTitle = true, forceXhtml = true))
-    def spineRefs (root: DocumentTree): Seq[DocumentRef] = {
-      root.contentAfterTitle.filter(doc => !coverDoc.map(_.path).contains(doc.path)).flatMap {
-        case sub: DocumentTree => spineRefs(sub)
-        case doc: Document => Seq(DocumentRef(doc.path, "application/xhtml+xml", isSpine = true, forceXhtml = true))
+    val coverDoc = result.coverDocument.map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = false, isCover = true, forceXhtml = true))
+    val titleDoc = result.titleDocument.map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = false, isTitle = true, forceXhtml = true))
+    
+    def spineRefs (root: RenderedTree): Seq[DocumentRef] = {
+      root.navigationContentAfterTitle.flatMap {
+        case sub: RenderedTree => spineRefs(sub)
+        case doc: RenderedDocument => Seq(DocumentRef(doc.path, "application/xhtml+xml", isSpine = true, forceXhtml = true))
       } ++
-      root.additionalContent.filter(c => MimeTypes.supportedTypes.contains(c.path.suffix)).collect {
-        case StaticDocument(input) => DocumentRef(input.path, MimeTypes.supportedTypes(input.path.suffix), isSpine = false)
+      root.content.collect {
+        case CopiedDocument(input) if MimeTypes.supportedTypes.contains(input.path.suffix) => 
+          DocumentRef(input.path, MimeTypes.supportedTypes(input.path.suffix), isSpine = false)
       }
     }
 
-    val docRefs = coverDoc.toSeq ++ titleDoc.toSeq ++ spineRefs(tree)
+    val docRefs = coverDoc.toSeq ++ titleDoc.toSeq ++ spineRefs(result.rootTree)
 
-    val title = if (tree.title.isEmpty) "UNTITLED" else SpanSequence(tree.title).extractText
+    val title = if (result.title.isEmpty) "UNTITLED" else SpanSequence(result.title).extractText
     fileContent(config.identifier, config.language.toLanguageTag, title, config.coverImage.map("content/"+_), config.formattedDate, docRefs, config.metadata.authors)
   }
 

@@ -17,7 +17,7 @@
 package laika.render.epub
 
 import laika.ast._
-import laika.render.HTMLWriter
+import laika.render.{HTMLFormatter, HTMLWriter}
 
 /** Customizations of the default HTML renderer for AST elements where attributes
   * specific to EPUB need to be rendered.
@@ -48,6 +48,13 @@ object HtmlRenderExtensions {
       out <<@/ ("img",opt,"src"->uri.uri,"alt"->text,"title"->title,
         "width"->widthAttr,"height"->heightAttr,"style"->styleAttr)
     // TODO - the image rendering is copied from the default HTML renderer just to use a closed tag for XHTML
+  }
+
+  val all2: PartialFunction[(HTMLFormatter, Element), String] = {
+    case (fmt, CitationLink(ref,label,opt)) => fmt.textElement("a", opt + Styles("citation"), "[" + label + "]", "href" -> ("#"+ref), "epub:type" -> "noteref")
+    case (fmt, FootnoteLink(ref,label,opt)) => fmt.textElement("a", opt + Styles("footnote"), "[" + label + "]", "href" -> ("#"+ref), "epub:type" -> "noteref")
+    case (fmt, Citation(_,content,opt)) => fmt.indentedElement("aside", opt + Styles("citation"), content, "epub:type" -> "footnote")
+    case (fmt, Footnote(_,content,opt)) => fmt.indentedElement("aside", opt + Styles("footnote"), content, "epub:type" -> "footnote")
   }
 
 }

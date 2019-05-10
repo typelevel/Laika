@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,12 +24,12 @@ import java.util.{Locale, UUID}
 import laika.ast.Path.Root
 import laika.ast._
 import laika.execute.InputExecutor
-import laika.factory.{RenderContext, RenderFormat, RenderResultProcessor}
+import laika.factory.{RenderContext2, RenderFormat2, RenderResultProcessor2}
 import laika.io.OutputTree.StringOutputTree
-import laika.io.{BinaryOutput, OutputTree}
+import laika.io.{BinaryOutput, OutputTree, RenderResult2}
 import laika.render.epub.StyleSupport.XHTMLTemplateParser
 import laika.render.epub.{ConfigFactory, ContainerWriter, HtmlRenderExtensions, StyleSupport}
-import laika.render.{HTMLRenderer, HTMLWriter}
+import laika.render.{HTMLFormatter, XHTMLRenderer}
 
 /** A post processor for EPUB output, based on an interim HTML renderer.
  *  May be directly passed to the `Render` or `Transform` APIs:
@@ -46,7 +46,7 @@ import laika.render.{HTMLRenderer, HTMLWriter}
  * 
  *  @author Jens Halm
  */
-object EPUB extends RenderResultProcessor[HTMLWriter] {
+object EPUB2 extends RenderResultProcessor2[HTMLFormatter] {
 
   /** A render format for XHTML output as used by EPUB output.
     *
@@ -55,20 +55,16 @@ object EPUB extends RenderResultProcessor[HTMLWriter] {
     *
     *  @author Jens Halm
     */
-  object XHTML extends RenderFormat[HTMLWriter] {
+  object XHTML extends RenderFormat2[HTMLFormatter] {
 
     val fileSuffix: String = "epub.xhtml"
 
-    def newRenderer (context: RenderContext): (HTMLWriter, Element => Unit) = {
+    val defaultRenderer: (HTMLFormatter, Element) => String = XHTMLRenderer
 
-      val writer = new HTMLWriter(context.renderString, context.renderChild, context.root, formatted = context.config.renderFormatted)
-      val renderer = new HTMLRenderer(writer, context.config.minMessageLevel, "epub.xhtml")
-
-      (writer, renderer.render)
-    }
+    val formatterFactory: RenderContext2[HTMLFormatter] => HTMLFormatter = HTMLFormatter // TODO - 0.12 - needs formatter that closes empty tags
 
     override lazy val defaultTheme: Theme = Theme(
-      customRenderer = HtmlRenderExtensions.all,
+      customRenderer = HtmlRenderExtensions.all2,
       defaultTemplate = Some(templateResource.content)
     )
 
@@ -105,7 +101,19 @@ object EPUB extends RenderResultProcessor[HTMLWriter] {
 
   private lazy val writer = new ContainerWriter
 
-  /** Produces an EPUB container from the specified document tree.
+  def prepareTree (tree: DocumentTree): DocumentTree = {
+    val treeConfig = ConfigFactory.forTree(tree)
+    val treeWithStyles = StyleSupport.ensureContainsStyles(tree)
+    treeConfig.coverImage.fold(tree) { image =>
+      treeWithStyles.copy(
+        content = Document(Root / "cover", 
+          RootElement(Seq(SpanSequence(Seq(Image("cover", URI(image)))))), 
+        config = com.typesafe.config.ConfigFactory.parseString("title: Cover")) +: tree.content
+      )
+    }
+  }
+
+  /** Produces an EPUB container from the specified result tree.
    *
    *  It includes the following files in the container:
    *
@@ -114,22 +122,9 @@ object EPUB extends RenderResultProcessor[HTMLWriter] {
    *  - Metadata and navigation files as required by the EPUB specification, auto-generated from the document tree
    *    and the configuration of this instance.
    *
-   *  @param tree the tree to render to HTML
-   *  @param render the render function for producing the HTML
-   *  @param output the output to write the EPUB container to
-   */  
-  def process (tree: DocumentTree, render: (DocumentTree, OutputTree) => Unit, defaultTemplate: TemplateRoot, output: BinaryOutput): Unit = {
-
-    val htmlOutput = new StringOutputTree(tree.path)
-    val treeConfig = ConfigFactory.forTree(tree)
-    val treeWithStyles = StyleSupport.ensureContainsStyles(tree)
-    val treeWithCover = treeConfig.coverImage.fold(tree) { image =>
-      treeWithStyles.copy(content = Document(Root / "cover", RootElement(Seq(SpanSequence(Seq(Image("cover", URI(image)))))), config = com.typesafe.config.ConfigFactory.parseString("title: Cover")) +: tree.content)
-    }
-
-    render(treeWithCover, htmlOutput)
-    //writer.write(treeWithCover, treeConfig, htmlOutput.result, output)
-
-  }
+   * @param result the result of the render operation as a tree
+   * @param output the output to write the final result to
+   */
+  def process (result: RenderResult2, output: BinaryOutput): Unit = writer.write(result, output)
   
 }

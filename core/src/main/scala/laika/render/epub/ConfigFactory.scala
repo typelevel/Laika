@@ -16,8 +16,9 @@
 
 package laika.render.epub
 
+import com.typesafe.config.Config
 import laika.ast.{DocumentMetadata, DocumentTree}
-import laika.format.EPUB
+import laika.format.{EPUB, EPUB2}
 
 /** Creates the EPUB configuration for a document tree.
   *
@@ -45,6 +46,22 @@ object ConfigFactory {
     val metadata = DocumentMetadata.fromConfig(configForMetadata)
 
     EPUB.Config(metadata, tocDepth, tocTitle, coverImage)
+  }
+
+  def forTreeConfig (config: Config): EPUB2.Config = {
+
+    val defaults = EPUB2.Config.default
+
+    def getOpt [T](key: String, read: String => T): Option[T] =
+      if (config.hasPath(key)) Some(read(key)) else None
+
+    val tocDepth = getOpt("epub.toc.depth", config.getInt).getOrElse(defaults.tocDepth)
+    val tocTitle = getOpt("epub.toc.title", config.getString).orElse(defaults.tocTitle)
+    val coverImage = getOpt("epub.coverImage", config.getString).orElse(defaults.coverImage)
+
+    val metadata = DocumentMetadata.fromConfig(config)
+
+    EPUB2.Config(metadata, tocDepth, tocTitle, coverImage)
   }
 
 }
