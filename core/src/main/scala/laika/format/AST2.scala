@@ -37,7 +37,7 @@ object AST2 extends RenderFormat2[TextFormatter] {
 
   val defaultRenderer: (TextFormatter, Element) => String = ASTRenderer2
 
-  val formatterFactory: RenderContext2[TextFormatter] => TextFormatter = TextFormatter
+  val formatterFactory: RenderContext2[TextFormatter] => TextFormatter = ASTFormatter
   
   val defaultTheme = Theme()
 

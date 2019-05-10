@@ -55,11 +55,12 @@ object ASTRenderer2 extends ((TextFormatter, Element) => String) {
 
     def elementContainerDesc (con: ElementContainer[Element,_], elementType: String): String = {
       val (elements, rest) = con.productIterator partition (_.isInstanceOf[Element])
-      con.productPrefix + attributes(rest, con.content)
-
+      
+      val prefix = con.productPrefix + attributes(rest, con.content)
+      
       val contentDesc = s" - $elementType: ${con.content.length.toString}"
-      if (elements.nonEmpty) fmt.indented(_.childPerLine(elements.toList.asInstanceOf[Seq[Element]] ++ List(Content(con.content, "Content" + contentDesc))))
-      else contentDesc + fmt.indented(_.childPerLine(con.content))
+      if (elements.nonEmpty) prefix + fmt.indentedChildren(elements.toList.asInstanceOf[Seq[Element]] ++ List(Content(con.content, "Content" + contentDesc)))
+      else prefix + contentDesc + fmt.indentedChildren(con.content)
     }
 
     def textContainerDesc (con: TextContainer): String = {

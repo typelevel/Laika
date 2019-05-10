@@ -87,9 +87,11 @@ abstract class BaseFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Elem
   
 }
 
-case class Indentation (currentLevel: Int, numSpaces: Int) {
+case class Indentation (currentLevel: Int, numSpaces: Int, dotted: Boolean = false) {
 
-  val newLine: String = "\n" + (" " * currentLevel)
+  val newLine: String =
+    if (dotted) "\n" + (". " * (currentLevel / 2)) + (if (currentLevel % 2 == 1) "." else "")
+    else "\n" + (" " * currentLevel)
 
   lazy val nextLevel: Indentation = if (numSpaces == 0) this else copy(currentLevel = currentLevel + numSpaces)
 
@@ -100,5 +102,7 @@ object Indentation {
   val none: Indentation = Indentation(0,0)
   
   val default: Indentation = Indentation(0,2)
+  
+  val dotted: Indentation = Indentation(0, 2, dotted = true)
   
 }

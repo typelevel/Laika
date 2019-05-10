@@ -42,3 +42,8 @@ object TextFormatter extends (RenderContext2[TextFormatter] => TextFormatter) {
   def apply (context: RenderContext2[TextFormatter]): TextFormatter = 
     TextFormatter(context.renderChild, List(context.root), context.indentation)
 }
+
+object ASTFormatter extends (RenderContext2[TextFormatter] => TextFormatter) {
+  def apply (context: RenderContext2[TextFormatter]): TextFormatter =
+    TextFormatter(context.renderChild, List(context.root), Indentation.dotted)
+}
