@@ -18,7 +18,8 @@ package laika.rst
 
 import laika.api.Transform
 import laika.ast._
-import laika.format.{HTML, ReStructuredText}
+import laika.format.{HTML2, ReStructuredText}
+import laika.render.HTMLFormatter
 import laika.transform.helper.FileTransformerUtil
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -55,35 +56,34 @@ class ReStructuredTextToHTMLSpec extends FlatSpec
 
   def transformAndCompare (name: String): Unit = {
     val path = classPathResource("/rstSpec") + "/" + name
-    val actual = Transform from ReStructuredText to HTML rendering { out => 
-      
-      def quotedBlockContent (content: Seq[Block], attr: Seq[Span]) = 
-        if (attr.isEmpty) content
-        else content :+ Paragraph(RawContent(List("html"), "§§§§") +: attr, Styles("attribution"))
 
-      def renderBlocks (blocks: Seq[Block], close: String) = blocks match {
-        case ss @ SpanSequence(_,_) :: Nil => out << ss << close
-        case Paragraph(content,opt) :: Nil => out << SpanSequence(content,opt) << close
-        case other                         => out <<|> other <<| close
-      }
-      
-      // TODO - some of these rules might get promoted to the real renderer (e.g. the one for InternalLink)
-      {
-      case Emphasized(content,opt) if opt.styles.contains("title-reference") => out << "<cite>" <<  content << "</cite>" 
-      case ExternalLink(content, url, title, opt)  => out <<@ ("a", opt + Styles("reference","external"), "href"->url,       "title"->title) << content << "</a>"
-      case InternalLink(content, url, title, opt)  => out <<@ ("a", opt + Styles("reference","internal"), "href"->("#"+url), "title"->title) << content << "</a>"
-      case LiteralBlock(content,opt)     => out <<@ ("pre",opt + Styles("literal-block"))  <<<&  content << "</pre>"
-      case Literal(content,opt)          => out <<@ ("tt",opt+Styles("docutils","literal"))  <<<& content << "</tt>" 
-      case FootnoteLink(id,label,opt)    => out <<@ ("a",opt + Styles("footnote-reference"),"href"->("#"+id))    << "[" << label << "]</a>" 
-      case Section(header, content, opt) => out <<@ ("div", opt+Id(header.options.id.getOrElse(""))+(if(header.level == 1) Styles("document") else Styles("section"))) <<|> (header +: content) <<| "</div>"
-      case Header(level, (it: InternalLinkTarget) :: rest, opt) => out <<| it <<| Header(level, rest, opt) // move target out of the header content
-      case Header(level, content, opt)   => out <<| "<h" << (level-1).toString << ">" << content << "</h" << (level-1).toString << ">" // rst special treatment of first header
-      case Title(content, opt)           => out <<| "<h1 class=\"title\">" << content << "</h1>"
-      case TitledBlock(title, content, opt) => out <<@ ("div",opt) <<|> (Paragraph(title,Styles("admonition-title")) +: content) <<| "</div>"
-      case QuotedBlock(content,attr,opt) => out <<@ ("blockquote",opt); renderBlocks(quotedBlockContent(content,attr), "</blockquote>")
-      case InternalLinkTarget(opt)       => out <<@ ("span",opt) << "</span>"
-      case i: InvalidBlock               => ()
-    }} fromFile (path + ".rst") toString
+    def quotedBlockContent (content: Seq[Block], attr: Seq[Span]) =
+      if (attr.isEmpty) content
+      else content :+ Paragraph(RawContent(List("html"), "§§§§") +: attr, Styles("attribution"))
+
+    def renderBlocks (fmt: HTMLFormatter, tagName: String, options: Options, content: Seq[Block], attrs: (String, String)*): String = content match {
+      case Seq(ss: SpanSequence)     => fmt.element(tagName, options, Seq(ss), attrs: _*)
+      case Seq(Paragraph(spans,opt)) => fmt.element(tagName, options, Seq(SpanSequence(spans,opt)), attrs: _*)
+      case other                     => fmt.indentedElement(tagName, options, other, attrs: _*)
+    }
+    
+    // TODO - some of these rules might get promoted to the real renderer (e.g. the one for InternalLink)
+    val actual = Transform from ReStructuredText to HTML2 rendering { 
+      case (fmt, Emphasized(content,opt)) if opt.styles.contains("title-reference") => fmt.element("cite", opt, content) 
+      case (fmt, ExternalLink(content, url, title, opt))  => fmt.element("a", opt + Styles("reference","external"), content, fmt.optAttributes("href" -> Some(url), "title" -> title):_*)
+      case (fmt, InternalLink(content, url, title, opt))  => fmt.element("a", opt + Styles("reference","internal"), content, fmt.optAttributes("href" -> Some("#"+url), "title"->title):_*)
+      case (fmt, LiteralBlock(content,opt))     => fmt.withoutIndentation(_.textElement("pre", opt + Styles("literal-block"), content))
+      case (fmt, Literal(content,opt))          => fmt.withoutIndentation(_.textElement("tt", opt + Styles("docutils","literal"), content))
+      case (fmt, FootnoteLink(id,label,opt))    => fmt.textElement("a", opt + Styles("footnote-reference"), s"[$label]", "href"-> ("#"+id)) 
+      case (fmt, Section(header, content, opt)) => fmt.indentedElement("div", opt+Id(header.options.id.getOrElse(""))+(if(header.level == 1) Styles("document") else Styles("section")), header +: content)
+      case (fmt, Header(level, (it: InternalLinkTarget) :: rest, opt)) => fmt.childPerLine(Seq(it, Header(level, rest, opt))) // move target out of the header content
+      case (fmt, Header(level, content, opt))   => fmt.element("h" + (level-1), opt, content) // rst special treatment of first header
+      case (fmt, Title(content, opt))           => fmt.element("h1", opt, content, "class" -> "title")
+      case (fmt, TitledBlock(title, content, opt)) => fmt.indentedElement("div", opt, Paragraph(title,Styles("admonition-title")) +: content)
+      case (fmt, QuotedBlock(content,attr,opt)) => renderBlocks(fmt, "blockquote", opt, quotedBlockContent(content,attr))
+      case (fmt, InternalLinkTarget(opt))       => fmt.textElement("span", opt, "")
+      case (_, i: InvalidBlock)                 => ""
+    } fromFile (path + ".rst") toString
     
     val expected = readFile(path + "-tidy.html")
     tidyAndAdjust(actual) should be (expected)

@@ -17,8 +17,8 @@
 package laika.markdown
 
 import laika.api.Transform
-import laika.ast.QuotedBlock
-import laika.format.{HTML, Markdown}
+import laika.ast.{Comment, QuotedBlock}
+import laika.format.{HTML2, Markdown}
 import laika.transform.helper.FileTransformerUtil
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -51,11 +51,11 @@ class MarkdownToHTMLSpec extends FlatSpec
   def transformAndCompare (name: String): Unit = {
     val path = classPathResource("/markdownTestSuite") + "/" + name
     val actual = Transform
-      .from(Markdown).to(HTML)
+      .from(Markdown).to(HTML2)
       .strict.withRawContent
-      .rendering { out => {
-        case QuotedBlock(content, _, _) => out << "<blockquote>" <<|> content <<| "</blockquote>" // Markdown always writes p tags inside blockquotes
-      }}
+      .rendering {
+        case (fmt, QuotedBlock(content, _, opt)) => fmt.indentedElement("blockquote", opt, content) // Markdown always writes p tags inside blockquotes
+      }
       .fromFile(path + ".md").toString
     val expected = readFile(path + ".html")
     tidyAndAdjust(actual) should be (tidyAndAdjust(expected))

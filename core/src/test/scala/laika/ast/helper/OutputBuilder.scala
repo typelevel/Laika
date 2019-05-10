@@ -16,14 +16,12 @@
 
 package laika.ast.helper
 
-import java.io.{BufferedWriter, ByteArrayOutputStream, File, FileWriter}
+import java.io.{BufferedWriter, File, FileWriter}
 
-import laika.ast.Path.Root
 import laika.ast.{Element, ElementContainer, Path}
-import laika.io.{Output, OutputTree, StringOutput, TextOutput}
+import laika.io
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ListBuffer
 import scala.io.{Codec, Source}
 
 object OutputBuilder {
@@ -41,38 +39,15 @@ object OutputBuilder {
   case class RenderedTree (path: Path, content: Seq[TreeContent]) extends ElementContainer[TreeContent, RenderedTree]
   
   
-  class TestOutputTree(val path: Path) extends OutputTree {
+  object RenderedTree {
     
-    val documents = ListBuffer[(Path,StringBuilder)]()
-    
-    val subtrees = ListBuffer[TestOutputTree]()
-
-    def toTree: RenderedTree = new RenderedTree(path, List( 
-      Documents(documents.toSeq map { case (path, builder) => RenderedDocument(path, builder.toString) }),
-      Subtrees(subtrees.toSeq map (_.toTree))
+    def toTreeView (tree: io.RenderedTree) : RenderedTree = new RenderedTree(tree.path, List( 
+      Documents(tree.content.collect { case doc: io.RenderedDocument => RenderedDocument(doc.path, doc.content) }),
+      Subtrees(tree.content.collect { case tree: io.RenderedTree => toTreeView(tree) })
     ) filterNot { case c: ElementContainer[_,_] => c.content.isEmpty })
     
-    def newOutput (name: String): Output = newTextOutput(name)
-
-    def newTextOutput (name: String): TextOutput = {
-      val builder = new StringBuilder
-      documents += ((path / name, builder))
-      StringOutput(builder, Root)
-    }
-  
-    def newChild (name: String): OutputTree = {
-      val provider = new TestOutputTree(path / name)
-      subtrees += provider
-      provider
-    }
-
-    val acceptsStaticFiles: Boolean = true
   }
 
-  object TestOutputTree {
-    def newRoot: TestOutputTree = new TestOutputTree(Path.Root)
-  }
-  
   def createTempDirectory (baseName: String): File = {
     val maxAttempts = 100
     val baseDir = new File(System.getProperty("java.io.tmpdir"))

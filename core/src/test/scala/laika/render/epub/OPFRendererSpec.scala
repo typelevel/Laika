@@ -21,7 +21,7 @@ import java.util.Locale
 
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.format.EPUB
+import laika.format.{EPUB, EPUB2}
 import org.scalatest.{FlatSpec, Matchers}
 
 class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
@@ -31,7 +31,7 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
   val timestamp = "2018-01-01T12:00:00Z"
   val instant = Instant.parse(timestamp)
   val identifier = s"urn:uuid:${new InputTreeBuilder{}.uuid}"
-  val config: EPUB.Config = EPUB.Config.default.copy(metadata = DocumentMetadata(
+  val config: EPUB2.Config = EPUB2.Config.default.copy(metadata = DocumentMetadata(
     identifier = Some(identifier),
     date = Some(instant),
     language = Some(Locale.UK),
@@ -42,7 +42,7 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
 
 
   "The OPF Renderer" should "render an empty tree" in new InputTreeBuilder {
-    renderer.render(tree(Path.Root, 1), config) shouldBe fileContent("", "", "", uuid)
+    renderer.render(rootTree(Path.Root, 1), config) shouldBe fileContent("", "", "", uuid)
   }
 
   it should "render a tree with a single document" in new SingleDocument {

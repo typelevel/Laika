@@ -16,40 +16,36 @@
 
 package laika.api
 
-import laika.ast.{Document, DocumentTree, TemplateRoot}
+import laika.ast.{Document, DocumentTree}
 import laika.execute.OutputExecutor
-import laika.factory.RenderResultProcessor
-import laika.format.AST
-import laika.io.{BinaryOutput, OutputTree}
-import laika.io.OutputTree._
-import laika.render.TextWriter
+import laika.factory.RenderResultProcessor2
+import laika.format.AST2
+import laika.io.{BinaryOutput, RenderResult2, RenderedDocument, RenderedTree}
+import laika.render.TextFormatter
 
-object TestRenderResultProcessor extends RenderResultProcessor[TextWriter] {
+object TestRenderResultProcessor extends RenderResultProcessor2[TextFormatter] {
 
-  val format = AST
-  
-  def process (tree: DocumentTree, render: (DocumentTree, OutputTree) => Unit, defaultTemplate: TemplateRoot, output: BinaryOutput): Unit = {
+  val format = AST2
+
+  def prepareTree (tree: DocumentTree): DocumentTree = tree
+
+  def process (result: RenderResult2, output: BinaryOutput): Unit = {
     
-    def baseName(docName: String) = docName.takeWhile(_ != '.')
-    
-    def append (sb: StringBuilder, result: ResultTree, src: DocumentTree): Unit = {
-      src.content.foreach {
-        case d: Document => result.result(baseName(d.name) + ".txt").foreach(s => sb.append(s + "\n"))
-        case t: DocumentTree => result.subtree(t.name).foreach(append(sb, _, t))
+    def append (sb: StringBuilder, result: RenderedTree): Unit = {
+      result.content.foreach {
+        case d: RenderedDocument => sb.append(d.content + "\n")
+        case t: RenderedTree => append(sb, t)
+        case _ => ()
       }
     }
     
-    val strOutput = new StringOutputTree(tree.path)
-    
-    render(tree, strOutput)
-    
     val sb = new StringBuilder
-    append(sb, strOutput.result, tree)
-    val result = sb.toString
+    append(sb, result.rootTree)
+    val resultString = sb.toString
 
     val out = OutputExecutor.asStream(output)
     try {
-      out.write(result.getBytes("UTF-8"))
+      out.write(resultString.getBytes("UTF-8"))
     } finally {
       out.close()
     }

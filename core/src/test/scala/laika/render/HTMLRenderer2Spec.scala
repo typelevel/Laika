@@ -17,12 +17,9 @@
 package laika.render
 
 import laika.api.Render
-import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.config.OperationConfig
-import laika.format.{HTML, HTML2}
-import laika.io.StringOutput
+import laika.format.HTML2
 import org.scalatest.{FlatSpec, Matchers}
 
 class HTMLRenderer2Spec extends FlatSpec 
@@ -30,12 +27,12 @@ class HTMLRenderer2Spec extends FlatSpec
                        with ModelBuilder {
  
   
-  def render (elem: Element): String = Render.Op2(HTML2, OperationConfig.default, elem, StringOutput(new StringBuilder, Root)).execute 
+  def render (elem: Element): String = Render.as(HTML2).from(elem).toString 
   
   def render (elem: Element, messageLevel: MessageLevel): String = 
-    Render as HTML withMessageLevel messageLevel from elem toString
+    Render as HTML2 withMessageLevel messageLevel from elem toString
     
-  def renderUnformatted (elem: Element): String = (Render as HTML).unformatted from elem toString
+  def renderUnformatted (elem: Element): String = (Render as HTML2).unformatted from elem toString
   
   
   "The HTML renderer" should "render a paragraph with plain text" in {
@@ -118,7 +115,7 @@ class HTMLRenderer2Spec extends FlatSpec
   }
   
   it should "render an enumerated list with lower roman enumeration style" in {
-    val elem = enumList(EnumFormat(EnumType.LowerRoman, "", ".")) + "aaa" + "bbb"
+    val elem = enumList(EnumFormat(EnumType.LowerRoman)) + "aaa" + "bbb"
     val html = """<ol class="lowerroman">
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -127,7 +124,7 @@ class HTMLRenderer2Spec extends FlatSpec
   }
   
   it should "render an enumerated list with upper roman enumeration style" in {
-    val elem = enumList(EnumFormat(EnumType.UpperRoman, "", ".")) + "aaa" + "bbb"
+    val elem = enumList(EnumFormat(EnumType.UpperRoman)) + "aaa" + "bbb"
     val html = """<ol class="upperroman">
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -136,7 +133,7 @@ class HTMLRenderer2Spec extends FlatSpec
   }
   
   it should "render an enumerated list with lower alpha enumeration style" in {
-    val elem = enumList(EnumFormat(EnumType.LowerAlpha, "", ".")) + "aaa" + "bbb"
+    val elem = enumList(EnumFormat(EnumType.LowerAlpha)) + "aaa" + "bbb"
     val html = """<ol class="loweralpha">
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -145,7 +142,7 @@ class HTMLRenderer2Spec extends FlatSpec
   }
   
   it should "render an enumerated list with upper alpha enumeration style" in {
-    val elem = enumList(EnumFormat(EnumType.UpperAlpha, "", ".")) + "aaa" + "bbb"
+    val elem = enumList(EnumFormat(EnumType.UpperAlpha)) + "aaa" + "bbb"
     val html = """<ol class="upperalpha">
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -154,7 +151,7 @@ class HTMLRenderer2Spec extends FlatSpec
   }
   
   it should "render an enumerated list with the start value if it is not 1" in {
-    val elem = enumList(EnumFormat(EnumType.Arabic, "", "."), 7) + "aaa" + "bbb"
+    val elem = enumList(EnumFormat(EnumType.Arabic), 7) + "aaa" + "bbb"
     val html = """<ol class="arabic" start="7">
       |  <li>aaa</li>
       |  <li>bbb</li>
@@ -692,7 +689,7 @@ class HTMLRenderer2Spec extends FlatSpec
   it should "render an embedded root without indentation" in {
     val elem = root(tRoot(
       tt("<div>\n"),
-      EmbeddedRoot(List(p("aaa"),p("bbb")), 0),
+      EmbeddedRoot(List(p("aaa"),p("bbb"))),
       tt("\n</div>")
     ))
     val html = """<div>

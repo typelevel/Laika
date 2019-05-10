@@ -25,7 +25,7 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
   val renderer = new HtmlNavRenderer
 
   "The Navigation Renderer" should "render an empty tree" in new InputTreeBuilder {
-    renderer.render(tree(Path.Root, 1), 1) shouldBe renderer.fileContent("Tree 1", "", "")
+    renderer.render(rootTree(Path.Root, 1), 1) shouldBe renderer.fileContent("Tree 1", "", "")
   }
 
   it should "render a tree with a single document" in new SingleDocument {

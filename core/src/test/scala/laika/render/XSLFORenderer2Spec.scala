@@ -17,13 +17,10 @@
 package laika.render
 
 import laika.api.Render
-import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.bundle.BundleProvider
-import laika.config.OperationConfig
-import laika.format.{XSLFO, XSLFO2}
-import laika.io.StringOutput
+import laika.format.XSLFO2
 import org.scalatest.{FlatSpec, Matchers}
 
 class XSLFORenderer2Spec extends FlatSpec
@@ -31,16 +28,16 @@ class XSLFORenderer2Spec extends FlatSpec
                         with ModelBuilder {
  
   
-  def render (elem: Element): String = Render.Op2(XSLFO2, OperationConfig.default, elem, StringOutput(new StringBuilder, Root)).execute
+  def render (elem: Element): String = Render as XSLFO2 from elem toString
 
   def render (elem: Element, messageLevel: MessageLevel): String = 
-    Render as XSLFO withMessageLevel messageLevel from elem toString
+    Render as XSLFO2 withMessageLevel messageLevel from elem toString
     
   def render (elem: Element, style: StyleDeclaration): String = 
-    Render as XSLFO using BundleProvider
-      .forTheme(XSLFO.Theme(defaultStyles = StyleDeclarationSet(Path.Root, style))) from elem toString
+    Render as XSLFO2 using BundleProvider
+      .forTheme(XSLFO2.Theme(defaultStyles = StyleDeclarationSet(Path.Root, style))) from elem toString
     
-  def renderUnformatted (elem: Element): String = (Render as XSLFO).unformatted from elem toString
+  def renderUnformatted (elem: Element): String = (Render as XSLFO2).unformatted from elem toString
   
   
   "The XSLFO renderer" should "render a paragraph with plain text" in {
@@ -179,7 +176,7 @@ class XSLFORenderer2Spec extends FlatSpec
   }
   
   it should "render an enumerated list with lower roman enumeration style" in {
-    val elem = enumList(EnumFormat(EnumType.LowerRoman, "", ".")) + "aaa" + "bbb"
+    val elem = enumList(EnumFormat(EnumType.LowerRoman)) + "aaa" + "bbb"
     val html = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">
@@ -202,7 +199,7 @@ class XSLFORenderer2Spec extends FlatSpec
   }
   
   it should "render an enumerated list with upper roman enumeration style" in {
-    val elem = enumList(EnumFormat(EnumType.UpperRoman, "", ".")) + "aaa" + "bbb"
+    val elem = enumList(EnumFormat(EnumType.UpperRoman)) + "aaa" + "bbb"
     val html = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">
@@ -225,7 +222,7 @@ class XSLFORenderer2Spec extends FlatSpec
   }
   
   it should "render an enumerated list with lower alpha enumeration style" in {
-    val elem = enumList(EnumFormat(EnumType.LowerAlpha, "", ".")) + "aaa" + "bbb"
+    val elem = enumList(EnumFormat(EnumType.LowerAlpha)) + "aaa" + "bbb"
     val html = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">
@@ -248,7 +245,7 @@ class XSLFORenderer2Spec extends FlatSpec
   }
   
   it should "render an enumerated list with upper alpha enumeration style" in {
-    val elem = enumList(EnumFormat(EnumType.UpperAlpha, "", ".")) + "aaa" + "bbb"
+    val elem = enumList(EnumFormat(EnumType.UpperAlpha)) + "aaa" + "bbb"
     val html = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">
@@ -271,7 +268,7 @@ class XSLFORenderer2Spec extends FlatSpec
   }
   
   it should "render an enumerated list with the start value other than 1" in {
-    val elem = enumList(EnumFormat(EnumType.Arabic, "", "."), 7) + "aaa" + "bbb"
+    val elem = enumList(EnumFormat(EnumType.Arabic), 7) + "aaa" + "bbb"
     val html = """<fo:list-block provisional-distance-between-starts="5mm" space-after="6mm">
       |  <fo:list-item space-after="3mm">
       |    <fo:list-item-label end-indent="label-end()">

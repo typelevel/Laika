@@ -25,7 +25,7 @@ class NCXRendererSpec extends FlatSpec with Matchers with ModelBuilder {
   val renderer = new NCXRenderer
 
   "The NCX Renderer" should "render an empty tree" in new InputTreeBuilder {
-    renderer.render(tree(Path.Root, 1), uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", "", 1)
+    renderer.render(rootTree(Path.Root, 1), uuid, 1) shouldBe renderer.fileContent(uuid, "Tree 1", "", 1)
   }
 
   it should "render a tree with a single document" in new SingleDocument {

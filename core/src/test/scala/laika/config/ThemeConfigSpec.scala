@@ -20,9 +20,9 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.{BundleProvider, ExtensionBundle, StaticDocuments}
 import laika.execute.OutputExecutor
-import laika.factory.{RenderContext, RenderFormat}
-import laika.io.{ByteInput, Output, StringOutput}
-import laika.render.TextWriter
+import laika.factory.{RenderContext2, RenderFormat2}
+import laika.io.{ByteInput, StringOutput}
+import laika.render.{ASTRenderer2, Indentation, TextFormatter, TextWriter}
 import org.scalatest.{Matchers, WordSpec}
 
 /**
@@ -43,19 +43,21 @@ class ThemeConfigSpec extends WordSpec with Matchers {
     def template (text: String): TemplateRoot = TemplateRoot(Seq(TemplateString(text)))
 
 
-    object TestFormat extends RenderFormat[TextWriter] {
+    object TestFormat extends RenderFormat2[TextFormatter] {
 
       override val fileSuffix = "test"
 
+      val defaultRenderer: (TextFormatter, Element) => String = ASTRenderer2
+
+      val formatterFactory: RenderContext2[TextFormatter] => TextFormatter = TextFormatter
+      
       override val defaultTheme = Theme(
-        customRenderer = defaultRenderer,
+        customRenderer = customRenderer,
         defaultTemplate = defaultTemplate,
         defaultStyles = defaultStyles,
         staticDocuments = staticDocuments
       )
 
-
-      override def newRenderer(context: RenderContext): (TextWriter, Element => Unit) = ???
     }
 
     def defaultTemplate: Option[TemplateRoot] = None
@@ -64,7 +66,7 @@ class ThemeConfigSpec extends WordSpec with Matchers {
 
     def staticDocuments: StaticDocuments = StaticDocuments(DocumentTree(Path.Root, Nil))
 
-    def defaultRenderer: TextWriter => RenderFunction = { _ => { case _ => () } }
+    def customRenderer: PartialFunction[(TextFormatter, Element), String] =  { case (_, _) => "" }
 
   }
 
@@ -74,44 +76,41 @@ class ThemeConfigSpec extends WordSpec with Matchers {
     trait RenderSetup extends BundleSetup {
       val sb = new StringBuilder
       val out = OutputExecutor.asRenderFunction(StringOutput(sb, Root))
-      lazy val renderer = config.themeFor(TestFormat).customRenderer(new TextWriter(out.render, _ => (), RootElement(Nil)))
+      lazy val testRenderer = config.themeFor(TestFormat).customRenderer
+      val formatter = TextFormatter((_,_) => "", List(RootElement(Nil)), Indentation.default)
 
       def result: String = sb.toString
     }
 
     "merge renderers from a default theme with the renderers from an app extension" in new RenderSetup {
-      override val defaultRenderer: TextWriter => RenderFunction = { out => { case Strong(_, _) => out << "strong" } }
+      override val customRenderer: PartialFunction[(TextFormatter, Element), String] = { case (_, Strong(_, _)) => "strong" }
       val appBundles = Seq(BundleProvider.forTheme(TestFormat.Theme(
-        customRenderer = { out => { case Emphasized(_, _) => out << "em" } }
+        customRenderer = { case (_, Emphasized(_, _)) => "em" }
       )))
 
-      renderer(Strong(Nil))
-      renderer(Emphasized(Nil))
-      result shouldBe "strongem"
+      testRenderer((formatter, Strong(Nil))) + testRenderer((formatter, Emphasized(Nil))) shouldBe "strongem"
     }
 
     "let an app config override the renderer for an identical element in the default theme" in new RenderSetup {
-      override val defaultRenderer: TextWriter => RenderFunction = { out => { case Strong(_, _) => out << "strong" } }
+      override val customRenderer: PartialFunction[(TextFormatter, Element), String] = { case (_, Strong(_, _)) => "strong" }
       val appBundles = Seq(BundleProvider.forTheme(TestFormat.Theme(
-        customRenderer = { out => { case Strong(_, _) => out << "override" } }
+        customRenderer = { case (_, Strong(_, _)) => "override" }
       )))
 
-      renderer(Strong(Nil))
-      sb.toString shouldBe "override"
+      testRenderer((formatter, Strong(Nil))) shouldBe "override"
     }
 
     "let an app config override the renderer for an identical element in a previously installed app config" in new RenderSetup {
       val appBundles = Seq(
         BundleProvider.forTheme(TestFormat.Theme(
-          customRenderer = { out => { case Strong(_, _) => out << "strong" } }
+          customRenderer = { case (_, Strong(_, _)) => "strong" }
         )),
         BundleProvider.forTheme(TestFormat.Theme(
-          customRenderer = { out => { case Strong(_, _) => out << "override" } }
+          customRenderer = { case (_, Strong(_, _)) => "override" }
         ))
       )
 
-      renderer(Strong(Nil))
-      sb.toString shouldBe "override"
+      testRenderer((formatter, Strong(Nil))) shouldBe "override"
     }
 
   }
