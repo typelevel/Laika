@@ -69,7 +69,7 @@ class ReStructuredTextToHTMLSpec extends FlatSpec
     
     // TODO - some of these rules might get promoted to the real renderer (e.g. the one for InternalLink)
     val actual = Transform from ReStructuredText to HTML2 rendering { 
-      case (fmt, Emphasized(content,opt)) if opt.styles.contains("title-reference") => fmt.element("cite", opt, content) 
+      case (fmt, Emphasized(content,opt)) if opt.styles.contains("title-reference") => fmt.element("cite", NoOpt, content) 
       case (fmt, ExternalLink(content, url, title, opt))  => fmt.element("a", opt + Styles("reference","external"), content, fmt.optAttributes("href" -> Some(url), "title" -> title):_*)
       case (fmt, InternalLink(content, url, title, opt))  => fmt.element("a", opt + Styles("reference","internal"), content, fmt.optAttributes("href" -> Some("#"+url), "title"->title):_*)
       case (fmt, LiteralBlock(content,opt))     => fmt.withoutIndentation(_.textElement("pre", opt + Styles("literal-block"), content))
@@ -77,8 +77,8 @@ class ReStructuredTextToHTMLSpec extends FlatSpec
       case (fmt, FootnoteLink(id,label,opt))    => fmt.textElement("a", opt + Styles("footnote-reference"), s"[$label]", "href"-> ("#"+id)) 
       case (fmt, Section(header, content, opt)) => fmt.indentedElement("div", opt+Id(header.options.id.getOrElse(""))+(if(header.level == 1) Styles("document") else Styles("section")), header +: content)
       case (fmt, Header(level, (it: InternalLinkTarget) :: rest, opt)) => fmt.childPerLine(Seq(it, Header(level, rest, opt))) // move target out of the header content
-      case (fmt, Header(level, content, opt))   => fmt.element("h" + (level-1), opt, content) // rst special treatment of first header
-      case (fmt, Title(content, opt))           => fmt.element("h1", opt, content, "class" -> "title")
+      case (fmt, Header(level, content, opt))   => fmt.element("h" + (level-1), NoOpt, content) // rst special treatment of first header
+      case (fmt, Title(content, opt))           => fmt.element("h1", NoOpt, content, "class" -> "title")
       case (fmt, TitledBlock(title, content, opt)) => fmt.indentedElement("div", opt, Paragraph(title,Styles("admonition-title")) +: content)
       case (fmt, QuotedBlock(content,attr,opt)) => renderBlocks(fmt, "blockquote", opt, quotedBlockContent(content,attr))
       case (fmt, InternalLinkTarget(opt))       => fmt.textElement("span", opt, "")
