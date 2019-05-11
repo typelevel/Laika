@@ -222,7 +222,7 @@ object FORenderer2 extends ((FOFormatter, Element) => String) {
       case InvalidBlock(msg, fallback, opt) =>
         fmt.forMessage(msg)(fmt.child(Paragraph(List(msg), opt))) + fmt.child(fallback)
       case e =>
-        fmt.forMessage(e.message)(e.message + " ") + fmt.child(e.fallback)
+        fmt.forMessage(e.message)(fmt.child(e.message) + " ") + fmt.child(e.fallback)
     }
 
     def renderSystemMessage (message: SystemMessage): String = {
