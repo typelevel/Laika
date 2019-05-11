@@ -20,10 +20,8 @@ import laika.api.Render
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.ast.helper.OutputBuilder.RenderedDocument
 import laika.format.EPUB2
-import laika.io.OutputTree.StringResult
-import laika.io.{ByteInput, RenderedTree, StringTreeOutput}
+import laika.io.{ByteInput, RenderedDocument, RenderedTree, StringTreeOutput}
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
@@ -84,8 +82,8 @@ class XHTMLRendererSpec extends FlatSpec with Matchers with ModelBuilder {
       )
 
       val expected = Seq(
-        StringResult(Root / "doc1.epub.xhtml", renderedXhtml(1, "sub/styles2.css", "styles1.css")),
-        StringResult(Root / "sub" / "doc2.epub.xhtml", renderedXhtml(2, "styles2.css", "../styles1.css"))
+        RenderedDocument(Root / "doc1.epub.xhtml", Nil, Nil, renderedXhtml(1, "sub/styles2.css", "styles1.css")),
+        RenderedDocument(Root / "sub" / "doc2.epub.xhtml", Nil, Nil, renderedXhtml(2, "styles2.css", "../styles1.css"))
       )
 
       renderedDocs(input) shouldBe expected

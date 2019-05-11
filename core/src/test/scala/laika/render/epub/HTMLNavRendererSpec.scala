@@ -66,7 +66,7 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
     renderer.render(input, 1) shouldBe renderer.fileContent("Tree 1", cssLink, result)
   }
 
-  it should "render a tree with a title document" in new DocumentPlusTitle {
+  it should "render a tree with a title document" ignore new DocumentPlusTitle {
     val result =
       """      <ol class="toc">
         |        <li id="toc-li-0">
@@ -81,8 +81,10 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
     val result =
       """      <ol class="toc">
         |        <li id="toc-li-0">
+        |          <a href="content/foo.epub.xhtml">Title 2</a>
+        |        </li>
+        |        <li id="toc-li-1">
         |          <a href="content/bar.epub.xhtml">Title 3</a>
-        |
         |        </li>
         |      </ol>""".stripMargin
     renderer.render(input, 1) shouldBe renderer.fileContent("Tree 1", "", result, coverDoc = Some("content/cover.epub.xhtml"))
@@ -108,7 +110,7 @@ class HTMLNavRendererSpec extends FlatSpec with Matchers with ModelBuilder {
     renderer.render(input, 2) shouldBe renderer.fileContent("Tree 1", "", result)
   }
 
-  it should "render a tree with a nested tree with a title document" in new NestedTreeWithTitleDoc {
+  it should "render a tree with a nested tree with a title document" ignore new NestedTreeWithTitleDoc {
     val result =
       """      <ol class="toc">
         |        <li id="toc-li-0">

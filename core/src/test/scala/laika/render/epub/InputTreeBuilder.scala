@@ -10,11 +10,11 @@ trait InputTreeBuilder extends ModelBuilder {
 
   val uuid = "some-uuid"
 
-  def doc(path: Path, num: Int): RenderedDocument = RenderedDocument(path, Seq(Text(s"Title $num")), "zzz")
+  def doc(path: Path, num: Int, sections: Seq[SectionInfo] = Nil): RenderedDocument = RenderedDocument(path.withSuffix("xhtml"), Seq(Text(s"Title $num")), sections, "zzz")
 
-  def section(letter: Char) = Section(Header(1, Seq(Text(s"Section $letter")), Id(letter.toString)), Seq(p("zzz")))
+  def section(letter: Char) = SectionInfo(letter.toString, TitleInfo(Seq(Text(s"Section $letter"))), Nil)
 
-  def rootElemWithSections(num: Int): Int = 8 //root(title(s"Title $num"), section('A'), section('B'))
+  def sections: Seq[SectionInfo] = Seq(section('A'), section('B'))
 
   def configWithTreeTitle (num: Int): Config = com.typesafe.config.ConfigFactory.empty
     .withValue("title", ConfigValueFactory.fromAnyRef(s"Tree $num"))
@@ -56,11 +56,11 @@ trait DocumentPlusTitle extends InputTreeBuilder {
 
 trait DocumentPlusCover extends InputTreeBuilder {
 
-  val doc1 = doc(Path.Root / "cover", 2)
+  val doc1 = doc(Path.Root / "foo", 2)
   val doc2 = doc(Path.Root / "bar", 3)
-  val coverImage = CopiedDocument(ByteInput("", Root / "cover.png"))
+  val cover = doc(Path.Root / "cover", 0)
 
-  val input = rootTree(Path.Root, 1, doc1, doc2, coverImage)
+  val input = rootTree(Path.Root, 1, doc1, doc2).copy(coverDocument = Some(cover))
 }
 
 trait DocumentPlusStyle extends InputTreeBuilder {
@@ -117,8 +117,8 @@ trait TreeWithStaticDocuments extends InputTreeBuilder {
 
 trait DocumentsWithSections extends InputTreeBuilder {
 
-  val doc1 = doc(Path.Root / "foo", rootElemWithSections(2))
-  val doc2 = doc(Path.Root / "bar", rootElemWithSections(3))
+  val doc1 = doc(Path.Root / "foo", 2, sections)
+  val doc2 = doc(Path.Root / "bar", 3, sections)
 
   val input = rootTree(Path.Root, 1, doc1, doc2)
 }

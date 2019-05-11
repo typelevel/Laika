@@ -18,8 +18,7 @@ package laika.render.epub
 
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.format.{EPUB, EPUB2}
-import laika.io.OutputTree.{ResultTree, StringResult}
+import laika.format.EPUB2
 import laika.io.{RenderResult2, RenderedDocument, RenderedTree}
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -42,7 +41,7 @@ class ContainerWriterSpec extends FlatSpec with Matchers with ModelBuilder {
   def collectInputsOld (tree: DocumentTree): Seq[String] = {
 
     def toStringResult (doc: Document): RenderedDocument =
-      RenderedDocument(doc.path.parent / (doc.path.basename + ".html"), Nil, "Content is irrelevant for this test")
+      RenderedDocument(doc.path.parent / (doc.path.basename + ".html"), doc.title, doc.sections, "Content is irrelevant for this test")
 
     def toResultTree (currentTree: DocumentTree): RenderedTree = {
       val docs = currentTree.content.collect { case doc: Document => toStringResult(doc) }

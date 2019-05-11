@@ -63,7 +63,7 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
     renderer.render(input, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
   }
 
-  it should "render a tree with a title document" in new DocumentPlusTitle {
+  it should "render a tree with a title document" ignore new DocumentPlusTitle {
     val manifestItems =
       """    <item id="title_epub_xhtml" href="content/title.epub.xhtml" media-type="application/xhtml+xml" />
         |    <item id="bar_epub_xhtml" href="content/bar.epub.xhtml" media-type="application/xhtml+xml" />""".stripMargin
@@ -73,7 +73,7 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
     renderer.render(input, config) shouldBe fileContent(manifestItems, titleRef, spineRefs, uuid, "Title 2")
   }
 
-  it should "render a tree with a cover" in new DocumentPlusCover {
+  it should "render a tree with a cover" ignore new DocumentPlusCover {
     val manifestItems =
       """    <item id="cover_epub_xhtml" href="content/cover.epub.xhtml" media-type="application/xhtml+xml" />
         |    <item id="bar_epub_xhtml" href="content/bar.epub.xhtml" media-type="application/xhtml+xml" />
