@@ -106,23 +106,25 @@ object RenderExecutor {
 
     val theme = op.config.themeFor(op.format)
     
+    def outputPath (path: Path): Path = path.parent / (path.basename +"."+ op.format.fileSuffix)
+    
     def textOutputFor (path: Path): TextOutput = op.output match {
-      case StringTreeOutput => StringOutput(new mutable.StringBuilder, path) // TODO - 0.12 - temporary solution
-      case DirectoryOutput(dir, codec) => TextFileOutput(new File(dir, path.parent.toString + "/" + path.basename +"."+ op.format.fileSuffix), path, codec)
+      case StringTreeOutput => StringOutput(new mutable.StringBuilder, outputPath(path)) // TODO - 0.12 - temporary solution
+      case DirectoryOutput(dir, codec) => TextFileOutput(new File(dir, outputPath(path).toString.drop(1)), outputPath(path), codec)
     }
     def binaryOutputFor (path: Path): Seq[BinaryOutput] = op.output match {
       case StringTreeOutput => Nil
-      case DirectoryOutput(dir, codec) => Seq(BinaryFileOutput(new File(dir, path.parent.toString + "/" + path.basename +"."+ op.format.fileSuffix), path))
+      case DirectoryOutput(dir, codec) => Seq(BinaryFileOutput(new File(dir, path.toString.drop(1)), path))
     }
 
     def renderDocument (document: Document, styles: StyleDeclarationSet): Operation = {
       val textOp = Render.Op2(op.format, op.config, document.content, textOutputFor(document.path))
-      () => RenderedDocument(document.path, document.title, execute(textOp, Some(styles)))
+      () => RenderedDocument(outputPath(document.path), document.title, execute(textOp, Some(styles)))
     }
 
     def renderTemplate (document: DynamicDocument, styles: StyleDeclarationSet): Operation = {
       val textOp = Render.Op2(op.format, op.config, document.content, textOutputFor(document.path))
-      () => RenderedTemplate(document.path, execute(textOp, Some(styles)))
+      () => RenderedTemplate(outputPath(document.path), execute(textOp, Some(styles)))
     }
 
     def copy (document: StaticDocument): Seq[Operation] = binaryOutputFor(document.path).map { out =>
