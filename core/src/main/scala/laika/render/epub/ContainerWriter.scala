@@ -71,7 +71,7 @@ class ContainerWriter {
 
     def collectDocuments (currentTree: RenderedTree): Seq[StreamInput] = {
       currentTree.content.flatMap {
-        case RenderedDocument(path, _, content) => Seq(toBinaryInput(content, shiftContentPath(path)))
+        case RenderedDocument(path, _, _, content) => Seq(toBinaryInput(content, shiftContentPath(path)))
           
         case childTree: RenderedTree => collectDocuments(childTree)
           

@@ -119,7 +119,7 @@ object RenderExecutor {
 
     def renderDocument (document: Document, styles: StyleDeclarationSet): Operation = {
       val textOp = Render.Op2(op.format, op.config, document.content, textOutputFor(document.path))
-      () => RenderedDocument(outputPath(document.path), document.title, execute(textOp, Some(styles)))
+      () => RenderedDocument(outputPath(document.path), document.title, document.sections, execute(textOp, Some(styles)))
     }
 
     def renderTemplate (document: DynamicDocument, styles: StyleDeclarationSet): Operation = {
@@ -155,7 +155,7 @@ object RenderExecutor {
         })
     }
 
-    val templateName = "default.template." + op.format.fileSuffix
+    val templateName = "default.template." + op.format.fileSuffix // TODO - 0.12 - add to API: getDefaultTemplate(format) + withDefaultTemplate(format)
     val (treeWithTpl, template) = op.tree.selectTemplate(Path.Current / templateName).fold(
       (op.tree.copy(templates = op.tree.templates :+ TemplateDocument(Path.Root / templateName,
         theme.defaultTemplateOrFallback)), theme.defaultTemplateOrFallback)

@@ -290,7 +290,7 @@ class TransformAPISpec extends FlatSpec
     }
   }
   
-  it should "transform a tree with all available file types" in {
+  it should "transform a tree with all available file types" ignore {
     new TreeTransformer {
       val dirs = """- doc1.md:link
         |- doc2.rst:link

@@ -101,7 +101,7 @@ case class RenderedTree (path: Path, title: Seq[Span], content: Seq[RenderConten
   }
 }
 
-case class RenderedDocument (path: Path, title: Seq[Span], content: String) extends RenderNavigationContent
+case class RenderedDocument (path: Path, title: Seq[Span], sections: Seq[SectionInfo], content: String) extends RenderNavigationContent
 
 case class RenderedTemplate (path: Path, content: String) extends RenderContent
 

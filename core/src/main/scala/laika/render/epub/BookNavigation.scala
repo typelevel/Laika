@@ -71,7 +71,7 @@ object BookNavigation {
         case doc: RenderedDocument =>
           val title = if (doc.title.nonEmpty) SpanSequence(doc.title).extractText else doc.name
           val parentPos = pos.next
-          val children = forSections(doc.path, Nil, depth - 1, pos) // TODO - 0.12 - add sections
+          val children = forSections(doc.path, doc.sections, depth - 1, pos)
           BookNavigationLink(title, fullPath(doc.path, forceXhtml = true), parentPos, children)
         case subtree: RenderedTree =>
           val title = if (subtree.title.nonEmpty) SpanSequence(subtree.title).extractText else subtree.name
