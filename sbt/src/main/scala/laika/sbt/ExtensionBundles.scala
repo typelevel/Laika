@@ -17,9 +17,9 @@
 package laika.sbt
 
 import laika.ast._
-import laika.bundle.{ExtensionBundle, RenderTheme}
-import laika.format.{EPUB, HTML, XSLFO}
-import laika.render.{FOWriter, HTMLWriter}
+import laika.bundle.{ExtensionBundle, RenderTheme2}
+import laika.format._
+import laika.render.{FOFormatter, HTMLFormatter}
 
 /** API shortcuts for the most common extension points that create
   * an extension bundle from a single feature, so that it can be passed
@@ -37,19 +37,16 @@ import laika.render.{FOWriter, HTMLWriter}
   */
 trait ExtensionBundles {
 
-  @deprecated("renamed to laikaHtmlRenderer", "0.9.0")
-  def laikaSiteRenderer (f: HTMLWriter => RenderFunction): ExtensionBundle = laikaHtmlRenderer(f)
-
   /** Create an extension bundle based on the specified custom HTML render function.
     */
-  def laikaHtmlRenderer (f: HTMLWriter => RenderFunction): ExtensionBundle = new ExtensionBundle {
-    override def themes: Seq[RenderTheme] = Seq(HTML.Theme(customRenderer = f))
+  def laikaHtmlRenderer (f: PartialFunction[(HTMLFormatter, Element), String]): ExtensionBundle = new ExtensionBundle {
+    override def themes: Seq[RenderTheme2] = Seq(HTML2.Theme(customRenderer = f))
   }
 
   /** Create an extension bundle based on the specified custom HTML render function.
     */
-  def laikaEpubRenderer (f: HTMLWriter => RenderFunction): ExtensionBundle = new ExtensionBundle {
-    override def themes: Seq[RenderTheme] = Seq(EPUB.XHTML.Theme(customRenderer = f))
+  def laikaEpubRenderer (f: PartialFunction[(HTMLFormatter, Element), String]): ExtensionBundle = new ExtensionBundle {
+    override def themes: Seq[RenderTheme2] = Seq(EPUB2.XHTML.Theme(customRenderer = f))
   }
 
   /** Create an extension bundle based on the specified custom XSL-FO render function.
@@ -57,8 +54,8 @@ trait ExtensionBundles {
     * Such a render function will also be used for PDF rendering, as XSL-FO is an interim
     * format for the PDF renderer.
     */
-  def laikaFoRenderer (f: FOWriter => RenderFunction): ExtensionBundle = new ExtensionBundle {
-    override def themes: Seq[RenderTheme] = Seq(XSLFO.Theme(customRenderer = f))
+  def laikaFoRenderer (f: PartialFunction[(FOFormatter, Element), String]): ExtensionBundle = new ExtensionBundle {
+    override def themes: Seq[RenderTheme2] = Seq(XSLFO2.Theme(customRenderer = f))
   }
 
   /** Create an extension bundle based on the specified rewrite rule for spans.
