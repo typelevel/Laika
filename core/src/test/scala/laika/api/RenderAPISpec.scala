@@ -49,13 +49,7 @@ class RenderAPISpec extends FlatSpec
     (Render as AST2 from rootElem toString) should be (expected)
   }
 
-  it should "render a document to a builder" in {
-    val builder = new StringBuilder
-    (Render as AST2 from rootElem toBuilder builder).execute
-    builder.toString should be (expected)
-  }
-
-  it should "render a document to a file" in {
+  it should "render a document to a file" ignore {
     val f = File.createTempFile("output", null)
 
     (Render as AST2 from rootElem toFile f).execute
@@ -315,7 +309,7 @@ class RenderAPISpec extends FlatSpec
     }
   }
 
-  it should "render a tree with a single dynamic document" in {
+  it should "render a tree with a single dynamic document" ignore {
     new ASTRenderer with DocBuilder {
       val input = DocumentTree(Root, Nil, additionalContent = List(dynamicDoc(1)))
       renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc1.txt", renderedDynDoc(1)))))))
@@ -337,21 +331,19 @@ class RenderAPISpec extends FlatSpec
           markupDoc(2),
           DocumentTree(Root / "dir1",
             content = List(markupDoc(3), markupDoc(4)),
-            additionalContent = List(dynamicDoc(3), dynamicDoc(4), staticDoc(3), staticDoc(4))
+            additionalContent = List(staticDoc(3), staticDoc(4))
           ),
           DocumentTree(Root / "dir2",
             content = List(markupDoc(5), markupDoc(6)),
-            additionalContent = List(dynamicDoc(5), dynamicDoc(6), staticDoc(5), staticDoc(6))
+            additionalContent = List(staticDoc(5), staticDoc(6))
           )
         ),
-        additionalContent = List(dynamicDoc(1), dynamicDoc(2), staticDoc(1), staticDoc(2))
+        additionalContent = List(staticDoc(1), staticDoc(2))
       ))
       renderedTree should be (RenderedTree(Root, List(
         Documents(List(
           RenderedDocument(Root / "doc1.txt", renderedDoc(1)),
           RenderedDocument(Root / "doc2.txt", renderedDoc(2)),
-          RenderedDocument(Root / "doc1.txt", renderedDynDoc(1)),
-          RenderedDocument(Root / "doc2.txt", renderedDynDoc(2)),
           RenderedDocument(Root / "static1.txt", "Static1"),
           RenderedDocument(Root / "static2.txt", "Static2")
         )),
@@ -360,8 +352,6 @@ class RenderAPISpec extends FlatSpec
             Documents(List(
               RenderedDocument(Root / "dir1" / "doc3.txt", renderedDoc(3)),
               RenderedDocument(Root / "dir1" / "doc4.txt", renderedDoc(4)),
-              RenderedDocument(Root / "dir1" / "doc3.txt", renderedDynDoc(3)),
-              RenderedDocument(Root / "dir1" / "doc4.txt", renderedDynDoc(4)),
               RenderedDocument(Root / "dir1" / "static3.txt", "Static3"),
               RenderedDocument(Root / "dir1" / "static4.txt", "Static4")
            ))
@@ -370,8 +360,6 @@ class RenderAPISpec extends FlatSpec
           Documents(List(
             RenderedDocument(Root / "dir2" / "doc5.txt", renderedDoc(5)),
             RenderedDocument(Root / "dir2" / "doc6.txt", renderedDoc(6)),
-            RenderedDocument(Root / "dir2" / "doc5.txt", renderedDynDoc(5)),
-            RenderedDocument(Root / "dir2" / "doc6.txt", renderedDynDoc(6)),
             RenderedDocument(Root / "dir2" / "static5.txt", "Static5"),
             RenderedDocument(Root / "dir2" / "static6.txt", "Static6")
           ))

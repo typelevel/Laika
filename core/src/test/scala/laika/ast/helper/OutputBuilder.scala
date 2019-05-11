@@ -28,7 +28,7 @@ object OutputBuilder {
 
   
   /* translating render results to Elements gives us a nicely formatted AST for free */
-  
+  // TODO - 0.12 - postfix with View to disambiguate
   case class RenderedDocument (path: Path, content: String) extends Element
   
   trait TreeContent extends Element
