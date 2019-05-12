@@ -195,27 +195,30 @@ A custom renderer allows to override the generated output for one or more specif
 types, while falling back to the default renderers for all other node types.
 
 The `laikaHtmlRenderer` shortcut allows to add a custom HTML renderer to the `laikaExtensions` setting
-and expects a function of type `HTMLWriter => RenderFunction` where `RenderFunction`
-is a type alias for `PartialFunction[Element, Unit]`. `Element` is the base trait for all nodes
-in a document tree. For all elements where this partial function is not defined,
-Laika will use the default renderers for all node types. 
+and expects a function of type `PartialFunction[(HTMLFormatter, Element), String]`. 
+
+`HTMLFormatter` provides the API for rendering tags, adds the current indentation level after
+line breaks and knows how to render child elements. 
+
+`Element` is the base trait for all nodes in a document tree. 
+For all elements where this partial function is not defined, Laika will use the default renderers for all node types. 
 
 The following simple example shows how you can add a style to the renderer for
 the `<em>` tag:
 
-    laikaExtensions += laikaHtmlRenderer { out => {
-      case Emphasized(content, _) => 
-          out << """<em class="big">""" << content << "</em>" 
+    laikaExtensions += laikaHtmlRenderer {
+      case (fmt, Emphasized(content, opt)) => 
+          fmt.element("em", opt, content, "class" -> "big") 
     }}
   
 For more details see the chapter [Customizing Renderers].
   
 Similarly the `laikaFoRenderer` shortcut can be used to add a custom `XSL-FO` renderer 
-of type `FOWriter => RenderFunction`. `XSL-FO` is an interim format for PDF output,
+of type `PartialFunction[(FOFormatter, Element), String]`. `XSL-FO` is an interim format for PDF output,
 so this option would also allow to change the appearance of PDF documents.
 
 For EPUB the `laikaEpubRenderer` can be used to add a custom XHMTL renderer of type
-`HTMLWriter => RenderFunction`. 
+`PartialFunction[(HTMLFormatter, Element), String]`. 
 
     
 

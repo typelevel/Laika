@@ -9,15 +9,16 @@ or extending the existing renderer.
 
 This is the signature of a custom renderer hook:
 
-    W => PartialFunction[Element,Unit]
+    PartialFunction[(Formatter, Element), String]
     
-`W` is a generic type representing the writer API which is different for each 
-output format. For HTML it is `HTMLWriter`, for XSL-FO it is `FOWriter`. 
+`Formatter` is a generic type representing the formatting API which is different for each 
+output format. For HTML it is `HTMLFormatterr`, for XSL-FO it is `FOFormatter`. 
 This way renderers can offer the most convenient API for a specific output format.
+It provides a helper API for rendering tags, adds the current indentation level after
+line breaks and knows how to render child elements. 
 
-Creating a function that expects a writer instance and returns the actual custom
-render function in form of a partial function allows to 'capture' the writer
-in a concise way like the examples below will show.
+`Element` is the base type of the document AST and represent the AST node to render, `String`
+is the render result in the expected target format.
   
   
   
@@ -30,11 +31,9 @@ show the three different ways to register such a function.
 In the following example only the HTML output for emphasized text will be modified,
 adding a specific style class:
 
-    val open = """<em class="big">"""
-    val close = "</em>"
-
-    val renderer: HTMLWriter => RenderFunction = { out => 
-      { case Emphasized(content, _) => out << open << content << close } 
+    val renderer: PartialFunction[(HTMLFormatter, Element), String] = {
+      case (fmt, Emphasized(content, opt)) => 
+        fmt.element("em", opt, content, "class" -> "big") 
     }
 
 For all node types where the partial function is not defined, the default renderer
@@ -44,14 +43,10 @@ Multiple custom renderers can be specified for the same transformation, they wil
 tried in the order you added them, falling back to the default in case none is defined 
 for a specific node.
 
-The `content` value above is of type `Seq[Span]`. `<<` and other methods of the
-`HTMLWriter` API are overloaded and accept `String`, `Element` or `Seq[Element]` 
-as a parameter, with `Element` being the abstract base type of all tree nodes.
-This way rendering child elements can be delegated to other renderers, either another
-custom renderer or the default. 
-
-In almost all cases, a custom renderer should not render
-the children of a node passed to the function itself.
+The `content` value above is of type `Seq[Span]`. A renderer should only ever render
+a single node and delegate to the formatter for rendering children. Only the formatter
+has a list of all installed render extensions as well as the base renderer and will
+delegate to those function where the partial function is defined for the child element. 
 
 
 
@@ -59,7 +54,7 @@ Registering a Render Function
 -----------------------------
 
 The mechanism is slightly different, depending on whether you are using the sbt
-plugin or Laika embedded in an application. In the latter case you have two
+plugin or Laika as a library in an application. In the latter case you have two
 choices, one for performing a full transformation, the other for a separate
 render operation. All three options are described below.
 
@@ -70,94 +65,69 @@ In `build.sbt`:
 
     import laika.ast._
     
-    laikaSiteRenderers += laikaSiteRenderer { out => {
-      case Emphasized(content, _) => 
-          out << """<em class="big">""" << content << "</em>" 
-    }}
+    laikaSiteRenderers += laikaSiteRenderer {
+      case (fmt, Emphasized(content, opt)) => 
+        fmt.element("em", opt, content, "class" -> "big")
+    }
 
     
 ### Using the Transform API
 
-    val open = """<em class="big">"""
-    val close = "</em>"
+    Transform.from(Markdown).to(HTML).rendering {
+      case (fmt, Emphasized(content, opt)) => 
+        fmt.element("em", opt, content, "class" -> "big")
+    }.fromFile("hello.md").toFile("hello.html")
 
-    Transform from Markdown to HTML rendering { out => 
-      { case Emphasized(content, _) => out << open << content << close } 
-    } fromFile "hello.md" toFile "hello.html"
-    
 
 ### Using the Render API
 
     val doc: Document = ...
     
-    val open = """<em class="big">"""
-    val close = "</em>"
-    
-    Render as HTML using { out => 
-      { case Emphasized(content, _) => out << open << content << close } 
-    } from doc toString
-    
+    Render.as(HTML).rendering { 
+      case (fmt, Emphasized(content, opt)) => 
+        fmt.element("em", opt, content, "class" -> "big")
+    }.from(doc).toString
 
 
-The Writer APIs
----------------
 
-In the examples above we only needed the basic `<<` method. This secion provides
-an overview over the full API.
+The Formatter APIs
+------------------
 
-Btw: in case you do not fancy operators as method names, the writer APIs are the only ones
-in Laika making use of them. It turned out to improve readability for most common
-scenarios where you have to chain lots of elements, often including indentation
-and newline characters for making the output prettier. There are not that many,
-so it should be easy to memorize them.
-
-Writers differ from all other Laika objects in that they are stateful. But the
-only state they keep internally is the current level of indentation for prettier
-output which greatly simplifies the use of the API for rendering elements
-recursively. A new writer instance is created for each render operation,
-so there is no need to share it between threads.  
+Each formatter provides functionality that is specific to the target format.
+On top of that all formatters manage the indentation level after line breaks and 
+know how to delegate to the relevant renderers for child elements.
 
 
-### TextWriter
+### TextFormatter
 
 This is the base API supported by both the `XSL-FO` and `HTML` renderer,
 both of them adding several methods with rendering logic specific to that format.
 
-All methods below are overloaded and accept `String`, `Element` or `Seq[Element]` 
-as a parameter, with `Element` being the abstract base type of all tree nodes.
-When passing Elements to the writer it will delegate to the renderers responsible
-for those nodes.
+* `newLine` renders a newline character followed by whitespace for the current level of indentation
 
-* `<<` appends to the output on the current line.
+* `child` render a single child element.
 
-* `<<|` appends to the output on a new line, with the current level of indentation
+* `childPerLine` renders a list of child elements, each on a separate line, 
+  with the current level of indentation
 
-* `<<|>` appends to the output on a new line, increasing indentation one level to the right
-
-When using the last method with Element instances which might themselves delegate
-rendering of their children, you get a nicely formatted output without much effort.
+* `indentedChildren` renders a list of child elements, each on a separate line, 
+  indented one level to the right from the current indentation level
 
 
-### HTMLWriter
 
-This writer supports all methods of the `TextWriter` API shown above, and adds
+### HTMLFormatter
+
+This formatter supports all methods of the `TextFormatter` API shown above, and adds
 the following methods:
 
-* For the three methods above, there is a variant that replaces special HTML
-  characters with HTML entities and should be used for writing text nodes. They
-  are named `<<&`, `<<|&` and `<<|>&` and otherwise behave the same as their
-  counterparts without the `&`.
+* `element` renders a tag where the specified list of child elements will be used to render the content of the tag
+
+* `indentedElement` is similar to `element`, but renders the child elements one per line and indented to the right
   
-* The `<<<&` method does not have a counterpart without `&`. Like the others
-  it replaces special HTML characters, but it writes without any indentation,
-  no matter which level of indentation the writer currently has,
-  which is needed for writing nodes like `<pre>` where indentation would be
-  significant. 
-  
-* The `<<@` method is a convenient way to write an HTML attribute. It is overloaded
-  and either takes `(String, String)` or `(String, Option[String])` as parameters
-  for name and value of the attribute. If the value is None, nothing will be written,
-  but it often makes writing optional attributes more concise.
+* `textElement` renders an element with text content with special characters replaced by entities
+
+* `emptyElement` renders an empty tag
+
 
 
 ### Themes
@@ -168,7 +138,7 @@ directory.
 
 This is the signature of the `Theme` case class:
 
-    case class Theme (customRenderer: W => RenderFunction,
+    case class Theme (customRenderer: PartialFunction[(Formatter, Element), String],
                       defaultTemplate: Option[TemplateRoot],
                       defaultStyles: StyleDeclarationSet,
                       staticDocuments: StaticDocuments)

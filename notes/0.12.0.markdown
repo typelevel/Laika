@@ -2,3 +2,4 @@
 Integration with cats-effect.
 
 * Refactoring of AST Rewrite API to be fully type-safe and avoid runtime reflection and exceptions.
+* Refactoring of the Render API to be referentially transparent

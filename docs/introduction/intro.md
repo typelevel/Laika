@@ -164,6 +164,7 @@ Release History
 * __0.12.0__ (<WIP>, 2019):
 
     * Refactoring of AST Rewrite API to be fully type-safe and avoid runtime reflection and exceptions.
+    * Refactoring of the Render API to be referentially transparent
 
 * __0.11.0__ (?, 2019):
 

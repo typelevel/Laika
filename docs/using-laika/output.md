@@ -100,12 +100,10 @@ It does that recursively including sub-directories:
 Finally you can adjust the rendered output for one or more node types
 of the document tree programmatically with a simple partial function:
 
-    val open = """<em class="big">"""
-    val close = "</em>"
-
-    Transform from Markdown to HTML rendering { out => 
-      { case Emphasized(content, _) => out << open << content << close } 
-    } fromFile "hello.md" toFile "hello.html"
+    Transform.from(Markdown).to(HTML).rendering {
+      case (fmt, Emphasized(content, opt)) => 
+        fmt.element("em", opt, content, "class" -> "big")  
+    }.fromFile("hello.md").toFile("hello.html")
     
 Note that in some cases the simpler way to achieve the same result may be
 styling with CSS.
@@ -473,12 +471,11 @@ You can override it if required by saving a custom template in a file called
 Finally you can adjust the `fo` tags rendered for one or more node types
 of the document tree programmatically with a simple partial function:
 
-    Transform from Markdown to PDF rendering { out => { 
-      case elem @ Emphasized(content, _) => out.inline(
-        elem.copy(options = Style("myStyle")), content
-      ) 
-    }} fromDirectory "src" toFile "out.pdf"
-    
+    Transform.from(Markdown).to(PDF).rendering {
+      case (fmt, elem @ Emphasized(content, _)) => 
+        fmt.inline(elem.copy(options = Style("myStyle")), content)   
+    }.fromDirectory("src").toFile("out.pdf")
+
 Note that in most cases the simpler way to achieve the same result will be
 styling with CSS.
 
@@ -498,7 +495,7 @@ The XSL-FO renderer can be used with the `Transform` or `Render` APIs:
 
     val doc: Document = Parse as Markdown fromFile "hello.md"
     Render as XSLFO from document toFile "hello.fo"
-    
+
 See [Using Laika Embedded] for more details on these APIs.
     
 If you are using the sbt plugin you can use several of its task for generating
