@@ -30,7 +30,7 @@ import scala.io.Codec
  *  The API provided by this trait is only meant to be used internally by a renderer
  *  implementation. For providing hooks for user customization, the renderer should
  *  wrap it in a convenient API appropriate for the corresponding output format, like
- *  the `HTMLWriter` API for HTML renderers for example. 
+ *  the `HTMLFormatter` API for HTML renderers for example. 
  * 
  *  @author Jens Halm
  */

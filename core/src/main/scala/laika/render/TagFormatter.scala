@@ -20,9 +20,9 @@ import laika.ast._
 
 import scala.collection.mutable
 
-/** Base type for writers that produce tag-based output formats like XML 
+/** Base type for formatters that produce tag-based output formats like XML 
  *  or HTML.
- *  Extends the base `TextWriter` and adds methods for writing text
+ *  Extends the `BaseFormatter` and adds methods for writing text
  *  with special characters as entities and for conveniently writing
  *  tags with attributes.
  * 

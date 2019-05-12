@@ -32,7 +32,7 @@ trait OutputOps
 
 /** A target for a render operation that renders to a single output.
   */
-trait SingleOutputOps[Writer] extends OutputOps {
+trait SingleOutputOps[FMT] extends OutputOps {
   
   type Result
 
@@ -52,7 +52,7 @@ trait SingleOutputOps[Writer] extends OutputOps {
 
 }
 
-trait BinaryOutputOps[Writer] extends SingleOutputOps[Writer] {
+trait BinaryOutputOps[FMT] extends SingleOutputOps[FMT] {
 
   def toFile (file: File)(implicit codec: Codec): Result = toBinaryOutput(BinaryFileOutput(file, Path(file.getName)))
 
@@ -113,9 +113,9 @@ trait TextRenderOutputOps[FMT] extends TextOutputOps[FMT] {
 
 }
 
-trait TextTransformOutputOps[Writer] extends TextOutputOps[Writer] {
+trait TextTransformOutputOps[FMT] extends TextOutputOps[FMT] {
 
-  type Result = Transform.Op2[Writer]
+  type Result = Transform.Op2[FMT]
 
   /** Renders the model to a String and returns it.
     */
@@ -131,7 +131,7 @@ trait TextTransformOutputOps[Writer] extends TextOutputOps[Writer] {
 /** Represents a tree of output destinations for recursive render operations.
   *  Various types of output can be specified to trigger the actual rendering.
   */
-trait OutputTreeOps[Writer] extends OutputOps {
+trait OutputTreeOps[FMT] extends OutputOps {
   
   type Result
 
@@ -168,14 +168,14 @@ trait OutputTreeOps[Writer] extends OutputOps {
 }
 
 // TODO - 0.12 - unclutter trait hierarchies
-trait RenderOutputTreeOps[Writer] extends OutputTreeOps[Writer] {
+trait RenderOutputTreeOps[FMT] extends OutputTreeOps[FMT] {
   
-  type Result = Render.TreeOp2[Writer]
+  type Result = Render.TreeOp2[FMT]
   
 }
 
-trait TransformOutputTreeOps[Writer] extends OutputTreeOps[Writer] {
+trait TransformOutputTreeOps[FMT] extends OutputTreeOps[FMT] {
 
-  type Result = Transform.TreeOp2[Writer]
+  type Result = Transform.TreeOp2[FMT]
 
 }

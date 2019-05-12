@@ -56,7 +56,7 @@ object RenderExecutor {
     // result // TODO - 0.12 - deal with different types of Output
   }
   
-  def execute[Writer] (op: Render.MergeOp2[Writer]): Done = {
+  def execute[FMT] (op: Render.MergeOp2[FMT]): Done = {
     val template = op.config.themeFor(op.processor.format).defaultTemplateOrFallback // TODO - 0.12 - look for templates in root tree
     val preparedTree = op.processor.prepareTree(op.tree)
     val renderedTree  = execute(Render.TreeOp2(op.processor.format, op.config, preparedTree, StringTreeOutput))

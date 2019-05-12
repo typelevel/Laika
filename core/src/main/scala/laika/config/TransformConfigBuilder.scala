@@ -24,7 +24,7 @@ import laika.bundle.ExtensionBundle
   *
   * @author Jens Halm
   */
-trait TransformConfigBuilder[Writer] extends ParseConfigBuilder with RenderConfigBuilder[Writer] {
+trait TransformConfigBuilder[FMT] extends ParseConfigBuilder with RenderConfigBuilder[FMT] {
 
   /**  Specifies rewrite rules to be applied to the document tree model between the
     *  parse and render operations. This is identical to calling `Document.rewrite`
