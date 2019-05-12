@@ -68,13 +68,13 @@ trait BinaryOutputOps[FMT] extends SingleOutputOps[FMT] {
 
 trait BinaryRenderOutputOps[FMT] extends BinaryOutputOps[FMT] {
 
-  type Result = Render.MergeOp2[FMT]
+  type Result = Render.MergeOp[FMT]
   
 }
 
 trait BinaryTransformOutputOps[FMT] extends BinaryOutputOps[FMT] {
 
-  type Result = Transform.MergeOp2[FMT]
+  type Result = Transform.MergeOp[FMT]
 
 }
 
@@ -100,7 +100,7 @@ trait TextOutputOps[FMT] extends SingleOutputOps[FMT] {
 
 trait TextRenderOutputOps[FMT] extends TextOutputOps[FMT] {
 
-  type Result = Render.Op2[FMT]
+  type Result = Render.Op[FMT]
   
   /** Renders the model to a String and returns it.
     */
@@ -115,7 +115,7 @@ trait TextRenderOutputOps[FMT] extends TextOutputOps[FMT] {
 
 trait TextTransformOutputOps[FMT] extends TextOutputOps[FMT] {
 
-  type Result = Transform.Op2[FMT]
+  type Result = Transform.Op[FMT]
 
   /** Renders the model to a String and returns it.
     */
@@ -170,12 +170,12 @@ trait OutputTreeOps[FMT] extends OutputOps {
 // TODO - 0.12 - unclutter trait hierarchies
 trait RenderOutputTreeOps[FMT] extends OutputTreeOps[FMT] {
   
-  type Result = Render.TreeOp2[FMT]
+  type Result = Render.TreeOp[FMT]
   
 }
 
 trait TransformOutputTreeOps[FMT] extends OutputTreeOps[FMT] {
 
-  type Result = Transform.TreeOp2[FMT]
+  type Result = Transform.TreeOp[FMT]
 
 }

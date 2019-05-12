@@ -33,7 +33,7 @@ import scala.collection.mutable
   */
 object RenderExecutor {
 
-  def execute[FMT] (op: Render.Op2[FMT], styles: Option[StyleDeclarationSet]): String = {
+  def execute[FMT] (op: Render.Op[FMT], styles: Option[StyleDeclarationSet]): String = {
 
     val theme = op.config.themeFor(op.format)
 
@@ -56,15 +56,15 @@ object RenderExecutor {
     // result // TODO - 0.12 - deal with different types of Output
   }
   
-  def execute[FMT] (op: Render.MergeOp2[FMT]): Done = {
+  def execute[FMT] (op: Render.MergeOp[FMT]): Done = {
     val template = op.config.themeFor(op.processor.format).defaultTemplateOrFallback // TODO - 0.12 - look for templates in root tree
     val preparedTree = op.processor.prepareTree(op.tree)
-    val renderedTree  = execute(Render.TreeOp2(op.processor.format, op.config, preparedTree, StringTreeOutput))
+    val renderedTree  = execute(Render.TreeOp(op.processor.format, op.config, preparedTree, StringTreeOutput))
     op.processor.process(renderedTree, op.output)
     Done
   }
 
-  def execute[FMT] (op: Render.TreeOp2[FMT]): RenderedTreeRoot = {
+  def execute[FMT] (op: Render.TreeOp[FMT]): RenderedTreeRoot = {
 
     type Operation = () => RenderContent
 
@@ -82,12 +82,12 @@ object RenderExecutor {
     }
 
     def renderDocument (document: Document, styles: StyleDeclarationSet): Operation = {
-      val textOp = Render.Op2(op.format, op.config, document.content, textOutputFor(document.path))
+      val textOp = Render.Op(op.format, op.config, document.content, textOutputFor(document.path))
       () => RenderedDocument(outputPath(document.path), document.title, document.sections, execute(textOp, Some(styles)))
     }
 
     def renderTemplate (document: DynamicDocument, styles: StyleDeclarationSet): Operation = {
-      val textOp = Render.Op2(op.format, op.config, document.content, textOutputFor(document.path))
+      val textOp = Render.Op(op.format, op.config, document.content, textOutputFor(document.path))
       () => RenderedTemplate(outputPath(document.path), execute(textOp, Some(styles)))
     }
 

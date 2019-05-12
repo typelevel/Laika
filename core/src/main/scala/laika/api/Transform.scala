@@ -93,15 +93,15 @@ abstract class Transform [FMT] private[Transform] (parsers: Seq[MarkupParser], p
  */
 object Transform {
 
-  case class Op2[FMT] (parsers: Seq[MarkupParser], format: RenderFormat[FMT], config: OperationConfig, input: TextInput, output: TextOutput) {
+  case class Op[FMT] (parsers: Seq[MarkupParser], format: RenderFormat[FMT], config: OperationConfig, input: TextInput, output: TextOutput) {
     def execute: String = TransformExecutor.execute(this)
   }
 
-  case class TreeOp2[FMT] (parsers: Seq[MarkupParser], format: RenderFormat[FMT], config: OperationConfig, input: TreeInput, output: TreeOutput) {
+  case class TreeOp[FMT] (parsers: Seq[MarkupParser], format: RenderFormat[FMT], config: OperationConfig, input: TreeInput, output: TreeOutput) {
     def execute: RenderedTreeRoot = TransformExecutor.execute(this)
   }
 
-  case class MergeOp2[FMT] (parsers: Seq[MarkupParser], processor: RenderResultProcessor[FMT], config: OperationConfig, input: TreeInput, output: BinaryOutput) {
+  case class MergeOp[FMT] (parsers: Seq[MarkupParser], processor: RenderResultProcessor[FMT], config: OperationConfig, input: TreeInput, output: BinaryOutput) {
     def execute: Done = TransformExecutor.execute(this)
   }
   
@@ -124,11 +124,11 @@ object Transform {
     def withConfig (newConfig: OperationConfig): ThisType = new TransformMappedOutput(parsers, format, newConfig)
 
     def fromInput (input: TextInput): InputResult = new TextTransformOutputOps[FMT] {
-      def toTextOutput (out: TextOutput) = Op2[FMT](parsers, format, config, input, out)
+      def toTextOutput (out: TextOutput) = Op[FMT](parsers, format, config, input, out)
     }
 
     def fromTreeInput (input: TreeInput): InputTreeResult = new TransformOutputTreeOps[FMT] {
-      def toOutputTree (tree: TreeOutput) = TreeOp2[FMT](parsers, format, config, input, tree)
+      def toOutputTree (tree: TreeOutput) = TreeOp[FMT](parsers, format, config, input, tree)
     }
     
   }
@@ -154,7 +154,7 @@ object Transform {
     def fromInput (input: TextInput): InputResult = fromTreeInput(InputCollection(input))
 
     def fromTreeInput (input: TreeInput): InputTreeResult = new BinaryTransformOutputOps[FMT] {
-      def toBinaryOutput (out: BinaryOutput): Result = MergeOp2[FMT](parsers, processor, config, input, out)
+      def toBinaryOutput (out: BinaryOutput): Result = MergeOp[FMT](parsers, processor, config, input, out)
     }
 
   }

@@ -25,24 +25,24 @@ import laika.io.RenderedTreeRoot
   */
 object TransformExecutor {
 
-  def execute[FMT] (op: Transform.Op2[FMT]): String = {
+  def execute[FMT] (op: Transform.Op[FMT]): String = {
     val parseOp = Parse.Op(op.parsers, op.config, op.input, rewrite = true)
     val doc = parseOp.execute
-    val renderOp = Render.Op2(op.format, op.config, doc.content, op.output)
+    val renderOp = Render.Op(op.format, op.config, doc.content, op.output)
     renderOp.execute
   }
 
-  def execute[FMT] (op: Transform.TreeOp2[FMT]): RenderedTreeRoot = {
+  def execute[FMT] (op: Transform.TreeOp[FMT]): RenderedTreeRoot = {
     val parseOp = Parse.TreeOp(op.parsers, op.config, op.input, rewrite = true)
     val tree = parseOp.execute
-    val renderOp = Render.TreeOp2(op.format, op.config, tree, op.output)
+    val renderOp = Render.TreeOp(op.format, op.config, tree, op.output)
     renderOp.execute
   }
 
-  def execute[FMT] (op: Transform.MergeOp2[FMT]): Done = {
+  def execute[FMT] (op: Transform.MergeOp[FMT]): Done = {
     val parseOp = Parse.TreeOp(op.parsers, op.config, op.input, rewrite = true)
     val tree = parseOp.execute
-    val renderOp = Render.MergeOp2(op.processor, op.config, tree, op.output)
+    val renderOp = Render.MergeOp(op.processor, op.config, tree, op.output)
     renderOp.execute
   }
   
