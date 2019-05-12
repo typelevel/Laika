@@ -17,7 +17,7 @@
 package laika.sbt
 
 import laika.ast._
-import laika.bundle.{ExtensionBundle, RenderTheme2}
+import laika.bundle.{ExtensionBundle, RenderTheme}
 import laika.format._
 import laika.render.{FOFormatter, HTMLFormatter}
 
@@ -40,13 +40,13 @@ trait ExtensionBundles {
   /** Create an extension bundle based on the specified custom HTML render function.
     */
   def laikaHtmlRenderer (f: PartialFunction[(HTMLFormatter, Element), String]): ExtensionBundle = new ExtensionBundle {
-    override def themes: Seq[RenderTheme2] = Seq(HTML2.Theme(customRenderer = f))
+    override def themes: Seq[RenderTheme] = Seq(HTML.Theme(customRenderer = f))
   }
 
   /** Create an extension bundle based on the specified custom HTML render function.
     */
   def laikaEpubRenderer (f: PartialFunction[(HTMLFormatter, Element), String]): ExtensionBundle = new ExtensionBundle {
-    override def themes: Seq[RenderTheme2] = Seq(EPUB2.XHTML.Theme(customRenderer = f))
+    override def themes: Seq[RenderTheme] = Seq(EPUB.XHTML.Theme(customRenderer = f))
   }
 
   /** Create an extension bundle based on the specified custom XSL-FO render function.
@@ -55,7 +55,7 @@ trait ExtensionBundles {
     * format for the PDF renderer.
     */
   def laikaFoRenderer (f: PartialFunction[(FOFormatter, Element), String]): ExtensionBundle = new ExtensionBundle {
-    override def themes: Seq[RenderTheme2] = Seq(XSLFO2.Theme(customRenderer = f))
+    override def themes: Seq[RenderTheme] = Seq(XSLFO.Theme(customRenderer = f))
   }
 
   /** Create an extension bundle based on the specified rewrite rule for spans.

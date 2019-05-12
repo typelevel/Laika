@@ -101,7 +101,7 @@ object ReStructuredText extends MarkupParser { self =>
       ))
     )
 
-    override val themes = Seq(HTML2.Theme(customRenderer = ExtendedHTMLRenderer.custom))
+    override val themes = Seq(HTML.Theme(customRenderer = ExtendedHTMLRenderer.custom))
   }
 
   val extensions = Seq(

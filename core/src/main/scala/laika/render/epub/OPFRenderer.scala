@@ -17,8 +17,8 @@
 package laika.render.epub
 
 import laika.ast._
-import laika.format.EPUB2
-import laika.io.{CopiedDocument, RenderResult2, RenderedDocument, RenderedTree}
+import laika.format.EPUB
+import laika.io.{CopiedDocument, RenderedTreeRoot, RenderedDocument, RenderedTree}
 
 /** Renders the content of an EPUB Package document (OPF).
   *
@@ -75,7 +75,7 @@ class OPFRenderer {
   /** Renders the content of an EPUB Package document (OPF) generated from
     * the specified document tree.
     */
-  def render (result: RenderResult2, config: EPUB2.Config): String = {
+  def render (result: RenderedTreeRoot, config: EPUB.Config): String = {
 
     val coverDoc = result.coverDocument.map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = false, isCover = true, forceXhtml = true))
     val titleDoc = result.titleDocument.map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = false, isTitle = true, forceXhtml = true))

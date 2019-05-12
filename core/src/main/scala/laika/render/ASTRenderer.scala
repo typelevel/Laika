@@ -22,7 +22,7 @@ import laika.ast._
   *
   * @author Jens Halm
   */
-object ASTRenderer2 extends ((TextFormatter, Element) => String) {
+object ASTRenderer extends ((TextFormatter, Element) => String) {
 
   /**  The maximum width of a single text element.
     *  For any text that exceeds this limit only the beginning

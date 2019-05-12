@@ -19,7 +19,7 @@ package laika.format
 import laika.ast.{Element, Path, StyleDeclarationSet, TemplateDocument}
 import laika.directive.StandardDirectives
 import laika.execute.InputExecutor
-import laika.factory.{RenderContext2, RenderFormat2}
+import laika.factory.{RenderContext, RenderFormat}
 import laika.parse.combinator.Parsers
 import laika.parse.css.CSSParsers
 import laika.parse.directive.TemplateParsers
@@ -43,14 +43,14 @@ import scala.language.existentials
  * 
  *  @author Jens Halm
  */
-object XSLFO2 extends RenderFormat2[FOFormatter] {
+object XSLFO extends RenderFormat[FOFormatter] {
   
   
   val fileSuffix = "fo"
 
-  val defaultRenderer: (FOFormatter, Element) => String = FORenderer2
+  val defaultRenderer: (FOFormatter, Element) => String = FORenderer
 
-  val formatterFactory: RenderContext2[FOFormatter] => FOFormatter = FOFormatter
+  val formatterFactory: RenderContext[FOFormatter] => FOFormatter = FOFormatter
 
   override lazy val defaultTheme: Theme = Theme(
     defaultTemplate = Some(templateResource.content),

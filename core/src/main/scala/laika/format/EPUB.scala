@@ -24,8 +24,8 @@ import java.util.{Locale, UUID}
 import laika.ast.Path.Root
 import laika.ast._
 import laika.execute.InputExecutor
-import laika.factory.{RenderContext2, RenderFormat2, RenderResultProcessor2}
-import laika.io.{BinaryOutput, RenderResult2}
+import laika.factory.{RenderContext, RenderFormat, RenderResultProcessor}
+import laika.io.{BinaryOutput, RenderedTreeRoot}
 import laika.render.epub.StyleSupport.XHTMLTemplateParser
 import laika.render.epub.{ConfigFactory, ContainerWriter, HtmlRenderExtensions, StyleSupport}
 import laika.render.{HTMLFormatter, XHTMLRenderer}
@@ -45,7 +45,7 @@ import laika.render.{HTMLFormatter, XHTMLRenderer}
  * 
  *  @author Jens Halm
  */
-object EPUB2 extends RenderResultProcessor2[HTMLFormatter] {
+object EPUB extends RenderResultProcessor[HTMLFormatter] {
 
   /** A render format for XHTML output as used by EPUB output.
     *
@@ -54,13 +54,13 @@ object EPUB2 extends RenderResultProcessor2[HTMLFormatter] {
     *
     *  @author Jens Halm
     */
-  object XHTML extends RenderFormat2[HTMLFormatter] {
+  object XHTML extends RenderFormat[HTMLFormatter] {
 
     val fileSuffix: String = "epub.xhtml"
 
     val defaultRenderer: (HTMLFormatter, Element) => String = XHTMLRenderer
 
-    val formatterFactory: RenderContext2[HTMLFormatter] => HTMLFormatter = HTMLFormatter // TODO - 0.12 - needs formatter that closes empty tags
+    val formatterFactory: RenderContext[HTMLFormatter] => HTMLFormatter = HTMLFormatter // TODO - 0.12 - needs formatter that closes empty tags
 
     override lazy val defaultTheme: Theme = Theme(
       customRenderer = HtmlRenderExtensions.all,
@@ -74,7 +74,7 @@ object EPUB2 extends RenderResultProcessor2[HTMLFormatter] {
 
   }
 
-  val format: RenderFormat2[HTMLFormatter] = XHTML
+  val format: RenderFormat[HTMLFormatter] = XHTML
 
   /** Configuration options for the generated EPUB output.
     *
@@ -124,6 +124,6 @@ object EPUB2 extends RenderResultProcessor2[HTMLFormatter] {
    * @param result the result of the render operation as a tree
    * @param output the output to write the final result to
    */
-  def process (result: RenderResult2, output: BinaryOutput): Unit = writer.write(result, output)
+  def process (result: RenderedTreeRoot, output: BinaryOutput): Unit = writer.write(result, output)
   
 }

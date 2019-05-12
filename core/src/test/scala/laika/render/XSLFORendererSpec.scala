@@ -20,24 +20,24 @@ import laika.api.Render
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.bundle.BundleProvider
-import laika.format.XSLFO2
+import laika.format.XSLFO
 import org.scalatest.{FlatSpec, Matchers}
 
-class XSLFORenderer2Spec extends FlatSpec
+class XSLFORendererSpec extends FlatSpec
                         with Matchers
                         with ModelBuilder {
  
   
-  def render (elem: Element): String = Render as XSLFO2 from elem toString
+  def render (elem: Element): String = Render as XSLFO from elem toString
 
   def render (elem: Element, messageLevel: MessageLevel): String = 
-    Render as XSLFO2 withMessageLevel messageLevel from elem toString
+    Render as XSLFO withMessageLevel messageLevel from elem toString
     
   def render (elem: Element, style: StyleDeclaration): String = 
-    Render as XSLFO2 using BundleProvider
-      .forTheme(XSLFO2.Theme(defaultStyles = StyleDeclarationSet(Path.Root, style))) from elem toString
+    Render as XSLFO using BundleProvider
+      .forTheme(XSLFO.Theme(defaultStyles = StyleDeclarationSet(Path.Root, style))) from elem toString
     
-  def renderUnformatted (elem: Element): String = (Render as XSLFO2).unformatted from elem toString
+  def renderUnformatted (elem: Element): String = (Render as XSLFO).unformatted from elem toString
   
   
   "The XSLFO renderer" should "render a paragraph with plain text" in {

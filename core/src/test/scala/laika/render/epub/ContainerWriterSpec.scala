@@ -18,8 +18,8 @@ package laika.render.epub
 
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.format.EPUB2
-import laika.io.{RenderResult2, RenderedDocument, RenderedTree}
+import laika.format.EPUB
+import laika.io.{RenderedTreeRoot, RenderedDocument, RenderedTree}
 import org.scalatest.{FlatSpec, Matchers}
 
 
@@ -49,10 +49,10 @@ class ContainerWriterSpec extends FlatSpec with Matchers with ModelBuilder {
       RenderedTree(currentTree.path, Nil, docs ++ subTrees)
     }
 
-    writer.collectInputs(RenderResult2(None, toResultTree(tree), TemplateRoot(Nil), com.typesafe.config.ConfigFactory.empty), EPUB2.Config.default).map(_.path.toString)
+    writer.collectInputs(RenderedTreeRoot(None, toResultTree(tree), TemplateRoot(Nil), com.typesafe.config.ConfigFactory.empty), EPUB.Config.default).map(_.path.toString)
   }
 
-  def collectInputs (renderResult: RenderResult2): Seq[String] = writer.collectInputs(renderResult, EPUB2.Config.default).map(_.path.toString)
+  def collectInputs (renderResult: RenderedTreeRoot): Seq[String] = writer.collectInputs(renderResult, EPUB.Config.default).map(_.path.toString)
 
 
   "The ContainerWriter" should "collect a single target document" in new SingleDocument {

@@ -18,7 +18,7 @@ package laika.execute
 
 import laika.api.Render.Done
 import laika.api.{Parse, Render, Transform}
-import laika.io.RenderResult2
+import laika.io.RenderedTreeRoot
 
 /**
   *  @author Jens Halm
@@ -32,7 +32,7 @@ object TransformExecutor {
     renderOp.execute
   }
 
-  def execute[FMT] (op: Transform.TreeOp2[FMT]): RenderResult2 = {
+  def execute[FMT] (op: Transform.TreeOp2[FMT]): RenderedTreeRoot = {
     val parseOp = Parse.TreeOp(op.parsers, op.config, op.input, rewrite = true)
     val tree = parseOp.execute
     val renderOp = Render.TreeOp2(op.format, op.config, tree, op.output)

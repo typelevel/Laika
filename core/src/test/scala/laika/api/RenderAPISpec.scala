@@ -46,13 +46,13 @@ class RenderAPISpec extends FlatSpec
       |. . Text - 'bbb'""".stripMargin
 
   "The Render API" should "render a document to a string" in {
-    (Render as AST2 from rootElem toString) should be (expected)
+    (Render as AST from rootElem toString) should be (expected)
   }
 
   it should "render a document to a file" ignore {
     val f = File.createTempFile("output", null)
 
-    (Render as AST2 from rootElem toFile f).execute
+    (Render as AST from rootElem toFile f).execute
 
     readFile(f) should be (expected)
   }
@@ -83,7 +83,7 @@ class RenderAPISpec extends FlatSpec
   }
 
   it should "allow to override the default renderer for specific element types" in {
-    val render = Render as AST2 rendering { case (_, Text(content,_)) => s"String - '$content'" }
+    val render = Render as AST rendering { case (_, Text(content,_)) => s"String - '$content'" }
     val modifiedResult = expected.replaceAllLiterally("Text", "String")
     (render from rootElem toString) should be (modifiedResult)
   }
@@ -124,17 +124,17 @@ class RenderAPISpec extends FlatSpec
   }
   
   trait ASTRenderer extends TreeRenderer[TextFormatter] {
-    lazy val render = Render as AST2
+    lazy val render = Render as AST
   }
 
   trait HTMLRenderer extends TreeRenderer[HTMLFormatter] {
     val rootElem = root(title("Title"), p("bbb"))
-    lazy val render = Render as HTML2
+    lazy val render = Render as HTML
   }
 
   trait EPUB_XHTMLRenderer extends TreeRenderer[HTMLFormatter] {
     val rootElem = root(title("Title"), p("bbb"))
-    lazy val render = Render as EPUB2.XHTML
+    lazy val render = Render as EPUB.XHTML
   }
 
   trait FORenderer extends TreeRenderer[FOFormatter] {
@@ -147,7 +147,7 @@ class RenderAPISpec extends FlatSpec
     def title(id: String, text: String) =
       s"""<fo:block id="$id" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">$text</fo:block>"""
 
-    def render: RenderMappedOutput[FOFormatter] = Render as XSLFO2
+    def render: RenderMappedOutput[FOFormatter] = Render as XSLFO
   }
 
   it should "render an empty tree" in {
@@ -186,7 +186,7 @@ class RenderAPISpec extends FlatSpec
   it should "render a tree with a single document to HTML using a custom template in an extension bundle" in {
     new HTMLRenderer {
       val template = tRoot(tt("["), TemplateContextReference("document.content"), tt("]"))
-      override lazy val render = Render as HTML2 using BundleProvider.forTheme(HTML2.Theme(defaultTemplate = Some(template)))
+      override lazy val render = Render as HTML using BundleProvider.forTheme(HTML.Theme(defaultTemplate = Some(template)))
       val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
       val expected = """[<h1 id="title" class="title">Title</h1>
                        |<p>bbb</p>]""".stripMargin
@@ -216,7 +216,7 @@ class RenderAPISpec extends FlatSpec
   it should "render a tree with a single document to EPUB.XHTML using a custom template in an extension bundle" in {
     new EPUB_XHTMLRenderer {
       val template = tRoot(tt("["), TemplateContextReference("document.content"), tt("]"))
-      override lazy val render = Render as EPUB2.XHTML using BundleProvider.forTheme(EPUB2.XHTML.Theme(defaultTemplate = Some(template)))
+      override lazy val render = Render as EPUB.XHTML using BundleProvider.forTheme(EPUB.XHTML.Theme(defaultTemplate = Some(template)))
       val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
       val expected = """[<h1 id="title" class="title">Title</h1>
                        |<p>bbb</p>]""".stripMargin
@@ -247,7 +247,7 @@ class RenderAPISpec extends FlatSpec
 
   it should "render a tree with two documents to XSL-FO using a custom style sheet in an extension bundle" in {
     new FORenderer {
-      override val render = Render as XSLFO2 using BundleProvider.forTheme(XSLFO2.Theme(defaultStyles = foStyles("fo")))
+      override val render = Render as XSLFO using BundleProvider.forTheme(XSLFO.Theme(defaultStyles = foStyles("fo")))
       val input = DocumentTree(Root, List(
         Document(Root / "doc", rootElem),
         DocumentTree(Root / "tree", List(Document(Root / "tree" / "subdoc", subElem)))
@@ -378,11 +378,11 @@ class RenderAPISpec extends FlatSpec
                  |+ dir3
                  |  - theme5.js:name5
                  |  - theme6.js:name6""".stripMargin
-    val theme = AST2.Theme(
+    val theme = AST.Theme(
       staticDocuments = StaticDocuments.empty // fromInputTree(parseTreeStructure(dirs))
     )
     val bundle = BundleProvider.forTheme(theme)
-    val render = Render.as(AST2).using(bundle)
+    val render = Render.as(AST).using(bundle)
 
     val input = addPosition(DocumentTree(Root,
       content = List(
@@ -509,7 +509,7 @@ class RenderAPISpec extends FlatSpec
   ignore should "render to a directory using the toDirectory method" in {
     new FileSystemTest {
       val f = createTempDirectory("renderToDir")
-      (Render as AST2 from input toDirectory f).execute
+      (Render as AST from input toDirectory f).execute
       readFiles(f.getPath)
     }
   }
@@ -517,7 +517,7 @@ class RenderAPISpec extends FlatSpec
   ignore should "render to a directory using the Directory object" in {
     new FileSystemTest {
       val f = createTempDirectory("renderToTree")
-      (Render as AST2 from input toDirectory(f)).execute
+      (Render as AST from input toDirectory(f)).execute
       readFiles(f.getPath)
     }
   }
@@ -525,7 +525,7 @@ class RenderAPISpec extends FlatSpec
   ignore should "render to a directory in parallel" in {
     new FileSystemTest {
       val f = createTempDirectory("renderParallel")
-      Render.as(AST2).inParallel.from(input).toDirectory(f).execute
+      Render.as(AST).inParallel.from(input).toDirectory(f).execute
       readFiles(f.getPath)
     }
   }
@@ -538,7 +538,7 @@ class RenderAPISpec extends FlatSpec
     val input = DocumentTree(Root, List(
       Document(Root / "doc", root(p("Doc äöü")))
     ))
-    Render.as(AST2).from(input).toDirectory(f)(Codec.ISO8859).execute
+    Render.as(AST).from(input).toDirectory(f)(Codec.ISO8859).execute
     readFile(new File(f, "doc.txt"), Codec.ISO8859) should be (expected)
   }
   

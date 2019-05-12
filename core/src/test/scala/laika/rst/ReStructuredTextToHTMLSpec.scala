@@ -18,7 +18,7 @@ package laika.rst
 
 import laika.api.Transform
 import laika.ast._
-import laika.format.{HTML2, ReStructuredText}
+import laika.format.{HTML, ReStructuredText}
 import laika.render.HTMLFormatter
 import laika.transform.helper.FileTransformerUtil
 import org.scalatest.{FlatSpec, Matchers}
@@ -68,7 +68,7 @@ class ReStructuredTextToHTMLSpec extends FlatSpec
     }
     
     // TODO - some of these rules might get promoted to the real renderer (e.g. the one for InternalLink)
-    val actual = Transform from ReStructuredText to HTML2 rendering { 
+    val actual = Transform from ReStructuredText to HTML rendering { 
       case (fmt, Emphasized(content,opt)) if opt.styles.contains("title-reference") => fmt.element("cite", NoOpt, content) 
       case (fmt, ExternalLink(content, url, title, opt))  => fmt.element("a", opt + Styles("reference","external"), content, fmt.optAttributes("href" -> Some(url), "title" -> title):_*)
       case (fmt, InternalLink(content, url, title, opt))  => fmt.element("a", opt + Styles("reference","internal"), content, fmt.optAttributes("href" -> Some("#"+url), "title"->title):_*)

@@ -50,7 +50,7 @@ class TransformAPISpec extends FlatSpec
     |. Paragraph - Spans: 1
     |. . Text - 'text'""".stripMargin
     
-  val transform = Transform from Markdown to AST2
+  val transform = Transform from Markdown to AST
   
   
   "The Transform API" should "transform from string to string" in {
@@ -139,7 +139,7 @@ class TransformAPISpec extends FlatSpec
     def input (source: String, docTypeMatcher: Path => DocumentType): TreeInput = parseTreeStructure(source, docTypeMatcher)
 
     def transformTree: RenderedTree = transformWith()
-    def transformMultiMarkup: RenderedTree = transformWith(Transform from Markdown or ReStructuredText to AST2)
+    def transformMultiMarkup: RenderedTree = transformWith(Transform from Markdown or ReStructuredText to AST)
     
     def transformWithConfig (config: String): RenderedTree = transformWithBundle(BundleProvider.forConfigString(config))
     def transformWithDocTypeMatcher (matcher: PartialFunction[Path, DocumentType]): RenderedTree = transformWithBundle(BundleProvider.forDocTypeMatcher(matcher))
@@ -261,7 +261,7 @@ class TransformAPISpec extends FlatSpec
       val dirs = """- doc1.md:name
         |- styles.fo.css:style""".stripMargin
       val result = RenderResult.fo.withDefaultTemplate("""<fo:block font-family="serif" font-size="13pt" space-after="3mm">foo</fo:block>""")
-      val transform = Transform.from(Markdown).to(XSLFO2).inParallel.using(BundleProvider.forStyleSheetParser(parser))
+      val transform = Transform.from(Markdown).to(XSLFO).inParallel.using(BundleProvider.forStyleSheetParser(parser))
       val renderResult = transform.fromTreeInput(input(dirs, transform.config.docTypeMatcher)).toOutputTree(StringTreeOutput).execute
       OutputBuilder.RenderedTree.toTreeView(renderResult.rootTree) should be (root(List(docs(
         (Root / "doc1.fo", result)

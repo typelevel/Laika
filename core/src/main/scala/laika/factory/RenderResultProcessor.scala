@@ -17,7 +17,7 @@
 package laika.factory
 
 import laika.ast.DocumentTree
-import laika.io.{BinaryOutput, RenderResult2}
+import laika.io.{BinaryOutput, RenderedTreeRoot}
 
 /** Post processor for the result output of a renderer.
  *  Useful for scenarios where interim formats will be generated
@@ -25,12 +25,12 @@ import laika.io.{BinaryOutput, RenderResult2}
  *  
  *  @author Jens Halm
  */
-trait RenderResultProcessor2[FMT] {
+trait RenderResultProcessor[FMT] {
 
 
   /** The factory for the renderer that produces the interim result.
    */
-  def format: RenderFormat2[FMT]
+  def format: RenderFormat[FMT]
   
   def prepareTree (tree: DocumentTree): DocumentTree
 
@@ -39,6 +39,6 @@ trait RenderResultProcessor2[FMT] {
    *  @param result the result of the render operation as a tree
    *  @param output the output to write the final result to
    */
-  def process (result: RenderResult2, output: BinaryOutput): Unit
+  def process (result: RenderedTreeRoot, output: BinaryOutput): Unit
   
 }

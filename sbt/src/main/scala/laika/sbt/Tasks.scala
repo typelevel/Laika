@@ -19,7 +19,7 @@ package laika.sbt
 import laika.api.{Parse, Render}
 import laika.config.{BundleFilter, ParallelConfig}
 import laika.execute.InputExecutor
-import laika.factory.{RenderFormat2, RenderResultProcessor2}
+import laika.factory.{RenderFormat, RenderResultProcessor}
 import laika.format._
 import laika.io.{IO => _, _}
 import laika.sbt.LaikaPlugin.autoImport._
@@ -77,7 +77,7 @@ object Tasks {
       tree
     }
 
-    def renderWithFormat[W] (format: RenderFormat2[W], targetDir: File, formatDesc: String): Set[File] = {
+    def renderWithFormat[W] (format: RenderFormat[W], targetDir: File, formatDesc: String): Set[File] = {
       val apiInSite = (target in laikaCopyAPI).value
       val pdfInSite = (artifactPath in laikaPDF).value
       val filesToDelete = (targetDir.allPaths --- targetDir --- pdfInSite --- apiInSite.allPaths --- collectParents(apiInSite)).get
@@ -93,7 +93,7 @@ object Tasks {
       targetDir.allPaths.get.toSet.filter(_.isFile)
     }
 
-    def renderWithProcessor[W] (processor: RenderResultProcessor2[W], targetFile: File, formatDesc: String): Set[File] = {
+    def renderWithProcessor[W] (processor: RenderResultProcessor[W], targetFile: File, formatDesc: String): Set[File] = {
       targetFile.getParentFile.mkdirs()
 
       val render = Render.as(processor).withConfig(parser.config)
@@ -111,11 +111,11 @@ object Tasks {
 
       val fun = FileFunction.cached(cacheDir / format.toString.toLowerCase, FilesInfo.lastModified, FilesInfo.exists) { _ =>
         format match {
-          case OutputFormat.HTML  => renderWithFormat(HTML2, (target in laikaSite).value, "HTML")
-          case OutputFormat.AST   => renderWithFormat(AST2, (target in laikaAST).value, "Formatted AST")
-          case OutputFormat.XSLFO => renderWithFormat(XSLFO2, (target in laikaXSLFO).value, "XSL-FO")
-          case OutputFormat.EPUB  => renderWithProcessor(EPUB2, (artifactPath in laikaEPUB).value, "EPUB")
-          case OutputFormat.PDF   => renderWithProcessor(PDF2.withFopFactory(fopFactory.value), (artifactPath in laikaPDF).value, "PDF")
+          case OutputFormat.HTML  => renderWithFormat(HTML, (target in laikaSite).value, "HTML")
+          case OutputFormat.AST   => renderWithFormat(AST, (target in laikaAST).value, "Formatted AST")
+          case OutputFormat.XSLFO => renderWithFormat(XSLFO, (target in laikaXSLFO).value, "XSL-FO")
+          case OutputFormat.EPUB  => renderWithProcessor(EPUB, (artifactPath in laikaEPUB).value, "EPUB")
+          case OutputFormat.PDF   => renderWithProcessor(PDF.withFopFactory(fopFactory.value), (artifactPath in laikaPDF).value, "PDF")
         }
       }
       fun(inputFiles)

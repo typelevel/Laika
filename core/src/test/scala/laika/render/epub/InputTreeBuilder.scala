@@ -21,8 +21,8 @@ trait InputTreeBuilder extends ModelBuilder {
   
   def titleSpans (text: String): Seq[Span] = Seq(Text(text))
 
-  def rootTree (path: Path, titleNum: Int, docs: RenderContent*): RenderResult2 = {
-    RenderResult2(None, tree(path, titleNum, docs: _*), TemplateRoot(Nil), com.typesafe.config.ConfigFactory.empty)
+  def rootTree (path: Path, titleNum: Int, docs: RenderContent*): RenderedTreeRoot = {
+    RenderedTreeRoot(None, tree(path, titleNum, docs: _*), TemplateRoot(Nil), com.typesafe.config.ConfigFactory.empty)
   }
 
   def tree (path: Path, titleNum: Int, docs: RenderContent*): RenderedTree = 

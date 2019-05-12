@@ -89,7 +89,7 @@ trait ExtensionBundle { self =>
     * A bundle can contain multiple themes for the same output format which will be
     * merged before use.
     */
-  def themes: Seq[RenderTheme2] = Seq.empty
+  def themes: Seq[RenderTheme] = Seq.empty
 
   /** Internal API usually only called by other extension bundles.
     *

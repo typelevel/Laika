@@ -18,7 +18,7 @@ package laika.config
 
 import laika.ast.{Element, MessageLevel}
 import laika.bundle.ExtensionBundle
-import laika.factory.RenderFormat2
+import laika.factory.RenderFormat
 
 /** API for specifying configuration options that apply to all
   * kinds of operations that contain a rendering step (Render and Transform APIs).
@@ -27,7 +27,7 @@ import laika.factory.RenderFormat2
   */
 trait RenderConfigBuilder[FMT] extends OperationConfigBuilder {
 
-  protected def format: RenderFormat2[FMT]
+  protected def format: RenderFormat[FMT]
 
   /**  Specifies a custom render function that overrides one or more of the default
     *  renderers for the output format this instance uses.

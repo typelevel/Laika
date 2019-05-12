@@ -109,7 +109,7 @@ case class CopiedDocument (content: BinaryInput) extends RenderContent {
   val path: Path = content.path
 }
 
-case class RenderResult2 (coverDocument: Option[RenderedDocument], rootTree: RenderedTree, template: TemplateRoot, config: Config) {
+case class RenderedTreeRoot (coverDocument: Option[RenderedDocument], rootTree: RenderedTree, template: TemplateRoot, config: Config) {
   // TODO - 0.12 - ensure coverDocument is not in rootTree
   val title: Seq[Span] = rootTree.title
   val titleDocument: Option[RenderedDocument] = rootTree.titleDocument

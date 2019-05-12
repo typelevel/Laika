@@ -17,7 +17,7 @@
 package laika.format
 
 import laika.ast._
-import laika.factory.{RenderContext2, RenderFormat2}
+import laika.factory.{RenderContext, RenderFormat}
 import laika.render._
 
 /** A renderer for AST output (a formatted Abstract Syntax Tree), primarily useful for debugging purposes.
@@ -31,13 +31,13 @@ import laika.render._
  * 
  *  @author Jens Halm
  */
-object AST2 extends RenderFormat2[TextFormatter] {
+object AST extends RenderFormat[TextFormatter] {
 
   val fileSuffix = "txt"
 
-  val defaultRenderer: (TextFormatter, Element) => String = ASTRenderer2
+  val defaultRenderer: (TextFormatter, Element) => String = ASTRenderer
 
-  val formatterFactory: RenderContext2[TextFormatter] => TextFormatter = ASTFormatter
+  val formatterFactory: RenderContext[TextFormatter] => TextFormatter = ASTFormatter
   
   val defaultTheme = Theme()
 

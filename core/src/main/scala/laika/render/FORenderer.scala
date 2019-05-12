@@ -23,7 +23,7 @@ import laika.render.FOFormatter._
   *
   * @author Jens Halm
   */
-object FORenderer2 extends ((FOFormatter, Element) => String) {
+object FORenderer extends ((FOFormatter, Element) => String) {
 
   def apply (fmt: FOFormatter, element: Element): String = {
 

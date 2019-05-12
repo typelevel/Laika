@@ -21,7 +21,7 @@ import java.nio.charset.Charset
 
 import laika.ast.Path
 import laika.ast.Path.Root
-import laika.format.EPUB2
+import laika.format.EPUB
 import laika.io._
 
 // TODO - 0.12 - replace with new model
@@ -55,7 +55,7 @@ class ContainerWriter {
     *  @param result the result of the render operation as a tree
     *  @return a list of all documents that need to be written to the EPUB container.
     */
-  def collectInputs (result: RenderResult2, config: EPUB2.Config): Seq[StreamInput] = {
+  def collectInputs (result: RenderedTreeRoot, config: EPUB.Config): Seq[StreamInput] = {
 
     val contentRoot = Root / "EPUB" / "content"
 
@@ -107,7 +107,7 @@ class ContainerWriter {
     * @param result the result of the render operation as a tree
     * @param output the output to write the final result to
     */
-  def write (result: RenderResult2, output: BinaryOutput): Unit = {
+  def write (result: RenderedTreeRoot, output: BinaryOutput): Unit = {
 
     val inputs = collectInputs(result, ConfigFactory.forTreeConfig(result.config))
 

@@ -25,9 +25,9 @@ import javax.xml.transform.sax.SAXResult
 import javax.xml.transform.stream.StreamSource
 import laika.ast.{DocumentMetadata, DocumentTree, SpanSequence}
 import laika.execute.OutputExecutor
-import laika.factory.{RenderFormat2, RenderResultProcessor2}
-import laika.io.{BinaryOutput, RenderResult2}
-import laika.render.{FOFormatter, FOforPDF2}
+import laika.factory.{RenderFormat, RenderResultProcessor}
+import laika.io.{BinaryOutput, RenderedTreeRoot}
+import laika.render.{FOFormatter, FOforPDF}
 import org.apache.fop.apps.{FOUserAgent, FOUserAgentFactory, FopFactory, FopFactoryBuilder}
 import org.apache.xmlgraphics.io.{Resource, ResourceResolver}
 import org.apache.xmlgraphics.util.MimeConstants
@@ -47,13 +47,13 @@ import org.apache.xmlgraphics.util.MimeConstants
  * 
  *  @author Jens Halm
  */
-class PDF2 private (val format: RenderFormat2[FOFormatter], config: Option[PDF2.Config], fopFactory: Option[FopFactory]) extends RenderResultProcessor2[FOFormatter] {
+class PDF private(val format: RenderFormat[FOFormatter], config: Option[PDF.Config], fopFactory: Option[FopFactory]) extends RenderResultProcessor[FOFormatter] {
 
 
   /** Allows to specify configuration options like insertion
    *  of bookmarks or table of content.
    */
-  def withConfig (config: PDF2.Config): PDF2 = new PDF2(format, Some(config), fopFactory)
+  def withConfig (config: PDF.Config): PDF = new PDF(format, Some(config), fopFactory)
 
   /** Allows to specify a custom FopFactory in case additional configuration
     * is required for custom fonts, stemmers or other FOP features.
@@ -63,9 +63,9 @@ class PDF2 private (val format: RenderFormat2[FOFormatter], config: Option[PDF2.
     * In case you do not specify a custom factory, Laika ensures that the default
     * factory is reused between renderers.
     */
-  def withFopFactory (fopFactory: FopFactory): PDF2 = new PDF2(format, config, Some(fopFactory))
+  def withFopFactory (fopFactory: FopFactory): PDF = new PDF(format, config, Some(fopFactory))
   
-  private lazy val foForPDF = new FOforPDF2(config)
+  private lazy val foForPDF = new FOforPDF(config)
   
 
 //  /** Renders the XSL-FO that serves as a basis for producing the final PDF output.
@@ -94,7 +94,7 @@ class PDF2 private (val format: RenderFormat2[FOFormatter], config: Option[PDF2.
     * @param result the result of the render operation as a tree
     * @param output the output to write the final result to
     */
-  def process (result: RenderResult2, output: BinaryOutput): Unit = {
+  def process (result: RenderedTreeRoot, output: BinaryOutput): Unit = {
 
     val fo: String = foForPDF.renderFO(result, result.template)
 
@@ -140,7 +140,7 @@ class PDF2 private (val format: RenderFormat2[FOFormatter], config: Option[PDF2.
         }.getOrElse(if (uri.isAbsolute) uri else new File(uri.getPath).toURI)
       }
 
-      val factory = fopFactory.getOrElse(PDF2.defaultFopFactory)
+      val factory = fopFactory.getOrElse(PDF.defaultFopFactory)
       val foUserAgent = FOUserAgentFactory.createFOUserAgent(factory, resolver)
       applyMetadata(foUserAgent)
       val fop = factory.newFop(MimeConstants.MIME_PDF, foUserAgent, out)
@@ -171,7 +171,7 @@ class PDF2 private (val format: RenderFormat2[FOFormatter], config: Option[PDF2.
 
 /** The default instance of the PDF renderer.
   */
-object PDF2 extends PDF2(XSLFO2, None, None) {
+object PDF extends PDF(XSLFO, None, None) {
 
   /** The reusable default instance of the FOP factory
     * that the PDF renderer will use if no custom

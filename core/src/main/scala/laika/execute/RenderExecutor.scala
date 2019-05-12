@@ -22,7 +22,7 @@ import laika.api.Render
 import laika.api.Render.Done
 import laika.ast.Path.Root
 import laika.ast._
-import laika.factory.RenderContext2
+import laika.factory.RenderContext
 import laika.io._
 import laika.rewrite.TemplateRewriter
 
@@ -42,7 +42,7 @@ object RenderExecutor {
     val renderFunction: (FMT, Element) => String = (fmt, element) => 
       theme.customRenderer.applyOrElse[(FMT,Element),String]((fmt, element), { case (f, e) => op.format.defaultRenderer(f, e) })
     
-    val renderContext = RenderContext2(renderFunction, op.element, effectiveStyles, op.output.path, op.config)
+    val renderContext = RenderContext(renderFunction, op.element, effectiveStyles, op.output.path, op.config)
 
     val fmt = op.format.formatterFactory(renderContext)
     
@@ -64,7 +64,7 @@ object RenderExecutor {
     Done
   }
 
-  def execute[FMT] (op: Render.TreeOp2[FMT]): RenderResult2 = {
+  def execute[FMT] (op: Render.TreeOp2[FMT]): RenderedTreeRoot = {
 
     type Operation = () => RenderContent
 
@@ -136,7 +136,7 @@ object RenderExecutor {
     
     val resultRoot = TreeBuilder.build(results, buildNode)
 
-    RenderResult2(None, resultRoot, template, finalTree.config) // TODO - 0.12 - handle cover document
+    RenderedTreeRoot(None, resultRoot, template, finalTree.config) // TODO - 0.12 - handle cover document
   }
 
 }

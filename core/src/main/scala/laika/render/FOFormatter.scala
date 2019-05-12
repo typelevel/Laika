@@ -17,7 +17,7 @@
 package laika.render
 
 import laika.ast._
-import laika.factory.RenderContext2
+import laika.factory.RenderContext
 
 /** API for renderers that produce XSL-FO output.
  * 
@@ -230,7 +230,7 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
   *  but only inserted dynamically during the render process to drive
   *  features specific to FO output. 
   */
-object FOFormatter extends (RenderContext2[FOFormatter] => FOFormatter) {
+object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
 
   /** A leader element.
     */
@@ -273,7 +273,7 @@ object FOFormatter extends (RenderContext2[FOFormatter] => FOFormatter) {
     */
   case class BookmarkTitle (content: String, options: Options = NoOpt) extends Block with TextContainer
 
-  def apply(context: RenderContext2[FOFormatter]): FOFormatter =
+  def apply(context: RenderContext[FOFormatter]): FOFormatter =
     FOFormatter(context.renderChild, List(context.root), context.path, context.styles, context.indentation, context.config.minMessageLevel)
   
 }

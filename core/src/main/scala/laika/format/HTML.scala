@@ -18,9 +18,9 @@ package laika.format
 
 import laika.ast.{Element, Path, TemplateDocument}
 import laika.execute.InputExecutor
-import laika.factory.{RenderContext2, RenderFormat2}
+import laika.factory.{RenderContext, RenderFormat}
 import laika.parse.directive.DefaultTemplateParser
-import laika.render.{HTMLFormatter, HTMLRenderer2}
+import laika.render.{HTMLFormatter, HTMLRenderer}
 
 /** A render format for HTML output. May be directly passed to the `Render` or `Transform` APIs:
  * 
@@ -32,13 +32,13 @@ import laika.render.{HTMLFormatter, HTMLRenderer2}
  * 
  *  @author Jens Halm
  */
-object HTML2 extends RenderFormat2[HTMLFormatter] {
+object HTML extends RenderFormat[HTMLFormatter] {
   
   val fileSuffix = "html"
 
-  val defaultRenderer: (HTMLFormatter, Element) => String = HTMLRenderer2
+  val defaultRenderer: (HTMLFormatter, Element) => String = HTMLRenderer
 
-  val formatterFactory: RenderContext2[HTMLFormatter] => HTMLFormatter = HTMLFormatter
+  val formatterFactory: RenderContext[HTMLFormatter] => HTMLFormatter = HTMLFormatter
  
   override lazy val defaultTheme: Theme = Theme(defaultTemplate = Some(templateResource.content))
 

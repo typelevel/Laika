@@ -20,9 +20,9 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.{BundleProvider, ExtensionBundle, StaticDocuments}
 import laika.execute.OutputExecutor
-import laika.factory.{RenderContext2, RenderFormat2}
+import laika.factory.{RenderContext, RenderFormat}
 import laika.io.{ByteInput, StringOutput}
-import laika.render.{ASTRenderer2, Indentation, TextFormatter}
+import laika.render.{ASTRenderer, Indentation, TextFormatter}
 import org.scalatest.{Matchers, WordSpec}
 
 /**
@@ -43,13 +43,13 @@ class ThemeConfigSpec extends WordSpec with Matchers {
     def template (text: String): TemplateRoot = TemplateRoot(Seq(TemplateString(text)))
 
 
-    object TestFormat extends RenderFormat2[TextFormatter] {
+    object TestFormat extends RenderFormat[TextFormatter] {
 
       override val fileSuffix = "test"
 
-      val defaultRenderer: (TextFormatter, Element) => String = ASTRenderer2
+      val defaultRenderer: (TextFormatter, Element) => String = ASTRenderer
 
-      val formatterFactory: RenderContext2[TextFormatter] => TextFormatter = TextFormatter
+      val formatterFactory: RenderContext[TextFormatter] => TextFormatter = TextFormatter
       
       override val defaultTheme = Theme(
         customRenderer = customRenderer,

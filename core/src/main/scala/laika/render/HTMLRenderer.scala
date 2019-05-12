@@ -22,7 +22,7 @@ import laika.ast._
   *
   * @author Jens Halm
   */
-class HTMLRenderer2 (fileSuffix: String) extends ((HTMLFormatter, Element) => String) {
+class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => String) {
 
 
   def apply (fmt: HTMLFormatter, element: Element): String = {
@@ -257,6 +257,6 @@ class HTMLRenderer2 (fileSuffix: String) extends ((HTMLFormatter, Element) => St
 
 }
 
-object HTMLRenderer2 extends HTMLRenderer2(fileSuffix = "html")
+object HTMLRenderer extends HTMLRenderer(fileSuffix = "html")
 
-object XHTMLRenderer extends HTMLRenderer2(fileSuffix = "epub.xhtml")
+object XHTMLRenderer extends HTMLRenderer(fileSuffix = "epub.xhtml")

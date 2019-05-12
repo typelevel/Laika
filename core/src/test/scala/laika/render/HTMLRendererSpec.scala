@@ -19,20 +19,20 @@ package laika.render
 import laika.api.Render
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.format.HTML2
+import laika.format.HTML
 import org.scalatest.{FlatSpec, Matchers}
 
-class HTMLRenderer2Spec extends FlatSpec 
+class HTMLRendererSpec extends FlatSpec 
                        with Matchers
                        with ModelBuilder {
  
   
-  def render (elem: Element): String = Render.as(HTML2).from(elem).toString 
+  def render (elem: Element): String = Render.as(HTML).from(elem).toString 
   
   def render (elem: Element, messageLevel: MessageLevel): String = 
-    Render as HTML2 withMessageLevel messageLevel from elem toString
+    Render as HTML withMessageLevel messageLevel from elem toString
     
-  def renderUnformatted (elem: Element): String = (Render as HTML2).unformatted from elem toString
+  def renderUnformatted (elem: Element): String = (Render as HTML).unformatted from elem toString
   
   
   "The HTML renderer" should "render a paragraph with plain text" in {

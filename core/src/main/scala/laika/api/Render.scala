@@ -19,7 +19,7 @@ package laika.api
 import laika.ast._
 import laika.config.{OperationConfig, RenderConfigBuilder}
 import laika.execute.RenderExecutor
-import laika.factory.{RenderFormat2, RenderResultProcessor2}
+import laika.factory.{RenderFormat, RenderResultProcessor}
 import laika.io._
 
 /** API for performing a render operation to various types of output using an existing
@@ -57,8 +57,8 @@ import laika.io._
  * 
  *  @author Jens Halm
  */
-abstract class Render[FMT] private (protected[api] val format: RenderFormat2[FMT],
-                                       val config: OperationConfig) extends RenderConfigBuilder[FMT] {
+abstract class Render[FMT] private (protected[api] val format: RenderFormat[FMT],
+                                    val config: OperationConfig) extends RenderConfigBuilder[FMT] {
 
   protected[this] lazy val theme = config.themeFor(format)
 
@@ -109,15 +109,15 @@ object Render {
   sealed trait Done
   case object Done extends Done
   
-  case class Op2[FMT] (format: RenderFormat2[FMT], config: OperationConfig, element: Element, output: TextOutput) {
+  case class Op2[FMT] (format: RenderFormat[FMT], config: OperationConfig, element: Element, output: TextOutput) {
     def execute: String = RenderExecutor.execute(this, None)
   }
 
-  case class TreeOp2[FMT] (format: RenderFormat2[FMT], config: OperationConfig, tree: DocumentTree, output: TreeOutput) {
-    def execute: RenderResult2 = RenderExecutor.execute(this)
+  case class TreeOp2[FMT] (format: RenderFormat[FMT], config: OperationConfig, tree: DocumentTree, output: TreeOutput) {
+    def execute: RenderedTreeRoot = RenderExecutor.execute(this)
   }
 
-  case class MergeOp2[FMT] (processor: RenderResultProcessor2[FMT], config: OperationConfig, tree: DocumentTree, output: BinaryOutput) {
+  case class MergeOp2[FMT] (processor: RenderResultProcessor[FMT], config: OperationConfig, tree: DocumentTree, output: BinaryOutput) {
     def execute: Done = RenderExecutor.execute(this)
   }
   
@@ -128,8 +128,8 @@ object Render {
    *  @param format the factory for the rendere to use
    *  @param cfg the configuration for the render operation
    */
-  class RenderMappedOutput[FMT] (format: RenderFormat2[FMT],
-                                    cfg: OperationConfig) extends Render[FMT](format, cfg) {
+  class RenderMappedOutput[FMT] (format: RenderFormat[FMT],
+                                 cfg: OperationConfig) extends Render[FMT](format, cfg) {
 
     type DocOps = TextRenderOutputOps[FMT]
     type TreeOps = RenderOutputTreeOps[FMT]
@@ -161,8 +161,8 @@ object Render {
    *  @param processor the processor that merges the results from the individual render operations into a single output
    *  @param cfg the configuration for the render operation
    */
-  class RenderMergedOutput[FMT] (processor: RenderResultProcessor2[FMT],
-                                    cfg: OperationConfig) extends Render[FMT](processor.format, cfg) {
+  class RenderMergedOutput[FMT] (processor: RenderResultProcessor[FMT],
+                                 cfg: OperationConfig) extends Render[FMT](processor.format, cfg) {
     
     type DocOps = BinaryRenderOutputOps[FMT]
     type TreeOps = BinaryRenderOutputOps[FMT]
@@ -190,7 +190,7 @@ object Render {
    * 
    *  @param format the renderer factory responsible for creating the final renderer
    */
-  def as [FMT] (format: RenderFormat2[FMT]): RenderMappedOutput[FMT] =
+  def as [FMT] (format: RenderFormat[FMT]): RenderMappedOutput[FMT] =
     new RenderMappedOutput(format, OperationConfig.default)
   
   /** Returns a new Render instance for the specified processor.
@@ -199,7 +199,7 @@ object Render {
    * 
    *  @param processor the processor responsible for processing the renderer result
    */
-  def as [FMT] (processor: RenderResultProcessor2[FMT]): RenderMergedOutput[FMT] =
+  def as [FMT] (processor: RenderResultProcessor[FMT]): RenderMergedOutput[FMT] =
     new RenderMergedOutput(processor, OperationConfig.default)
   
 }

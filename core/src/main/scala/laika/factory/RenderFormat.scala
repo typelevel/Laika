@@ -17,7 +17,7 @@
 package laika.factory
 
 import laika.ast.{Element, Path, StyleDeclarationSet, TemplateRoot}
-import laika.bundle.{RenderTheme2, StaticDocuments}
+import laika.bundle.{RenderTheme, StaticDocuments}
 import laika.config.RenderConfig
 import laika.render.Indentation
 
@@ -28,11 +28,11 @@ import laika.render.Indentation
   * @param path the (virtual) path the output will be rendered to              
   * @param config additional configuration for the renderer
   */
-case class RenderContext2[FMT] (renderChild: (FMT, Element) => String,
-                          root: Element, 
-                          styles: StyleDeclarationSet,
-                          path: Path,
-                          config: RenderConfig) {
+case class RenderContext[FMT] (renderChild: (FMT, Element) => String,
+                               root: Element,
+                               styles: StyleDeclarationSet,
+                               path: Path,
+                               config: RenderConfig) {
   
   val indentation: Indentation = if (config.renderFormatted) Indentation.default else Indentation.none
   
@@ -46,7 +46,7 @@ case class RenderContext2[FMT] (renderChild: (FMT, Element) => String,
  *  
  *  @author Jens Halm
  */
-trait RenderFormat2[FMT] {
+trait RenderFormat[FMT] {
 
   
   /** The file suffix to use when rendering the output
@@ -62,7 +62,7 @@ trait RenderFormat2[FMT] {
   
   def defaultRenderer: (FMT, Element) => String
   
-  def formatterFactory: RenderContext2[FMT] => FMT
+  def formatterFactory: RenderContext[FMT] => FMT
   
   type CustomRenderFunction[FMT] = PartialFunction[(FMT, Element), String] // TODO - 0.12 - move
 
@@ -88,7 +88,7 @@ trait RenderFormat2[FMT] {
   case class Theme (customRenderer: CustomRenderFunction[FMT] = PartialFunction.empty,
                     defaultTemplate: Option[TemplateRoot] = None,
                     defaultStyles: StyleDeclarationSet = StyleDeclarationSet.empty,
-                    staticDocuments: StaticDocuments = StaticDocuments.empty) extends RenderTheme2 {
+                    staticDocuments: StaticDocuments = StaticDocuments.empty) extends RenderTheme {
 
     type Formatter = FMT
 

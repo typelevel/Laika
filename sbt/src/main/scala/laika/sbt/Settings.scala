@@ -16,7 +16,7 @@
 
 package laika.sbt
 
-import laika.format.PDF2
+import laika.format.PDF
 import laika.sbt.LaikaPlugin.autoImport._
 import org.apache.fop.apps.FopFactory
 import sbt.Keys.{artifact, artifactPath, projectID, target}
@@ -35,7 +35,7 @@ object Settings {
   val fopFactory: Initialize[FopFactory] = setting {
     fopConfig.value map {
       FopFactory.newInstance
-    } getOrElse PDF2.defaultFopFactory
+    } getOrElse PDF.defaultFopFactory
   }
 
   /** The artifact path for the specified task.

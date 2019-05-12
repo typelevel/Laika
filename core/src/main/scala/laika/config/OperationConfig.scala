@@ -20,7 +20,7 @@ import com.typesafe.config.Config
 import laika.ast._
 import laika.bundle.{DocumentTypeMatcher, ExtensionBundle, MarkupExtensions}
 import laika.directive.{DirectiveSupport, StandardDirectives}
-import laika.factory.{MarkupParser, RenderFormat2}
+import laika.factory.{MarkupParser, RenderFormat}
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
 import laika.parse.directive.ConfigHeaderParser
@@ -100,7 +100,7 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
   /** Provides the theme for the specified render format, obtained by merging all themes defined
     * for this format and adding the default theme for the format and a fallback theme.
     */
-  def themeFor[FMT] (format: RenderFormat2[FMT]): format.Theme = (mergedBundle.themes.collect {
+  def themeFor[FMT] (format: RenderFormat[FMT]): format.Theme = (mergedBundle.themes.collect {
     case t: format.Theme => t
   } :+ format.defaultTheme :+ format.Theme()).reduceLeft(_ withBase _)
 

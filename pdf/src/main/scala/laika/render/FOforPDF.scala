@@ -20,8 +20,8 @@ import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
 import laika.api.Render
 import laika.ast.Path.Root
 import laika.ast._
-import laika.format.{PDF2, XSLFO2}
-import laika.io.{RenderResult2, RenderedDocument, RenderedTree}
+import laika.format.{PDF, XSLFO}
+import laika.io.{RenderedTreeRoot, RenderedDocument, RenderedTree}
 import laika.render.FOFormatter.{Bookmark, BookmarkTree, Leader, PageNumberCitation}
 import laika.rewrite.nav.TocGenerator
 
@@ -34,7 +34,7 @@ import laika.rewrite.nav.TocGenerator
  * 
  *  @author Jens Halm
  */
-class FOforPDF2 (config: Option[PDF2.Config]) {
+class FOforPDF (config: Option[PDF.Config]) {
 
 
   private object DocNames {
@@ -100,7 +100,7 @@ class FOforPDF2 (config: Option[PDF2.Config]) {
    *  @param depth the recursion depth through trees, documents and sections
    *  @return a fragment map containing the generated bookmarks
    */
-  def generateBookmarks (result: RenderResult2, depth: Int): Map[String, Element] = {
+  def generateBookmarks (result: RenderedTreeRoot, depth: Int): Map[String, Element] = {
 
     def sectionBookmarks (path: Path, sections: Seq[SectionInfo], levels: Int): Seq[Bookmark] =
       if (levels == 0) Nil
@@ -155,7 +155,7 @@ class FOforPDF2 (config: Option[PDF2.Config]) {
    *  output. Preparation may include insertion of tree or document titles
    *  and a table of content, depending on configuration.
    */
-  def prepareTree (tree: DocumentTree, config: PDF2.Config): DocumentTree = {
+  def prepareTree (tree: DocumentTree, config: PDF.Config): DocumentTree = {
     val insertLinks = config.bookmarkDepth > 0 || config.tocDepth > 0
     val withoutTemplates = tree.copy(templates = Seq(TemplateDocument(Path.Root / "default.template.fo",
         TemplateRoot(List(TemplateContextReference("document.content"))))))
@@ -175,11 +175,11 @@ class FOforPDF2 (config: Option[PDF2.Config]) {
    *  @param defaultTemplateRoot the template to apply the concatenated FO documents to
    *  @return the rendered merged XSL-FO as a String 
    */
-  def renderFO (result: RenderResult2, defaultTemplateRoot: TemplateRoot): String = {
+  def renderFO (result: RenderedTreeRoot, defaultTemplateRoot: TemplateRoot): String = {
     
     val pdfConfig = config getOrElse {
         
-      val defaults = PDF2.Config.default
+      val defaults = PDF.Config.default
       
       def getOpt [T](key: String, read: String => T): Option[T] = 
         if (result.config.hasPath(key)) Some(read(key)) else None
@@ -188,7 +188,7 @@ class FOforPDF2 (config: Option[PDF2.Config]) {
       val tocDepth = getOpt("pdf.toc.depth", result.config.getInt).getOrElse(defaults.tocDepth)
       val tocTitle = getOpt("pdf.toc.title", result.config.getString).orElse(defaults.tocTitle)
  
-      PDF2.Config(bookmarkDepth, tocDepth, tocTitle)
+      PDF.Config(bookmarkDepth, tocDepth, tocTitle)
     }
     
 //    def getDefaultTemplate: TemplateDocument = { // TODO - 0.12 - ensure the right template is already passed in
@@ -226,7 +226,7 @@ class FOforPDF2 (config: Option[PDF2.Config]) {
       val finalConfig = resolveCoverImagePath
       val finalDoc = Document(Path.Root / "merged.fo", RootElement(Seq(foElement)), fragments = generateBookmarks(result, pdfConfig.bookmarkDepth), config = finalConfig)
       val templateApplied = template.applyTo(finalDoc)
-      Render as XSLFO2 from templateApplied toString
+      Render as XSLFO from templateApplied toString
     }
 
     val defaultTemplate = TemplateDocument(Path.Root / "default.template.fo", defaultTemplateRoot)
