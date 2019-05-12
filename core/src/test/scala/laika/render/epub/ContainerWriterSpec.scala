@@ -41,7 +41,7 @@ class ContainerWriterSpec extends FlatSpec with Matchers with ModelBuilder {
   def collectInputsOld (tree: DocumentTree): Seq[String] = {
 
     def toStringResult (doc: Document): RenderedDocument =
-      RenderedDocument(doc.path.parent / (doc.path.basename + ".html"), doc.title, doc.sections, "Content is irrelevant for this test")
+      RenderedDocument(doc.path.withSuffix("html"), doc.title, doc.sections, "Content is irrelevant for this test")
 
     def toResultTree (currentTree: DocumentTree): RenderedTree = {
       val docs = currentTree.content.collect { case doc: Document => toStringResult(doc) }

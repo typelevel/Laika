@@ -42,11 +42,12 @@ object BookNavigation {
     * from the specified virtual path of the Laika document tree.
     */
   def fullPath (path: Path, forceXhtml: Boolean = false): String = {
-    val parent = path.parent match {
+    val finalPath = if (forceXhtml || path.suffix == "html") path.withSuffix("epub.xhtml") else path
+    val parent = finalPath.parent match {
       case Root => ""
-      case _ => path.parent.toString
+      case _ => finalPath.parent.toString
     }
-    "content" + parent + "/" + path.basename + "." + (if (forceXhtml || path.suffix == "html") "epub.xhtml" else path.suffix)
+    s"content$parent/${finalPath.name}"
   }
 
   def forTree (tree: RenderedTree, depth: Int, pos: Iterator[Int] = Iterator.from(0)): Seq[BookNavigation] = {

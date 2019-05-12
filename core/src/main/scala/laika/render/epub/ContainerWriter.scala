@@ -60,7 +60,7 @@ class ContainerWriter {
     val contentRoot = Root / "EPUB" / "content"
 
     def shiftContentPath (path: Path): Path =
-      if (path.suffix == "html") Path(contentRoot, path.components.dropRight(1) :+ path.basename + ".xhtml")
+      if (path.suffix == "html") Path(contentRoot, path.withSuffix("xhtml").components)
       else Path(contentRoot, path.components)
 
     def toBinaryInput (content: String, path: Path): StreamInput = {

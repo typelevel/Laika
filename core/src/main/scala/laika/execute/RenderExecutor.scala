@@ -70,7 +70,7 @@ object RenderExecutor {
 
     val theme = op.config.themeFor(op.format)
     
-    def outputPath (path: Path): Path = path.parent / (path.basename +"."+ op.format.fileSuffix)
+    def outputPath (path: Path): Path = path.withSuffix(op.format.fileSuffix)
     
     def textOutputFor (path: Path): TextOutput = op.output match {
       case StringTreeOutput => StringOutput(new mutable.StringBuilder, outputPath(path)) // TODO - 0.12 - temporary solution
