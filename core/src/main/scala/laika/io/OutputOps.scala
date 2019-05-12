@@ -88,10 +88,6 @@ trait TextOutputOps[FMT] extends SingleOutputOps[FMT] {
 
   def toFile (file: File)(implicit codec: Codec): Result = toTextOutput(TextFileOutput(file, Path(file.getName), codec))
 
-  /** Renders the model to the specified `StringBuilder`.
-    */
-  def toBuilder (builder: StringBuilder): Result = toTextOutput(StringOutput(builder, Root))
-
   /** Renders the model to the specified output.
     *
     *  This is a generic method based on Laika's IO abstraction layer that concrete
