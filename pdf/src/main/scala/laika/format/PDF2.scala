@@ -23,11 +23,11 @@ import java.util.Date
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.sax.SAXResult
 import javax.xml.transform.stream.StreamSource
-import laika.ast.{DocumentMetadata, DocumentTree, SpanSequence, TemplateRoot}
+import laika.ast.{DocumentMetadata, DocumentTree, SpanSequence}
 import laika.execute.OutputExecutor
-import laika.factory.{RenderFormat, RenderFormat2, RenderResultProcessor, RenderResultProcessor2}
-import laika.io.{BinaryOutput, OutputTree, RenderResult2}
-import laika.render.{FOFormatter, FOWriter, FOforPDF, FOforPDF2}
+import laika.factory.{RenderFormat2, RenderResultProcessor2}
+import laika.io.{BinaryOutput, RenderResult2}
+import laika.render.{FOFormatter, FOforPDF2}
 import org.apache.fop.apps.{FOUserAgent, FOUserAgentFactory, FopFactory, FopFactoryBuilder}
 import org.apache.xmlgraphics.io.{Resource, ResourceResolver}
 import org.apache.xmlgraphics.util.MimeConstants
@@ -140,7 +140,7 @@ class PDF2 private (val format: RenderFormat2[FOFormatter], config: Option[PDF2.
         }.getOrElse(if (uri.isAbsolute) uri else new File(uri.getPath).toURI)
       }
 
-      val factory = fopFactory.getOrElse(PDF.defaultFopFactory)
+      val factory = fopFactory.getOrElse(PDF2.defaultFopFactory)
       val foUserAgent = FOUserAgentFactory.createFOUserAgent(factory, resolver)
       applyMetadata(foUserAgent)
       val fop = factory.newFop(MimeConstants.MIME_PDF, foUserAgent, out)

@@ -19,7 +19,7 @@ package laika.ast
 import java.text.DecimalFormat
 
 import laika.api.Render
-import laika.format.{AST, AST2}
+import laika.format.AST2
 
 import scala.math.Ordered
 

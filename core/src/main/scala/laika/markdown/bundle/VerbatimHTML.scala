@@ -17,7 +17,7 @@
 package laika.markdown.bundle
 
 import laika.bundle.{ExtensionBundle, ParserBundle}
-import laika.format.{HTML, HTML2}
+import laika.format.HTML2
 import laika.markdown.HTMLParsers
 
 /**  Markdown extension that also parses verbatim HTML elements alongside

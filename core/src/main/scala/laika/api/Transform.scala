@@ -16,13 +16,12 @@
 
 package laika.api
 
-import laika.api.Render.{Done, Op2, TreeOp2}
+import laika.api.Render.Done
 import laika.ast.DocumentType.Markup
-import laika.ast.Path.Root
 import laika.ast._
 import laika.config.{OperationConfig, TransformConfigBuilder}
 import laika.execute.TransformExecutor
-import laika.factory.{MarkupParser, RenderFormat, RenderFormat2, RenderResultProcessor, RenderResultProcessor2}
+import laika.factory.{MarkupParser, RenderFormat2, RenderResultProcessor2}
 import laika.io._
 
 /** API for performing a transformation operation from and to various types of input and output,
@@ -93,18 +92,6 @@ abstract class Transform [FMT] private[Transform] (parsers: Seq[MarkupParser], p
  *  @author Jens Halm
  */
 object Transform {
-
-  case class Op[FMT] (parsers: Seq[MarkupParser], format: RenderFormat[FMT], config: OperationConfig, input: TextInput, output: TextOutput) {
-    def execute: Done = TransformExecutor.execute(this)
-  }
-
-  case class TreeOp[FMT] (parsers: Seq[MarkupParser], format: RenderFormat[FMT], config: OperationConfig, input: TreeInput, output: OutputTree) {
-    def execute: Done = TransformExecutor.execute(this)
-  }
-
-  case class MergeOp[FMT] (parsers: Seq[MarkupParser], processor: RenderResultProcessor[FMT], config: OperationConfig, input: TreeInput, output: BinaryOutput) {
-    def execute: Done = TransformExecutor.execute(this)
-  }
 
   case class Op2[FMT] (parsers: Seq[MarkupParser], format: RenderFormat2[FMT], config: OperationConfig, input: TextInput, output: TextOutput) {
     def execute: String = TransformExecutor.execute(this)

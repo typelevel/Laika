@@ -25,27 +25,6 @@ import laika.io.RenderResult2
   */
 object TransformExecutor {
 
-  def execute[Writer] (op: Transform.Op[Writer]): Done = {
-    val parseOp = Parse.Op(op.parsers, op.config, op.input, rewrite = true)
-    val doc = parseOp.execute
-    val renderOp = Render.Op(op.format, op.config, doc.content, op.output)
-    renderOp.execute
-  }
-
-  def execute[Writer] (op: Transform.TreeOp[Writer]): Done = {
-    val parseOp = Parse.TreeOp(op.parsers, op.config, op.input, rewrite = true)
-    val tree = parseOp.execute
-    val renderOp = Render.TreeOp(op.format, op.config, tree, op.output)
-    renderOp.execute
-  }
-
-  def execute[Writer] (op: Transform.MergeOp[Writer]): Done = {
-    val parseOp = Parse.TreeOp(op.parsers, op.config, op.input, rewrite = true)
-    val tree = parseOp.execute
-    val renderOp = Render.MergeOp(op.processor, op.config, tree, op.output)
-    renderOp.execute
-  }
-
   def execute[FMT] (op: Transform.Op2[FMT]): String = {
     val parseOp = Parse.Op(op.parsers, op.config, op.input, rewrite = true)
     val doc = parseOp.execute

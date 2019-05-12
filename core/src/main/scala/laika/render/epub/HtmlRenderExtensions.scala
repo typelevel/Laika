@@ -17,7 +17,7 @@
 package laika.render.epub
 
 import laika.ast._
-import laika.render.{HTMLFormatter, HTMLWriter}
+import laika.render.HTMLFormatter
 
 /** Customizations of the default HTML renderer for AST elements where attributes
   * specific to EPUB need to be rendered.
@@ -26,31 +26,7 @@ import laika.render.{HTMLFormatter, HTMLWriter}
   */
 object HtmlRenderExtensions {
 
-  /** Function that can be added to any HTML-based `Theme` that
-    * contains renderers for all AST elements where attributes
-    * specific to EPUB need to be rendered.
-    */
-  val all: HTMLWriter => RenderFunction = out => {
-    case CitationLink(ref,label,opt) => out <<@ ("a",opt + Styles("citation"),"href"->("#"+ref),"epub:type"->"noteref") << "[" << label << "]</a>"
-    case FootnoteLink(ref,label,opt) => out <<@ ("a",opt + Styles("footnote"),"href"->("#"+ref),"epub:type"->"noteref") << "[" << label << "]</a>"
-    case Citation(_,content,opt) => out <<@ ("aside",opt + Styles("citation"),"epub:type"->"footnote") <<|> content <<| "</aside>"
-    case Footnote(_,content,opt) => out <<@ ("aside",opt + Styles("footnote"),"epub:type"->"footnote") <<|> content <<| "</aside>"
-    case LineBreak(opt)          => out << "<br/>"
-    case Rule(opt)               => out <<@/ ("hr",opt)
-    case Image(text,uri,width,height,title,opt) =>
-      def sizeAttr (size: Option[Size], styleName: String): (Option[String],Option[String]) = size map {
-        case Size(amount, "px") => (Some(amount.toInt.toString), None)
-        case Size(amount, unit) => (None, Some(s"$styleName:$amount$unit"))
-      } getOrElse (None, None)
-      val (widthAttr, wStyle) = sizeAttr(width, "width")
-      val (heightAttr, hStyle) = sizeAttr(height, "height")
-      val styleAttr = (wStyle ++ hStyle).reduceLeftOption((a,b) => s"$a;$b")
-      out <<@/ ("img",opt,"src"->uri.uri,"alt"->text,"title"->title,
-        "width"->widthAttr,"height"->heightAttr,"style"->styleAttr)
-    // TODO - the image rendering is copied from the default HTML renderer just to use a closed tag for XHTML
-  }
-
-  val all2: PartialFunction[(HTMLFormatter, Element), String] = {
+  val all: PartialFunction[(HTMLFormatter, Element), String] = {
     case (fmt, CitationLink(ref,label,opt)) => fmt.textElement("a", opt + Styles("citation"), "[" + label + "]", "href" -> ("#"+ref), "epub:type" -> "noteref")
     case (fmt, FootnoteLink(ref,label,opt)) => fmt.textElement("a", opt + Styles("footnote"), "[" + label + "]", "href" -> ("#"+ref), "epub:type" -> "noteref")
     case (fmt, Citation(_,content,opt)) => fmt.indentedElement("aside", opt + Styles("citation"), content, "epub:type" -> "footnote")

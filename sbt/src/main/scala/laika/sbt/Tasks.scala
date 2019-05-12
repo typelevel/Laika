@@ -18,13 +18,13 @@ package laika.sbt
 
 import laika.api.{Parse, Render}
 import laika.config.{BundleFilter, ParallelConfig}
-import laika.factory.{RenderFormat, RenderFormat2, RenderResultProcessor, RenderResultProcessor2}
+import laika.execute.InputExecutor
+import laika.factory.{RenderFormat2, RenderResultProcessor2}
 import laika.format._
 import laika.io.{IO => _, _}
-import LaikaPlugin.autoImport._
-import laika.execute.InputExecutor
-import sbt._
+import laika.sbt.LaikaPlugin.autoImport._
 import sbt.Keys._
+import sbt._
 import sbt.util.CacheStore
 
 /** Implementations for Laika's sbt tasks.

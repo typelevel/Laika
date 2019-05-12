@@ -22,7 +22,7 @@ import laika.bundle.{BundleProvider, ExtensionBundle, StaticDocuments}
 import laika.execute.OutputExecutor
 import laika.factory.{RenderContext2, RenderFormat2}
 import laika.io.{ByteInput, StringOutput}
-import laika.render.{ASTRenderer2, Indentation, TextFormatter, TextWriter}
+import laika.render.{ASTRenderer2, Indentation, TextFormatter}
 import org.scalatest.{Matchers, WordSpec}
 
 /**

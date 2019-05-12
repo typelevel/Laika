@@ -22,7 +22,7 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.format.{PDF2, XSLFO2}
 import laika.io.{RenderResult2, RenderedDocument, RenderedTree}
-import laika.render.FOWriter._
+import laika.render.FOFormatter.{Bookmark, BookmarkTree, Leader, PageNumberCitation}
 import laika.rewrite.nav.TocGenerator
 
 /** Responsible for rendering the XSL-FO for an entire document tree

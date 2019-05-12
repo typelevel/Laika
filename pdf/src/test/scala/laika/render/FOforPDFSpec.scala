@@ -16,25 +16,27 @@
 
 package laika.render
 
-import laika.ast.{DocumentTree, Path, TemplateRoot}
+import laika.ast.{DocumentTree, Path}
 import laika.execute.{InputExecutor, OutputExecutor}
-import laika.factory.RenderResultProcessor
-import laika.format.{PDF, XSLFO}
-import laika.io.{BinaryOutput, OutputTree}
+import laika.factory.RenderResultProcessor2
+import laika.format.{PDF2, XSLFO2}
+import laika.io.{BinaryOutput, RenderResult2}
 import org.scalatest.{FlatSpec, Matchers}
 
 class FOforPDFSpec extends FlatSpec with Matchers {
   
   
-  case class FOTest (config: Option[PDF.Config]) extends RenderResultProcessor[FOWriter] {
+  case class FOTest (config: Option[PDF2.Config]) extends RenderResultProcessor2[FOFormatter] {
     
-    val format = XSLFO
+    val format = XSLFO2
     
-    private val foForPDF = new FOforPDF(config)
+    private val foForPDF = new FOforPDF2(config)
+
+    def prepareTree (tree: DocumentTree): DocumentTree = tree
+
+    def process (result: RenderResult2, output: BinaryOutput): Unit = {
     
-    def process (tree: DocumentTree, render: (DocumentTree, OutputTree) => Unit, defaultTemplate: TemplateRoot, output: BinaryOutput): Unit = {
-    
-      val fo = foForPDF.renderFO(tree, render, defaultTemplate)
+      val fo = foForPDF.renderFO(result, result.template)
       val out = OutputExecutor.asStream(output)
       out.write(fo.getBytes("UTF-8"))
       
@@ -131,7 +133,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
   
   trait Setup extends TreeModel with ResultModel {
     
-    def config: Option[PDF.Config]
+    def config: Option[PDF2.Config]
     
     def result: String = {
 //      val stream = new ByteArrayOutputStream
@@ -145,14 +147,14 @@ class FOforPDFSpec extends FlatSpec with Matchers {
   
   "The FOforPDF utility" should "render a tree with all structure elements disabled" ignore new Setup {
     
-    val config = Some(PDF.Config(bookmarkDepth = 0, tocDepth = 0))
+    val config = Some(PDF2.Config(bookmarkDepth = 0, tocDepth = 0))
     
     result should be (withDefaultTemplate(results(6)))
   }
 
   it should "render a tree with a table of content" ignore new Setup {
     
-    val config = Some(PDF.Config(bookmarkDepth = 0, tocDepth = Int.MaxValue, tocTitle = Some("Contents")))
+    val config = Some(PDF2.Config(bookmarkDepth = 0, tocDepth = Int.MaxValue, tocTitle = Some("Contents")))
     
     result should be (withDefaultTemplate(treeLinkResult(1) + tocTitle + tocDocResult(1) + tocDocResult(2)
         + tocTreeResult(1) + tocDocResult(3) + tocDocResult(4)
@@ -163,7 +165,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
   
   it should "render a tree with bookmarks" ignore new Setup {
     
-    val config = Some(PDF.Config(bookmarkDepth = Int.MaxValue, tocDepth = 0))
+    val config = Some(PDF2.Config(bookmarkDepth = Int.MaxValue, tocDepth = 0))
     
     result should be (withDefaultTemplate(treeLinkResult(1) + resultWithDocTitle(1) + resultWithDocTitle(2)
         + treeLinkResult(2) + resultWithDocTitle(3) + resultWithDocTitle(4)
@@ -173,7 +175,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
   
   it should "render a tree with all structure elements enabled" ignore new Setup {
     
-    val config = Some(PDF.Config.default)
+    val config = Some(PDF2.Config.default)
     
     result should be (withDefaultTemplate(
       treeLinkResult(1) + tocDocResult(1) + tocDocResult(2)
@@ -190,7 +192,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
 
     override val useTitleDocuments = true
 
-    val config = Some(PDF.Config.default)
+    val config = Some(PDF2.Config.default)
 
     result should be (withDefaultTemplate(
       treeLinkResult(1) + tocDocResult(1) + tocDocResult(2)

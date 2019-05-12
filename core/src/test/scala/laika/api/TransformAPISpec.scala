@@ -22,15 +22,15 @@ import laika.api.Transform.TransformMappedOutput
 import laika.ast.DocumentType.Static
 import laika.ast.Path.Root
 import laika.ast._
+import laika.ast.helper.OutputBuilder.readFile
 import laika.ast.helper.{InputBuilder, OutputBuilder}
-import laika.ast.helper.OutputBuilder.{readFile}
 import laika.bundle.{BundleProvider, ExtensionBundle}
 import laika.directive.Templates
 import laika.format._
 import laika.io.{StringTreeOutput, TreeInput}
 import laika.parse.Parser
 import laika.parse.text.TextParsers
-import laika.render.{TextFormatter, TextWriter}
+import laika.render.TextFormatter
 import laika.render.helper.RenderResult
 import org.scalatest.{FlatSpec, Matchers}
 

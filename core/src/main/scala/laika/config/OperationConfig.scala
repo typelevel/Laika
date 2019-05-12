@@ -20,7 +20,7 @@ import com.typesafe.config.Config
 import laika.ast._
 import laika.bundle.{DocumentTypeMatcher, ExtensionBundle, MarkupExtensions}
 import laika.directive.{DirectiveSupport, StandardDirectives}
-import laika.factory.{MarkupParser, RenderFormat, RenderFormat2}
+import laika.factory.{MarkupParser, RenderFormat2}
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
 import laika.parse.directive.ConfigHeaderParser
@@ -96,13 +96,6 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
     * This combined rule gets applied to the document between parse and render operations.
     */
   def rewriteRulesFor (doc: Document): RewriteRules = rewriteRules(DocumentCursor(doc))
-
-  /** Provides the theme for the specified render format, obtained by merging all themes defined
-    * for this format and adding the default theme for the format and a fallback theme.
-    */
-  def themeFor[W] (format: RenderFormat[W]): format.Theme = (mergedBundle.themes.collect {
-    case t: format.Theme => t
-  } :+ format.defaultTheme :+ format.Theme()).reduceLeft(_ withBase _)
 
   /** Provides the theme for the specified render format, obtained by merging all themes defined
     * for this format and adding the default theme for the format and a fallback theme.

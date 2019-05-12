@@ -25,8 +25,7 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.execute.InputExecutor
 import laika.factory.{RenderContext2, RenderFormat2, RenderResultProcessor2}
-import laika.io.OutputTree.StringOutputTree
-import laika.io.{BinaryOutput, OutputTree, RenderResult2}
+import laika.io.{BinaryOutput, RenderResult2}
 import laika.render.epub.StyleSupport.XHTMLTemplateParser
 import laika.render.epub.{ConfigFactory, ContainerWriter, HtmlRenderExtensions, StyleSupport}
 import laika.render.{HTMLFormatter, XHTMLRenderer}
@@ -64,7 +63,7 @@ object EPUB2 extends RenderResultProcessor2[HTMLFormatter] {
     val formatterFactory: RenderContext2[HTMLFormatter] => HTMLFormatter = HTMLFormatter // TODO - 0.12 - needs formatter that closes empty tags
 
     override lazy val defaultTheme: Theme = Theme(
-      customRenderer = HtmlRenderExtensions.all2,
+      customRenderer = HtmlRenderExtensions.all,
       defaultTemplate = Some(templateResource.content)
     )
 
@@ -75,7 +74,7 @@ object EPUB2 extends RenderResultProcessor2[HTMLFormatter] {
 
   }
 
-  val format = XHTML
+  val format: RenderFormat2[HTMLFormatter] = XHTML
 
   /** Configuration options for the generated EPUB output.
     *
@@ -102,7 +101,7 @@ object EPUB2 extends RenderResultProcessor2[HTMLFormatter] {
   private lazy val writer = new ContainerWriter
 
   def prepareTree (tree: DocumentTree): DocumentTree = {
-    val treeConfig = ConfigFactory.forTree(tree)
+    val treeConfig = ConfigFactory.forTreeConfig(tree.config)
     val treeWithStyles = StyleSupport.ensureContainsStyles(tree)
     treeConfig.coverImage.fold(tree) { image =>
       treeWithStyles.copy(

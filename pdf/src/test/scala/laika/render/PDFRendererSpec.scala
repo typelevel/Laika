@@ -16,10 +16,10 @@
 
 package laika.render
 
-import java.io.{BufferedInputStream, ByteArrayOutputStream, File, FileInputStream, InputStream}
+import java.io.{BufferedInputStream, File, FileInputStream, InputStream}
 
 import laika.api.Render
-import laika.format.{PDF, PDF2}
+import laika.format.PDF2
 import org.scalatest.{FlatSpec, Matchers}
 
 /** Since there is no straightforward way to validate a rendered PDF document

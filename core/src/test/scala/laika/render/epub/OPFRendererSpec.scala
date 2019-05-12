@@ -21,7 +21,7 @@ import java.util.Locale
 
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.format.{EPUB, EPUB2}
+import laika.format.EPUB2
 import org.scalatest.{FlatSpec, Matchers}
 
 class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
