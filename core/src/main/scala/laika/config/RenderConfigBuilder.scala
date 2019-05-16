@@ -32,18 +32,16 @@ trait RenderConfigBuilder[FMT] extends OperationConfigBuilder {
   /**  Specifies a custom render function that overrides one or more of the default
     *  renderers for the output format this instance uses.
     *
-    *  This method expects a function that returns a partial function as the result.
-    *  The outer function allows to capture the writer instance to write to and will
-    *  only be invoked once. The partial function will then be invoked for each
-    *  element it is defined at.
+    *  This method expects a partial function that takes a formatter and the element
+    *  to render. It will then be invoked for each element it is defined at.
     *
     *  Simple example for customizing the HTML output for emphasized text, adding a specific
     *  style class:
     *
     *  {{{
-    *  Transform from Markdown to HTML rendering { out =>
-    *    { case Emphasized(content) => out << """&lt;em class="big">""" << content << "&lt;/em>" }
-    *  } fromFile "hello.md" toFile "hello.html"
+    *  Transform.from(Markdown).to(HTML).rendering {
+    *    case (fmt, Emphasized(content, opt)) => fmt.element("em", opt, content, "class" -> "big")
+    *  }.fromFile("hello.md").toFile("hello.html")
     *  }}}
     */
   def rendering (customRenderer: PartialFunction[(FMT, Element), String]): ThisType = using(new ExtensionBundle {
