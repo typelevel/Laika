@@ -22,11 +22,12 @@ import laika.factory.RenderContext
 
 /** API for renderers that produce text output.
  * 
- * @param renderChild the function to use for rendering child elements
- * @param elementStack the stack of parent elements of this formatter in recursive rendering
- * @param indentation the level of indentation for this formatter
- *                   
- *  @author Jens Halm
+ * @param renderChild  the function to use for rendering child elements
+ * @param elementStack the stack of parent elements of this formatter in recursive rendering, 
+ *                    with the root element being the last in the list
+ * @param indentation the indentation mechanism for this formatter
+  *                     
+ * @author Jens Halm
  */
 case class TextFormatter (renderChild: (TextFormatter, Element) => String,
                           elementStack: List[Element],
@@ -38,11 +39,15 @@ case class TextFormatter (renderChild: (TextFormatter, Element) => String,
   
 }
 
+/** Default factory for TextFormatters, based on a provided RenderContext.
+  */
 object TextFormatter extends (RenderContext[TextFormatter] => TextFormatter) {
   def apply (context: RenderContext[TextFormatter]): TextFormatter = 
     TextFormatter(context.renderChild, List(context.root), context.indentation)
 }
 
+/** Default factory for ASTFormatters, based on a provided RenderContext.
+  */
 object ASTFormatter extends (RenderContext[TextFormatter] => TextFormatter) {
   def apply (context: RenderContext[TextFormatter]): TextFormatter =
     TextFormatter(context.renderChild, List(context.root), Indentation.dotted)

@@ -20,17 +20,17 @@ import laika.ast._
 
 import scala.collection.mutable
 
-/** Base type for formatters that produce tag-based output formats like XML 
- *  or HTML.
+/** Base type for formatters that produce tag-based output formats like XML or HTML.
  *  Extends the `BaseFormatter` and adds methods for writing text
  *  with special characters as entities and for conveniently writing
  *  tags with attributes.
  * 
- *  @param renderChild the function to use for rendering child elements
- *  @param elementStack the stack of parent elements of this formatter in recursive rendering
- *  @param indentation the level of indentation for this formatter
- *  @param messageLevel the minimum severity level for a system message to be rendered                     
- *                    
+ *  @param renderChild  the function to use for rendering child elements
+ *  @param elementStack the stack of parent elements of this formatter in recursive rendering, 
+ *                      with the root element being the last in the list
+ *  @param indentation  the indentation mechanism for this formatter
+ *  @param messageLevel the minimum severity level for a system message to be rendered    
+  *                      
  *  @author Jens Halm
  */
 abstract class TagFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Element) => String,
@@ -45,40 +45,62 @@ abstract class TagFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Eleme
    *  with all special XML/HTML characters converted to entities.
    */
   def text (str: String): String = escaped(str)
-  
+
+  /** Renders an HTML/XML comment.
+    */
   def comment (content: String): String = s"<!-- $content -->"
 
+  /** Renders an element with the specified tag name, attributes derived from the style hint
+    * and content consisting of the provided child elements, all rendered on the same line. 
+    */
   def element (tagName: String, styleHint: StyleHint, content: Seq[Element], attrs: (String, String)*): String =
     s"<$tagName${attributes(tagName,styleHint,attrs)}>${children(content)}</$tagName>"
 
+  /** Renders an element with the specified tag name, attributes derived from the style hint
+    * and content consisting of the provided child elements, all rendered on the same line. 
+    */
   def indentedElement (tagName: String, styleHint: StyleHint, content: Seq[Element], attrs: (String, String)*): String =
     s"<$tagName${attributes(tagName,styleHint,attrs)}>${indentedChildren(content)}$newLine</$tagName>"
 
+  /** Renders an element with the specified tag name, attributes derived from the style hint
+    * and content based on the provided string that is interpreted as already rendered in the target format.
+    * That means that no character escaping will be performed on the provided content.
+    */
   def rawElement (tagName: String, styleHint: StyleHint, content: String, attrs: (String, String)*): String =
     s"<$tagName${attributes(tagName,styleHint,attrs)}>$content</$tagName>"
 
+  /** Renders a text element with the specified tag name, attributes derived from the style hint
+    * and content based on the provided text content that gets rendered with all special XML/HTML 
+    * characters converted to entities.
+    */
   def textElement (tagName: String, styleHint: StyleHint, txt: String, attrs: (String, String)*): String =
     s"<$tagName${attributes(tagName,styleHint,attrs)}>${text(txt)}</$tagName>"
-  
+
+  /** Renders an empty element with the specified tag name and attributes derived from the style hint.
+    */
   def emptyElement (tagName: String, styleHint: StyleHint, attrs: (String, String)*): String =
     s"<$tagName${attributes(tagName,styleHint,attrs)}/>"
-  
+
+  /** Renders an empty element with the specified tag name.
+    */
   def emptyElement (tagName: String): String = s"<$tagName/>"
   
-  /** Produces the complete sequence of attributes to write for the specified tag.
+  /** Renders all attributes derived from the style hint and the explicitly provided attributes.
    */
   def attributes (tag: String, styleHint: StyleHint, attrs: Seq[(String, String)]): String
 
-  /** Writes the specified attributes (passed as name-value tuples),
+  /** Renders the specified attributes (passed as name-value tuples),
     * including a preceding space character.
     */
   def attributes (attrs: Seq[(String, String)]): String = attrs.map(t => attribute(t._1 , t._2)).mkString
-  
+
+  /** Filters empty values from the provided list of name-value pairs.
+    */
   def optAttributes (attrs: (String, Option[String])*): Seq[(String, String)] = attrs.collect {
     case (name, Some(value)) => (name, value)
   }
 
-  /** Writes the specified attribute including a preceding space character.
+  /** Renders the specified attribute including a preceding space character.
     */
   def attribute (name: String, value: String): String = s""" $name="$value""""
  
