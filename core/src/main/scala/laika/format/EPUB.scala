@@ -81,6 +81,7 @@ object EPUB extends RenderResultProcessor[HTMLFormatter] {
     *  @param metadata the metadata associated with the document
     *  @param tocDepth the number of levels to generate a table of contents for
     *  @param tocTitle the title for the table of contents
+    *  @param coverImage the path to the cover image within the virtual document tree                
     */
   case class Config(metadata: DocumentMetadata = DocumentMetadata(), tocDepth: Int = Int.MaxValue, tocTitle: Option[String] = None, coverImage: Option[String] = None) {
     lazy val identifier: String = metadata.identifier.getOrElse(s"urn:uuid:${UUID.randomUUID.toString}")
@@ -100,9 +101,13 @@ object EPUB extends RenderResultProcessor[HTMLFormatter] {
 
   private lazy val writer = new ContainerWriter
 
+  /** Adds a cover image (if specified in the configuration)
+    * and a fallback CSS resource (if the input tree did not contain any CSS),
+    * before the tree gets passed to the XHTML renderer.
+    */
   def prepareTree (tree: DocumentTree): DocumentTree = {
     val treeConfig = ConfigFactory.forTreeConfig(tree.config)
-    val treeWithStyles = StyleSupport.ensureContainsStyles(tree)
+    val treeWithStyles = StyleSupport.ensureContainsStyles(tree) // TODO - 0.12 - could this move to the process step?
     treeConfig.coverImage.fold(tree) { image =>
       treeWithStyles.copy(
         content = Document(Root / "cover", 

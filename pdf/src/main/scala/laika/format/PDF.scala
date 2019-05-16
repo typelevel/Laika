@@ -66,27 +66,12 @@ class PDF private(val format: RenderFormat[FOFormatter], config: Option[PDF.Conf
   def withFopFactory (fopFactory: FopFactory): PDF = new PDF(format, config, Some(fopFactory))
   
   private lazy val foForPDF = new FOforPDF(config)
-  
 
-//  /** Renders the XSL-FO that serves as a basis for producing the final PDF output.
-//   *  The result should include the output from rendering the documents in the 
-//   *  specified tree as well as any additional insertions like bookmarks or
-//   *  table of content. For this the specified `DocumentTree` instance may get
-//   *  modified before passing it to the given render function.
-//   *  
-//   *  The default implementation simply delegates to an instance of `FOforPDF`
-//   *  which uses a `PDFConfig` object to drive configuration. In rare cases
-//   *  where the flexibility provided by `PDFConfig` is not sufficient, this
-//   *  method may get overridden.
-//   * 
-//   *  @param tree the document tree serving as input for the renderer
-//   *  @param render the actual render function for producing the XSL-FO output
-//   *  @return the rendered XSL-FO as a String 
-//   */
-//  protected def renderFO (tree: DocumentTree, render: (DocumentTree, OutputTree) => Unit, defaultTemplate: TemplateRoot): String =
-//    foForPDF.renderFO(tree, render, defaultTemplate)
-  
-  def prepareTree (tree: DocumentTree): DocumentTree = ???
+
+  /** Adds PDF bookmarks and/or a table of content to the specified document tree, depending on configuration.
+    * The modified tree will be used for rendering the interim XSL-FO result.
+    */
+  def prepareTree (tree: DocumentTree): DocumentTree = foForPDF.prepareTree(tree)
 
   /** Processes the interim XSL-FO result, transforms it to PDF and writes
     * it to the specified final output.

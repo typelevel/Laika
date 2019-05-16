@@ -71,9 +71,8 @@ class HtmlNavRenderer {
     * document sections, depending on which recursion depth is configured.
     * The configuration key for setting the recursion depth is `epub.toc.depth`.
     *
-    * @param root the document tree to generate navPoints for
-    * @param depth the recursion depth through trees, documents and sections
-    * @return the navPoint XML nodes for the specified document tree
+    * @param bookNav the navigation items to generate navPoints for
+    * @return the navPoint XML nodes for the specified document tree as a String
     */
   def navItems (bookNav: Seq[BookNavigation]): String =
     if (bookNav.isEmpty) ""

@@ -152,16 +152,32 @@ class FOforPDF (config: Option[PDF.Config]) {
   }
 
   /** Prepares the document tree before rendering the interim XSL-FO
-   *  output. Preparation may include insertion of tree or document titles
+   *  output. Preparation may include insertion of tree or document titles, PDF bookmarks
    *  and a table of content, depending on configuration.
    */
-  def prepareTree (tree: DocumentTree, config: PDF.Config): DocumentTree = {
-    val insertLinks = config.bookmarkDepth > 0 || config.tocDepth > 0
+  def prepareTree (tree: DocumentTree): DocumentTree = {
+    val pdfConfig = config getOrElse configFromTree(tree.config)
+    val insertLinks = pdfConfig.bookmarkDepth > 0 || pdfConfig.tocDepth > 0
     val withoutTemplates = tree.copy(templates = Seq(TemplateDocument(Path.Root / "default.template.fo",
         TemplateRoot(List(TemplateContextReference("document.content"))))))
     val withDocTitles = if (insertLinks) addDocLinks(withoutTemplates) else withoutTemplates
-    val withToc = if (config.tocDepth > 0) insertToc(withDocTitles, config.tocDepth, config.tocTitle) else withDocTitles
+    val withToc = if (pdfConfig.tocDepth > 0) insertToc(withDocTitles, pdfConfig.tocDepth, pdfConfig.tocTitle) else withDocTitles
     if (insertLinks) addTreeLinks(withToc) else withToc
+    
+    // TODO - 0.12 - split this class into PDFNavigation, PDF.Config factory and FOConcatenation in render.pdf sub-package
+  }
+  
+  private def configFromTree (treeConfig: Config): PDF.Config = {
+    val defaults = PDF.Config.default
+
+    def getOpt [T](key: String, read: String => T): Option[T] =
+      if (treeConfig.hasPath(key)) Some(read(key)) else None
+
+    val bookmarkDepth = getOpt("pdf.bookmarks.depth", treeConfig.getInt).getOrElse(defaults.bookmarkDepth)
+    val tocDepth = getOpt("pdf.toc.depth", treeConfig.getInt).getOrElse(defaults.tocDepth)
+    val tocTitle = getOpt("pdf.toc.title", treeConfig.getString).orElse(defaults.tocTitle)
+
+    PDF.Config(bookmarkDepth, tocDepth, tocTitle)
   }
   
   /** Renders the XSL-FO that serves as a basis for producing the final PDF output.
@@ -177,19 +193,7 @@ class FOforPDF (config: Option[PDF.Config]) {
    */
   def renderFO (result: RenderedTreeRoot, defaultTemplateRoot: TemplateRoot): String = {
     
-    val pdfConfig = config getOrElse {
-        
-      val defaults = PDF.Config.default
-      
-      def getOpt [T](key: String, read: String => T): Option[T] = 
-        if (result.config.hasPath(key)) Some(read(key)) else None
-      
-      val bookmarkDepth = getOpt("pdf.bookmarks.depth", result.config.getInt).getOrElse(defaults.bookmarkDepth)
-      val tocDepth = getOpt("pdf.toc.depth", result.config.getInt).getOrElse(defaults.tocDepth)
-      val tocTitle = getOpt("pdf.toc.title", result.config.getString).orElse(defaults.tocTitle)
- 
-      PDF.Config(bookmarkDepth, tocDepth, tocTitle)
-    }
+    val pdfConfig = config getOrElse configFromTree(result.config)
     
 //    def getDefaultTemplate: TemplateDocument = { // TODO - 0.12 - ensure the right template is already passed in
 //      val templateName = "default.template.fo"
