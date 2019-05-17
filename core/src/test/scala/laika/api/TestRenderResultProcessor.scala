@@ -16,18 +16,18 @@
 
 package laika.api
 
-import laika.ast.{Document, DocumentTree}
+import laika.ast.DocumentTreeRoot
 import laika.execute.OutputExecutor
 import laika.factory.RenderResultProcessor
 import laika.format.AST
-import laika.io.{BinaryOutput, RenderedTreeRoot, RenderedDocument, RenderedTree}
+import laika.io.{BinaryOutput, RenderedDocument, RenderedTree, RenderedTreeRoot}
 import laika.render.TextFormatter
 
 object TestRenderResultProcessor extends RenderResultProcessor[TextFormatter] {
 
   val format = AST
 
-  def prepareTree (tree: DocumentTree): DocumentTree = tree
+  def prepareTree (tree: DocumentTreeRoot): DocumentTreeRoot = tree
 
   def process (result: RenderedTreeRoot, output: BinaryOutput): Unit = {
     

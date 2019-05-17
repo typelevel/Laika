@@ -110,7 +110,11 @@ class RenderAPISpec extends FlatSpec
     
     def render: RenderMappedOutput[FMT]
     
-    def renderedTree: RenderedTree = OutputBuilder.RenderedTree.toTreeView((render from input toOutputTree StringTreeOutput).execute.rootTree)
+    def renderedTree: RenderedTree = OutputBuilder.RenderedTree.toTreeView(render
+      .from(DocumentTreeRoot(input))
+      .toOutputTree(StringTreeOutput)
+      .execute.rootTree
+    )
 
     def addPosition (tree: DocumentTree, pos: Seq[Int] = Nil): DocumentTree = {
       val nextNum = Iterator.from(1)
@@ -477,7 +481,11 @@ class RenderAPISpec extends FlatSpec
   it should "render a tree with two documents using a RenderResultProcessor writing to a file" in {
     new GatherRenderer {
       val f = File.createTempFile("output", null)
-      (Render as TestRenderResultProcessor from input toFile f).execute
+      Render
+        .as(TestRenderResultProcessor)
+        .from(DocumentTreeRoot(input))
+        .toFile(f)
+        .execute
       readFile(f) should be (expectedResult)
     }
   }
@@ -507,39 +515,39 @@ class RenderAPISpec extends FlatSpec
   }
 
   ignore should "render to a directory using the toDirectory method" in {
-    new FileSystemTest {
-      val f = createTempDirectory("renderToDir")
-      (Render as AST from input toDirectory f).execute
-      readFiles(f.getPath)
-    }
+//    new FileSystemTest {
+//      val f = createTempDirectory("renderToDir")
+//      (Render as AST from input toDirectory f).execute
+//      readFiles(f.getPath)
+//    }
   }
 
   ignore should "render to a directory using the Directory object" in {
-    new FileSystemTest {
-      val f = createTempDirectory("renderToTree")
-      (Render as AST from input toDirectory(f)).execute
-      readFiles(f.getPath)
-    }
+//    new FileSystemTest {
+//      val f = createTempDirectory("renderToTree")
+//      (Render as AST from input toDirectory(f)).execute
+//      readFiles(f.getPath)
+//    }
   }
 
   ignore should "render to a directory in parallel" in {
-    new FileSystemTest {
-      val f = createTempDirectory("renderParallel")
-      Render.as(AST).inParallel.from(input).toDirectory(f).execute
-      readFiles(f.getPath)
-    }
+//    new FileSystemTest {
+//      val f = createTempDirectory("renderParallel")
+//      Render.as(AST).inParallel.from(input).toDirectory(f).execute
+//      readFiles(f.getPath)
+//    }
   }
 
   ignore should "render to a directory using a document with non-ASCII characters" in new DocBuilder {
-    val expected = """RootElement - Blocks: 1
-                     |. Paragraph - Spans: 1
-                     |. . Text - 'Doc äöü'""".stripMargin
-    val f = createTempDirectory("renderNonASCII")
-    val input = DocumentTree(Root, List(
-      Document(Root / "doc", root(p("Doc äöü")))
-    ))
-    Render.as(AST).from(input).toDirectory(f)(Codec.ISO8859).execute
-    readFile(new File(f, "doc.txt"), Codec.ISO8859) should be (expected)
+//    val expected = """RootElement - Blocks: 1
+//                     |. Paragraph - Spans: 1
+//                     |. . Text - 'Doc äöü'""".stripMargin
+//    val f = createTempDirectory("renderNonASCII")
+//    val input = DocumentTree(Root, List(
+//      Document(Root / "doc", root(p("Doc äöü")))
+//    ))
+//    Render.as(AST).from(input).toDirectory(f)(Codec.ISO8859).execute
+//    readFile(new File(f, "doc.txt"), Codec.ISO8859) should be (expected)
   }
   
 

@@ -521,3 +521,9 @@ case class DocumentTree (path:Path,
   def rewrite (rules: DocumentCursor => RewriteRules): DocumentTree = TreeCursor(this).rewriteTarget(rules)
 
 }
+
+case class DocumentTreeRoot (tree: DocumentTree) {
+  
+  val config: Config = tree.config
+  
+}

@@ -17,7 +17,7 @@
 package laika.api
 
 import laika.ast.DocumentType.Markup
-import laika.ast.{Document, DocumentTree, TextDocumentType}
+import laika.ast.{Document, DocumentTree, DocumentTreeRoot, TextDocumentType}
 import laika.config.{OperationConfig, ParseConfigBuilder}
 import laika.execute.ParseExecutor
 import laika.factory.MarkupParser
@@ -106,7 +106,7 @@ object Parse {
   }
   
   case class TreeOp (parsers: Seq[MarkupParser], config: OperationConfig, input: TreeInput, rewrite: Boolean) {
-    def execute: DocumentTree = ParseExecutor.execute(this)
+    def execute: DocumentTreeRoot = ParseExecutor.execute(this)
   }
   
   

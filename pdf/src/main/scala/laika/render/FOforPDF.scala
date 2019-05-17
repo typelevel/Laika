@@ -155,15 +155,15 @@ class FOforPDF (config: Option[PDF.Config]) {
    *  output. Preparation may include insertion of tree or document titles, PDF bookmarks
    *  and a table of content, depending on configuration.
    */
-  def prepareTree (tree: DocumentTree): DocumentTree = {
-    val pdfConfig = config getOrElse configFromTree(tree.config)
+  def prepareTree (root: DocumentTreeRoot): DocumentTreeRoot = {
+    val pdfConfig = config getOrElse configFromTree(root.config)
     val insertLinks = pdfConfig.bookmarkDepth > 0 || pdfConfig.tocDepth > 0
-    val withoutTemplates = tree.copy(templates = Seq(TemplateDocument(Path.Root / "default.template.fo",
+    val withoutTemplates = root.tree.copy(templates = Seq(TemplateDocument(Path.Root / "default.template.fo",
         TemplateRoot(List(TemplateContextReference("document.content"))))))
     val withDocTitles = if (insertLinks) addDocLinks(withoutTemplates) else withoutTemplates
     val withToc = if (pdfConfig.tocDepth > 0) insertToc(withDocTitles, pdfConfig.tocDepth, pdfConfig.tocTitle) else withDocTitles
-    if (insertLinks) addTreeLinks(withToc) else withToc
-    
+    val finalTree = if (insertLinks) addTreeLinks(withToc) else withToc
+    root.copy(tree = finalTree)
     // TODO - 0.12 - split this class into PDFNavigation, PDF.Config factory and FOConcatenation in render.pdf sub-package
   }
   

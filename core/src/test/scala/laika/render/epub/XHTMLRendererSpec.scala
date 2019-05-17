@@ -44,7 +44,7 @@ class XHTMLRendererSpec extends FlatSpec with Matchers with ModelBuilder {
         (result.content.collect { case doc: RenderedDocument => Seq(doc) } ++ 
           result.content.collect { case tree: RenderedTree => collectDocuments(tree) }).flatten
 
-      val res = Render.as(EPUB.XHTML).from(tree).toOutputTree(StringTreeOutput).execute
+      val res = Render.as(EPUB.XHTML).from(DocumentTreeRoot(tree)).toOutputTree(StringTreeOutput).execute
 
       collectDocuments(res.rootTree)
     }

@@ -56,7 +56,7 @@ object ParseExecutor {
     case class ConfigResult (path: Path, config: TConfig) extends ParserResult
   }
 
-  def execute (op: Parse.TreeOp): DocumentTree = {
+  def execute (op: Parse.TreeOp): DocumentTreeRoot = {
     
     import DocumentType._
     import interimModel._
@@ -119,8 +119,8 @@ object ParseExecutor {
     
     val tree = TreeBuilder.build(results, buildNode)
 
-    if (op.rewrite) tree.rewrite(op.config.rewriteRules)
-    else tree
+    if (op.rewrite) DocumentTreeRoot(tree.rewrite(op.config.rewriteRules))
+    else DocumentTreeRoot(tree)
   }
 
   private case class ParserLookup (parsers: Seq[MarkupParser], config: OperationConfig) {

@@ -16,7 +16,7 @@
 
 package laika.factory
 
-import laika.ast.DocumentTree
+import laika.ast.DocumentTreeRoot
 import laika.io.{BinaryOutput, RenderedTreeRoot}
 
 /** Post processor for the result output of a renderer.
@@ -39,7 +39,7 @@ trait RenderResultProcessor[FMT] {
     * The modified tree produced by this method will be used for
     * rendering the interim format specified with the `format` property.
     */
-  def prepareTree (tree: DocumentTree): DocumentTree
+  def prepareTree (tree: DocumentTreeRoot): DocumentTreeRoot
 
   /** Processes the interim render result and writes it to the specified final output.
    */

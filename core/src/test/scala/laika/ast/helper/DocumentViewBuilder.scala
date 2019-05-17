@@ -76,7 +76,8 @@ object DocumentViewBuilder {
   }
   
   case class Sections (content: Seq[SectionInfo]) extends DocumentContent with ElementContainer[SectionInfo, Sections]
-  
+
+  def viewOf (root: DocumentTreeRoot): TreeView = viewOf(root.tree)
   
   def viewOf (tree: DocumentTree): TreeView = {
     val content = (

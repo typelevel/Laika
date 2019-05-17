@@ -19,6 +19,7 @@ package laika.render
 import java.io.{BufferedInputStream, File, FileInputStream, InputStream}
 
 import laika.api.Render
+import laika.ast.DocumentTreeRoot
 import laika.format.PDF
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -60,7 +61,7 @@ class PDFRendererSpec extends FlatSpec with Matchers {
   }
   
   it should "render a tree to a file" ignore new TreeModel with FileSetup {
-    Render.as(PDF).from(tree).toFile(file).execute
+    Render.as(PDF).from(DocumentTreeRoot(tree)).toFile(file).execute
     readFile.read should not be (-1)
   }
   

@@ -96,7 +96,7 @@ abstract class Render[FMT] private (protected[api] val format: RenderFormat[FMT]
    *  @param tree the document tree to render
    *  @return a new BatchOperation instance that allows to specify the outputs
    */
-  def from (tree: DocumentTree): TreeOps
+  def from (tree: DocumentTreeRoot): TreeOps
 
 }
 
@@ -113,11 +113,11 @@ object Render {
     def execute: String = RenderExecutor.execute(this, None)
   }
 
-  case class TreeOp[FMT] (format: RenderFormat[FMT], config: OperationConfig, tree: DocumentTree, output: TreeOutput) {
+  case class TreeOp[FMT] (format: RenderFormat[FMT], config: OperationConfig, tree: DocumentTreeRoot, output: TreeOutput) {
     def execute: RenderedTreeRoot = RenderExecutor.execute(this)
   }
 
-  case class MergeOp[FMT] (processor: RenderResultProcessor[FMT], config: OperationConfig, tree: DocumentTree, output: BinaryOutput) {
+  case class MergeOp[FMT] (processor: RenderResultProcessor[FMT], config: OperationConfig, tree: DocumentTreeRoot, output: BinaryOutput) {
     def execute: Done = RenderExecutor.execute(this)
   }
   
@@ -144,7 +144,7 @@ object Render {
     
     def from (doc: Document): TextRenderOutputOps[FMT] = from(doc.content)
     
-    def from (tree: DocumentTree): RenderOutputTreeOps[FMT] = new RenderOutputTreeOps[FMT] {
+    def from (tree: DocumentTreeRoot): RenderOutputTreeOps[FMT] = new RenderOutputTreeOps[FMT] {
       def toOutputTree (out: TreeOutput) = TreeOp[FMT](format, cfg, tree, out)
     }
     
@@ -175,9 +175,9 @@ object Render {
       from(Document(Path.Root / "target", RootElement(Seq(TemplateRoot(Seq(TemplateElement(element)))))))
     
     def from (doc: Document): BinaryRenderOutputOps[FMT] =
-      from(DocumentTree(Path.Root, Seq(doc)))
+      from(DocumentTreeRoot(DocumentTree(Path.Root, Seq(doc))))
     
-    def from (tree: DocumentTree): BinaryRenderOutputOps[FMT] = new BinaryRenderOutputOps[FMT] {
+    def from (tree: DocumentTreeRoot): BinaryRenderOutputOps[FMT] = new BinaryRenderOutputOps[FMT] {
       def toBinaryOutput (out: BinaryOutput): Result = MergeOp[FMT](processor, cfg, tree, out)
     }
     

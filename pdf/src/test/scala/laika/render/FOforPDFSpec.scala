@@ -16,7 +16,7 @@
 
 package laika.render
 
-import laika.ast.{DocumentTree, Path}
+import laika.ast.{DocumentTree, DocumentTreeRoot, Path}
 import laika.execute.{InputExecutor, OutputExecutor}
 import laika.factory.RenderResultProcessor
 import laika.format.{PDF, XSLFO}
@@ -32,7 +32,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     
     private val foForPDF = new FOforPDF(config)
 
-    def prepareTree (tree: DocumentTree): DocumentTree = tree
+    def prepareTree (tree: DocumentTreeRoot): DocumentTreeRoot = tree
 
     def process (result: RenderedTreeRoot, output: BinaryOutput): Unit = {
     

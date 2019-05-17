@@ -20,6 +20,7 @@ import laika.api.Parse
 import laika.ast.helper.{InputBuilder, ModelBuilder}
 import laika.bundle.BundleProvider
 import laika.format.{Markdown, ReStructuredText}
+import laika.io.TreeInput
 import laika.rewrite.TemplateRewriter
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -48,7 +49,7 @@ class ConfigSpec extends FlatSpec
     val mdMatcher = Parse.as(Markdown).config.docTypeMatcher
     val rstMatcher = Parse.as(ReStructuredText).config.docTypeMatcher
       
-    def builder (source: String, docTypeMatcher: Path => DocumentType) = parseTreeStructure(source, docTypeMatcher)
+    def builder (source: String, docTypeMatcher: Path => DocumentType): TreeInput = parseTreeStructure(source, docTypeMatcher)
     
     lazy val contents = Map(
       "templateWithRef" -> templateWithRef,
@@ -57,8 +58,8 @@ class ConfigSpec extends FlatSpec
       "markupWithRef" -> markupWithRef
     )
     
-    def resultOf (tree: DocumentTree) = {
-      val result = TemplateRewriter.applyTemplates(tree, "html")
+    def resultOf (tree: DocumentTreeRoot): RootElement = {
+      val result = TemplateRewriter.applyTemplates(tree.tree, "html")
       result.content.collect{case doc: Document => doc}.head.content
     }
     
@@ -159,8 +160,8 @@ class ConfigSpec extends FlatSpec
         )
       )
       
-      val tree = Parse.as(Markdown).using(BundleProvider.forConfigString(config5)).fromTreeInput(builder(dirs, mdMatcher))
-      val result = TemplateRewriter.applyTemplates(tree.execute, "html")
+      val op = Parse.as(Markdown).using(BundleProvider.forConfigString(config5)).fromTreeInput(builder(dirs, mdMatcher))
+      val result = TemplateRewriter.applyTemplates(op.execute.tree, "html")
       result.selectDocument(Path.Current / "dir" / "input.md").get.content should be (expected)
     }
   }

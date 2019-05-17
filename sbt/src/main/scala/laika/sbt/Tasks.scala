@@ -72,7 +72,7 @@ object Tasks {
 
       val tree = parser.fromTreeInput(inputs).execute
 
-      Logs.systemMessages(streams.value.log, tree, laikaConfig.value.logMessageLevel)
+      Logs.systemMessages(streams.value.log, tree.tree, laikaConfig.value.logMessageLevel)
 
       tree
     }
@@ -87,7 +87,7 @@ object Tasks {
 
       Render.as(format).withConfig(parser.config).from(tree).toDirectory(targetDir)(laikaConfig.value.encoding)
 
-      streams.value.log.info(Logs.outputs(tree, formatDesc))
+      streams.value.log.info(Logs.outputs(tree.tree, formatDesc))
       streams.value.log.info(s"Generated $formatDesc in $targetDir")
 
       targetDir.allPaths.get.toSet.filter(_.isFile)

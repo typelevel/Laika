@@ -120,10 +120,10 @@ object RenderExecutor {
     }
 
     val templateName = "default.template." + op.format.fileSuffix // TODO - 0.12 - add to API: getDefaultTemplate(format) + withDefaultTemplate(format)
-    val (treeWithTpl, template) = op.tree.selectTemplate(Path.Current / templateName).fold(
-      (op.tree.copy(templates = op.tree.templates :+ TemplateDocument(Path.Root / templateName,
+    val (treeWithTpl, template) = op.tree.tree.selectTemplate(Path.Current / templateName).fold(
+      (op.tree.tree.copy(templates = op.tree.tree.templates :+ TemplateDocument(Path.Root / templateName,
         theme.defaultTemplateOrFallback)), theme.defaultTemplateOrFallback)
-    )(tpl => (op.tree, tpl.content))
+    )(tpl => (op.tree.tree, tpl.content))
     val treeWithTplApplied = TemplateRewriter.applyTemplates(treeWithTpl, op.format.fileSuffix)
     
     val finalTree = theme.staticDocuments.merge(treeWithTplApplied)

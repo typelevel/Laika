@@ -143,16 +143,16 @@ class ParseAPISpec extends FlatSpec
   
     def withTemplatesApplied (tree: DocumentTree): DocumentTree = TemplateRewriter.applyTemplates(tree, "html")
     
-    def parsedTree = viewOf(withTemplatesApplied(Parse.as(Markdown).fromTreeInput(builder(dirs)).execute))
+    def parsedTree = viewOf(withTemplatesApplied(Parse.as(Markdown).fromTreeInput(builder(dirs)).execute.tree))
     
     def rawParsedTree = viewOf(Parse.as(Markdown).withoutRewrite.fromTreeInput(builder(dirs)).execute)
 
     def rawMixedParsedTree = viewOf(Parse.as(Markdown).or(ReStructuredText).withoutRewrite.fromTreeInput(builder(dirs)).execute)
     
-    def parsedInParallel = viewOf(withTemplatesApplied(Parse.as(Markdown).inParallel.fromTreeInput(builder(dirs)).execute))
+    def parsedInParallel = viewOf(withTemplatesApplied(Parse.as(Markdown).inParallel.fromTreeInput(builder(dirs)).execute.tree))
 
     def parsedWith (bundle: ExtensionBundle) =
-      viewOf(withTemplatesApplied(Parse.as(Markdown).using(bundle).fromTreeInput(builder(dirs)).execute))
+      viewOf(withTemplatesApplied(Parse.as(Markdown).using(bundle).fromTreeInput(builder(dirs)).execute.tree))
       
     def parsedRawWith (bundle: ExtensionBundle = ExtensionBundle.Empty, customMatcher: PartialFunction[Path, DocumentType] = PartialFunction.empty) =
       viewOf(Parse.as(Markdown).withoutRewrite.using(bundle).fromTreeInput(parseTreeStructure(dirs, customMatcher.orElse({case path => docTypeMatcher(path)}))).execute)
@@ -379,7 +379,7 @@ class ParseAPISpec extends FlatSpec
         |- cherry.md:name
         |- directory.conf:order""".stripMargin
       val tree = Parse as Markdown fromTreeInput builder(dirs)
-      tree.execute.content map (_.path.name) should be (List("lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
+      tree.execute.tree.content map (_.path.name) should be (List("lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
     }
   }
 
@@ -396,8 +396,8 @@ class ParseAPISpec extends FlatSpec
                    |- cherry.md:name
                    |- directory.conf:order""".stripMargin
       val tree = Parse as Markdown fromTreeInput builder(dirs)
-      tree.execute.content map (_.path.name) should be (List("title.md","lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
-      tree.execute.content map (_.position) should be (List(
+      tree.execute.tree.content map (_.path.name) should be (List("title.md","lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
+      tree.execute.tree.content map (_.position) should be (List(
         TreePosition(Nil),
         TreePosition(Seq(1)),
         TreePosition(Seq(2)),

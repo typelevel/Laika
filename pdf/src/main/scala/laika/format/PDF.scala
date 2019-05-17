@@ -23,7 +23,7 @@ import java.util.Date
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.sax.SAXResult
 import javax.xml.transform.stream.StreamSource
-import laika.ast.{DocumentMetadata, DocumentTree, SpanSequence}
+import laika.ast.{DocumentMetadata, DocumentTree, DocumentTreeRoot, SpanSequence}
 import laika.execute.OutputExecutor
 import laika.factory.{RenderFormat, RenderResultProcessor}
 import laika.io.{BinaryOutput, RenderedTreeRoot}
@@ -71,7 +71,7 @@ class PDF private(val format: RenderFormat[FOFormatter], config: Option[PDF.Conf
   /** Adds PDF bookmarks and/or a table of content to the specified document tree, depending on configuration.
     * The modified tree will be used for rendering the interim XSL-FO result.
     */
-  def prepareTree (tree: DocumentTree): DocumentTree = foForPDF.prepareTree(tree)
+  def prepareTree (tree: DocumentTreeRoot): DocumentTreeRoot = foForPDF.prepareTree(tree)
 
   /** Processes the interim XSL-FO result, transforms it to PDF and writes
     * it to the specified final output.
