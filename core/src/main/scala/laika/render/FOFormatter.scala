@@ -22,10 +22,11 @@ import laika.factory.RenderContext
 /** API for renderers that produce XSL-FO output.
  * 
  * @param renderChild the function to use for rendering child elements
- * @param elementStack the stack of parent elements of this formatter in recursive rendering
- * @param path        the path of the document getting rendered, used for generating unique ids
+ * @param elementStack the stack of parent elements of this formatter in recursive rendering,
+ *                     with the root element being the last in the list
+ * @param path        the virtual path of the document getting rendered, used for generating unique ids
  * @param styles      the styles to apply when writing the attributes of an element
- * @param indentation the level of indentation for this formatter
+ * @param indentation the indentation mechanism for this formatter
  * @param messageLevel the minimum severity level for a system message to be rendered                     
  * 
  * @author Jens Halm
@@ -66,13 +67,20 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
     
     attributes(filterAttributes(tag, idAttr ++ combinedAttrs))
   }
-  
+
+  /** Obtains a Footnote with the specified reference name and, if it exists, 
+    * passes it to the provided render function.
+    */
   def withFootnote (ref: String)(f: Footnote => String): String = footnotes.get(ref).fold("")(f)
+
+  /** Obtains a Citation with the specified reference name and, if it exists, 
+    * passes it to the provided render function.
+    */
   def withCitation (ref: String)(f: Citation => String): String = citations.get(ref).fold("")(f)
 
 
-  /** Generates a unique id for the specified path of the target
-   *  document and the local reference.
+  /** Generates an id that is unique within the entire document tree for the 
+    * specified path of the target document and its local reference.
    */
   def buildId (path: Path, ref: String): String = {
     val treePath = if (path.parent == Path.Root) "" else path.parent.toString.replaceAllLiterally("/", "_")
@@ -80,22 +88,24 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
     docPath + "_" + ref
   }
 
-  /** Generates a local id for the specified id that is unique within
-    * the entire document tree.
+  /** Generates an id that is unique within the entire document tree for the 
+    * specified local reference.
     */
   def buildLocalId (ref: String): String = buildId(path, ref)
 
   /** Renders an FO `block` element, containing nested blocks.
+   *  The content will be rendered indented one level to the right.
    */
   def blockContainer (styleHint: Element, content: Seq[Block], attr: (String,String)*): String = 
     indentedElement("fo:block", styleHint, content, attr: _*)
 
   /** Renders an FO `list-block` element, and the specified list items.
+   *  The content will be rendered indented one level to the right.
    */
   def listBlock (styleHint: Element, content: Seq[ListItem], attr: (String,String)*): String =
     indentedElement("fo:list-block", styleHint, content, attr: _*)
 
-  /** Renders an FO `block` element and the specified nested spans.
+  /** Renders an FO `block` element and the specified nested spans on the same line.
    */
   def block (styleHint: Element, content: Seq[Span], attr: (String,String)*): String = 
     element("fo:block", styleHint, content, attr: _*)
@@ -111,7 +121,7 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
   def blockWithWS (styleHint: Element, content: Seq[Span], attr: (String,String)*): String = 
     withoutIndentation(_.element("fo:block", styleHint, content, attr: _*))
 
-  /** Renders an FO `inline` element and the specified nested spans.
+  /** Renders an FO `inline` element and the specified nested spans on the same line.
    */
   def inline (styleHint: Element, content: Seq[Span], attr: (String,String)*): String =
     element("fo:inline", styleHint, content, attr: _*)
@@ -121,7 +131,7 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
   def internalLink (styleHint: Element, target: String, content: Seq[Span], attr: (String,String)*): String =
     element("fo:basic-link", styleHint, content, attr :+ ("internal-destination" -> target): _*)
 
-  /** Renders an FO `block` or `inline` for this internal link
+  /** Renders an FO `block` or `inline` element for this internal link
    *  target, depending on whether it is inside a `BlockContainer`
    *  or `SpanContainer`.
    */
@@ -144,23 +154,24 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
                  "width" -> width.map(_.displayValue), "height" -> height.map(_.displayValue)):_*)
 
   /** Renders an FO `list-item` element with the specified label and body.
+   *  The content will be rendered indented one level to the right.
    */
   def listItem (styleHint: Element, label: Seq[Span], body: Seq[Block], attr: (String,String)*): String = {
     val content = List(ListItemLabel(Paragraph(label)), ListItemBody(body))
     indentedElement("fo:list-item", styleHint, content, attr: _*)
   }
 
-  /** Renders an FO `list-item-label` element.
+  /** Renders an FO `list-item-label` element, with the content indented one level to the right.
    */
   def listItemLabel (styleHint: Element, content: Block, attr: (String,String)*): String =
     indentedElement("fo:list-item-label", styleHint, Seq(content), attr :+ ("end-indent"->"label-end()"): _*)
 
-  /** Renders an FO `list-item-body` element.
+  /** Renders an FO `list-item-body` element, with the content indented one level to the right.
    */
   def listItemBody (styleHint: Element, content: Seq[Block], attr: (String,String)*): String =
     indentedElement("fo:list-item-body", styleHint, content, attr :+ ("start-indent"->"body-start()"): _*)
 
-  /** Renders an FO `footnote` element.
+  /** Renders an FO `footnote` element, with the body indented one level to the right.
    */
   def footnote (styleHint: Element, label: String, body: Seq[Block], options: Options): String = {
     val labelElement = Text(s"[$label]", Styles("footnote-label"))
@@ -172,7 +183,7 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
     indentedElement("fo:footnote", styleHint, content)
   }
 
-  def optRawElement (tagName: String, styleHint: Element, content: String, attrs: (String,String)*): String = {
+  private def optRawElement (tagName: String, styleHint: Element, content: String, attrs: (String,String)*): String = {
     val renderedAttrs = attributes(tagName, styleHint, attrs)
     if (renderedAttrs.nonEmpty) s"<$tagName$renderedAttrs>$content</$tagName>"
     else content
@@ -200,8 +211,8 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
     optRawElement("fo:block", styleHint, withoutIndentation(_.text(content)), attr: _*)
 
   /** Renders an FO `inline` element and the specified text, treating it as
-   *  "raw", pre-rendered XSL-FO output. Renders only the text itself in case there are no
-   *  attributes associated with the text.
+   *  "raw", pre-rendered XSL-FO output, so that no escaping of special character will be performed. 
+   *  Renders only the text itself in case there are no attributes associated with the text.
    */
   def rawText (styleHint: Element, content: String, attr: (String,String)*): String =
     optRawElement("fo:inline", styleHint, content, attr: _*)
@@ -261,7 +272,7 @@ object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
   }
 
   /** An entire bookmark tree and its nested bookmarks,
-    *  the top level element for FO bookmarks.
+    * the top level element for FO bookmarks.
     */
   case class BookmarkTree (bookmarks: Seq[Bookmark], options: Options = NoOpt) extends Block
 
@@ -273,6 +284,8 @@ object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
     */
   case class BookmarkTitle (content: String, options: Options = NoOpt) extends Block with TextContainer
 
+  /** Creates a new formatter instance based on the specified render context.
+    */
   def apply(context: RenderContext[FOFormatter]): FOFormatter =
     FOFormatter(context.renderChild, List(context.root), context.path, context.styles, context.indentation, context.config.minMessageLevel)
   

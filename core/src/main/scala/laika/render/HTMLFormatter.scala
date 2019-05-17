@@ -23,8 +23,9 @@ import laika.factory.RenderContext
 /** API for renderers that produce HTML output.
  * 
  * @param renderChild the function to use for rendering child elements
- * @param elementStack the stack of parent elements of this formatter in recursive rendering
- * @param indentation the level of indentation for this formatter
+ * @param elementStack the stack of parent elements of this formatter in recursive rendering, 
+ *                     with the root element being the last in the list
+ * @param indentation the indentation mechanism for this formatter
  * @param messageLevel the minimum severity level for a system message to be rendered  
  *                   
  *  @author Jens Halm
@@ -54,6 +55,8 @@ case class HTMLFormatter (renderChild: (HTMLFormatter, Element) => String,
  
 }
 
+/** Default factory for HTMLFormatters, based on a provided RenderContext.
+  */
 object HTMLFormatter extends (RenderContext[HTMLFormatter] => HTMLFormatter) {
   def apply (context: RenderContext[HTMLFormatter]): HTMLFormatter =
     HTMLFormatter(context.renderChild, List(context.root), context.indentation, context.config.minMessageLevel)
