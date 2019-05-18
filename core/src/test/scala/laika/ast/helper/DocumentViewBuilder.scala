@@ -47,7 +47,7 @@ object DocumentViewBuilder {
   
   case class Documents (docType: DocumentType, content: Seq[DocumentView]) extends TreeContent with ViewContainer[Documents]
 
-  case class TemplateDocuments (docType: DocumentType, content: Seq[TemplateView]) extends TreeContent with ViewContainer[TemplateDocuments]
+  case class TemplateDocuments (content: Seq[TemplateView]) extends TreeContent with ViewContainer[TemplateDocuments]
   
   case class StyleSheets (content: Map[String, StyleDeclarationSet]) extends TreeContent
                           
@@ -83,20 +83,11 @@ object DocumentViewBuilder {
     val content = (
       Documents(Markup, tree.content.collect{case doc: Document => doc} map viewOf) ::
       StyleSheets(tree.styles) ::
-      TemplateDocuments(Template, tree.templates map viewOf) ::
-      TemplateDocuments(Dynamic, tree.additionalContent.collect{case doc: TemplateDocument => doc} map viewOf) ::
-      Documents(Dynamic, tree.additionalContent.collect{case doc: DynamicDocument => doc} map viewOf) ::
+      TemplateDocuments(tree.templates map viewOf) ::
       Inputs(Static, staticDocuments map viewOf) ::
       Subtrees(tree.content.collect{case tree: DocumentTree => tree} map (t => viewOf(t))) :: 
       List[TreeContent]()) filterNot { case c: ViewContainer[_] => c.content.isEmpty; case StyleSheets(styles) => styles.isEmpty }
     TreeView(tree.path, content)
-  }
-  
-  def viewOf (doc: DynamicDocument): DocumentView = {
-    val content = (
-      Content(doc.content.content) :: 
-      List[DocumentContent]()) filterNot { case c: ElementContainer[_,_] => c.content.isEmpty }
-    DocumentView(doc.path, content)
   }
   
   def viewOf (doc: Document): DocumentView = {

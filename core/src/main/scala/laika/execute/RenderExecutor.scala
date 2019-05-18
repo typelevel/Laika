@@ -86,11 +86,6 @@ object RenderExecutor {
       () => RenderedDocument(outputPath(document.path), document.title, document.sections, execute(textOp, Some(styles)))
     }
 
-    def renderTemplate (document: DynamicDocument, styles: StyleDeclarationSet): Operation = {
-      val textOp = Render.Op(op.format, op.config, document.content, textOutputFor(document.path))
-      () => RenderedTemplate(outputPath(document.path), execute(textOp, Some(styles)))
-    }
-
     def copy (document: BinaryInput): Seq[Operation] = binaryOutputFor(document.path).map { out =>
       () => {
         IO.copy(document, out)
@@ -107,15 +102,11 @@ object RenderExecutor {
 
       val styles = parentStyles ++ docTree.styles(op.format.fileSuffix)
 
-      (docTree.content flatMap {
+      docTree.content flatMap {
         case doc: Document => Seq(renderDocument(doc, styles))
         case tree: DocumentTree if !isOutputRoot(tree) => collectOperations(styles, tree)
         case _ => Seq()
-      }) ++
-        (docTree.additionalContent flatMap {
-          case doc: DynamicDocument => Seq(renderTemplate(doc, styles))
-          case _ => Seq()
-        })
+      }
     }
 
     val templateName = "default.template." + op.format.fileSuffix // TODO - 0.12 - add to API: getDefaultTemplate(format) + withDefaultTemplate(format)

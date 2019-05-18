@@ -33,7 +33,6 @@ object DocumentTypeMatcher {
   }
 
   private val TemplateName = """.+\.template\.[^\.]+$""".r
-  private val DynamicName = """.+\.dynamic\.[^\.]+$""".r
   private val StylesheetName = """.+\.fo.css$""".r // stylesheets for HTML are treated as static documents
   private val ConfigName = "directory.conf"
 
@@ -46,7 +45,6 @@ object DocumentTypeMatcher {
     path.name match {
       case ConfigName       => Config
       case TemplateName()   => Template
-      case DynamicName()    => Dynamic
       case StylesheetName() => StyleSheet("fo")
       case _                => Static
     }

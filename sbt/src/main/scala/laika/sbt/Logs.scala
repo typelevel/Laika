@@ -16,7 +16,7 @@
 
 package laika.sbt
 
-import laika.ast.DocumentType.{Config, Dynamic, Markup, StyleSheet, Template}
+import laika.ast.DocumentType.{Config, Markup, StyleSheet, Template}
 import laika.ast._
 import laika.io.TreeInput
 import sbt.Logger
@@ -93,7 +93,7 @@ object Logs {
 
     def log (tree: DocumentTree): Unit = {
 
-      def logRoot (e: ElementTraversal, path: Path) = {
+      def logRoot (e: ElementTraversal, path: Path): Unit = {
         val nodes = e collect {
           case i: Invalid[_] if i.message.level >= level => i
         }
@@ -103,10 +103,6 @@ object Logs {
       tree.content foreach {
         case doc: Document => logRoot(doc.content, doc.path)
         case tree: DocumentTree => log(tree)
-      }
-      tree.additionalContent foreach {
-        case doc: DynamicDocument => logRoot(doc.content, doc.path)
-        case _ => ()
       }
     }
 

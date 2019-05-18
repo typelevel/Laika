@@ -85,22 +85,10 @@ sealed trait TreeContent extends Navigatable {
 }
 
 
-/** Content within the document tree that is
-  * neither titled nor positional. These are usually
-  * helper documents that do not show up in the main
-  * navigation for the document tree.
-  */
-sealed trait AdditionalContent extends Navigatable
-
-/** A dynamic document that has been obtained from a template
-  * not associated with any markup document.
-  */
-case class DynamicDocument (path: Path, content: RootElement) extends AdditionalContent
-
 /** A template document containing the element tree of a parsed template and its extracted
  *  configuration section (if present).
  */
-case class TemplateDocument (path: Path, content: TemplateRoot, config: Config = ConfigFactory.empty) extends AdditionalContent {
+case class TemplateDocument (path: Path, content: TemplateRoot, config: Config = ConfigFactory.empty) extends Navigatable {
 
   /** Applies this template to the specified document, replacing all
    *  span and block resolvers in the template with the final resolved element.
@@ -417,12 +405,6 @@ object DocumentType {
     */
   case object Template extends TextDocumentType
 
-  /** A dynamic document that might contain
-    *  custom directives that need to get
-    *  processed before rendering.
-    */
-  case object Dynamic extends TextDocumentType
-
   /** A style sheet that needs to get passed
     *  to a renderer.
     */
@@ -479,7 +461,6 @@ case class Document (path: Path,
  *  @param content the markup documents and subtrees
  *  @param templates all templates on this level of the tree hierarchy that might get applied to a document when it gets rendered
  *  @param styles the styles to apply when rendering this tree
- *  @param additionalContent all dynamic or static documents that are not part of the main navigatable content of the tree
  *  @param config the configuration associated with this tree
  *  @param position the position of this tree inside a document ast hierarchy, expressed as a list of Ints
  *  @param sourcePaths the paths this document tree has been built from or an empty list if this ast does not originate from the file system
@@ -488,12 +469,11 @@ case class DocumentTree (path:Path,
                          content: Seq[TreeContent],
                          templates: Seq[TemplateDocument] = Nil,
                          styles: Map[String,StyleDeclarationSet] = Map.empty.withDefaultValue(StyleDeclarationSet.empty),
-                         additionalContent: Seq[AdditionalContent] = Nil,
                          config: Config = ConfigFactory.empty,
                          position: TreePosition = TreePosition.root,
                          sourcePaths: Seq[String] = Nil) extends TreeStructure with TreeContent {
 
-  val targetTree = this
+  val targetTree: DocumentTree = this
 
   /** Returns a new tree, with all the document models contained in it
    *  rewritten based on the specified rewrite rules.

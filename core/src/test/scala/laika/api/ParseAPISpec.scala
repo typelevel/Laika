@@ -201,36 +201,8 @@ class ParseAPISpec extends FlatSpec
     new TreeParser {
       val dirs = """- main.template.html:name"""
       val template = TemplateView(Root / "main.template.html", TemplateRoot(List(TemplateString("foo"))))
-      val treeResult = TreeView(Root, List(TemplateDocuments(Template, List(template))))
+      val treeResult = TreeView(Root, List(TemplateDocuments(List(template))))
       rawParsedTree should be (treeResult)
-    }
-  }
-  
-  it should "allow parsing a tree with a dynamic document populated by a config file in the directory" in {
-    new TreeParser {
-      val dirs = """- main.dynamic.html:dynDoc
-        |- directory.conf:conf""".stripMargin
-      val dyn = DocumentView(Root / "main.html", List(Content(List(TemplateRoot(List(TemplateString("abc")))))))
-      val treeResult = TreeView(Root, List(Documents(Dynamic, List(dyn))))
-      parsedTree should be (treeResult)
-    }
-  }
-  
-  it should "allow parsing a tree with a dynamic document populated by a root config string" in {
-    new TreeParser {
-      val dirs = """- main.dynamic.html:dynDoc"""
-      val dyn = DocumentView(Root / "main.html", List(Content(List(TemplateRoot(List(TemplateString("def")))))))
-      val treeResult = TreeView(Root, List(Documents(Dynamic, List(dyn))))
-      parsedWith(BundleProvider.forConfigString("value: def")) should be (treeResult)
-    }
-  }
-  
-  it should "allow parsing and rewriting a tree with a dynamic document" in {
-    new TreeParser {
-      val dirs = """- main.dynamic.html:name"""
-      val dyn = DocumentView(Root / "main.html", List(Content(List(TemplateRoot(List(TemplateString("foo")))))))
-      val treeResult = TreeView(Root, List(Documents(Dynamic, List(dyn))))
-      parsedTree should be (treeResult)
     }
   }
   
@@ -257,20 +229,19 @@ class ParseAPISpec extends FlatSpec
         |  - omg.js:name
         |  - doc5.md:name
         |  - doc6.md:name""".stripMargin
-      def template (char: Char, path: Path) = TemplateView(path / (s"main$char.template.html"), TemplateRoot(List(TemplateString("foo"))))
+      def template (char: Char, path: Path) = TemplateView(path / s"main$char.template.html", TemplateRoot(List(TemplateString("foo"))))
       val dyn = TemplateView(Root / "dir2" / "main.dynamic.html", TemplateRoot(List(TemplateString("foo"))))
       val subtree1 = TreeView(Root / "dir1", List(
         Documents(Markup, List(docView(3, Root / "dir1"),docView(4, Root / "dir1"))),
-        TemplateDocuments(Template, List(template('B', Root / "dir1")))
+        TemplateDocuments(List(template('B', Root / "dir1")))
       ))
       val subtree2 = TreeView(Root / "dir2", List(
         Documents(Markup, List(docView(5, Root / "dir2"),docView(6, Root / "dir2"))),
-        TemplateDocuments(Dynamic, List(dyn)),
         Inputs(Static, List(InputView("omg.js")))
       ))
       val treeResult = TreeView(Root, List(
         Documents(Markup, List(customDocView("doc1.md", Seq(p(ExternalLink(Seq(txt("link")), "foo")))),customDocView("doc2.rst", Seq(p("[link](foo)"))))),
-        TemplateDocuments(Template, List(template('A', Root))),
+        TemplateDocuments(List(template('A', Root))),
         Subtrees(List(subtree1,subtree2))
       ))
       rawMixedParsedTree should be (treeResult)
@@ -293,7 +264,7 @@ class ParseAPISpec extends FlatSpec
       val dirs = """- main1.template.html:name
         |- main2.template.html:name""".stripMargin
       def template (num: Int) = TemplateView(Root / (s"main$num.template.html"), TemplateRoot(List(TemplateString("$$foo"))))
-      val treeResult = TreeView(Root, List(TemplateDocuments(Template, List(template(1),template(2)))))
+      val treeResult = TreeView(Root, List(TemplateDocuments(List(template(1),template(2)))))
       parsedRawWith(BundleProvider.forTemplateParser(parser)) should be (treeResult)
     }
   }
@@ -332,7 +303,7 @@ class ParseAPISpec extends FlatSpec
       val dirs = """- main1.template.html:directive
         |- main2.template.html:directive""".stripMargin
       def template (num: Int) = TemplateView(Root / (s"main$num.template.html"), tRoot(tt("aa "),tt("bar"),tt(" bb")))
-      val treeResult = TreeView(Root, List(TemplateDocuments(Template, List(template(1),template(2)))))
+      val treeResult = TreeView(Root, List(TemplateDocuments(List(template(1),template(2)))))
       parsedRawWith(BundleProvider.forTemplateDirective(directive)) should be (treeResult)
     }
   }

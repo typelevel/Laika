@@ -92,8 +92,7 @@ case class StaticDocuments (tree: DocumentTree) {
 
     def mergeTrees (left: DocumentTree, right: DocumentTree): DocumentTree = {
       right.copy(
-        content = mergeContent(left.content ++ right.content),
-        additionalContent = left.additionalContent ++ right.additionalContent
+        content = mergeContent(left.content ++ right.content)
       )
     }
 

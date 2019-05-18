@@ -48,7 +48,6 @@ object ParseExecutor {
       def path: Path = doc.path
     }
     case class MarkupResult (doc: Document) extends NavigatableResult
-    case class DynamicResult (doc: TemplateDocument) extends NavigatableResult
     case class TemplateResult (doc: TemplateDocument) extends NavigatableResult
     case class StyleResult (doc: StyleDeclarationSet, format: String) extends ParserResult {
       val path: Path = doc.paths.head
@@ -66,13 +65,12 @@ object ParseExecutor {
     
     def parseMarkup (input: TextInput): Operation = () => MarkupResult(IO(input)(ParserLookup(op.parsers, op.config).forInput(input)))
 
-    def parseTemplate (docType: DocumentType)(input: TextInput): Seq[Operation] = op.config.templateParser match {
+    def parseTemplate (input: TextInput): Seq[Operation] = op.config.templateParser match {
       case None => Seq()
       case Some(rootParser) =>
         val docParser: TextInput => TemplateDocument = input => 
           DocumentParser.forTemplate(rootParser, op.config.configHeaderParser)(InputExecutor.asParserInput(input))
-        val constr = if (docType == Template) TemplateResult else DynamicResult
-        Seq(() => constr(IO(input)(docParser)))
+        Seq(() => TemplateResult(IO(input)(docParser)))
     }
 
     def parseStyleSheet (format: String)(input: TextInput): Operation = () => {
@@ -93,8 +91,7 @@ object ParseExecutor {
 
     val textOps = inputs.textInputs.flatMap { in => in.docType match {
       case Markup             => Seq(parseMarkup(in))
-      case Template           => parseTemplate(Template)(in)
-      case Dynamic            => parseTemplate(Dynamic)(in)
+      case Template           => parseTemplate(in)
       case StyleSheet(format) => Seq(parseStyleSheet(format)(in))
       case Config             => Seq(parseTreeConfig(in))
     }}
@@ -104,7 +101,6 @@ object ParseExecutor {
     def buildNode (path: Path, content: Seq[ParserResult], subTrees: Seq[DocumentTree]): DocumentTree = {
       val treeContent = content.collect { case MarkupResult(doc) => doc } ++ subTrees.sortBy(_.path.name)
       val templates = content.collect { case TemplateResult(doc) => doc }
-      val dynamic = content.collect { case DynamicResult(doc) => doc }
       val styles = content.collect { case StyleResult(styleSet, format) => (format, styleSet) }
         .groupBy(_._1).mapValuesStrict(_.map(_._2).reduce(_ ++ _)).withDefaultValue(StyleDeclarationSet.empty)
       
@@ -112,7 +108,7 @@ object ParseExecutor {
       val rootConfig = if (path == Root) Seq(op.config.baseConfig) else Nil
       val fullConfig = (treeConfig.toList ++ rootConfig) reduceLeftOption (_ withFallback _) getOrElse ConfigFactory.empty
 
-      DocumentTree(path, treeContent, templates, styles, dynamic, fullConfig, sourcePaths = op.input.sourcePaths)
+      DocumentTree(path, treeContent, templates, styles, fullConfig, sourcePaths = op.input.sourcePaths)
     }
     
     val tree = TreeBuilder.build(results, buildNode)

@@ -91,7 +91,6 @@ class RenderAPISpec extends FlatSpec
   
   trait DocBuilder {
     def markupDoc (num: Int, path: Path = Root)  = Document(path / ("doc"+num), root(p("Doc"+num)))
-    def dynamicDoc (num: Int, path: Path = Root) = DynamicDocument(path / ("doc"+num), root(TemplateRoot(List(TemplateString("Doc"+num)))))
     
     //def staticDoc (num: Int, path: Path = Root) = StaticDocument(ByteInput("Static"+num, path / s"static$num.txt"))
     
@@ -310,13 +309,6 @@ class RenderAPISpec extends FlatSpec
               Documents(List(RenderedDocument(Root / "tree" / "subdoc.fo", expectedSub)))
           ))))
       )))
-    }
-  }
-
-  it should "render a tree with a single dynamic document" ignore {
-    new ASTRenderer with DocBuilder {
-      val input = DocumentTree(Root, Nil, additionalContent = List(dynamicDoc(1)))
-      renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc1.txt", renderedDynDoc(1)))))))
     }
   }
 

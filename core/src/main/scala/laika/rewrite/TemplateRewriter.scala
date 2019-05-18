@@ -42,18 +42,9 @@ trait TemplateRewriter {
       case tree: TreeCursor => applyTemplates(tree, format)
     }
       
-    val newAdditionalContent = cursor.target.additionalContent map {
-      case doc: TemplateDocument if doc.name.endsWith("."+format) => 
-        val dynCursor = DocumentCursor.forEmptyDocument(doc.path.name.replace(".dynamic.", "."), cursor)
-        val rewrittenDoc = applyTemplate(dynCursor, doc)
-        DynamicDocument(rewrittenDoc.path, rewrittenDoc.content)
-      case other => other
-    }
-    
     cursor.target.copy(
       content = newContent,
-      templates = Nil,
-      additionalContent = newAdditionalContent
+      templates = Nil
     )
       
   }
