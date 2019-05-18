@@ -108,19 +108,17 @@ object ParseExecutor {
       val styles = content.collect { case StyleResult(styleSet, format) => (format, styleSet) }
         .groupBy(_._1).mapValuesStrict(_.map(_._2).reduce(_ ++ _)).withDefaultValue(StyleDeclarationSet.empty)
       
-      val static = inputs.binaryInputs.filter(_.path.parent == path).map(StaticDocument)
-
       val treeConfig = content.collect { case ConfigResult(_, config) => config }
       val rootConfig = if (path == Root) Seq(op.config.baseConfig) else Nil
       val fullConfig = (treeConfig.toList ++ rootConfig) reduceLeftOption (_ withFallback _) getOrElse ConfigFactory.empty
 
-      DocumentTree(path, treeContent, templates, styles, dynamic ++ static, fullConfig, sourcePaths = op.input.sourcePaths)
+      DocumentTree(path, treeContent, templates, styles, dynamic, fullConfig, sourcePaths = op.input.sourcePaths)
     }
     
     val tree = TreeBuilder.build(results, buildNode)
 
-    if (op.rewrite) DocumentTreeRoot(tree.rewrite(op.config.rewriteRules))
-    else DocumentTreeRoot(tree)
+    if (op.rewrite) DocumentTreeRoot(tree.rewrite(op.config.rewriteRules), inputs.binaryInputs)
+    else DocumentTreeRoot(tree, inputs.binaryInputs)
   }
 
   private case class ParserLookup (parsers: Seq[MarkupParser], config: OperationConfig) {

@@ -107,9 +107,9 @@ object EPUB extends RenderResultProcessor[HTMLFormatter] {
     */
   def prepareTree (tree: DocumentTreeRoot): DocumentTreeRoot = {
     val treeConfig = ConfigFactory.forTreeConfig(tree.config)
-    val treeWithStyles = StyleSupport.ensureContainsStyles(tree.tree) // TODO - 0.12 - could this move to the process step?
+    val treeWithStyles = StyleSupport.ensureContainsStyles(tree) // TODO - 0.12 - could this move to the process step?
     treeConfig.coverImage.fold(tree) { image =>
-      tree.copy(tree = treeWithStyles.copy(
+      treeWithStyles.copy(tree = treeWithStyles.tree.copy(
         content = Document(Root / "cover", 
           RootElement(Seq(SpanSequence(Seq(Image("cover", URI(image)))))), 
         config = com.typesafe.config.ConfigFactory.parseString("title: Cover")) +: tree.tree.content

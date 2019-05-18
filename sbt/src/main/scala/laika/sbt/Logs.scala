@@ -50,26 +50,20 @@ object Logs {
     * the number and types of documents processed for the specified
     * output tree.
     */
-  def outputs (tree: DocumentTree, format: String): String = {
+  def outputs (root: DocumentTreeRoot, format: String): String = {
 
-    def count (tree: DocumentTree): (Int, Int) = {
+    def count (tree: DocumentTree): Int = {
 
-      val (render, copy) = tree.content.foldLeft((0,0)) {
-        case ((render, copy), _: Document) => (render + 1, copy)
-        case ((render, copy), tree: DocumentTree) =>
-          val (childRender, childCopy) = count(tree)
-          (render + childRender, copy + childCopy)
-      }
-
-      tree.additionalContent.foldLeft((render, copy)) {
-        case ((render, copy), _: DynamicDocument) => (render + 1, copy)
-        case ((render, copy), _: StaticDocument) => (render, copy + 1)
-        case _ => (render, copy)
+      tree.content.foldLeft(0) {
+        case (cnt, _: Document) => cnt + 1
+        case (cnt, tree: DocumentTree) =>
+         cnt + count(tree)
       }
 
     }
 
-    val (render, copy) = count(tree)
+    val render = count(root.tree)
+    val copy = root.staticDocuments.size
 
     s"Rendering $render $format document${s(render)}, copying $copy static file${s(copy)} ..."
   }

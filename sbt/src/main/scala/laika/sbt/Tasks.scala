@@ -87,7 +87,7 @@ object Tasks {
 
       Render.as(format).withConfig(parser.config).from(tree).toDirectory(targetDir)(laikaConfig.value.encoding)
 
-      streams.value.log.info(Logs.outputs(tree.tree, formatDesc))
+      streams.value.log.info(Logs.outputs(tree, formatDesc))
       streams.value.log.info(s"Generated $formatDesc in $targetDir")
 
       targetDir.allPaths.get.toSet.filter(_.isFile)

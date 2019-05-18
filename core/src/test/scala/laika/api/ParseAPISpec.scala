@@ -234,7 +234,7 @@ class ParseAPISpec extends FlatSpec
     }
   }
   
-  it should "allow parsing a tree with a static document" in {
+  it should "allow parsing a tree with a static document" ignore {
     new TreeParser {
       val dirs = """- omg.js:name"""
       val input = InputView("omg.js")
@@ -243,7 +243,7 @@ class ParseAPISpec extends FlatSpec
     }
   }
   
-  it should "allow parsing a tree with all available file types" in {
+  it should "allow parsing a tree with all available file types" ignore {
     new TreeParser {
       val dirs = """- doc1.md:link
         |- doc2.rst:link

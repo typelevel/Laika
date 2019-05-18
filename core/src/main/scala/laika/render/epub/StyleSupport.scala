@@ -31,7 +31,7 @@ import laika.parse.text.TextParsers.unsafeParserFunction
   */
 object StyleSupport {
 
-  private val fallbackStyles = StaticDocument(ByteInput(StaticContent.fallbackStyles.getBytes(Charset.forName("UTF-8")), Path.Root / "styles" / "fallback.css"))
+  private val fallbackStyles = ByteInput(StaticContent.fallbackStyles.getBytes(Charset.forName("UTF-8")), Path.Root / "styles" / "fallback.css")
 
   /** Collects all CSS inputs (recursively) in the provided document tree.
     * CSS inputs are recognized by file suffix).
@@ -41,21 +41,18 @@ object StyleSupport {
     children ++ tree.content.collect { case CopiedDocument(input) if input.path.suffix == "css" => input }
   }
 
-  def collectStyles (tree: DocumentTree): Seq[BinaryInput] = {
-    val children = tree.content.collect { case subTree: DocumentTree => subTree }.flatMap(collectStyles)
-    children ++ tree.additionalContent.collect { case StaticDocument(input) if input.path.suffix == "css" => input }
-  }
+  def collectStyles (root: DocumentTreeRoot): Seq[BinaryInput] = root.staticDocuments.filter(_.path.suffix == "css")
 
   /** Verifies that the specified document tree contains at least one CSS file
     * (determined by file suffix). If this is the case the tree is returned unchanged,
     * otherwise a new tree with a minimal fallback CSS inserted into the root is returned instead.
     */
-  def ensureContainsStyles (tree: DocumentTree): DocumentTree = {
+  def ensureContainsStyles (root: DocumentTreeRoot): DocumentTreeRoot = {
 
-    val allStyles = collectStyles(tree)
+    val allStyles = collectStyles(root)
 
-    if (allStyles.isEmpty) tree.copy(additionalContent = tree.additionalContent :+ fallbackStyles)
-    else tree
+    if (allStyles.isEmpty) root.copy(staticDocuments = root.staticDocuments :+ fallbackStyles)
+    else root
   }
 
   /** Template directive that inserts links to all CSS inputs found in the document tree, using a path
@@ -66,7 +63,7 @@ object StyleSupport {
 
     cursor.map { docCursor =>
       val refPath = docCursor.parent.target.path
-      val allLinks = collectStyles(docCursor.root.target).map { input =>
+      val allLinks = collectStyles(/*docCursor.root.target*/null: DocumentTreeRoot).map { input => // TODO - 0.12 - resurrect directive
         val path = input.path.relativeTo(refPath).toString
         s"""<link rel="stylesheet" type="text/css" href="$path" />"""
       }

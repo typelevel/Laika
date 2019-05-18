@@ -91,10 +91,10 @@ object RenderExecutor {
       () => RenderedTemplate(outputPath(document.path), execute(textOp, Some(styles)))
     }
 
-    def copy (document: StaticDocument): Seq[Operation] = binaryOutputFor(document.path).map { out =>
+    def copy (document: BinaryInput): Seq[Operation] = binaryOutputFor(document.path).map { out =>
       () => {
-        IO.copy(document.input, out)
-        CopiedDocument(document.input)
+        IO.copy(document, out)
+        CopiedDocument(document)
       }
     }
 
@@ -114,7 +114,6 @@ object RenderExecutor {
       }) ++
         (docTree.additionalContent flatMap {
           case doc: DynamicDocument => Seq(renderTemplate(doc, styles))
-          case static: StaticDocument => copy(static)
           case _ => Seq()
         })
     }
@@ -127,7 +126,7 @@ object RenderExecutor {
     val treeWithTplApplied = TemplateRewriter.applyTemplates(treeWithTpl, op.format.fileSuffix)
     
     val finalTree = theme.staticDocuments.merge(treeWithTplApplied)
-    val operations = collectOperations(theme.defaultStyles, finalTree)
+    val operations = collectOperations(theme.defaultStyles, finalTree) ++ op.tree.staticDocuments.flatMap(copy)
 
     val results = BatchExecutor.execute(operations, op.config.parallelConfig.parallelism, op.config.parallelConfig.threshold)
     

@@ -196,21 +196,21 @@ class ThemeConfigSpec extends WordSpec with Matchers {
 
   }
 
-  "The configuration for static content" should {
-
-    "merge static content defined in a default theme with static content defined in an app extension" in new BundleSetup {
-      val docA = StaticDocument(ByteInput("a", Path.Root / "a"))
-      val docB = StaticDocument(ByteInput("b", Path.Root / "b"))
-      override lazy val staticDocuments = StaticDocuments(DocumentTree(Path.Root, Nil, additionalContent = Seq(docA)))
-      val moreDocuments = StaticDocuments(DocumentTree(Path.Root, Nil, additionalContent = Seq(docB)))
-      val appBundles = Seq(BundleProvider.forTheme(TestFormat.Theme(staticDocuments = moreDocuments)))
-
-      val mergedStaticDocuments = config.themeFor(TestFormat).staticDocuments
-
-      mergedStaticDocuments shouldBe StaticDocuments(DocumentTree(Path.Root, Nil, additionalContent = Seq(docB, docA)))
-    }
-
-  }
+//  "The configuration for static content" should {
+//
+//    "merge static content defined in a default theme with static content defined in an app extension" in new BundleSetup {
+//      val docA = StaticDocument(ByteInput("a", Path.Root / "a"))
+//      val docB = StaticDocument(ByteInput("b", Path.Root / "b"))
+//      override lazy val staticDocuments = StaticDocuments(DocumentTree(Path.Root, Nil, additionalContent = Seq(docA)))
+//      val moreDocuments = StaticDocuments(DocumentTree(Path.Root, Nil, additionalContent = Seq(docB)))
+//      val appBundles = Seq(BundleProvider.forTheme(TestFormat.Theme(staticDocuments = moreDocuments)))
+//
+//      val mergedStaticDocuments = config.themeFor(TestFormat).staticDocuments
+//
+//      mergedStaticDocuments shouldBe StaticDocuments(DocumentTree(Path.Root, Nil, additionalContent = Seq(docB, docA)))
+//    }
+//
+//  }
 
 
 }

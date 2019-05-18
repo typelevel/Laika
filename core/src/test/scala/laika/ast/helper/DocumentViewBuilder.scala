@@ -18,7 +18,7 @@ package laika.ast.helper
 
 import laika.ast._
 import laika.ast.DocumentType._
-import laika.io.Input
+import laika.io.{BinaryInput, Input}
 import laika.rst.ast.CustomizedTextRole
 
 /* Provides a view of DocumentTree structures that allows for 
@@ -77,17 +77,17 @@ object DocumentViewBuilder {
   
   case class Sections (content: Seq[SectionInfo]) extends DocumentContent with ElementContainer[SectionInfo, Sections]
 
-  def viewOf (root: DocumentTreeRoot): TreeView = viewOf(root.tree)
+  def viewOf (root: DocumentTreeRoot): TreeView = viewOf(root.tree, root.staticDocuments)
   
-  def viewOf (tree: DocumentTree): TreeView = {
+  def viewOf (tree: DocumentTree, staticDocuments: Seq[BinaryInput] = Nil): TreeView = {
     val content = (
       Documents(Markup, tree.content.collect{case doc: Document => doc} map viewOf) ::
       StyleSheets(tree.styles) ::
       TemplateDocuments(Template, tree.templates map viewOf) ::
       TemplateDocuments(Dynamic, tree.additionalContent.collect{case doc: TemplateDocument => doc} map viewOf) ::
       Documents(Dynamic, tree.additionalContent.collect{case doc: DynamicDocument => doc} map viewOf) ::
-      Inputs(Static, tree.additionalContent.collect{case doc: StaticDocument => doc.input} map viewOf) ::
-      Subtrees(tree.content.collect{case tree: DocumentTree => tree} map viewOf) :: 
+      Inputs(Static, staticDocuments map viewOf) ::
+      Subtrees(tree.content.collect{case tree: DocumentTree => tree} map (t => viewOf(t))) :: 
       List[TreeContent]()) filterNot { case c: ViewContainer[_] => c.content.isEmpty; case StyleSheets(styles) => styles.isEmpty }
     TreeView(tree.path, content)
   }

@@ -92,13 +92,6 @@ sealed trait TreeContent extends Navigatable {
   */
 sealed trait AdditionalContent extends Navigatable
 
-/** A static document that might get copied to the
-  * target document tree as is.
-  */
-case class StaticDocument (input: BinaryInput) extends AdditionalContent {
-  val path: Path = input.path
-}
-
 /** A dynamic document that has been obtained from a template
   * not associated with any markup document.
   */
@@ -522,7 +515,7 @@ case class DocumentTree (path:Path,
 
 }
 
-case class DocumentTreeRoot (tree: DocumentTree) {
+case class DocumentTreeRoot (tree: DocumentTree, staticDocuments: Seq[BinaryInput] = Nil) {
   
   val config: Config = tree.config
   
