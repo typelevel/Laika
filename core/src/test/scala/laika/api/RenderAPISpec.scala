@@ -105,12 +105,15 @@ class RenderAPISpec extends FlatSpec
   }
   
   trait TreeRenderer[FMT] {
+    
+    def treeRoot: DocumentTreeRoot = DocumentTreeRoot(input)
+    
     def input: DocumentTree
     
     def render: RenderMappedOutput[FMT]
     
     def renderedTree: RenderedTree = OutputBuilder.RenderedTree.toTreeView(render
-      .from(DocumentTreeRoot(input))
+      .from(treeRoot)
       .toOutputTree(StringTreeOutput)
       .execute.rootTree
     )
@@ -141,7 +144,7 @@ class RenderAPISpec extends FlatSpec
   }
 
   trait FORenderer extends TreeRenderer[FOFormatter] {
-    val foStyles = Map("fo" -> StyleDeclarationSet(Root / "styles.fo.css", StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> "11pt")))
+    def foStyles (path: Path = Root) = Map("fo" -> StyleDeclarationSet(path / "styles.fo.css", StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> "11pt")))
     val rootElem = root(self.title("Title"), p("bbb"))
     val subElem = root(self.title("Sub Title"), p("ccc"))
 
@@ -250,7 +253,7 @@ class RenderAPISpec extends FlatSpec
 
   it should "render a tree with two documents to XSL-FO using a custom style sheet in an extension bundle" in {
     new FORenderer {
-      override val render = Render as XSLFO using BundleProvider.forTheme(XSLFO.Theme(defaultStyles = foStyles("fo")))
+      override val render = Render as XSLFO using BundleProvider.forTheme(XSLFO.Theme(defaultStyles = foStyles()("fo")))
       val input = DocumentTree(Root, List(
         Document(Root / "doc", rootElem),
         DocumentTree(Root / "tree", List(Document(Root / "tree" / "subdoc", subElem)))
@@ -270,36 +273,16 @@ class RenderAPISpec extends FlatSpec
     }
   }
 
-  it should "render a tree with two documents to XSL-FO using a custom style sheet in the root directory" in {
+  it should "render a tree with two documents to XSL-FO using a custom style sheet" in {
     new FORenderer {
       val input = DocumentTree(Root, List(
         Document(Root / "doc", rootElem),
         DocumentTree(Root / "tree", List(Document(Root / "tree" / "subdoc", subElem)))
-      ), styles = foStyles)
+      ))
+      override val treeRoot = DocumentTreeRoot(input, styles = foStyles(Root / "sub"))
       val expectedRoot = RenderResult.fo.withDefaultTemplate(s"""${marker("Title")}
         |      ${title("_doc_title", "Title")}
         |      <fo:block font-family="serif" font-size="11pt" space-after="3mm">bbb</fo:block>""".stripMargin)
-      val expectedSub = RenderResult.fo.withDefaultTemplate(s"""${marker("Sub Title")}
-        |      ${title("_tree_subdoc_sub-title", "Sub Title")}
-        |      <fo:block font-family="serif" font-size="11pt" space-after="3mm">ccc</fo:block>""".stripMargin)
-      renderedTree should be (RenderedTree(Root, List(
-          Documents(List(RenderedDocument(Root / "doc.fo", expectedRoot))),
-          Subtrees(List(RenderedTree(Root / "tree", List(
-              Documents(List(RenderedDocument(Root / "tree" / "subdoc.fo", expectedSub)))
-          ))))
-      )))
-    }
-  }
-
-  it should "render a tree with two documents to XSL-FO using a custom style sheet in the sub directory" in {
-    new FORenderer {
-      val input = DocumentTree(Root, List(
-        Document(Root / "doc", rootElem),
-        DocumentTree(Root / "tree", List(Document(Root / "tree" / "subdoc", subElem)), styles = foStyles)
-      ))
-      val expectedRoot = RenderResult.fo.withDefaultTemplate(s"""${marker("Title")}
-        |      ${title("_doc_title", "Title")}
-        |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">bbb</fo:block>""".stripMargin)
       val expectedSub = RenderResult.fo.withDefaultTemplate(s"""${marker("Sub Title")}
         |      ${title("_tree_subdoc_sub-title", "Sub Title")}
         |      <fo:block font-family="serif" font-size="11pt" space-after="3mm">ccc</fo:block>""".stripMargin)

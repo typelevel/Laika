@@ -460,7 +460,6 @@ case class Document (path: Path,
  *  @param path the full, absolute path of this (virtual) document tree
  *  @param content the markup documents and subtrees
  *  @param templates all templates on this level of the tree hierarchy that might get applied to a document when it gets rendered
- *  @param styles the styles to apply when rendering this tree
  *  @param config the configuration associated with this tree
  *  @param position the position of this tree inside a document ast hierarchy, expressed as a list of Ints
  *  @param sourcePaths the paths this document tree has been built from or an empty list if this ast does not originate from the file system
@@ -468,7 +467,6 @@ case class Document (path: Path,
 case class DocumentTree (path:Path,
                          content: Seq[TreeContent],
                          templates: Seq[TemplateDocument] = Nil,
-                         styles: Map[String,StyleDeclarationSet] = Map.empty.withDefaultValue(StyleDeclarationSet.empty),
                          config: Config = ConfigFactory.empty,
                          position: TreePosition = TreePosition.root,
                          sourcePaths: Seq[String] = Nil) extends TreeStructure with TreeContent {
@@ -495,7 +493,15 @@ case class DocumentTree (path:Path,
 
 }
 
-case class DocumentTreeRoot (tree: DocumentTree, staticDocuments: Seq[BinaryInput] = Nil) {
+/**
+  * 
+  * @param tree
+  * @param styles the styles to apply when rendering this tree
+  * @param staticDocuments
+  */
+case class DocumentTreeRoot (tree: DocumentTree, 
+                             styles: Map[String,StyleDeclarationSet] = Map.empty.withDefaultValue(StyleDeclarationSet.empty), 
+                             staticDocuments: Seq[BinaryInput] = Nil) {
   
   val config: Config = tree.config
   

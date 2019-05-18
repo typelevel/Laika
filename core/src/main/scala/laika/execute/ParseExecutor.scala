@@ -101,20 +101,21 @@ object ParseExecutor {
     def buildNode (path: Path, content: Seq[ParserResult], subTrees: Seq[DocumentTree]): DocumentTree = {
       val treeContent = content.collect { case MarkupResult(doc) => doc } ++ subTrees.sortBy(_.path.name)
       val templates = content.collect { case TemplateResult(doc) => doc }
-      val styles = content.collect { case StyleResult(styleSet, format) => (format, styleSet) }
-        .groupBy(_._1).mapValuesStrict(_.map(_._2).reduce(_ ++ _)).withDefaultValue(StyleDeclarationSet.empty)
       
       val treeConfig = content.collect { case ConfigResult(_, config) => config }
       val rootConfig = if (path == Root) Seq(op.config.baseConfig) else Nil
       val fullConfig = (treeConfig.toList ++ rootConfig) reduceLeftOption (_ withFallback _) getOrElse ConfigFactory.empty
 
-      DocumentTree(path, treeContent, templates, styles, fullConfig, sourcePaths = op.input.sourcePaths)
+      DocumentTree(path, treeContent, templates, fullConfig, sourcePaths = op.input.sourcePaths)
     }
     
     val tree = TreeBuilder.build(results, buildNode)
 
-    if (op.rewrite) DocumentTreeRoot(tree.rewrite(op.config.rewriteRules), inputs.binaryInputs)
-    else DocumentTreeRoot(tree, inputs.binaryInputs)
+    val styles = results.collect { case StyleResult(styleSet, format) => (format, styleSet) }
+      .groupBy(_._1).mapValuesStrict(_.map(_._2).reduce(_ ++ _)).withDefaultValue(StyleDeclarationSet.empty)
+
+    if (op.rewrite) DocumentTreeRoot(tree.rewrite(op.config.rewriteRules), styles, inputs.binaryInputs)
+    else DocumentTreeRoot(tree, styles, inputs.binaryInputs)
   }
 
   private case class ParserLookup (parsers: Seq[MarkupParser], config: OperationConfig) {

@@ -48,12 +48,7 @@ object RenderExecutor {
     
     val result = renderFunction(fmt, op.element)
 
-    op.output match {
-      case StringOutput(builder, _) => result
-      case _ => result
-    }
-    
-    // result // TODO - 0.12 - deal with different types of Output
+    result // TODO - 0.12 - deal with different types of Output
   }
   
   def execute[FMT] (op: Render.MergeOp[FMT]): Done = {
@@ -69,6 +64,7 @@ object RenderExecutor {
     type Operation = () => RenderContent
 
     val theme = op.config.themeFor(op.format)
+    val styles = theme.defaultStyles ++ op.tree.styles(op.format.fileSuffix)
     
     def outputPath (path: Path): Path = path.withSuffix(op.format.fileSuffix)
     
@@ -81,7 +77,7 @@ object RenderExecutor {
       case DirectoryOutput(dir, codec) => Seq(BinaryFileOutput(new File(dir, path.toString.drop(1)), path))
     }
 
-    def renderDocument (document: Document, styles: StyleDeclarationSet): Operation = {
+    def renderDocument (document: Document): Operation = {
       val textOp = Render.Op(op.format, op.config, document.content, textOutputFor(document.path))
       () => RenderedDocument(outputPath(document.path), document.title, document.sections, execute(textOp, Some(styles)))
     }
@@ -93,18 +89,16 @@ object RenderExecutor {
       }
     }
 
-    def collectOperations (parentStyles: StyleDeclarationSet, docTree: DocumentTree): Seq[Operation] = {
+    def collectOperations (docTree: DocumentTree): Seq[Operation] = {
 
       def isOutputRoot (source: DocumentTree) = (source.sourcePaths.headOption, op.output) match {
         case (Some(inPath), out: DirectoryOutput) => inPath == out.directory.getAbsolutePath
         case _ => false
       }
 
-      val styles = parentStyles ++ docTree.styles(op.format.fileSuffix)
-
       docTree.content flatMap {
-        case doc: Document => Seq(renderDocument(doc, styles))
-        case tree: DocumentTree if !isOutputRoot(tree) => collectOperations(styles, tree)
+        case doc: Document => Seq(renderDocument(doc))
+        case tree: DocumentTree if !isOutputRoot(tree) => collectOperations(tree)
         case _ => Seq()
       }
     }
@@ -117,7 +111,7 @@ object RenderExecutor {
     val treeWithTplApplied = TemplateRewriter.applyTemplates(treeWithTpl, op.format.fileSuffix)
     
     val finalTree = theme.staticDocuments.merge(treeWithTplApplied)
-    val operations = collectOperations(theme.defaultStyles, finalTree) ++ op.tree.staticDocuments.flatMap(copy)
+    val operations = collectOperations(finalTree) ++ op.tree.staticDocuments.flatMap(copy)
 
     val results = BatchExecutor.execute(operations, op.config.parallelConfig.parallelism, op.config.parallelConfig.threshold)
     

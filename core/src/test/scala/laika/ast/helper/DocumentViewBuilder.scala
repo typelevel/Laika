@@ -77,12 +77,12 @@ object DocumentViewBuilder {
   
   case class Sections (content: Seq[SectionInfo]) extends DocumentContent with ElementContainer[SectionInfo, Sections]
 
-  def viewOf (root: DocumentTreeRoot): TreeView = viewOf(root.tree, root.staticDocuments)
+  def viewOf (root: DocumentTreeRoot): TreeView = viewOf(root.tree, root.staticDocuments, root.styles)
   
-  def viewOf (tree: DocumentTree, staticDocuments: Seq[BinaryInput] = Nil): TreeView = {
+  def viewOf (tree: DocumentTree, staticDocuments: Seq[BinaryInput] = Nil, styles: Map[String, StyleDeclarationSet] = Map.empty): TreeView = {
     val content = (
       Documents(Markup, tree.content.collect{case doc: Document => doc} map viewOf) ::
-      StyleSheets(tree.styles) ::
+      StyleSheets(styles) ::
       TemplateDocuments(tree.templates map viewOf) ::
       Inputs(Static, staticDocuments map viewOf) ::
       Subtrees(tree.content.collect{case tree: DocumentTree => tree} map (t => viewOf(t))) :: 
