@@ -118,7 +118,7 @@ object ParseExecutor {
     
     val finalTree = if (op.rewrite) tree.rewrite(op.config.rewriteRules) else tree
 
-    DocumentTreeRoot(finalTree, styles, inputs.binaryInputs, op.input.sourcePaths)
+    DocumentTreeRoot(finalTree, None, styles, inputs.binaryInputs, op.input.sourcePaths)
   }
 
   private case class ParserLookup (parsers: Seq[MarkupParser], config: OperationConfig) {

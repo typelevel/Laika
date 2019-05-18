@@ -484,11 +484,13 @@ case class DocumentTree (path: Path,
 /**
   * 
   * @param tree
+  * @param coverDocument the cover document (usually used with e-book formats like EPUB and PDF)            
   * @param styles the styles to apply when rendering this tree
   * @param staticDocuments
   * @param sourcePaths the paths this document tree has been built from or an empty list if this ast does not originate from the file system
   */
-case class DocumentTreeRoot (tree: DocumentTree, 
+case class DocumentTreeRoot (tree: DocumentTree,
+                             coverDocument: Option[Document] = None,
                              styles: Map[String, StyleDeclarationSet] = Map.empty.withDefaultValue(StyleDeclarationSet.empty), 
                              staticDocuments: Seq[BinaryInput] = Nil,
                              sourcePaths: Seq[String] = Nil) {
