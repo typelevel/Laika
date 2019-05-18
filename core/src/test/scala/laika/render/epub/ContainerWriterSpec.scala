@@ -49,7 +49,7 @@ class ContainerWriterSpec extends FlatSpec with Matchers with ModelBuilder {
       RenderedTree(currentTree.path, Nil, docs ++ subTrees)
     }
 
-    writer.collectInputs(RenderedTreeRoot(None, toResultTree(tree), TemplateRoot(Nil), com.typesafe.config.ConfigFactory.empty), EPUB.Config.default).map(_.path.toString)
+    writer.collectInputs(RenderedTreeRoot(toResultTree(tree), TemplateRoot(Nil), com.typesafe.config.ConfigFactory.empty), EPUB.Config.default).map(_.path.toString)
   }
 
   def collectInputs (renderResult: RenderedTreeRoot): Seq[String] = writer.collectInputs(renderResult, EPUB.Config.default).map(_.path.toString)

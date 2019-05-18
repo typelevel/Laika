@@ -282,18 +282,18 @@ class StandardDirectiveSpec extends FlatSpec
       Nil
     )
 
-    def titleDoc (path: Path): Seq[Document] =
-      if (!hasTitleDocs || path == Root) Nil
-      else Seq(Document(path / "title", sectionsWithoutTitle, config = ConfigFactory.parseString("title: TitleDoc")))
+    def titleDoc (path: Path): Option[Document] =
+      if (!hasTitleDocs || path == Root) None
+      else Some(Document(path / "title", sectionsWithoutTitle, config = ConfigFactory.parseString("title: TitleDoc")))
     
-    def docs (path: Path, nums: Int*): Seq[Document] = titleDoc(path) ++ (nums map {
+    def docs (path: Path, nums: Int*): Seq[Document] = nums map {
       n => Document(path / ("doc"+n), sectionsWithoutTitle, config = ConfigFactory.parseString("title: Doc "+n))
-    })
+    }
 
     def buildTree (template: TemplateDocument, markup: Document) = {
       DocumentTree(Root, docs(Root, 1,2) ++ List(
-        DocumentTree(Root / "sub1", docs(Root / "sub1",3,4), config = ConfigFactory.parseString("title: Tree 1")),
-        DocumentTree(Root / "sub2", docs(Root / "sub2",5,6) ++ List(markup), config = ConfigFactory.parseString("title: Tree 2"))
+        DocumentTree(Root / "sub1", docs(Root / "sub1",3,4), titleDoc(Root / "sub1"), config = ConfigFactory.parseString("title: Tree 1")),
+        DocumentTree(Root / "sub2", docs(Root / "sub2",5,6) ++ List(markup), titleDoc(Root / "sub1"), config = ConfigFactory.parseString("title: Tree 2"))
       ), templates = List(template))
     }
     

@@ -22,7 +22,7 @@ trait InputTreeBuilder extends ModelBuilder {
   def titleSpans (text: String): Seq[Span] = Seq(Text(text))
 
   def rootTree (path: Path, titleNum: Int, docs: RenderContent*): RenderedTreeRoot = {
-    RenderedTreeRoot(None, tree(path, titleNum, docs: _*), TemplateRoot(Nil), com.typesafe.config.ConfigFactory.empty)
+    RenderedTreeRoot(tree(path, titleNum, docs: _*), TemplateRoot(Nil), com.typesafe.config.ConfigFactory.empty)
   }
 
   def tree (path: Path, titleNum: Int, docs: RenderContent*): RenderedTree = 
@@ -66,9 +66,9 @@ trait DocumentPlusCover extends InputTreeBuilder {
 trait DocumentPlusStyle extends InputTreeBuilder {
 
   val doc1 = doc(Path.Root / "foo", 2)
-  val css = CopiedDocument(ByteInput("{}", Path.Root / "test-style.css"))
+  val css = ByteInput("{}", Path.Root / "test-style.css")
 
-  val input = rootTree(Path.Root, 1, doc1, css)
+  val input = rootTree(Path.Root, 1, doc1).copy(staticDocuments = Seq(css))
 }
 
 trait NestedTree extends InputTreeBuilder {
@@ -107,12 +107,12 @@ trait TreeWithStaticDocuments extends InputTreeBuilder {
 
   val doc1 = doc(Path.Root / "foo", 2)
   val doc2 = doc(Path.Root / "sub" / "bar", 3)
-  val static1 = CopiedDocument(ByteInput("", Path("/sub/image.jpg")))
-  val static2 = CopiedDocument(ByteInput("", Path("/sub/styles.css")))
-  val unknown = CopiedDocument(ByteInput("", Path("/sub/doc.pdf")))
-  val subtree = tree(Path.Root / "sub", 4, doc2, static1, static2, unknown)
+  val static1 = ByteInput("", Path("/sub/image.jpg"))
+  val static2 = ByteInput("", Path("/sub/styles.css"))
+  val unknown = ByteInput("", Path("/sub/doc.pdf"))
+  val subtree = tree(Path.Root / "sub", 4, doc2)
 
-  val input = rootTree(Path.Root, 1, doc1, subtree)
+  val input = rootTree(Path.Root, 1, doc1, subtree).copy(staticDocuments = Seq(static1, static2, unknown))
 }
 
 trait DocumentsWithSections extends InputTreeBuilder {

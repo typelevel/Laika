@@ -99,14 +99,16 @@ object ParseExecutor {
     val results = BatchExecutor.execute(textOps, op.config.parallelConfig.parallelism, op.config.parallelConfig.threshold)
 
     def buildNode (path: Path, content: Seq[ParserResult], subTrees: Seq[DocumentTree]): DocumentTree = {
-      val treeContent = content.collect { case MarkupResult(doc) => doc } ++ subTrees.sortBy(_.path.name)
+      def isTitleDoc (doc: Document): Boolean = doc.path.basename == "title"
+      val titleDoc = content.collectFirst { case MarkupResult(doc) if isTitleDoc(doc) => doc }
+      val treeContent = content.collect { case MarkupResult(doc) if !isTitleDoc(doc) => doc } ++ subTrees.sortBy(_.path.name)
       val templates = content.collect { case TemplateResult(doc) => doc }
       
       val treeConfig = content.collect { case ConfigResult(_, config) => config }
       val rootConfig = if (path == Root) Seq(op.config.baseConfig) else Nil
       val fullConfig = (treeConfig.toList ++ rootConfig) reduceLeftOption (_ withFallback _) getOrElse ConfigFactory.empty
 
-      DocumentTree(path, treeContent, templates, fullConfig)
+      DocumentTree(path, treeContent, titleDoc, templates, fullConfig)
     }
     
     val tree = TreeBuilder.build(results, buildNode)

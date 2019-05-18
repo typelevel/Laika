@@ -18,7 +18,7 @@ package laika.render.epub
 
 import laika.ast._
 import laika.format.EPUB
-import laika.io.{CopiedDocument, RenderedTreeRoot, RenderedDocument, RenderedTree}
+import laika.io.{RenderedTreeRoot, RenderedDocument, RenderedTree}
 
 /** Renders the content of an EPUB Package document (OPF).
   *
@@ -80,18 +80,16 @@ class OPFRenderer {
     val coverDoc = result.coverDocument.map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = false, isCover = true, forceXhtml = true))
     val titleDoc = result.titleDocument.map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = false, isTitle = true, forceXhtml = true))
     
-    def spineRefs (root: RenderedTree): Seq[DocumentRef] = {
-      root.navigationContentAfterTitle.flatMap {
-        case sub: RenderedTree => spineRefs(sub)
-        case doc: RenderedDocument => Seq(DocumentRef(doc.path, "application/xhtml+xml", isSpine = true, forceXhtml = true))
-      } ++
-      root.content.collect {
-        case CopiedDocument(input) if MimeTypes.supportedTypes.contains(input.path.suffix) => 
-          DocumentRef(input.path, MimeTypes.supportedTypes(input.path.suffix), isSpine = false)
-      }
+    def spineRefs (root: RenderedTree): Seq[DocumentRef] = root.content.flatMap {
+      case sub: RenderedTree => spineRefs(sub)
+      case doc: RenderedDocument => Seq(DocumentRef(doc.path, "application/xhtml+xml", isSpine = true, forceXhtml = true))
     }
 
-    val docRefs = coverDoc.toSeq ++ titleDoc.toSeq ++ spineRefs(result.rootTree)
+    val staticDocs = result.staticDocuments.filter(in => MimeTypes.supportedTypes.contains(in.path.suffix)).map { in =>
+      DocumentRef(in.path, MimeTypes.supportedTypes(in.path.suffix), isSpine = false)
+    }
+
+    val docRefs = coverDoc.toSeq ++ titleDoc.toSeq ++ spineRefs(result.rootTree) ++ staticDocs
 
     val title = if (result.title.isEmpty) "UNTITLED" else SpanSequence(result.title).extractText
     fileContent(config.identifier, config.language.toLanguageTag, title, config.coverImage.map("content/"+_), config.formattedDate, docRefs, config.metadata.authors)

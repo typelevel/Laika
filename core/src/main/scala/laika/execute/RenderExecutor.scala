@@ -82,12 +82,12 @@ object RenderExecutor {
       () => RenderedDocument(outputPath(document.path), document.title, document.sections, execute(textOp, Some(styles)))
     }
 
-    def copy (document: BinaryInput): Seq[Operation] = binaryOutputFor(document.path).map { out =>
-      () => {
-        IO.copy(document, out)
-        CopiedDocument(document)
-      }
-    }
+//    def copy (document: BinaryInput): Seq[Operation] = binaryOutputFor(document.path).map { out =>
+//      () => {
+//        IO.copy(document, out)
+//        CopiedDocument(document)
+//      }
+//    }
 
     def collectOperations (docTree: DocumentTree): Seq[Operation] = {
 
@@ -96,9 +96,9 @@ object RenderExecutor {
 //        case _ => false
 //      }
 
-      docTree.content flatMap {
+      docTree.titleDocument.map(renderDocument).toSeq ++ docTree.content flatMap {
         case doc: Document => Seq(renderDocument(doc))
-        case tree: DocumentTree /* if !isOutputRoot(tree) */ => collectOperations(tree) // TODO - 0.12 - ressurrect check for output tree
+        case tree: DocumentTree /* if !isOutputRoot(tree) */ => collectOperations(tree) // TODO - 0.12 - resurrect check for output tree
         case _ => Seq()
       }
     }
@@ -111,16 +111,16 @@ object RenderExecutor {
     val treeWithTplApplied = TemplateRewriter.applyTemplates(treeWithTpl, op.format.fileSuffix)
     
     val finalTree = theme.staticDocuments.merge(treeWithTplApplied)
-    val operations = collectOperations(finalTree) ++ op.tree.staticDocuments.flatMap(copy)
+    val operations = collectOperations(finalTree) /* ++ op.tree.staticDocuments.flatMap(copy) */  // TODO - 0.12 - handle static docs
 
     val results = BatchExecutor.execute(operations, op.config.parallelConfig.parallelism, op.config.parallelConfig.threshold)
     
     def buildNode (path: Path, content: Seq[RenderContent], subTrees: Seq[RenderedTree]): RenderedTree = 
-      RenderedTree(path, finalTree.selectSubtree(path.relativeTo(Root)).fold(Seq.empty[Span])(_.title), content ++ subTrees)
+      RenderedTree(path, finalTree.selectSubtree(path.relativeTo(Root)).fold(Seq.empty[Span])(_.title), content ++ subTrees) // TODO - 0.12 - handle title document
     
     val resultRoot = TreeBuilder.build(results, buildNode)
 
-    RenderedTreeRoot(None, resultRoot, template, finalTree.config) // TODO - 0.12 - handle cover document
+    RenderedTreeRoot(resultRoot, template, finalTree.config) // TODO - 0.12 - handle cover document
   }
 
 }

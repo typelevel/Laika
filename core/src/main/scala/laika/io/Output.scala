@@ -21,6 +21,7 @@ import java.io._
 import com.typesafe.config.Config
 import laika.ast._
 import laika.ast.Path.Root
+import laika.bundle.StaticDocuments
 
 import scala.collection.mutable.StringBuilder
 import scala.io.Codec
@@ -83,34 +84,20 @@ case object StringTreeOutput extends TreeOutput
 
 sealed trait RenderContent extends Navigatable {
   def path: Path
-}
-sealed trait RenderNavigationContent extends RenderContent {
   def title: Seq[Span]
 }
 
-case class RenderedTree (path: Path, title: Seq[Span], content: Seq[RenderContent]) extends RenderNavigationContent {
-  val titleDocument: Option[RenderedDocument] = content.collectFirst {
-    case doc: RenderedDocument if doc.path.basename == "title" => doc
-  }
-  val navigationContent: Seq[RenderNavigationContent] = content collect {
-    case rnc: RenderNavigationContent => rnc
-  }
-  val navigationContentAfterTitle: Seq[RenderNavigationContent] = content.collect { // TODO - 0.12 - might keep copied documents separately so that this property becomes obsolete
-    case doc: RenderedDocument if doc.path.basename != "title" => doc
-    case tree: RenderedTree => tree
-  }
-}
+case class RenderedTree (path: Path, title: Seq[Span], content: Seq[RenderContent], titleDocument: Option[RenderedDocument] = None) extends RenderContent
 
-case class RenderedDocument (path: Path, title: Seq[Span], sections: Seq[SectionInfo], content: String) extends RenderNavigationContent
+case class RenderedDocument (path: Path, title: Seq[Span], sections: Seq[SectionInfo], content: String) extends RenderContent
 
-case class RenderedTemplate (path: Path, content: String) extends RenderContent
-
-case class CopiedDocument (content: BinaryInput) extends RenderContent {
-  val path: Path = content.path
-}
-
-case class RenderedTreeRoot (coverDocument: Option[RenderedDocument], rootTree: RenderedTree, template: TemplateRoot, config: Config) {
-  // TODO - 0.12 - ensure coverDocument is not in rootTree
+case class RenderedTreeRoot (rootTree: RenderedTree, 
+                             template: TemplateRoot, 
+                             config: Config, 
+                             coverDocument: Option[RenderedDocument] = None, 
+                             staticDocuments: Seq[BinaryInput] = Nil) {
+  
+  // TODO - 0.12 - ensure coverDocument is not in rootTree, rename template to defaultTemplate (after checking use cases)
   val title: Seq[Span] = rootTree.title
   val titleDocument: Option[RenderedDocument] = rootTree.titleDocument
 }

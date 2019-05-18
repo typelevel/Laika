@@ -113,7 +113,7 @@ class FOforPDF (config: Option[PDF.Config]) {
     def treeBookmarks (tree: RenderedTree, levels: Int): Seq[Bookmark] = {
       if (levels == 0) Nil
       else {
-        (for (nav <- tree.navigationContentAfterTitle if hasContent(nav)) yield nav match {
+        (for (nav <- tree.content if hasContent(nav)) yield nav match {
           case doc: RenderedDocument if doc.name == DocNames.treeTitle || doc.name == DocNames.toc => Seq()
           case doc: RenderedDocument =>
             val title = if (doc.title.nonEmpty) SpanSequence(doc.title).extractText else doc.name

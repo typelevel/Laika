@@ -35,7 +35,9 @@ class DocumentTreeAPISpec extends FlatSpec
     def createConfig (path: Path, source: Option[String]): Config =
       source.map(c => ConfigProvider.fromInput(c, path))
       .getOrElse(ConfigFactory.empty)
-    
+
+    def treeWithTitleDoc (path: Path, root: RootElement, config: Option[String] = None): DocumentTree =
+      DocumentTree(path, Nil, Some(Document(path / "title", root, config = createConfig(path / "title", config))))
     def treeWithDoc (path: Path, name: String, root: RootElement, config: Option[String] = None): DocumentTree =
       DocumentTree(path, List(Document(path / name, root, config = createConfig(path / name, config))))
     def treeWithSubtree (path: Path, treeName: String, docName: String, root: RootElement, config: Option[String] = None): DocumentTree =
@@ -87,17 +89,10 @@ class DocumentTreeAPISpec extends FlatSpec
     }
   }
 
-  it should "allow to select the title document from a tree" in {
-    new TreeModel {
-      val tree = treeWithDoc(Root, "title", root())
-      tree.titleDocument.map(_.path) should be (Some(Root / "title"))
-    }
-  }
-
   it should "obtain the tree title from the title document if present" in {
     new TreeModel {
       val title = Seq(Text("Title"))
-      val tree = treeWithDoc(Root, "title", root(laika.ast.Title(title)))
+      val tree = treeWithTitleDoc(Root, root(laika.ast.Title(title)))
       tree.title should be (title)
     }
   }

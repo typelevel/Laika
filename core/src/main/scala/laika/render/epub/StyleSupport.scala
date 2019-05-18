@@ -20,7 +20,7 @@ import java.nio.charset.Charset
 
 import laika.ast._
 import laika.directive.Templates
-import laika.io.{BinaryInput, ByteInput, CopiedDocument, RenderedTree}
+import laika.io.{BinaryInput, ByteInput, RenderedTree, RenderedTreeRoot}
 import laika.parse.directive.TemplateParsers
 import laika.parse.markup.DocumentParser.ParserInput
 import laika.parse.text.TextParsers.unsafeParserFunction
@@ -36,10 +36,7 @@ object StyleSupport {
   /** Collects all CSS inputs (recursively) in the provided document tree.
     * CSS inputs are recognized by file suffix).
     */
-  def collectStyles (tree: RenderedTree): Seq[BinaryInput] = {
-    val children = tree.content.collect { case subTree: RenderedTree => subTree }.flatMap(collectStyles)
-    children ++ tree.content.collect { case CopiedDocument(input) if input.path.suffix == "css" => input }
-  }
+  def collectStyles (root: RenderedTreeRoot): Seq[BinaryInput] = root.staticDocuments.filter(_.path.suffix == "css")
 
   def collectStyles (root: DocumentTreeRoot): Seq[BinaryInput] = root.staticDocuments.filter(_.path.suffix == "css")
 

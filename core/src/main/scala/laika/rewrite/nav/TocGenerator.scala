@@ -106,7 +106,7 @@ object TocGenerator {
     
     def treeToBulletList (tree: DocumentTree, curLevel: Int): List[Block] = {
       if (curLevel > maxLevel) Nil else {
-        val items = for (content <- tree.contentAfterTitle if hasContent(content)) yield content match {
+        val items = for (content <- tree.content if hasContent(content)) yield content match {
           case doc: Document =>
             val title = docTitle(doc, curLevel)
             val sections = fromDocument(doc, curLevel + 1, maxLevel, refPath)

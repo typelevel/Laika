@@ -54,7 +54,7 @@ object BookNavigation {
 
     def hasContent (level: Int)(nav: Navigatable): Boolean = nav match {
       case _: RenderedDocument => true
-      case tree: RenderedTree => if (level > 0) tree.navigationContent.exists(hasContent(level - 1)) else false
+      case tree: RenderedTree => if (level > 0) (tree.titleDocument.toSeq ++ tree.content).exists(hasContent(level - 1)) else false
     }
 
     def forSections (path: Path, sections: Seq[SectionInfo], levels: Int, pos: Iterator[Int]): Seq[BookNavigation] =
@@ -68,7 +68,7 @@ object BookNavigation {
 
     if (depth == 0) Nil
     else {
-      for (nav <- tree.navigationContentAfterTitle if hasContent(depth - 1)(nav)) yield nav match {
+      for (nav <- tree.content if hasContent(depth - 1)(nav)) yield nav match {
         case doc: RenderedDocument =>
           val title = if (doc.title.nonEmpty) SpanSequence(doc.title).extractText else doc.name
           val parentPos = pos.next
@@ -78,7 +78,7 @@ object BookNavigation {
           val title = if (subtree.title.nonEmpty) SpanSequence(subtree.title).extractText else subtree.name
           val parentPos = pos.next
           val children = forTree(subtree, depth - 1, pos)
-          val targetDoc = subtree.titleDocument.orElse(subtree.navigationContent.collectFirst{ case d: RenderedDocument => d }).get
+          val targetDoc = subtree.titleDocument.orElse(subtree.content.collectFirst{ case d: RenderedDocument => d }).get
           val link = fullPath(targetDoc.path, forceXhtml = true)
           if (depth == 1 || subtree.titleDocument.nonEmpty) BookNavigationLink(title, link, parentPos, children)
           else BookSectionHeader(title, parentPos, children)
@@ -113,7 +113,7 @@ object BookNavigation {
 
     if (depth == 0) Nil
     else {
-      for (nav <- tree.contentAfterTitle if hasContent(depth - 1)(nav)) yield nav match {
+      for (nav <- tree.content if hasContent(depth - 1)(nav)) yield nav match {
         case doc: Document =>
           val title = if (doc.title.nonEmpty) SpanSequence(doc.title).extractText else doc.name
           val parentPos = pos.next

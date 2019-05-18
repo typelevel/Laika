@@ -22,7 +22,7 @@ import java.util.Locale
 import com.typesafe.config.{Config, ConfigFactory}
 import laika.ast.Path.Root
 import laika.collection.TransitionalCollectionOps._
-import laika.io.BinaryInput
+import laika.io.{BinaryInput, RenderedDocument}
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.link.LinkTargetProvider
 import laika.rewrite.link.LinkTargets._
@@ -161,7 +161,7 @@ case class TreePosition(toSeq: Seq[Int]) extends Ordered[TreePosition] {
     def compare (pos1: Seq[Int], pos2: Seq[Int]): Int = (pos1.headOption, pos2.headOption) match {
       case (Some(a), Some(b)) => a.compare(b) match {
         case 0 => compare(pos1.tail, pos2.tail)
-        case other => other
+        case nonZero => nonZero
       }
       case _ => 0
     }
@@ -227,7 +227,7 @@ trait DocumentStructure { this: TreeContent =>
   /** All link targets that can get referenced from anywhere
     * in the document tree.
     */
-  lazy val globalLinkTargets = linkTargets.global
+  lazy val globalLinkTargets: Map[Selector, TargetResolver] = linkTargets.global
 
 }
 
@@ -237,20 +237,15 @@ trait TreeStructure { this: TreeContent =>
 
   import Path.Current
 
-  /** The content of this tree structure, containing
-    * all markup documents and subtrees.
-    */
-  def content: Seq[TreeContent]
-
-  /** All templates on this level of the tree hierarchy that might
-    * get applied to a document when it gets rendered.
-    */
-  def templates: Seq[TemplateDocument]
-
   /** The actual document tree that this ast structure represents.
     */
   def targetTree: DocumentTree
 
+  /** The content of this tree structure, containing
+    * all markup documents and subtrees, except for the (optional) title document.
+    */
+  def content: Seq[TreeContent]
+  
   /** The title of this tree, obtained from configuration.
    */
   lazy val title: Seq[Span] = titleDocument.map(_.title).orElse(titleFromConfig).getOrElse(Nil)
@@ -262,16 +257,12 @@ trait TreeStructure { this: TreeContent =>
     * can be used as an introductory section for a chapter represented
     * by a directory tree.
     */
-  def titleDocument: Option[Document] = content.collectFirst {
-    case doc: Document if doc.path.basename == "title" => doc
-  }
+  def titleDocument: Option[Document]
 
-  /** The content after the title document, if present.
+  /** All templates on this level of the tree hierarchy that might
+    * get applied to a document when it gets rendered.
     */
-  def contentAfterTitle: Seq[TreeContent] = content.collect {
-    case doc: Document if doc.path.basename != "title" => doc
-    case tree: DocumentTree => tree
-  }
+  def templates: Seq[TemplateDocument]
 
   private def toMap [T <: Navigatable] (navigatables: Seq[T]): Map[String,T] = {
     navigatables groupBy (_.name) mapValuesStrict {
@@ -294,8 +285,8 @@ trait TreeStructure { this: TreeContent =>
    *  The path needs to be relative.
    */
   def selectDocument (path: Path): Option[Document] = path match {
-    case Current / name => documentsByName.get(name)
-    case path / name => selectSubtree(path) flatMap (_.selectDocument(name))
+    case Current / localName => documentsByName.get(localName)
+    case base / localName => selectSubtree(base) flatMap (_.selectDocument(localName))
     case _ => None
   }
 
@@ -308,8 +299,8 @@ trait TreeStructure { this: TreeContent =>
    *  The path needs to be relative.
    */
   def selectTemplate (path: Path): Option[TemplateDocument] = path match {
-    case Current / name => templatesByName.get(name)
-    case path / name => selectSubtree(path) flatMap (_.selectTemplate(name))
+    case Current / localName => templatesByName.get(localName)
+    case base / localName => selectSubtree(base) flatMap (_.selectTemplate(localName))
     case _ => None
   }
 
@@ -325,8 +316,8 @@ trait TreeStructure { this: TreeContent =>
    */
   def selectSubtree (path: Path): Option[DocumentTree] = path match {
     case Current => Some(targetTree)
-    case Current / name => subtreesByName.get(name)
-    case path / name => selectSubtree(path) flatMap (_.selectSubtree(name))
+    case Current / localName => subtreesByName.get(localName)
+    case base / localName => selectSubtree(base) flatMap (_.selectSubtree(localName))
     case _ => None
   }
 
@@ -334,12 +325,9 @@ trait TreeStructure { this: TreeContent =>
     * in the document tree.
     */
   lazy val globalLinkTargets: Map[Selector, TargetResolver] = {
-    val all = content.foldLeft(List[(Selector,TargetResolver)]()) {
-      case (list, content) => content.globalLinkTargets.toList ::: list
-    }
-    all.groupBy(_._1) collect {
-      case (selector, ((_, target) :: Nil)) => (selector, target)
-      case (s@UniqueSelector(name), conflicting) => (s, DuplicateTargetResolver(path, name))
+    content.flatMap(_.globalLinkTargets.toList).groupBy(_._1) collect {
+      case (selector, (_, target) :: Nil) => (selector, target)
+      case (s@UniqueSelector(sName), _) => (s, DuplicateTargetResolver(path, sName))
     }
   }
 
@@ -459,12 +447,14 @@ case class Document (path: Path,
  *
  *  @param path the full, absolute path of this (virtual) document tree
  *  @param content the markup documents and subtrees
+ *  @param titleDocument the optional title document of this tree               
  *  @param templates all templates on this level of the tree hierarchy that might get applied to a document when it gets rendered
  *  @param config the configuration associated with this tree
  *  @param position the position of this tree inside a document ast hierarchy, expressed as a list of Ints
  */
 case class DocumentTree (path: Path,
                          content: Seq[TreeContent],
+                         titleDocument: Option[Document] = None,
                          templates: Seq[TemplateDocument] = Nil,
                          config: Config = ConfigFactory.empty,
                          position: TreePosition = TreePosition.root) extends TreeStructure with TreeContent {
@@ -504,5 +494,7 @@ case class DocumentTreeRoot (tree: DocumentTree,
                              sourcePaths: Seq[String] = Nil) {
   
   val config: Config = tree.config
+  val title: Seq[Span] = tree.title
+  val titleDocument: Option[Document] = tree.titleDocument
   
 }
