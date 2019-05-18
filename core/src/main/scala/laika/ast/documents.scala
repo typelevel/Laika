@@ -455,21 +455,19 @@ case class Document (path: Path,
 
 }
 
-/** Represents a tree with all its documents and subtrees.
+/** Represents a tree with all its documents, templates, configurations and subtrees.
  *
  *  @param path the full, absolute path of this (virtual) document tree
  *  @param content the markup documents and subtrees
  *  @param templates all templates on this level of the tree hierarchy that might get applied to a document when it gets rendered
  *  @param config the configuration associated with this tree
  *  @param position the position of this tree inside a document ast hierarchy, expressed as a list of Ints
- *  @param sourcePaths the paths this document tree has been built from or an empty list if this ast does not originate from the file system
  */
-case class DocumentTree (path:Path,
+case class DocumentTree (path: Path,
                          content: Seq[TreeContent],
                          templates: Seq[TemplateDocument] = Nil,
                          config: Config = ConfigFactory.empty,
-                         position: TreePosition = TreePosition.root,
-                         sourcePaths: Seq[String] = Nil) extends TreeStructure with TreeContent {
+                         position: TreePosition = TreePosition.root) extends TreeStructure with TreeContent {
 
   val targetTree: DocumentTree = this
 
@@ -498,10 +496,12 @@ case class DocumentTree (path:Path,
   * @param tree
   * @param styles the styles to apply when rendering this tree
   * @param staticDocuments
+  * @param sourcePaths the paths this document tree has been built from or an empty list if this ast does not originate from the file system
   */
 case class DocumentTreeRoot (tree: DocumentTree, 
-                             styles: Map[String,StyleDeclarationSet] = Map.empty.withDefaultValue(StyleDeclarationSet.empty), 
-                             staticDocuments: Seq[BinaryInput] = Nil) {
+                             styles: Map[String, StyleDeclarationSet] = Map.empty.withDefaultValue(StyleDeclarationSet.empty), 
+                             staticDocuments: Seq[BinaryInput] = Nil,
+                             sourcePaths: Seq[String] = Nil) {
   
   val config: Config = tree.config
   

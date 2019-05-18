@@ -91,14 +91,14 @@ object RenderExecutor {
 
     def collectOperations (docTree: DocumentTree): Seq[Operation] = {
 
-      def isOutputRoot (source: DocumentTree) = (source.sourcePaths.headOption, op.output) match {
-        case (Some(inPath), out: DirectoryOutput) => inPath == out.directory.getAbsolutePath
-        case _ => false
-      }
+//      def isOutputRoot (source: DocumentTree) = (source.sourcePaths.headOption, op.output) match {
+//        case (Some(inPath), out: DirectoryOutput) => inPath == out.directory.getAbsolutePath
+//        case _ => false
+//      }
 
       docTree.content flatMap {
         case doc: Document => Seq(renderDocument(doc))
-        case tree: DocumentTree if !isOutputRoot(tree) => collectOperations(tree)
+        case tree: DocumentTree /* if !isOutputRoot(tree) */ => collectOperations(tree) // TODO - 0.12 - ressurrect check for output tree
         case _ => Seq()
       }
     }
