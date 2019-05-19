@@ -481,12 +481,18 @@ case class DocumentTree (path: Path,
 
 }
 
-/**
+/** Represents the root of a tree of documents. In addition to the recursive structure of documents,
+  * usually obtained by parsing text markup, it holds additional items like styles and static documents,
+  * which may contribute to the rendering of a site or an e-book.
   * 
-  * @param tree
+  * The `styles` property of this type is currently only populated and processed when rendering PDF or XSL-FO.
+  * Styles for HTML or EPUB documents are part of the `staticDocuments` property instead and will be integrated
+  * into the final output, but not interpreted.
+  * 
+  * @param tree the recursive structure of documents, usually obtained from parsing text markup 
   * @param coverDocument the cover document (usually used with e-book formats like EPUB and PDF)            
-  * @param styles the styles to apply when rendering this tree
-  * @param staticDocuments
+  * @param styles the styles to apply when rendering this tree, only populated for PDF or XSL-FO output
+  * @param staticDocuments documents that were neither identified as text markup, config or templates, and will be copied as is to the final output
   * @param sourcePaths the paths this document tree has been built from or an empty list if this ast does not originate from the file system
   */
 case class DocumentTreeRoot (tree: DocumentTree,
@@ -496,7 +502,16 @@ case class DocumentTreeRoot (tree: DocumentTree,
                              sourcePaths: Seq[String] = Nil) {
   
   val config: Config = tree.config
+
+  /** The title of this tree, obtained from configuration.
+    */
   val title: Seq[Span] = tree.title
+
+  /** The title document for this tree, if present.
+    *
+    * At the root level the title document, if present, will be rendered
+    * after the cover document.
+    */
   val titleDocument: Option[Document] = tree.titleDocument
-  
+
 }
