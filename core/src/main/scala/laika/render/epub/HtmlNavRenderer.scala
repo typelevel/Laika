@@ -89,7 +89,7 @@ class HtmlNavRenderer {
     */
   def render (result: RenderedTreeRoot, depth: Int): String = {
     val title = if (result.title.isEmpty) "UNTITLED" else SpanSequence(result.title).extractText
-    val bookNav = BookNavigation.forTree(result.rootTree, depth)
+    val bookNav = BookNavigation.forTree(result.tree, depth)
     val styles = collectStyles(result).map { input =>
       s"""<link rel="stylesheet" type="text/css" href="content${input.path.toString}" />"""
     }.mkString("\n    ")

@@ -96,7 +96,7 @@ class NCXRenderer {
     */
   def render (result: RenderedTreeRoot, identifier: String, depth: Int): String = {
     val title = if (result.title.isEmpty) "UNTITLED" else SpanSequence(result.title).extractText
-    val bookNav = BookNavigation.forTree(result.rootTree, depth)
+    val bookNav = BookNavigation.forTree(result.tree, depth)
     val renderedNavPoints = navPoints(bookNav)
     fileContent(identifier, title, renderedNavPoints, depth)
   }

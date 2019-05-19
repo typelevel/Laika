@@ -21,7 +21,6 @@ import java.io._
 import com.typesafe.config.Config
 import laika.ast._
 import laika.ast.Path.Root
-import laika.bundle.StaticDocuments
 
 import scala.collection.mutable.StringBuilder
 import scala.io.Codec
@@ -91,13 +90,25 @@ case class RenderedTree (path: Path, title: Seq[Span], content: Seq[RenderConten
 
 case class RenderedDocument (path: Path, title: Seq[Span], sections: Seq[SectionInfo], content: String) extends RenderContent
 
-case class RenderedTreeRoot (rootTree: RenderedTree, 
-                             template: TemplateRoot, 
-                             config: Config, 
-                             coverDocument: Option[RenderedDocument] = None, 
+case class RenderedTreeRoot (tree: RenderedTree,
+                             template: TemplateRoot,
+                             config: Config,
+                             coverDocument: Option[RenderedDocument] = None,
                              staticDocuments: Seq[BinaryInput] = Nil) {
   
   // TODO - 0.12 - ensure coverDocument is not in rootTree, rename template to defaultTemplate (after checking use cases)
-  val title: Seq[Span] = rootTree.title
-  val titleDocument: Option[RenderedDocument] = rootTree.titleDocument
+  val title: Seq[Span] = tree.title
+  val titleDocument: Option[RenderedDocument] = tree.titleDocument
+
+  /** All documents contained in this tree, fetched recursively, depth-first.
+    */
+  lazy val allDocuments: Seq[RenderedDocument] = {
+
+    def collect (tree: RenderedTree): Seq[RenderedDocument] = tree.titleDocument.toSeq ++ tree.content.flatMap {
+      case doc: RenderedDocument => Seq(doc)
+      case sub: RenderedTree     => collect(sub)
+    }
+
+    coverDocument.toSeq ++ collect(tree)
+  }
 }

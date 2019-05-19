@@ -80,16 +80,15 @@ class OPFRenderer {
     val coverDoc = result.coverDocument.map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = false, isCover = true, forceXhtml = true))
     val titleDoc = result.titleDocument.map(doc => DocumentRef(doc.path, "application/xhtml+xml", isSpine = false, isTitle = true, forceXhtml = true))
     
-    def spineRefs (root: RenderedTree): Seq[DocumentRef] = root.content.flatMap {
-      case sub: RenderedTree => spineRefs(sub)
-      case doc: RenderedDocument => Seq(DocumentRef(doc.path, "application/xhtml+xml", isSpine = true, forceXhtml = true))
+    val renderedDocs = result.allDocuments.drop(coverDoc.size + titleDoc.size).map { doc =>
+      DocumentRef(doc.path, "application/xhtml+xml", isSpine = true, forceXhtml = true)
     }
 
     val staticDocs = result.staticDocuments.filter(in => MimeTypes.supportedTypes.contains(in.path.suffix)).map { in =>
       DocumentRef(in.path, MimeTypes.supportedTypes(in.path.suffix), isSpine = false)
     }
 
-    val docRefs = coverDoc.toSeq ++ titleDoc.toSeq ++ spineRefs(result.rootTree) ++ staticDocs
+    val docRefs = coverDoc.toSeq ++ titleDoc.toSeq ++ renderedDocs ++ staticDocs
 
     val title = if (result.title.isEmpty) "UNTITLED" else SpanSequence(result.title).extractText
     fileContent(config.identifier, config.language.toLanguageTag, title, config.coverImage.map("content/"+_), config.formattedDate, docRefs, config.metadata.authors)

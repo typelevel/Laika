@@ -115,7 +115,7 @@ class RenderAPISpec extends FlatSpec
     def renderedTree: RenderedTree = OutputBuilder.RenderedTree.toTreeView(render
       .from(treeRoot)
       .toOutputTree(StringTreeOutput)
-      .execute.rootTree
+      .execute.tree
     )
 
     def addPosition (tree: DocumentTree, pos: Seq[Int] = Nil): DocumentTree = {

@@ -40,7 +40,7 @@ object TestRenderResultProcessor extends RenderResultProcessor[TextFormatter] {
     }
     
     val sb = new StringBuilder
-    append(sb, result.rootTree)
+    append(sb, result.tree)
     val resultString = sb.toString
 
     val out = OutputExecutor.asStream(output)

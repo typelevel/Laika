@@ -77,7 +77,7 @@ trait NestedTree extends InputTreeBuilder {
   val doc2 = doc(Path.Root / "sub" / "bar", 3)
   val subtree = rootTree(Path.Root / "sub", 4, doc2)
 
-  val input = rootTree(Path.Root, 1, doc1, subtree.rootTree)
+  val input = rootTree(Path.Root, 1, doc1, subtree.tree)
 }
 
 trait NestedTreeWithTitleDoc extends InputTreeBuilder {
@@ -100,7 +100,7 @@ trait TwoNestedTrees extends InputTreeBuilder {
   val subtree1 = rootTree(Path.Root / "sub1", 2, doc2, doc3)
   val subtree2 = rootTree(Path.Root / "sub2", 3, doc4, doc5)
 
-  val input = rootTree(Path.Root, 1, doc1, subtree1.rootTree, subtree2.rootTree)
+  val input = rootTree(Path.Root, 1, doc1, subtree1.tree, subtree2.tree)
 }
 
 trait TreeWithStaticDocuments extends InputTreeBuilder {

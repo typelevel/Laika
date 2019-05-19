@@ -46,7 +46,7 @@ class XHTMLRendererSpec extends FlatSpec with Matchers with ModelBuilder {
 
       val res = Render.as(EPUB.XHTML).from(DocumentTreeRoot(tree)).toOutputTree(StringTreeOutput).execute
 
-      collectDocuments(res.rootTree)
+      collectDocuments(res.tree)
     }
 
     def renderedXhtml (num: Int, style1: String, style2: String): String = s"""<?xml version="1.0" encoding="UTF-8"?>

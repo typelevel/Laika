@@ -107,7 +107,7 @@ class FOforPDF (config: Option[PDF.Config]) {
       else for (section <- sections) yield {
         val title = section.title.extractText
         val children = sectionBookmarks(path, section.content, levels - 1)
-        Bookmark(section.id, PathInfo.fromPath(path, result.rootTree.path), title, children)
+        Bookmark(section.id, PathInfo.fromPath(path, result.tree.path), title, children)
       }
 
     def treeBookmarks (tree: RenderedTree, levels: Int): Seq[Bookmark] = {
@@ -118,17 +118,17 @@ class FOforPDF (config: Option[PDF.Config]) {
           case doc: RenderedDocument =>
             val title = if (doc.title.nonEmpty) SpanSequence(doc.title).extractText else doc.name
             val children = sectionBookmarks(doc.path, doc.sections, levels - 1)
-            Seq(Bookmark("", PathInfo.fromPath(doc.path, result.rootTree.path), title, children))
+            Seq(Bookmark("", PathInfo.fromPath(doc.path, result.tree.path), title, children))
           case subtree: RenderedTree =>
             val title = if (subtree.title.nonEmpty) SpanSequence(subtree.title).extractText else subtree.name
             val children = treeBookmarks(subtree, levels - 1)
-            Seq(Bookmark("", PathInfo.fromPath(subtree.path / DocNames.treeTitle, result.rootTree.path), title, children))
+            Seq(Bookmark("", PathInfo.fromPath(subtree.path / DocNames.treeTitle, result.tree.path), title, children))
         }).flatten
       }
     }
 
     if (depth == 0) Map()
-    else Map("bookmarks" -> BookmarkTree(treeBookmarks(result.rootTree, depth)))
+    else Map("bookmarks" -> BookmarkTree(treeBookmarks(result.tree, depth)))
   }
 
   /** Inserts a table of content into the specified document tree.
@@ -234,7 +234,7 @@ class FOforPDF (config: Option[PDF.Config]) {
     }
 
     val defaultTemplate = TemplateDocument(Path.Root / "default.template.fo", defaultTemplateRoot)
-    val foString = concatDocuments(result.rootTree)
+    val foString = concatDocuments(result.tree)
     applyTemplate(foString, defaultTemplate)
   }
 

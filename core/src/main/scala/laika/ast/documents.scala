@@ -22,7 +22,7 @@ import java.util.Locale
 import com.typesafe.config.{Config, ConfigFactory}
 import laika.ast.Path.Root
 import laika.collection.TransitionalCollectionOps._
-import laika.io.{BinaryInput, RenderedDocument}
+import laika.io.BinaryInput
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.link.LinkTargetProvider
 import laika.rewrite.link.LinkTargets._
@@ -500,7 +500,13 @@ case class DocumentTreeRoot (tree: DocumentTree,
                              styles: Map[String, StyleDeclarationSet] = Map.empty.withDefaultValue(StyleDeclarationSet.empty), 
                              staticDocuments: Seq[BinaryInput] = Nil,
                              sourcePaths: Seq[String] = Nil) {
-  
+
+  /** The configuration associated with the root of the tree.
+    * 
+    * Like text markup documents and templates, configurations form a tree
+    * structure and sub-trees may override and/or add properties that have
+    * only an effect in that sub-tree.
+    */
   val config: Config = tree.config
 
   /** The title of this tree, obtained from configuration.
@@ -513,5 +519,17 @@ case class DocumentTreeRoot (tree: DocumentTree,
     * after the cover document.
     */
   val titleDocument: Option[Document] = tree.titleDocument
+
+  /** All documents contained in this tree, fetched recursively, depth-first.
+    */
+  lazy val allDocuments: Seq[Document] = {
+
+    def collect (tree: DocumentTree): Seq[Document] = tree.titleDocument.toSeq ++ tree.content.flatMap {
+      case doc: Document     => Seq(doc)
+      case sub: DocumentTree => collect(sub)
+    }
+    
+    coverDocument.toSeq ++ collect(tree)
+  }
 
 }

@@ -149,7 +149,7 @@ class TransformAPISpec extends FlatSpec
     def transformInParallel: RenderedTree = transformWith(transform.inParallel)
     
     private def transformWith (transformer: TransformMappedOutput[TextFormatter] = transform): RenderedTree =
-      OutputBuilder.RenderedTree.toTreeView(transformer.fromTreeInput(input(dirs, transformer.config.docTypeMatcher)).toOutputTree(StringTreeOutput).execute.rootTree)
+      OutputBuilder.RenderedTree.toTreeView(transformer.fromTreeInput(input(dirs, transformer.config.docTypeMatcher)).toOutputTree(StringTreeOutput).execute.tree)
 
     private def transformWithBundle (bundle: ExtensionBundle, transformer: TransformMappedOutput[TextFormatter] = transform): RenderedTree =
       transformWith(transformer.using(bundle))
@@ -263,7 +263,7 @@ class TransformAPISpec extends FlatSpec
       val result = RenderResult.fo.withDefaultTemplate("""<fo:block font-family="serif" font-size="13pt" space-after="3mm">foo</fo:block>""")
       val transform = Transform.from(Markdown).to(XSLFO).inParallel.using(BundleProvider.forStyleSheetParser(parser))
       val renderResult = transform.fromTreeInput(input(dirs, transform.config.docTypeMatcher)).toOutputTree(StringTreeOutput).execute
-      OutputBuilder.RenderedTree.toTreeView(renderResult.rootTree) should be (root(List(docs(
+      OutputBuilder.RenderedTree.toTreeView(renderResult.tree) should be (root(List(docs(
         (Root / "doc1.fo", result)
       ))))
     }

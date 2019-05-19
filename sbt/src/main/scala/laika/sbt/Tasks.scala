@@ -72,7 +72,7 @@ object Tasks {
 
       val tree = parser.fromTreeInput(inputs).execute
 
-      Logs.systemMessages(streams.value.log, tree.tree, laikaConfig.value.logMessageLevel)
+      Logs.systemMessages(streams.value.log, tree, laikaConfig.value.logMessageLevel)
 
       tree
     }

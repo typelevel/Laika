@@ -89,29 +89,21 @@ object RenderExecutor {
 //      }
 //    }
 
-    def collectOperations (docTree: DocumentTree): Seq[Operation] = {
-
+      // TODO - 0.12 - resurrect check for output tree
 //      def isOutputRoot (source: DocumentTree) = (source.sourcePaths.headOption, op.output) match {
 //        case (Some(inPath), out: DirectoryOutput) => inPath == out.directory.getAbsolutePath
 //        case _ => false
 //      }
-
-      docTree.titleDocument.map(renderDocument).toSeq ++ docTree.content flatMap {
-        case doc: Document => Seq(renderDocument(doc))
-        case tree: DocumentTree /* if !isOutputRoot(tree) */ => collectOperations(tree) // TODO - 0.12 - resurrect check for output tree
-        case _ => Seq()
-      }
-    }
-
+      
     val templateName = "default.template." + op.format.fileSuffix // TODO - 0.12 - add to API: getDefaultTemplate(format) + withDefaultTemplate(format)
     val (treeWithTpl, template) = op.tree.tree.selectTemplate(Path.Current / templateName).fold(
       (op.tree.tree.copy(templates = op.tree.tree.templates :+ TemplateDocument(Path.Root / templateName,
         theme.defaultTemplateOrFallback)), theme.defaultTemplateOrFallback)
     )(tpl => (op.tree.tree, tpl.content))
-    val treeWithTplApplied = TemplateRewriter.applyTemplates(treeWithTpl, op.format.fileSuffix)
+    val rewrittenTree = TemplateRewriter.applyTemplates(treeWithTpl, op.format.fileSuffix)
     
-    val finalTree = theme.staticDocuments.merge(treeWithTplApplied)
-    val operations = collectOperations(finalTree) /* ++ op.tree.staticDocuments.flatMap(copy) */  // TODO - 0.12 - handle static docs
+    val finalTree = theme.staticDocuments.merge(rewrittenTree)
+    val operations = op.tree.copy(tree = finalTree).allDocuments.map(renderDocument) /* ++ op.tree.staticDocuments.flatMap(copy) */  // TODO - 0.12 - handle static docs
 
     val results = BatchExecutor.execute(operations, op.config.parallelConfig.parallelism, op.config.parallelConfig.threshold)
     

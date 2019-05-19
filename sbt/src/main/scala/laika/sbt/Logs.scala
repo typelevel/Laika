@@ -52,17 +52,7 @@ object Logs {
     */
   def outputs (root: DocumentTreeRoot, format: String): String = {
 
-    def count (tree: DocumentTree): Int = {
-
-      tree.content.foldLeft(0) {
-        case (cnt, _: Document) => cnt + 1
-        case (cnt, tree: DocumentTree) =>
-         cnt + count(tree)
-      }
-
-    }
-
-    val render = count(root.tree)
+    val render = root.allDocuments.size
     val copy = root.staticDocuments.size
 
     s"Rendering $render $format document${s(render)}, copying $copy static file${s(copy)} ..."
@@ -75,7 +65,7 @@ object Logs {
     * @param tree the document tree to extract system messages from
     * @param level the minimum log level for a system message to be included in the log
     */
-  def systemMessages (logger: Logger, tree: DocumentTree, level: MessageLevel): Unit = {
+  def systemMessages (logger: Logger, tree: DocumentTreeRoot, level: MessageLevel): Unit = {
 
     def logMessage (inv: Invalid[_], path: Path): Unit = {
       val source = inv.fallback match {
@@ -91,22 +81,14 @@ object Logs {
       }
     }
 
-    def log (tree: DocumentTree): Unit = {
-
-      def logRoot (e: ElementTraversal, path: Path): Unit = {
-        val nodes = e collect {
-          case i: Invalid[_] if i.message.level >= level => i
-        }
-        nodes foreach { logMessage(_, path) }
+    def logRoot (e: ElementTraversal, path: Path): Unit = {
+      val nodes = e collect {
+        case i: Invalid[_] if i.message.level >= level => i
       }
-
-      tree.content foreach {
-        case doc: Document => logRoot(doc.content, doc.path)
-        case tree: DocumentTree => log(tree)
-      }
+      nodes foreach { logMessage(_, path) }
     }
 
-    log(tree)
+    tree.allDocuments foreach { doc => logRoot(doc.content, doc.path) }
 
   }
 

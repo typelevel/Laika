@@ -69,11 +69,6 @@ class ContainerWriter {
       fromStream(in, path)
     }
 
-    def collectDocuments (currentTree: RenderedTree): Seq[StreamInput] = currentTree.content.flatMap {
-      case RenderedDocument(path, _, _, content) => Seq(toBinaryInput(content, shiftContentPath(path)))
-      case childTree: RenderedTree => collectDocuments(childTree)
-    }
-
     val staticDocs = result.staticDocuments.filter(in => MimeTypes.supportedTypes.contains(in.path.suffix)).flatMap {
       case fileInput: BinaryFileInput =>
         Seq(fromStream(new BufferedInputStream(new FileInputStream(fileInput.file)), shiftContentPath(fileInput.path)))
@@ -87,8 +82,10 @@ class ContainerWriter {
     val opf       = toBinaryInput(opfRenderer.render(result, config), Root / "EPUB" / "content.opf")
     val nav       = toBinaryInput(navRenderer.render(result, config.tocDepth), Root / "EPUB" / "nav.xhtml")
     val ncx       = toBinaryInput(ncxRenderer.render(result, config.identifier, config.tocDepth), Root / "EPUB" / "toc.ncx")
+    
+    val renderedDocs = result.allDocuments.map(doc => toBinaryInput(doc.content, shiftContentPath(doc.path)))
 
-    Seq(mimeType, container, iBooksOpt, opf, nav, ncx) ++ collectDocuments(result.rootTree) ++ staticDocs
+    Seq(mimeType, container, iBooksOpt, opf, nav, ncx) ++ renderedDocs ++ staticDocs
   }
 
   /** Produces an EPUB container from the specified document tree.
