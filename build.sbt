@@ -70,6 +70,16 @@ lazy val core = project.in(file("core"))
     name := "laika-core",
     libraryDependencies ++= Seq(config, scalatest, jTidy)
   )
+
+lazy val io = project.in(file("io"))
+  .dependsOn(core)
+  .disablePlugins(ScriptedPlugin)
+  .settings(moduleSettings)
+  .settings(publishSettings)
+  .settings(
+    name := "laika-io",
+    libraryDependencies ++= Seq(config, scalatest, jTidy)
+  )
   
 lazy val pdf = project.in(file("pdf"))
   .dependsOn(core)
