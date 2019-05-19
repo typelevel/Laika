@@ -21,7 +21,7 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.EPUB
-import laika.io.{ByteInput, RenderedDocument, RenderedTree, StringTreeOutput}
+import laika.io.{RenderedDocument, RenderedTree, StringTreeOutput}
 import org.scalatest.{FlatSpec, Matchers}
 
 /**

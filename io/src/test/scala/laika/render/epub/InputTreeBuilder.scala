@@ -1,7 +1,6 @@
 package laika.render.epub
 
 import com.typesafe.config.{Config, ConfigValueFactory}
-import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.io._

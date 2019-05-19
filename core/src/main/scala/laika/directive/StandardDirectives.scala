@@ -17,7 +17,6 @@
 package laika.directive
 
 import laika.ast._
-import laika.render.epub.StyleSupport
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.nav.TocGenerator
 
@@ -273,7 +272,7 @@ object StandardDirectives extends DirectiveRegistry {
     templateToc,
     templateFor,
     templateIf,
-    StyleSupport.styleLinksDirective
+    /* StyleSupport.styleLinksDirective */ // TODO - 0.12 - either make this directive available for all formats here, or move it to an EPUB bundle
   )
   
 }

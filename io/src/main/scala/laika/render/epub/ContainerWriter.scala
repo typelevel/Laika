@@ -104,7 +104,7 @@ class ContainerWriter {
 
     val inputs = collectInputs(result, ConfigFactory.forTreeConfig(result.config))
 
-    IO.zipEPUB(inputs, output)
+    ZipWriter.zipEPUB(inputs, output)
 
   }
 

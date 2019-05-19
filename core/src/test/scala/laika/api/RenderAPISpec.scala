@@ -138,10 +138,10 @@ class RenderAPISpec extends FlatSpec
     lazy val render = Render as HTML
   }
 
-  trait EPUB_XHTMLRenderer extends TreeRenderer[HTMLFormatter] {
-    val rootElem = root(title("Title"), p("bbb"))
-    lazy val render = Render as EPUB.XHTML
-  }
+//  trait EPUB_XHTMLRenderer extends TreeRenderer[HTMLFormatter] {
+//    val rootElem = root(title("Title"), p("bbb"))
+//    lazy val render = Render as EPUB.XHTML
+//  }
 
   trait FORenderer extends TreeRenderer[FOFormatter] {
     def foStyles (path: Path = Root) = Map("fo" -> StyleDeclarationSet(path / "styles.fo.css", StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> "11pt")))
@@ -200,35 +200,36 @@ class RenderAPISpec extends FlatSpec
     }
   }
 
-  it should "render a tree with a single document to EPUB.XHTML using the default template" ignore {
-    new EPUB_XHTMLRenderer {
-      val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
-      val expected = RenderResult.epub.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
-                                                                      |      <p>bbb</p>""".stripMargin)
-      renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.epub.xhtml", expected))))))
-    }
-  }
-
-  it should "render a tree with a single document to EPUB.XHTML using a custom template in the root directory" in {
-    new EPUB_XHTMLRenderer {
-      val template = TemplateDocument(Root / "default.template.epub.xhtml", tRoot(tt("["), TemplateContextReference("document.content"), tt("]")))
-      val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
-      val expected = """[<h1 id="title" class="title">Title</h1>
-                       |<p>bbb</p>]""".stripMargin
-      renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.epub.xhtml", expected))))))
-    }
-  }
-
-  it should "render a tree with a single document to EPUB.XHTML using a custom template in an extension bundle" in {
-    new EPUB_XHTMLRenderer {
-      val template = tRoot(tt("["), TemplateContextReference("document.content"), tt("]"))
-      override lazy val render = Render as EPUB.XHTML using BundleProvider.forTheme(EPUB.XHTML.Theme(defaultTemplate = Some(template)))
-      val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
-      val expected = """[<h1 id="title" class="title">Title</h1>
-                       |<p>bbb</p>]""".stripMargin
-      renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.epub.xhtml", expected))))))
-    }
-  }
+  // TODO - 0.12 - move to laika-io project
+//  it should "render a tree with a single document to EPUB.XHTML using the default template" ignore {
+//    new EPUB_XHTMLRenderer {
+//      val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
+//      val expected = RenderResult.epub.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
+//                                                                      |      <p>bbb</p>""".stripMargin)
+//      renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.epub.xhtml", expected))))))
+//    }
+//  }
+//
+//  it should "render a tree with a single document to EPUB.XHTML using a custom template in the root directory" in {
+//    new EPUB_XHTMLRenderer {
+//      val template = TemplateDocument(Root / "default.template.epub.xhtml", tRoot(tt("["), TemplateContextReference("document.content"), tt("]")))
+//      val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
+//      val expected = """[<h1 id="title" class="title">Title</h1>
+//                       |<p>bbb</p>]""".stripMargin
+//      renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.epub.xhtml", expected))))))
+//    }
+//  }
+//
+//  it should "render a tree with a single document to EPUB.XHTML using a custom template in an extension bundle" in {
+//    new EPUB_XHTMLRenderer {
+//      val template = tRoot(tt("["), TemplateContextReference("document.content"), tt("]"))
+//      override lazy val render = Render as EPUB.XHTML using BundleProvider.forTheme(EPUB.XHTML.Theme(defaultTemplate = Some(template)))
+//      val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
+//      val expected = """[<h1 id="title" class="title">Title</h1>
+//                       |<p>bbb</p>]""".stripMargin
+//      renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.epub.xhtml", expected))))))
+//    }
+//  }
 
   it should "render a tree with a single document to XSL-FO using the default template and default CSS" in {
     new FORenderer {

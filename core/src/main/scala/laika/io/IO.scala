@@ -21,7 +21,6 @@ import java.util.zip.{CRC32, ZipEntry, ZipOutputStream}
 
 import laika.ast.Path
 import laika.execute.OutputExecutor
-import laika.render.epub.{StaticContent, StreamInput}
 
 /** Collection of I/O utilities.
  * 
@@ -112,41 +111,4 @@ object IO {
     }
   }
 
-  /** Writes an EPUB Zip file to the specified output.
-    * The virtual path of the given inputs will also become the path within
-    * the Zip container.
-    * The implementation follows the EPUB specification in that the first
-    * file (called `mimeType`) is written uncompressed. Hence this is not
-    * a generic zip utility as the method name suggests.
-    */
-  def zipEPUB (inputs: Seq[StreamInput], output: BinaryOutput): Unit = { // TODO - 0.12 - StreamInput is a temporary model
-
-    val zip = new ZipOutputStream(OutputExecutor.asStream(output))
-
-    def writeEntry (input: StreamInput, prepareEntry: ZipEntry => Unit = _ => ()): Unit = {
-
-      val entry = new ZipEntry(input.path.relativeTo(Path.Root).toString)
-
-      prepareEntry(entry)
-      zip.putNextEntry(entry)
-
-      copy(input.stream, zip)
-
-      zip.closeEntry()
-    }
-
-    writeEntry(inputs.head, { entry =>
-      entry.setMethod(ZipOutputStream.STORED)
-      val content = StaticContent.mimeType
-      entry.setSize(content.length)
-      val crc32 = new CRC32
-      crc32.update(content.getBytes("UTF-8"))
-      entry.setCrc(crc32.getValue)
-    })
-
-    inputs.tail.foreach(writeEntry(_))
-
-    zip.close()
-  }
-  
 }

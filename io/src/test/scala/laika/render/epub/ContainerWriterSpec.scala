@@ -19,7 +19,7 @@ package laika.render.epub
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.EPUB
-import laika.io.{RenderedTreeRoot, RenderedDocument, RenderedTree}
+import laika.io.{RenderedDocument, RenderedTree, RenderedTreeRoot}
 import org.scalatest.{FlatSpec, Matchers}
 
 

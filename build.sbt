@@ -92,7 +92,7 @@ lazy val pdf = project.in(file("pdf"))
   )
   
 lazy val plugin = project.in(file("sbt"))
-  .dependsOn(core, pdf)
+  .dependsOn(core, io, pdf)
   .settings(basicSettings)
   .settings(
     name := "laika-sbt",
