@@ -29,7 +29,7 @@ import scala.io.Codec
  */
 trait FileTransformerUtil {
 
-  def classPathResource (path: String) = getClass.getResource(path).getFile
+  def classPathResourcePath (path: String): String = getClass.getResource(path).getFile
   
   def readFile (name: String): String = {
     val source = scala.io.Source.fromFile(name)(Codec.UTF8)

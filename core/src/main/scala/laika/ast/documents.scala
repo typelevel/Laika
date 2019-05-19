@@ -22,7 +22,6 @@ import java.util.Locale
 import com.typesafe.config.{Config, ConfigFactory}
 import laika.ast.Path.Root
 import laika.collection.TransitionalCollectionOps._
-import laika.io.BinaryInput
 import laika.rewrite.TemplateRewriter
 import laika.rewrite.link.LinkTargetProvider
 import laika.rewrite.link.LinkTargets._
@@ -492,13 +491,13 @@ case class DocumentTree (path: Path,
   * @param tree the recursive structure of documents, usually obtained from parsing text markup 
   * @param coverDocument the cover document (usually used with e-book formats like EPUB and PDF)            
   * @param styles the styles to apply when rendering this tree, only populated for PDF or XSL-FO output
-  * @param staticDocuments documents that were neither identified as text markup, config or templates, and will be copied as is to the final output
+  * @param staticDocuments the paths of documents that were neither identified as text markup, config or templates, and will be copied as is to the final output
   * @param sourcePaths the paths this document tree has been built from or an empty list if this ast does not originate from the file system
   */
 case class DocumentTreeRoot (tree: DocumentTree,
                              coverDocument: Option[Document] = None,
                              styles: Map[String, StyleDeclarationSet] = Map.empty.withDefaultValue(StyleDeclarationSet.empty), 
-                             staticDocuments: Seq[BinaryInput] = Nil,
+                             staticDocuments: Seq[Path] = Nil,
                              sourcePaths: Seq[String] = Nil) {
 
   /** The configuration associated with the root of the tree.

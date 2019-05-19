@@ -19,8 +19,8 @@ package laika.io
 import java.io._
 
 import com.typesafe.config.Config
-import laika.ast._
 import laika.ast.Path.Root
+import laika.ast._
 
 import scala.collection.mutable.StringBuilder
 import scala.io.Codec

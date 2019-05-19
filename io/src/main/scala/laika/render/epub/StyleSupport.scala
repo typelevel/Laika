@@ -22,7 +22,7 @@ object StyleSupport {
     */
   def collectStyles (root: RenderedTreeRoot): Seq[BinaryInput] = root.staticDocuments.filter(_.path.suffix == "css")
 
-  def collectStyles (root: DocumentTreeRoot): Seq[BinaryInput] = root.staticDocuments.filter(_.path.suffix == "css")
+  def collectStyles (root: DocumentTreeRoot): Seq[BinaryInput] = root.staticDocuments.filter(_.suffix == "css")
 
   /** Verifies that the specified document tree contains at least one CSS file
     * (determined by file suffix). If this is the case the tree is returned unchanged,

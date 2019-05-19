@@ -55,7 +55,8 @@ class ReStructuredTextToHTMLSpec extends FlatSpec
   
 
   def transformAndCompare (name: String): Unit = {
-    val path = classPathResource("/rstSpec") + "/" + name
+    val path = classPathResourcePath("/rstSpec") + "/" + name
+    val input = readFile(path + ".rst")
 
     def quotedBlockContent (content: Seq[Block], attr: Seq[Span]) =
       if (attr.isEmpty) content
@@ -83,7 +84,7 @@ class ReStructuredTextToHTMLSpec extends FlatSpec
       case (fmt, QuotedBlock(content,attr,opt)) => renderBlocks(fmt, "blockquote", opt, quotedBlockContent(content,attr))
       case (fmt, InternalLinkTarget(opt))       => fmt.textElement("span", opt, "")
       case (_, i: InvalidBlock)                 => ""
-    } fromFile (path + ".rst") toString
+    } transform input
     
     val expected = readFile(path + "-tidy.html")
     tidyAndAdjust(actual) should be (expected)

@@ -16,12 +16,9 @@
 
 package laika.config
 
-import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.{BundleProvider, ExtensionBundle, StaticDocuments}
-import laika.execute.OutputExecutor
 import laika.factory.{RenderContext, RenderFormat}
-import laika.io.{ByteInput, StringOutput}
 import laika.render.{ASTRenderer, Indentation, TextFormatter}
 import org.scalatest.{Matchers, WordSpec}
 
@@ -75,7 +72,6 @@ class ThemeConfigSpec extends WordSpec with Matchers {
 
     trait RenderSetup extends BundleSetup {
       val sb = new StringBuilder
-      val out = OutputExecutor.asRenderFunction(StringOutput(sb, Root))
       lazy val testRenderer = config.themeFor(TestFormat).customRenderer
       val formatter = TextFormatter((_,_) => "", List(RootElement(Nil)), Indentation.default)
 

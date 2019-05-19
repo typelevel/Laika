@@ -27,12 +27,12 @@ class HTMLRendererSpec extends FlatSpec
                        with ModelBuilder {
  
   
-  def render (elem: Element): String = Render.as(HTML).from(elem).toString 
+  def render (elem: Element): String = Render.as(HTML).render(elem) 
   
   def render (elem: Element, messageLevel: MessageLevel): String = 
-    Render as HTML withMessageLevel messageLevel from elem toString
+    Render as HTML withMessageLevel messageLevel render elem
     
-  def renderUnformatted (elem: Element): String = (Render as HTML).unformatted from elem toString
+  def renderUnformatted (elem: Element): String = (Render as HTML).unformatted render elem
   
   
   "The HTML renderer" should "render a paragraph with plain text" in {

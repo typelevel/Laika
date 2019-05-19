@@ -75,14 +75,6 @@ class ParserContextSpec extends WordSpec with Matchers {
       context.consume(3).reverse.capture(3) shouldBe "cba"
     }
 
-    "should provide the input from a reader" ignore {
-      //ParserContext(new StringReader("abc")).capture(3) shouldBe "abc"
-    }
-
-    "properly detect the end of input from a reader" ignore {
-      //ParserContext(new StringReader("abc")).consume(3).atEnd shouldBe true
-    }
-
     "indicate the position is on the first line" in {
       context.position.line shouldBe 1
     }

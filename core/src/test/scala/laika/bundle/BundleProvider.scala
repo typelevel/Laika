@@ -20,7 +20,6 @@ import com.typesafe.config.Config
 import laika.ast.Path.Root
 import laika.ast._
 import laika.directive.{DirectiveRegistry, Templates}
-import laika.io.Input
 import laika.parse.Parser
 import laika.parse.markup.DocumentParser.ParserInput
 

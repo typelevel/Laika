@@ -82,7 +82,7 @@ lazy val io = project.in(file("io"))
   )
   
 lazy val pdf = project.in(file("pdf"))
-  .dependsOn(core)
+  .dependsOn(core, io)
   .disablePlugins(ScriptedPlugin)
   .settings(moduleSettings)
   .settings(publishSettings)

@@ -49,14 +49,15 @@ class MarkdownToHTMLSpec extends FlatSpec
   }
 
   def transformAndCompare (name: String): Unit = {
-    val path = classPathResource("/markdownTestSuite") + "/" + name
+    val path = classPathResourcePath("/markdownTestSuite") + "/" + name
+    val input = readFile(path + ".md")
     val actual = Transform
       .from(Markdown).to(HTML)
       .strict.withRawContent
       .rendering {
         case (fmt, QuotedBlock(content, _, opt)) => fmt.indentedElement("blockquote", opt, content) // Markdown always writes p tags inside blockquotes
       }
-      .fromFile(path + ".md").toString
+      .transform(input)
     val expected = readFile(path + ".html")
     tidyAndAdjust(actual) should be (tidyAndAdjust(expected))
   }

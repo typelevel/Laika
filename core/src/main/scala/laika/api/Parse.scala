@@ -17,11 +17,9 @@
 package laika.api
 
 import laika.ast.DocumentType.Markup
-import laika.ast.{Document, DocumentTree, DocumentTreeRoot, TextDocumentType}
+import laika.ast.{Document, DocumentTreeRoot, TextDocumentType}
 import laika.config.{OperationConfig, ParseConfigBuilder}
-import laika.execute.ParseExecutor
 import laika.factory.MarkupParser
-import laika.io.{InputOps, InputTreeOps, TextInput, TreeInput}
 
 /** API for performing a parse operation from various types of input to obtain
  *  a document tree without a subsequent render operation. 
@@ -51,15 +49,15 @@ import laika.io.{InputOps, InputTreeOps, TextInput, TreeInput}
  *  @author Jens Halm
  */
 class Parse private (parsers: Seq[MarkupParser], val config: OperationConfig, rewrite: Boolean)
-  extends ParseConfigBuilder with InputOps with InputTreeOps {
+  extends ParseConfigBuilder {
 
   val docType: TextDocumentType = Markup
   
   type ThisType = Parse
 
-  type InputResult = Parse.Op
-
-  type InputTreeResult = Parse.TreeOp
+//  type InputResult = Parse.Op
+//
+//  type InputTreeResult = Parse.TreeOp
 
   def withConfig(newConfig: OperationConfig): ThisType = new Parse(parsers, newConfig, rewrite)
 
@@ -88,10 +86,12 @@ class Parse private (parsers: Seq[MarkupParser], val config: OperationConfig, re
    *  of header instances found in the document.
    */
   def withoutRewrite: Parse = new Parse(parsers, config, rewrite = false)
-
-  def fromInput (input: TextInput): Parse.Op = Parse.Op(parsers, config, input, rewrite)
   
-  def fromTreeInput(input: TreeInput): Parse.TreeOp = Parse.TreeOp(parsers, config, input, rewrite)
+  def parse (input: String): Document = ???
+
+//  def fromInput (input: TextInput): Parse.Op = Parse.Op(parsers, config, input, rewrite)
+//  
+//  def fromTreeInput(input: TreeInput): Parse.TreeOp = Parse.TreeOp(parsers, config, input, rewrite)
   
 }
 
@@ -101,13 +101,13 @@ class Parse private (parsers: Seq[MarkupParser], val config: OperationConfig, re
  */
 object Parse {
   
-  case class Op (parsers: Seq[MarkupParser], config: OperationConfig, input: TextInput, rewrite: Boolean) {
-    def execute: Document = ParseExecutor.execute(this)
-  }
-  
-  case class TreeOp (parsers: Seq[MarkupParser], config: OperationConfig, input: TreeInput, rewrite: Boolean) {
-    def execute: DocumentTreeRoot = ParseExecutor.execute(this)
-  }
+//  case class Op (parsers: Seq[MarkupParser], config: OperationConfig, input: TextInput, rewrite: Boolean) {
+//    def execute: Document = ParseExecutor.execute(this)
+//  }
+//  
+//  case class TreeOp (parsers: Seq[MarkupParser], config: OperationConfig, input: TreeInput, rewrite: Boolean) {
+//    def execute: DocumentTreeRoot = ParseExecutor.execute(this)
+//  }
   
   
   /** Returns a new Parse instance for the specified parser factory.

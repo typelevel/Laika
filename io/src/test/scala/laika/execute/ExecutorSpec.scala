@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package laika.api
+package laika.execute
 
-import laika.execute.BatchExecutor
 import org.scalatest.{Matchers, WordSpec}
 
 class ExecutorSpec extends WordSpec with Matchers {

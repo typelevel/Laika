@@ -17,10 +17,11 @@
 package laika.ast
 
 import laika.api.Parse
-import laika.ast.helper.{InputBuilder, ModelBuilder}
+import laika.ast.helper.ModelBuilder
 import laika.bundle.BundleProvider
 import laika.format.{Markdown, ReStructuredText}
 import laika.io.TreeInput
+import laika.io.helper.InputBuilder
 import laika.rewrite.TemplateRewriter
 import org.scalatest.{FlatSpec, Matchers}
 

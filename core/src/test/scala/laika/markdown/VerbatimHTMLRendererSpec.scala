@@ -21,6 +21,7 @@ import laika.ast.Element
 import laika.ast.helper.ModelBuilder
 import laika.format.{HTML, Markdown}
 import laika.markdown.ast.{HTMLAttribute, HTMLBlock, HTMLStartTag}
+import laika.render.HTMLFormatter
 import org.scalatest.{FlatSpec, Matchers}
  
 
@@ -29,12 +30,12 @@ class VerbatimHTMLRendererSpec extends FlatSpec
                                with ModelBuilder 
                                with HTMLModelBuilder {
 
-  val renderer = {
+  val renderer: Render.RenderMappedOutput[HTMLFormatter] = {
     val parser = Parse.as(Markdown).withRawContent
     Render.as(HTML).withConfig(parser.config)
   }
     
-  def render (elem: Element): String = renderer from elem toString
+  def render (elem: Element): String = renderer.render(elem)
    
   
   "The Verbatim HTML renderer" should "render an HTML character reference unescaped" in {

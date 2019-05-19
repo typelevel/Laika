@@ -18,8 +18,8 @@ package laika.io
  
 import java.io._
 
-import laika.ast.{DocumentType, Path, TextDocumentType}
 import laika.ast.Path.Root
+import laika.ast.{DocumentType, Path, TextDocumentType}
 import laika.bundle.DocumentTypeMatcher
 
 import scala.io.Codec
