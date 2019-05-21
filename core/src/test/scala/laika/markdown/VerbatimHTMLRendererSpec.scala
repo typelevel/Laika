@@ -30,7 +30,7 @@ class VerbatimHTMLRendererSpec extends FlatSpec
                                with ModelBuilder 
                                with HTMLModelBuilder {
 
-  val renderer: Render.RenderMappedOutput[HTMLFormatter] = {
+  val renderer: Render[HTMLFormatter] = {
     val parser = Parse.as(Markdown).withRawContent
     Render.as(HTML).withConfig(parser.config)
   }

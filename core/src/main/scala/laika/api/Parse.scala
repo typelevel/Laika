@@ -17,7 +17,7 @@
 package laika.api
 
 import laika.ast.DocumentType.Markup
-import laika.ast.{Document, DocumentTreeRoot, TextDocumentType}
+import laika.ast.{Document, TextDocumentType}
 import laika.config.{OperationConfig, ParseConfigBuilder}
 import laika.factory.MarkupParser
 
@@ -33,66 +33,27 @@ import laika.factory.MarkupParser
  *  {{{
  *  val doc = Parse as Markdown fromFile "hello.md"
  *  }}}
- *  
- *  Example for parsing from an entire directory:
- *  
- *  {{{
- *  val tree = Parse as Markdown fromDirectory "path/to/source"
- *  }}}
- *  
- *  Example for parsing a directory that contains markup documents in different formats:
- *  
- *  {{{
- *  val tree = Parse as Markdown or ReStructuredText fromDirectory "path/to/source"
- *  }}}
  * 
  *  @author Jens Halm
  */
-class Parse private (parsers: Seq[MarkupParser], val config: OperationConfig, rewrite: Boolean)
+class Parse private (parser: MarkupParser, val config: OperationConfig, rewrite: Boolean)
   extends ParseConfigBuilder {
 
   val docType: TextDocumentType = Markup
   
   type ThisType = Parse
 
-//  type InputResult = Parse.Op
-//
-//  type InputTreeResult = Parse.TreeOp
-
-  def withConfig(newConfig: OperationConfig): ThisType = new Parse(parsers, newConfig, rewrite)
-
-  /** The file suffixes recognized by this parser.
-   *  When transforming entire directories only files with
-   *  names ending in one of the specified suffixes will
-   *  be consired. 
-   */
-  val fileSuffixes: Set[String] = parsers flatMap (_.fileSuffixes) toSet
-  
-  /** Returns a new Parse instance adding the specified parser factory.
-   *  This factory is usually an object provided by the library
-   *  or a plugin that is capable of parsing a specific markup
-   *  format like Markdown or reStructuredText.
-   *  
-   *  This method is useful if you want to combine different markup
-   *  formats within a single document tree. 
-   * 
-   *  @param parser the parser factory to add to the previously specified parsers
-   */
-  def or (parser: MarkupParser): Parse = new Parse(parsers :+ parser, config.withBundlesFor(parser), rewrite)
+  def withConfig(newConfig: OperationConfig): ThisType = new Parse(parser, newConfig, rewrite)
 
   /** Returns a new Parse instance that produces raw document trees without applying
    *  the default rewrite rules. These rules resolve link and image references and 
    *  rearrange the tree into a hierarchy of sections based on the (flat) sequence
    *  of header instances found in the document.
    */
-  def withoutRewrite: Parse = new Parse(parsers, config, rewrite = false)
+  def withoutRewrite: Parse = new Parse(parser, config, rewrite = false)
   
   def parse (input: String): Document = ???
 
-//  def fromInput (input: TextInput): Parse.Op = Parse.Op(parsers, config, input, rewrite)
-//  
-//  def fromTreeInput(input: TreeInput): Parse.TreeOp = Parse.TreeOp(parsers, config, input, rewrite)
-  
 }
 
 /** Serves as an entry point to the Parse API.
@@ -100,15 +61,6 @@ class Parse private (parsers: Seq[MarkupParser], val config: OperationConfig, re
  *  @author Jens Halm
  */
 object Parse {
-  
-//  case class Op (parsers: Seq[MarkupParser], config: OperationConfig, input: TextInput, rewrite: Boolean) {
-//    def execute: Document = ParseExecutor.execute(this)
-//  }
-//  
-//  case class TreeOp (parsers: Seq[MarkupParser], config: OperationConfig, input: TreeInput, rewrite: Boolean) {
-//    def execute: DocumentTreeRoot = ParseExecutor.execute(this)
-//  }
-  
   
   /** Returns a new Parse instance for the specified parser factory.
    *  This factory is usually an object provided by the library
@@ -118,7 +70,7 @@ object Parse {
    *  @param parser the parser factory to use for all subsequent operations
    */
   def as (parser: MarkupParser): Parse = new Parse(
-    Seq(parser),
+    parser,
     OperationConfig.default.withBundlesFor(parser),
     rewrite = true
   )

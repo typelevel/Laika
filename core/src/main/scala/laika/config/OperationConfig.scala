@@ -36,13 +36,11 @@ import scala.annotation.tailrec
   * @param bundleFilter a filter that might deactivate some of the bundles based on user configuration
   * @param minMessageLevel specifies the minimum required level for a system message to get included into the output by a renderer
   * @param renderFormatted indicates whether rendering should include any formatting (line breaks or indentation)
-  * @param parallel indicates whether parsers and renderers should run in parallel
   */
 case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
                             bundleFilter: BundleFilter = BundleFilter(),
                             minMessageLevel: MessageLevel = MessageLevel.Fatal,
-                            renderFormatted: Boolean = true,
-                            parallelConfig: ParallelConfig = ParallelConfig.sequential) extends RenderConfig {
+                            renderFormatted: Boolean = true) extends RenderConfig {
 
   private lazy val mergedBundle: ExtensionBundle = OperationConfig.mergeBundles(bundles.filter(bundleFilter))
 
@@ -51,14 +49,6 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
     * directories and/or config headers in markup and template documents.
     */
   lazy val baseConfig: Config = mergedBundle.baseConfig
-
-  /** Specifies the function to use for determining the document type
-    * of the input based on its path. The function represents the result
-    * of merging the partial functions from all defined bundles and adding
-    * a fallback (the `Ignored` document type) for all unhandled `Path` instances.
-    */
-  lazy val docTypeMatcher: Path => DocumentType =
-    mergedBundle.docTypeMatcher.lift.andThen(_.getOrElse(DocumentType.Ignored))
 
   /** Provides all extensions for the text markup parser extracted from
     * all defined bundles.
@@ -86,6 +76,14 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
     */
   lazy val templateParser: Option[Parser[TemplateRoot]] = mergedBundle.parsers.templateParser
 
+  /** Specifies the function to use for determining the document type
+    * of the input based on its path. The function represents the result
+    * of merging the partial functions from all defined bundles and adding
+    * a fallback (the `Ignored` document type) for all unhandled `Path` instances.
+    */
+  lazy val docTypeMatcher: Path => DocumentType =
+    mergedBundle.docTypeMatcher.lift.andThen(_.getOrElse(DocumentType.Ignored))
+  
   /** The combined rewrite rule, obtained by merging the rewrite rules defined in all bundles.
     * This combined rule gets applied to the document between parse and render operations.
     */
@@ -155,31 +153,14 @@ trait RenderConfig {
   def renderFormatted: Boolean
 }
 
-/** Configuration for parallel execution of parse and render operations.
+/** A filter that might deactivate or activate some of the bundles based on user configuration.
   *
-  * @param parallelism the number of batches to be executed in parallel, 1 means sequential execution
-  * @param threshold the minimum number of operations required for parallel execution
+  * @param strict indicates that text markup should be interpreted as defined by its specification, without any extensions
+  * @param acceptRawContent indicates that the users accepts the inclusion of raw content in text markup
   */
-case class ParallelConfig (parallelism: Int, threshold: Int)
-
-/** Default configurations for parallel and sequential execution.
-  */
-object ParallelConfig {
-
-  /** Disables parallel execution.
-    */
-  val sequential: ParallelConfig = ParallelConfig(1, Int.MaxValue)
-
-  /** The default level of parallelism, corresponding to the number
-    * of CPUs.
-    */
-  lazy val defaultParallelism = Runtime.getRuntime.availableProcessors
-
-  /** The default level of parallelism when parallel execution is enabled.
-    * Corresponds to the number of CPU.
-    */
-  lazy val default: ParallelConfig = ParallelConfig(defaultParallelism, Math.max(2, defaultParallelism / 2))
-
+case class BundleFilter (strict: Boolean = false, acceptRawContent: Boolean = false) extends (ExtensionBundle => Boolean) {
+  override def apply (bundle: ExtensionBundle): Boolean =
+    (!strict || bundle.useInStrictMode) && (acceptRawContent || !bundle.acceptRawContent)
 }
 
 /** Provides OperationConfig instances and a utility for merging bundles.
@@ -215,14 +196,4 @@ object OperationConfig {
     */
   val empty: OperationConfig = OperationConfig()
 
-}
-
-/** A filter that might deactivate or activate some of the bundles based on user configuration.
-  *
-  * @param strict indicates that text markup should be interpreted as defined by its specification, without any extensions
-  * @param acceptRawContent indicates that the users accepts the inclusion of raw content in text markup
-  */
-case class BundleFilter (strict: Boolean = false, acceptRawContent: Boolean = false) extends (ExtensionBundle => Boolean) {
-  override def apply (bundle: ExtensionBundle): Boolean =
-    (!strict || bundle.useInStrictMode) && (acceptRawContent || !bundle.acceptRawContent)
 }

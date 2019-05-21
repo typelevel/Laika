@@ -16,18 +16,8 @@
   
 package laika.api
 
-import java.io._
-
-import laika.api.Transform.TransformMappedOutput
-import laika.ast.DocumentType.Static
-import laika.ast.Path.Root
 import laika.ast._
-import laika.bundle.{BundleProvider, ExtensionBundle}
-import laika.directive.Templates
 import laika.format._
-import laika.parse.Parser
-import laika.parse.text.TextParsers
-import laika.render.TextFormatter
 import org.scalatest.{FlatSpec, Matchers}
 
 
