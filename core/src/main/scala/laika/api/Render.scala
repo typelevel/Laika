@@ -16,8 +16,7 @@
 
 package laika.api
 
-import laika.api.builder.RendererBuilder
-import laika.config.OperationConfig
+import laika.api.builder.{OperationConfig, RendererBuilder}
 import laika.factory.RenderFormat
 
 @deprecated("use Renderer instead", "0.12.0")

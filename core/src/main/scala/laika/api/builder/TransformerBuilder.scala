@@ -19,7 +19,6 @@ package laika.api.builder
 import laika.api.{MarkupParser, Transformer}
 import laika.ast.DocumentType.Markup
 import laika.ast._
-import laika.config.{OperationConfig, TransformConfigBuilder}
 import laika.factory.{MarkupFormat, RenderFormat}
 
 /** 
@@ -29,7 +28,7 @@ import laika.factory.{MarkupFormat, RenderFormat}
  */
 class TransformerBuilder [FMT] (markupFormat: MarkupFormat,
                                 protected val renderFormat: RenderFormat[FMT],
-                                protected val config: OperationConfig) extends TransformConfigBuilder[FMT] {
+                                protected val config: OperationConfig) extends TransformerBuilderOps[FMT] {
   
   type ThisType = TransformerBuilder[FMT]
 

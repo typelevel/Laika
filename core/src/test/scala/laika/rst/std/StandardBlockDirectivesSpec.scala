@@ -18,10 +18,10 @@ package laika.rst.std
 
 import com.typesafe.config.ConfigValueFactory
 import laika.api.MarkupParser
+import laika.api.builder.OperationConfig
 import laika.ast.Path.{Current, Root}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.config.OperationConfig
 import laika.format.ReStructuredText
 import laika.rewrite.TemplateRewriter
 import laika.rst.ast.{Contents, Include}

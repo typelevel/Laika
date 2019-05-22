@@ -16,9 +16,9 @@
 
 package laika.rst
 
+import laika.api.builder.OperationConfig
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.config.OperationConfig
 import laika.format.ReStructuredText
 import laika.parse.Parser
 import laika.parse.helper.{DefaultParserHelpers, ParseResultHelpers}

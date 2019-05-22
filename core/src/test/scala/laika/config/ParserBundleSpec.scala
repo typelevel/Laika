@@ -18,6 +18,7 @@ package laika.config
 
 import com.typesafe.config.ConfigFactory
 import laika.api.MarkupParser
+import laika.api.builder.OperationConfig
 import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle._

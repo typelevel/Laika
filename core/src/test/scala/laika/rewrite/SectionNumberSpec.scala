@@ -17,10 +17,10 @@
 package laika.rewrite
 
 import com.typesafe.config.{Config, ConfigFactory}
+import laika.api.builder.OperationConfig
 import laika.ast._
 import laika.ast.helper.DocumentViewBuilder.{Documents => Docs, _}
 import laika.ast.helper.ModelBuilder
-import laika.config.OperationConfig
 import org.scalatest.{FlatSpec, Matchers}
 
 class SectionNumberSpec extends FlatSpec

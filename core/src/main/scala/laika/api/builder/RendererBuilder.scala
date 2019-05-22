@@ -17,7 +17,6 @@
 package laika.api.builder
 
 import laika.api.Renderer
-import laika.config.{OperationConfig, RenderConfigBuilder}
 import laika.factory.RenderFormat
 
 /** 
@@ -26,7 +25,7 @@ import laika.factory.RenderFormat
  *  @author Jens Halm
  */
 class RendererBuilder[FMT] (val renderFormat: RenderFormat[FMT],
-                            val config: OperationConfig) extends RenderConfigBuilder[FMT] {
+                            val config: OperationConfig) extends RendererBuilderOps[FMT] {
 
   protected[this] lazy val theme = config.themeFor(renderFormat)
 

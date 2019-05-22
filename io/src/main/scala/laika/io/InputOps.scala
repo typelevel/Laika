@@ -18,8 +18,8 @@ package laika.io
 
 import java.io.File
 
+import laika.api.builder.OperationConfig
 import laika.ast.{Path, TextDocumentType}
-import laika.config.OperationConfig
 
 import scala.io.Codec
 

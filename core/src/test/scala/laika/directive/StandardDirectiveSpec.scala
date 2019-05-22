@@ -17,10 +17,10 @@
 package laika.directive
 
 import com.typesafe.config.ConfigFactory
-import laika.api.{MarkupParser, Parse}
+import laika.api.MarkupParser
+import laika.api.builder.OperationConfig
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.config.OperationConfig
 import laika.format.Markdown
 import laika.parse.ParserContext
 import laika.rewrite.TemplateRewriter
@@ -311,8 +311,8 @@ class StandardDirectiveSpec extends FlatSpec
   }
   
   trait TocModel {
-    import laika.ast.TitledBlock
     import Path._
+    import laika.ast.TitledBlock
     
     val treeUnderTest = Root / "sub2"
     

@@ -1,27 +1,11 @@
-/*
- * Copyright 2013-2018 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package laika.config
+package laika.api.builder
 
 /** API for specifying configuration options that apply to all
   * kinds of operations that contain a parsing step (Parse and Transform APIs).
   *
   * @author Jens Halm
   */
-trait ParseConfigBuilder extends OperationConfigBuilder {
+trait ParserBuilderOps extends CommonBuilderOps {
 
   /**  Turns strict mode on for the target parser, switching off any
     *  features not part of the original markup syntax.

@@ -16,8 +16,7 @@
 
 package laika.api
 
-import laika.api.builder.TransformerBuilder
-import laika.config.OperationConfig
+import laika.api.builder.{OperationConfig, TransformerBuilder}
 import laika.factory.{MarkupFormat, RenderFormat}
 
 @deprecated("use Transformer instead", "0.12.0")

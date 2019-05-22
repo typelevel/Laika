@@ -17,8 +17,8 @@
 package laika.ast
 
 import laika.api.MarkupParser
+import laika.api.builder.OperationConfig
 import laika.ast.helper.ModelBuilder
-import laika.config.OperationConfig
 import laika.format.Markdown
 import org.scalatest.{FlatSpec, Matchers}
 

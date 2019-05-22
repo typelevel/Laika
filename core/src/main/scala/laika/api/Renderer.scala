@@ -16,10 +16,9 @@
 
 package laika.api
 
-import laika.api.builder.RendererBuilder
+import laika.api.builder.{OperationConfig, RendererBuilder}
 import laika.ast.Path.Root
 import laika.ast.{Document, Element, Path, StyleDeclarationSet}
-import laika.config.OperationConfig
 import laika.factory.{RenderContext, RenderFormat}
 
 abstract class Renderer (val config: OperationConfig) {

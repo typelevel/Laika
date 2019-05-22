@@ -16,8 +16,7 @@
 
 package laika.api
 
-import laika.api.builder.ParserBuilder
-import laika.config.OperationConfig
+import laika.api.builder.{OperationConfig, ParserBuilder}
 import laika.factory.MarkupFormat
 
 @deprecated("use MarkupParser instead", "0.12.0")

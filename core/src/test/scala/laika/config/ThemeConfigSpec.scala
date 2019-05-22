@@ -16,6 +16,7 @@
 
 package laika.config
 
+import laika.api.builder.OperationConfig
 import laika.ast._
 import laika.bundle.{BundleProvider, ExtensionBundle, StaticDocuments}
 import laika.factory.{RenderContext, RenderFormat}

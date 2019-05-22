@@ -16,9 +16,9 @@
 
 package laika.factory
 
+import laika.api.builder.RenderConfig
 import laika.ast.{Element, Path, StyleDeclarationSet, TemplateRoot}
 import laika.bundle.{RenderTheme, StaticDocuments}
-import laika.config.RenderConfig
 import laika.render.Indentation
 
 /** Provides the context for a single render operation.

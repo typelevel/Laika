@@ -19,13 +19,12 @@ package laika.api.builder
 import laika.api.MarkupParser
 import laika.ast.DocumentType.Markup
 import laika.ast.TextDocumentType
-import laika.config.{OperationConfig, ParseConfigBuilder}
 import laika.factory.MarkupFormat
 
 /** 
  *  @author Jens Halm
  */
-class ParserBuilder (format: MarkupFormat, val config: OperationConfig, rewrite: Boolean) extends ParseConfigBuilder {
+class ParserBuilder (format: MarkupFormat, val config: OperationConfig, rewrite: Boolean) extends ParserBuilderOps {
 
   val docType: TextDocumentType = Markup
   

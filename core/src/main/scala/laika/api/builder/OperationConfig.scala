@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.config
+package laika.api.builder
 
 import com.typesafe.config.Config
 import laika.ast._

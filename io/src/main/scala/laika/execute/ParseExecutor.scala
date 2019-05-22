@@ -2,9 +2,9 @@ package laika.execute
 
 import com.typesafe.config.ConfigFactory
 import laika.api.Parse
+import laika.api.builder.OperationConfig
 import laika.ast._
 import laika.bundle.ConfigProvider
-import laika.config.OperationConfig
 import laika.factory.MarkupFormat
 import laika.io.{DirectoryInput, IO, InputCollection, TextInput}
 import laika.parse.combinator.Parsers.documentParserFunction

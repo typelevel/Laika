@@ -16,10 +16,9 @@
 
 package laika.api
 
-import laika.api.builder.TransformerBuilder
+import laika.api.builder.{OperationConfig, TransformerBuilder}
 import laika.ast.Path
 import laika.ast.Path.Root
-import laika.config.OperationConfig
 import laika.factory.{MarkupFormat, RenderFormat}
 
 class Transformer (val parser: MarkupParser, val renderer: Renderer) {

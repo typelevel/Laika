@@ -16,9 +16,9 @@
 
 package laika.markdown
 
+import laika.api.builder.OperationConfig
 import laika.ast.Span
 import laika.ast.helper.ModelBuilder
-import laika.config.OperationConfig
 import laika.format.Markdown
 import laika.markdown.ast.HTMLAttribute
 import laika.parse.Parser

@@ -19,7 +19,7 @@ package laika.api
 import laika.api.builder.ParserBuilder
 import laika.ast.{Document, Path}
 import laika.ast.Path.Root
-import laika.config.OperationConfig
+import laika.api.builder.OperationConfig
 import laika.factory.MarkupFormat
 import laika.parse.ParserContext
 import laika.parse.markup.DocumentParser

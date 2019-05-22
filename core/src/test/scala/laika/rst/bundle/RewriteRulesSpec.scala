@@ -16,9 +16,9 @@
 
 package laika.rst.bundle
 
+import laika.api.builder.OperationConfig
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.config.OperationConfig
 import laika.format.ReStructuredText
 import laika.rst.ast.{CustomizedTextRole, InterpretedText, SubstitutionDefinition, SubstitutionReference}
 import org.scalatest.{FlatSpec, Matchers}

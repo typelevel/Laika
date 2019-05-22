@@ -16,6 +16,7 @@
 
 package laika.config
 
+import laika.api.builder.OperationConfig
 import laika.ast._
 import laika.ast.DocumentType.{Markup, Static, Template}
 import laika.ast.Path.Root
