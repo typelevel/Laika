@@ -16,7 +16,7 @@
 
 package laika.markdown
 
-import laika.api.{Parse, Render, Renderer}
+import laika.api.{MarkupParser, Renderer}
 import laika.ast.Element
 import laika.ast.helper.ModelBuilder
 import laika.format.{HTML, Markdown}
@@ -30,8 +30,8 @@ class VerbatimHTMLRendererSpec extends FlatSpec
                                with HTMLModelBuilder {
 
   val renderer: Renderer = {
-    val parser = Parse.as(Markdown).withRawContent
-    Render.as(HTML).withConfig(parser.config).build
+    val parser = MarkupParser.of(Markdown).withRawContent
+    Renderer.of(HTML).withConfig(parser.config).build
   }
     
   def render (elem: Element): String = renderer.render(elem)

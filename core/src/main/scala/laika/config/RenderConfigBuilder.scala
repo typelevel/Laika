@@ -39,7 +39,7 @@ trait RenderConfigBuilder[FMT] extends OperationConfigBuilder {
     *  style class:
     *
     *  {{{
-    *  Transform.from(Markdown).to(HTML).rendering {
+    *  Transformer.from(Markdown).to(HTML).rendering {
     *    case (fmt, Emphasized(content, opt)) => fmt.element("em", opt, content, "class" -> "big")
     *  }.fromFile("hello.md").toFile("hello.html")
     *  }}}

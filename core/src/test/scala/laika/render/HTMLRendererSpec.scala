@@ -16,7 +16,7 @@
 
 package laika.render
 
-import laika.api.Render
+import laika.api.Renderer
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.HTML
@@ -27,12 +27,12 @@ class HTMLRendererSpec extends FlatSpec
                        with ModelBuilder {
  
   
-  def render (elem: Element): String = Render.as(HTML).build.render(elem) 
+  def render (elem: Element): String = Renderer.of(HTML).build.render(elem) 
   
   def render (elem: Element, messageLevel: MessageLevel): String = 
-    Render.as(HTML).withMessageLevel(messageLevel).build.render(elem)
+    Renderer.of(HTML).withMessageLevel(messageLevel).build.render(elem)
     
-  def renderUnformatted (elem: Element): String = (Render as HTML).unformatted.build.render(elem)
+  def renderUnformatted (elem: Element): String = Renderer.of(HTML).unformatted.build.render(elem)
 
 
   "The HTML renderer" should "render a paragraph with plain text" in {

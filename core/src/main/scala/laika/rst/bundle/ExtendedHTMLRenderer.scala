@@ -31,12 +31,6 @@ import laika.rst.ast._
  *  FieldLists being part of a directive declaration will be processed by the default parser, the `FieldList`
  *  element only appears in the final document model if field lists are used outside of directives.
  * 
- *  The renderer must be applied explicitly when any of these constructs are used in the markup:
- *  
- *  {{{
- *  val transform = Transform from ReStructuredText to HTML rendering ExtendedHTMLRenderer
- *  }}}
- * 
  *  @author Jens Halm
  */
 class ExtendedHTMLRenderer {

@@ -16,7 +16,7 @@
 
 package laika.render.epub
 
-import laika.api.Render
+import laika.api.{Render, Renderer}
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
@@ -44,7 +44,7 @@ class XHTMLRendererSpec extends FlatSpec with Matchers with ModelBuilder {
         (result.content.collect { case doc: RenderedDocument => Seq(doc) } ++ 
           result.content.collect { case tree: RenderedTree => collectDocuments(tree) }).flatten
 
-      val res = Render.as(EPUB.XHTML).from(DocumentTreeRoot(tree)).toOutputTree(StringTreeOutput).execute
+      val res = Renderer.of(EPUB.XHTML).build.from(DocumentTreeRoot(tree)).toOutputTree(StringTreeOutput).execute
 
       collectDocuments(res.tree)
     }
@@ -92,12 +92,12 @@ class XHTMLRendererSpec extends FlatSpec with Matchers with ModelBuilder {
 
   it should "render a paragraph containing a citation link with an epub:type attribute" in {
     val elem = p(txt("some "), CitationLink("ref","label"), txt(" span"))
-    Render.as(EPUB.XHTML).from(elem).toString should be ("""<p>some <a class="citation" href="#ref" epub:type="noteref">[label]</a> span</p>""")
+    Renderer.of(EPUB.XHTML).build.render(elem) should be ("""<p>some <a class="citation" href="#ref" epub:type="noteref">[label]</a> span</p>""")
   }
 
   it should "render a paragraph containing a footnote link with an epub:type attribute" in {
     val elem = p(txt("some "), FootnoteLink("id","label"), txt(" span"))
-    Render.as(EPUB.XHTML).from(elem).toString should be ("""<p>some <a class="footnote" href="#id" epub:type="noteref">[label]</a> span</p>""")
+    Renderer.of(EPUB.XHTML).build.render(elem) should be ("""<p>some <a class="footnote" href="#id" epub:type="noteref">[label]</a> span</p>""")
   }
 
   it should "render a footnote with an epub:type attribute" in {
@@ -106,7 +106,7 @@ class XHTMLRendererSpec extends FlatSpec with Matchers with ModelBuilder {
      |  <p>a</p>
      |  <p>b</p>
      |</aside>""".stripMargin
-    Render.as(EPUB.XHTML).from(elem).toString should be (html)
+    Renderer.of(EPUB.XHTML).build.render(elem) should be (html)
   }
 
   it should "render a citation with an epub:type attribute" in {
@@ -115,7 +115,7 @@ class XHTMLRendererSpec extends FlatSpec with Matchers with ModelBuilder {
      |  <p>a</p>
      |  <p>b</p>
      |</aside>""".stripMargin
-    Render.as(EPUB.XHTML).from(elem).toString should be (html)
+    Renderer.of(EPUB.XHTML).build.render(elem) should be (html)
   }
 
 

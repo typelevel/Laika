@@ -17,11 +17,11 @@
 package laika.render
 
 import com.typesafe.config.{Config, ConfigFactory, ConfigValueFactory}
-import laika.api.Render
+import laika.api.{Render, Renderer}
 import laika.ast.Path.Root
 import laika.ast._
 import laika.format.{PDF, XSLFO}
-import laika.io.{RenderedTreeRoot, RenderedDocument, RenderedTree}
+import laika.io.{RenderedDocument, RenderedTree, RenderedTreeRoot}
 import laika.render.FOFormatter.{Bookmark, BookmarkTree, Leader, PageNumberCitation}
 import laika.rewrite.nav.TocGenerator
 
@@ -230,7 +230,7 @@ class FOforPDF (config: Option[PDF.Config]) {
       val finalConfig = resolveCoverImagePath
       val finalDoc = Document(Path.Root / "merged.fo", RootElement(Seq(foElement)), fragments = generateBookmarks(result, pdfConfig.bookmarkDepth), config = finalConfig)
       val templateApplied = template.applyTo(finalDoc)
-      Render as XSLFO from templateApplied toString
+      Renderer.of(XSLFO).build.render(templateApplied)
     }
 
     val defaultTemplate = TemplateDocument(Path.Root / "default.template.fo", defaultTemplateRoot)

@@ -16,7 +16,7 @@
 
 package laika.ast
 
-import laika.api.Parse
+import laika.api.MarkupParser
 import laika.ast.helper.ModelBuilder
 import laika.config.OperationConfig
 import laika.format.Markdown
@@ -27,8 +27,8 @@ class DocumentAPISpec extends FlatSpec
                       with ModelBuilder {
 
   
-  val parser = Parse.as(Markdown).build
-  val rawParser = Parse.as(Markdown).withoutRewrite.build
+  val parser = MarkupParser.of(Markdown).build
+  val rawParser = MarkupParser.of(Markdown).withoutRewrite.build
   
   
   "The Document API" should "allow to specify a title in a config section" in {

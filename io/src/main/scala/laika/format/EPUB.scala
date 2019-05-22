@@ -19,9 +19,9 @@ import laika.render.{HTMLFormatter, XHTMLRenderer}
  * 
  *  {{{
  *  val document: Document = ...
- *  Render as EPUB from document toFile "hello.epub"
+ *  Renderer.of(EPUB)from document toFile "hello.epub"
  *  
- *  Transform from Markdown to PDF fromDirectory "book-src" toFile "book.epub"
+ *  Transformer.from(Markdown).to(PDF fromDirectory "book-src" toFile "book.epub"
  *  }}}
  *  
  *  In the second example above the input from an entire directory gets

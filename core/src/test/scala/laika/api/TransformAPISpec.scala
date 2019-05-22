@@ -35,10 +35,10 @@ class TransformAPISpec extends FlatSpec
     |. Paragraph - Spans: 1
     |. . Text - 'text'""".stripMargin
     
-  val builder = Transform.from(Markdown).to(AST)
+  val builder = Transformer.from(Markdown).to(AST)
   
   
-  "The Transform API" should "transform from string to string" in {
+  "The Transform API" should "Transformer.from(string to string" in {
     (builder.build transform input) should be (output)
   }
   

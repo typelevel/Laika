@@ -28,7 +28,7 @@ class ParseAPISpec extends FlatSpec
                    with ModelBuilder {
   
   
-  val parser: MarkupParser = Parse.as(Markdown).build
+  val parser: MarkupParser = MarkupParser.of(Markdown).build
 
   
   "The Parse API" should "allow parsing Markdown from a string" in {
@@ -49,7 +49,7 @@ class ParseAPISpec extends FlatSpec
     val input = """[link][id]
       |
       |[id]: http://foo/""".stripMargin
-    Parse.as(Markdown).withoutRewrite.build.parse(input).content should be (root 
+    MarkupParser.of(Markdown).withoutRewrite.build.parse(input).content should be (root 
         (p (LinkReference(List(Text("link")), "id", "[link][id]")), ExternalLinkDefinition("id","http://foo/",None)))
   }
   

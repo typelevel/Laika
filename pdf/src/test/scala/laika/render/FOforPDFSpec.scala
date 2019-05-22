@@ -137,7 +137,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     
     def result: String = {
 //      val stream = new ByteArrayOutputStream
-//      (Render as FOTest(config) from tree toStream stream).execute      
+//      (Renderer.of(FOTest(config)) from tree toStream stream).execute      
 //      stream.toString
       ""
     }

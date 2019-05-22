@@ -18,7 +18,7 @@ package laika.render
 
 import java.io.{BufferedInputStream, File, FileInputStream, InputStream}
 
-import laika.api.Render
+import laika.api.{Render, Renderer}
 import laika.ast.DocumentTreeRoot
 import laika.format.PDF
 import org.scalatest.{FlatSpec, Matchers}
@@ -45,29 +45,29 @@ class PDFRendererSpec extends FlatSpec with Matchers {
   
   
   "The PDF Renderer" should "render a document to a file" ignore new TreeModel with FileSetup {
-    Render.as(PDF).from(doc(1)).toFile(file).execute
+    Renderer.of(PDF).from(doc(1)).toFile(file).execute
     readFile.read should not be (-1)
   }
 
   it should "render a document to a file using a custom FopFactory" ignore new TreeModel with FileSetup {
-    Render.as(PDF.withFopFactory(PDF.defaultFopFactory)).from(doc(1)).toFile(file).execute
+    Renderer.of(PDF.withFopFactory(PDF.defaultFopFactory)).from(doc(1)).toFile(file).execute
     readFile.read should not be (-1)
   }
   
   it should "render a document to an OutputStream" ignore new TreeModel {
 //    val stream = new ByteArrayOutputStream
-//    Render.as(PDF).from(doc(1)).toStream(stream).execute
+//    Renderer.of(PDF).from(doc(1)).toStream(stream).execute
 //    stream.toByteArray should not be empty
   }
   
   it should "render a tree to a file" ignore new TreeModel with FileSetup {
-    Render.as(PDF).from(DocumentTreeRoot(tree)).toFile(file).execute
+    Renderer.of(PDF).from(DocumentTreeRoot(tree)).toFile(file).execute
     readFile.read should not be (-1)
   }
   
   it should "render a tree to an OutputStream" ignore new TreeModel {
 //    val stream = new ByteArrayOutputStream
-//    Render.as(PDF).from(tree).toStream(stream).execute
+//    Renderer.of(PDF).from(tree).toStream(stream).execute
 //    stream.toByteArray should not be empty
   }
   

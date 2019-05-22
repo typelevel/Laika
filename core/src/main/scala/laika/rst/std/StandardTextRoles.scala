@@ -56,7 +56,7 @@ import laika.rst.ext.TextRoles.TextRole
  *    override val defaultTextRole = "my-role-name"
  *  }
  *
- *  val transformer = Transform from ReStructuredText to HTML using RstExtensions
+ *  val transformer = Transformer.from(ReStructuredText).to(HTML).using(RstExtensions)
  *  }}}
  * 
  *  See [[http://docutils.sourceforge.net/docs/ref/rst/roles.html]] for details.
@@ -124,7 +124,7 @@ class StandardTextRoles {
     
   /** The raw text role, which is not enabled by default, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/roles.html#raw]] for details.
-   *  It can be enabled with `Transform.from(ReStructuredText).to(HTML).withRawContent`.
+   *  It can be enabled with `Transformer.from(ReStructuredText).to(HTML).withRawContent`.
    */
   lazy val rawTextRole: TextRole =
     TextRole("raw", (Nil:List[String],NoOpt:Options)) {

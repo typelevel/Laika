@@ -90,7 +90,7 @@ trait RstExtensionRegistry extends ExtensionBundle {
     *    val textRoles = Seq()
     *  }
     *
-    *  Transform.from(ReStructuredText).to(HTML)
+    *  Transformer.from(ReStructuredText).to(HTML)
     *    .using(MyDirectives)
     *    .fromFile("hello.rst").toFile("hello.html")
     *  }}}
@@ -116,7 +116,7 @@ trait RstExtensionRegistry extends ExtensionBundle {
     *    val textRoles = Seq()
     *  }
     *
-    *  Transform.from(ReStructuredText).to(HTML)
+    *  Transformer.from(ReStructuredText).to(HTML)
     *    .using(MyDirectives)
     *    .fromFile("hello.rst").toFile("hello.html")
     *  }}}
@@ -141,8 +141,9 @@ trait RstExtensionRegistry extends ExtensionBundle {
     *    val blockDirectives = Seq()
     *  }
     *
-    *  Transform from ReStructuredText to HTML using
-    *    MyDirectives fromFile "hello.rst" toFile "hello.html"
+    *  Transformer.from(ReStructuredText).to(HTML)
+    *    .using(MyDirectives)
+    *    .fromFile("hello.rst").toFile("hello.html")
     *  }}}
     *
     *  For more details on implementing directives see [[laika.rst.ext.TextRoles]].

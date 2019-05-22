@@ -31,9 +31,9 @@ import scala.language.existentials
 /** A renderer for XSL-FO output. May be directly passed to the `Render` or `Transform` APIs:
  * 
  *  {{{
- *  Render as XSLFO from document toFile "hello.fo"
+ *  Renderer.of(XSLFO).build.render(document)
  *  
- *  Transform from Markdown to XSLFO fromFile "hello.md" toFile "hello.fo"
+ *  Transformer.from(Markdown).to(XSLFO).build.transform(inputString)
  *  }}}
  *  
  *  This renderer is usually used as an interim format for producing a PDF, 

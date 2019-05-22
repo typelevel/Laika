@@ -24,9 +24,9 @@ import laika.render._
  *  May be directly passed to the `Render` or `Transform` APIs:
  * 
  *  {{{
- *  Render as AST from document toString
+ *  Renderer.of(AST).build.render(document)
  *  
- *  Transform from Markdown to AST fromFile "hello.md" toConsole
+ *  Transformer.from(Markdown).to(AST).build.transform(inputString)
  *  }}}
  * 
  *  @author Jens Halm

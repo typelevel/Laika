@@ -16,7 +16,7 @@
 
 package laika.render
 
-import laika.api.Render
+import laika.api.Renderer
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.bundle.BundleProvider
@@ -28,16 +28,16 @@ class XSLFORendererSpec extends FlatSpec
                         with ModelBuilder {
  
   
-  def render (elem: Element): String = Render.as(XSLFO).build.render(elem)
+  def render (elem: Element): String = Renderer.of(XSLFO).build.render(elem)
 
   def render (elem: Element, messageLevel: MessageLevel): String =
-    Render.as(XSLFO).withMessageLevel(messageLevel).build.render(elem)
+    Renderer.of(XSLFO).withMessageLevel(messageLevel).build.render(elem)
     
   def render (elem: Element, style: StyleDeclaration): String = 
-    Render.as(XSLFO).using(BundleProvider
+    Renderer.of(XSLFO).using(BundleProvider
       .forTheme(XSLFO.Theme(defaultStyles = StyleDeclarationSet(Path.Root, style)))).build.render(elem)
     
-  def renderUnformatted (elem: Element): String = (Render as XSLFO).unformatted.build.render(elem)
+  def renderUnformatted (elem: Element): String = Renderer.of(XSLFO).unformatted.build.render(elem)
   
   
   "The XSLFO renderer" should "render a paragraph with plain text" in {

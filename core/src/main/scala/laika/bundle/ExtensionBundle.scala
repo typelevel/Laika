@@ -152,7 +152,7 @@ trait ExtensionBundle { self =>
     * `withRawContent` on the `Parse` or `Transform` API:
     *
     * {{{
-    *   Transform.from(Markdown).to(HTML).withRawContent
+    *   Transformer.from(Markdown).to(HTML).withRawContent
     *     .fromFile("hello.md").toFile("hello.html")
     * }}}
     */

@@ -17,7 +17,7 @@
 package laika.directive
 
 import com.typesafe.config.ConfigFactory
-import laika.api.Parse
+import laika.api.{MarkupParser, Parse}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.config.OperationConfig
@@ -33,7 +33,7 @@ class StandardDirectiveSpec extends FlatSpec
 
 
   lazy val templateParser = StandardDirectives.processExtension(DirectiveSupport).parsers.templateParser.get
-  lazy val markupParser = Parse.as(Markdown).build
+  lazy val markupParser = MarkupParser.of(Markdown).build
 
   def parse (input: String): Document = markupParser.parse(input)
 

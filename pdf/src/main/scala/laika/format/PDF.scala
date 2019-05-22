@@ -37,9 +37,9 @@ import org.apache.xmlgraphics.util.MimeConstants
  * 
  *  {{{
  *  val document: Document = ...
- *  Render as PDF from document toFile "hello.pdf"
+ *  Renderer.of(PDF) from document toFile "hello.pdf"
  *  
- *  Transform from Markdown to PDF fromDirectory "book-src" toFile "book.pdf"
+ *  Transformer.from(Markdown).to(PDF) fromDirectory "book-src" toFile "book.pdf"
  *  }}}
  *  
  *  In the second example above the input from an entire directory gets

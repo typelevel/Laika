@@ -40,7 +40,7 @@ class APISpec extends FlatSpec
     val input = """.. oneArg:: arg
       |
       |.. twoArgs:: arg arg""".stripMargin
-    Parse.as(ReStructuredText).using(ExtensionProvider.forExtensions(blocks = directives)).build.parse(input)
+    MarkupParser.of(ReStructuredText).using(ExtensionProvider.forExtensions(blocks = directives)).build.parse(input)
       .content should be (root (p("arg"),p("argarg")))
   }
   
@@ -54,7 +54,7 @@ class APISpec extends FlatSpec
       |.. |one| oneArg:: arg
       |
       |.. |two| twoArgs:: arg arg""".stripMargin
-    Parse.as(ReStructuredText).using(ExtensionProvider.forExtensions(spans = directives)).build.parse(input)
+    MarkupParser.of(ReStructuredText).using(ExtensionProvider.forExtensions(spans = directives)).build.parse(input)
       .content should be (root
         (p(txt("foo "), txt("arg"), txt(" foo "), txt("argarg"))))
   }
@@ -77,7 +77,7 @@ class APISpec extends FlatSpec
       |.. role::two(twoArgs)
       | :name1: val1
       | :name2: val2""".stripMargin
-    Parse.as(ReStructuredText).using(ExtensionProvider.forExtensions(roles = roles)).build.parse(input)
+    MarkupParser.of(ReStructuredText).using(ExtensionProvider.forExtensions(roles = roles)).build.parse(input)
       .content should be (root (p(txt("foo "), txt("valone"), txt(" foo "), txt("val1val2two"))))
   }
   
@@ -116,7 +116,7 @@ class APISpec extends FlatSpec
       val input = """@:oneArg arg.
         |
         |@:twoArgs arg1 name=arg2.""".stripMargin
-      Parse.as(ReStructuredText).using(TestDirectives).build.parse(input).content should be (root (p("arg"),p("arg1arg2")))
+      MarkupParser.of(ReStructuredText).using(TestDirectives).build.parse(input).content should be (root (p("arg"),p("arg1arg2")))
     }
   }
 
@@ -125,27 +125,27 @@ class APISpec extends FlatSpec
       val input = """@:oneArg arg.
         |
         |@:twoArgs arg1 name=arg2.""".stripMargin
-      Parse.as(ReStructuredText).using(TestDirectives).strict.build.parse(input).content should be (root (p("@:oneArg arg."),p("@:twoArgs arg1 name=arg2.")))
+      MarkupParser.of(ReStructuredText).using(TestDirectives).strict.build.parse(input).content should be (root (p("@:oneArg arg."),p("@:twoArgs arg1 name=arg2.")))
     }
   }
   
   it should "support the registration of Laika span directives" in {
     new SpanDirectives {
       val input = """one @:oneArg arg. two @:twoArgs arg1 name=arg2. three"""
-      Parse.as(ReStructuredText).using(TestDirectives).build.parse(input).content should be (root (p("one arg two arg1arg2 three")))
+      MarkupParser.of(ReStructuredText).using(TestDirectives).build.parse(input).content should be (root (p("one arg two arg1arg2 three")))
     }
   }
 
   it should "ignore the registration of Laika span directives when run in strict mode" in {
     new SpanDirectives {
       val input = """one @:oneArg arg. two @:twoArgs arg1 name=arg2. three"""
-      Parse.as(ReStructuredText).using(TestDirectives).strict.build.parse(input).content should be (root (p("one @:oneArg arg. two @:twoArgs arg1 name=arg2. three")))
+      MarkupParser.of(ReStructuredText).using(TestDirectives).strict.build.parse(input).content should be (root (p("one @:oneArg arg. two @:twoArgs arg1 name=arg2. three")))
     }
   }
   
   it should "pre-process tabs" in {
     val input = " Line1\n\tLine2\n\tLine3"
-    Parse.as(ReStructuredText).build.parse(input).content should be (root( quote(defList + ("Line1", p("Line2\nLine3")))))
+    MarkupParser.of(ReStructuredText).build.parse(input).content should be (root( quote(defList + ("Line1", p("Line2\nLine3")))))
   }
   
 

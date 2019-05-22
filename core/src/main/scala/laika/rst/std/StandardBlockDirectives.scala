@@ -285,7 +285,7 @@ class StandardBlockDirectives {
   
   /** The raw directive, which is not enabled by default, 
    *  see [[http://docutils.sourceforge.net/docs/ref/rst/directives.html#raw-data-pass-through]] for details.
-   *  It can be enabled with `Transform.from(ReStructuredText).to(HTML).withRawContent`.
+   *  It can be enabled with `Transformer.from(ReStructuredText).to(HTML).withRawContent`.
    */
   lazy val rawDirective: Directive[Block] = BlockDirective("raw") {
     (argument(withWS = true) ~ content(Right(_))) { (formats, content) =>

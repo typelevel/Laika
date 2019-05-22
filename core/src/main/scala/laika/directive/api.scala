@@ -370,7 +370,7 @@ trait BuilderContext[E <: Element] {
     *    val blockDirectives = Seq()
     *  }
     *
-    *  Transform from Markdown to HTML using MyDirectives fromFile "hello.md" toFile "hello.html"
+    *  Transformer.from(Markdown).to(HTML).using(MyDirectives) fromFile "hello.md" toFile "hello.html"
     *  }}}
     *
     *  The `attribute(Default)` combinator specifies a required attribue of type `String` (since no conversion

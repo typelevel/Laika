@@ -18,7 +18,7 @@ package laika.io
 
 import java.io._
 
-import laika.api.Transform
+import laika.api.{Transform, Transformer}
 import laika.api.Transform.TransformMappedOutput
 import laika.ast.DocumentType.Static
 import laika.ast.Path.Root
@@ -46,14 +46,14 @@ class ParallelTransformerSpec extends FlatSpec
     |. Paragraph - Spans: 1
     |. . Text - 'text'""".stripMargin
     
-  val transform = Transform from Markdown to AST
+  val transform = Transformer.from(Markdown).to(AST
   
   
   "The Transform API" should "transform from string to string" in {
     (transform transform input) should be (output)
   }
   
-//  it should "transform from file to file" ignore {
+//  it should "Transformer.from(file to file" ignore {
 //    val inFile = getClass.getResource("/testInput2.md").getFile
 //    val outFile = File.createTempFile("output", null)
 //    implicit val codec:Codec = Codec.UTF8
@@ -134,7 +134,7 @@ class ParallelTransformerSpec extends FlatSpec
     def input (source: String, docTypeMatcher: Path => DocumentType): TreeInput = parseTreeStructure(source, docTypeMatcher)
 
     def transformTree: RenderedTree = transformWith()
-    def transformMultiMarkup: RenderedTree = transformWith(Transform from Markdown or ReStructuredText to AST)
+    def transformMultiMarkup: RenderedTree = transformWith(Transformer.from(Markdown or ReStructuredText to AST)
     
     def transformWithConfig (config: String): RenderedTree = transformWithBundle(BundleProvider.forConfigString(config))
     def transformWithDocTypeMatcher (matcher: PartialFunction[Path, DocumentType]): RenderedTree = transformWithBundle(BundleProvider.forDocTypeMatcher(matcher))
@@ -256,7 +256,7 @@ class ParallelTransformerSpec extends FlatSpec
       val dirs = """- doc1.md:name
         |- styles.fo.css:style""".stripMargin
       val result = RenderResult.fo.withDefaultTemplate("""<fo:block font-family="serif" font-size="13pt" space-after="3mm">foo</fo:block>""")
-      val transform = Transform.from(Markdown).to(XSLFO).inParallel.using(BundleProvider.forStyleSheetParser(parser))
+      val transform = Transformer.from(Markdown).to(XSLFO).inParallel.using(BundleProvider.forStyleSheetParser(parser))
       val renderResult = transform.fromTreeInput(input(dirs, transform.config.docTypeMatcher)).toOutputTree(StringTreeOutput).execute
       OutputBuilder.RenderedTree.toTreeView(renderResult.tree) should be (root(List(docs(
         (Root / "doc1.fo", result)
@@ -406,13 +406,13 @@ class ParallelTransformerSpec extends FlatSpec
   
   it should "render a tree with a RenderResultProcessor writing to an output stream" ignore new GatheringTransformer {
 //    val out = new ByteArrayOutputStream
-//    (Transform from ReStructuredText to TestRenderResultProcessor fromTreeInput input(dirs) toStream out).execute
+//    (Transformer.from(ReStructuredText).to(TestRenderResultProcessor fromTreeInput input(dirs) toStream out).execute
 //    out.toString should be (expectedResult)
   }
   
   it should "render a tree with a RenderResultProcessor writing to a file" in new GatheringTransformer {
     val f = File.createTempFile("output", null)
-    val transform = Transform.from(ReStructuredText).to(TestRenderResultProcessor)
+    val transform = Transformer.from(ReStructuredText).to(TestRenderResultProcessor)
     transform.fromTreeInput(input(dirs, transform.config.docTypeMatcher)).toFile(f).execute
     readFile(f) should be (expectedResult)
   }
@@ -420,7 +420,7 @@ class ParallelTransformerSpec extends FlatSpec
   it should "render a tree with a RenderResultProcessor overriding the default renderer for specific element types" ignore new GatheringTransformer {
 //    val modifiedResult = expectedResult.replaceAllLiterally(". Text", ". String")
 //    val out = new ByteArrayOutputStream
-//    (Transform from ReStructuredText to TestRenderResultProcessor rendering { 
+//    (Transformer.from(ReStructuredText).to(TestRenderResultProcessor rendering { 
 //      out => { case Text(content,_) => out << "String - '" << content << "'" } 
 //    } fromTreeInput input(dirs) toStream out).execute
 //    out.toString should be (modifiedResult)
@@ -429,7 +429,7 @@ class ParallelTransformerSpec extends FlatSpec
   it should "render a tree with a RenderResultProcessor with a custom rewrite rule" ignore new GatheringTransformer {
 //    val modifiedResult = expectedResult.replaceAllLiterally("Title'", "zzz'")
 //    val out = new ByteArrayOutputStream
-//    (Transform from ReStructuredText to TestRenderResultProcessor usingSpanRule { 
+//    (Transformer.from(ReStructuredText).to(TestRenderResultProcessor usingSpanRule { 
 //      case Text(txt,_) => Replace(Text(txt.replaceAllLiterally("Title", "zzz"))) 
 //    } fromTreeInput input(dirs) toStream out).execute
 //    out.toString should be (modifiedResult)
@@ -438,7 +438,7 @@ class ParallelTransformerSpec extends FlatSpec
   it should "render a tree with a RenderResultProcessor with multiple custom rewrite rules" ignore new GatheringTransformer {
 //    val modifiedResult = expectedResult.replaceAllLiterally("Title'", "zzz'").replaceAllLiterally("bbb", "xxx")
 //    val out = new ByteArrayOutputStream
-//    (Transform from ReStructuredText to TestRenderResultProcessor usingSpanRule { 
+//    (Transformer.from(ReStructuredText).to(TestRenderResultProcessor usingSpanRule { 
 //      case Text(txt,_) => Replace(Text(txt.replaceAllLiterally("Title", "zzz"))) 
 //    } usingSpanRule { 
 //      case Text("bbb",_) => Replace(Text("xxx")) 
@@ -449,7 +449,7 @@ class ParallelTransformerSpec extends FlatSpec
   it should "render a tree with a RenderResultProcessor with a custom rewrite rule that depends on the document cursor" ignore new GatheringTransformer {
 //    val modifiedResult = expectedResult.replaceAllLiterally("Sub Title", "Sub docSub.rst")
 //    val out = new ByteArrayOutputStream
-//    (Transform from ReStructuredText to TestRenderResultProcessor creatingRule { cursor => RewriteRules.forSpans { 
+//    (Transformer.from(ReStructuredText).to(TestRenderResultProcessor creatingRule { cursor => RewriteRules.forSpans { 
 //      case Text("Sub Title",_) => Replace(Text("Sub " + cursor.target.path.name))
 //    }} fromTreeInput input(dirs) toStream out).execute
 //    out.toString should be (modifiedResult)

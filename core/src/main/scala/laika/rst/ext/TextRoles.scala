@@ -77,8 +77,9 @@ import laika.rst.bundle.RstExtension
  *    val blockDirectives = Seq()
  *  }
  *
- *  Transform from ReStructuredText to HTML using
- *    MyDirectives fromFile "hello.rst" toFile "hello.html"
+ *  Transformer.from(ReStructuredText).to(HTML)
+ *    .using(MyDirectives)
+ *    .fromFile("hello.rst").toFile("hello.html")
  *  }}}
  * 
  *  We specify the name of the role to be `link`, and the default value the URL provided as the

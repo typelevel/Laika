@@ -16,7 +16,7 @@
 
 package laika.sbt
 
-import laika.api.{Parse, Render}
+import laika.api.{MarkupParser, Parse, Render, Renderer}
 import laika.config.{BundleFilter, ParallelConfig}
 import laika.execute.InputExecutor
 import laika.factory.{RenderFormat, RenderResultProcessor}
@@ -53,7 +53,7 @@ object Tasks {
     if (formats.isEmpty) throw new IllegalArgumentException("At least one format must be specified")
 
     val parser = {
-      val parser = Parse.as(Markdown).or(ReStructuredText)
+      val parser = MarkupParser.of(Markdown).or(ReStructuredText)
       val userConfig = laikaConfig.value
       val mergedConfig = parser.config.copy(
         bundleFilter = BundleFilter(strict = userConfig.strict, acceptRawContent = userConfig.rawContent),
@@ -85,7 +85,7 @@ object Tasks {
 
       if (!targetDir.exists) targetDir.mkdirs()
 
-      Render.as(format).withConfig(parser.config).from(tree).toDirectory(targetDir)(laikaConfig.value.encoding)
+      Renderer.of(format).withConfig(parser.config).from(tree).toDirectory(targetDir)(laikaConfig.value.encoding)
 
       streams.value.log.info(Logs.outputs(tree, formatDesc))
       streams.value.log.info(s"Generated $formatDesc in $targetDir")
@@ -96,7 +96,7 @@ object Tasks {
     def renderWithProcessor[W] (processor: RenderResultProcessor[W], targetFile: File, formatDesc: String): Set[File] = {
       targetFile.getParentFile.mkdirs()
 
-      val render = Render.as(processor).withConfig(parser.config)
+      val render = Renderer.of(processor).withConfig(parser.config)
       render.from(tree).toFile(targetFile)
 
       streams.value.log.info(s"Generated $formatDesc in $targetFile")

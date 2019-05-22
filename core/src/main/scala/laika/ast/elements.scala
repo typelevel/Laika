@@ -930,7 +930,7 @@ object Styles {
 }
 
 private[ast] object ASTRenderer {
-  lazy val get: Renderer = Render.as(AST).build
+  lazy val get: Renderer = Renderer.of(AST).build
 }
 
 /** Companion for the Options trait.

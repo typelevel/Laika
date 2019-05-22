@@ -16,7 +16,7 @@
 
 package laika.io
 
-import laika.api.Parse
+import laika.api.{MarkupParser, Parse}
 import laika.ast.DocumentType._
 import laika.ast.Path.Root
 import laika.ast._
@@ -107,7 +107,7 @@ class ParallelParserSpec extends FlatSpec
         |]""".stripMargin
     )
     
-    val docTypeMatcher = Parse.as(Markdown).or(ReStructuredText).config.docTypeMatcher
+    val docTypeMatcher = MarkupParser.of(Markdown).or(ReStructuredText).config.docTypeMatcher
     
     def builder (source: String): TreeInput = parseTreeStructure(source, docTypeMatcher)
     
@@ -117,19 +117,19 @@ class ParallelParserSpec extends FlatSpec
   
     def withTemplatesApplied (tree: DocumentTree): DocumentTree = TemplateRewriter.applyTemplates(tree, "html")
     
-    def parsedTree = viewOf(withTemplatesApplied(Parse.as(Markdown).fromTreeInput(builder(dirs)).execute.tree))
+    def parsedTree = viewOf(withTemplatesApplied(MarkupParser.of(Markdown).fromTreeInput(builder(dirs)).execute.tree))
     
-    def rawParsedTree = viewOf(Parse.as(Markdown).withoutRewrite.fromTreeInput(builder(dirs)).execute)
+    def rawParsedTree = viewOf(MarkupParser.of(Markdown).withoutRewrite.fromTreeInput(builder(dirs)).execute)
 
-    def rawMixedParsedTree = viewOf(Parse.as(Markdown).or(ReStructuredText).withoutRewrite.fromTreeInput(builder(dirs)).execute)
+    def rawMixedParsedTree = viewOf(MarkupParser.of(Markdown).or(ReStructuredText).withoutRewrite.fromTreeInput(builder(dirs)).execute)
     
-    def parsedInParallel = viewOf(withTemplatesApplied(Parse.as(Markdown).inParallel.fromTreeInput(builder(dirs)).execute.tree))
+    def parsedInParallel = viewOf(withTemplatesApplied(MarkupParser.of(Markdown).inParallel.fromTreeInput(builder(dirs)).execute.tree))
 
     def parsedWith (bundle: ExtensionBundle) =
-      viewOf(withTemplatesApplied(Parse.as(Markdown).using(bundle).fromTreeInput(builder(dirs)).execute.tree))
+      viewOf(withTemplatesApplied(MarkupParser.of(Markdown).using(bundle).fromTreeInput(builder(dirs)).execute.tree))
       
     def parsedRawWith (bundle: ExtensionBundle = ExtensionBundle.Empty, customMatcher: PartialFunction[Path, DocumentType] = PartialFunction.empty) =
-      viewOf(Parse.as(Markdown).withoutRewrite.using(bundle).fromTreeInput(parseTreeStructure(dirs, customMatcher.orElse({case path => docTypeMatcher(path)}))).execute)
+      viewOf(MarkupParser.of(Markdown).withoutRewrite.using(bundle).fromTreeInput(parseTreeStructure(dirs, customMatcher.orElse({case path => docTypeMatcher(path)}))).execute)
   }
   
 
@@ -323,7 +323,7 @@ class ParallelParserSpec extends FlatSpec
         |  - rectangle.md:name
         |- cherry.md:name
         |- directory.conf:order""".stripMargin
-      val tree = Parse as Markdown fromTreeInput builder(dirs)
+      val tree = MarkupParser.of(Markdown) fromTreeInput builder(dirs)
       tree.execute.tree.content map (_.path.name) should be (List("lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
     }
   }
@@ -340,7 +340,7 @@ class ParallelParserSpec extends FlatSpec
                    |  - rectangle.md:name
                    |- cherry.md:name
                    |- directory.conf:order""".stripMargin
-      val tree = Parse.as(Markdown).fromTreeInput(builder(dirs)).execute.tree
+      val tree = MarkupParser.of(Markdown).fromTreeInput(builder(dirs)).execute.tree
       
       tree.titleDocument.map(_.path.basename) shouldBe Some("title")
       
@@ -387,7 +387,7 @@ class ParallelParserSpec extends FlatSpec
       Documents(Markup, List(docView(1),docView(2))),
       Subtrees(List(subtree1,subtree2))
     ))
-    viewOf(Parse.as(Markdown).fromDirectory(dirname).execute) should be (treeResult)
+    viewOf(MarkupParser.of(Markdown).fromDirectory(dirname).execute) should be (treeResult)
   }
   
   it should "read a directory from the file system using the fromDirectories method" in {
@@ -401,7 +401,7 @@ class ParallelParserSpec extends FlatSpec
       Documents(Markup, List(docView(1),docView(2),docView(9))),
       Subtrees(List(subtree1,subtree2,subtree3))
     ))
-    viewOf(Parse.as(Markdown).fromDirectories(Seq(dir1,dir2)).execute) should be (treeResult)
+    viewOf(MarkupParser.of(Markdown).fromDirectories(Seq(dir1,dir2)).execute) should be (treeResult)
   }
 
   it should "read a directory from the file system containing a file with non-ASCII characters" in {
@@ -410,7 +410,7 @@ class ParallelParserSpec extends FlatSpec
     val treeResult = TreeView(Root, List(
       Documents(Markup, List(docView(1)))
     ))
-    viewOf(Parse.as(Markdown).fromDirectory(dirname).execute) should be (treeResult)
+    viewOf(MarkupParser.of(Markdown).fromDirectory(dirname).execute) should be (treeResult)
   }
   
   it should "allow to specify a custom exclude filter" in {
@@ -421,7 +421,7 @@ class ParallelParserSpec extends FlatSpec
       Documents(Markup, List(docView(2))),
       Subtrees(List(subtree2))
     ))
-    viewOf(Parse.as(Markdown).fromDirectory(dirname, {f:java.io.File => f.getName == "doc1.md" || f.getName == "dir1"}).execute) should be (treeResult)
+    viewOf(MarkupParser.of(Markdown).fromDirectory(dirname, {f:java.io.File => f.getName == "doc1.md" || f.getName == "dir1"}).execute) should be (treeResult)
   }
   
   it should "read a directory from the file system using the Directory object" in {
@@ -433,7 +433,7 @@ class ParallelParserSpec extends FlatSpec
       Documents(Markup, List(docView(1),docView(2))),
       Subtrees(List(subtree1,subtree2))
     ))
-    viewOf(Parse.as(Markdown).fromDirectory(dirname).execute) should be (treeResult)
+    viewOf(MarkupParser.of(Markdown).fromDirectory(dirname).execute) should be (treeResult)
   }
 
 }

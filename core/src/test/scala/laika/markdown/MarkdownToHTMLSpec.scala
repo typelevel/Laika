@@ -16,8 +16,8 @@
 
 package laika.markdown
 
-import laika.api.Transform
-import laika.ast.{Comment, QuotedBlock}
+import laika.api.Transformer
+import laika.ast.QuotedBlock
 import laika.format.{HTML, Markdown}
 import laika.transform.helper.FileTransformerUtil
 import org.scalatest.{FlatSpec, Matchers}
@@ -51,7 +51,7 @@ class MarkdownToHTMLSpec extends FlatSpec
   def transformAndCompare (name: String): Unit = {
     val path = classPathResourcePath("/markdownTestSuite") + "/" + name
     val input = readFile(path + ".md")
-    val actual = Transform
+    val actual = Transformer
       .from(Markdown).to(HTML)
       .strict.withRawContent
       .rendering {

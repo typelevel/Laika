@@ -25,12 +25,12 @@ import laika.rst._
 import laika.rst.bundle._
   
 /** A parser for text written in reStructuredText markup. Instances of this class may be passed directly
- *  to the `Parse` or `Transform` APIs:
+ *  to the `Parseer` or `Transformer` APIs:
  *  
  *  {{{
- *  val document = Parse as ReStructuredText fromFile "hello.rst"
+ *  val document = MarkupParser.of(ReStructuredText).build.parse(inputString)
  *  
- *  Transform from ReStructuredText to HTML fromFile "hello.rst" toFile "hello.html"
+ *  Transformer.from(ReStructuredText).to(HTML).build.transform(inputString)
  *  }}}
  * 
  *  reStructuredText has several types of extension points that are fully supported by Laika.

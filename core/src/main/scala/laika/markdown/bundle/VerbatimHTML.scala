@@ -30,7 +30,7 @@ import laika.markdown.HTMLParsers
   *  You can enable it with the Transform API:
   *
   *  {{{
-  *  val transform = Transform.from(Markdown).to(HTML).withRawContent
+  *  val transformer = Transformer.from(Markdown).to(HTML).withRawContent
   *  }}}
   *
   *  @author Jens Halm

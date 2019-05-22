@@ -16,7 +16,7 @@
 
 package laika.rst.bundle
 
-import laika.api.Render
+import laika.api.Renderer
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.{HTML, ReStructuredText}
@@ -28,10 +28,10 @@ class ExtendedHTMLRendererSpec extends FlatSpec
                        with ModelBuilder {
  
   
-  def render (elem: Element): String = Render.as(HTML).using(ReStructuredText.extensions:_*).build.render(elem)
+  def render (elem: Element): String = Renderer.of(HTML).using(ReStructuredText.extensions:_*).build.render(elem)
   
   def render (elem: Element, messageLevel: MessageLevel): String = 
-    Render.as(HTML).withMessageLevel(messageLevel).using(ReStructuredText.extensions:_*).build.render(elem)
+    Renderer.of(HTML).withMessageLevel(messageLevel).using(ReStructuredText.extensions:_*).build.render(elem)
   
   
   "The Extended HTML renderer" should "render a doctest block" in {

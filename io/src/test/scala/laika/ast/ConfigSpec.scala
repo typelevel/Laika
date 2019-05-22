@@ -16,7 +16,7 @@
 
 package laika.ast
 
-import laika.api.Parse
+import laika.api.MarkupParser
 import laika.ast.helper.ModelBuilder
 import laika.bundle.BundleProvider
 import laika.format.{Markdown, ReStructuredText}
@@ -47,8 +47,8 @@ class ConfigSpec extends FlatSpec
       |<div>{{document.content}}</div>
       |CCC""".stripMargin
     
-    val mdMatcher = Parse.as(Markdown).config.docTypeMatcher
-    val rstMatcher = Parse.as(ReStructuredText).config.docTypeMatcher
+    val mdMatcher = MarkupParser.of(Markdown).config.docTypeMatcher
+    val rstMatcher = MarkupParser.of(ReStructuredText).config.docTypeMatcher
       
     def builder (source: String, docTypeMatcher: Path => DocumentType): TreeInput = parseTreeStructure(source, docTypeMatcher)
     
@@ -79,7 +79,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(Parse.as(Markdown).fromTreeInput(builder(dir, mdMatcher)).execute) should be (expected)
+      resultOf(MarkupParser.of(Markdown).fromTreeInput(builder(dir, mdMatcher)).execute) should be (expected)
     }
   }
   
@@ -96,7 +96,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(Parse.as(ReStructuredText).fromTreeInput(builder(dir, rstMatcher)).execute) should be (expected)
+      resultOf(MarkupParser.of(ReStructuredText).fromTreeInput(builder(dir, rstMatcher)).execute) should be (expected)
     }
   }
   
@@ -111,7 +111,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(Parse.as(Markdown).fromTreeInput(builder(dir, mdMatcher)).execute) should be (expected)
+      resultOf(MarkupParser.of(Markdown).fromTreeInput(builder(dir, mdMatcher)).execute) should be (expected)
     }
   }
   
@@ -126,7 +126,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(Parse.as(ReStructuredText).fromTreeInput(builder(dir, rstMatcher)).execute) should be (expected)
+      resultOf(MarkupParser.of(ReStructuredText).fromTreeInput(builder(dir, rstMatcher)).execute) should be (expected)
     }
   }
   
@@ -161,7 +161,7 @@ class ConfigSpec extends FlatSpec
         )
       )
       
-      val op = Parse.as(Markdown).using(BundleProvider.forConfigString(config5)).fromTreeInput(builder(dirs, mdMatcher))
+      val op = MarkupParser.of(Markdown).using(BundleProvider.forConfigString(config5)).fromTreeInput(builder(dirs, mdMatcher))
       val result = TemplateRewriter.applyTemplates(op.execute.tree, "html")
       result.selectDocument(Path.Current / "dir" / "input.md").get.content should be (expected)
     }

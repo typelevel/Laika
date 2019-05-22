@@ -24,12 +24,12 @@ import laika.markdown.bundle.{HeaderIdInsertion, VerbatimHTML}
 import laika.parse.Parser
   
 /** A parser for Markdown text. Instances of this class may be passed directly
- *  to the `Parse` or `Transform` APIs:
+ *  to the `Parser` or `Transformer` APIs:
  *  
  *  {{{
- *  val document = Parse as Markdown fromFile "hello.md"
+ *  val document = MarkupParser.of(Markdown).build.parse(inputString)
  *  
- *  Transform from Markdown to HTML fromFile "hello.md" toFile "hello.html"
+ *  Transformer.from(Markdown).to(HTML).build.transform(inputString)
  *  }}}
  *  
  *  Since this library is not solely focused on producing HTML output,
@@ -39,7 +39,7 @@ import laika.parse.Parser
  *  It must be enabled explicitly:
  *  
  *  {{{
- *  val document = Parse.as(Markdown).withRawContent.fromFile("hello.md")
+ *  val parser = MarkupParser.of(Markdown).withRawContent.build
  *  }}}
  *  
  *  To switch off all custom extensions like directives,
@@ -47,8 +47,7 @@ import laika.parse.Parser
  *  id generation for headers, you can run the parser in strict mode:
  *  
  *  {{{
- *  Transform.from(Markdown).to(HTML).strict
- *    .fromFile("hello.md").toFile("hello.html")
+ *  val transformer = Transformer.from(Markdown).to(HTML).strict
  *  }}}
  * 
  *  @author Jens Halm

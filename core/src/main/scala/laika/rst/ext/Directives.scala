@@ -83,8 +83,9 @@ import laika.rst.bundle.RstExtension
  *    val textRoles = Nil
  *  )
  *
- *  Transform from ReStructuredText to HTML using
- *    MyDirectives fromFile "hello.rst" toFile "hello.html"
+ *  Transformer.from(ReStructuredText).to(HTML)
+ *    .using(MyDirectives)
+ *    .fromFile("hello.rst").toFile("hello.html")
  *  }}}
  * 
  *  The `argument()` method specifies a required argument of type `String` (since no conversion

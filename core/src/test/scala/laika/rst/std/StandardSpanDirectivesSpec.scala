@@ -19,7 +19,7 @@ package laika.rst.std
 import java.text.SimpleDateFormat
 import java.util.Date
 
-import laika.api.Parse
+import laika.api.{MarkupParser, Parse}
 import laika.ast.Path.{Current, Root}
 import laika.ast._
 import laika.ast.helper.ModelBuilder
@@ -34,7 +34,7 @@ class StandardSpanDirectivesSpec extends FlatSpec
                                   with ModelBuilder {
 
 
-  def parse (input: String): RootElement = Parse.as(ReStructuredText).build.parse(input).content
+  def parse (input: String): RootElement = MarkupParser.of(ReStructuredText).build.parse(input).content
   
   val imgPath = Some(PathInfo(Root / "picture.jpg", Current / "picture.jpg"))
   

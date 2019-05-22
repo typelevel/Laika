@@ -24,9 +24,9 @@ import laika.render.{HTMLFormatter, HTMLRenderer, TempResourceProvider}
 /** A render format for HTML output. May be directly passed to the `Render` or `Transform` APIs:
  * 
  *  {{{
- *  Render as HTML from document toFile "hello.html"
+ *  Renderer.of(HTML).build.render(document)
  *  
- *  Transform from Markdown to HTML fromFile "hello.md" toFile "hello.html"
+ *  Transformer.from(Markdown).to(HTML).build.transform(inputString)
  *  }}}
  * 
  *  @author Jens Halm

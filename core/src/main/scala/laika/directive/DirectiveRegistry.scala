@@ -63,7 +63,7 @@ trait DirectiveRegistry extends ExtensionBundle {
     *    val templateDirectives = Seq()
     *  }
     *
-    *  Transform from Markdown to HTML using MyDirectives fromFile "hello.md" toFile "hello.html"
+    *  Transformer.from(Markdown).to(HTML).using(MyDirectives) fromFile "hello.md" toFile "hello.html"
     *  }}}
     *
     *  The code above registers a span directive that detects markup like
@@ -91,7 +91,7 @@ trait DirectiveRegistry extends ExtensionBundle {
     *    val templateDirectives = Seq()
     *  }
     *
-    *  Transform from Markdown to HTML using MyDirectives fromFile "hello.md" toFile "hello.html"
+    *  Transformer.from(Markdown).to(HTML).using(MyDirectives) fromFile "hello.md" toFile "hello.html"
     *  }}}
     *
     *  For more details on implementing Laika directives see [[laika.directive.BuilderContext.dsl]].
@@ -117,7 +117,7 @@ trait DirectiveRegistry extends ExtensionBundle {
     *    val spanDirectives = Seq()
     *  }
     *
-    *  Transform from Markdown to HTML using MyDirectives fromFile "hello.md" toFile "hello.html"
+    *  Transformer.from(Markdown).to(HTML).using(MyDirectives) fromFile "hello.md" toFile "hello.html"
     *  }}}
     *
     *  The code above registers a template directive that detects markup like

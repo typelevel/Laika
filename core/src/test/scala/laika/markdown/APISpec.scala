@@ -16,7 +16,7 @@
 
 package laika.markdown
 
-import laika.api.Parse
+import laika.api.MarkupParser
 import laika.ast.helper.ModelBuilder
 import laika.directive.DirectiveRegistry
 import laika.format.Markdown
@@ -65,7 +65,7 @@ class APISpec extends FlatSpec
       val input = """@:oneArg arg.
         |
         |@:twoArgs arg1 name=arg2.""".stripMargin
-      Parse.as(Markdown).using(TestDirectives).build.parse(input).content should be (root (p("arg"),p("arg1arg2")))
+      MarkupParser.of(Markdown).using(TestDirectives).build.parse(input).content should be (root (p("arg"),p("arg1arg2")))
     }
   }
 
@@ -74,21 +74,21 @@ class APISpec extends FlatSpec
       val input = """@:oneArg arg.
         |
         |@:twoArgs arg1 name=arg2.""".stripMargin
-      Parse.as(Markdown).using(TestDirectives).strict.build.parse(input).content should be (root (p("@:oneArg arg."),p("@:twoArgs arg1 name=arg2.")))
+      MarkupParser.of(Markdown).using(TestDirectives).strict.build.parse(input).content should be (root (p("@:oneArg arg."),p("@:twoArgs arg1 name=arg2.")))
     }
   }
   
   it should "support the registration of span directives" in {
     new SpanDirectives {
       val input = """one @:oneArg arg. two @:twoArgs arg1 name=arg2. three""".stripMargin
-      Parse.as(Markdown).using(TestDirectives).build.parse(input).content should be (root (p("one arg two arg1arg2 three")))
+      MarkupParser.of(Markdown).using(TestDirectives).build.parse(input).content should be (root (p("one arg two arg1arg2 three")))
     }
   }
 
   it should "ignore the registration of span directives when run in strict mode" in {
     new SpanDirectives {
       val input = """one @:oneArg arg. two @:twoArgs arg1 name=arg2. three"""
-      Parse.as(Markdown).using(TestDirectives).strict.build.parse(input).content should be (root (p("one @:oneArg arg. two @:twoArgs arg1 name=arg2. three")))
+      MarkupParser.of(Markdown).using(TestDirectives).strict.build.parse(input).content should be (root (p("one @:oneArg arg. two @:twoArgs arg1 name=arg2. three")))
     }
   }
   

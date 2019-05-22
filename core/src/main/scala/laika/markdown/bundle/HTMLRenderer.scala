@@ -30,7 +30,7 @@ import laika.render.HTMLFormatter
   *  It must be applied explicitly as part of the `VerbatimHTML` bundle when enabling verbatim HTML:
   *
   *  {{{
-  *  val transform = Transform.from(Markdown).to(HTML).withRawContent
+  *  val transformer = Transformer.from(Markdown).to(HTML).withRawContent
   *  }}}
   *
   *  @author Jens Halm
