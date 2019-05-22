@@ -20,7 +20,7 @@ import com.typesafe.config.Config
 import laika.ast._
 import laika.bundle.{DocumentTypeMatcher, ExtensionBundle, MarkupExtensions}
 import laika.directive.{DirectiveSupport, StandardDirectives}
-import laika.factory.{MarkupParser, RenderFormat}
+import laika.factory.{MarkupFormat, RenderFormat}
 import laika.parse.Parser
 import laika.parse.combinator.Parsers
 import laika.parse.directive.ConfigHeaderParser
@@ -111,7 +111,7 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
   /** Returns a new instance with the extension bundles provided by the specified markup
     * parser added to the bundles defined in this instance.
     */
-  def withBundlesFor (parser: MarkupParser): OperationConfig = {
+  def withBundlesFor (parser: MarkupFormat): OperationConfig = {
     val docTypeMatcher = new ExtensionBundle {
       override val docTypeMatcher: PartialFunction[Path, DocumentType] =
         DocumentTypeMatcher.forMarkup(parser.fileSuffixes)

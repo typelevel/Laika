@@ -5,7 +5,7 @@ import laika.api.Parse
 import laika.ast._
 import laika.bundle.ConfigProvider
 import laika.config.OperationConfig
-import laika.factory.MarkupParser
+import laika.factory.MarkupFormat
 import laika.io.{DirectoryInput, IO, InputCollection, TextInput}
 import laika.parse.combinator.Parsers.documentParserFunction
 import laika.parse.markup.DocumentParser
@@ -104,7 +104,7 @@ object ParseExecutor {
     DocumentTreeRoot(finalTree, None, styles, inputs.binaryInputs, op.input.sourcePaths)
   }
 
-  private case class ParserLookup (parsers: Seq[MarkupParser], config: OperationConfig) {
+  private case class ParserLookup (parsers: Seq[MarkupFormat], config: OperationConfig) {
 
     private def suffix (name: String): String = name.lastIndexOf(".") match {
       case -1    => ""

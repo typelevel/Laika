@@ -26,7 +26,7 @@ import laika.parse.text.TextParsers
  *  
  *  @author Jens Halm
  */
-trait MarkupParser {
+trait MarkupFormat {
   
   /** The file suffixes recognized by this parser.
    *  When transforming entire directories only files with
@@ -75,6 +75,6 @@ trait MarkupParser {
     * for special requirements, for example when the previous result has an influence on
     * which parser to pick for the subsequent block.
     */
-  def createBlockListParser (parser: Parser[Block]): Parser[Seq[Block]] = (parser <~ (TextParsers.blankLines).?)*
+  def createBlockListParser (parser: Parser[Block]): Parser[Seq[Block]] = (parser <~ TextParsers.blankLines.?)*
 
 }

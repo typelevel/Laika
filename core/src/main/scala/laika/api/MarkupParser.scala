@@ -19,11 +19,12 @@ package laika.api
 import laika.ast.{Document, Path}
 import laika.ast.Path.Root
 import laika.config.OperationConfig
+import laika.factory.MarkupFormat
 import laika.parse.ParserContext
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.ParserInput
 
-class MarkupParser (parser: laika.factory.MarkupParser, val config: OperationConfig, rewrite: Boolean) {
+class MarkupParser (parser: MarkupFormat, val config: OperationConfig, rewrite: Boolean) {
 
   private val docParser = DocumentParser.forMarkup(parser, config.markupExtensions, config.configHeaderParser)
 
@@ -51,7 +52,7 @@ object MarkupParser {
     *
     *  @param parser the parser factory to use for all subsequent operations
     */
-  def as (parser: laika.factory.MarkupParser): Parse = new Parse(
+  def as (parser: MarkupFormat): Parse = new Parse(
     parser,
     OperationConfig.default.withBundlesFor(parser),
     rewrite = true

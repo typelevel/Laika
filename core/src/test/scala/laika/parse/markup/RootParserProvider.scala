@@ -17,7 +17,7 @@
 package laika.parse.markup
 
 import laika.bundle.{BlockParserBuilder, MarkupExtensions, ParserBundle, SpanParserBuilder}
-import laika.factory.MarkupParser
+import laika.factory.MarkupFormat
 
 /**
   * @author Jens Halm
@@ -31,7 +31,7 @@ object RootParserProvider {
     val bp = blockParsers
     val sp = spanParsers
 
-    object Parser extends MarkupParser {
+    object Parser extends MarkupFormat {
       val fileSuffixes = Set.empty[String]
       val blockParsers = bp
       val spanParsers = sp

@@ -21,7 +21,7 @@ import laika.api.Parse
 import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle._
-import laika.factory.MarkupParser
+import laika.factory.MarkupFormat
 import laika.parse.ParserContext
 import laika.parse.combinator.Parsers
 import laika.parse.css.CSSParsers
@@ -43,7 +43,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
     def blockParsers: Seq[BlockParserBuilder] = Nil
     def spanParsers: Seq[SpanParserBuilder] = Nil
 
-    object Parser extends MarkupParser {
+    object Parser extends MarkupFormat {
       val fileSuffixes = Set("foo")
       val blockParsers = self.blockParsers
       val spanParsers = self.spanParsers

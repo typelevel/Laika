@@ -18,7 +18,7 @@ package laika.parse.markup
 
 import laika.ast._
 import laika.bundle._
-import laika.factory.MarkupParser
+import laika.factory.MarkupFormat
 import laika.parse.Parser
 import laika.parse.text.TextParsers._
 
@@ -27,7 +27,7 @@ import laika.parse.text.TextParsers._
   *
   * @author Jens Halm
   */
-class RootParser (markupParser: MarkupParser, markupExtensions: MarkupExtensions) extends DefaultRecursiveParsers {
+class RootParser (markupParser: MarkupFormat, markupExtensions: MarkupExtensions) extends DefaultRecursiveParsers {
 
   /** Parses a full document, delegating most of the work to the `topLevelBlock` parser.
     */

@@ -19,7 +19,7 @@ package laika.api
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.config.OperationConfig
-import laika.factory.RenderFormat
+import laika.factory.{MarkupFormat, RenderFormat}
 
 class Transformer (val parser: Parser, val renderer: Renderer) {
 
@@ -41,7 +41,7 @@ object Transform {
   /** Step in the setup for a transform operation where the
     *  renderer must be specified.
     */
-  class Builder private[Transform] (parser: MarkupParser, config: OperationConfig) {
+  class Builder private[Transform] (parser: MarkupFormat, config: OperationConfig) {
 
     /** Creates and returns a new Transform instance for the specified renderer and the
       *  previously specified parser. The returned instance is stateless and reusable for
@@ -64,6 +64,6 @@ object Transform {
     *  @param parser the parser factory to use
     *  @return a new Builder instance for specifying the renderer
     */
-  def from (parser: laika.factory.MarkupParser): Builder = new Builder(parser, OperationConfig.default.withBundlesFor(parser))
+  def from (parser: MarkupFormat): Builder = new Builder(parser, OperationConfig.default.withBundlesFor(parser))
 
 }

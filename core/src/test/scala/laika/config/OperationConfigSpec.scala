@@ -20,7 +20,7 @@ import laika.ast._
 import laika.ast.DocumentType.{Markup, Static, Template}
 import laika.ast.Path.Root
 import laika.bundle.{BundleProvider, ExtensionBundle}
-import laika.factory.MarkupParser
+import laika.factory.MarkupFormat
 import org.scalatest.{Matchers, WordSpec}
 
 /**
@@ -35,7 +35,7 @@ class OperationConfigSpec extends WordSpec with Matchers {
 
     def appBundles: Seq[ExtensionBundle]
 
-    object Parser extends MarkupParser {
+    object Parser extends MarkupFormat {
       val fileSuffixes = Set("foo")
       val blockParsers = Nil
       val spanParsers = Nil

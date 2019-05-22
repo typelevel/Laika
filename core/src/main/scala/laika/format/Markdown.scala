@@ -18,7 +18,7 @@ package laika.format
 
 import laika.ast.Block
 import laika.bundle.{ExtensionBundle, ParserBundle, ParserHooks}
-import laika.factory.MarkupParser
+import laika.factory.MarkupFormat
 import laika.markdown.{BlockParsers, InlineParsers, ListParsers}
 import laika.markdown.bundle.{HeaderIdInsertion, VerbatimHTML}
 import laika.parse.Parser
@@ -53,7 +53,7 @@ import laika.parse.Parser
  * 
  *  @author Jens Halm
  */
-object Markdown extends MarkupParser {
+object Markdown extends MarkupFormat {
 
   val fileSuffixes: Set[String] = Set("md", "markdown")
 

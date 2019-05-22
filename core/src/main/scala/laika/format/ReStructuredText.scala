@@ -18,7 +18,7 @@ package laika.format
 
 import laika.ast.Block
 import laika.bundle.{ExtensionBundle, ParserBundle, ParserHooks}
-import laika.factory.MarkupParser
+import laika.factory.MarkupFormat
 import laika.parse.Parser
 import laika.parse.text.WhitespacePreprocessor
 import laika.rst._
@@ -49,7 +49,7 @@ import laika.rst.bundle._
  * 
  *  @author Jens Halm
  */
-object ReStructuredText extends MarkupParser { self =>
+object ReStructuredText extends MarkupFormat { self =>
 
 
   val fileSuffixes: Set[String] = Set("rest", "rst")

@@ -19,7 +19,7 @@ package laika.api
 import laika.ast.DocumentType.Markup
 import laika.ast.{Document, TextDocumentType}
 import laika.config.{OperationConfig, ParseConfigBuilder}
-import laika.factory.MarkupParser
+import laika.factory.MarkupFormat
 
 /** API for performing a parse operation from various types of input to obtain
  *  a document tree without a subsequent render operation. 
@@ -36,7 +36,7 @@ import laika.factory.MarkupParser
  * 
  *  @author Jens Halm
  */
-class Parse private (parser: MarkupParser, val config: OperationConfig, rewrite: Boolean)
+class Parse private[api] (parser: MarkupFormat, val config: OperationConfig, rewrite: Boolean)
   extends ParseConfigBuilder {
 
   val docType: TextDocumentType = Markup
@@ -69,7 +69,7 @@ object Parse {
    * 
    *  @param parser the parser factory to use for all subsequent operations
    */
-  def as (parser: MarkupParser): Parse = new Parse(
+  def as (parser: MarkupFormat): Parse = new Parse(
     parser,
     OperationConfig.default.withBundlesFor(parser),
     rewrite = true

@@ -19,7 +19,7 @@ package laika.parse.markup
 import com.typesafe.config.{Config, ConfigFactory}
 import laika.ast._
 import laika.bundle.MarkupExtensions
-import laika.factory.MarkupParser
+import laika.factory.MarkupFormat
 import laika.parse.{Parser, ParserContext}
 import laika.parse.directive.ConfigHeaderParser
 import laika.parse.text.TextParsers.unsafeParserFunction
@@ -56,7 +56,7 @@ object DocumentParser {
   /** Combines the specified markup parsers and extensions and the parser for (optional) configuration
     * headers to create a parser function for an entire text markup document.
     */
-  def forMarkup (markupParser: MarkupParser,
+  def forMarkup (markupParser: MarkupFormat,
                  markupExtensions: MarkupExtensions,
                  configHeaderParser: ConfigHeaderParser): ParserInput => Document = {
 
