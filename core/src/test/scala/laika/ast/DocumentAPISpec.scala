@@ -27,6 +27,10 @@ class DocumentAPISpec extends FlatSpec
                       with ModelBuilder {
 
   
+  val parser = Parse.as(Markdown).build
+  val rawParser = Parse.as(Markdown).withoutRewrite.build
+  
+  
   "The Document API" should "allow to specify a title in a config section" in {
     val markup = """{% title: Foo and Bar %}
       |
@@ -38,7 +42,7 @@ class DocumentAPISpec extends FlatSpec
       |
       |Some more text""".stripMargin
 
-    Parse.as(Markdown).parse(markup).title should be (List(txt("Foo and Bar")))
+    parser.parse(markup).title should be (List(txt("Foo and Bar")))
   }
   
   it should "use the title from the first headline if it is not overridden in a config section" in {
@@ -50,7 +54,7 @@ class DocumentAPISpec extends FlatSpec
       |
       |Some more text""".stripMargin
 
-    Parse.as(Markdown).parse(markup).title should be (List(txt("Title")))
+    parser.parse(markup).title should be (List(txt("Title")))
   }
   
   it should "return an empty list if there is neither a structure with a title nor a title in a config section" in {
@@ -62,7 +66,7 @@ class DocumentAPISpec extends FlatSpec
       |
       |Some more text""".stripMargin
 
-    Parse.as(Markdown).parse(markup).title should be (Nil)
+    parser.parse(markup).title should be (Nil)
   }
   
   it should "produce the same result when rewriting a document once or twice" in {
@@ -74,7 +78,7 @@ class DocumentAPISpec extends FlatSpec
       |
       |Some more text""".stripMargin
     
-    val doc = Parse.as(Markdown).withoutRewrite.parse(markup)
+    val doc = rawParser.parse(markup)
     
     val rewritten1 = doc.rewrite(OperationConfig.default.rewriteRules(DocumentCursor(doc)))
     val rewritten2 = rewritten1.rewrite(OperationConfig.default.rewriteRules(DocumentCursor(rewritten1)))
@@ -90,7 +94,7 @@ class DocumentAPISpec extends FlatSpec
       |
       |Some more text""".stripMargin
     
-    val raw = Parse.as(Markdown).withoutRewrite.parse(markup)
+    val raw = rawParser.parse(markup)
     val cursor = DocumentCursor(raw)
     val testRule = RewriteRules.forSpans {
       case Text("Some text",_) => Replace(Text("Swapped"))

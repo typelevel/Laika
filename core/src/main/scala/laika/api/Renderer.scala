@@ -16,6 +16,7 @@
 
 package laika.api
 
+import laika.api.builder.RendererBuilder
 import laika.ast.Path.Root
 import laika.ast.{Document, Element, Path, StyleDeclarationSet}
 import laika.config.OperationConfig
@@ -54,19 +55,20 @@ abstract class Renderer (val config: OperationConfig) {
 
 }
 
-/** Serves as an entry point to the Render API.
+/** Serves as an entry point for building a Renderer instance.
   *
   *  @author Jens Halm
   */
-object Render {
+object Renderer {
 
-  /** Returns a new Render instance for the specified render format.
-    *  This factory is usually an object provided by the library
-    *  or a plugin that is capable of rendering a specific output. 
+  /** Returns a new builder instance for the specified render format.
+    *  The format is usually an object provided by the library
+    *  or a plugin that is capable of parsing a specific markup
+    *  format like Markdown or reStructuredText. 
     *
     *  @param format the renderer factory responsible for creating the final renderer
     */
-  def as [FMT] (format: RenderFormat[FMT]): Render[FMT] =
-    new Render[FMT](format, OperationConfig.default)
+  def of [FMT] (format: RenderFormat[FMT]): RendererBuilder[FMT] =
+    new RendererBuilder[FMT](format, OperationConfig.default)
 
 }

@@ -19,7 +19,7 @@ package laika.format
 import laika.ast.{Element, Path, TemplateDocument}
 import laika.factory.{RenderContext, RenderFormat}
 import laika.parse.directive.DefaultTemplateParser
-import laika.render.{HTMLFormatter, HTMLRenderer}
+import laika.render.{HTMLFormatter, HTMLRenderer, TempResourceProvider}
 
 /** A render format for HTML output. May be directly passed to the `Render` or `Transform` APIs:
  * 
@@ -41,7 +41,7 @@ object HTML extends RenderFormat[HTMLFormatter] {
  
   override lazy val defaultTheme: Theme = Theme(defaultTemplate = Some(templateResource.content))
 
-  private lazy val templateResource: TemplateDocument = ???
-    //DefaultTemplateParser.parse(InputExecutor.classPathParserInput("/templates/default.template.html", Path.Root / "default.template.html"))
+  private lazy val templateResource: TemplateDocument =
+    DefaultTemplateParser.parse(TempResourceProvider.classPathParserInput("/templates/default.template.html", Path.Root / "default.template.html"))
 
 }

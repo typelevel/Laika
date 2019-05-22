@@ -16,12 +16,13 @@
 
 package laika.api
 
+import laika.api.builder.TransformerBuilder
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.config.OperationConfig
 import laika.factory.{MarkupFormat, RenderFormat}
 
-class Transformer (val parser: Parser, val renderer: Renderer) {
+class Transformer (val parser: MarkupParser, val renderer: Renderer) {
 
   def transform (input: String): String = transform(input, Root)
 
@@ -32,38 +33,39 @@ class Transformer (val parser: Parser, val renderer: Renderer) {
 
 }
 
-/** Serves as an entry point to the Transform API.
+/** Serves as an entry point for building a Transformer instance.
   *
   *  @author Jens Halm
   */
-object Transform {
+object Transformer {
 
   /** Step in the setup for a transform operation where the
     *  renderer must be specified.
     */
-  class Builder private[Transform] (parser: MarkupFormat, config: OperationConfig) {
+  class Builder private[Transformer] (parser: MarkupFormat, config: OperationConfig) {
 
     /** Creates and returns a new Transform instance for the specified renderer and the
       *  previously specified parser. The returned instance is stateless and reusable for
       *  multiple transformations.
       *
       *  @param format the render format to use for the transformation
-      *  @return a new Transform instance
+      *  @return a new builder instance for a Transformer
       */
-    def to [FMT] (format: RenderFormat[FMT]): Transform[FMT] = new Transform(parser, format, config)
+    def to [FMT] (format: RenderFormat[FMT]): TransformerBuilder[FMT] = new TransformerBuilder(parser, format, config)
 
   }
 
-  /** Returns a new Builder instance for the specified parser factory.
+  /** Returns a new Builder instance for the specified markup format.
+    * 
     *  This factory is usually an object provided by the library
     *  or a plugin that is capable of parsing a specific markup
     *  format like Markdown or reStructuredText. The returned builder
-    *  can then be used to specifiy the renderer to create the actual
-    *  Transform instance.
+    *  can then be used to specify the render format to create the actual
+    *  builder instance.
     *
-    *  @param parser the parser factory to use
-    *  @return a new Builder instance for specifying the renderer
+    *  @param format the markup format to use
+    *  @return a new Builder instance for specifying the render format
     */
-  def from (parser: MarkupFormat): Builder = new Builder(parser, OperationConfig.default.withBundlesFor(parser))
+  def from (format: MarkupFormat): Builder = new Builder(format, OperationConfig.default.withBundlesFor(format))
 
 }

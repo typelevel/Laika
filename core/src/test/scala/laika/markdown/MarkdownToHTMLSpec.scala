@@ -57,6 +57,7 @@ class MarkdownToHTMLSpec extends FlatSpec
       .rendering {
         case (fmt, QuotedBlock(content, _, opt)) => fmt.indentedElement("blockquote", opt, content) // Markdown always writes p tags inside blockquotes
       }
+      .build
       .transform(input)
     val expected = readFile(path + ".html")
     tidyAndAdjust(actual) should be (tidyAndAdjust(expected))

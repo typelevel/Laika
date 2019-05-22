@@ -16,6 +16,7 @@
 
 package laika.api
 
+import laika.api.builder.ParserBuilder
 import laika.ast.{Document, Path}
 import laika.ast.Path.Root
 import laika.config.OperationConfig
@@ -39,22 +40,22 @@ class MarkupParser (parser: MarkupFormat, val config: OperationConfig, rewrite: 
 
 }
 
-/** Serves as an entry point to the Parse API.
+/** Serves as an entry point for building a MarkupParser instance.
   *
   *  @author Jens Halm
   */
 object MarkupParser {
 
-  /** Returns a new Parse instance for the specified parser factory.
-    *  This factory is usually an object provided by the library
+  /** Returns a new builder instance for the specified markup format.
+    *  The format is usually an object provided by the library
     *  or a plugin that is capable of parsing a specific markup
     *  format like Markdown or reStructuredText. 
     *
-    *  @param parser the parser factory to use for all subsequent operations
+    *  @param format the markup format to use for all subsequent operations
     */
-  def as (parser: MarkupFormat): Parse = new Parse(
-    parser,
-    OperationConfig.default.withBundlesFor(parser),
+  def of (format: MarkupFormat): ParserBuilder = new ParserBuilder(
+    format,
+    OperationConfig.default.withBundlesFor(format),
     rewrite = true
   )
 

@@ -16,98 +16,18 @@
 
 package laika.api
 
-import laika.ast.DocumentType.Markup
-import laika.ast._
-import laika.config.{OperationConfig, TransformConfigBuilder}
+import laika.api.builder.TransformerBuilder
+import laika.config.OperationConfig
 import laika.factory.{MarkupFormat, RenderFormat}
 
-/** API for performing a transformation operation from and to various types of input and output,
- *  combining a parse and render operation. 
- *  
- *  In cases where a parse or render operation should
- *  be performed separately, for example for manually processing the document tree model
- *  between these operations, the [[laika.api.Parse]] and [[laika.api.Render]] APIs 
- *  should be used instead.
- *  
- *  Example for transforming from Markdown to HTML using files for both input and output:
- *  
- *  {{{
- *  Transform from Markdown to HTML fromFile "hello.md" toFile "hello.html"
- *  }}}
- *  
- *  Or for transforming a document fragment from a string to the AST format
- *  for debugging purposes:
- *  
- *  {{{
- *  val input = "some *emphasized* text"
- *  
- *  Transform from Markdown to AST fromString input toString
- *  
- *  res0: java.lang.String = 
- *  Document - Blocks: 1
- *  . Paragraph - Spans: 3
- *  . . Text - 'some ' 
- *  . . Emphasized - Spans: 1
- *  . . . Text - 'emphasized'
- *  . . Text - ' text'
- *  }}}
- *  
- *  Apart from specifying input and output, the Transform API also allows to customize the operation
- *  in various ways. The `usingRule` and `creatingRule` methods allow to rewrite the document tree
- *  between the parse and render operations and the `rendering` method allows to customize the
- *  way certain types of elements are rendered.
- *  
- *  @tparam FMT the formatter API to use which varies depending on the renderer
- * 
- *  @author Jens Halm
- */
-class Transform [FMT] private[Transform] (parser: MarkupFormat, 
-                                          val format: RenderFormat[FMT], 
-                                          val config: OperationConfig) extends
-  TransformConfigBuilder[FMT] {
-  
-  type ThisType = Transform[FMT]
-
-  val docType: TextDocumentType = Markup
-
-  def withConfig (newConfig: OperationConfig): ThisType = new Transform(parser, format, newConfig)
-  
-  def transform (input: String): String = ???
-  
-}
-
-/** Serves as an entry point to the Transform API.
- * 
- *  @author Jens Halm
- */
+@deprecated("use Transformer instead", "0.12.0")
 object Transform {
 
-  /** Step in the setup for a transform operation where the
-   *  renderer must be specified.
-   */
-  class Builder private[Transform] (parser: MarkupFormat, config: OperationConfig) {
-
-    /** Creates and returns a new Transform instance for the specified renderer and the
-     *  previously specified parser. The returned instance is stateless and reusable for
-     *  multiple transformations.
-     * 
-     *  @param format the render format to use for the transformation
-     *  @return a new Transform instance
-     */
-    def to [FMT] (format: RenderFormat[FMT]): Transform[FMT] = new Transform(parser, format, config)
-    
+  class BuilderFactory private[Transform] (parser: MarkupFormat, config: OperationConfig) {
+    def to [FMT] (format: RenderFormat[FMT]): TransformerBuilder[FMT] = new TransformerBuilder(parser, format, config)
   }
-  
-  /** Returns a new Builder instance for the specified parser factory.
-   *  This factory is usually an object provided by the library
-   *  or a plugin that is capable of parsing a specific markup
-   *  format like Markdown or reStructuredText. The returned builder
-   *  can then be used to specifiy the renderer to create the actual
-   *  Transform instance.
-   * 
-   *  @param parser the parser factory to use
-   *  @return a new Builder instance for specifying the renderer
-   */
-  def from (parser: MarkupFormat): Builder = new Builder(parser, OperationConfig.default.withBundlesFor(parser))
+
+  @deprecated("use Transformer.of(...) instead", "0.12.0")
+  def from (format: MarkupFormat): BuilderFactory = new BuilderFactory(format, OperationConfig.default.withBundlesFor(format))
   
 }

@@ -16,62 +16,17 @@
 
 package laika.api
 
-import laika.ast.DocumentType.Markup
-import laika.ast.{Document, TextDocumentType}
-import laika.config.{OperationConfig, ParseConfigBuilder}
+import laika.api.builder.ParserBuilder
+import laika.config.OperationConfig
 import laika.factory.MarkupFormat
 
-/** API for performing a parse operation from various types of input to obtain
- *  a document tree without a subsequent render operation. 
- *  
- *  In cases where a render operation should follow immediately, it is more 
- *  convenient to use the [[laika.api.Transform]] API instead which 
- *  combines a parse and a render operation directly.
- *  
- *  Example for parsing Markdown from a file:
- *  
- *  {{{
- *  val doc = Parse as Markdown fromFile "hello.md"
- *  }}}
- * 
- *  @author Jens Halm
- */
-class Parse private[api] (parser: MarkupFormat, val config: OperationConfig, rewrite: Boolean)
-  extends ParseConfigBuilder {
-
-  val docType: TextDocumentType = Markup
-  
-  type ThisType = Parse
-
-  def withConfig(newConfig: OperationConfig): ThisType = new Parse(parser, newConfig, rewrite)
-
-  /** Returns a new Parse instance that produces raw document trees without applying
-   *  the default rewrite rules. These rules resolve link and image references and 
-   *  rearrange the tree into a hierarchy of sections based on the (flat) sequence
-   *  of header instances found in the document.
-   */
-  def withoutRewrite: Parse = new Parse(parser, config, rewrite = false)
-  
-  def parse (input: String): Document = ???
-
-}
-
-/** Serves as an entry point to the Parse API.
- * 
- *  @author Jens Halm
- */
+@deprecated("use MarkupParser instead", "0.12.0")
 object Parse {
-  
-  /** Returns a new Parse instance for the specified parser factory.
-   *  This factory is usually an object provided by the library
-   *  or a plugin that is capable of parsing a specific markup
-   *  format like Markdown or reStructuredText. 
-   * 
-   *  @param parser the parser factory to use for all subsequent operations
-   */
-  def as (parser: MarkupFormat): Parse = new Parse(
-    parser,
-    OperationConfig.default.withBundlesFor(parser),
+
+  @deprecated("use MarkupParser.of(...) instead", "0.12.0")
+  def as (format: MarkupFormat): ParserBuilder = new ParserBuilder(
+    format,
+    OperationConfig.default.withBundlesFor(format),
     rewrite = true
   )
 

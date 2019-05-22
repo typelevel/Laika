@@ -26,27 +26,30 @@ import org.scalatest.{FlatSpec, Matchers}
 class ParseAPISpec extends FlatSpec 
                    with Matchers
                    with ModelBuilder {
+  
+  
+  val parser: MarkupParser = Parse.as(Markdown).build
 
   
   "The Parse API" should "allow parsing Markdown from a string" in {
     val input = """aaa
       |bbb
       |ccc""".stripMargin
-    (Parse as Markdown parse input).content should be (root(p(input)))
+    parser.parse(input).content should be (root(p(input)))
   }
   
   it should "allow parsing Markdown with all link references resolved through the default rewrite rules" in {
     val input = """[link][id]
       |
       |[id]: http://foo/""".stripMargin
-    (Parse as Markdown parse input).content should be (root(p(link(txt("link")).url("http://foo/"))))
+    parser.parse(input).content should be (root(p(link(txt("link")).url("http://foo/"))))
   }
   
   it should "allow parsing Markdown into a raw document, without applying the default rewrite rules" in {
     val input = """[link][id]
       |
       |[id]: http://foo/""".stripMargin
-    ((Parse as Markdown withoutRewrite) parse input).content should be (root 
+    Parse.as(Markdown).withoutRewrite.build.parse(input).content should be (root 
         (p (LinkReference(List(Text("link")), "id", "[link][id]")), ExternalLinkDefinition("id","http://foo/",None)))
   }
   

@@ -40,7 +40,7 @@ trait OperationConfigBuilder {
 
   /** The current configuration for this instance.
     */
-  def config: OperationConfig
+  protected def config: OperationConfig
 
   /** Returns a new instance with the specified extension bundles installed.
     * Features in the new bundles may override features in already installed bundles.

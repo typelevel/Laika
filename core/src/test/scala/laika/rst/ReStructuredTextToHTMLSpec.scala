@@ -69,7 +69,7 @@ class ReStructuredTextToHTMLSpec extends FlatSpec
     }
     
     // TODO - some of these rules might get promoted to the real renderer (e.g. the one for InternalLink)
-    val actual = Transform from ReStructuredText to HTML rendering { 
+    val actual = Transform.from(ReStructuredText).to(HTML).rendering { 
       case (fmt, Emphasized(content,opt)) if opt.styles.contains("title-reference") => fmt.element("cite", NoOpt, content) 
       case (fmt, ExternalLink(content, url, title, opt))  => fmt.element("a", opt + Styles("reference","external"), content, fmt.optAttributes("href" -> Some(url), "title" -> title):_*)
       case (fmt, InternalLink(content, url, title, opt))  => fmt.element("a", opt + Styles("reference","internal"), content, fmt.optAttributes("href" -> Some("#"+url), "title"->title):_*)
@@ -84,7 +84,7 @@ class ReStructuredTextToHTMLSpec extends FlatSpec
       case (fmt, QuotedBlock(content,attr,opt)) => renderBlocks(fmt, "blockquote", opt, quotedBlockContent(content,attr))
       case (fmt, InternalLinkTarget(opt))       => fmt.textElement("span", opt, "")
       case (_, i: InvalidBlock)                 => ""
-    } transform input
+    }.build.transform(input)
     
     val expected = readFile(path + "-tidy.html")
     tidyAndAdjust(actual) should be (expected)

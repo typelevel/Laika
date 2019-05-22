@@ -27,7 +27,7 @@ import laika.factory.RenderFormat
   */
 trait RenderConfigBuilder[FMT] extends OperationConfigBuilder {
 
-  protected def format: RenderFormat[FMT]
+  protected def renderFormat: RenderFormat[FMT]
 
   /**  Specifies a custom render function that overrides one or more of the default
     *  renderers for the output format this instance uses.
@@ -46,7 +46,7 @@ trait RenderConfigBuilder[FMT] extends OperationConfigBuilder {
     */
   def rendering (customRenderer: PartialFunction[(FMT, Element), String]): ThisType = using(new ExtensionBundle {
     override val useInStrictMode: Boolean = true
-    override val themes = Seq(format.Theme(customRenderer = customRenderer))
+    override val themes = Seq(renderFormat.Theme(customRenderer = customRenderer))
   })
 
   /**  Specifies the minimum required level for a system message

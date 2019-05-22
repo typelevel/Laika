@@ -35,13 +35,13 @@ class RenderAPISpec extends FlatSpec
       |. . Text - 'bbb'""".stripMargin
 
   "The Render API" should "render a document to a string" in {
-    (Render as AST render rootElem) should be (expected)
+    Render.as(AST).build.render(rootElem) should be (expected)
   }
 
   it should "allow to override the default renderer for specific element types" in {
-    val render = Render as AST rendering { case (_, Text(content,_)) => s"String - '$content'" }
+    val renderer = Render.as(AST).rendering { case (_, Text(content,_)) => s"String - '$content'" }.build
     val modifiedResult = expected.replaceAllLiterally("Text", "String")
-    (render render rootElem) should be (modifiedResult)
+    (renderer render rootElem) should be (modifiedResult)
   }
 
 }

@@ -28,16 +28,16 @@ class XSLFORendererSpec extends FlatSpec
                         with ModelBuilder {
  
   
-  def render (elem: Element): String = Render as XSLFO render elem
+  def render (elem: Element): String = Render.as(XSLFO).build.render(elem)
 
-  def render (elem: Element, messageLevel: MessageLevel): String = 
-    Render as XSLFO withMessageLevel messageLevel render elem
+  def render (elem: Element, messageLevel: MessageLevel): String =
+    Render.as(XSLFO).withMessageLevel(messageLevel).build.render(elem)
     
   def render (elem: Element, style: StyleDeclaration): String = 
-    Render as XSLFO using BundleProvider
-      .forTheme(XSLFO.Theme(defaultStyles = StyleDeclarationSet(Path.Root, style))) render elem
+    Render.as(XSLFO).using(BundleProvider
+      .forTheme(XSLFO.Theme(defaultStyles = StyleDeclarationSet(Path.Root, style)))).build.render(elem)
     
-  def renderUnformatted (elem: Element): String = (Render as XSLFO).unformatted render elem
+  def renderUnformatted (elem: Element): String = (Render as XSLFO).unformatted.build.render(elem)
   
   
   "The XSLFO renderer" should "render a paragraph with plain text" in {

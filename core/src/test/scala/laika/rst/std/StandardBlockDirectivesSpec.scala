@@ -36,9 +36,9 @@ class StandardBlockDirectivesSpec extends FlatSpec
 
    val simplePars: List[Paragraph] = List(p("1st Para"), p("2nd Para"))
    
-   def parseDoc (input: String): Document = Parse as ReStructuredText parse input
+   def parseDoc (input: String): Document = Parse.as(ReStructuredText).build.parse(input)
 
-   def parseRaw (input: String): RootElement = ((Parse as ReStructuredText withoutRewrite) parse input).content
+   def parseRaw (input: String): RootElement = Parse.as(ReStructuredText).withoutRewrite.build.parse(input).content
      .rewriteBlocks({ case _: Temporary with Block => Remove })
 
    def parse (input: String): RootElement = parseDoc(input).content
@@ -668,7 +668,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | some more""".stripMargin
     val result = root (RawContent(List("format"), "some input\n\nsome more"))
-    Parse.as(ReStructuredText).withRawContent.parse(input).content should be (result)
+    Parse.as(ReStructuredText).withRawContent.build.parse(input).content should be (result)
   }
   
   

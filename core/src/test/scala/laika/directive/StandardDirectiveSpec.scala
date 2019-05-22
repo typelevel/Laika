@@ -33,8 +33,9 @@ class StandardDirectiveSpec extends FlatSpec
 
 
   lazy val templateParser = StandardDirectives.processExtension(DirectiveSupport).parsers.templateParser.get
+  lazy val markupParser = Parse.as(Markdown).build
 
-  def parse (input: String): Document = Parse.as(Markdown).parse(input)
+  def parse (input: String): Document = markupParser.parse(input)
 
   def parseWithFragments (input: String): (Map[String,Element], RootElement) = {
     val doc = parse(input)
