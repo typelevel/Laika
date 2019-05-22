@@ -49,10 +49,11 @@ lazy val noPublishSettings = Seq(
   publishTo := None
 )
 
-val scalatest = "org.scalatest"          %% "scalatest" % "3.0.8-RC2" % "test"
-val jTidy     = "net.sf.jtidy"           % "jtidy"      % "r938"  % "test"
-val config    = "com.typesafe"           % "config"     % "1.2.1"
-val fop       = "org.apache.xmlgraphics" % "fop"        % "2.3"
+val scalatest  = "org.scalatest"          %% "scalatest"   % "3.0.8-RC2" % "test"
+val jTidy      = "net.sf.jtidy"           %  "jtidy"       % "r938"      % "test"
+val config     = "com.typesafe"           %  "config"      % "1.2.1"
+val catsEffect = "org.typelevel"          %% "cats-effect" % "2.0.0-M1"
+val fop        = "org.apache.xmlgraphics" %  "fop"         % "2.3"
 
 lazy val root = project.in(file("."))
   .aggregate(core, pdf, plugin)
@@ -78,7 +79,7 @@ lazy val io = project.in(file("io"))
   .settings(publishSettings)
   .settings(
     name := "laika-io",
-    libraryDependencies ++= Seq(config, scalatest, jTidy)
+    libraryDependencies ++= Seq(config, scalatest, catsEffect)
   )
   
 lazy val pdf = project.in(file("pdf"))
