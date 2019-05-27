@@ -11,13 +11,13 @@ import scala.io.Codec
 
 object Sequential {
 
-  def apply (parser: ParserBuilder): SequentialParser.Builder = apply(parser.build)
-  def apply[FMT] (renderer: RendererBuilder[FMT]): SequentialRenderer.Builder = apply(renderer.build)
-  def apply[FMT] (transformer: TransformerBuilder[FMT]): Unit = apply(transformer.build)
+  def apply (parser: ParserBuilder): SequentialParser.Builder                   = SequentialParser.Builder(parser.build)
+  def apply (renderer: RendererBuilder[_]): SequentialRenderer.Builder          = SequentialRenderer.Builder(renderer.build)
+  def apply (transformer: TransformerBuilder[_]): SequentialTransformer.Builder = SequentialTransformer.Builder(transformer.build)
   
-  def apply (parser: MarkupParser): SequentialParser.Builder = new SequentialParser.Builder(parser)
-  def apply (renderer: Renderer): SequentialRenderer.Builder = new SequentialRenderer.Builder(renderer)
-  def apply (transformer: Transformer): Unit = ???
+  def apply (parser: MarkupParser): SequentialParser.Builder           = SequentialParser.Builder(parser)
+  def apply (renderer: Renderer): SequentialRenderer.Builder           = SequentialRenderer.Builder(renderer)
+  def apply (transformer: Transformer): SequentialTransformer.Builder  = SequentialTransformer.Builder(transformer)
   
   
   class SequentialParser[F[_]: Async] (parser: MarkupParser) extends SequentialInputOps[F] {
@@ -31,14 +31,11 @@ object Sequential {
 
     def fromInput (input: F[TextInput]): SequentialParser.Op[F] = SequentialParser.Op(parser, input)
     
-    // type InputResult = SequentialParser.OutputOps[F]
-    // def fromInput (input: F[TextInput]): InputResult = new SequentialParser.OutputOps[F](parser, input) this is for transformers
-    
   }
   
   object SequentialParser {
 
-    class Builder (parser: MarkupParser) {
+    case class Builder (parser: MarkupParser) {
 
       def build[F[_]: Async]: SequentialParser[F] = new SequentialParser[F](parser)
 
@@ -64,8 +61,8 @@ object Sequential {
   }
 
   object SequentialRenderer {
-    
-    class Builder (renderer: Renderer) {
+
+    case class Builder (renderer: Renderer) {
 
       def build[F[_]: Async]: SequentialRenderer[F] = new SequentialRenderer[F](renderer)
 
@@ -84,6 +81,45 @@ object Sequential {
     case class Op[F[_]: Async] (renderer: Renderer, input: Element, path: Path, output: F[TextOutput]) {
 
       def render: F[Unit] = ???
+
+    }
+
+  }
+
+  class SequentialTransformer[F[_]: Async] (transformer: Transformer) extends SequentialInputOps[F] {
+
+    type InputResult = SequentialTransformer.OutputOps[F]
+
+    val F: Async[F] = Async[F]
+
+    val docType: TextDocumentType = DocumentType.Markup
+
+
+    def fromInput (input: F[TextInput]): SequentialTransformer.OutputOps[F] = SequentialTransformer.OutputOps(transformer, input)
+
+  }
+
+  object SequentialTransformer {
+
+    case class Builder (transformer: Transformer) {
+
+      def build[F[_]: Async]: SequentialTransformer[F] = new SequentialTransformer[F](transformer)
+
+    }
+
+    case class OutputOps[F[_]: Async] (transformer: Transformer, input: F[TextInput]) extends SequentialTextOutputOps[F] {
+
+      val F: Async[F] = Async[F]
+
+      type Result = Op[F]
+
+      def toOutput (output: F[TextOutput]): Op[F] = Op[F](transformer, input, output)
+
+    }
+
+    case class Op[F[_]: Async] (transformer: Transformer, input: F[TextInput], output: F[TextOutput]) {
+
+      def transform: F[Unit] = ???
 
     }
 
