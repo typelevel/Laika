@@ -5,18 +5,18 @@ import java.io.File
 import cats.effect.{Async, Sync}
 import laika.api.builder.{ParserBuilder, RendererBuilder, TransformerBuilder}
 import laika.api.{MarkupParser, Renderer, Transformer}
-import laika.ast.{Document, DocumentType, Path, TextDocumentType}
+import laika.ast.{Document, DocumentType, Element, Path, TextDocumentType}
 
 import scala.io.Codec
 
 object Sequential {
 
   def apply (parser: ParserBuilder): SequentialParser.Builder = apply(parser.build)
-  def apply[FMT] (renderer: RendererBuilder[FMT]): Unit = apply(renderer.build)
+  def apply[FMT] (renderer: RendererBuilder[FMT]): SequentialRenderer.Builder = apply(renderer.build)
   def apply[FMT] (transformer: TransformerBuilder[FMT]): Unit = apply(transformer.build)
   
   def apply (parser: MarkupParser): SequentialParser.Builder = new SequentialParser.Builder(parser)
-  def apply (renderer: Renderer): Unit = ???
+  def apply (renderer: Renderer): SequentialRenderer.Builder = new SequentialRenderer.Builder(renderer)
   def apply (transformer: Transformer): Unit = ???
   
   
@@ -44,18 +44,49 @@ object Sequential {
 
     }
 
-    class OutputOps[F[_]: Async] (parser: MarkupParser, input: F[TextInput]) {
-
-      def toFile (name: String): Op[F] = Op[F](parser, input, ())
-      
-    }
-    
     case class Op[F[_]: Async] (parser: MarkupParser, input: F[TextInput]) {
       
       def parse: F[Document] = ???
       
     }
     
+  }
+
+  class SequentialRenderer[F[_]: Async] (renderer: Renderer) {
+
+    def from (input: Document): SequentialRenderer.OutputOps[F] = from(input.content, input.path)
+    
+    def from (element: Element): SequentialRenderer.OutputOps[F] = from(element, Path.Root)
+    
+    def from (element: Element, path: Path): SequentialRenderer.OutputOps[F] = 
+      SequentialRenderer.OutputOps(renderer, element, path)
+
+  }
+
+  object SequentialRenderer {
+    
+    class Builder (renderer: Renderer) {
+
+      def build[F[_]: Async]: SequentialRenderer[F] = new SequentialRenderer[F](renderer)
+
+    }
+
+    case class OutputOps[F[_]: Async] (renderer: Renderer, input: Element, path: Path) extends SequentialTextOutputOps[F] {
+
+      val F: Async[F] = Async[F]
+      
+      type Result = Op[F]
+      
+      def toOutput (output: F[TextOutput]): Op[F] = Op[F](renderer, input, path, output)
+
+    }
+
+    case class Op[F[_]: Async] (renderer: Renderer, input: Element, path: Path, output: F[TextOutput]) {
+
+      def render: F[Unit] = ???
+
+    }
+
   }
   
   
@@ -113,5 +144,38 @@ trait SequentialInputOps[F[_]] {
     *  @param input the input for the parser
     */
   def fromInput (input: F[TextInput]): InputResult
+
+}
+
+trait SequentialTextOutputOps[F[_]] {
+
+  type Result
+
+  def F: Sync[F]
+
+  /** Renders the model to the file with the specified name.
+    *
+    *  @param name the name of the file to parse
+    *  @param codec the character encoding of the file, if not specified the platform default will be used.
+    */
+  def toFile (name: String)(implicit codec: Codec): Result = toFile(new File(name))
+
+  /** Renders the model to the specified file.
+    *
+    *  @param file the file to write to
+    *  @param codec the character encoding of the file, if not specified the platform default will be used.
+    */
+  def toFile (file: File)(implicit codec: Codec): Result = 
+    toOutput(F.pure(TextFileOutput(file, Path(file.getName), codec)))
+  
+  // TODO - 0.12 - re-introduce string output
+
+  /** Renders the model to the specified output.
+    *
+    *  This is a generic method based on Laika's IO abstraction layer that concrete
+    *  methods delegate to. Usually not used directly in application code, but
+    *  might come in handy for very special requirements.
+    */
+  def toOutput (output: F[TextOutput]): Result
 
 }
