@@ -16,10 +16,10 @@
 
 package laika.api
 
-import laika.api.builder.{OperationConfig, RendererBuilder}
+import laika.api.builder.{OperationConfig, RendererBuilder, TwoPhaseRendererBuilder}
 import laika.ast.Path.Root
 import laika.ast.{Document, Element, Path, StyleDeclarationSet}
-import laika.factory.{RenderContext, RenderFormat}
+import laika.factory.{RenderContext, RenderFormat, TwoPhaseRenderFormat}
 
 abstract class Renderer (val config: OperationConfig) {
 
@@ -62,12 +62,21 @@ object Renderer {
 
   /** Returns a new builder instance for the specified render format.
     *  The format is usually an object provided by the library
-    *  or a plugin that is capable of parsing a specific markup
-    *  format like Markdown or reStructuredText. 
-    *
-    *  @param format the renderer factory responsible for creating the final renderer
+    *  or a plugin that is capable of producing a specific output format like HTML. 
     */
   def of [FMT] (format: RenderFormat[FMT]): RendererBuilder[FMT] =
     new RendererBuilder[FMT](format, OperationConfig.default)
+
+  /** Returns a new builder instance for the specified two-phase render format.
+    * 
+    * The format is usually an object provided by the library
+    * or a plugin that is capable of producing a specific output format like EPUB or PDF.
+    * 
+    * While the builder API is defined as part of the laika-core module, the concrete
+    * implementations of this renderer type that this library provides (EPUB and PDF) 
+    * reside in sub-modules as they require the functionality of the laika-io module.
+    */
+  def of [FMT, PP] (format: TwoPhaseRenderFormat[FMT, PP]): TwoPhaseRendererBuilder[FMT, PP] =
+    new TwoPhaseRendererBuilder[FMT, PP](format, OperationConfig.default)
 
 }

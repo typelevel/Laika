@@ -29,8 +29,6 @@ class RendererBuilder[FMT] (val renderFormat: RenderFormat[FMT],
 
   protected[this] lazy val theme = config.themeFor(renderFormat)
 
-  /** The concrete implementation of the abstract Render type.
-   */
   type ThisType = RendererBuilder[FMT]
 
   def withConfig(newConfig: OperationConfig): ThisType = new RendererBuilder[FMT](renderFormat, newConfig)

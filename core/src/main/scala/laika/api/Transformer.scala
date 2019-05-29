@@ -16,10 +16,10 @@
 
 package laika.api
 
-import laika.api.builder.{OperationConfig, TransformerBuilder}
+import laika.api.builder.{OperationConfig, TransformerBuilder, TwoPhaseTransformerBuilder}
 import laika.ast.Path
 import laika.ast.Path.Root
-import laika.factory.{MarkupFormat, RenderFormat}
+import laika.factory.{MarkupFormat, RenderFormat, TwoPhaseRenderFormat}
 
 class Transformer (val parser: MarkupParser, val renderer: Renderer) {
 
@@ -43,14 +43,26 @@ object Transformer {
     */
   class Builder private[Transformer] (parser: MarkupFormat, config: OperationConfig) {
 
-    /** Creates and returns a new Transform instance for the specified renderer and the
-      *  previously specified parser. The returned instance is stateless and reusable for
-      *  multiple transformations.
+    /** Creates and returns a new builder instance for the specified renderer and the
+      *  previously specified parser.
       *
       *  @param format the render format to use for the transformation
       *  @return a new builder instance for a Transformer
       */
     def to [FMT] (format: RenderFormat[FMT]): TransformerBuilder[FMT] = new TransformerBuilder(parser, format, config)
+
+    /** Returns a new builder instance for the specified two-phase render format and the
+      * previously specified parser.
+      *
+      * The format is usually an object provided by the library
+      * or a plugin that is capable of producing a specific output format like EPUB or PDF.
+      *
+      * While the builder API is defined as part of the laika-core module, the concrete
+      * implementations of this renderer type that this library provides (EPUB and PDF) 
+      * reside in sub-modules as they require the functionality of the laika-io module.
+      */
+    def to [FMT, PP] (format: TwoPhaseRenderFormat[FMT, PP]): TwoPhaseTransformerBuilder[FMT, PP] =
+      new TwoPhaseTransformerBuilder[FMT, PP](parser, format, OperationConfig.default)
 
   }
 
