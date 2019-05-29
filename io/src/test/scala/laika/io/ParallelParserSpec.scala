@@ -16,14 +16,16 @@
 
 package laika.io
 
-import laika.api.{MarkupParser, Parse}
+import cats.effect.IO
+import laika.api.MarkupParser
 import laika.ast.DocumentType._
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.DocumentViewBuilder._
 import laika.ast.helper.ModelBuilder
 import laika.bundle.{BundleProvider, ExtensionBundle}
-import laika.format.{Markdown, ReStructuredText}
+import laika.format.Markdown
+import laika.io.Parallel.ParallelParser
 import laika.io.helper.InputBuilder
 import laika.parse.Parser
 import laika.parse.text.TextParsers
@@ -34,50 +36,17 @@ import org.scalatest.{FlatSpec, Matchers}
 class ParallelParserSpec extends FlatSpec 
                    with Matchers
                    with ModelBuilder {
+  
+  
 
-  
-  it should "allow parsing Markdown from a file" in {
-//    val input = """aaa
-//      |bbb
-//      |ccc""".stripMargin
-//    val filename = getClass.getResource("/testInput.md").getFile
-//    (Parse as Markdown fromFile filename).content should be (root(p(input))) 
+  trait ParserSetup {
+
+    val defaultParser: ParallelParser[IO] = Parallel(MarkupParser.of(Markdown)).build
+    val rawParser: ParallelParser[IO] = Parallel(MarkupParser.of(Markdown).withoutRewrite).build
+    
   }
   
-  it should "allow parsing Markdown from a java.io.Reader instance" ignore {
-//    val input = """aaa
-//      |bbb
-//      |ccc""".stripMargin
-//    val reader = new StringReader(input)
-//    (Parse as Markdown fromReader reader).execute.content should be (root(p(input)))
-  }
-  
-  it should "allow parsing Markdown from a java.io.InputStream instance" ignore {
-//    val input = """aaa
-//      |bbb
-//      |ccc""".stripMargin
-//    val stream = new ByteArrayInputStream(input.getBytes())
-//    (Parse as Markdown fromStream stream).execute.content should be (root(p(input)))
-  }
-  
-  it should "allow parsing Markdown from a java.io.InputStream instance, specifying the encoding explicitly" ignore {
-//    val input = """äää
-//      |ööö
-//      |üüü""".stripMargin
-//    val stream = new ByteArrayInputStream(input.getBytes("ISO-8859-1"))
-//    (Parse as Markdown).fromStream(stream)(Codec.ISO8859).execute.content should be (root(p(input)))
-  }
-  
-  it should "allow parsing Markdown from a java.io.InputStream instance, specifying the encoding implicitly" ignore {
-//    val input = """äää
-//      |ööö
-//      |üüü""".stripMargin
-//    val stream = new ByteArrayInputStream(input.getBytes("ISO-8859-1"))
-//    implicit val codec:Codec = Codec.ISO8859
-//    (Parse as Markdown fromStream stream).execute.content should be (root(p(input)))
-  }
-  
-  trait TreeParser extends InputBuilder {
+  trait TreeParser extends InputBuilder with ParserSetup {
     
     def dirs: String 
     
@@ -107,29 +76,30 @@ class ParallelParserSpec extends FlatSpec
         |]""".stripMargin
     )
     
-    val docTypeMatcher = MarkupParser.of(Markdown).or(ReStructuredText).config.docTypeMatcher
+    val docTypeMatcher: Path => DocumentType = defaultParser.config.docTypeMatcher // TODO - 0.12 - does it need rst?
     
-    def builder (source: String): TreeInput = parseTreeStructure(source, docTypeMatcher)
+    def builder (source: String): IO[TreeInput] = cats.effect.IO.pure(parseTreeStructure(source, docTypeMatcher))
     
-    def docView (num: Int, path: Path = Root) = DocumentView(path / (s"doc$num.md"), Content(List(p("foo"))) :: Nil)
+    def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("foo"))) :: Nil)
     
     def customDocView (name: String, content: Seq[Block], path: Path = Root) = DocumentView(path / name, Content(content) :: Nil)
   
     def withTemplatesApplied (tree: DocumentTree): DocumentTree = TemplateRewriter.applyTemplates(tree, "html")
     
-    def parsedTree = viewOf(withTemplatesApplied(MarkupParser.of(Markdown).fromTreeInput(builder(dirs)).execute.tree))
+    def parsedTree: TreeView = viewOf(withTemplatesApplied(defaultParser.fromInput(builder(dirs)).parse.unsafeRunSync().tree))
     
-    def rawParsedTree = viewOf(MarkupParser.of(Markdown).withoutRewrite.fromTreeInput(builder(dirs)).execute)
+    def rawParsedTree: TreeView = viewOf(rawParser.fromInput(builder(dirs)).parse.unsafeRunSync())
 
-    def rawMixedParsedTree = viewOf(MarkupParser.of(Markdown).or(ReStructuredText).withoutRewrite.fromTreeInput(builder(dirs)).execute)
+    // def rawMixedParsedTree = viewOf(MarkupParser.of(Markdown).or(ReStructuredText).withoutRewrite.fromTreeInput(builder(dirs)).execute) // TODO - 0.12 - resurrect
     
-    def parsedInParallel = viewOf(withTemplatesApplied(MarkupParser.of(Markdown).inParallel.fromTreeInput(builder(dirs)).execute.tree))
-
-    def parsedWith (bundle: ExtensionBundle) =
-      viewOf(withTemplatesApplied(MarkupParser.of(Markdown).using(bundle).fromTreeInput(builder(dirs)).execute.tree))
+    def parsedWith (bundle: ExtensionBundle): TreeView =
+      viewOf(withTemplatesApplied(Parallel(MarkupParser.of(Markdown).using(bundle)).build[IO].fromInput(builder(dirs)).parse.unsafeRunSync().tree))
       
-    def parsedRawWith (bundle: ExtensionBundle = ExtensionBundle.Empty, customMatcher: PartialFunction[Path, DocumentType] = PartialFunction.empty) =
-      viewOf(MarkupParser.of(Markdown).withoutRewrite.using(bundle).fromTreeInput(parseTreeStructure(dirs, customMatcher.orElse({case path => docTypeMatcher(path)}))).execute)
+    def parsedRawWith (bundle: ExtensionBundle = ExtensionBundle.Empty, customMatcher: PartialFunction[Path, DocumentType] = PartialFunction.empty): TreeView = {
+      val input = parseTreeStructure(dirs, customMatcher.orElse({case path => docTypeMatcher(path)}))
+      val parser = MarkupParser.of(Markdown).withoutRewrite.using(bundle)
+      viewOf(Parallel(parser).build[IO].fromInput(cats.effect.IO.pure(input)).parse.unsafeRunSync())
+    }
   }
   
 
@@ -189,38 +159,38 @@ class ParallelParserSpec extends FlatSpec
     }
   }
   
-  it should "allow parsing a tree with all available file types" ignore {
-    new TreeParser {
-      val dirs = """- doc1.md:link
-        |- doc2.rst:link
-        |- mainA.template.html:name
-        |+ dir1
-        |  - mainB.template.html:name
-        |  - doc3.md:name
-        |  - doc4.md:name
-        |+ dir2
-        |  - main.dynamic.html:name
-        |  - omg.js:name
-        |  - doc5.md:name
-        |  - doc6.md:name""".stripMargin
-      def template (char: Char, path: Path) = TemplateView(path / s"main$char.template.html", TemplateRoot(List(TemplateString("foo"))))
-      val dyn = TemplateView(Root / "dir2" / "main.dynamic.html", TemplateRoot(List(TemplateString("foo"))))
-      val subtree1 = TreeView(Root / "dir1", List(
-        Documents(Markup, List(docView(3, Root / "dir1"),docView(4, Root / "dir1"))),
-        TemplateDocuments(List(template('B', Root / "dir1")))
-      ))
-      val subtree2 = TreeView(Root / "dir2", List(
-        Documents(Markup, List(docView(5, Root / "dir2"),docView(6, Root / "dir2"))),
-        Inputs(Static, List(InputView("omg.js")))
-      ))
-      val treeResult = TreeView(Root, List(
-        Documents(Markup, List(customDocView("doc1.md", Seq(p(ExternalLink(Seq(txt("link")), "foo")))),customDocView("doc2.rst", Seq(p("[link](foo)"))))),
-        TemplateDocuments(List(template('A', Root))),
-        Subtrees(List(subtree1,subtree2))
-      ))
-      rawMixedParsedTree should be (treeResult)
-    }
-  }
+//  it should "allow parsing a tree with all available file types" ignore {
+//    new TreeParser {
+//      val dirs = """- doc1.md:link
+//        |- doc2.rst:link
+//        |- mainA.template.html:name
+//        |+ dir1
+//        |  - mainB.template.html:name
+//        |  - doc3.md:name
+//        |  - doc4.md:name
+//        |+ dir2
+//        |  - main.dynamic.html:name
+//        |  - omg.js:name
+//        |  - doc5.md:name
+//        |  - doc6.md:name""".stripMargin
+//      def template (char: Char, path: Path) = TemplateView(path / s"main$char.template.html", TemplateRoot(List(TemplateString("foo"))))
+//      val dyn = TemplateView(Root / "dir2" / "main.dynamic.html", TemplateRoot(List(TemplateString("foo"))))
+//      val subtree1 = TreeView(Root / "dir1", List(
+//        Documents(Markup, List(docView(3, Root / "dir1"),docView(4, Root / "dir1"))),
+//        TemplateDocuments(List(template('B', Root / "dir1")))
+//      ))
+//      val subtree2 = TreeView(Root / "dir2", List(
+//        Documents(Markup, List(docView(5, Root / "dir2"),docView(6, Root / "dir2"))),
+//        Inputs(Static, List(InputView("omg.js")))
+//      ))
+//      val treeResult = TreeView(Root, List(
+//        Documents(Markup, List(customDocView("doc1.md", Seq(p(ExternalLink(Seq(txt("link")), "foo")))),customDocView("doc2.rst", Seq(p("[link](foo)"))))),
+//        TemplateDocuments(List(template('A', Root))),
+//        Subtrees(List(subtree1,subtree2))
+//      ))
+//      rawMixedParsedTree should be (treeResult)
+//    }
+//  }
   
   it should "allow to specify a custom document type matcher" ignore {
     // TODO - 0.12 - might need to become a file-system based test, as in-memory input do no longer use/need a docTypeMatcher
@@ -237,7 +207,7 @@ class ParallelParserSpec extends FlatSpec
       val parser: Parser[TemplateRoot] = TextParsers.any ^^ { str => TemplateRoot(List(TemplateString("$$" + str))) }
       val dirs = """- main1.template.html:name
         |- main2.template.html:name""".stripMargin
-      def template (num: Int) = TemplateView(Root / (s"main$num.template.html"), TemplateRoot(List(TemplateString("$$foo"))))
+      def template (num: Int) = TemplateView(Root / s"main$num.template.html", TemplateRoot(List(TemplateString("$$foo"))))
       val treeResult = TreeView(Root, List(TemplateDocuments(List(template(1),template(2)))))
       parsedRawWith(BundleProvider.forTemplateParser(parser)) should be (treeResult)
     }
@@ -276,7 +246,7 @@ class ParallelParserSpec extends FlatSpec
       }
       val dirs = """- main1.template.html:directive
         |- main2.template.html:directive""".stripMargin
-      def template (num: Int) = TemplateView(Root / (s"main$num.template.html"), tRoot(tt("aa "),tt("bar"),tt(" bb")))
+      def template (num: Int) = TemplateView(Root / s"main$num.template.html", tRoot(tt("aa "),tt("bar"),tt(" bb")))
       val treeResult = TreeView(Root, List(TemplateDocuments(List(template(1),template(2)))))
       parsedRawWith(BundleProvider.forTemplateDirective(directive)) should be (treeResult)
     }
@@ -304,7 +274,7 @@ class ParallelParserSpec extends FlatSpec
         |- doc.md:multiline""".stripMargin
       val docResult = DocumentView(Root / "doc.md", Content(List(tRoot(
         tt("<div>\nxx"),
-        EmbeddedRoot(List(p("aaa"),p("bbb")), 0),
+        EmbeddedRoot(List(p("aaa"),p("bbb"))),
         tt("\n</div>")
       ))) :: Nil)
       val treeResult = TreeView(Root, List(Documents(Markup, List(docResult))))
@@ -323,8 +293,8 @@ class ParallelParserSpec extends FlatSpec
         |  - rectangle.md:name
         |- cherry.md:name
         |- directory.conf:order""".stripMargin
-      val tree = MarkupParser.of(Markdown) fromTreeInput builder(dirs)
-      tree.execute.tree.content map (_.path.name) should be (List("lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
+      val root = defaultParser.fromInput(builder(dirs)).parse.unsafeRunSync()
+      root.tree.content map (_.path.name) should be (List("lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
     }
   }
 
@@ -340,7 +310,8 @@ class ParallelParserSpec extends FlatSpec
                    |  - rectangle.md:name
                    |- cherry.md:name
                    |- directory.conf:order""".stripMargin
-      val tree = MarkupParser.of(Markdown).fromTreeInput(builder(dirs)).execute.tree
+      
+      val tree = defaultParser.fromInput(builder(dirs)).parse.unsafeRunSync().tree
       
       tree.titleDocument.map(_.path.basename) shouldBe Some("title")
       
@@ -356,44 +327,22 @@ class ParallelParserSpec extends FlatSpec
     }
   }
   
-  it should "allow parallel parser execution" in {
-    new TreeParser {
-      val dirs = """- doc1.md:name
-        |- doc2.md:name
-        |+ dir1
-        |  - doc3.md:name
-        |  - doc4.md:name
-        |  - doc5.md:name
-        |+ dir2
-        |  - doc6.md:name
-        |  - doc7.md:name
-        |  - doc8.md:name""".stripMargin
-      val subtree1 = TreeView(Root / "dir1", List(Documents(Markup, List(docView(3, Root / "dir1"),docView(4, Root / "dir1"),docView(5, Root / "dir1")))))
-      val subtree2 = TreeView(Root / "dir2", List(Documents(Markup, List(docView(6, Root / "dir2"),docView(7, Root / "dir2"),docView(8, Root / "dir2")))))
-      val treeResult = TreeView(Root, List(
-        Documents(Markup, List(docView(1),docView(2))),
-        Subtrees(List(subtree1,subtree2))
-      ))
-      parsedInParallel should be (treeResult)
-    }
-  }
-  
-  it should "read a directory from the file system using the fromDirectory method" in {
-    val dirname = getClass.getResource("/trees/a/").getFile
-    def docView (num: Int, path: Path = Root) = DocumentView(path / (s"doc$num.md"), Content(List(p("Doc"+num))) :: Nil)
+  it should "read a directory from the file system using the fromDirectory method" in new ParserSetup {
+    val dirname: String = getClass.getResource("/trees/a/").getFile
+    def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc"+num))) :: Nil)
     val subtree1 = TreeView(Root / "dir1", List(Documents(Markup, List(docView(3, Root / "dir1"),docView(4, Root / "dir1")))))
     val subtree2 = TreeView(Root / "dir2", List(Documents(Markup, List(docView(5, Root / "dir2"),docView(6, Root / "dir2")))))
     val treeResult = TreeView(Root, List(
       Documents(Markup, List(docView(1),docView(2))),
       Subtrees(List(subtree1,subtree2))
     ))
-    viewOf(MarkupParser.of(Markdown).fromDirectory(dirname).execute) should be (treeResult)
+    viewOf(defaultParser.fromDirectory(dirname).parse.unsafeRunSync().tree) should be (treeResult)
   }
   
-  it should "read a directory from the file system using the fromDirectories method" in {
+  it should "read a directory from the file system using the fromDirectories method" in new ParserSetup {
     val dir1 = new java.io.File(getClass.getResource("/trees/a/").getFile)
     val dir2 = new java.io.File(getClass.getResource("/trees/b/").getFile)
-    def docView (num: Int, path: Path = Root) = DocumentView(path / (s"doc$num.md"), Content(List(p("Doc"+num))) :: Nil)
+    def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc"+num))) :: Nil)
     val subtree1 = TreeView(Root / "dir1", List(Documents(Markup, List(docView(3, Root / "dir1"),docView(4, Root / "dir1"),docView(7, Root / "dir1")))))
     val subtree2 = TreeView(Root / "dir2", List(Documents(Markup, List(docView(5, Root / "dir2"),docView(6, Root / "dir2")))))
     val subtree3 = TreeView(Root / "dir3", List(Documents(Markup, List(docView(8, Root / "dir3")))))
@@ -401,39 +350,39 @@ class ParallelParserSpec extends FlatSpec
       Documents(Markup, List(docView(1),docView(2),docView(9))),
       Subtrees(List(subtree1,subtree2,subtree3))
     ))
-    viewOf(MarkupParser.of(Markdown).fromDirectories(Seq(dir1,dir2)).execute) should be (treeResult)
+    viewOf(defaultParser.fromDirectories(Seq(dir1,dir2)).parse.unsafeRunSync().tree) should be (treeResult)
   }
 
-  it should "read a directory from the file system containing a file with non-ASCII characters" in {
-    val dirname = getClass.getResource("/trees/c/").getFile
-    def docView (num: Int, path: Path = Root) = DocumentView(path / (s"doc$num.md"), Content(List(p(s"Doc$num äöü"))) :: Nil)
+  it should "read a directory from the file system containing a file with non-ASCII characters" in new ParserSetup {
+    val dirname: String = getClass.getResource("/trees/c/").getFile
+    def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p(s"Doc$num äöü"))) :: Nil)
     val treeResult = TreeView(Root, List(
       Documents(Markup, List(docView(1)))
     ))
-    viewOf(MarkupParser.of(Markdown).fromDirectory(dirname).execute) should be (treeResult)
+    viewOf(defaultParser.fromDirectory(dirname).parse.unsafeRunSync().tree) should be (treeResult)
   }
   
-  it should "allow to specify a custom exclude filter" in {
-    val dirname = getClass.getResource("/trees/a/").getFile
-    def docView (num: Int, path: Path = Root) = DocumentView(path / (s"doc$num.md"), Content(List(p("Doc"+num))) :: Nil)
-    val subtree2 = TreeView(Root / "dir2", List(Documents(Markup, List(docView(5, Root / "dir2"),docView(6, Root / "dir2")))))
-    val treeResult = TreeView(Root, List(
-      Documents(Markup, List(docView(2))),
-      Subtrees(List(subtree2))
-    ))
-    viewOf(MarkupParser.of(Markdown).fromDirectory(dirname, {f:java.io.File => f.getName == "doc1.md" || f.getName == "dir1"}).execute) should be (treeResult)
-  }
+//  it should "allow to specify a custom exclude filter" in new ParserSetup {
+//    val dirname = getClass.getResource("/trees/a/").getFile
+//    def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc"+num))) :: Nil)
+//    val subtree2 = TreeView(Root / "dir2", List(Documents(Markup, List(docView(5, Root / "dir2"),docView(6, Root / "dir2")))))
+//    val treeResult = TreeView(Root, List(
+//      Documents(Markup, List(docView(2))),
+//      Subtrees(List(subtree2))
+//    ))
+//    viewOf(defaultParser.fromDirectory(dirname, {f:java.io.File => f.getName == "doc1.md" || f.getName == "dir1"}).parse.unsafeRunSync().tree) should be (treeResult)
+//  }
   
-  it should "read a directory from the file system using the Directory object" in {
-    val dirname = getClass.getResource("/trees/a/").getFile
-    def docView (num: Int, path: Path = Root) = DocumentView(path / (s"doc$num.md"), Content(List(p("Doc"+num))) :: Nil)
+  it should "read a directory from the file system using the Directory object" in new ParserSetup {
+    val dirname: String = getClass.getResource("/trees/a/").getFile
+    def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc"+num))) :: Nil)
     val subtree1 = TreeView(Root / "dir1", List(Documents(Markup, List(docView(3, Root / "dir1"),docView(4, Root / "dir1")))))
     val subtree2 = TreeView(Root / "dir2", List(Documents(Markup, List(docView(5, Root / "dir2"),docView(6, Root / "dir2")))))
     val treeResult = TreeView(Root, List(
       Documents(Markup, List(docView(1),docView(2))),
       Subtrees(List(subtree1,subtree2))
     ))
-    viewOf(MarkupParser.of(Markdown).fromDirectory(dirname).execute) should be (treeResult)
+    viewOf(defaultParser.fromDirectory(dirname).parse.unsafeRunSync().tree) should be (treeResult)
   }
 
 }

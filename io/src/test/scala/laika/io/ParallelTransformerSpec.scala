@@ -18,113 +18,28 @@ package laika.io
 
 import java.io._
 
-import laika.api.{Transform, Transformer}
-import laika.api.Transform.TransformMappedOutput
+import cats.effect.IO
+import laika.api.Transformer
 import laika.ast.DocumentType.Static
 import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.{BundleProvider, ExtensionBundle}
 import laika.directive.Templates
 import laika.format._
+import laika.io.Parallel.ParallelTransformer
+import laika.io.helper.OutputBuilder.{DocumentViews, RenderedDocumentView, RenderedTreeView, SubtreeViews, TreeContentView}
 import laika.io.helper.{InputBuilder, OutputBuilder, RenderResult}
 import laika.parse.Parser
 import laika.parse.text.TextParsers
-import laika.render.TextFormatter
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{Assertion, FlatSpec, Matchers}
 
 class ParallelTransformerSpec extends FlatSpec 
                        with Matchers {
 
    
-  val input = """# Title äöü
-    |
-    |text""".stripMargin 
-  
-  val output = """RootElement - Blocks: 2
-    |. Title(Id(title) + Styles(title)) - Spans: 1
-    |. . Text - 'Title äöü'
-    |. Paragraph - Spans: 1
-    |. . Text - 'text'""".stripMargin
-    
-  val transform = Transformer.from(Markdown).to(AST
-  
-  
-  "The Transform API" should "transform from string to string" in {
-    (transform transform input) should be (output)
-  }
-  
-//  it should "Transformer.from(file to file" ignore {
-//    val inFile = getClass.getResource("/testInput2.md").getFile
-//    val outFile = File.createTempFile("output", null)
-//    implicit val codec:Codec = Codec.UTF8
-//    
-//    (transform fromFile inFile toFile outFile).execute
-//    
-//    val source = Source.fromFile(outFile)
-//    val fileContent = source.mkString
-//    source.close()
-//    outFile.delete()
-//    
-//    fileContent should be (output)
-//  }
-  
-  it should "transform from a java.io.Reader to a java.io.Writer" ignore {
-//    val reader = new StringReader(input)
-//    val writer = new StringWriter
-//    (transform fromReader reader toWriter writer).execute
-//    writer.toString should be (output)
-  }
-  
-  it should "transform from a java.io.InputStream to a java.io.OutputStream" ignore {
-//    val inStream = new ByteArrayInputStream(input.getBytes())
-//    val outStream = new ByteArrayOutputStream
-//    (transform fromStream inStream toStream outStream).execute
-//    outStream.toString should be (output)
-  }
-  
-  it should "transform from a java.io.InputStream to a java.io.OutputStream, specifying the encoding explicitly" ignore {
-//    val inStream = new ByteArrayInputStream(input.getBytes("ISO-8859-1"))
-//    val outStream = new ByteArrayOutputStream
-//    val codec = Codec.ISO8859
-//    (transform.fromStream(inStream)(codec).toStream(outStream)(codec)).execute
-//    outStream.toString("ISO-8859-1") should be (output)
-  }
-  
-  it should "transform from a java.io.InputStream to a java.io.OutputStream, specifying the encoding implicitly" ignore {
-//    val inStream = new ByteArrayInputStream(input.getBytes("ISO-8859-1"))
-//    val outStream = new ByteArrayOutputStream
-//    implicit val codec:Codec = Codec.ISO8859
-//    (transform fromStream inStream toStream outStream).execute
-//    outStream.toString("ISO-8859-1") should be (output)
-  }
-  
-  it should "allow to override the default renderer for specific element types" in {
-    val modifiedOutput = output.replaceAllLiterally(". Text", ". String")
-    val transformCustom = transform rendering { case (_, Text(content,_)) => s"String - '$content'" }
-    (transformCustom transform input) should be (modifiedOutput)
-  }
-  
-  it should "allow to specify a custom rewrite rule" in {
-    val modifiedOutput = output.replaceAllLiterally("äöü", "zzz")
-    val transformCustom = transform usingSpanRule { case Text("Title äöü",_) => Replace(Text("Title zzz")) }
-    (transformCustom transform input) should be (modifiedOutput)
-  }
-  
-  it should "allow to specify multiple rewrite rules" in {
-    val modifiedOutput = output.replaceAllLiterally("äöü", "zzz").replaceAllLiterally("text", "new")
-    val transformCustom = transform usingSpanRule { case Text("Title äöü",_) => Replace(Text("Title zzz")) } usingSpanRule
-                                                  { case Text("text",_)      => Replace(Text("new")) }
-    (transformCustom transform input) should be (modifiedOutput)
-  }
-  
-  it should "allow to specify a custom rewrite rule that depends on the document" in {
-    val modifiedOutput = output.replaceAllLiterally("äöü", "2")
-    val transformCustom = transform creatingRule { cursor => RewriteRules.forSpans { 
-      case Text("Title äöü",_) => Replace(Text("Title " + cursor.target.content.content.length)) 
-    }}
-    (transformCustom transform input) should be (modifiedOutput)
-  }
 
+  private val transformer: ParallelTransformer[IO] = Parallel(Transformer.from(Markdown).to(AST)).build
+  
   
   trait TreeTransformer extends InputBuilder {
     import laika.ast.{DocumentType, Path}
@@ -133,23 +48,28 @@ class ParallelTransformerSpec extends FlatSpec
     
     def input (source: String, docTypeMatcher: Path => DocumentType): TreeInput = parseTreeStructure(source, docTypeMatcher)
 
-    def transformTree: RenderedTree = transformWith()
-    def transformMultiMarkup: RenderedTree = transformWith(Transformer.from(Markdown or ReStructuredText to AST)
+    def transformTree: RenderedTreeView = transformWith()
+    //def transformMultiMarkup: RenderedTree = transformWith(Transformer.from(Markdown or ReStructuredText to AST)
     
-    def transformWithConfig (config: String): RenderedTree = transformWithBundle(BundleProvider.forConfigString(config))
-    def transformWithDocTypeMatcher (matcher: PartialFunction[Path, DocumentType]): RenderedTree = transformWithBundle(BundleProvider.forDocTypeMatcher(matcher))
-    def transformWithTemplates (parser: Parser[TemplateRoot]): RenderedTree = transformWithBundle(BundleProvider.forTemplateParser(parser))
-    def transformWithDirective (directive: Templates.Directive): RenderedTree = transformWithBundle(BundleProvider.forTemplateDirective(directive))
+    def transformWithConfig (config: String): RenderedTreeView = transformWithBundle(BundleProvider.forConfigString(config))
+    def transformWithDocTypeMatcher (matcher: PartialFunction[Path, DocumentType]): RenderedTreeView = transformWithBundle(BundleProvider.forDocTypeMatcher(matcher))
+    def transformWithTemplates (parser: Parser[TemplateRoot]): RenderedTreeView = transformWithBundle(BundleProvider.forTemplateParser(parser))
+    def transformWithDirective (directive: Templates.Directive): RenderedTreeView = transformWithBundle(BundleProvider.forTemplateDirective(directive))
     
-    def transformInParallel: RenderedTree = transformWith(transform.inParallel)
-    
-    private def transformWith (transformer: TransformMappedOutput[TextFormatter] = transform): RenderedTree =
-      OutputBuilder.RenderedTree.toTreeView(transformer.fromTreeInput(input(dirs, transformer.config.docTypeMatcher)).toOutputTree(StringTreeOutput).execute.tree)
+    private def transformWith (transformer: ParallelTransformer[IO] = transformer): RenderedTreeView =
+      OutputBuilder.RenderedTreeView.toTreeView(
+        transformer
+          .fromInput(IO.pure(input(dirs, transformer.config.docTypeMatcher)))
+          .toOutput(IO.pure(StringTreeOutput))
+          .transform
+          .unsafeRunSync()
+          .tree
+      )
 
-    private def transformWithBundle (bundle: ExtensionBundle, transformer: TransformMappedOutput[TextFormatter] = transform): RenderedTree =
-      transformWith(transformer.using(bundle))
+    private def transformWithBundle (bundle: ExtensionBundle): RenderedTreeView =
+      transformWith(Parallel(Transformer.from(Markdown).to(AST).using(bundle)).build)
     
-    def root (content: Seq[TreeContent]) = RenderedTree(Root, content)
+    def root (content: Seq[TreeContentView]): RenderedTreeView = RenderedTreeView(Root, content)
     
     val contents = Map(
       "name" -> "foo",
@@ -162,24 +82,24 @@ class ParallelTransformerSpec extends FlatSpec
       "conf" -> "value: abc"
     )
     
-    val simpleResult = """RootElement - Blocks: 1
+    val simpleResult: String = """RootElement - Blocks: 1
       |. Paragraph - Spans: 1
       |. . Text - 'foo'""".stripMargin
       
-    def docs (values: (Path, String)*) = Documents(values map { case (path, content) => RenderedDocument(path, content) })
+    def docs (values: (Path, String)*): DocumentViews = DocumentViews(values map { case (path, content) => RenderedDocumentView(path, content) })
 
-    def sorted (tree: RenderedTree): RenderedTree = tree.copy(content = tree.content map (sortedContent(_)))
+    def sorted (tree: RenderedTreeView): RenderedTreeView = tree.copy(content = tree.content map sortedContent)
         
-    def sortedContent (content: TreeContent): TreeContent = content match {
-      case Documents(content) => Documents(content.sortBy(_.path.name))
-      case Subtrees(content) => Subtrees(content.sortBy(_.path.name) map (sorted(_)))
+    def sortedContent (content: TreeContentView): TreeContentView = content match {
+      case DocumentViews(cnt) => DocumentViews(cnt.sortBy(_.path.name))
+      case SubtreeViews(cnt) => SubtreeViews(cnt.sortBy(_.path.name) map sorted)
     }
     
-    def trees (values: (Path, Seq[TreeContent])*) = Subtrees(values map { case (path, content) => RenderedTree(path, content) })
+    def trees (values: (Path, Seq[TreeContentView])*) = SubtreeViews(values map { case (path, content) => RenderedTreeView(path, content) })
   }
-  
-  
-  it should "transform an empty tree" in {
+
+
+  "The Transform API" should "transform an empty tree" in {
     new TreeTransformer {
       val dirs = ""
       transformTree should be (root(Nil))
@@ -256,9 +176,9 @@ class ParallelTransformerSpec extends FlatSpec
       val dirs = """- doc1.md:name
         |- styles.fo.css:style""".stripMargin
       val result = RenderResult.fo.withDefaultTemplate("""<fo:block font-family="serif" font-size="13pt" space-after="3mm">foo</fo:block>""")
-      val transform = Transformer.from(Markdown).to(XSLFO).inParallel.using(BundleProvider.forStyleSheetParser(parser))
-      val renderResult = transform.fromTreeInput(input(dirs, transform.config.docTypeMatcher)).toOutputTree(StringTreeOutput).execute
-      OutputBuilder.RenderedTree.toTreeView(renderResult.tree) should be (root(List(docs(
+      val transform = Transformer.from(Markdown).to(XSLFO).using(BundleProvider.forStyleSheetParser(parser))
+      val renderResult = transformer.fromInput(IO.pure(input(dirs, transformer.config.docTypeMatcher))).toOutput(IO.pure(StringTreeOutput)).transform.unsafeRunSync()
+      OutputBuilder.RenderedTreeView.toTreeView(renderResult.tree) should be (root(List(docs(
         (Root / "doc1.fo", result)
       ))))
     }
@@ -286,110 +206,77 @@ class ParallelTransformerSpec extends FlatSpec
   }
   
   it should "transform a tree with all available file types" ignore {
-    new TreeTransformer {
-      val dirs = """- doc1.md:link
-        |- doc2.rst:link
-        |- default.template.txt:template1
-        |+ dir1
-        |  - default.template.txt:template2
-        |  - doc3.md:name
-        |  - doc4.md:name
-        |+ dir2
-        |  - omg.js:name
-        |  - doc5.md:name
-        |  - doc6.md:name""".stripMargin
-      val withTemplate1 = """RootElement - Blocks: 1
-        |. Paragraph - Spans: 1
-        |. . Text - 'foo'""".stripMargin  
-      val withTemplate2 = """RootElement - Blocks: 1
-        |. TemplateRoot - TemplateSpans: 3
-        |. . TemplateString - '('
-        |. . EmbeddedRoot(0) - Blocks: 1
-        |. . . Paragraph - Spans: 1
-        |. . . . Text - 'foo'
-        |. . TemplateString - ')'""".stripMargin  
-      val markdown = """RootElement - Blocks: 1
-        |. Paragraph - Spans: 1
-        |. . ExternalLink(foo,None) - Spans: 1
-        |. . . Text - 'link'""".stripMargin
-      val rst = """RootElement - Blocks: 1
-        |. Paragraph - Spans: 1
-        |. . Text - '[link](foo)'""".stripMargin
-      transformMultiMarkup should be (root(List(
-        docs(
-          (Root / "doc1.txt", markdown),
-          (Root / "doc2.txt", rst)
-        ),
-        trees(
-          (Root / "dir1", List(docs(
-            (Root / "dir1" / "doc3.txt", withTemplate2),
-            (Root / "dir1" / "doc4.txt", withTemplate2)  
-          ))),
-          (Root / "dir2", List(docs(
-            (Root / "dir2" / "doc5.txt", withTemplate1),
-            (Root / "dir2" / "doc6.txt", withTemplate1),  
-            (Root / "dir2" / "omg.js", "foo")  
-          )))
-        )
-      )))
-    }
-  }
-  
-  it should "transform a document tree in parallel" in {
-    new TreeTransformer {
-      val dirs = """- doc1.md:name
-        |- doc2.md:name
-        |+ dir1
-        |  - doc3.md:name
-        |  - doc4.md:name
-        |  - doc5.md:name
-        |+ dir2
-        |  - doc6.md:name
-        |  - doc7.md:name
-        |  - doc8.md:name""".stripMargin
-      sorted(transformInParallel) should be (root(List(
-          docs(
-            (Root / "doc1.txt", simpleResult),
-            (Root / "doc2.txt", simpleResult)
-          ),
-          trees(
-            (Root / "dir1", List(docs(
-              (Root / "dir1" / "doc3.txt", simpleResult),
-              (Root / "dir1" / "doc4.txt", simpleResult),
-              (Root / "dir1" / "doc5.txt", simpleResult)  
-            ))),
-            (Root / "dir2", List(docs(
-              (Root / "dir2" / "doc6.txt", simpleResult),
-              (Root / "dir2" / "doc7.txt", simpleResult),  
-              (Root / "dir2" / "doc8.txt", simpleResult)  
-            )))
-          )
-        )))
-    }
+//    new TreeTransformer {
+//      val dirs = """- doc1.md:link
+//        |- doc2.rst:link
+//        |- default.template.txt:template1
+//        |+ dir1
+//        |  - default.template.txt:template2
+//        |  - doc3.md:name
+//        |  - doc4.md:name
+//        |+ dir2
+//        |  - omg.js:name
+//        |  - doc5.md:name
+//        |  - doc6.md:name""".stripMargin
+//      val withTemplate1 = """RootElement - Blocks: 1
+//        |. Paragraph - Spans: 1
+//        |. . Text - 'foo'""".stripMargin  
+//      val withTemplate2 = """RootElement - Blocks: 1
+//        |. TemplateRoot - TemplateSpans: 3
+//        |. . TemplateString - '('
+//        |. . EmbeddedRoot(0) - Blocks: 1
+//        |. . . Paragraph - Spans: 1
+//        |. . . . Text - 'foo'
+//        |. . TemplateString - ')'""".stripMargin  
+//      val markdown = """RootElement - Blocks: 1
+//        |. Paragraph - Spans: 1
+//        |. . ExternalLink(foo,None) - Spans: 1
+//        |. . . Text - 'link'""".stripMargin
+//      val rst = """RootElement - Blocks: 1
+//        |. Paragraph - Spans: 1
+//        |. . Text - '[link](foo)'""".stripMargin
+//      transformMultiMarkup should be (root(List(
+//        docs(
+//          (Root / "doc1.txt", markdown),
+//          (Root / "doc2.txt", rst)
+//        ),
+//        trees(
+//          (Root / "dir1", List(docs(
+//            (Root / "dir1" / "doc3.txt", withTemplate2),
+//            (Root / "dir1" / "doc4.txt", withTemplate2)  
+//          ))),
+//          (Root / "dir2", List(docs(
+//            (Root / "dir2" / "doc5.txt", withTemplate1),
+//            (Root / "dir2" / "doc6.txt", withTemplate1),  
+//            (Root / "dir2" / "omg.js", "foo")  
+//          )))
+//        )
+//      )))
+//    }
   }
   
   trait GatheringTransformer extends InputBuilder {
 
-    val srcRoot = """Title
+    val srcRoot: String = """Title
       |=====
       |
       |bbb""".stripMargin
     
-    val srcSub = """Sub Title
+    val srcSub: String = """Sub Title
       |=========
       |
       |ccc""".stripMargin
       
-    val contents = Map(
+    val contents: Map[String, String] = Map(
       "docRoot" -> srcRoot,
       "docSub" -> srcSub
     )
     
-    val dirs = """- docRoot.rst:docRoot
+    val dirs: String = """- docRoot.rst:docRoot
         |+ dir
         |  - docSub.rst:docSub""".stripMargin
         
-    val expectedResult = """RootElement - Blocks: 2
+    val expectedResult: String = """RootElement - Blocks: 2
       |. Title(Id(title) + Styles(title)) - Spans: 1
       |. . Text - 'Title'
       |. Paragraph - Spans: 1
@@ -401,7 +288,7 @@ class ParallelTransformerSpec extends FlatSpec
       |. . Text - 'ccc'
       |""".stripMargin
     
-    def input (source: String, docTypeMatcher: Path => DocumentType) = parseTreeStructure(source, docTypeMatcher)
+    def input (source: String, docTypeMatcher: Path => DocumentType): TreeInput = parseTreeStructure(source, docTypeMatcher)
   }
   
   it should "render a tree with a RenderResultProcessor writing to an output stream" ignore new GatheringTransformer {
@@ -410,11 +297,11 @@ class ParallelTransformerSpec extends FlatSpec
 //    out.toString should be (expectedResult)
   }
   
-  it should "render a tree with a RenderResultProcessor writing to a file" in new GatheringTransformer {
-    val f = File.createTempFile("output", null)
-    val transform = Transformer.from(ReStructuredText).to(TestRenderResultProcessor)
-    transform.fromTreeInput(input(dirs, transform.config.docTypeMatcher)).toFile(f).execute
-    readFile(f) should be (expectedResult)
+  it should "render a tree with a RenderResultProcessor writing to a file" ignore new GatheringTransformer {
+//    val f = File.createTempFile("output", null)
+//    val transform = Transformer.from(ReStructuredText).to(TestRenderResultProcessor)
+//    transformer.fromTreeInput(input(dirs, transform.config.docTypeMatcher)).toFile(f).execute
+//    readFile(f) should be (expectedResult)
   }
   
   it should "render a tree with a RenderResultProcessor overriding the default renderer for specific element types" ignore new GatheringTransformer {
@@ -457,17 +344,19 @@ class ParallelTransformerSpec extends FlatSpec
   
   trait FileSystemTest {
     
+    import OutputBuilder._
+    
     def resourcePath (path: String): String = getClass.getResource(path).getFile
     
-    def renderedDynDoc (num: Int) = """RootElement - Blocks: 1
+    def renderedDynDoc (num: Int): String = """RootElement - Blocks: 1
       |. TemplateRoot - Spans: 1
       |. . TemplateString - 'Doc""".stripMargin + num + "'"
       
-    def renderedDoc (num: Int) = """RootElement - Blocks: 1
+    def renderedDoc (num: Int): String = """RootElement - Blocks: 1
       |. Paragraph - Spans: 1
       |. . Text - 'Doc""".stripMargin + num + "'"
       
-    def readFiles (base: String) = {
+    def readFiles (base: String): Assertion = {
       readFile(base+"/doc1.txt") should be (renderedDoc(1))
       readFile(base+"/doc2.txt") should be (renderedDoc(2))
       readFile(base+"/dir1/doc3.txt") should be (renderedDoc(3))
@@ -476,7 +365,7 @@ class ParallelTransformerSpec extends FlatSpec
       readFile(base+"/dir2/doc6.txt") should be (renderedDoc(6))
     }
     
-    def readFilesFiltered (base: String) = {
+    def readFilesFiltered (base: String): Assertion = {
       new File(base+"/doc1.txt").exists should be (false)
       new File(base+"/dir1").exists should be (false)
       readFile(base+"/doc2.txt") should be (renderedDoc(2))
@@ -484,7 +373,7 @@ class ParallelTransformerSpec extends FlatSpec
       readFile(base+"/dir2/doc6.txt") should be (renderedDoc(6))
     }
     
-    def readFilesMerged (base: String) = {
+    def readFilesMerged (base: String): Assertion = {
       readFile(base+"/doc1.txt") should be (renderedDoc(1))
       readFile(base+"/doc2.txt") should be (renderedDoc(2))
       readFile(base+"/doc9.txt") should be (renderedDoc(9))
@@ -500,8 +389,8 @@ class ParallelTransformerSpec extends FlatSpec
   ignore should "read from and write to directories" in {
     new FileSystemTest {
       val sourceName = resourcePath("/trees/a/")
-      val targetDir = createTempDirectory("renderToDir")
-      transform.fromDirectory(sourceName).toDirectory(targetDir).execute
+      val targetDir = OutputBuilder.createTempDirectory("renderToDir")
+      transformer.fromDirectory(sourceName).toDirectory(targetDir).transform.unsafeRunSync()
       readFiles(targetDir.getPath)
     }
   }
@@ -509,8 +398,8 @@ class ParallelTransformerSpec extends FlatSpec
   ignore should "allow to specify custom exclude filter" in {
     new FileSystemTest {
       val sourceName = resourcePath("/trees/a/")
-      val targetDir = createTempDirectory("renderToDir")
-      transform.fromDirectory(sourceName, {f:File => f.getName == "doc1.md" || f.getName == "dir1"}).toDirectory(targetDir).execute
+      val targetDir = OutputBuilder.createTempDirectory("renderToDir")
+      transformer.fromDirectory(sourceName, {f:File => f.getName == "doc1.md" || f.getName == "dir1"}).toDirectory(targetDir).transform.unsafeRunSync()
       readFilesFiltered(targetDir.getPath)
     }
   }
@@ -519,17 +408,18 @@ class ParallelTransformerSpec extends FlatSpec
     new FileSystemTest {
       val source1 = new File(resourcePath("/trees/a/"))
       val source2 = new File(resourcePath("/trees/b/"))
-      val targetDir = createTempDirectory("renderToDir")
-      transform.fromDirectories(Seq(source1, source2)).toDirectory(targetDir).execute
+      val targetDir = OutputBuilder.createTempDirectory("renderToDir")
+      transformer.fromDirectories(Seq(source1, source2)).toDirectory(targetDir).transform.unsafeRunSync()
       readFilesMerged(targetDir.getPath)
     }
   }
 
   it should "allow to use the same directory as input and output" ignore {
+    import OutputBuilder._
     
     // TODO - 0.12 - resurrect
     new FileSystemTest {
-      val targetDir = createTempDirectory("renderToDir")
+      val targetDir = OutputBuilder.createTempDirectory("renderToDir")
       val staticFile = new File(targetDir, "static.txt")
       val inputFile = new File(targetDir, "hello.md")
       writeFile(inputFile, "Hello")
@@ -539,7 +429,7 @@ class ParallelTransformerSpec extends FlatSpec
                      |. Paragraph - Spans: 1
                      |. . Text - 'Hello'""".stripMargin
 
-      transform.fromDirectory(targetDir).toDirectory(targetDir).execute
+      transformer.fromDirectory(targetDir).toDirectory(targetDir).transform.unsafeRunSync()
 
       readFile(inputFile) shouldBe "Hello"
       readFile(staticFile) shouldBe "Text"
@@ -549,7 +439,9 @@ class ParallelTransformerSpec extends FlatSpec
 
   it should "not copy files from the output directory if it's nested inside the input directory" ignore {
     new FileSystemTest {
-      val targetDir = createTempDirectory("renderToDir")
+      import OutputBuilder._
+      
+      val targetDir = OutputBuilder.createTempDirectory("renderToDir")
       val staticFile = new File(targetDir, "static.txt")
       val inputFile = new File(targetDir, "hello.md")
       val subdir = new File(targetDir, "sub")
@@ -563,7 +455,7 @@ class ParallelTransformerSpec extends FlatSpec
                      |. Paragraph - Spans: 1
                      |. . Text - 'Hello'""".stripMargin
 
-      transform.fromDirectory(targetDir).toDirectory(subdir).execute
+      transformer.fromDirectory(targetDir).toDirectory(subdir).transform.unsafeRunSync()
 
       readFile(inputFile) shouldBe "Hello"
       readFile(new File(subdir, "static.txt")) shouldBe "Text"

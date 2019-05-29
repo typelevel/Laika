@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2016 the original author or authors.
+ * Copyright 2012-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,85 +18,45 @@ package laika.io
 
 import java.io.File
 
-import laika.api.{Render, Renderer}
-import laika.api.Render.RenderMappedOutput
+import cats.effect.IO
+import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.bundle.BundleProvider
 import laika.format._
+import laika.io.Parallel.ParallelRenderer
+import laika.io.helper.OutputBuilder.{DocumentViews, RenderedDocumentView, RenderedTreeView, SubtreeViews}
 import laika.io.helper.{OutputBuilder, RenderResult}
 import laika.render._
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{Assertion, FlatSpec, Matchers}
+
+import scala.io.Codec
 
 class ParallelRendererSpec extends FlatSpec 
                     with Matchers
                     with ModelBuilder { self =>
 
   
-  val rootElem = root(p("aaö"), p("bbb"))
+  val rootElem: RootElement = root(p("aaö"), p("bbb"))
 
-  val expected = """RootElement - Blocks: 2
+  val expected: String = """RootElement - Blocks: 2
       |. Paragraph - Spans: 1
       |. . Text - 'aaö'
       |. Paragraph - Spans: 1
       |. . Text - 'bbb'""".stripMargin
 
-  "The Render API" should "render a document to a string" in {
-    Renderer.of(AST).build.render(rootElem) should be (expected)
-  }
-
-//  it should "render a document to a file" ignore {
-//    val f = File.createTempFile("output", null)
-//
-//    (Renderer.of(AST)from rootElem toFile f).execute
-//
-//    readFile(f) should be (expected)
-//  }
-
-  it should "render a document to a java.io.Writer" ignore {
-//    val writer = new StringWriter
-//    (Renderer.of(AST)from rootElem toWriter writer).execute
-//    writer.toString should be (expected)
-  }
-
-  it should "render a document to a java.io.OutputStream" ignore {
-//    val stream = new ByteArrayOutputStream
-//    (Renderer.of(AST)from rootElem toStream stream).execute
-//    stream.toString should be (expected)
-  }
-
-  it should "render a document to a java.io.OutputStream, specifying the encoding explicitly" ignore {
-//    val stream = new ByteArrayOutputStream
-//    (Renderer.of(AST)from rootElem).toStream(stream)(Codec.ISO8859).execute
-//    stream.toString("ISO-8859-1") should be (expected)
-  }
-
-  it should "render a document to a java.io.OutputStream, specifying the encoding implicitly" ignore {
-//    implicit val codec:Codec = Codec.ISO8859
-//    val stream = new ByteArrayOutputStream
-//    (Renderer.of(AST)from rootElem toStream stream).execute
-//    stream.toString("ISO-8859-1") should be (expected)
-  }
-
-  it should "allow to override the default renderer for specific element types" in {
-    val render = Renderer.of(AST)rendering { case (_, Text(content,_)) => s"String - '$content'" }
-    val modifiedResult = expected.replaceAllLiterally("Text", "String")
-    (render render rootElem) should be (modifiedResult)
-  }
-
-  
   trait DocBuilder {
     def markupDoc (num: Int, path: Path = Root)  = Document(path / ("doc"+num), root(p("Doc"+num)))
     
     //def staticDoc (num: Int, path: Path = Root) = StaticDocument(ByteInput("Static"+num, path / s"static$num.txt"))
     
     
-    def renderedDynDoc (num: Int) = """RootElement - Blocks: 1
+    def renderedDynDoc (num: Int): String = """RootElement - Blocks: 1
       |. TemplateRoot - TemplateSpans: 1
       |. . TemplateString - 'Doc""".stripMargin + num + "'"
       
-    def renderedDoc (num: Int) = """RootElement - Blocks: 1
+    def renderedDoc (num: Int): String = """RootElement - Blocks: 1
         |. Paragraph - Spans: 1
         |. . Text - 'Doc""".stripMargin + num + "'"
   }
@@ -107,12 +67,12 @@ class ParallelRendererSpec extends FlatSpec
     
     def input: DocumentTree
     
-    def render: Renderer
+    def renderer: ParallelRenderer[IO]
     
-    def renderedTree: RenderedTree = OutputBuilder.RenderedTree.toTreeView(render
+    def renderedTree: RenderedTreeView = RenderedTreeView.toTreeView(renderer
       .from(treeRoot)
-      .toOutputTree(StringTreeOutput)
-      .execute.tree
+      .toOutput(IO.pure(StringTreeOutput))
+      .render.unsafeRunSync().tree
     )
 
     def addPosition (tree: DocumentTree, pos: Seq[Int] = Nil): DocumentTree = {
@@ -127,43 +87,43 @@ class ParallelRendererSpec extends FlatSpec
   }
   
   trait ASTRenderer extends TreeRenderer[TextFormatter] {
-    lazy val render = Renderer.of(AST).build
+    lazy val renderer: ParallelRenderer[IO] = Parallel(Renderer.of(AST)).build
   }
 
   trait HTMLRenderer extends TreeRenderer[HTMLFormatter] {
-    val rootElem = root(title("Title"), p("bbb"))
-    lazy val render = Renderer.of(HTML).build
+    val rootElem: RootElement = root(title("Title"), p("bbb"))
+    lazy val renderer: ParallelRenderer[IO] = Parallel(Renderer.of(HTML)).build
   }
 
   trait EPUB_XHTMLRenderer extends TreeRenderer[HTMLFormatter] {
-    val rootElem = root(title("Title"), p("bbb"))
-    lazy val render = Renderer.of(EPUB.XHTML).build
+    val rootElem: RootElement = root(title("Title"), p("bbb"))
+    lazy val renderer: ParallelRenderer[IO] = Parallel(Renderer.of(EPUB.XHTML)).build
   }
 
   trait FORenderer extends TreeRenderer[FOFormatter] {
     def foStyles (path: Path = Root) = Map("fo" -> StyleDeclarationSet(path / "styles.fo.css", StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> "11pt")))
-    val rootElem = root(self.title("Title"), p("bbb"))
-    val subElem = root(self.title("Sub Title"), p("ccc"))
+    val rootElem: RootElement = root(self.title("Title"), p("bbb"))
+    val subElem: RootElement = root(self.title("Sub Title"), p("ccc"))
 
     def marker(text: String) = s"""<fo:marker marker-class-name="chapter"><fo:block>$text</fo:block></fo:marker>"""
 
     def title(id: String, text: String) =
       s"""<fo:block id="$id" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">$text</fo:block>"""
 
-    def render: Renderer = Renderer.of(XSLFO).build
+    def renderer: ParallelRenderer[IO] = Parallel(Renderer.of(XSLFO)).build
   }
 
   it should "render an empty tree" in {
     new ASTRenderer {
       val input = DocumentTree(Root, Nil)
-      renderedTree should be (RenderedTree(Root, Nil))
+      renderedTree should be (RenderedTree(Root, Nil, Nil))
     }
   }
 
   it should "render a tree with a single document" in {
     new ASTRenderer {
       val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
-      renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.txt", expected))))))
+      renderedTree should be (RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.txt", expected))))))
     }
   }
 
@@ -172,7 +132,7 @@ class ParallelRendererSpec extends FlatSpec
       val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
       val expected = RenderResult.html.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
         |      <p>bbb</p>""".stripMargin)
-      renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.html", expected))))))
+      renderedTree should be (RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.html", expected))))))
     }
   }
 
@@ -182,51 +142,52 @@ class ParallelRendererSpec extends FlatSpec
       val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
       val expected = """[<h1 id="title" class="title">Title</h1>
         |<p>bbb</p>]""".stripMargin
-      renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.html", expected))))))
+      renderedTree should be (RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.html", expected))))))
     }
   }
 
   it should "render a tree with a single document to HTML using a custom template in an extension bundle" in {
     new HTMLRenderer {
       val template = tRoot(tt("["), TemplateContextReference("document.content"), tt("]"))
-      override lazy val render = Renderer.of(HTML)using BundleProvider.forTheme(HTML.Theme(defaultTemplate = Some(template)))
+      override lazy val renderer = Parallel(Renderer.of(HTML)using BundleProvider.forTheme(HTML.Theme(defaultTemplate = Some(template)))).build
       val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
       val expected = """[<h1 id="title" class="title">Title</h1>
                        |<p>bbb</p>]""".stripMargin
-      renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.html", expected))))))
+      renderedTree should be (RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.html", expected))))))
     }
   }
 
-  // TODO - 0.12 - move to laika-io project
-//  it should "render a tree with a single document to EPUB.XHTML using the default template" ignore {
-//    new EPUB_XHTMLRenderer {
-//      val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
-//      val expected = RenderResult.epub.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
-//                                                                      |      <p>bbb</p>""".stripMargin)
-//      renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.epub.xhtml", expected))))))
-//    }
-//  }
-//
-//  it should "render a tree with a single document to EPUB.XHTML using a custom template in the root directory" in {
-//    new EPUB_XHTMLRenderer {
-//      val template = TemplateDocument(Root / "default.template.epub.xhtml", tRoot(tt("["), TemplateContextReference("document.content"), tt("]")))
-//      val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
-//      val expected = """[<h1 id="title" class="title">Title</h1>
-//                       |<p>bbb</p>]""".stripMargin
-//      renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.epub.xhtml", expected))))))
-//    }
-//  }
-//
-//  it should "render a tree with a single document to EPUB.XHTML using a custom template in an extension bundle" in {
-//    new EPUB_XHTMLRenderer {
-//      val template = tRoot(tt("["), TemplateContextReference("document.content"), tt("]"))
-//      override lazy val render = Renderer.of(EPUB.XHTML using BundleProvider.forTheme(EPUB.XHTML.Theme(defaultTemplate = Some(template)))
-//      val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
-//      val expected = """[<h1 id="title" class="title">Title</h1>
-//                       |<p>bbb</p>]""".stripMargin
-//      renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.epub.xhtml", expected))))))
-//    }
-//  }
+  it should "render a tree with a single document to EPUB.XHTML using the default template" ignore {
+    new EPUB_XHTMLRenderer {
+      val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
+      val expected = RenderResult.epub.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
+                                                                      |      <p>bbb</p>""".stripMargin)
+      renderedTree should be (RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.epub.xhtml", expected))))))
+    }
+  }
+
+  it should "render a tree with a single document to EPUB.XHTML using a custom template in the root directory" in {
+    new EPUB_XHTMLRenderer {
+      val template = TemplateDocument(Root / "default.template.epub.xhtml", tRoot(tt("["), TemplateContextReference("document.content"), tt("]")))
+      val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), templates = Seq(template))
+      val expected = """[<h1 id="title" class="title">Title</h1>
+                       |<p>bbb</p>]""".stripMargin
+      renderedTree should be (RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.epub.xhtml", expected))))))
+    }
+  }
+
+  it should "render a tree with a single document to EPUB.XHTML using a custom template in an extension bundle" in {
+    new EPUB_XHTMLRenderer {
+      val template = tRoot(tt("["), TemplateContextReference("document.content"), tt("]"))
+      override lazy val renderer = Parallel { 
+        Renderer.of(EPUB.XHTML).using(BundleProvider.forTheme(EPUB.XHTML.Theme(defaultTemplate = Some(template))))
+      }.build
+      val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
+      val expected = """[<h1 id="title" class="title">Title</h1>
+                       |<p>bbb</p>]""".stripMargin
+      renderedTree should be (RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.epub.xhtml", expected))))))
+    }
+  }
 
   it should "render a tree with a single document to XSL-FO using the default template and default CSS" in {
     new FORenderer {
@@ -234,7 +195,7 @@ class ParallelRendererSpec extends FlatSpec
       val expected = RenderResult.fo.withDefaultTemplate(s"""${marker("Title")}
         |      ${title("_doc_title", "Title")}
         |      <fo:block font-family="serif" font-size="10pt" space-after="3mm">bbb</fo:block>""".stripMargin)
-      renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.fo", expected))))))
+      renderedTree should be (RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.fo", expected))))))
     }
   }
 
@@ -245,13 +206,15 @@ class ParallelRendererSpec extends FlatSpec
       val expected = s"""[${marker("Title")}
         |${title("_doc_title", "Title")}
         |<fo:block font-family="serif" font-size="10pt" space-after="3mm">bbb</fo:block>]""".stripMargin
-      renderedTree should be (RenderedTree(Root, List(Documents(List(RenderedDocument(Root / "doc.fo", expected))))))
+      renderedTree should be (RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.fo", expected))))))
     }
   }
 
   it should "render a tree with two documents to XSL-FO using a custom style sheet in an extension bundle" in {
     new FORenderer {
-      override val render = Renderer.of(XSLFO)using BundleProvider.forTheme(XSLFO.Theme(defaultStyles = foStyles()("fo")))
+      override val renderer = Parallel {
+        Renderer.of(XSLFO) using BundleProvider.forTheme(XSLFO.Theme(defaultStyles = foStyles()("fo")))
+      }.build
       val input = DocumentTree(Root, List(
         Document(Root / "doc", rootElem),
         DocumentTree(Root / "tree", List(Document(Root / "tree" / "subdoc", subElem)))
@@ -262,10 +225,10 @@ class ParallelRendererSpec extends FlatSpec
       val expectedSub = RenderResult.fo.withDefaultTemplate(s"""${marker("Sub Title")}
         |      ${title("_tree_subdoc_sub-title", "Sub Title")}
         |      <fo:block font-family="serif" font-size="11pt" space-after="3mm">ccc</fo:block>""".stripMargin)
-      renderedTree should be (RenderedTree(Root, List(
-        Documents(List(RenderedDocument(Root / "doc.fo", expectedRoot))),
-        Subtrees(List(RenderedTree(Root / "tree", List(
-          Documents(List(RenderedDocument(Root / "tree" / "subdoc.fo", expectedSub)))
+      renderedTree should be (RenderedTreeView(Root, List(
+        DocumentViews(List(RenderedDocumentView(Root / "doc.fo", expectedRoot))),
+        SubtreeViews(List(RenderedTreeView(Root / "tree", List(
+          DocumentViews(List(RenderedDocumentView(Root / "tree" / "subdoc.fo", expectedSub)))
         ))))
       )))
     }
@@ -284,10 +247,10 @@ class ParallelRendererSpec extends FlatSpec
       val expectedSub = RenderResult.fo.withDefaultTemplate(s"""${marker("Sub Title")}
         |      ${title("_tree_subdoc_sub-title", "Sub Title")}
         |      <fo:block font-family="serif" font-size="11pt" space-after="3mm">ccc</fo:block>""".stripMargin)
-      renderedTree should be (RenderedTree(Root, List(
-          Documents(List(RenderedDocument(Root / "doc.fo", expectedRoot))),
-          Subtrees(List(RenderedTree(Root / "tree", List(
-              Documents(List(RenderedDocument(Root / "tree" / "subdoc.fo", expectedSub)))
+      renderedTree should be (RenderedTreeView(Root, List(
+        DocumentViews(List(RenderedDocumentView(Root / "doc.fo", expectedRoot))),
+        SubtreeViews(List(RenderedTreeView(Root / "tree", List(
+            DocumentViews(List(RenderedDocumentView(Root / "tree" / "subdoc.fo", expectedSub)))
           ))))
       )))
     }
@@ -420,8 +383,8 @@ class ParallelRendererSpec extends FlatSpec
 //  }
   
   trait GatherRenderer {
-    val rootElem = root(self.title("Title"), p("bbb"))
-    val subElem = root(self.title("Sub Title"), p("ccc"))
+    val rootElem: RootElement = root(self.title("Title"), p("bbb"))
+    val subElem: RootElement = root(self.title("Sub Title"), p("ccc"))
 
     val input = DocumentTree(Root, List(
       Document(Root / "doc", rootElem),
@@ -430,7 +393,7 @@ class ParallelRendererSpec extends FlatSpec
       ))
     ))
 
-    val expectedResult = """RootElement - Blocks: 2
+    val expectedResult: String = """RootElement - Blocks: 2
       |. Title(Id(title) + Styles(title)) - Spans: 1
       |. . Text - 'Title'
       |. Paragraph - Spans: 1
@@ -451,20 +414,20 @@ class ParallelRendererSpec extends FlatSpec
 //    }
   }
 
-  it should "render a tree with two documents using a RenderResultProcessor writing to a file" in {
-    new GatherRenderer {
-      val f = File.createTempFile("output", null)
-      Render
-        .as(TestRenderResultProcessor)
-        .from(DocumentTreeRoot(input))
-        .toFile(f)
-        .execute
-      readFile(f) should be (expectedResult)
-    }
+  it should "render a tree with two documents using a RenderResultProcessor writing to a file" ignore {
+//    new GatherRenderer {
+//      val f = File.createTempFile("output", null)
+//      Render
+//        .as(TestRenderResultProcessor)
+//        .from(DocumentTreeRoot(input))
+//        .toFile(f)
+//        .execute
+//      readFile(f) should be (expectedResult)
+//    }
   }
 
   trait FileSystemTest extends DocBuilder {
-    val input = DocumentTree(Root, List(
+    val input = DocumentTreeRoot(DocumentTree(Root, List(
       markupDoc(1),
       markupDoc(2),
       DocumentTree(Root / "dir1", List(
@@ -475,9 +438,10 @@ class ParallelRendererSpec extends FlatSpec
         markupDoc(5),
         markupDoc(6)
       ))
-    ))
+    )))
 
-    def readFiles (base: String) = {
+    def readFiles (base: String): Assertion = {
+      import laika.io.helper.OutputBuilder._
       readFile(base+"/doc1.txt") should be (renderedDoc(1))
       readFile(base+"/doc2.txt") should be (renderedDoc(2))
       readFile(base+"/dir1/doc3.txt") should be (renderedDoc(3))
@@ -488,39 +452,23 @@ class ParallelRendererSpec extends FlatSpec
   }
 
   ignore should "render to a directory using the toDirectory method" in {
-//    new FileSystemTest {
-//      val f = createTempDirectory("renderToDir")
-//      (Renderer.of(AST)from input toDirectory f).execute
-//      readFiles(f.getPath)
-//    }
-  }
-
-  ignore should "render to a directory using the Directory object" in {
-//    new FileSystemTest {
-//      val f = createTempDirectory("renderToTree")
-//      (Renderer.of(AST)from input toDirectory(f)).execute
-//      readFiles(f.getPath)
-//    }
-  }
-
-  ignore should "render to a directory in parallel" in {
-//    new FileSystemTest {
-//      val f = createTempDirectory("renderParallel")
-//      Renderer.of(AST).inParallel.from(input).toDirectory(f).execute
-//      readFiles(f.getPath)
-//    }
+    new FileSystemTest {
+      val f = OutputBuilder.createTempDirectory("renderToDir")
+      Parallel(Renderer.of(AST)).build[IO].from(input).toDirectory(f).render.unsafeRunSync()
+      readFiles(f.getPath)
+    }
   }
 
   ignore should "render to a directory using a document with non-ASCII characters" in new DocBuilder {
-//    val expected = """RootElement - Blocks: 1
-//                     |. Paragraph - Spans: 1
-//                     |. . Text - 'Doc äöü'""".stripMargin
-//    val f = createTempDirectory("renderNonASCII")
-//    val input = DocumentTree(Root, List(
-//      Document(Root / "doc", root(p("Doc äöü")))
-//    ))
-//    Renderer.of(AST).from(input).toDirectory(f)(Codec.ISO8859).execute
-//    readFile(new File(f, "doc.txt"), Codec.ISO8859) should be (expected)
+    val expected = """RootElement - Blocks: 1
+                     |. Paragraph - Spans: 1
+                     |. . Text - 'Doc äöü'""".stripMargin
+    val f = OutputBuilder.createTempDirectory("renderNonASCII")
+    val input = DocumentTreeRoot(DocumentTree(Root, List(
+      Document(Root / "doc", root(p("Doc äöü")))
+    )))
+    Parallel(Renderer.of(AST)).build[IO].from(input).toDirectory(f)(Codec.ISO8859).render.unsafeRunSync()
+    OutputBuilder.readFile(new File(f, "doc.txt"), Codec.ISO8859) should be (expected)
   }
   
 
