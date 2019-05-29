@@ -3,9 +3,10 @@ package laika.io
 import java.io.File
 
 import cats.effect.{Async, Sync}
-import laika.api.builder.{ParserBuilder, RendererBuilder, TransformerBuilder}
+import laika.api.builder._
 import laika.api.{MarkupParser, Renderer, Transformer}
 import laika.ast.{Document, DocumentType, Element, Path, TextDocumentType}
+import laika.factory.BinaryPostProcessor
 
 import scala.io.Codec
 
@@ -14,10 +15,16 @@ object Sequential {
   def apply (parser: ParserBuilder): SequentialParser.Builder                   = SequentialParser.Builder(parser.build)
   def apply (renderer: RendererBuilder[_]): SequentialRenderer.Builder          = SequentialRenderer.Builder(renderer.build)
   def apply (transformer: TransformerBuilder[_]): SequentialTransformer.Builder = SequentialTransformer.Builder(transformer.build)
+
+  def apply (renderer: TwoPhaseRendererBuilder[_, BinaryPostProcessor]): binary.SequentialRenderer.Builder          = binary.SequentialRenderer.Builder(renderer.build)
+  def apply (transformer: TwoPhaseTransformerBuilder[_, BinaryPostProcessor]): binary.SequentialTransformer.Builder = binary.SequentialTransformer.Builder(transformer.build)
   
   def apply (parser: MarkupParser): SequentialParser.Builder           = SequentialParser.Builder(parser)
   def apply (renderer: Renderer): SequentialRenderer.Builder           = SequentialRenderer.Builder(renderer)
   def apply (transformer: Transformer): SequentialTransformer.Builder  = SequentialTransformer.Builder(transformer)
+
+  def apply (renderer: TwoPhaseRenderer[BinaryPostProcessor]): binary.SequentialRenderer.Builder           = binary.SequentialRenderer.Builder(renderer)
+  def apply (transformer: TwoPhaseTransformer[BinaryPostProcessor]): binary.SequentialTransformer.Builder  = binary.SequentialTransformer.Builder(transformer)
   
   
   class SequentialParser[F[_]: Async] (parser: MarkupParser) extends SequentialInputOps[F] {
