@@ -16,9 +16,10 @@
 
 package laika.render
 
-import laika.ast.{DocumentTree, DocumentTreeRoot, Path}
+import cats.effect.Async
+import laika.ast.{DocumentTreeRoot, Path}
 import laika.execute.{InputExecutor, OutputExecutor}
-import laika.factory.RenderResultProcessor
+import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.format.{PDF, XSLFO}
 import laika.io.{BinaryOutput, RenderedTreeRoot}
 import org.scalatest.{FlatSpec, Matchers}
@@ -26,20 +27,23 @@ import org.scalatest.{FlatSpec, Matchers}
 class FOforPDFSpec extends FlatSpec with Matchers {
   
   
-  case class FOTest (config: Option[PDF.Config]) extends RenderResultProcessor[FOFormatter] {
+  case class FOTest (config: Option[PDF.Config]) extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessor] {
     
-    val format = XSLFO
+    val interimFormat: RenderFormat[FOFormatter] = XSLFO
     
     private val foForPDF = new FOforPDF(config)
 
     def prepareTree (tree: DocumentTreeRoot): DocumentTreeRoot = tree
 
-    def process (result: RenderedTreeRoot, output: BinaryOutput): Unit = {
-    
-      val fo = foForPDF.renderFO(result, result.template)
-      val out = OutputExecutor.asStream(output)
-      out.write(fo.getBytes("UTF-8"))
-      
+    object postProcessor extends BinaryPostProcessor {
+
+      override def process[F[_] : Async] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = Async[F].delay {
+
+        val fo = foForPDF.renderFO(result, result.template)
+        val out = OutputExecutor.asStream(output)
+        out.write(fo.getBytes("UTF-8"))
+
+      }
     }
     
   }

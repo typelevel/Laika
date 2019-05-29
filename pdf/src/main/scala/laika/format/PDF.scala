@@ -20,12 +20,13 @@ import java.io.{File, FileOutputStream, OutputStream, StringReader}
 import java.net.URI
 import java.util.Date
 
+import cats.effect.Async
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.sax.SAXResult
 import javax.xml.transform.stream.StreamSource
-import laika.ast.{DocumentMetadata, DocumentTree, DocumentTreeRoot, SpanSequence}
+import laika.ast.{DocumentMetadata, DocumentTreeRoot, SpanSequence}
 import laika.execute.OutputExecutor
-import laika.factory.{RenderFormat, RenderResultProcessor}
+import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.{BinaryOutput, RenderedTreeRoot}
 import laika.render.{FOFormatter, FOforPDF}
 import org.apache.fop.apps.{FOUserAgent, FOUserAgentFactory, FopFactory, FopFactoryBuilder}
@@ -47,13 +48,14 @@ import org.apache.xmlgraphics.util.MimeConstants
  * 
  *  @author Jens Halm
  */
-class PDF private(val format: RenderFormat[FOFormatter], config: Option[PDF.Config], fopFactory: Option[FopFactory]) extends RenderResultProcessor[FOFormatter] {
+class PDF private(val interimFormat: RenderFormat[FOFormatter], config: Option[PDF.Config], fopFactory: Option[FopFactory]) 
+  extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessor] {
 
 
   /** Allows to specify configuration options like insertion
    *  of bookmarks or table of content.
    */
-  def withConfig (config: PDF.Config): PDF = new PDF(format, Some(config), fopFactory)
+  def withConfig (config: PDF.Config): PDF = new PDF(interimFormat, Some(config), fopFactory)
 
   /** Allows to specify a custom FopFactory in case additional configuration
     * is required for custom fonts, stemmers or other FOP features.
@@ -63,7 +65,7 @@ class PDF private(val format: RenderFormat[FOFormatter], config: Option[PDF.Conf
     * In case you do not specify a custom factory, Laika ensures that the default
     * factory is reused between renderers.
     */
-  def withFopFactory (fopFactory: FopFactory): PDF = new PDF(format, config, Some(fopFactory))
+  def withFopFactory (fopFactory: FopFactory): PDF = new PDF(interimFormat, config, Some(fopFactory))
   
   private lazy val foForPDF = new FOforPDF(config)
 
@@ -75,19 +77,17 @@ class PDF private(val format: RenderFormat[FOFormatter], config: Option[PDF.Conf
 
   /** Processes the interim XSL-FO result, transforms it to PDF and writes
     * it to the specified final output.
-    *
-    * @param result the result of the render operation as a tree
-    * @param output the output to write the final result to
     */
-  def process (result: RenderedTreeRoot, output: BinaryOutput): Unit = {
+  val postProcessor: BinaryPostProcessor = new BinaryPostProcessor {
+    override def process[F[_] : Async] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = 
+      Async[F].delay {
+        val fo: String = foForPDF.renderFO(result, result.template)
 
-    val fo: String = foForPDF.renderFO(result, result.template)
+        val metadata = DocumentMetadata.fromConfig(result.config)
+        val title = if (result.title.isEmpty) None else Some(SpanSequence(result.title).extractText)
 
-    val metadata = DocumentMetadata.fromConfig(result.config)
-    val title = if (result.title.isEmpty) None else Some(SpanSequence(result.title).extractText)
-
-    renderPDF(fo, output, metadata, title, Nil) // TODO - 0.12 - add result.sourcePaths
-
+        renderPDF(fo, output, metadata, title, Nil) // TODO - 0.12 - add result.sourcePaths
+      } // TODO - 0.12 - refactor ContainerWriter for F[_]
   }
 
   /** Render the given XSL-FO input as a PDF to the specified

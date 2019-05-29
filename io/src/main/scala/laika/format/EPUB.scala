@@ -5,10 +5,11 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.{Locale, UUID}
 
+import cats.effect.Async
 import laika.ast.Path.Root
 import laika.ast._
 import laika.execute.InputExecutor
-import laika.factory.{RenderContext, RenderFormat, RenderResultProcessor}
+import laika.factory.{BinaryPostProcessor, RenderContext, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.{BinaryOutput, RenderedTreeRoot}
 import laika.render.epub.{ConfigFactory, ContainerWriter, HtmlRenderExtensions, StyleSupport}
 import laika.render.epub.StyleSupport.XHTMLTemplateParser
@@ -29,7 +30,7 @@ import laika.render.{HTMLFormatter, XHTMLRenderer}
  * 
  *  @author Jens Halm
  */
-object EPUB extends RenderResultProcessor[HTMLFormatter] {
+object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor] {
 
   /** A render format for XHTML output as used by EPUB output.
     *
@@ -58,7 +59,7 @@ object EPUB extends RenderResultProcessor[HTMLFormatter] {
 
   }
 
-  val format: RenderFormat[HTMLFormatter] = XHTML
+  val interimFormat: RenderFormat[HTMLFormatter] = XHTML
 
   /** Configuration options for the generated EPUB output.
     *
@@ -109,10 +110,9 @@ object EPUB extends RenderResultProcessor[HTMLFormatter] {
    *  - All static content in the provided document tree, copied to the same relative path within the EPUB container.
    *  - Metadata and navigation files as required by the EPUB specification, auto-generated from the document tree
    *    and the configuration of this instance.
-   *
-   * @param result the result of the render operation as a tree
-   * @param output the output to write the final result to
    */
-  def process (result: RenderedTreeRoot, output: BinaryOutput): Unit = writer.write(result, output)
+  val postProcessor: BinaryPostProcessor = new BinaryPostProcessor {
+    override def process[F[_] : Async] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = Async[F].delay(writer.write(result, output)) // TODO - 0.12 - refactor ContainerWriter for F[_]
+  }
   
 }
