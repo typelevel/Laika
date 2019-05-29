@@ -38,14 +38,14 @@ object InputExecutor {
   def asParserInput (input: TextInput): ParserInput = input match {
     case StringInput(source, _, path) => ParserInput(path, ParserContext(source))
     case TextFileInput(file, _, path, codec) => 
-      val source = IO(new BufferedReader(new InputStreamReader(new FileInputStream(file), codec.decoder)))(readAll)
+      val source = IOX(new BufferedReader(new InputStreamReader(new FileInputStream(file), codec.decoder)))(readAll)
       ParserInput(path, ParserContext(source))
   }
   
   // TODO - 0.12 - temporary solution
   def classPathParserInput (resourcePath: String, virtualPath: Path)(implicit codec: Codec): ParserInput = {
     val stream = getClass.getResourceAsStream(resourcePath)
-    IO(stream){ in =>
+    IOX(stream){ in =>
       val reader = new BufferedReader(new InputStreamReader(in, codec.decoder))
       val content = InputExecutor.readAll(reader)
       ParserInput(virtualPath, ParserContext(content))

@@ -21,7 +21,7 @@ import java.util.zip.{CRC32, ZipEntry, ZipOutputStream}
 import laika.ast.Path
 import laika.execute.OutputExecutor
 import laika.io.BinaryOutput
-import laika.io.IO.copy
+import laika.io.IOX.copy
 
 /**
   * @author Jens Halm

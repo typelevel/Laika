@@ -8,7 +8,7 @@ import laika.execute.OutputExecutor
  * 
  * @author Jens Halm
  */
-object IO {
+object IOX {
 
   /** Common trait for all `Input` and `Output` instances
     * which map directly to a File.
