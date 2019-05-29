@@ -4,8 +4,9 @@ import java.io.File
 
 import cats.effect.Async
 import laika.api.{MarkupParser, Renderer, Transformer}
-import laika.api.builder.{OperationConfig, ParserBuilder, RendererBuilder, TransformerBuilder}
+import laika.api.builder._
 import laika.ast._
+import laika.factory.BinaryPostProcessor
 
 import scala.io.Codec
 
@@ -15,9 +16,15 @@ object Parallel {
   def apply (renderer: RendererBuilder[_]): ParallelRenderer.Builder          = ParallelRenderer.Builder(renderer.build)
   def apply (transformer: TransformerBuilder[_]): ParallelTransformer.Builder = ParallelTransformer.Builder(transformer.build)
 
+  def apply (renderer: TwoPhaseRendererBuilder[_, BinaryPostProcessor]): binary.ParallelRenderer.Builder          = binary.ParallelRenderer.Builder(renderer.build)
+  def apply (transformer: TwoPhaseTransformerBuilder[_, BinaryPostProcessor]): binary.ParallelTransformer.Builder = binary.ParallelTransformer.Builder(transformer.build)
+
   def apply (parser: MarkupParser): ParallelParser.Builder           = ParallelParser.Builder(parser)
   def apply (renderer: Renderer): ParallelRenderer.Builder           = ParallelRenderer.Builder(renderer)
   def apply (transformer: Transformer): ParallelTransformer.Builder  = ParallelTransformer.Builder(transformer)
+
+  def apply (renderer: TwoPhaseRenderer[BinaryPostProcessor]): binary.ParallelRenderer.Builder           = binary.ParallelRenderer.Builder(renderer)
+  def apply (transformer: TwoPhaseTransformer[BinaryPostProcessor]): binary.ParallelTransformer.Builder  = binary.ParallelTransformer.Builder(transformer)
 
 
   class ParallelParser[F[_]: Async] (parser: MarkupParser) extends ParallelInputOps[F] {
