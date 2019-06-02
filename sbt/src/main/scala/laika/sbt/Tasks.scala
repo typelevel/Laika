@@ -16,12 +16,13 @@
 
 package laika.sbt
 
-import laika.api.{MarkupParser, Parse, Render, Renderer}
-import laika.config.{BundleFilter, ParallelConfig}
+import cats.effect.IO
+import laika.api.builder.BundleFilter
+import laika.api.{MarkupParser, Renderer}
 import laika.execute.InputExecutor
-import laika.factory.{RenderFormat, RenderResultProcessor}
+import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.format._
-import laika.io.{IO => _, _}
+import laika.io.{IOX => _, _}
 import laika.sbt.LaikaPlugin.autoImport._
 import sbt.Keys._
 import sbt._
@@ -53,14 +54,15 @@ object Tasks {
     if (formats.isEmpty) throw new IllegalArgumentException("At least one format must be specified")
 
     val parser = {
-      val parser = MarkupParser.of(Markdown).or(ReStructuredText)
+      val parser = MarkupParser.of(Markdown) // .or(ReStructuredText) TODO - 0.12 - resurrect multi-format input
       val userConfig = laikaConfig.value
       val mergedConfig = parser.config.copy(
         bundleFilter = BundleFilter(strict = userConfig.strict, acceptRawContent = userConfig.rawContent),
-        parallelConfig = if (userConfig.parallel) ParallelConfig.default else ParallelConfig.sequential,
         minMessageLevel = userConfig.renderMessageLevel
       )
-      parser.withConfig(mergedConfig).using(laikaExtensions.value: _*)
+      laika.io.Parallel {
+        parser.withConfig(mergedConfig).using(laikaExtensions.value: _*)
+      }.build[IO]
     }
 
     val inputs = DirectoryInput((sourceDirectories in Laika).value, laikaConfig.value.encoding, parser.config.docTypeMatcher,
@@ -70,7 +72,7 @@ object Tasks {
       streams.value.log.info("Reading files from " + (sourceDirectories in Laika).value.mkString(", "))
       streams.value.log.info(Logs.inputs(inputs))
 
-      val tree = parser.fromTreeInput(inputs).execute
+      val tree = parser.fromInput(IO.pure(inputs)).parse.unsafeRunSync()
 
       Logs.systemMessages(streams.value.log, tree, laikaConfig.value.logMessageLevel)
 
@@ -81,11 +83,18 @@ object Tasks {
       val apiInSite = (target in laikaCopyAPI).value
       val pdfInSite = (artifactPath in laikaPDF).value
       val filesToDelete = (targetDir.allPaths --- targetDir --- pdfInSite --- apiInSite.allPaths --- collectParents(apiInSite)).get
-      IO.delete(filesToDelete)
+      sbt.IO.delete(filesToDelete)
 
       if (!targetDir.exists) targetDir.mkdirs()
-
-      Renderer.of(format).withConfig(parser.config).from(tree).toDirectory(targetDir)(laikaConfig.value.encoding)
+ 
+      laika.io.Parallel {
+        Renderer.of(format).withConfig(parser.config)
+      }
+        .build[IO]
+        .from(tree)
+        .toDirectory(targetDir)(laikaConfig.value.encoding)
+        .render
+        .unsafeRunSync()      
 
       streams.value.log.info(Logs.outputs(tree, formatDesc))
       streams.value.log.info(s"Generated $formatDesc in $targetDir")
@@ -93,11 +102,17 @@ object Tasks {
       targetDir.allPaths.get.toSet.filter(_.isFile)
     }
 
-    def renderWithProcessor[W] (processor: RenderResultProcessor[W], targetFile: File, formatDesc: String): Set[File] = {
+    def renderWithProcessor[FMT] (format: TwoPhaseRenderFormat[FMT,BinaryPostProcessor], targetFile: File, formatDesc: String): Set[File] = {
       targetFile.getParentFile.mkdirs()
 
-      val render = Renderer.of(processor).withConfig(parser.config)
-      render.from(tree).toFile(targetFile)
+      laika.io.Parallel {
+        Renderer.of(format).withConfig(parser.config)
+      }
+        .build[IO]
+        .from(tree)
+        .toFile(targetFile)
+        .render
+        .unsafeRunSync()
 
       streams.value.log.info(s"Generated $formatDesc in $targetFile")
 
@@ -165,7 +180,7 @@ object Tasks {
       targetDir
     }
     else task {
-      IO.delete(targetDir)
+      sbt.IO.delete(targetDir)
       targetDir
     }
   }
@@ -186,7 +201,7 @@ object Tasks {
       targetDir
     }
     else task {
-      IO.delete(epubTarget)
+      sbt.IO.delete(epubTarget)
       targetDir
     }
   }
@@ -207,7 +222,7 @@ object Tasks {
       targetDir
     }
     else task {
-      IO.delete(pdfTarget)
+      sbt.IO.delete(pdfTarget)
       targetDir
     }
   }
@@ -219,7 +234,7 @@ object Tasks {
     val zipFile = (artifactPath in laikaPackageSite).value
     streams.value.log.info(s"Packaging $zipFile ...")
 
-    IO.zip((mappings in laikaSite).value, zipFile)
+    sbt.IO.zip((mappings in laikaSite).value, zipFile)
 
     streams.value.log.info("Done packaging.")
     zipFile
@@ -228,7 +243,7 @@ object Tasks {
   /** Cleans the target directory of the site task.
     */
   val clean: Initialize[Task[Unit]] = task {
-    IO.delete((target in laikaSite).value)
+    sbt.IO.delete((target in laikaSite).value)
   }
 
   /** Collects all input files from the specified
