@@ -26,14 +26,6 @@ object RenderExecutor {
     write(rendered).as(rendered)
   }
   
-//  def execute[FMT] (op: Render.MergeOp[FMT]): Done = {
-//    val template = op.config.themeFor(op.processor.format).defaultTemplateOrFallback // TODO - 0.12 - look for templates in root tree
-//    val preparedTree = op.processor.prepareTree(op.tree)
-//    val renderedTree  = execute(Render.TreeOp(op.processor.format, op.config, preparedTree, StringTreeOutput))
-//    op.processor.process(renderedTree, op.output)
-//    Done
-//  }
-
   def execute[F[_]: Async] (op: ParallelRenderer.Op[F]): F[RenderedTreeRoot] = {
 
     val fileSuffix = op.renderer.format.fileSuffix
@@ -84,6 +76,22 @@ object RenderExecutor {
 
       RenderedTreeRoot(resultRoot, template, finalRoot.config) // TODO - 0.12 - handle cover document
     }
+  }
+
+  def execute[F[_]: Async] (op: binary.SequentialRenderer.Op[F]): F[Unit] = { // TODO - 0.12 - when delegating to the parallel executor this will need a parallel instance
+    val root = DocumentTreeRoot(DocumentTree(Root, Seq(Document(Root / "input", RootElement(Seq(SpanSequence(Seq(TemplateElement(op.input)))))))))
+    val parOp = binary.ParallelRenderer.Op(op.renderer, root, op.output)
+    execute(parOp)
+  }
+
+  def execute[F[_]: Async] (op: binary.ParallelRenderer.Op[F]): F[Unit] = {
+    def template = ??? // TODO - 0.12 - why is the template no longer required here?
+    val preparedTree = op.renderer.prepareTree(op.input)
+    for {
+      out          <- op.output
+      renderedTree <- execute(ParallelRenderer.Op[F](op.renderer.interimRenderer, preparedTree, Async[F].pure(StringTreeOutput)))
+    } yield
+      op.renderer.postProcessor.process(renderedTree, out)
   }
 
 }
