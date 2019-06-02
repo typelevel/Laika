@@ -21,10 +21,10 @@ object ParseExecutor {
   
   def execute[F[_]: Async] (op: SequentialParser.Op[F]): F[Document] = {
     for {
-      input  <- op.input
-      markup <- InputExecutor.read(input)
+      input       <- op.input
+      parserInput <- InputExecutor.readParserInput(input)
     } yield 
-      op.parser.parse(markup, input.path)    
+      op.parser.parse(parserInput)    
   }
   
   private object interimModel {
@@ -115,7 +115,7 @@ object ParseExecutor {
       }.toMap
 
     def forInput (input: TextInput): TextInput => Document = { input =>
-      val pi = InputExecutor.asParserInput(input)
+      val pi: ParserInput = ???
       if (parsers.size == 1) map.head._2(pi)
       else map.getOrElse(suffix(input.name),
         throw new IllegalArgumentException("Unable to determine parser based on input name: ${input.name}"))(pi)
