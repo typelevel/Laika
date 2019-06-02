@@ -29,11 +29,12 @@ class MarkupParser (parser: MarkupFormat, val config: OperationConfig, val rewri
 
   private val docParser = DocumentParser.forMarkup(parser, config.markupExtensions, config.configHeaderParser)
 
-  def parse (input: String): Document = parse(input, Root)
+  def parse (input: String): Document = parse(ParserInput(Root, ParserContext(input)))
 
-  def parse (input: String, path: Path): Document = {
-    val parserInput = ParserInput(path, ParserContext(input))
-    val doc = docParser(parserInput)
+  def parse (input: String, path: Path): Document = parse(ParserInput(path, ParserContext(input)))
+  
+  def parse (input: ParserInput): Document = {
+    val doc = docParser(input)
     if (rewrite) doc.rewrite(config.rewriteRulesFor(doc))
     else doc
   }

@@ -2,6 +2,7 @@ package laika.execute
 
 import java.io.{BufferedReader, File, FileInputStream, InputStreamReader, Reader}
 
+import cats.effect.Async
 import laika.ast.Path.Root
 import laika.ast.{DocumentType, Path, TextDocumentType}
 import laika.io._
@@ -14,6 +15,10 @@ import scala.io.Codec
   * @author Jens Halm
   */
 object InputExecutor {
+  
+  def read[F[_]: Async] (input: TextInput): F[String] = ???
+  
+  def readParserInput[F[_]: Async] (input: TextInput): F[ParserInput] = ???
   
   /** Builds a new instance for the specified input reader.
     */
@@ -53,6 +58,8 @@ object InputExecutor {
   }
 
   case class Directory (path: Path, file: File)
+
+  def scanDirectories[F[_]: Async] (input: DirectoryInput): F[InputCollection] = ???
 
   def asInputCollection (input: DirectoryInput): InputCollection = {
 

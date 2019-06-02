@@ -18,6 +18,7 @@ package laika.bundle
 
 import com.typesafe.config.{Config, ConfigFactory, ConfigParseOptions}
 import laika.ast.Path
+import laika.parse.markup.DocumentParser.ParserInput
 import laika.parse.text.TextParsers._
 
 /** Factory for Typesafe Config instances that add information
@@ -38,6 +39,9 @@ object ConfigProvider {
     */
   def fromInput (input: String, path: Path): Config =
     ConfigFactory.parseString(input, ConfigParseOptions.defaults().setOriginDescription("path:" + path))
+
+  // TODO - 0.12 - temporary API
+  def fromInput (input: ParserInput): Config = fromInput(input.context.input, input.path)
 
 }
 

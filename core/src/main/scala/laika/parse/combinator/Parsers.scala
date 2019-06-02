@@ -126,17 +126,6 @@ trait Parsers {
     }
   }
 
-  /** A parser function for the specified parser that is expected to consume
-    * all input and always succeed, throwing unexpected parser failures
-    * as exceptions instead.
-    *
-    * The `docF` function turns the result of the parser into a document instance.
-    */
-  def documentParserFunction[T,U] (parser: Parser[T], docF: (Path, T) => U): ParserInput => U = {
-    val parserF = unsafeParserFunction(parser)
-    input => docF(input.path, parserF(input.context))
-  }
-
   /** Provides additional methods to `Try` via implicit conversion.
    */
   implicit class TryOps [A] (t: Try[A]) {

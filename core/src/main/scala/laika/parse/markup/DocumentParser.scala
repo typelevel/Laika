@@ -96,5 +96,12 @@ object DocumentParser {
 
   }
 
+  /** Builds a parser for CSS documents based on the specified parser for style declarations.
+    */
+  def forStyleSheets (parser: Parser[Set[StyleDeclaration]]): ParserInput => StyleDeclarationSet = {
+    val parserF = unsafeParserFunction(parser)
+    input => StyleDeclarationSet.forPath(input.path, parserF(input.context))
+  }
+
 
 }

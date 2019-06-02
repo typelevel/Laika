@@ -1,5 +1,7 @@
 package laika.execute
 
+import cats.effect.Async
+
 import scala.concurrent.{Await, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -30,6 +32,8 @@ object BatchExecutor {
       Await.result(result, 1.minute).flatten
     }
   }
+
+  def execute[F[_]: Async, A] (ops: Seq[F[A]], parallelism: Int, parallelThreshold: Int): F[Seq[A]] = ???
 
   /** Splits the specified operations into batches based on the given
     * desired parallelism.

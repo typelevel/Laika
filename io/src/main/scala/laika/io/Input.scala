@@ -98,9 +98,7 @@ object DirectoryInput {
   def apply (directory: File)(implicit codec: Codec): DirectoryInput = DirectoryInput(Seq(directory), codec)
 }
 
-case class InputCollection (textInputs: Seq[TextInput], binaryInputs: Seq[BinaryInput] = Nil) extends TreeInput {
-  val sourcePaths: Seq[String] = Nil
-}
+case class InputCollection (textInputs: Seq[TextInput], binaryInputs: Seq[BinaryInput] = Nil, sourcePaths: Seq[String] = Nil) extends TreeInput
 
 object InputCollection {
   def apply (textInput: TextInput): InputCollection = InputCollection(Seq(textInput))
