@@ -302,6 +302,22 @@ trait TreeStructure { this: TreeContent =>
     case base / localName => selectSubtree(base) flatMap (_.selectTemplate(localName))
     case _ => None
   }
+  
+  private val defaultTemplatePathBase: Path = Path.Current / "default.template"
+  
+  /** Selects the template with the name `default.template.&lt;suffix&gt;` for the 
+    * specified format suffix from this level of the document tree.
+    */
+  def getDefaultTemplate (formatSuffix: String): Option[TemplateDocument] = {
+    selectTemplate(defaultTemplatePathBase.withSuffix(formatSuffix))
+  }
+
+  /** Create a new document tree that contains the specified template as the default.
+    */
+  def withDefaultTemplate (template: TemplateRoot, formatSuffix: String): DocumentTree = {
+    targetTree.copy(templates = targetTree.templates :+ 
+      TemplateDocument(defaultTemplatePathBase.withSuffix(formatSuffix), template))
+  }
 
   /** Selects a subtree of this tree by the specified path.
    *  The path needs to be relative and it may point to a deeply nested

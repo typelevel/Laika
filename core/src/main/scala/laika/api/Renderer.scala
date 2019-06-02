@@ -18,8 +18,9 @@ package laika.api
 
 import laika.api.builder.{OperationConfig, RendererBuilder, TwoPhaseRendererBuilder}
 import laika.ast.Path.Root
-import laika.ast.{Document, Element, Path, StyleDeclarationSet}
+import laika.ast._
 import laika.factory.{RenderContext, RenderFormat, TwoPhaseRenderFormat}
+import laika.rewrite.TemplateRewriter
 
 abstract class Renderer (val config: OperationConfig) {
 
@@ -50,6 +51,20 @@ abstract class Renderer (val config: OperationConfig) {
     val formatter = format.formatterFactory(renderContext)
 
     renderFunction(formatter, element)
+  }
+  
+  def applyTheme (root: DocumentTreeRoot): DocumentTreeRoot = {
+    val styles = theme.defaultStyles ++ root.styles(format.fileSuffix)
+    
+    val treeWithTpl: DocumentTree = root.tree.getDefaultTemplate(format.fileSuffix).fold(
+      root.tree.withDefaultTemplate(theme.defaultTemplateOrFallback, format.fileSuffix)
+    )(_ => root.tree)
+    
+    val rewrittenTree = TemplateRewriter.applyTemplates(treeWithTpl, format.fileSuffix)
+
+    val finalTree = theme.staticDocuments.merge(rewrittenTree)
+    
+    root.copy(tree = finalTree, styles = root.styles + (format.fileSuffix -> styles))
   }
 
 }
