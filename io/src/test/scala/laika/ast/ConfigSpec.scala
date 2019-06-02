@@ -16,6 +16,7 @@
 
 package laika.ast
 
+import cats.effect.IO
 import laika.api.MarkupParser
 import laika.ast.helper.ModelBuilder
 import laika.bundle.BundleProvider
@@ -66,6 +67,10 @@ class ConfigSpec extends FlatSpec
     
   }
   
+  val markdownParser = laika.io.Parallel(MarkupParser.of(Markdown)).build[IO]
+  
+  val rstParser = laika.io.Parallel(MarkupParser.of(ReStructuredText)).build[IO]
+  
   "The Config parser" should "parse configuration sections embedded in Markdown documents" in {
     new Inputs {
       val dir = """- default.template.html:templateWithRef
@@ -79,7 +84,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(MarkupParser.of(Markdown).fromTreeInput(builder(dir, mdMatcher)).execute) should be (expected)
+      resultOf(markdownParser.fromInput(IO.pure(builder(dir, mdMatcher))).parse.unsafeRunSync()) should be (expected)
     }
   }
   
@@ -96,7 +101,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(MarkupParser.of(ReStructuredText).fromTreeInput(builder(dir, rstMatcher)).execute) should be (expected)
+      resultOf(rstParser.fromInput(IO.pure(builder(dir, rstMatcher))).parse.unsafeRunSync()) should be (expected)
     }
   }
   
@@ -111,7 +116,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(MarkupParser.of(Markdown).fromTreeInput(builder(dir, mdMatcher)).execute) should be (expected)
+      resultOf(markdownParser.fromInput(IO.pure(builder(dir, mdMatcher))).parse.unsafeRunSync()) should be (expected)
     }
   }
   
@@ -126,7 +131,7 @@ class ConfigSpec extends FlatSpec
           TemplateString("</div>\nCCC")
         ))
       )
-      resultOf(MarkupParser.of(ReStructuredText).fromTreeInput(builder(dir, rstMatcher)).execute) should be (expected)
+      resultOf(rstParser.fromInput(IO.pure(builder(dir, rstMatcher))).parse.unsafeRunSync()) should be (expected)
     }
   }
   
@@ -161,8 +166,8 @@ class ConfigSpec extends FlatSpec
         )
       )
       
-      val op = MarkupParser.of(Markdown).using(BundleProvider.forConfigString(config5)).fromTreeInput(builder(dirs, mdMatcher))
-      val result = TemplateRewriter.applyTemplates(op.execute.tree, "html")
+      val op = laika.io.Parallel(MarkupParser.of(Markdown).using(BundleProvider.forConfigString(config5))).build[IO].fromInput(IO.pure(builder(dirs, mdMatcher)))
+      val result = TemplateRewriter.applyTemplates(op.parse.unsafeRunSync().tree, "html")
       result.selectDocument(Path.Current / "dir" / "input.md").get.content should be (expected)
     }
   }

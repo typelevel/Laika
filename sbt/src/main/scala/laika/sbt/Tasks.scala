@@ -120,7 +120,7 @@ object Tasks {
     }
 
     val cacheDir = streams.value.cacheDirectory / "laika"
-    val inputFiles = collectInputFiles(InputExecutor.asInputCollection(inputs))
+    val inputFiles = collectInputFiles(InputExecutor.scanDirectories[IO](inputs).unsafeRunSync()) // TODO - 0.12 - refactor
 
     val results = formats map { format =>
 

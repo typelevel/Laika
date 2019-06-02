@@ -22,7 +22,7 @@ object StyleSupport {
     */
   def collectStyles (root: RenderedTreeRoot): Seq[BinaryInput] = root.staticDocuments.filter(_.path.suffix == "css")
 
-  def collectStyles (root: DocumentTreeRoot): Seq[BinaryInput] = root.staticDocuments.filter(_.suffix == "css")
+  def collectStyles (root: DocumentTreeRoot): Seq[Path] = root.staticDocuments.filter(_.suffix == "css")
 
   /** Verifies that the specified document tree contains at least one CSS file
     * (determined by file suffix). If this is the case the tree is returned unchanged,
@@ -32,7 +32,7 @@ object StyleSupport {
 
     val allStyles = collectStyles(root)
 
-    if (allStyles.isEmpty) root.copy(staticDocuments = root.staticDocuments :+ fallbackStyles)
+    if (allStyles.isEmpty) root.copy(staticDocuments = root.staticDocuments :+ fallbackStyles.path)
     else root
   }
 
@@ -44,8 +44,8 @@ object StyleSupport {
 
     cursor.map { docCursor =>
       val refPath = docCursor.parent.target.path
-      val allLinks = collectStyles(/*docCursor.root.target*/null: DocumentTreeRoot).map { input => // TODO - 0.12 - resurrect directive
-        val path = input.path.relativeTo(refPath).toString
+      val allLinks = collectStyles(/*docCursor.root.target*/null: DocumentTreeRoot).map { staticPath => // TODO - 0.12 - resurrect directive
+        val path = staticPath.relativeTo(refPath).toString
         s"""<link rel="stylesheet" type="text/css" href="$path" />"""
       }
       TemplateElement(RawContent(Seq("html","xhtml"), allLinks.mkString("\n    ")))

@@ -16,6 +16,7 @@
 
 package laika.render.epub
 
+import cats.effect.IO
 import laika.api.{Render, Renderer}
 import laika.ast.Path.Root
 import laika.ast._
@@ -44,7 +45,7 @@ class XHTMLRendererSpec extends FlatSpec with Matchers with ModelBuilder {
         (result.content.collect { case doc: RenderedDocument => Seq(doc) } ++ 
           result.content.collect { case tree: RenderedTree => collectDocuments(tree) }).flatten
 
-      val res = Renderer.of(EPUB.XHTML).build.from(DocumentTreeRoot(tree)).toOutputTree(StringTreeOutput).execute
+      val res = laika.io.Parallel(Renderer.of(EPUB.XHTML)).build[IO].from(DocumentTreeRoot(tree)).toOutput(IO.pure(StringTreeOutput)).render.unsafeRunSync()
 
       collectDocuments(res.tree)
     }

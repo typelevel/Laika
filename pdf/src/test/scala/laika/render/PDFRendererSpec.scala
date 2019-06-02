@@ -18,7 +18,8 @@ package laika.render
 
 import java.io.{BufferedInputStream, File, FileInputStream, InputStream}
 
-import laika.api.{Render, Renderer}
+import cats.effect.IO
+import laika.api.Renderer
 import laika.ast.DocumentTreeRoot
 import laika.format.PDF
 import org.scalatest.{FlatSpec, Matchers}
@@ -45,12 +46,12 @@ class PDFRendererSpec extends FlatSpec with Matchers {
   
   
   "The PDF Renderer" should "render a document to a file" ignore new TreeModel with FileSetup {
-    Renderer.of(PDF).from(doc(1)).toFile(file).execute
+    laika.io.Sequential(Renderer.of(PDF)).build[IO].from(doc(1)).toFile(file).render.unsafeRunSync()
     readFile.read should not be (-1)
   }
 
   it should "render a document to a file using a custom FopFactory" ignore new TreeModel with FileSetup {
-    Renderer.of(PDF.withFopFactory(PDF.defaultFopFactory)).from(doc(1)).toFile(file).execute
+    laika.io.Sequential(Renderer.of(PDF.withFopFactory(PDF.defaultFopFactory))).build[IO].from(doc(1)).toFile(file).render.unsafeRunSync()
     readFile.read should not be (-1)
   }
   
@@ -61,7 +62,7 @@ class PDFRendererSpec extends FlatSpec with Matchers {
   }
   
   it should "render a tree to a file" ignore new TreeModel with FileSetup {
-    Renderer.of(PDF).from(DocumentTreeRoot(tree)).toFile(file).execute
+    laika.io.Parallel(Renderer.of(PDF)).build[IO].from(DocumentTreeRoot(tree)).toFile(file).render.unsafeRunSync()
     readFile.read should not be (-1)
   }
   
