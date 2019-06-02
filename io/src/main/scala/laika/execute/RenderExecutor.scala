@@ -17,13 +17,13 @@ import scala.collection.mutable
   */
 object RenderExecutor {
 
-  def execute[F[_]: Async] (op: SequentialRenderer.Op[F], styles: Option[StyleDeclarationSet]): F[Unit] = {
+  def execute[F[_]: Async] (op: SequentialRenderer.Op[F], styles: Option[StyleDeclarationSet]): F[String] = {
 
     def write (result: String): F[Unit] = ???
     
     val rendered = op.renderer.render(op.input, op.path)
     
-    write(rendered)
+    write(rendered).as(rendered)
   }
   
 //  def execute[FMT] (op: Render.MergeOp[FMT]): Done = {
@@ -34,26 +34,28 @@ object RenderExecutor {
 //    Done
 //  }
 
-  def execute[F[_]: Async] (op: ParallelRenderer.Op[F]): RenderedTreeRoot = {
+  def execute[F[_]: Async] (op: ParallelRenderer.Op[F]): F[RenderedTreeRoot] = {
 
-    type Operation = () => RenderContent
+    val fileSuffix = op.renderer.format.fileSuffix
+    val finalRoot = op.renderer.applyTheme(op.input)
+    val styles = finalRoot.styles(fileSuffix)
     
-    val fileSuffix: String = op.renderer.format.fileSuffix
-
     def outputPath (path: Path): Path = path.withSuffix(fileSuffix)
     
-    def textOutputFor (path: Path): F[TextOutput] = op.output flatMap {
-      case StringTreeOutput => Async[F].pure(StringOutput(new mutable.StringBuilder, outputPath(path))) // TODO - 0.12 - temporary solution
-      case DirectoryOutput(dir, codec) => Async[F].pure(TextFileOutput(new File(dir, outputPath(path).toString.drop(1)), outputPath(path), codec))
+    def textOutputFor (path: Path): F[TextOutput] = op.output map {
+      case StringTreeOutput => StringOutput(new mutable.StringBuilder, outputPath(path)) // TODO - 0.12 - temporary solution
+      case DirectoryOutput(dir, codec) => TextFileOutput(new File(dir, outputPath(path).toString.drop(1)), outputPath(path), codec)
     }
 //    def binaryOutputFor (path: Path): Seq[BinaryOutput] = op.output match {
 //      case StringTreeOutput => Nil
 //      case DirectoryOutput(dir, codec) => Seq(BinaryFileOutput(new File(dir, path.toString.drop(1)), path))
 //    }
 
-    def renderDocument (document: Document): Operation = {
+    def renderDocument (document: Document): F[RenderContent] = {
       val textOp = SequentialRenderer.Op(op.renderer, document.content, document.path, textOutputFor(document.path))
-      () => RenderedDocument(outputPath(document.path), document.title, document.sections, "TODO" /*execute(textOp, Some(styles))*/)
+      execute(textOp, Some(styles)).map { res =>
+        RenderedDocument(outputPath(document.path), document.title, document.sections, res)
+      }
     }
 
 //    def copy (document: BinaryInput): Seq[Operation] = binaryOutputFor(document.path).map { out =>
@@ -69,20 +71,19 @@ object RenderExecutor {
 //        case _ => false
 //      }
     
-    val finalRoot = op.renderer.applyTheme(op.input)
-    
     val operations = finalRoot.allDocuments.map(renderDocument) /* ++ op.tree.staticDocuments.flatMap(copy) */  // TODO - 0.12 - handle static docs
 
-    val results = BatchExecutor.execute(operations, 1, 1) // TODO - 0.12 - add parallelism option to builder
-    
-    def buildNode (path: Path, content: Seq[RenderContent], subTrees: Seq[RenderedTree]): RenderedTree = 
-      RenderedTree(path, finalRoot.tree.selectSubtree(path.relativeTo(Root)).fold(Seq.empty[Span])(_.title), content ++ subTrees) // TODO - 0.12 - handle title document
-    
-    val resultRoot = TreeBuilder.build(results, buildNode)
-    
-    val template = finalRoot.tree.getDefaultTemplate(fileSuffix).fold(TemplateRoot.fallback)(_.content)
+    BatchExecutor.execute(operations, 1, 1).map { results => // TODO - 0.12 - add parallelism option to builder
 
-    RenderedTreeRoot(resultRoot, template, finalRoot.config) // TODO - 0.12 - handle cover document
+      def buildNode (path: Path, content: Seq[RenderContent], subTrees: Seq[RenderedTree]): RenderedTree =
+        RenderedTree(path, finalRoot.tree.selectSubtree(path.relativeTo(Root)).fold(Seq.empty[Span])(_.title), content ++ subTrees) // TODO - 0.12 - handle title document
+
+      val resultRoot = TreeBuilder.build(results, buildNode)
+
+      val template = finalRoot.tree.getDefaultTemplate(fileSuffix).fold(TemplateRoot.fallback)(_.content)
+
+      RenderedTreeRoot(resultRoot, template, finalRoot.config) // TODO - 0.12 - handle cover document
+    }
   }
 
 }
