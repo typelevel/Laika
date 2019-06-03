@@ -1,4 +1,4 @@
-package laika.execute
+package laika.runtime
 
 import java.io.{BufferedOutputStream, BufferedWriter, FileOutputStream, OutputStream, OutputStreamWriter}
 
@@ -7,7 +7,7 @@ import laika.io._
 /**
   * @author Jens Halm
   */
-object OutputExecutor {
+object OutputRuntime {
   
   case class RenderFunction (render: String => Unit, close: () => Unit = () => ()) 
   

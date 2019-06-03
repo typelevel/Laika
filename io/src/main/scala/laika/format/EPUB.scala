@@ -8,7 +8,7 @@ import java.util.{Locale, UUID}
 import cats.effect.Async
 import laika.ast.Path.Root
 import laika.ast._
-import laika.execute.InputExecutor
+import laika.runtime.InputRuntime
 import laika.factory.{BinaryPostProcessor, RenderContext, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.{BinaryOutput, RenderedTreeRoot}
 import laika.render.epub.{ConfigFactory, ContainerWriter, HtmlRenderExtensions, StyleSupport}
@@ -55,7 +55,7 @@ object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor] {
     private val templateName = "default.template.epub.xhtml"
 
     private lazy val templateResource: TemplateDocument =
-      XHTMLTemplateParser.parse(InputExecutor.classPathParserInput(s"/templates/$templateName", Path.Root / templateName))
+      XHTMLTemplateParser.parse(InputRuntime.classPathParserInput(s"/templates/$templateName", Path.Root / templateName))
 
   }
 

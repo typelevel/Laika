@@ -25,7 +25,7 @@ import javax.xml.transform.TransformerFactory
 import javax.xml.transform.sax.SAXResult
 import javax.xml.transform.stream.StreamSource
 import laika.ast.{DocumentMetadata, DocumentTreeRoot, SpanSequence}
-import laika.execute.OutputExecutor
+import laika.runtime.OutputRuntime
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.{BinaryOutput, RenderedTreeRoot}
 import laika.render.{FOFormatter, FOforPDF}
@@ -137,7 +137,7 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], config: Option[P
       factory.newTransformer // identity transformer
     }
     
-    val out = OutputExecutor.asStream(output)
+    val out = OutputRuntime.asStream(output)
     
     try {
       val source = new StreamSource(new StringReader(foInput))

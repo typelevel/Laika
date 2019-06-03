@@ -19,7 +19,7 @@ package laika.render.epub
 import java.util.zip.{CRC32, ZipEntry, ZipOutputStream}
 
 import laika.ast.Path
-import laika.execute.OutputExecutor
+import laika.runtime.OutputRuntime
 import laika.io.BinaryOutput
 import laika.io.IOX.copy
 
@@ -37,7 +37,7 @@ object ZipWriter {
     */
   def zipEPUB (inputs: Seq[StreamInput], output: BinaryOutput): Unit = { // TODO - 0.12 - StreamInput is a temporary model
 
-    val zip = new ZipOutputStream(OutputExecutor.asStream(output))
+    val zip = new ZipOutputStream(OutputRuntime.asStream(output))
 
     def writeEntry (input: StreamInput, prepareEntry: ZipEntry => Unit = _ => ()): Unit = {
 

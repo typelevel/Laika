@@ -1,4 +1,4 @@
-package laika.execute
+package laika.runtime
 
 import java.io.File
 
@@ -15,9 +15,9 @@ import scala.collection.mutable
 /**
   *  @author Jens Halm
   */
-object RenderExecutor {
+object RendererRuntime {
 
-  def execute[F[_]: Async] (op: SequentialRenderer.Op[F], styles: Option[StyleDeclarationSet]): F[String] = {
+  def run[F[_]: Async] (op: SequentialRenderer.Op[F], styles: Option[StyleDeclarationSet]): F[String] = {
 
     def write (result: String): F[Unit] = ???
     
@@ -26,7 +26,7 @@ object RenderExecutor {
     write(rendered).as(rendered)
   }
   
-  def execute[F[_]: Async] (op: ParallelRenderer.Op[F]): F[RenderedTreeRoot] = {
+  def run[F[_]: Async] (op: ParallelRenderer.Op[F]): F[RenderedTreeRoot] = {
 
     val fileSuffix = op.renderer.format.fileSuffix
     val finalRoot = op.renderer.applyTheme(op.input)
@@ -45,7 +45,7 @@ object RenderExecutor {
 
     def renderDocument (document: Document): F[RenderContent] = {
       val textOp = SequentialRenderer.Op(op.renderer, document.content, document.path, textOutputFor(document.path))
-      execute(textOp, Some(styles)).map { res =>
+      run(textOp, Some(styles)).map { res =>
         RenderedDocument(outputPath(document.path), document.title, document.sections, res)
       }
     }
@@ -65,7 +65,7 @@ object RenderExecutor {
     
     val operations = finalRoot.allDocuments.map(renderDocument) /* ++ op.tree.staticDocuments.flatMap(copy) */  // TODO - 0.12 - handle static docs
 
-    BatchExecutor.execute(operations, 1, 1).map { results => // TODO - 0.12 - add parallelism option to builder
+    BatchRuntime.execute(operations, 1, 1).map { results => // TODO - 0.12 - add parallelism option to builder
 
       def buildNode (path: Path, content: Seq[RenderContent], subTrees: Seq[RenderedTree]): RenderedTree =
         RenderedTree(path, finalRoot.tree.selectSubtree(path.relativeTo(Root)).fold(Seq.empty[Span])(_.title), content ++ subTrees) // TODO - 0.12 - handle title document
@@ -78,18 +78,18 @@ object RenderExecutor {
     }
   }
 
-  def execute[F[_]: Async] (op: binary.SequentialRenderer.Op[F]): F[Unit] = { // TODO - 0.12 - when delegating to the parallel executor this will need a parallel instance
+  def run[F[_]: Async] (op: binary.SequentialRenderer.Op[F]): F[Unit] = { // TODO - 0.12 - when delegating to the parallel executor this will need a parallel instance
     val root = DocumentTreeRoot(DocumentTree(Root, Seq(Document(Root / "input", RootElement(Seq(SpanSequence(Seq(TemplateElement(op.input)))))))))
     val parOp = binary.ParallelRenderer.Op(op.renderer, root, op.output)
-    execute(parOp)
+    run(parOp)
   }
 
-  def execute[F[_]: Async] (op: binary.ParallelRenderer.Op[F]): F[Unit] = {
+  def run[F[_]: Async] (op: binary.ParallelRenderer.Op[F]): F[Unit] = {
     def template = ??? // TODO - 0.12 - why is the template no longer required here?
     val preparedTree = op.renderer.prepareTree(op.input)
     for {
       out          <- op.output
-      renderedTree <- execute(ParallelRenderer.Op[F](op.renderer.interimRenderer, preparedTree, Async[F].pure(StringTreeOutput)))
+      renderedTree <- run(ParallelRenderer.Op[F](op.renderer.interimRenderer, preparedTree, Async[F].pure(StringTreeOutput)))
     } yield
       op.renderer.postProcessor.process(renderedTree, out)
   }

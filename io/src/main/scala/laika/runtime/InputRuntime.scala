@@ -1,4 +1,4 @@
-package laika.execute
+package laika.runtime
 
 import java.io.{BufferedReader, File, InputStreamReader, Reader}
 
@@ -13,7 +13,7 @@ import scala.io.Codec
 /** 
   * @author Jens Halm
   */
-object InputExecutor {
+object InputRuntime {
   
   def readParserInput[F[_]: Async] (input: TextInput): F[ParserInput] = ???
   

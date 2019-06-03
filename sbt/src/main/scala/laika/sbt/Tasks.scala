@@ -19,7 +19,7 @@ package laika.sbt
 import cats.effect.IO
 import laika.api.builder.BundleFilter
 import laika.api.{MarkupParser, Renderer}
-import laika.execute.InputExecutor
+import laika.runtime.InputRuntime
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.format._
 import laika.io.{IOX => _, _}
@@ -120,7 +120,7 @@ object Tasks {
     }
 
     val cacheDir = streams.value.cacheDirectory / "laika"
-    val inputFiles = collectInputFiles(InputExecutor.scanDirectories[IO](inputs).unsafeRunSync()) // TODO - 0.12 - refactor
+    val inputFiles = collectInputFiles(InputRuntime.scanDirectories[IO](inputs).unsafeRunSync()) // TODO - 0.12 - refactor
 
     val results = formats map { format =>
 

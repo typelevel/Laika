@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.execute
+package laika.runtime
 
 import org.scalatest.{Matchers, WordSpec}
 
@@ -26,7 +26,7 @@ class ExecutorSpec extends WordSpec with Matchers {
 
     def batchCount(numOps: Int, parallelism: Int): Seq[Int] = {
       val ops = List.fill(numOps)(dummyOp)
-      BatchExecutor.createBatches(ops, parallelism).map(_.size)
+      BatchRuntime.createBatches(ops, parallelism).map(_.size)
     }
 
   }

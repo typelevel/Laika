@@ -2,9 +2,11 @@ package laika.io
 
 import java.io._
 
-import laika.execute.OutputExecutor
+import laika.runtime.OutputRuntime
 
 /** Collection of I/O utilities.
+  * 
+  * // TODO - 0.12 - remove/replace this class
  * 
  * @author Jens Halm
  */
@@ -77,7 +79,7 @@ object IOX {
           case BinaryFileInput(file, _) => new BufferedInputStream(new FileInputStream(file)) // TODO - 0.12 - avoid duplication
           case ByteInput(bytes, _)      => new ByteArrayInputStream(bytes)
         }
-        val binaryOut = OutputExecutor.asStream(out)
+        val binaryOut = OutputRuntime.asStream(out)
         apply(binaryIn) { in => apply(binaryOut) { out => copy(in, out) } }
       case (in, StringOutput(builder, _)) =>
         // TODO - 0.12 - temporary just to keep some more of the tests green during migration

@@ -18,7 +18,7 @@ package laika.render
 
 import cats.effect.Async
 import laika.ast.{DocumentTreeRoot, Path}
-import laika.execute.{InputExecutor, OutputExecutor}
+import laika.runtime.{InputRuntime, OutputRuntime}
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.format.{PDF, XSLFO}
 import laika.io.{BinaryOutput, RenderedTreeRoot}
@@ -40,7 +40,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
       override def process[F[_] : Async] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = Async[F].delay {
 
         val fo = foForPDF.renderFO(result, result.template)
-        val out = OutputExecutor.asStream(output)
+        val out = OutputRuntime.asStream(output)
         out.write(fo.getBytes("UTF-8"))
 
       }
@@ -51,7 +51,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
   
   trait ResultModel {
     
-    private lazy val defaultTemplate = InputExecutor.classPathParserInput("/templates/default.template.fo", Path.Root / "default.template.fo").context.input
+    private lazy val defaultTemplate = InputRuntime.classPathParserInput("/templates/default.template.fo", Path.Root / "default.template.fo").context.input
 
     def results (num: Int): String = (1 to num) map (result) reduce (_ + _)
     

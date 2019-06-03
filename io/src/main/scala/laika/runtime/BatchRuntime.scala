@@ -1,4 +1,4 @@
-package laika.execute
+package laika.runtime
 
 import cats.effect.Async
 
@@ -11,7 +11,7 @@ import scala.concurrent.duration._
   *
   * @author Jens Halm
   */
-object BatchExecutor {
+object BatchRuntime {
 
   type Batch[T] = Seq[() => T]
 

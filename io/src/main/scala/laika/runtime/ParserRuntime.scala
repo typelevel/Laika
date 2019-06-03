@@ -1,4 +1,4 @@
-package laika.execute
+package laika.runtime
 
 import cats.effect.Async
 import com.typesafe.config.ConfigFactory
@@ -17,12 +17,12 @@ import cats.implicits._
 /** 
   *  @author Jens Halm
   */
-object ParseExecutor {
+object ParserRuntime {
   
-  def execute[F[_]: Async] (op: SequentialParser.Op[F]): F[Document] = {
+  def run[F[_]: Async] (op: SequentialParser.Op[F]): F[Document] = {
     for {
       input       <- op.input
-      parserInput <- InputExecutor.readParserInput(input)
+      parserInput <- InputRuntime.readParserInput(input)
     } yield 
       op.parser.parse(parserInput)    
   }
@@ -41,7 +41,7 @@ object ParseExecutor {
     case class ConfigResult (path: Path, config: TConfig) extends ParserResult
   }
 
-  def execute[F[_]: Async] (op: ParallelParser.Op[F]): F[DocumentTreeRoot] = {
+  def run[F[_]: Async] (op: ParallelParser.Op[F]): F[DocumentTreeRoot] = {
     
     import DocumentType._
     import interimModel._
@@ -56,7 +56,7 @@ object ParseExecutor {
     def parseAll(inputs: InputCollection): F[DocumentTreeRoot] = {
 
       def parseDocument[D] (input: TextInput, parse: ParserInput => D, result: D => ParserResult): F[ParserResult] =
-        InputExecutor.readParserInput(input).map(parse.andThen(result))
+        InputRuntime.readParserInput(input).map(parse.andThen(result))
       
       val textOps: Seq[F[ParserResult]] = inputs.textInputs.flatMap { in => in.docType match {
         case Markup             => Seq(parseDocument(in, op.parser.parse, MarkupResult))
@@ -78,7 +78,7 @@ object ParseExecutor {
         DocumentTree(path, treeContent, titleDoc, templates, fullConfig)
       }
 
-      BatchExecutor.execute(textOps, 1, 1).map { results => // TODO - 0.12 - add parallelism option to builder
+      BatchRuntime.execute(textOps, 1, 1).map { results => // TODO - 0.12 - add parallelism option to builder
         val tree = TreeBuilder.build(results, buildNode)
 
         val styles = results // TODO - 0.12 - move this logic
@@ -96,7 +96,7 @@ object ParseExecutor {
     
     op.input flatMap {
       case col: InputCollection => Async[F].pure(col)
-      case dir: DirectoryInput => InputExecutor.scanDirectories(dir)
+      case dir: DirectoryInput => InputRuntime.scanDirectories(dir)
     } flatMap parseAll
     
   }

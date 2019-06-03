@@ -2,7 +2,7 @@ package laika.format
 
 import cats.effect.Async
 import laika.ast.DocumentTreeRoot
-import laika.execute.OutputExecutor
+import laika.runtime.OutputRuntime
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.{BinaryOutput, RenderedDocument, RenderedTree, RenderedTreeRoot}
 import laika.render.TextFormatter
@@ -29,7 +29,7 @@ object TestRenderResultProcessor extends TwoPhaseRenderFormat[TextFormatter, Bin
       append(sb, result.tree)
       val resultString = sb.toString
 
-      val out = OutputExecutor.asStream(output)
+      val out = OutputRuntime.asStream(output)
       try {
         out.write(resultString.getBytes("UTF-8"))
       } finally {
