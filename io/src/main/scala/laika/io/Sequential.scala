@@ -87,7 +87,7 @@ object Sequential {
 
     case class Op[F[_]: Async] (renderer: Renderer, input: Element, path: Path, output: F[TextOutput]) {
 
-      def render: F[Unit] = ???
+      def render: F[String] = ???
 
     }
 

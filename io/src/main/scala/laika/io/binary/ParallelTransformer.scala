@@ -21,7 +21,7 @@ import laika.api.builder.{OperationConfig, TwoPhaseTransformer}
 import laika.ast.{DocumentType, TextDocumentType}
 import laika.factory.BinaryPostProcessor
 import laika.io.binary.ParallelTransformer.BinaryTransformer
-import laika.io.{ParallelInputOps, ParallelTextOutputOps, RenderedTreeRoot, TreeInput, TreeOutput}
+import laika.io._
 
 /**
   * @author Jens Halm
@@ -51,17 +51,17 @@ object ParallelTransformer {
 
   }
 
-  case class OutputOps[F[_]: Async] (transformer: BinaryTransformer, input: F[TreeInput]) extends ParallelTextOutputOps[F] {
+  case class OutputOps[F[_]: Async] (transformer: BinaryTransformer, input: F[TreeInput]) extends BinaryOutputOps[F] {
 
     val F: Async[F] = Async[F]
 
     type Result = Op[F]
 
-    def toOutput (output: F[TreeOutput]): Op[F] = Op[F](transformer, input, output)
+    def toOutput (output: F[BinaryOutput]): Op[F] = Op[F](transformer, input, output)
 
   }
 
-  case class Op[F[_]: Async] (transformer: BinaryTransformer, input: F[TreeInput], output: F[TreeOutput]) {
+  case class Op[F[_]: Async] (transformer: BinaryTransformer, input: F[TreeInput], output: F[BinaryOutput]) {
 
     def transform: F[RenderedTreeRoot] = ???
 
