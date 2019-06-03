@@ -22,6 +22,7 @@ import laika.ast.DocumentTreeRoot
 import laika.factory.BinaryPostProcessor
 import laika.io.BinaryOutput
 import laika.io.binary.ParallelRenderer.BinaryRenderer
+import laika.runtime.RendererRuntime
 
 /**
   * @author Jens Halm
@@ -57,7 +58,7 @@ object ParallelRenderer {
 
     val config: OperationConfig = renderer.interimRenderer.config
 
-    def render: F[Unit] = ???
+    def render: F[Unit] = RendererRuntime.run(this)
 
   }
 

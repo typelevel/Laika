@@ -22,6 +22,7 @@ import laika.ast.{DocumentType, TextDocumentType}
 import laika.factory.BinaryPostProcessor
 import laika.io.binary.SequentialTransformer.BinaryTransformer
 import laika.io.{BinaryOutput, SequentialInputOps, TextInput}
+import laika.runtime.TransformerRuntime
 
 /**
   * @author Jens Halm
@@ -61,7 +62,7 @@ object SequentialTransformer {
 
   case class Op[F[_]: Async] (transformer: BinaryTransformer, input: F[TextInput], output: F[BinaryOutput]) {
 
-    def transform: F[Unit] = ???
+    def transform: F[Unit] = TransformerRuntime.run(this)
 
   }
 

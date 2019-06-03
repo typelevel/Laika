@@ -17,7 +17,7 @@ import scala.collection.mutable
   */
 object RendererRuntime {
 
-  def run[F[_]: Async] (op: SequentialRenderer.Op[F], styles: Option[StyleDeclarationSet]): F[String] = {
+  def run[F[_]: Async] (op: SequentialRenderer.Op[F], styles: Option[StyleDeclarationSet] = None): F[String] = {
 
     def write (result: String): F[Unit] = ???
     
@@ -85,7 +85,7 @@ object RendererRuntime {
   }
 
   def run[F[_]: Async] (op: binary.ParallelRenderer.Op[F]): F[Unit] = {
-    def template = ??? // TODO - 0.12 - why is the template no longer required here?
+    // TODO - 0.12 - why is the template no longer required here? - val template =
     val preparedTree = op.renderer.prepareTree(op.input)
     for {
       out          <- op.output

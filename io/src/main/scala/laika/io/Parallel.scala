@@ -7,6 +7,7 @@ import laika.api.{MarkupParser, Renderer, Transformer}
 import laika.api.builder._
 import laika.ast._
 import laika.factory.BinaryPostProcessor
+import laika.runtime.{ParserRuntime, RendererRuntime, TransformerRuntime}
 
 import scala.io.Codec
 
@@ -54,7 +55,7 @@ object Parallel {
 
       val config: OperationConfig = parser.config
       
-      def parse: F[DocumentTreeRoot] = ???
+      def parse: F[DocumentTreeRoot] = ParserRuntime.run(this)
 
     }
 
@@ -89,7 +90,7 @@ object Parallel {
 
       val config: OperationConfig = renderer.config
       
-      def render: F[RenderedTreeRoot] = ???
+      def render: F[RenderedTreeRoot] = RendererRuntime.run(this)
 
     }
 
@@ -130,7 +131,7 @@ object Parallel {
 
     case class Op[F[_]: Async] (transformer: Transformer, input: F[TreeInput], output: F[TreeOutput]) {
 
-      def transform: F[RenderedTreeRoot] = ???
+      def transform: F[RenderedTreeRoot] = TransformerRuntime.run(this)
 
     }
 

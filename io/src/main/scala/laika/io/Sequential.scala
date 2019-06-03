@@ -7,6 +7,7 @@ import laika.api.builder._
 import laika.api.{MarkupParser, Renderer, Transformer}
 import laika.ast.{Document, DocumentType, Element, Path, TextDocumentType}
 import laika.factory.BinaryPostProcessor
+import laika.runtime.{ParserRuntime, RendererRuntime, TransformerRuntime}
 
 import scala.io.Codec
 
@@ -50,7 +51,7 @@ object Sequential {
 
     case class Op[F[_]: Async] (parser: MarkupParser, input: F[TextInput]) {
       
-      def parse: F[Document] = ???
+      def parse: F[Document] = ParserRuntime.run(this)
       
     }
     
@@ -87,7 +88,7 @@ object Sequential {
 
     case class Op[F[_]: Async] (renderer: Renderer, input: Element, path: Path, output: F[TextOutput]) {
 
-      def render: F[String] = ???
+      def render: F[String] = RendererRuntime.run(this)
 
     }
 
@@ -126,7 +127,7 @@ object Sequential {
 
     case class Op[F[_]: Async] (transformer: Transformer, input: F[TextInput], output: F[TextOutput]) {
 
-      def transform: F[Unit] = ???
+      def transform: F[String] = TransformerRuntime.run(this)
 
     }
 

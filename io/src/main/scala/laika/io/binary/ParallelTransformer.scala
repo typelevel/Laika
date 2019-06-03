@@ -22,6 +22,7 @@ import laika.ast.{DocumentType, TextDocumentType}
 import laika.factory.BinaryPostProcessor
 import laika.io.binary.ParallelTransformer.BinaryTransformer
 import laika.io._
+import laika.runtime.TransformerRuntime
 
 /**
   * @author Jens Halm
@@ -63,7 +64,7 @@ object ParallelTransformer {
 
   case class Op[F[_]: Async] (transformer: BinaryTransformer, input: F[TreeInput], output: F[BinaryOutput]) {
 
-    def transform: F[RenderedTreeRoot] = ???
+    def transform: F[Unit] = TransformerRuntime.run(this)
 
   }
 

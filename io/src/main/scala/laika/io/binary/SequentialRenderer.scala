@@ -22,6 +22,7 @@ import laika.ast.{Document, Element, Path}
 import laika.factory.BinaryPostProcessor
 import laika.io.BinaryOutput
 import laika.io.binary.SequentialRenderer.BinaryRenderer
+import laika.runtime.RendererRuntime
 
 /**
   * @author Jens Halm
@@ -59,7 +60,7 @@ object SequentialRenderer {
 
   case class Op[F[_]: Async] (renderer: BinaryRenderer, input: Element, path: Path, output: F[BinaryOutput]) {
 
-    def render: F[Unit] = ???
+    def render: F[Unit] = RendererRuntime.run(this)
 
   }
 
