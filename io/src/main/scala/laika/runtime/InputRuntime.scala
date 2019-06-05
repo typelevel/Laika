@@ -1,12 +1,13 @@
 package laika.runtime
 
-import java.io.{BufferedReader, File, InputStreamReader, Reader}
+import java.io._
 
-import cats.effect.Async
+import cats.effect.{Async, Resource}
 import laika.ast.Path
 import laika.io._
 import laika.parse.ParserContext
 import laika.parse.markup.DocumentParser.ParserInput
+import cats.implicits._
 
 import scala.io.Codec
 
@@ -15,7 +16,36 @@ import scala.io.Codec
   */
 object InputRuntime {
   
-  def readParserInput[F[_]: Async] (input: TextInput): F[ParserInput] = ???
+  def readParserInput[F[_]: Async] (input: TextInput): F[ParserInput] = input match {
+    case StringInput(source, _, path) => 
+      Async[F].pure(ParserInput(path, ParserContext(source)))
+    case TextFileInput(file, _, path, codec) => 
+      fileReader(file, codec).use { reader =>
+        readAll(reader, file.length.toInt)
+          .map(source => ParserInput(path, ParserContext(source)))
+      }
+  }
+
+  def fileReader[F[_]: Async] (file: File, codec: Codec): Resource[F, Reader] = Resource.fromAutoCloseable(Async[F].delay {
+    new BufferedReader(new InputStreamReader(new FileInputStream(file), codec.charSet))
+  })
+
+  def readAll[F[_]: Async] (reader: Reader, sizeHint: Int): F[String] = {
+    
+    def read(inBuffer: Array[Char], outBuffer: StringBuilder): F[Unit] = {
+      for {
+        amount <- Async[F].delay(reader.read(inBuffer, 0, inBuffer.length))
+        _      <- if (amount == -1) Async[F].unit
+                  else Async[F].delay(outBuffer.appendAll(inBuffer, 0, amount)) >> read(inBuffer, outBuffer)
+      } yield ()
+    }
+    
+    for {
+      inBuffer  <- Async[F].delay(new Array[Char](Math.max(sizeHint, 8)))
+      outBuffer = new StringBuilder
+      _         <- read(inBuffer, outBuffer)
+    } yield outBuffer.toString
+  }
   
   def scanDirectories[F[_]: Async] (input: DirectoryInput): F[InputCollection] = ???
 
