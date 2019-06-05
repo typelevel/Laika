@@ -32,7 +32,7 @@ class SequentialParserSpec extends FlatSpec
   val parser: SequentialParser[IO] = Sequential(MarkupParser.of(Markdown)).build[IO]
 
 
-  it should "allow parsing Markdown from a string" in {
+  "The SequentialParser" should "allow parsing Markdown from a string" in {
     val input = """aaa
       |bbb
       |ccc""".stripMargin
@@ -45,6 +45,11 @@ class SequentialParserSpec extends FlatSpec
       |ccc""".stripMargin
     val filename = getClass.getResource("/testInput.md").getFile
     parser.fromFile(filename).parse.unsafeRunSync().content should be (root(p(input))) 
+  }
+
+  it should "allow parsing Markdown from an empty file" in {
+    val filename = getClass.getResource("/emptyInput.md").getFile
+    parser.fromFile(filename).parse.unsafeRunSync().content should be (root())
   }
   
   it should "allow parsing Markdown from a java.io.Reader instance" ignore {
