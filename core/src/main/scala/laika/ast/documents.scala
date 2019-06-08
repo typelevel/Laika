@@ -303,7 +303,7 @@ trait TreeStructure { this: TreeContent =>
     case _ => None
   }
   
-  private val defaultTemplatePathBase: Path = Path.Current / "default.template"
+  private val defaultTemplatePathBase: Path = Path.Current / "default.template.<format>"
   
   /** Selects the template with the name `default.template.&lt;suffix&gt;` for the 
     * specified format suffix from this level of the document tree.

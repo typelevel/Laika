@@ -27,8 +27,6 @@ import laika.factory.RenderFormat
 class RendererBuilder[FMT] (val renderFormat: RenderFormat[FMT],
                             val config: OperationConfig) extends RendererBuilderOps[FMT] {
 
-  protected[this] lazy val theme = config.themeFor(renderFormat)
-
   type ThisType = RendererBuilder[FMT]
 
   def withConfig(newConfig: OperationConfig): ThisType = new RendererBuilder[FMT](renderFormat, newConfig)

@@ -113,10 +113,10 @@ class ParallelRendererSpec extends FlatSpec
     def renderer: ParallelRenderer[IO] = Parallel(Renderer.of(XSLFO)).build
   }
 
-  it should "render an empty tree" in {
+  "The parallel renderer" should "render an empty tree" in {
     new ASTRenderer {
       val input = DocumentTree(Root, Nil)
-      renderedTree should be (RenderedTree(Root, Nil, Nil))
+      renderedTree should be (RenderedTreeView(Root, Nil))
     }
   }
 
@@ -149,7 +149,9 @@ class ParallelRendererSpec extends FlatSpec
   it should "render a tree with a single document to HTML using a custom template in an extension bundle" in {
     new HTMLRenderer {
       val template = tRoot(tt("["), TemplateContextReference("document.content"), tt("]"))
-      override lazy val renderer = Parallel(Renderer.of(HTML)using BundleProvider.forTheme(HTML.Theme(defaultTemplate = Some(template)))).build
+      val bundle = BundleProvider.forTheme(HTML.Theme(defaultTemplate = Some(template)))
+      override lazy val renderer = Parallel(Renderer.of(HTML).using(bundle)).build
+      
       val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
       val expected = """[<h1 id="title" class="title">Title</h1>
                        |<p>bbb</p>]""".stripMargin
