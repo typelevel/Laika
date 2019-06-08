@@ -16,17 +16,23 @@
 
 package laika.runtime
 
+import cats.effect.IO
 import org.scalatest.{Matchers, WordSpec}
+import cats.implicits._
 
 class ExecutorSpec extends WordSpec with Matchers {
 
   trait Setup {
 
-    val dummyOp: () => Unit = () => ()
+    val dummyOp: IO[Unit] = IO.unit
 
     def batchCount(numOps: Int, parallelism: Int): Seq[Int] = {
-      val ops = List.fill(numOps)(dummyOp)
-      BatchRuntime.createBatches(ops, parallelism).map(_.size)
+      val ops = Vector.fill(numOps)(dummyOp)
+      BatchRuntime
+        .createBatches[IO, Unit](ops, parallelism)
+        .sequence[IO, Vector[Unit]]
+        .map(_.map(_.size))
+        .unsafeRunSync()
     }
 
   }

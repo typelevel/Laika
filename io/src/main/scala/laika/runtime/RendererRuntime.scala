@@ -19,11 +19,12 @@ object RendererRuntime {
 
   def run[F[_]: Async] (op: SequentialRenderer.Op[F], styles: Option[StyleDeclarationSet] = None): F[String] = {
 
-    def write (result: String): F[Unit] = ???
+    val renderResult = op.renderer.render(op.input, op.path)
     
-    val rendered = op.renderer.render(op.input, op.path)
-    
-    write(rendered).as(rendered)
+    for {
+      output <- op.output
+      _      <- OutputRuntime.write(renderResult, output)
+    } yield renderResult
   }
   
   def run[F[_]: Async] (op: ParallelRenderer.Op[F]): F[RenderedTreeRoot] = {
@@ -65,7 +66,7 @@ object RendererRuntime {
     
     val operations = finalRoot.allDocuments.map(renderDocument) /* ++ op.tree.staticDocuments.flatMap(copy) */  // TODO - 0.12 - handle static docs
 
-    BatchRuntime.execute(operations, 1, 1).map { results => // TODO - 0.12 - add parallelism option to builder
+    BatchRuntime.run(operations.toVector, 1, 1).map { results => // TODO - 0.12 - add parallelism option to builder
 
       def buildNode (path: Path, content: Seq[RenderContent], subTrees: Seq[RenderedTree]): RenderedTree =
         RenderedTree(path, finalRoot.tree.selectSubtree(path.relativeTo(Root)).fold(Seq.empty[Span])(_.title), content ++ subTrees) // TODO - 0.12 - handle title document

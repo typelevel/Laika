@@ -2,10 +2,8 @@ package laika.runtime
 
 import cats.effect.Async
 import com.typesafe.config.ConfigFactory
-import laika.api.builder.OperationConfig
 import laika.ast.{TemplateDocument, _}
 import laika.bundle.ConfigProvider
-import laika.factory.MarkupFormat
 import laika.io.Parallel.ParallelParser
 import laika.io.Sequential.SequentialParser
 import laika.io.{DirectoryInput, InputCollection, TextInput}
@@ -78,7 +76,7 @@ object ParserRuntime {
         DocumentTree(path, treeContent, titleDoc, templates, fullConfig)
       }
 
-      BatchRuntime.execute(textOps, 1, 1).map { results => // TODO - 0.12 - add parallelism option to builder
+      BatchRuntime.run(textOps.toVector, 1, 1).map { results => // TODO - 0.12 - add parallelism option to builder
         val tree = TreeBuilder.build(results, buildNode)
 
         val styles = results // TODO - 0.12 - move this logic
@@ -101,26 +99,26 @@ object ParserRuntime {
     
   }
 
-  private case class ParserLookup (parsers: Seq[MarkupFormat], config: OperationConfig) {
-
-    private def suffix (name: String): String = name.lastIndexOf(".") match {
-      case -1    => ""
-      case index => name.drop(index+1)
-    }
-
-    private lazy val map: Map[String, ParserInput => Document] =
-      parsers.flatMap { parser =>
-        val docParser = DocumentParser.forMarkup(parser, config.markupExtensions, config.configHeaderParser)
-        parser.fileSuffixes.map((_, docParser))
-      }.toMap
-
-    def forInput (input: TextInput): TextInput => Document = { input =>
-      val pi: ParserInput = ???
-      if (parsers.size == 1) map.head._2(pi)
-      else map.getOrElse(suffix(input.name),
-        throw new IllegalArgumentException("Unable to determine parser based on input name: ${input.name}"))(pi)
-    }
-
-  }
+//  private case class ParserLookup (parsers: Seq[MarkupFormat], config: OperationConfig) {
+//
+//    private def suffix (name: String): String = name.lastIndexOf(".") match {
+//      case -1    => ""
+//      case index => name.drop(index+1)
+//    }
+//
+//    private lazy val map: Map[String, ParserInput => Document] =
+//      parsers.flatMap { parser =>
+//        val docParser = DocumentParser.forMarkup(parser, config.markupExtensions, config.configHeaderParser)
+//        parser.fileSuffixes.map((_, docParser))
+//      }.toMap
+//
+//    def forInput (input: TextInput): TextInput => Document = { input =>
+//      val pi: ParserInput = null
+//      if (parsers.size == 1) map.head._2(pi)
+//      else map.getOrElse(suffix(input.name),
+//        throw new IllegalArgumentException("Unable to determine parser based on input name: ${input.name}"))(pi)
+//    }
+//
+//  }
 
 }
