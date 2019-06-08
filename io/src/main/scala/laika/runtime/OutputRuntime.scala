@@ -1,23 +1,30 @@
 package laika.runtime
 
-import java.io.{BufferedOutputStream, BufferedWriter, FileOutputStream, OutputStream, OutputStreamWriter}
+import java.io._
 
+import cats.effect.{Async, Resource}
 import laika.io._
+
+import scala.io.Codec
 
 /**
   * @author Jens Halm
   */
 object OutputRuntime {
   
-  case class RenderFunction (render: String => Unit, close: () => Unit = () => ()) 
-  
-  def asRenderFunction (output: TextOutput): RenderFunction = output match {
-    case StringOutput(builder, _) => RenderFunction(builder.append(_:String))
-    case TextFileOutput(file, _, codec) => 
-      val writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), codec.encoder))
-      RenderFunction(writer.write(_:String), () => writer.close())
+  def write[F[_]: Async] (result: String, output: TextOutput): F[Unit] = {
+    output match {
+      case StringOutput(builder, path) => Async[F].unit
+      case TextFileOutput(file, _, codec) => fileWriter(file, codec).use { writer =>
+        Async[F].delay(writer.write(result))
+      }  
+    }
   }
-  
+
+  def fileWriter[F[_]: Async] (file: File, codec: Codec): Resource[F, Writer] = Resource.fromAutoCloseable(Async[F].delay {
+    new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), codec.charSet))
+  })
+
   def asStream (output: BinaryOutput): OutputStream = output match {
     case BinaryFileOutput(file, _) => new BufferedOutputStream(new FileOutputStream(file))
     case ByteOutput(out, _) => out
