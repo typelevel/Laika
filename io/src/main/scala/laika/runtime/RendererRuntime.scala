@@ -38,7 +38,7 @@ object RendererRuntime {
     def outputPath (path: Path): Path = path.withSuffix(fileSuffix)
     
     def textOutputFor (path: Path): F[TextOutput] = op.output map {
-      case StringTreeOutput => StringOutput(new mutable.StringBuilder, outputPath(path)) // TODO - 0.12 - temporary solution
+      case StringTreeOutput => StringOutput(outputPath(path))
       case DirectoryOutput(dir, codec) => TextFileOutput(new File(dir, outputPath(path).toString.drop(1)), outputPath(path), codec)
     }
 //    def binaryOutputFor (path: Path): Seq[BinaryOutput] = op.output match {

@@ -14,7 +14,7 @@ object OutputRuntime {
   
   def write[F[_]: Async] (result: String, output: TextOutput): F[Unit] = {
     output match {
-      case StringOutput(builder, path) => Async[F].unit
+      case StringOutput(_) => Async[F].unit
       case TextFileOutput(file, _, codec) => fileWriter(file, codec).use { writer =>
         Async[F].delay(writer.write(result))
       }  

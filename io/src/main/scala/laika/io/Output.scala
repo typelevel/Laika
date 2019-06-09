@@ -69,8 +69,7 @@ sealed trait TreeOutput extends Output {
 
 case class TextFileOutput (file: File, path: Path, codec: Codec) extends TextOutput
 
-// TODO - 0.12 - temporary mutable solution to ease migration
-case class StringOutput (builder: StringBuilder, path: Path) extends TextOutput
+case class StringOutput (path: Path) extends TextOutput
 
 case class BinaryFileOutput (file: File, path: Path) extends BinaryOutput
 
