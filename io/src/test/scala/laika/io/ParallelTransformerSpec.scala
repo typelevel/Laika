@@ -78,7 +78,7 @@ class ParallelTransformerSpec extends FlatSpec
       "style" -> "13",
       "link" -> "[link](foo)",
       "directive" -> "{{document.content}} @:foo bar. bb",
-      "dynDoc" -> "{{config.value}}",
+      "templateConfigRef" -> "{{document.content}}{{config.value}}",
       "template1" -> "{{document.content}}",
       "template2" -> "({{document.content}})",
       "conf" -> "value: abc"
@@ -115,23 +115,32 @@ class ParallelTransformerSpec extends FlatSpec
     }
   }
   
-  it should "transform a tree with a dynamic document populated by a config file in the directory" ignore {
+  it should "transform a tree with a template document populated by a config file in the directory" in {
     new TreeTransformer {
-      val dirs = """- main.dynamic.txt:dynDoc
-          |- directory.conf:conf""".stripMargin
+      val dirs = """- default.template.txt:templateConfigRef
+          |- directory.conf:conf
+          |- main.md:aa""".stripMargin
       val result = """RootElement - Blocks: 1
-          |. TemplateRoot - TemplateSpans: 1
+          |. TemplateRoot - TemplateSpans: 2
+          |. . EmbeddedRoot(0) - Blocks: 1
+          |. . . Paragraph - Spans: 1
+          |. . . . Text - 'aa'
           |. . TemplateString - 'abc'""".stripMargin
       transformTree should be (root(List(docs((Root / "main.txt", result)))))
     }
   }
   
-  it should "transform a tree with a dynamic document populated by a root config string" ignore {
+  it should "transform a tree with a template document populated by a root config string" in {
     new TreeTransformer {
-      val dirs = """- main.dynamic.txt:dynDoc"""
+      val dirs =
+        """- default.template.txt:templateConfigRef
+          |- main.md:aa""".stripMargin
       val result = """RootElement - Blocks: 1
-          |. TemplateRoot - TemplateSpans: 1
-          |. . TemplateString - 'def'""".stripMargin
+         |. TemplateRoot - TemplateSpans: 2
+         |. . EmbeddedRoot(0) - Blocks: 1
+         |. . . Paragraph - Spans: 1
+         |. . . . Text - 'aa'
+         |. . TemplateString - 'def'""".stripMargin
       transformWithConfig("value: def") should be (root(List(docs((Root / "main.txt", result)))))
     }
   }
