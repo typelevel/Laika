@@ -20,6 +20,7 @@ import java.io._
 
 import cats.effect.IO
 import laika.api.Transformer
+import laika.api.builder.OperationConfig
 import laika.ast.DocumentType.Static
 import laika.ast.Path.Root
 import laika.ast._
@@ -73,9 +74,10 @@ class ParallelTransformerSpec extends FlatSpec
     
     val contents = Map(
       "name" -> "foo",
+      "aa" -> "aa",
       "style" -> "13",
       "link" -> "[link](foo)",
-      "directive" -> "aa @:foo bar. bb",
+      "directive" -> "{{document.content}} @:foo bar. bb",
       "dynDoc" -> "{{config.value}}",
       "template1" -> "{{document.content}}",
       "template2" -> "({{document.content}})",
@@ -152,14 +154,18 @@ class ParallelTransformerSpec extends FlatSpec
     }
   }
   
-  it should "transform a tree with a custom template engine" ignore { // TODO - 0.12 - switch to regular templates
+  it should "transform a tree with a custom template engine" in {
     new TreeTransformer {
-      val dirs = """- main1.dynamic.txt:name
-        |- main2.dynamic.txt:name""".stripMargin
-      val parser: Parser[TemplateRoot] = TextParsers.any ^^ { str => TemplateRoot(List(TemplateString("$$" + str))) }
+      val dirs = """- default.template.txt:template1
+                   |- main1.md:aa
+                   |- main2.md:aa""".stripMargin
+      val parser: Parser[TemplateRoot] = OperationConfig.default.templateParser.get.map(root => root.copy(root.content :+ TemplateString("cc")))
       val result = """RootElement - Blocks: 1
-        |. TemplateRoot - TemplateSpans: 1
-        |. . TemplateString - '$$foo'""".stripMargin
+        |. TemplateRoot - TemplateSpans: 2
+        |. . EmbeddedRoot(0) - Blocks: 1
+        |. . . Paragraph - Spans: 1
+        |. . . . Text - 'aa'
+        |. . TemplateString - 'cc'""".stripMargin
       transformWithTemplates(parser) should be (root(List(docs(
         (Root / "main1.txt", result),
         (Root / "main2.txt", result)
@@ -184,23 +190,25 @@ class ParallelTransformerSpec extends FlatSpec
     }
   }
   
-  it should "transform a tree with a template directive" ignore { // TODO - 0.12 - switch to regular templates instead of dynamic documents
+  it should "transform a tree with a template directive" in {
     import Templates.dsl._
 
     val directive = Templates.create("foo") {
       attribute(Default) map { TemplateString(_) }
     }
     new TreeTransformer {
-      val dirs = """- main1.dynamic.txt:directive
-        |- main2.dynamic.txt:directive""".stripMargin
+      val dirs = """- default.template.txt:directive
+        |- aa.md:aa""".stripMargin
       val result = """RootElement - Blocks: 1
-        |. TemplateRoot - TemplateSpans: 3
-        |. . TemplateString - 'aa '
+        |. TemplateRoot - TemplateSpans: 4
+        |. . EmbeddedRoot(0) - Blocks: 1
+        |. . . Paragraph - Spans: 1
+        |. . . . Text - 'aa'
+        |. . TemplateString - ' '
         |. . TemplateString - 'bar'
         |. . TemplateString - ' bb'""".stripMargin
       transformWithDirective(directive) should be (root(List(docs(
-        (Root / "main1.txt", result),
-        (Root / "main2.txt", result)
+        (Root / "aa.txt", result)
       ))))
     }
   }
