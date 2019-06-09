@@ -3,6 +3,7 @@ package laika.runtime
 import java.io._
 
 import cats.effect.{Async, Resource}
+import cats.implicits._
 import laika.io._
 
 import scala.io.Codec
@@ -20,7 +21,11 @@ object OutputRuntime {
       }  
     }
   }
-
+  
+  def createDirectory[F[_]: Async] (file: File): F[Unit] = 
+    Async[F].delay(file.exists || file.mkdirs()).flatMap(if (_) Async[F].unit 
+    else Async[F].raiseError(new IOException(s"Unable to create directory ${file.getAbsolutePath}")))
+ 
   def fileWriter[F[_]: Async] (file: File, codec: Codec): Resource[F, Writer] = Resource.fromAutoCloseable(Async[F].delay {
     new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), codec.charSet))
   })

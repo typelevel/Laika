@@ -433,12 +433,12 @@ class ParallelRendererSpec extends FlatSpec
       markupDoc(1),
       markupDoc(2),
       DocumentTree(Root / "dir1", List(
-        markupDoc(3),
-        markupDoc(4)
+        markupDoc(3, Root / "dir1"),
+        markupDoc(4, Root / "dir1")
       )),
       DocumentTree(Root / "dir2", List(
-        markupDoc(5),
-        markupDoc(6)
+        markupDoc(5, Root / "dir2"),
+        markupDoc(6, Root / "dir2")
       ))
     )))
 
@@ -453,7 +453,7 @@ class ParallelRendererSpec extends FlatSpec
     }
   }
 
-  ignore should "render to a directory using the toDirectory method" in {
+  it should "render to a directory using the toDirectory method" in {
     new FileSystemTest {
       val f = OutputBuilder.createTempDirectory("renderToDir")
       Parallel(Renderer.of(AST)).build[IO].from(input).toDirectory(f).render.unsafeRunSync()
@@ -461,7 +461,7 @@ class ParallelRendererSpec extends FlatSpec
     }
   }
 
-  ignore should "render to a directory using a document with non-ASCII characters" in new DocBuilder {
+  it should "render to a directory using a document with non-ASCII characters" in new DocBuilder {
     val expected = """RootElement - Blocks: 1
                      |. Paragraph - Spans: 1
                      |. . Text - 'Doc äöü'""".stripMargin

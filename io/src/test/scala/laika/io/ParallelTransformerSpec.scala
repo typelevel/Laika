@@ -21,7 +21,7 @@ import java.io._
 import cats.effect.IO
 import laika.api.Transformer
 import laika.api.builder.OperationConfig
-import laika.ast.DocumentType.Static
+import laika.ast.DocumentType.{Ignored, Static}
 import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.{BundleProvider, ExtensionBundle}
@@ -40,6 +40,8 @@ class ParallelTransformerSpec extends FlatSpec
    
 
   private val transformer: ParallelTransformer[IO] = Parallel(Transformer.from(Markdown).to(AST)).build
+  private def transformerWithBundle (bundle: ExtensionBundle): ParallelTransformer[IO] = 
+    Parallel(Transformer.from(Markdown).to(AST).using(bundle)).build
   
   
   trait TreeTransformer extends InputBuilder {
@@ -149,17 +151,6 @@ class ParallelTransformerSpec extends FlatSpec
     new TreeTransformer {
       val dirs = """- omg.js:name"""
       transformTree should be (root(List(docs((Root / "omg.js", "foo")))))
-    }
-  }
-  
-  it should "transform a tree with a custom document type matcher" ignore {
-    new TreeTransformer {
-      val dirs = """- name.md:name
-        |- main.dynamic.html:name""".stripMargin
-      transformWithDocTypeMatcher({case _ => Static}) should be (root(List(docs(
-        (Root / "name.md", "foo"),
-        (Root / "main.dynamic.html", "foo")
-      ))))
     }
   }
   
@@ -403,7 +394,7 @@ class ParallelTransformerSpec extends FlatSpec
     }
   }
 
-  ignore should "read from and write to directories" in {
+  it should "read from and write to directories" in {
     new FileSystemTest {
       val sourceName = resourcePath("/trees/a/")
       val targetDir = OutputBuilder.createTempDirectory("renderToDir")
@@ -412,7 +403,17 @@ class ParallelTransformerSpec extends FlatSpec
     }
   }
 
-  ignore should "allow to specify custom exclude filter" in {
+  it should "transform a directory with a custom document type matcher" in {
+    new FileSystemTest {
+      val sourceName = resourcePath("/trees/a/")
+      val targetDir = OutputBuilder.createTempDirectory("renderToDir")
+      val transform = transformerWithBundle(BundleProvider.forDocTypeMatcher{ case Root / "doc1.md" => Ignored; case Root / "dir1" / _ => Ignored })
+      transform.fromDirectory(sourceName).toDirectory(targetDir).transform.unsafeRunSync()
+      readFilesFiltered(targetDir.getPath)
+    }
+  }
+
+  it should "allow to specify custom exclude filter" in {
     new FileSystemTest {
       val sourceName = resourcePath("/trees/a/")
       val targetDir = OutputBuilder.createTempDirectory("renderToDir")
@@ -421,7 +422,7 @@ class ParallelTransformerSpec extends FlatSpec
     }
   }
 
-  ignore should "read from two root directories" in {
+  it should "read from two root directories" in {
     new FileSystemTest {
       val source1 = new File(resourcePath("/trees/a/"))
       val source2 = new File(resourcePath("/trees/b/"))
