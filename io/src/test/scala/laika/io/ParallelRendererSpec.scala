@@ -236,13 +236,13 @@ class ParallelRendererSpec extends FlatSpec
     }
   }
 
-  it should "render a tree with two documents to XSL-FO using a custom style sheet" in {
+  it should "render a tree with two documents to XSL-FO using a custom style sheet in the tree root" in {
     new FORenderer {
       val input = DocumentTree(Root, List(
         Document(Root / "doc", rootElem),
         DocumentTree(Root / "tree", List(Document(Root / "tree" / "subdoc", subElem)))
       ))
-      override val treeRoot = DocumentTreeRoot(input, styles = foStyles(Root / "sub"))
+      override def treeRoot = DocumentTreeRoot(input, styles = foStyles(Root / "sub"))
       val expectedRoot = RenderResult.fo.withDefaultTemplate(s"""${marker("Title")}
         |      ${title("_doc_title", "Title")}
         |      <fo:block font-family="serif" font-size="11pt" space-after="3mm">bbb</fo:block>""".stripMargin)

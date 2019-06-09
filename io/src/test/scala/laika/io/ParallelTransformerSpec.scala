@@ -176,8 +176,8 @@ class ParallelTransformerSpec extends FlatSpec
       val dirs = """- doc1.md:name
         |- styles.fo.css:style""".stripMargin
       val result = RenderResult.fo.withDefaultTemplate("""<fo:block font-family="serif" font-size="13pt" space-after="3mm">foo</fo:block>""")
-      val transform = Transformer.from(Markdown).to(XSLFO).using(BundleProvider.forStyleSheetParser(parser))
-      val renderResult = transformer.fromInput(IO.pure(input(dirs, transformer.config.docTypeMatcher))).toOutput(IO.pure(StringTreeOutput)).transform.unsafeRunSync()
+      val transform = Parallel(Transformer.from(Markdown).to(XSLFO).using(BundleProvider.forStyleSheetParser(parser))).build[IO]
+      val renderResult = transform.fromInput(IO.pure(input(dirs, transformer.config.docTypeMatcher))).toOutput(IO.pure(StringTreeOutput)).transform.unsafeRunSync()
       OutputBuilder.RenderedTreeView.toTreeView(renderResult.tree) should be (root(List(docs(
         (Root / "doc1.fo", result)
       ))))

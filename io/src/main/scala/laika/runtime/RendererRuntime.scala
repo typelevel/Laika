@@ -19,7 +19,9 @@ object RendererRuntime {
 
   def run[F[_]: Async] (op: SequentialRenderer.Op[F], styles: Option[StyleDeclarationSet] = None): F[String] = {
 
-    val renderResult = op.renderer.render(op.input, op.path)
+    val renderResult = styles.fold(op.renderer.render(op.input, op.path)){ st => 
+      op.renderer.render(op.input, op.path, st) 
+    }
     
     for {
       output <- op.output
