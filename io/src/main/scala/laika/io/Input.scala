@@ -98,8 +98,15 @@ object DirectoryInput {
   def apply (directory: File)(implicit codec: Codec): DirectoryInput = DirectoryInput(Seq(directory), codec)
 }
 
-case class InputCollection (textInputs: Seq[TextInput], binaryInputs: Seq[BinaryInput] = Nil, sourcePaths: Seq[String] = Nil) extends TreeInput
+case class InputCollection (textInputs: Seq[TextInput], binaryInputs: Seq[BinaryInput] = Nil, sourcePaths: Seq[String] = Nil) extends TreeInput {
+  def ++ (other: InputCollection): InputCollection = InputCollection(
+    textInputs ++ other.textInputs, 
+    binaryInputs ++ other.binaryInputs, 
+    sourcePaths ++ other.sourcePaths
+  )
+}
 
 object InputCollection {
   def apply (textInput: TextInput): InputCollection = InputCollection(Seq(textInput))
+  def empty: InputCollection = InputCollection(Nil)
 }

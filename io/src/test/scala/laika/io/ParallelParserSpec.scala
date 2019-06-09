@@ -43,6 +43,7 @@ class ParallelParserSpec extends FlatSpec
 
     val defaultParser: ParallelParser[IO] = Parallel(MarkupParser.of(Markdown)).build
     val rawParser: ParallelParser[IO] = Parallel(MarkupParser.of(Markdown).withoutRewrite).build
+    def parserWithBundle (bundle: ExtensionBundle): ParallelParser[IO] = Parallel(MarkupParser.of(Markdown).using(bundle)).build
     
   }
   
@@ -104,7 +105,7 @@ class ParallelParserSpec extends FlatSpec
   
 
   
-  it should "allow parsing an empty tree" in {
+  "The parallel parser" should "parse an empty tree" in {
     new TreeParser {
       val dirs = ""
       val treeResult = TreeView(Root, Nil)
@@ -112,7 +113,7 @@ class ParallelParserSpec extends FlatSpec
     }
   }
   
-  it should "allow parsing a tree with a single document" in {
+  it should "parse a tree with a single document" in {
     new TreeParser {
       val dirs = """- name.md:name"""
       val docResult = DocumentView(Root / "name.md", Content(List(p("foo"))) :: Nil)
@@ -121,7 +122,7 @@ class ParallelParserSpec extends FlatSpec
     }
   }
   
-  it should "allow parsing a tree with multiple subtrees" in {
+  it should "parse a tree with multiple subtrees" in {
     new TreeParser {
       val dirs = """- doc1.md:name
         |- doc2.md:name
@@ -141,7 +142,7 @@ class ParallelParserSpec extends FlatSpec
     }
   }
   
-  it should "allow parsing a tree with a single template" in {
+  it should "parse a tree with a single template" in {
     new TreeParser {
       val dirs = """- main.template.html:name"""
       val template = TemplateView(Root / "main.template.html", TemplateRoot(List(TemplateString("foo"))))
@@ -150,7 +151,7 @@ class ParallelParserSpec extends FlatSpec
     }
   }
   
-  it should "allow parsing a tree with a static document" ignore {
+  it should "parse a tree with a static document" ignore {
     new TreeParser {
       val dirs = """- omg.js:name"""
       val input = InputView("omg.js")
@@ -159,7 +160,7 @@ class ParallelParserSpec extends FlatSpec
     }
   }
   
-  it should "allow parsing a tree with all available file types" ignore {
+  it should "parse a tree with all available file types" ignore {
 //    new TreeParser {
 //      val dirs = """- doc1.md:link
 //        |- doc2.rst:link
@@ -190,16 +191,6 @@ class ParallelParserSpec extends FlatSpec
 //      ))
 //      rawMixedParsedTree should be (treeResult)
 //    }
-  }
-  
-  it should "allow to specify a custom document type matcher" ignore {
-    // TODO - 0.12 - might need to become a file-system based test, as in-memory input do no longer use/need a docTypeMatcher
-    new TreeParser {
-      val dirs = """- name.md:name
-        |- main.dynamic.html:name""".stripMargin
-      val treeResult = TreeView(Root, List(Inputs(Static, List(InputView("name.md"), InputView("main.dynamic.html")))))
-      parsedWith(BundleProvider.forDocTypeMatcher{ case _ => Static }) should be (treeResult)
-    }
   }
   
   it should "allow to specify a custom template engine" in {
@@ -327,7 +318,7 @@ class ParallelParserSpec extends FlatSpec
     }
   }
   
-  it should "read a directory from the file system using the fromDirectory method" ignore new ParserSetup {
+  it should "read a directory from the file system using the fromDirectory method" in new ParserSetup {
     val dirname: String = getClass.getResource("/trees/a/").getFile
     def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc"+num))) :: Nil)
     val subtree1 = TreeView(Root / "dir1", List(Documents(Markup, List(docView(3, Root / "dir1"),docView(4, Root / "dir1")))))
@@ -338,8 +329,32 @@ class ParallelParserSpec extends FlatSpec
     ))
     viewOf(defaultParser.fromDirectory(dirname).parse.unsafeRunSync().tree) should be (treeResult)
   }
+
+  it should "read a directory from the file system using a custom document type matcher" in new ParserSetup {
+    val dirname: String = getClass.getResource("/trees/a/").getFile
+    def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc"+num))) :: Nil)
+    val subtree1 = TreeView(Root / "dir1", List(Documents(Markup, List(docView(3, Root / "dir1"),docView(4, Root / "dir1")))))
+    val subtree2 = TreeView(Root / "dir2", List(Documents(Markup, List(docView(5, Root / "dir2"),docView(6, Root / "dir2")))))
+    val treeResult = TreeView(Root, List(
+      Documents(Markup, List(docView(2))),
+      Subtrees(List(subtree1,subtree2))
+    ))
+    val parser = parserWithBundle(BundleProvider.forDocTypeMatcher{ case Root / "doc1.md" => Ignored })
+    viewOf(parser.fromDirectory(dirname).parse.unsafeRunSync().tree) should be (treeResult)
+  }
+
+  it should "allow to specify a custom exclude filter" in new ParserSetup {
+    val dirname: String = getClass.getResource("/trees/a/").getFile
+    def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc"+num))) :: Nil)
+    val subtree2 = TreeView(Root / "dir2", List(Documents(Markup, List(docView(5, Root / "dir2"),docView(6, Root / "dir2")))))
+    val treeResult = TreeView(Root, List(
+      Documents(Markup, List(docView(2))),
+      Subtrees(List(subtree2))
+    ))
+    viewOf(defaultParser.fromDirectory(dirname, {f:java.io.File => f.getName == "doc1.md" || f.getName == "dir1"}).parse.unsafeRunSync().tree) should be (treeResult)
+  }
   
-  it should "read a directory from the file system using the fromDirectories method" ignore new ParserSetup {
+  it should "read a directory from the file system using the fromDirectories method" in new ParserSetup {
     val dir1 = new java.io.File(getClass.getResource("/trees/a/").getFile)
     val dir2 = new java.io.File(getClass.getResource("/trees/b/").getFile)
     def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc"+num))) :: Nil)
@@ -353,7 +368,7 @@ class ParallelParserSpec extends FlatSpec
     viewOf(defaultParser.fromDirectories(Seq(dir1,dir2)).parse.unsafeRunSync().tree) should be (treeResult)
   }
 
-  it should "read a directory from the file system containing a file with non-ASCII characters" ignore new ParserSetup {
+  it should "read a directory from the file system containing a file with non-ASCII characters" in new ParserSetup {
     val dirname: String = getClass.getResource("/trees/c/").getFile
     def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p(s"Doc$num äöü"))) :: Nil)
     val treeResult = TreeView(Root, List(
@@ -362,27 +377,4 @@ class ParallelParserSpec extends FlatSpec
     viewOf(defaultParser.fromDirectory(dirname).parse.unsafeRunSync().tree) should be (treeResult)
   }
   
-//  it should "allow to specify a custom exclude filter" in new ParserSetup {
-//    val dirname = getClass.getResource("/trees/a/").getFile
-//    def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc"+num))) :: Nil)
-//    val subtree2 = TreeView(Root / "dir2", List(Documents(Markup, List(docView(5, Root / "dir2"),docView(6, Root / "dir2")))))
-//    val treeResult = TreeView(Root, List(
-//      Documents(Markup, List(docView(2))),
-//      Subtrees(List(subtree2))
-//    ))
-//    viewOf(defaultParser.fromDirectory(dirname, {f:java.io.File => f.getName == "doc1.md" || f.getName == "dir1"}).parse.unsafeRunSync().tree) should be (treeResult)
-//  }
-  
-  it should "read a directory from the file system using the Directory object" ignore new ParserSetup {
-    val dirname: String = getClass.getResource("/trees/a/").getFile
-    def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc"+num))) :: Nil)
-    val subtree1 = TreeView(Root / "dir1", List(Documents(Markup, List(docView(3, Root / "dir1"),docView(4, Root / "dir1")))))
-    val subtree2 = TreeView(Root / "dir2", List(Documents(Markup, List(docView(5, Root / "dir2"),docView(6, Root / "dir2")))))
-    val treeResult = TreeView(Root, List(
-      Documents(Markup, List(docView(1),docView(2))),
-      Subtrees(List(subtree1,subtree2))
-    ))
-    viewOf(defaultParser.fromDirectory(dirname).parse.unsafeRunSync().tree) should be (treeResult)
-  }
-
 }

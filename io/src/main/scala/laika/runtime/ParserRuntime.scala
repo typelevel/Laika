@@ -94,7 +94,7 @@ object ParserRuntime {
     
     op.input flatMap {
       case col: InputCollection => Async[F].pure(col)
-      case dir: DirectoryInput => InputRuntime.scanDirectories(dir)
+      case dir: DirectoryInput => DirectoryScanner.scanDirectories(dir)
     } flatMap parseAll
     
   }
