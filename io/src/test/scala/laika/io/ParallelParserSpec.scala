@@ -159,7 +159,7 @@ class ParallelParserSpec extends FlatSpec
     }
   }
   
-//  it should "allow parsing a tree with all available file types" ignore {
+  it should "allow parsing a tree with all available file types" ignore {
 //    new TreeParser {
 //      val dirs = """- doc1.md:link
 //        |- doc2.rst:link
@@ -190,7 +190,7 @@ class ParallelParserSpec extends FlatSpec
 //      ))
 //      rawMixedParsedTree should be (treeResult)
 //    }
-//  }
+  }
   
   it should "allow to specify a custom document type matcher" ignore {
     // TODO - 0.12 - might need to become a file-system based test, as in-memory input do no longer use/need a docTypeMatcher
@@ -327,7 +327,7 @@ class ParallelParserSpec extends FlatSpec
     }
   }
   
-  it should "read a directory from the file system using the fromDirectory method" in new ParserSetup {
+  it should "read a directory from the file system using the fromDirectory method" ignore new ParserSetup {
     val dirname: String = getClass.getResource("/trees/a/").getFile
     def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc"+num))) :: Nil)
     val subtree1 = TreeView(Root / "dir1", List(Documents(Markup, List(docView(3, Root / "dir1"),docView(4, Root / "dir1")))))
@@ -339,7 +339,7 @@ class ParallelParserSpec extends FlatSpec
     viewOf(defaultParser.fromDirectory(dirname).parse.unsafeRunSync().tree) should be (treeResult)
   }
   
-  it should "read a directory from the file system using the fromDirectories method" in new ParserSetup {
+  it should "read a directory from the file system using the fromDirectories method" ignore new ParserSetup {
     val dir1 = new java.io.File(getClass.getResource("/trees/a/").getFile)
     val dir2 = new java.io.File(getClass.getResource("/trees/b/").getFile)
     def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc"+num))) :: Nil)
@@ -353,7 +353,7 @@ class ParallelParserSpec extends FlatSpec
     viewOf(defaultParser.fromDirectories(Seq(dir1,dir2)).parse.unsafeRunSync().tree) should be (treeResult)
   }
 
-  it should "read a directory from the file system containing a file with non-ASCII characters" in new ParserSetup {
+  it should "read a directory from the file system containing a file with non-ASCII characters" ignore new ParserSetup {
     val dirname: String = getClass.getResource("/trees/c/").getFile
     def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p(s"Doc$num äöü"))) :: Nil)
     val treeResult = TreeView(Root, List(
@@ -373,7 +373,7 @@ class ParallelParserSpec extends FlatSpec
 //    viewOf(defaultParser.fromDirectory(dirname, {f:java.io.File => f.getName == "doc1.md" || f.getName == "dir1"}).parse.unsafeRunSync().tree) should be (treeResult)
 //  }
   
-  it should "read a directory from the file system using the Directory object" in new ParserSetup {
+  it should "read a directory from the file system using the Directory object" ignore new ParserSetup {
     val dirname: String = getClass.getResource("/trees/a/").getFile
     def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("Doc"+num))) :: Nil)
     val subtree1 = TreeView(Root / "dir1", List(Documents(Markup, List(docView(3, Root / "dir1"),docView(4, Root / "dir1")))))

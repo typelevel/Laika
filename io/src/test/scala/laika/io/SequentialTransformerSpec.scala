@@ -47,7 +47,7 @@ class SequentialTransformerSpec extends FlatSpec
 //    (transform transform input) should be (output)
 //  }
   
-  "The Transform API" should "transform from file to file" ignore {
+  "The Transform API" should "transform from file to file" in {
     val inFile = getClass.getResource("/testInput2.md").getFile
     val outFile = File.createTempFile("output", null)
     implicit val codec:Codec = Codec.UTF8
