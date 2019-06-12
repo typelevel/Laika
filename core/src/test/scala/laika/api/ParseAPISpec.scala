@@ -53,6 +53,11 @@ class ParseAPISpec extends FlatSpec
     val filename = getClass.getResource("/testInput.md").getFile
     (Parse as Markdown fromFile filename).content should be (root(p(input))) 
   }
+
+  it should "allow parsing Markdown from an empty file" in {
+    val filename = getClass.getResource("/emptyInput.md").getFile
+    (Parse as Markdown fromFile filename).content should be (root())
+  }
   
   it should "allow parsing Markdown from a java.io.Reader instance" in {
     val input = """aaa

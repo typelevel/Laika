@@ -110,7 +110,7 @@ object ParserContext {
     */
   def apply (input: java.io.Reader, sizeHint: Int): ParserContext = {
 
-    val arr = new Array[Char](sizeHint)
+    val arr = new Array[Char](Math.max(sizeHint, 8))
     val buffer = new StringBuilder
     var numCharsRead: Int = 0
 
