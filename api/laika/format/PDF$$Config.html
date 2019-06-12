@@ -147,15 +147,13 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">Config</span><span class="params">(<span name="insertTitles">insertTitles: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>, <span name="bookmarkDepth">bookmarkDepth: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>, <span name="tocDepth">tocDepth: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>, <span name="tocTitle">tocTitle: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">Config</span><span class="params">(<span name="bookmarkDepth">bookmarkDepth: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>, <span name="tocDepth">tocDepth: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>, <span name="tocTitle">tocTitle: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
 
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Configuration options for the generated PDF output.
-</p></div><dl class="paramcmts block"><dt class="param">insertTitles</dt><dd class="cmt"><p>indicates whether a title will be inserted for each tree, subtree,
- and document, relying on titles specified in the configuration file for the tree
- or document, but only if there is no <code>Title</code> element in the document already</p></dd><dt class="param">bookmarkDepth</dt><dd class="cmt"><p>the number of levels bookmarks should be generated for, use 0 to switch off bookmark generation</p></dd><dt class="param">tocDepth</dt><dd class="cmt"><p>the number of levels to generate a table of contents for, use 0 to switch off toc generation</p></dd><dt class="param">tocTitle</dt><dd class="cmt"><p>the title for the table of contents</p></dd></dl><div class="toggleContainer block">
+</p></div><dl class="paramcmts block"><dt class="param">bookmarkDepth</dt><dd class="cmt"><p>the number of levels bookmarks should be generated for, use 0 to switch off bookmark generation</p></dd><dt class="param">tocDepth</dt><dd class="cmt"><p>the number of levels to generate a table of contents for, use 0 to switch off toc generation</p></dd><dt class="param">tocTitle</dt><dd class="cmt"><p>the title for the table of contents</p></dd></dl><div class="toggleContainer block">
           <span class="toggle">
             Linear Supertypes
           </span>
@@ -206,9 +204,9 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="laika.format.PDF.Config#&lt;init&gt;" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="&lt;init&gt;(insertTitles:Boolean,bookmarkDepth:Int,tocDepth:Int,tocTitle:Option[String]):laika.format.PDF.Config"></a><a id="&lt;init&gt;:Config"></a>
+      <a id="&lt;init&gt;(bookmarkDepth:Int,tocDepth:Int,tocTitle:Option[String]):laika.format.PDF.Config"></a><a id="&lt;init&gt;:Config"></a>
       <span class="permalink">
-      <a href="../../laika/format/PDF$$Config.html#&lt;init&gt;(insertTitles:Boolean,bookmarkDepth:Int,tocDepth:Int,tocTitle:Option[String]):laika.format.PDF.Config" title="Permalink">
+      <a href="../../laika/format/PDF$$Config.html#&lt;init&gt;(bookmarkDepth:Int,tocDepth:Int,tocTitle:Option[String]):laika.format.PDF.Config" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -217,12 +215,10 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">Config</span><span class="params">(<span name="insertTitles">insertTitles: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>, <span name="bookmarkDepth">bookmarkDepth: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>, <span name="tocDepth">tocDepth: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>, <span name="tocTitle">tocTitle: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span>
+        <span class="name">Config</span><span class="params">(<span name="bookmarkDepth">bookmarkDepth: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>, <span name="tocDepth">tocDepth: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>, <span name="tocTitle">tocTitle: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span>
       </span>
       
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">insertTitles</dt><dd class="cmt"><p>indicates whether a title will be inserted for each tree, subtree,
- and document, relying on titles specified in the configuration file for the tree
- or document, but only if there is no <code>Title</code> element in the document already</p></dd><dt class="param">bookmarkDepth</dt><dd class="cmt"><p>the number of levels bookmarks should be generated for, use 0 to switch off bookmark generation</p></dd><dt class="param">tocDepth</dt><dd class="cmt"><p>the number of levels to generate a table of contents for, use 0 to switch off toc generation</p></dd><dt class="param">tocTitle</dt><dd class="cmt"><p>the title for the table of contents</p></dd></dl></div>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">bookmarkDepth</dt><dd class="cmt"><p>the number of levels bookmarks should be generated for, use 0 to switch off bookmark generation</p></dd><dt class="param">tocDepth</dt><dd class="cmt"><p>the number of levels to generate a table of contents for, use 0 to switch off toc generation</p></dd><dt class="param">tocTitle</dt><dd class="cmt"><p>the title for the table of contents</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -394,22 +390,6 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.format.PDF.Config#insertTitles" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="insertTitles:Boolean"></a>
-      <span class="permalink">
-      <a href="../../laika/format/PDF$$Config.html#insertTitles:Boolean" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">insertTitles</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
-      </span>
-      
-      
     </li><li name="scala.Any#isInstanceOf" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="isInstanceOf[T0]:Boolean"></a>
       <span class="permalink">

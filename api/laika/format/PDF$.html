@@ -107,6 +107,10 @@
                         <a href="AST$.html" title="A renderer for AST output (a formatted Abstract Syntax Tree), primarily useful for debugging purposes.">AST</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="object" href="EPUB$.html" title="A post processor for EPUB output, based on an interim HTML renderer."></a>
+                        <a href="EPUB$.html" title="A post processor for EPUB output, based on an interim HTML renderer.">EPUB</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="object" href="HTML$.html" title="A render format for HTML output."></a>
                         <a href="HTML$.html" title="A render format for HTML output.">HTML</a>
                       </li><li class="current-entities indented2">
@@ -220,13 +224,11 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a title="Configuration options for the generated PDF output." href="PDF$$Config.html"><span class="name">Config</span></a><span class="params">(<span name="insertTitles">insertTitles: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">true</span></span>, <span name="bookmarkDepth">bookmarkDepth: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>, <span name="tocDepth">tocDepth: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>, <span name="tocTitle">tocTitle: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a title="Configuration options for the generated PDF output." href="PDF$$Config.html"><span class="name">Config</span></a><span class="params">(<span name="bookmarkDepth">bookmarkDepth: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>, <span name="tocDepth">tocDepth: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">Int.MaxValue</span></span>, <span name="tocTitle">tocTitle: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       <p class="shortcomment cmt">Configuration options for the generated PDF output.</p><div class="fullcomment"><div class="comment cmt"><p>Configuration options for the generated PDF output.
-</p></div><dl class="paramcmts block"><dt class="param">insertTitles</dt><dd class="cmt"><p>indicates whether a title will be inserted for each tree, subtree,
- and document, relying on titles specified in the configuration file for the tree
- or document, but only if there is no <code>Title</code> element in the document already</p></dd><dt class="param">bookmarkDepth</dt><dd class="cmt"><p>the number of levels bookmarks should be generated for, use 0 to switch off bookmark generation</p></dd><dt class="param">tocDepth</dt><dd class="cmt"><p>the number of levels to generate a table of contents for, use 0 to switch off toc generation</p></dd><dt class="param">tocTitle</dt><dd class="cmt"><p>the title for the table of contents</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">bookmarkDepth</dt><dd class="cmt"><p>the number of levels bookmarks should be generated for, use 0 to switch off bookmark generation</p></dd><dt class="param">tocDepth</dt><dd class="cmt"><p>the number of levels to generate a table of contents for, use 0 to switch off toc generation</p></dd><dt class="param">tocTitle</dt><dd class="cmt"><p>the title for the table of contents</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -566,9 +568,9 @@ factory is specified.</p>
  method may get overridden.
 </p></div><dl class="paramcmts block"><dt class="param">tree</dt><dd class="cmt"><p>the document tree serving as input for the renderer</p></dd><dt class="param">render</dt><dd class="cmt"><p>the actual render function for producing the XSL-FO output</p></dd><dt>returns</dt><dd class="cmt"><p>the rendered XSL-FO as a String</p></dd></dl><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd><dt>Definition Classes</dt><dd><a href="PDF.html" class="extype" name="laika.format.PDF">PDF</a></dd></dl></div>
     </li><li name="laika.format.PDF#renderPDF" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="renderPDF(foInput:laika.io.Input,output:laika.io.Output.BinaryOutput,sourcePaths:Seq[String]):Unit"></a><a id="renderPDF(Input,BinaryOutput,Seq[String]):Unit"></a>
+      <a id="renderPDF(foInput:laika.io.Input,output:laika.io.Output.BinaryOutput,metadata:laika.ast.DocumentMetadata,title:Option[String],sourcePaths:Seq[String]):Unit"></a><a id="renderPDF(Input,BinaryOutput,DocumentMetadata,Option[String],Seq[String]):Unit"></a>
       <span class="permalink">
-      <a href="../../laika/format/PDF$.html#renderPDF(foInput:laika.io.Input,output:laika.io.Output.BinaryOutput,sourcePaths:Seq[String]):Unit" title="Permalink">
+      <a href="../../laika/format/PDF$.html#renderPDF(foInput:laika.io.Input,output:laika.io.Output.BinaryOutput,metadata:laika.ast.DocumentMetadata,title:Option[String],sourcePaths:Seq[String]):Unit" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -577,7 +579,7 @@ factory is specified.</p>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">renderPDF</span><span class="params">(<span name="foInput">foInput: <a href="../io/Input.html" class="extype" name="laika.io.Input">Input</a></span>, <span name="output">output: <a href="../io/Output$$BinaryOutput.html" class="extype" name="laika.io.Output.BinaryOutput">BinaryOutput</a></span>, <span name="sourcePaths">sourcePaths: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Nil</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+        <span class="name">renderPDF</span><span class="params">(<span name="foInput">foInput: <a href="../io/Input.html" class="extype" name="laika.io.Input">Input</a></span>, <span name="output">output: <a href="../io/Output$$BinaryOutput.html" class="extype" name="laika.io.Output.BinaryOutput">BinaryOutput</a></span>, <span name="metadata">metadata: <a href="../ast/DocumentMetadata.html" class="extype" name="laika.ast.DocumentMetadata">DocumentMetadata</a></span>, <span name="title">title: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="sourcePaths">sourcePaths: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Nil</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
       </span>
       
       <p class="shortcomment cmt">Render the given XSL-FO input as a PDF to the specified
@@ -585,7 +587,7 @@ factory is specified.</p>
  binary output. The optional <code>sourcePaths</code> argument
  may be used to allow resolving relative paths for
  loading external files like images.
-</p></div><dl class="paramcmts block"><dt class="param">foInput</dt><dd class="cmt"><p>the input in XSL-FO format</p></dd><dt class="param">output</dt><dd class="cmt"><p>the output to write the final result to</p></dd><dt class="param">sourcePaths</dt><dd class="cmt"><p>the paths that may contain files like images
+</p></div><dl class="paramcmts block"><dt class="param">foInput</dt><dd class="cmt"><p>the input in XSL-FO format</p></dd><dt class="param">output</dt><dd class="cmt"><p>the output to write the final result to</p></dd><dt class="param">metadata</dt><dd class="cmt"><p>the metadata associated with the PDF</p></dd><dt class="param">title</dt><dd class="cmt"><p>the title of the document</p></dd><dt class="param">sourcePaths</dt><dd class="cmt"><p>the paths that may contain files like images
  which will be used to resolve relative paths</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="PDF.html" class="extype" name="laika.format.PDF">PDF</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a><a id="synchronized[T0](⇒T0):T0"></a>

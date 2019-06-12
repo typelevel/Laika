@@ -230,8 +230,8 @@ Render as HTML using { out =&gt;
           <li>
             <p>The <code>defaultStyles</code> allow you to customize the default CSS for a format. This
             is currently only processed for PDF, as it is the only format where Laika processes
-            the CSS and applies it to the render result. If you want to add CSS for HTML, add them
-            as static files instead, as Laika will just copy them over without processing them.</p>
+            the CSS and applies it to the render result. If you want to add CSS for HTML or EPUB, 
+            add them as static files instead, as Laika will just copy them over without processing them.</p>
           </li>
           <li>
             <p>The <code>staticDocuments</code> provides a collection of files to be copied over to the output
@@ -249,7 +249,7 @@ Render as HTML using { out =&gt;
 Transform.from(Markdown).to(HTML).using(MyExtensions)
   .fromFile(&quot;hello.md&quot;).toFile(&quot;hello.html&quot;)         </pre>
         <p>A theme is specific to a particular output format, separate instances need to be 
-        provided if you want to install themes for several formats like HTML and PDF.</p>      
+        provided if you want to install themes for several formats like HTML, PDF or EPUB.</p>      
 
       </div>
     </div>

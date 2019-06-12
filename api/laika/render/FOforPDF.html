@@ -101,6 +101,22 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../index.html" class="extype" name="laika">laika</a></dd></dl></div>
+    </li><li name="laika.render.epub" visbl="pub" class="indented3 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="epub"></a><a id="epub:epub"></a>
+      <span class="permalink">
+      <a href="../../laika/render/index.html#epub" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="epub/index.html"><span class="name">epub</span></a>
+      </span>
+      
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="index.html" class="extype" name="laika.render">render</a></dd></dl></div>
     </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="class" href="ASTRenderer.html" title="Default renderer implementation for the Formatted AST output format."></a>
@@ -300,10 +316,10 @@
       </span>
       
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
-    </li><li name="laika.render.FOforPDF#addTreeTitles" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="addTreeTitles(linksOnly:Boolean)(tree:laika.ast.DocumentTree):laika.ast.DocumentTree"></a><a id="addTreeTitles(Boolean)(DocumentTree):DocumentTree"></a>
+    </li><li name="laika.render.FOforPDF#addDocLinks" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="addDocLinks(tree:laika.ast.DocumentTree):laika.ast.DocumentTree"></a><a id="addDocLinks(DocumentTree):DocumentTree"></a>
       <span class="permalink">
-      <a href="../../laika/render/FOforPDF.html#addTreeTitles(linksOnly:Boolean)(tree:laika.ast.DocumentTree):laika.ast.DocumentTree" title="Permalink">
+      <a href="../../laika/render/FOforPDF.html#addDocLinks(tree:laika.ast.DocumentTree):laika.ast.DocumentTree" title="Permalink">
         <i class="material-icons"></i>
       </a>
     </span>
@@ -312,7 +328,27 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">addTreeTitles</span><span class="params">(<span name="linksOnly">linksOnly: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span name="tree">tree: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>
+        <span class="name">addDocLinks</span><span class="params">(<span name="tree">tree: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>
+      </span>
+      
+      <p class="shortcomment cmt">Adds title elements for each document in the specified
+ tree, including documents in subtrees.</p><div class="fullcomment"><div class="comment cmt"><p>Adds title elements for each document in the specified
+ tree, including documents in subtrees. Document titles will be obtained either
+ from a <code>Title</code> element in the document's content or from its configuration header.
+</p></div></div>
+    </li><li name="laika.render.FOforPDF#addTreeLinks" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="addTreeLinks(tree:laika.ast.DocumentTree):laika.ast.DocumentTree"></a><a id="addTreeLinks(DocumentTree):DocumentTree"></a>
+      <span class="permalink">
+      <a href="../../laika/render/FOforPDF.html#addTreeLinks(tree:laika.ast.DocumentTree):laika.ast.DocumentTree" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">addTreeLinks</span><span class="params">(<span name="tree">tree: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>
       </span>
       
       <p class="shortcomment cmt">Adds title elements for each tree and subtree in the specified
@@ -433,7 +469,7 @@
  bookmarks can stem from tree or subtree titles, document titles or
  document sections, depending on which recursion depth is configured.
  The configuration key for setting the recursion depth is <code>pdf.bookmarks.depth</code>.
-</p></div><dl class="paramcmts block"><dt class="param">root</dt><dd class="cmt"><p>the document tree to generate bookmarks for</p></dd><dt>returns</dt><dd class="cmt"><p>a fragment map containing the generated bookmarks</p></dd></dl></div>
+</p></div><dl class="paramcmts block"><dt class="param">root</dt><dd class="cmt"><p>the document tree to generate bookmarks for</p></dd><dt class="param">depth</dt><dd class="cmt"><p>the recursion depth through trees, documents and sections</p></dd><dt>returns</dt><dd class="cmt"><p>a fragment map containing the generated bookmarks</p></dd></dl></div>
     </li><li name="scala.AnyRef#getClass" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <span class="permalink">
@@ -506,26 +542,6 @@
                 <span class="name">@native</span><span class="args">()</span>
               
         </dd></dl></div>
-    </li><li name="laika.render.FOforPDF#insertDocTitles" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="insertDocTitles(linksOnly:Boolean)(tree:laika.ast.DocumentTree):laika.ast.DocumentTree"></a><a id="insertDocTitles(Boolean)(DocumentTree):DocumentTree"></a>
-      <span class="permalink">
-      <a href="../../laika/render/FOforPDF.html#insertDocTitles(linksOnly:Boolean)(tree:laika.ast.DocumentTree):laika.ast.DocumentTree" title="Permalink">
-        <i class="material-icons"></i>
-      </a>
-    </span>
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">insertDocTitles</span><span class="params">(<span name="linksOnly">linksOnly: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="params">(<span name="tree">tree: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>)</span><span class="result">: <a href="../ast/DocumentTree.html" class="extype" name="laika.ast.DocumentTree">DocumentTree</a></span>
-      </span>
-      
-      <p class="shortcomment cmt">Adds title elements for each document in the specified
- tree, including documents in subtrees.</p><div class="fullcomment"><div class="comment cmt"><p>Adds title elements for each document in the specified
- tree, including documents in subtrees. Document titles will be obtained either
- from a <code>Title</code> element in the document's content or from its configuration header.
-</p></div></div>
     </li><li name="laika.render.FOforPDF#insertToc" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="insertToc(tree:laika.ast.DocumentTree,depth:Int,title:Option[String]):laika.ast.DocumentTree"></a><a id="insertToc(DocumentTree,Int,Option[String]):DocumentTree"></a>
       <span class="permalink">

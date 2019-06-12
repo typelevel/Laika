@@ -137,6 +137,40 @@ doc.sections // Seq[SectionInfo]</pre>
         a table of contents, so you should not run Markdown in strict mode
         when you intend to use the <code>toc</code> directive.</p>
         
+        <h2 id="directory-structure" class="section">Directory Structure</h2>
+        <p>In contrast to many other tools Laika supports an arbitrarily deep directory structure
+        for organizing source files.</p>
+        <p>The most common scenarios are:</p>
+        <ul>
+          <li>
+            <p><strong>Single File</strong>: there is one input and one output file for all formats, which is a
+            convenient setup for very small sites and e-books. But note that in the case of EPUB
+            output, the EPUB container will also only contain one XHTML file which might have
+            a negative influence on loading speed of e-readers.</p>
+          </li>
+          <li>
+            <p><strong>One File per Chapter</strong>: Here each file would represent a chapter of the site or e-book.
+            In case of HTML each input markup file will correspond to one HTML file. For PDF the
+            inputs will get linearised into a single binary file. For EPUB each input file will
+            become a separate file inside the EPUB container. The files will form a single book
+            with linear navigation, but the division into smaller files may help with loading speed.</p>
+          </li>
+          <li>
+            <p><strong>One Directory per Chapter</strong>: For larger e-books and sites you can use an entire directory
+            for each chapter, where each file within those directories represents a section of that 
+            chapter. In this case you can optionally add a file with <code>title</code> as the basename (e.g. <code>title.md</code>)
+            to each directory that represents the introductory section of the corresponding chapter. 
+            It would also appears on a level above the other chapter documents in the navigation, 
+            serving as a section header and separator.</p>
+          </li>
+          <li>
+            <p><strong>One Directory per Book Part</strong>: For very large books you can also choose to have two layers
+            of directories, the first representing a larger part of the book and the lower layer
+            representing chapters within that part. This would also give you an additional layer of
+            nesting in the navigation.</p>
+          </li>
+        </ul>
+        
         <h2 id="document-fragments" class="section">Document Fragments</h2>
         <p>Fragments allow to keep some sections of your document separate, to be rendered
         in different locations of the output, like headers, footers or sidebars.</p>
@@ -271,10 +305,10 @@ doc.fragments // Map[String, Element]</pre>
         <ul>
           <li><code>directory.conf</code>: the configuration for this directory</li>
           <li><code>*.conf</code>: other configuration files (currently ignored)</li>
-          <li><code>default.template.html</code>: the default template to apply to documents
-          in this directory</li>
-          <li><code>*.template.html</code>: other templates that markup documents can
-          explicitly refer to</li>
+          <li><code>default.template.&lt;suffix&gt;</code>: the default template to apply to documents
+          in this directory, the suffix must match the output format of the transformation (e.g. <code>.html</code>)</li>
+          <li><code>*.template.&lt;suffix&gt;</code>: other templates that markup documents can
+          explicitly refer to, the suffix must match the output format of the transformation (e.g. <code>.html</code>)</li>
           <li><code>*.&lt;markup-suffix&gt;</code>: markup files with a suffix recognized
           by the parser in use, e.g. <code>.md</code> or <code>.markdown</code> for Markdown
           and <code>.rst</code> for reStructuredText</li>

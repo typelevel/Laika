@@ -71,7 +71,7 @@
         <div class="page-header">
           <h1>Supported Output Formats</h1>
         </div>
-        <p>The current release supports HTML, PDF, XSL-FO and AST.
+        <p>The current release supports HTML, EPUB, PDF, XSL-FO and AST.
         Rendering happens from a generic document tree model shared between all parsers,
         so that no renderer implementation has to understand specifics about a concrete
         markup syntax like Markdown or reStructuredText.</p>
@@ -121,7 +121,7 @@ Render as HTML from document toFile &quot;hello.html&quot;
         in those directories. You can optionally override the template for an individual
         sub-directory simply by including a different template named <code>default.template.html</code>
         in that sub-directory.</p>
-        <p>See <a href="templates.html#templates">Templates</a> for more details.</p>
+        <p>See [Templates] for more details.</p>
         
         <h3 id="html-renderer-properties" class="section">HTML Renderer Properties</h3>
         <p>The <code>unformatted</code> property tells the renderer to omit any formatting (line breaks or indentation) 
@@ -158,6 +158,95 @@ Transform from Markdown to HTML rendering { out =&gt;
         styling with CSS.</p>
         <p>See <a href="../customizing-laika/customize-rendering.html#customizing-renderers">Customizing Renderers</a> for more details.</p>
         
+        <h2 id="epub" class="section">EPUB</h2>
+        <p>Since version 0.11.0 Laika support the generation of e-books in the EPUB format.
+        Similar to the PDF export, it allows you to transform an entire directory with
+        text markup, CSS, image and font files into a single EPUB container.</p>
+        <p>The EPUB renderer can be used with the <code>Transform</code> or <code>Render</code> APIs:</p>
+        <pre>Transform from Markdown to EPUB fromDirectory &quot;src&quot; toFile &quot;out.epub&quot;
+
+val tree: DocumentTree = Parse as Markdown fromDirectory &quot;src&quot;
+Render as EPUB from tree toFile &quot;out.epub&quot;</pre>
+        <p>See <a href="embedded.html#using-laika-embedded">Using Laika Embedded</a> for more details on these APIs.</p>
+        <p>If you are using the sbt plugin you can use several of its task for generating
+        EPUB files:</p>
+        <ul>
+          <li><code>laikaEPUB</code> for transforming a directory of input files to a single PDF file</li>
+          <li><code>laikaGenerate epub &lt;other formats&gt;</code> for transforming a directory of input files to PDF
+          and other output formats with a single parse operation</li>
+          <li><code>laikaSite</code> for generating a site optionally containing API documentation (scaladoc) and
+          PDF and/or EPUB files.</li>
+        </ul>
+        <p>See <a href="sbt.html#using-the-sbt-plugin">Using the sbt Plugin</a> for more details.</p>
+        
+        <h3 id="epub-directory-structure" class="section">EPUB Directory Structure</h3>
+        <p>The structure of the generated EPUB file will exactly mirror the structure of the
+        input directory, apart from the additional metadata files it needs to generate.
+        This means that the file size of the resulting HTML documents inside the EPUB container
+        will roughly correspond to the size of the text markup documents used as input.
+        For that reason it is recommended to split the input into multiple files to avoid
+        large files which might slow down the experience in the e-book reader.</p>
+        <p>Laika supports a directory structure with sub-directories of any depth. Since EPUB
+        requires a linear spine to be defined for its navigation order, the transformer
+        will produce a spine that corresponds to a depth-first traversal of you input directories.</p>
+        
+        <h3 id="css-for-epub" class="section">CSS for EPUB</h3>
+        <p>Since content files for EPUB are standard XHMTL files (apart from optional EPUB-specific attributes), you
+        can style your e-books with standard CSS. It is sufficient to simply place all CSS into the input directory,
+        alongside the text markup and other file types. References to these CSS files will be automatically added
+        to the header section of all generated HTML files. When referencing images or fonts from your CSS files,
+        you can use relative paths, as the directory layout will be retained inside the EPUB container.</p>
+        
+        <h3 id="images-fonts-and-other-file-types" class="section">Images, Fonts and other File Types</h3>
+        <p>You can also place images, fonts and other supported file types into the input directory.
+        Laika will add these files to the generated EPUB container and metadata files.</p>
+        <p>The supported file types / suffixes are:</p>
+        <ul>
+          <li>Images: <code>jpg</code>, <code>jpeg</code>, <code>gif</code>, <code>png</code>, <code>svg</code></li>
+          <li>Audio: <code>mp3</code>, <code>mp4</code></li>
+          <li>HTML: <code>html</code>, <code>xhtml</code></li>
+          <li>JavaScript: <code>js</code></li>
+          <li>CSS: <code>css</code> <br></li>
+          <li>Fonts: <code>woff2</code>, <code>woff</code>, <code>ttf</code>, <code>otf</code> </li>
+        </ul>
+        
+        <h3 id="epub-xhtml-templates" class="section">EPUB XHTML Templates</h3>
+        <p>Like the HTML renderer, the EPUB renderer supports templating. EPUB requires XHTML as the output
+        format and also may contain custom attributes specific to EPUB. Therefore they are handled separately
+        from regular HTML templates and are recognised by the suffix <code>.epub.xhtml</code>. </p>
+        <p>You can have a look at the <a href="https://github.com/planet42/Laika/blob/master/core/src/main/resources/templates/default.template.epub.xhtml">default EPUB XHTML template</a> used 
+        by the EPUB renderer for reference.</p>
+        <p>You can override it if required by saving a custom template in a file called 
+        <code>default.template.epub.xhtml</code> in the root directory of your input sources.</p>
+        
+        <h3 id="configuration" class="section">Configuration</h3>
+        <p>There are several configuration options for EPUB generation that can be set
+        in the file <code>directory.conf</code> in the root directory of your input sources:</p>
+        <pre>epub {
+  toc.depth = 3
+  toc.title = &quot;Contents&quot;
+  coverImage = &quot;cover.png&quot;
+}  
+metadata {
+  identifier = &quot;urn:isbn:978-3-16-148410-0&quot;
+  date = &quot;2018-01-01T12:00:00Z&quot;
+  language = &quot;en:GB&quot;
+  author = &quot;Mia Miller&quot;
+}</pre>
+        <p>These properties control the following aspects of the rendering:</p>
+        <ul>
+          <li><code>toc.depth</code> the number of levels to generate a table of contents for. 
+          Every level of the tree hierarchy will be considered for an entry in the table 
+          of contents: directories, files and sections within files.
+          The default value is <code>Int.MaxValue</code>.</li>
+          <li><code>toc.title</code> specifies the title for the table of contents. The default value is <code>Contents</code>.</li>
+          <li><code>coverImage</code> specifies the cover image for the book</li>
+          <li><code>metadata</code> specifies document metadata to be added to the container configuration. Three of the 
+          properties are mandatory, but Laika will use sensible defaults if they are not set explicitly
+          (a random UUID for the identifier, the current time and the language of the Locale of the JVM process)</li>
+        </ul>
+        <p>For more details on these features see <a href="structure.html#document-structure">Document Structure</a>.</p>
+        
         <h2 id="pdf" class="section">PDF</h2>
         <p>The PDF support in Laika does not require installation of external tools as it
         is not based on LaTeX like many other PDF renderers. To follow Laika&#39;s general
@@ -168,7 +257,7 @@ Transform from Markdown to HTML rendering { out =&gt;
         plan to use Laika&#39;s PDF support embedded in live application it is recommended
         to first do performance and load testing.</p>
         <p>Using the PDF renderer requires to add another dependency to your build:</p>
-        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-pdf&quot; % &quot;0.10.0&quot;</pre>
+        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-pdf&quot; % &quot;0.11.0&quot;</pre>
         <p>The PDF renderer can then be used with the <code>Transform</code> or <code>Render</code> APIs:</p>
         <pre>Transform from Markdown to PDF fromDirectory &quot;src&quot; toFile &quot;out.pdf&quot;
 
@@ -265,20 +354,19 @@ Render as PDF from tree toFile &quot;out.pdf&quot;</pre>
           <li><code>Element1+Element2</code> or <code>Element1~Element2</code> for selecting based on sibling elements</li>
         </ul>
         
-        <h3 id="configuration" class="section">Configuration</h3>
+        <h3 id="configuration-1" class="section">Configuration</h3>
         <p>There are several configuration options for PDF rendering that can be set
         either in the file <code>directory.conf</code> in the root directory of your input sources
         or programmatically on the <code>PDF</code> renderer.</p>
         <p>In <code>directory.conf</code> you can set the following options:</p>
         <pre>pdf {
-  insertTitles = false
   bookmarks.depth = 3
   toc.depth = 3
   toc.title = &quot;Contents&quot;
+  coverImage = &quot;cover.png&quot;
 }  </pre>
         <p>The same options are available programmatically through the <code>withConfig</code> method on the <code>PDF</code> renderer:</p>
         <pre>val config = PDFConfig(
-  insertTitles = false, 
   bookmarkDepth = 3,
   tocDepth = 3,
   tocTitle = Some(&quot;Contents&quot;)
@@ -288,30 +376,18 @@ Transform from Markdown to PDF.withConfig(config) fromDirectory
   &quot;source&quot; toFile &quot;out.pdf&quot;</pre>
         <p>These properties control the following aspects of the rendering:</p>
         <ul>
-          <li><code>insertTitles</code> inserts a title per directory and markup file into the document to give it more
-          structure, since all documents get merged into a single target PDF. Tree titles can
-          be set per directory with the <code>title</code> attribute in the file <code>directory.conf</code>, document titles
-          in the configuration header of the markup document, unless there is already a title element
-          in the content of the document. The default value is <code>true</code>.</li>
           <li><code>bookmarkDepth</code> the number of levels bookmarks should be generated for, 
           you can use 0 to switch off bookmark generation entirely. Every level of the tree hierarchy will
           be considered for a bookmark entry: directories, files and sections within files.
           The default value is <code>Int.MaxValue</code>.</li>
-          <li><code>tocDepth</code> the number of levels to generate a table of contents for, 
+          <li><code>toc.depth</code> the number of levels to generate a table of contents for, 
           you can use 0 to switch off toc generation entirely. Every level of the tree hierarchy will
           be considered for an entry in the table of contents: directories, files and sections within files.
           The default value is <code>Int.MaxValue</code>.</li>
-          <li><code>tocTitle</code> specifies the title for the table of contents. The default value is <code>None</code>.</li>
+          <li><code>toc.title</code> specifies the title for the table of contents. The default value is <code>None</code>.</li>
+          <li><code>coverImage</code> specifies the cover image for the book</li>
         </ul>
         <p>For more details on these features see <a href="structure.html#document-structure">Document Structure</a>.</p>
-        <p>Finally, the <code>withMessageLevel</code> property instructs the renderer to include system messages in the
-        generated PDF. Messages may get inserted into the document tree for problems during
-        parsing or reference resolution, e.g. an internal link to a destination that does not
-        exist. By default these messages are not included in the output. They are mostly useful
-        for testing and debugging, or for providing feedback to application users producing 
-        markup input:</p>
-        <pre>Transform from Markdown to PDF.withMessageLevel(Warning) fromDirectory 
-  &quot;source&quot; toFile &quot;out.pdf&quot;</pre>
         
         <h4 id="customizing-apache-fop" class="section">Customizing Apache FOP</h4>
         <p>Rendering a PDF file is (roughly) a 3-step process:</p>

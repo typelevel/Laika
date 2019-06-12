@@ -254,6 +254,10 @@
                         <a class="class" href="DocumentFragment.html" title="A named document fragment that usually gets rendered separately from the main root element"></a>
                         <a href="DocumentFragment.html" title="A named document fragment that usually gets rendered separately from the main root element">DocumentFragment</a>
                       </li><li class="current-entities indented2">
+                        <a class="object" href="DocumentMetadata$.html" title=""></a>
+                        <a class="class" href="DocumentMetadata.html" title="Metadata associated with a document."></a>
+                        <a href="DocumentMetadata.html" title="Metadata associated with a document.">DocumentMetadata</a>
+                      </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="DocumentStructure.html" title="The structure of a markup document."></a>
                         <a href="DocumentStructure.html" title="The structure of a markup document.">DocumentStructure</a>
@@ -933,6 +937,22 @@ get applied to a document when it gets rendered.</p>
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="laika.ast.TreeStructure#contentAfterTitle" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="contentAfterTitle:Seq[laika.ast.TreeContent]"></a><a id="contentAfterTitle:Seq[TreeContent]"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/TreeStructure.html#contentAfterTitle:Seq[laika.ast.TreeContent]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">contentAfterTitle</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="TreeContent.html" class="extype" name="laika.ast.TreeContent">TreeContent</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">The content after the title document, if present.</p>
     </li><li name="scala.AnyRef#eq" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a><a id="eq(AnyRef):Boolean"></a>
       <span class="permalink">
@@ -1254,6 +1274,26 @@ in the document tree.</p>
       </span>
       
       <p class="shortcomment cmt">The title of this tree, obtained from configuration.</p>
+    </li><li name="laika.ast.TreeStructure#titleDocument" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="titleDocument:Option[laika.ast.Document]"></a><a id="titleDocument:Option[Document]"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/TreeStructure.html#titleDocument:Option[laika.ast.Document]" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">titleDocument</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="Document.html" class="extype" name="laika.ast.Document">Document</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">The title document for this tree, if present.</p><div class="fullcomment"><div class="comment cmt"><p>The title document for this tree, if present.</p><p>A document with the base name <code>title</code> and the corresponding
+suffix for the input markup, e.g. <code>title.md</code> for Markdown,
+can be used as an introductory section for a chapter represented
+by a directory tree.
+</p></div></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <span class="permalink">

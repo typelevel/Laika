@@ -682,6 +682,28 @@ which map directly to a File.</p>
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="laika.io.IO#zipEPUB" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="zipEPUB(inputs:Seq[laika.io.Inputwithlaika.io.Input.Binary],output:laika.io.Output.BinaryOutput):Unit"></a><a id="zipEPUB(Seq[InputwithBinary],BinaryOutput):Unit"></a>
+      <span class="permalink">
+      <a href="../../laika/io/IO$.html#zipEPUB(inputs:Seq[laika.io.Inputwithlaika.io.Input.Binary],output:laika.io.Output.BinaryOutput):Unit" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">zipEPUB</span><span class="params">(<span name="inputs">inputs: <span class="extype" name="scala.Seq">Seq</span>[<a href="Input.html" class="extype" name="laika.io.Input">Input</a> with <a href="Input$$Binary.html" class="extype" name="laika.io.Input.Binary">Binary</a>]</span>, <span name="output">output: <a href="Output$$BinaryOutput.html" class="extype" name="laika.io.Output.BinaryOutput">BinaryOutput</a></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Writes an EPUB Zip file to the specified output.</p><div class="fullcomment"><div class="comment cmt"><p>Writes an EPUB Zip file to the specified output.
+The virtual path of the given inputs will also become the path within
+the Zip container.
+The implementation follows the EPUB specification in that the first
+file (called <code>mimeType</code>) is written uncompressed. Hence this is not
+a generic zip utility as the method name suggests.
+</p></div></div>
     </li>
               </ol>
             </div>

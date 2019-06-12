@@ -77,9 +77,11 @@
         parts of the manual apply to both embedded use and sbt plugin.</p>
         
         <h2 id="adding-the-plugin-to-the-build" class="section">Adding the Plugin to the Build</h2>
-        <p>Laika&#39;s sbt plugin requires sbt 0.13.x.</p>
+        <p>Laika&#39;s sbt plugin requires sbt 1.x.</p>
+        <p>If you still need to use sbt 0.13.x, you can use Laika 0.7.0 which was the last release
+        supporting that sbt version.</p>
         <p>First add the plugin to <code>project/plugins.sbt</code>:</p>
-        <pre>addSbtPlugin(&quot;org.planet42&quot; % &quot;laika-sbt&quot; % &quot;0.10.0&quot;)</pre>
+        <pre>addSbtPlugin(&quot;org.planet42&quot; % &quot;laika-sbt&quot; % &quot;0.11.0&quot;)</pre>
         <p>If you want to install it globally, add the line above to
         <code>~/.sbt/1.0/plugins/build.sbt</code> instead.</p>
         <p>Then enable the plugin in your project&#39;s <code>build.sbt</code>:</p>
@@ -111,8 +113,8 @@
           <li>
             <p>A template file <code>default.template.&lt;format&gt;</code> that gets applied to all markup files in 
             this directory (and its subdirectories unless overridden). The suffix may be any
-            output format in Laika that supports templating, currently this is <code>.html</code> for HTML
-            output and <code>.fo</code> for PDF or XSL-FO output. A very basic HTML template may look 
+            output format in Laika that supports templating, currently this is <code>.html</code> for HTML,
+            <code>.epub.xhtml</code> for EPUB and <code>.fo</code> for PDF or XSL-FO output. A very basic HTML template may look 
             like this:</p>
             <pre>&lt;html&gt;
   &lt;head&gt;
@@ -131,7 +133,7 @@
             <p>Other static files that simply get copied to the target directory.</p>
           </li>
         </ul>
-        <p>For more details on the template engine, see the chapter <a href="templates.html#templates">Templates</a>.</p>
+        <p>For more details on the template engine, see the chapter [Templates].</p>
         <p>For features like titles, sections, cross-linking, auto-numbering, 
         document order and tables of content, see the chapter <a href="structure.html#document-structure">Document Structure</a>.</p>
         <p>For details about Markdown and reStructuredText see the chapter
@@ -163,16 +165,15 @@
           <li>
             <p><code>laikaGenerate</code>
             Generates the output format specified as arguments to this task.
-            For example <code>laikaGenerate html pdf</code> generates an HTML site as well
-            as a PDF file from the parsed source markup. The markup will only
+            For example <code>laikaGenerate html epub pdf</code> generates an HTML site as well
+            as an EPUB and a PDF file from the parsed source markup. The markup will only
             get parsed once, therefore this task is very efficient for producing
             multiple output formats. The formats supported as arguments to this
-            task are <code>html</code>, <code>pdf</code>, <code>xslfo</code> and <code>ast</code>. If you only want
-            to generate one output format there are shortcut tasks for each of them:
-            (<code>laikaHTML</code>, <code>laikaPDF</code>, <code>laikaXSLFO</code>, <code>laikaAST</code>)</p>
+            task are <code>html</code>, <code>epub</code>, pdf<code>,</code>xslfo<code>and</code>ast<code>. If you only want
+to generate one output format there are shortcut tasks for each of them:
+(</code>laikaHTML<code>,</code>laikaEPUB<code>,</code>laikaPDF<code>,</code>laikaXSLFO<code>,</code>laikaAST`)</p>
           </li>
         </ul>
-        <p>A future version of the plugin will add support for epub (scheduled for the 0.10 release).</p>
         <p>The default settings for these tasks should be sufficient for many use cases.
         The following sections show how you can override the defaults. </p>
         
@@ -223,9 +224,14 @@
             The folder for the API can be set with <code>target in copyAPI</code> (default <code>target/docs/site/api</code>).</p>
           </li>
           <li>
+            <p><code>laikaIncludeEPUB</code> - <code>Boolean</code> - default <code>false</code>
+            Indicates whether a generated EPUB file should be included when running the <code>laikaSite</code> task.
+            The file name for the EPUB can be set with <code>artifact in laikaEPUB</code> (default <code>target/docs/site/&lt;noduleName&gt;-&lt;version&gt;.epub</code>).</p>
+          </li>
+          <li>
             <p><code>laikaIncludePDF</code> - <code>Boolean</code> - default <code>false</code>
             Indicates whether a generated PDF file should be included when running the <code>laikaSite</code> task.
-            The file name for the PDF can be set with <code>artifact in pdf</code> (default <code>target/docs/site/&lt;noduleName&gt;-&lt;version&gt;.pdf</code>).</p>
+            The file name for the PDF can be set with <code>artifact in laikaPDF</code> (default <code>target/docs/site/&lt;noduleName&gt;-&lt;version&gt;.pdf</code>).</p>
           </li>
         </ul>
         
@@ -255,6 +261,8 @@
         <p>Similarly the <code>laikaFoRenderer</code> shortcut can be used to add a custom <code>XSL-FO</code> renderer 
         of type <code>FOWriter =&gt; RenderFunction</code>. <code>XSL-FO</code> is an interim format for PDF output,
         so this option would also allow to change the appearance of PDF documents.</p>
+        <p>For EPUB the <code>laikaEpubRenderer</code> can be used to add a custom XHMTL renderer of type
+        <code>HTMLWriter =&gt; RenderFunction</code>. </p>
         
         <h3 id="custom-rewrite-rules" class="section">Custom Rewrite Rules</h3>
         <p>When customizing renderers you have to repeat the step for each output format like HTML or PDF 

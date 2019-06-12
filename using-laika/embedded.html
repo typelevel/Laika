@@ -147,15 +147,15 @@ res0: java.lang.String = Document - Blocks: 1
   HTML fromDirectory &quot;source&quot; toDirectory &quot;target&quot;</pre>
         <p>The parser will pick up any document with a recognized suffix (<code>.md</code> or <code>.markdown</code>
         for Markdown, <code>.rst</code> for reStructuredText).</p>
-        <p>When transforming to PDF, a directory of input files will get merged 
-        into a single PDF document:</p>
+        <p>When transforming to EPUB or PDF, a directory of input files will get merged 
+        into a single document:</p>
         <pre>Transform from Markdown to 
-  PDF fromDirectory &quot;source&quot; toFile &quot;target.pdf&quot;</pre>
+  EPUB fromDirectory &quot;source&quot; toFile &quot;target.epub&quot;</pre>
         
-        <h3 id="html-templates" class="section">HTML Templates</h3>
+        <h3 id="templates" class="section">Templates</h3>
         <p>The directories that contain the markup documents can optionally contain
         templates that get applied to the parsed documents. A very basic template
-        may look like this:</p>
+        for HTML output may look like this:</p>
         <pre>&lt;html&gt;
   &lt;head&gt;
     &lt;title&gt;{{document.title}}&lt;/title&gt;
@@ -170,11 +170,13 @@ res0: java.lang.String = Document - Blocks: 1
         <p>The two placeholders enclosed in double curly braces will be replaced with the
         title and content of the parsed markup document. Everything else will be copied
         to the final document unchanged.</p>
-        <p>Every directory can contain a file with the name <code>default.template.html</code> that
+        <p>Every directory can contain a file with the name <code>default.template.&lt;suffix&gt;</code> that
         automatically gets applied to all documents in that directory and its subdirectories,
         unless overridden in a subdirectory. There are also ways to manually declare a
         template for a specific markup document only. </p>
-        <p>For more details on the template engine, see the chapter <a href="templates.html#templates">Templates</a>.</p>
+        <p>The suffix must match the output format of the transformation, e.g. <code>.html</code> for HTML,
+        <code>.fo</code> for PDF (as it renders via XSL-FO) and <code>.epub.xhtml</code> for EPUB.</p>
+        <p>For more details on the template engine, see the chapter <a href="#templates">Templates</a>.</p>
         <p>For features like titles, sections, cross-linking, auto-numbering 
         and tables of content, see the chapter <a href="structure.html#document-structure">Document Structure</a>.</p>
         
@@ -198,8 +200,8 @@ res0: java.lang.String = Document - Blocks: 1
         <code>.md</code> and <code>.markdown</code> files get parsed by the Markdown parser, <code>.rst</code>
         files by the reStructuredText parser.</p>
         <p>All you have to do is pass both parsers to the API:</p>
-        <pre>Transform from Markdown or ReStructuredText to 
-  PDF fromDirectory &quot;source&quot; toFile &quot;target.pdf&quot;</pre>
+        <pre>Transform.from(Markdown).or(ReStructuredText).to(PDF)
+  .fromDirectory(&quot;source&quot;).toFile(&quot;target.pdf&quot;)</pre>
         
         <h3 id="parallel-execution" class="section">Parallel Execution</h3>
         <p>When transforming a large number of files you may want to run the operations

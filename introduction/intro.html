@@ -87,14 +87,15 @@
         you can read about her <a href="http://en.wikipedia.org/wiki/Laika">here</a>.</p>
         
         <h2 id="getting-started" class="section">Getting Started</h2>
-        <p>The current version is published to Maven Central for Scala 2.12 and 2.11.</p>
+        <p>The current version is published to Maven Central for Scala 2.13 and 2.12.</p>
         <p>The sbt plugin is published to the sbt plugin repository for sbt 1.x.</p>
         <p>If you still need to work with sbt 0.13 and/or Scala 2.10 you need to stay on Laika 0.7.0
         which had been the final release supporting those versions.</p>
+        <p>The last release for Scala 2.11 had been 0.10.0.</p>
         
         <h3 id="using-the-sbt-plugin" class="section">Using the sbt Plugin</h3>
         <p>Add the plugin to <code>project/plugins.sbt</code>:</p>
-        <pre>addSbtPlugin(&quot;org.planet42&quot; % &quot;laika-sbt&quot; % &quot;0.10.0&quot;)</pre>
+        <pre>addSbtPlugin(&quot;org.planet42&quot; % &quot;laika-sbt&quot; % &quot;0.11.0&quot;)</pre>
         <p>Enable the plugin in your project&#39;s <code>build.sbt</code>:</p>
         <pre>enablePlugins(LaikaPlugin)
 </pre>
@@ -104,7 +105,7 @@
         
         <h3 id="using-laika-embedded" class="section">Using Laika Embedded</h3>
         <p>Adding the Laika dependency to your sbt build:</p>
-        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-core&quot; % &quot;0.10.0&quot;</pre>
+        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-core&quot; % &quot;0.11.0&quot;</pre>
         <p>Example for transforming from file to file:</p>
         <pre>Transform from Markdown to HTML fromFile &quot;hello.md&quot; toFile &quot;hello.html&quot;</pre>
         <p>Example for transforming an entire directory of markup files:</p>
@@ -114,7 +115,7 @@
         <pre>Transform from Markdown to PDF fromDirectory &quot;src&quot; toFile &quot;hello.pdf&quot;
 </pre>
         <p>When using Laika&#39;s PDF support you need to add one more dependency to your build:</p>
-        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-pdf&quot; % &quot;0.10.0&quot;</pre>
+        <pre>libraryDependencies += &quot;org.planet42&quot; %% &quot;laika-pdf&quot; % &quot;0.11.0&quot;</pre>
         
         <h3 id="other-resources" class="section">Other Resources</h3>
         <ul>
@@ -152,7 +153,7 @@
             <p>Support for Markdown (incl. GitHub Flavored Markdown) and reStructuredText as input</p>
           </li>
           <li>
-            <p>Support for HTML, PDF, XSL-FO and AST (for debugging) as output</p>
+            <p>Support for HTML, EPUB, PDF, XSL-FO and AST (for debugging) as output</p>
           </li>
           <li>
             <p>Template-based Site and Book Generation</p>
@@ -204,16 +205,13 @@
         <h2 id="road-map" class="section">Road Map</h2>
         <ul>
           <li>
-            <p><strong>0.11</strong>: Support for output in the epub format</p>
+            <p><strong>0.12</strong>: Library API: integration with cats-effect and improved referential transparency</p>
           </li>
           <li>
-            <p><strong>0.12</strong>: Integrated support for syntax highlighting in source code</p>
+            <p><strong>0.13</strong>: (tentative) Support for Scala.js</p>
           </li>
           <li>
-            <p><strong>0.13</strong>: Library API: integration with cats-effect and improved referential transparency</p>
-          </li>
-          <li>
-            <p><strong>0.14</strong>: Library API (tentative): support for Scala.js</p>
+            <p><strong>0.14</strong>: Integrated support for syntax highlighting in source code</p>
           </li>
           <li>
             <p><strong>0.15</strong>: Include a set of default themes for all output formats</p>
@@ -225,6 +223,19 @@
         
         <h2 id="release-history" class="section">Release History</h2>
         <ul>
+          <li>
+            <p><strong>0.11.0</strong> (June 12, 2019):</p>
+            <ul>
+              <li>New Renderer for producing EPUB containers</li>
+              <li>New <code>laikaEPUB</code> task in the sbt plugin</li>
+              <li>New <code>laikaIncludeEPUB</code> setting for the <code>laikaSite</code> task</li>
+              <li>Support for cover images for EPUB and PDF</li>
+              <li>Support for document metadata (author, language, date, etc.) for EPUB and PDF</li>
+              <li>Support for title pages per chapter</li>
+              <li>Backwards-compatible to 0.9.0 and 0.10.0 - if you update from earlier version, please see
+              the release notes for 0.9.0 for migration</li>
+            </ul>
+          </li>
           <li>
             <p><strong>0.10.0</strong> (Dec 1, 2018):</p>
             <ul>

@@ -219,6 +219,10 @@
                         <a href="AST$.html" title="A renderer for AST output (a formatted Abstract Syntax Tree), primarily useful for debugging purposes.">AST</a>
                       </li><li class="current-entities indented2">
                         <span class="separator"></span>
+                        <a class="object" href="EPUB$.html" title="A post processor for EPUB output, based on an interim HTML renderer."></a>
+                        <a href="EPUB$.html" title="A post processor for EPUB output, based on an interim HTML renderer.">EPUB</a>
+                      </li><li class="current-entities indented2">
+                        <span class="separator"></span>
                         <a class="object" href="HTML$.html" title="A render format for HTML output."></a>
                         <a href="HTML$.html" title="A render format for HTML output.">HTML</a>
                       </li><li class="current-entities indented2">
@@ -445,6 +449,28 @@ Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span>
  May be directly passed to the <code>Render</code> or <code>Transform</code> APIs:</p><pre>Render as AST from document toString
 
 Transform from Markdown to AST fromFile <span class="lit">"hello.md"</span> toConsole</pre></div></div>
+    </li><li name="laika.format.EPUB" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="EPUB"></a><a id="EPUB:EPUB"></a>
+      <span class="permalink">
+      <a href="../../laika/format/index.html#EPUB" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="A post processor for EPUB output, based on an interim HTML renderer." href="EPUB$.html"><span class="name">EPUB</span></a><span class="result"> extends <a href="../factory/RenderResultProcessor.html" class="extype" name="laika.factory.RenderResultProcessor">RenderResultProcessor</a>[<a href="../render/HTMLWriter.html" class="extype" name="laika.render.HTMLWriter">HTMLWriter</a>]</span>
+      </span>
+      
+      <p class="shortcomment cmt">A post processor for EPUB output, based on an interim HTML renderer.</p><div class="fullcomment"><div class="comment cmt"><p>A post processor for EPUB output, based on an interim HTML renderer.
+ May be directly passed to the <code>Render</code> or <code>Transform</code> APIs:</p><pre><span class="kw">val</span> document: Document = ...
+Render as EPUB from document toFile <span class="lit">"hello.epub"</span>
+
+Transform from Markdown to PDF fromDirectory <span class="lit">"book-src"</span> toFile <span class="lit">"book.epub"</span></pre><p> In the second example above the input from an entire directory gets
+ merged into a single output file.
+</p></div></div>
     </li><li name="laika.format.HTML" visbl="pub" class="indented0 " data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="HTML"></a><a id="HTML:HTML"></a>
       <span class="permalink">

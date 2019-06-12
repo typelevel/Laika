@@ -173,7 +173,7 @@
           here</li>
           <li>
             <code>config</code>: let&#39;s you access any configuration variable, e.g. 
-            referes to the scope attribute from the template example at the beginning of this section.
+            refers to the scope attribute from the template example at the beginning of this section.
             You can refer to configuration entries from any of the following sources (which the
             resolver will try in this order):
             <ul>
@@ -219,11 +219,11 @@
         <p>There are two simple options for specifying which template to use:</p>
         
         <h3 id="default-template-per-directory" class="section">Default Template per Directory</h3>
-        <p>The most convenient way is to simply add a file with the name <code>default.template.html</code>
-        to the directory containing your text markup documents. This template is then used
-        for all documents in this directory and its subdirectories, unless it is overridden
-        by either a different default template in one of the subdirectories or by explicitly
-        specifying a template in one of the text markup documents.</p>
+        <p>The most convenient way is to simply add a file with the name <code>default.template.&lt;suffix&gt;</code>
+        (e.g. <code>default.template.html</code>) to the directory containing your text markup documents. 
+        This template is then used for all documents in this directory and its subdirectories, 
+        unless it is overridden by either a different default template in one of the 
+        subdirectories or by explicitly specifying a template in one of the text markup documents.</p>
         
         <h3 id="explicit-template-per-document" class="section">Explicit Template per Document</h3>
         <p>Alternatively (or in addition to default templates) you can explicitly specify a template
@@ -235,9 +235,8 @@
         <p>This will override any default template for the directory. The path is relative to the
         document, but has to be somewhere below the root directory processed by Laika, as
         templates are parsed and cached upfront, before getting applied to documents.</p>
-        <p>All templates must have the suffix <code>.template.html</code>.</p>
-        <p>This also means that you should not have too many unused templates inside these
-        directories, as they will get parsed nevertheless.</p>
+        <p>All templates must have the suffix <code>.template.&lt;suffix&gt;</code> where the suffix matches
+        the output format of the transformation operation, e.g. <code>.template.html</code>.</p>
         
         <h2 id="standard-template-directives" class="section">Standard Template Directives</h2>
         <p>Laika comes with a small number of built-in directives intended to cover the most
@@ -264,7 +263,7 @@
         <p>The body of such a directive will only be included into the
         output by renderers for the specified type:</p>
         <pre>@:format html: This text only appears in the HTML output,
-  not in PDF or other formats.</pre>
+  not in PDF, EPUB or any other format.</pre>
         <p>Note that the body of a block directive needs to be indented,
         and does not appear between curly braces.</p>
         
@@ -334,7 +333,7 @@ While this paragraph does not.</pre>
         <p>Only page-oriented output formats like PDF or XSL-FO
         know how to render page break elements.</p>
         <p>This directive does not support any attributes:</p>
-        <pre>@pageBreak</pre>      
+        <pre>@:pageBreak.</pre>      
 
       </div>
     </div>

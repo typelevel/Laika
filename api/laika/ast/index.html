@@ -270,6 +270,10 @@
                         <a class="class" href="DocumentFragment.html" title="A named document fragment that usually gets rendered separately from the main root element"></a>
                         <a href="DocumentFragment.html" title="A named document fragment that usually gets rendered separately from the main root element">DocumentFragment</a>
                       </li><li class="current-entities indented2">
+                        <a class="object" href="DocumentMetadata$.html" title=""></a>
+                        <a class="class" href="DocumentMetadata.html" title="Metadata associated with a document."></a>
+                        <a href="DocumentMetadata.html" title="Metadata associated with a document.">DocumentMetadata</a>
+                      </li><li class="current-entities indented2">
                         <span class="separator"></span>
                         <a class="trait" href="DocumentStructure.html" title="The structure of a markup document."></a>
                         <a href="DocumentStructure.html" title="The structure of a markup document.">DocumentStructure</a>
@@ -1436,7 +1440,7 @@ navigation for the document tree.
       </a>
     </span>
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">sealed </span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
@@ -1616,6 +1620,22 @@ during a rewrite operation for this purpose.
       
       <p class="shortcomment cmt">A named document fragment that usually gets rendered separately from the main root element
 </p>
+    </li><li name="laika.ast.DocumentMetadata" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DocumentMetadataextendsProductwithSerializable"></a><a id="DocumentMetadata:DocumentMetadata"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/index.html#DocumentMetadataextendsProductwithSerializable" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a title="Metadata associated with a document." href="DocumentMetadata.html"><span class="name">DocumentMetadata</span></a><span class="params">(<span name="identifier">identifier: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="authors">authors: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">Nil</span></span>, <span name="language">language: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.util.Locale">Locale</span>] = <span class="symbol">None</span></span>, <span name="date">date: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="java.time.Instant">Instant</span>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      <p class="shortcomment cmt">Metadata associated with a document.</p>
     </li><li name="laika.ast.DocumentStructure" visbl="pub" class="indented0 " data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="DocumentStructureextendsAnyRef"></a><a id="DocumentStructure:DocumentStructure"></a>
       <span class="permalink">
@@ -3582,6 +3602,22 @@ operations.
       </span>
       <span class="symbol">
         <a title="" href="DocumentCursor$.html"><span class="name">DocumentCursor</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      
+      
+    </li><li name="laika.ast.DocumentMetadata" visbl="pub" class="indented0 " data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DocumentMetadata"></a><a id="DocumentMetadata:DocumentMetadata"></a>
+      <span class="permalink">
+      <a href="../../laika/ast/index.html#DocumentMetadata" title="Permalink">
+        <i class="material-icons"></i>
+      </a>
+    </span>
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a title="" href="DocumentMetadata$.html"><span class="name">DocumentMetadata</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       
       
