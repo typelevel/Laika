@@ -2,7 +2,7 @@
 
 Customizable and extensible toolkit for transforming lightweight text markup and template based site generation.
 
-Supporting Markdown and reStructuredText as input and HTML, PDF and XSL-FO as output, 
+Supporting Markdown and reStructuredText as input and HTML, EPUB and PDF as output, 
 either through its integrated sbt plugin or embedded in Scala applications, 
 without the need to install external tools.
 
