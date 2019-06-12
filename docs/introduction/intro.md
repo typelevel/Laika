@@ -24,12 +24,14 @@ you can read about her [here][laika-wikipedia].
 Getting Started
 ---------------
 
-The current version is published to Maven Central for Scala 2.12 and 2.11.
+The current version is published to Maven Central for Scala 2.13 and 2.12.
 
 The sbt plugin is published to the sbt plugin repository for sbt 1.x.
 
 If you still need to work with sbt 0.13 and/or Scala 2.10 you need to stay on Laika 0.7.0
 which had been the final release supporting those versions.
+
+The last release for Scala 2.11 had been 0.10.0.
 
 
 ### Using the sbt Plugin
@@ -166,7 +168,7 @@ Release History
     * Refactoring of AST Rewrite API to be fully type-safe and avoid runtime reflection and exceptions.
     * Refactoring of the Render API to be referentially transparent
 
-* __0.11.0__ (?, 2019):
+* __0.11.0__ (June 12, 2019):
 
     * New Renderer for producing EPUB containers
     * New `laikaEPUB` task in the sbt plugin

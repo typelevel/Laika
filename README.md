@@ -12,12 +12,14 @@ Open Source under the Apache 2.0 License.
 Getting Started
 ---------------
 
-The main artifact is published to Maven Central for Scala 2.12 and 2.11.
+The main artifact is published to Maven Central for Scala 2.13 and 2.12.
 
 The sbt plugin is published to the sbt plugin repository for sbt 1.x.
 
 If you still need to work with sbt 0.13 and/or Scala 2.10 you need to stay on Laika 0.7.0
 which had been the final release supporting those versions.
+
+The last release for Scala 2.11 had been 0.10.0.
 
 
 ### Using the sbt Plugin
@@ -25,7 +27,7 @@ which had been the final release supporting those versions.
 Add the plugin to `project/plugins.sbt`:
 
 ```scala
-addSbtPlugin("org.planet42" % "laika-sbt" % "0.10.0")
+addSbtPlugin("org.planet42" % "laika-sbt" % "0.11.0")
 ```
 
 Enable the plugin in your project's `build.sbt`:
@@ -44,7 +46,7 @@ in `target/docs/site`.
 Adding the Laika dependency to your sbt build:
 
 ```scala
-libraryDependencies += "org.planet42" %% "laika-core" % "0.10.0"
+libraryDependencies += "org.planet42" %% "laika-core" % "0.11.0"
 ```
 
 Example for transforming from file to file:
@@ -68,7 +70,7 @@ Transform.from(Markdown).to(PDF).fromDirectory("source").toFile("hello.pdf")
 When using Laika's PDF support you need to add one more dependency to your build:
 
 ```scala
-libraryDependencies += "org.planet42" %% "laika-pdf" % "0.10.0"
+libraryDependencies += "org.planet42" %% "laika-pdf" % "0.11.0"
 ```        
 
 ### Other Resources
