@@ -116,9 +116,9 @@ Laika currently supports the following sbt tasks:
   as an EPUB and a PDF file from the parsed source markup. The markup will only
   get parsed once, therefore this task is very efficient for producing
   multiple output formats. The formats supported as arguments to this
-  task are `html`, `epub`, pdf`, `xslfo` and `ast`. If you only want
+  task are `html`, `epub`, `pdf`, `xslfo` and `ast`. If you only want
   to generate one output format there are shortcut tasks for each of them:
-  (`laikaHTML`, `laikaEPUB`, `laikaPDF`, `laikaXSLFO`, `laikaAST`)
+  `laikaHTML`, `laikaEPUB`, `laikaPDF`, `laikaXSLFO`, `laikaAST`.
   
 The default settings for these tasks should be sufficient for many use cases.
 The following sections show how you can override the defaults. 
