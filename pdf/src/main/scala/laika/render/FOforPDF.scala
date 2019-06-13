@@ -21,7 +21,7 @@ import laika.api.{Render, Renderer}
 import laika.ast.Path.Root
 import laika.ast._
 import laika.format.{PDF, XSLFO}
-import laika.io.{RenderedDocument, RenderedTree, RenderedTreeRoot}
+import laika.io.{RenderContent, RenderedDocument, RenderedTree, RenderedTreeRoot}
 import laika.render.FOFormatter.{Bookmark, BookmarkTree, Leader, PageNumberCitation}
 import laika.rewrite.nav.TocGenerator
 
@@ -52,6 +52,14 @@ class FOforPDF (config: Option[PDF.Config]) {
   protected def hasContent (nav: Navigatable): Boolean = nav match {
     case _: Document => true
     case tree: DocumentTree => hasDocuments(tree)
+  }
+
+  private def hasDocuments (tree: RenderedTree): Boolean =
+    tree.content.exists(hasContent)
+  
+  private def hasContent (nav: RenderContent): Boolean = nav match {
+    case _: RenderedDocument => true
+    case tree: RenderedTree => hasDocuments(tree)
   }
   
   /** Adds title elements for each tree and subtree in the specified
