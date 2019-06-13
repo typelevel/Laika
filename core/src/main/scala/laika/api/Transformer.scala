@@ -62,7 +62,7 @@ object Transformer {
       * reside in sub-modules as they require the functionality of the laika-io module.
       */
     def to [FMT, PP] (format: TwoPhaseRenderFormat[FMT, PP]): TwoPhaseTransformerBuilder[FMT, PP] =
-      new TwoPhaseTransformerBuilder[FMT, PP](parser, format, OperationConfig.default)
+      new TwoPhaseTransformerBuilder[FMT, PP](parser, format, config)
 
   }
 

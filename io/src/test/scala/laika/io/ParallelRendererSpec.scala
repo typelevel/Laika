@@ -416,16 +416,15 @@ class ParallelRendererSpec extends FlatSpec
 //    }
   }
 
-  it should "render a tree with two documents using a RenderResultProcessor writing to a file" ignore {
-//    new GatherRenderer {
-//      val f = File.createTempFile("output", null)
-//      Render
-//        .as(TestRenderResultProcessor)
-//        .from(DocumentTreeRoot(input))
-//        .toFile(f)
-//        .execute
-//      readFile(f) should be (expectedResult)
-//    }
+  it should "render a tree with two documents using a RenderResultProcessor writing to a file" in new GatherRenderer {
+    val f = File.createTempFile("output", null)
+    Parallel(Renderer.of(TestRenderResultProcessor))
+      .build[IO]
+      .from(DocumentTreeRoot(input))
+      .toFile(f)
+      .render
+      .unsafeRunSync()
+    OutputBuilder.readFile(f) should be (expectedResult)
   }
 
   trait FileSystemTest extends DocBuilder {

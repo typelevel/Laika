@@ -18,7 +18,7 @@ package laika.io
 
 import java.io._
 
-import cats.effect.IO
+import cats.effect.{Async, IO}
 import laika.api.Transformer
 import laika.api.builder.OperationConfig
 import laika.ast.DocumentType.{Ignored, Static}
@@ -305,11 +305,17 @@ class ParallelTransformerSpec extends FlatSpec
 //    out.toString should be (expectedResult)
   }
   
-  it should "render a tree with a RenderResultProcessor writing to a file" ignore new GatheringTransformer {
-//    val f = File.createTempFile("output", null)
-//    val transform = Transformer.from(ReStructuredText).to(TestRenderResultProcessor)
-//    transformer.fromTreeInput(input(dirs, transform.config.docTypeMatcher)).toFile(f).execute
-//    readFile(f) should be (expectedResult)
+  it should "render a tree with a RenderResultProcessor writing to a file" in new GatheringTransformer {
+    val f = File.createTempFile("output", null)
+    val transform = Transformer.from(ReStructuredText).to(TestRenderResultProcessor).build
+    
+    Parallel(transform)
+      .build[IO]
+      .fromInput(IO.pure(input(dirs, transform.markupParser.config.docTypeMatcher)))
+      .toFile(f)
+      .transform
+      .unsafeRunSync()
+    OutputBuilder.readFile(f) should be (expectedResult)
   }
   
   it should "render a tree with a RenderResultProcessor overriding the default renderer for specific element types" ignore new GatheringTransformer {
