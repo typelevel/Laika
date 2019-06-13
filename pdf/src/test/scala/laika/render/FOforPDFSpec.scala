@@ -16,7 +16,7 @@
 
 package laika.render
 
-import cats.effect.Async
+import cats.effect.{Async, IO}
 import laika.ast.{DocumentTreeRoot, Path}
 import laika.runtime.{InputRuntime, OutputRuntime}
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
@@ -37,11 +37,12 @@ class FOforPDFSpec extends FlatSpec with Matchers {
 
     object postProcessor extends BinaryPostProcessor {
 
-      override def process[F[_] : Async] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = Async[F].delay {
+      override def process[F[_] : Async] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = {
 
         val fo = foForPDF.renderFO(result, result.template)
-        val out = OutputRuntime.asStream(output)
-        out.write(fo.getBytes("UTF-8"))
+        OutputRuntime.asStream(output).use { out =>
+          Async[F].delay(out.write(fo.getBytes("UTF-8")))
+        }
 
       }
     }

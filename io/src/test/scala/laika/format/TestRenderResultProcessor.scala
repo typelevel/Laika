@@ -15,7 +15,7 @@ object TestRenderResultProcessor extends TwoPhaseRenderFormat[TextFormatter, Bin
 
   object postProcessor extends BinaryPostProcessor {
     
-    override def process[F[_] : Async] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = Async[F].delay {
+    override def process[F[_] : Async] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = {
       
       def append (sb: StringBuilder, result: RenderedTree): Unit = {
         result.content.foreach {
@@ -29,11 +29,8 @@ object TestRenderResultProcessor extends TwoPhaseRenderFormat[TextFormatter, Bin
       append(sb, result.tree)
       val resultString = sb.toString
 
-      val out = OutputRuntime.asStream(output)
-      try {
-        out.write(resultString.getBytes("UTF-8"))
-      } finally {
-        out.close()
+      OutputRuntime.asStream(output).use { out =>
+        Async[F].delay(out.write(resultString.getBytes("UTF-8")))
       }
     }
   }

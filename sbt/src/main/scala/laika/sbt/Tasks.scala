@@ -22,7 +22,7 @@ import laika.api.{MarkupParser, Renderer}
 import laika.runtime.{DirectoryScanner, InputRuntime}
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.format._
-import laika.io.{IOX => _, _}
+import laika.io._
 import laika.sbt.LaikaPlugin.autoImport._
 import sbt.Keys._
 import sbt._

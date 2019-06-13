@@ -21,6 +21,9 @@ import java.net.URI
 import java.util.Date
 
 import cats.effect.Async
+import cats.implicits._
+
+import javax.xml.transform.Transformer
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.sax.SAXResult
 import javax.xml.transform.stream.StreamSource
@@ -79,15 +82,14 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], config: Option[P
     * it to the specified final output.
     */
   val postProcessor: BinaryPostProcessor = new BinaryPostProcessor {
-    override def process[F[_] : Async] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = 
-      Async[F].delay {
-        val fo: String = foForPDF.renderFO(result, result.template)
+    override def process[F[_] : Async] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = {
+      val fo: String = foForPDF.renderFO(result, result.template)
 
-        val metadata = DocumentMetadata.fromConfig(result.config)
-        val title = if (result.title.isEmpty) None else Some(SpanSequence(result.title).extractText)
+      val metadata = DocumentMetadata.fromConfig(result.config)
+      val title = if (result.title.isEmpty) None else Some(SpanSequence(result.title).extractText)
 
-        renderPDF(fo, output, metadata, title, Nil) // TODO - 0.12 - add result.sourcePaths
-      } // TODO - 0.12 - refactor ContainerWriter for F[_]
+      renderPDF(fo, output, metadata, title, Nil) // TODO - 0.12 - add result.sourcePaths
+    }
   }
 
   /** Render the given XSL-FO input as a PDF to the specified
@@ -102,15 +104,15 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], config: Option[P
    *  @param sourcePaths the paths that may contain files like images
    *  which will be used to resolve relative paths
    */
-  def renderPDF (foInput: String, output: BinaryOutput, metadata: DocumentMetadata, title: Option[String] = None, sourcePaths: Seq[String] = Nil): Unit = {
+  def renderPDF[F[_] : Async] (foInput: String, output: BinaryOutput, metadata: DocumentMetadata, title: Option[String] = None, sourcePaths: Seq[String] = Nil): F[Unit] = {
 
-    def applyMetadata (agent: FOUserAgent): Unit = {
+    def applyMetadata (agent: FOUserAgent): F[Unit] = Async[F].delay {
       metadata.date.foreach(d => agent.setCreationDate(Date.from(d)))
       metadata.authors.headOption.foreach(a => agent.setAuthor(a))
       title.foreach(t => agent.setTitle(t))
     }
 
-    def createSAXResult (out: OutputStream) = {
+    def createSAXResult (out: OutputStream): F[SAXResult] = {
 
       val resolver = new ResourceResolver {
         
@@ -126,28 +128,27 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], config: Option[P
       }
 
       val factory = fopFactory.getOrElse(PDF.defaultFopFactory)
-      val foUserAgent = FOUserAgentFactory.createFOUserAgent(factory, resolver)
-      applyMetadata(foUserAgent)
-      val fop = factory.newFop(MimeConstants.MIME_PDF, foUserAgent, out)
-      new SAXResult(fop.getDefaultHandler)
+      for {
+        foUserAgent <- Async[F].delay(FOUserAgentFactory.createFOUserAgent(factory, resolver))
+        _           <- applyMetadata(foUserAgent)
+        fop         <- Async[F].delay(factory.newFop(MimeConstants.MIME_PDF, foUserAgent, out))
+      } yield new SAXResult(fop.getDefaultHandler)
+      
     }
     
-    def createTransformer = {
+    def createTransformer: F[Transformer] = Async[F].delay {
       val factory = TransformerFactory.newInstance
       factory.newTransformer // identity transformer
     }
     
-    val out = OutputRuntime.asStream(output)
-    
-    try {
-      val source = new StreamSource(new StringReader(foInput))
-      val result = createSAXResult(out)
-
-      createTransformer.transform(source, result)
-    
-    } finally {
-      out.close()
-    }
+    OutputRuntime.asStream(output).use { out =>
+      for {
+        source      <- Async[F].delay(new StreamSource(new StringReader(foInput)))
+        result      <- createSAXResult(out)
+        transformer <- createTransformer
+        _           <- Async[F].delay(transformer.transform(source, result))
+      } yield ()
+    } 
     
   }
   

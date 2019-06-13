@@ -19,12 +19,14 @@ package laika.render.epub
 import java.io.{BufferedInputStream, ByteArrayInputStream, FileInputStream, InputStream}
 import java.nio.charset.Charset
 
+import cats.effect.Async
+import cats.implicits._
 import laika.ast.Path
 import laika.ast.Path.Root
 import laika.format.EPUB
 import laika.io._
 
-// TODO - 0.12 - replace with new model
+// TODO - 0.12 - integrate/align with new IO model
 case class StreamInput (stream: InputStream, path: Path)
 
 /** Creates the EPUB container based on a document tree and the HTML result
@@ -39,10 +41,6 @@ class ContainerWriter {
   private val navRenderer = new HtmlNavRenderer
   private val ncxRenderer = new NCXRenderer
 
-  // TODO - 0.12 - replace with new model
-  def fromStream (stream: InputStream, path: Path = Path.Root): StreamInput = StreamInput(stream, path)
-  
-
   /** Collects all documents that need to be written to the EPUB container.
     *
     * This includes:
@@ -55,7 +53,7 @@ class ContainerWriter {
     *  @param result the result of the render operation as a tree
     *  @return a list of all documents that need to be written to the EPUB container.
     */
-  def collectInputs (result: RenderedTreeRoot, config: EPUB.Config): Seq[StreamInput] = {
+  def collectInputs[F[_]: Async] (result: RenderedTreeRoot, config: EPUB.Config): F[Vector[StreamInput]] = {
 
     val contentRoot = Root / "EPUB" / "content"
 
@@ -63,17 +61,16 @@ class ContainerWriter {
       if (path.suffix == "html") Path(contentRoot, path.withSuffix("xhtml").components)
       else Path(contentRoot, path.components)
 
-    def toBinaryInput (content: String, path: Path): StreamInput = {
+    def toBinaryInput (content: String, path: Path): F[StreamInput] = Async[F].delay {
       val bytes = content.getBytes(Charset.forName("UTF-8"))
-      val in = new ByteArrayInputStream(bytes)
-      fromStream(in, path)
+      StreamInput(new ByteArrayInputStream(bytes), path)
     }
 
-    val staticDocs = result.staticDocuments.filter(in => MimeTypes.supportedTypes.contains(in.path.suffix)).flatMap {
+    val staticDocs: Seq[F[StreamInput]] = result.staticDocuments.filter(in => MimeTypes.supportedTypes.contains(in.path.suffix)).map {
       case fileInput: BinaryFileInput =>
-        Seq(fromStream(new BufferedInputStream(new FileInputStream(fileInput.file)), shiftContentPath(fileInput.path)))
-      case byteInput: ByteInput =>
-        Seq(fromStream(new ByteArrayInputStream(byteInput.bytes), shiftContentPath(byteInput.path)))
+        Async[F].delay { StreamInput(new BufferedInputStream(new FileInputStream(fileInput.file)), shiftContentPath(fileInput.path)) }
+      case byteInput: ByteInput => 
+        Async[F].delay { StreamInput(new ByteArrayInputStream(byteInput.bytes), shiftContentPath(byteInput.path)) }
     }
 
     val mimeType  = toBinaryInput(StaticContent.mimeType, Root / "mimetype")
@@ -85,7 +82,9 @@ class ContainerWriter {
     
     val renderedDocs = result.allDocuments.map(doc => toBinaryInput(doc.content, shiftContentPath(doc.path)))
 
-    Seq(mimeType, container, iBooksOpt, opf, nav, ncx) ++ renderedDocs ++ staticDocs
+    val allInputs: Seq[F[StreamInput]] = Seq(mimeType, container, iBooksOpt, opf, nav, ncx) ++ renderedDocs ++ staticDocs
+    
+    allInputs.toVector.sequence
   }
 
   /** Produces an EPUB container from the specified document tree.
@@ -100,7 +99,7 @@ class ContainerWriter {
     * @param result the result of the render operation as a tree
     * @param output the output to write the final result to
     */
-  def write (result: RenderedTreeRoot, output: BinaryOutput): Unit = {
+  def write[F[_]: Async] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = {
 
     val inputs = collectInputs(result, ConfigFactory.forTreeConfig(result.config))
 

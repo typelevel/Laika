@@ -18,10 +18,11 @@ package laika.render.epub
 
 import java.util.zip.{CRC32, ZipEntry, ZipOutputStream}
 
+import cats.effect.Async
+import cats.implicits._
 import laika.ast.Path
-import laika.runtime.OutputRuntime
+import laika.runtime.{CopyRuntime, OutputRuntime}
 import laika.io.BinaryOutput
-import laika.io.IOX.copy
 
 /**
   * @author Jens Halm
@@ -35,34 +36,39 @@ object ZipWriter {
     * file (called `mimeType`) is written uncompressed. Hence this is not
     * a generic zip utility as the method name suggests.
     */
-  def zipEPUB (inputs: Seq[StreamInput], output: BinaryOutput): Unit = { // TODO - 0.12 - StreamInput is a temporary model
+  def zipEPUB[F[_]: Async] (inputFs: F[Vector[StreamInput]], output: BinaryOutput): F[Unit] = {
 
-    val zip = new ZipOutputStream(OutputRuntime.asStream(output))
+    def copy (inputs: Vector[StreamInput], zipOut: ZipOutputStream): F[Unit] = {
+    
+      def writeEntry (input: StreamInput, prepareEntry: ZipEntry => F[Unit] = _ => Async[F].unit): F[Unit] = for {
+        entry <- Async[F].delay(new ZipEntry(input.path.relativeTo(Path.Root).toString))
+        _     <- prepareEntry(entry)
+        _     <- Async[F].delay(zipOut.putNextEntry(entry))
+        _     <- CopyRuntime.copy(input.stream, zipOut)
+        _     <- Async[F].delay(zipOut.closeEntry())
+      } yield ()
+      
+      
+      def prepareUncompressedEntry (entry: ZipEntry): F[Unit] = Async[F].delay {
+        val content = StaticContent.mimeType
+        val crc32 = new CRC32
+        entry.setMethod(ZipOutputStream.STORED)
+        entry.setSize(content.length)
+        crc32.update(content.getBytes("UTF-8"))
+        entry.setCrc(crc32.getValue)
+      }
 
-    def writeEntry (input: StreamInput, prepareEntry: ZipEntry => Unit = _ => ()): Unit = {
-
-      val entry = new ZipEntry(input.path.relativeTo(Path.Root).toString)
-
-      prepareEntry(entry)
-      zip.putNextEntry(entry)
-
-      copy(input.stream, zip)
-
-      zip.closeEntry()
+      writeEntry(inputs.head, prepareUncompressedEntry) >> inputs.tail.map(writeEntry(_)).sequence.as(())
     }
-
-    writeEntry(inputs.head, { entry =>
-      entry.setMethod(ZipOutputStream.STORED)
-      val content = StaticContent.mimeType
-      entry.setSize(content.length)
-      val crc32 = new CRC32
-      crc32.update(content.getBytes("UTF-8"))
-      entry.setCrc(crc32.getValue)
-    })
-
-    inputs.tail.foreach(writeEntry(_))
-
-    zip.close()
+    
+    val out = OutputRuntime
+      .asStream(output)
+      .map(new ZipOutputStream(_))
+    
+    for {
+      inputs <- inputFs
+      _      <- out.use(copy(inputs, _))
+    } yield ()
   }
   
 }

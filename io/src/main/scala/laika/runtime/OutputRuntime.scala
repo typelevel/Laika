@@ -30,9 +30,10 @@ object OutputRuntime {
     new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), codec.charSet))
   })
 
-  def asStream (output: BinaryOutput): OutputStream = output match {
-    case BinaryFileOutput(file, _) => new BufferedOutputStream(new FileOutputStream(file))
-    case ByteOutput(out, _) => out
+  def asStream[F[_]: Async] (output: BinaryOutput): Resource[F, OutputStream] = output match {
+    case BinaryFileOutput(file, _) => 
+      Resource.fromAutoCloseable(Async[F].delay(new BufferedOutputStream(new FileOutputStream(file))))
+    case ByteOutput(out, _) => Resource.pure(out) // TODO - 0.12 - verify need + use cases for this type
   }
 
 }

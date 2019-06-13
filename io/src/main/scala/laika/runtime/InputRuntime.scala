@@ -63,8 +63,13 @@ object InputRuntime {
       buffer.toString
     }
 
+    def autoClose [R, T] (resource: R)(f: R => T): T = resource match {
+      case c: Closeable => try f(resource) finally c.close
+      case _ => f(resource)
+    }
+
     val stream = getClass.getResourceAsStream(resourcePath)
-    IOX(stream){ in =>
+    autoClose(stream){ in =>
       val reader = new BufferedReader(new InputStreamReader(in, codec.decoder))
       val content = readAll(reader, 8 * 1024)
       ParserInput(virtualPath, ParserContext(content))
