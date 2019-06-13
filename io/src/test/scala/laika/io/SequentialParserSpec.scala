@@ -16,12 +16,16 @@
 
 package laika.io
 
+import java.io.ByteArrayInputStream
+
 import cats.effect.IO
 import laika.api.MarkupParser
 import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
 import laika.io.Sequential.SequentialParser
 import org.scalatest.{FlatSpec, Matchers}
+
+import scala.io.Codec
 
 
 class SequentialParserSpec extends FlatSpec 
@@ -52,37 +56,29 @@ class SequentialParserSpec extends FlatSpec
     parser.fromFile(filename).parse.unsafeRunSync().content should be (root())
   }
   
-  it should "allow parsing Markdown from a java.io.Reader instance" ignore {
-//    val input = """aaa
-//      |bbb
-//      |ccc""".stripMargin
-//    val reader = new StringReader(input)
-//    (Parse as Markdown fromReader reader).execute.content should be (root(p(input)))
+  it should "allow parsing Markdown from a java.io.InputStream instance" in {
+    val input = """aaa
+      |bbb
+      |ccc""".stripMargin
+    val stream = IO(new ByteArrayInputStream(input.getBytes()))
+    parser.fromStream(stream).parse.unsafeRunSync().content should be (root(p(input)))
   }
   
-  it should "allow parsing Markdown from a java.io.InputStream instance" ignore {
-//    val input = """aaa
-//      |bbb
-//      |ccc""".stripMargin
-//    val stream = new ByteArrayInputStream(input.getBytes())
-//    (Parse as Markdown fromStream stream).execute.content should be (root(p(input)))
+  it should "allow parsing Markdown from a java.io.InputStream instance, specifying the encoding explicitly" in {
+    val input = """äää
+      |ööö
+      |üüü""".stripMargin
+    val stream = IO(new ByteArrayInputStream(input.getBytes("ISO-8859-1")))
+    parser.fromStream(stream)(Codec.ISO8859).parse.unsafeRunSync().content should be (root(p(input)))
   }
   
-  it should "allow parsing Markdown from a java.io.InputStream instance, specifying the encoding explicitly" ignore {
-//    val input = """äää
-//      |ööö
-//      |üüü""".stripMargin
-//    val stream = new ByteArrayInputStream(input.getBytes("ISO-8859-1"))
-//    (Parse as Markdown).fromStream(stream)(Codec.ISO8859).execute.content should be (root(p(input)))
-  }
-  
-  it should "allow parsing Markdown from a java.io.InputStream instance, specifying the encoding implicitly" ignore {
-//    val input = """äää
-//      |ööö
-//      |üüü""".stripMargin
-//    val stream = new ByteArrayInputStream(input.getBytes("ISO-8859-1"))
-//    implicit val codec:Codec = Codec.ISO8859
-//    (Parse as Markdown fromStream stream).execute.content should be (root(p(input)))
+  it should "allow parsing Markdown from a java.io.InputStream instance, specifying the encoding implicitly" in {
+    val input = """äää
+      |ööö
+      |üüü""".stripMargin
+    val stream = IO(new ByteArrayInputStream(input.getBytes("ISO-8859-1")))
+    implicit val codec:Codec = Codec.ISO8859
+    parser.fromStream(stream).parse.unsafeRunSync().content should be (root(p(input)))
   }
   
 }

@@ -1,10 +1,12 @@
 package laika.io
 
-import java.io.File
+import java.io.{File, InputStream}
 
 import cats.effect.{Async, Sync}
+import cats.implicits._
 import laika.api.builder._
 import laika.api.{MarkupParser, Renderer, Transformer}
+import laika.ast.Path.Root
 import laika.ast.{Document, DocumentType, Element, Path, TextDocumentType}
 import laika.factory.BinaryPostProcessor
 import laika.runtime.{ParserRuntime, RendererRuntime, TransformerRuntime}
@@ -151,7 +153,7 @@ trait SequentialInputOps[F[_]] {
   type InputResult
   
   
-  def F: Sync[F]
+  def F: Async[F]
 
   /** The type of text document created by this instance.
     */
@@ -178,6 +180,15 @@ trait SequentialInputOps[F[_]] {
     */
   def fromFile (file: File)(implicit codec: Codec): InputResult = 
     fromInput(F.pure(TextFileInput(file, docType, Path(file.getName), codec)))
+
+  /** Returns the result from parsing the input from the specified stream.
+    *
+    *  @param stream the stream to use as input for the parser
+    *  @param autoClose whether the stream should be closed after reading all input              
+    *  @param codec the character encoding of the stream, if not specified the platform default will be used.
+    */
+  def fromStream (stream: F[InputStream], autoClose: Boolean = true)(implicit codec: Codec): InputResult =
+    fromInput(F.map(stream)(CharStreamInput(_, docType, Root, autoClose, codec)))
 
   /** Returns the result from parsing the specified input.
     *

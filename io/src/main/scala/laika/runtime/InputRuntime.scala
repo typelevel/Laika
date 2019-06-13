@@ -17,18 +17,29 @@ import scala.io.Codec
 object InputRuntime {
   
   def readParserInput[F[_]: Async] (input: TextInput): F[ParserInput] = input match {
+      
     case StringInput(source, _, path) => 
       Async[F].pure(ParserInput(path, ParserContext(source)))
-    case TextFileInput(file, _, path, codec) => 
-      fileReader(file, codec).use { reader =>
-        readAll(reader, file.length.toInt)
-          .map(source => ParserInput(path, ParserContext(source)))
-      }
+      
+    case TextFileInput(file, _, path, codec) =>
+      readParserInput(fileInput(file), path, codec, file.length.toInt)
+      
+    case CharStreamInput(stream, _, path, autoClose, codec) =>
+      val streamF = Async[F].pure(stream)
+      val resource = if (autoClose) Resource.fromAutoCloseable(streamF) else Resource.liftF(streamF)
+      readParserInput(resource, path, codec, 8096)
   }
 
-  def fileReader[F[_]: Async] (file: File, codec: Codec): Resource[F, Reader] = Resource.fromAutoCloseable(Async[F].delay {
-    new BufferedReader(new InputStreamReader(new FileInputStream(file), codec.charSet))
-  })
+  def fileInput[F[_]: Async] (file: File): Resource[F, InputStream] = 
+    Resource.fromAutoCloseable(Async[F].delay(new FileInputStream(file)))
+  
+  def readParserInput[F[_]: Async] (resource: Resource[F, InputStream], path: Path, codec: Codec, sizeHint: Int): F[ParserInput] =
+    resource
+      .map(in => new BufferedReader(new InputStreamReader(in, codec.charSet)))
+      .use { reader =>
+        readAll(reader, 8096)
+          .map(source => ParserInput(path, ParserContext(source)))
+      }
 
   def readAll[F[_]: Async] (reader: Reader, sizeHint: Int): F[String] = {
     

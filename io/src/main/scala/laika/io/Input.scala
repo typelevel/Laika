@@ -74,6 +74,8 @@ case class StringInput (source: String, docType: TextDocumentType, path: Path = 
 
 case class TextFileInput (file: File, docType: TextDocumentType, path: Path, codec: Codec) extends TextInput
 
+case class CharStreamInput (stream: InputStream, docType: TextDocumentType, path: Path, autoClose: Boolean, codec: Codec) extends TextInput
+
 case class BinaryFileInput (file: File, path: Path) extends BinaryInput
 
 case class ByteInput (bytes: Array[Byte], path: Path) extends BinaryInput
