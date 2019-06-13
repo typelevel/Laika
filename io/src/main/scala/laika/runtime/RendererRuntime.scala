@@ -105,8 +105,9 @@ object RendererRuntime {
     for {
       out          <- op.output
       renderedTree <- run(ParallelRenderer.Op[F](op.renderer.interimRenderer, preparedTree, Async[F].pure(StringTreeOutput)))
-    } yield
-      op.renderer.postProcessor.process(renderedTree, out)
+      _            <- op.renderer.postProcessor.process(renderedTree, out)
+    } yield ()
+      
   }
 
 }
