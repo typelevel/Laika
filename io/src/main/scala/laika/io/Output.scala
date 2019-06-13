@@ -71,6 +71,8 @@ case class TextFileOutput (file: File, path: Path, codec: Codec) extends TextOut
 
 case class StringOutput (path: Path) extends TextOutput
 
+case class CharStreamOutput (stream: OutputStream, path: Path, autoClose: Boolean, codec: Codec) extends TextOutput
+
 case class BinaryFileOutput (file: File, path: Path) extends BinaryOutput
 
 // TODO - 0.12 - temporary mutable solution to ease migration

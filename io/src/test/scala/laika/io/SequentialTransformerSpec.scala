@@ -62,34 +62,27 @@ class SequentialTransformerSpec extends FlatSpec
     fileContent should be (output)
   }
   
-  it should "transform from a java.io.Reader to a java.io.Writer" ignore {
-//    val reader = new StringReader(input)
-//    val writer = new StringWriter
-//    (transform fromReader reader toWriter writer).execute
-//    writer.toString should be (output)
+  it should "transform from a java.io.InputStream to a java.io.OutputStream" in {
+    val inStream = IO(new ByteArrayInputStream(input.getBytes()))
+    val outStream = new ByteArrayOutputStream
+    transformer.fromStream(inStream).toStream(IO.pure(outStream)).transform.unsafeRunSync()
+    outStream.toString should be (output)
   }
   
-  it should "transform from a java.io.InputStream to a java.io.OutputStream" ignore {
-//    val inStream = new ByteArrayInputStream(input.getBytes())
-//    val outStream = new ByteArrayOutputStream
-//    (transform fromStream inStream toStream outStream).execute
-//    outStream.toString should be (output)
+  it should "transform from a java.io.InputStream to a java.io.OutputStream, specifying the encoding explicitly" in {
+    val inStream = IO(new ByteArrayInputStream(input.getBytes("ISO-8859-1")))
+    val outStream = new ByteArrayOutputStream
+    val codec = Codec.ISO8859
+    transformer.fromStream(inStream)(codec).toStream(IO.pure(outStream))(codec).transform.unsafeRunSync()
+    outStream.toString("ISO-8859-1") should be (output)
   }
   
-  it should "transform from a java.io.InputStream to a java.io.OutputStream, specifying the encoding explicitly" ignore {
-//    val inStream = new ByteArrayInputStream(input.getBytes("ISO-8859-1"))
-//    val outStream = new ByteArrayOutputStream
-//    val codec = Codec.ISO8859
-//    (transform.fromStream(inStream)(codec).toStream(outStream)(codec)).execute
-//    outStream.toString("ISO-8859-1") should be (output)
-  }
-  
-  it should "transform from a java.io.InputStream to a java.io.OutputStream, specifying the encoding implicitly" ignore {
-//    val inStream = new ByteArrayInputStream(input.getBytes("ISO-8859-1"))
-//    val outStream = new ByteArrayOutputStream
-//    implicit val codec:Codec = Codec.ISO8859
-//    (transform fromStream inStream toStream outStream).execute
-//    outStream.toString("ISO-8859-1") should be (output)
+  it should "transform from a java.io.InputStream to a java.io.OutputStream, specifying the encoding implicitly" in {
+    val inStream = IO(new ByteArrayInputStream(input.getBytes("ISO-8859-1")))
+    val outStream = new ByteArrayOutputStream
+    implicit val codec:Codec = Codec.ISO8859
+    transformer.fromStream(inStream).toStream(IO.pure(outStream)).transform.unsafeRunSync()
+    outStream.toString("ISO-8859-1") should be (output)
   }
   
   // TODO - 0.12 - move these back to core

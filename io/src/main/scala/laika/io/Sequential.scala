@@ -1,6 +1,6 @@
 package laika.io
 
-import java.io.{File, InputStream}
+import java.io.{File, InputStream, OutputStream}
 
 import cats.effect.{Async, Sync}
 import cats.implicits._
@@ -206,7 +206,7 @@ trait SequentialTextOutputOps[F[_]] {
 
   type Result
 
-  def F: Sync[F]
+  def F: Async[F]
 
   /** Renders the model to the file with the specified name.
     *
@@ -222,6 +222,15 @@ trait SequentialTextOutputOps[F[_]] {
     */
   def toFile (file: File)(implicit codec: Codec): Result = 
     toOutput(F.pure(TextFileOutput(file, Path(file.getName), codec)))
+
+  /** Renders the model to the specified output stream.
+    *
+    *  @param stream the stream to render to
+    *  @param autoClose whether the stream should be closed after all output had been written   
+    *  @param codec the character encoding of the stream, if not specified the platform default will be used.
+    */
+  def toStream (stream: F[OutputStream], autoClose: Boolean = true)(implicit codec: Codec): Result = 
+    toOutput(F.map(stream)(CharStreamOutput(_, Root, autoClose, codec)))
   
   // TODO - 0.12 - re-introduce string output
 

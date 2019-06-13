@@ -18,7 +18,16 @@ object OutputRuntime {
       case StringOutput(_) => Async[F].unit
       case TextFileOutput(file, _, codec) => fileWriter(file, codec).use { writer =>
         Async[F].delay(writer.write(result))
-      }  
+      }
+      case CharStreamOutput(stream, _, autoClose, codec) =>
+        val streamF = Async[F].pure(stream)
+        val resource = if (autoClose) Resource.fromAutoCloseable(streamF) else Resource.liftF(streamF)
+        resource.map(out => new BufferedWriter(new OutputStreamWriter(out, codec.charSet))).use { writer =>
+          Async[F].delay {
+            writer.write(result)
+            writer.flush()
+          }
+        }
     }
   }
   

@@ -16,7 +16,7 @@
 
 package laika.io
 
-import java.io.File
+import java.io.{ByteArrayOutputStream, File}
 
 import cats.effect.IO
 import laika.api.Renderer
@@ -25,6 +25,8 @@ import laika.format._
 import laika.io.Sequential.SequentialRenderer
 import laika.io.helper.OutputBuilder
 import org.scalatest.{FlatSpec, Matchers}
+
+import scala.io.Codec
 
 class SequentialRendererSpec extends FlatSpec 
                     with Matchers
@@ -53,29 +55,23 @@ class SequentialRendererSpec extends FlatSpec
     OutputBuilder.readFile(f) should be (expected)
   }
 
-  it should "render a document to a java.io.Writer" ignore {
-//    val writer = new StringWriter
-//    (Renderer.of(AST)from rootElem toWriter writer).execute
-//    writer.toString should be (expected)
+  it should "render a document to a java.io.OutputStream" in {
+    val stream = new ByteArrayOutputStream
+    renderer.from(rootElem).toStream(IO.pure(stream)).render.unsafeRunSync()
+    stream.toString should be (expected)
   }
 
-  it should "render a document to a java.io.OutputStream" ignore {
-//    val stream = new ByteArrayOutputStream
-//    (Renderer.of(AST)from rootElem toStream stream).execute
-//    stream.toString should be (expected)
+  it should "render a document to a java.io.OutputStream, specifying the encoding explicitly" in {
+    val stream = new ByteArrayOutputStream
+    renderer.from(rootElem).toStream(IO.pure(stream))(Codec.ISO8859).render.unsafeRunSync()
+    stream.toString("ISO-8859-1") should be (expected)
   }
 
-  it should "render a document to a java.io.OutputStream, specifying the encoding explicitly" ignore {
-//    val stream = new ByteArrayOutputStream
-//    (Renderer.of(AST)from rootElem).toStream(stream)(Codec.ISO8859).execute
-//    stream.toString("ISO-8859-1") should be (expected)
-  }
-
-  it should "render a document to a java.io.OutputStream, specifying the encoding implicitly" ignore {
-//    implicit val codec:Codec = Codec.ISO8859
-//    val stream = new ByteArrayOutputStream
-//    (Renderer.of(AST)from rootElem toStream stream).execute
-//    stream.toString("ISO-8859-1") should be (expected)
+  it should "render a document to a java.io.OutputStream, specifying the encoding implicitly" in {
+    implicit val codec:Codec = Codec.ISO8859
+    val stream = new ByteArrayOutputStream
+    renderer.from(rootElem).toStream(IO.pure(stream)).render.unsafeRunSync()
+    stream.toString("ISO-8859-1") should be (expected)
   }
 
 //  it should "allow to override the default renderer for specific element types" in {
