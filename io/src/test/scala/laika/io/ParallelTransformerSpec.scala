@@ -36,7 +36,6 @@ import org.scalatest.{Assertion, FlatSpec, Matchers}
 
 class ParallelTransformerSpec extends FlatSpec 
                        with Matchers {
-
    
 
   private val transformer: ParallelTransformer[IO] = Parallel(Transformer.from(Markdown).to(AST)).build
@@ -147,13 +146,6 @@ class ParallelTransformerSpec extends FlatSpec
     }
   }
   
-  it should "transform a tree with a static document" ignore {
-    new TreeTransformer {
-      val dirs = """- omg.js:name"""
-      transformTree should be (root(List(docs((Root / "omg.js", "foo")))))
-    }
-  }
-  
   it should "transform a tree with a custom template engine" in {
     new TreeTransformer {
       val dirs = """- default.template.txt:template1
@@ -210,6 +202,13 @@ class ParallelTransformerSpec extends FlatSpec
       transformWithDirective(directive) should be (root(List(docs(
         (Root / "aa.txt", result)
       ))))
+    }
+  }
+
+  it should "transform a tree with a static document" ignore {
+    new TreeTransformer {
+      val dirs = """- omg.js:name"""
+      transformTree should be (root(List(docs((Root / "omg.js", "foo")))))
     }
   }
   
@@ -299,10 +298,16 @@ class ParallelTransformerSpec extends FlatSpec
     def input (source: String, docTypeMatcher: Path => DocumentType): TreeInput = parseTreeStructure(source, docTypeMatcher)
   }
   
-  it should "render a tree with a RenderResultProcessor writing to an output stream" ignore new GatheringTransformer {
-//    val out = new ByteArrayOutputStream
-//    (Transformer.from(ReStructuredText).to(TestRenderResultProcessor fromTreeInput input(dirs) toStream out).execute
-//    out.toString should be (expectedResult)
+  it should "render a tree with a RenderResultProcessor writing to an output stream" in new GatheringTransformer {
+    val out = new ByteArrayOutputStream
+    val transform = Transformer.from(ReStructuredText).to(TestRenderResultProcessor).build
+    Parallel(transform)
+      .build[IO]
+      .fromInput(IO.pure(input(dirs, transform.markupParser.config.docTypeMatcher)))
+      .toStream(IO.pure(out))
+      .transform
+      .unsafeRunSync()
+    out.toString should be (expectedResult)
   }
   
   it should "render a tree with a RenderResultProcessor writing to a file" in new GatheringTransformer {
@@ -318,25 +323,26 @@ class ParallelTransformerSpec extends FlatSpec
     OutputBuilder.readFile(f) should be (expectedResult)
   }
   
-  it should "render a tree with a RenderResultProcessor overriding the default renderer for specific element types" ignore new GatheringTransformer {
+// TODO - 0.12 - move these tests to the laika-core project  
+//  it should "render a tree with a RenderResultProcessor overriding the default renderer for specific element types" in new GatheringTransformer {
 //    val modifiedResult = expectedResult.replaceAllLiterally(". Text", ". String")
 //    val out = new ByteArrayOutputStream
 //    (Transformer.from(ReStructuredText).to(TestRenderResultProcessor rendering { 
 //      out => { case Text(content,_) => out << "String - '" << content << "'" } 
 //    } fromTreeInput input(dirs) toStream out).execute
 //    out.toString should be (modifiedResult)
-  }
-  
-  it should "render a tree with a RenderResultProcessor with a custom rewrite rule" ignore new GatheringTransformer {
+//  }
+//  
+//  it should "render a tree with a RenderResultProcessor with a custom rewrite rule" in new GatheringTransformer {
 //    val modifiedResult = expectedResult.replaceAllLiterally("Title'", "zzz'")
 //    val out = new ByteArrayOutputStream
 //    (Transformer.from(ReStructuredText).to(TestRenderResultProcessor usingSpanRule { 
 //      case Text(txt,_) => Replace(Text(txt.replaceAllLiterally("Title", "zzz"))) 
 //    } fromTreeInput input(dirs) toStream out).execute
 //    out.toString should be (modifiedResult)
-  }
-  
-  it should "render a tree with a RenderResultProcessor with multiple custom rewrite rules" ignore new GatheringTransformer {
+//  }
+//  
+//  it should "render a tree with a RenderResultProcessor with multiple custom rewrite rules" in new GatheringTransformer {
 //    val modifiedResult = expectedResult.replaceAllLiterally("Title'", "zzz'").replaceAllLiterally("bbb", "xxx")
 //    val out = new ByteArrayOutputStream
 //    (Transformer.from(ReStructuredText).to(TestRenderResultProcessor usingSpanRule { 
@@ -345,16 +351,16 @@ class ParallelTransformerSpec extends FlatSpec
 //      case Text("bbb",_) => Replace(Text("xxx")) 
 //    } fromTreeInput input(dirs) toStream out).execute
 //    out.toString should be (modifiedResult)
-  }
-  
-  it should "render a tree with a RenderResultProcessor with a custom rewrite rule that depends on the document cursor" ignore new GatheringTransformer {
+//  }
+//  
+//  it should "render a tree with a RenderResultProcessor with a custom rewrite rule that depends on the document cursor" in new GatheringTransformer {
 //    val modifiedResult = expectedResult.replaceAllLiterally("Sub Title", "Sub docSub.rst")
 //    val out = new ByteArrayOutputStream
 //    (Transformer.from(ReStructuredText).to(TestRenderResultProcessor creatingRule { cursor => RewriteRules.forSpans { 
 //      case Text("Sub Title",_) => Replace(Text("Sub " + cursor.target.path.name))
 //    }} fromTreeInput input(dirs) toStream out).execute
 //    out.toString should be (modifiedResult)
-  }
+// }
   
   trait FileSystemTest {
     

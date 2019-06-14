@@ -16,13 +16,12 @@
 
 package laika.io.binary
 
-import java.io.File
+import java.io.{File, OutputStream}
 
 import cats.effect.Async
 import laika.ast.Path
-import laika.io.{BinaryFileOutput, BinaryOutput}
-
-import scala.io.Codec
+import laika.ast.Path.Root
+import laika.io.{BinaryFileOutput, BinaryOutput, BinaryStreamOutput}
 
 /**
   * @author Jens Halm
@@ -43,8 +42,16 @@ trait BinaryOutputOps[F[_]] {
     *
     *  @param file the file to write to
     */
-  def toFile (file: File)(implicit codec: Codec): Result =
+  def toFile (file: File): Result =
     toOutput(F.pure(BinaryFileOutput(file, Path(file.getName))))
+
+  /** Renders to the specified output stream.
+    * 
+    * @param stream the binary stream to render to
+    * @param autoClose whether the stream should be closed after all output had been written                 
+    */
+  def toStream (stream: F[OutputStream], autoClose: Boolean = true): Result =
+    toOutput(F.map(stream)(BinaryStreamOutput(_, Root, autoClose)))
 
   /** Renders the model to the specified output.
     *

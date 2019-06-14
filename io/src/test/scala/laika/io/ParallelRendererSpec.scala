@@ -16,7 +16,7 @@
 
 package laika.io
 
-import java.io.File
+import java.io.{ByteArrayOutputStream, File}
 
 import cats.effect.IO
 import laika.api.Renderer
@@ -408,12 +408,15 @@ class ParallelRendererSpec extends FlatSpec
       |""".stripMargin
   }
 
-  it should "render a tree with two documents using a RenderResultProcessor writing to an output stream" ignore {
-//    new GatherRenderer {
-//      val out = new ByteArrayOutputStream
-//      (Renderer.of(TestRenderResultProcessor from input toStream out).execute
-//      out.toString should be (expectedResult)
-//    }
+  it should "render a tree with two documents using a RenderResultProcessor writing to an output stream" in new GatherRenderer {
+    val out = new ByteArrayOutputStream
+    Parallel(Renderer.of(TestRenderResultProcessor))
+      .build[IO]
+      .from(DocumentTreeRoot(input))
+      .toStream(IO.pure(out))
+      .render
+      .unsafeRunSync()
+    out.toString should be (expectedResult)
   }
 
   it should "render a tree with two documents using a RenderResultProcessor writing to a file" in new GatherRenderer {

@@ -42,7 +42,9 @@ object OutputRuntime {
   def asStream[F[_]: Async] (output: BinaryOutput): Resource[F, OutputStream] = output match {
     case BinaryFileOutput(file, _) => 
       Resource.fromAutoCloseable(Async[F].delay(new BufferedOutputStream(new FileOutputStream(file))))
-    case ByteOutput(out, _) => Resource.pure(out) // TODO - 0.12 - verify need + use cases for this type
+    case BinaryStreamOutput(stream, _, autoClose) =>
+      val streamF = Async[F].pure(stream)
+      if (autoClose) Resource.fromAutoCloseable(streamF) else Resource.liftF(streamF)
   }
 
 }
