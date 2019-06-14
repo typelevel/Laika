@@ -18,10 +18,11 @@ package laika.ast
 
 import cats.effect.IO
 import laika.api.MarkupParser
+import laika.ast.Path.Root
 import laika.ast.helper.ModelBuilder
 import laika.bundle.BundleProvider
 import laika.format.{Markdown, ReStructuredText}
-import laika.io.TreeInput
+import laika.io.{InputCollection, TreeInput}
 import laika.io.helper.InputBuilder
 import laika.rewrite.TemplateRewriter
 import org.scalatest.{FlatSpec, Matchers}
@@ -32,33 +33,35 @@ class ConfigSpec extends FlatSpec
 
 
   trait Inputs extends InputBuilder  {
-    val markup = """{% foo: bar %}
-      |aaa
-      |bbb""".stripMargin
       
-    val markupWithRef = """aaa
-      |{{config.foo}}
-      |bbb""".stripMargin
-      
-    val templateWithRef = """<h1>{{config.foo}}</h1>
-      |<div>{{document.content}}</div>
-      |CCC""".stripMargin
-      
-    val templateWithConfig= """{% foo: bar %}
-      |<div>{{document.content}}</div>
-      |CCC""".stripMargin
-    
     val mdMatcher = MarkupParser.of(Markdown).config.docTypeMatcher
     val rstMatcher = MarkupParser.of(ReStructuredText).config.docTypeMatcher
       
-    def builder (source: String, docTypeMatcher: Path => DocumentType): TreeInput = parseTreeStructure(source, docTypeMatcher)
+    def builder (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): InputCollection = build(in, docTypeMatcher)
     
-    lazy val contents = Map(
-      "templateWithRef" -> templateWithRef,
-      "templateWithConfig" -> templateWithConfig,
-      "markup" -> markup,
-      "markupWithRef" -> markupWithRef
-    )
+    object Contents {
+
+      val templateWithRef =
+        """<h1>{{config.foo}}</h1>
+          |<div>{{document.content}}</div>
+          |CCC""".stripMargin
+
+      val templateWithConfig =
+        """{% foo: bar %}
+          |<div>{{document.content}}</div>
+          |CCC""".stripMargin
+
+      val markup =
+        """{% foo: bar %}
+          |aaa
+          |bbb""".stripMargin
+
+
+      val markupWithRef =
+        """aaa
+          |{{config.foo}}
+          |bbb""".stripMargin
+    }
     
     def resultOf (tree: DocumentTreeRoot): RootElement = {
       val result = TemplateRewriter.applyTemplates(tree.tree, "html")
@@ -71,106 +74,102 @@ class ConfigSpec extends FlatSpec
   
   val rstParser = laika.io.Parallel(MarkupParser.of(ReStructuredText)).build[IO]
   
-  "The Config parser" should "parse configuration sections embedded in Markdown documents" in {
-    new Inputs {
-      val dir = """- default.template.html:templateWithRef
-        |- input.md:markup""".stripMargin
-      val expected = root(
-        TemplateRoot(List(
-          TemplateString("<h1>"),
-          TemplateString("bar"),
-          TemplateString("</h1>\n<div>"),
-          eRoot(p("aaa\nbbb")),
-          TemplateString("</div>\nCCC")
-        ))
-      )
-      resultOf(markdownParser.fromInput(IO.pure(builder(dir, mdMatcher))).parse.unsafeRunSync()) should be (expected)
-    }
+  "The Config parser" should "parse configuration sections embedded in Markdown documents" in new Inputs {
+    val inputs = Seq(
+      Root / "default.template.html" -> Contents.templateWithRef,
+      Root / "input.md" -> Contents.markup
+    )
+    val expected = root(
+      TemplateRoot(List(
+        TemplateString("<h1>"),
+        TemplateString("bar"),
+        TemplateString("</h1>\n<div>"),
+        eRoot(p("aaa\nbbb")),
+        TemplateString("</div>\nCCC")
+      ))
+    )
+    resultOf(markdownParser.fromInput(IO.pure(builder(inputs, mdMatcher))).parse.unsafeRunSync()) should be (expected)
   }
   
-  it should "parse configuration sections embedded in reStructuredText documents" in {
-    new Inputs {
-      val dir = """- default.template.html:templateWithRef
-        |- input.rst:markup""".stripMargin
-      val expected = root(
-        TemplateRoot(List(
-          TemplateString("<h1>"),
-          TemplateString("bar"),
-          TemplateString("</h1>\n<div>"),
-          eRoot(p("aaa\nbbb")),
-          TemplateString("</div>\nCCC")
-        ))
-      )
-      resultOf(rstParser.fromInput(IO.pure(builder(dir, rstMatcher))).parse.unsafeRunSync()) should be (expected)
-    }
+  it should "parse configuration sections embedded in reStructuredText documents" in new Inputs {
+    val inputs = Seq(
+      Root / "default.template.html" -> Contents.templateWithRef,
+      Root / "input.rst" -> Contents.markup
+    )
+    val expected = root(
+      TemplateRoot(List(
+        TemplateString("<h1>"),
+        TemplateString("bar"),
+        TemplateString("</h1>\n<div>"),
+        eRoot(p("aaa\nbbb")),
+        TemplateString("</div>\nCCC")
+      ))
+    )
+    resultOf(rstParser.fromInput(IO.pure(builder(inputs, rstMatcher))).parse.unsafeRunSync()) should be (expected)
+  }
+
+  it should "parse configuration sections embedded in template documents for Markdown" in new Inputs {
+    val inputs = Seq(
+      Root / "default.template.html" -> Contents.templateWithConfig,
+      Root / "input.md" -> Contents.markupWithRef
+    )
+    val expected = root(
+      TemplateRoot(List(
+        TemplateString("<div>"),
+        eRoot(p(txt("aaa\n"),txt("bar"),txt("\nbbb"))),
+        TemplateString("</div>\nCCC")
+      ))
+    )
+    resultOf(markdownParser.fromInput(IO.pure(builder(inputs, mdMatcher))).parse.unsafeRunSync()) should be (expected)
+  }
+
+  it should "parse configuration sections embedded in template documents for reStructuredText" in new Inputs {
+    val inputs = Seq(
+      Root / "default.template.html" -> Contents.templateWithConfig,
+      Root / "input.rst" -> Contents.markupWithRef
+    )
+    val expected = root(
+      TemplateRoot(List(
+        TemplateString("<div>"),
+        eRoot(p(txt("aaa\n"),txt("bar"),txt("\nbbb"))),
+        TemplateString("</div>\nCCC")
+      ))
+    )
+    resultOf(rstParser.fromInput(IO.pure(builder(inputs, rstMatcher))).parse.unsafeRunSync()) should be (expected)
   }
   
-  it should "parse configuration sections embedded in template documents for Markdown" in {
-    new Inputs {
-      val dir = """- default.template.html:templateWithConfig
-        |- input.md:markupWithRef""".stripMargin
-      val expected = root(
-        TemplateRoot(List(
-          TemplateString("<div>"),
-          eRoot(p(txt("aaa\n"),txt("bar"),txt("\nbbb"))),
-          TemplateString("</div>\nCCC")
-        ))
-      )
-      resultOf(markdownParser.fromInput(IO.pure(builder(dir, mdMatcher))).parse.unsafeRunSync()) should be (expected)
-    }
-  }
-  
-  it should "parse configuration sections embedded in template documents for reStructuredText" in {
-    new Inputs {
-      val dir = """- default.template.html:templateWithConfig
-        |- input.rst:markupWithRef""".stripMargin
-      val expected = root(
-        TemplateRoot(List(
-          TemplateString("<div>"),
-          eRoot(p(txt("aaa\n"),txt("bar"),txt("\nbbb"))),
-          TemplateString("</div>\nCCC")
-        ))
-      )
-      resultOf(rstParser.fromInput(IO.pure(builder(dir, rstMatcher))).parse.unsafeRunSync()) should be (expected)
-    }
-  }
-  
-  it should "merge configuration found in documents, templates, directories and programmatic setup" in {
-    new Inputs {
-      override lazy val contents = Map(
-        "template" -> template,
-        "markup" -> md,
-        "config3" -> config3,
-        "config4" -> config4
-      )
-      val md = """{% key1: val1 %}
-        |aaa""".stripMargin
-      val template = """{% key2: val2 %}
-        |{{config.key1}}
-        |{{config.key2}}
-        |{{config.key3}}
-        |{{config.key4}}
-        |{{config.key5}}""".stripMargin
-      val dirs = """- directory.conf:config4
-          |+ dir
-          |  - default.template.html:template
-          |  - directory.conf:config3
-          |  - input.md:markup""".stripMargin
-      val config3 = "key3: val3"
-      val config4 = "key4: val4"
-      val config5 = "key5: val5"
-        
-      val expected = root(
-        TemplateRoot(
-          (1 to 5) map (n => List(TemplateString("val"+n))) reduce (_ ++ List(TemplateString("\n")) ++ _)
-        )
-      )
+  it should "merge configuration found in documents, templates, directories and programmatic setup" in new Inputs {
+    
+    val template = """{% key2: val2 %}
+      |{{config.key1}}
+      |{{config.key2}}
+      |{{config.key3}}
+      |{{config.key4}}
+      |{{config.key5}}""".stripMargin
+
+    val md = """{% key1: val1 %}
+               |aaa""".stripMargin
+    
+    val config3 = "key3: val3"
+    val config4 = "key4: val4"
+    val config5 = "key5: val5"
+
+    val inputs = Seq(
+      Root / "directory.conf"                -> config4,
+      Root / "dir" / "default.template.html" -> template,
+      Root / "dir" / "directory.conf"        -> config3,
+      Root / "dir" / "input.md"              -> md,
+    )
       
-      val op = laika.io.Parallel(MarkupParser.of(Markdown).using(BundleProvider.forConfigString(config5))).build[IO].fromInput(IO.pure(builder(dirs, mdMatcher)))
-      val result = TemplateRewriter.applyTemplates(op.parse.unsafeRunSync().tree, "html")
-      result.selectDocument(Path.Current / "dir" / "input.md").get.content should be (expected)
-    }
+    val expected = root(
+      TemplateRoot(
+        (1 to 5) map (n => List(TemplateString("val"+n))) reduce (_ ++ List(TemplateString("\n")) ++ _)
+      )
+    )
+    
+    val op = laika.io.Parallel(MarkupParser.of(Markdown).using(BundleProvider.forConfigString(config5))).build[IO].fromInput(IO.pure(builder(inputs, mdMatcher)))
+    val result = TemplateRewriter.applyTemplates(op.parse.unsafeRunSync().tree, "html")
+    result.selectDocument(Path.Current / "dir" / "input.md").get.content should be (expected)
   }
-  
   
 }

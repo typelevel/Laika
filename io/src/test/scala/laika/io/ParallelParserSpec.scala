@@ -49,25 +49,25 @@ class ParallelParserSpec extends FlatSpec
   
   trait TreeParser extends InputBuilder with ParserSetup {
     
-    def dirs: String 
+    def inputs: Seq[(Path, String)] 
     
-    def contents = Map(
-      "link" -> "[link](foo)",
-      "name" -> "foo",
-      "name2" -> "bar",
-      "multiline" -> """aaa
-        |
-        |bbb""".stripMargin,
-      "directive" -> "aa @:foo bar. bb",
-      "template" -> """<div>
-        |  {{document.content}}
-        |</div>""".stripMargin,
-      "template2" -> """<div>
-        |xx{{document.content}}
-        |</div>""".stripMargin,
-      "dynDoc" -> "{{config.value}}",
-      "conf" -> "value: abc",
-      "order" -> """navigationOrder: [
+    object Contents {
+      val link = "[link](foo)"
+      val name = "foo"
+      val name2 = "bar"
+      val multiline = """aaa
+                       |
+                       |bbb""".stripMargin
+      val directive = "aa @:foo bar. bb"
+      val template = """<div>
+                      |  {{document.content}}
+                      |</div>""".stripMargin
+      val template2 = """<div>
+                       |xx{{document.content}}
+                       |</div>""".stripMargin
+      val dynDoc = "{{config.value}}"
+      val conf = "value: abc"
+      val order = """navigationOrder: [
         |  lemon.md
         |  shapes
         |  cherry.md
@@ -75,11 +75,11 @@ class ParallelParserSpec extends FlatSpec
         |  apple.md
         |  orange.md
         |]""".stripMargin
-    )
+    }
     
     val docTypeMatcher: Path => DocumentType = defaultParser.config.docTypeMatcher // TODO - 0.12 - does it need rst?
     
-    def builder (source: String): IO[TreeInput] = cats.effect.IO.pure(parseTreeStructure(source, docTypeMatcher))
+    def build (in: Seq[(Path, String)]): IO[TreeInput] = IO.pure(build(in, docTypeMatcher))
     
     def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("foo"))) :: Nil)
     
@@ -87,79 +87,75 @@ class ParallelParserSpec extends FlatSpec
   
     def withTemplatesApplied (tree: DocumentTree): DocumentTree = TemplateRewriter.applyTemplates(tree, "html")
     
-    def parsedTree: TreeView = viewOf(withTemplatesApplied(defaultParser.fromInput(builder(dirs)).parse.unsafeRunSync().tree))
+    def parsedTree: TreeView = viewOf(withTemplatesApplied(defaultParser.fromInput(build(inputs)).parse.unsafeRunSync().tree))
     
-    def rawParsedTree: TreeView = viewOf(rawParser.fromInput(builder(dirs)).parse.unsafeRunSync())
+    def rawParsedTree: TreeView = viewOf(rawParser.fromInput(build(inputs)).parse.unsafeRunSync())
 
     // def rawMixedParsedTree = viewOf(MarkupParser.of(Markdown).or(ReStructuredText).withoutRewrite.fromTreeInput(builder(dirs)).execute) // TODO - 0.12 - resurrect
     
     def parsedWith (bundle: ExtensionBundle): TreeView =
-      viewOf(withTemplatesApplied(Parallel(MarkupParser.of(Markdown).using(bundle)).build[IO].fromInput(builder(dirs)).parse.unsafeRunSync().tree))
+      viewOf(withTemplatesApplied(Parallel(MarkupParser.of(Markdown).using(bundle)).build[IO].fromInput(build(inputs)).parse.unsafeRunSync().tree))
       
     def parsedRawWith (bundle: ExtensionBundle = ExtensionBundle.Empty, customMatcher: PartialFunction[Path, DocumentType] = PartialFunction.empty): TreeView = {
-      val input = parseTreeStructure(dirs, customMatcher.orElse({case path => docTypeMatcher(path)}))
+      val input = IO.pure(build(inputs, customMatcher.orElse({case path => docTypeMatcher(path)})))
       val parser = MarkupParser.of(Markdown).withoutRewrite.using(bundle)
-      viewOf(Parallel(parser).build[IO].fromInput(cats.effect.IO.pure(input)).parse.unsafeRunSync())
+      viewOf(Parallel(parser).build[IO].fromInput(input).parse.unsafeRunSync())
     }
   }
   
 
   
-  "The parallel parser" should "parse an empty tree" in {
-    new TreeParser {
-      val dirs = ""
-      val treeResult = TreeView(Root, Nil)
-      parsedTree should be (treeResult)
-    }
+  "The parallel parser" should "parse an empty tree" in new TreeParser {
+    val inputs = Nil
+    val treeResult = TreeView(Root, Nil)
+    parsedTree should be (treeResult)
   }
-  
-  it should "parse a tree with a single document" in {
-    new TreeParser {
-      val dirs = """- name.md:name"""
-      val docResult = DocumentView(Root / "name.md", Content(List(p("foo"))) :: Nil)
-      val treeResult = TreeView(Root, List(Documents(Markup, List(docResult))))
-      parsedTree should be (treeResult)
-    }
+
+  it should "parse a tree with a single document" in new TreeParser {
+    val inputs = Seq(
+      Root / "name.md" -> Contents.name
+    )
+    val docResult = DocumentView(Root / "name.md", Content(List(p("foo"))) :: Nil)
+    val treeResult = TreeView(Root, List(Documents(Markup, List(docResult))))
+    parsedTree should be (treeResult)
   }
-  
-  it should "parse a tree with multiple subtrees" in {
-    new TreeParser {
-      val dirs = """- doc1.md:name
-        |- doc2.md:name
-        |+ dir1
-        |  - doc3.md:name
-        |  - doc4.md:name
-        |+ dir2
-        |  - doc5.md:name
-        |  - doc6.md:name""".stripMargin
-      val subtree1 = TreeView(Root / "dir1", List(Documents(Markup, List(docView(3, Root / "dir1"),docView(4, Root / "dir1")))))
-      val subtree2 = TreeView(Root / "dir2", List(Documents(Markup, List(docView(5, Root / "dir2"),docView(6, Root / "dir2")))))
-      val treeResult = TreeView(Root, List(
-        Documents(Markup, List(docView(1),docView(2))),
-        Subtrees(List(subtree1,subtree2))
-      ))
-      parsedTree should be (treeResult)
-    }
+
+  it should "parse a tree with multiple subtrees" in new TreeParser {
+    val inputs = Seq(
+      Root / "doc1.md"          -> Contents.name,
+      Root / "doc2.md"          -> Contents.name,
+      Root / "dir1" / "doc3.md" -> Contents.name,
+      Root / "dir1" / "doc4.md" -> Contents.name,
+      Root / "dir2" / "doc5.md" -> Contents.name,
+      Root / "dir2" / "doc6.md" -> Contents.name
+    )
+    val subtree1 = TreeView(Root / "dir1", List(Documents(Markup, List(docView(3, Root / "dir1"),docView(4, Root / "dir1")))))
+    val subtree2 = TreeView(Root / "dir2", List(Documents(Markup, List(docView(5, Root / "dir2"),docView(6, Root / "dir2")))))
+    val treeResult = TreeView(Root, List(
+      Documents(Markup, List(docView(1),docView(2))),
+      Subtrees(List(subtree1,subtree2))
+    ))
+    parsedTree should be (treeResult)
   }
-  
-  it should "parse a tree with a single template" in {
-    new TreeParser {
-      val dirs = """- main.template.html:name"""
-      val template = TemplateView(Root / "main.template.html", TemplateRoot(List(TemplateString("foo"))))
-      val treeResult = TreeView(Root, List(TemplateDocuments(List(template))))
-      rawParsedTree should be (treeResult)
-    }
+
+  it should "parse a tree with a single template" in new TreeParser {
+    val inputs = Seq(
+      Root / "main.template.html" -> Contents.name
+    )
+    val template = TemplateView(Root / "main.template.html", TemplateRoot(List(TemplateString("foo"))))
+    val treeResult = TreeView(Root, List(TemplateDocuments(List(template))))
+    rawParsedTree should be (treeResult)
   }
-  
-  it should "parse a tree with a static document" ignore {
-    new TreeParser {
-      val dirs = """- omg.js:name"""
-      val input = InputView("omg.js")
-      val treeResult = TreeView(Root, List(Inputs(Static, List(input))))
-      parsedTree should be (treeResult)
-    }
+
+  it should "parse a tree with a static document" ignore new TreeParser {
+    val inputs = Seq(
+      Root / "omg.js" -> Contents.name
+    )
+    val input = InputView("omg.js")
+    val treeResult = TreeView(Root, List(Inputs(Static, List(input))))
+    parsedTree should be (treeResult)
   }
-  
+
   it should "parse a tree with all available file types" ignore {
 //    new TreeParser {
 //      val dirs = """- doc1.md:link
@@ -193,129 +189,124 @@ class ParallelParserSpec extends FlatSpec
 //    }
   }
   
-  it should "allow to specify a custom template engine" in {
-    new TreeParser {
-      val parser: Parser[TemplateRoot] = TextParsers.any ^^ { str => TemplateRoot(List(TemplateString("$$" + str))) }
-      val dirs = """- main1.template.html:name
-        |- main2.template.html:name""".stripMargin
-      def template (num: Int) = TemplateView(Root / s"main$num.template.html", TemplateRoot(List(TemplateString("$$foo"))))
-      val treeResult = TreeView(Root, List(TemplateDocuments(List(template(1),template(2)))))
-      parsedRawWith(BundleProvider.forTemplateParser(parser)) should be (treeResult)
-    }
+  it should "allow to specify a custom template engine" in new TreeParser {
+    val parser: Parser[TemplateRoot] = TextParsers.any ^^ { str => TemplateRoot(List(TemplateString("$$" + str))) }
+    val inputs = Seq(
+      Root / "main1.template.html" -> Contents.name,
+      Root / "main2.template.html" -> Contents.name
+    )
+    def template (num: Int) = TemplateView(Root / s"main$num.template.html", TemplateRoot(List(TemplateString("$$foo"))))
+    val treeResult = TreeView(Root, List(TemplateDocuments(List(template(1),template(2)))))
+    parsedRawWith(BundleProvider.forTemplateParser(parser)) should be (treeResult)
   }
-  
-  it should "allow to specify a custom style sheet engine" in {
-    new TreeParser {
-      override val docTypeMatcher: PartialFunction[Path, DocumentType] = { case path =>
-        val Stylesheet = """.+\.([a,b]+).css$""".r
-        path.name match {
-          case Stylesheet(kind) => StyleSheet(kind)
-        }
-      }
-      def styleDecl(styleName: String, order: Int = 0) =
-        StyleDeclaration(StylePredicate.ElementType("Type"), styleName -> "foo").increaseOrderBy(order)
-      val parser: Parser[Set[StyleDeclaration]] = TextParsers.any ^^ {n => Set(styleDecl(n))}
-      val dirs = """- main1.aaa.css:name
-        |- main2.bbb.css:name2
-        |- main3.aaa.css:name""".stripMargin
-      val treeResult = TreeView(Root, List(StyleSheets(Map(
-          "aaa" -> StyleDeclarationSet(Set(Path("/main1.aaa.css"), Path("/main3.aaa.css")), Set(styleDecl("foo"), styleDecl("foo", 1))),
-          "bbb" -> StyleDeclarationSet(Set(Path("/main2.bbb.css")), Set(styleDecl("bar")))
-      ))))
-      parsedRawWith(BundleProvider.forDocTypeMatcher(docTypeMatcher)
-        .withBase(BundleProvider.forStyleSheetParser(parser))) should be (treeResult)
-    }
-  }
-  
-  it should "allow to specify a template directive" in {
-    new TreeParser {
-      import laika.directive.Templates
-      import Templates.dsl._
 
-      val directive = Templates.create("foo") {
-        attribute(Default) map { TemplateString(_) }
+  it should "allow to specify a custom style sheet engine" in new TreeParser {
+    override val docTypeMatcher: PartialFunction[Path, DocumentType] = { case path =>
+      val Stylesheet = """.+\.([a,b]+).css$""".r
+      path.name match {
+        case Stylesheet(kind) => StyleSheet(kind)
       }
-      val dirs = """- main1.template.html:directive
-        |- main2.template.html:directive""".stripMargin
-      def template (num: Int) = TemplateView(Root / s"main$num.template.html", tRoot(tt("aa "),tt("bar"),tt(" bb")))
-      val treeResult = TreeView(Root, List(TemplateDocuments(List(template(1),template(2)))))
-      parsedRawWith(BundleProvider.forTemplateDirective(directive)) should be (treeResult)
     }
+    def styleDecl(styleName: String, order: Int = 0) =
+      StyleDeclaration(StylePredicate.ElementType("Type"), styleName -> "foo").increaseOrderBy(order)
+    val parser: Parser[Set[StyleDeclaration]] = TextParsers.any ^^ {n => Set(styleDecl(n))}
+    val inputs = Seq(
+      Root / "main1.aaa.css" -> Contents.name,
+      Root / "main2.bbb.css" -> Contents.name2,
+      Root / "main3.aaa.css" -> Contents.name
+    )
+    val treeResult = TreeView(Root, List(StyleSheets(Map(
+        "aaa" -> StyleDeclarationSet(Set(Path("/main1.aaa.css"), Path("/main3.aaa.css")), Set(styleDecl("foo"), styleDecl("foo", 1))),
+        "bbb" -> StyleDeclarationSet(Set(Path("/main2.bbb.css")), Set(styleDecl("bar")))
+    ))))
+    parsedRawWith(BundleProvider.forDocTypeMatcher(docTypeMatcher)
+      .withBase(BundleProvider.forStyleSheetParser(parser))) should be (treeResult)
   }
-  
-  it should "add indentation information if an embedded root is preceded by whitespace characters" in {
-    new TreeParser {
-      import laika.ast.EmbeddedRoot
-      val dirs = """- default.template.html:template
-        |- doc.md:multiline""".stripMargin
-      val docResult = DocumentView(Root / "doc.md", Content(List(tRoot(
-          tt("<div>\n  "),
-          EmbeddedRoot(List(p("aaa"),p("bbb")), 2),
-          tt("\n</div>")
-      ))) :: Nil)
-      val treeResult = TreeView(Root, List(Documents(Markup, List(docResult))))
-      parsedTree should be (treeResult)
+
+  it should "allow to specify a template directive" in new TreeParser {
+    import laika.directive.Templates
+    import Templates.dsl._
+
+    val directive = Templates.create("foo") {
+      attribute(Default) map { TemplateString(_) }
     }
+    val inputs = Seq(
+      Root / "main1.template.html" -> Contents.directive,
+      Root / "main2.template.html" -> Contents.directive
+    )
+    def template (num: Int) = TemplateView(Root / s"main$num.template.html", tRoot(tt("aa "),tt("bar"),tt(" bb")))
+    val treeResult = TreeView(Root, List(TemplateDocuments(List(template(1),template(2)))))
+    parsedRawWith(BundleProvider.forTemplateDirective(directive)) should be (treeResult)
   }
-  
-  it should "not add indentation information if an embedded root is preceded by non-whitespace characters" in {
-    new TreeParser {
-      import laika.ast.EmbeddedRoot
-      val dirs = """- default.template.html:template2
-        |- doc.md:multiline""".stripMargin
-      val docResult = DocumentView(Root / "doc.md", Content(List(tRoot(
-        tt("<div>\nxx"),
-        EmbeddedRoot(List(p("aaa"),p("bbb"))),
+
+  it should "add indentation information if an embedded root is preceded by whitespace characters" in new TreeParser {
+    import laika.ast.EmbeddedRoot
+    val inputs = Seq(
+      Root / "default.template.html" -> Contents.template,
+      Root / "doc.md" -> Contents.multiline
+    )
+    val docResult = DocumentView(Root / "doc.md", Content(List(tRoot(
+        tt("<div>\n  "),
+        EmbeddedRoot(List(p("aaa"),p("bbb")), 2),
         tt("\n</div>")
-      ))) :: Nil)
-      val treeResult = TreeView(Root, List(Documents(Markup, List(docResult))))
-      parsedTree should be (treeResult)
-    }
+    ))) :: Nil)
+    val treeResult = TreeView(Root, List(Documents(Markup, List(docResult))))
+    parsedTree should be (treeResult)
   }
   
-  it should "allow to specify a custom navigation order" in {
-    new TreeParser {
-      val dirs = """- apple.md:name
-        |- orange.md:name
-        |+ colors
-        |  - green.md:name
-        |- lemon.md:name
-        |+ shapes
-        |  - rectangle.md:name
-        |- cherry.md:name
-        |- directory.conf:order""".stripMargin
-      val root = defaultParser.fromInput(builder(dirs)).parse.unsafeRunSync()
-      root.tree.content map (_.path.name) should be (List("lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
-    }
+  it should "not add indentation information if an embedded root is preceded by non-whitespace characters" in new TreeParser {
+    import laika.ast.EmbeddedRoot
+    val inputs = Seq(
+      Root / "default.template.html" -> Contents.template2,
+      Root / "doc.md" -> Contents.multiline
+    )
+    val docResult = DocumentView(Root / "doc.md", Content(List(tRoot(
+      tt("<div>\nxx"),
+      EmbeddedRoot(List(p("aaa"),p("bbb"))),
+      tt("\n</div>")
+    ))) :: Nil)
+    val treeResult = TreeView(Root, List(Documents(Markup, List(docResult))))
+    parsedTree should be (treeResult)
+  }
+  
+  it should "allow to specify a custom navigation order" in new TreeParser {
+    val inputs = Seq(
+      Root / "apple.md"             -> Contents.name,
+      Root / "orange.md"            -> Contents.name,
+      Root / "colors" / "green.md"  -> Contents.name,
+      Root / "lemon.md"             -> Contents.name,
+      Root / "shapes" / "circle.md" -> Contents.name,
+      Root / "cherry.md"            -> Contents.name,
+      Root / "directory.conf"       -> Contents.order,
+    )
+    val root = defaultParser.fromInput(build(inputs)).parse.unsafeRunSync()
+    root.tree.content map (_.path.name) should be (List("lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
   }
 
-  it should "always move title documents to the front, even with a custom navigation order" in {
-    new TreeParser {
-      val dirs = """- apple.md:name
-                   |- orange.md:name
-                   |+ colors
-                   |  - green.md:name
-                   |- lemon.md:name
-                   |- title.md:name
-                   |+ shapes
-                   |  - rectangle.md:name
-                   |- cherry.md:name
-                   |- directory.conf:order""".stripMargin
-      
-      val tree = defaultParser.fromInput(builder(dirs)).parse.unsafeRunSync().tree
-      
-      tree.titleDocument.map(_.path.basename) shouldBe Some("title")
-      
-      tree.content map (_.path.name) should be (List("lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
-      tree.content map (_.position) should be (List(
-        TreePosition(Seq(1)),
-        TreePosition(Seq(2)),
-        TreePosition(Seq(3)),
-        TreePosition(Seq(4)),
-        TreePosition(Seq(5)),
-        TreePosition(Seq(6)),
-      ))
-    }
+  it should "always move title documents to the front, even with a custom navigation order" in new TreeParser {
+    val inputs = Seq(
+      Root / "apple.md"             -> Contents.name,
+      Root / "orange.md"            -> Contents.name,
+      Root / "colors" / "green.md"  -> Contents.name,
+      Root / "lemon.md"             -> Contents.name,
+      Root / "title.md"             -> Contents.name,
+      Root / "shapes" / "circle.md" -> Contents.name,
+      Root / "cherry.md"            -> Contents.name,
+      Root / "directory.conf"       -> Contents.order,
+    )
+    val tree = defaultParser.fromInput(build(inputs)).parse.unsafeRunSync().tree
+    
+    tree.titleDocument.map(_.path.basename) shouldBe Some("title")
+    
+    tree.content map (_.path.name) should be (List("lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
+    tree.content map (_.position) should be (List(
+      TreePosition(Seq(1)),
+      TreePosition(Seq(2)),
+      TreePosition(Seq(3)),
+      TreePosition(Seq(4)),
+      TreePosition(Seq(5)),
+      TreePosition(Seq(6)),
+    ))
   }
   
   it should "read a directory from the file system using the fromDirectory method" in new ParserSetup {

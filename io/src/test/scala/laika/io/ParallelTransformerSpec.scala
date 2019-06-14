@@ -18,10 +18,10 @@ package laika.io
 
 import java.io._
 
-import cats.effect.{Async, IO}
+import cats.effect.IO
 import laika.api.Transformer
 import laika.api.builder.OperationConfig
-import laika.ast.DocumentType.{Ignored, Static}
+import laika.ast.DocumentType.Ignored
 import laika.ast.Path.Root
 import laika.ast._
 import laika.bundle.{BundleProvider, ExtensionBundle}
@@ -46,9 +46,9 @@ class ParallelTransformerSpec extends FlatSpec
   trait TreeTransformer extends InputBuilder {
     import laika.ast.{DocumentType, Path}
 
-    val dirs: String
-    
-    def input (source: String, docTypeMatcher: Path => DocumentType): TreeInput = parseTreeStructure(source, docTypeMatcher)
+    def inputs: Seq[(Path, String)]
+
+    def input (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): InputCollection = build(in, docTypeMatcher)
 
     def transformTree: RenderedTreeView = transformWith()
     //def transformMultiMarkup: RenderedTree = transformWith(Transformer.from(Markdown or ReStructuredText to AST)
@@ -61,7 +61,7 @@ class ParallelTransformerSpec extends FlatSpec
     private def transformWith (transformer: ParallelTransformer[IO] = transformer): RenderedTreeView =
       OutputBuilder.RenderedTreeView.toTreeView(
         transformer
-          .fromInput(IO.pure(input(dirs, transformer.config.docTypeMatcher)))
+          .fromInput(IO.pure(input(inputs, transformer.config.docTypeMatcher)))
           .toOutput(IO.pure(StringTreeOutput))
           .transform
           .unsafeRunSync()
@@ -73,17 +73,17 @@ class ParallelTransformerSpec extends FlatSpec
     
     def root (content: Seq[TreeContentView]): RenderedTreeView = RenderedTreeView(Root, content)
     
-    val contents = Map(
-      "name" -> "foo",
-      "aa" -> "aa",
-      "style" -> "13",
-      "link" -> "[link](foo)",
-      "directive" -> "{{document.content}} @:foo bar. bb",
-      "templateConfigRef" -> "{{document.content}}{{config.value}}",
-      "template1" -> "{{document.content}}",
-      "template2" -> "({{document.content}})",
-      "conf" -> "value: abc"
-    )
+    object Contents {
+      val name = "foo"
+      val aa = "aa"
+      val style = "13"
+      val link = "[link](foo)"
+      val directive = "{{document.content}} @:foo bar. bb"
+      val templateConfigRef = "{{document.content}}{{config.value}}"
+      val template1 = "{{document.content}}"
+      val template2 = "({{document.content}})"
+      val conf = "value: abc"
+    }
     
     val simpleResult: String = """RootElement - Blocks: 1
       |. Paragraph - Spans: 1
@@ -102,114 +102,114 @@ class ParallelTransformerSpec extends FlatSpec
   }
 
 
-  "The Transform API" should "transform an empty tree" in {
-    new TreeTransformer {
-      val dirs = ""
-      transformTree should be (root(Nil))
-    }
+  "The Transform API" should "transform an empty tree" in new TreeTransformer {
+    val inputs = Nil
+    transformTree should be (root(Nil))
   }
   
-  it should "transform a tree with a single document" in {
-    new TreeTransformer {
-      val dirs = """- name.md:name"""
-      transformTree should be (root(List(docs((Root / "name.txt", simpleResult)))))
-    }
+  it should "transform a tree with a single document" in new TreeTransformer {
+    val inputs = Seq(
+      Root / "name.md" -> Contents.name
+    )
+    transformTree should be (root(List(docs((Root / "name.txt", simpleResult)))))
   }
   
-  it should "transform a tree with a template document populated by a config file in the directory" in {
-    new TreeTransformer {
-      val dirs = """- default.template.txt:templateConfigRef
-          |- directory.conf:conf
-          |- main.md:aa""".stripMargin
-      val result = """RootElement - Blocks: 1
-          |. TemplateRoot - TemplateSpans: 2
-          |. . EmbeddedRoot(0) - Blocks: 1
-          |. . . Paragraph - Spans: 1
-          |. . . . Text - 'aa'
-          |. . TemplateString - 'abc'""".stripMargin
-      transformTree should be (root(List(docs((Root / "main.txt", result)))))
-    }
-  }
-  
-  it should "transform a tree with a template document populated by a root config string" in {
-    new TreeTransformer {
-      val dirs =
-        """- default.template.txt:templateConfigRef
-          |- main.md:aa""".stripMargin
-      val result = """RootElement - Blocks: 1
-         |. TemplateRoot - TemplateSpans: 2
-         |. . EmbeddedRoot(0) - Blocks: 1
-         |. . . Paragraph - Spans: 1
-         |. . . . Text - 'aa'
-         |. . TemplateString - 'def'""".stripMargin
-      transformWithConfig("value: def") should be (root(List(docs((Root / "main.txt", result)))))
-    }
-  }
-  
-  it should "transform a tree with a custom template engine" in {
-    new TreeTransformer {
-      val dirs = """- default.template.txt:template1
-                   |- main1.md:aa
-                   |- main2.md:aa""".stripMargin
-      val parser: Parser[TemplateRoot] = OperationConfig.default.templateParser.get.map(root => root.copy(root.content :+ TemplateString("cc")))
-      val result = """RootElement - Blocks: 1
+  it should "transform a tree with a template document populated by a config file in the directory" in new TreeTransformer {
+    val inputs = Seq(
+      Root / "default.template.txt" -> Contents.templateConfigRef,
+      Root / "directory.conf"       -> Contents.conf,
+      Root / "main.md"              -> Contents.aa
+    )
+    val result = """RootElement - Blocks: 1
         |. TemplateRoot - TemplateSpans: 2
         |. . EmbeddedRoot(0) - Blocks: 1
         |. . . Paragraph - Spans: 1
         |. . . . Text - 'aa'
-        |. . TemplateString - 'cc'""".stripMargin
-      transformWithTemplates(parser) should be (root(List(docs(
-        (Root / "main1.txt", result),
-        (Root / "main2.txt", result)
-      ))))
-    }
+        |. . TemplateString - 'abc'""".stripMargin
+    transformTree should be (root(List(docs((Root / "main.txt", result)))))
   }
   
-  it should "transform a tree with a custom style sheet engine" in {
-    new TreeTransformer {
-      // the AST renderer does not use stylesheets, so we must use XSL-FO here
-      def styleDecl(fontSize: String) =
-        StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> s"${fontSize}pt")
-      val parser: Parser[Set[StyleDeclaration]] = TextParsers.any ^^ { n => Set(styleDecl(n)) }
-      val dirs = """- doc1.md:name
-        |- styles.fo.css:style""".stripMargin
-      val result = RenderResult.fo.withDefaultTemplate("""<fo:block font-family="serif" font-size="13pt" space-after="3mm">foo</fo:block>""")
-      val transform = Parallel(Transformer.from(Markdown).to(XSLFO).using(BundleProvider.forStyleSheetParser(parser))).build[IO]
-      val renderResult = transform.fromInput(IO.pure(input(dirs, transformer.config.docTypeMatcher))).toOutput(IO.pure(StringTreeOutput)).transform.unsafeRunSync()
-      OutputBuilder.RenderedTreeView.toTreeView(renderResult.tree) should be (root(List(docs(
-        (Root / "doc1.fo", result)
-      ))))
-    }
+  it should "transform a tree with a template document populated by a root config string" in new TreeTransformer {
+    val inputs = Seq(
+      Root / "default.template.txt" -> Contents.templateConfigRef,
+      Root / "main.md"              -> Contents.aa
+    )
+    val result = """RootElement - Blocks: 1
+       |. TemplateRoot - TemplateSpans: 2
+       |. . EmbeddedRoot(0) - Blocks: 1
+       |. . . Paragraph - Spans: 1
+       |. . . . Text - 'aa'
+       |. . TemplateString - 'def'""".stripMargin
+    transformWithConfig("value: def") should be (root(List(docs((Root / "main.txt", result)))))
   }
   
-  it should "transform a tree with a template directive" in {
+  it should "transform a tree with a custom template engine" in new TreeTransformer {
+    val inputs = Seq(
+      Root / "default.template.txt" -> Contents.template1,
+      Root / "main1.md"             -> Contents.aa,
+      Root / "main2.md"             -> Contents.aa
+    )
+    val parser: Parser[TemplateRoot] = OperationConfig.default.templateParser.get.map(root => root.copy(root.content :+ TemplateString("cc")))
+    val result = """RootElement - Blocks: 1
+      |. TemplateRoot - TemplateSpans: 2
+      |. . EmbeddedRoot(0) - Blocks: 1
+      |. . . Paragraph - Spans: 1
+      |. . . . Text - 'aa'
+      |. . TemplateString - 'cc'""".stripMargin
+    transformWithTemplates(parser) should be (root(List(docs(
+      (Root / "main1.txt", result),
+      (Root / "main2.txt", result)
+    ))))
+  }
+  
+  it should "transform a tree with a custom style sheet engine" in new TreeTransformer {
+    // the AST renderer does not use stylesheets, so we must use XSL-FO here
+    def styleDecl(fontSize: String) =
+      StyleDeclaration(StylePredicate.ElementType("Paragraph"), "font-size" -> s"${fontSize}pt")
+    val parser: Parser[Set[StyleDeclaration]] = TextParsers.any ^^ { n => Set(styleDecl(n)) }
+
+    val inputs = Seq(
+      Root / "doc1.md"       -> Contents.name,
+      Root / "styles.fo.css" -> Contents.style
+    )
+    
+    val result = RenderResult.fo.withDefaultTemplate("""<fo:block font-family="serif" font-size="13pt" space-after="3mm">foo</fo:block>""")
+    val transform = Parallel(Transformer.from(Markdown).to(XSLFO).using(BundleProvider.forStyleSheetParser(parser))).build[IO]
+    val renderResult = transform.fromInput(IO.pure(input(inputs, transformer.config.docTypeMatcher))).toOutput(IO.pure(StringTreeOutput)).transform.unsafeRunSync()
+    OutputBuilder.RenderedTreeView.toTreeView(renderResult.tree) should be (root(List(docs(
+      (Root / "doc1.fo", result)
+    ))))
+  }
+  
+  it should "transform a tree with a template directive" in new TreeTransformer {
     import Templates.dsl._
 
     val directive = Templates.create("foo") {
       attribute(Default) map { TemplateString(_) }
     }
-    new TreeTransformer {
-      val dirs = """- default.template.txt:directive
-        |- aa.md:aa""".stripMargin
-      val result = """RootElement - Blocks: 1
-        |. TemplateRoot - TemplateSpans: 4
-        |. . EmbeddedRoot(0) - Blocks: 1
-        |. . . Paragraph - Spans: 1
-        |. . . . Text - 'aa'
-        |. . TemplateString - ' '
-        |. . TemplateString - 'bar'
-        |. . TemplateString - ' bb'""".stripMargin
-      transformWithDirective(directive) should be (root(List(docs(
-        (Root / "aa.txt", result)
-      ))))
-    }
+
+    val inputs = Seq(
+      Root / "default.template.txt" -> Contents.directive,
+      Root / "aa.md"                -> Contents.aa
+    )
+    val result = """RootElement - Blocks: 1
+      |. TemplateRoot - TemplateSpans: 4
+      |. . EmbeddedRoot(0) - Blocks: 1
+      |. . . Paragraph - Spans: 1
+      |. . . . Text - 'aa'
+      |. . TemplateString - ' '
+      |. . TemplateString - 'bar'
+      |. . TemplateString - ' bb'""".stripMargin
+    transformWithDirective(directive) should be (root(List(docs(
+      (Root / "aa.txt", result)
+    ))))
   }
 
-  it should "transform a tree with a static document" ignore {
-    new TreeTransformer {
-      val dirs = """- omg.js:name"""
-      transformTree should be (root(List(docs((Root / "omg.js", "foo")))))
-    }
+  it should "transform a tree with a static document" ignore new TreeTransformer {
+    val inputs = Seq(
+      Root / "omg.js" -> Contents.name
+    )
+    transformTree should be (root(List(docs((Root / "omg.js", "foo")))))
   }
   
   it should "transform a tree with all available file types" ignore {
@@ -278,6 +278,11 @@ class ParallelTransformerSpec extends FlatSpec
       "docRoot" -> srcRoot,
       "docSub" -> srcSub
     )
+
+    val inputs = Seq(
+      Root / "docRoot.rst"        -> srcRoot,
+      Root / "dir" / "docSub.rst" -> srcSub
+    )
     
     val dirs: String = """- docRoot.rst:docRoot
         |+ dir
@@ -294,8 +299,8 @@ class ParallelTransformerSpec extends FlatSpec
       |. Paragraph - Spans: 1
       |. . Text - 'ccc'
       |""".stripMargin
-    
-    def input (source: String, docTypeMatcher: Path => DocumentType): TreeInput = parseTreeStructure(source, docTypeMatcher)
+
+    def input (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): InputCollection = build(in, docTypeMatcher)
   }
   
   it should "render a tree with a RenderResultProcessor writing to an output stream" in new GatheringTransformer {
@@ -303,7 +308,7 @@ class ParallelTransformerSpec extends FlatSpec
     val transform = Transformer.from(ReStructuredText).to(TestRenderResultProcessor).build
     Parallel(transform)
       .build[IO]
-      .fromInput(IO.pure(input(dirs, transform.markupParser.config.docTypeMatcher)))
+      .fromInput(IO.pure(input(inputs, transform.markupParser.config.docTypeMatcher)))
       .toStream(IO.pure(out))
       .transform
       .unsafeRunSync()
@@ -316,7 +321,7 @@ class ParallelTransformerSpec extends FlatSpec
     
     Parallel(transform)
       .build[IO]
-      .fromInput(IO.pure(input(dirs, transform.markupParser.config.docTypeMatcher)))
+      .fromInput(IO.pure(input(inputs, transform.markupParser.config.docTypeMatcher)))
       .toFile(f)
       .transform
       .unsafeRunSync()
@@ -406,65 +411,57 @@ class ParallelTransformerSpec extends FlatSpec
     }
   }
 
-  it should "read from and write to directories" in {
-    new FileSystemTest {
-      val sourceName = resourcePath("/trees/a/")
-      val targetDir = OutputBuilder.createTempDirectory("renderToDir")
-      transformer.fromDirectory(sourceName).toDirectory(targetDir).transform.unsafeRunSync()
-      readFiles(targetDir.getPath)
-    }
+  it should "read from and write to directories" in new FileSystemTest {
+    val sourceName = resourcePath("/trees/a/")
+    val targetDir = OutputBuilder.createTempDirectory("renderToDir")
+    transformer.fromDirectory(sourceName).toDirectory(targetDir).transform.unsafeRunSync()
+    readFiles(targetDir.getPath)
   }
 
-  it should "transform a directory with a custom document type matcher" in {
-    new FileSystemTest {
-      val sourceName = resourcePath("/trees/a/")
-      val targetDir = OutputBuilder.createTempDirectory("renderToDir")
-      val transform = transformerWithBundle(BundleProvider.forDocTypeMatcher{ case Root / "doc1.md" => Ignored; case Root / "dir1" / _ => Ignored })
-      transform.fromDirectory(sourceName).toDirectory(targetDir).transform.unsafeRunSync()
-      readFilesFiltered(targetDir.getPath)
-    }
+  it should "transform a directory with a custom document type matcher" in new FileSystemTest {
+    val sourceName = resourcePath("/trees/a/")
+    val targetDir = OutputBuilder.createTempDirectory("renderToDir")
+    val transform = transformerWithBundle(BundleProvider.forDocTypeMatcher{ case Root / "doc1.md" => Ignored; case Root / "dir1" / _ => Ignored })
+    transform.fromDirectory(sourceName).toDirectory(targetDir).transform.unsafeRunSync()
+    readFilesFiltered(targetDir.getPath)
   }
 
-  it should "allow to specify custom exclude filter" in {
-    new FileSystemTest {
-      val sourceName = resourcePath("/trees/a/")
-      val targetDir = OutputBuilder.createTempDirectory("renderToDir")
-      transformer.fromDirectory(sourceName, {f:File => f.getName == "doc1.md" || f.getName == "dir1"}).toDirectory(targetDir).transform.unsafeRunSync()
-      readFilesFiltered(targetDir.getPath)
-    }
+  it should "allow to specify custom exclude filter" in new FileSystemTest {
+    val sourceName = resourcePath("/trees/a/")
+    val targetDir = OutputBuilder.createTempDirectory("renderToDir")
+    transformer.fromDirectory(sourceName, {f:File => f.getName == "doc1.md" || f.getName == "dir1"}).toDirectory(targetDir).transform.unsafeRunSync()
+    readFilesFiltered(targetDir.getPath)
   }
 
-  it should "read from two root directories" in {
-    new FileSystemTest {
-      val source1 = new File(resourcePath("/trees/a/"))
-      val source2 = new File(resourcePath("/trees/b/"))
-      val targetDir = OutputBuilder.createTempDirectory("renderToDir")
-      transformer.fromDirectories(Seq(source1, source2)).toDirectory(targetDir).transform.unsafeRunSync()
-      readFilesMerged(targetDir.getPath)
-    }
+  it should "read from two root directories" in new FileSystemTest {
+    val source1 = new File(resourcePath("/trees/a/"))
+    val source2 = new File(resourcePath("/trees/b/"))
+    val targetDir = OutputBuilder.createTempDirectory("renderToDir")
+    transformer.fromDirectories(Seq(source1, source2)).toDirectory(targetDir).transform.unsafeRunSync()
+    readFilesMerged(targetDir.getPath)
   }
 
-  it should "allow to use the same directory as input and output" ignore {
+  it should "allow to use the same directory as input and output" ignore new FileSystemTest {
+    
+    // TODO - 0.12 - needs support for static files to be revived before actually
+    
     import OutputBuilder._
     
-    // TODO - 0.12 - resurrect
-    new FileSystemTest {
-      val targetDir = OutputBuilder.createTempDirectory("renderToDir")
-      val staticFile = new File(targetDir, "static.txt")
-      val inputFile = new File(targetDir, "hello.md")
-      writeFile(inputFile, "Hello")
-      writeFile(staticFile, "Text")
+    val targetDir = OutputBuilder.createTempDirectory("renderToDir")
+    val staticFile = new File(targetDir, "static.txt")
+    val inputFile = new File(targetDir, "hello.md")
+    writeFile(inputFile, "Hello")
+    writeFile(staticFile, "Text")
 
-      val result = """RootElement - Blocks: 1
-                     |. Paragraph - Spans: 1
-                     |. . Text - 'Hello'""".stripMargin
+    val result = """RootElement - Blocks: 1
+                   |. Paragraph - Spans: 1
+                   |. . Text - 'Hello'""".stripMargin
 
-      transformer.fromDirectory(targetDir).toDirectory(targetDir).transform.unsafeRunSync()
+    transformer.fromDirectory(targetDir).toDirectory(targetDir).transform.unsafeRunSync()
 
-      readFile(inputFile) shouldBe "Hello"
-      readFile(staticFile) shouldBe "Text"
-      readFile(new File(targetDir, "hello.txt")) shouldBe result
-    }
+    readFile(inputFile) shouldBe "Hello"
+    readFile(staticFile) shouldBe "Text"
+    readFile(new File(targetDir, "hello.txt")) shouldBe result
   }
 
   it should "not copy files from the output directory if it's nested inside the input directory" ignore {
@@ -493,7 +490,5 @@ class ParallelTransformerSpec extends FlatSpec
       new File(subdir, "sub").exists shouldBe false
     }
   }
-  
 
 }
-  
