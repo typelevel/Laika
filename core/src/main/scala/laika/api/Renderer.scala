@@ -62,9 +62,7 @@ abstract class Renderer (val config: OperationConfig) {
     
     val rewrittenTree = TemplateRewriter.applyTemplates(treeWithTpl, format.fileSuffix)
 
-    val finalTree = theme.staticDocuments.merge(rewrittenTree)
-    
-    root.copy(tree = finalTree, styles = root.styles + (format.fileSuffix -> styles))
+    root.copy(tree = rewrittenTree, styles = root.styles + (format.fileSuffix -> styles))
   }
 
 }

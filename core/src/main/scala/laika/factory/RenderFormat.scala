@@ -18,7 +18,7 @@ package laika.factory
 
 import laika.api.builder.RenderConfig
 import laika.ast.{Element, Path, StyleDeclarationSet, TemplateRoot}
-import laika.bundle.{RenderTheme, StaticDocuments}
+import laika.bundle.RenderTheme
 import laika.render.Indentation
 
 /** Provides the context for a single render operation.
@@ -88,16 +88,14 @@ trait RenderFormat[FMT] {
 
   case class Theme (customRenderer: CustomRenderFunction[FMT] = PartialFunction.empty,
                     defaultTemplate: Option[TemplateRoot] = None,
-                    defaultStyles: StyleDeclarationSet = StyleDeclarationSet.empty,
-                    staticDocuments: StaticDocuments = StaticDocuments.empty) extends RenderTheme {
+                    defaultStyles: StyleDeclarationSet = StyleDeclarationSet.empty) extends RenderTheme {
 
     type Formatter = FMT
 
     def withBase (base: Theme): Theme = Theme(
       customRenderer.orElse(base.customRenderer),
       defaultTemplate.orElse(base.defaultTemplate),
-      base.defaultStyles ++ defaultStyles,
-      StaticDocuments(staticDocuments.merge(base.staticDocuments.tree))
+      base.defaultStyles ++ defaultStyles
     )
 
   }

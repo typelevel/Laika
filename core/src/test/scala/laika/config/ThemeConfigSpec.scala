@@ -18,7 +18,7 @@ package laika.config
 
 import laika.api.builder.OperationConfig
 import laika.ast._
-import laika.bundle.{BundleProvider, ExtensionBundle, StaticDocuments}
+import laika.bundle.{BundleProvider, ExtensionBundle}
 import laika.factory.{RenderContext, RenderFormat}
 import laika.render.{ASTRenderer, Indentation, TextFormatter}
 import org.scalatest.{Matchers, WordSpec}
@@ -52,8 +52,7 @@ class ThemeConfigSpec extends WordSpec with Matchers {
       override val defaultTheme = Theme(
         customRenderer = customRenderer,
         defaultTemplate = defaultTemplate,
-        defaultStyles = defaultStyles,
-        staticDocuments = staticDocuments
+        defaultStyles = defaultStyles
       )
 
     }
@@ -61,8 +60,6 @@ class ThemeConfigSpec extends WordSpec with Matchers {
     def defaultTemplate: Option[TemplateRoot] = None
 
     def defaultStyles: StyleDeclarationSet = StyleDeclarationSet.empty
-
-    def staticDocuments: StaticDocuments = StaticDocuments(DocumentTree(Path.Root, Nil))
 
     def customRenderer: PartialFunction[(TextFormatter, Element), String] =  { case (_, _) => "" }
 
@@ -192,22 +189,5 @@ class ThemeConfigSpec extends WordSpec with Matchers {
     }
 
   }
-
-//  "The configuration for static content" should {
-//
-//    "merge static content defined in a default theme with static content defined in an app extension" in new BundleSetup {
-//      val docA = StaticDocument(ByteInput("a", Path.Root / "a"))
-//      val docB = StaticDocument(ByteInput("b", Path.Root / "b"))
-//      override lazy val staticDocuments = StaticDocuments(DocumentTree(Path.Root, Nil, additionalContent = Seq(docA)))
-//      val moreDocuments = StaticDocuments(DocumentTree(Path.Root, Nil, additionalContent = Seq(docB)))
-//      val appBundles = Seq(BundleProvider.forTheme(TestFormat.Theme(staticDocuments = moreDocuments)))
-//
-//      val mergedStaticDocuments = config.themeFor(TestFormat).staticDocuments
-//
-//      mergedStaticDocuments shouldBe StaticDocuments(DocumentTree(Path.Root, Nil, additionalContent = Seq(docB, docA)))
-//    }
-//
-//  }
-
 
 }

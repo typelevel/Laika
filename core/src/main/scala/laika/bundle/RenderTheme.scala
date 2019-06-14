@@ -58,73 +58,9 @@ trait RenderTheme {
     */
   def defaultStyles: StyleDeclarationSet
 
-  /** Specifies any additional static documents to be copied over to the
-    * target directory in each transform operation.
-    *
-    * This is allows for a central collection of CSS, JavaScript, image and
-    * other files needed for a specific theme.
-    */
-  def staticDocuments: StaticDocuments
-
   /** Returns the default template specified by this theme or the
     * system-wide default in case the default is empty.
     */
   def defaultTemplateOrFallback: TemplateRoot = defaultTemplate.getOrElse(TemplateRoot.fallback)
-
-}
-
-/** A collection of static documents to be copied over to the
-  * target directory in each transform operation.
-  *
-  * This is allows for a central collection of CSS, JavaScript, image and
-  * other files needed for a specific theme.
-  */
-case class StaticDocuments (tree: DocumentTree) {
-
-  /** Merges this instance with the specified base recursively.
-    */
-  def merge (base: DocumentTree): DocumentTree = {
-
-    def mergeContent (content: Seq[TreeContent]): Seq[TreeContent] = {
-      val trees = content.collect{ case t: DocumentTree => t }.groupBy(_.path).mapValuesStrict(_.reduceLeft(mergeTrees)).values.toList
-      (content.filter(_.isInstanceOf[Document]) ++ trees).sortBy(_.position)
-    }
-
-    def mergeTrees (left: DocumentTree, right: DocumentTree): DocumentTree = {
-      right.copy(
-        content = mergeContent(left.content ++ right.content)
-      )
-    }
-
-    mergeTrees(tree, base)
-
-  }
-
-}
-
-/** API for defining a collection of static documents
-  * based on one or more directories.
-  *
-  * Like with all Laika IO, these may be actual file system directories
-  * or virtual in-memory trees of input documents.
-  */
-object StaticDocuments {
-
-  val empty = StaticDocuments(DocumentTree(Path.Root, Nil))
-
-  // TODO - 0.12 - should now just be a `Seq[BinaryInput]`
-  
-//  override type InputTreeResult = StaticDocuments
-//
-//  override def config: OperationConfig = OperationConfig(Seq(new ExtensionBundle {
-//    override def docTypeMatcher: PartialFunction[Path, DocumentType] = { case _ => DocumentType.Static }
-//  }))
-//
-//  override def fromTreeInput (input: TreeInput): StaticDocuments = {
-//    val static = input.binaryInputs map StaticDocument
-//    def buildTree (path: Path, content: Seq[StaticDocument], subTrees: Seq[DocumentTree]): DocumentTree =
-//      DocumentTree(path, subTrees, additionalContent = content, sourcePaths = input.sourcePaths)
-//    StaticDocuments(TreeBuilder.build(static, buildTree))
-//  }
 
 }
