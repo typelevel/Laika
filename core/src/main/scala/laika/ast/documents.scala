@@ -380,6 +380,36 @@ object TreeBuilder {
     }
   }
 
+  /** Builds a tree structure from the specified leaf elements, using the given builder function.
+    * The function will be invoked for each node recursively, with the path for the node to build
+    * and the child nodes that are immediate children of the node to build.
+    */
+  def buildComposite[C <: Navigatable, T <: C] (content: Seq[C], buildNode: (Path, Seq[C]) => T): T = {
+
+    def toMap (items: Iterable[C]): Map[Path, C] = items.map(c => (c.path, c)).toMap
+    
+    def buildNodes (depth: Int, contentMap: Map[Path, C]): Seq[T] = {
+
+      val newNodes = content
+        .filter(_.path.parent.depth >= depth)
+        .map(p => Path(Root, p.path.components.take(depth + 1)))
+        .distinct
+        .groupBy(_.parent)
+        .map { 
+          case (parent, contentPaths) => buildNode(parent, contentPaths.map(contentMap))
+        }
+
+      if (depth == 0) newNodes.toSeq
+      else buildNodes(depth - 1, contentMap ++ toMap(newNodes))
+    }
+
+    if (content.isEmpty) buildNode(Root, Nil)
+    else {
+      val maxPathLength = content.map(_.path.parent.depth).max
+      buildNodes(maxPathLength, toMap(content)).head
+    }
+  }
+
 }
 
 /** Base type for all document type descriptors.
