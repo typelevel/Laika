@@ -20,9 +20,13 @@ object OutputBuilder {
   case class SubtreeViews (content: Seq[RenderedTreeView]) extends ElementContainer[RenderedTreeView, SubtreeViews] with TreeContentView
   
   case class RenderedTreeView (path: Path, content: Seq[TreeContentView]) extends ElementContainer[TreeContentView, RenderedTreeView]
+  case class RenderedTreeViewRoot (tree: RenderedTreeView, staticDocuments: Seq[Path])
   
   
   object RenderedTreeView {
+
+    def toTreeView (root: io.RenderedTreeRoot) : RenderedTreeViewRoot = 
+      RenderedTreeViewRoot(toTreeView(root.tree), root.staticDocuments.map(_.path))
     
     def toTreeView (tree: io.RenderedTree) : RenderedTreeView = new RenderedTreeView(tree.path, List( 
       DocumentViews(tree.content.collect { case doc: io.RenderedDocument => RenderedDocumentView(doc.path, doc.content) }),

@@ -85,21 +85,21 @@ class ParallelParserSpec extends FlatSpec
     
     def customDocView (name: String, content: Seq[Block], path: Path = Root) = DocumentView(path / name, Content(content) :: Nil)
   
-    def withTemplatesApplied (tree: DocumentTree): DocumentTree = TemplateRewriter.applyTemplates(tree, "html")
+    def withTemplatesApplied (root: DocumentTreeRoot): DocumentTreeRoot = root.copy(tree = TemplateRewriter.applyTemplates(root.tree, "html"))
     
-    def parsedTree: TreeView = viewOf(withTemplatesApplied(defaultParser.fromInput(build(inputs)).parse.unsafeRunSync().tree))
+    def parsedTree: TreeView = viewOf(withTemplatesApplied(defaultParser.fromInput(build(inputs)).parse.unsafeRunSync().root))
     
-    def rawParsedTree: TreeView = viewOf(rawParser.fromInput(build(inputs)).parse.unsafeRunSync())
+    def rawParsedTree: TreeView = viewOf(rawParser.fromInput(build(inputs)).parse.unsafeRunSync().root)
 
     // def rawMixedParsedTree = viewOf(MarkupParser.of(Markdown).or(ReStructuredText).withoutRewrite.fromTreeInput(builder(dirs)).execute) // TODO - 0.12 - resurrect
     
     def parsedWith (bundle: ExtensionBundle): TreeView =
-      viewOf(withTemplatesApplied(Parallel(MarkupParser.of(Markdown).using(bundle)).build[IO].fromInput(build(inputs)).parse.unsafeRunSync().tree))
+      viewOf(withTemplatesApplied(Parallel(MarkupParser.of(Markdown).using(bundle)).build[IO].fromInput(build(inputs)).parse.unsafeRunSync().root))
       
     def parsedRawWith (bundle: ExtensionBundle = ExtensionBundle.Empty, customMatcher: PartialFunction[Path, DocumentType] = PartialFunction.empty): TreeView = {
       val input = IO.pure(build(inputs, customMatcher.orElse({case path => docTypeMatcher(path)})))
       val parser = MarkupParser.of(Markdown).withoutRewrite.using(bundle)
-      viewOf(Parallel(parser).build[IO].fromInput(input).parse.unsafeRunSync())
+      viewOf(Parallel(parser).build[IO].fromInput(input).parse.unsafeRunSync().root)
     }
   }
   
@@ -147,7 +147,7 @@ class ParallelParserSpec extends FlatSpec
     rawParsedTree should be (treeResult)
   }
 
-  it should "parse a tree with a static document" ignore new TreeParser {
+  it should "parse a tree with a static document" in new TreeParser {
     val inputs = Seq(
       Root / "omg.js" -> Contents.name
     )
@@ -279,7 +279,7 @@ class ParallelParserSpec extends FlatSpec
       Root / "cherry.md"            -> Contents.name,
       Root / "directory.conf"       -> Contents.order,
     )
-    val root = defaultParser.fromInput(build(inputs)).parse.unsafeRunSync()
+    val root = defaultParser.fromInput(build(inputs)).parse.unsafeRunSync().root
     root.tree.content map (_.path.name) should be (List("lemon.md","shapes","cherry.md","colors","apple.md","orange.md"))
   }
 
@@ -294,7 +294,7 @@ class ParallelParserSpec extends FlatSpec
       Root / "cherry.md"            -> Contents.name,
       Root / "directory.conf"       -> Contents.order,
     )
-    val tree = defaultParser.fromInput(build(inputs)).parse.unsafeRunSync().tree
+    val tree = defaultParser.fromInput(build(inputs)).parse.unsafeRunSync().root.tree
     
     tree.titleDocument.map(_.path.basename) shouldBe Some("title")
     
@@ -318,7 +318,7 @@ class ParallelParserSpec extends FlatSpec
       Documents(Markup, List(docView(1),docView(2))),
       Subtrees(List(subtree1,subtree2))
     ))
-    viewOf(defaultParser.fromDirectory(dirname).parse.unsafeRunSync().tree) should be (treeResult)
+    viewOf(defaultParser.fromDirectory(dirname).parse.unsafeRunSync().root.tree) should be (treeResult)
   }
 
   it should "read a directory from the file system using a custom document type matcher" in new ParserSetup {
@@ -331,7 +331,7 @@ class ParallelParserSpec extends FlatSpec
       Subtrees(List(subtree1,subtree2))
     ))
     val parser = parserWithBundle(BundleProvider.forDocTypeMatcher{ case Root / "doc1.md" => Ignored })
-    viewOf(parser.fromDirectory(dirname).parse.unsafeRunSync().tree) should be (treeResult)
+    viewOf(parser.fromDirectory(dirname).parse.unsafeRunSync().root.tree) should be (treeResult)
   }
 
   it should "allow to specify a custom exclude filter" in new ParserSetup {
@@ -342,7 +342,7 @@ class ParallelParserSpec extends FlatSpec
       Documents(Markup, List(docView(2))),
       Subtrees(List(subtree2))
     ))
-    viewOf(defaultParser.fromDirectory(dirname, {f:java.io.File => f.getName == "doc1.md" || f.getName == "dir1"}).parse.unsafeRunSync().tree) should be (treeResult)
+    viewOf(defaultParser.fromDirectory(dirname, {f:java.io.File => f.getName == "doc1.md" || f.getName == "dir1"}).parse.unsafeRunSync().root.tree) should be (treeResult)
   }
   
   it should "read a directory from the file system using the fromDirectories method" in new ParserSetup {
@@ -356,7 +356,7 @@ class ParallelParserSpec extends FlatSpec
       Documents(Markup, List(docView(1),docView(2),docView(9))),
       Subtrees(List(subtree1,subtree2,subtree3))
     ))
-    viewOf(defaultParser.fromDirectories(Seq(dir1,dir2)).parse.unsafeRunSync().tree) should be (treeResult)
+    viewOf(defaultParser.fromDirectories(Seq(dir1,dir2)).parse.unsafeRunSync().root.tree) should be (treeResult)
   }
 
   it should "read a directory from the file system containing a file with non-ASCII characters" in new ParserSetup {
@@ -365,7 +365,7 @@ class ParallelParserSpec extends FlatSpec
     val treeResult = TreeView(Root, List(
       Documents(Markup, List(docView(1)))
     ))
-    viewOf(defaultParser.fromDirectory(dirname).parse.unsafeRunSync().tree) should be (treeResult)
+    viewOf(defaultParser.fromDirectory(dirname).parse.unsafeRunSync().root.tree) should be (treeResult)
   }
   
 }

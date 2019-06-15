@@ -15,6 +15,9 @@ import laika.io.{TextOutput, _}
   */
 object RendererRuntime {
 
+  case class CopiedDocument (path: Path)
+  type RenderResult = Either[CopiedDocument, RenderedDocument]
+  
   def run[F[_]: Async] (op: SequentialRenderer.Op[F], styles: Option[StyleDeclarationSet] = None): F[String] = {
 
     val renderResult = styles.fold(op.renderer.render(op.input, op.path)){ st => 
@@ -33,69 +36,66 @@ object RendererRuntime {
     val finalRoot = op.renderer.applyTheme(op.input)
     val styles = finalRoot.styles(fileSuffix)
     
-    case class RenderTasks (mkDirOps: Seq[F[Unit]], renderOps: Seq[F[RenderContent]])
+    case class RenderOps (mkDirOps: Seq[F[Unit]], renderOps: Seq[F[RenderResult]])
     
     def file (rootDir: File, path: Path): File = new File(rootDir, path.toString.drop(1))
 
-    // TODO - 0.12 - handle static docs
-//    def binaryOutputFor (path: Path): Seq[BinaryOutput] = op.output match {
-//      case StringTreeOutput => Nil
-//      case DirectoryOutput(dir, codec) => Seq(BinaryFileOutput(new File(dir, path.toString.drop(1)), path))
-//    }
-    //    def copy (document: BinaryInput): Seq[Operation] = binaryOutputFor(document.path).map { out =>
-    //      () => {
-    //        IO.copy(document, out)
-    //        CopiedDocument(document)
-    //      }
-    //    }
-
-    def renderDocuments (output: Path => TextOutput): Seq[F[RenderContent]] = finalRoot.allDocuments.map { document =>
-      println(document.path)
+    def renderDocuments (output: Path => TextOutput): Seq[F[RenderResult]] = finalRoot.allDocuments.map { document =>
       val outputPath = document.path.withSuffix(fileSuffix)
       val textOp = SequentialRenderer.Op(op.renderer, document.content, outputPath, Async[F].pure(output(outputPath)))
       run(textOp, Some(styles)).map { res =>
-        RenderedDocument(outputPath, document.title, document.sections, res): RenderContent
+        Right(RenderedDocument(outputPath, document.title, document.sections, res)): RenderResult
       }
     }
     
-    val renderTasks: F[RenderTasks] = op.output.map {
-      case StringTreeOutput => RenderTasks(Nil, renderDocuments(p => StringOutput(p)))
-      case DirectoryOutput(dir, codec) => 
-        val operations = renderDocuments(p => TextFileOutput(file(dir, p), p, codec))
-        val directories = finalRoot.allDocuments.map(_.path.parent).distinct
-          .map(p => OutputRuntime.createDirectory(file(dir, p)))
-        RenderTasks(directories, operations)
+    def copyDocuments (docs: Seq[BinaryInput], dir: File): Seq[F[RenderResult]] = docs.map { in =>
+      val out = BinaryFileOutput(file(dir, in.path), in.path)
+      CopyRuntime.copy(in, out).as(Left(CopiedDocument(in.path)): RenderResult)
     }
     
-    def processBatch (ops: Seq[F[RenderContent]]): F[RenderedTreeRoot] =
+    def renderOps (staticDocs: Seq[BinaryInput]): F[RenderOps] = op.output.map {
+      case StringTreeOutput => RenderOps(Nil, renderDocuments(p => StringOutput(p)))
+      case DirectoryOutput(dir, codec) => 
+        val renderOps = renderDocuments(p => TextFileOutput(file(dir, p), p, codec))
+        val toCopy = filterOutput(staticDocs, dir.getAbsolutePath)
+        val copyOps = copyDocuments(toCopy, dir)
+        val directories = (finalRoot.allDocuments.map(_.path.parent) ++ toCopy.map(_.path.parent)).distinct
+          .map(p => OutputRuntime.createDirectory(file(dir, p)))
+        RenderOps(directories, renderOps ++ copyOps)
+    }
+    
+    def filterOutput (staticDocs: Seq[BinaryInput], outPath: String): Seq[BinaryInput] = {
+      op.input.sourcePaths.collectFirst { 
+        case inPath if outPath.startsWith(inPath) => Path(outPath.drop(inPath.length)) 
+      }.fold(staticDocs) { nestedOut => staticDocs.filterNot(_.path.components.startsWith(nestedOut.components)) }
+    }
+    
+    def processBatch (ops: Seq[F[RenderResult]], staticDocs: Seq[BinaryInput]): F[RenderedTreeRoot] =
       
       BatchRuntime.run(ops.toVector, 1, 1).map { results => // TODO - 0.12 - add parallelism option to builder
+        
+        val renderedDocs = results.collect { case Right(doc) => doc }
 
-        def buildNode (path: Path, content: Seq[RenderContent], subTrees: Seq[RenderedTree]): RenderedTree =
-          RenderedTree(path, finalRoot.tree.selectSubtree(path.relativeTo(Root)).fold(Seq.empty[Span])(_.title), content ++ subTrees) // TODO - 0.12 - handle title document
+        def buildNode (path: Path, content: Seq[RenderContent]): RenderedTree =
+          RenderedTree(path, finalRoot.tree.selectSubtree(path.relativeTo(Root)).fold(Seq.empty[Span])(_.title), content) // TODO - 0.12 - handle title document
   
-        val resultRoot = TreeBuilder.build(results, buildNode)
+        val resultRoot = TreeBuilder.buildComposite(renderedDocs, buildNode)
         val template = finalRoot.tree.getDefaultTemplate(fileSuffix).fold(TemplateRoot.fallback)(_.content)
   
-        RenderedTreeRoot(resultRoot, template, finalRoot.config) // TODO - 0.12 - handle cover document
+        RenderedTreeRoot(resultRoot, template, finalRoot.config, staticDocuments = staticDocs) // TODO - 0.12 - handle cover document
       }
 
-      // TODO - 0.12 - resurrect check for output tree
-//      def isOutputRoot (source: DocumentTree) = (source.sourcePaths.headOption, op.output) match {
-//        case (Some(inPath), out: DirectoryOutput) => inPath == out.directory.getAbsolutePath
-//        case _ => false
-//      }
-
     for {
-      tasks <- renderTasks
-      _     <- tasks.mkDirOps.toVector.sequence
-      res   <- processBatch(tasks.renderOps)
+      static <- op.staticDocuments
+      ops    <- renderOps(static)
+      _      <- ops.mkDirOps.toVector.sequence
+      res    <- processBatch(ops.renderOps, static)
     } yield res
   }
 
   def run[F[_]: Async] (op: binary.SequentialRenderer.Op[F]): F[Unit] = { // TODO - 0.12 - when delegating to the parallel executor this will need a parallel instance
     val root = DocumentTreeRoot(DocumentTree(Root, Seq(Document(Root / "input", RootElement(Seq(SpanSequence(Seq(TemplateElement(op.input)))))))))
-    val parOp = binary.ParallelRenderer.Op(op.renderer, root, op.output)
+    val parOp = binary.ParallelRenderer.Op(op.renderer, root, op.output, Async[F].pure[Seq[BinaryInput]](Nil))
     run(parOp)
   }
 
@@ -104,7 +104,7 @@ object RendererRuntime {
     val preparedTree = op.renderer.prepareTree(op.input)
     for {
       out          <- op.output
-      renderedTree <- run(ParallelRenderer.Op[F](op.renderer.interimRenderer, preparedTree, Async[F].pure(StringTreeOutput)))
+      renderedTree <- run(ParallelRenderer.Op[F](op.renderer.interimRenderer, preparedTree, Async[F].pure(StringTreeOutput), Async[F].pure(Nil)))
       _            <- op.renderer.postProcessor.process(renderedTree, out)
     } yield ()
       

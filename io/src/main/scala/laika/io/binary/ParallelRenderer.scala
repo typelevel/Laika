@@ -20,7 +20,7 @@ import cats.effect.Async
 import laika.api.builder.{OperationConfig, TwoPhaseRenderer}
 import laika.ast.DocumentTreeRoot
 import laika.factory.BinaryPostProcessor
-import laika.io.BinaryOutput
+import laika.io.{BinaryInput, BinaryOutput}
 import laika.io.binary.ParallelRenderer.BinaryRenderer
 import laika.runtime.RendererRuntime
 
@@ -50,11 +50,11 @@ object ParallelRenderer {
 
     type Result = Op[F]
 
-    def toOutput (output: F[BinaryOutput]): Op[F] = Op[F](renderer, input, output)
+    def toOutput (output: F[BinaryOutput]): Op[F] = Op[F](renderer, input, output, Async[F].pure[Seq[BinaryInput]](Nil))
 
   }
 
-  case class Op[F[_]: Async] (renderer: BinaryRenderer, input: DocumentTreeRoot, output: F[BinaryOutput]) {
+  case class Op[F[_]: Async] (renderer: BinaryRenderer, input: DocumentTreeRoot, output: F[BinaryOutput], staticDocuments: F[Seq[BinaryInput]]) {
 
     val config: OperationConfig = renderer.interimRenderer.config
 

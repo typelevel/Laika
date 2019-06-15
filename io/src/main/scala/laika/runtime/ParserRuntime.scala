@@ -6,7 +6,7 @@ import laika.ast.{TemplateDocument, _}
 import laika.bundle.ConfigProvider
 import laika.io.Parallel.ParallelParser
 import laika.io.Sequential.SequentialParser
-import laika.io.{DirectoryInput, InputCollection, TextInput}
+import laika.io.{DirectoryInput, InputCollection, ParsedTree, TextInput}
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.ParserInput
 import com.typesafe.config.{Config => TConfig}
@@ -39,7 +39,7 @@ object ParserRuntime {
     case class ConfigResult (path: Path, config: TConfig) extends ParserResult
   }
 
-  def run[F[_]: Async] (op: ParallelParser.Op[F]): F[DocumentTreeRoot] = {
+  def run[F[_]: Async] (op: ParallelParser.Op[F]): F[ParsedTree] = {
     
     import DocumentType._
     import interimModel._
@@ -51,7 +51,7 @@ object ParserRuntime {
     }
     lazy val styleSheetParser: ParserInput => StyleDeclarationSet = DocumentParser.forStyleSheets(op.config.styleSheetParser)
     
-    def parseAll(inputs: InputCollection): F[DocumentTreeRoot] = {
+    def parseAll(inputs: InputCollection): F[ParsedTree] = {
 
       def parseDocument[D] (input: TextInput, parse: ParserInput => D, result: D => ParserResult): F[ParserResult] =
         InputRuntime.readParserInput(input).map(parse.andThen(result))
@@ -87,7 +87,8 @@ object ParserRuntime {
 
         val finalTree = if (op.parser.rewrite) tree.rewrite(op.config.rewriteRules) else tree
 
-        DocumentTreeRoot(finalTree, None, styles, inputs.binaryInputs.map(_.path), inputs.sourcePaths)
+        val root = DocumentTreeRoot(finalTree, None, styles, inputs.binaryInputs.map(_.path), inputs.sourcePaths)
+        ParsedTree(root, inputs.binaryInputs)
       } 
       
     }

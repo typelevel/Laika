@@ -19,7 +19,7 @@ package laika.io
 import java.io._
 
 import laika.ast.Path.Root
-import laika.ast.{DocumentType, Path, TextDocumentType}
+import laika.ast.{DocumentTreeRoot, DocumentType, Path, TextDocumentType}
 import laika.bundle.DocumentTypeMatcher
 
 import scala.io.Codec
@@ -78,10 +78,12 @@ case class CharStreamInput (stream: InputStream, docType: TextDocumentType, path
 
 case class BinaryFileInput (file: File, path: Path) extends BinaryInput
 
-case class ByteInput (bytes: Array[Byte], path: Path) extends BinaryInput
+case class BinaryStreamInput (stream: InputStream, autoClose: Boolean, path: Path) extends BinaryInput
 
 object ByteInput {
-  def apply (input: String, path: Path)(implicit codec: Codec): ByteInput = ByteInput(input.getBytes(codec.charSet), path)
+  // TODO - 0.12 - move to test packages
+  def apply (input: String, path: Path)(implicit codec: Codec): BinaryStreamInput = 
+    BinaryStreamInput(new ByteArrayInputStream(input.getBytes(codec.charSet)), autoClose = true, path)
 }
 
 case class DirectoryInput (directories: Seq[File],
@@ -112,3 +114,5 @@ object InputCollection {
   def apply (textInput: TextInput): InputCollection = InputCollection(Seq(textInput))
   def empty: InputCollection = InputCollection(Nil)
 }
+
+case class ParsedTree (root: DocumentTreeRoot, staticDocuments: Seq[BinaryInput])

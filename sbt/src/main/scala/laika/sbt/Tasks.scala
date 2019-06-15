@@ -74,12 +74,12 @@ object Tasks {
 
       val tree = parser.fromInput(IO.pure(inputs)).parse.unsafeRunSync()
 
-      Logs.systemMessages(streams.value.log, tree, laikaConfig.value.logMessageLevel)
+      Logs.systemMessages(streams.value.log, tree.root, laikaConfig.value.logMessageLevel)
 
       tree
     }
 
-    def renderWithFormat[W] (format: RenderFormat[W], targetDir: File, formatDesc: String): Set[File] = {
+    def renderWithFormat[FMT] (format: RenderFormat[FMT], targetDir: File, formatDesc: String): Set[File] = {
       val apiInSite = (target in laikaCopyAPI).value
       val pdfInSite = (artifactPath in laikaPDF).value
       val filesToDelete = (targetDir.allPaths --- targetDir --- pdfInSite --- apiInSite.allPaths --- collectParents(apiInSite)).get
@@ -91,12 +91,13 @@ object Tasks {
         Renderer.of(format).withConfig(parser.config)
       }
         .build[IO]
-        .from(tree)
+        .from(tree.root)
+        .copying(IO.pure(tree.staticDocuments))
         .toDirectory(targetDir)(laikaConfig.value.encoding)
         .render
         .unsafeRunSync()      
 
-      streams.value.log.info(Logs.outputs(tree, formatDesc))
+      streams.value.log.info(Logs.outputs(tree.root, formatDesc))
       streams.value.log.info(s"Generated $formatDesc in $targetDir")
 
       targetDir.allPaths.get.toSet.filter(_.isFile)
@@ -109,7 +110,7 @@ object Tasks {
         Renderer.of(format).withConfig(parser.config)
       }
         .build[IO]
-        .from(tree)
+        .from(tree.root)
         .toFile(targetFile)
         .render
         .unsafeRunSync()

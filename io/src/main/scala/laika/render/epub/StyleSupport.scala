@@ -15,7 +15,8 @@ import laika.parse.text.TextParsers.unsafeParserFunction
   */
 object StyleSupport {
 
-  private val fallbackStyles = ByteInput(StaticContent.fallbackStyles.getBytes(Charset.forName("UTF-8")), Path.Root / "styles" / "fallback.css")
+  // private val fallbackStyles = ByteInput(StaticContent.fallbackStyles.getBytes(Charset.forName("UTF-8")), Path.Root / "styles" / "fallback.css")
+  private val fallbackStyles = Path.Root / "styles" / "fallback.css" // TODO - 0.12 - this is now a path only
 
   /** Collects all CSS inputs (recursively) in the provided document tree.
     * CSS inputs are recognized by file suffix).
@@ -32,7 +33,7 @@ object StyleSupport {
 
     val allStyles = collectStyles(root)
 
-    if (allStyles.isEmpty) root.copy(staticDocuments = root.staticDocuments :+ fallbackStyles.path)
+    if (allStyles.isEmpty) root.copy(staticDocuments = root.staticDocuments :+ fallbackStyles)
     else root
   }
 

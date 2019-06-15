@@ -88,7 +88,7 @@ class ConfigSpec extends FlatSpec
         TemplateString("</div>\nCCC")
       ))
     )
-    resultOf(markdownParser.fromInput(IO.pure(builder(inputs, mdMatcher))).parse.unsafeRunSync()) should be (expected)
+    resultOf(markdownParser.fromInput(IO.pure(builder(inputs, mdMatcher))).parse.unsafeRunSync().root) should be (expected)
   }
   
   it should "parse configuration sections embedded in reStructuredText documents" in new Inputs {
@@ -105,7 +105,7 @@ class ConfigSpec extends FlatSpec
         TemplateString("</div>\nCCC")
       ))
     )
-    resultOf(rstParser.fromInput(IO.pure(builder(inputs, rstMatcher))).parse.unsafeRunSync()) should be (expected)
+    resultOf(rstParser.fromInput(IO.pure(builder(inputs, rstMatcher))).parse.unsafeRunSync().root) should be (expected)
   }
 
   it should "parse configuration sections embedded in template documents for Markdown" in new Inputs {
@@ -120,7 +120,7 @@ class ConfigSpec extends FlatSpec
         TemplateString("</div>\nCCC")
       ))
     )
-    resultOf(markdownParser.fromInput(IO.pure(builder(inputs, mdMatcher))).parse.unsafeRunSync()) should be (expected)
+    resultOf(markdownParser.fromInput(IO.pure(builder(inputs, mdMatcher))).parse.unsafeRunSync().root) should be (expected)
   }
 
   it should "parse configuration sections embedded in template documents for reStructuredText" in new Inputs {
@@ -135,7 +135,7 @@ class ConfigSpec extends FlatSpec
         TemplateString("</div>\nCCC")
       ))
     )
-    resultOf(rstParser.fromInput(IO.pure(builder(inputs, rstMatcher))).parse.unsafeRunSync()) should be (expected)
+    resultOf(rstParser.fromInput(IO.pure(builder(inputs, rstMatcher))).parse.unsafeRunSync().root) should be (expected)
   }
   
   it should "merge configuration found in documents, templates, directories and programmatic setup" in new Inputs {
@@ -168,7 +168,7 @@ class ConfigSpec extends FlatSpec
     )
     
     val op = laika.io.Parallel(MarkupParser.of(Markdown).using(BundleProvider.forConfigString(config5))).build[IO].fromInput(IO.pure(builder(inputs, mdMatcher)))
-    val result = TemplateRewriter.applyTemplates(op.parse.unsafeRunSync().tree, "html")
+    val result = TemplateRewriter.applyTemplates(op.parse.unsafeRunSync().root.tree, "html")
     result.selectDocument(Path.Current / "dir" / "input.md").get.content should be (expected)
   }
   

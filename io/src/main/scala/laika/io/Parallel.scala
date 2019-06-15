@@ -3,6 +3,7 @@ package laika.io
 import java.io.File
 
 import cats.effect.Async
+import cats.implicits._
 import laika.api.{MarkupParser, Renderer, Transformer}
 import laika.api.builder._
 import laika.ast._
@@ -55,7 +56,7 @@ object Parallel {
 
       val config: OperationConfig = parser.config
       
-      def parse: F[DocumentTreeRoot] = ParserRuntime.run(this)
+      def parse: F[ParsedTree] = ParserRuntime.run(this)
 
     }
 
@@ -64,7 +65,7 @@ object Parallel {
   class ParallelRenderer[F[_]: Async] (renderer: Renderer) {
 
     def from (input: DocumentTreeRoot): ParallelRenderer.OutputOps[F] = 
-      ParallelRenderer.OutputOps(renderer, input)
+      ParallelRenderer.OutputOps(renderer, input, Async[F].pure(Nil))
 
   }
 
@@ -76,17 +77,22 @@ object Parallel {
 
     }
 
-    case class OutputOps[F[_]: Async] (renderer: Renderer, input: DocumentTreeRoot) extends ParallelTextOutputOps[F] {
+    case class OutputOps[F[_]: Async] (renderer: Renderer, input: DocumentTreeRoot, staticDocuments: F[Seq[BinaryInput]]) extends ParallelTextOutputOps[F] {
 
       val F: Async[F] = Async[F]
 
       type Result = Op[F]
+      
+      def copying (toCopy: F[Seq[BinaryInput]]): OutputOps[F] = {
+        val combined = for { a <- staticDocuments; b <- toCopy } yield a ++ b
+        copy(staticDocuments = combined)
+      }
 
-      def toOutput (output: F[TreeOutput]): Op[F] = Op[F](renderer, input, output)
+      def toOutput (output: F[TreeOutput]): Op[F] = Op[F](renderer, input, output, staticDocuments)
 
     }
 
-    case class Op[F[_]: Async] (renderer: Renderer, input: DocumentTreeRoot, output: F[TreeOutput]) {
+    case class Op[F[_]: Async] (renderer: Renderer, input: DocumentTreeRoot, output: F[TreeOutput], staticDocuments: F[Seq[BinaryInput]]) {
 
       val config: OperationConfig = renderer.config
       

@@ -16,9 +16,10 @@
 
 package laika.runtime
 
-import java.io.{FileInputStream, FileOutputStream, InputStream, OutputStream}
+import java.io._
 
 import cats.effect.{Async, Sync}
+import laika.io.{BinaryFileInput, BinaryFileOutput, BinaryInput, BinaryOutput}
 
 /**
   * @author Jens Halm
@@ -41,26 +42,24 @@ object CopyRuntime {
       }
   }
 
-  /** Copies all bytes or characters (depending on Input type) 
-    *  from the specified Input to the
-    *  Output. Rethrows all Exceptions and does not
-    *  close the Input or Output afterwards.
+  /** Copies all bytes from the specified Input to the Output.
     */
-  //  def copy (input: BinaryInput, output: BinaryOutput): Unit = {
-  //
-  //    val sameFile = (input, output) match {
-  //      case (a: BinaryFileInput, b: BinaryFileOutput) => a.file == b.file
-  //      case _ => false
-  //    }
-  //
-  //    if (!sameFile) {
-  //      val inputStream = input match {
-  //        case BinaryFileInput(file, _) => new BufferedInputStream(new FileInputStream(file)) // TODO - 0.12 - avoid duplication
-  //        case ByteInput(bytes, _)      => new ByteArrayInputStream(bytes)
-  //      }
-  //      val outputStream = OutputRuntime.asStream(output)
-  //      apply(inputStream) { in => apply(outputStream) { out => copy(in, out) } }
-  //    }
-  //  }
+  def copy[F[_]: Async] (input: BinaryInput, output: BinaryOutput): F[Unit] = {
+
+    val sameFile = (input, output) match {
+      case (a: BinaryFileInput, b: BinaryFileOutput) => a.file == b.file
+      case _ => false
+    }
+
+    if (sameFile) Async[F].unit else {
+      
+      val inOut = for {
+        in  <- InputRuntime.asStream(input)
+        out <- OutputRuntime.asStream(output)
+      } yield (in, out)
+
+      inOut.use { case (in, out) => copy(in, out) }
+    }
+  }
   
 }

@@ -16,7 +16,7 @@
 
 package laika.render.epub
 
-import java.io.{BufferedInputStream, ByteArrayInputStream, FileInputStream, InputStream}
+import java.io.{BufferedInputStream, ByteArrayInputStream, FileInputStream}
 import java.nio.charset.Charset
 
 import cats.effect.Async
@@ -25,9 +25,6 @@ import laika.ast.Path
 import laika.ast.Path.Root
 import laika.format.EPUB
 import laika.io._
-
-// TODO - 0.12 - integrate/align with new IO model
-case class StreamInput (stream: InputStream, path: Path)
 
 /** Creates the EPUB container based on a document tree and the HTML result
   * of a preceding render operation.
@@ -53,7 +50,7 @@ class ContainerWriter {
     *  @param result the result of the render operation as a tree
     *  @return a list of all documents that need to be written to the EPUB container.
     */
-  def collectInputs[F[_]: Async] (result: RenderedTreeRoot, config: EPUB.Config): F[Vector[StreamInput]] = {
+  def collectInputs[F[_]: Async] (result: RenderedTreeRoot, config: EPUB.Config): F[Vector[BinaryInput]] = {
 
     val contentRoot = Root / "EPUB" / "content"
 
@@ -61,16 +58,13 @@ class ContainerWriter {
       if (path.suffix == "html") Path(contentRoot, path.withSuffix("xhtml").components)
       else Path(contentRoot, path.components)
 
-    def toBinaryInput (content: String, path: Path): F[StreamInput] = Async[F].delay {
-      val bytes = content.getBytes(Charset.forName("UTF-8"))
-      StreamInput(new ByteArrayInputStream(bytes), path)
-    }
+    def toBinaryInput (content: String, path: Path): F[BinaryInput] = Async[F].delay {
+      new ByteArrayInputStream(content.getBytes(Charset.forName("UTF-8")))
+    }.map(BinaryStreamInput(_, autoClose = true, path))
 
-    val staticDocs: Seq[F[StreamInput]] = result.staticDocuments.filter(in => MimeTypes.supportedTypes.contains(in.path.suffix)).map {
-      case fileInput: BinaryFileInput =>
-        Async[F].delay { StreamInput(new BufferedInputStream(new FileInputStream(fileInput.file)), shiftContentPath(fileInput.path)) }
-      case byteInput: ByteInput => 
-        Async[F].delay { StreamInput(new ByteArrayInputStream(byteInput.bytes), shiftContentPath(byteInput.path)) }
+    val staticDocs: Seq[F[BinaryInput]] = result.staticDocuments.filter(in => MimeTypes.supportedTypes.contains(in.path.suffix)).map {
+      case fileInput: BinaryFileInput => Async[F].pure[BinaryInput](fileInput.copy(path = shiftContentPath(fileInput.path)))
+      case streamInput: BinaryStreamInput => Async[F].pure[BinaryInput](streamInput.copy(path = shiftContentPath(streamInput.path)))
     }
 
     val mimeType  = toBinaryInput(StaticContent.mimeType, Root / "mimetype")
@@ -82,7 +76,7 @@ class ContainerWriter {
     
     val renderedDocs = result.allDocuments.map(doc => toBinaryInput(doc.content, shiftContentPath(doc.path)))
 
-    val allInputs: Seq[F[StreamInput]] = Seq(mimeType, container, iBooksOpt, opf, nav, ncx) ++ renderedDocs ++ staticDocs
+    val allInputs: Seq[F[BinaryInput]] = Seq(mimeType, container, iBooksOpt, opf, nav, ncx) ++ renderedDocs ++ staticDocs
     
     allInputs.toVector.sequence
   }

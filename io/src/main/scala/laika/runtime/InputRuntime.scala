@@ -57,6 +57,14 @@ object InputRuntime {
       _         <- read(inBuffer, outBuffer)
     } yield outBuffer.toString
   }
+
+  def asStream[F[_]: Async] (output: BinaryInput): Resource[F, InputStream] = output match {
+    case BinaryFileInput(file, _) =>
+      Resource.fromAutoCloseable(Async[F].delay(new BufferedInputStream(new FileInputStream(file))))
+    case BinaryStreamInput(stream, autoClose, _) =>
+      val streamF = Async[F].pure(stream)
+      if (autoClose) Resource.fromAutoCloseable(streamF) else Resource.liftF(streamF)
+  }
   
   // TODO - 0.12 - temporary solution
   def classPathParserInput (resourcePath: String, virtualPath: Path)(implicit codec: Codec): ParserInput = {

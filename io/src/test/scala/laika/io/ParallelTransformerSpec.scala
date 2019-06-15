@@ -28,7 +28,7 @@ import laika.bundle.{BundleProvider, ExtensionBundle}
 import laika.directive.Templates
 import laika.format._
 import laika.io.Parallel.ParallelTransformer
-import laika.io.helper.OutputBuilder.{DocumentViews, RenderedDocumentView, RenderedTreeView, SubtreeViews, TreeContentView}
+import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, OutputBuilder, RenderResult}
 import laika.parse.Parser
 import laika.parse.text.TextParsers
@@ -50,25 +50,24 @@ class ParallelTransformerSpec extends FlatSpec
 
     def input (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): InputCollection = build(in, docTypeMatcher)
 
-    def transformTree: RenderedTreeView = transformWith()
+    def transformTree: RenderedTreeViewRoot = transformWith()
     //def transformMultiMarkup: RenderedTree = transformWith(Transformer.from(Markdown or ReStructuredText to AST)
     
-    def transformWithConfig (config: String): RenderedTreeView = transformWithBundle(BundleProvider.forConfigString(config))
-    def transformWithDocTypeMatcher (matcher: PartialFunction[Path, DocumentType]): RenderedTreeView = transformWithBundle(BundleProvider.forDocTypeMatcher(matcher))
-    def transformWithTemplates (parser: Parser[TemplateRoot]): RenderedTreeView = transformWithBundle(BundleProvider.forTemplateParser(parser))
-    def transformWithDirective (directive: Templates.Directive): RenderedTreeView = transformWithBundle(BundleProvider.forTemplateDirective(directive))
+    def transformWithConfig (config: String): RenderedTreeViewRoot = transformWithBundle(BundleProvider.forConfigString(config))
+    def transformWithDocTypeMatcher (matcher: PartialFunction[Path, DocumentType]): RenderedTreeViewRoot = transformWithBundle(BundleProvider.forDocTypeMatcher(matcher))
+    def transformWithTemplates (parser: Parser[TemplateRoot]): RenderedTreeViewRoot = transformWithBundle(BundleProvider.forTemplateParser(parser))
+    def transformWithDirective (directive: Templates.Directive): RenderedTreeViewRoot = transformWithBundle(BundleProvider.forTemplateDirective(directive))
     
-    private def transformWith (transformer: ParallelTransformer[IO] = transformer): RenderedTreeView =
+    private def transformWith (transformer: ParallelTransformer[IO] = transformer): RenderedTreeViewRoot =
       OutputBuilder.RenderedTreeView.toTreeView(
         transformer
           .fromInput(IO.pure(input(inputs, transformer.config.docTypeMatcher)))
           .toOutput(IO.pure(StringTreeOutput))
           .transform
           .unsafeRunSync()
-          .tree
       )
 
-    private def transformWithBundle (bundle: ExtensionBundle): RenderedTreeView =
+    private def transformWithBundle (bundle: ExtensionBundle): RenderedTreeViewRoot =
       transformWith(Parallel(Transformer.from(Markdown).to(AST).using(bundle)).build)
     
     def root (content: Seq[TreeContentView]): RenderedTreeView = RenderedTreeView(Root, content)
@@ -104,14 +103,14 @@ class ParallelTransformerSpec extends FlatSpec
 
   "The Transform API" should "transform an empty tree" in new TreeTransformer {
     val inputs = Nil
-    transformTree should be (root(Nil))
+    transformTree.tree should be (root(Nil))
   }
   
   it should "transform a tree with a single document" in new TreeTransformer {
     val inputs = Seq(
       Root / "name.md" -> Contents.name
     )
-    transformTree should be (root(List(docs((Root / "name.txt", simpleResult)))))
+    transformTree.tree should be (root(List(docs((Root / "name.txt", simpleResult)))))
   }
   
   it should "transform a tree with a template document populated by a config file in the directory" in new TreeTransformer {
@@ -126,7 +125,7 @@ class ParallelTransformerSpec extends FlatSpec
         |. . . Paragraph - Spans: 1
         |. . . . Text - 'aa'
         |. . TemplateString - 'abc'""".stripMargin
-    transformTree should be (root(List(docs((Root / "main.txt", result)))))
+    transformTree.tree should be (root(List(docs((Root / "main.txt", result)))))
   }
   
   it should "transform a tree with a template document populated by a root config string" in new TreeTransformer {
@@ -140,7 +139,7 @@ class ParallelTransformerSpec extends FlatSpec
        |. . . Paragraph - Spans: 1
        |. . . . Text - 'aa'
        |. . TemplateString - 'def'""".stripMargin
-    transformWithConfig("value: def") should be (root(List(docs((Root / "main.txt", result)))))
+    transformWithConfig("value: def").tree should be (root(List(docs((Root / "main.txt", result)))))
   }
   
   it should "transform a tree with a custom template engine" in new TreeTransformer {
@@ -156,7 +155,7 @@ class ParallelTransformerSpec extends FlatSpec
       |. . . Paragraph - Spans: 1
       |. . . . Text - 'aa'
       |. . TemplateString - 'cc'""".stripMargin
-    transformWithTemplates(parser) should be (root(List(docs(
+    transformWithTemplates(parser).tree should be (root(List(docs(
       (Root / "main1.txt", result),
       (Root / "main2.txt", result)
     ))))
@@ -200,16 +199,16 @@ class ParallelTransformerSpec extends FlatSpec
       |. . TemplateString - ' '
       |. . TemplateString - 'bar'
       |. . TemplateString - ' bb'""".stripMargin
-    transformWithDirective(directive) should be (root(List(docs(
+    transformWithDirective(directive).tree should be (root(List(docs(
       (Root / "aa.txt", result)
     ))))
   }
 
-  it should "transform a tree with a static document" ignore new TreeTransformer {
+  it should "transform a tree with a static document" in new TreeTransformer {
     val inputs = Seq(
       Root / "omg.js" -> Contents.name
     )
-    transformTree should be (root(List(docs((Root / "omg.js", "foo")))))
+    transformTree should be (RenderedTreeViewRoot(RenderedTreeView(Root, Nil), Seq(Root / "omg.js")))
   }
   
   it should "transform a tree with all available file types" ignore {
@@ -441,9 +440,7 @@ class ParallelTransformerSpec extends FlatSpec
     readFilesMerged(targetDir.getPath)
   }
 
-  it should "allow to use the same directory as input and output" ignore new FileSystemTest {
-    
-    // TODO - 0.12 - needs support for static files to be revived before actually
+  it should "allow to use the same directory as input and output" in new FileSystemTest {
     
     import OutputBuilder._
     
@@ -464,7 +461,7 @@ class ParallelTransformerSpec extends FlatSpec
     readFile(new File(targetDir, "hello.txt")) shouldBe result
   }
 
-  it should "not copy files from the output directory if it's nested inside the input directory" ignore {
+  it should "not copy files from the output directory if it's nested inside the input directory" in {
     new FileSystemTest {
       import OutputBuilder._
       

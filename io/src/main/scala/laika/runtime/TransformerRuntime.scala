@@ -3,9 +3,8 @@ package laika.runtime
 import cats.effect.Async
 import cats.implicits._
 import laika.io.Parallel.{ParallelParser, ParallelRenderer, ParallelTransformer}
-import laika.io.RenderedTreeRoot
+import laika.io.{RenderedTreeRoot, binary}
 import laika.io.Sequential.{SequentialParser, SequentialRenderer, SequentialTransformer}
-import laika.io.binary
 
 /**
   *  @author Jens Halm
@@ -18,8 +17,8 @@ object TransformerRuntime {
   } yield res
 
   def run[F[_]: Async] (op: ParallelTransformer.Op[F]): F[RenderedTreeRoot] = for {
-    root <- ParallelParser.Op(op.transformer.parser, op.input).parse
-    res  <- ParallelRenderer.Op(op.transformer.renderer, root, op.output).render
+    tree <- ParallelParser.Op(op.transformer.parser, op.input).parse
+    res  <- ParallelRenderer.Op(op.transformer.renderer, tree.root, op.output, Async[F].pure(tree.staticDocuments)).render
   } yield res
 
   def run[F[_]: Async] (op: binary.SequentialTransformer.Op[F]): F[Unit] = for {
@@ -28,8 +27,8 @@ object TransformerRuntime {
   } yield res
 
   def run[F[_]: Async] (op: binary.ParallelTransformer.Op[F]): F[Unit] = for {
-    root <- ParallelParser.Op(op.transformer.markupParser, op.input).parse
-    res  <- binary.ParallelRenderer.Op[F](op.transformer.renderer, root, op.output).render
+    tree <- ParallelParser.Op(op.transformer.markupParser, op.input).parse
+    res  <- binary.ParallelRenderer.Op[F](op.transformer.renderer, tree.root, op.output, Async[F].pure(tree.staticDocuments)).render
   } yield res
 
 

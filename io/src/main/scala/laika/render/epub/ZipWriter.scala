@@ -21,8 +21,8 @@ import java.util.zip.{CRC32, ZipEntry, ZipOutputStream}
 import cats.effect.Async
 import cats.implicits._
 import laika.ast.Path
-import laika.runtime.{CopyRuntime, OutputRuntime}
-import laika.io.BinaryOutput
+import laika.runtime.{CopyRuntime, InputRuntime, OutputRuntime}
+import laika.io.{BinaryInput, BinaryOutput}
 
 /**
   * @author Jens Halm
@@ -36,15 +36,15 @@ object ZipWriter {
     * file (called `mimeType`) is written uncompressed. Hence this is not
     * a generic zip utility as the method name suggests.
     */
-  def zipEPUB[F[_]: Async] (inputFs: F[Vector[StreamInput]], output: BinaryOutput): F[Unit] = {
+  def zipEPUB[F[_]: Async] (inputFs: F[Vector[BinaryInput]], output: BinaryOutput): F[Unit] = {
 
-    def copy (inputs: Vector[StreamInput], zipOut: ZipOutputStream): F[Unit] = {
+    def copy (inputs: Vector[BinaryInput], zipOut: ZipOutputStream): F[Unit] = {
     
-      def writeEntry (input: StreamInput, prepareEntry: ZipEntry => F[Unit] = _ => Async[F].unit): F[Unit] = for {
+      def writeEntry (input: BinaryInput, prepareEntry: ZipEntry => F[Unit] = _ => Async[F].unit): F[Unit] = for {
         entry <- Async[F].delay(new ZipEntry(input.path.relativeTo(Path.Root).toString))
         _     <- prepareEntry(entry)
         _     <- Async[F].delay(zipOut.putNextEntry(entry))
-        _     <- CopyRuntime.copy(input.stream, zipOut)
+        _     <- InputRuntime.asStream(input).use { in => CopyRuntime.copy(in, zipOut) }
         _     <- Async[F].delay(zipOut.closeEntry())
       } yield ()
       
