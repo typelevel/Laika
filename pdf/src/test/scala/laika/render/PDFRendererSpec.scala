@@ -16,7 +16,7 @@
 
 package laika.render
 
-import java.io.{BufferedInputStream, File, FileInputStream, InputStream}
+import java.io.{BufferedInputStream, ByteArrayOutputStream, File, FileInputStream, InputStream}
 
 import cats.effect.IO
 import laika.api.Renderer
@@ -45,31 +45,31 @@ class PDFRendererSpec extends FlatSpec with Matchers {
   }
   
   
-  "The PDF Renderer" should "render a document to a file" ignore new TreeModel with FileSetup {
+  "The PDF Renderer" should "render a document to a file" in new TreeModel with FileSetup {
     laika.io.Sequential(Renderer.of(PDF)).build[IO].from(doc(1)).toFile(file).render.unsafeRunSync()
     readFile.read should not be (-1)
   }
 
-  it should "render a document to a file using a custom FopFactory" ignore new TreeModel with FileSetup {
+  it should "render a document to a file using a custom FopFactory" in new TreeModel with FileSetup {
     laika.io.Sequential(Renderer.of(PDF.withFopFactory(PDF.defaultFopFactory))).build[IO].from(doc(1)).toFile(file).render.unsafeRunSync()
     readFile.read should not be (-1)
   }
   
-  it should "render a document to an OutputStream" ignore new TreeModel {
-//    val stream = new ByteArrayOutputStream
-//    Renderer.of(PDF).from(doc(1)).toStream(stream).execute
-//    stream.toByteArray should not be empty
+  it should "render a document to an OutputStream" in new TreeModel {
+    val stream = new ByteArrayOutputStream
+    laika.io.Sequential(Renderer.of(PDF)).build[IO].from(doc(1)).toStream(IO.pure(stream)).render.unsafeRunSync()
+    stream.toByteArray should not be empty
   }
   
-  it should "render a tree to a file" ignore new TreeModel with FileSetup {
+  it should "render a tree to a file" in new TreeModel with FileSetup {
     laika.io.Parallel(Renderer.of(PDF)).build[IO].from(DocumentTreeRoot(tree)).toFile(file).render.unsafeRunSync()
     readFile.read should not be (-1)
   }
   
-  it should "render a tree to an OutputStream" ignore new TreeModel {
-//    val stream = new ByteArrayOutputStream
-//    Renderer.of(PDF).from(tree).toStream(stream).execute
-//    stream.toByteArray should not be empty
+  it should "render a tree to an OutputStream" in new TreeModel {
+    val stream = new ByteArrayOutputStream
+    laika.io.Parallel(Renderer.of(PDF)).build[IO].from(DocumentTreeRoot(tree)).toStream(IO.pure(stream)).render.unsafeRunSync()
+    stream.toByteArray should not be empty
   }
   
   
