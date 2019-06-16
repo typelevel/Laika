@@ -82,21 +82,22 @@ class ParallelParserSpec extends FlatSpec
     def build (in: Seq[(Path, String)]): IO[TreeInput] = IO.pure(build(in, docTypeMatcher))
     
     def docView (num: Int, path: Path = Root) = DocumentView(path / s"doc$num.md", Content(List(p("foo"))) :: Nil)
+    def docView (name: String) = DocumentView(Root / name, Content(List(p("foo"))) :: Nil)
     
     def customDocView (name: String, content: Seq[Block], path: Path = Root) = DocumentView(path / name, Content(content) :: Nil)
   
     def withTemplatesApplied (root: DocumentTreeRoot): DocumentTreeRoot = root.copy(tree = TemplateRewriter.applyTemplates(root.tree, "html"))
     
-    def parsedTree: TreeView = viewOf(withTemplatesApplied(defaultParser.fromInput(build(inputs)).parse.unsafeRunSync().root))
+    def parsedTree: RootView = viewOf(withTemplatesApplied(defaultParser.fromInput(build(inputs)).parse.unsafeRunSync().root))
     
-    def rawParsedTree: TreeView = viewOf(rawParser.fromInput(build(inputs)).parse.unsafeRunSync().root)
+    def rawParsedTree: RootView = viewOf(rawParser.fromInput(build(inputs)).parse.unsafeRunSync().root)
 
     // def rawMixedParsedTree = viewOf(MarkupParser.of(Markdown).or(ReStructuredText).withoutRewrite.fromTreeInput(builder(dirs)).execute) // TODO - 0.12 - resurrect
     
-    def parsedWith (bundle: ExtensionBundle): TreeView =
+    def parsedWith (bundle: ExtensionBundle): RootView =
       viewOf(withTemplatesApplied(Parallel(MarkupParser.of(Markdown).using(bundle)).build[IO].fromInput(build(inputs)).parse.unsafeRunSync().root))
       
-    def parsedRawWith (bundle: ExtensionBundle = ExtensionBundle.Empty, customMatcher: PartialFunction[Path, DocumentType] = PartialFunction.empty): TreeView = {
+    def parsedRawWith (bundle: ExtensionBundle = ExtensionBundle.Empty, customMatcher: PartialFunction[Path, DocumentType] = PartialFunction.empty): RootView = {
       val input = IO.pure(build(inputs, customMatcher.orElse({case path => docTypeMatcher(path)})))
       val parser = MarkupParser.of(Markdown).withoutRewrite.using(bundle)
       viewOf(Parallel(parser).build[IO].fromInput(input).parse.unsafeRunSync().root)
@@ -107,7 +108,7 @@ class ParallelParserSpec extends FlatSpec
   
   "The parallel parser" should "parse an empty tree" in new TreeParser {
     val inputs = Nil
-    val treeResult = TreeView(Root, Nil)
+    val treeResult = RootView(Nil)
     parsedTree should be (treeResult)
   }
 
@@ -116,7 +117,7 @@ class ParallelParserSpec extends FlatSpec
       Root / "name.md" -> Contents.name
     )
     val docResult = DocumentView(Root / "name.md", Content(List(p("foo"))) :: Nil)
-    val treeResult = TreeView(Root, List(Documents(Markup, List(docResult))))
+    val treeResult = TreeView(Root, List(Documents(Markup, List(docResult)))).asRoot
     parsedTree should be (treeResult)
   }
 
@@ -134,6 +135,23 @@ class ParallelParserSpec extends FlatSpec
     val treeResult = TreeView(Root, List(
       Documents(Markup, List(docView(1),docView(2))),
       Subtrees(List(subtree1,subtree2))
+    )).asRoot
+    parsedTree should be (treeResult)
+  }
+
+  it should "parse a tree with a cover and a title document" in new TreeParser {
+    val inputs = Seq(
+      Root / "doc1.md"  -> Contents.name,
+      Root / "doc2.md"  -> Contents.name,
+      Root / "title.md" -> Contents.name,
+      Root / "cover.md" -> Contents.name
+    )
+    val treeResult = RootView(Seq(
+      CoverDocument(docView("cover.md")),
+      TreeView(Root, List(
+        TitleDocument(docView("title.md")),
+        Documents(Markup, List(docView(1),docView(2)))
+      ))
     ))
     parsedTree should be (treeResult)
   }
@@ -143,7 +161,7 @@ class ParallelParserSpec extends FlatSpec
       Root / "main.template.html" -> Contents.name
     )
     val template = TemplateView(Root / "main.template.html", TemplateRoot(List(TemplateString("foo"))))
-    val treeResult = TreeView(Root, List(TemplateDocuments(List(template))))
+    val treeResult = TreeView(Root, List(TemplateDocuments(List(template)))).asRoot
     rawParsedTree should be (treeResult)
   }
 
@@ -151,8 +169,7 @@ class ParallelParserSpec extends FlatSpec
     val inputs = Seq(
       Root / "omg.js" -> Contents.name
     )
-    val input = InputView("omg.js")
-    val treeResult = TreeView(Root, List(Inputs(Static, List(input))))
+    val treeResult = RootView(List(StaticDocuments(List(Root / "omg.js"))))
     parsedTree should be (treeResult)
   }
 
@@ -196,7 +213,7 @@ class ParallelParserSpec extends FlatSpec
       Root / "main2.template.html" -> Contents.name
     )
     def template (num: Int) = TemplateView(Root / s"main$num.template.html", TemplateRoot(List(TemplateString("$$foo"))))
-    val treeResult = TreeView(Root, List(TemplateDocuments(List(template(1),template(2)))))
+    val treeResult = TreeView(Root, List(TemplateDocuments(List(template(1),template(2))))).asRoot
     parsedRawWith(BundleProvider.forTemplateParser(parser)) should be (treeResult)
   }
 
@@ -215,7 +232,7 @@ class ParallelParserSpec extends FlatSpec
       Root / "main2.bbb.css" -> Contents.name2,
       Root / "main3.aaa.css" -> Contents.name
     )
-    val treeResult = TreeView(Root, List(StyleSheets(Map(
+    val treeResult = RootView(List(StyleSheets(Map(
         "aaa" -> StyleDeclarationSet(Set(Path("/main1.aaa.css"), Path("/main3.aaa.css")), Set(styleDecl("foo"), styleDecl("foo", 1))),
         "bbb" -> StyleDeclarationSet(Set(Path("/main2.bbb.css")), Set(styleDecl("bar")))
     ))))
@@ -235,7 +252,7 @@ class ParallelParserSpec extends FlatSpec
       Root / "main2.template.html" -> Contents.directive
     )
     def template (num: Int) = TemplateView(Root / s"main$num.template.html", tRoot(tt("aa "),tt("bar"),tt(" bb")))
-    val treeResult = TreeView(Root, List(TemplateDocuments(List(template(1),template(2)))))
+    val treeResult = TreeView(Root, List(TemplateDocuments(List(template(1),template(2))))).asRoot
     parsedRawWith(BundleProvider.forTemplateDirective(directive)) should be (treeResult)
   }
 
@@ -250,7 +267,7 @@ class ParallelParserSpec extends FlatSpec
         EmbeddedRoot(List(p("aaa"),p("bbb")), 2),
         tt("\n</div>")
     ))) :: Nil)
-    val treeResult = TreeView(Root, List(Documents(Markup, List(docResult))))
+    val treeResult = TreeView(Root, List(Documents(Markup, List(docResult)))).asRoot
     parsedTree should be (treeResult)
   }
   
@@ -265,7 +282,7 @@ class ParallelParserSpec extends FlatSpec
       EmbeddedRoot(List(p("aaa"),p("bbb"))),
       tt("\n</div>")
     ))) :: Nil)
-    val treeResult = TreeView(Root, List(Documents(Markup, List(docResult))))
+    val treeResult = TreeView(Root, List(Documents(Markup, List(docResult)))).asRoot
     parsedTree should be (treeResult)
   }
   

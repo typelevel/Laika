@@ -11,6 +11,7 @@ import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.ParserInput
 import com.typesafe.config.{Config => TConfig}
 import cats.implicits._
+import laika.ast.Path.Root
 
 /** 
   *  @author Jens Halm
@@ -77,7 +78,10 @@ object ParserRuntime {
       }
 
       BatchRuntime.run(textOps.toVector, 1, 1).map { results => // TODO - 0.12 - add parallelism option to builder
-        val tree = TreeBuilder.build(results, buildNode)
+        val coverDoc = results.collectFirst { 
+          case MarkupResult(doc) if doc.path.parent == Root && doc.path.basename == "cover" => doc
+        }
+        val tree = TreeBuilder.build(results.filterNot(res => coverDoc.exists(_.path == res.path)), buildNode) // TODO - 0.12 - use new buildComposite and remove the old builder
 
         val styles = results // TODO - 0.12 - move this logic
           .collect { case StyleResult(styleSet, format) => (format, styleSet) }
@@ -87,7 +91,7 @@ object ParserRuntime {
 
         val finalTree = if (op.parser.rewrite) tree.rewrite(op.config.rewriteRules) else tree
 
-        val root = DocumentTreeRoot(finalTree, None, styles, inputs.binaryInputs.map(_.path), inputs.sourcePaths)
+        val root = DocumentTreeRoot(finalTree, coverDoc, styles, inputs.binaryInputs.map(_.path), inputs.sourcePaths)
         ParsedTree(root, inputs.binaryInputs)
       } 
       

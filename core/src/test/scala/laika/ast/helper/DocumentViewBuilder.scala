@@ -40,25 +40,37 @@ object DocumentViewBuilder {
   
   trait ViewContainer[Self <: ViewContainer[Self]] extends ElementContainer[View,Self] with View
   
-  case class TreeView (path: Path, content: Seq[TreeContent]) extends ViewContainer[TreeView]
+
+  case class RootView (content: Seq[RootContent]) extends ViewContainer[RootView]
+  
+  
+  trait RootContent extends View
+  
+  case class TreeView (path: Path, content: Seq[TreeContent]) extends ViewContainer[TreeView] with RootContent {
+    def asRoot: RootView = RootView(Seq(this))
+  }
+
+  case class CoverDocument (doc: DocumentView) extends RootContent
+
+  case class StyleSheets (content: Map[String, StyleDeclarationSet]) extends RootContent
+
+  case class StaticDocuments (content: Seq[Path]) extends RootContent
+  
   
   trait TreeContent extends View
   
-  case class Documents (docType: DocumentType, content: Seq[DocumentView]) extends TreeContent with ViewContainer[Documents]
-
-  case class TemplateDocuments (content: Seq[TemplateView]) extends TreeContent with ViewContainer[TemplateDocuments]
+  case class TitleDocument (doc: DocumentView) extends TreeContent
   
-  case class StyleSheets (content: Map[String, StyleDeclarationSet]) extends TreeContent
-                          
-  case class Inputs (docType: DocumentType, content: Seq[InputView]) extends TreeContent with ViewContainer[Inputs]
+  case class Documents (docType: DocumentType, content: Seq[DocumentView]) extends TreeContent with ViewContainer[Documents]
+  
+  case class TemplateDocuments (content: Seq[TemplateView]) extends TreeContent with ViewContainer[TemplateDocuments]
   
   case class Subtrees (content: Seq[TreeView]) extends TreeContent with ViewContainer[Subtrees]
   
-  case class InputView (name: String) extends View
-
   case class DocumentView (path: Path, content: Seq[DocumentContent]) extends ViewContainer[DocumentView]
 
   case class TemplateView (path: Path, content: TemplateRoot) extends View
+  
   
   trait DocumentContent extends View
   
@@ -76,17 +88,22 @@ object DocumentViewBuilder {
   
   case class Sections (content: Seq[SectionInfo]) extends DocumentContent with ElementContainer[SectionInfo, Sections]
 
-  def viewOf (root: DocumentTreeRoot): TreeView = viewOf(root.tree, root.staticDocuments, root.styles)
+  def viewOf (root: DocumentTreeRoot): RootView = {
+    val coverDocument = root.coverDocument.map(doc => CoverDocument(viewOf(doc))).toSeq
+    val styles = if (root.styles.nonEmpty) Seq(StyleSheets(root.styles)) else Nil
+    val static = if (root.staticDocuments.nonEmpty) Seq(StaticDocuments(root.staticDocuments)) else Nil
+    val tree = if (root.allDocuments.nonEmpty || root.tree.templates.nonEmpty) Seq(viewOf(root.tree)) else Nil
+    RootView(coverDocument ++ styles ++ static ++ tree)
+  }
   
-  def viewOf (tree: DocumentTree, staticDocuments: Seq[Path] = Nil, styles: Map[String, StyleDeclarationSet] = Map.empty): TreeView = {
+  def viewOf (tree: DocumentTree): TreeView = {
+    val titleDocument = tree.titleDocument.map(doc => TitleDocument(viewOf(doc))).toSeq
     val content = (
-      Documents(Markup, tree.content.collect{case doc: Document => doc} map viewOf) ::
-      StyleSheets(styles) ::
+      Documents(Markup, tree.content.collect{ case doc: Document => doc } map viewOf) ::
       TemplateDocuments(tree.templates map viewOf) ::
-      Inputs(Static, staticDocuments map viewOf) ::
       Subtrees(tree.content.collect{case tree: DocumentTree => tree} map (t => viewOf(t))) :: 
-      List[TreeContent]()) filterNot { case c: ViewContainer[_] => c.content.isEmpty; case StyleSheets(styles) => styles.isEmpty }
-    TreeView(tree.path, content)
+      List[TreeContent]()) filterNot { case c: ViewContainer[_] => c.content.isEmpty }
+    TreeView(tree.path, titleDocument ++ content)
   }
   
   def viewOf (doc: Document): DocumentView = {
@@ -107,8 +124,6 @@ object DocumentViewBuilder {
     (fragments map { case (name, content) => Fragment(name, content) }).toSeq
   
   def viewOf (doc: TemplateDocument): TemplateView = TemplateView(doc.path, doc.content)
-  
-  def viewOf (input: Path): InputView = InputView(input.name)
   
   
 }
