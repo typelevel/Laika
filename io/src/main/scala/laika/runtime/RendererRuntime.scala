@@ -107,12 +107,12 @@ object RendererRuntime {
   }
 
   def run[F[_]: Async] (op: binary.ParallelRenderer.Op[F]): F[Unit] = {
-    // TODO - 0.12 - why is the template no longer required here? - val template =
+    val template = op.renderer.interimRenderer.templateFor(op.input)
     val preparedTree = op.renderer.prepareTree(op.input)
     for {
       out          <- op.output
       renderedTree <- run(ParallelRenderer.Op[F](op.renderer.interimRenderer, preparedTree, Async[F].pure(StringTreeOutput), Async[F].pure(Nil)))
-      _            <- op.renderer.postProcessor.process(renderedTree, out)
+      _            <- op.renderer.postProcessor.process(renderedTree.copy(template = template), out)
     } yield ()
       
   }

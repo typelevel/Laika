@@ -64,6 +64,9 @@ abstract class Renderer (val config: OperationConfig) {
 
     root.copy(tree = rewrittenTree, styles = root.styles + (format.fileSuffix -> styles))
   }
+  
+  def templateFor (root: DocumentTreeRoot): TemplateRoot = 
+    root.tree.getDefaultTemplate(format.fileSuffix).fold(theme.defaultTemplateOrFallback)(_.content)
 
 }
 
