@@ -112,6 +112,21 @@ class ParallelTransformerSpec extends FlatSpec
     )
     transformTree.tree should be (root(List(docs((Root / "name.txt", simpleResult)))))
   }
+
+  it should "transform a tree with a cover, title document and one content document" in new TreeTransformer {
+    val inputs = Seq(
+      Root / "name.md" -> Contents.name,
+      Root / "title.md" -> Contents.name,
+      Root / "cover.md" -> Contents.name
+    )
+    transformTree should be (RenderedTreeViewRoot(
+      root(List(
+        TitleDocument(RenderedDocumentView(Root / "title.txt", simpleResult)), 
+        docs((Root / "name.txt", simpleResult))
+      )),
+      Some(RenderedDocumentView(Root / "cover.txt", simpleResult))
+    ))
+  }
   
   it should "transform a tree with a template document populated by a config file in the directory" in new TreeTransformer {
     val inputs = Seq(
@@ -208,7 +223,7 @@ class ParallelTransformerSpec extends FlatSpec
     val inputs = Seq(
       Root / "omg.js" -> Contents.name
     )
-    transformTree should be (RenderedTreeViewRoot(RenderedTreeView(Root, Nil), Seq(Root / "omg.js")))
+    transformTree should be (RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "omg.js")))
   }
   
   it should "transform a tree with all available file types" ignore {

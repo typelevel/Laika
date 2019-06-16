@@ -73,16 +73,23 @@ object RendererRuntime {
     def processBatch (ops: Seq[F[RenderResult]], staticDocs: Seq[BinaryInput]): F[RenderedTreeRoot] =
       
       BatchRuntime.run(ops.toVector, 1, 1).map { results => // TODO - 0.12 - add parallelism option to builder
-        
         val renderedDocs = results.collect { case Right(doc) => doc }
+        val coverDoc = renderedDocs.collectFirst {
+          case doc if doc.path.parent == Root && doc.path.basename == "cover" => doc
+        }
 
-        def buildNode (path: Path, content: Seq[RenderContent]): RenderedTree =
-          RenderedTree(path, finalRoot.tree.selectSubtree(path.relativeTo(Root)).fold(Seq.empty[Span])(_.title), content) // TODO - 0.12 - handle title document
-  
-        val resultRoot = TreeBuilder.buildComposite(renderedDocs, buildNode)
+        def buildNode (path: Path, content: Seq[RenderContent]): RenderedTree = {
+          val title = finalRoot.tree.selectSubtree(path.relativeTo(Root)).fold(Seq.empty[Span])(_.title)
+          val titleDoc = content.collectFirst {
+            case doc: RenderedDocument if doc.path.basename == "title" => doc
+          }
+          RenderedTree(path, title, content.filterNot(doc => titleDoc.exists(_.path == doc.path)), titleDoc)
+        }
+
+        val resultRoot = TreeBuilder.buildComposite(renderedDocs.filterNot(res => coverDoc.exists(_.path == res.path)), buildNode)
         val template = finalRoot.tree.getDefaultTemplate(fileSuffix).fold(TemplateRoot.fallback)(_.content)
   
-        RenderedTreeRoot(resultRoot, template, finalRoot.config, staticDocuments = staticDocs) // TODO - 0.12 - handle cover document
+        RenderedTreeRoot(resultRoot, template, finalRoot.config, coverDoc, staticDocs)
       }
 
     for {

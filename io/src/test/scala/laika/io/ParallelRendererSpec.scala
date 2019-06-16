@@ -26,7 +26,7 @@ import laika.ast.helper.ModelBuilder
 import laika.bundle.BundleProvider
 import laika.format._
 import laika.io.Parallel.ParallelRenderer
-import laika.io.helper.OutputBuilder.{DocumentViews, RenderedDocumentView, RenderedTreeView, RenderedTreeViewRoot, SubtreeViews}
+import laika.io.helper.OutputBuilder._
 import laika.io.helper.{OutputBuilder, RenderResult}
 import laika.render._
 import org.scalatest.{Assertion, FlatSpec, Matchers}
@@ -159,6 +159,22 @@ class ParallelRendererSpec extends FlatSpec
     }
   }
 
+  it should "render a tree with a cover and title document to HTML" ignore {
+    new HTMLRenderer {
+      val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), Some(Document(Root / "title", rootElem)))
+      override def treeRoot = DocumentTreeRoot(input, coverDocument = Some(Document(Root / "cover", rootElem)))
+      val expected = RenderResult.html.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
+                                                                      |      <p>bbb</p>""".stripMargin)
+      renderedTree should be (RenderedTreeViewRoot(
+        RenderedTreeView(Root, List( 
+          TitleDocument(RenderedDocumentView(Root / "title.html", expected)),
+          DocumentViews(List(RenderedDocumentView(Root / "doc.html", expected)))
+        )),
+        Some(RenderedDocumentView(Root / "cover.html", expected))
+      ))
+    }
+  }
+
   it should "render a tree with a single document to EPUB.XHTML using the default template" ignore {
     new EPUB_XHTMLRenderer {
       val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
@@ -266,7 +282,7 @@ class ParallelRendererSpec extends FlatSpec
       .copying(IO.pure(Seq(ByteInput("...", Root / "static1.txt"))))
       .toOutput(IO.pure(StringTreeOutput))
       .render.unsafeRunSync()
-    ) should be (RenderedTreeViewRoot(RenderedTreeView(Root, Nil), Seq(Root / "static1.txt")))
+    ) should be (RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "static1.txt")))
   }
 
   it should "render a tree with all available file types" in new ASTRenderer with DocBuilder {
@@ -320,7 +336,7 @@ class ParallelRendererSpec extends FlatSpec
       ))))
     ))
     
-    result shouldBe RenderedTreeViewRoot(expectedRendered, expectedStatic)
+    result shouldBe RenderedTreeViewRoot(expectedRendered, staticDocuments = expectedStatic)
   }
   
   trait GatherRenderer {

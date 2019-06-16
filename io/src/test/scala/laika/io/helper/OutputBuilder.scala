@@ -16,22 +16,32 @@ object OutputBuilder {
   
   trait TreeContentView extends Element
   
+  case class TitleDocument (doc: RenderedDocumentView) extends TreeContentView
   case class DocumentViews (content: Seq[RenderedDocumentView]) extends ElementContainer[RenderedDocumentView, DocumentViews] with TreeContentView
   case class SubtreeViews (content: Seq[RenderedTreeView]) extends ElementContainer[RenderedTreeView, SubtreeViews] with TreeContentView
   
   case class RenderedTreeView (path: Path, content: Seq[TreeContentView]) extends ElementContainer[TreeContentView, RenderedTreeView]
-  case class RenderedTreeViewRoot (tree: RenderedTreeView, staticDocuments: Seq[Path])
+  case class RenderedTreeViewRoot (tree: RenderedTreeView, coverDocument: Option[RenderedDocumentView] = None, staticDocuments: Seq[Path] = Nil)
   
   
   object RenderedTreeView {
 
     def toTreeView (root: io.RenderedTreeRoot) : RenderedTreeViewRoot = 
-      RenderedTreeViewRoot(toTreeView(root.tree), root.staticDocuments.map(_.path))
+      RenderedTreeViewRoot(
+        toTreeView(root.tree), 
+        root.coverDocument.map(doc => RenderedDocumentView(doc.path, doc.content)), 
+        root.staticDocuments.map(_.path)
+      )
     
-    def toTreeView (tree: io.RenderedTree) : RenderedTreeView = new RenderedTreeView(tree.path, List( 
-      DocumentViews(tree.content.collect { case doc: io.RenderedDocument => RenderedDocumentView(doc.path, doc.content) }),
-      SubtreeViews(tree.content.collect { case tree: io.RenderedTree => toTreeView(tree) })
-    ) filterNot { case c: ElementContainer[_,_] => c.content.isEmpty })
+    def toTreeView (tree: io.RenderedTree) : RenderedTreeView = {
+      val titleDocument = tree.titleDocument.map(doc => TitleDocument(RenderedDocumentView(doc.path, doc.content))).toSeq
+      val content = List(
+        DocumentViews(tree.content.collect { case doc: io.RenderedDocument => RenderedDocumentView(doc.path, doc.content) }),
+        SubtreeViews(tree.content.collect { case tree: io.RenderedTree => toTreeView(tree) })
+      ) filterNot { case c: ElementContainer[_,_] => c.content.isEmpty }
+      
+      new RenderedTreeView(tree.path, titleDocument ++ content)
+    }
     
   }
 
