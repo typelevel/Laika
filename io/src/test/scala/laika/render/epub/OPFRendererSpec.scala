@@ -63,19 +63,20 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
     renderer.render(input, config) shouldBe fileContent(manifestItems, "", spineRefs, uuid)
   }
 
-  it should "render a tree with a title document" ignore new DocumentPlusTitle {
+  it should "render a tree with a title document" in new DocumentPlusTitle {
     val manifestItems =
       """    <item id="title_epub_xhtml" href="content/title.epub.xhtml" media-type="application/xhtml+xml" />
         |    <item id="bar_epub_xhtml" href="content/bar.epub.xhtml" media-type="application/xhtml+xml" />""".stripMargin
     val titleRef = """    <itemref idref="title_epub_xhtml" />"""
     val spineRefs =
       """    <itemref idref="bar_epub_xhtml" />"""
-    renderer.render(input, config) shouldBe fileContent(manifestItems, titleRef, spineRefs, uuid, "Title 2")
+    renderer.render(input, config) shouldBe fileContent(manifestItems, titleRef, spineRefs, uuid, "From TitleDoc")
   }
 
-  it should "render a tree with a cover" ignore new DocumentPlusCover {
+  it should "render a tree with a cover" in new DocumentPlusCover {
     val manifestItems =
       """    <item id="cover_epub_xhtml" href="content/cover.epub.xhtml" media-type="application/xhtml+xml" />
+        |    <item id="foo_epub_xhtml" href="content/foo.epub.xhtml" media-type="application/xhtml+xml" />
         |    <item id="bar_epub_xhtml" href="content/bar.epub.xhtml" media-type="application/xhtml+xml" />
         |    <item id="cover_png" href="content/cover.png" media-type="image/png" />""".stripMargin
     val coverEntries = CoverEntries(
@@ -84,7 +85,8 @@ class OPFRendererSpec extends FlatSpec with Matchers with ModelBuilder {
       guide =    """    <reference type="cover" title="Cover" href="content/cover.epub.xhtml" />"""
     )
     val spineRefs =
-      """    <itemref idref="bar_epub_xhtml" />"""
+      """    <itemref idref="foo_epub_xhtml" />
+        |    <itemref idref="bar_epub_xhtml" />""".stripMargin
     renderer.render(input, config.copy(coverImage = Some("cover.png"))) shouldBe fileContent(manifestItems, "", spineRefs, uuid, coverEntries = Some(coverEntries))
   }
 

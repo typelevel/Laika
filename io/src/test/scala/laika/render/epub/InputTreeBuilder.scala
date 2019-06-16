@@ -1,6 +1,9 @@
 package laika.render.epub
 
+import java.io.File
+
 import com.typesafe.config.{Config, ConfigValueFactory}
+import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.io._
@@ -24,8 +27,12 @@ trait InputTreeBuilder extends ModelBuilder {
     RenderedTreeRoot(tree(path, titleNum, docs: _*), TemplateRoot(Nil), com.typesafe.config.ConfigFactory.empty)
   }
 
-  def tree (path: Path, titleNum: Int, docs: RenderContent*): RenderedTree = 
-    RenderedTree(path, titleSpans(s"Tree $titleNum"), docs)
+  def tree (path: Path, titleNum: Int, docs: RenderContent*): RenderedTree = {
+    val titleDoc = docs.collectFirst { case doc: RenderedDocument if doc.path.basename == "title" => doc }
+    val content = docs.filterNot(_.path.basename == "title")
+    val title = titleDoc.fold(titleSpans(s"Tree $titleNum")) { doc => titleSpans(s"From TitleDoc") }
+    RenderedTree(path, title, content, titleDoc)
+  }
 
 }
 
@@ -59,7 +66,10 @@ trait DocumentPlusCover extends InputTreeBuilder {
   val doc2 = doc(Path.Root / "bar", 3)
   val cover = doc(Path.Root / "cover", 0)
 
-  val input = rootTree(Path.Root, 1, doc1, doc2).copy(coverDocument = Some(cover))
+  val input = rootTree(Path.Root, 1, doc1, doc2).copy(
+    coverDocument = Some(cover), 
+    staticDocuments = Seq(BinaryFileInput(new File("cover.png"), Root / "cover.png"))
+  )
 }
 
 trait DocumentPlusStyle extends InputTreeBuilder {
@@ -84,9 +94,9 @@ trait NestedTreeWithTitleDoc extends InputTreeBuilder {
   val titleDoc = doc(Path.Root / "sub" / "title", 0)
   val doc1 = doc(Path.Root / "foo", 2)
   val doc2 = doc(Path.Root / "sub" / "bar", 3)
-  val subtree = tree(Path.Root / "sub", 4, doc2)
+  val subtree = tree(Path.Root / "sub", 4, doc2, titleDoc)
 
-  val input = rootTree(Path.Root, 1, doc1, subtree.copy(content = titleDoc +: subtree.content))
+  val input = rootTree(Path.Root, 1, doc1, subtree)
 }
 
 trait TwoNestedTrees extends InputTreeBuilder {

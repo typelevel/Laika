@@ -99,7 +99,7 @@ case class RenderedTreeRoot (tree: RenderedTree,
                              coverDocument: Option[RenderedDocument] = None,
                              staticDocuments: Seq[BinaryInput] = Nil) {
   
-  // TODO - 0.12 - ensure coverDocument is not in rootTree, rename template to defaultTemplate (after checking use cases)
+  // TODO - 0.12 - rename template to defaultTemplate (after checking use cases)
   val title: Seq[Span] = tree.title
   val titleDocument: Option[RenderedDocument] = tree.titleDocument
 
