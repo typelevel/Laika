@@ -37,12 +37,15 @@ trait TemplateRewriter {
    */
   def applyTemplates (cursor: TreeCursor, format: String): DocumentTree = {
     
+    val newTitle = cursor.titleDocument.map(applyTemplate(_, format))
+    
     val newContent = cursor.children map {
       case doc: DocumentCursor => applyTemplate(doc, format)
       case tree: TreeCursor => applyTemplates(tree, format)
     }
       
     cursor.target.copy(
+      titleDocument = newTitle,
       content = newContent,
       templates = Nil
     )

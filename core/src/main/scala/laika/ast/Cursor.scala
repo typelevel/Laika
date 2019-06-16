@@ -77,6 +77,12 @@ case class TreeCursor(target: DocumentTree,
   
   lazy val root: TreeCursor = parent.fold(this)(_.root)
 
+  /** The cursor for the title document of this tree.
+    */
+  lazy val titleDocument: Option[DocumentCursor] = target.titleDocument.map { title =>
+    DocumentCursor(title, this, title.config.withFallback(config).resolve, position)
+  }
+
   /** The cursors for all children of this node in the document tree.
     */
   lazy val children: Seq[Cursor] = {
