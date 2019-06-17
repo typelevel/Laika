@@ -54,10 +54,13 @@ object ParserRuntime {
     import interimModel._
     import laika.collection.TransitionalCollectionOps._
 
-    //if (parsers.size == 1) map.head._2(pi)
-    //      else map.getOrElse(suffix(input.name),
-    //        throw new IllegalArgumentException("Unable to determine parser based on input name: ${input.name}"))(pi)
-
+    def selectParser (path: Path): ValidatedNel[Throwable, MarkupParser] = op.parsers match {
+      case NonEmptyList(parser, Nil) => parser.validNel
+      case multiple => op.parserMap
+        .get(path.suffix)
+        .toValidNel(NoMatchingParser(path, multiple.toList.flatMap(_.fileSuffixes).toSet))
+    }
+      
     // TODO - 0.12 - create these in Op or OperationConfig
     lazy val templateParser: Option[ParserInput => TemplateDocument] = op.config.templateParser map { rootParser =>
       DocumentParser.forTemplate(rootParser, op.config.configHeaderParser)
@@ -70,7 +73,7 @@ object ParserRuntime {
         InputRuntime.readParserInput(input).map(parse.andThen(result))
       
       val createOps: Either[Throwable, Vector[F[ParserResult]]] = inputs.textInputs.toVector.map { in => in.docType match {
-        case Markup             => Vector(parseDocument(in, op.parsers.head.parse, MarkupResult)).validNel
+        case Markup             => selectParser(in.path).map(parser => Vector(parseDocument(in, parser.parse, MarkupResult)))
         case Template           => templateParser.map(parseDocument(in, _, TemplateResult)).toVector.validNel
         case StyleSheet(format) => Vector(parseDocument(in, styleSheetParser, StyleResult(_, format))).validNel
         case Config             => Vector(parseDocument(in, ConfigProvider.fromInput, ConfigResult(in.path, _))).validNel

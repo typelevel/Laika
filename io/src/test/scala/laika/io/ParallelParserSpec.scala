@@ -24,7 +24,7 @@ import laika.ast._
 import laika.ast.helper.DocumentViewBuilder._
 import laika.ast.helper.ModelBuilder
 import laika.bundle.{BundleProvider, ExtensionBundle}
-import laika.format.Markdown
+import laika.format.{Markdown, ReStructuredText}
 import laika.io.Parallel.ParallelParser
 import laika.io.helper.InputBuilder
 import laika.parse.Parser
@@ -92,7 +92,11 @@ class ParallelParserSpec extends FlatSpec
     
     def rawParsedTree: RootView = viewOf(rawParser.fromInput(build(inputs)).parse.unsafeRunSync().root)
 
-    // def rawMixedParsedTree = viewOf(MarkupParser.of(Markdown).or(ReStructuredText).withoutRewrite.fromTreeInput(builder(dirs)).execute) // TODO - 0.12 - resurrect
+    def rawMixedParsedTree: RootView = {
+      val parser = Parallel(MarkupParser.of(Markdown).withoutRewrite).or(MarkupParser.of(ReStructuredText).withoutRewrite).build[IO]
+      viewOf(parser.fromInput(IO.pure(build(inputs, parser.config.docTypeMatcher))).parse.unsafeRunSync().root)
+    }
+      
     
     def parsedWith (bundle: ExtensionBundle): RootView =
       viewOf(withTemplatesApplied(Parallel(MarkupParser.of(Markdown).using(bundle)).build[IO].fromInput(build(inputs)).parse.unsafeRunSync().root))
@@ -173,37 +177,35 @@ class ParallelParserSpec extends FlatSpec
     parsedTree should be (treeResult)
   }
 
-  it should "parse a tree with all available file types" ignore {
-//    new TreeParser {
-//      val dirs = """- doc1.md:link
-//        |- doc2.rst:link
-//        |- mainA.template.html:name
-//        |+ dir1
-//        |  - mainB.template.html:name
-//        |  - doc3.md:name
-//        |  - doc4.md:name
-//        |+ dir2
-//        |  - main.dynamic.html:name
-//        |  - omg.js:name
-//        |  - doc5.md:name
-//        |  - doc6.md:name""".stripMargin
-//      def template (char: Char, path: Path) = TemplateView(path / s"main$char.template.html", TemplateRoot(List(TemplateString("foo"))))
-//      val dyn = TemplateView(Root / "dir2" / "main.dynamic.html", TemplateRoot(List(TemplateString("foo"))))
-//      val subtree1 = TreeView(Root / "dir1", List(
-//        Documents(Markup, List(docView(3, Root / "dir1"),docView(4, Root / "dir1"))),
-//        TemplateDocuments(List(template('B', Root / "dir1")))
-//      ))
-//      val subtree2 = TreeView(Root / "dir2", List(
-//        Documents(Markup, List(docView(5, Root / "dir2"),docView(6, Root / "dir2"))),
-//        Inputs(Static, List(InputView("omg.js")))
-//      ))
-//      val treeResult = TreeView(Root, List(
-//        Documents(Markup, List(customDocView("doc1.md", Seq(p(ExternalLink(Seq(txt("link")), "foo")))),customDocView("doc2.rst", Seq(p("[link](foo)"))))),
-//        TemplateDocuments(List(template('A', Root))),
-//        Subtrees(List(subtree1,subtree2))
-//      ))
-//      rawMixedParsedTree should be (treeResult)
-//    }
+  it should "parse a tree with all available file types and multiple markup formats" in new TreeParser {
+    val inputs = Seq(
+      Root / "doc1.md" -> Contents.link,
+      Root / "doc2.rst" -> Contents.link,
+      Root / "mainA.template.html" -> Contents.name,
+      Root / "dir1" / "mainB.template.html" -> Contents.name,
+      Root / "dir1" / "doc3.md" -> Contents.name,
+      Root / "dir1" / "doc4.md" -> Contents.name,
+      Root / "dir2" / "omg.js" -> Contents.name,
+      Root / "dir2" / "doc5.md" -> Contents.name,
+      Root / "dir2" / "doc6.md" -> Contents.name,
+    )
+    
+    def template (char: Char, path: Path) = TemplateView(path / s"main$char.template.html", TemplateRoot(List(TemplateString("foo"))))
+    val dyn = TemplateView(Root / "dir2" / "main.dynamic.html", TemplateRoot(List(TemplateString("foo"))))
+    val subtree1 = TreeView(Root / "dir1", List(
+      Documents(Markup, List(docView(3, Root / "dir1"), docView(4, Root / "dir1"))),
+      TemplateDocuments(List(template('B', Root / "dir1")))
+    ))
+    val subtree2 = TreeView(Root / "dir2", List(
+      Documents(Markup, List(docView(5, Root / "dir2"), docView(6, Root / "dir2")))
+    ))
+    val tree = TreeView(Root, List(
+      Documents(Markup, List(customDocView("doc1.md", Seq(p(ExternalLink(Seq(txt("link")), "foo")))),customDocView("doc2.rst", Seq(p("[link](foo)"))))),
+      TemplateDocuments(List(template('A', Root))),
+      Subtrees(List(subtree1,subtree2))
+    ))
+    val expectedRoot = RootView(Seq(StaticDocuments(Seq(Root / "dir2" / "omg.js")), tree))
+    rawMixedParsedTree should be (expectedRoot)
   }
   
   it should "allow to specify a custom template engine" in new TreeParser {

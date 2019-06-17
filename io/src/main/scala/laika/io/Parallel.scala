@@ -48,6 +48,9 @@ object Parallel {
   object ParallelParser {
 
     case class Builder (parsers: NonEmptyList[MarkupParser]) {
+      
+      def or (parser: MarkupParser): Builder = copy(parsers = parsers.append(parser))
+      def or (parser: ParserBuilder): Builder = copy(parsers = parsers.append(parser.build))
 
       def build[F[_]: Async]: ParallelParser[F] = new ParallelParser[F](parsers)
 

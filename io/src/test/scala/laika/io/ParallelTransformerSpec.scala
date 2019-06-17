@@ -51,7 +51,6 @@ class ParallelTransformerSpec extends FlatSpec
     def input (in: Seq[(Path, String)], docTypeMatcher: Path => DocumentType): InputCollection = build(in, docTypeMatcher)
 
     def transformTree: RenderedTreeViewRoot = transformWith()
-    //def transformMultiMarkup: RenderedTree = transformWith(Transformer.from(Markdown or ReStructuredText to AST)
     
     def transformWithConfig (config: String): RenderedTreeViewRoot = transformWithBundle(BundleProvider.forConfigString(config))
     def transformWithDocTypeMatcher (matcher: PartialFunction[Path, DocumentType]): RenderedTreeViewRoot = transformWithBundle(BundleProvider.forDocTypeMatcher(matcher))
@@ -226,54 +225,49 @@ class ParallelTransformerSpec extends FlatSpec
     transformTree should be (RenderedTreeViewRoot(RenderedTreeView(Root, Nil), staticDocuments = Seq(Root / "omg.js")))
   }
   
-  it should "transform a tree with all available file types" ignore {
-//    new TreeTransformer {
-//      val dirs = """- doc1.md:link
-//        |- doc2.rst:link
-//        |- default.template.txt:template1
-//        |+ dir1
-//        |  - default.template.txt:template2
-//        |  - doc3.md:name
-//        |  - doc4.md:name
-//        |+ dir2
-//        |  - omg.js:name
-//        |  - doc5.md:name
-//        |  - doc6.md:name""".stripMargin
-//      val withTemplate1 = """RootElement - Blocks: 1
-//        |. Paragraph - Spans: 1
-//        |. . Text - 'foo'""".stripMargin  
-//      val withTemplate2 = """RootElement - Blocks: 1
-//        |. TemplateRoot - TemplateSpans: 3
-//        |. . TemplateString - '('
-//        |. . EmbeddedRoot(0) - Blocks: 1
-//        |. . . Paragraph - Spans: 1
-//        |. . . . Text - 'foo'
-//        |. . TemplateString - ')'""".stripMargin  
-//      val markdown = """RootElement - Blocks: 1
-//        |. Paragraph - Spans: 1
-//        |. . ExternalLink(foo,None) - Spans: 1
-//        |. . . Text - 'link'""".stripMargin
-//      val rst = """RootElement - Blocks: 1
-//        |. Paragraph - Spans: 1
-//        |. . Text - '[link](foo)'""".stripMargin
-//      transformMultiMarkup should be (root(List(
-//        docs(
-//          (Root / "doc1.txt", markdown),
-//          (Root / "doc2.txt", rst)
-//        ),
-//        trees(
-//          (Root / "dir1", List(docs(
-//            (Root / "dir1" / "doc3.txt", withTemplate2),
-//            (Root / "dir1" / "doc4.txt", withTemplate2)  
-//          ))),
-//          (Root / "dir2", List(docs(
-//            (Root / "dir2" / "doc5.txt", withTemplate1),
-//            (Root / "dir2" / "doc6.txt", withTemplate1),  
-//            (Root / "dir2" / "omg.js", "foo")  
-//          )))
-//        )
-//      )))
-//    }
+  it should "transform a tree with all available file types" in new TreeTransformer {
+    val inputs = Seq(
+      Root / "doc1.md" -> Contents.link,
+      Root / "doc2.md" -> Contents.link,
+      Root / "default.template.txt" -> Contents.template1,
+      Root / "dir1" / "default.template.txt" -> Contents.template2,
+      Root / "dir1" / "doc3.md" -> Contents.name,
+      Root / "dir1" / "doc4.md" -> Contents.name,
+      Root / "dir2" / "omg.js" -> Contents.name,
+      Root / "dir2" / "doc5.md" -> Contents.name,
+      Root / "dir2" / "doc6.md" -> Contents.name,
+    )
+    
+    val withTemplate1 = """RootElement - Blocks: 1
+      |. Paragraph - Spans: 1
+      |. . Text - 'foo'""".stripMargin  
+    val withTemplate2 = """RootElement - Blocks: 1
+      |. TemplateRoot - TemplateSpans: 3
+      |. . TemplateString - '('
+      |. . EmbeddedRoot(0) - Blocks: 1
+      |. . . Paragraph - Spans: 1
+      |. . . . Text - 'foo'
+      |. . TemplateString - ')'""".stripMargin  
+    val markdown = """RootElement - Blocks: 1
+      |. Paragraph - Spans: 1
+      |. . ExternalLink(foo,None) - Spans: 1
+      |. . . Text - 'link'""".stripMargin
+    transformTree should be (RenderedTreeViewRoot(root(List(
+      docs(
+        (Root / "doc1.txt", markdown),
+        (Root / "doc2.txt", markdown)
+      ),
+      trees(
+        (Root / "dir1", List(docs(
+          (Root / "dir1" / "doc3.txt", withTemplate2),
+          (Root / "dir1" / "doc4.txt", withTemplate2)  
+        ))),
+        (Root / "dir2", List(docs(
+          (Root / "dir2" / "doc5.txt", withTemplate1),
+          (Root / "dir2" / "doc6.txt", withTemplate1),  
+        )))
+      )
+    )), staticDocuments = Seq(Root / "dir2" / "omg.js")))
   }
   
   trait GatheringTransformer extends InputBuilder {
