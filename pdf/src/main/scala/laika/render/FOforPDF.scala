@@ -166,7 +166,7 @@ class FOforPDF (config: Option[PDF.Config]) {
   def prepareTree (root: DocumentTreeRoot): DocumentTreeRoot = {
     val pdfConfig = config getOrElse configFromTree(root.config)
     val insertLinks = pdfConfig.bookmarkDepth > 0 || pdfConfig.tocDepth > 0
-    val withoutTemplates = root.tree.copy(templates = Seq(TemplateDocument(Path.Root / "default.template.fo",
+    val withoutTemplates = root.tree.copy(templates = Seq(TemplateDocument(Path.Root / "default.template.fo", // TODO - 0.12 - use withDefaultTemplate
         TemplateRoot(List(TemplateContextReference("document.content"))))))
     val withDocTitles = if (insertLinks) addDocLinks(withoutTemplates) else withoutTemplates
     val withToc = if (pdfConfig.tocDepth > 0) insertToc(withDocTitles, pdfConfig.tocDepth, pdfConfig.tocTitle) else withDocTitles
@@ -203,17 +203,13 @@ class FOforPDF (config: Option[PDF.Config]) {
     
     val pdfConfig = config getOrElse configFromTree(result.config)
     
-//    def getDefaultTemplate: TemplateDocument = { // TODO - 0.12 - ensure the right template is already passed in
-//      val templateName = "default.template.fo"
-//      result.selectTemplate(Path.Current / templateName)
-//        .getOrElse(TemplateDocument(Path.Root / templateName, defaultTemplateRoot))
-//    }
-    
-    def concatDocuments (resultTree: RenderedTree): String = { // TODO - 0.12 - move to core as a util
+    def concatDocuments: String = { // TODO - 0.12 - move to core as a util
 
-      def append (sb: StringBuilder, result: RenderedTree): Unit = {
+      def append (sb: StringBuilder, tree: RenderedTree): Unit = {
 
-        result.content foreach {
+        tree.titleDocument.foreach(doc => sb.append(doc.content))
+        
+        tree.content foreach {
           case d: RenderedDocument => sb.append(d.content)
           case t: RenderedTree => append(sb, t)
           case _ => ()
@@ -221,7 +217,8 @@ class FOforPDF (config: Option[PDF.Config]) {
       }
       
       val sb = new StringBuilder
-      append(sb, resultTree) // TODO - improve formatting
+      result.coverDocument.foreach(doc => sb.append(doc.content))
+      append(sb, result.tree) // TODO - improve formatting
       sb.toString
     }
 
@@ -242,8 +239,7 @@ class FOforPDF (config: Option[PDF.Config]) {
     }
 
     val defaultTemplate = TemplateDocument(Path.Root / "default.template.fo", defaultTemplateRoot)
-    val foString = concatDocuments(result.tree)
-    applyTemplate(foString, defaultTemplate)
+    applyTemplate(concatDocuments, defaultTemplate)
   }
 
     
