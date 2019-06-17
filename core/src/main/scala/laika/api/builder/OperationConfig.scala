@@ -138,6 +138,14 @@ case class OperationConfig (bundles: Seq[ExtensionBundle] = Nil,
     */
   def forRawContent: OperationConfig = copy(bundleFilter = bundleFilter.copy(acceptRawContent = true))
 
+  /**  Merges the extension bundles and setting of this configuration with the specified other configuration.
+    *  Alternative settings defined in this instance will have precedence.
+    */
+  def merge (other: OperationConfig): OperationConfig = copy(
+    bundles = (this.bundles ++ other.bundles).distinct,
+    bundleFilter = this.bundleFilter.merge(other.bundleFilter)
+  )
+
 }
 
 /** Represents the subset of OperationConfig relevant for renderers.
@@ -161,6 +169,8 @@ trait RenderConfig {
 case class BundleFilter (strict: Boolean = false, acceptRawContent: Boolean = false) extends (ExtensionBundle => Boolean) {
   override def apply (bundle: ExtensionBundle): Boolean =
     (!strict || bundle.useInStrictMode) && (acceptRawContent || !bundle.acceptRawContent)
+  def merge (other: BundleFilter): BundleFilter = 
+    BundleFilter(strict || other.strict, acceptRawContent || other.acceptRawContent)
 }
 
 /** Provides OperationConfig instances and a utility for merging bundles.

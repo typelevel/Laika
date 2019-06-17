@@ -2,6 +2,7 @@ package laika.io
 
 import java.io.File
 
+import cats.data.NonEmptyList
 import cats.effect.Async
 import cats.implicits._
 import laika.api.{MarkupParser, Renderer, Transformer}
@@ -14,14 +15,14 @@ import scala.io.Codec
 
 object Parallel {
 
-  def apply (parser: ParserBuilder): ParallelParser.Builder                   = ParallelParser.Builder(parser.build)
+  def apply (parser: ParserBuilder): ParallelParser.Builder                   = ParallelParser.Builder(NonEmptyList.of(parser.build))
   def apply (renderer: RendererBuilder[_]): ParallelRenderer.Builder          = ParallelRenderer.Builder(renderer.build)
   def apply (transformer: TransformerBuilder[_]): ParallelTransformer.Builder = ParallelTransformer.Builder(transformer.build)
 
   def apply (renderer: TwoPhaseRendererBuilder[_, BinaryPostProcessor]): binary.ParallelRenderer.Builder          = binary.ParallelRenderer.Builder(renderer.build)
   def apply (transformer: TwoPhaseTransformerBuilder[_, BinaryPostProcessor]): binary.ParallelTransformer.Builder = binary.ParallelTransformer.Builder(transformer.build)
 
-  def apply (parser: MarkupParser): ParallelParser.Builder           = ParallelParser.Builder(parser)
+  def apply (parser: MarkupParser): ParallelParser.Builder           = ParallelParser.Builder(NonEmptyList.of(parser))
   def apply (renderer: Renderer): ParallelRenderer.Builder           = ParallelRenderer.Builder(renderer)
   def apply (transformer: Transformer): ParallelTransformer.Builder  = ParallelTransformer.Builder(transformer)
 
@@ -29,7 +30,7 @@ object Parallel {
   def apply (transformer: TwoPhaseTransformer[BinaryPostProcessor]): binary.ParallelTransformer.Builder  = binary.ParallelTransformer.Builder(transformer)
 
 
-  class ParallelParser[F[_]: Async] (parser: MarkupParser) extends ParallelInputOps[F] {
+  class ParallelParser[F[_]: Async] (parsers: NonEmptyList[MarkupParser]) extends ParallelInputOps[F] {
 
     type Result = ParallelParser.Op[F]
 
@@ -37,24 +38,26 @@ object Parallel {
 
     val docType: TextDocumentType = DocumentType.Markup
 
-    val config: OperationConfig = parser.config
+    lazy val config: OperationConfig = parsers.map(_.config).reduce[OperationConfig](_ merge _)
 
 
-    def fromInput (input: F[TreeInput]): ParallelParser.Op[F] = ParallelParser.Op(parser, input)
+    def fromInput (input: F[TreeInput]): ParallelParser.Op[F] = ParallelParser.Op(parsers, input)
 
   }
 
   object ParallelParser {
 
-    case class Builder (parser: MarkupParser) {
+    case class Builder (parsers: NonEmptyList[MarkupParser]) {
 
-      def build[F[_]: Async]: ParallelParser[F] = new ParallelParser[F](parser)
+      def build[F[_]: Async]: ParallelParser[F] = new ParallelParser[F](parsers)
 
     }
 
-    case class Op[F[_]: Async] (parser: MarkupParser, input: F[TreeInput]) {
+    case class Op[F[_]: Async] (parsers: NonEmptyList[MarkupParser], input: F[TreeInput]) {
+      
+      val parserMap: Map[String, MarkupParser] = parsers.toList.flatMap(p => p.fileSuffixes.map((_, p))).toMap
 
-      val config: OperationConfig = parser.config
+      lazy val config: OperationConfig = parsers.map(_.config).reduce[OperationConfig](_ merge _)
       
       def parse: F[ParsedTree] = ParserRuntime.run(this)
 

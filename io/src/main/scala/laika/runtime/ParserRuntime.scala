@@ -1,5 +1,6 @@
 package laika.runtime
 
+import cats.data.{NonEmptyList, ValidatedNel}
 import cats.effect.Async
 import com.typesafe.config.ConfigFactory
 import laika.ast.{TemplateDocument, _}
@@ -11,6 +12,7 @@ import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.ParserInput
 import com.typesafe.config.{Config => TConfig}
 import cats.implicits._
+import laika.api.MarkupParser
 import laika.ast.Path.Root
 
 /** 
@@ -38,6 +40,12 @@ object ParserRuntime {
       val path: Path = doc.paths.head
     }
     case class ConfigResult (path: Path, config: TConfig) extends ParserResult
+    
+    case class NoMatchingParser (path: Path, suffixes: Set[String]) extends
+      RuntimeException(s"No matching parser available for path: $path - supported suffixes: ${suffixes.mkString(",")}")
+    
+    case class ParserErrors (errors: Seq[Throwable]) extends 
+      RuntimeException(s"Multiple errors during parsing: ${errors.map(_.getMessage).mkString(", ")}")
   }
 
   def run[F[_]: Async] (op: ParallelParser.Op[F]): F[ParsedTree] = {
@@ -45,6 +53,10 @@ object ParserRuntime {
     import DocumentType._
     import interimModel._
     import laika.collection.TransitionalCollectionOps._
+
+    //if (parsers.size == 1) map.head._2(pi)
+    //      else map.getOrElse(suffix(input.name),
+    //        throw new IllegalArgumentException("Unable to determine parser based on input name: ${input.name}"))(pi)
 
     // TODO - 0.12 - create these in Op or OperationConfig
     lazy val templateParser: Option[ParserInput => TemplateDocument] = op.config.templateParser map { rootParser =>
@@ -57,12 +69,12 @@ object ParserRuntime {
       def parseDocument[D] (input: TextInput, parse: ParserInput => D, result: D => ParserResult): F[ParserResult] =
         InputRuntime.readParserInput(input).map(parse.andThen(result))
       
-      val textOps: Seq[F[ParserResult]] = inputs.textInputs.flatMap { in => in.docType match {
-        case Markup             => Seq(parseDocument(in, op.parser.parse, MarkupResult))
-        case Template           => templateParser.map(parseDocument(in, _, TemplateResult)).toSeq
-        case StyleSheet(format) => Seq(parseDocument(in, styleSheetParser, StyleResult(_, format)))
-        case Config             => Seq(parseDocument(in, ConfigProvider.fromInput, ConfigResult(in.path, _)))
-      }}
+      val createOps: Either[Throwable, Vector[F[ParserResult]]] = inputs.textInputs.toVector.map { in => in.docType match {
+        case Markup             => Vector(parseDocument(in, op.parsers.head.parse, MarkupResult)).validNel
+        case Template           => templateParser.map(parseDocument(in, _, TemplateResult)).toVector.validNel
+        case StyleSheet(format) => Vector(parseDocument(in, styleSheetParser, StyleResult(_, format))).validNel
+        case Config             => Vector(parseDocument(in, ConfigProvider.fromInput, ConfigResult(in.path, _))).validNel
+      }}.combineAll.toEither.leftMap(es => ParserErrors(es.toList))
       
       def buildNode (path: Path, content: Seq[ParserResult], subTrees: Seq[DocumentTree]): DocumentTree = {
         def isTitleDoc (doc: Document): Boolean = doc.path.basename == "title"
@@ -77,8 +89,8 @@ object ParserRuntime {
         DocumentTree(path, treeContent, titleDoc, templates, fullConfig)
       }
 
-      BatchRuntime.run(textOps.toVector, 1, 1).map { results => // TODO - 0.12 - add parallelism option to builder
-        val coverDoc = results.collectFirst { 
+      def processResults (results: Seq[ParserResult]): ParsedTree = {
+        val coverDoc = results.collectFirst {
           case MarkupResult(doc) if doc.path.parent == Root && doc.path.basename == "cover" => doc
         }
         val tree = TreeBuilder.build(results.filterNot(res => coverDoc.exists(_.path == res.path)), buildNode) // TODO - 0.12 - use new buildComposite and remove the old builder
@@ -89,11 +101,16 @@ object ParserRuntime {
           .mapValuesStrict(_.map(_._2).reduce(_ ++ _))
           .withDefaultValue(StyleDeclarationSet.empty)
 
-        val finalTree = if (op.parser.rewrite) tree.rewrite(op.config.rewriteRules) else tree
+        val finalTree = if (op.parsers.exists(_.rewrite)) tree.rewrite(op.config.rewriteRules) else tree
 
         val root = DocumentTreeRoot(finalTree, coverDoc, styles, inputs.binaryInputs.map(_.path), inputs.sourcePaths)
         ParsedTree(root, inputs.binaryInputs)
-      } 
+      }
+      
+      for {
+        ops     <- Async[F].fromEither(createOps)
+        results <- BatchRuntime.run(ops.toVector, 1, 1) // TODO - 0.12 - add parallelism option to builder
+      } yield processResults(results)
       
     }
     
@@ -103,27 +120,5 @@ object ParserRuntime {
     } flatMap parseAll
     
   }
-
-//  private case class ParserLookup (parsers: Seq[MarkupFormat], config: OperationConfig) {
-//
-//    private def suffix (name: String): String = name.lastIndexOf(".") match {
-//      case -1    => ""
-//      case index => name.drop(index+1)
-//    }
-//
-//    private lazy val map: Map[String, ParserInput => Document] =
-//      parsers.flatMap { parser =>
-//        val docParser = DocumentParser.forMarkup(parser, config.markupExtensions, config.configHeaderParser)
-//        parser.fileSuffixes.map((_, docParser))
-//      }.toMap
-//
-//    def forInput (input: TextInput): TextInput => Document = { input =>
-//      val pi: ParserInput = null
-//      if (parsers.size == 1) map.head._2(pi)
-//      else map.getOrElse(suffix(input.name),
-//        throw new IllegalArgumentException("Unable to determine parser based on input name: ${input.name}"))(pi)
-//    }
-//
-//  }
 
 }

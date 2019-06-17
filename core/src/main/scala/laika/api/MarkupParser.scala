@@ -27,6 +27,8 @@ import laika.parse.markup.DocumentParser.ParserInput
 
 class MarkupParser (parser: MarkupFormat, val config: OperationConfig, val rewrite: Boolean) {
 
+  val fileSuffixes: Set[String] = parser.fileSuffixes
+  
   private val docParser = DocumentParser.forMarkup(parser, config.markupExtensions, config.configHeaderParser)
 
   def parse (input: String): Document = parse(ParserInput(Root, ParserContext(input)))
