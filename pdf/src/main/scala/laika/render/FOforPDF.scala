@@ -229,11 +229,17 @@ class FOforPDF (config: Option[PDF.Config]) {
         result.config.withValue("pdf.coverImage", ConfigValueFactory.fromAnyRef(resolvedUri))
       } else result.config
 
+    val resultWithoutToc = result.copy(tree = result.tree.copy(content = result.tree.content.filterNot(_.path == Root / s"${DocNames.toc}.fo")))
     
     def applyTemplate(foString: String, template: TemplateDocument): String = {
       val foElement = RawContent(Seq("fo"), foString)
       val finalConfig = resolveCoverImagePath
-      val finalDoc = Document(Path.Root / "merged.fo", RootElement(Seq(foElement)), fragments = generateBookmarks(result, pdfConfig.bookmarkDepth), config = finalConfig)
+      val finalDoc = Document(
+        Path.Root / "merged.fo", 
+        RootElement(Seq(foElement)), 
+        fragments = generateBookmarks(resultWithoutToc, pdfConfig.bookmarkDepth), 
+        config = finalConfig
+      )
       val templateApplied = template.applyTo(finalDoc)
       Renderer.of(XSLFO).build.render(templateApplied)
     }

@@ -47,21 +47,23 @@ trait TreeModel {
 
   def configWithFallback: Config = ConfigFactory.empty.withFallback(pdfFileConfig)
 
-  def subtreeDocs (nums: Int*): Seq[Document] = {
-    val parent = if (nums.head > 4) Root / "tree2" else if (nums.head > 2) Root / "tree1" else Root
-    val subTreeNum = parent.name.takeRight(1).toInt + 1
-    val title = if (useTitleDocuments) Seq(Document(parent / "title.md", RootElement(Seq(
+  def subtreeDocs (nums: Int*): Seq[Document] = nums.map(doc)
+  
+  def subtreeTitle (subTreeNum: Int): Option[Document] = {
+    val parent = Root / s"tree${subTreeNum - 1}"
+    if (useTitleDocuments) Some(Document(parent / "title.md", RootElement(Seq(
       Title(Seq(Text(s"Title Doc $subTreeNum")), Id(s"title-$subTreeNum") + Styles("title")),
       Paragraph(Seq(Text(s"Text $subTreeNum")))
-    )))) else Nil
-    title ++ nums.map(doc)
+    )))) else None
   }
   
   lazy val tree = DocumentTree(Root, Seq(
       doc(1), 
       doc(2),
-      DocumentTree(Root / "tree1", subtreeDocs(3,4), config = if (useTitleDocuments) configWithFallback else configWithTreeTitle(2)),
-      DocumentTree(Root / "tree2", subtreeDocs(5,6), config = if (useTitleDocuments) configWithFallback else configWithTreeTitle(3))
+      DocumentTree(Root / "tree1", subtreeDocs(3,4), titleDocument = subtreeTitle(2), 
+        config = if (useTitleDocuments) configWithFallback else configWithTreeTitle(2)),
+      DocumentTree(Root / "tree2", subtreeDocs(5,6), titleDocument = subtreeTitle(3), 
+        config = if (useTitleDocuments) configWithFallback else configWithTreeTitle(3))
     ),
     config = configWithTreeTitle(1)
   )

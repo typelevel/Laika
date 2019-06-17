@@ -106,12 +106,14 @@ case class TreeCursor(target: DocumentTree,
       
     val sortedContent = NavigationOrder.applyTo(children, config, position)
 
+    val rewrittenTitle = titleDocument.map(doc => doc.rewriteTarget(rules(doc)))
+    
     val rewrittenContent = sortedContent map {
       case doc: DocumentCursor => doc.rewriteTarget(rules(doc))
       case tree: TreeCursor => tree.rewriteTarget(rules)
     }
 
-    target.copy(content = rewrittenContent, position = position)
+    target.copy(content = rewrittenContent, titleDocument = rewrittenTitle, position = position)
   }
 
 }

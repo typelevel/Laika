@@ -111,7 +111,6 @@ class FOforPDFSpec extends FlatSpec with Matchers {
 
 
     def withDefaultTemplate(result: String, bookmarks: String = ""): String = {
-      //println(defaultTemplate)
       defaultTemplate.replace("{{document.content}}", result).replace("{{document.fragments.bookmarks}}", bookmarks).replaceAll("(?s)@.*  }", "")
     }
       
@@ -138,7 +137,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
       |    </fo:bookmark>
       |""".stripMargin  
       
-    val closeBookmarks = "</fo:bookmark-tree>"
+    val closeBookmarks = "\n  </fo:bookmark-tree>"
   }
   
   
