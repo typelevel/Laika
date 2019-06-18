@@ -88,7 +88,7 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], config: Option[P
       val metadata = DocumentMetadata.fromConfig(result.config)
       val title = if (result.title.isEmpty) None else Some(SpanSequence(result.title).extractText)
 
-      renderPDF(fo, output, metadata, title, Nil) // TODO - 0.12 - add result.sourcePaths
+      renderPDF(fo, output, metadata, title, result.sourcePaths)
     }
   }
 

@@ -89,7 +89,7 @@ object RendererRuntime {
         val resultRoot = TreeBuilder.buildComposite(renderedDocs.filterNot(res => coverDoc.exists(_.path == res.path)), buildNode)
         val template = finalRoot.tree.getDefaultTemplate(fileSuffix).fold(TemplateRoot.fallback)(_.content)
   
-        RenderedTreeRoot(resultRoot, template, finalRoot.config, coverDoc, staticDocs)
+        RenderedTreeRoot(resultRoot, template, finalRoot.config, coverDoc, staticDocs, finalRoot.sourcePaths)
       }
 
     for {
