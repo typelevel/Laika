@@ -94,13 +94,12 @@ case class RenderedTree (path: Path, title: Seq[Span], content: Seq[RenderConten
 case class RenderedDocument (path: Path, title: Seq[Span], sections: Seq[SectionInfo], content: String) extends RenderContent
 
 case class RenderedTreeRoot (tree: RenderedTree,
-                             template: TemplateRoot,
+                             defaultTemplate: TemplateRoot,
                              config: Config,
                              coverDocument: Option[RenderedDocument] = None,
                              staticDocuments: Seq[BinaryInput] = Nil,
                              sourcePaths: Seq[String] = Nil) {
   
-  // TODO - 0.12 - rename template to defaultTemplate (after checking use cases)
   val title: Seq[Span] = tree.title
   val titleDocument: Option[RenderedDocument] = tree.titleDocument
 

@@ -1,10 +1,8 @@
 package laika.render.epub
 
-import java.nio.charset.Charset
-
 import laika.ast.{DocumentTreeRoot, Path, RawContent, TemplateDocument, TemplateElement}
 import laika.directive.Templates
-import laika.io.{BinaryInput, ByteInput, RenderedTreeRoot}
+import laika.io.{BinaryInput, RenderedTreeRoot}
 import laika.parse.directive.TemplateParsers
 import laika.parse.markup.DocumentParser.ParserInput
 import laika.parse.text.TextParsers.unsafeParserFunction

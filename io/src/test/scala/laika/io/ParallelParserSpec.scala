@@ -77,7 +77,7 @@ class ParallelParserSpec extends FlatSpec
         |]""".stripMargin
     }
     
-    val docTypeMatcher: Path => DocumentType = defaultParser.config.docTypeMatcher // TODO - 0.12 - does it need rst?
+    val docTypeMatcher: Path => DocumentType = defaultParser.config.docTypeMatcher
     
     def build (in: Seq[(Path, String)]): IO[TreeInput] = IO.pure(build(in, docTypeMatcher))
     

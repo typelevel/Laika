@@ -7,8 +7,9 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.io._
+import laika.io.helper.InputBuilder
 
-trait InputTreeBuilder extends ModelBuilder {
+trait InputTreeBuilder extends ModelBuilder with InputBuilder {
 
   val uuid = "some-uuid"
 

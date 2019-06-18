@@ -27,7 +27,7 @@ import laika.bundle.BundleProvider
 import laika.format._
 import laika.io.Parallel.ParallelRenderer
 import laika.io.helper.OutputBuilder._
-import laika.io.helper.{OutputBuilder, RenderResult}
+import laika.io.helper.{InputBuilder, OutputBuilder, RenderResult}
 import laika.render._
 import org.scalatest.{Assertion, FlatSpec, Matchers}
 
@@ -46,7 +46,7 @@ class ParallelRendererSpec extends FlatSpec
       |. Paragraph - Spans: 1
       |. . Text - 'bbb'""".stripMargin
 
-  trait DocBuilder {
+  trait DocBuilder extends InputBuilder {
     def markupDoc (num: Int, path: Path = Root)  = Document(path / ("doc"+num), root(p("Doc"+num)))
     
     def staticDoc (num: Int, path: Path = Root) = ByteInput("Static"+num, path / s"static$num.txt")

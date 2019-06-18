@@ -43,7 +43,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
 
       override def process[F[_]: Async] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = {
 
-        val fo = foForPDF.renderFO(result, result.template)
+        val fo = foForPDF.renderFO(result)
         OutputRuntime.asStream(output).use { out =>
           Async[F].delay(out.write(fo.getBytes("UTF-8")))
         }

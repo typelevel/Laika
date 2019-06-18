@@ -80,12 +80,6 @@ case class BinaryFileInput (file: File, path: Path) extends BinaryInput
 
 case class BinaryStreamInput (stream: InputStream, autoClose: Boolean, path: Path) extends BinaryInput
 
-object ByteInput {
-  // TODO - 0.12 - move to test packages
-  def apply (input: String, path: Path)(implicit codec: Codec): BinaryStreamInput = 
-    BinaryStreamInput(new ByteArrayInputStream(input.getBytes(codec.charSet)), autoClose = true, path)
-}
-
 case class DirectoryInput (directories: Seq[File],
                            codec: Codec,
                            docTypeMatcher: Path => DocumentType = DocumentTypeMatcher.base,

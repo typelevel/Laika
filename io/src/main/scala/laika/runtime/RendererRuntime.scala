@@ -112,7 +112,7 @@ object RendererRuntime {
     for {
       out          <- op.output
       renderedTree <- run(ParallelRenderer.Op[F](op.renderer.interimRenderer, preparedTree, Async[F].pure(StringTreeOutput), Async[F].pure(Nil)))
-      _            <- op.renderer.postProcessor.process(renderedTree.copy(template = template), out)
+      _            <- op.renderer.postProcessor.process(renderedTree.copy(defaultTemplate = template), out)
     } yield ()
       
   }

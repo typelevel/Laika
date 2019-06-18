@@ -166,8 +166,7 @@ class FOforPDF (config: Option[PDF.Config]) {
   def prepareTree (root: DocumentTreeRoot): DocumentTreeRoot = {
     val pdfConfig = config getOrElse configFromTree(root.config)
     val insertLinks = pdfConfig.bookmarkDepth > 0 || pdfConfig.tocDepth > 0
-    val withoutTemplates = root.tree.copy(templates = Seq(TemplateDocument(Path.Root / "default.template.fo", // TODO - 0.12 - use withDefaultTemplate
-        TemplateRoot(List(TemplateContextReference("document.content"))))))
+    val withoutTemplates = root.tree.withDefaultTemplate(TemplateRoot.fallback, "fo")
     val withDocTitles = if (insertLinks) addDocLinks(withoutTemplates) else withoutTemplates
     val withToc = if (pdfConfig.tocDepth > 0) insertToc(withDocTitles, pdfConfig.tocDepth, pdfConfig.tocTitle) else withDocTitles
     val finalTree = if (insertLinks) addTreeLinks(withToc) else withToc
@@ -196,10 +195,9 @@ class FOforPDF (config: Option[PDF.Config]) {
    *  configuration settings.
    *  
    *  @param result the tree of rendered XSL-FO documents
-   *  @param defaultTemplateRoot the template to apply the concatenated FO documents to
    *  @return the rendered merged XSL-FO as a String 
    */
-  def renderFO (result: RenderedTreeRoot, defaultTemplateRoot: TemplateRoot): String = {
+  def renderFO (result: RenderedTreeRoot): String = {
     
     val pdfConfig = config getOrElse configFromTree(result.config)
     
@@ -244,7 +242,7 @@ class FOforPDF (config: Option[PDF.Config]) {
       Renderer.of(XSLFO).build.render(templateApplied)
     }
 
-    val defaultTemplate = TemplateDocument(Path.Root / "default.template.fo", defaultTemplateRoot)
+    val defaultTemplate = TemplateDocument(Path.Root / "default.template.fo", result.defaultTemplate)
     applyTemplate(concatDocuments, defaultTemplate)
   }
 
