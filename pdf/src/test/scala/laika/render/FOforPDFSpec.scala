@@ -20,12 +20,13 @@ import java.io.ByteArrayOutputStream
 
 import cats.effect.{Async, IO}
 import laika.api.Renderer
-import laika.ast.{DocumentTreeRoot, Path}
+import laika.ast.{DocumentTreeRoot, Path, TemplateRoot}
 import laika.runtime.{InputRuntime, OutputRuntime}
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.format.{PDF, XSLFO}
 import laika.io.binary.ParallelRenderer
 import laika.io.{BinaryOutput, Parallel, RenderedTreeRoot}
+import laika.render.pdf.{FOConcatenation, PDFConfigBuilder, PDFNavigation}
 import org.scalatest.{FlatSpec, Matchers}
 
 class FOforPDFSpec extends FlatSpec with Matchers {
@@ -35,15 +36,17 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     
     val interimFormat: RenderFormat[FOFormatter] = XSLFO
     
-    private val foForPDF = new FOforPDF(config)
-
-    def prepareTree (root: DocumentTreeRoot): DocumentTreeRoot = foForPDF.prepareTree(root)
+    def prepareTree (root: DocumentTreeRoot): DocumentTreeRoot = {
+      val pdfConfig = config.getOrElse(PDFConfigBuilder.fromTreeConfig(root.config))
+      val rootWithTemplate = root.copy(tree = root.tree.withDefaultTemplate(TemplateRoot.fallback, "fo"))
+      PDFNavigation.prepareTree(rootWithTemplate, pdfConfig)
+    }
 
     object postProcessor extends BinaryPostProcessor {
 
       override def process[F[_]: Async] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = {
 
-        val fo = foForPDF.renderFO(result)
+        val fo = FOConcatenation(result, config.getOrElse(PDFConfigBuilder.fromTreeConfig(result.config)))
         OutputRuntime.asStream(output).use { out =>
           Async[F].delay(out.write(fo.getBytes("UTF-8")))
         }

@@ -16,25 +16,15 @@
 
 package laika.format
 
-import java.io.{File, FileOutputStream, OutputStream, StringReader}
-import java.net.URI
-import java.util.Date
+import java.io.File
 
 import cats.effect.Async
-import cats.implicits._
-
-import javax.xml.transform.Transformer
-import javax.xml.transform.TransformerFactory
-import javax.xml.transform.sax.SAXResult
-import javax.xml.transform.stream.StreamSource
-import laika.ast.{DocumentMetadata, DocumentTreeRoot, SpanSequence}
-import laika.runtime.OutputRuntime
+import laika.ast.{DocumentMetadata, DocumentTreeRoot, SpanSequence, TemplateRoot}
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.{BinaryOutput, RenderedTreeRoot}
-import laika.render.{FOFormatter, FOforPDF}
-import org.apache.fop.apps.{FOUserAgent, FOUserAgentFactory, FopFactory, FopFactoryBuilder}
-import org.apache.xmlgraphics.io.{Resource, ResourceResolver}
-import org.apache.xmlgraphics.util.MimeConstants
+import laika.render.FOFormatter
+import laika.render.pdf.{FOConcatenation, PDFConfigBuilder, PDFNavigation, PDFRenderer}
+import org.apache.fop.apps.{FopFactory, FopFactoryBuilder}
 
 /** A post processor for PDF output, based on an interim XSL-FO renderer. 
  *  May be directly passed to the `Render` or `Transform` APIs:
@@ -70,89 +60,33 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], config: Option[P
     */
   def withFopFactory (fopFactory: FopFactory): PDF = new PDF(interimFormat, config, Some(fopFactory))
   
-  private lazy val foForPDF = new FOforPDF(config)
+  private lazy val renderer = new PDFRenderer(config, fopFactory)
 
 
   /** Adds PDF bookmarks and/or a table of content to the specified document tree, depending on configuration.
     * The modified tree will be used for rendering the interim XSL-FO result.
     */
-  def prepareTree (tree: DocumentTreeRoot): DocumentTreeRoot = foForPDF.prepareTree(tree)
+  def prepareTree (root: DocumentTreeRoot): DocumentTreeRoot = {
+    val pdfConfig = config.getOrElse(PDFConfigBuilder.fromTreeConfig(root.config))
+    val rootWithTemplate = root.copy(tree = root.tree.withDefaultTemplate(TemplateRoot.fallback, "fo"))
+    PDFNavigation.prepareTree(rootWithTemplate, pdfConfig)
+  }
 
   /** Processes the interim XSL-FO result, transforms it to PDF and writes
     * it to the specified final output.
     */
   val postProcessor: BinaryPostProcessor = new BinaryPostProcessor {
     override def process[F[_] : Async] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = {
-      val fo: String = foForPDF.renderFO(result)
+      
+      val fo: String = FOConcatenation(result, config.getOrElse(PDFConfigBuilder.fromTreeConfig(result.config)))
 
       val metadata = DocumentMetadata.fromConfig(result.config)
       val title = if (result.title.isEmpty) None else Some(SpanSequence(result.title).extractText)
 
-      renderPDF(fo, output, metadata, title, result.sourcePaths)
+      renderer.render(fo, output, metadata, title, result.sourcePaths)
     }
   }
 
-  /** Render the given XSL-FO input as a PDF to the specified
-   *  binary output. The optional `sourcePaths` argument
-   *  may be used to allow resolving relative paths for
-   *  loading external files like images.
-   * 
-   *  @param foInput the input in XSL-FO format
-   *  @param output the output to write the final result to
-   *  @param metadata the metadata associated with the PDF
-   *  @param title the title of the document
-   *  @param sourcePaths the paths that may contain files like images
-   *  which will be used to resolve relative paths
-   */
-  def renderPDF[F[_] : Async] (foInput: String, output: BinaryOutput, metadata: DocumentMetadata, title: Option[String] = None, sourcePaths: Seq[String] = Nil): F[Unit] = {
-
-    def applyMetadata (agent: FOUserAgent): F[Unit] = Async[F].delay {
-      metadata.date.foreach(d => agent.setCreationDate(Date.from(d)))
-      metadata.authors.headOption.foreach(a => agent.setAuthor(a))
-      title.foreach(t => agent.setTitle(t))
-    }
-
-    def createSAXResult (out: OutputStream): F[SAXResult] = {
-
-      val resolver = new ResourceResolver {
-        
-        def getResource (uri: URI): Resource =
-          new Resource(resolve(uri).toURL.openStream())
-        
-        def getOutputStream (uri: URI): OutputStream =
-          new FileOutputStream(new File(resolve(uri)))
-        
-        def resolve (uri: URI): URI = sourcePaths.collectFirst {
-          case source if new File(source + uri.getPath).isFile => new File(source + uri).toURI
-        }.getOrElse(if (uri.isAbsolute) uri else new File(uri.getPath).toURI)
-      }
-
-      val factory = fopFactory.getOrElse(PDF.defaultFopFactory)
-      for {
-        foUserAgent <- Async[F].delay(FOUserAgentFactory.createFOUserAgent(factory, resolver))
-        _           <- applyMetadata(foUserAgent)
-        fop         <- Async[F].delay(factory.newFop(MimeConstants.MIME_PDF, foUserAgent, out))
-      } yield new SAXResult(fop.getDefaultHandler)
-      
-    }
-    
-    def createTransformer: F[Transformer] = Async[F].delay {
-      val factory = TransformerFactory.newInstance
-      factory.newTransformer // identity transformer
-    }
-    
-    OutputRuntime.asStream(output).use { out =>
-      for {
-        source      <- Async[F].delay(new StreamSource(new StringReader(foInput)))
-        result      <- createSAXResult(out)
-        transformer <- createTransformer
-        _           <- Async[F].delay(transformer.transform(source, result))
-      } yield ()
-    } 
-    
-  }
-  
-  
 }
 
 /** The default instance of the PDF renderer.
