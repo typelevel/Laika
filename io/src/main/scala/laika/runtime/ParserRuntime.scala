@@ -29,7 +29,9 @@ object ParserRuntime {
   }
   
   private object interimModel {
+    
     sealed trait ParserResult extends Navigatable
+    
     case class MarkupResult (doc: Document) extends ParserResult {
       val path: Path = doc.path
     }
@@ -40,6 +42,10 @@ object ParserRuntime {
       val path: Path = doc.paths.head
     }
     case class ConfigResult (path: Path, config: TConfig) extends ParserResult
+    
+    case class TreeResult (tree: DocumentTree) extends ParserResult {
+      val path: Path = tree.path
+    }
     
     case class NoMatchingParser (path: Path, suffixes: Set[String]) extends
       RuntimeException(s"No matching parser available for path: $path - supported suffixes: ${suffixes.mkString(",")}")
@@ -79,24 +85,25 @@ object ParserRuntime {
         case Config             => Vector(parseDocument(in, ConfigProvider.fromInput, ConfigResult(in.path, _))).validNel
       }}.combineAll.toEither.leftMap(es => ParserErrors(es.toList))
       
-      def buildNode (path: Path, content: Seq[ParserResult], subTrees: Seq[DocumentTree]): DocumentTree = {
+      def buildNode (path: Path, content: Seq[ParserResult]): TreeResult = {
         def isTitleDoc (doc: Document): Boolean = doc.path.basename == "title"
         val titleDoc = content.collectFirst { case MarkupResult(doc) if isTitleDoc(doc) => doc }
-        val treeContent = content.collect { case MarkupResult(doc) if !isTitleDoc(doc) => doc } ++ subTrees.sortBy(_.path.name)
+        val subTrees = content.collect { case TreeResult(doc) => doc }.sortBy(_.path.name)
+        val treeContent = content.collect { case MarkupResult(doc) if !isTitleDoc(doc) => doc } ++ subTrees
         val templates = content.collect { case TemplateResult(doc) => doc }
-        
+
         val treeConfig = content.collect { case ConfigResult(_, config) => config }
         val rootConfig = if (path == Path.Root) Seq(op.config.baseConfig) else Nil
         val fullConfig = (treeConfig.toList ++ rootConfig) reduceLeftOption (_ withFallback _) getOrElse ConfigFactory.empty
-  
-        DocumentTree(path, treeContent, titleDoc, templates, fullConfig)
+
+        TreeResult(DocumentTree(path, treeContent, titleDoc, templates, fullConfig))
       }
 
       def processResults (results: Seq[ParserResult]): ParsedTree = {
         val coverDoc = results.collectFirst {
           case MarkupResult(doc) if doc.path.parent == Root && doc.path.basename == "cover" => doc
         }
-        val tree = TreeBuilder.build(results.filterNot(res => coverDoc.exists(_.path == res.path)), buildNode) // TODO - 0.12 - use new buildComposite and remove the old builder
+        val tree = TreeBuilder.build(results.filterNot(res => coverDoc.exists(_.path == res.path)), buildNode).tree
 
         val styles = results // TODO - 0.12 - move this logic
           .collect { case StyleResult(styleSet, format) => (format, styleSet) }

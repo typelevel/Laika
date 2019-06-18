@@ -354,37 +354,10 @@ trait TreeStructure { this: TreeContent =>
 object TreeBuilder {
 
   /** Builds a tree structure from the specified leaf elements, using the given builder function.
-    * The function will be invoked for each node recursively, with the path for the node to build,
-    * the leaf elements belonging to that node and any child nodes that are immediate children
-    * of the node to build.
-    */
-  def build[C <: Navigatable, T <: Navigatable] (content: Seq[C], buildNode: (Path, Seq[C], Seq[T]) => T): T = {
-
-    def buildNodes (depth: Int, contentByParent: Map[Path, Seq[C]], nodesByParent: Map[Path, Seq[T]]): Seq[T] = {
-
-      val newNodes = contentByParent.filter(_._1.depth == depth).map {
-        case (path, nodeContent) => buildNode(path, nodeContent, nodesByParent.getOrElse(path, Nil))
-      }.toSeq.groupBy(_.path.parent)
-
-      val newContent = newNodes.keys.filterNot(p => contentByParent.contains(p)).map((_, Seq.empty[C])).toMap
-
-      if (depth == 0) newNodes.values.flatten.toSeq
-      else buildNodes(depth - 1, contentByParent ++ newContent, newNodes)
-    }
-
-    if (content.isEmpty) buildNode(Root, Nil, Nil)
-    else {
-      val contentByParent: Map[Path, Seq[C]] = content.groupBy(_.path.parent)
-      val maxPathLength = contentByParent.map(_._1.depth).max
-      buildNodes(maxPathLength, contentByParent, Map.empty).head
-    }
-  }
-
-  /** Builds a tree structure from the specified leaf elements, using the given builder function.
     * The function will be invoked for each node recursively, with the path for the node to build
     * and the child nodes that are immediate children of the node to build.
     */
-  def buildComposite[C <: Navigatable, T <: C] (content: Seq[C], buildNode: (Path, Seq[C]) => T): T = {
+  def build[C <: Navigatable, T <: C] (content: Seq[C], buildNode: (Path, Seq[C]) => T): T = {
 
     def toMap (items: Iterable[C]): Map[Path, C] = items.map(c => (c.path, c)).toMap
     
