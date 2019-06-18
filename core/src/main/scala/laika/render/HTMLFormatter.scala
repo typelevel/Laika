@@ -33,9 +33,12 @@ import laika.factory.RenderContext
 case class HTMLFormatter (renderChild: (HTMLFormatter, Element) => String,
                           elementStack: List[Element],
                           indentation: Indentation,
-                          messageLevel: MessageLevel) extends 
+                          messageLevel: MessageLevel,
+                          closeEmptyTags: Boolean) extends 
   TagFormatter[HTMLFormatter](renderChild, elementStack, indentation, messageLevel) {
 
+  val emptyTagClosingChar: String = if (closeEmptyTags) "/" else ""
+  
   type StyleHint = Options
   
   protected def withChild (element: Element): HTMLFormatter = copy(elementStack = element :: elementStack)
@@ -49,9 +52,9 @@ case class HTMLFormatter (renderChild: (HTMLFormatter, Element) => String,
   }
 
   override def emptyElement (tagName: String, styleHint: StyleHint, attrs: (String, String)*): String =
-    s"<$tagName${attributes(tagName,styleHint,attrs)}>"
+    s"<$tagName${attributes(tagName,styleHint,attrs)}$emptyTagClosingChar>"
 
-  override def emptyElement (tagName: String): String = s"<$tagName>"
+  override def emptyElement (tagName: String): String = s"<$tagName$emptyTagClosingChar>"
  
 }
 
@@ -59,5 +62,17 @@ case class HTMLFormatter (renderChild: (HTMLFormatter, Element) => String,
   */
 object HTMLFormatter extends (RenderContext[HTMLFormatter] => HTMLFormatter) {
   def apply (context: RenderContext[HTMLFormatter]): HTMLFormatter =
-    HTMLFormatter(context.renderChild, List(context.root), context.indentation, context.config.minMessageLevel)
+    HTMLFormatter(context.renderChild, List(context.root), context.indentation, 
+      context.config.minMessageLevel, closeEmptyTags = false)
+}
+
+/** Default factory for XHTMLFormatters, based on a provided RenderContext.
+  * It differs from an standard HTMLFormatter solely in that it close empty
+  * tags. Therefore it offers the same API and shares the type `HTMLFormatter`
+  * so that shared custom renderers can be built for HTML and XHTML.
+  */
+object XHTMLFormatter extends (RenderContext[HTMLFormatter] => HTMLFormatter) {
+  def apply (context: RenderContext[HTMLFormatter]): HTMLFormatter =
+    HTMLFormatter(context.renderChild, List(context.root), context.indentation,
+      context.config.minMessageLevel, closeEmptyTags = true)
 }
