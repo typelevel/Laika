@@ -17,10 +17,10 @@
 package laika.sbt
 
 import cats.effect.IO
-import laika.api.builder.BundleFilter
+import laika.api.builder.{BundleFilter, ParserBuilder}
 import laika.api.{MarkupParser, Renderer}
 import laika.runtime.{DirectoryScanner, InputRuntime}
-import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
+import laika.factory.{BinaryPostProcessor, MarkupFormat, RenderFormat, TwoPhaseRenderFormat}
 import laika.format._
 import laika.io._
 import laika.sbt.LaikaPlugin.autoImport._
@@ -53,17 +53,18 @@ object Tasks {
     val formats = spaceDelimited("<format>").parsed.map(OutputFormat.fromString)
     if (formats.isEmpty) throw new IllegalArgumentException("At least one format must be specified")
 
-    val parser = {
-      val parser = MarkupParser.of(Markdown) // .or(ReStructuredText) TODO - 0.12 - resurrect multi-format input
-      val userConfig = laikaConfig.value
+    val userConfig = laikaConfig.value
+    
+    def createParser (format: MarkupFormat): ParserBuilder = {
+      val parser = MarkupParser.of(Markdown)
       val mergedConfig = parser.config.copy(
         bundleFilter = BundleFilter(strict = userConfig.strict, acceptRawContent = userConfig.rawContent),
         minMessageLevel = userConfig.renderMessageLevel
       )
-      laika.io.Parallel {
-        parser.withConfig(mergedConfig).using(laikaExtensions.value: _*)
-      }.build[IO]
+      parser.withConfig(mergedConfig).using(laikaExtensions.value: _*)
     }
+    
+    val parser = laika.io.Parallel(createParser(Markdown)).or(createParser(ReStructuredText)).build[IO]
 
     val inputs = DirectoryInput((sourceDirectories in Laika).value, laikaConfig.value.encoding, parser.config.docTypeMatcher,
       (excludeFilter in Laika).value.accept)
