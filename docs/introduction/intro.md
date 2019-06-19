@@ -36,7 +36,7 @@ the final release for Scala 2.10 and sbt 0.13 was 0.7.0.
 
 Add the plugin to `project/plugins.sbt`:
 
-    addSbtPlugin("org.planet42" % "laika-sbt" % "0.11.0")
+    addSbtPlugin("org.planet42" % "laika-sbt" % "0.12.0")
 
 Enable the plugin in your project's `build.sbt`:
 
@@ -51,24 +51,42 @@ in `target/docs/site`.
 
 Adding the Laika dependency to your sbt build:
 
-    libraryDependencies += "org.planet42" %% "laika-core" % "0.11.0"
+    libraryDependencies += "org.planet42" %% "laika-core" % "0.12.0"
 
-Example for transforming from file to file:
+Example for transforming Markdown:
 
-    Transform from Markdown to HTML fromFile "hello.md" toFile "hello.html"
+    Transformer.from(Markdown).to(HTML).build.transform("hello *there*")
 
-Example for transforming an entire directory of markup files:
+Example for transforming ReStructuredText:
 
-    Transform from ReStructuredText to 
-      HTML fromDirectory "source" toDirectory "target"
-
-Example for transforming an entire directory of markup files to a single PDF file:
-
-    Transform from Markdown to PDF fromDirectory "src" toFile "hello.pdf"
+    Transformer.from(ReStructuredText).to(HTML).build.transform("hello *there*")
     
+For file/stream IO, parallel processing and/or EPUB support, based on cats-effect, 
+add the laika-io module to your build:
+
+    libraryDependencies += "org.planet42" %% "laika-io" % "0.12.0"  
+    
+Example for transforming an entire directory of markup files to a single EPUB file:
+
+    implicit val processingContext: ContextShift[IO] = 
+      IO.contextShift(ExecutionContext.global)
+    val blockingContext: ContextShift[IO] = 
+      IO.contextShift(ExecutionContext.fromExecutor(Executors.newCachedThreadPool()))
+    
+    laika.io.Parallel {
+      Transformer.from(Markdown).to(EPUB).using(GitHubFlavor)
+    }.build(processingContext, blockingContext)
+      .fromDirectory("src")
+      .toFile("hello.epub")
+      .transform
+      .unsafeRunSync()       
+
 When using Laika's PDF support you need to add one more dependency to your build:
 
-    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.11.0"
+    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.12.0"
+    
+The example for how to transform a directory of input files into a PDF file looks
+the same as the EPUB example, apart from swapping `EPUB` for `PDF`    
 
 
 ### Other Resources
@@ -137,17 +155,16 @@ Features
   markup parsing that are not based on the commonly used (and often slow)
   regex parsers 
 
-* Various options for input and output (strings, files, java.io.Reader/Writer, java.io streams)
+* Support for file and stream IO and parallel processing based on cats-effect,
+  with full control over ExecutionContexts for blocking IO and processing
 
-* Parallel processing of parsers and renderers
+* Purely functional library API
 
 * More than 1,200 tests
 
 
 Road Map
 --------
-
-* __0.12__: Library API: integration with cats-effect and improved referential transparency
 
 * __0.13__: (tentative) Support for Scala.js
 
@@ -163,6 +180,9 @@ Release History
 
 * __0.12.0__ (<WIP>, 2019):
 
+    * Extraction of all file and stream IO, parallel processing and EPUB support to a new module laika-io
+    * IO module based on cats-effect, with effect abstraction and full control over ExecutionContexts 
+      for blocking IO and processing 
     * Refactoring of AST Rewrite API to be fully type-safe and avoid runtime reflection and exceptions.
     * Refactoring of the Render API to be referentially transparent
 

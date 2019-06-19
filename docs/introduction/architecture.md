@@ -31,6 +31,8 @@ Design Principles
 * Create the built-in parsers with a custom parser combinator implementation, providing efficient and
   reusable base parsers that encapsulate requirements common to all lightweight markup languages.
   
+* Keep the library API purely functional. 
+  
 * Designed for robustness: Laika has more than 1200 tests, it is protected against malicious
   or accidentally malformed input like endless recursion (a type of guard most other text markup 
   parsers do not include) and parsers like the URI parser are based on the actual relevant RFCs
@@ -44,13 +46,8 @@ Transformation Flow
 
 This diagram shows the major phases of a transformation with extension hooks shown as little
 red boxes:
-
-* `Input` and `Output` are just little IO abstractions, so that the other parts of the system
-  do not need to deal with the low-level details of where to read from and to write to. The toolkit
-  supports files, strings and streams, writers and readers from `java.io`.
   
-* `Parse` represents the actual parsing step, a pluggable function of type `Input => Document` 
-  (or `Input => TemplateDocument` for templates).
+* `Parse` represents the actual parsing step, a pluggable instance of type `MarkupFormat`.
   Supported out of the box are Markdown and reStructuredText. Other parsers can easily be added
   to the system based on Laika's parser combinators. 
   Parsers can be extended with custom tags called Directives that allow to add new
@@ -66,7 +63,7 @@ red boxes:
   It is basically just a merge of two trees consisting of case classes. The use of templates
   is optional, so this step may get skipped.
   
-* `Render` is the final render step. Currently supported out of the box are HTML, EPUB, PDF, XSL-FO and AST,
+* `Render` is the final render step. Supported out of the box are HTML, EPUB, PDF, XSL-FO and AST,
   the latter visualizing the document AST for debugging purposes. Like with the rewrite step, 
   the entire renderer can be replaced by a custom one, or an existing one can customized based 
   on a partial function that deals with specific node types only.

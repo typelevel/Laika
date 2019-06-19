@@ -168,7 +168,6 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       case Comment(content,_)            => fmt.comment(content)
 
       case WithFallback(fallback)      => fmt.child(fallback)
-      //case c: Customizable if c.options == NoOpt => fmt.text(c.content) // TODO - 0.12 - is this needed?
       case c: Customizable             => fmt.text(c, c.content)
       case unknown                     => fmt.text(unknown.content)
     }

@@ -1,5 +1,8 @@
 
 Integration with cats-effect.
 
+* Extraction of all file and stream IO, parallel processing and EPUB support to a new module laika-io
+* IO module based on cats-effect, with effect abstraction and full control over ExecutionContexts 
+  for blocking IO and processing 
 * Refactoring of AST Rewrite API to be fully type-safe and avoid runtime reflection and exceptions.
 * Refactoring of the Render API to be referentially transparent
