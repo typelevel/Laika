@@ -32,15 +32,18 @@ import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, OutputBuilder, RenderResult}
 import laika.parse.Parser
 import laika.parse.text.TextParsers
+import laika.runtime.TestContexts._
 import org.scalatest.{Assertion, FlatSpec, Matchers}
 
 class ParallelTransformerSpec extends FlatSpec 
                        with Matchers {
    
 
-  private val transformer: ParallelTransformer[IO] = Parallel(Transformer.from(Markdown).to(AST)).build
+  private val transformer: ParallelTransformer[IO] = Parallel(Transformer.from(Markdown).to(AST))
+    .build(processingContext, blockingContext)
   private def transformerWithBundle (bundle: ExtensionBundle): ParallelTransformer[IO] = 
-    Parallel(Transformer.from(Markdown).to(AST).using(bundle)).build
+    Parallel(Transformer.from(Markdown).to(AST).using(bundle))
+      .build(processingContext, blockingContext)
   
   
   trait TreeTransformer extends InputBuilder {
@@ -67,7 +70,8 @@ class ParallelTransformerSpec extends FlatSpec
       )
 
     private def transformWithBundle (bundle: ExtensionBundle): RenderedTreeViewRoot =
-      transformWith(Parallel(Transformer.from(Markdown).to(AST).using(bundle)).build)
+      transformWith(Parallel(Transformer.from(Markdown).to(AST).using(bundle))
+        .build(processingContext, blockingContext))
     
     def root (content: Seq[TreeContentView]): RenderedTreeView = RenderedTreeView(Root, content)
     
@@ -187,7 +191,8 @@ class ParallelTransformerSpec extends FlatSpec
     )
     
     val result = RenderResult.fo.withDefaultTemplate("""<fo:block font-family="serif" font-size="13pt" space-after="3mm">foo</fo:block>""")
-    val transform = Parallel(Transformer.from(Markdown).to(XSLFO).using(BundleProvider.forStyleSheetParser(parser))).build[IO]
+    val transform = Parallel(Transformer.from(Markdown).to(XSLFO).using(BundleProvider.forStyleSheetParser(parser)))
+      .build(processingContext, blockingContext)
     val renderResult = transform.fromInput(IO.pure(input(inputs, transformer.config.docTypeMatcher))).toOutput(IO.pure(StringTreeOutput)).transform.unsafeRunSync()
     OutputBuilder.RenderedTreeView.toTreeView(renderResult.tree) should be (root(List(docs(
       (Root / "doc1.fo", result)
@@ -315,7 +320,7 @@ class ParallelTransformerSpec extends FlatSpec
     val out = new ByteArrayOutputStream
     val transform = Transformer.from(ReStructuredText).to(TestRenderResultProcessor).build
     Parallel(transform)
-      .build[IO]
+      .build(processingContext, blockingContext)
       .fromInput(IO.pure(input(inputs, transform.markupParser.config.docTypeMatcher)))
       .toStream(IO.pure(out))
       .transform
@@ -328,7 +333,7 @@ class ParallelTransformerSpec extends FlatSpec
     val transform = Transformer.from(ReStructuredText).to(TestRenderResultProcessor).build
     
     Parallel(transform)
-      .build[IO]
+      .build(processingContext, blockingContext)
       .fromInput(IO.pure(input(inputs, transform.markupParser.config.docTypeMatcher)))
       .toFile(f)
       .transform

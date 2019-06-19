@@ -27,6 +27,8 @@ import laika.format.{PDF, XSLFO}
 import laika.io.binary.ParallelRenderer
 import laika.io.{BinaryOutput, Parallel, RenderedTreeRoot}
 import laika.render.pdf.{FOConcatenation, PDFConfigBuilder, PDFNavigation}
+import laika.runtime.Runtime
+import laika.runtime.TestContexts.{blockingContext, processingContext}
 import org.scalatest.{FlatSpec, Matchers}
 
 class FOforPDFSpec extends FlatSpec with Matchers {
@@ -44,7 +46,7 @@ class FOforPDFSpec extends FlatSpec with Matchers {
 
     object postProcessor extends BinaryPostProcessor {
 
-      override def process[F[_]: Async] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = {
+      override def process[F[_]: Async: Runtime] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = {
 
         val fo = FOConcatenation(result, config.getOrElse(PDFConfigBuilder.fromTreeConfig(result.config)))
         OutputRuntime.asStream(output).use { out =>
@@ -148,7 +150,8 @@ class FOforPDFSpec extends FlatSpec with Matchers {
     
     def config: Option[PDF.Config]
     
-    lazy val renderer: ParallelRenderer[IO] = Parallel(Renderer.of(FOTest(config))).build[IO]
+    lazy val renderer: ParallelRenderer[IO] = Parallel(Renderer.of(FOTest(config)))
+      .build(processingContext, blockingContext)
     
     def result: String = {
       val stream = new ByteArrayOutputStream

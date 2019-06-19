@@ -30,21 +30,25 @@ object CopyRuntime {
     *  OutputStream. Rethrows all Exceptions and does not
     *  close the streams afterwards.
     */
-  def copy[F[_]: Sync] (input: InputStream, output: OutputStream): F[Unit] = (input, output) match {
+  def copy[F[_]: Sync: Runtime] (input: InputStream, output: OutputStream): F[Unit] = (input, output) match {
     case (in: FileInputStream, out: FileOutputStream) =>
-      Sync[F].delay(in.getChannel.transferTo(0, Integer.MAX_VALUE, out.getChannel))
+      implicitly[Runtime[F]].runBlocking {
+        Sync[F].delay(in.getChannel.transferTo(0, Integer.MAX_VALUE, out.getChannel))
+      }
     case _ =>
-      Sync[F].delay {
-        val buffer = new Array[Byte](8192)
-        Iterator.continually(input.read(buffer))
-          .takeWhile(_ != -1)
-          .foreach { output.write(buffer, 0 , _) }
+      implicitly[Runtime[F]].runBlocking {
+        Sync[F].delay {
+          val buffer = new Array[Byte](8192)
+          Iterator.continually(input.read(buffer))
+            .takeWhile(_ != -1)
+            .foreach { output.write(buffer, 0 , _) }
+        }
       }
   }
 
   /** Copies all bytes from the specified Input to the Output.
     */
-  def copy[F[_]: Async] (input: BinaryInput, output: BinaryOutput): F[Unit] = {
+  def copy[F[_]: Async: Runtime] (input: BinaryInput, output: BinaryOutput): F[Unit] = {
 
     val sameFile = (input, output) match {
       case (a: BinaryFileInput, b: BinaryFileOutput) => a.file == b.file

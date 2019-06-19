@@ -25,6 +25,7 @@ import laika.ast.Path
 import laika.ast.Path.Root
 import laika.format.EPUB
 import laika.io._
+import laika.runtime.Runtime
 
 /** Creates the EPUB container based on a document tree and the HTML result
   * of a preceding render operation.
@@ -93,7 +94,7 @@ class ContainerWriter {
     * @param result the result of the render operation as a tree
     * @param output the output to write the final result to
     */
-  def write[F[_]: Async] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = {
+  def write[F[_]: Async: Runtime] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = {
 
     val inputs = collectInputs(result, ConfigFactory.forTreeConfig(result.config))
 

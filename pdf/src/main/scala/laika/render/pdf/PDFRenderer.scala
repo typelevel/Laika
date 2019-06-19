@@ -28,7 +28,7 @@ import javax.xml.transform.stream.StreamSource
 import laika.ast.DocumentMetadata
 import laika.format.PDF
 import laika.io.BinaryOutput
-import laika.runtime.OutputRuntime
+import laika.runtime.{OutputRuntime, Runtime}
 import org.apache.fop.apps.{FOUserAgent, FOUserAgentFactory, FopFactory}
 import org.apache.xmlgraphics.io.{Resource, ResourceResolver}
 import org.apache.xmlgraphics.util.MimeConstants
@@ -53,7 +53,7 @@ class PDFRenderer (config: Option[PDF.Config], fopFactory: Option[FopFactory]) {
     *  @param sourcePaths the paths that may contain files like images
     *  which will be used to resolve relative paths
     */
-  def render[F[_] : Async] (foInput: String, output: BinaryOutput, metadata: DocumentMetadata, title: Option[String] = None, sourcePaths: Seq[String] = Nil): F[Unit] = {
+  def render[F[_] : Async: Runtime] (foInput: String, output: BinaryOutput, metadata: DocumentMetadata, title: Option[String] = None, sourcePaths: Seq[String] = Nil): F[Unit] = {
 
     def applyMetadata (agent: FOUserAgent): F[Unit] = Async[F].delay {
       metadata.date.foreach(d => agent.setCreationDate(Date.from(d)))
@@ -90,13 +90,15 @@ class PDFRenderer (config: Option[PDF.Config], fopFactory: Option[FopFactory]) {
       factory.newTransformer // identity transformer
     }
 
-    OutputRuntime.asStream(output).use { out =>
-      for {
-        source      <- Async[F].delay(new StreamSource(new StringReader(foInput)))
-        result      <- createSAXResult(out)
-        transformer <- createTransformer
-        _           <- Async[F].delay(transformer.transform(source, result))
-      } yield ()
+    implicitly[Runtime[F]].runBlocking {
+      OutputRuntime.asStream(output).use { out =>
+        for {
+          source      <- Async[F].delay(new StreamSource(new StringReader(foInput)))
+          result      <- createSAXResult(out)
+          transformer <- createTransformer
+          _           <- Async[F].delay(transformer.transform(source, result))
+        } yield ()
+      }
     }
 
   }

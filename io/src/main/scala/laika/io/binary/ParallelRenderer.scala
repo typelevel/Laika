@@ -16,18 +16,18 @@
 
 package laika.io.binary
 
-import cats.effect.Async
+import cats.effect.{Async, ContextShift}
 import laika.api.builder.{OperationConfig, TwoPhaseRenderer}
 import laika.ast.DocumentTreeRoot
 import laika.factory.BinaryPostProcessor
 import laika.io.{BinaryInput, BinaryOutput}
 import laika.io.binary.ParallelRenderer.BinaryRenderer
-import laika.runtime.RendererRuntime
+import laika.runtime.{RendererRuntime, Runtime}
 
 /**
   * @author Jens Halm
   */
-class ParallelRenderer[F[_]: Async] (renderer: BinaryRenderer) {
+class ParallelRenderer[F[_]: Async: Runtime] (renderer: BinaryRenderer) {
 
   def from (input: DocumentTreeRoot): ParallelRenderer.OutputOps[F] =
     ParallelRenderer.OutputOps(renderer, input)
@@ -40,11 +40,12 @@ object ParallelRenderer {
 
   case class Builder (renderer: BinaryRenderer) {
 
-    def build[F[_]: Async]: ParallelRenderer[F] = new ParallelRenderer[F](renderer)
+    def build[F[_]: Async] (processingContext: ContextShift[F], blockingContext: ContextShift[F]): ParallelRenderer[F] = 
+      new ParallelRenderer[F](renderer)(implicitly[Async[F]], Runtime.sequential(processingContext, blockingContext))
 
   }
 
-  case class OutputOps[F[_]: Async] (renderer: BinaryRenderer, input: DocumentTreeRoot) extends BinaryOutputOps[F] {
+  case class OutputOps[F[_]: Async: Runtime] (renderer: BinaryRenderer, input: DocumentTreeRoot) extends BinaryOutputOps[F] {
 
     val F: Async[F] = Async[F]
 
@@ -54,7 +55,7 @@ object ParallelRenderer {
 
   }
 
-  case class Op[F[_]: Async] (renderer: BinaryRenderer, input: DocumentTreeRoot, output: F[BinaryOutput], staticDocuments: F[Seq[BinaryInput]]) {
+  case class Op[F[_]: Async: Runtime] (renderer: BinaryRenderer, input: DocumentTreeRoot, output: F[BinaryOutput], staticDocuments: F[Seq[BinaryInput]]) {
 
     val config: OperationConfig = renderer.interimRenderer.config
 

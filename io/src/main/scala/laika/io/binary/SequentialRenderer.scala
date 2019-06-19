@@ -16,18 +16,18 @@
 
 package laika.io.binary
 
-import cats.effect.Async
+import cats.effect.{Async, ContextShift}
 import laika.api.builder.TwoPhaseRenderer
 import laika.ast.{Document, Element, Path}
 import laika.factory.BinaryPostProcessor
 import laika.io.BinaryOutput
 import laika.io.binary.SequentialRenderer.BinaryRenderer
-import laika.runtime.RendererRuntime
+import laika.runtime.{RendererRuntime, Runtime}
 
 /**
   * @author Jens Halm
   */
-class SequentialRenderer[F[_]: Async] (renderer: BinaryRenderer) {
+class SequentialRenderer[F[_]: Async: Runtime] (renderer: BinaryRenderer) {
 
   def from (input: Document): SequentialRenderer.OutputOps[F] = from(input.content, input.path)
 
@@ -44,11 +44,12 @@ object SequentialRenderer {
 
   case class Builder (renderer: BinaryRenderer) {
 
-    def build[F[_]: Async]: SequentialRenderer[F] = new SequentialRenderer[F](renderer)
+    def build[F[_]: Async] (processingContext: ContextShift[F], blockingContext: ContextShift[F]): SequentialRenderer[F] = 
+      new SequentialRenderer[F](renderer)(implicitly[Async[F]], Runtime.sequential(processingContext, blockingContext))
 
   }
 
-  case class OutputOps[F[_]: Async] (renderer: BinaryRenderer, input: Element, path: Path) extends BinaryOutputOps[F] {
+  case class OutputOps[F[_]: Async: Runtime] (renderer: BinaryRenderer, input: Element, path: Path) extends BinaryOutputOps[F] {
 
     val F: Async[F] = Async[F]
 
@@ -58,7 +59,7 @@ object SequentialRenderer {
 
   }
 
-  case class Op[F[_]: Async] (renderer: BinaryRenderer, input: Element, path: Path, output: F[BinaryOutput]) {
+  case class Op[F[_]: Async: Runtime] (renderer: BinaryRenderer, input: Element, path: Path, output: F[BinaryOutput]) {
 
     def render: F[Unit] = RendererRuntime.run(this)
 

@@ -22,6 +22,7 @@ import cats.effect.IO
 import laika.api.Transformer
 import laika.format._
 import laika.io.Sequential.SequentialTransformer
+import laika.runtime.TestContexts.{blockingContext, processingContext}
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.io.{Codec, Source}
@@ -40,7 +41,8 @@ class SequentialTransformerSpec extends FlatSpec
     |. Paragraph - Spans: 1
     |. . Text - 'text'""".stripMargin
     
-  val transformer: SequentialTransformer[IO] = Sequential(Transformer.from(Markdown).to(AST)).build[IO]
+  val transformer: SequentialTransformer[IO] = Sequential(Transformer.from(Markdown).to(AST))
+    .build(processingContext, blockingContext)
   
   
 //  "The Transform API" should "transform from string to string" in {

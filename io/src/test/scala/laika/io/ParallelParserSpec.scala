@@ -30,6 +30,7 @@ import laika.io.helper.InputBuilder
 import laika.parse.Parser
 import laika.parse.text.TextParsers
 import laika.rewrite.TemplateRewriter
+import laika.runtime.TestContexts._
 import org.scalatest.{FlatSpec, Matchers}
 
 
@@ -41,9 +42,12 @@ class ParallelParserSpec extends FlatSpec
 
   trait ParserSetup {
 
-    val defaultParser: ParallelParser[IO] = Parallel(MarkupParser.of(Markdown)).build
-    val rawParser: ParallelParser[IO] = Parallel(MarkupParser.of(Markdown).withoutRewrite).build
-    def parserWithBundle (bundle: ExtensionBundle): ParallelParser[IO] = Parallel(MarkupParser.of(Markdown).using(bundle)).build
+    val defaultParser: ParallelParser[IO] = Parallel(MarkupParser.of(Markdown))
+      .build(processingContext, blockingContext)
+    val rawParser: ParallelParser[IO] = Parallel(MarkupParser.of(Markdown).withoutRewrite)
+      .build(processingContext, blockingContext)
+    def parserWithBundle (bundle: ExtensionBundle): ParallelParser[IO] = Parallel(MarkupParser.of(Markdown).using(bundle))
+      .build(processingContext, blockingContext)
     
   }
   
@@ -93,18 +97,25 @@ class ParallelParserSpec extends FlatSpec
     def rawParsedTree: RootView = viewOf(rawParser.fromInput(build(inputs)).parse.unsafeRunSync().root)
 
     def rawMixedParsedTree: RootView = {
-      val parser = Parallel(MarkupParser.of(Markdown).withoutRewrite).or(MarkupParser.of(ReStructuredText).withoutRewrite).build[IO]
+      val parser = Parallel(MarkupParser.of(Markdown).withoutRewrite).or(MarkupParser.of(ReStructuredText).withoutRewrite)
+        .build(processingContext, blockingContext)
       viewOf(parser.fromInput(IO.pure(build(inputs, parser.config.docTypeMatcher))).parse.unsafeRunSync().root)
     }
       
     
     def parsedWith (bundle: ExtensionBundle): RootView =
-      viewOf(withTemplatesApplied(Parallel(MarkupParser.of(Markdown).using(bundle)).build[IO].fromInput(build(inputs)).parse.unsafeRunSync().root))
+      viewOf(withTemplatesApplied(Parallel(MarkupParser.of(Markdown).using(bundle))
+        .build(processingContext, blockingContext)
+        .fromInput(build(inputs)).parse.unsafeRunSync().root)
+      )
       
     def parsedRawWith (bundle: ExtensionBundle = ExtensionBundle.Empty, customMatcher: PartialFunction[Path, DocumentType] = PartialFunction.empty): RootView = {
       val input = IO.pure(build(inputs, customMatcher.orElse({case path => docTypeMatcher(path)})))
       val parser = MarkupParser.of(Markdown).withoutRewrite.using(bundle)
-      viewOf(Parallel(parser).build[IO].fromInput(input).parse.unsafeRunSync().root)
+      viewOf(Parallel(parser)
+        .build(processingContext, blockingContext)
+        .fromInput(input).parse.unsafeRunSync().root
+      )
     }
   }
   

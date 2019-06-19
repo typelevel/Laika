@@ -22,6 +22,7 @@ import cats.effect.Async
 import laika.ast.{DocumentMetadata, DocumentTreeRoot, SpanSequence, TemplateRoot}
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.{BinaryOutput, RenderedTreeRoot}
+import laika.runtime.Runtime
 import laika.render.FOFormatter
 import laika.render.pdf.{FOConcatenation, PDFConfigBuilder, PDFNavigation, PDFRenderer}
 import org.apache.fop.apps.{FopFactory, FopFactoryBuilder}
@@ -76,7 +77,7 @@ class PDF private(val interimFormat: RenderFormat[FOFormatter], config: Option[P
     * it to the specified final output.
     */
   val postProcessor: BinaryPostProcessor = new BinaryPostProcessor {
-    override def process[F[_] : Async] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = {
+    override def process[F[_]: Async: Runtime] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = {
       
       val fo: String = FOConcatenation(result, config.getOrElse(PDFConfigBuilder.fromTreeConfig(result.config)))
 

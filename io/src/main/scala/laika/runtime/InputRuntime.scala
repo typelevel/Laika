@@ -16,7 +16,7 @@ import scala.io.Codec
   */
 object InputRuntime {
   
-  def readParserInput[F[_]: Async] (input: TextInput): F[ParserInput] = input match {
+  def readParserInput[F[_]: Async: Runtime] (input: TextInput): F[ParserInput] = input match {
       
     case StringInput(source, _, path) => 
       Async[F].pure(ParserInput(path, ParserContext(source)))
@@ -33,7 +33,7 @@ object InputRuntime {
   def fileInput[F[_]: Async] (file: File): Resource[F, InputStream] = 
     Resource.fromAutoCloseable(Async[F].delay(new FileInputStream(file)))
   
-  def readParserInput[F[_]: Async] (resource: Resource[F, InputStream], path: Path, codec: Codec, sizeHint: Int): F[ParserInput] =
+  def readParserInput[F[_]: Async: Runtime] (resource: Resource[F, InputStream], path: Path, codec: Codec, sizeHint: Int): F[ParserInput] =
     resource
       .map(in => new BufferedReader(new InputStreamReader(in, codec.charSet)))
       .use { reader =>
@@ -41,7 +41,7 @@ object InputRuntime {
           .map(source => ParserInput(path, ParserContext(source)))
       }
 
-  def readAll[F[_]: Async] (reader: Reader, sizeHint: Int): F[String] = {
+  def readAll[F[_]: Async: Runtime] (reader: Reader, sizeHint: Int): F[String] = implicitly[Runtime[F]].runBlocking {
     
     def read(inBuffer: Array[Char], outBuffer: StringBuilder): F[Unit] = {
       for {

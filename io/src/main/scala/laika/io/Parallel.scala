@@ -3,13 +3,13 @@ package laika.io
 import java.io.File
 
 import cats.data.NonEmptyList
-import cats.effect.Async
+import cats.effect.{Async, ContextShift}
 import cats.implicits._
 import laika.api.{MarkupParser, Renderer, Transformer}
 import laika.api.builder._
 import laika.ast._
 import laika.factory.BinaryPostProcessor
-import laika.runtime.{ParserRuntime, RendererRuntime, TransformerRuntime}
+import laika.runtime.{ParserRuntime, RendererRuntime, Runtime, TransformerRuntime}
 
 import scala.io.Codec
 
@@ -30,7 +30,7 @@ object Parallel {
   def apply (transformer: TwoPhaseTransformer[BinaryPostProcessor]): binary.ParallelTransformer.Builder  = binary.ParallelTransformer.Builder(transformer)
 
 
-  class ParallelParser[F[_]: Async] (parsers: NonEmptyList[MarkupParser]) extends ParallelInputOps[F] {
+  class ParallelParser[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser]) extends ParallelInputOps[F] {
 
     type Result = ParallelParser.Op[F]
 
@@ -52,11 +52,12 @@ object Parallel {
       def or (parser: MarkupParser): Builder = copy(parsers = parsers.append(parser))
       def or (parser: ParserBuilder): Builder = copy(parsers = parsers.append(parser.build))
 
-      def build[F[_]: Async]: ParallelParser[F] = new ParallelParser[F](parsers)
+      def build[F[_]: Async](processingContext: ContextShift[F], blockingContext: ContextShift[F]): ParallelParser[F] = 
+        new ParallelParser[F](parsers)(implicitly[Async[F]], Runtime.sequential(processingContext, blockingContext))
 
     }
 
-    case class Op[F[_]: Async] (parsers: NonEmptyList[MarkupParser], input: F[TreeInput]) {
+    case class Op[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser], input: F[TreeInput]) {
       
       val parserMap: Map[String, MarkupParser] = parsers.toList.flatMap(p => p.fileSuffixes.map((_, p))).toMap
 
@@ -68,7 +69,7 @@ object Parallel {
 
   }
 
-  class ParallelRenderer[F[_]: Async] (renderer: Renderer) {
+  class ParallelRenderer[F[_]: Async: Runtime] (renderer: Renderer) {
 
     def from (input: DocumentTreeRoot): ParallelRenderer.OutputOps[F] = 
       ParallelRenderer.OutputOps(renderer, input, Async[F].pure(Nil))
@@ -79,11 +80,12 @@ object Parallel {
 
     case class Builder (renderer: Renderer) {
 
-      def build[F[_]: Async]: ParallelRenderer[F] = new ParallelRenderer[F](renderer)
+      def build[F[_]: Async] (processingContext: ContextShift[F], blockingContext: ContextShift[F]): ParallelRenderer[F] = 
+        new ParallelRenderer[F](renderer)(implicitly[Async[F]], Runtime.sequential(processingContext, blockingContext))
 
     }
 
-    case class OutputOps[F[_]: Async] (renderer: Renderer, input: DocumentTreeRoot, staticDocuments: F[Seq[BinaryInput]]) extends ParallelTextOutputOps[F] {
+    case class OutputOps[F[_]: Async: Runtime] (renderer: Renderer, input: DocumentTreeRoot, staticDocuments: F[Seq[BinaryInput]]) extends ParallelTextOutputOps[F] {
 
       val F: Async[F] = Async[F]
 
@@ -98,7 +100,7 @@ object Parallel {
 
     }
 
-    case class Op[F[_]: Async] (renderer: Renderer, input: DocumentTreeRoot, output: F[TreeOutput], staticDocuments: F[Seq[BinaryInput]]) {
+    case class Op[F[_]: Async: Runtime] (renderer: Renderer, input: DocumentTreeRoot, output: F[TreeOutput], staticDocuments: F[Seq[BinaryInput]]) {
 
       val config: OperationConfig = renderer.config
       
@@ -108,7 +110,7 @@ object Parallel {
 
   }
 
-  class ParallelTransformer[F[_]: Async] (transformer: Transformer) extends ParallelInputOps[F] {
+  class ParallelTransformer[F[_]: Async: Runtime] (transformer: Transformer) extends ParallelInputOps[F] {
 
     type Result = ParallelTransformer.OutputOps[F]
 
@@ -127,11 +129,12 @@ object Parallel {
 
     case class Builder (transformer: Transformer) {
 
-      def build[F[_]: Async]: ParallelTransformer[F] = new ParallelTransformer[F](transformer)
+      def build[F[_]: Async] (processingContext: ContextShift[F], blockingContext: ContextShift[F]): ParallelTransformer[F] = 
+        new ParallelTransformer[F](transformer)(implicitly[Async[F]], Runtime.sequential(processingContext, blockingContext))
 
     }
 
-    case class OutputOps[F[_]: Async] (transformer: Transformer, input: F[TreeInput]) extends ParallelTextOutputOps[F] {
+    case class OutputOps[F[_]: Async: Runtime] (transformer: Transformer, input: F[TreeInput]) extends ParallelTextOutputOps[F] {
 
       val F: Async[F] = Async[F]
 
@@ -141,7 +144,7 @@ object Parallel {
 
     }
 
-    case class Op[F[_]: Async] (transformer: Transformer, input: F[TreeInput], output: F[TreeOutput]) {
+    case class Op[F[_]: Async: Runtime] (transformer: Transformer, input: F[TreeInput], output: F[TreeOutput]) {
 
       def transform: F[RenderedTreeRoot] = TransformerRuntime.run(this)
 

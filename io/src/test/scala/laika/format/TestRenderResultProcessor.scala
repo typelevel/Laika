@@ -6,6 +6,7 @@ import laika.runtime.OutputRuntime
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.{BinaryOutput, RenderedDocument, RenderedTree, RenderedTreeRoot}
 import laika.render.TextFormatter
+import laika.runtime.Runtime
 
 object TestRenderResultProcessor extends TwoPhaseRenderFormat[TextFormatter, BinaryPostProcessor] {
 
@@ -15,7 +16,7 @@ object TestRenderResultProcessor extends TwoPhaseRenderFormat[TextFormatter, Bin
 
   object postProcessor extends BinaryPostProcessor {
     
-    override def process[F[_] : Async] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = {
+    override def process[F[_] : Async: Runtime] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = {
       
       def append (sb: StringBuilder, result: RenderedTree): Unit = {
         result.content.foreach {

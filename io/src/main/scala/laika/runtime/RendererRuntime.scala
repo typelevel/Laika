@@ -18,7 +18,7 @@ object RendererRuntime {
   case class CopiedDocument (path: Path)
   type RenderResult = Either[CopiedDocument, RenderedDocument]
   
-  def run[F[_]: Async] (op: SequentialRenderer.Op[F], styles: Option[StyleDeclarationSet] = None): F[String] = {
+  def run[F[_]: Async: Runtime] (op: SequentialRenderer.Op[F], styles: Option[StyleDeclarationSet] = None): F[String] = {
 
     val renderResult = styles.fold(op.renderer.render(op.input, op.path)){ st => 
       op.renderer.render(op.input, op.path, st) 
@@ -30,7 +30,7 @@ object RendererRuntime {
     } yield renderResult
   }
   
-  def run[F[_]: Async] (op: ParallelRenderer.Op[F]): F[RenderedTreeRoot] = {
+  def run[F[_]: Async: Runtime] (op: ParallelRenderer.Op[F]): F[RenderedTreeRoot] = {
 
     val fileSuffix = op.renderer.format.fileSuffix
     val finalRoot = op.renderer.applyTheme(op.input)
@@ -100,13 +100,13 @@ object RendererRuntime {
     } yield res
   }
 
-  def run[F[_]: Async] (op: binary.SequentialRenderer.Op[F]): F[Unit] = { // TODO - 0.12 - when delegating to the parallel executor this will need a parallel instance
+  def run[F[_]: Async: Runtime] (op: binary.SequentialRenderer.Op[F]): F[Unit] = {
     val root = DocumentTreeRoot(DocumentTree(Root, Seq(Document(Root / "input", RootElement(Seq(SpanSequence(Seq(TemplateElement(op.input)))))))))
     val parOp = binary.ParallelRenderer.Op(op.renderer, root, op.output, Async[F].pure[Seq[BinaryInput]](Nil))
     run(parOp)
   }
 
-  def run[F[_]: Async] (op: binary.ParallelRenderer.Op[F]): F[Unit] = {
+  def run[F[_]: Async: Runtime] (op: binary.ParallelRenderer.Op[F]): F[Unit] = {
     val template = op.renderer.interimRenderer.templateFor(op.input)
     val preparedTree = op.renderer.prepareTree(op.input)
     for {

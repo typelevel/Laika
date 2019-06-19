@@ -16,18 +16,18 @@
 
 package laika.io.binary
 
-import cats.effect.Async
+import cats.effect.{Async, ContextShift}
 import laika.api.builder.{OperationConfig, TwoPhaseTransformer}
 import laika.ast.{DocumentType, TextDocumentType}
 import laika.factory.BinaryPostProcessor
 import laika.io.binary.ParallelTransformer.BinaryTransformer
 import laika.io._
-import laika.runtime.TransformerRuntime
+import laika.runtime.{Runtime, TransformerRuntime}
 
 /**
   * @author Jens Halm
   */
-class ParallelTransformer[F[_]: Async] (transformer: BinaryTransformer) extends ParallelInputOps[F] {
+class ParallelTransformer[F[_]: Async: Runtime] (transformer: BinaryTransformer) extends ParallelInputOps[F] {
 
   type Result = ParallelTransformer.OutputOps[F]
 
@@ -48,11 +48,12 @@ object ParallelTransformer {
 
   case class Builder (transformer: BinaryTransformer) {
 
-    def build[F[_]: Async]: ParallelTransformer[F] = new ParallelTransformer[F](transformer)
+    def build[F[_]: Async] (processingContext: ContextShift[F], blockingContext: ContextShift[F]): ParallelTransformer[F] = 
+      new ParallelTransformer[F](transformer)(implicitly[Async[F]], Runtime.sequential(processingContext, blockingContext))
 
   }
 
-  case class OutputOps[F[_]: Async] (transformer: BinaryTransformer, input: F[TreeInput]) extends BinaryOutputOps[F] {
+  case class OutputOps[F[_]: Async: Runtime] (transformer: BinaryTransformer, input: F[TreeInput]) extends BinaryOutputOps[F] {
 
     val F: Async[F] = Async[F]
 
@@ -62,7 +63,7 @@ object ParallelTransformer {
 
   }
 
-  case class Op[F[_]: Async] (transformer: BinaryTransformer, input: F[TreeInput], output: F[BinaryOutput]) {
+  case class Op[F[_]: Async: Runtime] (transformer: BinaryTransformer, input: F[TreeInput], output: F[BinaryOutput]) {
 
     def transform: F[Unit] = TransformerRuntime.run(this)
 

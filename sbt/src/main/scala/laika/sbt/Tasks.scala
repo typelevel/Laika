@@ -16,7 +16,9 @@
 
 package laika.sbt
 
-import cats.effect.IO
+import java.util.concurrent.Executors
+
+import cats.effect.{ContextShift, IO}
 import laika.api.builder.{BundleFilter, ParserBuilder}
 import laika.api.{MarkupParser, Renderer}
 import laika.runtime.{DirectoryScanner, InputRuntime}
@@ -28,6 +30,8 @@ import sbt.Keys._
 import sbt._
 import sbt.util.CacheStore
 
+import scala.concurrent.ExecutionContext
+
 /** Implementations for Laika's sbt tasks.
   *
   * @author Jens Halm
@@ -36,6 +40,10 @@ object Tasks {
 
   import Def._
 
+  lazy val processingContext: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
+
+  lazy val blockingContext: ContextShift[IO] = IO.contextShift(ExecutionContext.fromExecutor(Executors.newCachedThreadPool()))
+  
   /** The main transformation task of the sbt plugin.
     *
     * It accepts one or more arguments specifying the output formats. Valid arguments
@@ -64,7 +72,9 @@ object Tasks {
       parser.withConfig(mergedConfig).using(laikaExtensions.value: _*)
     }
     
-    val parser = laika.io.Parallel(createParser(Markdown)).or(createParser(ReStructuredText)).build[IO]
+    val parser = laika.io.Parallel(createParser(Markdown))
+      .or(createParser(ReStructuredText))
+      .build(processingContext, blockingContext)
 
     val inputs = DirectoryInput((sourceDirectories in Laika).value, laikaConfig.value.encoding, parser.config.docTypeMatcher,
       (excludeFilter in Laika).value.accept)
@@ -91,7 +101,7 @@ object Tasks {
       laika.io.Parallel {
         Renderer.of(format).withConfig(parser.config)
       }
-        .build[IO]
+        .build(processingContext, blockingContext)
         .from(tree.root)
         .copying(IO.pure(tree.staticDocuments))
         .toDirectory(targetDir)(laikaConfig.value.encoding)
@@ -110,7 +120,7 @@ object Tasks {
       laika.io.Parallel {
         Renderer.of(format).withConfig(parser.config)
       }
-        .build[IO]
+        .build(processingContext, blockingContext)
         .from(tree.root)
         .toFile(targetFile)
         .render

@@ -2,14 +2,14 @@ package laika.io
 
 import java.io.{File, InputStream, OutputStream}
 
-import cats.effect.{Async, Sync}
+import cats.effect.{Async, ContextShift, Sync}
 import cats.implicits._
 import laika.api.builder._
 import laika.api.{MarkupParser, Renderer, Transformer}
 import laika.ast.Path.Root
 import laika.ast.{Document, DocumentType, Element, Path, TextDocumentType}
 import laika.factory.BinaryPostProcessor
-import laika.runtime.{ParserRuntime, RendererRuntime, TransformerRuntime}
+import laika.runtime.{ParserRuntime, RendererRuntime, Runtime, TransformerRuntime}
 
 import scala.io.Codec
 
@@ -30,7 +30,7 @@ object Sequential {
   def apply (transformer: TwoPhaseTransformer[BinaryPostProcessor]): binary.SequentialTransformer.Builder  = binary.SequentialTransformer.Builder(transformer)
   
   
-  class SequentialParser[F[_]: Async] (parser: MarkupParser) extends SequentialInputOps[F] {
+  class SequentialParser[F[_]: Async: Runtime] (parser: MarkupParser) extends SequentialInputOps[F] {
 
     type InputResult = SequentialParser.Op[F]
     
@@ -47,11 +47,12 @@ object Sequential {
 
     case class Builder (parser: MarkupParser) {
 
-      def build[F[_]: Async]: SequentialParser[F] = new SequentialParser[F](parser)
+      def build[F[_]: Async] (processingContext: ContextShift[F], blockingContext: ContextShift[F]): SequentialParser[F] = 
+        new SequentialParser[F](parser)(implicitly[Async[F]], Runtime.sequential(processingContext, blockingContext))
 
     }
 
-    case class Op[F[_]: Async] (parser: MarkupParser, input: F[TextInput]) {
+    case class Op[F[_]: Async: Runtime] (parser: MarkupParser, input: F[TextInput]) {
       
       def parse: F[Document] = ParserRuntime.run(this)
       
@@ -59,7 +60,7 @@ object Sequential {
     
   }
 
-  class SequentialRenderer[F[_]: Async] (renderer: Renderer) {
+  class SequentialRenderer[F[_]: Async: Runtime] (renderer: Renderer) {
 
     def from (input: Document): SequentialRenderer.OutputOps[F] = from(input.content, input.path)
     
@@ -74,11 +75,12 @@ object Sequential {
 
     case class Builder (renderer: Renderer) {
 
-      def build[F[_]: Async]: SequentialRenderer[F] = new SequentialRenderer[F](renderer)
+      def build[F[_]: Async] (processingContext: ContextShift[F], blockingContext: ContextShift[F]): SequentialRenderer[F] = 
+        new SequentialRenderer[F](renderer)(implicitly[Async[F]], Runtime.sequential(processingContext, blockingContext))
 
     }
 
-    case class OutputOps[F[_]: Async] (renderer: Renderer, input: Element, path: Path) extends SequentialTextOutputOps[F] {
+    case class OutputOps[F[_]: Async: Runtime] (renderer: Renderer, input: Element, path: Path) extends SequentialTextOutputOps[F] {
 
       val F: Async[F] = Async[F]
       
@@ -88,7 +90,7 @@ object Sequential {
 
     }
 
-    case class Op[F[_]: Async] (renderer: Renderer, input: Element, path: Path, output: F[TextOutput]) {
+    case class Op[F[_]: Async: Runtime] (renderer: Renderer, input: Element, path: Path, output: F[TextOutput]) {
 
       def render: F[String] = RendererRuntime.run(this)
 
@@ -96,7 +98,7 @@ object Sequential {
 
   }
 
-  class SequentialTransformer[F[_]: Async] (transformer: Transformer) extends SequentialInputOps[F] {
+  class SequentialTransformer[F[_]: Async: Runtime] (transformer: Transformer) extends SequentialInputOps[F] {
 
     type InputResult = SequentialTransformer.OutputOps[F]
 
@@ -113,11 +115,12 @@ object Sequential {
 
     case class Builder (transformer: Transformer) {
 
-      def build[F[_]: Async]: SequentialTransformer[F] = new SequentialTransformer[F](transformer)
+      def build[F[_]: Async] (processingContext: ContextShift[F], blockingContext: ContextShift[F]): SequentialTransformer[F] = 
+        new SequentialTransformer[F](transformer)(implicitly[Async[F]], Runtime.sequential(processingContext, blockingContext))
 
     }
 
-    case class OutputOps[F[_]: Async] (transformer: Transformer, input: F[TextInput]) extends SequentialTextOutputOps[F] {
+    case class OutputOps[F[_]: Async: Runtime] (transformer: Transformer, input: F[TextInput]) extends SequentialTextOutputOps[F] {
 
       val F: Async[F] = Async[F]
 
@@ -127,7 +130,7 @@ object Sequential {
 
     }
 
-    case class Op[F[_]: Async] (transformer: Transformer, input: F[TextInput], output: F[TextOutput]) {
+    case class Op[F[_]: Async: Runtime] (transformer: Transformer, input: F[TextInput], output: F[TextOutput]) {
 
       def transform: F[String] = TransformerRuntime.run(this)
 

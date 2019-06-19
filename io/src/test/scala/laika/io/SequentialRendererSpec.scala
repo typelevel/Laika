@@ -24,6 +24,7 @@ import laika.ast.helper.ModelBuilder
 import laika.format._
 import laika.io.Sequential.SequentialRenderer
 import laika.io.helper.OutputBuilder
+import laika.runtime.TestContexts.{blockingContext, processingContext}
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.io.Codec
@@ -33,7 +34,7 @@ class SequentialRendererSpec extends FlatSpec
                     with ModelBuilder { self =>
 
   
-  val renderer: SequentialRenderer[IO] = Sequential(Renderer.of(AST)).build[IO]
+  val renderer: SequentialRenderer[IO] = Sequential(Renderer.of(AST)).build(processingContext, blockingContext)
   
   val rootElem = root(p("aaö"), p("bbb"))
 

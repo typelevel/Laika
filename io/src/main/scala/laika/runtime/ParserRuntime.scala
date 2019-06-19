@@ -20,7 +20,7 @@ import laika.ast.Path.Root
   */
 object ParserRuntime {
   
-  def run[F[_]: Async] (op: SequentialParser.Op[F]): F[Document] = {
+  def run[F[_]: Async: Runtime] (op: SequentialParser.Op[F]): F[Document] = {
     for {
       input       <- op.input
       parserInput <- InputRuntime.readParserInput(input)
@@ -54,7 +54,7 @@ object ParserRuntime {
       RuntimeException(s"Multiple errors during parsing: ${errors.map(_.getMessage).mkString(", ")}")
   }
 
-  def run[F[_]: Async] (op: ParallelParser.Op[F]): F[ParsedTree] = {
+  def run[F[_]: Async: Runtime] (op: ParallelParser.Op[F]): F[ParsedTree] = {
     
     import DocumentType._
     import interimModel._

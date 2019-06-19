@@ -16,18 +16,18 @@
 
 package laika.io.binary
 
-import cats.effect.Async
+import cats.effect.{Async, ContextShift}
 import laika.api.builder.TwoPhaseTransformer
 import laika.ast.{DocumentType, TextDocumentType}
 import laika.factory.BinaryPostProcessor
 import laika.io.binary.SequentialTransformer.BinaryTransformer
 import laika.io.{BinaryOutput, SequentialInputOps, TextInput}
-import laika.runtime.TransformerRuntime
+import laika.runtime.{Runtime, TransformerRuntime}
 
 /**
   * @author Jens Halm
   */
-class SequentialTransformer[F[_]: Async] (transformer: BinaryTransformer) extends SequentialInputOps[F] {
+class SequentialTransformer[F[_]: Async: Runtime] (transformer: BinaryTransformer) extends SequentialInputOps[F] {
 
   type InputResult = SequentialTransformer.OutputOps[F]
 
@@ -46,11 +46,12 @@ object SequentialTransformer {
 
   case class Builder (transformer: BinaryTransformer) {
 
-    def build[F[_]: Async]: SequentialTransformer[F] = new SequentialTransformer[F](transformer)
+    def build[F[_]: Async] (processingContext: ContextShift[F], blockingContext: ContextShift[F]): SequentialTransformer[F] = 
+      new SequentialTransformer[F](transformer)(implicitly[Async[F]], Runtime.sequential(processingContext, blockingContext))
 
   }
 
-  case class OutputOps[F[_]: Async] (transformer: BinaryTransformer, input: F[TextInput]) extends BinaryOutputOps[F] {
+  case class OutputOps[F[_]: Async: Runtime] (transformer: BinaryTransformer, input: F[TextInput]) extends BinaryOutputOps[F] {
 
     val F: Async[F] = Async[F]
 
@@ -60,7 +61,7 @@ object SequentialTransformer {
 
   }
 
-  case class Op[F[_]: Async] (transformer: BinaryTransformer, input: F[TextInput], output: F[BinaryOutput]) {
+  case class Op[F[_]: Async: Runtime] (transformer: BinaryTransformer, input: F[TextInput], output: F[BinaryOutput]) {
 
     def transform: F[Unit] = TransformerRuntime.run(this)
 

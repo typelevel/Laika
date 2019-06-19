@@ -29,6 +29,7 @@ import laika.io.Parallel.ParallelRenderer
 import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, OutputBuilder, RenderResult}
 import laika.render._
+import laika.runtime.TestContexts._
 import org.scalatest.{Assertion, FlatSpec, Matchers}
 
 import scala.io.Codec
@@ -87,17 +88,20 @@ class ParallelRendererSpec extends FlatSpec
   }
   
   trait ASTRenderer extends TreeRenderer[TextFormatter] {
-    lazy val renderer: ParallelRenderer[IO] = Parallel(Renderer.of(AST)).build
+    lazy val renderer: ParallelRenderer[IO] = Parallel(Renderer.of(AST))
+      .build(processingContext, blockingContext)
   }
 
   trait HTMLRenderer extends TreeRenderer[HTMLFormatter] {
     val rootElem: RootElement = root(title("Title"), p("bbb"))
-    lazy val renderer: ParallelRenderer[IO] = Parallel(Renderer.of(HTML)).build
+    lazy val renderer: ParallelRenderer[IO] = Parallel(Renderer.of(HTML))
+      .build(processingContext, blockingContext)
   }
 
   trait EPUB_XHTMLRenderer extends TreeRenderer[HTMLFormatter] {
     val rootElem: RootElement = root(title("Title"), p("bbb"))
-    lazy val renderer: ParallelRenderer[IO] = Parallel(Renderer.of(EPUB.XHTML)).build
+    lazy val renderer: ParallelRenderer[IO] = Parallel(Renderer.of(EPUB.XHTML))
+      .build(processingContext, blockingContext)
   }
 
   trait FORenderer extends TreeRenderer[FOFormatter] {
@@ -110,7 +114,8 @@ class ParallelRendererSpec extends FlatSpec
     def title(id: String, text: String) =
       s"""<fo:block id="$id" font-family="sans-serif" font-size="16pt" font-weight="bold" keep-with-next="always" space-after="7mm" space-before="12mm">$text</fo:block>"""
 
-    def renderer: ParallelRenderer[IO] = Parallel(Renderer.of(XSLFO)).build
+    def renderer: ParallelRenderer[IO] = Parallel(Renderer.of(XSLFO))
+      .build(processingContext, blockingContext)
   }
 
   "The parallel renderer" should "render an empty tree" in {
@@ -150,7 +155,8 @@ class ParallelRendererSpec extends FlatSpec
     new HTMLRenderer {
       val template = tRoot(tt("["), TemplateContextReference("document.content"), tt("]"))
       val bundle = BundleProvider.forTheme(HTML.Theme(defaultTemplate = Some(template)))
-      override lazy val renderer = Parallel(Renderer.of(HTML).using(bundle)).build
+      override lazy val renderer = Parallel(Renderer.of(HTML).using(bundle))
+        .build(processingContext, blockingContext)
       
       val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
       val expected = """[<h1 id="title" class="title">Title</h1>
@@ -199,7 +205,7 @@ class ParallelRendererSpec extends FlatSpec
       val template = tRoot(tt("["), TemplateContextReference("document.content"), tt("]"))
       override lazy val renderer = Parallel { 
         Renderer.of(EPUB.XHTML).using(BundleProvider.forTheme(EPUB.XHTML.Theme(defaultTemplate = Some(template))))
-      }.build
+      }.build(processingContext, blockingContext)
       val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
       val expected = """[<h1 id="title" class="title">Title</h1>
                        |<p>bbb</p>]""".stripMargin
@@ -232,7 +238,7 @@ class ParallelRendererSpec extends FlatSpec
     new FORenderer {
       override val renderer = Parallel {
         Renderer.of(XSLFO) using BundleProvider.forTheme(XSLFO.Theme(defaultStyles = foStyles()("fo")))
-      }.build
+      }.build(processingContext, blockingContext)
       val input = DocumentTree(Root, List(
         Document(Root / "doc", rootElem),
         DocumentTree(Root / "tree", List(Document(Root / "tree" / "subdoc", subElem)))
@@ -366,7 +372,7 @@ class ParallelRendererSpec extends FlatSpec
   it should "render a tree with two documents using a RenderResultProcessor writing to an output stream" in new GatherRenderer {
     val out = new ByteArrayOutputStream
     Parallel(Renderer.of(TestRenderResultProcessor))
-      .build[IO]
+      .build(processingContext, blockingContext)
       .from(DocumentTreeRoot(input))
       .toStream(IO.pure(out))
       .render
@@ -377,7 +383,7 @@ class ParallelRendererSpec extends FlatSpec
   it should "render a tree with two documents using a RenderResultProcessor writing to a file" in new GatherRenderer {
     val f = File.createTempFile("output", null)
     Parallel(Renderer.of(TestRenderResultProcessor))
-      .build[IO]
+      .build(processingContext, blockingContext)
       .from(DocumentTreeRoot(input))
       .toFile(f)
       .render
@@ -413,7 +419,12 @@ class ParallelRendererSpec extends FlatSpec
   it should "render to a directory using the toDirectory method" in {
     new FileSystemTest {
       val f = OutputBuilder.createTempDirectory("renderToDir")
-      Parallel(Renderer.of(AST)).build[IO].from(input).toDirectory(f).render.unsafeRunSync()
+      Parallel(Renderer.of(AST))
+        .build(processingContext, blockingContext)
+        .from(input)
+        .toDirectory(f)
+        .render
+        .unsafeRunSync()
       readFiles(f.getPath)
     }
   }
@@ -426,7 +437,12 @@ class ParallelRendererSpec extends FlatSpec
     val input = DocumentTreeRoot(DocumentTree(Root, List(
       Document(Root / "doc", root(p("Doc äöü")))
     )))
-    Parallel(Renderer.of(AST)).build[IO].from(input).toDirectory(f)(Codec.ISO8859).render.unsafeRunSync()
+    Parallel(Renderer.of(AST))
+      .build(processingContext, blockingContext)
+      .from(input)
+      .toDirectory(f)(Codec.ISO8859)
+      .render
+      .unsafeRunSync()
     OutputBuilder.readFile(new File(f, "doc.txt"), Codec.ISO8859) should be (expected)
   }
   

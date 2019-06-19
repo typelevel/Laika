@@ -8,7 +8,7 @@ import java.util.{Locale, UUID}
 import cats.effect.Async
 import laika.ast.Path.Root
 import laika.ast._
-import laika.runtime.InputRuntime
+import laika.runtime.{Runtime, InputRuntime}
 import laika.factory.{BinaryPostProcessor, RenderContext, RenderFormat, TwoPhaseRenderFormat}
 import laika.io.{BinaryOutput, RenderedTreeRoot}
 import laika.render.epub.{ConfigFactory, ContainerWriter, HtmlRenderExtensions, StyleSupport}
@@ -112,7 +112,7 @@ object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor] {
    *    and the configuration of this instance.
    */
   val postProcessor: BinaryPostProcessor = new BinaryPostProcessor {
-    def process[F[_] : Async] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = writer.write(result, output)
+    def process[F[_] : Async: Runtime] (result: RenderedTreeRoot, output: BinaryOutput): F[Unit] = writer.write(result, output)
   }
   
 }
