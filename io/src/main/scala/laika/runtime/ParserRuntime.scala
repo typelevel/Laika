@@ -119,7 +119,7 @@ object ParserRuntime {
       
       for {
         ops     <- Async[F].fromEither(createOps)
-        results <- BatchRuntime.run(ops.toVector, 1, 1) // TODO - 0.12 - add parallelism option to builder
+        results <- implicitly[Runtime[F]].runParallel(ops)
       } yield processResults(results)
       
     }

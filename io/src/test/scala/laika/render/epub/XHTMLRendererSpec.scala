@@ -16,7 +16,7 @@
 
 package laika.render.epub
 
-import cats.effect.IO
+import cats.effect.{ContextShift, IO}
 import laika.api.{Render, Renderer}
 import laika.ast.Path.Root
 import laika.ast._
@@ -26,11 +26,15 @@ import laika.io.{RenderedDocument, RenderedTree, StringTreeOutput}
 import laika.runtime.TestContexts.{blockingContext, processingContext}
 import org.scalatest.{FlatSpec, Matchers}
 
+import scala.concurrent.ExecutionContext
+
 /**
   * @author Jens Halm
   */
 class XHTMLRendererSpec extends FlatSpec with Matchers with ModelBuilder {
 
+  implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
+  
   trait DocBuilder {
 
     def markupDoc (num: Int, path: Path = Root) = Document(path / ("doc"+num), root(p("Doc"+num)))

@@ -18,13 +18,13 @@ object BatchRuntime {
     * @param parallelThreshold the minimum number of operations required for parallel execution
     * @return the result of the executed batch
     */
-  def run[F[_]: Async, A] (ops: Vector[F[A]], parallelism: Int, parallelThreshold: Int): F[Vector[A]] = { // TODO - 0.12 - do not fail-fast
-    if (parallelism == 1 || ops.size < parallelThreshold) ops.sequence
-    else {
-      //createBatches(ops, parallelism).parSequence.map(_.flatten)
-      ops.sequence
-    }
-  }
+//  def run[F[_]: Async: Runtime, A] (ops: Vector[F[A]], parallelism: Int, parallelThreshold: Int): F[Vector[A]] = { // TODO - 0.12 - do not fail-fast
+//    if (parallelism == 1 || ops.size < parallelThreshold) ops.sequence
+//    else {
+//      //createBatches(ops, parallelism).parSequence.map(_.flatten)
+//      ops.sequence
+//    }
+//  }
 
   /** Splits the specified operations into batches based on the given
     * desired parallelism.

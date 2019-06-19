@@ -16,22 +16,25 @@
 
 package laika.ast
 
-import cats.effect.IO
+import cats.effect._
 import laika.api.MarkupParser
 import laika.ast.Path.Root
 import laika.ast.helper.ModelBuilder
 import laika.bundle.BundleProvider
 import laika.format.{Markdown, ReStructuredText}
-import laika.io.{InputCollection, TreeInput}
+import laika.io.InputCollection
 import laika.io.helper.InputBuilder
 import laika.rewrite.TemplateRewriter
 import laika.runtime.TestContexts._
 import org.scalatest.{FlatSpec, Matchers}
 
+import scala.concurrent.ExecutionContext
+
 class ConfigSpec extends FlatSpec 
                     with Matchers
                     with ModelBuilder {
 
+  implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
 
   trait Inputs extends InputBuilder  {
       

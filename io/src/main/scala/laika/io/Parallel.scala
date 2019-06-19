@@ -52,8 +52,13 @@ object Parallel {
       def or (parser: MarkupParser): Builder = copy(parsers = parsers.append(parser))
       def or (parser: ParserBuilder): Builder = copy(parsers = parsers.append(parser.build))
 
-      def build[F[_]: Async](processingContext: ContextShift[F], blockingContext: ContextShift[F]): ParallelParser[F] = 
-        new ParallelParser[F](parsers)(implicitly[Async[F]], Runtime.sequential(processingContext, blockingContext))
+      def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F], parallelism: Int)
+                                  (implicit P: cats.Parallel[F, G]): ParallelParser[F] =
+        new ParallelParser[F](parsers)(implicitly[Async[F]], Runtime.parallel(processingContext, blockingContext, parallelism))
+
+      def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F])
+                                  (implicit P: cats.Parallel[F, G]): ParallelParser[F] = 
+        build(processingContext, blockingContext, java.lang.Runtime.getRuntime.availableProcessors)
 
     }
 
@@ -80,9 +85,14 @@ object Parallel {
 
     case class Builder (renderer: Renderer) {
 
-      def build[F[_]: Async] (processingContext: ContextShift[F], blockingContext: ContextShift[F]): ParallelRenderer[F] = 
-        new ParallelRenderer[F](renderer)(implicitly[Async[F]], Runtime.sequential(processingContext, blockingContext))
+      def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F], parallelism: Int)
+                                  (implicit P: cats.Parallel[F, G]): ParallelRenderer[F] =
+        new ParallelRenderer[F](renderer)(implicitly[Async[F]], Runtime.parallel(processingContext, blockingContext, parallelism))
 
+      def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F])
+                                  (implicit P: cats.Parallel[F, G]): ParallelRenderer[F] =
+        build(processingContext, blockingContext, java.lang.Runtime.getRuntime.availableProcessors)
+      
     }
 
     case class OutputOps[F[_]: Async: Runtime] (renderer: Renderer, input: DocumentTreeRoot, staticDocuments: F[Seq[BinaryInput]]) extends ParallelTextOutputOps[F] {
@@ -129,9 +139,14 @@ object Parallel {
 
     case class Builder (transformer: Transformer) {
 
-      def build[F[_]: Async] (processingContext: ContextShift[F], blockingContext: ContextShift[F]): ParallelTransformer[F] = 
-        new ParallelTransformer[F](transformer)(implicitly[Async[F]], Runtime.sequential(processingContext, blockingContext))
+      def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F], parallelism: Int)
+                                  (implicit P: cats.Parallel[F, G]): ParallelTransformer[F] =
+        new ParallelTransformer[F](transformer)(implicitly[Async[F]], Runtime.parallel(processingContext, blockingContext, parallelism))
 
+      def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F])
+                                  (implicit P: cats.Parallel[F, G]): ParallelTransformer[F] =
+        build(processingContext, blockingContext, java.lang.Runtime.getRuntime.availableProcessors)
+      
     }
 
     case class OutputOps[F[_]: Async: Runtime] (transformer: Transformer, input: F[TreeInput]) extends ParallelTextOutputOps[F] {

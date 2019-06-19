@@ -48,9 +48,14 @@ object ParallelTransformer {
 
   case class Builder (transformer: BinaryTransformer) {
 
-    def build[F[_]: Async] (processingContext: ContextShift[F], blockingContext: ContextShift[F]): ParallelTransformer[F] = 
-      new ParallelTransformer[F](transformer)(implicitly[Async[F]], Runtime.sequential(processingContext, blockingContext))
+    def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F], parallelism: Int)
+                                (implicit P: cats.Parallel[F, G]): ParallelTransformer[F] =
+      new ParallelTransformer[F](transformer)(implicitly[Async[F]], Runtime.parallel(processingContext, blockingContext, parallelism))
 
+    def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F])
+                                (implicit P: cats.Parallel[F, G]): ParallelTransformer[F] =
+      build(processingContext, blockingContext, java.lang.Runtime.getRuntime.availableProcessors)
+    
   }
 
   case class OutputOps[F[_]: Async: Runtime] (transformer: BinaryTransformer, input: F[TreeInput]) extends BinaryOutputOps[F] {

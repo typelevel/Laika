@@ -18,7 +18,7 @@ package laika.render
 
 import java.io.ByteArrayOutputStream
 
-import cats.effect.{Async, IO}
+import cats.effect.{Async, ContextShift, IO}
 import laika.api.Renderer
 import laika.ast.{DocumentTreeRoot, Path, TemplateRoot}
 import laika.runtime.{InputRuntime, OutputRuntime}
@@ -31,8 +31,11 @@ import laika.runtime.Runtime
 import laika.runtime.TestContexts.{blockingContext, processingContext}
 import org.scalatest.{FlatSpec, Matchers}
 
+import scala.concurrent.ExecutionContext
+
 class FOforPDFSpec extends FlatSpec with Matchers {
-  
+
+  implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
   
   case class FOTest (config: Option[PDF.Config]) extends TwoPhaseRenderFormat[FOFormatter, BinaryPostProcessor] {
     

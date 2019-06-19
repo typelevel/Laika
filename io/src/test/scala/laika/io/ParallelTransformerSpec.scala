@@ -18,7 +18,7 @@ package laika.io
 
 import java.io._
 
-import cats.effect.IO
+import cats.effect.{ContextShift, IO}
 import laika.api.Transformer
 import laika.api.builder.OperationConfig
 import laika.ast.DocumentType.Ignored
@@ -35,9 +35,12 @@ import laika.parse.text.TextParsers
 import laika.runtime.TestContexts._
 import org.scalatest.{Assertion, FlatSpec, Matchers}
 
+import scala.concurrent.ExecutionContext
+
 class ParallelTransformerSpec extends FlatSpec 
                        with Matchers {
-   
+
+  implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
 
   private val transformer: ParallelTransformer[IO] = Parallel(Transformer.from(Markdown).to(AST))
     .build(processingContext, blockingContext)

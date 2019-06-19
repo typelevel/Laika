@@ -18,7 +18,7 @@ package laika.io
 
 import java.io.{ByteArrayOutputStream, File}
 
-import cats.effect.IO
+import cats.effect.{ContextShift, IO}
 import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
@@ -32,12 +32,14 @@ import laika.render._
 import laika.runtime.TestContexts._
 import org.scalatest.{Assertion, FlatSpec, Matchers}
 
+import scala.concurrent.ExecutionContext
 import scala.io.Codec
 
 class ParallelRendererSpec extends FlatSpec 
                     with Matchers
                     with ModelBuilder { self =>
 
+  implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
   
   val rootElem: RootElement = root(p("aaö"), p("bbb"))
 

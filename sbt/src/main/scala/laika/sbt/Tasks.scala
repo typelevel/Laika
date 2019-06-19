@@ -40,7 +40,7 @@ object Tasks {
 
   import Def._
 
-  lazy val processingContext: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
+  implicit lazy val processingContext: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
 
   lazy val blockingContext: ContextShift[IO] = IO.contextShift(ExecutionContext.fromExecutor(Executors.newCachedThreadPool()))
   

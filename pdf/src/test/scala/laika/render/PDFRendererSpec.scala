@@ -18,12 +18,14 @@ package laika.render
 
 import java.io.{BufferedInputStream, ByteArrayOutputStream, File, FileInputStream, InputStream}
 
-import cats.effect.IO
+import cats.effect.{ContextShift, IO}
 import laika.api.Renderer
 import laika.ast.DocumentTreeRoot
 import laika.format.PDF
 import laika.runtime.TestContexts.{blockingContext, processingContext}
 import org.scalatest.{FlatSpec, Matchers}
+
+import scala.concurrent.ExecutionContext
 
 /** Since there is no straightforward way to validate a rendered PDF document
  *  on the JVM, this Spec merely asserts that a file or OutputStream is non-empty
@@ -35,7 +37,8 @@ import org.scalatest.{FlatSpec, Matchers}
  *  limited scope in this particular spec is acceptable.  
  */
 class PDFRendererSpec extends FlatSpec with Matchers {
-  
+
+  implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
   
   trait FileSetup {
     

@@ -40,9 +40,14 @@ object ParallelRenderer {
 
   case class Builder (renderer: BinaryRenderer) {
 
-    def build[F[_]: Async] (processingContext: ContextShift[F], blockingContext: ContextShift[F]): ParallelRenderer[F] = 
-      new ParallelRenderer[F](renderer)(implicitly[Async[F]], Runtime.sequential(processingContext, blockingContext))
+    def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F], parallelism: Int)
+                                (implicit P: cats.Parallel[F, G]): ParallelRenderer[F] =
+      new ParallelRenderer[F](renderer)(implicitly[Async[F]], Runtime.parallel(processingContext, blockingContext, parallelism))
 
+    def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F])
+                                (implicit P: cats.Parallel[F, G]): ParallelRenderer[F] =
+      build(processingContext, blockingContext, java.lang.Runtime.getRuntime.availableProcessors)
+    
   }
 
   case class OutputOps[F[_]: Async: Runtime] (renderer: BinaryRenderer, input: DocumentTreeRoot) extends BinaryOutputOps[F] {

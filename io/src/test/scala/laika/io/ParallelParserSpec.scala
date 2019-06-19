@@ -16,7 +16,7 @@
 
 package laika.io
 
-import cats.effect.IO
+import cats.effect.{ContextShift, IO}
 import laika.api.MarkupParser
 import laika.ast.DocumentType._
 import laika.ast.Path.Root
@@ -33,12 +33,14 @@ import laika.rewrite.TemplateRewriter
 import laika.runtime.TestContexts._
 import org.scalatest.{FlatSpec, Matchers}
 
+import scala.concurrent.ExecutionContext
+
 
 class ParallelParserSpec extends FlatSpec 
                    with Matchers
                    with ModelBuilder {
-  
-  
+
+  implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
 
   trait ParserSetup {
 
