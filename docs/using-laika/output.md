@@ -25,7 +25,7 @@ The HTML renderer can be used with the `Transform` or `Render` APIs:
     val doc: Document = Parse as Markdown fromFile "hello.md"
     Render as HTML from document toFile "hello.html"
     
-See [Using Laika Embedded] for more details on these APIs.
+See [Using the Library API] for more details on these APIs.
     
 If you are using the sbt plugin you can use several of its task for generating
 HTML output:
@@ -125,7 +125,7 @@ The EPUB renderer can be used with the `Transform` or `Render` APIs:
     val tree: DocumentTree = Parse as Markdown fromDirectory "src"
     Render as EPUB from tree toFile "out.epub"
 
-See [Using Laika Embedded] for more details on these APIs.
+See [Using the Library API] for more details on these APIs.
     
 If you are using the sbt plugin you can use several of its task for generating
 EPUB files:
@@ -250,7 +250,7 @@ The PDF renderer can then be used with the `Transform` or `Render` APIs:
     val tree: DocumentTree = Parse as Markdown fromDirectory "src"
     Render as PDF from tree toFile "out.pdf"
 
-See [Using Laika Embedded] for more details on these APIs.
+See [Using the Library API] for more details on these APIs.
     
 If you are using the sbt plugin you can use several of its task for generating
 PDF files:
@@ -496,7 +496,7 @@ The XSL-FO renderer can be used with the `Transform` or `Render` APIs:
     val doc: Document = Parse as Markdown fromFile "hello.md"
     Render as XSLFO from document toFile "hello.fo"
 
-See [Using Laika Embedded] for more details on these APIs.
+See [Using the Library API] for more details on these APIs.
     
 If you are using the sbt plugin you can use several of its task for generating
 XSL-FO output:

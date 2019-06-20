@@ -1,11 +1,11 @@
 
-Using Laika Embedded
-====================
+Using the Library API
+=====================
 
-Apart from using Laika within sbt, you can alternatively embed it into 
-Scala applications. Laika is very lightweight, it does not
+Apart from using Laika via its sbt plugin, you can alternatively use its library API
+in your own applications (or libraries). Laika is very lightweight, it does not
 require the installation of any external tools and the core artifact
-has only very few library dependencies.
+has no dependencies.
 
 The main and most commonly used operation is a full transformation
 from input text written in a lightweight markup language like Markdown to 
@@ -20,76 +20,85 @@ from text markup to output format.
 
 
 
-Transforming a Single Document
-------------------------------
+Transforming Strings
+--------------------
 
-Converting from Markdown to HTML using files as input and output:
-
-    Transform from Markdown to HTML fromFile "hello.md" toFile "hello.html"
-    
-Converting from ReStructuredText to PDF using files as input and output:
-
-    Transform from ReStructuredText to 
-      PDF fromFile "hello.md" toFile "hello.pdf"
+Transforming in-memory input is the simplest form of transformation, and works for Markdown and reStructuredText 
+as input, and for HTML as output. EPUB and PDF both require additional modules and are described later in this chapter.
 
 
-Converting using Strings as input and output
+### Setup
 
-    val input = "some *text* example"
-    
-    val result = Transform from Markdown to HTML fromString input toString
+First add the dependency to your build:
+
+    libraryDependencies += "org.planet42" %% "laika-core" % "0.12.0" 
+
+For most cases where you don't use any of the customization hooks, you should be fine with just these imports:
+
+    import laika.api._
+    import laika.format._
 
 
-Other options are using `java.io.Reader/Writer` or streams. Of course they
-can be combined in any way, like going from file as input to String as output.
+### Running a Transformation
 
+Converting a string from Markdown to HTML:
 
-### Character Encoding
+    Transformer
+      .from(Markdown)
+      .to(HTML)
+      .build
+      .transform("hello *there*")
 
-Laika uses the same platform-dependent defaults for file encodings as the
-IO classes in the Scala SDK. The most convenient way to specify an encoding
-is via an implicit:
+From reStructuredText to HTML:
 
-    implicit val codec:Codec = Codec.UTF8
-
-This codec will then be used by the `fromFile` and `toFile` methods shown
-in the examples above.
+    Transformer
+      .from(ReStructuredText)
+      .to(HTML)
+      .build
+      .transform("hello *there*")
 
 
 ### Reusing Transformer Instances
 
-You can also keep the created transformer instance to reuse it with different
-inputs and outputs:
+You would normally keep the transformer instance for reuse with different
+inputs and outputs to reduce the memory footprint and initialization overhead:
 
-    val transform = Transform from ReStructuredText to HTML
+    val transformer = Transformer.from(Markdown).to(HTML).build
     
-    transform fromFile "hello.rst" toFile "hello.html"
-    
-    val result = transform fromString "some *text* example" toString
-
- 
-### Reusing a Parsed Document
-    
-All objects created by the API are reusable and immutable. For example,
-using the same input for two different types of output could be coded like this:
-
-    val doc = Transform from ReStructuredText to HTML fromFile "hello.rst"
-    
-    doc toFile "hello.html"
-    
-    val res = doc toString
-    
+    val res1 = transformer.transform("example *1*)
+    val res2 = transformer.transform("example *2*)
 
 
-### Formatted AST Output
+### Adding Extensions
+
+The most likely bundle you would use in everyday scenarios is probably GitHub-Flavored Markdown,
+which is not installed by default:
+
+    val transformer = Transformer
+      .from(Markdown)
+      .to(HTML)
+      .using(GitHubFlavor)
+      .build
+
+The `GitHubFlavor` object is an instance of `ExtensionBundle` an API that application
+or library authors can use themselves for bundling their own customizations. It has hooks
+for all phases of the transformation process, parsing, AST transformation and rendering.
+
+
+### Debugging with AST Output
     
-Laika also supports a AST renderer which can be useful for debugging.
-It visualizes the document tree model while shortening longer text spans
-into one line:
+If you are investigating an unexpected result, it might help to get
+an insight into how Laika has interpreted the input and display the entire
+AST structure. It truncates longer strings, so it should normally be convenient
+to browse the entire tree structure:
 
     val input = "some *text* example"
     
-    Transform from Markdown to AST fromString input toString
+    Transformer
+      .from(Markdown)
+      .to(AST)
+      .build
+      .transform(input)
     
     res0: java.lang.String = Document - Blocks: 1
     . Paragraph - Spans: 3
@@ -99,25 +108,125 @@ into one line:
     . . Text - ' example'
 
 
+File/Stream IO and Binary Formats
+---------------------------------
 
-Transforming an Entire Directory
---------------------------------
+In case you want to transform from files or directories, or use one of the binary formats
+like EPUB or PDF, you need to add another dependency to your build:
 
-For transforming a directory you can specify the source and target 
-directories separately:
+    libraryDependencies += "org.planet42" %% "laika-io" % "0.12.0" 
 
-    Transform from Markdown to 
-      HTML fromDirectory "source" toDirectory "target"
+This module depends on cats-effect, and models all side effects in an abstract effect,
+so that you can use it with cats IO, Monix or Zio.
+
+The type class constraints of the Library API are `Async`, `ContextShift` 
+and for some use cases a `Parallel` instance.
+
+
+### Providing ContextShifts for Blocking IO
+
+Laika gives full control over the `ExecutionContext` in which the blocking IO operations
+are performed. All the examples below will assume a setup like this:
+
+    implicit val processingContext: ContextShift[IO] = 
+      IO.contextShift(ExecutionContext.global)
+      
+    val blockingContext: ContextShift[IO] = 
+      IO.contextShift(ExecutionContext.fromExecutor(Executors.newCachedThreadPool()))
+
+
+### Transforming a Single File
+
+You can use the `Sequential` builder to transform single files or streams:
+
+    val transformer = Transformer.from(Markdown).to(HTML)
+    
+    laika.io.Sequential(transformer)
+      .build(processingContext, blockingContext)
+      .fromFile("hello.md")
+      .toFile("hello.html")
+      .transform
+
+Note that the first line builds a transformer in the same way as the examples
+for in-memory transformations. The IO module only wraps additional features
+around a transformer.
+
+The result of the above transformation is an `IO[Unit]`. If you build applications
+using a stack from the cats-effect ecosystem, like fs2 or http4s, you are good to go.
+
+If you run in a different stack, like Akka HTTP, you can convert the `IO` to a `Future`:
+
+    laika.io.Sequential(transformer)
+      .build(processingContext, blockingContext)
+      .fromFile("hello.md")
+      .toFile("hello.html")
+      .transform
+      .unsafeToFuture()
+
+
+### Using Streams
+
+The API is similar to that for File IO, but the creation of the streams are treated
+as an effect, so you have to pass an `F[InputStream]` or `F[OutputStream]`:
+
+    val transformer = Transformer.from(Markdown).to(HTML)
+    val input: IO[InputStream] = ???
+    val output: IO[InputStream] = ???
+    
+    laika.io.Sequential(transformer)
+      .build(processingContext, blockingContext)
+      .fromStream(input)
+      .toStream(output, autoClose = false)
+      .transform 
+
+The `autoClose` flag is `true` by default, which means the stream will be closed
+after all input has been read or all output has been written.
+
+ 
+### Transforming an Entire Directory
+
+You can use the `Parallel` builder to transform an entire directory of files:
+
+    val transformer = Transformer.from(Markdown).to(HTML)
+    
+    laika.io.Parallel(transformer)
+      .build(processingContext, blockingContext)
+      .fromDirectory("src")
+      .toDirectory("target")
+      .transform
 
 The parser will pick up any document with a recognized suffix (`.md` or `.markdown`
 for Markdown, `.rst` for reStructuredText).
 
-When transforming to EPUB or PDF, a directory of input files will get merged 
-into a single document:
+The target may be a sub-directory of the source, the library will recognize this setup
+and not process the output files as input.
 
-    Transform from Markdown to 
-      EPUB fromDirectory "source" toFile "target.epub"
 
+### Merging Multiple Input Directories
+
+Laika allows to merge multiple directories into a tree structure with 
+a single root. This allows to keep reusable styles and templates separately,
+or any other kind of flexible setup. 
+
+This flexibility is possible as all directory input gets translated to a virtual
+tree independent of the file system. In theory you could also mix file input
+and in-memory input in the same transformation, although this would probably
+be more of an edge case. 
+
+When the merged directories contain sub-folders with the same name, those
+will be merged recursively. Only files with the same name in the same folder
+are treated as errors.
+
+Use the `fromDirectories` method to specify the directories to merge:
+
+    val transformer = Transformer.from(Markdown).to(HTML)
+    
+    laika.io.Parallel(transformer)
+      .build(processingContext, blockingContext)
+      .fromDirectories("markup", "theme")
+      .toDirectory("target")
+      .transform
+      
 
 ### Templates
 
@@ -154,61 +263,37 @@ For features like titles, sections, cross-linking, auto-numbering
 and tables of content, see the chapter [Document Structure].
 
 
-### Merging Multiple Input Directories
+### Rendering EPUB and PDF
 
-Laika allows to merge multiple directories into a tree structure with 
-a single root. This allows to keep reusable styles and templates separately,
-a feature often called "themes" by other tools, but the support in Laika
-is fully generic and the purpose of the merge can be very different from
-classic themes.
+These binary formats also rely on the laika-io module, and they always produce a single
+output file, even if the input is an entire directory:
 
-When the merged directories contain subfolders with the same name, those
-will be merged recursively. Only files with the same name in the same folder
-are treated as errors.
-
-Use the `fromDirectories` method to specify the directories to merge:
-
-    Transform from Markdown to 
-      HTML fromDirectories ("source","styles") toDirectory "target"
+    val transformer = Transformer.from(Markdown).to(EPUB)
+    
+    laika.io.Parallel(transformer)
+      .build(processingContext, blockingContext)
+      .fromDirectories("markup", "theme")
+      .toFile("output.epub")
+      .transform
 
 
-### Mixing Markdown and reStructuredText
-
-Both text markup formats can be used within the same directory structure,
-including cross-linking between the two formats. The parser to be used
-is then determined by the file extension of each of the input files.
-`.md` and `.markdown` files get parsed by the Markdown parser, `.rst`
-files by the reStructuredText parser.
-
-All you have to do is pass both parsers to the API:
-
-    Transform.from(Markdown).or(ReStructuredText).to(PDF)
-      .fromDirectory("source").toFile("target.pdf")
+Note that the API recognizes the kind of transformer passed in and adjusts automatically 
+in which methods it offers. 
+Where it offered the `toDirectory` method for HTML output for example, 
+it now only offers `toStream` or `toFile` in case of EPUB output.
 
 
 ### Parallel Execution
 
-When transforming a large number of files you may want to run the operations
-in parallel: 
-
-    Transform.from(Markdown).to(HTML).inParallel
-      .fromDirectory("source").toDirectory("target")
-
-Note that we show this in standard dot-notation here, as the fluent
-dot-less API we use in other examples does not work well with parameter-less
-methods like `inParallel`.
-
 The actual transformation is a three phase process, the first (parsing) and
 third (rendering) can run in parallel. For the second phase this is not possible,
-as this is the document tree model rewrite step where things like cross references or
+as this is the rewrite step for the document tree model where things like cross references or
 table of contents get processed that need access to more than just the current
 document. But the rewrite phase is also the least expensive phase so that you
-should still benefit from parallel execution.   
+should still benefit from parallel execution.
 
 
 ### Character Encoding
-
-The mechanism is the same as for specifying an encoding for a single file.
 
 Laika uses the same platform-dependent defaults for file encodings as the
 IO classes in the Scala SDK. The most convenient way to specify an encoding
@@ -216,28 +301,15 @@ is via an implicit:
 
     implicit val codec:Codec = Codec.UTF8
 
-This codec will then be used by the `fromDirectory`, `toDirectory` and
-`withRootDirectory` methods shown in the examples above.
-
-
-### Reusing Transformer Instances
-
-Like with single file transformation you can (and usually should) keep 
-the created transformer instance to reuse it with different
-directories:
-
-    val transform = Transform from ReStructuredText to HTML
-    
-    transform fromDirectory "source-1" toDirectory "target-1"
-    
-    transform fromDirectory "source-2" toDirectory "target-2"
+This codec will then be used by the `fromDirectory` and `toDirectory` methods shown
+in the examples above.
 
 
 ### Error Reporting
 
 Text markup parsers are usually very resilient. For any input they cannot
 make sense of they fall back to rendering it back as raw text. Therefore
-transformations rarely fail, but the output may not be exactly what you 
+transformations rarely fail, but the output may not exactly be what you 
 expected.
 
 For some errors like unresolved link references or illegal directive
@@ -253,5 +325,8 @@ users to edit text with markup, giving them visual feedback for their mistakes.
 
 The following example renders all message with the level `Warning` or higher:
 
-    Transform.from(Markdown).to(HTML).withMessageLevel(Warning)
-      .fromDirectory("source").toDirectory("target")
+    val transformer = Transform
+      .from(Markdown)
+      .to(HTML)
+      .withMessageLevel(Warning)
+      .build

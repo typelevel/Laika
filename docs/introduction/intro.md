@@ -41,13 +41,13 @@ Add the plugin to `project/plugins.sbt`:
 Enable the plugin in your project's `build.sbt`:
 
     enablePlugins(LaikaPlugin)
-    
+
 Add Markdown, reStructuredText or HTML template files to `src/docs` in your
 project and run the `laikaSite` task from within sbt to generate the site
 in `target/docs/site`.    
-    
 
-### Using Laika Embedded
+
+### Using the Library API
 
 Adding the Laika dependency to your sbt build:
 
@@ -55,11 +55,19 @@ Adding the Laika dependency to your sbt build:
 
 Example for transforming Markdown:
 
-    Transformer.from(Markdown).to(HTML).build.transform("hello *there*")
+    Transformer
+      .from(Markdown)
+      .to(HTML)
+      .build
+      .transform("hello *there*")
 
 Example for transforming ReStructuredText:
 
-    Transformer.from(ReStructuredText).to(HTML).build.transform("hello *there*")
+    Transformer
+      .from(ReStructuredText)
+      .to(HTML)
+      .build
+      .transform("hello *there*")
     
 For file/stream IO, parallel processing and/or EPUB support, based on cats-effect, 
 add the laika-io module to your build:
@@ -70,12 +78,18 @@ Example for transforming an entire directory of markup files to a single EPUB fi
 
     implicit val processingContext: ContextShift[IO] = 
       IO.contextShift(ExecutionContext.global)
+      
     val blockingContext: ContextShift[IO] = 
-      IO.contextShift(ExecutionContext.fromExecutor(Executors.newCachedThreadPool()))
+      IO.contextShift(ExecutionContext
+        .fromExecutor(Executors.newCachedThreadPool()))
     
-    laika.io.Parallel {
-      Transformer.from(Markdown).to(EPUB).using(GitHubFlavor)
-    }.build(processingContext, blockingContext)
+    val transformer = Transformer
+      .from(Markdown)
+      .to(EPUB)
+      .using(GitHubFlavor)
+      
+    laika.io.Parallel(transformer)
+      .build(processingContext, blockingContext)
       .fromDirectory("src")
       .toFile("hello.epub")
       .transform
@@ -84,7 +98,7 @@ Example for transforming an entire directory of markup files to a single EPUB fi
 When using Laika's PDF support you need to add one more dependency to your build:
 
     libraryDependencies += "org.planet42" %% "laika-pdf" % "0.12.0"
-    
+
 The example for how to transform a directory of input files into a PDF file looks
 the same as the EPUB example, apart from swapping `EPUB` for `PDF`    
 
@@ -93,7 +107,7 @@ the same as the EPUB example, apart from swapping `EPUB` for `PDF`
 
 * Read more about standard usage in the chapters  
   [Using the sbt Plugin][../using-laika/sbt.md:Using the sbt Plugin]
-  or [Using Laika Embedded][../using-laika/embedded.md:Using Laika Embedded].
+  or [Using the Library API][../using-laika/embedded.md:Using the Library API].
 
 * Try out Laika with the [Web Tool].
 

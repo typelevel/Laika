@@ -39,7 +39,7 @@ project and run the `laikaSite` task from within sbt to generate the site
 in `target/docs/site`.    
 
 
-### Using Laika Embedded
+### Using the Library API
 
 Adding the Laika dependency to your sbt build:
 
@@ -50,19 +50,31 @@ libraryDependencies += "org.planet42" %% "laika-core" % "0.11.0"
 Example for transforming from file to file:
 
 ```scala
-Transform.from(Markdown).to(HTML).fromFile("hello.md").toFile("hello.html")
+Transform
+  .from(Markdown)
+  .to(HTML)
+  .fromFile("hello.md")
+  .toFile("hello.html")
 ```
 
 Example for transforming an entire directory of markup files:
 
 ```scala
-Transform.from(ReStructuredText).to(HTML).fromDirectory("source").toDirectory("target")
+Transform
+  .from(ReStructuredText)
+  .to(HTML)
+  .fromDirectory("source")
+  .toDirectory("target")
 ```
 
 Example for transforming an entire directory of markup files to a single PDF file:
 
 ```scala
-Transform.from(Markdown).to(PDF).fromDirectory("source").toFile("hello.pdf")
+Transform
+  .from(Markdown)
+  .to(PDF)
+  .fromDirectory("source")
+  .toFile("hello.pdf")
 ```
 
 When using Laika's PDF support you need to add one more dependency to your build:
