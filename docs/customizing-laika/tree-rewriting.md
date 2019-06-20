@@ -73,9 +73,12 @@ in one go, as a step in the transformation process.
 
 Again we replace all `Emphasized` nodes with `Strong` nodes:
 
-    Transform from ReStructuredText to HTML usingSpanRule {
-      case Emphasized(content, opts) => Replace(Strong(content, opts))
-    } fromFile "hello.rst" toFile "hello.html"
+    val transformer = Transformer
+      .from(ReStructuredText)
+      .to(HTML)
+      .usingSpanRule {
+        case Emphasized(content, opts) => Replace(Strong(content, opts))
+      }.build
 
 
 ### Working with the Tree Model
@@ -89,9 +92,9 @@ types support rewriting, too, so you can also apply it to elements like `Paragra
 
 Once again we are turning all `Emphasized` nodes in the text to `Strong` nodes:
 
-    val doc: Document = ... // obtained through the Parse API
+    val doc: Document = ??? // obtained through the Parse API
     
-    val newDoc = doc rewrite {
+    val newDoc = doc.rewrite {
       case Emphasized(content, opts) => Replace(Strong(content, opts))
     }
 
@@ -99,7 +102,7 @@ For a slightly more advanced example, let's assume you only want to replace `Emp
 nodes inside headers. To accomplish this you need to nest a rewrite operation
 inside another one:
 
-    val newDoc = doc rewrite {
+    val newDoc = doc.rewrite {
       case h: Header => Some(h rewriteChildren {
         case Emphasized(content, opts) => Replace(Strong(content, opts))
       })

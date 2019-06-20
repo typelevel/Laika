@@ -23,15 +23,14 @@ out the rendering step.
 
 ### Parsing a Single Document
 
-Reading from a file:
-
-    val document = Parse as Markdown fromFile "hello.md"
-    
 Reading from a String:
 
     val input = "some *text* example"    
-    val document = Parse as Markdown fromString input
-    
+    val document = Parser
+      .of(Markdown)
+      .build
+      .parse(input)
+
 The `document` instance gives you the full document model. See
 the [AST Scaladoc][ast-scaladoc] for details.
 
@@ -47,34 +46,27 @@ it to various output formats.
 
 ### Parsing an Entire Directory
 
-    val tree = Parse as Markdown fromDirectory "source"
-    
+Similar to the full transformation step, you need to specify the `ExecutionContexts`
+to use for blocking IO and parallel processing:
+
+    implicit val processingContext: ContextShift[IO] = 
+      IO.contextShift(ExecutionContext.global)
+      
+    val blockingContext: ContextShift[IO] = 
+      IO.contextShift(ExecutionContext
+        .fromExecutor(Executors.newCachedThreadPool()))
+
+You can then obtain a tree instance from a parser:
+
+    val tree: IO[DocumentTreeRoot] = laika.io.Parallel(Parser.of(Markdown))
+      .build(processingContext, blockingContext)
+      .fromDirectory("source")
+      .parse
+
 The tree instance is of type `DocumentTree` which gives you access
 to all documents, templates and subdirectories contained in the
 parsed directory.
 
-
-### Parallel Execution
-
-Like with a full transformation, parsing can be performed in parallel:
-
-    Parse.as(Markdown).inParallel.fromDirectory("source")
-
-When specifying options like parallel execution, you cannot use
-the `fromDirectory` shortcut like in the previous example, but
-instead use the `Directory` entry point to the full configuration
-API. Apart from parallel execution, it allows to specify a custom
-template engine, a custom document type matcher, and more.
-
-
-### Reusing Parsers
-
-Like with the Transform API, all objects are reusable and immutable:
-
-    val parse = Parse as ReStructuredText
-    
-    val doc1 = parse fromFile "input1.rst"
-    val doc2 = parse fromFile "input2.rst"
 
 
 ### Character Encoding
@@ -112,36 +104,45 @@ does not know about.
 For this reason it is always best to copy the parser configuration over
 to the Render API:
 
-    val parser = Parse.as(Markdown).strict
+    val parser = Parser.of(Markdown).strict.build
     
-    val doc = parse.fromFile("foo.md")
-    
-    Render.as(HTML).withConfig(parser.config).toFile("hello.html")
+    val renderer = Renderer.of(HTML).withConfig(parser.config).build
 
 For the sake of brevity we omit this detail from the following examples.
 
 
 ### Rendering a Single Document
 
-Rendering to a file:
+Rendering as a string:
 
     // obtained from a parse step or created programmatically
     val doc: Document = ... 
     
-    Render as HTML from doc toFile "hello.html"
-    
-Or to obtain the HTML as a string:
+    val res: String = renderer.render(doc)
 
-    val html = Render as HTML from doc toString
-    
 
 ### Rendering an Entire Directory as HTML
 
+Like for the Parser and Transformer APIs, you need to specify the `ExecutionContexts`
+to use for blocking IO and parallel processing:
+
+    implicit val processingContext: ContextShift[IO] = 
+      IO.contextShift(ExecutionContext.global)
+      
+    val blockingContext: ContextShift[IO] = 
+      IO.contextShift(ExecutionContext.fromExecutor(Executors.newCachedThreadPool()))
+
+You can then obtain a tree instance from a parser:
+
     // obtained from a parse step or created programmatically
-    val tree: DocumentTree = ...
-    
-    Render as HTML from tree toDirectory "path/to/target"
- 
+    val tree: DocumentTreeRoot = ???
+        
+    val op: IO[Unit] = laika.io.Parallel(Renderer.of(HTML))
+      .build(processingContext, blockingContext)
+      .from(tree)
+      .toDirectory("target")
+      .render
+
 The `target` directory is expected to exist, while any required
 subdirectories will be automatically created during rendering. There
 will be one HTML file for each input file in the same directory layout.
@@ -150,35 +151,18 @@ will be one HTML file for each input file in the same directory layout.
 ### Rendering an Entire Directory as PDF
 
     // obtained from a parse step or created programmatically
-    val tree: DocumentTree = ...
-    
-    Render as PDF from tree toFile "out.pdf"
-    
+    val tree: DocumentTreeRoot = ???
+        
+    val op: IO[Unit] = laika.io.Parallel(Renderer.of(PDF))
+      .build(processingContext, blockingContext)
+      .from(tree)
+      .toFile("out.pdf")
+      .render    
+
 Here the input files get rendered into a single PDF document, with
 the directory structure getting translated into the document structure
 (optionally including bookmarks and table of contents).
 
-
-### Parallel Execution
-
-Like with a full transformation, rendering can be performed in parallel:
-
-    val tree: DocumentTree = ...
-    
-    Render.as(HTML).inParallel.from(tree).toDirectory("source")
-
-
-### Reusing Renderers
-
-Like with the Transform API, all objects are reusable and immutable:
-
-    val document = ...
-    
-    val render = Render as HTML from document
-    
-    render toFile "output1.html"
-    render toFile "output2.html"
-    
 
 ### Character Encoding
 
@@ -191,4 +175,3 @@ is via an implicit:
 This codec will then be used by `toDirectory` and other methods 
 shown in the examples above.
 
-  

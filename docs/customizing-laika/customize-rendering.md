@@ -73,20 +73,25 @@ In `build.sbt`:
     
 ### Using the Transform API
 
-    Transform.from(Markdown).to(HTML).rendering {
-      case (fmt, Emphasized(content, opt)) => 
-        fmt.element("em", opt, content, "class" -> "big")
-    }.fromFile("hello.md").toFile("hello.html")
+    val transformer = Transformer
+      .from(Markdown)
+      .to(HTML)
+      .rendering {
+        case (fmt, Emphasized(content, opt)) => 
+          fmt.element("em", opt, content, "class" -> "big")
+      }.build
 
 
 ### Using the Render API
 
     val doc: Document = ...
     
-    Render.as(HTML).rendering { 
-      case (fmt, Emphasized(content, opt)) => 
-        fmt.element("em", opt, content, "class" -> "big")
-    }.from(doc).toString
+    val renderer = Renderer
+      .of(HTML)
+      .rendering { 
+        case (fmt, Emphasized(content, opt)) => 
+          fmt.element("em", opt, content, "class" -> "big")
+      }.build
 
 
 
@@ -140,8 +145,7 @@ This is the signature of the `Theme` case class:
 
     case class Theme (customRenderer: PartialFunction[(Formatter, Element), String],
                       defaultTemplate: Option[TemplateRoot],
-                      defaultStyles: StyleDeclarationSet,
-                      staticDocuments: StaticDocuments)
+                      defaultStyles: StyleDeclarationSet)
 
 * The `customRenderer` is a renderer function that overrides the built-in renderers
   for one or more nodes, see the sections above for details on how to write such a function.
@@ -159,12 +163,8 @@ This is the signature of the `Theme` case class:
   is currently only processed for PDF, as it is the only format where Laika processes
   the CSS and applies it to the render result. If you want to add CSS for HTML or EPUB, 
   add them as static files instead, as Laika will just copy them over without processing them.
-  
-* The `staticDocuments` provides a collection of files to be copied over to the output
-  directory on each transformation. You can bundle images, script or CSS files this way:
-  
-      val docs = StaticDocuments.fromDirectory("theme-files")
-      
+
+
 A theme can be installed as part of an extension bundle:
 
     object MyExtensions extends ExtensionBundle {
@@ -173,8 +173,7 @@ A theme can be installed as part of an extension bundle:
         
     }
     
-    Transform.from(Markdown).to(HTML).using(MyExtensions)
-      .fromFile("hello.md").toFile("hello.html")         
+    val transformer = Transformer.from(Markdown).to(HTML).using(MyExtensions)
 
 A theme is specific to a particular output format, separate instances need to be 
 provided if you want to install themes for several formats like HTML, PDF or EPUB.
