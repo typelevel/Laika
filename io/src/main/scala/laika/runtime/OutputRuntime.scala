@@ -8,11 +8,14 @@ import laika.io._
 
 import scala.io.Codec
 
-/**
+/** Internal runtime for creating and writing to OutputStreams.
+  * 
   * @author Jens Halm
   */
 object OutputRuntime {
-  
+
+  /** Creates a Writer for the specified output model and writes the given string to it.
+    */
   def write[F[_]: Async: Runtime] (result: String, output: TextOutput): F[Unit] = {
     output match {
       case StringOutput(_) => Async[F].unit
@@ -34,15 +37,20 @@ object OutputRuntime {
         }
     }
   }
-  
+
+  private def fileWriter[F[_]: Async] (file: File, codec: Codec): Resource[F, Writer] = Resource.fromAutoCloseable(Async[F].delay {
+    new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), codec.charSet))
+  })
+
+  /** Creates a directory for the specified file, including parent directories
+    * of that file if they do not exist yet.
+    */
   def createDirectory[F[_]: Async] (file: File): F[Unit] = 
     Async[F].delay(file.exists || file.mkdirs()).flatMap(if (_) Async[F].unit 
     else Async[F].raiseError(new IOException(s"Unable to create directory ${file.getAbsolutePath}")))
  
-  def fileWriter[F[_]: Async] (file: File, codec: Codec): Resource[F, Writer] = Resource.fromAutoCloseable(Async[F].delay {
-    new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), codec.charSet))
-  })
-
+  /** Creates an OutputStream Resource from a binary output model. 
+    */
   def asStream[F[_]: Async] (output: BinaryOutput): Resource[F, OutputStream] = output match {
     case BinaryFileOutput(file, _) => 
       Resource.fromAutoCloseable(Async[F].delay(new BufferedOutputStream(new FileOutputStream(file))))

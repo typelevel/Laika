@@ -11,11 +11,15 @@ import cats.implicits._
 
 import scala.io.Codec
 
-/** 
+/** Internal runtime for creating and reading from InputStreams.
+  * 
   * @author Jens Halm
   */
 object InputRuntime {
-  
+
+  /** Creates a Reader for the specified input model, reads it into a string and returns
+    * it as an instance of `ParserInput` that can serve as input for Laika's parsers.
+    */
   def readParserInput[F[_]: Async: Runtime] (input: TextInput): F[ParserInput] = input match {
       
     case StringInput(source, _, path) => 
@@ -30,10 +34,10 @@ object InputRuntime {
       readParserInput(resource, path, codec, 8096)
   }
 
-  def fileInput[F[_]: Async] (file: File): Resource[F, InputStream] = 
+  private def fileInput[F[_]: Async] (file: File): Resource[F, InputStream] = 
     Resource.fromAutoCloseable(Async[F].delay(new FileInputStream(file)))
   
-  def readParserInput[F[_]: Async: Runtime] (resource: Resource[F, InputStream], path: Path, codec: Codec, sizeHint: Int): F[ParserInput] =
+  private def readParserInput[F[_]: Async: Runtime] (resource: Resource[F, InputStream], path: Path, codec: Codec, sizeHint: Int): F[ParserInput] =
     resource
       .map(in => new BufferedReader(new InputStreamReader(in, codec.charSet)))
       .use { reader =>
@@ -41,6 +45,8 @@ object InputRuntime {
           .map(source => ParserInput(path, ParserContext(source)))
       }
 
+  /** Reads all input from the specified reader.
+    */
   def readAll[F[_]: Async: Runtime] (reader: Reader, sizeHint: Int): F[String] = implicitly[Runtime[F]].runBlocking {
     
     def read(inBuffer: Array[Char], outBuffer: StringBuilder): F[Unit] = {
@@ -58,6 +64,8 @@ object InputRuntime {
     } yield outBuffer.toString
   }
 
+  /** Creates an InputStream Resource from a binary input model. 
+    */
   def asStream[F[_]: Async] (output: BinaryInput): Resource[F, InputStream] = output match {
     case BinaryFileInput(file, _) =>
       Resource.fromAutoCloseable(Async[F].delay(new BufferedInputStream(new FileInputStream(file))))

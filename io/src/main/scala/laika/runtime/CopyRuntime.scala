@@ -21,20 +21,22 @@ import java.io._
 import cats.effect.{Async, Sync}
 import laika.io.{BinaryFileInput, BinaryFileOutput, BinaryInput, BinaryOutput}
 
-/**
+/** Internal runtime for copying bytes from an InputStream to an OutputStream.
+  * 
   * @author Jens Halm
   */
 object CopyRuntime {
 
-  /** Copies all bytes from the specified InputStream to the
-    *  OutputStream. Rethrows all Exceptions and does not
-    *  close the streams afterwards.
+  /**  Copies all bytes from the specified InputStream to the
+    *  OutputStream, executing in the blocking ExecutionContext of the implicit Runtime.
     */
   def copy[F[_]: Sync: Runtime] (input: InputStream, output: OutputStream): F[Unit] = (input, output) match {
+      
     case (in: FileInputStream, out: FileOutputStream) =>
       implicitly[Runtime[F]].runBlocking {
         Sync[F].delay(in.getChannel.transferTo(0, Integer.MAX_VALUE, out.getChannel))
       }
+      
     case _ =>
       implicitly[Runtime[F]].runBlocking {
         Sync[F].delay {
@@ -46,7 +48,8 @@ object CopyRuntime {
       }
   }
 
-  /** Copies all bytes from the specified Input to the Output.
+  /** Copies all bytes from the specified binary Input to the binary Output,
+    * executing in the blocking ExecutionContext of the implicit Runtime.
     */
   def copy[F[_]: Async: Runtime] (input: BinaryInput, output: BinaryOutput): F[Unit] = {
 

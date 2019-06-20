@@ -16,7 +16,6 @@
 
 package laika.runtime
 
-import java.io.File
 import java.nio.file.{DirectoryStream, Files, Path => JPath}
 
 import cats.effect.{Async, Resource}
@@ -28,44 +27,42 @@ import laika.io._
 
 import scala.collection.JavaConverters
 
-/**
+/** Scans a directory in the file system and transforms it into a generic InputCollection
+  * that can serve as input for parallel parsers or transformers.
+  * 
   * @author Jens Halm
   */
 object DirectoryScanner {
-  
+
+  /** Scans the specified directory and transforms it into a generic InputCollection.
+    */
   def scanDirectories[F[_]: Async] (input: DirectoryInput): F[InputCollection] = {
     val sourcePaths: Seq[String] = input.directories map (_.getAbsolutePath)
-    join(input.directories.map(d => scanDirectory(d.toPath, input))).map(_.copy(sourcePaths = sourcePaths))
+    join(input.directories.map(d => scanDirectory(Root, d.toPath, input))).map(_.copy(sourcePaths = sourcePaths))
   }
   
-  def scanDirectory[F[_]: Async] (path: JPath, input: DirectoryInput): F[InputCollection] =
-    scanDirectory(Root, path, input)
-
   private def scanDirectory[F[_]: Async] (vPath: Path, filePath: JPath, input: DirectoryInput): F[InputCollection] =
-    scannerResource(filePath).use(asInputCollection(vPath, input)(_))
-  
-  def scannerResource[F[_]: Async] (path: JPath): Resource[F, DirectoryStream[JPath]] =
-    Resource.fromAutoCloseable(Async[F].delay(Files.newDirectoryStream(path)))
-
-  case class Directory (path: Path, file: File)
+    Resource
+      .fromAutoCloseable(Async[F].delay(Files.newDirectoryStream(filePath)))
+      .use(asInputCollection(vPath, input)(_))
   
   private def join[F[_]: Async] (collections: Seq[F[InputCollection]]): F[InputCollection] = collections
     .toVector
     .sequence
     .map(_.reduceLeftOption(_ ++ _).getOrElse(InputCollection.empty))
 
-  def asInputCollection[F[_]: Async] (path: Path, input: DirectoryInput)(directoryStream: DirectoryStream[JPath]): F[InputCollection] = {
+  private def asInputCollection[F[_]: Async] (path: Path, input: DirectoryInput)(directoryStream: DirectoryStream[JPath]): F[InputCollection] = {
 
     def toCollection (filePath: JPath): F[InputCollection] = {
       
       val childPath = path / filePath.getFileName.toString
 
-      if (input.fileFilter(filePath.toFile)) Async[F].pure(InputCollection.empty)
+      if (input.fileFilter(filePath.toFile)) InputCollection.empty.pure[F]
       else if (Files.isDirectory(filePath)) scanDirectory(childPath, filePath, input)
       else input.docTypeMatcher(childPath) match {
-        case docType: TextDocumentType => Async[F].pure(InputCollection(TextFileInput(filePath.toFile, docType, childPath, input.codec)))
-        case Static => Async[F].pure(InputCollection(Nil, Seq(BinaryFileInput(filePath.toFile, childPath))))
-        case _ => Async[F].pure(InputCollection.empty)
+        case docType: TextDocumentType => InputCollection(TextFileInput(filePath.toFile, docType, childPath, input.codec)).pure[F]
+        case Static                    => InputCollection(Nil, Seq(BinaryFileInput(filePath.toFile, childPath))).pure[F]
+        case _                         => InputCollection.empty.pure[F]
       }
     }
 
