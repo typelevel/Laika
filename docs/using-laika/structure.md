@@ -10,8 +10,11 @@ explicitly.
 
 This is how you can switch them off for any markup format:
 
-    Transform.from(Markdown).to(PDF).strict 
-      .fromFile("hello.md").toFile("hello.pdf")
+    val transformer = Transformer
+      .from(Markdown)
+      .to(PDF)
+      .strict
+      .build 
 
 
 Document Title
@@ -337,11 +340,13 @@ part of an extension bundle:
         // ... optionally other customizations
       }
     
-    Transform from Markdown to HTML using MyExtensions fromDirectory 
-      "source" toDirectory "target"
+    val transformer = Transformer
+      .from(Markdown)
+      .to(HTML)
+      .using(MyExtensions)
+      .build
 
 The valid return types of the matcher function correspond to the document types listed
 above:
 
-    Markup, Template, Dynamic, Static, Config, Ignored
-
+    Markup, Template, Styles, Static, Config, Ignored

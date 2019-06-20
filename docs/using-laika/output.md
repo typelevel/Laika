@@ -20,10 +20,21 @@ HTML
 
 The HTML renderer can be used with the `Transform` or `Render` APIs:
 
-    Transform from Markdown to HTML fromFile "hello.md" toFile "hello.html"
+    val html: String = Transformer
+      .from(Markdown)
+      .to(HTML).
+      .build
+      .transform("hello *there*")
 
-    val doc: Document = Parse as Markdown fromFile "hello.md"
-    Render as HTML from document toFile "hello.html"
+    val doc: Document = Parser
+      .of(Markdown)
+      .build
+      .parse("hello *there*")
+      
+    val html: String = Renderer
+      .of(HTML)
+      .build
+      .render(doc)
     
 See [Using the Library API] for more details on these APIs.
     
@@ -71,8 +82,11 @@ See [Templates] for more details.
 The `unformatted` property tells the renderer to omit any formatting (line breaks or indentation) 
 around tags. Useful when storing the output in a database for example:
 
-    Transform.from(Markdown).to(HTML).unformatted 
-      .fromFile("hello.md").toFile("hello.html")
+    val transformer = Transformer
+      .from(Markdown)
+      .to(HTML)
+      .unformatted 
+      .build
 
 The `withMessageLevel` property instructs the renderer to include system messages in the
 generated HTML. Messages may get inserted into the document tree for problems during
@@ -81,8 +95,11 @@ exist. By default these messages are not included in the output. They are mostly
 for testing and debugging, or for providing feedback to application users producing 
 markup input:
 
-    Transform.from(Markdown).to(HTML).withMessageLevel(Warning) 
-      .fromFile("hello.md").toFile("hello.html")
+    val transformer = Transformer
+      .from(Markdown)
+      .to(HTML)
+      .withMessageLevel(Warning)
+      .build
 
 
 ### CSS, JavaScript and other Files
@@ -90,9 +107,7 @@ markup input:
 The generated HTML can be styled with CSS like any other static HTML files.
 If you transform an entire directory Laika will copy all static files like CSS
 and JavaScript files over to the target directory alongside the generated HTML.
-It does that recursively including sub-directories:
-
-    Transform from Markdown to HTML fromDirectory "src" toDirectory "target"
+It does that recursively including sub-directories.
 
 
 ### Customizing the HTML Renderer
@@ -100,10 +115,14 @@ It does that recursively including sub-directories:
 Finally you can adjust the rendered output for one or more node types
 of the document tree programmatically with a simple partial function:
 
-    Transform.from(Markdown).to(HTML).rendering {
-      case (fmt, Emphasized(content, opt)) => 
-        fmt.element("em", opt, content, "class" -> "big")  
-    }.fromFile("hello.md").toFile("hello.html")
+    val transformer = Transformer
+      .from(Markdown)
+      .to(HTML)
+      .rendering {
+        case (fmt, Emphasized(content, opt)) => 
+          fmt.element("em", opt, content, "class" -> "big")  
+      }
+      .build
     
 Note that in some cases the simpler way to achieve the same result may be
 styling with CSS.
@@ -118,15 +137,6 @@ Since version 0.11.0 Laika support the generation of e-books in the EPUB format.
 Similar to the PDF export, it allows you to transform an entire directory with
 text markup, CSS, image and font files into a single EPUB container.
 
-The EPUB renderer can be used with the `Transform` or `Render` APIs:
-
-    Transform from Markdown to EPUB fromDirectory "src" toFile "out.epub"
-
-    val tree: DocumentTree = Parse as Markdown fromDirectory "src"
-    Render as EPUB from tree toFile "out.epub"
-
-See [Using the Library API] for more details on these APIs.
-    
 If you are using the sbt plugin you can use several of its task for generating
 EPUB files:
 
@@ -137,6 +147,35 @@ EPUB files:
   PDF and/or EPUB files.
   
 See [Using the sbt Plugin] for more details.
+
+If you want to produce EPUB files with the library API,
+the `laika-io` module is required for the binary output:
+
+    libraryDependencies += "org.planet42" %% "laika-io" % "0.12.0"
+
+The EPUB renderer can be used with the `Transform` or `Render` APIs:
+
+    implicit val processingContext: ContextShift[IO] = 
+      IO.contextShift(ExecutionContext.global)
+      
+    val blockingContext: ContextShift[IO] = 
+      IO.contextShift(ExecutionContext
+        .fromExecutor(Executors.newCachedThreadPool()))
+    
+    val transformer = Transformer
+      .from(Markdown)
+      .to(EPUB)
+      .using(GitHubFlavor)
+      
+    laika.io.Parallel(transformer)
+      .build(processingContext, blockingContext)
+      .fromDirectory("src")
+      .toFile("hello.epub")
+      .transform
+
+
+See [Using the Library API] for more details on these APIs.
+
 
 
 ### EPUB Directory Structure
@@ -239,19 +278,6 @@ to first do performance and load testing.
 
 [Apache FOP]: https://xmlgraphics.apache.org/fop/
 
-Using the PDF renderer requires to add another dependency to your build:
-
-    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.11.0"
-
-The PDF renderer can then be used with the `Transform` or `Render` APIs:
-
-    Transform from Markdown to PDF fromDirectory "src" toFile "out.pdf"
-
-    val tree: DocumentTree = Parse as Markdown fromDirectory "src"
-    Render as PDF from tree toFile "out.pdf"
-
-See [Using the Library API] for more details on these APIs.
-    
 If you are using the sbt plugin you can use several of its task for generating
 PDF files:
 
@@ -262,6 +288,34 @@ PDF files:
   PDF files.
   
 See [Using the sbt Plugin] for more details.
+
+If you want to produce PDF files with the library API,
+you need to add the `laika-pdf` module to your build:
+
+    libraryDependencies += "org.planet42" %% "laika-pdf" % "0.12.0"
+
+The PDF renderer can be used with the `Transform` or `Render` APIs:
+
+    implicit val processingContext: ContextShift[IO] = 
+      IO.contextShift(ExecutionContext.global)
+      
+    val blockingContext: ContextShift[IO] = 
+      IO.contextShift(ExecutionContext
+        .fromExecutor(Executors.newCachedThreadPool()))
+    
+    val transformer = Transformer
+      .from(Markdown)
+      .to(PDF)
+      .using(GitHubFlavor)
+      
+    laika.io.Parallel(transformer)
+      .build(processingContext, blockingContext)
+      .fromDirectory("src")
+      .toFile("hello.pdf")
+      .transform
+
+See [Using the Library API] for more details on these APIs.
+    
 
 
 ### CSS for PDF
@@ -439,8 +493,10 @@ When you are using Laika embedded, the PDF renderer has a hook to specify a cust
     val configFile = "/path/to/customFop.xconf"
     val factory = FopFactory.newInstance(new File(configFile))
     
-    Transform from Markdown to PDF.withFopFactory(factory) fromDirectory 
-      "src" toFile "out.pdf"
+    val transformer = Transformer
+      .from(Markdown)
+      .to(PDF.withFopFactory(factory))
+      .build
 
 Note that a `FopFactory` is a fairly heavy-weight object, so make sure that you reuse
 either the `FopFactory` instance itself or the resulting `PDF` renderer.
@@ -471,10 +527,14 @@ You can override it if required by saving a custom template in a file called
 Finally you can adjust the `fo` tags rendered for one or more node types
 of the document tree programmatically with a simple partial function:
 
-    Transform.from(Markdown).to(PDF).rendering {
-      case (fmt, elem @ Emphasized(content, _)) => 
-        fmt.inline(elem.copy(options = Style("myStyle")), content)   
-    }.fromDirectory("src").toFile("out.pdf")
+    val transformer = Transformer
+      .from(Markdown)
+      .to(PDF)
+      .rendering {
+        case (fmt, elem @ Emphasized(content, _)) => 
+          fmt.inline(elem.copy(options = Style("myStyle")), content)   
+      }
+      .build
 
 Note that in most cases the simpler way to achieve the same result will be
 styling with CSS.
@@ -491,10 +551,21 @@ tools.
 
 The XSL-FO renderer can be used with the `Transform` or `Render` APIs:
 
-    Transform from Markdown to XSLFO fromFile "hello.md" toFile "hello.fo"
+    val result: String = Transformer
+      .from(Markdown)
+      .to(XSLFO)
+      .build
+      .transform("hello *there*)
 
-    val doc: Document = Parse as Markdown fromFile "hello.md"
-    Render as XSLFO from document toFile "hello.fo"
+    val doc: Document = Parser
+      .of(Markdown)
+      .build
+      .parse("hello *there*")
+      
+    val html: String = Renderer
+      .of(XSLFO)
+      .build
+      .render(doc)
 
 See [Using the Library API] for more details on these APIs.
     
@@ -529,7 +600,11 @@ You can use this renderer with the Transform API:
 
     val input = "some *text* example"
     
-    Transform from Markdown to AST fromString input toString
+    Transformer
+      .from(Markdown)
+      .to(AST)
+      .build
+      .transform(input)
     
     res0: java.lang.String = Document - Blocks: 1
     . Paragraph - Spans: 3
@@ -542,9 +617,9 @@ Alternatively you can use the Render API to render an existing document:
     
     val input = "some *text* example"
     
-    val doc = Parse as Markdown fromString input
+    val doc = Parser.of(Markdown).build.parse(input)
     
-    Render as AST from doc toString
+    Renderer.of(AST).build.render(doc)
 
 The above will yield the same result as the previous example.
 

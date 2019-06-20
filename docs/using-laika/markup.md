@@ -26,8 +26,12 @@ Laika supports several convenient features for processing groups of documents.
 These are built as extensions to both Markdown and reStructuredText parsers.
 They can be switched off when you run these two parsers in strict mode:
 
-    Transform.from(Markdown).to(HTML).strict
-      .fromFile("hello.md").toFile("hello.html")
+    Transformer
+      .from(Markdown)
+      .to(HTML)
+      .strict
+      .build
+      .transform("hello *there*)
 
 The extensions are documented in their respective section linked to from
 the list below:
@@ -102,10 +106,12 @@ one (known) minor exception:
 Laika supports the syntax of GitHubFlavored Markdown through an `ExtensionBundle` that must
 be enabled explicitly:
 
-    Transform
-      .from(Markdown).to(HTML)
+    Transformer
+      .from(Markdown)
+      .to(HTML)
       .using(GitHubFlavor)
-      .fromFile("hello.md").toFile("hello.html")
+      .build
+      .transform("hello *there*)
 
 When using the sbt plugin it can be added to the `laikaExtensions` settings:
 
@@ -166,11 +172,11 @@ customization hooks like [Document Tree Rewriting] or [Customizing Renderers].
  
 To enable verbatim HTML elements you have to change this standard expression:
 
-    Transform.from(Markdown).to(HTML)
+    Transformer.from(Markdown).to(HTML)
     
 to
 
-    Transform.from(Markdown).to(HTML).withRawContent
+    Transformer.from(Markdown).to(HTML).withRawContent
     
 This installs both, the required parser and renderer extensions. 
 
@@ -292,7 +298,11 @@ seemed too exotic to warrant inclusion in Laika.
 
 Finally some of the defaults for these extensions can be changed through the API:
 
-    val transformer = Transform.from(ReStructuredText).to(HTML).withRawContent
+    val transformer = Transformer
+      .from(ReStructuredText)
+      .to(HTML)
+      .withRawContent
+      .build
     
 enables both the `raw` directive and the `raw` text role. They are disabled by default as
 they present a potential security risk.
