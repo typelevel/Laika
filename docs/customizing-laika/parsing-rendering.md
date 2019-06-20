@@ -14,10 +14,10 @@ creating the tree model programmatically instead of reading
 from text input.
 
 
-The Parse API
--------------
+The Parser API
+--------------
 
-The Parse API is quite similar to the Transform API, but leaves
+The Parser API is quite similar to the Transform API, but leaves
 out the rendering step.
 
 
@@ -84,10 +84,10 @@ shown in the examples above.
 [ast-scaladoc]: ../api/laika/ast/
     
 
-The Render API
---------------
+The Renderer API
+----------------
 
-The Render API is similar to the Transform API, but expects
+The Renderer API is similar to the Transformer API, but expects
 that you already have a document tree model, either obtained
 by a previous parsing step or built programmatically, and now
 want to render it to a specific output format.
@@ -95,7 +95,7 @@ want to render it to a specific output format.
 
 ### Reusing the parser configuration
 
-In contrast to the Transform API, the Parse and Render APIs keep these
+In contrast to the Transformer, the Parser and Renderer keep these
 two operations completely separate. However, this also means that the
 renderer does not know about any custom renderers the parser might 
 provide as extensions for rendering custom AST nodes the default renderer

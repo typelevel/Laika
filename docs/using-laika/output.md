@@ -445,8 +445,10 @@ The same options are available programmatically through the `withConfig` method 
       tocTitle = Some("Contents")
     )
     
-    Transform from Markdown to PDF.withConfig(config) fromDirectory 
-      "source" toFile "out.pdf"
+    val transformer = Transformer
+      .from(Markdown)
+      .to(PDF.withConfig(config))
+      .build
 
 These properties control the following aspects of the rendering:
  
@@ -549,7 +551,7 @@ XSL-FO is primarily intended as an interim format for producing PDF output, but 
 can alternatively use it as the final output format and then post-process it with other
 tools.
 
-The XSL-FO renderer can be used with the `Transform` or `Render` APIs:
+The XSL-FO renderer can be used with the `Transformer` or `Renderer` APIs:
 
     val result: String = Transformer
       .from(Markdown)
@@ -596,7 +598,7 @@ A renderer that visualizes the document tree structure, essentially a formatted
 `toString` for a tree of case classes, mainly useful for testing and debugging
 purposes.
 
-You can use this renderer with the Transform API:
+You can use this renderer with the Transformer API:
 
     val input = "some *text* example"
     

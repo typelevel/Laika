@@ -314,7 +314,11 @@ they present a potential security risk.
       override val defaultTextRole = "my-role-name"
     }
     
-    val transformer = Transform from ReStructuredText to HTML using RstExtensions
+    val transformer = Transformer
+      .from(ReStructuredText)
+      .to(HTML)
+      .using(RstExtensions)
+      .build
     
 sets the text role `my-role-name` as the default role for the transformer.
 

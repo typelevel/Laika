@@ -71,7 +71,7 @@ In `build.sbt`:
     }
 
     
-### Using the Transform API
+### Using the Transformer API
 
     val transformer = Transformer
       .from(Markdown)
@@ -82,7 +82,7 @@ In `build.sbt`:
       }.build
 
 
-### Using the Render API
+### Using the Renderer API
 
     val doc: Document = ...
     
