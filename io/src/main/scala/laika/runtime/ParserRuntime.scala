@@ -15,11 +15,15 @@ import cats.implicits._
 import laika.api.MarkupParser
 import laika.ast.Path.Root
 
-/** 
+/** Internal runtime for parser operations, for parallel and sequential execution. 
+  * 
   *  @author Jens Halm
   */
 object ParserRuntime {
-  
+
+  /** Run the specified parser operation for a single input,
+    * producing a single document.
+    */
   def run[F[_]: Async: Runtime] (op: SequentialParser.Op[F]): F[Document] = {
     for {
       input       <- op.input
@@ -54,6 +58,9 @@ object ParserRuntime {
       RuntimeException(s"Multiple errors during parsing: ${errors.map(_.getMessage).mkString(", ")}")
   }
 
+  /** Run the specified parser operation for an entire input tree,
+    * producing an AST tree.
+    */
   def run[F[_]: Async: Runtime] (op: ParallelParser.Op[F]): F[ParsedTree] = {
     
     import DocumentType._

@@ -10,14 +10,19 @@ import laika.io.Parallel.ParallelRenderer
 import laika.io.Sequential.SequentialRenderer
 import laika.io.{TextOutput, _}
 
-/**
+/** Internal runtime for renderer operations, for text and binary output as well
+  * as parallel and sequential execution. 
+  *
   *  @author Jens Halm
   */
 object RendererRuntime {
 
-  case class CopiedDocument (path: Path)
-  type RenderResult = Either[CopiedDocument, RenderedDocument]
-  
+  private case class CopiedDocument (path: Path)
+  private type RenderResult = Either[CopiedDocument, RenderedDocument]
+
+  /** Process the specified render operation for a single input document and 
+    * a character output format.
+    */
   def run[F[_]: Async: Runtime] (op: SequentialRenderer.Op[F], styles: Option[StyleDeclarationSet] = None): F[String] = {
 
     val renderResult = styles.fold(op.renderer.render(op.input, op.path)){ st => 
@@ -29,7 +34,10 @@ object RendererRuntime {
       _      <- OutputRuntime.write(renderResult, output)
     } yield renderResult
   }
-  
+
+  /** Process the specified render operation for an entire input tree and 
+    * a character output format.
+    */
   def run[F[_]: Async: Runtime] (op: ParallelRenderer.Op[F]): F[RenderedTreeRoot] = {
 
     val fileSuffix = op.renderer.format.fileSuffix
@@ -100,12 +108,18 @@ object RendererRuntime {
     } yield res
   }
 
+  /** Process the specified render operation for a single input document and 
+    * a binary output format.
+    */
   def run[F[_]: Async: Runtime] (op: binary.SequentialRenderer.Op[F]): F[Unit] = {
     val root = DocumentTreeRoot(DocumentTree(Root, Seq(Document(Root / "input", RootElement(Seq(SpanSequence(Seq(TemplateElement(op.input)))))))))
     val parOp = binary.ParallelRenderer.Op(op.renderer, root, op.output, Async[F].pure[Seq[BinaryInput]](Nil))
     run(parOp)
   }
 
+  /** Process the specified render operation for an entire input tree and 
+    * a binary output format.
+    */
   def run[F[_]: Async: Runtime] (op: binary.ParallelRenderer.Op[F]): F[Unit] = {
     val template = op.renderer.interimRenderer.templateFor(op.input)
     val preparedTree = op.renderer.prepareTree(op.input)
