@@ -164,7 +164,7 @@ file in the `project` directory and then referenced from your
 and then added as a dependency of your build.
 
 
-**Embedded**:
+**Library API**:
 
     object MyDirectives extends DirectiveRegistry {
       val spanDirectives = Seq(directive)
@@ -172,8 +172,11 @@ and then added as a dependency of your build.
       val templateDirectives = Seq()
     }
 
-    Transform from Markdown to HTML using 
-      MyDirectives fromFile "hello.md" toFile "hello.html"   
+    val transformer = Transformer
+      .from(Markdown)
+      .to(HTML)
+      .using(MyDirectives)
+      .build
 
 The `directive` variable refers to the instance we created above.
 We can now use our `ticket` directive in Markdown files!
@@ -372,14 +375,23 @@ Registration:
     // for Markdown and reStructuredText with sbt plugin:
     laikaSpanDirectives += directive // in build.sbt
 
-    // for Markdown and reStructuredText with Transform API or Parse API:
+    // for Markdown and reStructuredText with Transformer or Parser API:
     object MyDirectives extends DirectiveRegistry {
       val spanDirectives = Seq(directive)
       val blockDirectives = Seq()
       val templateDirectives = Seq()
     }
-    Transform from Markdown to HTML using MyDirectives from...
-    Parse as Markdown using MyDirectives from...
+    
+    val transformer = Transformer
+      .from(Markdown)
+      .to(HTML)
+      .using(MyDirectives)
+      .build
+
+    val parser = Parser
+      .of(Markdown)
+      .using(MyDirectives)
+      .build    
 
 
 ### Block Directives
@@ -401,14 +413,23 @@ Registration:
     // for Markdown and reStructuredText with sbt plugin:
     laikaBlockDirectives += directive // in build.sbt
 
-    // for Markdown and reStructuredText with Transform API or Parse API:
+    // for Markdown and reStructuredText with Transformer or Parser API:
     object MyDirectives extends DirectiveRegistry {
       val spanDirectives = Seq()
       val blockDirectives = Seq(directive)
       val templateDirectives = Seq()
     }
-    Transform from Markdown to HTML using MyDirectives from...
-    Parse as Markdown using MyDirectives from...
+    
+    val transformer = Transformer
+      .from(Markdown)
+      .to(HTML)
+      .using(MyDirectives)
+      .build
+
+    val parser = Parser
+      .of(Markdown)
+      .using(MyDirectives)
+      .build    
 
 
 ### Template Directives
@@ -430,12 +451,20 @@ Registration:
     // for templates with sbt plugin:
     laikaTemplateDirectives += directive // in build.sbt
 
-    // for Markdown and reStructuredText with Transform API or Parse API:
+    // for Markdown and reStructuredText with Transformer or Parser API:
     object MyDirectives extends DirectiveRegistry {
       val spanDirectives = Seq()
       val blockDirectives = Seq()
       val templateDirectives = Seq(directive)
     }
-    Transform from Markdown to HTML using MyDirectives from...
-    Parse as Markdown using MyDirectives from...
+    
+    val transformer = Transformer
+      .from(Markdown)
+      .to(HTML)
+      .using(MyDirectives)
+      .build
 
+    val parser = Parser
+      .of(Markdown)
+      .using(MyDirectives)
+      .build    

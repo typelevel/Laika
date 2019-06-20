@@ -15,7 +15,7 @@ Factory Contract
 The contract a parser factory has to adhere to is captured in the following
 trait:
 
-    trait MarkupParser {
+    trait MarkupFormat {
   
       def fileSuffixes: Set[String]
 
@@ -91,7 +91,7 @@ Parsing three or more lower-case characters:
 
     "[a-z]{3,}".r              // regex
     
-    anyIn('a' to 'z') min 3    // Laika alternative
+    anyIn('a' to 'z').min(3)   // Laika alternative
 
 Parsing any character apart from space or tab:
 
@@ -102,7 +102,7 @@ Parsing any character apart from space or tab:
 Note that for the Laika base parsers the default is to parse any number of characters,
 as this is the most common case. To read just one you can write:
 
-    anyBut(' ','\t') take 1
+    anyBut(' ','\t').take(1)
 
 The parsers of this trait will be faster than regex parsers in many scenarios, but
 there will be edge cases where it is the other way round. To be really sure it's best

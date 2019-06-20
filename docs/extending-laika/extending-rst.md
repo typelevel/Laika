@@ -128,11 +128,14 @@ The implementation of this directive could look like this:
       val spanDirectives = Seq()
       val textRoles = Seq()
     }
- 
-    Transform from ReStructuredText to HTML using 
-      MyDirectives fromFile "hello.rst" toFile "hello.html"
- 
- 
+    
+    val transformer = Transformer
+      .from(ReStructuredText)
+      .to(HTML)
+      .using(MyDirectives)
+      .build
+
+
 The `argument()` method specifies a required argument of type `String` (since no conversion
 function was supplied). We need to set the `withWS` flag to true as an argument cannot have
 whitespace per default. The `blockContent` method specifies standard block content (any block-level
@@ -261,11 +264,14 @@ The implementation of the `link` text role could look like this:
       val spanDirectives = Seq()
       val blockDirectives = Seq()
     }  
-        
-    Transform from ReStructuredText to HTML using 
-      MyDirectives fromFile "hello.rst" toFile "hello.html"    
+    
+    val transformer = Transformer
+      .from(ReStructuredText)
+      .to(HTML)
+      .using(MyDirectives)
+      .build
 
- 
+
 We specify the name of the role to be `link`, and the default value the URL provided as the
 second argument. The second parameter list specifies the role directive implementation,
 in this case only consisting of a call to `field("base-url")` which specifies a required 
