@@ -19,7 +19,7 @@ package laika.runtime
 import java.io._
 
 import cats.effect.{Async, Sync}
-import laika.io.{BinaryFileInput, BinaryFileOutput, BinaryInput, BinaryOutput}
+import laika.io.model.{BinaryFileInput, BinaryFileOutput, BinaryInput, BinaryOutput}
 
 /** Internal runtime for copying bytes from an InputStream to an OutputStream.
   * 

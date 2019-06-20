@@ -21,7 +21,7 @@ import java.io._
 import cats.effect.IO
 import laika.api.Transformer
 import laika.format._
-import laika.io.Sequential.SequentialTransformer
+import laika.io.text.SequentialTransformer
 import laika.runtime.TestContexts.{blockingContext, processingContext}
 import org.scalatest.{FlatSpec, Matchers}
 

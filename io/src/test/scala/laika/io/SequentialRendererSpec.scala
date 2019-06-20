@@ -22,7 +22,7 @@ import cats.effect.IO
 import laika.api.Renderer
 import laika.ast.helper.ModelBuilder
 import laika.format._
-import laika.io.Sequential.SequentialRenderer
+import laika.io.text.SequentialRenderer
 import laika.io.helper.OutputBuilder
 import laika.runtime.TestContexts.{blockingContext, processingContext}
 import org.scalatest.{FlatSpec, Matchers}

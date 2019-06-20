@@ -4,7 +4,7 @@ import java.io._
 
 import cats.effect.{Async, Resource}
 import cats.implicits._
-import laika.io._
+import laika.io.model._
 
 import scala.io.Codec
 

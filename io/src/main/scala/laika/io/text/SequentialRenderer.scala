@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package laika.io.binary
+package laika.io.text
 
 import cats.effect.{Async, ContextShift}
-import laika.api.builder.TwoPhaseRenderer
+import laika.api.Renderer
 import laika.ast.{Document, Element, Path}
-import laika.factory.BinaryPostProcessor
-import laika.io.model.BinaryOutput
-import laika.io.binary.SequentialRenderer.BinaryRenderer
-import laika.io.ops.BinaryOutputOps
+import laika.io.ops.SequentialTextOutputOps
+import laika.io.model.TextOutput
 import laika.runtime.{RendererRuntime, Runtime}
 
 /**
   * @author Jens Halm
   */
-class SequentialRenderer[F[_]: Async: Runtime] (renderer: BinaryRenderer) {
+class SequentialRenderer[F[_]: Async: Runtime] (renderer: Renderer) {
 
   def from (input: Document): SequentialRenderer.OutputOps[F] = from(input.content, input.path)
 
@@ -40,29 +38,27 @@ class SequentialRenderer[F[_]: Async: Runtime] (renderer: BinaryRenderer) {
 }
 
 object SequentialRenderer {
-  
-  type BinaryRenderer = TwoPhaseRenderer[BinaryPostProcessor]
 
-  case class Builder (renderer: BinaryRenderer) {
+  case class Builder (renderer: Renderer) {
 
-    def build[F[_]: Async] (processingContext: ContextShift[F], blockingContext: ContextShift[F]): SequentialRenderer[F] = 
+    def build[F[_]: Async] (processingContext: ContextShift[F], blockingContext: ContextShift[F]): SequentialRenderer[F] =
       new SequentialRenderer[F](renderer)(implicitly[Async[F]], Runtime.sequential(processingContext, blockingContext))
 
   }
 
-  case class OutputOps[F[_]: Async: Runtime] (renderer: BinaryRenderer, input: Element, path: Path) extends BinaryOutputOps[F] {
+  case class OutputOps[F[_]: Async: Runtime] (renderer: Renderer, input: Element, path: Path) extends SequentialTextOutputOps[F] {
 
     val F: Async[F] = Async[F]
 
     type Result = Op[F]
 
-    def toOutput (output: F[BinaryOutput]): Op[F] = Op[F](renderer, input, path, output)
+    def toOutput (output: F[TextOutput]): Op[F] = Op[F](renderer, input, path, output)
 
   }
 
-  case class Op[F[_]: Async: Runtime] (renderer: BinaryRenderer, input: Element, path: Path, output: F[BinaryOutput]) {
+  case class Op[F[_]: Async: Runtime] (renderer: Renderer, input: Element, path: Path, output: F[TextOutput]) {
 
-    def render: F[Unit] = RendererRuntime.run(this)
+    def render: F[String] = RendererRuntime.run(this)
 
   }
 

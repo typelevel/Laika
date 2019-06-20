@@ -6,9 +6,10 @@ import cats.effect.Async
 import cats.implicits._
 import laika.ast.Path.Root
 import laika.ast._
-import laika.io.Parallel.ParallelRenderer
-import laika.io.Sequential.SequentialRenderer
-import laika.io.{TextOutput, _}
+import laika.io.binary
+import laika.io.text.ParallelRenderer
+import laika.io.text.SequentialRenderer
+import laika.io.model._
 
 /** Internal runtime for renderer operations, for text and binary output as well
   * as parallel and sequential execution. 

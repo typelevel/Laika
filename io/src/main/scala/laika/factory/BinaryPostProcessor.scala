@@ -1,7 +1,7 @@
 package laika.factory
 
 import cats.effect.Async
-import laika.io.{BinaryOutput, RenderedTreeRoot}
+import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.runtime.Runtime
 
 /** Post processor for the result output of a renderer.

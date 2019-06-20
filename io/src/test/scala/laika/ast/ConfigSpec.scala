@@ -22,7 +22,7 @@ import laika.ast.Path.Root
 import laika.ast.helper.ModelBuilder
 import laika.bundle.BundleProvider
 import laika.format.{Markdown, ReStructuredText}
-import laika.io.InputCollection
+import laika.io.model.InputCollection
 import laika.io.helper.InputBuilder
 import laika.rewrite.TemplateRewriter
 import laika.runtime.TestContexts._

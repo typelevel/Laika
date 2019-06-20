@@ -19,7 +19,7 @@ package laika.render.pdf
 import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
 import laika.ast._
 import laika.format.PDF
-import laika.io.{RenderContent, RenderedDocument, RenderedTree, RenderedTreeRoot}
+import laika.io.model.{RenderContent, RenderedDocument, RenderedTree, RenderedTreeRoot}
 import laika.render.FOFormatter.{Bookmark, BookmarkTree, Leader, PageNumberCitation}
 import laika.rewrite.nav.TocGenerator
 

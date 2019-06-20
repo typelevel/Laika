@@ -17,7 +17,7 @@
 package laika.render.epub
 
 import laika.ast._
-import laika.io.RenderedTreeRoot
+import laika.io.model.RenderedTreeRoot
 import laika.render.epub.StyleSupport.collectStyles
 
 /** Renders the entire content of an EPUB HTML navigation file.

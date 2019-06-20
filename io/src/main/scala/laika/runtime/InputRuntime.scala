@@ -4,7 +4,7 @@ import java.io._
 
 import cats.effect.{Async, Resource}
 import laika.ast.Path
-import laika.io._
+import laika.io.model._
 import laika.parse.ParserContext
 import laika.parse.markup.DocumentParser.ParserInput
 import cats.implicits._

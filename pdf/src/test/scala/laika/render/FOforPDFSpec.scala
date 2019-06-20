@@ -24,8 +24,9 @@ import laika.ast.{DocumentTreeRoot, Path, TemplateRoot}
 import laika.runtime.{InputRuntime, OutputRuntime}
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.format.{PDF, XSLFO}
+import laika.io.Parallel
 import laika.io.binary.ParallelRenderer
-import laika.io.{BinaryOutput, Parallel, RenderedTreeRoot}
+import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.render.pdf.{FOConcatenation, PDFConfigBuilder, PDFNavigation}
 import laika.runtime.Runtime
 import laika.runtime.TestContexts.{blockingContext, processingContext}

@@ -21,7 +21,7 @@ import laika.api.Renderer
 import laika.ast.Path.Root
 import laika.ast._
 import laika.format.{PDF, XSLFO}
-import laika.io.{RenderedDocument, RenderedTree, RenderedTreeRoot}
+import laika.io.model.{RenderedDocument, RenderedTree, RenderedTreeRoot}
 import laika.render.pdf.PDFNavigation.DocNames
 
 /** Concatenates the XSL-FO that serves as a basis for producing the final PDF output

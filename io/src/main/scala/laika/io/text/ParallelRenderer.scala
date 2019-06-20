@@ -14,32 +14,30 @@
  * limitations under the License.
  */
 
-package laika.io.binary
+package laika.io.text
 
 import cats.effect.{Async, ContextShift}
-import laika.api.builder.{OperationConfig, TwoPhaseRenderer}
+import cats.implicits._
+import laika.api.Renderer
+import laika.api.builder.OperationConfig
 import laika.ast.DocumentTreeRoot
-import laika.factory.BinaryPostProcessor
-import laika.io.model.{BinaryInput, BinaryOutput}
-import laika.io.binary.ParallelRenderer.BinaryRenderer
-import laika.io.ops.BinaryOutputOps
+import laika.io.model.{BinaryInput, RenderedTreeRoot, TreeOutput}
+import laika.io.ops.ParallelTextOutputOps
 import laika.runtime.{RendererRuntime, Runtime}
 
 /**
   * @author Jens Halm
   */
-class ParallelRenderer[F[_]: Async: Runtime] (renderer: BinaryRenderer) {
+class ParallelRenderer[F[_]: Async: Runtime] (renderer: Renderer) {
 
   def from (input: DocumentTreeRoot): ParallelRenderer.OutputOps[F] =
-    ParallelRenderer.OutputOps(renderer, input)
+    ParallelRenderer.OutputOps(renderer, input, Async[F].pure(Nil))
 
 }
 
 object ParallelRenderer {
 
-  type BinaryRenderer = TwoPhaseRenderer[BinaryPostProcessor]
-
-  case class Builder (renderer: BinaryRenderer) {
+  case class Builder (renderer: Renderer) {
 
     def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F], parallelism: Int)
                                 (implicit P: cats.Parallel[F, G]): ParallelRenderer[F] =
@@ -48,24 +46,29 @@ object ParallelRenderer {
     def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F])
                                 (implicit P: cats.Parallel[F, G]): ParallelRenderer[F] =
       build(processingContext, blockingContext, java.lang.Runtime.getRuntime.availableProcessors)
-    
+
   }
 
-  case class OutputOps[F[_]: Async: Runtime] (renderer: BinaryRenderer, input: DocumentTreeRoot) extends BinaryOutputOps[F] {
+  case class OutputOps[F[_]: Async: Runtime] (renderer: Renderer, input: DocumentTreeRoot, staticDocuments: F[Seq[BinaryInput]]) extends ParallelTextOutputOps[F] {
 
     val F: Async[F] = Async[F]
 
     type Result = Op[F]
 
-    def toOutput (output: F[BinaryOutput]): Op[F] = Op[F](renderer, input, output, Async[F].pure[Seq[BinaryInput]](Nil))
+    def copying (toCopy: F[Seq[BinaryInput]]): OutputOps[F] = {
+      val combined = for { a <- staticDocuments; b <- toCopy } yield a ++ b
+      copy(staticDocuments = combined)
+    }
+
+    def toOutput (output: F[TreeOutput]): Op[F] = Op[F](renderer, input, output, staticDocuments)
 
   }
 
-  case class Op[F[_]: Async: Runtime] (renderer: BinaryRenderer, input: DocumentTreeRoot, output: F[BinaryOutput], staticDocuments: F[Seq[BinaryInput]]) {
+  case class Op[F[_]: Async: Runtime] (renderer: Renderer, input: DocumentTreeRoot, output: F[TreeOutput], staticDocuments: F[Seq[BinaryInput]]) {
 
-    val config: OperationConfig = renderer.interimRenderer.config
+    val config: OperationConfig = renderer.config
 
-    def render: F[Unit] = RendererRuntime.run(this)
+    def render: F[RenderedTreeRoot] = RendererRuntime.run(this)
 
   }
 

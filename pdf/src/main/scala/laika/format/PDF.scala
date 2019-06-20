@@ -21,7 +21,7 @@ import java.io.File
 import cats.effect.Async
 import laika.ast.{DocumentMetadata, DocumentTreeRoot, SpanSequence, TemplateRoot}
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
-import laika.io.{BinaryOutput, RenderedTreeRoot}
+import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.runtime.Runtime
 import laika.render.FOFormatter
 import laika.render.pdf.{FOConcatenation, PDFConfigBuilder, PDFNavigation, PDFRenderer}

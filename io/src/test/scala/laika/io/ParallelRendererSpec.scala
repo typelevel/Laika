@@ -25,9 +25,10 @@ import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.bundle.BundleProvider
 import laika.format._
-import laika.io.Parallel.ParallelRenderer
+import laika.io.text.ParallelRenderer
 import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, OutputBuilder, RenderResult}
+import laika.io.model.StringTreeOutput
 import laika.render._
 import laika.runtime.TestContexts._
 import org.scalatest.{Assertion, FlatSpec, Matchers}

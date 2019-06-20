@@ -4,7 +4,7 @@ import java.io.ByteArrayInputStream
 
 import laika.ast.DocumentType.Static
 import laika.ast.{DocumentType, Path, TextDocumentType}
-import laika.io._
+import laika.io.model._
 
 import scala.io.Codec
 

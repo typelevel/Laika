@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package laika.io.binary
+package laika.io.text
 
 import cats.effect.{Async, ContextShift}
-import laika.api.builder.TwoPhaseTransformer
+import laika.api.Transformer
 import laika.ast.{DocumentType, TextDocumentType}
-import laika.factory.BinaryPostProcessor
-import laika.io.ops.SequentialInputOps
-import laika.io.binary.SequentialTransformer.BinaryTransformer
-import laika.io.model.{BinaryOutput, TextInput}
-import laika.io.ops.BinaryOutputOps
+import laika.io.ops.{SequentialInputOps, SequentialTextOutputOps}
+import laika.io.model.{TextInput, TextOutput}
 import laika.runtime.{Runtime, TransformerRuntime}
 
 /**
   * @author Jens Halm
   */
-class SequentialTransformer[F[_]: Async: Runtime] (transformer: BinaryTransformer) extends SequentialInputOps[F] {
+class SequentialTransformer[F[_]: Async: Runtime] (transformer: Transformer) extends SequentialInputOps[F] {
 
   type InputResult = SequentialTransformer.OutputOps[F]
 
@@ -44,30 +41,27 @@ class SequentialTransformer[F[_]: Async: Runtime] (transformer: BinaryTransforme
 
 object SequentialTransformer {
 
-  type BinaryTransformer = TwoPhaseTransformer[BinaryPostProcessor]
+  case class Builder (transformer: Transformer) {
 
-  case class Builder (transformer: BinaryTransformer) {
-
-    def build[F[_]: Async] (processingContext: ContextShift[F], blockingContext: ContextShift[F]): SequentialTransformer[F] = 
+    def build[F[_]: Async] (processingContext: ContextShift[F], blockingContext: ContextShift[F]): SequentialTransformer[F] =
       new SequentialTransformer[F](transformer)(implicitly[Async[F]], Runtime.sequential(processingContext, blockingContext))
 
   }
 
-  case class OutputOps[F[_]: Async: Runtime] (transformer: BinaryTransformer, input: F[TextInput]) extends BinaryOutputOps[F] {
+  case class OutputOps[F[_]: Async: Runtime] (transformer: Transformer, input: F[TextInput]) extends SequentialTextOutputOps[F] {
 
     val F: Async[F] = Async[F]
 
     type Result = Op[F]
 
-    def toOutput (output: F[BinaryOutput]): Op[F] = Op[F](transformer, input, output)
+    def toOutput (output: F[TextOutput]): Op[F] = Op[F](transformer, input, output)
 
   }
 
-  case class Op[F[_]: Async: Runtime] (transformer: BinaryTransformer, input: F[TextInput], output: F[BinaryOutput]) {
+  case class Op[F[_]: Async: Runtime] (transformer: Transformer, input: F[TextInput], output: F[TextOutput]) {
 
-    def transform: F[Unit] = TransformerRuntime.run(this)
+    def transform: F[String] = TransformerRuntime.run(this)
 
   }
 
 }
-  

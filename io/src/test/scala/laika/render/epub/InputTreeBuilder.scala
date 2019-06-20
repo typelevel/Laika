@@ -6,7 +6,7 @@ import com.typesafe.config.{Config, ConfigValueFactory}
 import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
-import laika.io._
+import laika.io.model._
 import laika.io.helper.InputBuilder
 
 trait InputTreeBuilder extends ModelBuilder with InputBuilder {

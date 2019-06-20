@@ -4,7 +4,7 @@ import cats.effect.Async
 import laika.ast.DocumentTreeRoot
 import laika.runtime.OutputRuntime
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
-import laika.io.{BinaryOutput, RenderedDocument, RenderedTree, RenderedTreeRoot}
+import laika.io.model.{BinaryOutput, RenderedDocument, RenderedTree, RenderedTreeRoot}
 import laika.render.TextFormatter
 import laika.runtime.Runtime
 

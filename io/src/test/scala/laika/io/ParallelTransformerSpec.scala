@@ -27,9 +27,10 @@ import laika.ast._
 import laika.bundle.{BundleProvider, ExtensionBundle}
 import laika.directive.Templates
 import laika.format._
-import laika.io.Parallel.ParallelTransformer
+import laika.io.text.ParallelTransformer
 import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, OutputBuilder, RenderResult}
+import laika.io.model.{InputCollection, StringTreeOutput}
 import laika.parse.Parser
 import laika.parse.text.TextParsers
 import laika.runtime.TestContexts._

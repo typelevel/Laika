@@ -5,15 +5,14 @@ import cats.effect.Async
 import com.typesafe.config.ConfigFactory
 import laika.ast.{TemplateDocument, _}
 import laika.bundle.ConfigProvider
-import laika.io.Parallel.ParallelParser
-import laika.io.Sequential.SequentialParser
-import laika.io.{DirectoryInput, InputCollection, ParsedTree, TextInput}
+import laika.io.model.{DirectoryInput, InputCollection, ParsedTree, TextInput}
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.ParserInput
 import com.typesafe.config.{Config => TConfig}
 import cats.implicits._
 import laika.api.MarkupParser
 import laika.ast.Path.Root
+import laika.io.text.{ParallelParser, SequentialParser}
 
 /** Internal runtime for parser operations, for parallel and sequential execution. 
   * 

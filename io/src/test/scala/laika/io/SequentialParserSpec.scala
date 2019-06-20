@@ -22,7 +22,7 @@ import cats.effect.IO
 import laika.api.MarkupParser
 import laika.ast.helper.ModelBuilder
 import laika.format.Markdown
-import laika.io.Sequential.SequentialParser
+import laika.io.text.SequentialParser
 import laika.runtime.TestContexts.{blockingContext, processingContext}
 import org.scalatest.{FlatSpec, Matchers}
 

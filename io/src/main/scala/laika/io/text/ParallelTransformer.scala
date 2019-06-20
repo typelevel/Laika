@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package laika.io.binary
+package laika.io.text
 
 import cats.effect.{Async, ContextShift}
-import laika.api.builder.{OperationConfig, TwoPhaseTransformer}
+import laika.api.Transformer
+import laika.api.builder.OperationConfig
 import laika.ast.{DocumentType, TextDocumentType}
-import laika.factory.BinaryPostProcessor
-import laika.io.ops.ParallelInputOps
-import laika.io.binary.ParallelTransformer.BinaryTransformer
-import laika.io.model._
-import laika.io.ops.BinaryOutputOps
+import laika.io.ops.{ParallelInputOps, ParallelTextOutputOps}
+import laika.io.model.{RenderedTreeRoot, TreeInput, TreeOutput}
+import laika.io.ops.{ParallelInputOps, ParallelTextOutputOps}
 import laika.runtime.{Runtime, TransformerRuntime}
 
 /**
   * @author Jens Halm
   */
-class ParallelTransformer[F[_]: Async: Runtime] (transformer: BinaryTransformer) extends ParallelInputOps[F] {
+class ParallelTransformer[F[_]: Async: Runtime] (transformer: Transformer) extends ParallelInputOps[F] {
 
   type Result = ParallelTransformer.OutputOps[F]
 
@@ -37,7 +36,7 @@ class ParallelTransformer[F[_]: Async: Runtime] (transformer: BinaryTransformer)
 
   val docType: TextDocumentType = DocumentType.Markup
 
-  val config: OperationConfig = transformer.markupParser.config
+  val config: OperationConfig = transformer.parser.config
 
 
   def fromInput (input: F[TreeInput]): ParallelTransformer.OutputOps[F] = ParallelTransformer.OutputOps(transformer, input)
@@ -46,9 +45,7 @@ class ParallelTransformer[F[_]: Async: Runtime] (transformer: BinaryTransformer)
 
 object ParallelTransformer {
 
-  type BinaryTransformer = TwoPhaseTransformer[BinaryPostProcessor]
-
-  case class Builder (transformer: BinaryTransformer) {
+  case class Builder (transformer: Transformer) {
 
     def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F], parallelism: Int)
                                 (implicit P: cats.Parallel[F, G]): ParallelTransformer[F] =
@@ -57,22 +54,22 @@ object ParallelTransformer {
     def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F])
                                 (implicit P: cats.Parallel[F, G]): ParallelTransformer[F] =
       build(processingContext, blockingContext, java.lang.Runtime.getRuntime.availableProcessors)
-    
+
   }
 
-  case class OutputOps[F[_]: Async: Runtime] (transformer: BinaryTransformer, input: F[TreeInput]) extends BinaryOutputOps[F] {
+  case class OutputOps[F[_]: Async: Runtime] (transformer: Transformer, input: F[TreeInput]) extends ParallelTextOutputOps[F] {
 
     val F: Async[F] = Async[F]
 
     type Result = Op[F]
 
-    def toOutput (output: F[BinaryOutput]): Op[F] = Op[F](transformer, input, output)
+    def toOutput (output: F[TreeOutput]): Op[F] = Op[F](transformer, input, output)
 
   }
 
-  case class Op[F[_]: Async: Runtime] (transformer: BinaryTransformer, input: F[TreeInput], output: F[BinaryOutput]) {
+  case class Op[F[_]: Async: Runtime] (transformer: Transformer, input: F[TreeInput], output: F[TreeOutput]) {
 
-    def transform: F[Unit] = TransformerRuntime.run(this)
+    def transform: F[RenderedTreeRoot] = TransformerRuntime.run(this)
 
   }
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package laika.io
+package laika.io.model
 
 import java.io._
 

@@ -18,7 +18,7 @@ package laika.sbt
 
 import laika.ast.DocumentType.{Config, Markup, StyleSheet, Template}
 import laika.ast._
-import laika.io.TreeInput
+import laika.io.model.TreeInput
 import sbt.Logger
 
 /** Provides detailed logs for the tasks of the sbt plugin.

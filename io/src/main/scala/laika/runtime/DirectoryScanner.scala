@@ -23,7 +23,7 @@ import cats.implicits._
 import laika.ast.DocumentType.Static
 import laika.ast.Path.Root
 import laika.ast.{Path, TextDocumentType}
-import laika.io._
+import laika.io.model._
 
 import scala.collection.JavaConverters
 

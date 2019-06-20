@@ -26,18 +26,18 @@ object OutputBuilder {
   
   object RenderedTreeView {
 
-    def toTreeView (root: io.RenderedTreeRoot) : RenderedTreeViewRoot = 
+    def toTreeView (root: io.model.RenderedTreeRoot) : RenderedTreeViewRoot = 
       RenderedTreeViewRoot(
         toTreeView(root.tree), 
         root.coverDocument.map(doc => RenderedDocumentView(doc.path, doc.content)), 
         root.staticDocuments.map(_.path)
       )
     
-    def toTreeView (tree: io.RenderedTree) : RenderedTreeView = {
+    def toTreeView (tree: io.model.RenderedTree) : RenderedTreeView = {
       val titleDocument = tree.titleDocument.map(doc => TitleDocument(RenderedDocumentView(doc.path, doc.content))).toSeq
       val content = List(
-        DocumentViews(tree.content.collect { case doc: io.RenderedDocument => RenderedDocumentView(doc.path, doc.content) }),
-        SubtreeViews(tree.content.collect { case tree: io.RenderedTree => toTreeView(tree) })
+        DocumentViews(tree.content.collect { case doc: io.model.RenderedDocument => RenderedDocumentView(doc.path, doc.content) }),
+        SubtreeViews(tree.content.collect { case tree: io.model.RenderedTree => toTreeView(tree) })
       ) filterNot { case c: ElementContainer[_,_] => c.content.isEmpty }
       
       new RenderedTreeView(tree.path, titleDocument ++ content)

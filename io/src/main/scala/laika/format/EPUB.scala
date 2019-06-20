@@ -10,7 +10,7 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.runtime.{Runtime, InputRuntime}
 import laika.factory.{BinaryPostProcessor, RenderContext, RenderFormat, TwoPhaseRenderFormat}
-import laika.io.{BinaryOutput, RenderedTreeRoot}
+import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.render.epub.{ConfigFactory, ContainerWriter, HtmlRenderExtensions, StyleSupport}
 import laika.render.epub.StyleSupport.XHTMLTemplateParser
 import laika.render.{HTMLFormatter, XHTMLFormatter, XHTMLRenderer}

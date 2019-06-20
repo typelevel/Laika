@@ -25,8 +25,9 @@ import laika.ast.helper.DocumentViewBuilder._
 import laika.ast.helper.ModelBuilder
 import laika.bundle.{BundleProvider, ExtensionBundle}
 import laika.format.{Markdown, ReStructuredText}
-import laika.io.Parallel.ParallelParser
+import laika.io.text.ParallelParser
 import laika.io.helper.InputBuilder
+import laika.io.model.TreeInput
 import laika.parse.Parser
 import laika.parse.text.TextParsers
 import laika.rewrite.TemplateRewriter

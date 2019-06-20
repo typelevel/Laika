@@ -18,7 +18,7 @@ package laika.render.epub
 
 import laika.ast._
 import laika.format.EPUB
-import laika.io.RenderedTreeRoot
+import laika.io.model.RenderedTreeRoot
 
 /** Renders the content of an EPUB Package document (OPF).
   *

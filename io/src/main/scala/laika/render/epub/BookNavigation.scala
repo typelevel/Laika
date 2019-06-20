@@ -18,7 +18,7 @@ package laika.render.epub
 
 import laika.ast.Path.Root
 import laika.ast._
-import laika.io.{RenderedDocument, RenderedTree}
+import laika.io.model.{RenderedDocument, RenderedTree}
 
 /** Represents a recursive book navigation structure.
   */

@@ -3,9 +3,9 @@ package laika.runtime
 import cats.data.NonEmptyList
 import cats.effect.Async
 import cats.implicits._
-import laika.io.Parallel.{ParallelParser, ParallelRenderer, ParallelTransformer}
-import laika.io.{RenderedTreeRoot, binary}
-import laika.io.Sequential.{SequentialParser, SequentialRenderer, SequentialTransformer}
+import laika.io.binary
+import laika.io.model.RenderedTreeRoot
+import laika.io.text._
 
 /** Internal runtime for transform operations, for text and binary output as well
   * as parallel and sequential execution. 

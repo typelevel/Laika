@@ -17,7 +17,7 @@
 package laika.render.epub
 
 import laika.ast._
-import laika.io.RenderedTreeRoot
+import laika.io.model.RenderedTreeRoot
 
 /** Renders the entire content of an NCX navigation file.
   * These files will be ignored by EPUB 3 readers and are only

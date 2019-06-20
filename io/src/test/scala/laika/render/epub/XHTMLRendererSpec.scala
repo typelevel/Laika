@@ -22,7 +22,7 @@ import laika.ast.Path.Root
 import laika.ast._
 import laika.ast.helper.ModelBuilder
 import laika.format.EPUB
-import laika.io.{RenderedDocument, RenderedTree, StringTreeOutput}
+import laika.io.model.{RenderedDocument, RenderedTree, StringTreeOutput}
 import laika.runtime.TestContexts.{blockingContext, processingContext}
 import org.scalatest.{FlatSpec, Matchers}
 
