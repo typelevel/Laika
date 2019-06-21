@@ -33,7 +33,7 @@ object ASTRenderer extends ((TextFormatter, Element) => String) {
     */
   val maxTextWidth = 50
 
-  private case class Content (content: Seq[Element], desc: String) extends Element with ElementContainer[Element,Content]
+  private case class Content (content: Seq[Element], desc: String) extends Element with ElementContainer[Element]
 
   def apply (fmt: TextFormatter, element: Element): String = {
 
@@ -53,7 +53,7 @@ object ASTRenderer extends ((TextFormatter, Element) => String) {
       if (res == "()") "" else res
     }
 
-    def elementContainerDesc (con: ElementContainer[Element,_], elementType: String): String = {
+    def elementContainerDesc (con: ElementContainer[Element], elementType: String): String = {
       val (elements, rest) = con.productIterator partition (_.isInstanceOf[Element])
       
       val prefix = con.productPrefix + attributes(rest, con.content)
@@ -90,7 +90,7 @@ object ASTRenderer extends ((TextFormatter, Element) => String) {
       case tsc: TemplateSpanContainer[_]  => elementContainerDesc(tsc, "TemplateSpans")
       case tc: TextContainer              => textContainerDesc(tc)
       case Content(content,desc)          => desc + fmt.indented(_.childPerLine(content))
-      case ec: ElementContainer[_,_]      => elementContainerDesc(ec, "Elements")
+      case ec: ElementContainer[_]        => elementContainerDesc(ec, "Elements")
       case e                              => renderElement(e)
     }
 

@@ -36,7 +36,7 @@ object DocumentParser {
 
   type ConfigHeaderParser = Path => Parser[Either[InvalidElement, Config]]
 
-  private def create [D, R <: ElementContainer[_,_]](rootParser: Parser[R],
+  private def create [D, R <: ElementContainer[_]](rootParser: Parser[R],
                                              configHeaderParser: ConfigHeaderParser)
                                             (docFactory: (Path, Config, Option[InvalidElement], R) => D): ParserInput => D = { input =>
 

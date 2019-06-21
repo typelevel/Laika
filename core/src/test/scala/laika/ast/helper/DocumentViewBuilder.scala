@@ -38,15 +38,15 @@ object DocumentViewBuilder {
   
   trait View extends Element
   
-  trait ViewContainer[Self <: ViewContainer[Self]] extends ElementContainer[View,Self] with View
+  trait ViewContainer extends ElementContainer[View] with View
   
 
-  case class RootView (content: Seq[RootContent]) extends ViewContainer[RootView]
+  case class RootView (content: Seq[RootContent]) extends ViewContainer
   
   
   trait RootContent extends View
   
-  case class TreeView (path: Path, content: Seq[TreeContent]) extends ViewContainer[TreeView] with RootContent {
+  case class TreeView (path: Path, content: Seq[TreeContent]) extends ViewContainer with RootContent {
     def asRoot: RootView = RootView(Seq(this))
   }
 
@@ -61,20 +61,20 @@ object DocumentViewBuilder {
   
   case class TitleDocument (doc: DocumentView) extends TreeContent
   
-  case class Documents (docType: DocumentType, content: Seq[DocumentView]) extends TreeContent with ViewContainer[Documents]
+  case class Documents (docType: DocumentType, content: Seq[DocumentView]) extends TreeContent with ViewContainer
   
-  case class TemplateDocuments (content: Seq[TemplateView]) extends TreeContent with ViewContainer[TemplateDocuments]
+  case class TemplateDocuments (content: Seq[TemplateView]) extends TreeContent with ViewContainer
   
-  case class Subtrees (content: Seq[TreeView]) extends TreeContent with ViewContainer[Subtrees]
+  case class Subtrees (content: Seq[TreeView]) extends TreeContent with ViewContainer
   
-  case class DocumentView (path: Path, content: Seq[DocumentContent]) extends ViewContainer[DocumentView]
+  case class DocumentView (path: Path, content: Seq[DocumentContent]) extends ViewContainer
 
   case class TemplateView (path: Path, content: TemplateRoot) extends View
   
   
   trait DocumentContent extends View
   
-  case class Fragments (content: Seq[Fragment]) extends DocumentContent with ViewContainer[Fragments]
+  case class Fragments (content: Seq[Fragment]) extends DocumentContent with ViewContainer
   
   case class Fragment (name: String, content: Element) extends View
   
@@ -86,7 +86,7 @@ object DocumentViewBuilder {
     def withContent (newContent: Seq[Span]): Title = copy(content = newContent)
   }
   
-  case class Sections (content: Seq[SectionInfo]) extends DocumentContent with ElementContainer[SectionInfo, Sections]
+  case class Sections (content: Seq[SectionInfo]) extends DocumentContent with ElementContainer[SectionInfo]
 
   def viewOf (root: DocumentTreeRoot): RootView = {
     val coverDocument = root.coverDocument.map(doc => CoverDocument(viewOf(doc))).toSeq
@@ -102,7 +102,7 @@ object DocumentViewBuilder {
       Documents(Markup, tree.content.collect{ case doc: Document => doc } map viewOf) ::
       TemplateDocuments(tree.templates map viewOf) ::
       Subtrees(tree.content.collect{case tree: DocumentTree => tree} map (t => viewOf(t))) :: 
-      List[TreeContent]()) filterNot { case c: ViewContainer[_] => c.content.isEmpty }
+      List[TreeContent]()) filterNot { case c: ViewContainer => c.content.isEmpty }
     TreeView(tree.path, titleDocument ++ content)
   }
   
@@ -116,7 +116,7 @@ object DocumentViewBuilder {
       Fragments(viewOf(doc.fragments)) :: 
       Title(filterTitle(doc.title)) ::
       Sections(doc.sections) ::
-      List[DocumentContent]()) filterNot { case c: ElementContainer[_,_] => c.content.isEmpty }
+      List[DocumentContent]()) filterNot { case c: ElementContainer[_] => c.content.isEmpty }
     DocumentView(doc.path, content)
   }
   

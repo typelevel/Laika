@@ -98,7 +98,7 @@ trait TemplateSpan extends Span
 
 /** A container of other TemplateSpan elements.
   */
-trait TemplateSpanContainer[Self <: TemplateSpanContainer[Self]] extends ElementContainer[TemplateSpan, Self] with RewritableContainer[Self] { this: Self =>
+trait TemplateSpanContainer[Self <: TemplateSpanContainer[Self]] extends ElementContainer[TemplateSpan] with RewritableContainer[Self] { this: Self =>
 
   /** Rewrites all template span children of this container based on the specified rules.
     *

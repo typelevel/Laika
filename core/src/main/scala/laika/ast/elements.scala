@@ -151,7 +151,7 @@ trait TextContainer extends Container[String]
  *  Usually not mixed in directly, instead one of the sub-traits
  *  `ListContainer`, `SpanContainer` or `BlockContainer` should be used.
  */
-trait ElementContainer[+E <: Element, Self <: ElementContainer[E,Self]] extends Container[Seq[E]] with ElementTraversal {
+trait ElementContainer[+E <: Element] extends Container[Seq[E]] with ElementTraversal {
   override def toString: String = "\n" + ASTRenderer.get.render(this) + "\n"
 }
 
@@ -179,7 +179,7 @@ trait RewritableContainer[Self <: RewritableContainer[Self]] extends Customizabl
 /** A container of other Block elements. Such a container is usually
  *  also a Block itself.
  */
-trait BlockContainer[Self <: BlockContainer[Self]] extends ElementContainer[Block,Self] with RewritableContainer[Self] { this: Self =>
+trait BlockContainer[Self <: BlockContainer[Self]] extends ElementContainer[Block] with RewritableContainer[Self] { this: Self =>
 
   /** Rewrites all block children of this container based on the specified rules.
     *
@@ -202,7 +202,7 @@ trait BlockContainer[Self <: BlockContainer[Self]] extends ElementContainer[Bloc
 /** A container of other Span elements. Such a container may be a Block
  *  or a Span itself.
  */
-trait SpanContainer[Self <: SpanContainer[Self]] extends ElementContainer[Span,Self] with RewritableContainer[Self] { this: Self =>
+trait SpanContainer[Self <: SpanContainer[Self]] extends ElementContainer[Span] with RewritableContainer[Self] { this: Self =>
 
   def rewriteChildren (rules: RewriteRules): Self = withContent(rules.rewriteSpans(content))
 
@@ -226,7 +226,7 @@ trait SpanContainer[Self <: SpanContainer[Self]] extends ElementContainer[Span,S
 
 /** A container of list items. Such a container is usually a Block itself.
  */
-trait ListContainer[Self <: ListContainer[Self]] extends ElementContainer[ListItem, Self]
+trait ListContainer[Self <: ListContainer[Self]] extends ElementContainer[ListItem]
 
 /** The root element of a document tree.
  */
@@ -519,7 +519,7 @@ trait TableElement extends Customizable
 
 /** A container of table elements.
  */
-trait TableContainer[Self <: TableContainer[Self]] extends TableElement with ElementContainer[TableElement,Self]
+trait TableContainer[Self <: TableContainer[Self]] extends TableElement with ElementContainer[TableElement]
 
 /** Contains the header rows of a table.
  */

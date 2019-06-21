@@ -98,7 +98,7 @@ case class TemplateDocument (path: Path, content: TemplateRoot, config: Config =
 
 /** Captures information about a document section, without its content.
  */
-case class SectionInfo (id: String, title: TitleInfo, content: Seq[SectionInfo]) extends Element with ElementContainer[SectionInfo, SectionInfo]
+case class SectionInfo (id: String, title: TitleInfo, content: Seq[SectionInfo]) extends Element with ElementContainer[SectionInfo]
 
 /** Represents a section title.
  */

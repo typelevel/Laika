@@ -67,9 +67,9 @@ trait ParseResultHelpers {
   
   def produce [T] (result: T): ParserSuccessMatcher[T] = new ParserSuccessMatcher(result)
 
-  class ParserContainsMatcher (expected: Element) extends Matcher[Parsed[ElementContainer[_,_]]] {
+  class ParserContainsMatcher (expected: Element) extends Matcher[Parsed[ElementContainer[_]]] {
 
-    def apply (left: Parsed[ElementContainer[_,_]]): MatchResult = {
+    def apply (left: Parsed[ElementContainer[_]]): MatchResult = {
 
       val failureMessageSuffix = left match {
         case Success(unexpected,_) => s"parser result '$unexpected' did not contain '$expected'"
