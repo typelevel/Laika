@@ -78,11 +78,13 @@ object DocumentViewBuilder {
   
   case class Fragment (name: String, content: Element) extends View
   
-  case class Content (content: Seq[Block], options: Options = NoOpt) extends DocumentContent with BlockContainer[Content] {
+  case class Content (content: Seq[Block], options: Options = NoOpt) extends DocumentContent with BlockContainer {
+    type Self = Content
     def withContent (newContent: Seq[Block]): Content = copy(content = newContent)
   }
   
-  case class Title (content: Seq[Span], options: Options = NoOpt) extends DocumentContent with SpanContainer[Title] {
+  case class Title (content: Seq[Span], options: Options = NoOpt) extends DocumentContent with SpanContainer {
+    type Self = Title
     def withContent (newContent: Seq[Span]): Title = copy(content = newContent)
   }
   
@@ -124,6 +126,5 @@ object DocumentViewBuilder {
     (fragments map { case (name, content) => Fragment(name, content) }).toSeq
   
   def viewOf (doc: TemplateDocument): TemplateView = TemplateView(doc.path, doc.content)
-  
   
 }

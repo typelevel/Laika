@@ -102,7 +102,8 @@ case class SectionInfo (id: String, title: TitleInfo, content: Seq[SectionInfo])
 
 /** Represents a section title.
  */
-case class TitleInfo (content: Seq[Span], options: Options = NoOpt) extends SpanContainer[TitleInfo] {
+case class TitleInfo (content: Seq[Span], options: Options = NoOpt) extends SpanContainer {
+  type Self = TitleInfo
   def withContent (newContent: Seq[Span]): TitleInfo = copy(content = newContent)
 }
 

@@ -137,7 +137,7 @@ case class FOFormatter (renderChild: (FOFormatter, Element) => String,
    */
   def internalLinkTarget (element: Element): String = {
     parents.head match {
-      case _: BlockContainer[_] => block(element)
+      case _: BlockContainer => block(element)
       case _ => inline(element, Nil)
     }
   }
@@ -261,13 +261,15 @@ object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
 
   /** The body of a list item containing a sequence of block elements.
     */
-  case class ListItemBody (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[ListItemBody] {
+  case class ListItemBody (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer {
+    type Self = ListItemBody
     def withContent (newContent: Seq[Block]): ListItemBody = copy(content = content)
   }
 
   /** The body of a footnote containing a sequence of block elements.
     */
-  case class FootnoteBody (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer[FootnoteBody] {
+  case class FootnoteBody (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer {
+    type Self = FootnoteBody
     def withContent (newContent: Seq[Block]): FootnoteBody = copy(content = content)
   }
 

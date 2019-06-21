@@ -47,7 +47,7 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
       }
     }
 
-    def renderBlockContainer [T <: BlockContainer[T]](con: BlockContainer[T]): String = {
+    def renderBlockContainer (con: BlockContainer): String = {
 
       def toTable (label: String, content: Seq[Block], options: Options): Table = {
         val left = Cell(BodyCell, List(SpanSequence(List(Text(s"[$label]")))))
@@ -88,7 +88,7 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
       }
     }
 
-    def renderSpanContainer [T <: SpanContainer[T]](con: SpanContainer[T]): String = {
+    def renderSpanContainer (con: SpanContainer): String = {
       
       def codeStyles (language: String) = if (language.isEmpty) Styles("code") else Styles("code", language)
       
@@ -132,7 +132,7 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
       }
     }
 
-    def renderTemplateSpanContainer [T <: TemplateSpanContainer[T]](con: TemplateSpanContainer[T]): String = {
+    def renderTemplateSpanContainer (con: TemplateSpanContainer): String = {
       con match {
         case TemplateRoot(content, NoOpt)         => fmt.children(content)
         case TemplateSpanSequence(content, NoOpt) => fmt.children(content)
@@ -141,7 +141,7 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
       }
     }
 
-    def renderListContainer [T <: ListContainer[T]](con: ListContainer[T]): String = con match {
+    def renderListContainer (con: ListContainer): String = con match {
       case EnumList(content,format,start,opt) =>
         fmt.indentedElement("ol", opt, content, fmt.optAttributes("class" -> Some(format.enumType.toString.toLowerCase), "start" -> noneIfDefault(start,1)):_*)
       case BulletList(content,_,opt)   => fmt.indentedElement("ul", opt, content)
@@ -238,20 +238,20 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
     }
 
     element match {
-      case e: SystemMessage       => renderSystemMessage(e)
-      case e: Table               => renderTable(e)
-      case e: TableElement        => renderTableElement(e)
-      case e: Reference           => renderUnresolvedReference(e)
-      case e: Invalid[_]          => renderInvalidElement(e)
-      case e: BlockContainer[_]   => renderBlockContainer(e)
-      case e: SpanContainer[_]    => renderSpanContainer(e)
-      case e: ListContainer[_]    => renderListContainer(e)
-      case e: TextContainer       => renderTextContainer(e)
-      case e: TemplateSpanContainer[_] => renderTemplateSpanContainer(e)
-      case e: Block               => renderSimpleBlock(e)
-      case e: Span                => renderSimpleSpan(e)
+      case e: SystemMessage         => renderSystemMessage(e)
+      case e: Table                 => renderTable(e)
+      case e: TableElement          => renderTableElement(e)
+      case e: Reference             => renderUnresolvedReference(e)
+      case e: Invalid[_]            => renderInvalidElement(e)
+      case e: BlockContainer        => renderBlockContainer(e)
+      case e: SpanContainer         => renderSpanContainer(e)
+      case e: ListContainer         => renderListContainer(e)
+      case e: TextContainer         => renderTextContainer(e)
+      case e: TemplateSpanContainer => renderTemplateSpanContainer(e)
+      case e: Block                 => renderSimpleBlock(e)
+      case e: Span                  => renderSimpleSpan(e)
 
-      case _                      => ""
+      case _                        => ""
     }
   }
 

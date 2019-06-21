@@ -22,9 +22,10 @@ import laika.rewrite.nav.TocGenerator
 
 /** A two-column table-like structure used for bibliographic fields or directive options.
   */
-case class FieldList (content: Seq[Field], options: Options = NoOpt) extends Block with ListContainer[FieldList]
-                                                                                   with RewritableContainer[FieldList] {
-
+case class FieldList (content: Seq[Field], options: Options = NoOpt) extends Block with ListContainer
+                                                                                   with RewritableContainer {
+  type Self = FieldList
+  
   override def rewriteChildren (rules: RewriteRules): FieldList = {
     val zippedContent = content.map(_.rewriteChildren(rules)).zip(content)
     if (zippedContent.forall { case (rewritten, old) => rewritten.eq(old) }) this
@@ -34,7 +35,9 @@ case class FieldList (content: Seq[Field], options: Options = NoOpt) extends Blo
 
 /** A single entry in a field list consisting of name and body.
   */
-case class Field (name: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends ListItem with BlockContainer[Field] {
+case class Field (name: Seq[Span], content: Seq[Block], options: Options = NoOpt) extends ListItem with BlockContainer {
+  
+  type Self = Field
   
   override def rewriteChildren (rules: RewriteRules): Field = 
     copy(content = rules.rewriteBlocks(content), name = rules.rewriteSpans(name))
@@ -44,14 +47,16 @@ case class Field (name: Seq[Span], content: Seq[Block], options: Options = NoOpt
 
 /** A classifier for a term in a definition list.
   */
-case class Classifier (content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer[Classifier] {
+case class Classifier (content: Seq[Span], options: Options = NoOpt) extends Span with SpanContainer {
+  type Self = Classifier
   def withContent (newContent: Seq[Span]): Classifier = copy(content = newContent)
 }
 
 /** A list of command line options and descriptions.
   */
-case class OptionList (content: Seq[OptionListItem], options: Options = NoOpt) extends Block with ListContainer[OptionList]
-                                                                                             with RewritableContainer[OptionList] {
+case class OptionList (content: Seq[OptionListItem], options: Options = NoOpt) extends Block with ListContainer
+                                                                                             with RewritableContainer {
+  type Self = OptionList
 
   override def rewriteChildren (rules: RewriteRules): OptionList =
     copy(content = content.map(_.rewriteChildren(rules)))  
@@ -61,7 +66,8 @@ case class OptionList (content: Seq[OptionListItem], options: Options = NoOpt) e
 /** A single item in an option list. The content property serves as the description of the option.
   */
 case class OptionListItem (programOptions: Seq[ProgramOption], content: Seq[Block], options: Options = NoOpt) extends ListItem
-                                                                                                              with BlockContainer[OptionListItem] {
+                                                                                                              with BlockContainer {
+  type Self = OptionListItem
   def withContent (newContent: Seq[Block]): OptionListItem = copy(content = content)
 }
 

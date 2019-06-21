@@ -98,8 +98,10 @@ trait TemplateSpan extends Span
 
 /** A container of other TemplateSpan elements.
   */
-trait TemplateSpanContainer[Self <: TemplateSpanContainer[Self]] extends ElementContainer[TemplateSpan] with RewritableContainer[Self] { this: Self =>
+trait TemplateSpanContainer extends ElementContainer[TemplateSpan] with RewritableContainer {
 
+  type Self <: TemplateSpanContainer
+  
   /** Rewrites all template span children of this container based on the specified rules.
     *
     * Concrete types are expected to support rewriting at least for all standard block, span and template span
@@ -123,8 +125,8 @@ trait TemplateSpanContainer[Self <: TemplateSpanContainer[Self]] extends Element
  *  a template produce non-template tree elements.
  */
 case class TemplateElement (element: Element, indent: Int = 0, options: Options = NoOpt) extends TemplateSpan with ElementTraversal
-                                                                                                              with RewritableContainer[TemplateElement] {
-
+                                                                                                              with RewritableContainer {
+  type Self = TemplateElement
   def rewriteChildren (rules: RewriteRules): TemplateElement = copy(element = rules.rewriteElement(element))
   
 }
@@ -134,7 +136,8 @@ case class TemplateElement (element: Element, indent: Int = 0, options: Options 
  *  Usually renderers do not treat the container as a special element and render its children
  *  as s sub flow of the parent container.
  */
-case class TemplateSpanSequence (content: Seq[TemplateSpan], options: Options = NoOpt) extends TemplateSpan with TemplateSpanContainer[TemplateSpanSequence] {
+case class TemplateSpanSequence (content: Seq[TemplateSpan], options: Options = NoOpt) extends TemplateSpan with TemplateSpanContainer {
+  type Self = TemplateSpanSequence
   def withContent (newContent: Seq[TemplateSpan]): TemplateSpanSequence = copy(content = newContent)
 }
 
@@ -145,7 +148,8 @@ case class TemplateString (content: String, options: Options = NoOpt) extends Te
 
 /** The root element of a template document tree.
  */
-case class TemplateRoot (content: Seq[TemplateSpan], options: Options = NoOpt) extends Block with TemplateSpanContainer[TemplateRoot] {
+case class TemplateRoot (content: Seq[TemplateSpan], options: Options = NoOpt) extends Block with TemplateSpanContainer {
+  type Self = TemplateRoot
   def withContent (newContent: Seq[TemplateSpan]): TemplateRoot = copy(content = newContent)
 }
 
@@ -161,6 +165,7 @@ object TemplateRoot {
 /** The root element of a document tree (originating from text markup) inside a template.
  *  Usually created by a template reference like `{{document.content}}`.
  */
-case class EmbeddedRoot (content: Seq[Block], indent: Int = 0, options: Options = NoOpt) extends TemplateSpan with BlockContainer[EmbeddedRoot] {
+case class EmbeddedRoot (content: Seq[Block], indent: Int = 0, options: Options = NoOpt) extends TemplateSpan with BlockContainer {
+  type Self = EmbeddedRoot
   def withContent (newContent: Seq[Block]): EmbeddedRoot = copy(content = content)
 }

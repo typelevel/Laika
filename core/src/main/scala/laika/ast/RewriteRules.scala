@@ -62,11 +62,11 @@ case class RewriteRules (spanRules: Seq[RewriteRule[Span]] = Nil,
     * children which have already been processed.
     */
   def rewriteElement (element: Element): Element = element match {
-    case b: Block                  => rewriteBlock(b)
-    case t: TemplateSpan           => rewriteTemplateSpan(t)
-    case s: Span                   => rewriteSpan(s)
-    case r: RewritableContainer[_] => r.rewriteChildren(this)
-    case other                     => other
+    case b: Block               => rewriteBlock(b)
+    case t: TemplateSpan        => rewriteTemplateSpan(t)
+    case s: Span                => rewriteSpan(s)
+    case r: RewritableContainer => r.rewriteChildren(this)
+    case other                  => other
   }
 
   /** Rewrites the specified span based on the set of rules in this instance.
@@ -172,7 +172,7 @@ case class RewriteRules (spanRules: Seq[RewriteRule[Span]] = Nil,
     }
     
     children flatMap {
-      case rw: RewritableContainer[_] =>
+      case rw: RewritableContainer =>
         val rewritten = rw.rewriteChildren(this).asInstanceOf[T]
         val action = childRules(rewritten)
         newChild(rewritten, action)

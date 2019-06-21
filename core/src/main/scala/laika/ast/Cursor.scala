@@ -157,7 +157,7 @@ case class DocumentCursor (target: Document,
     }
        
     val newFragments = target.fragments mapValuesStrict {
-      case r: RewritableContainer[_] with Block => r.rewriteChildren(rules).asInstanceOf[Block]
+      case r: RewritableContainer with Block => r.rewriteChildren(rules).asInstanceOf[Block]
       case block => block
     }
     

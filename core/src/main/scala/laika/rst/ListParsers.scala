@@ -48,7 +48,7 @@ object ListParsers {
       } 
   }
   
-  private def rewriteListItems [I <: BlockContainer[_]](items: List[I], newListItem: (I,List[Block]) => I): List[I] = {
+  private def rewriteListItems [I <: BlockContainer](items: List[I], newListItem: (I,List[Block]) => I): List[I] = {
     
     /* The reStructuredText reference parser makes a distinction between "simple" lists
      * and normal lists. The exact rules are not documented, but tests seem to hint at
@@ -59,13 +59,13 @@ object ListParsers {
     
     val isSimple = items.forall { con => con.content match {
       case Paragraph(_,_) :: Nil => true
-      case Paragraph(_,_) :: (_:ListContainer[_]) :: Nil => true
+      case Paragraph(_,_) :: (_:ListContainer) :: Nil => true
       case _ => false
     }}
     
     if (isSimple) {
       items map { con => con.content match {
-        case Paragraph(content,opt) :: (nested:ListContainer[_]) :: Nil =>
+        case Paragraph(content,opt) :: (nested: ListContainer) :: Nil =>
           newListItem(con, SpanSequence(content,opt) :: nested :: Nil)
         case _ =>
           con

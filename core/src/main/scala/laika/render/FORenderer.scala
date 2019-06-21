@@ -47,7 +47,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       }
     }
 
-    def renderBlockContainer [T <: BlockContainer[T]](con: BlockContainer[T]): String = {
+    def renderBlockContainer (con: BlockContainer): String = {
 
       def quotedBlockContent (content: Seq[Block], attr: Seq[Span]): Seq[Block] =
         if (attr.isEmpty) content
@@ -74,7 +74,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       }
 
       def replaceSpanContainers (content: Seq[Block]): Seq[Block] = content map {
-        case sc: SpanContainer[_] => Paragraph(sc.content, sc.options)
+        case sc: SpanContainer => Paragraph(sc.content, sc.options)
         case other => other
       }
 
@@ -106,7 +106,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       }
     }
 
-    def renderSpanContainer [T <: SpanContainer[T]](con: SpanContainer[T]): String = {
+    def renderSpanContainer (con: SpanContainer): String = {
       def codeStyles (language: String) = if (language.isEmpty) NoOpt else Styles(language)
 
       con match {
@@ -140,7 +140,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       }
     }
 
-    def renderTemplateSpanContainer [T <: TemplateSpanContainer[T]](con: TemplateSpanContainer[T]): String = {
+    def renderTemplateSpanContainer (con: TemplateSpanContainer): String = {
       con match {
         case TemplateRoot(content, NoOpt)         => fmt.children(content)
         case TemplateSpanSequence(content, NoOpt) => fmt.children(content)
@@ -148,7 +148,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       }
     }
 
-    def renderListContainer [T <: ListContainer[T]](con: ListContainer[T]): String = con match {
+    def renderListContainer (con: ListContainer): String = con match {
       case e @ EnumList(content,_,_,_)   => fmt.listBlock(e, content)
       case e @ BulletList(content,_,_)   => fmt.listBlock(e, content)
       case e @ DefinitionList(content,_) => fmt.listBlock(e, content)
@@ -231,20 +231,20 @@ object FORenderer extends ((FOFormatter, Element) => String) {
     }
 
     element match {
-      case e: SystemMessage       => renderSystemMessage(e)
-      case e: Table               => renderTable(e)
-      case e: TableElement        => renderTableElement(e)
-      case e: Reference           => renderUnresolvedReference(e)
-      case e: Invalid[_]          => renderInvalidElement(e)
-      case e: BlockContainer[_]   => renderBlockContainer(e)
-      case e: SpanContainer[_]    => renderSpanContainer(e)
-      case e: ListContainer[_]    => renderListContainer(e)
-      case e: TextContainer       => renderTextContainer(e)
-      case e: TemplateSpanContainer[_] => renderTemplateSpanContainer(e)
-      case e: Block               => renderSimpleBlock(e)
-      case e: Span                => renderSimpleSpan(e)
+      case e: SystemMessage         => renderSystemMessage(e)
+      case e: Table                 => renderTable(e)
+      case e: TableElement          => renderTableElement(e)
+      case e: Reference             => renderUnresolvedReference(e)
+      case e: Invalid[_]            => renderInvalidElement(e)
+      case e: BlockContainer        => renderBlockContainer(e)
+      case e: SpanContainer         => renderSpanContainer(e)
+      case e: ListContainer         => renderListContainer(e)
+      case e: TextContainer         => renderTextContainer(e)
+      case e: TemplateSpanContainer => renderTemplateSpanContainer(e)
+      case e: Block                 => renderSimpleBlock(e)
+      case e: Span                  => renderSimpleSpan(e)
 
-      case _                      => ""
+      case _                        => ""
     }
   }
 
