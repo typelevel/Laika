@@ -25,7 +25,11 @@ import laika.io.model.{CharStreamOutput, TextFileOutput, TextOutput}
 
 import scala.io.Codec
 
-/**
+/** API for specifying a single character output for a rendering operation.
+  *
+  * It allows any class merging in this trait to define all output related operations
+  * in terms of the only abstract method `toOutput`.
+  *
   * @author Jens Halm
   */
 trait SequentialTextOutputOps[F[_]] {
@@ -34,26 +38,29 @@ trait SequentialTextOutputOps[F[_]] {
 
   def F: Async[F]
 
-  /** Renders the model to the file with the specified name.
+  /** Builder step that instructs the runtime to render the document to
+    * the specified file.
     *
-    *  @param name the name of the file to parse
-    *  @param codec the character encoding of the file, if not specified the platform default will be used.
+    * @param name the name of the file to write to
+    * @param codec the character encoding of the file, if not specified the platform default will be used.
     */
   def toFile (name: String)(implicit codec: Codec): Result = toFile(new File(name))
 
-  /** Renders the model to the specified file.
+  /** Builder step that instructs the runtime to render the document to
+    * the specified file.
     *
-    *  @param file the file to write to
-    *  @param codec the character encoding of the file, if not specified the platform default will be used.
+    * @param file the file to write to
+    * @param codec the character encoding of the file, if not specified the platform default will be used.
     */
   def toFile (file: File)(implicit codec: Codec): Result =
     toOutput(F.pure(TextFileOutput(file, Path(file.getName), codec)))
 
-  /** Renders the model to the specified output stream.
+  /** Builder step that instructs the runtime to render the document to
+    * the specified stream.
     *
-    *  @param stream the stream to render to
-    *  @param autoClose whether the stream should be closed after all output had been written   
-    *  @param codec the character encoding of the stream, if not specified the platform default will be used.
+    * @param stream the stream to render to
+    * @param autoClose whether the stream should be closed after all output had been written   
+    * @param codec the character encoding of the stream, if not specified the platform default will be used.
     */
   def toStream (stream: F[OutputStream], autoClose: Boolean = true)(implicit codec: Codec): Result =
     toOutput(F.map(stream)(CharStreamOutput(_, Root, autoClose, codec)))

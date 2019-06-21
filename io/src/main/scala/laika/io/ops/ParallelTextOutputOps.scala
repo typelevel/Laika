@@ -7,8 +7,12 @@ import laika.io.model.{DirectoryOutput, TreeOutput}
 
 import scala.io.Codec
 
-/** Represents a tree of output destinations for recursive render operations.
-  *  Various types of output can be specified to trigger the actual rendering.
+/** API for specifying the tree of character outputs for a rendering operation.
+  *
+  * It allows any class merging in this trait to define all input related operations
+  * in terms of the only abstract method `toOutput`.
+  *
+  * @author Jens Halm
   */
 trait ParallelTextOutputOps[F[_]] {
 
@@ -16,33 +20,44 @@ trait ParallelTextOutputOps[F[_]] {
 
   type Result
 
-  /** Renders the document tree to the
-    *  specified directory and its subdirectories.
-    *  Required subdirectories which do not exist yet will be created.
-    *
-    *  @param name the name of the directory to write to
-    *  @param codec the character encoding of the files, if not specified the platform default will be used.
+  /** Builder step that instructs the runtime to render the document tree to files
+    * in the specified directory and its subdirectories.
+    * 
+    * The virtual paths of the document tree will be translated to a directory structure,
+    * with the root of the virtual path being the directory specified with this method.
+    * 
+    * @param name the name of the directory to write to
+    * @param codec the character encoding of the files, if not specified the platform default will be used.
     */
   def toDirectory (name: String)(implicit codec: Codec): Result = toDirectory(new File(name))
 
-  /** Renders the document tree to the
-    *  specified directory and its subdirectories.
-    *  Required subdirectories which do not exist yet will be created.
+  /** Builder step that instructs the runtime to render the document tree to files
+    * in the specified directory and its subdirectories.
     *
-    *  @param dir the directory to write to
-    *  @param codec the character encoding of the files, if not specified the platform default will be used.
+    * The virtual paths of the document tree will be translated to a directory structure,
+    * with the root of the virtual path being the directory specified with this method.
+    *
+    * @param dir the directory to write to
+    * @param codec the character encoding of the files, if not specified the platform default will be used.
     */
   def toDirectory (dir: File)(implicit codec: Codec): Result = toOutput(F.pure(DirectoryOutput(dir, codec)))
 
-  /** Renders the document tree to the
-    *  current working directory and its subdirectories.
-    *  Required subdirectories which do not exist yet will be created.
+  /** Builder step that instructs the runtime to render the document tree to files
+    * in the working directory and its subdirectories.
+    *
+    * The virtual paths of the document tree will be translated to a directory structure,
+    * with the root of the virtual path being the directory specified with this method.
     *
     *  @param codec the character encoding of the files, if not specified the platform default will be used.
     */
-  def toDefaultDirectory (implicit codec: Codec): Result = toOutput(F.pure(DirectoryOutput(new File(System.getProperty("user.dir")), codec)))
+  def toWorkingDirectory (implicit codec: Codec): Result = 
+    toOutput(F.pure(DirectoryOutput(new File(System.getProperty("user.dir")), codec)))
 
-  /** Renders the document tree to the specified output tree.
+  /** Builder step that instructs the runtime to render
+    * to the specified tree output.
+    *
+    * This is a generic method based on Laika's IO model that concrete
+    * methods delegate to.
     */
   def toOutput (tree: F[TreeOutput]): Result
 

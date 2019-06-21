@@ -26,11 +26,10 @@ import laika.io.model.{CharStreamInput, StringInput, TextFileInput, TextInput}
 import scala.io.Codec
 
 
-/** API for producing a result from processing various types of input.
+/** API for specifying a single character input for a parsing operation.
   *
-  * This is essentially a collection of shortcuts that allow any class
-  * merging in this trait to define all input related operations in terms of the only
-  * abstract method `fromInput`.
+  * It allows any class merging in this trait to define all input related operations
+  * in terms of the only abstract method `fromInput`.
   *
   * @author Jens Halm
   */
@@ -47,44 +46,42 @@ trait SequentialInputOps[F[_]] {
     */
   def docType: TextDocumentType
 
-  /**  Returns the result from parsing the specified string.
-    *  Any kind of input is valid, including an empty string.
+  /** Builder step that instructs the runtime to use the
+    * specified string as parser input.
     */
   def fromString (str: String): InputResult = fromInput(F.pure(StringInput(str, docType)))
 
-  /** Returns the result from parsing the file with the specified name.
-    *  Any kind of character input is valid, including empty files.
+  /** Builder step that instructs the runtime to use the specified file as parser input.
     *
-    *  @param name the name of the file to parse
-    *  @param codec the character encoding of the file, if not specified the platform default will be used.
+    * @param name the name of the file to parse
+    * @param codec the character encoding of the file, if not specified the platform default will be used.
     */
   def fromFile (name: String)(implicit codec: Codec): InputResult = fromFile(new File(name))
 
-  /** Returns the result from parsing the specified file.
-    *  Any kind of character input is valid, including empty files.
+  /** Builder step that instructs the runtime to use the specified file as parser input.
     *
-    *  @param file the file to use as input
-    *  @param codec the character encoding of the file, if not specified the platform default will be used.
+    * @param file the file to use as input
+    * @param codec the character encoding of the file, if not specified the platform default will be used.
     */
   def fromFile (file: File)(implicit codec: Codec): InputResult =
     fromInput(F.pure(TextFileInput(file, docType, Path(file.getName), codec)))
 
-  /** Returns the result from parsing the input from the specified stream.
+  /** Builder step that instructs the runtime to use the specified character stream as parser input.
     *
-    *  @param stream the stream to use as input for the parser
-    *  @param autoClose whether the stream should be closed after reading all input              
-    *  @param codec the character encoding of the stream, if not specified the platform default will be used.
+    * @param stream the stream to use as input for the parser
+    * @param autoClose whether the stream should be closed after reading all input              
+    * @param codec the character encoding of the stream, if not specified the platform default will be used.
     */
   def fromStream (stream: F[InputStream], autoClose: Boolean = true)(implicit codec: Codec): InputResult =
     fromInput(F.map(stream)(CharStreamInput(_, docType, Root, autoClose, codec)))
 
-  /** Returns the result from parsing the specified input.
+  /** Builder step that instructs the runtime to use the specified input for the
+    * parsing operation.
     *
-    *  This is a generic method based on Laika's IO abstraction layer that concrete
-    *  methods delegate to. Usually not used directly in application code, but
-    *  might come in handy for very special requirements.
+    * This is a generic method based on Laika's IO model that concrete
+    * methods delegate to.
     *
-    *  @param input the input for the parser
+    * @param input the input to parse
     */
   def fromInput (input: F[TextInput]): InputResult
 
