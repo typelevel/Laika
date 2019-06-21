@@ -45,26 +45,34 @@ sealed trait Input {
 }
 
 /** A marker trait for binary input.
+  * 
+  * In the context of this library binary inputs are usually only
+  * used by `Parallel` parsers and transformers for copying static
+  * documents from input to output directory.
   */
 sealed trait BinaryInput extends Input
 
-/** A marker trait for textual input.
+/** A marker trait for character input.
   */
 sealed trait TextInput extends Input {
 
-  /** The type of the document.
+  /** The type of the document, to distinguish between
+    * text markup, templates, configuration and style sheets,
+    * which all have a different kind of parser.
     */
   def docType: TextDocumentType
   
 }
 
+/** A (virtual) tree of input documents.
+  */
 sealed trait TreeInput extends Input {
 
   val path: Path = Root
 
   /** The paths this tree has been created from
-    *  or an empty list if this input tree does
-    *  not originate from the file system.
+    * or an empty list if this input tree does
+    * not originate from the file system.
     */
   def sourcePaths: Seq[String]
 
@@ -76,10 +84,16 @@ case class TextFileInput (file: File, docType: TextDocumentType, path: Path, cod
 
 case class CharStreamInput (stream: InputStream, docType: TextDocumentType, path: Path, autoClose: Boolean, codec: Codec) extends TextInput
 
+
 case class BinaryFileInput (file: File, path: Path) extends BinaryInput
 
 case class BinaryStreamInput (stream: InputStream, autoClose: Boolean, path: Path) extends BinaryInput
 
+/** A directory in the file system containing input documents for a tree transformation.
+  * 
+  * The specified `docTypeMatcher` is responsible for determining the type of input 
+  * (e.g. text markup, template, etc.) based on the (virtual) document path.
+  */
 case class DirectoryInput (directories: Seq[File],
                            codec: Codec,
                            docTypeMatcher: Path => DocumentType = DocumentTypeMatcher.base,
@@ -92,11 +106,23 @@ object DirectoryInput {
   /** A filter that selects files that are hidden according to `java.io.File.isHidden`.
     */
   val hiddenFileFilter: File => Boolean = file => file.isHidden && file.getName != "."
-  
+
+  /** Creates a new instance using the library's defaults for the `docTypeMatcher` and
+    * `fileFilter` properties.
+    */
   def apply (directory: File)(implicit codec: Codec): DirectoryInput = DirectoryInput(Seq(directory), codec)
 }
 
+/** A generic collection of input documents, either obtained from scanning a directory recursively or 
+  * constructed programmatically (or a mix of both).
+  * 
+  * Even though the documents are specified as a flat sequence, they logically form a tree based
+  * on their virtual path.
+  */
 case class InputCollection (textInputs: Seq[TextInput], binaryInputs: Seq[BinaryInput] = Nil, sourcePaths: Seq[String] = Nil) extends TreeInput {
+
+  /** Merges the inputs of two collections.
+    */
   def ++ (other: InputCollection): InputCollection = InputCollection(
     textInputs ++ other.textInputs, 
     binaryInputs ++ other.binaryInputs, 
@@ -104,9 +130,28 @@ case class InputCollection (textInputs: Seq[TextInput], binaryInputs: Seq[Binary
   )
 }
 
+/** Factory methods for creating `InputCollections`.
+  */
 object InputCollection {
+
+  /** Creates an input collection consisting solely of the specified single text input.
+    */
   def apply (textInput: TextInput): InputCollection = InputCollection(Seq(textInput))
+
+  /** An empty input collection.
+    */
   def empty: InputCollection = InputCollection(Nil)
 }
 
+/** The result of a parsing operation for an entire document tree.
+  * 
+  * The `DocumentTreeRoot` is the recursive structure of parsed inputs, like markup
+  * document, templates or other file types, represented by their AST.
+  * 
+  * The static documents are merely a sequence of unprocessed inputs that have
+  * been discovered via directory scanning (or have been passed programmatically).
+  * The actual processing of these inputs is left to the render step, which
+  * might copy them into a target directory, or embed them into an output format
+  * like EPUB.
+  */
 case class ParsedTree (root: DocumentTreeRoot, staticDocuments: Seq[BinaryInput])

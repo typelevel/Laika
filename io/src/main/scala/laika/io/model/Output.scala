@@ -22,15 +22,9 @@ import com.typesafe.config.Config
 import laika.ast.Path.Root
 import laika.ast._
 
-import scala.collection.mutable.StringBuilder
 import scala.io.Codec
 
 /** Represents the output of a renderer, abstracting over various types of IO resources. 
- *  
- *  The API provided by this trait is only meant to be used internally by a renderer
- *  implementation. For providing hooks for user customization, the renderer should
- *  wrap it in a convenient API appropriate for the corresponding output format, like
- *  the `HTMLFormatter` API for HTML renderers for example. 
  * 
  *  @author Jens Halm
  */
@@ -57,10 +51,12 @@ sealed trait Output {
   */
 sealed trait BinaryOutput extends Output
 
-/** A marker trait for textual input.
+/** A marker trait for textual output.
   */
 sealed trait TextOutput extends Output
 
+/** A (virtual) tree of output documents.
+  */
 sealed trait TreeOutput extends Output {
 
   val path: Path = Root
@@ -78,29 +74,67 @@ case class BinaryFileOutput (file: File, path: Path) extends BinaryOutput
 
 case class BinaryStreamOutput (stream: OutputStream, path: Path, autoClose: Boolean) extends BinaryOutput
 
-
+/** A directory as a target for a rendering operation of a document tree.
+  * 
+  * The specified codec will be used for writing all character output.
+  */
 case class DirectoryOutput (directory: File, codec: Codec) extends TreeOutput
 
+/** Instructs the renderer to produce an in-memory representation of the
+  * tree of rendered outputs.
+  */
 case object StringTreeOutput extends TreeOutput
 
-
+/** A titled, positional element in the tree of rendered documents.
+  */
 sealed trait RenderContent extends Navigatable {
   def path: Path
   def title: Seq[Span]
 }
 
-case class RenderedTree (path: Path, title: Seq[Span], content: Seq[RenderContent], titleDocument: Option[RenderedDocument] = None) extends RenderContent
+/** Represents a node of the tree of rendered documents.
+  * 
+  * @param path the full, absolute path of this (virtual) document tree
+  * @param title the title of this tree, either obtained from the title document or configuration
+  * @param content the rendered documents and subtrees in a recursive structure
+  * @param titleDocument the optional title document of this tree   
+  */
+case class RenderedTree (path: Path, 
+                         title: Seq[Span], 
+                         content: Seq[RenderContent], 
+                         titleDocument: Option[RenderedDocument] = None) extends RenderContent
 
+/** A single rendered document with the content as a plain string in the target format.
+  * 
+  * The title and section info are still represented as an AST, so they be used in any subsequent
+  * step that needs to produce navigation structures.
+  */
 case class RenderedDocument (path: Path, title: Seq[Span], sections: Seq[SectionInfo], content: String) extends RenderContent
 
+/** Represents the root of a tree of rendered documents. In addition to the recursive structure of documents
+  * it holds additional items like static or cover documents, which may contribute to the output of a site or an e-book.
+  *
+  * @param tree the recursive structure of documents, usually obtained from parsing text markup 
+  * @param defaultTemplate the default template configured for the output format, which may be used by a post-processor
+  * @param config the root configuration of the rendered tree                       
+  * @param coverDocument the cover document (usually used with e-book formats like EPUB and PDF)            
+  * @param staticDocuments the paths of documents that were neither identified as text markup, config or templates, 
+  *                        and will potentially be embedded or copied as is to the final output, depending on the output format
+  * @param sourcePaths the paths this document tree has been built from or an empty list if this ast does not originate from the file system
+  */
 case class RenderedTreeRoot (tree: RenderedTree,
                              defaultTemplate: TemplateRoot,
                              config: Config,
                              coverDocument: Option[RenderedDocument] = None,
                              staticDocuments: Seq[BinaryInput] = Nil,
                              sourcePaths: Seq[String] = Nil) {
-  
+
+  /** The title of the tree, either obtained from the title document or configuration 
+    */
   val title: Seq[Span] = tree.title
+
+  /** The optional title document of the tree.
+    */
   val titleDocument: Option[RenderedDocument] = tree.titleDocument
 
   /** All documents contained in this tree, fetched recursively, depth-first.
