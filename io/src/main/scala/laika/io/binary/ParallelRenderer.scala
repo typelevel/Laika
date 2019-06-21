@@ -25,32 +25,59 @@ import laika.io.binary.ParallelRenderer.BinaryRenderer
 import laika.io.ops.BinaryOutputOps
 import laika.runtime.{RendererRuntime, Runtime}
 
-/**
+/** Renderer that merges a tree of input documents to a single binary output document.
+  *
   * @author Jens Halm
   */
 class ParallelRenderer[F[_]: Async: Runtime] (renderer: BinaryRenderer) {
 
+  /** Builder step that specifies the root of the document tree to render.
+    */
   def from (input: DocumentTreeRoot): ParallelRenderer.OutputOps[F] =
     ParallelRenderer.OutputOps(renderer, input)
 
 }
 
+/** Builder API for constructing a rendering operation for a tree of binary output documents.
+  */
 object ParallelRenderer {
 
   type BinaryRenderer = TwoPhaseRenderer[BinaryPostProcessor]
 
+  /** Builder step that allows to specify the execution context
+    * for blocking IO and CPU-bound tasks.
+    */
   case class Builder (renderer: BinaryRenderer) {
 
+    /** Builder step that allows to specify the execution context
+      * for blocking IO and CPU-bound tasks.
+      *
+      * @param processingContext the execution context for CPU-bound tasks
+      * @param blockingContext the execution context for blocking IO
+      * @param parallelism the desired level of parallelism for all tree operations                       
+      */
     def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F], parallelism: Int)
                                 (implicit P: cats.Parallel[F, G]): ParallelRenderer[F] =
       new ParallelRenderer[F](renderer)(implicitly[Async[F]], Runtime.parallel(processingContext, blockingContext, parallelism))
 
+    /** Builder step that allows to specify the execution context
+      * for blocking IO and CPU-bound tasks.
+      *
+      *
+      * The level of parallelism is determined from the number of available CPUs.
+      * Use the other `build` method if you want to specify the parallelism explicitly.
+      * 
+      * @param processingContext the execution context for CPU-bound tasks
+      * @param blockingContext the execution context for blocking IO
+      */
     def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F])
                                 (implicit P: cats.Parallel[F, G]): ParallelRenderer[F] =
       build(processingContext, blockingContext, java.lang.Runtime.getRuntime.availableProcessors)
     
   }
 
+  /** Builder step that allows to specify the output to render to.
+    */
   case class OutputOps[F[_]: Async: Runtime] (renderer: BinaryRenderer, input: DocumentTreeRoot) extends BinaryOutputOps[F] {
 
     val F: Async[F] = Async[F]
@@ -61,10 +88,21 @@ object ParallelRenderer {
 
   }
 
+  /** Represents a rendering operation for a tree of documents merged into a single binary output document.
+    *
+    * It can be run by invoking the `render` method which delegates to the library's
+    * default runtime implementation or by developing a custom runner that performs
+    * the rendering based on this operation's properties.
+    */
   case class Op[F[_]: Async: Runtime] (renderer: BinaryRenderer, input: DocumentTreeRoot, output: F[BinaryOutput], staticDocuments: F[Seq[BinaryInput]]) {
 
+    /** The configuration of the renderer for the interim format.
+      */
     val config: OperationConfig = renderer.interimRenderer.config
 
+    /** Performs the rendering operation based on the library's
+      * default runtime implementation, suspended in the effect F.
+      */
     def render: F[Unit] = RendererRuntime.run(this)
 
   }

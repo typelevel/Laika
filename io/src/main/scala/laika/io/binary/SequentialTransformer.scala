@@ -26,7 +26,8 @@ import laika.io.model.{BinaryOutput, TextInput}
 import laika.io.ops.BinaryOutputOps
 import laika.runtime.{Runtime, TransformerRuntime}
 
-/**
+/** Transformer for a single input and binary output document.
+  *
   * @author Jens Halm
   */
 class SequentialTransformer[F[_]: Async: Runtime] (transformer: BinaryTransformer) extends SequentialInputOps[F] {
@@ -37,22 +38,34 @@ class SequentialTransformer[F[_]: Async: Runtime] (transformer: BinaryTransforme
 
   val docType: TextDocumentType = DocumentType.Markup
 
-
   def fromInput (input: F[TextInput]): SequentialTransformer.OutputOps[F] = SequentialTransformer.OutputOps(transformer, input)
 
 }
 
+/** Builder API for constructing a transformation from a single input document to a single binary output document.
+  */
 object SequentialTransformer {
 
   type BinaryTransformer = TwoPhaseTransformer[BinaryPostProcessor]
 
+  /** Builder step that allows to specify the execution context
+    * for blocking IO and CPU-bound tasks.
+    */
   case class Builder (transformer: BinaryTransformer) {
 
+    /** Builder step that allows to specify the execution context
+      * for blocking IO and CPU-bound tasks.
+      *
+      * @param processingContext the execution context for CPU-bound tasks
+      * @param blockingContext the execution context for blocking IO
+      */
     def build[F[_]: Async] (processingContext: ContextShift[F], blockingContext: ContextShift[F]): SequentialTransformer[F] = 
       new SequentialTransformer[F](transformer)(implicitly[Async[F]], Runtime.sequential(processingContext, blockingContext))
 
   }
 
+  /** Builder step that allows to specify the output to render to.
+    */
   case class OutputOps[F[_]: Async: Runtime] (transformer: BinaryTransformer, input: F[TextInput]) extends BinaryOutputOps[F] {
 
     val F: Async[F] = Async[F]
@@ -63,8 +76,17 @@ object SequentialTransformer {
 
   }
 
+  /** Represents a transformation for a single text input document to a binary output document.
+    *
+    * It can be run by invoking the `transform` method which delegates to the library's
+    * default runtime implementation or by developing a custom runner that performs
+    * the transformation based on this operation's properties.
+    */
   case class Op[F[_]: Async: Runtime] (transformer: BinaryTransformer, input: F[TextInput], output: F[BinaryOutput]) {
 
+    /** Performs the transformation based on the library's
+      * default runtime implementation, suspended in the effect F.
+      */
     def transform: F[Unit] = TransformerRuntime.run(this)
 
   }

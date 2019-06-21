@@ -25,7 +25,8 @@ import laika.io.model.{ParsedTree, TreeInput}
 import laika.io.ops.ParallelInputOps
 import laika.runtime.{ParserRuntime, Runtime}
 
-/**
+/** Parser for a tree of input documents.
+  *
   * @author Jens Halm
   */
 class ParallelParser[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser]) extends ParallelInputOps[F] {
@@ -36,36 +37,82 @@ class ParallelParser[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser])
 
   val docType: TextDocumentType = DocumentType.Markup
 
-  lazy val config: OperationConfig = parsers.map(_.config).reduce[OperationConfig](_ merge _)
-
+  lazy val config: OperationConfig = parsers.map(_.config).reduceLeft[OperationConfig](_ merge _)
 
   def fromInput (input: F[TreeInput]): ParallelParser.Op[F] = ParallelParser.Op(parsers, input)
 
 }
 
+/** Builder API for constructing a parsing operation for a tree of input documents.
+  */
 object ParallelParser {
 
+  /** Builder step that allows to specify the execution context
+    * for blocking IO and CPU-bound tasks.
+    */
   case class Builder (parsers: NonEmptyList[MarkupParser]) {
 
+    /** Specifies an additional parser for text markup.
+      * 
+      * When multiple parsers exist for an operation, the target parser
+      * will be determined by the suffix of the input document, e.g.
+      * `.md` for Markdown and `.rst` for reStructuredText.
+      */
     def or (parser: MarkupParser): Builder = copy(parsers = parsers.append(parser))
+
+    /** Specifies an additional parser for text markup.
+      *
+      * When multiple parsers exist for an operation, the target parser
+      * will be determined by the suffix of the input document, e.g.
+      * `.md` for Markdown and `.rst` for reStructuredText.
+      */
     def or (parser: ParserBuilder): Builder = copy(parsers = parsers.append(parser.build))
 
+    /** Builder step that allows to specify the execution context
+      * for blocking IO and CPU-bound tasks.
+      *
+      * @param processingContext the execution context for CPU-bound tasks
+      * @param blockingContext the execution context for blocking IO
+      * @param parallelism the desired level of parallelism for all tree operations                       
+      */
     def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F], parallelism: Int)
                                 (implicit P: cats.Parallel[F, G]): ParallelParser[F] =
       new ParallelParser[F](parsers)(implicitly[Async[F]], Runtime.parallel(processingContext, blockingContext, parallelism))
 
+    /** Builder step that allows to specify the execution context
+      * for blocking IO and CPU-bound tasks.
+      * 
+      * The level of parallelism is determined from the number of available CPUs.
+      * Use the other `build` method if you want to specify the parallelism explicitly.
+      *
+      * @param processingContext the execution context for CPU-bound tasks
+      * @param blockingContext the execution context for blocking IO
+      */
     def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F])
                                 (implicit P: cats.Parallel[F, G]): ParallelParser[F] =
       build(processingContext, blockingContext, java.lang.Runtime.getRuntime.availableProcessors)
 
   }
 
+  /** Represents a parsing operation for a tree of input documents.
+    *
+    * It can be run by invoking the `parse` method which delegates to the library's
+    * default runtime implementation or by developing a custom runner that performs
+    * the parsing based on this operation's properties.
+    */
   case class Op[F[_]: Async: Runtime] (parsers: NonEmptyList[MarkupParser], input: F[TreeInput]) {
 
+    /** Maps the suffixes of the supported markup formats to the corresponding parser.
+      */
     val parserMap: Map[String, MarkupParser] = parsers.toList.flatMap(p => p.fileSuffixes.map((_, p))).toMap
 
-    lazy val config: OperationConfig = parsers.map(_.config).reduce[OperationConfig](_ merge _)
+    /** The merged configuration of all markup parsers of this operation.
+      */
+    lazy val config: OperationConfig = parsers.map(_.config).reduceLeft[OperationConfig](_ merge _)
 
+    /** Performs the parsing operation based on the library's
+      * default runtime implementation, suspended in the effect F.
+      */
     def parse: F[ParsedTree] = ParserRuntime.run(this)
 
   }

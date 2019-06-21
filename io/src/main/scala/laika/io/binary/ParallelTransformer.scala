@@ -26,7 +26,8 @@ import laika.io.model._
 import laika.io.ops.BinaryOutputOps
 import laika.runtime.{Runtime, TransformerRuntime}
 
-/**
+/** Transformer that merges a tree of input documents to a single binary output document.
+  *
   * @author Jens Halm
   */
 class ParallelTransformer[F[_]: Async: Runtime] (transformer: BinaryTransformer) extends ParallelInputOps[F] {
@@ -39,27 +40,49 @@ class ParallelTransformer[F[_]: Async: Runtime] (transformer: BinaryTransformer)
 
   val config: OperationConfig = transformer.markupParser.config
 
-
   def fromInput (input: F[TreeInput]): ParallelTransformer.OutputOps[F] = ParallelTransformer.OutputOps(transformer, input)
 
 }
 
+/** Builder API for constructing a transformation for a tree of input and binary output documents.
+  */
 object ParallelTransformer {
 
   type BinaryTransformer = TwoPhaseTransformer[BinaryPostProcessor]
 
+  /** Builder step that allows to specify the execution context
+    * for blocking IO and CPU-bound tasks.
+    */
   case class Builder (transformer: BinaryTransformer) {
 
+    /** Builder step that allows to specify the execution context
+      * for blocking IO and CPU-bound tasks.
+      *
+      * @param processingContext the execution context for CPU-bound tasks
+      * @param blockingContext the execution context for blocking IO
+      * @param parallelism the desired level of parallelism for all tree operations                       
+      */
     def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F], parallelism: Int)
                                 (implicit P: cats.Parallel[F, G]): ParallelTransformer[F] =
       new ParallelTransformer[F](transformer)(implicitly[Async[F]], Runtime.parallel(processingContext, blockingContext, parallelism))
 
+    /** Builder step that allows to specify the execution context
+      * for blocking IO and CPU-bound tasks.
+      *
+      * The level of parallelism is determined from the number of available CPUs.
+      * Use the other `build` method if you want to specify the parallelism explicitly.
+      * 
+      * @param processingContext the execution context for CPU-bound tasks
+      * @param blockingContext the execution context for blocking IO
+      */
     def build[F[_]: Async, G[_]](processingContext: ContextShift[F], blockingContext: ContextShift[F])
                                 (implicit P: cats.Parallel[F, G]): ParallelTransformer[F] =
       build(processingContext, blockingContext, java.lang.Runtime.getRuntime.availableProcessors)
     
   }
 
+  /** Builder step that allows to specify the output to render to.
+    */
   case class OutputOps[F[_]: Async: Runtime] (transformer: BinaryTransformer, input: F[TreeInput]) extends BinaryOutputOps[F] {
 
     val F: Async[F] = Async[F]
@@ -70,8 +93,17 @@ object ParallelTransformer {
 
   }
 
+  /** Represents a transformation for a tree of input documents merged into a single binary output document.
+    *
+    * It can be run by invoking the `transform` method which delegates to the library's
+    * default runtime implementation or by developing a custom runner that performs
+    * the transformation based on this operation's properties.
+    */
   case class Op[F[_]: Async: Runtime] (transformer: BinaryTransformer, input: F[TreeInput], output: F[BinaryOutput]) {
 
+    /** Performs the transformation based on the library's
+      * default runtime implementation, suspended in the effect F.
+      */
     def transform: F[Unit] = TransformerRuntime.run(this)
 
   }

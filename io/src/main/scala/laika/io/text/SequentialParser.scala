@@ -17,13 +17,14 @@
 package laika.io.text
 
 import cats.effect.{Async, ContextShift}
-import laika.api.{MarkupParser, Renderer}
-import laika.ast.{Document, DocumentType, Element, Path, TextDocumentType}
-import laika.io.ops.SequentialInputOps
+import laika.api.MarkupParser
+import laika.ast.{Document, DocumentType, TextDocumentType}
 import laika.io.model.TextInput
+import laika.io.ops.SequentialInputOps
 import laika.runtime.{ParserRuntime, Runtime}
 
-/**
+/** Parser for a single input document.
+  * 
   * @author Jens Halm
   */
 class SequentialParser[F[_]: Async: Runtime] (parser: MarkupParser) extends SequentialInputOps[F] {
@@ -34,22 +35,41 @@ class SequentialParser[F[_]: Async: Runtime] (parser: MarkupParser) extends Sequ
 
   val docType: TextDocumentType = DocumentType.Markup
 
-
   def fromInput (input: F[TextInput]): SequentialParser.Op[F] = SequentialParser.Op(parser, input)
 
 }
 
+/** Builder API for constructing a parsing operation for a single input document.
+  */
 object SequentialParser {
 
+  /** Builder step that allows to specify the execution context
+    * for blocking IO and CPU-bound tasks.
+    */
   case class Builder (parser: MarkupParser) {
 
+    /** Builder step that allows to specify the execution context
+      * for blocking IO and CPU-bound tasks.
+      *
+      * @param processingContext the execution context for CPU-bound tasks
+      * @param blockingContext the execution context for blocking IO
+      */
     def build[F[_]: Async] (processingContext: ContextShift[F], blockingContext: ContextShift[F]): SequentialParser[F] =
       new SequentialParser[F](parser)(implicitly[Async[F]], Runtime.sequential(processingContext, blockingContext))
 
   }
 
+  /** Represents a parsing operation for a single input document.
+    * 
+    * It can be run by invoking the `parse` method which delegates to the library's
+    * default runtime implementation or by developing a custom runner that performs
+    * the parsing based on this operation's properties.
+    */
   case class Op[F[_]: Async: Runtime] (parser: MarkupParser, input: F[TextInput]) {
 
+    /** Performs the parsing operation based on the library's
+      * default runtime implementation, suspended in the effect F.
+      */
     def parse: F[Document] = ParserRuntime.run(this)
 
   }
