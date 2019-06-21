@@ -158,7 +158,7 @@ trait ElementContainer[+E <: Element, Self <: ElementContainer[E,Self]] extends 
 /** A generic container of child elements which can have
   * rewrite rules applied to them in recursive tree rewriting.
   */
-trait RewritableContainer[Self <: RewritableContainer[Self]] extends Element { this: Self =>
+trait RewritableContainer[Self <: RewritableContainer[Self]] extends Customizable { this: Self =>
 
   /** Rewrites all children of this container based on the specified rules.
     * 

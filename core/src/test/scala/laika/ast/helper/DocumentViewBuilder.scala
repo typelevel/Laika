@@ -78,11 +78,11 @@ object DocumentViewBuilder {
   
   case class Fragment (name: String, content: Element) extends View
   
-  case class Content (content: Seq[Block]) extends DocumentContent with BlockContainer[Content] {
+  case class Content (content: Seq[Block], options: Options = NoOpt) extends DocumentContent with BlockContainer[Content] {
     def withContent (newContent: Seq[Block]): Content = copy(content = newContent)
   }
   
-  case class Title (content: Seq[Span]) extends DocumentContent with SpanContainer[Title] {
+  case class Title (content: Seq[Span], options: Options = NoOpt) extends DocumentContent with SpanContainer[Title] {
     def withContent (newContent: Seq[Span]): Title = copy(content = newContent)
   }
   
