@@ -585,7 +585,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
     val template = TemplateDocument(Root / "default.template.html", tRoot(TemplateContextReference("document.content")))
     val tree = DocumentTree(Root, List(doc1, doc2), templates = List(template))
     val rewrittenTree = tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRules)
-    val templatesApplied = TemplateRewriter.applyTemplates(rewrittenTree, "html")
+    val templatesApplied = TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), "html").tree
     templatesApplied.content.collect{case doc: Document => doc}.head.content should be (root(BlockSequence(List(p("text")))))
   }
   
@@ -656,7 +656,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
     val template = TemplateDocument(Root / "default.template.html", tRoot(TemplateContextReference("document.content")))
     val tree = DocumentTree(Root, content = List(document), templates = List(template))
     val rewrittenTree = tree.rewrite(OperationConfig.default.withBundlesFor(ReStructuredText).rewriteRules)
-    val templatesApplied = TemplateRewriter.applyTemplates(rewrittenTree, "html")
+    val templatesApplied = TemplateRewriter.applyTemplates(DocumentTreeRoot(rewrittenTree), "html").tree
     templatesApplied.content.collect{case doc: Document => doc}.head.content should be (result)
   }
   

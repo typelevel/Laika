@@ -60,9 +60,9 @@ abstract class Renderer (val config: OperationConfig) {
       root.tree.withDefaultTemplate(theme.defaultTemplateOrFallback, format.fileSuffix)
     )(_ => root.tree)
     
-    val rewrittenTree = TemplateRewriter.applyTemplates(treeWithTpl, format.fileSuffix)
-
-    root.copy(tree = rewrittenTree, styles = root.styles + (format.fileSuffix -> styles))
+    val preparedRoot = root.copy(tree = treeWithTpl, styles = root.styles + (format.fileSuffix -> styles))
+    
+    TemplateRewriter.applyTemplates(preparedRoot, format.fileSuffix)
   }
   
   def templateFor (root: DocumentTreeRoot): TemplateRoot = 

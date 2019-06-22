@@ -291,18 +291,18 @@ class StandardDirectiveSpec extends FlatSpec
       n => Document(path / ("doc"+n), sectionsWithoutTitle, config = ConfigFactory.parseString("title: Doc "+n))
     }
 
-    def buildTree (template: TemplateDocument, markup: Document) = {
+    def buildTree (template: TemplateDocument, markup: Document): DocumentTree = {
       DocumentTree(Root, docs(Root, 1,2) ++ List(
         DocumentTree(Root / "sub1", docs(Root / "sub1",3,4), titleDoc(Root / "sub1"), config = ConfigFactory.parseString("title: Tree 1")),
         DocumentTree(Root / "sub2", docs(Root / "sub2",5,6) ++ List(markup), titleDoc(Root / "sub1"), config = ConfigFactory.parseString("title: Tree 2"))
       ), templates = List(template))
     }
     
-    def parseAndRewrite (template: String, markup: String) = {
+    def parseAndRewrite (template: String, markup: String): RootElement = {
       val templateDoc = TemplateDocument(Root / "test.html", parseTemplate(template))
       val doc = Document(pathUnderTest, parse(markup).content, config = ConfigFactory.parseString("title: Doc 7, template: /test.html"))
       val tree = buildTree(templateDoc, doc).rewrite(OperationConfig.default.rewriteRules)
-      TemplateRewriter.applyTemplates(tree, "html").selectDocument(Current / "sub2" / "doc7").get.content
+      TemplateRewriter.applyTemplates(DocumentTreeRoot(tree), "html").tree.selectDocument(Current / "sub2" / "doc7").get.content
     }
     
     def markup = """# Headline 1

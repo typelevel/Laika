@@ -67,8 +67,8 @@ class ConfigSpec extends FlatSpec
           |bbb""".stripMargin
     }
     
-    def resultOf (tree: DocumentTreeRoot): RootElement = {
-      val result = TemplateRewriter.applyTemplates(tree.tree, "html")
+    def resultOf (root: DocumentTreeRoot): RootElement = {
+      val result = TemplateRewriter.applyTemplates(root, "html").tree
       result.content.collect{case doc: Document => doc}.head.content
     }
     
@@ -176,7 +176,7 @@ class ConfigSpec extends FlatSpec
     val op = laika.io.Parallel(MarkupParser.of(Markdown).using(BundleProvider.forConfigString(config5)))
       .build(processingContext, blockingContext)
       .fromInput(IO.pure(builder(inputs, mdMatcher)))
-    val result = TemplateRewriter.applyTemplates(op.parse.unsafeRunSync().root.tree, "html")
+    val result = TemplateRewriter.applyTemplates(op.parse.unsafeRunSync().root, "html").tree
     result.selectDocument(Path.Current / "dir" / "input.md").get.content should be (expected)
   }
   

@@ -168,7 +168,7 @@ class ParallelRendererSpec extends FlatSpec
     }
   }
 
-  it should "render a tree with a cover and title document to HTML" ignore {
+  it should "render a tree with a cover and title document to HTML" in {
     new HTMLRenderer {
       val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)), Some(Document(Root / "title", rootElem)))
       override def treeRoot = DocumentTreeRoot(input, coverDocument = Some(Document(Root / "cover", rootElem)))

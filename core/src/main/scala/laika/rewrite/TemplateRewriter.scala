@@ -31,7 +31,21 @@ trait TemplateRewriter {
   
   /** Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.
    */
-  def applyTemplates (tree: DocumentTree, format: String): DocumentTree = applyTemplates(TreeCursor(tree), format)
+  def applyTemplates (tree: DocumentTreeRoot, format: String): DocumentTreeRoot = applyTemplates(RootCursor(tree), format)
+
+  /** Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.
+    */
+  def applyTemplates (cursor: RootCursor, format: String): DocumentTreeRoot = {
+    
+    val newCover = cursor.coverDocument.map(applyTemplate(_, format))
+    
+    val newTree = applyTemplates(cursor.tree, format)
+    
+    cursor.target.copy(
+      coverDocument = newCover,
+      tree = newTree
+    )
+  }
   
   /** Selects and applies the templates for the specified output format to all documents within the specified tree cursor recursively.
    */
