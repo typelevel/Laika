@@ -266,13 +266,31 @@ object StandardDirectives extends DirectiveRegistry {
     spanStyle
   )
 
+  /** Template directive that inserts links to all CSS inputs found in the document tree, using a path
+    * relative to the currently processed document. 
+    * 
+    * Only has an effect for HTML and EPUB output, will be ignored for PDF output.
+    */
+  lazy val styleLinksDirective: Templates.Directive = Templates.create("styleLinks") {
+    import Templates.dsl._
+
+    cursor.map { docCursor =>
+      val refPath = docCursor.parent.target.path
+      val allLinks = docCursor.root.target.staticDocuments.filter(_.suffix == "css").map { staticPath =>
+        val path = staticPath.relativeTo(refPath).toString
+        s"""<link rel="stylesheet" type="text/css" href="$path" />"""
+      }
+      TemplateElement(RawContent(Seq("html","xhtml"), allLinks.mkString("\n    ")))
+    }
+  }
+
   /** The complete list of standard directives for templates.
    */
   lazy val templateDirectives: Seq[Templates.Directive] = List(
     templateToc,
     templateFor,
     templateIf,
-    /* StyleSupport.styleLinksDirective */ // TODO - 0.12 - either make this directive available for all formats here, or move it to an EPUB bundle
+    styleLinksDirective
   )
   
 }

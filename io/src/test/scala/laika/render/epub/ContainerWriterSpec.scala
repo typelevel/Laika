@@ -36,6 +36,8 @@ class ContainerWriterSpec extends FlatSpec with Matchers with ModelBuilder {
     "/EPUB/nav.xhtml",
     "/EPUB/toc.ncx"
   )
+  
+  val fallbackStyles = "/EPUB/content/styles/fallback.css"
 
   def collectInputs (renderResult: RenderedTreeRoot): Seq[String] = 
     writer
@@ -45,7 +47,7 @@ class ContainerWriterSpec extends FlatSpec with Matchers with ModelBuilder {
 
 
   "The ContainerWriter" should "collect a single target document" in new SingleDocument {
-    collectInputs(input) shouldBe standardFiles :+ "/EPUB/content/foo.xhtml"
+    collectInputs(input) shouldBe standardFiles :+ "/EPUB/content/foo.xhtml" :+ fallbackStyles
   }
 
   it should "render a tree with a two documents" in new TwoDocuments {
@@ -53,7 +55,7 @@ class ContainerWriterSpec extends FlatSpec with Matchers with ModelBuilder {
       "/EPUB/content/foo.xhtml",
       "/EPUB/content/bar.xhtml"
     )
-    collectInputs(input) shouldBe standardFiles ++ result
+    collectInputs(input) shouldBe standardFiles ++ result :+ fallbackStyles
   }
 
   it should "render a tree with a nested tree" in new NestedTree {
@@ -61,7 +63,7 @@ class ContainerWriterSpec extends FlatSpec with Matchers with ModelBuilder {
       "/EPUB/content/foo.xhtml",
       "/EPUB/content/sub/bar.xhtml"
     )
-    collectInputs(input) shouldBe standardFiles ++ result
+    collectInputs(input) shouldBe standardFiles ++ result :+ fallbackStyles
   }
 
   it should "render a tree with two nested trees" in new TwoNestedTrees {
@@ -72,7 +74,7 @@ class ContainerWriterSpec extends FlatSpec with Matchers with ModelBuilder {
       "/EPUB/content/sub2/bar.xhtml",
       "/EPUB/content/sub2/baz.xhtml"
     )
-    collectInputs(input) shouldBe standardFiles ++ result
+    collectInputs(input) shouldBe standardFiles ++ result :+ fallbackStyles
   }
 
   it should "render a tree with a nested tree and static documents" in new TreeWithStaticDocuments {

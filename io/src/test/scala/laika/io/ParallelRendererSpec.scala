@@ -184,7 +184,7 @@ class ParallelRendererSpec extends FlatSpec
     }
   }
 
-  it should "render a tree with a single document to EPUB.XHTML using the default template" ignore {
+  it should "render a tree with a single document to EPUB.XHTML using the default template" in {
     new EPUB_XHTMLRenderer {
       val input = DocumentTree(Root, List(Document(Root / "doc", rootElem)))
       val expected = RenderResult.epub.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>

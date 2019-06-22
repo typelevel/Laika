@@ -92,7 +92,7 @@ object EPUB extends TwoPhaseRenderFormat[HTMLFormatter, BinaryPostProcessor] {
     */
   def prepareTree (tree: DocumentTreeRoot): DocumentTreeRoot = {
     val treeConfig = ConfigFactory.forTreeConfig(tree.config)
-    val treeWithStyles = StyleSupport.ensureContainsStyles(tree) // TODO - 0.12 - could this move to the process step?
+    val treeWithStyles = StyleSupport.ensureContainsStyles(tree)
     treeConfig.coverImage.fold(tree) { image =>
       treeWithStyles.copy(tree = treeWithStyles.tree.copy(
         content = Document(Root / "cover", 
