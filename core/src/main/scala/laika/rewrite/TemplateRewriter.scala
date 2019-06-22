@@ -85,7 +85,7 @@ trait TemplateRewriter {
 
     templatePath match {
       case Some(path) =>
-        cursor.root.target.selectTemplate(path)
+        cursor.root.target.tree.selectTemplate(path)
           .orElse(throw new IllegalStateException(s"Template not found: $templatePath"))
 
       case None =>

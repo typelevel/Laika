@@ -44,7 +44,7 @@ sealed trait Cursor {
 
   /** The root cursor for this document tree.
     */
-  def root: TreeCursor
+  def root: RootCursor
 
   /** The configuration associated with this node.
     */
@@ -56,18 +56,54 @@ sealed trait Cursor {
   
 }
 
+/** Cursor for the root node of a document tree, providing access to all
+  * child cursors of this tree and allowing to trigger rewrite
+  * operations.
+  *
+  * @param target the root of the document tree this cursor points to
+  */
+case class RootCursor(target: DocumentTreeRoot) {
+  
+  type Target = DocumentTreeRoot
+  
+  val config: Config = target.config
+
+  /** The cursor for the underlying tree structure of this root node.
+    */
+  val tree: TreeCursor = TreeCursor(this)
+  
+  /** The cursor for the cover document of this tree.
+    */
+  lazy val coverDocument: Option[DocumentCursor] = target.coverDocument.map { cover =>
+    DocumentCursor(cover, tree, cover.config.withFallback(config).resolve, TreePosition.root)
+  }
+
+  /** Returns a new tree root, with all the document models contained in it
+    * rewritten based on the specified rewrite rule.
+    */
+  def rewriteTarget (rules: DocumentCursor => RewriteRules): DocumentTreeRoot = {
+
+    val rewrittenCover = coverDocument.map(doc => doc.rewriteTarget(rules(doc)))
+    val rewrittenTree = tree.rewriteTarget(rules)
+
+    target.copy(coverDocument = rewrittenCover, tree = rewrittenTree)
+  }
+  
+}
 
 /** Cursor for an entire document tree, providing access to all
   * child cursors of this tree and allowing to trigger rewrite
   * operations.
   *
   * @param target the document tree this cursor points to
-  * @param parent the parent of this tree or `None` if this is the root
+  * @param parent the immediate parent of this tree or `None` if this is the root
+  * @param root the root of this tree              
   * @param config the configuration associated with this tree
   * @param position the position of this tree within the document tree
   */
 case class TreeCursor(target: DocumentTree, 
-                      parent: Option[TreeCursor], 
+                      parent: Option[TreeCursor],
+                      root: RootCursor,
                       config: Config,
                       position: TreePosition) extends Cursor {
 
@@ -75,8 +111,6 @@ case class TreeCursor(target: DocumentTree,
 
   val path: Path = target.path
   
-  lazy val root: TreeCursor = parent.fold(this)(_.root)
-
   /** The cursor for the title document of this tree.
     */
   lazy val titleDocument: Option[DocumentCursor] = target.titleDocument.map { title =>
@@ -95,7 +129,7 @@ case class TreeCursor(target: DocumentTree,
         DocumentCursor(doc, this, config, position.forChild(index + 1))
       case (tree: DocumentTree, index) => 
         val config = configForChild(tree.config)
-        TreeCursor(tree, Some(this), config, position.forChild(index + 1))
+        TreeCursor(tree, Some(this), root, config, position.forChild(index + 1))
     }
   }
 
@@ -120,8 +154,14 @@ case class TreeCursor(target: DocumentTree,
 
 object TreeCursor {
   
-  def apply (tree: DocumentTree): TreeCursor =
-    apply(tree, None, tree.config, TreePosition.root)
+  def apply (root: RootCursor): TreeCursor =
+    apply(root.target.tree, None, root, root.config, TreePosition.root)
+
+  def apply (root: DocumentTreeRoot): TreeCursor =
+    apply(RootCursor(root))
+
+  def apply (root: DocumentTree): TreeCursor =
+    apply(DocumentTreeRoot(root))
     
 }
 
@@ -145,7 +185,7 @@ case class DocumentCursor (target: Document,
 
   val path: Path = target.path
 
-  lazy val root: TreeCursor = parent.root
+  lazy val root: RootCursor = parent.root
 
   /** Returns a new, rewritten document model based on the specified rewrite rules.
    */

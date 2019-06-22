@@ -54,7 +54,7 @@ class DocumentTreeAPISpec extends FlatSpec
       val tree = treeWithDoc(Root, "doc", rootElement(p("a")))
       val treeResult = treeViewWithDoc(Root, "doc", rootElement(p("/")))
       viewOf(tree rewrite { cursor => RewriteRules.forBlocks { 
-        case Paragraph(Seq(Text("a",_)),_) => Replace(p(cursor.root.target.path.toString)) 
+        case Paragraph(Seq(Text("a",_)),_) => Replace(p(cursor.root.target.tree.path.toString)) 
       }}) should be (treeResult)
     }
   }
@@ -74,7 +74,7 @@ class DocumentTreeAPISpec extends FlatSpec
       val tree = treeWithSubtree(Root, "sub", "doc", rootElement(p("a")))
       val treeResult = treeViewWithSubtree(Root, "sub", "doc", rootElement(p("/")))
       viewOf(tree rewrite { cursor => RewriteRules.forBlocks { 
-        case Paragraph(Seq(Text("a",_)),_) => Replace(p(cursor.root.target.path.toString)) 
+        case Paragraph(Seq(Text("a",_)),_) => Replace(p(cursor.root.target.tree.path.toString)) 
       }}) should be (treeResult)
     }
   }

@@ -123,16 +123,16 @@ object StandardDirectives extends DirectiveRegistry {
     val maxLevel = depth getOrElse Int.MaxValue
     
     val root: TreeContent = rootConfig match {
-      case "#rootTree"        => cursor.root.target
+      case "#rootTree"        => cursor.root.target.tree
       case "#currentTree"     => cursor.parent.target
       case "#currentDocument" => cursor.target
       case pathString =>
         val configPath = Path(pathString)
-        val root = cursor.root.target
+        val root = cursor.root.target.tree
         val path =
           (if (configPath.isAbsolute) configPath
           else cursor.parent.target.path / configPath).relativeTo(root.path)
-        root.selectDocument(path).getOrElse(root.selectSubtree(path).getOrElse(cursor.root.target))
+        root.selectDocument(path).getOrElse(root.selectSubtree(path).getOrElse(cursor.root.target.tree))
     }
     
     val list = root match {
