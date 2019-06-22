@@ -17,7 +17,7 @@
 package laika.rst.bundle
 
 import laika.ast._
-import laika.rst.ast.ReferenceName
+import laika.rst.ast.{CustomizedTextRole, ReferenceName}
 
 import scala.collection.mutable.ListBuffer
 
@@ -33,7 +33,11 @@ object LinkTargetProcessor extends (Seq[Block] => Seq[Block]) {
 
   def apply (blocks: Seq[Block]): Seq[Block] = {
 
-    case object Mock extends Block { val options = NoOpt }
+    case object Mock extends Block { 
+      val options: Options = NoOpt
+      type Self = Mock.type 
+      def withOptions (options: Options): Mock.type = this
+    }
 
     def toLinkId (h: DecoratedHeader) = ReferenceName(h.extractText).normalized
 

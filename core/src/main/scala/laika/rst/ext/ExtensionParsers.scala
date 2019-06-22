@@ -99,7 +99,10 @@ class ExtensionParsers(recParsers: RecursiveParsers,
     }
   }
   
-  private case class InvalidDirective (msg: String, source: String, options: Options = NoOpt) extends Block with Span
+  private case class InvalidDirective (msg: String, source: String, options: Options = NoOpt) extends Block with Span {
+    type Self = InvalidDirective
+    def withOptions (options: Options): InvalidDirective = copy(options = options)
+  }
   
   private def directive [E](p: Parser[E], name: String): Parser[E] = Parser { in =>
     p.parse(in) match {

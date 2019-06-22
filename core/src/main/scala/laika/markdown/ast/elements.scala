@@ -24,7 +24,10 @@ import laika.ast._
   *  as its root element. It may contain other nested HTML elements and tags, but no spans produced by standard
   *  Markdown markup.
   */
-case class HTMLBlock (root: HTMLElement, options: Options = NoOpt) extends Block
+case class HTMLBlock (root: HTMLElement, options: Options = NoOpt) extends Block {
+  type Self = HTMLBlock
+  def withOptions (options: Options): HTMLBlock = copy(options = options)
+}
 
 /** Base class for all verbatim HTML span elements.
   */
@@ -37,6 +40,7 @@ abstract class HTMLSpan extends Span
 case class HTMLElement (startTag: HTMLStartTag, content: Seq[Span], options: Options = NoOpt) extends HTMLSpan with SpanContainer {
   type Self = HTMLElement
   def withContent (newContent: Seq[Span]): HTMLElement = copy(content = newContent)
+  def withOptions (options: Options): HTMLElement = copy(options = options)
 }
 
 /** Represent a start tag. When this element is part of a final document tree, it represents
@@ -45,24 +49,39 @@ case class HTMLElement (startTag: HTMLStartTag, content: Seq[Span], options: Opt
   *  implement the full logic of a proper HTML parser to distinguish between legal and faulty
   *  occurrences of unmatched start tags.
   */
-case class HTMLStartTag (name: String, attributes: List[HTMLAttribute], options: Options = NoOpt) extends HTMLSpan with Block
+case class HTMLStartTag (name: String, attributes: List[HTMLAttribute], options: Options = NoOpt) extends HTMLSpan with Block {
+  type Self = HTMLStartTag
+  def withOptions (options: Options): HTMLStartTag = copy(options = options)
+}
 
 /** Represents an empty element (like `&lt;br/&gt;` or `&lt;hr/&gt;`) in case it contains the explicit
   *  slash to mark it as closed. Otherwise it will be classified as a start tag.
   */
-case class HTMLEmptyElement (name: String, attributes: List[HTMLAttribute], options: Options = NoOpt) extends HTMLSpan with Block
+case class HTMLEmptyElement (name: String, attributes: List[HTMLAttribute], options: Options = NoOpt) extends HTMLSpan with Block {
+  type Self = HTMLEmptyElement
+  def withOptions (options: Options): HTMLEmptyElement = copy(options = options)
+}
 
 /** Represents an orphaned end tag without matching start tag.
   */
-case class HTMLEndTag (name: String, options: Options = NoOpt) extends HTMLSpan
+case class HTMLEndTag (name: String, options: Options = NoOpt) extends HTMLSpan {
+  type Self = HTMLEndTag
+  def withOptions (options: Options): HTMLEndTag = copy(options = options)
+}
 
 /** Represents a standard HTML comment.
   */
-case class HTMLComment (content: String, options: Options = NoOpt) extends HTMLSpan with Block with TextContainer
+case class HTMLComment (content: String, options: Options = NoOpt) extends HTMLSpan with Block with TextContainer {
+  type Self = HTMLComment
+  def withOptions (options: Options): HTMLComment = copy(options = options)
+}
 
 /** Represents a numerical or named character reference.
   */
-case class HTMLCharacterReference (content: String, options: Options = NoOpt) extends HTMLSpan with TextContainer
+case class HTMLCharacterReference (content: String, options: Options = NoOpt) extends HTMLSpan with TextContainer {
+  type Self = HTMLCharacterReference
+  def withOptions (options: Options): HTMLCharacterReference = copy(options = options)
+}
 
 /** Represents a single HTML attribute. The value is provided as a list of TextContainers
   *  as it may contain HTML character references alongside regular Text elements.

@@ -68,6 +68,7 @@ abstract class ContextReference[T <: Span] (ref: String) extends SpanResolver {
 /** A context reference specifically for use in template documents.
  */
 case class TemplateContextReference (ref: String, options: Options = NoOpt) extends ContextReference[TemplateSpan](ref) with TemplateSpan {
+  type Self = TemplateContextReference
 
   def result (value: Option[Any]): TemplateSpan = value match {
     case Some(s: TemplateSpan)        => s
@@ -76,11 +77,13 @@ case class TemplateContextReference (ref: String, options: Options = NoOpt) exte
     case Some(other)                  => TemplateString(other.toString)
     case None                         => TemplateString("")
   }
+  def withOptions (options: Options): TemplateContextReference = copy(options = options)
 }
 
 /** A context reference specifically for use in markup documents.
  */
 case class MarkupContextReference (ref: String, options: Options = NoOpt) extends ContextReference[Span](ref) {
+  type Self = MarkupContextReference
 
   def result (value: Option[Any]): Span = value match {
     case Some(s: Span)    => s
@@ -88,6 +91,7 @@ case class MarkupContextReference (ref: String, options: Options = NoOpt) extend
     case Some(other)      => Text(other.toString)
     case None             => Text("")
   }
+  def withOptions (options: Options): MarkupContextReference = copy(options = options)
 }
 
 
@@ -128,7 +132,7 @@ case class TemplateElement (element: Element, indent: Int = 0, options: Options 
                                                                                                               with RewritableContainer {
   type Self = TemplateElement
   def rewriteChildren (rules: RewriteRules): TemplateElement = copy(element = rules.rewriteElement(element))
-  
+  def withOptions (options: Options): TemplateElement = copy(options = options)
 }
 
 /** A generic container element containing a list of template spans. Can be used where a sequence
@@ -139,18 +143,23 @@ case class TemplateElement (element: Element, indent: Int = 0, options: Options 
 case class TemplateSpanSequence (content: Seq[TemplateSpan], options: Options = NoOpt) extends TemplateSpan with TemplateSpanContainer {
   type Self = TemplateSpanSequence
   def withContent (newContent: Seq[TemplateSpan]): TemplateSpanSequence = copy(content = newContent)
+  def withOptions (options: Options): TemplateSpanSequence = copy(options = options)
 }
 
 /** A simple string element, representing the parts of a template
  *  that are not detected as special markup constructs and treated as raw text.
  */
-case class TemplateString (content: String, options: Options = NoOpt) extends TemplateSpan with TextContainer
+case class TemplateString (content: String, options: Options = NoOpt) extends TemplateSpan with TextContainer {
+  type Self = TemplateString
+  def withOptions (options: Options): TemplateString = copy(options = options)
+}
 
 /** The root element of a template document tree.
  */
 case class TemplateRoot (content: Seq[TemplateSpan], options: Options = NoOpt) extends Block with TemplateSpanContainer {
   type Self = TemplateRoot
   def withContent (newContent: Seq[TemplateSpan]): TemplateRoot = copy(content = newContent)
+  def withOptions (options: Options): TemplateRoot = copy(options = options)
 }
 
 /** Companion with a fallback instance for setups without a default template */
@@ -168,4 +177,5 @@ object TemplateRoot {
 case class EmbeddedRoot (content: Seq[Block], indent: Int = 0, options: Options = NoOpt) extends TemplateSpan with BlockContainer {
   type Self = EmbeddedRoot
   def withContent (newContent: Seq[Block]): EmbeddedRoot = copy(content = content)
+  def withOptions (options: Options): EmbeddedRoot = copy(options = options)
 }

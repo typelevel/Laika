@@ -162,6 +162,8 @@ object SpanDirectiveParsers {
   import laika.directive.Spans
 
   case class DirectiveSpan (f: DocumentCursor => Span, options: Options = NoOpt) extends SpanResolver {
+    type Self = DirectiveSpan
+    def withOptions (options: Options): DirectiveSpan = copy(options = options)
     def resolve (cursor: DocumentCursor) = f(cursor)
   }
 
@@ -204,6 +206,8 @@ object BlockDirectiveParsers {
   import laika.parse.markup.BlockParsers._
 
   case class DirectiveBlock (f: DocumentCursor => Block, options: Options = NoOpt) extends BlockResolver {
+    type Self = DirectiveBlock
+    def withOptions (options: Options): DirectiveBlock = copy(options = options)
     def resolve (cursor: DocumentCursor) = f(cursor)
   }
 

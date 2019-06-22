@@ -81,11 +81,13 @@ object DocumentViewBuilder {
   case class Content (content: Seq[Block], options: Options = NoOpt) extends DocumentContent with BlockContainer {
     type Self = Content
     def withContent (newContent: Seq[Block]): Content = copy(content = newContent)
+    def withOptions (options: Options): Content = copy(options = options)
   }
   
   case class Title (content: Seq[Span], options: Options = NoOpt) extends DocumentContent with SpanContainer {
     type Self = Title
     def withContent (newContent: Seq[Span]): Title = copy(content = newContent)
+    def withOptions (options: Options): Title = copy(options = options)
   }
   
   case class Sections (content: Seq[SectionInfo]) extends DocumentContent with ElementContainer[SectionInfo]

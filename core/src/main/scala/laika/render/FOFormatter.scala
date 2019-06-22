@@ -245,7 +245,10 @@ object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
 
   /** A leader element.
     */
-  case class Leader (options: Options = NoOpt) extends Span
+  case class Leader (options: Options = NoOpt) extends Span {
+    type Self = Leader
+    def withOptions (options: Options): Leader = copy(options = options)
+  }
 
   /** An internal link to be rendered as a page number.
     *
@@ -253,17 +256,24 @@ object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
     *  @param path the path of the target document containing the local reference
     *  @param options optional render hints
     */
-  case class PageNumberCitation (ref: String, path: PathInfo, options: Options = NoOpt) extends Span
+  case class PageNumberCitation (ref: String, path: PathInfo, options: Options = NoOpt) extends Span {
+    type Self = PageNumberCitation
+    def withOptions (options: Options): PageNumberCitation = copy(options = options)
+  }
 
   /** A label for a list item, represented by a single Block element.
     */
-  case class ListItemLabel (content: Block, options: Options = NoOpt) extends Block
+  case class ListItemLabel (content: Block, options: Options = NoOpt) extends Block {
+    type Self = ListItemLabel
+    def withOptions (options: Options): ListItemLabel = copy(options = options)
+  }
 
   /** The body of a list item containing a sequence of block elements.
     */
   case class ListItemBody (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer {
     type Self = ListItemBody
     def withContent (newContent: Seq[Block]): ListItemBody = copy(content = content)
+    def withOptions (options: Options): ListItemBody = copy(options = options)
   }
 
   /** The body of a footnote containing a sequence of block elements.
@@ -271,20 +281,30 @@ object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
   case class FootnoteBody (content: Seq[Block], options: Options = NoOpt) extends Block with BlockContainer {
     type Self = FootnoteBody
     def withContent (newContent: Seq[Block]): FootnoteBody = copy(content = content)
+    def withOptions (options: Options): FootnoteBody = copy(options = options)
   }
 
   /** An entire bookmark tree and its nested bookmarks,
     * the top level element for FO bookmarks.
     */
-  case class BookmarkTree (bookmarks: Seq[Bookmark], options: Options = NoOpt) extends Block
+  case class BookmarkTree (bookmarks: Seq[Bookmark], options: Options = NoOpt) extends Block {
+    type Self = BookmarkTree
+    def withOptions (options: Options): BookmarkTree = copy(options = options)
+  }
 
   /** A single bookmark and its nested children.
     */
-  case class Bookmark (ref: String, path: PathInfo, title: String, children: Seq[Bookmark], options: Options = NoOpt) extends Block
+  case class Bookmark (ref: String, path: PathInfo, title: String, children: Seq[Bookmark], options: Options = NoOpt) extends Block {
+    type Self = Bookmark
+    def withOptions (options: Options): Bookmark = copy(options = options)
+  }
 
   /** A bookmark title. 
     */
-  case class BookmarkTitle (content: String, options: Options = NoOpt) extends Block with TextContainer
+  case class BookmarkTitle (content: String, options: Options = NoOpt) extends Block with TextContainer {
+    type Self = BookmarkTitle
+    def withOptions (options: Options): BookmarkTitle = copy(options = options)
+  }
 
   /** Creates a new formatter instance based on the specified render context.
     */

@@ -36,7 +36,10 @@ import laika.rst.ast._
 class ExtendedHTMLRenderer {
 
   
-  private case class ProgramOptions (opts: Seq[Element], options: Options = NoOpt) extends Block
+  private case class ProgramOptions (opts: Seq[Element], options: Options = NoOpt) extends Block {
+    type Self = ProgramOptions
+    def withOptions (options: Options): ProgramOptions = copy(options = options)
+  }
   
   /** Converts an `OptionList` to an interim table model for rendering.
    */

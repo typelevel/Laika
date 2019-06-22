@@ -86,6 +86,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
     case class DecoratedBlock (deco: Char, content: Seq[Span], options: Options = NoOpt) extends Block with SpanContainer {
       type Self = DecoratedBlock
       def withContent (newContent: Seq[Span]): DecoratedBlock = copy(content = newContent)
+      def withOptions (options: Options): DecoratedBlock = copy(options = options)
     }
     
     def blockFor (deco: Char): BlockParserBuilder = blockFor(deco, deco)
@@ -150,7 +151,9 @@ class ParserBundleSpec extends WordSpec with Matchers {
     })
 
     case class DecoratedSpan (deco: Char, text: String) extends Span {
-      val options = NoOpt
+      val options: Options = NoOpt
+      type Self = DecoratedSpan
+      def withOptions (options: Options): DecoratedSpan = this
     }
 
     def spanFor (deco: Char): SpanParserBuilder = spanFor(deco, deco)

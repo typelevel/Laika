@@ -105,6 +105,7 @@ case class SectionInfo (id: String, title: TitleInfo, content: Seq[SectionInfo])
 case class TitleInfo (content: Seq[Span], options: Options = NoOpt) extends SpanContainer {
   type Self = TitleInfo
   def withContent (newContent: Seq[Span]): TitleInfo = copy(content = newContent)
+  def withOptions (options: Options): TitleInfo = copy(options = options)
 }
 
 /** Metadata associated with a document.

@@ -33,6 +33,10 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
   import DirectiveParsers._
 
   case class DirectiveSpan(f: DocumentCursor => Span, options: Options = NoOpt) extends SpanResolver with TemplateSpan {
+    
+    type Self = DirectiveSpan
+    def withOptions (options: Options): DirectiveSpan = copy(options = options)
+    
     def resolve(cursor: DocumentCursor) = f(cursor) match {
       case s: TemplateSpan => s
       case s: Span => TemplateElement(s)
