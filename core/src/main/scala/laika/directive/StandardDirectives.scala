@@ -177,12 +177,12 @@ object StandardDirectives extends DirectiveRegistry {
   
   
   private def asBlock (blocks: Seq[Block], options: Options = NoOpt): Block = blocks match {
-    case block :: Nil => Options.merge(block, options)
+    case block :: Nil => block.mergeOptions(options)
     case blocks => BlockSequence(blocks, options)
   }
   
   private def asSpan (spans: Seq[Span], options: Options = NoOpt): Span = spans match {
-    case span :: Nil => Options.merge(span, options)
+    case span :: Nil => span.mergeOptions(options)
     case spans => SpanSequence(spans, options)
   }
   

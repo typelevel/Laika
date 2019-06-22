@@ -18,7 +18,7 @@ package laika.ast
 
 import java.text.DecimalFormat
 
-import laika.api.{Render, Renderer}
+import laika.api.Renderer
 import laika.format.AST
 
 import scala.math.Ordered
@@ -36,8 +36,35 @@ abstract class Element extends Product
  *  for renderers.
  */
 trait Customizable extends Element {
+  
   type Self <: Customizable
+
   def options: Options
+
+  /** Returns a new instance of this customizable element
+    * without its id.
+    */
+  def withoutId: Self = modifyOptions(opt => Options(None, opt.styles))
+
+  /** Returns a new instance of this customizable element
+    * with its id set to the specified value, overriding any existing value.
+    */
+  def withId (id: String): Self = modifyOptions(opt => Options(Some(id), opt.styles))
+
+  /** Returns a new instance of this customizable element
+    * with its options merged with the specified options.
+    */
+  def mergeOptions (opt: Options): Self = modifyOptions(_ + opt)
+
+  /** Returns a new instance of this customizable element
+    * with the new options obtained from applying the specified function
+    * to the existing value.
+    */
+  def modifyOptions (f: Options => Options): Self = withOptions(f(options))
+
+  /** Returns a new instance of this customizable element
+    * with the specified options replacing the current value.
+    */
   def withOptions (options: Options): Self
 }
 
@@ -1119,32 +1146,4 @@ object Options {
   def apply (id: Option[String] = None, styles: Set[String] = Set()): Options =
     if (id.isEmpty && styles.isEmpty) NoOpt
     else SomeOpt(id,styles)
-
-  /** Returns a new instance of the customizable element
-    *  without its id.
-    */
-  def removeId [C <: Customizable] (c: C): C = modifyOptions(c, opt => Options(None,opt.styles))
-
-  /** Returns a new instance of the customizable element
-    *  with its id set to the specified value, overriding any existing value.
-    */
-  def setId [C <: Customizable] (c: C, id: String): C = modifyOptions(c, opt => Options(Some(id), opt.styles))
-
-  /** Returns a new instance of the customizable element
-    *  with its options merged with the specified options/
-    */
-  def merge [C <: Customizable] (c: C, opt: Options): C = modifyOptions(c, _ + opt)
-
-  /** Returns a new instance of the customizable element
-    *  with its options modified according to the specified function.
-    */
-  private def modifyOptions [C <: Customizable] (c: C, f: Options => Options): C = {
-    val newElements = (c.productIterator map {
-      case opt:Options => f(opt)
-      case other => other
-    }).toArray
-
-    c.getClass.getConstructors()(0)
-      .newInstance(newElements.asInstanceOf[Array[AnyRef]]:_*).asInstanceOf[C]
-  }
 }

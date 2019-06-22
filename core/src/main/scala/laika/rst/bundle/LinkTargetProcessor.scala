@@ -61,7 +61,7 @@ object LinkTargetProcessor extends (Seq[Block] => Seq[Block]) {
       case (buffer, (InternalLinkTarget(Id(_))) :: (et: ExternalLinkDefinition) :: _ :: Nil) =>
         buffer += et
       case (buffer, (InternalLinkTarget(Id(id))) :: (c: Customizable) :: _ :: Nil) if c.options.id.isEmpty =>
-        buffer += Options.setId(c, id)
+        buffer += c.withId(id)
 
       case (buffer, _ :: _ :: Nil)   => buffer // only happens for empty results (with just the 2 mocks)
       case (buffer, _ :: other :: _) => buffer += other
