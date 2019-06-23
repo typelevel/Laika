@@ -39,20 +39,16 @@ sealed abstract class Parsed[+T] {
     * parser invocation. The `get` method will throw on instances
     * where this method returns `true`.
     */
-  def isFailure = !isSuccess
+  def isFailure: Boolean = !isSuccess
 
-  /** The result value from the parser invocation.
-    * This method will throw on instances
-    * where `isSuccess` returns `false`.
-    *
-    * @return
+  /** The result as an option, empty in case of failure.
     */
-  def get: T
+  def toOption: Option[T]
 
   /** Returns the result value from the parser invocation if the
     * parser succeeded or otherwise the specified fallback value.
     */
-  def getOrElse[B >: T] (default: => B): B = if (isFailure) default else this.get
+  def getOrElse[B >: T] (default: => B): B = toOption.getOrElse(default)
 
   /** Returns this `Parsed` instance if the parser suceeded or
     * otherwise the specified fallback instance.
@@ -72,7 +68,7 @@ case class Success[+T] (result: T, next: ParserContext) extends Parsed[T] {
 
   val isSuccess = true
 
-  def get: T = result
+  def toOption: Option[T] = Some(result)
 
   def map[U](f: T => U) = Success(f(result), next)
 
@@ -96,13 +92,13 @@ case class Failure (msgProvider: Message, next: ParserContext) extends Parsed[No
 
   /** The message specifying the cause of the failure.
     */
-  lazy val message = msgProvider.message(next)
+  lazy val message: String = msgProvider.message(next)
 
   val isSuccess = false
 
-  def get: Nothing = scala.sys.error("No result available, parsing failed")
+  def toOption: Option[Nothing] = None
 
-  def map[U](f: Nothing => U) = this
+  def map[U](f: Nothing => U): Failure = this
 
   override def toString = s"[${next.position}] failure: $message\n\n${next.position.lineContentWithCaret}"
 }
@@ -124,15 +120,15 @@ trait Message {
 object Message {
 
 
-  val UnexpectedEOF = fixed("Unexpected end of input")
+  val UnexpectedEOF: Message = fixed("Unexpected end of input")
 
-  val ExpectedFailure = fixed("Expected failure, but parser succeeded")
+  val ExpectedFailure: Message = fixed("Expected failure, but parser succeeded")
 
-  val ExpectedEOF = fixed("Expected end of input")
+  val ExpectedEOF: Message = fixed("Expected end of input")
 
-  val ExpectedStart = fixed("Expected start of input")
+  val ExpectedStart: Message = fixed("Expected start of input")
 
-  val ExpectedEOL = fixed("Expected end of line")
+  val ExpectedEOL: Message = fixed("Expected end of line")
 
 
   class MessageFactory[T] (f: T => String) extends (T => Message) {

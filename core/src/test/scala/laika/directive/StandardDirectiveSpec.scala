@@ -42,7 +42,7 @@ class StandardDirectiveSpec extends FlatSpec
     (doc.fragments, doc.content)
   }
   
-  def parseTemplate (input: String): TemplateRoot = templateParser.parse(ParserContext(input)).get
+  def parseTemplate (input: String): TemplateRoot = templateParser.parse(ParserContext(input)).toOption.get
   
   def parseTemplateWithConfig (input: String, config: String): RootElement = {
     val tRoot = parseTemplate(input)

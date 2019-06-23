@@ -56,7 +56,7 @@ trait ParseResultHelpers {
       val negatedFailureMessageSuffix = s"parser '$left' did produce the unexpected result $expected"
 
       MatchResult(
-        left.isSuccess && left.get == expected,
+        left.toOption.contains(expected),
         "The " + failureMessageSuffix,
         "The " + negatedFailureMessageSuffix,
         "the " + failureMessageSuffix,
@@ -79,7 +79,7 @@ trait ParseResultHelpers {
       val negatedFailureMessageSuffix = s"parser '$left' did produce the unexpected result $expected"
 
       MatchResult(
-        left.isSuccess && left.get.select(_ == expected).nonEmpty,
+        left.toOption.exists(_.select(_ == expected).nonEmpty),
         "The " + failureMessageSuffix,
         "The " + negatedFailureMessageSuffix,
         "the " + failureMessageSuffix,

@@ -318,8 +318,8 @@ class ParserBundleSpec extends WordSpec with Matchers {
       val appBundles = Seq(BundleProvider.forConfigHeaderParser(ConfigHeaderParser.betweenLines("<<", ">>")))
 
       val confHeaderParser = config.configHeaderParser(Root)
-      confHeaderParser.parse("{{\nfoo: 7\n}}").get shouldBe Right(ConfigFactory.parseString("foo: 7"))
-      confHeaderParser.parse("<<\nfoo: 7\n>>").get shouldBe Right(ConfigFactory.parseString("foo: 7"))
+      confHeaderParser.parse("{{\nfoo: 7\n}}").toOption shouldBe Some(Right(ConfigFactory.parseString("foo: 7")))
+      confHeaderParser.parse("<<\nfoo: 7\n>>").toOption shouldBe Some(Right(ConfigFactory.parseString("foo: 7")))
     }
 
     "let an app config override a parser for identical start markup in the extension config" in new BundleSetup {
@@ -327,7 +327,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
       val appBundles = Seq(BundleProvider.forConfigHeaderParser(ConfigHeaderParser.forTextParser(TextParsers.any ^^^ "foo: 9")))
 
       val confHeaderParser = config.configHeaderParser(Root)
-      confHeaderParser.parse("{{\nfoo: 7\n}}").get shouldBe Right(ConfigFactory.parseString("foo: 9"))
+      confHeaderParser.parse("{{\nfoo: 7\n}}").toOption shouldBe Some(Right(ConfigFactory.parseString("foo: 9")))
     }
 
     "let an app config override a parser for identical start markup in a previously installed app config" in new BundleSetup {
@@ -338,7 +338,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
       )
 
       val confHeaderParser = config.configHeaderParser(Root)
-      confHeaderParser.parse("{{\nfoo: 7\n}}").get shouldBe Right(ConfigFactory.parseString("foo: 9"))
+      confHeaderParser.parse("{{\nfoo: 7\n}}").toOption shouldBe Some(Right(ConfigFactory.parseString("foo: 9")))
     }
 
     "use the default fallback parser in case all other parsers fail" in new BundleSetup {
@@ -346,7 +346,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
       val appBundles = Seq(BundleProvider.forConfigHeaderParser(ConfigHeaderParser.betweenLines("<<", ">>")))
 
       val confHeaderParser = config.configHeaderParser(Root)
-      confHeaderParser.parse("{%\nfoo: 7\n%}").get shouldBe Right(ConfigFactory.parseString("foo: 7"))
+      confHeaderParser.parse("{%\nfoo: 7\n%}").toOption shouldBe Some(Right(ConfigFactory.parseString("foo: 7")))
     }
 
     "should use the fallback parser producing empty config instances when all other parsers fail" in new BundleSetup {
@@ -354,7 +354,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
       val appBundles = Seq(BundleProvider.forConfigHeaderParser(ConfigHeaderParser.betweenLines("<<", ">>")))
 
       val confHeaderParser = config.configHeaderParser(Root)
-      confHeaderParser.parse("[[\nfoo: 7\n]]").get shouldBe Right(ConfigFactory.empty)
+      confHeaderParser.parse("[[\nfoo: 7\n]]").toOption shouldBe Some(Right(ConfigFactory.empty))
     }
 
   }
@@ -369,7 +369,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
 
       val templateParser = config.templateParser
       templateParser should not be empty
-      templateParser.get.parse("anything").get shouldBe template("bar")
+      templateParser.get.parse("anything").toOption shouldBe Some(template("bar"))
     }
 
     "let an app config override a parser in a previously installed app config" in new BundleSetup {
@@ -381,7 +381,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
 
       val templateParser = config.templateParser
       templateParser should not be empty
-      templateParser.get.parse("anything").get shouldBe template("bar")
+      templateParser.get.parse("anything").toOption shouldBe Some(template("bar"))
     }
 
     "use the default parser when there is no parser installed" in new BundleSetup {
@@ -390,7 +390,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
 
       val templateParser = config.templateParser
       templateParser should not be empty
-      templateParser.get.parse("{{document.content}}").get shouldBe TemplateRoot.fallback
+      templateParser.get.parse("{{document.content}}").toOption shouldBe Some(TemplateRoot.fallback)
     }
 
     "return None in strict mode when there is no parser installed" in new BundleSetup {
@@ -411,7 +411,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
     "let an app config override a parser in the extension config" in new BundleSetup {
       val parserBundles = Seq(BundleProvider.forStyleSheetParser(Parsers.success(style("red"))))
       val appBundles = Seq(BundleProvider.forStyleSheetParser(Parsers.success(style("blue"))))
-      config.styleSheetParser.parse("anything").get shouldBe style("blue")
+      config.styleSheetParser.parse("anything").toOption shouldBe Some(style("blue"))
     }
 
     "let an app config override a parser in a previously installed app config" in new BundleSetup {
@@ -420,14 +420,14 @@ class ParserBundleSpec extends WordSpec with Matchers {
         BundleProvider.forStyleSheetParser(Parsers.success(style("red"))),
         BundleProvider.forStyleSheetParser(Parsers.success(style("blue")))
       )
-      config.styleSheetParser.parse("anything").get shouldBe style("blue")
+      config.styleSheetParser.parse("anything").toOption shouldBe Some(style("blue"))
     }
 
     "use the default fallback parser in case all other parsers fail" in new BundleSetup {
       val parserBundles = Nil
       val appBundles = Nil
       config.styleSheetParser shouldBe CSSParsers.styleDeclarationSet
-      config.styleSheetParser.parse("#id { foo: blue; }").get shouldBe style("blue")
+      config.styleSheetParser.parse("#id { foo: blue; }").toOption shouldBe Some(style("blue"))
     }
 
   }
