@@ -20,7 +20,8 @@ import com.typesafe.config.{Config, ConfigFactory}
 import laika.ast._
 import laika.bundle.MarkupExtensions
 import laika.factory.MarkupFormat
-import laika.parse.{Parser, ParserContext}
+import laika.parse.combinator.Parsers
+import laika.parse.{Failure, Parser, ParserContext, Success}
 import laika.parse.directive.ConfigHeaderParser
 import laika.parse.text.TextParsers.unsafeParserFunction
 
@@ -34,7 +35,8 @@ object DocumentParser {
   
   case class ParserInput (path: Path, context: ParserContext)
   
-  case class ParserError (message: String) extends RuntimeException(message)
+  case class ParserError (message: String, path: Path) extends 
+    RuntimeException(s"Error parsing document '$path': $message")
 
   type ConfigHeaderParser = Path => Parser[Either[InvalidElement, Config]]
 
@@ -98,12 +100,25 @@ object DocumentParser {
 
   }
 
-  /** Builds a parser for CSS documents based on the specified parser for style declarations.
+  /** Builds a document parser for CSS documents based on the specified parser for style declarations.
     */
-  def forStyleSheets (parser: Parser[Set[StyleDeclaration]]): ParserInput => StyleDeclarationSet = {
-    val parserF = unsafeParserFunction(parser)
-    input => StyleDeclarationSet.forPath(input.path, parserF(input.context))
-  }
+  def forStyleSheets (parser: Parser[Set[StyleDeclaration]]): ParserInput => Either[ParserError, StyleDeclarationSet] = 
+    forParser(parser) { (path, result) => StyleDeclarationSet.forPath(path, result) }
 
+  /** A document parser function for the specified parser that is expected to consume
+    * all input.
+    * 
+    * The specified function is invoked in case of successful completion, passing
+    * the path of the document and the result.
+    */
+  def forParser[T, U] (parser: Parser[T])(f: (Path, T) => U): ParserInput => Either[ParserError, U] = {
+    val baseParser = Parsers.consumeAll(parser);
+    { in: ParserInput =>
+      baseParser.parse(in.context) match {
+        case Success(result, _) => Right(f(in.path, result))
+        case ns: Failure        => Left(ParserError(ns.message, in.path))
+      }
+    }
+  }
 
 }

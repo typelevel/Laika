@@ -77,7 +77,8 @@ object ParserRuntime {
     lazy val templateParser: Option[ParserInput => TemplateDocument] = op.config.templateParser map { rootParser =>
       DocumentParser.forTemplate(rootParser, op.config.configHeaderParser)
     }
-    lazy val styleSheetParser: ParserInput => StyleDeclarationSet = DocumentParser.forStyleSheets(op.config.styleSheetParser)
+    lazy val styleSheetParser: ParserInput => Either[ParserError, StyleDeclarationSet] = 
+      DocumentParser.forStyleSheets(op.config.styleSheetParser)
     
     def parseAll(inputs: InputCollection): F[ParsedTree] = {
 
@@ -91,7 +92,7 @@ object ParserRuntime {
       val createOps: Either[Throwable, Vector[F[ParserResult]]] = inputs.textInputs.toVector.map { in => in.docType match {
         case Markup             => selectParser(in.path).map(parser => Vector(parseDocumentTemp(in, parser.parse, MarkupResult)))
         case Template           => templateParser.map(parseDocumentTemp(in, _, TemplateResult)).toVector.validNel
-        case StyleSheet(format) => Vector(parseDocumentTemp(in, styleSheetParser, StyleResult(_, format))).validNel
+        case StyleSheet(format) => Vector(parseDocument(in, styleSheetParser, StyleResult(_, format))).validNel
         case Config             => Vector(parseDocumentTemp(in, ConfigProvider.fromInput, ConfigResult(in.path, _))).validNel
       }}.combineAll.toEither.leftMap(es => ParserErrors(es.toList))
       

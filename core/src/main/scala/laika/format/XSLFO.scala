@@ -58,7 +58,7 @@ object XSLFO extends RenderFormat[FOFormatter] {
 
   private lazy val styleResource: StyleDeclarationSet = {
     val input = TempResourceProvider.classPathParserInput("/styles/default.fo.css", Path.Root / "default.fo.css")
-    DocumentParser.forStyleSheets(CSSParsers.styleDeclarationSet)(input)
+    DocumentParser.forStyleSheets(CSSParsers.styleDeclarationSet)(input).right.get // TODO - 0.12 - temporary
   }
 
   class XSLFOTemplateParser extends TemplateParsers(Map("for"->StandardDirectives.templateFor)) {
