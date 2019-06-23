@@ -21,8 +21,7 @@ import laika.directive.Templates
 import laika.parse.markup.DefaultRecursiveSpanParsers
 import laika.parse.markup.DocumentParser.ParserInput
 import laika.parse.text.TextParsers._
-import laika.parse.{Parser, ParserContext}
-
+import laika.parse.{Failure, Parser, Success}
 
 /** Provides the parsers for directives and context references in templates.
   *
@@ -50,7 +49,6 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
   )
 
   lazy val templateDirective: Parser[TemplateSpan] = {
-    val nestedTemplateSpans: ParserContext => List[TemplateSpan] = unsafeParserFunction(templateSpans)
 
     val contextRefOrNestedBraces = Map('{' -> (reference(TemplateContextReference(_)) | nestedBraces))
     val bodyContent = wsOrNl ~ '{' ~> (withSource(delimitedRecursiveSpans(delimitedBy('}'), contextRefOrNestedBraces)) ^^ (_._2.dropRight(1)))
@@ -59,11 +57,14 @@ class TemplateParsers (directives: Map[String, Templates.Directive]) extends Def
       def createContext(parts: PartMap, docCursor: Option[DocumentCursor]): Templates.DirectiveContext = {
         new DirectiveContextBase(parts, docCursor) with Templates.DirectiveContext {
           val parser = new Templates.Parser {
-            def apply(source: String) = nestedTemplateSpans(ParserContext(source))
+            def apply(source: String): Seq[TemplateSpan] = templateSpans.parse(source) match {
+              case Success(spans, _)  => spans
+              case Failure(msg, next) => List(InvalidElement(msg.message(next), source).asTemplateSpan)
+            }
           }
         }
       }
-      def invalid (msg: String) = InvalidElement(msg, "@" + source).asTemplateSpan
+      def invalid (msg: String): TemplateSpan = InvalidElement(msg, "@" + source).asTemplateSpan
 
       applyDirective(Templates)(result, directives.get, createContext, s => DirectiveSpan(s), invalid, "template")
     }
