@@ -111,10 +111,7 @@ trait Parsers {
 
   case class ParserException (result: Failure) extends RuntimeException(result.toString)
 
-  /** A parser function for the specified parser that is expected to consume
-    * all input and always succeed, throwing unexpected parser failures
-    * as exceptions instead.
-    */
+  // TODO - 0.12 - remove once all resources are embedded
   def unsafeParserFunction[T] (parser: Parser[T]): ParserContext => T = {
     val baseParser = Parsers.consumeAll(parser);
     { ctx: ParserContext =>

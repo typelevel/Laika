@@ -35,21 +35,21 @@ class ParseAPISpec extends FlatSpec
     val input = """aaa
       |bbb
       |ccc""".stripMargin
-    parser.parse(input).content should be (root(p(input)))
+    parser.parse(input).toOption.get.content should be (root(p(input)))
   }
   
   it should "allow parsing Markdown with all link references resolved through the default rewrite rules" in {
     val input = """[link][id]
       |
       |[id]: http://foo/""".stripMargin
-    parser.parse(input).content should be (root(p(link(txt("link")).url("http://foo/"))))
+    parser.parse(input).toOption.get.content should be (root(p(link(txt("link")).url("http://foo/"))))
   }
   
   it should "allow parsing Markdown into a raw document, without applying the default rewrite rules" in {
     val input = """[link][id]
       |
       |[id]: http://foo/""".stripMargin
-    MarkupParser.of(Markdown).withoutRewrite.build.parse(input).content should be (root 
+    MarkupParser.of(Markdown).withoutRewrite.build.parse(input).toOption.get.content should be (root 
         (p (LinkReference(List(Text("link")), "id", "[link][id]")), ExternalLinkDefinition("id","http://foo/",None)))
   }
   

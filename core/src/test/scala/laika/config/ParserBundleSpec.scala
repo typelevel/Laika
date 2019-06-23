@@ -108,7 +108,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
 
       val bundle = BundleProvider.forMarkupParser(blockParsers = Seq(blockFor('+')))
 
-      MarkupParser.of(Parser).using(bundle).build.parse(input) shouldBe doc('>' -> "aaa\naaa", '+' -> "bbb\nbbb")
+      MarkupParser.of(Parser).using(bundle).build.parse(input).toOption.get shouldBe doc('>' -> "aaa\naaa", '+' -> "bbb\nbbb")
     }
 
     "merge the block parsers from two app extensions" in new BlockParserSetup {
@@ -117,7 +117,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
       val bundle1 = BundleProvider.forMarkupParser(blockParsers = Seq(blockFor('+')))
       val bundle2 = BundleProvider.forMarkupParser(blockParsers = Seq(blockFor('>')))
 
-      MarkupParser.of(Parser).using(bundle1, bundle2).build.parse(input) shouldBe doc('>' -> "aaa\naaa", '+' -> "bbb\nbbb")
+      MarkupParser.of(Parser).using(bundle1, bundle2).build.parse(input).toOption.get shouldBe doc('>' -> "aaa\naaa", '+' -> "bbb\nbbb")
     }
 
     "let a block parser from an app extension override a block parser from the host language" in new BlockParserSetup {
@@ -125,7 +125,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
 
       val bundle = BundleProvider.forMarkupParser(blockParsers = Seq(blockFor('+', '!')))
 
-      MarkupParser.of(Parser).using(bundle).build.parse(input) shouldBe doc('>' -> "aaa\naaa", '!' -> "bbb\nbbb")
+      MarkupParser.of(Parser).using(bundle).build.parse(input).toOption.get shouldBe doc('>' -> "aaa\naaa", '!' -> "bbb\nbbb")
     }
 
     "let a block parser from the host language override a low-precedence parser from an app extension" in new BlockParserSetup {
@@ -135,7 +135,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
         BlockParser.forStartChar('+').standalone(Parsers.success(Rule())).withLowPrecedence
       ))
 
-      MarkupParser.of(Parser).using(bundle).build.parse(input) shouldBe doc('>' -> "aaa\naaa", '+' -> "bbb\nbbb")
+      MarkupParser.of(Parser).using(bundle).build.parse(input).toOption.get shouldBe doc('>' -> "aaa\naaa", '+' -> "bbb\nbbb")
     }
 
   }
@@ -176,7 +176,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
 
       val bundle = BundleProvider.forMarkupParser(spanParsers = Seq(spanFor('+')))
 
-      MarkupParser.of(Parser).using(bundle).build.parse(input) shouldBe doc('>' -> "aaa", '+' -> "bbb")
+      MarkupParser.of(Parser).using(bundle).build.parse(input).toOption.get shouldBe doc('>' -> "aaa", '+' -> "bbb")
     }
 
     "merge the span parsers from two app extensions" in new SpanParserSetup {
@@ -185,7 +185,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
       val bundle1 = BundleProvider.forMarkupParser(spanParsers = Seq(spanFor('+')))
       val bundle2 = BundleProvider.forMarkupParser(spanParsers = Seq(spanFor('>')))
 
-      MarkupParser.of(Parser).using(bundle1, bundle2).build.parse(input) shouldBe doc('>' -> "aaa", '+' -> "bbb")
+      MarkupParser.of(Parser).using(bundle1, bundle2).build.parse(input).toOption.get shouldBe doc('>' -> "aaa", '+' -> "bbb")
     }
 
     "let a span parser from an app extension override a span parser from the host language" in new SpanParserSetup {
@@ -193,7 +193,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
 
       val bundle = BundleProvider.forMarkupParser(spanParsers = Seq(spanFor('+', '!')))
 
-      MarkupParser.of(Parser).using(bundle).build.parse(input) shouldBe doc('>' -> "aaa", '!' -> "bbb")
+      MarkupParser.of(Parser).using(bundle).build.parse(input).toOption.get shouldBe doc('>' -> "aaa", '!' -> "bbb")
     }
 
     "let a span parser from the host language override a low-precedence parser from an app extension" in new SpanParserSetup {
@@ -203,7 +203,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
         SpanParser.forStartChar('+').standalone(Parsers.success(SpanSequence(Nil))).withLowPrecedence
       ))
 
-      MarkupParser.of(Parser).using(bundle).build.parse(input) shouldBe doc('>' -> "aaa", '+' -> "bbb")
+      MarkupParser.of(Parser).using(bundle).build.parse(input).toOption.get shouldBe doc('>' -> "aaa", '+' -> "bbb")
     }
 
 
@@ -242,7 +242,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
       val parserBundles = Seq(BundleProvider.forParserHooks(preProcessInput = preProcess("!")))
       val appBundle = BundleProvider.forParserHooks(preProcessInput = preProcess("?"))
 
-      MarkupParser.of(Parser).using(appBundle).build.parse("foo") shouldBe doc("foo!?")
+      MarkupParser.of(Parser).using(appBundle).build.parse("foo").toOption.get shouldBe doc("foo!?")
     }
 
     "apply the hook from an app extension before the hook in a subsequently installed app extension" in new ParserHookSetup {
@@ -250,13 +250,13 @@ class ParserBundleSpec extends WordSpec with Matchers {
       val appBundle1 = BundleProvider.forParserHooks(preProcessInput = preProcess("!"))
       val appBundle2 = BundleProvider.forParserHooks(preProcessInput = preProcess("?"))
 
-      MarkupParser.of(Parser).using(appBundle1, appBundle2).build.parse("foo") shouldBe doc("foo!?")
+      MarkupParser.of(Parser).using(appBundle1, appBundle2).build.parse("foo").toOption.get shouldBe doc("foo!?")
     }
 
     "provide the identity function when no hook is defined" in new ParserHookSetup {
       val parserBundles = Nil
 
-      MarkupParser.of(Parser).build.parse("foo") shouldBe doc("foo")
+      MarkupParser.of(Parser).build.parse("foo").toOption.get shouldBe doc("foo")
     }
 
   }
@@ -267,7 +267,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
       val parserBundles = Seq(BundleProvider.forParserHooks(postProcessDocument = processDoc("!")))
       val appBundle = BundleProvider.forParserHooks(postProcessDocument = processDoc("?"))
 
-      MarkupParser.of(Parser).using(appBundle).build.parse("foo") shouldBe doc("foo!?")
+      MarkupParser.of(Parser).using(appBundle).build.parse("foo").toOption.get shouldBe doc("foo!?")
     }
 
     "apply the hook from an app extension before the hook in a subsequently installed app extension" in new ParserHookSetup {
@@ -275,13 +275,13 @@ class ParserBundleSpec extends WordSpec with Matchers {
       val appBundle1 = BundleProvider.forParserHooks(postProcessDocument = processDoc("!"))
       val appBundle2 = BundleProvider.forParserHooks(postProcessDocument = processDoc("?"))
 
-      MarkupParser.of(Parser).using(appBundle1, appBundle2).build.parse("foo") shouldBe doc("foo!?")
+      MarkupParser.of(Parser).using(appBundle1, appBundle2).build.parse("foo").toOption.get shouldBe doc("foo!?")
     }
 
     "provide the identity function when no hook is defined" in new ParserHookSetup {
       val parserBundles = Nil
 
-      MarkupParser.of(Parser).build.parse("foo") shouldBe doc("foo")
+      MarkupParser.of(Parser).build.parse("foo").toOption.get shouldBe doc("foo")
     }
 
   }
@@ -292,7 +292,7 @@ class ParserBundleSpec extends WordSpec with Matchers {
       val parserBundles = Seq(BundleProvider.forParserHooks(postProcessBlocks = processBlocks("!")))
       val appBundle = BundleProvider.forParserHooks(postProcessBlocks = processBlocks("?"))
 
-      MarkupParser.of(Parser).using(appBundle).build.parse("foo") shouldBe doc("foo!?")
+      MarkupParser.of(Parser).using(appBundle).build.parse("foo").toOption.get shouldBe doc("foo!?")
     }
 
     "apply the hook from an app extension before the hook in a subsequently installed app extension" in new ParserHookSetup {
@@ -300,13 +300,13 @@ class ParserBundleSpec extends WordSpec with Matchers {
       val appBundle1 = BundleProvider.forParserHooks(postProcessBlocks = processBlocks("!"))
       val appBundle2 = BundleProvider.forParserHooks(postProcessBlocks = processBlocks("?"))
 
-      MarkupParser.of(Parser).using(appBundle1, appBundle2).build.parse("foo") shouldBe doc("foo!?")
+      MarkupParser.of(Parser).using(appBundle1, appBundle2).build.parse("foo").toOption.get shouldBe doc("foo!?")
     }
 
     "provide the identity function when no hook is defined" in new ParserHookSetup {
       val parserBundles = Nil
 
-      MarkupParser.of(Parser).build.parse("foo") shouldBe doc("foo")
+      MarkupParser.of(Parser).build.parse("foo").toOption.get shouldBe doc("foo")
     }
 
   }

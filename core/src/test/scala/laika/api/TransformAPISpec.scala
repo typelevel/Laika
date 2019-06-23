@@ -39,26 +39,26 @@ class TransformAPISpec extends FlatSpec
   
   
   "The Transform API" should "Transformer.from(string to string" in {
-    (builder.build transform input) should be (output)
+    builder.build.transform(input).toOption.get should be (output)
   }
   
   it should "allow to override the default renderer for specific element types" in {
     val modifiedOutput = output.replaceAllLiterally(". Text", ". String")
     val transformCustom = builder rendering { case (_, Text(content,_)) => s"String - '$content'" }
-    (transformCustom.build transform input) should be (modifiedOutput)
+    transformCustom.build.transform(input).toOption.get should be (modifiedOutput)
   }
   
   it should "allow to specify a custom rewrite rule" in {
     val modifiedOutput = output.replaceAllLiterally("äöü", "zzz")
     val transformCustom = builder usingSpanRule { case Text("Title äöü",_) => Replace(Text("Title zzz")) }
-    (transformCustom.build transform input) should be (modifiedOutput)
+    transformCustom.build.transform(input).toOption.get should be (modifiedOutput)
   }
   
   it should "allow to specify multiple rewrite rules" in {
     val modifiedOutput = output.replaceAllLiterally("äöü", "zzz").replaceAllLiterally("text", "new")
     val transformCustom = builder usingSpanRule { case Text("Title äöü",_) => Replace(Text("Title zzz")) } usingSpanRule
                                                   { case Text("text",_)      => Replace(Text("new")) }
-    (transformCustom.build transform input) should be (modifiedOutput)
+    transformCustom.build.transform(input).toOption.get should be (modifiedOutput)
   }
   
   it should "allow to specify a custom rewrite rule that depends on the document" in {
@@ -66,7 +66,7 @@ class TransformAPISpec extends FlatSpec
     val transformCustom = builder creatingRule { cursor => RewriteRules.forSpans { 
       case Text("Title äöü",_) => Replace(Text("Title " + cursor.target.content.content.length)) 
     }}
-    (transformCustom.build transform input) should be (modifiedOutput)
+    transformCustom.build.transform(input).toOption.get should be (modifiedOutput)
   }
 
 

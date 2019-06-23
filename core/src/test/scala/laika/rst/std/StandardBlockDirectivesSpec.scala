@@ -36,10 +36,17 @@ class StandardBlockDirectivesSpec extends FlatSpec
 
    val simplePars: List[Paragraph] = List(p("1st Para"), p("2nd Para"))
    
-   def parseDoc (input: String): Document = MarkupParser.of(ReStructuredText).build.parse(input)
+   def parseDoc (input: String): Document = MarkupParser.of(ReStructuredText).build.parse(input).toOption.get
 
-   def parseRaw (input: String): RootElement = MarkupParser.of(ReStructuredText).withoutRewrite.build.parse(input).content
-     .rewriteBlocks({ case _: Temporary with Block => Remove })
+   def parseRaw (input: String): RootElement = MarkupParser
+     .of(ReStructuredText)
+     .withoutRewrite
+     .build
+     .parse(input)
+     .toOption
+     .get
+     .content
+     .rewriteBlocks({ case _: Temporary with Block => Remove }) // removing the noise of rst TextRoles which are not the focus of this spec
 
    def parse (input: String): RootElement = parseDoc(input).content
    
@@ -668,7 +675,7 @@ class StandardBlockDirectivesSpec extends FlatSpec
       |
       | some more""".stripMargin
     val result = root (RawContent(List("format"), "some input\n\nsome more"))
-    MarkupParser.of(ReStructuredText).withRawContent.build.parse(input).content should be (result)
+    MarkupParser.of(ReStructuredText).withRawContent.build.parse(input).toOption.get.content should be (result)
   }
   
   

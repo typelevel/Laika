@@ -31,7 +31,7 @@ class StandardTextRolesSpec extends FlatSpec
                             with ModelBuilder {
 
   
-  def parse (input: String): RootElement = MarkupParser.of(ReStructuredText).build.parse(input).content
+  def parse (input: String): RootElement = MarkupParser.of(ReStructuredText).build.parse(input).toOption.get.content
   
   
   "The emphasis text role" should "produce an Emphasized node without styles" in {
@@ -178,7 +178,7 @@ class StandardTextRolesSpec extends FlatSpec
       |
       |some :foo:`text`""".stripMargin
     val result = root(p(txt("some "), RawContent(List("AML","BML","CML"), "text", Styles("foo"))))
-    MarkupParser.of(ReStructuredText).withRawContent.build.parse(input).content should be (result)
+    MarkupParser.of(ReStructuredText).withRawContent.build.parse(input).toOption.get.content should be (result)
   }
 
   it should "be disabled by default" in {
@@ -196,7 +196,7 @@ class StandardTextRolesSpec extends FlatSpec
     val input = "some `text`"
     val result = root(p(txt("some "), Emphasized(List(Text("text")))))
     MarkupParser.of(ReStructuredText).using(ExtensionProvider.forDefaultTextRole("emphasis")).build.parse(input)
-      .content should be (result)
+      .toOption.get.content should be (result)
   } 
   
   

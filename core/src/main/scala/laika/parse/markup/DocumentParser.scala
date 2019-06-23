@@ -23,7 +23,6 @@ import laika.factory.MarkupFormat
 import laika.parse.combinator.Parsers
 import laika.parse.{Failure, Parser, ParserContext, Success}
 import laika.parse.directive.ConfigHeaderParser
-import laika.parse.text.TextParsers.unsafeParserFunction
 
 /** Responsible for creating the top level parsers for text markup and template documents,
   * by combining the parser for the root element with a parser for an (optional) configuration
@@ -40,21 +39,20 @@ object DocumentParser {
 
   type ConfigHeaderParser = Path => Parser[Either[InvalidElement, Config]]
 
-  private def create [D, R <: ElementContainer[_]](rootParser: Parser[R],
-                                             configHeaderParser: ConfigHeaderParser)
-                                            (docFactory: (Path, Config, Option[InvalidElement], R) => D): ParserInput => D = { input =>
+  private def create [D, R <: ElementContainer[_]] (rootParser: Parser[R], configHeaderParser: ConfigHeaderParser)
+    (docFactory: (Path, Config, Option[InvalidElement], R) => D): ParserInput => Either[ParserError, D] = {
 
     def extractConfigValues (root: R): Map[String,AnyRef] =
       root.collect { case c: ConfigValue => (c.name, c.value) }.toMap
 
-    val parser = configHeaderParser(input.path) ~ rootParser ^^ { case configHeader ~ root =>
-      val config = configHeader.getOrElse(ConfigFactory.empty)
-      val message = configHeader.swap.toOption
-      val processedConfig = ConfigHeaderParser.merge(config, extractConfigValues(root))
-      docFactory(input.path, processedConfig, message, root)
+    forParser { path =>
+      configHeaderParser(path) ~ rootParser ^^ { case configHeader ~ root =>
+        val config = configHeader.getOrElse(ConfigFactory.empty)
+        val message = configHeader.swap.toOption
+        val processedConfig = ConfigHeaderParser.merge(config, extractConfigValues(root))
+        docFactory(path, processedConfig, message, root)
+      }
     }
-
-    unsafeParserFunction(parser)(input.context)
   }
 
   /** Combines the specified markup parsers and extensions and the parser for (optional) configuration
@@ -62,19 +60,19 @@ object DocumentParser {
     */
   def forMarkup (markupParser: MarkupFormat,
                  markupExtensions: MarkupExtensions,
-                 configHeaderParser: ConfigHeaderParser): ParserInput => Document = {
+                 configHeaderParser: ConfigHeaderParser): ParserInput => Either[ParserError, Document] = {
 
     val rootParser = new RootParser(markupParser, markupExtensions).rootElement
 
     markupExtensions.parserHooks.preProcessInput andThen
       forMarkup(rootParser, configHeaderParser) andThen
-      markupExtensions.parserHooks.postProcessDocument
+      { _.map(markupExtensions.parserHooks.postProcessDocument) }
   }
 
   /** Combines the specified parsers for the root element and for (optional) configuration
     * headers to create a parser function for an entire text markup document.
     */
-  def forMarkup (rootParser: Parser[RootElement], configHeaderParser: ConfigHeaderParser): ParserInput => Document =
+  def forMarkup (rootParser: Parser[RootElement], configHeaderParser: ConfigHeaderParser): ParserInput => Either[ParserError, Document] =
 
     create(rootParser, configHeaderParser) { (path, config, invalid, root) =>
 
@@ -88,7 +86,7 @@ object DocumentParser {
   /** Combines the specified parsers for the root element and for (optional) configuration
     * headers to create a parser function for an entire template document.
     */
-  def forTemplate (rootParser: Parser[TemplateRoot], configHeaderParser: ConfigHeaderParser): ParserInput => TemplateDocument = {
+  def forTemplate (rootParser: Parser[TemplateRoot], configHeaderParser: ConfigHeaderParser): ParserInput => Either[ParserError, TemplateDocument] = {
 
     create(rootParser, configHeaderParser) { (path, config, invalid, root) =>
 
@@ -103,21 +101,19 @@ object DocumentParser {
   /** Builds a document parser for CSS documents based on the specified parser for style declarations.
     */
   def forStyleSheets (parser: Parser[Set[StyleDeclaration]]): ParserInput => Either[ParserError, StyleDeclarationSet] = 
-    forParser(parser) { (path, result) => StyleDeclarationSet.forPath(path, result) }
+    forParser { path => parser.map(res => StyleDeclarationSet.forPath(path, res)) }
 
   /** A document parser function for the specified parser that is expected to consume
     * all input.
-    * 
-    * The specified function is invoked in case of successful completion, passing
-    * the path of the document and the result.
+    *
+    * The specified function is invoked for each parsed document, so that a parser
+    * dependent on the input path can be created.
     */
-  def forParser[T, U] (parser: Parser[T])(f: (Path, T) => U): ParserInput => Either[ParserError, U] = {
-    val baseParser = Parsers.consumeAll(parser);
-    { in: ParserInput =>
-      baseParser.parse(in.context) match {
-        case Success(result, _) => Right(f(in.path, result))
-        case ns: Failure        => Left(ParserError(ns.message, in.path))
-      }
+  def forParser[T] (p: Path => Parser[T]): ParserInput => Either[ParserError, T] = { in =>
+    val baseParser = Parsers.consumeAll(p(in.path))
+    baseParser.parse(in.context) match {
+      case Success(result, _) => Right(result)
+      case ns: Failure        => Left(ParserError(ns.message, in.path))
     }
   }
 

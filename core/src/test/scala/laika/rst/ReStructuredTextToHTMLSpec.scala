@@ -84,7 +84,7 @@ class ReStructuredTextToHTMLSpec extends FlatSpec
       case (fmt, QuotedBlock(content,attr,opt)) => renderBlocks(fmt, "blockquote", opt, quotedBlockContent(content,attr))
       case (fmt, InternalLinkTarget(opt))       => fmt.textElement("span", opt, "")
       case (_, i: InvalidBlock)                 => ""
-    }.build.transform(input)
+    }.build.transform(input).toOption.get
     
     val expected = readFile(path + "-tidy.html")
     tidyAndAdjust(actual) should be (expected)

@@ -59,6 +59,8 @@ class MarkdownToHTMLSpec extends FlatSpec
       }
       .build
       .transform(input)
+      .toOption
+      .get
     val expected = readFile(path + ".html")
     tidyAndAdjust(actual) should be (tidyAndAdjust(expected))
   }

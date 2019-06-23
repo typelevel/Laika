@@ -23,7 +23,7 @@ import laika.api.builder.OperationConfig
 import laika.factory.MarkupFormat
 import laika.parse.ParserContext
 import laika.parse.markup.DocumentParser
-import laika.parse.markup.DocumentParser.ParserInput
+import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
 
 class MarkupParser (parser: MarkupFormat, val config: OperationConfig, val rewrite: Boolean) {
 
@@ -31,14 +31,14 @@ class MarkupParser (parser: MarkupFormat, val config: OperationConfig, val rewri
   
   private val docParser = DocumentParser.forMarkup(parser, config.markupExtensions, config.configHeaderParser)
 
-  def parse (input: String): Document = parse(ParserInput(Root, ParserContext(input)))
+  def parse (input: String): Either[ParserError, Document] = parse(ParserInput(Root, ParserContext(input)))
 
-  def parse (input: String, path: Path): Document = parse(ParserInput(path, ParserContext(input)))
+  def parse (input: String, path: Path): Either[ParserError, Document] = parse(ParserInput(path, ParserContext(input)))
   
-  def parse (input: ParserInput): Document = {
-    val doc = docParser(input)
-    if (rewrite) doc.rewrite(config.rewriteRulesFor(doc))
-    else doc
+  def parse (input: ParserInput): Either[ParserError, Document] = {
+    val res = docParser(input)
+    if (rewrite) res.map(doc => doc.rewrite(config.rewriteRulesFor(doc)))
+    else res
   }
 
 }

@@ -27,8 +27,9 @@ object ParserRuntime {
     for {
       input       <- op.input
       parserInput <- InputRuntime.readParserInput(input)
-    } yield 
-      op.parser.parse(parserInput)    
+      res         <- Async[F].fromEither(op.parser.parse(parserInput))
+    } yield res
+          
   }
   
   private object interimModel {
@@ -74,7 +75,7 @@ object ParserRuntime {
     }
       
     // TODO - 0.12 - create these in Op or OperationConfig
-    lazy val templateParser: Option[ParserInput => TemplateDocument] = op.config.templateParser map { rootParser =>
+    lazy val templateParser: Option[ParserInput => Either[ParserError, TemplateDocument]] = op.config.templateParser map { rootParser =>
       DocumentParser.forTemplate(rootParser, op.config.configHeaderParser)
     }
     lazy val styleSheetParser: ParserInput => Either[ParserError, StyleDeclarationSet] = 
@@ -90,8 +91,8 @@ object ParserRuntime {
         InputRuntime.readParserInput(input).flatMap(in => Async[F].fromEither(parse(in).map(result)))
       
       val createOps: Either[Throwable, Vector[F[ParserResult]]] = inputs.textInputs.toVector.map { in => in.docType match {
-        case Markup             => selectParser(in.path).map(parser => Vector(parseDocumentTemp(in, parser.parse, MarkupResult)))
-        case Template           => templateParser.map(parseDocumentTemp(in, _, TemplateResult)).toVector.validNel
+        case Markup             => selectParser(in.path).map(parser => Vector(parseDocument(in, parser.parse, MarkupResult)))
+        case Template           => templateParser.map(parseDocument(in, _, TemplateResult)).toVector.validNel
         case StyleSheet(format) => Vector(parseDocument(in, styleSheetParser, StyleResult(_, format))).validNel
         case Config             => Vector(parseDocumentTemp(in, ConfigProvider.fromInput, ConfigResult(in.path, _))).validNel
       }}.combineAll.toEither.leftMap(es => ParserErrors(es.toList))
