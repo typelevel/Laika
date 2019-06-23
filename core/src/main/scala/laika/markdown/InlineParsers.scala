@@ -16,9 +16,11 @@
 
 package laika.markdown
 
+import java.io
+
 import laika.ast._
 import laika.bundle.{SpanParser, SpanParserBuilder}
-import laika.parse.{Parser, ParserContext}
+import laika.parse.{Failure, Parser, ParserContext, Success}
 import laika.parse.markup.InlineParsers.text
 import laika.parse.markup.RecursiveSpanParsers
 import laika.parse.text.TextParsers._
@@ -155,13 +157,16 @@ object InlineParsers {
     */
   val image: SpanParserBuilder = SpanParser.forStartChar('!').recursive { recParsers =>
 
-    val escape = unsafeParserFunction(recParsers.escapedText(DelimitedText.Undelimited))
+    def escape (ctx: ParserContext): Either[Span, String] = recParsers.escapedText(DelimitedText.Undelimited).parse(ctx)  match {
+      case Success(span, _)  => Right(span)
+      case Failure(msg, next) => Left(InvalidElement(msg.message(next), ctx.input).asSpan)
+    }
 
     def imageInline (p: RecParser, text: String, uri: String, title: Option[String]) =
-      Image(escape(ParserContext(text)), URI(uri), title = title)
+      escape(ParserContext(text)).map(Image(_, URI(uri), title = title)).fold(identity, identity)
 
     def imageReference (p: RecParser, text: String, id: String, postFix: String): Span =
-      ImageReference(escape(ParserContext(text)), normalizeId(id), "![" + text + postFix)
+      escape(ParserContext(text)).map(ImageReference(_, normalizeId(id), "![" + text + postFix)).fold(identity, identity)
 
     '[' ~> resource(imageInline, imageReference, recParsers)
   }
