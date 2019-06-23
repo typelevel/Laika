@@ -33,6 +33,8 @@ import laika.parse.text.TextParsers.unsafeParserFunction
 object DocumentParser {
   
   case class ParserInput (path: Path, context: ParserContext)
+  
+  case class ParserError (message: String) extends RuntimeException(message)
 
   type ConfigHeaderParser = Path => Parser[Either[InvalidElement, Config]]
 

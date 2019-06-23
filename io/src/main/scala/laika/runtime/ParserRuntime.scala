@@ -7,7 +7,7 @@ import laika.ast.{TemplateDocument, _}
 import laika.bundle.ConfigProvider
 import laika.io.model.{DirectoryInput, InputCollection, ParsedTree, TextInput}
 import laika.parse.markup.DocumentParser
-import laika.parse.markup.DocumentParser.ParserInput
+import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
 import com.typesafe.config.{Config => TConfig}
 import cats.implicits._
 import laika.api.MarkupParser
@@ -81,14 +81,18 @@ object ParserRuntime {
     
     def parseAll(inputs: InputCollection): F[ParsedTree] = {
 
-      def parseDocument[D] (input: TextInput, parse: ParserInput => D, result: D => ParserResult): F[ParserResult] =
-        InputRuntime.readParserInput(input).map(parse.andThen(result))
+      // TODO - 0.12 - remove once all underlying parsers produce Eithers
+      def parseDocumentTemp[D] (input: TextInput, parse: ParserInput => D, result: D => ParserResult): F[ParserResult] =
+        parseDocument(input, in => Right(parse(in)), result)
+      
+      def parseDocument[D] (input: TextInput, parse: ParserInput => Either[ParserError, D], result: D => ParserResult): F[ParserResult] =
+        InputRuntime.readParserInput(input).flatMap(in => Async[F].fromEither(parse(in).map(result)))
       
       val createOps: Either[Throwable, Vector[F[ParserResult]]] = inputs.textInputs.toVector.map { in => in.docType match {
-        case Markup             => selectParser(in.path).map(parser => Vector(parseDocument(in, parser.parse, MarkupResult)))
-        case Template           => templateParser.map(parseDocument(in, _, TemplateResult)).toVector.validNel
-        case StyleSheet(format) => Vector(parseDocument(in, styleSheetParser, StyleResult(_, format))).validNel
-        case Config             => Vector(parseDocument(in, ConfigProvider.fromInput, ConfigResult(in.path, _))).validNel
+        case Markup             => selectParser(in.path).map(parser => Vector(parseDocumentTemp(in, parser.parse, MarkupResult)))
+        case Template           => templateParser.map(parseDocumentTemp(in, _, TemplateResult)).toVector.validNel
+        case StyleSheet(format) => Vector(parseDocumentTemp(in, styleSheetParser, StyleResult(_, format))).validNel
+        case Config             => Vector(parseDocumentTemp(in, ConfigProvider.fromInput, ConfigResult(in.path, _))).validNel
       }}.combineAll.toEither.leftMap(es => ParserErrors(es.toList))
       
       def buildNode (path: Path, content: Seq[ParserResult]): TreeResult = {
