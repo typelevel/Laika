@@ -40,6 +40,15 @@ object RendererRuntime {
     * a character output format.
     */
   def run[F[_]: Async: Runtime] (op: ParallelRenderer.Op[F]): F[RenderedTreeRoot] = {
+    
+    def validatePaths (staticDocs: Seq[BinaryInput]): F[Unit] = {
+      val paths = op.input.allDocuments.map(_.path) ++ staticDocs.map(_.path)
+      val duplicates = paths.groupBy(identity).values.collect {
+        case p if p.size > 1 => DuplicatePath(p.head)
+      }
+      if (duplicates.isEmpty) Async[F].unit
+      else Async[F].raiseError(RendererErrors(duplicates.toSeq))
+    }
 
     val fileSuffix = op.renderer.format.fileSuffix
     val finalRoot = op.renderer.applyTheme(op.input)
@@ -103,6 +112,7 @@ object RendererRuntime {
 
     for {
       static <- op.staticDocuments
+      _      <- validatePaths(static)
       ops    <- renderOps(static)
       _      <- ops.mkDirOps.toVector.sequence
       res    <- processBatch(ops.renderOps, static)
@@ -131,5 +141,16 @@ object RendererRuntime {
     } yield ()
       
   }
+
+  // TODO - unify with ParserErrors (as TransformationErrors)
+  case class DuplicatePath (path: Path, filePaths: Set[String] = Set.empty) extends
+    RuntimeException(s"Duplicate path: $path ${filePathMessage(filePaths)}")
+
+  case class RendererErrors (errors: Seq[Throwable]) extends
+    RuntimeException(s"Multiple errors during rendering: ${errors.map(_.getMessage).mkString(", ")}")
+
+  private def filePathMessage (filePaths: Set[String]): String =
+    if (filePaths.isEmpty) "(no matching file paths)"
+    else s"with matching file paths: ${filePaths.mkString(", ")}"
 
 }

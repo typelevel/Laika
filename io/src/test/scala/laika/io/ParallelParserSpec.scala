@@ -31,6 +31,7 @@ import laika.io.model.TreeInput
 import laika.parse.Parser
 import laika.parse.text.TextParsers
 import laika.rewrite.TemplateRewriter
+import laika.runtime.ParserRuntime.{DuplicatePath, ParserErrors}
 import laika.runtime.TestContexts._
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -181,6 +182,19 @@ class ParallelParserSpec extends FlatSpec
     val template = TemplateView(Root / "main.template.html", TemplateRoot(List(TemplateString("foo"))))
     val treeResult = TreeView(Root, List(TemplateDocuments(List(template)))).asRoot
     rawParsedTree should be (treeResult)
+  }
+
+  it should "fail with duplicate paths" in new TreeParser {
+    val inputs = Seq(
+      Root / "doc1.md"  -> Contents.name,
+      Root / "doc2.md"  -> Contents.name,
+      Root / "doc2.md"  -> Contents.name,
+      Root / "sub" / "doc.md"  -> Contents.name,
+      Root / "sub" / "doc.md"  -> Contents.name
+    )
+    defaultParser.fromInput(build(inputs)).parse.attempt.unsafeRunSync() shouldBe Left(
+      ParserErrors(Seq(DuplicatePath(Root / "doc2.md"), DuplicatePath(Root / "sub" / "doc.md")))
+    )
   }
 
   it should "parse a tree with a static document" in new TreeParser {

@@ -5,7 +5,7 @@ import cats.effect.Async
 import com.typesafe.config.ConfigFactory
 import laika.ast.{TemplateDocument, _}
 import laika.bundle.ConfigProvider
-import laika.io.model.{DirectoryInput, InputCollection, ParsedTree, TextInput}
+import laika.io.model.{DirectoryInput, InputCollection, ParsedTree, TextFileInput, TextInput}
 import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
 import com.typesafe.config.{Config => TConfig}
@@ -19,7 +19,7 @@ import laika.io.text.{ParallelParser, SequentialParser}
   *  @author Jens Halm
   */
 object ParserRuntime {
-
+  
   /** Run the specified parser operation for a single input,
     * producing a single document.
     */
@@ -51,11 +51,6 @@ object ParserRuntime {
       val path: Path = tree.path
     }
     
-    case class NoMatchingParser (path: Path, suffixes: Set[String]) extends
-      RuntimeException(s"No matching parser available for path: $path - supported suffixes: ${suffixes.mkString(",")}")
-    
-    case class ParserErrors (errors: Seq[Throwable]) extends 
-      RuntimeException(s"Multiple errors during parsing: ${errors.map(_.getMessage).mkString(", ")}")
   }
 
   /** Run the specified parser operation for an entire input tree,
@@ -82,6 +77,17 @@ object ParserRuntime {
       DocumentParser.forStyleSheets(op.config.styleSheetParser)
     
     def parseAll(inputs: InputCollection): F[ParsedTree] = {
+      
+      def validateInputPaths: F[Unit] = {
+        val duplicates = (inputs.binaryInputs ++ inputs.textInputs)
+          .map(i => i.path -> i)
+          .groupBy(_._1)
+          .collect { case (path, in) if in.size > 1 => 
+            DuplicatePath(path, in.collect { case (_, i: TextFileInput) => i.file.getAbsolutePath }.toSet)
+          }
+        if (duplicates.isEmpty) Async[F].unit
+        else Async[F].raiseError(ParserErrors(duplicates.toSeq))
+      }
 
       // TODO - 0.12 - remove once all underlying parsers produce Eithers
       def parseDocumentTemp[D] (input: TextInput, parse: ParserInput => D, result: D => ParserResult): F[ParserResult] =
@@ -130,6 +136,7 @@ object ParserRuntime {
       }
       
       for {
+        _       <- validateInputPaths
         ops     <- Async[F].fromEither(createOps)
         results <- implicitly[Runtime[F]].runParallel(ops)
       } yield processResults(results)
@@ -143,4 +150,16 @@ object ParserRuntime {
     
   }
 
+  case class NoMatchingParser (path: Path, suffixes: Set[String]) extends
+    RuntimeException(s"No matching parser available for path: $path - supported suffixes: ${suffixes.mkString(",")}")
+
+  case class DuplicatePath (path: Path, filePaths: Set[String] = Set.empty) extends
+    RuntimeException(s"Duplicate path: $path ${filePathMessage(filePaths)}")
+
+  case class ParserErrors (errors: Seq[Throwable]) extends
+    RuntimeException(s"Multiple errors during parsing: ${errors.map(_.getMessage).mkString(", ")}")
+
+  private def filePathMessage (filePaths: Set[String]): String =
+    if (filePaths.isEmpty) "(no matching file paths)"
+    else s"with matching file paths: ${filePaths.mkString(", ")}"
 }

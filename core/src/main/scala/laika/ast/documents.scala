@@ -265,18 +265,6 @@ trait TreeStructure { this: TreeContent =>
     */
   def templates: Seq[TemplateDocument]
 
-  private def toMap [T <: Navigatable] (navigatables: Seq[T]): Map[String,T] = {
-    navigatables groupBy (_.name) mapValuesStrict {
-      case Seq(nav) => nav
-      case multiple => throw new IllegalStateException("Multiple navigatables with the name " +
-          s"${multiple.head.name} in tree $path")
-    }
-  }
-
-  private val documentsByName = toMap(content collect {case d: Document => d})
-  private val templatesByName = toMap(templates)
-  private val subtreesByName = toMap(content collect {case t: DocumentTree => t})
-
   /** Selects a document from this tree or one of its subtrees by the specified path.
    *  The path needs to be relative.
    */
@@ -286,9 +274,9 @@ trait TreeStructure { this: TreeContent =>
    *  The path needs to be relative.
    */
   def selectDocument (path: Path): Option[Document] = path match {
-    case Current / localName => documentsByName.get(localName)
-    case base / localName => selectSubtree(base) flatMap (_.selectDocument(localName))
-    case _ => None
+    case Current / localName => content.collectFirst { case d: Document if d.path.name == localName => d }
+    case base / localName    => selectSubtree(base) flatMap (_.selectDocument(localName))
+    case _                   => None
   }
 
   /** Selects a template from this tree or one of its subtrees by the specified path.
@@ -300,7 +288,7 @@ trait TreeStructure { this: TreeContent =>
    *  The path needs to be relative.
    */
   def selectTemplate (path: Path): Option[TemplateDocument] = path match {
-    case Current / localName => templatesByName.get(localName)
+    case Current / localName => templates.find(_.path.name == localName)
     case base / localName => selectSubtree(base) flatMap (_.selectTemplate(localName))
     case _ => None
   }
@@ -333,7 +321,7 @@ trait TreeStructure { this: TreeContent =>
    */
   def selectSubtree (path: Path): Option[DocumentTree] = path match {
     case Current => Some(targetTree)
-    case Current / localName => subtreesByName.get(localName)
+    case Current / localName => content.collectFirst { case t: DocumentTree if t.path.name == localName => t }
     case base / localName => selectSubtree(base) flatMap (_.selectSubtree(localName))
     case _ => None
   }

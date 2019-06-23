@@ -30,6 +30,7 @@ import laika.io.helper.OutputBuilder._
 import laika.io.helper.{InputBuilder, OutputBuilder, RenderResult}
 import laika.io.model.StringTreeOutput
 import laika.render._
+import laika.runtime.RendererRuntime.{DuplicatePath, RendererErrors}
 import laika.runtime.TestContexts._
 import org.scalatest.{Assertion, FlatSpec, Matchers}
 
@@ -141,6 +142,27 @@ class ParallelRendererSpec extends FlatSpec
       val expected = RenderResult.html.withDefaultTemplate("Title", """<h1 id="title" class="title">Title</h1>
         |      <p>bbb</p>""".stripMargin)
       renderedTree.tree should be (RenderedTreeView(Root, List(DocumentViews(List(RenderedDocumentView(Root / "doc.html", expected))))))
+    }
+  }
+
+  it should "fail with duplicate paths" in {
+    new HTMLRenderer {
+      val input = DocumentTree(Root, List(
+        Document(Root / "doc1", rootElem),
+        Document(Root / "doc2", rootElem),
+        Document(Root / "doc2", rootElem),
+        Document(Root / "sub" / "doc", rootElem),
+        Document(Root / "sub" / "doc", rootElem)
+      ))
+      val res = renderer
+        .from(treeRoot)
+        .toOutput(IO.pure(StringTreeOutput))
+        .render
+        .attempt
+        .unsafeRunSync()
+      res shouldBe Left(
+        RendererErrors(Seq(DuplicatePath(Root / "sub" / "doc"), DuplicatePath(Root / "doc2")))
+      )
     }
   }
 
