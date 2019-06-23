@@ -97,10 +97,10 @@ object ListParsers {
   private lazy val enumListStart: Parser[(EnumFormat, Int)] = {
     import EnumType._
     val firstLowerRoman = (anyOf('i','v','x','l','c','d','m').min(2) | anyOf('i').take(1)) ^^? 
-      { num => Try(RomanNumerals.romanToInt(num.toUpperCase), LowerRoman).toStringEither }
+      { num => RomanNumerals.romanToInt(num.toUpperCase).map(_ -> LowerRoman) }
     
     val firstUpperRoman = (anyOf('I','V','X','L','C','D','M').min(2) | anyOf('I').take(1)) ^^? 
-      { num => Try(RomanNumerals.romanToInt(num), UpperRoman).toStringEither }
+      { num => RomanNumerals.romanToInt(num.toUpperCase).map(_ -> UpperRoman) }
     
     val firstLowerAlpha = anyIn('a' to 'h', 'j' to 'z').take(1) ^^ 
       { char => (char.charAt(0) + 1 - 'a', LowerAlpha) } // 'i' is interpreted as Roman numerical

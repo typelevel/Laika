@@ -99,8 +99,7 @@ trait TemplateRewriter {
 
     templatePath match {
       case Some(path) =>
-        cursor.root.target.tree.selectTemplate(path)
-          .orElse(throw new IllegalStateException(s"Template not found: $templatePath"))
+        cursor.root.target.tree.selectTemplate(path) // TODO - error handling 
 
       case None =>
         val filename = "default.template." + format

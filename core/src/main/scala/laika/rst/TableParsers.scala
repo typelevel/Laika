@@ -388,7 +388,8 @@ object TableParsers {
     }
     
   }
-  
-  class MalformedTableException (msg: String) extends RuntimeException(msg)
+
+  /** Internal control-flow exception. */
+  private class MalformedTableException (msg: String) extends RuntimeException(msg)
   
 }

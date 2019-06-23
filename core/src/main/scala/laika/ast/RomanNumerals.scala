@@ -59,18 +59,16 @@ object RomanNumerals {
   
   /** Converts from Roman numerals to integer.
    */
-  def romanToInt (roman: String): Int = {
+  def romanToInt (roman: String): Either[String, Int] = {
     
-    def convert (roman: String, lastSymbol: Symbol): Int = {
+    def convert (roman: String, lastSymbol: Symbol): Either[String, Int] = {
       symbols.filter(roman startsWith _.roman).sortBy(-_.roman.length) match {
         case (s @ Symbol(romanSymbol, value, repeatable)) :: _ =>
-          if (s == lastSymbol && !repeatable) 
-            throw new IllegalArgumentException(s"Symbol $romanSymbol cannot be repeated")
-          else if (value > lastSymbol.value) 
-            throw new IllegalArgumentException(s"Illegal ordering of symbols: ${lastSymbol.roman}$romanSymbol")
-          value + convert(roman.substring(romanSymbol.length), s)
-        case Nil if roman.isEmpty => 0
-        case Nil => throw new IllegalArgumentException(s"Illegal Roman Numeral: $roman")
+          if (s == lastSymbol && !repeatable) Left(s"Symbol $romanSymbol cannot be repeated")
+          else if (value > lastSymbol.value) Left(s"Illegal ordering of symbols: ${lastSymbol.roman}$romanSymbol")
+          else convert(roman.substring(romanSymbol.length), s).map(_ + value)
+        case Nil if roman.isEmpty => Right(0)
+        case Nil => Left(s"Illegal Roman Numeral: $roman")
       }
     }
     

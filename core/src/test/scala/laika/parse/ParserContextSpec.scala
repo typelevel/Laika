@@ -67,8 +67,8 @@ class ParserContextSpec extends WordSpec with Matchers {
       context.consume(4).capture(3) shouldBe "def"
     }
 
-    "should throw an exception when trying to capture more characters than are remaining" in {
-      an [IndexOutOfBoundsException] should be thrownBy context.consume(5).capture(7)
+    "should capture all remaining characters when trying to capture more characters than are available" in {
+      context.consume(5).capture(7) shouldBe "ef" 
     }
 
     "should provide the input reversed" in {

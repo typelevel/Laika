@@ -30,14 +30,12 @@ sealed abstract class Parsed[+T] {
   val next: ParserContext
 
   /** Indicates whether this results represents a successful
-    * parser invocation. The `get` method will throw on instances
-    * where this method returns `false`.
+    * parser invocation.
     */
   val isSuccess: Boolean
 
   /** Indicates whether this results represents an unsuccessful
-    * parser invocation. The `get` method will throw on instances
-    * where this method returns `true`.
+    * parser invocation.
     */
   def isFailure: Boolean = !isSuccess
 

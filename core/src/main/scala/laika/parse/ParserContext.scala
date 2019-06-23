@@ -46,18 +46,18 @@ case class ParserContext (source: Source, offset: Int, nestLevel: Int) {
 
   /** The character at the specified offset, relative from the current offset.
     */
-  def charAt (relativeOffset: Int): Char = {
-    val i = offset + relativeOffset
-    if (i < input.length) input.charAt(i) else throw new IndexOutOfBoundsException(i.toString)
-  }
+  def charAt (relativeOffset: Int): Char = input.charAt(offset + relativeOffset)
 
   /** Captures a string containing the specified number of characters from the current offset.
-    * Throws an exception if the number of characters left is less than the specified number.
+    * If the number of remaining characters is less than the specified number, all remaining
+    * characters will be returned.
     */
-  def capture (numChars: Int): String =
-    if (numChars == 0) ""
-    else if (numChars < 0 || numChars + offset > input.length) throw new IndexOutOfBoundsException(numChars.toString)
-    else input.substring(offset, offset + numChars)
+  def capture (numChars: Int): String = {
+    require(numChars >= 0, "numChars cannot be negative")
+    
+    val endIndex = Math.min(input.length, offset + numChars)
+    input.substring(offset, endIndex)
+  }
 
   /** Consumes the specified number of characters, returning a new `ParserContext`
     * with the new offset.
