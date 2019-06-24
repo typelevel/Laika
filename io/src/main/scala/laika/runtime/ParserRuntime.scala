@@ -6,7 +6,6 @@ import com.typesafe.config.ConfigFactory
 import laika.ast.{TemplateDocument, _}
 import laika.bundle.ConfigProvider
 import laika.io.model.{DirectoryInput, InputCollection, ParsedTree, TextFileInput, TextInput}
-import laika.parse.markup.DocumentParser
 import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
 import com.typesafe.config.{Config => TConfig}
 import cats.implicits._
@@ -33,6 +32,8 @@ object ParserRuntime {
   }
   
   private object interimModel {
+
+    import laika.collection.TransitionalCollectionOps._
     
     sealed trait ParserResult extends Navigatable
     
@@ -50,6 +51,35 @@ object ParserRuntime {
     case class TreeResult (tree: DocumentTree) extends ParserResult {
       val path: Path = tree.path
     }
+
+    def buildNode (baseConfig: TConfig)(path: Path, content: Seq[ParserResult]): TreeResult = {
+      def isTitleDoc (doc: Document): Boolean = doc.path.basename == "title"
+      val titleDoc = content.collectFirst { case MarkupResult(doc) if isTitleDoc(doc) => doc }
+      val subTrees = content.collect { case TreeResult(doc) => doc }.sortBy(_.path.name)
+      val treeContent = content.collect { case MarkupResult(doc) if !isTitleDoc(doc) => doc } ++ subTrees
+      val templates = content.collect { case TemplateResult(doc) => doc }
+
+      val treeConfig = content.collect { case ConfigResult(_, config) => config }
+      val rootConfig = if (path == Path.Root) Seq(baseConfig) else Nil
+      val fullConfig = (treeConfig.toList ++ rootConfig) reduceLeftOption (_ withFallback _) getOrElse ConfigFactory.empty
+
+      TreeResult(DocumentTree(path, treeContent, titleDoc, templates, fullConfig))
+    }
+
+    def buildTree (results: Seq[ParserResult], baseConfig: TConfig): DocumentTreeRoot = {
+      val coverDoc = results.collectFirst {
+        case MarkupResult(doc) if doc.path.parent == Root && doc.path.basename == "cover" => doc
+      }
+      val tree = TreeBuilder.build(results.filterNot(res => coverDoc.exists(_.path == res.path)), buildNode(baseConfig)).tree
+
+      val styles = results
+        .collect { case StyleResult(styleSet, format) => (format, styleSet) }
+        .groupBy(_._1)
+        .mapValuesStrict(_.map(_._2).reduce(_ ++ _))
+        .withDefaultValue(StyleDeclarationSet.empty)
+
+      DocumentTreeRoot(tree, coverDoc, styles)
+    }
     
   }
 
@@ -60,7 +90,6 @@ object ParserRuntime {
     
     import DocumentType._
     import interimModel._
-    import laika.collection.TransitionalCollectionOps._
 
     def selectParser (path: Path): ValidatedNel[Throwable, MarkupParser] = op.parsers match {
       case NonEmptyList(parser, Nil) => parser.validNel
@@ -69,13 +98,6 @@ object ParserRuntime {
         .toValidNel(NoMatchingParser(path, multiple.toList.flatMap(_.fileSuffixes).toSet))
     }
       
-    // TODO - 0.12 - create these in Op or OperationConfig
-    lazy val templateParser: Option[ParserInput => Either[ParserError, TemplateDocument]] = op.config.templateParser map { rootParser =>
-      DocumentParser.forTemplate(rootParser, op.config.configHeaderParser)
-    }
-    lazy val styleSheetParser: ParserInput => Either[ParserError, StyleDeclarationSet] = 
-      DocumentParser.forStyleSheets(op.config.styleSheetParser)
-    
     def parseAll(inputs: InputCollection): F[ParsedTree] = {
       
       def validateInputPaths: F[Unit] = {
@@ -89,58 +111,27 @@ object ParserRuntime {
         else Async[F].raiseError(ParserErrors(duplicates.toSeq))
       }
 
-      // TODO - 0.12 - remove once all underlying parsers produce Eithers
-      def parseDocumentTemp[D] (input: TextInput, parse: ParserInput => D, result: D => ParserResult): F[ParserResult] =
-        parseDocument(input, in => Right(parse(in)), result)
-      
       def parseDocument[D] (input: TextInput, parse: ParserInput => Either[ParserError, D], result: D => ParserResult): F[ParserResult] =
         InputRuntime.readParserInput(input).flatMap(in => Async[F].fromEither(parse(in).map(result)))
       
       val createOps: Either[Throwable, Vector[F[ParserResult]]] = inputs.textInputs.toVector.map { in => in.docType match {
         case Markup             => selectParser(in.path).map(parser => Vector(parseDocument(in, parser.parse, MarkupResult)))
-        case Template           => templateParser.map(parseDocument(in, _, TemplateResult)).toVector.validNel
-        case StyleSheet(format) => Vector(parseDocument(in, styleSheetParser, StyleResult(_, format))).validNel
-        case Config             => Vector(parseDocumentTemp(in, ConfigProvider.fromInput, ConfigResult(in.path, _))).validNel
+        case Template           => op.templateParser.map(parseDocument(in, _, TemplateResult)).toVector.validNel
+        case StyleSheet(format) => Vector(parseDocument(in, op.styleSheetParser, StyleResult(_, format))).validNel
+        case Config             => Vector(parseDocument(in, ConfigProvider.fromInput, ConfigResult(in.path, _))).validNel
       }}.combineAll.toEither.leftMap(es => ParserErrors(es.toList))
       
-      def buildNode (path: Path, content: Seq[ParserResult]): TreeResult = {
-        def isTitleDoc (doc: Document): Boolean = doc.path.basename == "title"
-        val titleDoc = content.collectFirst { case MarkupResult(doc) if isTitleDoc(doc) => doc }
-        val subTrees = content.collect { case TreeResult(doc) => doc }.sortBy(_.path.name)
-        val treeContent = content.collect { case MarkupResult(doc) if !isTitleDoc(doc) => doc } ++ subTrees
-        val templates = content.collect { case TemplateResult(doc) => doc }
-
-        val treeConfig = content.collect { case ConfigResult(_, config) => config }
-        val rootConfig = if (path == Path.Root) Seq(op.config.baseConfig) else Nil
-        val fullConfig = (treeConfig.toList ++ rootConfig) reduceLeftOption (_ withFallback _) getOrElse ConfigFactory.empty
-
-        TreeResult(DocumentTree(path, treeContent, titleDoc, templates, fullConfig))
-      }
-
-      def processResults (results: Seq[ParserResult]): ParsedTree = {
-        val coverDoc = results.collectFirst {
-          case MarkupResult(doc) if doc.path.parent == Root && doc.path.basename == "cover" => doc
-        }
-        val tree = TreeBuilder.build(results.filterNot(res => coverDoc.exists(_.path == res.path)), buildNode).tree
-
-        val styles = results // TODO - 0.12 - move this logic
-          .collect { case StyleResult(styleSet, format) => (format, styleSet) }
-          .groupBy(_._1)
-          .mapValuesStrict(_.map(_._2).reduce(_ ++ _))
-          .withDefaultValue(StyleDeclarationSet.empty)
-
-        val finalTree = if (op.parsers.exists(_.rewrite)) tree.rewrite(op.config.rewriteRules) else tree
-
-        val root = DocumentTreeRoot(finalTree, coverDoc, styles, inputs.binaryInputs.map(_.path), inputs.sourcePaths)
-        ParsedTree(root, inputs.binaryInputs)
+      def rewriteTree (root: DocumentTreeRoot): ParsedTree = {
+        val finalTree = if (op.parsers.exists(_.rewrite)) root.rewrite(op.config.rewriteRules) else root
+        val finalRoot = finalTree.copy(staticDocuments = inputs.binaryInputs.map(_.path), sourcePaths = inputs.sourcePaths)
+        ParsedTree(finalRoot, inputs.binaryInputs)
       }
       
       for {
         _       <- validateInputPaths
         ops     <- Async[F].fromEither(createOps)
         results <- implicitly[Runtime[F]].runParallel(ops)
-      } yield processResults(results)
-      
+      } yield rewriteTree(buildTree(results, op.config.baseConfig))
     }
     
     op.input flatMap {

@@ -20,9 +20,11 @@ import cats.data.NonEmptyList
 import cats.effect.{Async, ContextShift}
 import laika.api.MarkupParser
 import laika.api.builder.{OperationConfig, ParserBuilder}
-import laika.ast.{DocumentType, TextDocumentType}
+import laika.ast.{DocumentType, StyleDeclarationSet, TemplateDocument, TextDocumentType}
 import laika.io.model.{ParsedTree, TreeInput}
 import laika.io.ops.ParallelInputOps
+import laika.parse.markup.DocumentParser
+import laika.parse.markup.DocumentParser.{ParserError, ParserInput}
 import laika.runtime.{ParserRuntime, Runtime}
 
 /** Parser for a tree of input documents.
@@ -109,6 +111,20 @@ object ParallelParser {
     /** The merged configuration of all markup parsers of this operation.
       */
     lazy val config: OperationConfig = parsers.map(_.config).reduceLeft[OperationConfig](_ merge _)
+
+    /** The template parser for this operation. If this property is empty
+      * templating is not supported for this operation.
+      */
+    lazy val templateParser: Option[ParserInput => Either[ParserError, TemplateDocument]] = config.templateParser map { rootParser =>
+      DocumentParser.forTemplate(rootParser, config.configHeaderParser)
+    }
+
+    /** The parser for CSS documents for this operation. Currently CSS input
+      * will only be parsed for PDF output, in case of HTML or EPUB formats
+      * CSS documents will merely copied to the target format.
+      */
+    lazy val styleSheetParser: ParserInput => Either[ParserError, StyleDeclarationSet] =
+      DocumentParser.forStyleSheets(config.styleSheetParser)
 
     /** Performs the parsing operation based on the library's
       * default runtime implementation, suspended in the effect F.
