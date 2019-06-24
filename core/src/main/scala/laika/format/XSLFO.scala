@@ -16,10 +16,8 @@
 
 package laika.format
 
-import laika.ast.{Element, Path, StyleDeclarationSet}
+import laika.ast.Element
 import laika.factory.{RenderContext, RenderFormat}
-import laika.parse.css.CSSParsers
-import laika.parse.markup.DocumentParser
 import laika.render._
 
 import scala.language.existentials
@@ -48,12 +46,7 @@ object XSLFO extends RenderFormat[FOFormatter] {
 
   override lazy val defaultTheme: Theme = Theme(
     defaultTemplate = Some(FOTemplate.default),
-    defaultStyles = styleResource
+    defaultStyles = FOStyles.default
   )
-
-  private lazy val styleResource: StyleDeclarationSet = {
-    val input = TempResourceProvider.classPathParserInput("/styles/default.fo.css", Path.Root / "default.fo.css")
-    DocumentParser.forStyleSheets(CSSParsers.styleDeclarationSet)(input).right.get // TODO - 0.12 - temporary
-  }
 
 }

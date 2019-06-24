@@ -468,7 +468,7 @@ class XSLFORendererSpec extends FlatSpec
   it should "render a table with a caption" in {
     val caption = Caption(List(Text("caption")))
     val elem = table(row(cell("a"),cell("b")),row(cell("c"),cell("d"))).copy(caption = caption)
-    val html = """<fo:block background-color="#cccccc" padding-left="2cm" padding-right="2cm" space-after="6mm">
+    val html = """<fo:block background-color="#cccccc" padding-left="20mm" padding-right="20mm" space-after="6mm">
       |  <fo:block font-family="sans-serif" font-size="12pt" font-weight="bold" space-after="3mm">caption</fo:block>
       |  <fo:table space-after="6mm">
       |    <fo:table-body>
@@ -513,7 +513,7 @@ class XSLFORendererSpec extends FlatSpec
   
   it should "render a titled block" in {
     val elem = TitledBlock(List(txt("some "), em("em"), txt(" text")), List(p("aaa"), Rule(), p("bbb")))
-    val html = """<fo:block background-color="#cccccc" padding-left="2cm" padding-right="2cm" space-after="6mm">
+    val html = """<fo:block background-color="#cccccc" padding-left="20mm" padding-right="20mm" space-after="6mm">
       |  <fo:block font-family="sans-serif" font-size="12pt" font-weight="bold" space-after="3mm">some <fo:inline font-style="italic">em</fo:inline> text</fo:block>
       |  <fo:block font-family="serif" font-size="10pt" space-after="3mm">aaa</fo:block>
       |  <fo:leader leader-pattern="rule"></fo:leader>
@@ -538,8 +538,8 @@ class XSLFORendererSpec extends FlatSpec
   
   it should "render nested line blocks" in {
     val elem = lb(lb(line("1"),line("2")), line("3"))
-    val html = """<fo:block margin-left="2cm">
-      |  <fo:block margin-left="2cm">
+    val html = """<fo:block margin-left="20mm">
+      |  <fo:block margin-left="20mm">
       |    <fo:block>1</fo:block>
       |    <fo:block>2</fo:block>
       |  </fo:block>
