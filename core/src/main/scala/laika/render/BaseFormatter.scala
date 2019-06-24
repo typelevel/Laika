@@ -21,15 +21,17 @@ import laika.ast._
 /** API basis for renderers that produce character output.
  *  
  *  @param renderChild the function to use for rendering child elements
- *  @param elementStack the stack of parent elements of this formatter in recursive rendering, 
-  *                     with the root element being the last in the list
+ *  @param currentElement the active element currently being rendered                   
+ *  @param parents the stack of parent elements of this formatter in recursive rendering, 
+ *                 with the root element being the last in the list
  *  @param indentation the indentation mechanism for this formatter
  *  @param messageLevel the minimum severity level for a system message to be rendered                   
  * 
  *  @author Jens Halm
  */
 abstract class BaseFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Element) => String,
-                                                         elementStack: List[Element],
+                                                         currentElement: Element,
+                                                         parents: List[Element],
                                                          indentation: Indentation,
                                                          messageLevel: MessageLevel) { this: Rep =>
   
@@ -37,13 +39,8 @@ abstract class BaseFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Elem
     */
   val newLine: String = indentation.newLine
 
-  /** The parents of the currently rendered element in the AST, 
-    * with the root element being the last in the list. 
-    */
-  val parents: Seq[Element] = elementStack.tail
   
-  
-  private def renderCurrentElement: String = renderChild(this, elementStack.head)
+  private def renderCurrentElement: String = renderChild(this, currentElement)
   
   private lazy val nextLevel: Rep = if (indentation == Indentation.none) this else withIndentation(indentation.nextLevel)
 

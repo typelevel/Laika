@@ -22,8 +22,9 @@ import laika.factory.RenderContext
 /** API for renderers that produce XSL-FO output.
  * 
  * @param renderChild the function to use for rendering child elements
- * @param elementStack the stack of parent elements of this formatter in recursive rendering,
- *                     with the root element being the last in the list
+ * @param currentElement the active element currently being rendered                             
+ * @param parents the stack of parent elements of this formatter in recursive rendering, 
+ *                with the root element being the last in the list
  * @param path        the virtual path of the document getting rendered, used for generating unique ids
  * @param styles      the styles to apply when writing the attributes of an element
  * @param indentation the indentation mechanism for this formatter
@@ -32,20 +33,21 @@ import laika.factory.RenderContext
  * @author Jens Halm
  */
 case class FOFormatter (renderChild: (FOFormatter, Element) => String,
-                        elementStack: List[Element], // TODO - 0.12 - should be Nel
+                        currentElement: Element,
+                        parents: List[Element],
                         path: Path,
                         styles: StyleDeclarationSet,
                         indentation: Indentation,
                         messageLevel: MessageLevel) extends 
-  TagFormatter[FOFormatter](renderChild, elementStack, indentation, messageLevel) with FOProperties {
+  TagFormatter[FOFormatter](renderChild, currentElement, parents, indentation, messageLevel) with FOProperties {
 
   type StyleHint = Element
 
-  protected def withChild (element: Element): FOFormatter = copy(elementStack = element :: elementStack)
+  protected def withChild (element: Element): FOFormatter = copy(parents = currentElement :: parents, currentElement = element)
 
   protected def withIndentation (newIndentation: Indentation): FOFormatter = copy(indentation = newIndentation)
 
-  private lazy val (footnotes, citations) = elementStack.last match {
+  private lazy val (footnotes, citations) = parents.lastOption.getOrElse(currentElement) match {
     case et: ElementTraversal => (
       et collect { case f: Footnote if f.options.id.isDefined => (f.options.id.get, f) } toMap,
       et collect { case c: Citation if c.options.id.isDefined => (c.options.id.get, c) } toMap
@@ -309,7 +311,7 @@ object FOFormatter extends (RenderContext[FOFormatter] => FOFormatter) {
   /** Creates a new formatter instance based on the specified render context.
     */
   def apply(context: RenderContext[FOFormatter]): FOFormatter =
-    FOFormatter(context.renderChild, List(context.root), context.path, context.styles, context.indentation, context.config.minMessageLevel)
+    FOFormatter(context.renderChild, context.root, Nil, context.path, context.styles, context.indentation, context.config.minMessageLevel)
   
 }
 

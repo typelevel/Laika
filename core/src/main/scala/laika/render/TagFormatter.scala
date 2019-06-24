@@ -25,19 +25,21 @@ import scala.collection.mutable
  *  with special characters as entities and for conveniently writing
  *  tags with attributes.
  * 
- *  @param renderChild  the function to use for rendering child elements
- *  @param elementStack the stack of parent elements of this formatter in recursive rendering, 
- *                      with the root element being the last in the list
- *  @param indentation  the indentation mechanism for this formatter
- *  @param messageLevel the minimum severity level for a system message to be rendered    
-  *                      
+ *  @param renderChild   the function to use for rendering child elements
+ *  @param currentElement the active element currently being rendered                   
+ *  @param parents the stack of parent elements of this formatter in recursive rendering, 
+ *                 with the root element being the last in the list
+ *  @param indentation   the indentation mechanism for this formatter
+ *  @param messageLevel  the minimum severity level for a system message to be rendered   
+ *                       
  *  @author Jens Halm
  */
 abstract class TagFormatter[Rep <: BaseFormatter[Rep]] (renderChild: (Rep, Element) => String,
-                                                        elementStack: List[Element],
+                                                        currentElement: Element,
+                                                        parents: List[Element],
                                                         indentation: Indentation,
                                                         messageLevel: MessageLevel) extends 
-  BaseFormatter[Rep](renderChild, elementStack, indentation, messageLevel) { this: Rep =>
+  BaseFormatter[Rep](renderChild, currentElement, parents, indentation, messageLevel) { this: Rep =>
   
   type StyleHint
   

@@ -23,25 +23,27 @@ import laika.factory.RenderContext
 /** API for renderers that produce HTML output.
  * 
  * @param renderChild the function to use for rendering child elements
- * @param elementStack the stack of parent elements of this formatter in recursive rendering, 
- *                     with the root element being the last in the list
+ * @param currentElement the active element currently being rendered                       
+ * @param parents the stack of parent elements of this formatter in recursive rendering, 
+ *                with the root element being the last in the list
  * @param indentation the indentation mechanism for this formatter
  * @param messageLevel the minimum severity level for a system message to be rendered  
  *                   
  *  @author Jens Halm
  */
 case class HTMLFormatter (renderChild: (HTMLFormatter, Element) => String,
-                          elementStack: List[Element],
+                          currentElement: Element,
+                          parents: List[Element],
                           indentation: Indentation,
                           messageLevel: MessageLevel,
                           closeEmptyTags: Boolean) extends 
-  TagFormatter[HTMLFormatter](renderChild, elementStack, indentation, messageLevel) {
+  TagFormatter[HTMLFormatter](renderChild, currentElement, parents, indentation, messageLevel) {
 
   val emptyTagClosingChar: String = if (closeEmptyTags) "/" else ""
   
   type StyleHint = Options
   
-  protected def withChild (element: Element): HTMLFormatter = copy(elementStack = element :: elementStack)
+  protected def withChild (element: Element): HTMLFormatter = copy(parents = currentElement :: parents, currentElement = element)
 
   protected def withIndentation (newIndentation: Indentation): HTMLFormatter = copy(indentation = newIndentation)
   
@@ -62,7 +64,7 @@ case class HTMLFormatter (renderChild: (HTMLFormatter, Element) => String,
   */
 object HTMLFormatter extends (RenderContext[HTMLFormatter] => HTMLFormatter) {
   def apply (context: RenderContext[HTMLFormatter]): HTMLFormatter =
-    HTMLFormatter(context.renderChild, List(context.root), context.indentation, 
+    HTMLFormatter(context.renderChild, context.root, Nil, context.indentation, 
       context.config.minMessageLevel, closeEmptyTags = false)
 }
 
@@ -73,6 +75,6 @@ object HTMLFormatter extends (RenderContext[HTMLFormatter] => HTMLFormatter) {
   */
 object XHTMLFormatter extends (RenderContext[HTMLFormatter] => HTMLFormatter) {
   def apply (context: RenderContext[HTMLFormatter]): HTMLFormatter =
-    HTMLFormatter(context.renderChild, List(context.root), context.indentation,
+    HTMLFormatter(context.renderChild, context.root, Nil, context.indentation,
       context.config.minMessageLevel, closeEmptyTags = true)
 }
