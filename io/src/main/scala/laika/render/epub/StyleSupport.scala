@@ -1,11 +1,7 @@
 package laika.render.epub
 
-import laika.ast.{DocumentTreeRoot, Path, TemplateDocument}
-import laika.directive.StandardDirectives
+import laika.ast.{DocumentTreeRoot, Path}
 import laika.io.model.{BinaryInput, RenderedTreeRoot}
-import laika.parse.directive.TemplateParsers
-import laika.parse.markup.DocumentParser.ParserInput
-import laika.parse.text.TextParsers.unsafeParserFunction
 
 /** Processes CSS inputs for EPUB containers.
   *
@@ -30,16 +26,6 @@ object StyleSupport {
   def ensureContainsStyles (root: DocumentTreeRoot): DocumentTreeRoot = {
     if (root.staticDocuments.exists(_.suffix == "css")) root
     else root.copy(staticDocuments = root.staticDocuments :+ fallbackStylePath)
-  }
-
-  /** Parser for the EPUB-XHTML default template that supports the `styleLinks` directive.
-    */
-  object XHTMLTemplateParser extends TemplateParsers(
-      Map(StandardDirectives.styleLinksDirective.name -> StandardDirectives.styleLinksDirective)) {
-    def parse (input: ParserInput): TemplateDocument = {
-      val root = unsafeParserFunction(templateRoot)(input.context)
-      TemplateDocument(input.path, root)
-    }
   }
 
 }
