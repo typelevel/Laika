@@ -16,14 +16,10 @@
 
 package laika.format
 
-import laika.ast.{Element, Path, StyleDeclarationSet, TemplateDocument}
-import laika.directive.StandardDirectives
+import laika.ast.{Element, Path, StyleDeclarationSet}
 import laika.factory.{RenderContext, RenderFormat}
 import laika.parse.css.CSSParsers
-import laika.parse.directive.TemplateParsers
 import laika.parse.markup.DocumentParser
-import laika.parse.markup.DocumentParser.ParserInput
-import laika.parse.text.TextParsers.unsafeParserFunction
 import laika.render._
 
 import scala.language.existentials
@@ -44,7 +40,6 @@ import scala.language.existentials
  */
 object XSLFO extends RenderFormat[FOFormatter] {
   
-  
   val fileSuffix = "fo"
 
   val defaultRenderer: (FOFormatter, Element) => String = FORenderer
@@ -52,7 +47,7 @@ object XSLFO extends RenderFormat[FOFormatter] {
   val formatterFactory: RenderContext[FOFormatter] => FOFormatter = FOFormatter
 
   override lazy val defaultTheme: Theme = Theme(
-    defaultTemplate = Some(templateResource.content),
+    defaultTemplate = Some(FOTemplate.default),
     defaultStyles = styleResource
   )
 
@@ -60,14 +55,5 @@ object XSLFO extends RenderFormat[FOFormatter] {
     val input = TempResourceProvider.classPathParserInput("/styles/default.fo.css", Path.Root / "default.fo.css")
     DocumentParser.forStyleSheets(CSSParsers.styleDeclarationSet)(input).right.get // TODO - 0.12 - temporary
   }
-
-  class XSLFOTemplateParser extends TemplateParsers(Map("for"->StandardDirectives.templateFor)) {
-    def parse (input: ParserInput): TemplateDocument = {
-      val root = unsafeParserFunction(templateRoot)(input.context)
-      TemplateDocument(input.path, root)
-    }
-  }
-  private lazy val templateResource: TemplateDocument =
-    new XSLFOTemplateParser().parse(TempResourceProvider.classPathParserInput("/templates/default.template.fo", Path.Root / "default.template.fo"))
 
 }
