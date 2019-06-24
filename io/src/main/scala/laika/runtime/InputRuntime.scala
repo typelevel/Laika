@@ -74,33 +74,4 @@ object InputRuntime {
       if (autoClose) Resource.fromAutoCloseable(streamF) else Resource.liftF(streamF)
   }
   
-  // TODO - 0.12 - temporary solution
-  def classPathParserInput (resourcePath: String, virtualPath: Path)(implicit codec: Codec): ParserInput = {
-
-    def readAll (reader: Reader, sizeHint: Int): String = {
-
-      val arr = new Array[Char](sizeHint)
-      val buffer = new StringBuilder
-      var numCharsRead: Int = 0
-
-      while ({numCharsRead = reader.read(arr, 0, arr.length); numCharsRead != -1}) {
-        buffer.appendAll(arr, 0, numCharsRead)
-      }
-
-      buffer.toString
-    }
-
-    def autoClose [R, T] (resource: R)(f: R => T): T = resource match {
-      case c: Closeable => try f(resource) finally c.close
-      case _ => f(resource)
-    }
-
-    val stream = getClass.getResourceAsStream(resourcePath)
-    autoClose(stream){ in =>
-      val reader = new BufferedReader(new InputStreamReader(in, codec.decoder))
-      val content = readAll(reader, 8 * 1024)
-      ParserInput(virtualPath, ParserContext(content))
-    }
-  }
-  
 }

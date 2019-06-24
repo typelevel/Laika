@@ -16,9 +16,7 @@
 
 package laika.parse.combinator
 
-import laika.ast.Path
 import laika.parse._
-import laika.parse.markup.DocumentParser.ParserInput
 
 import scala.util.{Try, Failure => TFailure, Success => TSuccess}
 
@@ -70,7 +68,7 @@ trait Parsers {
     Parser { in =>
       if (in.offset - offset < 0) Failure(errMsg(offset), in)
       p.parse(in.consume(offset)) match{
-        case s@ Success(s1,_) => Success(s1, in)
+        case Success(s1, _) => Success(s1, in)
         case e => e
       }
     }
@@ -100,9 +98,9 @@ trait Parsers {
 
   /** A parser that succeeds if the specified parser succeeds and all input has been consumed.
     */
-  def consumeAll[T] (p: Parser[T]) = Parser[T] { in =>
+  def consumeAll[T] (p: Parser[T]): Parser[T] = Parser[T] { in =>
     p.parse(in) match {
-      case s @ Success(out, next) =>
+      case s @ Success(_, next) =>
         if (next.atEnd) s
         else Failure(Message.ExpectedEOF, next)
       case e => e
@@ -110,18 +108,6 @@ trait Parsers {
   }
 
   case class ParserException (result: Failure) extends RuntimeException(result.toString)
-
-  // TODO - 0.12 - remove once all resources are embedded
-  def unsafeParserFunction[T] (parser: Parser[T]): ParserContext => T = {
-    val baseParser = Parsers.consumeAll(parser);
-    { ctx: ParserContext =>
-      baseParser.parse(ctx) match {
-        case Success(result, _) => result
-        case ns: Failure        => throw ParserException(ns)
-      }
-
-    }
-  }
 
   /** Provides additional methods to `Try` via implicit conversion.
    */

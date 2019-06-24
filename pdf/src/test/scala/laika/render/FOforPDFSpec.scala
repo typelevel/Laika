@@ -20,15 +20,15 @@ import java.io.ByteArrayOutputStream
 
 import cats.effect.{Async, ContextShift, IO}
 import laika.api.Renderer
-import laika.ast.{DocumentTreeRoot, Path, TemplateRoot}
-import laika.runtime.{InputRuntime, OutputRuntime}
+import laika.ast.{DocumentTreeRoot, TemplateRoot}
 import laika.factory.{BinaryPostProcessor, RenderFormat, TwoPhaseRenderFormat}
 import laika.format.{PDF, XSLFO}
 import laika.io.Parallel
 import laika.io.binary.ParallelRenderer
+import laika.io.helper.RenderResult
 import laika.io.model.{BinaryOutput, RenderedTreeRoot}
 import laika.render.pdf.{FOConcatenation, PDFConfigBuilder, PDFNavigation}
-import laika.runtime.Runtime
+import laika.runtime.{OutputRuntime, Runtime}
 import laika.runtime.TestContexts.{blockingContext, processingContext}
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -65,8 +65,6 @@ class FOforPDFSpec extends FlatSpec with Matchers {
   
   trait ResultModel {
     
-    private lazy val defaultTemplate = InputRuntime.classPathParserInput("/templates/default.template.fo", Path.Root / "default.template.fo").context.input
-
     def results (num: Int): String = (1 to num) map (result) reduce (_ + _)
     
     def idPrefix (num: Int): String = if (num > 4) "_tree2" else if (num > 2) "_tree1" else ""
@@ -118,11 +116,8 @@ class FOforPDFSpec extends FlatSpec with Matchers {
       s"""<fo:block font-family="serif" font-size="12pt" space-after="0mm" space-before="5mm" text-align-last="justify"><fo:basic-link color="#3956ac" internal-destination="_tree${num}_title_">$title<fo:leader leader-pattern="dots"></fo:leader><fo:page-number-citation ref-id="_tree${num}_title_" /></fo:basic-link></fo:block>""" + "\n"
     }
 
-
-    def withDefaultTemplate(result: String, bookmarks: String = ""): String = {
-      defaultTemplate.replace("{{document.content}}", result).replace("{{document.fragments.bookmarks}}", bookmarks).replaceAll("(?s)@.*  }", "")
-    }
-      
+    def withDefaultTemplate(result: String, bookmarks: String = ""): String = RenderResult.fo.withDefaultTemplate(result, bookmarks)
+    
     def bookmarkTreeResult(treeNum: Int, docNum: Int, titleDoc: Boolean = false): String = {
       val title = if (!titleDoc) s"Tree ${treeNum+1} &amp; More" else s"Title Doc ${treeNum+1}"
       s"""    <fo:bookmark internal-destination="_tree${treeNum}_title_">

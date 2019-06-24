@@ -1,35 +1,31 @@
 package laika.io.helper
 
-import laika.ast.Path.Root
-import laika.runtime.InputRuntime
+import laika.ast.{TemplateRoot, TemplateString}
+import laika.render.{FOTemplate, HTMLTemplate}
+import laika.render.epub.{HtmlTemplate => EPUBTemplate}
 
 object RenderResult {
+  
+  private def buildResult (template: TemplateRoot, insertions: Seq[String]): String = {
+    val it = insertions.iterator
+    template.content.map {
+      case TemplateString(content, _) => content
+      case _ => it.next
+    }.mkString
+  }
+    
 
   object html {
-    
-    private lazy val defaultTemplate = InputRuntime.classPathParserInput("/templates/default.template.html", Root / "default.template.html").context.input
-    
-    def withDefaultTemplate(title: String, content: String): String =
-      defaultTemplate.replace("{{document.title}}", title).replace("{{document.content}}", content)
-    
+    def withDefaultTemplate(title: String, content: String): String = buildResult(HTMLTemplate.default, Seq(title, content))
   }
 
   object epub {
-
-    private lazy val defaultTemplate = InputRuntime.classPathParserInput("/templates/default.template.epub.xhtml", Root / "default.template.epub.xhtml").context.input
-
-    def withDefaultTemplate(title: String, content: String): String =
-      defaultTemplate.replace("{{document.title}}", title).replace("{{document.content}}", content).replace("@:styleLinks.", "")
-
+    def withDefaultTemplate(title: String, content: String): String = buildResult(EPUBTemplate.default, Seq(title, "", content))
   }
   
   object fo {
-    
-    private lazy val defaultTemplate = InputRuntime.classPathParserInput("/templates/default.template.fo", Root / "default.template.fo").context.input
-    
-    def withDefaultTemplate(content: String): String =
-      defaultTemplate.replace("{{document.content}}", content).replace("{{document.fragments.bookmarks}}", "").replaceAll("(?s)@.*  }", "")
-
+    def withDefaultTemplate(content: String): String = buildResult(FOTemplate.default, Seq("", "", content))
+    def withDefaultTemplate(result: String, bookmarks: String = ""): String = buildResult(FOTemplate.default, Seq(bookmarks, "", result))
   }
   
 }
