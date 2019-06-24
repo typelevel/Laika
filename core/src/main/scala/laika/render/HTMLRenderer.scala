@@ -73,7 +73,6 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
         case BulletListItem(content,_,opt)    => renderBlocks("li", opt, content)
         case EnumListItem(content,_,_,opt)    => renderBlocks("li", opt, content)
         case DefinitionListItem(term,defn,_)  => fmt.element("dt", NoOpt, term) + fmt.newLine + renderBlocks("dd", NoOpt, defn)
-        case LineBlock(content,opt)           => fmt.indentedElement("div", opt + Styles("line-block"), content)
         case Figure(img,caption,legend,opt)   => fmt.indentedElement("div", opt + Styles("figure"), figureContent(img,caption,legend))
 
         case Footnote(label,content,opt)      => renderTable(toTable(label,content,opt + Styles("footnote")))
@@ -178,6 +177,7 @@ class HTMLRenderer (fileSuffix: String) extends ((HTMLFormatter, Element) => Str
     def renderSimpleBlock (block: Block): String = block match {
       case Rule(opt)                   => fmt.emptyElement("hr", opt)
       case InternalLinkTarget(opt)     => fmt.textElement("a", opt, "")
+      case LineBlock(content,opt)      => fmt.indentedElement("div", opt + Styles("line-block"), content)
       case TargetFormat("html",e,_)    => fmt.child(e)
       case TargetFormat("xhtml",e,_)   => fmt.child(e)
 

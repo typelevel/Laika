@@ -579,7 +579,9 @@ case class DefinitionListItem (term: Seq[Span], content: Seq[Block], options: Op
 
 /** A single item inside a line block.
  */
-abstract class LineBlockItem extends Block
+abstract class LineBlockItem extends Block with RewritableContainer {
+  type Self <: LineBlockItem
+}
 
 /** A single line inside a line block.
  */
@@ -591,9 +593,9 @@ case class Line (content: Seq[Span], options: Options = NoOpt) extends LineBlock
 
 /** A block containing lines which preserve line breaks and optionally nested line blocks.
  */
-case class LineBlock (content: Seq[LineBlockItem], options: Options = NoOpt) extends LineBlockItem with BlockContainer {
+case class LineBlock (content: Seq[LineBlockItem], options: Options = NoOpt) extends LineBlockItem with ElementTraversal with RewritableContainer {
   type Self = LineBlock
-  def withContent (newContent: Seq[Block]): LineBlock = copy(content = newContent.asInstanceOf[Seq[LineBlockItem]]) // TODO - 0.12 - type mismatch
+  def rewriteChildren (rules: RewriteRules): LineBlock = copy(content = content.map(_.rewriteChildren(rules)))
   def withOptions (options: Options): LineBlock = copy(options = options)
 }
 

@@ -90,7 +90,6 @@ object FORenderer extends ((FOFormatter, Element) => String) {
         case e @ DefinitionListItem(term,defn,_)    => fmt.listItem(e, term, defn)
         case e @ ListItemBody(content,_)            => fmt.listItemBody(e, replaceSpanContainers(content))
 
-        case e @ LineBlock(content,_)           => fmt.blockContainer(e, content)
         case e @ Figure(img,caption,legend,_)   => fmt.blockContainer(e, figureContent(img,caption,legend))
 
         case e @ FootnoteBody(content,_)        => fmt.indentedElement("fo:footnote-body", e, content)
@@ -179,6 +178,7 @@ object FORenderer extends ((FOFormatter, Element) => String) {
       case e: BookmarkTree              => fmt.bookmarkTree(e)
       case e: Bookmark                  => fmt.bookmark(e)
       case e: PageBreak                 => fmt.block(e)
+      case e @ LineBlock(content,_)     => fmt.blockContainer(e, content)
       case TargetFormat("xslfo",e,_)    => fmt.child(e)
 
       case WithFallback(fallback)       => fmt.child(fallback)
