@@ -39,7 +39,7 @@ import org.scalatest.{Assertion, FlatSpec, Matchers}
 import scala.concurrent.ExecutionContext
 
 class ParallelTransformerSpec extends FlatSpec 
-                       with Matchers {
+                              with Matchers {
 
   implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
 
@@ -344,45 +344,6 @@ class ParallelTransformerSpec extends FlatSpec
       .unsafeRunSync()
     OutputBuilder.readFile(f) should be (expectedResult)
   }
-  
-// TODO - 0.12 - move these tests to the laika-core project  
-//  it should "render a tree with a RenderResultProcessor overriding the default renderer for specific element types" in new GatheringTransformer {
-//    val modifiedResult = expectedResult.replaceAllLiterally(". Text", ". String")
-//    val out = new ByteArrayOutputStream
-//    (Transformer.from(ReStructuredText).to(TestRenderResultProcessor rendering { 
-//      out => { case Text(content,_) => out << "String - '" << content << "'" } 
-//    } fromTreeInput input(dirs) toStream out).execute
-//    out.toString should be (modifiedResult)
-//  }
-//  
-//  it should "render a tree with a RenderResultProcessor with a custom rewrite rule" in new GatheringTransformer {
-//    val modifiedResult = expectedResult.replaceAllLiterally("Title'", "zzz'")
-//    val out = new ByteArrayOutputStream
-//    (Transformer.from(ReStructuredText).to(TestRenderResultProcessor usingSpanRule { 
-//      case Text(txt,_) => Replace(Text(txt.replaceAllLiterally("Title", "zzz"))) 
-//    } fromTreeInput input(dirs) toStream out).execute
-//    out.toString should be (modifiedResult)
-//  }
-//  
-//  it should "render a tree with a RenderResultProcessor with multiple custom rewrite rules" in new GatheringTransformer {
-//    val modifiedResult = expectedResult.replaceAllLiterally("Title'", "zzz'").replaceAllLiterally("bbb", "xxx")
-//    val out = new ByteArrayOutputStream
-//    (Transformer.from(ReStructuredText).to(TestRenderResultProcessor usingSpanRule { 
-//      case Text(txt,_) => Replace(Text(txt.replaceAllLiterally("Title", "zzz"))) 
-//    } usingSpanRule { 
-//      case Text("bbb",_) => Replace(Text("xxx")) 
-//    } fromTreeInput input(dirs) toStream out).execute
-//    out.toString should be (modifiedResult)
-//  }
-//  
-//  it should "render a tree with a RenderResultProcessor with a custom rewrite rule that depends on the document cursor" in new GatheringTransformer {
-//    val modifiedResult = expectedResult.replaceAllLiterally("Sub Title", "Sub docSub.rst")
-//    val out = new ByteArrayOutputStream
-//    (Transformer.from(ReStructuredText).to(TestRenderResultProcessor creatingRule { cursor => RewriteRules.forSpans { 
-//      case Text("Sub Title",_) => Replace(Text("Sub " + cursor.target.path.name))
-//    }} fromTreeInput input(dirs) toStream out).execute
-//    out.toString should be (modifiedResult)
-// }
   
   trait FileSystemTest {
     

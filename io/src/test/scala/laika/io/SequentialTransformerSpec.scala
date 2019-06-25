@@ -45,10 +45,6 @@ class SequentialTransformerSpec extends FlatSpec
     .build(processingContext, blockingContext)
   
   
-//  "The Transform API" should "transform from string to string" in {
-//    (transform transform input) should be (output)
-//  }
-  
   "The Transform API" should "transform from file to file" in {
     val inFile = getClass.getResource("/testInput2.md").getFile
     val outFile = File.createTempFile("output", null)
@@ -87,34 +83,4 @@ class SequentialTransformerSpec extends FlatSpec
     outStream.toString("ISO-8859-1") should be (output)
   }
   
-  // TODO - 0.12 - move these back to core
-//  it should "allow to override the default renderer for specific element types" in {
-//    val modifiedOutput = output.replaceAllLiterally(". Text", ". String")
-//    val transformCustom = transform rendering { case (_, Text(content,_)) => s"String - '$content'" }
-//    (transformCustom transform input) should be (modifiedOutput)
-//  }
-//  
-//  it should "allow to specify a custom rewrite rule" in {
-//    val modifiedOutput = output.replaceAllLiterally("äöü", "zzz")
-//    val transformCustom = transform usingSpanRule { case Text("Title äöü",_) => Replace(Text("Title zzz")) }
-//    (transformCustom transform input) should be (modifiedOutput)
-//  }
-//  
-//  it should "allow to specify multiple rewrite rules" in {
-//    val modifiedOutput = output.replaceAllLiterally("äöü", "zzz").replaceAllLiterally("text", "new")
-//    val transformCustom = transform usingSpanRule { case Text("Title äöü",_) => Replace(Text("Title zzz")) } usingSpanRule
-//                                                  { case Text("text",_)      => Replace(Text("new")) }
-//    (transformCustom transform input) should be (modifiedOutput)
-//  }
-//  
-//  it should "allow to specify a custom rewrite rule that depends on the document" in {
-//    val modifiedOutput = output.replaceAllLiterally("äöü", "2")
-//    val transformCustom = transform creatingRule { cursor => RewriteRules.forSpans { 
-//      case Text("Title äöü",_) => Replace(Text("Title " + cursor.target.content.content.length)) 
-//    }}
-//    (transformCustom transform input) should be (modifiedOutput)
-//  }
-
-  
 }
-  

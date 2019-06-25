@@ -20,7 +20,7 @@ import cats.effect.IO
 import org.scalatest.{Matchers, WordSpec}
 import cats.implicits._
 
-class ExecutorSpec extends WordSpec with Matchers {
+class BatchRuntimeSpec extends WordSpec with Matchers {
 
   trait Setup {
 

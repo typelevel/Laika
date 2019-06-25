@@ -44,9 +44,6 @@ class SequentialRendererSpec extends FlatSpec
       |. Paragraph - Spans: 1
       |. . Text - 'bbb'""".stripMargin
 
-//  "The Render API" should "render a document to a string" in {
-//    Renderer.of(AST).build.render(rootElem) should be (expected)
-//  }
 
   "The Render API" should "render a document to a file" in {
     val f = File.createTempFile("output", null)
@@ -75,12 +72,4 @@ class SequentialRendererSpec extends FlatSpec
     stream.toString("ISO-8859-1") should be (expected)
   }
 
-//  it should "allow to override the default renderer for specific element types" in {
-//    val render = Renderer.of(AST)rendering { case (_, Text(content,_)) => s"String - '$content'" }
-//    val modifiedResult = expected.replaceAllLiterally("Text", "String")
-//    (render render rootElem) should be (modifiedResult)
-//  }
-
-
 }
-  

@@ -69,6 +69,5 @@ class TransformAPISpec extends FlatSpec
     transformCustom.build.transform(input).toOption.get should be (modifiedOutput)
   }
 
-
 }
   
